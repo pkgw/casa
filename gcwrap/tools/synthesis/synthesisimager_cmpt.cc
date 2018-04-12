@@ -62,7 +62,7 @@ namespace casac {
 {
   
   // itsImager = new SynthesisImagerVi2();
- 
+  itsLog = new LogIO();
   //itsImager = new SynthesisImager();
   itsImager = makeSI(true);
 }
@@ -179,22 +179,55 @@ synthesisimager::selectdata(const casac::record& selpars)
 bool synthesisimager::defineimage(const casac::record& impars, const casac::record& gridpars)
 {
   Bool rstat(false);
-
+  *itsLog << casacore::LogOrigin("synthesisimager", __func__);
   try 
     {
     
       //if( ! itsImager ) itsImager = new SynthesisImager();
       itsImager = makeSI();
     casacore::Record irecpars = *toRecord( impars );
+    ////Temporary fix till we get the checking for phasecenter in fromRecord 
+    ////to deal with this
+    //////////////
+    String movingSource="";
+    if( irecpars.dataType("phasecenter") == TpString ){
+      String pcen=irecpars.asString("phasecenter");
+      //seems to be a table so assuming ephemerides table 
+      //Or A known planet
+      //Or special case
+      casacore::MDirection::Types refType;
+      Bool trackingNearSource= (Table::isReadable(pcen, False))
+	|| ( (casacore::MDirection::getType(refType, pcen)) && (refType > casacore::MDirection::N_Types && refType < casacore::MDirection:: N_Planets ))
+	|| (upcase(pcen)==String("TRACKFIELD"));
+      if(trackingNearSource){
+	*itsLog << "Detected tracking of moving source " <<  casacore::LogIO::POST;
+	if(refType > casacore::MDirection::N_Types && refType < casacore::MDirection::COMET){
+	  
+	  *itsLog << "Will be Using measures internal ephemeris  for  " << casacore::MDirection::showType(refType) << " to track " << casacore::LogIO::POST;
+	} 
+	movingSource=pcen;
+	irecpars.define("phasecenter", "");
+      }
+      
+      
+      
+      //cerr << "PCEN " << pcen << "  " << irecpars.asString("phasecenter")<< endl;
+    }
+
     SynthesisParamsImage ipars;
     ipars.fromRecord( irecpars );
-
+    
+      
     casacore::Record grecpars = *toRecord( gridpars );
     SynthesisParamsGrid gpars;
     gpars.fromRecord( grecpars );
-
+    if(movingSource != casacore::String("")){
+      itsImager->setMovingSource(movingSource);
+    }
     itsImager->defineImage( ipars, gpars );
- 
+    
+
+    
     /*
     itsImager->defineImage( ipars.imageName, ipars.imsize[0], ipars.imsize[1], 
 			    ipars.cellsize[0], ipars.cellsize[1], ipars.stokes, ipars.phaseCenter,
@@ -654,6 +687,9 @@ synthesisimager::done()
 	  delete itsImager;
 	  itsImager=NULL;
 	}
+      if(itsLog)
+	delete itsLog;
+      itsLog=NULL;
     } 
   catch  (AipsError x) 
     {

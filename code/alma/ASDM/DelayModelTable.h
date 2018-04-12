@@ -189,7 +189,7 @@ class DelayModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numPoly (\f$N_{Poly}\f$)</TD> 
+ * <TD> numPoly (numPoly)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients of the polynomials. </TD>
@@ -270,7 +270,7 @@ class DelayModelRow;
  * </TR>
 	
  * <TR>
- * <TD> numLO(\f$N_{LO}\f$)</TD> 
+ * <TD> numLO(numLO)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of local oscillators. </TD>
@@ -333,7 +333,7 @@ class DelayModelRow;
  * </TR>
 	
  * <TR>
- * <TD> numReceptor(\f$N_{Rece}\f$)</TD> 
+ * <TD> numReceptor(numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp;  </TD>

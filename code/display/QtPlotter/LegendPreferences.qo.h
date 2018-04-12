@@ -60,9 +60,18 @@ namespace casa {
 		bool showColorBarDefault;
 		int legendPositionDefault;
 
-		const static QString LEGEND_VISIBLE;
-		const static QString LEGEND_LOCATION;
-		const static QString LEGEND_COLOR_BAR;
+		const static QString &LEGEND_VISIBLE( ) {
+			static QString result("Legend Visible");
+			return result;
+		}
+		const static QString &LEGEND_LOCATION( ) {
+			static QString result("Legend Location");
+			return result;
+		}
+		const static QString &LEGEND_COLOR_BAR( ) {
+			static QString result("Legend Colorbar");
+			return result;
+		}
 		Ui::LegendPreferences ui;
 		CanvasHolder* canvasHolder;
 

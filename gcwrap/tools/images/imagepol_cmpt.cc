@@ -21,6 +21,8 @@
 #include <imageanalysis/ImageAnalysis/ImageFactory.h>
 #include <imageanalysis/ImageAnalysis/ImagePolProxy.h>
 #include <imageanalysis/ImageAnalysis/ImageTotalPolarization.h>
+#include <imageanalysis/ImageAnalysis/LinearPolarizationAngleCalculator.h>
+#include <imageanalysis/ImageAnalysis/LinearPolarizationCalculator.h>
 
 #include <casa/namespace.h>
 
@@ -136,7 +138,7 @@ imagepol::complexlinpol(const std::string& outfile)
 {
   bool rstat(false);
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -176,7 +178,7 @@ imagepol::depolratio(const std::string& infile, const bool debias, const double 
 {
 
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -219,11 +221,14 @@ imagepol::done()
 }
 
 bool
-imagepol::fourierrotationmeasure(const std::string& complex, const std::string& amp, const std::string& pa, const std::string& real, const std::string& imag, const bool zerolag0)
-{
+imagepol::fourierrotationmeasure(
+    const std::string& complex, const std::string& amp,
+    const std::string& pa, const std::string& real,
+    const std::string& imag, const bool zerolag0
+) {
   bool rstat(false);
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -270,7 +275,7 @@ image *
 imagepol::fractotpol(const bool debias, const double clip, const double sigma, const std::string& outfile)
 {
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -292,55 +297,57 @@ imagepol::fractotpol(const bool debias, const double clip, const double sigma, c
   }
 }
 
-image *
-imagepol::linpolint(const bool debias, const double clip, const double sigma, const std::string& outfile)
-{
-  try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return 0;
+image * imagepol::linpolint(
+    const bool debias, const double clip, const double sigma, const std::string& outfile,
+    const variant& region, const std::string& mask, bool stretch
+) {
+    try{
+        *itsLog << LogOrigin("imagepol", __func__);
+        if(! itsImPol){
+            *itsLog << LogIO::SEVERE <<"No attached image, please use open "
+                << LogIO::POST;
+            return nullptr;
+        }
+        auto myreg = _getRegion(region, False);
+        auto subImage = SubImageFactory<Float>::createSubImageRO(
+            *itsImPol->getImage(), *myreg, mask,
+            itsLog, AxesSpecifier(), stretch, true
+        );
+        LinearPolarizationCalculator lpc(subImage, outfile, False);
+        lpc.setClip(clip);
+        lpc.setSigma(sigma);
+        lpc.setDebias(debias);
+        return new image(lpc.compute());
     }
-    ImageInterface<Float> *out;
-    Bool rstat(false);
-    rstat = itsImPol->linPolInt(out,debias,Float(clip),
-				Float(sigma),String(outfile));
-    if (rstat) {
-        return new image(out);
-     }
-    else {
-      throw(AipsError("could not attach linpolint image"));
+    catch (const AipsError& x) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+        RETHROW(x);
     }
-    } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-    RETHROW(x);
-  }
 }
 
-image *
-imagepol::linpolposang(const std::string& outfile)
-{
-  try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return 0;
+image * imagepol::linpolposang(
+    const std::string& outfile, const variant& region,
+    const std::string& mask, bool stretch
+) {
+    try{
+        *itsLog << LogOrigin("imagepol", __func__);
+        if(! itsImPol){
+            *itsLog << LogIO::SEVERE <<"No attached image, please use open "
+                << LogIO::POST;
+            return nullptr;
+        }
+        auto myreg = _getRegion(region, False);
+        auto subImage = SubImageFactory<Float>::createSubImageRO(
+            *itsImPol->getImage(), *myreg, mask,
+            itsLog, AxesSpecifier(), stretch, true
+        );
+        LinearPolarizationAngleCalculator lpac(subImage, outfile, False);
+        return new image(lpac.compute(False));
     }
-    ImageInterface<Float> *out;
-    Bool rstat(false);
-    rstat = itsImPol->linPolPosAng(out,String(outfile));
-    if (rstat) {
-        return new image(out);
+    catch (const AipsError& x) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+        RETHROW(x);
     }
-    else {
-      throw(AipsError("could not attach linpolposang image"));
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-    RETHROW(x);
-  }
 }
 
 bool
@@ -348,7 +355,7 @@ imagepol::makecomplex(const std::string& complex, const std::string& real, const
 {
   bool rstat(false);
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -380,12 +387,16 @@ imagepol::pol(const std::string& which, const bool debias, const double clip, co
     type.upcase();
     Bool rstat(false);
     if (type=="LPI") {
+        return linpolint(debias, clip, sigma, outfile);
+        /*
       rstat = itsImPol->linPolInt(out,debias,Float(clip),
 				  Float(sigma),String(outfile));
+				  */
     } else if (type=="TPI") {
         return totpolint(debias, clip, sigma, outfile);
     } else if (type=="LPPA") {
-      rstat = itsImPol->linPolPosAng(out,String(outfile));
+        return linpolposang(outfile);
+      //rstat = itsImPol->linPolPosAng(out,String(outfile));
     } else if (type=="FLP") {
       rstat = itsImPol->fracLinPol(out,debias,Float(clip),
 				   Float(sigma),String(outfile));
@@ -407,29 +418,31 @@ imagepol::pol(const std::string& which, const bool debias, const double clip, co
   }
 }
 
-bool
-imagepol::rotationmeasure(const std::string& rm, const std::string& rmerr, const std::string& pa0, const std::string& pa0err, const std::string& nturns, const std::string& chisq, const double sigma, const double rmfq, const double rmmax, const double maxpaerr, const std::string& , const int , const int )
-{
-  bool rstat(false);
-  try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return rstat;
+bool imagepol::rotationmeasure(
+    const std::string& rm, const std::string& rmerr,
+    const std::string& pa0, const std::string& pa0err,
+    const std::string& nturns, const std::string& chisq,
+    const double sigma, const double rmfq, const double rmmax,
+    const double maxpaerr, const std::string&, const int, const int
+) {
+    try {
+        *itsLog << LogOrigin("imagepol", __func__);
+        if(! itsImPol) {
+            *itsLog << LogIO::SEVERE <<"No attached image, please use open "
+                << LogIO::POST;
+            return False;
+        }
+        itsImPol->rotationMeasure(
+            rm, rmerr, pa0, pa0err, nturns,
+            chisq, -1, sigma, rmfq, rmmax, maxpaerr
+        );
+        return True;
     }
-    itsImPol->rotationMeasure(String(rm), String(rmerr),
-			      String(pa0), String(pa0err),
-			      String(nturns), String(chisq),
-			      -1, Float(sigma), Float(rmfq),
-			      Float(rmmax), Float(maxpaerr)/*,
-			      String(plotter), nx, ny*/);
-    rstat = true;
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-    RETHROW(x);
-  }
-  return rstat;
+    catch (const AipsError& x) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+        RETHROW(x);
+    }
+    return True;
 }
 
 double
@@ -437,7 +450,7 @@ imagepol::sigma(const double clip)
 {
   double rvalue(-1.0);
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -455,7 +468,7 @@ image *
 imagepol::sigmadepolratio(const std::string& infile, const bool debias, const double clip, const double sigma, const std::string& outfile)
 {
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -483,7 +496,7 @@ image *
 imagepol::sigmafraclinpol(const double clip, const double sigma, const std::string& outfile)
 {
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -509,7 +522,7 @@ image *
 imagepol::sigmafractotpol(const double clip, const double sigma, const std::string& outfile)
 {
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -537,7 +550,7 @@ imagepol::sigmalinpolint(const double clip, const double sigma, const std::strin
 {
   double rvalue(-1.0);
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -555,7 +568,7 @@ image *
 imagepol::sigmalinpolposang(const double clip, const double sigma, const std::string& outfile)
 {
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -583,7 +596,7 @@ imagepol::sigmastokes(const std::string& which, const double clip)
 {
   double rvalue(-1.0);
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -690,7 +703,7 @@ imagepol::sigmatotpolint(const double clip, const double sigma)
 {
   double rvalue(-1.0);
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
