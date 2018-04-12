@@ -259,8 +259,14 @@ class PyParallelImagerHelper():
 #############################################
     def getpartimagename(self, imagename, nodeid):
         """
-        If imagename = 'imaging_subdir/foo_img', it produces something like:
-        imaging_subdir/foo_img.workdirectory/calibrated_final_cont.n5.gridwt
+        For imagename = 'imaging_subdir/foo_img', it produces something like:
+        'imaging_subdir/foo_img.workdirectory/foo_img.n5.gridwt' (where n5 is the node idx)
+
+        :param imagename: imagename as passed to the tclean task
+        :param nodeid: id of MPI node
+
+        :returns: (full path) name of a part/sub-image for nodeid, produced by concatenating
+        the working directory, the image basename and the node id as a string.
         """
         # don't include subdirs again here - the workdir is already inside the subdir(s)
         image_basename = os.path.basename(imagename)
