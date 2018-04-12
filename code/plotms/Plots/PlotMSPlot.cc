@@ -1608,23 +1608,6 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	int yAxisCount = axesParams->numYAxes();
 	bool set = dataParams->isSet();
 
-	// Legend
-	canvas->showLegend(set && canvParams->legendShown(), canvParams->legendPosition());
-
-	// Grid lines
-	canvas->showGrid(canvParams->gridMajorShown(), canvParams->gridMinorShown(),
-		canvParams->gridMajorShown(), canvParams->gridMinorShown());
-	// major
-	PlotLinePtr major_line = itsFactory_->line(canvParams->gridMajorLine());
-	if (!canvParams->gridMajorShown()) 
-		major_line->setStyle(PlotLine::NOLINE);
-	canvas->setGridMajorLine(major_line);
-	// minor
-	PlotLinePtr minor_line = itsFactory_->line(canvParams->gridMinorLine());
-	if (!canvParams->gridMinorShown()) 
-		minor_line->setStyle(PlotLine::NOLINE);
-	canvas->setGridMinorLine(minor_line);
-
 	// Whether to share common axes for iterated plots on grid
 	bool commonX = iterParams->isCommonAxisX();
 	bool commonY = iterParams->isCommonAxisY();
@@ -1638,29 +1621,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		PlotAxis cy = axesParams->yAxis( i );
 		canvas->showAxis(cy, showY);
 	}
-	// title font
-	casacore::Int pointsize;
-	PlotFontPtr font = canvas->titleFont();
-	pointsize = (canvParams->titleFontSet()) ? canvParams->titleFont() : std::max(16.-numplots+1., 8.);
-	font->setPointSize(pointsize);
-	font->setBold(true);
-	canvas->setTitleFont(font);
-	// if shown, set axis fonts
-	if (set && showX) {
-		PlotFontPtr xFont = canvas->axisFont(cx);
-		pointsize = (canvParams->xFontSet()) ? canvParams->xAxisFont(): std::max(12.-numplots+1., 8.);
-		xFont->setPointSize(pointsize);
-		canvas->setAxisFont(cx, xFont);
-	}
-	if (set && showY) {
-		pointsize = (canvParams->yFontSet()) ? canvParams->yAxisFont(): std::max(12.-numplots+1., 8.);
-		PlotFontPtr yFont = canvas->axisFont(Y_LEFT);
-		yFont->setPointSize(pointsize);
-		canvas->setAxisFont(Y_LEFT, yFont);
-		yFont = canvas->axisFont(Y_RIGHT);
-		yFont->setPointSize(pointsize);
-		canvas->setAxisFont(Y_RIGHT, yFont);
-	}
+
 	// xaxis, scale (TIME/NORMAL), ref value
 	PMS::Axis x = cacheParams->xAxis();
 	if (x==PMS::NONE) {
@@ -1671,7 +1632,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	bool xref = itsCache_->hasReferenceValue(x);
 	double xrefval = itsCache_->referenceValue(x);
 	canvas->setAxisReferenceValue(cx, xref, xrefval);
-	// yaxis/axes, scale, ref value
+
+	// yaxis scale(s), ref value
 	for ( int i = 0; i < yAxisCount; i++ ){
 		PMS::Axis y = cacheParams->yAxis( i );
 		if (y==PMS::NONE) {
@@ -1689,8 +1651,28 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		double yrefval = itsCache_->referenceValue(y);
 		canvas->setAxisReferenceValue(cy, yref, yrefval);
 	}
+
+	// if shown, set axis fonts
+	casacore::Int pointsize;
+	if (set && showX) {
+		PlotFontPtr xFont = canvas->axisFont(cx);
+		pointsize = (canvParams->xFontSet()) ? canvParams->xAxisFont(): std::max(12.-numplots+1., 8.);
+		xFont->setPointSize(pointsize);
+		canvas->setAxisFont(cx, xFont);
+	}
+	if (set && showY) {
+		pointsize = (canvParams->yFontSet()) ? canvParams->yAxisFont(): std::max(12.-numplots+1., 8.);
+		PlotFontPtr yFont = canvas->axisFont(Y_LEFT);
+		yFont->setPointSize(pointsize);
+		canvas->setAxisFont(Y_LEFT, yFont);
+		yFont = canvas->axisFont(Y_RIGHT);
+		yFont->setPointSize(pointsize);
+		canvas->setAxisFont(Y_RIGHT, yFont);
+	}
+
 	// x and y axis ranges
 	canvas->setAxesAutoRescale(true);
+	bool makeSquare(false), waveplot(false);  // true if uv/uvwave plot
 	if (set) {
 		double xmin, xmax, ymin, ymax, xymax;
 
@@ -1707,7 +1689,6 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 
 		// x range
 		bool xIsUV(false), xIsUVwave(false);
-		bool makeSquare(false), waveplot(false);  // true if uv/uvwave plot
 		if ( axesParams->xRangeSet() ){
 			// Custom axes ranges set by user
 			canvas->setAxisRange(cx, axesParams->xRange());
@@ -1717,7 +1698,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 				xIsUV = true;
 				if (x==PMS::UWAVE || x==PMS::VWAVE)
 					xIsUVwave = true;
-				xymax = canvas->axisRange(cx).first;  // should be equal
+				xymax = canvas->axisRange(cx).second;  // should be equal
 			}
 		}
 		// y range
@@ -1755,9 +1736,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
                 }
 			}
 		}
-		// make plot square or not
-		itsParent_->getPlotter()->makeSquarePlot(makeSquare, waveplot);
 	}
+	itsParent_->getPlotter()->makeSquarePlot(makeSquare, waveplot);
 
 	// For title and axis labels, need all plots on this canvas
 	int gridRow(iterParams->getGridRow());
@@ -1789,7 +1769,6 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	bool polnRatio = itsCache_->polnRatio();
 	PlotMSAveraging averaging = dataParams->averaging();
 
-	// Title
 	if (set) {
 		PMS::DataColumn xDataColumn(itsCache_->getXDataColumn());
 		vector<PMS::Axis> yAxes;
@@ -1860,12 +1839,20 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			canvas->setAxisLabel(Y_LEFT, yLabelLeft);
 			canvas->setAxisLabel(Y_RIGHT, yLabelRight);
 		}
-		// title
+
+		// Title font
+		PlotFontPtr font = canvas->titleFont();
+		pointsize = (canvParams->titleFontSet()) ? canvParams->titleFont() :
+			std::max(16.-numplots+1., 8.);
+		font->setPointSize(pointsize);
+		font->setBold(true);
+		canvas->setTitleFont(font);
+		// Title text
 		casacore::String iterTxt("");
 		if((iterParams->iterationAxis()!=PMS::NONE) && itsCache_->nIter(0) > 0) 
 			iterTxt = itsCache_->indexer(0,iteration).iterLabel();
-		casacore::String title = canvParams->titleFormat().getLabel(x, yAxes, xref, xrefval, yRefs, yRefVals,
-				xDataColumn, yDatas, polnRatio) + " " + iterTxt;
+		casacore::String title = canvParams->titleFormat().getLabel(x, yAxes, xref, xrefval,
+				yRefs, yRefVals, xDataColumn, yDatas, polnRatio) + " " + iterTxt;
 		// change "Corr" ->"Poln" for cal tables:
 		if (title.contains("Corr") && anyEQ(cacheTypes, calTableType)) {
 			if (allCalTables) {
@@ -1880,6 +1867,23 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		}
 		canvas->setTitle(title);
 	}
+
+	// Legend
+	canvas->showLegend(set && canvParams->legendShown(), canvParams->legendPosition());
+
+	// Grid lines
+	canvas->showGrid(canvParams->gridMajorShown(), canvParams->gridMinorShown(),
+		canvParams->gridMajorShown(), canvParams->gridMinorShown());
+	// major
+	PlotLinePtr major_line = itsFactory_->line(canvParams->gridMajorLine());
+	if (!canvParams->gridMajorShown())
+		major_line->setStyle(PlotLine::NOLINE);
+	canvas->setGridMajorLine(major_line);
+	// minor
+	PlotLinePtr minor_line = itsFactory_->line(canvParams->gridMinorLine());
+	if (!canvParams->gridMinorShown()) 
+		minor_line->setStyle(PlotLine::NOLINE);
+	canvas->setGridMinorLine(minor_line);
 }
 
 void PlotMSPlot::setAxisRange(PMS::Axis axis, PlotAxis paxis, 
