@@ -163,7 +163,7 @@
                        True otherwise.
     savefig: Filename for saving a plot of S vs. |u|.
              Subparameter of antennalist.
-             Default: False (necessarily if antennalist is not specified)
+             Default: '' 
              Examples: ''           (do not save the plot)
                        'myplot.png' (save to myplot.png)
     symb: One of matplotlib's codes for plot symbols: .:,o^v&lt;&gt;s+xDd234hH|_
