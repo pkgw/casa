@@ -28,11 +28,11 @@
  * | If you do, all changes will be lost when the file is re-generated. |
  *  --------------------------------------------------------------------
  *
- * File CalFocusModelTable.h
+ * File CalAntennaSolutionsTable.h
  */
  
-#ifndef CalFocusModelTable_CLASS
-#define CalFocusModelTable_CLASS
+#ifndef CalAntennaSolutionsTable_CLASS
+#define CalAntennaSolutionsTable_CLASS
 
 #include <string>
 #include <vector>
@@ -41,20 +41,36 @@
 
 
 	
+#include <Angle.h>
+	
+
+	
 #include <ArrayTime.h>
 	
 
 	
-#include <Length.h>
+#include <Frequency.h>
 	
 
 	
 #include <Tag.h>
 	
 
+	
+#include <Interval.h>
+	
 
 
 
+
+	
+
+	
+#include "CAtmPhaseCorrection.h"
+	
+
+	
+#include "CBasebandName.h"
 	
 
 	
@@ -62,25 +78,21 @@
 	
 
 	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
 #include "CPolarizationType.h"
-	
-
-	
-
-	
-
-	
-#include "CAntennaMake.h"
-	
-
-	
-
-	
-
-	
-
-	
-
 	
 
 	
@@ -113,22 +125,22 @@
 namespace asdm {
 
 //class asdm::ASDM;
-//class asdm::CalFocusModelRow;
+//class asdm::CalAntennaSolutionsRow;
 
 class ASDM;
-class CalFocusModelRow;
+class CalAntennaSolutionsRow;
 /**
- * The CalFocusModelTable class is an Alma table.
+ * The CalAntennaSolutionsTable class is an Alma table.
  * <BR>
  * 
  * \par Role
- * Result of focus model calibration performed by TelCal.
+ * Results of atmosphere calibration by TelCal. This calibration determines the system temperatures corrected for atmospheric absorption. Ionospheric effects are not dealt with in the Table.
  * <BR>
  
  * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
- * <CAPTION> Attributes of CalFocusModel </CAPTION>
+ * <CAPTION> Attributes of CalAntennaSolutions </CAPTION>
  * <TR BGCOLOR="#AAAAAA"> <TH> Name </TH> <TH> Type </TH> <TH> Expected shape  </TH> <TH> Comment </TH></TR>
  
  * <TR> <TH BGCOLOR="#CCCCCC" colspan="4" align="center"> Key </TD></TR>
@@ -144,6 +156,15 @@ class CalFocusModelRow;
 	
  * <TR>
  		
+ * <TD> atmPhaseCorrection </TD>
+ 		 
+ * <TD> AtmPhaseCorrectionMod::AtmPhaseCorrection</TD>
+ * <TD> &nbsp; </TD>
+ * <TD> &nbsp; describes how the atmospheric phase correction has been applied. </TD>
+ * </TR>
+	
+ * <TR>
+ 		
  * <TD> receiverBand </TD>
  		 
  * <TD> ReceiverBandMod::ReceiverBand</TD>
@@ -153,11 +174,11 @@ class CalFocusModelRow;
 	
  * <TR>
  		
- * <TD> polarizationType </TD>
+ * <TD> basebandName </TD>
  		 
- * <TD> PolarizationTypeMod::PolarizationType</TD>
+ * <TD> BasebandNameMod::BasebandName</TD>
  * <TD> &nbsp; </TD>
- * <TD> &nbsp;identifies the polarization type for which this focus model is valid. </TD>
+ * <TD> &nbsp;identifies the baseband. </TD>
  * </TR>
 	
  * <TR>
@@ -197,87 +218,90 @@ class CalFocusModelRow;
  * </TR>
 	
  * <TR>
- * <TD> antennaMake </TD> 
- * <TD> AntennaMakeMod::AntennaMake </TD>
- * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;identifies the antenna make. </TD>
- * </TR>
-	
- * <TR>
- * <TD> numCoeff (numCoeff)</TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;the number of coefficients. </TD>
+ * <TD> &nbsp;the number of receptors. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numSourceObs (numSourceObs)</TD> 
- * <TD> int </TD>
- * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;the number of source directions observed to derive the model. </TD>
- * </TR>
-	
- * <TR>
- * <TD> coeffName </TD> 
- * <TD> vector<string > </TD>
- * <TD>  numCoeff </TD> 
- * <TD> &nbsp;the names given to  the coefficients in the model. </TD>
- * </TR>
-	
- * <TR>
- * <TD> coeffFormula </TD> 
- * <TD> vector<string > </TD>
- * <TD>  numCoeff </TD> 
- * <TD> &nbsp;the coefficients formula (one string per coefficient). </TD>
- * </TR>
-	
- * <TR>
- * <TD> coeffValue </TD> 
- * <TD> vector<float > </TD>
- * <TD>  numCoeff </TD> 
- * <TD> &nbsp;the fitted values of the coefficients. </TD>
- * </TR>
-	
- * <TR>
- * <TD> coeffError </TD> 
- * <TD> vector<float > </TD>
- * <TD>  numCoeff </TD> 
- * <TD> &nbsp;the statistical uncertainties on the derived coefficients (one value per coefficient). </TD>
- * </TR>
-	
- * <TR>
- * <TD> coeffFixed </TD> 
- * <TD> vector<bool > </TD>
- * <TD>  numCoeff </TD> 
- * <TD> &nbsp;one coefficient was fixed (true) or not fixed (false) (one boolean value per coefficient). </TD>
- * </TR>
-	
- * <TR>
- * <TD> focusModel </TD> 
+ * <TD> refAntennaName </TD> 
  * <TD> string </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;the name of this focus model. </TD>
+ * <TD> &nbsp;the name of the antenna used as a
+reference to get the antenna-based
+phases.
+ </TD>
  * </TR>
 	
  * <TR>
- * <TD> focusRMS </TD> 
- * <TD> vector<Length > </TD>
- * <TD>  3 </TD> 
- * <TD> &nbsp;the RMS deviations of residuals of focus coordinates. </TD>
+ * <TD> direction </TD> 
+ * <TD> vector<Angle > </TD>
+ * <TD>  2 </TD> 
+ * <TD> &nbsp;the direction of the source. </TD>
  * </TR>
 	
  * <TR>
- * <TD> reducedChiSquared </TD> 
- * <TD> double </TD>
+ * <TD> frequencyRange </TD> 
+ * <TD> vector<Frequency > </TD>
+ * <TD>  2 </TD> 
+ * <TD> &nbsp;the frequency range. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> integrationTime </TD> 
+ * <TD> Interval </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;a measure of the quality of the least-square fit. </TD>
+ * <TD> &nbsp;the integration duration for a data point. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> polarizationTypes </TD> 
+ * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD>  numReceptor </TD> 
+ * <TD> &nbsp;the polarizations of the receptors (an array with one value per receptor). </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> correctionValidity </TD> 
+ * <TD> bool </TD>
+ * <TD>  &nbsp;  </TD> 
+ * <TD> &nbsp;the deduced validity of atmospheric path length correction (from water vapor radiometers). </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> phaseAnt </TD> 
+ * <TD> vector<float > </TD>
+ * <TD>  numReceptor </TD> 
+ * <TD> &nbsp;the antenna based phase solution averaged over the scan (one value per receptor per antenna). See refAntennaName for the association of the values of this array with the antennas. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> phaseAntRMS </TD> 
+ * <TD> vector<float > </TD>
+ * <TD>  numReceptor </TD> 
+ * <TD> &nbsp;the RMS of the phase fluctuations relative to the antenna based average phase (one value per receptor per antenna). See refAntennaName for the association of the values of this array with the antennas. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> amplitudeAnt </TD> 
+ * <TD> vector<float > </TD>
+ * <TD>  numReceptor </TD> 
+ * <TD> &nbsp;the antenna based amplitude solution averaged over the scan (one value per receptor per antenna). See refAntennaName for the association of the values of this array with the antennas. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> amplitudeAntRMS </TD> 
+ * <TD> vector<float > </TD>
+ * <TD>  numReceptor </TD> 
+ * <TD> &nbsp;the antenna based amplitude solution averaged over the scan (one value per receptor per antenna). See refAntennaName for the association of the values of this array with the antennas. </TD>
  * </TR>
 	
 
 
  * </TABLE>
  */
-class CalFocusModelTable : public Representable {
+class CalAntennaSolutionsTable : public Representable {
 	friend class ASDM;
 
 public:
@@ -291,7 +315,7 @@ public:
 	static const std::vector<std::string>& getKeyName();
 
 
-	virtual ~CalFocusModelTable();
+	virtual ~CalAntennaSolutionsTable();
 	
 	/**
 	 * Return the container to which this table belongs.
@@ -358,7 +382,7 @@ public:
 		
 	/**
 	 * Produces an XML representation conform
-	 * to the schema defined for CalFocusModel (CalFocusModelTable.xsd).
+	 * to the schema defined for CalAntennaSolutions (CalAntennaSolutionsTable.xsd).
 	 *
 	 * @returns a string containing the XML representation.
 	 * @throws ConversionException
@@ -368,31 +392,31 @@ public:
 #ifndef WITHOUT_ACS
 	// Conversion Methods
 	/**
-	 * Convert this table into a CalFocusModelTableIDL CORBA structure.
+	 * Convert this table into a CalAntennaSolutionsTableIDL CORBA structure.
 	 *
-	 * @return a pointer to a CalFocusModelTableIDL
+	 * @return a pointer to a CalAntennaSolutionsTableIDL
 	 */
-	asdmIDL::CalFocusModelTableIDL *toIDL() ;
+	asdmIDL::CalAntennaSolutionsTableIDL *toIDL() ;
 	
 	/**
 	 * Fills the CORBA data structure passed in parameter
 	 * with the content of this table.
 	 *
-	 * @param x a reference to the asdmIDL::CalFocusModelTableIDL to be populated
+	 * @param x a reference to the asdmIDL::CalAntennaSolutionsTableIDL to be populated
 	 * with the content of this.
 	 */
-	 void toIDL(asdmIDL::CalFocusModelTableIDL& x) const;
+	 void toIDL(asdmIDL::CalAntennaSolutionsTableIDL& x) const;
 	 
 #endif
 
 #ifndef WITHOUT_ACS
 	/**
-	 * Populate this table from the content of a CalFocusModelTableIDL Corba structure.
+	 * Populate this table from the content of a CalAntennaSolutionsTableIDL Corba structure.
 	 *
 	 * @throws DuplicateKey Thrown if the method tries to add a row having a key that is already in the table.
 	 * @throws ConversionException
 	 */	
-	void fromIDL(asdmIDL::CalFocusModelTableIDL x) ;
+	void fromIDL(asdmIDL::CalAntennaSolutionsTableIDL x) ;
 #endif
 	
 	//
@@ -401,9 +425,9 @@ public:
 	
 	/**
 	 * Create a new row with default values.
-	 * @return a pointer on a CalFocusModelRow
+	 * @return a pointer on a CalAntennaSolutionsRow
 	 */
-	CalFocusModelRow *newRow();
+	CalAntennaSolutionsRow *newRow();
 	
 	
 	/**
@@ -412,9 +436,11 @@ public:
 	
  	 * @param antennaName
 	
+ 	 * @param atmPhaseCorrection
+	
  	 * @param receiverBand
 	
- 	 * @param polarizationType
+ 	 * @param basebandName
 	
  	 * @param calDataId
 	
@@ -424,46 +450,46 @@ public:
 	
  	 * @param endValidTime
 	
- 	 * @param antennaMake
+ 	 * @param numReceptor
 	
- 	 * @param numCoeff
+ 	 * @param refAntennaName
 	
- 	 * @param numSourceObs
+ 	 * @param direction
 	
- 	 * @param coeffName
+ 	 * @param frequencyRange
 	
- 	 * @param coeffFormula
+ 	 * @param integrationTime
 	
- 	 * @param coeffValue
+ 	 * @param polarizationTypes
 	
- 	 * @param coeffError
+ 	 * @param correctionValidity
 	
- 	 * @param coeffFixed
+ 	 * @param phaseAnt
 	
- 	 * @param focusModel
+ 	 * @param phaseAntRMS
 	
- 	 * @param focusRMS
+ 	 * @param amplitudeAnt
 	
- 	 * @param reducedChiSquared
+ 	 * @param amplitudeAntRMS
 	
      */
-	CalFocusModelRow *newRow(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffValue, vector<float > coeffError, vector<bool > coeffFixed, string focusModel, vector<Length > focusRMS, double reducedChiSquared);
+	CalAntennaSolutionsRow *newRow(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, string refAntennaName, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, vector<float > phaseAnt, vector<float > phaseAntRMS, vector<float > amplitudeAnt, vector<float > amplitudeAntRMS);
 	
 
 
 	/**
 	 * Create a new row using a copy constructor mechanism.
 	 * 
-	 * The method creates a new CalFocusModelRow owned by this. Each attribute of the created row 
+	 * The method creates a new CalAntennaSolutionsRow owned by this. Each attribute of the created row 
 	 * is a (deep) copy of the corresponding attribute of row. The method does not add 
 	 * the created row to this, its simply parents it to this, a call to the add method
 	 * has to be done in order to get the row added (very likely after having modified
 	 * some of its attributes).
-	 * If row is null then the method returns a new CalFocusModelRow with default values for its attributes. 
+	 * If row is null then the method returns a new CalAntennaSolutionsRow with default values for its attributes. 
 	 *
 	 * @param row the row which is to be copied.
 	 */
-	 CalFocusModelRow *newRow(CalFocusModelRow *row); 
+	 CalAntennaSolutionsRow *newRow(CalAntennaSolutionsRow *row); 
 
 	//
 	// ====> Append a row to its table.
@@ -472,17 +498,17 @@ public:
 	
 	/**
 	 * Add a row.
-	 * @param x a pointer to the CalFocusModelRow to be added.
+	 * @param x a pointer to the CalAntennaSolutionsRow to be added.
 	 *
-	 * @return a pointer to a CalFocusModelRow. If the table contains a CalFocusModelRow whose attributes (key and mandatory values) are equal to x ones
-	 * then returns a pointer on that CalFocusModelRow, otherwise returns x.
+	 * @return a pointer to a CalAntennaSolutionsRow. If the table contains a CalAntennaSolutionsRow whose attributes (key and mandatory values) are equal to x ones
+	 * then returns a pointer on that CalAntennaSolutionsRow, otherwise returns x.
 	 *
-	 * @throw DuplicateKey { thrown when the table contains a CalFocusModelRow with a key equal to the x one but having
+	 * @throw DuplicateKey { thrown when the table contains a CalAntennaSolutionsRow with a key equal to the x one but having
 	 * and a value section different from x one }
 	 *
 	
 	 */
-	CalFocusModelRow* add(CalFocusModelRow* x) ; 
+	CalAntennaSolutionsRow* add(CalAntennaSolutionsRow* x) ; 
 
  
 
@@ -494,33 +520,35 @@ public:
 		
 	/**
 	 * Get a collection of pointers on the rows of the table.
-	 * @return Alls rows in a vector of pointers of CalFocusModelRow. The elements of this vector are stored in the order 
-	 * in which they have been added to the CalFocusModelTable.
+	 * @return Alls rows in a vector of pointers of CalAntennaSolutionsRow. The elements of this vector are stored in the order 
+	 * in which they have been added to the CalAntennaSolutionsTable.
 	 */
-	std::vector<CalFocusModelRow *> get() ;
+	std::vector<CalAntennaSolutionsRow *> get() ;
 	
 	/**
 	 * Get a const reference on the collection of rows pointers internally hold by the table.
-	 * @return A const reference of a vector of pointers of CalFocusModelRow. The elements of this vector are stored in the order 
-	 * in which they have been added to the CalFocusModelTable.
+	 * @return A const reference of a vector of pointers of CalAntennaSolutionsRow. The elements of this vector are stored in the order 
+	 * in which they have been added to the CalAntennaSolutionsTable.
 	 *
 	 */
-	 const std::vector<CalFocusModelRow *>& get() const ;
+	 const std::vector<CalAntennaSolutionsRow *>& get() const ;
 	
 
 
  
 	
 	/**
- 	 * Returns a CalFocusModelRow* given a key.
+ 	 * Returns a CalAntennaSolutionsRow* given a key.
  	 * @return a pointer to the row having the key whose values are passed as parameters, or 0 if
  	 * no row exists for that key.
 	
 	 * @param antennaName
 	
+	 * @param atmPhaseCorrection
+	
 	 * @param receiverBand
 	
-	 * @param polarizationType
+	 * @param basebandName
 	
 	 * @param calDataId
 	
@@ -528,7 +556,7 @@ public:
 	
  	 *
 	 */
- 	CalFocusModelRow* getRowByKey(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId);
+ 	CalAntennaSolutionsRow* getRowByKey(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -542,9 +570,11 @@ public:
 			
  	 * @param antennaName
  	 		
+ 	 * @param atmPhaseCorrection
+ 	 		
  	 * @param receiverBand
  	 		
- 	 * @param polarizationType
+ 	 * @param basebandName
  	 		
  	 * @param calDataId
  	 		
@@ -554,30 +584,30 @@ public:
  	 		
  	 * @param endValidTime
  	 		
- 	 * @param antennaMake
+ 	 * @param numReceptor
  	 		
- 	 * @param numCoeff
+ 	 * @param refAntennaName
  	 		
- 	 * @param numSourceObs
+ 	 * @param direction
  	 		
- 	 * @param coeffName
+ 	 * @param frequencyRange
  	 		
- 	 * @param coeffFormula
+ 	 * @param integrationTime
  	 		
- 	 * @param coeffValue
+ 	 * @param polarizationTypes
  	 		
- 	 * @param coeffError
+ 	 * @param correctionValidity
  	 		
- 	 * @param coeffFixed
+ 	 * @param phaseAnt
  	 		
- 	 * @param focusModel
+ 	 * @param phaseAntRMS
  	 		
- 	 * @param focusRMS
+ 	 * @param amplitudeAnt
  	 		
- 	 * @param reducedChiSquared
+ 	 * @param amplitudeAntRMS
  	 		 
  	 */
-	CalFocusModelRow* lookup(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffValue, vector<float > coeffError, vector<bool > coeffFixed, string focusModel, vector<Length > focusRMS, double reducedChiSquared); 
+	CalAntennaSolutionsRow* lookup(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, string refAntennaName, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, vector<float > phaseAnt, vector<float > phaseAntRMS, vector<float > amplitudeAnt, vector<float > amplitudeAntRMS); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -586,14 +616,14 @@ public:
 private:
 
 	/**
-	 * Create a CalFocusModelTable.
+	 * Create a CalAntennaSolutionsTable.
 	 * <p>
 	 * This constructor is private because only the
 	 * container can create tables.  All tables must know the container
 	 * to which they belong.
 	 * @param container The container to which this table belongs.
 	 */ 
-	CalFocusModelTable (ASDM & container);
+	CalAntennaSolutionsTable (ASDM & container);
 
 	ASDM & container;
 	
@@ -616,21 +646,21 @@ private:
 	 * @throws DuplicateKey
 	 
 	 */
-	CalFocusModelRow* checkAndAdd(CalFocusModelRow* x, bool skipCheckUniqueness=false) ;
+	CalAntennaSolutionsRow* checkAndAdd(CalAntennaSolutionsRow* x, bool skipCheckUniqueness=false) ;
 	
 	/**
-	 * Brutally append an CalFocusModelRow x to the collection of rows already stored in this table. No uniqueness check is done !
+	 * Brutally append an CalAntennaSolutionsRow x to the collection of rows already stored in this table. No uniqueness check is done !
 	 *
-	 * @param CalFocusModelRow* x a pointer onto the CalFocusModelRow to be appended.
+	 * @param CalAntennaSolutionsRow* x a pointer onto the CalAntennaSolutionsRow to be appended.
 	 */
-	 void append(CalFocusModelRow* x) ;
+	 void append(CalAntennaSolutionsRow* x) ;
 	 
 	/**
-	 * Brutally append an CalFocusModelRow x to the collection of rows already stored in this table. No uniqueness check is done !
+	 * Brutally append an CalAntennaSolutionsRow x to the collection of rows already stored in this table. No uniqueness check is done !
 	 *
-	 * @param CalFocusModelRow* x a pointer onto the CalFocusModelRow to be appended.
+	 * @param CalAntennaSolutionsRow* x a pointer onto the CalAntennaSolutionsRow to be appended.
 	 */
-	 void addWithoutCheckingUnique(CalFocusModelRow* x) ;
+	 void addWithoutCheckingUnique(CalAntennaSolutionsRow* x) ;
 	 
 	 
 
@@ -638,12 +668,12 @@ private:
 
 // A data structure to store the pointers on the table's rows.
 
-// In all cases we maintain a private vector of CalFocusModelRow s.
-   std::vector<CalFocusModelRow * > privateRows;
+// In all cases we maintain a private vector of CalAntennaSolutionsRow s.
+   std::vector<CalAntennaSolutionsRow * > privateRows;
    
 
 			
-	std::vector<CalFocusModelRow *> row;
+	std::vector<CalAntennaSolutionsRow *> row;
 
 	
 	void error() ; //throw(ConversionException);
@@ -651,7 +681,7 @@ private:
 	
 	/**
 	 * Populate this table from the content of a XML document that is required to
-	 * be conform to the XML schema defined for a CalFocusModel (CalFocusModelTable.xsd).
+	 * be conform to the XML schema defined for a CalAntennaSolutions (CalAntennaSolutionsTable.xsd).
 	 * @throws ConversionException
 	 * 
 	 */
@@ -661,7 +691,7 @@ private:
 
 	/**
 	  * Private methods involved during the build of this table out of the content
-	  * of file(s) containing an external representation of a CalFocusModel table.
+	  * of file(s) containing an external representation of a CalAntennaSolutions table.
 	  */
 	void setFromMIMEFile(const std::string& directory);
 	/*
@@ -696,7 +726,7 @@ private:
 	  * Stores a representation (binary or XML) of this table into a file.
 	  *
 	  * Depending on the boolean value of its private field fileAsBin a binary serialization  of this (fileAsBin==true)  
-	  * will be saved in a file "CalFocusModel.bin" or an XML representation (fileAsBin==false) will be saved in a file "CalFocusModel.xml".
+	  * will be saved in a file "CalAntennaSolutions.bin" or an XML representation (fileAsBin==false) will be saved in a file "CalAntennaSolutions.xml".
 	  * The file is always written in a directory whose name is passed as a parameter.
 	 * @param directory The name of directory  where the file containing the table's representation will be saved.
 	  * 
@@ -716,7 +746,7 @@ private:
 	  	}
 	  }
 	/**
-	 * Reads and parses a file containing a representation of a CalFocusModelTable as those produced  by the toFile method.
+	 * Reads and parses a file containing a representation of a CalAntennaSolutionsTable as those produced  by the toFile method.
 	 * This table is populated with the result of the parsing.
 	 * @param directory The name of the directory containing the file te be read and parsed.
 	 * @throws ConversionException If any error occurs while reading the 
@@ -729,4 +759,4 @@ private:
 
 } // End namespace asdm
 
-#endif /* CalFocusModelTable_CLASS */
+#endif /* CalAntennaSolutionsTable_CLASS */

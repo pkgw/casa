@@ -156,7 +156,7 @@ class PointingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numSample (\f$N_{Samp}\f$)</TD> 
+ * <TD> numSample (numSample)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of time samples. </TD>
@@ -191,7 +191,7 @@ class PointingRow;
  * </TR>
 	
  * <TR>
- * <TD> numTerm (\f$N_{Term}\f$)</TD> 
+ * <TD> numTerm (numTerm)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of terms of the polynomials. </TD>

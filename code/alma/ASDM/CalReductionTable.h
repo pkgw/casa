@@ -129,7 +129,7 @@ class CalReductionRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numApplied (\f$N_{Appl}\f$)</TD> 
+ * <TD> numApplied (numApplied)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of applied calibrations prior the reduction. </TD>
@@ -143,7 +143,7 @@ class CalReductionRow;
  * </TR>
 	
  * <TR>
- * <TD> numParam (\f$N_{Para}\f$)</TD> 
+ * <TD> numParam (numParam)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of listed parameters used for calibration. </TD>
@@ -157,7 +157,7 @@ class CalReductionRow;
  * </TR>
 	
  * <TR>
- * <TD> numInvalidConditions (\f$N_{Inva}\f$)</TD> 
+ * <TD> numInvalidConditions (numInvalidConditions)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of invalidating conditions. </TD>

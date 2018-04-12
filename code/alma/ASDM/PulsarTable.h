@@ -28,11 +28,11 @@
  * | If you do, all changes will be lost when the file is re-generated. |
  *  --------------------------------------------------------------------
  *
- * File FocusModelTable.h
+ * File PulsarTable.h
  */
  
-#ifndef FocusModelTable_CLASS
-#define FocusModelTable_CLASS
+#ifndef PulsarTable_CLASS
+#define PulsarTable_CLASS
 
 #include <string>
 #include <vector>
@@ -41,20 +41,36 @@
 
 
 	
+#include <ArrayTime.h>
+	
+
+	
+#include <Frequency.h>
+	
+
+	
 #include <Tag.h>
 	
 
+	
+#include <Interval.h>
+	
+
 
 
 
 	
 
 	
-#include "CPolarizationType.h"
+
 	
 
 	
-#include "CReceiverBand.h"
+
+	
+
+	
+
 	
 
 	
@@ -87,42 +103,33 @@
 namespace asdm {
 
 //class asdm::ASDM;
-//class asdm::FocusModelRow;
+//class asdm::PulsarRow;
 
 class ASDM;
-class FocusModelRow;
+class PulsarRow;
 /**
- * The FocusModelTable class is an Alma table.
+ * The PulsarTable class is an Alma table.
  * <BR>
  * 
  * \par Role
- * Contains the focus model data (function of elevation and temperature).
+ * Polarization information.
  * <BR>
  
  * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
- * <CAPTION> Attributes of FocusModel </CAPTION>
+ * <CAPTION> Attributes of Pulsar </CAPTION>
  * <TR BGCOLOR="#AAAAAA"> <TH> Name </TH> <TH> Type </TH> <TH> Expected shape  </TH> <TH> Comment </TH></TR>
  
  * <TR> <TH BGCOLOR="#CCCCCC" colspan="4" align="center"> Key </TD></TR>
 	
  * <TR>
  		
- * <TD> antennaId </TD>
+ * <TD><I> pulsarId </I></TD>
  		 
  * <TD> Tag</TD>
  * <TD> &nbsp; </TD>
- * <TD> &nbsp;refers to a unique row in AntennaTable. </TD>
- * </TR>
-	
- * <TR>
- 		
- * <TD><I> focusModelId </I></TD>
- 		 
- * <TD> int</TD>
- * <TD> &nbsp; </TD>
- * <TD> &nbsp;refers to a collection of rows in the table. </TD>
+ * <TD> &nbsp;Pulsar Table identifier </TD>
  * </TR>
 	
 
@@ -130,66 +137,91 @@ class FocusModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> polarizationType </TD> 
- * <TD> PolarizationTypeMod::PolarizationType </TD>
+ * <TD> refTime </TD> 
+ * <TD> ArrayTime </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;identifies the polarization type. </TD>
+ * <TD> &nbsp;Reference time for a polynomial </TD>
  * </TR>
 	
  * <TR>
- * <TD> receiverBand </TD> 
- * <TD> ReceiverBandMod::ReceiverBand </TD>
+ * <TD> refPulseFreq </TD> 
+ * <TD> Frequency </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;identifies the receiver band. </TD>
+ * <TD> &nbsp;Reference pulse frequency </TD>
  * </TR>
 	
  * <TR>
- * <TD> numCoeff (numCoeff)</TD> 
+ * <TD> refPhase </TD> 
+ * <TD> double </TD>
+ * <TD>  &nbsp;  </TD> 
+ * <TD> &nbsp;Reference pulse phase (turns) </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> numBin (numBin)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;the number of coefficients. </TD>
- * </TR>
-	
- * <TR>
- * <TD> coeffName </TD> 
- * <TD> vector<string > </TD>
- * <TD>  numCoeff </TD> 
- * <TD> &nbsp;the names of the coefficients (one string per coefficient). </TD>
- * </TR>
-	
- * <TR>
- * <TD> coeffFormula </TD> 
- * <TD> vector<string > </TD>
- * <TD>  numCoeff </TD> 
- * <TD> &nbsp;textual representations of the fitted functions (one string per coefficient). </TD>
- * </TR>
-	
- * <TR>
- * <TD> coeffVal </TD> 
- * <TD> vector<float > </TD>
- * <TD>  numCoeff </TD> 
- * <TD> &nbsp;the values of the coefficients used (one value per coefficient). </TD>
- * </TR>
-	
- * <TR>
- * <TD> assocNature </TD> 
- * <TD> string </TD>
- * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;nature of the association with the row refered to by associatedFocusModelId. </TD>
- * </TR>
-	
- * <TR>
- * <TD> assocFocusModelId </TD> 
- * <TD> int </TD>
- * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;refers to a collection of rows in the table. </TD>
+ * <TD> &nbsp;Number of phase bins </TD>
  * </TR>
 	
 
+
+ * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
+	
+ * <TR>
+ * <TD> numPoly(numPoly)</TD> 
+ * <TD> int </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; Number of polynomial coefficients </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> phasePoly</TD> 
+ * <TD> vector<double > </TD>
+ * <TD>  numPoly  </TD>
+ * <TD>&nbsp; The phase polynomial coefficients (Tempo units) </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> timeSpan</TD> 
+ * <TD> Interval </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; Time range over which the polynomial is valid </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> startPhaseBin</TD> 
+ * <TD> vector<float > </TD>
+ * <TD>  numBin  </TD>
+ * <TD>&nbsp; Start phase for each bin (turns) </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> endPhaseBin</TD> 
+ * <TD> vector<float > </TD>
+ * <TD>  numBin  </TD>
+ * <TD>&nbsp; End phase for each bin (turns) </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> dispersionMeasure</TD> 
+ * <TD> double </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; Dispersion measure applied, if data have been dedispersed (pc cm?3 ) </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> refFrequency</TD> 
+ * <TD> Frequency </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; Reference radio frequency for dedispersion
+ </TD>
+ * </TR>
+	
 
  * </TABLE>
  */
-class FocusModelTable : public Representable {
+class PulsarTable : public Representable {
 	friend class ASDM;
 
 public:
@@ -203,7 +235,7 @@ public:
 	static const std::vector<std::string>& getKeyName();
 
 
-	virtual ~FocusModelTable();
+	virtual ~PulsarTable();
 	
 	/**
 	 * Return the container to which this table belongs.
@@ -270,7 +302,7 @@ public:
 		
 	/**
 	 * Produces an XML representation conform
-	 * to the schema defined for FocusModel (FocusModelTable.xsd).
+	 * to the schema defined for Pulsar (PulsarTable.xsd).
 	 *
 	 * @returns a string containing the XML representation.
 	 * @throws ConversionException
@@ -280,31 +312,31 @@ public:
 #ifndef WITHOUT_ACS
 	// Conversion Methods
 	/**
-	 * Convert this table into a FocusModelTableIDL CORBA structure.
+	 * Convert this table into a PulsarTableIDL CORBA structure.
 	 *
-	 * @return a pointer to a FocusModelTableIDL
+	 * @return a pointer to a PulsarTableIDL
 	 */
-	asdmIDL::FocusModelTableIDL *toIDL() ;
+	asdmIDL::PulsarTableIDL *toIDL() ;
 	
 	/**
 	 * Fills the CORBA data structure passed in parameter
 	 * with the content of this table.
 	 *
-	 * @param x a reference to the asdmIDL::FocusModelTableIDL to be populated
+	 * @param x a reference to the asdmIDL::PulsarTableIDL to be populated
 	 * with the content of this.
 	 */
-	 void toIDL(asdmIDL::FocusModelTableIDL& x) const;
+	 void toIDL(asdmIDL::PulsarTableIDL& x) const;
 	 
 #endif
 
 #ifndef WITHOUT_ACS
 	/**
-	 * Populate this table from the content of a FocusModelTableIDL Corba structure.
+	 * Populate this table from the content of a PulsarTableIDL Corba structure.
 	 *
 	 * @throws DuplicateKey Thrown if the method tries to add a row having a key that is already in the table.
 	 * @throws ConversionException
 	 */	
-	void fromIDL(asdmIDL::FocusModelTableIDL x) ;
+	void fromIDL(asdmIDL::PulsarTableIDL x) ;
 #endif
 	
 	//
@@ -313,51 +345,41 @@ public:
 	
 	/**
 	 * Create a new row with default values.
-	 * @return a pointer on a FocusModelRow
+	 * @return a pointer on a PulsarRow
 	 */
-	FocusModelRow *newRow();
+	PulsarRow *newRow();
 	
 	
 	/**
 	 * Create a new row initialized to the specified values.
 	 * @return a pointer on the created and initialized row.
 	
- 	 * @param antennaId
+ 	 * @param refTime
 	
- 	 * @param polarizationType
+ 	 * @param refPulseFreq
 	
- 	 * @param receiverBand
+ 	 * @param refPhase
 	
- 	 * @param numCoeff
-	
- 	 * @param coeffName
-	
- 	 * @param coeffFormula
-	
- 	 * @param coeffVal
-	
- 	 * @param assocNature
-	
- 	 * @param assocFocusModelId
+ 	 * @param numBin
 	
      */
-	FocusModelRow *newRow(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffVal, string assocNature, int assocFocusModelId);
+	PulsarRow *newRow(ArrayTime refTime, Frequency refPulseFreq, double refPhase, int numBin);
 	
 
 
 	/**
 	 * Create a new row using a copy constructor mechanism.
 	 * 
-	 * The method creates a new FocusModelRow owned by this. Each attribute of the created row 
+	 * The method creates a new PulsarRow owned by this. Each attribute of the created row 
 	 * is a (deep) copy of the corresponding attribute of row. The method does not add 
 	 * the created row to this, its simply parents it to this, a call to the add method
 	 * has to be done in order to get the row added (very likely after having modified
 	 * some of its attributes).
-	 * If row is null then the method returns a new FocusModelRow with default values for its attributes. 
+	 * If row is null then the method returns a new PulsarRow with default values for its attributes. 
 	 *
 	 * @param row the row which is to be copied.
 	 */
-	 FocusModelRow *newRow(FocusModelRow *row); 
+	 PulsarRow *newRow(PulsarRow *row); 
 
 	//
 	// ====> Append a row to its table.
@@ -372,10 +394,10 @@ public:
 	 * to x's ones then return a pointer on this row (i.e. no actual insertion is performed) 
 	 * otherwise add x to the table and return x.
 	 * @param x . A pointer on the row to be added.
- 	 * @returns a pointer to a FocusModelRow.	 
+ 	 * @returns a pointer to a PulsarRow.	 
 	 */	 
 	 
- 	 FocusModelRow* add(FocusModelRow* x) ;
+ 	 PulsarRow* add(PulsarRow* x) ;
 
 
 
@@ -385,46 +407,35 @@ public:
 		
 	/**
 	 * Get a collection of pointers on the rows of the table.
-	 * @return Alls rows in a vector of pointers of FocusModelRow. The elements of this vector are stored in the order 
-	 * in which they have been added to the FocusModelTable.
+	 * @return Alls rows in a vector of pointers of PulsarRow. The elements of this vector are stored in the order 
+	 * in which they have been added to the PulsarTable.
 	 */
-	std::vector<FocusModelRow *> get() ;
+	std::vector<PulsarRow *> get() ;
 	
 	/**
 	 * Get a const reference on the collection of rows pointers internally hold by the table.
-	 * @return A const reference of a vector of pointers of FocusModelRow. The elements of this vector are stored in the order 
-	 * in which they have been added to the FocusModelTable.
+	 * @return A const reference of a vector of pointers of PulsarRow. The elements of this vector are stored in the order 
+	 * in which they have been added to the PulsarTable.
 	 *
 	 */
-	 const std::vector<FocusModelRow *>& get() const ;
+	 const std::vector<PulsarRow *>& get() const ;
 	
 
 
  
 	
 	/**
- 	 * Returns a FocusModelRow* given a key.
+ 	 * Returns a PulsarRow* given a key.
  	 * @return a pointer to the row having the key whose values are passed as parameters, or 0 if
  	 * no row exists for that key.
 	
-	 * @param antennaId
-	
-	 * @param focusModelId
+	 * @param pulsarId
 	
  	 *
 	 */
- 	FocusModelRow* getRowByKey(Tag antennaId, int focusModelId);
+ 	PulsarRow* getRowByKey(Tag pulsarId);
 
  	 	
- 	
-	/**
- 	 * Returns a vector of pointers on rows whose key element focusModelId 
-	 * is equal to the parameter focusModelId.
-	 * @return a vector of vector <FocusModelRow *>. A returned vector of size 0 means that no row has been found.
-	 * @param focusModelId int contains the value of
-	 * the autoincrementable attribute that is looked up in the table.
-	 */
- 	std::vector <FocusModelRow *>  getRowByFocusModelId(int);
 
 
 
@@ -434,26 +445,16 @@ public:
  	 * @return a pointer on this row if any, null otherwise.
  	 *
 			
- 	 * @param antennaId
+ 	 * @param refTime
  	 		
- 	 * @param polarizationType
+ 	 * @param refPulseFreq
  	 		
- 	 * @param receiverBand
+ 	 * @param refPhase
  	 		
- 	 * @param numCoeff
- 	 		
- 	 * @param coeffName
- 	 		
- 	 * @param coeffFormula
- 	 		
- 	 * @param coeffVal
- 	 		
- 	 * @param assocNature
- 	 		
- 	 * @param assocFocusModelId
+ 	 * @param numBin
  	 		 
  	 */
-	FocusModelRow* lookup(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffVal, string assocNature, int assocFocusModelId); 
+	PulsarRow* lookup(ArrayTime refTime, Frequency refPulseFreq, double refPhase, int numBin); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -462,14 +463,14 @@ public:
 private:
 
 	/**
-	 * Create a FocusModelTable.
+	 * Create a PulsarTable.
 	 * <p>
 	 * This constructor is private because only the
 	 * container can create tables.  All tables must know the container
 	 * to which they belong.
 	 * @param container The container to which this table belongs.
 	 */ 
-	FocusModelTable (ASDM & container);
+	PulsarTable (ASDM & container);
 
 	ASDM & container;
 	
@@ -486,7 +487,7 @@ private:
 
 	// A map for the autoincrementation algorithm
 	std::map<std::string,int>  noAutoIncIds;
-	void autoIncrement(std::string key, FocusModelRow* x);
+	void autoIncrement(std::string key, PulsarRow* x);
 
 
 	/**
@@ -498,21 +499,21 @@ private:
 	 * @throws UniquenessViolationException
 	 
 	 */
-	FocusModelRow* checkAndAdd(FocusModelRow* x, bool skipCheckUniqueness=false) ;
+	PulsarRow* checkAndAdd(PulsarRow* x, bool skipCheckUniqueness=false) ;
 	
 	/**
-	 * Brutally append an FocusModelRow x to the collection of rows already stored in this table. No uniqueness check is done !
+	 * Brutally append an PulsarRow x to the collection of rows already stored in this table. No uniqueness check is done !
 	 *
-	 * @param FocusModelRow* x a pointer onto the FocusModelRow to be appended.
+	 * @param PulsarRow* x a pointer onto the PulsarRow to be appended.
 	 */
-	 void append(FocusModelRow* x) ;
+	 void append(PulsarRow* x) ;
 	 
 	/**
-	 * Brutally append an FocusModelRow x to the collection of rows already stored in this table. No uniqueness check is done !
+	 * Brutally append an PulsarRow x to the collection of rows already stored in this table. No uniqueness check is done !
 	 *
-	 * @param FocusModelRow* x a pointer onto the FocusModelRow to be appended.
+	 * @param PulsarRow* x a pointer onto the PulsarRow to be appended.
 	 */
-	 void addWithoutCheckingUnique(FocusModelRow* x) ;
+	 void addWithoutCheckingUnique(PulsarRow* x) ;
 	 
 	 
 
@@ -520,12 +521,12 @@ private:
 
 // A data structure to store the pointers on the table's rows.
 
-// In all cases we maintain a private vector of FocusModelRow s.
-   std::vector<FocusModelRow * > privateRows;
+// In all cases we maintain a private vector of PulsarRow s.
+   std::vector<PulsarRow * > privateRows;
    
 
 			
-	std::vector<FocusModelRow *> row;
+	std::vector<PulsarRow *> row;
 
 	
 	void error() ; //throw(ConversionException);
@@ -533,7 +534,7 @@ private:
 	
 	/**
 	 * Populate this table from the content of a XML document that is required to
-	 * be conform to the XML schema defined for a FocusModel (FocusModelTable.xsd).
+	 * be conform to the XML schema defined for a Pulsar (PulsarTable.xsd).
 	 * @throws ConversionException
 	 * 
 	 */
@@ -543,7 +544,7 @@ private:
 
 	/**
 	  * Private methods involved during the build of this table out of the content
-	  * of file(s) containing an external representation of a FocusModel table.
+	  * of file(s) containing an external representation of a Pulsar table.
 	  */
 	void setFromMIMEFile(const std::string& directory);
 	/*
@@ -578,7 +579,7 @@ private:
 	  * Stores a representation (binary or XML) of this table into a file.
 	  *
 	  * Depending on the boolean value of its private field fileAsBin a binary serialization  of this (fileAsBin==true)  
-	  * will be saved in a file "FocusModel.bin" or an XML representation (fileAsBin==false) will be saved in a file "FocusModel.xml".
+	  * will be saved in a file "Pulsar.bin" or an XML representation (fileAsBin==false) will be saved in a file "Pulsar.xml".
 	  * The file is always written in a directory whose name is passed as a parameter.
 	 * @param directory The name of directory  where the file containing the table's representation will be saved.
 	  * 
@@ -598,7 +599,7 @@ private:
 	  	}
 	  }
 	/**
-	 * Reads and parses a file containing a representation of a FocusModelTable as those produced  by the toFile method.
+	 * Reads and parses a file containing a representation of a PulsarTable as those produced  by the toFile method.
 	 * This table is populated with the result of the parsing.
 	 * @param directory The name of the directory containing the file te be read and parsed.
 	 * @throws ConversionException If any error occurs while reading the 
@@ -611,4 +612,4 @@ private:
 
 } // End namespace asdm
 
-#endif /* FocusModelTable_CLASS */
+#endif /* PulsarTable_CLASS */

@@ -163,21 +163,21 @@ class WVMCalRow;
  * </TR>
 	
  * <TR>
- * <TD> numInputAntenna (\f$N_{Inpu}\f$)</TD> 
+ * <TD> numInputAntenna (numInputAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;The number of antennas used for the calculations. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numChan (\f$N_{Chan}\f$)</TD> 
+ * <TD> numChan (numChan)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of WVR channels. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numPoly (\f$N_{Poly}\f$)</TD> 
+ * <TD> numPoly (numPoly)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients used in the polynomial expansions. </TD>
