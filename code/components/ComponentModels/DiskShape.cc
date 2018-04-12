@@ -46,6 +46,7 @@
 #include <casa/Quanta/Quantum.h>
 #include <casa/Utilities/Assert.h>
 #include <casa/BasicSL/String.h>
+#include <cmath>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -122,11 +123,11 @@ ComponentType::Shape DiskShape::type() const {
 void DiskShape::setWidthInRad(const Double majorAxis,
 			      const Double minorAxis, 
 			      const Double positionAngle) {
+  const double epsilon = 1.0e-17;
   itsMajValue = majorAxis;
-  itsMinValue = minorAxis;
+  itsMinValue = std::abs(majorAxis-minorAxis) < epsilon ? majorAxis : minorAxis;
   itsPaValue = positionAngle;
-  AlwaysAssert(itsMajValue > 0 && itsMinValue > 0 && itsMajValue >=itsMinValue,
- 	       AipsError);
+  AlwaysAssert(itsMajValue > 0 && itsMinValue > 0 && itsMajValue >=itsMinValue, AipsError);
   itsHeight = 1.0/(C::pi*itsMajValue*itsMinValue);
   DebugAssert(ok(), AipsError);
 }
