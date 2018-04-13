@@ -269,7 +269,10 @@ public:
   casacore::Float pixelBeamArea(const casacore::GaussianBeam& beam, const casacore::CoordinateSystem& csys); 
 
   // Create a mask image applying PB level
-  void makePBMask(SHARED_PTR<SIImageStore> imstore, casacore::Float pblimit=0.1);
+  // @param[in, out] imstore SIImageStore 
+  // @param[in] pblimit Primary beam cut off level
+  // @param[in] pblimit Primary beam cut off level
+  void makePBMask(SHARED_PTR<SIImageStore> imstore, casacore::Float pblimit=0.1, casacore::Bool=false);
 
   void autoMaskWithinPB(SHARED_PTR<SIImageStore> imstore, 
                         casacore::TempImage<casacore::Float>& posmask,
@@ -325,8 +328,8 @@ public:
   casacore::Vector<casacore::Float>  findBlobSize(casacore::Lattice<casacore::Float>& lablat);
 
   // check if mask image is empty (all zeros ) =True or not
-  casacore::Bool isEmptyMask(casacore::ImageInterface<casacore::Float>& maskiamge);
-  casacore::Int getTotalPixels(casacore::ImageInterface<casacore::Float>& maskiamge);
+  casacore::Bool isEmptyMask(casacore::ImageInterface<casacore::Float>& maskimage);
+  casacore::Int getTotalPixels(casacore::ImageInterface<casacore::Float>& maskimage);
 
   // for warning messages for empy initial mask in automask
   void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Vector<casacore::String>& thresholdType);
