@@ -191,7 +191,8 @@ class PlotCal
     // Return which MAIN table column to return for "CAL_DESC_ID",
     //  depending on whether we are plotting a new or old table
     inline casacore::String CDIcol() { return (isNCT_p ? "SPECTRAL_WINDOW_ID" : "CAL_DESC_ID"); };
-    inline casacore::String GAINcol() { return (isNCT_p ? "CPARAM" : "GAIN"); };
+    inline casacore::String GAINcol() { return (isNCT_p ? 
+		(ct_p.isComplex() ? "CPARAM" : "FPARAM") : "GAIN"); };
 
     // Private data
     TablePlot *tp_p;

@@ -32,6 +32,7 @@
 #include <casa/aips.h>
 
 #include <graphics/X11/X_enter.h>
+#  include <QPrinter>
 #  include <QtCore>
 #  include <QtGui>
 #  include <QtXml/QDomDocument>

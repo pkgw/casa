@@ -26,7 +26,7 @@
 #ifndef PLOTMSDATACOLLAPSIBLE_QO_H
 #define PLOTMSDATACOLLAPSIBLE_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <casa/BasicSL/String.h>
 #include <plotms/GuiTabs/PlotMSDataCollapsible.ui.h>
 #include <plotms/Plots/PlotMSPlotParameters.h>

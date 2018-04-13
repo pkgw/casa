@@ -286,6 +286,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		Float cycleThreshold     = itsCycleThreshold;
 		maxCycleIterations = min(maxCycleIterations, itsNiter - itsIterDone);
 		cycleThreshold = max(cycleThreshold, itsThreshold);
+                Bool thresholdReached = (cycleThreshold==itsThreshold)? True : False;
 		/*
 		if (itsInteractiveMode) {
 			maxCycleIterations = min(maxCycleIterations, itsInteractiveNiter);
@@ -295,6 +296,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		returnRecord.define( RecordFieldId("cycleniter"),  maxCycleIterations);
 		returnRecord.define( RecordFieldId("cyclethreshold"), cycleThreshold);
 		returnRecord.define( RecordFieldId("loopgain"), itsLoopGain);
+                returnRecord.define( RecordFieldId("thresholdreached"), thresholdReached);
 
 		return returnRecord;
 	}

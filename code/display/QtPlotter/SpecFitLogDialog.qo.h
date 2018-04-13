@@ -25,7 +25,7 @@
 #ifndef SPECFITLOGDIALOG_QO_H
 #define SPECFITLOGDIALOG_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <display/QtPlotter/SpecFitLogDialog.ui.h>
 
 namespace casa {

@@ -92,41 +92,57 @@ VisModelData::clone ()
     return new VisModelData (* this);
 }
 
+
+  Bool VisModelData::hasAnyModel(const MeasurementSet& thems, Vector<Int>& fieldids){
+    Bool retval=False;
+    fieldids.resize();
+    ROMSColumns msc(thems);
+    Vector<Int> fields=msc.fieldId().getColumn();
+    const Sort::Order order=Sort::Ascending;
+    const Int option=Sort::HeapSort | Sort::NoDuplicates;
+    Int nfields=GenSort<Int>::sort (fields, order, option);\
+    if (nfields>0) {
+      for (Int j=0; j< 2; ++j){
+    	const Table* thetab=&thems;
+    	if (j==1)
+	  thetab=&(thems.source());
+    	for (Int k=0; k< nfields; ++k){
+    			if(thetab->keywordSet().isDefined("definedmodel_field_"+String::toString(fields[k])))
+    		{
+		  String elkey=thetab->keywordSet().asString("definedmodel_field_"+String::toString(fields[k]));
+		  if(thetab->keywordSet().isDefined(elkey)){
+		    fieldids.resize(fieldids.nelements()+1, True);
+		    fieldids[fieldids.nelements()-1]=fields[k];
+    		  }
+    		}
+    	}
+      }
+    }
+    if(fieldids.nelements() >0)
+      retval=True;
+
+    return retval;
+  }
+
 void VisModelData::listModel(const MeasurementSet& thems){
  
   //Table newTab(thems);
 
   ROMSColumns msc(thems);
   Vector<String> fldnames=msc.field().name().getColumn();
-  Vector<Int> fields=msc.fieldId().getColumn();
-  const Sort::Order order=Sort::Ascending;
-  const Int option=Sort::HeapSort | Sort::NoDuplicates;
-  Int nfields=GenSort<Int>::sort (fields, order, option);
-
+  Vector<Int> fieldids;
   LogIO logio;
-  if (nfields>0) {
-
-    logio << "MS Header field records:"
-	  << LogIO::POST;
-
-    Int nlis(0);
-    for (Int j=0; j< 2; ++j){
-    	const Table* thetab=&thems;
-    	if (j==1)
-    		thetab=&(thems.source());
-    	for (Int k=0; k< nfields; ++k){
-    			if(thetab->keywordSet().isDefined("definedmodel_field_"+String::toString(fields[k])))
-    		{
-    				String elkey=thetab->keywordSet().asString("definedmodel_field_"+String::toString(fields[k]));
-    				if(thetab->keywordSet().isDefined(elkey))
-				  logio << " " << fldnames[fields[k]] << " (id = " << fields[k] << ")" << LogIO::POST;
-    				++nlis;
-    		}
-    	}
+  if(hasAnyModel(thems, fieldids)){
+      for (uInt k=0; k< fieldids.nelements(); ++k){
+    			
+	logio << " " << fldnames[fieldids[k]] << " (id = " << fieldids[k] << ")" << LogIO::POST;
+    			  
+      }
     }
-    if (nlis==0)
+    else{
       logio <<  " None." << LogIO::POST;
-  }
+    }
+  
     
 }
 

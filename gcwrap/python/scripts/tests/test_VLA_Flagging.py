@@ -225,8 +225,14 @@ class Test020_FlaggingVLAData(unittest.TestCase):
 class Test021_FlaggingVLAData(unittest.TestCase):
     def setUp(self):
         pass
-    def tearDown(self):
-        pass
+    @classmethod
+    def tearDownClass(cls):
+
+        rmtables("SNR_G55_10s-hanning*")
+        os.system("rm -rf *.last")
+        os.system("rm -rf ngc612region.crtf")
+        os.system("rm -rf *.flagversions")
+
     def test_19_Flagging_Summary_G55(self):
         '''Flagging Summary G55.7+3.4'''
         flagInfo = flagdata(vis='SNR_G55_10s-hanning.ms', mode='summary', action='calculate',  spwchan=True)

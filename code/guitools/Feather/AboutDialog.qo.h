@@ -25,7 +25,7 @@
 #ifndef ABOUTDIALOG_QO_H
 #define ABOUTDIALOG_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <guitools/Feather/AboutDialog.ui.h>
 
 namespace casa {

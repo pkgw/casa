@@ -209,7 +209,7 @@ class CalPrimaryBeamRow;
  * </TR>
 	
  * <TR>
- * <TD> numSubband (\f$N_{Subb}\f$)</TD> 
+ * <TD> numSubband (numSubband)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of subband images (frequency ranges simultaneously measured ). </TD>
@@ -223,7 +223,7 @@ class CalPrimaryBeamRow;
  * </TR>
 	
  * <TR>
- * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
