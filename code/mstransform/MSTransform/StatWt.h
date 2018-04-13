@@ -26,6 +26,8 @@
 #include <casacore/casa/Quanta/Quantum.h>
 #include <casacore/scimath/StatsFramework/StatisticsAlgorithmFactory.h>
 
+#include <msvis/MSVis/LayeredVi2Factory.h>
+
 #include <memory>
 
 namespace casacore {
@@ -34,6 +36,8 @@ namespace casacore {
 }
 
 namespace casa {
+
+class StatWtColConfig;
 
 namespace vi {
     class StatWtTVILayerFactory;
@@ -47,7 +51,10 @@ class StatWt {
 
 public:
 
-	StatWt(casacore::MeasurementSet* ms);
+	StatWt(
+	    casacore::MeasurementSet* ms,
+	    const StatWtColConfig* const statwtColConfig
+	);
 
     ~StatWt();
 
@@ -93,27 +100,13 @@ private:
     std::unique_ptr<std::pair<casacore::Double, casacore::Double>> _wtrange = nullptr;
     casacore::Record _tviConfig;
     casacore::Bool _preview = false;
-    casacore::Bool _possiblyWriteSigma = false;
-
-    void _columnInitWrite(
-        casacore::Bool& mustWriteWt, casacore::Bool& mustWriteWtSp,
-        casacore::Bool& mustInitWtSp, casacore::Bool& mustWriteSig,
-        casacore::Bool& mustWriteSigSp, casacore::Bool& mustInitSigSp
-    );
+    const StatWtColConfig* _statwtColConfig = nullptr;
 
     // Construct the iterator
     void _constructVi(
         std::shared_ptr<vi::VisibilityIterator2>& vi,
         std::shared_ptr<vi::StatWtTVILayerFactory>& factory
     ) const;
-
-    // determine if the MS has a WEIGHT/SIGMA_SPECTRUM column, if it must
-    // be written, and/or if it must be initialized.
-    void _dealWithSpectrumColumn(
-        casacore::Bool& hasSpec, casacore::Bool& mustWriteSpec,
-        casacore::Bool& mustInitSpec, casacore::Bool mustWriteNonSpec,
-        const casacore::String& colName, const casacore::String& descName
-    );
 
 };
 

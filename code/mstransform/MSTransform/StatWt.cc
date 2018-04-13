@@ -18,6 +18,8 @@
 //#  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 //#  MA 02111-1307  USA
 
+#include <mstransform/MSTransform/StatWt.h>
+
 #include <casacore/casa/Containers/ValueHolder.h>
 #include <casacore/casa/Quanta/QuantumHolder.h>
 #include <casacore/casa/System/ProgressMeter.h>
@@ -26,19 +28,26 @@
 #include <casacore/tables/Tables/TableProxy.h>
 #include <casacore/tables/DataMan/TiledShapeStMan.h>
 
-#include <mstransform/MSTransform/StatWt.h>
+#include <mstransform/MSTransform/StatWtColConfig.h>
 #include <mstransform/TVI/StatWtTVI.h>
 #include <mstransform/TVI/StatWtTVILayerFactory.h>
 #include <msvis/MSVis/ViImplementation2.h>
 #include <msvis/MSVis/IteratingParameters.h>
-#include <msvis/MSVis/LayeredVi2Factory.h>
 
 using namespace casacore;
 
 namespace casa { 
 
-StatWt::StatWt(MeasurementSet* ms) : _ms(ms), _saf() {
+StatWt::StatWt(
+    MeasurementSet* ms,
+    const StatWtColConfig* const statwtColConfig
+) : _ms(ms),
+    _saf(), _statwtColConfig(statwtColConfig) {
     ThrowIf(! _ms, "Input MS pointer cannot be NULL");
+    ThrowIf(
+        ! _statwtColConfig,
+        "Input column configuration pointer cannot be NULL"
+    );
 }
 
 StatWt::~StatWt() {}
@@ -73,38 +82,16 @@ void StatWt::setPreview(casacore::Bool preview) {
 }
 
 void StatWt::setTVIConfig(const Record& config) {
-    static const String field = "datacolumn";
-    if (config.isDefined(field)) {
-        ThrowIf(
-            config.type(config.fieldNumber(field)) != TpString,
-            "Unsupported type for field '" + field + "'"
-        );
-        auto val = config.asString(field);
-        if (! val.empty()) {
-            val.downcase();
-            ThrowIf (
-                ! (
-                    val.startsWith("c") || val.startsWith("d")
-                    || val.startsWith("residual") || val.startsWith("residual_")
-                ),
-                "Unsupported value for " + field + ": " + val
-            );
-            _possiblyWriteSigma = val.startsWith("d") || val.startsWith("residual_");
-        }
-    }
     _tviConfig = config;
 }
 
 Record StatWt::writeWeights() {
     auto mustWriteWt = False;
     auto mustWriteWtSp = False;
-    auto mustInitWtSp = False;
     auto mustWriteSig = False;
     auto mustWriteSigSp = False;
-    auto mustInitSigSp = False;
-    _columnInitWrite(
-        mustWriteWt, mustWriteWtSp, mustInitWtSp,
-        mustWriteSig, mustWriteSigSp, mustInitSigSp
+    _statwtColConfig->getColWriteFlags(
+        mustWriteWt, mustWriteWtSp, mustWriteSig, mustWriteSigSp
     );
     shared_ptr<vi::VisibilityIterator2> vi;
     std::shared_ptr<vi::StatWtTVILayerFactory> factory;
@@ -121,23 +108,23 @@ Record StatWt::writeWeights() {
                 vb->flagCube();
             }
             else {
-                if (mustInitWtSp || mustInitSigSp) {
-                    auto nchan = vb->nChannels();
-                    auto ncor = vb->nCorrelations();
-                    Cube<Float> newsp(ncor, nchan, nrow, 0);
-                    if (mustInitWtSp) {
-                        vb->initWeightSpectrum(newsp);
-                    }
-                    if (mustInitSigSp) {
-                        vb->initSigmaSpectrum(newsp);
-                    }
-                    vb->writeChangesBack();
-                }
                 if (mustWriteWtSp) {
-                    vb->setWeightSpectrum(vb->weightSpectrum());
+                    auto& x = vb->weightSpectrum();
+                    ThrowIf(
+                        x.empty(),
+                        "WEIGHT_SPECTRUM is only partially initialized. "
+                        "StatWt2 cannot deal with such an MS"
+                    );
+                    vb->setWeightSpectrum(x);
                 }
                 if (mustWriteSigSp) {
-                    vb->setSigmaSpectrum(vb->sigmaSpectrum());
+                    auto& x = vb->sigmaSpectrum();
+                    ThrowIf(
+                        x.empty(),
+                        "SIGMA_SPECTRUM is only partially initialized. "
+                        "StatWt2 cannot deal with such an MS"
+                    );
+                    vb->setSigmaSpectrum(x);
                 }
                 if (mustWriteWt) {
                     vb->setWeight(vb->weight());
@@ -166,76 +153,6 @@ Record StatWt::writeWeights() {
     ret.define("mean", mean);
     ret.define("variance", variance);
     return ret;
-}
-
-void StatWt::_columnInitWrite(
-    casacore::Bool& mustWriteWt, casacore::Bool& mustWriteWtSp,
-    casacore::Bool& mustInitWtSp, casacore::Bool& mustWriteSig,
-    casacore::Bool& mustWriteSigSp, casacore::Bool& mustInitSigSp
-) {
-    auto hasWtSp = _ms->isColumn(MSMainEnums::WEIGHT_SPECTRUM);
-    mustWriteSig = _possiblyWriteSigma && ! _preview;
-    auto hasSigSp = _ms->isColumn(MSMainEnums::SIGMA_SPECTRUM);
-    mustWriteSigSp = mustWriteSig && hasSigSp;
-    mustWriteWt = ! _preview
-        && (
-            ! mustWriteSig
-            || (
-                mustWriteSig && ! _ms->isColumn(MSMainEnums::CORRECTED_DATA)
-            )
-        );
-    mustWriteWtSp = mustWriteWt
-        && _tviConfig.isDefined(vi::StatWtTVI::CHANBIN);
-    if (mustWriteWtSp) {
-        auto type = _tviConfig.type(_tviConfig.fieldNumber(vi::StatWtTVI::CHANBIN));
-        if (type == TpArrayBool) {
-            // default variant type
-            mustWriteWtSp = False;
-        }
-        else if (type == TpString) {
-            auto val = _tviConfig.asString(vi::StatWtTVI::CHANBIN);
-            val.downcase();
-            if (val == "spw") {
-                mustWriteWtSp = False;
-            }
-        }
-    }
-    mustInitWtSp = False;
-    mustInitSigSp = False;
-    static const auto colNameWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
-    static const auto descWtSp = "weight spectrum";
-    _dealWithSpectrumColumn(
-        hasWtSp, mustWriteWtSp, mustInitWtSp,
-        mustWriteWt, colNameWtSp, descWtSp
-    );
-    static const auto colNameSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
-    static const auto descSigSp = "sigma spectrum";
-    _dealWithSpectrumColumn(
-        hasSigSp, mustWriteSigSp, mustInitSigSp,
-        mustWriteSig, colNameSigSp, descSigSp
-    );
-    LogIO log(LogOrigin("StatWt", __func__));
-    if (mustWriteWt) {
-        if (mustWriteSig) {
-            log << LogIO::NORMAL
-                << "CORRECTED_DATA is not present. Updating the "
-                << "SIGMA/SIGMA_SPECTRUM and WEIGHT/WEIGHT_SPECTRUM values "
-                << "based on calculations using the DATA column."
-                << LogIO::POST;
-        }
-        else {
-            log << LogIO::NORMAL
-                << "Updating the WEIGHT/WEIGHT_SPECTRUM values. SIGMA/SIGMA_SPECTRUM "
-                << "values will not be recalculated as they are related to the values "
-                << "in the DATA column." << LogIO::POST;
-        }
-    }
-    else if (mustWriteSig) {
-        log << LogIO::NORMAL
-            << "Updating the SIGMA/SIGMA_SPECTRUM values. WEIGHT/WEIGHT_SPECTRUM will "
-            << "not be recalculated as they are related to the values in the "
-            << "CORRECTED_DATA column." << LogIO::POST;
-    }
 }
 
 void StatWt::_constructVi(
@@ -275,54 +192,4 @@ void StatWt::_constructVi(
     vi.reset(new vi::VisibilityIterator2(facts));
 }
 
-void StatWt::_dealWithSpectrumColumn(
-    Bool& hasSpec, Bool& mustWriteSpec, Bool& mustInitSpec,
-    Bool mustWriteNonSpec, const String& colName, const String& descName
-) {
-    // this conditional structure supports the
-    // case of ! hasSpec && ! mustWriteSpec, in which case,
-    // nothing need be done
-    if (! hasSpec) {
-        if (mustWriteSpec) {
-            // we must create spectrum column
-            hasSpec = True;
-            mustInitSpec = True;
-            // from Calibrater.cc
-            // Nominal default tile shape
-            IPosition dts(3, 4, 32, 1024);
-            // Discern DATA's default tile shape and use it
-            const auto dminfo = _ms->dataManagerInfo();
-            for (uInt i=0; i<dminfo.nfields(); ++i) {
-                Record col = dminfo.asRecord(i);
-                if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
-                    dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
-                    break;
-                }
-            }
-            // Add the column
-            String colWtSp = colName;
-            TableDesc tdWtSp;
-            tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, descName, 2));
-            TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
-            _ms->addColumn(tdWtSp, wtSpStMan);
-        }
-    }
-    else if (mustWriteNonSpec) {
-        // check to see if extant spectrum column needs to be initialized
-        ArrayColumn<Float> col(*_ms, colName);
-        try {
-            col.get(0);
-            // its initialized, so even if we are using the full spw for
-            // binning, we still need to update WEIGHT_SPECTRUM
-            mustWriteSpec = True;
-        }
-        catch (const AipsError& x) {
-            // its not initialized, so we aren't going to write to it unless
-            // chanbin has been specified to be less than the spw width
-            mustInitSpec = mustWriteSpec;
-        }
-    }
 }
-
-}
-
