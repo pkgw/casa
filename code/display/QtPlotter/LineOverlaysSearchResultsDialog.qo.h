@@ -26,7 +26,7 @@
 
 #ifndef LINEOVERLAYSSEARCHRESULTSDIALOG_QO_H
 #define LINEOVERLAYSSEARCHRESULTSDIALOG_QO_H
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <display/QtPlotter/LineOverlaysSearchResultsDialog.ui.h>
 #include <display/QtPlotter/SearchMoleculesResultDisplayer.h>
 #include <casa/Containers/Record.h>

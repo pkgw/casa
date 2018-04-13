@@ -18,6 +18,8 @@ if [ ! -z $CASABRANCHHINT ]; then
         headGrep=$b1-$b2
     elif [[ $CASABRANCHHINT =~ ^CAS.* ]] ; then
         headGrep=$CASABRANCHHINT
+    elif [[ $CASABRANCHHINT =~ ^ARD.* ]] ; then
+        headGrep=$CASABRANCHHINT
     elif [[ $CASABRANCHHINT =~ .*release.* ]] ; then
         headGrep=$CASABRANCHHINT
         tagid="rel"

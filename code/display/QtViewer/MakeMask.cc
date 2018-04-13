@@ -26,6 +26,8 @@
 //# $Id$
 
 
+#include <QFileDialog>
+#include <QMessageBox>
 #include <display/QtViewer/MakeMask.qo.h>
 #include <display/RegionShapes/RegionShapes.h>
 #include <display/QtViewer/QtDisplayData.qo.h>

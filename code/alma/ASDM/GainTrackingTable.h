@@ -154,7 +154,7 @@ class GainTrackingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -186,7 +186,7 @@ class GainTrackingRow;
  * </TR>
 	
  * <TR>
- * <TD> numAttFreq(\f$N_{AttF}\f$)</TD> 
+ * <TD> numAttFreq(numAttFreq)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the sizes of attSpectrum and attFreq. </TD>

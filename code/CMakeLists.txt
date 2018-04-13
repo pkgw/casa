@@ -1058,7 +1058,6 @@ casa_find( CASACORE
            DEFINITIONS "-DUseCasacoreNamespace"
            INCLUDES casa/aips.h
                     casa/version.h
-                    scimath/Mathematics/MatrixMathLA.h  # declares symbols defined in LAPACK
            INCLUDES_SUFFIXES casacore
            LIBS ${casacore_libs}
            PREFIX_HINTS ${casacore_prefix}
@@ -1409,12 +1408,13 @@ else()
   endif()
 endif()
 casa_add_module( atmosphere )
+casa_add_module( casatools CASACORE )
 casa_add_module( stdcasa CASACORE Boost )
 casa_add_module( parallel CASACORE Boost )
 casa_add_module( casadbus CASACORE DBUS Boost)
 casa_add_module( casaqt CASACORE QT4 QWT XERCES graphics stdcasa Boost)
 ###casa_add_module ( CasaDataObjects CASACORE)
-casa_add_module( components stdcasa CASACORE Boost GSL)
+casa_add_module( components stdcasa casatools CASACORE Boost GSL)
 casa_add_module( imageanalysis CASACORE components)
 casa_add_module( asdmstman CASACORE Boost )
 casa_add_module( msvis CASACORE Boost asdmstman ) # WarningsAsErrors)
