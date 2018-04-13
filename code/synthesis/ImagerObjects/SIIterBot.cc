@@ -168,16 +168,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  }
 
 		/// This may interfere with some other criterion... check.
+                Float tol = 0.001; // threshold test torelance (CAS-11278)
 		if ( itsMajorDone==0 && itsIterDone==0 ) { stopCode=0; }
 		else if ( itsIterDone >= itsNiter || 
 		     itsPeakResidual <= itsThreshold ||
+                     abs(itsPeakResidual - itsThreshold)/itsThreshold < tol ||   
 		     itsStopFlag )
 		  {
 		    //		    os << "Reached global stopping criteria : ";
 
 		    if( itsIterDone >= itsNiter ) { stopCode=1; }
 		    //os << "Numer of iterations. "; // (" << itsIterDone << ") >= limit (" << itsNiter << ")" ;
-		    if( usePeakRes <= itsThreshold ) {stopCode=2; }
+		    if( usePeakRes <= itsThreshold || (usePeakRes-itsThreshold)/itsThreshold < tol) {stopCode=2; }
 		    //os << "Peak residual (" << itsPeakResidual << ") <= threshold(" << itsThreshold << ")";
 		    if( itsStopFlag ) {stopCode=3;}
 		      //os << "Forced stop. ";
