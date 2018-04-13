@@ -204,14 +204,14 @@ class CalFocusModelRow;
  * </TR>
 	
  * <TR>
- * <TD> numCoeff (\f$N_{Coef}\f$)</TD> 
+ * <TD> numCoeff (numCoeff)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numSourceObs (\f$N_{Sour}\f$)</TD> 
+ * <TD> numSourceObs (numSourceObs)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of source directions observed to derive the model. </TD>

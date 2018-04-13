@@ -177,14 +177,14 @@ class SubscanRow;
  * </TR>
 	
  * <TR>
- * <TD> numIntegration (\f$N_{Inte}\f$)</TD> 
+ * <TD> numIntegration (numIntegration)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of integrations during the scan. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numSubintegration (\f$N_{Subi}\f$)</TD> 
+ * <TD> numSubintegration (numSubintegration)</TD> 
  * <TD> vector<int > </TD>
  * <TD>  numIntegration </TD> 
  * <TD> &nbsp;the number of subintegrations for each integration. </TD>

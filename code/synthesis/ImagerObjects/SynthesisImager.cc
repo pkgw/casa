@@ -107,7 +107,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   SynthesisImager::SynthesisImager() : itsMappers(SIMapperCollection()), writeAccess_p(True),
-				       gridpars_p(), impars_p()
+				       gridpars_p(), impars_p(), movingSource_p("")
   {
 
      imwgt_p=VisImagingWeight("natural");
@@ -2709,8 +2709,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
     for(rvi_p->originChunks(); rvi_p->moreChunks(); rvi_p->nextChunk()){
       Bool fieldDone=false;
-      for (uInt k=0;  k < fieldsDone.nelements(); ++k)
+      for (uInt k=0;  k < fieldsDone.nelements(); ++k){
 	fieldDone=fieldDone || (vb.fieldId()==fieldsDone(k));
+      }
       if(!fieldDone){
 	++fieldCounter;
 	fieldsDone.resize(fieldCounter, true);
@@ -2727,7 +2728,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       return True;
   }// end makePB
 
-
+  /////===========
+  void SynthesisImager::setMovingSource(const String& movingSource){
+    movingSource_p=movingSource;
+  }
+  
 
 } //# NAMESPACE CASA - END
 

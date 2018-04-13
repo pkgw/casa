@@ -60,8 +60,7 @@ EGainCurve::EGainCurve(VisSet& vs) :
   VisMueller(vs),
   SolvableVisJones(vs),
   za_(),
-  eff_(nSpw(),1.0),
-  spwOK_()
+  eff_(nSpw(),1.0)
 {
   if (prtlev()>2) cout << "EGainCurve::EGainCurve(vs)" << endl;
 }
@@ -71,8 +70,7 @@ EGainCurve::EGainCurve(String msname,Int MSnAnt,Int MSnSpw) :
   VisMueller(msname,MSnAnt,MSnSpw),
   SolvableVisJones(msname,MSnAnt,MSnSpw),
   za_(),
-  eff_(nSpw(),1.0),
-  spwOK_()
+  eff_(nSpw(),1.0)
 {
   if (prtlev()>2) cout << "EGainCurve::EGainCurve(msname,MSnAnt,MSnSpw)" << endl;
 }
@@ -82,8 +80,7 @@ EGainCurve::EGainCurve(const MSMetaInfoForCal& msmc) :
   VisMueller(msmc),
   SolvableVisJones(msmc),
   za_(),
-  eff_(nSpw(),1.0),
-  spwOK_()
+  eff_(nSpw(),1.0)
 {
   if (prtlev()>2) cout << "EGainCurve::EGainCurve(msmc)" << endl;
 }
@@ -334,8 +331,8 @@ void EGainCurve::specify(const Record& specify) {
                                  && rawgaintab.col("ETIME") > obstime_);
 
   // ...for each spw:
-  spwOK_.resize(nSpw());  
-  spwOK_.set(false);  // will set true when we find them
+  Vector<Bool> spwFound_(nSpw(),false);  
+  spwFound_.set(false);  // will set true when we find them
 
   for (Int ispw=0; ispw<nSpw(); ispw++) {
 
@@ -400,7 +397,7 @@ void EGainCurve::specify(const Record& specify) {
 	  */
 	}
 	
-	spwOK_(currSpw())=true;
+	spwFound_(currSpw())=true;
 	
       }
       else {
@@ -424,7 +421,7 @@ void EGainCurve::specify(const Record& specify) {
       solveAllRPar().set(0.0);
       solveAllRPar()(Slice(0,1,1),Slice(),Slice()).set(1.0);
       solveAllRPar()(Slice(4,1,1),Slice(),Slice()).set(1.0);
-      spwOK_(currSpw())=true;
+      spwFound_(currSpw())=true;
     }
 
     // Scale by efficiency factor, if requested
@@ -437,7 +434,7 @@ void EGainCurve::specify(const Record& specify) {
 
   } // ispw
 
-  if (allEQ(spwOK_,false))
+  if (allEQ(spwFound_,false))
     throw(AipsError("Found no gaincurve data for any spw."));
 
 

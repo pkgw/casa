@@ -39,6 +39,8 @@
 
 #include <CalAmpliRow.h>
 
+#include <CalAntennaSolutionsRow.h>
+
 #include <CalAppPhaseRow.h>
 
 #include <CalAtmosphereRow.h>
@@ -127,6 +129,8 @@
 
 #include <ProcessorRow.h>
 
+#include <PulsarRow.h>
+
 #include <ReceiverRow.h>
 
 #include <SBSummaryRow.h>
@@ -172,6 +176,8 @@
 #include <AntennaTable.h>
 
 #include <CalAmpliTable.h>
+
+#include <CalAntennaSolutionsTable.h>
 
 #include <CalAppPhaseTable.h>
 
@@ -260,6 +266,8 @@
 #include <PolarizationTable.h>
 
 #include <ProcessorTable.h>
+
+#include <PulsarTable.h>
 
 #include <ReceiverTable.h>
 
