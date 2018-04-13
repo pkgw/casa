@@ -408,7 +408,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	for (uInt j=0; j< nTimes; ++j){
 	  if((useFieldsInMS || anyEQ(fieldIds, fldId[elindx[uniqIndx[j]]])) && anyEQ(ddOfSpw, ddId[elindx[uniqIndx[j]]])){
 	    timeCol.get(elindx[uniqIndx[j]], ep);
+	    dir=fieldCol.phaseDirMeas(fldId[elindx[uniqIndx[j]]]);
 	    frame.resetEpoch(ep);
+	    frame.resetDirection(dir);
 	    Double freqTmp=toframe(Quantity(freqStartObs, "Hz")).get("Hz").getValue();
 	    if(freqStart > freqTmp)  freqStart=freqTmp;
 	    if(freqEnd < freqTmp)  freqEnd=freqTmp;

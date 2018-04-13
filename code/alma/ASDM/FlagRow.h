@@ -75,7 +75,11 @@
 	
 
 	
+
+	
 #include "CPolarizationType.h"
+	
+
 	
 
 
@@ -404,6 +408,47 @@ public:
 
 
 	
+	// ===> Attribute numChan, which is optional
+	
+	
+	
+	/**
+	 * The attribute numChan is optional. Return true if this attribute exists.
+	 * @return true if and only if the numChan attribute exists. 
+	 */
+	bool isNumChanExists() const;
+	
+
+	
+ 	/**
+ 	 * Get numChan, which is optional.
+ 	 * @return numChan as int
+ 	 * @throws IllegalAccessException If numChan does not exist.
+ 	 */
+ 	int getNumChan() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set numChan with the specified int.
+ 	 * @param numChan The int value to which numChan is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setNumChan (int numChan);
+		
+	
+	
+	
+	/**
+	 * Mark numChan, which is an optional field, as non-existent.
+	 */
+	void clearNumChan ();
+	
+
+
+	
 	// ===> Attribute polarizationType, which is optional
 	
 	
@@ -441,6 +486,47 @@ public:
 	 * Mark polarizationType, which is an optional field, as non-existent.
 	 */
 	void clearPolarizationType ();
+	
+
+
+	
+	// ===> Attribute channel, which is optional
+	
+	
+	
+	/**
+	 * The attribute channel is optional. Return true if this attribute exists.
+	 * @return true if and only if the channel attribute exists. 
+	 */
+	bool isChannelExists() const;
+	
+
+	
+ 	/**
+ 	 * Get channel, which is optional.
+ 	 * @return channel as vector<vector<int > >
+ 	 * @throws IllegalAccessException If channel does not exist.
+ 	 */
+ 	vector<vector<int > > getChannel() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set channel with the specified vector<vector<int > >.
+ 	 * @param channel The vector<vector<int > > value to which channel is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setChannel (vector<vector<int > > channel);
+		
+	
+	
+	
+	/**
+	 * Mark channel, which is an optional field, as non-existent.
+	 */
+	void clearChannel ();
 	
 
 
@@ -828,7 +914,9 @@ void antennaIdFromBin( EndianIStream& eis);
 void numPolarizationTypeFromBin( EndianIStream& eis);
 void numSpectralWindowFromBin( EndianIStream& eis);
 void numPairedAntennaFromBin( EndianIStream& eis);
+void numChanFromBin( EndianIStream& eis);
 void polarizationTypeFromBin( EndianIStream& eis);
+void channelFromBin( EndianIStream& eis);
 void pairedAntennaIdFromBin( EndianIStream& eis);
 void spectralWindowIdFromBin( EndianIStream& eis);
 
@@ -1005,6 +1093,19 @@ private:
  	
 
 	
+	// ===> Attribute numChan, which is optional
+	
+	
+	bool numChanExists;
+	
+
+	int numChan;
+
+	
+	
+ 	
+
+	
 	// ===> Attribute polarizationType, which is optional
 	
 	
@@ -1012,6 +1113,19 @@ private:
 	
 
 	vector<PolarizationTypeMod::PolarizationType > polarizationType;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute channel, which is optional
+	
+	
+	bool channelExists;
+	
+
+	vector<vector<int > > channel;
 
 	
 	
@@ -1096,7 +1210,9 @@ void antennaIdFromBin( EndianIStream& eis);
 void numPolarizationTypeFromBin( EndianIStream& eis);
 void numSpectralWindowFromBin( EndianIStream& eis);
 void numPairedAntennaFromBin( EndianIStream& eis);
+void numChanFromBin( EndianIStream& eis);
 void polarizationTypeFromBin( EndianIStream& eis);
+void channelFromBin( EndianIStream& eis);
 void pairedAntennaIdFromBin( EndianIStream& eis);
 void spectralWindowIdFromBin( EndianIStream& eis);
 
@@ -1135,7 +1251,13 @@ void numSpectralWindowFromText (const string & s);
 void numPairedAntennaFromText (const string & s);
 	
 	
+void numChanFromText (const string & s);
+	
+	
 void polarizationTypeFromText (const string & s);
+	
+	
+void channelFromText (const string & s);
 	
 	
 void pairedAntennaIdFromText (const string & s);

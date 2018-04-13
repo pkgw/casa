@@ -233,7 +233,7 @@ class CalPositionRow;
  * </TR>
 	
  * <TR>
- * <TD> numAntenna (\f$N_{Ante}\f$)</TD> 
+ * <TD> numAntenna (numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas of reference. </TD>

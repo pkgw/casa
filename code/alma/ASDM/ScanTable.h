@@ -166,14 +166,14 @@ class ScanRow;
  * </TR>
 	
  * <TR>
- * <TD> numIntent (\f$N_{Inte}\f$)</TD> 
+ * <TD> numIntent (numIntent)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of intents for this scan. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numSubscan (\f$N_{Subs}\f$)</TD> 
+ * <TD> numSubscan (numSubscan)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of subscans contained by this scan. </TD>
@@ -226,7 +226,7 @@ class ScanRow;
  * </TR>
 	
  * <TR>
- * <TD> numField(\f$N_{Fiel}\f$)</TD> 
+ * <TD> numField(numField)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of fields observed. </TD>
