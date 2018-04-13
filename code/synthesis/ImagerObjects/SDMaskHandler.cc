@@ -2737,19 +2737,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  void SDMaskHandler::makePBMask(SHARED_PTR<SIImageStore> imstore, Float pblimit, Bool combinemask)
+  void SDMaskHandler::makePBMask(SHARED_PTR<SIImageStore> imstore, Float pblimit)
   {
     LogIO os( LogOrigin("SDMaskHandler","makePBMask",WHERE) );
 
     if( imstore->hasPB() ) // Projection algorithms will have this.
       {
-        LatticeExpr<Float> themask;
-        if (combinemask && imstore->hasMask()) { 
-	  themask = LatticeExpr<Float> ( iif( (*(imstore->pb())) > pblimit, *(imstore->mask()), 0.0 ) );
-        }
-        else {
-	  themask = LatticeExpr<Float> ( iif( (*(imstore->pb())) > pblimit , 1.0, 0.0 ) );
-        }
+	LatticeExpr<Float> themask( iif( (*(imstore->pb())) > pblimit , 1.0, 0.0 ) );
 	imstore->mask()->copyData( themask );
       }
     else // Calculate it here...

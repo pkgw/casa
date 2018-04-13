@@ -486,7 +486,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
           itsMaskHandler->fillMask( itsImages, itsMaskList);
           if( itsPBMask > 0.0 ) {  
-            itsMaskHandler->makePBMask(itsImages, itsPBMask, True);
+            itsMaskHandler->makePBMask(itsImages, itsPBMask);
           }
         }
         else if( itsMaskType=="pb") {
