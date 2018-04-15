@@ -127,19 +127,35 @@ image::image() : _log(), _imageF(), _imageC() {}
 // using a shared_ptr
 
 image::image(casacore::ImageInterface<casacore::Float> *inImage) :
-    _log(), _imageF(inImage), _imageC() {
+    _log(), _imageF(inImage), _imageC(), _imageD(), _imageDC() {
 }
 
 image::image(ImageInterface<Complex> *inImage) :
-    _log(), _imageF(), _imageC(inImage) {
+    _log(), _imageF(), _imageC(inImage), _imageD(), _imageDC() {
+}
+
+image::image(casacore::ImageInterface<casacore::Double> *inImage) :
+    _log(), _imageF(), _imageC(), _imageD(inImage), _imageDC() {
+}
+
+image::image(ImageInterface<DComplex> *inImage) :
+    _log(), _imageF(), _imageC(), _imageD(), _imageDC(inImage) {
 }
 
 image::image(casa::SPIIF inImage) :
-    _log(), _imageF(inImage), _imageC() {
+    _log(), _imageF(inImage), _imageC(), _imageD(), _imageDC() {
 }
 
 image::image(casa::SPIIC inImage) :
-    _log(), _imageF(), _imageC(inImage) {
+    _log(), _imageF(), _imageC(inImage), _imageD(), _imageDC() {
+}
+
+image::image(casa::SPIID inImage) :
+    _log(), _imageF(), _imageC(), _imageD(inImage), _imageDC() {
+}
+
+image::image(casa::SPIIDC inImage) :
+    _log(), _imageF(), _imageC(), _imageD(), _imageDC(inImage) {
 }
 
 image::~image() {}
@@ -343,20 +359,30 @@ record* image::boundingbox(const variant& region) {
         if (_detached()) {
             return nullptr;
         }
-        auto myreg = _getRegion(region, false);
-        unique_ptr<ImageMetaData> md(
-            _imageF
-            ? new ImageMetaData(_imageF)
-            : new ImageMetaData(_imageC)
-        );
-        return fromRecord(*md->getBoundingBox(*myreg));
-    }
+        if (_imageF) {
+            return _boundingbox(_imageF, region);
+        }
+        else if (_imageC) {
+            return _boundingbox(_imageC, region);
+        }
+        else {
+            ThrowCc("Logic error");
+        }
+   }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
             << LogIO::POST;
         RETHROW(x);
     }
     return nullptr;
+}
+
+template <class T> record* image::_boundingbox(
+    SPIIT image, const variant& region
+) const {
+    auto myreg = _getRegion(region, false);
+    ImageMetaData<T> md(image);
+    return fromRecord(*md.getBoundingBox(*myreg));
 }
 
 image* image::boxcar(
@@ -1066,20 +1092,15 @@ coordsys* image::coordsys(const std::vector<int>& pixelAxes) {
         if (_detached()) {
             return nullptr;
         }
-        vector<Int> myAxes = pixelAxes;
-        if (pixelAxes.size() == 1 && pixelAxes[0] == -1) {
-            myAxes.clear();
+        if (_imageF) {
+            return _coordsys(_imageF, pixelAxes);
         }
-        unique_ptr<ImageMetaData> imd(
-            _imageF
-            ? new ImageMetaData(_imageF)
-            : new ImageMetaData(_imageC)
-        );
-        auto csys =  imd->coordsys(myAxes);
-        std::unique_ptr<casac::coordsys> rstat;
-        rstat.reset(new ::casac::coordsys());
-        rstat->setcoordsys(csys);
-        return rstat.release();
+        else if (_imageC) {
+            return _coordsys(_imageC, pixelAxes);
+        }
+        else {
+            ThrowCc("This type of image is not supported by this method");
+        }
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -1087,6 +1108,21 @@ coordsys* image::coordsys(const std::vector<int>& pixelAxes) {
         RETHROW(x);
     }
     return nullptr;
+}
+
+template <class T> coordsys* image::_coordsys(
+    SPIIT image, const std::vector<int>& pixelAxes
+) {
+    vector<Int> myAxes = pixelAxes;
+    if (pixelAxes.size() == 1 && pixelAxes[0] == -1) {
+        myAxes.clear();
+    }
+    ImageMetaData<T> imd(image);
+    auto csys =  imd.coordsys(myAxes);
+    std::unique_ptr<casac::coordsys> rstat;
+    rstat.reset(new ::casac::coordsys());
+    rstat->setcoordsys(csys);
+    return rstat.release();
 }
 
 image* image::crop(
@@ -1385,7 +1421,7 @@ record* image::deconvolvefrombeam(
 }
 
 bool image::_detached() const {
-    if ( ! _imageF && ! _imageC) {
+    if ( ! (_imageF || _imageC || _imageD || _imageDC)) {
         _log <<  _ORIGIN;
         _log << LogIO::SEVERE
             << "Image is detached - cannot perform operation." << endl
@@ -2191,17 +2227,32 @@ bool image::fromshape(
         String mytype = type;
         mytype.downcase();
         ThrowIf(
-            ! mytype.startsWith("f") && ! mytype.startsWith("c"),
-            "Input parm type must start with either 'f' or 'c'"
+            ! (
+                mytype == "f" || mytype == "c"
+                || mytype == "d" || mytype == "cd"
+            ),
+            "Input parm type must be either 'f', 'c', 'd', or 'cd'"
         );
-        if (mytype.startsWith("f")) {
+        if (mytype == "f") {
             _imageF = ImageFactory::floatImageFromShape(
                 outfile, shape, *coordinates,
                 linear, overwrite, log
             );
         }
-        else {
+        else if (mytype == "c") {
             _imageC = ImageFactory::complexImageFromShape(
+                outfile, shape, *coordinates,
+                linear, overwrite, log
+            );
+        }
+        else if (mytype == "d") {
+            _imageD = ImageFactory::doubleImageFromShape(
+                outfile, shape, *coordinates,
+                linear, overwrite, log
+            );
+        }
+        else if (mytype == "cd") {
+            _imageDC = ImageFactory::complexDoubleImageFromShape(
                 outfile, shape, *coordinates,
                 linear, overwrite, log
             );
@@ -2235,7 +2286,7 @@ variant* image::getchunk(
         if (_detached()) {
             return nullptr;
         }
-        Record ret;
+        casacore::Record ret;
         if (_imageF) {
             ret = _getchunk<Float>(
                 _imageF, blc, trc, inc,
@@ -2247,7 +2298,7 @@ variant* image::getchunk(
                 return new variant(v, vals.shape().asStdVector());
             }
         }
-        else {
+        else if (_imageC) {
             ret = _getchunk<Complex> (
                 _imageC, blc, trc, inc,
                 axes, list, dropdeg
@@ -2257,6 +2308,31 @@ variant* image::getchunk(
                 vector<std::complex<double> > v(vals.begin(), vals.end());
                 return new variant(v, vals.shape().asStdVector());
             }
+        }
+        else if (_imageD) {
+            ret = _getchunk<Double> (
+                _imageD, blc, trc, inc,
+                axes, list, dropdeg
+            );
+            if (! getmask) {
+                Array<Double> vals = ret.asArrayDouble("values");
+                vector<Double> v(vals.begin(), vals.end());
+                return new variant(v, vals.shape().asStdVector());
+            }
+        }
+        else if (_imageDC) {
+            ret = _getchunk<DComplex> (
+                _imageDC, blc, trc, inc,
+                axes, list, dropdeg
+            );
+            if (! getmask) {
+                Array<DComplex> vals = ret.asArrayDComplex("values");
+                vector<DComplex> v(vals.begin(), vals.end());
+                return new variant(v, vals.shape().asStdVector());
+            }
+        }
+        else {
+            ThrowCc("Logic Error");
         }
         if (getmask) {
             Array<Bool> pixelMask = ret.asArrayBool("mask");
@@ -2863,17 +2939,19 @@ bool image::insert(
             locatePixel.resize(0);
         }
         auto Region = _getRegion(region, false);
-        auto imagePair = ImageFactory::fromFile(infile);
-
-        if (imagePair.first && _imageF) {
+        auto imagePtrs = ImageFactory::fromFile(infile);
+        auto imageF = std::get<0>(imagePtrs);
+        auto imageC = std::get<1>(imagePtrs);
+        ThrowIf(! (imageF || imageC), "Unsupported image data type");
+        if (imageF && _imageF) {
             PixelValueManipulator<Float>::insert(
-                *_imageF, *imagePair.first, *Region,
+                *_imageF, *imageF, *Region,
                 locatePixel, verbose
             );
         }
-        else if (imagePair.second && ! _imageC){
+        else if (imageC && _imageC){
             PixelValueManipulator<Complex>::insert(
-                *_imageC, *imagePair.second, *Region,
+                *_imageC, *imageC, *Region,
                 locatePixel, verbose
             );
         }
@@ -2970,12 +3048,13 @@ bool image::makecomplex(
             ! _imageF, "The attached image must be real valued"
         );
         SHARED_PTR<Record> Region(_getRegion(region, false));
-        auto mypair = ImageFactory::fromFile(imagFile);
+        auto imagePtrs = ImageFactory::fromFile(imagFile);
+        auto imageF = std::get<0>(imagePtrs);
         ThrowIf(
-            ! mypair.first, imagFile + " does not have real valued pixels"
+            ! imageF, imagFile + " does not have float valued pixels"
         );
         auto cImage = ImageFactory::makeComplex(
-            _imageF, mypair.first, outfile,
+            _imageF, imageF, outfile,
             *Region, overwrite
         );
         vector<String> names = {
@@ -3541,11 +3620,13 @@ image* image::newimagefromarray(
 image* image::newimagefromfile(const string& fileName) {
     try {
         _log << _ORIGIN;
-        auto mypair = ImageFactory::fromFile(fileName);
-        if (mypair.first || mypair.second) {
+        auto imagePtrs = ImageFactory::fromFile(fileName);
+        auto imageF = std::get<0>(imagePtrs);
+        auto imageC = std::get<1>(imagePtrs);
+        if (imageF || imageC) {
             unique_ptr<image> ret(
-                    mypair.first ? new image(mypair.first)
-                    : new image(mypair.second)
+                    imageF ? new image(imageF)
+                    : new image(imageC)
             );
             // not adding history because all this method does is open
             // the image, it doesn't change it
@@ -3655,14 +3736,16 @@ image* image::newimagefromshape(
 bool image::open(const std::string& infile, bool cache) {
     try {
         _log << _ORIGIN;
-        if (_imageF || _imageC) {
+        if (_imageF || _imageC || _imageD || _imageDC) {
             _log << LogIO::WARN << "Another image is already open, closing first"
                 << LogIO::POST;
         }
         _reset();
         auto ret = ImageFactory::fromFile(infile, cache);
-        _imageF = ret.first;
-        _imageC = ret.second;
+        _imageF = std::get<0>(ret);
+        _imageC = std::get<1>(ret);
+        _imageD = std::get<2>(ret);
+        _imageDC = std::get<3>(ret);
         return true;
     }
     catch (const AipsError& x) {
@@ -5363,15 +5446,19 @@ record* image::summary(
             return 0;
         }
         if (_imageF) {
-            ImageMetaData md(_imageF);
-            return fromRecord(
-                md.summary(doppler, list, pixelorder, verbose)
+            return _summary(
+                _imageF, doppler, list, pixelorder, verbose
+            );
+        }
+        else if (_imageC) {
+            return _summary(
+                _imageC, doppler, list, pixelorder, verbose
             );
         }
         else {
-            ImageMetaData md(_imageC);
-            return fromRecord(
-                md.summary(doppler, list, pixelorder, verbose)
+            ThrowCc(
+                "This image data type is not supported by "
+                + String(__func__)
             );
         }
     }
@@ -5381,6 +5468,17 @@ record* image::summary(
         RETHROW(x);
     }
     return nullptr;
+}
+
+template <class T> record* image::_summary(
+    SPIIT image, 
+    const string& doppler, bool list,
+    bool pixelorder, bool verbose
+) {
+    ImageMetaData<T> md(image);
+    return fromRecord(
+        md.summary(doppler, list, pixelorder, verbose)
+    );
 }
 
 bool image::toASCII(
@@ -5536,49 +5634,63 @@ record* image::toworld(
         if (_detached()) {
             return nullptr;
         }
-        Vector<Double> pixel;
-        if (_isUnset(value)) {
-            pixel.resize(0);
-        }
-        else if (value.type() == variant::DOUBLEVEC) {
-            pixel = value.getDoubleVec();
-        }
-        else if (value.type() == variant::INTVEC) {
-            variant vcopy = value;
-            Vector<Int> ipixel = vcopy.asIntVec();
-            Int n = ipixel.size();
-            pixel.resize(n);
-            for (int i = 0; i < n; i++) {
-                pixel[i] = ipixel[i];
-            }
-        }
-        else if (value.type() == ::casac::variant::RECORD) {
-            variant localvar(value);
-            unique_ptr<Record> tmp(toRecord(localvar.asRecord()));
-            if (tmp->isDefined("numeric")) {
-                pixel = tmp->asArrayDouble("numeric");
-            }
-            else {
-                ThrowCc("Unsupported record type for value");
-            }
-        }
-        else {
-            ThrowCc("Unsupported data type for value");
-        }
-        unique_ptr<ImageMetaData> imd;
         if (_imageF) {
-            imd.reset(new ImageMetaData(_imageF));
+            return _toworld(_imageF, value, format, dovelocity);
         }
-        else {
-            imd.reset(new ImageMetaData(_imageC));
+        else if (_imageC) {
+            return _toworld(_imageC, value, format, dovelocity);
         }
-        return fromRecord(imd->toWorld(pixel, format, dovelocity));
-    } catch (const AipsError& x) {
+    else if (_imageD) {
+        return _toworld(_imageD, value, format, dovelocity);
+    }
+    else if (_imageDC) {
+        return _toworld(_imageDC, value, format, dovelocity);
+    }
+    ThrowCc("Logic error");
+    }
+    catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+             << LogIO::POST;
         RETHROW(x);
     }
     return nullptr;
+}
+
+template <class T> record* image::_toworld(
+    SPIIT image, const variant& value,
+    const string& format, bool dovelocity
+) {
+    Vector<Double> pixel;
+    if (_isUnset(value)) {
+        pixel.resize(0);
+    }
+    else if (value.type() == variant::DOUBLEVEC) {
+        pixel = value.getDoubleVec();
+    }
+    else if (value.type() == variant::INTVEC) {
+        variant vcopy = value;
+        Vector<Int> ipixel = vcopy.asIntVec();
+        Int n = ipixel.size();
+        pixel.resize(n);
+        for (int i = 0; i < n; ++i) {
+            pixel[i] = ipixel[i];
+        }
+    }
+    else if (value.type() == ::casac::variant::RECORD) {
+        variant localvar(value);
+        unique_ptr<Record> tmp(toRecord(localvar.asRecord()));
+        if (tmp->isDefined("numeric")) {
+            pixel = tmp->asArrayDouble("numeric");
+        }
+        else {
+            ThrowCc("Unsupported record type for value");
+        }
+    }
+    else {
+        ThrowCc("Unsupported data type for value");
+    }
+    ImageMetaData<T> md(image);
+    return fromRecord(md.toWorld(pixel, format, dovelocity));
 }
 
 image* image::transpose(
@@ -5783,10 +5895,23 @@ void image::_addHistory(
             _imageF, method, names, values, appendMsgs, dontQuote
         );
     }
-    else {
+    else if (_imageC) {
         _addHistory(
             _imageC, method, names, values, appendMsgs, dontQuote
         );
+    }
+    else if (_imageD) {
+        _addHistory(
+            _imageD, method, names, values, appendMsgs, dontQuote
+        );
+    }
+    else if (_imageDC) {
+        _addHistory(
+            _imageDC, method, names, values, appendMsgs, dontQuote
+        );
+    }
+    else {
+        ThrowCc("Logic error");
     }
 }
 
@@ -5858,38 +5983,10 @@ vector<String> image::_newHistory(
 void image::_reset() {
     _imageF.reset();
     _imageC.reset();
+    _imageD.reset();
+    _imageDC.reset();
     _stats.reset();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 image* image::newimagefromfits(
     const string& outfile, const string& fitsfile,
@@ -6021,13 +6118,14 @@ bool image::isconform(const string& other) {
             ! _imageF,
             "This method only supports Float valued images"
         );
-        auto mypair = ImageFactory::fromFile(other);
-        auto shape = mypair.first ? mypair.first->shape()
-            : mypair.second->shape();
-        const auto& csys = mypair.first ? mypair.first->coordinates()
-                : mypair.second->coordinates();
-
-
+        auto imagePtrs = ImageFactory::fromFile(other);
+        auto imageF = std::get<0>(imagePtrs);
+        auto imageC = std::get<1>(imagePtrs);
+        ThrowIf(! (imageF || imageC), "Unsupported image pixel data type");
+        auto shape = imageF ? imageF->shape()
+            : imageC->shape();
+        const auto& csys = imageF ? imageF->coordinates()
+                : imageC->coordinates();
         SHARED_PTR<const ImageInterface<Float> > mine = _imageF;
         if (
             _imageF->shape().isEqual(shape)

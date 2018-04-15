@@ -614,8 +614,13 @@ simulator::predict(const std::vector<std::string>& modelImage, const std::string
 	_imageC.reset();
 	
 	auto ret = ImageFactory::fromFile(modelImage[i]);
-	_imageF = ret.first;
-	_imageC = ret.second;
+	_imageF = std::get<0>(ret);
+	_imageC = std::get<1>(ret);
+    ThrowIf(
+        ! (_imageF || _imageC),
+        "Unsupported image data type"
+    );
+
 	
 	auto unit =_imageF
 	  ? _imageF->units().getName()

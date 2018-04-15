@@ -33,6 +33,8 @@
 #include <images/Images/ImageInterface.h>
 #include <casa/aips.h>
 
+#include <memory>
+
 namespace casa {
 
 // <summary>
@@ -74,17 +76,26 @@ namespace casa {
 // Merge casacore::ImageInfo class into this class.
 // </todo>
 
-class ImageMetaData : public ImageMetaDataBase {
+template <class T> class ImageMetaData : public ImageMetaDataBase {
 
 public:
-
+/*
 	ImageMetaData(SPCIIF imagef);
 	ImageMetaData(SPIIF imagef);
 
 	ImageMetaData(SPCIIC imagec);
 	ImageMetaData(SPIIC imagec);
 
-	~ImageMetaData() {}
+	ImageMetaData(SPCIID imaged);
+	ImageMetaData(SPIID imaged);
+
+	ImageMetaData(SPCIIDC imagedc);
+	ImageMetaData(SPIIDC imagedc);
+*/
+	ImageMetaData(SPCIIT image);
+	ImageMetaData(SPIIT image);
+
+    ~ImageMetaData() {}
 
 	casacore::Record toRecord(casacore::Bool verbose) const;
 
@@ -96,11 +107,17 @@ public:
 
 protected:
 
-	SPCIIF _getFloatImage() const { return _floatImage; }
+	SPCIIF _getFloatImage() const {
+        SPCIIF image = std::dynamic_pointer_cast<const casacore::ImageInterface<casacore::Float>>(_image);
+        return image;
+    }
 
-	SPCIIC _getComplexImage() const { return _complexImage; }
+	SPCIIC _getComplexImage() const {
+        SPCIIC image = std::dynamic_pointer_cast<const casacore::ImageInterface<casacore::Complex>>(_image);
+        return image;
+    }
 
-	ImageMetaData() : ImageMetaDataBase(), _floatImage(), _complexImage() {}
+	ImageMetaData() : ImageMetaDataBase(), _image() {}
 
 	const casacore::ImageInfo& _getInfo() const { return _info; }
 
@@ -143,16 +160,21 @@ protected:
 	casacore::String _getTelescope() const;
 
 	casacore::Vector<casacore::String> _getStokes() const;
-
-	template <class T> casacore::Record _summary(
+/*
+	casacore::Record _summary(
 	    SPCIIT image, const casacore::String& doppler, const casacore::Bool list,
         const casacore::Bool pixelorder, const casacore::Bool verbose
     );
-
+*/
 private:
+/*
+	SPCIIF _imageF;
+	SPCIIC _imageC;
+    SPCIID _imageD;
+    SPCIIDC _imageDC;
+    */
+	SPCIIT _image;
 
-	SPCIIF _floatImage;
-	SPCIIC _complexImage;
 	const casacore::ImageInfo _info;
 	const casacore::CoordinateSystem _csys;
 

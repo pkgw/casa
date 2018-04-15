@@ -77,13 +77,18 @@ bool imagemetadata::open(const std::string& infile) {
 		if (_log.get() == 0) {
 			_log.reset(new LogIO());
 		}
-		auto mypair = ImageFactory::fromFile(infile);
-		if (mypair.first) {
-			_header.reset(new ImageMetaDataRW(mypair.first));
+		auto imagePtrs = ImageFactory::fromFile(infile);
+        auto imageF = std::get<0>(imagePtrs);
+        auto imageC = std::get<1>(imagePtrs);
+        if (imageF) {
+			_header.reset(new ImageMetaDataRW(imageF));
 		}
-		else {
-			_header.reset(new ImageMetaDataRW(mypair.second));
+		else if (imageC) {
+			_header.reset(new ImageMetaDataRW(imageC));
 		}
+        else {
+            ThrowCc("Image type not yet supported");
+        }
 		return true;
 	}
 	catch (const AipsError& x) {

@@ -245,19 +245,22 @@ template<class T> SPIIT ImageExprCalculator<T>::_imagecalc(
             "Cannot access " + _copyMetaDataFromImage
             + " so cannot copy its metadata to output image"
         );
-        auto mypair = ImageFactory::fromFile(_copyMetaDataFromImage);
-        if (mypair.first || mypair.second) {
-            if (mypair.first) {
-                image->setMiscInfo(mypair.first->miscInfo());
-		        image->setImageInfo(mypair.first->imageInfo());
-		        image->setCoordinateInfo(mypair.first->coordinates());
-		        unit = mypair.first->units();
+        auto imagePtrs = ImageFactory::fromFile(_copyMetaDataFromImage);
+        auto imageF = std::get<0>(imagePtrs);
+        auto imageC = std::get<1>(imagePtrs);
+        ThrowIf( ! (imageF || imageC), "Unsupported image pixel data type");
+        if (imageF || imageC) {
+            if (imageF) {
+                image->setMiscInfo(imageF->miscInfo());
+		        image->setImageInfo(imageF->imageInfo());
+		        image->setCoordinateInfo(imageF->coordinates());
+		        unit = imageF->units();
             } 
             else {
-                image->setMiscInfo(mypair.second->miscInfo());
-		        image->setImageInfo(mypair.second->imageInfo());
-		        image->setCoordinateInfo(mypair.second->coordinates());
-		        unit = mypair.second->units();
+                image->setMiscInfo(imageC->miscInfo());
+		        image->setImageInfo(imageC->imageInfo());
+		        image->setCoordinateInfo(imageC->coordinates());
+		        unit = imageC->units();
             }
             copied = true;
         }

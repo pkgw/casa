@@ -2093,16 +2093,17 @@ of the image, and all pixels of other axes.
      </param>
      
      <param type="string"  name="type">
-        <description>Type of image. 'f' means Float, 'c' means complex.</description>
+        <description>Data type of image pixels. 'f' (float), 'c' (complex float), 'd' (double), 'cd' (complex double).</description>
         <value>f</value>
      </param>
 </input>
 <returns type="bool"/>
 <description>
 
-This function creates a \casa\ \imagefile\ with the specified shape.  All
-the pixel values in the image are set to 0. One may create either an image
-with float valued pixels (type='f') or a complex valued image (type='c').
+This function creates a CASA image with the specified shape.  All
+the pixel values in the image are set to 0. One may create an image
+with float valued pixels (type='f'), complex float valued pixels (type='c'),
+double valued pixels (type='d'), or complex double valued pixels ('cd').
 To use a numpy array of values to create an image, use ia.fromarray().
 To make a 2-D image from a packaged FITS file, use ia.maketestimage().
 
@@ -7306,11 +7307,13 @@ ia.close()
 This method detaches from the current image (if an image is attached to the tool), and
 reattaches it (opens) to the new image.
 
-The input image file may be in native CASA, FITS, or Miriad format. In the case of CASA images,
-both Float and Complex valued images aresupported.
+The input image file may be in native CASA, FITS, or Miriad format. In the case
+of CASA images, images with float, complex float, double, and complex double
+valued pixels are supported.
 
-The cache parameter applies only to component list images and indicates if pixel values should
-be cached after they are computed for faster retrieval.
+The cache parameter applies only to component list images and indicates if pixel
+values should be cached after they are computed for faster retrieval. It is not
+used for other image types.
 
 </description>
 

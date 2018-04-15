@@ -82,7 +82,7 @@ template<class T> casacore::Record* PixelValueManipulator<T>::coordMeasures(
     casacore::Vector<casacore::Double> vpixel = pixel.empty() ? cSys.referencePixel() : pixel;
 
     casacore::String format("m");
-    ImageMetaData imd(image);
+    ImageMetaData<T> imd(image);
     r = new casacore::Record(imd.toWorld(vpixel, format, true, dirFrame, freqFrame));
 
     casacore::Vector<casacore::Int> ipixel(vpixel.size());

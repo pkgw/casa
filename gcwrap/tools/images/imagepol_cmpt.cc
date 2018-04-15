@@ -71,8 +71,9 @@ imagepol::open(const variant& image){
 			//PtrHolder<ImageInterface<Float> > im;
 			//ImageUtilities::openImage(im, toCasaString(image));
 			auto im = ImageFactory::fromFile(toCasaString(image));
-			ThrowIf(im.second, "Can only open real-valued images");
-			itsImPol= new ImagePol(*im.first);
+            auto imageF = std::get<0>(im);
+            ThrowIf(! imageF, "Can only open float valued images");
+			itsImPol= new ImagePol(*imageF);
 		}
 		else {
 			*itsLog << "Unsupported type for image input" << LogIO::EXCEPTION;

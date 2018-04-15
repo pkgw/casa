@@ -40,44 +40,46 @@
 
 using namespace casacore;
 namespace casa {
-
+/*
 ImageMetaData::ImageMetaData(
 	SHARED_PTR<const ImageInterface<Float> > imagef
-) : ImageMetaDataBase(), _floatImage(imagef), _complexImage(), _info(imagef->imageInfo()),
+) : ImageMetaDataBase(), _imageF(imagef), _imageC(), _info(imagef->imageInfo()),
 	_csys(imagef->coordinates()) {}
 
 ImageMetaData::ImageMetaData(
 	SHARED_PTR<ImageInterface<Float> > imagef
-) : ImageMetaDataBase(), _floatImage(imagef), _complexImage(), _info(imagef->imageInfo()),
+) : ImageMetaDataBase(), _imageF(imagef), _imageC(), _info(imagef->imageInfo()),
 	_csys(imagef->coordinates()) {}
 
 ImageMetaData::ImageMetaData(
 	SHARED_PTR<const ImageInterface<Complex> > imagec
-) : ImageMetaDataBase(), _floatImage(), _complexImage(imagec), _info(imagec->imageInfo()),
+) : ImageMetaDataBase(), _imageF(), _imageC(imagec), _info(imagec->imageInfo()),
 	_csys(imagec->coordinates()) {}
 
 ImageMetaData::ImageMetaData(
 	SHARED_PTR<ImageInterface<Complex> > imagec
-) : ImageMetaDataBase(), _floatImage(), _complexImage(imagec), _info(imagec->imageInfo()),
+) : ImageMetaDataBase(), _imageF(), _imageC(imagec), _info(imagec->imageInfo()),
 	_csys(imagec->coordinates()) {}
+*/
 
-
+    /*
 Record ImageMetaData::summary(
     const String& doppler, const Bool list,
     const Bool pixelorder, const Bool verbose
 ) {
-    if (_floatImage) {
+    if (_imageF) {
         return _summary(
-            _floatImage, doppler, list, pixelorder, verbose
+            _imageF, doppler, list, pixelorder, verbose
         );
     }
     else {
         return _summary(
-            _complexImage, doppler, list, pixelorder, verbose
+            _imageC, doppler, list, pixelorder, verbose
         );
     }
 }
-
+*/
+/*
 Record ImageMetaData::toRecord(Bool verbose) const {
 	if (_header.empty()) {
 		_header = this->_makeHeader();
@@ -87,7 +89,9 @@ Record ImageMetaData::toRecord(Bool verbose) const {
 	}
 	return _header;
 }
+*/
 
+/*
 Vector<String> ImageMetaData::_getAxisNames() const {
 	if (_axisNames.size() == 0) {
 		_axisNames = _getCoords().worldAxisNames();
@@ -117,7 +121,8 @@ GaussianBeam ImageMetaData::_getBeam() const {
 		throw AipsError("This image has no beam(s).");
 	}
 }
-
+*/
+/*
 String ImageMetaData::_getBrightnessUnit() const {
 	if (_bunit.empty()) {
 		SHARED_PTR<const ImageInterface<Float> > imf = _getFloatImage();
@@ -126,6 +131,8 @@ String ImageMetaData::_getBrightnessUnit() const {
 	}
 	return _bunit;
 }
+*/
+/*
 
 String ImageMetaData::_getEquinox() const {
 	if (_equinox.empty()) {
@@ -250,7 +257,7 @@ Quantity ImageMetaData::_getRestFrequency() const {
 }
 
 Record ImageMetaData::_getStatistics() const {
-	if (_stats.nfields() == 0 && ! _complexImage) {
+	if (_stats.nfields() == 0 && ! _imageC) {
 		_stats = this->_calcStats();
 	}
 	return _stats;
@@ -262,7 +269,6 @@ String ImageMetaData::_getTelescope() const {
 	}
 	return _telescope;
 }
-
-
+*/
 }
 

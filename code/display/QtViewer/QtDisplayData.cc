@@ -373,7 +373,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 						if(!f.exists()) throw AipsError("File not found.");
 						///Try if file is one of the new format recognized 
 						///by imagefactory but not taken care above.
-						std::tie(im_ , cim_)=ImageFactory::fromFile(path);	 
+                        auto imagePtrs = ImageFactory::fromFile(path);
+                        std::tie(im_ , cim_)=make_pair(std::get<0>(imagePtrs), std::get<1>(imagePtrs));	 
 						if(im_ || cim_){
 						  break;
 						}
