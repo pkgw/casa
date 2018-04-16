@@ -163,6 +163,8 @@ static std::vector<casacore::String> _newHistory(
 	const std::set<String>& dontQuote=std::set<String>()
 );
 
+void _notSupported(const std::string& method) const;
+
 // the returned value of pixels will have either 0 or two elements, if 0 then the returned
 // value of dir will be set
 void _processDirection(

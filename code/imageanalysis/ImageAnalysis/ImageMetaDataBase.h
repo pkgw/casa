@@ -218,18 +218,18 @@ private:
 		SHARED_PTR<const casacore::ImageInterface<T> > image
 	) const;
 
-	casacore::Record _worldVectorToRecord(
+	static casacore::Record _worldVectorToRecord(
 	    const casacore::CoordinateSystem& csys, const casacore::Vector<casacore::Double>& world, casacore::Int c,
 	    const casacore::String& format,
 	    casacore::Bool isAbsolute, casacore::Bool showAsAbsolute, casacore::Bool doVelocity,
 	    casacore::MDirection::Types dirFrame, casacore::MFrequency::Types freqFrame
-	) const;
+	);
 
-	casacore::Record _worldVectorToMeasures(
+	static casacore::Record _worldVectorToMeasures(
 	    const casacore::CoordinateSystem& csys,
 	    const casacore::Vector<casacore::Double>& world, casacore::Int c, casacore::Bool abs, casacore::Bool doVelocity,
 	    casacore::MDirection::Types dirFrame, casacore::MFrequency::Types freqFrame
-	) const;
+	);
 
 };
 

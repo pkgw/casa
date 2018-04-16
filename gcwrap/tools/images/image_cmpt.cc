@@ -168,8 +168,9 @@ image* image::adddegaxes(
     try {
         _log << _ORIGIN;
         if (_detached()) {
-            return 0;
+            return nullptr;
         }
+        _notSupported(__func__);
         if (_imageF) {
             casa::SPCIIF myim = _imageF;
             return _adddegaxes(
@@ -229,6 +230,7 @@ bool image::addnoise(
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         SHARED_PTR<Record> pRegion = _getRegion(region, false);
         SHARED_PTR<std::pair<Int, Int> > seedPair(new std::pair<Int, Int>(0, 0));
         if (seeds.size() >= 2) {
@@ -275,6 +277,7 @@ record* image::beamarea(int channel, int polarization) {
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         auto dc = _imageF
             ? _imageF->coordinates().directionCoordinate()
             : _imageC->coordinates().directionCoordinate();
@@ -359,6 +362,7 @@ record* image::boundingbox(const variant& region) {
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         if (_imageF) {
             return _boundingbox(_imageF, region);
         }
@@ -397,6 +401,7 @@ image* image::boxcar(
         throw AipsError("Unable to create image");
     }
     try {
+        _notSupported(__func__);
         if (axis < 0) {
             const auto& csys = _imageF
                 ? _imageF->coordinates()
@@ -484,7 +489,7 @@ std::string image::brightnessunit() {
         return "";
     }
     try {
-        auto unit =_imageF
+       auto unit =_imageF
             ? _imageF->units().getName()
             : _imageC->units().getName();
        return unit;
@@ -503,6 +508,7 @@ bool image::calc(const std::string& expr, bool verbose) {
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         if (_imageF) {
             ImageExprCalculator<Float>::compute2(_imageF, expr, verbose);
         }
@@ -531,6 +537,7 @@ bool image::calcmask(
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         Record region;
         if (_imageF) {
             ImageMaskHandler<Float> imh(_imageF);
@@ -579,6 +586,7 @@ image* image::collapse(
         return 0;
     }
     try {
+        _notSupported(__func__);
         IPosition myAxes;
         if (axes.type() == variant::INT) {
             myAxes = IPosition(1, axes.toInt());
@@ -686,6 +694,7 @@ record* image::commonbeam() {
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         ImageInfo myInfo = _imageF ? _imageF->imageInfo() : _imageC->imageInfo();
         ThrowIf(
             ! myInfo.hasBeam(),
@@ -726,6 +735,7 @@ image* image::continuumsub(
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         ThrowIf(in_fitorder < 0, "Polynomial order cannot be negative");
         if (! pol.empty()) {
             _log << LogIO::NORMAL << "The pol parameter is no longer "
@@ -832,7 +842,7 @@ image* image::convolve(
         }
         ThrowIf(
             ! _imageF,
-            "This method only supports real valued images"
+            "This method only supports float valued images"
         );
         Array<Float> fkernelArray;
         casacore::String kernelFileName = "";
@@ -904,6 +914,7 @@ image* image::convolve2d(
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         UnitMap::putUser("pix", UnitVal(1.0), "pixel units");
         SHARED_PTR<Record> Region(_getRegion(region, false));
         auto mask = _getMask(vmask);
@@ -1037,6 +1048,7 @@ record* image::coordmeasures(
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         casacore::Record theDir;
         casacore::Record theFreq;
         casacore::Record theVel;
@@ -1092,6 +1104,7 @@ coordsys* image::coordsys(const std::vector<int>& pixelAxes) {
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         if (_imageF) {
             return _coordsys(_imageF, pixelAxes);
         }
@@ -1191,6 +1204,7 @@ image* image::decimate(
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         ThrowIf(
             axis < 0,
             "The value of axis cannot be negative"
@@ -1317,6 +1331,7 @@ record* image::deconvolvecomponentlist(
         return nullptr;
     }
     try {
+        _notSupported(__func__);
         std::unique_ptr<Record> compList(toRecord(complist));
         ComponentList cl, clOut;
         casacore::String err;
@@ -1439,16 +1454,13 @@ bool image::dohistory(bool enable) {
 bool image::done(bool remove, bool verbose) {
     try {
         _log << _ORIGIN;
-        // resetting _stats must come before the table removal or the table
-        // removal will fail
-        _stats.reset();
         MeasIERS::closeTables();
         if (remove && !_detached()) {
+            // object _reset happens in _remove()
             _remove(verbose);
         }
         else {
-            _imageF.reset();
-            _imageC.reset();
+            _reset();
         }
         return true;
     }
@@ -1469,7 +1481,7 @@ record* image::findsources(
         if (_detached()) {
             return nullptr;
         }
-        ThrowIf(_imageC, "This application supports only real-valued images");
+        ThrowIf(! _imageF, "This application supports only float-valued images");
         SHARED_PTR<Record> Region(_getRegion(region, false));
         auto mask = _getMask(vmask);
         ImageSourceFinder<Float> sf(_imageF, Region.get(), mask);
@@ -1506,6 +1518,7 @@ bool image::fft(
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         SHARED_PTR<Record> myregion(_getRegion(region, false));
         String mask = vmask.toString();
         if (mask == "[]") {
@@ -2288,6 +2301,7 @@ variant* image::getchunk(
         }
         casacore::Record ret;
         if (_imageF) {
+            cout << __FILE__ << " " << __LINE__ << endl;
             ret = _getchunk<Float>(
                 _imageF, blc, trc, inc,
                 axes, list, dropdeg
@@ -2299,6 +2313,7 @@ variant* image::getchunk(
             }
         }
         else if (_imageC) {
+            cout << __FILE__ << " " << __LINE__ << endl;
             ret = _getchunk<Complex> (
                 _imageC, blc, trc, inc,
                 axes, list, dropdeg
@@ -2310,17 +2325,21 @@ variant* image::getchunk(
             }
         }
         else if (_imageD) {
+            cout << __FILE__ << " " << __LINE__ << endl;
             ret = _getchunk<Double> (
                 _imageD, blc, trc, inc,
                 axes, list, dropdeg
             );
+            cout << __FILE__ << " " << __LINE__ << endl;
             if (! getmask) {
                 Array<Double> vals = ret.asArrayDouble("values");
                 vector<Double> v(vals.begin(), vals.end());
                 return new variant(v, vals.shape().asStdVector());
             }
+            cout << __FILE__ << " " << __LINE__ << endl;
         }
         else if (_imageDC) {
+            cout << __FILE__ << " " << __LINE__ << endl;
             ret = _getchunk<DComplex> (
                 _imageDC, blc, trc, inc,
                 axes, list, dropdeg
@@ -2355,32 +2374,41 @@ template<class T> Record image::_getchunk(
     const vector<int>& inc, const vector<int>& axes,
     bool list, bool dropdeg
 ) {
+            cout << __FILE__ << " " << __LINE__ << endl;
     Array<T> pixels;
     Array<Bool> pixelMask;
     Vector<Int> iaxes(axes);
+            cout << __FILE__ << " " << __LINE__ << endl;
     // if default value change it to empty vector
     if (iaxes.size() == 1 && iaxes[0] < 0) {
         iaxes.resize();
     }
+            cout << __FILE__ << " " << __LINE__ << endl;
     uInt ndim = myimage->ndim();
 
     if (iaxes.size() == 1 && iaxes[0] < 0) {
         iaxes.resize();
     }
+            cout << __FILE__ << " " << __LINE__ << endl;
     // We have to support handling of sloppy inputs for backwards
     // compatibility. Ugh.
     vector<int> mblc(ndim);
     vector<int> mtrc(ndim);
     vector<int> minc(ndim);
+            cout << __FILE__ << " " << __LINE__ << endl;
     if (blc.size() == 1 && blc[0] < 0) {
+            cout << __FILE__ << " " << __LINE__ << endl;
         IPosition x(ndim, 0);
+            cout << __FILE__ << " " << __LINE__ << endl;
         mblc = x.asStdVector();
     }
     else {
+            cout << __FILE__ << " " << __LINE__ << endl;
         for (uInt i=0; i<ndim; i++) {
             mblc[i] = i < blc.size() ? blc[i] : 0;
         }
     }
+            cout << __FILE__ << " " << __LINE__ << endl;
     IPosition shape = myimage->shape();
     if (trc.size() == 1 && trc[0] < 0) {
         mtrc = (shape - 1).asStdVector();
@@ -2390,6 +2418,7 @@ template<class T> Record image::_getchunk(
             mtrc[i] = i < trc.size() ? trc[i] : shape[i] - 1;
         }
     }
+            cout << __FILE__ << " " << __LINE__ << endl;
     if (inc.size() == 1 && inc[0] == 1) {
         IPosition x(ndim, 1);
         minc = x.asStdVector();
@@ -2399,6 +2428,7 @@ template<class T> Record image::_getchunk(
             minc[i] = i < inc.size() ? inc[i] : 1;
         }
     }
+            cout << __FILE__ << " " << __LINE__ << endl;
     for (uInt i=0; i<ndim; i++) {
         if (mblc[i] < 0 || mblc[i] > shape[i] - 1) {
             mblc[i] = 0;
@@ -2417,17 +2447,27 @@ template<class T> Record image::_getchunk(
     Vector<Double> vblc(mblc);
     Vector<Double> vtrc(mtrc);
     Vector<Double> vinc(minc);
+            cout << __FILE__ << " " << __LINE__ << endl;
     LCSlicer slicer(vblc, vtrc, vinc);
+            cout << __FILE__ << " " << __LINE__ << endl;
     Record rec;
+            cout << __FILE__ << " " << __LINE__ << endl;
     rec.assign(slicer.toRecord(""));
+            cout << __FILE__ << " " << __LINE__ << endl;
     PixelValueManipulator<T> pvm(myimage, &rec, "");
+            cout << __FILE__ << " " << __LINE__ << endl;
     if (axes.size() != 1 || axes[0] >= 0) {
+            cout << __FILE__ << " " << __LINE__ << endl;
         pvm.setAxes(IPosition(axes));
+            cout << __FILE__ << " " << __LINE__ << endl;
     }
+            cout << __FILE__ << " " << __LINE__ << endl;
     pvm.setVerbosity(
         list ? ImageTask<T>::DEAFENING : ImageTask<T>::QUIET
     );
+            cout << __FILE__ << " " << __LINE__ << endl;
     pvm.setDropDegen(dropdeg);
+            cout << __FILE__ << " " << __LINE__ << endl;
     return pvm.get();
 }
 
@@ -2442,6 +2482,7 @@ record* image::getprofile(
         ThrowIf(
             _detached(), "No image attached to tool"
         );
+        _notSupported(__func__);
         ThrowIf(axis<0, "Axis must be greater than 0");
         SHARED_PTR<Record> myregion(_getRegion(region, false));
         SHARED_PTR<casacore::Quantity> rfreq;
@@ -2513,8 +2554,9 @@ variant* image::getregion(
     try {
         _log << _ORIGIN;
         if (_detached()) {
-            return 0;
+            return nullptr;
         }
+        _notSupported(__func__);
         SHARED_PTR<Record> Region(_getRegion(region, false));
         auto Mask = _getMask(mask);
         Vector<Int> iaxes(axes);
@@ -2584,7 +2626,7 @@ record* image::getslice(
             return nullptr;
         }
         ThrowIf(
-            _imageC,
+            ! _imageF,
             "This method only supports Float valued images"
         );
         // handle default coord
@@ -2624,6 +2666,7 @@ image* image::hanning(
         throw AipsError("Unable to create image");
     }
     try {
+        _notSupported(__func__);
         auto myregion = _getRegion(
             region, true
         );
@@ -2713,6 +2756,7 @@ vector<bool> image::haslock() {
         if (_detached()) {
             return vector<bool>();
         }
+        _notSupported(__func__);
         if (_imageF) {
             return vector<bool> {
                 _imageF->hasLock(FileLocker::Read),
@@ -2742,9 +2786,10 @@ record* image::histograms(
 ) {
     _log << _ORIGIN;
     if (_detached()) {
-        return 0;
+        return nullptr;
     }
     try {
+        ThrowIf(! _imageF, "This method only supports float valued imaged");
         vector<uInt> myaxes;
         if (axes.size() != 1 || axes[0] != -1) {
             ThrowIf(
@@ -2934,14 +2979,16 @@ bool image::insert(
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         Vector<Double> locatePixel(locate);
         if (locatePixel.size() == 1 && locatePixel[0] < 0) {
             locatePixel.resize(0);
         }
         auto Region = _getRegion(region, false);
-        auto imagePtrs = ImageFactory::fromFile(infile);
-        auto imageF = std::get<0>(imagePtrs);
-        auto imageC = std::get<1>(imagePtrs);
+        SPCIIF imageF;
+        SPCIIC imageC;
+        std::tie(imageF, imageC, std::ignore, std::ignore)
+            = ImageFactory::fromFile(infile);
         ThrowIf(! (imageF || imageC), "Unsupported image data type");
         if (imageF && _imageF) {
             PixelValueManipulator<Float>::insert(
@@ -2979,8 +3026,9 @@ bool image::insert(
 bool image::isopen() {
     try {
         _log << _ORIGIN;
-        return _imageF || _imageC;
-    } catch (const AipsError& x) {
+        return _imageF || _imageC || _imageD || _imageDC;
+    }
+    catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
                 << LogIO::POST;
         RETHROW(x);
@@ -2994,6 +3042,7 @@ bool image::ispersistent() {
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         if (_imageF) {
             return _imageF->isPersistent();
         }
@@ -3015,6 +3064,7 @@ bool image::lock(bool writelock, int nattempts) {
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         FileLocker::LockType locker = FileLocker::Read;
         if (writelock) {
             locker = FileLocker::Write;
@@ -3045,7 +3095,7 @@ bool image::makecomplex(
             return false;
         }
         ThrowIf(
-            ! _imageF, "The attached image must be real valued"
+            ! _imageF, "The attached image must be float valued"
         );
         SHARED_PTR<Record> Region(_getRegion(region, false));
         auto imagePtrs = ImageFactory::fromFile(imagFile);
@@ -3255,6 +3305,7 @@ vector<string> image::maskhandler(
         if (_detached()) {
             return vector<string>(0);
         }
+        _notSupported(__func__);
         String oper = op;
         oper.upcase();
         vector<string> res = _imageF
@@ -3270,7 +3321,7 @@ vector<string> image::maskhandler(
             vector<String> names {"op", "name"};
             vector<variant> values {op, name};
             _addHistory(__func__, names, values);
-            _stats.reset(nullptr);
+            _stats.reset();
         }
         return res;
     }
@@ -3352,6 +3403,7 @@ record* image::miscinfo() {
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         if (_imageF) {
             return fromRecord(_imageF->miscInfo());
         }
@@ -3379,7 +3431,7 @@ bool image::modify(
     try {
         ThrowIf(
             ! _imageF,
-            "This method only supports real valued images"
+            "This method only supports float valued images"
         );
         String error;
         std::unique_ptr<Record> mymodel(toRecord(model));
@@ -3436,6 +3488,7 @@ image* image::moments(
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         UnitMap::putUser("pix", UnitVal(1.0), "pixel units");
         Vector<Int> whichmoments(moments);
         SHARED_PTR<Record> Region(_getRegion(region, false));
@@ -3555,6 +3608,7 @@ string image::name(bool strippath) {
         if (_detached()) {
             return "none";
         }
+        _notSupported(__func__);
         return _name(strippath);
     }
     catch (const AipsError& x) {
@@ -3620,9 +3674,10 @@ image* image::newimagefromarray(
 image* image::newimagefromfile(const string& fileName) {
     try {
         _log << _ORIGIN;
-        auto imagePtrs = ImageFactory::fromFile(fileName);
-        auto imageF = std::get<0>(imagePtrs);
-        auto imageC = std::get<1>(imagePtrs);
+        SPIIF imageF;
+        SPIIC imageC;
+        std::tie(imageF, imageC, std::ignore, std::ignore)
+            = ImageFactory::fromFile(fileName);
         if (imageF || imageC) {
             unique_ptr<image> ret(
                     imageF ? new image(imageF)
@@ -3633,6 +3688,8 @@ image* image::newimagefromfile(const string& fileName) {
             return ret.release();
         }
         else {
+            _log << LogIO::WARN << "Pixel data type of requested image not supported"
+                << LogIO::POST;
             return new image();
         }
     }
@@ -3741,11 +3798,8 @@ bool image::open(const std::string& infile, bool cache) {
                 << LogIO::POST;
         }
         _reset();
-        auto ret = ImageFactory::fromFile(infile, cache);
-        _imageF = std::get<0>(ret);
-        _imageC = std::get<1>(ret);
-        _imageD = std::get<2>(ret);
-        _imageDC = std::get<3>(ret);
+        std::tie(_imageF, _imageC, _imageD, _imageDC)
+            = ImageFactory::fromFile(infile, cache);
         return true;
     }
     catch (const AipsError& x) {
@@ -3906,6 +3960,7 @@ record* image::pixelvalue(const vector<int>& pixel) {
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         if(_imageF) {
             PixelValueManipulator<Float> pvm(
                 _imageF, nullptr, "", false
@@ -3937,6 +3992,7 @@ bool image::putchunk(
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         if (_imageF) {
             _putchunk(
                 _imageF, pixels, blc, inc, list, locking, replicate
@@ -4028,6 +4084,7 @@ bool image::putregion(
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         // create Array<Float> pixels
         Array<Float> pixels;
         if (_isUnset(v_pixels)) {
@@ -4360,6 +4417,7 @@ image* image::rebin(
         "All binning factors must be positive."
     );
     try {
+        _notSupported(__func__);
         vector<String> msgs;
         if (_doHistory) {
             vector<String> names {
@@ -4429,6 +4487,7 @@ image* image::regrid(
                 throw AipsError("Unable to create image");
             return 0;
         }
+        _notSupported(__func__);
         unique_ptr<Record> csysRec(toRecord(csys));
         unique_ptr<CoordinateSystem> coordinates(CoordinateSystem::restore(*csysRec, ""));
         ThrowIf (
@@ -4535,21 +4594,25 @@ bool image::remove(const bool finished, const bool verbose) {
 }
 
 void image::_remove(bool verbose) {
-    pair<SPIIF,SPIIC> mypair;
-    if (_imageF) {
-        mypair.first = _imageF;
+    auto imageF = _imageF;
+    auto imageC = _imageC;
+    auto imageD = _imageD;
+    auto imageDC = _imageDC;
+    _reset();
+    if (imageF) {
+        ImageFactory::remove(imageF, verbose);
+    }
+    else if (imageC) {
+        ImageFactory::remove(imageC, verbose);
+    }
+    else if (imageD) {
+        ImageFactory::remove(imageD, verbose);
+    }
+    else if (imageDC) {
+        ImageFactory::remove(imageDC, verbose);
     }
     else {
-        mypair.second = _imageC;
-    }
-    _stats.reset();
-    _imageF.reset();
-    _imageC.reset();
-    if (mypair.first) {
-        ImageFactory::remove(mypair.first, verbose);
-    }
-    else {
-        ImageFactory::remove(mypair.second, verbose);
+        ThrowCc("Logic error");
     }
 }
 
@@ -4593,6 +4656,7 @@ bool image::rename(const string& name, bool overwrite) {
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         _stats.reset();
         auto oldName = this->name(False);
         if (_imageF) {
@@ -4631,6 +4695,7 @@ bool image::replacemaskedpixels(
         return false;
     }
     try {
+        _notSupported(__func__);
         auto regionPtr = _getRegion(region, true);
         auto mask = _getMask(vmask);
         if (_imageF) {
@@ -4677,6 +4742,7 @@ record* image::restoringbeam(int channel, int polarization) {
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         if (_imageF) {
             return fromRecord(
                 _imageF->imageInfo().beamToRecord(
@@ -4710,6 +4776,7 @@ image* image::rotate(
     try {
         _log << _ORIGIN;
         ThrowIf(_detached(), "Unable to create image");
+        _notSupported(__func__);
         Vector<Int> shape(inshape);
         if (shape.size() == 1 && shape[0] == -1) {
             shape.resize(0);
@@ -4760,6 +4827,7 @@ bool image::rotatebeam(const variant& angle) {
         if(_detached()) {
             return false;
         }
+        _notSupported(__func__);
         Quantum<Double> pa(_casaQuantityFromVar(angle));
         vector<String> msgs;
         if (_doHistory) {
@@ -4797,6 +4865,7 @@ image* image::sepconvolve(
         ThrowCc("Unable to create image");
     }
     try {
+        _notSupported(__func__);
         UnitMap::putUser("pix", UnitVal(1.0), "pixel units");
         auto pRegion = _getRegion(region, false);
         auto mask = _getMask(vmask);
@@ -4894,6 +4963,7 @@ bool image::set(
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         auto pixels = vpixels.toString();
         if (pixels == "[]") {
             pixels = "";
@@ -4938,6 +5008,7 @@ bool image::setbrightnessunit(const std::string& unit) {
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         Bool res = _imageF
             ?  _imageF->setUnits(Unit(unit))
             : _imageC->setUnits(Unit(unit));
@@ -4964,6 +5035,7 @@ bool image::setcoordsys(const record& csys) {
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
 
         unique_ptr<Record> coordinates(toRecord(csys));
         unique_ptr<ImageMetaDataRW> md(
@@ -4993,6 +5065,7 @@ bool image::sethistory(
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         if ((history.size() == 1) && (history[0].size() == 0)) {
             LogOrigin lor("image", "sethistory");
             _log << lor << "history string is empty" << LogIO::POST;
@@ -5023,6 +5096,7 @@ bool image::setmiscinfo(const record& info) {
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
 
         std::unique_ptr<Record> tmp(toRecord(info));
         Bool res = _imageF
@@ -5055,6 +5129,7 @@ bool image::setrestoringbeam(
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         std::unique_ptr<Record> rec(toRecord(beam));
         ImageBeamSet bs;
         if (! imagename.empty()) {
@@ -5177,7 +5252,9 @@ vector<int> image::shape() {
     try {
         vector<int> rstat = _imageF
             ? _imageF->shape().asVector().tovector()
-            : _imageC->shape().asVector().tovector();
+            : _imageC ? _imageC->shape().asVector().tovector()
+            : _imageD ? _imageD->shape().asVector().tovector()
+            : _imageDC ? _imageDC->shape().asVector().tovector() : vector<int>();
         return rstat;
     }
     catch (const AipsError& x) {
@@ -5205,6 +5282,7 @@ record* image::statistics(
         return nullptr;
     }
     try {
+        _notSupported(__func__);
         ThrowIf(
             ! _imageF,
             "This method only supports Float valued images"
@@ -5351,6 +5429,7 @@ image* image::subimage(
             _detached(),
             "Unable to create image"
         );
+        _notSupported(__func__);
         SHARED_PTR<Record> regionRec = _getRegion(region, false);
         String regionStr = region.type() == variant::STRING
             ? region.toString()
@@ -5445,6 +5524,7 @@ record* image::summary(
         if (_detached()) {
             return 0;
         }
+        _notSupported(__func__);
         if (_imageF) {
             return _summary(
                 _imageF, doppler, list, pixelorder, verbose
@@ -5493,6 +5573,7 @@ bool image::toASCII(
         return false;
     }
     try {
+        _notSupported(__func__);
         String Mask;
         if (mask.type() == variant::BOOLVEC) {
             Mask = "";
@@ -5532,6 +5613,7 @@ bool image::tofits(
         return false;
     }
     try {
+        _notSupported(__func__);
         ThrowIf(
             fitsfile.empty(),
             "fitsfile must be specified"
@@ -5588,6 +5670,7 @@ record* image::topixel(const variant& value) {
         if (_detached()) {
             return nullptr;
         }
+        _notSupported(__func__);
         auto cSys = _imageF
             ? _imageF->coordinates()
             : _imageC->coordinates();
@@ -5611,6 +5694,7 @@ record* image::torecord() {
         return new record();
     }
     try {
+        _notSupported(__func__);
         Record rec;
         String err;
         Bool ret = _imageF ? _imageF->toRecord(err, rec)
@@ -5640,13 +5724,13 @@ record* image::toworld(
         else if (_imageC) {
             return _toworld(_imageC, value, format, dovelocity);
         }
-    else if (_imageD) {
-        return _toworld(_imageD, value, format, dovelocity);
-    }
-    else if (_imageDC) {
-        return _toworld(_imageDC, value, format, dovelocity);
-    }
-    ThrowCc("Logic error");
+        else if (_imageD) {
+            return _toworld(_imageD, value, format, dovelocity);
+        }
+        else if (_imageDC) {
+            return _toworld(_imageDC, value, format, dovelocity);
+        }
+        ThrowCc("Logic error");
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -5772,6 +5856,7 @@ bool image::twopointcorrelation(
         return false;
     }
     try {
+        _notSupported(__func__);
         String outFile(outfile);
         SHARED_PTR<Record> Region(_getRegion(region, false));
         String mask = vmask.toString();
@@ -5847,6 +5932,7 @@ bool image::unlock() {
         if (_detached()) {
             return false;
         }
+        _notSupported(__func__);
         if (_imageF) {
             _imageF->unlock();
         }
@@ -5854,7 +5940,8 @@ bool image::unlock() {
             _imageC->unlock();
         }
         return true;
-    } catch (const AipsError& x) {
+    }
+    catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
                 << LogIO::POST;
         RETHROW(x);
@@ -6028,6 +6115,17 @@ variant* image::makearray(
     return new variant(element, shape);
 }
 
+void image::_notSupported(const std::string& method) const {
+    ThrowIf(
+        _imageD,
+        method + " does not support images with double precision pixel values"
+    );
+    ThrowIf(
+        _imageDC,
+        method + " does not support images with complex<double> precision pixel values"
+    );
+}
+
 casac::record*
 image::recordFromQuantity(const casacore::Quantity q) {
     ::casac::record *r = 0;
@@ -6118,9 +6216,10 @@ bool image::isconform(const string& other) {
             ! _imageF,
             "This method only supports Float valued images"
         );
-        auto imagePtrs = ImageFactory::fromFile(other);
-        auto imageF = std::get<0>(imagePtrs);
-        auto imageC = std::get<1>(imagePtrs);
+        SPCIIF imageF;
+        SPCIIC imageC;
+        std::tie(imageF, imageC, std::ignore, std::ignore)
+            = ImageFactory::fromFile(other);
         ThrowIf(! (imageF || imageC), "Unsupported image pixel data type");
         auto shape = imageF ? imageF->shape()
             : imageC->shape();

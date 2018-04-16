@@ -374,7 +374,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 						///Try if file is one of the new format recognized 
 						///by imagefactory but not taken care above.
                         auto imagePtrs = ImageFactory::fromFile(path);
-                        std::tie(im_ , cim_)=make_pair(std::get<0>(imagePtrs), std::get<1>(imagePtrs));	 
+                        // FIXME fromFile() now returns a tuple with more than two pointers
+                        std::tie(im_ , cim_, std::ignore , std::ignore )=imagePtrs;	 
 						if(im_ || cim_){
 						  break;
 						}

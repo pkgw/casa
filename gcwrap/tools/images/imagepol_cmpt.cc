@@ -70,8 +70,9 @@ imagepol::open(const variant& image){
 		else if(image.type()== variant::STRING) {
 			//PtrHolder<ImageInterface<Float> > im;
 			//ImageUtilities::openImage(im, toCasaString(image));
-			auto im = ImageFactory::fromFile(toCasaString(image));
-            auto imageF = std::get<0>(im);
+            SPIIF imageF;
+            std::tie(imageF, std::ignore, std::ignore, std::ignore)
+                = ImageFactory::fromFile(toCasaString(image));
             ThrowIf(! imageF, "Can only open float valued images");
 			itsImPol= new ImagePol(*imageF);
 		}

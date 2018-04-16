@@ -612,10 +612,8 @@ simulator::predict(const std::vector<std::string>& modelImage, const std::string
       if (!modelImage[i].empty()) {
 	_imageF.reset();
 	_imageC.reset();
-	
-	auto ret = ImageFactory::fromFile(modelImage[i]);
-	_imageF = std::get<0>(ret);
-	_imageC = std::get<1>(ret);
+    // NOTE. fromFile() now returns more than two pointers in the tuple	
+    std::tie(_imageF, _imageC, std::ignore, std::ignore) = ImageFactory::fromFile(modelImage[i]);
     ThrowIf(
         ! (_imageF || _imageC),
         "Unsupported image data type"

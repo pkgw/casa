@@ -454,6 +454,7 @@ String ImageMetaDataBase::_getEpochString() const {
 }
 
 IPosition ImageMetaDataBase::_getShape() const {
+    // FIXME need support for Double and DComplex images
 	if (_shape.empty()) {
 		SPCIIF imf = _getFloatImage();
 		SPCIIC imc = _getComplexImage();
@@ -964,7 +965,7 @@ Record ImageMetaDataBase::_worldVectorToRecord(
     const CoordinateSystem& csys, const Vector<Double>& world, Int c,
     const String& format, Bool isAbsolute, Bool showAsAbsolute, Bool doVelocity,
     MDirection::Types dirFrame, MFrequency::Types freqFrame
-) const {
+) {
     // World vector must be in the native units of cSys
     // c = -1 means world must be length cSys.nWorldAxes
     // c > 0 means world must be length cSys.coordinate(c).nWorldAxes()
@@ -1044,8 +1045,9 @@ Record ImageMetaDataBase::_worldVectorToMeasures(
     const CoordinateSystem& csys, const Vector<Double>& world,
     Int c, Bool abs, Bool doVelocity, MDirection::Types dirFrame,
     MFrequency::Types freqFrame
-) const {
-    _log << LogOrigin("ImageMetaDataBase", __func__);
+) {
+    LogIO log;
+    log << LogOrigin("ImageMetaDataBase", __func__);
     uInt directionCount, spectralCount, linearCount, stokesCount, tabularCount;
     directionCount = spectralCount = linearCount = stokesCount = tabularCount
             = 0;
@@ -1232,36 +1234,36 @@ Record ImageMetaDataBase::_worldVectorToMeasures(
         }
     }
     if (directionCount > 1) {
-        _log << LogIO::WARN
+        log << LogIO::WARN
                 << "There was more than one DirectionCoordinate in the "
                 << LogIO::POST;
-        _log << LogIO::WARN << "CoordinateSystem.  Only the last one is returned"
+        log << LogIO::WARN << "CoordinateSystem.  Only the last one is returned"
                 << LogIO::POST;
     }
     if (spectralCount > 1) {
-        _log << LogIO::WARN
+        log << LogIO::WARN
                 << "There was more than one SpectralCoordinate in the "
                 << LogIO::POST;
-        _log << LogIO::WARN << "CoordinateSystem.  Only the last one is returned"
+        log << LogIO::WARN << "CoordinateSystem.  Only the last one is returned"
                 << LogIO::POST;
     }
     if (stokesCount > 1) {
-        _log << LogIO::WARN << "There was more than one StokesCoordinate in the "
+        log << LogIO::WARN << "There was more than one StokesCoordinate in the "
                 << LogIO::POST;
-        _log << LogIO::WARN << "CoordinateSystem.  Only the last one is returned"
+        log << LogIO::WARN << "CoordinateSystem.  Only the last one is returned"
                 << LogIO::POST;
     }
     if (linearCount > 1) {
-        _log << LogIO::WARN << "There was more than one LinearCoordinate in the "
+        log << LogIO::WARN << "There was more than one LinearCoordinate in the "
                 << LogIO::POST;
-        _log << LogIO::WARN << "CoordinateSystem.  Only the last one is returned"
+        log << LogIO::WARN << "CoordinateSystem.  Only the last one is returned"
                 << LogIO::POST;
     }
     if (tabularCount > 1) {
-        _log << LogIO::WARN
+        log << LogIO::WARN
                 << "There was more than one TabularCoordinate in the "
                 << LogIO::POST;
-        _log << LogIO::WARN << "CoordinateSystem.  Only the last one is returned"
+        log << LogIO::WARN << "CoordinateSystem.  Only the last one is returned"
                 << LogIO::POST;
     }
     return rec;

@@ -117,8 +117,9 @@ SPIIT ImageConcatenator<T>::concatenate(
 	casacore::uInt i = 1;
 	for(casacore::String name: imageNames) {
 		auto imagePtrs = ImageFactory::fromFile(name);
-        auto imageF = std::get<0>(imagePtrs);
-        auto imageC = std::get<1>(imagePtrs);
+        SPCIIF imageF;
+        SPCIIC imageC;
+        std::tie(imageF, imageC, std::ignore, std::ignore) = imagePtrs;
         ThrowIf(! (imageF || imageC), "Unsupported image pixel data type");
 		auto oDType = imageF ? imageF->dataType() : imageC->dataType();
 		const auto& oCsys = imageF

@@ -246,8 +246,9 @@ template<class T> SPIIT ImageExprCalculator<T>::_imagecalc(
             + " so cannot copy its metadata to output image"
         );
         auto imagePtrs = ImageFactory::fromFile(_copyMetaDataFromImage);
-        auto imageF = std::get<0>(imagePtrs);
-        auto imageC = std::get<1>(imagePtrs);
+        SPCIIF imageF;
+        SPCIIC imageC;
+        std::tie(imageF, imageC, std::ignore, std::ignore) = imagePtrs;
         ThrowIf( ! (imageF || imageC), "Unsupported image pixel data type");
         if (imageF || imageC) {
             if (imageF) {

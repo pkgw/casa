@@ -77,9 +77,10 @@ bool imagemetadata::open(const std::string& infile) {
 		if (_log.get() == 0) {
 			_log.reset(new LogIO());
 		}
-		auto imagePtrs = ImageFactory::fromFile(infile);
-        auto imageF = std::get<0>(imagePtrs);
-        auto imageC = std::get<1>(imagePtrs);
+        SPIIF imageF;
+        SPIIC imageC;
+        std::tie(imageF, imageC, std::ignore, std::ignore)
+            = ImageFactory::fromFile(infile);
         if (imageF) {
 			_header.reset(new ImageMetaDataRW(imageF));
 		}
