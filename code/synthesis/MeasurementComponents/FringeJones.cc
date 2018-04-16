@@ -63,7 +63,7 @@
 #include <gsl/gsl_spblas.h>
 #include <gsl/gsl_multilarge_nlinear.h>
 #include <gsl/gsl_linalg.h>
-
+#include <iomanip>                // needed for setprecision
 
 // DEVDEBUG gates the development debugging information to standard
 // error; it should be set to 0 for production.
