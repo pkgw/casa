@@ -247,6 +247,9 @@ public:
   //   Currently, this insists on uniformity over all SDBs
   const casacore::Vector<double>& freqs() const;
 
+  // ~Centroid frequency over all SDBs
+  casacore::Double centroidFreq() const;
+
   // Does the SDBList contain usable data?
   //  (at least one SDB, with non-zero net weight)
   bool Ok();
