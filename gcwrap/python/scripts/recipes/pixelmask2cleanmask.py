@@ -1,6 +1,6 @@
 import shutil
-from casa import iatool
-from casa import tbtool
+from casac import casac
+
 
 def pixelmask2cleanmask(imagename='',maskname='mask0',maskimage='',usemasked=False):
     """
@@ -11,7 +11,7 @@ def pixelmask2cleanmask(imagename='',maskname='mask0',maskimage='',usemasked=Fal
     maskimage - output mask image name
     usemasked - if True use masked region as a valid region
     """
-    ia = iatool( )
+    ia = casac.image()
     ia.open(imagename)
     masks=ia.maskhandler('get')
     ia.close()
@@ -26,7 +26,7 @@ def pixelmask2cleanmask(imagename='',maskname='mask0',maskimage='',usemasked=Fal
     if inmaskname=='':
         raise Exception, "mask %s does not exist. Available masks are: %s" % (maskname,masks)
 
-    tb = tbtool( )
+    tb = casac.table()
     tb.open(imagename+'/'+maskname)
     dat0=tb.getcol('PagedArray')
     tb.close()

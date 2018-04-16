@@ -114,7 +114,7 @@ namespace refim{ //namespace for imaging refactor
 				    casacore::Array<casacore::Complex>& weightConvFunc,
 				    casacore::Vector<casacore::Int>& convsize,
 				    casacore::Vector<casacore::Int>& convSupport,
-				    casacore::Vector<casacore::Int>& polMap, casacore::Vector<casacore::Int>& chanMap, casacore::Vector<casacore::Int>& rowMap, const casacore::Bool getConjFreqConvFunc=false);
+				    casacore::Vector<casacore::Int>& polMap, casacore::Vector<casacore::Int>& chanMap, casacore::Vector<casacore::Int>& rowMap, const casacore::Bool getConjFreqConvFunc=false, const casacore::MVDirection& extraShift=casacore::MVDirection(0.0), const casacore::Bool useExtraShift=casacore::False);
       virtual casacore::ImageInterface<casacore::Float>&  getFluxScaleImage();
       // slice fluxscale image by npol 
       virtual void sliceFluxScale(casacore::Int npol);
@@ -168,7 +168,7 @@ namespace refim{ //namespace for imaging refactor
       virtual void storeImageParams(const casacore::ImageInterface<casacore::Complex>& iimage, const vi::VisBuffer2& vb);
       virtual void findUsefulChannels(casacore::Vector<casacore::Int>& chanMap, casacore::Vector<casacore::Double>& chanFreqs,  const vi::VisBuffer2& vb, const casacore::Vector<casacore::Double>& visFreq);
       //return the direction pixel corresponding to a direction
-      virtual void toPix(const vi::VisBuffer2& vb);
+      virtual void toPix(const vi::VisBuffer2& vb, const casacore::MVDirection& extraShift=casacore::MVDirection(0.0), const casacore::Bool useExtraShift=casacore::False);
       FFT2D ft_p;
       casacore::CountedPtr<casacore::TempImage<casacore::Float> > convWeightImage_p;
       casacore::String bandName_p;

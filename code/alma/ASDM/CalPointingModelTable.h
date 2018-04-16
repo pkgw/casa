@@ -215,7 +215,7 @@ class CalPointingModelRow;
  * </TR>
 	
  * <TR>
- * <TD> numCoeff (\f$N_{Coef}\f$)</TD> 
+ * <TD> numCoeff (numCoeff)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients in the pointing model. </TD>
@@ -282,7 +282,7 @@ class CalPointingModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numObs(\f$N_{Obs}\f$)</TD> 
+ * <TD> numObs(numObs)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of source directions observed to derive the pointing model. </TD>
