@@ -218,7 +218,7 @@ class WeatherRow;
  * </TR>
 	
  * <TR>
- * <TD> numLayer(\f$N_{Laye}\f$)</TD> 
+ * <TD> numLayer(numLayer)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; NLayer the number of layers in the temperature profile. </TD>
@@ -246,7 +246,7 @@ class WeatherRow;
  * </TR>
 	
  * <TR>
- * <TD> numWVR(\f$N_{WVR}\f$)</TD> 
+ * <TD> numWVR(numWVR)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of WVR channels. </TD>

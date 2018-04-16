@@ -28,7 +28,7 @@
  * | If you do, all changes will be lost when the file is re-generated. |
  *  --------------------------------------------------------------------
  *
- * File FlagTable.cpp
+ * File PulsarTable.cpp
  */
 #include <ConversionException.h>
 #include <DuplicateKey.h>
@@ -39,13 +39,13 @@ using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
 #include <ASDM.h>
-#include <FlagTable.h>
-#include <FlagRow.h>
+#include <PulsarTable.h>
+#include <PulsarRow.h>
 #include <Parser.h>
 
 using asdm::ASDM;
-using asdm::FlagTable;
-using asdm::FlagRow;
+using asdm::PulsarTable;
+using asdm::PulsarRow;
 using asdm::Parser;
 
 #include <iostream>
@@ -68,92 +68,88 @@ using namespace boost;
 
 namespace asdm {
 	// The name of the entity we will store in this table.
-	static string entityNameOfFlag = "Flag";
+	static string entityNameOfPulsar = "Pulsar";
 	
 	// An array of string containing the names of the columns of this table.
 	// The array is filled in the order : key, required value, optional value.
 	//
-	static string attributesNamesOfFlag_a[] = {
+	static string attributesNamesOfPulsar_a[] = {
 		
-			"flagId"
+			"pulsarId"
 		
 		
-			, "startTime"
+			, "refTime"
 		
-			, "endTime"
+			, "refPulseFreq"
 		
-			, "reason"
+			, "refPhase"
 		
-			, "numAntenna"
-		
-			, "antennaId"
+			, "numBin"
 				
 		
-			, "numPolarizationType"
+			, "numPoly"
 		
-			, "numSpectralWindow"
+			, "phasePoly"
 		
-			, "numPairedAntenna"
+			, "timeSpan"
 		
-			, "numChan"
+			, "startPhaseBin"
 		
-			, "polarizationType"
+			, "endPhaseBin"
 		
-			, "channel"
+			, "dispersionMeasure"
 		
-			, "pairedAntennaId"
-		
-			, "spectralWindowId"
+			, "refFrequency"
 				
 	};
 	
 	// A vector of string whose content is a copy of the strings in the array above.
 	//
-	static vector<string> attributesNamesOfFlag_v (attributesNamesOfFlag_a, attributesNamesOfFlag_a + sizeof(attributesNamesOfFlag_a) / sizeof(attributesNamesOfFlag_a[0]));
+	static vector<string> attributesNamesOfPulsar_v (attributesNamesOfPulsar_a, attributesNamesOfPulsar_a + sizeof(attributesNamesOfPulsar_a) / sizeof(attributesNamesOfPulsar_a[0]));
 
 	// An array of string containing the names of the columns of this table.
 	// The array is filled in the order where the names would be read by default in the XML header of a file containing
 	// the table exported in binary mode.
 	//	
-	static string attributesNamesInBinOfFlag_a[] = {
+	static string attributesNamesInBinOfPulsar_a[] = {
     
-    	 "flagId" , "startTime" , "endTime" , "reason" , "numAntenna" , "antennaId" 
+    	 "pulsarId" , "refTime" , "refPulseFreq" , "refPhase" , "numBin" 
     	,
-    	 "numPolarizationType" , "numSpectralWindow" , "numPairedAntenna" , "numChan" , "polarizationType" , "channel" , "pairedAntennaId" , "spectralWindowId" 
+    	 "numPoly" , "phasePoly" , "timeSpan" , "startPhaseBin" , "endPhaseBin" , "dispersionMeasure" , "refFrequency" 
     
 	};
 	        			
 	// A vector of string whose content is a copy of the strings in the array above.
 	//
-	static vector<string> attributesNamesInBinOfFlag_v(attributesNamesInBinOfFlag_a, attributesNamesInBinOfFlag_a + sizeof(attributesNamesInBinOfFlag_a) / sizeof(attributesNamesInBinOfFlag_a[0]));		
+	static vector<string> attributesNamesInBinOfPulsar_v(attributesNamesInBinOfPulsar_a, attributesNamesInBinOfPulsar_a + sizeof(attributesNamesInBinOfPulsar_a) / sizeof(attributesNamesInBinOfPulsar_a[0]));		
 	
 
 	// The array of attributes (or column) names that make up key key.
 	//
-	string keyOfFlag_a[] = {
+	string keyOfPulsar_a[] = {
 	
-		"flagId"
+		"pulsarId"
 		 
 	};
 	 
 	// A vector of strings which are copies of those stored in the array above.
-	vector<string> keyOfFlag_v(keyOfFlag_a, keyOfFlag_a + sizeof(keyOfFlag_a) / sizeof(keyOfFlag_a[0]));
+	vector<string> keyOfPulsar_v(keyOfPulsar_a, keyOfPulsar_a + sizeof(keyOfPulsar_a) / sizeof(keyOfPulsar_a[0]));
 
 	/**
 	 * Return the list of field names that make up key key
 	 * as a const reference to a vector of strings.
 	 */	
-	const vector<string>& FlagTable::getKeyName() {
-		return keyOfFlag_v;
+	const vector<string>& PulsarTable::getKeyName() {
+		return keyOfPulsar_v;
 	}
 
 
-	FlagTable::FlagTable(ASDM &c) : container(c) {
+	PulsarTable::PulsarTable(ASDM &c) : container(c) {
 
 		// Define a default entity.
 		entity.setEntityId(EntityId("uid://X0/X0/X0"));
 		entity.setEntityIdEncrypted("na");
-		entity.setEntityTypeName("FlagTable");
+		entity.setEntityTypeName("PulsarTable");
 		entity.setEntityVersion("1");
 		entity.setInstanceVersion("1");
 		
@@ -171,9 +167,9 @@ namespace asdm {
 	}
 	
 /**
- * A destructor for FlagTable.
+ * A destructor for PulsarTable.
  */
-	FlagTable::~FlagTable() {
+	PulsarTable::~PulsarTable() {
 		for (unsigned int i = 0; i < privateRows.size(); i++) 
 			delete(privateRows.at(i));
 	}
@@ -181,14 +177,14 @@ namespace asdm {
 	/**
 	 * Container to which this table belongs.
 	 */
-	ASDM &FlagTable::getContainer() const {
+	ASDM &PulsarTable::getContainer() const {
 		return container;
 	}
 
 	/**
 	 * Return the number of rows in the table.
 	 */
-	unsigned int FlagTable::size() const {
+	unsigned int PulsarTable::size() const {
 		if (presentInMemory) 
 			return privateRows.size();
 		else
@@ -198,39 +194,39 @@ namespace asdm {
 	/**
 	 * Return the name of this table.
 	 */
-	string FlagTable::getName() const {
-		return entityNameOfFlag;
+	string PulsarTable::getName() const {
+		return entityNameOfPulsar;
 	}
 	
 	/**
 	 * Return the name of this table.
 	 */
-	string FlagTable::name() {
-		return entityNameOfFlag;
+	string PulsarTable::name() {
+		return entityNameOfPulsar;
 	}
 	
 	/**
 	 * Return the the names of the attributes (or columns) of this table.
 	 */
-	const vector<string>& FlagTable::getAttributesNames() { return attributesNamesOfFlag_v; }
+	const vector<string>& PulsarTable::getAttributesNames() { return attributesNamesOfPulsar_v; }
 	
 	/**
 	 * Return the the names of the attributes (or columns) of this table as they appear by default
 	 * in an binary export of this table.
 	 */
-	const vector<string>& FlagTable::defaultAttributesNamesInBin() { return attributesNamesInBinOfFlag_v; }
+	const vector<string>& PulsarTable::defaultAttributesNamesInBin() { return attributesNamesInBinOfPulsar_v; }
 
 	/**
 	 * Return this table's Entity.
 	 */
-	Entity FlagTable::getEntity() const {
+	Entity PulsarTable::getEntity() const {
 		return entity;
 	}
 
 	/**
 	 * Set this table's Entity.
 	 */
-	void FlagTable::setEntity(Entity e) {
+	void PulsarTable::setEntity(Entity e) {
 		this->entity = e; 
 	}
 	
@@ -241,8 +237,8 @@ namespace asdm {
 	/**
 	 * Create a new row.
 	 */
-	FlagRow *FlagTable::newRow() {
-		return new FlagRow (*this);
+	PulsarRow *PulsarTable::newRow() {
+		return new PulsarRow (*this);
 	}
 	
 
@@ -250,37 +246,33 @@ namespace asdm {
 	 * Create a new row initialized to the specified values.
 	 * @return a pointer on the created and initialized row.
 	
- 	 * @param startTime 
+ 	 * @param refTime 
 	
- 	 * @param endTime 
+ 	 * @param refPulseFreq 
 	
- 	 * @param reason 
+ 	 * @param refPhase 
 	
- 	 * @param numAntenna 
-	
- 	 * @param antennaId 
+ 	 * @param numBin 
 	
      */
-	FlagRow* FlagTable::newRow(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId){
-		FlagRow *row = new FlagRow(*this);
+	PulsarRow* PulsarTable::newRow(ArrayTime refTime, Frequency refPulseFreq, double refPhase, int numBin){
+		PulsarRow *row = new PulsarRow(*this);
 			
-		row->setStartTime(startTime);
+		row->setRefTime(refTime);
 			
-		row->setEndTime(endTime);
+		row->setRefPulseFreq(refPulseFreq);
 			
-		row->setReason(reason);
+		row->setRefPhase(refPhase);
 			
-		row->setNumAntenna(numAntenna);
-			
-		row->setAntennaId(antennaId);
+		row->setNumBin(numBin);
 	
 		return row;		
 	}	
 	
 
 
-FlagRow* FlagTable::newRow(FlagRow* row) {
-	return new FlagRow(*this, *row);
+PulsarRow* PulsarTable::newRow(PulsarRow* row) {
+	return new PulsarRow(*this, *row);
 }
 
 	//
@@ -292,35 +284,33 @@ FlagRow* FlagTable::newRow(FlagRow* row) {
 	
 	/** 
  	 * Look up the table for a row whose noautoincrementable attributes are matching their
- 	 * homologues in *x.  If a row is found  this row else autoincrement  *x.flagId, 
+ 	 * homologues in *x.  If a row is found  this row else autoincrement  *x.pulsarId, 
  	 * add x to its table and returns x.
  	 *  
- 	 * @returns a pointer on a FlagRow.
+ 	 * @returns a pointer on a PulsarRow.
  	 * @param x. A pointer on the row to be added.
  	 */ 
  		
 			
-	FlagRow* FlagTable::add(FlagRow* x) {
+	PulsarRow* PulsarTable::add(PulsarRow* x) {
 			 
-		FlagRow* aRow = lookup(
+		PulsarRow* aRow = lookup(
 				
-		x->getStartTime()
+		x->getRefTime()
 				,
-		x->getEndTime()
+		x->getRefPulseFreq()
 				,
-		x->getReason()
+		x->getRefPhase()
 				,
-		x->getNumAntenna()
-				,
-		x->getAntennaId()
+		x->getNumBin()
 				
 		);
 		if (aRow) return aRow;
 			
 
 			
-		// Autoincrement flagId
-		x->setFlagId(Tag(size(), TagType::Flag));
+		// Autoincrement pulsarId
+		x->setPulsarId(Tag(size(), TagType::Pulsar));
 						
 		row.push_back(x);
 		privateRows.push_back(x);
@@ -330,11 +320,11 @@ FlagRow* FlagTable::newRow(FlagRow* row) {
 		
 	
 		
-	void FlagTable::addWithoutCheckingUnique(FlagRow * x) {
+	void PulsarTable::addWithoutCheckingUnique(PulsarRow * x) {
 		if (getRowByKey(
-						x->getFlagId()
-						) != (FlagRow *) 0) 
-			throw DuplicateKey("Dupicate key exception in ", "FlagTable");
+						x->getPulsarId()
+						) != (PulsarRow *) 0) 
+			throw DuplicateKey("Dupicate key exception in ", "PulsarTable");
 		row.push_back(x);
 		privateRows.push_back(x);
 		x->isAdded(true);
@@ -360,21 +350,19 @@ FlagRow* FlagTable::newRow(FlagRow* row) {
 	 * @throws UniquenessViolationException
 	 
 	 */
-	FlagRow*  FlagTable::checkAndAdd(FlagRow* x, bool skipCheckUniqueness)  {
+	PulsarRow*  PulsarTable::checkAndAdd(PulsarRow* x, bool skipCheckUniqueness)  {
 		if (!skipCheckUniqueness) { 
 	 
 		 
 			if (lookup(
 			
-				x->getStartTime()
+				x->getRefTime()
 		,
-				x->getEndTime()
+				x->getRefPulseFreq()
 		,
-				x->getReason()
+				x->getRefPhase()
 		,
-				x->getNumAntenna()
-		,
-				x->getAntennaId()
+				x->getNumBin()
 		
 			)) throw UniquenessViolationException();
 		
@@ -383,9 +371,9 @@ FlagRow* FlagTable::newRow(FlagRow* row) {
 		
 		if (getRowByKey(
 	
-			x->getFlagId()
+			x->getPulsarId()
 			
-		)) throw DuplicateKey("Duplicate key exception in ", "FlagTable");
+		)) throw DuplicateKey("Duplicate key exception in ", "PulsarTable");
 		
 		row.push_back(x);
 		privateRows.push_back(x);
@@ -399,7 +387,7 @@ FlagRow* FlagTable::newRow(FlagRow* row) {
 	// A private method to brutally append a row to its table, without checking for row uniqueness.
 	//
 
-	void FlagTable::append(FlagRow *x) {
+	void PulsarTable::append(PulsarRow *x) {
 		privateRows.push_back(x);
 		x->isAdded(true);
 	}
@@ -408,13 +396,13 @@ FlagRow* FlagTable::newRow(FlagRow* row) {
 
 
 
-	 vector<FlagRow *> FlagTable::get() {
+	 vector<PulsarRow *> PulsarTable::get() {
 	 	checkPresenceInMemory();
 	    return privateRows;
 	 }
 	 
-	 const vector<FlagRow *>& FlagTable::get() const {
-	 	const_cast<FlagTable&>(*this).checkPresenceInMemory();	
+	 const vector<PulsarRow *>& PulsarTable::get() const {
+	 	const_cast<PulsarTable&>(*this).checkPresenceInMemory();	
 	    return privateRows;
 	 }	 
 	 	
@@ -426,19 +414,19 @@ FlagRow* FlagTable::newRow(FlagRow* row) {
 
 	
 /*
- ** Returns a FlagRow* given a key.
+ ** Returns a PulsarRow* given a key.
  ** @return a pointer to the row having the key whose values are passed as parameters, or 0 if
  ** no row exists for that key.
  **
  */
- 	FlagRow* FlagTable::getRowByKey(Tag flagId)  {
+ 	PulsarRow* PulsarTable::getRowByKey(Tag pulsarId)  {
  	checkPresenceInMemory();
-	FlagRow* aRow = 0;
+	PulsarRow* aRow = 0;
 	for (unsigned int i = 0; i < privateRows.size(); i++) {
 		aRow = row.at(i);
 		
 			
-				if (aRow->flagId != flagId) continue;
+				if (aRow->pulsarId != pulsarId) continue;
 			
 		
 		return aRow;
@@ -454,22 +442,20 @@ FlagRow* FlagTable::newRow(FlagRow* row) {
  * @return a pointer on this row if any, 0 otherwise.
  *
 			
- * @param startTime.
+ * @param refTime.
  	 		
- * @param endTime.
+ * @param refPulseFreq.
  	 		
- * @param reason.
+ * @param refPhase.
  	 		
- * @param numAntenna.
- 	 		
- * @param antennaId.
+ * @param numBin.
  	 		 
  */
-FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId) {
-		FlagRow* aRow;
+PulsarRow* PulsarTable::lookup(ArrayTime refTime, Frequency refPulseFreq, double refPhase, int numBin) {
+		PulsarRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
-			if (aRow->compareNoAutoInc(startTime, endTime, reason, numAntenna, antennaId)) return aRow;
+			if (aRow->compareNoAutoInc(refTime, refPulseFreq, refPhase, numBin)) return aRow;
 		}			
 		return 0;	
 } 
@@ -481,17 +467,17 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 
 
 #ifndef WITHOUT_ACS
-	using asdmIDL::FlagTableIDL;
+	using asdmIDL::PulsarTableIDL;
 #endif
 
 #ifndef WITHOUT_ACS
 	// Conversion Methods
 
-	FlagTableIDL *FlagTable::toIDL() {
-		FlagTableIDL *x = new FlagTableIDL ();
+	PulsarTableIDL *PulsarTable::toIDL() {
+		PulsarTableIDL *x = new PulsarTableIDL ();
 		unsigned int nrow = size();
 		x->row.length(nrow);
-		vector<FlagRow*> v = get();
+		vector<PulsarRow*> v = get();
 		for (unsigned int i = 0; i < nrow; ++i) {
 			//x->row[i] = *(v[i]->toIDL());
 			v[i]->toIDL(x->row[i]);
@@ -499,10 +485,10 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 		return x;
 	}
 	
-	void FlagTable::toIDL(asdmIDL::FlagTableIDL& x) const {
+	void PulsarTable::toIDL(asdmIDL::PulsarTableIDL& x) const {
 		unsigned int nrow = size();
 		x.row.length(nrow);
-		vector<FlagRow*> v = get();
+		vector<PulsarRow*> v = get();
 		for (unsigned int i = 0; i < nrow; ++i) {
 			v[i]->toIDL(x.row[i]);
 		}
@@ -510,10 +496,10 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 #endif
 	
 #ifndef WITHOUT_ACS
-	void FlagTable::fromIDL(FlagTableIDL x) {
+	void PulsarTable::fromIDL(PulsarTableIDL x) {
 		unsigned int nrow = x.row.length();
 		for (unsigned int i = 0; i < nrow; ++i) {
-			FlagRow *tmp = newRow();
+			PulsarRow *tmp = newRow();
 			tmp->setFromIDL(x.row[i]);
 			// checkAndAdd(tmp);
 			add(tmp);
@@ -522,17 +508,17 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 #endif
 
 	
-	string FlagTable::toXML()  {
+	string PulsarTable::toXML()  {
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<FlagTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:flag=\"http://Alma/XASDM/FlagTable\" xsi:schemaLocation=\"http://Alma/XASDM/FlagTable http://almaobservatory.org/XML/XASDM/3/FlagTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<PulsarTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:plsr=\"http://Alma/XASDM/PulsarTable\" xsi:schemaLocation=\"http://Alma/XASDM/PulsarTable http://almaobservatory.org/XML/XASDM/3/PulsarTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
 		// Change the "Entity" tag to "ContainerEntity".
 		buf.append("<Container" + s.substr(1,s.length() - 1)+" ");
-		vector<FlagRow*> v = get();
+		vector<PulsarRow*> v = get();
 		for (unsigned int i = 0; i < v.size(); ++i) {
 			try {
 				buf.append(v[i]->toXML());
@@ -540,17 +526,17 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 			}
 			buf.append("  ");
 		}		
-		buf.append("</FlagTable> ");
+		buf.append("</PulsarTable> ");
 		return buf;
 	}
 
 	
-	string FlagTable::getVersion() const {
+	string PulsarTable::getVersion() const {
 		return version;
 	}
 	
 
-	void FlagTable::fromXML(string& tableInXML)  {
+	void PulsarTable::fromXML(string& tableInXML)  {
 		//
 		// Look for a version information in the schemaVersion of the XML
 		//
@@ -561,11 +547,11 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
 		if ( doc == NULL )
-			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Flag");
+			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Pulsar");
 		
 		xmlNode* root_element = xmlDocGetRootElement(doc);
    		if ( root_element == NULL || root_element->type != XML_ELEMENT_NODE )
-      		throw ConversionException("Failed to retrieve the root element in the DOM structure.", "Flag");
+      		throw ConversionException("Failed to retrieve the root element in the DOM structure.", "Pulsar");
       		
       	xmlChar * propValue = xmlGetProp(root_element, (const xmlChar *) "schemaVersion");
       	if ( propValue != 0 ) {
@@ -574,15 +560,15 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
       	}
       		     							
 		Parser xml(tableInXML);
-		if (!xml.isStr("<FlagTable")) 
+		if (!xml.isStr("<PulsarTable")) 
 			error();
-		// cout << "Parsing a FlagTable" << endl;
+		// cout << "Parsing a PulsarTable" << endl;
 		string s = xml.getElement("<Entity","/>");
 		if (s.length() == 0) 
 			error();
 		Entity e;
 		e.setFromXML(s);
-		if (e.getEntityTypeName() != "FlagTable")
+		if (e.getEntityTypeName() != "PulsarTable")
 			error();
 		setEntity(e);
 		// Skip the container's entity; but, it has to be there.
@@ -592,7 +578,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 
 		// Get each row in the table.
 		s = xml.getElementContent("<row>","</row>");
-		FlagRow *row;
+		PulsarRow *row;
 		if (getContainer().checkRowUniqueness()) {
 			try {
 				while (s.length() != 0) {
@@ -604,13 +590,13 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 				
 			}
 			catch (DuplicateKey e1) {
-				throw ConversionException(e1.getMessage(),"FlagTable");
+				throw ConversionException(e1.getMessage(),"PulsarTable");
 			} 
 			catch (UniquenessViolationException e1) {
-				throw ConversionException(e1.getMessage(),"FlagTable");	
+				throw ConversionException(e1.getMessage(),"PulsarTable");	
 			}
 			catch (...) {
-				// cout << "Unexpected error in FlagTable::checkAndAdd called from FlagTable::fromXML " << endl;
+				// cout << "Unexpected error in PulsarTable::checkAndAdd called from PulsarTable::fromXML " << endl;
 			}
 		}
 		else {
@@ -623,15 +609,15 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 				}
 			}
 			catch (DuplicateKey e1) {
-				throw ConversionException(e1.getMessage(),"FlagTable");
+				throw ConversionException(e1.getMessage(),"PulsarTable");
 			} 
 			catch (...) {
-				// cout << "Unexpected error in FlagTable::addWithoutCheckingUnique called from FlagTable::fromXML " << endl;
+				// cout << "Unexpected error in PulsarTable::addWithoutCheckingUnique called from PulsarTable::fromXML " << endl;
 			}
 		}				
 				
 				
-		if (!xml.isStr("</FlagTable>")) 
+		if (!xml.isStr("</PulsarTable>")) 
 		error();
 		
 		//Does not change the convention defined in the model.	
@@ -641,46 +627,44 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 	}
 
 	
-	void FlagTable::error()  {
-		throw ConversionException("Invalid xml document","Flag");
+	void PulsarTable::error()  {
+		throw ConversionException("Invalid xml document","Pulsar");
 	}
 	
 	
-	string FlagTable::MIMEXMLPart(const asdm::ByteOrder* byteOrder) {
+	string PulsarTable::MIMEXMLPart(const asdm::ByteOrder* byteOrder) {
 		string UID = getEntity().getEntityId().toString();
 		string withoutUID = UID.substr(6);
 		string containerUID = getContainer().getEntity().getEntityId().toString();
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<FlagTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:flag=\"http://Alma/XASDM/FlagTable\" xsi:schemaLocation=\"http://Alma/XASDM/FlagTable http://almaobservatory.org/XML/XASDM/3/FlagTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
-		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='FlagTable' schemaVersion='1' documentVersion='1'/>\n";
+		oss << "<PulsarTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:plsr=\"http://Alma/XASDM/PulsarTable\" xsi:schemaLocation=\"http://Alma/XASDM/PulsarTable http://almaobservatory.org/XML/XASDM/3/PulsarTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='PulsarTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
 		oss << "<Attributes>\n";
 
-		oss << "<flagId/>\n"; 
-		oss << "<startTime/>\n"; 
-		oss << "<endTime/>\n"; 
-		oss << "<reason/>\n"; 
-		oss << "<numAntenna/>\n"; 
-		oss << "<antennaId/>\n"; 
+		oss << "<pulsarId/>\n"; 
+		oss << "<refTime/>\n"; 
+		oss << "<refPulseFreq/>\n"; 
+		oss << "<refPhase/>\n"; 
+		oss << "<numBin/>\n"; 
 
-		oss << "<numPolarizationType/>\n"; 
-		oss << "<numSpectralWindow/>\n"; 
-		oss << "<numPairedAntenna/>\n"; 
-		oss << "<numChan/>\n"; 
-		oss << "<polarizationType/>\n"; 
-		oss << "<channel/>\n"; 
-		oss << "<pairedAntennaId/>\n"; 
-		oss << "<spectralWindowId/>\n"; 
+		oss << "<numPoly/>\n"; 
+		oss << "<phasePoly/>\n"; 
+		oss << "<timeSpan/>\n"; 
+		oss << "<startPhaseBin/>\n"; 
+		oss << "<endPhaseBin/>\n"; 
+		oss << "<dispersionMeasure/>\n"; 
+		oss << "<refFrequency/>\n"; 
 		oss << "</Attributes>\n";		
-		oss << "</FlagTable>\n";
+		oss << "</PulsarTable>\n";
 
 		return oss.str();				
 	}
 	
-	string FlagTable::toMIME(const asdm::ByteOrder* byteOrder) {
+	string PulsarTable::toMIME(const asdm::ByteOrder* byteOrder) {
 		EndianOSStream eoss(byteOrder);
 		
 		string UID = getEntity().getEntityId().toString();
@@ -735,7 +719,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 	}
 
 	
-	void FlagTable::setFromMIME(const string & mimeMsg) {
+	void PulsarTable::setFromMIME(const string & mimeMsg) {
     string xmlPartMIMEHeader = "Content-ID: <header.xml>\n\n";
     
     string binPartMIMEHeader = "--MIME_boundary\nContent-Type: binary/octet-stream\nContent-ID: <content.bin>\n\n";
@@ -747,7 +731,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
       xmlPartMIMEHeader = "Content-ID: <header.xml>\r\n\r\n";
       loc0 = mimeMsg.find(xmlPartMIMEHeader, 0);
       if  ( loc0 == string::npos ) 
-	      throw ConversionException("Failed to detect the beginning of the XML header", "Flag");
+	      throw ConversionException("Failed to detect the beginning of the XML header", "Pulsar");
     }
 
     loc0 += xmlPartMIMEHeader.size();
@@ -756,7 +740,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
     string::size_type loc1 = mimeMsg.find( binPartMIMEHeader, loc0 );
     
     if ( loc1 == string::npos ) {
-      throw ConversionException("Failed to detect the beginning of the binary part", "Flag");
+      throw ConversionException("Failed to detect the beginning of the binary part", "Pulsar");
     }
     
     //
@@ -767,7 +751,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
     xmlDoc *doc;
     doc = xmlReadMemory(xmlHeader.data(), xmlHeader.size(), "BinaryTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
     if ( doc == NULL ) 
-      throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Flag");
+      throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Pulsar");
     
    // This vector will be filled by the names of  all the attributes of the table
    // in the order in which they are expected to be found in the binary representation.
@@ -776,7 +760,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
       
     xmlNode* root_element = xmlDocGetRootElement(doc);
     if ( root_element == NULL || root_element->type != XML_ELEMENT_NODE )
-      throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Flag");
+      throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Pulsar");
     
     const ByteOrder* byteOrder=0;
     if ( string("ASDMBinaryTable").compare((const char*) root_element->name) == 0) {
@@ -789,34 +773,30 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
     //
     
     	 
-    attributesSeq.push_back("flagId") ; 
+    attributesSeq.push_back("pulsarId") ; 
     	 
-    attributesSeq.push_back("startTime") ; 
+    attributesSeq.push_back("refTime") ; 
     	 
-    attributesSeq.push_back("endTime") ; 
+    attributesSeq.push_back("refPulseFreq") ; 
     	 
-    attributesSeq.push_back("reason") ; 
+    attributesSeq.push_back("refPhase") ; 
     	 
-    attributesSeq.push_back("numAntenna") ; 
-    	 
-    attributesSeq.push_back("antennaId") ; 
+    attributesSeq.push_back("numBin") ; 
     	
     	 
-    attributesSeq.push_back("numPolarizationType") ; 
+    attributesSeq.push_back("numPoly") ; 
     	 
-    attributesSeq.push_back("numSpectralWindow") ; 
+    attributesSeq.push_back("phasePoly") ; 
     	 
-    attributesSeq.push_back("numPairedAntenna") ; 
+    attributesSeq.push_back("timeSpan") ; 
     	 
-    attributesSeq.push_back("numChan") ; 
+    attributesSeq.push_back("startPhaseBin") ; 
     	 
-    attributesSeq.push_back("polarizationType") ; 
+    attributesSeq.push_back("endPhaseBin") ; 
     	 
-    attributesSeq.push_back("channel") ; 
+    attributesSeq.push_back("dispersionMeasure") ; 
     	 
-    attributesSeq.push_back("pairedAntennaId") ; 
-    	 
-    attributesSeq.push_back("spectralWindowId") ; 
+    attributesSeq.push_back("refFrequency") ; 
     	
      
     
@@ -824,7 +804,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
     // And decide that it has version == "2"
     version = "2";         
      }
-    else if (string("FlagTable").compare((const char*) root_element->name) == 0) {
+    else if (string("PulsarTable").compare((const char*) root_element->name) == 0) {
       // It's a new (and correct) MIME file for tables.
       //
       // 1st )  Look for a BulkStoreRef element with an attribute byteOrder.
@@ -842,7 +822,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
       bulkStoreRef = (child ==  0) ? 0 : ( (child->next) == 0 ? 0 : child->next->next );
       
       if ( bulkStoreRef == 0 || (bulkStoreRef->type != XML_ELEMENT_NODE)  || (string("BulkStoreRef").compare((const char*) bulkStoreRef->name) != 0))
-      	throw ConversionException ("Could not find the element '/FlagTable/BulkStoreRef'. Invalid XML header '"+ xmlHeader + "'.", "Flag");
+      	throw ConversionException ("Could not find the element '/PulsarTable/BulkStoreRef'. Invalid XML header '"+ xmlHeader + "'.", "Pulsar");
       	
       // We found BulkStoreRef, now look for its attribute byteOrder.
       _xmlAttr* byteOrderAttr = 0;
@@ -853,18 +833,18 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 	 }
       
       if (byteOrderAttr == 0) 
-	     throw ConversionException("Could not find the element '/FlagTable/BulkStoreRef/@byteOrder'. Invalid XML header '" + xmlHeader +"'.", "Flag");
+	     throw ConversionException("Could not find the element '/PulsarTable/BulkStoreRef/@byteOrder'. Invalid XML header '" + xmlHeader +"'.", "Pulsar");
       
       string byteOrderValue = string((const char*) byteOrderAttr->children->content);
       if (!(byteOrder = asdm::ByteOrder::fromString(byteOrderValue)))
-		throw ConversionException("No valid value retrieved for the element '/FlagTable/BulkStoreRef/@byteOrder'. Invalid XML header '" + xmlHeader + "'.", "Flag");
+		throw ConversionException("No valid value retrieved for the element '/PulsarTable/BulkStoreRef/@byteOrder'. Invalid XML header '" + xmlHeader + "'.", "Pulsar");
 		
 	 //
 	 // 2nd) Look for the Attributes element and grab the names of the elements it contains.
 	 //
 	 xmlNode* attributes = bulkStoreRef->next;
      if ( attributes == 0 || (attributes->type != XML_ELEMENT_NODE)  || (string("Attributes").compare((const char*) attributes->name) != 0))	 
-       	throw ConversionException ("Could not find the element '/FlagTable/Attributes'. Invalid XML header '"+ xmlHeader + "'.", "Flag");
+       	throw ConversionException ("Could not find the element '/PulsarTable/Attributes'. Invalid XML header '"+ xmlHeader + "'.", "Pulsar");
  
  	xmlNode* childOfAttributes = attributes->children;
  	
@@ -897,22 +877,22 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 	if (getContainer().checkRowUniqueness()) {
     	try {
       		for (uint32_t i = 0; i < this->declaredSize; i++) {
-				FlagRow* aRow = FlagRow::fromBin((EndianIStream&) eiss, *this, attributesSeq);
+				PulsarRow* aRow = PulsarRow::fromBin((EndianIStream&) eiss, *this, attributesSeq);
 				checkAndAdd(aRow);
       		}
     	}
     	catch (DuplicateKey e) {
       		throw ConversionException("Error while writing binary data , the message was "
-				+ e.getMessage(), "Flag");
+				+ e.getMessage(), "Pulsar");
     	}
     	catch (TagFormatException e) {
      		 throw ConversionException("Error while reading binary data , the message was "
-				+ e.getMessage(), "Flag");
+				+ e.getMessage(), "Pulsar");
     	}
     }
     else {
  		for (uint32_t i = 0; i < this->declaredSize; i++) {
-			FlagRow* aRow = FlagRow::fromBin((EndianIStream&) eiss, *this, attributesSeq);
+			PulsarRow* aRow = PulsarRow::fromBin((EndianIStream&) eiss, *this, attributesSeq);
 			append(aRow);
       	}   	
     }
@@ -921,98 +901,98 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
     //fileAsBin = true;
 	}
 	
-	void FlagTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
+	void PulsarTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
 		//
 		// Is this attribute really unknown ?
 		//
-		for (vector<string>::const_iterator iter = attributesNamesOfFlag_v.begin(); iter != attributesNamesOfFlag_v.end(); iter++) {
+		for (vector<string>::const_iterator iter = attributesNamesOfPulsar_v.begin(); iter != attributesNamesOfPulsar_v.end(); iter++) {
 			if ((*iter).compare(attributeName) == 0) 
-				throw ConversionException("the attribute '"+attributeName+"' is known you can't override the way it's read in the MIME binary file containing the table.", "Flag"); 
+				throw ConversionException("the attribute '"+attributeName+"' is known you can't override the way it's read in the MIME binary file containing the table.", "Pulsar"); 
 		}
 		
 		// Ok then register the functor to activate when an unknown attribute is met during the reading of a binary table?
 		unknownAttributes2Functors[attributeName] = barFctr;
 	}
 	
-	BinaryAttributeReaderFunctor* FlagTable::getUnknownAttributeBinaryReader(const string& attributeName) const {
+	BinaryAttributeReaderFunctor* PulsarTable::getUnknownAttributeBinaryReader(const string& attributeName) const {
 		map<string, BinaryAttributeReaderFunctor*>::const_iterator iter = unknownAttributes2Functors.find(attributeName);
 		return (iter == unknownAttributes2Functors.end()) ? 0 : iter->second;
 	}
 
 	
-	void FlagTable::toFile(string directory) {
+	void PulsarTable::toFile(string directory) {
 		if (!directoryExists(directory.c_str()) &&
 			!createPath(directory.c_str())) {
 			throw ConversionException("Could not create directory " , directory);
 		}
 
-		string fileName = directory + "/Flag.xml";
+		string fileName = directory + "/Pulsar.xml";
 		ofstream tableout(fileName.c_str(),ios::out|ios::trunc);
 		if (tableout.rdstate() == ostream::failbit)
-			throw ConversionException("Could not open file " + fileName + " to write ", "Flag");
+			throw ConversionException("Could not open file " + fileName + " to write ", "Pulsar");
 		if (fileAsBin) 
 			tableout << MIMEXMLPart();
 		else
 			tableout << toXML() << endl;
 		tableout.close();
 		if (tableout.rdstate() == ostream::failbit)
-			throw ConversionException("Could not close file " + fileName, "Flag");
+			throw ConversionException("Could not close file " + fileName, "Pulsar");
 
 		if (fileAsBin) {
 			// write the bin serialized
-			string fileName = directory + "/Flag.bin";
+			string fileName = directory + "/Pulsar.bin";
 			ofstream tableout(fileName.c_str(),ios::out|ios::trunc);
 			if (tableout.rdstate() == ostream::failbit)
-				throw ConversionException("Could not open file " + fileName + " to write ", "Flag");
+				throw ConversionException("Could not open file " + fileName + " to write ", "Pulsar");
 			tableout << toMIME() << endl;
 			tableout.close();
 			if (tableout.rdstate() == ostream::failbit)
-				throw ConversionException("Could not close file " + fileName, "Flag");
+				throw ConversionException("Could not close file " + fileName, "Pulsar");
 		}
 	}
 
 	
-	void FlagTable::setFromFile(const string& directory) {		
-    if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Flag.xml"))))
+	void PulsarTable::setFromFile(const string& directory) {		
+    if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Pulsar.xml"))))
       setFromXMLFile(directory);
-    else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Flag.bin"))))
+    else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Pulsar.bin"))))
       setFromMIMEFile(directory);
     else
-      throw ConversionException("No file found for the Flag table", "Flag");
+      throw ConversionException("No file found for the Pulsar table", "Pulsar");
 	}			
 
 	
-  void FlagTable::setFromMIMEFile(const string& directory) {
+  void PulsarTable::setFromMIMEFile(const string& directory) {
     string tablePath ;
     
-    tablePath = directory + "/Flag.bin";
+    tablePath = directory + "/Pulsar.bin";
     ifstream tablefile(tablePath.c_str(), ios::in|ios::binary);
     if (!tablefile.is_open()) { 
-      throw ConversionException("Could not open file " + tablePath, "Flag");
+      throw ConversionException("Could not open file " + tablePath, "Pulsar");
     }
     // Read in a stringstream.
     stringstream ss; ss << tablefile.rdbuf();
     
     if (tablefile.rdstate() == istream::failbit || tablefile.rdstate() == istream::badbit) {
-      throw ConversionException("Error reading file " + tablePath,"Flag");
+      throw ConversionException("Error reading file " + tablePath,"Pulsar");
     }
     
     // And close.
     tablefile.close();
     if (tablefile.rdstate() == istream::failbit)
-      throw ConversionException("Could not close file " + tablePath,"Flag");
+      throw ConversionException("Could not close file " + tablePath,"Pulsar");
     
     setFromMIME(ss.str());
   }	
 /* 
-  void FlagTable::openMIMEFile (const string& directory) {
+  void PulsarTable::openMIMEFile (const string& directory) {
   		
   	// Open the file.
   	string tablePath ;
-    tablePath = directory + "/Flag.bin";
+    tablePath = directory + "/Pulsar.bin";
     ifstream tablefile(tablePath.c_str(), ios::in|ios::binary);
     if (!tablefile.is_open())
-      throw ConversionException("Could not open file " + tablePath, "Flag");
+      throw ConversionException("Could not open file " + tablePath, "Pulsar");
       
 	// Locate the xmlPartMIMEHeader.
     string xmlPartMIMEHeader = "CONTENT-ID: <HEADER.XML>\n\n";
@@ -1021,7 +1001,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
     istreambuf_iterator<char> END;
     istreambuf_iterator<char> it = search(BEGIN, END, xmlPartMIMEHeader.begin(), xmlPartMIMEHeader.end(), comparator);
     if (it == END) 
-    	throw ConversionException("failed to detect the beginning of the XML header", "Flag");
+    	throw ConversionException("failed to detect the beginning of the XML header", "Pulsar");
     
     // Locate the binaryPartMIMEHeader while accumulating the characters of the xml header.	
     string binPartMIMEHeader = "--MIME_BOUNDARY\nCONTENT-TYPE: BINARY/OCTET-STREAM\nCONTENT-ID: <CONTENT.BIN>\n\n";
@@ -1030,7 +1010,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
    	++it;
    	it = search(it, END, binPartMIMEHeader.begin(), binPartMIMEHeader.end(), compaccumulator);
    	if (it == END) 
-   		throw ConversionException("failed to detect the beginning of the binary part", "Flag");
+   		throw ConversionException("failed to detect the beginning of the binary part", "Pulsar");
    	
 	cout << xmlHeader << endl;
 	//
@@ -1039,16 +1019,16 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 	xmlDoc *doc;
     doc = xmlReadMemory(xmlHeader.data(), xmlHeader.size(), "BinaryTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
     if ( doc == NULL ) 
-      throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Flag");
+      throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Pulsar");
     
    // This vector will be filled by the names of  all the attributes of the table
    // in the order in which they are expected to be found in the binary representation.
    //
-    vector<string> attributesSeq(attributesNamesInBinOfFlag_v);
+    vector<string> attributesSeq(attributesNamesInBinOfPulsar_v);
       
     xmlNode* root_element = xmlDocGetRootElement(doc);
     if ( root_element == NULL || root_element->type != XML_ELEMENT_NODE )
-      throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Flag");
+      throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Pulsar");
     
     const ByteOrder* byteOrder=0;
     if ( string("ASDMBinaryTable").compare((const char*) root_element->name) == 0) {
@@ -1059,7 +1039,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
       // And decide that it has version == "2"
     version = "2";         
      }
-    else if (string("FlagTable").compare((const char*) root_element->name) == 0) {
+    else if (string("PulsarTable").compare((const char*) root_element->name) == 0) {
       // It's a new (and correct) MIME file for tables.
       //
       // 1st )  Look for a BulkStoreRef element with an attribute byteOrder.
@@ -1077,7 +1057,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
       bulkStoreRef = (child ==  0) ? 0 : ( (child->next) == 0 ? 0 : child->next->next );
       
       if ( bulkStoreRef == 0 || (bulkStoreRef->type != XML_ELEMENT_NODE)  || (string("BulkStoreRef").compare((const char*) bulkStoreRef->name) != 0))
-      	throw ConversionException ("Could not find the element '/FlagTable/BulkStoreRef'. Invalid XML header '"+ xmlHeader + "'.", "Flag");
+      	throw ConversionException ("Could not find the element '/PulsarTable/BulkStoreRef'. Invalid XML header '"+ xmlHeader + "'.", "Pulsar");
       	
       // We found BulkStoreRef, now look for its attribute byteOrder.
       _xmlAttr* byteOrderAttr = 0;
@@ -1088,18 +1068,18 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 	 }
       
       if (byteOrderAttr == 0) 
-	     throw ConversionException("Could not find the element '/FlagTable/BulkStoreRef/@byteOrder'. Invalid XML header '" + xmlHeader +"'.", "Flag");
+	     throw ConversionException("Could not find the element '/PulsarTable/BulkStoreRef/@byteOrder'. Invalid XML header '" + xmlHeader +"'.", "Pulsar");
       
       string byteOrderValue = string((const char*) byteOrderAttr->children->content);
       if (!(byteOrder = asdm::ByteOrder::fromString(byteOrderValue)))
-		throw ConversionException("No valid value retrieved for the element '/FlagTable/BulkStoreRef/@byteOrder'. Invalid XML header '" + xmlHeader + "'.", "Flag");
+		throw ConversionException("No valid value retrieved for the element '/PulsarTable/BulkStoreRef/@byteOrder'. Invalid XML header '" + xmlHeader + "'.", "Pulsar");
 		
 	 //
 	 // 2nd) Look for the Attributes element and grab the names of the elements it contains.
 	 //
 	 xmlNode* attributes = bulkStoreRef->next;
      if ( attributes == 0 || (attributes->type != XML_ELEMENT_NODE)  || (string("Attributes").compare((const char*) attributes->name) != 0))	 
-       	throw ConversionException ("Could not find the element '/FlagTable/Attributes'. Invalid XML header '"+ xmlHeader + "'.", "Flag");
+       	throw ConversionException ("Could not find the element '/PulsarTable/Attributes'. Invalid XML header '"+ xmlHeader + "'.", "Pulsar");
  
  	xmlNode* childOfAttributes = attributes->children;
  	
@@ -1132,28 +1112,28 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
  */
 
 	
-void FlagTable::setFromXMLFile(const string& directory) {
+void PulsarTable::setFromXMLFile(const string& directory) {
     string tablePath ;
     
-    tablePath = directory + "/Flag.xml";
+    tablePath = directory + "/Pulsar.xml";
     
     /*
     ifstream tablefile(tablePath.c_str(), ios::in|ios::binary);
     if (!tablefile.is_open()) { 
-      throw ConversionException("Could not open file " + tablePath, "Flag");
+      throw ConversionException("Could not open file " + tablePath, "Pulsar");
     }
       // Read in a stringstream.
     stringstream ss;
     ss << tablefile.rdbuf();
     
     if  (tablefile.rdstate() == istream::failbit || tablefile.rdstate() == istream::badbit) {
-      throw ConversionException("Error reading file '" + tablePath + "'", "Flag");
+      throw ConversionException("Error reading file '" + tablePath + "'", "Pulsar");
     }
     
     // And close
     tablefile.close();
     if (tablefile.rdstate() == istream::failbit)
-      throw ConversionException("Could not close file '" + tablePath + "'", "Flag");
+      throw ConversionException("Could not close file '" + tablePath + "'", "Pulsar");
 
     // Let's make a string out of the stringstream content and empty the stringstream.
     string xmlDocument = ss.str(); ss.str("");
@@ -1169,7 +1149,7 @@ void FlagTable::setFromXMLFile(const string& directory) {
     	if (getenv("ASDM_DEBUG")) cout << "About to read " << tablePath << endl;
     }
     catch (XSLTransformerException e) {
-    	throw ConversionException("Caugth an exception whose message is '" + e.getMessage() + "'.", "Flag");
+    	throw ConversionException("Caugth an exception whose message is '" + e.getMessage() + "'.", "Pulsar");
     }
     
     if (xmlDocument.find("<BulkStoreRef") != string::npos)
@@ -1187,13 +1167,13 @@ void FlagTable::setFromXMLFile(const string& directory) {
 	
 
 	
-	void FlagTable::autoIncrement(string key, FlagRow* x) {
+	void PulsarTable::autoIncrement(string key, PulsarRow* x) {
 		map<string, int>::iterator iter;
 		if ((iter=noAutoIncIds.find(key)) == noAutoIncIds.end()) {
 			// There is not yet a combination of the non autoinc attributes values in the hashtable
 			
-			// Initialize  flagId to Tag(0).
-			x->setFlagId(Tag(0,  TagType::Flag));
+			// Initialize  pulsarId to Tag(0).
+			x->setPulsarId(Tag(0,  TagType::Pulsar));
 			
 			// Record it in the map.		
 			noAutoIncIds.insert(make_pair(key, 0));			
@@ -1203,8 +1183,8 @@ void FlagTable::setFromXMLFile(const string& directory) {
 			// Increment its value.
 			int n = iter->second + 1; 
 			
-			// Initialize  flagId to Tag(n).
-			x->setFlagId(Tag(n, TagType::Flag));
+			// Initialize  pulsarId to Tag(n).
+			x->setPulsarId(Tag(n, TagType::Pulsar));
 			
 			// Record it in the map.		
 			noAutoIncIds.insert(make_pair(key, n));				

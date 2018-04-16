@@ -113,7 +113,7 @@ class PolarizationRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numCorr (\f$N_{Corr}\f$)</TD> 
+ * <TD> numCorr (numCorr)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;Number of correlation products </TD>

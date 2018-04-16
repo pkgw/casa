@@ -73,6 +73,9 @@ class AntennaTable;
 //class asdm::CalAmpliTable;
 class CalAmpliTable;
 
+//class asdm::CalAntennaSolutionsTable;
+class CalAntennaSolutionsTable;
+
 //class asdm::CalAppPhaseTable;
 class CalAppPhaseTable;
 
@@ -205,6 +208,9 @@ class PolarizationTable;
 //class asdm::ProcessorTable;
 class ProcessorTable;
 
+//class asdm::PulsarTable;
+class PulsarTable;
+
 //class asdm::ReceiverTable;
 class ReceiverTable;
 
@@ -305,6 +311,12 @@ public:
 	 * @return The table CalAmpli as a CalAmpliTable.
 	 */
 	CalAmpliTable & getCalAmpli () const;
+
+	/**
+	 * Get the table CalAntennaSolutions.
+	 * @return The table CalAntennaSolutions as a CalAntennaSolutionsTable.
+	 */
+	CalAntennaSolutionsTable & getCalAntennaSolutions () const;
 
 	/**
 	 * Get the table CalAppPhase.
@@ -569,6 +581,12 @@ public:
 	 * @return The table Processor as a ProcessorTable.
 	 */
 	ProcessorTable & getProcessor () const;
+
+	/**
+	 * Get the table Pulsar.
+	 * @return The table Pulsar as a PulsarTable.
+	 */
+	PulsarTable & getPulsar () const;
 
 	/**
 	 * Get the table Receiver.
@@ -1025,6 +1043,11 @@ private:
 	CalAmpliTable * calAmpli;
 
 	/**
+	 * The table CalAntennaSolutions
+	 */
+	CalAntennaSolutionsTable * calAntennaSolutions;
+
+	/**
 	 * The table CalAppPhase
 	 */
 	CalAppPhaseTable * calAppPhase;
@@ -1243,6 +1266,11 @@ private:
 	 * The table Processor
 	 */
 	ProcessorTable * processor;
+
+	/**
+	 * The table Pulsar
+	 */
+	PulsarTable * pulsar;
 
 	/**
 	 * The table Receiver

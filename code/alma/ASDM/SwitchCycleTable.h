@@ -135,7 +135,7 @@ class SwitchCycleRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numStep (\f$N_{Step}\f$)</TD> 
+ * <TD> numStep (numStep)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of steps. </TD>
