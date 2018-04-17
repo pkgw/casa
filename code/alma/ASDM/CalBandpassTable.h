@@ -103,6 +103,20 @@
 
 	
 
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
 
 
 #include <ConversionException.h>
@@ -225,21 +239,21 @@ class CalBandpassRow;
  * </TR>
 	
  * <TR>
- * <TD> numAntenna (\f$N_{Ante}\f$)</TD> 
+ * <TD> numAntenna (numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numPoly (\f$N_{Poly}\f$)</TD> 
+ * <TD> numPoly (numPoly)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients of the polynomial. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -292,10 +306,17 @@ class CalBandpassRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numBaseline(\f$N_{Base}\f$)</TD> 
+ * <TD> numBaseline(numBaseline)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of baselines. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> numFreq(numFreq)</TD> 
+ * <TD> int </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; the number of frequency points. </TD>
  * </TR>
 	
  * <TR>
@@ -303,6 +324,48 @@ class CalBandpassRow;
  * <TD> vector<vector<float > > </TD>
  * <TD>  numReceptor, numBaseline  </TD>
  * <TD>&nbsp; the amplitude or phase residuals ( one array of numBaseline values per receptor). </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> frequencyRange</TD> 
+ * <TD> vector<Frequency > </TD>
+ * <TD>  2  </TD>
+ * <TD>&nbsp; the frequency range over which the result is valid. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> numSpectralWindow(numSpectralWindow)</TD> 
+ * <TD> int </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; The number of spectral windows. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> chanFreqStart</TD> 
+ * <TD> vector<Frequency > </TD>
+ * <TD>  numSpectralWindow  </TD>
+ * <TD>&nbsp; the frequency of the first channel. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> chanFreqStep</TD> 
+ * <TD> vector<Frequency > </TD>
+ * <TD>  numSpectralWindow  </TD>
+ * <TD>&nbsp; the increment between two successive frequencies. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> numSpectralWindowChan(numSpectralWindowChan)</TD> 
+ * <TD> vector<int > </TD>
+ * <TD>  numSpectralWindow  </TD>
+ * <TD>&nbsp; The number of channels for each spectral window. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> spectrum</TD> 
+ * <TD> vector<vector<vector<float > > > </TD>
+ * <TD>  numAntenna, numReceptor, numFreq  </TD>
+ * <TD>&nbsp; The antenna-based spectrum per receptor averaging over the entire scan range. </TD>
  * </TR>
 	
 

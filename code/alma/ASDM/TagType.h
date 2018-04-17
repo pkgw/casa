@@ -66,6 +66,8 @@ class TagType {
 	
 
 	
+
+	
 	/**
 	  * The TagType for a CalData Tag.
 	  */
@@ -237,6 +239,13 @@ class TagType {
 
 	
 	/**
+	  * The TagType for a Pulsar Tag.
+	  */
+	static const TagType*  Pulsar ;
+	
+
+	
+	/**
 	  * The TagType for a Receiver Tag.
 	  */
 	static const TagType*  Receiver ;
@@ -339,6 +348,8 @@ class TagType {
 
 	
 	if (TagType:: Antenna) { delete TagType::Antenna; TagType::Antenna = 0; }
+	
+
 	
 
 	
@@ -465,6 +476,10 @@ class TagType {
 
 	
 	if (TagType:: Processor) { delete TagType::Processor; TagType::Processor = 0; }
+	
+
+	
+	if (TagType:: Pulsar) { delete TagType::Pulsar; TagType::Pulsar = 0; }
 	
 
 	

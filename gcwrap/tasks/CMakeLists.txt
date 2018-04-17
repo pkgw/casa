@@ -32,6 +32,7 @@ flagcmd.xml
 flagdata.xml
 flagmanager.xml
 fluxscale.xml
+fringefit.xml
 ft.xml
 gaincal.xml
 gencal.xml

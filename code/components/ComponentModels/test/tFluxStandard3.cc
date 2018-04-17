@@ -44,6 +44,7 @@
 #include <casa/Quanta/Quantum.h>
 #include <casa/Utilities/Assert.h>
 #include <casa/BasicSL/String.h>
+#include <casatools/Config/State.h>
 #include <casa/iostream.h>
 
 #include <casa/namespace.h>
@@ -133,8 +134,18 @@ int main() {
 
 // test if the standard table exist
     cout << "AIPSROOT: " << Aipsrc::aipsRoot() << endl;
+
     String horpath;
-    Bool foundStd = Aipsrc::findDir(horpath, "data/nrao/VLA/standards/PerleyButler2013Coeffs");
+    Bool foundStd = false;
+    cont string coeffpath = "nrao/VLA/standards/PerleyButler2013Coeffs";
+    string resolvepath = casatools::get_state( ).resolve(coeffpath);
+    if ( resolvepath != coeffpath ) {
+        horpath = resolvepath;
+        foundStd = true;
+    } else {
+        foundStd = Aipsrc::findDir(horpath, "data/" + coeffpath);
+    }
+    
     if(foundStd){
       cout << "Aipsrc found an ephemeris directory: " << horpath << endl;
     }
