@@ -2272,11 +2272,7 @@ class test_startmodel(testref_base):
  ##############################################
 class test_pbcor(testref_base):
      def setUp(self):
-          self.epsilon = 0.05
-          self.msfile = ""
-          self.img = "tst"
-
-          self.th = TestHelpers()
+          super(test_pbcor, self).setUp()
 
           _vp.setpbpoly(telescope='EVLA', coeff=[1.0, -1.529e-3, 8.69e-7, -1.88e-10]) 
           _vp.saveastable('evlavp.tab')
