@@ -49,7 +49,6 @@ ImageAnalysis/ImageFitter.cc
 ImageAnalysis/ImageHistogramsCalculator.cc
 ImageAnalysis/ImageInputProcessor.cc
 ImageAnalysis/ImageMask.cc
-ImageAnalysis/ImageMetaData.cc
 ImageAnalysis/ImageMetaDataBase.cc
 ImageAnalysis/ImageMetaDataRW.cc
 ImageAnalysis/ImageMomentsProgress.cc
