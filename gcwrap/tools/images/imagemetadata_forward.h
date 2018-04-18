@@ -6,12 +6,10 @@
 #include <memory>
 
 namespace casacore{
-
 	class LogIO;
-	//template<class T> class ImageInterface;
 }
 
 namespace casa 
 {
-	class ImageMetaDataRW;
+    template<class T> class ImageMetaDataRW;
 }

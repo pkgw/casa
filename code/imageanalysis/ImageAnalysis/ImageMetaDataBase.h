@@ -1,4 +1,3 @@
-//# ImageMetaData.h: Meta information for Images
 //# Copyright (C) 2009
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -25,8 +24,8 @@
 //#
 //# $Id$
 
-#ifndef IMAGES_IMAGEMETADATABASE_H
-#define IMAGES_IMAGEMETADATABASE_H
+#ifndef IMAGEANALYSIS_IMAGEMETADATABASE_H
+#define IMAGEANALYSIS_IMAGEMETADATABASE_H
 
 #include <images/Images/ImageInterface.h>
 #include <imageanalysis/ImageTypedefs.h>
@@ -60,16 +59,30 @@ namespace casa {
 
 // </motivation>
 
+class ImageMetaDataConstants {
+public:
+    const static casacore::String MASKS;
+    
+    const static casacore::String _BEAMMAJOR, _BEAMMINOR, _BEAMPA, _BMAJ, _BMIN, _BPA,
+		_BUNIT, _CDELT, _CRPIX, _CRVAL, _CTYPE, _CUNIT, _DATAMAX, _DATAMIN,
+		_EPOCH, _EQUINOX, _IMTYPE, _MAXPIXPOS, _MAXPOS, _MINPIXPOS,
+		_MINPOS, _OBJECT, _OBSDATE, _OBSERVER, _PROJECTION,
+		_RESTFREQ, _REFFREQTYPE, _SHAPE, _TELESCOPE;
 
-class ImageMetaDataBase {
+};
+
+template <class T> class ImageMetaDataBase {
 
 public:
 
-	const static casacore::String MASKS;
 
-	virtual ~ImageMetaDataBase() {}
+    ImageMetaDataBase() = delete;
+	
+    virtual ~ImageMetaDataBase() {}
 
     casacore::CoordinateSystem coordsys(const vector<casacore::Int>& axes) const;
+
+    casacore::DataType dataType() const;
 
 	casacore::uInt nChannels() const;
 
@@ -131,18 +144,8 @@ public:
 	) const;
 
 protected:
-	const static casacore::String _BEAMMAJOR, _BEAMMINOR, _BEAMPA, _BMAJ, _BMIN, _BPA,
-		_BUNIT, _CDELT, _CRPIX, _CRVAL, _CTYPE, _CUNIT, _DATAMAX, _DATAMIN,
-		_EPOCH, _EQUINOX, _IMTYPE, _MAXPIXPOS, _MAXPOS, _MINPIXPOS,
-		_MINPOS, _OBJECT, _OBSDATE, _OBSERVER, _PROJECTION,
-		_RESTFREQ, _REFFREQTYPE, _SHAPE, _TELESCOPE;
-
-	virtual SPCIIF _getFloatImage() const = 0;
-
-	virtual SPCIIC _getComplexImage() const = 0;
-
-	ImageMetaDataBase() : _log() {}
-
+	ImageMetaDataBase(SPCIIT);
+	
 	casacore::LogIO& _getLog() { return _log; }
 
 	virtual const casacore::ImageInfo& _getInfo() const = 0;
@@ -204,9 +207,8 @@ protected:
 	virtual casacore::Vector<casacore::String> _getStokes() const = 0;
 
 private:
-
+    SPCIIT _image;
 	mutable casacore::LogIO _log;
-
 	mutable casacore::IPosition _shape;
 
 	// precision < 0 => use default precision when printing numbers
@@ -214,7 +216,7 @@ private:
 
 	casacore::String _doStandardFormat(casacore::Double value, const casacore::String& unit) const;
 
-	template <class T> casacore::Record _calcStatsT(
+	casacore::Record _calcStatsT(
 		SHARED_PTR<const casacore::ImageInterface<T> > image
 	) const;
 
@@ -234,5 +236,9 @@ private:
 };
 
 }
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <imageanalysis/ImageAnalysis/ImageMetaDataBase.tcc>
+#endif //# AIPS_NO_TEMPLATE_SRC
 
 #endif

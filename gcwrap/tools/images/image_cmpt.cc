@@ -5038,12 +5038,17 @@ bool image::setcoordsys(const record& csys) {
         _notSupported(__func__);
 
         unique_ptr<Record> coordinates(toRecord(csys));
-        unique_ptr<ImageMetaDataRW> md(
-            _imageF
-            ? new ImageMetaDataRW(_imageF)
-            : new ImageMetaDataRW(_imageC)
-        );
-        md->setCsys(*coordinates);
+        if (_imageF) {
+            ImageMetaDataRW<Float> md(_imageF);
+            md.setCsys(*coordinates);
+        }
+        else if (_imageC) {
+            ImageMetaDataRW<Complex> md(_imageC);
+            md.setCsys(*coordinates);
+        }
+        else {
+            ThrowCc("Logic error");
+        }
         if (_doHistory) {
             vector<String> names = {"csys"};
             vector<variant> values = {csys};

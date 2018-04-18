@@ -1,4 +1,3 @@
-//# ImageMetaData.cc: Meta information for Images
 //# Copyright (C) 2009
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,7 +22,6 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//# $Id: ImageMetaData.cc 20886 2010-04-29 14:06:56Z gervandiepen $
 
 #include <imageanalysis/ImageAnalysis/ImageMetaData.h>
 
@@ -33,18 +31,17 @@
 
 #include <images/Images/ImageSummary.h>
 
+
+#ifndef IMAGEANALYSIS_IMAGEMETADATA_TCC
+#define IMAGEANALYSIS_IMAGEMETADATA_TCC
+
 using namespace casacore;
 
 namespace casa {
 
 template <class T> ImageMetaData<T>::ImageMetaData(
-	SHARED_PTR<const ImageInterface<T> > image
-) : ImageMetaDataBase(), _image(image), _info(image->imageInfo()),
-	_csys(image->coordinates()) {}
-
-template <class T> ImageMetaData<T>::ImageMetaData(
-	SHARED_PTR<ImageInterface<T> > image
-) : ImageMetaDataBase(), _image(image), _info(image->imageInfo()),
+	SPCIIT image
+) : ImageMetaDataBase<T>(image), _image(image), _info(image->imageInfo()),
 	_csys(image->coordinates()) {}
 
 template<class T> String ImageMetaData<T>::_getBrightnessUnit() const {
@@ -84,7 +81,7 @@ template<class T> casacore::Record ImageMetaData<T>::summary(
     auto cdelt = s.axisIncrements(pixelorder);
     auto axisunits = s.axisUnits(pixelorder);
 
-    auto shape = _getShape();
+    auto shape = this->_getShape();
     retval.define("ndim", (casacore::Int)shape.size());
     retval.define("shape", shape.asVector());
     retval.define("tileshape", s.tileShape().asVector());
@@ -194,11 +191,7 @@ template <class T> String ImageMetaData<T>::_getObject() const {
 
 template <class T> Vector<String> ImageMetaData<T>::_getMasks() const {
 	if (_masks.empty()) {
-		SHARED_PTR<const ImageInterface<Float> > imf = _getFloatImage();
-		SHARED_PTR<const ImageInterface<Complex> > imc = _getComplexImage();
-		_masks = imf
-			? imf->regionNames(RegionHandler::Masks)
-			: imc->regionNames(RegionHandler::Masks);
+	    _masks = _image->regionNames(RegionHandler::Masks);
 	}
 	return _masks;
 }
@@ -219,7 +212,7 @@ template <class T> String ImageMetaData<T>::_getObserver() const {
 
 template <class T> String ImageMetaData<T>::_getProjection() const {
 	if (_projection.empty()) {
-		_projection = ImageMetaDataBase::_getProjection();
+		_projection = ImageMetaDataBase<T>::_getProjection();
 	}
 	return _projection;
 }
@@ -293,3 +286,5 @@ template <class T> String ImageMetaData<T>::_getTelescope() const {
 }
 
 }
+
+#endif

@@ -1,6 +1,4 @@
 public: 
-//bool open(const casacore::ImageInterface<casacore::Float>* inImage);
-
 // The constructed object will take over management
 // of the pointer with a shared_ptr
 image(casacore::ImageInterface<casacore::Float> * inImage);
