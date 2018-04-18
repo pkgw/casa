@@ -242,6 +242,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       itsLoopController.setPeakResidualNoMask( peakresnomask );
       itsLoopController.setMaxPsfSidelobe( itsImages->getPSFSidelobeLevel() );
 
+      //re-calculate current nsigma threhold
+      Array<Double> robustrms = itsImages->calcRobustRMS();
+      Float nsigma = itsLoopController.getNsigma();
+      Double maxrobustrms = max(robustrms);
+      //Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
+      Float nsigmathresh = nsigma * (Float)maxrobustrms;
+      if (nsigma>0.0 ) os << "Current sigma threshold (maxinum along spectral channels) ="<<nsigmathresh<<LogIO::POST;
+      itsLoopController.setNsigmaThreshold(nsigmathresh);
+
+
       if ( itsAutoMaskAlgorithm=="multithresh" && !initializeChanMaskFlag ) {
         IPosition maskshp = itsImages->mask()->shape();
         Int nchan = maskshp(3);

@@ -180,7 +180,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  {
 
                     if (nsigma>0.0) {
-                      os << "Using " << thresholddesc << " for threshold criterion: cyclethreshold value="<<loopcontrols.getCycleThreshold()<< " nsigma="<<nsigmathresh << LogIO::POST;
+                      os << "Using " << thresholddesc << " for threshold criterion: (cyclethreshold="<<loopcontrols.getCycleThreshold()<< ", nsigma threshold="<<nsigmathresh<<" )" << LogIO::POST;
+                      loopcontrols.setNsigmaThreshold(nsigmathresh);
                     }
 		    Int thisniter = loopcontrols.getCycleNiter() <5000 ? loopcontrols.getCycleNiter() : 2000;
 

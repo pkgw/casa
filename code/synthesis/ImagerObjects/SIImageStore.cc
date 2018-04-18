@@ -2747,9 +2747,9 @@ Array<Double> SIImageStore::calcRobustRMS()
   thestats.get(RecordFieldId("rms"), rmss);
   thestats.get(RecordFieldId("medabsdevmed"), mads);
   
-  os << "Max : " << maxs << LogIO::POST;
-  os << "RMS : " << rmss << LogIO::POST;
-  os << "MAD : " << mads << LogIO::POST;
+  os << LogIO::DEBUG1 << "Max : " << maxs << LogIO::POST;
+  os << LogIO::DEBUG1 << "RMS : " << rmss << LogIO::POST;
+  os << LogIO::DEBUG1 << "MAD : " << mads << LogIO::POST;
   
   return mads*1.4826;
 }

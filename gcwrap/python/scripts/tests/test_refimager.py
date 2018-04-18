@@ -393,6 +393,13 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report)
 
+     def test_iterbot_mfs_nsigma(self):
+          """ [iterbot] Test_Iterbot_Mfs_nsigma : n-sigma threshold """
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='clark',niter=1000,threshold='0.001Jy', nsigma=3.0, interactive=0)
+          report=self.th.checkall(ret=ret, peakres=0.0820, modflux=1.2873, iterdone=169, nmajordone=11, stopcode=8, imexist=[self.img+'.psf', self.img+'.residual', self.img+'.image'])
+
+
      def test_iterbot_cube_1(self):
           """ [iterbot] Test_Iterbot_cube_1 : iteration counting across channels (>niter) """
           self.prepData('refim_point_withline.ms')
@@ -447,6 +454,12 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report1+report2+report3)
           
+     def test_iterbot_cube_nsigma(self): 
+          """ [iterbot] Test_Iterbot_cube_nsigma : nsigma threshold for cube"""
+          self.prepData('refim_point_withline.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',specmode='cube',deconvolver='hogbom',niter=1000000,threshold='0.000001Jy', nsigma=10.0, gain=0.5,interactive=0)
+          report=self.th.checkall(ret=ret,iterdone=407,nmajordone=11,stopcode=8,imexist=[self.img+'.psf', self.img+'.residual'])
+
 ##############################################
 ##############################################
 

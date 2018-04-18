@@ -158,7 +158,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		int stopCode=0;
 
 		Float usePeakRes;
-		if(lastcyclecheck==True){usePeakRes = itsMinorCyclePeakResidual; }
+		//if(lastcyclecheck==True){usePeakRes = itsMinorCyclePeakResidual; }
+		if(lastcyclecheck==True){
+                  usePeakRes = itsMinorCyclePeakResidual; 
+                }
 		else{usePeakRes = itsPeakResidual; }
                 // for debugging, remove it later
                 os<<LogIO::DEBUG1<<"cleanComplete-- itsCycleThreshold="<<itsCycleThreshold<<LogIO::POST;
@@ -323,6 +326,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	void SIIterBot_state::mergeCycleInitializationRecord(Record& initRecord){
+		//FOR DEBUG - TT 2018/04/16
+                LogIO os( LogOrigin("SIIterBot_state",__FUNCTION__,WHERE) );
 		std::lock_guard<std::recursive_mutex> guard(recordMutex);  
     
 		itsPeakResidual = max( itsPeakResidual,
@@ -342,10 +347,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 //}
 
                 //cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigmathreshold))="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
-                //cerr<<"SIIterBot_state:mergeCycleInitRec:: before itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
-                itsNsigmaThreshold = max(itsNsigmaThreshold, initRecord.asFloat(RecordFieldId("nsigmathreshold")));
-                //cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(nsigmathreshold)="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
-                //cerr<<"SIIterBot_state:mergeCycleInitRec:: after itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
+                //itsNsigmaThreshold = max(itsNsigmaThreshold, initRecord.asFloat(RecordFieldId("nsigmathreshold")));
+                itsNsigmaThreshold = initRecord.asFloat(RecordFieldId("nsigmathreshold"));
+    
 		
 		///itsMaskSum += initRecord.asFloat(RecordFieldId("masksum"));
 		/*
