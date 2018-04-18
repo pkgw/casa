@@ -353,29 +353,13 @@ pair<SPIIF, SPIIC> ImageFactory::fromFile(const String& infile, Bool cache) {
 pair<SPIIF, SPIIC> ImageFactory::_fromLatticeBase(unique_ptr<LatticeBase>& latt) {
     DataType dataType = latt->dataType();
     pair<SPIIF, SPIIC> ret(nullptr, nullptr);
-    if (isReal(dataType)) {
-        if (dataType != TpFloat) {
-            ostringstream os;
-            os << dataType;
-            LogIO log;
-            log << LogOrigin(className(), __func__);
-            log << LogIO::WARN << "Converting " << os.str() << " precision pixel values "
-                << "to float precision in CASA image" << LogIO::POST;
-        }
+    if (dataType == TpFloat) {
         return pair<SPIIF, SPIIC>(
             SPIIF(dynamic_cast<ImageInterface<Float> *>(latt.release())),
             SPIIC(nullptr)
         );
     }
-    else if (isComplex(dataType)) {
-        if (dataType != TpComplex) {
-            ostringstream os;
-            os << dataType;
-            LogIO log;
-            log << LogOrigin(className(), __func__);
-            log << LogIO::WARN << "Converting " << os.str() << " precision pixel values "
-                << "to complex float precision in CASA image" << LogIO::POST;
-        }
+    else if (dataType == TpComplex) {
         return pair<SPIIF, SPIIC>(
             SPIIF(nullptr),
             SPIIC(dynamic_cast<ImageInterface<Complex> *>(latt.release()))

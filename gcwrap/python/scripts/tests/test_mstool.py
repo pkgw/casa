@@ -34,7 +34,7 @@ import shutil
 import os
 import time
 import unittest
-from numpy import array, testing, where
+from numpy import array, ndarray, testing, where
 from math import ceil
 
 from taskinit import mstool, cbtool
@@ -497,12 +497,44 @@ class mstool_test_select(mstool_test_base):
         self.assertAlmostEqual(rec['data'][0][0][0], (2.7459716796875+0j))
         print
 
+    def test_select_getdata_empty(self):
+        """test ms.select() and ms.getdata() with empty selection"""
+        self.assertTrue(self.ms.selectinit())
+        self.assertEqual(self.ms.nrow(True), 22653)
+
+        # This ms has scans 1-7 only. casacore will throw a MSSelectionNullSelection
+        # ms.msselect should return false and the selection set to empty=0 rows
+        field = 'N5921_2'
+        scan = '9999'
+        sel={'field': field, 'scan': scan}
+        total_rows = 22653
+        self.assertEqual(False, self.ms.msselect(sel))
+        self.assertEqual(self.ms.nrow(True), 0)
+        self.assertEqual(self.ms.nrow(), total_rows)
+        self.assertEqual(self.ms.msselectedindices()['field'].size, 1)
+        self.assertEqual(self.ms.msselectedindices()['field'][0], 2)
+        self.assertEqual(self.ms.msselectedindices()['scan'].size, 1)
+        self.assertEqual(self.ms.msselectedindices()['scan'][0], int(scan))
+        # ms.getdata should handle the empty selection gracefully and return an empty dict
+        self.assertEqual({}, self.ms.getdata(["axis_info", "data"]))
+
+        self.ms.reset()
+        self.assertEqual(self.ms.nrow(True), total_rows)
+        self.assertEqual(self.ms.nrow(False), total_rows)
+        self.assertEqual(self.ms.msselectedindices()['field'].size, 0)
+        self.assertEqual(self.ms.msselectedindices()['scan'].size, 0)
+        get_res = self.ms.getdata(["axis_info", "data"])
+        self.assertTrue('data' in get_res)
+        self.assertEqual(type(get_res['data']), ndarray)
+        self.assertEqual(get_res['data'].shape, (2, 63, 22653))
+
     def test_msseltoindex(self): 
         """test ms.msseltoindex"""
         # select field id 2
         rec = self.ms.msseltoindex(self.testms, field="N*")
         self.assertEqual(rec['field'], [2])
         print
+
 
 # ------------------------------------------------------------------------------
 

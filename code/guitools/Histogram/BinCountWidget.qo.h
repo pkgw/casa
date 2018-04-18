@@ -25,7 +25,7 @@
 #ifndef BINCOUNTWIDGET_QO_H
 #define BINCOUNTWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <guitools/Histogram/BinCountWidget.ui.h>
 
 namespace casa {

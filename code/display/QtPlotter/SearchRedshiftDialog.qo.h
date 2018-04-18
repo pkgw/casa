@@ -25,7 +25,7 @@
 #ifndef SEARCHREDSHIFTDIALOG_QO_H
 #define SEARCHREDSHIFTDIALOG_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <QProgressDialog>
 #include <casa/BasicSL/String.h>
 #include <display/QtPlotter/SearchRedshiftDialog.ui.h>

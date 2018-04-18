@@ -105,9 +105,10 @@ def applycal(
 
         if docallib:
             # by cal library from file
-            mycallib = callibrary()
-            mycallib.read(callib)
-            mycb.setcallib(mycallib.cld)
+            # parsing using c++ parser
+            thiscallib=mycb.parsecallibfile(callib)
+            mycb.setcallib(thiscallib)
+
         else:
 
             # by traditional parameters

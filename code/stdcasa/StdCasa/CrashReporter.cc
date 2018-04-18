@@ -7,6 +7,7 @@
 
 #include "CrashReporter.h"
 #include <casacore/casa/OS/EnvVar.h>
+#include <sys/stat.h>
 
 //#warning "Defining UseCrashReport to compile main code"
 //#define UseCrashReporter
@@ -288,6 +289,14 @@ CrashReporter::initializeFromApplication (const char * applicationArg0)
         std::regex spaces (" +");
         exePath = regex_replace (exePath, spaces, "/");
 
+        // Is the exePath doesn't exist, try removing the tail f.e. "linux"
+        // Tail is only useful for developer builds
+        struct stat info;
+        if( stat( exePath.c_str(), &info ) != 0 ) {
+            const char *tail = std::strrchr(exePath.c_str() , '/');
+            size_t pos = exePath.find(tail);
+            exePath = exePath.replace(pos, exePath.size(),"");
+        }
         exePath += "/bin/bogusExe";
 
     }

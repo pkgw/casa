@@ -225,7 +225,7 @@ class ExecBlockRow;
  * </TR>
 	
  * <TR>
- * <TD> numObservingLog (\f$N_{Obse}\f$)</TD> 
+ * <TD> numObservingLog (numObservingLog)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of elements in the (array) attribute observingLog. </TD>
@@ -288,7 +288,7 @@ class ExecBlockRow;
  * </TR>
 	
  * <TR>
- * <TD> numAntenna (\f$N_{Ante}\f$)</TD> 
+ * <TD> numAntenna (numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas. </TD>

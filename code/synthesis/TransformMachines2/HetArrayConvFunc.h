@@ -83,7 +83,8 @@ namespace casa {
 				    casacore::Vector<casacore::Int>& convsize,
 				    casacore::Vector<casacore::Int>& convSupport,
 				    casacore::Vector<casacore::Int>& polMap, casacore::Vector<casacore::Int>& chanMap, casacore::Vector<casacore::Int>& rowMap,
-					const casacore::Bool getConjConvFuncs=false
+				  const casacore::Bool getConjConvFuncs=false,
+				  const casacore::MVDirection& extraShift=casacore::MVDirection(0.0), const casacore::Bool useExtraShift=casacore::False
  								);
 
     virtual casacore::ImageInterface<casacore::Float>&  getFluxScaleImage();
@@ -107,7 +108,7 @@ namespace casa {
       //seems to be inside image
       // 1 if value is cached..we have stopped caching..so it should not return this value
       // 2 pointing is off image ...thus valid but not useful
-      casacore::Int checkPBOfField(const vi::VisBuffer2& vb, casacore::Vector<casacore::Int>& rowMap);
+      casacore::Int checkPBOfField(const vi::VisBuffer2& vb, casacore::Vector<casacore::Int>& rowMap, const casacore::MVDirection& extraShift=casacore::MVDirection(0.0), const casacore::Bool useExtraShift=casacore::False);
       void findAntennaSizes(const vi::VisBuffer2& vb);
       void supportAndNormalize(casacore::Int plane, casacore::Int convSampling);
       void supportAndNormalizeLatt(casacore::Int plane, casacore::Int convSampling, casacore::TempLattice<casacore::Complex>& convFuncLat,

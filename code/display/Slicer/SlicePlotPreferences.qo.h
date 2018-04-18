@@ -25,7 +25,7 @@
 #ifndef SLICEPLOTPREFERENCES_QO_H
 #define SLICEPLOTPREFERENCES_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <display/Slicer/SlicePlotPreferences.ui.h>
 
 namespace casa {

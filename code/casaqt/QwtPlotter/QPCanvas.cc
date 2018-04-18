@@ -38,6 +38,7 @@
 #include <casaqt/QwtPlotter/AxisListener.h>
 
 #include <qwt_scale_widget.h>
+#include <qwt_scale_engine.h>
 #include <qwt_picker_machine.h>
 
 using namespace std;
@@ -637,13 +638,22 @@ void QPCanvas::setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
     bool changed = false;
     
     // set bounds
-    if(xFrom != xTo) {
-        m_canvas.setAxisScale(QPOptions::axis(xAxis), xFrom, xTo,
-                      m_canvas.axisStepSize(QPOptions::axis(xAxis)));
+    if (xFrom != xTo) {
+		if ((axisScale(xAxis) >= PlotAxisScale::DATE_MJ_SEC) && (xTo-xFrom)>120.0) {
+			setTimeScaleDiv(xAxis, xFrom, xTo);  // ticks to even steps/minutes
+		} else {
+        	m_canvas.setAxisScale(QPOptions::axis(xAxis), xFrom, xTo,
+           		m_canvas.axisStepSize(QPOptions::axis(xAxis)));
+		}
         changed = true;
-    }
+	}
+			
     if(yAxis != xAxis && yFrom != yTo) {
-        m_canvas.setAxisScale(QPOptions::axis(yAxis), yFrom, yTo);
+		if (axisScale(yAxis) >= PlotAxisScale::DATE_MJ_SEC && (yTo-yFrom)>120.0) {
+			setTimeScaleDiv(yAxis, yFrom, yTo); // ticks to even steps/minutes
+		} else {
+        	m_canvas.setAxisScale(QPOptions::axis(yAxis), yFrom, yTo);
+		}
         changed = true;
     }
     
@@ -681,7 +691,38 @@ void QPCanvas::setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
     logMethod(CLASS_NAME, "setAxesRanges", false);
 }
 
-
+void QPCanvas::setTimeScaleDiv(PlotAxis axis, double from, double to) {
+	// Set step size for ticks to even n* 10s, 30s, 1min, or 1hr steps;
+	// autoscale for linear scale uses even base-10 steps
+	// so e.g. 100 sec->1:40 step, 1000 sec->16:40 step
+	QwtPlot::Axis qwtAxis = QPOptions::axis(axis);
+	int majorSteps = m_canvas.axisMaxMajor(qwtAxis)-1; 
+	int minorSteps = m_canvas.axisMaxMinor(qwtAxis);
+	double step(10.0), interval(to - from);
+	if (interval > 36000.0)
+		step = 3600.0;
+	else if (interval > 600.0) 
+		step = 60.0;
+	else if (interval > 120.0)
+		step = 30.0;
+	double stepSize(step);
+    int n(1), nsteps(interval/stepSize);	
+	while (nsteps > majorSteps) {
+	    stepSize = ++n * step;
+	    nsteps = interval / stepSize;
+	}
+	// add margins
+	from -= stepSize;
+	to += stepSize;
+	if (interval > 600.0) {
+		// convert to and from values to even hh[:mm]
+		from -= fmod(from, step);
+		to += fmod(to, step);
+	} 
+	QwtScaleDiv div = m_canvas.axisScaleEngine(qwtAxis)->divideScale(from, to,
+		majorSteps, minorSteps, stepSize);
+	m_canvas.setAxisScaleDiv(qwtAxis, div);
+}
 
 bool QPCanvas::axesAutoRescale() const {
     return !m_axesRatioLocked &&

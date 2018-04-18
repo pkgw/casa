@@ -144,7 +144,7 @@ class FocusModelRow;
  * </TR>
 	
  * <TR>
- * <TD> numCoeff (\f$N_{Coef}\f$)</TD> 
+ * <TD> numCoeff (numCoeff)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients. </TD>

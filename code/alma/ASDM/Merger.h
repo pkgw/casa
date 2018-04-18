@@ -234,6 +234,12 @@
 #include "DelayModelVariableParametersTable.h"
 #include "DelayModelVariableParametersRow.h"
 
+#include "CalAntennaSolutionsTable.h"
+#include "CalAntennaSolutionsRow.h"
+
+#include "PulsarTable.h"
+#include "PulsarRow.h"
+
 
 
 /*\file "Merger.h"
@@ -390,6 +396,10 @@ namespace asdm {
 			bool hasMergedDelayModelFixedParameters;	
 
 			bool hasMergedDelayModelVariableParameters;	
+
+			bool hasMergedCalAntennaSolutions;	
+
+			bool hasMergedPulsar;	
 			
 
 
@@ -591,6 +601,12 @@ namespace asdm {
 			void mergeDelayModelVariableParameters();
 			void postMergeDelayModelVariableParameters();			
 
+			void mergeCalAntennaSolutions();
+			void postMergeCalAntennaSolutions();			
+
+			void mergePulsar();
+			void postMergePulsar();			
+
 
 
 		void (Merger::*mergeSBSummaryPtr) () ;
@@ -724,6 +740,10 @@ namespace asdm {
 		void (Merger::*mergeDelayModelFixedParametersPtr) () ;
 
 		void (Merger::*mergeDelayModelVariableParametersPtr) () ;
+
+		void (Merger::*mergeCalAntennaSolutionsPtr) () ;
+
+		void (Merger::*mergePulsarPtr) () ;
 
 	};
 } // End namespace asdm

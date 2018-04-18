@@ -195,7 +195,7 @@ class CalSeeingRow;
  * </TR>
 	
  * <TR>
- * <TD> numBaseLengths (\f$N_{Base}\f$)</TD> 
+ * <TD> numBaseLengths (numBaseLengths)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of baselines for which the the RMS phase data is evaluated. </TD>

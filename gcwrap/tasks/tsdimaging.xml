@@ -13,11 +13,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
   <shortdescription>SD task: imaging for total power and spectral data</shortdescription>
 
   <description>
-Task sdimaging creates an image from input single-dish data sets.\n
-The input can be either total power and spectral data. Currently,
-this task directly accesses the Measurement Set data because of 
-the data access efficiency. So it differs from other single-dish 
-tasks that mostly operate on the ASAP scantable data format.\n
+Task sdimaging creates an image from input single-dish data sets.
+The input can be either total power and spectral data. 
 
 The coordinate of output image is defined by four axes, i.e., two
 spatial axes, frequency and polarization axes.\n

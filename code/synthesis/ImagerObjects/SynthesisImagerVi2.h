@@ -196,6 +196,10 @@ public:
   void  andFreqSelection(const casacore::Int msId, const casacore::Int spwId,  const casacore::Double freqBeg, const casacore::Double freqEnd, const casacore::MFrequency::Types frame);
   void andChanSelection(const casacore::Int msId, const casacore::Int spwId, const casacore::Int startchan, const casacore::Int endchan);
   void tuneChunk(const casacore::Int gmap);
+  //Set up tracking direction ; return False if no tracking is set.
+  //return Direction of moving source is in the frame of vb.phaseCenter() at the time of the first row of the vb
+  casacore::Bool getMovingDirection(const vi::VisBuffer2& vb,  casacore::MDirection& movingDir);
+  
    // Other Options
   //casacore::Block<const casacore::MeasurementSet *> mss_p;
   casacore::CountedPtr<vi::VisibilityIterator2>  vi_p;

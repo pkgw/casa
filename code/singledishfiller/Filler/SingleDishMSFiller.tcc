@@ -944,6 +944,8 @@ Int SingleDishMSFiller<T>::updateFeed(casacore::Int const &feed_id, casacore::In
     polarization_type = &linear_type;
   } else if (pol_type == "circular") {
     polarization_type = &circular_type;
+  } else {
+    polarization_type = &linear_type;
   }
   //static std::vector< casacore::Vector<casacore::String> *> polarization_type_pool;
 
