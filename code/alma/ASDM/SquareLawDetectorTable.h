@@ -109,7 +109,7 @@ class SquareLawDetectorRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numBand (\f$N_{Band}\f$)</TD> 
+ * <TD> numBand (numBand)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of bands. </TD>

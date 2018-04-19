@@ -604,6 +604,24 @@ const Vector<Double>& SDBList::freqs() const {
   
 }
 
+
+// ~Centroid frequency over all SDBs
+casacore::Double SDBList::centroidFreq() const {
+
+  // Calculate a simple mean frequency, for now
+  Double fsum(0.0f);
+  Int nf(0);
+  for (Int isdb=0;isdb<nSDB_;++isdb) {
+    const Vector<Double> f(SDB_[isdb]->freqs());
+    for (uInt ich=0;ich<f.nelements();++ich) {
+      fsum+=f(ich);
+      ++nf;
+    }
+  }
+  return fsum/Double(nf);
+}
+
+
 // How many correlations?
 //   Currently, this insists on uniformity over all SDBs
 Int SDBList::nCorrelations() const {
