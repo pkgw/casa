@@ -146,8 +146,9 @@ string plotms::getLogFilter() {
     }
 }
 
-void plotms::setPlotmsPid(int pid) {
-    // Connect dbus to existing plotms pid (started by procmgr)
+void plotms::setPlotMSPid(int pid) {
+    // Connect dbus to existing plotms pid
+	// (most likely started by procmgr)
     app_pid = pid;
     app.dbusName() = to_string(QtDBusApp::generateServiceName(
         app.getName(), pid));
@@ -167,6 +168,10 @@ void plotms::setPlotmsPid(int pid) {
                 "desired." << endl;
     }
 	isTask = true;
+}
+
+int plotms::getPlotMSPid() {
+	return app_pid;
 }
 
 void plotms::setClearSelectionOnAxesChange(const bool clearSelection) {
