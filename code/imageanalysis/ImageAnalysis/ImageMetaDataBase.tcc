@@ -132,73 +132,73 @@ template <class T> Record ImageMetaDataBase<T>::_makeHeader() const {
 }
 
 template <class T> const TableRecord ImageMetaDataBase<T>::_miscInfo() const {
-	return _image->miscInfo();
+    return _image->miscInfo();
 }
 
 template <class T> CoordinateSystem ImageMetaDataBase<T>::coordsys(
-	const std::vector<Int>& pixelAxes
+    const std::vector<Int>& pixelAxes
 ) const {
-	// Recover CoordinateSytem into a Record
-	auto cSys = _getCoords();
-	if (pixelAxes.empty()) {
-		return cSys;
-	}
-	Record rec;
-	CoordinateSystem cSys2;
-	// Fish out the coordinate of the desired axes
-	uInt j = 0;
-	const Int nPixelAxes = cSys.nPixelAxes();
-	Vector<uInt> coordinates(cSys.nCoordinates(), uInt(0));
-	Int coord, axisInCoord;
-	for (const auto& axis: pixelAxes) {
-	    ThrowIf (
-	        axis < 0 || axis >= nPixelAxes,
-	        "Specified zero-based pixel axis " + String::toString(axis)
-	        + " is not a valid pixel axis"
-	    );
-	    cSys.findPixelAxis(coord, axisInCoord, uInt(axis));
-	    ThrowIf(
-	        coord < 0,
-	        "Zero-based pixel axis " + String::toString(axis)
-	        + " has been removed"
-	    );
-	    coordinates(coord)++;
-	    // Copy desired coordinate (once)
-	    if (coordinates(coord) == 1) {
-	        cSys2.addCoordinate(cSys.coordinate(coord));
-	    }
-	}
-	// Find mapping.  Says where world axis i in cSys is in cSys2
-	Vector<Int> worldAxisMap, worldAxisTranspose;
-	Vector<Bool> refChange;
-	ThrowIf(
-		! cSys2.worldMap(worldAxisMap, worldAxisTranspose, refChange, cSys),
-		"Error finding world map because " + cSys2.errorMessage()
-	);
-	// Generate list of world axes to keep
-	Vector<Int> keepList(cSys.nWorldAxes());
-	Vector<Double> worldReplace;
-	j = 0;
-	for (const auto& axis: pixelAxes) {
-		if (axis >= 0 && axis < nPixelAxes) {
-			Int worldAxis = cSys.pixelAxisToWorldAxis(uInt(axis));
-			ThrowIf(
-			    worldAxis < 0,
-			    "World axis corresponding to zero-based pixel axis "
-			    + String::toString(axis) + " has been removed"
-			);
-			keepList(j++) = worldAxisMap(worldAxis);
-		}
-	}
-	// Remove unwanted world (and pixel) axes.  Better would be to just
-	// remove the pixel axes and leave the world axes there...
-	if (j > 0) {
-		keepList.resize(j, true);
-		CoordinateUtil::removeAxes(cSys2, worldReplace, keepList, false);
-	}
-	// Copy the ObsInfo
-	cSys2.setObsInfo(cSys.obsInfo());
-	return cSys2;
+    // Recover CoordinateSytem into a Record
+    auto cSys = _getCoords();
+    if (pixelAxes.empty()) {
+        return cSys;
+    }
+    Record rec;
+    CoordinateSystem cSys2;
+    // Fish out the coordinate of the desired axes
+    uInt j = 0;
+    const Int nPixelAxes = cSys.nPixelAxes();
+    Vector<uInt> coordinates(cSys.nCoordinates(), uInt(0));
+    Int coord, axisInCoord;
+    for (const auto& axis: pixelAxes) {
+        ThrowIf (
+            axis < 0 || axis >= nPixelAxes,
+            "Specified zero-based pixel axis " + String::toString(axis)
+            + " is not a valid pixel axis"
+        );
+        cSys.findPixelAxis(coord, axisInCoord, uInt(axis));
+        ThrowIf(
+            coord < 0,
+            "Zero-based pixel axis " + String::toString(axis)
+            + " has been removed"
+        );
+        coordinates(coord)++;
+        // Copy desired coordinate (once)
+        if (coordinates(coord) == 1) {
+            cSys2.addCoordinate(cSys.coordinate(coord));
+        }
+    }
+    // Find mapping.  Says where world axis i in cSys is in cSys2
+    Vector<Int> worldAxisMap, worldAxisTranspose;
+    Vector<Bool> refChange;
+    ThrowIf(
+        ! cSys2.worldMap(worldAxisMap, worldAxisTranspose, refChange, cSys),
+        "Error finding world map because " + cSys2.errorMessage()
+    );
+    // Generate list of world axes to keep
+    Vector<Int> keepList(cSys.nWorldAxes());
+    Vector<Double> worldReplace;
+    j = 0;
+    for (const auto& axis: pixelAxes) {
+        if (axis >= 0 && axis < nPixelAxes) {
+            Int worldAxis = cSys.pixelAxisToWorldAxis(uInt(axis));
+            ThrowIf(
+                worldAxis < 0,
+                "World axis corresponding to zero-based pixel axis "
+                + String::toString(axis) + " has been removed"
+            );
+            keepList(j++) = worldAxisMap(worldAxis);
+        }
+    }
+    // Remove unwanted world (and pixel) axes.  Better would be to just
+    // remove the pixel axes and leave the world axes there...
+    if (j > 0) {
+        keepList.resize(j, true);
+        CoordinateUtil::removeAxes(cSys2, worldReplace, keepList, false);
+    }
+    // Copy the ObsInfo
+    cSys2.setObsInfo(cSys.obsInfo());
+    return cSys2;
 }
 
 template <class T> DataType ImageMetaDataBase<T>::dataType() const {
@@ -236,540 +236,540 @@ template <class T> Record* ImageMetaDataBase<T>::getBoundingBox(
 }
 
 template <class T> ValueHolder ImageMetaDataBase<T>::getFITSValue(const String& key) const {
-	String c = key;
-	c.downcase();
-	const TableRecord info = _miscInfo();
-	if (c == ImageMetaDataConstants::_BUNIT) {
-		return ValueHolder(_getBrightnessUnit());
-	}
-	else if (
-		c.startsWith(ImageMetaDataConstants::_CDELT) || c.startsWith(ImageMetaDataConstants::_CRPIX)
-		|| c.startsWith(ImageMetaDataConstants::_CRVAL) || c.startsWith(ImageMetaDataConstants::_CTYPE)
-		|| c.startsWith(ImageMetaDataConstants::_CUNIT)
-	) {
-		String prefix = c.substr(0, 5);
-		uInt n = _getAxisNumber(c);
-		if (prefix == ImageMetaDataConstants::_CDELT) {
-			return ValueHolder(
-				QuantumHolder(
-					_getIncrements()[n-1]
-			    ).toRecord()
-			);
-		}
-		else if (prefix == ImageMetaDataConstants::_CRPIX) {
-			return ValueHolder(_getRefPixel()[n-1]);
-		}
-		else if (prefix == ImageMetaDataConstants::_CRVAL) {
-			if (_getCoords().polarizationAxisNumber(false) == (Int)(n-1)) {
-				return ValueHolder(
-					_getStokes()
-				);
-			}
-			else {
-				return ValueHolder(
-					QuantumHolder(_getRefValue()[n-1]).toRecord()
-				);
-			}
-		}
-		else if (prefix == ImageMetaDataConstants::_CTYPE) {
-			return ValueHolder(_getAxisNames()[n-1]);
-		}
-		else if (prefix == ImageMetaDataConstants::_CUNIT) {
-			return ValueHolder(_getAxisUnits()[n-1]);
-		}
-	}
-	else if (c == ImageMetaDataConstants::_EQUINOX) {
-		return ValueHolder(_getEquinox());
-	}
-	else if (c == ImageMetaDataConstants::_IMTYPE) {
-		return ValueHolder(_getImType());
-	}
-	else if (c == ImageMetaDataConstants::MASKS) {
-		return ValueHolder(_getMasks());
-	}
-	else if (c == ImageMetaDataConstants::_OBJECT) {
-		return ValueHolder(_getObject());
-	}
-	else if (c == ImageMetaDataConstants::_OBSDATE || c == ImageMetaDataConstants::_EPOCH) {
-		return ValueHolder(_getEpochString());
-	}
-	else if (c == ImageMetaDataConstants::_OBSERVER) {
-		return ValueHolder(_getObserver());
-	}
-	else if (c == ImageMetaDataConstants::_PROJECTION) {
-		return ValueHolder(_getProjection());
-	}
-	else if (c == ImageMetaDataConstants::_REFFREQTYPE) {
-		return ValueHolder(_getRefFreqType());
-	}
-	else if (c == ImageMetaDataConstants::_RESTFREQ) {
-		return ValueHolder(
-			QuantumHolder(_getRestFrequency()).toRecord()
-		);
-	}
-	else if (c == ImageMetaDataConstants::_SHAPE) {
-		return ValueHolder(_getShape().asVector());
-	}
-	else if (c == ImageMetaDataConstants::_TELESCOPE) {
-		return ValueHolder(_getTelescope());
-	}
-	else if (
-		c == ImageMetaDataConstants::_BEAMMAJOR || c == ImageMetaDataConstants::_BEAMMINOR || c == ImageMetaDataConstants::_BEAMPA
-		|| c == ImageMetaDataConstants::_BMAJ || c == ImageMetaDataConstants::_BMIN || c == ImageMetaDataConstants::_BPA
-	) {
-		GaussianBeam beam = _getBeam();
-		if (c == ImageMetaDataConstants::_BEAMMAJOR || c == ImageMetaDataConstants::_BMAJ) {
-			return ValueHolder(QuantumHolder(beam.getMajor()).toRecord());
-		}
-		else if (c == ImageMetaDataConstants::_BEAMMINOR || c == ImageMetaDataConstants::_BMIN) {
-			return ValueHolder(QuantumHolder(beam.getMinor()).toRecord());
-		}
-		else {
-			return ValueHolder(QuantumHolder(beam.getPA()).toRecord());
-		}
-	}
-	else if (
-		c == ImageMetaDataConstants::_DATAMIN || c == ImageMetaDataConstants::_DATAMAX || c == ImageMetaDataConstants::_MINPIXPOS
+    String c = key;
+    c.downcase();
+    const TableRecord info = _miscInfo();
+    if (c == ImageMetaDataConstants::_BUNIT) {
+        return ValueHolder(_getBrightnessUnit());
+    }
+    else if (
+        c.startsWith(ImageMetaDataConstants::_CDELT) || c.startsWith(ImageMetaDataConstants::_CRPIX)
+        || c.startsWith(ImageMetaDataConstants::_CRVAL) || c.startsWith(ImageMetaDataConstants::_CTYPE)
+        || c.startsWith(ImageMetaDataConstants::_CUNIT)
+    ) {
+        String prefix = c.substr(0, 5);
+        uInt n = _getAxisNumber(c);
+        if (prefix == ImageMetaDataConstants::_CDELT) {
+            return ValueHolder(
+                QuantumHolder(
+                    _getIncrements()[n-1]
+                ).toRecord()
+            );
+        }
+        else if (prefix == ImageMetaDataConstants::_CRPIX) {
+            return ValueHolder(_getRefPixel()[n-1]);
+        }
+        else if (prefix == ImageMetaDataConstants::_CRVAL) {
+            if (_getCoords().polarizationAxisNumber(false) == (Int)(n-1)) {
+                return ValueHolder(
+                    _getStokes()
+                );
+            }
+            else {
+                return ValueHolder(
+                    QuantumHolder(_getRefValue()[n-1]).toRecord()
+                );
+            }
+        }
+        else if (prefix == ImageMetaDataConstants::_CTYPE) {
+            return ValueHolder(_getAxisNames()[n-1]);
+        }
+        else if (prefix == ImageMetaDataConstants::_CUNIT) {
+            return ValueHolder(_getAxisUnits()[n-1]);
+        }
+    }
+    else if (c == ImageMetaDataConstants::_EQUINOX) {
+        return ValueHolder(_getEquinox());
+    }
+    else if (c == ImageMetaDataConstants::_IMTYPE) {
+        return ValueHolder(_getImType());
+    }
+    else if (c == ImageMetaDataConstants::MASKS) {
+        return ValueHolder(_getMasks());
+    }
+    else if (c == ImageMetaDataConstants::_OBJECT) {
+        return ValueHolder(_getObject());
+    }
+    else if (c == ImageMetaDataConstants::_OBSDATE || c == ImageMetaDataConstants::_EPOCH) {
+        return ValueHolder(_getEpochString());
+    }
+    else if (c == ImageMetaDataConstants::_OBSERVER) {
+        return ValueHolder(_getObserver());
+    }
+    else if (c == ImageMetaDataConstants::_PROJECTION) {
+        return ValueHolder(_getProjection());
+    }
+    else if (c == ImageMetaDataConstants::_REFFREQTYPE) {
+        return ValueHolder(_getRefFreqType());
+    }
+    else if (c == ImageMetaDataConstants::_RESTFREQ) {
+        return ValueHolder(
+            QuantumHolder(_getRestFrequency()).toRecord()
+        );
+    }
+    else if (c == ImageMetaDataConstants::_SHAPE) {
+        return ValueHolder(_getShape().asVector());
+    }
+    else if (c == ImageMetaDataConstants::_TELESCOPE) {
+        return ValueHolder(_getTelescope());
+    }
+    else if (
+        c == ImageMetaDataConstants::_BEAMMAJOR || c == ImageMetaDataConstants::_BEAMMINOR || c == ImageMetaDataConstants::_BEAMPA
+        || c == ImageMetaDataConstants::_BMAJ || c == ImageMetaDataConstants::_BMIN || c == ImageMetaDataConstants::_BPA
+    ) {
+        GaussianBeam beam = _getBeam();
+        if (c == ImageMetaDataConstants::_BEAMMAJOR || c == ImageMetaDataConstants::_BMAJ) {
+            return ValueHolder(QuantumHolder(beam.getMajor()).toRecord());
+        }
+        else if (c == ImageMetaDataConstants::_BEAMMINOR || c == ImageMetaDataConstants::_BMIN) {
+            return ValueHolder(QuantumHolder(beam.getMinor()).toRecord());
+        }
+        else {
+            return ValueHolder(QuantumHolder(beam.getPA()).toRecord());
+        }
+    }
+    else if (
+        c == ImageMetaDataConstants::_DATAMIN || c == ImageMetaDataConstants::_DATAMAX || c == ImageMetaDataConstants::_MINPIXPOS
         || c == ImageMetaDataConstants::_MINPOS || c == ImageMetaDataConstants::_MAXPIXPOS || c == ImageMetaDataConstants::_MAXPOS
     ) {
-		Record x = _getStatistics();
-		if (c == ImageMetaDataConstants::_DATAMIN || c == ImageMetaDataConstants::_DATAMAX) {
-		    auto dt = dataType();
-		    if (dt == TpFloat) {
-		        Float val;
-		        x.get(c, val);
-		        return ValueHolder(val);
-		    }
-		    else if (dt == TpComplex) {
-		        Complex val;
-		        x.get(c, val);
-		        return ValueHolder(val);
-		    }
-		    else if (dt == TpDouble) {
-		        Double val;
-		        x.get(c, val);
-		        return ValueHolder(val);
-		    }
-		    else if (dt == TpDComplex) {
-		        DComplex val;
-		        x.get(c, val);
-		        return ValueHolder(val);
-		    }
-		    else {
-		        ThrowCc("Logic error");
+        Record x = _getStatistics();
+        if (c == ImageMetaDataConstants::_DATAMIN || c == ImageMetaDataConstants::_DATAMAX) {
+            auto dt = dataType();
+            if (dt == TpFloat) {
+                Float val;
+                x.get(c, val);
+                return ValueHolder(val);
             }
-		}
-		else if (c == ImageMetaDataConstants::_MINPOS || c == ImageMetaDataConstants::_MAXPOS) {
-			return ValueHolder(x.asString(c));
-		}
-		else if (c == ImageMetaDataConstants::_MINPIXPOS || c == ImageMetaDataConstants::_MAXPIXPOS) {
-			return ValueHolder(x.asArrayInt(c));
-		}
-	}
-	else if (
-		info.isDefined(key)	|| info.isDefined(c)
-	) {
-		String x = info.isDefined(key) ? key : c;
-		switch (info.type(info.fieldNumber(x))) {
-		case TpString:
-			return ValueHolder(info.asString(x));
-			break;
-		case TpInt:
-			return ValueHolder(info.asInt(x));
-			break;
-		case TpDouble:
-			return ValueHolder(info.asDouble(x));
-			break;
-		case TpRecord:
-			// allow fall through
-		case TpQuantity: {
-			return ValueHolder(info.asRecord(x));
-			break;
-		}
-		default:
-			ostringstream os;
-			os << info.type(info.fieldNumber(x));
-			ThrowCc(
-				"Unhandled data type "
-				+ os.str()
-				+ " for user defined type. Send us a bug report"
-			);
-		}
-	}
-	ThrowCc(
-		"Unknown keyword " + c
-	);
-	return ValueHolder();
+            else if (dt == TpComplex) {
+                Complex val;
+                x.get(c, val);
+                return ValueHolder(val);
+            }
+            else if (dt == TpDouble) {
+                Double val;
+                x.get(c, val);
+                return ValueHolder(val);
+            }
+            else if (dt == TpDComplex) {
+                DComplex val;
+                x.get(c, val);
+                return ValueHolder(val);
+            }
+            else {
+                ThrowCc("Logic error");
+            }
+        }
+        else if (c == ImageMetaDataConstants::_MINPOS || c == ImageMetaDataConstants::_MAXPOS) {
+            return ValueHolder(x.asString(c));
+        }
+        else if (c == ImageMetaDataConstants::_MINPIXPOS || c == ImageMetaDataConstants::_MAXPIXPOS) {
+            return ValueHolder(x.asArrayInt(c));
+        }
+    }
+    else if (
+        info.isDefined(key)    || info.isDefined(c)
+    ) {
+        String x = info.isDefined(key) ? key : c;
+        switch (info.type(info.fieldNumber(x))) {
+        case TpString:
+            return ValueHolder(info.asString(x));
+            break;
+        case TpInt:
+            return ValueHolder(info.asInt(x));
+            break;
+        case TpDouble:
+            return ValueHolder(info.asDouble(x));
+            break;
+        case TpRecord:
+            // allow fall through
+        case TpQuantity: {
+            return ValueHolder(info.asRecord(x));
+            break;
+        }
+        default:
+            ostringstream os;
+            os << info.type(info.fieldNumber(x));
+            ThrowCc(
+                "Unhandled data type "
+                + os.str()
+                + " for user defined type. Send us a bug report"
+            );
+        }
+    }
+    ThrowCc(
+        "Unknown keyword " + c
+    );
+    return ValueHolder();
 }
 
 template <class T> uInt ImageMetaDataBase<T>::_ndim() const {
-	return _image->ndim();
+    return _image->ndim();
 }
 
 template <class T> uInt ImageMetaDataBase<T>::_getAxisNumber(
-	const String& key
+    const String& key
 ) const {
-	uInt n = 0;
-	string sre = key.substr(0, 5) + "[0-9]+";
-	Regex myre(Regex::makeCaseInsensitive(sre));
-	if (key.find(myre) != String::npos) {
-		n = String::toInt(key.substr(5));
-		uInt ndim = _ndim();
-		ThrowIf(
-			n == 0,
-			"The FITS convention is that axes "
-			"are 1-based. Therefore, " + key + " is not a valid "
-			"FITS keyword specification"
-		);
-		ThrowIf(
-			n > ndim,
-			"This image only has " + String::toString(ndim)
-			+ " axes."
-		);
-	}
-	else {
-		ThrowCc("Unsupported key " + key);
-	}
-	return n;
+    uInt n = 0;
+    string sre = key.substr(0, 5) + "[0-9]+";
+    Regex myre(Regex::makeCaseInsensitive(sre));
+    if (key.find(myre) != String::npos) {
+        n = String::toInt(key.substr(5));
+        uInt ndim = _ndim();
+        ThrowIf(
+            n == 0,
+            "The FITS convention is that axes "
+            "are 1-based. Therefore, " + key + " is not a valid "
+            "FITS keyword specification"
+        );
+        ThrowIf(
+            n > ndim,
+            "This image only has " + String::toString(ndim)
+            + " axes."
+        );
+    }
+    else {
+        ThrowCc("Unsupported key " + key);
+    }
+    return n;
 }
 
 template <class T> String ImageMetaDataBase<T>::_getEpochString() const {
-	return MVTime(_getObsDate().getValue()).string(MVTime::YMD);
+    return MVTime(_getObsDate().getValue()).string(MVTime::YMD);
 }
 
 template <class T> IPosition ImageMetaDataBase<T>::_getShape() const {
-	if (_shape.empty()) {
-		_shape = _image->shape();
-	}
-	return _shape;
+    if (_shape.empty()) {
+        _shape = _image->shape();
+    }
+    return _shape;
 }
 
 template <class T> void ImageMetaDataBase<T>::_fieldToLog(
-	const Record& header,const String& field, Int precision
+    const Record& header,const String& field, Int precision
 ) const {
-	_log << "        -- " << field << ": ";
-	if (header.isDefined(field)) {
-		DataType type = header.type(header.idToNumber(field));
-		if (precision >= 0) {
-			_log.output() << setprecision(precision);
-		}
-		switch (type) {
-			case TpArrayDouble: {
-				_log << header.asArrayDouble(field);
-				break;
-			}
-			case TpArrayInt: {
-				_log << header.asArrayInt(field);
-				break;
-			}
-			case TpArrayString: {
-				_log << header.asArrayString(field);
-				break;
-			}
-			case TpDouble: {
-				_log << header.asDouble(field);
-				break;
-			}
-			case TpRecord: {
-				Record r = header.asRecord(field);
-				QuantumHolder qh;
-				String error;
-				if (qh.fromRecord(error, r) && qh.isQuantity()) {
-					Quantity q = qh.asQuantity();
-					_log << q.getValue() << q.getUnit();
-				}
-				else {
-					_log << "Logic Error: Don't know how to deal with records of this type "
-						<< LogIO::EXCEPTION;
-				}
-				break;
-			}
-			case TpString: {
-				_log << header.asString(field);
-				break;
-			}
-			default: {
-				_log << "Logic Error: Unsupported type "
-					<< type << LogIO::EXCEPTION;
-				break;
-			}
-		}
-	}
-	else {
-		_log << "Not found";
-	}
-	_log << LogIO::POST;
+    _log << "        -- " << field << ": ";
+    if (header.isDefined(field)) {
+        DataType type = header.type(header.idToNumber(field));
+        if (precision >= 0) {
+            _log.output() << setprecision(precision);
+        }
+        switch (type) {
+            case TpArrayDouble: {
+                _log << header.asArrayDouble(field);
+                break;
+            }
+            case TpArrayInt: {
+                _log << header.asArrayInt(field);
+                break;
+            }
+            case TpArrayString: {
+                _log << header.asArrayString(field);
+                break;
+            }
+            case TpDouble: {
+                _log << header.asDouble(field);
+                break;
+            }
+            case TpRecord: {
+                Record r = header.asRecord(field);
+                QuantumHolder qh;
+                String error;
+                if (qh.fromRecord(error, r) && qh.isQuantity()) {
+                    Quantity q = qh.asQuantity();
+                    _log << q.getValue() << q.getUnit();
+                }
+                else {
+                    _log << "Logic Error: Don't know how to deal with records of this type "
+                        << LogIO::EXCEPTION;
+                }
+                break;
+            }
+            case TpString: {
+                _log << header.asString(field);
+                break;
+            }
+            default: {
+                _log << "Logic Error: Unsupported type "
+                    << type << LogIO::EXCEPTION;
+                break;
+            }
+        }
+    }
+    else {
+        _log << "Not found";
+    }
+    _log << LogIO::POST;
 }
 
 template <class T> void ImageMetaDataBase<T>::_toLog(const Record& header) const {
-	_log << _ORIGINB << "General --" << LogIO::POST;
-	_fieldToLog(header, ImageMetaDataConstants::_IMTYPE);
-	_fieldToLog(header, ImageMetaDataConstants::_OBJECT);
-	_fieldToLog(header, ImageMetaDataConstants::_EQUINOX);
-	_fieldToLog(header, ImageMetaDataConstants::_OBSDATE);
-	_fieldToLog(header, ImageMetaDataConstants::_OBSERVER);
-	_fieldToLog(header, ImageMetaDataConstants::_PROJECTION);
-	if (header.isDefined(ImageMetaDataConstants::_RESTFREQ)) {
-		_log << "        -- " << ImageMetaDataConstants::_RESTFREQ << ": ";
-		_log.output() << std::fixed << std::setprecision(1);
-		_log <<  header.asArrayDouble(ImageMetaDataConstants::_RESTFREQ) << LogIO::POST;
-	}
-	_fieldToLog(header, ImageMetaDataConstants::_REFFREQTYPE);
-	_fieldToLog(header, ImageMetaDataConstants::_TELESCOPE);
-	_fieldToLog(header, ImageMetaDataConstants::_BEAMMAJOR, 12);
-	_fieldToLog(header, ImageMetaDataConstants::_BEAMMINOR, 12);
-	_fieldToLog(header, ImageMetaDataConstants::_BEAMPA, 12);
-	_fieldToLog(header, ImageMetaDataConstants::_BUNIT);
-	_fieldToLog(header, ImageMetaDataConstants::MASKS);
-	_fieldToLog(header, ImageMetaDataConstants::_SHAPE);
-	_fieldToLog(header, ImageMetaDataConstants::_DATAMIN);
-	_fieldToLog(header, ImageMetaDataConstants::_DATAMAX);
-	_fieldToLog(header, ImageMetaDataConstants::_MINPOS);
-	_fieldToLog(header, ImageMetaDataConstants::_MINPIXPOS);
-	_fieldToLog(header, ImageMetaDataConstants::_MAXPOS);
-	_fieldToLog(header, ImageMetaDataConstants::_MAXPIXPOS);
+    _log << _ORIGINB << "General --" << LogIO::POST;
+    _fieldToLog(header, ImageMetaDataConstants::_IMTYPE);
+    _fieldToLog(header, ImageMetaDataConstants::_OBJECT);
+    _fieldToLog(header, ImageMetaDataConstants::_EQUINOX);
+    _fieldToLog(header, ImageMetaDataConstants::_OBSDATE);
+    _fieldToLog(header, ImageMetaDataConstants::_OBSERVER);
+    _fieldToLog(header, ImageMetaDataConstants::_PROJECTION);
+    if (header.isDefined(ImageMetaDataConstants::_RESTFREQ)) {
+        _log << "        -- " << ImageMetaDataConstants::_RESTFREQ << ": ";
+        _log.output() << std::fixed << std::setprecision(1);
+        _log <<  header.asArrayDouble(ImageMetaDataConstants::_RESTFREQ) << LogIO::POST;
+    }
+    _fieldToLog(header, ImageMetaDataConstants::_REFFREQTYPE);
+    _fieldToLog(header, ImageMetaDataConstants::_TELESCOPE);
+    _fieldToLog(header, ImageMetaDataConstants::_BEAMMAJOR, 12);
+    _fieldToLog(header, ImageMetaDataConstants::_BEAMMINOR, 12);
+    _fieldToLog(header, ImageMetaDataConstants::_BEAMPA, 12);
+    _fieldToLog(header, ImageMetaDataConstants::_BUNIT);
+    _fieldToLog(header, ImageMetaDataConstants::MASKS);
+    _fieldToLog(header, ImageMetaDataConstants::_SHAPE);
+    _fieldToLog(header, ImageMetaDataConstants::_DATAMIN);
+    _fieldToLog(header, ImageMetaDataConstants::_DATAMAX);
+    _fieldToLog(header, ImageMetaDataConstants::_MINPOS);
+    _fieldToLog(header, ImageMetaDataConstants::_MINPIXPOS);
+    _fieldToLog(header, ImageMetaDataConstants::_MAXPOS);
+    _fieldToLog(header, ImageMetaDataConstants::_MAXPIXPOS);
 
-	uInt i = 1;
-	_log << LogIO::NORMAL << "axes --" << LogIO::POST;
-	while (true) {
-		String iString = String::toString(i);
-		String key = ImageMetaDataConstants::_CTYPE + iString;
-		if (! header.isDefined(key)) {
-			break;
-		}
-		_log << "        -- " << key << ": "
-			<< header.asString(key) << LogIO::POST;
-		String unit = ImageMetaDataConstants::_CUNIT + iString;
-		i++;
-	}
-	i = 1;
-	_log << LogIO::NORMAL << ImageMetaDataConstants::_CRPIX << " --" << LogIO::POST;
-	while (true) {
-		String iString = String::toString(i);
-		String key = ImageMetaDataConstants::_CRPIX + iString;
-		if (! header.isDefined(key)) {
-			break;
-		}
-		_log.output() << std::fixed << std::setprecision(1);
-		_log << "        -- " << key << ": " << header.asDouble(key)
-			<< LogIO::POST;
-		i++;
-	}
-	i = 1;
-	_log << LogIO::NORMAL << ImageMetaDataConstants::_CRVAL << " --" << LogIO::POST;
-	while (true) {
-		String iString = String::toString(i);
-		String key = ImageMetaDataConstants::_CRVAL + iString;
-		if (! header.isDefined(key)) {
-			break;
-		}
-		_log << "        -- " << key << ": ";
-		ostringstream x;
-		Double val = header.asDouble(key);
-		x << val;
-		String unit = ImageMetaDataConstants::_CUNIT + iString;
-		if (header.isDefined(unit)) {
-			x << header.asString(unit);
-		}
-		String valunit = x.str();
-		if (header.isDefined(unit)) {
-			String myunit = header.asString(unit);
-			if (header.asString(unit).empty()) {
-				String ctype = ImageMetaDataConstants::_CTYPE + iString;
-				if (
-					header.isDefined(ctype)
-					&& header.asString(ctype) == "Stokes"
-				) {
-					valunit = "['" + Stokes::name((Stokes::StokesTypes)((Int)val)) + "']";
-				}
-			}
-			else {
-				String tmp = _doStandardFormat(val, myunit);
-				if (! tmp.empty()) {
-					valunit = tmp;
-				}
-			}
-		}
-		_log << valunit << LogIO::POST;
-		i++;
-	}
-	i = 1;
-	_log << LogIO::NORMAL << ImageMetaDataConstants::_CDELT << " --" << LogIO::POST;
-	while (true) {
-		String iString = String::toString(i);
-		String key = ImageMetaDataConstants::_CDELT + iString;
-		if (! header.isDefined(key)) {
-			break;
-		}
-		_log << "        -- " << key << ": ";
-		Double val = header.asDouble(key);
-		String unit = ImageMetaDataConstants::_CUNIT + iString;
-		String myunit;
-		if (header.isDefined(unit)) {
-			myunit = header.asString(unit);
-		}
-		ostringstream x;
-		x << val << myunit;
-		String valunit = x.str();
-		if (header.isDefined(unit)) {
-			String myunit = header.asString(unit);
-			if (! header.asString(unit).empty()) {
-				String tmp = _doStandardFormat(val, myunit);
-				if (! tmp.empty()) {
-					valunit = tmp;
-				}
-			}
-		}
-		_log << valunit << LogIO::POST;
-		i++;
-	}
-	i = 1;
-	_log << LogIO::NORMAL << "units --" << LogIO::POST;
-	while (true) {
-		String iString = String::toString(i);
-		String key = ImageMetaDataConstants::_CUNIT + iString;
-		if (! header.isDefined(key)) {
-			break;
-		}
-		_log << "        -- " << key << ": "
-			<< header.asString(key) << LogIO::POST;
-		String unit = ImageMetaDataConstants::_CUNIT + iString;
-		i++;
-	}
+    uInt i = 1;
+    _log << LogIO::NORMAL << "axes --" << LogIO::POST;
+    while (true) {
+        String iString = String::toString(i);
+        String key = ImageMetaDataConstants::_CTYPE + iString;
+        if (! header.isDefined(key)) {
+            break;
+        }
+        _log << "        -- " << key << ": "
+            << header.asString(key) << LogIO::POST;
+        String unit = ImageMetaDataConstants::_CUNIT + iString;
+        i++;
+    }
+    i = 1;
+    _log << LogIO::NORMAL << ImageMetaDataConstants::_CRPIX << " --" << LogIO::POST;
+    while (true) {
+        String iString = String::toString(i);
+        String key = ImageMetaDataConstants::_CRPIX + iString;
+        if (! header.isDefined(key)) {
+            break;
+        }
+        _log.output() << std::fixed << std::setprecision(1);
+        _log << "        -- " << key << ": " << header.asDouble(key)
+            << LogIO::POST;
+        i++;
+    }
+    i = 1;
+    _log << LogIO::NORMAL << ImageMetaDataConstants::_CRVAL << " --" << LogIO::POST;
+    while (true) {
+        String iString = String::toString(i);
+        String key = ImageMetaDataConstants::_CRVAL + iString;
+        if (! header.isDefined(key)) {
+            break;
+        }
+        _log << "        -- " << key << ": ";
+        ostringstream x;
+        Double val = header.asDouble(key);
+        x << val;
+        String unit = ImageMetaDataConstants::_CUNIT + iString;
+        if (header.isDefined(unit)) {
+            x << header.asString(unit);
+        }
+        String valunit = x.str();
+        if (header.isDefined(unit)) {
+            String myunit = header.asString(unit);
+            if (header.asString(unit).empty()) {
+                String ctype = ImageMetaDataConstants::_CTYPE + iString;
+                if (
+                    header.isDefined(ctype)
+                    && header.asString(ctype) == "Stokes"
+                ) {
+                    valunit = "['" + Stokes::name((Stokes::StokesTypes)((Int)val)) + "']";
+                }
+            }
+            else {
+                String tmp = _doStandardFormat(val, myunit);
+                if (! tmp.empty()) {
+                    valunit = tmp;
+                }
+            }
+        }
+        _log << valunit << LogIO::POST;
+        i++;
+    }
+    i = 1;
+    _log << LogIO::NORMAL << ImageMetaDataConstants::_CDELT << " --" << LogIO::POST;
+    while (true) {
+        String iString = String::toString(i);
+        String key = ImageMetaDataConstants::_CDELT + iString;
+        if (! header.isDefined(key)) {
+            break;
+        }
+        _log << "        -- " << key << ": ";
+        Double val = header.asDouble(key);
+        String unit = ImageMetaDataConstants::_CUNIT + iString;
+        String myunit;
+        if (header.isDefined(unit)) {
+            myunit = header.asString(unit);
+        }
+        ostringstream x;
+        x << val << myunit;
+        String valunit = x.str();
+        if (header.isDefined(unit)) {
+            String myunit = header.asString(unit);
+            if (! header.asString(unit).empty()) {
+                String tmp = _doStandardFormat(val, myunit);
+                if (! tmp.empty()) {
+                    valunit = tmp;
+                }
+            }
+        }
+        _log << valunit << LogIO::POST;
+        i++;
+    }
+    i = 1;
+    _log << LogIO::NORMAL << "units --" << LogIO::POST;
+    while (true) {
+        String iString = String::toString(i);
+        String key = ImageMetaDataConstants::_CUNIT + iString;
+        if (! header.isDefined(key)) {
+            break;
+        }
+        _log << "        -- " << key << ": "
+            << header.asString(key) << LogIO::POST;
+        String unit = ImageMetaDataConstants::_CUNIT + iString;
+        i++;
+    }
 }
 
 template <class T> String ImageMetaDataBase<T>::_doStandardFormat(
-	Double value, const String& unit
+    Double value, const String& unit
 ) const {
-	String valunit;
-	try {
-		Quantity q(1, unit);
-		if (q.isConform(Quantity(1, "rad"))) {
-			// to dms
-			valunit = MVAngle(Quantity(value, unit)).string(MVAngle::CLEAN, 9) + "deg.min.sec";
-		}
-		else if (unit == "Hz") {
-			ostringstream x;
-			x << std::fixed << std::setprecision(1);
-			x << value << "Hz";
-			valunit = x.str();
-		}
-	}
-	catch (const AipsError& x) {}
-	return valunit;
+    String valunit;
+    try {
+        Quantity q(1, unit);
+        if (q.isConform(Quantity(1, "rad"))) {
+            // to dms
+            valunit = MVAngle(Quantity(value, unit)).string(MVAngle::CLEAN, 9) + "deg.min.sec";
+        }
+        else if (unit == "Hz") {
+            ostringstream x;
+            x << std::fixed << std::setprecision(1);
+            x << value << "Hz";
+            valunit = x.str();
+        }
+    }
+    catch (const AipsError& x) {}
+    return valunit;
 }
 
 template <class T> uInt ImageMetaDataBase<T>::nChannels() const {
-	const CoordinateSystem csys = _getCoords();
-	if (! csys.hasSpectralAxis()) {
-		return 0;
-	}
-	return _getShape()[csys.spectralAxisNumber()];
+    const CoordinateSystem csys = _getCoords();
+    if (! csys.hasSpectralAxis()) {
+        return 0;
+    }
+    return _getShape()[csys.spectralAxisNumber()];
 }
 
 template <class T> Bool ImageMetaDataBase<T>::isChannelNumberValid(
-	const uInt chan
+    const uInt chan
 ) const {
-	if (! _getCoords().hasSpectralAxis()) {
-		return false;
+    if (! _getCoords().hasSpectralAxis()) {
+        return false;
     }
-	return (chan < nChannels());
+    return (chan < nChannels());
 }
 
 template <class T> uInt ImageMetaDataBase<T>::nStokes() const {
-	const CoordinateSystem& csys = _getCoords();
-	if (! csys.hasPolarizationCoordinate()) {
-		return 0;
+    const CoordinateSystem& csys = _getCoords();
+    if (! csys.hasPolarizationCoordinate()) {
+        return 0;
     }
-	return _getShape()[csys.polarizationAxisNumber()];
+    return _getShape()[csys.polarizationAxisNumber()];
 }
 
 template <class T> Int ImageMetaDataBase<T>::stokesPixelNumber(
-	const String& stokesString) const {
-	Int pixNum = _getCoords().stokesPixelNumber(stokesString);
-	if (pixNum >= (Int)nStokes()) {
-		pixNum = -1;
+    const String& stokesString) const {
+    Int pixNum = _getCoords().stokesPixelNumber(stokesString);
+    if (pixNum >= (Int)nStokes()) {
+        pixNum = -1;
     }
-	return pixNum;
+    return pixNum;
 }
 
 template <class T> String ImageMetaDataBase<T>::_getProjection() const {
-	const CoordinateSystem csys = _getCoords();
-	if (! csys.hasDirectionCoordinate()) {
-		return "";
-	}
-	const DirectionCoordinate dc = csys.directionCoordinate();
-	Projection proj = dc.projection();
-	if (proj.type() == Projection::SIN) {
-		Vector<Double> pars =  proj.parameters();
-		if (dc.isNCP()) {
-			ostringstream os;
-			os << "SIN (" << pars << "): NCP";
-			return os.str();
-		}
-		else if(pars.size() == 2 && (anyNE(pars, 0.0))) {
-			// modified SIN
-			ostringstream os;
-			os << "SIN (" << pars << ")";
-			return os.str();
-		}
-	}
-	return proj.name();
+    const CoordinateSystem csys = _getCoords();
+    if (! csys.hasDirectionCoordinate()) {
+        return "";
+    }
+    const DirectionCoordinate dc = csys.directionCoordinate();
+    Projection proj = dc.projection();
+    if (proj.type() == Projection::SIN) {
+        Vector<Double> pars =  proj.parameters();
+        if (dc.isNCP()) {
+            ostringstream os;
+            os << "SIN (" << pars << "): NCP";
+            return os.str();
+        }
+        else if(pars.size() == 2 && (anyNE(pars, 0.0))) {
+            // modified SIN
+            ostringstream os;
+            os << "SIN (" << pars << ")";
+            return os.str();
+        }
+    }
+    return proj.name();
 }
 
 template <class T> String ImageMetaDataBase<T>::stokesAtPixel(
-	const uInt pixel
+    const uInt pixel
 ) const {
-	const CoordinateSystem& csys = _getCoords();
-	if (! csys.hasPolarizationCoordinate() || pixel >= nStokes()) {
+    const CoordinateSystem& csys = _getCoords();
+    if (! csys.hasPolarizationCoordinate() || pixel >= nStokes()) {
              return "";
         }
-	return csys.stokesAtPixel(pixel);
+    return csys.stokesAtPixel(pixel);
 }
 
 template <class T> Bool ImageMetaDataBase<T>::isStokesValid(
-	const String& stokesString
+    const String& stokesString
 ) const {
-	if (! _getCoords().hasPolarizationCoordinate()) {
-		return false;
+    if (! _getCoords().hasPolarizationCoordinate()) {
+        return false;
     }
-	Int stokesPixNum = stokesPixelNumber(stokesString);
-	return stokesPixNum >= 0 && stokesPixNum < (Int)nStokes();
+    Int stokesPixNum = stokesPixelNumber(stokesString);
+    return stokesPixNum >= 0 && stokesPixNum < (Int)nStokes();
 }
 
 template <class T> Vector<Int> ImageMetaDataBase<T>::directionShape() const {
-	Vector<Int> dirAxesNums = _getCoords().directionAxesNumbers();
-	if (dirAxesNums.nelements() == 0) {
-		return Vector<Int>();
-	}
-	Vector<Int> dirShape(2);
-	IPosition shape = _getShape();
-	dirShape[0] = shape[dirAxesNums[0]];
-	dirShape[1] = shape[dirAxesNums[1]];
-	return dirShape;
+    Vector<Int> dirAxesNums = _getCoords().directionAxesNumbers();
+    if (dirAxesNums.nelements() == 0) {
+        return Vector<Int>();
+    }
+    Vector<Int> dirShape(2);
+    IPosition shape = _getShape();
+    dirShape[0] = shape[dirAxesNums[0]];
+    dirShape[1] = shape[dirAxesNums[1]];
+    return dirShape;
 }
 
 template <class T> Bool ImageMetaDataBase<T>::areChannelAndStokesValid(
-	String& message, const uInt chan, const String& stokesString
+    String& message, const uInt chan, const String& stokesString
 ) const {
-	ostringstream os;
-	Bool areValid = true;
-	if (! isChannelNumberValid(chan)) {
-		os << "Zero-based channel number " << chan << " is too large. There are only "
-			<< nChannels() << " spectral channels in this image.";
-		areValid = false;
+    ostringstream os;
+    Bool areValid = true;
+    if (! isChannelNumberValid(chan)) {
+        os << "Zero-based channel number " << chan << " is too large. There are only "
+            << nChannels() << " spectral channels in this image.";
+        areValid = false;
     }
-	if (! isStokesValid(stokesString)) {
+    if (! isStokesValid(stokesString)) {
         if (! areValid) {
-        	os << " and ";
+            os << " and ";
         }
         os << "Stokes parameter " << stokesString << " is not in image";
         areValid = false;
     }
-	if (! areValid) {
-		message = os.str();
+    if (! areValid) {
+        message = os.str();
     }
-	return areValid;
+    return areValid;
 }
 
 template <class T> Record ImageMetaDataBase<T>::_calcStats() const {
