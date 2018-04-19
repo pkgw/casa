@@ -48,13 +48,11 @@ template<class T> void ImageInputProcessor::process(
 	const CasacRegionManager::StokesControl& stokesControl, const casacore::Bool& allowMultipleBoxes,
 	const std::vector<casacore::Coordinate::Type> *const &requiredCoordinateTypes, casacore::Bool verbose
 ) {
-            cout << __FILE__ << " " << __LINE__ << endl;
 	_process(
 		regionRecord, diagnostics, outputStruct, stokes,
 		image, regionPtr, regionName, box, chans, stokesControl,
 		allowMultipleBoxes, requiredCoordinateTypes, verbose
 	);
-            cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 template<class T> void ImageInputProcessor::_process(
@@ -69,23 +67,18 @@ template<class T> void ImageInputProcessor::_process(
     const std::vector<casacore::Coordinate::Type> *const &requiredCoordinateTypes,
     casacore::Bool verbose
 ) {
-            cout << __FILE__ << " " << __LINE__ << endl;
 	casacore::LogOrigin origin("ImageInputProcessor", __func__);
     *_log << origin;
-            cout << __FILE__ << " " << __LINE__ << endl;
     if (outputStruct != 0) {
         OutputDestinationChecker::checkOutputs(outputStruct, *_log);
 
     }
     *_log << origin;
-            cout << __FILE__ << " " << __LINE__ << endl;
     if (requiredCoordinateTypes) {
-            cout << __FILE__ << " " << __LINE__ << endl;
     	for (
     		vector<casacore::Coordinate::Type>::const_iterator iter = requiredCoordinateTypes->begin();
     		iter != requiredCoordinateTypes->end(); iter++
     	) {
-            cout << __FILE__ << " " << __LINE__ << endl;
     		ThrowIf(
     			image->coordinates().findCoordinate(*iter) < 0,
     			"Image " + image->name() + " does not have required coordinate "
@@ -93,12 +86,8 @@ template<class T> void ImageInputProcessor::_process(
     		);
     	}
     }
-            cout << __FILE__ << " " << __LINE__ << endl;
 	ImageMetaData<T> md(image);
-            cout << __FILE__ << " " << __LINE__ << endl;
 	_nSelectedChannels = md.nChannels();
-            cout << __FILE__ << " " << __LINE__ << endl;
-
 	CasacRegionManager regionMgr(image->coordinates());
 	regionRecord = regionMgr.fromBCS(
 		diagnostics, _nSelectedChannels, stokes,
@@ -109,14 +98,11 @@ template<class T> void ImageInputProcessor::_process(
 	// FIXME an exception can be incorrectly thrown for a union of two regions
 	// in which one defines a single region in direction space and the
 	// defines spectral extent
-            cout << __FILE__ << " " << __LINE__ << endl;
     ThrowIf(
     	! allowMultipleBoxes && regionRecord.isDefined("regions"),
     	"Only a single n-dimensional rectangular region is supported"
     );
-            cout << __FILE__ << " " << __LINE__ << endl;
     _processHasRun = true;
-            cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 template<class T> void ImageInputProcessor::_setRegion(

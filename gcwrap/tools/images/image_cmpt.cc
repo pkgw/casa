@@ -2301,7 +2301,6 @@ variant* image::getchunk(
         }
         casacore::Record ret;
         if (_imageF) {
-            cout << __FILE__ << " " << __LINE__ << endl;
             ret = _getchunk<Float>(
                 _imageF, blc, trc, inc,
                 axes, list, dropdeg
@@ -2313,7 +2312,6 @@ variant* image::getchunk(
             }
         }
         else if (_imageC) {
-            cout << __FILE__ << " " << __LINE__ << endl;
             ret = _getchunk<Complex> (
                 _imageC, blc, trc, inc,
                 axes, list, dropdeg
@@ -2325,21 +2323,17 @@ variant* image::getchunk(
             }
         }
         else if (_imageD) {
-            cout << __FILE__ << " " << __LINE__ << endl;
             ret = _getchunk<Double> (
                 _imageD, blc, trc, inc,
                 axes, list, dropdeg
             );
-            cout << __FILE__ << " " << __LINE__ << endl;
             if (! getmask) {
                 Array<Double> vals = ret.asArrayDouble("values");
                 vector<Double> v(vals.begin(), vals.end());
                 return new variant(v, vals.shape().asStdVector());
             }
-            cout << __FILE__ << " " << __LINE__ << endl;
         }
         else if (_imageDC) {
-            cout << __FILE__ << " " << __LINE__ << endl;
             ret = _getchunk<DComplex> (
                 _imageDC, blc, trc, inc,
                 axes, list, dropdeg
@@ -2374,41 +2368,32 @@ template<class T> Record image::_getchunk(
     const vector<int>& inc, const vector<int>& axes,
     bool list, bool dropdeg
 ) {
-            cout << __FILE__ << " " << __LINE__ << endl;
     Array<T> pixels;
     Array<Bool> pixelMask;
     Vector<Int> iaxes(axes);
-            cout << __FILE__ << " " << __LINE__ << endl;
     // if default value change it to empty vector
     if (iaxes.size() == 1 && iaxes[0] < 0) {
         iaxes.resize();
     }
-            cout << __FILE__ << " " << __LINE__ << endl;
     uInt ndim = myimage->ndim();
 
     if (iaxes.size() == 1 && iaxes[0] < 0) {
         iaxes.resize();
     }
-            cout << __FILE__ << " " << __LINE__ << endl;
     // We have to support handling of sloppy inputs for backwards
     // compatibility. Ugh.
     vector<int> mblc(ndim);
     vector<int> mtrc(ndim);
     vector<int> minc(ndim);
-            cout << __FILE__ << " " << __LINE__ << endl;
     if (blc.size() == 1 && blc[0] < 0) {
-            cout << __FILE__ << " " << __LINE__ << endl;
         IPosition x(ndim, 0);
-            cout << __FILE__ << " " << __LINE__ << endl;
         mblc = x.asStdVector();
     }
     else {
-            cout << __FILE__ << " " << __LINE__ << endl;
         for (uInt i=0; i<ndim; i++) {
             mblc[i] = i < blc.size() ? blc[i] : 0;
         }
     }
-            cout << __FILE__ << " " << __LINE__ << endl;
     IPosition shape = myimage->shape();
     if (trc.size() == 1 && trc[0] < 0) {
         mtrc = (shape - 1).asStdVector();
@@ -2418,7 +2403,6 @@ template<class T> Record image::_getchunk(
             mtrc[i] = i < trc.size() ? trc[i] : shape[i] - 1;
         }
     }
-            cout << __FILE__ << " " << __LINE__ << endl;
     if (inc.size() == 1 && inc[0] == 1) {
         IPosition x(ndim, 1);
         minc = x.asStdVector();
@@ -2428,7 +2412,6 @@ template<class T> Record image::_getchunk(
             minc[i] = i < inc.size() ? inc[i] : 1;
         }
     }
-            cout << __FILE__ << " " << __LINE__ << endl;
     for (uInt i=0; i<ndim; i++) {
         if (mblc[i] < 0 || mblc[i] > shape[i] - 1) {
             mblc[i] = 0;
@@ -2447,27 +2430,17 @@ template<class T> Record image::_getchunk(
     Vector<Double> vblc(mblc);
     Vector<Double> vtrc(mtrc);
     Vector<Double> vinc(minc);
-            cout << __FILE__ << " " << __LINE__ << endl;
     LCSlicer slicer(vblc, vtrc, vinc);
-            cout << __FILE__ << " " << __LINE__ << endl;
     Record rec;
-            cout << __FILE__ << " " << __LINE__ << endl;
     rec.assign(slicer.toRecord(""));
-            cout << __FILE__ << " " << __LINE__ << endl;
     PixelValueManipulator<T> pvm(myimage, &rec, "");
-            cout << __FILE__ << " " << __LINE__ << endl;
     if (axes.size() != 1 || axes[0] >= 0) {
-            cout << __FILE__ << " " << __LINE__ << endl;
         pvm.setAxes(IPosition(axes));
-            cout << __FILE__ << " " << __LINE__ << endl;
     }
-            cout << __FILE__ << " " << __LINE__ << endl;
     pvm.setVerbosity(
         list ? ImageTask<T>::DEAFENING : ImageTask<T>::QUIET
     );
-            cout << __FILE__ << " " << __LINE__ << endl;
     pvm.setDropDegen(dropdeg);
-            cout << __FILE__ << " " << __LINE__ << endl;
     return pvm.get();
 }
 

@@ -83,7 +83,6 @@ template <class T> std::vector<OutputDestinationChecker::OutputStruct> ImageTask
 }
 
 template <class T> void ImageTask<T>::_construct(casacore::Bool verbose) {
-            cout << __FILE__ << " " << __LINE__ << endl;
     ThrowIf(
         ! _supportsMultipleBeams() && _image->imageInfo().hasMultipleBeams(),
         "This application does not support images with multiple "
@@ -92,7 +91,6 @@ template <class T> void ImageTask<T>::_construct(casacore::Bool verbose) {
     );
     casacore::String diagnostics;
     std::vector<OutputDestinationChecker::OutputStruct> outputs = _getOutputStruct();
-            cout << __FILE__ << " " << __LINE__ << endl;
     std::vector<OutputDestinationChecker::OutputStruct> *outputPtr = outputs.size() > 0
         ? &outputs
         : 0;
@@ -100,7 +98,6 @@ template <class T> void ImageTask<T>::_construct(casacore::Bool verbose) {
     std::vector<casacore::Coordinate::Type> *coordsPtr = necCoords.size() > 0
         ? &necCoords
         : 0;
-            cout << __FILE__ << " " << __LINE__ << endl;
     ThrowIf(
         _mustHaveSquareDirectionPixels()
         && _image->coordinates().hasDirectionCoordinate()
@@ -109,9 +106,7 @@ template <class T> void ImageTask<T>::_construct(casacore::Bool verbose) {
         "direction pixels, but the input image does not. Please regrid it "
         "so it does and rerun on the regridded image"
     );
-            cout << __FILE__ << " " << __LINE__ << endl;
     ImageInputProcessor inputProcessor;
-            cout << __FILE__ << " " << __LINE__ << endl;
     inputProcessor.process(
         _regionRecord, diagnostics, outputPtr,
         _stokesString, _image, _regionPtr,
@@ -119,7 +114,6 @@ template <class T> void ImageTask<T>::_construct(casacore::Bool verbose) {
         _getStokesControl(), _supportsMultipleRegions(),
         coordsPtr, verbose
     );
-            cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 template <class T> void ImageTask<T>::setRegion(const casacore::Record& region) {
