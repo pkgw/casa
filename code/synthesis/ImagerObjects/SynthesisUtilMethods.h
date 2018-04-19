@@ -148,6 +148,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     static casacore::String g_hostname;
     static casacore::String g_startTimestamp;
+    static const casacore::String g_enableOptMemProfile;
 
     static casacore::Int parseProcStatusLine(const std::string &str);
   };

@@ -77,6 +77,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   casacore::String SynthesisUtilMethods::g_hostname;
   casacore::String SynthesisUtilMethods::g_startTimestamp;
+  const casacore::String SynthesisUtilMethods::g_enableOptMemProfile =
+      "synthesis.imager.memprofile.enable";
 
   SynthesisUtilMethods::SynthesisUtilMethods()
   {
@@ -229,8 +231,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SynthesisUtilMethods::getResource(String label, String fname)
   {
+     Bool isOn = false;
+     AipsrcValue<Bool>::find(isOn, g_enableOptMemProfile);
+     if (!isOn)
+         return;
+
      // TODO: reorganize, use struct or something to hold and pass info over. ifdef lnx
-     LogIO os( LogOrigin("SynthesisUtilMethods", "getResource", WHERE) );
+     LogIO casalog( LogOrigin("SynthesisUtilMethods", "getResource", WHERE) );
 
      // To hold memory stats, in MB
      int vmRSS = -1, vmWHM = -1, vmSize = -1, vmPeak = -1, vmSwap = -1;
@@ -290,7 +297,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
      oss << " ProcTime: " << now.tv_sec << '.' << now.tv_usec;
      oss << " FDSize: " << fdSize;
      oss <<  " [" << label << "] ";
-     os << oss.str() << LogIO::NORMAL3 <<  LogIO::POST;
+     casalog << oss.str() << LogIO::NORMAL3 <<  LogIO::POST;
 
      // Write this to a file too...
      try {
@@ -300,6 +307,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        ofstream ofile(fname, ios::app);
        if (ofile.is_open()) {
          if (0 == ofile.tellp()) {
+             casalog << g_enableOptMemProfile << " is enabled, initializing output file for "
+                 "imager profiling information (memory and run time): " << fname <<
+                 LogIO::NORMAL <<  LogIO::POST;
              ostringstream header;
              header << "# PID, MemRSS_(VmRSS)_MB, VmWHM_MB, VirtMem_(VmSize)_MB, VmPeak_MB, "
                  "VmSwap_MB, ProcTime_sec, FDSize, label_checkpoint";
@@ -313,8 +323,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
          ofile.close();
        }
      } catch(std::runtime_error &exc) {
-         os << "Could not write imager memory+runtime information into output file: "
-            << fname << LogIO::WARN <<  LogIO::POST;
+         casalog << "Could not write imager memory+runtime information into output file: "
+                 << fname << LogIO::WARN <<  LogIO::POST;
      }
   }
 
