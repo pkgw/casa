@@ -85,20 +85,24 @@ public:
     // in pixel coordinates
 
     static casacore::Record* getSlice(
-        SPCIIT image, const casacore::Vector<casacore::Double>& x, const casacore::Vector<casacore::Double>& y,
-        const casacore::Vector<casacore::Int>& axes, const casacore::Vector<casacore::Int>& coord,
+        SPCIIT image, const casacore::Vector<casacore::Double>& x,
+        const casacore::Vector<casacore::Double>& y,
+        const casacore::Vector<casacore::Int>& axes,
+        const casacore::Vector<casacore::Int>& coord,
         casacore::Int npts=0, const casacore::String& method="linear"
     );
 
     static void put(
-        SPIIT image, const casacore::Array<T>& pixelsArray, const casacore::Vector<casacore::Int>& blc,
+        SPIIT image, const casacore::Array<T>& pixelsArray,
+        const casacore::Vector<casacore::Int>& blc,
         const casacore::Vector<casacore::Int>& inc, casacore::Bool list,
         casacore::Bool locking, casacore::Bool replicate
     );
 
     static casacore::Bool putRegion(
         SPIIT image, const casacore::Array<T>& pixels,
-        const casacore::Array<casacore::Bool>& mask, casacore::Record& region, casacore::Bool list,
+        const casacore::Array<casacore::Bool>& mask,
+        casacore::Record& region, casacore::Bool list,
         casacore::Bool usemask, casacore::Bool replicateArray
     );
 

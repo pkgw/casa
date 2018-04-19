@@ -74,9 +74,7 @@ import numpy
 
 image = "gauss_no_pol.fits"
 
-
 datapath = os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/getchunk/'
-
 
 myia = iatool()
 
@@ -317,6 +315,56 @@ class getchunk_test(unittest.TestCase):
         im1.done()
         im2.done()
         myia.done()
+        
+    def test_precision(self):
+        """Test various image precisions"""
+        rval = 1.23456789012345678901234567890123456789
+        myia = iatool()
+        myia.fromshape("", [10, 10, 10], type='f')
+        bb = myia.getchunk()
+        bb[:] = rval
+        myia.putchunk(bb)
+        cc = myia.getchunk()
+        tol = 1e-8
+        myia.done()
+        self.assertTrue(
+            numpy.isclose(cc, rval, rtol=tol, atol=tol).all(),
+            "Falure on float precision pixels"
+        )
+        myia.fromshape("", [10, 10, 10], type='d')
+        bb = myia.getchunk()
+        bb[:] = rval
+        myia.putchunk(bb)
+        cc = myia.getchunk()
+        tol = 1e-20
+        myia.done()
+        self.assertTrue(
+            numpy.isclose(cc, rval, rtol=tol, atol=tol).all(),
+            "Falure on double precision pixels"
+        )
+        cval = complex(rval, rval)
+        myia.fromshape("", [10, 10, 10], type='c')
+        bb = myia.getchunk()
+        bb[:] = cval
+        myia.putchunk(bb)
+        cc = myia.getchunk()
+        myia.done()
+        tol = 1e-8
+        self.assertTrue(
+            numpy.isclose(cc, cval, rtol=tol, atol=tol).all(),
+            "Falure on complex<float> precision pixels"
+        )
+        myia.fromshape("", [10, 10, 10], type='cd')
+        bb = myia.getchunk()
+        bb[:] = cval
+        myia.putchunk(bb)
+        cc = myia.getchunk()
+        myia.done()
+        tol = 1e-20
+        self.assertTrue(
+            numpy.isclose(cc, cval, rtol=tol, atol=tol).all(),
+            "Falure on complex<double> precision pixels"
+        )
 
 def suite():
     return [getchunk_test]

@@ -3965,31 +3965,51 @@ bool image::putchunk(
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
         if (_imageF) {
             _putchunk(
                 _imageF, pixels, blc, inc, list, locking, replicate
+            );
+        }
+        else if(_imageD) {
+            _putchunk(
+                _imageD, pixels, blc, inc, list, locking, replicate
             );
         }
         else {
             if (
                 pixels.type() == variant::COMPLEXVEC
             ) {
-                Array<Complex> pixelsArray;
-                std::vector<std::complex<double> > pixelVector = pixels.getComplexVec();
-                Vector<Int> shape = pixels.arrayshape();
-                pixelsArray.resize(IPosition(shape));
-                Vector<std::complex<double> > localpix(pixelVector);
-                casacore::convertArray(pixelsArray, localpix.reform(IPosition(shape)));
-                PixelValueManipulator<Complex>::put(
-                    _imageC, pixelsArray, Vector<Int>(blc),
-                    Vector<Int>(inc), list, locking,
-                    replicate
-                );
+                Vector<DComplex> pixelVector(pixels.getComplexVec());
+                auto shape = pixels.arrayshape();
+                auto reshapedArray = pixelVector.reform(IPosition(shape));
+                if (_imageC) {
+                    Array<Complex> pixelsArray;
+                    pixelsArray.resize(IPosition(shape));
+                    // Vector<DComplex> localpix(pixelVector);
+                    casacore::convertArray(pixelsArray, reshapedArray);
+                    PixelValueManipulator<Complex>::put(
+                        _imageC, pixelsArray, Vector<Int>(blc),
+                        Vector<Int>(inc), list, locking,
+                        replicate
+                    );
+                }
+                else if (_imageDC) {
+                    PixelValueManipulator<DComplex>::put(
+                        _imageDC, reshapedArray, Vector<Int>(blc),
+                        Vector<Int>(inc), list, locking,
+                        replicate
+                    );
+                }
             }
-            else {
+            else if (_imageC) {
                 _putchunk(
                     _imageC, pixels, blc, inc,
+                    list, locking, replicate
+                );
+            }
+            else if (_imageDC) {
+                _putchunk(
+                    _imageDC, pixels, blc, inc,
                     list, locking, replicate
                 );
             }
