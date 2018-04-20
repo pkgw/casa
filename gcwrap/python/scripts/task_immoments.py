@@ -143,22 +143,30 @@ def immoments(
         if outia:
             outia.done()
 
+
 def _immoments_get_created_images(out1name, outfile):
     dirpath = os.path.dirname(out1name)
     target_time = os.path.getmtime(out1name)
-    # get all entries in the directory w/ stats
-    entries = (os.path.join(dirpath, fn) for fn in os.listdir(dirpath))
-    entries = ((os.stat(path), path) for path in entries)
-    # leave only directories, insert creation date
-    entries = ((stat.st_mtime, path)
-        for stat, path in entries if S_ISDIR(stat[ST_MODE]))
+    entries = (os.path.join(dirpath, fn) for fn in os.listdir(dirpath) \
+        if os.path.basename(fn).startswith(outfile) and os.path.isdir(fn))
+    entries2 = []
+    for path in entries:
+        # we must explicitly check for file existence, because file
+        # read before may have been deleted by another process
+        # CAS-11205
+        if os.path.exists(path):
+            entries2.append((os.stat(path), path))
+    entries3 = []
+    for stat, path in entries2:
+        if os.path.exists(path):
+            entries3.append((stat.st_mtime, path))
     # reverse sort by time
-    zz = sorted(entries)
+    zz = sorted(entries3)
     zz.reverse()
     created_images = []
     for mdate, path in zz:
         if mdate < target_time:
             break
-        if path != out1name and os.path.basename(path).startswith(outfile):
+        if os.path.exists(path) and path != out1name:
             created_images.append(path)
     return created_images

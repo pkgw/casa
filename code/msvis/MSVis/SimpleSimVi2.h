@@ -411,7 +411,7 @@ private:
   casacore::Vector<casacore::Stokes::StokesTypes> corrdef_;
 
   // The associated VB
-  VisBuffer2* vb_;
+  std::unique_ptr<VisBuffer2> vb_;
 
   // Trivial (for now) MDirection, so phaseCenter() has something to return
   casacore::MDirection phaseCenter_;

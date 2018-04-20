@@ -30,6 +30,7 @@
 #include <measures/Measures/MDirection.h>
 #include <tables/TaQL/TableParse.h>
 #include <tables/Tables/ScalarColumn.h>
+#include <casatools/Config/State.h>
 
 // Handy for passing anonymous arrays to functions.
 #include <scimath/Mathematics/RigidVector.h>
@@ -156,7 +157,10 @@ FluxStdSrcs::Source FluxStdSrcs::srcNameToEnum(const String& srcName, const MDir
       LogIO os(LogOrigin("FluxStdSrcs", "srcNameToEnum"));
       String fcaldatapath;
       String tabName("fluxcalibrator.data");
-      if(!Aipsrc::findDir(fcaldatapath,"./"+tabName)) {
+      String resolvepath = casatools::get_state( ).resolve("nrao/VLA/standards/"+tabName);
+      if (resolvepath != "nrao/VLA/standards/"+tabName) {
+          fcaldatapath = resolvepath;
+      } else if(!Aipsrc::findDir(fcaldatapath,"./"+tabName)) {
           if(!Aipsrc::findDir(fcaldatapath, Aipsrc::aipsRoot()+"/data/nrao/VLA/standards/"+tabName)) {
               //LogIO os(LogOrigin("FluxStdSrcs", "srcNameToEnum", WHERE));
                os << LogIO::NORMAL

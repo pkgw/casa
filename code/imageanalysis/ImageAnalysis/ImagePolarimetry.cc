@@ -178,7 +178,7 @@ void ImagePolarimetry::_setInfo(ImageInterface<Float>& im, const StokesTypes sto
 
 ImageExpr<Complex> ImagePolarimetry::complexFractionalLinearPolarization()
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    hasQU();
    if (itsStokesPtr[ImagePolarimetry::I]==0) {
       os << "This image does not have Stokes I so cannot provide fractional linear polarization" << LogIO::EXCEPTION;
@@ -198,7 +198,7 @@ ImageExpr<Complex> ImagePolarimetry::complexFractionalLinearPolarization()
 
 ImageExpr<Float> ImagePolarimetry::fracLinPol(Bool debias, Float clip, Float sigma) 
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    hasQU();
 
    if (itsStokesPtr[ImagePolarimetry::I]==0) {
@@ -237,7 +237,7 @@ ImageExpr<Float> ImagePolarimetry::sigmaFracLinPol(Float clip, Float sigma)
 // sigmaI = sigmaI
 //
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    hasQU();
    if (itsStokesPtr[ImagePolarimetry::I]==0) {
       os << "This image does not have Stokes I so cannot provide fractional linear polarization" << LogIO::EXCEPTION;
@@ -275,7 +275,7 @@ ImageExpr<Float> ImagePolarimetry::sigmaFracLinPol(Float clip, Float sigma)
 
 ImageExpr<Float> ImagePolarimetry::fracTotPol(Bool debias, Float clip, Float sigma)
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    Bool doLin, doCirc;
    _setDoLinDoCirc(doLin, doCirc);
 
@@ -302,7 +302,7 @@ ImageExpr<Float> ImagePolarimetry::fracTotPol(Bool debias, Float clip, Float sig
 }
 
 void ImagePolarimetry::_setDoLinDoCirc(Bool& doLin, Bool& doCirc) const {
-	LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+	LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
 	doLin = (
 		itsStokesPtr[ImagePolarimetry::Q]!=0
 		&& itsStokesPtr[ImagePolarimetry::U]!=0
@@ -342,7 +342,7 @@ ImageExpr<Float> ImagePolarimetry::sigmaFracTotPol(Float clip, Float sigma)
 // sigmaI = sigmaI
 //
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    Bool doLin, doCirc;
    _setDoLinDoCirc(doLin, doCirc);
 
@@ -380,7 +380,7 @@ ImageExpr<Float> ImagePolarimetry::sigmaFracTotPol(Float clip, Float sigma)
 void ImagePolarimetry::fourierRotationMeasure(ImageInterface<Complex>& cpol,
                                               Bool zeroZeroLag)
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    hasQU();
    _checkQUBeams(true, false);
 // Check image shape
@@ -452,40 +452,12 @@ void ImagePolarimetry::fourierRotationMeasure(ImageInterface<Complex>& cpol,
    _setInfo(cpol, Q);
 }
 
-
-ImageExpr<Float> ImagePolarimetry::linPolInt(Bool debias, Float clip, Float sigma) 
-{
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
-   if (itsStokesPtr[ImagePolarimetry::Q]==0 && itsStokesPtr[ImagePolarimetry::U]==0) {
-      os << "This image does not have Stokes Q and U so cannot provide linear polarization" << LogIO::EXCEPTION;
-   }
-   _checkQUBeams(false);
-// Make node.  
-
-   LatticeExprNode node = makePolIntNode(os, debias, clip, sigma, true, false);
-
-// Make expression
-
-   LatticeExpr<Float> le(node);
-   ImageExpr<Float> ie(le, String("LinearlyPolarizedIntensity"));
-//
-   ie.setUnits(itsInImagePtr->units());
-   _setInfo(ie, Q);
-
-// Fiddle Stokes coordinate in ImageExpr
-
-   fiddleStokesCoordinate(ie, Stokes::Plinear);
-//
-   return ie;
-}
-
-
 Float ImagePolarimetry::sigmaLinPolInt(Float clip, Float sigma) 
 //
 // sigma_P = sigma_QU
 //
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    if (itsStokesPtr[ImagePolarimetry::Q]==0 && itsStokesPtr[ImagePolarimetry::U]==0) {
       os << "This image does not have Stokes Q and U so cannot provide linear polarization" << LogIO::EXCEPTION;
    }
@@ -506,7 +478,7 @@ Float ImagePolarimetry::sigmaLinPolInt(Float clip, Float sigma)
 
 ImageExpr<Float> ImagePolarimetry::linPolPosAng(Bool radians) const
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    if (itsStokesPtr[ImagePolarimetry::Q]==0 && itsStokesPtr[ImagePolarimetry::U]==0) {
       os << "This image does not have Stokes Q and U so cannot provide linear polarization" << LogIO::EXCEPTION;
    }
@@ -536,7 +508,6 @@ ImageExpr<Float> ImagePolarimetry::linPolPosAng(Bool radians) const
 
    return ie;
 }
-
 
 ImageExpr<Float> ImagePolarimetry::sigmaLinPolPosAng(Bool radians, Float clip, Float sigma) 
 //
@@ -581,7 +552,7 @@ ImageExpr<Float> ImagePolarimetry::sigmaLinPolPosAng(Bool radians, Float clip, F
 
 Float ImagePolarimetry::sigma(Float clip)
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    Float sigma2 = 0.0;
 
    if (itsStokesPtr[ImagePolarimetry::V]!=0) {
@@ -609,390 +580,339 @@ Float ImagePolarimetry::sigma(Float clip)
    return sigma2;
 }
 
+void ImagePolarimetry::rotationMeasure(
+    ImageInterface<Float>*& rmOutPtr, ImageInterface<Float>*& rmOutErrorPtr,
+    ImageInterface<Float>*& pa0OutPtr, ImageInterface<Float>*& pa0OutErrorPtr,
+    ImageInterface<Float>*& nTurnsOutPtr, ImageInterface<Float>*& chiSqOutPtr,
+    Int axis,  Float rmMax, Float maxPaErr, Float sigma, Float rmFg,
+    Bool showProgress
+) {
+    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
+    hasQU();
+    _checkQUBeams(false);
+    // Do we have anything to do ?
+    if (!rmOutPtr && !rmOutErrorPtr && !pa0OutPtr && !pa0OutErrorPtr) {
+        os << "No output images specified" << LogIO::EXCEPTION;
+    }
+    // Find expected shape of output RM images (Stokes and spectral axes gone)
+    CoordinateSystem cSysRM;
+    Int fAxis, sAxis;
+    IPosition shapeRM = rotationMeasureShape(cSysRM, fAxis, sAxis, os, axis);
+    IPosition shapeNTurns = shapeRM;
+    IPosition shapeChiSq = shapeRM;
+    // Check RM image shapes
+    if (rmOutPtr && !rmOutPtr->shape().isEqual(shapeRM)) {
+        os << "The provided Rotation Measure image has the wrong shape " << rmOutPtr->shape() << endl;
+       os << "It should be of shape " << shapeRM << LogIO::EXCEPTION;
+    }
+    if (rmOutErrorPtr && !rmOutErrorPtr->shape().isEqual(shapeRM)) {
+        os << "The provided Rotation Measure error image has the wrong shape " << rmOutErrorPtr->shape() << endl;
+        os << "It should be of shape " << shapeRM << LogIO::EXCEPTION;
+    }
+    // Check position angle image shapes
+    CoordinateSystem cSysPA;
+    IPosition shapePA = positionAngleShape(cSysPA, fAxis, sAxis, os, axis);
+    if (pa0OutPtr && !pa0OutPtr->shape().isEqual(shapePA)) {
+        os << "The provided position angle at zero wavelength image has the wrong shape " << pa0OutPtr->shape() << endl;
+        os << "It should be of shape " << shapePA << LogIO::EXCEPTION;
+    }
+    if (pa0OutErrorPtr && !pa0OutErrorPtr->shape().isEqual(shapePA)) {
+        os << "The provided position angle at zero wavelength image has the wrong shape " << pa0OutErrorPtr->shape() << endl;
+        os << "It should be of shape " << shapePA << LogIO::EXCEPTION;
+    }
+    // nTurns and chi sq
+    if (nTurnsOutPtr && !nTurnsOutPtr->shape().isEqual(shapeNTurns)) {
+        os << "The provided nTurns image has the wrong shape " << nTurnsOutPtr->shape() << endl;
+        os << "It should be of shape " << shapeNTurns << LogIO::EXCEPTION;
+    }
+    if (chiSqOutPtr && !chiSqOutPtr->shape().isEqual(shapeChiSq)) {
+        os << "The provided chi squared image has the wrong shape " << chiSqOutPtr->shape() << endl;
+        os << "It should be of shape " << shapeChiSq << LogIO::EXCEPTION;
+    }
+    // Generate linear polarization position angle image expressions
+    // and error in radians
+    Bool radians = true;
+    Float clip = 10.0;
+    ImageExpr<Float> pa = linPolPosAng(radians);
+    ImageExpr<Float> paerr = sigmaLinPolPosAng(radians, clip, sigma);
+    CoordinateSystem cSys0 = pa.coordinates();
+    // Set frequency axis units to Hz
+    Int fAxisWorld = cSys0.pixelAxisToWorldAxis(fAxis);
+    if (fAxisWorld <0) {
+        os << "World axis has been removed for the frequency pixel axis" << LogIO::EXCEPTION;
+    }
+    Vector<String> axisUnits = cSys0.worldAxisUnits();
+    axisUnits(fAxisWorld) = String("Hz");
+    if (!cSys0.setWorldAxisUnits(axisUnits)) {
+        os << "Failed to set frequency axis units to Hz because "
+            << cSys0.errorMessage() << LogIO::EXCEPTION;
+    }
+    // Do we have enough frequency pixels ?
+    const uInt nFreq = pa.shape()(fAxis);
+    if (nFreq < 3) {
+        os << "This image only has " << nFreq << "frequencies, this is not enough"
+            << LogIO::EXCEPTION;
+    }
+    // Copy units only over.  The output images don't have a beam
+    // so unset beam.   MiscInfo and history require writable II.
+    // We leave this to the caller  who knows what sort of II these are.
+    ImageInfo ii = itsInImagePtr->imageInfo();
+    ii.removeRestoringBeam();
+    if (rmOutPtr) {
+        rmOutPtr->setImageInfo(ii);
+        rmOutPtr->setUnits(Unit("rad/m/m"));
+    }
+    if (rmOutErrorPtr) {
+        rmOutErrorPtr->setImageInfo(ii);
+        rmOutErrorPtr->setUnits(Unit("rad/m/m"));
+    }
+    if (pa0OutPtr) {
+        pa0OutPtr->setImageInfo(ii);
+        pa0OutPtr->setUnits(Unit("deg"));
+    }
+    if (pa0OutErrorPtr) {
+        pa0OutErrorPtr->setImageInfo(ii);
+        pa0OutErrorPtr->setUnits(Unit("deg"));
+    }
+    if (nTurnsOutPtr) {
+        nTurnsOutPtr->setImageInfo(ii);
+        nTurnsOutPtr->setUnits(Unit(""));
+    }
+    if (chiSqOutPtr) {
+        chiSqOutPtr->setImageInfo(ii);
+        chiSqOutPtr->setUnits(Unit(""));
+    }
+    // Get lambda squared in m**2
+    Vector<Double> freqs(nFreq);
+    Vector<Float> wsq(nFreq);
+    Vector<Double> world;
+    Vector<Double> pixel(cSys0.referencePixel().copy());
+    Double c = QC::c.getValue(Unit("m/s"));
+    Double csq = c*c;
+    for (uInt i=0; i<nFreq; i++) {
+        pixel(fAxis) = i;
+        if (!cSys0.toWorld(world, pixel)) {
+            os << "Failed to convert pixel to world because "
+                << cSys0.errorMessage() << LogIO::EXCEPTION;
+        }
+        freqs(i) = world(fAxisWorld);
+        wsq(i) = csq / freqs(i) / freqs(i);     // m**2
+    }
+    // Sort into increasing wavelength
+    Vector<uInt> sortidx;
+    GenSortIndirect<Float>::sort(
+        sortidx, wsq, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates
+    );
+    Vector<Float> wsqsort(sortidx.nelements());
+    for (uInt i=0; i<wsqsort.nelements(); i++) wsqsort(i) = wsq(sortidx(i));
+    // Make fitter
+    if (itsFitterPtr==0) {
+        itsFitterPtr = new LinearFitSVD<Float>;
+        // Create and set the polynomial functional
+        // p = c(0) + c(1)*x where x = lambda**2
+        // PA = PA0 + RM*Lambda**2
+        Polynomial<AutoDiff<Float> > poly1(1);
+        // Makes a copy of poly1
+        itsFitterPtr->setFunction(poly1);
+    }
+    // Deal with masks.  The outputs are all given a mask if possible as we
+    // don't know at this point whether output points will be masked or not
+    IPosition whereRM;
+    Bool isMaskedRM = false;
+    Lattice<Bool>* outRMMaskPtr = 0;
+    if (rmOutPtr) {
+        isMaskedRM = dealWithMask (outRMMaskPtr, rmOutPtr, os, String("RM"));
+        whereRM.resize(rmOutPtr->ndim());
+        whereRM = 0;
+    }
+    Bool isMaskedRMErr = false;
+    Lattice<Bool>* outRMErrMaskPtr = 0;
+    if (rmOutErrorPtr) {
+        isMaskedRMErr = dealWithMask(
+            outRMErrMaskPtr, rmOutErrorPtr, os, String("RM error")
+        );
+        whereRM.resize(rmOutErrorPtr->ndim());
+        whereRM = 0;
+    }
+    IPosition wherePA;
+    Bool isMaskedPa0 = false;
+    Lattice<Bool>* outPa0MaskPtr = 0;
+    if (pa0OutPtr) {
+        isMaskedPa0 = dealWithMask(
+            outPa0MaskPtr, pa0OutPtr, os, String("Position Angle")
+        );
+        wherePA.resize(pa0OutPtr->ndim());
+        wherePA = 0;
+    }
+    Bool isMaskedPa0Err = false;
+    Lattice<Bool>* outPa0ErrMaskPtr = 0;
+    if (pa0OutErrorPtr) {
+        isMaskedPa0Err = dealWithMask(
+            outPa0ErrMaskPtr, pa0OutErrorPtr, os, "Position Angle error"
+        );
+        wherePA.resize(pa0OutErrorPtr->ndim());
+        wherePA = 0;
+    }
+    IPosition whereNTurns;
+    Bool isMaskedNTurns = false;
+    Lattice<Bool>* outNTurnsMaskPtr = 0;
+    if (nTurnsOutPtr) {
+        isMaskedNTurns = dealWithMask(
+            outNTurnsMaskPtr, nTurnsOutPtr, os, "nTurns"
+        );
+        whereNTurns.resize(nTurnsOutPtr->ndim());
+        whereNTurns = 0;
+    }
+    IPosition whereChiSq;
+    Bool isMaskedChiSq = false;
+    Lattice<Bool>* outChiSqMaskPtr = 0;
+    if (chiSqOutPtr) {
+        isMaskedChiSq = dealWithMask(
+            outChiSqMaskPtr, chiSqOutPtr, os, String("chi sqared")
+        );
+        whereChiSq.resize(chiSqOutPtr->ndim());
+        whereChiSq = 0;
+    }
+    Array<Bool> tmpMaskRM(IPosition(shapeRM.nelements(), 1), true);
+    Array<Float> tmpValueRM(IPosition(shapeRM.nelements(), 1), 0.0);
+    Array<Bool> tmpMaskPA(IPosition(shapePA.nelements(), 1), true);
+    Array<Float> tmpValuePA(IPosition(shapePA.nelements(), 1), 0.0);
+    Array<Float> tmpValueNTurns(IPosition(shapeNTurns.nelements(), 1), 0.0);
+    Array<Bool> tmpMaskNTurns(IPosition(shapeNTurns.nelements(), 1), true);
+    Array<Float> tmpValueChiSq(IPosition(shapeChiSq.nelements(), 1), 0.0);
+    Array<Bool> tmpMaskChiSq(IPosition(shapeChiSq.nelements(), 1), true);
+    // Iterate
+    const IPosition tileShape = pa.niceCursorShape();
+    TiledLineStepper ts(pa.shape(), tileShape, fAxis);
+    RO_MaskedLatticeIterator<Float> it(pa, ts);
+    Float rm, rmErr, pa0, pa0Err, rChiSq, nTurns;
+    uInt j, k, l, m;
+    maxPaErr *= C::pi / 180.0;
+    maxPaErr = abs(maxPaErr);
+    Bool doRM = whereRM.nelements() > 0;
+    Bool doPA = wherePA.nelements() > 0;
+    Bool doNTurns = whereNTurns.nelements() > 0;
+    Bool doChiSq = whereChiSq.nelements() > 0;
+    unique_ptr<ProgressMeter> pProgressMeter;
+    if (showProgress) {
+        Double nMin = 0.0;
+        Double nMax = 1.0;
+        for (Int i=0; i<Int(pa.ndim()); i++) {
+            if (i!=fAxis) {
+                nMax *= pa.shape()(i);
+            }
+        }
+        pProgressMeter.reset(
+            new ProgressMeter(
+                nMin, nMax, "Profiles fitted", "Fitting",
+                "", "", true, max(1,Int(nMax/100))
+            )
+        );
+    }
+    // As a (temporary?) workaround the cache of the main image is set up in
+    // such a way that it can hold the full frequency and stokes axes.
+    // The stokes axis is important, otherwise the cache is set up
+    // (by the TiledStMan) such that it can hold only 1 stokes
+    // with the result that iterating is tremendously slow.
+    // We also need to cast the const away from itsInImagePtr.
+    const IPosition mainShape = itsInImagePtr->shape();
+    uInt nrtiles = (1 + (mainShape(fAxis)-1) / tileShape(fAxis)) *
+            (1 + (mainShape(sAxis)-1) / tileShape(sAxis));
+    ImageInterface<Float>* mainImagePtr =
+            const_cast<ImageInterface<Float>*>(itsInImagePtr.get());
+    mainImagePtr->setCacheSizeInTiles (nrtiles);
+    String posString;
+    Bool ok = false;
+    IPosition shp;
+    for (it.reset(); !it.atEnd(); it++) {
+        // Find rotation measure for this line
+        ok = findRotationMeasure (rm, rmErr, pa0, pa0Err, rChiSq, nTurns,
+                sortidx, wsqsort, it.vectorCursor(),
+                it.getMask(false),
+                paerr.getSlice(it.position(),it.cursorShape()),
+                rmFg, rmMax, maxPaErr, /*plotter,*/ posString);
+        // Plonk values into output  image.  This is slow and clunky, but should be relatively fast
+        // c.f. the fitting.  Could be reimplemented with LatticeApply if need be.  Buffering
+        // is hard because the navigator doesn't take a regular path.  If I used a LatticeStepper
+        // instead, the path would be regular and then I could buffer, but then the iteration
+        // would be less efficient !!!
 
-
-void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr, 
-                                       ImageInterface<Float>*& rmOutErrorPtr,
-                                       ImageInterface<Float>*& pa0OutPtr, 
-                                       ImageInterface<Float>*& pa0OutErrorPtr,
-                                       ImageInterface<Float>*& nTurnsOutPtr, 
-                                       ImageInterface<Float>*& chiSqOutPtr,
-                                       Int axis,  Float rmMax, Float maxPaErr,
-                                       Float sigma, Float rmFg, Bool showProgress)
-{
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
-   hasQU();
-   _checkQUBeams(false);
-// Do we have anything to do ?
-
-   if (!rmOutPtr && !rmOutErrorPtr && !pa0OutPtr && !pa0OutErrorPtr) {
-      os << "No output images specified" << LogIO::EXCEPTION;
-   }
-
-// Find expected shape of output RM images (Stokes and spectral axes gone)
-
-   CoordinateSystem cSysRM;
-   Int fAxis, sAxis;
-   IPosition shapeRM = rotationMeasureShape(cSysRM, fAxis, sAxis, os, axis);
-   IPosition shapeNTurns = shapeRM;
-   IPosition shapeChiSq = shapeRM;
-
-// Check RM image shapes
-
-   if (rmOutPtr && !rmOutPtr->shape().isEqual(shapeRM)) {
-      os << "The provided Rotation Measure image has the wrong shape " << rmOutPtr->shape() << endl;
-      os << "It should be of shape " << shapeRM << LogIO::EXCEPTION;
-   }
-   if (rmOutErrorPtr && !rmOutErrorPtr->shape().isEqual(shapeRM)) {
-      os << "The provided Rotation Measure error image has the wrong shape " << rmOutErrorPtr->shape() << endl;
-      os << "It should be of shape " << shapeRM << LogIO::EXCEPTION;
-   }
-
-// Check position angle image shapes
-
-   CoordinateSystem cSysPA;
-   IPosition shapePA = positionAngleShape(cSysPA, fAxis, sAxis, os, axis);
-   if (pa0OutPtr && !pa0OutPtr->shape().isEqual(shapePA)) {
-      os << "The provided position angle at zero wavelength image has the wrong shape " << pa0OutPtr->shape() << endl;
-      os << "It should be of shape " << shapePA << LogIO::EXCEPTION;
-   }
-   if (pa0OutErrorPtr && !pa0OutErrorPtr->shape().isEqual(shapePA)) {
-      os << "The provided position angle at zero wavelength image has the wrong shape " << pa0OutErrorPtr->shape() << endl;
-      os << "It should be of shape " << shapePA << LogIO::EXCEPTION;
-   }
-
-// nTurns and chi sq
-
-   if (nTurnsOutPtr && !nTurnsOutPtr->shape().isEqual(shapeNTurns)) {
-      os << "The provided nTurns image has the wrong shape " << nTurnsOutPtr->shape() << endl;
-      os << "It should be of shape " << shapeNTurns << LogIO::EXCEPTION;
-   }
-   if (chiSqOutPtr && !chiSqOutPtr->shape().isEqual(shapeChiSq)) {
-      os << "The provided chi squared image has the wrong shape " << chiSqOutPtr->shape() << endl;
-      os << "It should be of shape " << shapeChiSq << LogIO::EXCEPTION;
-   }
-
-// Generate linear polarization position angle image expressions
-// and error in radians
-
-   Bool radians = true;
-   Float clip = 10.0;
-   ImageExpr<Float> pa = linPolPosAng(radians);
-   ImageExpr<Float> paerr = sigmaLinPolPosAng(radians, clip, sigma);
-   CoordinateSystem cSys0 = pa.coordinates();
-
-// Set frequency axis units to Hz
-
-   Int fAxisWorld = cSys0.pixelAxisToWorldAxis(fAxis);
-   if (fAxisWorld <0) {
-      os << "World axis has been removed for the frequency pixel axis" << LogIO::EXCEPTION;
-   }
-//
-   Vector<String> axisUnits = cSys0.worldAxisUnits();
-   axisUnits(fAxisWorld) = String("Hz");
-   if (!cSys0.setWorldAxisUnits(axisUnits)) {
-      os << "Failed to set frequency axis units to Hz because " 
-         << cSys0.errorMessage() << LogIO::EXCEPTION;
-   }
-
-// Do we have enough frequency pixels ?
-
-   const uInt nFreq = pa.shape()(fAxis);
-   if (nFreq < 3) {
-      os << "This image only has " << nFreq << "frequencies, this is not enough"
-         << LogIO::EXCEPTION;
-   }
-
-// Copy units only over.  The output images don't have a beam 
-// so unset beam.   MiscInfo and history require writable II.  
-// We leave this to the caller  who knows what sort of II these are.
-
-   ImageInfo ii = itsInImagePtr->imageInfo();
-   ii.removeRestoringBeam();   
-   if (rmOutPtr) {
-      rmOutPtr->setImageInfo(ii);
-      rmOutPtr->setUnits(Unit("rad/m/m"));
-   }
-   if (rmOutErrorPtr) {
-      rmOutErrorPtr->setImageInfo(ii);
-      rmOutErrorPtr->setUnits(Unit("rad/m/m"));
-   }      
-   if (pa0OutPtr) {
-      pa0OutPtr->setImageInfo(ii);
-      pa0OutPtr->setUnits(Unit("deg"));
-   }
-   if (pa0OutErrorPtr) {
-      pa0OutErrorPtr->setImageInfo(ii);
-      pa0OutErrorPtr->setUnits(Unit("deg"));
-   }   
-   if (nTurnsOutPtr) {
-      nTurnsOutPtr->setImageInfo(ii);
-      nTurnsOutPtr->setUnits(Unit(""));
-   }      
-   if (chiSqOutPtr) {
-      chiSqOutPtr->setImageInfo(ii);
-      chiSqOutPtr->setUnits(Unit(""));
-   }      
-
-// Get lambda squared in m**2
-
-   Vector<Double> freqs(nFreq);
-   Vector<Float> wsq(nFreq);
-   Vector<Double> world;
-   Vector<Double> pixel(cSys0.referencePixel().copy());
-   Double c = QC::c.getValue(Unit("m/s"));
-   Double csq = c*c;
-   for (uInt i=0; i<nFreq; i++) {
-      pixel(fAxis) = i;
-      if (!cSys0.toWorld(world, pixel)) {
-         os << "Failed to convert pixel to world because " 
-         << cSys0.errorMessage() << LogIO::EXCEPTION;
-      }
-      freqs(i) = world(fAxisWorld);
-      wsq(i) = csq / freqs(i) / freqs(i);     // m**2
-   }
-
-// Sort into increasing wavelength 
-
-   Vector<uInt> sortidx;
-   GenSortIndirect<Float>::sort (sortidx, wsq, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
-   Vector<Float> wsqsort(sortidx.nelements());
-   for (uInt i=0; i<wsqsort.nelements(); i++) wsqsort(i) = wsq(sortidx(i));
-
-// Make fitter
-
-   if (itsFitterPtr==0) {
-      itsFitterPtr = new LinearFitSVD<Float>;
-
-// Create and set the polynomial functional
-// p = c(0) + c(1)*x where x = lambda**2
-// PA = PA0 + RM*Lambda**2
-
-      Polynomial<AutoDiff<Float> > poly1(1);
-
-// Makes a copy of poly1
-
-      itsFitterPtr->setFunction(poly1);
-   }
-
-// Deal with masks.  The outputs are all given a mask if possible as we
-// don't know at this point whether output points will be masked or not
-
-   IPosition whereRM;
-   Bool isMaskedRM = false;
-   Lattice<Bool>* outRMMaskPtr = 0;
-   if (rmOutPtr) {
-      isMaskedRM = dealWithMask (outRMMaskPtr, rmOutPtr, os, String("RM"));
-      whereRM.resize(rmOutPtr->ndim());
-      whereRM = 0;
-   }
-//
-   Bool isMaskedRMErr = false;
-   Lattice<Bool>* outRMErrMaskPtr = 0;
-   if (rmOutErrorPtr) {
-      isMaskedRMErr = dealWithMask (outRMErrMaskPtr, rmOutErrorPtr, os, String("RM error"));
-      whereRM.resize(rmOutErrorPtr->ndim());
-      whereRM = 0;
-   }
-//
-   IPosition wherePA;
-   Bool isMaskedPa0 = false;
-   Lattice<Bool>* outPa0MaskPtr = 0;
-   if (pa0OutPtr) {
-      isMaskedPa0 = dealWithMask (outPa0MaskPtr, pa0OutPtr, os, String("Position Angle"));
-      wherePA.resize(pa0OutPtr->ndim());
-      wherePA = 0;
-   }
-//
-   Bool isMaskedPa0Err = false;
-   Lattice<Bool>* outPa0ErrMaskPtr = 0;
-   if (pa0OutErrorPtr) {
-      isMaskedPa0Err = dealWithMask (outPa0ErrMaskPtr, pa0OutErrorPtr, os, String("Position Angle error"));
-      wherePA.resize(pa0OutErrorPtr->ndim());
-      wherePA = 0;
-   }
-//
-   IPosition whereNTurns;
-   Bool isMaskedNTurns = false;
-   Lattice<Bool>* outNTurnsMaskPtr = 0;
-   if (nTurnsOutPtr) {
-      isMaskedNTurns = dealWithMask (outNTurnsMaskPtr, nTurnsOutPtr, os, String("nTurns"));
-      whereNTurns.resize(nTurnsOutPtr->ndim());
-      whereNTurns = 0;
-   }
-//
-   IPosition whereChiSq;
-   Bool isMaskedChiSq = false;
-   Lattice<Bool>* outChiSqMaskPtr = 0;
-   if (chiSqOutPtr) {
-      isMaskedChiSq = dealWithMask (outChiSqMaskPtr, chiSqOutPtr, os, String("chi sqared"));
-      whereChiSq.resize(nTurnsOutPtr->ndim());
-      whereChiSq = 0;
-   }
-//
-   Array<Bool> tmpMaskRM(IPosition(shapeRM.nelements(), 1), true);
-   Array<Float> tmpValueRM(IPosition(shapeRM.nelements(), 1), 0.0);
-   Array<Bool> tmpMaskPA(IPosition(shapePA.nelements(), 1), true);
-   Array<Float> tmpValuePA(IPosition(shapePA.nelements(), 1), 0.0);
-   Array<Float> tmpValueNTurns(IPosition(shapeNTurns.nelements(), 1), 0.0);
-   Array<Bool> tmpMaskNTurns(IPosition(shapeNTurns.nelements(), 1), true);
-   Array<Float> tmpValueChiSq(IPosition(shapeChiSq.nelements(), 1), 0.0);
-   Array<Bool> tmpMaskChiSq(IPosition(shapeChiSq.nelements(), 1), true);
-
-// Iterate
-
-   const IPosition tileShape = pa.niceCursorShape();
-   TiledLineStepper ts(pa.shape(), tileShape, fAxis);
-   RO_MaskedLatticeIterator<Float> it(pa, ts);
-//
-   Float rm, rmErr, pa0, pa0Err, rChiSq, nTurns;
-   uInt j, k, l, m;
-//
-   maxPaErr *= C::pi / 180.0;
-   maxPaErr = abs(maxPaErr);
-   Bool doRM = whereRM.nelements() > 0;
-   Bool doPA = wherePA.nelements() > 0;
-   Bool doNTurns = whereNTurns.nelements() > 0;
-   Bool doChiSq = whereChiSq.nelements() > 0;
-//
-   ProgressMeter* pProgressMeter = 0;   
-   if (showProgress) {
-     Double nMin = 0.0;
-     Double nMax = 1.0;
-     for (Int i=0; i<Int(pa.ndim()); i++) {
-        if (i!=fAxis) nMax *= pa.shape()(i);
-     }
-     pProgressMeter = new ProgressMeter(nMin, nMax, String("Profiles fitted"),
-                                        String("Fitting"),
-                                        String(""), String(""),
-                                        true, max(1,Int(nMax/100)));
-   }
-
-// As a (temporary?) workaround the cache of the main image is set up in
-// such a way that it can hold the full frequency and stokes axes.
-// The stokes axis is important, otherwise the cache is set up
-// (by the TiledStMan) such that it can hold only 1 stokes
-// with the result that iterating is tremendously slow.
-// We also need to cast the const away from itsInImagePtr.
-
-   const IPosition mainShape = itsInImagePtr->shape();
-   uInt nrtiles = (1 + (mainShape(fAxis)-1) / tileShape(fAxis)) *
-                  (1 + (mainShape(sAxis)-1) / tileShape(sAxis));
-   ImageInterface<Float>* mainImagePtr =
-                          const_cast<ImageInterface<Float>*>(itsInImagePtr.get());
-   mainImagePtr->setCacheSizeInTiles (nrtiles);
-//
-   String posString;
-   Bool ok = false;
-   IPosition shp;
-   for (it.reset(); !it.atEnd(); it++) {
-
-// Find rotation measure for this line
-/*
-      if (plotter.isAttached()) {
-         ostringstream oss;
-         oss << it.position() + 1;
-         posString = String(oss);
-      }
-      */
-      ok = findRotationMeasure (rm, rmErr, pa0, pa0Err, rChiSq, nTurns,
-                                sortidx, wsqsort, it.vectorCursor(),
-                                it.getMask(false),
-                                paerr.getSlice(it.position(),it.cursorShape()),
-                                rmFg, rmMax, maxPaErr, /*plotter,*/ posString);
-
-// Plonk values into output  image.  This is slow and clunky, but should be relatively fast
-// c.f. the fitting.  Could be reimplemented with LatticeApply if need be.  Buffering 
-// is hard because the navigator doesn't take a regular path.  If I used a LatticeStepper
-// instead, the path would be regular and then I could buffer, but then the iteration 
-// would be less efficient !!!
-
-      j = k = l = m = 0;
-      for (Int i=0; i<Int(it.position().nelements()); i++) {
-         if (doRM && i!=fAxis && i!=sAxis) {
-            whereRM(j) = it.position()(i);
-            j++;
-         }
-         if (doPA && i!=fAxis) {
-            wherePA(k) = it.position()(i);
-            k++;
-         }
-         if (doNTurns && i!=fAxis && i!=sAxis) {
-            whereNTurns(l) = it.position()(i);
-            l++;
-         }
-         if (doChiSq && i!=fAxis && i!=sAxis) {
-            whereChiSq(m) = it.position()(i);
-            m++;
-         }
-      }
-//
-      if (isMaskedRM) {
-         tmpMaskRM.set(ok);
-         outRMMaskPtr->putSlice (tmpMaskRM, whereRM);
-      }
-      if (isMaskedRMErr) {
-         tmpMaskRM.set(ok);
-         outRMErrMaskPtr->putSlice (tmpMaskRM, whereRM);
-      }
-      if (isMaskedPa0) {
-         tmpMaskPA.set(ok);
-         outPa0MaskPtr->putSlice (tmpMaskPA, wherePA);
-      }
-      if (isMaskedPa0Err) {
-         tmpMaskPA.set(ok);
-         outPa0ErrMaskPtr->putSlice (tmpMaskPA, wherePA);
-      }
-      if (isMaskedNTurns) {
-         tmpMaskNTurns.set(ok);
-         outNTurnsMaskPtr->putSlice (tmpMaskNTurns, whereNTurns);
-      }
-      if (isMaskedChiSq) {
-         tmpMaskChiSq.set(ok);
-         outChiSqMaskPtr->putSlice (tmpMaskChiSq, whereChiSq);
-      }
-
-// If the output value is masked, the value itself is 0
-
-      if (rmOutPtr) {
-         tmpValueRM.set(rm);
-         rmOutPtr->putSlice(tmpValueRM, whereRM);
-      }
-      if (rmOutErrorPtr) {
-         tmpValueRM.set(rmErr);
-         rmOutErrorPtr->putSlice(tmpValueRM, whereRM);
-      }
-
-// Position angles in degrees
-
-      if (pa0OutPtr) {
-         tmpValuePA.set(pa0*180/C::pi);
-         pa0OutPtr->putSlice(tmpValuePA, wherePA);
-      }
-//
-      if (pa0OutErrorPtr) {
-         tmpValuePA.set(pa0Err*180/C::pi);
-         pa0OutErrorPtr->putSlice(tmpValuePA, wherePA);
-      }
-
-// Number of turns and chi sq
-
-      if (nTurnsOutPtr) {
-         tmpValueNTurns.set(nTurns);
-         nTurnsOutPtr->putSlice(tmpValueNTurns, whereNTurns);
-      }
-      if (chiSqOutPtr) {
-         tmpValueChiSq.set(rChiSq);
-         chiSqOutPtr->putSlice(tmpValueChiSq, whereChiSq);
-      }
-//
-      if (showProgress) pProgressMeter->update(Double(it.nsteps())); 
-   }
-   if (showProgress) delete pProgressMeter;
-
-
-// Clear the cache of the main image again.
-   mainImagePtr->clearCache();
+        j = k = l = m = 0;
+        for (Int i=0; i<Int(it.position().nelements()); i++) {
+            if (doRM && i!=fAxis && i!=sAxis) {
+                whereRM(j) = it.position()(i);
+                j++;
+            }
+            if (doPA && i!=fAxis) {
+                wherePA(k) = it.position()(i);
+                k++;
+            }
+            if (doNTurns && i!=fAxis && i!=sAxis) {
+                whereNTurns(l) = it.position()(i);
+                l++;
+            }
+            if (doChiSq && i!=fAxis && i!=sAxis) {
+                whereChiSq(m) = it.position()(i);
+                m++;
+            }
+        }
+        if (isMaskedRM) {
+            tmpMaskRM.set(ok);
+            outRMMaskPtr->putSlice (tmpMaskRM, whereRM);
+        }
+        if (isMaskedRMErr) {
+            tmpMaskRM.set(ok);
+            outRMErrMaskPtr->putSlice (tmpMaskRM, whereRM);
+        }
+        if (isMaskedPa0) {
+            tmpMaskPA.set(ok);
+            outPa0MaskPtr->putSlice (tmpMaskPA, wherePA);
+        }
+        if (isMaskedPa0Err) {
+            tmpMaskPA.set(ok);
+            outPa0ErrMaskPtr->putSlice (tmpMaskPA, wherePA);
+        }
+        if (isMaskedNTurns) {
+            tmpMaskNTurns.set(ok);
+            outNTurnsMaskPtr->putSlice (tmpMaskNTurns, whereNTurns);
+        }
+        if (isMaskedChiSq) {
+            tmpMaskChiSq.set(ok);
+            outChiSqMaskPtr->putSlice (tmpMaskChiSq, whereChiSq);
+        }
+        // If the output value is masked, the value itself is 0
+        if (rmOutPtr) {
+            tmpValueRM.set(rm);
+            rmOutPtr->putSlice(tmpValueRM, whereRM);
+        }
+        if (rmOutErrorPtr) {
+            tmpValueRM.set(rmErr);
+            rmOutErrorPtr->putSlice(tmpValueRM, whereRM);
+        }
+        // Position angles in degrees
+        if (pa0OutPtr) {
+            tmpValuePA.set(pa0*180/C::pi);
+            pa0OutPtr->putSlice(tmpValuePA, wherePA);
+        }
+        if (pa0OutErrorPtr) {
+            tmpValuePA.set(pa0Err*180/C::pi);
+            pa0OutErrorPtr->putSlice(tmpValuePA, wherePA);
+        }
+        // Number of turns and chi sq
+        if (nTurnsOutPtr) {
+            tmpValueNTurns.set(nTurns);
+            nTurnsOutPtr->putSlice(tmpValueNTurns, whereNTurns);
+        }
+        if (chiSqOutPtr) {
+            tmpValueChiSq.set(rChiSq);
+            chiSqOutPtr->putSlice(tmpValueChiSq, whereChiSq);
+        }
+        if (showProgress) {
+            pProgressMeter->update(Double(it.nsteps()));
+        }
+    }
+    // Clear the cache of the main image again.
+    mainImagePtr->clearCache();
 }
 
 IPosition ImagePolarimetry::rotationMeasureShape(CoordinateSystem& cSys, Int& fAxis, 
@@ -1158,7 +1078,7 @@ void ImagePolarimetry::summary(LogIO& os) const
 
 ImageExpr<Float> ImagePolarimetry::totPolInt(Bool debias, Float clip, Float sigma) 
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    Bool doLin, doCirc;
    _setDoLinDoCirc(doLin, doCirc);
 // Make node.  
@@ -1189,7 +1109,7 @@ Float ImagePolarimetry::sigmaTotPolInt(Float clip, Float sigma)
 // sigma_P = sigma_QUV
 //
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    Bool doLin, doCirc;
    _setDoLinDoCirc(doLin, doCirc);
 

@@ -90,10 +90,10 @@
 
 		<param type="string" name="standard">
 			<description>Flux density standard</description>
-			<value>Perley-Butler 2013</value>
-			<allowed kind="enum">
-			<value>Perley-Butler 2013</value>
 			<value>Perley-Butler 2017</value>
+			<allowed kind="enum">
+			<value>Perley-Butler 2017</value>
+			<value>Perley-Butler 2013</value>
 			<value>Perley-Butler 2010</value>
 			<value>Perley-Taylor 99</value>
 			<value>Baars</value>
@@ -212,6 +212,8 @@
                    <default param="model"><value type="string"></value>
                    </default>
                    <default param="listmodels"><value type="bool">False</value>
+                   </default>
+                   <default param="interpolation"><value type="string">nearest</value>
                    </default>
                   </equals>
                   <equals type="string" value="Perley-Butler 2013">
@@ -412,7 +414,7 @@
 
 
     standard -- Flux density standard, used if fluxdensity[0] &lt; 0.0
-            default: 'Perley-Butler 2013'; example: standard='Baars'
+            default: 'Perley-Butler 2017'; example: standard='Baars'
             Options: 'Baars',
                      'Perley 90',
                      'Perley-Taylor 95',
@@ -546,7 +548,7 @@
 	    with descriptions of the models used by setjy (both
 	    extragalactic and Solar System).
 
-       &gt;&gt;&gt; standard="Perley-Butler 2010" or "Perley-Butler 2013 expandable parameter
+       &gt;&gt;&gt; standard="Perley-Butler 2010", "Perley-Butler 2013", and "Perley-Butler 2017"  expandable parameter
             model -- Model image (I only) for setting the model visibilities.
                  *****************************************************************
                  * Previously, this parameter is called 'modimage', now modimage *
@@ -597,7 +599,7 @@
 		standard.  For standard='Butler-JPL-Horizons 2010', the recognized
 		Solar System objects are listed. 
 
-       &gt;&gt;&gt; standard="Perley-Butler 2013" expandable parameter
+       &gt;&gt;&gt; standard="Perley-Butler 2013" and "Perley-Butler 2017" expandable parameter
             interpolation -- method for interpolation ('nearest', 'linear', 'cubic',
                 or 'spline') in time for the time variable sources (3C48,3C138,3C147).
                 This parameter is ignored for other non-variable sources in the standard.

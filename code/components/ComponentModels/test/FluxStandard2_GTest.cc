@@ -22,6 +22,8 @@
 #include <components/ComponentModels/test/FluxStandard2_GTest.h>
 #include <measures/Measures/MFrequency.h>
 #include <limits>
+#include <casatools/Config/State.h>
+
 typedef std::numeric_limits< double > dbl;
 
 using namespace casacore;
@@ -47,8 +49,13 @@ void NewFluxStandardTest::SetUp()
 };
 
 Bool NewFluxStandardTest::modelExists(String tablename) {
-  String stdPath = "data/nrao/VLA/standards/";
-  Bool dataExists = Aipsrc::findDir(foundModelPath, stdPath+tablename);
+  const string stdPath = "nrao/VLA/standards/"+tablename;
+  string resolvepath = casatools::get_state( ).resolve(stdPath);
+  if ( resolvepath != stdPath ) {
+    foundModelPath = resolvepath;
+    return true;
+  }
+  Bool dataExists = Aipsrc::findDir(foundModelPath, "data/"+stdPath);
   return dataExists;
 };
 
@@ -398,7 +405,7 @@ std::tr1::tuple<String,String,Double,FluxStandard::FluxScale,Double> flxStdParam
 };
 
 //for Flux Value PB2017 test
-
+// flux at 2017 epoch
 std::tr1::tuple<String,String,Double,FluxStandard::FluxScale,Double> flxStdParamsFullPB2017[] =
 {
   make_tuple("Perley-Butler 2017","J0133-3629", 2.0, FluxStandard::PERLEY_BUTLER_2017,6.67330337245),
@@ -460,7 +467,7 @@ TEST_P(AltSrcNamePB2017Test, checkAltSrcNamesPB2017)
     fluxStd.reset(new FluxStandard(expFlxStdEnum));
     mfreq = MFrequency(Quantity(freq,"GHz"));
     mtime = MEpoch(Quantity(57754.0,"d")); //2017-01-01
-    //fluxStd->setInterpMethod("spline");
+    fluxStd->setInterpMethod("spline");
     foundStd = fluxStd->compute(srcName, srcDir, mfreq, mtime, returnFlux, returnFluxErr);
     EXPECT_TRUE(foundStd);
   }
@@ -523,20 +530,22 @@ INSTANTIATE_TEST_CASE_P(ckeckFluxValues,PB2017FluxValueTest,::testing::ValuesIn(
 TEST_P(PB2017FluxValueTest, checkFluxValues)
 {
   // calc values were checked against calculation against a python script to be consistent at the tolerance level of  
-  Double tol = 0.00001;
+  Double tol = 0.0001;
+  mtime = MEpoch(Quantity(57754.0,"d")); //2017-01-01
   fluxStd.reset(new FluxStandard(expFlxStdEnum));
   if (expFlxStdEnum == FluxStandard::PERLEY_BUTLER_2017) {
     coeffsTbName = "PerleyButler2017Coeffs";
   }
   if (modelExists(coeffsTbName)) {
     mfreq = MFrequency(Quantity(freq,"GHz")); 
-    //fluxStd->setInterpMethod("spline");
+    fluxStd->setInterpMethod("nearest");
     foundStd = fluxStd->compute(srcName, srcDir, mfreq, mtime, returnFlux, returnFluxErr);
     returnFlux.value(fluxUsed);
     EXPECT_TRUE(foundStd);
     //EXPECT_DOUBLE_EQ(expFlxVal,fluxUsed[0]);
     EXPECT_NEAR(expFlxVal,fluxUsed[0],tol);
-    //cerr<<setprecision(dbl::max_digits10)<<flxStdName<<" fluxUsed[0]="<<fluxUsed[0]<<" for srcName="<<srcName<<" freq="<<freq<<endl; 
+    //cerr<<setprecision(dbl::max_digits10)<<flxStdName<<" fluxUsed[0]="<<fluxUsed[0] <<"(exp: "<<expFlxVal<<") for srcName="<<srcName<<" freq="<<freq<<endl; 
+
   }
   else {
     cout <<" The model parameter table,"<<foundModelPath<<" does not seem to exist. Skip this test"<<endl;

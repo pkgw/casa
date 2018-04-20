@@ -41,6 +41,7 @@
 #include <measures/Measures/MDirection.h>
 #include <casa/Containers/Record.h>
 #include <casa/Arrays/IPosition.h>
+#include <stdcasa/version.h>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -135,6 +136,7 @@ TableDesc CTDesc::defaultCalMain (const String& partype,
   keyWordRec.define ("MSName",msname);
   keyWordRec.define ("VisCal",viscal);
   keyWordRec.define ("PolBasis",polbasis);
+  keyWordRec.define ("CASA_Version",VersionInfo::str());  // Basic CASA version string
   // Add to table descriptor
   td.rwKeywordSet().assign (keyWordRec);
 

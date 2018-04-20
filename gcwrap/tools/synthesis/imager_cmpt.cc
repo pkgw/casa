@@ -28,7 +28,6 @@
 #include <ms/MeasurementSets/MSHistoryHandler.h>
 #include <casa/Logging/LogIO.h>
 #include <imager_cmpt.h>
-#include <image_cmpt.h>
 #include <casa/iostream.h>
 //#include <casa/System/PGPlotterNull.h>
 //#include <graphics/Graphics/PGPlotterLocal.h>

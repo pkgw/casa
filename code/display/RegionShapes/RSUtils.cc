@@ -24,6 +24,7 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 //# $Id$
+#include <QColorDialog>
 #include <display/RegionShapes/RSUtils.qo.h>
 #include <display/RegionShapes/RegionShape.h>
 #include <coordinates/Coordinates/DirectionCoordinate.h>

@@ -148,6 +148,7 @@ casa_add_library( plotms
   Data/MSCache.cc
   Data/MSCacheVolMeter.cc
   Data/CalCache.cc
+  Data/PlotMSAtm.cc
   Data/PlotMSIndexer.cc
   Data/PlotMSVBAverager.cc
   Gui/PlotMSAnnotator.cc

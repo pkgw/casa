@@ -1121,10 +1121,11 @@ class test_newStandards(SetjyUnitTestBase):
         prefix = 'n1333_1' 
         msname=prefix+'.ms'
         self.setUpMS(msname)
-        self.field='0542+498_1'
+        self.field='0542+498_1' #3C147
 
     def tearDown(self):
-        self.resetMS()
+        #self.resetMS()
+        pass
 
     def test_PB2013(self):
         self.modelim = ""
@@ -1170,8 +1171,10 @@ class test_newStandards(SetjyUnitTestBase):
             ret = len(outfldid)
             if not ret:
                 print "FAIL: missing field = %s in the returned dictionary" % self.field 
-        self.check_eq(sjran['12']['0']['fluxd'][0],1.15116881972,0.0001)
-        self.check_eq(sjran['12']['1']['fluxd'][0],1.15111995508,0.0001)
+        #self.check_eq(sjran['12']['0']['fluxd'][0],1.15116881972,0.0001)
+        #self.check_eq(sjran['12']['1']['fluxd'][0],1.15111995508,0.0001)
+        self.check_eq(sjran['12']['0']['fluxd'][0],0.99137,0.0001)
+        self.check_eq(sjran['12']['1']['fluxd'][0],0.99132,0.0001)
         self.assertTrue(ret)
  
     
@@ -1930,8 +1933,31 @@ class test_tpmAsteroid(SetjyUnitTestBase):
         self.check_eq(sjran['3']['2']['fluxd'][0],expflxs['Vesta'][2],0.0001)
         self.check_eq(sjran['3']['3']['fluxd'][0],expflxs['Vesta'][3],0.0001)
 
+class test_NullSelection(SetjyUnitTestBase):
+    def setUp(self):
+        msname = 'alma_uid___A002_Xa3f11a_X3df1.ms.split.thinned'
+        self.setUpMS(msname)
+
+    def tearDown(self):
+        self.resetMS()
+
+    def test_empty_sel_handled(self):
+        """ setjy with null selection produces False (and not None or empty dictionary) """
+        # Try to run with a null/empty selection and make sure that it is handled
+        # gracefully. This is to prevent issues such as CAS-11196, where incorrect handling
+        # of null selection issues can produce 'None's and empty output dictionaries which
+        # will confuse the ALMA pipeline.
+
+        # Field 1 is Titan and has scanintent 'CALIBRATE_FLUX#ON_SOURCE', there are
+        # SPWs 0-3, but no scan 5 -> null (zero rows) selection
+        res = setjy(vis=self.inpms, field='1', spw='3', scan='5',
+                    standard='Butler-JPL-Horizons 2012', intent="*CALIB*FLUX*",
+                    usescratch=True)
+
+        self.assertEquals(res, False, "setjy did not return False for a null selection")
 
 
- 
 def suite():
-    return [test_SingleObservation,test_MultipleObservations,test_ModImage, test_inputs, test_conesearch, test_fluxscaleStandard, test_setpol, test_ephemtbl, test_tpmAsteroid, test_newStandards]
+    return [test_SingleObservation,test_MultipleObservations,test_ModImage, test_inputs,
+            test_conesearch, test_fluxscaleStandard, test_setpol, test_ephemtbl,
+            test_tpmAsteroid,test_NullSelection, test_newStandards]

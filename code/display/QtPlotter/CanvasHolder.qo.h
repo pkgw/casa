@@ -25,7 +25,7 @@
 #ifndef CANVASHOLDER_QO_H
 #define CANVASHOLDER_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <qwt_legend.h>
 #include <display/QtPlotter/CanvasHolder.ui.h>
 #include <display/QtPlotter/QtCanvas.qo.h>

@@ -100,6 +100,19 @@ class ASDM_CALAMPLI : public ASDM_TABLE_SINGLETON<ASDM_CALAMPLI>, public ASDM_TA
   void fill(const ASDM& asdm);
 };
 	
+class ASDM_CALANTENNASOLUTIONS : public ASDM_TABLE_SINGLETON<ASDM_CALANTENNASOLUTIONS>, public ASDM_TABLE_BASE {
+  friend class ASDM_TABLE_SINGLETON<ASDM_CALANTENNASOLUTIONS>;
+
+ private:
+  ASDM_CALANTENNASOLUTIONS();
+  ~ASDM_CALANTENNASOLUTIONS();
+  casacore::TableDesc tableDesc_;
+
+ public:
+  const casacore::TableDesc& tableDesc() const;
+  void fill(const ASDM& asdm);
+};
+	
 class ASDM_CALAPPPHASE : public ASDM_TABLE_SINGLETON<ASDM_CALAPPPHASE>, public ASDM_TABLE_BASE {
   friend class ASDM_TABLE_SINGLETON<ASDM_CALAPPPHASE>;
 
@@ -665,6 +678,19 @@ class ASDM_PROCESSOR : public ASDM_TABLE_SINGLETON<ASDM_PROCESSOR>, public ASDM_
  private:
   ASDM_PROCESSOR();
   ~ASDM_PROCESSOR();
+  casacore::TableDesc tableDesc_;
+
+ public:
+  const casacore::TableDesc& tableDesc() const;
+  void fill(const ASDM& asdm);
+};
+	
+class ASDM_PULSAR : public ASDM_TABLE_SINGLETON<ASDM_PULSAR>, public ASDM_TABLE_BASE {
+  friend class ASDM_TABLE_SINGLETON<ASDM_PULSAR>;
+
+ private:
+  ASDM_PULSAR();
+  ~ASDM_PULSAR();
   casacore::TableDesc tableDesc_;
 
  public:

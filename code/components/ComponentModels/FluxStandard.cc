@@ -190,8 +190,15 @@ Bool FluxStandard::compute(const String& sourceName,
     fluxStdPtr = new NSTDS::FluxStdScaifeHeald2012;
   else if(itsFluxScale == STEVENS_REYNOLDS_2016)
     fluxStdPtr = new NSTDS::FluxStdStevensReynolds2016;
-  else if(itsFluxScale == PERLEY_BUTLER_2017)
+  else if(itsFluxScale == PERLEY_BUTLER_2017) {
     fluxStdPtr = new NSTDS::FluxStdPerleyButler2017;
+    timeVariable=true; // to read from the table 
+    if (interpmethod_p=="") {
+      ostringstream oss;
+      oss << "Unset interpmethod. Please set the method first";
+      throw(AipsError(String(oss)));
+    }
+  }
   else{
     if(verbose)
       os << LogIO::SEVERE
