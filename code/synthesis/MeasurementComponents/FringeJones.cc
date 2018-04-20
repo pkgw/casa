@@ -1300,7 +1300,7 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
         }
         cerr << endl;
         // str.unsetf(cerr:floatfield);
-        cerr << defaultfloat;
+        cerr << std::defaultfloat;
     }
     //
     size_t hsize = hess->size1;
