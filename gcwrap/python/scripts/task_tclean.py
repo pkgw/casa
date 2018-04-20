@@ -172,6 +172,10 @@ def tclean(
     imager = None
     paramList = None
 
+    # deprecation message
+    if usemask=='auto-thresh' or usemask=='auto-thresh2':
+        casalog.post(usemask+" is deprecated, will be removed in CASA 5.4.  Recommaned to use auto-multithreshld instead", "WARN") 
+
     # Put all parameters into dictionaries and check them. 
     paramList = ImagerParameters(
         msname =vis,

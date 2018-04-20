@@ -1779,7 +1779,7 @@ HPX HEALPix grid.  -->
     <!-- top level mask type selection -->
    
     <param type="string" name="usemask">
-           <shortdescription>Type of mask(s) for deconvolution (user, pb, auto-thresh, auto-thresh2, or auto-multithresh)</shortdescription>
+           <shortdescription>Type of mask(s) for deconvolution (user, pb, auto-thresh(deprecated, will be removed in CASA 5.4), auto-thresh(deprecated, will be removed in CASA 5.4), or auto-multithresh)</shortdescription>
 <description>Type of mask(s) to be used for deconvolution
 
                        user: (default) mask image(s) or user specified region file(s) or string CRTF expression(s)
@@ -1793,7 +1793,7 @@ HPX HEALPix grid.  -->
                                              gridders that produce .pb (i.e. mosaic and awproject)
                                              or if an externally produced .pb image exists on disk)
 
-                       auto-thresh: automask by threshold for deconvolution (binned residual image is used for
+                       auto-thresh (deprecated, will be removed in CASA 5.4): automask by threshold for deconvolution (binned residual image is used for
                                     to defining masks)
                           subparameters : maskthreshold, maskresolution, pbmask, nmask
                           
@@ -1806,14 +1806,14 @@ HPX HEALPix grid.  -->
                                              or if an externally produced .pb image exists on disk)
                         -->
 
-                       auto-thresh2: automask  by threshold for deconvolution without binning
+                       auto-thresh2 (deprecated, will be removed in CASA 5.4) : automask  by threshold for deconvolution without binning
                           subparameters : maskthreshold, maskresolution, pbmask, nmask
                           
                           if pbmask is >0.0, the region outside the specified pb gain level is excluded from
                           image statistics in determination of the threshold. 
                           maskresolution and nmask are used to 'prune' the automask regions.
 
-                       auto-multithresh: automask by multiple thresholds for deconvolution 
+                       auto-multithresh (recommended) : automask by multiple thresholds for deconvolution 
                           subparameters : sidelobethreshold, noisethreshold, lownoisethreshold, negativethrehsold,  smoothfactor,
                                           minbeamfrac, cutthreshold, pbmask, growiterations, dogrowprune, minpercentchange, verbose
 
