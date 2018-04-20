@@ -225,11 +225,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  {
 	    //	    imptr.reset( new PagedImage<Float> (itsImageName+String(".psf")) );
 	    buildImage( imptr, (itsImageName+String(".psf")) );
+            itsObjectName=imptr->imageInfo().objectName();
 	    itsMiscInfo=imptr->miscInfo();
 	  }
 	else if ( doesImageExist(itsImageName+String(".residual")) ){
 	  //imptr.reset( new PagedImage<Float> (itsImageName+String(".residual")) );
 	  buildImage( imptr, (itsImageName+String(".residual")) );
+          itsObjectName=imptr->imageInfo().objectName();
 	  itsMiscInfo=imptr->miscInfo();
 	}
 	else
@@ -575,13 +577,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     imptr.reset( new PagedImage<Float> (shape, csys, name) );
     
     ImageInfo info = imptr->imageInfo();
-    String objectName("");
-    if( itsMiscInfo.isDefined("OBJECT") ){ itsMiscInfo.get("OBJECT", objectName); }
-    if(objectName != String("")){
-      info.setObjectName(objectName);
-      imptr->setImageInfo( info );
-    }
+    info.setObjectName(itsObjectName);
+    imptr->setImageInfo(info);
     imptr->setMiscInfo( itsMiscInfo );
+
     /*
     Int MEMFACTOR = 18;
     Double memoryMB=HostInfo::memoryTotal(True)/1024/(MEMFACTOR*itsOpened);
@@ -650,9 +649,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  void SIImageStore::setImageInfo(const Record miscinfo)
+  void SIImageStore::setMiscInfo(const Record miscinfo)
   {
     itsMiscInfo = miscinfo;
+  }
+
+  void SIImageStore::setObjectName(const String name)
+  {
+    itsObjectName = name;
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

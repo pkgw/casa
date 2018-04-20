@@ -118,7 +118,9 @@ class SIImageStore
   virtual casacore::Vector<casacore::String> getModelImageName();
   virtual void setWeightDensity( SHARED_PTR<SIImageStore> imagetoset );
   virtual casacore::Bool doesImageExist(casacore::String imagename);
-  void setImageInfo(const casacore::Record miscinfo);
+
+  void setObjectName(const casacore::String);
+  void setMiscInfo(const casacore::Record miscinfo);
 
   virtual void resetImages( casacore::Bool resetpsf, casacore::Bool resetresidual, casacore::Bool resetweight );
   virtual void addImages( SHARED_PTR<SIImageStore> imagestoadd, 
@@ -264,6 +266,7 @@ protected:
 
   casacore::Bool itsOverWrite;
   casacore::Bool itsUseWeight;
+  casacore::String itsObjectName;
   casacore::Record itsMiscInfo;
   SHARED_PTR<casacore::ImageInterface<casacore::Float> > itsMask, itsParentMask, itsGridWt; // mutliterm shares this...
   casacore::Double itsPBScaleFactor;

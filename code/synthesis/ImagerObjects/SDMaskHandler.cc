@@ -3186,7 +3186,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                             const Vector<Float>& maskthreshold, 
                                             const Vector<String>& thresholdtype, 
                                             const Vector<Bool>& chanflag, 
-                                            const Vector<Bool>& zeroChanMask,
+                                            const Vector<Bool>& /* zeroChanMask */,
                                             const Vector<uInt>& nreg, 
                                             const Vector<uInt>& npruned,
                                             const Vector<uInt>& ngrowreg,
