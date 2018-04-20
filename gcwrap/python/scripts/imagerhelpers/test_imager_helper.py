@@ -210,6 +210,7 @@ class TestHelpers():
           if imexist != None:
                if type(imexist)==list:
                     pstr += self.checkims(imexist, True)
+                    pstr += self.check_keywords(imexist)
 
           if imexistnot != None:
                if type(imexistnot)==list:
@@ -458,6 +459,97 @@ class TestHelpers():
          _ia.close()
          return csys
 
+     def check_keywords(self, imlist):
+         """
+         Keyword related checks (presence/absence of records and entries in these records,
+         in the keywords of the image table).
+
+         :param imlist: names of the images produced by a test execution.
+
+         :returns: the usual (test_imager_helper) string with success/error messages.
+         """
+         # Keeping the general approach. This is fragile!
+         testname = inspect.stack()[2][3]
+
+         # accumulator of error strings
+         pstr = ''
+         for imname in imlist:
+             if os.path.exists(imname):
+                 extended = (not imname.endswith('.alpha') and
+                             not imname.endswith('.tt0') and
+                             not imname.endswith('.tt1') and
+                             '.par.' not in imname)
+                 issues = self.check_im_keywords(imname, extended_check=extended)
+                 if issues:
+                     pstr += '[{0}] {1}: {2}'.format(testname, imname, issues)
+         return pstr
+
+     def check_im_keywords(self, imname, extended_check=True):
+         """
+         Checks several lists of expected and forbidden keywords and entries of these
+         keywords.
+         Forbidden keywords lists introduced with CAS-9231 (prevent duplication of
+         TELESCOP and OBJECT).
+
+         :param imname: image name (output image from tclean)
+         :param extended_check: leave enable for images other than .tt?, .alpha, etc.
+
+         :returns: the usual (test_imager_helper) string with success/error messages.
+         Errors marked with '(Fail' as per self.verdict().
+         """
+
+         tbt = tbtool()
+         tbt.open(imname)
+         keys = tbt.getkeywords()
+         tbt.close()
+
+         pstr = ''
+         if len(keys) <= 0:
+             pstr += ('No keywords found ({0})'.
+                      format(self.verdict(False)))
+             return pstr
+
+         # Records that need to be present
+         imageinfo = 'imageinfo'
+         miscinfo = 'miscinfo'
+         coords = 'coords'
+         mandatory_recs = [imageinfo, miscinfo, coords]
+         for rec in mandatory_recs:
+             if rec not in keys:
+                 pstr += ('{0} record not found ({1})\n'.
+                          format(rec, self.verdict(False)))
+         if len(pstr) > 0:
+            return pstr
+
+         mandatory_imageinfo = ['objectname', 'imagetype']
+         pstr += self.check_expected_entries(mandatory_imageinfo, imageinfo, keys)
+
+         if extended_check:
+             mandatory_miscinfo = ['INSTRUME', 'distance']
+             pstr += self.check_expected_entries(mandatory_miscinfo, miscinfo, keys)
+         forbidden_miscinfo = ['OBJECT', 'TELESCOP']
+         pstr += self.check_forbidden_entries(forbidden_miscinfo, miscinfo, keys)
+
+         mandatory_coords = ['telescope']
+         pstr += self.check_expected_entries(mandatory_coords, coords, keys)
+
+         return pstr
+
+     def check_expected_entries(self, entries, record, keys):
+         pstr = ''
+         for entry in entries:
+             if entry not in keys[record]:
+                 pstr += ('entry {0} not found in record {1} ({2})\n'.
+                          format(entry, record, self.verdict(False)))
+         return pstr
+
+     def check_forbidden_entries(self, entries, record, keys):
+         pstr = ''
+         for entry in entries:
+             if entry in keys[record]:
+                 pstr += ('entry {0} should not be in record {1} ({2})\n'.
+                          format(entry, record, self.verdict(False)))
+         return pstr
 
      def modeltype(self,msname):
           """has no model, otf model, modelcol"""
