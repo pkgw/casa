@@ -80,6 +80,8 @@ class testref_base(unittest.TestCase):
           self.epsilon = 0.05
           self.msfile = ""
           self.img = "tst"
+          # To use subdir in the output image names in some tests (CAS-10937)
+          self.img_subdir = 'refimager_tst_subdir'
 
           self.th = TestHelpers()
 
@@ -89,6 +91,7 @@ class testref_base(unittest.TestCase):
 
      # Separate functions here, for special-case tests that need their own MS.
      def prepData(self,msname=""):
+          os.system('rm -rf ' + self.img_subdir)
           os.system('rm -rf ' + self.img+'*')
           if msname != "":
                self.msfile=msname
@@ -101,6 +104,7 @@ class testref_base(unittest.TestCase):
                self.msfile=msname
           if (os.path.exists(self.msfile)):
                os.system('rm -rf ' + self.msfile)
+          os.system('rm -rf ' + self.img_subdir)
           os.system('rm -rf ' + self.img+'*')
 
      def checkfinal(self,pstr=""):
@@ -814,10 +818,7 @@ class test_cube(testref_base):
 #          self.test_cube_0.__func__.__doc__ %="aaaa"
 
      def setUp(self):
-          self.epsilon = 0.05
-          self.msfile = ""
-          self.img = "tst"
-          self.th = TestHelpers()
+          super(test_cube, self).setUp()
 
           ## Setup some variables to use in all the tests
 
@@ -1524,7 +1525,10 @@ class test_cube(testref_base):
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='data',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step0data.png',title="original data")
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step0model.png',title="empty model")
 
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec', spw='0:12~19',niter=50,gain=0.2,savemodel='modelcolumn',deconvolver='mtmfs')
+          # Let's include a subdir in the output image name. This could cause failures, at
+          # least in parallel mode (CAS-10937).
+          imagename = os.path.join(self.img_subdir, self.img)
+          ret = tclean(vis=self.msfile,imagename=imagename,imsize=100,cell='8.0arcsec', spw='0:12~19',niter=50,gain=0.2,savemodel='modelcolumn',deconvolver='mtmfs')
 #          self.assertTrue(self.th.exists(self.img+'.model') )
 #          self.assertTrue( self.th.checkmodelchan(self.msfile,10) == 0.0 and self.th.checkmodelchan(self.msfile,3) > 0.0 )
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step1.png',title="model after partial mtmfs on some channels")
@@ -2298,11 +2302,7 @@ class test_startmodel(testref_base):
  ##############################################
 class test_pbcor(testref_base):
      def setUp(self):
-          self.epsilon = 0.05
-          self.msfile = ""
-          self.img = "tst"
-
-          self.th = TestHelpers()
+          super(test_pbcor, self).setUp()
 
           _vp.setpbpoly(telescope='EVLA', coeff=[1.0, -1.529e-3, 8.69e-7, -1.88e-10]) 
           _vp.saveastable('evlavp.tab')
