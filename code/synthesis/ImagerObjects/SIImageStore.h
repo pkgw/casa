@@ -241,8 +241,8 @@ protected:
 					       const casacore::Bool dosumwt=casacore::False,
 					       const casacore::Int nfacetsperside=1);
 
-  void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr, casacore::IPosition shape, casacore::CoordinateSystem csys, casacore::String name);
-  void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr,casacore::String name);
+  void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr, casacore::IPosition shape, casacore::CoordinateSystem csys, const casacore::String name);
+  void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr,const casacore::String name);
 
 
   casacore::Double getPbMax();
@@ -290,6 +290,9 @@ protected:
   casacore::Int itsOpened;
 
 private:
+
+  void initMetaInfo(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr,
+                    const casacore::String name);
 
   SHARED_PTR<casacore::ImageInterface<casacore::Float> > itsPsf, itsModel, itsResidual, itsWeight, itsImage, itsSumWt, itsImagePBcor, itsPB;
   SHARED_PTR<casacore::ImageInterface<casacore::Complex> > itsForwardGrid, itsBackwardGrid;
