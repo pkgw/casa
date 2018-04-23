@@ -114,6 +114,7 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
     logWarn("CalCache::loadIt",
       "Transformations ignored: not supported for calibration tables");
   // poln ratio
+  polnRatio_ = false;
   if (selection_.corr()=="/") {
     if (calType_=="BPOLY" || calType_[0] == 'T' || calType_[0] == 'F')
       throw(AipsError("Polarization ratio plots not supported for " + calType_ + " tables."));
@@ -126,7 +127,6 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
   antstanames_.resize();
   fldnames_.resize();
   positions_.resize();
-  polnRatio_ = false;
 
   vector<PMS::DataColumn> loadData(loadAxes.size());
   for (uInt i=0; i<loadData.size(); ++i) 
