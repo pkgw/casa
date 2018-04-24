@@ -52,7 +52,8 @@ PlotAxisScale PMS::axisScale(Axis axis) {
 
 bool PMS::axisIsData(Axis axis) {
     switch(axis) {
-    case AMP: case PHASE: case REAL: case IMAG: case WTxAMP: return true;
+    case AMP: case PHASE: case REAL: case IMAG: case WTxAMP: 
+	case GAMP: case GPHASE: case GREAL: case GIMAG: return true;
     default: return false;
     }
 }

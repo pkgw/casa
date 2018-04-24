@@ -27,6 +27,8 @@
 #include <map>
 #include <components/ComponentModels/ComponentList.h>
 #include <components/ComponentModels/TwoSidedShape.h>
+#include <casatools/Config/State.h>
+
 typedef std::numeric_limits< double > dbl;
 
 using namespace casacore;
@@ -66,7 +68,13 @@ void EphemObjFluxStandardTest::TearDown()
 }
 
 Bool EphemObjFluxStandardTest::ephemExists() {
-  Bool dataExists = Aipsrc::findDir(foundEphemPath, "data/ephemerides/JPL-Horizons");
+  const string horizpath = "ephemerides/JPL-Horizons";
+  string resolvepath = casatools::get_state( ).resolve(horizpath);
+  if ( resolvepath != horizpath ) {
+    foundEphemPath = resolvepath;
+    return true;
+  }
+  Bool dataExists = Aipsrc::findDir(foundEphemPath, "data/" + horizpath);
   return dataExists;
 }
   
