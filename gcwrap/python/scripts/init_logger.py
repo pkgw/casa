@@ -37,7 +37,7 @@ def casalogger(logfile=''):
 deploylogger = True
 
 if not os.access('.', os.W_OK):
-    if casa['files']['logfile'] != '/dev/null':
+    if casa['flags'].nologfile == False:
         print
         print "********************************************************************************"
         print "Warning: no write permission in current directory, no log files will be written."
