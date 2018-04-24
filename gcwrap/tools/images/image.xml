@@ -2093,38 +2093,38 @@ of the image, and all pixels of other axes.
      </param>
      
      <param type="string"  name="type">
-        <description>Type of image. 'f' means Float, 'c' means complex.</description>
+        <description>Data type of image pixels. 'f' (float), 'c' (complex float), 'd' (double), 'cd' (complex double).</description>
         <value>f</value>
      </param>
 </input>
 <returns type="bool"/>
 <description>
 
-This function creates a \casa\ \imagefile\ with the specified shape.  All
-the pixel values in the image are set to 0. One may create either an image
-with float valued pixels (type='f') or a complex valued image (type='c').
-To use a numpy array of values to create an image, use ia.fromarray().
-To make a 2-D image from a packaged FITS file, use ia.maketestimage().
+This function creates a CASA image with the specified shape.  All
+the pixel values in the image are set to 0. One may create an image
+with float precision pixels (type='f'), complex float precision pixels
+(type='c'), double precision pixels (type='d'), or complex double
+precision pixels ('cd'). To use a numpy array of values to create an
+image, use ia.fromarray(). To make a 2-D image from a packaged FITS
+file, use ia.maketestimage().
 
-If {\stfaf outfile} is given, the image is written to the specified disk
-file.  If {\stfaf outfile} is unset, the Image \tool\ is associated with
+If outfile is given, the image is written to the specified disk
+file.  If outfile is unset, the image analysis tool is associated with
 a temporary image.  This temporary image may be in memory or on disk,
-depending on its size.  When you close the Image \tool\  (with the
-<link anchor="images:image.close.function">close</link> function) this temporary image is
-deleted.
+depending on its size.  When you close the image analysis tool  (with
+the ia.close() method, the temporary image is deleted.
 
-The Coordinate System, provided as a <link anchor="images:coordsys">Coordsys</link>
-\tool, is optional.  If you provide it, it must be dimensionally
-consistent with the shape that you specify (see also
-<link anchor="images:image.coordsys.function">coordsys</link>).
+The coordinate system, provided as a coordinate system tool record, is
+optional. If provided, it must be dimensionally consistent with the
+specified shape.
 
-If you don't provide the Coordinate System, a default Coordinate System
-is made for you.  If {\stfaf linear=F} (the default) then it is a
-standard RA/DEC/Stokes/Spectral Coordinate System depending exactly upon
-the shape (Stokes axis must be no longer than 4 pixels and you may find
-the spectral axis coming out before the Stokes axis if say, {\cf
-shape=[64,64,32,4]}).  Extra dimensions are given linear coordinates. 
-If {\stfaf linear=T} then you get a linear Coordinate System. 
+If the coordinate system is not provided, a default coordinate system
+will be created.  If linear=False (the default), then it is a
+standard RA/DEC/Stokes/Spectral coordinate system depending exactly upon
+the shape (the Stokes axis must be no longer than 4 pixels and spectral
+axis may occur prior to the Stokes axis if eg, shape=[64,64,32,4]. Extra
+dimensions are given linear coordinates. If linear=True, then the
+coordinate system will have linear coordinates. 
 
 The method returns True if successful, False otherwise.
 
@@ -5513,32 +5513,32 @@ ia.fromrecord(rec, "testimage")
 <description>
 
 This function returns the pixels (or optionally the pixel mask) from the
-\imagefile\ between {\stfaf blc} and {\stfaf trc} inclusively. Both float
-and complex valued images are supported. An increment may be specified
-with {\stfaf inc}. Note that if you retrieve too many pixels, you might
-cause swapping since the pixels are kept in memory. 
+attached image between blc and trc, inclusive. Images with float, complex
+float, double, and complex double precision pixel values are supported.
+An increment may be specified with inc. Note that if too many pixel values
+are retrieved, swapping may occur, result in a decrease in performance,
+since the pixel values are stored in memory.
 
-Any illegal {\stfaf blc} values are set to zero.  Any illegal {\stfaf
-trc} values are set to the end of the image.  If any {\stfaf trc $\&lt;$
-blc}, you get the whole image for that axis.  Any illegal {\stfaf inc}
+Any illegal blc values are set to zero.  Any illegal trc values are set to
+the end of the image.  If any trc values are less than corresponding blc
+values, all the pixel values for that axis are returned.  Any illegal inc
 values are set to unity. 
 
-The argument {\stfaf axes} can be used to reduce the dimensionality of
-the output array. It specifies which pixel axes of the image to
-{\bf average} the data over.  For example, consider a 3-D image.
-With {\stfaf axes=[0,1]} and all other arguments left at their defaults,
-the result would be a 1-D vector, a profile along the third axis,
-with the data averaged over the first two axes.
+The axes parameter can be used to reduce the dimensionality of the output
+array. It specifies which pixel axes of the image over which to average
+the data.  For example, consider a 3-D image, with axes=[0,1] and all
+other parameters set to their defaults. The result would be a 1-D vector,
+a profile along the third axis, with the data averaged over the first two
+axes.
 
-A related function is <link
-anchor="images:image.getregion.function">getregion</link> which
-retrieves the pixels or \pixelmask\ from a potentially more complex
-\region.  Function {\stff getchunk} is retained because it is faster
-and therefore preferable for repeated operation in loops if the
-\pixelmask\ is not required and the region is a simple box.
+A related function is getregion(), which retrieves the pixel values or
+pixel mask from a potentially more complex region.  Method getchunk() is
+retained because it is faster and therefore preferable for repeated
+operations in loops if the pixel mask is not required and the region is a
+simple box.
 
-If you set getmask=True, the return value is the 'pixelmask' rather than
-the 'pixel' image.
+If getmask=True, the return value is the pixel mask values, rather than
+the pixel values.
 
 </description>
 
@@ -7306,11 +7306,14 @@ ia.close()
 This method detaches from the current image (if an image is attached to the tool), and
 reattaches it (opens) to the new image.
 
-The input image file may be in native CASA, FITS, or Miriad format. In the case of CASA images,
-both Float and Complex valued images aresupported.
+The input image file may be in native CASA, FITS, or Miriad format. In the case
+of CASA images, images with float, complex float, double, and complex double
+valued pixels are supported. Note that only FITS images with float valued pixels
+are supported.
 
-The cache parameter applies only to component list images and indicates if pixel values should
-be cached after they are computed for faster retrieval.
+The cache parameter applies only to component list images and indicates if pixel
+values should be cached after they are computed for faster retrieval. It is not
+used for other image types.
 
 </description>
 
@@ -7574,48 +7577,44 @@ ia.close()
 <returns type="bool">T or fail</returns>
 <description>
 
-This function puts an array into the \imagefile.  If there is a
-default \pixelmask\ it is ignored in this process.  It is the complement of the
-<link anchor="images:image.getchunk.function">getchunk</link> function.  You can specify the {\stfaf
-blc} and {\stfaf inc} if desired.  If they are unspecified, they default
-to the beginning of the image and an increment of one. 
+This method puts an array into the image (which must be writable, eg it
+will fail on FITS images).  If there is a default pixel mask, it is
+ignored. It is the complement of the getchunk() method. The blc, trc,
+and increment (inc) may be specified. If they are unspecified, they
+default to the beginning of the image and an increment of one.
 
-Any illegal {\stfaf blc} values are set to zero.  Any illegal {\stfaf
-inc} values are set to unity. 
+Any illegal blc values are set to zero.  Any illegal inc values are set
+to unity.
 
-An error will result if you attempt to put an array beyond the extent of
-the image (i.e., it is not truncated or decimated). 
+An error will result if an attempt is made to put an array the extends
+beyond the image edge (i.e., it is not truncated or decimated).
 
 If there are fewer axes in the array than in the image, the array is
 assumed to have trailing axes of length unity.  Thus, if you have a 2D
 array and want to put it in as the YZ plane rather than the XY plane,
 you must ensure that the shape of the array is [1,nx,ny].  
 
-However, the argument {\stfaf replicate} can be used to replicate the array
-throughout the image (from the blc to the trc).  For example, if you
-provide a 2D array to a 3D image, you can replicate it through the third
-axis by setting {\stfaf replicate=T}.   The replication is done
-from the specified {\stfaf blc} to the end of the image.
-Use function <link anchor="images:image.putregion.function">putregion</link>  if you
-want to terminate the replication at a {\stfaf trc} value.
+However, the replicate parameter can be used to replicate the array
+throughout the image (from the blc to the trc).  For example, if a 2D
+array is provided for a 3D image, it can be replicated along the third
+axis by setting replicate=True. The replication is done from the
+specified blc to the end of the image. Method putregion() can be used
+to terminate the replication at a trc value.
 
-The argument {\stfaf locking} controls two things.  If True, then
-after the function is called, the image is unlocked (so some other
-process can acquire a lock) and it is indicated that the image has
-changed. <!-- (causes function <link
-anchor="images:image.view.function">view</link> to redisplay the image
-if it is has been called).--> The reason for having this argument is
-that the unlocking and updating processes are quite expensive.  If you
-are repeatedly calling {\stff putchunk} in a for loop, you would be
-advised to use this switch.
+The locking parameter controls two aspects. If True, then after the
+method is called, the image is unlocked (so some other process can
+acquire a lock) and it is indicated that the image has
+changed. The reason for having this argument is that the unlocking and
+updating processes are quite expensive.  If putchunk() is called
+repeatedly in eg, a loop, it is advisable to set this parameter to True.
 
-A related function is <link anchor="images:image.putregion.function">putregion</link> 
-which puts the pixels and masks into a more complex \region.
-Function {\stff putchunk} is retained because it is faster and therefore
-preferable for repeated operation in loops if the \pixelmask\ is not required.
+A related function is putregion(), which supports putting the pixel and
+mask values into a more complex region. Method putchunk() is faster and
+therefore preferable for repeated operation in loops if the pixel mask
+is not required.
 
-See also the functions <link anchor="images:image.set.function">set</link> and 
-<link anchor="images:image.calc.function">calc</link> which can also change pixel values.
+See also the methods set() and calc() which can also be used to change
+pixel values.
 
 </description>
 
