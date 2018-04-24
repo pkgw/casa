@@ -168,7 +168,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  }
 
 		/// This may interfere with some other criterion... check.
-                Float tol = 0.001; // threshold test torelance (CAS-11278)
+                Float tol = 0.01; // threshold test torelance (CAS-11278)
 		if ( itsMajorDone==0 && itsIterDone==0 ) { stopCode=0; }
 		else if ( itsIterDone >= itsNiter || 
 		     itsPeakResidual <= itsThreshold ||
