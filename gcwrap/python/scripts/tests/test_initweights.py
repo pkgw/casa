@@ -24,6 +24,17 @@ class initweights_common(unittest.TestCase):
     """
     datapath = os.environ.get('CASAPATH').split()[0] + \
         '/data/regression/unittest/initweights/'
+        
+    # Pick up alternative data directory to run tests on MMSs
+    testmms = False
+    if os.environ.has_key('TEST_DATADIR'):   
+        DATADIR = str(os.environ.get('TEST_DATADIR'))+'/initweights/'
+        if os.path.isdir(DATADIR):
+            testmms = True
+            datapath = DATADIR
+    
+    print 'initweights tests will use data from '+datapath         
+        
     inputms = "tsysweight_ave.ms"
     tsystable = "tsysweight_ave.tsys.cal"
     """
