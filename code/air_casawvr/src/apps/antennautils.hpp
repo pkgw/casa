@@ -13,8 +13,8 @@
 #ifndef _LIBAIR_APPS_ANTENNAUTILS_HPP__
 #define _LIBAIR_APPS_ANTENNAUTILS_HPP__
 
+#include <casa/Arrays/Matrix.h>
 #include <set>
-#include <boost/numeric/ublas/matrix.hpp>
 
 namespace LibAIR2 {
 
@@ -32,7 +32,7 @@ namespace LibAIR2 {
   /** Antennas are represented by rows and the three cartesian
       coordinate of positions in columns
   */
-  typedef boost::numeric::ublas::matrix<double> antpos_t;
+  typedef casacore::Matrix<double> antpos_t;
 
   /** \brief Return antennas and their distances to antenna i while
       avoiding antennas in flag

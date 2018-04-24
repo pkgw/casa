@@ -10,7 +10,7 @@
 #define _BNMIN1_TWOERRLINE_HXX__
 
 #include <vector>
-#include <boost/array.hpp>
+#include <array>
 
 namespace Minim {
 
@@ -24,7 +24,7 @@ namespace Minim {
     /// Offset coefficient
     double b;
     /// Covariance matrix
-    boost::array<double,4> cv;
+    std::array<double,4> cv;
   };
 
   /** Compute maximum-likelihood line-fit to data with known errors in

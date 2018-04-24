@@ -16,9 +16,8 @@
 #include <set>
 #include <iostream>
 
-#include <boost/scoped_ptr.hpp>
-#include <boost/array.hpp>
-#include <boost/ptr_container/ptr_list.hpp>
+#include <array>
+#include <memory>
 
 #include "alma_datastruct.h"
 #include "antennautils.hpp"
@@ -38,7 +37,7 @@ namespace LibAIR2 {
   /**
    */
   class ALMAAbsRet {
-    boost::scoped_ptr<iALMAAbsRet> i;
+    std::shared_ptr<iALMAAbsRet> i;
 
     bool valid;
 
@@ -113,7 +112,7 @@ namespace LibAIR2 {
   /**  Carry out the retrieval of coefficients form a list of inputs;
        remove the inputs which have zero Bayesian evidence from the list
    */
-  boost::ptr_list<ALMAResBase> doALMAAbsRet(ALMAAbsInpL &il, 
+    std::list<std::shared_ptr<ALMAResBase> > doALMAAbsRet(ALMAAbsInpL &il, 
 					    std::vector<std::pair<double, double> > &fb,
 					    LibAIR2::AntSet &problemAnts);
   
@@ -122,7 +121,7 @@ namespace LibAIR2 {
    */ 
   dTdLCoeffsBase *
   ALMAAbsProcessor(const ALMAAbsInpL &inp,
-		   boost::ptr_list<ALMAResBase> &r);
+                   std::list<std::shared_ptr<ALMAResBase> > &r);
 
   /** Single retrieval for mid point of the observation
    */
@@ -147,7 +146,7 @@ namespace LibAIR2 {
   */
   dTdLCoeffsSingleInterpolated *
   SimpleMultiple(const std::vector<std::pair<double, double> > &fb,
-		 boost::ptr_list<ALMAResBase> &r);
+                 std::list<std::shared_ptr<ALMAResBase> > &r);
 
   
   /** Slightly experimental approach for a single-shot simple

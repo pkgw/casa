@@ -12,14 +12,13 @@
 #ifndef _BNMIN1_RANDOM_UNIFORM_INT_HXX_
 #define _BNMIN1_RANDOM_UNIFORM_INT_HXX_
 
+#include <limits>
 #include <cassert>
 #include <iostream>
-#include <boost/config.hpp>
-#include <boost/limits.hpp>
-#include <boost/static_assert.hpp>
-#include <boost/random/detail/config.hpp>
-#include <boost/random/detail/signed_unsigned_tools.hpp>
-#include <boost/type_traits/make_unsigned.hpp>
+
+#ifndef PREVENT_MACRO_SUBSTITUTION
+#define PREVENT_MACRO_SUBSTITUTION
+#endif
 
 namespace bnmin1boost {
 
@@ -30,21 +29,21 @@ class uniform_int
 public:
   typedef IntType input_type;
   typedef IntType result_type;
-  typedef typename boost::make_unsigned<result_type>::type range_type;
+  typedef unsigned int range_type;
 
   explicit uniform_int(IntType min_arg = 0, IntType max_arg = 9)
     : _min(min_arg), _max(max_arg)
   {
 #ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-    // MSVC fails BOOST_STATIC_ASSERT with std::numeric_limits at class scope
-    BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::is_integer);
+    // MSVC fails static_assert with std::numeric_limits at class scope
+  static_assert(std::numeric_limits<IntType>::is_integer,"assertion failed");
 #endif
     assert(min_arg <= max_arg);
     init();
   }
 
-  result_type min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _min; }
-  result_type max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _max; }
+  result_type min PREVENT_MACRO_SUBSTITUTION () const { return _min; }
+  result_type max PREVENT_MACRO_SUBSTITUTION () const { return _max; }
   void reset() { }
   
   // can't have member function templates out-of-line due to MSVC bugs
@@ -92,18 +91,17 @@ private:
   {
     typedef typename Engine::result_type base_result;
     // ranges are always unsigned
-    typedef typename boost::make_unsigned<base_result>::type base_unsigned;
+    typedef unsigned int base_unsigned;
     const base_result bmin = (eng.min)();
-    const base_unsigned brange =
-      boost::random::detail::subtract<base_result>()((eng.max)(), (eng.min)());
+    const base_unsigned brange = (eng.max)() - (eng.min)();
 
     if(range == 0) {
       return min_value;    
     } else if(brange == range) {
       // this will probably never happen in real life
       // basically nothing to do; just take care we don't overflow / underflow
-      base_unsigned v = boost::random::detail::subtract<base_result>()(eng(), bmin);
-      return boost::random::detail::add<base_unsigned, result_type>()(v, min_value);
+      base_unsigned v = eng() - bmin;
+      return v + min_value;
     } else if(brange < range) {
       // use rejection method to handle things like 0..3 --> 0..4
       for(;;) {
@@ -150,7 +148,7 @@ private:
           //           mult+mult*brange                  by (2), (3)         (4)
           // Therefore result+(eng()-bmin)*mult <
           //           mult*(brange+1)                   by (4)
-          result += static_cast<range_type>(boost::random::detail::subtract<base_result>()(eng(), bmin) * mult);
+            result += static_cast<range_type>((eng() - bmin) * mult);
 
           // equivalent to (mult * (brange+1)) == range+1, but avoids overflow.
           if(mult * range_type(brange) == range - mult + 1) {
@@ -214,7 +212,7 @@ private:
           // Too big.  Reject.
           continue;
         }
-        return boost::random::detail::add<range_type, result_type>()(result, min_value);
+        return (result + min_value);
       }
     } else {                   // brange > range
       base_unsigned bucket_size;
@@ -231,20 +229,19 @@ private:
         bucket_size = (brange+1) / (static_cast<base_unsigned>(range)+1);
       }
       for(;;) {
-        base_unsigned result =
-          boost::random::detail::subtract<base_result>()(eng(), bmin);
+        base_unsigned result = eng() - bmin;
         result /= bucket_size;
         // result and range are non-negative, and result is possibly larger
         // than range, so the cast is safe
         if(result <= static_cast<base_unsigned>(range))
-          return boost::random::detail::add<base_unsigned, result_type>()(result, min_value);
+          return result + min_value;
       }
     }
   }
 
   void init()
   {
-    _range = boost::random::detail::subtract<result_type>()(_max, _min);
+    _range = _max - _min;
   }
 
   // The result_type may be signed or unsigned, but the _range is always

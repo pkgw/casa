@@ -6,6 +6,8 @@
 
  */
 
+#include <memory>
+
 #include "model_make.hpp"
 #include "model_water.hpp"
 #include "singlelayerwater.hpp"
@@ -23,9 +25,9 @@ namespace LibAIR2 {
 		     Continuum c,
 		     double PDrop)
   {
-    boost::shared_ptr<Radiometer> r(SwitchRadiometer(radiot));
+    std::shared_ptr<Radiometer> r(SwitchRadiometer(radiot));
 
-    boost::shared_ptr<ISingleLayerWater> sl(new ISingleLayerWater (r->getFGrid(),
+    std::shared_ptr<ISingleLayerWater> sl(new ISingleLayerWater (r->getFGrid(),
 								   WaterData::L183,
 								   t,
 								   c,
@@ -41,9 +43,9 @@ namespace LibAIR2 {
 		     Continuum c,
 		     double PDrop)
   {
-    boost::shared_ptr<Radiometer> r(MkALMAWVR(ac));
+    std::shared_ptr<Radiometer> r(MkALMAWVR(ac));
 
-    boost::shared_ptr<ISingleLayerWater> sl(new ISingleLayerWater (r->getFGrid(),
+    std::shared_ptr<ISingleLayerWater> sl(new ISingleLayerWater (r->getFGrid(),
 								   WaterData::L183,
 								   t,
 								   c,
@@ -57,9 +59,9 @@ namespace LibAIR2 {
   mkSimpleOffset(double cf,
 		 double bw)
   {
-    boost::shared_ptr<Radiometer> r(MkALMAWVR_offset(cf,bw));
+    std::shared_ptr<Radiometer> r(MkALMAWVR_offset(cf,bw));
 
-    boost::shared_ptr<ISingleLayerWater> sl(new ISingleLayerWater (r->getFGrid(),
+    std::shared_ptr<ISingleLayerWater> sl(new ISingleLayerWater (r->getFGrid(),
 								   WaterData::L183,
 								   PartTable,
 								   AirCont,
@@ -75,9 +77,9 @@ namespace LibAIR2 {
 	   Continuum c,
 	   double PDrop)
   {
-    boost::shared_ptr<Radiometer> r(SwitchRadiometer(radiot));
+    std::shared_ptr<Radiometer> r(SwitchRadiometer(radiot));
 
-    boost::shared_ptr<ICloudyWater> sl(new ICloudyWater (r->getFGrid(),
+    std::shared_ptr<ICloudyWater> sl(new ICloudyWater (r->getFGrid(),
 							 WaterData::L183,
 							 t,
 							 c,
@@ -93,9 +95,9 @@ namespace LibAIR2 {
 	   Continuum c,
 	   double PDrop)
   {
-    boost::shared_ptr<Radiometer> r(MkALMAWVR(ac));
+    std::shared_ptr<Radiometer> r(MkALMAWVR(ac));
 
-    boost::shared_ptr<ICloudyWater> sl(new ICloudyWater (r->getFGrid(),
+    std::shared_ptr<ICloudyWater> sl(new ICloudyWater (r->getFGrid(),
 							 WaterData::L183,
 							 t,
 							 c,

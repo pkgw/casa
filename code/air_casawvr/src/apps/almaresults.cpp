@@ -7,9 +7,9 @@
 
 */
 
+#include <list>
+#include <memory>
 #include <iostream>
-
-#include <boost/foreach.hpp>
 
 #include "almaresults.hpp"
 
@@ -39,7 +39,7 @@ namespace LibAIR2 {
   {
     os<<ev<<"\t"
       <<c<<"\t"<<c_err<<"\t";
-    BOOST_FOREACH(const double &x, dTdL)
+    for (const double &x : dTdL)
       os<<x<<"\t";
     return os;
   }
@@ -60,7 +60,7 @@ namespace LibAIR2 {
   {
     os<<ev<<"\t"
       <<c<<"\t"<<c_err<<"\t";
-    BOOST_FOREACH(const double &x, dTdL)
+    for (const double &x : dTdL)
       os<<x<<"\t";
     os<<tau183<<"\t"
       <<tau183_err;
@@ -101,13 +101,13 @@ namespace LibAIR2 {
   }
 
   std::ostream &operator<<(std::ostream &os,
-			   const boost::ptr_list<ALMAResBase> &i)
+                           const std::list<std::shared_ptr<ALMAResBase> > &i)
   {
     if(i.size()>0){
-      i.begin()->header_inline(os)<<std::endl;
-      BOOST_FOREACH(const ALMAResBase &x, i)
+      (*i.begin())->header_inline(os)<<std::endl;
+      for(const std::shared_ptr<ALMAResBase> x : i)
       {
-	x.str_inline(os)<<std::endl;
+	x->str_inline(os)<<std::endl;
       }
     }
     return os;

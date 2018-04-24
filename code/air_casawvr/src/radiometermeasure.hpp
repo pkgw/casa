@@ -15,9 +15,8 @@
 #define _LIBAIR_RADIOMETERMEASURE_HPP__
 
 #include <vector>
+#include <memory>
 #include <stdexcept>
-
-#include <boost/smart_ptr.hpp>
 
 namespace LibAIR2 {
 
@@ -131,7 +130,7 @@ namespace LibAIR2 {
   class DSBRadio
   {
 
-    boost::scoped_ptr<Radiometer> r;
+    std::shared_ptr<Radiometer> r;
 
   public:
 

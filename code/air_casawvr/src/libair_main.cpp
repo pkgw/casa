@@ -7,22 +7,14 @@
 
 */
 
-#include <boost/preprocessor/stringize.hpp>
-
 #include "libair_main.hpp"
-#ifndef CMAKE_BUILD
 #include "../config.h"
-#endif
 
 namespace LibAIR2 {
   
   const char * version(void)
   {
-    #ifndef CMAKE_BUILD
     return PACKAGE_VERSION;
-    #else
-    return BOOST_PP_STRINGIZE(CMAKE_BUILD);
-    #endif
   }
   
 

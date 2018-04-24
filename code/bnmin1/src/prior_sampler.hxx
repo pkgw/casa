@@ -11,7 +11,7 @@
 #include <vector>
 #include <set>
 
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 
 #include "minim.hxx"
 #include "mcpoint.hxx"
@@ -82,7 +82,7 @@ namespace Minim
     public CPriorSampler
   {
 
-    boost::scoped_ptr<MetroPropose> prop;
+    std::unique_ptr<MetroPropose> prop;
 
   public:
     
@@ -114,7 +114,7 @@ namespace Minim
     public CPriorSampler
   {
 
-    boost::scoped_ptr<InitPntChain> c;
+    std::unique_ptr<InitPntChain> c;
     std::vector<double> sigmas;
 
   public:
@@ -146,7 +146,7 @@ namespace Minim
     public CPriorSampler
   {
 
-    boost::scoped_ptr<ILklChain> c;
+    std::unique_ptr<ILklChain> c;
     const std::set<MCPoint> &ss;
 
     void initChain(void);

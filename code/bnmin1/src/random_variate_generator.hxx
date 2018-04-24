@@ -12,7 +12,6 @@
 #ifndef _BNMIN1_RANDOM_RANDOM_GENERATOR_HXX__
 #define _BNMIN1_RANDOM_RANDOM_GENERATOR_HXX__
 
-#include <boost/config.hpp>
 
 // implementation details
 #include "random_uniform_01.hxx"
@@ -98,15 +97,15 @@ public:
   distribution_type& distribution() { return _dist; }
   const distribution_type& distribution() const { return _dist; }
 
-  result_type min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return (distribution().min)(); }
-  result_type max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return (distribution().max)(); }
+  result_type min PREVENT_MACRO_SUBSTITUTION () const { return (distribution().min)(); }
+  result_type max PREVENT_MACRO_SUBSTITUTION () const { return (distribution().max)(); }
 
 private:
   enum {
     have_int = std::numeric_limits<typename decorated_engine::result_type>::is_integer,
     want_int = std::numeric_limits<typename Distribution::input_type>::is_integer
   };
-  typedef typename random::detail::engine_helper<have_int, want_int>::BOOST_NESTED_TEMPLATE impl<decorated_engine, typename Distribution::input_type>::type internal_engine_type;
+  typedef typename random::detail::engine_helper<have_int, want_int>::template impl<decorated_engine, typename Distribution::input_type>::type internal_engine_type;
 
 
   internal_engine_type _eng;

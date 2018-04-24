@@ -18,8 +18,8 @@
 #include <list>
 #include <vector>
 
-#include <boost/scoped_ptr.hpp>
-#include <boost/function.hpp>
+#include <memory>
+#include <functional>
 
 #include "minim.hxx"
 #include "minimmodel.hxx"
@@ -40,7 +40,7 @@ namespace Minim {
 
     MLikelihood & ml;
     
-    boost::scoped_ptr<MetroPropose> prop;
+    std::unique_ptr<MetroPropose> prop;
 
   public:
 
@@ -76,7 +76,7 @@ namespace Minim {
 	point in the distribution and values stored in parameter x
 	will be saved in the field fval.
     */
-    boost::function< void (std::vector<double> &x) >  f;    
+    std::function< void (std::vector<double> &x) >  f;    
 
     // ---------- Construction / Destruction --------------
 

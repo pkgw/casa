@@ -12,8 +12,6 @@
 #define _LIBAIR_SINGLELAYERWATER_HPP__
 
 #include <vector>
-#include <boost/scoped_ptr.hpp>
-#include <boost/utility.hpp> 
 
 #include "model_enums.hpp"
 #include "columns_data.hpp"
@@ -33,8 +31,7 @@ namespace LibAIR2 {
       a single layer water model
    */
   class ISingleLayerWater:
-    private WaterData,
-    boost::noncopyable
+    private WaterData
   {
 
   public:
@@ -100,16 +97,20 @@ namespace LibAIR2 {
      */
     const SliceResult & getBckg(void) const;
 
+    ISingleLayerWater(const ISingleLayerWater& that) = delete;
+    void operator=(const ISingleLayerWater& that) = delete;
+
+
   private:
 
     // -------------- Private data -------------------------------------
     
-    boost::scoped_ptr<Slice>       s;
-    boost::scoped_ptr<IsoTLayer>   layer;
-    boost::scoped_ptr<RTResult> sr;
-    boost::scoped_ptr<Slice>       cmbslice;
+    std::shared_ptr<Slice>       s;
+    std::shared_ptr<IsoTLayer>   layer;
+    std::shared_ptr<RTResult> sr;
+    std::shared_ptr<Slice>       cmbslice;
     // Contains the background, i.e., 2.7K
-    boost::scoped_ptr<SliceResult> bckg;
+    std::shared_ptr<SliceResult> bckg;
     std::vector<double> scratch;
 
 

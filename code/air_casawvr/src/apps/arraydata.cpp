@@ -31,7 +31,7 @@ namespace LibAIR2 {
     state(state),
     field(field),
     source(source),
-    wvrdata(boost::extents[time.size()][nAnts][4]),
+    wvrdata(time.size(),nAnts,4),
     nAnts(nAnts)
   {
   }
@@ -57,7 +57,7 @@ namespace LibAIR2 {
 	    j!=aset.end();
 	    ++j)
 	{
-	  p+=data[i][*j][k];
+	  p+=data(i,*j,k);
 	}
 	d.set(i, a, k, p/n);
       }
@@ -78,7 +78,7 @@ namespace LibAIR2 {
 	    j!=aset.end();
 	    ++j)
 	{
-	  p+=data[i][j->second][k]*j->first;
+	  p+=data(i,j->second,k)*j->first;
 	}
 	d.set(i, a, k, p);
       }
@@ -123,7 +123,7 @@ namespace LibAIR2 {
 	  for(size_t k=0; k<4; ++k)
 	  {
 	    res->set(n, j, k,
-		     d.g_wvrdata()[i][j][k]);
+		     d.g_wvrdata()(i,j,k));
 	  }
 	}
 	++n;
@@ -170,11 +170,11 @@ namespace LibAIR2 {
 	      {
 		if ( even and (j==i-delt or j==i+delt))
 		  {
-		    sum=sum+(d.g_wvrdata()[j][l][k]*0.5);
+		    sum=sum+(d.g_wvrdata()(j,l,k)*0.5);
 		  }
 		else
 		  {
-		    sum=sum+(d.g_wvrdata()[j][l][k]);
+		    sum=sum+(d.g_wvrdata()(j,l,k));
 		  }
 	      }
 	    d.set(i, l, k, sum/(float(nsample)));

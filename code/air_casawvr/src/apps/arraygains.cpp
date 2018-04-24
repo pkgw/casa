@@ -11,6 +11,7 @@
    Structure to hold gains derived from WVR data
 */
 
+#include <array>
 #include "arraygains.hpp"
 #include "arraydata.hpp"
 #include "dtdlcoeffs.hpp"
@@ -28,7 +29,7 @@ namespace LibAIR2 {
     time(time),
     el(el),
     state(state), field(field), source(source),
-    path(boost::extents[time.size()][nAnt]),
+    path(time.size(),nAnt),
     nAnt(nAnt)
   {
   }
@@ -47,7 +48,7 @@ namespace LibAIR2 {
 	double cpath=0;
 	for(size_t k=0; k<4; ++k)
 	{
-	  double T = wvrdata.g_wvrdata()[i][j][k];
+	  double T = wvrdata.g_wvrdata()(i,j,k);
 
 	  if(T>0. && coeffs[k]>0)
 	  {
@@ -75,7 +76,7 @@ namespace LibAIR2 {
 	double cpath=0;
 	for(size_t k=0; k<4; ++k)
 	{
-	  const double T = wvrdata.g_wvrdata()[i][j][k];
+	  const double T = wvrdata.g_wvrdata()(i,j,k);
 	  if(T>0. && coeffs[k]>0)
 	  {
 	    cpath+=(T-TRef[k])*c[k]+ 0.5*std::pow(T-TRef[k], 2)*c2[k];
@@ -102,7 +103,7 @@ namespace LibAIR2 {
 	double cpath=0;
 	for(size_t k=0; k<4; ++k)
 	{
-	  const double T = wvrdata.g_wvrdata()[i][j][k];
+	  const double T = wvrdata.g_wvrdata()(i,j,k);
 	  if(T>0. && coeffs[k]>0)
 	  {
 	    cpath+=T*c[k];
@@ -135,7 +136,7 @@ namespace LibAIR2 {
 	reweight_thermal(c, cw);
 	for(size_t k=0; k<4; ++k)
 	{
-	  const double T = wvrdata.g_wvrdata()[i][j][k];
+	  const double T = wvrdata.g_wvrdata()(i,j,k);
 	  if(T>0. && c[k]!=0)
 	  {
 	    //std::cout << "i j k cw[k] T " << i << " " << j << " " << k << " " << cw[k] << " " << T << std::endl;
@@ -179,7 +180,7 @@ namespace LibAIR2 {
 	const double w=(time[i]-otime[oi-1])/tdelta;
 	for(size_t j=0; j<nAnt; ++j)
 	{
-	  path[i][j]=opath[oi-1][j]*(1-w) + opath[oi][j]*w;
+	  path(i,j)=opath(oi-1,j)*(1-w) + opath(oi,j)*w;
 	}
       }
     }
@@ -192,7 +193,7 @@ namespace LibAIR2 {
     {
       for(size_t j=0; j<nAnt; ++j)
       {
-        path[i][j]=path[i][j]*s;
+        path(i,j)=path(i,j)*s;
       }
     }
   }
@@ -201,13 +202,13 @@ namespace LibAIR2 {
 			       size_t i,
 			       size_t j) const
   {
-    return path[timei][i]-path[timei][j];
+    return path(timei,i)-path(timei,j);
   }
 
   double ArrayGains::absPath(size_t timei,
 			     size_t i) const
   {
-    return path[timei][i];
+    return path(timei,i);
   }
 
   double ArrayGains::greatestRMSBl(const std::vector<std::pair<double, double> > &tmask) const
@@ -455,7 +456,7 @@ namespace LibAIR2 {
 			std::vector<double> &res,
 			std::vector<double> &res2)
   {
-    boost::array<double, 4> noise =  { { 0.1, 0.08, 0.08, 0.09} };
+    std::array<double, 4> noise =  { { 0.1, 0.08, 0.08, 0.09} };
     const size_t n=coeffs.size();
     res.resize(n); 
     res2.resize(n);
@@ -497,7 +498,7 @@ namespace LibAIR2 {
   {
     std::vector<double> rwc;
     reweight_thermal(coeffs, rwc);
-    boost::array<double, 4> noise =  { { 0.1, 0.08, 0.08, 0.09} };
+    std::array<double, 4> noise =  { { 0.1, 0.08, 0.08, 0.09} };
     double sum=0;
     for(size_t i=0; i<4; ++i)
     {

@@ -12,8 +12,6 @@
 #include <vector>
 #include <list>
 
-#include <boost/scoped_ptr.hpp>
-
 #include "bnmin1/src/nestedsampler.hxx"
 #include "bnmin1/src/priors.hxx"
 
@@ -67,7 +65,7 @@ namespace LibAIR2 {
     double evidence;
 
     /// The nested sampler
-    boost::scoped_ptr<Minim::NestedS> ns;
+    std::shared_ptr<Minim::NestedS> ns;
     
 
     /// Number of points in the live set

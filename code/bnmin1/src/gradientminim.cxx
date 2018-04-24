@@ -14,9 +14,6 @@
 
 #include <gsl/gsl_multimin.h>
 
-
-#include <boost/mem_fn.hpp>
-
 #include <iostream>
 #include <stdexcept>
 

@@ -18,10 +18,6 @@
 
 #include <vector>
 
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/utility.hpp> 
-
 #include "bnmin1/src/minimmodel.hxx"
 #include "singlelayerwater.hpp"
 
@@ -38,7 +34,7 @@ namespace LibAIR2 {
 
       \returns the correct radiometer according to type supplied
    */
-  boost::shared_ptr<Radiometer> SwitchRadiometer(RadiometerT r);
+  std::shared_ptr<Radiometer> SwitchRadiometer(RadiometerT r);
 
 
 }

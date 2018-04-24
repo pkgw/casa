@@ -113,9 +113,9 @@ namespace LibAIR2 {
 	for (size_t j=0; j<nAnt; ++j)
 	{
 
-	  if(interpImpossibleAnts.count(j)==0 && g.g_path()[i][j]!=0)
+      if(interpImpossibleAnts.count(j)==0 && g.g_path()(i,j)!=0)
 	  {
-	    const double phase=g.g_path()[i][j]*path_to_phase;
+        const double phase=g.g_path()(i,j)*path_to_phase;
 	    cpar(0,0,j)=std::complex<float>(cos(phase),sin(phase));
 	  }
 	  else // there is no useful WVR data for this antenna

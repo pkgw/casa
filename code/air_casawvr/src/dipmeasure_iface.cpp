@@ -20,7 +20,7 @@ namespace LibAIR2{
   void DipNormMeasure::addObs(double za,
 			      const std::vector<double> & skyTb)
   {
-    obs.push_back( boost::make_tuple(za, skyTb));
+    obs.push_back( std::make_tuple(za, skyTb));
   }
 
   double DipNormMeasure::lLikely (void) const
@@ -29,9 +29,8 @@ namespace LibAIR2{
     double res=0;
     for (size_t i = 0 ; i < obs.size() ; ++i)
     {
-      double za;
-      obs_t  skyT;
-      boost::tie(za, skyT) = obs[i];
+      double za = std::get<0>(obs[i]);
+      obs_t  skyT = std::get<1>(obs[i]);
 
       _model.setZA(za);
       _model.eval(scratch);

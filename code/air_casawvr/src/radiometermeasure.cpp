@@ -7,9 +7,8 @@
 
 */
 
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-#include <boost/assign/list_of.hpp>
+#include <memory>
+#include <functional>
 
 #include "radiometermeasure.hpp"
 #include "radiometer_utils.hpp"
@@ -204,14 +203,14 @@ namespace LibAIR2 {
   /***
       Merge the four channels into single radiomer
    */
-  Radiometer * MkFullWVR( const boost::function< DSBRadio*  (int ch) > & mkchn )
+  Radiometer * MkFullWVR( const std::function< DSBRadio*  (int ch) > & mkchn )
   {
-    std::vector< boost::shared_ptr<DSBRadio>  > dsbv;
+    std::vector< std::shared_ptr<DSBRadio>  > dsbv;
     std::vector<const Radiometer *>  rv;
 
     for (size_t j = 1 ; j < 5; ++j )
     {
-      dsbv.push_back( boost::shared_ptr<DSBRadio> (mkchn(j)) );
+      dsbv.push_back( std::shared_ptr<DSBRadio> (mkchn(j)) );
       rv.push_back( & dsbv[ j-1]->getRadiometer());
     }
 
@@ -220,13 +219,15 @@ namespace LibAIR2 {
 
   Radiometer * MkFullALMAWVR(void)
   {
-    return MkFullWVR(boost::bind(MkALMARadiometer,_1,0.0,0.0));
+    using namespace std::placeholders;
+    return MkFullWVR(std::bind(MkALMARadiometer,_1,0.0,0.0));
   }
 
   Radiometer * MkALMAWVR_offset(double cf,
 				double bw)
   {
-    return MkFullWVR(boost::bind(MkALMARadiometer,
+    using namespace std::placeholders;
+    return MkFullWVR(std::bind(MkALMARadiometer,
 				 _1,
 				 cf,
 				 bw));
@@ -248,20 +249,12 @@ namespace LibAIR2 {
 
   Radiometer *MkALMAWVR(const ALMAWVRCharacter &c)
   {
-    std::vector< boost::shared_ptr<DSBRadio> > dsbv=
-      boost::assign::list_of(new DSBBW_QuadRadio(183.31,
-						 c.cf1,
-						 c.bw1))
-      (new DSBBW_QuadRadio(183.31,
-			   c.cf2,
-			   c.bw2))
-      (new DSBBW_QuadRadio(183.31,
-			   c.cf3,
-			   c.bw3))
-      (new DSBBW_QuadRadio(183.31,
-			   c.cf4,
-			   c.bw4))
-      ;
+    std::vector< std::shared_ptr<DSBRadio> > dsbv {
+        std::shared_ptr<DSBRadio>(new DSBBW_QuadRadio(183.31,c.cf1,c.bw1)),
+        std::shared_ptr<DSBRadio>(new DSBBW_QuadRadio(183.31,c.cf2,c.bw2)),
+        std::shared_ptr<DSBRadio>(new DSBBW_QuadRadio(183.31,c.cf3,c.bw3)),
+        std::shared_ptr<DSBRadio>(new DSBBW_QuadRadio(183.31,c.cf4,c.bw4))
+    };
 
     std::vector<const Radiometer *>  rv;    
     for(size_t i=0; i<dsbv.size(); ++i)
@@ -313,12 +306,12 @@ namespace LibAIR2 {
     const double filter_c[] = { 19.2, 22, 25.2};
     const double filter_bw[] = {1.15, 1.15, 1.15};
     
-    std::vector< boost::shared_ptr<Radiometer> > rv;
+    std::vector< std::shared_ptr<Radiometer> > rv;
     std::vector< const Radiometer * > rv_obs;
     
     for (size_t i =0 ; i < 3; ++i)
     {
-      rv.push_back(boost::shared_ptr<Radiometer>(MkSSBRadio(filter_c[i],
+      rv.push_back(std::shared_ptr<Radiometer>(MkSSBRadio(filter_c[i],
 							    filter_bw[i])));
 
       rv_obs.push_back(rv[i].get());

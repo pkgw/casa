@@ -10,10 +10,12 @@
 */
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
-#include <boost/tokenizer.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
+#include <string>
+#include <vector>
+#include <cctype>
+#include <cstring>
 
 #include "dispersion.hpp"
 
@@ -33,14 +35,23 @@ namespace LibAIR2 {
     
   }
 
-  typedef boost::tokenizer<boost::escaped_list_separator<char> >  tok_t;
-
-  tok_t tokLine(const std::string &line)
+  inline std::string trim(const std::string &s)
   {
-    return tok_t(line,
-		 boost::escaped_list_separator<char>( "\\",
-						      ",;",
-						      "\""));    
+    auto wsfront=std::find_if_not(s.begin(),s.end(),[](int c){return std::isspace(c);});
+    auto wsback=std::find_if_not(s.rbegin(),s.rend(),[](int c){return std::isspace(c);}).base();
+    return (wsback<=wsfront ? std::string() : std::string(wsfront,wsback));
+  }
+
+  std::vector<std::string> tokLine(const std::string &input) {
+    char *buf = strdup(input.c_str( ));
+    std::vector<std::string> result;
+    char *elem = strtok(buf,",;");
+    while ( elem ) {
+      result.push_back(std::move(std::string(elem)));
+      elem = strtok(0,",;");
+    }
+    free(buf);
+    return result;
   }
 
   void loadCSV(const char *fname,
@@ -56,25 +67,18 @@ namespace LibAIR2 {
     while(ifs.good())
     {
       std::getline(ifs, scratch);
-      if (scratch.size() < 5)
-	continue;
+      if (scratch.size() < 5) continue;
 
-      tok_t tok (tokLine(scratch));
+      auto tok = tokLine(scratch);
+      if (tok.size() < 2) continue;
 
-      std::string first  (*tok.begin());
-      std::string second (*(++tok.begin()));
-      boost::trim(first);
-      boost::trim(second);
+      std::string first  = trim(tok[0]);
+      std::string second = trim(tok[1]);
+
       try {
-	dt.insert(dt.end(),
-		  std::pair<double, double>(boost::lexical_cast<double>(first),
-					    boost::lexical_cast<double>(second)
-					    ));
-      }
-      catch (const std::bad_cast &bc)
-      {
-	std::cerr<<"Could not interpret " << first << " and " << second
-		 <<std::endl;
+          dt.insert( dt.end(), std::pair<double, double>(std::stod(first), std::stod(second)) );
+      } catch (const std::bad_cast &bc) {
+          std::cerr << "Could not interpret " << first << " and " << second << std::endl;
       }
     }
   }

@@ -14,9 +14,8 @@
 #include <cmath>
 #include <vector>
 
-#include <boost/array.hpp>
-#include <boost/function.hpp>
-#include <boost/math/special_functions/binomial.hpp>
+#include <array>
+#include <functional>
 
 namespace LibAIR2 {
 
@@ -37,6 +36,18 @@ namespace LibAIR2 {
 
   }
 
+  inline unsigned binomialCoefficient(int n, int k) {
+      unsigned cnk(1);
+      int mn = std::min ( k, n - k );
+      if ( mn < 0 ) cnk = 0;
+      else if ( mn > 0 ) {
+        int mx = std::max ( k, n - k );
+        cnk = mx + 1;
+        for ( int i = 2; i <= mn; i++ ) cnk = ( cnk * ( mx + i ) ) / i;
+      }
+      return cnk;
+   };
+
   /** Compute finite differences up to (N-1)-th order of function f
 
       This should be accellerated by storing the previous evaluations
@@ -44,12 +55,13 @@ namespace LibAIR2 {
       \param c The central point around which to compute the difference
    */
   template<size_t N>
-  boost::array<double, N>
-  CenFD(const boost::function<double (double)> &f,
+  std::array<double, N>
+  CenFD(const std::function<double (double)> &f,
 	double c,
 	double delt)
   {
-    boost::array<double, N> res;
+
+    std::array<double, N> res;
     for (size_t n=0; n<N; ++n)
     {
       res[n]=0;
@@ -60,7 +72,7 @@ namespace LibAIR2 {
       else
       {
 	for (size_t i=0; i<=n; ++i)
-	  res[n]+=std::pow(-1.0,(int)i)*boost::math::binomial_coefficient<double>(n,i)*f(c+(0.5*n-i)*delt);
+      res[n]+=std::pow(-1.0,(int)i)*binomialCoefficient(n,i)*f(c+(0.5*n-i)*delt);
 	res[n]/=std::pow(delt, (int)n);
       }
     }
@@ -81,12 +93,12 @@ namespace LibAIR2 {
       \param delt Displacement to use for the differnetiation
    */
   template<size_t N, size_t K>
-  boost::array< boost::array<double, K>, N>
-  CenFDV(const boost::function< boost::array<double, K> (double)> &f,
+  std::array< std::array<double, K>, N>
+  CenFDV(const std::function< std::array<double, K> (double)> &f,
 	 double c,
 	 double delt)
   {
-    boost::array< boost::array<double, K>, N> res;
+    std::array< std::array<double, K>, N> res;
     for (size_t n=0; n<N; ++n)
     {
       for (size_t k=0; k<K; ++k)
@@ -102,8 +114,8 @@ namespace LibAIR2 {
       {
 	for (size_t i=0; i<=n; ++i)
 	{
-	  double coeff=std::pow(-1.0,(int)i)*boost::math::binomial_coefficient<double>(n,i);
-	  boost::array<double, K> ir =f(c+(0.5*n-i)*delt);
+	  double coeff=std::pow(-1.0,(int)i)*binomialCoefficient(n,i);
+	  std::array<double, K> ir =f(c+(0.5*n-i)*delt);
 	  for(size_t k=0; k<K; ++k)
 	  {
 	    res[n][k]+=coeff*ir[k];

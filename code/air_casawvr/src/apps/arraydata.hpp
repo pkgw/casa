@@ -14,7 +14,7 @@
 #define _LIBAIR_APPS_ARRAYDATA_HPP__
 
 #include <vector>
-#include <boost/multi_array.hpp>
+#include <casa/Arrays/Cube.h>
 
 #include "antennautils.hpp"
 
@@ -34,7 +34,7 @@ namespace LibAIR2 {
     
     /// This is the type which is used to store the actual sky
     /// brightness data from all the WVRs
-    typedef boost::multi_array<double, 3> wvrdata_t;
+      typedef casacore::Cube<double> wvrdata_t;
     
   private:
 

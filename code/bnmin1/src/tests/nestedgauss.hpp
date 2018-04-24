@@ -12,11 +12,12 @@
 #include "../nestedsampler.hxx"
 #include "../mcmonitor.hxx"
 #include "../priors.hxx"
+#include <memory>
 
 struct pdesc {
-  boost::shared_ptr<Minim::IndependentFlatPriors> obs;
-  boost::shared_ptr<Minim::NestedS> s;
-  boost::shared_ptr<Minim::SOutMCMon> mon;
+  std::shared_ptr<Minim::IndependentFlatPriors> obs;
+  std::shared_ptr<Minim::NestedS> s;
+  std::shared_ptr<Minim::SOutMCMon> mon;
 };
 
 pdesc mkDesc(double l_sigma,
@@ -29,11 +30,11 @@ pdesc mkDesc(double l_sigma,
   gp->sigma=l_sigma;
 
   pdesc res;
-  res.obs=boost::shared_ptr<IndependentFlatPriors>(new  IndependentFlatPriors(gp));
+  res.obs=std::shared_ptr<IndependentFlatPriors>(new  IndependentFlatPriors(gp));
 
   for (size_t i=0; i<ndim; ++i)
   {
-    res.obs->AddPrior((boost::format("p%i") % i).str(), -1.01,1.01);
+      res.obs->AddPrior(std::string("p")+std::to_string(i), -1.01,1.01);
   }
 
   
@@ -43,14 +44,14 @@ pdesc mkDesc(double l_sigma,
 		 20,
 		 startset);
 
-  res.s=boost::shared_ptr<NestedS>(new NestedS(*res.obs,
+  res.s=std::shared_ptr<NestedS>(new NestedS(*res.obs,
 					       startset));
 
   if (monitor)
   {
     SOutMCMon *pp=new SOutMCMon();
     res.s->mon=pp;
-    res.mon=boost::shared_ptr<SOutMCMon>(pp);
+    res.mon=std::shared_ptr<SOutMCMon>(pp);
   }
   return res;
 };

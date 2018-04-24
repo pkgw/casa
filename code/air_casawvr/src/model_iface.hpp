@@ -12,8 +12,8 @@
 #define _LIBAIR_MODEL_IFACE_HPP__
 
 #include <vector>
-#include <boost/scoped_ptr.hpp>
-#include <boost/array.hpp>
+#include <memory>
+#include <array>
 
 #include "bnmin1/src/minimmodel.hxx"
 
@@ -111,7 +111,7 @@ namespace LibAIR2 {
 	
 	\note Not a const function as we are changing the parameter
      */
-    virtual boost::array<double, 4>
+    virtual std::array<double, 4>
     evalFn(double x, const std::string &pname);
   };
     
@@ -124,7 +124,7 @@ namespace LibAIR2 {
     double coupling;
     double TTerm;
 
-    boost::scoped_ptr<WVRAtmoQuantModel> _am;
+    std::shared_ptr<WVRAtmoQuantModel> _am;
 
   public:
     /** Initialise from a model of the atmosphere.
@@ -176,7 +176,7 @@ namespace LibAIR2 {
     
     /// This is the underlying model which the absolute calibration
     /// model scales to represent calibration error
-    boost::scoped_ptr<WVRAtmoQuantModel> _am;
+    std::shared_ptr<WVRAtmoQuantModel> _am;
 
   public:
     

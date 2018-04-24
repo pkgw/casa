@@ -18,14 +18,7 @@
 
 #include <iostream>
 #include <numeric>
-
-#include <boost/program_options.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/foreach.hpp>
-#include <boost/tuple/tuple.hpp>
+#include <string>
 
 #include <ms/MeasurementSets/MeasurementSet.h>
 
@@ -51,6 +44,7 @@ using LibAIR2::warnMsg;
 
 /// Check the options and parameters supplied by the user for internal
 /// consistency 
+#ifdef BOOST_TODO
 bool checkPars(const boost::program_options::variables_map &vm)
 {
   if (vm.count("ms") <1)
@@ -168,7 +162,7 @@ void checkMSandPars(const casacore::MeasurementSet &ms,
   }
 
 }
-
+#endif
 /** \brief Take a parameter than can be specified as a sequence of
     antenna numbers or names and always return as a sequence of
     antenna numbers.
@@ -195,6 +189,7 @@ struct hack02 {
 };
 #endif
 
+#ifdef BOOST_TODO
 LibAIR2::AntSet getAntPars(const std::string &s,
 			   const boost::program_options::variables_map &vm,
 			   const casacore::MeasurementSet &ms)
@@ -256,7 +251,7 @@ LibAIR2::AntSet getAntPars(const std::string &s,
   return res;
 }
 
-
+#endif
 /** Simple function to turn the command line parameters into a single
     string.
 
@@ -345,7 +340,7 @@ void flagInterp(const casacore::MeasurementSet &ms,
 	for(size_t k=0; k < 4; ++k){
 	  double p=0;
 	  for(LibAIR2::AntSetWeight::const_iterator j=near.begin(); j!=near.end(); ++j){
-	    double thisData = data[ii][j->second][k];
+        double thisData = data(ii,j->second,k);
 	    if(thisData>0){
 	      p+=thisData*j->first;
 	    }
@@ -381,6 +376,7 @@ void flagInterp(const casacore::MeasurementSet &ms,
 }
 
 
+#ifdef BOOST_TODO
 
 /// Work out which spectral windows might need to be reversed
 std::set<size_t> reversedSPWs(const LibAIR2::MSSpec &sp,
@@ -407,6 +403,7 @@ std::set<size_t> reversedSPWs(const LibAIR2::MSSpec &sp,
   }    
   return reverse;
 }
+#endif
 
 void printExpectedPerf(const LibAIR2::ArrayGains &g,
 		       const LibAIR2::dTdLCoeffsBase &coeffs,
@@ -443,6 +440,7 @@ void printExpectedPerf(const LibAIR2::ArrayGains &g,
 /** Compute the time intervals over which the statistics should be
     computed
  */
+#ifdef BOOST_TODO
 
 void statTimeMask(const casacore::MeasurementSet &ms,
 		  const boost::program_options::variables_map &vm,
@@ -524,7 +522,7 @@ void statTimeMask(const casacore::MeasurementSet &ms,
 			 time,
 			 tmask);
 }
-		  
+#endif		  
 
 /// Compute the discrepance in path estimate between channels 1 and 3
 void computePathDisc(const LibAIR2::InterpArrayData &d,
@@ -538,9 +536,9 @@ void computePathDisc(const LibAIR2::InterpArrayData &d,
 			d.g_field(),
 			d.g_source(),
 			d.nAnts);
-  boost::array<double, 4> c1mask = {{0, 1, 0,0}};
-  boost::array<double, 4> c3mask = {{0, 0, 0,1}};
-  boost::array<double, 4> callmask = {{1, 1, 1,1}};
+  std::array<double, 4> c1mask = {{0, 1, 0,0}};
+  std::array<double, 4> c3mask = {{0, 0, 0,1}};
+  std::array<double, 4> callmask = {{1, 1, 1,1}};
     
   coeffs.chmask=c1mask;
   g1.calc(d,
@@ -574,6 +572,7 @@ void printFieldSegments(const std::vector<std::pair<double, double> >  &fb,
 
 }
 
+#ifdef BOOST_TODO
 std::vector<std::set<std::string> > getTied(const boost::program_options::variables_map &vm)
 {
   using namespace boost::algorithm;
@@ -596,7 +595,7 @@ std::vector<std::set<std::string> > getTied(const boost::program_options::variab
     }
     return res;
 }
-
+#endif
 // Convert tied source names to tied source IDs
 std::vector<std::set<size_t> >  tiedIDs(const std::vector<std::set<std::string> > &tied,
 					const casacore::MeasurementSet &ms)
@@ -612,7 +611,7 @@ std::vector<std::set<size_t> >  tiedIDs(const std::vector<std::set<std::string> 
     {	
       try
       {
-	int srcid=boost::lexical_cast<int>(*j);
+    int srcid=std::stoi(*j);
 	std::map<size_t, std::string>::const_iterator it = srcmap.find(srcid);
 	if(it == srcmap.end()) { // id does not exist
 	  std::cerr << "Parameter 'tie': The source id " << *j << " is an integer but not a valid numerical Source ID. Will try to interpret it as a name ..." << std::endl;
@@ -784,6 +783,7 @@ LibAIR2::AntSet NoWVRAnts(const LibAIR2::aname_t &an)
   return res;
 }
 
+#ifdef BOOST_TODO
 
 static void defineOptions(boost::program_options::options_description &desc,
 			  boost::program_options::positional_options_description &p)
@@ -863,13 +863,14 @@ static void defineOptions(boost::program_options::options_description &desc,
     ;
   p.add("ms", -1);
 }
+#endif
 
 int main(int argc,  char* argv[])
 {
-  using namespace boost::program_options;
 
   int rval = -2;
 
+#ifdef BOOST_TODO
   options_description desc("Allowed options");
   positional_options_description p;
   defineOptions(desc, p);
@@ -1357,6 +1358,7 @@ int main(int argc,  char* argv[])
 #endif
 
   } // end while
+#endif
 
 
   return rval;

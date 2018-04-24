@@ -18,8 +18,8 @@
 #include <set>
 #include <iosfwd>
 
-#include <boost/array.hpp>
-#include <boost/multi_array.hpp>
+#include <array>
+#include <casa/Arrays/Cube.h>
 
 namespace LibAIR2 {
 
@@ -37,7 +37,7 @@ namespace LibAIR2 {
     // ----------------------  Public data -------------------------
 
     /// Allows masking or scaling of channels
-    boost::array<double, 4> chmask;
+    std::array<double, 4> chmask;
 
     // ----------------------- Construction/Destruction -------------
     
@@ -139,7 +139,7 @@ namespace LibAIR2 {
 
     /// First dimension is channel number, second is antenna number, third
     /// is (coefficent, error, second order coefficient)
-    typedef boost::multi_array<double, 3> coeff_t;
+    typedef casacore::Cube<double> coeff_t;
 
   private:
 
@@ -195,12 +195,12 @@ namespace LibAIR2 {
       double time;
       
       /// The coefficients
-      boost::array<double, 4> coeffs;
+      std::array<double, 4> coeffs;
 
       /// Second order coefficients
-      boost::array<double, 4> c2;
+      std::array<double, 4> c2;
 
-      boost::array<double, 4> err;
+      std::array<double, 4> err;
 
       /// Defines the ordering of retrievals so that they can be
       /// sorted in a set
@@ -223,8 +223,8 @@ namespace LibAIR2 {
     /** Add a new solution to the sequence
      */
     void insert(double time,
-		const boost::array<double, 4> &coeffs,
-		const boost::array<double, 4> &err);
+		const std::array<double, 4> &coeffs,
+		const std::array<double, 4> &err);
 
 
     // ----------------------- Inherited from dTdLCoeffsBase --------

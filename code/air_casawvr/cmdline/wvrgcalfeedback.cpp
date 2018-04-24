@@ -12,8 +12,6 @@
 
 */
 
-#include <boost/foreach.hpp>
-#include <boost/format.hpp>
 
 #include "../src/libair_main.hpp"
 #include "wvrgcalfeedback.hpp"
@@ -60,7 +58,7 @@ namespace LibAIR2 {
   {
     std::cout<<std::endl
 	     <<"Good state IDs: ";
-    BOOST_FOREACH(const size_t &x, useID)
+    for (auto x: useID )
       std::cout<<x<<", ";
     std::cout<<std::endl;
     
@@ -82,9 +80,12 @@ namespace LibAIR2 {
     boolYesNo(os, ai.haswvr);
     os<<"\t";
     boolYesNo(os,ai.flag);
-    os<<boost::format("\t%4.3g") % (ai.pathRMS/1e-6)
-      <<"\t"
-      <<boost::format("\t%4.3g") % (ai.pathDisc/1e-6);
+    char buffer[1024];
+    sprintf( buffer, "\t%4.3g", ai.pathRMS/1e-6 );
+    os<<buffer<<"\t";
+
+    sprintf( buffer, "\t%4.3g", ai.pathDisc/1e-6 );
+    os<<buffer;
     return os;
   }
 
@@ -119,7 +120,7 @@ namespace LibAIR2 {
       <<"-----------------------------------------------------------------------"<<std::endl;
     os<<"#"<<"\t"<<"Name"<<"\t"<<"WVR?"<<"\t"<<"Flag?"<<"\t"<<"RMS (um)" << "\t"<<"Disc (um)" 
       <<std::endl;
-    BOOST_FOREACH(const AntennaInfo &x, at)
+    for (auto x: at)
       os<<x<<std::endl;
     return os;
   }

@@ -12,11 +12,8 @@
 
 #include <algorithm> 
 #include <numeric>
-#include <boost/format.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/algorithm.hpp>
-
+#include <list>
+#include <array>
 #include <cmath>
 #include <iostream>
 
@@ -27,7 +24,7 @@ namespace LibAIR2 {
 
   dTdLCoeffsBase::dTdLCoeffsBase()
   {
-    boost::array<double, 4> _chmask={{1,1,1,1}};
+    std::array<double, 4> _chmask={{1,1,1,1}};
     chmask=_chmask;
   }
 
@@ -115,7 +112,7 @@ struct hack01 {
   }
 
   dTdLCoeffsIndiv::dTdLCoeffsIndiv(size_t nAnts):
-    coeff(boost::extents[4][nAnts][3])
+    coeff(4,nAnts,3)
   {
   }
 
@@ -125,8 +122,8 @@ struct hack01 {
   {
     for(size_t k=0; k<4; ++k)
     {
-      coeff[k][i][0]=c[k];
-      coeff[k][i][1]=e[k];
+      coeff(k,i,0)=c[k];
+      coeff(k,i,1)=e[k];
     }
   }
 
@@ -144,8 +141,8 @@ struct hack01 {
     res2.resize(nc);
     for(size_t k=0; k<nc; ++k)
     {
-      res[k]=coeff[k][i][0]*chmask[k];
-      res2[k]=coeff[k][i][2];
+      res[k]=coeff(k,i,0)*chmask[k];
+      res2[k]=coeff(k,i,2);
     }
   }
 
@@ -153,7 +150,7 @@ struct hack01 {
   {
     os<<"Coefficients: ";
     for(size_t i=0; i<4; ++i)
-      os<<coeff[i][0][0]<<", ";
+      os<<coeff(i,0,0)<<", ";
     os<<std::endl;
   }
 
@@ -165,15 +162,14 @@ struct hack01 {
     err.resize(nc);
     for(size_t k=0; k<nc; ++k)
     {
-      res[k]=coeff[k][0][0];
-      err[k]=coeff[k][0][1];
+      res[k]=coeff(k,0,0);
+      err[k]=coeff(k,0,1);
     }
   }
 
   bool dTdLCoeffsIndiv::isnan(void) const
   {
-    return std::accumulate(coeff.origin(), 
-             coeff.origin()+(coeff.shape()[0]*coeff.shape()[1]*coeff.shape()[2]), false,
+    return std::accumulate(coeff.begin( ), coeff.end( ), false,
 #if __cplusplus >= 201103L
              [](bool acc, double v) { return acc || std::isnan(v); }
 #else
@@ -188,8 +184,8 @@ struct hack01 {
   }
 
   void dTdLCoeffsSingleInterpolated::insert(double time,
-					    const boost::array<double, 4> &coeffs,
-					    const boost::array<double, 4> &err)
+					    const std::array<double, 4> &coeffs,
+					    const std::array<double, 4> &err)
   {
     ret_t t;
     t.time=time;
@@ -275,7 +271,7 @@ struct hack01 {
 	i!=retrievals.end();
 	++i)
     {
-      os<<boost::format("Retrieval at %f is: [") % i->time;
+      os<<std::string("Retrieval at %f is: [") + std::to_string(i->time);
       for(size_t j=0; j<4; ++j)
       {
 	os<<i->coeffs[j]<<",";

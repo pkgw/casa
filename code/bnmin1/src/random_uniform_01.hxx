@@ -13,10 +13,6 @@
 #define _BNMIN1_RANDOM_UNIFORM_01_HXX
 
 #include <iostream>
-#include <boost/config.hpp>
-#include <boost/limits.hpp>
-#include <boost/static_assert.hpp>
-#include <boost/random/detail/config.hpp>
 #include "random_detail_pass_through_engine.hxx"
 
 namespace bnmin1boost {
@@ -30,8 +26,8 @@ public:
   typedef RealType input_type;
   typedef RealType result_type;
   // compiler-generated copy ctor and copy assignment are fine
-  result_type min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return result_type(0); }
-  result_type max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return result_type(1); }
+  result_type min PREVENT_MACRO_SUBSTITUTION () const { return result_type(0); }
+  result_type max PREVENT_MACRO_SUBSTITUTION () const { return result_type(1); }
   void reset() { }
 
   template<class Engine>
@@ -73,10 +69,10 @@ public:
   typedef UniformRandomNumberGenerator base_type;
   typedef RealType result_type;
 
-  BOOST_STATIC_CONSTANT(bool, has_fixed_range = false);
+  static constexpr bool has_fixed_range = false;
 
 #if !defined(BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS) && !(defined(BOOST_MSVC) && BOOST_MSVC <= 1300)
-  BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
+  static_assert(!std::numeric_limits<RealType>::is_integer,"failed assert");
 #endif
 
   explicit backward_compatible_uniform_01(typename traits::rvalue_type rng)
@@ -88,8 +84,8 @@ public:
   }
   // compiler-generated copy ctor and copy assignment are fine
 
-  result_type min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return result_type(0); }
-  result_type max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return result_type(1); }
+  result_type min PREVENT_MACRO_SUBSTITUTION () const { return result_type(0); }
+  result_type max PREVENT_MACRO_SUBSTITUTION () const { return result_type(1); }
   typename traits::value_type& base() { return _rng.base(); }
   const typename traits::value_type& base() const { return _rng.base(); }
   void reset() { }
@@ -179,9 +175,9 @@ struct select_uniform_01<long double>
 // conversion plus float multiplication
 template<class UniformRandomNumberGenerator = double, class RealType = double>
 class uniform_01
-  : public detail::select_uniform_01<UniformRandomNumberGenerator>::BOOST_NESTED_TEMPLATE apply<RealType>::type
+  : public detail::select_uniform_01<UniformRandomNumberGenerator>::template apply<RealType>::type
 {
-  typedef typename detail::select_uniform_01<UniformRandomNumberGenerator>::BOOST_NESTED_TEMPLATE apply<RealType>::type impl_type;
+  typedef typename detail::select_uniform_01<UniformRandomNumberGenerator>::template apply<RealType>::type impl_type;
   typedef random::detail::ptr_helper<UniformRandomNumberGenerator> traits;
 public:
 

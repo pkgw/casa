@@ -12,12 +12,6 @@
 #include <cmath>
 #include <iostream>
 
-#include <boost/random.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_real.hpp>
-
-#include <boost/assign/list_of.hpp>
-
 #include "nestedsampler.hxx"
 #include "priors.hxx"
 #include "minim.hxx"
@@ -25,6 +19,7 @@
 #include "nestederr.hxx"
 #include "mcmonitor.hxx"
 #include "nestedinitial.hxx"
+#include "random_uniform_01.hxx"
 
 namespace Minim {
 
@@ -59,12 +54,12 @@ namespace Minim {
     ModelDesc(ml),
     Zseq(1,0.0),
     Xseq(1,1.0),
-    ml(ml),
-    ps(NULL),
-    initials(new InitialWorst()),
-    mon(NULL),
-    n_psample(100)
+    ml(ml)
   {
+      ps = NULL;
+      initials.reset(new InitialWorst());
+      mon = NULL;
+      n_psample = 100;
   }
 
   NestedS::~NestedS(void)
@@ -89,8 +84,8 @@ namespace Minim {
     ps.reset(new CSRMSSS(ml, 
 			 *this, 
 			 g_ss()));
-    Zseq=boost::assign::list_of(0.0).convert_to_container<std::vector<double> >( );
-    Xseq=boost::assign::list_of(1.0).convert_to_container<std::vector<double> >( );
+    Zseq={ 0.0 };
+    Xseq={ 1.0 };
     llPoint(ml,
 	    *this,
 	    start,
@@ -222,8 +217,8 @@ namespace Minim {
   {
     const size_t nprior=prior.npriors();
 
-    boost::mt19937 rng(seed);
-    boost::uniform_01<boost::mt19937> zo(rng);
+    bnmin1boost::mt19937 rng(seed);
+    bnmin1boost::uniform_01<bnmin1boost::mt19937> zo(rng);
 
     Minim::MCPoint p(nprior); 
     for(size_t i=0; i<n; ++i)

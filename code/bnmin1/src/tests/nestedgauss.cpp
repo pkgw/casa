@@ -7,11 +7,8 @@
 */
 
 #include <iostream>
-#include <boost/format.hpp>
 
 #include "nestedgauss.hpp"
-
-#include <boost/program_options.hpp>
 
 void printLkl(const std::list<Minim::WPPoint> &lp,
 	      std::ostream &os)
@@ -20,13 +17,14 @@ void printLkl(const std::list<Minim::WPPoint> &lp,
       i != lp.end();
       ++i)
   {
-    os<<(boost::format("[%g,%g,%g] : post=%g") % i->p[0] % i->p[1] % i->p[2] % (i->w* exp(-i->ll)))
+      os<< std::string("[")+std::to_string(i->p[0])+","+std::to_string(i->p[1])+","+std::to_string(i->p[2])+"] : post="+std::to_string(i->w* exp(-i->ll))
       <<std::endl;
   }
 }
 
 int main(int ac, char* av[])
 {   
+#ifdef BOOST_TODO
   using namespace boost::program_options;
   
   options_description desc("Allowed options");
@@ -86,7 +84,7 @@ int main(int ac, char* av[])
 	       std::cout);
     }
   }
-  
+#endif  
   return 0;
 }
 
