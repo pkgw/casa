@@ -139,6 +139,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             robustrms = itsImages->calcRobustRMS();
             //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
+            os<<"CURRENT NSIGMA="<<nsigma<<LogIO::POST;
             Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
               
             Float thresholdtouse;

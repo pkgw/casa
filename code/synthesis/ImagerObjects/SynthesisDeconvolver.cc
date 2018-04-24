@@ -198,6 +198,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         itsMinPercentChange = decpars.minPercentChange;
         itsVerbose = decpars.verbose;
 	itsIsInteractive = decpars.interactive;
+        itsNsigma = decpars.nsigma;
       }
     catch(AipsError &x)
       {
@@ -244,7 +245,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       //re-calculate current nsigma threhold
       Array<Double> robustrms = itsImages->calcRobustRMS();
-      Float nsigma = itsLoopController.getNsigma();
+      //Float nsigma = itsLoopController.getNsigma();
+      Float nsigma;
+      os<<"iterdone = "<<itsLoopController.getIterDone()<<LogIO::POST;
+      if(itsLoopController.getIterDone()==0) {
+        nsigma = itsNsigma;
+      }
+      else {
+        nsigma = itsLoopController.getNsigma();
+      }
+      os<<" nsigma (by itsLoopController.getNsigma) =="<<nsigma<<LogIO::POST;
+      os<<" TEST other param get loopgain=="<<itsLoopController.getLoopGain()<<LogIO::POST;
       Double maxrobustrms = max(robustrms);
       //Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
       Float nsigmathresh = nsigma * (Float)maxrobustrms;
@@ -283,6 +294,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       returnRecord = itsLoopController.getCycleInitializationRecord();
 
       itsImages->printImageStats(); 
+       os<<" Nsigma NOW = "<< itsLoopController.getNsigma() <<LogIO::POST;
 
       os << LogIO::DEBUG2 << "Initialized minor cycle. Returning returnRec" << LogIO::POST;
 

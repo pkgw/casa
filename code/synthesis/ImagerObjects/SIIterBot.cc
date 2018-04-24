@@ -321,6 +321,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		returnRecord.define( RecordFieldId("loopgain"), itsLoopGain);
                 returnRecord.define( RecordFieldId("thresholdreached"), thresholdReached);
 		returnRecord.define( RecordFieldId("nsigma"), itsNsigma);
+                os << "GET minorcycle controls... itsNsigma="<<itsNsigma<<LogIO::POST;
 
 		return returnRecord;
 	}
@@ -602,6 +603,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		returnRecord.define(RecordFieldId("interactiveniter"),itsInteractiveNiter);
 
 		returnRecord.define( RecordFieldId("threshold"),  itsThreshold);    
+		returnRecord.define( RecordFieldId("nsigma"),  itsNsigma);    
 		if( itsIsCycleThresholdAuto == true )  updateCycleThreshold();
 		itsIsCycleThresholdAuto = true; /* Reset this, for the next round */
 
@@ -628,6 +630,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		/* report clean's state */
 		returnRecord.define( RecordFieldId("cleanstate"), itsStopFlag ? "stopped" :
 		                                                  itsPauseFlag ? "paused" : "running" );
+                os<<"GetDetailedRecord now !!!!!!!!!!!="<<itsNiter<<LogIO::POST;
 		return returnRecord;
 	}
 
@@ -756,6 +759,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 }
 		if (recordIn.isDefined("nsigma"))
 			changeNsigma(recordIn.asFloat( RecordFieldId("nsigma")));
+                        os<<"set nsigma itsNsigma="<<itsNsigma<<LogIO::POST;
 
 		//		printOut("After Setting : ", false);
 

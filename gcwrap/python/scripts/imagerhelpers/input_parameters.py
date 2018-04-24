@@ -202,7 +202,7 @@ class ImagerParameters():
                                     'lownoisethreshold':lownoisethreshold, 'negativethreshold':negativethreshold,'smoothfactor':smoothfactor,
                                     'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold, 'growiterations':growiterations, 
                                      'dogrowprune':dogrowprune, 'minpercentchange':minpercentchange, 'verbose':verbose,
-                                    'interactive':interactive, 'startmodel':startmodel} }
+                                    'interactive':interactive, 'startmodel':startmodel, 'nsigma':nsigma} }
 
         ######### Iteration control. 
         self.iterpars = { 'niter':niter, 'cycleniter':cycleniter, 'threshold':threshold, 

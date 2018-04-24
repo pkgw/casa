@@ -254,6 +254,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Record returnRecord;
 
+    os<<"itsNsimga in SIMinorCycle ="<<itsNsigma<<LogIO::POST;
     /* Control Variables */
     returnRecord.define(RecordFieldId("peakresidual"), itsPeakResidual);
     returnRecord.define(RecordFieldId("maxpsfsidelobe"), itsMaxPsfSidelobe);
@@ -273,7 +274,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SIMinorCycleController::setCycleControls(Record &recordIn) {
     LogIO os( LogOrigin("SIMinorCycleController",__FUNCTION__,WHERE) );
-
     if (recordIn.isDefined("cycleniter"))
       {recordIn.get(RecordFieldId("cycleniter"), itsCycleNiter);}
     else
@@ -299,6 +299,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     else 
       { throw(AipsError(" nsigma is not defined in input minor-cycle controller ") );}
 
+    os<<"############SET MINORCYCLE control itsNsigma="<<itsNsigma<<LogIO::POST;
     /* Reset the counters for the new cycle */
     itsMaxCycleIterDone = 0;
     itsCycleIterDone = 0;
