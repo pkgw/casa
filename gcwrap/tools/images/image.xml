@@ -6295,8 +6295,7 @@ ia.close()                                    # close default tool and
 <returns type="bool">Bool</returns>
 <description>
 
-This function can be used to find out whether the Image \tool\
-is associated with an image or not.
+This method returns True if the image tool has an attached image.
 
 </description>
 
@@ -6320,7 +6319,6 @@ ia.close()
 
 </example>
 </method>
-
  
    <method type="function" name="ispersistent">
    <shortdescription>Is the image persistent?</shortdescription>
