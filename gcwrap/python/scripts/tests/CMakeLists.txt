@@ -233,4 +233,5 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   testutils.py
   unittests_list.txt
   uTest_list.json
+  uTest_Template.dat
 )

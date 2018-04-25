@@ -313,7 +313,7 @@ public:
 
   // set a moving source aka planets or comets =>  adjust phase center
   // on the fly for gridding 
-  virtual void setMovingSource(const casacore::String& sourcename);
+  virtual void setMovingSource(const casacore::String& sourcename, const casacore::String& ephemtable="");
   virtual void setMovingSource(const casacore::MDirection& mdir);
 
   //reset stuff in an FTMachine
@@ -399,7 +399,9 @@ protected:
   casacore::MDirection movingDir_p;
   casacore::Bool fixMovingSource_p;
   casacore::MDirection firstMovingDir_p;
-    
+  // This will hold the angular difference between movingDir and firstMovingDir with 
+  // the frame conversion done properly etc..
+  casacore::MVDirection movingDirShift_p;
 
   casacore::Double distance_p;
 

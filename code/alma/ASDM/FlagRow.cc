@@ -207,6 +207,20 @@ namespace asdm {
 	
   		
 		
+		x->numChanExists = numChanExists;
+		
+		
+			
+				
+		x->numChan = numChan;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
 		x->polarizationTypeExists = polarizationTypeExists;
 		
 		
@@ -219,6 +233,30 @@ namespace asdm {
 	 			
 	 		
 	 	}
+			
+		
+	
+
+	
+  		
+		
+		x->channelExists = channelExists;
+		
+		
+			
+		x->channel.length(channel.size());
+		for (unsigned int i = 0; i < channel.size(); i++) {
+			x->channel[i].length(channel.at(i).size());			 		
+		}
+		
+		for (unsigned int i = 0; i < channel.size() ; i++)
+			for (unsigned int j = 0; j < channel.at(i).size(); j++)
+					
+						
+				x->channel[i][j] = channel.at(i).at(j);
+		 				
+			 						
+		
 			
 		
 	
@@ -390,6 +428,20 @@ namespace asdm {
 	
   		
 		
+		x.numChanExists = numChanExists;
+		
+		
+			
+				
+		x.numChan = numChan;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
 		x.polarizationTypeExists = polarizationTypeExists;
 		
 		
@@ -402,6 +454,30 @@ namespace asdm {
 	 			
 	 		
 	 	}
+			
+		
+	
+
+	
+  		
+		
+		x.channelExists = channelExists;
+		
+		
+			
+		x.channel.length(channel.size());
+		for (unsigned int i = 0; i < channel.size(); i++) {
+			x.channel[i].length(channel.at(i).size());			 		
+		}
+		
+		for (unsigned int i = 0; i < channel.size() ; i++)
+			for (unsigned int j = 0; j < channel.at(i).size(); j++)
+					
+						
+				x.channel[i][j] = channel.at(i).at(j);
+		 				
+			 						
+		
 			
 		
 	
@@ -577,6 +653,21 @@ namespace asdm {
 
 	
 		
+		numChanExists = x.numChanExists;
+		if (x.numChanExists) {
+		
+		
+			
+		setNumChan(x.numChan);
+  			
+ 		
+		
+		}
+		
+	
+
+	
+		
 		polarizationTypeExists = x.polarizationTypeExists;
 		if (x.polarizationTypeExists) {
 		
@@ -587,6 +678,31 @@ namespace asdm {
 			
 			polarizationType.push_back(x.polarizationType[i]);
   			
+		}
+			
+  		
+		
+		}
+		
+	
+
+	
+		
+		channelExists = x.channelExists;
+		if (x.channelExists) {
+		
+		
+			
+		channel .clear();
+		vector<int> v_aux_channel;
+		for (unsigned int i = 0; i < x.channel.length(); ++i) {
+			v_aux_channel.clear();
+			for (unsigned int j = 0; j < x.channel[0].length(); ++j) {
+				
+				v_aux_channel.push_back(x.channel[i][j]);
+	  			
+  			}
+  			channel.push_back(v_aux_channel);			
 		}
 			
   		
@@ -743,10 +859,34 @@ namespace asdm {
 
   	
  		
+		if (numChanExists) {
+		
+		
+		Parser::toXML(numChan, "numChan", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
 		if (polarizationTypeExists) {
 		
 		
 			buf.append(EnumerationParser::toXML("polarizationType", polarizationType));
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (channelExists) {
+		
+		
+		Parser::toXML(channel, "channel", buf);
 		
 		
 		}
@@ -883,6 +1023,16 @@ namespace asdm {
 	
 
 	
+  		
+        if (row.isStr("<numChan>")) {
+			
+	  		setNumChan(Parser::getInteger("numChan","Flag",rowDoc));
+			
+		}
+ 		
+	
+
+	
 		
 	if (row.isStr("<polarizationType>")) {
 		
@@ -895,6 +1045,18 @@ namespace asdm {
 		polarizationTypeExists = true;
 	}
 		
+	
+
+	
+  		
+        if (row.isStr("<channel>")) {
+			
+								
+	  		setChannel(Parser::get2DInteger("channel","Flag",rowDoc));
+	  			
+	  		
+		}
+ 		
 	
 
 	
@@ -1029,6 +1191,20 @@ namespace asdm {
 
 	}
 
+	eoss.writeBoolean(numChanExists);
+	if (numChanExists) {
+	
+	
+	
+		
+						
+			eoss.writeInt(numChan);
+				
+		
+	
+
+	}
+
 	eoss.writeBoolean(polarizationTypeExists);
 	if (polarizationTypeExists) {
 	
@@ -1044,6 +1220,28 @@ namespace asdm {
 			/* eoss.writeInt(polarizationType.at(i)); */
 				
 				
+						
+		
+	
+
+	}
+
+	eoss.writeBoolean(channelExists);
+	if (channelExists) {
+	
+	
+	
+		
+		
+			
+		eoss.writeInt((int) channel.size());
+		eoss.writeInt((int) channel.at(0).size());
+		for (unsigned int i = 0; i < channel.size(); i++) 
+			for (unsigned int j = 0;  j < channel.at(0).size(); j++) 
+							 
+				eoss.writeInt(channel.at(i).at(j));
+				
+	
 						
 		
 	
@@ -1196,6 +1394,23 @@ void FlagRow::numPairedAntennaFromBin(EndianIStream& eis) {
 	}
 	
 }
+void FlagRow::numChanFromBin(EndianIStream& eis) {
+		
+	numChanExists = eis.readBoolean();
+	if (numChanExists) {
+		
+	
+	
+		
+			
+		numChan =  eis.readInt();
+			
+		
+	
+
+	}
+	
+}
 void FlagRow::polarizationTypeFromBin(EndianIStream& eis) {
 		
 	polarizationTypeExists = eis.readBoolean();
@@ -1213,6 +1428,38 @@ void FlagRow::polarizationTypeFromBin(EndianIStream& eis) {
 			
 			polarizationType.push_back(CPolarizationType::literal(eis.readString()));
 			
+	
+
+		
+	
+
+	}
+	
+}
+void FlagRow::channelFromBin(EndianIStream& eis) {
+		
+	channelExists = eis.readBoolean();
+	if (channelExists) {
+		
+	
+	
+		
+			
+	
+		channel.clear();
+		
+		unsigned int channelDim1 = eis.readInt();
+		unsigned int channelDim2 = eis.readInt();
+		vector <int> channelAux1;
+		for (unsigned int i = 0; i < channelDim1; i++) {
+			channelAux1.clear();
+			for (unsigned int j = 0; j < channelDim2 ; j++)			
+			
+			channelAux1.push_back(eis.readInt());
+			
+			channel.push_back(channelAux1);
+		}
+	
 	
 
 		
@@ -1363,11 +1610,29 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	}
 	
 	
+	// Convert a string into an int 
+	void FlagRow::numChanFromText(const string & s) {
+		numChanExists = true;
+		 
+		numChan = ASDMValuesParser::parse<int>(s);
+		
+	}
+	
+	
 	// Convert a string into an PolarizationType 
 	void FlagRow::polarizationTypeFromText(const string & s) {
 		polarizationTypeExists = true;
 		 
 		polarizationType = ASDMValuesParser::parse1D<PolarizationType>(s);
+		
+	}
+	
+	
+	// Convert a string into an int 
+	void FlagRow::channelFromText(const string & s) {
+		channelExists = true;
+		 
+		channel = ASDMValuesParser::parse2D<int>(s);
 		
 	}
 	
@@ -1709,6 +1974,53 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 
 	
 	/**
+	 * The attribute numChan is optional. Return true if this attribute exists.
+	 * @return true if and only if the numChan attribute exists. 
+	 */
+	bool FlagRow::isNumChanExists() const {
+		return numChanExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get numChan, which is optional.
+ 	 * @return numChan as int
+ 	 * @throw IllegalAccessException If numChan does not exist.
+ 	 */
+ 	int FlagRow::getNumChan() const  {
+		if (!numChanExists) {
+			throw IllegalAccessException("numChan", "Flag");
+		}
+	
+  		return numChan;
+ 	}
+
+ 	/**
+ 	 * Set numChan with the specified int.
+ 	 * @param numChan The int value to which numChan is to be set.
+ 	 
+ 	
+ 	 */
+ 	void FlagRow::setNumChan (int numChan) {
+	
+ 		this->numChan = numChan;
+	
+		numChanExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark numChan, which is an optional field, as non-existent.
+	 */
+	void FlagRow::clearNumChan () {
+		numChanExists = false;
+	}
+	
+
+	
+	/**
 	 * The attribute polarizationType is optional. Return true if this attribute exists.
 	 * @return true if and only if the polarizationType attribute exists. 
 	 */
@@ -1751,6 +2063,53 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	 */
 	void FlagRow::clearPolarizationType () {
 		polarizationTypeExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute channel is optional. Return true if this attribute exists.
+	 * @return true if and only if the channel attribute exists. 
+	 */
+	bool FlagRow::isChannelExists() const {
+		return channelExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get channel, which is optional.
+ 	 * @return channel as vector<vector<int > >
+ 	 * @throw IllegalAccessException If channel does not exist.
+ 	 */
+ 	vector<vector<int > > FlagRow::getChannel() const  {
+		if (!channelExists) {
+			throw IllegalAccessException("channel", "Flag");
+		}
+	
+  		return channel;
+ 	}
+
+ 	/**
+ 	 * Set channel with the specified vector<vector<int > >.
+ 	 * @param channel The vector<vector<int > > value to which channel is to be set.
+ 	 
+ 	
+ 	 */
+ 	void FlagRow::setChannel (vector<vector<int > > channel) {
+	
+ 		this->channel = channel;
+	
+		channelExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark channel, which is an optional field, as non-existent.
+	 */
+	void FlagRow::clearChannel () {
+		channelExists = false;
 	}
 	
 
@@ -2146,7 +2505,15 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
 
 	
+		numChanExists = false;
+	
+
+	
 		polarizationTypeExists = false;
+	
+
+	
+		channelExists = false;
 	
 
 	
@@ -2182,6 +2549,10 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
 
 	
+
+	
+
+	
 	
 	 fromBinMethods["flagId"] = &FlagRow::flagIdFromBin; 
 	 fromBinMethods["startTime"] = &FlagRow::startTimeFromBin; 
@@ -2194,7 +2565,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	 fromBinMethods["numPolarizationType"] = &FlagRow::numPolarizationTypeFromBin; 
 	 fromBinMethods["numSpectralWindow"] = &FlagRow::numSpectralWindowFromBin; 
 	 fromBinMethods["numPairedAntenna"] = &FlagRow::numPairedAntennaFromBin; 
+	 fromBinMethods["numChan"] = &FlagRow::numChanFromBin; 
 	 fromBinMethods["polarizationType"] = &FlagRow::polarizationTypeFromBin; 
+	 fromBinMethods["channel"] = &FlagRow::channelFromBin; 
 	 fromBinMethods["pairedAntennaId"] = &FlagRow::pairedAntennaIdFromBin; 
 	 fromBinMethods["spectralWindowId"] = &FlagRow::spectralWindowIdFromBin; 
 	
@@ -2240,7 +2613,15 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		 	
 	 
 				
+	fromTextMethods["numChan"] = &FlagRow::numChanFromText;
+		 	
+	 
+				
 	fromTextMethods["polarizationType"] = &FlagRow::polarizationTypeFromText;
+		 	
+	 
+				
+	fromTextMethods["channel"] = &FlagRow::channelFromText;
 		 	
 	 
 				
@@ -2282,7 +2663,15 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
 
 	
+		numChanExists = false;
+	
+
+	
 		polarizationTypeExists = false;
+	
+
+	
+		channelExists = false;
 	
 
 	
@@ -2339,12 +2728,26 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		else
 			numPairedAntennaExists = false;
 		
+		if (row.numChanExists) {
+			numChan = row.numChan;		
+			numChanExists = true;
+		}
+		else
+			numChanExists = false;
+		
 		if (row.polarizationTypeExists) {
 			polarizationType = row.polarizationType;		
 			polarizationTypeExists = true;
 		}
 		else
 			polarizationTypeExists = false;
+		
+		if (row.channelExists) {
+			channel = row.channel;		
+			channelExists = true;
+		}
+		else
+			channelExists = false;
 		
 		if (row.pairedAntennaIdExists) {
 			pairedAntennaId = row.pairedAntennaId;		
@@ -2373,7 +2776,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		 fromBinMethods["numPolarizationType"] = &FlagRow::numPolarizationTypeFromBin; 
 		 fromBinMethods["numSpectralWindow"] = &FlagRow::numSpectralWindowFromBin; 
 		 fromBinMethods["numPairedAntenna"] = &FlagRow::numPairedAntennaFromBin; 
+		 fromBinMethods["numChan"] = &FlagRow::numChanFromBin; 
 		 fromBinMethods["polarizationType"] = &FlagRow::polarizationTypeFromBin; 
+		 fromBinMethods["channel"] = &FlagRow::channelFromBin; 
 		 fromBinMethods["pairedAntennaId"] = &FlagRow::pairedAntennaIdFromBin; 
 		 fromBinMethods["spectralWindowId"] = &FlagRow::spectralWindowIdFromBin; 
 			
@@ -2494,7 +2899,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		result["numPolarizationType"] = &FlagRow::numPolarizationTypeFromBin;
 		result["numSpectralWindow"] = &FlagRow::numSpectralWindowFromBin;
 		result["numPairedAntenna"] = &FlagRow::numPairedAntennaFromBin;
+		result["numChan"] = &FlagRow::numChanFromBin;
 		result["polarizationType"] = &FlagRow::polarizationTypeFromBin;
+		result["channel"] = &FlagRow::channelFromBin;
 		result["pairedAntennaId"] = &FlagRow::pairedAntennaIdFromBin;
 		result["spectralWindowId"] = &FlagRow::spectralWindowIdFromBin;
 			

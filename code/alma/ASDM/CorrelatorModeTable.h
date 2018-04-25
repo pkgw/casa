@@ -131,7 +131,7 @@ class CorrelatorModeRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numBaseband (\f$N_{Base}\f$)</TD> 
+ * <TD> numBaseband (numBaseband)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of basebands. </TD>
@@ -166,7 +166,7 @@ class CorrelatorModeRow;
  * </TR>
 	
  * <TR>
- * <TD> numAxes (\f$N_{Axes}\f$)</TD> 
+ * <TD> numAxes (numAxes)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of axes in the binary data blocks. </TD>

@@ -297,7 +297,7 @@ class SourceRow;
  * </TR>
 	
  * <TR>
- * <TD> numLines(\f$N_{Line}\f$)</TD> 
+ * <TD> numLines(numLines)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of line transitions. </TD>
@@ -346,14 +346,14 @@ class SourceRow;
  * </TR>
 	
  * <TR>
- * <TD> numFreq(\f$N_{Freq}\f$)</TD> 
+ * <TD> numFreq(numFreq)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of frequencies. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numStokes(\f$N_{Stok}\f$)</TD> 
+ * <TD> numStokes(numStokes)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of Stokes parameters. </TD>

@@ -95,7 +95,11 @@ namespace asdm {
 		
 			, "numPairedAntenna"
 		
+			, "numChan"
+		
 			, "polarizationType"
+		
+			, "channel"
 		
 			, "pairedAntennaId"
 		
@@ -115,7 +119,7 @@ namespace asdm {
     
     	 "flagId" , "startTime" , "endTime" , "reason" , "numAntenna" , "antennaId" 
     	,
-    	 "numPolarizationType" , "numSpectralWindow" , "numPairedAntenna" , "polarizationType" , "pairedAntennaId" , "spectralWindowId" 
+    	 "numPolarizationType" , "numSpectralWindow" , "numPairedAntenna" , "numChan" , "polarizationType" , "channel" , "pairedAntennaId" , "spectralWindowId" 
     
 	};
 	        			
@@ -665,7 +669,9 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 		oss << "<numPolarizationType/>\n"; 
 		oss << "<numSpectralWindow/>\n"; 
 		oss << "<numPairedAntenna/>\n"; 
+		oss << "<numChan/>\n"; 
 		oss << "<polarizationType/>\n"; 
+		oss << "<channel/>\n"; 
 		oss << "<pairedAntennaId/>\n"; 
 		oss << "<spectralWindowId/>\n"; 
 		oss << "</Attributes>\n";		
@@ -802,7 +808,11 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
     	 
     attributesSeq.push_back("numPairedAntenna") ; 
     	 
+    attributesSeq.push_back("numChan") ; 
+    	 
     attributesSeq.push_back("polarizationType") ; 
+    	 
+    attributesSeq.push_back("channel") ; 
     	 
     attributesSeq.push_back("pairedAntennaId") ; 
     	 

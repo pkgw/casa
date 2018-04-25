@@ -121,7 +121,7 @@ class SeeingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numBaseLength (\f$N_{Base}\f$)</TD> 
+ * <TD> numBaseLength (numBaseLength)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>

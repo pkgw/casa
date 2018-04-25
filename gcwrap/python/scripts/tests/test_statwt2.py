@@ -606,7 +606,7 @@ class statwt2_test(unittest.TestCase):
         dst = "ngc5921.split.residualwoutmodel.ms"
         ref = datadir + "ngc5921.resid_without_model.ms.ref"
         [refwt, refwtsp, refflag, reffrow] = _get_dst_cols(ref, "", dodata=False)
-        rtol = 1e-7
+        rtol = 1e-6
         data = "residual"
         mytb = tbtool()
         myms = mstool()
@@ -669,7 +669,7 @@ class statwt2_test(unittest.TestCase):
         dst = "ngc5921.split.residualdatawoutmodel.ms"
         ref = datadir + "ngc5921.residdata_without_model.ms.ref"
         [refwt, refwtsp, refflag, reffrow] = _get_dst_cols(ref, "", dodata=False)
-        rtol = 1e-7
+        rtol = 1e-6
         data = "residual_data"
         mytb = tbtool()
         myms = mstool()
