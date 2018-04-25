@@ -139,12 +139,12 @@ def stats():
         # value_compare = 0.71857779577   # CASA-prerelease 5.0.0-187, pipeline r40156
         # value_compare = 0.718551806637  # CASA-prerelease 5.1.0-34, pipeline r40615
         # value_compare = 0.718519030402  # CASA-prerelease 5.3.0-26, pipeline r40909
-        value_compare = 0.718358266974 # CASA-prerelease 5.3.0-109, pipeline r41386
+        value_compare =  0.718342661383 # CASA-prerelease 5.3.0-114, pipeline r41386
         
         result_bool = np.isclose(fluxlist[0][0], value_compare, rtol=rtol, atol=atol, equal_nan=False)
         
-        print >>logfile, "Accepted test value is: ", value_compare, " from CASA-prerelease 5.3.0-26, pipeline r40909 (trunk)"
-        print "Accepted test value is: ", value_compare, " from CASA-prerelease 5.3.0-26, pipeline r40909 (trunk)"
+        print >>logfile, "Accepted test value is: ", value_compare, " from CASA-prerelease 5.3.0-114, pipeline r41386 (trunk)"
+        print "Accepted test value is: ", value_compare, " from CASA-prerelease 5.3.0-114, pipeline r41386 (trunk)"
         print >>logfile, "Regression generated value is: ", fluxlist[0][0]
         print "Regression generated value is: ", fluxlist[0][0]
         
