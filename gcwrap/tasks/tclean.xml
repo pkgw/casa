@@ -1901,7 +1901,7 @@ HPX HEALPix grid.  -->
 <!---
 	    <value type="string"></value>
     </param>-->
-	    <any type="varient" limittypes="string stringArray"/>
+	    <any type="variant" limittypes="string stringArray"/>
 	    <value type="string"></value>
     </param>
 
@@ -1951,9 +1951,9 @@ HPX HEALPix grid.  -->
 
     <!-- Amanda's code -->
     <param type="double" name="sidelobethreshold" subparam="true">
-           <shortdescription>sidelobethreshold *  the max sidelobe level</shortdescription>
+           <shortdescription>sidelobethreshold *  the max sidelobe level * peak residual</shortdescription>
            <value type="double">3.0</value>
-<description>Sub-parameter for "auto-multithresh":  mask threshold based on sidelobe levels:  sidelobethreshold * max_sidelobe_level
+<description>Sub-parameter for "auto-multithresh":  mask threshold based on sidelobe levels:  sidelobethreshold * max_sidelobe_level * peak residual
 
               The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
@@ -1998,7 +1998,7 @@ HPX HEALPix grid.  -->
     <param type="int" name="growiterations" subparam="true">
            <shortdescription>number of binary dilation iterations for growing the mask</shortdescription>
            <value type="int">75</value>
-<description>Sub-parameter for "auto-multithresh": Number of iterations to perform using binary dilation for growing the mask 
+<description>Sub-parameter for "auto-multithresh": Maximum number of iterations to perform using binary dilation for growing the mask 
 </description>
     </param>
 
@@ -2012,7 +2012,7 @@ HPX HEALPix grid.  -->
     <param type="double" name="minpercentchange" subparam="true">
            <shortdescription>minimum percentage change in mask size (per channel plane) to trigger updating of mask by automask </shortdescription>
            <value type="double">-1.0</value>
-<description>minimum percentage change in mask size (per channel plane) to trigger updating of mask by automask for subsequent cycles. This check is only applied when noise based threshold is used and when cyclethreshold reached to threshold in the previous cycle. In other words, if the mask size change in a particular channel is less than minpercentchange, it will stop masking for the channel for subsequent cycles. The default, -1.0 (or any value less than 0.0) will turn off this check. Automask will still stop masking if the current channel mask is an empty mask.  
+<description>If the change in the mask size in a particular channel is less than minpercentchange, stop masking that channel in subsequent cycles. This check is only applied when noise based threshold is used and when the previous clean major cycle had a cyclethreshold value equal to the clean threshold. Values equal to -1.0 (or any value less than 0.0) will turn off this check (the default). Automask will still stop masking if the current channel mask is an empty mask and the noise threshold was used to determine the mask. 
 </description>
     </param>
 
