@@ -11,6 +11,7 @@
 #ifndef _BNMIN1_RANDOM_NORMAL_DISTRIBUTION_HXX__
 #define _BNMIN1_RANDOM_NORMAL_DISTRIBUTION_HXX__
 
+#include <cmath>
 #include <cassert>
 #include <iostream>
 
