@@ -245,21 +245,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       //re-calculate current nsigma threhold
       Array<Double> robustrms = itsImages->calcRobustRMS();
+      // Before the first iteration the iteration parameters have not been
+      // set in SIMinorCycleController
+      // Use nsigma pass to SynthesisDeconvolver directly for now...
       //Float nsigma = itsLoopController.getNsigma();
-      Float nsigma;
-      os<<"iterdone = "<<itsLoopController.getIterDone()<<LogIO::POST;
-      if(itsLoopController.getIterDone()==0) {
-        nsigma = itsNsigma;
-      }
-      else {
-        nsigma = itsLoopController.getNsigma();
-      }
-      os<<" nsigma (by itsLoopController.getNsigma) =="<<nsigma<<LogIO::POST;
-      os<<" TEST other param get loopgain=="<<itsLoopController.getLoopGain()<<LogIO::POST;
       Double maxrobustrms = max(robustrms);
       //Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
-      Float nsigmathresh = nsigma * (Float)maxrobustrms;
-      if (nsigma>0.0 ) os << "Current sigma threshold (maximum along spectral channels) ="<<nsigmathresh<<LogIO::POST;
+      Float nsigmathresh = itsNsigma * (Float)maxrobustrms;
+      if (itsNsigma>0.0 ) os << "Current nsigma threshold (maximum along spectral channels) ="<<nsigmathresh<<LogIO::POST;
       itsLoopController.setNsigmaThreshold(nsigmathresh);
 
 
@@ -294,7 +287,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       returnRecord = itsLoopController.getCycleInitializationRecord();
 
       itsImages->printImageStats(); 
-       os<<" Nsigma NOW = "<< itsLoopController.getNsigma() <<LogIO::POST;
 
       os << LogIO::DEBUG2 << "Initialized minor cycle. Returning returnRec" << LogIO::POST;
 
