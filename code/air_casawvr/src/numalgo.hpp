@@ -46,7 +46,7 @@ namespace LibAIR2 {
         for ( int i = 2; i <= mn; i++ ) cnk = ( cnk * ( mx + i ) ) / i;
       }
       return cnk;
-   };
+  }
 
   /** Compute finite differences up to (N-1)-th order of function f
 
