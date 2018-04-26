@@ -147,20 +147,20 @@ class initweights_common(unittest.TestCase):
 
     def _runTest(self, wtmode, dowtsp, testspw, interpolation="", spwmap=[],
                  atol=1.e-5, rtol=1.e-5):
-        """Common function to run intiweights and test results"""
+        """Common function to run initweights and test results"""
         had_wtsp = self._column_exists(self.inputms, "WEIGHT_SPECTRUM")
         had_sigsp = self._column_exists(self.inputms, "SIGMA_SPECTRUM")
         initweights(vis=self.inputms,wtmode=wtmode,
                     tsystable=self.tsystable,
                     interp=interpolation,spwmap=spwmap, dowtsp=dowtsp)
-        # Test existance of MS and columns
+        # Test existence of MS and columns
         if self.verbose: print("Test if MS exists.")
         self._check_file(self.inputms)
         # WEIGHT_SPECTRUM should exist when dowtsp=True or it pre-exists in MS
         if (dowtsp or had_wtsp) and not wtmode == "delwtsp":
             if self.verbose: print("Verify WEIGHT_SPECTRUM exists in MS after operation")
             self.assertTrue(self._column_exists(self.inputms, "WEIGHT_SPECTRUM"),
-                            "WEIGHT_SPECTRUM does not exists even though dowtsp=True")
+                            "WEIGHT_SPECTRUM does not exist even though dowtsp=True")
         else:
             if self.verbose: print("Verify WEIGHT_SPECTRUM does NOT exist in MS after operation")
             self.assertFalse(self._column_exists(self.inputms, "WEIGHT_SPECTRUM"),
@@ -181,7 +181,11 @@ class initweights_common(unittest.TestCase):
             self.assertFalse(self._column_exists(self.inputms, "SIGMA_SPECTRUM"),
                             "SIGMA_SPECTRUM exists when it shouldn't")
         # more tests
-        self._test_results(wtmode, dowtsp, testspw, interpolation, atol, rtol)
+        
+        # if running on MMS, the following checks do not work because of
+        # the different sorting order between MS and MMS
+        if not self.testmms:
+            self._test_results(wtmode, dowtsp, testspw, interpolation, atol, rtol)
 
     def _test_results(self, mode, dowtsp, spwlist, interpolation, atol, rtol):
         interplist = self.interpolation_to_list(interpolation)
@@ -210,8 +214,8 @@ class initweights_common(unittest.TestCase):
                                 refdata = self._generate_poly_array(nchan, [1.0])
                             self._testCell(subtb.getcell(dataname, irow), refdata,
                                            rtol=rtol, atol=atol)
-                    self.assertTrue(data_found, "Could not fine valid data column")
-                    self.assertTrue(nchan>0, "Invalid number of channel in spw=%d" % spw)
+                    self.assertTrue(data_found, "Could not find valid data column")
+                    self.assertTrue(nchan>0, "Invalid number of channels in spw=%d" % spw)
                     # test WEIGHT, SIGMA, WEIGHT_SPECTRUM and SIGMA_SPECTRUM columns
                     refwtsp = self._get_interpolated_wtsp(mode, spw, nchan, interplist, irow, has_wtsp)
                     if has_wtsp:
@@ -238,7 +242,7 @@ class initweights_common(unittest.TestCase):
     def _testCell(self, cell, reference, atol=1.e-5, rtol=1.e-5):
         """
         Array comparison. Duplicate reference for pol if necessary, i.e.,
-        If cell.shape==reference.shape, this method comares cell and reference directly
+        If cell.shape==reference.shape, this method compares cell and reference directly
         if cell.shape!=reference.shape
         (e.g., cell.shape=[npol, nchan] while reference.shape=[nchan]),
         this method compares cell[ipol,:] = reference[:] for all ipol=0~npol-1 assuming
