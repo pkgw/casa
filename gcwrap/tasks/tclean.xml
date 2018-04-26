@@ -1634,6 +1634,12 @@ HPX HEALPix grid.  -->
                                 cyclethreshold = peak_residual * psf_fraction
                                 cyclethreshold = max( cyclethreshold, 'threshold' )
 
+                                If nsigma is set (>0.0), the N-sigma threshold is calculated (see 
+                                the description under nsigma), then cyclethreshold is further modified as,
+
+                                cyclethreshold = max( cyclethreshold, nsgima_threshold )
+
+
                                 'cyclethreshold' is made visible and editable only in the 
                                 interactive GUI when tclean is run with interactive=True.
 </description>
@@ -1646,8 +1652,10 @@ HPX HEALPix grid.  -->
 <description>Multiplicative factor for rms-based threshold stopping
 
                        N-sigma threshold is calculated as nsigma * rms value per image plane determined
-                       from a robust statistics. For nsigma > 0.0, in minor cycle, a maximum of the
-                       N-sigma threshold and cyclethreshold is used to trigger a major cycle. 
+                       from a robust statistics. For nsigma > 0.0, in a minor cycle, a maximum of the two values,
+                       the N-sigma threshold and cyclethreshold, is used to trigger a major cycle 
+                       (see also the descreption under 'threshold'). 
+                       Set nsigma=0.0 to preserve the previous tclean behavior without this feature.
 
 </description>
       <value type="double">0.0</value>
