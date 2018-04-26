@@ -36,13 +36,12 @@ static const casacore::String _class;
 
 bool _doHistory = true;
 
-// static casacore::Bool _openFuncsRegistered;
-
 // Having private version of IS and IH means that they will
 // only recreate storage images if they have to
 
-// Prints an error message if the image DO is detached and returns true.
-bool detached() const;
+// Logs a message if the image DO is detached and returns true,
+// otherwise returns false
+bool _detached() const;
 
 casac::record* recordFromQuantity(casacore::Quantity q);
 

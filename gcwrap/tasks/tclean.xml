@@ -294,12 +294,15 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
     <param type="any" name="phasecenter" > <!-- subparam="true"> -->
      <shortdescription>Phase center of the image</shortdescription>
-<description>Phase center of the image (string or field id)
+<description>Phase center of the image (string or field id); if the phasecenter is the name known major solar system object ('MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN', 'URANUS', 'NEPTUNE', 'PLUTO', 'SUN', 'MOON') or is an ephemerides table then that source is tracked and the background sources get smeared. There is a special case, when phasecenter='TRACKFIELD', which will use the ephemerides or polynomial phasecenter in the FIELD table of the MS's as the source center to track.
                example: phasecenter=6
                         phasecenter='J2000 19h30m00 -40d00m00'
                         phasecenter='J2000 292.5deg  -40.0deg'
                         phasecenter='J2000 5.105rad  -0.698rad'
-                        phasecenter='ICRS 13:05:27.2780 -049.28.04.458' 
+                        phasecenter='ICRS 13:05:27.2780 -049.28.04.458'
+			phasecenter='myComet_ephem.tab'
+			phasecenter='MOON'
+			phasecenter='TRACKFIELD'
 </description>
       <any type="variant" limittypes="int string"/>
       <value type="string"></value>
@@ -458,7 +461,7 @@ HPX HEALPix grid.  -->
                                                         There is no internal software Doppler tracking so
                                                         a spectral line observed over an extended time range
                                                         may be smeared out in frequency. There is strictly
-                                                        no valid spectral frame with which to label the ouput
+                                                        no valid spectral frame with which to label the output
                                                         images, but they will list the frame defined in the MS.
                                                         
 
@@ -1254,7 +1257,7 @@ HPX HEALPix grid.  -->
 <description> Restoring beam shape/size to use.
  
                        - restoringbeam='' or ['']
-                         A Guassian fitted to the PSF main lobe (separately per image plane). 
+                         A Gaussian fitted to the PSF main lobe (separately per image plane). 
                           
                        - restoringbeam='10.0arcsec'
                          Use a circular Gaussian of this width for all planes
@@ -1776,7 +1779,8 @@ HPX HEALPix grid.  -->
     <!-- top level mask type selection -->
    
     <param type="string" name="usemask">
-           <shortdescription>Type of mask(s) for deconvolution (user, pb, auto-thresh, auto-thresh2, or auto-multithresh)</shortdescription>
+           <shortdescription>Type of mask(s) for deconvolution:  user, pb, auto-multithresh, auto-thresh(deprecated, will be removed in CASA 5.4), or auto-thresh(deprecated, will be removed in CASA 5.4)</shortdescription>
+
 <description>Type of mask(s) to be used for deconvolution
 
                        user: (default) mask image(s) or user specified region file(s) or string CRTF expression(s)
@@ -1790,31 +1794,25 @@ HPX HEALPix grid.  -->
                                              gridders that produce .pb (i.e. mosaic and awproject)
                                              or if an externally produced .pb image exists on disk)
 
-                       auto-thresh: automask by threshold for deconvolution (binned residual image is used for
-                                    to defining masks)
-                          subparameters : maskthreshold, maskresolution, pbmask, nmask
-                          
-                          if pbmask is >0.0, the region outside the specified pb gain level is excluded from
-                          image statistics in determination of the threshold. 
-                          if nmask > 0, 'pruning' of the found automask regions will be applied. 
-                        <!--  if pbmask is >0.0, after automask algorithm is run, it limits the mask to within 
-                                             a pb gain level of pbmask (This option will work only with 
-                                             gridders that produce .pb (i.e. mosaic and awproject)
-                                             or if an externally produced .pb image exists on disk)
-                        -->
-
-                       auto-thresh2: automask  by threshold for deconvolution without binning
-                          subparameters : maskthreshold, maskresolution, pbmask, nmask
-                          
-                          if pbmask is >0.0, the region outside the specified pb gain level is excluded from
-                          image statistics in determination of the threshold. 
-                          maskresolution and nmask are used to 'prune' the automask regions.
-
-                       auto-multithresh: automask by multiple thresholds for deconvolution 
+                       [Automasking algorithms available]
+                       auto-multithresh (recommended) : automask by multiple thresholds for deconvolution 
                           subparameters : sidelobethreshold, noisethreshold, lownoisethreshold, negativethrehsold,  smoothfactor,
                                           minbeamfrac, cutthreshold, pbmask, growiterations, dogrowprune, minpercentchange, verbose
 
-                       Note: By default the intermidiate mask generated by automask at each deconvolution cycle 
+                          if pbmask is >0.0, the region outside the specified pb gain level is excluded from
+                          image statistics in determination of the threshold. 
+
+                       auto-thresh (deprecated, will be removed in CASA 5.4): automask by threshold for deconvolution (binned residual image is used for
+                                    to defining masks)
+                          subparameters : maskthreshold, maskresolution, pbmask, nmask
+                          maskresolution and nmask are used to 'prune' the automask regions.
+                          if nmask > 0, 'pruning' of the found automask regions will be applied. 
+
+                       auto-thresh2 (deprecated, will be removed in CASA 5.4) : automask  by threshold for deconvolution without binning
+                          subparameters : maskthreshold, maskresolution, pbmask, nmask
+                          
+
+                       Note: By default the intermediate mask generated by automask at each deconvolution cycle 
                              is over-written in the next cycle but one can save them by setting 
                              the environment variable, SAVE_ALL_AUTOMASKS="true".  
                              (e.g. in the CASA prompt, os.environ['SAVE_ALL_AUTOMASKS']="true" )  
@@ -1826,9 +1824,9 @@ HPX HEALPix grid.  -->
 	    <allowed kind="enum">
               <value>user</value>
               <value>pb</value>
+	      <value>auto-multithresh</value>
 	      <value>auto-thresh</value>
 	      <value>auto-thresh2</value>
-	      <value>auto-multithresh</value>
 	    </allowed>
     </param>
 
@@ -1903,7 +1901,7 @@ HPX HEALPix grid.  -->
 <!---
 	    <value type="string"></value>
     </param>-->
-	    <any type="varient" limittypes="string stringArray"/>
+	    <any type="variant" limittypes="string stringArray"/>
 	    <value type="string"></value>
     </param>
 
@@ -1953,9 +1951,9 @@ HPX HEALPix grid.  -->
 
     <!-- Amanda's code -->
     <param type="double" name="sidelobethreshold" subparam="true">
-           <shortdescription>sidelobethreshold *  the max sidelobe level</shortdescription>
+           <shortdescription>sidelobethreshold *  the max sidelobe level * peak residual</shortdescription>
            <value type="double">3.0</value>
-<description>Sub-parameter for "auto-multithresh":  mask threshold based on sidelobe levels:  sidelobethreshold * max_sidelobe_level
+<description>Sub-parameter for "auto-multithresh":  mask threshold based on sidelobe levels:  sidelobethreshold * max_sidelobe_level * peak residual
 
               The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
@@ -2000,7 +1998,7 @@ HPX HEALPix grid.  -->
     <param type="int" name="growiterations" subparam="true">
            <shortdescription>number of binary dilation iterations for growing the mask</shortdescription>
            <value type="int">75</value>
-<description>Sub-parameter for "auto-multithresh": Number of iterations to perform using binary dilation for growing the mask 
+<description>Sub-parameter for "auto-multithresh": Maximum number of iterations to perform using binary dilation for growing the mask 
 </description>
     </param>
 
@@ -2014,7 +2012,7 @@ HPX HEALPix grid.  -->
     <param type="double" name="minpercentchange" subparam="true">
            <shortdescription>minimum percentage change in mask size (per channel plane) to trigger updating of mask by automask </shortdescription>
            <value type="double">-1.0</value>
-<description>mininum percentage change in mask size (per channel plane) to trigger updating of mask by automask for subsequent cycles. This check is only applied when noise based threshold is used and when cyclethreshod reached to threshold in the previous cycle. In other words, if the mask size change in a particular channel is less than minpercentchange, it will stop masking for the channel for subsequent cycles. The default, -1.0 (or any value less than 0.0) will turn off this check. Automask will still stop masking if the current channel mask is an empty mask.  
+<description>If the change in the mask size in a particular channel is less than minpercentchange, stop masking that channel in subsequent cycles. This check is only applied when noise based threshold is used and when the previous clean major cycle had a cyclethreshold value equal to the clean threshold. Values equal to -1.0 (or any value less than 0.0) will turn off this check (the default). Automask will still stop masking if the current channel mask is an empty mask and the noise threshold was used to determine the mask. 
 </description>
     </param>
 
@@ -2031,7 +2029,7 @@ HPX HEALPix grid.  -->
                         thresh_type: type of threshold used (noise or sidelobe)
                         thresh_value: the value of threshold used
                         N_reg: number of the automask regions
-                        N_pruned: nubmer of the automask regions removed by pruning
+                        N_pruned: number of the automask regions removed by pruning
                         N_grow: number of the grow mask regions
                         N_grow_pruned: number of the grow mask regions removed by pruning
                         N_neg_pix: number of pixels for negative mask regions 

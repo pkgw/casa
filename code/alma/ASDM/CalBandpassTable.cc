@@ -115,7 +115,21 @@ namespace asdm {
 		
 			, "numBaseline"
 		
+			, "numFreq"
+		
 			, "rms"
+		
+			, "frequencyRange"
+		
+			, "numSpectralWindow"
+		
+			, "chanFreqStart"
+		
+			, "chanFreqStep"
+		
+			, "numSpectralWindowChan"
+		
+			, "spectrum"
 				
 	};
 	
@@ -131,7 +145,7 @@ namespace asdm {
     
     	 "basebandName" , "sideband" , "atmPhaseCorrection" , "typeCurve" , "receiverBand" , "calDataId" , "calReductionId" , "startValidTime" , "endValidTime" , "numAntenna" , "numPoly" , "numReceptor" , "antennaNames" , "refAntennaName" , "freqLimits" , "polarizationTypes" , "curve" , "reducedChiSquared" 
     	,
-    	 "numBaseline" , "rms" 
+    	 "numBaseline" , "numFreq" , "rms" , "frequencyRange" , "numSpectralWindow" , "chanFreqStart" , "chanFreqStep" , "numSpectralWindowChan" , "spectrum" 
     
 	};
 	        			
@@ -804,7 +818,14 @@ CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandN
 		oss << "<reducedChiSquared/>\n"; 
 
 		oss << "<numBaseline/>\n"; 
+		oss << "<numFreq/>\n"; 
 		oss << "<rms/>\n"; 
+		oss << "<frequencyRange/>\n"; 
+		oss << "<numSpectralWindow/>\n"; 
+		oss << "<chanFreqStart/>\n"; 
+		oss << "<chanFreqStep/>\n"; 
+		oss << "<numSpectralWindowChan/>\n"; 
+		oss << "<spectrum/>\n"; 
 		oss << "</Attributes>\n";		
 		oss << "</CalBandpassTable>\n";
 
@@ -959,7 +980,21 @@ CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandN
     	 
     attributesSeq.push_back("numBaseline") ; 
     	 
+    attributesSeq.push_back("numFreq") ; 
+    	 
     attributesSeq.push_back("rms") ; 
+    	 
+    attributesSeq.push_back("frequencyRange") ; 
+    	 
+    attributesSeq.push_back("numSpectralWindow") ; 
+    	 
+    attributesSeq.push_back("chanFreqStart") ; 
+    	 
+    attributesSeq.push_back("chanFreqStep") ; 
+    	 
+    attributesSeq.push_back("numSpectralWindowChan") ; 
+    	 
+    attributesSeq.push_back("spectrum") ; 
     	
      
     

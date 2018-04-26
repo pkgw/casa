@@ -564,7 +564,9 @@ class TestHelpers():
                imlist=[];
                for imext in imexts:
                     for part in range(1,self.nproc+1):
-                         imlist.append( imprefix+'.workdirectory/'+imprefix + '.n'+str(part)+'.'+imext )
+                         imlist.append( imprefix+'.workdirectory/'+
+                                        os.path.basename(imprefix) + '.n'+str(part)+
+                                        '.'+imext )
                #self.checkall(imexist = imlist)
 
           else:

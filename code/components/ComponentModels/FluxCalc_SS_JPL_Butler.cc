@@ -48,6 +48,7 @@
 #include <tables/Tables/Table.h>
 #include <tables/Tables/TableRecord.h>
 #include <tables/Tables/ScalarColumn.h>
+#include <casatools/Config/State.h>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -240,17 +241,27 @@ Bool FluxCalc_SS_JPL_Butler::readEphem()
   Bool foundUserDir = Aipsrc::find(userpath, "user.ephemerides.directory");
   if(foundUserDir)
     ++nephdirs;
+  String resolvepath;
+  Bool foundResolveDir = false;
+  resolvepath = casatools::get_state( ).resolve("ephemerides/JPL-Horizons");
+  if (resolvepath != "ephemerides/JPL-Horizons") {
+      foundResolveDir = true;
+      ++nephdirs;
+  }
   String horpath;
   Bool foundStd = Aipsrc::findDir(horpath, "data/ephemerides/JPL-Horizons");
   if(foundStd)
     ++nephdirs;
-  
+
+  int nephindex = 0;
   Vector<String> ephdirs(nephdirs);
-  ephdirs[0] = ".";
+  ephdirs[nephindex++] = ".";
   if(foundUserDir)
-    ephdirs[1] = userpath;
+    ephdirs[nephindex++] = userpath;
+  if(foundResolveDir)
+    ephdirs[nephindex++] = resolvepath;
   if(foundStd)
-    ephdirs[nephdirs - 1] = horpath;  // nephdirs = 2 + foundUserDir
+    ephdirs[nephindex++] = horpath;
 
   Bool foundObj = false;
   Bool found = false;        // = foundObj && right time. 	 

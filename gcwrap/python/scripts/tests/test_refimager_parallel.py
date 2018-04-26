@@ -44,6 +44,8 @@ class testref_base_parallel(unittest.TestCase):
           self.epsilon = 0.05
           self.msfile = ""
           self.img = "tst"
+          # To use subdir in the output image names in some tests (CAS-10937)
+          self.img_subdir = 'refimager_tst_subdir'
 
           self.th = TestHelpers()
 
@@ -53,6 +55,7 @@ class testref_base_parallel(unittest.TestCase):
 
      # Separate functions here, for special-case tests that need their own MS.
      def prepData(self,msname=""):
+          os.system('rm -rf ' + self.img_subdir)
           os.system('rm -rf ' + self.img+'*')
           if msname != "":
                self.msfile=msname
@@ -65,6 +68,7 @@ class testref_base_parallel(unittest.TestCase):
                self.msfile=msname
           if (os.path.exists(self.msfile)):
                os.system('rm -rf ' + self.msfile)
+          os.system('rm -rf ' + self.img_subdir)
           os.system('rm -rf ' + self.img+'*')
 
      def checkfinal(self,pstr=""):
@@ -184,7 +188,7 @@ class test_cont(testref_base_parallel):
                                           reffreq= [(self.img+'.image.tt0',1489984775.68)] )
                
                # Parallel run
-               imgpar = self.img+'.par'
+               imgpar = os.path.join(self.img_subdir, self.img + '.par')
                retpar = tclean(vis=[ms1,ms2],imagename=imgpar,imsize=100,cell='8.0arcsec',
                                interactive=0,niter=10,deconvolver='mtmfs',parallel=True)
                
@@ -239,7 +243,8 @@ class test_cont(testref_base_parallel):
                self.prepData('refim_point.ms')
                
                # Initial paralle run
-               ret=tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='10.0arcsec',deconvolver='mtmfs',niter=10,parallel=True,interactive=0)
+               imagename = os.path.join(self.img_subdir, self.img)
+               ret=tclean(vis=self.msfile,imagename=imagename,imsize=100,cell='10.0arcsec',deconvolver='mtmfs',niter=10,parallel=True,interactive=0)
                report1 = self.th.checkall(ret=ret, 
                                           peakres=0.36915234, modflux=0.68956602);
                                           # imexist=[self.img+'.psf', self.img+'.residual', 
@@ -249,7 +254,7 @@ class test_cont(testref_base_parallel):
                                           #        (self.img+'.sumwt',2949.775,[0,0,0,0]) ])
 
                # Parallel restart
-               ret=tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='10.0arcsec',deconvolver='mtmfs',niter=10,parallel=True,calcres=False,calcpsf=False,interactive=0)
+               ret=tclean(vis=self.msfile,imagename=imagename,imsize=100,cell='10.0arcsec',deconvolver='mtmfs',niter=10,parallel=True,calcres=False,calcpsf=False,interactive=0)
                report2 = self.th.checkall(ret=ret, peakres=0.12871516, modflux=0.93000221);
 
 
@@ -323,11 +328,12 @@ class test_cube(testref_base_parallel):
                             deconvolver='hogbom',specmode='cube',
                             pbcor=True, parallel=False)
 
+               imexist_exts = ['.psf', '.residual', '.image', '.model', '.pb',
+                               '.image.pbcor' ]
                report1 = self.th.checkall(ret=ret, 
                                           peakres=1.173, modflux=0.134, iterdone=5, nmajordone=2,
-                                          imexist=[self.img+'.psf', self.img+'.residual', 
-                                                   self.img+'.image',self.img+'.model', 
-                                                   self.img+'.pb',  self.img+'.image.pbcor' ], 
+                                          imexist=[self.img + ext for ext in imexist_exts]
+,
                                           imval=[(self.img+'.image',1.2,[50,50,0,5]),
                                                  (self.img+'.sumwt',2949.775,[0,0,0,0]) ])
 
@@ -341,11 +347,9 @@ class test_cube(testref_base_parallel):
                checkims =self.th.getNParts( imprefix=imgpar, imexts=['residual','psf','model']) 
                report2 = self.th.checkall(ret=retpar['node1'][1], 
 #                                          peakres=0.241, modflux=0.527, iterdone=200, nmajordone=2,
-                                          imexist=[self.img+'.psf', self.img+'.residual', 
-                                                   self.img+'.image',self.img+'.model', 
-                                                   self.img+'.pb',  self.img+'.image.pbcor' ], 
-                                          imval=[(self.img+'.image',1.2,[50,50,0,5]),
-                                                 (self.img+'.sumwt',2949.775,[0,0,0,0]) ])
+                                          imexist=[imgpar + ext for ext in imexist_exts],
+                                          imval=[(imgpar + '.image', 1.2, [50, 50, 0, 5]),
+                                                 (imgpar + '.sumwt', 2949.775, [0, 0, 0, 0])])
 
                ## Pass or Fail (and why) ?
                self.checkfinal(report1+report2)
