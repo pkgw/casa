@@ -133,7 +133,7 @@ class test_basic(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat="jpg", 
                      yaxis='freq', showgui=False, highres=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 300000)
+        self.checkPlotfile(self.plotfile_jpg, 250000)
         self.removePlotfile()
         # default yaxis only
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat="jpg", 
@@ -365,7 +365,7 @@ class test_averaging(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, highres=True,
                      showgui=False, avgchannel='7')
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 180000, 220000)  
+        self.checkPlotfile(self.plotfile_jpg, 170000, 220000)  
         print
 
     def test_averaging_baseline(self):
@@ -436,7 +436,7 @@ class test_axis(plotms_test_base):
                      symbolsize=[5,5], symbolcolor=['ff0000','00ff00'], 
                      symbolfill=['mesh3','mesh3'], highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 60000)
+        self.checkPlotfile(self.plotfile_jpg, 50000)
         print
         
     def test_axis_twoAxes(self):
@@ -450,7 +450,7 @@ class test_axis(plotms_test_base):
                      plotfile=self.plotfile_jpg, expformat='jpg',
                      highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 247000)
+        self.checkPlotfile(self.plotfile_jpg, 220000)
         self.removePlotfile()
         
         print
@@ -764,7 +764,7 @@ class test_calplots(plotms_test_base):
         res = plotms(vis=self.caltable, plotfile=self.plotfile_jpg, expformat="jpg", 
                      showgui=False, highres=True, correlation='/', overwrite=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 65000)
+        self.checkPlotfile(self.plotfile_jpg, 60000)
         self.removePlotfile()
         print
 
@@ -1416,9 +1416,9 @@ class test_iteration(plotms_test_base):
         self.assertEqual(fileCount, 3)
         self.checkPlotfile(plotfile1_jpg, 200000)
         self.removePlotfile(plotfile1_jpg)
-        self.checkPlotfile(plotfile2_jpg, 200000)
+        self.checkPlotfile(plotfile2_jpg, 190000)
         self.removePlotfile(plotfile2_jpg)
-        self.checkPlotfile(plotfile3_jpg, 180000)
+        self.checkPlotfile(plotfile3_jpg, 170000)
         self.removePlotfile(plotfile3_jpg)
         print
         
@@ -1485,9 +1485,9 @@ class test_iteration(plotms_test_base):
         self.assertTrue(res)
         fileCount = self.getFilecount(self.outputDir, "testIteration11_")
         self.assertEqual(fileCount, 2)
-        self.checkPlotfile(plotfile1_jpg, 250000)
+        self.checkPlotfile(plotfile1_jpg, 240000)
         self.removePlotfile(plotfile1_jpg)
-        self.checkPlotfile(plotfile2_jpg, 250000)
+        self.checkPlotfile(plotfile2_jpg, 230000)
         self.removePlotfile(plotfile2_jpg)
         print
 
@@ -1639,7 +1639,7 @@ class test_selection(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=plotfile3_jpg, expformat='jpg', 
                      overwrite=True, showgui=False, scan='5,7', highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(plotfile3_jpg, 80000, 125000)
+        self.checkPlotfile(plotfile3_jpg, 70000, 125000)
         self.removePlotfile(plotfile3_jpg)
         print
 
@@ -1756,7 +1756,7 @@ class test_transform(plotms_test_base):
             res = plotms(vis=self.ms, plotfile=plotfile, yaxis='freq', 
                          showgui=False, freqframe=frame, highres=True)
             self.assertTrue(res)
-            self.checkPlotfile(plotfile, 210000)
+            self.checkPlotfile(plotfile, 200000)
             self.removePlotfile(plotfile)
         print
 
@@ -1783,7 +1783,7 @@ class test_transform(plotms_test_base):
             res = plotms(vis=self.ms, plotfile=plotfile, yaxis='freq', 
                          showgui=False, veldef=vel, highres=True)
             self.assertTrue(res)
-            self.checkPlotfile(plotfile, 300000)
+            self.checkPlotfile(plotfile, 290000)
             self.removePlotfile(plotfile)
         print
 
@@ -1795,7 +1795,7 @@ class test_transform(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, yaxis='freq', 
                      showgui=False, restfreq='1420', highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 300000)
+        self.checkPlotfile(self.plotfile_jpg, 290000)
         print
         
     def test_transform_shift(self):

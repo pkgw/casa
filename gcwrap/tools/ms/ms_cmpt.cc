@@ -803,9 +803,7 @@ ms::getspectralwindowinfo()
 }
 
 variant*
-ms::getfielddirmeas(
-    const std::string& dircolname, int fieldid,
-    double time, const string& format)
+ms::getfielddirmeas(const std::string& dircolname, int fieldid, double time, const string& format)
 {
     variant *retval = 0;
     try{
@@ -825,6 +823,9 @@ ms::getfielddirmeas(
             }
             else if(colname=="REFERENCE_DIR"){
                 d = msfc.referenceDirMeas(fieldid, time);
+	    }
+            else if(colname=="EPHEMERIS_DIR"){
+                d = msfc.ephemerisDirMeas(fieldid, time);
             }
             else{
                 *itsLog << LogIO::SEVERE
@@ -2297,7 +2298,7 @@ ms::selectinit(const int datadescid, const bool resetsel)
 					if (retval)
 						retval = doMSSelection(*casacRec); // onlyparse=false
 					initSel_p = retval;
-				} catch (AipsError x) {  // MSSelectionNullSelection
+				} catch (const AipsError &x) {  // MSSelectionNullSelection
 					String mesg = "selectinit failed for datadescid " + selDDID;
 					*itsLog << LogOrigin("ms", "selectinit");
 					*itsLog << LogIO::WARN << mesg << LogIO::POST;
@@ -3588,18 +3589,18 @@ ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int
     ::casac::record *retval(0);
     try {
         if(!detached()) {
+          uInt nrows = itsSelectedMS->nrow();
+          if (nrows == 0) {
+              *itsLog << LogIO::WARN << "Selected table is empty, cannot get data" << LogIO::POST;
+                return retval;
+          }
+
           if (checkinit()) {
             Record out(RecordInterface::Variable);
             Vector<String> itemnames(items);
             Int axisgap = ifraxisgap;
             doingAveraging_p = average;
             bool chanAverage = ((chansel_p.size() > 0) && (chansel_p[2] > 1));
-
-            uInt nrows = itsSelectedMS->nrow();
-            if (nrows == 0) {
-                *itsLog << LogIO::WARN << "Selected table is empty - use selectinit" << LogIO::POST;
-                return retval;
-            }
 
             if (axisgap>0 && ifraxis==false) {
                 *itsLog << LogIO::WARN << "ifraxis not requested, ignoring ifraxisgap argument" << LogIO::POST;
@@ -3899,7 +3900,7 @@ ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int
             retval = casa::fromRecord(out);
           } // checkinit
         } // !detached
-    } catch (AipsError x) {
+    } catch (const AipsError &x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
         Table::relinquishAutoLocks(true);
         RETHROW(x);
@@ -6895,20 +6896,8 @@ Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
                                             arrayExpr, scanIntentExpr, obsExpr, itsMSS);
                     } catch (const MSSelectionNullSelection &mssns) {
                         // Empty selections are valid in principle, and after this happens
-                        // one should be able to know that for example nrow() is 0.
+                        // one should be able to know that for example nrow(true) is 0.
                         setNewSel(newSelectedMS);
-                        throw;
-                    } catch (const AipsError &selex) {
-                        // temporary horror needed because MSSelectionTools::mssSetData2
-                        // does a throw(x) which does not respect the original exception
-                        // object and casts it to a generic AipsError.
-                        // TODO: Fix it there, and remove this horror catch!
-                        // We'll need this commit from casacore (not yet in CASA):
-                        // https://github.com/casacore/casacore/commit/6e340c7ccda0da6e4d854379b652ba445deaa411
-                        if (std::string::npos !=
-                            std::string(selex.what()).find("MSSelectionNullSelection")) {
-                            setNewSel(newSelectedMS);
-                        }
                         throw;
                     }
 		    setNewSel(newSelectedMS);

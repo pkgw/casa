@@ -52,6 +52,7 @@
 #include <synthesis/Utilities/PointingDirectionProjector.h>
 #include <coordinates/Coordinates/DirectionCoordinate.h>
 #include <libsakura/sakura.h>
+#include <cassert>
 
 // Debug Message Handling
 // if SDCALSKY_DEBUG is defined, the macro debuglog and

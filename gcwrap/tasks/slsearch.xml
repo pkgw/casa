@@ -47,7 +47,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value>-1</value>
         </param>
         <param type="doubleArray" name="smu2" subparam="true">
-            <description>S$\mu^2$ range in Debye$^2$. -1 -> do not use an S$\mu^2$ range.</description>
+            <description>Quantum mechanical line strength. -1 -> do not use a smu2 range.</description>
             <value>-1</value>
         </param>
         <param type="doubleArray" name="loga" subparam="true">

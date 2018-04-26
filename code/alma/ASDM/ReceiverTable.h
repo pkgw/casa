@@ -156,7 +156,7 @@ class ReceiverRow;
  * </TR>
 	
  * <TR>
- * <TD> numLO (\f$N_{LO}\f$)</TD> 
+ * <TD> numLO (numLO)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of frequencies of the local oscillator. </TD>

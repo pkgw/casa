@@ -83,6 +83,8 @@ class HolographyRow;
 // class asdm::SpectralWindowRow;
 class SpectralWindowRow;
 	
+// class asdm::PulsarRow;
+class PulsarRow;
 
 class DataDescriptionRow;
 typedef void (DataDescriptionRow::*DataDescriptionAttributeFromBin) (EndianIStream& eis);
@@ -198,8 +200,39 @@ public:
  	void setSpectralWindowId (Tag spectralWindowId);
   		
 	
+        ////////////////////////////////
+        // Extrinsic Table Attributes //
+	////////////////////////////////
 	
 	
+	// ===> Attribute pulsarId, which is optional
+	
+	/**
+ 	 * The attribute pulsarId is optional. Return true if this attribute exists.
+ 	 * @return true if and only if the pulsarId attribute exists.
+ 	 */
+	bool isPulsarIdExists() const;
+
+
+	/**
+ 	 * Get pulsarId, which is optional.
+ 	 * @return pulsarId as Tag
+ 	 * @throws IllegalAccessException If pulsarId does not exist.
+ 	 */
+ 	Tag getPulsarId() const; 
+
+
+	/**
+	 * Set pulsarId with the specified Tag.
+	 * @param pulsarId The Tag value to which pulsarId is to be set.
+	 */
+	void setPulsarId (Tag pulsarId);
+
+
+	/**
+ 	 * Mark pulsarId, which is an optional field, as non-existent.
+ 	 */
+	void clearPulsarId ();
 
 
 	///////////
@@ -231,7 +264,11 @@ public:
 	 SpectralWindowRow* getSpectralWindowUsingSpectralWindowId();
 	 
 
-	
+	/**
+ 	 * pulsarId pointer to the row in the Pulsar table having Pulsar.pulsarId == pulsarId
+ 	 * @return a PulsarRow*
+ 	 */
+	 PulsarRow* getPulsarUsingPulsarId();	
 
 	
 	
@@ -321,7 +358,7 @@ public:
 void dataDescriptionIdFromBin( EndianIStream& eis);
 void polOrHoloIdFromBin( EndianIStream& eis);
 void spectralWindowIdFromBin( EndianIStream& eis);
-
+void pulsarIdFromBin( EndianIStream& eis);
 	
 
 	 /**
@@ -437,6 +474,13 @@ private:
 	
 	
  	
+	// ===> Attribute pulsarId, which is optional
+	
+
+	bool pulsarIdExists;
+
+	Tag pulsarId;
+
 
 	///////////
 	// Links //
@@ -482,7 +526,7 @@ void polOrHoloIdFromText (const string & s);
 	
 void spectralWindowIdFromText (const string & s);
 	
-
+void pulsarIdFromText (const string & s);
 		
 	
 	/**

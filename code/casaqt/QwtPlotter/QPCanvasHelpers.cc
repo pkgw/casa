@@ -150,12 +150,16 @@ QwtText QPScaleDraw::label(double value) const {
 	if(m_referenceSet) value -= m_referenceValue;
 	if(m_scale == DATE_MJ_DAY || m_scale == DATE_MJ_SEC) {
 		// Relative dates should always be positive values;
-		// if not, default axes range 0-1000 used since no data
-		// and subtracting reference time invalid
-		if (m_referenceSet && (value < 0.0))
+		// converting neg double to date doesn't work.
+		// If ref value is 0 then all values are zero
+		int timePrecision;
+		if (m_referenceSet && (m_referenceValue==0.0 || value < 0.0)) {
 			value = 0.0;
-		int timePrecision = getTickPrecision();
-		if (timePrecision > 4) timePrecision = 4;
+			timePrecision = 0;
+		} else {
+			timePrecision = getTickPrecision();
+			if (timePrecision > 4) timePrecision = 4;
+		}
 		return QString(Plotter::formattedDateString(
 			m_referenceSet ? m_relativeDateFormat : m_dateFormat, value,
 			m_scale, m_referenceSet, timePrecision).c_str());
