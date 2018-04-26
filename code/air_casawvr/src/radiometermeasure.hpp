@@ -15,6 +15,7 @@
 #define _LIBAIR_RADIOMETERMEASURE_HPP__
 
 #include <vector>
+#include <string>
 #include <memory>
 #include <stdexcept>
 
@@ -113,7 +114,7 @@ namespace LibAIR2 {
     {
       if ( nchannels()  > 1 )
       {
-	throw RadiometerError("More than one channel but asking for single result");
+	throw RadiometerError(std::string("More than one channel but asking for single result"));
       }
 
       return eval( skyTb, 0);
