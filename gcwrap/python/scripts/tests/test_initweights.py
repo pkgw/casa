@@ -6,8 +6,8 @@ import numpy
 import math
 
 from __main__ import default
-from tasks import *
-from taskinit import *
+from tasks import initweights
+from taskinit import tbtool
 import unittest
 from casa_stack_manip import stack_frame_find
 
@@ -32,6 +32,8 @@ class initweights_common(unittest.TestCase):
         if os.path.isdir(DATADIR):
             testmms = True
             datapath = DATADIR
+        else: 
+            raise ValueError, 'Could not find input data in datapath='+DATADIR
     
     print 'initweights tests will use data from '+datapath         
         
@@ -89,6 +91,7 @@ class initweights_common(unittest.TestCase):
     def _column_exists(self, tbname, colname):
         """Returns True if the column exists in the table"""
         self._check_file(tbname)
+        tb = tbtool()
         tb.open(tbname)
         cols = tb.colnames()
         tb.close()
@@ -193,6 +196,7 @@ class initweights_common(unittest.TestCase):
         self._run_local_tests(mode, dowtsp, spwlist, interplist, atol, rtol)
         # common tests
         # calculate results for each time
+        tb = tbtool()
         self._check_file(self.inputms)
         has_wtsp = self._column_exists(self.inputms, "WEIGHT_SPECTRUM")
         has_sigsp = self._column_exists(self.inputms, "SIGMA_SPECTRUM")
@@ -528,6 +532,7 @@ class initweights_base(initweights_common):
 
     # Just not to raise error at verification stage.
     def _make_consistent(self):
+        tb = tbtool()
         tb.open(self.inputms,nomodify=False)
         try:
             for irow in xrange(tb.nrows()):
