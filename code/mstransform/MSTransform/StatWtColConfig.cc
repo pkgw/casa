@@ -76,10 +76,13 @@ void StatWtColConfig::getColWriteFlags(
 }
 
 void StatWtColConfig::_determineFlags() {
-    auto hasWtSp = _ms->isColumn(MSMainEnums::WEIGHT_SPECTRUM);
     _mustWriteSig = _possiblyWriteSigma && ! _preview;
-    auto hasSigSp = _ms->isColumn(MSMainEnums::SIGMA_SPECTRUM);
-    _mustWriteSigSp = _mustWriteSig && hasSigSp;
+    Bool hasSigSp = False;
+    Bool sigSpIsInitialized = False;
+    _hasSpectrumIsSpectrumInitialized(
+        hasSigSp, sigSpIsInitialized, MS::SIGMA_SPECTRUM
+    );
+    _mustWriteSigSp = _mustWriteSig && (sigSpIsInitialized || _doChanBin);
     _mustWriteWt = ! _preview
         && (
             ! _mustWriteSig
@@ -88,34 +91,23 @@ void StatWtColConfig::_determineFlags() {
                 && ! _ms->isColumn(MSMainEnums::CORRECTED_DATA)
             )
         );
-    _mustWriteWtSp = _mustWriteWt && _doChanBin;
-    /*
-    if (_mustWriteWtSp) {
-        auto type = _tviConfig.type(_tviConfig.fieldNumber(vi::StatWtTVI::CHANBIN));
-        if (type == TpArrayBool) {
-            // default variant type
-            mustWriteWtSp = False;
-        }
-        else if (type == TpString) {
-            auto val = _tviConfig.asString(vi::StatWtTVI::CHANBIN);
-            val.downcase();
-            if (val == "spw") {
-                mustWriteWtSp = False;
-            }
-        }
-    }
-    */
+    Bool hasWtSp = False;
+    Bool wtSpIsInitialized = False;
+    _hasSpectrumIsSpectrumInitialized(
+        hasWtSp, wtSpIsInitialized, MS::WEIGHT_SPECTRUM
+    );
+    _mustWriteWtSp = _mustWriteWt && (wtSpIsInitialized || _doChanBin);
     static const auto colNameWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
     static const auto descWtSp = "weight spectrum";
     _dealWithSpectrumColumn(
-        hasWtSp, _mustWriteWtSp, _mustInitWtSp,
-        _mustWriteWt, colNameWtSp, descWtSp
+        hasWtSp, _mustWriteWtSp, _mustInitWtSp, _mustWriteWt,
+        colNameWtSp, descWtSp, wtSpIsInitialized
     );
     static const auto colNameSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
     static const auto descSigSp = "sigma spectrum";
     _dealWithSpectrumColumn(
-        hasSigSp, _mustWriteSigSp, _mustInitSigSp,
-        _mustWriteSig, colNameSigSp, descSigSp
+        hasSigSp, _mustWriteSigSp, _mustInitSigSp, _mustWriteSig,
+        colNameSigSp, descSigSp, sigSpIsInitialized
     );
     LogIO log(LogOrigin("StatWtColConfig", __func__));
     if (_mustWriteWt) {
@@ -190,10 +182,32 @@ void StatWtColConfig::_initSpecColsIfNecessary() {
     }
 }
 
+void StatWtColConfig::_hasSpectrumIsSpectrumInitialized(
+    bool& hasSpectrum, bool& spectrumIsInitialzed,
+    MS::PredefinedColumns col
+) const {
+    hasSpectrum = _ms->isColumn(col);
+    if (! hasSpectrum) {
+        // no column, so it is obviously not initialized
+        spectrumIsInitialzed = False;
+        return;
+    }
+    ArrayColumn<Float> column(*_ms, MS::columnName(col));
+    try {
+        column.get(0);
+        // we were able to get a row, so its initialized.
+        spectrumIsInitialzed = True;
+    }
+    catch (const AipsError& x) {
+        // attempt to get first row failed, its not initialized.
+        spectrumIsInitialzed = False;
+    }
+}
+
 void StatWtColConfig::_dealWithSpectrumColumn(
     Bool& hasSpec, Bool& mustWriteSpec, Bool& mustInitSpec,
     Bool mustWriteNonSpec, const String& colName,
-    const String& descName
+    const String& descName, Bool specIsInitialized
 ) {
     // this conditional structure supports the
     // case of ! hasSpec && ! mustWriteSpec, in which case,
@@ -224,16 +238,13 @@ void StatWtColConfig::_dealWithSpectrumColumn(
         }
     }
     else if (mustWriteNonSpec) {
-        // check to see if extant spectrum column needs to be initialized
-        ArrayColumn<Float> col(*_ms, colName);
-        try {
-            col.get(0);
-            // its initialized, so even if we are using the full spw for
-            // binning, we still need to update WEIGHT_SPECTRUM
+        if (specIsInitialized) {
+            // it's initialized, so even if we are using the full
+            // spw for binning, we still need to update *_SPECTRUM
             mustWriteSpec = True;
         }
-        catch (const AipsError& x) {
-            // its not initialized, so we aren't going to write to it unless
+        else {
+            // it's not initialized, so we aren't going to write to it unless
             // chanbin has been specified to be less than the spw width
             mustInitSpec = mustWriteSpec;
         }

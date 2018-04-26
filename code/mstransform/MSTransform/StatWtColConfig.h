@@ -24,10 +24,10 @@
 #define STATWTCOLCONFIG_H_
 
 #include <casacore/casa/Quanta/Quantum.h>
+#include <casacore/ms/MeasurementSets/MeasurementSet.h>
 
 namespace casacore {
     class LogIO;
-    class MeasurementSet;
 }
 
 namespace casac {
@@ -83,12 +83,19 @@ private:
     void _dealWithSpectrumColumn(
         casacore::Bool& hasSpec, casacore::Bool& mustWriteSpec,
         casacore::Bool& mustInitSpec, casacore::Bool mustWriteNonSpec,
-        const casacore::String& colName, const casacore::String& descName
+        const casacore::String& colName, const casacore::String& descName,
+        casacore::Bool specIsInitialized
     );
 
     void _determineFlags();
 
+    void _hasSpectrumIsSpectrumInitialized(
+        casacore::Bool& hasSpectrum, casacore::Bool& spectrumIsInitialzied,
+        casacore::MS::PredefinedColumns col
+    ) const;
+
     void _initSpecColsIfNecessary();
+
 };
 
 }
