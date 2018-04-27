@@ -3504,6 +3504,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                err+= "verbose must be a bool";
             }
           }
+        if( inrec.isDefined("nsigma") )
+          {
+            if(inrec.dataType("nsigma")==TpFloat || inrec.dataType("nsigma")==TpDouble ) {
+               err+= readVal(inrec, String("nsigma"), nsigma );
+              }
+            else {
+               err+= "nsigma be a float or double";
+            }
+          }
         if( inrec.isDefined("restoringbeam") )     
 	  {
 	    String errinfo("");
@@ -3677,6 +3686,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     decpar.define("minpercentchange",minPercentChange);
     decpar.define("verbose", verbose);
     decpar.define("interactive",interactive);
+    decpar.define("nsigma",nsigma);
 
     return decpar;
   }

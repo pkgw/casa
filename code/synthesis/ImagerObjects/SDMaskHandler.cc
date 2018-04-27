@@ -922,7 +922,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           delete testres; testres=0;
        }
     } 
-    Record thestats = calcImageStatistics(*tempres, *tempmask, LELmask, region_ptr, robust);
+    Record thestats = calcImageStatistics(*tempres, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
     thestats.get(RecordFieldId("max"), maxs);
     thestats.get(RecordFieldId("rms"), rmss);
@@ -972,7 +972,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     delete tempres; tempres=0;
   }
 
-  Record SDMaskHandler::calcImageStatistics(ImageInterface<Float>& res, ImageInterface<Float>& /*  prevmask */, String& LELmask,  Record* regionPtr, const Bool robust )
+  Record SDMaskHandler::calcImageStatistics(ImageInterface<Float>& res, String& LELmask,  Record* regionPtr, const Bool robust )
   { 
     TempImage<Float>* tempres = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse()); 
     Array<Float> resdata;
@@ -1567,7 +1567,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //clean up (appy cutThreshold to convolved mask image)
     String lelmask("");
     //Record smmaskstats = calcImageStatistics(tempmask, tempmask, lelmask, 0, false);
-    Record smmaskstats = calcImageStatistics(*outmask, *outmask, lelmask, 0, false);
+    Record smmaskstats = calcImageStatistics(*outmask, lelmask, 0, false);
     Array<Double> smmaskmaxs;
     smmaskstats.get(RecordFieldId("max"),smmaskmaxs);
     Vector<Float> cutThresholdValue(nchan);
@@ -1606,7 +1606,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     //  Mod: 2017.07.26: modified get stats for prev mask, if channel contains no mask in prev mask it will set flag to skip the channel 
     //Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
-    Record maskstats = calcImageStatistics(mask, mask, lelmask, 0, false);
+    Record maskstats = calcImageStatistics(mask, lelmask, 0, false);
     Array<Double> maskmaxs;
     maskstats.get(RecordFieldId("max"),maskmaxs);
     // per plane stats 
@@ -1731,7 +1731,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
          postSmoothGrowedMask.copyData(*outprevmask);
        }
        //prevmask.copyData( LatticeExpr<Float> (iif( *(outprevmask.get()) > cutThreshold, 1.0, 0.0 )) );
-       Record constmaskstats = calcImageStatistics(*outprevmask, *outprevmask, lelmask, 0, false);
+       Record constmaskstats = calcImageStatistics(*outprevmask, lelmask, 0, false);
        Array<Double> constmaskmaxs;
        constmaskstats.get(RecordFieldId("max"),constmaskmaxs);
        Vector<Float> constCutThresholdValue(nchan);
@@ -1788,7 +1788,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       makeMaskByPerChanThreshold(res, chanFlag, negativeMaskImage , negativeMaskThreshold, dummysizes);
       SPIIF negmask = convolveMask( negativeMaskImage, modbeam);
       // determine the cutthreshold value for negative mask
-      Record negmaskstats = calcImageStatistics(*negmask, *negmask, lelmask, 0, false);
+      Record negmaskstats = calcImageStatistics(*negmask, lelmask, 0, false);
       Array<Double> negmaskmaxs;
       negmaskstats.get(RecordFieldId("max"),negmaskmaxs);
       Vector<Float> negCutThresholdValue(nchan);
