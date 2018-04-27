@@ -1855,6 +1855,10 @@ HPX HEALPix grid.  -->
                                                        ones and zeros as the mask. If this image is a different 
                                                        shape from what is being made it will be resampled to 
                                                        the target coordinate system before being used.
+                                                       When a continuum (single channel) mask is given for spectral
+                                                       cube imaging, it will be extended (copied) to all channels.
+                                                       Similarly, when a Stokes I mask is given, it will be extended
+                                                       to multi-Stokes imaging. 
 
                                                        [ Note : If an error occurs during image resampling or
                                                                    if the expected mask does not appear, please try

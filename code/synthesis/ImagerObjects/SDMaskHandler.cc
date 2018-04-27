@@ -138,15 +138,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 IPosition inShape = inmask.shape();
                 IPosition outShape = imstore->mask()->shape();
                 Int specAxis = CoordinateUtil::findSpectralAxis(inmask.coordinates());
+                Int inNchan = (specAxis==-1? 1: inShape(specAxis) );
                 Int outSpecAxis = CoordinateUtil::findSpectralAxis(imstore->mask()->coordinates());
                 Vector <Stokes::StokesTypes> inWhichPols, outWhichPols;
                 Int stokesAxis = CoordinateUtil::findStokesAxis(inWhichPols, inmask.coordinates());
+                Int inNstokes = (stokesAxis==-1? 1: inShape(stokesAxis) );
                 Int outStokesAxis = CoordinateUtil::findStokesAxis(outWhichPols, imstore->mask()->coordinates());
-                if (inShape(specAxis) == 1 && outShape(outSpecAxis)>1) {
+                //if (inShape(specAxis) == 1 && outShape(outSpecAxis)>1) {
+                if (inNchan == 1 && outShape(outSpecAxis)>1) {
                   os << "Expanding mask image: " << maskString << LogIO::POST;
                   expandMask(inmask, tempMaskImage);
                 }
-                else if(inShape(stokesAxis) == 1 && outShape(outStokesAxis) > 1 ) {
+                //else if(inShape(stokesAxis) == 1 && outShape(outStokesAxis) > 1 ) {
+                else if(inNstokes == 1 && outShape(outStokesAxis) > 1 ) {
                   os << "Expading mask image along Stokes axis: " << maskString << LogIO::POST;
                   expandMask(inmask, tempMaskImage);
                 }
@@ -583,10 +587,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     CoordinateSystem inCsys = inImageMask.coordinates();
     Vector<Int> dirAxes = CoordinateUtil::findDirectionAxes(inCsys);
     Int inSpecAxis = CoordinateUtil::findSpectralAxis(inCsys);
-    Int inNchan = inShape(inSpecAxis); 
+    Int inNchan; 
+    if (inSpecAxis==-1) {
+      inNchan=1;
+    }
+    else {
+      inNchan = inShape(inSpecAxis); 
+    }
+      
     Vector<Stokes::StokesTypes> inWhichPols;
     Int inStokesAxis = CoordinateUtil::findStokesAxis(inWhichPols,inCsys);
-    Int inNpol = inShape(inStokesAxis); 
+    Int inNpol; 
+    if (inStokesAxis==-1) {
+      inNpol=1;
+    }
+    else {
+      inNpol = inShape(inStokesAxis); 
+    }
+    
     //
     // Do expansion for input mask with single channel (continuum)
     if (inNchan==1) {
@@ -618,10 +636,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // make a subImage for regridding output       
       SubImage<Float> chanMask(outImageMask, sl, true);
       ImageRegrid<Float> imregrid;
+      TempImage<Float> tempInImageMask(chanMask.shape(), chanMask.coordinates(),memoryToUse());
+      PtrHolder<ImageInterface<Float> > outmaskim_ptr;
+      if ( chanMask.shape().nelements() >  inImageMask.shape().nelements() ) {
+        casacore::ImageUtilities::addDegenerateAxes(os, outmaskim_ptr, inImageMask,"",False, True, "I", False, False, True); 
+        tempInImageMask.copyData(*outmaskim_ptr);
+      }
+      else {
+        tempInImageMask.copyData(inImageMask);
+      }
       try {
-        imregrid.regrid(chanMask, Interpolate2D::LINEAR, dirAxes, inImageMask);
+        imregrid.regrid(chanMask, Interpolate2D::LINEAR, dirAxes, tempInImageMask);
       } catch (AipsError& x) {
-        cerr<<"Attempt to regrid the input mask image failed: "<<x.getMesg()<<endl;
+        os<<LogIO::WARN<<"Regridding of the input mask image failed: "<<x.getMesg()<<LogIO::POST;
       }
       // extract input mask (first stokes plane) 
       Array<Float> inMaskData;
