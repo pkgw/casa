@@ -1355,6 +1355,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     // tempmsk: working image for the curret mask
     TempImage<Float> tempmask(mask.shape(), mask.coordinates(), memoryToUse());
+    tempmask.set(0);
     // prevmask: mask from previous iter.
     TempImage<Float> prevmask(mask.shape(), mask.coordinates(), memoryToUse());
     // use positive only previous mask
@@ -1494,6 +1495,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         timer.mark();
         // make temp mask image consist of the original pix value and below the threshold is set to 0 
         TempImage<Float> maskedRes(res.shape(), res.coordinates(), memoryToUse());
+        maskedRes.set(0);
         makeMaskByPerChanThreshold(res, chanFlag, maskedRes, maskThreshold, dummysizes); 
         os << LogIO::NORMAL << "End thresholding: time to create the initial threshold mask:  real "<< timer.real() 
            << "s ( user " << timer.user() <<"s, system "<< timer.system() << "s)" << LogIO::POST;
@@ -1538,6 +1540,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //themask = LatticeExpr<Float> ( iif( res > maskThreshold, 1.0, 0.0 ));
         os << LogIO::NORMAL << "Start thresholding: create an initial threshold mask" << LogIO::POST;
         timer.mark();
+        tempmask.set(0);
         makeMaskByPerChanThreshold(res, chanFlag, tempmask, maskThreshold, dummysizes); 
         if (debug) {
            PagedImage<Float> savedThreshmask(res.shape(), res.coordinates(), "tmpNoPruneInitTresh.im");
@@ -1580,6 +1583,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       
     }
     TempImage<Float> thenewmask(res.shape(),res.coordinates(), memoryToUse());
+    thenewmask.set(0);
     //thenewmask.copyData(*outmask);
     makeMaskByPerChanThreshold(*outmask, chanFlag, thenewmask, cutThresholdValue, dummysizes); 
     os << LogIO::NORMAL << "End smoothing: time to create the smoothed initial threshold mask: real "<< timer.real()
@@ -1637,6 +1641,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        //call growMask
        // corresponds to calcThresholdMask with lowNoiseThreshold...
        TempImage<Float> constraintMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
+       constraintMaskImage.set(0);
        // constrainMask is 1/0 mask
        makeMaskByPerChanThreshold(res, chanFlag, constraintMaskImage, lowMaskThreshold, dummysizes);
        if(debug2) {
@@ -1739,6 +1744,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           }
           constCutThresholdValue(ich) = cutThreshold * constmaskmaxs(chindx);
        }
+       prevmask.set(0);
        makeMaskByPerChanThreshold(*outprevmask, chanFlag, prevmask, constCutThresholdValue, dummysizes); 
        if (debug) {
          PagedImage<Float> smoothedGrowedMask(res.shape(), res.coordinates(),"tmpSmoothedGrowMask-"+String::toString(iterdone)+".im");
@@ -1778,6 +1784,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       timer.mark();
       //os<<LogIO::NORMAL<<"Creating a mask for negative features. "<<LogIO::POST;
       TempImage<Float> negativeMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
+      negativeMaskImage.set(0);
       makeMaskByPerChanThreshold(res, chanFlag, negativeMaskImage , negativeMaskThreshold, dummysizes);
       SPIIF negmask = convolveMask( negativeMaskImage, modbeam);
       // determine the cutthreshold value for negative mask
