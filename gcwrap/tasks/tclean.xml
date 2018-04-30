@@ -1960,19 +1960,22 @@ HPX HEALPix grid.  -->
            <value type="double">3.0</value>
 <description>Sub-parameter for "auto-multithresh":  mask threshold based on sidelobe levels:  sidelobethreshold * max_sidelobe_level * peak residual
 
-              The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="noisethreshold" subparam="true">
     <shortdescription>noisethreshold * rms in residual image</shortdescription>
            <value type="double">5.0</value>
 <description>Sub-parameter for "auto-multithresh":  mask threshold based on the noise level: noisethreshold * rms
+
+              The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="lownoisethreshold" subparam="true">
     <shortdescription>lownoisethreshold * rms in residual image</shortdescription>
            <value type="double">1.5</value>
 <description>Sub-parameter for "auto-multithresh":  mask threshold to grow previously masked regions via binary dilation:   lownoisethreshold * rms in residual image
+
+              The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="negativethreshold" subparam="true">
