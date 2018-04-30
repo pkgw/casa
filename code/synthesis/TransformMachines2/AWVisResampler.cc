@@ -241,8 +241,8 @@ namespace casa{
 				  const Int* convOrigin,
   				  Complex& nvalue,
 				  Double& wVal,
-  				  Bool& /*finitePointingOffset*/,
-  				  Bool& /*doPSFOnly*/,
+  				  Bool& finitePointingOffset,
+  				  Bool& doPSFOnly,
   				  T* __restrict__ gridStore,
   				  Int* iloc,
   				  Complex& norm,
@@ -301,6 +301,7 @@ namespace casa{
     const Int* convOrigin_ptr=convOrigin.getStorage(Dummy);
     Int *iloc_ptr=iloc.getStorage(Dummy);
     Int *igrdpos_ptr=igrdpos.getStorage(Dummy);
+    Vector<Int> iCFPos(4,0);
 
     Bool finitePointingOffset_l=finitePointingOffset;
     Bool doPSFOnly_l=doPSFOnly;
@@ -328,47 +329,52 @@ namespace casa{
 // #pragma omp for
     for(Int iy=-scaledSupport[1]; iy <= scaledSupport[1]; iy++) 
       {
-	iloc_ptr[1]=(Int)((scaledSampling[1]*iy+off[1])-1)+convOrigin[1];
+	iloc_ptr[1]=(Int)((scaledSampling[1]*iy+off[1])-1);
 	igrdpos[1]=loc[1]+iy;
-	XInnerLoop(scaledSupport_ptr, scaledSampling_ptr,
-		   off_ptr,
-		   loc_ptr, cfArea,  
-		   iGrdPosPtr,
-		   convFuncV_l,
-		   convOrigin_ptr,
-		   nvalue_l,
-		   wVal_l,
-		   finitePointingOffset_l,
-		   doPSFOnly_l,
-		   gridStore,
-		   iloc_ptr,
-		   norm,
-		   igrdpos_ptr);
+        iCFPos[1] =iloc_ptr[1]+convOrigin[1];
 
-	// for(Int ix=-scaledSupport[0]; ix <= scaledSupport[0]; ix++) 
-	//   {
-	//     iloc[0]=(Int)((scaledSampling[0]*ix+off[0])-1)+convOrigin[0];
-	//     igrdpos[0]=loc[0]+ix;
-	//     //
-	//     // reindex() is for historical reasons and does three
-	//     // operations: (1) rotate the co-ord. sys. using
-	//     // sin/cosDPA, (2) add convOrigin to iloc and return the
-	//     // result in tiloc and add convOrigin to tiloc, and (3)
-	//     // return true if tiloc lines with in the cfShape.
-	//     //
-	//     //	    if (reindex(iloc,tiloc,sinDPA, cosDPA, convOrigin, cfShape))
-	//       {
-	// 	wt = getFrom4DArray((const Complex * __restrict__ &)convFuncV, 
-	// 			    iloc,cfInc_p)/cfArea;
-	// 	if (wVal > 0.0) {wt = conj(wt);}
-	// 	norm += (wt);
-	// 	if (finitePointingOffset && !doPSFOnly) 
-	// 	  wt *= cached_phaseGrad_p(iloc[0]+phaseGradOrigin_l[0],
-	// 				   iloc[1]+phaseGradOrigin_l[1]);
-	// 	// The following uses raw index on the 4D grid
-	// 	addTo4DArray(gridStore,iGrdPosPtr,gridInc_p, nvalue,wt);
-	//       }
-	//   }
+	// XInnerLoop(scaledSupport_ptr, scaledSampling_ptr,
+	// 	   off_ptr,
+	// 	   loc_ptr, cfArea,  
+	// 	   iGrdPosPtr,
+	// 	   convFuncV_l,
+	// 	   convOrigin_ptr,
+	// 	   nvalue_l,
+	// 	   wVal_l,
+	// 	   finitePointingOffset_l,
+	// 	   doPSFOnly_l,
+	// 	   gridStore,
+	// 	   iloc_ptr,
+	// 	   norm,
+	// 	   igrdpos_ptr);
+
+	for(Int ix=-scaledSupport[0]; ix <= scaledSupport[0]; ix++) 
+	  {
+	    iloc[0]=(Int)((scaledSampling[0]*ix+off[0])-1);
+	    igrdpos[0]=loc[0]+ix;
+	    iCFPos[0] =iloc_ptr[0]+convOrigin[0];
+	    //
+	    // reindex() is for historical reasons and does three
+	    // operations: (1) rotate the co-ord. sys. using
+	    // sin/cosDPA, (2) add convOrigin to iloc and return the
+	    // result in tiloc and add convOrigin to tiloc, and (3)
+	    // return true if tiloc lines with in the cfShape.
+	    //
+	    //	    if (reindex(iloc,tiloc,sinDPA, cosDPA, convOrigin, cfShape))
+	      {
+		wt = getFrom4DArray((const Complex * __restrict__ &)convFuncV, 
+				    iCFPos,cfInc_p)/cfArea;
+		if (wVal > 0.0) {wt = conj(wt);}
+		norm += (wt);
+		if (finitePointingOffset)// && !doPSFOnly) 
+		  {
+		    wt *= cached_phaseGrad_p(iloc[0]+phaseGradOrigin_l[0],
+					     iloc[1]+phaseGradOrigin_l[1]);
+		  }
+		// The following uses raw index on the 4D grid
+		addTo4DArray(gridStore,iGrdPosPtr,gridInc_p, nvalue,wt);
+	      }
+	  }
       }
      }
     return norm;
@@ -561,6 +567,8 @@ namespace casa{
 
    //   Double conjRefFreq = vbs.imRefFreq();
    Int vbSpw = (vbs.vb_p)->spectralWindows()(0);
+   Double vbPA = vbs.paQuant_p.getValue("rad");
+   Int vbFieldID = ((const Int)((vbs.vb_p)->fieldId()(0)));
 
    for(Int irow=rbeg; irow< rend; irow++){   
       //      if ((vbs.uvw_p.nelements() == 0)) 
@@ -662,7 +670,7 @@ namespace casa{
 					  //timer_p.mark();
 					  try
 					    {
-					      convFuncV=getConvFunc_p(vbs.paQuant_p.getValue("rad"),
+					      convFuncV=getConvFunc_p(vbPA,
 								      cfShape, support,muellerElement,
 								      cfb, dataWVal, cfFreqNdx,
 								      wndx, mNdx, conjMNdx, ipol,  mCols);
@@ -694,7 +702,7 @@ namespace casa{
 					  Bool psfOnly=((dopsf==true) && (accumCFs==false));
 					  if (finitePointingOffsets )
 					    cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
-							     ((const Int)(vbs.vb_p)->spectralWindows()(0)),((const Int)((vbs.vb_p)->fieldId()(0))));
+							     vbSpw, vbFieldID);
 					  
 					  cacheAxisIncrements(cfShape, cfInc_p);
 					  
@@ -703,12 +711,14 @@ namespace casa{
 					  // loops re-written in FORTRAN (in synthesis/fortran/faccumulateOnGrid.f)
 
 					  //timer_p.mark();
-					  // norm += accumulateOnGrid(grid,convFuncV,nvalue,dataWVal,
-					  // 			   support,sampling,
-					  // 			   off, convOrigin, cfShape, loc, igrdpos,
-					  // 			   sinDPA, cosDPA,finitePointingOffsets,psfOnly);
+					  norm += accumulateOnGrid(grid,convFuncV,nvalue,dataWVal,
+					  			   support,sampling,
+					  			   off, convOrigin, cfShape, loc, igrdpos,
+					  			   sinDPA, cosDPA,finitePointingOffsets,psfOnly);
 // cerr << vbs.vb_p->spectralWindow() << " " << vbs.vb_p->rowIds()(irow) << " " << irow << " " << ichan << " " << ipol << " " << mRow << endl;
-#include <synthesis/TransformMachines2/FortranizedLoopsToGrid.cc>
+
+//#include <synthesis/TransformMachines2/FortranizedLoopsToGrid.cc>
+
 //clLoopsToGrid();
 //runTimeG7_p += timer_p.real();
 					}
@@ -795,6 +805,8 @@ namespace casa{
 			       (fabs(pointingOffset(1))>0)
 			       );
     Int vbSpw = (vbs.vb_p)->spectralWindows()(0);
+    Double vbPA = vbs.paQuant_p.getValue("rad");
+    Int vbFieldID = ((const Int)((vbs.vb_p)->fieldId()(0)));
 
     for(Int irow=rbeg; irow<rend; irow++) {
       if(!rowFlag[irow]) {
@@ -867,7 +879,7 @@ namespace casa{
 			Complex*  convFuncV=NULL;
 			try
 			  {
-			    convFuncV = getConvFunc_p(vbs.paQuant_p.getValue("rad"),
+			    convFuncV = getConvFunc_p(vbPA,
 						      cfShape, support, muellerElement,
 						      cfb, dataWVal, fndx, wndx,
 						      //mNdx,conjMNdx,
@@ -891,7 +903,7 @@ namespace casa{
 			convOrigin = (cfShape)/2;
 			if (finitePointingOffset)
 			  cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
-					   ((const Int)(vbs.vb_p)->spectralWindows()(0)),((const Int)((vbs.vb_p)->fieldId()(0))));
+					   vbSpw, vbFieldID);
 			
 			//
 			// ALERT: The -1 in the expression for iloc

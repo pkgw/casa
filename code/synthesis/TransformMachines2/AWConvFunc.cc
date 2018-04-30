@@ -1129,7 +1129,9 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
       threshold   = real(abs(cffunc(IPosition(4,convFuncOrigin,convFuncOrigin,0,0))));
 
     //threshold *= aTerm_p->getSupportThreshold();
-    threshold *= 1e-3;
+    //threshold *= 1e-3;
+    threshold *= 7.5e-2;
+
     //    threshold *=  0.1;
     // if (aTerm_p->isNoOp()) 
     //   threshold *= 1e-3; // This is the threshold used in "standard" FTMchines
