@@ -373,7 +373,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 						if(!f.exists()) throw AipsError("File not found.");
 						///Try if file is one of the new format recognized 
 						///by imagefactory but not taken care above.
-						std::tie(im_ , cim_)=ImageFactory::fromFile(path);	 
+                        auto imagePtrs = ImageFactory::fromFile(path);
+                        // FIXME fromFile() now returns a tuple with more than two pointers
+                        std::tie(im_ , cim_, std::ignore , std::ignore )=imagePtrs;	 
 						if(im_ || cim_){
 						  break;
 						}
