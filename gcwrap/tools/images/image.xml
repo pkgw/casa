@@ -1514,85 +1514,87 @@ bigim.done()
 
  
  
-   <method type="function" name="fromarray">
-   <shortdescription>Construct a \casa\ image from a numerical (integer or float) array</shortdescription>
-   
-<input>
-  
-     <param type="string"  name="outfile">
-     <description>Output image file name.  Default is unset.</description>
-     <value></value>
-     </param>
-  
-     <param type="any"  name="pixels">
-	     <any type="variant"/>
-     <description>Numeric array</description>
-     <value/>
-     </param>
-  
-     <param type="record"  name="csys">
-     <description>Coordinate System.  Default is unset.</description>
-     <value></value>
-     </param>
-  
-     <param type="bool"  name="linear">
-     <description>Make a linear Coordinate System if csys not given</description>
-     <value>false</value>
-     </param>
-  
-     <param type="bool"  name="overwrite">
-     <description>Overwrite (unprompted) pre-existing output file?</description>
-     <value>false</value>
-     </param>
-  
-     <param type="bool"  name="log">
-     <description>Write image creation messages to logger</description>
-     <value>true</value>
-     </param>
-</input>
-<returns type="bool"/>
+<method type="function" name="fromarray">
+    <shortdescription>Construct a \casa\ image from a numerical numpy array</shortdescription>
+    <input>
+        <param type="string" name="outfile">
+            <description>Output image file name.  Default is unset.</description>
+            <value/>
+        </param>
+        <param type="any" name="pixels">
+	       <any type="variant"/>
+           <description>Numeric array</description>
+            <value/>
+        </param>
+        <param type="record" name="csys">
+            <description>Coordinate System. Default is to construct an appropriate coordinate system given the array shape.</description>
+            <value/>
+        </param>
+            <param type="bool" name="linear">
+            <description>Make a linear Coordinate System if csys not given</description>
+            <value>false</value>
+        </param>
+        <param type="bool" name="overwrite">
+            <description>Overwrite the output image if it already exists?</description>
+            <value>false</value>
+        </param>
+        <param type="bool"  name="log">
+            <description>Write image creation messages to logger</description>
+            <value>true</value>
+        </param>
+        <param type="string"  name="type">
+            <description>Pixel data type to write. 'f' (float precision) or 'd' (double precision)</description>
+            <value>f</value>
+        </param>
+    </input>
+    <returns type="bool"/>
+    <description>
 
-<description>
+This application converts a numerical numpy array of any size and dimensionality
+into a CASA image. It will create float, double, complex-float, and complex-double
+valued images.
 
-This function converts a numerical (integer or float) numpy array of any size and
-dimensionality into a \casa\ image. It will create both float and complex valued images.
+The image analysis tool on which this method is called will reference the created
+image; if this tool referenced another image before this call, that image will no
+longer be referenced by the tool after the creation of the new image. If you
+would rather have a new image analysis tool returned, keeping the one on which
+this method is called unaltered, use newimagefromarray() instead. If outfile is
+specified, a persistent image is written to disk, if not, the image tool on
+which this method was called will reference a temporary image (either in memory
+or on disk, depending on its size) that will be deleted when the tool is closed.
 
-The image analysis tool on which this method is called will reference the created image;
-if this tool referenced another image before this call, that image will no longer be referenced
-by the tool after the creation of the new image. If you would rather have a new image analysis
-tool returned, keeping the one on which this method is called unaltered, use newimagefromarray()
-instead. If {\stfaf outfile} is given, the image is written to disk, if not, the image tool on
-which this method was called will reference a temporary image (either in memory or on disk, 
-depending on its size) that will be deleted when the tool
-is closed.
+The type parameter controls the data type/precision of the pixel values of the
+created image. 'f' indicates that float precision point (32 bit precision) pixel
+values should be writted. 'd' indicates that double precision (64 bit precision)
+pixel values should be written. If the input array has complex (as opposed to
+real) values, then complex pixel values, with each of the real and imaginary
+parts having the specified precision, will be written. Array values will be cast
+automatically to the specified precision, so that the precision of the input
+array values may be increased, decreased, or unchanged depending on the input
+array type.
 
-Float valued images are produced from real-valued arrays. Complex-valued images are produced from
-complex-valued arrays.
+The coordinate system, provided as a a dictionary (use eg, cs.torecord() to do
+that), is optional. If specified, it must have the same number of dimensions
+as the pixels array. Call the naxes() method on the coordinate system tool to
+see how many dimensions the coordinate system has. A coordinate system can be
+created from scratch using the coordinate system (cs) tool and methods therein,
+but often users prefer to use a coordinate system from an already existing image.
+This can be gotten using ia.coordsys() which returns a coordinate system tool.
+A torecord() call on that tool will result in a python dictionary describing
+the coordinate system which is the necessary format for the csys input parameter
+of ia.fromarray().
 
-The coordinate system, provided as a <link
-anchor="images:coordsys">coordsys</link> \tool converted to a record
-is optional.  If you provide it, it must have the same number of dimensions
-as the pixels array (see also <link anchor="images:image.coordsys.function">coordsys</link>).
-Call the naxes() method on the coordinate system tool to see how many dimensions the coordinate
-system has. A coordinate system can be created from scratch using the coordinate system (cs) tool and
-methods therein, but often users prefer to use a coordinate system from an already existing image.
-This can be gotten using ia.coordsys() which returns a coordinate system tool. A torecord() call
-on that tool will result in a python dictionary describing the coordinate system which is the
-necessary format for the csys input parameter of ia.fromarray().
-
-If csys is not specified, a default coordinate system
-is created.  If {\stfaf linear=F} (the default) the created coordinate system will have
-standard RA/DEC/Stokes/Spectral Coordinate axes depending upon
-the shape of the {\stfaf pixels} array (Stokes axis must be no longer
-than 4 pixels and you may find the spectral axis preceding the
-Stokes axis if say, {\cf shape=[64,64,32,4]}).  Extra dimensions are
-given linear coordinates.  If {\stfaf linear=T}, then all the resulting coordinates
-are linear with the axes represent lengths. In this case each axis will have a value
-of 0.0 at its center pixel. The increment of each axis will be 1.0 km.
+If csys is not specified, a default coordinate system will be created. If
+linear=False (the default), the created coordinate system will have standard
+RA/DEC/Stokes/Spectral Coordinate axes depending upon the shape of the pixels
+array (Stokes axis must be no longer than 4 pixels and the spectral axis may
+precede the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are given
+linear coordinates.  If linear=True, then all the resulting coordinates
+are linear with the axes represent lengths. In this case each axis will have a
+value of 0.0 at its center pixel. The increment of each axis will be 1.0 km.
 
 The method returns True if creation of the image was successful, False otherwise,
-so you can check programmatically if the image creation was successful.
-
+so a check can be made programmatically if the image creation was successful.
 </description>
 <example>
 
@@ -10786,40 +10788,53 @@ other process can gain immediate access to the \imagefile.
      <description>Write image creation messages to logger</description>
      <value>true</value>
      </param>
+     <param type="string"  name="type">
+        <description>Pixel data type to write. 'f' (float precision) or 'd' (double precision)</description>
+        <value>f</value>
+     </param>
 </input>
 <returns type="image"/>
 
 <description>
 
-This function converts an array of any size into a \casa\
-\imagefile. 
+This application converts a numpy array of any size into a CASA image.
 
-If {\stfaf outfile} is given, the image is written to the specified
-disk file.  If {\stfaf outfile} is unset, the on-the-fly Image \tool\
-returned by this function is associated with a temporary image.  This
-temporary image may be in memory or on disk, depending on its size.
-When you destroy the on-the-fly Image \tool\ (with the <link
-anchor="images:image.done.function">done</link> function) this
-temporary image is deleted.
+If outfile is specified, the image is written to the specified
+(persistent) disk file.  If outfile is unset, the returned image tool
+is associated with a temporary image.  This temporary image may be in
+memory or on disk, depending on its size. In this case, when the
+close() or done() method is called on the returned image tool, the
+associated temporary image is deleted.
 
-At present, no matter what type the {\stfaf pixels} array is, a
-real-valued image will be written (the input pixels will be converted
-to Float).  In the future, Complex images will be supported.
+The type parameter controls the data type/precision of the pixel values of the
+created image. 'f' indicates that float precision point (32 bit precision) pixel
+values should be writted. 'd' indicates that double precision (64 bit precision)
+pixel values should be written. If the input array has complex (as opposed to
+real) values, then complex pixel values, with each of the real and imaginary
+parts having the specified precision, will be written. Array values will be cast
+automatically to the specified precision, so that the precision of the input
+array values may be increased, decreased, or unchanged depending on the input
+array type.
 
-The Coordinate System, provided as a record describing a <link
-anchor="images:coordsys">Coordsys</link> \tool\ (via
-coordsys.torecord(), for instance) is optional.  If you provide it, it
-must be dimensionally consistent with the pixels array you give (see
-also <link anchor="images:image.coordsys.function">coordsys</link>).
+The coordinate system, provided as a a dictionary (use eg, cs.torecord() to do
+that), is optional. If specified, it must have the same number of dimensions
+as the pixels array. Call the naxes() method on the coordinate system tool to
+see how many dimensions the coordinate system has. A coordinate system can be
+created from scratch using the coordinate system (cs) tool and methods therein,
+but often users prefer to use a coordinate system from an already existing image.
+This can be gotten using ia.coordsys() which returns a coordinate system tool.
+A torecord() call on that tool will result in a python dictionary describing
+the coordinate system which is the necessary format for the csys input parameter
+of ia.fromarray().
 
-If you don't provide the Coordinate System (unset), a default Coordinate System
-is made for you.  If {\stfaf linear=F} (the default) then it is a
-standard RA/DEC/Stokes/Spectral Coordinate System depending exactly upon
-the shape of the {\stfaf pixels} array (Stokes axis must be no longer
-than 4 pixels and you may find the spectral axis coming out before the
-Stokes axis if say, {\cf shape=[64,64,32,4]}).  Extra dimensions are
-given linear coordinates.  If {\stfaf linear=T} then you get a linear
-Coordinate System. 
+If csys is not specified, a default coordinate system will be created. If
+linear=False (the default), the created coordinate system will have standard
+RA/DEC/Stokes/Spectral Coordinate axes depending upon the shape of the pixels
+array (Stokes axis must be no longer than 4 pixels and the spectral axis may
+precede the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are given
+linear coordinates.  If linear=True, then all the resulting coordinates
+are linear with the axes represent lengths. In this case each axis will have a
+value of 0.0 at its center pixel. The increment of each axis will be 1.0 km.
 
 </description>
 <example>
