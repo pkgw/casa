@@ -41,7 +41,6 @@ from setjy_pg import setjy_pg  as setjy
 from clean_pg import clean_pg as clean
 from immath_pg import immath_pg as immath
 from imhead_pg import imhead_pg as imhead
-from find_pg import find_pg as find
 from gaincal_pg import gaincal_pg as gaincal
 from fluxscale_pg import fluxscale_pg as fluxscale
 from applycal_pg import applycal_pg as applycal
@@ -69,6 +68,7 @@ from plotms_pg import plotms_pg as plotms
 from tclean_pg import tclean_pg as tclean
 from tclean2_pg import tclean2_pg as tclean2
 from impbcor_pg import impbcor_pg as impbcor
+from initweights_pg import initweights_pg as initweights
 from accor_pg import accor_pg as accor
 from fringefit_pg import fringefit_pg as fringefit
 

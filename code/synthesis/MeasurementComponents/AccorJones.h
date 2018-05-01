@@ -26,7 +26,7 @@
 //#
 
 #ifndef SYNTHESIS_ACCORJONES_H
-#define SYNTHESIS_ACCOREJONES_H
+#define SYNTHESIS_ACCORJONES_H
 
 #include <casa/aips.h>
 #include <synthesis/MeasurementComponents/SolvableVisCal.h>

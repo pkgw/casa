@@ -80,6 +80,8 @@ class testref_base(unittest.TestCase):
           self.epsilon = 0.05
           self.msfile = ""
           self.img = "tst"
+          # To use subdir in the output image names in some tests (CAS-10937)
+          self.img_subdir = 'refimager_tst_subdir'
 
           self.th = TestHelpers()
 
@@ -89,6 +91,7 @@ class testref_base(unittest.TestCase):
 
      # Separate functions here, for special-case tests that need their own MS.
      def prepData(self,msname=""):
+          os.system('rm -rf ' + self.img_subdir)
           os.system('rm -rf ' + self.img+'*')
           if msname != "":
                self.msfile=msname
@@ -101,6 +104,7 @@ class testref_base(unittest.TestCase):
                self.msfile=msname
           if (os.path.exists(self.msfile)):
                os.system('rm -rf ' + self.msfile)
+          os.system('rm -rf ' + self.img_subdir)
           os.system('rm -rf ' + self.img+'*')
 
      def checkfinal(self,pstr=""):
@@ -393,6 +397,13 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report)
 
+     def test_iterbot_mfs_nsigma(self):
+          """ [iterbot] Test_Iterbot_Mfs_nsigma : n-sigma threshold """
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='clark',niter=1000,threshold='0.001Jy', nsigma=3.0, interactive=0)
+          report=self.th.checkall(ret=ret, peakres=0.0820, modflux=1.2873, iterdone=169, nmajordone=11, stopcode=8, imexist=[self.img+'.psf', self.img+'.residual', self.img+'.image'])
+
+
      def test_iterbot_cube_1(self):
           """ [iterbot] Test_Iterbot_cube_1 : iteration counting across channels (>niter) """
           self.prepData('refim_point_withline.ms')
@@ -447,6 +458,12 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report1+report2+report3)
           
+     def test_iterbot_cube_nsigma(self): 
+          """ [iterbot] Test_Iterbot_cube_nsigma : nsigma threshold for cube"""
+          self.prepData('refim_point_withline.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',specmode='cube',deconvolver='hogbom',niter=1000000,threshold='0.000001Jy', nsigma=10.0, gain=0.5,interactive=0)
+          report=self.th.checkall(ret=ret,iterdone=407,nmajordone=11,stopcode=8,imexist=[self.img+'.psf', self.img+'.residual'])
+
 ##############################################
 ##############################################
 
@@ -795,10 +812,7 @@ class test_cube(testref_base):
 #          self.test_cube_0.__func__.__doc__ %="aaaa"
 
      def setUp(self):
-          self.epsilon = 0.05
-          self.msfile = ""
-          self.img = "tst"
-          self.th = TestHelpers()
+          super(test_cube, self).setUp()
 
           ## Setup some variables to use in all the tests
 
@@ -1504,7 +1518,10 @@ class test_cube(testref_base):
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='data',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step0data.png',title="original data")
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step0model.png',title="empty model")
 
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec', spw='0:12~19',niter=50,gain=0.2,savemodel='modelcolumn',deconvolver='mtmfs')
+          # Let's include a subdir in the output image name. This could cause failures, at
+          # least in parallel mode (CAS-10937).
+          imagename = os.path.join(self.img_subdir, self.img)
+          ret = tclean(vis=self.msfile,imagename=imagename,imsize=100,cell='8.0arcsec', spw='0:12~19',niter=50,gain=0.2,savemodel='modelcolumn',deconvolver='mtmfs')
 #          self.assertTrue(self.th.exists(self.img+'.model') )
 #          self.assertTrue( self.th.checkmodelchan(self.msfile,10) == 0.0 and self.th.checkmodelchan(self.msfile,3) > 0.0 )
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step1.png',title="model after partial mtmfs on some channels")
@@ -2268,11 +2285,7 @@ class test_startmodel(testref_base):
  ##############################################
 class test_pbcor(testref_base):
      def setUp(self):
-          self.epsilon = 0.05
-          self.msfile = ""
-          self.img = "tst"
-
-          self.th = TestHelpers()
+          super(test_pbcor, self).setUp()
 
           _vp.setpbpoly(telescope='EVLA', coeff=[1.0, -1.529e-3, 8.69e-7, -1.88e-10]) 
           _vp.saveastable('evlavp.tab')

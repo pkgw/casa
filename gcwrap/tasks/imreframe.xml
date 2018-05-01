@@ -16,12 +16,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <param type="string" name="imagename" kind="image" mustexist="true" >
     	<description>Name of the input image</description>
     	<value></value>
-        <example>imagename=ngc5921_task.image</example>
+        <example>imagename='ngc5921_task.image'</example>
     </param>
     <param type="string" name="output" >
-    	<description>Name of the output image; \'\' =&gt; modify input image</description>
+    	<description>Name of the output image</description>
     	<value></value>
-        <example>output='newframed.image</example>
+        <example>output='newframed.image'; output='' will modify input image</example>
     </param>
     <param type="string" name="outframe"  ignorecase="true">
         <description>Spectral frame in which the frequency or velocity values will be reported by default</description>
@@ -39,8 +39,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	</allowed>
     </param>
     <param type="string" name="epoch" subparam="true">
-        <description>Epoch to be associated with this image e.g \'2000/12/25/18:30:00.10\'</description>
+        <description>Epoch to be associated with this image</description>
         <value></value>
+        <example>For example: '2000/12/25/18:30:00.10'</example>
     </param>
 
 
@@ -73,17 +74,17 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
             imagename -- name of casa image file to process on
 	    output         -- name of output image  '' means modify the input image itself
-                 default: '';           
-	    outframe     -- new spectral frame in which the frequency or 
-                                  velocity will be reported for.  
+                 default: '';
+	    outframe     -- new spectral frame in which the frequency or
+                                  velocity will be reported for.
                  Options: 'lsrk','lsrd','bary','geo','topo','galacto',
                           'lgroup','cmb'
 		 default: 'lsrk'
-            &gt;&gt;&gt; 
+            &gt;&gt;&gt;
                  epoch    -- when outframe is 'topo' or 'geo' a time in UTC is needed
-                                 to decide when to do the frequency conversion. '' is to use 
+                                 to decide when to do the frequency conversion. '' is to use
                                  the epoch of the input image
-                       default= '' 
+                       default= ''
 
             restfreq -- Specify rest frequency to use for output image
                default=''; '' means use the restfrequency already in input image
