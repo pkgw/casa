@@ -336,9 +336,9 @@ quanta::map(const std::string& v)
     };
     static casacore::Quantity res[N] = {
       casacore::Quantity(C::pi,""), casacore::Quantity(C::e,""),
-      QC::c, QC::G, QC::h, QC::HI, QC::R, QC::NA, QC::e, QC::mp,
-      QC::mp_me, QC::mu0, QC::epsilon0, QC::k, QC::F, QC::me, QC::re, QC::a0,
-      QC::R0, QC::k2
+      QC::c( ), QC::G( ), QC::h( ), QC::HI( ), QC::R( ), QC::NA( ), QC::e( ), QC::mp( ),
+      QC::mp_me( ), QC::mu0( ), QC::epsilon0( ), QC::k( ), QC::F( ), QC::me( ), QC::re( ), QC::a0( ),
+      QC::R0( ), QC::k2( )
     };
     for (uInt i = 0; i < N; i++)
       oss << types[i] << "\t\t" << res[i] << "\n";
@@ -700,9 +700,9 @@ quanta::constants(const std::string& v)
   };
   static casacore::Quantity res[N] = {
     casacore::Quantity(C::pi,""), casacore::Quantity(C::e,""),
-    QC::c, QC::G, QC::h, QC::HI, QC::R, QC::NA, QC::e, QC::mp,
-    QC::mp_me, QC::mu0, QC::epsilon0, QC::k, QC::F, QC::me, QC::re, QC::a0,
-    QC::R0, QC::k2
+    QC::c( ), QC::G( ), QC::h( ), QC::HI( ), QC::R( ), QC::NA( ), QC::e( ), QC::mp( ),
+    QC::mp_me( ), QC::mu0( ), QC::epsilon0( ), QC::k( ), QC::F( ), QC::me( ), QC::re( ), QC::a0( ),
+    QC::R0( ), QC::k2( )
   };
   uInt p = MUString::minimaxNC(in, N, types);
   if (p >= N ) return recordFromQuantity(casacore::Quantity(0.,""));
