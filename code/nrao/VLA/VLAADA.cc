@@ -43,7 +43,6 @@ VLAADA::VLAADA()
   :itsRecord(),
    itsOffset(0)
 {
-  QC_init myQC;
   ns2m = QC::c( ).getValue("m/ns");
   // cerr << QC::c( ) << endl;
   // cerr << C::c << endl;

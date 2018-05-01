@@ -17,6 +17,7 @@
 
 #include <casa/BasicSL/String.h>
 #include <casa/Quanta/QC.h>
+#include <casa/Quanta/UnitMap.h>
 #include <casa/Utilities/MUString.h>
 #include <casa/stdmap.h>
 #include <casa/Quanta/QuantumHolder.h>
