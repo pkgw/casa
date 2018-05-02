@@ -64,28 +64,27 @@
 
 ###########################################################################
 from taskinit import *
+from ialib import write_image_history, get_created_images
+import glob
+import time
 
 def specfit(
-	imagename=None, box=None, region=None, chans=None,
-	stokes=None, axis=None, mask=None, ngauss=None,
-	poly=None, estimates=None, minpts=None, multifit=None,
-	model=None, residual=None, amp=None, amperr=None,
-	center=None, centererr=None, fwhm=None, fwhmerr=None,
-	integral=None, integralerr=None, wantreturn=None,
-	stretch=None, logresults=None, pampest=None,
-	pcenterest=None, pfwhmest=None, pfix=None,
-	gmncomps=None, gmampcon=None, gmcentercon=None,
-    gmfwhmcon=None, gmampest=None, gmcenterest=None,
-    gmfwhmest=None, gmfix=None, logfile=None, append=None,
-    pfunc=None, goodamprange=None, goodcenterrange=None,
-    goodfwhmrange=None, sigma=None, outsigma=None
+	imagename, box, region, chans, stokes, axis, mask, ngauss,
+	poly, estimates, minpts, multifit, model, residual, amp, amperr,
+	center, centererr, fwhm, fwhmerr, integral, integralerr, wantreturn,
+	stretch, logresults, pampest, pcenterest, pfwhmest, pfix,
+	gmncomps, gmampcon, gmcentercon, gmfwhmcon, gmampest, gmcenterest,
+    gmfwhmest, gmfix, logfile, append, pfunc, goodamprange, goodcenterrange,
+    goodfwhmrange, sigma, outsigma
 ):
     casalog.origin('specfit')
     retval = None
     myia = iatool()
+    myia.dohistory(False)
     try:
         if (not myia.open(imagename)):
             raise Exception, "Cannot create image analysis tool using " + imagename
+        target_time = time.time()
         retval = myia.fitprofile(
 			box=box, region=region, chans=chans,
 			stokes=stokes, axis=axis, mask=mask,
@@ -107,8 +106,23 @@ def specfit(
 			goodcenterrange=goodcenterrange, goodfwhmrange=goodfwhmrange,
 			sigma=sigma, outsigma=outsigma
 		)
+        try:
+            param_names = specfit.func_code.co_varnames[:specfit.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]
+            ims = [model, residual]
+            for x in [amp, amperr, center, centererr, fwhm, fwhmerr, integral, integralerr]:
+            	if x:
+            		ims.extend(get_created_images(x, target_time))
+            for im in ims:
+             	write_image_history(
+             	    im, sys._getframe().f_code.co_name,
+            	    param_names, param_vals, casalog
+         		)
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
+
     except Exception, instance:
-        casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
+        casalog.post('*** Error *** ' + str(instance), 'SEVERE')
         retval = None
     myia.done()
     if (wantreturn):

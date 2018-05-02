@@ -39,7 +39,9 @@
 
 #include<synthesis/ImagerObjects/SIImageStore.h>
 #include<synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
+#if ! defined(WITHOUT_DBUS)
 #include <synthesis/ImagerObjects/InteractiveMasking.h>
+#endif
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -117,10 +119,18 @@ public:
   // @param[in] negativethreshold Threshold factor in a multiplier of the rms noise used to set threshold for negative features 
   // @param[in] cutthreshold Cut threshold factor for adjust a mask after smoothing of the mask
   // @param[in] smoothfactor Smoothing factor (multiplier of the beam)
+  // @param[in] minbeamfrac Percent change in mask size to trigger a new automask creation for 'noise'-based threshold
+  // @param[in] growiterations (maximum) number of binary dilation iteartions to grow the mask
+  // @param[in] dogrowprune Toggle to do or skip pruning on the grow mask
+  // @param[in] minpercentchange Mininum percentage change in mask to stop updating mask 
+  // @param[in] verbose Controls automask related logging messages                                
+  // @param[in] isthresholdreached Check if cyclethreshold reached threshold
   // @param[in] pblimit Primary beam cut off level
   //
   void autoMask(SHARED_PTR<SIImageStore> imstore, 
+                casacore::TempImage<casacore::Float>& posmask,
                 const casacore::Int iterdone,
+                casacore::Vector<casacore::Bool>& chanflag,
                 const casacore::String& alg="",
                 const casacore::String& threshold="",
                 const casacore::Float& fracpeak=0.0,
@@ -136,7 +146,12 @@ public:
                 const casacore::Float& smoothfactor=0.0,
                 const casacore::Float& minbeamfrac=0.0, 
                 const casacore::Int growiterations=0,
+                const casacore::Bool dogrowprune=true,
+                const casacore::Float& minpercentchange=0.0,
+                const casacore::Bool verbose=false,
+                const casacore::Bool isthresholdreached=false,
                 casacore::Float pblimit=0.0);
+
   // automask by threshold with binning before applying it 
   void autoMaskByThreshold (casacore::ImageInterface<casacore::Float>& mask,
                            const casacore::ImageInterface<casacore::Float>& res, 
@@ -164,10 +179,13 @@ public:
 
   // implementation of Amanda's automasking algorithm using multiple thresholds
   void autoMaskByMultiThreshold(casacore::ImageInterface<float>& mask,
+                                          casacore::TempImage<casacore::Float>& posmask,
                                           const casacore::ImageInterface<casacore::Float>& res, 
                                           const casacore::ImageInterface<casacore::Float>& psf, 
                                           const casacore::Record& stats, 
                                           const casacore::Int iterdone,
+                                          casacore::Vector<casacore::Bool>& chanFlag,
+                                          const casacore::Float& maskPercentChange=0.0,
                                           const casacore::Float& sidelobeLevel=0.0,
                                           const casacore::Float& sidelobeThresholdFactor=3.0,
                                           const casacore::Float& noiseThresholdFactor=3.0,
@@ -176,14 +194,19 @@ public:
                                           const casacore::Float& cutThreshold=0.01,
                                           const casacore::Float& smoothFactor=1.0,
                                           const casacore::Float& minBeamFrac=-1.0,
-                                          const casacore::Int growIterations=100); 
+                                          const casacore::Int growIterations=100,
+                                          const casacore::Bool dogrowprune=true,
+                                          const casacore::Bool verbose=false,
+                                          const casacore::Bool isthresholdreached=false); 
                            
   // Calculate statistics on a residual image with additional region and LEL mask specificaations
+  /***
   casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
                                        casacore::ImageInterface<casacore::Float>& prevmask, 
                                        casacore::String& lelmask,
                                        casacore::Record* regionPtr,
                                        const casacore::Bool robust);
+  ***/
 
   SHARED_PTR<casacore::ImageInterface<float> > makeMaskFromBinnedImage (
                                const casacore::ImageInterface<casacore::Float>& image,
@@ -216,12 +239,18 @@ public:
 
   // Yet another Prune the mask regions per spectral plane
   SHARED_PTR<casacore::ImageInterface<float> >  YAPruneRegions(const casacore::ImageInterface<casacore::Float>& image,
-                                                   casacore::Vector<casacore::Bool>& allpruned, casacore::Double prunesize=0.0);
+                                                   casacore::Vector<casacore::Bool>& chanflag,
+                                                   casacore::Vector<casacore::Bool>& allpruned, 
+                                                   casacore::Vector<casacore::uInt>& nreg,
+                                                   casacore::Vector<casacore::uInt>& npruned,
+                                                   casacore::Double prunesize=0.0);
 
   // create a mask image (1/0 image) applying a different threshold for each channel plane
   void makeMaskByPerChanThreshold(const casacore::ImageInterface<casacore::Float>& image, 
+                                 casacore::Vector<casacore::Bool>& chanflag,
                                  casacore::ImageInterface<casacore::Float>& mask, 
-                                 casacore::Vector<casacore::Float>& thresholds); 
+                                 casacore::Vector<casacore::Float>& thresholds,
+                                 casacore::Vector<casacore::Float>& masksizes); 
 
   // A core method for binary dilation of the input lattice   
   void binaryDilationCore(casacore::Lattice<casacore::Float>& inlattice,
@@ -245,7 +274,9 @@ public:
   void makePBMask(SHARED_PTR<SIImageStore> imstore, casacore::Float pblimit=0.1);
 
   void autoMaskWithinPB(SHARED_PTR<SIImageStore> imstore, 
+                        casacore::TempImage<casacore::Float>& posmask,
                         const casacore::Int iterdone,
+                        casacore::Vector<casacore::Bool>& chanflag,
                         const casacore::String& alg="",
                         const casacore::String& threshold="",
                         const casacore::Float& fracpeak=0.0,
@@ -261,6 +292,10 @@ public:
                         const casacore::Float& smoothfactor=0.0,
                         const casacore::Float& minbeamfrac=0.0, 
                         const casacore::Int growiterations=0,
+                        const casacore::Bool dogrowprune=true,
+                        const casacore::Float& minpercentchange=0.0,
+                        const casacore::Bool verbose=false,
+                        const casacore::Bool isthresholdreached=false,
                         casacore::Float pblimit=0.1);
 
   
@@ -293,12 +328,37 @@ public:
 
   // check if mask image is empty (all zeros ) =True or not
   casacore::Bool isEmptyMask(casacore::ImageInterface<casacore::Float>& maskiamge);
+  casacore::Int getTotalPixels(casacore::ImageInterface<casacore::Float>& maskiamge);
 
   // for warning messages for empy initial mask in automask
   void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Vector<casacore::String>& thresholdType);
 
+  // determining skip channels for the mask changed less than the specfied percentage
+  void skipChannels(const casacore::Float& fracChnage, 
+                    casacore::ImageInterface<casacore::Float>& prevmask, 
+                    casacore::ImageInterface<casacore::Float>& curmask, 
+                    const casacore::Vector<casacore::String>& threshtype,
+                    const casacore::Bool isthresholdreached,
+                    casacore::Vector<casacore::Bool>& chanFlag,
+                    casacore::Vector<casacore::Bool>& zeroChanMask);
+
   // check if input image is a mask image with 0 or a value (if normalize=true, 1)
   //casacore::Bool checkMaskImage(casacore::ImageInterface<casacore::Float>& maskiamge, casacore::Bool normalize=true);
+
+  // print per-channel automask summary
+  void printAutomaskSummary(const casacore::Array<casacore::Double>& rmss,
+                            const casacore::Array<casacore::Double>& maxs, 
+                            const casacore::Array<casacore::Double>& mins, 
+                            const casacore::Vector<casacore::Float>& maskthreshold, 
+                            const casacore::Vector<casacore::String>& masktype,
+                            const casacore::Vector<casacore::Bool>& chanflag,
+                            const casacore::Vector<casacore::Bool>& zerochanmask,
+                            const casacore::Vector<casacore::uInt>& nreg,
+                            const casacore::Vector<casacore::uInt>& npruned,
+                            const casacore::Vector<casacore::uInt>& ngrowreg,
+                            const casacore::Vector<casacore::uInt>& ngrowpruned,
+                            const casacore::Vector<casacore::Float>& negmaskpixs,
+                            const casacore::Record& miscsummaryinfo);
 
 
   // 
@@ -306,8 +366,15 @@ public:
   // max MB of memory to use in TempImage
   static inline casacore::Double memoryToUse() {return 1.0;};
 
+  static casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
+                                       casacore::String& lelmask,
+                                       casacore::Record* regionPtr,
+                                       const casacore::Bool robust);
+
 protected:
+#if ! defined(WITHOUT_DBUS)
   InteractiveMasking *interactiveMasker_p;
+#endif
 
 private:
   double itsRms;

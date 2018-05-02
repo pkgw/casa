@@ -141,10 +141,10 @@ Application-Wide Options Methods
   </returns>
 </method>
 
-<method type="function" name="setPlotmsPid">
-  <keyword>setPlotmsPid</keyword>
+<method type="function" name="setPlotMSPid">
+  <keyword>setPlotMSPid</keyword>
 
-  <shortdescription>Connect dbus to existing plotms pid.</shortdescription>
+  <shortdescription>Connect dbus to existing plotms process ID.</shortdescription>
 
   <description />
 
@@ -157,6 +157,22 @@ Application-Wide Options Methods
   <example />
 
   <returns />
+</method>
+
+<method type="function" name="getPlotMSPid">
+  <keyword>getPlotMSPid</keyword>
+
+  <shortdescription>Get the process ID of attached plotms process.</shortdescription>
+
+  <description />
+
+  <input />
+
+  <example />
+
+  <returns type="int">
+    <description>process ID</description>
+  </returns>
 </method>
 
 <method type="function" name="setClearSelectionOnAxesChange">
@@ -1886,7 +1902,7 @@ Canvas Methods
     <description />
     <input>
         <param type="bool" name="showmajorgrid">
-          <description>Show major grid lines (horiz. and vert.)?</description>
+          <description>Show major grid lines?</description>
           <value>false</value>
         </param>
         <param type="int" name="majorwidth">
@@ -1903,7 +1919,7 @@ Canvas Methods
         </param>
 
         <param type="bool" name="showminorgrid">
-          <description>Show minor grid lines (horiz. and vert.)?</description>
+          <description>Show minor grid lines?</description>
           <value>false</value>
         </param>
         <param type="int" name="minorwidth">

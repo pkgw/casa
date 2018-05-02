@@ -17,15 +17,15 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
   <description>
 
 This task lists measurement set visibility data under a number of
-input selection conditions.  The measurement set data columns that 
-can be listed are: the raw data, float_data, corrected data, model data, 
+input selection conditions.  The measurement set data columns that
+can be listed are: the raw data, float_data, corrected data, model data,
 and residual (corrected - model) data.
 
 The output table format is dynamic.  Field, Spectral Window, and
 Channel columns are not displayed if the column contents are uniform.
 For example, if "spw = '1'" is specified, the spw column will not be
 displayed.  When a column is not displayed, a message is sent to the
-logger and terminal indicating that the column values are uniform and 
+logger and terminal indicating that the column values are uniform and
 listing the uniform value.
 
 Table column descriptions:
@@ -73,31 +73,31 @@ selectdata  Toggle the following 7 selection parameters.
             to default values.
 
       antenna     Select calibration data based on antenna
-                  default: ''-->all; examples: 
+                  default: ''-->all; examples:
                   antenna = '5,6'; antenna index 5 and 6 solutions
                   antenna = '05,06'; antenna names '05' and '06 solutions
-                 
+
       timerange   Select time range to list
                   default: ''-->all; examples:
                   timerange='10:37:50.1'; list data for this sampling interval
                   timerange='&lt;10:37:25'; list data before 10:37:25
-      
+
       correlation Select polarization correlations to list
-                  default: ''-->all; examples: 
+                  default: ''-->all; examples:
                   correlation='RR LL'; list RR and LL correlations
                   correlation='XX XY'; list XX and XY correlations
-      
+
       scan        Select scans to list
                   default: ''-->all; examples:
                   scan='2'; list scan 2
                   scan='>2'; list scan numbers greater than 2
-      
+
       feed        (not yet implemented)
-      
+
       array       (not yet implemented)
 
       observation Select by observation ID.
-      
+
       uvrange     Select baseline lengths to list.
                   default: ''--> all; examples:
                   uvrange='&lt;5klambda'; less than 5 kilo-wavelengths
@@ -119,7 +119,7 @@ async       Run asynchronously
             default = False; do not run asychronously
 
   </description>
-  
+
   <input>
 
     <param type="string" name="vis" kind="ms" mustexist="true">
@@ -145,13 +145,15 @@ async       Run asynchronously
     </param>
 
     <param type="string" name="field">
-          <description>Field names or index to be listed: \'\'==>all</description>
+          <description>Field names or index to be listed</description>
           <value></value>
+          <example>''==>all</example>
     </param>
 
     <param type="string" name="spw">
-    <description>Spectral window:channels: \'\*\'==>all, spw=\'1:5~57\'</description>
+    <description>Spectral window channels </description>
     <value>*</value>
+    <example>'*'==>all, spw='1:5~57'</example>
     </param>
 
     <param type="bool" name="selectdata">
@@ -160,18 +162,21 @@ async       Run asynchronously
     </param>
 
     <param type="string" name="antenna" subparam="true">
-	    <description>Antenna/baselines: \'\'==>all, antenna = \'3\'</description>
+	    <description>Antenna/baselines</description>
 	    <value></value>
+        <example>''==>all, antenna = '3'</example>
     </param>
 
     <param type="string" name="timerange" subparam="true">
-	    <description>Time range: \'\'==>all</description>
+	    <description>Time range</description>
 	    <value></value>
+        <example>''==>all</example>
     </param>
 
     <param type="string" name="correlation" subparam="true">
-	    <description>Correlations: \'\'==>all, correlation = \'RR RL\'</description>
+	    <description>Correlations</description>
 	    <value></value>
+        <example>''==>all, correlation = 'RR RL'</example>
     </param>
 
     <param type="string" name="scan" subparam="true">
@@ -196,12 +201,13 @@ async       Run asynchronously
     </param>
 
     <param type="string" name="uvrange" subparam="true">
-	    <description>uv range: \'\'==>all; not yet implemented </description>
+	    <description>uv range</description>
 	    <value></value>
+        <example>''==>all; not yet implemented</example>
     </param>
 
     <param type="string" name="average">
-	    <description>Averaging mode: ''==>none (Not yet implemented)</description>
+	    <description>Averaging mode </description>
           <value></value>
 	    <allowed kind="enum">
                 <value></value>
@@ -210,6 +216,7 @@ async       Run asynchronously
                 <value>chan</value>
                 <value>both</value>
           </allowed>
+          <example>''==>none (Not yet implemented)</example>
     </param>
 
     <param type="bool" name="showflags">
@@ -250,15 +257,15 @@ async       Run asynchronously
   <example>
 
 This task lists measurement set visibility data under a number of
-input selection conditions.  The measurement set data columns that 
-can be listed are: the raw data, float_data, corrected data, model data, 
+input selection conditions.  The measurement set data columns that
+can be listed are: the raw data, float_data, corrected data, model data,
 and residual (corrected - model) data.
 
 The output table format is dynamic.  Field, Spectral Window, and
 Channel columns are not displayed if the column contents are uniform.
 For example, if "spw = '1'" is specified, the spw column will not be
 displayed.  When a column is not displayed, a message is sent to the
-logger and terminal indicating that the column values are uniform and 
+logger and terminal indicating that the column values are uniform and
 listing the uniform value.
 
 Table column descriptions:
@@ -306,33 +313,33 @@ selectdata  Toggle the following 7 selection parameters.
             to default values.
 
       antenna     Select calibration data based on antenna
-                  default: ''-->all; examples: 
+                  default: ''-->all; examples:
                   antenna = '5,6'; antenna index 5 and 6 solutions
                   antenna = '05,06'; antenna names '05' and '06 solutions
-                 
+
       timerange   Select time range to list
                   default: ''-->all; examples:
                   timerange='10:37:50.1'; list data for this sampling interval
                   timerange='&lt;10:37:25'; list data before 10:37:25
-      
+
       correlation Select polarization correlations to list
-                  default: ''-->all; examples: 
+                  default: ''-->all; examples:
                   correlation='RR LL'; list RR and LL correlations
                   correlation='XX XY'; list XX and XY correlations
-      
+
       scan        Select scans to list
                   default: ''-->all; examples:
                   scan='2'; list scan 2
                   scan='>2'; list scan numbers greater than 2
-      
+
       feed        (not yet implemented)
-      
+
       array       (not yet implemented)
 
       observation Select by observation ID(s).
                   default: ''-->all;
 		  example: observation='0' (select obsID 0)
-      
+
       uvrange     Select baseline lengths to list.
                   default: ''--> all; examples:
                   uvrange='&lt;5klambda'; less than 5 kilo-wavelengths
