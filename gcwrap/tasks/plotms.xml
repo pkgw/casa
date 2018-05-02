@@ -30,12 +30,13 @@
 		gaincurve, or opacity, plotms will currently just plot the simple
 		parameters contained in the table, not the effective amplitudes or
 		phases sampled at observing times, frequencies etc.  BPOLY and
-		GSPLINE tables are not yet supported. Features currently unsupported
-		for CalTables include averaging, transformations (velocity
-		conversions, etc.), and some axis and selection options which do not
-		exist in these tables.   In the plotms GUI, many options irrelevant
-		for CalTables are not hidden when interacting with a CalTable, and
-		such settings will be ignored (when benign) or cause an error message.
+		GSPLINE tables are supported but interactive flagging is not allowed.
+		Features currently unsupported for CalTables include averaging,
+		transformations (velocity conversions, etc.), and some axis and
+		selection options which do not exist in these tables. In the plotms
+		GUI, many options irrelevant for CalTables are not hidden when
+		interacting with a CalTable, and such settings will be ignored (when
+		benign) or cause an error message.
         
 </description>
 

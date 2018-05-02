@@ -54,6 +54,8 @@ ASDM/BooleanWrapper.cc
 ASDM/ByteWrapper.cc
 ASDM/CalAmpliRow.cc
 ASDM/CalAmpliTable.cc
+ASDM/CalAntennaSolutionsRow.cc
+ASDM/CalAntennaSolutionsTable.cc
 ASDM/CalAtmosphereRow.cc
 ASDM/CalAtmosphereTable.cc
 ASDM/CalAppPhaseRow.cc
@@ -173,6 +175,8 @@ ASDM/PolarizationTable.cc
 ASDM/Pressure.cc
 ASDM/ProcessorRow.cc
 ASDM/ProcessorTable.cc
+ASDM/PulsarRow.cc
+ASDM/PulsarTable.cc
 ASDM/ReceiverRow.cc
 ASDM/ReceiverTable.cc
 ASDM/SBSummaryRow.cc

@@ -1087,7 +1087,7 @@ try:
                 # Updated peak position and rms for CASA prerelease-5.1.0, 20170811. New changes in tclean
                 # cycles. More changes could happen in the near future. See CAS-10464.
                 exppeakm = 0.189293
-		exprmsm = 0.00929898
+		exprmsm = 0.00939898
 
 	    calstat=imstat(imagename='test-M100line.image', region='', box='42,115,65,134')
 	    resrmsm=(calstat['rms'][0])

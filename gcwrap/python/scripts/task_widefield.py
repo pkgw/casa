@@ -29,12 +29,13 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 		else:
 			if((type(phasecenter) == list) and (len(phasecenter) >1)):
 				raise TypeError, 'Number of phasecenters has be equal to number of images'
-			
-	
+
+
 
 
 ###Set image parameters
 		casalog.origin('widefield')
+		casalog.post("Task widefield has been deprecated and will be removed in release 5.4.", "WARN")
 		im1=imtool()
 		if(multims):
 			imset=cleanhelper()
@@ -46,7 +47,7 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 #		else:
 #			visi=vis
 
-                
+
 
 
 #		if(multifield):
@@ -70,9 +71,9 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 #			if(multims):
 #				thems=vis[0]
 #                        spwindex=ms1.msseltoindex(thems, spw=spws)['spw'].tolist()
-                
 
-		
+
+
 
 #####
 		imageids=[]
@@ -80,7 +81,7 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 		phasecenters=[]
 		rootname=''
 		if(len(outlierfile) != 0):
-			
+
 			imsizes,phasecenters,imageids=imset.readoutlier(outlierfile)
 			if(type(rootname)==list):
 				rootname=imagename[0]
@@ -88,13 +89,13 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 				rootname=imagename
 			if(len(imageids) > 1):
 				multifield=True
-				
+
 		else:
 			imsizes=imsize
 			phasecenters=phasecenter
 			imageids=imagename
 
-		
+
 
 		imset.definemultiimages(rootname, imsizes, cell, stokes, mode, spw, nchan, start,width, restfreq, field, phasecenters, imageids, facets)
 
@@ -160,16 +161,16 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 		im1.setoptions(ftmachine=ftmachine,padding=padd, wprojplanes=wprojplanes)
 		#im1.setmfcontrol(scaletype=scaletype,minpb=minpb)
 		im1.setmfcontrol(stoplargenegatives=negcomponent,cyclefactor=cyclefactor,cyclespeedup=cyclespeedup)
-		
+
 		##do themask
 		if((maskimage=='') and (mask != [''])):
 			maskimage=imset.imagelist[0]+'.mask'
-	
+
 		if(not multifield):
 			imset.makemaskimage(outputmask=maskimage, imagename=imagename,
 						    maskobject=mask)
-			
-			
+
+
 		else:
 			imset.makemultifieldmask(mask)
 			maskimage=[]
@@ -193,7 +194,7 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 		if((type(multiscale)==list) and (len(multiscale)>0)):
 			if(facets >1):
 				raise Exception, 'multiscale with facets > 1 not allowed for now'
-			alg='mfmultiscale' 
+			alg='mfmultiscale'
 			im1.setscales(scalemethod='uservector',
 					uservector=multiscale)
 
@@ -204,7 +205,7 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 			modelimage.append(imset.imagelist[k])
 			restoredimage.append(imset.imagelist[k]+'.image')
 			residualimage.append(imset.imagelist[k]+'.residual')
-			
+
 		##will have to enable entropy later
 		if (alg=='mfentropy' or alg=='mfemptiness'):
 			im1.mem(algorithm=alg,niter=niter,sigma=sigma,targetflux=targetflux,constrainflux=constrainflux,keepfixed=[False],prior=prior,model=modelimage,residual=residualimage,image=restoredimage,mask=maskimage)
@@ -214,8 +215,7 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 		im1.done()
 		del im1
 	#	del ms1
-	
+
         except Exception, instance:
 		print '*** Error *** ',instance
 		raise Exception, instance
-

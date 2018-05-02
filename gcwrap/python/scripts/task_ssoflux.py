@@ -71,6 +71,7 @@ def ssoflux(vis=None,field=None,spw=None,modimage=None,fluxdensity=None,standard
 
        try:
          casalog.origin('ssoflux')
+         casalog.post("Task ssoflux has been deprecated and will be removed in release 5.4.", "WARN")
          casalog.post('ssoflux is no longer supported.  Use setjy.', 'SEVERE')
 
          ## if ((type(vis)==str) & (os.path.exists(vis))):
@@ -95,4 +96,3 @@ def ssoflux(vis=None,field=None,spw=None,modimage=None,fluxdensity=None,standard
 
        except Exception, instance:
               print '*** Error ***',instance
-
