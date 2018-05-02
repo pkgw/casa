@@ -360,6 +360,8 @@ public:
 
 
   // 
+  casacore::Bool compareSpectralCoordinate(const casacore::ImageInterface<casacore::Float>& inImage, 
+                                    const casacore::ImageInterface<casacore::Float>& outImage);
   static casacore::Bool cloneImShape(const casacore::ImageInterface<casacore::Float>& inImage, const casacore::String& outImageName);
   // max MB of memory to use in TempImage
   static inline casacore::Double memoryToUse() {return 1.0;};

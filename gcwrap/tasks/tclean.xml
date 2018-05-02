@@ -1858,7 +1858,10 @@ HPX HEALPix grid.  -->
                                                        When a continuum (single channel) mask is given for spectral
                                                        cube imaging, it will be extended (copied) to all channels.
                                                        Similarly, when a Stokes I mask is given, it will be extended
-                                                       to multi-Stokes imaging. 
+                                                       to multi-Stokes imaging. Extension of a cube stokes I mask 
+                                                       to other Stokes planes is possible only if the spectral 
+                                                       coordinates and the number of the channels matches with the output
+                                                       image.  
 
                                                        [ Note : If an error occurs during image resampling or
                                                                    if the expected mask does not appear, please try
