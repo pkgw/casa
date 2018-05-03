@@ -118,7 +118,7 @@ spectrum is
     </param>
 
     <param type="string" name="interp" subparam="true">
-      <description>Interpolation type in time[,freq]. Valid options are "nearest", "linear", "cspline", or any numeric string that indicates an order of polynomial interpolation. You can specify interpolation type for time and frequency separately by joining two of the above options by comma (e.g., "linear,cspline").</description>
+      <description>Interpolation type in time[,freq]. Valid options for time are "nearest", "linear", and "cubic", while valid options for frequency include "nearest", "linear", "cspline", or any numeric string that indicates an order of polynomial interpolation. You can specify interpolation type for time and frequency separately by joining two of the above options by comma (e.g., "linear,cspline").</description>
       <value></value>
     </param>
 
@@ -303,9 +303,12 @@ calmode -- Calibration mode. If you want to generate calibration table
                   Set comma separated method strings if you want 
                   to use different interpolation in time and 
                   frequency. 
-                options: 'linear', 'cspline', 'nearest', 
+                options: 'linear', 'nearest', 'cspline', 'cubic', 
                          any numeric string indicating an order 
                          of polynomial.
+                         Note that 'cubic' is available for time only, 
+                         and that 'cspline' and numeric strings are 
+                         available for frequency only.
                 default: '' (linear in time and frequency)
                 example: 'linear,cspline' (linear in time, cubic 
                                            spline in frequency)

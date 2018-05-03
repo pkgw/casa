@@ -82,7 +82,10 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_pg_:</xsl:text>
 	           exec('myparams[key] = '+ key + ' = self.itsdefault(key)')
 		   keyVal = eval(key)
 		   if(type(keyVal) == dict) :
-		      exec('myparams[key] = ' + key + ' = keyVal[len(keyVal)-1][\'value\']')
+                      if len(keyVal) > 0 :
+		         exec('myparams[key] = ' + key + ' = keyVal[len(keyVal)-1][\'value\']')
+		      else :
+		         exec('myparams[key] = ' + key + ' = {}')
 
 	else :
             uselessvariable = None 
