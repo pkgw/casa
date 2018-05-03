@@ -603,15 +603,22 @@ void SideBandSeparatorII::checkImage() {
 bool SideBandSeparatorII::getImageCoordinate(const string& imagename, CoordinateSystem &csys, IPosition &npix) {
 	  LogIO os(LogOrigin("SideBandSeparatorBase","setImage()", WHERE));
 	  auto ret = ImageFactory::fromFile(imagename);
-	  if (ret.first != nullptr) { //float image
+      auto imageF = std::get<0>(ret);
+      if (imageF) { //float image
 		  os << "Found float image" << LogIO::POST;
-		  npix = ret.first->shape();
-		  ImageMetaData immd(ret.first);
+		  npix = imageF->shape();
+		  ImageMetaData<Float> immd(imageF);
 		  vector<Int> myAxes;
 		  csys =  immd.coordsys(myAxes);
 		  return true;
-	  } else if (ret.second != nullptr) { // complex image
+	  } else if (std::get<1>(ret)) { // complex image
 		  os << "Found complex image" << LogIO::POST;
+		  return false;
+	  } else if (std::get<2>(ret)) { // double image
+		  os << "Found double image" << LogIO::POST;
+		  return false;
+	  } else if (std::get<3>(ret)) { // complex double image
+		  os << "Found complex double image" << LogIO::POST;
 		  return false;
 	  } else {
 		  os << LogIO::WARN << "Failed to open " << imagename << LogIO::POST;
@@ -680,15 +687,16 @@ void SideBandSeparatorII::separate(const string& outfile, const bool overwrite)
   vector<SPIIF> images(nshift_);
   for (size_t i = 0; i < nshift_; ++i) {
 	  auto ret = ImageFactory::fromFile(inputNames_[i]);
-	  if (ret.first == nullptr)
+      auto imageF = std::get<0>(ret);
+      if (! imageF)
 		  throw( AipsError("Float image not found in "+inputNames_[i]) );
-	  images[i] = ret.first;
+	  images[i] = imageF;
   }
   /*** analyze axis of reference image (data model dependent) ***/
   SPIIF refImage = images[0];
   IPosition const npix = refImage->shape();
   uInt const ndim = npix.size();
-  ImageMetaData const immd(refImage);
+  ImageMetaData<Float> const immd(refImage);
   vector<Int> myAxes;
   CoordinateSystem const csys =  immd.coordsys(myAxes);
   if (!csys.hasSpectralAxis())
