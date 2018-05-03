@@ -1860,7 +1860,7 @@ HPX HEALPix grid.  -->
                                                        Similarly, when a Stokes I mask is given, it will be extended
                                                        to multi-Stokes imaging. Extension of a cube stokes I mask 
                                                        to other Stokes planes is possible only if the spectral 
-                                                       coordinates and the number of the channels matches with the output
+                                                       coordinate and the number of the channels matches with the output
                                                        image.  
 
                                                        [ Note : If an error occurs during image resampling or
