@@ -331,7 +331,7 @@ Vector<Double>& CalBuffer::interval()
       intervalOK_p = true;
     };
   };
-  return time_p;
+  return interval_p;
 };
 
 //----------------------------------------------------------------------------

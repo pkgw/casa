@@ -3714,16 +3714,21 @@ in spectral window 1.
     "corrected" for the CORRECTED_DATA column and "data" for the DATA
     column are supported (minimum match, case insensitive). One may
     specify 'residual' in which case the values used are the result of
-    the CORRECTED_DATA - MODEL_DATA columns, or 'residual_data' in which
-    case the values used are the DATA - MODEL_DATA columns. The last two
-    options are to allow for operatation on timescales or frequency
-    ranges which are larger than that over which the sky signal is
-    expected to be constant. This situation arises in eg, OTF mapping,
-    and also perhaps with sources with significant spectral structure.
-    In cases where the one of the residual columns is specified and the
-    MODEL_DATA column doesn't exist, the default model visibility of
-    value 1 + 0i will be used. In cases where a necessary column doesn't
+    the CORRECTED_DATA column - model, or 'residual_data' in which
+    case the values used are the DATA column - model, where model
+    is the CORRECTED_DATA column if it exists, or if it doesn't,
+    the virtual source model if one exists, or if that doesn't, then
+    no model is used and the 'residual' and 'residual_data' cases
+    are equivalent to the 'corrected' and 'data' cases, respectively.
+    The last two options are to allow for operation on timescales or
+    frequency ranges which are larger than that over which the sky
+    signal is expected to be constant. This situation arises in eg,
+    OTF mapping, and also perhaps with sources with significant
+    spectral structure. In cases where a necessary column doesn't
     exist, an exception will be thrown and no data will be changed.
+    NOTE: It is the user's responsibility to ensure that a model has
+    been set for all selected fields before using datacolumn='residual'
+    or 'residual_data'.
 
     RETURN VALUE
 

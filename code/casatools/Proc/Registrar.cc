@@ -114,17 +114,27 @@ namespace casatools {   /** namespace for CASAtools classes within "CASA code" *
         grpcState *state = new grpcState;
         state->reg.reset(new grpcRegistrar(this));
         ServerBuilder builder;
-        std::string server_address("0.0.0.0:50055");
+        char address_buf[100];
+        constexpr char address_template[] = "0.0.0.0:%d";
+        snprintf(address_buf,sizeof(address_buf),address_template,0);
+        std::string server_address(address_buf);
+        int selected_port = 0;
+
         // Listen on the given address without any authentication mechanism.
-        builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+        builder.AddListeningPort(server_address, grpc::InsecureServerCredentials(), &selected_port);
         // Register "service" as the instance through which we'll communicate with
         // clients. In this case it corresponds to an *synchronous* service.
         builder.RegisterService(state->reg.get( ));
         // Finally assemble the server.
         state->server = builder.BuildAndStart( );
-        uri_ = server_address;
-        std::cout << "registry available at " << server_address << std::endl;
-        grpc_state = (void*) state;
+        if ( selected_port > 0 ) {
+            // if an available port can be found, selected_port is set to a value greater than zero
+            snprintf(address_buf,sizeof(address_buf),address_template,selected_port);
+            uri_ = address_buf;
+            std::cout << "registry available at " << uri_ << std::endl;
+            grpc_state = (void*) state;
+        } else delete state;
+
 #endif
     }
 

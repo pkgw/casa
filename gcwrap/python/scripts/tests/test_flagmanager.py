@@ -42,8 +42,6 @@ class test_base(unittest.TestCase):
     def setUp_flagdatatest(self):
         '''VLA data set, scan=2500~2600 spw=0 1 chan, RR,LL'''
         self.vis = "flagdatatest.ms"
-        if testmms:
-            self.vis = "flagdatatest.mms"
 
         if os.path.exists(self.vis):
             print "The MS is already around, just unflag"

@@ -24,6 +24,7 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
+#include <algorithm>
 #include <synthesis/CalTables/CalSet.h>
 
 #include <synthesis/CalTables/CalTable2.h>

@@ -52,6 +52,7 @@
 #include <ms/MeasurementSets/MeasurementSet.h>
 
 #include <synthesis/ImagerObjects/SIImageStore.h>
+#include <synthesis/ImagerObjects/SDMaskHandler.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
 #include <synthesis/TransformMachines/Utils.h>
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
@@ -2727,6 +2728,11 @@ Array<Double> SIImageStore::calcRobustRMS()
   Record*  regionPtr=0;
   String LELmask("");
  
+  //Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+  // use the new statistic calculation algorithm
+  Record thestats = SDMaskHandler::calcImageStatistics2(*residual(), *mask(),  LELmask, regionPtr, True);
+
+  /***
   ImageStatsCalculator imcalc( residual(), regionPtr, LELmask, False); 
 
   Vector<Int> axes(2);
@@ -2736,15 +2742,16 @@ Array<Double> SIImageStore::calcRobustRMS()
   imcalc.setRobust(True);
   Record thestats = imcalc.statistics();
   //cout<<"thestats="<<thestats<<endl;
+  ***/
 
   Array<Double> maxs, rmss, mads;
   thestats.get(RecordFieldId("max"), maxs);
   thestats.get(RecordFieldId("rms"), rmss);
   thestats.get(RecordFieldId("medabsdevmed"), mads);
   
-  os << "Max : " << maxs << LogIO::POST;
-  os << "RMS : " << rmss << LogIO::POST;
-  os << "MAD : " << mads << LogIO::POST;
+  os << LogIO::DEBUG1 << "Max : " << maxs << LogIO::POST;
+  os << LogIO::DEBUG1 << "RMS : " << rmss << LogIO::POST;
+  os << LogIO::DEBUG1 << "MAD : " << mads << LogIO::POST;
   
   return mads*1.4826;
 }

@@ -75,7 +75,7 @@ class SIMapperCollection
   void degrid(vi::VisBuffer2& vb, casacore::Bool saveVirtualMod=false,const casacore::Int mapperid=-1);
   void saveVirtualModel(vi::VisBuffer2& vb);
   void finalizeDegrid(vi::VisBuffer2& vb,const casacore::Int mapperid=-1);
-  void addPB(vi::VisBuffer2& vb, PBMath& pbMath);
+  void addPB(vi::VisBuffer2& vb, PBMath& pbMath, const casacore::MDirection& altDir=casacore::MDirection(), const casacore::Bool useAltDir=False);
 
   //////////// OLD VI/VB : Version that use old vi/vb can be removed the vi2/vb2 works
   void initializeGrid(VisBuffer& vb, casacore::Bool dopsf=false,const casacore::Int mapperid=-1);

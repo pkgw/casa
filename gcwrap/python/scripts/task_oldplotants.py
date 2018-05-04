@@ -33,6 +33,8 @@ def oldplotants(vis=None,figfile=''):
        """
 
        try:
+              casalog.origin('oldplotants')
+              casalog.post("Task oldplotants has been deprecated and will be removed in release 5.4.", "WARN")
               mp = mptool()
               if type(vis) == str and os.path.isdir(vis):
                      mp.open(vis)

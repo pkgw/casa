@@ -41,7 +41,9 @@
 #include <flagging/Flagging/FlagCalTableHandler.h>
 #include <flagging/Flagging/FlagAgentBase.h>
 #include <flagging/Flagging/FlagAgentSummary.h>
+#if ! defined(WITHOUT_DBUS)
 #include <flagging/Flagging/FlagAgentDisplay.h>
+#endif
 
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -247,7 +249,9 @@ protected:
 	casacore::Bool mixed_p;
 
 	// Display agent parameters
+#if ! defined(WITHOUT_DBUS)
 	FlagAgentDisplay *displayAgent_p;
+#endif
 
 	// variables for initAgents
 	FlagDataHandler *fdh_p;
