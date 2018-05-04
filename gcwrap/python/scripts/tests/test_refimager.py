@@ -265,7 +265,11 @@ class test_onefield(testref_base):
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,interactive=0,calcpsf=False,calcres=False,deconvolver='mtmfs',parallel=self.parallel)
           report3=self.th.checkall(ret=ret, peakres=0.136, modflux=0.988, imexist=[self.img+'.psf.tt1',self.img+'.residual.tt1', self.img+'.image.tt1', self.img+'.alpha'],nmajordone=1,imval=[(self.img+'.alpha',-1.0,[50,50,0,0])])
 
-          self.checkfinal(pstr=report+report1+report2+report3)
+          ### Calcres=True and restart (to test CAS-10337)
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,interactive=0,calcpsf=False,calcres=True,deconvolver='mtmfs',parallel=self.parallel)
+          report4=self.th.checkall(ret=ret, peakres=0.0477, modflux=1.077, imexist=[self.img+'.psf.tt1',self.img+'.residual.tt1', self.img+'.image.tt1', self.img+'.alpha'],nmajordone=2,imval=[(self.img+'.alpha',-1.0,[50,50,0,0])])
+
+          self.checkfinal(pstr=report+report1+report2+report3+report4)
 
      def test_onefield_all_outputs_mfs(self):
           """ [onefield] : test_onefield_all_outputs_mfs : Make all output images even when not needed """
@@ -322,6 +326,36 @@ class test_onefield(testref_base):
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell=['10.0arcsec','30.0arcsec'],niter=10,parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'], imval=[(self.img+'.image',0.482,[50,49,0,0])] )
 
+          self.checkfinal(report)
+
+
+     def test_onefield_mtmfs_2spws_2MSs(self):
+          """ [onefield] Test_onefield_mtmfs_2spws_2MSs : MT-MFS on multi-spws in separate MSs, to test default reffreq and coordinate system generation (CAS-9518) """
+
+          ms1 = 'refim_point_onespw0.ms'
+          ms2 = 'refim_point_onespw1.ms'
+          self.prepData(ms1)
+          self.prepData(ms2)
+          
+          ret = tclean(vis=[ms1,ms2],imagename=self.img,imsize=100,cell='8.0arcsec',
+                       interactive=0,niter=10,deconvolver='mtmfs',parallel=self.parallel)
+
+          checkims = [self.img+'.psf.tt0', self.img+'.residual.tt0', self.img+'.image.tt0',self.img+'.model.tt0']  
+          
+          ## For parallel run, check sub workdirectory images also.
+          if self.parallel==True:
+               checkims = checkims + self.th.getNParts( imprefix=self.img, 
+                                                        imexts=['residual.tt0','residual.tt1',
+                                                                'psf.tt0','psf.tt1',
+                                                                'model.tt0','model.tt1']) 
+          report = self.th.checkall(ret=ret, 
+                                     peakres=0.409, modflux=0.764, iterdone=10, nmajordone=2,
+                                     imexist=checkims, 
+                                     imval=[(self.img+'.alpha',-2.0,[50,50,0,0]),
+                                            (self.img+'.sumwt.tt0', 94050.05,[0,0,0,0]) ,
+                                            (self.img+'.sumwt.tt1', 0.006198,[0,0,0,0]) ], 
+                                     reffreq= [(self.img+'.image.tt0',1489984775.68)] )
+          
           self.checkfinal(report)
 
 ##############################################
@@ -1555,6 +1589,38 @@ class test_cube(testref_base):
 
 #  def test_cube_explicit_restoringbeam(self):
 #          """ [cube] Test explicit restoring beams : Test peak flux and off source value for smoothed residuals"""
+
+
+
+     def test_cube_common_restoringbeam(self):
+          """ [cube] Test_cube_restoringbeam (cas10849/10946) : Test parallel and serial run on same refconcat images  """
+          
+          self.prepData('refim_point.ms')
+          
+          # Imaging run - no restoration (serial or parallel)
+          ret = tclean(vis=self.msfile,imagename=self.img,
+                       imsize=100,cell='10.0arcsec',
+                       interactive=0,niter=10,specmode='cube',
+                       restoration=False, parallel=self.parallel)
+          
+          # Serial restart for restoration only (serial only)
+          retpar = tclean(vis=self.msfile,imagename=self.img,
+                          imsize=100,cell='10.0arcsec',
+                          interactive=0,niter=0,specmode='cube',
+                          restoration=True, restoringbeam='common',parallel=False, #### always False. 
+                          calcres=False, calcpsf=False)
+          
+          header = imhead(self.img+'.image',verbose=False)
+               
+          estr = "["+inspect.stack()[1][3]+"] Has single restoring beam ? : " + self.th.verdict( header.has_key('restoringbeam')) + "\n"
+
+          report2 = self.th.checkall(imexist=[self.img+'.image'], 
+                                     imval=[(self.img+'.image',0.770445,[54,50,0,1]),
+                                            (self.img+'.image',0.408929,[54,50,0,15])  ])
+          
+          ## Pass or Fail (and why) ?
+          self.checkfinal(estr+report2)
+
 
      def test_cube_chanchunks(self):
           """ [cube] Test channel chunking for large cubes """
