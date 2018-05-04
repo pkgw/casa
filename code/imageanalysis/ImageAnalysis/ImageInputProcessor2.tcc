@@ -86,9 +86,8 @@ template<class T> void ImageInputProcessor::_process(
     		);
     	}
     }
-	ImageMetaData md(image);
+	ImageMetaData<T> md(image);
 	_nSelectedChannels = md.nChannels();
-
 	CasacRegionManager regionMgr(image->coordinates());
 	regionRecord = regionMgr.fromBCS(
 		diagnostics, _nSelectedChannels, stokes,
