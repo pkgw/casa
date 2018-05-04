@@ -204,8 +204,9 @@ template <class T> SPIIT ImageFactory::_fromRecord(
     return image;
 }
 
-template <class T> pair<SPIIF, SPIIC> ImageFactory::_rename(
-	SPIIT& image, const casacore::String& name, const casacore::Bool overwrite
+template <class T> ITUPLE ImageFactory::_rename(
+	SPIIT& image, const casacore::String& name,
+	const casacore::Bool overwrite
 ) {
 	casacore::LogIO mylog;
 	mylog << casacore::LogOrigin(className(), __func__);
@@ -227,7 +228,6 @@ template <class T> pair<SPIIF, SPIIC> ImageFactory::_rename(
 		oldName == name,
 		"Specified output name is the same as the current image name"
 	);
-
 	// Let's see if it exists.  If it doesn't, then the user has deleted it
 	casacore::File file(oldName);
 	if (file.isSymLink()) {
@@ -237,10 +237,8 @@ template <class T> pair<SPIIF, SPIIC> ImageFactory::_rename(
 		! file.exists(), "The image to be renamed no longer exists"
 	);
 	_checkOutfile(name, overwrite);
-
 	// close image before renaming
 	image.reset();
-
 	// Now try and move it
 	casacore::Bool follow(true);
 	if (file.isRegular(follow)) {
@@ -255,10 +253,8 @@ template <class T> pair<SPIIF, SPIIC> ImageFactory::_rename(
 	else {
 		ThrowCc("Failed to rename file " + oldName + " to " + name);
 	}
-
 	mylog << casacore::LogIO::NORMAL << "Successfully renamed file " << oldName
-			<< " to " << name << casacore::LogIO::POST;
-
+	    << " to " << name << casacore::LogIO::POST;
 	return fromFile(name);
 
 }

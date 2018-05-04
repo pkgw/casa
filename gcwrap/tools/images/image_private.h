@@ -1,16 +1,21 @@
 public: 
-//bool open(const casacore::ImageInterface<casacore::Float>* inImage);
-
-// The constructed object will manage the input pointer with a
-// shared_ptr
+// The constructed object will take over management
+// of the pointer with a shared_ptr
 image(casacore::ImageInterface<casacore::Float> * inImage);
 
 image(casacore::ImageInterface<casacore::Complex> * inImage);
+
+image(casacore::ImageInterface<casacore::Double> * inImage);
+
+image(casacore::ImageInterface<casacore::DComplex> * inImage);
 
 image(SHARED_PTR<casacore::ImageInterface<casacore::Float> > inImage);
 
 image(SHARED_PTR<casacore::ImageInterface<casacore::Complex> > inImage);
 
+image(SHARED_PTR<casacore::ImageInterface<casacore::Double> > inImage);
+
+image(SHARED_PTR<casacore::ImageInterface<casacore::DComplex> > inImage);
 //image(SHARED_PTR<casacore::ImageAnalysis> ia);
 
 private:
@@ -24,15 +29,22 @@ mutable casacore::LogIO _log;
 // SHARED_PTR<casacore::ImageInterface<casacore::Float> > _imageFloat;
 // SHARED_PTR<casacore::ImageInterface<casacore::Complex> > _imageComplex;
 
-
-// the image analysis object needs to be removed after decimation of that
-// class is complete
-//SHARED_PTR<casacore::ImageAnalysis> _image;
 casa::SPIIF _imageF;
 casa::SPIIC _imageC;
+casa::SPIID _imageD;
+casa::SPIIDC _imageDC;
+
 std::auto_ptr<casa::ImageStatsCalculator> _stats;
 
 static const casacore::String _class;
+
+template<class T> record* _boundingbox(
+    SPIIT image, const variant& region
+) const;
+
+template <class T> static casac::coordsys* _coordsys(
+    SPIIT image, const std::vector<int>& pixelAxes
+);
 
 bool _doHistory = true;
 
@@ -149,6 +161,8 @@ static std::vector<casacore::String> _newHistory(
 	const std::set<String>& dontQuote=std::set<String>()
 );
 
+void _notSupported(const std::string& method) const;
+
 // the returned value of pixels will have either 0 or two elements, if 0 then the returned
 // value of dir will be set
 void _processDirection(
@@ -182,7 +196,17 @@ template<class T> SHARED_PTR<casacore::ImageInterface<T> > _subimage(
 	bool overwrite, bool list, bool stretch, const vector<int>& keepaxes
 );
 
+template <class T> static record* _summary(
+    SPIIT image, const string& doppler, bool list,
+    bool pixelorder, bool verbose
+);
+
 static vector<double> _toDoubleVec(const variant& v);
+
+template <class T> casac::record* _toworld(
+    SPIIT image, const casac::variant& value,
+    const std::string& format, bool dovelocity
+);
 
 template <class T> SPIIT _twopointcorrelation(
 	SPIIT myimage, const string& outfile,
