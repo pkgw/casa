@@ -46,8 +46,8 @@ namespace casa {
 				    const QString& bottomUnits, const QString& bottomType,
 		             bool autoScaleX, bool autoScaleY );
 		void zoomY( double minY, double maxY, bool autoScaleY );
-		pair<double,double> getZoomInY( double zoomFactor ) const;
-		pair<double,double> getZoomOutY( double zoomFactor ) const;
+		std::pair<double,double> getZoomInY( double zoomFactor ) const;
+		std::pair<double,double> getZoomOutY( double zoomFactor ) const;
 
 		void scroll(int dx, int dy);
 		enum AxisIndex {xBottom, xTop, END_AXIS_INDEX };
@@ -100,7 +100,7 @@ namespace casa {
 
 	private:
 
-		pair<double,double> adjustAxis(double &min, double &max, int &numTicks);
+		std::pair<double,double> adjustAxis(double &min, double &max, int &numTicks);
 
 		void adjustAxisTop( double &min, double &max);
 		std::pair<double,double> convertBottomBounds(
