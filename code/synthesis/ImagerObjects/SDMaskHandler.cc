@@ -917,11 +917,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           delete testres; testres=0;
        }
     } 
-    //Record thestats = calcImageStatistics(*tempres, *tempmask, LELmask, region_ptr, robust);
-    Record thestats = calcImageStatistics2(*tempres, *tempmask, LELmask, region_ptr, robust);
+    Record thestats = calcImageStatistics(*tempres, *tempmask, LELmask, region_ptr, robust);
+    //Record thestats = calcImageStatistics2(*tempres, *tempmask, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
     thestats.get(RecordFieldId("max"), maxs);
     thestats.get(RecordFieldId("rms"), rmss);
+    os<< LogIO::DEBUG1 << " *** Old statistics for the reference ***"<<LogIO::POST;
     os<< LogIO::DEBUG1 << "All rms's on the input image -- rms.nelements()="<<rmss.nelements()<<" rms="<<rmss<<LogIO::POST;
     os<< LogIO::DEBUG1 << "All max's on the input image -- max.nelements()="<<maxs.nelements()<<" max="<<maxs<<LogIO::POST;
     if (alg.contains("multithresh")) {
@@ -933,6 +934,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Array<Double> newmaxs, newmins, newrmss, newmads;
     thenewstats.get(RecordFieldId("max"), newmaxs);
     thenewstats.get(RecordFieldId("rms"), newrmss);
+    os<< LogIO::DEBUG1 << "*** New statistics *** "<<newrmss<<LogIO::POST;
     os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
     os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
     if (alg.contains("multithresh")) {
@@ -956,7 +958,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       autoMaskByThreshold2(*tempmask, *tempres, *imstore->psf(), qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask);
     }
     else if (alg==String("multithresh")) {
-      autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thestats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold,
+      autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thenewstats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold,
                                           noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune, verbose, isthresholdreached);
     }
 
@@ -1033,7 +1035,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //  tempres->attachMask(res.pixelMask());
     //}
     if (res.hasPixelMask()) {
-      os<<"initial res have a (pb) mask!!!!!!!"<<LogIO::POST;
+      os<<LogIO::DEBUG1<<"initial res have a (pb) mask..."<<LogIO::POST;
     }
     
     // check if mask is empty (evaulated as the whole input mask )
@@ -1107,7 +1109,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       os<<"Using Chauvenet algorithm for image statistics"<<LogIO::POST;
       imcalc.configureChauvenet(Double(-1.0), Int(5));
     }
-    os<<"robust="<<robust<<LogIO::POST;
     imcalc.setRobust(robust);
     Record thestats = imcalc.statistics();
     //cerr<<"thestats="<<thestats<<endl;
@@ -1576,6 +1577,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       
       // turn on a new definition for new stats --- remove old one once tested
       if (newstats) {
+        os<<LogIO::DEBUG1<<"Using the new statistics ..."<<LogIO::POST;
         sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
       }
       else {
