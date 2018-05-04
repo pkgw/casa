@@ -178,8 +178,9 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   //----------------------------------------------------------------------
   //
   void AWConvFunc::fillConvFuncBuffer(CFBuffer& cfb, CFBuffer& cfWtb,
-				      const Int& skyNX, const Int& skyNY,
-				      const Vector<Double>& skyIncr,
+				      const Int&,// skyNX,
+				      const Int&,// skyNY,
+				      const Vector<Double>&,// skyIncr,
 				      const Int& nx, const Int& ny, 
 				      const Vector<Double>& freqValues,
 				      const Vector<Double>& wValues,
@@ -1867,7 +1868,8 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   //----------------------------------------------------------------------
   //
   void AWConvFunc::makeConvFunction2(const String& cfCachePath,
-				     const Vector<Double>& uvScale, const Vector<Double>& uvOffset,
+				     const Vector<Double>&,// uvScale,
+				     const Vector<Double>& uvOffset,
 				     const Matrix<Double>& ,//vbFreqSelection,
 				     CFStore2& cfs2,
 				     CFStore2& cfwts2,
@@ -1969,7 +1971,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			   //Float psScale = (2*coords.increment()(0))/(nx*image.coordinates().increment()(0));
 			   Float innerQuaterFraction=1.0;
 			 
-			   Double lambdaByD = 1.22*C::c/skyMinFreq/25.0;
+			   Double lambdaByD = 1.22*C::c/skyMinFreq/miscInfo.diameter;
 			   Double FoV_x = fabs(skyNX*skyIncr(0));
 			   Double FoV_y = fabs(skyNY*skyIncr(1));
 			   Vector<Double> uvScale_l(3);
