@@ -2254,6 +2254,60 @@ class test_subtables_evla(test_base):
         self.assertEqual(nrows, 1*2)   
         self.assertEqual(bbcNo[0], 12)          
         
+class test_weight_spectrum_creation(test_base):
+    '''Test when WEIGHT/SIGMA_SPECTRUM columns are created or not (with usewtspectrum)'''
+    def setUp(self):
+        self.setUp_4ants()
+
+    def tearDown(self):
+        os.system('rm -rf '+ self.vis)
+        os.system('rm -rf '+ self.outputms)
+
+    def test_usewtspectrum_on(self):
+        '''mstransform: when input MS does not have WEIGHT/SIGMA_SPECTRUM columns,
+        usewtspectrum=True should be respected'''
+        self.outputms = 'with_weight_spectrum.ms'
+
+        mstransform(self.vis, outputvis=self.outputms, spw='0', scan='31', antenna='0',
+                    usewtspectrum=True)
+
+        tb = tbtool()
+        tb.open(self.outputms)
+        colnames = tb.colnames()
+        sub_kw_names = tb.keywordnames()
+        weight_sp_shape = tb.getcolshapestring('WEIGHT_SPECTRUM')
+        sigma_sp_shape = tb.getcolshapestring('SIGMA_SPECTRUM')
+        tb.close()
+
+        self.assertEqual(24, len(colnames))
+        self.assertEqual(16, len(sub_kw_names))
+        self.assertTrue('WEIGHT_SPECTRUM' in colnames)
+        self.assertEqual(270, len(weight_sp_shape))
+        self.assertEqual('[4, 64]', weight_sp_shape[0])
+        self.assertTrue('SIGMA_SPECTRUM' in colnames)
+        self.assertEqual(270, len(sigma_sp_shape))
+        self.assertEqual('[4, 64]', sigma_sp_shape[0])
+
+    def test_usewtspectrum_off(self):
+        '''mstransform: when input MS does not have WEIGHT/SIGMA_SPECTRUM columns,
+        if usewtspectrum is not set=True WEIGHT/SIGMA_SPECTRUM should not be created in
+        the output MS'''
+        self.outputms = 'without_weight_spectrum.ms'
+
+        mstransform(self.vis, outputvis=self.outputms, scan='31', spw='0', antenna='0',
+                    usewtspectrum=False)
+
+        tb = tbtool()
+        tb.open(self.outputms)
+        colnames = tb.colnames()
+        sub_kw_names = tb.keywordnames()
+        tb.close()
+
+        self.assertEqual(22, len(colnames))
+        self.assertEqual(16, len(sub_kw_names))
+        self.assertTrue('WEIGHT_SPECTRUM' not in colnames)
+        self.assertTrue('SIGMA_SPECTRUM' not in colnames)
+
 class test_subtables_alma(test_base):
     '''Test effect of SPW combination/separation on ALMA sub-tables'''
     
@@ -2555,6 +2609,44 @@ class test_polarization_reindex(test_base):
         summary = flagdata(vis=self.outputms,mode='summary')
         self.assertTrue(summary.has_key('correlation'), 'Flagdata failure due to missformated MS')         
         
+class test_antenna_reindexing(test_base):
+    '''Test to check proper reindex of subtables'''
+
+    def setUp(self):
+        self.setUp_CAS_7259()
+        self.outvis = 'test_reindex_antenna_subtable.ms'
+
+    def tearDown(self):
+        os.system('rm -rf '+ self.vis)
+        os.system('rm -rf '+ self.outvis)
+        os.system('rm -rf list.obs')
+
+    def test_antenna_reindexing_va0(self):
+        '''mstransform: check reindexing when selecting a subset of the antennas'''
+
+        mstransform(vis=self.vis,outputvis=self.outvis,antenna='VA0*&&VA0*', datacolumn='all', reindex=True)
+        
+        listobs(self.outvis, listfile='list.obs')
+        self.assertTrue(os.path.exists('list.obs'), 'Probable error in sub-table re-indexing')        
+        mytb = tbtool()
+        mytb.open(self.outvis+'/ANTENNA')
+        nrows = mytb.nrows()
+        mytb.close()
+        self.assertEqual(nrows, 9, 'ANTENNA subtable should be resized to 9 VA0* antennas')
+
+    def test_antenna_reindexing_all_va(self):
+        '''mstransform: check that reindexing keeps all antennas that are involved in the selected baselines'''
+
+        mstransform(vis=self.vis,outputvis=self.outvis,antenna='VA01&&VA*', datacolumn='all', reindex=True)
+        
+        listobs(self.outvis, listfile='list.obs')
+        self.assertTrue(os.path.exists('list.obs'), 'Probable error in sub-table re-indexing')        
+        mytb = tbtool()
+        mytb.open(self.outvis+'/ANTENNA')
+        nrows = mytb.nrows()
+        mytb.close()
+        self.assertEqual(nrows, 27, 'ANTENNA subtable should contain all 27 VA* antennas')
+
         
 class test_alma_wvr_correlation_products(test_base):
     '''Test behaviour of mstransform in split mode when the input MS contains ALMA WVR correlation products'''
@@ -5672,6 +5764,7 @@ def suite():
             test_spw_poln,
             test_regridms_spw_with_different_number_of_channels,
             testFlags,
+            test_weight_spectrum_creation,
             test_subtables_evla,
             test_subtables_alma,
             test_radial_velocity_correction_largetimerange,
@@ -5689,6 +5782,7 @@ def suite():
             test_spectrum_transformations_mean,
             test_otf_calibration,
             test_polarization_reindex,
+            test_antenna_reindexing,
             test_no_reindexing,
             test_no_reindexing_ephemeris_copy,
             test_splitUpdateFlagCmd,

@@ -82,6 +82,8 @@ namespace asdm {
 		
 			, "spectralWindowId"
 				
+		
+			, "pulsarId"
 				
 	};
 	
@@ -97,7 +99,7 @@ namespace asdm {
     
     	 "dataDescriptionId" , "polOrHoloId" , "spectralWindowId" 
     	,
-    	
+    	 "pulsarId" 
     
 	};
 	        			
@@ -611,6 +613,7 @@ DataDescriptionRow* DataDescriptionTable::lookup(Tag polOrHoloId, Tag spectralWi
 		oss << "<polOrHoloId/>\n"; 
 		oss << "<spectralWindowId/>\n"; 
 
+		oss << "<pulsarId/>\n"; 
 		oss << "</Attributes>\n";		
 		oss << "</DataDescriptionTable>\n";
 
@@ -732,6 +735,8 @@ DataDescriptionRow* DataDescriptionTable::lookup(Tag polOrHoloId, Tag spectralWi
     	 
     attributesSeq.push_back("spectralWindowId") ; 
     	
+    	 
+    attributesSeq.push_back("pulsarId") ; 
     	
      
     

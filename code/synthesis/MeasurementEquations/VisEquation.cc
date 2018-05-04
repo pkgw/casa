@@ -205,6 +205,23 @@ Bool VisEquation::spwOK(const Int& spw) {
   return spwok;
 }
 
+
+//----------------------------------------------------------------------
+// Report if calibration is collectively calibrateable by all VCs 
+//   (including possible agnosticism by somein CalLibrary context; 
+//    see SolvableVisCal::VBOKforCalApply)
+Bool VisEquation::VBOKforCalApply(vi::VisBuffer2& vb) {
+
+  Bool okForCal(True); // nominal
+  for (Int i=0;i<napp_;++i) 
+    okForCal = okForCal && vc()[i]->VBOKforCalApply(vb);
+    
+  return okForCal;
+
+}
+
+
+
 //----------------------------------------------------------------------
 // Correct in place the OBSERVED visibilities in a VisBuffer
 void VisEquation::correct(VisBuffer& vb, Bool trial) {
@@ -377,7 +394,12 @@ void VisEquation::collapse2(vi::VisBuffer2& vb) {
   // Trap case of unavailable calibration in any vc we intend to apply below
   //   In the solve context, if we can't pre-cal, we flag it
   //    NB: this assumes only one spw in the VB2!
-  if (!this->spwOK(vb.spectralWindows()(0))) {
+  //if (!this->spwOK(vb.spectralWindows()(0))) {
+  // Use new VBOKforCalApply, which is f(obs,fld,intent,spw) (not just f(spw))
+  if (!this->VBOKforCalApply(vb)) {
+
+    //cout << "UNCALIBRATEABLE VB2 in VE::collapse2" << endl;
+
     Cube<Bool> fl(vb.flagCube());          fl.set(true);
     Cube<Float> wtsp(vb.weightSpectrum()); wtsp.set(0.0f);
     Matrix<Float> wt(vb.weight());         wt.set(0.0f);

@@ -188,13 +188,13 @@ from exportasdm import  exportasdm
 from exportfits import  exportfits
 from exportuvfits import  exportuvfits
 from feather import  feather
-from find import  find
 from fixplanets import  fixplanets
 from fixvis import  fixvis
 from flagcmd import  flagcmd
 from flagdata import  flagdata
 from flagmanager import  flagmanager
 from fluxscale import  fluxscale
+from fringefit import  fringefit
 from ft import  ft
 from gaincal import  gaincal
 from gencal import  gencal
@@ -240,6 +240,7 @@ from mosaic import  mosaic
 from mstransform import  mstransform
 from msuvbin import  msuvbin
 from oldhanningsmooth import  oldhanningsmooth
+from oldplotants import  oldplotants
 from oldsplit import  oldsplit
 from plotants import  plotants
 from plotbandpass import  plotbandpass

@@ -48,10 +48,11 @@ namespace casa {
 	using SPIIF = SHARED_PTR<casacore::ImageInterface<casacore::Float> >;
 	using SPCIIC = SHARED_PTR<const casacore::ImageInterface<casacore::Complex> >;
 	using SPIIC = SHARED_PTR<casacore::ImageInterface<casacore::Complex> >;
-
-    // 1/(Phi^(-1)(3/4), see https://en.wikipedia.org/wiki/Median_absolute_deviation#Relation_to_standard_deviation
-    const casacore::Double PROBIT_3_4 = 1.482602218505602;
-
+	using SPCIID = SHARED_PTR<const casacore::ImageInterface<casacore::Double> >;
+	using SPIID = SHARED_PTR<casacore::ImageInterface<casacore::Double> >;
+	using SPCIIDC = SHARED_PTR<const casacore::ImageInterface<casacore::DComplex> >;
+	using SPIIDC = SHARED_PTR<casacore::ImageInterface<casacore::DComplex> >;
+	using ITUPLE = std::tuple<SPIIF, SPIIC, SPIID, SPIIDC>;
 }
 
 #endif

@@ -1,4 +1,4 @@
-//# PlotMSCacheBase.h: Generic casacore::Data cache for plotms.
+//# PlotMSCacheBase.h: Generic Data cache for plotms.
 //# Copyright (C) 2009
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -77,13 +77,13 @@ public:
   virtual ~PlotMSCacheBase();
 
   // Identify myself
-  //  pure virtual
+  // (MS or CAL)
   virtual PlotMSCacheBase::Type cacheType() const = 0;
 
   // Access to pol names
   virtual casacore::String polname(casacore::Int ipol)=0;
 
-  // keep MS/CT filename (set cal type for CT)
+  // keep MS/CT filename (sets calType_)
   virtual void setFilename(casacore::String filename) = 0;
   casacore::String calType() const { return calType_; };
   bool polnRatio() const { return polnRatio_; };
@@ -278,6 +278,9 @@ public:
   // These support generic non-complex calibration
   inline casacore::Double getPar(casacore::Int chnk,casacore::Int irel)  { return *(par_[chnk]->data()+irel); };
   inline casacore::Double getSnr(casacore::Int chnk,casacore::Int irel)  { return *(snr_[chnk]->data()+irel); };
+  inline casacore::Double getAntPos(casacore::Int chnk,casacore::Int irel)  { return *(antpos_[chnk]->data()+irel); };
+
+  // Curve overlays
   inline casacore::Double getAtm(casacore::Int chnk,casacore::Int irel) { return *(atm_[chnk]->data()+irel); };
   inline casacore::Double getTsky(casacore::Int chnk,casacore::Int irel) { return *(tsky_[chnk]->data()+irel); };
 
@@ -473,6 +476,7 @@ protected:
 
   // for cal tables
   casacore::PtrBlock<casacore::Array<casacore::Float>*> par_, snr_;
+  casacore::PtrBlock<casacore::Array<casacore::Float>*> antpos_; 
 
   // Current setup/state.
   bool dataLoaded_;

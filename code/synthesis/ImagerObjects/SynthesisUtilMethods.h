@@ -370,6 +370,10 @@ public:
   casacore::Float minBeamFrac;
   casacore::Float cutThreshold;
   casacore::Int growIterations;
+  casacore::Bool doGrowPrune;
+  casacore::Float minPercentChange;
+  casacore::Bool verbose;
+  casacore::Float nsigma;
   int nMask;
   bool autoAdjust;
 

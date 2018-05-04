@@ -106,6 +106,30 @@ SPIIC ImageFactory::complexImageFromShape(
 	);
 }
 
+SPIID ImageFactory::doubleImageFromShape(
+    const String& outfile, const Vector<casacore::Int>& shape,
+    const Record& csys, Bool linear,
+    Bool overwrite, Bool verbose,
+    const std::vector<std::pair<LogOrigin, String> > *const &msgs
+) {
+    return _fromShape<Double>(
+        outfile, shape, csys, linear,
+        overwrite, verbose, msgs
+    );
+}
+
+SPIIDC ImageFactory::complexDoubleImageFromShape(
+    const String& outfile, const Vector<Int>& shape,
+    const Record& csys, casacore::Bool linear,
+    Bool overwrite, casacore::Bool verbose,
+    const std::vector<std::pair<LogOrigin, String> > *const &msgs
+) {
+    return _fromShape<DComplex>(
+        outfile, shape, csys, linear,
+        overwrite, verbose, msgs
+    );
+}
+
 SPIIF ImageFactory::fromASCII(
     const String& outfile, const String& infile,
     const IPosition& shape, const String& sep, const Record& csys,
@@ -156,29 +180,34 @@ pair<SPIIF, SPIIC> ImageFactory::fromImage(
     const Record& region, const String& mask, Bool dropdeg,
     Bool overwrite
 ) {
-    auto imagePair = fromFile(infile, False);
+    auto imagePtrs = fromFile(infile, False);
+    auto imageF = std::get<0>(imagePtrs);
+    auto imageC = std::get<1>(imagePtrs);
+    auto imageD = std::get<2>(imagePtrs);
+    auto imageDC = std::get<3>(imagePtrs);
     LogIO mylog;
     mylog << LogOrigin("ImageFactory", __func__);
-    if (imagePair.first) {
-        imagePair.first = SubImageFactory<Float>::createImage(
-            *imagePair.first, outfile, region,
+    if (imageF) {
+        imageF = SubImageFactory<Float>::createImage(
+            *imageF, outfile, region,
             mask, dropdeg, overwrite, false, false
         );
-        ThrowIf(! imagePair.first, "Failed to create image");
+        ThrowIf(! imageF, "Failed to create image");
         mylog << LogIO::NORMAL << "Created image '" << outfile
-            << "' of shape " << imagePair.first->shape() << LogIO::POST;
+            << "' of shape " << imageF->shape() << LogIO::POST;
 
     }
     else {
-        imagePair.second = SubImageFactory<Complex>::createImage(
-            *imagePair.second, outfile, region,
+        imageC= SubImageFactory<Complex>::createImage(
+            *imageC, outfile, region,
             mask, dropdeg, overwrite, false, false
         );
-        ThrowIf(! imagePair.second, "Failed to create image");
+        ThrowIf(! imageC, "Failed to create image");
         mylog << LogIO::NORMAL << "Created image '" << outfile
-            << "' of shape " << imagePair.second->shape() << LogIO::POST;
+            << "' of shape " << imageC->shape() << LogIO::POST;
     }
-    return imagePair;
+
+    return make_pair(imageF, imageC);
 }
 
 pair<SPIIF, SPIIC> ImageFactory::fromRecord(
@@ -335,55 +364,53 @@ SHARED_PTR<TempImage<Float> > ImageFactory::floatFromComplex(
 	return newImage;
 }
 
-pair<SPIIF, SPIIC> ImageFactory::fromFile(const String& infile, Bool cache) {
+ITUPLE ImageFactory::fromFile(const String& infile, Bool cache) {
     _checkInfile(infile);
     ComponentListImage::registerOpenFunction();
     unique_ptr<LatticeBase> latt(ImageOpener::openImage(infile));
     ThrowIf (! latt, "Unable to open image");
-    auto mypair = _fromLatticeBase(latt);
+    auto imagePtrs = _fromLatticeBase(latt);
+    auto imageF = std::get<0>(imagePtrs);
     if (
-        mypair.first
-        && mypair.first->imageType().contains(ComponentListImage::IMAGE_TYPE)
+        imageF
+        && imageF->imageType().contains(ComponentListImage::IMAGE_TYPE)
     ) {
-        std::dynamic_pointer_cast<ComponentListImage>(mypair.first)->setCache(cache);
+        std::dynamic_pointer_cast<ComponentListImage>(imageF)->setCache(cache);
     }
-    return mypair;
+    return imagePtrs;
 }
 
-pair<SPIIF, SPIIC> ImageFactory::_fromLatticeBase(unique_ptr<LatticeBase>& latt) {
+ITUPLE ImageFactory::_fromLatticeBase(
+    unique_ptr<LatticeBase>& latt
+) {
     DataType dataType = latt->dataType();
-    pair<SPIIF, SPIIC> ret(nullptr, nullptr);
-    if (isReal(dataType)) {
-        if (dataType != TpFloat) {
-            ostringstream os;
-            os << dataType;
-            LogIO log;
-            log << LogOrigin(className(), __func__);
-            log << LogIO::WARN << "Converting " << os.str() << " precision pixel values "
-                << "to float precision in CASA image" << LogIO::POST;
-        }
-        return pair<SPIIF, SPIIC>(
-            SPIIF(dynamic_cast<ImageInterface<Float> *>(latt.release())),
-            SPIIC(nullptr)
+    tuple<SPIIF, SPIIC, SPIID, SPIIDC> ret(nullptr, nullptr, nullptr, nullptr);
+    if (dataType == TpFloat) {
+        std::get<0>(ret) = SPIIF(
+            dynamic_cast<ImageInterface<Float> *>(latt.release())
         );
     }
-    else if (isComplex(dataType)) {
-        if (dataType != TpComplex) {
-            ostringstream os;
-            os << dataType;
-            LogIO log;
-            log << LogOrigin(className(), __func__);
-            log << LogIO::WARN << "Converting " << os.str() << " precision pixel values "
-                << "to complex float precision in CASA image" << LogIO::POST;
-        }
-        return pair<SPIIF, SPIIC>(
-            SPIIF(nullptr),
-            SPIIC(dynamic_cast<ImageInterface<Complex> *>(latt.release()))
+    else if (dataType == TpComplex) {
+        std::get<1>(ret) = SPIIC(
+            dynamic_cast<ImageInterface<Complex> *>(latt.release())
         );
     }
-    ostringstream os;
-    os << dataType;
-    throw AipsError("unsupported image data type " + os.str());
+    else if (dataType == TpDouble) {
+        std::get<2>(ret) = SPIID(
+            dynamic_cast<ImageInterface<Double> *>(latt.release())
+        );
+    }
+    else if (dataType == TpDComplex) {
+        std::get<3>(ret) = SPIIDC(
+            dynamic_cast<ImageInterface<DComplex> *>(latt.release())
+        );
+    }
+    else {
+        ostringstream os;
+        os << dataType;
+        throw AipsError("unsupported image data type " + os.str());
+    }
+    return ret;
 }
 
 void ImageFactory::_checkInfile(const String& infile) {
@@ -421,13 +448,13 @@ SPIIF ImageFactory::fromFITS(
 void ImageFactory::rename(
 	SPIIF& image, const String& name, const Bool overwrite
 ) {
-	image = _rename(image, name, overwrite).first;
+	image = std::get<0>(_rename(image, name, overwrite));
 }
 
 void ImageFactory::rename(
 	SPIIC& image, const String& name, const Bool overwrite
 ) {
-	image = _rename(image, name, overwrite).second;
+	image = std::get<1>(_rename(image, name, overwrite));
 }
 
 void ImageFactory::toASCII(

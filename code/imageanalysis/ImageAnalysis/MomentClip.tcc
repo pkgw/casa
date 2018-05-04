@@ -124,7 +124,6 @@ template <class T> void MomentClip<T>::multiProcess(
             pixelIn_p[i] = casacore::Double(inPos[i]);
         }
     }
-
     // Compute moments.  The actual moment computation always done with
     // the original data, regardless of whether the pixel selection is
     // done with the primary or ancilliary data.
