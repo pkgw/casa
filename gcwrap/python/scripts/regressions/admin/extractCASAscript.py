@@ -428,8 +428,8 @@ def include_raw_input( task,line ):
     """
     if is_task_call(line):
         if extract_task(line) == task:
-                line = ''*indentation(line) + line + '\n' 
-                line += ' '*indentation(line) + 'user_check=raw_input("press enter to continue script")\n'
+            line = ''*indentation(line) + line + '\n' 
+        line += ' '*indentation(line) + 'user_check=raw_input("press enter to continue script")\n'
     return line
 
 def exclude_raw_input( line ):
