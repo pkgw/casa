@@ -115,7 +115,7 @@ namespace casa{
   //
   Double getCurrentTimeStamp(const VisBuffer2& vb)
   {
-    LogIO os(LogOrigin("Utils", "getCurrentTimeStamp", WHERE));
+    //LogIO os(LogOrigin("Utils", "getCurrentTimeStamp", WHERE));
 
     Int N=vb.nRows();
     for(Int i=0;i<N;i++)

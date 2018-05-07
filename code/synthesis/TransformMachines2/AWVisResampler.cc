@@ -568,7 +568,7 @@ namespace casa{
    //   Double conjRefFreq = vbs.imRefFreq();
    Int vbSpw = (vbs.vb_p)->spectralWindows()(0);
    Double vbPA = vbs.paQuant_p.getValue("rad");
-   Int vbFieldID = ((const Int)((vbs.vb_p)->fieldId()(0)));
+   Int vbFieldID = -1;//((const Int)((vbs.vb_p)->fieldId()(0)));
 
    for(Int irow=rbeg; irow< rend; irow++){   
       //      if ((vbs.uvw_p.nelements() == 0)) 
@@ -806,7 +806,7 @@ namespace casa{
 			       );
     Int vbSpw = (vbs.vb_p)->spectralWindows()(0);
     Double vbPA = vbs.paQuant_p.getValue("rad");
-    Int vbFieldID = ((const Int)((vbs.vb_p)->fieldId()(0)));
+    Int vbFieldID = -1;//((const Int)((vbs.vb_p)->fieldId()(0)));
 
     for(Int irow=rbeg; irow<rend; irow++) {
       if(!rowFlag[irow]) {
@@ -918,12 +918,12 @@ namespace casa{
 			// file (FortanizedLoopsFromGrid.cc) has the interface code to call the inner 
 			// loops re-written in FORTRAN (in synthesis/fortran/faccumulateOnGrid.f)
 
-			// accumulateFromGrid(nvalue, gridStore, igrdpos, convFuncV, dataWVal,
-			// 		   scaledSupport, scaledSampling, off, convOrigin, 
-			// 		   cfShape, loc, phasor, sinDPA, cosDPA, 
-			// 		   finitePointingOffset, cached_phaseGrad_p);
+			accumulateFromGrid(nvalue, gridStore, igrdpos, convFuncV, dataWVal,
+					   support, sampling, off, convOrigin,
+					   cfShape, loc, phasor, sinDPA, cosDPA,
+					   finitePointingOffset, cached_phaseGrad_p);
 // Timer timer;
-#include <synthesis/TransformMachines2/FortranizedLoopsFromGrid.cc>
+//#include <synthesis/TransformMachines2/FortranizedLoopsFromGrid.cc>
 // runTimeDG_p += timer.real();
 
 			 // //--------------------------------------------------------------------------------
