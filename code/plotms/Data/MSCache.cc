@@ -285,12 +285,12 @@ String MSCache::getDataColumn(vector<PMS::Axis>& loadAxes,
 PMS::DataColumn MSCache::checkReqDataColumn(PMS::DataColumn reqDataCol) {
 	// Check if requested data, scratch, or float cols exist
     PMS::DataColumn datacol = reqDataCol;
-	Bool datacolOk(false), corcolOk(false), floatcolOk(false);
 	Table thisTable(filename_);
 	const ColumnDescSet cds = thisTable.tableDesc().columnDescSet();
-	datacolOk  = cds.isDefined("DATA");
-	corcolOk   = cds.isDefined("CORRECTED_DATA");
-	floatcolOk = cds.isDefined("FLOAT_DATA");
+	Bool datacolOk(cds.isDefined("DATA")), 
+		corrcolOk(cds.isDefined("CORRECTED_DATA") || calibration_.useCallib()),
+		modelcolOk(cds.isDefined("MODEL_DATA")),
+		floatcolOk(cds.isDefined("FLOAT_DATA"));
 
     switch (reqDataCol) {
         case PMS::DATA: {
@@ -301,33 +301,80 @@ PMS::DataColumn MSCache::checkReqDataColumn(PMS::DataColumn reqDataCol) {
             }
             break;
         }
-        case PMS::CORRECTED:
-        case PMS::CORRECTED_DIVIDE_MODEL:
-        case PMS::CORRMODEL: {
+        case PMS::CORRECTED: {
             // requested corrected data but no (real or OTF) corrected column
-            if (!corcolOk && !calibration_.useCallib()) {
+            if (!corrcolOk) {
                 if (datacolOk) {
                     // CAS-5214 - use DATA if no CORRECTED_DATA with warning
                     datacol = PMS::DATA;
-                    logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set or enabled; will use DATA instead.");
+                    logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set/enabled; will use DATA instead of CORRECTED or residuals.");
                 } else if (floatcolOk) {
                     // CAS-7761 - for singledish, use FLOAT if no CORRECTED or DATA
                     datacol = PMS::FLOAT_DATA;
-                    logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set or enabled; will use FLOAT_DATA instead.");
+                    logWarn( "load_cache", "CORRECTED_DATA column not present and callibration library not set/enabled; will use FLOAT_DATA instead of CORRECTED or residuals.");
                 }
-            }
-            break;
+				break;
+            } 
+			break;
         }
+		case PMS::MODEL: {
+			if (floatcolOk && !modelcolOk) {
+				// model not auto-generated for singledish
+               	throw(AipsError("MODEL_DATA not present; use FLOAT_DATA."));
+			}
+			break;
+		}
+        case PMS::CORRECTED_DIVIDE_MODEL:
+        case PMS::CORRMODEL: {
+            // requested corrected residuals but no (real or OTF) corrected column
+            if (!corrcolOk) {
+                if (datacolOk) {
+					if (reqDataCol==PMS::CORRECTED_DIVIDE_MODEL) {
+                    	datacol = PMS::DATA_DIVIDE_MODEL;
+                    	logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set/enabled");
+						logWarn("load_cache", "Using data/model instead of corrected/model.");
+					} else {
+						datacol = PMS::DATAMODEL;
+                    	logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set/enabled");
+						logWarn("load_cache", "Using data-model instead of corrected-model.");
+					}
+				} else {
+               		throw(AipsError("CORRECTED_DATA not present for residuals; use FLOAT_DATA."));
+				}
+				break;
+			}
+			if (floatcolOk && !modelcolOk) { 
+				// residuals requested for singledish; model not auto-generated
+               	throw(AipsError("MODEL_DATA not present for residuals; use CORRECTED_DATA or FLOAT_DATA."));
+            	break;
+			}
+			break;
+		}
+        case PMS::DATAMODEL:
+		case PMS::DATA_DIVIDE_MODEL: {
+			if (floatcolOk) {
+				if (!modelcolOk) {
+					// model not auto-generated for singledish
+               		throw(AipsError("MODEL_DATA not present; use FLOAT_DATA."));
+				} else {
+					// If model columns added to singledish (future),
+					// create FLOATMODEL and FLOAT_DIVIDE_MODEL columns to use instead
+					// But for now...
+               		throw(AipsError("DATA not present, cannot plot these residuals."));
+				}
+			}
+			break;
+		}
         case PMS::FLOAT_DATA: {
             // requested float data but no FLOAT column 
-            if (!floatcolOk) {
-                throw(AipsError("FLOAT_DATA not present, please use DATA"));
+            if (!floatcolOk && datacolOk) {
+                throw(AipsError("FLOAT_DATA not present; use DATA"));
             }
             break;
         }
         default:
             break;
-    } // switch
+    }
     return datacol;
 }
 
@@ -365,7 +412,7 @@ String MSCache::checkLoadedAxesDatacol() {
 String MSCache::normalizeColumnName(String plotmscol)
 {
 	// Convert datacolumn as needed for MSTransformManager
-    String colname = plotmscol;
+	String colname = plotmscol;
 	if ((plotmscol == "corrected-model") || 
 	    (plotmscol == "data-model") ||
 	    (plotmscol == "data/model") || 
@@ -373,7 +420,7 @@ String MSCache::normalizeColumnName(String plotmscol)
 			colname = "ALL";
 	} else if (plotmscol == "float") {
 		colname = "FLOAT_DATA";
-	} else {   // "data", "corrected", "model"	
+	} else {   // "data", "corrected", "model"
 		colname.upcase();
 	}
 	return colname;
@@ -471,7 +518,9 @@ void MSCache::setUpVisIter(PlotMSSelection& selection,
         configuration.define("spwaverage", true);
     }
 
-    LogFilter oldFilter(plotms_->getParameters().logPriority());
+    LogFilter oldFilter(LogMessage::NORMAL);
+	if (plotms_ != nullptr)
+    	LogFilter oldFilter(plotms_->getParameters().logPriority());
 	MSTransformIteratorFactory* factory = NULL;
 	try {
         // Filter out MSTransformManager setup messages
@@ -567,7 +616,7 @@ void MSCache::updateEstimateProgress(ThreadCommunication* thread) {
 bool MSCache::countChunks(vi::VisibilityIterator2& vi,
         Vector<Int>& nIterPerAve,
         vector<PMS::Axis>& loadAxes,
-		vector<PMS::DataColumn>& loadData, 
+        vector<PMS::DataColumn>& loadData, 
         ThreadCommunication* thread) {
     // Let plotms count the chunks for memory estimation 
     //   when baseline/antenna/spw/scalar averaging
@@ -718,16 +767,16 @@ void MSCache::trapExcessVolume(map<PMS::Axis,Bool> pendingLoadAxes) {
 			}
 			s = vm_->evalVolume(pendingLoadAxes, mask);
 		}
-        logLoad(s);
+		logLoad(s);
 	} catch(AipsError& log) {
 		// catch detected volume excess, clear the existing cache, and rethrow
 		logLoad(log.getMesg());
 		deleteVm();
 		stringstream ss;
-        ss << "Estimated cache exceeds limits." << endl
-           << "Please try using data selection, averaging," << endl
-           << "checking 'Reload' (to clear unneeded cache items)," << endl
-		   << "or letting other memory-intensive processes finish.";
+		ss << "Estimated cache exceeds limits." << endl
+			<< "Please try using data selection, averaging," << endl
+			<< "checking 'Reload' (to clear unneeded cache items),"
+			<< "or letting other memory-intensive processes finish.";
 		throw(AipsError(ss.str()));
 	}
 }
@@ -740,7 +789,7 @@ void MSCache::updateProgress(ThreadCommunication* thread, Int chunk) {
 				" / " + String::toString(nChunk_) + ".");
 		progress = ((double)chunk+1) / nChunk_;
 		thread->setProgress((unsigned int)((progress * 100) + 0.5));
-    }
+	}
 }
 
 void MSCache::loadChunks(vi::VisibilityIterator2& vi,
@@ -1519,22 +1568,22 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		}
 		case PMS::CORRMODEL: {
 			*realCorrModel_[vbnum] = 
-                real(vb->visCubeCorrected()) - real(vb->visCubeModel());
+                real(vb->visCubeCorrected()- vb->visCubeModel());
 			break;
 		}
 		case PMS::DATAMODEL: {
 			*realDataModel_[vbnum] = 
-                real(vb->visCube()) - real(vb->visCubeModel());
+                real(vb->visCube() - vb->visCubeModel());
 			break;
 		}
 		case PMS::DATA_DIVIDE_MODEL: {
 			*realDataDivModel_[vbnum] = 
-                real(vb->visCube()) / real(vb->visCubeModel());
+                real(vb->visCube() / vb->visCubeModel());
 			break;
 		}
 		case PMS::CORRECTED_DIVIDE_MODEL: {
 			*realCorrDivModel_[vbnum] = 
-                real(vb->visCubeCorrected()) / real(vb->visCubeModel());
+                real(vb->visCubeCorrected() / vb->visCubeModel());
 			break;
 		}
 		case PMS::FLOAT_DATA: {
@@ -1560,22 +1609,22 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		}
 		case PMS::CORRMODEL: {
 			*imagCorrModel_[vbnum] = 
-                imag(vb->visCubeCorrected()) - imag(vb->visCubeModel());
+                imag(vb->visCubeCorrected() - vb->visCubeModel());
 			break;
 		}
 		case PMS::DATAMODEL: {
 			*imagDataModel_[vbnum] = 
-                imag(vb->visCube()) - imag(vb->visCubeModel());
+                imag(vb->visCube() - vb->visCubeModel());
 			break;
 		}
 		case PMS::DATA_DIVIDE_MODEL: {
 			*imagDataDivModel_[vbnum] = 
-                imag(vb->visCube()) / imag(vb->visCubeModel());
+                imag(vb->visCube() / vb->visCubeModel());
 			break;
 		}
 		case PMS::CORRECTED_DIVIDE_MODEL: {
 			*imagCorrDivModel_[vbnum] = 
-                imag(vb->visCubeCorrected()) / imag(vb->visCubeModel());
+                imag(vb->visCubeCorrected() / vb->visCubeModel());
 			break;
 		}
 		case PMS::FLOAT_DATA:  // should have caught this already
@@ -1634,7 +1683,7 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		}
 		case PMS::CORRMODEL: {
 			*wtxampCorrModel_[vbnum] = 
-                amplitude(vb->visCubeCorrected() - vb->visCube());
+                amplitude(vb->visCubeCorrected() - vb->visCubeModel());
 		    Cube<Float> wtA(*wtxampCorrModel_[vbnum]);
 		    for(uInt c = 0; c < nchannels; ++c) {
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
