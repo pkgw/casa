@@ -219,6 +219,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // The PSF or Residual images must exist. ( TODO : and weight )
     if( doesImageExist(itsImageName+String(".residual")) || 
 	doesImageExist(itsImageName+String(".psf")) ||
+	//	doesImageExist(itsImageName+String(".model")) ||
 	doesImageExist(itsImageName+String(".gridwt"))  )
       {
 	SHARED_PTR<ImageInterface<Float> > imptr;
@@ -501,7 +502,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			}
 		      if( itsParentCoordSys.nCoordinates()>0 &&  ! itsParentCoordSys.near( imPtr->coordinates() ) )
 			{
-			  throw( AipsError( "There is a coordinate system mismatch between existing images on disk and current parameters ("+itsParentCoordSys.errorMessage()+"). If you are attempting to restart a run, please change imagename and supply the old model or mask as inputs (via the startmodel or mask parameters) so that they can be regridded to the new coordinate system before continuing. " ) );
+
+			  /// Implement an exception to get CAS-9977 to work.
+			  /// "The DirectionCoordinates have differing latpoles"
+			  if( itsParentCoordSys.errorMessage().contains("differing latpoles") )
+			    {
+			      LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
+			      os << LogIO::DEBUG1 << " !!!! WARNING !!!!! Mismatch in Csys between existing image on disk and current parameters : " << itsParentCoordSys.errorMessage() << LogIO::POST;
+			    }
+			  else
+			    {
+			      throw( AipsError( "There is a coordinate system mismatch between existing images on disk and current parameters ("+itsParentCoordSys.errorMessage()+"). If you are attempting to restart a run, please change imagename and supply the old model or mask as inputs (via the startmodel or mask parameters) so that they can be regridded to the new coordinate system before continuing. " ) );
+			    }
 			}
 		    }// not dosumwt
 		}
