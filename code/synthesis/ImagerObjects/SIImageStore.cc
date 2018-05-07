@@ -826,7 +826,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	return;
       }
 
-    SHARED_PTR<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
+    //SHARED_PTR<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
+    SHARED_PTR<ImageInterface<Float> > newmodel;
+    buildImage(newmodel, modelname);
 
     Bool hasMask = newmodel->isMasked(); /// || newmodel->hasPixelMask() ;
     
