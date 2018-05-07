@@ -2730,7 +2730,7 @@ Array<Double> SIImageStore::calcRobustRMS()
  
   //Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
   // use the new statistic calculation algorithm
-  Record thestats = SDMaskHandler::calcImageStatistics2(*residual(), *mask(),  LELmask, regionPtr, True);
+  Record thestats = SDMaskHandler::calcRobustImageStatistics(*residual(), *mask(),  LELmask, regionPtr, True);
 
   /***
   ImageStatsCalculator imcalc( residual(), regionPtr, LELmask, False); 
@@ -2744,16 +2744,18 @@ Array<Double> SIImageStore::calcRobustRMS()
   //cout<<"thestats="<<thestats<<endl;
   ***/
 
-  Array<Double> maxs, rmss, mads;
-  thestats.get(RecordFieldId("max"), maxs);
+  //Array<Double> maxs, rmss, mads, mdns;
+  Array<Double>rmss, mads, mdns;
+  //thestats.get(RecordFieldId("max"), maxs);
   thestats.get(RecordFieldId("rms"), rmss);
   thestats.get(RecordFieldId("medabsdevmed"), mads);
+  thestats.get(RecordFieldId("median"), mdns);
   
-  os << LogIO::DEBUG1 << "Max : " << maxs << LogIO::POST;
+  //os << LogIO::DEBUG1 << "Max : " << maxs << LogIO::POST;
   os << LogIO::DEBUG1 << "RMS : " << rmss << LogIO::POST;
   os << LogIO::DEBUG1 << "MAD : " << mads << LogIO::POST;
   
-  return mads*1.4826;
+  return mdns+mads*1.4826;
 }
 
   void SIImageStore::printImageStats()

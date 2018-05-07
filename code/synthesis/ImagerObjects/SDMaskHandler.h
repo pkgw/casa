@@ -183,6 +183,7 @@ public:
                                           const casacore::ImageInterface<casacore::Float>& res, 
                                           const casacore::ImageInterface<casacore::Float>& psf, 
                                           const casacore::Record& stats, 
+                                          const casacore::Record& newstats, 
                                           const casacore::Int iterdone,
                                           casacore::Vector<casacore::Bool>& chanFlag,
                                           const casacore::Float& maskPercentChange=0.0,
@@ -358,14 +359,19 @@ public:
   // max MB of memory to use in TempImage
   static inline casacore::Double memoryToUse() {return 1.0;};
 
-  // Calculate statistics on a residual image with additional region and LEL mask specificaations
+  // Calculate statistics on a residual image with additional region and LEL mask specifications
+  // using classical method
   static casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
                                        casacore::String& lelmask,
                                        casacore::Record* regionPtr,
                                        const casacore::Bool robust);
 
-  // new statistics 
-  static casacore::Record calcImageStatistics2(casacore::ImageInterface<casacore::Float>& res, 
+  // Calcuate statistics on a residual image using robust methods to estimate RMS noise.
+  // Basing on presence of a mask the following logic is used. 
+  // a. If there is no existing clean mask, calculate statistics using the chauvenet algorithm with maxiter=5 and zscore=-1.
+  // b. If there is an existing clean mask, calculate the classic statistics with robust=True in the region outside the clean mask 
+  //    and inside the primary beam mask. 
+  static casacore::Record calcRobustImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
                                        casacore::ImageInterface<casacore::Float>& prevmask, 
                                        casacore::String& lelmask,
                                        casacore::Record* regionPtr,

@@ -808,7 +808,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         delete dummy;
       }
     } 
-    os<<"tempres->hasPixelMask()="<<tempres->hasPixelMask()<<LogIO::POST;
     //for debug
     //String tempresname="initialRes_"+String::toString(iterdone)+".im";
     //PagedImage<Float> initialRes(tempres->shape(), tempres->coordinates(), tempresname);
@@ -935,7 +934,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        os<< LogIO::DEBUG1 << "All MAD's on the input image -- mad.nelements()="<<mads.nelements()<<" mad="<<mads<<LogIO::POST;
     }
     //test test test
-    Record thenewstats = calcImageStatistics2(*tempres, *tempmask, LELmask, region_ptr, robust);
+    Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, LELmask, region_ptr, robust);
     Array<Double> newmaxs, newmins, newrmss, newmads;
     thenewstats.get(RecordFieldId("max"), newmaxs);
     thenewstats.get(RecordFieldId("rms"), newrmss);
@@ -946,7 +945,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
        os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
     }
-
+    
 
     os<<LogIO::NORMAL <<"SidelobeLevel = "<<imstore->getPSFSidelobeLevel()<<LogIO::POST;
     itsSidelobeLevel = imstore->getPSFSidelobeLevel();
@@ -963,7 +962,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       autoMaskByThreshold2(*tempmask, *tempres, *imstore->psf(), qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask);
     }
     else if (alg==String("multithresh")) {
-      autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thenewstats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold,
+      autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thestats, thenewstats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold,
                                           noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune, verbose, isthresholdreached);
     }
 
@@ -1022,10 +1021,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return thestats;
   }
 
-  // temporary named 2 for new statistics
-  Record SDMaskHandler::calcImageStatistics2(ImageInterface<Float>& res, ImageInterface<Float>&  prevmask , String& LELmask,  Record* regionPtr, const Bool robust )
+  // robust image statistics for better noise estimation
+  Record SDMaskHandler::calcRobustImageStatistics(ImageInterface<Float>& res, ImageInterface<Float>&  prevmask , String& LELmask,  Record* regionPtr, const Bool robust )
   { 
-    LogIO os( LogOrigin("SDMaskHandler","calcImStat2",WHERE) );
+    LogIO os( LogOrigin("SDMaskHandler","calciRobustImageStatistics",WHERE) );
 
     Bool debugStats(false);
 
@@ -1052,7 +1051,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Slicer sl(blc,trc,Slicer::endIsLast);
     prevmask.doGetSlice(maskdata,sl);
     Float nmaskpix = sum(maskdata);
-    os<<"nmaskpix="<<nmaskpix<<LogIO::POST; 
     if (nmaskpix==0) {
       if (res.hasPixelMask()) {
         os<<"no mask but apply pbmask..."<<LogIO::POST;
@@ -1430,6 +1428,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const ImageInterface<Float>& res, 
                                           const ImageInterface<Float>& psf, 
                                           const Record& stats, 
+                                          const Record& robuststats, 
                                           const Int iterdone,
                                           Vector<Bool>& chanFlag,
                                           const Float& minPercentChange,
@@ -1538,9 +1537,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Determine threshold from input image stats
     stats.get(RecordFieldId("max"), maxs);
     stats.get(RecordFieldId("min"), mins);
-    stats.get(RecordFieldId("rms"), rmss);
-    stats.get(RecordFieldId("medabsdevmed"), mads);
-    stats.get(RecordFieldId("median"), mdns);
+    robuststats.get(RecordFieldId("rms"), rmss);
+    robuststats.get(RecordFieldId("medabsdevmed"), mads);
+    robuststats.get(RecordFieldId("median"), mdns);
     
     // only useful if single threshold value are used for all spectral planes... 
     minMax(minmaxval,maxmaxval,minmaxpos, maxmaxpos, maxs);
