@@ -2017,7 +2017,7 @@ bool KAntPosJones::vlaTrDelCorrApplicable(bool checkCalTable) {
       // Keyword not present in caltable == TURN IT OFF
       doTrDelCorr_=false;
       logSink() << "No VLATrDelCorr keyword in the antpos caltable; turning trop delay correction OFF."
-		<< LogIO::WARN << LogIO::POST;
+		<< LogIO::POST;
     }
   }
 
