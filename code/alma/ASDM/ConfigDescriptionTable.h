@@ -135,21 +135,21 @@ class ConfigDescriptionRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numAntenna (\f$N_{Ante}\f$)</TD> 
+ * <TD> numAntenna (numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numDataDescription (\f$N_{Data}\f$)</TD> 
+ * <TD> numDataDescription (numDataDescription)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of data descriptions. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numFeed (\f$N_{Feed}\f$)</TD> 
+ * <TD> numFeed (numFeed)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of feeds. </TD>
@@ -163,7 +163,7 @@ class ConfigDescriptionRow;
  * </TR>
 	
  * <TR>
- * <TD> numAtmPhaseCorrection (\f$N_{AtmP}\f$)</TD> 
+ * <TD> numAtmPhaseCorrection (numAtmPhaseCorrection)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of descriptions of the atmospheric phase correction. </TD>
@@ -237,7 +237,7 @@ class ConfigDescriptionRow;
  * </TR>
 	
  * <TR>
- * <TD> numAssocValues(\f$N_{Asso}\f$)</TD> 
+ * <TD> numAssocValues(numAssocValues)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of associated config descriptions. </TD>

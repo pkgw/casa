@@ -265,15 +265,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     }
 
-  void SIMapper::addPB(vi::VisBuffer2& vb, PBMath& pbMath)
+  void SIMapper::addPB(vi::VisBuffer2& vb, PBMath& pbMath, const MDirection& altDir, const Bool useAltDir)
   {
     CoordinateSystem imageCoord=itsImages->pb()->coordinates();
      
     IPosition imShape=itsImages->pb()->shape();
 
-    ROMSColumns mscol(vb.ms());
+    
 
-    MDirection wcenter=mscol.field().phaseDirMeas(vb.fieldId()(0));
+    MDirection wcenter;
+    if(useAltDir)
+      wcenter=altDir;
+    else{
+      ROMSColumns mscol(vb.ms());
+      wcenter=mscol.field().phaseDirMeas(vb.fieldId()(0), vb.time()(0));
+    }
     TempImage<Float> pbTemp(imShape, imageCoord);
     TempImage<Complex> ctemp(imShape, imageCoord);
     ctemp.set(1.0);

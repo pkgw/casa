@@ -190,7 +190,7 @@ class CalWVRRow;
  * </TR>
 	
  * <TR>
- * <TD> numInputAntennas (\f$N_{Inpu}\f$)</TD> 
+ * <TD> numInputAntennas (numInputAntennas)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of input antennas (i.e. equiped with functional WVRs). </TD>
@@ -204,7 +204,7 @@ class CalWVRRow;
  * </TR>
 	
  * <TR>
- * <TD> numChan (\f$N_{Chan}\f$)</TD> 
+ * <TD> numChan (numChan)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of frequency channels in the WVR receiver. </TD>
@@ -232,7 +232,7 @@ class CalWVRRow;
  * </TR>
 	
  * <TR>
- * <TD> numPoly (\f$N_{Poly}\f$)</TD> 
+ * <TD> numPoly (numPoly)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of polynomial coefficients. </TD>

@@ -113,13 +113,13 @@ scripts/task_exportasdm.py
 scripts/task_exportfits.py
 scripts/task_exportuvfits.py
 scripts/task_feather.py
-scripts/task_find.py
 scripts/task_fixplanets.py
 scripts/task_fixvis.py
 scripts/task_flagcmd.py
 scripts/task_flagdata.py
 scripts/task_flagmanager.py
 scripts/task_fluxscale.py
+scripts/task_fringefit.py
 scripts/task_ft.py
 scripts/task_gaincal.py
 scripts/task_gencal.py

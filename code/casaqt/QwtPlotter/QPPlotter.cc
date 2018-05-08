@@ -86,12 +86,12 @@ bool QPPlotter::initColors() {
 // Constructors/Destructors //
 
 QPPlotter::QPPlotter(QPCanvas* canvas, int logEventFlags, QWidget* parent) :
-        QWidget(parent), m_layout(), m_emitResize(true), m_sizeRatio(1.0) {
+        QWidget(parent), m_layout(), m_emitResize(true), m_plotWidth(0),
+        m_plotHeight(0) {
     setLogFilterEventFlags(logEventFlags);
     logObject(CLASS_NAME, this, true);
     
     initialize();
-    m_squareHeight = 0;  // assume rectangular plot
     
     if(canvas != NULL) {    
         m_layout = new PlotLayoutSingle(canvas);
@@ -101,12 +101,11 @@ QPPlotter::QPPlotter(QPCanvas* canvas, int logEventFlags, QWidget* parent) :
 
 QPPlotter::QPPlotter(PlotCanvasLayoutPtr layout, int logEventFlags,
         QWidget* parent) : QWidget(parent), m_layout(layout),
-        m_emitResize(true), m_sizeRatio(1.0) {
+        m_emitResize(true), m_plotWidth(0), m_plotHeight(0) {
     setLogFilterEventFlags(logEventFlags);
     logObject(CLASS_NAME, this, true);
     
     initialize();
-    m_squareHeight = 0;  // assume rectangular plot
     
     if(!m_layout.null()) {
         bool valid = m_layout->isValid();
@@ -140,7 +139,7 @@ void QPPlotter::showGUI(bool showGUI) {
 }
 
 bool QPPlotter::isGuiShown() const {
-	return m_guiShown;
+    return m_guiShown;
 }
 
 pair<int, int> QPPlotter::size() const {
@@ -150,41 +149,37 @@ pair<int, int> QPPlotter::size() const {
 void QPPlotter::setSize(int width, int height) { resize(width, height); }
 
 void QPPlotter::makeSquarePlot(bool square, bool waveplot) {
-    if (square) {  // make square plot width=height
-        // save rectangle ratio of width to height and new square size
-        // (only first time if exporting iterated plots else ratio=1!)
-        if (m_sizeRatio == 1.0) {
-            pair<int, int> rectSize = size();
-            m_sizeRatio = double(rectSize.first) / double(rectSize.second);
-            // save this dimension, size gets reset to 0: 
-            // resize event causes setGeometry to be called
-            m_squareHeight = rectSize.second;
-        }
-        // for exported plots
-        if (waveplot) {
-            // uwave/vwave plots have larger values which make yaxis 
-            // label wider and scrunches xaxis, so inc width by 10%
-            setSize(m_squareHeight*1.1, m_squareHeight);
-        } else {
-            setSize(m_squareHeight, m_squareHeight);
-        }
-        // for gui plots
-        if (isGuiShown()) {
-            if (waveplot)
-                setCanvasSize(m_squareHeight*1.07, m_squareHeight);
-            else
-                setCanvasSize(m_squareHeight, m_squareHeight);
-        }
-    } else if (m_sizeRatio != 1.0) { // restore rect plot after square
-        pair<int, int> rectSize = size();
-        // set width to correct ratio to height
-        int newWidth = int(rectSize.first * m_sizeRatio);
-        setSize(newWidth, rectSize.second);
-        if (isGuiShown())  // this undoes fixed size
-            setCanvasSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-        m_sizeRatio = 1.0;  // next time, keep width the same
-        m_squareHeight = 0;
-    }
+	int width, height;
+	if (isGuiShown()) {  // use canvas
+		width = canvasWidget()->width();
+		height = canvasWidget()->height();
+		if (width > 0) m_plotWidth = width-6;
+		if (height > 0) m_plotHeight = height-6;
+
+		if (square) {  // set canvas size
+			m_plotWidth = m_plotHeight;
+			// uwave/vwave plots have larger values which make yaxis
+			// label wider and scrunches xaxis, so inc width by 10%
+			if (waveplot) m_plotWidth *= 1.1;
+			setSize(m_plotWidth, m_plotHeight);
+			setCanvasSize(m_plotWidth, m_plotHeight);
+		} else {
+			setSize(m_plotWidth, m_plotHeight);
+			// this resets fixed size
+			setCanvasSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+		}
+	} else {  // can't use canvas size
+		width = size().first;
+		height = size().second;
+		if (square) {
+			m_plotHeight = height-6;
+			m_plotWidth = m_plotHeight;
+			if (waveplot) m_plotWidth *= 1.1;
+		} else {
+			m_plotWidth = width-6;
+			m_plotHeight = height-6;
+		}
+	}
 }
 
 String QPPlotter::windowTitle() const {

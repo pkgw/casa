@@ -44,6 +44,7 @@
 #include <casa/OS/Path.h>		// Needed by ComponentList
 #include <casa/iostream.h>
 #include <tables/Tables/Table.h>
+#include <casatools/Config/State.h>
 
 #include <casa/namespace.h>
 int main(int argc, char* argv[])
@@ -191,8 +192,18 @@ int main(int argc, char* argv[])
     const Unit hertz("Hz");
 
     cout << "AIPSROOT: " << Aipsrc::aipsRoot() << endl;
+
     String horpath;
-    Bool foundStd = Aipsrc::findDir(horpath, "data/ephemerides/JPL-Horizons");
+    Bool foundStd = false;
+    cont string coeffpath = "ephemerides/JPL-Horizons";
+    string resolvepath = casatools::get_state( ).resolve(coeffpath);
+    if ( resolvepath != coeffpath ) {
+        horpath = resolvepath;
+        foundStd = true;
+    } else {
+        foundStd = Aipsrc::findDir(horpath, "data/" + coeffpath);
+    }
+    
     if(foundStd){
       cout << "Aipsrc found an ephemeris directory: " << horpath << endl;
     }

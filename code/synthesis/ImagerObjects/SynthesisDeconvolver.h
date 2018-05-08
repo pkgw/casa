@@ -182,6 +182,7 @@ protected:
 
   casacore::Float itsMaskSum;
 
+  casacore::Float itsNsigma;
 };
 
 

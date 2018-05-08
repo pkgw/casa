@@ -189,7 +189,7 @@ class SpectralWindowRow;
  * </TR>
 	
  * <TR>
- * <TD> numChan (\f$N_{Chan}\f$)</TD> 
+ * <TD> numChan (numChan)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of frequency channels. </TD>
@@ -354,7 +354,7 @@ class SpectralWindowRow;
  * </TR>
 	
  * <TR>
- * <TD> numAssocValues(\f$N_{Asso}\f$)</TD> 
+ * <TD> numAssocValues(numAssocValues)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of associated values. </TD>

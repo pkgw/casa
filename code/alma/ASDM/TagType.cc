@@ -61,6 +61,8 @@ const TagType* TagType::Antenna = new TagType("Antenna") ;
 	
 
 	
+
+	
 const TagType* TagType::CalData = new TagType("CalData") ;
 	
 
@@ -177,6 +179,10 @@ const TagType* TagType::Processor = new TagType("Processor") ;
 	
 
 	
+const TagType* TagType::Pulsar = new TagType("Pulsar") ;
+	
+
+	
 const TagType* TagType::Receiver = new TagType("Receiver") ;
 	
 
@@ -245,6 +251,8 @@ map<string, const TagType*> fillName2TagType_m() {
 
 	
 	result["Antenna"] = TagType::Antenna ;
+	
+
 	
 
 	
@@ -371,6 +379,10 @@ map<string, const TagType*> fillName2TagType_m() {
 
 	
 	result["Processor"] = TagType::Processor ;
+	
+
+	
+	result["Pulsar"] = TagType::Pulsar ;
 	
 
 	
