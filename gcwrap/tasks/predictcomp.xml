@@ -147,7 +147,7 @@
                prefix + 'spw0_&lt;objname&gt;_&lt;minfreq&gt;&lt;epoch&gt;.cl'
             Default: '' 
 	    Example: "Bands3to7_"
-                     (which could produce 'Bands3to7_spw0_Uranus_100GHz55877d.cl',
+                     (which could produce 'Bands3to7_Uranus_spw0_100GHz55877d.cl',
 		      depending on the other parameters)
     antennalist: 'Observe' and plot the visibility amplitudes for this
                  antenna configuration.  The file should be in a format usable
@@ -163,7 +163,7 @@
                        True otherwise.
     savefig: Filename for saving a plot of S vs. |u|.
              Subparameter of antennalist.
-             Default: False (necessarily if antennalist is not specified)
+             Default: '' 
              Examples: ''           (do not save the plot)
                        'myplot.png' (save to myplot.png)
     symb: One of matplotlib's codes for plot symbols: .:,o^v&lt;&gt;s+xDd234hH|_

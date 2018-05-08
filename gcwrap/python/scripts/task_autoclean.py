@@ -28,6 +28,7 @@ def autoclean(vis, imagename, field, spw, selectdata, timerange, uvrange,
               boxstretch, irregsize):
 
     casalog.origin('autoclean')
+    casalog.post("Task autoclean has been deprecated and will be removed in release 5.4.", "WARN")
 
     orig_npercycle = npercycle
 
@@ -74,12 +75,12 @@ def autoclean(vis, imagename, field, spw, selectdata, timerange, uvrange,
                 thisStart = qa.add(start, qa.mul(width, qa.quantity(ichan)))
 
         # create dirty image from which to choose initial clean regions
-        clean(vis=vis, imagename=thisImage, field=field, spw=spw, 
+        clean(vis=vis, imagename=thisImage, field=field, spw=spw,
               selectdata=selectdata, timerange=timerange, uvrange=uvrange,
               antenna=antenna, scan=scan, mode=mode, nchan=1, start=thisStart,
               width=width, interpolation=interpolation, psfmode=psfmode,
               imagermode=imagermode, cyclefactor=cyclefactor,
-              cyclespeedup=cyclespeedup, imsize=imsize, cell=cell,  
+              cyclespeedup=cyclespeedup, imsize=imsize, cell=cell,
               phasecenter=phasecenter, restfreq=restfreq, stokes=stokes,
               weighting=weighting, robust=robust, noise=noise, npixels=npixels,
               modelimage=modelimage, uvtaper=uvtaper, outertaper=outertaper,
@@ -111,7 +112,7 @@ def autoclean(vis, imagename, field, spw, selectdata, timerange, uvrange,
                                   island_rms=island_rms, peak_rms=peak_rms,
                                   gain_threshold=gain_threshold,
                                   clean_threshold=clean_threshold, diag=diag,
-                                  useabsresid=useabsresid, ichan=ichan) 
+                                  useabsresid=useabsresid, ichan=ichan)
 
             # if first iteration, make sure CLEAN is cleaning
             if not(cleanmore):
@@ -130,7 +131,7 @@ def autoclean(vis, imagename, field, spw, selectdata, timerange, uvrange,
             # maximum absolute residual before next clean iteration
             if (eps_maxres) or (allow_maxres_inc >= 0):
                 pre_max = post_max
-                
+
             # niter-iterations is the *total* number of iterations left, and might
             # be less than npercycle.  Use the minimum of (npercycle, niter-iterations)
             casalog.post('Starting clean at iteration %d' % iterations)
@@ -138,9 +139,9 @@ def autoclean(vis, imagename, field, spw, selectdata, timerange, uvrange,
             #TMP# CAS-1623: an improvement will be made to CLEAN to allow it to
             # start from an existing residual image.  The call to clean may need
             # to be changed to reflect this.
-            clean(vis=vis, imagename=thisImage, field=field, spw=spw, 
+            clean(vis=vis, imagename=thisImage, field=field, spw=spw,
                   selectdata=selectdata, timerange=timerange, uvrange=uvrange,
-                  antenna=antenna, scan=scan, mode=mode, nchan=1, width=width, 
+                  antenna=antenna, scan=scan, mode=mode, nchan=1, width=width,
                   start=thisStart, interpolation=interpolation, psfmode=psfmode,
                   imagermode=imagermode, imsize=imsize,
                   cyclefactor=cyclefactor, cyclespeedup=cyclespeedup,
@@ -246,12 +247,12 @@ def autowindow(imagename='', island_rms=0, gain_threshold=0, peak_rms=0, Nrms=0,
     if max_residual < peak_rms*rms:
         casalog.post('Max_residual is less than box threshold for peaks.')
         return 1, 0
-        
+
     # select the new clean regions; put them in the mask
     casalog.post('Selecting clean regions.')
     Nregions = get_islands(imagename, Npeak, island_rms*rms, threshold, shape,
                            boxstretch, irregsize, diag, ichan)
-    
+
     if not(Nregions):
         casalog.post('No new peaks passed selection.')
         return 1, 0
@@ -306,7 +307,7 @@ def get_islands(imagename='', Npeak=3, island_threshold=0, peak_threshold=0,
         xok, yok = numpy.where(xyMask['tmp_mask'])
         pixok = pixelVals[xok,yok]
         peak = pixok.max()
-        
+
         if peak < peak_threshold:
             # peak is below peak threshold for clean boxing: we're done
             break
@@ -321,7 +322,7 @@ def get_islands(imagename='', Npeak=3, island_threshold=0, peak_threshold=0,
         # since we've already checked this pixel, set its tmp mask to 0
         xyMask[x,y]['tmp_mask'] = 0
         listPix = [xyMask[x,y]]
-        
+
         # find all above-threshold contiguous pixels of this island
         # python lets us loop over items in a list while adding to the list!
         for pixel in listPix:
@@ -342,11 +343,11 @@ def get_islands(imagename='', Npeak=3, island_threshold=0, peak_threshold=0,
                 contig_pix = []
                 contig_pix += xyMask[xLook1:xLook2, y]
                 contig_pix += xyMask[x, yLook1:yLook2]
-                listPix += [pix for pix in contig_pix if(pix['tmp_mask'])]            
+                listPix += [pix for pix in contig_pix if(pix['tmp_mask'])]
                 # since we've already added these pixels, set their tmp mask to 0
                 xyMask[xLook1:xLook2, y]['tmp_mask'] = 0
                 xyMask[x, yLook1:yLook2]['tmp_mask'] = 0
-                                
+
         if peak < peak_threshold:
             # reject islands with peak < peak_threshold
             continue
@@ -357,7 +358,7 @@ def get_islands(imagename='', Npeak=3, island_threshold=0, peak_threshold=0,
         xmax = islandPix['x'].max()
         ymin = islandPix['y'].min()
         ymax = islandPix['y'].max()
-        
+
         if (xmin==xmax) or (ymin==ymax):
             # reject islands that are only 1 pixel wide, unless very bright
             if peak < 2.5 * peak_threshold:
@@ -404,7 +405,7 @@ def mask_island(imagename='', island=None, pixels=None):
 
 # Chooses appropriate shape (box or circle) for clean region
 def mask_region(imagename='', island=None, shape=0, boxstretch=0, ichan=0):
-    
+
     peak_flux = island['peak_flux']
     box = island['box']
 

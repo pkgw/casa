@@ -351,7 +351,8 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
                                         Vector<Int>& convSupport,
                                         Vector<Int>& convFuncPolMap,
                                         Vector<Int>& convFuncChanMap,
-                                        Vector<Int>& convFuncRowMap, Bool getConjConvFunc)
+                                        Vector<Int>& convFuncRowMap, Bool getConjConvFunc,
+					const MVDirection& extraShift, const Bool useExtraShift)
 {
 
     storeImageParams(iimage,vb);
@@ -380,7 +381,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
     convsize.resize();
     convSupport.resize();
 
-    Int isCached=checkPBOfField(vb, convFuncRowMap);
+    Int isCached=checkPBOfField(vb, convFuncRowMap, extraShift, useExtraShift);
     //cout << "isCached " << isCached <<  endl;
     if(isCached==1 && (convFuncRowMap.shape()[0]==vb.nRows())) {
         /*convFunc.reference(convFunc_p);
@@ -1288,9 +1289,9 @@ Int HetArrayConvFunc::factorial(Int n) {
 
 
 Int HetArrayConvFunc::checkPBOfField(const vi::VisBuffer2& vb,
-                                     Vector<Int>& /*rowMap*/) {
+                                     Vector<Int>& /*rowMap*/, const MVDirection& extraShift, const Bool useExtraShift) {
 
-    toPix(vb);
+  toPix(vb, extraShift, useExtraShift);
     Vector<Int> pixdepoint(2);
     convertArray(pixdepoint, thePix_p);
     if((pixdepoint(0) < 0) ||  pixdepoint(0) >= nx_p || pixdepoint(1) < 0 ||

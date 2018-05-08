@@ -1370,6 +1370,32 @@ void MSTransformManager::open()
 	return;
 }
 
+/**
+ * Whether the WEIGHT/SIGMA_SPECTRUM columns should be created in the output MS.
+ * This should be honored when creating the output MS structure (in
+ * createOutputMSStructure().
+ *
+ * The logic to say true is: if the WEIGHT/SIGMA_SPECTRUM are present in the input MS or
+ * the user has requested the creation of these columns in the output MS anyway via the
+ * parameter 'usewtspectrum'
+ * This requires that the input configuration be parsed here in MSTransformManager before
+ * calling this method, and passed as parameter.
+ *
+ * @param usewtspectrum value of the usewtspectrum input parameter of mstransform
+ *
+ * @return whether WEIGHT/SIGMA_SPECTRUM columns should be created in the output MS.
+ */
+Bool MSTransformManager::shouldCreateOutputWtSpectrum(Bool usewtspectrum)
+{
+    if (nullptr == inputMs_p) {
+        throw AipsError("When trying to guess if WEIGHT/SIGMA_SPECTRUM should be created "
+                        "in the output MS: the input MS has not been initialized.");
+    }
+
+    auto wtSpec = ROMSColumns(*inputMs_p).weightSpectrum();
+    auto inputWeightSpectrumAvailable = !wtSpec.isNull() and wtSpec.isDefined(0);
+    return inputWeightSpectrumAvailable or usewtspectrum;
+}
 
 /**
  * Helper method for open() to create the structure of the output MS
@@ -1396,15 +1422,19 @@ void MSTransformManager::createOutputMSStructure()
 	Bool outputMSStructureCreated = false;
 	try
 	{
-		if (not bufferMode_p)
-		{
-			outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,datacolumn_p,tileShape_p,timespan_p);
-		}
-		else
-		{
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__) << "Create output MS structure" << LogIO::POST;
-			outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,datacolumn_p,tileShape_p,timespan_p,Table::Scratch);
-		}
+            Table::TableOption option = Table::New;
+            if (bufferMode_p) {
+                logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+                         << "Create output MS structure" << LogIO::POST;
+                option = Table::Scratch;
+            }
+            auto createWeightSpectrum = shouldCreateOutputWtSpectrum(usewtspectrum_p);
+            outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,
+                                                                           datacolumn_p,
+                                                                           createWeightSpectrum,
+                                                                           tileShape_p,
+                                                                           timespan_p,
+                                                                           option);
 	}
 	catch (AipsError ex)
 	{
@@ -1451,8 +1481,11 @@ void MSTransformManager::setup()
 	// Check what columns have to filled
 	// CAS-5581 (jagonzal): Moving these methods here because we need to know if
 	// WEIGHT_SPECTRUM is available to configure the appropriate averaging kernel.
+	// - note also that the availability of WEIGHT_SPECTRUM in the input MS needs
+	// to be checked even before, as it is needed when doing
+	// dataHandler_p->makeMSBasicStructure() in createOutputMSStructure() - CAS-11269
 	checkFillFlagCategory();
-	checkFillWeightSpectrum();
+        checkFillWeightSpectrum();
 
 	// Check if we really need to combine SPWs
 	if (combinespws_p)
@@ -4847,14 +4880,13 @@ void MSTransformManager::checkFillFlagCategory()
 void MSTransformManager::checkFillWeightSpectrum()
 {
 	inputWeightSpectrumAvailable_p = false;
-	if (!selectedInputMsCols_p->weightSpectrum().isNull() && selectedInputMsCols_p->weightSpectrum().isDefined(0))
+	if (!selectedInputMsCols_p->weightSpectrum().isNull() and
+            selectedInputMsCols_p->weightSpectrum().isDefined(0))
 	{
 		inputWeightSpectrumAvailable_p = true;
 		logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 				<< "Optional column WEIGHT_SPECTRUM found in input MS will be written to output MS" << LogIO::POST;
 	}
-
-	return;
 }
 
 /**

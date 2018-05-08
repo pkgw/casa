@@ -1,4 +1,4 @@
-//# PlotMSCacheBase.h: Generic casacore::Data cache for plotms.
+//# PlotMSCacheBase.h: Generic Data cache for plotms.
 //# Copyright (C) 2009
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -77,13 +77,13 @@ public:
   virtual ~PlotMSCacheBase();
 
   // Identify myself
-  //  pure virtual
+  // (MS or CAL)
   virtual PlotMSCacheBase::Type cacheType() const = 0;
 
   // Access to pol names
   virtual casacore::String polname(casacore::Int ipol)=0;
 
-  // keep MS/CT filename (set cal type for CT)
+  // keep MS/CT filename (sets calType_)
   virtual void setFilename(casacore::String filename) = 0;
   casacore::String calType() const { return calType_; };
   bool polnRatio() const { return polnRatio_; };

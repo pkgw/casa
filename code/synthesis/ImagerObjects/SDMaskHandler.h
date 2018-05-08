@@ -39,7 +39,9 @@
 
 #include<synthesis/ImagerObjects/SIImageStore.h>
 #include<synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
+#if ! defined(WITHOUT_DBUS)
 #include <synthesis/ImagerObjects/InteractiveMasking.h>
+#endif
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -198,11 +200,13 @@ public:
                                           const casacore::Bool isthresholdreached=false); 
                            
   // Calculate statistics on a residual image with additional region and LEL mask specificaations
+  /***
   casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
                                        casacore::ImageInterface<casacore::Float>& prevmask, 
                                        casacore::String& lelmask,
                                        casacore::Record* regionPtr,
                                        const casacore::Bool robust);
+  ***/
 
   SHARED_PTR<casacore::ImageInterface<float> > makeMaskFromBinnedImage (
                                const casacore::ImageInterface<casacore::Float>& image,
@@ -362,8 +366,15 @@ public:
   // max MB of memory to use in TempImage
   static inline casacore::Double memoryToUse() {return 1.0;};
 
+  static casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
+                                       casacore::String& lelmask,
+                                       casacore::Record* regionPtr,
+                                       const casacore::Bool robust);
+
 protected:
+#if ! defined(WITHOUT_DBUS)
   InteractiveMasking *interactiveMasker_p;
+#endif
 
 private:
   double itsRms;

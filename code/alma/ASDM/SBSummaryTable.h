@@ -208,7 +208,7 @@ class SBSummaryRow;
  * </TR>
 	
  * <TR>
- * <TD> numObservingMode (\f$N_{Obse}\f$)</TD> 
+ * <TD> numObservingMode (numObservingMode)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of observing modes. </TD>
@@ -222,14 +222,14 @@ class SBSummaryRow;
  * </TR>
 	
  * <TR>
- * <TD> numberRepeats (\f$N_{berR}\f$)</TD> 
+ * <TD> numberRepeats (numberRepeats)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of repeats. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numScienceGoal (\f$N_{Scie}\f$)</TD> 
+ * <TD> numScienceGoal (numScienceGoal)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of scientific goals. </TD>
@@ -243,7 +243,7 @@ class SBSummaryRow;
  * </TR>
 	
  * <TR>
- * <TD> numWeatherConstraint (\f$N_{Weat}\f$)</TD> 
+ * <TD> numWeatherConstraint (numWeatherConstraint)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of weather constraints. </TD>

@@ -195,6 +195,9 @@ class SynthesisImager
  
   const SynthesisParamsGrid& getSynthesisParamsGrid() {return gridpars_p;};
   const SynthesisParamsImage& getSynthesisParamsImage() {return impars_p;};
+  ///This will set the movingSource_p
+  void setMovingSource(const casacore::String& movsource);
+
 
 protected:
  
@@ -397,6 +400,7 @@ protected:
 
   SynthesisParamsGrid gridpars_p;
   SynthesisParamsImage impars_p;
+  String movingSource_p;
 
 
 };

@@ -19,8 +19,13 @@ import logging
 import argparse
 import time
 
-####################            Temp Constants
-regressionsDisabled = True
+##
+## testwrapper.py depends upon the current directory being in the path because
+## it changes to the directory where the test is located and then imports it.
+## CASA no longer leaves empty strings in sys.path to avoid confusion when
+## stray files are in the current directory.
+##
+sys.path.insert(0,'')
 
 ####################            Logging
 logger = logging.getLogger(__name__)
@@ -40,8 +45,66 @@ logger.addHandler(handler)
 
 ####################            Functions
 
-def use_pybot():
-    raise Exception, "Pybot option not avaliable"
+def use_pybot(tests):
+    logger.debug("Start def use_pybot(%s)",tests)
+    tests = tests
+    pybotWorkspace = os.environ["CASAPATH"].split()[0] + "/pybotWorkspace"
+    if not os.path.isdir(pybotWorkspace):
+        os.makedirs(pybotWorkspace)
+    else:
+        shutil.rmtree(pybotWorkspace)
+        os.makedirs(pybotWorkspace)
+    logger.debug("Pybot Workspace Directory: %s",pybotWorkspace)
+    for test in tests:
+        generateHTML(pybotWorkspace,test)
+    # Fetch Testing Dir From Casa-pkg
+    if logger.isEnabledFor(logging.DEBUG): verbose = "--verbose"
+    else: verbose = "--quiet"
+
+    if not os.path.isdir("casa-pkg"):
+        subprocess.call(["/opt/local/bin/git","clone","https://open-bitbucket.nrao.edu/scm/casa/casa-pkg.git",verbose])
+    else:
+        shutil.rmtree("casa-pkg")
+        subprocess.call(["/opt/local/bin/git","clone","https://open-bitbucket.nrao.edu/scm/casa/casa-pkg.git",verbose])
+
+    shutil.copyfile(os.getcwd() + "/casa-pkg/testing/pybot-regression/__init__.html",pybotWorkspace+"/__init__.html")
+    logger.debug("Copying %s to %s", os.getcwd() + "/casa-pkg/testing/pybot-regression/__init__.html",pybotWorkspace+"/__init__.html")
+
+    shutil.copytree(os.getcwd() + "/casa-pkg/testing/pybot-regression/lib",pybotWorkspace + "/lib")
+    logger.debug("Copying %s to %s", os.getcwd() + "/casa-pkg/testing/pybot-regression/lib",pybotWorkspace + "/lib")
+
+    shutil.copytree(os.getcwd() + "/casa-pkg/testing/pybot-regression/bin",pybotWorkspace + "/bin")
+    logger.debug("Copying %s to %s", os.getcwd() + "/casa-pkg/testing/pybot-regression/bin",pybotWorkspace + "/bin")
+
+    os.environ['CASAROOT'] = os.environ["CASAPATH"].split()[0]
+    return pybotWorkspace
+
+def generateHTML(outdir,test):
+    logger.debug("Start def generateHTML()")
+    # Open Template File
+    fp = open(HTML_Template, "rb" )
+    msg = fp.read( )
+    fp.close( )
+
+    # Open Testlists
+    tests = readJSON(LISTofTESTS)
+    logger.debug("Generating HTML For: %s", test)
+    for localtest in tests:
+        if localtest['testScript'] == test:
+            testNumber      = localtest['testNumber']
+            testName        = localtest['testName']
+            forceTag        = "TS" + str(localtest['priority'])
+            testPyName      = localtest['testScript']
+            maintainer      = localtest['Maintainer']
+            maintainerEmail = localtest['MaintainerEmail']
+            tag             = localtest['tag']
+    templateInfo = msg % (testNumber, testName, testNumber, testName, forceTag, testPyName, maintainer, maintainerEmail,tag)
+    filename = outdir + "/%s_%s.html"%(testNumber, testName.replace(" ", "_"))
+    file = open(filename, "w")
+    for line in  templateInfo:
+        file.write(line)
+    file.close()
+    logger.debug("Generated %s", filename)
 
 def remove_duplicates(values):
     output = []
@@ -92,7 +155,7 @@ def getclasses(testnames):
     tmpdir = '/tmp'
     for filename in testnames:
         if not filename.startswith("test_"):
-            print "Cannot Get Classes for Regression Test"
+            #print "Cannot Get Classes for Regression Test"
             logger.error("Cannot Get Classes for Regression Test: %s",filename)
             return
     try:
@@ -115,13 +178,45 @@ def getclasses(testnames):
         logger.error('Failed to open file', exc_info=True)
         return
 
+def getsubtests(filename,list=[]):
+    logger.debug("Start def getsubtests()")
+    logger.debug("Test: %s", filename)
+    f = filename
+    testlist_to_execute = []
+    here = os.getcwd()
+    tmpdir = '/tmp'
+    os.chdir(tmpdir)
+    tt = UnitTest(f)
+    tt.copyTest(copyto=tmpdir)
+    classes = tt.getTestClasses(f)
+    logger.debug("Checking For Attribute: %s",ATTR_VAL)
+    for c in classes:
+        # Check if class has @attr(tag=''). Note: class @attr takes priority over func attr
+        if 'tag' in c.__dict__:
+            if c.tag == ATTR_VAL:
+                for attr, value in c.__dict__.iteritems():
+                    if len(attr) >= len("test") and attr[:len("test")] == "test":
+                        testlist_to_execute.append([attr,value.__module__])
+        else:
+            # Check if functions within each class has @attr(tag = '') or func.tag = ''
+            for attr, value in c.__dict__.iteritems():
+                if len(attr) >= len("test") and attr[:len("test")] == "test":
+                    if hasattr(value,'tag'):
+                        if value.tag == ATTR_VAL:
+                          testlist_to_execute.append([attr,value.__module__])
+    os.remove(f+'.py')
+    os.remove(f+'.pyc')
+    os.chdir(here)
+
+    return testlist_to_execute
+
 def readJSON(FILE):
     logger.debug("Start Function: readJSON()")
-    logger.debug("Filename: %s", FILE)
+    logger.debug("Reading JSON File: %s", FILE)
     import json
     List = []
     if(not os.path.exists(FILE)):
-        print 'ERROR: List of tests does not exist'
+        #print 'ERROR: List of tests does not exist'
         logger.error('ERROR: List of tests does not exist')
         return []
     tests = json.load(open(FILE))
@@ -141,8 +236,7 @@ def list_tests():
         tmpArray.append(test['tag'])
     listtags = remove_duplicates(tmpArray)
     listtags.append('functionalTest')
-    if not regressionsDisabled:
-        listtags.append('regression')
+    listtags.append('regression')
     listtags.append('TS1')
     listtags.append('TS2')
     #listtags.append('TS3') #'Disabled Due to CAS-10844'
@@ -158,19 +252,65 @@ def stdoutIO(stdout=None):
     yield stdout
     sys.stdout = old
 
+class RegressionTestCase(unittest.TestCase):
 # Creates A testcase for regression tests to be executed in nose
-def test_dummy():
-    '''Executing Regression Test'''
-    print "Regression: %s"%(test_name)
-    #test_result = regression_test.run(True)
-    #TODO: Import regression setup and regression execution (if both are avaliable)
-    with stdoutIO() as regressionResult:
-        test_result = regression_test.run(False) # Some regressions are True/ False. This should be set within the test script
-    print regressionResult.getvalue()
-    if "PASS" in str(regressionResult.getvalue()).upper(): # Looks for PASS, PASSED
-        assert True
-    elif "FAIL" in str(regressionResult.getvalue()).upper():# Looks for FAIL, FAILED
-        assert False,"Regression: %s Failed"%(test_name)
+
+
+    def test_dummy(self):
+        '''Executing Regression Test'''
+        from casac import casac
+        ## flush output
+        #sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+        #sys.stderr = os.fdopen(sys.stderr.fileno(), 'w', 0)
+
+        PYVER = str(sys.version_info[0]) + "." + str(sys.version_info[1])
+
+        CASA_DIR = os.environ["CASAPATH"].split()[0]
+        TESTS_DIR = CASA_DIR + "/" + os.environ["CASAPATH"].split()[1] + '/lib/python' + PYVER + '/regressions/'
+
+        _potential_data_directories = ( "/opt/casa/data","/home/casa/data","/home/casa/data/trunk","/home/casa/data/master","/opt/casa/data/master","/export/data/casa" )
+
+        REGRESSION_DATA = filter(lambda x: os.access(x,os.F_OK),map(lambda y: y+"/regression",_potential_data_directories))
+
+        if not os.access(TESTS_DIR, os.F_OK):
+            if os.access(CASA_DIR+'/lib64', os.F_OK):
+                TESTS_DIR = CASA_DIR+'/lib64/python' + PYVER + '/regressions/'
+            elif os.access(CASA_DIR+'/lib', os.F_OK):
+                TESTS_DIR = CASA_DIR+'/lib/python' + PYVER + '/regressions/'
+            else:            #Mac release
+                TESTS_DIR = CASA_DIR+'/Resources/python/regressions/'
+        stack_frame_find()['TESTS_DIR']=TESTS_DIR
+
+        if os.access(TESTS_DIR+name+".py",os.F_OK):
+            path = TESTS_DIR+name+".py"
+        elif os.access(TESTS_DIR+name+"_regression.py",os.F_OK):
+            path = TESTS_DIR+name+"_regression.py"
+        elif os.access(TESTS_DIR+name+"-regression.py",os.F_OK):
+            path = TESTS_DIR+name+"-regression.py"
+        elif os.access(TESTS_DIR+name+"_regression1.py",os.F_OK):
+            path = TESTS_DIR+name+"_regression1.py"
+        elif os.access(TESTS_DIR+name+"-regression1.py",os.F_OK):
+            path = TESTS_DIR+name+"-regression1.py"
+        elif os.access(TESTS_DIR+name+"_regression2.py",os.F_OK):
+            path = TESTS_DIR+name+"_regression2.py"
+        elif os.access(TESTS_DIR+name+"-regression2.py",os.F_OK):
+            path = TESTS_DIR+name+"-regression2.py"
+        elif os.access(TESTS_DIR+"test_"+name+".py",os.F_OK):
+            path = TESTS_DIR+"test_"+name+".py"
+        else:
+            raise RuntimeError("task %s not found" % name)
+        print
+        print "------------------------------------------------------------------------------------------------------------------------"
+        print "starting test %s (%s)" % (name,path)
+        print "------------------------------------------------------------------------------------------------------------------------"
+        with stdoutIO() as regressionResult:
+            #execfile(path,globals()) 
+            exec(open(path).read(),globals())
+        print regressionResult.getvalue()
+        if "PASS" in str(regressionResult.getvalue()).upper(): # Looks for PASS, PASSED
+            assert True
+        elif "FAIL" in str(regressionResult.getvalue()).upper():# Looks for FAIL, FAILED
+            assert False #,"Regression: %s Failed"%(test_name)
 
 def _find_unit_path():
     TESTS_DIR = CASA_DIR + "/" + os.environ["CASAPATH"].split()[1] + '/lib/python' + PYVER + '/tests/'
@@ -292,11 +432,6 @@ def run(testnames=[]):
 
             # Test Tag to run all Functional Tests or all regression tags
             if ("functionalTest" in testTag) or ("regression" in testTag):
-                # BEGIN TODO TEMP
-                if regressionsDisabled:
-                    if 'regression' in testTag: 
-                        raise Exception, 'Disabled Regression Tests'
-                # END TODO TEMP
                 if not mpiEnabled and ("mpi" in test["tag"]): continue
                 if not pipelineEnabled and ("pipeline" in test["tag"]): continue
                 if not casaguideEnabled and ("casaguide" in test["tag"]): continue
@@ -305,7 +440,6 @@ def run(testnames=[]):
 
             # Run Priority Tests ( Originally mapped to TS1, TS2 , etc)
             elif testTag.startswith("TS"):
-
                 # BEGIN TODO TEMP
                 if 'TS3' in testTag: # TS3 has almost as many tests as --all option. Disabled till CAS-10844 is resolved
                     raise Exception, 'Disabled Due to CAS-10844.'
@@ -318,31 +452,9 @@ def run(testnames=[]):
                     continue
                 for testPriority in range(1,int(testTag[2:])+1): # run test suites inclusively (i.e. 'TS1' runs TS1, 'TS2' runs TS1 tests & TS2 tests, etc. 
                     if (str(testPriority) in test['priority']): 
-
-
-                        # ****************** BEGIN TODO TEMP NOT TO RUN REGRESSIONS *******************
-                        # When regressions are fix, delete this section and uncomment last line
-
-                        if regressionsDisabled:
-                            if "regression" in test["testType"]:
-                                continue
-                            else:
-                                listtests.append(str(test['testScript']))
-
-                        # ****************** END TODO TEMP NOT TO RUN REGRESSIONS *******************
-                        #listtests.append(test['testScript'])
-
+                        listtests.append(test['testScript'])
             elif testTag in test["tag"]:
-                # ****************** BEGIN TODO TEMP NOT TO RUN REGRESSIONS *******************
-                # When regressions are fix, delete this section and uncomment last line
-                if regressionsDisabled:
-                    if "regression" in test["testType"]:
-                        continue
-                    else:
-                        listtests.append(str(test['testScript']))
-
-                # ****************** END TODO TEMP NOT TO RUN REGRESSIONS *******************
-                #listtests.append(test['testScript'])
+                listtests.append(test['testScript'])
 
         if listtests == []:
             raise Exception, 'List of tests is empty'
@@ -390,47 +502,79 @@ def run(testnames=[]):
     #print "Starting tests for %s: " %(listtests)
     logger.info("Starting Tests for: %s", listtests)
     # ASSEMBLE and RUN the TESTS
-    if not whichtests:
-        '''Run all tests'''
-        logger.info("Executing all tests")
-        list = []
-        suiteList = []
-        for f in listtests:
-            suite = unittest.TestSuite()
-            try:
-                if f.startswith("test_"):
-                    tests = UnitTest(f).getUnitTest()
-                    if DRY_RUN:
+    #sys.exit()
+    global name
+    if not (HAVE_ROBOT and USE_PYBOT):
+        if not whichtests:
+            '''Run all tests'''
+            logger.info("Executing all tests")
+            suiteList = []
+            testlist_to_execute= []
+            for f in listtests:
+                suite = unittest.TestSuite()
+                try:
+                    if f.startswith("test_"):
                         tests = UnitTest(f).getUnitTest()
-                        suiteList = suiteList + tests
+                        if RUN_SUBTEST:
+                            testlist_to_execute = testlist_to_execute + getsubtests(f,tests)
+                        if DRY_RUN:
+                            tests = UnitTest(f).getUnitTest()
+                            suiteList = suiteList + tests
+                        else:
+                            for test in tests:
+                                suite.addTest(test)
+                            logger.debug("\nTestName: %s: Suite: %s", f, suite)
+                            suiteList.append(suite)
                     else:
-                        for test in tests:
-                            suite.addTest(test)
-                        logger.debug("\nTestName: %s: Suite: %s", f, suite)
-                        suiteList.append(suite)
-                else:
-                    logger.debug("Disabled Regression Test: %s not compatiable with runTest.py",f)
-                    pass
-            except:
-                traceback.print_exc()
-        list = suiteList
+                        name = f
+                        suite = unittest.TestSuite()
+                        suite.addTest(RegressionTestCase('test_dummy'))
+                        list = list + [suite]
+                except:
+                    traceback.print_exc()
+            list = suiteList
 
-    # memTest.MemTest() plugin does not work with suites, requires 1 list of tests
-    elif (whichtests == 1): 
-        list = []
-        suiteList = []
-        suite = unittest.TestSuite()
-        for f in listtests:
-            try:
-                if f.startswith("test_"):
-                    tests = UnitTest(f).getUnitTest() 
-                    list = list+tests
-                else:
-                    logger.debug("Disabled Regression Test: %s not compatiable with runTest.py",f)
-                    pass
-            except:
-                traceback.print_exc()
+        # memTest.MemTest() plugin does not work with suites, requires 1 list of tests
+        elif (whichtests == 1): 
+            list = []
+            suiteList = []
+            testlist_to_execute= []
+            suite = unittest.TestSuite()
+            for f in listtests:
+                try:
+                    # Functional Tests
+                    if f.startswith("test_"):
+                        tests = UnitTest(f).getUnitTest() 
+                        list = list+tests
+                        if RUN_SUBTEST:
+                            testlist_to_execute = testlist_to_execute + getsubtests(f,list)
+                    # Regression Tests
+                    else:
+                        name = f
+                        suite = unittest.TestSuite()
+                        suite.addTest(RegressionTestCase('test_dummy'))
+                        list = list + [suite]
+                except: 
+                        traceback.print_exc()
+    elif (HAVE_ROBOT and USE_PYBOT):
+        list = listtests
 
+    if RUN_SUBTEST:
+        if len(testlist_to_execute) == 0:
+            raise ValueError, "Cannot Find Tests with Attribute:'%s'"%(ATTR_VAL)
+        if not whichtests:
+            for i in range(0,len(list)):
+                tmp = []
+                for item in list[i]:
+                    if [item._testMethodName,item.__module__] in testlist_to_execute:
+                        tmp.append(item)
+                list[i] =  unittest.TestSuite(tmp)
+        else:
+            tmp = []
+            for item in list:
+                if [item._testMethodName,item.__module__] in testlist_to_execute:
+                    tmp.append(item)
+            list = tmp
     if (len(list) == 0):
         os.chdir(PWD)
         logger.critical("ERROR: There are no valid tests to run")
@@ -456,6 +600,65 @@ def run(testnames=[]):
             regstate = nose.run(argv=[sys.argv[0],"-d","-s","--with-coverage","--verbosity=2","--cover-xml-file="+xmlfile,"--cover-html-dir="+xmldir,"--cover-html","--cover-erase","--cover-inclusive","--cover-branches"], suite=list)
             logger.debug("Regstate: %s", regstate)
             logger.info("Cov Test XML Directory: %s", xmldir)
+
+        elif (HAVE_ROBOT and USE_PYBOT):
+            """Programmatic entry point for running tests.
+
+            :param tests: Paths to test case files/directories to be executed similarly
+                as when running the ``robot`` command on the command line.
+            :param options: Options to configure and control execution. Accepted
+                options are mostly same as normal command line options to the ``robot``
+                command. Option names match command line option long names without
+                hyphens so that, for example, ``--name`` becomes ``name``.
+
+            Most options that can be given from the command line work. An exception
+            is that options ``--pythonpath``, ``--argumentfile``, ``--escape`` ,
+            ``--help`` and ``--version`` are not supported.
+
+            Options that can be given on the command line multiple times can be
+            passed as lists. For example, ``include=['tag1', 'tag2']`` is equivalent
+            to ``--include tag1 --include tag2``. If such options are used only once,
+            they can be given also as a single string like ``include='tag'``.
+
+            Options that accept no value can be given as Booleans. For example,
+            ``dryrun=True`` is same as using the ``--dryrun`` option.
+
+            Options that accept string ``NONE`` as a special value can also be used
+            with Python ``None``. For example, using ``log=None`` is equivalent to
+            ``--log NONE``.
+
+            ``listener``, ``prerunmodifier`` and ``prerebotmodifier`` options allow
+            passing values as Python objects in addition to module names these command
+            line options support. For example, ``run('tests', listener=MyListener())``.
+
+            To capture the standard output and error streams, pass an open file or
+            file-like object as special keyword arguments ``stdout`` and ``stderr``,
+            respectively.
+
+            A return code is returned similarly as when running on the command line.
+            Zero means that tests were executed and no critical test failed, values up
+            to 250 denote the number of failed critical tests, and values between
+            251-255 are for other statuses documented in the Robot Framework User Guide.
+
+            Example::
+
+                from robot import run
+
+                run('path/to/tests.robot')
+                run('tests.robot', include=['tag1', 'tag2'], splitlog=True)
+                with open('stdout.txt', 'w') as stdout:
+                    run('t1.robot', 't2.robot', name='Example', log=None, stdout=stdout)
+
+            Equivalent command line usage::
+
+                robot path/to/tests.robot
+                robot --include tag1 --include tag2 --splitlog tests.robot
+                robot --name Example --log NONE t1.robot t2.robot > stdout.txt
+            """
+            if args.debug:
+                robot.run(use_pybot(list),dryrun=DRY_RUN,xuint=xmlfile,outputdir=xmldir,console='verbose')
+            else:
+                robot.run(use_pybot(list),dryrun=DRY_RUN,xuint=xmlfile,outputdir=xmldir)
 
         else:
             cmd = [sys.argv[0],"-d","-s","--with-xunit","--verbosity=2","--xunit-file="+xmlfile]
@@ -500,6 +703,18 @@ try:
 except:
     HAVE_COVTEST = False
 
+# pybot mode variables
+HAVE_ROBOT = True
+USE_PYBOT = 0
+try:
+    import robot
+except:
+    HAVE_ROBOT = False
+
+
+# Use Nose attribute Functionality 
+RUN_SUBTEST = False
+
 # Dry run of Tests
 DRY_RUN = False
 
@@ -508,6 +723,11 @@ whichtests = 0
 
 # List of Tests
 LISTofTESTS = _find_unit_path() + "uTest_list.json"
+
+# HTML Template 
+HTML_Template =  _find_unit_path() + "uTest_Template.dat"
+
+# Define Generate HTML
 
 global testTag
 testTag = ''
@@ -534,29 +754,78 @@ if __name__ == "__main__":
             parser.add_argument("-g", "--debug",action='store_true',help='Set casalog.filter to DEBUG. Set runTest-debug.log to DEBUG')
             parser.add_argument("-l", "--list",action='store_true',help='print the list of tests & tags defined in trunk/gcwrap/python/scripts/tests/uTest_list.json.')
             parser.add_argument("-m", "--mem",action='store_true',help='show the memory used by the tests and the number of files left open.')
-            parser.add_argument("-p", "--pybot",action='store_true',help=argparse.SUPPRESS) # TODO
+            parser.add_argument("-p", "--pybot",action='store_true',help="BETA: Select and run tests using pybot (Robot Framework)") # TODO
+            parser.add_argument("-r", "--attr",action='append',help='BETA: Select and run tests with attribute from <testname>.py')
 
             tmpArray = []
             for test in readJSON(LISTofTESTS):
                 tmpArray.append(str(test['tag']))
             listtags = remove_duplicates(tmpArray)
             listtags.append('functionalTest')
-            if not regressionsDisabled:
-                listtags.append('regression')
+            listtags.append('regression')
             listtags.append('TS1')
             listtags.append('TS2')
             listtags.append('TS3') #'Disabled Due to CAS-10844'
+            listtags.append('TS4') #'Disabled Due to CAS-10844'
 
             parser.add_argument("-t", "--subset", choices=listtags,metavar='tag',help='run a suite of tests defined from tags in trunk/gcwrap/python/scripts/tests/uTest_list.json.')
             parser.add_argument("-s", "--classes",nargs='+',metavar='test',help='print the classes from a test script (those returned by suite())')
             parser.add_argument("-x", "--dry-run",action='store_true',help="dry run Test Execution")
-            parser.add_argument("-z", "--coverage",action='store_true',help='show the coverage of the tests')
+            parser.add_argument("-z", "--coverage",action='store_true',help='BETA: show the coverage of the tests')
+
+            parser.add_argument("--generate-html",action='store_true',help='Generate HTML files for use with pybot')
 
             args, unknownArgs = parser.parse_known_args(sys.argv[i+2:])
 
             # No option print help
             if sys.argv[i+2:] == []:
                 parser.print_help()
+                os._exit(0)
+
+            # set casalog.filter to DEBUG. set runTest.log to DEBUG
+            if args.debug:
+                logger.info('Setting Debug Mode')
+                casalog.filter('DEBUG')
+                logger.setLevel(logging.DEBUG)
+                logging.basicConfig(level=logging.DEBUG)
+                handler.setLevel(logging.DEBUG)
+                logger.debug("Starting Debug Mode")
+
+            if args.generate_html:
+                logger.info('Generating HTML Suite')
+                fp = open(HTML_Template, "rb" )
+                logger.debug("Reading HTML Template File: %s",HTML_Template)
+                msg = fp.read( )
+                fp.close( )
+                if not os.path.isdir(os.getcwd()+ "/HTML"):
+                    os.makedirs(os.getcwd()+ "/HTML")
+                outdir = os.getcwd()+ "/HTML"
+                logger.debug("Save Directory: %s",outdir)
+                for test in readJSON(LISTofTESTS):
+                    testNumber      = test['testNumber']
+                    testName        = test['testName']
+                    forceTag        = "TS" + str(test['priority'])
+                    testPyName      = test['testScript']
+                    maintainer      = test['Maintainer']
+                    maintainerEmail = test['MaintainerEmail']
+                    tag             = test['tag']
+                    templateInfo = msg % (testNumber, testName, testNumber, testName, forceTag, testPyName, maintainer, maintainerEmail,tag)
+                    filename = outdir + "/%s_%s.html"%(testNumber, testName.replace(" ", "_"))
+                    logger.debug("Creating File: %s_%s.html",testNumber, testName.replace(" ", "_"))
+                    file = open(filename, "w")
+                    for line in  templateInfo:
+                        file.write(line)
+                    file.close()
+                os._exit(0)
+
+            # List All Avaliable Tests
+            if args.list:
+                list_tests()
+                os._exit(0)
+
+            # Print the classes from a test script
+            if args.classes is not None:
+                getclasses(args.classes)
                 os._exit(0)
 
             if args.dry_run:
@@ -584,16 +853,11 @@ if __name__ == "__main__":
                     else:
                         testnames = 'subset'
 
-            # List All Avaliable Tests
-            if args.list:
-                list_tests()
-                os._exit(0)
-
-            # Print the classes from a test script
-            if args.classes is not None:
-                getclasses(args.classes)
-                os._exit(0)
-
+            if args.attr: 
+                logger.info('Setting Attr')
+                RUN_SUBTEST = True
+                if len(args.attr) != 1: raise Exception, "Using multiple attributes not yet avaliable."
+                ATTR_VAL = args.attr[0]
 
             # Options to change test Execution Modes
             if args.mem: # run specific tests in mem mode
@@ -605,17 +869,8 @@ if __name__ == "__main__":
                     logger.info('Setting Cov Mode')
                     COV = 1
                 else:
-                    print "You don't have module coverage installed: See https://pypi.python.org/pypi/coverage"
+                    logger.critical("You don't have module coverage installed: See https://pypi.python.org/pypi/coverage")
                     os._exit(0)
-
-            # set casalog.filter to DEBUG. set runTest.log to DEBUG
-            if args.debug:
-                logger.info('Setting Debug Mode')
-                casalog.filter('DEBUG')
-                logger.setLevel(logging.DEBUG)
-                logging.basicConfig(level=logging.DEBUG)
-                handler.setLevel(logging.DEBUG)
-                logger.debug("Starting Debug Mode")
 
             if args.file is not None:
                 logger.info('Reading Test List from %s: ', args.file)
@@ -626,10 +881,13 @@ if __name__ == "__main__":
                     except:
                         raise Exception, " The list should contain one test per line."
 
-            if args.pybot:
-                # TODO Define use_pybot function to run pybot and produce a .html output file
-                use_pybot()
-                os._exit(0)
+            if args.pybot: #run specific tests in pybot mode
+                if (HAVE_ROBOT):
+                    logger.info('Setting Pybot Mode')
+                    USE_PYBOT  = 1
+                else:
+                    logger.critical("You don't have module robot installed")
+                    os._exit(0)
 
             if args.datadir is not None:
                 '''This will create an environmental variable called TEST_DATADIR that can be read by the tests to use
@@ -637,7 +895,7 @@ if __name__ == "__main__":
 
                 if not os.path.isdir(args.datadir):
                     raise Exception, 'Value of --datadir is not a directory -> '+ args.datadir
-                logger.debug("Data Path: %s")
+                logger.debug("Data Path: %s",args.datadir)
                 # Set an environmental variable for the data directory
                 # Also, overwrite casa paramaters dictionary to point to new data
 
@@ -666,6 +924,7 @@ if __name__ == "__main__":
         logger.debug("CASA_DIR: %s",CASA_DIR)
         logger.debug("HAVE_MEMTEST: %s",HAVE_MEMTEST)
         logger.debug("HAVE_COVTEST: %s",HAVE_COVTEST)
+        logger.debug("USE_PYBOT: %s",USE_PYBOT)
         logger.debug("DRY_RUN: %s",DRY_RUN)
         logger.debug("whichtests: %s",whichtests)
         logger.debug("Tests: %s",testnames)
