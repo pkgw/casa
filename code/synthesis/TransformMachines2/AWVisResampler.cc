@@ -170,27 +170,20 @@ namespace casa{
     if (wVal > 0.0) 
       {
 	cfcell=&(*(cfb.getCFCellPtr(fndx,wndx,mNdx[ipol][mRow])));
-        CFCell& cfO=cfb(fndx,wndx,mNdx[ipol][mRow]);
-	convFuncV = &(*cfO.getStorage());
-	support(0)=support(1)=cfO.xSupport_p;
-	//	convFuncV=&(*(cfb.getCFCellPtr(fndx,wndx,mNdx[ipol][mRow])->getStorage()));//->getStorage(Dummy);
-	// if (mNdx[ipol][mRow] != ipol)
-	//   cerr << "Indexes+: " << fndx << " " << wndx << " " << mNdx[ipol][mRow] << " " << ipol << " " << mRow << endl;
+        // CFCell& cfO=cfb(fndx,wndx,mNdx[ipol][mRow]);
+	// convFuncV = &(*cfO.getStorage());
+	// support(0)=support(1)=cfO.xSupport_p;
       }
     else
       {
 	cfcell=&(*(cfb.getCFCellPtr(fndx,wndx,conjMNdx[ipol][mRow])));
-	CFCell& cfO=cfb(fndx,wndx,conjMNdx[ipol][mRow]);
-	convFuncV = &(*cfO.getStorage());
-	support(0)=support(1)=cfO.xSupport_p;
-	//	convFuncV=&(*(cfb.getCFCellPtr(fndx,wndx,conjMNdx[ipol][mRow])->getStorage()));//->getStorage(Dummy);
-	// if (conjMNdx[ipol][mRow] != ipol)
-	//   cerr << "Indexes-: " << fndx << " " << wndx << " " << conjMNdx[ipol][mRow] << " " << ipol << " " << mRow << endl;
+	// CFCell& cfO=cfb(fndx,wndx,conjMNdx[ipol][mRow]);
+	// convFuncV = &(*cfO.getStorage());
+	// support(0)=support(1)=cfO.xSupport_p;
       }
    
-
-       //    cerr << getpid() << " " << cfb.getCFCacheDir() << " " << cfcell->fileName_p << " " << cfcell->freqValue_p << endl;
-
+    convFuncV = &(*cfcell->getStorage());
+    support(0)=support(1)=cfcell->xSupport_p;
 
     // Get the pointer to the CFCell storage (a single CF)
     //    if ((convFuncV = &(*cfcell->getStorage())) == NULL)
@@ -223,7 +216,8 @@ namespace casa{
      // Always extract the Mueller element value from mNdx.  mNdx
      // carries the direct mapping between Mueller Matrix and
      // Visibility vector.
-     muellerElement=cfb.getCFCellPtr(fndx,wndx,mNdx[ipol][mRow])->muellerElement_p;
+     //     muellerElement=cfb.getCFCellPtr(fndx,wndx,mNdx[ipol][mRow])->muellerElement_p;
+     muellerElement=cfcell->muellerElement_p;
     
     //    cfShape.assign(cfcell->cfShape_p);
      //runTimeG1_p += timer_p.real();
