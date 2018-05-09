@@ -333,7 +333,7 @@ void ImageFitter::_fitLoop(
     uInt ngauss = _estimates.nelements() > 0 ? _estimates.nelements() : 1;
     Vector<String> models(ngauss, "gaussian");
     IPosition planeShape(_getImage()->ndim(), 1);
-    ImageMetaData md(_getImage());
+    ImageMetaData<Float> md(_getImage());
     Vector<Int> dirShape = md.directionShape();
     Vector<Int> dirAxisNumbers = _getImage()->coordinates().directionAxesNumbers();
     planeShape[dirAxisNumbers[0]] = dirShape[0];
@@ -1359,7 +1359,7 @@ void ImageFitter::_fitsky(
             false, false, false, _getStretch()
         )
     );
-    ImageMetaData md(subImageTmp);
+    ImageMetaData<Float> md(subImageTmp);
     ThrowIf(
         anyTrue(md.directionShape() <= 1),
         "Invalid region specification. The extent of the region in the direction plane must be "

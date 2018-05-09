@@ -94,5 +94,20 @@ class ia_fromimage_test(unittest.TestCase):
         self.assertTrue("ia.fromimage" in msgs[-2])
         self.assertTrue("ia.fromimage" in msgs[-1])
         
+    def test_pixeltype(self):
+        myia = self._myia
+        name = "myim.im"
+        etype = {
+            'f': 'float', 'd': 'double', 'c': 'complex',
+            'cd': 'dcomplex'
+        }
+        for t in ("f", "c", "d", "cd"):
+            myia.fromshape(name, [20,20], type=t, overwrite=True)
+            myia.fromimage("", name)
+            self.assertEquals(
+                myia.pixeltype(), etype[t], "data tpye check failed"
+            )
+            myia.done()
+
 def suite():
     return [ia_fromimage_test]

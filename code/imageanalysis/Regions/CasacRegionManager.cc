@@ -945,7 +945,7 @@ vector<uInt> CasacRegionManager::_spectralRangeFromRegionRecord(
     );
     uInt nChan = 0;
     {
-        ImageMetaData md(subimage);
+        ImageMetaData<Float> md(subimage);
         nChan = md.nChannels();
     }
     const SpectralCoordinate& subsp = subimage->coordinates().spectralCoordinate();
