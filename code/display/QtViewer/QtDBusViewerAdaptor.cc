@@ -647,6 +647,13 @@ namespace casa {
 		else {
 
 			QtDisplayPanelGui *dpg = create_panel( );
+
+			if ( type.endsWith(".rstr") ) {
+				struct stat buf;
+				if ( stat( type.toLatin1( ).constData( ), &buf ) == 0 ) {
+					dpg->restorePanelState(to_string(type));
+				}
+			}
 			result = get_id( dpg );
 
 			if ( hidden ) dpg->hide( );

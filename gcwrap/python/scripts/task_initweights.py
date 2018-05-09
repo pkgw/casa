@@ -7,7 +7,7 @@ def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,s
     casalog.origin('initweights')
 
     # Do the trivial parallelization
-    if ParallelTaskHelper.isParallelMS(vis):
+    if ParallelTaskHelper.isMPIEnabled() and ParallelTaskHelper.isParallelMS(vis):
         helper = ParallelTaskHelper('initweights', locals())
         helper.go()
         # Write history to MS.
@@ -47,8 +47,9 @@ def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,s
             raise Exception, 'Visibility data set not found - please verify the name'
         
         # Write history to MS.
-        # When running in parallel, history will be written in the parallel seciton above
-        if ParallelTaskHelper.isMPIClient:
+        # When running in parallel, history will be written in the parallel section above
+        # normal MSs should write the history here
+        if ParallelTaskHelper.isMPIClient():
             try:
                 param_names = initweights.func_code.co_varnames[:initweights.func_code.co_argcount]
                 param_vals = [eval(p) for p in param_names]

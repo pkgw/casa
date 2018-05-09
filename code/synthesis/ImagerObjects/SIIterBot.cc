@@ -179,7 +179,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 os <<LogIO::DEBUG1<<"itsIterDone="<<itsIterDone<<" itsNiter="<<itsNiter<<LogIO::POST;
 
 		/// This may interfere with some other criterion... check.
-		if ( itsMajorDone==0 && itsIterDone==0 ) { stopCode=0; }
+		if ( itsMajorDone==0 && itsIterDone==0 )
+                  {
+                     if (itsMaskSum==0.0) { stopCode=7; } // if zero mask is detected it should exit right away
+                     else { stopCode=0; }
+                   }
 		else if ( itsIterDone >= itsNiter || 
 		     itsPeakResidual <= itsThreshold ||
                      itsPeakResidual <= itsNsigmaThreshold ||
