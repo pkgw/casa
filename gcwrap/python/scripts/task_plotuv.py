@@ -26,6 +26,7 @@ def plotuv(vis=None, field=None, antenna=None, spw=None, observation=None, array
     antenna: antenna selection string (currently ignored).
     """
     casalog.origin('plotuv')
+    casalog.post("Task plotuv has been deprecated and will be removed in release 5.4.", "WARN")
     try:
         uvplotinfo = UVPlotInfo(vis, spw, field, antenna, observation, array,
                                 ncycles, colors, symb, figfile, maxnpts)
@@ -202,7 +203,7 @@ def plotfield(fld, uvplotinfo, debug=False):
                        uvplotinfo.ncolors - 1)
         else:
             return 0
-    
+
     if uvplotinfo.maxnpts > 0 and nbl * (1 + colorind(globmaxf) -
                               colorind(globminf)) > uvplotinfo.maxnpts:
         casalog.post(
@@ -298,7 +299,7 @@ def plotfield(fld, uvplotinfo, debug=False):
         pl.suptitle(fldtitle, fontsize=14)
         pl.title(uvplotinfo.subtitle, fontsize=10)
     else:
-        pl.title(fldtitle)                
+        pl.title(fldtitle)
     if uvplotinfo.figfile:
         pl.savefig(uvplotinfo.figfile + str(fld) + uvplotinfo.ext)
     pl.draw()
@@ -320,7 +321,7 @@ class NavField:
                         butbot, nextwidth, butheight]
         self.prevloc = [butleft, butbot, prevwidth, butheight]
         self.inactivecolor = '#99aaff'
-        self.activecolor = '#aaffcc'        
+        self.activecolor = '#aaffcc'
 
     def _draw_buts(self):
         if self.fld < self.nflds - 1:
@@ -343,7 +344,7 @@ class NavField:
         if didplot:
             self._draw_buts()
         return didplot
-    
+
     def next(self, event):
         didplot = False
         startfld = self.fld

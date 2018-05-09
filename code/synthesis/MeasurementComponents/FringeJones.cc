@@ -555,14 +555,21 @@ DelayRateFFT::snr(Int icorr, Int ielem, Float delay, Float rate) {
     // sumw is sum of weights,
     // sumww is sum of squares of weights
 
-    Float x = C::pi/2*peak/sumw_(p);
-    // The magic numbers in the following formula are from AIPS FRING
-    Float cwt = (pow(tan(x), 1.163) * sqrt(sumw_(p)/sqrt(sumww_(p)/xcount_(p))));
-
-    if (DEVDEBUG) {
-        cerr << "Correlation " << icorr << " antenna " << ielem << " ipos " << ipos
-             << " peak=" << peak << "; xang=" << x << "; xcount=" << xcount_(p) << "; sumw=" << sumw_(p) << "; sumww=" << sumww_(p) 
-             << " snr " << cwt << endl;
+    Float cwt;
+    if (fabs(sumw_(p))<FLT_EPSILON) {
+        cwt = 0;
+        if (DEVDEBUG) {
+            cerr << "Correlation " << icorr << " antenna " << ielem << ": sum of weights is zero." << endl;
+        }
+    } else {
+        Float x = C::pi/2*peak/sumw_(p);
+        // The magic numbers in the following formula are from AIPS FRING
+        cwt = (pow(tan(x), 1.163) * sqrt(sumw_(p)/sqrt(sumww_(p)/xcount_(p))));
+        if (DEVDEBUG) {
+            cerr << "Correlation " << icorr << " antenna " << ielem << " ipos " << ipos
+                 << " peak=" << peak << "; xang=" << x << "; xcount=" << xcount_(p) << "; sumw=" << sumw_(p) << "; sumww=" << sumww_(p)
+                 << " snr " << cwt << endl;
+        }
     }
     return cwt;
 }
@@ -1300,7 +1307,7 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
         }
         cerr << endl;
         // str.unsetf(cerr:floatfield);
-        cerr << defaultfloat;
+        cerr << std::defaultfloat;
     }
     //
     size_t hsize = hess->size1;
@@ -1311,9 +1318,9 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
 
     gsl_linalg_LU_decomp(hess, perm, &signum);
     Double det = gsl_linalg_LU_det(hess, signum);
-    if (fabs(det) < GSL_DBL_EPSILON) {
-        logSink << "Hessian matrix singular; setting signal-to-noise ratio to zero." << LogIO::POST;
-        // Singular matrix; fill snrs with zero.
+    if ((fabs(det) < GSL_DBL_EPSILON) || std::isnan(det)) {
+        logSink << "Hessian matrix singular (determinant=" << det << "); setting signal-to-noise ratio to zero." << LogIO::POST;
+       // Singular matrix; fill snrs with zero.
         for (size_t i=0; i < hess->size1; i+=3) {
             Double snr = 0;
             gsl_vector_set(snr_vector, i, snr);
@@ -1376,8 +1383,8 @@ aggregateTimeCentroid(SDBList& sdbs, Int refAnt, std::map<Int, Double>& aggregat
 
 
 void
-least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Float>& casa_snr, Int refant,
-                     const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
+least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& casa_flags, Matrix<Float>& casa_snr,
+                     Int refant, const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
     // The variable casa_param is the Casa calibration framework's RParam matrix; we transcribe our results into it only at the end.
     // n below is number of variables,
     // p is number of parameters
@@ -1482,6 +1489,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Float>& ca
         //     log_det += log10(fabs(d));
         // }
         // cerr << "]" << endl;
+        
         for (size_t iant=0; iant != bundle.get_max_antenna_index()+1; iant++) {
             if (!bundle.isActive(iant)) continue;
             Int iparam = bundle.get_param_corr_index(iant);
@@ -1510,12 +1518,22 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Float>& ca
                             << LogIO::POST;
                 }
             }
-            casa_param(3*icor + 0, iant) = gsl_vector_get(res, iparam+0);
-            casa_param(3*icor + 1, iant) = gsl_vector_get(res, iparam+1);
-            casa_param(3*icor + 2, iant) = gsl_vector_get(res, iparam+2);
-
-            for (size_t i=0; i!=3; i++) {
-                casa_snr(3*icor + i, iant) = gsl_vector_get(snr_vector, iparam+0);
+            if (status==GSL_SUCCESS || status==GSL_EMAXITER) {
+                // Current policy is to assume that exceeding max
+                // number of iterations is not a deal-breaker, leave it
+                // to SNR calculation to decide if the results are
+                // useful.
+                casa_param(3*icor + 0, iant) = gsl_vector_get(res, iparam+0);
+                casa_param(3*icor + 1, iant) = gsl_vector_get(res, iparam+1);
+                casa_param(3*icor + 2, iant) = gsl_vector_get(res, iparam+2);
+                for (size_t i=0; i!=3; i++) {
+                    casa_snr(3*icor + i, iant) = gsl_vector_get(snr_vector, iparam+0);
+                }
+            } else { // gsl solver failed; flag data
+                logSink << "Least-squares solver failed to converge; flagging" << endl;
+                casa_flags(3*icor + 0, iant) = false;
+                casa_flags(3*icor + 1, iant) = false;
+                casa_flags(3*icor + 2, iant) = false;
             }
         }
 
@@ -2001,7 +2019,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         // FringeJones so we pass everything in, including the logSink
         // reference.  Note also that sRP is passed by reference and
         // altered in place.
-        least_squares_driver(sdbs, sRP, sSNR, refant(), drf.getActiveAntennas(), logSink());
+        least_squares_driver(sdbs, sRP, sPok, sSNR, refant(), drf.getActiveAntennas(), logSink());
     }
 
 

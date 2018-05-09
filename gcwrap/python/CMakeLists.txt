@@ -113,7 +113,6 @@ scripts/task_exportasdm.py
 scripts/task_exportfits.py
 scripts/task_exportuvfits.py
 scripts/task_feather.py
-scripts/task_find.py
 scripts/task_fixplanets.py
 scripts/task_fixvis.py
 scripts/task_flagcmd.py
