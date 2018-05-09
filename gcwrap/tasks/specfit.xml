@@ -28,6 +28,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
     <param type="string" direction="in" name="region">
         <description>Region selection. Default is to use the full image.</description>
+        <type>path</type>
+        <type>string</type>
+        <type>record</type>
         <value/>
         <example>region="myregion.rgn"</example>
     </param>
@@ -46,8 +49,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <example>axis=3</example>
     </param>
     <param type="string" direction="in" name="mask">
+      <type>string</type><type>stringVec</type>
         <description>Mask to use. Default is none..</description>
-        <value></value>
+        <value type="string"/>
     </param>
     <param type="int" direction="in" name="ngauss" subparam="true">
         <description>Number of Gaussian elements.  Default: 1.</description>
@@ -62,6 +66,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <param type="string" direction="in" name="estimates">
         <description>Name of file containing initial estimates.  Default: No initial estimates ("").</description>
         <value/>
+        <type>path</type>
     </param>
     <param type="int" direction="in" name="minpts">
         <description>Minimum number of unmasked points necessary to attempt fit.</description>
@@ -136,44 +141,52 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <value>True</value>
     </param>
     <param type="variant" name="pampest" subparam="true">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>Initial estimate of PCF profile (gaussian or lorentzian) amplitudes.</description>
-        <value type="string"/>
+        <value type="doubleVec"/>
     </param>
     <param type="variant" name="pcenterest" subparam="true">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>Initial estimate PCF profile centers, in pixels.</description>
-        <value type="string"/>
+        <value type="doubleVec"/>
     </param>
     <param type="variant" name="pfwhmest" subparam="true">
         <any type="variant" limittypes="string double doubleArray int intArray"/>
+        <type>double</type><type>doubleVec</type>
         <description>Initial estimate PCF profile FWHMs, in pixels.</description>
-        <value type="string"/>
+        <value type="doubleVec"/>
     </param>
     <param type="variant" direction="in" name="pfix" subparam="true">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string stringArray"/>
         <description>PCF profile parameters to fix during fit.</description>
-        <value type="string"/>
+        <value type="doubleVec"/>
     </param>
     <param type="variant" direction="in" name="gmncomps">
+        <type>int</type><type>intVec</type>
         <any type="variant" limittypes="int intArray"/>
         <description>Number of components in each gaussian multiplet to fit</description>
         <value type="int">0</value>
     </param>
     <param type="variant" direction="in" name="gmampcon">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>The amplitude ratio constraints for non-reference components to reference component in gaussian multiplets.</description>
-        <value type="string"/>
+        <value type="doubleVec"/>
     </param>
     <param type="variant" direction="in" name="gmcentercon">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>The center offset constraints (in pixels) for non-reference components to reference component in gaussian multiplets.</description>
-        <value type="string"/>
+        <value type="doubleVec"/>
     </param>
     <param type="variant" direction="in" name="gmfwhmcon">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>The FWHM  ratio constraints for non-reference components to reference component in gaussian multiplets.</description>
-        <value type="string"/>
+        <value type="doubleVec"/>
     </param>
     <param type="doubleArray" direction="in" name="gmampest">
         <description>Initial estimate of individual gaussian amplitudes in gaussian multiplets.</description>
@@ -188,6 +201,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <value>0.0</value>
     </param>
     <param type="variant" direction="in" name="gmfix">
+        <type>string</type><type>stringVec</type>
         <any type="variant" limittypes="string stringArray"/>
         <description>Parameters of individual gaussians in gaussian multiplets to fix during fit.</description>
         <value type="string"/>
@@ -201,6 +215,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <value>True</value>
     </param>
     <param type="any" direction="in" name="pfunc" subparam="true">
+        <type>string</type><type>stringVec</type>
         <any type="variant" limittypes="string stringArray"/>
         <description>PCF singlet functions to fit. "gaussian" or "lorentzian" (minimal match supported). Unspecified means all gaussians.</description>
         <value type="string"/>
@@ -220,6 +235,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <param type="any" direction="in" name="sigma">
         <any type="variant" limittypes="string doubleArray intArray"/>
         <description>Standard deviation array or image name.</description>
+        <type>string</type>
+        <type>intVec</type>
+        <type>intArray</type>
+        <type>doubleVec</type>
+        <type>doubleArray</type>
         <value type="string"/>
     </param>
     <param type="string" direction="in" name="outsigma" subparam="true">
