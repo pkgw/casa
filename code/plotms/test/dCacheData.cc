@@ -30,6 +30,7 @@
 #include <casa/Arrays/ArrayLogical.h>
 #include <casa/Arrays/ArrayMath.h>
 #include <ms/MeasurementSets/MSColumns.h>
+#include <ms/MSSel/MSSelectionTools.h>
 
 #include <iostream>
 
@@ -38,7 +39,6 @@ using namespace casa;
 
 int main(int /*argc*/, char** /*argv[]*/) {
 	String dataPath = tUtil::getFullPath( "ngc5921_add_corect_model.ms", "visstat2" );
-	Int expNRow(351);
 
 	MeasurementSet ms(dataPath);
 	Block<String> sortCols(4); // Use default sort columns
@@ -47,14 +47,26 @@ int main(int /*argc*/, char** /*argv[]*/) {
 	sortCols[2] = MS::columnName(MS::DATA_DESC_ID);
 	sortCols[3] = MS::columnName(MS::TIME);
 	MeasurementSet sortedMS = ms.sort(sortCols);
-	ROMSMainColumns msmc(sortedMS);
-	Array<Complex> visData(msmc.data().getColumn());
-	IPosition visShape(visData.shape());
-	visShape.setLast(IPosition(1,expNRow));
-	visData.adjustLastAxis(visShape);
-	Array<Float> amp(amplitude(visData));
+
+	// get selected MS
+	MeasurementSet selMS;
+	Vector<Vector<Slice> > chanSlices, corrSlices;
+	String uvDistExpr(">1000m");
+	mssSetData2(sortedMS, selMS, chanSlices, corrSlices, ""/*outMSName*/,
+		""/*timeExpr*/, ""/*antennaExpr*/, ""/*fieldExpr*/, ""/*spwExpr*/,
+		uvDistExpr, ""/*taQLExpr*/, ""/*polnExpr*/, ""/*scanExpr*/,
+		""/*arrayExpr*/, ""/*stateExpr*/, ""/*obsExpr*/, ""/*feedExpr*/);
+
+	ROMSMainColumns msmc(selMS);
+	//Vector<Int> fields(msmc.fieldId().getColumn());
+	//Array<Complex> visData(msmc.data().getColumn());
+	//Array<Float> expAmp(amplitude(visData));
+	Vector<Double> uvw(msmc.uvw().get(0));
+	Double u(uvw(0)), v(uvw(1));
+    Double expUVDist = sqrt(u*u + v*v);
 
 	PlotMSSelection itsSelection;
+	itsSelection.setUvrange(uvDistExpr);
 	PlotMSAveraging itsAveraging;
 	PlotMSTransformations itsTransformations;
 	PlotMSCalibration itsCalibration;
@@ -62,15 +74,19 @@ int main(int /*argc*/, char** /*argv[]*/) {
 
 	// check values for first chunk
 	Int ichunk(0);
-	std::vector<PMS::Axis> loadAxes{PMS::AMP, PMS::TIME};
+	std::vector<PMS::Axis> loadAxes{PMS::UVDIST, PMS::TIME};
 	std::vector<PMS::DataColumn> loadData{PMS::DATA, PMS::DATA};
 	cache->load(loadAxes, loadData, dataPath, 
 			itsSelection, itsAveraging,
 			itsTransformations, itsCalibration, 
 			nullptr ); // ThreadCommunication* is nullptr
 	cout << "chunk:" << cache->nChunk() << endl;
-	cout << "nrow:" << cache->chunkShapes()(IPosition(2,2,ichunk)) << endl;
-	cout << "exp=got:" << allEQ(amp, cache->ampData(ichunk)) << endl;
+	cout << "nrow:" << cache->chunkShapes()(IPosition(2,2,ichunk))<<endl;
+	cout << "uvdist okay:" << (expUVDist == cache->uVDist(ichunk)) << endl;
+	for (Int chunk=0; chunk<cache->nChunk(); ++chunk) {
+		cout << "chunk:" << chunk << " uvdist :" << cache->uVDist(chunk) << endl;
+	}
+
 	bool cacheOk = (cache != nullptr);
 	delete cache;
 	return cacheOk;    
