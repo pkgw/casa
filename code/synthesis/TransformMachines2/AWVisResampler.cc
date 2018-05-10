@@ -323,7 +323,8 @@ namespace casa{
 // #pragma omp for
     for(Int iy=-scaledSupport[1]; iy <= scaledSupport[1]; iy++) 
       {
-	iloc_ptr[1]=(Int)((scaledSampling[1]*iy+off[1])-1);
+	//iloc_ptr[1]=(Int)((scaledSampling[1]*iy+off[1])-1);
+	iloc_ptr[1]=SynthesisUtils::nint((scaledSampling[1]*iy+off[1])-1);
 	igrdpos[1]=loc[1]+iy;
         iCFPos[1] =iloc_ptr[1]+convOrigin[1];
 
@@ -344,7 +345,8 @@ namespace casa{
 
 	for(Int ix=-scaledSupport[0]; ix <= scaledSupport[0]; ix++) 
 	  {
-	    iloc[0]=(Int)((scaledSampling[0]*ix+off[0])-1);
+	    //iloc[0]=(Int)((scaledSampling[0]*ix+off[0])-1);
+	    iloc[0]=SynthesisUtils::nint((scaledSampling[0]*ix+off[0])-1);
 	    igrdpos[0]=loc[0]+ix;
 	    iCFPos[0] =iloc_ptr[0]+convOrigin[0];
 	    //

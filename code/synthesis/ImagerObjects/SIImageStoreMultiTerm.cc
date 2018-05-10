@@ -753,10 +753,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    residual(tix)->set(0.0);
 	  } 
 	}
-
 	if( resetweight && itsWeights[tix] ) weight(tix)->set(0.0);
 	if( resetweight ) sumwt(tix)->set(0.0);
-
       }//nterms
   }
   
