@@ -657,7 +657,7 @@ template<class T> void PixelValueManipulator<T>::put(
     }
 }
 
-template<class T> casacore::Bool PixelValueManipulator<T>::putRegion(
+template<class T> Bool PixelValueManipulator<T>::putRegion(
     SPIIT image, const casacore::Array<T>& pixels,
     const casacore::Array<casacore::Bool>& mask, casacore::Record& region, casacore::Bool list,
     casacore::Bool usemask, casacore::Bool replicateArray
@@ -809,11 +809,11 @@ template<class T> casacore::Bool PixelValueManipulator<T>::putRegion(
 
     // Get the mask and data from disk if we need it
     casacore::Array<casacore::Bool> oldMask;
-    casacore::Array<casacore::Float> oldData;
+    casacore::Array<T> oldData;
     casacore::Bool deleteOldMask, deleteOldData, deleteNewData;
-    const casacore::Bool* pOldMask = 0;
-    const casacore::Float* pOldData = 0;
-    const casacore::Float* pNewData = 0;
+    const Bool* pOldMask = nullptr;
+    const T* pOldData = nullptr;
+    const T* pNewData = nullptr;
     if (pixelElements > 0 && usemask) {
         if (pixelNDim != imageNDim) {
             pixelShape.append(casacore::IPosition(imageNDim - pixelNDim, 1));
@@ -833,9 +833,9 @@ template<class T> casacore::Bool PixelValueManipulator<T>::putRegion(
     if (dataDim == imageNDim) {
         if (pixelElements > 0) {
             if (usemask) {
-                casacore::Bool deleteNewData2;
-                casacore::Array<casacore::Float> pixels2(pixelShape);
-                casacore::Float* pNewData2 = pixels2.getStorage(deleteNewData2);
+                Bool deleteNewData2;
+                Array<T> pixels2(pixelShape);
+                T* pNewData2 = pixels2.getStorage(deleteNewData2);
                 for (casacore::uInt i = 0; i < pixels2.nelements(); i++) {
                     pNewData2[i] = pNewData[i]; // Value user gives
                     if (!pOldMask[i]) {
@@ -844,7 +844,7 @@ template<class T> casacore::Bool PixelValueManipulator<T>::putRegion(
                 }
                 pixels2.putStorage(pNewData2, deleteNewData2);
                 if (replicateArray) {
-                    casacore::LatticeUtilities::replicate(
+                    LatticeUtilities::replicate(
                         *image, latRegion.slicer(), pixels2
                     );
                 }
@@ -872,10 +872,10 @@ template<class T> casacore::Bool PixelValueManipulator<T>::putRegion(
                 << casacore::LogIO::POST;
             //
             if (usemask) {
-                casacore::Bool deleteNewData2;
-                casacore::Array<casacore::Float> pixels2(pixelShape);
-                casacore::Float* pNewData2 = pixels2.getStorage(deleteNewData2);
-                for (casacore::uInt i = 0; i < pixels2.nelements(); i++) {
+                Bool deleteNewData2;
+                Array<T> pixels2(pixelShape);
+                T* pNewData2 = pixels2.getStorage(deleteNewData2);
+                for (uInt i = 0; i < pixels2.nelements(); i++) {
                     pNewData2[i] = pNewData[i]; // Value user gives
                     if (!pOldMask[i]) {
                         pNewData2[i] = pOldData[i]; // Value on disk
@@ -892,7 +892,7 @@ template<class T> casacore::Bool PixelValueManipulator<T>::putRegion(
                 }
             }
             else {
-                casacore::Array<casacore::Float> pixelsref(
+                Array<T> pixelsref(
                     pixels.addDegenerate(imageNDim - pixels.ndim())
                 );
                 if (replicateArray) {
