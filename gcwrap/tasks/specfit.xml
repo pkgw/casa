@@ -144,25 +144,25 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>Initial estimate of PCF profile (gaussian or lorentzian) amplitudes.</description>
-        <value type="doubleVec"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" name="pcenterest" subparam="true">
         <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>Initial estimate PCF profile centers, in pixels.</description>
-        <value type="doubleVec"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" name="pfwhmest" subparam="true">
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <type>double</type><type>doubleVec</type>
         <description>Initial estimate PCF profile FWHMs, in pixels.</description>
-        <value type="doubleVec"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" direction="in" name="pfix" subparam="true">
         <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string stringArray"/>
         <description>PCF profile parameters to fix during fit.</description>
-        <value type="doubleVec"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" direction="in" name="gmncomps">
         <type>int</type><type>intVec</type>
@@ -174,19 +174,19 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>The amplitude ratio constraints for non-reference components to reference component in gaussian multiplets.</description>
-        <value type="doubleVec"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" direction="in" name="gmcentercon">
         <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>The center offset constraints (in pixels) for non-reference components to reference component in gaussian multiplets.</description>
-        <value type="doubleVec"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" direction="in" name="gmfwhmcon">
         <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>The FWHM  ratio constraints for non-reference components to reference component in gaussian multiplets.</description>
-        <value type="doubleVec"/>
+        <value type="doubleArray"/>
     </param>
     <param type="doubleArray" direction="in" name="gmampest">
         <description>Initial estimate of individual gaussian amplitudes in gaussian multiplets.</description>
