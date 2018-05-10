@@ -166,7 +166,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  casacore::Int* igrdpos);
 
   template <class T>
-  void accumulateFromGrid(T& nvalue, const T* __restrict__& grid, 
+  void accumulateFromGrid(T& nvalue, casacore::Complex& norm, const T* __restrict__& grid, 
 			  casacore::Vector<casacore::Int>& iGrdPos,
 			  casacore::Complex* __restrict__& convFuncV, 
 			  casacore::Double& wVal, casacore::Vector<casacore::Int>& scaledSupport, 

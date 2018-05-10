@@ -104,7 +104,7 @@ namespace casa{
   // 					  Matrix<Complex>& cached_phaseGrad_p,
   // 					  Bool dopsf);
   template
-  void AWVisResampler::accumulateFromGrid(Complex& nvalue, const Complex* __restrict__&  grid, 
+  void AWVisResampler::accumulateFromGrid(Complex& nvalue, Complex& norm, const Complex* __restrict__&  grid, 
 					  Vector<Int>& iGrdPos,
 					  Complex* __restrict__& convFuncV, 
 					  Double& wVal, Vector<Int>& scaledSupport, 
@@ -912,7 +912,7 @@ namespace casa{
 			// file (FortanizedLoopsFromGrid.cc) has the interface code to call the inner 
 			// loops re-written in FORTRAN (in synthesis/fortran/faccumulateOnGrid.f)
 
-			accumulateFromGrid(nvalue, gridStore, igrdpos, convFuncV, dataWVal,
+			accumulateFromGrid(nvalue, norm[ipol], gridStore, igrdpos, convFuncV, dataWVal,
 					   support, sampling, off, convOrigin,
 					   cfShape, loc, phasor, sinDPA, cosDPA,
 					   finitePointingOffset, cached_phaseGrad_p);

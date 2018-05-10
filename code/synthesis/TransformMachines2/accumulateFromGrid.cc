@@ -3,6 +3,7 @@
 #if (_LOCAL_SINGLETHREADED)
   template <class T>
   void AWVisResampler::accumulateFromGrid(T& nvalue, 
+					  Complex& norm,
      const T* __restrict__& grid, Vector<Int>& iGrdPos,
      Complex* __restrict__& convFuncV, Double& wVal, 
      Vector<Int>& scaledSupport, Vector<Float>& scaledSampling, 
@@ -11,7 +12,7 @@
      Bool& finitePointingOffset, Matrix<Complex>& cached_phaseGrad_p)
   {
     (void)sinDPA; (void)cosDPA; (void)cfShape; // Keep the compiler warnings off for now
-    Complex wt, norm=0.0;
+    Complex wt;//, norm=0.0;
     Vector<Int> iCFPos(4,0),iLoc(4,0);
 
     // cerr << scaledSupport << endl
@@ -38,7 +39,7 @@
 	      wt = getFrom4DArray((const Complex* __restrict__ &) convFuncV,
 				  iCFPos,cfInc_p);
 	      //	      wt = convFuncV(iCFPos);
-	      if (wVal > 0.0) wt = conj(wt);
+	      if (wVal <= 0.0) wt = conj(wt);
 
 	      norm+=(wt);
 	      if (finitePointingOffset) 
@@ -49,7 +50,7 @@
 	    }
 	  }
       }
-    nvalue *= conj(phasor)/norm;
+    nvalue *= conj(phasor);///norm;
   }
 #else
   //
