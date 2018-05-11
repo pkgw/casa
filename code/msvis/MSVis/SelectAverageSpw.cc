@@ -347,7 +347,7 @@ void SelectAverageSpw::averageVelocity(Bool &sorryVel,
    if (sCnt < 1)
       return;
 
-   Double cspeed = (QC::c).getValue() / 1000.;
+   Double cspeed = (QC::c( )).getValue() / 1000.;
 
    String itsRestFreq = restfreq;
    String itsFrame = frame;

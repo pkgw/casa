@@ -318,6 +318,7 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
     os << LogIO::DEBUG1 << "Using user defined location: "
        << mLocation_p.getRefString() << " " << mLocation_p.get("m")
        << LogIO::POST;
+    obsPosition = mLocation_p;
     freqFrameValid_p = true;
   } else if(!(MeasTable::Observatory(obsPosition, telescop))){
     os << LogIO::WARN << "Did not get the position of " << telescop 

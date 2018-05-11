@@ -218,7 +218,8 @@ class viewertool(object):
 
     def panel( self, paneltype="viewer" ) :
         if type(paneltype) != str or (paneltype != "viewer" and paneltype != "clean"):
-            raise Exception, "the only valid panel types are 'viewer' and 'clean'"
+            if not (paneltype.endswith('.rstr') and os.path.isfile(paneltype)):
+                raise Exception, "the only valid panel types are 'viewer' and 'clean' or path to restore file"
         if self.__state['proxy'] == None:
             self.__connect( )
 
