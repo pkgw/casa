@@ -39,7 +39,7 @@
 #include <display/QtViewer/QtDisplayPanel.qo.h>
 #include <display/QtViewer/QtCleanPanelGui.qo.h>
 #include <display/QtViewer/QtCleanPanelGui2.qo.h>
-#include <display/Display/State.h>
+#include <display/Display/DisplayState.h>
 #include <casa/BasicSL/String.h>
 #include <casa/Containers/List.h>
 #include <QtDBus>

@@ -62,11 +62,11 @@ namespace casa {
 		maxY += dy * stepY;
 	}
 
-	pair<double,double> QtPlotSettings::getZoomOutY( double zoomFactor ) const {
+	std::pair<double,double> QtPlotSettings::getZoomOutY( double zoomFactor ) const {
 		double prevSpanY = spanY();
 		double minY = this->minY - zoomFactor * prevSpanY;
 		double maxY = this->maxY + zoomFactor * prevSpanY;
-		pair<double,double> percentageSpan( minY, maxY );
+		std::pair<double,double> percentageSpan( minY, maxY );
 		return percentageSpan;
 	}
 
@@ -83,11 +83,11 @@ namespace casa {
 	}
 
 
-	pair<double,double> QtPlotSettings::getZoomInY( double zoomFactor ) const {
+	std::pair<double,double> QtPlotSettings::getZoomInY( double zoomFactor ) const {
 		double prevSpanY = spanY();
 		double minY = this->minY + zoomFactor * prevSpanY;
 		double maxY = this->maxY - zoomFactor * prevSpanY;
-		pair<double,double> percentageSpan( minY,maxY);
+		std::pair<double,double> percentageSpan( minY,maxY);
 		return percentageSpan;
 	}
 
@@ -126,7 +126,7 @@ namespace casa {
 		m_bottomUnits = bottomUnits;
 		if ( autoScaleX ) {
 			//Adjust the bottom axis allowing it to set the number of ticks.
-			pair<double,double> percentChange=adjustAxis( minX[xBottom], maxX[xBottom], numXTicks);
+			std::pair<double,double> percentChange=adjustAxis( minX[xBottom], maxX[xBottom], numXTicks);
 
 			if ( percentChange.first > 0 ){
 				minPercentage = percentChange.first;
@@ -154,7 +154,7 @@ namespace casa {
 	}
 
 
-	pair<double,double> QtPlotSettings::adjustAxis(double &min, double &max,
+	std::pair<double,double> QtPlotSettings::adjustAxis(double &min, double &max,
 	                                int &numTicks ) {
 		const int MinTicks = 4;
 		double grossStep = fabs(max - min) / MinTicks;
@@ -176,7 +176,7 @@ namespace casa {
 		min = newMin;
 		max = newMax;
 
-		pair<double,double> percentageChange( minPercentage, maxPercentage );
+		std::pair<double,double> percentageChange( minPercentage, maxPercentage );
 		return percentageChange;
 	}
 
