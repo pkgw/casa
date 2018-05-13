@@ -594,7 +594,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 			gridpars.interpolation, impars.freqFrameValid, 1000000000,  16, impars.stokes,
 			impars.imageName, gridpars.pointingDirCol, gridpars.skyPosThreshold,
 			gridpars.convSupport, gridpars.truncateSize, gridpars.gwidth, gridpars.jwidth,
-			gridpars.minWeight, gridpars.clipMinMax);
+			gridpars.minWeight, gridpars.clipMinMax, impars.pseudoi);
 
       }
     catch(AipsError &x)
@@ -1361,7 +1361,8 @@ void SynthesisImagerVi2::unlockMSs()
 					   const Quantity &gwidth,
 					   const Quantity &jwidth,
 					   const Float minWeight,
-					   const Bool clipMinMax
+					   const Bool clipMinMax,
+					   const Bool pseudoI
 					   )
 
   {
@@ -1479,7 +1480,13 @@ void SynthesisImagerVi2::unlockMSs()
     theIFT->setSpwChanSelection(chanSel_p);
     */
 
-
+    // Set pseudo-I if requested.
+    if(pseudoI==true)
+    {
+      os << "Turning on Pseudo-I gridding" << LogIO::POST;
+      theFT->setPseudoIStokes(true);
+      theIFT->setPseudoIStokes(true);
+    }
 
   }
 
@@ -1714,7 +1721,8 @@ void SynthesisImagerVi2::unlockMSs()
       const Bool clipMinMax,
       const Int cache,
       const Int tile,
-      const String &stokes) {
+      const String &stokes,
+      const Bool pseudoI) {
 //    // member variable itsVPTable is VP table name
     LogIO os(LogOrigin("SynthesisImagerVi2", "createSDFTMachine", WHERE));
     os << LogIO::NORMAL // Loglevel INFO
@@ -1792,7 +1800,7 @@ void SynthesisImagerVi2::unlockMSs()
     theFT->setPointingDirColumn(pointingDirCol);
 
     // turn on Pseudo Stokes mode if necessary
-    if (stokes == "XX" || stokes == "YY" || stokes == "XXYY"
+    if (pseudoI || stokes == "XX" || stokes == "YY" || stokes == "XXYY"
         || stokes == "RR" || stokes == "LL" || stokes == "RRLL") {
       theFT->setPseudoIStokes(True);
       theIFT->setPseudoIStokes(True);

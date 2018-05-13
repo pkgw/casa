@@ -203,7 +203,7 @@ async       Run asynchronously
     <param type="string" name="uvrange" subparam="true">
 	    <description>uv range</description>
 	    <value></value>
-        <example>: ''==>all; not yet implemented</example>
+        <example>''==>all; not yet implemented</example>
     </param>
 
     <param type="string" name="average">

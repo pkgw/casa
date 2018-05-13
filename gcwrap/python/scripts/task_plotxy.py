@@ -17,7 +17,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
            skipnrows=None,title=None,xlabels=None,ylabels=None,
            fontsize=None,windowsize=None,
            showflags=None,interactive=None,figfile=None,end=None):
-    """An X-Y plotter/interactive flagger for visibility data. 
+    """An X-Y plotter/interactive flagger for visibility data.
 
              Selected data can be flexibly plotted with a wide variety of
          axes options and averaging options.  Data may be listed, flagged or
@@ -28,7 +28,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
          order to save the current flag state before altering:
              flagmanager(vis='vis_name',mode='save',versionname='before_plotxy',
                    comment=versionname)
-         
+
      Keyword arguments:
      vis -- Name of input visibility file
              default: none.  example: vis='ngc5921.ms'
@@ -36,11 +36,11 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
              default: 'time'
 
              Options for BOTH x-axis and y-axis
-            'time','uvdist','chan','corr','freq','velo', 
+            'time','uvdist','chan','corr','freq','velo',
                 'u','v','w',
             'azimuth','elevation','baseline','hourangle','parallacticangle'
                 'amp','phase','real','imag','weight'.  'x' gives antenna array
-         
+
      yaxis -- Visibility data to plot along the y-axis
              default: 'amp'
              Options: same as on xaxis:
@@ -63,7 +63,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
             field='0,4,5~7'; field ids 0,4,5,6,7
             field='3C286,3C295'; field named 3C286 and 3C295
             field = '3,4C*'; field id 3, all names starting with 4C
-     spw -- Select spectral window/channels 
+     spw -- Select spectral window/channels
              spw='0~2,4'; spectral windows 0,1,2,4 (all channels)
              spw='&lt;2';  spectral windows less than 2 (i.e. 0,1)
              spw='0:5~61'; spw 0, channels 5 to 61, INCLUSIVE
@@ -109,9 +109,9 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
          scan -- Scan number range
          array -- Array number range - under development
          feed -- Multi-feed number range - under development
-     
+
      averagemode -- Select average mode
-            default: 'vector' 
+            default: 'vector'
             Options: 'vector' = average over real and image part separately.
                      'scalar' = scalar average of amplitude, vector
                                     average of the phase.
@@ -120,16 +120,16 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
          timebin -- length of time intervals to average
               default: '0'= no time averaging
               example: timebin='60' (average over 60 seconds interval).
-         crossscans -- Have time averaging cross scan boundaries 
-              default: False=time averaging does not cross scan boundaries 
-         crossbls -- Have averaging cross baseline boundaries 
-              default: False=averaging does not cross baseline boundaries 
-         crossarrays -- Have averaging cross array ids 
-              default: False=averaging does not cross array ids 
+         crossscans -- Have time averaging cross scan boundaries
+              default: False=time averaging does not cross scan boundaries
+         crossbls -- Have averaging cross baseline boundaries
+              default: False=averaging does not cross baseline boundaries
+         crossarrays -- Have averaging cross array ids
+              default: False=averaging does not cross array ids
          width -- number of channels to average
               default: '1'= no channel averaging
               example: width='32' (average 32 channels together).
-         stackspw -- whether stack the spw on top of each other (for xaxis='chan') 
+         stackspw -- whether stack the spw on top of each other (for xaxis='chan')
               default: False=layout spw side by side
      extendflag -- Have flagging extend to other points
          default: '' = no extension, flag only selected data points
@@ -195,7 +195,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
              default: 'corr'; example: multicolor='chan'
      plotrange -- Specifies the size of the plot [xmin, xmax, ymin, ymax]
             default: [0,0,0,0];  Range is self-selected
-        example: [0,0,0.00,0.20]  only y axis is specified 
+        example: [0,0,0.00,0.20]  only y axis is specified
             To use a time range (NOTE: somewhat different sytax from timerange
            ['22:23:24, 23:42:20', 0.02, 0.20]
            The day must be included if the visibility data span more than one day
@@ -234,18 +234,18 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
             default: True;
      figfile -- File name to save the plotted figure to.
         default: ''; example figfile=myPlot.png
-     end -- Finish plotting? 
+     end -- Finish plotting?
         default: False; example end=True
 
     """
-    
+
     if end:
         tp.setgui(False)
         mp.done()
         return True
 
     casalog.origin('plotxy')
-
+    casalog.post("Task plotxy has been deprecated and will be removed in release 5.4.", "WARN")
     startTime=time.time()
     startProc=time.clock()
 
@@ -266,7 +266,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
 
         if ((type(vis)==str) & (os.path.exists(vis))):
 
-            #Users requested to remove this because it would 
+            #Users requested to remove this because it would
             #take too much time (in particular for large ms).
             #Originally, plotxy average would report exception
             #('could not add a column') if a scratch column was
@@ -275,7 +275,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
             #get rid of the corrupted column. The cb.open will
             #add scratch columns if missing. It did not repair
             #the corrupted columns.
-            #this change will not go beyond active. (6/19/09) 
+            #this change will not go beyond active. (6/19/09)
 
             #again, we put this back, because some external
             #people want to use interval devel. They want this.
@@ -302,7 +302,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
         if (yaxis.lower()=='frequency'):
            yaxis='freq'
 
-        
+
 
         if (xaxis.lower()=='channel'):
            xaxis='chan'
@@ -326,9 +326,9 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
               xtime=True
            if (yaxis.lower()==timeaxis[t]):
               ytime=True
-        if (xtime and ytime): 
+        if (xtime and ytime):
            raise Exception, 'Sorry. it cannot plot '+yaxis+' vs. '+xaxis
-    
+
         #if (xaxis=='chan' and connect=='chan'):
         #   connect='none'
         #if (xaxis=='time' and connect=='time'):
@@ -396,16 +396,16 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
             width='1'
             print "Found invalid width value, replaced with width='1'"
 
-        try: 
+        try:
             fTime=float(timebin)
         except:
             timebin='0'
             print "Found invalid timebin value, replaced with timebin='0'"
 
-        if (averagemode=='scalar'): 
+        if (averagemode=='scalar'):
             if (not (xaxis=='amp' or yaxis=='amp')):
                 averagemode='vector'
-                
+
         #print width
         #print timebin
         #print averagemode
@@ -430,7 +430,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
 
         if (averagemode==''):
             averagemode='vector'
-        
+
         ok=mp.avedata(chanavemode=chanavemode,
                       corravemode=corravemode,
                       datacolumn=datacolumn,
@@ -457,7 +457,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
             ok=mp.setdata(baseline='',field=field,scan='',
                       uvrange='',array='',feed='',
                       spw=spw,correlation='',
-                      time='')            
+                      time='')
         # check if data selection was okay
         if (not ok):
             raise Exception, 'Data selection resulted in no data!'
@@ -473,7 +473,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
                     xaxis=='phase' or xaxis=='amp'):
             # data vs data plot
             #print 'data vs. data plot ************** '
-            if ((yaxis=='amp') | (yaxis=='phase') | 
+            if ((yaxis=='amp') | (yaxis=='phase') |
                 (yaxis=='real') | (yaxis=='imag') ):
                 ok=mp.plotxy(x='data',y='data',
                       xcolumn=datacolumn,ycolumn=datacolumn,
@@ -494,22 +494,22 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
             else:
                 raise Exception, 'Must be data versus data plot - illegal yaxis'
 
-        elif ((yaxis=='real' or yaxis=='imag' or 
-                       yaxis=='phase' or yaxis=='amp' or yaxis=='weight') and 
+        elif ((yaxis=='real' or yaxis=='imag' or
+                       yaxis=='phase' or yaxis=='amp' or yaxis=='weight') and
                       (xaxis!='x' and xaxis!='u')):
             # something vs data plot
             #print 'something vs data plot ************ '
             if (yaxis=='weight'):
                 ok=mp.plotxy(xaxis,yaxis)
-            if (xaxis=='chan'): 
+            if (xaxis=='chan'):
                 xaxis='vischannel'
-            if (xaxis=='corr' or xaxis=='correlation'): 
+            if (xaxis=='corr' or xaxis=='correlation'):
                 xaxis='viscorr'
-            if (xaxis=='freq'): 
+            if (xaxis=='freq'):
                 xaxis='visfreq'
             if (xaxis=='velo'):
                 xaxis='visvelocity'
-            if (xaxis=='time'): 
+            if (xaxis=='time'):
                 xaxis='vistime'
             if (yaxis!='weight' and (xaxis!='v' and xaxis!='w')):
                 ok=mp.plot(xaxis,datacolumn,yaxis,iteration)
@@ -520,23 +520,23 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
                                      iteration=iteration)
             if (not ok):
                 raise Exception, 'No data selected - please check inputs'
-        
+
         else:
             # something vs something plot
             #print 'something vs. something plot ************ '
-            if (xaxis=='chan' or yaxis=='chan'): 
+            if (xaxis=='chan' or yaxis=='chan'):
                 raise Exception, 'Channel can not be selected versus non-data values'
-            if (xaxis=='freq' or yaxis=='freq'): 
+            if (xaxis=='freq' or yaxis=='freq'):
                 raise Exception, 'Frequency can not be selected versus non-data values'
-            if (xaxis=='velo' or yaxis=='velo'): 
+            if (xaxis=='velo' or yaxis=='velo'):
                 raise Exception, 'Velocity can not be selected versus non-data values'
             if (yaxis=='time'):
                 raise Exception, 'yaxis=time is not currently supported'
-            if (xaxis=='u'): 
+            if (xaxis=='u'):
                                 ok=mp.plot('uvcoverage')
-            if (xaxis=='x'): 
+            if (xaxis=='x'):
                                 ok=mp.plot('array')
-            if (xaxis!='x' and xaxis!='u'): 
+            if (xaxis!='x' and xaxis!='u'):
                 #print 'getting to the right spot'
                 ok=mp.plotxy(x=xaxis,y=yaxis)
             if (not ok):
@@ -545,7 +545,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
             mp.iterplotnext()
 
         if ( len(figfile) > 0 ) :
-            mp.savefig( figfile ); 
+            mp.savefig( figfile );
 
     except Exception, instance:
         print 'INFO ', instance
@@ -557,10 +557,8 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
     #    mp.done();
     #else :
     mp.closeMS();
-    
+
     endProc=time.clock()
     endTime=time.time()
     print 'Total process time %.2f sec.' % (endProc - startProc)
     print 'Total wall clock time %.2f sec.' % (endTime - startTime)
-
-

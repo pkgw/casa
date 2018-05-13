@@ -27,6 +27,7 @@ def visstat2(vis=None,
              reportingaxes=None):
 
     casalog.origin('visstat2')
+    casalog.post("Task visstat2 has been deprecated and will be removed in release 5.4.", "WARN")
     casalog.post('"visstat2" has been renamed "visstat"; use of visstat2 is deprecated; please replace calls to visstat2 with calls to visstat', priority='INFO')
 
     return visstat(vis,

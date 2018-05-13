@@ -67,7 +67,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <value>""</value>
     </param>
     <param type="bool" name="fixuvw">
-      <description>recalc uvw?</description>
+      <description>Recalculate Fourier-plane u,v,w coordinates</description>
       <value>False</value>
     </param>
     <param type="any" name="direction">
@@ -84,7 +84,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <description>if using pointing table information, use it from this timestamp </description>
         <value>first</value>
         <example>
-            Timstamp options: ('first', 'median', or YYYY/MM/DD/hh:mm:ss)
+            Timestamp options: ('first', 'median', or YYYY/MM/DD/hh:mm:ss)
             For example: reftime='2012/07/11/08:41:32'
         </example>
     </param>

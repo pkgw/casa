@@ -113,7 +113,7 @@ private:
 	Symbol _symbol;
 	casacore::Char _symbolChar;
 	const static casacore::String _class;
-	static map<casacore::Char, Symbol> _symbolMap;
+	static std::map<casacore::Char, Symbol> _symbolMap;
 
 	static void _initMap();
 
