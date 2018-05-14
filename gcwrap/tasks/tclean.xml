@@ -312,15 +312,19 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
      <shortdescription>Stokes Planes to make</shortdescription>
 <description>Stokes Planes to make
                default='I'; example: stokes='IQUV';
-                 Options: 'I','Q','U','V','IV','QU','IQ','UV','IQUV','RR','LL','XX','YY','RRLL','XXYY' 
+                 Options: 'I','Q','U','V','IV','QU','IQ','UV','IQUV','RR','LL','XX','YY','RRLL','XXYY','pseudoI' 
 
                              Note : Due to current internal code constraints, if any correlation pair 
-                                        is flagged, no data for that row in the MS will be used. 
+                                        is flagged, by default, no data for that row in the MS will be used. 
                                         So, in an MS with XX,YY, if only YY is flagged, neither a 
                                         Stokes I image nor an XX image can be made from those data points.
                                         In such a situation, please split out only the unflagged correlation into
-                                        a separate MS. This constraint shall be removed (where logical)
-                                        in a future release.
+                                        a separate MS. 
+
+                             Note : The 'pseudoI' option is a partial solution, allowing Stokes I imaging
+                                    when either of the parallel-hand correlations are unflagged. 
+
+                             The remaining constraints shall be removed (where logical) in a future release.
 
 </description>
       <value type="string">I</value>
@@ -340,6 +344,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	      <value>YY</value>
 	      <value>RRLL</value>
 	      <value>XXYY</value>
+	      <value>pseudoI</value>
 	    </allowed>
     </param>
 
@@ -461,7 +466,7 @@ HPX HEALPix grid.  -->
                                                         There is no internal software Doppler tracking so
                                                         a spectral line observed over an extended time range
                                                         may be smeared out in frequency. There is strictly
-                                                        no valid spectral frame with which to label the ouput
+                                                        no valid spectral frame with which to label the output
                                                         images, but they will list the frame defined in the MS.
                                                         
 
@@ -1257,7 +1262,7 @@ HPX HEALPix grid.  -->
 <description> Restoring beam shape/size to use.
  
                        - restoringbeam='' or ['']
-                         A Guassian fitted to the PSF main lobe (separately per image plane). 
+                         A Gaussian fitted to the PSF main lobe (separately per image plane). 
                           
                        - restoringbeam='10.0arcsec'
                          Use a circular Gaussian of this width for all planes
@@ -1634,10 +1639,30 @@ HPX HEALPix grid.  -->
                                 cyclethreshold = peak_residual * psf_fraction
                                 cyclethreshold = max( cyclethreshold, 'threshold' )
 
+                                If nsigma is set (>0.0), the N-sigma threshold is calculated (see 
+                                the description under nsigma), then cyclethreshold is further modified as,
+
+                                cyclethreshold = max( cyclethreshold, nsgima_threshold )
+
+
                                 'cyclethreshold' is made visible and editable only in the 
                                 interactive GUI when tclean is run with interactive=True.
 </description>
 
+      <value type="double">0.0</value>
+    </param>
+
+    <param type="double" name="nsigma" subparam="true">
+     <shortdescription>Multiplicative factor for rms-based threshold stopping</shortdescription>
+<description>Multiplicative factor for rms-based threshold stopping
+
+                       N-sigma threshold is calculated as nsigma * rms value per image plane determined
+                       from a robust statistics. For nsigma > 0.0, in a minor cycle, a maximum of the two values,
+                       the N-sigma threshold and cyclethreshold, is used to trigger a major cycle 
+                       (see also the descreption under 'threshold'). 
+                       Set nsigma=0.0 to preserve the previous tclean behavior without this feature.
+
+</description>
       <value type="double">0.0</value>
     </param>
 
@@ -1779,7 +1804,8 @@ HPX HEALPix grid.  -->
     <!-- top level mask type selection -->
    
     <param type="string" name="usemask">
-           <shortdescription>Type of mask(s) for deconvolution (user, pb, auto-thresh, auto-thresh2, or auto-multithresh)</shortdescription>
+           <shortdescription>Type of mask(s) for deconvolution:  user, pb, auto-multithresh, auto-thresh(deprecated, will be removed in CASA 5.4), or auto-thresh(deprecated, will be removed in CASA 5.4)</shortdescription>
+
 <description>Type of mask(s) to be used for deconvolution
 
                        user: (default) mask image(s) or user specified region file(s) or string CRTF expression(s)
@@ -1793,29 +1819,23 @@ HPX HEALPix grid.  -->
                                              gridders that produce .pb (i.e. mosaic and awproject)
                                              or if an externally produced .pb image exists on disk)
 
-                       auto-thresh: automask by threshold for deconvolution (binned residual image is used for
-                                    to defining masks)
-                          subparameters : maskthreshold, maskresolution, pbmask, nmask
-                          
-                          if pbmask is >0.0, the region outside the specified pb gain level is excluded from
-                          image statistics in determination of the threshold. 
-                          if nmask > 0, 'pruning' of the found automask regions will be applied. 
-                        <!--  if pbmask is >0.0, after automask algorithm is run, it limits the mask to within 
-                                             a pb gain level of pbmask (This option will work only with 
-                                             gridders that produce .pb (i.e. mosaic and awproject)
-                                             or if an externally produced .pb image exists on disk)
-                        -->
-
-                       auto-thresh2: automask  by threshold for deconvolution without binning
-                          subparameters : maskthreshold, maskresolution, pbmask, nmask
-                          
-                          if pbmask is >0.0, the region outside the specified pb gain level is excluded from
-                          image statistics in determination of the threshold. 
-                          maskresolution and nmask are used to 'prune' the automask regions.
-
-                       auto-multithresh: automask by multiple thresholds for deconvolution 
+                       [Automasking algorithms available]
+                       auto-multithresh (recommended) : automask by multiple thresholds for deconvolution 
                           subparameters : sidelobethreshold, noisethreshold, lownoisethreshold, negativethrehsold,  smoothfactor,
                                           minbeamfrac, cutthreshold, pbmask, growiterations, dogrowprune, minpercentchange, verbose
+
+                          if pbmask is >0.0, the region outside the specified pb gain level is excluded from
+                          image statistics in determination of the threshold. 
+
+                       auto-thresh (deprecated, will be removed in CASA 5.4): automask by threshold for deconvolution (binned residual image is used for
+                                    to defining masks)
+                          subparameters : maskthreshold, maskresolution, pbmask, nmask
+                          maskresolution and nmask are used to 'prune' the automask regions.
+                          if nmask > 0, 'pruning' of the found automask regions will be applied. 
+
+                       auto-thresh2 (deprecated, will be removed in CASA 5.4) : automask  by threshold for deconvolution without binning
+                          subparameters : maskthreshold, maskresolution, pbmask, nmask
+                          
 
                        Note: By default the intermediate mask generated by automask at each deconvolution cycle 
                              is over-written in the next cycle but one can save them by setting 
@@ -1829,9 +1849,9 @@ HPX HEALPix grid.  -->
 	    <allowed kind="enum">
               <value>user</value>
               <value>pb</value>
+	      <value>auto-multithresh</value>
 	      <value>auto-thresh</value>
 	      <value>auto-thresh2</value>
-	      <value>auto-multithresh</value>
 	    </allowed>
     </param>
 
@@ -1855,6 +1875,13 @@ HPX HEALPix grid.  -->
                                                        ones and zeros as the mask. If this image is a different 
                                                        shape from what is being made it will be resampled to 
                                                        the target coordinate system before being used.
+                                                       When a continuum (single channel) mask is given for spectral
+                                                       cube imaging, it will be extended (copied) to all channels.
+                                                       Similarly, when a Stokes I mask is given, it will be extended
+                                                       to multi-Stokes imaging. Extension of a cube stokes I mask 
+                                                       to other Stokes planes is possible only if the spectral 
+                                                       coordinate and the number of the channels matches with the output
+                                                       image.  
 
                                                        [ Note : If an error occurs during image resampling or
                                                                    if the expected mask does not appear, please try
@@ -1982,6 +2009,8 @@ HPX HEALPix grid.  -->
            <shortdescription>negativethreshold * rms in residual image</shortdescription>
            <value type="double">0.0</value>
 <description>Sub-parameter for "auto-multithresh": mask threshold  for negative features: -1.0* negativethreshold * rms 
+
+              The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="smoothfactor" subparam="true">
@@ -2037,7 +2066,7 @@ HPX HEALPix grid.  -->
                         thresh_type: type of threshold used (noise or sidelobe)
                         thresh_value: the value of threshold used
                         N_reg: number of the automask regions
-                        N_pruned: nubmer of the automask regions removed by pruning
+                        N_pruned: number of the automask regions removed by pruning
                         N_grow: number of the grow mask regions
                         N_grow_pruned: number of the grow mask regions removed by pruning
                         N_neg_pix: number of pixels for negative mask regions 
@@ -2528,6 +2557,7 @@ HPX HEALPix grid.  -->
        <notequals type="int" value="0">
 	 <default param="gain"><value>0.1</value></default>
 	 <default param="threshold"><value>0.0</value></default>
+         <default param="nsigma"><value>0.0</value></default>
 	 <default param="cycleniter"><value>-1</value></default>
 	 <default param="cyclefactor"><value>1.0</value></default>
 	 <default param="minpsffraction"><value>0.05</value></default>

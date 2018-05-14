@@ -7,6 +7,8 @@ def clearplot():
 
 	"""
 	try:
+		casalog.origin('clearplot')
+		casalog.post("Task clearplot has been deprecated and will be removed in release 5.4.", "WARN")
 		mytp = tptool()
 		pl.ion()
 		print "Calling tp.clearplot()"
