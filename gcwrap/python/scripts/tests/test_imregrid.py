@@ -224,11 +224,6 @@ class imregrid_test(unittest.TestCase):
         
         # Exercise various reference codes (no check on output)
         codes = _cs.newcoordsys(direction=True).referencecode('dir', True)
-        ### To regrid to COMET frame you have to specify a COMET table or ephemeris
-        ### to measures. As this is not possible in this interface,
-        ### avoiding this regridding
-        if('COMET' in codes) :
-            codes.remove('COMET')
         rec1 = im1.torecord()
         im1.done()
         for ref in codes:
@@ -242,7 +237,12 @@ class imregrid_test(unittest.TestCase):
                            'MECLIPTIC', 'TECLIPTIC',
                            'ITRF', 'TOPO']:
                 rec1['coordsys']['coordsys']['direction0']['conversionSystem'] = ref
-                
+                if ref == "COMET":
+                    ### To regrid to COMET frame you have to specify a COMET table or ephemeris
+                    ### to measures. As this is not possible in this interface,
+                    ### avoiding this regridding (CAS-11403)
+                    self.assertRaises(Exception, myia.fromrecord, rec1, out5)
+                    continue
                 myia.fromrecord(rec1, out5)
                 myia.close()
                 if (  os.path.exists(out1 ) ):
