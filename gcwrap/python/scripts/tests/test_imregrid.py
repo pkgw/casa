@@ -224,6 +224,11 @@ class imregrid_test(unittest.TestCase):
         
         # Exercise various reference codes (no check on output)
         codes = _cs.newcoordsys(direction=True).referencecode('dir', True)
+        ### To regrid to COMET frame you have to specify a COMET table or ephemeris
+        ### to measures. As this is not possible in this interface,
+        ### avoiding this regridding
+        if('COMET' in codes) :
+            codes.remove('COMET')
         rec1 = im1.torecord()
         im1.done()
         for ref in codes:
