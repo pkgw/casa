@@ -687,7 +687,7 @@ void ImagePolarimetry::rotationMeasure(
     Vector<Float> wsq(nFreq);
     Vector<Double> world;
     Vector<Double> pixel(cSys0.referencePixel().copy());
-    Double c = QC::c.getValue(Unit("m/s"));
+    Double c = QC::c( ).getValue(Unit("m/s"));
     Double csq = c*c;
     for (uInt i=0; i<nFreq; i++) {
         pixel(fAxis) = i;
@@ -1405,7 +1405,7 @@ void ImagePolarimetry::fiddleTimeCoordinate(ImageInterface<Complex>& ie, const Q
 
    Vector<Double> inc = pC->increment();
    Double ff = f.getValue(Unit("Hz"));
-   Double lambda = QC::c.getValue(Unit("m/s")) / ff;
+   Double lambda = QC::c( ).getValue(Unit("m/s")) / ff;
    Double fac = -C::pi * ff / 2.0 / lambda / lambda;
    inc *= fac;
 //
