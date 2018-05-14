@@ -673,7 +673,7 @@ windows in the dataset and close the tool.
     msmd.open("my.ms")
     # get the exposure time for scan 1, spwid 2, and polid 3
     # for obsid=0 and arrayid=0
-    integration_time = msmd.getexposuretime(scan=1, spwid=2, polid=3)
+    integration_time = msmd.exposuretime(scan=1, spwid=2, polid=3)
     msmd.done()
             </example>
         </method>
