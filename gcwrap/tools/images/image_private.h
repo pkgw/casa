@@ -129,6 +129,12 @@ SHARED_PTR<casacore::Record> _getRegion(
 	const std::string& otherImageName=""
 ) const;
 
+template<class T> variant* _getregion2(
+    SPIIT image, const variant& region,
+    const std::vector<int>& axes, const variant& mask,
+    bool list, bool dropdeg, bool getmask, bool stretch
+);
+
 template<class T> vector<string>  _handleMask(
 	SPIIT myimage, const casacore::String& op,
 	const vector<string>& name
@@ -176,6 +182,30 @@ template<class T> void _putchunk(
 	SPIIT image, const casac::variant& pixels,
 	const vector<int>& blc, const vector<int>& inc,
 	const bool list, const bool locking, const bool replicate
+);
+
+template<class T> bool _putregionComplex(
+    SPIIT image, const variant& v_pixels, const variant& v_pixelmask,
+    const variant& region, bool list, bool usemask,
+    bool replicateArray
+);
+
+template<class T> bool _putregionReal(
+    SPIIT image, const variant& v_pixels, const variant& v_pixelmask,
+    const variant& region, bool list, bool usemask,
+    bool replicateArray
+);
+
+template<class T> bool _putregion2(
+    SPIIT image, const casacore::Array<T>& pixels,
+    const variant& v_pixelmask, const variant& region,
+    bool list, bool usemask, bool replicateArray
+);
+
+template<class T, class U>
+void _convertArray(
+    casacore::Array<T>& out, const casacore::Vector<U>& in,
+    const casacore::IPosition& shape
 );
 
 template <class T> image* _regrid(

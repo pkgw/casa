@@ -5609,37 +5609,30 @@ ia.close()
 <returns type="variant"></returns>
 <description>
 
-This function recovers the image pixel or \pixelmask\ values in the
-given <link anchor="images:regionmanager">region-of-interest</link>.  <!-- You can
-recover either or both of these by specifying the appropriate argument.-->
-Regardless of the shape of the {\stfaf region} you have specified, the
-shape of the {\stfaf pixels} and {\stfaf pixelmask} arrays must
-necessarily be the bounding box of the specified region.  If the region
-extends beyond the image, it is truncated.
+This function recovers the image pixel or pixel mask values in the given region
+of interest. Regardless of the shape of the specified, the shape of the pixels and
+pixelmask arrays must necessarily be the bounding box of the specified region.  If
+the region extends beyond the image, it is truncated.
 
-Recall that the recovered \pixelmask\ will reflect both the \pixelmask\
-stored in the image, and the \region\ (their masks are `anded') -- see
-the \htmlref{discussion}{IMAGE:MASKSANDREGIONS} in the introduction
-about this. 
+Recall that the recovered pixelmask will reflect both the pixelmask stored in the
+image, and the region (their masks are `anded' together).
 
-The argument {\stfaf axes} can be used to reduce the dimensionality of
-the output array. It specifies which pixel axes of the image to
-average the data over.  For example, consider a 3-D image.  With
-{\stfaf axes=[0,1]} and all other arguments left at their defaults,
-the result would be a 1-D vector, a profile along the third axis, with
+The argument axes can be used to reduce the dimensionality of the output array. It
+specifies which pixel axes of the image to average the data over.  For example,
+consider a 3-D image. With axes=[0,1] and all other arguments left at their
+defaults, the result would be a 1-D vector, a profile along the third axis, with
 the data averaged over the first two axes.
 
-This function differs in three ways from {\stff getchunk}.  First, the
-region can be much more complex (e.g.  a union of polygons) than the
-simple {\stfaf blc}, {\stfaf trc}, and {\stfaf inc} of {\stff
-getchunk} (although such a region can be created of course).  Second,
-it can be used to recover the \pixelmask\ or the pixels.  Third, it is
-less efficient than {\stff getchunk} for doing the same thing as
-{\stff getchunk}.  So if you are interested in say, iterating through
-an image, getting a regular hyper-cube of pixels and doing something
-with them, then {\stff getchunk} will be faster.  This would be
-especially noticeable if you iterated line by line through a large
-image.
+This method differs in a couple of ways from the getchunk() method.  For example,
+the specified region can be much more complex (eg, a union of polygons) than the
+limited, simple regions that can be specified in getchunk(), which must be
+rectangular. On the other hand, getregion() is less effective than getchunk()
+for the same region specification. So if one is interested in say, iterating
+through an image, getting a regular hyper-cube of pixels and doing something
+with them, then getchunk() will be faster. This would be especially noticeable if
+you iterated line by line through a large image (and of course, in both cases,
+retrieving very large regions will become very resource intensive, as these
+returned arrays are completely stored in memory).
 
 </description>
 
@@ -7578,7 +7571,7 @@ ia.close()
 <description>
 
 This method puts an array into the image (which must be writable, eg it
-will fail on FITS images).  If there is a default pixel mask, it is
+will fail on FITS images). If there is a default pixel mask, it is
 ignored. It is the complement of the getchunk() method. The blc, trc,
 and increment (inc) may be specified. If they are unspecified, they
 default to the beginning of the image and an increment of one.
@@ -7737,38 +7730,37 @@ ia.close()
 <returns type="bool">T or fail</returns>
 <description>
 
-This function replaces data and/or \pixelmask\ values in the image in
-the specified \region.  The {\stfaf pixels} and/or {\stfaf pixelmask}
-arrays must be the shape of the bounding box, and the whole bounding box
-is replaced in the image.  The \region\ is really only used to specify
-the bounding box.  If the region extends beyond the image, it is
-truncated.  If the {\stfaf pixels} or {\stfaf pixelmask} array shapes do not
-match the bounding box, an error will result. 
+This function replaces data and/or pixel mask values in the image in the
+specified region. The pixels and/or pixelmask arrays must be the shape of
+the bounding box, and the whole bounding box is replaced in the image. The
+region is only used to specify the bounding box.  If the region extends
+beyond the image, it is truncated.  If the pixels or pixelmask array shapes
+do not match the bounding box, an error will result. Values in the pixels
+array must share the same domain as the pixel values in the image. If the
+pixels array contains real values and the image pixels contain complex
+values (or vice versa), an exception will be thrown.
 
-When you put a \pixelmask, it either replaces the current default \pixelmask, or
-is created.  The \pixelmask\ is put before the pixels.
+When you put a pixel mask, it either replaces the current default pixel mask,
+or is created.
 
-The argument {\stfaf usemask} is only relevant when you are putting
-pixel values and there is a \pixelmask\ (meaning also the one you might have
-just put in place).  If {\stfaf usemask=T} then only pixels for which
-the mask is good (T) are altered.  If {\stfaf usemask=F} then all the
-pixels in the region are altered - the mask is ignored. 
+The usemask parameter is only relevant when you are putting pixel values and
+there is a pixel mask (meaning also the one you might have just put in place).
+If usemask=True, then only pixels for which the mask is good (True) are
+altered.  If usemask=False, then all the pixels in the region are altered. 
 
-The argument {\stfaf replicate} can be used to replicate the array
-throughout the image (from the blc to the trc).  For example, if you
-provide a 2D array to a 3D image, you can replicate it through the third
-axis by setting {\stfaf replicate=T}.   The replication
-is done in the specified {\stfaf region}.
+The replicate parameter can be used to replicate the array throughout the
+image (from the blc to the trc).  For example, if a two dimensional array is
+provided for a three dimensional image, it can be replicated along the third
+axis by setting replicate=True. The replication is done in the specified
+region.
 
-The argument {\stfaf locking} controls two things.  If True, then
-after the function is called, the image is unlocked (so some other
-process can acquire a lock) and it is indicated that the image has
-changed. <!-- (causes function <link
-anchor="images:image.view.function">view</link> to redisplay the image
-if it is has been called).--> The reason for having this argument is
-that the unlocking and updating processes are quite expensive.  If you
-are repeatedly calling {\stff putregion} in a for loop, you would be
-advised to use this switch (and to consider using {\stff putchunk}).
+The locking parameter controls two things.  If True, then after the method
+is called, the image is unlocked (so some other process can acquire a lock)
+and it is indicated that the image has changed. The reason for this
+parameter is that the unlocking and updating processes are quite expensive.
+If putregion() is being called multiple times, in a for loop, for example,
+it is recommended to set locking=True (and to consider using putchunk()
+instead).
 
 See the related functions <link
 anchor="images:image.putchunk.function">putchunk</link>, <link
