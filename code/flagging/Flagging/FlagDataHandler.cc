@@ -1661,14 +1661,13 @@ FlagDataHandler::setTimeAverageIter(bool activated)
     {
         timeAvgOptions_p |= vi::AveragingOptions::AverageFloat;
     }
-/*    else if (dataColumnType_p.compare("RESIDUAL") == 0)
+    else if (dataColumnType_p.compare("RESIDUAL") == 0)
     {
         timeAvgOptions_p |= vi::AveragingOptions::AverageCorrected;
+        timeAvgOptions_p |= vi::AveragingOptions::CorrectedFlagWeightAvgFromWEIGHT;
         timeAvgOptions_p |= vi::AveragingOptions::AverageModel;
-        timeAvgOptions_p |= vi::AveragingOptions::ModelPlainAvg;
-        timeAvgOptions_p |= vi::AveragingOptions::CorrectedFlagWeightAvgFromWEIGHT
-    }*/
-
+        timeAvgOptions_p |= vi::AveragingOptions::ModelFlagWeightAvgFromWEIGHT;
+    }
 }
 
 // ----------------------------------------------------------------------------
