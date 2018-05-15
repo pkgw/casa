@@ -312,15 +312,19 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
      <shortdescription>Stokes Planes to make</shortdescription>
 <description>Stokes Planes to make
                default='I'; example: stokes='IQUV';
-                 Options: 'I','Q','U','V','IV','QU','IQ','UV','IQUV','RR','LL','XX','YY','RRLL','XXYY' 
+                 Options: 'I','Q','U','V','IV','QU','IQ','UV','IQUV','RR','LL','XX','YY','RRLL','XXYY','pseudoI' 
 
                              Note : Due to current internal code constraints, if any correlation pair 
-                                        is flagged, no data for that row in the MS will be used. 
+                                        is flagged, by default, no data for that row in the MS will be used. 
                                         So, in an MS with XX,YY, if only YY is flagged, neither a 
                                         Stokes I image nor an XX image can be made from those data points.
                                         In such a situation, please split out only the unflagged correlation into
-                                        a separate MS. This constraint shall be removed (where logical)
-                                        in a future release.
+                                        a separate MS. 
+
+                             Note : The 'pseudoI' option is a partial solution, allowing Stokes I imaging
+                                    when either of the parallel-hand correlations are unflagged. 
+
+                             The remaining constraints shall be removed (where logical) in a future release.
 
 </description>
       <value type="string">I</value>
@@ -340,6 +344,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	      <value>YY</value>
 	      <value>RRLL</value>
 	      <value>XXYY</value>
+	      <value>pseudoI</value>
 	    </allowed>
     </param>
 
@@ -1870,6 +1875,13 @@ HPX HEALPix grid.  -->
                                                        ones and zeros as the mask. If this image is a different 
                                                        shape from what is being made it will be resampled to 
                                                        the target coordinate system before being used.
+                                                       When a continuum (single channel) mask is given for spectral
+                                                       cube imaging, it will be extended (copied) to all channels.
+                                                       Similarly, when a Stokes I mask is given, it will be extended
+                                                       to multi-Stokes imaging. Extension of a cube stokes I mask 
+                                                       to other Stokes planes is possible only if the spectral 
+                                                       coordinate and the number of the channels matches with the output
+                                                       image.  
 
                                                        [ Note : If an error occurs during image resampling or
                                                                    if the expected mask does not appear, please try
@@ -1975,25 +1987,30 @@ HPX HEALPix grid.  -->
            <value type="double">3.0</value>
 <description>Sub-parameter for "auto-multithresh":  mask threshold based on sidelobe levels:  sidelobethreshold * max_sidelobe_level * peak residual
 
-              The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="noisethreshold" subparam="true">
     <shortdescription>noisethreshold * rms in residual image</shortdescription>
            <value type="double">5.0</value>
 <description>Sub-parameter for "auto-multithresh":  mask threshold based on the noise level: noisethreshold * rms
+
+              The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="lownoisethreshold" subparam="true">
     <shortdescription>lownoisethreshold * rms in residual image</shortdescription>
            <value type="double">1.5</value>
 <description>Sub-parameter for "auto-multithresh":  mask threshold to grow previously masked regions via binary dilation:   lownoisethreshold * rms in residual image
+
+              The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="negativethreshold" subparam="true">
            <shortdescription>negativethreshold * rms in residual image</shortdescription>
            <value type="double">0.0</value>
 <description>Sub-parameter for "auto-multithresh": mask threshold  for negative features: -1.0* negativethreshold * rms 
+
+              The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="smoothfactor" subparam="true">

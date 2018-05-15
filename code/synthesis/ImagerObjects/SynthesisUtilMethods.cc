@@ -1180,7 +1180,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	//// stokes
 	err += readVal( inrec, String("stokes"), stokes);
-	    
+	if(stokes.matches("pseudoI"))
+	  {
+	    stokes="I";
+	    pseudoi=true;
+	  }
+	else {pseudoi=false;}
+
+	/// PseudoI
+
 	////nchan
 	err += readVal( inrec, String("nchan"), nchan);
 
@@ -1732,6 +1740,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     startModel=Vector<String>(0);
     overwrite=false;
 
+    // PseudoI
+    pseudoi=false;
+
     // Spectral coordinates
     nchan=1;
     mode="mfs";
@@ -1771,7 +1782,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     cells[0] = QuantityToString( cellsize[0] );
     cells[1] = QuantityToString( cellsize[1] );
     impar.define("cell", cells );
-    impar.define("stokes", stokes);
+    if(pseudoi==true){impar.define("stokes","pseudoI");}
+    else{impar.define("stokes", stokes);}
     impar.define("nchan", nchan);
     impar.define("nterms", nTaylorTerms);
     impar.define("deconvolver",deconvolver);
@@ -1863,6 +1875,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         impar.define("imshape", imshape);
       } 
     //    else cout << " NO CSYS INFO to write to output record " << endl;
+
 
     return impar;
   }
