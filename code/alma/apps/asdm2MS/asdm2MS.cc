@@ -4373,33 +4373,33 @@ int main(int argc, char *argv[]) {
       // these are the actual options
       { HELP, 0, "", "help", AlmaArg::None, " --help  \tproduces this help message."},
       { ICM, 0, "", "icm",  AlmaArg::Required, 
-	" --icm  \tspecifies the correlation mode to be considered on input. "
+	" --icm arg (=all) \tspecifies the correlation mode to be considered on input. "
 	"A quoted string containing a sequence of 'ao' 'co' 'ac' 'all' separated by whitespaces is expected"},
       { ISRT, 0, "", "isrt", AlmaArg::Required, 
-	" --isrt  \tspecifies the spectral resolution type to be considered on input. "
+	" --isrt arg (=all) \tspecifies the spectral resolution type to be considered on input. "
 	"A quoted string containing a sequence of 'fr' 'ca' 'bw' 'all' separated by whitespaces is expected"},
       { ITS, 0, "", "its",  AlmaArg::Required, 
-	" --its  \tspecifies the time sampling (INTEGRATION and/or SUBINTEGRATION)  to be considered on input. "
+	" --its arg (=all) \tspecifies the time sampling (INTEGRATION and/or SUBINTEGRATION)  to be considered on input. "
 	"A quoted string containing a sequence of 'i' 'si' 'all' separated by whitespaces is expected"},  
       { OCM, 0, "", "ocm", AlmaArg::Required,
-	" --ocm  \toutput data for correlation mode AUTO_ONLY (ao) or CROSS_ONLY (co) or CROSS_AND_AUTO (ca)"},
+	" --ocm arg (=ca) \toutput data for correlation mode AUTO_ONLY (ao) or CROSS_ONLY (co) or CROSS_AND_AUTO (ca)"},
       { COMPRESSION, 0, "c", "compression", AlmaArg::None,
 	" --c [--compression]  \tproduces compressed columns in the resulting measurement set "
 	"(not set by default). When this option is selected the string '-compressed' is inserted "
 	"in the pathname of the resulting measurement set."},
       { ASIS, 0, "", "asis", AlmaArg::Required, 
-	" --asis  \tcreates verbatim copies of the ASDM tables in the output measurement set. "
+	" --asis arg \tcreates verbatim copies of the ASDM tables in the output measurement set. "
 	"The value given to this option must be a quoted string containing a list of table names "
 	"separated by space characters; the wildcard character '*' is allowed in table names."},
       { WVRCORRDATA, 0, "", "wvr-corrected-data", AlmaArg::Required,  
-	" --wvr-corrected-data  \tspecifies wich values are considered in the ASDM binary data "
+	" --wvr-corrected-data arg (=no) \tspecifies wich values are considered in the ASDM binary data "
 	"to fill the DATA column in the MAIN table of the MS. Expected values for this option are "
 	"'no' for the uncorrected data (this is the default), 'yes' for the corrected data and "
 	"'both' for corrected and uncorrected data. In the latter case, two measurement sets are "
 	"created, one containing the uncorrected data and the other one, whose name is suffixed "
 	"by '-wvr-corrected', containing the corrected data."},
       { SCANS, 0, "s", "scans", AlmaArg::Required,
-	" --s [--scans]  \tprocesses only the scans specified in the option's value. "
+	" --s [--scans] arg \tprocesses only the scans specified in the option's value. "
 	"This value is a semicolon separated list of scan specifications. A scan specification "
 	"consists of an exec bock index followed by the character ':' followed by a comma separated "
 	"list of scan indexes or scan index ranges. A scan index is relative to the exec block it "
@@ -4409,7 +4409,7 @@ int main(int argc, char *argv[]) {
 	"scan index range not preceded by an exec block index will be interpreted as 'all the scans with "
 	"such indexes in all the exec blocks'.  By default all the scans are considered."},
       { LOGFILE, 0, "l", "logfile", AlmaArg::Required, 
-	" -l [--logfile]  \tspecifies the log filename. If the option is not used then the "
+	" -l [--logfile] arg \tspecifies the log filename. If the option is not used then the "
 	"logged informations are written to the standard error stream."},
       { VERBOSE, 0, "v", "verbose", AlmaArg::None, " -v [--verbose]  \tlogs numerous informations as the filler is working."},
       { REVISION, 0, "r", "revision", AlmaArg::None, " -r [--revision]  \tlogs information about the revision of this application."},
@@ -4424,25 +4424,25 @@ int main(int argc, char *argv[]) {
       { NOPOINTING, 0, "", "no-pointing", AlmaArg::None, " --no-pointing  \tThe Pointing table will be ignored."},
       { CHECKROWUNIQ, 0, "", "check-row-uniqueness", AlmaArg::None, " --check-row-uniqueness  \tThe row uniqueness constraint will be checked in the tables where it's defined"},
       { BDFSLICESIZE, 0, "", "bdf-slice-size", AlmaArg::Long,  
-	" --bdf-slice-size  \tThe maximum amount of memory expressed as an integer "
+	" --bdf-slice-size arg (=500) \tThe maximum amount of memory expressed as an integer "
 	"in units of megabytes (1024*1024) allocated for BDF data. The default is 500 (megabytes)"},
       { LAZY, 0, "", "lazy", AlmaArg::None, " --lazy  \tdefers the production of the observational data in the MS Main table (DATA column) - Purely experimental, don't use in production !"},
       { WITHPCORR, 0, "", "with-pointing-correction", AlmaArg::None, 
 	" --with-pointing-correction  \tadd (ASDM::Pointing::encoder - ASDM::Pointing::pointingDirection) "
 	"to the value to be written in MS::Pointing::direction - (related with JIRA tickets CSV-2878 and ICT-1532))"},
       { ACXCPERTIME, 0, "", "ac-xc-per-timestamp", AlmaArg::Required, 
-	" --ac-xc-per-timestamp  \tif set to yes, then the filler writes in that order autocorrelations "
+	" --ac-xc-per-timestamp arg (=no) \tif set to yes, then the filler writes in that order autocorrelations "
 	"and cross correlations rows for one given data description and timestamp. Otherwise auto "
 	"correlations data are grouped for a sequence of time stamps and then come the cross correlations "
 	"data for the same sequence of timestamps."},
       { POLYEPHTSTEP, 0, "", "polyephem-tabtimestep", AlmaArg::Float, 
-	" --polyephem-tabtimestep  \tDefines the time step used to tabulate the polynomials "
+	" --polyephem-tabtimestep arg (=0.001) \tDefines the time step used to tabulate the polynomials "
 	"found in the columns 'dir', 'distance' and optionally 'radVel' of the ASDM Ephemeris table. "
 	"The unit to express the time step is the day and the default value is 0.001. If 'radvel' "
 	"is not present then the radial velocity will be obtained by tabulating the derivative of "
 	"the polynomial found in 'distance'."},
       { INTEPHEM, 0, "", "interpolate-ephemeris", AlmaArg::Required, 
-	" --interpolate-ephemeris  \tif set to 'yes' then the filler will resample the sequence "
+	" --interpolate-ephemeris arg (=no) \tif set to 'yes' then the filler will resample the sequence "
 	"of times found in the ASDM Ephemeris table into an evenly spaced sequence of times on which "
 	"the ephemeris paarameters will obtained by an interpolation of degree 1. Otherwise (!= 'yes') "
 	"the ephemeris parameters will be copies of what's in the ASDM Ephemeris table on the same "

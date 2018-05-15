@@ -1252,7 +1252,7 @@ int main (int argc, char * argv[]) {
     argv++;
 
     string flagcondDoc = 
-      " --f [--flagcond]  \tspecifies the list of flagging conditions to consider. "
+      " --f [--flagcond] arg \tspecifies the list of flagging conditions to consider. "
       "The list must be a white space separated list of valid flagging conditions names. "
       "Note that the flag names can be shortened as long as there is no ambiguity "
       "(i.e. \"FFT, SI\" is valid and will be interpreted as \"FFT_OVERFLOW , SIGMA_OVERFLOW\"). "
@@ -1260,7 +1260,7 @@ int main (int argc, char * argv[]) {
       "A flag is set at the appropriate location in the MS Main row whenever at least "
       "one of the flagging conditions present in the option --flagcond is read at the "
       "relevant location in the relevant BDF file. The flagging conditions are :\n" + abbrevList + "\n\n"
-      "\tNote that the special value \"ALL\" to set all the flagging conditions.";
+      "\tNote the special value \"ALL\" used to set all the flagging conditions.\n";
 
     string usageIntro = 
       "Generates MS Flag information from the flagging conditions contained in the BDF files of an ASDM dataset.\n\n"
@@ -1279,7 +1279,7 @@ int main (int argc, char * argv[]) {
       { HELP, 0, "", "help", AlmaArg::None, " --help  \tproduces this help message."},
       { FLAGCOND, 0, "f", "flagcond", AlmaArg::Required, flagcondDoc.c_str()},
       { SCANS, 0, "s", "scans", AlmaArg::Required, 
-	" -s [--scans]  \tprocesses only the scans specified in the option's value."
+	" -s [--scans] arg \tprocesses only the scans specified in the option's value."
 	"This value is a semicolon separated list of scan specifications. "
 	"A scan specification consists in an exec bock index followed by the character ':' "
 	"followed by a comma separated list of scan indexes or scan index ranges. "
@@ -1290,24 +1290,24 @@ int main (int argc, char * argv[]) {
 	"index will be interpreted as 'all the scans with such indexes in all the exec blocks'.  "
 	"By default all the scans are considered."},
       { WVRCORRDATA, 0, "", "wvr-corrected-data", AlmaArg::Bool, 
-	" --wvr-corrected-data  \tmust be set to true (resp. false) whenever "
+	" --wvr-corrected-data arg (=false) \tmust be set to true (resp. false) whenever "
 	"the MS to be populated contains corrected (resp. uncorrected) data (default==false)"},
-      { LAZY, 0, "", "lazy", AlmaArg::Bool, " --lazy  \tmust be set to True if the measurement set has been produced by asdm2MS run with the option --lazy (default==false"},
+      { LAZY, 0, "", "lazy", AlmaArg::Bool, " --lazy arg (=false) \tmust be set to True if the measurement set has been produced by asdm2MS using the option --lazy (default==false"},
       { OCM, 0, "", "ocm", AlmaArg::Required, 
-	" --ocm  \tspecifies the output correlation mode, "
+	" --ocm  arg (=ca) \tspecifies the output correlation mode, "
 	"i.e. the correlation mode of the ASDM/BDF's data for which the "
 	"MS flags will be written. The value given to this option must *imperatively* "
 	"be the same than the one given to the --ocm option for the execution of the "
 	"filler which produced the MS. Valid values are 'ca' for CROSS_AND_AUTO, "
-	"'ao' for AUTO_ONLY and 'co' for CROSS_ONLY."},
-      { VERBOSE, 0, "v", "verbose",  AlmaArg::None, " -v  \tlogs numerous informations as the application is running."},
+	"'ao' for AUTO_ONLY and 'co' for CROSS_ONLY (default=='ca')."},
+      { VERBOSE, 0, "v", "verbose",  AlmaArg::None, " -v [--verbose] \tlogs numerous information as the application is running."},
       { LOGFILE, 0, "l", "logfile",  AlmaArg::Required, 
-	" -l [--logfile]  \tspecifies the log filename. "
-	"If the option is not used then the logged informations are written to the standard error stream."},
-      // these can be set by the command line, but are not shown the user.
+	" -l [--logfile]  arg \tspecifies the log filename. "
+	"If the option is not used then the logged information is written to the standard error stream."},
+      // these can be set by the command line, but are not shown to the user.
       { ASDMDIR, 0, "", "asdm-directory", AlmaArg::Required, 0},
       { MSDIR, 0, "", "ms-directory", AlmaArg::Required, 0},
-      // used in unit tests to turn off duplicate integration time checks for RADIOMETER data, not intended for normal use
+      // used in unit tests to turn off duplicate integration time checks for RADIOMETER data, not intended for normal use, hidden from the user.
       { CHECKDUPINTS, 0, "", "checkdupints", AlmaArg::Bool, 0},
       { 0, 0, 0, 0, 0, 0 } };
 

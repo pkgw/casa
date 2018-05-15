@@ -394,7 +394,7 @@ int main (int argc, char* argv[]) {
       // these are the non-positional options
       { HELP, 0, "", "help", AlmaArg::None, " --help  \tproduces this help message."},
       { LOGFILE, 0, "l", "logfile", AlmaArg::Required, 
-	" -l [--logfile]  \tspecifies the log filename. "
+	" -l [--logfile] arg \tspecifies the log filename. "
 	"If the option is not used then the logged informations are written to the standard error stream."},
 
       // hidden non-positional option, the positional one takes precedence when both are set

@@ -117,13 +117,13 @@ int main(int argc, char *argv[]) {
  
     // these are the non-positional options
     { HELP, 0, "", "help", AlmaArg::None, " --help  \tproduces this help message."},
-    { DATACOLUMN, 0, "d", "datacolumn", AlmaArg::Required, " -d [--datacolumn]  \tspecifies the datacolumn."},
-    { ARCHIVEID, 0, "a", "archiveid", AlmaArg::Required, " -a [--archiveid]  \tspecifies the archive ID."},
-    { RANGEID, 0, "g", "rangeid", AlmaArg::Required, " -g [--rangeid]  \tspecifies the range ID."},
-    { SUBSCANDUR, 0, "s", "subscanduration", AlmaArg::Float, " -s [--subscanduration]  \tspecifies the maximum duration of a subscan in the output ASDM (seconds). Default: 86400"},
-    { SCHEDBLOCKDUR, 0, "", "schedblockduration", AlmaArg::Float, " --schedblockduration  \tspecifies the maximum duration of a scheduling block in the output ASDM (seconds). Default: 2700"},
-    { LOGFILE, 0, "l", "logfile", AlmaArg::Required, " -l [--logfile]  \tspecifies the log filename. If the option is not used then the logged informations are written to the standard error stream."},
-    { APUNCORR, 0, "u", "apuncorrected", AlmaArg::None, " -u [--apuncorrected]  \tthe data given by datacolumn should be regarded as not having an atmospheric phase correction. Default: data is AP corrected."},
+    { DATACOLUMN, 0, "d", "datacolumn", AlmaArg::Required, " -d [--datacolumn] arg (=DATA) \tspecifies the datacolumn."},
+    { ARCHIVEID, 0, "a", "archiveid", AlmaArg::Required, " -a [--archiveid] arg (=S0) \tspecifies the archive ID."},
+    { RANGEID, 0, "g", "rangeid", AlmaArg::Required, " -g [--rangeid] arg (=X1) \tspecifies the range ID."},
+    { SUBSCANDUR, 0, "s", "subscanduration", AlmaArg::Float, " -s [--subscanduration] arg (=86400)  \tspecifies the maximum duration of a subscan in the output ASDM (seconds). Default: 86400"},
+    { SCHEDBLOCKDUR, 0, "", "schedblockduration", AlmaArg::Float, " --schedblockduration  arg (=2700) \tspecifies the maximum duration of a scheduling block in the output ASDM (seconds). Default: 2700"},
+    { LOGFILE, 0, "l", "logfile", AlmaArg::Required, " -l [--logfile] arg \tspecifies the log filename. If the option is not used then the logged informations are written to the standard error stream."},
+    { APUNCORR, 0, "u", "apuncorrected", AlmaArg::None, " -u [--apuncorrected] \tthe data given by datacolumn should be regarded as not having an atmospheric phase correction. Default: data is AP corrected."},
     { VERBOSE, 0, "v", "verbose", AlmaArg::None, " -v [--verbose]  \tlogs numerous informations as the filler is working."},
     { REVISION, 0, "r", "revision", AlmaArg::None, " -r [--revision]  \tlogs information about the revision of this application."},
     
