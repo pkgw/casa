@@ -231,6 +231,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SynthesisUtilMethods::getResource(String label, String fname)
   {
+     // TODO: not tested on anything else than LINUX (MACOS for the future)
+#if !defined(AIPS_LINUX)
+      return;
+#endif
+
      Bool isOn = false;
      AipsrcValue<Bool>::find(isOn, g_enableOptMemProfile);
      if (!isOn)
@@ -240,7 +245,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
      LogIO casalog( LogOrigin("SynthesisUtilMethods", "getResource", WHERE) );
 
      // To hold memory stats, in MB
-     int vmRSS = -1, vmWHM = -1, vmSize = -1, vmPeak = -1, vmSwap = -1;
+     int vmRSS = -1, vmHWM = -1, vmSize = -1, vmPeak = -1, vmSwap = -1;
      pid_t pid = -1;
      int fdSize = -1;
 
@@ -260,7 +265,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	 if (startVmRSS == line.substr(0, startVmRSS.size())) {
 	   vmRSS = parseProcStatusLine(line.c_str()) / KB_TO_MB;
 	 } else if (startVmWHM == line.substr(0, startVmWHM.size())) {
-	   vmWHM = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	   vmHWM = parseProcStatusLine(line.c_str()) / KB_TO_MB;
 	 } else if (startVmSize == line.substr(0, startVmSize.size())) {
 	   vmSize = parseProcStatusLine(line.c_str()) / KB_TO_MB;
          } else if (startVmPeak == line.substr(0, startVmPeak.size())) {
@@ -282,15 +287,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
      now = usage.ru_utime;
 
      // TODO: check if this works as expected when /proc/self/status is not there
+     // Not clear at all if VmHWM and .ru_maxrss measure the same thing
      // Some alternative is needed for the other fields as well: VmSize, VMHWM, FDSize.
-     if (vmRSS < 0) {
-       vmRSS = usage.ru_maxrss;
+     if (vmHWM < 0) {
+       vmHWM = usage.ru_maxrss;
      }
 
      ostringstream oss;
      oss << "PID: " << pid ;
      oss << " MemRSS (VmRSS): " << vmRSS << " MB.";
-     oss << " VmWHM: " << vmWHM << " MB.";
+     oss << " VmWHM: " << vmHWM << " MB.";
      oss << " VirtMem (VmSize): " << vmSize << " MB.";
      oss << " VmPeak: " << vmPeak << " MB.";
      oss << " VmSwap: " << vmSwap << " MB.";
@@ -316,7 +322,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
              ofile << header.str() << '\n';
          }
          ostringstream line;
-         line << pid << ',' << vmRSS << ',' << vmWHM << ',' << vmSize << ','
+         line << pid << ',' << vmRSS << ',' << vmHWM << ',' << vmSize << ','
               << vmPeak << ','<< vmSwap << ',' << now.tv_sec << '.' << now.tv_usec << ','
               << fdSize << ',' << '[' << label << ']';
          ofile << line.str() << '\n';
