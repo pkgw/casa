@@ -1645,6 +1645,8 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 	case PMS::V:
 	case PMS::W:
 	case PMS::FLAG_ROW:
+	case PMS::RA:
+	case PMS::DEC:
 		axismask(2)=true;
 		break;
 	case PMS::UVDIST_L:
@@ -1661,9 +1663,9 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 		break;
 	case PMS::ANTENNA:
 	case PMS::AZIMUTH:
-	case PMS::RA:
-	case PMS::DEC:
 	case PMS::ELEVATION:
+	//case PMS::RA:
+	//case PMS::DEC:
 	case PMS::PARANG:
 		axismask(3)=true;
 		break;

@@ -1221,6 +1221,25 @@ called.
       <value>0</value>
     </param>
     
+    <param type="string" name="xframe">
+      <description>Coordinates frame to use for xaxis, if applicable</description>
+      <value />
+    </param>
+    
+    <param type="string" name="xinterp">
+      <description>Interpolation method to use for xaxis, if applicable</description>
+      <value />
+    </param>
+    
+    <param type="string" name="yframe">
+      <description>Coordinates frame to use for yaxis, if applicable</description>
+      <value />
+    </param>
+    
+    <param type="string" name="yinterp">
+      <description>Interpolation method to use for yaxis, if applicable</description>
+      <value />
+    </param>
     
   </input>
   

@@ -14,6 +14,7 @@
 
 // Measures
 #include <measures/Measures/MDirection.h>
+#include <measures/Measures/MeasFrame.h>
 #include <tables/TaQL.h>
 #include <casa/Arrays/Cube.h>
 #include <casa/Exceptions/Error.h>
@@ -56,6 +57,7 @@ PI_TVI::PointingInterpolationTVI(ViImplementation2 *inputVII) :
 
 		MDirection::Ref ref(mspc.directionMeasCol().measDesc().getRefCode());
 		dirRef_ = ref;
+		toRef_.setType(MDirection::J2000);
 
 		setupInterpolator();
 }
@@ -182,7 +184,14 @@ std::pair<bool, MDirection> PI_TVI::getPointingAngle (int antId, double timeStam
 	auto dirValue = interpolator_.pointingDir(antId,timeStamp);
 	Quantity qLon(dirValue[0], lonUnit_);
 	Quantity qLat(dirValue[1], latUnit_);
-	return std::make_pair(true,MDirection(qLon,qLat,dirRef_));
+	MDirection fromDir(qLon,qLat,dirRef_);
+	MEpoch curEpoch(Quantity(timeStamp,"s"),MEpoch::UTC);
+
+	auto antPosition = getVisBuffer()->subtableColumns().antenna().positionMeas()(antId);
+	auto toDir = MDirection::Convert(fromDir,
+			MDirection::Ref(toRef_.getType(),MeasFrame(curEpoch,antPosition)))();
+	// return std::make_pair(true,MDirection(qLon,qLat,dirRef_));
+	return std::make_pair(true,toDir);
 }
 
 String PI_TVI::taQLSet(const std::set<int> & inputSet){

@@ -254,7 +254,50 @@ MS Parameters
         <value>corrected/model</value>
         <value>float</value>
       </allowed>
-    </param>    
+    </param>
+
+    <param type="string" name="xframe" subparam="true">
+      <description>Coordinate frame to use for xaxis</description>
+      <value />
+      <allowed kind="enum">
+        <value />
+        <value>icrs</value>
+        <value>azel</value>
+      </allowed>
+    </param>
+
+    <param type="string" name="yframe" subparam="true">
+      <description>Coordinate frame to use for yaxis</description>
+      <value />
+      <allowed kind="enum">
+        <value />
+        <value>icrs</value>
+        <value>azel</value>
+      </allowed>
+    </param>
+
+    <param type="string" name="xinterp" subparam="true">
+      <description>Interpolation method for x axis</description>
+      <value />
+      <allowed kind="enum">
+        <value />
+        <value>nearest</value>
+        <value>linear</value>
+        <value>cubic</value>
+      </allowed>
+    </param>
+
+    <param type="string" name="yinterp" subparam="true">
+      <description>Interpolation method for x axis</description>
+      <value />
+      <allowed kind="enum">
+        <value />
+        <value>nearest</value>
+        <value>linear</value>
+        <value>cubic</value>
+      </allowed>
+    </param>
+
     
   <param type="any" name="yaxis">    
   <description>Plot y-axis (blank for default/current)</description>
@@ -1214,6 +1257,14 @@ Constraints
       <equals type="string" value="imaginary">
         <default param="xdatacolumn"><value type="string" /></default>
       </equals>
+      <equals type="string" value="ant-ra">
+        <default param="xframe"><value type="string" /></default>
+        <default param="xinterp"><value type="string" /></default>
+      </equals>
+      <equals type="string" value="ant-dec">
+        <default param="xframe"><value type="string" /></default>
+        <default param="xinterp"><value type="string" /></default>
+      </equals>
       <equals value="scan"/>
        <equals value="Scan"/>
       <equals value="field"/>
@@ -1300,6 +1351,14 @@ Constraints
       </equals>
       <equals type="string" value="imaginary">
         <default param="ydatacolumn"><value type="string" /></default>
+      </equals>
+      <equals type="string" value="ant-ra">
+        <default param="yframe"><value type="string" /></default>
+        <default param="yinterp"><value type="string" /></default>
+      </equals>
+      <equals type="string" value="ant-dec">
+        <default param="yframe"><value type="string" /></default>
+        <default param="yinterp"><value type="string" /></default>
       </equals>
       <equals value="scan"/>
        <equals value="Scan"/>

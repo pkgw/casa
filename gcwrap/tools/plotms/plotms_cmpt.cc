@@ -598,12 +598,16 @@ void plotms::setPlotYAxis(const string& yAxis, const string& yDataColumn,
 
 void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
         const string& xDataColumn, const string& yDataColumn, const string& yAxisLocation,
-        const bool updateImmediately, const int plotIndex, const int dataIndex) {
+        const bool updateImmediately, const int plotIndex, const int dataIndex,
+		const string& xFrame, const string& yFrame,
+		const string& xInterp, const string& yInterp) {
     launchApp();
     string xdc = xDataColumn, ydc = yDataColumn;
     if(xdc == "residual") xdc = "corrected-model";
     if(ydc == "residual") ydc = "corrected-model";
     Record params;
+
+    // X Axis
     if(!xAxis.empty()){
     	params.define(PlotMSDBusApp::PARAM_AXIS_X, xAxis);
     } else if (!yAxis.empty()) { 
@@ -612,6 +616,14 @@ void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
     if(!xdc.empty()){
         params.define(PlotMSDBusApp::PARAM_DATACOLUMN_X, xdc);
     }
+    if(!xFrame.empty()){
+        params.define(PlotMSDBusApp::PARAM_FRAME_X, xdc);
+    }
+    if(!xInterp.empty()){
+        params.define(PlotMSDBusApp::PARAM_INTERP_X, xdc);
+    }
+
+    // Y Axis
     if(!yAxis.empty()){
     	params.define(PlotMSDBusApp::PARAM_AXIS_Y, yAxis);
     } else if (!xAxis.empty()) { 
@@ -623,6 +635,14 @@ void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
     if (!yAxisLocation.empty()){
     	params.define(PlotMSDBusApp::PARAM_AXIS_Y_LOCATION, yAxisLocation);
     }
+    if(!yFrame.empty()){
+        params.define(PlotMSDBusApp::PARAM_FRAME_Y, xdc);
+    }
+    if(!yInterp.empty()){
+        params.define(PlotMSDBusApp::PARAM_INTERP_Y, xdc);
+    }
+
+    // DBus call
     if(params.nfields() == 0) return;
 
     params.define( PlotMSDBusApp::PARAM_DATA_INDEX, dataIndex );

@@ -438,6 +438,10 @@ private:
 	vector<PMS::Axis> itsYAxes_;
 	vector<PMS::DataColumn> itsXData_;
 	vector<PMS::DataColumn> itsYData_;
+	vector<PMS::CoordSystem> itsXFrame_;
+	vector<PMS::InterpMethod> itsXInterp_;
+	vector<PMS::CoordSystem> itsYFrame_;
+	vector<PMS::InterpMethod> itsYInterp_;
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_XAXES;

@@ -155,7 +155,25 @@ public:
               "data", "corrected", "model", "corrected-model", "data-model", 
               "data/model", "corrected/model", "float")
     // </group>
-              
+
+	// Enum for the different coordinate systems for data axes.
+	// **If these are changed, also update: xmlcasa/tasks/plotms.xml.**
+	// <group>
+	PMS_ENUM1(CoordSystem, coordSystems, coordSystemStrings, coordSystem,
+			  AZEL, ICRS, J2000)
+	PMS_ENUM2(CoordSystem, coordSystems, coordSystemStrings, coordSystem,
+			  "AzEl", "ICRS", "J2000")
+	// </group>
+
+	// Enum for the different interpolation methods for data axes.
+	// **If these are changed, also update: xmlcasa/tasks/plotms.xml.**
+	// <group>
+	PMS_ENUM1(InterpMethod, interpMethods, interpMethodStrings, interpMethod,
+			  NEAREST, LINEAR, CUBIC)
+	PMS_ENUM2(InterpMethod, interpMethods, interpMethodStrings, interpMethod,
+			  "Nearest", "Linear", "Cubic")
+	// </group>
+
     // Returns whether or not the given axis needs the second data parameter to
     // indicate which data column to use or not.  Currently false except for
     // AMP, PHASE, REAL, and IMAG.

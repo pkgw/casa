@@ -39,6 +39,8 @@ private:
 	casacore::Unit lonUnit_;
 	casacore::Unit latUnit_;
 	casacore::MDirection::Ref dirRef_;
+	// Output Reference Frame
+	casacore::MDirection::Ref toRef_;
 	void setupInterpolator();
 	// Utilities
 	casacore::String taQLSet(const std::set<int> &);
