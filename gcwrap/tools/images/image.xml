@@ -5831,7 +5831,10 @@ on the relevant axes.
 The npts parameter allows the number of values to be returned.
 
 The method parameter allows specification of the interpolation method to be used.
-Allowed values are 'nearest', 'linear', and 'cubic'.
+Allowed values are 'nearest', 'linear', and 'cubic'. In the case of an image with
+complex valued pixels, the interpolation is done independently on the real and
+imaginary values. For example, the linearly interpolated value midway between pixels
+with values of 1 + 5j and 2 + 7j would be 1.5 + 6j.
 
 The return value is a dictionary with keys 'pixels' (interpolated pixel values), 
 'mask' (interpolated mask), 'xpos' (x-location in absolute pixel coordinates), 
