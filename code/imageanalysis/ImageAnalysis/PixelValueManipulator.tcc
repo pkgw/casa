@@ -351,34 +351,27 @@ template<class T> casacore::Vector<casacore::uInt> PixelValueManipulator<T>::_np
 
 
 template<class T> casacore::Record* PixelValueManipulator<T>::getSlice(
-    SPCIIT image, const casacore::Vector<casacore::Double>& x, const casacore::Vector<casacore::Double>& y,
-    const casacore::Vector<casacore::Int>& axes, const casacore::Vector<casacore::Int>& coord, casacore::Int npts,
-    const casacore::String& method
+    SPCIIT image, const Vector<Double>& x, const Vector<Double>& y,
+    const Vector<Int>& axes, const Vector<Int>& coord, Int npts,
+    const String& method
 ) {
-    casacore::Vector<casacore::Float> xPos;
-    casacore::Vector<casacore::Float> yPos;
-    casacore::Vector<casacore::Float> distance;
-    casacore::Vector<T> pixels;
-    casacore::Vector<casacore::Bool> pixelMask;
-
-    // Construct PixelCurve.  FIll in defaults for x, y vectors
-    casacore::PixelCurve1D curve(x, y, npts);
-
-    // Set coordinates
-    casacore::IPosition iCoord(coord);
-    casacore::IPosition iAxes(axes);
-
+    Vector<Float> xPos;
+    Vector<Float> yPos;
+    Vector<Float> distance;
+    Vector<T> pixels;
+    Vector<casacore::Bool> pixelMask;
+    PixelCurve1D curve(x, y, npts);
+    IPosition iCoord(coord);
+    IPosition iAxes(axes);
     // Get the Slice
-    auto method2 = casacore::LatticeSlice1D<T>::stringToMethod(method);
-    casacore::LatticeSlice1D<T> slicer(*image, method2);
+    auto method2 = LatticeSlice1D<T>::stringToMethod(method);
+    LatticeSlice1D<T> slicer(*image, method2);
     slicer.getSlice(pixels, pixelMask, curve, iAxes(0), iAxes(1), iCoord);
-
     // Get slice locations
-    casacore::uInt axis0, axis1;
+    uInt axis0, axis1;
     slicer.getPosition(axis0, axis1, xPos, yPos, distance);
-
-    casacore::RecordDesc outRecDesc;
-    outRecDesc.addField("pixel", TpArrayFloat);
+    RecordDesc outRecDesc;
+    outRecDesc.addField("pixel", asArray(image->dataType()));
     outRecDesc.addField("mask", TpArrayBool);
     outRecDesc.addField("xpos", TpArrayFloat);
     outRecDesc.addField("ypos", TpArrayFloat);
@@ -390,7 +383,7 @@ template<class T> casacore::Record* PixelValueManipulator<T>::getSlice(
     outRec->define("xpos", xPos);
     outRec->define("ypos", yPos);
     outRec->define("distance", distance);
-    outRec->define("axes", casacore::Vector<casacore::Int>(vector<casacore::uInt> {axis0, axis1}));
+    outRec->define("axes", Vector<Int>(vector<uInt> {axis0, axis1}));
     return outRec;
 }
 

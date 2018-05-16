@@ -5819,23 +5819,24 @@ ia.done()
 <description>
 
 This function returns a 1-D slice (the pixels and opionally the pixel mask) from the
-\imagefile.   The slice is constrained to lie in a plane of two  cardinal axes
-(e.g. XY or YZ).  At some point this constraint will be relaxed.
-A range of interpolation schemes are available.
+attached image. The slice is constrained to lie in a plane of two cardinal axes
+(e.g. XY or YZ). Interpolation is permitted between pixels, and a set of interpolation
+schemes is available.
 
-You specify the slice as a polyline giving the x ({\stfaf x}) and y
-({\stfaf y}) coordinates and the axes of the plane holding that slice
-({\stfaf axes}).  As well, you must specify the absolute pixel
-coordinates of the other axes ({\stfaf coord}).  This defaults to the
-first pixel (e.g. first plane).
+The slice is specified as a polyline giving the x and y coordinates and the axes of the
+plane holding that slice.  The absolute pixel coordinates of the other axes may be
+specified using the coord parameter. If not specified, these values default to pixel 0
+on the relevant axes.
 
-The return value is a record with fields 'pixels' (interpolated intensity), 
+The npts parameter allows the number of values to be returned.
+
+The method parameter allows specification of the interpolation method to be used.
+Allowed values are 'nearest', 'linear', and 'cubic'.
+
+The return value is a dictionary with keys 'pixels' (interpolated pixel values), 
 'mask' (interpolated mask), 'xpos' (x-location in absolute pixel coordinates), 
 'ypos' (y-location in absolute pixel coordinates), 'distance' (distance along
-slice in pixels), 'axes' (the x and y axes of slice).
-
-<!-- You can optionally plot the slice via argument {\stfaf plot}
-which defaults to False. -->
+slice in pixels), and 'axes' (the x and y axes of slice).
 
 </description>
 

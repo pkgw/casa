@@ -2671,30 +2671,52 @@ record* image::getslice(
         if (_detached()) {
             return nullptr;
         }
-        ThrowIf(
-            ! _imageF,
-            "This method only supports Float valued images"
-        );
-        // handle default coord
-        vector<int> ncoord(coord);
+        Vector<Int> ncoord(coord);
         if (ncoord.size() == 1 && ncoord[0] == -1) {
-            ncoord.assign(_imageF->ndim(), 0);
+            ncoord.resize(shape().size());
+            ncoord.set(0);
         }
         unique_ptr<Record> outRec;
         if (_imageF) {
             outRec.reset(
                 PixelValueManipulator<Float>::getSlice(
                     _imageF, Vector<Double>(x), Vector<Double>(y),
-                    Vector<Int> (axes), Vector<Int> (ncoord),
-                    npts, method
+                    Vector<Int>(axes), ncoord, npts, method
                 )
             );
+        }
+        else if (_imageC) {
+            outRec.reset(
+                PixelValueManipulator<Complex>::getSlice(
+                    _imageC, Vector<Double>(x), Vector<Double>(y),
+                    Vector<Int>(axes), ncoord, npts, method
+                )
+            );
+        }
+        else if (_imageD) {
+            outRec.reset(
+                PixelValueManipulator<Double>::getSlice(
+                    _imageD, Vector<Double>(x), Vector<Double>(y),
+                    Vector<Int>(axes), ncoord, npts, method
+                )
+            );
+        }
+        else if (_imageDC) {
+            outRec.reset(
+                PixelValueManipulator<DComplex>::getSlice(
+                    _imageDC, Vector<Double>(x), Vector<Double>(y),
+                    Vector<Int>(axes), ncoord, npts, method
+                )
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
         return fromRecord(*outRec);
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return nullptr;
