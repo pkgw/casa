@@ -25,7 +25,6 @@ exportasdm.xml
 exportfits.xml
 exportuvfits.xml
 feather.xml
-find.xml
 fixplanets.xml
 fixvis.xml
 flagcmd.xml

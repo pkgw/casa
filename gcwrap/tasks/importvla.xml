@@ -14,7 +14,7 @@ importvla(archivefiles=None,vis=None,
               autocorr=None,antnamescheme=None,
               async=None):
   <shortdescription>Import VLA archive file(s) to a measurement set</shortdescription>
- 
+
   <description>
       Imports an arbitrary number of VLA archive-format data sets into
       a casa measurement set.  If more than one band is present, they
@@ -73,12 +73,12 @@ importvla(archivefiles=None,vis=None,
 	   </param>
 
 	   <param type="bool" name="applytsys">
-		   <description>apply nominal sensistivity scaling to data and weights</description>
+		   <description>apply nominal sensitivity scaling to data and weights</description>
 		   <value>True</value>
 	   </param>
 
 	   <param type="bool" name="autocorr" >
-		   <description>import autocorrelations to ms, if set to True</description>
+		   <description>import autocorrelations to MS, if set to True</description>
 		   <value>False</value>
 	   </param>
 
@@ -157,8 +157,8 @@ importvla(archivefiles=None,vis=None,
               These scans are tipping scans (as of June 1, 2009) and should not
               be filled in the visibility data set.
       evlabands -- Use the EVLA's center frequency and bandwidths for frequencies
-              specified via wavelength or band. 
-	      default =&gt; False. 
+              specified via wavelength or band.
+	      default =&gt; False.
       async --  Run asynchronously
               default = False; do not run asychronously
       </example>

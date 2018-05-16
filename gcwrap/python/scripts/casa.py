@@ -188,7 +188,6 @@ from exportasdm import  exportasdm
 from exportfits import  exportfits
 from exportuvfits import  exportuvfits
 from feather import  feather
-from find import  find
 from fixplanets import  fixplanets
 from fixvis import  fixvis
 from flagcmd import  flagcmd

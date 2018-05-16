@@ -81,6 +81,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
         LogIO os( LogOrigin("SynthesisDeconvolver","descructor",WHERE) );
 	os << LogIO::DEBUG1 << "SynthesisDeconvolver destroyed" << LogIO::POST;
+	SynthesisUtilMethods::getResource("End SynthesisDeconvolver");
+
   }
 
   void SynthesisDeconvolver::setupDeconvolution(const SynthesisParamsDeconv& decpars)
