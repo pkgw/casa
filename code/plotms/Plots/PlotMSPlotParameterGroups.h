@@ -448,6 +448,10 @@ private:
 	static const casacore::String REC_YAXES;
 	static const casacore::String REC_XDATACOLS;
 	static const casacore::String REC_YDATACOLS;
+	static const casacore::String REC_XFRAMES;
+	static const casacore::String REC_YFRAMES;
+	static const casacore::String REC_XINTERPS;
+	static const casacore::String REC_YINTERPS;
 
 
 	void setDefaults();
