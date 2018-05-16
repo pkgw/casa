@@ -65,6 +65,18 @@ namespace casa{
 				    const Int* __restrict__ & iPos, 
 				    const Vector<Int>& inc, 
 				    Complex& nvalue, Complex& wt) __restrict__;
+
+  template 
+  void AWVisResampler::addTo4DArray_ptr(DComplex* __restrict__ & store,
+				    const Int* __restrict__ & iPos, 
+				    const Int* __restrict__ & inc, 
+				    Complex& nvalue, Complex& wt) __restrict__ ;
+  template 
+  void AWVisResampler::addTo4DArray_ptr(Complex* __restrict__ & store,
+				    const Int* __restrict__ & iPos, 
+				    const Int* __restrict__ & inc, 
+				    Complex& nvalue, Complex& wt) __restrict__ ;
+
   template
   void AWVisResampler::DataToGridImpl_p(Array<DComplex>& grid, VBStore& vbs, 
   					Matrix<Double>& sumwt,const Bool& dopsf,
@@ -280,99 +292,59 @@ namespace casa{
     Bool Dummy;
     Complex wt, cfArea=1.0; 
     Complex norm=0.0;
+
+    Vector<Int> iCFPos(4,0);
+    const Int * __restrict__ gridInc_p_ptr= gridInc_p.getStorage(Dummy);
     const Int * __restrict__ iGrdPosPtr = igrdpos.getStorage(Dummy);
     T* __restrict__ gridStore = grid.getStorage(Dummy);
-    Int Nth = 1;
-#ifdef _OPENMP
-    Nth=max(omp_get_max_threads()-2,1);
-#endif
-    Nth = Nth;
+//     Int Nth = 1;
+// #ifdef _OPENMP
+//     Nth=max(omp_get_max_threads()-2,1);
+// #endif
+//     Nth = Nth;
 
     const Int* scaledSupport_ptr=scaledSupport.getStorage(Dummy);
     const Float *scaledSampling_ptr=scaledSampling.getStorage(Dummy);
     const Double *off_ptr=off.getStorage(Dummy);
     const Int *loc_ptr = loc.getStorage(Dummy);
+    Int *iCFPos_ptr = iCFPos.getStorage(Dummy);
     const Int* convOrigin_ptr=convOrigin.getStorage(Dummy);
     Int *iloc_ptr=iloc.getStorage(Dummy);
     Int *igrdpos_ptr=igrdpos.getStorage(Dummy);
-    Vector<Int> iCFPos(4,0);
-
+    Int *cfInc_p_ptr = cfInc_p.getStorage(Dummy);
+    
     Bool finitePointingOffset_l=finitePointingOffset;
     Bool doPSFOnly_l=doPSFOnly;
     Double wVal_l=wVal;
     Complex nvalue_l=nvalue;
     Complex *convFuncV_l=convFuncV;
-    //
-    // !!!!! Compute cfArea for high precision work
-    //
+    Int phaseGradOrigin_l[2]; 
+    phaseGradOrigin_l[0] = cached_phaseGrad_p.shape()(0)/2;
+    phaseGradOrigin_l[1] = cached_phaseGrad_p.shape()(1)/2;
 
-     // cfArea = getCFArea(convFuncV, wVal, scaledSupport, scaledSampling,
-     // 		       off, convOrigin, cfShape, sinDPA,cosDPA);
-
-
-    // cerr << "Cfarea = " << cfArea << endl;
-     IPosition phaseGradOrigin_l; 
-     phaseGradOrigin_l = cached_phaseGrad_p.shape()/2;
-
-// #pragma omp parallel default(none) \
-//   shared(gridStore) \
-//   firstprivate(scaledSupport_ptr,scaledSampling_ptr,off_ptr,loc_ptr,cfArea,iGrdPosPtr, \
-// 	       convFuncV_l, convOrigin_ptr, nvalue_l, wVal_l, finitePointingOffset_l, doPSFOnly_l, \
-// 	       iloc_ptr, norm,igrdpos_ptr) num_threads(Nth)
-     {
-// #pragma omp for
-    for(Int iy=-scaledSupport[1]; iy <= scaledSupport[1]; iy++) 
+    for(Int iy=-scaledSupport_ptr[1]; iy <= scaledSupport_ptr[1]; iy++) 
       {
-	//iloc_ptr[1]=(Int)((scaledSampling[1]*iy+off[1])-1);
-	iloc_ptr[1]=SynthesisUtils::nint((scaledSampling[1]*iy+off[1])-1);
-	igrdpos[1]=loc[1]+iy;
-        iCFPos[1] =iloc_ptr[1]+convOrigin[1];
+	iloc_ptr[1]=SynthesisUtils::nint((scaledSampling_ptr[1]*iy+off_ptr[1])-1);
+	igrdpos_ptr[1]=loc_ptr[1]+iy;
+        iCFPos_ptr[1] =iloc_ptr[1]+convOrigin_ptr[1];
 
-	// XInnerLoop(scaledSupport_ptr, scaledSampling_ptr,
-	// 	   off_ptr,
-	// 	   loc_ptr, cfArea,  
-	// 	   iGrdPosPtr,
-	// 	   convFuncV_l,
-	// 	   convOrigin_ptr,
-	// 	   nvalue_l,
-	// 	   wVal_l,
-	// 	   finitePointingOffset_l,
-	// 	   doPSFOnly_l,
-	// 	   gridStore,
-	// 	   iloc_ptr,
-	// 	   norm,
-	// 	   igrdpos_ptr);
-
-	for(Int ix=-scaledSupport[0]; ix <= scaledSupport[0]; ix++) 
+	for(Int ix=-scaledSupport_ptr[0]; ix <= scaledSupport_ptr[0]; ix++) 
 	  {
-	    //iloc[0]=(Int)((scaledSampling[0]*ix+off[0])-1);
-	    iloc[0]=SynthesisUtils::nint((scaledSampling[0]*ix+off[0])-1);
-	    igrdpos[0]=loc[0]+ix;
-	    iCFPos[0] =iloc_ptr[0]+convOrigin[0];
-	    //
-	    // reindex() is for historical reasons and does three
-	    // operations: (1) rotate the co-ord. sys. using
-	    // sin/cosDPA, (2) add convOrigin to iloc and return the
-	    // result in tiloc and add convOrigin to tiloc, and (3)
-	    // return true if tiloc lines with in the cfShape.
-	    //
-	    //	    if (reindex(iloc,tiloc,sinDPA, cosDPA, convOrigin, cfShape))
+	    iloc_ptr[0]=SynthesisUtils::nint((scaledSampling_ptr[0]*ix+off_ptr[0])-1);
+	    igrdpos_ptr[0]=loc_ptr[0]+ix;
+	    iCFPos_ptr[0] =iloc_ptr[0]+convOrigin_ptr[0];
+	    wt = getFrom4DArray((const Complex * __restrict__ &)convFuncV, 
+				iCFPos_ptr,cfInc_p_ptr);//cfArea;
+	    if (wVal > 0.0) {wt = conj(wt);}
+	    norm += (wt);
+	    if (finitePointingOffset)// && !doPSFOnly) 
 	      {
-		wt = getFrom4DArray((const Complex * __restrict__ &)convFuncV, 
-				    iCFPos,cfInc_p)/cfArea;
-		if (wVal > 0.0) {wt = conj(wt);}
-		norm += (wt);
-		if (finitePointingOffset)// && !doPSFOnly) 
-		  {
-		    wt *= cached_phaseGrad_p(iloc[0]+phaseGradOrigin_l[0],
-					     iloc[1]+phaseGradOrigin_l[1]);
-		  }
-		// The following uses raw index on the 4D grid
-		addTo4DArray(gridStore,iGrdPosPtr,gridInc_p, nvalue,wt);
+		wt *= cached_phaseGrad_p(iloc_ptr[0]+phaseGradOrigin_l[0],
+					 iloc_ptr[1]+phaseGradOrigin_l[1]);
 	      }
+	    addTo4DArray_ptr(gridStore,iGrdPosPtr,gridInc_p_ptr, nvalue,wt);
 	  }
       }
-     }
     return norm;
   }
   // Moved the accumulateFromGrid() method to file to play with
