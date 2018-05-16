@@ -6,7 +6,7 @@ xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 
-<task type="function" name="importasap" category="single dish" >
+<task type="function" name="importasap" category="singledish, import/export" >
 
   <shortdescription>Convert ASAP Scantable data  into a CASA visibility file (MS)</shortdescription>
 
@@ -41,7 +41,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
   <returns type="bool"/>
 
-  <example>		          
+  <example>
 Keyword arguments:
 asdm -- Name of input ASAP Scantable data
         default: none; example: asdm='mydata.asap'
@@ -49,12 +49,12 @@ asdm -- Name of input ASAP Scantable data
 outputvis       -- Root ms name. Note that a prefix (.ms) is NOT appended to this name.
              default: none; example outputvis='myms.ms'
 
-flagbackup   -- Backup original flags in &gt;ms&lt;.flagversions 
+flagbackup   -- Backup original flags in &gt;ms&lt;.flagversions
                 default: True
 
 overwrite   -- overwrite an existing MS
                 default: False (do not overwrite)
-                
+
 parallel    -- Turn on parallel execution
                 default: False (serial execution)
   </example>
