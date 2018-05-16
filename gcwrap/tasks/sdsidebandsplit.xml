@@ -66,12 +66,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
 
     <param type="double" name="refpix" subparam="true">
-        <description>reference pixel of spectral axis in image sideband</description>
+        <description>reference channel of spectral axis in image sideband</description>
         <value>0.0</value>
     </param>
 
      <param type="string" name="refval" subparam="true">
-        <description>frequency at the reference pixel of spectral axis in image sideband (e.g., "100GHz")</description>
+        <description>frequency at the reference channel of spectral axis in image sideband (e.g., "100GHz")</description>
         <value></value>
     </param>
  
