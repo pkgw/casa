@@ -704,6 +704,111 @@ class test_Regridms3(test_base):
         self.assertTrue(ret[0],ret[1])
 
 
+class test_regridms_interpolation_only(test_base):
+    '''Look into the DATA and WEIGHT produced by regridding, using the different
+    interpolation methods available, when not combining them with channel average
+    or any other transformations.'''
+
+    def setUp(self):
+        default(mstransform)
+        # Small MS with two data rows (two SPWs, one row per SPW).
+        self.vis = 'combine-1-timestamp-2-SPW-with-WEIGHT_SPECTRUM-Same-Exposure.ms'
+        self.out_nchan = 10
+        self.copyfile(self.vis)
+
+    def tearDown(self):
+        os.system('rm -rf '+ self.vis)
+        os.system('rm -rf '+ self.outvis)
+
+    def check_output_values(self, vis, eq_pattern, nchan=10, eq_epsilon=1e-5):
+        ''' Checks DATA, WEIGHT, and WEIGHT_SPECTRUM '''
+        ttb = tbtool()
+        ttb.open(vis)
+        weight_spectrum = ttb.getcol('WEIGHT_SPECTRUM')
+        data = ttb.getcol('DATA')
+        weights = ttb.getcol('WEIGHT')
+        ttb.close()
+
+        # for 'combine-1-timestamp-2-SPW-with-WEIGHT_SPECTRUM-Same-Exposure.ms'
+        # shape is (1, 10, 2) - 1 pol x 10 channels x 2 rows
+        out_nchan = data.shape[1]
+        check_eq(out_nchan, nchan)
+        eq_epsilon = 1e-5
+        check_eq(weights[:,0], 59.026817, eq_epsilon)
+        check_eq(weights[:,1], 31.586397, eq_epsilon)
+        check_eq(weight_spectrum[:,:,0], weights[0,0], eq_epsilon)
+        check_eq(weight_spectrum[:,:,1], weights[0,1], eq_epsilon)
+        for pat in eq_pattern:
+            row = pat[0]
+            chan = pat[1]
+            real = pat[2]
+            imag = pat[3]
+            check_eq(data[0][chan][row].real, real, eq_epsilon)
+            check_eq(data[0][chan][row].imag, imag, eq_epsilon)
+
+    def run_mstransform_simply_regrid(self, vis, outvis, interpolation, nchan=10):
+        mstransform(vis=vis, outputvis=outvis, datacolumn="DATA",
+                    regridms=True, mode="frequency", nchan=nchan,
+                    start="2.20804+10Hz", width="2.5e+05Hz",
+                    phasecenter="J2000 12h01m53.13s -18d53m09.8s",
+                    interpolation=interpolation)
+
+    def test_simple_regrid_nearest(self):
+        ''' mstransform: regrid, nothing else. interpolation nearest, check output values'''
+        self.outvis = 'test_simple_regrid_nearest.ms'
+        self.run_mstransform_simply_regrid(self.vis, self.outvis, 'nearest')
+
+        eq_pattern = [[0, 0, .0, .0],
+                      [0, 1, 0.18098925, 0.35214117],
+                      [1, 5, 0.42104605, 0.26617193],
+                      [1, self.out_nchan-1, 0.02630020, 0.19990821]]
+        self.check_output_values(self.outvis, eq_pattern, self.out_nchan)
+
+    def test_simple_regrid_linear(self):
+        ''' mstransform: regrid, nothing else. interpolation linear, check output values'''
+        self.outvis = 'test_simple_regrid_linear.ms'
+        self.run_mstransform_simply_regrid(self.vis, self.outvis, 'linear')
+
+        eq_pattern = [[0, 0, 0.02533850, 0.04929977],
+                      [0, 1, 0.14533380, 0.47466096],
+                      [1, 5, 0.36502194, 0.45022112],
+                      [1, self.out_nchan-1, 0.12325509, 0.05476397]]
+        self.check_output_values(self.outvis, eq_pattern, self.out_nchan)
+
+    def test_simple_regrid_cubic(self):
+        ''' mstransform: regrid, nothing else. interpolation cubic, check output values'''
+        self.outvis = 'test_simple_regrid_cubic.ms'
+        self.run_mstransform_simply_regrid(self.vis, self.outvis, interpolation='cubic')
+
+        eq_pattern = [[0, 0, 0.05564772, 0.03979797],
+                      [0, 1, 0.15562536, 0.50231683],
+                      [1, 5, 0.39988747, 0.53319526 ],
+                      [1, self.out_nchan-1, 0.15120457, 0.07539418]]
+        self.check_output_values(self.outvis, eq_pattern, self.out_nchan)
+
+    def test_simple_regrid_spline(self):
+        ''' mstransform: regrid, nothing else. interpolation cubic, check output values'''
+        self.outvis = 'test_simple_regrid_spline.ms'
+        self.run_mstransform_simply_regrid(self.vis, self.outvis, interpolation='spline')
+
+        eq_pattern = [[0, 0, 0.03446201, 0.05137327],
+                      [0, 1, 0.15356585, 0.52084935],
+                      [1, 5, 0.40553212, 0.55733341 ],
+                      [1, self.out_nchan-1, 0.17665164, 0.05236539]]
+        self.check_output_values(self.outvis, eq_pattern, self.out_nchan)
+
+    def test_simple_regrid_fftshift(self):
+        ''' mstransform: regrid, nothing else. interpolation fftshift, check output values'''
+        self.outvis = 'test_simple_regrid_fftshift.ms'
+        self.run_mstransform_simply_regrid(self.vis, self.outvis, interpolation='fftshift')
+
+        eq_pattern = [[0, 0, 0.02533850, 0.04929977],
+                      [0, 1, 0.14533380, 0.47466096],
+                      [1, 5, 0.36502194, 0.45022112],
+                      [1, self.out_nchan-1, 0.12325509, 0.05476397]]
+        self.check_output_values(self.outvis, eq_pattern, self.out_nchan)
+
+
 class test_Hanning(test_base):
     '''Test for hanning transformation'''
     def setUp(self):
@@ -1247,7 +1352,6 @@ class test_state(test_base):
         # listobs checks that re-indexing is consistent
         listobs(self.outputms)
 
-
 class test_WeightSpectrum(test_base):
     '''Test usage of WEIGHT_SPECTRUM to channel average and combine SPWs with different exposure'''
 
@@ -1368,6 +1472,7 @@ class test_WeightSpectrum(test_base):
         check_eq(data[0][0][0].real, 0.0893, 0.0001)
         check_eq(data[0][nchan-1][0].imag, -0.2390, 0.0001)
 
+
 class test_channelAverageByDefault(test_base_compare):
 
     def setUp(self):
@@ -1468,7 +1573,7 @@ class test_timeaverage(test_base_compare):
         aflocal.init()
         aflocal.run(writeflags=True)
         aflocal.done()
-        
+
     def flag_ms(self):
         aflocal.open(self.vis)
         aflocal.selectdata()
@@ -1573,7 +1678,6 @@ class test_timeaverage_limits(test_base):
         print interval[0]
         mytb.close()
         check_eq(interval[0] >= 40.0,True)
-
 
 class test_multiple_transformations(test_base_compare):
 
@@ -1805,7 +1909,7 @@ class test_regridms_single_spw(test_base_compare):
         self.tolerance['WEIGHT'] = 1E-3        
 
         self.post_process()
-        
+
 class test_regridms_multiple_spws(test_base_compare):
     '''Tests for regridms combining SPWS'''
        
@@ -2254,6 +2358,60 @@ class test_subtables_evla(test_base):
         self.assertEqual(nrows, 1*2)   
         self.assertEqual(bbcNo[0], 12)          
         
+class test_weight_spectrum_creation(test_base):
+    '''Test when WEIGHT/SIGMA_SPECTRUM columns are created or not (with usewtspectrum)'''
+    def setUp(self):
+        self.setUp_4ants()
+
+    def tearDown(self):
+        os.system('rm -rf '+ self.vis)
+        os.system('rm -rf '+ self.outputms)
+
+    def test_usewtspectrum_on(self):
+        '''mstransform: when input MS does not have WEIGHT/SIGMA_SPECTRUM columns,
+        usewtspectrum=True should be respected'''
+        self.outputms = 'with_weight_spectrum.ms'
+
+        mstransform(self.vis, outputvis=self.outputms, spw='0', scan='31', antenna='0',
+                    usewtspectrum=True)
+
+        tb = tbtool()
+        tb.open(self.outputms)
+        colnames = tb.colnames()
+        sub_kw_names = tb.keywordnames()
+        weight_sp_shape = tb.getcolshapestring('WEIGHT_SPECTRUM')
+        sigma_sp_shape = tb.getcolshapestring('SIGMA_SPECTRUM')
+        tb.close()
+
+        self.assertEqual(24, len(colnames))
+        self.assertEqual(16, len(sub_kw_names))
+        self.assertTrue('WEIGHT_SPECTRUM' in colnames)
+        self.assertEqual(270, len(weight_sp_shape))
+        self.assertEqual('[4, 64]', weight_sp_shape[0])
+        self.assertTrue('SIGMA_SPECTRUM' in colnames)
+        self.assertEqual(270, len(sigma_sp_shape))
+        self.assertEqual('[4, 64]', sigma_sp_shape[0])
+
+    def test_usewtspectrum_off(self):
+        '''mstransform: when input MS does not have WEIGHT/SIGMA_SPECTRUM columns,
+        if usewtspectrum is not set=True WEIGHT/SIGMA_SPECTRUM should not be created in
+        the output MS'''
+        self.outputms = 'without_weight_spectrum.ms'
+
+        mstransform(self.vis, outputvis=self.outputms, scan='31', spw='0', antenna='0',
+                    usewtspectrum=False)
+
+        tb = tbtool()
+        tb.open(self.outputms)
+        colnames = tb.colnames()
+        sub_kw_names = tb.keywordnames()
+        tb.close()
+
+        self.assertEqual(22, len(colnames))
+        self.assertEqual(16, len(sub_kw_names))
+        self.assertTrue('WEIGHT_SPECTRUM' not in colnames)
+        self.assertTrue('SIGMA_SPECTRUM' not in colnames)
+
 class test_subtables_alma(test_base):
     '''Test effect of SPW combination/separation on ALMA sub-tables'''
     
@@ -2555,6 +2713,44 @@ class test_polarization_reindex(test_base):
         summary = flagdata(vis=self.outputms,mode='summary')
         self.assertTrue(summary.has_key('correlation'), 'Flagdata failure due to missformated MS')         
         
+class test_antenna_reindexing(test_base):
+    '''Test to check proper reindex of subtables'''
+
+    def setUp(self):
+        self.setUp_CAS_7259()
+        self.outvis = 'test_reindex_antenna_subtable.ms'
+
+    def tearDown(self):
+        os.system('rm -rf '+ self.vis)
+        os.system('rm -rf '+ self.outvis)
+        os.system('rm -rf list.obs')
+
+    def test_antenna_reindexing_va0(self):
+        '''mstransform: check reindexing when selecting a subset of the antennas'''
+
+        mstransform(vis=self.vis,outputvis=self.outvis,antenna='VA0*&&VA0*', datacolumn='all', reindex=True)
+        
+        listobs(self.outvis, listfile='list.obs')
+        self.assertTrue(os.path.exists('list.obs'), 'Probable error in sub-table re-indexing')        
+        mytb = tbtool()
+        mytb.open(self.outvis+'/ANTENNA')
+        nrows = mytb.nrows()
+        mytb.close()
+        self.assertEqual(nrows, 9, 'ANTENNA subtable should be resized to 9 VA0* antennas')
+
+    def test_antenna_reindexing_all_va(self):
+        '''mstransform: check that reindexing keeps all antennas that are involved in the selected baselines'''
+
+        mstransform(vis=self.vis,outputvis=self.outvis,antenna='VA01&&VA*', datacolumn='all', reindex=True)
+        
+        listobs(self.outvis, listfile='list.obs')
+        self.assertTrue(os.path.exists('list.obs'), 'Probable error in sub-table re-indexing')        
+        mytb = tbtool()
+        mytb.open(self.outvis+'/ANTENNA')
+        nrows = mytb.nrows()
+        mytb.close()
+        self.assertEqual(nrows, 27, 'ANTENNA subtable should contain all 27 VA* antennas')
+
         
 class test_alma_wvr_correlation_products(test_base):
     '''Test behaviour of mstransform in split mode when the input MS contains ALMA WVR correlation products'''
@@ -5655,6 +5851,7 @@ def suite():
             test_combinespws_diff_channels,
             test_Regridms1,
             test_Regridms3,
+            test_regridms_interpolation_only,
             test_Hanning,
             test_FreqAvg,
             test_Shape,
@@ -5672,6 +5869,7 @@ def suite():
             test_spw_poln,
             test_regridms_spw_with_different_number_of_channels,
             testFlags,
+            test_weight_spectrum_creation,
             test_subtables_evla,
             test_subtables_alma,
             test_radial_velocity_correction_largetimerange,
@@ -5689,6 +5887,7 @@ def suite():
             test_spectrum_transformations_mean,
             test_otf_calibration,
             test_polarization_reindex,
+            test_antenna_reindexing,
             test_no_reindexing,
             test_no_reindexing_ephemeris_copy,
             test_splitUpdateFlagCmd,

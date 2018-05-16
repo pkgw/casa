@@ -2,8 +2,8 @@
 #define _DDBUS_QO_H_
 #include <string>
 #include <QtCore/QObject>
-#include <QtGui/QMainWindow>
-#include <QtGui/QLineEdit>
+#include <QMainWindow>
+#include <QLineEdit>
 #include <QtDBus/QDBusAbstractAdaptor>
 #include <casaqt/QtUtilities/QtDBusApp.h>
 

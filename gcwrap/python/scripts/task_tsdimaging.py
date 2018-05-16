@@ -718,7 +718,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             stokes=stokes,
             # fix specmode to 'cubedata'
             # output spectral coordinate will be determined based on mode, start, and width 
-            specmode='cubedata',
+            specmode='cube',
             gridder='singledish',
             # single dish specific parameters
             gridfunction=gridfunction,

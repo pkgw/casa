@@ -230,6 +230,8 @@ class MSCalEnums
   CAL_DESC = 700,
   // Cal History sub-table
   CAL_HISTORY = 701,
+  // Observation sub-table
+  OBSERVATION = 702,
   
   // FJones additions
   ROT_MEASURE = 800,

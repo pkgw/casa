@@ -221,7 +221,7 @@ class CalAppPhaseRow;
  * </TR>
 	
  * <TR>
- * <TD> numPhasedAntennas ( \f$N_p\f$)</TD> 
+ * <TD> numPhasedAntennas (numPhasedAntennas)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas in phased sum, \f$N_p\f$. </TD>
@@ -256,21 +256,21 @@ class CalAppPhaseRow;
  * </TR>
 	
  * <TR>
- * <TD> numReceptors ( \f$N_r\f$)</TD> 
+ * <TD> numReceptors (numReceptors)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors per antenna, \f$N_r\f$.The number (\f$N_r \le 2 \f$) of receptors per antenna, usually two (polarizations), but it might be one in special cases. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numChannels ( \f$N_d\f$)</TD> 
+ * <TD> numChannels (numChannels)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of data channels, \f$N_d\f$.  </TD>
  * </TR>
 	
  * <TR>
- * <TD> numPhaseValues ( \f$N_v\f$)</TD> 
+ * <TD> numPhaseValues (numPhaseValues)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;The number  of phase data values present in the table, \f$N_v\f$. </TD>
@@ -284,14 +284,14 @@ class CalAppPhaseRow;
  * </TR>
 	
  * <TR>
- * <TD> numCompare ( \f$N_c\f$)</TD> 
+ * <TD> numCompare (numCompare)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of comparison antennas, \f$N_c\f$. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numEfficiencies ( \f$N_e\f$)</TD> 
+ * <TD> numEfficiencies (numEfficiencies)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of efficiencies, \f$N_e\f$. </TD>
@@ -344,7 +344,7 @@ class CalAppPhaseRow;
  * </TR>
 	
  * <TR>
- * <TD> numSupports( \f$N_s\f$)</TD> 
+ * <TD> numSupports(numSupports)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of supporting data values, \f$N_s\f$. </TD>

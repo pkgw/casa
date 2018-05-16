@@ -26,7 +26,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
     <param type="string" name="region">
         <description>Region selection. Default is to use the full image.</description>
-        <value/>
+        <type>path</type>
+        <type>string</type>
+        <type>record</type>
+        <value type="string"/>
     </param>
     <param type="string" name="box">
         <description>Rectangular region(s) to select in direction plane. Default is to use the entire direction plane.</description>
@@ -69,7 +72,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <example>append=True</example>
     </param>
     <param type="string"  name="algorithm">
-          <description>Algorithm to use. Supported values are "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported.</description>
+          <description>Algorithm to use. Supported values are "biweight", "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported.</description>
           <value>classic</value>
      </param>
      <param type="double" name="fence" subparam="true">
@@ -96,6 +99,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
          <description>Method to use for calculating classical statistics. Supported methods are "auto", "tiled", and "framework". Ignored if algorithm is not "classic".</description>
          <value>auto</value>
      </param>
+     <param type="int"  name="niter" subparam="true">
+          <description>For biweight, this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, do a fast, simple computation (see description). Ignored if the algorithm is not "biweight".</description>
+          <value>3</value>
+     </param>
      <constraints>
         <when param="mask">
             <notequals type="string" value="">
@@ -112,6 +119,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             </notequals>
         </when>
         <when param="algorithm">
+            <!-- note the default algorithm, classic, must come first in this list, because ... CASA -->
             <equals type="string" value="classic">
                 <default param="clmethod">
                     <value type="string">auto</value>
@@ -136,6 +144,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                 </default>
                 <default param="maxiter">
                     <value>-1</value>
+                </default>
+            </equals>
+            <equals type="string" value="biweight">
+                <default param="niter">
+                    <value>3</value>
                 </default>
             </equals>
         </when>

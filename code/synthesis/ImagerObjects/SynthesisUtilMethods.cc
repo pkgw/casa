@@ -1180,7 +1180,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	//// stokes
 	err += readVal( inrec, String("stokes"), stokes);
-	    
+	if(stokes.matches("pseudoI"))
+	  {
+	    stokes="I";
+	    pseudoi=true;
+	  }
+	else {pseudoi=false;}
+
+	/// PseudoI
+
 	////nchan
 	err += readVal( inrec, String("nchan"), nchan);
 
@@ -1732,6 +1740,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     startModel=Vector<String>(0);
     overwrite=false;
 
+    // PseudoI
+    pseudoi=false;
+
     // Spectral coordinates
     nchan=1;
     mode="mfs";
@@ -1771,7 +1782,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     cells[0] = QuantityToString( cellsize[0] );
     cells[1] = QuantityToString( cellsize[1] );
     impar.define("cell", cells );
-    impar.define("stokes", stokes);
+    if(pseudoi==true){impar.define("stokes","pseudoI");}
+    else{impar.define("stokes", stokes);}
     impar.define("nchan", nchan);
     impar.define("nterms", nTaylorTerms);
     impar.define("deconvolver",deconvolver);
@@ -1863,6 +1875,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         impar.define("imshape", imshape);
       } 
     //    else cout << " NO CSYS INFO to write to output record " << endl;
+
 
     return impar;
   }
@@ -3477,6 +3490,42 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 err+= "growiterations must be an integer\n";
             }
           } 
+        if( inrec.isDefined("dogrowprune"))
+          {
+            if (inrec.dataType("dogrowprune")==TpBool) {
+                err+= readVal(inrec, String("dogrowprune"), doGrowPrune );
+            }
+            else {
+                err+= "dogrowprune must be a bool\n";
+            }
+          } 
+        if( inrec.isDefined("minpercentchange"))
+          {
+            if (inrec.dataType("minpercentchange")==TpFloat || inrec.dataType("minpercentchange")==TpDouble ) {
+                err+= readVal(inrec, String("minpercentchange"), minPercentChange );
+            }
+            else {
+                err+= "minpercentchange must be a float or double";
+            }
+          }
+        if( inrec.isDefined("verbose")) 
+          {
+            if (inrec.dataType("verbose")==TpBool ) {
+               err+= readVal(inrec, String("verbose"), verbose);
+            }
+            else {
+               err+= "verbose must be a bool";
+            }
+          }
+        if( inrec.isDefined("nsigma") )
+          {
+            if(inrec.dataType("nsigma")==TpFloat || inrec.dataType("nsigma")==TpDouble ) {
+               err+= readVal(inrec, String("nsigma"), nsigma );
+              }
+            else {
+               err+= "nsigma be a float or double";
+            }
+          }
         if( inrec.isDefined("restoringbeam") )     
 	  {
 	    String errinfo("");
@@ -3646,7 +3695,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     decpar.define("minbeamfrac",minBeamFrac);
     decpar.define("cutthreshold",cutThreshold);
     decpar.define("growiterations",growIterations);
+    decpar.define("dogrowprune",doGrowPrune);
+    decpar.define("minpercentchange",minPercentChange);
+    decpar.define("verbose", verbose);
     decpar.define("interactive",interactive);
+    decpar.define("nsigma",nsigma);
 
     return decpar;
   }

@@ -25,6 +25,7 @@
 #include <mstransform/TVI/PolAverageTVI.h>
 #include <mstransform/TVI/PointingInterpolationTVI.h>
 
+#include <limits>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -1383,6 +1384,32 @@ void MSTransformManager::open()
 	return;
 }
 
+/**
+ * Whether the WEIGHT/SIGMA_SPECTRUM columns should be created in the output MS.
+ * This should be honored when creating the output MS structure (in
+ * createOutputMSStructure().
+ *
+ * The logic to say true is: if the WEIGHT/SIGMA_SPECTRUM are present in the input MS or
+ * the user has requested the creation of these columns in the output MS anyway via the
+ * parameter 'usewtspectrum'
+ * This requires that the input configuration be parsed here in MSTransformManager before
+ * calling this method, and passed as parameter.
+ *
+ * @param usewtspectrum value of the usewtspectrum input parameter of mstransform
+ *
+ * @return whether WEIGHT/SIGMA_SPECTRUM columns should be created in the output MS.
+ */
+Bool MSTransformManager::shouldCreateOutputWtSpectrum(Bool usewtspectrum)
+{
+    if (nullptr == inputMs_p) {
+        throw AipsError("When trying to guess if WEIGHT/SIGMA_SPECTRUM should be created "
+                        "in the output MS: the input MS has not been initialized.");
+    }
+
+    auto wtSpec = ROMSColumns(*inputMs_p).weightSpectrum();
+    auto inputWeightSpectrumAvailable = !wtSpec.isNull() and wtSpec.isDefined(0);
+    return inputWeightSpectrumAvailable or usewtspectrum;
+}
 
 /**
  * Helper method for open() to create the structure of the output MS
@@ -1409,22 +1436,25 @@ void MSTransformManager::createOutputMSStructure()
 	Bool outputMSStructureCreated = false;
 	try
 	{
-		if (not bufferMode_p)
-		{
-			outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,datacolumn_p,tileShape_p,timespan_p);
-		}
-		else
-		{
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__) << "Create output MS structure" << LogIO::POST;
-			outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,datacolumn_p,tileShape_p,timespan_p,Table::Scratch);
-		}
+            Table::TableOption option = Table::New;
+            if (bufferMode_p) {
+                logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+                         << "Create output MS structure" << LogIO::POST;
+                option = Table::Scratch;
+            }
+            auto createWeightSpectrum = shouldCreateOutputWtSpectrum(usewtspectrum_p);
+            outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,
+                                                                           datacolumn_p,
+                                                                           createWeightSpectrum,
+                                                                           tileShape_p,
+                                                                           timespan_p,
+                                                                           option);
 	}
 	catch (AipsError ex)
 	{
 		outputMSStructureCreated = false;
-		logger_p 	<< LogIO::SEVERE
+		logger_p 	<< LogIO::DEBUG1
 					<< "Exception creating output MS structure: " << ex.getMesg() << endl
-					<< "Stack Trace: " << ex.getStackTrace()
 					<< LogIO::POST;
 
 		throw AipsError(ex.getMesg());
@@ -1465,8 +1495,11 @@ void MSTransformManager::setup()
 	// Check what columns have to filled
 	// CAS-5581 (jagonzal): Moving these methods here because we need to know if
 	// WEIGHT_SPECTRUM is available to configure the appropriate averaging kernel.
+	// - note also that the availability of WEIGHT_SPECTRUM in the input MS needs
+	// to be checked even before, as it is needed when doing
+	// dataHandler_p->makeMSBasicStructure() in createOutputMSStructure() - CAS-11269
 	checkFillFlagCategory();
-	checkFillWeightSpectrum();
+        checkFillWeightSpectrum();
 
 	// Check if we really need to combine SPWs
 	if (combinespws_p)
@@ -1633,16 +1666,8 @@ void MSTransformManager::setup()
 	// Set Regridding kernel
 	if (fftShiftEnabled_p)
 	{
-		if (combinespws_p)
-		{
-			regridCoreComplex_p = &MSTransformManager::interpol1Dfftshift;
-			regridCoreFloat_p = &MSTransformManager::interpol1Dfftshift;
-		}
-		else
-		{
-			regridCoreComplex_p = &MSTransformManager::fftshift;
-			regridCoreFloat_p = &MSTransformManager::fftshift;
-		}
+		regridCoreComplex_p = &MSTransformManager::interpol1Dfftshift;
+		regridCoreFloat_p = &MSTransformManager::interpol1Dfftshift;
 	}
 	else
 	{
@@ -4869,14 +4894,13 @@ void MSTransformManager::checkFillFlagCategory()
 void MSTransformManager::checkFillWeightSpectrum()
 {
 	inputWeightSpectrumAvailable_p = false;
-	if (!selectedInputMsCols_p->weightSpectrum().isNull() && selectedInputMsCols_p->weightSpectrum().isDefined(0))
+	if (!selectedInputMsCols_p->weightSpectrum().isNull() and
+            selectedInputMsCols_p->weightSpectrum().isDefined(0))
 	{
 		inputWeightSpectrumAvailable_p = true;
 		logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 				<< "Optional column WEIGHT_SPECTRUM found in input MS will be written to output MS" << LogIO::POST;
 	}
-
-	return;
 }
 
 /**
@@ -5632,7 +5656,7 @@ void MSTransformManager::generateIterator()
 		}
 		catch (AipsError x)
 		{
-    		logger_p 	<< LogIO::SEVERE << LogOrigin("MSTransformManager",__FUNCTION__)
+    		logger_p 	<< LogIO::DEBUG1 << LogOrigin("MSTransformManager",__FUNCTION__)
     					<< "Error initializing calibration VI: " << x.getMesg()
     					<< LogIO::POST;
     		throw(x);
@@ -5832,6 +5856,23 @@ void MSTransformManager::initFrequencyTransGrid(vi::VisBuffer2 *vb)
 		bandwidth += chanWidth;
 
 		fftShift_p = - absoluteShift / bandwidth;
+
+                ostringstream current;
+                current << setprecision(numeric_limits<double>::max_digits10)
+                        << newCentralFrequencyBeforeRegriddingAtCurrentTime;
+                ostringstream reference;
+                reference << setprecision(numeric_limits<double>::max_digits10)
+                          << newCentralFrequencyBeforeRegriddingAtReferenceTime;
+                logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager",__FUNCTION__)
+                         << "Using fftshift interpolation. The absolute shift is the "
+                         << "new central frequency at current (input SPW) time - new "
+                         << "central frequency "
+                         << "at reference (output SPW) time\nAbsolute shift: "
+                         << current
+                         << " - " << reference
+                         << " = " << absoluteShift << ", bandwidth " << bandwidth
+                         << ", relative shift: " << fftShift_p << LogIO::POST;
+
 	}
 	else
 	{
@@ -7115,7 +7156,7 @@ template <class T> void MSTransformManager::copyCubeOfData(	vi::VisBuffer2 *vb,
 }
 
 // -----------------------------------------------------------------------
-//
+// combine - for combinespws=True
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::combineCubeOfData(	vi::VisBuffer2 *vb,
 																	RefRows &rowRef,
@@ -7505,6 +7546,11 @@ template <class T> void MSTransformManager::transformAndWriteCubeOfData(	Int inp
 																				ArrayColumn<T> &outputDataCol,
 																				ArrayColumn<Bool> *outputFlagCol)
 {
+        logger_p << LogIO::DEBUG1 << LogOrigin("MSTransformManager",__FUNCTION__)
+                 << "Shape of input data cube: " << inputDataCube.shape()
+                 << ", output plane shape: " << outputPlaneShape
+                 << LogIO::POST;
+
 	// Write flag column too?
 	if (outputFlagCol != NULL)
 	{
@@ -7613,8 +7659,6 @@ void MSTransformManager::setWeightsPlaneByReference(	uInt inputRow,
 															Matrix<Float> &inputWeightsPlane)
 {
 	inputWeightsPlane = inputWeightsCube.xyPlane(inputRow);
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7661,8 +7705,6 @@ template <class T> void MSTransformManager::transformAndWritePlaneOfData(	Int in
 
 	// Write output planes
 	writeOutputPlanes(row,outputDataPlane,outputFlagsPlane,outputDataCol,*outputFlagCol);
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7675,7 +7717,6 @@ void MSTransformManager::writeOutputPlanes(	uInt row,
 											ArrayColumn<Bool> &outputFlagCol)
 {
 	(*this.*writeOutputPlanesComplex_p)(row,outputDataPlane,outputFlagsPlane,outputDataCol,outputFlagCol);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7688,7 +7729,6 @@ void MSTransformManager::writeOutputPlanes(	uInt row,
 											ArrayColumn<Bool> &outputFlagCol)
 {
 	(*this.*writeOutputPlanesFloat_p)(row,outputDataPlane,outputFlagsPlane,outputDataCol,outputFlagCol);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7911,8 +7951,6 @@ template <class T> void MSTransformManager::writeOutputPlanesInBlock(	uInt row,
 	outputDataCol.setShape(row,outputPlaneShape);
 	outputDataCol.put(row, outputDataPlane);
 	(*this.*writeOutputFlagsPlane_p)(outputFlagsPlane,outputFlagCol, outputPlaneShape, row);
-
-	return;
 }
 
 
@@ -7926,7 +7964,6 @@ void MSTransformManager::writeOutputFlagsPlane(	Matrix<Bool> &outputPlane,
 {
 	outputCol.setShape(outputRow,outputPlaneShape);
 	outputCol.put(outputRow, outputPlane);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7960,8 +7997,6 @@ template <class T> void MSTransformManager::writeOutputPlanesInSlices(	uInt row,
 	writeOutputPlaneReshapedSlices(outputDataPlane,outputDataCol,sliceX,sliceY,outputPlaneShape_tail,outRow);
 	(*this.*writeOutputFlagsPlaneReshapedSlices_p)(	outputFlagsPlane,outputFlagCol,
 													sliceX,sliceY,outputPlaneShape_tail,outRow);
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7975,7 +8010,6 @@ void MSTransformManager::writeOutputFlagsPlaneSlices(	Matrix<Bool> &outputPlane,
 															uInt &outputRow)
 {
 	writeOutputPlaneSlices(outputPlane,outputCol,sliceX,sliceY,outputPlaneShape,outputRow);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7989,7 +8023,6 @@ void MSTransformManager::writeOutputFlagsPlaneReshapedSlices(	Matrix<Bool> &outp
 																	uInt &outputRow)
 {
 	writeOutputPlaneReshapedSlices(outputPlane,outputCol,sliceX,sliceY,outputPlaneShape,outputRow);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8005,7 +8038,6 @@ template <class T> void MSTransformManager::writeOutputPlaneSlices(	Matrix<T> &o
 	Matrix<T> outputPlane_i = outputPlane(sliceX,sliceY);
 	outputCol.setShape(outputRow,outputPlaneShape);
 	outputCol.put(outputRow, outputPlane_i);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8022,7 +8054,6 @@ template <class T> void MSTransformManager::writeOutputPlaneReshapedSlices(	Matr
 	outputPlane_i.resize(outputPlaneShape,true);
 	outputCol.setShape(outputRow,outputPlaneShape);
 	outputCol.put(outputRow, outputPlane_i);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8033,7 +8064,6 @@ void MSTransformManager::setWeightStripeByReference(	uInt corrIndex,
 															Vector<Float> &inputWeightsStripe)
 {
 	inputWeightsStripe.reference(inputWeightsPlane.row(corrIndex));
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8046,9 +8076,21 @@ void MSTransformManager::transformStripeOfData(Int inputSpw,
 					       Vector<Complex> &outputDataStripe,
 					       Vector<Bool> &outputFlagsStripe)
 {
-	(*this.*transformStripeOfDataComplex_p)(	inputSpw,inputDataStripe,inputFlagsStripe,
-												inputWeightsStripe,outputDataStripe,outputFlagsStripe);
-	return;
+    auto shapeBefore = outputDataStripe.shape();
+    (*this.*transformStripeOfDataComplex_p)(inputSpw, inputDataStripe, inputFlagsStripe,
+                                            inputWeightsStripe, outputDataStripe,
+                                            outputFlagsStripe);
+    auto shapeAfter = outputDataStripe.shape();
+    if (shapeAfter != shapeBefore) {
+        ostringstream msg;
+        msg << "Shape of output complex data stripe changed after applying "
+            << "transformation. Output shape expected before transformation: "
+            << shapeBefore
+            << ". Output shape produced by transformation: " << shapeAfter;
+        logger_p << LogIO::DEBUG1 << LogOrigin("MSTransformManager",__FUNCTION__)
+                 << LogIO::POST;
+        throw AipsError(msg.str());
+    }
 }
 
 // -----------------------------------------------------------------------
@@ -8063,7 +8105,6 @@ void MSTransformManager::transformStripeOfData(Int inputSpw,
 {
 	(*this.*transformStripeOfDataFloat_p)(	inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe,
 											outputDataStripe,outputFlagsStripe);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8702,7 +8743,6 @@ template <class T> void MSTransformManager::regrid(Int inputSpw,
 				outputDataStripe,
 				outputFlagsStripe);
 
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8722,7 +8762,6 @@ void MSTransformManager::regridCore(Int inputSpw,
 									inputWeightsStripe,
 									outputDataStripe,
 									outputFlagsStripe);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8741,7 +8780,6 @@ void MSTransformManager::regridCore(Int inputSpw,
 								inputWeightsStripe,
 								outputDataStripe,
 								outputFlagsStripe);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8762,7 +8800,6 @@ void MSTransformManager::fftshift(Int ,
     					(const Double)fftShift_p,
     					false, // A good data point has its flag set to false
     					false);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8782,7 +8819,6 @@ void MSTransformManager::fftshift(Int ,
     					(const uInt)0, // In vectors axis 0 is the only dimension
     					(const Double)fftShift_p,
     					false); // A good data point has its flag set to false
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8879,9 +8915,9 @@ template <class T> void MSTransformManager::interpolateByChannelMap(Int spw,
   }
 }
 
-// -----------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// casacore::fftshift does not interpolate, it needs interpolation+fftshift
+// ------------------------------------------------------------------------
 template <class T> void MSTransformManager::interpol1Dfftshift(Int inputSpw,
 							       const Vector<T> &inputDataStripe,
 							       const Vector<Bool> &inputFlagsStripe,
@@ -8889,16 +8925,14 @@ template <class T> void MSTransformManager::interpol1Dfftshift(Int inputSpw,
 							       Vector<T> &outputDataStripe,
 							       Vector<Bool> &outputFlagsStripe)
 {
-	Vector<T> regriddedDataStripe(inputDataStripe.shape(),T());
-	Vector<Bool> regriddedFlagsStripe(inputFlagsStripe.shape(),false);
+    Vector<T> regriddedDataStripe(outputDataStripe.shape(),T());
+    Vector<Bool> regriddedFlagsStripe(outputFlagsStripe.shape(),false);
 
-	// This linear interpolation provides an uniform grid (pre-condition to apply fftshift)
-	interpol1D(inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe,regriddedDataStripe,regriddedFlagsStripe);
+    // This linear interpolation provides a uniform grid (pre-condition to apply fftshift)
+    interpol1D(inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe,regriddedDataStripe,regriddedFlagsStripe);
 
-	// fftshift takes care of time
-	fftshift(inputSpw,regriddedDataStripe,regriddedFlagsStripe,inputWeightsStripe,outputDataStripe,outputFlagsStripe);
-
-	return;
+    // fftshift takes care of time
+    fftshift(inputSpw,regriddedDataStripe,regriddedFlagsStripe,inputWeightsStripe,outputDataStripe,outputFlagsStripe);
 }
 
 // -----------------------------------------------------------------------

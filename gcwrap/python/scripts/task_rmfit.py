@@ -1,6 +1,7 @@
 from taskinit import *
 import tempfile
 import shutil
+from ialib import write_image_history
 
 def rmfit(
     imagename, rm, rmerr, pa0, pa0err, nturns, chisq,
@@ -8,6 +9,7 @@ def rmfit(
 ):
     casalog.origin('prom')
     myia = iatool()
+    myia.dohistory(False)
     mypo = potool()
     tmpim = ""
     try:
@@ -31,6 +33,17 @@ def rmfit(
             rm=rm, rmerr=rmerr, pa0=pa0, pa0err=pa0err, nturns=nturns, chisq=chisq,
             sigma=sigma, rmfg=rmfg, rmmax=rmmax, maxpaerr=maxpaerr
         )
+        try:
+            param_names = rmfit.func_code.co_varnames[:rmfit.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names] 
+            for im in [rm, rmerr, pa0, pa0err, nturns, chisq]:
+                write_image_history(
+                    im, sys._getframe().f_code.co_name,
+                    param_names, param_vals, casalog
+                )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
+
         return True
     except Exception, instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')

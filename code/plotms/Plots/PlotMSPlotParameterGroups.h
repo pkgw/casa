@@ -38,6 +38,9 @@
 #include <plotms/PlotMS/PlotMSLabelFormat.h>
 #include <plotms/PlotMS/PlotMSPageHeaderParam.h>
 
+#include <tables/Tables/Table.h>
+#include <tables/Tables/TableRecord.h>
+
 namespace casa {
 
 // Container class to hold constants for groups.
@@ -197,7 +200,6 @@ public:
 		}
 	}
 
-
 	const PlotMSAveraging & averaging() const {
 		return itsAveraging_;
 	}
@@ -207,7 +209,6 @@ public:
 			updated();
 		}
 	}
-
 
 	const PlotMSTransformations & transformations() const {
 		return itsTransformations_;
@@ -219,7 +220,6 @@ public:
 		}
 	}
 
-
 	const PlotMSCalibration & calibration() const {
 		return itsCalibration_;
 	}
@@ -229,6 +229,7 @@ public:
 			updated();
 		}
 	}
+
 
 private:
 	//Does the work of the operator=()s.
@@ -249,7 +250,6 @@ private:
 	static const casacore::String REC_AVERAGING;
 	static const casacore::String REC_TRANSFORMATIONS;
 	static const casacore::String REC_CALIBRATION;
-
 
 	void setDefaults();
 };
@@ -306,8 +306,6 @@ public:
 
 	/* Overrides PlotMSPlotParameters::Group::operator==(). */
 	bool operator== (const Group & other) const;
-
-
 
 	// Gets how many axes and data columns there are.
 	// <group>
@@ -427,6 +425,26 @@ public:
 		}
 	}
 
+	bool showAtm() const {
+		return itsShowAtm_;
+	}
+	void setShowAtm (const bool & value) {
+	    if (itsShowAtm_!= value) {
+		    itsShowAtm_ = value;
+		    updated();
+	    }
+    }
+
+    bool showTsky() const {
+		return itsShowTsky_;
+	}
+	void setShowTsky (const bool & value) {
+	    if (itsShowTsky_!= value) {
+		    itsShowTsky_ = value;
+		    updated();
+	    }
+    }
+
 	void resize( int count );
 
 private:
@@ -442,6 +460,10 @@ private:
 	vector<PMS::InterpMethod> itsXInterp_;
 	vector<PMS::CoordSystem> itsYFrame_;
 	vector<PMS::InterpMethod> itsYInterp_;
+	
+	bool itsShowAtm_;
+	bool itsShowTsky_;
+
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_XAXES;
@@ -452,14 +474,11 @@ private:
 	static const casacore::String REC_YFRAMES;
 	static const casacore::String REC_XINTERPS;
 	static const casacore::String REC_YINTERPS;
-
+	static const casacore::String REC_SHOWATM;
+	static const casacore::String REC_SHOWTSKY;
 
 	void setDefaults();
 };
-
-
-
-
 
 
 // Subclass of PlotMSPlotParameters::Group to handle axes parameters.
@@ -698,7 +717,7 @@ public:
 	}
 
 	//Change the size of the vectors.
-	void resize( int count );
+	void resize( int count, bool copyValues=False );
 
 private:
 
@@ -721,11 +740,8 @@ private:
 	static const casacore::String REC_XRANGES;
 	static const casacore::String REC_YRANGES;
 
-
 	void setDefaults();
 };
-
-
 
 
 

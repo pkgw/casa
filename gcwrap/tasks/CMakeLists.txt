@@ -25,13 +25,13 @@ exportasdm.xml
 exportfits.xml
 exportuvfits.xml
 feather.xml
-find.xml
 fixplanets.xml
 fixvis.xml
 flagcmd.xml
 flagdata.xml
 flagmanager.xml
 fluxscale.xml
+fringefit.xml
 ft.xml
 gaincal.xml
 gencal.xml
@@ -80,6 +80,7 @@ msview.xml
 mstransform.xml
 msuvbin.xml
 oldhanningsmooth.xml
+oldplotants.xml
 oldsplit.xml
 plotants.xml
 plotbandpass.xml
@@ -103,6 +104,7 @@ sdfixscan.xml
 sdgaincal.xml
 sdimaging.xml
 tsdimaging.xml
+sdsidebandsplit.xml
 sdsmooth.xml
 setjy.xml
 ssoflux.xml

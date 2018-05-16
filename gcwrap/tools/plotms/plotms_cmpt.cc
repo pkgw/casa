@@ -146,8 +146,9 @@ string plotms::getLogFilter() {
     }
 }
 
-void plotms::setPlotmsPid(int pid) {
-    // Connect dbus to existing plotms pid (started by procmgr)
+void plotms::setPlotMSPid(int pid) {
+    // Connect dbus to existing plotms pid
+	// (most likely started by procmgr)
     app_pid = pid;
     app.dbusName() = to_string(QtDBusApp::generateServiceName(
         app.getName(), pid));
@@ -167,6 +168,10 @@ void plotms::setPlotmsPid(int pid) {
                 "desired." << endl;
     }
 	isTask = true;
+}
+
+int plotms::getPlotMSPid() {
+	return app_pid;
 }
 
 void plotms::setClearSelectionOnAxesChange(const bool clearSelection) {
@@ -653,6 +658,39 @@ void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
             PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
 }
 
+void plotms::setShowAtm(const bool showatm, const bool updateImmediately, const int plotIndex) 
+{
+    launchApp();
+    Record params;
+    params.define(PlotMSDBusApp::PARAM_SHOWATM, showatm);
+    params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
+    params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
+    QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
+         PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
+}
+
+bool plotms::getShowAtm(const int plotIndex) 
+{
+    launchApp();
+    GETSINGLEPLOTBOOL(SHOWATM) 
+}
+
+void plotms::setShowTsky(const bool showtsky, const bool updateImmediately, const int plotIndex) 
+{
+    launchApp();
+    Record params;
+    params.define(PlotMSDBusApp::PARAM_SHOWTSKY, showtsky);
+    params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
+    params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
+    QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
+         PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
+}
+
+bool plotms::getShowTsky(const int plotIndex) 
+{
+    launchApp();
+    GETSINGLEPLOTBOOL(SHOWTSKY) 
+}
 
 string plotms::getPlotXAxis(const int plotIndex) 
 {

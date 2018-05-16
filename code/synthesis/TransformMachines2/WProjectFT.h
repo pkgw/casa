@@ -258,9 +258,6 @@ protected:
   // ends bracket the middle
   //casacore::Bool recordOnGrid(const vi::VisBuffer2& vb, casacore::Int rownr) const;
 
-  /////for openmp sectioning
-  void   findGridSector(const casacore::Int& nxp, const casacore::Int& nyp, const casacore::Int& ixsub, const casacore::Int& iysub, const casacore::Int& minx, const casacore::Int& miny, const casacore::Int& icounter, casacore::Int& x0, casacore::Int& y0, casacore::Int& nxsub, casacore::Int& nysub, const casacore::Bool linear); 
-
 
   // Image cache
   casacore::LatticeCache<casacore::Complex> * imageCache;

@@ -1469,6 +1469,8 @@ protected:
 	casacore::Bool spectrumTransformation_p;
 	casacore::Bool propagateWeights_p;
 	casacore::Bool inputWeightSpectrumAvailable_p;
+	casacore::Bool createWeightSpectrumCols_p;
+	// whether to create and fill the WEIGHT/SIMA_SPECTRUM columns in the output MS
 	casacore::Bool flushWeightSpectrum_p;
 	casacore::Bool weightSpectrumFlatFilled_p;
 	casacore::Bool weightSpectrumFromSigmaFilled_p;
@@ -1506,6 +1508,7 @@ protected:
 	casacore::LogIO logger_p;
 
 private:
+	casacore::Bool shouldCreateOutputWtSpectrum(casacore::Bool usewtspectrum);
 	void createOutputMSStructure();
 
 };

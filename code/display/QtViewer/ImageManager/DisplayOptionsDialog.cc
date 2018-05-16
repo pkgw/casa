@@ -23,6 +23,7 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
+#include <QScrollArea>
 #include "DisplayOptionsDialog.h"
 #include <display/QtViewer/QtDisplayDataGui.qo.h>
 #include <display/QtViewer/QtDisplayData.qo.h>

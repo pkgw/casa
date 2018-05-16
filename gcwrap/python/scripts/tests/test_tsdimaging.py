@@ -162,6 +162,7 @@ class sdimaging_unittest_base(unittest.TestCase, sdimaging_standard_paramset):
                          msg='Any error occurred during imaging')
         self._checkfile(outfile)
         self._checkfile(outprefix+".weight")
+        self._checkframe(outfile)
         self._checkshape(outfile, shape[0], shape[1],shape[2],shape[3])
         self._checkstats(outfile, refstats, compstats=compstats,
                          atol=atol, rtol=rtol, ignoremask=ignoremask)
@@ -172,6 +173,16 @@ class sdimaging_unittest_base(unittest.TestCase, sdimaging_standard_paramset):
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
                          msg='output file %s was not created because of the task failure'%(name))
+        
+    def _checkframe(self, name):
+        _ia.open(name)
+        csys = _ia.coordsys()
+        _ia.close()
+        spectral_frames = csys.referencecode('spectral')
+        csys.done()
+        self.assertEqual(1, len(spectral_frames))
+        spectral_frame = spectral_frames[0]
+        self.assertEqual('LSRK', spectral_frame)
 
     def _checkshape(self,name,nx,ny,npol,nchan):
         self._checkfile(name)
@@ -386,8 +397,9 @@ class sdimaging_test0(sdimaging_unittest_base):
     def test005(self):
         """Test005: Bad stokes parameter"""
         self.task_param['stokes'] = 'BAD'
-        msg = 'Stokes BAD is an unsupported option'
-        self.run_exception_case(self.task_param, msg)
+        # argument verification error
+        res = sdimaging(**self.task_param)
+        self.assertFalse(res)
         
     def test006(self):
         """Test006: Bad gridfunction"""
@@ -2301,8 +2313,7 @@ class sdimaging_test_polflag(sdimaging_unittest_base):
         # Tests
         refstats = merge_dict(self.stat_common, construct_refstat_uniform(self.unif_flux, self.region_all['blc'], self.region_all['trc']) )
         out_shape = (self.imsize_auto[0],self.imsize_auto[1],1,1)
-        #self.run_test(self.task_param, refstats, out_shape,atol=1.e-5)
-        self.skipTest('Skip test_pseudo_i since pseudo-Stokes mode is not implemented yet')
+        self.run_test(self.task_param, refstats, out_shape,atol=1.e-5)
        
 
     def test_xx(self):

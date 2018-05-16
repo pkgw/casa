@@ -25,7 +25,7 @@
 #ifndef SLICECOLORPREFERENCES_QO_H
 #define SLICECOLORPREFERENCES_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <QSettings>
 #include <display/Slicer/SliceColorPreferences.ui.h>
 

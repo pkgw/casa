@@ -111,6 +111,7 @@ void MSCalEnums::initMaps ()
     
     theirFieldMap.define (CAL_DESC, "CAL_DESC");
     theirFieldMap.define (CAL_HISTORY, "CAL_HISTORY");
+    theirFieldMap.define (OBSERVATION, "OBSERVATION");
     
     theirFieldMap.define (ROT_MEASURE, "ROT_MEASURE");
     theirFieldMap.define (ROT_MEASURE_ERROR, "ROT_MEASURE_ERROR");
@@ -207,6 +208,7 @@ void MSCalEnums::initMaps ()
     
     theirTypeMap.define (CAL_DESC, TpTable);
     theirTypeMap.define (CAL_HISTORY, TpTable);
+    theirTypeMap.define (OBSERVATION, TpTable);
     
     theirTypeMap.define (ROT_MEASURE, TpFloat);
     theirTypeMap.define (ROT_MEASURE_ERROR, TpFloat);

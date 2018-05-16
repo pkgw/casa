@@ -37,8 +37,7 @@ def plotms(vis=None,
            plotfile=None, expformat=None, exprange=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
-           callib=None,
-           headeritems=None
+           callib=None, headeritems=None, showatm=None, showtsky=None
 ):
 
 # we'll add these later
@@ -190,6 +189,8 @@ def plotms(vis=None,
     clearplots -- clear existing plots so that the new ones coming in can replace them.                 
     callib -- calibration library string, list of strings, or filename for on-the-fly calibration
     headeritems -- string of comma-separated page header items keywords
+    showatm -- show atmospheric transmission curve
+    showtsky -- show sky temperature curve
 
     """
     # Check if DISPLAY environment variable is set.
@@ -276,6 +277,7 @@ def plotms(vis=None,
     synonyms['tsys']=synonyms['Tsys']=synonyms['TSYS']='tsys'
     synonyms['opac']=synonyms['opacity']=synonyms['Opac']='opac'
     synonyms['snr']=synonyms['SNR']='SNR'
+    synonyms['antpos']='Antenna Positions'
     synonyms['radialvelocity']= synonyms['Radial Velocity'] = 'Radial Velocity [km/s]'
     synonyms['rho']=synonyms['Distance']='Distance (rho) [km]'
         
@@ -335,13 +337,16 @@ def plotms(vis=None,
                 # start process with procmgr
                 procmgr.create("plotms", [plotmsApp, "--nogui", "--nopopups",
                     "--casapy", "--logfilename="+logfile])
-                if procIsRunning("plotms"):  # started ok
-                    # connect future pm calls to this plotms
-                    plotmspid = procmgr.fetch('plotms').pid
-                    pm.setPlotmsPid(plotmspid)
-                else:
-                    casalog.post("plotms failed to start", "SEVERE")
-                    return False
+            if procIsRunning("plotms"):
+                # plotms is running, but is it connected? CAS-11306
+                procmgrPid = procmgr.fetch('plotms').pid
+                plotmsPid = pm.getPlotMSPid()
+                if plotmsPid != procmgrPid:
+                    # connect future pm calls to procmgr plotms
+                    pm.setPlotMSPid(procmgrPid)
+            else:
+                casalog.post("plotms failed to start", "SEVERE")
+                return False
 
         # Determine whether this is going to be a scripting client or 
         # a full GUI supporting user interaction.  This must be done 
@@ -424,7 +429,22 @@ def plotms(vis=None,
                     pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, 
                         yAxisLocation, False, plotindex, i)
             else :
-                raise Exception('Please remove duplicate y-axes.')
+                raise Exception, 'Please remove duplicate y-axes.'
+
+        if not showatm:
+            showatm = False
+        if not showtsky:
+            showtsky = False
+        if showatm and showtsky:
+            casalog.post('You have selected both showatm and showtsky.  Defaulting to showatm=True only.', "WARN")
+            showtsky = False
+        if showatm or showtsky:  # check that xaxis is None, chan, or freq
+            validxaxis = not xaxis or xaxis in ["channel", "frequency"]
+            if not validxaxis:
+                casalog.post('showatm and showtsky are only valid when xaxis is channel or frequency', 'SEVERE')
+                return False
+        pm.setShowAtm(showatm, False, plotindex)
+        pm.setShowTsky(showtsky, False, plotindex)
         
         # Set selection
         if selectdata:
@@ -783,13 +803,17 @@ def plotms(vis=None,
 
 def procIsRunning(procname):
     procrun = procmgr.running(procname)
-    process = procmgr.fetch(procname)
-    try:
-        if procrun and not process.is_alive():  # crash!
-            process.stop()  # let procmgr know it crashed
-            procrun = False
-    except AttributeError:  # process fetch failed: None.is_alive()
-        pass
+    if not procrun:
+        time.sleep(2) # for slow startups
+        procrun = procmgr.running(procname)
+    if procrun:
+        try:
+            process = procmgr.fetch(procname)
+            if not process.is_alive():  # crash!
+                process.stop()  # let procmgr know it crashed
+                procrun = False
+        except AttributeError:  # fetch returned None: None.is_alive()
+            pass
     return procrun
 
 def checkProcesses():

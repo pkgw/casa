@@ -90,7 +90,7 @@ namespace casa {
 				QFileInfo fi(csys_file_path);
 				QString full_path = fi.canonicalFilePath( );
 				if ( full_path != "" )
-					fprintf( fptr, "# Filename: %s\n", full_path.toAscii( ).constData( ) );
+					fprintf( fptr, "# Filename: %s\n", full_path.toLatin1( ).constData( ) );
 			}
 
 			fprintf( fptr, "global " );
