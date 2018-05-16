@@ -5818,23 +5818,23 @@ ia.done()
 <returns type="record"/>
 <description>
 
-This function returns a 1-D slice (the pixels and opionally the pixel mask) from the
-attached image. The slice is constrained to lie in a plane of two cardinal axes
-(e.g. XY or YZ). Interpolation is permitted between pixels, and a set of interpolation
-schemes is available.
+This function returns a 1-D slice (the pixels and opionally the pixel mask) from
+the attached image. The slice is constrained to lie in a plane of two cardinal
+axes (e.g. XY or YZ). Interpolation is permitted between pixels, and a set of
+interpolation schemes is available.
 
-The slice is specified as a polyline giving the x and y coordinates and the axes of the
-plane holding that slice.  The absolute pixel coordinates of the other axes may be
-specified using the coord parameter. If not specified, these values default to pixel 0
-on the relevant axes.
+The slice is specified as a polyline giving the x and y coordinates and the axes
+of the plane holding that slice.  The absolute pixel coordinates of the other
+axes may be specified using the coord parameter. If not specified, these values
+default to pixel 0 on the relevant axes.
 
 The npts parameter allows the number of values to be returned.
 
-The method parameter allows specification of the interpolation method to be used.
-Allowed values are 'nearest', 'linear', and 'cubic'. In the case of an image with
-complex valued pixels, the interpolation is done independently on the real and
-imaginary values. For example, the linearly interpolated value midway between pixels
-with values of 1 + 5j and 2 + 7j would be 1.5 + 6j.
+The method parameter allows specification of the interpolation method to be
+used. Allowed values are 'nearest', 'linear', and 'cubic'. In the case of an
+image with complex valued pixels, the interpolation is done independently on the
+real and imaginary values. For example, the linearly interpolated value midway
+between pixels with values of 1 + 5j and 2 + 7j would be 1.5 + 6j.
 
 The return value is a dictionary with keys 'pixels' (interpolated pixel values), 
 'mask' (interpolated mask), 'xpos' (x-location in absolute pixel coordinates), 
