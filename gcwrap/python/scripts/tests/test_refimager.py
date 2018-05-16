@@ -2018,7 +2018,7 @@ class test_mask(testref_base):
           # extending to all channels and preserving mask of each stokes 
           self.prepData('refim_point_linRL.ms') 
           # input mask will different for different stokes plane
-          self.prepInputmask('refim_cube_stokesI_input.mask')
+          self.prepInputmask('refim_cube_StokesI_input.mask')
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
           niter=10,interactive=0,interpolation='nearest', stokes='IQUV',
@@ -2048,7 +2048,7 @@ class test_mask(testref_base):
           # extending to all channels and preserving mask of each stokes 
           self.prepData('refim_point_linRL.ms') 
           # input mask will different for different stokes plane
-          self.prepInputmask('refim_cube_stokesI_input.mask')
+          self.prepInputmask('refim_cube_StokesI_input.mask')
           imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True);
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
