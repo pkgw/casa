@@ -272,7 +272,7 @@ public:
   // @param[in, out] imstore SIImageStore 
   // @param[in] pblimit Primary beam cut off level
   // @param[in] pblimit Primary beam cut off level
-  void makePBMask(SHARED_PTR<SIImageStore> imstore, casacore::Float pblimit=0.1, casacore::Bool=false);
+  void makePBMask(SHARED_PTR<SIImageStore> imstore, casacore::Float pblimit=0.1, casacore::Bool combinemask=false);
 
   void autoMaskWithinPB(SHARED_PTR<SIImageStore> imstore, 
                         casacore::TempImage<casacore::Float>& posmask,
