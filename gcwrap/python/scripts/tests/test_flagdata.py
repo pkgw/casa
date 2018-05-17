@@ -463,7 +463,7 @@ class test_rflag(test_base):
     
     def setUp(self):
         self.setUp_data4tfcrop()
-        
+
     def test_rflag1(self):
         '''flagdata:: mode = rflag : automatic thresholds'''
         flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev=[], freqdev=[], flagbackup=False,
@@ -654,7 +654,7 @@ class test_rflag(test_base):
         self.assertEqual(res['report1']['antenna']['ea19']['flagged'], 18411)
         self.assertEqual(res['report1']['spw']['7']['flagged'], 0,)
         
-    def test_rflag_residuals(self):
+    def test_rflag_residual_data(self):
         '''flagdata: rflag using MODEL and virtual MODEL columns'''
         from tasks import delmod
 
@@ -686,6 +686,8 @@ class test_rflag(test_base):
         # Flags should be the same
         self.assertTrue(flags_mod['flagged'],flags_vmod['flagged'])
 
+        # This test is mischievous, manipulates the model column. Don't leave a messed up MS.
+        os.system('rm -rf {0}'.format(self.vis))
        
 class test_shadow(test_base):
     def setUp(self):
