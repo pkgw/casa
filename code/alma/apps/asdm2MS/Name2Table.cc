@@ -60,6 +60,8 @@ bool Name2Table::init() {
 	
 	  name2Table_["CalAmpli"] = ASDM_CALAMPLI::instance();	
 	
+	  name2Table_["CalAntennaSolutions"] = ASDM_CALANTENNASOLUTIONS::instance();	
+	
 	  name2Table_["CalAppPhase"] = ASDM_CALAPPPHASE::instance();	
 	
 	  name2Table_["CalAtmosphere"] = ASDM_CALATMOSPHERE::instance();	
@@ -147,6 +149,8 @@ bool Name2Table::init() {
 	  name2Table_["Polarization"] = ASDM_POLARIZATION::instance();	
 	
 	  name2Table_["Processor"] = ASDM_PROCESSOR::instance();	
+	
+	  name2Table_["Pulsar"] = ASDM_PULSAR::instance();	
 	
 	  name2Table_["Receiver"] = ASDM_RECEIVER::instance();	
 	

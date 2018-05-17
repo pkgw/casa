@@ -37,7 +37,7 @@
 #include <coordinates/Coordinates/CoordinateUtil.h>
 #include <coordinates/Coordinates/DirectionCoordinate.h>
 #include <coordinates/Coordinates/SpectralCoordinate.h>
-#include <display/Display/State.h>
+#include <display/Display/DisplayState.h>
 #include <display/Display/WorldCanvas.h>
 #include <display/Display/PixelCanvas.h>
 #include <display/DisplayCanvas/WCCSNLAxisLabeller.h>

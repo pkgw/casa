@@ -22,7 +22,7 @@ solutions may be iterated through antennas/spw/fields during one execution.
 		</param>
 
 		<param type="string" name="xaxis">
-			<description>Value to plot along x axis (time,chan,freq, antenna,antenna1,antenna2,scan, amp,phase,real,imag,snr, tsys,delay,spgain)</description>
+			<description>Value to plot along x axis (time,chan,freq, antenna,antenna1,antenna2,scan, amp,phase,real,imag,snr, tsys,delay,rate,spgain)</description>
 			<value></value>
 			<allowed kind="enum">
 			<value></value>
@@ -41,12 +41,13 @@ solutions may be iterated through antennas/spw/fields during one execution.
 			<value>tsys</value>
 			<value>tec</value>
 			<value>delay</value>
+			<value>rate</value>
 			<value>spgain</value>
 			</allowed>
 		</param>
 
 		<param type="string" name="yaxis">
-			<description>Value to plot along y axis (amp,phase,real,imag,snr, antenna,antenna1,antenna2,scan, tsys,delay,spgain,tec)</description>
+			<description>Value to plot along y axis (amp,phase,real,imag,snr, antenna,antenna1,antenna2,scan, tsys,delay,rate,spgain,tec)</description>
 			<value></value>
 			<allowed kind="enum">
 			<value></value>
@@ -62,6 +63,7 @@ solutions may be iterated through antennas/spw/fields during one execution.
 			<value>tsys</value>
 			<value>tec</value>
 			<value>delay</value>
+			<value>rate</value>
 			<value>spgain</value>
 			</allowed>
 		</param>
@@ -194,7 +196,7 @@ solutions may be iterated through antennas/spw/fields during one execution.
 		Options: 'time','scan','chan','freq','antenna','amp','phase','real','imag','snr'
 		Default: cal type dependent, usually 'time'
 	yaxis -- Value to plot on the y-axis
-		Options: 'amp','phase','real','imag','snr','antenna','tsys','delay','spgain'
+		Options: 'amp','phase','real','imag','snr','antenna','tsys','delay','rate','spgain'
 		Default: cal type dependent, usually 'amp'
 	poln -- Polarization (or combination) to plot
 	        default: '' (RL); all polarizations

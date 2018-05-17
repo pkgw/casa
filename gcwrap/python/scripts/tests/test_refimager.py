@@ -80,6 +80,8 @@ class testref_base(unittest.TestCase):
           self.epsilon = 0.05
           self.msfile = ""
           self.img = "tst"
+          # To use subdir in the output image names in some tests (CAS-10937)
+          self.img_subdir = 'refimager_tst_subdir'
 
           self.th = TestHelpers()
 
@@ -89,6 +91,7 @@ class testref_base(unittest.TestCase):
 
      # Separate functions here, for special-case tests that need their own MS.
      def prepData(self,msname=""):
+          os.system('rm -rf ' + self.img_subdir)
           os.system('rm -rf ' + self.img+'*')
           if msname != "":
                self.msfile=msname
@@ -101,7 +104,15 @@ class testref_base(unittest.TestCase):
                self.msfile=msname
           if (os.path.exists(self.msfile)):
                os.system('rm -rf ' + self.msfile)
+          os.system('rm -rf ' + self.img_subdir)
           os.system('rm -rf ' + self.img+'*')
+
+     def prepInputmask(self,maskname=""):
+          if maskname!="":
+              self.maskname=maskname
+          if (os.path.exists(self.maskname)):
+              os.system('rm -rf ' + self.maskname)
+          shutil.copytree(refdatapath+self.maskname, self.maskname)
 
      def checkfinal(self,pstr=""):
           #pstr += "["+inspect.stack()[1][3]+"] : To re-run this test :  casa -c `echo $CASAPATH | awk '{print $1}'`/gcwrap/python/scripts/regressions/admin/runUnitTest.py test_refimager["+ inspect.stack()[1][3] +"]"
@@ -393,6 +404,13 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report)
 
+     def test_iterbot_mfs_nsigma(self):
+          """ [iterbot] Test_Iterbot_Mfs_nsigma : n-sigma threshold """
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='clark',niter=1000,threshold='0.001Jy', nsigma=3.0, interactive=0)
+          report=self.th.checkall(ret=ret, peakres=0.0820, modflux=1.2873, iterdone=169, nmajordone=11, stopcode=8, imexist=[self.img+'.psf', self.img+'.residual', self.img+'.image'])
+
+
      def test_iterbot_cube_1(self):
           """ [iterbot] Test_Iterbot_cube_1 : iteration counting across channels (>niter) """
           self.prepData('refim_point_withline.ms')
@@ -447,6 +465,18 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report1+report2+report3)
           
+     def test_iterbot_cube_tol(self): 
+          """ [iterbot] Test_Iterbot_cube_tol :threshold test to allow a tolerance (1/100)  (verification of CAS-11278 fix) """
+          self.prepData('refim_point_withline.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',specmode='cube',deconvolver='hogbom',niter=1000000,threshold='0.50001Jy',gain=0.1,cycleniter=5,interactive=0)
+          report=self.th.checkall(ret=ret,iterdone=158,nmajordone=4,imexist=[self.img+'.psf', self.img+'.residual'])
+
+     def test_iterbot_cube_nsigma(self): 
+          """ [iterbot] Test_Iterbot_cube_nsigma : nsigma threshold for cube"""
+          self.prepData('refim_point_withline.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',specmode='cube',deconvolver='hogbom',niter=1000000,threshold='0.000001Jy', nsigma=10.0, gain=0.5,interactive=0)
+          report=self.th.checkall(ret=ret,iterdone=407,nmajordone=11,stopcode=8,imexist=[self.img+'.psf', self.img+'.residual'])
+
 ##############################################
 ##############################################
 
@@ -772,17 +802,55 @@ class test_stokes(testref_base):
           self.checkfinal(report)
 
 
-#     def test_stokes_cube_I_flags(self):
-#          """ [onefield] Test_Stokes_cube_I_flags : cube with stokes I and only XY or YX flagged"""
-#          self.prepData('refim_point_linXY.ms')
-#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IQUV',interactive=0,specmode='cube')
-#          report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',1.0,[50,50,0,1]),(self.img+'.image',2.0,[50,50,1,1]), (self.img+'.image',3.0,[50,50,2,1]),(self.img+'.image',4.0,[50,50,4,1]) ])
+     def test_stokes_pseudoI_1(self):
+          """ [onefield] Test_Stokes_pseudoI : MFS on one channel stokes I, LL partially flagged"""
+          self.prepData('refim_point.ms')
 
-#     def test_stokes_cube_pseudo_I_flags(self):
-#          """ [onefield] Test_Stokes_cube_pseudo_I_flags : cube with stokes I and one of XX or YY flagged"""
-#          self.prepData('refim_point_linXY.ms')
-#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IQUV',interactive=0,specmode='cube')
-#          report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',1.0,[50,50,0,1]),(self.img+'.image',2.0,[50,50,1,1]), (self.img+'.image',3.0,[50,50,2,1]),(self.img+'.image',4.0,[50,50,4,1]) ])
+          ### A debug run to check total sum of weights, without any flagging. Need not turn on for actual test.
+          #ret = tclean(vis=self.msfile,imagename=self.img+'_1',imsize=100,spw='0:5',cell='8.0arcsec',niter=10, stokes='pseudoI',interactive=0,specmode='mfs',weighting='natural')
+          #report=self.th.checkall(imexist=[self.img+'_1.image',self.img+'_1.sumwt'],imval=[(self.img+'_1.image',1.2,[50,50,0,0]),(self.img+'_1.sumwt',1719543.62,[0,0,0,0])])
+
+          ### Modify flags in the MS.
+          tb.open('refim_point.ms',nomodify=False)
+          flgs = tb.getcol('FLAG')
+          flgs[1,:,50:84240]=True   ## Flag half of LL.
+          tb.putcol('FLAG',flgs)
+          tb.close()
+
+          ### Run with pseudo-I. Sum of weight should be 3/4 of full.
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,spw='0:5',cell='8.0arcsec',niter=10, stokes='pseudoI',interactive=0,specmode='mfs',weighting='natural')
+          report=self.th.checkall(imexist=[self.img+'.image',self.img+'.sumwt'],imval=[(self.img+'.image',1.2,[50,50,0,0]),(self.img+'.sumwt',1288281.75,[0,0,0,0])])
+
+          ### Run with I. Sum of weight should be 1/2 of full
+          ret_2 = tclean(vis=self.msfile,imagename=self.img+'_2',imsize=100,spw='0:5',cell='8.0arcsec',niter=10, stokes='I',interactive=0,specmode='mfs',weighting='natural')
+          report=self.th.checkall(imexist=[self.img+'_2.image',self.img+'_2.sumwt'],imval=[(self.img+'_2.image',1.2,[50,50,0,0]),(self.img+'_2.sumwt',857020.0,[0,0,0,0])])
+
+
+     def test_stokes_pseudoI_2(self):
+          """ [onefield] Test_Stokes_pseudoI_2 : cube with stokes I and only XY or YX flagged"""
+          self.prepData('refim_point_linXY.ms')
+
+          ### Reference : Stokes I value should be 1.0 in the middle channel
+          #ret = tclean(vis=self.msfile,imagename=self.img+'_1',imsize=100,cell='8.0arcsec',niter=10, stokes='I',interactive=0,specmode='cube',interpolation='nearest')
+          #report=self.th.checkall(imexist=[self.img+'_1.image'],imval=[(self.img+'_1.image',1.0,[50,50,0,1]) ])
+
+          ### Modify flags in the MS.
+          tb.open('refim_point_linXY.ms',nomodify=False)
+          flgs = tb.getcol('FLAG')
+          flgs[1:2,1,:]=True   ## Flag all of XY and YX for channel 2 ( Keep XX,YY unflagged )
+          tb.putcol('FLAG',flgs)
+          tb.close()
+
+          ### With strict stokes I, the middle channel will have zero
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='I',interactive=0,specmode='cube',interpolation='nearest')
+          report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',0.0,[50,50,0,1]) ])
+
+          ### With pseudo-I, the middle channel will have 1.0
+          ret = tclean(vis=self.msfile,imagename=self.img+'_2',imsize=100,cell='8.0arcsec',niter=10, stokes='pseudoI',interactive=0,specmode='cube',interpolation='nearest')
+          report=self.th.checkall(imexist=[self.img+'_2.image'],imval=[(self.img+'_2.image',1.0,[50,50,0,1]) ])
+
+
+
 
 ##############################################
 ##############################################
@@ -795,10 +863,7 @@ class test_cube(testref_base):
 #          self.test_cube_0.__func__.__doc__ %="aaaa"
 
      def setUp(self):
-          self.epsilon = 0.05
-          self.msfile = ""
-          self.img = "tst"
-          self.th = TestHelpers()
+          super(test_cube, self).setUp()
 
           ## Setup some variables to use in all the tests
 
@@ -1504,7 +1569,10 @@ class test_cube(testref_base):
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='data',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step0data.png',title="original data")
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step0model.png',title="empty model")
 
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec', spw='0:12~19',niter=50,gain=0.2,savemodel='modelcolumn',deconvolver='mtmfs')
+          # Let's include a subdir in the output image name. This could cause failures, at
+          # least in parallel mode (CAS-10937).
+          imagename = os.path.join(self.img_subdir, self.img)
+          ret = tclean(vis=self.msfile,imagename=imagename,imsize=100,cell='8.0arcsec', spw='0:12~19',niter=50,gain=0.2,savemodel='modelcolumn',deconvolver='mtmfs')
 #          self.assertTrue(self.th.exists(self.img+'.model') )
 #          self.assertTrue( self.th.checkmodelchan(self.msfile,10) == 0.0 and self.th.checkmodelchan(self.msfile,3) > 0.0 )
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step1.png',title="model after partial mtmfs on some channels")
@@ -1777,7 +1845,233 @@ class test_mask(testref_base):
 
           self.checkfinal(report)
 
+     def test_mask_expand_contstokesImask_to_cube(self):
+          """ [mask] test_mask_expand_contstokesImask_to_cube : Test for
+          expanding input continuum Stokes I mask to cube imaging  """
+          self.prepData('refim_point_linRL.ms')
+          self.prepInputmask('refim_cont_stokesI_input.mask')
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec', niter=10,interactive=0,interpolation='nearest', usemask='user', mask=self.maskname)
 
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[50,50,0,1]),(self.img+'.mask',1.0,[50,50,0,2]), (self.img+'.mask',0.0,[65,65,0,1])])
+
+          self.checkfinal(report)
+
+     def test_mask_expand_contstokesImask_nodegen_to_cube(self):
+          """ [mask] test_mask_expand_contstokesImask_nodegen_to_cube : Test for
+          expanding input continuum Stokes I mask with its degenerate axes removed to cube imaging  """
+          self.prepData('refim_point_linRL.ms')
+          self.prepInputmask('refim_cont_stokesI_input.mask')
+          imsubimage(imagename=self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True)
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0,interpolation='nearest', usemask='user',
+          mask=self.maskname+"_dropdeg")
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[50,50,0,1]),(self.img+'.mask',1.0,[50,50,0,2]), (self.img+'.mask',0.0,[65,65,0,1])])
+
+
+     def test_mask_expand_contstokesImask_to_IQUV(self):
+          """ [mask] test_mask_expand_contstokesImask_to_IQUV : Test for expanding
+          input continuum Stokes I mask to continuum multi-stokes imaging  """
+          self.prepData('refim_point_linRL.ms')
+          self.prepInputmask('refim_cont_stokesI_input.mask')
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="mfs", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0, stokes='IQUV', usemask='user', mask=self.maskname)
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[50,50,1,0]),(self.img+'.mask',1.0,[50,50,2,0]),(self.img+'.mask',1.0,[50,50,3,0]), (self.img+'.mask',0.0,[65,65,2,0])])
+
+          self.checkfinal(report)
+
+     def test_mask_expand_contstokesImask_nodegen_to_IQUV(self):
+          """ [mask] test_mask_expand_contstokesImask_nodegen_to_IQUV : Test for expanding
+          input continuum Stokes I mask with its degenerate axes removed to continuum multi-stokes imaging  """
+          self.prepData('refim_point_linRL.ms')
+          self.prepInputmask('refim_cont_stokesI_input.mask')
+          imsubimage(imagename=self.maskname, outfile=self.maskname+"_dropdeg", dropdeg=True)
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="mfs", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0, stokes='IQUV', usemask='user',
+          mask=self.maskname+"_dropdeg")
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[50,50,1,0]),(self.img+'.mask',1.0,[50,50,2,0]),(self.img+'.mask',1.0,[50,50,3,0]), (self.img+'.mask',0.0,[65,65,2,0])])
+
+          self.checkfinal(report)
+
+     def test_mask_expand_contstokesImask_to_cube_IQUV(self):
+          """ [mask] test_mask_extend_contstokesImask_to_cube_IQUV : Test for extending
+          input continuum Stokes I mask to cube multi-stokes imaging  """
+          self.prepData('refim_point_linRL.ms')
+          self.prepInputmask('refim_cont_stokesI_input.mask')
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0,interpolation='nearest', stokes='IQUV', usemask='user', mask=self.maskname)
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),
+                 (self.img+'.mask',1.0,[50,50,1,0]),
+                 (self.img+'.mask',1.0,[50,50,2,0]),
+                 (self.img+'.mask',1.0,[50,50,3,0]), 
+                 (self.img+'.mask',1.0,[50,50,0,1]),
+                 (self.img+'.mask',1.0,[50,50,1,1]),
+                 (self.img+'.mask',1.0,[50,50,2,1]),
+                 (self.img+'.mask',1.0,[50,50,3,1]),
+                 (self.img+'.mask',1.0,[50,50,1,2]),
+                 (self.img+'.mask',0.0,[65,65,0,0]),
+                 (self.img+'.mask',0.0,[65,65,2,1]),
+                 ])
+
+          self.checkfinal(report)
+
+     def test_mask_expand_contstokesImask_nodegen_to_cube_IQUV(self):
+          """ [mask] test_mask_extend_contstokesImask_nodegen_to_cube_IQUV : Test for extending
+          input continuum Stokes I mask with its denenerate axes removed to cube multi-stokes imaging  """
+          self.prepData('refim_point_linRL.ms')
+          self.prepInputmask('refim_cont_stokesI_input.mask')
+          imsubimage(imagename=self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True)
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0,interpolation='nearest', stokes='IQUV',
+          usemask='user', mask=self.maskname+"_dropdeg")
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),
+                 (self.img+'.mask',1.0,[50,50,1,0]),
+                 (self.img+'.mask',1.0,[50,50,2,0]),
+                 (self.img+'.mask',1.0,[50,50,3,0]), 
+                 (self.img+'.mask',1.0,[50,50,0,1]),
+                 (self.img+'.mask',1.0,[50,50,1,1]),
+                 (self.img+'.mask',1.0,[50,50,2,1]),
+                 (self.img+'.mask',1.0,[50,50,3,1]),
+                 (self.img+'.mask',1.0,[50,50,1,2]),
+                 (self.img+'.mask',0.0,[65,65,0,0]),
+                 (self.img+'.mask',0.0,[65,65,2,1]),
+                 ])
+
+          self.checkfinal(report)
+
+     def test_mask_expand_contstokesIQUVmask_to_cube_IQUV(self):
+          """ [mask] test_mask_expand_contstokesIQUVmask_to_cube_IQUV : Test for expanding
+          input continuum Stokes IQUV mask to cube IQUV imaging  """
+          # extending to all channels and preserving mask of each stokes 
+          self.prepData('refim_point_linRL.ms') 
+          # input mask will different for different stokes plane
+          self.prepInputmask('refim_cont_stokesIQUV_input.mask')
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0,interpolation='nearest', stokes='IQUV', usemask='user', mask=self.maskname)
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),
+                 (self.img+'.mask',1.0,[50,50,0,1]),
+                 (self.img+'.mask',1.0,[50,50,1,0]),
+                 (self.img+'.mask',1.0,[50,50,1,2]), 
+                 (self.img+'.mask',1.0,[50,50,2,0]),
+                 (self.img+'.mask',1.0,[50,50,2,1]),
+                 (self.img+'.mask',1.0,[43,31,3,0]),
+                 (self.img+'.mask',1.0,[43,31,3,2]),
+                 (self.img+'.mask',0.0,[61,51,0,0]),
+                 (self.img+'.mask',0.0,[50,63,1,1]),
+                 (self.img+'.mask',0.0,[37,65,2,2]),
+                 (self.img+'.mask',0.0,[34,70,0,1]),
+                 ])
+
+          self.checkfinal(report)
+
+     def test_mask_expand_contstokesIQUVmask_nodegen_to_cube_IQUV(self):
+          """ [mask] test_mask_expand_contstokesIQUVmask_nodegen_to_cube_IQUV : Test for expanding
+          input continuum Stokes IQUV mask with its degenerate axes removed to cube IQUV imaging  """
+          # extending to all channels and preserving mask of each stokes 
+          self.prepData('refim_point_linRL.ms') 
+          # input mask will different for different stokes plane
+          self.prepInputmask('refim_cont_stokesIQUV_input.mask')
+          imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True);
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0,interpolation='nearest', stokes='IQUV',
+          usemask='user', mask=self.maskname+"_dropdeg")
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),
+                 (self.img+'.mask',1.0,[50,50,0,1]),
+                 (self.img+'.mask',1.0,[50,50,1,0]),
+                 (self.img+'.mask',1.0,[50,50,1,2]), 
+                 (self.img+'.mask',1.0,[50,50,2,0]),
+                 (self.img+'.mask',1.0,[50,50,2,1]),
+                 (self.img+'.mask',1.0,[43,31,3,0]),
+                 (self.img+'.mask',1.0,[43,31,3,2]),
+                 (self.img+'.mask',0.0,[61,51,0,0]),
+                 (self.img+'.mask',0.0,[50,63,1,1]),
+                 (self.img+'.mask',0.0,[37,65,2,2]),
+                 (self.img+'.mask',0.0,[34,70,0,1]),
+                 ])
+
+          self.checkfinal(report)
+
+     def test_mask_expand_cubestokesImask_to_cube_IQUV(self):
+          """ [mask] test_mask_expand_contstokesIQUVmask_to_cube_IQUV : Test for expanding
+          input cube Stokes I mask to cube (of the same spectral coordinates)  IQUV imaging  """
+          # extending to all channels and preserving mask of each stokes 
+          self.prepData('refim_point_linRL.ms') 
+          # input mask will different for different stokes plane
+          self.prepInputmask('refim_cube_StokesI_input.mask')
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0,interpolation='nearest', stokes='IQUV',
+          usemask='user', mask=self.maskname)
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),
+                 (self.img+'.mask',1.0,[50,50,0,1]),
+                 (self.img+'.mask',1.0,[50,50,1,0]),
+                 (self.img+'.mask',1.0,[50,50,1,2]), 
+                 (self.img+'.mask',1.0,[50,50,2,0]),
+                 (self.img+'.mask',1.0,[50,50,2,1]),
+                 (self.img+'.mask',1.0,[37,63,3,0]),
+                 (self.img+'.mask',0.0,[46,49,3,2]),
+                 (self.img+'.mask',0.0,[63,51,0,0]),
+                 (self.img+'.mask',0.0,[50,63,1,1]),
+                 (self.img+'.mask',0.0,[43,59,2,2]),
+                 (self.img+'.mask',1.0,[43,57,2,2]),
+                 (self.img+'.mask',0.0,[43,70,0,1]),
+                 ])
+
+          self.checkfinal(report)
+
+     def test_mask_expand_cubestokesImask_nodegen_to_cube_IQUV(self):
+          """ [mask] test_mask_expand_contstokesIQUVmask_nodegen_to_cube_IQUV : Test for expanding
+          input cube Stokes I mask with its degenerate axes removed to cube (of the same spectral coordinates)  IQUV imaging  """
+          # extending to all channels and preserving mask of each stokes 
+          self.prepData('refim_point_linRL.ms') 
+          # input mask will different for different stokes plane
+          self.prepInputmask('refim_cube_StokesI_input.mask')
+          imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True);
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0,interpolation='nearest', stokes='IQUV',
+          usemask='user', mask=self.maskname+'_dropdeg')
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),
+                 (self.img+'.mask',1.0,[50,50,0,1]),
+                 (self.img+'.mask',1.0,[50,50,1,0]),
+                 (self.img+'.mask',1.0,[50,50,1,2]), 
+                 (self.img+'.mask',1.0,[50,50,2,0]),
+                 (self.img+'.mask',1.0,[50,50,2,1]),
+                 (self.img+'.mask',1.0,[37,63,3,0]),
+                 (self.img+'.mask',0.0,[46,49,3,2]),
+                 (self.img+'.mask',0.0,[63,51,0,0]),
+                 (self.img+'.mask',0.0,[50,63,1,1]),
+                 (self.img+'.mask',0.0,[43,59,2,2]),
+                 (self.img+'.mask',1.0,[43,57,2,2]),
+                 (self.img+'.mask',0.0,[43,70,0,1]),
+                 ])
+
+          self.checkfinal(report)
 
 ##############################################
 ##############################################
@@ -2268,11 +2562,7 @@ class test_startmodel(testref_base):
  ##############################################
 class test_pbcor(testref_base):
      def setUp(self):
-          self.epsilon = 0.05
-          self.msfile = ""
-          self.img = "tst"
-
-          self.th = TestHelpers()
+          super(test_pbcor, self).setUp()
 
           _vp.setpbpoly(telescope='EVLA', coeff=[1.0, -1.529e-3, 8.69e-7, -1.88e-10]) 
           _vp.saveastable('evlavp.tab')

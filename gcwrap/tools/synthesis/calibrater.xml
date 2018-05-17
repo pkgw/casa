@@ -708,6 +708,13 @@ smoothing during double circle gain calibration for fast scanning data.
 Default is True. </description>
      <value>true</value>
      </param>
+
+     <param type="bool" direction="in" name="zerorates">
+     <description>Zero delay-rates in fringe fitting solution
+     tables. </description>
+     <value>false</value>
+     </param>
+     
 </input>
 <returns type="bool"/>
 
@@ -2732,6 +2739,35 @@ cb.done();
 
 </example>
 </method>
+
+
+<method type="function" name="parsecallibfile">
+   <shortdescription>Bootstrap the flux density scale from standard calibrators</shortdescription>
+   
+<input>
+     <param type="string" direction="in" name="filein">
+     <description>Input cal library file name</description>
+     </param>
+</input>
+
+<returns type="record">
+   <description>
+   </description>
+</returns>
+
+<description>
+
+TBD
+
+</description>
+
+<example>
+
+TBD
+
+</example>
+</method>
+
 
 
 <method type="function" name="setvi">

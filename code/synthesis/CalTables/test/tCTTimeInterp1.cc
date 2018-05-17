@@ -103,7 +103,7 @@ void doTest1 (Bool verbose=false) {
       //    Matrix<Complex> c(f.c());
       Complex rc=Matrix<Complex>(f.c())(0,0);
       Float diff=abs(rc-cfval);
-      if (verbose)
+      //if (verbose)
 	cout << "t="<<timelist(itime)<<" (dt="<<(timelist(itime)-refTime)/tint<<")"
 	     << " result = " << rc << " cf=" << cfval << "  diff="<< diff << " near=" << boolalpha << nearAbs(diff,0.0f,tol) << endl;
       AlwaysAssert(nearAbs(diff,0.0f,tol),AipsError);
@@ -140,7 +140,44 @@ void doTest1 (Bool verbose=false) {
       RIorAPArray f(result);
       Complex rc=Matrix<Complex>(f.c())(0,0);
       Float diff=abs(rc-cfval);
-      if (verbose)
+      //if (verbose)
+	cout << "t="<<timelist(itime)<<" (dt="<<(timelist(itime)-refTime)/tint<<")"
+	     << " result = " << rc << " cf=" << cfval << "  diff="<<diff<< " near=" << boolalpha << nearAbs(diff,0.0f,tol) << endl;
+      AlwaysAssert(nearAbs(diff,0.0f,tol),AipsError);
+    }
+  }
+
+  // Reset to cubic
+  itype="cubic";
+  sci.setInterpType(itype);
+
+  if (verbose)
+    sci.state();
+
+  if (verbose) cout << "sci.timeType() = " << sci.timeType() << endl;
+  AlwaysAssert( (sci.timeType()==itype), AipsError);
+
+
+
+  {
+    // Testing cubic in various ways
+    Vector<Double> timelist(6), ntimelist(6);
+    timelist(0)=refTime-1.e5*tint; ntimelist(0)=refTime;   // a way early point
+    timelist(1)=refTime+tint;      ntimelist(1)=timelist(1);  // an exact point
+    timelist(2)=refTime+2.2*tint;  ntimelist(2)=timelist(2);  // nearest to left
+    timelist(3)=refTime+2.9*tint;  ntimelist(3)=timelist(3);  // nearest to right (same interval)
+    timelist(4)=refTime+3.1*tint;  ntimelist(4)=timelist(4);  // new time, new interval
+    timelist(5)=refTime+1.e5*tint; ntimelist(5)=refTime+(nTime-1)*tint;  // a way late point
+    
+    if (verbose) cout << "Testing 'cubic' (tol="<<tol<<")..." << endl;
+    for (uInt itime=0;itime<timelist.nelements();++itime) {
+      // Call time interpolation
+      sci.interpolate(timelist(itime));
+      Complex cfval=NewCalTable::NCTtestvalueC(0,0,0,ntimelist(itime),refTime,tint);
+      RIorAPArray f(result);
+      Complex rc=Matrix<Complex>(f.c())(0,0);
+      Float diff=abs(rc-cfval);
+      //if (verbose)
 	cout << "t="<<timelist(itime)<<" (dt="<<(timelist(itime)-refTime)/tint<<")"
 	     << " result = " << rc << " cf=" << cfval << "  diff="<<diff<< " near=" << boolalpha << nearAbs(diff,0.0f,tol) << endl;
       AlwaysAssert(nearAbs(diff,0.0f,tol),AipsError);

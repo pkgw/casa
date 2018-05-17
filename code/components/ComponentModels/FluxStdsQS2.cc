@@ -29,6 +29,7 @@
 #include <components/ComponentModels/FluxStdSrcs.h>
 #include <casa/OS/Path.h>
 #include <casa/System/Aipsrc.h>
+#include <casatools/Config/State.h>
 
 //#include <casa/Logging/LogIO.h>
 
@@ -216,7 +217,10 @@ Bool FluxStdPerleyButler2013::setSourceCoeffs()
   String stddatapath;
   String stdTabName("PerleyButler2013Coeffs");
   
-  if(!Aipsrc::findDir(stddatapath,"./"+stdTabName)) {
+  String resolvepath = casatools::get_state( ).resolve("nrao/VLA/standards/"+stdTabName);
+  if (resolvepath != "nrao/VLA/standards/"+stdTabName) {
+      stddatapath = resolvepath;
+  } else if(!Aipsrc::findDir(stddatapath,"./"+stdTabName)) {
     if(!Aipsrc::findDir(stddatapath, Aipsrc::aipsRoot()+"/data/nrao/VLA/standards/"+stdTabName)) {
       ostringstream oss;
       oss << "The coefficient data for Perley-Butler 2013, " <<  stdTabName
@@ -271,7 +275,10 @@ Bool FluxStdScaifeHeald2012::setSourceCoeffs()
   String stddatapath;
   String stdTabName("ScaifeHeald2012Coeffs");
 
-  if(!Aipsrc::findDir(stddatapath,"./"+stdTabName)) {
+  String resolvepath = casatools::get_state( ).resolve("nrao/VLA/standards/"+stdTabName);
+  if (resolvepath != "nrao/VLA/standards/"+stdTabName) {
+      stddatapath = resolvepath;
+  } else if(!Aipsrc::findDir(stddatapath,"./"+stdTabName)) {
     if(!Aipsrc::findDir(stddatapath, Aipsrc::aipsRoot()+"/data/nrao/VLA/standards/"+stdTabName)) {
       ostringstream oss;
       oss << "The coefficient data for Scaife-Healr 2012, " <<  stdTabName

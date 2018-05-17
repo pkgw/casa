@@ -36,7 +36,7 @@ def predictcomp(objname=None, standard=None, epoch=None,
              Default: 1 if minfreq == maxfreq,
                       2 otherwise.
     prefix: The component list will be saved to
-              prefix + 'spw0_<objname>_<minfreq><epoch>.cl'
+              prefix + '<objname>_spw0_<minfreq><epoch>.cl'
             Default: ''
     antennalist: An array configuration file as used by simdata.
                  If given, a plot of S vs. |u| will be made.
@@ -108,14 +108,18 @@ def predictcomp(objname=None, standard=None, epoch=None,
               return False
         else:
           prefixdir=os.path.dirname(prefix)
+          if prefixdir=='/' and len(prefix)>1: 
+             prefix = prefix+'/'
+             prefixdir = os.path.dirname(prefix)
           if not os.path.exists(prefixdir):
             prefixdirs = prefixdir.split('/')
-            if prefixdirs[0]=="":
+            if prefixdirs[0]=="" and len(prefixdirs)>1:
               rootdir = "/" + prefixdirs[1]
             else:
               rootdir = "./"
             if os.access(rootdir,os.W_OK):
-              os.makedirs(prefixdir) 
+              if prefixdir!='':
+                os.makedirs(prefixdir) 
             else:
               casalog.post("No write access to "+rootdir+" to write cl file", "SEVERE")
               return False
