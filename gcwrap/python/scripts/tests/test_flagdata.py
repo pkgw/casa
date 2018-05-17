@@ -116,16 +116,16 @@ class test_base(unittest.TestCase):
     def setUp_data4tfcrop(self):
         '''EVLA MS, 4 ants, scan=30,31 spw=0~15, 64 chans, RR,RL,LR,LL'''
         self.vis = "Four_ants_3C286.ms"
-        if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
-        else:
-            print "Moving data..."
-            os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
+        self._check_path_move_remove_versions_unflag_etc()
 
-        os.system('rm -rf ' + self.vis + '.flagversions')
-
-        self.unflag_ms()
-        default(flagdata)
+    def setUp_data4preaveraging(self):
+        # Four_ants_3C286_spw9_small_for_preaveraging.ms was generated with a command like:
+        # mstransform(vis='Four_ants_3C286.ms',
+        #             outputvis='Four_ants_3C286_spw9_small_for_preaveraging.ms',
+        #             datacolumn='data',spw='9', antenna='1&2',
+        #             timerange='2010/10/16/14:45:08.50~2010/10/16/14:45:11.50')
+        self.vis = 'Four_ants_3C286_spw9_small_for_preaveraging.ms'
+        self._check_path_move_remove_versions_unflag_etc()
 
     def setUp_shadowdata1(self):
         '''ALMA ACA observation with one field in APP ref frame'''
@@ -321,6 +321,18 @@ class test_base(unittest.TestCase):
                   summary_list.append(report_list[repname]);
                   
         return summary_list
+
+    def _check_path_move_remove_versions_unflag_etc(self):
+        if os.path.exists(self.vis):
+            print "The MS is already around, just unflag"
+        else:
+            print "Moving data..."
+            os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
+
+        os.system('rm -rf ' + self.vis + '.flagversions')
+
+        self.unflag_ms()
+        default(flagdata)
 
 
 class test_tfcrop(test_base):
