@@ -41,7 +41,7 @@
 	    wt=getFrom4DArray((const Complex * __restrict__ &)convFuncV,
 			      iCFPos_ptr,cfInc_p_ptr);
 	    if (dataWVal <= 0.0) wt = conj(wt);
-	    norm(apol)+=(wt);
+	    norm(ipol)+=(wt);
 	    if (finitePointingOffset) 
 	      {
 		wt *= (cached_phaseGrad_p(iloc[0]+phaseGradOrigin_l[0],
