@@ -3484,6 +3484,64 @@ class test_preaveraging(test_base):
         # Compare results
         self.assertEqual(res2['flagged'], 20)
 
+    def test_rflag_timeavg_on_residual(self):
+        '''flagdata: rflag with timeavg on residual (corrected - model), and compare
+        vs mstransform + rflag without timeavg'''
+
+        # One that has corrected
+        vis = "Four_ants_3C286.ms"
+        # Initial integration time is 1s
+        timebin = '8s'
+
+        # Unflag the original input data
+        flagdata(vis, flagbackup=False, mode='unflag')
+
+        # using action calculate, which is faster (reduced I/O) and enough to test thresholds
+        # using only these spws for speed
+        spws = '0,1,2'
+
+        # STEP 1: rflag-calculate with original time
+        res1 = flagdata(vis=vis, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', extendflags=False)
+
+        # STEP 2: timeavg with mstransform, then rflag-calculate on residual
+        flagged1 = 'test_rflag_timeavg_residual_step2.ms'
+        mstransform(vis=vis, spw=spws, outputvis=flagged1,
+                    datacolumn='data', timeaverage=True, timebin=timebin)
+        res2 = flagdata(vis=vis, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', extendflags=False)
+
+        # STEP 3: rflag-calculate with timeavg on residual
+        res3 = flagdata(vis=vis, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', timeavg=True, timebin=timebin,
+                        extendflags=False)
+
+        def check_reports_timeavg(report1, report2, report3):
+            import numpy as np
+            report1 = res1['report0']
+            report2 = res2['report0']
+            report3 = res3['report0']
+            self.assertEqual(report2['type'], 'rflag')
+            self.assertEqual(report3['type'], report2['type'])
+            freq_tol = 1e-1
+            self.assertTrue(np.allclose(report1['freqdev'], report2['freqdev'],
+                                        rtol=freq_tol))
+            self.assertTrue(np.allclose(report2['freqdev'], report3['freqdev'],
+                                        rtol=freq_tol))
+            time_tol = 1e-1
+            self.assertTrue(np.allclose(report1['timedev'], report2['timedev'],
+                                        rtol=time_tol))
+            # divide 3rd column (thresholds). Matrices have rows like: field, spw, threshold.
+            time_div_tol = 2.5e-1
+            report1['timedev'][:,2] = report1['timedev'][:,2] / np.sqrt(8)
+            self.assertTrue(np.allclose(report1['timedev'],
+                                        report3['timedev'], rtol=time_div_tol))
+
+        self.assertEqual(res1['type'], 'list')
+        self.assertEqual(res1['type'], res2['type'])
+        self.assertEqual(res1['type'], res3['type'])
+        check_reports_timeavg(res1['report0'], res2['report0'], res3['report0'])
+
     def test_rflag_chanavg(self):
         '''flagdata: rflag with chan average and compare vs mstransform'''
         
@@ -3508,6 +3566,63 @@ class test_preaveraging(test_base):
 
         # Compare results
         self.assertEqual(res1['flagged'], res2['flagged'])   
+
+    def test_rflag_chanavg_on_residual(self):
+        '''flagdata: rflag with chanavg on residual (corrected - model), and compare
+        vs mstransform + rflag without average'''
+
+        # One that has corrected
+        vis = "Four_ants_3C286.ms"
+        # Initial integration time is 1s
+        timebin = '8s'
+
+        # Unflag the original input data
+        flagdata(vis, flagbackup=False, mode='unflag')
+
+        # using action calculate, which is faster (reduced I/O) and enough to test thresholds
+        # using only these spws for speed
+        spws = '0,1,2'
+
+        # STEP 1: rflag-calculate with original MS
+        res1 = flagdata(vis=vis, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', extendflags=False)
+
+        # STEP 2: chanavg with mstransform, then rflag-calculate on residual
+        flagged1 = 'test_rflag_timeavg_residual_step2.ms'
+        mstransform(vis=vis, spw=spws, outputvis=flagged1,
+                    datacolumn='data', chanaverage=True, chanbin=32)
+        res2 = flagdata(vis=vis, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', extendflags=False)
+
+        # STEP 3: rflag-calculate with chanavg on residual
+        res3 = flagdata(vis=vis, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', channelavg=True, chanbin=32,
+                        extendflags=False)
+
+        def check_reports_chanavg(report1, report2, report3):
+            import numpy as np
+            self.assertEqual(report2['type'], 'rflag')
+            self.assertEqual(report3['type'], report2['type'])
+            freq_tol = 1e-1
+            self.assertTrue(np.allclose(report1['freqdev'], report2['freqdev'],
+                                        rtol=freq_tol))
+            # divide 3rd column (thresholds). Matrices have rows like: field, spw, threshold.
+            freq_div_tol = 2.5e-1
+            report2['freqdev'][:,2] = report2['freqdev'][:,2] / 2
+            self.assertTrue(np.allclose(report2['freqdev'], report3['freqdev'],
+                                        rtol=freq_div_tol))
+            time_tol = 1e-1
+            self.assertTrue(np.allclose(report1['timedev'], report2['timedev'],
+                                        rtol=time_tol))
+            time_div_tol = 6e-1
+            report1['timedev'][:,2] = report1['timedev'][:,2] / 4
+            self.assertTrue(np.allclose(report1['timedev'],
+                                        report3['timedev'], rtol=time_div_tol))
+
+        self.assertEqual(res1['type'], 'list')
+        self.assertEqual(res1['type'], res2['type'])
+        self.assertEqual(res1['type'], res3['type'])
+        check_reports_chanavg(res1['report0'], res2['report0'], res3['report0'])
 
     def test_rflag_time_chanavg(self):
         '''flagdata: rflag with time/chan average and compare vs mstransform'''
