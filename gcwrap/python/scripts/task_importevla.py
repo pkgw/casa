@@ -68,6 +68,7 @@ def importevla(
     #
     try:
         casalog.origin('importevla')
+        casalog.post("Task importevla has been deprecated and will be removed in release 5.4.", "WARN")
         casalog.post('You are using importevla v9.1 SMC Updated 2016-06-17'
                      )
         viso = ''
@@ -105,7 +106,7 @@ def importevla(
                 if polyephem_tabtimestep>1.:
                     casalog.post('A tabulation timestep of <= 1 days is recommended.', 'WARN')
                 execute_string = execute_string + ' --polyephem-tabtimestep '+str(polyephem_tabtimestep)
-                
+
         if not overwrite and os.path.exists(viso):
             raise Exception, \
                 'You have specified and existing ms and have indicated you do not wish to overwrite it'
@@ -129,13 +130,13 @@ def importevla(
         casalog.post('Running the asdm2MS standalone invoked as:')
         # Print execute_string
         casalog.post(execute_string)
-        
+
         # Catch the return status and exit on failure
         ret_status = os.system(execute_string)
         if ret_status != 0:
             casalog.post('asdm2MS failed to execute with exit error '+str(ret_status), 'SEVERE')
             raise Exception, 'ASDM conversion error, please check if it is a valid ASDM.'
-        
+
         if compression:
             visover = viso
             viso = visover.replace('.ms','.compressed.ms')
@@ -156,10 +157,10 @@ def importevla(
         # Begin EVLA specific code here
         # =============================
         nflags = 0
-        
+
         # All flag cmds
         allflags = {}
-                
+
         if os.access(asdm + '/Flag.xml', os.F_OK):
                 # Find (and copy) Flag.xml
             print '  Found Flag.xml in SDM, copying to MS'
@@ -196,7 +197,7 @@ def importevla(
                 allflags = flago.copy()
 
                 casalog.post('Created %s commands for online flags'%str(nflags))
-                
+
         else:
             if online:
                 casalog.post('ERROR: No Flag.xml in SDM', 'SEVERE')
@@ -211,7 +212,7 @@ def importevla(
         # Now add zero and shadow flags
         if flagzero:
             flagz = {}
-            
+
             # clip zero data
             # NOTE: currently hard-wired to RL basis
             # assemble into flagging commands and add to myflagd
@@ -238,7 +239,7 @@ def importevla(
                 allflags[nflags] = flagz.copy()
                 nflags += 1
                 nflagz = 1
-                
+
             else:
                 flagz['reason'] = 'CLIP_ZERO_RR'
 #                flagz['command'] = \
@@ -251,7 +252,7 @@ def importevla(
                 flagz['id'] = 'ZERO_RR'
                 allflags[nflags] = flagz.copy()
                 nflags += 1
-            
+
                 flagz['reason'] = 'CLIP_ZERO_LL'
 #                flagz['command'] = \
 #                    "mode='clip' clipzeros=True correlation='ABS_LL'"
@@ -290,14 +291,14 @@ def importevla(
                 if addantenna != '':
                     # it's a filename, create a dictionary
                     antdict = fh.readAntennaList(addantenna)
-#                    scmd = scmd  +' addantenna='+str(antdict) 
+#                    scmd = scmd  +' addantenna='+str(antdict)
                     command['addantenna'] = antdict
-                    
+
             elif type(addantenna) == dict:
                 if addantenna != {}:
 #                    scmd = scmd  +' addantenna='+str(addantenna)
                     command['addantenna'] = addantenna
-            
+
 #            flagh['command'] = scmd
             flagh['command'] = command
             flagh['id'] = 'SHADOW'
@@ -305,17 +306,17 @@ def importevla(
             nflags += 1
 
             casalog.post('Created 1 command to flag shadowed data')
-        
+
         # List of rows to save
         allkeys = allflags.keys()
-        
+
         # Apply the flags
         if applyflags:
             if nflags > 0:
 
                 # Open the MS and attach the tool
                 aflocal.open(viso)
-                                
+
                 # Select the data
                 aflocal.selectdata()
 
@@ -327,45 +328,45 @@ def importevla(
 
                 # Run the tool
                 stats = aflocal.run(True, True)
-                
+
                 casalog.post('Applied %s flag commands to data'%str(nflags))
 
                 # Destroy the tool
                 aflocal.done()
-                
+
                 # Save the flags to FLAG_CMD and update the APPLIED column
 #                fh.writeFlagCmd(viso, allflags, allkeys, True, '', '')
                 fh.writeFlagCommands(viso,allflags,True,'','', True)
-                
+
             else:
 
                 casalog.post('There are no flags to apply')
-                
+
         else :
             casalog.post('Will not apply flags (applyflags=False), use flagcmd to apply')
             if nflags > 0:
 #                fh.writeFlagCmd(viso, allflags, allkeys, False, '', '')
                 fh.writeFlagCommands(viso,allflags,False,'','', True)
 
-               
-        # Save the flag commads to an ASCII file 
+
+        # Save the flag commads to an ASCII file
         if savecmds:
 
-            if nflags > 0:         
+            if nflags > 0:
                 # Save the cmds to a file
-                if outfile == '': 
+                if outfile == '':
                     # Save to standard filename
                     outfile = viso.replace('.ms','_cmd.txt')
-                    
+
 #                fh.writeFlagCmd(viso, allflags, allkeys, False, '', outfile)
                 fh.writeFlagCommands(viso,allflags,False,'',outfile, True)
-                
+
                 casalog.post('Saved %s flag commands to %s'%(nflags,outfile))
-        
+
             else:
                 casalog.post('There are no flag commands to save')
-                
-                         
+
+
     except Exception, instance:
 
         casalog.post('%s' % instance, 'ERROR')
@@ -378,12 +379,12 @@ def importevla(
             param_vals = [eval(p) for p in param_names]
             retval &= write_history(mslocal, vis, 'importevla', param_names,
                                     param_vals, casalog)
-            
+
         except Exception, instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                          'WARN')
 
-   
+
 
 # ===============================================================================
 
@@ -420,4 +421,3 @@ def getmsmjds(vis):
         print 'WARNING: Could not open vis as MS to find times'
         casalog.post('WARNING: Could not open vis as MS to find times')
     return (ms_startmjds, ms_endmjds, ms_time1, ms_time2)
-

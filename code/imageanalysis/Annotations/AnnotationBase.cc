@@ -32,7 +32,7 @@
 #include <coordinates/Coordinates/SpectralCoordinate.h>
 #include <measures/Measures/MCDirection.h>
 #include <measures/Measures/VelocityMachine.h>
-
+#include <casa/Quanta/UnitMap.h>
 
 #include <iomanip>
 

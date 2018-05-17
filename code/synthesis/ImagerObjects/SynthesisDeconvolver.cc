@@ -81,6 +81,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
         LogIO os( LogOrigin("SynthesisDeconvolver","descructor",WHERE) );
 	os << LogIO::DEBUG1 << "SynthesisDeconvolver destroyed" << LogIO::POST;
+	SynthesisUtilMethods::getResource("End SynthesisDeconvolver");
+
   }
 
   void SynthesisDeconvolver::setupDeconvolution(const SynthesisParamsDeconv& decpars)
@@ -198,6 +200,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         itsMinPercentChange = decpars.minPercentChange;
         itsVerbose = decpars.verbose;
 	itsIsInteractive = decpars.interactive;
+        itsNsigma = decpars.nsigma;
       }
     catch(AipsError &x)
       {
@@ -241,6 +244,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       itsLoopController.setPeakResidual( validMask ? itsImages->getPeakResidualWithinMask() : peakresnomask );
       itsLoopController.setPeakResidualNoMask( peakresnomask );
       itsLoopController.setMaxPsfSidelobe( itsImages->getPSFSidelobeLevel() );
+
+      //re-calculate current nsigma threhold
+      Array<Double> robustrms = itsImages->calcRobustRMS();
+      // Before the first iteration the iteration parameters have not been
+      // set in SIMinorCycleController
+      // Use nsigma pass to SynthesisDeconvolver directly for now...
+      //Float nsigma = itsLoopController.getNsigma();
+      Double maxrobustrms = max(robustrms);
+      //Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
+      Float nsigmathresh = itsNsigma * (Float)maxrobustrms;
+      if (itsNsigma>0.0 ) os << "Current nsigma threshold (maximum along spectral channels) ="<<nsigmathresh<<LogIO::POST;
+      itsLoopController.setNsigmaThreshold(nsigmathresh);
+
 
       if ( itsAutoMaskAlgorithm=="multithresh" && !initializeChanMaskFlag ) {
         IPosition maskshp = itsImages->mask()->shape();

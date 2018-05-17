@@ -101,8 +101,8 @@ namespace casa {
 
 
 
-	pair<double,double> CanvasCurve::getRangeFor(double xMin, double xMax, Bool& exists ) {
-		pair<double,double> yRange;
+	std::pair<double,double> CanvasCurve::getRangeFor(double xMin, double xMax, Bool& exists ) {
+		std::pair<double,double> yRange;
 		exists = false;
 		int yCount = curveData.size() / 2;
 		for ( int i = 0; i < yCount; i++ ) {

@@ -55,7 +55,7 @@ AsciiAnnotationFileLine::AsciiAnnotationFileLine(
 	_globals() {}
 
 AsciiAnnotationFileLine::AsciiAnnotationFileLine(
-	const map<AnnotationBase::Keyword, String>& globals
+	const std::map<AnnotationBase::Keyword, String>& globals
 ) : _type(GLOBAL), _comment(""),
 	_annotationBase(0),
 	_globals(globals) {}
@@ -77,7 +77,7 @@ String AsciiAnnotationFileLine::getComment() const {
 	return _comment;
 }
 
-map<AnnotationBase::Keyword, String> AsciiAnnotationFileLine::getGloabalParams() const {
+std::map<AnnotationBase::Keyword, String> AsciiAnnotationFileLine::getGloabalParams() const {
 	return _globals;
 }
 

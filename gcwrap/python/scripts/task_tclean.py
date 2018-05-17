@@ -108,6 +108,7 @@ def tclean(
     niter,#=0, 
     gain,#=0.1,
     threshold,#=0.0, 
+    nsigma,#=0.0
     cycleniter,#=0, 
     cyclefactor,#=1.0,
     minpsffraction,#=0.1,
@@ -247,6 +248,7 @@ def tclean(
         cycleniter=cycleniter,
         loopgain=gain,
         threshold=threshold,
+        nsigma=nsigma,
         cyclefactor=cyclefactor,
         minpsffraction=minpsffraction, 
         maxpsffraction=maxpsffraction,

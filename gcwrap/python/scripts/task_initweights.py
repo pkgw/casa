@@ -7,15 +7,27 @@ def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,s
     casalog.origin('initweights')
 
     # Do the trivial parallelization
-    if ParallelTaskHelper.isParallelMS(vis):
+    if ParallelTaskHelper.isMPIEnabled() and ParallelTaskHelper.isParallelMS(vis):
         helper = ParallelTaskHelper('initweights', locals())
         helper.go()
+        # Write history to MS.
+        try:
+            param_names = initweights.func_code.co_varnames[:initweights.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]
+            casalog.post('Updating the history in the output', 'DEBUG1')
+            write_history(ms, vis, 'initweights', param_names,
+                          param_vals, casalog)
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
+                         'WARN')
+        
         return
 
 
     #Python script
     try:
         mycb=cbtool()
+        myms=mstool()
 
         # only if vis exists...
         if ((type(vis)==str) & (os.path.exists(vis))):
@@ -33,14 +45,21 @@ def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,s
             mycb.close()
         else:
             raise Exception, 'Visibility data set not found - please verify the name'
+        
+        # Write history to MS.
+        # When running in parallel, history will be written in the parallel section above
+        # normal MSs should write the history here
+        if ParallelTaskHelper.isMPIClient():
+            try:
+                param_names = initweights.func_code.co_varnames[:initweights.func_code.co_argcount]
+                param_vals = [eval(p) for p in param_names]
+                casalog.post('Updating the history in the output', 'DEBUG1')
+                write_history(myms, vis, 'initweights', param_names,
+                              param_vals, casalog)
+            except Exception, instance:
+                casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
+                             'WARN')
 
-        #write history
-        ms.open(vis,nomodify=False)
-        ms.writehistory(message='taskname = initweights',origin='initweights')
-        ms.writehistory(message='vis         = "'+str(vis)+'"',origin='initweights')
-        ms.writehistory(message='wtmode      = "'+wtmode+'"',origin='initweights')
-        ms.writehistory(message='dowtsp      = "'+str(dowtsp)+'"',origin='initweights')
-        ms.close()
 
     except Exception, instance:
         print '*** Error ***',instance
