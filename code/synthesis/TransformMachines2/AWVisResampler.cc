@@ -288,7 +288,7 @@ namespace casa{
 					   Bool& finitePointingOffset,
 					   Bool doPSFOnly)
   {
-    Vector<Int> iloc(4,0), tiloc(4);
+    Vector<Int> iloc(4,0);
     Bool Dummy;
     Complex wt, cfArea=1.0; 
     Complex norm=0.0;
@@ -438,7 +438,7 @@ namespace casa{
     Int startChan, endChan;
     
     Vector<Float> sampling(2),scaledSampling(2);
-    Vector<Int> support(2),loc(3), iloc(4),tiloc(4),scaledSupport(2);
+    Vector<Int> support(2),loc(3), iloc(4),scaledSupport(2);
     Vector<Double> pos(3), off(3);
     Vector<Int> igrdpos(4);
 
@@ -679,18 +679,15 @@ namespace casa{
 					  // loops re-written in FORTRAN (in synthesis/fortran/faccumulateOnGrid.f)
 
 					  //timer_p.mark();
-					  norm += accumulateOnGrid(grid,convFuncV,nvalue,dataWVal,
-					  			   support,sampling,
-					  			   off, convOrigin, cfShape, loc, igrdpos,
-					  			   sinDPA, cosDPA,finitePointingOffsets,psfOnly);
-// cerr << vbs.vb_p->spectralWindow() << " " << vbs.vb_p->rowIds()(irow) << " " << irow << " " << ichan << " " << ipol << " " << mRow << endl;
-
+					  // norm += accumulateOnGrid(grid,convFuncV,nvalue,dataWVal,
+					  // 			   support,sampling,
+					  // 			   off, convOrigin, cfShape, loc, igrdpos,
+					  // 			   sinDPA, cosDPA,finitePointingOffsets,psfOnly);
+#include <synthesis/TransformMachines2/accumulateToGrid.inc>
 //#include <synthesis/TransformMachines2/FortranizedLoopsToGrid.cc>
-
 //clLoopsToGrid();
 //runTimeG7_p += timer_p.real();
 					}
-				      //				      cerr << "Norm = " << norm << endl;
 				      sumwt(targetIMPol,targetIMChan) += vbs.imagingWeight_p(ichan, irow)*abs(norm);
 				      //		      *(sumWt_ptr+apol+achan*nGridChan)+= *(imgWts_ptr+ichan+irow*nDataChan);
 				    }
@@ -716,7 +713,7 @@ namespace casa{
     Int nDataChan, nDataPol, nGridPol, nGridChan, nx, ny,nw;//, nCFFreq;
     Int achan, apol, rbeg, rend;//, PolnPlane, ConjPlane;
     Vector<Float> sampling(2);//scaledSampling(2);
-    Vector<Int> support(2),loc(3), iloc(4),tiloc(4);// scaledSupport(2);
+    Vector<Int> support(2),loc(3), iloc(4);
     Vector<Double> pos(3), off(3);
     
     IPosition grdpos(4);
@@ -886,48 +883,15 @@ namespace casa{
 			// file (FortanizedLoopsFromGrid.cc) has the interface code to call the inner 
 			// loops re-written in FORTRAN (in synthesis/fortran/faccumulateOnGrid.f)
 
-			accumulateFromGrid(nvalue, norm[ipol], gridStore, igrdpos, convFuncV, dataWVal,
-					   support, sampling, off, convOrigin,
-					   cfShape, loc, phasor, sinDPA, cosDPA,
-					   finitePointingOffset, cached_phaseGrad_p);
+			// accumulateFromGrid(nvalue, norm[ipol], gridStore, igrdpos, convFuncV, dataWVal,
+			// 		   support, sampling, off, convOrigin,
+			// 		   cfShape, loc, phasor, sinDPA, cosDPA,
+			// 		   finitePointingOffset, cached_phaseGrad_p);
 // Timer timer;
+#include <synthesis/TransformMachines2/accumulateFromGrid.inc>
 //#include <synthesis/TransformMachines2/FortranizedLoopsFromGrid.cc>
 // runTimeDG_p += timer.real();
 
-			 // //--------------------------------------------------------------------------------
-			 // IPosition phaseGradOrigin_l = cached_phaseGrad_p.shape()/2;
-			 // for(Int iy=-support[1]; iy <= support[1]; iy++) 
-			 //   {
-			 //     //			    iloc(1)=(Int)(scaledSampling[1]*iy+off[1]-1);//+convOrigin[1];
-			 //     iloc(1)=(sampling[1]*iy+off[1]);//+convOrigin[1];
-			 //     igrdpos[1]=loc[1]+iy;
-			 //     for(Int ix=-support[0]; ix <= support[0]; ix++) 
-			 //       {
-			 // 	 //				iloc(0)=(Int)(scaledSampling[0]*ix+off[0]-1);//+convOrigin[0];
-			 // 	 iloc(0)=(sampling[0]*ix+off[0]);//+convOrigin[0];
-			 // 	 igrdpos[0]=loc[0]+ix;
-			 // 	 tiloc=iloc;
-			 // 	 if (reindex(iloc,tiloc,sinDPA, cosDPA, convOrigin, cfShape))
-			 // 	   {
-			 // 	     wt=getFrom4DArray((const Complex * __restrict__ &)convFuncV,
-			 // 			       tiloc,cfInc_p);
-			 // 	     if (dataWVal > 0.0) wt = conj(wt);
-			 // 	     norm(apol)+=(wt);
-			 // 	     if (finitePointingOffset) 
-			 // 	       {
-			 // 		 wt *= (cached_phaseGrad_p(iloc[0]+phaseGradOrigin_l(0),  iloc[1]+phaseGradOrigin_l(1)));
-			 // 		 // ttt += (cached_phaseGrad_p(iloc[0]+phaseGradOrigin_l(0), iloc[1]+phaseGradOrigin_l(1)));
-			 // 		 // cerr << "## " << (cached_phaseGrad_p(iloc[0]+phaseGradOrigin_l(0), iloc[1]+phaseGradOrigin_l(1))) << " "
-			 // 		 //      << iloc << " " << phaseGradOrigin_l << endl;
-			 // 	       }
-			 // 	     // nvalue+=wt*grid(grdpos);
-			 // 	     // The following uses raw index on the 4D grid
-			 // 	     // nvalue+=wt*getFrom4DArray(gridStore,iPosPtr,gridInc);
-			 // 	     nvalue+=wt*getFrom4DArray(gridStore,igrdpos,gridInc_p);
-			 // 	   }
-			 //       }
-			 //   }
-			 // //--------------------------------------------------------------------------------
 		      }
 		    if (norm[ipol] != Complex(0.0)) visCube(ipol,ichan,irow)=nvalue/norm[ipol]; // Goes with FortranizedLoopsFromGrid.cc
 		}
