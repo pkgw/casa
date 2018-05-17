@@ -1,4 +1,4 @@
-//# PlotMSCacheMetadata_GT.cc:: GoogleTest for plotms cache metadata axes
+//# PlotMSCacheTransform_GT.cc:: GoogleTest for plotms transformations
 //# Copyright (C) 2018
 //# Associated Universities, Inc. Washington DC, USA.
 //#

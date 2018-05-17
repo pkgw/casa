@@ -80,9 +80,12 @@ int main(int argc, char** argv) {
 }
 
 TEST_F( PlotMSCacheTest, testVisibilities) {
-	// Test visibility and flag axis options
+	// Test visibility and flag axis options:
 	// AMP,PHASE,REAL,IMAG,WT,WTxAMP,WTSP,
 	// SIGMA,SIGMASP,FLAG,FLAG_ROW
+	// and datacolumn options:
+	// DATA, CORRECTED, MODEL, CORRMODEL, DATAMODEL,
+	// DATA_DIVIDE_MODEL, CORRECTED_DIVIDE_MODEL
 
 	ASSERT_NE(nullptr, cache);  // make sure we have a cache
 

@@ -1,4 +1,4 @@
-//# PlotMSCacheLtdVis_GT.cc:: GoogleTest for limited visibilities (one col)
+//# PlotMSCacheLtdVis_GT.cc:: GoogleTest for limited visibilities (only DATA in MS)
 //# Copyright (C) 2018
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 	return RUN_ALL_TESTS();
 }
 
-TEST( PlotMSCacheTest, testDataOnly ) {
+TEST( PlotMSCacheTest, testDataOnlyMS ) {
 	// dataset only has DATA column
 	String dataPath = tUtil::getFullPath( "pm_ngc5921.ms", "plotms" );
 	Int ichunk(0), expNChunk(60), expNRow(351);
@@ -116,7 +116,7 @@ TEST( PlotMSCacheTest, testDataOnly ) {
 	delete cache;
 }
 
-TEST( PlotMSCacheTest, testFloatOnly) {
+TEST( PlotMSCacheTest, testFloatOnlyMS) {
 	// Test visibility axis options for singledish:
 	// Axes:
 	// 	amp = real => float data

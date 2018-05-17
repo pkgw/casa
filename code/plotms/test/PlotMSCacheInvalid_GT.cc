@@ -1,4 +1,4 @@
-//# PlotMSCacheAll_GT.cc:: GoogleTest for all plotms cache axes
+//# PlotMSCacheInvalid_GT.cc:: GoogleTest for invalid axes (for test MS)
 //# Copyright (C) 2018
 //# Associated Universities, Inc. Washington DC, USA.
 //#

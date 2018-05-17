@@ -1,4 +1,4 @@
-//# PlotMSCacheSelection_GT.cc:: GoogleTest for plotms cache visibility axes
+//# PlotMSCacheSelection_GT.cc:: GoogleTest for plotms selection
 //# Copyright (C) 2018
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -33,7 +33,6 @@
 #include <plotms/Data/MSCache.h>
 #include <ms/MeasurementSets/MSMainColumns.h>
 #include <ms/MSSel/MSSelectionTools.h>
-//#include <casa/Arrays/ArrayLogical.h>
 
 using namespace casa;
 
