@@ -65,7 +65,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value>False</value>
     </param>
 
-    <param type="double" name="refpix" subparam="true">
+    <param type="double" name="refchan" subparam="true">
         <description>reference channel of spectral axis in image sideband</description>
         <value>0.0</value>
     </param>
@@ -95,7 +95,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <when param="getbothside">
                 <equals type="bool" value="False"/>
                 <equals type="bool" value="True">
-                    <default param="refpix"><value>0.0</value></default>
+                    <default param="refchan"><value>0.0</value></default>
                     <default param="refval"><value type="string"></value></default>
                 </equals>
             </when>
@@ -118,7 +118,7 @@ Solve both signal and image sidebands (need to set frequency of image sideband e
     sdsidebandsplit(imagename=['shift_0ch.image', 'shift_132ch.image', 'shift_neg81ch.image'],
                   outfile='separated.image', signalshift=[0.0, +132.0, -81.0],
                   imageshift=[0.0, -132.0, +81.0],
-                  getbothside=True, refpix=0.0, refval='805.8869GHz')
+                  getbothside=True, refchan=0.0, refval='805.8869GHz')
 
 The output images are 'separated.image.signalband' and 'separated.image.imageband'
 for signal and image sideband, respectively.
