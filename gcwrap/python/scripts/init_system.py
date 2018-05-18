@@ -252,7 +252,7 @@ argparser.add_argument( "-c",dest='execute',default=[],nargs=argparse.REMAINDER,
 
 casa['flags'], casa['args'] = argparser.parse_known_args( )
 #### must keep args in sync with 'casa' state...
-casa['files']['logfile'] = casa['flags'].logfile
+casa['files']['logfile'] = '/dev/null' if casa['flags'].nologfile or not os.access('.', os.W_OK) else casa['flags'].logfile
 casa['dirs']['rc'] = casa['flags'].rcdir
 
 #### pipeline requires the Agg backend; any use of

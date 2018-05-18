@@ -15,8 +15,8 @@ def visstatold(vis=None,
                array=None,
                observation=None):
 
-    casalog.origin('visstatold')  
-
+    casalog.origin('visstatold')
+    casalog.post("Task visstatold has been deprecated and will be removed in release 5.4.", "WARN")
     casalog.post('Use of visstatold is deprecated; please replace calls to visstatold with calls to visstat', priority='WARN')
 
     mslocal = mstool()
@@ -38,7 +38,7 @@ def visstatold(vis=None,
         scan=''
         array=''
         observation = ''
-        
+
     s = mslocal.statisticsold(column=col.upper(),
                       complex_value=complex_type,
                       useflags=useflags,
@@ -51,12 +51,12 @@ def visstatold(vis=None,
                       scan=scan,
                       array=array,
                       obs=str(observation))
-    
+
     mslocal.close()
 
     for stats in s.keys():
         casalog.post(stats + " values --- ", "NORMAL")
-        
+
         if s[stats]['npts'] > 0:
             casalog.post("         -- number of points [npts]:           " + str(int(round(s[stats]['npts']))), "NORMAL")
             casalog.post("         -- minimum value [min]:               " + str(s[stats]['min'  ]), "NORMAL")
@@ -77,7 +77,3 @@ def visstatold(vis=None,
             casalog.post(stats + " -- No valid points found", "WARN")
 
     return s
-
-
-        
-

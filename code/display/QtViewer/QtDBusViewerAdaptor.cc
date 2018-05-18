@@ -39,7 +39,7 @@
 #include <display/QtViewer/QtDisplayPanel.qo.h>
 #include <display/QtViewer/QtCleanPanelGui.qo.h>
 #include <display/QtViewer/QtCleanPanelGui2.qo.h>
-#include <display/Display/State.h>
+#include <display/Display/DisplayState.h>
 #include <casa/BasicSL/String.h>
 #include <casa/Containers/List.h>
 #include <QtDBus>
@@ -647,6 +647,13 @@ namespace casa {
 		else {
 
 			QtDisplayPanelGui *dpg = create_panel( );
+
+			if ( type.endsWith(".rstr") ) {
+				struct stat buf;
+				if ( stat( type.toLatin1( ).constData( ), &buf ) == 0 ) {
+					dpg->restorePanelState(to_string(type));
+				}
+			}
 			result = get_id( dpg );
 
 			if ( hidden ) dpg->hide( );

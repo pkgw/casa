@@ -182,7 +182,7 @@
             <!-- CLIP parameters -->
             <param type="any" name="clipminmax" subparam="true">
                 <description>Range to use for clipping</description>
-                <any type="variant" limittypes="doubleArray doubleArrayArray" />
+                <any type="variant" limittypes="doubleArray" />
                 <value type="doubleArray"></value>
             </param>
             <param type="any" name="datacolumn" subparam="true">

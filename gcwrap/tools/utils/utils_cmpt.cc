@@ -34,6 +34,9 @@
 #include <cstdlib>
 #include <casacore/casa/Quanta/UnitMap.h>
 #include <casatools/Config/State.h>
+#ifdef CASATOOLS
+#include <asdmstman/Register.h>
+#endif
 
 using namespace std;
 using namespace casacore;
@@ -404,6 +407,9 @@ bool utils::initialize(const std::vector<std::string> &default_path) {
     casatools::get_state( ).setDataPath(default_data_path);
     // configure quanta/measures customizations...
     UnitMap::putUser( "pix", UnitVal(1.0), "pixel units" );
+#ifdef CASATOOLS
+    register_asdmstman( );
+#endif
     initialized = true;
     return true;
 }

@@ -144,7 +144,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    cerr << "IN DESTR"<< endl;
     //    VisModelData::listModel(mss4vi_p[0]);
 
-    SynthesisUtilMethods::getResource("End Run");
+    SynthesisUtilMethods::getResource("End SynthesisImager");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -199,7 +199,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     LogIO os( LogOrigin("SynthesisImager","selectData",WHERE) );
 
-    SynthesisUtilMethods::getResource("Start Run");
+    SynthesisUtilMethods::getResource("Start SelectData");
 
     try
       {
@@ -2167,7 +2167,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	}
     	//cerr << "IN SYNTHE_IMA" << endl;
     	//VisModelData::listModel(rvi_p->getMeasurementSet());
-	//SynthesisUtilMethods::getResource("Before finalize for all mappers");
+	SynthesisUtilMethods::getResource("Before finalize for all mappers");
     	if(!dopsf) itsMappers.finalizeDegrid(*vb);
     	itsMappers.finalizeGrid(*vb, dopsf);
 

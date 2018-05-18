@@ -40,13 +40,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 //----------------------------------------------------------------------------
 
-CalTable::CalTable() : itsMainTable(0), itsDescTable(0), itsHistoryTable(0)
+CalTable::CalTable() : itsMainTable(NULL), itsDescTable(NULL), 
+	itsHistoryTable(NULL), itsObservationTable(NULL)
 {
 // Default null constructor for calibration table; do nothing for now
 // Output to private data:
 //    itsMainTable         Table*           Ptr to cal_main Table object
 //    itsDescTable         Table*           Ptr to cal_desc Table object
 //    itsHistoryTable      Table*           Ptr to cal_history Table object
+//    itsObservationTable  Table*           Ptr to observation Table object
 //
 };
 
@@ -59,6 +61,7 @@ CalTable::~CalTable()
 //    itsMainTable         Table*           Ptr to cal_main Table object
 //    itsDescTable         Table*           Ptr to cal_desc Table object
 //    itsHistoryTable      Table*           Ptr to cal_history Table object
+//    itsObservationTable  Table*           Ptr to observation Table object
 //
   if (itsMainTable) {
     delete (itsMainTable);
@@ -69,13 +72,17 @@ CalTable::~CalTable()
   if (itsHistoryTable) {
     delete (itsHistoryTable);
   };
+  if (itsObservationTable) {
+    delete (itsObservationTable);
+  };
 };
 
 //----------------------------------------------------------------------------
 
 CalTable::CalTable (const String& tableName, CalTableDesc& ctableDesc,
 		    Table::TableOption access) : 
-  itsMainTable(0), itsDescTable(0), itsHistoryTable(0)
+  itsMainTable(NULL), itsDescTable(NULL), itsHistoryTable(NULL),
+	itsObservationTable(NULL)
 {
 // Construct from a cal table name, descriptor and access option.
 // Used for creating new tables.
@@ -84,9 +91,10 @@ CalTable::CalTable (const String& tableName, CalTableDesc& ctableDesc,
 //    ctableDesc       const CalTableDesc&   Cal table descriptor
 //    access           Table::TableOption    Access mode
 // Output to private data:
-//    itsMainTable     Table*                Ptr to cal_main Table object
-//    itsDescTable     Table*                Ptr to cal_desc Table object
-//    itsHistoryTable  Table*                Ptr to cal_history Table object
+//    itsMainTable         Table*            Ptr to cal_main Table object
+//    itsDescTable         Table*            Ptr to cal_desc Table object
+//    itsHistoryTable      Table*            Ptr to cal_history Table object
+//    itsObservationTable  Table*            Ptr to observation Table object
 //
   createCalTable (tableName, ctableDesc, access);
 };
@@ -94,7 +102,8 @@ CalTable::CalTable (const String& tableName, CalTableDesc& ctableDesc,
 //----------------------------------------------------------------------------
 
 CalTable::CalTable (const String& tableName, Table::TableOption access) :
-  itsMainTable(0), itsDescTable(0), itsHistoryTable(0)
+  itsMainTable(NULL), itsDescTable(NULL), itsHistoryTable(NULL),
+	itsObservationTable(NULL)
 {
 // Construct from a cal table name and access option. Used for
 // accessing existing tables.
@@ -102,9 +111,10 @@ CalTable::CalTable (const String& tableName, Table::TableOption access) :
 //    tableName        const String&         Cal table name
 //    access           Table::TableOption    Access option
 // Output to private data:
-//    itsMainTable     Table*                Ptr to cal_main Table object
-//    itsDescTable     Table*                Ptr to cal_desc Table object
-//    itsHistoryTable  Table*                Ptr to cal_history Table object
+//    itsMainTable         Table*            Ptr to cal_main Table object
+//    itsDescTable         Table*            Ptr to cal_desc Table object
+//    itsHistoryTable      Table*            Ptr to cal_history Table object
+//    itsObservationTable  Table*            Ptr to observation Table object
 //
   openCalTable (tableName, access);
 };
@@ -117,15 +127,21 @@ CalTable::CalTable (const Table& table)
 // Input:
 //    table            const Table&          Input table
 // Output to private data:
-//    itsMainTable     Table*                Ptr to cal_main Table object
-//    itsDescTable     Table*                Ptr to cal_desc Table object
-//    itsHistoryTable  Table*                Ptr to cal_history Table object
+//    itsMainTable         Table*            Ptr to cal_main Table object
+//    itsDescTable         Table*            Ptr to cal_desc Table object
+//    itsHistoryTable      Table*            Ptr to cal_history Table object
+//    itsObservationTable  Table*            Ptr to observation Table object
 //
   itsMainTable = new Table (table);
   itsDescTable = new Table 
     (itsMainTable->keywordSet().asTable (MSC::fieldName (MSC::CAL_DESC)));
   itsHistoryTable = new Table
     (itsMainTable->keywordSet().asTable (MSC::fieldName (MSC::CAL_HISTORY)));
+  if (hasObsTable())
+    itsObservationTable = new Table
+      (itsMainTable->keywordSet().asTable (MSC::fieldName (MSC::OBSERVATION)));
+  else
+    itsObservationTable = NULL;
 };
 
 //----------------------------------------------------------------------------
@@ -136,15 +152,21 @@ CalTable::CalTable (const CalTable& other)
 // Input:
 //    other            const CalTable&       Existing CalTable object
 // Output to private data:
-//    itsMainTable     Table*                Ptr to cal_main Table object
-//    itsDescTable     Table*                Ptr to cal_desc Table object
-//    itsHistoryTable  Table*                Ptr to cal_history Table object
+//    itsMainTable         Table*            Ptr to cal_main Table object
+//    itsDescTable         Table*            Ptr to cal_desc Table object
+//    itsHistoryTable      Table*            Ptr to cal_history Table object
+//    itsObservationTable  Table*            Ptr to observation Table object
 //
   itsMainTable = new Table (*(other.itsMainTable));
   itsDescTable = new Table 
     (itsMainTable->keywordSet().asTable (MSC::fieldName (MSC::CAL_DESC)));
   itsHistoryTable = new Table
     (itsMainTable->keywordSet().asTable (MSC::fieldName (MSC::CAL_HISTORY)));
+  if (hasObsTable())
+    itsObservationTable = new Table
+      (itsMainTable->keywordSet().asTable (MSC::fieldName (MSC::OBSERVATION)));
+  else
+    itsObservationTable = NULL;
 };
 
 //----------------------------------------------------------------------------
@@ -155,9 +177,10 @@ CalTable& CalTable::operator= (const CalTable& other)
 // Input:
 //    other            const CalTable&       RHS CalTable object
 // Output to private data:
-//    itsMainTable     Table*                Ptr to cal_main Table object
-//    itsDescTable     Table*                Ptr to cal_desc Table object
-//    itsHistoryTable  Table*                Ptr to cal_history Table object
+//    itsMainTable         Table*            Ptr to cal_main Table object
+//    itsDescTable         Table*            Ptr to cal_desc Table object
+//    itsHistoryTable      Table*            Ptr to cal_history Table object
+//    itsObservationTable  Table*            Ptr to observation Table object
 //
   Bool identity = (this == &other);
   if (itsMainTable && !identity) {
@@ -168,6 +191,9 @@ CalTable& CalTable::operator= (const CalTable& other)
   };
   if (itsHistoryTable && !identity) {
     *itsHistoryTable = *(other.itsHistoryTable);
+  };
+  if (itsObservationTable && !identity && other.hasObsTable()) {
+    *itsObservationTable = *(other.itsObservationTable);
   };
   return *this;
 };
@@ -298,6 +324,19 @@ Int CalTable::nRowHistory() const
 
 //----------------------------------------------------------------------------
 
+Int CalTable::nRowObservation() const
+{
+// Return the number of rows in observation
+// Output:
+//    nRowObservation      Int               No of rows in observation
+//
+  if (hasObsTable())
+	  return itsObservationTable->nrow();
+  else
+	  return -1;
+};
+
+//----------------------------------------------------------------------------
 Record CalTable::getRowMain (const Int& jrow)
 {
 // Get a row from cal_main
@@ -343,6 +382,24 @@ Record CalTable::getRowHistory (const Int& jrow)
 
 //----------------------------------------------------------------------------
 
+Record CalTable::getRowObservation (const Int& jrow)
+{
+// Get a row from observation
+// Input:
+//    jrow             const Int&            Row number
+// Output:
+//    getRowObservation    Record            Row record
+//
+  if (hasObsTable()) {
+    ROTableRow trow (*itsObservationTable);
+    trow.get (jrow);
+    return trow.record();
+  } else {
+	return Record();
+  }
+};
+
+//----------------------------------------------------------------------------
 void CalTable::putRowMain (const Int& jrow, CalMainRecord& tableRec)
 {
 // Put a row to cal_main
@@ -543,15 +600,21 @@ void CalTable::openCalTable (const String& tableName,
 //    tableName        const String&         Cal table name
 //    access           Table::TableOption    Access option
 // Output to private data:
-//    itsMainTable     Table*                Ptr to cal_main Table object
-//    itsDescTable     Table*                Ptr to cal_desc Table object
-//    itsHistoryTable  Table*                Ptr to cal_history Table object
+//    itsMainTable         Table*            Ptr to cal_main Table object
+//    itsDescTable         Table*            Ptr to cal_desc Table object
+//    itsHistoryTable      Table*            Ptr to cal_history Table object
+//    itsObservationTable  Table*            Ptr to cal_history Table object
 //
   itsMainTable = new Table (tableName, access);
   itsDescTable = new Table (itsMainTable->keywordSet().asTable
     (MSC::fieldName(MSC::CAL_DESC)));
   itsHistoryTable = new Table (itsMainTable->keywordSet().asTable
     (MSC::fieldName(MSC::CAL_HISTORY)));
+  if (hasObsTable())
+    itsObservationTable = new Table (itsMainTable->keywordSet().asTable
+      (MSC::fieldName(MSC::OBSERVATION)));
+  else
+    itsObservationTable = NULL;
 };
 
 //----------------------------------------------------------------------------

@@ -68,7 +68,7 @@ void PlotMSSummaryDialog::filesChanged(const vector<String>& fileNames){
 
 	// Revise summary choices for cal tables
 	Table tab = Table(fileNames[0]);
-	if (tab.keywordSet().isDefined("ParType")) {
+	if (tab.keywordSet().isDefined("ParType") || tab.keywordSet().isDefined("CAL_DESC")) {
 		isMS_ = false;
 		ui.summaryType->clear();
 		const vector<String>& types = PMS::CTsummaryTypeStrings();
