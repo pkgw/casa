@@ -38,17 +38,17 @@
 	</param>
 
 	<param type="string" name="interp" subparam="true">
-		<description>Interpolation type in time[,freq]. default==linear,linear</description>
+		<description>Interpolation type in time[,freq]. default==\'linear,linear\'</description>
 		<value></value>
 	</param>
 
 	<param type="intArray" name="spwmap" subparam="true">
-		<description>Spectral windows combinations to form for gaintables(s)</description>
+		<description>Spectral windows combinations to form for gaintable(s)</description>
 		<value></value>
 	</param>
 
 	<param type="bool" name="dowtsp">
-		<description>Initialize the WEIGHT_SPECTRUM column.</description>
+		<description>Initialize the WEIGHT_SPECTRUM column</description>
 		<value>False</value>
 	</param>
 

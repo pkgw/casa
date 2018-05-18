@@ -5,7 +5,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-<task type="function" name="fringefit" category="calibration">
+<task type="function" name="fringefit" category="calibration" visibility="experimental">
 <shortdescription>Fringe fit delay and rates</shortdescription>
 <description>
 Phase offsets, groups delays and delay rates are calculated with

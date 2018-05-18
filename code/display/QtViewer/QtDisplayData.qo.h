@@ -155,7 +155,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Returns a casacore::String with value and position information,
 		// suitable for a cursor tracking display.
-		virtual pair<casacore::String,casacore::String> trackingInfo(const WCMotionEvent& ev);
+		virtual std::pair<casacore::String,casacore::String> trackingInfo(const WCMotionEvent& ev);
 
 
 		// Convert 2-D 'pseudoregion' (or 'mouse region' casacore::Record, from the region

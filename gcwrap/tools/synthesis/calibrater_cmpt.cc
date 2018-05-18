@@ -1538,7 +1538,7 @@ void calibrater::uvtaql(std::string& uvsel, bool& noselect,
     ScalarColumn<Double> reffreq(spwtab, "REF_FREQUENCY");
     uvsel = "( ";
     uInt nfreq=reffreq.nrow();
-    Double c = (QC::c).getValue();
+    Double c = (QC::c( )).getValue();
     double ffact;
     vector<int> dd;
 
