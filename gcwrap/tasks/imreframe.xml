@@ -16,12 +16,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <param type="string" name="imagename" kind="image" mustexist="true" >
     	<description>Name of the input image</description>
     	<value></value>
-        <example>imagename=ngc5921_task.image</example>
+        <example>imagename='ngc5921_task.image'</example>
     </param>
     <param type="string" name="output" >
     	<description>Name of the output image</description>
     	<value></value>
-        <example>output='newframed.image</example>
+        <example>output='newframed.image'; output='' will modify input image</example>
     </param>
     <param type="string" name="outframe"  ignorecase="true">
         <description>Spectral frame in which the frequency or velocity values will be reported by default</description>

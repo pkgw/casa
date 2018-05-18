@@ -8,13 +8,14 @@ import re
 def boxit(imagename, regionfile, threshold, maskname, chanrange, polrange, minsize, diag, boxstretch, overwrite):
 
     casalog.origin('boxit')
+    casalog.post("Task boxit has been deprecated and will be removed in release 5.4.", "WARN")
     myia = iatool()
     try:
         if not(regionfile):
             regionfile = imagename + '.box'
         if not regionfile.endswith('.box'):
             regionfile = regionfile + '.box'
-    
+
         if not(overwrite):
             if(os.path.exists(regionfile)):
                 casalog.post('file "' + regionfile + '" already exists.', 'WARN')
@@ -22,7 +23,7 @@ def boxit(imagename, regionfile, threshold, maskname, chanrange, polrange, minsi
             if(maskname and os.path.exists(maskname)):
                 casalog.post('output mask "' + maskname + '" already exists.', 'WARN')
                 return
-    
+
         # If no units, assume mJy for consistency with auto/clean tasks.
         # But convert to Jy, because that's what units the images are in.
         threshold = qa.getvalue(qa.convert(qa.quantity(threshold,'mJy'),'Jy'))[0]
@@ -40,7 +41,7 @@ def boxit(imagename, regionfile, threshold, maskname, chanrange, polrange, minsi
             return
         writemask = bool(maskname)
         csys = myia.coordsys()
-    
+
         shape = fullmask.shape
         nx = int(shape[0])
         ny = int(shape[1])
@@ -50,11 +51,11 @@ def boxit(imagename, regionfile, threshold, maskname, chanrange, polrange, minsi
         if len(shape)==4:
             n2 = int(shape[2])
             n3 = int(shape[3])
-    
+
         #casa generated images always 4d and in order of [ra, dec, stokes, freq]
         #other images can be in the order of [ra, dec, freq, stokes]
         nms = csys.names()
-    
+
         chmax=n3
         pomax=n2
         chmin=0
@@ -80,7 +81,7 @@ def boxit(imagename, regionfile, threshold, maskname, chanrange, polrange, minsi
            except:
               casalog('bad format for chanrange', "SEVERE")
               return
-              
+
         if polrange:
            try:
               if str.count(polrange, '~') == 1:
@@ -97,7 +98,7 @@ def boxit(imagename, regionfile, threshold, maskname, chanrange, polrange, minsi
               if po2<pomax:
                  pomax = po2
            except:
-              raise Exception('bad format for polrange')              
+              raise Exception('bad format for polrange')
         n1=pomin
         n2=pomax
         n3=chmax
@@ -107,7 +108,7 @@ def boxit(imagename, regionfile, threshold, maskname, chanrange, polrange, minsi
            n2=chmax
            n3=pomax
            n4=pomin
-        
+
         f = open(regionfile, 'w')
         totregions = 0
         outputmask = []
@@ -157,7 +158,7 @@ def boxit(imagename, regionfile, threshold, maskname, chanrange, polrange, minsi
                                 outputmask[ii][jj][i2][i3] = True
                     blccoord = [box[0]-0.5, box[1]-0.5, i2, i3]
                     trccoord = [box[2]+0.5, box[3]+0.5, i2, i3]
-                    # note that the toworld() calls are likely very expensive for many boxes. But then 
+                    # note that the toworld() calls are likely very expensive for many boxes. But then
                     # again, the box-finding algorithm itself seems pretty inefficient, but resource
                     # constraints only permit a band aid fix at this time.
                     blc = myia.toworld(blccoord, 'm', False)['measure']
@@ -226,5 +227,3 @@ def find_nearby_island_pixels(island, mask, pos, xmax, ymax, diag):
                 # look for island pixels next to this one
                 find_nearby_island_pixels(island, mask, (x,y), xmax, ymax, diag)
     return
-
-

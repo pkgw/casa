@@ -164,19 +164,19 @@ async       Run asynchronously
     <param type="string" name="antenna" subparam="true">
 	    <description>Antenna/baselines</description>
 	    <value></value>
-        <example>: ''==>all, antenna = '3'</example>
+        <example>''==>all, antenna = '3'</example>
     </param>
 
     <param type="string" name="timerange" subparam="true">
 	    <description>Time range</description>
 	    <value></value>
-        <example>: ''==>all</example>
+        <example>''==>all</example>
     </param>
 
     <param type="string" name="correlation" subparam="true">
 	    <description>Correlations</description>
 	    <value></value>
-        <example>: ''==>all, correlation = 'RR RL'</example>
+        <example>''==>all, correlation = 'RR RL'</example>
     </param>
 
     <param type="string" name="scan" subparam="true">
@@ -203,7 +203,7 @@ async       Run asynchronously
     <param type="string" name="uvrange" subparam="true">
 	    <description>uv range</description>
 	    <value></value>
-        <example>: ''==>all; not yet implemented</example>
+        <example>''==>all; not yet implemented</example>
     </param>
 
     <param type="string" name="average">
