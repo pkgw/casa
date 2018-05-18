@@ -24,7 +24,7 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
-#include <display/Display/State.h>
+#include <display/Display/DisplayState.h>
 
 namespace casa {
 	namespace display {

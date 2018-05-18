@@ -140,7 +140,7 @@ class FieldRow;
  * </TR>
 	
  * <TR>
- * <TD> numPoly (\f$N_{Poly}\f$)</TD> 
+ * <TD> numPoly (numPoly)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;number of coefficients of the polynomials. </TD>

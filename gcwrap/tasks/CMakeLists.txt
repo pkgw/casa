@@ -25,13 +25,13 @@ exportasdm.xml
 exportfits.xml
 exportuvfits.xml
 feather.xml
-find.xml
 fixplanets.xml
 fixvis.xml
 flagcmd.xml
 flagdata.xml
 flagmanager.xml
 fluxscale.xml
+fringefit.xml
 ft.xml
 gaincal.xml
 gencal.xml

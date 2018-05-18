@@ -76,7 +76,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   SDMaskHandler::SDMaskHandler()
   {
+#if ! defined(WITHOUT_DBUS)
     interactiveMasker_p = new InteractiveMasking();
+#endif
     itsMax = DBL_MAX;
     itsRms = DBL_MAX;
     itsSidelobeLevel = 0.0;
@@ -84,8 +86,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
   SDMaskHandler::~SDMaskHandler()
   {
+#if ! defined(WITHOUT_DBUS)
     if (interactiveMasker_p != 0)
       delete interactiveMasker_p;
+#endif
   }
   
   void SDMaskHandler::resetMask(SHARED_PTR<SIImageStore> imstore)
@@ -130,13 +134,26 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               if ( colnames[0]=="map" ) {
                 // looks like a CASA image ... probably should check coord exists in the keyword also...
                 //          cout << "copy this input mask...."<<endl;
+                // Include checks if the degenerate axes exit or removed.
+                // expandMask will add a degenerate axis to match the output
                 PagedImage<Float> inmask(maskString);
                 IPosition inShape = inmask.shape();
                 IPosition outShape = imstore->mask()->shape();
                 Int specAxis = CoordinateUtil::findSpectralAxis(inmask.coordinates());
+                Int inNchan = (specAxis==-1? 1: inShape(specAxis) );
                 Int outSpecAxis = CoordinateUtil::findSpectralAxis(imstore->mask()->coordinates());
-                if (inShape(specAxis) == 1 && outShape(outSpecAxis)>1) {
-                  os << "Expanding mask image: " << maskString << LogIO::POST;
+                Vector <Stokes::StokesTypes> inWhichPols, outWhichPols;
+                Int stokesAxis = CoordinateUtil::findStokesAxis(inWhichPols, inmask.coordinates());
+                Int inNstokes = (stokesAxis==-1? 1: inShape(stokesAxis) );
+                Int outStokesAxis = CoordinateUtil::findStokesAxis(outWhichPols, imstore->mask()->coordinates());
+                //if (inShape(specAxis) == 1 && outShape(outSpecAxis)>1) {
+                if (inNchan == 1 && outShape(outSpecAxis)>1) {
+                  os << "Extending mask image: " << maskString << LogIO::POST;
+                  expandMask(inmask, tempMaskImage);
+                }
+                //else if(inShape(stokesAxis) == 1 && outShape(outStokesAxis) > 1 ) {
+                else if(inNstokes == 1 && outShape(outStokesAxis) > 1 ) {
+                  os << "Extending mask image along Stokes axis: " << maskString << LogIO::POST;
                   expandMask(inmask, tempMaskImage);
                 }
                 else {
@@ -565,58 +582,269 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     LogIO os( LogOrigin("SDMaskHandler", "expandMask", WHERE) );
 
     // expand mask with input range (in spectral axis and stokes?) ... to output range on outimage
-    // current expand a continuum mask to a cube mask in channels only (to all channels) 
+    // currently expand a continuum mask to a cube mask in channels (to all channels) 
+    // or continuum Stokes I mask to multi-Stokes mask
+    // or continuum with multi-Stokes mask to cube with multi-Stokes mask
     IPosition inShape = inImageMask.shape();
     CoordinateSystem inCsys = inImageMask.coordinates();
     Vector<Int> dirAxes = CoordinateUtil::findDirectionAxes(inCsys);
     Int inSpecAxis = CoordinateUtil::findSpectralAxis(inCsys);
-    Int inNchan = inShape(inSpecAxis); 
+    Int inNchan; 
+    if (inSpecAxis==-1) {
+      inNchan=1;
+    }
+    else {
+      inNchan = inShape(inSpecAxis); 
+    }
+      
     Vector<Stokes::StokesTypes> inWhichPols;
     Int inStokesAxis = CoordinateUtil::findStokesAxis(inWhichPols,inCsys);
+    Int inNpol; 
+    if (inStokesAxis==-1) {
+      inNpol=1;
+    }
+    else {
+      inNpol = inShape(inStokesAxis); 
+    }
+    
     //
-    // Single channel(continuum) input mask to output cube mask case:
-    //  - It can be different shape in direction axes and will be regridded.
-    if (inNchan==1) {
-      IPosition outShape = outImageMask.shape();
-      CoordinateSystem outCsys = outImageMask.coordinates();
-      Vector<Int> outDirAxes = CoordinateUtil::findDirectionAxes(outCsys);
-      Int outSpecAxis = CoordinateUtil::findSpectralAxis(outCsys);
-      Int outNchan = outShape(outSpecAxis);
-      Vector<Stokes::StokesTypes> outWhichPols;
-      Int outStokesAxis = CoordinateUtil::findStokesAxis(outWhichPols,outCsys);
+    IPosition outShape = outImageMask.shape();
+    CoordinateSystem outCsys = outImageMask.coordinates();
+    Vector<Int> outDirAxes = CoordinateUtil::findDirectionAxes(outCsys);
+    Int outSpecAxis = CoordinateUtil::findSpectralAxis(outCsys);
+    Int outNchan = outShape(outSpecAxis);
+    Vector<Stokes::StokesTypes> outWhichPols;
+    Int outStokesAxis = CoordinateUtil::findStokesAxis(outWhichPols,outCsys);
+    Int outNpol = outShape(outStokesAxis);
 
-      Int stokesInc = 1;
-      if (inShape(inStokesAxis)==outShape(outStokesAxis)) {
+    IPosition start(4,0,0,0,0);
+    IPosition length(4,outShape(outDirAxes(0)), outShape(outDirAxes(1)),1,1);
+    //Slicer sl(start, length); 
+    
+    Int stokesInc = 1;
+    // for fixing removed degenerate axis
+    Bool addSpecAxis = (inSpecAxis == -1? True: False);
+    // Do expansion for input mask with single channel (continuum)
+    if (inNchan==1 ) {
+      if (inNpol == 1 ) { 
+        stokesInc = 1;
+      }
+      else if (inShape(inStokesAxis)==outShape(outStokesAxis)) {
         stokesInc = inShape(inStokesAxis);
       }
-      IPosition start(4,0,0,0,0);
-      IPosition length(4,outShape(outDirAxes(0)), outShape(outDirAxes(1)),1,1);
-      length(outStokesAxis) = stokesInc;
-      Slicer sl(start, length); 
+      else {
+        throw(AipsError("Cannot extend the input mask of "+String::toString(inNpol)+
+              " Stokes planes to the output mask of "+String::toString(outNpol)+
+              " Stokes planes. Please modify the input mask to make it a Stokes I mask or a mask with the same number of Stokes planes as the output.") );
+      }
 
+      length(outStokesAxis) = stokesInc;
+
+      // I stokes cont -> cube: regrid ra.dec on the input single plane 
+      // I stokes cont -> cont multi-stokes: regrid ra.dec on the input 
+      // I stokes cont ->  cube multi-stokes: regid ra.dec on input 
+
+      Slicer sl(start, length);
       // make a subImage for regridding output       
       SubImage<Float> chanMask(outImageMask, sl, true);
-      
       ImageRegrid<Float> imregrid;
-      try {
-        imregrid.regrid(chanMask, Interpolate2D::LINEAR, dirAxes, inImageMask);
-      } catch (AipsError& x) {
-        cerr<<"Attempt to regrid the input mask image failed: "<<x.getMesg()<<endl;
+      TempImage<Float> tempInImageMask(chanMask.shape(), chanMask.coordinates(),memoryToUse());
+      PtrHolder<ImageInterface<Float> > outmaskim_ptr;
+      if ( chanMask.shape().nelements() >  inImageMask.shape().nelements() ) {
+        String stokesStr;
+        if (inNpol==1) {
+          stokesStr="I";
+        }
+        else {
+          stokesStr="";
+          //for (uInt ipol=0; ipol < inWhichPols.nelements(); ipol++) {
+          //  stokesStr+=Stokes::name(inWhichPols(ipol));
+          //}
+        }  
+        //os<<"Adding degenerate axes: addSpecAxis="<<addSpecAxis<<" stokes="<<stokesStr<<LogIO::POST;
+        casacore::ImageUtilities::addDegenerateAxes(os, outmaskim_ptr, inImageMask,"",False, addSpecAxis, stokesStr, False, False, True); 
+        tempInImageMask.copyData(*outmaskim_ptr);
       }
+      else {
+        tempInImageMask.copyData(inImageMask);
+      }
+
+      try {
+        imregrid.regrid(chanMask, Interpolate2D::LINEAR, dirAxes, tempInImageMask);
+      } catch (AipsError& x) {
+        os<<LogIO::WARN<<"Regridding of the input mask image failed: "<<x.getMesg()<<LogIO::POST;
+      }
+      // extract input mask (first stokes plane) 
       Array<Float> inMaskData;
       IPosition end2(4,outShape(outDirAxes(0)), outShape(outDirAxes(1)), 1, 1);
+      if ( inNpol==outNpol ) {
+        end2(outStokesAxis) = inNpol;
+      } 
       chanMask.doGetSlice(inMaskData, Slicer(start,end2));
-      for (Int ich = 1; ich < outNchan; ich++) {
-        start(outSpecAxis) = ich;
-        IPosition stride(4,1,1,1,1);
-        stride(outSpecAxis) = stokesInc; 
-        outImageMask.putSlice(inMaskData,start,stride); 
+      IPosition stride(4,1,1,1,1);
+      //
+      // continuum output mask case
+      if (outNchan==1) { 
+        //No copying over channels, just do copying over all Stokes if input mask is a single Stokes
+        if (inNpol == 1 && outNpol > 1) {
+          for (Int ipol = 0; ipol < outNpol; ipol++) {
+            start(outStokesAxis) = ipol;
+            os<<"Copying input mask to Stokes plane="<<ipol<<LogIO::POST;
+            outImageMask.putSlice(inMaskData,start,stride);
+          }
+        }
       }
+      else {  // for cube 
+        for (Int ich = 0; ich < outNchan; ich++) {
+          start(outSpecAxis) = ich;
+          IPosition inStart(4,0,0,0,0);
+          if (inNpol == 1 && outNpol > 1) {
+            // extend to other Stokes 
+            for (Int ipol = 0; ipol < outNpol; ipol++) {
+              os<<"Copying input mask to Stokes plane="<<ipol<<LogIO::POST;
+              start(outStokesAxis) = ipol;
+              outImageMask.putSlice(inMaskData,start,stride);
+            }
+          }
+          else {
+            // copy Stokes plane as is (but expand it to all channels)
+            stride(outStokesAxis) = stokesInc; 
+            if (inNpol == outNpol) {
+              for (Int ipol = 0; ipol < outNpol; ipol++) {
+                // need to slice mask from each stokes plane
+                inMaskData.resize();
+                inStart(outStokesAxis) = ipol;
+                start(outStokesAxis) = ipol;
+                end2(outStokesAxis) = 1;
+                stride(outStokesAxis) = 1;
+                chanMask.doGetSlice(inMaskData, Slicer(inStart,end2));
+                outImageMask.putSlice(inMaskData,start,stride); 
+              }
+
+            }
+            else {
+              outImageMask.putSlice(inMaskData,start,stride); 
+            }
+          }
+        } //for loop
+      } // else
+    }
+    // Stokes I (a single Stokes plane mask with cube)
+    else if (inNpol == 1) {
+      if (inNpol != 1 ) {
+        if (inShape(inStokesAxis)==outShape(outStokesAxis)) {
+          stokesInc = inShape(inStokesAxis);
+        }
+        else {
+          throw(AipsError("Cannot extend the input mask of "+String::toString(inNpol)+
+              " Stokes planes to the output mask of "+String::toString(outNpol)+
+              " Stokes planes. Please modify the input mask to make it a Stokes I mask or a mask with the same number of Stokes planes as the output.") );
+        }
+      }
+      length(outStokesAxis) = stokesInc;
+      length(outSpecAxis) = outNchan;
+      Slicer slStokes(start, length);
+      // make a subImage for regridding output (all channels)    
+      SubImage<Float> stokesMask(outImageMask, slStokes, true);
+      ImageRegrid<Float> imregrid2;
+      TempImage<Float> tempInStokesImageMask(stokesMask.shape(), stokesMask.coordinates(),memoryToUse());
+      PtrHolder<ImageInterface<Float> > outstokesmaskim_ptr;
+      Vector<Stokes::StokesTypes> outWhichPols;
+      if ( stokesMask.shape().nelements() >  inImageMask.shape().nelements() ) {
+        casacore::ImageUtilities::addDegenerateAxes(os, outstokesmaskim_ptr, inImageMask,"",False, addSpecAxis, "I", False, False, True); 
+        Vector<Int> outWorldOrder(4);
+        Vector<Int> outPixelOrder(4);
+        outWorldOrder(0)=0;
+        outWorldOrder(1)=1;
+        outWorldOrder(2)=3;
+        outWorldOrder(3)=2;
+        outPixelOrder(0)=0;
+        outPixelOrder(1)=1;
+        outPixelOrder(2)=3;
+        outPixelOrder(3)=2;
+        CoordinateSystem modcsys=tempInStokesImageMask.coordinates();
+        IPosition inMaskShape = inImageMask.shape();
+        Array<Float> inData = outstokesmaskim_ptr->get();
+        IPosition newAxisOrder(4,0,1,3,2);
+        Array<Float> reorderedData = reorderArray(inData, newAxisOrder);
+        IPosition newShape=reorderedData.shape();
+        //os<< "reoderedData shape="<<reorderedData.shape()<<LogIO::POST;
+        TempImage<Float> modTempInStokesMask(TiledShape(newShape), modcsys);
+        modTempInStokesMask.put(reorderedData);
+        
+        if (compareSpectralCoordinate(inImageMask,tempInStokesImageMask) ) {
+          tempInStokesImageMask.copyData(modTempInStokesMask);
+        }
+      }
+      else {
+        if (compareSpectralCoordinate(inImageMask,tempInStokesImageMask) ) {
+          tempInStokesImageMask.copyData(inImageMask);
+        }
+         
+      }
+      try {
+        imregrid2.regrid(stokesMask, Interpolate2D::LINEAR, dirAxes, tempInStokesImageMask);
+      } catch (AipsError& x) {
+        os<<LogIO::WARN<<"Regridding of the input mask image failed: "<<x.getMesg()<<LogIO::POST;
+      }
+      os <<"Slicing data..."<<LogIO::POST;
+      Array<Float> inMaskData2;
+      IPosition end3(4,outShape(outDirAxes(0)), outShape(outDirAxes(1)), 1, 1);
+      end3(outStokesAxis) = inNpol;
+      end3(outSpecAxis) = inNchan;
+      stokesMask.doGetSlice(inMaskData2,slStokes);    
+      IPosition stride(4,1,1,1,1);
+      IPosition inStart2(4,0,0,0,0);
+      for (Int ipol = 0; ipol < outNpol; ipol++) {
+        // need to slice mask from each stokes plane
+        inMaskData2.resize();
+        inStart2(outStokesAxis) = 0;
+        start(outStokesAxis) = ipol;
+        end3(outStokesAxis) = 1;
+        stride(outStokesAxis) = 1;
+        stride(outSpecAxis) = 1; // assume here inNchan == outNchan
+        stokesMask.doGetSlice(inMaskData2, Slicer(inStart2,end3));
+        outImageMask.putSlice(inMaskData2,start); 
+      }
+            
     }
     else {
       throw(AipsError("Input mask,"+inImageMask.name()+" does not conform with the number of channels in output mask"));
     }
   }
+
+  Bool SDMaskHandler::compareSpectralCoordinate(const ImageInterface<Float>& inImage, const ImageInterface<Float>& outImage)
+  { 
+    LogIO os( LogOrigin("SDMaskHandler", "checkSpectralCoord",WHERE) );
+    
+    SpectralCoordinate outSpecCoord = outImage.coordinates().spectralCoordinate();
+    IPosition inshape = inImage.shape();
+    IPosition outshape = outImage.shape();
+    CoordinateSystem incys = inImage.coordinates();
+    CoordinateSystem outcsys = outImage.coordinates();
+    Int inSpecAxis = CoordinateUtil::findSpectralAxis(incys);
+    Int outSpecAxis = CoordinateUtil::findSpectralAxis(outcsys);
+    Bool nchanMatch(true);
+    if (inSpecAxis != -1 and outSpecAxis != -1 ) 
+      nchanMatch = inshape(inSpecAxis) == outshape(outSpecAxis)? true: false;
+    if (!nchanMatch) {
+      if (!outSpecCoord.near(inImage.coordinates().spectralCoordinate())) {
+        throw(AipsError("Cannot extend the input mask. Spectral coordiante and the number of channels of the input mask does not match with those of the output mask. Use a single channel mask or a mask that matches the spectral coordiante of the output. "));
+      } 
+      else {
+        throw(AipsError("Cannot extend the input mask. The number of the channels in Input mask,"+inImage.name()+"does not match with that of the output mask. Use a single channel mask or a mask that matches the spectral coordiante of the output. "));
+      }
+      return false;
+    } 
+    else {
+      if (!outSpecCoord.near(inImage.coordinates().spectralCoordinate())) {
+        throw(AipsError("Cannot extend the input mask. Spectral coordiante of Input mask,"+inImage.name()+"does not match with that of the output mask. Use a single channel mask or a mask that matches the spectral coordiante of the output. "));
+        return false;
+      }
+    } 
+    return true;
+  }
+
 
   // was Imager::clone()...
   //static Bool cloneImShape(const ImageInterface<Float>& inImage, ImageInterface<Float>& outImage)
@@ -652,9 +880,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     cout << "Before interaction : niter : " << niter << " cycleniter : " << cycleniter << " thresh : " << threshold << "  cyclethresh : " << cyclethreshold << endl;
     //    ret = interactiveMasker_p->interactivemask(imageName, maskName,
     //                                            niter, ncycles, threshold);
+#if ! defined(WITHOUT_DBUS)
     ret = interactiveMasker_p->interactivemask(imageName, maskName,
                                                niter, cycleniter, threshold, cyclethreshold);
     cout << "After interaction : niter : " << niter << " cycleniter : " << cycleniter << " thresh : " << threshold << " cyclethresh : " << cyclethreshold << "  ------ ret : " << ret << endl;
+#endif
     return ret;
   }
 
@@ -916,7 +1146,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           delete testres; testres=0;
        }
     } 
-    Record thestats = calcImageStatistics(*tempres, *tempmask, LELmask, region_ptr, robust);
+    Record thestats = calcImageStatistics(*tempres, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
     thestats.get(RecordFieldId("max"), maxs);
     thestats.get(RecordFieldId("rms"), rmss);
@@ -966,7 +1196,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     delete tempres; tempres=0;
   }
 
-  Record SDMaskHandler::calcImageStatistics(ImageInterface<Float>& res, ImageInterface<Float>& /*  prevmask */, String& LELmask,  Record* regionPtr, const Bool robust )
+  Record SDMaskHandler::calcImageStatistics(ImageInterface<Float>& res, String& LELmask,  Record* regionPtr, const Bool robust )
   { 
     TempImage<Float>* tempres = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse()); 
     Array<Float> resdata;
@@ -1349,6 +1579,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     // tempmsk: working image for the curret mask
     TempImage<Float> tempmask(mask.shape(), mask.coordinates(), memoryToUse());
+    tempmask.set(0);
     // prevmask: mask from previous iter.
     TempImage<Float> prevmask(mask.shape(), mask.coordinates(), memoryToUse());
     // use positive only previous mask
@@ -1488,6 +1719,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         timer.mark();
         // make temp mask image consist of the original pix value and below the threshold is set to 0 
         TempImage<Float> maskedRes(res.shape(), res.coordinates(), memoryToUse());
+        maskedRes.set(0);
         makeMaskByPerChanThreshold(res, chanFlag, maskedRes, maskThreshold, dummysizes); 
         os << LogIO::NORMAL << "End thresholding: time to create the initial threshold mask:  real "<< timer.real() 
            << "s ( user " << timer.user() <<"s, system "<< timer.system() << "s)" << LogIO::POST;
@@ -1532,6 +1764,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //themask = LatticeExpr<Float> ( iif( res > maskThreshold, 1.0, 0.0 ));
         os << LogIO::NORMAL << "Start thresholding: create an initial threshold mask" << LogIO::POST;
         timer.mark();
+        tempmask.set(0);
         makeMaskByPerChanThreshold(res, chanFlag, tempmask, maskThreshold, dummysizes); 
         if (debug) {
            PagedImage<Float> savedThreshmask(res.shape(), res.coordinates(), "tmpNoPruneInitTresh.im");
@@ -1558,7 +1791,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //clean up (appy cutThreshold to convolved mask image)
     String lelmask("");
     //Record smmaskstats = calcImageStatistics(tempmask, tempmask, lelmask, 0, false);
-    Record smmaskstats = calcImageStatistics(*outmask, *outmask, lelmask, 0, false);
+    Record smmaskstats = calcImageStatistics(*outmask, lelmask, 0, false);
     Array<Double> smmaskmaxs;
     smmaskstats.get(RecordFieldId("max"),smmaskmaxs);
     Vector<Float> cutThresholdValue(nchan);
@@ -1574,6 +1807,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       
     }
     TempImage<Float> thenewmask(res.shape(),res.coordinates(), memoryToUse());
+    thenewmask.set(0);
     //thenewmask.copyData(*outmask);
     makeMaskByPerChanThreshold(*outmask, chanFlag, thenewmask, cutThresholdValue, dummysizes); 
     os << LogIO::NORMAL << "End smoothing: time to create the smoothed initial threshold mask: real "<< timer.real()
@@ -1596,7 +1830,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     //  Mod: 2017.07.26: modified get stats for prev mask, if channel contains no mask in prev mask it will set flag to skip the channel 
     //Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
-    Record maskstats = calcImageStatistics(mask, mask, lelmask, 0, false);
+    Record maskstats = calcImageStatistics(mask, lelmask, 0, false);
     Array<Double> maskmaxs;
     maskstats.get(RecordFieldId("max"),maskmaxs);
     // per plane stats 
@@ -1631,6 +1865,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        //call growMask
        // corresponds to calcThresholdMask with lowNoiseThreshold...
        TempImage<Float> constraintMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
+       constraintMaskImage.set(0);
        // constrainMask is 1/0 mask
        makeMaskByPerChanThreshold(res, chanFlag, constraintMaskImage, lowMaskThreshold, dummysizes);
        if(debug2) {
@@ -1720,7 +1955,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
          postSmoothGrowedMask.copyData(*outprevmask);
        }
        //prevmask.copyData( LatticeExpr<Float> (iif( *(outprevmask.get()) > cutThreshold, 1.0, 0.0 )) );
-       Record constmaskstats = calcImageStatistics(*outprevmask, *outprevmask, lelmask, 0, false);
+       Record constmaskstats = calcImageStatistics(*outprevmask, lelmask, 0, false);
        Array<Double> constmaskmaxs;
        constmaskstats.get(RecordFieldId("max"),constmaskmaxs);
        Vector<Float> constCutThresholdValue(nchan);
@@ -1733,6 +1968,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           }
           constCutThresholdValue(ich) = cutThreshold * constmaskmaxs(chindx);
        }
+       prevmask.set(0);
        makeMaskByPerChanThreshold(*outprevmask, chanFlag, prevmask, constCutThresholdValue, dummysizes); 
        if (debug) {
          PagedImage<Float> smoothedGrowedMask(res.shape(), res.coordinates(),"tmpSmoothedGrowMask-"+String::toString(iterdone)+".im");
@@ -1772,10 +2008,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       timer.mark();
       //os<<LogIO::NORMAL<<"Creating a mask for negative features. "<<LogIO::POST;
       TempImage<Float> negativeMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
+      negativeMaskImage.set(0);
       makeMaskByPerChanThreshold(res, chanFlag, negativeMaskImage , negativeMaskThreshold, dummysizes);
       SPIIF negmask = convolveMask( negativeMaskImage, modbeam);
       // determine the cutthreshold value for negative mask
-      Record negmaskstats = calcImageStatistics(*negmask, *negmask, lelmask, 0, false);
+      Record negmaskstats = calcImageStatistics(*negmask, lelmask, 0, false);
       Array<Double> negmaskmaxs;
       negmaskstats.get(RecordFieldId("max"),negmaskmaxs);
       Vector<Float> negCutThresholdValue(nchan);

@@ -1215,6 +1215,8 @@ ImageInterface<Complex>& GridFT::getImage(Matrix<Float>& weights, Bool normalize
 	griddedData.resize(griddedData2.shape());
 	convertArray(griddedData, griddedData2);
 	
+	SynthesisUtilMethods::getResource("mem peak in getImage");
+
 	//Don't need the double-prec grid anymore...
 	griddedData2.resize();
 	arrayLattice.reset( new ArrayLattice<Complex>(griddedData) );

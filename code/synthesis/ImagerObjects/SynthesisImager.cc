@@ -56,7 +56,9 @@
 #include <ms/MSSel/MSSelection.h>
 
 
+#if ! defined(WITHOUT_DBUS)
 #include <synthesis/ImagerObjects/SIIterBot.h>
+#endif
 #include <synthesis/ImagerObjects/SynthesisImager.h>
 
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
@@ -82,8 +84,10 @@
 #include <synthesis/TransformMachines/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines/NoOpATerm.h>
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
+#endif
 #include <casacore/casa/Utilities/Regex.h>
 #include <casacore/casa/OS/Directory.h>
 
@@ -103,7 +107,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   SynthesisImager::SynthesisImager() : itsMappers(SIMapperCollection()), writeAccess_p(True),
-				       gridpars_p(), impars_p()
+				       gridpars_p(), impars_p(), movingSource_p("")
   {
 
      imwgt_p=VisImagingWeight("natural");
@@ -140,7 +144,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    cerr << "IN DESTR"<< endl;
     //    VisModelData::listModel(mss4vi_p[0]);
 
-    SynthesisUtilMethods::getResource("End Run");
+    SynthesisUtilMethods::getResource("End SynthesisImager");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +199,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     LogIO os( LogOrigin("SynthesisImager","selectData",WHERE) );
 
-    SynthesisUtilMethods::getResource("Start Run");
+    SynthesisUtilMethods::getResource("Start SelectData");
 
     try
       {
@@ -2163,7 +2167,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	}
     	//cerr << "IN SYNTHE_IMA" << endl;
     	//VisModelData::listModel(rvi_p->getMeasurementSet());
-	//SynthesisUtilMethods::getResource("Before finalize for all mappers");
+	SynthesisUtilMethods::getResource("Before finalize for all mappers");
     	if(!dopsf) itsMappers.finalizeDegrid(*vb);
     	itsMappers.finalizeGrid(*vb, dopsf);
 
@@ -2705,8 +2709,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
     for(rvi_p->originChunks(); rvi_p->moreChunks(); rvi_p->nextChunk()){
       Bool fieldDone=false;
-      for (uInt k=0;  k < fieldsDone.nelements(); ++k)
+      for (uInt k=0;  k < fieldsDone.nelements(); ++k){
 	fieldDone=fieldDone || (vb.fieldId()==fieldsDone(k));
+      }
       if(!fieldDone){
 	++fieldCounter;
 	fieldsDone.resize(fieldCounter, true);
@@ -2723,7 +2728,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       return True;
   }// end makePB
 
-
+  /////===========
+  void SynthesisImager::setMovingSource(const String& movingSource){
+    movingSource_p=movingSource;
+  }
+  
 
 } //# NAMESPACE CASA - END
 
