@@ -121,7 +121,8 @@ namespace LibAIR2 {
 	     size_t ch,
 	     double Tsky)
     {
-      wvrdata[time][wvr][ch]=Tsky;
+        wvrdata(time,wvr,ch)=Tsky;
+        fprintf( stderr, "\t\t\t\t\t[wvrdata(%d,%d,%d)=%f]\n", time, wvr, ch,Tsky );
     }
 
     /** Number of time points in the data

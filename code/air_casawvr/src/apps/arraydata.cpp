@@ -34,6 +34,7 @@ namespace LibAIR2 {
     wvrdata(time.size(),nAnts,4),
     nAnts(nAnts)
   {
+      fprintf(stderr, "\t\t\tcube(0,0,0): %p\n", &wvrdata(casacore::IPosition(3,0,0,0)));
   }
 
   void InterpArrayData::offsetTime(double dt)

@@ -29,6 +29,10 @@
 #include "bnmin1/src/mcmonitor.hxx"
 #endif
 
+void stop_here_now( int index ) {
+    fprintf( stderr, "\t\t\t\t-> %d\n", index );
+}
+
 namespace LibAIR2 {
 
   ALMAAbsRet::ALMAAbsRet(const std::vector<double> &TObs,
@@ -136,6 +140,7 @@ namespace LibAIR2 {
     for(size_t k=0; k<4; ++k)
     {
       TObs[k]=d.g_wvrdata()(midpoint,refant,k);
+      fprintf( stderr, "<1>\t\t\t\tTObs[k]=%f\n", TObs[k] );
     }
     checkTObs(TObs);    
     el=d.g_el()[midpoint];
@@ -196,8 +201,10 @@ namespace LibAIR2 {
 	throw std::runtime_error("Could not find a row with a sky state");
       }      
       a.antno=refant;
-      for(size_t k=0; k<4; ++k)
+      for(size_t k=0; k<4; ++k) {
           a.TObs[k]=d.g_wvrdata()(row,refant,k);
+          fprintf( stderr, "<2>\t\t\t\tTObs[k]=%f\n", a.TObs[k] );
+      }
       a.el=d.g_el()[row];
       a.time=d.g_time()[row];
       a.state=d.g_state()[row];
@@ -212,7 +219,7 @@ namespace LibAIR2 {
 			     int refant)
   {
     ALMAAbsInpL res;
-
+    stop_here_now(1);
     const size_t nrows=d.g_time().size();
     size_t row=0;
     for(size_t i=0; i<fb.size(); ++i)
@@ -240,6 +247,7 @@ namespace LibAIR2 {
       for(size_t k=0; k<4; ++k)
       {
           a.TObs[k]=d.g_wvrdata()(row,refant,k);
+          fprintf( stderr, "<3>\t\t\t\t\t[wvrdata(%d,%d,%d)=%f]\n", row, refant, k, a.TObs[k] );
       }
       a.el=d.g_el()[row];
       a.time=d.g_time()[row];

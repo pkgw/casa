@@ -706,7 +706,6 @@ install (FILES
 	)
 
 install (FILES
-	Options/optionparser.h
 	Options/AlmaArg.h
 	DESTINATION include/casacode/alma/Options
 	)
