@@ -5,7 +5,7 @@
       xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-<task type="function" name="msuvbin" category="ms, averaging" visibility="experimental">
+<task type="function" name="msuvbin" category="calibration" visibility="experimental">
 	<shortdescription>grid the visibility data onto a defined uniform grid (in the form of an ms); multiple MS\'s can be done onto the same grid</shortdescription>
 	<description>
 	  msuvbin is a uv gridding task. The use is for large volumes
