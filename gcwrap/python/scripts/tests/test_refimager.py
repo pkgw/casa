@@ -465,6 +465,12 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report1+report2+report3)
           
+     def test_iterbot_cube_tol(self): 
+          """ [iterbot] Test_Iterbot_cube_tol :threshold test to allow a tolerance (1/100)  (verification of CAS-11278 fix) """
+          self.prepData('refim_point_withline.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',specmode='cube',deconvolver='hogbom',niter=1000000,threshold='0.50001Jy',gain=0.1,cycleniter=5,interactive=0)
+          report=self.th.checkall(ret=ret,iterdone=158,nmajordone=4,imexist=[self.img+'.psf', self.img+'.residual'])
+
      def test_iterbot_cube_nsigma(self): 
           """ [iterbot] Test_Iterbot_cube_nsigma : nsigma threshold for cube"""
           self.prepData('refim_point_withline.ms')
@@ -2012,7 +2018,7 @@ class test_mask(testref_base):
           # extending to all channels and preserving mask of each stokes 
           self.prepData('refim_point_linRL.ms') 
           # input mask will different for different stokes plane
-          self.prepInputmask('refim_cube_stokesI_input.mask')
+          self.prepInputmask('refim_cube_StokesI_input.mask')
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
           niter=10,interactive=0,interpolation='nearest', stokes='IQUV',
@@ -2042,7 +2048,7 @@ class test_mask(testref_base):
           # extending to all channels and preserving mask of each stokes 
           self.prepData('refim_point_linRL.ms') 
           # input mask will different for different stokes plane
-          self.prepInputmask('refim_cube_stokesI_input.mask')
+          self.prepInputmask('refim_cube_StokesI_input.mask')
           imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True);
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',

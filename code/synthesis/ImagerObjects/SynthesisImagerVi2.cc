@@ -115,11 +115,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       if(mss_p[k])
 	delete mss_p[k];
     }
-  }
+      SynthesisUtilMethods::getResource("End Run");
+}
 
   Bool SynthesisImagerVi2::selectData(const SynthesisParamsSelect& selpars){
  LogIO os( LogOrigin("SynthesisImagerVi2","selectData",WHERE) );
  Bool retval=True;
+
+    SynthesisUtilMethods::getResource("Start Run");
 
     try
       {
@@ -765,7 +768,8 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 	 vi_p->useImagingWeight(imwgt_p);
       ///////////////////////////////
 	 
-	 
+	     SynthesisUtilMethods::getResource("Set Weighting");
+
 	 ///	 return true;
 	 
        }
