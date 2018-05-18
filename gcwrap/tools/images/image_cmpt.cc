@@ -5459,7 +5459,6 @@ bool image::tofits(
 	    for(String::size_type i=0; i<origin.length(); i++){
 	      if(cOrigin[i]==10 || cOrigin[i]==13){
 		origin.at(i,(String::size_type)1) = " ";
-		std::cout << "sanitized at " << i << std::endl;
 	      }
 	    }
 	    origin.rtrim(' ');
