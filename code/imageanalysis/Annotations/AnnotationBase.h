@@ -263,7 +263,7 @@ public:
 
 	// print a set of keyword value pairs
 	static std::ostream& print(
-		std::ostream& os, const map<Keyword, casacore::String>& params
+		std::ostream& os, const std::map<Keyword, casacore::String>& params
 	);
 
 	// print a line style representation
@@ -414,16 +414,16 @@ private:
 	casacore::MFrequency::Types _freqRefFrame;
 	casacore::MDoppler::Types _dopplerType;
 
-	map<Keyword, casacore::Bool> _globals;
-	map<Keyword, casacore::String> _params;
+	std::map<Keyword, casacore::Bool> _globals;
+	std::map<Keyword, casacore::String> _params;
 	casacore::Bool _printGlobals;
 	vector<casacore::Int> _labelOff;
 
 	static casacore::Bool _doneUnitInit, _doneColorInit;
-	static map<casacore::String, LineStyle> _lineStyleMap;
-	static map<casacore::String, Type> _typeMap;
-	static map<string, RGB> _colors;
-	static map<RGB, string> _rgbNameMap;
+	static std::map<casacore::String, LineStyle> _lineStyleMap;
+	static std::map<casacore::String, Type> _typeMap;
+	static std::map<string, RGB> _colors;
+	static std::map<RGB, string> _rgbNameMap;
 	static std::list<std::string> _colorNames;
 
 	const static casacore::String _class;
@@ -461,7 +461,7 @@ inline std::ostream &operator<<(std::ostream& os, const AnnotationBase::FontStyl
 	return AnnotationBase::print(os, fs);
 };
 
-inline std::ostream &operator<<(std::ostream& os, const map<AnnotationBase::Keyword, casacore::String>& x) {
+inline std::ostream &operator<<(std::ostream& os, const std::map<AnnotationBase::Keyword, casacore::String>& x) {
 	return AnnotationBase::print(os, x);
 };
 

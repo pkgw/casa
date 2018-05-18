@@ -438,7 +438,7 @@ MsPlot::getMeterToKlambdaConvertValue( uInt spwId )
           throw( ae );
     }
     
-    Quantum<Double> c = QC::c;
+    Quantum<Double> c = QC::c( );
 
     //# Get the spectral window column since it has the REF_FREQ value
     //# in it.
@@ -862,7 +862,7 @@ MsPlot::getAllSpwsAndFreqs()
     for ( uInt i=0; i < itsChanVelocities.nelements(); i++ )
 	itsChanVelocities[i].resize(itsFieldNames.nelements());
 
-    Double cspeed = (QC::c).getValue() / 1000.;
+    Double cspeed = (QC::c( )).getValue() / 1000.;
     //cout << "cspeed=" << cspeed << endl;
 
     // Set up the MSDerived object we'll use to get the velocities.
@@ -4655,7 +4655,7 @@ MsPlot::createSaQL(  const String& x, const String& y,
       } 
       else if (!upcase(axis(i)).compare("UVDIST") || 
                !upcase(axis(i)).compare("UVDISTANCE")) {
-         Quantum<Double> c = QC::c;
+         Quantum<Double> c = QC::c( );
          Double cVal = c.getValue();
          ostringstream os;
          os << std::setprecision(16) << cVal;

@@ -621,15 +621,15 @@ void FluxCalc_SS_JPL_Butler::compute_BB(Vector<Flux<Double> >& values,
   Quantum<Double> temperature(temperature_p, "K");
 
   // The real peak frequency is about 2.82 x this.
-  Quantum<Double> freq_peak(QC::k * temperature / QC::h);
+  Quantum<Double> freq_peak(QC::k( ) * temperature / QC::h( ));
 
   Quantum<Double> rocd2(0.5 * angdiam);	// Dimensionless for now.
 
-  rocd2 /= QC::c;	// Don't put this in the c'tor, it'll give the wrong answer.
+  rocd2 /= QC::c( );	// Don't put this in the c'tor, it'll give the wrong answer.
   rocd2 *= rocd2;
 
   // Frequency independent factor.
-  Quantum<Double> freq_ind_fac(2.0e26 * QC::h * C::pi * rocd2);
+  Quantum<Double> freq_ind_fac(2.0e26 * QC::h( ) * C::pi * rocd2);
 
   LogIO os(LogOrigin("FluxCalc_SS_JPL_Butler", "compute_BB"));
   os << LogIO::DEBUG1
@@ -667,11 +667,11 @@ void FluxCalc_SS_JPL_Butler::compute_GB(Vector<Flux<Double> >& values,
   const uInt nfreqs = mfreqs.nelements();
   Quantum<Double> rocd2(0.5 * angdiam);	// Dimensionless for now.
 
-  rocd2 /= QC::c;	// Don't put this in the c'tor, it'll give the wrong answer.
+  rocd2 /= QC::c( );	// Don't put this in the c'tor, it'll give the wrong answer.
   rocd2 *= rocd2;
 
   // Frequency independent factor.
-  Quantum<Double> freq_ind_fac(2.0e26 * QC::h * C::pi * rocd2);
+  Quantum<Double> freq_ind_fac(2.0e26 * QC::h( ) * C::pi * rocd2);
 
   LogIO os(LogOrigin("FluxCalc_SS_JPL_Butler", "compute_GB"));
   os << LogIO::DEBUG1
@@ -697,7 +697,7 @@ void FluxCalc_SS_JPL_Butler::compute_GB(Vector<Flux<Double> >& values,
     Quantum<Double> temperature(max(temps[f], 2.7), "K");
 
     // The real peak frequency is about 2.82 x this.
-    Quantum<Double> freq_peak(QC::k * temperature / QC::h);
+    Quantum<Double> freq_peak(QC::k( ) * temperature / QC::h( ));
     
     values[f].setUnit(jy);
     Double fd = (freq_ind_fac * freq * freq * freq).getValue() /

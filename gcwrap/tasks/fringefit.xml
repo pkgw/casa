@@ -5,16 +5,15 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-<task type="function" name="accor" category="calibration" visibility="experimental">
-<shortdescription>Normalize visibilities based on auto-correlations</shortdescription>
+<task type="function" name="fringefit" category="calibration" visibility="experimental">
+<shortdescription>Fringe fit delay and rates</shortdescription>
 <description>
-Determines the amplitude corrections neede due to errors in sampler
-thresholds using measurements of auto-correlation spectra.  This
-correction is typically requiered for data correlated with the DiFX
-correlator (such as VLBA data).  Other correlators (such as the SFXC
-correlator used to correlate EVN data at JIVE) already apply this
-correction at the correlator.  In this case, running this task is not
-necessary.
+Phase offsets, groups delays and delay rates are calculated with
+respect to a specified referance antenna by a two-dimensional FFT and
+subsequent least-squares optimisation.
+
+Previous calibrations should be applied on the fly.
+
 </description>
 <input>
 	<param type="string" name="vis" mustexist="true">
@@ -63,10 +62,10 @@ necessary.
 	</param>
 
         <param type="any" name="observation" subparam="true">
-                <description>Select by observation ID(s)</description>
-		<any type="variant" limittypes="string int"/>
-		<value type="string"></value>
-        </param>
+               <description>Select by observation ID(s)</description>
+               <any type="variant" limittypes="string int"/>
+               <value type="string"></value>
+	</param>
 
 	<param type="string" name="msselect" subparam="true">
 		<description>Optional complex data selection (ignore for now)</description>
@@ -80,15 +79,30 @@ necessary.
 	</param>
 
 	<param type="string" name="combine">
-                <description>Data axes which to combine for solve (obs, scan, spw, and/or field)</description>
+               <description>Data axes which to combine for solve (obs, scan, spw, and/or field)</description>
+               <value></value>
+	</param>
+   
+	<param type="string" name="refant">
+		<description>Reference antenna name(s)</description>
 		<value></value>
+	</param>
+
+	<param type="double" name="minsnr">
+		<description>Reject solutions below this signal-to-noise ratio (at the FFT stage)</description>
+		<value>3.0</value>
+	</param>
+
+        <param type="bool" name="zerorates">
+		<description>Zero delay-rates in solution table</description>
+		<value>False</value>
 	</param>
 
 	<param type="bool" name="append">
 		<description>Append solutions to the (existing) table</description>
 		<value>False</value>
 	</param>
-
+   
 	<param type="bool" name="docallib" >
 	        <description>Use callib or traditional cal apply parameters</description>
 	        <value>False</value>
@@ -119,10 +133,16 @@ necessary.
 		<value></value>
 	</param>
 
+	<param type="bool" name="parang">
+		<description>Apply parallactic angle correction on the fly</description>
+		<value>False</value>
+	</param>
+   
    <constraints>
 	<when param="selectdata">
 		<equals type="bool" value="True">
 			<default param="timerange"><value type="string"/></default>
+			<default param="uvrange"><value type="string"/></default>
 			<default param="antenna"><value type="string"/></default>
 			<default param="scan"><value type="string"/></default>
 			<default param="observation"><value type="string"/></default>
@@ -145,19 +165,15 @@ necessary.
 </input>
 <example>
 
-      Determines the amplitude corrections neede due to errors in sampler
-      thresholds using measurements of auto-correlation spectra.  This
-      correction is typically requiered for data correlated with the DiFX
-      correlator (such as VLBA data).  Other correlators (such as the SFXC
-      correlator used to correlate EVN data at JIVE) already apply this
-      correction at the correlator.  In this case, running this task is not
-      necessary.
+      Previous calibrations (egs, bandpass, opacity, parallactic angle) can
+      be applied on the fly.  At present with dual-polarized data, both
+      polarizations must be unflagged for any solution to be obtained.
 
       Keyword arguments:
       vis -- Name of input visibility file
               default: none; example: vis='ngc5921.ms'
-      caltable -- Name of output gain calibration table
-              default: none; example: caltable='ngc5921.gcal'
+      caltable -- Name of output fringefit calibration table
+              default: none; example: caltable='ngc5921.fringe'
 
       --- Data Selection (see help par.selectdata for more detailed information)
 
@@ -185,8 +201,8 @@ necessary.
                    spw 1, channels 20,25,30
       intent -- Select observing intent
                 default: ''  (no selection by intent)
-                intent='*BANDPASS*'  (selects data labelled with
-                                      BANDPASS intent)
+                intent='*FRINGEFIT*'  (selects data labelled with
+                                      FRINGEFIT intent)
       selectdata -- Other data selection parameters
               default: True 
 
@@ -200,6 +216,10 @@ necessary.
               timerange= '25:00:00~27:30:00' picks 1 hr to 3 hr 30min on NEXT day
               timerange='09:44:00' pick data within one integration of time
               timerange='&gt;10:24:00' data after this time
+      uvrange -- Select data within uvrange (default units meters)
+              default: '' (all); example:
+              uvrange='0~1000klambda'; uvrange from 0-1000 kilo-lambda
+              uvrange='&gt;4klambda';uvranges greater than 4 kilo lambda
       antenna -- Select data based on antenna/baseline
               default: '' (all)
               If antenna string is a non-negative integer, it is assumed an
@@ -217,7 +237,6 @@ necessary.
                      example: '0~2,4'
       msselect -- Optional complex data selection (ignore for now)
 
-      --- Solution parameters
       solint --  Solution interval (units optional) 
               default: 'inf' (~infinite, up to boundaries controlled by combine); 
               Options: 'inf' (~infinite), 
@@ -237,14 +256,30 @@ necessary.
                single-band delays will be determined.
               example: combine='scan,spw'  --&gt; extend solutions over scan boundaries
                        (up to the solint), and combine spws for solving
+      refant -- Reference antenna name(s); a prioritized list may be specified
+              default: '' =&gt; no refant applied
+              example: refant='4' (antenna with index 4)
+                       refant='VA04' (VLA antenna #4)
+                       refant='EA02,EA23,EA13' (EVLA antenna EA02, use
+                                EA23 and EA13 as alternates if/when EA02
+                                drops out)
+              Use taskname=listobs for antenna listing
+      minsnr -- Reject solutions below this SNR
+              default: 3.0 
+      solnorm -- Normalize average solution amps to 1.0 after solution (G, T only)
+              default: False (no normalization)
       append -- Append solutions to the (existing) table.  Appended solutions
                  must be derived from the same MS as the existing
                  caltable, and solution spws must have the same
                  meta-info (according to spw selection and solint)
                  or be non-overlapping.
               default: False; overwrite existing table or make new table
+      zerorates -- Write a solution table with delay-rates zeroed, for
+      the case of "manual phase calibration".
+                default: False
 
-      --- Other calibrations to apply on the fly before determining accor solution
+      --- Other calibrations to apply on the fly before determining
+      fringe fit solution
 
       docallib -- Control means of specifying the caltables:
                default: False ==&gt; Use gaintable,gainfield,interp,spwmap,calwt
@@ -293,6 +328,9 @@ necessary.
                 Example:  spwmap=[0,0,1,1] means apply the caltable solutions
                           from spw = 0 to the spw 0,1 and spw 1 to spw 2,3.
                           spwmap=[[0,0,1,1],[0,1,0,1]]
+      parang -- If True, apply the parallactic angle correction (required
+               for polarization calibration)
+               default: False
       async --  Run asynchronously
               default = False; do not run asychronously
 </example> 

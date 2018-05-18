@@ -94,6 +94,7 @@ class ImagerParameters():
                  cycleniter=0, 
                  loopgain=0.1,
                  threshold='0.0Jy',
+                 nsigma=0.0,
                  cyclefactor=1.0,
                  minpsffraction=0.1,
                  maxpsffraction=0.8,
@@ -201,13 +202,14 @@ class ImagerParameters():
                                     'lownoisethreshold':lownoisethreshold, 'negativethreshold':negativethreshold,'smoothfactor':smoothfactor,
                                     'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold, 'growiterations':growiterations, 
                                      'dogrowprune':dogrowprune, 'minpercentchange':minpercentchange, 'verbose':verbose,
-                                    'interactive':interactive, 'startmodel':startmodel} }
+                                    'interactive':interactive, 'startmodel':startmodel, 'nsigma':nsigma} }
 
         ######### Iteration control. 
         self.iterpars = { 'niter':niter, 'cycleniter':cycleniter, 'threshold':threshold, 
                           'loopgain':loopgain, 'interactive':interactive,
                           'cyclefactor':cyclefactor, 'minpsffraction':minpsffraction, 
-                          'maxpsffraction':maxpsffraction, 'savemodel':savemodel}
+                          'maxpsffraction':maxpsffraction,
+                          'savemodel':savemodel,'nsigma':nsigma}
 
         ######### CFCache params. 
         self.cfcachepars = {'cflist': cflist};

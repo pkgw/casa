@@ -294,7 +294,7 @@ void CTSummary::listMain (LogIO& os, Bool verbose) const
 
 void CTSummary::listAntenna (LogIO& os, Bool verbose) const
 {
-    // Is field table present?
+    // Is antenna table present?
     ROCTColumns ctc(*pNCT);
     const ROCTAntennaColumns& ctAC(ctc.antenna());
     if (ctAC.nrow()<=0) {
@@ -447,7 +447,7 @@ void CTSummary::listAntenna (LogIO& os, Bool verbose) const
             }
         } else {
             // Horizontal list of the stations names:
-            os << "Antennas: " << nAnt << " ('name'='station') " <<  endl;
+            os << "Antennas: " << nAnt << " ('name'@'station') " <<  endl;
             casacore::String line, leader;
             // track last id of previous line for leader
             casacore::Int lastIdInLine = *antIds.begin() - 1;
@@ -457,7 +457,7 @@ void CTSummary::listAntenna (LogIO& os, Bool verbose) const
             for (; iter!=end; ++iter) {
                 Int antId = *iter;
                 // Build the line
-                line = line + "'" + names(antId) + "'" + "=";
+                line = line + "'" + names(antId) + "'" + "@";
                 line = line + "'" + stations(antId) + "'";
                 // Add comma if not at the end
                 if (antId != maxAnt)  line = line + ", ";
