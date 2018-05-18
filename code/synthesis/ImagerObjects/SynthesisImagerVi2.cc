@@ -816,7 +816,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
           // heuristic factors multiplied to imshape based on gridder
           size_t fudge_factor = 15;
           if (ftm->name()=="MosaicFTNew") {
-              fudge_factor = 17;
+              fudge_factor = 20;
           }
           else if (ftm->name()=="GridFT") {
               fudge_factor = 9;
