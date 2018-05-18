@@ -119,7 +119,7 @@ def tclean2(
     #### Sanity checks and controls
     #####################################################
 
-    casalog.post("Warning: the tclean2 task is only for testing. Please use tclean/split or mstransform instead.", "WARN")
+    casalog.post("Warning: the tclean2 task is only for testing. Please use tclean instead.", "WARN")
     ### Move these checks elsewhere ?
 
     if specmode=='mfs' and nterms==1 and deconvolver == "mtmfs":

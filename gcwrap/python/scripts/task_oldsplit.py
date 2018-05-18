@@ -71,7 +71,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
     """
 
     casalog.origin('oldsplit')
-    casalog.post("Warning: the oldsplit task is only for testing. Please use tclean/split or mstransform instead.", "WARN")
+    casalog.post("Warning: the oldsplit task is only for testing. Please use split or mstransform instead.", "WARN")
     mylocals = locals()
     rval = True
     try:
