@@ -2503,7 +2503,8 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
     }
     nysub(iysub-1)+=1;
     
-    
+    if(anyEQ(nxsub, 0) || anyEQ(nysub, 0))
+      return;
     //cerr << " x0 " << x0 << "  nxsub " << nxsub << endl;
     //cerr << " y0 " << y0 << "  nysub " << nysub << endl;
     x0+=1;
