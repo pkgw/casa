@@ -41,7 +41,6 @@ from setjy_pg import setjy_pg  as setjy
 from clean_pg import clean_pg as clean
 from immath_pg import immath_pg as immath
 from imhead_pg import imhead_pg as imhead
-from find_pg import find_pg as find
 from gaincal_pg import gaincal_pg as gaincal
 from fluxscale_pg import fluxscale_pg as fluxscale
 from applycal_pg import applycal_pg as applycal

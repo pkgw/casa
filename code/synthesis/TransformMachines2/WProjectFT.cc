@@ -1288,6 +1288,7 @@ ImageInterface<Complex>& WProjectFT::getImage(Matrix<Float>& weights,
       LatticeFFT::cfft2d(darrayLattice,false);
       griddedData.resize(griddedData2.shape());
       convertArray(griddedData, griddedData2);
+      SynthesisUtilMethods::getResource("mem peak in getImage");
       griddedData2.resize();
       arrayLattice = new ArrayLattice<Complex>(griddedData);
       lattice=arrayLattice;
