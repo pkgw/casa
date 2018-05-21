@@ -53,6 +53,7 @@
 #include <ms/MeasurementSets/MeasurementSet.h>
 #include <casadbus/session/DBusSession.h>
 #include <casadbus/synthesis/ImagerControl.h>
+#include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -92,6 +93,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		LogIO os( LogOrigin("SynthesisIterBot","destructor",WHERE) );
 		os << LogIO::DEBUG1 << "SynthesisIterBot destroyed" << LogIO::POST;
+		SynthesisUtilMethods::getResource("End SynthesisIterBot");
 	}
 
 	void SynthesisIterBot::setIterationDetails(Record iterpars) {
