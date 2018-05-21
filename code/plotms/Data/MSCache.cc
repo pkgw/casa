@@ -127,7 +127,7 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
         logWarn(PMS::LOG_ORIGIN_LOAD_CACHE, "Scalar averaging ignored: no other averaging is enabled.");
     averaging_.setScalarAve(useScalarAve);
 
-	if ( averaging_.baseline() || averaging_.antenna() || useScalarAve) {
+	if ( averaging_.baseline() || averaging_.antenna() || averaging_.spw() || useScalarAve) {
         // Averaging with PlotMSVBAverager
         // Create visibility iterator vi_p
         setUpVisIter(selection_, calibration_, dataColumn_, 
@@ -492,8 +492,8 @@ void MSCache::setUpVisIter(PlotMSSelection& selection,
 		    configuration.define("timeaverage", true);
 		    String timespanStr = "state";
 		    if (averaging_.field())
-			    timespanStr += ",scan,field";
-		    else if (averaging_.scan())
+			    timespanStr += ",field";
+		    if (averaging_.scan())
 			    timespanStr += ",scan";
 		    configuration.define("timespan", timespanStr);
         }
