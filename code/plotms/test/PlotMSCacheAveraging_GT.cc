@@ -123,7 +123,7 @@ TEST_F( PlotMSCacheTest, testAvgchannel) {
 
 	ASSERT_EQ(expNChunk, cache->nChunk());
 	ASSERT_EQ(expNChan, cache->ampCorr(ichunk).shape()(1));
-	ASSERT_TRUE(allEQ(expAmpCorr, cache->ampCorr(ichunk)));
+	ASSERT_TRUE(allNear(expAmpCorr, cache->ampCorr(ichunk), .000001));
 }
 
 TEST_F( PlotMSCacheTest, testAvgTime) {
@@ -136,16 +136,15 @@ TEST_F( PlotMSCacheTest, testAvgTime) {
 	String avgtime("1e6");
 	itsAveraging.setTime(true); 
 	itsAveraging.setTimeValue(String::toDouble(avgtime));
-	// First chunk is first scan (1) and first field (0).
-    // Time averaging is by baseline; select one baseline for test
+	// First chunk is first scan (1) and first field (0)
+	// Time averaging is by baseline; select one baseline for test
 	String antennaExpr("2&3"), scanExpr("1"), fieldExpr("0");
 	itsSelection.setAntenna(antennaExpr);	
 
 	// Get selected MS:
 	MeasurementSet selMS;
-	mssSetData2(sortedMS, selMS, ""/*outms*/, ""/*time*/, antennaExpr,
-		fieldExpr, ""/*spw*/, ""/*uvdist*/, ""/*taql*/, ""/*poln*/,
-		scanExpr, ""/*array*/, ""/*state*/, ""/*obs*/, ""/*feed*/);
+	mssSetData2(sortedMS, selMS, "", "", antennaExpr,
+		fieldExpr, "", "", "", "", scanExpr, "", "", "", "");
 	// main table columns; ignoring flags since all unflagged data
 	ROMSMainColumns msmc(selMS);
 	Array<Complex> corrData(msmc.correctedData().getColumn());
@@ -192,15 +191,14 @@ TEST_F( PlotMSCacheTest, testAvgScan) {
 	itsAveraging.setTimeValue(String::toDouble(avgtime));
 	itsAveraging.setScan(true);
 	// First chunk is first field (0) only, averaging over scan
-    // Time averaging is by baseline; select one baseline for test
+	// Time averaging is by baseline; select one baseline for test
 	String antennaExpr("2&3"), fieldExpr("0");
 	itsSelection.setAntenna(antennaExpr);	
 
 	// Get selected MS:
 	MeasurementSet selMS;
-	mssSetData2(sortedMS, selMS, ""/*outms*/, ""/*time*/, antennaExpr,
-		fieldExpr, ""/*spw*/, ""/*uvdist*/, ""/*taql*/, ""/*poln*/,
-		""/*scan*/, ""/*array*/, ""/*state*/, ""/*obs*/, ""/*feed*/);
+	mssSetData2(sortedMS, selMS, "", "", antennaExpr,
+		fieldExpr, "", "", "", "", "", "", "", "", "");
 	// main table columns; ignoring flags since all unflagged data
 	ROMSMainColumns msmc(selMS);
 	Array<Complex> corrData(msmc.correctedData().getColumn());
@@ -248,15 +246,14 @@ TEST_F( PlotMSCacheTest, testAvgField) {
 	itsAveraging.setTimeValue(String::toDouble(avgtime));
 	itsAveraging.setField(true);
 	// First chunk is first scan (1)
-    // Time averaging is by baseline; select one baseline for test
+	// Time averaging is by baseline; select one baseline for test
 	String antennaExpr("2&3"), scanExpr("1");
 	itsSelection.setAntenna(antennaExpr);	
 
 	// Get selected MS:
 	MeasurementSet selMS;
-	mssSetData2(sortedMS, selMS, ""/*outms*/, ""/*time*/, antennaExpr,
-		""/*field*/, ""/*spw*/, ""/*uvdist*/, ""/*taql*/, ""/*poln*/,
-		scanExpr, ""/*array*/, ""/*state*/, ""/*obs*/, ""/*feed*/);
+	mssSetData2(sortedMS, selMS, "", "", antennaExpr,
+		"", "", "", "", "", scanExpr, "", "", "", "");
 	// main table columns; ignoring flags since all unflagged data
 	ROMSMainColumns msmc(selMS);
 	Array<Complex> corrData(msmc.correctedData().getColumn());
@@ -302,15 +299,14 @@ TEST_F( PlotMSCacheTest, testAvgScanField) {
 	itsAveraging.setScan(true);
 	itsAveraging.setField(true);
 	// First chunk is first field (0) only, averaging over scan
-    // Time averaging is by baseline; select one baseline for test
+	// Time averaging is by baseline; select one baseline for test
 	String antennaExpr("2&3");
 	itsSelection.setAntenna(antennaExpr);	
 
 	// Get selected MS:
 	MeasurementSet selMS;
-	mssSetData2(sortedMS, selMS, ""/*outms*/, ""/*time*/, antennaExpr,
-		""/*field*/, ""/*spw*/, ""/*uvdist*/, ""/*taql*/, ""/*poln*/,
-		""/*scan*/, ""/*array*/, ""/*state*/, ""/*obs*/, ""/*feed*/);
+	mssSetData2(sortedMS, selMS, "", "", antennaExpr,
+		"", "", "", "", "", "", "", "", "", "");
 	// main table columns; ignoring flags since all unflagged data
 	ROMSMainColumns msmc(selMS);
 	Array<Complex> corrData(msmc.correctedData().getColumn());
@@ -356,9 +352,8 @@ TEST_F( PlotMSCacheTest, testAvgBaseline) {
 
 	// Get selected MS:
 	MeasurementSet selMS;
-	mssSetData2(sortedMS, selMS, ""/*outms*/, ""/*time*/, antennaExpr,
-		""/*field*/, ""/*spw*/, ""/*uvdist*/, ""/*taql*/, ""/*poln*/,
-		""/*scan*/, ""/*array*/, ""/*state*/, ""/*obs*/, ""/*feed*/);
+	mssSetData2(sortedMS, selMS, "", "", antennaExpr,
+		"", "", "", "", "", "", "", "", "", "");
 	// main table columns; ignoring flags since all unflagged data
 	ROMSMainColumns msmc(selMS);
 	Array<Complex> corrData(msmc.correctedData().getColumn());
@@ -426,9 +421,8 @@ TEST_F( PlotMSCacheTest, testAvgAntenna) {
 
 	// Get selected MS:
 	MeasurementSet selMS;
-	mssSetData2(sortedMS, selMS, ""/*outms*/, ""/*time*/, antennaExpr,
-		""/*field*/, ""/*spw*/, ""/*uvdist*/, ""/*taql*/, ""/*poln*/,
-		""/*scan*/, ""/*array*/, ""/*state*/, ""/*obs*/, ""/*feed*/);
+	mssSetData2(sortedMS, selMS, "", "", antennaExpr,
+		"", "", "", "", "", "", "", "", "", "");
 	// main table columns; ignoring flags since all unflagged data
 	ROMSMainColumns msmc(selMS);
 	Cube<Complex> corrData(msmc.correctedData().getColumn());
@@ -616,15 +610,14 @@ TEST_F( PlotMSCacheTest, testAvgTimeScalar) {
 	itsAveraging.setTimeValue(String::toDouble(avgtime));
 	itsAveraging.setScalarAve(true);
 	// First chunk is first scan (1) and first field (0).
-    // Time averaging is by baseline; select one baseline for test
+	// Time averaging is by baseline; select one baseline for test
 	String antennaExpr("2&3"), scanExpr("1"), fieldExpr("0");
 	itsSelection.setAntenna(antennaExpr);	
 
 	// Get selected MS:
 	MeasurementSet selMS;
-	mssSetData2(sortedMS, selMS, ""/*outms*/, ""/*time*/, antennaExpr,
-		fieldExpr, ""/*spw*/, ""/*uvdist*/, ""/*taql*/, ""/*poln*/,
-		scanExpr, ""/*array*/, ""/*state*/, ""/*obs*/, ""/*feed*/);
+	mssSetData2(sortedMS, selMS, "", "", antennaExpr,
+		fieldExpr, "", "", "", "", scanExpr, "", "", "", "");
 	// main table columns; ignoring flags since all unflagged data
 	ROMSMainColumns msmc(selMS);
 	Array<Complex> corrData(msmc.correctedData().getColumn());
@@ -656,4 +649,3 @@ TEST_F( PlotMSCacheTest, testAvgTimeScalar) {
 	ASSERT_EQ(expNRow, cache->chunkShapes()(IPosition(2,2,ichunk)));
 	ASSERT_TRUE(allNear(expScalarAvgData, cache->ampCorr(ichunk), .000001));
 }
-

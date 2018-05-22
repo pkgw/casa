@@ -126,7 +126,7 @@ TEST( PlotMSCacheTest, testFloatOnlyMS) {
 	// 	MODEL = data/corrected residuals => invalid
 
 	// use singledish dataset, only has FLOAT_DATA column
-	String dataPath = tUtil::getFullPath( "pointing6.ms", "sdimaging" );
+	String dataPath = tUtil::getFullPath( "sdimaging.ms", "sdimaging" );
 	MeasurementSet ms(dataPath);
 	Block<String> sortCols(4); // Use default sort columns
 	sortCols[0] = MS::columnName(MS::ARRAY_ID);
@@ -139,8 +139,7 @@ TEST( PlotMSCacheTest, testFloatOnlyMS) {
 	ROMSMainColumns msmc(sortedMS);
 	Array<Float> floatData = msmc.floatData().get(0); // matrix
 	Cube<Float> floatCube = floatData.addDegenerate(1); // cube
-	Int expNChunk(1000), expNRow(1);  // since only 1 "baseline"
-
+	Int expNChunk(3843), expNRow(1);  // since only 1 "baseline"
 	// Visibility axis options:
 	std::vector<PMS::Axis> visAxes {PMS::AMP, PMS::PHASE,
 		PMS::REAL, PMS::IMAG};
@@ -208,4 +207,3 @@ TEST( PlotMSCacheTest, testFloatOnlyMS) {
 	}
 	delete cache;
 }
-
