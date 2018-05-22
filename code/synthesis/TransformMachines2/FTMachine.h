@@ -517,7 +517,7 @@ protected:
   casacore::CountedPtr<VisBufferUtil> vbutil_p;
   casacore::Double phaseCenterTime_p;
   ///Some parameters and helpers for multithreaded gridders
-  casacore::Bool doneThreadPartition_p;
+  casacore::Int doneThreadPartition_p;
   casacore::Vector<casacore::Int> xsect_p, ysect_p, nxsect_p, nysect_p;
   virtual void   findGridSector(const casacore::Int& nxp, const casacore::Int& nyp, const casacore::Int& ixsub, const casacore::Int& iysub, const casacore::Int& minx, const casacore::Int& miny, const casacore::Int& icounter, casacore::Int& x0, casacore::Int& y0, casacore::Int& nxsub, casacore::Int& nysub, const casacore::Bool linear); 
   
