@@ -35,6 +35,7 @@
 #include <casa/Arrays/ArrayMath.h>
 #include <measures/Measures/MeasTable.h>
 #include <ms/MeasurementSets/MSColumns.h>
+#include <ms/MSSel/MSSelectionTools.h>
 
 using namespace casa;
 
@@ -215,8 +216,14 @@ TEST_F( PlotMSCacheTest, testVelDef) {
 
 TEST_F( PlotMSCacheTest, testPhaseShift) {
 	// Test phase shift transformations
+	String scanExpr("1"); // add selection to reduce test time
+	itsSelection.setScan(scanExpr);
+	// Get selected MS:
+	MeasurementSet selMS;
+	mssSetData2(sortedMS, selMS, "", "", "",
+		"", "", "", "", "", scanExpr, "", "", "", "");
 	// Load values from MeasurementSet main table
-	ROMSMainColumns msmc(sortedMS);
+	ROMSMainColumns msmc(selMS);
 	Matrix<Double> uvw(msmc.uvw().getColumn());
 	Cube<Complex> visData(msmc.data().getColumn());
 	Int ddID(msmc.dataDescId().get(0)); // for spw / freq

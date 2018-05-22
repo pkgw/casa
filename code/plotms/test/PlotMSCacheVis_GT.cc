@@ -32,6 +32,7 @@
 #include <plotms/test/tUtil.h>
 #include <plotms/Data/MSCache.h>
 #include <ms/MeasurementSets/MSColumns.h>
+#include <ms/MSSel/MSSelectionTools.h>
 #include <casa/Arrays/ArrayLogical.h>
 #include <casa/Arrays/ArrayMath.h>
 
@@ -52,7 +53,7 @@ protected:
 		sortCols[3] = MS::columnName(MS::TIME);
 		sortedMS = ms.sort(sortCols);
 		// specific to this dataset:
-		expNChunk = 60;
+		expNChunk = 12;
 		expNRow = 351;  // rows in first chunk
 		expNChan = 63;
 		// Set up plotms cache object with no parent (PlotMSApp*)
@@ -89,8 +90,15 @@ TEST_F( PlotMSCacheTest, testVisibilities) {
 
 	ASSERT_NE(nullptr, cache);  // make sure we have a cache
 
+	String scanExpr("1"); // add selection to reduce test time
+	itsSelection.setScan(scanExpr);
+	// Get selected MS:
+	MeasurementSet selMS;
+	mssSetData2(sortedMS, selMS, ""/*outms*/, ""/*time*/, ""/*ant*/,
+		""/*field*/, ""/*spw*/, ""/*uvdist*/, ""/*taql*/, ""/*poln*/,
+		scanExpr, ""/*array*/, ""/*state*/, ""/*obs*/, ""/*feed*/);
 	// main table columns
-	ROMSMainColumns msmc(sortedMS);
+	ROMSMainColumns msmc(selMS);
 	Array<Complex> visData(msmc.data().getColumn()),
 		modelData(msmc.modelData().getColumn()),
 		corrData(msmc.correctedData().getColumn());
@@ -118,6 +126,12 @@ TEST_F( PlotMSCacheTest, testVisibilities) {
 	// make sigmasp (no column) by adding chan axis to sigma
 	tUtil::makeSigmaSpFromSigma(expSigmaSp, expSigma, expNChan);
 
+	// make residual data cubes
+	Array<Complex> corrmodelData(corrData - modelData);
+	Array<Complex> corrDivmodelData(corrData / modelData);
+	Array<Complex> vismodelData(visData - modelData);
+	Array<Complex> visDivmodelData(visData / modelData);
+
 	// Visibility axis options:
 	std::vector<PMS::Axis> visAxes {PMS::AMP, PMS::PHASE,
 		PMS::REAL, PMS::IMAG, PMS::WTxAMP};
@@ -140,9 +154,6 @@ TEST_F( PlotMSCacheTest, testVisibilities) {
 					nullptr ); // ThreadCommunication* is nullptr
 
 			ASSERT_EQ(expNChunk, cache->nChunk());
-			Int nrow = cache->chunkShapes()(IPosition(2,2,ichunk));
-			ASSERT_EQ(expNRow, nrow);
-
 			switch (axis) {
 				case PMS::AMP: {
 					switch (datacol) {
@@ -159,20 +170,20 @@ TEST_F( PlotMSCacheTest, testVisibilities) {
 							ASSERT_TRUE(allEQ(expVis, cache->ampModel(ichunk)));
 							break;
 						case PMS::CORRMODEL:
-							expVis = amplitude(corrData - modelData);
+							expVis = amplitude(corrmodelData);
 							ASSERT_TRUE(allEQ(expVis, cache->ampCorrModel(ichunk)));
 							break;
 						case PMS::DATAMODEL:
-							expVis = amplitude(visData - modelData);
+							expVis = amplitude(vismodelData);
 							ASSERT_TRUE(allEQ(expVis, cache->ampDataModel(ichunk)));
 							break;
 						case PMS::DATA_DIVIDE_MODEL:
-							expVis = amplitude(visData / modelData);
+							expVis = amplitude(visDivmodelData);
 							ASSERT_TRUE(tUtil::allEQDiv(expVis,
 								cache->ampDataDivModel(ichunk)));
 							break;
 						case PMS::CORRECTED_DIVIDE_MODEL:
-							expVis = amplitude(corrData / modelData);
+							expVis = amplitude(corrDivmodelData);
 							ASSERT_TRUE(tUtil::allEQDiv(expVis,
 								cache->ampCorrDivModel(ichunk)));
 							break;
@@ -196,20 +207,20 @@ TEST_F( PlotMSCacheTest, testVisibilities) {
 							ASSERT_TRUE(allEQ(expVis, cache->phaModel(ichunk)));
 							break;
 						case PMS::CORRMODEL:
-							expVis = phase(corrData - modelData) * 180.0 / C::pi;
+							expVis = phase(corrmodelData) * 180.0 / C::pi;
 							ASSERT_TRUE(allEQ(expVis, cache->phaCorrModel(ichunk)));
 							break;
 						case PMS::DATAMODEL:
-							expVis = phase(visData - modelData) * 180.0 / C::pi;
+							expVis = phase(vismodelData) * 180.0 / C::pi;
 							ASSERT_TRUE(allEQ(expVis, cache->phaDataModel(ichunk)));
 							break;
 						case PMS::DATA_DIVIDE_MODEL:
-							expVis = phase(visData / modelData) * 180.0 / C::pi;
+							expVis = phase(visDivmodelData) * 180.0 / C::pi;
 							ASSERT_TRUE(tUtil::allEQDiv(expVis,
 								cache->phaDataDivModel(ichunk)));
 							break;
 						case PMS::CORRECTED_DIVIDE_MODEL:
-							expVis = phase(corrData / modelData) * 180.0 / C::pi;
+							expVis = phase(corrDivmodelData) * 180.0 / C::pi;
 							ASSERT_TRUE(tUtil::allEQDiv(expVis,
 								cache->phaCorrDivModel(ichunk)));
 							break;
@@ -233,20 +244,20 @@ TEST_F( PlotMSCacheTest, testVisibilities) {
 							ASSERT_TRUE(allEQ(expVis, cache->realModel(ichunk)));
 							break;
 						case PMS::CORRMODEL:
-							expVis = real(corrData - modelData);
+							expVis = real(corrmodelData);
 							ASSERT_TRUE(allEQ(expVis, cache->realCorrModel(ichunk)));
 							break;
 						case PMS::DATAMODEL:
-							expVis = real(visData - modelData);
+							expVis = real(vismodelData);
 							ASSERT_TRUE(allEQ(expVis, cache->realDataModel(ichunk)));
 							break;
 						case PMS::DATA_DIVIDE_MODEL:
-							expVis = real(visData / modelData);
+							expVis = real(visDivmodelData);
 							ASSERT_TRUE(tUtil::allEQDiv(expVis,
 								cache->realDataDivModel(ichunk)));
 							break;
 						case PMS::CORRECTED_DIVIDE_MODEL:
-							expVis = real(corrData / modelData);
+							expVis = real(corrDivmodelData);
 							ASSERT_TRUE(tUtil::allEQDiv(expVis,
 								cache->realCorrDivModel(ichunk)));
 							break;
@@ -270,20 +281,20 @@ TEST_F( PlotMSCacheTest, testVisibilities) {
 							ASSERT_TRUE(allEQ(expVis, cache->imagModel(ichunk)));
 							break;
 						case PMS::CORRMODEL:
-							expVis = imag(corrData - modelData);
+							expVis = imag(corrmodelData);
 							ASSERT_TRUE(allEQ(expVis, cache->imagCorrModel(ichunk)));
 							break;
 						case PMS::DATAMODEL:
-							expVis = imag(visData - modelData);
+							expVis = imag(vismodelData);
 							ASSERT_TRUE(allEQ(expVis, cache->imagDataModel(ichunk)));
 							break;
 						case PMS::DATA_DIVIDE_MODEL:
-							expVis = imag(visData / modelData);
+							expVis = imag(visDivmodelData);
 							ASSERT_TRUE(tUtil::allEQDiv(expVis,
 								cache->imagDataDivModel(ichunk)));
 							break;
 						case PMS::CORRECTED_DIVIDE_MODEL:
-							expVis = imag(corrData / modelData);
+							expVis = imag(corrDivmodelData);
 							ASSERT_TRUE(tUtil::allEQDiv(expVis,
 								cache->imagCorrDivModel(ichunk)));
 							break;
@@ -313,25 +324,25 @@ TEST_F( PlotMSCacheTest, testVisibilities) {
 							break;
 						}
 						case PMS::CORRMODEL: {
-							expVis = amplitude(corrData - modelData);
+							expVis = amplitude(corrmodelData);
 							Array<Float> expWtAmp = tUtil::getWtAmp(expWt, expVis);
 							ASSERT_TRUE(allEQ(expWtAmp, cache->wtxampCorrModel(ichunk)));
 							break;
 						}
 						case PMS::DATAMODEL: {
-							expVis = amplitude(visData - modelData);
+							expVis = amplitude(vismodelData);
 							Array<Float> expWtAmp = tUtil::getWtAmp(expWt, expVis);
 							ASSERT_TRUE(allEQ(expWtAmp, cache->wtxampDataModel(ichunk)));
 							break;
 						}
 						case PMS::DATA_DIVIDE_MODEL: {
-							expVis = amplitude(visData / modelData);
+							expVis = amplitude(visDivmodelData);
 							Array<Float> expWtAmp = tUtil::getWtAmp(expWt, expVis);
 							ASSERT_TRUE(tUtil::allEQDiv(expWtAmp, cache->wtxampDataDivModel(ichunk)));
 							break;
 						}
 						case PMS::CORRECTED_DIVIDE_MODEL: {
-							expVis = amplitude(corrData / modelData);
+							expVis = amplitude(corrDivmodelData);
 							Array<Float> expWtAmp = tUtil::getWtAmp(expWt, expVis);
 							ASSERT_TRUE(tUtil::allEQDiv(expWtAmp, cache->wtxampCorrDivModel(ichunk)));
 							break;

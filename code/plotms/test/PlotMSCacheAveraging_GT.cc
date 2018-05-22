@@ -511,7 +511,7 @@ TEST_F( PlotMSCacheTest, testAvgAntenna) {
 TEST_F( PlotMSCacheTest, testAvgSpw) {
 	// average each channel over spw (spw nchans must match)
 	// Use dataset with more than one spw:
-	dataPath = tUtil::getFullPath( "Four_ants_3C286.ms", "mstransform" );
+	dataPath = tUtil::getFullPath( "Four_ants_3C286.ms", "flagdata" );
 	MeasurementSet ms(dataPath);
 	Block<String> sortCols(4); // change order of sort cols to average spws
 	sortCols[0] = MS::columnName(MS::ARRAY_ID);
