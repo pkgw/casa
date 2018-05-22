@@ -3502,32 +3502,36 @@ class test_preaveraging(test_base):
 
     def test_rflag_time_chanavg(self):
         '''flagdata: rflag with time/chan average and compare vs mstransform'''
-        
+
         # Unflag the original input data
         flagdata(self.vis, flagbackup=False, mode='unflag')
-        
-        # STEP 1: Chan average with mstransform, then flagging with normal rflag
-        mstransform(vis=self.vis,outputvis='test_rflag_time_chanavg_step1.ms',datacolumn='data',
-                    timeaverage=True,timebin='2s',chanaverage=True,chanbin=2)
-        flagdata(vis='test_rflag_time_chanavg_step1.ms',flagbackup=False, mode='rflag',
-                 extendflags=False)
-        res1 = flagdata(vis='test_rflag_time_chanavg_step1.ms', mode='summary', spwchan=True)
-        
-        # Unflag the original input data
-        flagdata(vis=self.vis, flagbackup=False, mode='unflag')
 
-        # STEP 2: Flagging with rflag using time average, then time average with mstransform
+        # STEP 1: chan+time average with mstransform, then flagging with normal rflag
+        mstransform(vis=self.vis,outputvis='test_rflag_time_chanavg_step1.ms',
+                    datacolumn='data', timeaverage=True, timebin='2s',
+                    chanaverage=True, chanbin=2)
+        res1 = flagdata(vis='test_rflag_time_chanavg_step1.ms', action='calculate',
+                        mode='rflag', extendflags=False)
+
+        # STEP 2: rflag using chan+time average, then mstransform using chan+time avg
         flagdata(vis=self.vis, flagbackup=False, mode='rflag', datacolumn='DATA',
                  timeavg=True, timebin='2s', channelavg=True, chanbin=2, extendflags=False)
-        mstransform(vis=self.vis, outputvis='test_rflag_time_chanavg_step2.ms',datacolumn='data',
-                    timeaverage=True,timebin='2s',chanaverage=True,chanbin=2)
-        res2 = flagdata(vis='test_rflag_time_chanavg_step2.ms', mode='summary', spwchan=True)
+        mstransform(vis=self.vis, outputvis='test_rflag_time_chanavg_step2.ms',
+                    datacolumn='data', timeaverage=True, timebin='2s',
+                    chanaverage=True, chanbin=2)
+        res2 = flagdata(vis='test_rflag_time_chanavg_step2.ms', action='calculate',
+                        mode='rflag', extendflags=False)
 
-        # Check results
-        self.assertEqual(res1['flagged'], 20)
-        for corr in ['RL', 'LL', 'LR', 'RR']:
-            self.assertGreaterEqual(res2['correlation'][corr], res1['correlation'][corr])
-        
+        # Check results. Note when doing chan+time avg we cannot assume the thresholds and #
+        # of flagged channels will be the same
+        self.assertEqual(res1['type'], 'list')
+        self.assertEqual(res1['type'], res2['type'])
+        tol = 6.6e-1
+        import numpy as np
+        for threshold_type in ['freqdev', 'timedev']:
+            self.assertTrue(np.allclose(res1['report0'][threshold_type],
+                                        res2['report0'][threshold_type], rtol=tol))
+
     def test_tfcrop_timeavg(self):
         '''flagdata: tfcrop with time average and compare vs mstransform'''
         
