@@ -147,16 +147,18 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
 void CalCache::loadNewCalTable(vector<PMS::Axis>& loadAxes,
     vector<PMS::DataColumn>& loadData, ThreadCommunication* thread) {
   // Get various names, properties from cal table
-  NewCalTable ct(NewCalTable::createCT(filename_, Table::Old, Table::Plain));
-  basis_ = ct.polBasis();
-  parsAreComplex_ = ct.isComplex();
-  ROCTColumns ctCol(ct);
+  TableLock lock(TableLock::AutoNoReadLocking);
+  NewCalTable* ct = new NewCalTable(filename_, lock, Table::Old, Table::Plain);
+  basis_ = ct->polBasis();
+  parsAreComplex_ = ct->isComplex();
+  ROCTColumns ctCol(*ct);
   antnames_ = ctCol.antenna().name().getColumn();
   stanames_ = ctCol.antenna().station().getColumn();
   antstanames_ = antnames_ + String("@") + stanames_;
   fldnames_ = ctCol.field().name().getColumn();
   positions_ = ctCol.antenna().position().getColumn();    
   nAnt_ = ctCol.antenna().nrow();
+  delete ct;
 
   setUpCalIter(filename_,selection_, True,True,True);
   countChunks(*ci_p, loadAxes, loadData, thread);
