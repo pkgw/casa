@@ -118,7 +118,9 @@ class SIImageStore
   virtual casacore::Vector<casacore::String> getModelImageName();
   virtual void setWeightDensity( SHARED_PTR<SIImageStore> imagetoset );
   virtual casacore::Bool doesImageExist(casacore::String imagename);
-  void setImageInfo(const casacore::Record miscinfo);
+
+  void setObjectName(const casacore::String);
+  void setMiscInfo(const casacore::Record miscinfo);
 
   virtual void resetImages( casacore::Bool resetpsf, casacore::Bool resetresidual, casacore::Bool resetweight );
   virtual void addImages( SHARED_PTR<SIImageStore> imagestoadd, 
@@ -239,8 +241,8 @@ protected:
 					       const casacore::Bool dosumwt=casacore::False,
 					       const casacore::Int nfacetsperside=1);
 
-  void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr, casacore::IPosition shape, casacore::CoordinateSystem csys, casacore::String name);
-  void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr,casacore::String name);
+  void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr, casacore::IPosition shape, casacore::CoordinateSystem csys, const casacore::String name);
+  void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr,const casacore::String name);
 
 
   casacore::Double getPbMax();
@@ -264,6 +266,7 @@ protected:
 
   casacore::Bool itsOverWrite;
   casacore::Bool itsUseWeight;
+  casacore::String itsObjectName;
   casacore::Record itsMiscInfo;
   SHARED_PTR<casacore::ImageInterface<casacore::Float> > itsMask, itsParentMask, itsGridWt; // mutliterm shares this...
   casacore::Double itsPBScaleFactor;
@@ -287,6 +290,9 @@ protected:
   casacore::Int itsOpened;
 
 private:
+
+  void initMetaInfo(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr,
+                    const casacore::String name);
 
   SHARED_PTR<casacore::ImageInterface<casacore::Float> > itsPsf, itsModel, itsResidual, itsWeight, itsImage, itsSumWt, itsImagePBcor, itsPB;
   SHARED_PTR<casacore::ImageInterface<casacore::Complex> > itsForwardGrid, itsBackwardGrid;
