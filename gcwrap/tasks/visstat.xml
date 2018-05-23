@@ -7,11 +7,11 @@
                              file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 	<task type="function" name="visstat" category="information">
-		<shortdescription>Displays statistical information from a Measurement Set, or from a Multi-MS</shortdescription>
+		<shortdescription>Displays statistical information from a MeasurementSet, or from a Multi-MS</shortdescription>
 
 		<input>
 			<param type="string" name="vis" kind="ms" mustexist="true">
-				<description>Name of Measurement Set or Multi-MS</description>
+				<description>Name of MeasurementSet or Multi-MS</description>
 				<value></value>
 				<example>vis='ngc5921.ms'</example>
 			</param>
@@ -194,32 +194,33 @@
 
 			</constraints>
 		</input>
-		<output>
-			<param type="any" name="xstat">
-				<description>Statistical information for the selected measurement set</description>
-				<any type="variant"/>
-				<value>{}</value>
-			</param>
-		</output>
-		<returns type="void"/>
+		<returns type="record"/>
 
 		<example>
 
-			This task returns statistical information about data in a Measurement
-			Set or Multi-MS.
+			This task returns statistical information about data in a MeasurementSet
+			or Multi-MS.
 
-			The following values are computed: mean value, sum of values, sum of
+			The following statistics are computed: mean value, sum of values, sum of
 			squared values, median, median absolute deviation, first and third
 			quartiles, minimum, maximum, variance, standard deviation, and root mean
 			square.
 
-			The following axes are supported: uvw, flag, weight, sigma, antenna1,
-			antenna2, feed1, feed2, field_id, array_id, data_desc_id, flag_row,
-			interval, scan, scan_number, time, weight_spectrum, amp, amplitude,
-			phase, real, imag, imaginary, and uvrange.
+			Statistics may be computed on any of the following values: uvw, flag,
+			weight, sigma, antenna1, antenna2, feed1, feed2, field_id, array_id,
+			data_desc_id, flag_row, interval, scan, scan_number, time,
+			weight_spectrum, amp, amplitude, phase, real, imag, imaginary, and
+			uvrange.
+
+      The 'reportingaxes' argument is used to partition the sample set along an
+      axis. For example, setting its value to 'ddid' will result in the
+      statistics of the chosen sample values partitioned by unique values of the
+      data description id. Thus setting 'axis' to 'amp' and 'reportingaxes' to
+      'ddid' will report statistics of visibility amplitudes for each unique
+      value of data description id in the MeasurementSet.
 
 			Optionally, the statistical information can be computed based only
-			on a given subset of the measurement set.
+			on a given subset of the MeasurementSet.
 
 			Note: If the MS consists of inhomogeneous data, for example several
 			spectral windows each having a different number of channels, it may be
@@ -228,7 +229,7 @@
 
 			Keyword arguments:
 
-			vis  --- Name of input Measurement Set or Multi-MS
+			vis  --- Name of input MeasurementSet or Multi-MS
 			default: '', example: vis='my.ms'
 
 			axis -- Which data to analyze.

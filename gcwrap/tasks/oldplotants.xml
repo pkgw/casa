@@ -5,7 +5,7 @@
       xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-      <task type="function" name="oldplotants" category="visualization, calibration">
+      <task type="function" name="oldplotants" category="visualization, calibration" visibility="deprecated">
 	<shortdescription>Plot the antenna distribution in the local reference frame:</shortdescription>
     <description>
        TO BE DEPRECATED to remove dependence on msplot.  Please use

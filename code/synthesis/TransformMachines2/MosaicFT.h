@@ -343,7 +343,7 @@ protected:
   casacore::Bool doneWeightImage_p;
   casacore::String stokes_p;
   casacore::Bool useConjConvFunc_p;
-
+  casacore::Double timemass_p, timegrid_p, timedegrid_p;
 
 };
 
