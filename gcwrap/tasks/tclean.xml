@@ -1872,8 +1872,8 @@ HPX HEALPix grid.  -->
                        Manual mask options/examples :
 
                        mask='xxx.mask'  : Use this CASA image named xxx.mask and containing
-                                                       ones and zeros as the mask. If this image is a different
-                                                       shape from what is being made it will be resampled to
+                                                       ones and zeros as the mask. <!--If this image is a different
+                                                       spatial coordinates from what is being made it will be resampled to
                                                        the target coordinate system before being used.
                                                        When a continuum (single channel) mask is given for spectral
                                                        cube imaging, it will be extended (copied) to all channels.
@@ -1882,6 +1882,13 @@ HPX HEALPix grid.  -->
                                                        to other Stokes planes is possible only if the spectral
                                                        coordinate and the number of the channels matches with the output
                                                        image.
+                                                       -->
+                                                       If the mask is only different in spatial coordinates from what is being made 
+                                                       it will be resampled to the target coordinate system before being used.
+                                                       The mask has to have the same shape in velocity and Stokes planes
+                                                       as the output image. Exceptions are single velocity and/or single
+                                                       Stokes plane masks. They will be expanded to cover all velocity and/or
+                                                       Stokes planes of the output cube.
 
                                                        [ Note : If an error occurs during image resampling or
                                                                    if the expected mask does not appear, please try
@@ -1889,6 +1896,7 @@ HPX HEALPix grid.  -->
                                                                    the mask image onto a CASA image with the target
                                                                    shape and coordinates and supply it via the 'mask'
                                                                    parameter. ]
+
 
                        mask='xxx.crtf' : A text file with region strings and the following on the first line
                                                   ( #CRTFv0 CASA Region Text Format version 0 )
