@@ -701,6 +701,8 @@ Iteration Parameters
         <value>Baseline</value>
         <value>antenna</value>
         <value>Antenna</value>
+        <value>antenna1</value>
+        <value>Antenna1</value>
         <value>time</value>
         <value>Time</value>
         <value>corr</value>
