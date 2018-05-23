@@ -204,13 +204,16 @@ class test_base(unittest.TestCase):
         os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
         default(mstransform)                           
         
-    def setUp_titan(self):
+    def setUp_titan(self, reuse_input=False):
 
         self.vis = 'titan-one-baseline-one-timestamp.ms'
-        if os.path.exists(self.vis):
+
+        found = os.path.exists(self.vis)
+        if found and not reuse_input:
            self.cleanup()
-            
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
+        if not found or not reuse_input:
+            os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
+
         default(mstransform)                
         
     def setUp_CAS_6733(self):
@@ -284,7 +287,7 @@ class test_base(unittest.TestCase):
         print "................. Creating test MMS .................."
         mstransform(vis=msfile, outputvis=self.testmms, datacolumn='data',
                     createmms=True,separationaxis=axis, scan=scans, spw=spws)
-        
+
 
     def cleanup(self):
         os.system('rm -rf '+ self.vis)
@@ -563,59 +566,57 @@ class test_combinespws_diff_channels(test_base):
         self.assertTrue(os.path.exists(self.outputms))
 
 
-class test_Regridms1(test_base):
+class test_regridms_four_ants(test_base):
     '''Tests for regridms parameter using Four_ants_3C286.ms'''
 
     def setUp(self):
         self.setUp_4ants()
 
     def tearDown(self):
-        pass
         os.system('rm -rf '+ self.vis)
-        os.system('rm -rf '+ self.outputms)
+        os.system('rm -rf '+ self.outputvis)
         os.system('rm -rf testmms*ms list.obs')
 
-    def test_regrid1_1(self):
+    def test_regrid1_defaults(self):
         '''mstransform: Default of regridms parameters'''
 
-        self.outputms = "reg11.ms"
-        mstransform(vis=self.vis, outputvis=self.outputms, regridms=True)
-        self.assertTrue(os.path.exists(self.outputms))
+        self.outputvis = "reg11.ms"
+        mstransform(vis=self.vis, outputvis=self.outputvis, regridms=True)
+        self.assertTrue(os.path.exists(self.outputvis))
 
         # The regriding should be the same as the input
         for i in range(16):
-            ret = th.verifyMS(self.outputms, 16, 64, i)
+            ret = th.verifyMS(self.outputvis, 16, 64, i)
             self.assertTrue(ret[0],ret[1])
 
-        listobs(self.outputms)
-        listobs(self.outputms, listfile='list.obs')
+        listobs(self.outputvis)
+        listobs(self.outputvis, listfile='list.obs')
         self.assertTrue(os.path.exists('list.obs'), 'Probable error in sub-table re-indexing')
         
         # Check the shape of WEIGHT and SIGMA
         inp_ws = th.getColShape(self.vis,'WEIGHT')
         inp_ss = th.getColShape(self.vis,'SIGMA')
-        out_ws = th.getColShape(self.outputms,'WEIGHT')
-        out_ss = th.getColShape(self.outputms,'SIGMA')
+        out_ws = th.getColShape(self.outputvis,'WEIGHT')
+        out_ss = th.getColShape(self.outputvis,'SIGMA')
         self.assertListEqual(inp_ws, out_ws, 'WEIGHT shape differ in input and output')
         self.assertListEqual(inp_ss, out_ss, 'SIGMA shape differ in input and output')
 
-
-    def test_regrid1_2(self):
+    def test_regrid1_defaults_spw_sel(self):
         '''mstransform: Default regridms with spw selection'''
 
-        self.outputms = "reg12.ms"
-        mstransform(vis=self.vis, outputvis=self.outputms, regridms=True, spw='1,3,5,7')
-        self.assertTrue(os.path.exists(self.outputms))
+        self.outputvis = "reg12.ms"
+        mstransform(vis=self.vis, outputvis=self.outputvis, regridms=True, spw='1,3,5,7')
+        self.assertTrue(os.path.exists(self.outputvis))
 
         # The output should be the same as the input
         for i in range(4):
-            ret = th.verifyMS(self.outputms, 4, 64, i)
+            ret = th.verifyMS(self.outputvis, 4, 64, i)
             self.assertTrue(ret[0],ret[1])
 
-        listobs(self.outputms)
+        listobs(self.outputvis)
 
         # Verify that some sub-tables are properly re-indexed.
-        spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
+        spw_col = th.getVarCol(self.outputvis+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
         self.assertEqual(spw_col.keys().__len__(), 4, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
@@ -623,7 +624,7 @@ class test_Regridms1(test_base):
         self.assertEqual(spw_col['r4'][0], 3,'Error re-indexing DATA_DESCRIPTION table')
 
 
-class test_Regridms3(test_base):
+class test_regridms_jupiter(test_base):
     '''Tests for regridms parameter using Jupiter MS'''
 
     def setUp(self):
@@ -631,24 +632,24 @@ class test_Regridms3(test_base):
 
     def tearDown(self):
         os.system('rm -rf '+ self.vis)
-        os.system('rm -rf '+ self.outputms)
+        os.system('rm -rf '+ self.outputvis)
         os.system('rm -rf cvel31*.*ms')
 
     def test_regrid3_1(self):
         '''mstransform 12: Check that output columns are the same when using mstransform'''
-        self.outputms = 'reg31.ms'
+        self.outputvis = 'reg31.ms'
 
-        mstransform(vis=self.vis, outputvis=self.outputms, field='6',
+        mstransform(vis=self.vis, outputvis=self.outputvis, field='6',
                     combinespws=True, regridms=True, datacolumn='data',
                     mode='frequency', nchan=2, start='4.8101 GHz', width='50 MHz',
                     outframe='')
 
-        ret = th.verifyMS(self.outputms, 1, 2, 0)
+        ret = th.verifyMS(self.outputvis, 1, 2, 0)
         self.assertTrue(ret[0],ret[1])
 
         # Now run with cvel to compare the columns, CAS-4866
-        outputms = 'cvel31.ms'
-        cvel(vis=self.vis, outputvis=outputms, field='6',
+        outputvis = 'cvel31.ms'
+        cvel(vis=self.vis, outputvis=outputvis, field='6',
             passall=False,mode='frequency',nchan=2,start='4.8101 GHz',
             width='50 MHz',outframe='')
 
@@ -677,19 +678,19 @@ class test_Regridms3(test_base):
         self.assertTrue(th.compTables('cvel31-sorted.ms/STATE','reg31-sorted.ms/STATE', [],0.000001,"absolute"))
 
         # Verify that some sub-tables are properly re-indexed.
-        spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
+        spw_col = th.getVarCol(self.outputvis+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
         self.assertEqual(spw_col.keys().__len__(), 1, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
 
     def test_regrid3_2(self):
         '''mstransform: Combine spw and regrid MS with two spws, select one field and 2 spws'''
         # cvel: test8
-        self.outputms = "reg32a.ms"
-        mstransform(vis=self.vis, outputvis=self.outputms, combinespws=True, regridms=True,
+        self.outputvis = "reg32a.ms"
+        mstransform(vis=self.vis, outputvis=self.outputvis, combinespws=True, regridms=True,
                     spw='0,1',field = '11',nchan=1, width=2, datacolumn='DATA')
-        self.assertTrue(os.path.exists(self.outputms))
+        self.assertTrue(os.path.exists(self.outputvis))
 
-        ret = th.verifyMS(self.outputms, 1, 1, 0)
+        ret = th.verifyMS(self.outputvis, 1, 1, 0)
         self.assertTrue(ret[0],ret[1])
 
         # Now, do only the regridding and do not combine spws
@@ -702,6 +703,97 @@ class test_Regridms3(test_base):
         self.assertTrue(ret[0],ret[1])
         ret = th.verifyMS(outputms, 2, 1, 1)
         self.assertTrue(ret[0],ret[1])
+
+
+class test_regridms_negative_width(test_base):
+    """
+    Test regridding when the parameter width takes a negative value, in different
+    regridding modes.
+
+    I was tempted to put these test cases inside test_regridms_jupiter
+    and/or test_regridms_four_ants, but these two operate on MSs that are unnecessarily
+    big and have columns (model, corrected) that are not needed for this type of test.
+    The dataset used here has only one data row, which I hope removes the need for ordering
+    before comparing. Still, I think we should find or make a suitable but smaller MS.
+    """
+    def setUp(self):
+        # 1 spw, 1 data row, 3840 channels
+        self.setUp_titan(reuse_input=True)
+        default(mstransform)
+        self.copyfile(self.vis)
+        from taskinit import casalog
+
+    def _check_chan_freqs_widths(self, freqs, widths, exp_nchan, exp_first_freq,
+                                 exp_last_freq, exp_width):
+        import numpy as np
+
+        self.assertEqual(len(freqs), exp_nchan)
+        self.assertEqual(len(widths), exp_nchan)
+        self.assertEqual(freqs[0], exp_first_freq)
+        self.assertEqual(freqs[-1], exp_last_freq)
+        self.assertTrue(np.allclose(np.ediff1d(freqs), exp_width, rtol=1e-2))
+        self.assertTrue(np.allclose(widths, exp_width, rtol=1e-3))
+
+    def test_regrid_channel_neg_width(self):
+        '''mstransform: regridding in channel mode with negative width'''
+
+        self.outputvis = 'regrid_chan_neg_width.ms'
+        nchan = 10
+        mstransform(vis=self.vis, outputvis=self.outputvis, datacolumn='data',
+                    regridms=True, outframe='BARY',
+                    mode='channel', nchan=nchan, start=100, width=-10)
+
+        chan_freqs, chan_widths = th.get_channel_freqs_widths(self.outputvis, 0)
+        self._check_chan_freqs_widths(chan_freqs, chan_widths, nchan,
+                                      3.543540545236911e+11, 3.5435954715143951e+11,
+                                      610291.972)
+
+    def test_regrid_channel_b_neg_width(self):
+        '''mstransform: regridding in channel_b mode with negative width'''
+
+        self.outputvis = 'regrid_chan_b_neg_width.ms'
+        nchan = 8
+        mstransform(vis=self.vis, outputvis=self.outputvis, datacolumn='data',
+                    regridms=True, outframe='BARY',
+                    mode='channel_b', nchan=nchan, start=100, width=-10)
+
+        chan_freqs, chan_widths = th.get_channel_freqs_widths(self.outputvis, 0)
+        self._check_chan_freqs_widths(chan_freqs, chan_widths, nchan,
+                                      3.5435521407843884e+11, 3.5435948612224243e+11,
+                                      610291.9720)
+
+    def test_regrid_velocity_neg_width(self):
+        '''mstransform: regridding in velocity mode with negative width'''
+
+        self.outputvis = 'regrid_vel_neg_width.ms'
+
+        vis_freqs, _vis_widths = th.get_channel_freqs_widths(self.vis, 0)
+        restf = vis_freqs[0]
+
+        nchan = 10
+        mstransform(vis=self.vis, outputvis=self.outputvis, datacolumn='data',
+                    regridms=True, outframe='BARY',
+                    mode='velocity', veltype='radio', restfreq='{0}Hz'.format(restf),
+                    nchan=nchan, start='25km/s', width='-1km/s')
+
+        chan_freqs, chan_widths = th.get_channel_freqs_widths(self.outputvis, 0)
+        self._check_chan_freqs_widths(chan_freqs, chan_widths, nchan,
+                                      3.5435876611326282e+11, 3.543694051229682e+11,
+                                      1.182112189e+06)
+
+    def test_regrid_frequency_neg_width(self):
+        '''mstransform: regridding in frequency mode with negative width'''
+
+        self.outputvis = 'regrid_freq_neg_width.ms'
+
+        nchan = 12
+        mstransform(vis=self.vis, outputvis=self.outputvis, datacolumn='data',
+                    regridms=True, outframe='LSRK',
+                    mode='frequency', nchan=nchan, start='354.42GHz', width='-0.3GHz')
+
+        chan_freqs, chan_widths = th.get_channel_freqs_widths(self.outputvis, 0)
+        self._check_chan_freqs_widths(chan_freqs, chan_widths, nchan,
+                                      3.5112e+11, 3.5442e+11, 3e+8)
 
 
 class test_regridms_interpolation_only(test_base):
@@ -807,6 +899,112 @@ class test_regridms_interpolation_only(test_base):
                       [1, 5, 0.36502194, 0.45022112],
                       [1, self.out_nchan-1, 0.12325509, 0.05476397]]
         self.check_output_values(self.outvis, eq_pattern, self.out_nchan)
+
+
+class test_regridms_single_spw(test_base_compare):
+    '''Tests for regridms w/o combining SPWS'''
+
+    def setUp(self):
+        super(test_regridms_single_spw,self).setUp()
+        self.setUp_CAS_5013()
+        self.outvis = 'test_regridms_single_spw_mst.ms'
+        self.refvis = 'test_regridms_single_spw_cvel.ms'
+        self.outvis_sorted = 'test_regridms_single_spw_mst_sorted.ms'
+        self.refvis_sorted = 'test_regridms_single_spw_cvel_sorted.ms'
+        os.system('rm -rf test_regridms_single_sp*')
+
+    def tearDown(self):
+        super(test_regridms_single_spw,self).tearDown()
+
+    def test_regrid_only_LSRK(self):
+        '''mstransform: Change ref. frame to LSRK'''
+
+        mstransform(vis=self.vis,outputvis=self.outvis,regridms=True,datacolumn='ALL',
+                    field='Vy_CMa',spw='3',mode='frequency',nchan=3830,start='310427.353MHz',width='-244.149kHz',outframe='lsrk')
+        cvel(vis=self.vis,outputvis=self.refvis,
+             field='Vy_CMa',spw='3',mode='frequency',nchan=3830,start='310427.353MHz',width='-244.149kHz',outframe='lsrk')
+
+        self.generate_tolerance_map()
+
+        self.mode['WEIGHT'] = "absolute"
+        self.tolerance['WEIGHT'] = 1E-3
+
+        self.post_process()
+
+class test_regridms_multiple_spws(test_base_compare):
+    '''Tests for regridms combining SPWS'''
+
+    def setUp(self):
+        super(test_regridms_multiple_spws,self).setUp()
+        self.setUp_CAS_5172()
+        self.outvis = 'test_regridms_multiple_spw_mst.ms'
+        self.refvis = 'test_regridms_multiple_spw_cvel.ms'
+        self.outvis_sorted = 'test_regridms_multiple_spw_mst_sorted.ms'
+        self.refvis_sorted = 'test_regridms_multiple_spw_cvel_sorted.ms'
+        os.system('rm -rf test_regridms_multiple_spw*')
+
+    def tearDown(self):
+        super(test_regridms_multiple_spws,self).tearDown()
+
+    @unittest.skip('Skip, cvel produces an exception since release 4.7.2 as per CAS-9798')
+    def test_combine_regrid_fftshift(self):
+        '''mstransform: Combine 2 SPWs and change ref. frame to LSRK using fftshift'''
+
+        cvel(vis = self.vis, outputvis = self.refvis ,mode = 'velocity',nchan = 10,start = '-50km/s',width = '5km/s',
+             interpolation = 'fftshift',restfreq = '36.39232GHz',outframe = 'LSRK',veltype = 'radio', phasecenter="2")
+
+        mstransform(vis = self.vis, outputvis = self.outvis, datacolumn='all',combinespws = True, regridms = True,
+                    mode = 'velocity', nchan = 10, start = '-50km/s', width = '5km/s', interpolation = 'fftshift',
+                    restfreq = '36.39232GHz', outframe = 'LSRK', veltype = 'radio')
+
+        self.generate_tolerance_map()
+
+        self.mode['WEIGHT'] = "absolute"
+        self.tolerance['WEIGHT'] = 50
+
+        # Exlude FEED from the list of sub-tables to compare because cvel does not remove duplicates
+        self.subtables=['/ANTENNA','/DATA_DESCRIPTION','/FIELD','/FLAG_CMD',
+                        '/POINTING','/POLARIZATION','/PROCESSOR','/STATE']
+
+        self.post_process()
+
+    def test_combine_noregrid_fftshift(self):
+        '''mstransform: Combine 2 SPWs and change ref. frame to LSRK using fftshift'''
+
+        mstransform(vis=self.vis, outputvis=self.outvis, datacolumn='all',
+                    combinespws=True, regridms=True, mode='velocity', nchan=10,
+                    start='-50km/s', width='5km/s', interpolation='fftshift',
+                    restfreq='36.39232GHz', outframe='LSRK', veltype='radio')
+
+        self.assertTrue(os.path.isdir(self.outvis))
+
+
+class test_regridms_spw_with_different_number_of_channels(test_base):
+    '''Tests for regridms w/o combining SPWS'''
+
+    def setUp(self):
+        self.setUp_CAS_4983()
+        self.outvis = 'test_regridms_spw_with_different_number_of_channels.ms'
+
+    def tearDown(self):
+        os.system('rm -rf '+ self.vis)
+        os.system('rm -rf '+ self.outvis)
+
+    def test_regridms_spw_with_different_number_of_channels_separately(self):
+        '''mstransform: Regrid SPWs separately, applying pre-channel averaging to only some of them'''
+
+        mstransform(vis=self.vis,outputvis=self.outvis,datacolumn='data',field='J0102-7546',regridms=True,
+                    mode='frequency',width='29297.28kHz',outframe='lsrk',veltype='radio')
+
+        # DDI subtable should have 4 rows with the proper indices
+        mytb = tbtool()
+        mytb.open(self.outvis + '/SPECTRAL_WINDOW')
+        numChan = mytb.getcol('NUM_CHAN')
+        mytb.close()
+        check_eq(numChan[0], 32)
+        check_eq(numChan[1], 2)
+        check_eq(numChan[2], 68)
+        check_eq(numChan[3], 2)
 
 
 class test_Hanning(test_base):
@@ -1880,110 +2078,6 @@ class test_multiple_transformations(test_base_compare):
 
         th.compTables(self.vis+'/FEED', self.outvis+'/FEED', ['FOCUS_LENGTH'])
 
-class test_regridms_single_spw(test_base_compare):
-    '''Tests for regridms w/o combining SPWS'''
-
-    def setUp(self):
-        super(test_regridms_single_spw,self).setUp()
-        self.setUp_CAS_5013()
-        self.outvis = 'test_regridms_single_spw_mst.ms'
-        self.refvis = 'test_regridms_single_spw_cvel.ms'
-        self.outvis_sorted = 'test_regridms_single_spw_mst_sorted.ms'
-        self.refvis_sorted = 'test_regridms_single_spw_cvel_sorted.ms'
-        os.system('rm -rf test_regridms_single_sp*')
-
-    def tearDown(self):
-        super(test_regridms_single_spw,self).tearDown()
-
-    def test_regrid_only_LSRK(self):
-        '''mstransform: Change ref. frame to LSRK'''
-
-        mstransform(vis=self.vis,outputvis=self.outvis,regridms=True,datacolumn='ALL',
-                    field='Vy_CMa',spw='3',mode='frequency',nchan=3830,start='310427.353MHz',width='-244.149kHz',outframe='lsrk')
-        cvel(vis=self.vis,outputvis=self.refvis,
-             field='Vy_CMa',spw='3',mode='frequency',nchan=3830,start='310427.353MHz',width='-244.149kHz',outframe='lsrk')
-
-        self.generate_tolerance_map()
-        
-        self.mode['WEIGHT'] = "absolute"
-        self.tolerance['WEIGHT'] = 1E-3        
-
-        self.post_process()
-
-class test_regridms_multiple_spws(test_base_compare):
-    '''Tests for regridms combining SPWS'''
-       
-    def setUp(self):
-        super(test_regridms_multiple_spws,self).setUp()
-        self.setUp_CAS_5172()
-        self.outvis = 'test_regridms_multiple_spw_mst.ms'
-        self.refvis = 'test_regridms_multiple_spw_cvel.ms'
-        self.outvis_sorted = 'test_regridms_multiple_spw_mst_sorted.ms'
-        self.refvis_sorted = 'test_regridms_multiple_spw_cvel_sorted.ms'
-        os.system('rm -rf test_regridms_multiple_spw*')        
-        
-    def tearDown(self):
-        super(test_regridms_multiple_spws,self).tearDown()
-
-    @unittest.skip('Skip, cvel produces an exception since release 4.7.2 as per CAS-9798')
-    def test_combine_regrid_fftshift(self):
-        '''mstransform: Combine 2 SPWs and change ref. frame to LSRK using fftshift''' 
-        
-        cvel(vis = self.vis, outputvis = self.refvis ,mode = 'velocity',nchan = 10,start = '-50km/s',width = '5km/s',
-             interpolation = 'fftshift',restfreq = '36.39232GHz',outframe = 'LSRK',veltype = 'radio', phasecenter="2")
-        
-        mstransform(vis = self.vis, outputvis = self.outvis, datacolumn='all',combinespws = True, regridms = True, 
-                    mode = 'velocity', nchan = 10, start = '-50km/s', width = '5km/s', interpolation = 'fftshift', 
-                    restfreq = '36.39232GHz', outframe = 'LSRK', veltype = 'radio')
-
-        self.generate_tolerance_map()
-        
-        self.mode['WEIGHT'] = "absolute"
-        self.tolerance['WEIGHT'] = 50
-        
-        # Exlude FEED from the list of sub-tables to compare because cvel does not remove duplicates
-        self.subtables=['/ANTENNA','/DATA_DESCRIPTION','/FIELD','/FLAG_CMD',
-                        '/POINTING','/POLARIZATION','/PROCESSOR','/STATE']
-
-        self.post_process()          
-
-    def test_combine_noregrid_fftshift(self):
-        '''mstransform: Combine 2 SPWs and change ref. frame to LSRK using fftshift'''
-
-        mstransform(vis=self.vis, outputvis=self.outvis, datacolumn='all',
-                    combinespws=True, regridms=True, mode='velocity', nchan=10,
-                    start='-50km/s', width='5km/s', interpolation='fftshift',
-                    restfreq='36.39232GHz', outframe='LSRK', veltype='radio')
-
-        self.assertTrue(os.path.isdir(self.outvis))
-
-class test_regridms_spw_with_different_number_of_channels(test_base):
-    '''Tests for regridms w/o combining SPWS'''
-       
-    def setUp(self):
-        self.setUp_CAS_4983()
-        self.outvis = 'test_regridms_spw_with_different_number_of_channels.ms'
-        
-    def tearDown(self):
-        os.system('rm -rf '+ self.vis)
-        os.system('rm -rf '+ self.outvis)
-        
-    def test_regridms_spw_with_different_number_of_channels_separately(self):
-        '''mstransform: Regrid SPWs separately, applying pre-channel averaging to only some of them''' 
-        
-        mstransform(vis=self.vis,outputvis=self.outvis,datacolumn='data',field='J0102-7546',regridms=True,
-                    mode='frequency',width='29297.28kHz',outframe='lsrk',veltype='radio')  
-        
-        # DDI subtable should have 4 rows with the proper indices     
-        mytb = tbtool()
-        mytb.open(self.outvis + '/SPECTRAL_WINDOW')
-        numChan = mytb.getcol('NUM_CHAN')      
-        mytb.close()          
-        check_eq(numChan[0], 32)
-        check_eq(numChan[1], 2)
-        check_eq(numChan[2], 68)
-        check_eq(numChan[3], 2)        
-
 
 class test_spw_poln(test_base):
     '''tests for spw with different correlation shapes'''
@@ -2524,8 +2618,8 @@ class test_subtables_alma(test_base):
                 self.assertTrue((w > 0).all())
         self.assertTrue((mytb.getcol('TOTAL_BANDWIDTH') > 0).all())
         mytb.close()
-        
-               
+
+
 class test_radial_velocity_correction(test_base_compare):
 
     def setUp(self):
@@ -5849,9 +5943,13 @@ def suite():
     return [
             test_Combspw1,
             test_combinespws_diff_channels,
-            test_Regridms1,
-            test_Regridms3,
+            test_regridms_four_ants,
+            test_regridms_jupiter,
+            test_regridms_negative_width,
             test_regridms_interpolation_only,
+            test_regridms_single_spw,
+            test_regridms_multiple_spws,
+            test_regridms_spw_with_different_number_of_channels,
             test_Hanning,
             test_FreqAvg,
             test_Shape,
@@ -5863,11 +5961,8 @@ def suite():
             test_timeaverage,
             test_timeaverage_limits,
             test_multiple_transformations,
-            test_regridms_single_spw,
-            test_regridms_multiple_spws,
             test_float_column,
             test_spw_poln,
-            test_regridms_spw_with_different_number_of_channels,
             testFlags,
             test_weight_spectrum_creation,
             test_subtables_evla,
