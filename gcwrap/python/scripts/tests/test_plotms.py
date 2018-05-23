@@ -498,7 +498,7 @@ class test_axis(plotms_test_base):
             res = plotms(vis=self.ms, plotfile=plotfile, highres=True,
                          showgui=False, ydatacolumn=datacol)
             self.assertTrue(res)
-            minSize = 200000
+            minSize = 190000
             if datacol is 'model':
                 minSize = 40000
             self.checkPlotfile(plotfile, minSize)
