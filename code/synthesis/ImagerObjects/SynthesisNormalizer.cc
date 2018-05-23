@@ -75,6 +75,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     LogIO os( LogOrigin("SynthesisNormalizer","destructor",WHERE) );
     os << LogIO::DEBUG1 << "SynthesisNormalizer destroyed" << LogIO::POST;
+    SynthesisUtilMethods::getResource("End SynthesisNormalizer");
+
   }
   
   

@@ -28,6 +28,7 @@ casa_add_library( mstransform
  MSTransform/MSTransformIteratorFactory.cc
  MSTransform/MSUVBin.cc
  MSTransform/StatWt.cc
+ MSTransform/StatWtColConfig.cc
  TVI/UtilsTVI.cc 
  TVI/DenoisingLib.cc 
  TVI/FreqAxisTVI.cc 
@@ -53,6 +54,7 @@ install (FILES
 	MSTransform/MSTransformIteratorFactory.h
 	MSTransform/MSUVBin.h
 	MSTransform/StatWt.h
+    MSTransform/StatWtColConfig.h
 	DESTINATION include/casacode/mstransform/MSTransform
 	)
 	
