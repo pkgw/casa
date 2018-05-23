@@ -58,13 +58,10 @@
      <item>
       <widget class="QLabel" name="dataLabel">
        <property name="text">
-        <string>Data Column:</string>
+        <string>Column:</string>
        </property>
        <property name="textFormat">
         <enum>Qt::RichText</enum>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>

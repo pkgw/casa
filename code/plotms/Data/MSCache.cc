@@ -302,8 +302,10 @@ PMS::DataColumn MSCache::checkReqDataColumn(PMS::DataColumn reqDataCol) {
             break;
         }
         case PMS::CORRECTED:
-        case PMS::CORRECTED_DIVIDE_MODEL:
-        case PMS::CORRMODEL: {
+        case PMS::CORRMODEL_V:
+        case PMS::CORRMODEL_S:
+        case PMS::CORR_DIV_MODEL_V:
+        case PMS::CORR_DIV_MODEL_S: {
             // requested corrected data but no (real or OTF) corrected column
             if (!corcolOk && !calibration_.useCallib()) {
                 if (datacolOk) {
@@ -366,10 +368,14 @@ String MSCache::normalizeColumnName(String plotmscol)
 {
 	// Convert datacolumn as needed for MSTransformManager
     String colname = plotmscol;
-	if ((plotmscol == "corrected-model") || 
-	    (plotmscol == "data-model") ||
-	    (plotmscol == "data/model") || 
-	    (plotmscol == "corrected/model")) {
+	if ((plotmscol == "corrected-model_vector") || 
+	    (plotmscol == "corrected-model_scalar") ||
+	    (plotmscol == "data-model_vector") ||
+	    (plotmscol == "data-model_scalar") ||
+	    (plotmscol == "data/model_vector") || 
+	    (plotmscol == "data/model_scalar") || 
+	    (plotmscol == "corrected/model_vector") ||
+	    (plotmscol == "corrected/model_scalar")) {
 			colname = "ALL";
 	} else if (plotmscol == "float") {
 		colname = "FLOAT_DATA";
@@ -1050,18 +1056,22 @@ void MSCache::forceVBread(vi::VisBuffer2* vb,
 				vb->visCubeCorrected();
 				break;
 			}
-			case PMS::CORRECTED_DIVIDE_MODEL:
-			case PMS::CORRMODEL: {
+			case PMS::CORRMODEL_V:
+			case PMS::CORRMODEL_S:
+			case PMS::CORR_DIV_MODEL_V:
+			case PMS::CORR_DIV_MODEL_S: {
 				vb->visCubeCorrected();
 				vb->visCubeModel();
 				break;
 			}
-			case PMS::DATAMODEL: {
+			case PMS::DATAMODEL_V:
+			case PMS::DATAMODEL_S: {
 				vb->visCube();
 				vb->visCubeModel();
 				break;
 			}
-			case PMS::DATA_DIVIDE_MODEL: {
+			case PMS::DATA_DIV_MODEL_V:
+			case PMS::DATA_DIV_MODEL_S: {
 				vb->visCube();
 				vb->visCubeModel();
 				break;
@@ -1113,14 +1123,18 @@ void MSCache::discernData(vector<PMS::Axis> loadAxes,
 				vba.setDoCVC();
 				break;
 			}
-			case PMS::CORRECTED_DIVIDE_MODEL:
-			case PMS::CORRMODEL: {
+			case PMS::CORRMODEL_V:
+			case PMS::CORRMODEL_S:
+			case PMS::CORR_DIV_MODEL_V:
+			case PMS::CORR_DIV_MODEL_S: {
 				vba.setDoCVC();
 				vba.setDoMVC();
 				break;
 			}
-			case PMS::DATAMODEL:
-			case PMS::DATA_DIVIDE_MODEL: {
+			case PMS::DATAMODEL_V:
+			case PMS::DATAMODEL_S:
+			case PMS::DATA_DIV_MODEL_V: 
+			case PMS::DATA_DIV_MODEL_S: {
 				vba.setDoVC();
 				vba.setDoMVC();
                 break;
@@ -1152,39 +1166,30 @@ void MSCache::discernData(vector<PMS::Axis> loadAxes,
 
 }
 
-
-
-
 void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		PMS::DataColumn data) {
-
 	switch(axis) {
 
 	case PMS::SCAN: { // assumes scan unique in VB
 		scan_(vbnum) = vb->scan()(0);
 		break;
     }
-
 	case PMS::FIELD: { // assumes field unique in VB
 		field_(vbnum) = vb->fieldId()(0);
 		break;
     }
-
 	case PMS::TIME: { // assumes time unique in VB
 		time_(vbnum) = vb->time()(0);
 		break;
     }
-
 	case PMS::TIME_INTERVAL: { // assumes timeInterval unique in VB
 		timeIntr_(vbnum) = vb->timeInterval()(0);
 		break;
     }
-
 	case PMS::SPW: {
 		spw_(vbnum) = vb->spectralWindows()(0);
 		break;
     }
-
 	case PMS::CHANNEL: {
         Vector<Int> chans = vb->getChannelNumbers(0);
         *chan_[vbnum] = chans;
@@ -1218,7 +1223,6 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		*vel_[vbnum] = calcVelocity(vb); 
 		break;
 	}
-
 	case PMS::CORR: {
         Vector<Stokes::StokesTypes> corrTypes = vb->getCorrelationTypesSelected();
         Vector<Int> corrTypesInt;
@@ -1229,7 +1233,6 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		*corr_[vbnum] = corrTypesInt;
 		break;
     }
-
 	case PMS::ANTENNA1: {
 		*antenna1_[vbnum] = vb->antenna1();
 		break;
@@ -1282,7 +1285,6 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		}
 		break;
 	}
-
 	case PMS::UWAVE: {
 		Vector<Double> uM(vb->uvw().row(0));
 		uM/=C::c;
@@ -1395,40 +1397,60 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 			    *ampCorr_[vbnum] = amplitude(vb->visCubeCorrected());
 			break;
 		}
-		case PMS::CORRMODEL: {
+		case PMS::CORRMODEL_V: {
             if (averaging_.scalarAve()) 
-			  *ampCorrModel_[vbnum] = 
-                real(vb->visCubeCorrected() - vb->visCubeModel());
+			  *ampCorrModel_[vbnum] = real(vb->visCubeCorrected() - vb->visCubeModel());
             else
-			  *ampCorrModel_[vbnum] = 
-                amplitude(vb->visCubeCorrected() - vb->visCubeModel());
+			  *ampCorrModel_[vbnum] = amplitude(vb->visCubeCorrected() - vb->visCubeModel());
 			break;
 		}
-		case PMS::DATAMODEL: {
+		case PMS::CORRMODEL_S: {
             if (averaging_.scalarAve()) 
-			  *ampDataModel_[vbnum] = 
-                real(vb->visCube() - vb->visCubeModel());
+			  *ampCorrModelS_[vbnum] = real(vb->visCubeCorrected()) - real(vb->visCubeModel());
             else
-			  *ampDataModel_[vbnum] = 
-                amplitude(vb->visCube() - vb->visCubeModel());
+			  *ampCorrModelS_[vbnum] = amplitude(vb->visCubeCorrected()) - amplitude(vb->visCubeModel());
 			break;
 		}
-		case PMS::DATA_DIVIDE_MODEL: {
+		case PMS::DATAMODEL_V: {
             if (averaging_.scalarAve()) 
-			  *ampDataDivModel_[vbnum] = 
-                real( vb->visCube() / vb->visCubeModel());
+			  *ampDataModel_[vbnum] = real(vb->visCube() - vb->visCubeModel());
             else
-			  *ampDataDivModel_[vbnum] = 
-                amplitude( vb->visCube() / vb->visCubeModel());
+			  *ampDataModel_[vbnum] = amplitude(vb->visCube() - vb->visCubeModel());
 			break;
 		}
-		case PMS::CORRECTED_DIVIDE_MODEL: {
+		case PMS::DATAMODEL_S: {
             if (averaging_.scalarAve()) 
-			  *ampCorrDivModel_[vbnum] = 
-                real( vb->visCubeCorrected() / vb->visCubeModel());
+			  *ampDataModelS_[vbnum] = real(vb->visCube()) - real(vb->visCubeModel());
             else
-			  *ampCorrDivModel_[vbnum] = 
-                amplitude( vb->visCubeCorrected() / vb->visCubeModel());
+			  *ampDataModelS_[vbnum] = amplitude(vb->visCube()) - amplitude(vb->visCubeModel());
+			break;
+		}
+		case PMS::DATA_DIV_MODEL_V: {
+            if (averaging_.scalarAve()) 
+			  *ampDataDivModel_[vbnum] = real(vb->visCube() / vb->visCubeModel());
+            else
+			  *ampDataDivModel_[vbnum] = amplitude(vb->visCube() / vb->visCubeModel());
+			break;
+		}
+		case PMS::DATA_DIV_MODEL_S: {
+            if (averaging_.scalarAve()) 
+			  *ampDataDivModelS_[vbnum] = real(vb->visCube()) / real(vb->visCubeModel());
+            else
+			  *ampDataDivModelS_[vbnum] = amplitude(vb->visCube()) / amplitude(vb->visCubeModel());
+			break;
+		}
+		case PMS::CORR_DIV_MODEL_V: {
+            if (averaging_.scalarAve()) 
+			  *ampCorrDivModel_[vbnum] = real(vb->visCubeCorrected() / vb->visCubeModel());
+            else
+			  *ampCorrDivModel_[vbnum] = amplitude(vb->visCubeCorrected() / vb->visCubeModel());
+			break;
+		}
+		case PMS::CORR_DIV_MODEL_S: {
+            if (averaging_.scalarAve()) 
+			  *ampCorrDivModelS_[vbnum] = real(vb->visCubeCorrected()) / real(vb->visCubeModel());
+            else
+			  *ampCorrDivModelS_[vbnum] = amplitude(vb->visCubeCorrected()) / amplitude(vb->visCubeModel());
 			break;
 		}
 		case PMS::FLOAT_DATA: {
@@ -1461,40 +1483,60 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 			    *phaCorr_[vbnum] = phase(vb->visCubeCorrected()) * 180.0 / C::pi;
 			break;
 		}
-		case PMS::CORRMODEL: {
+		case PMS::CORRMODEL_V: {
             if (averaging_.scalarAve()) 
-			*phaCorrModel_[vbnum] = 
-                imag(vb->visCubeCorrected() - vb->visCubeModel()) * 180.0 / C::pi;
+			*phaCorrModel_[vbnum] = imag(vb->visCubeCorrected() - vb->visCubeModel()) * 180.0 / C::pi;
             else
-			*phaCorrModel_[vbnum] = 
-                phase(vb->visCubeCorrected() - vb->visCubeModel()) * 180.0 / C::pi;
+			*phaCorrModel_[vbnum] = phase(vb->visCubeCorrected() - vb->visCubeModel()) * 180.0 / C::pi;
 			break;
 		}
-		case PMS::DATAMODEL: {
+		case PMS::CORRMODEL_S: {
             if (averaging_.scalarAve()) 
-			    *phaDataModel_[vbnum] = 
-                    imag(vb->visCube() - vb->visCubeModel()) * 180.0 / C::pi;
+			*phaCorrModelS_[vbnum] = (imag(vb->visCubeCorrected()) - imag(vb->visCubeModel())) * 180.0 / C::pi;
             else
-			    *phaDataModel_[vbnum] = 
-                    phase(vb->visCube() - vb->visCubeModel()) * 180.0 / C::pi;
+			*phaCorrModelS_[vbnum] = (phase(vb->visCubeCorrected()) - phase(vb->visCubeModel())) * 180.0 / C::pi;
 			break;
 		}
-		case PMS::DATA_DIVIDE_MODEL: {
+		case PMS::DATAMODEL_V: {
             if (averaging_.scalarAve()) 
-			    *phaDataDivModel_[vbnum] = 
-                    imag(vb->visCube() / vb->visCubeModel()) * 180.0 / C::pi;
+			    *phaDataModel_[vbnum] = imag(vb->visCube() - vb->visCubeModel()) * 180.0 / C::pi;
             else
-			    *phaDataDivModel_[vbnum] = 
-                    phase(vb->visCube() / vb->visCubeModel()) * 180.0 / C::pi;
+			    *phaDataModel_[vbnum] = phase(vb->visCube() - vb->visCubeModel()) * 180.0 / C::pi;
 			break;
 		}
-		case PMS::CORRECTED_DIVIDE_MODEL: {
+		case PMS::DATAMODEL_S: {
             if (averaging_.scalarAve()) 
-			    *phaCorrDivModel_[vbnum] = 
-                  imag(vb->visCubeCorrected() / vb->visCubeModel()) * 180.0 / C::pi;
+			    *phaDataModelS_[vbnum] = (imag(vb->visCube()) - imag(vb->visCubeModel())) * 180.0 / C::pi;
             else
-			    *phaCorrDivModel_[vbnum] = 
-                  phase(vb->visCubeCorrected() / vb->visCubeModel()) * 180.0 / C::pi;
+			    *phaDataModel_[vbnum] = (phase(vb->visCube()) - phase(vb->visCubeModel())) * 180.0 / C::pi;
+			break;
+		}
+		case PMS::DATA_DIV_MODEL_V: {
+            if (averaging_.scalarAve()) 
+			    *phaDataDivModel_[vbnum] = imag(vb->visCube() / vb->visCubeModel()) * 180.0 / C::pi;
+            else
+			    *phaDataDivModel_[vbnum] = phase(vb->visCube() / vb->visCubeModel()) * 180.0 / C::pi;
+			break;
+		}
+		case PMS::DATA_DIV_MODEL_S: {
+            if (averaging_.scalarAve()) 
+			    *phaDataDivModelS_[vbnum] = (imag(vb->visCube()) / imag(vb->visCubeModel())) * 180.0 / C::pi;
+            else
+			    *phaDataDivModelS_[vbnum] = (phase(vb->visCube()) / phase(vb->visCubeModel())) * 180.0 / C::pi;
+			break;
+		}
+		case PMS::CORR_DIV_MODEL_V: {
+            if (averaging_.scalarAve()) 
+			    *phaCorrDivModel_[vbnum] = imag(vb->visCubeCorrected() / vb->visCubeModel()) * 180.0 / C::pi;
+            else
+			    *phaCorrDivModel_[vbnum] = phase(vb->visCubeCorrected() / vb->visCubeModel()) * 180.0 / C::pi;
+			break;
+		}
+		case PMS::CORR_DIV_MODEL_S: {
+            if (averaging_.scalarAve()) 
+			    *phaCorrDivModelS_[vbnum] = (imag(vb->visCubeCorrected()) / imag(vb->visCubeModel())) * 180.0 / C::pi;
+            else
+			    *phaCorrDivModelS_[vbnum] = (phase(vb->visCubeCorrected()) / phase(vb->visCubeModel())) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::FLOAT_DATA:  // should have caught this already
@@ -1502,7 +1544,6 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		}
 		break;
 	}
-
 	case PMS::REAL: {
 		switch(data) {
 		case PMS::DATA: {
@@ -1517,24 +1558,36 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 			*realCorr_[vbnum] = real(vb->visCubeCorrected());
 			break;
 		}
-		case PMS::CORRMODEL: {
-			*realCorrModel_[vbnum] = 
-                real(vb->visCubeCorrected()) - real(vb->visCubeModel());
+		case PMS::CORRMODEL_V: {
+			*realCorrModel_[vbnum] = real(vb->visCubeCorrected() - vb->visCubeModel());
 			break;
 		}
-		case PMS::DATAMODEL: {
-			*realDataModel_[vbnum] = 
-                real(vb->visCube()) - real(vb->visCubeModel());
+		case PMS::CORRMODEL_S: {
+			*realCorrModelS_[vbnum] = real(vb->visCubeCorrected()) - real(vb->visCubeModel());
 			break;
 		}
-		case PMS::DATA_DIVIDE_MODEL: {
-			*realDataDivModel_[vbnum] = 
-                real(vb->visCube()) / real(vb->visCubeModel());
+		case PMS::DATAMODEL_V: {
+			*realDataModel_[vbnum] = real(vb->visCube() - vb->visCubeModel());
 			break;
 		}
-		case PMS::CORRECTED_DIVIDE_MODEL: {
-			*realCorrDivModel_[vbnum] = 
-                real(vb->visCubeCorrected()) / real(vb->visCubeModel());
+		case PMS::DATAMODEL_S: {
+			*realDataModelS_[vbnum] = real(vb->visCube()) - real(vb->visCubeModel());
+			break;
+		}
+		case PMS::DATA_DIV_MODEL_V: {
+			*realDataDivModel_[vbnum] = real(vb->visCube() / vb->visCubeModel());
+			break;
+		}
+		case PMS::DATA_DIV_MODEL_S: {
+			*realDataDivModelS_[vbnum] = real(vb->visCube()) / real(vb->visCubeModel());
+			break;
+		}
+		case PMS::CORR_DIV_MODEL_V: {
+			*realCorrDivModel_[vbnum] = real(vb->visCubeCorrected() / vb->visCubeModel());
+			break;
+		}
+		case PMS::CORR_DIV_MODEL_S: {
+			*realCorrDivModelS_[vbnum] = real(vb->visCubeCorrected()) / real(vb->visCubeModel());
 			break;
 		}
 		case PMS::FLOAT_DATA: {
@@ -1558,24 +1611,36 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 			*imagCorr_[vbnum] = imag(vb->visCubeCorrected());
 			break;
 		}
-		case PMS::CORRMODEL: {
-			*imagCorrModel_[vbnum] = 
-                imag(vb->visCubeCorrected()) - imag(vb->visCubeModel());
+		case PMS::CORRMODEL_V: {
+			*imagCorrModel_[vbnum] = imag(vb->visCubeCorrected() - vb->visCubeModel());
 			break;
 		}
-		case PMS::DATAMODEL: {
-			*imagDataModel_[vbnum] = 
-                imag(vb->visCube()) - imag(vb->visCubeModel());
+		case PMS::CORRMODEL_S: {
+			*imagCorrModelS_[vbnum] = imag(vb->visCubeCorrected()) - imag(vb->visCubeModel());
 			break;
 		}
-		case PMS::DATA_DIVIDE_MODEL: {
-			*imagDataDivModel_[vbnum] = 
-                imag(vb->visCube()) / imag(vb->visCubeModel());
+		case PMS::DATAMODEL_V: {
+			*imagDataModel_[vbnum] = imag(vb->visCube() - vb->visCubeModel());
 			break;
 		}
-		case PMS::CORRECTED_DIVIDE_MODEL: {
-			*imagCorrDivModel_[vbnum] = 
-                imag(vb->visCubeCorrected()) / imag(vb->visCubeModel());
+		case PMS::DATAMODEL_S: {
+			*imagDataModelS_[vbnum] = imag(vb->visCube()) - imag(vb->visCubeModel());
+			break;
+		}
+		case PMS::DATA_DIV_MODEL_V: {
+			*imagDataDivModel_[vbnum] = imag(vb->visCube() / vb->visCubeModel());
+			break;
+		}
+		case PMS::DATA_DIV_MODEL_S: {
+			*imagDataDivModelS_[vbnum] = imag(vb->visCube()) / imag(vb->visCubeModel());
+			break;
+		}
+		case PMS::CORR_DIV_MODEL_V: {
+			*imagCorrDivModel_[vbnum] = imag(vb->visCubeCorrected() / vb->visCubeModel());
+			break;
+		}
+		case PMS::CORR_DIV_MODEL_S: {
+			*imagCorrDivModelS_[vbnum] = imag(vb->visCubeCorrected()) / imag(vb->visCubeModel());
 			break;
 		}
 		case PMS::FLOAT_DATA:  // should have caught this already
@@ -1583,7 +1648,6 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		}
 		break;
 	}
-
 	case PMS::FLAG: {
 		*flag_[vbnum] = vb->flagCube();
 		break;
@@ -1592,7 +1656,6 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		*flagrow_[vbnum] = vb->flagRow();
 		break;
 	}
-
 	case PMS::WT: {
 		*wt_[vbnum] = vb->weight();
 		break;
@@ -1604,82 +1667,96 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 	  		throw(AipsError("This MS does not have a valid WEIGHT_SPECTRUM column."));
         break;
 	}
-
 	case PMS::WTxAMP: {
 		uInt nchannels = vb->nChannels();
 		switch(data) {
 		case PMS::DATA: {
 			*wtxamp_[vbnum] = amplitude(vb->visCube());
 		    Cube<Float> wtA(*wtxamp_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c) {
+		    for(uInt c = 0; c < nchannels; ++c)
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
-		    }
 			break;
 		}
 		case PMS::MODEL: {
 			*wtxampModel_[vbnum] = amplitude(vb->visCubeModel());
 		    Cube<Float> wtA(*wtxampModel_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c) {
+		    for(uInt c = 0; c < nchannels; ++c)
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
-		    }
 			break;
 		}
 		case PMS::CORRECTED: {
 			*wtxampCorr_[vbnum] = amplitude(vb->visCubeCorrected());
 		    Cube<Float> wtA(*wtxampCorr_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c) {
+		    for(uInt c = 0; c < nchannels; ++c)
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
-		    }
 			break;
 		}
-		case PMS::CORRMODEL: {
-			*wtxampCorrModel_[vbnum] = 
-                amplitude(vb->visCubeCorrected() - vb->visCube());
+		case PMS::CORRMODEL_V: {
+			*wtxampCorrModel_[vbnum] = amplitude(vb->visCubeCorrected() - vb->visCube());
 		    Cube<Float> wtA(*wtxampCorrModel_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c) {
+		    for(uInt c = 0; c < nchannels; ++c)
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
-		    }
 			break;
 		}
-		case PMS::DATAMODEL: {
-			*wtxampDataModel_[vbnum] = 
-                amplitude(vb->visCube() - vb->visCubeModel());
+		case PMS::CORRMODEL_S: {
+			*wtxampCorrModelS_[vbnum] = amplitude(vb->visCubeCorrected()) - amplitude(vb->visCube());
+		    Cube<Float> wtA(*wtxampCorrModelS_[vbnum]);
+		    for(uInt c = 0; c < nchannels; ++c) 
+			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			break;
+		}
+		case PMS::DATAMODEL_V: {
+			*wtxampDataModel_[vbnum] = amplitude(vb->visCube() - vb->visCubeModel());
 		    Cube<Float> wtA(*wtxampDataModel_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c) {
+		    for(uInt c = 0; c < nchannels; ++c) 
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
-		    }
 			break;
 		}
-		case PMS::DATA_DIVIDE_MODEL: {
-			*wtxampDataDivModel_[vbnum] = 
-                amplitude(vb->visCube() / vb->visCubeModel());
+		case PMS::DATAMODEL_S: {
+			*wtxampDataModelS_[vbnum] = amplitude(vb->visCube()) - amplitude(vb->visCubeModel());
+		    Cube<Float> wtA(*wtxampDataModelS_[vbnum]);
+		    for(uInt c = 0; c < nchannels; ++c) 
+			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			break;
+		}
+		case PMS::DATA_DIV_MODEL_V: {
+			*wtxampDataDivModel_[vbnum] = amplitude(vb->visCube() / vb->visCubeModel());
 		    Cube<Float> wtA(*wtxampDataDivModel_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c) {
+		    for(uInt c = 0; c < nchannels; ++c)
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
-		    }
 			break;
 		}
-		case PMS::CORRECTED_DIVIDE_MODEL: {
-			*wtxampCorrDivModel_[vbnum] = 
-                amplitude(vb->visCubeCorrected() / vb->visCubeModel());
-		    Cube<Float> wtA(*wtxampCorrDivModel_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c) {
+		case PMS::DATA_DIV_MODEL_S: {
+			*wtxampDataDivModelS_[vbnum] = amplitude(vb->visCube()) / amplitude(vb->visCubeModel());
+		    Cube<Float> wtA(*wtxampDataDivModelS_[vbnum]);
+		    for(uInt c = 0; c < nchannels; ++c)
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
-		    }
+			break;
+		}
+		case PMS::CORR_DIV_MODEL_V: {
+			*wtxampCorrDivModel_[vbnum] = amplitude(vb->visCubeCorrected() / vb->visCubeModel());
+		    Cube<Float> wtA(*wtxampCorrDivModel_[vbnum]);
+		    for(uInt c = 0; c < nchannels; ++c)
+			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			break;
+		}
+		case PMS::CORR_DIV_MODEL_S: {
+			*wtxampCorrDivModelS_[vbnum] = amplitude(vb->visCubeCorrected()) / amplitude(vb->visCubeModel());
+		    Cube<Float> wtA(*wtxampCorrDivModelS_[vbnum]);
+		    for(uInt c = 0; c < nchannels; ++c)
+			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::FLOAT_DATA: {
 			*wtxampFloat_[vbnum] = vb->visCubeFloat();
 		    Cube<Float> wtA(*wtxampFloat_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c) {
+		    for(uInt c = 0; c < nchannels; ++c)
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
-		    }
 			break;
 		}
 		}
         break;
 	}
-
 	case PMS::SIGMA: {
 		*sigma_[vbnum] = vb->sigma();
 		break;
@@ -1688,7 +1765,6 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		*sigmasp_[vbnum] = vb->sigmaSpectrum();
 		break;
 	}
-
 	case PMS::AZ0:
 	case PMS::EL0: {
 		MDirection azelMDir = vb->azel0(vb->time()(0));
@@ -1697,7 +1773,6 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		el0_(vbnum) = azelVec(1);
 		break;
 	}
-
 	case PMS::HA0: {
 		ha0_(vbnum) = vb->hourang(vb->time()(0))*12/C::pi;  // in hours
 		break;
@@ -1742,23 +1817,19 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		*parang_[vbnum] = vb->feedPa(vb->time()(0))*(180.0/C::pi);  // in degrees
 		break;
 	}
-
 	case PMS::ROW: {
 		*row_[vbnum] = vb->rowIds();
 		break;
 	}
-
 	case PMS::OBSERVATION: {
 		*obsid_[vbnum] = vb->observationId();
 		break;
 	}
-
 	case PMS::INTENT:{
 		Vector<Int> states = vb->stateId();
 		*intent_[vbnum] = assignIntentIds(states);
 		break;
 	}
-
 	case PMS::FEED1:{
 		*feed1_[vbnum] = vb->feed1();
 		break;
@@ -1767,7 +1838,6 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		*feed2_[vbnum] = vb->feed2();
 		break;
 	}
-
     case PMS::ATM:
     case PMS::TSKY: {
         casacore::Int spw = vb->spectralWindows()(0);

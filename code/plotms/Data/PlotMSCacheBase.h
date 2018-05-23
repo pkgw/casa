@@ -206,42 +206,62 @@ public:
   inline casacore::Double getAmpCorr(casacore::Int chnk,casacore::Int irel)  { return *(ampCorr_[chnk]->data()+irel); };
   inline casacore::Double getAmpModel(casacore::Int chnk,casacore::Int irel)  { return *(ampModel_[chnk]->data()+irel); };
   inline casacore::Double getAmpCorrMod(casacore::Int chnk,casacore::Int irel)  { return *(ampCorrModel_[chnk]->data()+irel); };
+  inline casacore::Double getAmpCorrModS(casacore::Int chnk,casacore::Int irel)  { return *(ampCorrModelS_[chnk]->data()+irel); };
   inline casacore::Double getAmpDataMod(casacore::Int chnk,casacore::Int irel)  { return *(ampDataModel_[chnk]->data()+irel); };
+  inline casacore::Double getAmpDataModS(casacore::Int chnk,casacore::Int irel)  { return *(ampDataModelS_[chnk]->data()+irel); };
   inline casacore::Double getAmpDataDivMod(casacore::Int chnk,casacore::Int irel)  { return *(ampDataDivModel_[chnk]->data()+irel); };
+  inline casacore::Double getAmpDataDivModS(casacore::Int chnk,casacore::Int irel)  { return *(ampDataDivModelS_[chnk]->data()+irel); };
   inline casacore::Double getAmpCorrDivMod(casacore::Int chnk,casacore::Int irel)  { return *(ampCorrDivModel_[chnk]->data()+irel); };
+  inline casacore::Double getAmpCorrDivModS(casacore::Int chnk,casacore::Int irel)  { return *(ampCorrDivModelS_[chnk]->data()+irel); };
   inline casacore::Double getAmpFloat(casacore::Int chnk,casacore::Int irel)  { return *(ampFloat_[chnk]->data()+irel); };
 
   inline casacore::Double getPha(casacore::Int chnk,casacore::Int irel)  { return *(pha_[chnk]->data()+irel); };
   inline casacore::Double getPhaCorr(casacore::Int chnk,casacore::Int irel)  { return *(phaCorr_[chnk]->data()+irel); };
   inline casacore::Double getPhaModel(casacore::Int chnk,casacore::Int irel)  { return *(phaModel_[chnk]->data()+irel); };
   inline casacore::Double getPhaCorrMod(casacore::Int chnk,casacore::Int irel)  { return *(phaCorrModel_[chnk]->data()+irel); };
+  inline casacore::Double getPhaCorrModS(casacore::Int chnk,casacore::Int irel)  { return *(phaCorrModelS_[chnk]->data()+irel); };
   inline casacore::Double getPhaDataMod(casacore::Int chnk,casacore::Int irel)  { return *(phaDataModel_[chnk]->data()+irel); };
+  inline casacore::Double getPhaDataModS(casacore::Int chnk,casacore::Int irel)  { return *(phaDataModelS_[chnk]->data()+irel); };
   inline casacore::Double getPhaDataDivMod(casacore::Int chnk,casacore::Int irel)  { return *(phaDataDivModel_[chnk]->data()+irel); };
+  inline casacore::Double getPhaDataDivModS(casacore::Int chnk,casacore::Int irel)  { return *(phaDataDivModelS_[chnk]->data()+irel); };
   inline casacore::Double getPhaCorrDivMod(casacore::Int chnk,casacore::Int irel)  { return *(phaCorrDivModel_[chnk]->data()+irel); };
+  inline casacore::Double getPhaCorrDivModS(casacore::Int chnk,casacore::Int irel)  { return *(phaCorrDivModelS_[chnk]->data()+irel); };
 
   inline casacore::Double getReal(casacore::Int chnk,casacore::Int irel) { return *(real_[chnk]->data()+irel); };
   inline casacore::Double getRealCorr(casacore::Int chnk,casacore::Int irel)  { return *(realCorr_[chnk]->data()+irel); };
   inline casacore::Double getRealModel(casacore::Int chnk,casacore::Int irel)  { return *(realModel_[chnk]->data()+irel); };
   inline casacore::Double getRealCorrMod(casacore::Int chnk,casacore::Int irel)  { return *(realCorrModel_[chnk]->data()+irel); };
+  inline casacore::Double getRealCorrModS(casacore::Int chnk,casacore::Int irel)  { return *(realCorrModelS_[chnk]->data()+irel); };
   inline casacore::Double getRealDataMod(casacore::Int chnk,casacore::Int irel)  { return *(realDataModel_[chnk]->data()+irel); };
+  inline casacore::Double getRealDataModS(casacore::Int chnk,casacore::Int irel)  { return *(realDataModelS_[chnk]->data()+irel); };
   inline casacore::Double getRealDataDivMod(casacore::Int chnk,casacore::Int irel)  { return *(realDataDivModel_[chnk]->data()+irel); };
+  inline casacore::Double getRealDataDivModS(casacore::Int chnk,casacore::Int irel)  { return *(realDataDivModelS_[chnk]->data()+irel); };
   inline casacore::Double getRealCorrDivMod(casacore::Int chnk,casacore::Int irel)  { return *(realCorrDivModel_[chnk]->data()+irel); };
+  inline casacore::Double getRealCorrDivModS(casacore::Int chnk,casacore::Int irel)  { return *(realCorrDivModelS_[chnk]->data()+irel); };
 
   inline casacore::Double getImag(casacore::Int chnk,casacore::Int irel) { return *(imag_[chnk]->data()+irel); };
   inline casacore::Double getImagCorr(casacore::Int chnk,casacore::Int irel)  { return *(imagCorr_[chnk]->data()+irel); };
   inline casacore::Double getImagModel(casacore::Int chnk,casacore::Int irel)  { return *(imagModel_[chnk]->data()+irel); };
   inline casacore::Double getImagCorrMod(casacore::Int chnk,casacore::Int irel)  { return *(imagCorrModel_[chnk]->data()+irel); };
+  inline casacore::Double getImagCorrModS(casacore::Int chnk,casacore::Int irel)  { return *(imagCorrModelS_[chnk]->data()+irel); };
   inline casacore::Double getImagDataMod(casacore::Int chnk,casacore::Int irel)  { return *(imagDataModel_[chnk]->data()+irel); };
+  inline casacore::Double getImagDataModS(casacore::Int chnk,casacore::Int irel)  { return *(imagDataModelS_[chnk]->data()+irel); };
   inline casacore::Double getImagDataDivMod(casacore::Int chnk,casacore::Int irel)  { return *(imagDataDivModel_[chnk]->data()+irel); };
+  inline casacore::Double getImagDataDivModS(casacore::Int chnk,casacore::Int irel)  { return *(imagDataDivModelS_[chnk]->data()+irel); };
   inline casacore::Double getImagCorrDivMod(casacore::Int chnk,casacore::Int irel)  { return *(imagCorrDivModel_[chnk]->data()+irel); };
+  inline casacore::Double getImagCorrDivModS(casacore::Int chnk,casacore::Int irel)  { return *(imagCorrDivModelS_[chnk]->data()+irel); };
 
   inline casacore::Double getWtxAmp(casacore::Int chnk, casacore::Int irel) { return *(wtxamp_[chnk]->data()+irel); }
   inline casacore::Double getWtxAmpCorr(casacore::Int chnk,casacore::Int irel)  { return *(wtxampCorr_[chnk]->data()+irel); };
   inline casacore::Double getWtxAmpModel(casacore::Int chnk,casacore::Int irel)  { return *(wtxampModel_[chnk]->data()+irel); };
   inline casacore::Double getWtxAmpCorrMod(casacore::Int chnk,casacore::Int irel)  { return *(wtxampCorrModel_[chnk]->data()+irel); };
+  inline casacore::Double getWtxAmpCorrModS(casacore::Int chnk,casacore::Int irel)  { return *(wtxampCorrModelS_[chnk]->data()+irel); };
   inline casacore::Double getWtxAmpDataMod(casacore::Int chnk,casacore::Int irel)  { return *(wtxampDataModel_[chnk]->data()+irel); };
+  inline casacore::Double getWtxAmpDataModS(casacore::Int chnk,casacore::Int irel)  { return *(wtxampDataModelS_[chnk]->data()+irel); };
   inline casacore::Double getWtxAmpDataDivMod(casacore::Int chnk,casacore::Int irel)  { return *(wtxampDataDivModel_[chnk]->data()+irel); };
+  inline casacore::Double getWtxAmpDataDivModS(casacore::Int chnk,casacore::Int irel)  { return *(wtxampDataDivModelS_[chnk]->data()+irel); };
   inline casacore::Double getWtxAmpCorrDivMod(casacore::Int chnk,casacore::Int irel)  { return *(wtxampCorrDivModel_[chnk]->data()+irel); };
+  inline casacore::Double getWtxAmpCorrDivModS(casacore::Int chnk,casacore::Int irel)  { return *(wtxampCorrDivModelS_[chnk]->data()+irel); };
   inline casacore::Double getWtxAmpFloat(casacore::Int chnk,casacore::Int irel)  { return *(wtxampFloat_[chnk]->data()+irel); };
 
   inline casacore::Double getFlag(casacore::Int chnk,casacore::Int irel) { return *(flag_[chnk]->data()+irel); };
@@ -444,20 +464,26 @@ protected:
 
   // casacore::Data (the heavy part)
   casacore::PtrBlock<casacore::Array<casacore::Float>*> amp_, 
-      ampCorr_, ampModel_, ampCorrModel_, ampDataModel_, 
-      ampDataDivModel_, ampCorrDivModel_, ampFloat_;
+      ampCorr_, ampModel_, ampCorrModel_, ampCorrModelS_, ampDataModel_, 
+      ampDataModelS_, ampDataDivModel_, ampDataDivModelS_, ampCorrDivModel_,
+	  ampCorrDivModelS_, ampFloat_;
   casacore::PtrBlock<casacore::Array<casacore::Float>*> pha_, 
-      phaCorr_, phaModel_, phaCorrModel_, phaDataModel_, 
-      phaDataDivModel_, phaCorrDivModel_;  // no phase for FLOAT_DATA
+      phaCorr_, phaModel_, phaCorrModel_, phaCorrModelS_, phaDataModel_, 
+      phaDataModelS_, phaDataDivModel_, phaDataDivModelS_, phaCorrDivModel_,
+	  phaCorrDivModelS_;  // no phase for FLOAT_DATA
   casacore::PtrBlock<casacore::Array<casacore::Float>*> real_, 
-      realCorr_, realModel_, realCorrModel_, realDataModel_,
-      realDataDivModel_, realCorrDivModel_;  // use real_ for FLOAT_DATA
+      realCorr_, realModel_, realCorrModel_, realCorrModelS_, realDataModel_,
+      realDataModelS_, realDataDivModel_, realDataDivModelS_, realCorrDivModel_,
+	  realCorrDivModelS_;  // use real_ for FLOAT_DATA
   casacore::PtrBlock<casacore::Array<casacore::Float>*> imag_,
-      imagCorr_, imagModel_, imagCorrModel_, imagDataModel_,
-      imagDataDivModel_, imagCorrDivModel_;  // no imag for FLOAT_DATA
+      imagCorr_, imagModel_, imagCorrModel_, imagCorrModelS_, imagDataModel_,
+      imagDataModelS_, imagDataDivModel_, imagDataDivModelS_, imagCorrDivModel_,
+	  imagCorrDivModelS_;  // no imag for FLOAT_DATA
   casacore::PtrBlock<casacore::Array<casacore::Float>*> wtxamp_,
-      wtxampCorr_, wtxampModel_, wtxampCorrModel_, wtxampDataModel_, 
-      wtxampDataDivModel_, wtxampCorrDivModel_, wtxampFloat_;
+      wtxampCorr_, wtxampModel_, wtxampCorrModel_, wtxampCorrModelS_,
+	  wtxampDataModel_, wtxampDataModelS_, wtxampDataDivModel_, 
+	  wtxampDataDivModelS_, wtxampCorrDivModel_, wtxampCorrDivModelS_,
+	  wtxampFloat_;
 
   casacore::PtrBlock<casacore::Array<casacore::Bool>*> flag_;
   casacore::PtrBlock<casacore::Vector<casacore::Bool>*> flagrow_;
