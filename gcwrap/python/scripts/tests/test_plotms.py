@@ -500,7 +500,7 @@ class test_axis(plotms_test_base):
             self.assertTrue(res)
             minSize = 200000
             if datacol is 'model':
-                minSize = 50000
+                minSize = 40000
             self.checkPlotfile(plotfile, minSize)
             self.removePlotfile(plotfile)
         print
