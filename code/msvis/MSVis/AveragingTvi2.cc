@@ -618,7 +618,7 @@ protected:
 
     };
 
-    pair<Bool, Vector<Double> > accumulateCubeData (MsRow * rowInput, MsRowAvg * rowAveraged);
+    std::pair<Bool, Vector<Double> > accumulateCubeData (MsRow * rowInput, MsRowAvg * rowAveraged);
     void accumulateElementForCubes (AccumulationParameters & accumulationParameters,
                                     Bool zeroAccumulation);
     template<typename T>
@@ -1048,7 +1048,7 @@ VbAvg::accumulateElementForCube (const T * unweightedValue,
 }
 
 
-pair<Bool, Vector<Double> >
+std::pair<Bool, Vector<Double> >
 VbAvg::accumulateCubeData (MsRow * rowInput, MsRowAvg * rowAveraged)
 {
     // Accumulate the sums needed for averaging of cube data (e.g., visibility).

@@ -83,7 +83,7 @@ def predictcomp(objname=None, standard=None, epoch=None,
         else:
             nfreqs = 1
         freqs = pl.linspace(minfreqHz, maxfreqHz, nfreqs)
-
+        
         myme = metool()
         mepoch = myme.epoch('UTC', epoch)
         #if not prefix:
@@ -132,6 +132,26 @@ def predictcomp(objname=None, standard=None, epoch=None,
             casalog.post('Error creating a local im instance.', 'SEVERE')
             return False
         #print "FREQS=",freqs
+         # output CL file name is fixed : prefix+"spw0_"+minfreq+mepoch.cl
+        minfreqGHz = qa.convert(qa.quantity(minfreq), 'GHz')['value']
+        decimalfreq = minfreqGHz - int(minfreqGHz)
+        decimalepoch =  mepoch['m0']['value'] - int(mepoch['m0']['value'])
+        if decimalfreq == 0.0:
+            minfreqGHzStr = str(int(minfreqGHz))+'GHz'
+        else :
+            minfreqGHzStr = str(minfreqGHz)+'GHz'
+
+        if decimalepoch == 0.0:
+            epochStr = str(int(mepoch['m0']['value']))+'d'
+        else:
+            epochStr=str(mepoch['m0']['value'])+'d'
+        outfilename = "spw0_"+objname+"_"+minfreqGHzStr+epochStr+'.cl'
+        outfilename = prefix+outfilename
+        if (os.path.exists(outfilename) and os.path.isdir(outfilename)) :
+
+          shutil.rmtree(outfilename)
+          casalog.post("Removing the existing componentlist, "+outfilename)
+ 
         if standard=='Butler-JPL-Horizons 2012':
             clist = predictSolarObjectCompList(objname, mepoch, freqs.tolist(), prefix)
         else:

@@ -6,7 +6,7 @@ xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 
-<task type="function" name="importnro" category="singledish" >
+<task type="function" name="importnro" category="single dish, import/export" >
 
   <shortdescription>Convert NOSTAR data into a CASA visibility file (MS)</shortdescription>
 
@@ -36,7 +36,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
   <returns type="bool"/>
 
-  <example>		          
+  <example>
 Keyword arguments:
 asdm -- Name of input NOSTAR data
         default: none; example: asdm='mydata.Y'

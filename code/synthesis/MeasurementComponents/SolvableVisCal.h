@@ -233,11 +233,24 @@ public:
   inline virtual casacore::Cube<casacore::Bool>&    solveParOK()  {return (*solveParOK_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveParErr() {return (*solveParErr_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveParSNR() {return (*solveParSNR_[currSpw()]);};
+
   inline virtual casacore::Cube<casacore::Complex>& solveAllCPar()   {return (*solveAllCPar_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float>&   solveAllRPar()   {return (*solveAllRPar_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Bool>&    solveAllParOK()  {return (*solveAllParOK_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveAllParErr() {return (*solveAllParErr_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveAllParSNR() {return (*solveAllParSNR_[currSpw()]);};
+
+  // Access to per-spw solution parameters and matrices
+  inline virtual void solveAllCPar(casacore::Int spw, casacore::Cube<casacore::Complex>& cparSpw)
+  	{ if (spw<nSpw()) cparSpw = (*solveAllCPar_[spw]);}
+  inline virtual void solveAllRPar(casacore::Int spw, casacore::Cube<casacore::Float>& rparSpw)
+    { if (spw<nSpw()) rparSpw = (*solveAllRPar_[spw]);}
+  inline virtual void solveAllParOK(casacore::Int spw, casacore::Cube<casacore::Bool>& parokSpw)
+    { if (spw<nSpw()) parokSpw = (*solveAllParOK_[spw]);}
+  inline virtual void solveAllParErr(casacore::Int spw, casacore::Cube<casacore::Float>& parerrSpw) 
+    { if (spw<nSpw()) parerrSpw = (*solveAllParErr_[spw]);}
+  inline virtual void solveAllParSNR(casacore::Int spw, casacore::Cube<casacore::Float>& parsnrSpw) 
+    { if (spw<nSpw()) parsnrSpw = (*solveAllParSNR_[spw]);}
 
   // Access to source pol parameters
   inline casacore::Vector<casacore::Complex>& srcPolPar() { return srcPolPar_; };
@@ -247,7 +260,6 @@ public:
   casacore::Bool syncSolveMeta(VisBuffer& vb, const casacore::Int& fieldId);
   casacore::Bool syncSolveMeta(VisBuffGroupAcc& vbga);
   void syncSolveMeta(SDBList& sdbs);  // VI2   (valid data now checked elsewhere)
-
   // Provide for override of currScan and currObs
   void overrideObsScan(casacore::Int obs, casacore::Int scan);
 

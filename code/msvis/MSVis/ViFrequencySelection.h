@@ -291,7 +291,7 @@ public:
 
 private:
 
-    typedef std::set<pair<casacore::Int, casacore::Int> > SelectedWindows; // pair=(msIndex,spwId)
+    typedef std::set<std::pair<casacore::Int, casacore::Int> > SelectedWindows; // pair=(msIndex,spwId)
 
     const FrequencySelectionUsingChannels defaultSelection_p;
     mutable casacore::Int filterWindow_p;
