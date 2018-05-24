@@ -72,59 +72,32 @@ class test_base(unittest.TestCase):
     def setUp_ngc5921(self):
         # data set with spw=0, 63 channels in LSRK
         test_base.vis = "ngc5921.ms"
-
-        if os.path.exists(self.vis):
-           self.cleanup()
-
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)
+        self._setup_std_reusing_input_vis(self.vis)
 
     def setUp_4ants(self):
         # data set with spw=0~15, 64 channels each in TOPO
         test_base.vis = "Four_ants_3C286.ms"
-
-        if os.path.exists(self.vis):
-           self.cleanup()
-
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)
+        self._setup_std_reusing_input_vis(self.vis)
 
     def setUp_jupiter(self):
         # data col, spw=0,1 1 channel each, TOPO, field=0~12, 93 scans
         test_base.vis = 'jupiter6cm.demo-thinned.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)
+        self._setup_std_reusing_input_vis(self.vis)
 
     def setUp_g19(self):
         # data with spw=0~23 128 channel each in LSRK, field=0,1
         test_base.vis = 'g19_d2usb_targets_line-shortened-thinned.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)
+        self._setup_std_reusing_input_vis(self.vis)
 
     def setUp_CAS_5076(self):
 
         test_base.vis = 'CAS-5076.ms'
-
-        if os.path.exists(self.vis):
-           self.cleanup()
-
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)
+        self._setup_std_reusing_input_vis(self.vis)
 
     def setUp_almasim(self):
 
         test_base.vis = 'sim.alma.cycle0.compact.noisy.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)
+        self._setup_std_reusing_input_vis(self.vis)
 
     def setUp_floatcol(self):
         datapath = os.environ.get('CASAPATH').split()[0] + \
@@ -132,11 +105,7 @@ class test_base(unittest.TestCase):
 
         # 15 rows, 3 scans, 9 spw, mixed chans, XX,YY, FLOAT_DATA col
         test_base.vis = 'SDFloatColumn.ms'
-        if os.path.exists(self.vis):
-            self.cleanup()
-
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)
+        self._setup_std_reusing_input_vis(self.vis, datapath_sp=datapath)
 
     def setUp_3c84(self):
         # MS is as follows (scan=1):
@@ -147,124 +116,66 @@ class test_base(unittest.TestCase):
         #   2      64       RR  RL  LR  LL
 
         test_base.vis = '3c84scan1.ms'
-
-        if os.path.exists(self.vis):
-           self.cleanup()
-
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)
+        self._setup_std_reusing_input_vis(self.vis)
 
     def setUp_CAS_5013(self):
 
         test_base.vis = 'ALMA-data-mst-science-testing-CAS-5013-one-baseline-one-timestamp.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)
+        self._setup_std_reusing_input_vis(self.vis)
 
     def setUp_CAS_4850(self):
 
         test_base.vis = 'CAS-4850-30s-limit-ALMA.ms'
-
-        if os.path.exists(self.vis):
-           self.cleanup()
-
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)
+        self._setup_std_reusing_input_vis(self.vis)
 
     def setUp_CAS_4983(self):
 
         test_base.vis = 'CAS-4983.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-            
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)       
+        self._setup_std_reusing_input_vis(self.vis)
         
     def setUp_CAS_5172(self):
 
         test_base.vis = 'CAS-5172-phase-center.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-            
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)            
+        self._setup_std_reusing_input_vis(self.vis)
         
     def setUp_sub_tables_evla(self):
 
         test_base.vis = 'test-subtables-evla.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-            
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)    
+        self._setup_std_reusing_input_vis(self.vis)
         
     def setUp_sub_tables_alma(self):
 
         test_base.vis = 'test-subtables-alma.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-            
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)                           
+        self._setup_std_reusing_input_vis(self.vis)
         
-    def setUp_titan(self, reuse_input=False):
-
+    def setUp_titan(self):
         test_base.vis = 'titan-one-baseline-one-timestamp.ms'
-
-        found = os.path.exists(self.vis)
-        if found and not reuse_input:
-           self.cleanup()
-        if not found or not reuse_input:
-            os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-
-        default(mstransform)                
+        self._setup_std_reusing_input_vis(self.vis)
         
     def setUp_CAS_6733(self):
 
         test_base.vis = 'CAS-6733.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-            
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)  
+        self._setup_std_reusing_input_vis(self.vis)
         
     def setUp_CAS_6941(self):
 
         test_base.vis = 'CAS-6941.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-            
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform) 
+        self._setup_std_reusing_input_vis(self.vis)
         
     def setUp_CAS_6951(self):
 
         test_base.vis = 'CAS-6951.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-            
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)         
+        self._setup_std_reusing_input_vis(self.vis)
         
     def setUp_CAS_7841(self):
 
         test_base.vis = 'CAS-7841.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-            
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)          
+        self._setup_std_reusing_input_vis(self.vis)
 
     def setUp_CAS_7259(self):
 
         test_base.vis = 'n0337d03-CAS-7259.ms'
-        if os.path.exists(self.vis):
-           self.cleanup()
-
-        os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)
+        self._setup_std_reusing_input_vis(self.vis)
 
     def setUp_flags(self):
         asdmname = 'test_uid___A002_X997a62_X8c-short' # Flag.xml is modified
@@ -293,9 +204,25 @@ class test_base(unittest.TestCase):
         mstransform(vis=msfile, outputvis=self.testmms, datacolumn='data',
                     createmms=True,separationaxis=axis, scan=scans, spw=spws)
 
-
     def cleanup(self):
         os.system('rm -rf '+ self.vis)
+
+    def _setup_std_reusing_input_vis(self, vis, datapath_sp=None):
+        self._copy_input_ms_if_needed(vis, datapath_sp=datapath_sp)
+        default(mstransform)
+
+    def _copy_input_ms_if_needed(self, vis, reuse_input=True, datapath_sp=None):
+        # special datapath
+        if datapath_sp:
+            copy_path = datapath_sp
+        else:
+            copy_path = datapath  # global
+
+        found = os.path.exists(vis)
+        if found and not reuse_input:
+           self.cleanup()
+        if not found or not reuse_input:
+            os.system('cp -RL ' + os.path.join(copy_path, self.vis) + ' ' + self.vis)
 
 
 class test_base_compare(test_base):
@@ -723,9 +650,8 @@ class test_regridms_negative_width(test_base):
     """
     def setUp(self):
         # 1 spw, 1 data row, 3840 channels
-        self.setUp_titan(reuse_input=True)
+        self.setUp_titan()
         default(mstransform)
-        self.copyfile(self.vis)
 
     def tearDown(self):
         # all test cases are expected to generate the output MS from mstransform in outputvis
@@ -5995,7 +5921,6 @@ class test_no_reindexing_ephemeris_copy(test_base):
 class test_splitUpdateFlagCmd(test_base):
     
     def setUp(self):
-        self.datapath = '.'
         self.setUp_flags()
 
     def tearDown(self):
