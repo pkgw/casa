@@ -481,23 +481,15 @@ void PlotMSIndexer::setUpIndexing() {
 			if (plotmscache_->goodChunk(ich)) {
 				for (Int ibl=0; ibl<chsh(2,ich); ++ibl) {
 					Int a1 = *(plotmscache_->antenna1_[ich]->data()+ibl);
-					Int a2 = (plotmscache_->antenna2_.empty() ? -1 :
-						*(plotmscache_->antenna2_[ich]->data()+ibl));
-					if ( (a1 == iterValue_) || (a2 == iterValue_) )
-						++nSegment_;
-				}
-			}
-		break;
-	}
-	case PMS::ANTENNA1: {
-		nSegment_=0;
-		for (Int ich=0; ich<nChunk(); ++ich)
-			// only check for non-empty chunks
-			if (plotmscache_->goodChunk(ich)) {
-				for (Int ibl=0; ibl<chsh(2,ich); ++ibl) {
-					Int a1 = *(plotmscache_->antenna1_[ich]->data()+ibl);
-					if (a1 == iterValue_)
-						++nSegment_;
+					if (plotmscache_->cacheType()==PlotMSCacheBase::MS) {
+						Int a2 = (plotmscache_->antenna2_.empty() ? -1 :
+							*(plotmscache_->antenna2_[ich]->data()+ibl));
+						if ( (a1 == iterValue_) || (a2 == iterValue_) )
+							++nSegment_;
+					} else {
+						if (a1 == iterValue_)
+							++nSegment_;
+					}
 				}
 			}
 		break;
@@ -631,28 +623,24 @@ void PlotMSIndexer::setUpIndexing() {
 			Int nBsln=chsh(2,ic);
 			for (Int ibsln=0;ibsln<nBsln;++ibsln) {
 				Int a1 = *(plotmscache_->antenna1_[ic]->data()+ibsln);
-				Int a2 = (plotmscache_->antenna2_.empty() ? -1 :
-					*(plotmscache_->antenna2_[ic]->data()+ibsln));
-				if ( (a1 == iterValue_) || (a2 == iterValue_) ) {
-					// found antenna for this iteration
-					++iseg;
-					cacheChunk_(iseg)=ic;
-					cacheOffset_(iseg)=ibsln*Int(nAM(2))*nperbsln_(ic);
-					nSegPoints_(iseg)=nperbsln_(ic);
-				}
-			}
-			break;
-		}
-		case PMS::ANTENNA1: {
-			Int nBsln=chsh(2,ic);
-			for (Int ibsln=0;ibsln<nBsln;++ibsln) {
-				Int a1 = *(plotmscache_->antenna1_[ic]->data()+ibsln);
-				if (a1 == iterValue_) {
-					// found antenna1 for this iteration
-					++iseg;
-					cacheChunk_(iseg)=ic;
-					cacheOffset_(iseg)=ibsln*Int(nAM(2))*nperbsln_(ic);
-					nSegPoints_(iseg)=nperbsln_(ic);
+				if (plotmscache_->cacheType()==PlotMSCacheBase::MS) {
+					Int a2 = (plotmscache_->antenna2_.empty() ? -1 :
+						*(plotmscache_->antenna2_[ic]->data()+ibsln));
+					if ( (a1 == iterValue_) || (a2 == iterValue_) ) {
+						// found antenna for this iteration
+						++iseg;
+						cacheChunk_(iseg)=ic;
+						cacheOffset_(iseg)=ibsln*Int(nAM(2))*nperbsln_(ic);
+						nSegPoints_(iseg)=nperbsln_(ic);
+					} 
+				} else {
+					if (a1 == iterValue_) {
+						// found antenna1 for this iteration
+						++iseg;
+						cacheChunk_(iseg)=ic;
+						cacheOffset_(iseg)=ibsln*Int(nAM(2))*nperbsln_(ic);
+						nSegPoints_(iseg)=nperbsln_(ic);
+					}
 				}
 			}
 			break;
@@ -1678,20 +1666,20 @@ String PlotMSIndexer::iterValue() {
 		return label;
 		break;
 	}
-	case PMS::ANTENNA:
-	case PMS::ANTENNA1: {
+	case PMS::ANTENNA: {
 		return plotmscache_->antstanames_(iterValue_);
 		break;
 	}
-	case PMS::CORR:
+	case PMS::CORR: {
         return plotmscache_->polname(iterValue_);
         break;
-	default:
+	}
+	default: {
 		return String("");
 		//    throw(AipsError("Unsupported iteration axis: "+PMS::axis(iterAxis_)));
 		break;
 	}
-
+	}
 	return String("");
 }
 
