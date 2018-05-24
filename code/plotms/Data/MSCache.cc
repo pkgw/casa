@@ -127,7 +127,7 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
         logWarn(PMS::LOG_ORIGIN_LOAD_CACHE, "Scalar averaging ignored: no other averaging is enabled.");
     averaging_.setScalarAve(useScalarAve);
 
-	if ( averaging_.baseline() || averaging_.antenna() || useScalarAve) {
+	if ( averaging_.baseline() || averaging_.antenna() || averaging_.spw() || useScalarAve) {
         // Averaging with PlotMSVBAverager
         // Create visibility iterator vi_p
         setUpVisIter(selection_, calibration_, dataColumn_, 
@@ -285,12 +285,12 @@ String MSCache::getDataColumn(vector<PMS::Axis>& loadAxes,
 PMS::DataColumn MSCache::checkReqDataColumn(PMS::DataColumn reqDataCol) {
 	// Check if requested data, scratch, or float cols exist
     PMS::DataColumn datacol = reqDataCol;
-	Bool datacolOk(false), corcolOk(false), floatcolOk(false);
 	Table thisTable(filename_);
 	const ColumnDescSet cds = thisTable.tableDesc().columnDescSet();
-	datacolOk  = cds.isDefined("DATA");
-	corcolOk   = cds.isDefined("CORRECTED_DATA");
-	floatcolOk = cds.isDefined("FLOAT_DATA");
+	Bool datacolOk(cds.isDefined("DATA")), 
+		corrcolOk(cds.isDefined("CORRECTED_DATA") || calibration_.useCallib()),
+		modelcolOk(cds.isDefined("MODEL_DATA")),
+		floatcolOk(cds.isDefined("FLOAT_DATA"));
 
     switch (reqDataCol) {
         case PMS::DATA: {
@@ -301,35 +301,69 @@ PMS::DataColumn MSCache::checkReqDataColumn(PMS::DataColumn reqDataCol) {
             }
             break;
         }
-        case PMS::CORRECTED:
+        case PMS::CORRECTED: {
+            // requested corrected data but no (real or OTF) corrected column
+            if (!corrcolOk) {
+                if (datacolOk) { // CAS-5214 - use DATA if no CORRECTED
+                    datacol = PMS::DATA;
+                    logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set/enabled; using DATA instead.");
+                } else if (floatcolOk) { // CAS-7761 - use FLOAT if no CORRECTED
+                    datacol = PMS::FLOAT_DATA;
+                    logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set/enabled; using FLOAT_DATA instead.");
+                }
+				break;
+            } 
+			break;
+        }
+		case PMS::MODEL: {
+			if (floatcolOk && !modelcolOk) { // model not auto-generated for singledish
+               	throw(AipsError("MODEL_DATA not present; use FLOAT_DATA."));
+			}
+			break;
+		}
         case PMS::CORRMODEL_V:
-        case PMS::CORRMODEL_S:
+        case PMS::CORRMODEL_S: {
+            if (!corrcolOk && datacolOk) {  // use data residual instead
+				datacol = (reqDataCol==PMS::CORRMODEL_V ? PMS::DATAMODEL_V : PMS::DATAMODEL_S);
+                String warn("CORRECTED_DATA column not present and calibration library not set/enabled; using " + PMS::dataColumn(datacol) + " instead of " + PMS::dataColumn(reqDataCol));
+				logWarn("load_cache", warn);
+			} else if (!corrcolOk && floatcolOk) { 	// cannot use float residual instead
+              	throw(AipsError("CORRECTED_DATA column not present for residuals, use FLOAT_DATA."));
+			} else if (!modelcolOk && floatcolOk) { // cannot generate model for singledish
+              	throw(AipsError("MODEL_DATA column not present for residuals, use FLOAT_DATA."));
+			}
+			break;
+		}
         case PMS::CORR_DIV_MODEL_V:
         case PMS::CORR_DIV_MODEL_S: {
-            // requested corrected data but no (real or OTF) corrected column
-            if (!corcolOk && !calibration_.useCallib()) {
-                if (datacolOk) {
-                    // CAS-5214 - use DATA if no CORRECTED_DATA with warning
-                    datacol = PMS::DATA;
-                    logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set or enabled; will use DATA instead.");
-                } else if (floatcolOk) {
-                    // CAS-7761 - for singledish, use FLOAT if no CORRECTED or DATA
-                    datacol = PMS::FLOAT_DATA;
-                    logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set or enabled; will use FLOAT_DATA instead.");
-                }
-            }
-            break;
-        }
+            if (!corrcolOk && datacolOk) {  // use data residual instead
+				datacol = (reqDataCol==PMS::CORR_DIV_MODEL_V ? PMS::DATA_DIV_MODEL_V : PMS::DATA_DIV_MODEL_S);
+                String warn("CORRECTED_DATA column not present and calibration library not set/enabled; using " + PMS::dataColumn(datacol) + " instead of " + PMS::dataColumn(reqDataCol));
+               	logWarn("load_cache", warn);
+			} else if (!corrcolOk && floatcolOk) { 	// cannot use float residual instead
+              	throw(AipsError("CORRECTED_DATA column not present for residuals, use FLOAT_DATA."));
+			} else if (!modelcolOk && floatcolOk) { // cannot generate model for singledish
+              	throw(AipsError("MODEL_DATA column not present for residuals, use FLOAT_DATA."));
+			}
+			break;
+		}
+        case PMS::DATAMODEL_V:
+        case PMS::DATAMODEL_S: {
+			if (!datacolOk && floatcolOk) { // cannot use float residual instead
+             	throw(AipsError("Data residuals not valid; use FLOAT_DATA."));
+			}
+			break;
+		}
         case PMS::FLOAT_DATA: {
             // requested float data but no FLOAT column 
-            if (!floatcolOk) {
-                throw(AipsError("FLOAT_DATA not present, please use DATA"));
+            if (!floatcolOk && datacolOk) {
+                throw(AipsError("FLOAT_DATA not present; use DATA"));
             }
             break;
         }
         default:
             break;
-    } // switch
+    }
     return datacol;
 }
 
@@ -379,7 +413,7 @@ String MSCache::normalizeColumnName(String plotmscol)
 			colname = "ALL";
 	} else if (plotmscol == "float") {
 		colname = "FLOAT_DATA";
-	} else {   // "data", "corrected", "model"	
+	} else {   // "data", "corrected", "model"
 		colname.upcase();
 	}
 	return colname;
@@ -451,8 +485,8 @@ void MSCache::setUpVisIter(PlotMSSelection& selection,
 		    configuration.define("timeaverage", true);
 		    String timespanStr = "state";
 		    if (averaging_.field())
-			    timespanStr += ",scan,field";
-		    else if (averaging_.scan())
+			    timespanStr += ",field";
+		    if (averaging_.scan())
 			    timespanStr += ",scan";
 		    configuration.define("timespan", timespanStr);
         }
@@ -477,7 +511,9 @@ void MSCache::setUpVisIter(PlotMSSelection& selection,
         configuration.define("spwaverage", true);
     }
 
-    LogFilter oldFilter(plotms_->getParameters().logPriority());
+    LogFilter oldFilter(LogMessage::NORMAL);
+	if (plotms_ != nullptr)
+    	LogFilter oldFilter(plotms_->getParameters().logPriority());
 	MSTransformIteratorFactory* factory = NULL;
 	try {
         // Filter out MSTransformManager setup messages
@@ -573,7 +609,7 @@ void MSCache::updateEstimateProgress(ThreadCommunication* thread) {
 bool MSCache::countChunks(vi::VisibilityIterator2& vi,
         Vector<Int>& nIterPerAve,
         vector<PMS::Axis>& loadAxes,
-		vector<PMS::DataColumn>& loadData, 
+        vector<PMS::DataColumn>& loadData, 
         ThreadCommunication* thread) {
     // Let plotms count the chunks for memory estimation 
     //   when baseline/antenna/spw/scalar averaging
@@ -724,16 +760,16 @@ void MSCache::trapExcessVolume(map<PMS::Axis,Bool> pendingLoadAxes) {
 			}
 			s = vm_->evalVolume(pendingLoadAxes, mask);
 		}
-        logLoad(s);
+		logLoad(s);
 	} catch(AipsError& log) {
 		// catch detected volume excess, clear the existing cache, and rethrow
 		logLoad(log.getMesg());
 		deleteVm();
 		stringstream ss;
-        ss << "Estimated cache exceeds limits." << endl
-           << "Please try using data selection, averaging," << endl
-           << "checking 'Reload' (to clear unneeded cache items)," << endl
-		   << "or letting other memory-intensive processes finish.";
+		ss << "Estimated cache exceeds limits." << endl
+			<< "Please try using data selection, averaging," << endl
+			<< "checking 'Reload' (to clear unneeded cache items),"
+			<< "or letting other memory-intensive processes finish.";
 		throw(AipsError(ss.str()));
 	}
 }
@@ -746,7 +782,7 @@ void MSCache::updateProgress(ThreadCommunication* thread, Int chunk) {
 				" / " + String::toString(nChunk_) + ".");
 		progress = ((double)chunk+1) / nChunk_;
 		thread->setProgress((unsigned int)((progress * 100) + 0.5));
-    }
+	}
 }
 
 void MSCache::loadChunks(vi::VisibilityIterator2& vi,

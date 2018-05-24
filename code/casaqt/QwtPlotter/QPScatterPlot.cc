@@ -537,9 +537,9 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
 
             for(unsigned int i = drawIndex; i < n; i++) {
                 m_maskedData->xyAndMaskAt(i, tempx, tempy, mask);
-				// don't plot nan and inf  (usually from residual datacolumns)
+				// don't plot nan and inf !
                 if (!casacore::isNaN(tempx) && !casacore::isNaN(tempy) &&
-                    !casacore::isInf(tempx) && !casacore::isInf(tempy)) {
+					!casacore::isInf(tempx) && !casacore::isInf(tempy)) {
                   if(drawSymbol && !mask) {
                     for (unsigned int pt=0; pt<ptsToDraw; ++pt) {
                         if (pt==0) {
