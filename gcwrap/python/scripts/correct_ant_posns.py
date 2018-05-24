@@ -46,9 +46,10 @@ def correct_ant_posns(vis_name, print_offsets=False):
     elif tel_name == 'ALMA':
         return correct_ant_posns_alma(vis_name, print_offsets)
     else:
+        msg = 'Currently only work for EVLA or ALMA observations'
         if (print_offsets):
-            print 'Currently only work for EVLA observations'
+            print msg
         else:
             # send to casalogger
-            casalog.post('Currently only work for EVLA observations', "WARN")
+            casalog.post(msg, "WARN")
         return [1, '', []]

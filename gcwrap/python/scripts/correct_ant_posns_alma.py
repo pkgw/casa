@@ -4,11 +4,124 @@ from taskinit import *
 
 (tb_tool,) = gentools(['tb'])
 
-SRV_WSDL_URL = 'http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl'
-ALMA_CONFIG_NAME = 'CURRENT.AOS'
+
+def fetch_tmcdb_info(ant_names, obs_time):
+    use_soap = False
+    if use_soap:
+        response = query_tmcdb_antennas_soap(ant_names, obs_time)
+        return process_tmcdb_response_soap_for_gencal(response)
+    else:
+        response = query_tmcdb_antennas_rest(ant_names, obs_time)
+        return process_tmcdb_response_rest_for_gencal(ant_names, response)
 
 
-def query_tmcdb_antennas(ant_names, timestamp):
+def query_tmcdb_antennas_rest(ant_names, timestamp):
+    """
+    REST service deployed for testing https://2018may.asa-test.alma.cl/antenna-position
+    Service doc (in ICT ticket branch for now): https://bitbucket.sco.alma.cl/projects/ALMA/repos/almasw/browse/CONTROL-SERVICES/PositionsService?at=refs%2Fheads%2Ffeature%2FICT-10558
+
+    Example:
+    https://2018may.asa-test.alma.cl/antenna-position/position/antenna?configuration=CURRENT.AOS&antenna=DV10&timestamp=2015-04-19T16:53:54.000
+
+    :param ant_names: list of antenna names as strings
+    :param timestamp: timestamp specification string (in '2017-01-01T16:53:54.000' format)
+
+    :returns: list of per antenna responses as retrieved from the web service
+    """
+    import time
+    import requests
+
+    TEST_HOSTNAME = 'https://2018may.asa-test.alma.cl'
+
+    hostname = TEST_HOSTNAME
+    port = 443
+    api = 'antenna-position/position/antenna'
+    # To have the .milliseconds (which is not included in the MS obs_time), like:
+    # 2015-04-19T16:53:54.000
+    tstamp_ms = '{}.000'.format(timestamp)
+    ant_responses = []
+
+    casalog.post('Querying TMC DB, positions for these antennas: {0}, at time: {1}'.
+                 format(ant_names, tstamp_ms), 'INFO')
+    time_start = time.time()
+    try:
+        for aname in ant_names:
+            url = '{}:{}/{}?antenna={}&timestamp={}'.format(hostname, port, api, aname, tstamp_ms)
+            resp = requests.get(url)
+            casalog.post('Queried antenna "{0}". Response status: {1}. Response text: {2}'.
+                         format(aname, resp.status_code, resp.text), 'DEBUG2')
+            ant_responses.append(resp)
+
+        time_end = time.time()
+        casalog.post('Got responses from TMC DB. Took {0}s'.format(time_end - time_start))
+    except RuntimeError as exc:
+        casalog.post('Exception while querying the TMC DB for antenna positions information:'
+                     '{0}'.format(exc), 'ERROR')
+        raise
+
+    return ant_responses
+
+
+def process_tmcdb_response_rest_for_gencal(ant_names, responses):
+    """
+    Takes a list of response from the TMC DB AntennaPad service (REST)
+    and produces a list of antenna names and a list of their position
+    correction parameters.
+
+    :param resp: names of the antennas
+    :param resp: response objects from web service (some might be error or
+    incomplete)
+
+    :returns: a tuple with three elements. The tuple has
+    as first element a list of antenna names as strings, and as
+    second element a vector of positions (as Bx, By, Bz) for
+    every antenna. The third element holds the positions of the
+    corresponding pads.
+    """
+
+    def get_ant_pad_position(ant_name, resp):
+        import json
+        pos_found = False
+        if 200 == resp.status_code:
+            json_resp = json.loads(resp.text)
+            ant_pos = json_resp['antenna']['position']
+            ant_position = np.asarray([ant_pos['x'], ant_pos['y'], ant_pos['z']],
+                                      dtype=float)
+            pad_pos = json_resp['pad']['position']
+            pad_position = np.asarray([pad_pos['x'], pad_pos['y'], pad_pos['z']],
+                                      dtype=float)
+            pos_found = True
+        else:
+            casalog.post('Did not find position parameters for antenna {0}. '
+                         'Status code: {1}. Response: {2}'.
+                         format(ant_name, resp.status_code, resp.text), 'WARN')
+            ant_position = np.array([0, 0, 0], dtype=float)
+            pad_position = np.array([0, 0, 0], dtype=float)
+
+        return (pos_found, ant_position, pad_position)
+
+    casalog.post('Got these responses from ALMA TMC DB: {}'.
+                 format(responses), 'DEBUG2')
+    accum_ant_names = []
+    accum_positions = []
+    accum_pad_positions = []
+    cnt_pos_found = 0
+    for aname, resp in zip(ant_names, responses):
+        accum_ant_names.append(aname)
+        (found, ant_position, pad_position) = get_ant_pad_position(aname, resp)
+        if found:
+            cnt_pos_found += 1
+        accum_positions.append(ant_position)
+        accum_pad_positions.append(pad_position)
+
+    casalog.post('Queried ALMA TMC DB and found position parameters for {} antennas out of '
+                 '{} requested in total '.
+                 format(cnt_pos_found, len(accum_ant_names)), 'INFO')
+
+    return (accum_ant_names, accum_positions, accum_pad_positions)
+
+
+def query_tmcdb_antennas_soap(ant_names, timestamp):
     """
     Retrieves information for a list of antennas, at a given timestamp,
     by querying the ALMA TMC DB AntennaPad web service.
@@ -22,6 +135,8 @@ def query_tmcdb_antennas(ant_names, timestamp):
     :returns: response as retrieved from the web service
     :raises urllib2.URLError: if network or server issues
     """
+    SRV_WSDL_URL = 'http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl'
+    ALMA_CONFIG_NAME = 'CURRENT.AOS'
 
     import time
     from suds.client import Client
@@ -59,7 +174,7 @@ def query_tmcdb_antennas(ant_names, timestamp):
     return resp
 
 
-def process_tmcdb_response_for_gencal(resp):
+def process_tmcdb_response_soap_for_gencal(resp):
     """
     Takes a response from the TMC DB AntennaPad service and produces a
     list of antenna names and a list of their position correction
@@ -430,9 +545,7 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
     # AntennaPad service
     try:
         import urllib2
-        response = query_tmcdb_antennas(ant_names, obs_time)
-        (ant_names_db, ant_corr_posns, pad_posns) = (
-            process_tmcdb_response_for_gencal(response))
+        (ant_names_db, ant_corr_posns, pad_posns) = fetch_tmcdb_info(ant_names, obs_time)
         if (ant_names_db != ant_names).any():
             raise RuntimeError('The antenna names found in the MS (which were '
                                'used to query the TMC DB) do not match the '
