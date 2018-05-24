@@ -60,6 +60,8 @@ def check_eq(val, expval, tol=None):
 # for importing different data sets
 class test_base(unittest.TestCase):
 
+    vis = None
+
     def copyfile(self,file):
 
         if os.path.exists(file):
@@ -69,7 +71,7 @@ class test_base(unittest.TestCase):
 
     def setUp_ngc5921(self):
         # data set with spw=0, 63 channels in LSRK
-        self.vis = "ngc5921.ms"
+        test_base.vis = "ngc5921.ms"
 
         if os.path.exists(self.vis):
            self.cleanup()
@@ -79,7 +81,7 @@ class test_base(unittest.TestCase):
 
     def setUp_4ants(self):
         # data set with spw=0~15, 64 channels each in TOPO
-        self.vis = "Four_ants_3C286.ms"
+        test_base.vis = "Four_ants_3C286.ms"
 
         if os.path.exists(self.vis):
            self.cleanup()
@@ -89,7 +91,7 @@ class test_base(unittest.TestCase):
 
     def setUp_jupiter(self):
         # data col, spw=0,1 1 channel each, TOPO, field=0~12, 93 scans
-        self.vis = 'jupiter6cm.demo-thinned.ms'
+        test_base.vis = 'jupiter6cm.demo-thinned.ms'
         if os.path.exists(self.vis):
            self.cleanup()
 
@@ -98,7 +100,7 @@ class test_base(unittest.TestCase):
 
     def setUp_g19(self):
         # data with spw=0~23 128 channel each in LSRK, field=0,1
-        self.vis = 'g19_d2usb_targets_line-shortened-thinned.ms'
+        test_base.vis = 'g19_d2usb_targets_line-shortened-thinned.ms'
         if os.path.exists(self.vis):
            self.cleanup()
 
@@ -107,7 +109,8 @@ class test_base(unittest.TestCase):
 
     def setUp_CAS_5076(self):
 
-        self.vis = 'CAS-5076.ms'
+        test_base.vis = 'CAS-5076.ms'
+
         if os.path.exists(self.vis):
            self.cleanup()
 
@@ -116,7 +119,7 @@ class test_base(unittest.TestCase):
 
     def setUp_almasim(self):
 
-        self.vis = 'sim.alma.cycle0.compact.noisy.ms'
+        test_base.vis = 'sim.alma.cycle0.compact.noisy.ms'
         if os.path.exists(self.vis):
            self.cleanup()
 
@@ -128,7 +131,7 @@ class test_base(unittest.TestCase):
                     "/data/regression/unittest/flagdata/"
 
         # 15 rows, 3 scans, 9 spw, mixed chans, XX,YY, FLOAT_DATA col
-        self.vis = 'SDFloatColumn.ms'
+        test_base.vis = 'SDFloatColumn.ms'
         if os.path.exists(self.vis):
             self.cleanup()
 
@@ -143,7 +146,8 @@ class test_base(unittest.TestCase):
         #   1      128      RR  LL
         #   2      64       RR  RL  LR  LL
 
-        self.vis = '3c84scan1.ms'
+        test_base.vis = '3c84scan1.ms'
+
         if os.path.exists(self.vis):
            self.cleanup()
 
@@ -152,7 +156,7 @@ class test_base(unittest.TestCase):
 
     def setUp_CAS_5013(self):
 
-        self.vis = 'ALMA-data-mst-science-testing-CAS-5013-one-baseline-one-timestamp.ms'
+        test_base.vis = 'ALMA-data-mst-science-testing-CAS-5013-one-baseline-one-timestamp.ms'
         if os.path.exists(self.vis):
            self.cleanup()
 
@@ -161,7 +165,8 @@ class test_base(unittest.TestCase):
 
     def setUp_CAS_4850(self):
 
-        self.vis = 'CAS-4850-30s-limit-ALMA.ms'
+        test_base.vis = 'CAS-4850-30s-limit-ALMA.ms'
+
         if os.path.exists(self.vis):
            self.cleanup()
 
@@ -170,7 +175,7 @@ class test_base(unittest.TestCase):
 
     def setUp_CAS_4983(self):
 
-        self.vis = 'CAS-4983.ms'
+        test_base.vis = 'CAS-4983.ms'
         if os.path.exists(self.vis):
            self.cleanup()
             
@@ -179,7 +184,7 @@ class test_base(unittest.TestCase):
         
     def setUp_CAS_5172(self):
 
-        self.vis = 'CAS-5172-phase-center.ms'
+        test_base.vis = 'CAS-5172-phase-center.ms'
         if os.path.exists(self.vis):
            self.cleanup()
             
@@ -188,7 +193,7 @@ class test_base(unittest.TestCase):
         
     def setUp_sub_tables_evla(self):
 
-        self.vis = 'test-subtables-evla.ms'
+        test_base.vis = 'test-subtables-evla.ms'
         if os.path.exists(self.vis):
            self.cleanup()
             
@@ -197,7 +202,7 @@ class test_base(unittest.TestCase):
         
     def setUp_sub_tables_alma(self):
 
-        self.vis = 'test-subtables-alma.ms'
+        test_base.vis = 'test-subtables-alma.ms'
         if os.path.exists(self.vis):
            self.cleanup()
             
@@ -206,7 +211,7 @@ class test_base(unittest.TestCase):
         
     def setUp_titan(self, reuse_input=False):
 
-        self.vis = 'titan-one-baseline-one-timestamp.ms'
+        test_base.vis = 'titan-one-baseline-one-timestamp.ms'
 
         found = os.path.exists(self.vis)
         if found and not reuse_input:
@@ -218,7 +223,7 @@ class test_base(unittest.TestCase):
         
     def setUp_CAS_6733(self):
 
-        self.vis = 'CAS-6733.ms'
+        test_base.vis = 'CAS-6733.ms'
         if os.path.exists(self.vis):
            self.cleanup()
             
@@ -227,7 +232,7 @@ class test_base(unittest.TestCase):
         
     def setUp_CAS_6941(self):
 
-        self.vis = 'CAS-6941.ms'
+        test_base.vis = 'CAS-6941.ms'
         if os.path.exists(self.vis):
            self.cleanup()
             
@@ -236,7 +241,7 @@ class test_base(unittest.TestCase):
         
     def setUp_CAS_6951(self):
 
-        self.vis = 'CAS-6951.ms'
+        test_base.vis = 'CAS-6951.ms'
         if os.path.exists(self.vis):
            self.cleanup()
             
@@ -245,7 +250,7 @@ class test_base(unittest.TestCase):
         
     def setUp_CAS_7841(self):
 
-        self.vis = 'CAS-7841.ms'
+        test_base.vis = 'CAS-7841.ms'
         if os.path.exists(self.vis):
            self.cleanup()
             
@@ -254,7 +259,7 @@ class test_base(unittest.TestCase):
 
     def setUp_CAS_7259(self):
 
-        self.vis = 'n0337d03-CAS-7259.ms'
+        test_base.vis = 'n0337d03-CAS-7259.ms'
         if os.path.exists(self.vis):
            self.cleanup()
 
@@ -263,7 +268,7 @@ class test_base(unittest.TestCase):
 
     def setUp_flags(self):
         asdmname = 'test_uid___A002_X997a62_X8c-short' # Flag.xml is modified
-        self.vis = asdmname+'.ms'
+        test_base.vis = asdmname+'.ms'
         self.flagfile = asdmname+'_cmd.txt'
 
         asdmpath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/importasdm/'
@@ -721,7 +726,15 @@ class test_regridms_negative_width(test_base):
         self.setUp_titan(reuse_input=True)
         default(mstransform)
         self.copyfile(self.vis)
-        from taskinit import casalog
+
+    def tearDown(self):
+        # all test cases are expected to generate the output MS from mstransform in outputvis
+        os.system('rm -rf ' + self.outputvis)
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
 
     def _check_chan_freqs_widths(self, freqs, widths, exp_nchan, exp_first_freq,
                                  exp_last_freq, exp_width):
@@ -804,13 +817,18 @@ class test_regridms_interpolation_only(test_base):
     def setUp(self):
         default(mstransform)
         # Small MS with two data rows (two SPWs, one row per SPW).
-        self.vis = 'combine-1-timestamp-2-SPW-with-WEIGHT_SPECTRUM-Same-Exposure.ms'
+        test_base.vis = 'combine-1-timestamp-2-SPW-with-WEIGHT_SPECTRUM-Same-Exposure.ms'
         self.out_nchan = 10
         self.copyfile(self.vis)
 
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
+        # all test cases are expected to generate the output MS from mstransform in outvis
         os.system('rm -rf '+ self.outvis)
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
 
     def check_output_values(self, vis, eq_pattern, nchan=10, eq_epsilon=1e-5):
         ''' Checks DATA, WEIGHT, and WEIGHT_SPECTRUM '''
@@ -1013,9 +1031,13 @@ class test_Hanning(test_base):
         self.setUp_ngc5921()
 
     def tearDown(self):
-        pass
-        os.system('rm -rf '+ self.vis)
+        # all test cases are expected to generate the output MS from mstransform in outputms
         os.system('rm -rf '+ self.outputms)
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
 
     def test_hanning1(self):
         '''mstransform: Apply Hanning smoothing in MS with 24 spws. Do not combine spws.'''
@@ -1131,8 +1153,13 @@ class test_FreqAvg(test_base):
         self.setUp_g19()
 
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
+        # all test cases are expected to generate the output MS from mstransform in outputvis
         os.system('rm -rf '+ self.outputms)
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
 
     def test_freqavg1(self):
         '''mstranform: Average 20 channels of one spw'''
@@ -1221,8 +1248,13 @@ class test_Shape(test_base):
         self.setUp_4ants()
 
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
+        # all test cases are expected to generate the output MS from mstransform in outputvis
         os.system('rm -rf '+ self.outputms)
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
 
     def test_shape1(self):
         '''mstransform: default tileshape'''
@@ -1368,10 +1400,14 @@ class test_SeparateSPWs(test_base):
         self.tmpms = ""
 
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.tmpms)
         os.system('rm -rf '+ self.outputms)
         os.system('rm -rf list.obs')
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
 
     def test_sep1(self):
         '''mstransform: separate one spw into 4, using default regrid parameters'''
@@ -1513,9 +1549,14 @@ class test_state(test_base):
         self.setUp_CAS_5076()
 
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
+        # all test cases are expected to generate the output MS from mstransform in outputms
         os.system('rm -rf '+ self.outputms)
         
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_select_by_scan_intent_and_reindex_state_accordingly(self):
         '''mstransform: select a scan intent and re-index state sub-table'''
         self.outputms = "test_select_by_scan_intent_and_reindex_state_accordingly.ms"
@@ -1863,8 +1904,13 @@ class test_timeaverage_limits(test_base):
         self.outvis = 'test_timeaverage_limits.ms'
 
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
+        # all test cases are expected to generate the output MS from mstransform in outvis
         os.system('rm -rf '+ self.outvis)
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
 
     def test_CAS_4850(self):
 
@@ -2086,9 +2132,14 @@ class test_spw_poln(test_base):
         self.setUp_3c84()
 
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
+        # all test cases are expected to generate the output MS from mstransform in outputms
         os.system('rm -rf '+ self.outputms)
         os.system('rm -rf list.obs')
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
 
     def test_corr_selection(self):
         '''mstransform: verify correct re-indexing of sub-tables'''
@@ -2348,18 +2399,20 @@ class test_subtables_evla(test_base):
     '''Test effect of SPW combination/separation on EVLA sub-tables'''
     
     def setUp(self):
-        
-        self.vis = ''
+        self.setUp_sub_tables_evla()
         self.tmpms = ''
         self.outputms = ''
-                
-        self.setUp_sub_tables_evla()
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
+        # all test cases expected to generate the output MSs in tmpsms / outputms
         os.system('rm -rf '+ self.tmpms)
         os.system('rm -rf '+ self.outputms)
     
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_remove_duplicates_after_combine_evla(self):
         '''mstransform: Check that sub-tables have no duplicates after SPW combination'''
         
@@ -2458,8 +2511,13 @@ class test_weight_spectrum_creation(test_base):
         self.setUp_4ants()
 
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
+        # all test cases are expected to generate the output MS from mstransform in outputms
         os.system('rm -rf '+ self.outputms)
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
 
     def test_usewtspectrum_on(self):
         '''mstransform: when input MS does not have WEIGHT/SIGMA_SPECTRUM columns,
@@ -2510,18 +2568,20 @@ class test_subtables_alma(test_base):
     '''Test effect of SPW combination/separation on ALMA sub-tables'''
     
     def setUp(self):
-        
-        self.vis = ''
+        self.setUp_sub_tables_alma()
         self.tmpms = ''
         self.outputms = ''
-                
-        self.setUp_sub_tables_alma()
-        
+
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
+        # all test cases are expected to generate the output MSs in tmpms / outputms
         os.system('rm -rf '+ self.tmpms)
         os.system('rm -rf '+ self.outputms)
-    
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_remove_duplicates_after_combine_alma(self):
         '''mstransform: Check that sub-tables have no duplicates after SPW combination'''
         
@@ -2815,9 +2875,14 @@ class test_antenna_reindexing(test_base):
         self.outvis = 'test_reindex_antenna_subtable.ms'
 
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
+        # all test cases are expected to generate the output MS from mstransform in outvis
         os.system('rm -rf '+ self.outvis)
         os.system('rm -rf list.obs')
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
 
     def test_antenna_reindexing_va0(self):
         '''mstransform: check reindexing when selecting a subset of the antennas'''
@@ -2908,19 +2973,21 @@ class test_spectrum_transformations_mean(test_base):
     '''Check that WEIGHT/SIGMA are equivalent to the mean of the unflagged WEIGHT_SPECTRUM samples'''
     
     def setUp(self):
-                
-        self.vis = ''
+        self.setUp_4ants()
         self.outvis = ''
         self.auxvix = ''
         self.refvis = ''                
-        self.setUp_4ants()
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
         os.system('rm -rf '+ self.auxvix)
         os.system('rm -rf '+ self.refvis)          
         
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_chanavg_mean_corrected(self):
         '''mstransform: Check that after chan avg WEIGHT/SIGMA is equivalent to the mean of the unflagged WEIGHT_SPECTRUM samples'''
         
@@ -3267,19 +3334,21 @@ class test_spectrum_transformations_median(test_base):
     '''Check that WEIGHT/SIGMA are equivalent to the median of WEIGHT_SPECTRUM/SIGMA_SPECTRUM'''
     
     def setUp(self):
-                
-        self.vis = ''
+        self.setUp_4ants()
         self.outvis = ''
         self.auxvix = ''
         self.refvis = ''                
-        self.setUp_4ants()
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
         os.system('rm -rf '+ self.auxvix)
         os.system('rm -rf '+ self.refvis)          
         
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_chanavg_median_corrected(self):
         '''mstransform: Check that after chan avg WEIGHT/SIGMA is equivalent to the median of WEIGHT_SPECTRUM/SIGMA_SPECTRUM'''
         
@@ -3806,19 +3875,21 @@ class test_spectrum_transformations_sigma_from_weight(test_base):
     '''Check that WEIGHT/SIGMA and WEIGHT_SPECTRUM/SIGMA_SPECTRUM follow the relation sigma = 1 sqrt(weight) '''
     
     def setUp(self):
-                
-        self.vis = ''
+        self.setUp_4ants()
         self.outvis = ''
         self.auxvix = ''
         self.refvis = ''                
-        self.setUp_4ants()
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
         os.system('rm -rf '+ self.auxvix)
         os.system('rm -rf '+ self.refvis)   
-        
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_chanavg_sigma_from_weight_corrected(self):
         '''mstransform: Check that after chan avg CORRECTED SIGMA=1/sqrt(WEIGHT)'''
         
@@ -4070,19 +4141,21 @@ class test_spectrum_transformations_2_steps_vs_1_step(test_base):
     '''Check that the result of chan/time average applied in 1 step is the same as applied in 2 steps'''
     
     def setUp(self):
-                
-        self.vis = ''
-        self.outvis = ''
-        self.auxvix = ''
-        self.refvis = ''                
         self.setUp_4ants()
+        self.outvis = ''
+        self.auxvis = ''
+        self.refvis = ''                
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
-        os.system('rm -rf '+ self.auxvix)
+        os.system('rm -rf '+ self.auxvis)
         os.system('rm -rf '+ self.refvis)
         
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_timeavg_chanavg_2_steps_vs_1_step_corrected(self):
         '''mstransform: Check that the result of time/chan average CORRECTED applied in 1 step is the same as applied in 2 steps '''
         
@@ -4395,19 +4468,21 @@ class test_spectrum_transformations_chanavg_useWeightSpectrum_false_vs_true(test
     '''Check that WEIGHT/SIGMA and WEIGHT_SPECTRUM/SIGMA_SPECTRUM follow the relation sigma = 1 sqrt(weight) '''
     
     def setUp(self):
-                
-        self.vis = ''
-        self.outvis = ''
-        self.auxvix = ''
-        self.refvis = ''                
         self.setUp_4ants()
+        self.outvis = ''
+        self.auxvis = ''
+        self.refvis = ''                
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
-        os.system('rm -rf '+ self.auxvix)
+        os.system('rm -rf '+ self.auxvis)
         os.system('rm -rf '+ self.refvis)                 
             
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_chanavg_useWeightSpectrum_false_vs_true_corrected(self):
         '''mstransform: When there are no input SPECTRUM cols chan avg result is the same regardless of useWeightSpectrum because VI/VB fills a cte. weightSpectrum/sigmaSpectrum across channels'''
         
@@ -4521,19 +4596,21 @@ class test_spectrum_transformations_multiple_col(test_base):
     '''Check the result of multiple column operation vs single column operation'''
     
     def setUp(self):
-                
-        self.vis = ''
-        self.outvis = ''
-        self.auxvix = ''
-        self.refvis = ''                
         self.setUp_4ants()
+        self.outvis = ''
+        self.auxvis = ''
+        self.refvis = ''                
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
-        os.system('rm -rf '+ self.auxvix)
+        os.system('rm -rf '+ self.auxvis)
         os.system('rm -rf '+ self.refvis)        
         
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_chanavg_all_vs_data_and_corrected(self):
         '''mstransform: Check that the result of chan avg ALL is equivalent to the results of DATA/CORRECTED stand-alone'''
         
@@ -4664,19 +4741,21 @@ class test_spectrum_transformations_weight_zero_flag_set(test_base):
     '''mstransform: Check that flags are set when the resulting weight is zero'''
     
     def setUp(self):
-                
-        self.vis = ''
-        self.outvis = ''
-        self.auxvix = ''
-        self.refvis = ''                
         self.setUp_4ants()
+        self.outvis = ''
+        self.auxvis = ''
+        self.refvis = ''                
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
-        os.system('rm -rf '+ self.auxvix)
+        os.system('rm -rf '+ self.auxvis)
         os.system('rm -rf '+ self.refvis)      
     
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_timeavg_weight_zero_flag_set_corrected(self):
         '''mstransform: Check that flags are set when the weight resulting from time avg is zero'''
         
@@ -4752,19 +4831,21 @@ class test_spectrum_transformations_weight_constant(test_base):
     '''mstransform: Check that the result of avg CORRECTED with constant WEIGHT'''
     
     def setUp(self):
-                
-        self.vis = ''
+        self.setUp_4ants()
         self.outvis = ''
         self.auxvix = ''
         self.refvis = ''                
-        self.setUp_4ants()
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
         os.system('rm -rf '+ self.auxvix)
         os.system('rm -rf '+ self.refvis)
         
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_timeavg_corrected_vs_model_with_weight_constant(self):
         '''mstransform: Check that the result of time/chan avg CORRECTED is the same as time avg MODEL multiplied by input WEIGHT'''
         
@@ -4848,19 +4929,21 @@ class test_spectrum_transformations_sigma_unit(test_base):
     '''stransform: Check that the result of avg with sigma 1'''
     
     def setUp(self):
-                
-        self.vis = ''
+        self.setUp_4ants()
         self.outvis = ''
         self.auxvix = ''
         self.refvis = ''                
-        self.setUp_4ants()
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
         os.system('rm -rf '+ self.auxvix)
         os.system('rm -rf '+ self.refvis)
         
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_timeavg_data_vs_model_with_sigma_unit(self):
         '''mstransform: Check that the result of time avg DATA with sigma 1 is the same as averaging MODEL'''
         
@@ -5004,19 +5087,21 @@ class test_spectrum_transformations_useWeightSpectrum_false_vs_true(test_base):
     '''Check that WEIGHT/SIGMA are generated in the same way regardless of the useWeightSpectrum parameter '''
     
     def setUp(self):
-                
-        self.vis = ''
+        self.setUp_4ants()
         self.outvis = ''
         self.auxvix = ''
         self.refvis = ''                
-        self.setUp_4ants()
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
         os.system('rm -rf '+ self.auxvix)
         os.system('rm -rf '+ self.refvis)                 
             
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_chanavg_useWeightSpectrum_false_vs_true_corrected (self):
         '''Check that WEIGHT/SIGMA are generated in the same way regardless of the useWeightSpectrum parameter '''
         
@@ -5391,19 +5476,21 @@ class test_spectrum_transformations_flagged_average(test_base):
     '''Check that when all the samples are flagged the avg. and spectrum correspond to the avg./spectrum of all the flagged samples '''
     
     def setUp(self):
-                
-        self.vis = ''
+        self.setUp_4ants()
         self.outvis = ''
         self.auxvix = ''
         self.refvis = ''                
-        self.setUp_4ants()
         
     def tearDown(self):
-        os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
         os.system('rm -rf '+ self.auxvix)
         os.system('rm -rf '+ self.refvis)                 
             
+    @classmethod
+    def tearDownClass(cls):
+        # Reuse self.vis for all tests in this class. It's input only
+        os.system('rm -rf ' + cls.vis)
+
     def test_chanavg_spectrum_transformations_flagged_average_corrected (self):
         
         # Flag the entire MS
@@ -5936,7 +6023,7 @@ class Cleanup(test_base):
 
     def test_runTest(self):
         '''mstransform: Cleanup'''
-        pass         
+        pass
 
 
 def suite():

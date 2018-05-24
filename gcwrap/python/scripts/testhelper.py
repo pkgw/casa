@@ -371,7 +371,7 @@ def get_channel_freqs_widths(msname, spwid):
        msname       --> name of MS
        spwid        --> spw ID
 
-    Return two numpy array (frequencies, widths), each of the same length as the number of
+    Return two numpy arrays (frequencies, widths), each of the same length as the number of
     channels'''
 
     try:
