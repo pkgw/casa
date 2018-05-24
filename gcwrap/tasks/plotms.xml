@@ -30,12 +30,13 @@
 		gaincurve, or opacity, plotms will currently just plot the simple
 		parameters contained in the table, not the effective amplitudes or
 		phases sampled at observing times, frequencies etc.  BPOLY and
-		GSPLINE tables are not yet supported. Features currently unsupported
-		for CalTables include averaging, transformations (velocity
-		conversions, etc.), and some axis and selection options which do not
-		exist in these tables.   In the plotms GUI, many options irrelevant
-		for CalTables are not hidden when interacting with a CalTable, and
-		such settings will be ignored (when benign) or cause an error message.
+		GSPLINE tables are supported but interactive flagging is not allowed.
+		Features currently unsupported for CalTables include averaging,
+		transformations (velocity conversions, etc.), and some axis and
+		selection options which do not exist in these tables. In the plotms
+		GUI, many options irrelevant for CalTables are not hidden when
+		interacting with a CalTable, and such settings will be ignored (when
+		benign) or cause an error message.
         
 </description>
 
@@ -235,7 +236,7 @@ MS Parameters
     </allowed>
   </param>
   
-    <param type="string" name="xdatacolumn">
+    <param type="string" name="xdatacolumn" subparam="true" >
       <description>Data column to use for x-axis (blank for default/current).  Note that residuals are complex (vector) differences or ratios.</description>
       <value />
       <allowed kind="enum">
@@ -410,7 +411,7 @@ MS Parameters
     </allowed>
     </param>
     
-    <param type="any" name="ydatacolumn">
+    <param type="any" name="ydatacolumn" subparam="true" >
       <description>Data column to use for y-axis (blank for default/current). Note that residuals are complex (vector) differences or ratios.</description>
       <any type="variant" limittype='string stringArray'/>
       <value type="string"/>

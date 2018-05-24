@@ -4469,6 +4469,7 @@ We use the Componentlist GUI to look at the strongest component.
             <description>Region selection. Default is to use the full image.</description>
             <value type="string"/>
             <type>path</type>
+            <type>string</type>
             <type>record</type>
         </param>
         <param type="string"  name="chans">
@@ -9453,8 +9454,9 @@ ib.done()
      <param type="any"  name="region">
      <any type="variant" limittypes="record string"/>
      <description>Region selection. Default is to use the full image.</description>
+     <type>path</type>
+     <type>string</type>
      <type>record</type>
-     <type mustexist="true">path</type>
      <value/>
      </param>
   

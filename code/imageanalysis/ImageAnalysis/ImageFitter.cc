@@ -760,7 +760,7 @@ void ImageFitter::_calculateErrors() {
                 Double ma = _majorAxes[i].getValue("arcsec");
                 Double mi = _minorAxes[i].getValue("arcsec");
                 _positionAngleErrors[i] = ma == mi
-                    ? QC::qTurn
+                    ? QC::qTurn( )
                     :  Quantity(baseFac*C::sqrt2*(ma*mi/(ma*ma - mi*mi)), "rad");
             }
             _positionAngleErrors[i].convert(_positionAngles[i]);
@@ -787,7 +787,7 @@ void ImageFitter::_calculateErrors() {
                 }
                 sigmaY0 =  baseFac*_minorAxes[i]/f1;
             }
-            Double pr = fixFullPos ? 0 : (-1)*(_positionAngles[i] + QC::qTurn).getValue("rad");
+            Double pr = fixFullPos ? 0 : (-1)*(_positionAngles[i] + QC::qTurn( )).getValue("rad");
             Double cp = fixFullPos ? 0 : cos(pr);
             Double sp = fixFullPos ? 0 : sin(pr);
             Quantity longErr(0, "arcsec");
@@ -1211,7 +1211,7 @@ void ImageFitter::_setDeconvolvedSizes() {
                                     Quantity errMin = abs(bestDecon.getMinor() - decon.getMinor());
                                     errMin.convert(emin.getUnit());
                                     Quantity errPA = abs(bestDecon.getPA(true) - decon.getPA(true));
-                                    errPA = min(errPA, abs(errPA-QC::hTurn));
+                                    errPA = min(errPA, abs(errPA-QC::hTurn( )));
                                     errPA.convert(epa.getUnit());
                                     emaj = max(emaj, errMaj);
                                     emin = max(emin, errMin);

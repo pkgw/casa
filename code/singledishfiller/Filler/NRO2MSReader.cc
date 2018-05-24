@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <string>
+#include <map>
 
 #include <casacore/casa/OS/File.h>
 #include <casacore/casa/Containers/Record.h>

@@ -1,4 +1,4 @@
-//# PlotMSCache2.cc: Data cache for plotms.
+//# PlotMSCacheBase.cc: Data cache for plotms.
 //# Copyright (C) 2009
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -68,12 +68,10 @@ const PMS::Axis PlotMSCacheBase::METADATA[] =
 		PMS::BASELINE,
 		PMS::FLAG,
 		PMS::OBSERVATION,
-		PMS::INTENT,
+		PMS::INTENT
 };
-
 //      PMS::TIME_INTERVAL,
 //      PMS::FLAG_ROW
-
 
 bool PlotMSCacheBase::axisIsMetaData(PMS::Axis axis) {
 	for(unsigned int i = 0; i < N_METADATA; i++)
@@ -231,6 +229,14 @@ PlotLogMessage* PlotMSCacheBase::locateRange( int plotIterIndex, const Vector<Pl
 PlotLogMessage* PlotMSCacheBase::flagRange( int plotIterIndex, casa::PlotMSFlagging& flagging,
      		const Vector<PlotRegion>& regions, bool showFlagged){
 	PlotLogMessage* mesg = NULL;
+
+	// not allowed for solvable cal tables!
+	String type(calType());
+	if (type=="BPOLY" || type=="GSPLINE") {
+		String method = (showFlagged ? "flag" : "unflag");
+		throw(AipsError("Cannot interactively " + method + " solvable CalTable types. Solutions are flagged by the solver."));
+	}
+
 	int dataCount = indexer_.size();
 	if ( dataCount == 0 ){
 		int indexCount = indexer_[0].size();
@@ -306,13 +312,13 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	// Maintain access to this msname, selection, & averager, because we'll
 	// use it if/when we flag, etc.
 	if ( filename_ != filename ){
+		setFilename(filename);  // sets filename_ and calType_ for cal table
 		ephemerisInitialized = false;
 	    const vector<PMS::Axis>& axes = PMS::axes();
 	    for(unsigned int i = 0; i < axes.size(); i++) 
 		    loadedAxes_[axes[i]] = false;
         loadedAxesData_.clear();
 	}
-	filename_ = filename;
 	selection_ = selection;
 	averaging_ = averaging;
 	transformations_ = transformations;
@@ -415,7 +421,20 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	//   works---it is used to pre-estimate memory requirements.
 	pendingLoadAxes_.clear();
 
+	bool isCalCache(cacheType()==PlotMSCacheBase::CAL);
+    String caltype(calType());
 	for(Int i = 0; i < nmetadata(); ++i) {
+      // skip invalid metadata axes for cal tables
+	  if (isCalCache) {
+		  if (metadata(i)==PMS::INTENT)
+			  continue;
+		  else if ((metadata(i)==PMS::ANTENNA2 || metadata(i)==PMS::BASELINE) &&
+                   (caltype=="BPOLY" || caltype=="GSPLINE"))
+			  continue;
+          else if ((metadata(i)==PMS::CHANNEL || metadata(i)==PMS::FREQUENCY) &&
+				    caltype=="GSPLINE")
+			  continue;
+      }
 	  pendingLoadAxes_[metadata(i)]=true; // all meta data will be loaded
 	  if(!loadedAxes_[metadata(i)]) {
 		loadAxes.push_back(metadata(i));
@@ -1035,8 +1054,11 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 					Int a1 =*(antenna1_[ich]->data()+ibl);
 					_updateAntennaMask( a1, antMask, selAnts1 );
 
-					Int a2 =*(antenna2_[ich]->data()+ibl);
-					_updateAntennaMask( a2, antMask, selAnts2 );
+					// some cal tables iterate on antenna (antenna1)
+					if (!antenna2_.empty()) {
+						Int a2 =*(antenna2_[ich]->data()+ibl);
+						_updateAntennaMask( a2, antMask, selAnts2 );
+					}
 				}
 			}
 		}
@@ -1784,7 +1806,9 @@ void PlotMSCacheBase::deletePlotMask() {
 
 void PlotMSCacheBase::log(const String& method, const String& message,
 		int eventType) {
-	plotms_->getLogger()->postMessage(PMS::LOG_ORIGIN,method,message,eventType);
+	if (plotms_ != nullptr) {
+		plotms_->getLogger()->postMessage(PMS::LOG_ORIGIN,method,message,eventType);
+	}
 }
 
 int PlotMSCacheBase::findColorIndex( int chunk, bool initialize ){

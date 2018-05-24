@@ -77,7 +77,13 @@ public:
 
     virtual ~StatWtTVI();
 
+    virtual casacore::String ViiType() const {
+        return casacore::String("StatWt( ") + getVii()->ViiType() + " )";
+    };
+
     void initWeightSpectrum (const casacore::Cube<casacore::Float>& wtspec);
+
+    void initSigmaSpectrum (const casacore::Cube<casacore::Float>& sigspec);
 
     void next();
 
@@ -85,8 +91,12 @@ public:
 
     virtual void weightSpectrum(casacore::Cube<casacore::Float>& wtsp) const;
 
+    virtual void sigmaSpectrum(casacore::Cube<casacore::Float>& sigmaSp) const;
+
     virtual void weight(casacore::Matrix<casacore::Float> & wtmat) const;
     
+    virtual void sigma(casacore::Matrix<casacore::Float> & sigmaMat) const;
+
     virtual void flag(casacore::Cube<casacore::Bool>& flagCube) const;
 
     virtual void flagRow (casacore::Vector<casacore::Bool> & flagRow) const;
@@ -202,6 +212,8 @@ private:
     mutable std::map<casacore::uInt, casacore::uInt> _rowIDInMSTorowIndexInChunk;
     casacore::Double _slidingTimeWindowWidth = -1;
 
+    casacore::Bool _mustComputeSigma = casacore::False;
+    casacore::Bool _updateWeight = casacore::True;
     casacore::Bool _noModel = casacore::False;
 
     SHARED_PTR<
