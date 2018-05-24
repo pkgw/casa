@@ -152,7 +152,7 @@ class MainRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numAntenna (\f$N_{Ante}\f$)</TD> 
+ * <TD> numAntenna (numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;Number of antennas. </TD>
@@ -173,7 +173,7 @@ class MainRow;
  * </TR>
 	
  * <TR>
- * <TD> numIntegration (\f$N_{Inte}\f$)</TD> 
+ * <TD> numIntegration (numIntegration)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;number of integrations. </TD>

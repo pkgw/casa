@@ -692,5 +692,15 @@ class imcollapse_test(unittest.TestCase):
         self.assertTrue(xx)
         xx.done()
         
+    def test_CAS_11230(self):
+        """Verify output image has correct shape when 0,0 included in region box"""
+        myia = iatool()
+        myia.fromshape("",[20,20,20])
+        xx = myia.collapse(function="mean",axes=2,region="box[[0pix,0pix],[19pix,19pix]]")
+        shape = xx.shape()
+        myia.done()
+        xx.done()
+        self.assertTrue((shape == [20, 20, 1]).all(), "wrong shape")
+        
 def suite():
     return [imcollapse_test]

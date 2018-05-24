@@ -1,4 +1,4 @@
-//# PlotMSCacheBase.h: Generic casacore::Data cache for plotms.
+//# PlotMSCacheBase.h: Generic Data cache for plotms.
 //# Copyright (C) 2009
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -77,13 +77,13 @@ public:
   virtual ~PlotMSCacheBase();
 
   // Identify myself
-  //  pure virtual
+  // (MS or CAL)
   virtual PlotMSCacheBase::Type cacheType() const = 0;
 
   // Access to pol names
   virtual casacore::String polname(casacore::Int ipol)=0;
 
-  // keep MS/CT filename (set cal type for CT)
+  // keep MS/CT filename (sets calType_)
   virtual void setFilename(casacore::String filename) = 0;
   casacore::String calType() const { return calType_; };
   bool polnRatio() const { return polnRatio_; };
@@ -178,11 +178,7 @@ public:
     casacore::Bool globalXRange=false, casacore::Bool globalYRange=false, 
     int dataIndex = 0);
 
-  // Access to flags per chunk
-  inline casacore::Array<casacore::Bool>& flag(casacore::Int chunk) { return *flag_[chunk]; };
-  inline casacore::Vector<casacore::Bool>& flagrow(casacore::Int chunk) { return *flagrow_[chunk]; };
-
-  // Axis-specific generic gets
+  /*** Axis-specific generic gets, per chunk and relative index (from indexer) ***/
   inline casacore::Double getScan(casacore::Int chnk,casacore::Int irel)     { return scan_(chnk);   (void)irel; };
   inline casacore::Double getField(casacore::Int chnk,casacore::Int irel)    { return field_(chnk);  (void)irel; };
   inline casacore::Double getTime(casacore::Int chnk,casacore::Int irel)     { return time_(chnk);  (void)irel; };
@@ -283,6 +279,107 @@ public:
   // Curve overlays
   inline casacore::Double getAtm(casacore::Int chnk,casacore::Int irel) { return *(atm_[chnk]->data()+irel); };
   inline casacore::Double getTsky(casacore::Int chnk,casacore::Int irel) { return *(tsky_[chnk]->data()+irel); };
+
+  /* -----------------------------------------------------------------------*/
+  /*** Axis-specific generic gets, per chunk (for unit tests) ***/
+  // metadata axes
+  inline casacore::Int scan(casacore::Int chnk)     { return scan_(chnk);};
+  inline casacore::Int field(casacore::Int chnk)    { return field_(chnk); };
+  inline casacore::Double time(casacore::Int chnk)     { return time_(chnk); };
+  inline casacore::Double timeIntr(casacore::Int chnk) { return timeIntr_(chnk); };
+  inline casacore::Int spw(casacore::Int chnk)      { return spw_(chnk); };
+  inline casacore::Vector<casacore::Int>& chan(casacore::Int chnk) { return *(chan_[chnk]); };
+  inline casacore::Vector<casacore::Double>& freq(casacore::Int chnk) { return *(freq_[chnk]); };
+  inline casacore::Vector<casacore::Double>& vel(casacore::Int chnk)  { return *(vel_[chnk]); };
+  inline casacore::Vector<casacore::Int>& corr(casacore::Int chnk) { return *(corr_[chnk]); };
+  inline casacore::Vector<casacore::Int>& ant1(casacore::Int chnk) { return *(antenna1_[chnk]); };
+  inline casacore::Vector<casacore::Int>& ant2(casacore::Int chnk) { return *(antenna2_[chnk]); };
+  inline casacore::Vector<casacore::Int>& bsln(casacore::Int chnk) { return *(baseline_[chnk]); };
+  inline casacore::Vector<casacore::uInt>& row(casacore::Int chnk) { return *(row_[chnk]); };
+  inline casacore::Vector<casacore::Int>& obsid(casacore::Int chnk) { return *(obsid_[chnk]); };
+  inline casacore::Vector<casacore::Int>& intent(casacore::Int chnk) { return *(intent_[chnk]); };
+  inline casacore::Vector<casacore::Int>& feed1(casacore::Int chnk) { return *(feed1_[chnk]); };
+  inline casacore::Vector<casacore::Int>& feed2(casacore::Int chnk) { return *(feed2_[chnk]); };
+
+  // visibility and flag axes
+  inline casacore::Array<casacore::Float>& ampData(casacore::Int chnk)  { return *(amp_[chnk]); };
+  inline casacore::Array<casacore::Float>& ampCorr(casacore::Int chnk)  { return *(ampCorr_[chnk]); };
+  inline casacore::Array<casacore::Float>& ampModel(casacore::Int chnk)  { return *(ampModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& ampCorrModel(casacore::Int chnk)  { return *(ampCorrModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& ampDataModel(casacore::Int chnk)  { return *(ampDataModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& ampDataDivModel(casacore::Int chnk)  { return *(ampDataDivModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& ampCorrDivModel(casacore::Int chnk)  { return *(ampCorrDivModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& ampFloat(casacore::Int chnk)  { return *(ampFloat_[chnk]); };
+  inline casacore::Array<casacore::Float>& phaData(casacore::Int chnk)  { return *(pha_[chnk]); };
+  inline casacore::Array<casacore::Float>& phaCorr(casacore::Int chnk)  { return *(phaCorr_[chnk]); };
+  inline casacore::Array<casacore::Float>& phaModel(casacore::Int chnk)  { return *(phaModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& phaCorrModel(casacore::Int chnk)  { return *(phaCorrModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& phaDataModel(casacore::Int chnk)  { return *(phaDataModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& phaDataDivModel(casacore::Int chnk)  { return *(phaDataDivModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& phaCorrDivModel(casacore::Int chnk)  { return *(phaCorrDivModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& realData(casacore::Int chnk)  { return *(real_[chnk]); };
+  inline casacore::Array<casacore::Float>& realCorr(casacore::Int chnk)  { return *(realCorr_[chnk]); };
+  inline casacore::Array<casacore::Float>& realModel(casacore::Int chnk)  { return *(realModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& realCorrModel(casacore::Int chnk)  { return *(realCorrModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& realDataModel(casacore::Int chnk)  { return *(realDataModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& realDataDivModel(casacore::Int chnk)  { return *(realDataDivModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& realCorrDivModel(casacore::Int chnk)  { return *(realCorrDivModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& imagData(casacore::Int chnk)  { return *(imag_[chnk]); };
+  inline casacore::Array<casacore::Float>& imagCorr(casacore::Int chnk)  { return *(imagCorr_[chnk]); };
+  inline casacore::Array<casacore::Float>& imagModel(casacore::Int chnk)  { return *(imagModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& imagCorrModel(casacore::Int chnk)  { return *(imagCorrModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& imagDataModel(casacore::Int chnk)  { return *(imagDataModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& imagDataDivModel(casacore::Int chnk)  { return *(imagDataDivModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& imagCorrDivModel(casacore::Int chnk)  { return *(imagCorrDivModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& wtxampData(casacore::Int chnk)  { return *(wtxamp_[chnk]); };
+  inline casacore::Array<casacore::Float>& wtxampCorr(casacore::Int chnk)  { return *(wtxampCorr_[chnk]); };
+  inline casacore::Array<casacore::Float>& wtxampModel(casacore::Int chnk)  { return *(wtxampModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& wtxampCorrModel(casacore::Int chnk)  { return *(wtxampCorrModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& wtxampDataModel(casacore::Int chnk)  { return *(wtxampDataModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& wtxampDataDivModel(casacore::Int chnk)  { return *(wtxampDataDivModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& wtxampCorrDivModel(casacore::Int chnk)  { return *(wtxampCorrDivModel_[chnk]); };
+  inline casacore::Array<casacore::Float>& wtxampFloat(casacore::Int chnk)  { return *(wtxampFloat_[chnk]); };
+  inline casacore::Array<casacore::Bool>& flag(casacore::Int chunk) { return *flag_[chunk]; };
+  inline casacore::Vector<casacore::Bool>& flagrow(casacore::Int chunk) { return *flagrow_[chunk]; };
+
+  // weight axes
+  inline casacore::Array<casacore::Float>& wt(casacore::Int chnk)  { return *(wt_[chnk]); };
+  inline casacore::Array<casacore::Float>& wtsp(casacore::Int chnk)  { return *(wtsp_[chnk]); };
+  inline casacore::Array<casacore::Float>& sigma(casacore::Int chnk)  { return *(sigma_[chnk]); };
+  inline casacore::Array<casacore::Float>& sigmasp(casacore::Int chnk)  { return *(sigmasp_[chnk]); };
+
+  // observational geometry axes
+  inline casacore::Vector<casacore::Double>& uVDist(casacore::Int chnk)  { return *(uvdist_[chnk]); };
+  inline casacore::Matrix<casacore::Double>& uVDistL(casacore::Int chnk)  { return *(uvdistL_[chnk]); };
+  inline casacore::Vector<casacore::Double>& u(casacore::Int chnk)  { return *(u_[chnk]); };
+  inline casacore::Vector<casacore::Double>& v(casacore::Int chnk)  { return *(v_[chnk]); };
+  inline casacore::Vector<casacore::Double>& w(casacore::Int chnk)  { return *(w_[chnk]); };
+  inline casacore::Matrix<casacore::Double>& uWave(casacore::Int chnk)  { return *(uwave_[chnk]); };
+  inline casacore::Matrix<casacore::Double>& vWave(casacore::Int chnk)  { return *(vwave_[chnk]); };
+  inline casacore::Matrix<casacore::Double>& wWave(casacore::Int chnk)  { return *(wwave_[chnk]); };
+  inline casacore::Double az0(casacore::Int chnk)  { return az0_[chnk]; };
+  inline casacore::Double el0(casacore::Int chnk)  { return el0_[chnk]; };
+  inline casacore::Double ha0(casacore::Int chnk)  { return ha0_[chnk]; };
+  inline casacore::Double pa0(casacore::Int chnk)  { return pa0_[chnk]; };
+  inline casacore::Vector<casacore::Int>& ant(casacore::Int chnk)  { return *(antenna_[chnk]); };
+  inline casacore::Vector<casacore::Double>& az(casacore::Int chnk)  { return *(az_[chnk]); };
+  inline casacore::Vector<casacore::Double>& el(casacore::Int chnk)  { return *(el_[chnk]); };
+  inline casacore::Vector<casacore::Float>& parAng(casacore::Int chnk)  { return *(parang_[chnk]); };
+
+  // ephemeris axes
+  inline casacore::Double radvel(casacore::Int chnk)  { return radialVelocity_[chnk]; };
+  inline casacore::Double rho(casacore::Int chnk)  { return rho_[chnk]; };
+
+  // calibration axes
+  inline casacore::Array<casacore::Float>& par(casacore::Int chnk)  { return *(par_[chnk]); };
+  inline casacore::Array<casacore::Float>& snr(casacore::Int chnk)  { return *(snr_[chnk]); };
+  inline casacore::Array<casacore::Float>& antpos(casacore::Int chnk)  { return *(antpos_[chnk]); };
+
+  // curve overlay axes
+  inline casacore::Vector<casacore::Double>& atm(casacore::Int chnk)  { return *(atm_[chnk]); };
+  inline casacore::Vector<casacore::Double>& tsky(casacore::Int chnk)  { return *(tsky_[chnk]); };
+
+  /* -----------------------------------------------------------------------*/
 
   // Returns a list of channel numbers that were averaged together in that chunk
   inline casacore::Vector<casacore::Int> getChansPerBin(casacore::Int chnk,casacore::Int irel) { return (*chansPerBin_[chnk])[irel]; };

@@ -24,7 +24,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         </param>
         <param type="doubleArray" name="freqrange">
             <description>Frequency range in GHz.</description>
-            <value>84,90</value>
+            <value>
+              <value>84</value>
+              <value>90</value>
+            </value>
         </param>
         <param type="stringArray" name="species">
             <description>Species to search for.</description>

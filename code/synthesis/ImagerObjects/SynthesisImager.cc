@@ -107,7 +107,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   SynthesisImager::SynthesisImager() : itsMappers(SIMapperCollection()), writeAccess_p(True),
-				       gridpars_p(), impars_p()
+				       gridpars_p(), impars_p(), movingSource_p("")
   {
 
      imwgt_p=VisImagingWeight("natural");
@@ -144,7 +144,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    cerr << "IN DESTR"<< endl;
     //    VisModelData::listModel(mss4vi_p[0]);
 
-    SynthesisUtilMethods::getResource("End Run");
+    SynthesisUtilMethods::getResource("End SynthesisImager");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -199,7 +199,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     LogIO os( LogOrigin("SynthesisImager","selectData",WHERE) );
 
-    SynthesisUtilMethods::getResource("Start Run");
+    SynthesisUtilMethods::getResource("Start SelectData");
 
     try
       {
@@ -1265,17 +1265,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 	
 	// Fill in miscellaneous information needed by FITS
-	//ROMSColumns msc(mss4vi_p[0]);
+        auto objectName = msc.field().name()(msc.fieldId()(0));
+        imstor->setObjectName(objectName);
 	Record info;
-	
-	String objectName=msc.field().name()(msc.fieldId()(0));
-	String telescop=msc.observation().telescopeName()(0);
-	info.define("OBJECT", objectName);
-	info.define("TELESCOP", telescop);
+	auto telescop=msc.observation().telescopeName()(0);
 	info.define("INSTRUME", telescop);
 	info.define("distance", distance.get("m").getValue());
-	////////////// Send misc info into ImageStore. 
-	imstor->setImageInfo( info );
+	///// Send misc info into ImageStore. This will go to the 'miscinfo' table keyword
+	imstor->setMiscInfo( info );
 
 	// Get polRep from 'msc' here, and send to imstore. 
 	StokesImageUtil::PolRep polRep(StokesImageUtil::CIRCULAR);
@@ -2167,7 +2164,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	}
     	//cerr << "IN SYNTHE_IMA" << endl;
     	//VisModelData::listModel(rvi_p->getMeasurementSet());
-	//SynthesisUtilMethods::getResource("Before finalize for all mappers");
+	SynthesisUtilMethods::getResource("Before finalize for all mappers");
     	if(!dopsf) itsMappers.finalizeDegrid(*vb);
     	itsMappers.finalizeGrid(*vb, dopsf);
 
@@ -2709,8 +2706,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
     for(rvi_p->originChunks(); rvi_p->moreChunks(); rvi_p->nextChunk()){
       Bool fieldDone=false;
-      for (uInt k=0;  k < fieldsDone.nelements(); ++k)
+      for (uInt k=0;  k < fieldsDone.nelements(); ++k){
 	fieldDone=fieldDone || (vb.fieldId()==fieldsDone(k));
+      }
       if(!fieldDone){
 	++fieldCounter;
 	fieldsDone.resize(fieldCounter, true);
@@ -2727,7 +2725,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       return True;
   }// end makePB
 
-
+  /////===========
+  void SynthesisImager::setMovingSource(const String& movingSource){
+    movingSource_p=movingSource;
+  }
+  
 
 } //# NAMESPACE CASA - END
 

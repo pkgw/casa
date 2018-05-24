@@ -553,10 +553,19 @@ void KJones::setApply(const Record& apply) {
   MSSpectralWindow msSpw(ct_->spectralWindow());
   ROMSSpWindowColumns msCol(msSpw);
 
-  if (ct_->CASAvers()==String("Unknown") || ct_->CASAvers()<String("5.3.0-80")) {
+  String ctvers=ct_->CASAvers();
+  if (ctvers==String("Unknown") ||    // pre-5.3.0-80 (no version recorded in table)
+      ctvers==String("5.3.0-100") ||  // a few pre-release versions with reverted behavior
+      ctvers==String("5.3.0-101") ||
+      ctvers==String("5.3.0-102") ||
+      ctvers==String("5.3.0-103") ||
+      ctvers==String("5.3.0-104") ||
+      ctvers==String("5.3.0-105") ||
+      ctvers==String("5.3.0-106") ) {
     // Old-fashioned; use spw edge freq
     msCol.refFrequency().getColumn(KrefFreqs_,true);
-    if (typeName()!=String("KMBD Jones"))
+    if (typeName()!=String("KMBD Jones") &&
+	typeName()!=String("KAntPos Jones") )
       logSink() << LogIO::WARN 
 		<< " Found pre-5.3.0 CASA delay cal table; using spw REF_FREQUENCY pivot (usually the edge) for phase(freq) calculation." 
 		<< LogIO::POST;
@@ -613,9 +622,18 @@ void KJones::setCallib(const Record& callib,
 
   // Extract per-spw ref Freq for phase(delay) calculation
   //  from the CalTable
-  if (cpp_->CTCASAvers()==String("Unknown") || cpp_->CTCASAvers()<String("5.3.0-80")) {
+  String ctvers=cpp_->CTCASAvers();
+  if (ctvers==String("Unknown") ||    // pre-5.3.0-80 (no version recorded in table)
+      ctvers==String("5.3.0-100") ||  // a few pre-release versions with reverted behavior
+      ctvers==String("5.3.0-101") ||
+      ctvers==String("5.3.0-102") ||
+      ctvers==String("5.3.0-103") ||
+      ctvers==String("5.3.0-104") ||
+      ctvers==String("5.3.0-105") ||
+      ctvers==String("5.3.0-106") ) {
     KrefFreqs_.assign(cpp_->refFreqIn());
-    if (typeName()!=String("KMBD Jones"))
+    if (typeName()!=String("KMBD Jones") &&
+	typeName()!=String("KAntPos Jones") )
       logSink() << LogIO::WARN 
 		<< " Found pre-5.3.0 CASA K (delay) cal table; using spw REF_FREQUENCY pivot (usually the edge) for phase(freq) calculation." 
 		<< LogIO::POST;
@@ -1652,10 +1670,20 @@ void KAntPosJones::setCallib(const Record& callib,
 			     const MeasurementSet& selms) 
 {
 
-  //  cout << "KAntPosJones::setCallib()" << endl;
+  // Enforce hardwired spwmap in a new revised callib
+  Record newcallib;
+  newcallib.define("calwt",Bool(callib.asBool("calwt")));
+  newcallib.define("tablename",String(callib.asString("tablename")));
+
+  Record thiscls;
+  thiscls=callib.asRecord("0");  // copy
+  thiscls.removeField("spwmap");
+  thiscls.define("spwmap",Vector<Int>(nSpw(),0));
+  newcallib.defineRecord("0",thiscls);
 
   // Call generic to do conventional things
-  SolvableVisCal::setCallib(callib,selms);
+  SolvableVisCal::setCallib(newcallib,selms);
+  //  SolvableVisCal::setCallib(callib,selms);
 
   if (calWt()) 
     logSink() << " (" << this->typeName() << ": Enforcing calWt()=false for phase/delay-like terms)" << LogIO::POST;
@@ -1989,7 +2017,7 @@ bool KAntPosJones::vlaTrDelCorrApplicable(bool checkCalTable) {
       // Keyword not present in caltable == TURN IT OFF
       doTrDelCorr_=false;
       logSink() << "No VLATrDelCorr keyword in the antpos caltable; turning trop delay correction OFF."
-		<< LogIO::WARN << LogIO::POST;
+		<< LogIO::POST;
     }
   }
 

@@ -126,6 +126,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			void changeInteractiveMode(const bool& interactiveEnabled);
 			void changePauseFlag(const bool& pauseEnabled);
 			void changeStopFlag(const bool& stopEnabled);
+                     
+                        /* expected not to change but for conviniece set nsimga here */
+                        void changeNsigma( casacore::Float nsigma );
 
 			/* As a convience the controls can also be updated from a Record.  
 			   The following fields are supported:
@@ -232,8 +235,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			casacore::Float itsPeakResidualNoMask;
 			casacore::Float itsPrevPeakResidualNoMask;
 			casacore::Float itsMinPeakResidualNoMask;
-	  
+
+	                casacore::Float itsNsigma; 
+                        casacore::Float itsNsigmaThreshold;
+
 	                casacore::Float itsMadRMS;
+                        
 	                casacore::Float itsMaskSum;
 	  
  	                casacore::Int itsPrevMajorCycleCount;

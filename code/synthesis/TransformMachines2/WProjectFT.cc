@@ -955,7 +955,7 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
     sumwgt[icounter].resize(sumWeight.shape());
     sumwgt[icounter].set(0.0);
   }
-  if(!doneThreadPartition_p){
+  if(doneThreadPartition_p < 0){
     xsect_p.resize(ixsub*iysub);
     ysect_p.resize(ixsub*iysub);
     nxsect_p.resize(ixsub*iysub);
@@ -963,7 +963,6 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
       findGridSector(nxp, nyp, ixsub, iysub, minx, miny, icounter, xsect_p(icounter), ysect_p(icounter), nxsect_p(icounter), nysect_p(icounter), true);
     }
-    doneThreadPartition_p=True;
   }
   Vector<Int> xsect, ysect, nxsect, nysect;
   xsect=xsect_p; ysect=ysect_p; nxsect=nxsect_p; nysect=nysect_p;
@@ -1008,7 +1007,8 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
 		 phasorstor);
     }
     }//end pragma parallel
-     //tweakGridSector(nx, ny, ixsub, iysub);
+    if(dopsf && (nth > 4))
+      tweakGridSector(nx, ny, ixsub, iysub);
     timegrid_p+=tim.real();
 
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1055,7 +1055,8 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
 		 phasorstor);
     }
     }//end pragma parallel
-    //tweakGridSector(nx, ny, ixsub, iysub);
+    if(dopsf && (nth > 4))
+      tweakGridSector(nx, ny, ixsub, iysub);
     timegrid_p+=tim.real();
 
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1288,6 +1289,7 @@ ImageInterface<Complex>& WProjectFT::getImage(Matrix<Float>& weights,
       LatticeFFT::cfft2d(darrayLattice,false);
       griddedData.resize(griddedData2.shape());
       convertArray(griddedData, griddedData2);
+      SynthesisUtilMethods::getResource("mem peak in getImage");
       griddedData2.resize();
       arrayLattice = new ArrayLattice<Complex>(griddedData);
       lattice=arrayLattice;
