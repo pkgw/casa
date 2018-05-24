@@ -1544,7 +1544,7 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
             if (averaging_.scalarAve()) 
 			    *phaDataModelS_[vbnum] = (imag(vb->visCube()) - imag(vb->visCubeModel())) * 180.0 / C::pi;
             else
-			    *phaDataModel_[vbnum] = (phase(vb->visCube()) - phase(vb->visCubeModel())) * 180.0 / C::pi;
+			    *phaDataModelS_[vbnum] = (phase(vb->visCube()) - phase(vb->visCubeModel())) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::DATA_DIV_MODEL_V: {
@@ -1728,14 +1728,14 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 			break;
 		}
 		case PMS::CORRMODEL_V: {
-			*wtxampCorrModel_[vbnum] = amplitude(vb->visCubeCorrected() - vb->visCube());
+			*wtxampCorrModel_[vbnum] = amplitude(vb->visCubeCorrected() - vb->visCubeModel());
 		    Cube<Float> wtA(*wtxampCorrModel_[vbnum]);
 		    for(uInt c = 0; c < nchannels; ++c)
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::CORRMODEL_S: {
-			*wtxampCorrModelS_[vbnum] = amplitude(vb->visCubeCorrected()) - amplitude(vb->visCube());
+			*wtxampCorrModelS_[vbnum] = amplitude(vb->visCubeCorrected()) - amplitude(vb->visCubeModel());
 		    Cube<Float> wtA(*wtxampCorrModelS_[vbnum]);
 		    for(uInt c = 0; c < nchannels; ++c) 
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
