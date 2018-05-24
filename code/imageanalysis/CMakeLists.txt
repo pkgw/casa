@@ -49,9 +49,7 @@ ImageAnalysis/ImageFitter.cc
 ImageAnalysis/ImageHistogramsCalculator.cc
 ImageAnalysis/ImageInputProcessor.cc
 ImageAnalysis/ImageMask.cc
-ImageAnalysis/ImageMetaData.cc
-ImageAnalysis/ImageMetaDataBase.cc
-ImageAnalysis/ImageMetaDataRW.cc
+ImageAnalysis/ImageMetaDataConstants.cc
 ImageAnalysis/ImageMomentsProgress.cc
 ImageAnalysis/ImageMomentsProgressMonitor.cc
 ImageAnalysis/ImagePadder.cc
@@ -194,7 +192,9 @@ install (FILES
 	ImageAnalysis/ImageMetaData.h
     ImageAnalysis/ImageMetaData.tcc
     ImageAnalysis/ImageMetaDataBase.h
+    ImageAnalysis/ImageMetaDataBase.tcc
     ImageAnalysis/ImageMetaDataRW.h
+    ImageAnalysis/ImageMetaDataRW.tcc
 	ImageAnalysis/ImageMoments.h
 	ImageAnalysis/ImageMoments.tcc
 	ImageAnalysis/ImageMomentsTask.h

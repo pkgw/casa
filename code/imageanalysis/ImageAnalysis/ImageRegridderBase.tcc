@@ -135,7 +135,7 @@ template <class T> void ImageRegridderBase<T>::_finishConstruction() {
 				);
 				// This is a kludge to fool the underlying casacore::ImageRegrid constructor that the shape
 				// is acceptable to it. We copy just the stokes we from the output of ImageRegrid.
-				ImageMetaData md(this->_getImage());
+				ImageMetaData<T> md(this->_getImage());
 				_kludgedShape[csysFrom.polarizationAxisNumber(false)] = md.nStokes();
 			}
 		}

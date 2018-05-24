@@ -87,7 +87,7 @@ class ia_fromshape_test(unittest.TestCase):
         shape = [2,3,4]
         myia.fromshape("", shape)
         self.assertTrue((myia.shape() == shape).all())
-        for t in ['c', 'f']:
+        for t in ['c', 'f', 'd', 'cd']:
             myia.fromshape("", shape, type=t)
             self.assertTrue((myia.shape() == shape).all())
             outfile = "tt" + t
@@ -95,6 +95,7 @@ class ia_fromshape_test(unittest.TestCase):
             myia.done()
             myia.open(outfile)
             self.assertTrue((myia.shape() == shape).all())
+            myia.done()
         
     def test_history(self):
         """Test history records are written"""
@@ -103,7 +104,7 @@ class ia_fromshape_test(unittest.TestCase):
         msgs = myia.history()
         myia.done()
         self.assertTrue("ia.fromshape" in msgs[-2])        
-        self.assertTrue("ia.fromshape" in msgs[-1])        
+        self.assertTrue("ia.fromshape" in msgs[-1])
         
 def suite():
     return [ia_fromshape_test]
