@@ -36,8 +36,8 @@ def imregrid(
                 'MECLIPTIC', 'TECLIPTIC', 'SUPERGAL'
             ):
                 outia = _imregrid_to_new_ref_frame(
-                    _myia, imagename, template, output,
-                    axes, shape, overwrite
+                    _myia, imagename, template, output, axes,
+                    shape, overwrite, interpolation, decimate
                 )
                 try:
                     param_names = imregrid.func_code.co_varnames[:imregrid.func_code.co_argcount]
@@ -47,7 +47,9 @@ def imregrid(
                         param_names, param_vals, casalog
                     )
                 except Exception, instance:
-                    casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
+                    casalog.post(
+                        "*** Error \'%s\' updating HISTORY" % (instance), 'WARN'
+                    )
                 outia.done()
                 return True
             else:
@@ -64,7 +66,8 @@ def imregrid(
                 imshape = image_ia.shape()
                 axestoregrid = axes
                 if (axes[0] < 0):
-                    # default value of axes, need to determine actual axes to send to ia.regrid()
+                    # default value of axes, need to determine actual axes to
+                    # send to ia.regrid()
                     axestoregrid = []
                     image_ncoords = image_csys.ncoordinates()
                     for i in range(image_ncoords):
@@ -134,21 +137,22 @@ def imregrid(
             outia.done()
         if csys:
             csys.done()
-            
+
 def _imregrid_to_new_ref_frame(
-    _myia, imagename, template, output,
-    axes, shape, overwrite
+    _myia, imagename, template, output, axes,
+    shape, overwrite, interpolation, decimate
 ):
     _myia.open(imagename)
     csys = _myia.coordsys()
     if len(shape) > 0 and shape != [-1]:
          casalog.post(
-            "Specified shape parameter will be ignored when regridding to a new reference frame",
-            "WARN"
+            "Specified shape parameter will be ignored when regridding to a "
+            + "new reference frame", "WARN"
         )
     if len(axes) > 0 and axes != [-1]:
         casalog.post(
-            "Specified axes parameter will be ignored when regridding to a new reference frame",
+            "Specified axes parameter will be ignored when "
+            + "regridding to a new reference frame",
             "WARN"
         )
     dirinfo = csys.findcoordinate("direction")
@@ -204,9 +208,13 @@ def _imregrid_to_new_ref_frame(
         _myia = tsub
         _myia.dohistory(False)
         _myia.setcoordsys(csys.torecord())
+    doref = (
+        csys.referencecode("direction")[0] == csys.conversiontype("direction")
+    )
     angle = csys.convertdirection(newrefcode)
-    mysin = qa.getvalue(qa.sin(angle))
-    mycos = qa.getvalue(qa.cos(angle))
+    myqa = qatool()
+    mysin = myqa.getvalue(myqa.sin(angle))
+    mycos = myqa.getvalue(myqa.cos(angle))
     xnew = 0
     ynew = 0
     for xx in [-centerpix[0], centerpix[0]]:
@@ -228,14 +236,17 @@ def _imregrid_to_new_ref_frame(
         newrefpix[diraxes[1]] = newrefpix[diraxes[1]] + pad
         csys.setreferencepixel(newrefpix)            
     casalog.post(
-        "Will rotate direction coordinate by "
-        + qa.tos(qa.convert(angle, "deg"))
+        "Will rotate direction coordinate clockwise by "
+        + myqa.tos(myqa.convert(angle, "deg")) + " to align with pixel axes"
       , 'NORMAL'
     )
-    rot = _myia.rotate(outfile="", shape=shape, pa=angle)
+    rot = _myia.regrid(
+        outfile="",shape=shape, csys=csys.torecord(), axes=diraxes,
+        method=interpolation, decimate=decimate ,doref=doref
+    )
     rot.dohistory(False)
-    rot.rotatebeam(angle=angle)
-    rot.setcoordsys(csys.torecord())
+    # beam is rotated counterclockwise
+    rot.rotatebeam(angle=myqa.mul(-1, angle))
     # now crop
     casalog.post("Cropping masked image boundaries", "NORMAL")
     cropped = rot.crop(outfile=output, axes=diraxes, overwrite=overwrite) 
