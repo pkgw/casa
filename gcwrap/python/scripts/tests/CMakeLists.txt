@@ -80,6 +80,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_ia_fromrecord.py
   test_ia_fromshape.py
   test_ia_getregion.py
+  test_ia_getslice.py
   test_ia_hanning.py
   test_ia_histograms.py
   test_ia_imageconcat.py
