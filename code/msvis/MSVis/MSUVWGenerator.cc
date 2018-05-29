@@ -8,6 +8,7 @@
 #include <ms/MeasurementSets/MSColumns.h>
 #include <ms/MeasurementSets/MSAntennaColumns.h>
 #include <measures/Measures/MCBaseline.h>
+#include <map>
 
 using namespace casacore;
 namespace casa {

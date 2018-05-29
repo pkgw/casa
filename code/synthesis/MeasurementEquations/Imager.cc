@@ -4900,7 +4900,8 @@ Record Imager::setjy(const Vector<Int>& /*fieldid*/,
       throw(AipsError(standard + " is not a recognized flux density scale"));
 
     FluxStandard fluxStd(fluxScaleEnum);
-    if (fluxScaleEnum==FluxStandard::PERLEY_BUTLER_2013) {
+    if (fluxScaleEnum==FluxStandard::PERLEY_BUTLER_2013 || 
+        fluxScaleEnum==FluxStandard::PERLEY_BUTLER_2017 ) {
       fluxStd.setInterpMethod(interpolation);
     }
 
@@ -5273,7 +5274,12 @@ String Imager::make_comp(const String& objName,
     returnFluxErrs[0].resize(nfreqs);
 
     MDirection objDir;
-     
+    
+    if (fluxScaleEnum==FluxStandard::PERLEY_BUTLER_2013 || 
+        fluxScaleEnum==FluxStandard::PERLEY_BUTLER_2017) 
+    { 
+      fluxStd.setInterpMethod("nearest");
+    }
     foundSrc = fluxStd.computeCL(objName, mfreqs, mtime, objDir,
 				 returnFluxes, returnFluxErrs,
 				 clistnames, prefix);

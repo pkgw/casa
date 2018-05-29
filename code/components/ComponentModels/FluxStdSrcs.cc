@@ -78,6 +78,59 @@ FluxStdSrcs::FluxStdSrcs()
                                   "J1829+4845").vector();          // Jhhmm+ddm, CAS-2020
   directions_p[FSS::THREEC380] = MDirection(MVDirection(4.84123669, 0.85078092),
                                              MDirection::J2000);
+  // added for Perley-Butler 2017
+  // use C++11 vector initialization
+  // Note: source name match (srcNameToEnum)is case-insensitve (e.g. "ForA" and "FORA" is allowed)
+  std::vector<String> templist;
+  templist = {"J0133-3629"};
+  names_p[FSS::J0133] = Vector<String> (templist);  
+  directions_p[FSS::J0133] = MDirection(MVDirection(0.40998511349868466,-0.636928821694464), 
+                                             MDirection::J2000);
+  templist = {"FORNAX_A", "FORNAX A", "FOR-A", "FOR A", "ForA", "J0322-3712"};
+  names_p[FSS::FORNAXA] = Vector<String> (templist);
+  directions_p[FSS::FORNAXA] = MDirection(MVDirection(0.8844302540951193,-0.649405598740554), 
+                                             MDirection::J2000);
+  templist = {"J0444-2809"};
+  names_p[FSS::J0444] = Vector<String> (templist);
+  directions_p[FSS::J0444] = MDirection(MVDirection(1.2419253902826484,-0.49157683196101404), 
+                                             MDirection::J2000);
+  templist = {"PICTOR_A","PICTOR A", "PIC-A", "PIC A", "PicA", "J0519-4546"};  
+  names_p[FSS::PICTORA] = Vector<String> (templist);
+  directions_p[FSS::PICTORA] = MDirection(MVDirection(1.3955160370653494,-0.7989916117952379), 
+                                             MDirection::J2000);
+  templist= {"TAURUS_A", "TAURUS A", "TAU-A", "TAU A", "TauA", "J0534+2200", "3C144", "3C 144", "3C_144", "CRAB"};
+  names_p[FSS::TAURUSA] = Vector<String> (templist); 
+  directions_p[FSS::TAURUSA] = MDirection(MVDirection(1.4596748494230258,0.3842250233666105), 
+                                             MDirection::J2000);
+  templist = {"HYDRA_A", "HYDRA A", "HYA-A", "HYA A", "HyaA", "J0918-1205", "3C218", "3C 218", "3C_218"};
+  names_p[FSS::HYDRAA] = Vector<String> (templist);
+  directions_p[FSS::HYDRAA] = MDirection(MVDirection(2.4351465533014114,-0.21110704143990625), 
+                                             MDirection::J2000);
+  templist = {"VIRGO_A", "VIRGO A", "VIR-A", "VIR A", "VirA", "J1230+1223", "3C274", "3C 274", "3C_274", "M87"};
+  names_p[FSS::VIRGOA] = Vector<String> (templist);
+  directions_p[FSS::VIRGOA] = MDirection(MVDirection(-3.0070987886171765,0.2162659001873615), 
+                                             MDirection::J2000);
+  templist = {"HERCULES_A", "HERCULES A", "HER-A", "HER A", "HerA", "J1651+0459", "3C348", "3C 348", "3C_348"};
+  names_p[FSS::HERCULESA] = Vector<String> (templist); 
+  directions_p[FSS::HERCULESA] = MDirection(MVDirection(-1.871273156204919,0.08713711430959646), 
+                                             MDirection::J2000);
+  templist = {"3C353", "3C 353", "3C_353", "J1720-0059"};
+  names_p[FSS::THREEC353] = Vector<String> (templist);
+  directions_p[FSS::THREEC353] = MDirection(MVDirection(-1.7432823443920011,-0.017099960309150668), 
+                                             MDirection::J2000);
+  templist = {"CYGNUS_A", "CYGNUS A", "CYG-A", "CYG A", "CygA", "J1959+4044", "3C405", "3C 405", "3C_405"};
+  names_p[FSS::CYGNUSA] =  Vector<String> (templist);
+  directions_p[FSS::CYGNUSA] = MDirection(MVDirection(-1.0494987241821205,0.7109409485219165), 
+                                             MDirection::J2000);
+  templist = {"3C444", "3C 444", "3C_444", "J2214-1701"};
+  names_p[FSS::THREEC444] = Vector<String> (templist);
+  directions_p[FSS::THREEC444] = MDirection(MVDirection(-0.46063951349110815,-0.2971727999325764), 
+                                              MDirection::J2000);
+  templist = {"CASSIOPEIA_A", "CASSIOPEIA A", "CAS-A", "CAS A", "CasA", "J2323+5848", "3C461", "3C 461", "3C_461"};
+  names_p[FSS::CASSIOPEIAA] = Vector<String> (templist);
+  directions_p[FSS::CASSIOPEIAA] = MDirection(MVDirection(-0.15969762655748126,1.0265153995604648), 
+                                            MDirection::J2000);
+   
   directions_p[FSS::UNKNOWN_SOURCE] = MDirection();	// Default.
 }
 

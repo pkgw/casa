@@ -179,22 +179,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 os <<LogIO::DEBUG1<<"itsIterDone="<<itsIterDone<<" itsNiter="<<itsNiter<<LogIO::POST;
 
 		/// This may interfere with some other criterion... check.
-		if ( itsMajorDone==0 && itsIterDone==0 ) { stopCode=0; }
+                Float tol = 0.01; // threshold test torelance (CAS-11278)
+		if ( itsMajorDone==0 && itsIterDone==0 )
+                  {
+                     if (itsMaskSum==0.0) { stopCode=7; } // if zero mask is detected it should exit right away
+                     else { stopCode=0; }
+                   }
 		else if ( itsIterDone >= itsNiter || 
 		     itsPeakResidual <= itsThreshold ||
-                     itsPeakResidual <= itsNsigmaThreshold ||
+                     abs(itsPeakResidual - itsThreshold)/itsThreshold < tol ||   
 		     itsStopFlag )
 		  {
 		    //		    os << "Reached global stopping criteria : ";
 
 		    if( itsIterDone >= itsNiter ) { stopCode=1; }
 		    //os << "Numer of iterations. "; // (" << itsIterDone << ") >= limit (" << itsNiter << ")" ;
-		    if( usePeakRes <= itsThreshold ) {stopCode=2;}
-		    //if ( usePeakRes <= itsThreshold ) {
-                      // (itsThreshold >= itsNsigmaThreshold) {stopCode=2;}
-                      //if (itsThreshold >= itsNsigmaThreshold) {stopCode=2;}
-                      //else { if(itsNsigmaThreshold!=0.0) stopCode=8;} // for nsigma=0.0 this mode is turned off.
-                    //}
+		    if( usePeakRes <= itsThreshold || (usePeakRes-itsThreshold)/itsThreshold < tol) {stopCode=2; }
                     else if ( usePeakRes <= itsNsigmaThreshold ) {
                       if (itsNsigmaThreshold!=0.0) { stopCode=8; } // for nsigma=0.0 this mode is turned off
                     }

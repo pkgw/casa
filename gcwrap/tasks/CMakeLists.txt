@@ -25,7 +25,6 @@ exportasdm.xml
 exportfits.xml
 exportuvfits.xml
 feather.xml
-find.xml
 fixplanets.xml
 fixvis.xml
 flagcmd.xml
@@ -134,8 +133,6 @@ viewer.xml
 wvrgcal.xml
 virtualconcat.xml
 vishead.xml
-visstatold.xml
 visstat.xml
-visstat2.xml
 widebandpbcor.xml
 widefield.xml )

@@ -5672,15 +5672,15 @@ bool image::tofits(
             VersionInfo::report(buffer);
             origin = String(buffer);
 
-        // sanitize: replace CR and LF by SPACE
-        const Char *cOrigin = origin.chars();
-        for(String::size_type i=0; i<origin.length(); i++){
-          if(cOrigin[i]==10 || cOrigin[i]==13){
-        origin.at(i,(String::size_type)1) = " ";
-          }
-        }
-        origin.rtrim(' ');
-
+	    // sanitize: replace CR and LF by SPACE
+	    const Char *cOrigin = origin.chars();
+	    for(String::size_type i=0; i<origin.length(); i++){
+	      if(cOrigin[i]==10 || cOrigin[i]==13){
+		origin.at(i,(String::size_type)1) = " ";
+	      }
+	    }
+	    origin.rtrim(' ');
+	    
         }
         ThrowIf(
             ! _imageF,
