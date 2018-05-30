@@ -15,6 +15,7 @@
 
 #include <casacore/tables/Tables/Table.h>
 #include <casacore/tables/Tables/ScaColDesc.h>
+#include <casacore/tables/Tables/SetupNewTab.h>
 //#include <casacore/ms/MeasurementSets/MeasurementSet.h>
 
 // empty OptionalTables class
