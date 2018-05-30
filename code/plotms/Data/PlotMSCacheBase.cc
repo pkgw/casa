@@ -1806,7 +1806,9 @@ void PlotMSCacheBase::deletePlotMask() {
 
 void PlotMSCacheBase::log(const String& method, const String& message,
 		int eventType) {
-	plotms_->getLogger()->postMessage(PMS::LOG_ORIGIN,method,message,eventType);
+	if (plotms_ != nullptr) {
+		plotms_->getLogger()->postMessage(PMS::LOG_ORIGIN,method,message,eventType);
+	}
 }
 
 int PlotMSCacheBase::findColorIndex( int chunk, bool initialize ){

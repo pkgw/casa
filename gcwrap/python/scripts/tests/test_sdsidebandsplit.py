@@ -83,6 +83,11 @@ class sdsidebandsplitTestBase(unittest.TestCase):
                 shutil.rmtree(prefix+suffix)
 
     def tearDown(self):
+        # remove input images
+        for name in self.standard_param['imagename']:
+            if os.path.exists(name):
+                shutil.rmtree(name)
+                
         # remove output files
         prefix = self.standard_param['outfile']
         for suffix in ['.signalband', '.imageband']:

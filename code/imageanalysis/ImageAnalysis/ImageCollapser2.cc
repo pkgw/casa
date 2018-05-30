@@ -27,89 +27,14 @@
 
 namespace casa {
 
-template<> void ImageCollapser<Float>::_doHighPerf(
-    SPCIIF image, casacore::TempImage<Float>& outImage
+template<> void ImageCollapser<Complex>::_doHighPerf(
+    SHARED_PTR<const ImageInterface<Complex>>, TempImage<Complex>&
 ) const {
-    auto doMedian = _aggType == ImageCollapserData::MEDIAN;
-    auto doMADM = _aggType == ImageCollapserData::MADM
-        || _aggType == ImageCollapserData::XMADM;
-    ThrowIf(
-        ! doMedian && ! doMADM,
-        "Logic error, unsupported aggregate type "
-        + String(ImageCollapserData::funcNameMap()->at((uInt)_aggType)) + " for method "
-        + String(__func__)
-    );
-    IPosition cursorShape(image->ndim(), 1);
-    for (uInt i = 0; i < cursorShape.size(); ++i) {
-        for (uInt j = 0; j < _axes.size(); ++j) {
-            if (_axes[j] == i) {
-                cursorShape[i] = image->shape()[i];
-                break;
-            }
-        }
-    }
-    LatticeStepper stepper(image->shape(), cursorShape);
-    std::unique_ptr<Array<Bool>> outMask;
-    // accumtype being the same precision as the input data type is ok here,
-    // since we are only computing the median/madm and not actually accumulating
-    ClassicalStatistics<
-        Double, Array<Float>::const_iterator, Array<Bool>::const_iterator
-    > stats;
-    auto hasMaskedPixels = ! ImageMask::isAllMaskTrue(*image);
-    for (stepper.reset(); !stepper.atEnd(); stepper++) {
-        Slicer slicer(
-            stepper.position(), stepper.endPosition(), casacore::Slicer::endIsLast
-        );
-        auto data = image->getSlice(slicer);
-        Bool isMasked = False;
-        Array<Bool> maskSlice;
-        if (hasMaskedPixels) {
-            maskSlice = image->getMaskSlice(slicer);
-            isMasked = ! allTrue(maskSlice);
-        }
-        if (isMasked) {
-            if (! anyTrue(maskSlice)) {
-                if (! outMask) {
-                    outMask.reset(new Array<Bool>(outImage.shape(), true));
-                }
-                (*outMask)(stepper.position()) = false;
-                outImage.putAt(0, stepper.position());
-            }
-            else if (! allTrue(maskSlice)) {
-                stats.setData(data.begin(), maskSlice.begin(), data.size());
-                if (doMedian) {
-                    outImage.putAt(stats.getMedian(), stepper.position());
-                }
-                else if (doMADM) {
-                    auto x = stats.getMedianAbsDevMed();
-                    if (_aggType == ImageCollapserData::XMADM) {
-                        x *= C::probit_3_4;
-                    }
-                    outImage.putAt(x, stepper.position());
-                }
-            }
-        }
-        else {
-            stats.setData(data.begin(), data.size());
-            if (doMedian) {
-                outImage.putAt(stats.getMedian(), stepper.position());
-            }
-            else if (doMADM) {
-                auto x = stats.getMedianAbsDevMed();
-                if (_aggType == ImageCollapserData::XMADM) {
-                    x *= C::probit_3_4;
-                }
-                outImage.putAt(x, stepper.position());
-            }
-        }
-    }
-    if (outMask) {
-        outImage.attachMask(ArrayLattice<Bool>(*outMask));
-    }
+    ThrowCc("Logic error: This version of the method should never be called");
 }
-        
-template<> void ImageCollapser<std::complex<float>>::_doHighPerf(
-    SHARED_PTR<const ImageInterface<std::complex<float>>>, casacore::TempImage<std::complex<float>>&
+
+template<> void ImageCollapser<DComplex>::_doHighPerf(
+    SHARED_PTR<const ImageInterface<DComplex>>, TempImage<DComplex>&
 ) const {
     ThrowCc("Logic error: This version of the method should never be called");
 }

@@ -119,6 +119,20 @@ public:
         const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs=0
     );
 
+    static SPIID doubleImageFromShape(
+        const casacore::String& outfile, const casacore::Vector<casacore::Int>& shape,
+        const casacore::Record& csys, casacore::Bool linear=true,
+        casacore::Bool overwrite=false, casacore::Bool verbose=true,
+        const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs=0
+    );
+
+    static SPIIDC complexDoubleImageFromShape(
+        const casacore::String& outfile, const casacore::Vector<casacore::Int>& shape,
+        const casacore::Record& csys, casacore::Bool linear=true,
+        casacore::Bool overwrite=false, casacore::Bool verbose=true,
+        const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs=0
+    );
+
     // only the pointer of the correct data type will be valid, the other
     // will be null.
     static std::pair<SPIIF, SPIIC> fromImage(
@@ -164,7 +178,7 @@ public:
 
     // exactly one of the pointers will not be null, indicating the
     // pixel data type. Cache is only used if the image is a CompoenentListImage
-    static std::pair<SPIIF, SPIIC> fromFile(
+    static ITUPLE fromFile(
         const casacore::String& filename, casacore::Bool cache=casacore::True
     );
 
@@ -240,12 +254,15 @@ private:
 
     static void _checkOutfile(const casacore::String& outfile, casacore::Bool overwrite);
 
-    static std::pair<SPIIF, SPIIC> _fromLatticeBase(std::unique_ptr<casacore::LatticeBase>& latt);
+    static ITUPLE _fromLatticeBase(
+        std::unique_ptr<casacore::LatticeBase>& latt
+    );
 
     // if successful, image will point to the newly named image
     // upone return
-    template <class T> static std::pair<SPIIF, SPIIC> _rename(
-    	SPIIT& image, const casacore::String& name, const casacore::Bool overwrite
+    template <class T> static ITUPLE _rename(
+    	SPIIT& image, const casacore::String& name,
+    	const casacore::Bool overwrite
     );
 
 };
