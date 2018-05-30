@@ -297,7 +297,11 @@ bool logsink::poststat(const std::string& message,
                 std::time_t convertedtime = std::chrono::system_clock::to_time_t(timestamp);
                 char formattedtime[20];
                 strftime(formattedtime, 20, "%Y-%m-%d %H:%M:%S", localtime(&convertedtime));
-                tlog << formattedtime << " :: " << telemetryLoggerPid<< " :: "<< origin << " :: " << message << "\n";
+                std::string telemetryOrigin = " ";
+                if(itsorigin) {
+                    telemetryOrigin = itsorigin->toString();
+                }
+                tlog << formattedtime << " :: " << telemetryLoggerPid<< " :: "<< telemetryOrigin << " :: " << message << "\n";
                 tlog.close();
             } catch (const std::exception& e) { // caught by reference to base
                 std::cout << "Writing stats failed: '" << e.what() << "'\n";
