@@ -9,14 +9,18 @@ class TelemetryLogMonitor:
 
     # Limit in kilobytes
     def isWithinLimit(self, filename, limit, casa):
-        filesize = os.path.getsize(filename)/1024
-        if (filesize > limit):
-            if (self.showWarning):
-                print "Logfile size is too large. Disabling telemetry."
-                print "Filesize: " + str(filesize)
-                print "Limit: " + str(limit)
-            casa['state']['telemetry-enabled'] = False
-            self.showWarning = False
+        try:
+            filesize = os.path.getsize(filename)/1024
+            if (filesize > limit):
+                if (self.showWarning):
+                    print "Logfile size is too large. Disabling telemetry."
+                    print "Filesize: " + str(filesize)
+                    print "Limit: " + str(limit)
+                casa['state']['telemetry-enabled'] = False
+                self.showWarning = False
+        except OSError:
+            # If file doesn't exist, we'll create a new one
+            pass
         # Else if telemetry disabled enable it again?
 
     def monitorLogFileSize(self, filename, limit, interval, casa):
