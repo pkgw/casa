@@ -120,6 +120,9 @@ class importnro_test(unittest.TestCase):
         # check weight initialization
         self._check_weights(self.outfile)
         
+        # check subtables
+        self._check_optional_subtables(self.outfile)
+        
     def _check_weights(self, vis):
         _tb = gentools(['tb'])[0]
         take_diff = lambda actual, expected: numpy.abs((actual - expected) / expected)
@@ -155,6 +158,57 @@ class importnro_test(unittest.TestCase):
             _tb.close()
         finally:
             _tb.close()
+            
+    def _check_optional_subtables(self, vis):
+        """Check if optional subtables are valid"""
+        self._check_NRO_ARRAY(vis)
+        
+    def _check_NRO_ARRAY(self, vis):
+        """Check if NRO_ARRAY table is valid"""
+        table_name = 'NRO_ARRAY'
+        (mytb,) = gentools(['tb'])
+        mytb.open(vis)
+        try:
+            self.assertTrue(table_name in mytb.keywordnames())
+        finally:
+            mytb.close()
+            
+        table_path = os.path.join(vis, table_name)
+        self.assertTrue(os.path.exists(table_path))
+        mytb.open(table_path)
+        try:
+            cols = set(['BEAM', 'POLARIZATION', 'SPECTRAL_WINDOW', 'ARRAY'])
+            self.assertEqual(set(mytb.colnames()), cols)
+            beam = mytb.getcol('BEAM')
+            pol = mytb.getcol('POLARIZATION')
+            spw = mytb.getcol('SPECTRAL_WINDOW')
+            arr = mytb.getcol('ARRAY')
+            nrow = mytb.nrows()
+        finally:
+            mytb.close()
+            
+        arr_expected = numpy.arange(nrow, dtype=int)
+        self.assertTrue(numpy.all(arr_expected == arr))
+        beam_expected = numpy.empty_like(arr_expected)
+        beam_expected[0:4] = 0
+        beam_expected[4:8] = 1
+        beam_expected[8:12] = 2
+        beam_expected[12:16] = 3
+        beam_expected[16:] = -1
+        self.assertTrue(numpy.all(beam_expected == beam))
+        spw_expected = numpy.empty_like(arr_expected)
+        spw_expected[0:16:2] = 0
+        spw_expected[1:16:2] = 1
+        spw_expected[16:] = -1
+        self.assertTrue(numpy.all(spw_expected == spw))
+        pol_expected = numpy.empty_like(arr_expected)
+        pol_expected[0:16:4] = 12
+        pol_expected[1:16:4] = 12
+        pol_expected[2:16:4] = 9
+        pol_expected[3:16:4] = 9
+        pol_expected[16:] = -1
+        self.assertTrue(numpy.all(pol_expected == pol))
+        
             
     def test_timestamp(self):
         """test_timestamp: Check if timestamp is properly converted to UTC"""
