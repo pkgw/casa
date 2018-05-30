@@ -72,6 +72,7 @@ VisCal::VisCal(VisSet& vs) :
   currScan_(vs.numberSpw(),-1),
   currObs_(vs.numberSpw(),-1),
   currField_(vs.numberSpw(),-1),
+  currIntent_(vs.numberSpw(),-1),
   currFreq_(vs.numberSpw(),-1),
   lastTime_(vs.numberSpw(),0.0),
   refTime_(0.0),
@@ -109,6 +110,7 @@ VisCal::VisCal(String msname,Int MSnAnt,Int MSnSpw) :
   currScan_(MSnSpw,-1),
   currObs_(MSnSpw,-1),
   currField_(MSnSpw,-1),
+  currIntent_(MSnSpw,-1),
   currFreq_(MSnSpw,-1),
   lastTime_(MSnSpw,0.0),
   refTime_(0.0),
@@ -146,6 +148,7 @@ VisCal::VisCal(const MSMetaInfoForCal& msmc) :
   currScan_(nSpw_,-1),
   currObs_(nSpw_,-1),
   currField_(nSpw_,-1),
+  currIntent_(nSpw_,-1),
   currFreq_(nSpw_,-1),
   lastTime_(nSpw_,0.0),
   refTime_(0.0),
@@ -181,6 +184,7 @@ VisCal::VisCal(const Int& nAnt) :
   currSpw_(0),
   currTime_(1,0.0),
   currField_(1,-1),
+  currIntent_(1,-1),
   currFreq_(1,-1),
   lastTime_(1,0.0),
   refTime_(0.0),
@@ -306,6 +310,14 @@ void VisCal::correct2(vi::VisBuffer2& vb, Bool trial, Bool doWtSp, Bool dosync) 
 
   if (prtlev()>3) cout << "VC::correct2(vb)" << endl;
 
+
+  // If calibration is unavailable, just return!
+  if (!calAvailable(vb)) {
+    return;
+  }
+
+  // Reaching here, calibration is available, so do it!
+
   // Count pre-cal flags
   countInFlag2(vb);
 
@@ -349,6 +361,11 @@ void VisCal::corrupt(VisBuffer& vb) {
 void VisCal::corrupt2(vi::VisBuffer2& vb) {
 
   if (prtlev()>3) cout << "VC::corrupt(vb2)" << endl;
+
+  // If calibration is unavailable, just return!
+  if (!calAvailable(vb)) {
+    return;
+  }
 
   // Call non-in-place version, in-place-wise:
   Cube<Complex> m;
@@ -606,6 +623,7 @@ void VisCal::state() {
        << "; refTime= " << refTime() << endl;
   cout << "  refFreq= " << refFreq() << endl;
   cout << "  currField=" << currField() << endl;
+  cout << "  currIntent=" << currIntent() << endl;
   cout << "  PValid() = " << PValid() << endl;
   cout << "  currCPar().shape() = " << currCPar().shape()
        << " (" << currCPar().data() << ")" << endl;
@@ -738,7 +756,7 @@ void VisCal::syncMeta2(const vi::VisBuffer2& vb) {
 	   vb.nChannels());
 
   currObs()=vb.observationId()(0);
-
+  currIntent()=vb.stateId()(0);
 
   // Ensure VisVector for data acces has correct form
   Int ncorr(vb.nCorrelations());

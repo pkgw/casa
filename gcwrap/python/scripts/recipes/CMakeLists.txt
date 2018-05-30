@@ -34,6 +34,7 @@ casa_add_python( tools tools_recipes_python lib/python${PYTHONV}/recipes
   find_autocorr.py
   gaincal_unflag_nearest.py
   getazel.py
+  imager_resource_predictor.py
   __init__.py
   linfeedpolhelpers.py
   lsms.py

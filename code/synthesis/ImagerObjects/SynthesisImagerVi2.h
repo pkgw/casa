@@ -134,7 +134,8 @@ public:
            const casacore::Quantity &gwidth=casacore::Quantity(-1),
            const casacore::Quantity &jwidth=casacore::Quantity(-1),
            const casacore::Float minWeight=0.1,
-           const casacore::Bool clipMinMax=false);
+		       const casacore::Bool clipMinMax=false,
+		       const casacore::Bool pseudoI=false);
 
   void createAWPFTMachine(casacore::CountedPtr<refim::FTMachine>& theFT, casacore::CountedPtr<refim::FTMachine>& theIFT, 
 			  const casacore::String& ftmName,
@@ -175,7 +176,8 @@ public:
       const casacore::Bool clipMinMax,
       const casacore::Int cache,
       const casacore::Int tile,
-      const casacore::String &stokes);
+      const casacore::String &stokes,
+      const casacore::Bool pseudoI=false);
  
 // Do the major cycle
   virtual void runMajorCycle(const casacore::Bool dopsf=false, const casacore::Bool savemodel=false);
@@ -201,6 +203,10 @@ public:
   void  andFreqSelection(const casacore::Int msId, const casacore::Int spwId,  const casacore::Double freqBeg, const casacore::Double freqEnd, const casacore::MFrequency::Types frame);
   void andChanSelection(const casacore::Int msId, const casacore::Int spwId, const casacore::Int startchan, const casacore::Int endchan);
   void tuneChunk(const casacore::Int gmap);
+  //Set up tracking direction ; return False if no tracking is set.
+  //return Direction of moving source is in the frame of vb.phaseCenter() at the time of the first row of the vb
+  casacore::Bool getMovingDirection(const vi::VisBuffer2& vb,  casacore::MDirection& movingDir);
+  
    // Other Options
   //casacore::Block<const casacore::MeasurementSet *> mss_p;
   casacore::CountedPtr<vi::VisibilityIterator2>  vi_p;

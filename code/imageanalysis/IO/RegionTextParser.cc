@@ -258,7 +258,7 @@ void RegionTextParser::_parse(const String& contents, const String& fileDesc) {
                 spectralParmsUpdated, newParams,
                 consumeMe, preamble
             );
-            map<AnnotationBase::Keyword, String> gParms;
+            std::map<AnnotationBase::Keyword, String> gParms;
             for (const auto& p: newParams) {
                 gParms[p.first] = p.second.stringVal;
             }

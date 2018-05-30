@@ -625,7 +625,7 @@ Slice calParSliceByType(String caltype, String what, String pol)
     else
       throw(AipsError("Unsupported value type: "+what));
   }
-  else if ((caltype[0]=='G' && caltype!="GSPLINE") ||
+  else if ((caltype[0]=='G') ||
             caltype[0]=='B' ||
             caltype[0]=='D') {
     if (what=="AMP" ||

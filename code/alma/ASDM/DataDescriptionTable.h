@@ -118,6 +118,16 @@ class DataDescriptionRow;
 	
 
 
+ * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
+	
+ * <TR>
+ * <TD> pulsarId</TD> 
+ * <TD> Tag </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp;  </TD>
+ * </TR>
+	
+
  * </TABLE>
  */
 class DataDescriptionTable : public Representable {

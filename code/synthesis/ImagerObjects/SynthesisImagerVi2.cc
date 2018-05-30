@@ -55,7 +55,9 @@
 #include <ms/MSSel/MSSelection.h>
 
 
+#if ! defined(WITHOUT_DBUS)
 #include <synthesis/ImagerObjects/SIIterBot.h>
+#endif
 #include <synthesis/ImagerObjects/SynthesisImagerVi2.h>
 
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
@@ -82,8 +84,10 @@
 #include <synthesis/TransformMachines2/NoOpATerm.h>
 #include <synthesis/TransformMachines2/SDGrid.h>
 #include <synthesis/TransformMachines/WProjectFT.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
+#endif
 #include <casacore/casa/Utilities/Regex.h>
 #include <casacore/casa/OS/Directory.h>
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
@@ -111,11 +115,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       if(mss_p[k])
 	delete mss_p[k];
     }
-  }
+      SynthesisUtilMethods::getResource("End Run");
+}
 
   Bool SynthesisImagerVi2::selectData(const SynthesisParamsSelect& selpars){
  LogIO os( LogOrigin("SynthesisImagerVi2","selectData",WHERE) );
  Bool retval=True;
+
+    SynthesisUtilMethods::getResource("Start Run");
 
     try
       {
@@ -519,10 +526,11 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
     try
       {
+	
 
 	os << "Define image coordinates for [" << impars.imageName << "] : " << LogIO::POST;
 
-
+	
 	csys = impars.buildCoordinateSystem( *vi_p, channelSelections_p, mss_p );
 
 	IPosition imshape = impars.shp();
@@ -589,7 +597,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 			gridpars.interpolation, impars.freqFrameValid, 1000000000,  16, impars.stokes,
 			impars.imageName, gridpars.pointingDirCol, gridpars.skyPosThreshold,
 			gridpars.convSupport, gridpars.truncateSize, gridpars.gwidth, gridpars.jwidth,
-			gridpars.minWeight, gridpars.clipMinMax);
+			gridpars.minWeight, gridpars.clipMinMax, impars.pseudoi);
 
       }
     catch(AipsError &x)
@@ -760,7 +768,8 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 	 vi_p->useImagingWeight(imwgt_p);
       ///////////////////////////////
 	 
-	 
+	     SynthesisUtilMethods::getResource("Set Weighting");
+
 	 ///	 return true;
 	 
        }
@@ -1497,7 +1506,8 @@ void SynthesisImagerVi2::unlockMSs()
 					   const Quantity &gwidth,
 					   const Quantity &jwidth,
 					   const Float minWeight,
-					   const Bool clipMinMax
+					   const Bool clipMinMax,
+					   const Bool pseudoI
 					   )
 
   {
@@ -1603,11 +1613,26 @@ void SynthesisImagerVi2::unlockMSs()
     //// Set interpolation mode
     theFT->setFreqInterpolation( interpolation );
     theIFT->setFreqInterpolation( interpolation );
+
+    ///Set tracking of moving source if any
+    if(movingSource_p != ""){
+      theFT->setMovingSource(movingSource_p);
+      theIFT->setMovingSource(movingSource_p);
+    }
     /* vi_p has chanselection now
     //channel selections from spw param
     theFT->setSpwChanSelection(chanSel_p);
     theIFT->setSpwChanSelection(chanSel_p);
     */
+
+    // Set pseudo-I if requested.
+    if(pseudoI==true)
+    {
+      os << "Turning on Pseudo-I gridding" << LogIO::POST;
+      theFT->setPseudoIStokes(true);
+      theIFT->setPseudoIStokes(true);
+    }
+
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1841,7 +1866,8 @@ void SynthesisImagerVi2::unlockMSs()
       const Bool clipMinMax,
       const Int cache,
       const Int tile,
-      const String &stokes) {
+      const String &stokes,
+      const Bool pseudoI) {
 //    // member variable itsVPTable is VP table name
     LogIO os(LogOrigin("SynthesisImagerVi2", "createSDFTMachine", WHERE));
     os << LogIO::NORMAL // Loglevel INFO
@@ -1919,7 +1945,7 @@ void SynthesisImagerVi2::unlockMSs()
     theFT->setPointingDirColumn(pointingDirCol);
 
     // turn on Pseudo Stokes mode if necessary
-    if (stokes == "XX" || stokes == "YY" || stokes == "XXYY"
+    if (pseudoI || stokes == "XX" || stokes == "YY" || stokes == "XXYY"
         || stokes == "RR" || stokes == "LL" || stokes == "RRLL") {
       theFT->setPseudoIStokes(True);
       theIFT->setPseudoIStokes(True);
@@ -2231,22 +2257,33 @@ void SynthesisImagerVi2::unlockMSs()
     vi::VisBuffer2* vb = vi_p->getVisBuffer();
     vi_p->originChunks();
     vi_p->origin();
-    Int fieldCounter=0;
-    Vector<Int> fieldsDone;
-
+    std::map<Int, std::set<Int>> fieldsDone;
+  
+    ///////if tracking a moving source
+    MDirection origMovingDir;
+    MDirection newPhaseCenter;
+    Bool trackBeam=getMovingDirection(*vb, origMovingDir);
+    //////
     for(vi_p->originChunks(); vi_p->moreChunks(); vi_p->nextChunk())
       {
 	for (vi_p->origin(); vi_p->more(); vi_p->next())
 	  {
 	    Bool fieldDone=False;
-	    for (uInt k=0;  k < fieldsDone.nelements(); ++k)
-	      fieldDone=fieldDone || (vb->fieldId()(0)==fieldsDone(k));
+	    if(fieldsDone.count(vb->msId() >0)){
+	      fieldDone=fieldDone || (fieldsDone[vb->msId()].count(vb->fieldId()(0)) > 0);
+	    }
+	    else{
+	      fieldsDone[vb->msId()]=std::set<int>();
+	    }
 	    if(!fieldDone){
-	      ++fieldCounter;
-	      fieldsDone.resize(fieldCounter, True);
-	      fieldsDone(fieldCounter-1)=vb->fieldId()(0);
-	      
-	      itsMappers.addPB(*vb,pbMath);
+	      fieldsDone[vb->msId()].insert(vb->fieldId()(0));
+	      if(trackBeam){
+		MDirection newMovingDir;
+		getMovingDirection(*vb, newMovingDir);
+		newPhaseCenter=vb->phaseCenter();
+		newPhaseCenter.shift(MVDirection(-newMovingDir.getAngle()+origMovingDir.getAngle()), False);
+	      }
+	      itsMappers.addPB(*vb,pbMath, newPhaseCenter, trackBeam);
 	      
 	    }
 	  }
@@ -2257,7 +2294,46 @@ void SynthesisImagerVi2::unlockMSs()
     return True;
   }// end makePB
 
+  Bool SynthesisImagerVi2::getMovingDirection(const vi::VisBuffer2& vb,  MDirection& outDir){
+    MDirection movingDir;
+    Bool trackBeam=False;
+    MeasFrame mFrame(MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()), mLocation_p);
+    if(movingSource_p != ""){
+      MDirection::Types refType;
+      trackBeam=True;
+      if(Table::isReadable(movingSource_p, False)){
+	//seems to be a table so assuming ephemerides table
+	Table laTable(movingSource_p);
+	Path leSentier(movingSource_p);
+	MeasComet laComet(laTable, leSentier.absoluteName());
+	movingDir.setRefString("COMET");
+	mFrame.set(laComet);
+      }
+      ///if not a table 
+      else  if(casacore::MDirection::getType(refType, movingSource_p)){
+	if(refType > casacore::MDirection::N_Types && refType < casacore::MDirection:: N_Planets ){
+	  ///A known planet
+	  movingDir.setRefString(movingSource_p);
+	}
+      }
+      else if(upcase(movingSource_p)=="TRACKFIELD"){
+	movingDir=VisBufferUtil::getEphemDir(vb, -1.0);
+      }
+      else{
+	throw(AipsError("Erroneous tracking direction set to make pb"));
+      }
+      MDirection::Ref outref1(MDirection::AZEL, mFrame);
+      MDirection tmphazel=MDirection::Convert(movingDir, outref1)();
+      MDirection::Ref outref(vb.phaseCenter().getRef().getType(), mFrame);
+      outDir=MDirection::Convert(tmphazel, outref)();
+    }
+    else{
+      outDir=vb.phaseCenter();
+      trackBeam=False;
+    }
+      return trackBeam;
 
+  }
 
 
 } //# NAMESPACE CASA - END

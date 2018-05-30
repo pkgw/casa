@@ -34,9 +34,10 @@ def oldhanningsmooth(vis=None, datacolumn=None, outputvis=None):
     #
     try:
         casalog.origin('oldhanningsmooth')
+        casalog.post("Task oldhanningsmooth has been deprecated and will be removed in release 5.4.", "WARN")
         casalog.post('vis=\''+vis+'\', datacolumn=\''+datacolumn+'\', outputvis=\''+outputvis+'\'', 'INFO')
         newvis = vis;
-        
+
         if os.path.exists(outputvis):
             ms.close()
             raise Exception, "Output MS %s already exists - will not overwrite." % outputvis
@@ -56,16 +57,16 @@ def oldhanningsmooth(vis=None, datacolumn=None, outputvis=None):
             ms.open(thems=newvis,nomodify=False)
         else:
             raise Exception, 'Visibility data set not found - please verify the name'
-        
+
         ms.hanningsmooth(datacolumn=str.lower(datacolumn))
-        
+
         # write history
         ms.writehistory(message='taskname = oldhanningsmooth',origin='oldhanningsmooth')
         ms.writehistory(message='vis         = "'+str(vis)+'"',origin='oldhanningsmooth')
         ms.writehistory(message='datacolumn  = "'+str(datacolumn)+'"',origin='oldhanningsmooth')
         ms.writehistory(message='outputvis   = "'+str(outputvis)+'"',origin='oldhanningsmooth')
         ms.close()
-        
+
     except Exception, instance:
         print '*** Error ***',instance
         return

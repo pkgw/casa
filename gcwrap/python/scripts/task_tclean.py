@@ -109,6 +109,7 @@ def tclean(
     niter,#=0, 
     gain,#=0.1,
     threshold,#=0.0, 
+    nsigma,#=0.0
     cycleniter,#=0, 
     cyclefactor,#=1.0,
     minpsffraction,#=0.1,
@@ -188,6 +189,9 @@ def tclean(
     bparm={k:  inpparams[k] if inpparams.has_key(k) else defparm[k]  for k in ImagerParameters.__init__.__func__.__code__.co_varnames[1:-1]}
     paramList=ImagerParameters(**bparm)
 
+    # deprecation message
+    if usemask=='auto-thresh' or usemask=='auto-thresh2':
+        casalog.post(usemask+" is deprecated, will be removed in CASA 5.4.  It is recommended to use auto-multithresh instead", "WARN") 
 
     #paramList.printParameters()
 

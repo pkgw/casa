@@ -5,7 +5,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-<task type="function" name="statwt" category="manipulation" visibility="experimental">
+<task type="function" name="statwt" category="manipulation">
 
   <shortdescription> Reweight visibilities according to their scatter (Experimental)</shortdescription>
 
@@ -50,7 +50,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	</param>
 
 	<param type="string" name="timebin">
-		<description>Bin length for estimates (not implemented)</description>		
+		<description>Bin length for estimates (not implemented)</description>
 		<value type="string">0s</value>
 	</param>
 
@@ -136,13 +136,13 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     depends on theoretical estimates of the noise, require (reasonably) correct
     weights and sigmas.  statwt empirically measures the visibility scatter
     (typically as a function of time, antenna, and/or baseline) and uses that
-    to set WEIGHT and SIGMA. It is important that all necessary calibrations 
+    to set WEIGHT and SIGMA. It is important that all necessary calibrations
     are applied to the data prior to running this task for correct determination of
-    weights and sigmas. 
-    
-    Note: Some of the parameters (byantenna, sepacs, fitcorr, and timebin) 
+    weights and sigmas.
+
+    Note: Some of the parameters (byantenna, sepacs, fitcorr, and timebin)
           are not fully implemented for CASA 3.4.
-          
+
 
         Keyword arguments:
         vis -- Name of the measurement set.
@@ -181,11 +181,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
         fitcorr -- The (ideally) signal-free correlations to
                    estimate the scatter from.
-               default: '' (All) 
-               *** not yet implemented 
+               default: '' (All)
+               *** not yet implemented
 
         combine -- Let samples span multiple spws, corrs, scans, and/or states.
-                   combine = 'spw': Recommended when a line spans an entire spw 
+                   combine = 'spw': Recommended when a line spans an entire spw
                                     - set fitspw to the neighboring spws and
                                     apply their weight to the line spw(s).
                                     However, the effect of the line signal per
@@ -204,7 +204,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                    default: '0s' or '-1s' (1 integration at a time)
                    example: timebin='30s'
                             '10' means '10s'
-                   *** not yet implemented 
+                   *** not yet implemented
 
         minsamp -- Minimum number of unflagged visibilities for estimating the
                    scatter.  Selected visibilities for which the weight cannot
@@ -278,9 +278,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             default: ''=all
         correlation -- Select correlations, e.g. 'rr, ll' or ['XY', 'YX'].
                        default '' (all).
-                       NB: In CASA v4.5, non-trivial correlation selection has 
-                       been disabled since it was not working correctly, and 
-                       it is likely undesirable to set the weights in a 
+                       NB: In CASA v4.5, non-trivial correlation selection has
+                       been disabled since it was not working correctly, and
+                       it is likely undesirable to set the weights in a
                        correlation-dependent way.
 
         observation -- Select by observation ID(s).
@@ -291,6 +291,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                   note: 'corrected' will fall back to DATA if CORRECTED_DATA
                         is absent.
 
-</example> 
+</example>
 </task>
 </casaxml>
