@@ -41,7 +41,7 @@ namespace casa {
 	                                   bool includeComposite, bool deleteOnClose) : m_manager(manager) {
 		setupUi(this);
 
-		vector<pair<String, RegionShape*> > v = creationShapes(includeComposite);
+		vector<std::pair<String, RegionShape*> > v = creationShapes(includeComposite);
 		m_shapes.resize(v.size());
 
 		m_widgets = new QStackedLayout(frame);
@@ -233,7 +233,7 @@ namespace casa {
 
 	void QtNewRSPolygon::addCoordinates() {
 		QString x = m_coordXEdit->text(), y = m_coordYEdit->text();
-		m_enteredCoords.push_back(pair<QString, QString>(x, y));
+		m_enteredCoords.push_back(std::pair<QString, QString>(x, y));
 		QString disp = "(" + x + ", " + y + ")";
 		m_coordList->addItem(disp);
 		m_coordXEdit->setText("");
@@ -244,7 +244,7 @@ namespace casa {
 	void QtNewRSPolygon::listMoveUp() {
 		if(m_coordList->count() == 0 || m_coordList->currentRow() <= 0) return;
 		int i = m_coordList->currentRow();
-		pair<QString, QString> p = m_enteredCoords[i - 1];
+		std::pair<QString, QString> p = m_enteredCoords[i - 1];
 		m_enteredCoords[i - 1] = m_enteredCoords[i];
 		m_enteredCoords[i] = p;
 		QListWidgetItem* w = m_coordList->takeItem(i);
@@ -256,7 +256,7 @@ namespace casa {
 		if(m_coordList->count() == 0 || m_coordList->currentRow() < 0 ||
 		        m_coordList->currentRow() >= m_coordList->count() - 1) return;
 		int i = m_coordList->currentRow();
-		pair<QString, QString> p = m_enteredCoords[i + 1];
+		std::pair<QString, QString> p = m_enteredCoords[i + 1];
 		m_enteredCoords[i + 1] = m_enteredCoords[i];
 		m_enteredCoords[i] = p;
 		QListWidgetItem* w = m_coordList->takeItem(i);

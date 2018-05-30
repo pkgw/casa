@@ -2245,12 +2245,13 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
   <keyword>getfielddirmeas</keyword>
   <input>  
       <param type="string" direction="in" name="dircolname">
-      <description>Name of the direction column in the FIELD table. </description>
+      <description>Name of the direction column in the FIELD table or 'EPHEMERIS_DIR'. </description>
       <value>PHASE_DIR</value>
       <allowed type="enum">
         <value>PHASE_DIR</value>
         <value>DELAY_DIR</value>
         <value>REFERENCE_DIR</value>
+        <value>EPHEMERIS_DIR</value>
       </allowed>
       </param>
 
@@ -2277,11 +2278,17 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
     This function returns the direction measures from the given
     direction column of the MS FIELD table as a either a measure
     dictionary or sexigesimal string representation.
+    If there is an ephemeris attached, this will give you the time dependent
+    direction for the given direction column including the offset which each
+    field may have to the ephemeris it is referencing. You can use the value 
+    "EPHEMERIS_DIR" for parameter "dircolname" to access the unaltered ephemeris 
+    direction without any potential mosaic offsets.
   </description>
   <example>
       ms.open('3C273XC1.MS')
-      print "Delay direction from FIELD table row 3 =", \
-          ms.getfielddirmeas("DELAY_DIR", 3)
+      print "Delay direction from FIELD table row 3 =", ms.getfielddirmeas("DELAY_DIR", 3)
+
+      print "Phase direction from ephemeris FIELD table row 4 for time = 5019988459.968 s", ms.getfielddirmeas("PHASE_DIR", 4, 5019988459.968)
   </example>
  </method>
 
@@ -3534,21 +3541,43 @@ in spectral window 1.
 
     1. If run in preview mode (preview=True), no data are modified and
        no columns are added.
-    2. Else if the MS already has a WEIGHT_SPECTRUM and this column has
-       been initialized (has values), it will always be populated with
+    2. Else if datacolumn equals 'residual' or 'residual_data' and
+       a CORRECTED_DATA column exists, the WEIGHT and WEIGHT_SPECTRUM
+       columns are not modified.
+    3. Else if the MS already has a WEIGHT_SPECTRUM and this column has
+       been initialized (has values), it will be populated with
        the new weights.  The WEIGHT column will be populated with the
        corresponding median values of the associated WEIGHT_SPECTRUM
        array.
-    3. Else if the frequency range specified for the sample is not the
+    4. Else if the frequency range specified for the sample is not the
        default ("spw"), the WEIGHT_SPECTRUM column will be created (if
        it doesn't already exist) and the new weights will be written to
        it.  The WEIGHT column should be populated with the
        corresponding median values of the WEIGHT_SPECTRUM array.
-    4. Otherwise the single value for each spectral window will be
+    5. Otherwise the single value for each spectral window will be
        written to the WEIGHT column; the WEIGHT_SPECTRUM column will
        not be added if it doesn't already exist, and if it does, it
        will remain uninitialized (no values will be written to it).
             
+    RULES FOR MODIFYING WEIGHT, WEIGHT_SPECTRUM, SIGMA, and SIGMA_SPECTRUM
+
+    1. If datacolum='corrected' or 'residual' then values are written
+       to the WEIGHT and WEIGHT_SPECTRUM (if applicable) columns only.
+    2. If datacolumn='data' or 'residual_data' and the 'CORRECTED_DATA'
+       column does not exist, then values are written to the WEIGHT and
+       WEIGHT_SPECTRUM (if applicable) columns and values in the SIGMA
+       and SIGMA_SPECTRUM are set to 1/sqrt(newly computed weight). If
+       a weight value is 0, the corresponding sigma value is -1. 
+    3. If datacolumn='data' or 'residual_data' and the 'CORRECTED_DATA'
+       column does exist, then the WEIGHT and WEIGHT_SPECTRUM columns
+       are not updated and values in the SIGMA and
+       SIGMA_SPECTRUM are set to 1/sqrt(of the newly computed weight).
+       If a weight value is 0, the corresponding sigma value is -1.
+       In this case, you should either split out the DATA column and
+       run statwt2, or run with datacolumn='corrected' or 'residual'
+       to update WEIGHT/WEIGHT_SPECTRUM. Otherwise the data are
+       internally not consistent. 
+
     TIME BINNING
             
     One of two algorithms can be used for time binning. If
@@ -3707,16 +3736,21 @@ in spectral window 1.
     "corrected" for the CORRECTED_DATA column and "data" for the DATA
     column are supported (minimum match, case insensitive). One may
     specify 'residual' in which case the values used are the result of
-    the CORRECTED_DATA - MODEL_DATA columns, or 'residual_data' in which
-    case the values used are the DATA - MODEL_DATA columns. The last two
-    options are to allow for operatation on timescales or frequency
-    ranges which are larger than that over which the sky signal is
-    expected to be constant. This situation arises in eg, OTF mapping,
-    and also perhaps with sources with significant spectral structure.
-    In cases where the one of the residual columns is specified and the
-    MODEL_DATA column doesn't exist, the default model visibility of
-    value 1 + 0i will be used. In cases where a necessary column doesn't
+    the CORRECTED_DATA column - model, or 'residual_data' in which
+    case the values used are the DATA column - model, where model
+    is the CORRECTED_DATA column if it exists, or if it doesn't,
+    the virtual source model if one exists, or if that doesn't, then
+    no model is used and the 'residual' and 'residual_data' cases
+    are equivalent to the 'corrected' and 'data' cases, respectively.
+    The last two options are to allow for operation on timescales or
+    frequency ranges which are larger than that over which the sky
+    signal is expected to be constant. This situation arises in eg,
+    OTF mapping, and also perhaps with sources with significant
+    spectral structure. In cases where a necessary column doesn't
     exist, an exception will be thrown and no data will be changed.
+    NOTE: It is the user's responsibility to ensure that a model has
+    been set for all selected fields before using datacolumn='residual'
+    or 'residual_data'.
 
     RETURN VALUE
 

@@ -36,7 +36,7 @@ def predictcomp(objname=None, standard=None, epoch=None,
              Default: 1 if minfreq == maxfreq,
                       2 otherwise.
     prefix: The component list will be saved to
-              prefix + 'spw0_<objname>_<minfreq><epoch>.cl'
+              prefix + '<objname>_spw0_<minfreq><epoch>.cl'
             Default: ''
     antennalist: An array configuration file as used by simdata.
                  If given, a plot of S vs. |u| will be made.
@@ -83,7 +83,7 @@ def predictcomp(objname=None, standard=None, epoch=None,
         else:
             nfreqs = 1
         freqs = pl.linspace(minfreqHz, maxfreqHz, nfreqs)
-
+        
         myme = metool()
         mepoch = myme.epoch('UTC', epoch)
         #if not prefix:
@@ -108,14 +108,18 @@ def predictcomp(objname=None, standard=None, epoch=None,
               return False
         else:
           prefixdir=os.path.dirname(prefix)
+          if prefixdir=='/' and len(prefix)>1: 
+             prefix = prefix+'/'
+             prefixdir = os.path.dirname(prefix)
           if not os.path.exists(prefixdir):
             prefixdirs = prefixdir.split('/')
-            if prefixdirs[0]=="":
+            if prefixdirs[0]=="" and len(prefixdirs)>1:
               rootdir = "/" + prefixdirs[1]
             else:
               rootdir = "./"
             if os.access(rootdir,os.W_OK):
-              os.makedirs(prefixdir) 
+              if prefixdir!='':
+                os.makedirs(prefixdir) 
             else:
               casalog.post("No write access to "+rootdir+" to write cl file", "SEVERE")
               return False
@@ -128,6 +132,26 @@ def predictcomp(objname=None, standard=None, epoch=None,
             casalog.post('Error creating a local im instance.', 'SEVERE')
             return False
         #print "FREQS=",freqs
+         # output CL file name is fixed : prefix+"spw0_"+minfreq+mepoch.cl
+        minfreqGHz = qa.convert(qa.quantity(minfreq), 'GHz')['value']
+        decimalfreq = minfreqGHz - int(minfreqGHz)
+        decimalepoch =  mepoch['m0']['value'] - int(mepoch['m0']['value'])
+        if decimalfreq == 0.0:
+            minfreqGHzStr = str(int(minfreqGHz))+'GHz'
+        else :
+            minfreqGHzStr = str(minfreqGHz)+'GHz'
+
+        if decimalepoch == 0.0:
+            epochStr = str(int(mepoch['m0']['value']))+'d'
+        else:
+            epochStr=str(mepoch['m0']['value'])+'d'
+        outfilename = "spw0_"+objname+"_"+minfreqGHzStr+epochStr+'.cl'
+        outfilename = prefix+outfilename
+        if (os.path.exists(outfilename) and os.path.isdir(outfilename)) :
+
+          shutil.rmtree(outfilename)
+          casalog.post("Removing the existing componentlist, "+outfilename)
+ 
         if standard=='Butler-JPL-Horizons 2012':
             clist = predictSolarObjectCompList(objname, mepoch, freqs.tolist(), prefix)
         else:

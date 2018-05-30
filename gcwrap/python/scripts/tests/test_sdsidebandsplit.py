@@ -46,7 +46,7 @@ class sdsidebandsplitTestBase(unittest.TestCase):
         signalshift = [0.0, -102, +8, +62, +88, +100],
         imageshift = [0.0, 102, -8, -62, -88, -100],
         getbothside = False,
-        refpix = 0.0,
+        refchan = 0.0,
         refval = '805GHz',
         otherside = False,
         threshold = 0.2
@@ -123,7 +123,7 @@ class sdsidebandsplitTestBase(unittest.TestCase):
                             'Internal Error: No valid reference value for image sideband')
             # modify refcsys for image sideband
             spid = refcsys.findaxisbyname('spectral')
-            refcsys.setreferencepixel(task_param['refpix'], 'spectral')
+            refcsys.setreferencepixel(task_param['refchan'], 'spectral')
             myqa = qatool()
             refcsys.setreferencevalue(myqa.convert(task_param['refval'],
                                                    refcsys.units()[spid])['value'],
@@ -408,14 +408,14 @@ class standardTestCase(sdsidebandsplitTestBase):
         self.run_test(self.standard_reference, getbothside=True)
 
     # T-020
-    def test_refpix_negative(self):
-        """refpix = -1.0"""
-        self.run_test(self.standard_reference, getbothside=True, refpix=-1.0)
+    def test_refchan_negative(self):
+        """refchan = -1.0"""
+        self.run_test(self.standard_reference, getbothside=True, refchan=-1.0)
 
     # T-021
-    def test_refpix_large(self):
-        """refpix > nchan"""
-        self.run_test(self.standard_reference, getbothside=True, refpix=5000.0)
+    def test_refchan_large(self):
+        """refchan > nchan"""
+        self.run_test(self.standard_reference, getbothside=True, refchan=5000.0)
 
     # T-025
     def test_otherside(self):
@@ -455,7 +455,7 @@ class MultiPixTestCase(sdsidebandsplitTestBase):
         signalshift = [0.0, -102, +8, +62, +88, +100],
         imageshift = [0.0, 102, -8, -62, -88, -100],
         getbothside = False,
-        refpix = 0.0,
+        refchan = 0.0,
         refval = '805GHz',
         otherside = False,
         threshold = 0.2

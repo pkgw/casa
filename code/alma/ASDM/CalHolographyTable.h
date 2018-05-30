@@ -248,7 +248,7 @@ class CalHolographyRow;
  * </TR>
 	
  * <TR>
- * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -262,7 +262,7 @@ class CalHolographyRow;
  * </TR>
 	
  * <TR>
- * <TD> numPanelModes (\f$N_{Pane}\f$)</TD> 
+ * <TD> numPanelModes (numPanelModes)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number panel modes fitted. </TD>
@@ -315,7 +315,7 @@ class CalHolographyRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numScrew(\f$N_{Scre}\f$)</TD> 
+ * <TD> numScrew(numScrew)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of screws. </TD>

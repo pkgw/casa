@@ -78,6 +78,8 @@ public:
 
     ~ImageStatsConfigurator();
 
+    void configureBiweight(casacore::Int maxIter);
+
     void configureChauvenet(casacore::Double zscore, casacore::Int maxIterations);
 
     void configureClassical(PreferredClassicalAlgorithm p);
@@ -94,6 +96,22 @@ public:
 
 protected:
 
+    struct AlgConf {
+        casacore::StatisticsData::ALGORITHM algorithm;
+        // hinges-fences f factor
+        casacore::Double hf;
+        // fit to have center type
+        casacore::FitToHalfStatisticsData::CENTER ct;
+        // fit to half data portion to use
+        casacore::FitToHalfStatisticsData::USE_DATA ud;
+        // fit to half center value
+        casacore::Float cv;
+        // Chauvenet zscore
+        casacore::Double zs;
+        // Chauvenet/Biweight max iterations
+        casacore::Int mi;
+    };
+
     ImageStatsConfigurator(
         const SPCIIF image,
         const casacore::Record *const &regionPtr,
@@ -108,15 +126,20 @@ protected:
         return _statistics;
     }
 
-    casacore::LatticeStatistics<casacore::Float>::AlgConf _getAlgConf() const {
+    StatisticsData::ALGORITHM _getAlgorithm() const {
+        return _algConf.algorithm;
+    }
+
+    AlgConf _getAlgConf() const {
         return _algConf;
     }
 
     void _resetStats(ImageStatistics<Float>* stat=nullptr) { _statistics.reset(stat); }
 
 private:
+
     std::unique_ptr<casacore::ImageStatistics<casacore::Float> > _statistics;
-    casacore::LatticeStatistics<casacore::Float>::AlgConf _algConf;
+    AlgConf _algConf;
     PreferredClassicalAlgorithm _prefClassStatsAlg;
 
 };

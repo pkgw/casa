@@ -70,6 +70,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        itsPBMask(0.0),
 				       //itsMaskString(String("")),
                                        itsIterDone(0.0),
+                                       itsChanFlag(Vector<Bool>(False)),
+                                       initializeChanMaskFlag(false),
 				       itsIsMaskLoaded(false),
 				       itsMaskSum(-1e+9)
   {
@@ -79,6 +81,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
         LogIO os( LogOrigin("SynthesisDeconvolver","descructor",WHERE) );
 	os << LogIO::DEBUG1 << "SynthesisDeconvolver destroyed" << LogIO::POST;
+	SynthesisUtilMethods::getResource("End SynthesisDeconvolver");
+
   }
 
   void SynthesisDeconvolver::setupDeconvolution(const SynthesisParamsDeconv& decpars)
@@ -192,7 +196,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         itsMinBeamFrac = decpars.minBeamFrac;
         itsCutThreshold = decpars.cutThreshold;
         itsGrowIterations = decpars.growIterations;
+        itsDoGrowPrune = decpars.doGrowPrune;
+        itsMinPercentChange = decpars.minPercentChange;
+        itsVerbose = decpars.verbose;
 	itsIsInteractive = decpars.interactive;
+        itsNsigma = decpars.nsigma;
       }
     catch(AipsError &x)
       {
@@ -236,6 +244,30 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       itsLoopController.setPeakResidual( validMask ? itsImages->getPeakResidualWithinMask() : peakresnomask );
       itsLoopController.setPeakResidualNoMask( peakresnomask );
       itsLoopController.setMaxPsfSidelobe( itsImages->getPSFSidelobeLevel() );
+
+      //re-calculate current nsigma threhold
+      Array<Double> robustrms = itsImages->calcRobustRMS();
+      // Before the first iteration the iteration parameters have not been
+      // set in SIMinorCycleController
+      // Use nsigma pass to SynthesisDeconvolver directly for now...
+      //Float nsigma = itsLoopController.getNsigma();
+      Double maxrobustrms = max(robustrms);
+      //Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
+      Float nsigmathresh = itsNsigma * (Float)maxrobustrms;
+      if (itsNsigma>0.0 ) os << "Current nsigma threshold (maximum along spectral channels) ="<<nsigmathresh<<LogIO::POST;
+      itsLoopController.setNsigmaThreshold(nsigmathresh);
+
+
+      if ( itsAutoMaskAlgorithm=="multithresh" && !initializeChanMaskFlag ) {
+        IPosition maskshp = itsImages->mask()->shape();
+        Int nchan = maskshp(3);
+        itsChanFlag=Vector<Bool>(nchan,False);
+        initializeChanMaskFlag=True;
+        // also initialize posmask, which tracks only positive (emission) 
+        itsPosMask = TempImage<Float> (maskshp, itsImages->mask()->coordinates(),SDMaskHandler::memoryToUse());
+        itsPosMask.set(0);
+      }
+      os<<LogIO::DEBUG1<<"itsChanFlag.shape="<<itsChanFlag.shape()<<LogIO::POST;
 
       /*
       Array<Double> rmss = itsImages->calcRobustRMS();
@@ -471,7 +503,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
           itsMaskHandler->fillMask( itsImages, itsMaskList);
           if( itsPBMask > 0.0 ) {  
-            itsMaskHandler->makePBMask(itsImages, itsPBMask);
+            itsMaskHandler->makePBMask(itsImages, itsPBMask, True);
           }
         }
         else if( itsMaskType=="pb") {
@@ -526,14 +558,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
      if ( itsAutoMaskAlgorithm != "" )  {
        itsIterDone += itsLoopController.getIterDone();
 
+       Bool isThresholdReached = itsLoopController.isThresholdReached();
+
        LogIO os( LogOrigin("SynthesisDeconvolver","setAutoMask",WHERE) );
        os << "Generating AutoMask" << LogIO::POST;
+       //os << "itsMinPercentChnage = " << itsMinPercentChange<< LogIO::POST;
 
        if ( itsPBMask > 0.0 ) {
-         itsMaskHandler->autoMaskWithinPB( itsImages, itsIterDone, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold,itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsPBMask);
+         itsMaskHandler->autoMaskWithinPB( itsImages, itsPosMask, itsIterDone, itsChanFlag, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold,itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, isThresholdReached, itsPBMask);
        }
        else {
-         itsMaskHandler->autoMask( itsImages, itsIterDone, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations );
+         itsMaskHandler->autoMask( itsImages, itsPosMask, itsIterDone, itsChanFlag,itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, isThresholdReached );
        }
      }
   }

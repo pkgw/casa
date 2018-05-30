@@ -227,7 +227,7 @@ class CalDelayRow;
  * </TR>
 	
  * <TR>
- * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -287,7 +287,7 @@ class CalDelayRow;
  * </TR>
 	
  * <TR>
- * <TD> numSideband(\f$N_{Side}\f$)</TD> 
+ * <TD> numSideband(numSideband)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of sideband. </TD>

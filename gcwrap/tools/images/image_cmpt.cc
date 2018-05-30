@@ -151,7 +151,7 @@ image* image::adddegaxes(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return 0;
         }
         if (_imageF) {
@@ -210,7 +210,7 @@ bool image::addnoise(
 ) {
     try {
         _log << LogOrigin("image", __func__);
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         SHARED_PTR<Record> pRegion = _getRegion(region, false);
@@ -256,7 +256,7 @@ bool image::addnoise(
 record* image::beamarea(int channel, int polarization) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         auto dc = _imageF
@@ -340,7 +340,7 @@ record* image::beamforconvolvedsize(
 record* image::boundingbox(const variant& region) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         auto myreg = _getRegion(region, false);
@@ -367,7 +367,7 @@ image* image::boxcar(
 ) {
     LogOrigin lor(_class, __func__);
     _log << lor;
-    if (detached()) {
+    if (_detached()) {
         throw AipsError("Unable to create image");
     }
     try {
@@ -454,7 +454,7 @@ template <class T> image* image::_boxcar(
 }
 
 std::string image::brightnessunit() {
-    if (detached()) {
+    if (_detached()) {
         return "";
     }
     try {
@@ -474,7 +474,7 @@ std::string image::brightnessunit() {
 bool image::calc(const std::string& expr, bool verbose) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         if (_imageF) {
@@ -502,7 +502,7 @@ bool image::calcmask(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         Record region;
@@ -549,7 +549,7 @@ image* image::collapse(
     const bool overwrite, const bool stretch
 ) {
     _log << _ORIGIN;
-    if (detached()) {
+    if (_detached()) {
         return 0;
     }
     try {
@@ -657,7 +657,7 @@ image* image::collapse(
 record* image::commonbeam() {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         ImageInfo myInfo = _imageF ? _imageF->imageInfo() : _imageC->imageInfo();
@@ -697,7 +697,7 @@ image* image::continuumsub(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         ThrowIf(in_fitorder < 0, "Polynomial order cannot be negative");
@@ -763,7 +763,7 @@ record* image::convertflux(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return 0;
         }
         ThrowIf(
@@ -801,7 +801,7 @@ image* image::convolve(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         ThrowIf(
@@ -875,7 +875,7 @@ image* image::convolve2d(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         UnitMap::putUser("pix", UnitVal(1.0), "pixel units");
@@ -1008,7 +1008,7 @@ record* image::coordmeasures(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         casacore::Record theDir;
@@ -1063,7 +1063,7 @@ record* image::coordmeasures(
 coordsys* image::coordsys(const std::vector<int>& pixelAxes) {
     _log << _ORIGIN;
     try {
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         vector<Int> myAxes = pixelAxes;
@@ -1097,7 +1097,7 @@ image* image::crop(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         ThrowIf(
@@ -1152,7 +1152,7 @@ image* image::decimate(
     const variant& region, const string& mask, bool overwrite, bool stretch
 ) {
     try {
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         ThrowIf(
@@ -1240,7 +1240,7 @@ record* image::decompose(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         ThrowIf(! _imageF, "This application supports only real-valued images");
@@ -1277,7 +1277,7 @@ record* image::deconvolvecomponentlist(
     const record& complist, int channel, int polarization
 ) {
     _log << _ORIGIN;
-    if (detached()) {
+    if (_detached()) {
         return nullptr;
     }
     try {
@@ -1384,7 +1384,7 @@ record* image::deconvolvefrombeam(
     return nullptr;
 }
 
-bool image::detached() const {
+bool image::_detached() const {
     if ( ! _imageF && ! _imageC) {
         _log <<  _ORIGIN;
         _log << LogIO::SEVERE
@@ -1407,7 +1407,7 @@ bool image::done(bool remove, bool verbose) {
         // removal will fail
         _stats.reset();
         MeasIERS::closeTables();
-        if (remove && !detached()) {
+        if (remove && !_detached()) {
             _remove(verbose);
         }
         else {
@@ -1430,7 +1430,7 @@ record* image::findsources(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         ThrowIf(_imageC, "This application supports only real-valued images");
@@ -1467,7 +1467,7 @@ bool image::fft(
 ) {
     try {
         _log << LogOrigin(_class, __func__);
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         SHARED_PTR<Record> myregion(_getRegion(region, false));
@@ -1555,7 +1555,7 @@ record* image::fitcomponents(
     bool fixoffset, bool stretch, const variant& rms,
     const variant& noisefwhm, const string& summary
 ) {
-    if (detached()) {
+    if (_detached()) {
         return nullptr;
     }
     _log << _ORIGIN;
@@ -1714,7 +1714,7 @@ record* image::fitprofile(const string& box, const variant& region,
     const string& outsigma, const vector<int>& planes
 ) {
     _log << LogOrigin(_class, __func__);
-    if (detached()) {
+    if (_detached()) {
         return 0;
     }
     try {
@@ -2232,7 +2232,7 @@ variant* image::getchunk(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         Record ret;
@@ -2364,7 +2364,7 @@ record* image::getprofile(
     try {
         _log << _ORIGIN;
         ThrowIf(
-            detached(), "No image attached to tool"
+            _detached(), "No image attached to tool"
         );
         ThrowIf(axis<0, "Axis must be greater than 0");
         SHARED_PTR<Record> myregion(_getRegion(region, false));
@@ -2436,7 +2436,7 @@ variant* image::getregion(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return 0;
         }
         SHARED_PTR<Record> Region(_getRegion(region, false));
@@ -2504,7 +2504,7 @@ record* image::getslice(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         ThrowIf(
@@ -2544,7 +2544,7 @@ image* image::hanning(
 ) {
     LogOrigin lor(_class, __func__);
     _log << lor;
-    if (detached()) {
+    if (_detached()) {
         throw AipsError("Unable to create image");
     }
     try {
@@ -2634,7 +2634,7 @@ template <class T> image* image::_hanning(
 vector<bool> image::haslock() {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return vector<bool>();
         }
         if (_imageF) {
@@ -2665,7 +2665,7 @@ record* image::histograms(
     bool cumu, bool log, bool stretch
 ) {
     _log << _ORIGIN;
-    if (detached()) {
+    if (_detached()) {
         return 0;
     }
     try {
@@ -2709,7 +2709,7 @@ record* image::histograms(
 std::vector<std::string> image::history(bool list) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return vector<string>();
         }
         if (_imageF) {
@@ -2855,7 +2855,7 @@ bool image::insert(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         Vector<Double> locatePixel(locate);
@@ -2913,7 +2913,7 @@ bool image::isopen() {
 bool image::ispersistent() {
     try {
         _log << LogOrigin("image", "ispersistent");
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         if (_imageF) {
@@ -2934,7 +2934,7 @@ bool image::ispersistent() {
 bool image::lock(bool writelock, int nattempts) {
     try {
         _log << LogOrigin("image", __func__);
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         FileLocker::LockType locker = FileLocker::Read;
@@ -2963,7 +2963,7 @@ bool image::makecomplex(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         ThrowIf(
@@ -3005,7 +3005,7 @@ image* image::deviation(
 ) {
     _log << _ORIGIN;
     try {
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         ThrowIf(
@@ -3173,7 +3173,7 @@ vector<string> image::maskhandler(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return vector<string>(0);
         }
         String oper = op;
@@ -3248,7 +3248,7 @@ record* image::maxfit(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         ThrowIf(
@@ -3270,7 +3270,7 @@ record* image::maxfit(
 record* image::miscinfo() {
     try {
         _log << LogOrigin("image", "miscinfo");
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         if (_imageF) {
@@ -3294,7 +3294,7 @@ bool image::modify(
     bool stretch
 ) {
     _log << _ORIGIN;
-    if (detached()) {
+    if (_detached()) {
         return false;
     }
     try {
@@ -3354,7 +3354,7 @@ image* image::moments(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         UnitMap::putUser("pix", UnitVal(1.0), "pixel units");
@@ -3473,7 +3473,7 @@ image* image::moments(
 string image::name(bool strippath) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return "none";
         }
         return _name(strippath);
@@ -3681,7 +3681,7 @@ image* image::pad(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         ThrowIf(
@@ -3734,7 +3734,7 @@ image* image::pbcor(
     const string& mode, float cutoff,
     bool stretch
 ) {
-    if (detached()) {
+    if (_detached()) {
         throw AipsError("Unable to create image");
     }
     try {
@@ -3820,7 +3820,7 @@ image* image::pbcor(
 record* image::pixelvalue(const vector<int>& pixel) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         if(_imageF) {
@@ -3851,7 +3851,7 @@ bool image::putchunk(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         if (_imageF) {
@@ -3942,7 +3942,7 @@ bool image::putregion(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         // create Array<Float> pixels
@@ -4051,7 +4051,7 @@ image* image::pv(
     const string& stokes, const string& mask, bool stretch,
     bool wantreturn
 ) {
-    if (detached()) {
+    if (_detached()) {
         return nullptr;
     }
     try {
@@ -4269,7 +4269,7 @@ image* image::rebin(
     LogOrigin lor(_class, __func__);
     _log << lor;
     ThrowIf(
-        detached(), "Unable to create image"
+        _detached(), "Unable to create image"
     );
     Vector<Int> mybin(bin);
     ThrowIf(
@@ -4342,7 +4342,7 @@ image* image::regrid(
     try {
         LogOrigin lor(_class, __func__);
         _log << lor;
-        if (detached()) {
+        if (_detached()) {
                 throw AipsError("Unable to create image");
             return 0;
         }
@@ -4434,7 +4434,7 @@ bool image::remove(const bool finished, const bool verbose) {
     try {
         _log << _ORIGIN;
 
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         _remove(verbose);
@@ -4507,7 +4507,7 @@ bool image::removefile(const std::string& filename) {
 bool image::rename(const string& name, bool overwrite) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         _stats.reset();
@@ -4544,7 +4544,7 @@ bool image::replacemaskedpixels(
     bool stretch
 ) {
     _log << _ORIGIN;
-    if (detached()) {
+    if (_detached()) {
         return false;
     }
     try {
@@ -4591,7 +4591,7 @@ bool image::replacemaskedpixels(
 record* image::restoringbeam(int channel, int polarization) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         if (_imageF) {
@@ -4626,7 +4626,7 @@ image* image::rotate(
 ) {
     try {
         _log << _ORIGIN;
-        ThrowIf(detached(), "Unable to create image");
+        ThrowIf(_detached(), "Unable to create image");
         Vector<Int> shape(inshape);
         if (shape.size() == 1 && shape[0] == -1) {
             shape.resize(0);
@@ -4674,7 +4674,7 @@ image* image::rotate(
 bool image::rotatebeam(const variant& angle) {
     try {
         _log << _ORIGIN;
-        if(detached()) {
+        if(_detached()) {
             return false;
         }
         Quantum<Double> pa(_casaQuantityFromVar(angle));
@@ -4710,7 +4710,7 @@ image* image::sepconvolve(
     const variant& vmask, bool overwrite, bool stretch
 ) {
     _log << _ORIGIN;
-    if (detached()) {
+    if (_detached()) {
         ThrowCc("Unable to create image");
     }
     try {
@@ -4808,7 +4808,7 @@ bool image::set(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         auto pixels = vpixels.toString();
@@ -4852,7 +4852,7 @@ bool image::set(
 bool image::setbrightnessunit(const std::string& unit) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         Bool res = _imageF
@@ -4878,7 +4878,7 @@ bool image::setbrightnessunit(const std::string& unit) {
 bool image::setcoordsys(const record& csys) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
 
@@ -4907,7 +4907,7 @@ bool image::sethistory(
     const string& origin, const vector<string>& history
 ) {
     try {
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         if ((history.size() == 1) && (history[0].size() == 0)) {
@@ -4937,7 +4937,7 @@ bool image::sethistory(
 bool image::setmiscinfo(const record& info) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
 
@@ -4969,7 +4969,7 @@ bool image::setrestoringbeam(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         std::unique_ptr<Record> rec(toRecord(beam));
@@ -5088,7 +5088,7 @@ String image::_quantityRecToString(const Record& q) {
 
 vector<int> image::shape() {
     _log << _ORIGIN;
-    if (detached()) {
+    if (_detached()) {
         return vector<int>();
     }
     try {
@@ -5114,10 +5114,10 @@ record* image::statistics(
     bool stretch, const string& logfile,
     bool append, const string& algorithm, double fence,
     const string& center, bool lside, double zscore,
-    int maxiter, const string& clmethod
+    int maxiter, const string& clmethod, int niter
 ) {
     _log << _ORIGIN;
-    if (detached()) {
+    if (_detached()) {
         _log << "Image not attached" << LogIO::POST;
         return nullptr;
     }
@@ -5172,7 +5172,18 @@ record* image::statistics(
         }
         String myalg = algorithm;
         myalg.downcase();
-        if (myalg.startsWith("ch")) {
+        if (myalg.startsWith("b")) {
+            _stats->configureBiweight(niter);
+            if (robust) {
+                _log << LogIO::WARN << "The biweight algorithm "
+                    << "does not support computation of quantile-like "
+                    << "(median, MADM, first/third quartile, IQR) "
+                    << "statistics (robust=True). Proceeding without "
+                    << "calculating those stats." << LogIO::POST;
+                robust = False;
+            }
+        }
+        else if (myalg.startsWith("ch")) {
             _stats->configureChauvenet(zscore, maxiter);
         }
         else if (myalg.startsWith("cl")) {
@@ -5254,7 +5265,7 @@ image* image::subimage(
     try {
         _log << _ORIGIN;
         ThrowIf(
-            detached(),
+            _detached(),
             "Unable to create image"
         );
         SHARED_PTR<Record> regionRec = _getRegion(region, false);
@@ -5348,7 +5359,7 @@ record* image::summary(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             return 0;
         }
         if (_imageF) {
@@ -5380,7 +5391,7 @@ bool image::toASCII(
 ) {
     // sep is hard-wired as ' ' which is what imagefromascii expects
     _log << _ORIGIN;
-    if (detached()) {
+    if (_detached()) {
         return false;
     }
     try {
@@ -5419,7 +5430,7 @@ bool image::tofits(
     bool /* async */, bool stretch, bool history
 ) {
     _log << _ORIGIN;
-    if (detached()) {
+    if (_detached()) {
         return false;
     }
     try {
@@ -5443,15 +5454,15 @@ bool image::tofits(
             VersionInfo::report(buffer);
             origin = String(buffer);
 
-        // sanitize: replace CR and LF by SPACE
-        const Char *cOrigin = origin.chars();
-        for(String::size_type i=0; i<origin.length(); i++){
-          if(cOrigin[i]==10 || cOrigin[i]==13){
-        origin.at(i,(String::size_type)1) = " ";
-          }
-        }
-        origin.rtrim(' ');
-
+	    // sanitize: replace CR and LF by SPACE
+	    const Char *cOrigin = origin.chars();
+	    for(String::size_type i=0; i<origin.length(); i++){
+	      if(cOrigin[i]==10 || cOrigin[i]==13){
+		origin.at(i,(String::size_type)1) = " ";
+	      }
+	    }
+	    origin.rtrim(' ');
+	    
         }
         ThrowIf(
             ! _imageF,
@@ -5476,7 +5487,7 @@ bool image::tofits(
 record* image::topixel(const variant& value) {
     try {
         _log << LogOrigin("image", __func__);
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         auto cSys = _imageF
@@ -5498,7 +5509,7 @@ record* image::topixel(const variant& value) {
 
 record* image::torecord() {
     _log << LogOrigin("image", __func__);
-    if (detached()) {
+    if (_detached()) {
         return new record();
     }
     try {
@@ -5522,7 +5533,7 @@ record* image::toworld(
 ) {
     try {
         _log << LogOrigin("image", __func__);
-        if (detached()) {
+        if (_detached()) {
             return nullptr;
         }
         Vector<Double> pixel;
@@ -5575,7 +5586,7 @@ image* image::transpose(
 ) {
     try {
         _log << _ORIGIN;
-        if (detached()) {
+        if (_detached()) {
             throw AipsError("No image specified to transpose");
         }
         ThrowIf(
@@ -5645,7 +5656,7 @@ bool image::twopointcorrelation(
     bool overwrite, bool stretch
 ) {
     _log << _ORIGIN;
-    if (detached()) {
+    if (_detached()) {
         return false;
     }
     try {
@@ -5721,7 +5732,7 @@ string image::type() {
 bool image::unlock() {
     try {
         _log << LogOrigin("image", __func__);
-        if (detached()) {
+        if (_detached()) {
             return false;
         }
         if (_imageF) {
@@ -6002,7 +6013,7 @@ casacore::Quantity image::_casaQuantityFromVar(const ::casac::variant& theVar) {
 bool image::isconform(const string& other) {
     _log << _ORIGIN;
 
-    if (detached()) {
+    if (_detached()) {
         return false;
     }
     try {

@@ -114,13 +114,13 @@ scripts/task_exportasdm.py
 scripts/task_exportfits.py
 scripts/task_exportuvfits.py
 scripts/task_feather.py
-scripts/task_find.py
 scripts/task_fixplanets.py
 scripts/task_fixvis.py
 scripts/task_flagcmd.py
 scripts/task_flagdata.py
 scripts/task_flagmanager.py
 scripts/task_fluxscale.py
+scripts/task_fringefit.py
 scripts/task_ft.py
 scripts/task_gaincal.py
 scripts/task_gencal.py
@@ -225,9 +225,7 @@ scripts/task_wvrgcal.py
 scripts/task_msview.py
 scripts/task_imview.py
 scripts/task_vishead.py
-scripts/task_visstatold.py
 scripts/task_visstat.py
-scripts/task_visstat2.py
 scripts/task_widebandpbcor.py
 scripts/task_widefield.py
 scripts/telemetry.py

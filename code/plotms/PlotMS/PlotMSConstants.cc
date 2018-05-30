@@ -52,7 +52,8 @@ PlotAxisScale PMS::axisScale(Axis axis) {
 
 bool PMS::axisIsData(Axis axis) {
     switch(axis) {
-    case AMP: case PHASE: case REAL: case IMAG: case WTxAMP: return true;
+    case AMP: case PHASE: case REAL: case IMAG: case WTxAMP: 
+	case GAMP: case GPHASE: case GREAL: case GIMAG: return true;
     default: return false;
     }
 }
@@ -62,7 +63,7 @@ bool PMS::axisNeedsCalSlice(Axis axis) {
     case AMP: case PHASE: case REAL: case IMAG: 
     case GAMP: case GPHASE: case GREAL: case GIMAG:
     case DELAY: case SWP: case TSYS: case OPAC: case SNR: case TEC:
-    case FLAG:
+	case ANTPOS: case FLAG:
         return true;
     default: return false;
     }
@@ -118,6 +119,7 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
     case U:
     case V:
     case W:
+    case ANTPOS:
        	return METERS;
     case UVDIST_L:
     case UWAVE:

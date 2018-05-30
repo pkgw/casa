@@ -25,13 +25,13 @@ exportasdm.xml
 exportfits.xml
 exportuvfits.xml
 feather.xml
-find.xml
 fixplanets.xml
 fixvis.xml
 flagcmd.xml
 flagdata.xml
 flagmanager.xml
 fluxscale.xml
+fringefit.xml
 ft.xml
 gaincal.xml
 gencal.xml
@@ -133,8 +133,6 @@ viewer.xml
 wvrgcal.xml
 virtualconcat.xml
 vishead.xml
-visstatold.xml
 visstat.xml
-visstat2.xml
 widebandpbcor.xml
 widefield.xml )

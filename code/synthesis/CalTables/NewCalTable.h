@@ -198,6 +198,9 @@ class NewCalTable : public casacore::Table
    // Report the polarization basis (from header record)
    casacore::String polBasis();
 
+   // Report the CASA version at which the NCT was created (from header)
+   casacore::String CASAvers();
+
    // Get a row from cal_main
    casacore::Record getRowMain (const casacore::Int& jrow);
     

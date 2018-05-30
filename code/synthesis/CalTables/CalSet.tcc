@@ -24,6 +24,7 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
+#include <algorithm>
 #include <synthesis/CalTables/CalSet.h>
 
 #include <synthesis/CalTables/CalTable2.h>
@@ -597,7 +598,7 @@ template<class T> void CalSet<T>::store (const casacore::String& file,
   casacore::Int maxNumChan(1);
   for (casacore::Int iSpw=0; iSpw<nSpw_; iSpw++) 
     if (par_[iSpw]!=NULL) 
-      maxNumChan=max(maxNumChan,nChan_(iSpw));
+      maxNumChan=std::max(maxNumChan,nChan_(iSpw));
 
   // Some default values
   casacore::Double dzero = 0;

@@ -146,8 +146,8 @@ namespace casa { //# name space casa begins
     // If not given make RM with no ambiguity
     Vector<Float> rm2(rm.size());
     if (rmDefault) {
-      Double l1 = QC::c.getValue(Unit("m/s")) / f0;
-      Double l2 = QC::c.getValue(Unit("m/s")) / (f0+df);
+      Double l1 = QC::c( ).getValue(Unit("m/s")) / f0;
+      Double l2 = QC::c( ).getValue(Unit("m/s")) / (f0+df);
       rm2.resize(1);
       rm2(0) = C::pi / 2 / (l1*l1 - l2*l2);
     } else {
@@ -708,56 +708,51 @@ namespace casa { //# name space casa begins
     }
   }
 
-  // Find Rotation Measure from traditional method
-  void ImagePol::rotationMeasure(const String& outRM, const String& outRMErr,
-		       const String& outPA0, const String& outPA0Err,
-		       const String& outNTurns, const String& outChiSq,
-		       Int axis2, Float sigmaQU, Float rmFg,
-		       Float rmMax, Float maxPaErr/*,
-		       const String& plotter,
-		       Int nx, Int ny*/) {
-
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return;
+void ImagePol::rotationMeasure(
+    const String& outRM, const String& outRMErr,
+    const String& outPA0, const String& outPA0Err,
+    const String& outNTurns, const String& outChiSq,
+    Int axis2, Float sigmaQU, Float rmFg,
+    Float rmMax, Float maxPaErr
+) {
+    // Find Rotation Measure from traditional method
+    *itsLog << LogOrigin("ImagePol", __func__);
+    if(itsImPol==0) {
+        *itsLog << LogIO::SEVERE <<"No attached image, please use open "
+            << LogIO::POST;
+        return;
     }
-
     // Make output images.  Give them all a mask as we don't know if output
     // will be masked or not.
     CoordinateSystem cSysRM;
     Int fAxis, sAxis;
     Int axis = axis2;
-    IPosition shapeRM =
-      itsImPol->rotationMeasureShape(cSysRM, fAxis, sAxis, *itsLog, axis);
-    //
+    IPosition shapeRM = itsImPol->rotationMeasureShape(
+        cSysRM, fAxis, sAxis, *itsLog, axis
+    );
     ImageInterface<Float>* pRMOut = 0;
     ImageInterface<Float>* pRMOutErr = 0;
     makeImage (pRMOut, outRM, cSysRM, shapeRM, true, false);
     // manage naked pointers so exception throwing doesn't leave open images
     std::unique_ptr<ImageInterface<Float> > managed5(pRMOut);
-
     makeImage (pRMOutErr, outRMErr, cSysRM, shapeRM, true, false);
     std::unique_ptr<ImageInterface<Float> > managed6(pRMOutErr);
-
     CoordinateSystem cSysPA;
-    IPosition shapePA =
-      itsImPol->positionAngleShape(cSysPA, fAxis, sAxis, *itsLog, axis);
+    IPosition shapePA = itsImPol->positionAngleShape(
+        cSysPA, fAxis, sAxis, *itsLog, axis
+    );
     ImageInterface<Float>* pPA0Out = 0;
     ImageInterface<Float>* pPA0OutErr = 0;
     makeImage (pPA0Out, outPA0, cSysPA, shapePA, true, false);
     std::unique_ptr<ImageInterface<Float> > managed1(pPA0Out);
     makeImage (pPA0OutErr, outPA0Err, cSysPA, shapePA, true, false);
     std::unique_ptr<ImageInterface<Float> > managed2(pPA0OutErr);
-
     ImageInterface<Float>* pNTurnsOut = 0;
     makeImage (pNTurnsOut, outNTurns, cSysRM, shapeRM, true, false);
     std::unique_ptr<ImageInterface<Float> > managed3(pNTurnsOut);
     ImageInterface<Float>* pChiSqOut = 0;
     makeImage (pChiSqOut, outChiSq, cSysRM, shapeRM, true, false);
     std::unique_ptr<ImageInterface<Float> > managed4(pChiSqOut);
-
     itsImPol->rotationMeasure(
     	pRMOut, pRMOutErr, pPA0Out, pPA0OutErr,
     	pNTurnsOut, pChiSqOut, 
@@ -766,24 +761,24 @@ namespace casa { //# name space casa begins
     );
     auto p = itsImPol->imageInterface();
     if (pRMOut) {
-      copyMiscellaneous (*pRMOut, *p);
+        copyMiscellaneous (*pRMOut, *p);
     }
     if (pRMOutErr) {
-      copyMiscellaneous (*pRMOutErr, *p);
+        copyMiscellaneous (*pRMOutErr, *p);
     }
     if (pPA0Out) {
-      copyMiscellaneous (*pPA0Out, *p);
+        copyMiscellaneous (*pPA0Out, *p);
     }
     if (pPA0OutErr) {
       copyMiscellaneous (*pPA0OutErr, *p);
     }
     if (pNTurnsOut) {
-      copyMiscellaneous (*pNTurnsOut, *p);
+        copyMiscellaneous (*pNTurnsOut, *p);
     }
     if (pChiSqOut) {
-      copyMiscellaneous (*pChiSqOut, *p);
+        copyMiscellaneous (*pChiSqOut, *p);
     }
-  }
+}
 
 
   // Make a complex image
@@ -1195,7 +1190,7 @@ Bool  ImagePol::fillIQUV (ImageInterface<Float>& im, uInt stokesAxis,
   const SpectralCoordinate& sC = cSys.spectralCoordinate(spectralCoord);
   //
   IPosition shape = im.shape();
-  Double c = QC::c.getValue(Unit("m/s"));
+  Double c = QC::c( ).getValue(Unit("m/s"));
   Double lambdasq;
   MFrequency freq;
   IPosition blc(4,0);

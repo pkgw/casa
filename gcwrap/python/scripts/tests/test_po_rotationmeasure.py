@@ -166,6 +166,14 @@ class po_rotationmeasure_test(unittest.TestCase):
                 mypo.done()
             else:
                 rmfit(imagename=imagename, rm=rmim, pa0=pa0im, sigma=sigma)
+                for im in [rmim, pa0im]:
+                    myia.open(im)
+                    msgs = myia.history()
+                    myia.done()
+                    teststr = "version"
+                    self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+                    teststr = "rmfit"
+                    self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
             myia.open(rmim)
             stats = myia.statistics(list=True, verbose=True)
             self.assertTrue((abs(stats['min'][0] - RM)) < 1e-4)

@@ -157,6 +157,7 @@ casa_add_library( synthesis
   CalTables/CalMainRecord.cc
   CalTables/CalSet2.cc
   CalTables/CalSetMetaInfo.cc
+  CalTables/CalSummary.cc
   CalTables/CalTable2.cc
   CalTables/CalTable.cc
   CalTables/CalTableDesc2.cc
@@ -390,6 +391,7 @@ install (FILES
 	CalTables/BJonesMCol.h
 	CalTables/BJonesMRec.h
 	CalTables/BJonesTable.h
+ 	CalTables/CalSummary.h
 	CalTables/CLPatchPanel.h
 	CalTables/CTColumns.h
 	CalTables/CTDesc.h
@@ -872,6 +874,9 @@ casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSynthesisImage
 casa_add_unit_test( MODULES synthesis SOURCES Utilities/test/tFFT2D.cc  ) 
 casa_add_unit_test( MODULES synthesis SOURCES CalTables/test/tCTPatchedInterp.cc )
 casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tLabelandFindRegions.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tLabelandFindRegionsFullCube.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tBinaryDilation.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSkipChannels.cc )
 
 
 
