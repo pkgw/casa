@@ -23,6 +23,7 @@
 #include <singledishfiller/Filler/ProcessorRecord.h>
 #include <singledishfiller/Filler/SourceRecord.h>
 #include <singledishfiller/Filler/SpectralWindowRecord.h>
+#include <singledishfiller/Filler/OptionalTables.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -43,8 +44,10 @@ private:
 
 class ReaderInterface: private NonCopyable<ReaderInterface> {
 public:
-  ReaderInterface(std::string const &name, bool const is_nro = false) :
-    name_(name), is_nro_(is_nro) {
+  typedef NullOptionalTables<ReaderInterface> OptionalTables;
+
+  ReaderInterface(std::string const &name) :
+    name_(name) {
   }
 
   virtual ~ReaderInterface() {
@@ -54,10 +57,6 @@ public:
     return name_;
   }
 
-  bool isNROData() {
-    return is_nro_;
-  }
-  
   virtual casacore::String getDataUnit() const {
     return "";
   }
@@ -147,7 +146,6 @@ protected:
   virtual void finalizeSpecific() = 0;
 
   std::string const name_;
-  bool const is_nro_;
 
 private:
   // common initialization/finalization actions

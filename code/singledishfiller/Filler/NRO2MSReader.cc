@@ -175,7 +175,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 using namespace sdfiller;
 
 NRO2MSReader::NRO2MSReader(std::string const &scantable_name) :
-  ReaderInterface(scantable_name, true), fp_(NULL), obs_header_(),
+  ReaderInterface(scantable_name), fp_(NULL), obs_header_(),
   beam_id_counter_(0), source_spw_id_counter_(0), spw_id_counter_(0),
   time_range_sec_(),
   get_antenna_row_(&NRO2MSReader::getAntennaRowImpl),
