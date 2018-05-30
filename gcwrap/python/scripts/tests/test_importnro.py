@@ -10,11 +10,62 @@ import unittest
 import sha
 import time
 import numpy
+import itertools
 
 from importnro import importnro
 
 myms = gentools(['ms'])[0]
 
+
+# Utilities
+def get_antenna_position(vis, row):
+    (mytb,) = gentools(['tb'])
+    antenna_table = os.path.join(vis, 'ANTENNA')
+    
+    mytb.open(antenna_table)
+    try:
+        pos = mytb.getcell('POSITION', row)
+        poskey = mytb.getcolkeywords('POSITION')
+    finally:
+        mytb.close()
+        
+    posref = poskey['MEASINFO']['Ref']
+    qpos = [qa.quantity(v,u) for v,u in itertools.izip(pos, poskey['QuantumUnits'])]
+    mantpos = me.position(rf=posref, v0=qpos[0], v1=qpos[1], v2=qpos[2])
+    
+    return mantpos
+
+def get_valid_pointing_info(vis):
+    (mytb,) = gentools(['tb'])
+    pointing_table = os.path.join(vis, 'POINTING')
+    
+    mytb.open(pointing_table)
+    try:
+        timekey = mytb.getcolkeywords('TIME')
+        dirkey = mytb.getcolkeywords('DIRECTION')
+        nrow = mytb.nrows()
+
+        irow = 0
+        pdir = mytb.getcell('DIRECTION', irow)
+        ptime = mytb.getcell('TIME', irow)
+
+        while numpy.all(pdir == 0.0) and irow < nrow:
+            irow += 1
+            pdir = mytb.getcell('DIRECTION', irow)
+            ptime = mytb.getcell('TIME', irow)
+    finally:
+        mytb.close()
+        
+    dirref = dirkey['MEASINFO']['Ref']
+    qdir = [qa.quantity(v,u) for v,u in itertools.izip(pdir[:,0], dirkey['QuantumUnits'])]
+    mpdir = me.direction(rf=dirref, v0=qdir[0], v1=qdir[1])
+
+    timeref = timekey['MEASINFO']['Ref']
+    qtime = qa.quantity(ptime, timekey['QuantumUnits'][0])
+    mepoch = me.epoch(rf=timeref, v0=qtime)
+    
+    return mepoch, mpdir
+        
 
 class importnro_test(unittest.TestCase):
     """
@@ -104,6 +155,47 @@ class importnro_test(unittest.TestCase):
             _tb.close()
         finally:
             _tb.close()
+            
+    def test_timestamp(self):
+        """test_timestamp: Check if timestamp is properly converted to UTC"""
+        ret = importnro(infile=self.infile, outputvis=self.outfile, overwrite=True)
+        self.assertTrue(os.path.exists(self.outfile))
+        
+        # test if telescope elevation has reasonable value
+        (myme,) = gentools(['me'])
+        # make sure me tool is initialized
+        myme.done()
+        
+        # antenna_position should be a position measure
+        antenna_position = get_antenna_position(self.outfile, 0)
+        self.assertTrue(myme.ismeasure(antenna_position))
+        self.assertTrue(antenna_position['type'] == 'position')
+        
+        # pointing_time should be a time (epoch) measure
+        # pointing_direction should be a direction measure
+        # pointing_direction should not be [0,0]
+        pointing_time, pointing_direction = get_valid_pointing_info(self.outfile)
+        self.assertTrue(myme.ismeasure(pointing_time))
+        self.assertTrue(pointing_time['type'] == 'epoch')
+        self.assertTrue(myme.ismeasure(pointing_direction))
+        self.assertTrue(pointing_direction['type'] == 'direction')
+        self.assertFalse(pointing_direction['m0']['value'] == 0.0 and pointing_direction['m1']['value'])
+        
+        # convert pointing_direction (J2000) to AZELGEO
+        # frame configuration
+        myme.doframe(pointing_time)
+        myme.doframe(antenna_position)
+        
+        # frame cnversion
+        azel = myme.measure(v=pointing_direction, rf='AZELGEO')
+        myme.done()
+        
+        # check if elevation is in range [0deg, 90deg]
+        elevation = qa.convert(azel['m1'], 'deg')
+        msg = 'Timestamp used for the conversion could be wrong.: calculated elevation={value}{unit}'.format(**elevation)
+        self.assertLessEqual(elevation['value'], 90.0, msg='Elevation is above the upper limit (> 90deg). {}'.format(msg))
+        self.assertGreaterEqual(elevation['value'], 0.0, msg='Elevation is below the lower limit (< 0deg). {}'.format(msg))
+
 
 def suite():
     return [importnro_test]
