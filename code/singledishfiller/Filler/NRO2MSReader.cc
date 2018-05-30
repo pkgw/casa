@@ -155,6 +155,18 @@ Int getSubscan(Int srctype) {
   Int default_subscan = 1;
   return getMapValue(subscan_map, srctype, default_subscan);
 }
+
+// CAS-11223
+// Time difference between JST and UTC is 9 hours
+constexpr double kJSTOffsetHour = 9.0;
+constexpr double kJSTOffsetMin = kJSTOffsetHour * 60.0;
+constexpr double kJSTOffsetSec = kJSTOffsetMin * 60.0;
+inline double jst2utcHour(double jst_time) {
+  return jst_time - kJSTOffsetHour;
+}
+inline double jst2utcSec(double jst_time) {
+  return jst_time - kJSTOffsetSec;
+}
 }
 
 using namespace casacore;
@@ -669,7 +681,10 @@ Bool NRO2MSReader::getObservationRowImpl(ObservationRecord &record) {
     record.time_range.resize(2);
   }
   for (int i = 0; i < 2; ++i) {
-    record.time_range[i] = time_range_sec_[i] * kSec2Day;
+    // 2018/05/30 TN
+    // time_range should be in sec
+    // CAS-11223 NRO timestamp is in JST so it should be converted to UTC
+    record.time_range[i] = jst2utcSec(time_range_sec_[i]);
   }
 
   record.observer = obs_header_.OBSVR0;
@@ -710,7 +725,11 @@ Bool NRO2MSReader::getSourceRowImpl(SourceRecord &record) {
   record.sysvel.resize(1);
   record.sysvel[0] = obs_header_.VEL0;
   double time_sec = getMiddleOfTimeRangeSec();
-  record.time = time_sec;
+  // 2018/05/30 TN
+  // CAS-11223
+  record.time = jst2utcSec(time_sec);
+  // 2018/05/30 TN
+  // CAS-11442? come back later
   record.interval = time_sec - time_range_sec_[0];
 
   source_spw_id_counter_++;
@@ -724,7 +743,9 @@ Bool NRO2MSReader::getSourceRowImpl(SourceRecord &record) {
 Bool NRO2MSReader::getFieldRowImpl(FieldRecord &record) {
   record.name = obs_header_.OBJ0;
   record.field_id = 0;
-  record.time = getMiddleOfTimeRangeSec();
+  // 2018/05/30 TN
+  // CAS-11223
+  record.time = jst2utcSec(getMiddleOfTimeRangeSec());
   record.source_name = obs_header_.OBJ0;
   record.frame = getDirectionFrame();
   Matrix<Double> direction0(2, 2, 0.0);
@@ -801,7 +822,9 @@ Bool NRO2MSReader::getData(size_t irow, DataRecord &record) {
 	  throw AipsError("Internal Data ERROR: inconsistent ARRAY information in scan header");
   }
 
-  record.time = getIntMiddleTimeSec(scan_data);
+  // 2018/05/30 TN
+  // CAS-11223
+  record.time = jst2utcSec(getIntMiddleTimeSec(scan_data));
   record.interval = obs_header_.IPTIM0;
 //  std::cout << "TIME=" << record.time << " INTERVAL=" << record.interval
 //      << std::endl;
