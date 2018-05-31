@@ -2020,21 +2020,43 @@ ITUPLE image::_fromarray(
     ::casacore::Array<::casacore::Double> doubleArray;
     ::casacore::Array<::casacore::Complex> complexArray;
     ::casacore::Array<::casacore::DComplex> dcomplexArray;
+    auto pixType = pixels.type();
     if (
-        pixels.type() == ::casac::variant::DOUBLEVEC
-        || pixels.type() == ::casac::variant::INTVEC
-        || pixels.type() == ::casac::variant::LONGVEC
-        || pixels.type() == ::casac::variant::UINTVEC
+        pixType == ::casac::variant::DOUBLEVEC
+        || pixType == ::casac::variant::INTVEC
+        || pixType == ::casac::variant::LONGVEC
+        || pixType == ::casac::variant::UINTVEC
     ) {
-        auto localpix = ::casacore::Vector<::casacore::Double>(
-            pixels.getDoubleVec()
-        ).reform(shape);
-        if (doFloat) {
-            floatArray.resize(shape);
-            ::casacore::convertArray(floatArray, localpix);
+        ::casacore::Array<::casacore::Double> dv;
+        if (pixType == ::casac::variant::DOUBLEVEC) {
+            dv = ::casacore::Vector<::casacore::Double>(
+                pixels.getDoubleVec()
+            ).reform(shape);
+        }
+        else if (pixType == ::casac::variant::INTVEC) {
+            dv = ::casacore::Vector<::casacore::Double>(
+                pixels.getIntVec()
+            ).reform(shape);
+        }
+        else if (pixType == ::casac::variant::LONGVEC) {
+            dv = ::casacore::Vector<::casacore::Double>(
+                pixels.getLongVec()
+            ).reform(shape);
+        }
+        else if (pixType == ::casac::variant::UINTVEC) {
+            dv = ::casacore::Vector<::casacore::Double>(
+                pixels.getuIntVec()
+            ).reform(shape);
         }
         else {
-            doubleArray = localpix;
+            ThrowCc("Logic error");
+        }
+        if (doFloat) {
+            floatArray.resize(shape);
+            ::casacore::convertArray(floatArray, dv);
+        }
+        else {
+            doubleArray = dv;
         }
     }
     else if (pixels.type() == ::casac::variant::COMPLEXVEC) {
@@ -2050,9 +2072,7 @@ ITUPLE image::_fromarray(
         }
     }
     else {
-        ThrowCc(
-            "pixels is not understood, try using an array "
-        );
+        ThrowCc("pixels is not understood, try using an array");
     }
     casacore::LogOrigin lor("image", __func__);
     _log << lor;
@@ -6375,7 +6395,7 @@ void image::_setImage(casa::ITUPLE mytuple) {
     if (imageDC) {
         ++n;
     }
-    ThrowIf(n = 0, "No image defined");
+    ThrowIf(n == 0, "No image defined");
     ThrowIf(
         n > 1,
         "Multiple images (" + String::toString(n)
