@@ -11,9 +11,11 @@
 #define STRING2CHAR(s) const_cast<char *>((s).c_str())
 
 #include <casacore/measures/Measures/Stokes.h>
+#include <casacore/tables/Tables/Table.h>
+#include <casacore/tables/Tables/ScaColDesc.h>
+#include <casacore/tables/Tables/SetupNewTab.h>
 
 #include <singledishfiller/Filler/ReaderInterface.h>
-#include <singledishfiller/Filler/OptionalTables.h>
 #include <singledishfiller/Filler/NROData.h>
 #include <string>
 #include <memory>
@@ -22,12 +24,12 @@ using namespace std;
 
 namespace casa { //# NAMESPACE CASA - BEGIN
   
-constexpr double kDay2Sec = 86400.0;
-constexpr double kSec2Day = 1.0 / kDay2Sec;
+// forward declaration
+class NROOptionalTables;
 
 class NRO2MSReader: public ReaderInterface {
 public:
-  typedef NROOptionalTables<NRO2MSReader> OptionalTables;
+  typedef NROOptionalTables OptionalTables;
   
   NRO2MSReader(std::string const &scantable_name);
   virtual ~NRO2MSReader();
@@ -281,6 +283,49 @@ private:
   casacore::Bool noMoreRowImpl(_Record &) {
     POST_START;POST_END;
     return false;
+  }
+};
+
+// OptionalTables class for NRO data
+class NROOptionalTables {
+public:
+  static void Generate(casacore::Table &table, NRO2MSReader const &reader) {
+    // generate NRO_ARRAY table
+    Generate_NRO_ARRAY(table, reader);
+  }
+
+private:
+  static void Generate_NRO_ARRAY(casacore::Table &table, NRO2MSReader const &reader) {
+    casacore::String const nro_tablename = "NRO_ARRAY";
+
+    casacore::TableDesc td(nro_tablename, casacore::TableDesc::Scratch);
+    td.addColumn(casacore::ScalarColumnDesc<casacore::Int>("ARRAY"));
+    td.addColumn(casacore::ScalarColumnDesc<casacore::Int>("BEAM"));
+    td.addColumn(casacore::ScalarColumnDesc<casacore::Int>("POLARIZATION"));
+    td.addColumn(casacore::ScalarColumnDesc<casacore::Int>("SPECTRAL_WINDOW"));
+    casacore::String tabname = table.tableName() + "/" + nro_tablename;
+    casacore::SetupNewTable newtab(tabname, td, casacore::Table::Scratch);
+    table.rwKeywordSet().defineTable(nro_tablename,
+        casacore::Table(newtab, reader.getNROArraySize()));
+
+    casacore::Table nro_table = table.rwKeywordSet().asTable(nro_tablename);
+    casacore::ScalarColumn<int> arr(nro_table, "ARRAY");
+    casacore::ScalarColumn<int> bea(nro_table, "BEAM");
+    casacore::ScalarColumn<int> pol(nro_table, "POLARIZATION");
+    casacore::ScalarColumn<int> spw(nro_table, "SPECTRAL_WINDOW");
+    for (int iarr = 0; iarr < reader.getNROArraySize(); ++iarr) {
+      arr.put(iarr, iarr);
+      if (reader.isNROArrayUsed(iarr)) {
+        bea.put(iarr, reader.getNROArrayBeamId(iarr));
+        pol.put(iarr, reader.getNROArrayPol(iarr));
+        spw.put(iarr, reader.getNROArraySpwId(iarr));
+      } else {
+        // array is not used, fill with -1
+        bea.put(iarr, -1);
+        pol.put(iarr, -1);
+        spw.put(iarr, -1);
+      }
+    }
   }
 };
 

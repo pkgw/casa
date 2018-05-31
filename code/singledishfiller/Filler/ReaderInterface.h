@@ -15,6 +15,10 @@
 #include <casacore/measures/Measures/MDirection.h>
 #include <casacore/tables/Tables/TableRecord.h>
 #include <casacore/measures/Measures/Stokes.h>
+#include <casacore/tables/Tables/Table.h>
+#include <casacore/tables/Tables/ScaColDesc.h>
+#include <casacore/tables/Tables/SetupNewTab.h>
+
 #include <singledishfiller/Filler/AntennaRecord.h>
 #include <singledishfiller/Filler/DataRecord.h>
 #include <singledishfiller/Filler/FieldRecord.h>
@@ -23,9 +27,11 @@
 #include <singledishfiller/Filler/ProcessorRecord.h>
 #include <singledishfiller/Filler/SourceRecord.h>
 #include <singledishfiller/Filler/SpectralWindowRecord.h>
-#include <singledishfiller/Filler/OptionalTables.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+// forward declaration
+template<class T> class NullOptionalTables;
 
 // NonCopyable Mixin (CRTP)
 template<class T>
@@ -152,6 +158,15 @@ private:
   void initializeCommon() {
   }
   void finalizeCommon() {
+  }
+};
+
+// empty OptionalTables class
+template<class Reader>
+class NullOptionalTables {
+public:
+  static void Generate(casacore::Table &/*table*/, Reader const &/*reader*/) {
+    //std::cout << "This is default. NullOptionalTables::Generate" << std::endl;
   }
 };
 

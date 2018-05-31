@@ -156,6 +156,9 @@ Int getSubscan(Int srctype) {
   return getMapValue(subscan_map, srctype, default_subscan);
 }
 
+constexpr double kDay2Sec = 86400.0;
+constexpr double kSec2Day = 1.0 / kDay2Sec;
+
 // CAS-11223
 // Time difference between JST and UTC is 9 hours
 constexpr double kJSTOffsetHour = 9.0;
