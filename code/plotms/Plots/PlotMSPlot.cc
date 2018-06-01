@@ -1761,7 +1761,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		if ( axesParams->xRangeSet() ){
 			// Custom axes ranges set by user
 			canvas->setAxisRange(cx, axesParams->xRange());
-		} else if (xPtsToPlot) {
+		} else if (xPtsToPlot && !iterParams->isGlobalScaleX()) {
 			setAxisRange(x, cx, xmin, xmax, canvas);
 			if (PMS::axisIsUV(x)) {
 				xIsUV = true;
@@ -1776,7 +1776,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			if ( axesParams->yRangeSet(i) ){
 				// Custom axes ranges set by user
 				canvas->setAxisRange(cy, axesParams->yRange(i));
-			} else if (yPtsToPlot) {
+			} else if (yPtsToPlot && !iterParams->isGlobalScaleY()) {
 				PMS::Axis y = cacheParams->yAxis(i);
 				// add margin if showAtm so overlay doesn't overlap plot
 				if ((cacheParams->showAtm() && y!=PMS::ATM) ||
