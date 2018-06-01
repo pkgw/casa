@@ -865,8 +865,7 @@ print "\t----\t Intro Ex 10 \t----"
    </method>
 
    <method type="function" name="newimage">
-   <shortdescription>Construct a new image analysis tool using the specified image.
-(Also known as newimagefromfile.)</shortdescription>
+   <shortdescription>Construct a new image analysis tool using the specified image. (Also known as newimagefromfile.)</shortdescription>
    
 <input>
   
@@ -877,15 +876,13 @@ print "\t----\t Intro Ex 10 \t----"
 </input>
 <returns type="image"/>
 <description>
-This method is identical to ia.newimagefromfile(). The description of
-how it works is in the online help for that method.
+This method is identical to ia.newimagefromfile(). The description of how it works is in the help for that method.
 </description>
 </method>
 
 
    <method type="function" name="newimagefromfile">
-   <shortdescription>Construct a new image analysis tool using the specified image.
-(Also known as newimage.)</shortdescription>
+   <shortdescription>Construct a new image analysis tool using the specified image. (Also known as newimage.)</shortdescription>
    
 <input>
   
@@ -898,11 +895,11 @@ how it works is in the online help for that method.
 <description>
 This method returns an image analysis tool associated with the specified image.
 Constructing a image analysis tool in addition to the default ia tool allows the
-user to operate on multiple images without having to close one
-before opening another. All ia.newimagefrom*() methods share this functionality.
+user to operate on multiple images simultaneously. All ia.newimagefrom*()
+methods share this behavior.
     
 The parameter infile may refer to a CASA image, a Miriad image, or a FITS image.
-FITS images of types Float, Double, Long, and Short are supported.
+FITS images of types Float are supported.
 
 When finished with the newly created tool, the user should close it to free
 up system resources (eg memory).
