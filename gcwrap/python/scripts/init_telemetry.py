@@ -8,6 +8,7 @@ import fnmatch
 import os
 from casac import casac
 import TelemetryLogMonitor
+from casac import casac
 
 telemetryhelper = casac.telemetryhelper()
 hostid = telemetryhelper.getUniqueId()
@@ -70,7 +71,10 @@ if ( casa['flags'].telemetry or
          #print "Inactive log size: " + str(inactiveTLogSize)
      else :
          print "Creating a new telemetry file"
-         casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + '/casastats-' + hostid + '-' + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
+         myUtils = casac.utils()
+         ver = myUtils.version()
+         casaver = "CASA-" + str(ver[0])+ str(ver[1]) + str(ver[2])+ "-" + str(ver[3])
+         casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + '/casastats-' + casaver +'-'  + hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
 
      # Submit statistics at shutdown
      add_shutdown_hook(submitStatistics)
