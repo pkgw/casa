@@ -7,7 +7,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <!-- This is the param set for autoclean -->
 
-<task type="function" name="autoclean" category="imaging" visibility="hidden">
+<task type="function" name="autoclean" category="imaging" visibility="deprecated">
 
   <shortdescription>CLEAN an image with automatically-chosen clean regions.</shortdescription>
 
@@ -40,7 +40,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <description>Other data selection parameters</description>
       <value>True</value>
     </param>
-    
+
     <param type="string" name="timerange" subparam="true">
       <description>Range of time to select from data</description>
       <value></value>
@@ -60,7 +60,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <description>Scan number range</description>
       <value></value>
     </param>
-    
+
 
     <param type="string" name="mode">
       <description>Spectral gridding type (mfs, channel, velocity, frequency)</description>
@@ -204,7 +204,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <param type="any" name="noise"  subparam="true">
     <description>noise parameter for briggs abs mode weighting</description>
     <any type="variant"/>
-    <value type="string">1.0Jy</value>	    
+    <value type="string">1.0Jy</value>
     </param>
 
     <param type="int" name="npixels" subparam="true">
@@ -246,19 +246,19 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
 
     <param type="int" name="niter">
-    <description>Max number of total clean cycles per channel</description> 
+    <description>Max number of total clean cycles per channel</description>
     <value>500</value>
     </param>
 
-    <param type="int" name="npercycle">  
-    <description>Clean iterations before adding new clean boxes</description>  
-    <value>100</value>  
-    </param>  
+    <param type="int" name="npercycle">
+    <description>Clean iterations before adding new clean boxes</description>
+    <value>100</value>
+    </param>
 
-    <param type="double" name="npercycle_speedup">  
-    <description>Increase npercycle by this factor if no new regions found.</description>  
-    <value>1.5</value>  
-    </param>  
+    <param type="double" name="npercycle_speedup">
+    <description>Increase npercycle by this factor if no new regions found.</description>
+    <value>1.5</value>
+    </param>
 
     <param type="double" name="gain">
     <description>Loop gain for cleaning</description>
@@ -405,7 +405,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                         <default param="doconcat"><value type="bool">True</value></default>
 	        </equals>
 	    </when>
-	    
+
 	    <when param="weighting">
 		<equals value="natural"/>
 	        <equals value="uniform"/>
@@ -451,12 +451,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
   <example>
        This is a wrapper for clean which includes automatic clean boxing.
        Current capabilities include:
- 
+
         1)  Multi-frequency-continuum images or spectral channel imaging
         2)  Stokes I imaging only
         3)  Use starting mask
- 
- 
+
+
        vis -- Name of input visibility file
                default: none; example: vis='ngc5921.ms'
        imagename -- Pre-name of output images:
@@ -473,7 +473,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                   ['go listobs' to obtain the list id's or names]
               default: ''= all fields
               If field string is a non-negative integer, it is assumed to
-                  be a field index otherwise, it is assumed to be a 
+                  be a field index otherwise, it is assumed to be a
 		  field name
               field='0~2'; field ids 0,1,2
               field='0,4,5~7'; field ids 0,4,5,6,7
@@ -485,10 +485,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                 spw='0~2,4'; spectral windows 0,1,2,4 (all channels)
                 spw='0:5~61'; spw 0, channels 5 to 61
                 spw='&lt;2';   spectral windows less than 2 (i.e. 0,1)
-                spw='0,10,3:3~45'; spw 0,10 all channels, spw 3, 
+                spw='0,10,3:3~45'; spw 0,10 all channels, spw 3,
 				   channels 3 to 45.
                  spw='0~2:2~6'; spw 0,1,2 with channels 2 through 6 in each.
-                 spw='0:0~10;15~60'; spectral window 0 with channels 
+                 spw='0:0~10;15~60'; spectral window 0 with channels
 				    0-10,15-60
                  spw='0:0~10,1:20~30,2:1;2;3'; spw 0, channels 0-10,
                       spw 1, channels 20-30, and spw 2, channels, 1,2 and 3
@@ -501,12 +501,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                timerange  -- Select data based on time range:
                    default: '' (all); examples,
                    timerange = 'YYYY/MM/DD/hh:mm:ss~YYYY/MM/DD/hh:mm:ss'
-                   Note: if YYYY/MM/DD is missing date defaults to first 
+                   Note: if YYYY/MM/DD is missing date defaults to first
 			 day in data set
                    timerange='09:14:0~09:54:0' picks 40 min on first day
-                   timerange='25:00:00~27:30:00' picks 1 hr to 3 hr 
+                   timerange='25:00:00~27:30:00' picks 1 hr to 3 hr
 			     30min on NEXT day
-                   timerange='09:44:00' pick data within one integration 
+                   timerange='09:44:00' pick data within one integration
 		             of time
                    timerange='&gt;10:24:00' data after this time
                uvrange -- Select data within uvrange (default units meters)
@@ -515,41 +515,41 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                    uvrange='&gt;4klambda';uvranges greater than 4 kilo lambda
                antenna -- Select data based on antenna/baseline
                    default: '' (all)
-                   If antenna string is a non-negative integer, it is 
+                   If antenna string is a non-negative integer, it is
  		   assumed to be an antenna index, otherwise, it is
  		   considered an antenna name.
-                   antenna='5&amp;6'; baseline between antenna index 5 and 
+                   antenna='5&amp;6'; baseline between antenna index 5 and
  				 index 6.
-                   antenna='VA05&amp;VA06'; baseline between VLA antenna 5 
+                   antenna='VA05&amp;VA06'; baseline between VLA antenna 5
  				       and 6.
                    antenna='5&amp;6;7&amp;8'; baselines 5-6 and 7-8
                    antenna='5'; all baselines with antenna index 5
-                   antenna='05'; all baselines with antenna number 05 
+                   antenna='05'; all baselines with antenna number 05
  				(VLA old name)
-                   antenna='5,6,9'; all baselines with antennas 5,6,9 
+                   antenna='5,6,9'; all baselines with antennas 5,6,9
  				   index numbers
               scan -- Scan number range.
                   default: '' (all)
                   example: scan='1~5'
-                  Check 'go listobs' to insure the scan numbers are in 
+                  Check 'go listobs' to insure the scan numbers are in
  			order.
        mode -- Frequency Specification:
                NOTE: Channels deselected with spw parameter will contain all
-                     zeros. 
+                     zeros.
                See examples below.
                default: 'mfs'
-                 mode = 'mfs' means produce one image from all 
+                 mode = 'mfs' means produce one image from all
  		      specified data.
                  mode = 'channel'; Use with nchan, start, width to specify
                          output image cube.  See examples below
-                 mode = 'velocity', means channels are specified in 
+                 mode = 'velocity', means channels are specified in
  		      velocity.
-                 mode = 'frequency', means channels are specified in 
+                 mode = 'frequency', means channels are specified in
  		      frequency.
 
   &gt;&gt;&gt; mode expandable parameters (for modes other than 'mfs')
-               Start, width are given in units of channels, frequency 
- 		  or velocity as indicated by mode (note: only nearest neighbour 
+               Start, width are given in units of channels, frequency
+ 		  or velocity as indicated by mode (note: only nearest neighbour
                   interpolation is available at this time).
                nchan -- Number of channels (planes) in output image
                  default: 1; example: nchan=3
@@ -567,23 +567,23 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                  default = 'True'
            examples:
                spw = '0,1'; mode = 'mfs'
-                  will produce one image made from all channels in spw 
+                  will produce one image made from all channels in spw
  		       0 and 1
                spw='0:5~28^2'; mode = 'mfs'
-                  will produce one image made with channels 
+                  will produce one image made with channels
  		       (5,7,9,...,25,27)
                spw = '0'; mode = 'channel': nchan=3; start=5; width=4
                   will produce an image with 3 output planes
                   plane 1 contains data from channels (5+6+7+8)
                   plane 2 contains data from channels (9+10+11+12)
                   plane 3 contains data from channels (13+14+15+16)
-               spw = '0:0~63^3'; mode='channel'; nchan=21; start = 0; 
+               spw = '0:0~63^3'; mode='channel'; nchan=21; start = 0;
  		   width = 1
                   will produce an image with 20 output planes
                   Plane 1 contains data from channel 0
                   Plane 2 contains date from channel 2
                   Plane 21 contains data from channel 61
-               spw = '0:0~40^2'; mode = 'channel'; nchan = 3; start = 
+               spw = '0:0~40^2'; mode = 'channel'; nchan = 3; start =
  		   5; width = 4
                   will produce an image with three output planes
                   plane 1 contains channels (5,7)
@@ -593,16 +593,16 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
        psfmode -- method of PSF calculation to use during minor cycles:
                default: 'clark': Options: 'clark','clarkstokes', 'hogbom'
                'clark'  use smaller beam (faster, usually good enough);
-                for stokes images clean components peaks are searched in the I^2+Q^2+U^2+V^2 domain 
+                for stokes images clean components peaks are searched in the I^2+Q^2+U^2+V^2 domain
                'clarkstokes' locate clean components independently in each stokes image
-               'hogbom' full-width of image (slower, better for poor 
+               'hogbom' full-width of image (slower, better for poor
  	       uv-coverage)
                Note:  psfmode will be used to clean is imagermode = ''
        imagermode -- Advanced imaging e.g mosaic or Cotton-Schwab clean
                default: imagermode='': Options: '', 'csclean'
                default ''  =&gt; psfmode cleaning algorithm used
 
-  &gt;&gt;&gt; imagermode='csclean' expandable parameter(s): 
+  &gt;&gt;&gt; imagermode='csclean' expandable parameter(s):
             Image using the Cotton-Schwab algorithm in between major cycles
  	    cyclefactor -- Change the threshold at which
  			  the deconvolution cycle will stop, degrid
@@ -615,8 +615,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
  	    cyclespeedup -- Cycle threshold doubles in this
  			  number of iterations default: -1;
  			  example: cyclespeedup=3
-                          try cyclespeedup = 50 to speed up cleaning 
-             
+                          try cyclespeedup = 50 to speed up cleaning
+
        imsize -- Image pixel size (x,y).  DOES NOT HAVE TO BE A POWER OF 2
                default = [256,256]; example: imsize=[350,350]
                imsize = 500 is equivalent to [500,500]
@@ -640,7 +640,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
        weighting -- Weighting to apply to visibilities:
                default='natural'; example: weighting='uniform';
-               Options: 'natural','uniform','briggs', 
+               Options: 'natural','uniform','briggs',
  		       'superuniform','briggsabs','radial'
 
   &gt;&gt;&gt; Weighting expandable parameters
@@ -649,7 +649,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                    default=0.0; example: robust=0.5;
                    Options: -2.0 to 2.0; -2 (uniform)/+2 (natural)
                For weighting='briggsabs'
-                   noise   -- noise parameter to use for Briggs "abs" 
+                   noise   -- noise parameter to use for Briggs "abs"
  		   weighting
                    example noise='1.0mJy'
                npixels -- uv-cell area used for weight calculation
@@ -662,17 +662,17 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                    briggs/briggsabs: 0 is similar to 1x1 cell weight.
                      1 may? be similar to 3X3 cells.
                    Only npixels 0 or 1 recommended
-                   
+
        mask -- Initial specification of cleanbox(es), mask image(s), and/or
  	   region(s) to be used for CLEANing.  For channel data (image cubes),
-           any initial mask will be applied to every channel. mask default: 
+           any initial mask will be applied to every channel. mask default:
            [] (no masking); Possible specification types: (a) Explicit
  	   cleanbox pixel ranges example: mask=[110,110,150,145] clean
  	   region with blc=110,100; trc=150,145 (pixel values) (b)
  	   Filename with cleanbox pixel values with ascii format:
  	   example: mask='mycleanbox.txt' &lt;fieldid blc-x blc-y
- 	   trc-x trc-y&gt; on each line 
- 	   1 45 66 123 124 
+ 	   trc-x trc-y&gt; on each line
+ 	   1 45 66 123 124
  	   2 23 100 300 340
  	   (c) Filename for image mask example: mask='myimage.mask'
  	   (d) Filename for region specification (e.g. from viewer)
@@ -681,7 +681,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
  	   'myimage.mask','myregion.rgn']
            If include outlier fields, then mask need to be spefied in
            nested lists: e.g. mask=[[[110,110,150,145],'myimage.mask'],[],[20,20,40,40]]
-           (A clean box with [110,110,150,145] and a image mask for main field, 
+           (A clean box with [110,110,150,145] and a image mask for main field,
             no mask for 1st outlier field, 1 clean box for second outlier field.)
        modelimage -- Name of model image(s) to initialize cleaning. If
                multiple images, then these will be added together to
@@ -695,25 +695,25 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                header
   &gt;&gt;&gt; uvtaper=True expandable parameters
                outertaper -- uv-taper on outer baselines in uv-plane
-                 [bmaj, bmin, bpa] taper Gaussian scale in uv or 
- 		 angular units. NOTE: uv taper in (klambda) is roughly on-sky 
+                 [bmaj, bmin, bpa] taper Gaussian scale in uv or
+ 		 angular units. NOTE: uv taper in (klambda) is roughly on-sky
  	         FWHM(arcsec/200)
                  default: outertaper=[]; no outer taper applied
- 		 example: outertaper=['5klambda']  circular taper 
+ 		 example: outertaper=['5klambda']  circular taper
  				FWHM=5 kilo-lambda
                          outertaper=['5klambda','3klambda','45.0deg']
                          outertaper=['10arcsec'] on-sky FWHM 10"
-                         outertaper=['300.0'] default units are meters 
+                         outertaper=['300.0'] default units are meters
  			        in aperture plane
                innertaper -- uv-taper in center of uv-plane
-                 [bmaj,bmin,bpa] Gaussian scale at which taper falls to 
+                 [bmaj,bmin,bpa] Gaussian scale at which taper falls to
  		 zero at uv=0
                  default: innertaper=[]; no inner taper applied
-                 NOT YET IMPLEMENTED                
+                 NOT YET IMPLEMENTED
        niter -- Maximum number iterations over all clean iterations.
                default: 500;  example: niter=5000
        npercycle -- Number of clean minor cycles before making new clean region
- 	   selection. 
+ 	   selection.
            default: 100;  example: npercycle = 100
        npercycle_speedup: If no new clean regions found during an iteration of
  	   clean region selections, increase npercycle by this factor.
@@ -722,8 +722,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
            default: 1.5;  example: npercycle_speedup = 2
        gain -- Loop gain for CLEANing
                default: 0.1; example: gain=0.5
-       pbcor -- Output primary beam-corrected image 
- 	      default: pbcor=False; output un-corrected image 
+       pbcor -- Output primary beam-corrected image
+ 	      default: pbcor=False; output un-corrected image
  	      example: pbcor=True; output pb-corrected image (masked outside
                minpb) Note: if you set pbcor=False, you can later
                recover the pbcor image by dividing by the .flux image
@@ -734,9 +734,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	       where the flux.pbcoverage image is used.
                example:
                minpb=0.01 Note: this minpb is always in effect
-               (regardless of pbcor=True/False) 
+               (regardless of pbcor=True/False)
        clean_threshold -- Flux level at which to stop CLEANing
-               default: '0.0mJy'; 
+               default: '0.0mJy';
                example: threshold='2.3mJy'  (always include units)
                         threshold = '0.0023Jy'
                         threshold = '0.0023Jy/beam' (okay also)
@@ -765,21 +765,21 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
            default: 6
            example: peak_rms = 5
        gain_threshold: threshold (this value times current maximum residual) of
- 	   peak pixel in island to qualify island for clean boxing. 
+ 	   peak pixel in island to qualify island for clean boxing.
            default: 0.1
            example: gain_threshold = 0.5
        Npeak: maximum number of new clean regions to add each iteration
            default: 3
            example: Npeak = 5
-       shape: parameter to determine shape of clean regions. 
+       shape: parameter to determine shape of clean regions.
            0: all circles
            1: all boxes
            2: choose according to island shape (circles if island has similar
  	   dimension in x and y direction, box otherwise)
-           default: 1  
+           default: 1
            example: shape=2
        boxstretch: number of pixels to increase outward size of clean region,
- 	   can range from -1 to 5. 
+ 	   can range from -1 to 5.
            default: 1
            example: boxstretch = 3
        irregsize: for islands this large (dimension in pixels) or larger, fill

@@ -83,6 +83,19 @@ public:
     THREEC196,
     THREEC123,
     THREEC380,
+    // new sources from Perley-Butler 2017
+    J0133,
+    FORNAXA,
+    J0444,
+    PICTORA,
+    TAURUSA,
+    HYDRAA,
+    VIRGOA,
+    HERCULESA,
+    THREEC353,
+    CYGNUSA,
+    THREEC444,
+    CASSIOPEIAA, 
     // The number of standards in this enumerator.
     NUMBER_SOURCES,
     UNKNOWN_SOURCE = NUMBER_SOURCES
