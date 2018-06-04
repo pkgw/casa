@@ -2102,31 +2102,29 @@ of the image, and all pixels of other axes.
 <returns type="bool"/>
 <description>
 
-This function creates a CASA image with the specified shape.  All
-the pixel values in the image are set to 0. One may create an image
-with float precision pixels (type='f'), complex float precision pixels
-(type='c'), double precision pixels (type='d'), or complex double
-precision pixels ('cd'). To use a numpy array of values to create an
-image, use ia.fromarray(). To make a 2-D image from a packaged FITS
-file, use ia.maketestimage().
+This function creates a CASA image with the specified shape.  All the pixel
+values in the image are set to 0. One may create an image with float precision
+pixels (type='f'), complex float precision pixels (type='c'), double precision
+pixels (type='d'), or complex double precision pixels ('cd'). To use a numpy
+array of values to create an image, use ia.fromarray(). To make a 2-D image from
+a packaged FITS file, use ia.maketestimage().
 
-If outfile is given, the image is written to the specified disk
-file.  If outfile is unset, the image analysis tool is associated with
-a temporary image.  This temporary image may be in memory or on disk,
-depending on its size.  When you close the image analysis tool  (with
-the ia.close() method, the temporary image is deleted.
+If outfile is given, the image is written to the specified disk file.  If
+outfile is unset, the image analysis tool is associated with a temporary image.
+This temporary image may be in memory or on disk, depending on its size.  When
+you close the image analysis tool  (with the ia.close() method, the temporary
+image is deleted.
 
-The coordinate system, provided as a coordinate system tool record, is
-optional. If provided, it must be dimensionally consistent with the
-specified shape.
+The coordinate system, provided as a coordinate system tool record, is optional.
+If provided, it must be dimensionally consistent with the specified shape.
 
-If the coordinate system is not provided, a default coordinate system
-will be created.  If linear=False (the default), then it is a
-standard RA/DEC/Stokes/Spectral coordinate system depending exactly upon
-the shape (the Stokes axis must be no longer than 4 pixels and spectral
-axis may occur prior to the Stokes axis if eg, shape=[64,64,32,4]. Extra
-dimensions are given linear coordinates. If linear=True, then the
-coordinate system will have linear coordinates. 
+If the coordinate system is not provided, a default coordinate system will be
+created.  If linear=False (the default), then it is a
+standard RA/DEC/Stokes/Spectral coordinate system depending exactly upon the
+shape (the Stokes axis must be no longer than 4 pixels and spectral axis may
+occur prior to the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are
+given linear coordinates. If linear=True, then the coordinate system will have
+linear coordinates. 
 
 The method returns True if successful, False otherwise.
 
@@ -11052,8 +11050,6 @@ im2.done()
 #
 """
 
-<!--The specified \region\ takes a quarter by area of the first two axes
-of the image, and all pixels of other axes.-->
 </example>
 </method>
 
@@ -11065,7 +11061,7 @@ of the image, and all pixels of other axes.-->
   
      <param type="string"  name="outfile">
      <description>Name of output image file.  Default is unset.</description>
-     <value></value>
+     <value/>
      </param>
   
      <param type="intArray"  name="shape">
@@ -11100,33 +11096,31 @@ of the image, and all pixels of other axes.-->
 <returns type="image"/>
 <description>
 
-This function creates a \casa\ \imagefile\ with the specified shape.  All
-the pixel values in the image are set to 0.  Both float valued and complex
-valued images are supported; the data type of the image is specified via
-the type parameter.
+This function creates a CASA image with the specified shape. It is similar to
+ia.fromshape(), but instead returns a new image analysis tool attached to the
+new image, rather than attaching the new image to the current tool. All the
+pixel values in the image are set to 0. One may create an image with float
+precision pixels (type='f'), complex float precision pixels (type='c'), double
+precision pixels (type='d'), or complex double precision pixels ('cd'). To use a
+numpy array of values to create an image, use ia.(newimage)fromarray(). To make
+a 2-D image from a packaged FITS file, use ia.maketestimage().
 
-If {\stfaf outfile} is given, the image is written to the specified
-disk file.  If {\stfaf outfile} is unset, the on-the-fly Image \tool\
-returned by this function is associated with a temporary image.  This
-temporary image may be in memory or on disk, depending on its size.
-When you destroy the on-the-fly Image \tool\ (with the <link
-anchor="images:image.done.function">done</link> function) this
-temporary image is deleted.
+If outfile is given, the image is written to the specified disk file.  If
+outfile is unset, the image analysis tool is associated with a temporary image.
+This temporary image may be in memory or on disk, depending on its size.  When
+you close the image analysis tool  (with the ia.close() method, the temporary
+image is deleted.
 
-The Coordinate System, provided as a record describing a <link
-anchor="images:coordsys">Coordsys</link> \tool\ (created via
-coordsys.torecord(), for instance), is optional.  If you provide it,
-it must be dimensionally consistent with the pixels array you give
-(see also <link
-anchor="images:image.coordsys.function">coordsys</link>).
+The coordinate system, provided as a coordinate system tool record, is optional.
+If provided, it must be dimensionally consistent with the specified shape.
 
-If you don't provide the Coordinate System, a default Coordinate System
-is made for you.  If {\stfaf linear=F} (the default) then it is a
-standard RA/DEC/Stokes/Spectral Coordinate System depending exactly upon
-the shape (Stokes axis must be no longer than 4 pixels and you may find
-the spectral axis coming out before the Stokes axis if say, {\cf
-shape=[64,64,32,4]}).  Extra dimensions are given linear coordinates. 
-If {\stfaf linear=T} then you get a linear Coordinate System. 
+If the coordinate system is not provided, a default coordinate system will be
+created.  If linear=False (the default), then it is a
+standard RA/DEC/Stokes/Spectral coordinate system depending exactly upon the
+shape (the Stokes axis must be no longer than 4 pixels and spectral axis may
+occur prior to the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are
+given linear coordinates. If linear=True, then the coordinate system will have
+linear coordinates. 
 
 </description>
 <example>
