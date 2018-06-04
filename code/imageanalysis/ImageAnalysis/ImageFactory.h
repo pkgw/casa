@@ -135,7 +135,7 @@ public:
 
     // only the pointer of the correct data type will be valid, the other
     // will be null.
-    static std::pair<SPIIF, SPIIC> fromImage(
+    static ITUPLE fromImage(
         const casacore::String& outfile, const casacore::String& infile,
         const casacore::Record& region, const casacore::String& mask,
         casacore::Bool dropdeg=false,
@@ -256,6 +256,15 @@ private:
 
     static ITUPLE _fromLatticeBase(
         std::unique_ptr<casacore::LatticeBase>& latt
+    );
+
+    static casacore::String _imageCreationMessage(
+        const casacore::String& outfile, const ITUPLE& imagePtrs
+    );
+
+    static casacore::String _imageCreationMessage(
+        const casacore::String& outfile, const casacore::IPosition& shape,
+        casacore::DataType dataType
     );
 
     // if successful, image will point to the newly named image

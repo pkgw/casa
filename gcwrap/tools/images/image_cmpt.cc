@@ -2239,13 +2239,11 @@ bool image::fromimage(
         _log << _ORIGIN;
         String theMask = _getMask(mask);
         SHARED_PTR<Record> regionPtr(_getRegion(region, false));
-        auto imagePair = ImageFactory::fromImage(
+        auto imagePtrs = ImageFactory::fromImage(
             outfile, infile, *regionPtr, theMask,
             dropdeg, overwrite
         );
-        _reset();
-        _imageF = imagePair.first;
-        _imageC = imagePair.second;
+        _setImage(imagePtrs);
         vector<String> names {
             "outfile", "infile", "region",
             "mask", "dropdeg", "overwrite"
@@ -3755,14 +3753,23 @@ image* image::newimagefromimage(
             infile, outfile, region,
             vmask, dropdeg, overwrite
         };
-        if (ret.first) {
-            _addHistory(ret.first, __func__, names, values);
-            return new image(ret.first);
+        auto f = std::get<0>(ret);
+        auto c = std::get<1>(ret);
+        auto d = std::get<2>(ret);
+        auto dc = std::get<3>(ret);
+        if (f) {
+            _addHistory(f, __func__, names, values);
         }
-        else if (ret.second) {
-            _addHistory(ret.second, __func__, names, values);
-            return new image(ret.second);
+        else if (c) {
+            _addHistory(c, __func__, names, values);
         }
+        else if (d) {
+            _addHistory(d, __func__, names, values);
+        }
+        else if (dc) {
+            _addHistory(dc, __func__, names, values);
+        }
+        return new image(ret);
         ThrowCc("Error creating image");
     }
     catch (const AipsError& x) {
@@ -3985,6 +3992,36 @@ image* image::pbcor(
         RETHROW(x);
     }
     return nullptr;
+}
+
+std::string image::pixeltype() {
+    try {
+        _log << _ORIGIN;
+        if (_detached()) {
+            return "";
+        }
+        if (_imageF) {
+            return "float";
+        }
+        else if (_imageC) {
+            return "complex";
+        }
+        else if (_imageD) {
+            return "double";
+        }
+        else if (_imageDC) {
+            return "dcomplex";
+        }
+        else {
+            ThrowCc("Logic error");
+        }
+    }
+    catch (const AipsError& x) {
+        _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+             << LogIO::POST;
+        RETHROW(x);
+    }
+    return "";
 }
 
 record* image::pixelvalue(const vector<int>& pixel) {
@@ -6310,7 +6347,8 @@ bool image::isconform(const string& other) {
 }
 
 SHARED_PTR<Record> image::_getRegion(
-    const variant& region, const bool nullIfEmpty, const string& otherImageName
+    const ::casac::variant& region, const bool nullIfEmpty,
+    const string& otherImageName
 ) const {
     switch (region.type()) {
     case variant::BOOLVEC:
@@ -6364,11 +6402,11 @@ SHARED_PTR<Record> image::_getRegion(
     case variant::RECORD:
         {
             SHARED_PTR<variant> clon(region.clone());
-            return SHARED_PTR<Record>(
+            return SHARED_PTR<casacore::Record>(
                 nullIfEmpty && region.size() == 0
-                    ? 0
+                    ? nullptr
                     : toRecord(
-                        SHARED_PTR<variant>(region.clone())->asRecord()
+                        SHARED_PTR<::casac::variant>(region.clone())->asRecord()
                     )
             );
         }

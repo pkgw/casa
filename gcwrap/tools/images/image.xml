@@ -11235,6 +11235,19 @@ used to create a 2D temporary image.
         pbia.done()
     </example>
 </method>
+
+<method type="function" name="pixeltype">
+    <shortdescription>Get the pixel data type of the attached image</shortdescription>
+    <returns type="string"/>
+    <description>
+        This application returns the data type of the pixels of the attached image as a string.
+        The possible values are: "float" which indicates real valued, floating point, 32 bit pixel
+        values, "complex" which indicates complex valued, floating point, 32 bit (for each of the
+        real and imaginary parts) pixel values, "double" which indicates real valued, floating
+        point, 64 bit pixel values, and "dcomplex" which indicates complex valued, floating point,
+        64 bit (for each of the real and imaginary parts) pixel values.
+    </description>
+</method>
   
 <method type="function" name="pv">
     <shortdescription>
