@@ -66,7 +66,7 @@ class telemetry:
         # Find logfiles
         for file in os.listdir(self.logdir):
             if fnmatch.fnmatch(file, self.logpattern):
-                print "Matched: " + file
+                #print "Matched: " + file
                 logfiles.append(file)
 
         if (len(logfiles) > 0):
@@ -95,7 +95,7 @@ class telemetry:
             # Remove files
             for logfile in logfiles:
                 os.remove(self.logdir + "/" + logfile)
-                print "Removed " + self.logdir + "/" + logfile
+                #print "Removed " + self.logdir + "/" + logfile
             os.remove(tarfileid)
             self.logger.post("Removed" + tarfileid)
         else:
