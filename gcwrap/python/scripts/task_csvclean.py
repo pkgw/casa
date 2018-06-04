@@ -17,10 +17,10 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
     """ This task does an invert of the visibilities and deconvolve in the
 	    image plane. It does not do a uvdata subtraction (aka Cotton-Schwab
 		major cycle) of model visibility as in clean. - For ALMA Commissioning
-    
+
          vis -- Name of input visibility file
-               default: none; example: vis='ngc5921.ms'    
-    
+               default: none; example: vis='ngc5921.ms'
+
 	     imagename -- Name of output CASA image. (only the prefix)
                    default: none; example: imagename='m2'
                    output images are:
@@ -31,28 +31,28 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
                  m2.model; image of clean components
                  m2.mask; image containing clean regions, when interative=True
 
-    
+
          field -- Select fields in MS.  Use field id(s) or field name(s).
                     ['go listobs' to obtain the list id's or names]
                 default: ''= all fields
                 If field string is a non-negative integer, it is assumed to
-                    be a field index otherwise, it is assumed to be a 
+                    be a field index otherwise, it is assumed to be a
                     field name
                 field='0~2'; field ids 0,1,2
                 field='0,4,5~7'; field ids 0,4,5,6,7
                 field='3C286,3C295'; field named 3C286 and 3C295
                 field = '3,4C*'; field id 3, all names starting with 4C
-    
+
          spw --Select spectral window/channels
                 NOTE: This selects the data passed as the INPUT to mode
                 default: ''=all spectral windows and channels
                   spw='0~2,4'; spectral windows 0,1,2,4 (all channels)
                   spw='0:5~61'; spw 0, channels 5 to 61
                   spw='<2';   spectral windows less than 2 (i.e. 0,1)
-                  spw='0,10,3:3~45'; spw 0,10 all channels, spw 3, 
+                  spw='0,10,3:3~45'; spw 0,10 all channels, spw 3,
                                      channels 3 to 45.
                   spw='0~2:2~6'; spw 0,1,2 with channels 2 through 6 in each.
-                  spw='0:0~10;15~60'; spectral window 0 with channels 
+                  spw='0:0~10;15~60'; spectral window 0 with channels
                                       0-10,15-60
                   spw='0:0~10,1:20~30,2:1;2;3'; spw 0, channels 0-10,
                         spw 1, channels 20-30, and spw 2, channels, 1,2 and 3
@@ -61,7 +61,7 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
                    default = [256,256]; example: imsize=[350,350]
                    imsize = 500 is equivalent to [500,500]
                    Avoid odd-numbered imsize.
-    
+
         cell -- Cell size (x,y)
                    default= '1.0arcsec';
                    example: cell=['0.5arcsec,'0.5arcsec'] or
@@ -72,41 +72,42 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
         phasecenter -- direction measure  or fieldid for the mosaic center
                    default: '' => first field selected ; example: phasecenter=6
                    or phasecenter='J2000 19h30m00 -40d00m00'
-    
+
         niter -- Maximum number iterations,
                    if niter=0, then no CLEANing is done ("invert" only)
                    default: 500; example: niter=5000
-    
+
         weighting -- Weighting to apply to visibilities:
                    default='natural'; example: weighting='uniform';
-                   Options: 'natural','uniform','briggs', 
+                   Options: 'natural','uniform','briggs',
                            'superuniform','briggsabs','radial'
-    
+
         restoringbeam -- Output Gaussian restoring beam for CLEAN image
                    [bmaj, bmin, bpa] elliptical Gaussian restoring beam
                    default units are in arc-seconds for bmaj,bmin, degrees
                    for bpa default: restoringbeam=[]; Use PSF calculated
-                   from dirty beam. 
+                   from dirty beam.
                    example: restoringbeam=['10arcsec'] or restorinbeam='10arcsec', circular Gaussian.
                             FWHM 10 arcseconds example:
-                            restoringbeam=['10.0','5.0','45.0deg'] 10"x5" 
+                            restoringbeam=['10.0','5.0','45.0deg'] 10"x5"
                             at 45 degrees
-        
+
 	    interactive -- Create a mask interactively or not.
         		   default=False; example: interactive=True
         		   The viewer will open with the image displayed. Select the
         		   region for the mask and double click in the middle of it.
-            
-    """
-    
 
-    #Python script    
-    
+    """
+
+
+    #Python script
+
     try:
 
         casalog.origin('csvclean')
+        casalog.post("Task csvclean has been deprecated and will be removed in release 5.4.", "WARN")
         ms = casac.ms()
-        
+
 
         parsummary = 'vis="'+str(vis)+'", imagename="'+str(imagename)+'", '
         parsummary += 'field="'+str(field)+'", spw="'+str(spw)+'", '
@@ -116,8 +117,8 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
         parsummary += 'weighting="'+str(weighting)+'", '
         parsummary += 'restoringbeam="'+str(restoringbeam)+'", '
         parsummary += 'interactive='+str(interactive)+''
-        casalog.post(parsummary,'INFO')    
-        
+        casalog.post(parsummary,'INFO')
+
 #        if (not (type(vis)==str) & (os.path.exists(vis))):
 #            raise Exception, 'Visibility data set not found - please verify the name'
         if ((type(vis)==str) & (os.path.exists(vis))):
@@ -127,30 +128,30 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
         if(not advise):
             if (imagename == ""):
                 #            ms.close()
-                raise Exception, "Must provide output image name in parameter imagename."            
-        
+                raise Exception, "Must provide output image name in parameter imagename."
+
             if os.path.exists(imagename):
                 #            ms.close()
                 raise Exception, "Output image %s already exists - will not overwrite." % imagename
-           
+
         if (field == ''):
         	field = '*'
-        	
+
         if (spw == ''):
         	spw = '*'
 
         if ((type(imsize)==int)):
             imsize=[imsize,imsize]
-    
-        if ((len(imsize)==1)): 
+
+        if ((len(imsize)==1)):
             imsize=[imsize[0],imsize[0]]
-        
+
         nx = imsize[0]
         ny = imsize[1]
-      
+
         if ((type(cell)==int) | (type(cell)==float) | (type(cell)==str)):
             cell=[cell,cell]
-               
+
         if ((len(cell)==1)):
             cell=[cell[0],cell[0]]
 
@@ -178,14 +179,14 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
                     #failed must be a string type J2000 18h00m00 10d00m00
                     tmppc = phasecenter
                 phasecenter = tmppc
-                
+
 
         if restoringbeam == [''] or len(restoringbeam) == 0:
         	# calculate from fit below
             bmaj = ''
             bmin = ''
             bpa = ''
-        else:        	
+        else:
 	        if (type(restoringbeam)==str):
 	            restoringbeam=[restoringbeam,restoringbeam,'0deg']
 	        if (type(restoringbeam)==list and (len(restoringbeam)==1)):
@@ -194,18 +195,18 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
 	            restoringbeam=[restoringbeam[0],restoringbeam[1],'0deg']
 	        if (type(restoringbeam)==list and (len(restoringbeam)==2)):
 	            restoringbeam=[restoringbeam[0],restoringbeam[1],restoringbeam[2]]
-	
+
 	        if(qa.quantity(restoringbeam[0])['unit'] == ''):
 	        	restoringbeam[0]=restoringbeam[0]+'arcsec'
 	        if(qa.quantity(restoringbeam[1])['unit'] == ''):
 	        	restoringbeam[1]=restoringbeam[1]+'arcsec'
 	        if(qa.quantity(restoringbeam[2])['unit'] == ''):
 	        	restoringbeam[2]=restoringbeam[2]+'deg'
-	        
+
 	        bmaj = restoringbeam[0]
 	        bmin = restoringbeam[1]
 	        bpa = restoringbeam[2]
-                   
+
         # Create output names based on imagename parameter
         dirtyim = imagename+'dirty.image'
         psfim = imagename+'psf.image'
@@ -214,7 +215,7 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
 
         # Make sure all tables and images are closed
 #        ms.close()
-        
+
         # Add scratch columns if they don't exist
         #tb.open(vis)
         #hasit = tb.colnames().count('CORRECTED_DATA')>0
@@ -222,7 +223,7 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
         #if not hasit:
         #	cb.open(vis)
         #	cb.close()
-        		
+
         # make the dirty image and psf
 
         im.open(vis, usescratch=True)
@@ -316,13 +317,13 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
                     redopsf=True
                     nx=nx+1
                     ny=ny+1
-                    redokounter += 1 
+                    redokounter += 1
                     if(redokounter==3):
                         casalog.post('Failed to find a decent psf','SEVERE')
                         return False
                     else:
                         casalog.post('Trying new image with 1 extra pixel','WARN')
-                        
+
             except :
             	redopsf=True
                 nx=nx+1
@@ -334,10 +335,10 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
                     return False
                 else:
                     casalog.post('Trying new image with 1 extra pixel','WARN')
-        im.done()            
+        im.done()
         parsummary = 'restoringbeam values = [\'%s\',\'%s\',\'%s\']'%(qa.tos(bmaj),qa.tos(bmin),qa.tos(bpa))
         casalog.post(parsummary,'INFO')
-        
+
         # Make a mask
         maskname=''
         if(interactive):
@@ -360,14 +361,14 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
         # NOTE: use the parameter mask which can be an empty
         #       string if no mask
         dc.clean(niter=niter, model=modelname, mask=maskname)
-        
+
         # create the restored image
         if restoringbeam == [''] or len(restoringbeam) == 0:
             dc.restore(model=modelname, image=imname, bmaj=bmaj, bmin=bmin, bpa=bpa)
         else:
-            dc.restore(model=modelname, image=imname, bmaj=restoringbeam[0], bmin=restoringbeam[1], bpa=restoringbeam[2])  
-			
-        dc.done()  
+            dc.restore(model=modelname, image=imname, bmaj=restoringbeam[0], bmin=restoringbeam[1], bpa=restoringbeam[2])
+
+        dc.done()
         return True
 
     except Exception, instance:
@@ -378,6 +379,3 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
         casalog.post("Error ...", 'SEVERE')
         traceback.print_exc()
         raise Exception, instance
-
-    
-

@@ -34,6 +34,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   SIMinorCycleController::SIMinorCycleController(): 
                                 itsCycleNiter(0),
                                 itsCycleThreshold(0.0),
+                                itsNsigmaThreshold(0.0),
                                 itsLoopGain(0.1),
                                 itsIsThresholdReached(false),
                                 itsUpdatedModelFlag(false),
@@ -63,7 +64,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Reached iteration limit
     if (itsCycleIterDone >= itsCycleNiter ) {stopCode=1;}
     // Reached cyclethreshold
-    if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
+    //if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
+    // Reached cyclethreshold or n-sigma threshold
+    //debug (TT)
+    //os << LogIO::DEBUG1<< "itsNsigma="<<itsNsigma<<" itsIterDiff="<<itsIterDiff<<LogIO::POST;
+    os << LogIO::DEBUG1<< "itsNsigmaThreshoild="<<itsNsigmaThreshold<<" itsCycleThreshold="<<itsCycleThreshold<<" currentPeakRes="<<currentPeakResidual<<LogIO::POST;
+    if (itsCycleThreshold >= itsNsigmaThreshold) {
+      //if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
+      if( fabs(currentPeakResidual) <= itsCycleThreshold ) { 
+        //itsNsigmaThreshold = 0.0; // since stopped by gobal threshold, reset itsNsigmaThreshold 
+        stopCode=2; 
+      }
+    }
+    else {
+      if( fabs(currentPeakResidual) <= itsNsigmaThreshold && !(itsIterDiff<=0)) { if (itsNsigma!=0.0) stopCode=6; }
+    }
     // Zero iterations done
     if( itsIterDiff==0 ) {stopCode=3;}
     // Diverged : CAS-8767, CAS-8584
@@ -73,7 +88,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	( fabs(currentPeakResidual) - fabs(itsMinResidual) )/ fabs(itsMinResidual) >0.1  ) 
       {stopCode=4;}
 
-    //	cout << " -> " << stopCode << endl;
+   //  cout << " -> " << stopCode << endl;
 
     /*    // Going nowhere
     if( itsIterDiff > 1500 && 
@@ -146,6 +161,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIMinorCycleController::setMadRMS(Float madRMS)
   {
     itsMadRMS = madRMS;
+  }
+
+  Float SIMinorCycleController::getNsigma()
+  {
+    return itsNsigma;
+  }
+
+  void SIMinorCycleController::setNsigma(Float nSigma)
+  {
+    itsNsigma = nSigma;
+  }
+
+  void SIMinorCycleController::setNsigmaThreshold(Float nsigmaThreshold)
+  {
+    
+    LogIO os( LogOrigin("SIMinorCycleController",__FUNCTION__,WHERE) );
+    itsNsigmaThreshold = nsigmaThreshold;
   }
 
   void SIMinorCycleController::setMaskSum(Float maskSum)
@@ -228,6 +260,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     returnRecord.define( RecordFieldId("peakresidualnomask"), itsPeakResidualNoMask);
     returnRecord.define( RecordFieldId("madrms"), itsMadRMS);
     returnRecord.define( RecordFieldId("masksum"), itsMaskSum);
+    returnRecord.define( RecordFieldId("nsigmathreshold"), itsNsigmaThreshold);
+    returnRecord.define( RecordFieldId("nsigma"), itsNsigma);
 
     /* Reset Counters and summary for the current set of minorcycle iterations */
     itsIterDone = 0;
@@ -239,7 +273,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SIMinorCycleController::setCycleControls(Record &recordIn) {
     LogIO os( LogOrigin("SIMinorCycleController",__FUNCTION__,WHERE) );
-
     if (recordIn.isDefined("cycleniter"))
       {recordIn.get(RecordFieldId("cycleniter"), itsCycleNiter);}
     else
@@ -259,6 +292,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {recordIn.get(RecordFieldId("loopgain"), itsLoopGain);}
     else
       {throw(AipsError("loopgain not defined in input minor-cycle controller") );}
+
+    if (recordIn.isDefined("nsigma"))
+      {recordIn.get(RecordFieldId("nsigma"), itsNsigma);}
+    else 
+      { throw(AipsError(" nsigma is not defined in input minor-cycle controller ") );}
 
     /* Reset the counters for the new cycle */
     itsMaxCycleIterDone = 0;

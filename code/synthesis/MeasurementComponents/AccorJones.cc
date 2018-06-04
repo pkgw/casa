@@ -132,10 +132,6 @@ void AccorJones::selfSolveOne(SDBList& sdbs) {
     // Is this row ok?
     rowok(irow)= (!sdb.flagRow()(irow) &&
 		  a1==a2);
-
-    // All relevant correlations must be good
-    for (Int icorr=0;icorr<nCorr;++icorr)
-      rowok(irow)=(rowok(irow) && !sdb.flagCube()(corridx[icorr],guesschan,irow));
   }
 
   const Cube<Complex>& V(sdb.visCubeCorrected());
@@ -189,10 +185,6 @@ void AccorJones::initTrivDJ() {
 
 void AccorJones::keepNCT() {
   for (Int elem=0;elem<nElem();++elem) {
-    // There is no point in adding flagged solutions.
-    if (!solveAllParOK()(0, 0, elem))
-      continue;
-
     ct_->addRow(1);
 
     CTMainColumns ncmc(*ct_);

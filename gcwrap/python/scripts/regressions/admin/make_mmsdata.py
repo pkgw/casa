@@ -30,6 +30,7 @@ TASKLIST = [
             'gaincal',
             'gencal',
             'hanningsmooth',
+            'initweights',
             'listhistory',
             'listobs',
             'listvis', # shared with fixplanets
