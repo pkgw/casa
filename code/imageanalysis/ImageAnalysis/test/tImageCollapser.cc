@@ -205,10 +205,8 @@ int main() {
     	}
        	{
         	writeTestString("average full temporary image collapse along axis 0");
-
         	auto ret = ImageFactory::fromImage("", goodImage->name(), Record(), "");
-        	auto tIm = ret.first;
-
+        	auto tIm = std::get<0>(ret);
         	ImageCollapser<Float> collapser(
         		"mean", tIm, nullptr, "", IPosition(1, 0),
 				false, outname(), false

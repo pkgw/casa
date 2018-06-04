@@ -175,7 +175,7 @@ SPIIF ImageFactory::fromASCII(
     return imageFromArray(outfile, pixels, csys, linear, overwrite);
 }
 
-pair<SPIIF, SPIIC> ImageFactory::fromImage(
+ITUPLE ImageFactory::fromImage(
     const String& outfile, const String& infile,
     const Record& region, const String& mask, Bool dropdeg,
     Bool overwrite
@@ -185,29 +185,40 @@ pair<SPIIF, SPIIC> ImageFactory::fromImage(
     auto imageC = std::get<1>(imagePtrs);
     auto imageD = std::get<2>(imagePtrs);
     auto imageDC = std::get<3>(imagePtrs);
-    LogIO mylog;
-    mylog << LogOrigin("ImageFactory", __func__);
     if (imageF) {
         imageF = SubImageFactory<Float>::createImage(
             *imageF, outfile, region,
             mask, dropdeg, overwrite, false, false
         );
         ThrowIf(! imageF, "Failed to create image");
-        mylog << LogIO::NORMAL << "Created image '" << outfile
-            << "' of shape " << imageF->shape() << LogIO::POST;
-
     }
-    else {
-        imageC= SubImageFactory<Complex>::createImage(
+    else if (imageC) {
+        imageC = SubImageFactory<Complex>::createImage(
             *imageC, outfile, region,
             mask, dropdeg, overwrite, false, false
         );
         ThrowIf(! imageC, "Failed to create image");
-        mylog << LogIO::NORMAL << "Created image '" << outfile
-            << "' of shape " << imageC->shape() << LogIO::POST;
     }
-
-    return make_pair(imageF, imageC);
+    else if (imageD) {
+        imageD = SubImageFactory<Double>::createImage(
+            *imageD, outfile, region,
+            mask, dropdeg, overwrite, false, false
+        );
+        ThrowIf(! imageD, "Failed to create image");
+    }
+    else {
+        imageDC = SubImageFactory<DComplex>::createImage(
+            *imageDC, outfile, region,
+            mask, dropdeg, overwrite, false, false
+        );
+        ThrowIf(! imageDC, "Failed to create image");
+    }
+    LogIO mylog;
+    mylog << LogOrigin("ImageFactory", __func__);
+    ITUPLE ret(imageF, imageC, imageD, imageDC);
+    mylog << LogIO::NORMAL << _imageCreationMessage(outfile, ret)
+        << LogIO::POST;
+    return ret;
 }
 
 pair<SPIIF, SPIIC> ImageFactory::fromRecord(
@@ -386,24 +397,32 @@ ITUPLE ImageFactory::_fromLatticeBase(
     DataType dataType = latt->dataType();
     tuple<SPIIF, SPIIC, SPIID, SPIIDC> ret(nullptr, nullptr, nullptr, nullptr);
     if (dataType == TpFloat) {
-        std::get<0>(ret) = SPIIF(
+        auto f = SPIIF(
             dynamic_cast<ImageInterface<Float> *>(latt.release())
         );
+        ThrowIf(! f, "Could not cast LatticeBase to ImageInterface<Float>");
+        std::get<0>(ret) = f;
     }
     else if (dataType == TpComplex) {
-        std::get<1>(ret) = SPIIC(
+        auto c = SPIIC(
             dynamic_cast<ImageInterface<Complex> *>(latt.release())
         );
+        ThrowIf(! c, "Could not cast LatticeBase to ImageInterface<Complex>");
+        std::get<1>(ret) = c;
     }
     else if (dataType == TpDouble) {
-        std::get<2>(ret) = SPIID(
+        auto d = SPIID(
             dynamic_cast<ImageInterface<Double> *>(latt.release())
         );
+        ThrowIf(! d, "Could not cast LatticeBase to ImageInterface<Double>");
+        std::get<2>(ret) = d;
     }
     else if (dataType == TpDComplex) {
-        std::get<3>(ret) = SPIIDC(
+        auto dc = SPIIDC(
             dynamic_cast<ImageInterface<DComplex> *>(latt.release())
         );
+        ThrowIf(! dc, "Could not cast LatticeBase to ImageInterface<DComplex>");
+        std::get<3>(ret) = dc;
     }
     else {
         ostringstream os;
@@ -642,6 +661,49 @@ void ImageFactory::_checkOutfile(const String& outfile, Bool overwrite) {
         );
     }
 }
+
+String ImageFactory::_imageCreationMessage(
+    const String& outfile, const IPosition& shape,
+    DataType dataType
+) {
+    auto blank = outfile.empty();
+    ostringstream os;
+    os << "Created "
+        << (blank ? "Temp" : "Paged") << " image "
+        << (blank ? "" : "'" + outfile + "'")
+        << " of shape " << shape << " with "
+        << dataType << " valued pixels.";
+    return os.str();
+}
+
+String ImageFactory::_imageCreationMessage(
+    const String& outfile, const ITUPLE& imagePtrs
+) {
+    if (auto x = std::get<0>(imagePtrs)) {
+        return _imageCreationMessage(
+            outfile, x->shape(), TpFloat
+        );
+    }
+    else if (auto x = std::get<1>(imagePtrs)) {
+        return _imageCreationMessage(
+            outfile, x->shape(), TpComplex
+        );
+    }
+    else if (auto x = std::get<2>(imagePtrs)) {
+        return _imageCreationMessage(
+            outfile, x->shape(), TpDouble
+        );
+    }
+    else if (auto x = std::get<3>(imagePtrs)) {
+        return _imageCreationMessage(
+            outfile, x->shape(), TpDComplex
+        );
+    }
+    else {
+        ThrowCc("Logic Error");
+    }
+}
+
 
 }
 

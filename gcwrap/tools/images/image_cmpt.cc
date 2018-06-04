@@ -150,13 +150,16 @@ image::image(casa::SPIIC inImage) :
     _log(), _imageF(), _imageC(inImage), _imageD(), _imageDC() {
 }
 
-image::image(casa::SPIID inImage) :
-    _log(), _imageF(), _imageC(), _imageD(inImage), _imageDC() {
+image::image(casa::SPIID inImage)
+    : _imageD(inImage) {}
+
+image::image(casa::SPIIDC inImage)
+    : _imageDC(inImage) {}
+
+image::image(ITUPLE mytuple) {
+    _setImage(mytuple);
 }
 
-image::image(casa::SPIIDC inImage) :
-    _log(), _imageF(), _imageC(), _imageD(), _imageDC(inImage) {
-}
 
 image::~image() {}
 
@@ -1964,86 +1967,145 @@ record* image::fitprofile(const string& box, const variant& region,
 }
 
 bool image::fromarray(
-    const std::string& outfile,
-    const variant& pixels, const record& csys,
-    bool linear, bool overwrite, bool log
+    const std::string& outfile, const variant& pixels,
+    const record& csys, bool linear, bool overwrite,
+    bool log, const std::string& type
 ) {
     try {
         _reset();
-        auto mypair = _fromarray(
-            outfile, pixels, csys,
-            linear,  overwrite, log
+        auto mytuple = _fromarray(
+            outfile, pixels, csys, linear,
+            overwrite, log, type
         );
-        _imageF = mypair.first;
-        _imageC = mypair.second;
-        vector<String> names {"pixels", "csys", "linear", "overwrite", "log"};
+        _setImage(mytuple);
+        vector<String> names {
+            "pixels", "csys", "linear",
+            "overwrite", "log", "type"
+        };
         variant k("[...]");
         const auto* mpixels = pixels.size() <= 100 ? &pixels : &k;
-        vector<variant> values {*mpixels, csys, linear, overwrite, log};
+        vector<variant> values {
+            *mpixels, csys, linear, overwrite, log, type
+        };
         _addHistory(__func__, names, values);
         return true;
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return false;
 }
 
-std::pair<SPIIF, SPIIC> image::_fromarray(
+ITUPLE image::_fromarray(
     const string& outfile,
-    const variant& pixels, const record& csys,
-    bool linear, bool overwrite, bool log
+    const ::casac::variant& pixels, const record& csys,
+    bool linear, bool overwrite, bool log,
+    const string& type
 ) {
-    Vector<Int> shape = pixels.arrayshape();
+    String mytype = type;
+    mytype.downcase();
     ThrowIf(
-        shape.ndim() == 0,
-        "The pixels array cannot be empty"
+        ! (mytype == "d" || mytype == "f"),
+        "Unsupported value for type: \"" + type + "\". "
+        "Supported values are \"d\" and \"f\""
     );
-    Array<Float> floatArray;
-    Array<Complex> complexArray;
-    if (pixels.type() == variant::DOUBLEVEC) {
-        std::vector<double> pixelVector = pixels.getDoubleVec();
-        floatArray.resize(IPosition(shape));
-        Vector<Double> localpix(pixelVector);
-        convertArray(floatArray, localpix.reform(IPosition(shape)));
-    }
-    else if (pixels.type() == ::casac::variant::INTVEC) {
-        vector<int> pixelVector = pixels.getIntVec();
-        floatArray.resize(IPosition(shape));
-        Vector<Int> localpix(pixelVector);
-        convertArray(floatArray, localpix.reform(IPosition(shape)));
+    auto doFloat = mytype == "f";
+    ::casacore::IPosition shape = pixels.arrayshape();
+    ThrowIf(
+        shape.empty(), "The pixels array cannot be empty"
+    );
+    ::casacore::Array<::casacore::Float> floatArray;
+    ::casacore::Array<::casacore::Double> doubleArray;
+    ::casacore::Array<::casacore::Complex> complexArray;
+    ::casacore::Array<::casacore::DComplex> dcomplexArray;
+    auto pixType = pixels.type();
+    if (
+        pixType == ::casac::variant::DOUBLEVEC
+        || pixType == ::casac::variant::INTVEC
+        || pixType == ::casac::variant::LONGVEC
+        || pixType == ::casac::variant::UINTVEC
+    ) {
+        ::casacore::Array<::casacore::Double> dv;
+        if (pixType == ::casac::variant::DOUBLEVEC) {
+            dv = ::casacore::Vector<::casacore::Double>(
+                pixels.getDoubleVec()
+            ).reform(shape);
+        }
+        else if (pixType == ::casac::variant::INTVEC) {
+            dv = ::casacore::Vector<::casacore::Double>(
+                pixels.getIntVec()
+            ).reform(shape);
+        }
+        else if (pixType == ::casac::variant::LONGVEC) {
+            dv = ::casacore::Vector<::casacore::Double>(
+                pixels.getLongVec()
+            ).reform(shape);
+        }
+        else if (pixType == ::casac::variant::UINTVEC) {
+            dv = ::casacore::Vector<::casacore::Double>(
+                pixels.getuIntVec()
+            ).reform(shape);
+        }
+        else {
+            ThrowCc("Logic error");
+        }
+        if (doFloat) {
+            floatArray.resize(shape);
+            ::casacore::convertArray(floatArray, dv);
+        }
+        else {
+            doubleArray = dv;
+        }
     }
     else if (pixels.type() == ::casac::variant::COMPLEXVEC) {
-        vector<std::complex<double> > pixelVector = pixels.getComplexVec();
-        complexArray.resize(IPosition(shape));
-        Vector<DComplex> localpix(pixelVector);
-        convertArray(complexArray, localpix.reform(IPosition(shape)));
+        auto localpix = ::casacore::Vector<::casacore::DComplex>(
+            pixels.getComplexVec()
+        ).reform(shape);
+        if(doFloat) {
+            complexArray.resize(shape);
+            ::casacore::convertArray(complexArray, localpix);
+        }
+        else {
+            dcomplexArray = localpix;
+        }
     }
     else {
-        ThrowCc(
-            "pixels is not understood, try using an array "
-        );
+        ThrowCc("pixels is not understood, try using an array");
     }
-    LogOrigin lor("image", __func__);
+    casacore::LogOrigin lor("image", __func__);
     _log << lor;
     std::unique_ptr<Record> coordinates(toRecord(csys));
     SPIIF f;
     SPIIC c;
-    if (floatArray.ndim() > 0) {
+    SPIID d;
+    SPIIDC dc;
+    if (! floatArray.empty()) {
         f = ImageFactory::imageFromArray(
             outfile, floatArray, *coordinates,
             linear, overwrite, log
         );
     }
-    else {
+    else if (! doubleArray.empty()) {
+        d = ImageFactory::imageFromArray(
+            outfile, doubleArray, *coordinates,
+            linear, overwrite, log
+        );
+    }
+    else if (! complexArray.empty()) {
         c = ImageFactory::imageFromArray(
             outfile, complexArray, *coordinates,
             linear, overwrite, log
         );
     }
-    return make_pair(f, c);
+    else {
+        dc = ImageFactory::imageFromArray(
+            outfile, dcomplexArray, *coordinates,
+            linear, overwrite, log
+        );
+    }
+    return ::casa::ITUPLE(f, c, d, dc);
 }
 
 bool image::fromascii(
@@ -2177,13 +2239,11 @@ bool image::fromimage(
         _log << _ORIGIN;
         String theMask = _getMask(mask);
         SHARED_PTR<Record> regionPtr(_getRegion(region, false));
-        auto imagePair = ImageFactory::fromImage(
+        auto imagePtrs = ImageFactory::fromImage(
             outfile, infile, *regionPtr, theMask,
             dropdeg, overwrite
         );
-        _reset();
-        _imageF = imagePair.first;
-        _imageC = imagePair.second;
+        _setImage(imagePtrs);
         vector<String> names {
             "outfile", "infile", "region",
             "mask", "dropdeg", "overwrite"
@@ -3611,16 +3671,14 @@ image* image::newimage(const string& fileName) {
 image* image::newimagefromarray(
     const string& outfile, const variant& pixels,
     const record& csys, bool linear,
-    bool overwrite, bool log
+    bool overwrite, bool log, const string& type
 ) {
     try {
-        auto mypair = _fromarray(
+        auto mytuple = _fromarray(
             outfile, pixels, csys,
-            linear, overwrite, log
+            linear, overwrite, log, type
         );
-        auto res = mypair.first
-            ? new image(mypair.first)
-            : new image(mypair.second);
+        auto* res = new image(mytuple);
         vector<String> names = {
             "outfile", "pixels", "csys",
             "linear", "overwrite", "log"
@@ -3638,7 +3696,7 @@ image* image::newimagefromarray(
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return nullptr;
@@ -3695,14 +3753,23 @@ image* image::newimagefromimage(
             infile, outfile, region,
             vmask, dropdeg, overwrite
         };
-        if (ret.first) {
-            _addHistory(ret.first, __func__, names, values);
-            return new image(ret.first);
+        auto f = std::get<0>(ret);
+        auto c = std::get<1>(ret);
+        auto d = std::get<2>(ret);
+        auto dc = std::get<3>(ret);
+        if (f) {
+            _addHistory(f, __func__, names, values);
         }
-        else if (ret.second) {
-            _addHistory(ret.second, __func__, names, values);
-            return new image(ret.second);
+        else if (c) {
+            _addHistory(c, __func__, names, values);
         }
+        else if (d) {
+            _addHistory(d, __func__, names, values);
+        }
+        else if (dc) {
+            _addHistory(dc, __func__, names, values);
+        }
+        return new image(ret);
         ThrowCc("Error creating image");
     }
     catch (const AipsError& x) {
@@ -3925,6 +3992,36 @@ image* image::pbcor(
         RETHROW(x);
     }
     return nullptr;
+}
+
+std::string image::pixeltype() {
+    try {
+        _log << _ORIGIN;
+        if (_detached()) {
+            return "";
+        }
+        if (_imageF) {
+            return "float";
+        }
+        else if (_imageC) {
+            return "complex";
+        }
+        else if (_imageD) {
+            return "double";
+        }
+        else if (_imageDC) {
+            return "dcomplex";
+        }
+        else {
+            ThrowCc("Logic error");
+        }
+    }
+    catch (const AipsError& x) {
+        _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+             << LogIO::POST;
+        RETHROW(x);
+    }
+    return "";
 }
 
 record* image::pixelvalue(const vector<int>& pixel) {
@@ -6250,7 +6347,8 @@ bool image::isconform(const string& other) {
 }
 
 SHARED_PTR<Record> image::_getRegion(
-    const variant& region, const bool nullIfEmpty, const string& otherImageName
+    const ::casac::variant& region, const bool nullIfEmpty,
+    const string& otherImageName
 ) const {
     switch (region.type()) {
     case variant::BOOLVEC:
@@ -6304,11 +6402,11 @@ SHARED_PTR<Record> image::_getRegion(
     case variant::RECORD:
         {
             SHARED_PTR<variant> clon(region.clone());
-            return SHARED_PTR<Record>(
+            return SHARED_PTR<casacore::Record>(
                 nullIfEmpty && region.size() == 0
-                    ? 0
+                    ? nullptr
                     : toRecord(
-                        SHARED_PTR<variant>(region.clone())->asRecord()
+                        SHARED_PTR<::casac::variant>(region.clone())->asRecord()
                     )
             );
         }
@@ -6316,6 +6414,38 @@ SHARED_PTR<Record> image::_getRegion(
         ThrowCc("Unsupported type for region " + region.typeString());
     }
 }
+
+void image::_setImage(casa::ITUPLE mytuple) {
+    auto imageF = std::get<0>(mytuple);
+    auto imageC = std::get<1>(mytuple);
+    auto imageD = std::get<2>(mytuple);
+    auto imageDC = std::get<3>(mytuple);
+    uInt n = 0;
+    if (imageF) {
+        ++n;
+    }
+    if (imageC) {
+        ++n;
+    }
+    if (imageD) {
+        ++n;
+    }
+    if (imageDC) {
+        ++n;
+    }
+    ThrowIf(n == 0, "No image defined");
+    ThrowIf(
+        n > 1,
+        "Multiple images (" + String::toString(n)
+        + ") defined"
+    );
+    _reset();
+    _imageF = imageF;
+    _imageC = imageC;
+    _imageD = imageD;
+    _imageDC = imageDC;
+}
+
 
 vector<double> image::_toDoubleVec(const variant& v) {
     variant::TYPE type = v.type();
