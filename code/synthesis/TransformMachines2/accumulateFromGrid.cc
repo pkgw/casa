@@ -52,8 +52,8 @@
 
 	      norm+=(wt);
 	      if (finitePointingOffset) 
-		wt *= cached_phaseGrad_p(iLoc_ptr[0]+phaseGradOrigin_l[0],
-					 iLoc_ptr[1]+phaseGradOrigin_l[1]);
+		wt *= conj(cached_phaseGrad_p(iLoc_ptr[0]+phaseGradOrigin_l[0],
+					      iLoc_ptr[1]+phaseGradOrigin_l[1]));
 	      //	      nvalue+=wt*grid(iGrdPos);
 	      nvalue +=  wt * getFrom4DArray(grid, iGrdPos_ptr, gridInc_p_ptr);
 	    }

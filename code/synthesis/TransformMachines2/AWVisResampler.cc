@@ -247,8 +247,8 @@ namespace casa{
 				  const Int* convOrigin,
   				  Complex& nvalue,
 				  Double& wVal,
-  				  Bool& finitePointingOffset,
-  				  Bool& doPSFOnly,
+  				  Bool& /*finitePointingOffset*/,
+  				  Bool& /*doPSFOnly*/,
   				  T* __restrict__ gridStore,
   				  Int* iloc,
   				  Complex& norm,
@@ -286,11 +286,11 @@ namespace casa{
 					   Vector<Int>& /*cfShape*/, Vector<Int>& loc, Vector<Int>& igrdpos,
 					   Double& /*sinDPA*/, Double& /*cosDPA*/,
 					   Bool& finitePointingOffset,
-					   Bool doPSFOnly)
+					   Bool /*doPSFOnly*/)
   {
     Vector<Int> iloc(4,0);
     Bool Dummy;
-    Complex wt, cfArea=1.0; 
+    Complex wt;//, cfArea=1.0; 
     Complex norm=0.0;
 
     Vector<Int> iCFPos(4,0);
@@ -313,11 +313,11 @@ namespace casa{
     Int *igrdpos_ptr=igrdpos.getStorage(Dummy);
     Int *cfInc_p_ptr = cfInc_p.getStorage(Dummy);
     
-    Bool finitePointingOffset_l=finitePointingOffset;
-    Bool doPSFOnly_l=doPSFOnly;
-    Double wVal_l=wVal;
-    Complex nvalue_l=nvalue;
-    Complex *convFuncV_l=convFuncV;
+    //Bool finitePointingOffset_l=finitePointingOffset;
+    //Bool doPSFOnly_l=doPSFOnly;
+    //Double wVal_l=wVal;
+    //Complex nvalue_l=nvalue;
+    //Complex *convFuncV_l=convFuncV;
     Int phaseGradOrigin_l[2]; 
     phaseGradOrigin_l[0] = cached_phaseGrad_p.shape()(0)/2;
     phaseGradOrigin_l[1] = cached_phaseGrad_p.shape()(1)/2;
@@ -448,7 +448,7 @@ namespace casa{
     cfShape=vbRow2CFBMap_p(0)->getStorage()(0,0,0)->getStorage()->shape().asVector();
 
     Vector<Int> convOrigin = (cfShape)/2;
-    Double sinDPA=0.0, cosDPA=1.0, cfRefFreq;
+    Double cfRefFreq;
     //    Double cfScale=1.0;
 
     //timer_p.mark();
@@ -531,7 +531,7 @@ namespace casa{
 			      (fabs(pointingOffset(0))>0) ||  
 			      (fabs(pointingOffset(1))>0)
 			      );
-   Bool isGridSinglePrecision=(typeid(gridStore[0]) == typeid(wt));
+   //   Bool isGridSinglePrecision=(typeid(gridStore[0]) == typeid(wt));
 
    //   Double conjRefFreq = vbs.imRefFreq();
    Int vbSpw = (vbs.vb_p)->spectralWindows()(0);
@@ -667,7 +667,7 @@ namespace casa{
 					  
 					  
 					  convOrigin=cfShape/2;
-					  Bool psfOnly=((dopsf==true) && (accumCFs==false));
+					  //Bool psfOnly=((dopsf==true) && (accumCFs==false));
 					  if (finitePointingOffsets )
 					    cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
 							     vbSpw, vbFieldID);
@@ -725,7 +725,7 @@ namespace casa{
     
     //    Vector<Int> convOrigin = (cfShape-1)/2;
     Vector<Int> convOrigin = (cfShape)/2;
-    Double sinDPA=0.0, cosDPA=1.0, cfRefFreq;//cfScale=1.0
+    Double cfRefFreq;//cfScale=1.0
     //    Int wndx = 0, fndx=0;
     
     rbeg=0;
@@ -819,93 +819,79 @@ namespace casa{
 	    Bool isOnGrid;
 	    //  if ((isOnGrid=onGrid(nx, ny, nw, loc, support)))
 	    {
-	      for(Int ipol=0; ipol < nDataPol; ipol++) {
-		
-		if(!flagCube(ipol,ichan,irow)) { 
-		  apol=polMap_p[ipol];
+	      for(Int ipol=0; ipol < nDataPol; ipol++)
+		{
+		  if(!flagCube(ipol,ichan,irow))
+		    { 
+		      apol=polMap_p[ipol];
 		  
-		  if((apol>=0) && (apol<nGridPol)) {
-		    igrdpos[2]=apol; igrdpos[3]=achan;
-		    nvalue=0.0;      norm(ipol)=0.0;
-		    
-		    // ConjPlane = cfMap_p(ipol);
-		    // PolnPlane = conjCFMap_p(ipol);
+		      if((apol>=0) && (apol<nGridPol))
+			{
+			  igrdpos[2]=apol; igrdpos[3]=achan;
+			  nvalue=0.0;      norm(ipol)=0.0;
 		    
 		    // With VBRow2CFMap in use, CF for each pol. plane is a separate 2D Array.  
-		    //		    iloc[3]=0;
-		    for (uInt mCol=0; mCol<conjMNdx[ipol].nelements(); mCol++)
-		      {
-			//
-			int visGridElement, muellerElement;
-			// Get the pointer to the storage for the CF
-			// indexed by the Freq, W-term and Mueller
-			// Element.
-			//
-			Complex*  convFuncV=NULL;
-			try
-			  {
-			    convFuncV = getConvFunc_p(vbPA,
-						      cfShape, support, muellerElement,
-						      cfb, dataWVal, fndx, wndx,
-						      //mNdx,conjMNdx,
-						      conjMNdx,mNdx,
-						      ipol, mCol);
-			  }
-			catch (SynthesisFTMachineError& x)
-			  {
-			    LogIO log_l(LogOrigin("AWVisResampler[R&D]","GridToData"));
-			    log_l << x.getMesg() << LogIO::EXCEPTION;
-			  }
-			// Set the polarization plane of the gridded data to use for predicting with the CF from mCols column
-			visGridElement=(int)(muellerElement%nDataPol);
-			igrdpos[2]=polMap_p[visGridElement];
-			//cerr << "DG: " << mCol << "-->" << visGridElement << "-->" << ipol << " " << polMap_p[ipol] << " " << polMap_p[visGridElement] << endl;
-			//
-			// Compute the incrmenets and center pixel for the current CF
-			//
-			if ((isOnGrid=onGrid(nx, ny, nw, loc, support))==false) break;
-			cacheAxisIncrements(cfShape, cfInc_p);
-			convOrigin = (cfShape)/2;
-			if (finitePointingOffset)
-			  cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
-					   vbSpw, vbFieldID);
-			
-			//
-			// ALERT: The -1 in the expression for iloc
-			// was determined by comparing with a working
-			// old code (fpbmos.f).
-			//
-			// Complex tt=0.0;
-			// int nn=0;
+			  for (uInt mCol=0; mCol<conjMNdx[ipol].nelements(); mCol++)
+			    {
+			      //
+			      int visGridElement, muellerElement;
+			      // Get the pointer to the storage for the CF
+			      // indexed by the Freq, W-term and Mueller
+			      // Element.
+			      //
+			      Complex*  convFuncV=NULL;
+			      try
+				{
+				  convFuncV = getConvFunc_p(vbPA,cfShape, support, muellerElement,
+							    cfb, dataWVal, fndx, wndx, conjMNdx,mNdx,
+							    ipol, mCol);
+				}
+			      catch (SynthesisFTMachineError& x)
+				{
+				  LogIO log_l(LogOrigin("AWVisResampler[R&D]","GridToData"));
+				  log_l << x.getMesg() << LogIO::EXCEPTION;
+				}
+			      // Set the polarization plane of the gridded data to use for predicting with the CF from mCols column
+			      visGridElement=(int)(muellerElement%nDataPol);
+			      igrdpos[2]=polMap_p[visGridElement];
+			      //cerr << "DG: " << mCol << "-->" << visGridElement << "-->" << ipol << " " << polMap_p[ipol] << " " << polMap_p[visGridElement] << endl;
+			      //
+			      // Compute the incrmenets and center pixel for the current CF
+			      //
+			      if ((isOnGrid=onGrid(nx, ny, nw, loc, support))==false) break;
+			      cacheAxisIncrements(cfShape, cfInc_p);
+			      convOrigin = (cfShape)/2;
+			      if (finitePointingOffset)
+				cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
+						 vbSpw, vbFieldID);
 
-
-			// accumulateFromGrid() is a local C++ method with the inner loops.  The include
-			// file (FortanizedLoopsFromGrid.cc) has the interface code to call the inner 
-			// loops re-written in FORTRAN (in synthesis/fortran/faccumulateOnGrid.f)
-
-			// accumulateFromGrid(nvalue, norm[ipol], gridStore, igrdpos, convFuncV, dataWVal,
-			// 		   support, sampling, off, convOrigin,
-			// 		   cfShape, loc, phasor, sinDPA, cosDPA,
-			// 		   finitePointingOffset, cached_phaseGrad_p);
+			      // accumulateFromGrid() is a local C++ method with the inner loops.  The include
+			      // file (FortanizedLoopsFromGrid.cc) has the interface code to call the inner 
+			      // loops re-written in FORTRAN (in synthesis/fortran/faccumulateOnGrid.f)
 // Timer timer;
+			      // accumulateFromGrid(nvalue, norm[ipol], gridStore, igrdpos, convFuncV, dataWVal,
+			      // 		   support, sampling, off, convOrigin,
+			      // 			 cfShape, loc, phasor, dummy, dummy,
+			      // 		   finitePointingOffset, cached_phaseGrad_p);
 #include <synthesis/TransformMachines2/accumulateFromGrid.inc>
-//#include <synthesis/TransformMachines2/FortranizedLoopsFromGrid.cc>
+			      //#include <synthesis/TransformMachines2/FortranizedLoopsFromGrid.cc>
+
 // runTimeDG_p += timer.real();
 
-		      }
-		    if (norm[ipol] != Complex(0.0)) visCube(ipol,ichan,irow)=nvalue/norm[ipol]; // Goes with FortranizedLoopsFromGrid.cc
+			    }
+			  if (norm[ipol] != Complex(0.0)) visCube(ipol,ichan,irow)=nvalue/norm[ipol]; // Goes with FortranizedLoopsFromGrid.cc
+			}
+		    }
 		}
-	      }
 	    }
 	  }
 	}
       }
-    }
-  } // End row-loop
-}
-//
-//-----------------------------------------------------------------------------------
-//
+    } // End row-loop
+  }
+  //
+  //-----------------------------------------------------------------------------------
+  //
 void AWVisResampler::sgrid(Vector<Double>& pos, Vector<Int>& loc, 
 			   Vector<Double>& off, Complex& phasor, 
 			   const Int& irow, const Matrix<Double>& uvw, 
