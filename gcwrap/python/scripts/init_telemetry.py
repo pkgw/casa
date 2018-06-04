@@ -73,7 +73,7 @@ if ( casa['flags'].telemetry or
          print "Creating a new telemetry file"
          myUtils = casac.utils()
          ver = myUtils.version()
-         casaver = "CASA-" + str(ver[0])+ str(ver[1]) + str(ver[2])+ "-" + str(ver[3])
+         casaver = str(ver[0])+ str(ver[1]) + str(ver[2])+ "-" + str(ver[3])
          casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + '/casastats-' + casaver +'-'  + hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
 
      # Submit statistics at shutdown
