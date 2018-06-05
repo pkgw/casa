@@ -8,7 +8,9 @@ namespace casa {
 
 template<class T> ImageHistory<T>::ImageHistory(
         const SPIIT image
-) : _image(image) {}
+) : _image(image) {
+    ThrowIf(! _image, "Image pointer cannot be null");
+}
 
 template<class T> void ImageHistory<T>::addHistory(
     const String& origin,
@@ -128,16 +130,16 @@ template<class T> vector<string> ImageHistory<T>::getAsStdStrings(
     return x;
 }
 
-template<class T> void ImageHistory<T>::append(
-        SPCIIF image
+template<class T> template <class U>  void ImageHistory<T>::append(
+    SPCIIU image
 ) {
     _image->logger().append(image->logger());
 }
-
+/*
 template<class T> void ImageHistory<T>::append(
         SPCIIC image
 ) {
     _image->logger().append(image->logger());
 }
-
+*/
 }

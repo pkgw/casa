@@ -65,10 +65,14 @@ public:
     vector<string> getAsStdStrings(casacore::Bool list) const;
 
     //Append the specified image's history to this image's history
-    void append(SPCIIF image);
-
+    template <class U> void append(SPCIIU image);
+/*
     void append(SPCIIC image);
-
+    
+    void append(SPCIIC image);
+    
+    void append(SPCIIDC image);
+*/
     casacore::String getClass() const { const static casacore::String s = "ImageHistory"; return s; }
 
     casacore::LogIO& getLogSink();

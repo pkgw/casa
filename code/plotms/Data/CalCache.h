@@ -84,7 +84,7 @@ protected:
   // CAL-specific loadIt method
   virtual void loadIt(vector<PMS::Axis>& loadAxes,
       vector<PMS::DataColumn>& loadData,
-      ThreadCommunication* thread = NULL);
+      ThreadCommunication* thread = nullptr);
 
 private:
     
@@ -93,10 +93,8 @@ private:
 
   // NewCalTable:
   void loadNewCalTable(vector<PMS::Axis>& loadAxes,
-      vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = NULL);
-  void setUpCalIter(const casacore::String& calname, PlotMSSelection& selection,
-      casacore::Bool readonly=true, casacore::Bool chanselect=true,
-      casacore::Bool corrselect=true);
+      vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = nullptr);
+  void setUpCalIter(NewCalTable& selct, casacore::Bool readonly=True);
   void countChunks(ROCTIter& ci,
       vector<PMS::Axis>& loadAxes,
       vector<PMS::DataColumn>& loadData,
@@ -121,7 +119,7 @@ private:
 
   // BPOLY CalTable:
   void loadBPoly(vector<PMS::Axis>& loadAxes,
-      vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = NULL);
+      vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = nullptr);
   void loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
       casacore::Int nrow, const vector<PMS::Axis> loadAxes,
 	  casacore::Vector<casacore::Vector<casacore::Slice> >& chansel,
@@ -140,7 +138,7 @@ private:
 
   // GSPLINE CalTable:
   void loadGSpline(vector<PMS::Axis>& loadAxes,
-      vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = NULL);
+      vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = nullptr);
   void loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
       casacore::Int nsample, const vector<PMS::Axis> loadAxes,
 	  casacore::Vector<int>& selectedAnts, ThreadCommunication* thread);
@@ -166,8 +164,7 @@ private:
   // Volume meter for volume calculation
   //  PMSCacheVolMeter vm_;
 
-  // NewCalTable
-  // cal table iterator pointers
+  // NewCalTable iterator pointers
   ROCTIter* ci_p;
   CTIter* wci_p;
   // The polarization basis
