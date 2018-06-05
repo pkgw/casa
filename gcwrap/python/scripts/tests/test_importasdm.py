@@ -37,6 +37,7 @@ import testhelper as th
 import unittest
 import partitionhelper as ph
 from parallel.parallel_data_helper import ParallelDataHelper
+import recipes.ephemerides.convertephem as ce
 
 myname = 'test_importasdm'
 
@@ -1269,36 +1270,214 @@ class asdm_import7(test_base):
             print myname, ": Error  Cannot open MS table", themsname
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+themsname
-        else:
-            mslocal.close()
-            print myname, ": OK."
 
-        for name in ["FIELD/EPHEM0_Mars_57034.9.tab",
-                     "FIELD/EPHEM1_Titania_57034.9.tab"]:
-            tblocal.open(themsname+"/"+name)
+
+        print myname, " :  testing FIELD values in ms.summary()"
+        try:
+            mssum = mslocal.summary()
+            # only Mars appears here because this short SDM only contains a single scan and that uses Mars
+            self.assertEqual(mssum['scan_1']['0']['FieldName'],'Mars')
+            self.assertAlmostEqual(mssum['field_0']['direction']['m0']['value'],-0.4770797859505159,15)
+            self.assertAlmostEqual(mssum['field_0']['direction']['m1']['value'],-0.2154815444753364,15)
+        except:
+            print myname, ": Error ms summary has an unexpect source or direction value"
+            retValue['success']=False
+            retValue['error_msg']=retValue['err_msg']+'Unexpected source or direction value in ms summary '+thismsname + '\n'
+
+
+        mslocal.close()
+
+        ephems = []
+        # values from indivual rows were picked for no particular reason except verify they've not changed
+        ephems.append({'name':"FIELD/EPHEM0_Mars_57034.9.tab",
+                       'nrows':27,
+                       'rows':[{'row':10,
+                                'values':{'MJD':57035.041666666664,
+                                          'RA':332.7140437500001,
+                                          'DEC':-12.327346944444447,
+                                          'Rho':2.024609480125507,
+                                          'RadVel':723729.77502873}},
+                               {'row':22,
+                                'values':{'MJD':57035.208333333336,
+                                          'RA':332.8387870833333,
+                                          'DEC':-12.2793975,
+                                          'Rho':2.0254053468626436,
+                                          'RadVel':705588.202526264}}
+                               ]
+                       }
+                      )
+
+        ephems.append({'name':"FIELD/EPHEM1_Titania_57034.9.tab",
+                       'nrows':45,
+                       'rows':[{'row':17,
+                                'values':{'MJD':57035.055555555555,
+                                          'RA':11.813166666666666,
+                                          'DEC':4.365749999999999,
+                                          'Rho':20.150883673698488,
+                                          'RadVel':2730048.0839084117}},
+                               {'row':40,
+                                'values':{'MJD':57035.21527777778,
+                                          'RA':11.816041666666667,
+                                          'DEC':4.3661111111111115,
+                                          'Rho':20.153736461701364,
+                                          'RadVel':2711142.1699538543}}
+                               ]
+                       }
+                      )
+
+        for ephem in ephems:
+            print myname,": Testing various things in ephemeris ", ephem['name'], " ..."
+
+            tblocal.open(themsname+"/"+ephem['name'])
             kw = tblocal.getkeywords()
+            nrows = tblocal.nrows()
+            if not nrows==ephem['nrows']:
+                print myname,": Error. unexpected number of rows in ephemeris :",ephem['name']
+                retValue['success']=False
+                retValue['error_msg']=retValue['error_msgs']+' Unexpected number of rows in ephemeris table :'+ ephem['name'] + '\n'
+
+            for row in ephem['rows']:
+                thisRow = row['row']
+                for colname in row['values']:
+                    thisVal = tblocal.getcell(colname,thisRow)
+                    self.assertAlmostEqual(thisVal,row['values'][colname],10)
+
+            # unfilled columns
+            self.assertEqual((tblocal.getcol('diskLong') != 0.0).sum(),0)
+            self.assertEqual((tblocal.getcol('diskLat') != 0.0).sum(),0)
+
             tblocal.close()
             geodist = kw['GeoDist'] # (km above reference ellipsoid)
             geolat = kw['GeoLat'] # (deg)
             geolong = kw['GeoLong'] # (deg)
-            print myname, ": Testing if ephemeris ", name, " was converted to GEO ..."
             if not (geodist==geolat==geolong==0.):
                 print myname, ": ERROR."
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+' Ephemeris was not converted to GEO for '+themsname+'\n'
-            else:
-                print myname, ": OK."
             prsys = kw['posrefsys']
-            print myname, ": Testing if posrefsys was set correctly ..."
             if not (prsys=="ICRF/ICRS"):
                 print myname, ": ERROR."
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+' posrefsys keyword is not ICRF/ICRS '+themsname+'\n'
+
+        # fill and request an interpolated table.  Tests asdm2MS directly as this option isn't 
+        # available in importasdm
+
+        print myname," filling an interpolated version of the same ephemeris"
+        themsname_interp = myasdmname+".interp.ms"
+        execute_string = "asdm2MS --no-pointing --interpolate-ephemeris 'yes' " + myasdmname + ' ' + themsname_interp
+        print myname, ' executing : ', execute_string
+        exitcode = os.system(execute_string)
+        self.assertEqual(exitcode,0)
+        ce.convert2geo(themsname_interp, '*') # convert the ephemeris to GEO
+        # note that the recalculation of UVW and the adjustment of the SOURCE table are not
+        # done here the way they would be done if filled via importasdm
+        print myname, ": Success! Now checking output ..."
+        for name in mscomponents:
+            if not os.access(themsname_interp+"/"+name, os.F_OK):
+                print myname, ": Error  ", themsname_interp+"/"+name, "doesn't exist ..."
+                retValue['success']=False
+                retValue['error_msgs']=retValue['error_msgs']+themsname_interp+'/'+name+' does not exist'
             else:
-                print myname, ": OK."
- 
+                print myname, ": ", name, "present."
+        print myname, ": MS exists. All relevant tables present. Try opening as MS ..."
+        try:
+            mslocal.open(themsname_interp)
+        except:
+            print myname, ": Error  Cannot open MS table", themsname_interp
+            retValue['success']=False
+            retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+themsname_interp
+        print myname, " :  testing FIELD values in ms.summary()"
+        try:
+            mssum = mslocal.summary()
+            # only Mars appears here because this short SDM only contains a single scan and that uses Mars
+            self.assertEqual(mssum['scan_1']['0']['FieldName'],'Mars')
+            # difference here is < 0".0004 of the above, non-interpolated value
+            self.assertAlmostEqual(mssum['field_0']['direction']['m0']['value'],-0.4770797877079177,15)
+            # difference here is < 0".00005 of the above, non-interpolated value
+            self.assertAlmostEqual(mssum['field_0']['direction']['m1']['value'],-0.2154815442529733,15)
+        except:
+            print myname, ": Error ms summary has an unexpect source or direction value"
+            retValue['success']=False
+            retValue['error_msg']=retValue['err_msg']+'Unexpected source or direction value in ms summary '+thismsname + '\n'
+
+        mslocal.close()
+        ephems = []
+        # values from indivual rows were picked for no particular reason except verify they've not changed
+        # these rows 
+        ephems.append({'name':"FIELD/EPHEM0_Mars_57034.9.tab",
+                       'nrows':361,
+                       'rows':[{'row':105,
+                                'values':{'MJD':57035.008000000001630,
+                                          'RA':332.688983703339886,
+                                          'DEC':-12.337033046664128,
+                                          'Rho':2.024447666954067,
+                                          'RadVel':722270.482337458524853}},
+                               {'row':320,
+                                'values':{'MJD':57035.222999999998137,
+                                          'RA':332.849807533339913,
+                                          'DEC':-12.275182948886352,
+                                          'Rho':2.025474163348287,
+                                          'RadVel':702390.653405150165781}}
+                               ]
+                       }
+                      )
+
+        ephems.append({'name':"FIELD/EPHEM1_Titania_57034.9.tab",
+                       'nrows':306,
+                       'rows':[{'row':95,
+                                'values':{'MJD':57035.033000000003085,
+                                          'RA':11.812802333333494,
+                                          'DEC':4.365715333333369,
+                                          'Rho':20.150479182212013,
+                                          'RadVel':2725243.279430569149554}},
+                               {'row':250,
+                                'values':{'MJD':57035.188000000001921,
+                                          'RA':11.815509000000159,
+                                          'DEC':4.366057555555590,
+                                          'Rho':20.153251583732832,
+                                          'RadVel':2721431.250284913461655}}
+                               ]
+                       }
+                      )
+
+        for ephem in ephems:
+            print myname,": Testing various things in ephemeris ", ephem['name'], " ..."
+
+            tblocal.open(themsname_interp+"/"+ephem['name'])
+            kw = tblocal.getkeywords()
+            nrows = tblocal.nrows()
+            if not nrows==ephem['nrows']:
+                print myname,": Error. unexpected number of rows in ephemeris :",ephem['name']
+                retValue['success']=False
+                retValue['error_msg']=retValue['error_msgs']+' Unexpected number of rows in ephemeris table :'+ ephem['name'] + '\n'
+
+            for row in ephem['rows']:
+                thisRow = row['row']
+                for colname in row['values']:
+                    thisVal = tblocal.getcell(colname,thisRow)
+                    self.assertAlmostEqual(thisVal,row['values'][colname],10)
+
+            # unfilled columns
+            self.assertEqual((tblocal.getcol('diskLong') != 0.0).sum(),0)
+            self.assertEqual((tblocal.getcol('diskLat') != 0.0).sum(),0)
+
+            tblocal.close()
+            geodist = kw['GeoDist'] # (km above reference ellipsoid)
+            geolat = kw['GeoLat'] # (deg)
+            geolong = kw['GeoLong'] # (deg)
+            if not (geodist==geolat==geolong==0.):
+                print myname, ": ERROR."
+                retValue['success']=False
+                retValue['error_msgs']=retValue['error_msgs']+' Ephemeris was not converted to GEO for '+themsname_interp+'\n'
+            prsys = kw['posrefsys']
+            if not (prsys=="ICRF/ICRS"):
+                print myname, ": ERROR."
+                retValue['success']=False
+                retValue['error_msgs']=retValue['error_msgs']+' posrefsys keyword is not ICRF/ICRS '+themsname_interp+'\n'
 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
+        print myname, ": OK."
 
 
     def test7_lazy4(self):
