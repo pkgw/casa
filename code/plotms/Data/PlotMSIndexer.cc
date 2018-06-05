@@ -339,11 +339,15 @@ bool PlotMSIndexer::unmaskedMinsMaxes(double& xMin, double& xMax,
 }
 
 void PlotMSIndexer::adjustYRange(double& yMin, double& yMax) {
+	double range = yMax-yMin;
 	if (!PMS::axisIsOverlay(currentY_)) {
-		yMax += (yMax-yMin)*0.5;
-	} else if (currentY_ == PMS::ATM) {
-		yMin = 0.0;
-		yMax = min(yMax+1.0, 100.0);
+		// add margin to top of non-overlay axis
+		yMax += range * 0.25;
+	} else {
+		// add margin to bottom of overlay axis
+		if (range < 5.0) range = 5.0;
+		yMin -= range*2.0;
+		if (yMin < 0.0) yMin = 0.0;
 	}
 }
 
