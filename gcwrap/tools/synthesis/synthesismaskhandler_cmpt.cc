@@ -62,9 +62,14 @@ synthesismaskhandler::~synthesismaskhandler()
         
       PagedImage<Float> outmask(TiledShape(inShape), inCsys, outmasknameMod);
       Vector<Bool> chanFlag(chanflag);
+      if (chanFlag.nelements()==0) {
+        *itsLog<<LogIO::SEVERE<<"Please specify chanflag."<<LogIO::POST;
+        return(rstat);
+      }
       Int inSpecAxis = CoordinateUtil::findSpectralAxis(inCsys); 
       if (inSpecAxis != -1 && chanFlag.nelements()!=uInt(inShape(inSpecAxis))) {
         *itsLog<<LogIO::SEVERE<<"The number elements in chanflag does not match with input mask shape."<<LogIO::POST;
+        return(rstat);
       }
       Vector<Bool> allpruned;
       Vector<uInt> nreg;
@@ -73,8 +78,20 @@ synthesismaskhandler::~synthesismaskhandler()
       *itsLog<<"nreg="<<nreg<<" npruned="<<npruned<<" prunesize="<<prunesize<<LogIO::POST; 
       outmask.copyData(*(tempIm_ptr.get()));
       casacore::Record outinfo;
-      outinfo.define("N_reg",nreg);
-      outinfo.define("N_reg_pruned",npruned);
+      Vector<Int> nregForReport(nreg.nelements());
+      Vector<Int> nprunedForReport(npruned.nelements());
+      for (uInt i = 0; i < chanFlag.nelements();i++) {
+        if (chanFlag[i]) {
+          nregForReport[i] = -1;
+          nprunedForReport[i] = -1;
+        }
+        else {
+          nregForReport[i] = (Int) nreg[i];
+          nprunedForReport[i] = (Int) npruned[i];
+        }
+      }
+      outinfo.define("N_reg",nregForReport);
+      outinfo.define("N_reg_pruned",nprunedForReport);
       outinfo.define("prunesize",prunesize);
  
       rstat = fromRecord(outinfo);
