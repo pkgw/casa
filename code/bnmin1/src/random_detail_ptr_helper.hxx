@@ -12,6 +12,9 @@
 #ifndef _BNMIN1_RANDOM_DETAIL_PTR_HELPER_HXX__
 #define _BNMIN1_RANDOM_DETAIL_PTR_HELPER_HXX__
 
+#include <boost/config.hpp>
+
+
 namespace bnmin1boost {
 namespace random {
 namespace detail {

@@ -11,10 +11,14 @@
 #ifndef _BNMIN1_TWOERRLINE_ML_HXX__
 #define _BNMIN1_TWOERRLINE_ML_HXX__
 
+#include <boost/numeric/ublas/vector.hpp>
+
 #include "linemodel.hxx"
 #include "minimmodel.hxx"
 
 namespace Minim {
+
+  namespace u = boost::numeric::ublas;
 
   /**
      \brief Fit straight-line model to data with noise in both coordinates
@@ -24,8 +28,8 @@ namespace Minim {
     public LineMod
   {
 
-    std::vector<double> xobs;
-    std::vector<double> yobs;
+    u::vector<double> xobs;
+    u::vector<double> yobs;
 
   public:
 
@@ -47,7 +51,7 @@ namespace Minim {
     // ------------- Public interface -------------------------
 
     /// Evalute the residuals from the current line
-    void residuals(std::vector<double> &res) const;
+    void residuals(u::vector<double> &res) const;
 
     // -------------------- Inherited functions ---------------
     double lLikely(void) const;

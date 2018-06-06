@@ -12,6 +12,8 @@
 #ifndef _LIBAIR_MODEL_WATER_HPP__
 #define _LIBAIR_MODEL_WATER_HPP__
 
+#include <boost/shared_ptr.hpp>
+
 #include "model_iface.hpp"
 #include "radiometermeasure.hpp"
 #include "basicphys.hpp"
@@ -27,8 +29,8 @@ namespace LibAIR2 {
     public WVRAtmoQuantModel
   {
 
-    std::shared_ptr<Radiometer> mr;
-    std::shared_ptr<AM> am;
+    boost::shared_ptr<Radiometer> mr;
+    boost::shared_ptr<AM> am;
 
   public:
 
@@ -40,8 +42,8 @@ namespace LibAIR2 {
     // -------------------- Construction / Destruction ------
 
 
-    WaterModel( std::shared_ptr<Radiometer> mr,
-                std::shared_ptr<AM> am ):
+    WaterModel(boost::shared_ptr<Radiometer> mr,
+	       boost::shared_ptr<AM> am):
       mr(mr),
       am(am)
     {

@@ -15,10 +15,15 @@
 #include <iostream>
 #include <algorithm>     // std::copy
 #include <stdexcept>
+#include <boost/config.hpp>
+#include <boost/limits.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/integer_traits.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/random/linear_congruential.hpp>
+#include <boost/random/detail/config.hpp>
 #include "random_detail_ptr_helper.hxx"
 #include "random_detail_seed.hxx"
-
-#define PREVENT_MACRO_SUBSTITUTION
 
 namespace bnmin1boost {
 namespace random {
@@ -30,19 +35,19 @@ class mersenne_twister
 {
 public:
   typedef UIntType result_type;
-  static constexpr int word_size = w;
-  static constexpr int state_size = n;
-  static constexpr int shift_size = m;
-  static constexpr int mask_bits = r;
-  static constexpr UIntType parameter_a = a;
-  static constexpr int output_u = u;
-  static constexpr int output_s = s;
-  static constexpr UIntType output_b = b;
-  static constexpr int output_t = t;
-  static constexpr UIntType output_c = c;
-  static constexpr int output_l = l;
+  BOOST_STATIC_CONSTANT(int, word_size = w);
+  BOOST_STATIC_CONSTANT(int, state_size = n);
+  BOOST_STATIC_CONSTANT(int, shift_size = m);
+  BOOST_STATIC_CONSTANT(int, mask_bits = r);
+  BOOST_STATIC_CONSTANT(UIntType, parameter_a = a);
+  BOOST_STATIC_CONSTANT(int, output_u = u);
+  BOOST_STATIC_CONSTANT(int, output_s = s);
+  BOOST_STATIC_CONSTANT(UIntType, output_b = b);
+  BOOST_STATIC_CONSTANT(int, output_t = t);
+  BOOST_STATIC_CONSTANT(UIntType, output_c = c);
+  BOOST_STATIC_CONSTANT(int, output_l = l);
 
-  static constexpr bool has_fixed_range = false;
+  BOOST_STATIC_CONSTANT(bool, has_fixed_range = false);
   
   mersenne_twister() { seed(); }
 
@@ -77,7 +82,7 @@ public:
   BNMIN1_RANDOM_DETAIL_GENERATOR_SEED(mersenne_twister, Generator, gen)
   {
 #ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-    static_assertT(!std::numeric_limits<result_type>::is_signed);
+    BOOST_STATIC_ASSERT(!std::numeric_limits<result_type>::is_signed);
 #endif
     // I could have used std::generate_n, but it takes "gen" by value
     for(int j = 0; j < n; j++)
@@ -96,8 +101,8 @@ public:
       throw std::invalid_argument("mersenne_twister::seed");
   }
   
-  result_type min PREVENT_MACRO_SUBSTITUTION () const { return 0; }
-  result_type max PREVENT_MACRO_SUBSTITUTION () const
+  result_type min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return 0; }
+  result_type max BOOST_PREVENT_MACRO_SUBSTITUTION () const
   {
     // avoid "left shift count >= with of type" warning
     result_type res = 0;

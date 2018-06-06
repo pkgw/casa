@@ -14,8 +14,7 @@
 #ifndef __LIBAIR_PARTITIONSUM_HPP__
 #define __LIBAIR_PARTITIONSUM_HPP__
 
-#include <memory>
-#include <casa/Arrays/Matrix.h>
+#include "boost/multi_array.hpp"
 
 namespace LibAIR2 {
 
@@ -24,7 +23,7 @@ namespace LibAIR2 {
    Following "am", the raw partition table can be represented
    as two dimensional array
    */
-  typedef casacore::Matrix<double>  part_table_raw;
+  typedef boost::const_multi_array_ref<double, 2>  part_table_raw;
 
   /**
      Partition sum table relates temperatures to a thermodynamic

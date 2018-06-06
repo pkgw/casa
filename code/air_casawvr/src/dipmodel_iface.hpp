@@ -11,7 +11,7 @@
 #ifndef _LIBAIR_DIPMODEL_IFACE_HPP__
 #define _LIBAIR_DIPMODEL_IFACE_HPP__
 
-#include <memory>
+#include <boost/scoped_ptr.hpp>
 
 #include "model_iface.hpp"
 
@@ -26,7 +26,7 @@ namespace LibAIR2 {
     double _n;
     double _za;
     double *_nam;
-    std::shared_ptr<WVRAtmoQuantModel> _am;
+    boost::scoped_ptr<WVRAtmoQuantModel> _am;
     
     void setPars(void) const;
     

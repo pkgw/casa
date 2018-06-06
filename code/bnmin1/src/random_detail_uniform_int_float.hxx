@@ -12,6 +12,8 @@
 #ifndef _BNMIN1_RANDOM_DETAIL_UNIFORM_INT_FLOAT_HXX__
 #define _BNMIN1_RANDOM_DETAIL_UNIFORM_INT_FLOAT_HXX__
 
+#include <boost/config.hpp>
+#include <boost/random/detail/config.hpp>
 #include "random_uniform_01.hxx"
 
 
@@ -32,8 +34,8 @@ public:
     init();
   }
 
-  result_type min PREVENT_MACRO_SUBSTITUTION () const { return _min; }
-  result_type max PREVENT_MACRO_SUBSTITUTION () const { return _max; }
+  result_type min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _min; }
+  result_type max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _max; }
   base_type& base() { return _rng.base(); }
   const base_type& base() const { return _rng.base(); }
 

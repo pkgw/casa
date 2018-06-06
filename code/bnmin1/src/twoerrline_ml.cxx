@@ -8,9 +8,9 @@
 */
 
 #include "twoerrline_ml.hxx"
-#include <algorithm>
-#include <numeric>
-#include <cmath>
+
+#include <boost/numeric/ublas/storage.hpp>
+#include <boost/numeric/ublas/io.hpp>
 
 
 namespace Minim {
@@ -32,27 +32,16 @@ namespace Minim {
     }
   }
 
-  void LineTwoErrML::residuals(std::vector<double> &res) const
+  void LineTwoErrML::residuals(u::vector<double> &res) const
   {
-    res.resize(0);
-    std::accumulate( yobs.begin( ), yobs.end( ), xobs.begin( ),
-                     [&](std::vector<double>::const_iterator &x, double y) -> std::vector<double>::const_iterator &{
-                         res.push_back(y-(*x)*a-b);
-                         return ++x;
-                     }
-                   );
+    u::scalar_vector<double> ub(xobs.size(),b);
+    res=yobs-xobs*a-ub;
   }
 
   double LineTwoErrML::lLikely(void) const
   {
-    std::vector<double> ub(xobs.size(),b);
-    double ressq = 0;
-    accumulate( yobs.begin( ), yobs.end( ), xobs.begin( ),
-                [&](std::vector<double>::const_iterator &x, double y) -> std::vector<double>::const_iterator &{
-                    ressq += std::pow( y - (*x)*a-b, 2 );
-                    return ++x;
-                }
-              );
+    u::scalar_vector<double> ub(xobs.size(),b);
+    const double ressq=std::pow(u::norm_2(yobs-xobs*a-ub),2);
     const double r=0.5*ressq/(pow(sigmay,2)+ pow(sigmax*a,2));
     return r;
   }
@@ -60,38 +49,13 @@ namespace Minim {
   void LineTwoErrML::lGrd(std::vector< double > &res) const
   {
     res.resize(2);
-    std::vector<double> rr;
-
-    std::accumulate( yobs.begin( ), yobs.end( ), xobs.begin( ),
-                     [&](std::vector<double>::const_iterator &x, double y) -> std::vector<double>::const_iterator &{
-                         rr.push_back(y-(*x)*a-b);
-                         return ++x;
-                     }
-                   );
+    u::scalar_vector<double> ub(xobs.size(),b);
+    const u::vector<double> rr(yobs-xobs*a-ub);
     
-    const double st=(std::pow(sigmay,2)+ std::pow(sigmax*a,2));
-    double xobs_rr = 0;
-    std::accumulate( rr.begin( ), rr.end( ), xobs.begin( ),
-                     [&](std::vector<double>::const_iterator &x, double r) -> std::vector<double>::const_iterator &{
-                         xobs_rr += *x * r;
-                         return ++x;
-                     }
-                   );
+    const double st=(pow(sigmay,2)+ pow(sigmax*a,2));
 
-    double rr_rr = 0;
-    std::accumulate( rr.begin( ), rr.end( ), rr.begin( ),
-                     [&](std::vector<double>::iterator &r1, double r2) -> std::vector<double>::iterator &{
-                         rr_rr += *r1 * r2;
-                         return ++r1;
-                     }
-                   );
-
-    res[0]= -1.0* xobs_rr / st - rr_rr / std::pow(st,2)* a* std::pow(sigmax,2);
-
-    double sum_rr = 0;
-    for (auto &v : rr) sum_rr += v;
-
-    res[1]= -1.0* sum_rr / st;
+    res[0]= -1.0* u::inner_prod(xobs,rr) / st - u::inner_prod(rr,rr)/ pow(st,2)* a* pow(sigmax,2);
+    res[1]= -1.0* u::sum(rr) / st;
   }
 
   LineTwoErr_LavMarq::LineTwoErr_LavMarq(const std::vector<double> &xvals,
@@ -116,12 +80,10 @@ namespace Minim {
   void  LineTwoErr_LavMarq::residuals (std::vector<double> &res) const
   {
     res.resize(m.nobs);
-    std::vector<double> rr(m.nobs);
+    u::vector<double> rr(m.nobs);
     m.residuals(rr);
-    const double st= std::pow((std::pow(m.sigmay,2)+ std::pow(m.sigmax*m.a,2)), 0.5);
-
-    std::transform( rr.begin(), rr.end(), rr.begin(), [&](double v){ return v / st; } );
-
+    const double st= pow((pow(m.sigmay,2)+ pow(m.sigmax*m.a,2)), 0.5);
+    rr=rr/st;
     std::copy(rr.begin(),
 	      rr.end(),
 	      res.begin());

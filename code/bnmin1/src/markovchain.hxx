@@ -12,12 +12,13 @@
 #define _BNMIN1_MARKOVCHAIN_HXX__
 
 #include <vector>
-#include <functional>
 
 #include "random_mersenne_twister.hxx"
 #include "random_normal_distribution.hxx"
 #include "random_uniform_real.hxx"
 #include "random_variate_generator.hxx"
+
+#include <boost/function.hpp>
 
 namespace Minim {
 
@@ -48,7 +49,7 @@ namespace Minim {
     typedef std::vector<double>  v_t;
 
     /// A function of a point in the chain
-    typedef std::function< double (const v_t &x) >  fx_t;
+    typedef boost::function< double (const v_t &x) >  fx_t;
 
   private:
     
@@ -139,7 +140,7 @@ namespace Minim {
   public:
 
     /// A function to return the acceptance probability
-    typedef std::function< double (const MCPoint2 &c, const MCPoint2 &p) >  fa_t;
+    typedef boost::function< double (const MCPoint2 &c, const MCPoint2 &p) >  fa_t;
 
   private:
 
@@ -175,7 +176,7 @@ namespace Minim {
 	
 	\param f is the first point in the chain
      */
-    typedef std::function< double (const MCPoint2 &f, const MCPoint2 &c, const MCPoint2 &p) >  fa_t;
+    typedef boost::function< double (const MCPoint2 &f, const MCPoint2 &c, const MCPoint2 &p) >  fa_t;
 
   private:
 
@@ -216,7 +217,7 @@ namespace Minim {
 	
 	\param L is the likelihood supplied to reset
      */
-    typedef std::function< double (double L, const MCPoint2 &c, const MCPoint2 &p) >  fa_t;
+    typedef boost::function< double (double L, const MCPoint2 &c, const MCPoint2 &p) >  fa_t;
 
   private:
 

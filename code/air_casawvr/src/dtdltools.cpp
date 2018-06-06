@@ -11,7 +11,9 @@
 */
 
 #include <cmath>
-#include <array>
+
+#include <boost/foreach.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include "bnmin1/src/nestedsampler.hxx"
 
@@ -110,7 +112,7 @@ namespace LibAIR2 {
   struct CenFD_bind {
     WVRAtmoQuantModel &md;
     CenFD_bind(WVRAtmoQuantModel &md_) : md(md_) { }
-    std::array<double, 4> operator( ) (double d) { return md.evalFn(d,"n"); }
+    boost::array<double, 4> operator( ) (double d) { return md.evalFn(d,"n"); }
   };
 
   void dTdL2_ND(WVRAtmoQuantModel &m,
@@ -118,7 +120,7 @@ namespace LibAIR2 {
   {
     Minim::ModelDesc md(m);
     CenFD_bind bind_instance(m);
-    std::array< std::array<double, 4> ,3> r=
+    boost::array< boost::array<double, 4> ,3> r=
       CenFDV<3,4>(bind_instance,
 		  *md["n"]->p,
 		  0.001);
@@ -126,7 +128,7 @@ namespace LibAIR2 {
 						       *md["T"]->p),
 			     -2);
     res=std::vector<double>(r[2].begin(), r[2].end());
-    for( double &x : res )
+    BOOST_FOREACH(double &x, res)
       x*=cv;
 		  
   }
@@ -136,7 +138,7 @@ namespace LibAIR2 {
   {
     Minim::ModelDesc md(m);
     CenFD_bind bind_instance(m);
-    std::array< std::array<double, 4> ,4> r=
+    boost::array< boost::array<double, 4> ,4> r=
       CenFDV<4,4>(bind_instance,
 		  *md["n"]->p,
 		  0.001);
@@ -144,7 +146,7 @@ namespace LibAIR2 {
 						       *md["T"]->p),
 			     -3);
     res=std::vector<double>(r[3].begin(), r[3].end());
-    for ( double &x : res )
+    BOOST_FOREACH(double &x, res)
       x*=cv;
   }
 
@@ -153,7 +155,7 @@ namespace LibAIR2 {
   {
     Minim::ModelDesc md(m);
     CenFD_bind bind_instance(m);
-    std::array< std::array<double, 4> ,2> r=
+    boost::array< boost::array<double, 4> ,2> r=
       CenFDV<2,4>(bind_instance,
 		  *md["T"]->p,
 		  0.01);

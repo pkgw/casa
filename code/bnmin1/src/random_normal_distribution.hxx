@@ -11,9 +11,12 @@
 #ifndef _BNMIN1_RANDOM_NORMAL_DISTRIBUTION_HXX__
 #define _BNMIN1_RANDOM_NORMAL_DISTRIBUTION_HXX__
 
-#include <cmath>
+#include <boost/config/no_tr1/cmath.hpp>
 #include <cassert>
 #include <iostream>
+#include <boost/limits.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/random/detail/config.hpp>
 
 namespace bnmin1boost {
 
@@ -26,7 +29,7 @@ public:
   typedef RealType result_type;
 
 #if !defined(BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS) && !(defined(BOOST_MSVC) && BOOST_MSVC <= 1300)
-    static_assert(!std::numeric_limits<RealType>::is_integer,"problems here");
+    BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
 #endif
 
   explicit normal_distribution(const result_type& mean_arg = result_type(0),

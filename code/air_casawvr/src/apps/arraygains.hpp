@@ -16,7 +16,7 @@
 #include <vector>
 #include <set>
 
-#include <casa/Arrays/Matrix.h>
+#include <boost/multi_array.hpp>
 
 namespace LibAIR2 {
 
@@ -34,7 +34,7 @@ namespace LibAIR2 {
     /// At the moment anticipate only storing the non-dispersive path
     /// for each antenna. The two dimensions are time and antenna
     /// number
-    typedef casacore::Matrix<double> path_t;
+    typedef boost::multi_array<double, 2> path_t;
 
   private:
 

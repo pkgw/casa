@@ -9,7 +9,7 @@
 #ifndef _LIBAIR_COLUMNS_DATA_HPP__
 #define _LIBAIR_COLUMNS_DATA_HPP__
 
-#include <memory>
+#include <boost/scoped_ptr.hpp>
 
 #include "model_enums.hpp"
 
@@ -27,13 +27,13 @@ namespace LibAIR2 {
   {
 
     /// The partition table (if used)
-    std::shared_ptr<PartitionTable> pt;
+    boost::scoped_ptr<PartitionTable> pt;
 
     /// The water column
-    std::shared_ptr<Column> _wcol;
+    boost::scoped_ptr<Column> _wcol;
 
     /// The water continuum column
-    std::shared_ptr<ContinuumColumn> _wcont;
+    boost::scoped_ptr<ContinuumColumn> _wcont;
     
   public:
 

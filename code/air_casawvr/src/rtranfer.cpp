@@ -9,8 +9,6 @@
 
 */
 
-#include <memory>
-
 #include "rtranfer.hpp"
 
 #include "slice.hpp"
@@ -78,7 +76,7 @@ namespace LibAIR2 {
 
   void LayerResult::UpdateI(const SliceResult & bckg)
   {
-    typedef std::shared_ptr<SliceResult> sr_p;
+    typedef boost::shared_ptr<SliceResult> sr_p;
 
     sr_p current( new SliceResult(bckg));
     for ( Layer::sliceL_t::const_iterator slice = layer.getFar();

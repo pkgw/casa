@@ -8,11 +8,13 @@
 #ifndef _BNMIN1_TEST_GAUSSMODEL_HPP__
 #define _BNMIN1_TEST_GAUSSMODEL_HPP__
 
-#include <numeric>
-#include <vector>
-#include <cmath>
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/format.hpp>
 
 #include "../minimmodel.hxx"
+
+namespace u = boost::numeric::ublas;
+
 
 namespace Minim {
   
@@ -29,7 +31,7 @@ namespace Minim {
   public:
     
     /// Parameters of the model
-    std::vector<double> p;    
+    u::vector<double> p;    
     
     /// Scale parameter
     double sigma;
@@ -45,16 +47,7 @@ namespace Minim {
     
     double lLikely(void) const
     {
-      double p_p = 0;
-
-      std::accumulate( p.begin( ), p.end( ), p.begin( ),
-                       [&](std::vector<double>::const_iterator &p1, double p2) -> std::vector<double>::const_iterator &{
-                           p_p += *p1 * p2;
-                           return ++p1;
-                       }
-                     );
-
-      return p.size()* 0.5*std::log(2*M_PI*std::pow(sigma,2))+ p_p/(2*std::pow(sigma,2));
+      return p.size()* 0.5*std::log(2*M_PI*pow(sigma,2))+ u::inner_prod(p,p)/(2*pow(sigma,2));
     }
     
     void AddParams(std::vector< Minim::DParamCtr > &pars);

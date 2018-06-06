@@ -8,7 +8,6 @@
 */
 
 #include "partitionsum_testdata.hpp"
-#include <casa/Arrays/MatrixMath.h>
 
 
 namespace LibAIR2 {
@@ -2959,9 +2958,12 @@ static const double h2o_Qtab[] = {
 
   part_table_raw getH2ORawTable(void)
   {
-      return casacore::transpose(part_table_raw(casacore::IPosition(2,H2O_Q_COLS,H2O_Q_ROWS),h2o_Qtab));
+    return part_table_raw(h2o_Qtab,
+			  boost::extents[H2O_Q_ROWS][H2O_Q_COLS]);
   }
 
 
 
 }
+
+

@@ -11,8 +11,6 @@
 
 #include "markovchain.hxx"
 
-#include <cmath>
-
 namespace Minim {
 
   ChainBase::ChainBase(const v_t &ic,

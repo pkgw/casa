@@ -10,7 +10,7 @@
 #ifndef _LIBAIR_DIPMEASURE_IFACE_HPP__
 #define _LIBAIR_DIPMEASURE_IFACE_HPP__
 
-#include <tuple>
+#include <boost/tuple/tuple.hpp>
 
 #include "measure_iface.hpp"
 
@@ -26,7 +26,8 @@ namespace LibAIR2{
     public NormalNoise
   {
     typedef std::vector<double> obs_t;
-    typedef std::tuple<double,obs_t> datum;
+    typedef boost::tuple< double, 
+			  obs_t> datum;
     std::vector<datum> obs;
     
     PPDipModel & _model;

@@ -13,7 +13,7 @@
 #define _LIBAIR_LAYER_HPP__
 
 #include <deque>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 namespace LibAIR2 {
 
@@ -33,7 +33,7 @@ namespace LibAIR2 {
 
   public:
 
-    typedef std::shared_ptr<Slice> pSlice_t;
+    typedef boost::shared_ptr<Slice> pSlice_t;
     typedef std::deque<pSlice_t> sliceL_t;
 
   protected:

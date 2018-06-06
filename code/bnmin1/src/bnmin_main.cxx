@@ -9,6 +9,7 @@
 
 */
 
+#include <boost/format.hpp>
 
 #include "bnmin_main.hxx"
 #include "../config.h"
@@ -25,10 +26,13 @@ namespace Minim {
   {
   }
 
-  NParsErr::NParsErr(const std::string &fname, size_t expected, size_t received) :
-      BaseErr( std::string("In function ") + fname + std::string(" expected ") +
-               std::to_string(expected) + std::string(" but received ") +
-               std::to_string(received) + std::string(" pars "))
+  NParsErr::NParsErr(const std::string &fname,
+		     size_t expected,
+		     size_t received):
+    BaseErr( (boost::format("In function %s expected %i but received %i pars ") 
+	      % fname
+	      % expected
+	      % received).str())
   {
   }
     

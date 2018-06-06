@@ -12,7 +12,7 @@
 #define __LIBAIR__COLUMNS__HPP__
 
 #include <vector>
-#include <memory>
+#include <boost/scoped_ptr.hpp>
 
 namespace LibAIR2 {
 
@@ -79,7 +79,7 @@ namespace LibAIR2 {
   class TrivialGrossColumn :
     public Column
   {
-    std::shared_ptr<HITRAN_entry>  he;
+    boost::scoped_ptr<HITRAN_entry>  he;
 
     /**
        If provided, the partition table goes here. The correction is
@@ -151,7 +151,7 @@ namespace LibAIR2 {
     public Column
   {
 
-    std::shared_ptr<ContinuumParams>  cp;
+    boost::scoped_ptr<ContinuumParams>  cp;
 
   public:
     

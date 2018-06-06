@@ -7,7 +7,8 @@
 
 #include "model_iface.hpp"
 
-#include <array>
+#include <boost/foreach.hpp>
+#include <boost/format.hpp>
 
 #include <bnmin1/src/minim.hxx>
 
@@ -28,10 +29,10 @@ namespace LibAIR2 {
   {
   }
 
-  std::array<double, 4>
+  boost::array<double, 4>
   WVRAtmoQuantModel::evalFn(double x, const std::string &pname)
   {
-    std::array<double, 4> res;
+    boost::array<double, 4> res;
     Minim::ModelDesc md(*this);
     double oldval=*md[pname]->p;
     *md[pname]->p=x;
@@ -83,7 +84,7 @@ namespace LibAIR2 {
   {
     _am->dTdL_ND(res);
 
-    for( double &x : res)
+    BOOST_FOREACH( double &x, res)
       x*= coupling;
       
   }
@@ -145,21 +146,22 @@ namespace LibAIR2 {
 
   void AbsCalModel::AddParams(std::vector<Minim::DParamCtr> &pars)
   {
+    using namespace boost;
 
     _am->AddParams(pars);
 
     for(size_t i=0; i<zero.size(); ++i)
     {
       pars.push_back(Minim::DParamCtr(&zero[i],      
-                      std::string("abszero") + std::to_string(i+1), 
+				      (format("abszero%i") % (i+1)).str(), 
 				      true,                       
-                      std::string("Absolute calibration zero of channel ") + std::to_string(i+1)
+				      (format("Absolute calibration zero of channel %i") % (i+1)).str()
 				      ));
 
       pars.push_back(Minim::DParamCtr(&scale[i],      
-                      std::string("absscale") + std::to_string(i+1), 
+				      (format("absscale%i") % (i+1)).str(), 
 				      true,                       
-                      std::string("Absolute calibration scaling of channel ") + std::to_string(i+1)
+				      (format("Absolute calibration scaling of channel %i") % (i+1)).str()
 				      ));
     }
   }

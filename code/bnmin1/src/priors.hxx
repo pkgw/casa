@@ -12,7 +12,7 @@
 #include "minimmodel.hxx"
 
 #include <list>
-#include <memory>
+#include <boost/scoped_ptr.hpp>
 
 namespace Minim {
 
@@ -25,7 +25,7 @@ namespace Minim {
     public MLikelihood
   {
     /// Keeps the encapsulated likelihoood model
-    std::shared_ptr<MLikelihood> _mod;
+    boost::scoped_ptr<MLikelihood> _mod;
     
   public:
 

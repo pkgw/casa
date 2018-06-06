@@ -15,9 +15,9 @@
 #define _LIBAIR_RADIOMETERMEASURE_HPP__
 
 #include <vector>
-#include <string>
-#include <memory>
 #include <stdexcept>
+
+#include <boost/smart_ptr.hpp>
 
 namespace LibAIR2 {
 
@@ -114,7 +114,7 @@ namespace LibAIR2 {
     {
       if ( nchannels()  > 1 )
       {
-	throw RadiometerError(std::string("More than one channel but asking for single result"));
+	throw RadiometerError("More than one channel but asking for single result");
       }
 
       return eval( skyTb, 0);
@@ -131,7 +131,7 @@ namespace LibAIR2 {
   class DSBRadio
   {
 
-    std::shared_ptr<Radiometer> r;
+    boost::scoped_ptr<Radiometer> r;
 
   public:
 

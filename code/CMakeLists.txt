@@ -794,6 +794,73 @@ endif()
 # Perl
 find_package( Perl )
 
+#
+# Boost
+#
+# Use the Boost finder that ships with CMake. It needs to be told where boost is.
+# If the version is >= 1.35, require also boost-system.
+#
+# Note, find_package( Boost ... ) must be called for every cmake invocation
+# in order to setup non-cached variables
+#
+message ( STATUS "BOOST_ROOT=${BOOST_ROOT} (first)" )
+
+if( NOT BOOST_ROOT )
+  set( BOOST_ROOT ${casa_packages} )
+endif()
+
+message ( STATUS "BOOST_ROOT=${BOOST_ROOT} (second)" )
+message ( STATUS "casa_packages=${casa_packages} (second)" )
+
+set( boost_components regex program_options filesystem thread serialization system)
+find_package( Boost REQUIRED ${boost_components} )
+
+message( STATUS "Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}; Boost_LIBRARIES=${Boost_LIBRARIES}")
+
+if( NOT Boost_FOUND )
+  message( FATAL_ERROR "Boost could not be found. Please check!" )
+endif()
+
+# For boost >= 1.35, we need to link also to boost-system
+if( Boost_VERSION GREATER 103499 )
+
+  # Force redetection by resetting these variables
+  if( NOT Boost_SYSTEM_FOUND )
+    message( STATUS "Boost version (${Boost_VERSION}) is 1.35.0 or newer" )
+    unset( Boost_FOUND )
+    unset( Boost_INCLUDE_DIR CACHE )
+  endif()
+  set( boost_components regex program_options filesystem system thread )
+  find_package( Boost REQUIRED ${boost_components} )
+
+  if( NOT Boost_FOUND )
+    message( FATAL_ERROR "Boost-system could not be found. Please check!" )
+  endif()
+endif()
+
+if( NOT Boost_VERSION GREATER 104099 AND NOT CASA_IGNORE_VERSION )
+  message( FATAL_ERROR "Boost version (${Boost_VERSION}) is too old! Must be 104100 (1.41.0) or newer. Please check!" )
+endif()
+
+#
+# boost regex drags in dependencencies on international unicode libraries, if they are not
+# explicitly referenced, loading is left until runtime based upon transitive dependencies.
+# This thwarts creation of a cleanly relocatable distribution.
+#
+if(CMAKE_SYSTEM_NAME STREQUAL Linux AND Boost_LIBRARIES)
+    if(EXISTS "/usr/lib64/libicuuc.so")
+        set( Boost_LIBRARIES "${Boost_LIBRARIES};/usr/lib64/libicuuc.so" )
+    endif( )
+    if(EXISTS "/usr/lib64/libicudata.so")
+        set( Boost_LIBRARIES "${Boost_LIBRARIES};/usr/lib64/libicudata.so" )
+    endif( )
+    if(EXISTS "/usr/lib64/libicui18n.so")
+        set( Boost_LIBRARIES "${Boost_LIBRARIES};/usr/lib64/libicui18n.so" )
+    endif( )
+    message(STATUS "Boost_LIBRARIES=${Boost_LIBRARIES}")
+endif( )
+
+
 # CFITSIO
 casa_find( CFITSIO
   VERSION 3.006
@@ -1368,8 +1435,8 @@ casa_add_module( miriad CASACORE components)
 casa_add_module( casa_sakura CASACORE LIBSAKURA)
 casa_add_module( singledishfiller CASACORE )
 casa_add_module( singledish CASACORE casa_sakura singledishfiller msvis mstransform)
-casa_add_module( bnmin1 GSL GSLCBLAS CASACORE )
-casa_add_module( air_casawvr CASACORE bnmin1 synthesis WCSLIB CFITSIO LAPACK )
+casa_add_module( bnmin1 Boost GSL GSLCBLAS CASACORE )
+casa_add_module( air_casawvr CASACORE bnmin1 Boost synthesis WCSLIB CFITSIO LAPACK )
 
 if (UseCrashReporter AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
    add_subdirectory( crash)

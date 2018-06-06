@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <iosfwd>
+#include <boost/ptr_container/ptr_list.hpp>
 
 #include "alma_datastruct.h"
 
@@ -48,7 +49,7 @@ namespace LibAIR2 {
 			   const ALMAResBase &r);
 
   std::ostream &operator<<(std::ostream &os,
-                           const std::list<std::shared_ptr<ALMAResBase> > &i);
+			   const boost::ptr_list<ALMAResBase> &i);
 
   struct ALMAContRes:
     public ALMAResBase {

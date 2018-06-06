@@ -19,7 +19,7 @@ namespace LibAIR2 {
 		   const AntSet &flag)
   {
     AntSetD dist;
-    for (size_t j=0; j<pos.shape( )[1]; ++j)
+    for (size_t j=0; j<pos.size1(); ++j)
     {
       if (j==i or flag.count(j))
 	continue;

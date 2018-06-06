@@ -7,9 +7,11 @@
 
 #include "almaabs.hpp"
 
-#include <array>
 #include <iostream>
 #include <stdio.h>            /*** for sprintf(...) ***/
+#include <boost/format.hpp>
+#include <boost/foreach.hpp>
+#include <boost/assert.hpp>
 
 #include "almaabs_i.hpp"
 #include "almaopts.hpp"
@@ -28,10 +30,6 @@
 #include "bnmin1/src/prior_sampler.hxx"
 #include "bnmin1/src/mcmonitor.hxx"
 #endif
-
-void stop_here_now( int index ) {
-    fprintf( stderr, "\t\t\t\t-> %d\n", index );
-}
 
 namespace LibAIR2 {
 
@@ -67,17 +65,12 @@ namespace LibAIR2 {
   std::ostream & operator<<(std::ostream &os, 
 			    const  ALMAAbsInput &i)
   {
-    char buffer[1024];
     os<<i.time<<"\t"
-      <<i.antno<<"\t";
-    sprintf( buffer, "[%5.2f, ", i.TObs[0] );
-    os<<buffer;
-    sprintf( buffer, "%5.2f, ", i.TObs[1] );
-    os<<buffer;
-    sprintf( buffer, "%5.2f, ", i.TObs[2] );
-    os<<buffer;
-    sprintf( buffer, "%5.2f, ", i.TObs[3] );
-    os<<buffer
+      <<i.antno<<"\t"
+      <<"["<<boost::format("%5.2f, ")% i.TObs[0]
+           <<boost::format("%5.2f, ")% i.TObs[1]
+           <<boost::format("%5.2f, ")% i.TObs[2]
+           <<boost::format("%5.2f]")% i.TObs[3]
       <<"\t"
       <<i.el
       <<"\t"
@@ -100,7 +93,7 @@ namespace LibAIR2 {
       <<"Elevation"
       <<"\t"
       <<"STATE_ID"<<std::endl;
-    for(const ALMAAbsInput &x : i)
+    BOOST_FOREACH(const ALMAAbsInput &x, i)
       os<<x<<std::endl;
     return os;
   }
@@ -139,8 +132,7 @@ namespace LibAIR2 {
     const size_t midpoint=static_cast<size_t>(d.g_time().size() *0.5);
     for(size_t k=0; k<4; ++k)
     {
-      TObs[k]=d.g_wvrdata()(midpoint,refant,k);
-      fprintf( stderr, "<1>\t\t\t\tTObs[k]=%f\n", TObs[k] );
+      TObs[k]=d.g_wvrdata()[midpoint][refant][k];
     }
     checkTObs(TObs);    
     el=d.g_el()[midpoint];
@@ -201,10 +193,8 @@ namespace LibAIR2 {
 	throw std::runtime_error("Could not find a row with a sky state");
       }      
       a.antno=refant;
-      for(size_t k=0; k<4; ++k) {
-          a.TObs[k]=d.g_wvrdata()(row,refant,k);
-          fprintf( stderr, "<2>\t\t\t\tTObs[k]=%f\n", a.TObs[k] );
-      }
+      for(size_t k=0; k<4; ++k)
+	a.TObs[k]=d.g_wvrdata()[row][refant][k];
       a.el=d.g_el()[row];
       a.time=d.g_time()[row];
       a.state=d.g_state()[row];
@@ -219,7 +209,7 @@ namespace LibAIR2 {
 			     int refant)
   {
     ALMAAbsInpL res;
-    stop_here_now(1);
+
     const size_t nrows=d.g_time().size();
     size_t row=0;
     for(size_t i=0; i<fb.size(); ++i)
@@ -246,8 +236,7 @@ namespace LibAIR2 {
       a.antno=refant;
       for(size_t k=0; k<4; ++k)
       {
-          a.TObs[k]=d.g_wvrdata()(row,refant,k);
-          fprintf( stderr, "<3>\t\t\t\t\t[wvrdata(%d,%d,%d)=%f]\n", row, refant, k, a.TObs[k] );
+	a.TObs[k]=d.g_wvrdata()[row][refant][k];
       }
       a.el=d.g_el()[row];
       a.time=d.g_time()[row];
@@ -329,7 +318,7 @@ namespace LibAIR2 {
     
   }
 
-    std::list<std::shared_ptr<ALMAResBase> > doALMAAbsRet(ALMAAbsInpL &il,
+  boost::ptr_list<ALMAResBase> doALMAAbsRet(ALMAAbsInpL &il,
 					    std::vector<std::pair<double, double> > &fb,
 					    AntSet& problemAnts)
   {
@@ -339,7 +328,7 @@ namespace LibAIR2 {
     AntSet resZeroAnts;
     AntSet resNonZeroAnts;
 
-    std::list<std::shared_ptr<ALMAResBase> > res;
+    boost::ptr_list<ALMAResBase> res;
 
     ALMAAbsInpL newil;
     std::vector<std::pair<double, double> > newfb;
@@ -347,7 +336,7 @@ namespace LibAIR2 {
 
     size_t count=0;
 
-    for(const ALMAAbsInput &x : il)
+    BOOST_FOREACH(const ALMAAbsInput &x, il)
     {
       bool problematic = false;
       std::vector<double>  TObs(4);
@@ -377,7 +366,7 @@ namespace LibAIR2 {
 		  << " K, elevation " << x.el/M_PI*180. << " deg" << std::endl;
       }
       else{
-	res.push_back(std::shared_ptr<ALMAResBase>(ares));
+	res.push_back(ares);
 	newil.push_back(x);
 	if(fbFilled){
 	  newfb.push_back(fb[count++]);
@@ -409,9 +398,9 @@ namespace LibAIR2 {
     return res;
   }
 
-  static void ALMAAbsRetP(std::shared_ptr<ALMAResBase> i,
-			  std::array<double, 4> &dTdL,
-			  std::array<double, 4> &dTdL_err)
+  static void ALMAAbsRetP(ALMAResBase *i,
+			  boost::array<double, 4> &dTdL,
+			  boost::array<double, 4> &dTdL_err)
   {
     for(size_t k=0; k<4; ++k)
     {
@@ -422,7 +411,7 @@ namespace LibAIR2 {
 
   dTdLCoeffsBase *
   ALMAAbsProcessor(const ALMAAbsInpL &inp,
-			  std::list<std::shared_ptr<ALMAResBase> > &r)
+		   boost::ptr_list<ALMAResBase> &r)
   {
     std::auto_ptr<dTdLCoeffsBase> res;
     if (inp.size()==0)
@@ -437,10 +426,9 @@ namespace LibAIR2 {
 	  i!=inp.end(); 
 	  ++i)
       {
-	std::shared_ptr<ALMAResBase> rp=r.front( );
-	r.pop_front( );
-	std::array<double, 4> dTdL;
-	std::array<double, 4> dTdL_err;
+	ALMAResBase *rp=r.release(r.begin()).release();
+	boost::array<double, 4> dTdL;
+	boost::array<double, 4> dTdL_err;
 	ALMAAbsRetP(rp, dTdL, dTdL_err);
 	rr->insert(i->time,
 		   dTdL,
@@ -454,22 +442,22 @@ namespace LibAIR2 {
 
   dTdLCoeffsSingleInterpolated *
   SimpleMultiple(const std::vector<std::pair<double, double> > &fb,
-                 std::list<std::shared_ptr<ALMAResBase> > &r)
+		 boost::ptr_list<ALMAResBase> &r)
   {
 
-    assert(fb.size()==r.size());
+    BOOST_ASSERT(fb.size()==r.size());
     
     std::auto_ptr<dTdLCoeffsSingleInterpolated> 
       res(new dTdLCoeffsSingleInterpolated());
 
-    std::list<std::shared_ptr<ALMAResBase> >::iterator ir=r.begin();
+    boost::ptr_list<ALMAResBase>::iterator ir=r.begin();
     for(size_t i=0; i<fb.size(); ++i)
     {
     
       // Convert to units of K/meter
-      std::array<double, 4> dTdL;
-      std::array<double, 4> dTdL_err;
-      ALMAAbsRetP(*ir, dTdL, dTdL_err);
+      boost::array<double, 4> dTdL;
+      boost::array<double, 4> dTdL_err;
+      ALMAAbsRetP(&(*ir), dTdL, dTdL_err);
       res->insert(fb[i].first,
 		  dTdL,
 		  dTdL_err);
@@ -524,7 +512,7 @@ namespace LibAIR2 {
 		   ss);
 
     // Create the nested sampler
-    std::shared_ptr<Minim::NestedS> ns;
+    boost::scoped_ptr<Minim::NestedS> ns;
     ns.reset(new Minim::NestedS(pll));
     (*ns)["coupling"]->dofit=false;
 

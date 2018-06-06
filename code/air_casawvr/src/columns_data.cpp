@@ -28,7 +28,7 @@ namespace LibAIR2 {
     }
     else
     {
-      std::shared_ptr<HITRAN_entry> we;
+      boost::scoped_ptr<HITRAN_entry> we;
       switch  (line)
       {
       case L183:

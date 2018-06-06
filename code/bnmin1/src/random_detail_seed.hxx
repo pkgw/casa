@@ -13,26 +13,19 @@
 #ifndef _BNMIN1_RANDOM_DETAIL_SEED_HXX_
 #define _BNMIN1_RANDOM_DETAIL_SEED_HXX_
 
-#include <type_traits>
-
+#include <boost/config.hpp>
 
 #if !defined(BOOST_NO_SFINAE)
+
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_arithmetic.hpp>
 
 namespace bnmin1boost {
 namespace random {
 namespace detail {
 
-template <bool B, typename T = void>
-struct disable_if {
-    typedef T type;
-};
-
-template <typename T>
-struct disable_if<true,T> {
-};
-
 template<class T>
-struct disable_seed : disable_if<std::is_arithmetic<T>::value > {};
+struct disable_seed : boost::disable_if<boost::is_arithmetic<T> > {};
 
 template<class Engine, class T>
 struct disable_constructor : disable_seed<T> {};

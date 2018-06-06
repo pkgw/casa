@@ -4,6 +4,8 @@ g   \file gaussmodel.cpp
 
 */
 
+#include <boost/format.hpp>
+
 #include "gaussmodel.hxx"
 
 namespace Minim {
@@ -14,9 +16,9 @@ namespace Minim {
     for (size_t i=0; i<p.size(); ++i)
     {
       ParamCtr<double> pa( &p[i], 
-                           std::string("p") + std::to_string(i), 
-                           true, 
-                           "n-th parameter");
+			   (boost::format("p%i") % i).str(), 
+			   true, 
+			   "n-th parameter");
       pars.push_back(pa);
   }
     

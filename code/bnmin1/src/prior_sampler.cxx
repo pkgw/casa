@@ -4,7 +4,7 @@
 
 */
 
-#include <functional>
+#include <boost/bind.hpp>
 
 #include "prior_sampler.hxx"
 
@@ -128,15 +128,14 @@ namespace Minim
     CPriorSampler(ml,md),
     sigmas(initSigmas)
   {
-    using namespace std::placeholders;
-    MarkovChain::fx_t flkl=std::bind(likelihood, 
-				       md,
-				       ml,
+    MarkovChain::fx_t flkl=boost::bind(likelihood, 
+				       boost::ref(md),
+				       boost::ref(ml), 
 				       _1);
 
-    MarkovChain::fx_t fprior=std::bind(prior, 
-					 md,
-					 ml, 
+    MarkovChain::fx_t fprior=boost::bind(prior, 
+					 boost::ref(md),
+					 boost::ref(ml), 
 					 _1);
     std::vector<double> ic(sigmas.size());
     md.get(ic);
@@ -208,15 +207,14 @@ namespace Minim
 
   void CSRMSSS::initChain(void)
   {
-    using namespace std::placeholders;
-    MarkovChain::fx_t flkl=std::bind(likelihood, 
-				       md,
-				       ml,
+    MarkovChain::fx_t flkl=boost::bind(likelihood, 
+				       boost::ref(md),
+				       boost::ref(ml), 
 				       _1);
     
-    MarkovChain::fx_t fprior=std::bind(prior, 
-					 md,
-					 ml, 
+    MarkovChain::fx_t fprior=boost::bind(prior, 
+					 boost::ref(md),
+					 boost::ref(ml), 
 					 _1);
     std::vector<double> ic(ss.begin()->p.size());
     md.get(ic);

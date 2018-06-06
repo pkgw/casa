@@ -12,10 +12,12 @@
 #ifndef _BNMIN1_RANDOM_UNIFORM_REAL_HXX_
 #define _BNMIN1_RANDOM_UNIFORM_REAL_HXX_
 
-#define PREVENT_MACRO_SUBSTITUTION
-
 #include <cassert>
 #include <iostream>
+#include <boost/config.hpp>
+#include <boost/limits.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/random/detail/config.hpp>
 
 namespace bnmin1boost {
 
@@ -32,21 +34,21 @@ public:
     : _min(min_arg), _max(max_arg)
   {
 #ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-   static_assert(!std::numeric_limits<RealType>::is_integer,"failed assert");
+    BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
 #endif
     assert(min_arg <= max_arg);
   }
 
   // compiler-generated copy ctor and assignment operator are fine
 
-  result_type min PREVENT_MACRO_SUBSTITUTION () const { return _min; }
-  result_type max PREVENT_MACRO_SUBSTITUTION () const { return _max; }
+  result_type min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _min; }
+  result_type max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _max; }
   void reset() { }
 
   template<class Engine>
   result_type operator()(Engine& eng) {
-    result_type numerator = static_cast<result_type>(eng() - eng.min PREVENT_MACRO_SUBSTITUTION());
-    result_type divisor = static_cast<result_type>(eng.max PREVENT_MACRO_SUBSTITUTION() - eng.min PREVENT_MACRO_SUBSTITUTION());
+    result_type numerator = static_cast<result_type>(eng() - eng.min BOOST_PREVENT_MACRO_SUBSTITUTION());
+    result_type divisor = static_cast<result_type>(eng.max BOOST_PREVENT_MACRO_SUBSTITUTION() - eng.min BOOST_PREVENT_MACRO_SUBSTITUTION());
     assert(divisor > 0);
     assert(numerator >= 0 && numerator <= divisor);
     return numerator / divisor * (_max - _min) + _min;

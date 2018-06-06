@@ -8,7 +8,6 @@
 
 */
 
-#include <memory>
 #include <stdexcept>
 
 #include "models_basic.hpp"
@@ -25,7 +24,7 @@
 
 namespace LibAIR2 {
 
-  std::shared_ptr<Radiometer> SwitchRadiometer(RadiometerT r)
+  boost::shared_ptr<Radiometer> SwitchRadiometer(RadiometerT r)
   {
     Radiometer *res;
     switch (r)
@@ -42,7 +41,7 @@ namespace LibAIR2 {
     default:
       throw std::runtime_error("Unknown radiometer type");
     }
-    return std::shared_ptr<Radiometer>(res);
+    return boost::shared_ptr<Radiometer>(res);
   }
 }
 

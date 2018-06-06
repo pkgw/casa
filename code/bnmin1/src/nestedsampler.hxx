@@ -17,7 +17,7 @@
 #include <vector>
 #include <list>
 
-#include <memory>
+#include <boost/scoped_ptr.hpp>
 
 #include "mcpoint.hxx"
 #include "minim.hxx"
@@ -61,7 +61,7 @@ namespace Minim {
 
     /** \brief The constrained prior sampler to replace points
      */
-    std::unique_ptr<CPriorSampler> ps;
+    boost::scoped_ptr<CPriorSampler> ps;
 
     /** \brief Points describing the posterior
 	
@@ -71,7 +71,7 @@ namespace Minim {
     std::list<WPPoint> post;
 
     /// The strategy for picking the inital point
-    std::shared_ptr<NestedInitial> initials;
+    boost::scoped_ptr<NestedInitial> initials;
     
   public:
 
