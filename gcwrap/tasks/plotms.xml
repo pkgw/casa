@@ -1028,6 +1028,11 @@ Export plot as image Parameters
         </allowed>
     </param>
 
+     <param type="bool" name="verbose" subparam="true">
+         <description>Include metadata in text export</description>
+         <value>True</value>
+     </param>
+
     <param type="string" name="exprange" subparam="true">
         <description>Range of iteration plots to export, one plotfile per page.  Multipage pdf exports are not supported.</description>
         <allowed kind="enum">
@@ -1035,7 +1040,7 @@ Export plot as image Parameters
             <value>current</value>
             <value>all</value>
         </allowed>
-    </param>
+	</param>
 
      <param type="bool" name="highres" subparam="true">
          <description>Use high resolution</description>

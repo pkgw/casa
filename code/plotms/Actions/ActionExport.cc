@@ -71,6 +71,7 @@ bool ActionExport::exportText( PlotMSApp* plotms ){
 	CountedPtr<PlotMSAction> action = ActionFactory::getAction( SEL_INFO, client );
 	bool ok = action->doActionWithResponse(plotms, rec);
 	if(rec.nfields() < 1) return ok;
+	bool verbose = format.verbose;
 
 	const String X_AXIS("xaxis");
 	const String Y_AXIS("yaxis");
@@ -89,15 +90,18 @@ bool ActionExport::exportText( PlotMSApp* plotms ){
 
 		// print header
 		csv_file << "# x y ";
-		if (hasChan) csv_file << "chan ";
-		csv_file << "scan field ant1 ";
-		if (hasAnt2) csv_file << "ant2 ";
-		csv_file << "ant1name ";
-		if (hasAnt2) csv_file << "ant2name ";
-		csv_file << "time ";
-		if (hasFreq) csv_file << "freq ";
-		csv_file << "spw corr obs" << endl;
-		// print units
+		if (verbose) {
+			if (hasChan) csv_file << "chan ";
+			csv_file << "scan field ant1 ";
+			if (hasAnt2) csv_file << "ant2 ";
+			csv_file << "ant1name ";
+			if (hasAnt2) csv_file << "ant2name ";
+			csv_file << "time ";
+			if (hasFreq) csv_file << "freq ";
+			csv_file << "spw corr obs";
+		}
+		csv_file << endl;
+		// print axes/units
 		String xunit(""), yunit("");
 		if ( plotRecord.isDefined( X_AXIS )){
 			xunit = plotRecord.asString(X_AXIS);
@@ -107,8 +111,9 @@ bool ActionExport::exportText( PlotMSApp* plotms ){
 			yunit = plotRecord.asString(Y_AXIS);
 			plotRecord.removeField( Y_AXIS );
 		}
-		if ( xunit.length() > 0 || yunit.length() > 0 ){
+		if ( xunit.length() > 0 || yunit.length() > 0 )
 			csv_file << "# " << xunit << " " << yunit;
+		if (verbose) {
 			if (hasChan) csv_file << " None"; // chan
 			csv_file << " None None None"; // scan field ant1
 			if (hasAnt2) csv_file << " None"; // ant2
@@ -116,9 +121,9 @@ bool ActionExport::exportText( PlotMSApp* plotms ){
 			if (hasAnt2) csv_file << " None"; // ant2name
 			csv_file << " MJD(seconds)"; // time
 			if (hasFreq) csv_file << " GHz"; // freq
-			csv_file << " None None None"  // spw corr obs
-				<< endl;
+			csv_file << " None None None";  // spw corr obs
 		}
+		csv_file << endl;
 		// print plot number
 		csv_file << "# From plot " << n << endl;
 
@@ -128,23 +133,8 @@ bool ActionExport::exportText( PlotMSApp* plotms ){
 			Record fieldRecord = plotRecord.subRecord( field_str );
 			Double x = fieldRecord.asDouble("x");
 			Double y = fieldRecord.asDouble("y");
-			Int chan, ant2;
-			if (hasChan) chan = fieldRecord.asInt("chan");
-			Int scan = fieldRecord.asInt("scan");
-			Int field = fieldRecord.asInt("field");
-			Int ant1 = fieldRecord.asInt("ant1");
-			if (hasAnt2) ant2 = fieldRecord.asInt("ant2");
-			String ant1name = fieldRecord.asString("ant1name");
-			String ant2name;
-			if (hasAnt2) ant2name = fieldRecord.asString("ant2name");
-			Double time = fieldRecord.asDouble("time");
-			Int spw = fieldRecord.asInt("spw");
-			Double freq;
-			if (hasFreq) freq = fieldRecord.asDouble("freq");
-			String corr = fieldRecord.asString("corr");
-			Int obsId = fieldRecord.asInt("obsid");
-
 			int precision = csv_file.precision();
+
 			if(xunit == "Time") {
 				csv_file << std::setprecision(3) << std::fixed
 						<< x << " ";
@@ -170,20 +160,42 @@ bool ActionExport::exportText( PlotMSApp* plotms ){
 				csv_file.unsetf(ios_base::fixed);
 				csv_file.precision(precision);
 			} else {
-				csv_file << y << " ";
+				csv_file << y;
 			}
-			if (hasChan) csv_file << chan << " ";
-			csv_file << scan << " " << field << " " << ant1 << " ";
-			if (hasAnt2) csv_file  << ant2 << " "; 
-			csv_file << ant1name << " ";
-			if (hasAnt2) csv_file << ant2name << " ";
-			csv_file << std::setprecision(3) << std::fixed
-					<< time << " ";
-			if (hasFreq) csv_file << std::setprecision(9) << std::fixed
-					<< freq << " ";
-			csv_file.unsetf(ios_base::fixed);
-			csv_file.precision(precision);
-			csv_file << spw << " " << corr << " " << obsId << endl;
+
+			if (verbose) {
+				// collect values from Record...
+				Int chan, ant2;
+				String ant2name;
+				Double freq;
+				if (hasChan) chan = fieldRecord.asInt("chan");
+				Int scan = fieldRecord.asInt("scan");
+				Int field = fieldRecord.asInt("field");
+				Int ant1 = fieldRecord.asInt("ant1");
+				if (hasAnt2) ant2 = fieldRecord.asInt("ant2");
+				String ant1name = fieldRecord.asString("ant1name");
+				if (hasAnt2) ant2name = fieldRecord.asString("ant2name");
+				Double time = fieldRecord.asDouble("time");
+				Int spw = fieldRecord.asInt("spw");
+				if (hasFreq) freq = fieldRecord.asDouble("freq");
+				String corr = fieldRecord.asString("corr");
+				Int obsId = fieldRecord.asInt("obsid");
+				// ... and print them
+				csv_file << " ";
+				if (hasChan) csv_file << chan << " ";
+				csv_file << scan << " " << field << " " << ant1 << " ";
+				if (hasAnt2) csv_file  << ant2 << " "; 
+				csv_file << ant1name << " ";
+				if (hasAnt2) csv_file << ant2name << " ";
+				csv_file << std::setprecision(3) << std::fixed
+						<< time << " ";
+				if (hasFreq) csv_file << std::setprecision(9) << std::fixed
+						<< freq << " ";
+				csv_file.unsetf(ios_base::fixed);
+				csv_file.precision(precision);
+				csv_file << spw << " " << corr << " " << obsId; 
+			}
+			csv_file << endl;
 		}
 	}
 	csv_file.close();

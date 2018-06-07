@@ -34,7 +34,7 @@ def plotms(vis=None,
            showmajorgrid=None, majorwidth=None, majorstyle=None,  majorcolor=None,    
            showminorgrid=None, minorwidth=None, minorstyle=None,  minorcolor=None, 
            showlegend=None, legendposition=None,   
-           plotfile=None, expformat=None, exprange=None,
+           plotfile=None, expformat=None, verbose=True, exprange=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
            callib=None, headeritems=None, showatm=None, showtsky=None
@@ -789,7 +789,7 @@ def plotms(vis=None,
                     while (pm.isDrawing()):
                         time.sleep(1.0)
                 casalog.post("Exporting the plot.",'NORMAL')
-                plotUpdated = pm.save( plotfile, expformat, highres, dpi, width, height)
+                plotUpdated = pm.save( plotfile, expformat, verbose, highres, dpi, width, height)
 
     except Exception, instance:
         plotUpdated = False
