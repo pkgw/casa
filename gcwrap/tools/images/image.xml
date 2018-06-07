@@ -1514,85 +1514,87 @@ bigim.done()
 
  
  
-   <method type="function" name="fromarray">
-   <shortdescription>Construct a \casa\ image from a numerical (integer or float) array</shortdescription>
-   
-<input>
-  
-     <param type="string"  name="outfile">
-     <description>Output image file name.  Default is unset.</description>
-     <value></value>
-     </param>
-  
-     <param type="any"  name="pixels">
-	     <any type="variant"/>
-     <description>Numeric array</description>
-     <value/>
-     </param>
-  
-     <param type="record"  name="csys">
-     <description>Coordinate System.  Default is unset.</description>
-     <value></value>
-     </param>
-  
-     <param type="bool"  name="linear">
-     <description>Make a linear Coordinate System if csys not given</description>
-     <value>false</value>
-     </param>
-  
-     <param type="bool"  name="overwrite">
-     <description>Overwrite (unprompted) pre-existing output file?</description>
-     <value>false</value>
-     </param>
-  
-     <param type="bool"  name="log">
-     <description>Write image creation messages to logger</description>
-     <value>true</value>
-     </param>
-</input>
-<returns type="bool"/>
+<method type="function" name="fromarray">
+    <shortdescription>Construct a \casa\ image from a numerical numpy array</shortdescription>
+    <input>
+        <param type="string" name="outfile">
+            <description>Output image file name.  Default is unset.</description>
+            <value/>
+        </param>
+        <param type="any" name="pixels">
+	       <any type="variant"/>
+           <description>Numeric array</description>
+            <value/>
+        </param>
+        <param type="record" name="csys">
+            <description>Coordinate System. Default is to construct an appropriate coordinate system given the array shape.</description>
+            <value/>
+        </param>
+            <param type="bool" name="linear">
+            <description>Make a linear Coordinate System if csys not given</description>
+            <value>false</value>
+        </param>
+        <param type="bool" name="overwrite">
+            <description>Overwrite the output image if it already exists?</description>
+            <value>false</value>
+        </param>
+        <param type="bool"  name="log">
+            <description>Write image creation messages to logger</description>
+            <value>true</value>
+        </param>
+        <param type="string"  name="type">
+            <description>Pixel data type to write. 'f' (float precision) or 'd' (double precision)</description>
+            <value>f</value>
+        </param>
+    </input>
+    <returns type="bool"/>
+    <description>
 
-<description>
+This application converts a numerical numpy array of any size and dimensionality
+into a CASA image. It will create float, double, complex-float, and complex-double
+valued images.
 
-This function converts a numerical (integer or float) numpy array of any size and
-dimensionality into a \casa\ image. It will create both float and complex valued images.
+The image analysis tool on which this method is called will reference the created
+image; if this tool referenced another image before this call, that image will no
+longer be referenced by the tool after the creation of the new image. If you
+would rather have a new image analysis tool returned, keeping the one on which
+this method is called unaltered, use newimagefromarray() instead. If outfile is
+specified, a persistent image is written to disk, if not, the image tool on
+which this method was called will reference a temporary image (either in memory
+or on disk, depending on its size) that will be deleted when the tool is closed.
 
-The image analysis tool on which this method is called will reference the created image;
-if this tool referenced another image before this call, that image will no longer be referenced
-by the tool after the creation of the new image. If you would rather have a new image analysis
-tool returned, keeping the one on which this method is called unaltered, use newimagefromarray()
-instead. If {\stfaf outfile} is given, the image is written to disk, if not, the image tool on
-which this method was called will reference a temporary image (either in memory or on disk, 
-depending on its size) that will be deleted when the tool
-is closed.
+The type parameter controls the data type/precision of the pixel values of the
+created image. 'f' indicates that float precision point (32 bit precision) pixel
+values should be writted. 'd' indicates that double precision (64 bit precision)
+pixel values should be written. If the input array has complex (as opposed to
+real) values, then complex pixel values, with each of the real and imaginary
+parts having the specified precision, will be written. Array values will be cast
+automatically to the specified precision, so that the precision of the input
+array values may be increased, decreased, or unchanged depending on the input
+array type.
 
-Float valued images are produced from real-valued arrays. Complex-valued images are produced from
-complex-valued arrays.
+The coordinate system, provided as a a dictionary (use eg, cs.torecord() to do
+that), is optional. If specified, it must have the same number of dimensions
+as the pixels array. Call the naxes() method on the coordinate system tool to
+see how many dimensions the coordinate system has. A coordinate system can be
+created from scratch using the coordinate system (cs) tool and methods therein,
+but often users prefer to use a coordinate system from an already existing image.
+This can be gotten using ia.coordsys() which returns a coordinate system tool.
+A torecord() call on that tool will result in a python dictionary describing
+the coordinate system which is the necessary format for the csys input parameter
+of ia.fromarray().
 
-The coordinate system, provided as a <link
-anchor="images:coordsys">coordsys</link> \tool converted to a record
-is optional.  If you provide it, it must have the same number of dimensions
-as the pixels array (see also <link anchor="images:image.coordsys.function">coordsys</link>).
-Call the naxes() method on the coordinate system tool to see how many dimensions the coordinate
-system has. A coordinate system can be created from scratch using the coordinate system (cs) tool and
-methods therein, but often users prefer to use a coordinate system from an already existing image.
-This can be gotten using ia.coordsys() which returns a coordinate system tool. A torecord() call
-on that tool will result in a python dictionary describing the coordinate system which is the
-necessary format for the csys input parameter of ia.fromarray().
-
-If csys is not specified, a default coordinate system
-is created.  If {\stfaf linear=F} (the default) the created coordinate system will have
-standard RA/DEC/Stokes/Spectral Coordinate axes depending upon
-the shape of the {\stfaf pixels} array (Stokes axis must be no longer
-than 4 pixels and you may find the spectral axis preceding the
-Stokes axis if say, {\cf shape=[64,64,32,4]}).  Extra dimensions are
-given linear coordinates.  If {\stfaf linear=T}, then all the resulting coordinates
-are linear with the axes represent lengths. In this case each axis will have a value
-of 0.0 at its center pixel. The increment of each axis will be 1.0 km.
+If csys is not specified, a default coordinate system will be created. If
+linear=False (the default), the created coordinate system will have standard
+RA/DEC/Stokes/Spectral Coordinate axes depending upon the shape of the pixels
+array (Stokes axis must be no longer than 4 pixels and the spectral axis may
+precede the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are given
+linear coordinates.  If linear=True, then all the resulting coordinates
+are linear with the axes represent lengths. In this case each axis will have a
+value of 0.0 at its center pixel. The increment of each axis will be 1.0 km.
 
 The method returns True if creation of the image was successful, False otherwise,
-so you can check programmatically if the image creation was successful.
-
+so a check can be made programmatically if the image creation was successful.
 </description>
 <example>
 
@@ -5608,37 +5610,30 @@ ia.close()
 <returns type="variant"></returns>
 <description>
 
-This function recovers the image pixel or \pixelmask\ values in the
-given <link anchor="images:regionmanager">region-of-interest</link>.  <!-- You can
-recover either or both of these by specifying the appropriate argument.-->
-Regardless of the shape of the {\stfaf region} you have specified, the
-shape of the {\stfaf pixels} and {\stfaf pixelmask} arrays must
-necessarily be the bounding box of the specified region.  If the region
-extends beyond the image, it is truncated.
+This function recovers the image pixel or pixel mask values in the given region
+of interest. Regardless of the shape of the specified, the shape of the pixels and
+pixelmask arrays must necessarily be the bounding box of the specified region.  If
+the region extends beyond the image, it is truncated.
 
-Recall that the recovered \pixelmask\ will reflect both the \pixelmask\
-stored in the image, and the \region\ (their masks are `anded') -- see
-the \htmlref{discussion}{IMAGE:MASKSANDREGIONS} in the introduction
-about this. 
+Recall that the recovered pixelmask will reflect both the pixelmask stored in the
+image, and the region (their masks are `anded' together).
 
-The argument {\stfaf axes} can be used to reduce the dimensionality of
-the output array. It specifies which pixel axes of the image to
-average the data over.  For example, consider a 3-D image.  With
-{\stfaf axes=[0,1]} and all other arguments left at their defaults,
-the result would be a 1-D vector, a profile along the third axis, with
+The argument axes can be used to reduce the dimensionality of the output array. It
+specifies which pixel axes of the image to average the data over.  For example,
+consider a 3-D image. With axes=[0,1] and all other arguments left at their
+defaults, the result would be a 1-D vector, a profile along the third axis, with
 the data averaged over the first two axes.
 
-This function differs in three ways from {\stff getchunk}.  First, the
-region can be much more complex (e.g.  a union of polygons) than the
-simple {\stfaf blc}, {\stfaf trc}, and {\stfaf inc} of {\stff
-getchunk} (although such a region can be created of course).  Second,
-it can be used to recover the \pixelmask\ or the pixels.  Third, it is
-less efficient than {\stff getchunk} for doing the same thing as
-{\stff getchunk}.  So if you are interested in say, iterating through
-an image, getting a regular hyper-cube of pixels and doing something
-with them, then {\stff getchunk} will be faster.  This would be
-especially noticeable if you iterated line by line through a large
-image.
+This method differs in a couple of ways from the getchunk() method.  For example,
+the specified region can be much more complex (eg, a union of polygons) than the
+limited, simple regions that can be specified in getchunk(), which must be
+rectangular. On the other hand, getregion() is less effective than getchunk()
+for the same region specification. So if one is interested in say, iterating
+through an image, getting a regular hyper-cube of pixels and doing something
+with them, then getchunk() will be faster. This would be especially noticeable if
+you iterated line by line through a large image (and of course, in both cases,
+retrieving very large regions will become very resource intensive, as these
+returned arrays are completely stored in memory).
 
 </description>
 
@@ -5823,24 +5818,28 @@ ia.done()
 <returns type="record"/>
 <description>
 
-This function returns a 1-D slice (the pixels and opionally the pixel mask) from the
-\imagefile.   The slice is constrained to lie in a plane of two  cardinal axes
-(e.g. XY or YZ).  At some point this constraint will be relaxed.
-A range of interpolation schemes are available.
+This function returns a 1-D slice (the pixels and opionally the pixel mask) from
+the attached image. The slice is constrained to lie in a plane of two cardinal
+axes (e.g. XY or YZ). Interpolation is permitted between pixels, and a set of
+interpolation schemes is available.
 
-You specify the slice as a polyline giving the x ({\stfaf x}) and y
-({\stfaf y}) coordinates and the axes of the plane holding that slice
-({\stfaf axes}).  As well, you must specify the absolute pixel
-coordinates of the other axes ({\stfaf coord}).  This defaults to the
-first pixel (e.g. first plane).
+The slice is specified as a polyline giving the x and y coordinates and the axes
+of the plane holding that slice.  The absolute pixel coordinates of the other
+axes may be specified using the coord parameter. If not specified, these values
+default to pixel 0 on the relevant axes.
 
-The return value is a record with fields 'pixels' (interpolated intensity), 
+The npts parameter allows the number of values to be returned.
+
+The method parameter allows specification of the interpolation method to be
+used. Allowed values are 'nearest', 'linear', and 'cubic'. In the case of an
+image with complex valued pixels, the interpolation is done independently on the
+real and imaginary values. For example, the linearly interpolated value midway
+between pixels with values of 1 + 5j and 2 + 7j would be 1.5 + 6j.
+
+The return value is a dictionary with keys 'pixels' (interpolated pixel values), 
 'mask' (interpolated mask), 'xpos' (x-location in absolute pixel coordinates), 
 'ypos' (y-location in absolute pixel coordinates), 'distance' (distance along
-slice in pixels), 'axes' (the x and y axes of slice).
-
-<!-- You can optionally plot the slice via argument {\stfaf plot}
-which defaults to False. -->
+slice in pixels), and 'axes' (the x and y axes of slice).
 
 </description>
 
@@ -7577,7 +7576,7 @@ ia.close()
 <description>
 
 This method puts an array into the image (which must be writable, eg it
-will fail on FITS images).  If there is a default pixel mask, it is
+will fail on FITS images). If there is a default pixel mask, it is
 ignored. It is the complement of the getchunk() method. The blc, trc,
 and increment (inc) may be specified. If they are unspecified, they
 default to the beginning of the image and an increment of one.
@@ -7736,38 +7735,37 @@ ia.close()
 <returns type="bool">T or fail</returns>
 <description>
 
-This function replaces data and/or \pixelmask\ values in the image in
-the specified \region.  The {\stfaf pixels} and/or {\stfaf pixelmask}
-arrays must be the shape of the bounding box, and the whole bounding box
-is replaced in the image.  The \region\ is really only used to specify
-the bounding box.  If the region extends beyond the image, it is
-truncated.  If the {\stfaf pixels} or {\stfaf pixelmask} array shapes do not
-match the bounding box, an error will result. 
+This function replaces data and/or pixel mask values in the image in the
+specified region. The pixels and/or pixelmask arrays must be the shape of
+the bounding box, and the whole bounding box is replaced in the image. The
+region is only used to specify the bounding box.  If the region extends
+beyond the image, it is truncated.  If the pixels or pixelmask array shapes
+do not match the bounding box, an error will result. Values in the pixels
+array must share the same domain as the pixel values in the image. If the
+pixels array contains real values and the image pixels contain complex
+values (or vice versa), an exception will be thrown.
 
-When you put a \pixelmask, it either replaces the current default \pixelmask, or
-is created.  The \pixelmask\ is put before the pixels.
+When you put a pixel mask, it either replaces the current default pixel mask,
+or is created.
 
-The argument {\stfaf usemask} is only relevant when you are putting
-pixel values and there is a \pixelmask\ (meaning also the one you might have
-just put in place).  If {\stfaf usemask=T} then only pixels for which
-the mask is good (T) are altered.  If {\stfaf usemask=F} then all the
-pixels in the region are altered - the mask is ignored. 
+The usemask parameter is only relevant when you are putting pixel values and
+there is a pixel mask (meaning also the one you might have just put in place).
+If usemask=True, then only pixels for which the mask is good (True) are
+altered.  If usemask=False, then all the pixels in the region are altered. 
 
-The argument {\stfaf replicate} can be used to replicate the array
-throughout the image (from the blc to the trc).  For example, if you
-provide a 2D array to a 3D image, you can replicate it through the third
-axis by setting {\stfaf replicate=T}.   The replication
-is done in the specified {\stfaf region}.
+The replicate parameter can be used to replicate the array throughout the
+image (from the blc to the trc).  For example, if a two dimensional array is
+provided for a three dimensional image, it can be replicated along the third
+axis by setting replicate=True. The replication is done in the specified
+region.
 
-The argument {\stfaf locking} controls two things.  If True, then
-after the function is called, the image is unlocked (so some other
-process can acquire a lock) and it is indicated that the image has
-changed. <!-- (causes function <link
-anchor="images:image.view.function">view</link> to redisplay the image
-if it is has been called).--> The reason for having this argument is
-that the unlocking and updating processes are quite expensive.  If you
-are repeatedly calling {\stff putregion} in a for loop, you would be
-advised to use this switch (and to consider using {\stff putchunk}).
+The locking parameter controls two things.  If True, then after the method
+is called, the image is unlocked (so some other process can acquire a lock)
+and it is indicated that the image has changed. The reason for this
+parameter is that the unlocking and updating processes are quite expensive.
+If putregion() is being called multiple times, in a for loop, for example,
+it is recommended to set locking=True (and to consider using putchunk()
+instead).
 
 See the related functions <link
 anchor="images:image.putchunk.function">putchunk</link>, <link
@@ -10788,40 +10786,53 @@ other process can gain immediate access to the \imagefile.
      <description>Write image creation messages to logger</description>
      <value>true</value>
      </param>
+     <param type="string"  name="type">
+        <description>Pixel data type to write. 'f' (float precision) or 'd' (double precision)</description>
+        <value>f</value>
+     </param>
 </input>
 <returns type="image"/>
 
 <description>
 
-This function converts an array of any size into a \casa\
-\imagefile. 
+This application converts a numpy array of any size into a CASA image.
 
-If {\stfaf outfile} is given, the image is written to the specified
-disk file.  If {\stfaf outfile} is unset, the on-the-fly Image \tool\
-returned by this function is associated with a temporary image.  This
-temporary image may be in memory or on disk, depending on its size.
-When you destroy the on-the-fly Image \tool\ (with the <link
-anchor="images:image.done.function">done</link> function) this
-temporary image is deleted.
+If outfile is specified, the image is written to the specified
+(persistent) disk file.  If outfile is unset, the returned image tool
+is associated with a temporary image.  This temporary image may be in
+memory or on disk, depending on its size. In this case, when the
+close() or done() method is called on the returned image tool, the
+associated temporary image is deleted.
 
-At present, no matter what type the {\stfaf pixels} array is, a
-real-valued image will be written (the input pixels will be converted
-to Float).  In the future, Complex images will be supported.
+The type parameter controls the data type/precision of the pixel values of the
+created image. 'f' indicates that float precision point (32 bit precision) pixel
+values should be writted. 'd' indicates that double precision (64 bit precision)
+pixel values should be written. If the input array has complex (as opposed to
+real) values, then complex pixel values, with each of the real and imaginary
+parts having the specified precision, will be written. Array values will be cast
+automatically to the specified precision, so that the precision of the input
+array values may be increased, decreased, or unchanged depending on the input
+array type.
 
-The Coordinate System, provided as a record describing a <link
-anchor="images:coordsys">Coordsys</link> \tool\ (via
-coordsys.torecord(), for instance) is optional.  If you provide it, it
-must be dimensionally consistent with the pixels array you give (see
-also <link anchor="images:image.coordsys.function">coordsys</link>).
+The coordinate system, provided as a a dictionary (use eg, cs.torecord() to do
+that), is optional. If specified, it must have the same number of dimensions
+as the pixels array. Call the naxes() method on the coordinate system tool to
+see how many dimensions the coordinate system has. A coordinate system can be
+created from scratch using the coordinate system (cs) tool and methods therein,
+but often users prefer to use a coordinate system from an already existing image.
+This can be gotten using ia.coordsys() which returns a coordinate system tool.
+A torecord() call on that tool will result in a python dictionary describing
+the coordinate system which is the necessary format for the csys input parameter
+of ia.fromarray().
 
-If you don't provide the Coordinate System (unset), a default Coordinate System
-is made for you.  If {\stfaf linear=F} (the default) then it is a
-standard RA/DEC/Stokes/Spectral Coordinate System depending exactly upon
-the shape of the {\stfaf pixels} array (Stokes axis must be no longer
-than 4 pixels and you may find the spectral axis coming out before the
-Stokes axis if say, {\cf shape=[64,64,32,4]}).  Extra dimensions are
-given linear coordinates.  If {\stfaf linear=T} then you get a linear
-Coordinate System. 
+If csys is not specified, a default coordinate system will be created. If
+linear=False (the default), the created coordinate system will have standard
+RA/DEC/Stokes/Spectral Coordinate axes depending upon the shape of the pixels
+array (Stokes axis must be no longer than 4 pixels and the spectral axis may
+precede the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are given
+linear coordinates.  If linear=True, then all the resulting coordinates
+are linear with the axes represent lengths. In this case each axis will have a
+value of 0.0 at its center pixel. The increment of each axis will be 1.0 km.
 
 </description>
 <example>
@@ -11219,6 +11230,19 @@ used to create a 2D temporary image.
         # do stuff with ia tool attached to pb image and close it
         pbia.done()
     </example>
+</method>
+
+<method type="function" name="pixeltype">
+    <shortdescription>Get the pixel data type of the attached image</shortdescription>
+    <returns type="string"/>
+    <description>
+        This application returns the data type of the pixels of the attached image as a string.
+        The possible values are: "float" which indicates real valued, floating point, 32 bit pixel
+        values, "complex" which indicates complex valued, floating point, 32 bit (for each of the
+        real and imaginary parts) pixel values, "double" which indicates real valued, floating
+        point, 64 bit pixel values, and "dcomplex" which indicates complex valued, floating point,
+        64 bit (for each of the real and imaginary parts) pixel values.
+    </description>
 </method>
   
 <method type="function" name="pv">
