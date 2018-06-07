@@ -105,7 +105,7 @@ class test_cont(testref_base_parallel):
                retpar = tclean(vis=self.msfile,imagename=imgpar,imsize=100,cell='8.0arcsec',
                                interactive=0,niter=10,parallel=True)
 
-               checkims = [imgpar+'.psf', imgpar+'.residual', imgpar+'.image',imgpar+'.model']
+               checkims = [imgpar+app for app in ['.psf', '.residual', '.image', '.model']]
                checkims = checkims + self.th.getNParts( imprefix=imgpar, imexts=['residual','psf','model'] ) 
 
                report = self.th.checkall(ret=retpar, peakres=0.332, 
@@ -344,10 +344,12 @@ class test_cube(testref_base_parallel):
                                deconvolver='hogbom',specmode='cube',
                                pbcor=True,parallel=True)
                
-               checkims =self.th.getNParts( imprefix=imgpar, imexts=['residual','psf','model']) 
+               checkims = ([imgpar + ext for ext in imexist_exts] +
+                           self.th.getNParts(imprefix=imgpar,
+                                             imexts=['residual','psf','model']))
                report2 = self.th.checkall(ret=retpar['node1'][1], 
 #                                          peakres=0.241, modflux=0.527, iterdone=200, nmajordone=2,
-                                          imexist=[imgpar + ext for ext in imexist_exts],
+                                          imexist=checkims,
                                           imval=[(imgpar + '.image', 1.2, [50, 50, 0, 5]),
                                                  (imgpar + '.sumwt', 2949.775, [0, 0, 0, 0])])
 
