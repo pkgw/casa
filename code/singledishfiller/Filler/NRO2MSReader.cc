@@ -732,8 +732,8 @@ Bool NRO2MSReader::getSourceRowImpl(SourceRecord &record) {
   // CAS-11223
   record.time = jst2utcSec(time_sec);
   // 2018/05/30 TN
-  // CAS-11442? come back later
-  record.interval = time_sec - time_range_sec_[0];
+  // CAS-11442
+  record.interval = time_range_sec_[1] - time_range_sec_[0];
 
   source_spw_id_counter_++;
   if (obs_header_.NSPWIN <= source_spw_id_counter_) {

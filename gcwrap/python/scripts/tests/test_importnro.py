@@ -123,6 +123,9 @@ class importnro_test(unittest.TestCase):
         # check subtables
         self._check_optional_subtables(self.outfile)
         
+        # check SOURCE INTERVAL (CAS-11442)
+        self._check_source_interval(self.outfile)
+        
     def _check_weights(self, vis):
         _tb = gentools(['tb'])[0]
         take_diff = lambda actual, expected: numpy.abs((actual - expected) / expected)
@@ -209,6 +212,33 @@ class importnro_test(unittest.TestCase):
         pol_expected[16:] = -1
         self.assertTrue(numpy.all(pol_expected == pol))
         
+    def _check_source_interval(self, vis):
+        """Check if SOURCE INTERVAL is consistent with OBSERVATION TIME_RANGE"""
+        (mytb,) = gentools(['tb'])
+        
+        source_table = os.path.join(vis, 'SOURCE')
+        observation_table = os.path.join(vis, 'OBSERVATION')
+        
+        # read OBSERVATION.TIME_RANGE
+        mytb.open(observation_table)
+        try:
+            time_range = mytb.getcell('TIME_RANGE', 0)
+        finally:
+            mytb.close()
+            
+        # read SOURCE.TIME and SOURCE.INTERVAL
+        mytb.open(source_table)
+        try:
+            source_time = mytb.getcol('TIME')
+            source_interval = mytb.getcol('INTERVAL')
+        finally:
+            mytb.close()
+            
+        for t, dt in itertools.izip(source_time, source_interval):
+            source_time_range = numpy.asarray([t-dt/2, t+dt/2])
+            diff = numpy.abs((source_time_range - time_range) / time_range)
+            #print 'diff={}'.format(diff)
+            self.assertTrue(numpy.all(diff < 1.0e-16))
             
     def test_timestamp(self):
         """test_timestamp: Check if timestamp is properly converted to UTC"""
