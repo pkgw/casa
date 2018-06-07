@@ -1,7 +1,10 @@
 casa_add_library( crash
     utils/CrashReportHelper.cc
 )
-
+install (FILES
+    utils/CrashReportHelper.h
+    DESTINATION include/casacode/crash/utils
+)
 #if (UseCrashReporter)#
 #    casa_add_executable (NONE CrashReportPoster apps/reporter/CrashReportPoster.cc ${Breakpad_IncludeRoot}/common/linux/http_upload.cc utils/CrashReportHelper)
 #    target_link_libraries (CrashReportPoster CrashReportHelper  -ldl)
