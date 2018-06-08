@@ -26,6 +26,8 @@
 //#
 //# $Id$
 //
+#include <synthesis/TransformMachines2/Utils.h>
+
 #include <synthesis/TransformMachines2/AWConvFunc.h>
 #include <synthesis/TransformMachines2/AWProjectFT.h>
 #include <synthesis/TransformMachines/SynthesisError.h>
@@ -999,8 +1001,9 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 	  // psScale when using SynthesisUtils::libreSpheroidal() is
 	  // 2.0/nSupport.  nSupport is in pixels and the 2.0 is due to
 	  // the center being at Nx/2.  Here the nSupport is determined
-	
-	  Double lambdaByD = 1.22*C::c/min(freqValues)/25.0;
+	  innerQuaterFraction=refim::SynthesisUtils::getenv("AWCF.FUDGE",innerQuaterFraction);
+
+	  Double lambdaByD = innerQuaterFraction*1.22*C::c/min(freqValues)/25.0;
 	  Double FoV_x = fabs(nx*skyIncr(0));
 	  Double FoV_y = fabs(nx*skyIncr(1));
 	  Vector<Double> uvScale_l(3);
@@ -1972,8 +1975,9 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 
 			   //Float psScale = (2*coords.increment()(0))/(nx*image.coordinates().increment()(0));
 			   Float innerQuaterFraction=1.0;
+			   innerQuaterFraction=refim::SynthesisUtils::getenv("AWCF.FUDGE",innerQuaterFraction);
 			 
-			   Double lambdaByD = 1.22*C::c/skyMinFreq/miscInfo.diameter;
+			   Double lambdaByD = innerQuaterFraction*1.22*C::c/skyMinFreq/miscInfo.diameter;
 			   Double FoV_x = fabs(skyNX*skyIncr(0));
 			   Double FoV_y = fabs(skyNY*skyIncr(1));
 			   Vector<Double> uvScale_l(3);
