@@ -11,7 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <vector>
-#include "crash/utils/CrashReportHelper.h"
+#include "CrashReportHelper.h"
 
 using namespace std;
 using google_breakpad::HTTPUpload;
