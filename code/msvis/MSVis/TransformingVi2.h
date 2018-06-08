@@ -548,7 +548,7 @@ public:
 
     // Write/modify the weightSpectrum
     virtual void writeWeightSpectrum (const casacore::Cube<casacore::Float> & wtsp);
-    virtual void writeSigmaSpectrum (const casacore::Cube<casacore::Float> & wtsp);
+    virtual void writeSigmaSpectrum (const casacore::Cube<casacore::Float> & sigsp);
 
     // Write/modify the Sigma
     virtual void writeSigma (const casacore::Matrix<casacore::Float> & sig);

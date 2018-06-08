@@ -28,6 +28,8 @@
 	    <description>Flux density standard</description>
 	    <value>Butler-JPL-Horizons 2010</value>
 	    <allowed kind="enum">
+	      <value>Perley-Butler 2017</value>
+	      <value>Perley-Butler 2013</value>
 	      <value>Perley-Butler 2010</value>
 	      <value>Perley-Taylor 99</value>
 	      <value>Baars</value>

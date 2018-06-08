@@ -290,7 +290,5 @@ from wvrgcal import  wvrgcal
 from virtualconcat import  virtualconcat
 from vishead import  vishead
 from visstat import  visstat
-from visstat2 import  visstat2
-from visstatold import  visstatold
 from widebandpbcor import  widebandpbcor
 from widefield import  widefield

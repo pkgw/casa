@@ -427,7 +427,7 @@ casa_add_library( display
   DisplayShapes/DSWorldRectangle.cc
   DisplayShapes/DSWorldText.cc
   Display/SlicePanelDisplay.cc
-  Display/State.cc
+  Display/DisplayState.cc
   Display/WCPGFilter.cc
   Display/WorldCanvas.cc
   Display/WorldCanvasHolder.cc
@@ -667,7 +667,7 @@ install ( FILES
           Display/PSWorldCanvasApp.h
           Display/SlicePanelDisplay.h
           Display/StandAloneDisplayApp.h
-          Display/State.h
+          Display/DisplayState.h
           Display/WCPGFilter.h
           Display/WorldCanvas.h
           Display/WorldCanvasHolder.h
