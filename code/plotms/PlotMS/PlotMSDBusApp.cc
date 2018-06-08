@@ -124,6 +124,8 @@ const String PlotMSDBusApp::PARAM_FLAGGEDSYMBOLSIZE = "flaggedsymbolsize";
 const String PlotMSDBusApp::PARAM_FLAGGEDSYMBOLCOLOR = "flaggedsymbolcolor";
 const String PlotMSDBusApp::PARAM_FLAGGEDSYMBOLFILL = "flaggedsymbolfill";
 const String PlotMSDBusApp::PARAM_FLAGGEDSYMBOLOUTLINE = "flaggedsymboloutline";
+const String PlotMSDBusApp::PARAM_XCONNECTOR = "xconnector";
+const String PlotMSDBusApp::PARAM_TIMECONNECTOR = "timeconnector";
 
 
 const String PlotMSDBusApp::METHOD_GETLOGPARAMS = "getLogParams";
@@ -720,6 +722,16 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			ppdisp->setFlaggedSymbol(ps, dataIndex);
 		}
 
+		if(parameters.isDefined(PARAM_XCONNECTOR) &&
+			parameters.dataType(PARAM_XCONNECTOR) == TpString)   {
+			String xconnector = parameters.asString(PARAM_XCONNECTOR);
+			ppdisp->setXConnect(xconnector, dataIndex);
+		}
+		if(parameters.isDefined(PARAM_TIMECONNECTOR) &&
+				parameters.dataType(PARAM_TIMECONNECTOR) == TpBool)   {
+			bool timeconnector = parameters.asBool(PARAM_TIMECONNECTOR);
+			ppdisp->setTimeConnect(timeconnector, dataIndex);
+		}
 
 		if(parameters.isDefined(PARAM_COLORIZE) &&
 				parameters.dataType(PARAM_COLORIZE) == TpBool)   {

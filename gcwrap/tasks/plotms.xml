@@ -872,6 +872,22 @@ Display Parameters
         <value type="bool">False</value>
     </param>
 
+    <param type="any" name="xconnector">
+        <description>Set connector for data points</description>
+        <any type="variant" limittype="string stringArray"/>
+        <value type="string">none</value>
+        <allowed kind="enum" type="string">
+            <value>none</value>
+            <value>line</value>
+            <value>step</value>
+        </allowed>
+    </param>
+    <param type="any" name="timeconnector" subparam="true">
+        <description>Connect points by time rather than x-axis</description>
+        <any type="variant" limittype="bool boolArray"/>
+        <value type="bool">False</value>
+    </param>
+
 
 <!--
 ###############################################################################

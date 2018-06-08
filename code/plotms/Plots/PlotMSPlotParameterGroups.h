@@ -1246,6 +1246,7 @@ private:
 // * flagged and unflagged symbols
 // * plot title format
 // * colorize flag and axis
+// * xconnect and timeconnect (connect points on plot along x- or time-axis)
 // Parameters are vector-based, on a per-plot basis.
 //
 class PMS_PP_Display : public PlotMSPlotParameters::Group {
@@ -1395,8 +1396,7 @@ public:
 	}
 	PMS::Axis colorizeAxis (unsigned int index = 0) const {
 		if (index >= itsColorizeAxes_.size())
-			const_cast < vector < PMS::Axis >
-		&>(itsColorizeAxes_).resize (index + 1);
+			const_cast < vector < PMS::Axis >&>(itsColorizeAxes_).resize (index + 1);
 		return itsColorizeAxes_[index];
 	}
 	void setColorize (const PMS::Axis & value, unsigned int index = 0) {
@@ -1409,7 +1409,53 @@ public:
 	}
 
 
+	void setConnect(const string& xconnect, const bool& timeconnect, unsigned int index = 0);
 
+	const vector<string>& xConnects() const {
+		return itsXConnects_;
+	}
+	void setXConnects(const vector<string>& value) {
+		if (itsXConnects_ != value) {
+			itsXConnects_ = value;
+			updated();
+		}
+	}
+	string xConnect(unsigned int index=0) {
+		if (index >= itsXConnects_.size())
+			itsXConnects_.resize(index+1);
+		return itsXConnects_[index];
+	}
+	void setXConnect(const string& value, unsigned int index=0) {
+		if (index >= itsXConnects_.size())
+			itsXConnects_.resize (index + 1);
+		if (itsXConnects_[index] != value) {
+			itsXConnects_[index] = value;
+			updated();
+		}
+	}
+
+	const vector<bool>& timeConnects() const {
+		return itsTimeConnects_;
+	}
+	void setTimeConnects(const vector<bool>& value) {
+		if (itsTimeConnects_ != value) {
+			itsTimeConnects_ = value;
+			updated();
+		}
+	}
+	bool timeConnect(unsigned int index=0) {
+		if (index >= itsTimeConnects_.size())
+			itsTimeConnects_.resize(index+1);
+		return itsTimeConnects_[index];
+	}
+	void setTimeConnect(const bool& value, unsigned int index=0) {
+		if (index >= itsTimeConnects_.size())
+			itsTimeConnects_.resize (index + 1);
+		if (itsTimeConnects_[index] != value) {
+			itsTimeConnects_[index] = value;
+			updated();
+		}
+	}
 
 private:
 
@@ -1423,6 +1469,8 @@ private:
 	vector<PlotMSLabelFormat> itsTitleFormats_;
 	vector<bool> itsColorizeFlags_;
 	vector<PMS::Axis> itsColorizeAxes_;
+	vector<string> itsXConnects_;
+	vector<bool> itsTimeConnects_;
 
 
 	/* Key strings for casacore::Record */
@@ -1431,6 +1479,8 @@ private:
 	static const casacore::String REC_TITLES;
 	static const casacore::String REC_COLFLAGS;
 	static const casacore::String REC_COLAXES;
+	static const casacore::String REC_XCONNECT;
+	static const casacore::String REC_TIMECONNECT;
 
 	void setDefaults();
 };
