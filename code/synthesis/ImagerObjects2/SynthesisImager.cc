@@ -840,16 +840,15 @@ using namespace casa::vi;
 	  }
 	
 	// Fill in miscellaneous information needed by FITS
+        auto objectName = msc.field().name()(msc.fieldId()(0));
+        imstor->setObjectName(objectName);
 	ROMSColumns msc(*mss_p[0]);
 	Record info;
-	String objectName=msc.field().name()(msc.fieldId()(0));
-	String telescop=msc.observation().telescopeName()(0);
-	info.define("OBJECT", objectName);
-	info.define("TELESCOP", telescop);
+	auto telescop = msc.observation().telescopeName()(0);
 	info.define("INSTRUME", telescop);
 	info.define("distance", distance.get("m").getValue());
-	////////////// Send misc info into ImageStore. 
-	imstor->setImageInfo( info );
+	///// Send misc info into ImageStore. This will go to the 'miscinfo' table keyword
+	imstor->setMiscInfo(info);
 
 	// Get polRep from 'msc' here, and send to imstore. 
 	StokesImageUtil::PolRep polRep(StokesImageUtil::CIRCULAR);

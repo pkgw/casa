@@ -22,7 +22,11 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 #include <casa/BasicSL/String.h>
+#include <casa/BasicMath/Math.h>
 #include <casa/OS/EnvVar.h>
+#include <plotms/PlotMS/PlotMS.h>
+#include <plotms/Plots/PlotMSPlot.h>
+
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -36,7 +40,7 @@
 namespace casa {
 class tUtil {
 public:
-	static casacore::String getFullPath( casacore::String fileName ){
+	static casacore::String getFullPath( casacore::String fileName, casacore::String directory="plotms" ){
 		//casacore::Path for data
 		casacore::String aipsPath = casacore::EnvironmentVariable::get("CASAPATH");
 		if (aipsPath.empty()) {
@@ -54,7 +58,9 @@ public:
 			else {
 				dataPath = aipsPath;
 			}
-			dataPath.append( "/data/regression/unittest/plotms/"  );
+			dataPath.append( "/data/regression/unittest/");
+			dataPath.append( directory );
+			dataPath.append( "/" );
 			qDebug() << "Datapath="<<dataPath.c_str();
 			dataPath.append( fileName );
 		}
@@ -131,6 +137,64 @@ public:
 		}
 		return fileOK;
 	}
+
+	static bool allEQDiv(const casacore::Array<casacore::Float> arr1,
+		const casacore::Array<casacore::Float> arr2) {
+		// compare elements of a divided array, in which some elements may be 
+		// nan or inf (after divide by 0)
+		casacore::IPosition arr1shape(arr1.shape()), arr2shape(arr2.shape());
+		bool equal(arr1shape==arr2shape);
+		if (equal) { // so far so good
+			casacore::uInt ndata = arr1.nelements();
+			casacore::Vector<casacore::Float> vec1 =
+				arr1.reform(casacore::IPosition(1, ndata));
+			casacore::Vector<casacore::Float> vec2 =
+				arr2.reform(casacore::IPosition(1, ndata));
+			// element-by-element comparison
+			for (casacore::uInt i=0; i<ndata; ++i) {
+				Float f1(vec1(i)), f2(vec2(i));
+				if (casacore::isNaN(f1) || casacore::isNaN(f2) || 
+					casacore::isInf(f1) || casacore::isInf(f2)) {
+					// if one is nan/inf, both must be nan/inf
+					equal &= ((casacore::isNaN(f1) || casacore::isInf(f1)) && 
+							  (casacore::isNaN(f2) || casacore::isInf(f2)));
+				} else {
+					equal &= (f1==f2);
+				}
+			}
+		}
+		return equal;
+	  }
+
+	static casacore::Array<casacore::Float> getWtAmp(
+		const casacore::Array<casacore::Float>& wt, 
+		const casacore::Array<casacore::Float>& amp) {
+		// apply per-corr wt to each row
+		casacore::Array<casacore::Float> wtamp(amp.shape());
+		casacore::uInt nrow(wtamp.shape()(2)), ncorr(2);
+		for (casacore::uInt row=0; row<nrow; ++row) {
+			for (casacore::uInt corr=0; corr<ncorr; ++corr) {
+				casacore::Float corrWt = wt(IPosition(2,corr,row));
+				casacore::Slicer rowslicer = Slicer(Slice(corr), Slice(), Slice(row));
+				wtamp(rowslicer) = amp(rowslicer) * corrWt;
+			}
+		}
+		return wtamp;
+	}
+
+	static void makeSigmaSpFromSigma(Array<Float>& sigmasp,
+			Array<Float>& sigma, Int nchan) {
+		// add channel axis to [ncorr,nrow] sigma array
+		casacore::IPosition sigmashape = sigma.shape();
+		casacore::uInt ncorr(sigmashape(0)), nrow(sigmashape(1));
+		sigmasp.resize(IPosition(3, ncorr, nchan, nrow));
+		for (uInt row=0; row<nrow; ++row) {
+			for (Int chan=0; chan<nchan; ++chan) {
+				sigmasp[row][chan] = sigma[row];
+			}
+		}
+	}
+
 private:
 	tUtil(){};
 	~tUtil();

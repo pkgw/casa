@@ -16,23 +16,24 @@ image(SHARED_PTR<casacore::ImageInterface<casacore::Complex> > inImage);
 image(SHARED_PTR<casacore::ImageInterface<casacore::Double> > inImage);
 
 image(SHARED_PTR<casacore::ImageInterface<casacore::DComplex> > inImage);
-//image(SHARED_PTR<casacore::ImageAnalysis> ia);
+
+image(casa::ITUPLE mytuple);
 
 private:
 
 typedef casacore::GaussianBeam Angular2DGaussian;
 
-mutable casacore::LogIO _log;
+mutable casacore::LogIO _log = casacore::LogIO();
 
 // This class needs to be templated. For now, we maintain two pointers.
 // At least one of which will be zero for a valid object state.
 // SHARED_PTR<casacore::ImageInterface<casacore::Float> > _imageFloat;
 // SHARED_PTR<casacore::ImageInterface<casacore::Complex> > _imageComplex;
 
-casa::SPIIF _imageF;
-casa::SPIIC _imageC;
-casa::SPIID _imageD;
-casa::SPIIDC _imageDC;
+casa::SPIIF _imageF = casa::SPIIF();
+casa::SPIIC _imageC = casa::SPIIC();
+casa::SPIID _imageD = casa::SPIID();
+casa::SPIIDC _imageDC = casa::SPIIDC();
 
 std::auto_ptr<casa::ImageStatsCalculator> _stats;
 
@@ -99,9 +100,10 @@ template<class T> image* _decimate(
 	const vector<casacore::String>& msgs
 ) const;
 
-std::pair<casa::SPIIF, casa::SPIIC> _fromarray(
-    const string& outfile, const variant& pixels,
-    const record& csys, bool linear, bool overwrite, bool log
+casa::ITUPLE _fromarray(
+    const std::string& outfile, const casac::variant& pixels,
+    const casac::record& csys, bool linear, bool overwrite,
+    bool log, const std::string& type
 );
 
 template<class T> casacore::Record _getchunk(
@@ -126,6 +128,12 @@ SHARED_PTR<casacore::Record> _getRegion(
 	const variant& region, const bool nullIfEmpty,
 	const std::string& otherImageName=""
 ) const;
+
+template<class T> variant* _getregion2(
+    SPIIT image, const variant& region,
+    const std::vector<int>& axes, const variant& mask,
+    bool list, bool dropdeg, bool getmask, bool stretch
+);
 
 template<class T> vector<string>  _handleMask(
 	SPIIT myimage, const casacore::String& op,
@@ -176,6 +184,30 @@ template<class T> void _putchunk(
 	const bool list, const bool locking, const bool replicate
 );
 
+template<class T> bool _putregionComplex(
+    SPIIT image, const variant& v_pixels, const variant& v_pixelmask,
+    const variant& region, bool list, bool usemask,
+    bool replicateArray
+);
+
+template<class T> bool _putregionReal(
+    SPIIT image, const variant& v_pixels, const variant& v_pixelmask,
+    const variant& region, bool list, bool usemask,
+    bool replicateArray
+);
+
+template<class T> bool _putregion2(
+    SPIIT image, const casacore::Array<T>& pixels,
+    const variant& v_pixelmask, const variant& region,
+    bool list, bool usemask, bool replicateArray
+);
+
+template<class T, class U>
+void _convertArray(
+    casacore::Array<T>& out, const casacore::Vector<U>& in,
+    const casacore::IPosition& shape
+);
+
 template <class T> image* _regrid(
 	casa::ImageRegridderBase<T>& regridder,
 	const string& method, int decimate,	bool replicate,
@@ -188,6 +220,8 @@ template <class T> image* _regrid(
 void _remove(bool verbose);
 
 void _reset();
+
+void _setImage(casa::ITUPLE mytuple);
 
 template<class T> SHARED_PTR<casacore::ImageInterface<T> > _subimage(
 	SHARED_PTR<casacore::ImageInterface<T> > clone,

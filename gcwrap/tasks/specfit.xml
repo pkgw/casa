@@ -8,7 +8,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <!-- This is the task interface to ia.fitprofile           -->
 
-<task type="function" name="specfit" category="analysis" visibility="experimental">
+<task type="function" name="specfit" category="analysis">
 
 <shortdescription>Fit 1-dimensional gaussians and/or polynomial models to an image or image region</shortdescription>
 
@@ -28,6 +28,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
     <param type="string" direction="in" name="region">
         <description>Region selection. Default is to use the full image.</description>
+        <type>path</type>
+        <type>string</type>
+        <type>record</type>
         <value/>
         <example>region="myregion.rgn"</example>
     </param>
@@ -46,8 +49,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <example>axis=3</example>
     </param>
     <param type="string" direction="in" name="mask">
+      <type>string</type><type>stringVec</type>
         <description>Mask to use. Default is none..</description>
-        <value></value>
+        <value type="string"/>
     </param>
     <param type="int" direction="in" name="ngauss" subparam="true">
         <description>Number of Gaussian elements.  Default: 1.</description>
@@ -62,6 +66,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <param type="string" direction="in" name="estimates">
         <description>Name of file containing initial estimates.  Default: No initial estimates ("").</description>
         <value/>
+        <type>path</type>
     </param>
     <param type="int" direction="in" name="minpts">
         <description>Minimum number of unmasked points necessary to attempt fit.</description>
@@ -136,44 +141,52 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <value>True</value>
     </param>
     <param type="variant" name="pampest" subparam="true">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>Initial estimate of PCF profile (gaussian or lorentzian) amplitudes.</description>
-        <value type="string"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" name="pcenterest" subparam="true">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>Initial estimate PCF profile centers, in pixels.</description>
-        <value type="string"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" name="pfwhmest" subparam="true">
         <any type="variant" limittypes="string double doubleArray int intArray"/>
+        <type>double</type><type>doubleVec</type>
         <description>Initial estimate PCF profile FWHMs, in pixels.</description>
-        <value type="string"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" direction="in" name="pfix" subparam="true">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string stringArray"/>
         <description>PCF profile parameters to fix during fit.</description>
-        <value type="string"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" direction="in" name="gmncomps">
+        <type>int</type><type>intVec</type>
         <any type="variant" limittypes="int intArray"/>
         <description>Number of components in each gaussian multiplet to fit</description>
         <value type="int">0</value>
     </param>
     <param type="variant" direction="in" name="gmampcon">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>The amplitude ratio constraints for non-reference components to reference component in gaussian multiplets.</description>
-        <value type="string"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" direction="in" name="gmcentercon">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>The center offset constraints (in pixels) for non-reference components to reference component in gaussian multiplets.</description>
-        <value type="string"/>
+        <value type="doubleArray"/>
     </param>
     <param type="variant" direction="in" name="gmfwhmcon">
+        <type>double</type><type>doubleVec</type>
         <any type="variant" limittypes="string double doubleArray int intArray"/>
         <description>The FWHM  ratio constraints for non-reference components to reference component in gaussian multiplets.</description>
-        <value type="string"/>
+        <value type="doubleArray"/>
     </param>
     <param type="doubleArray" direction="in" name="gmampest">
         <description>Initial estimate of individual gaussian amplitudes in gaussian multiplets.</description>
@@ -188,6 +201,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <value>0.0</value>
     </param>
     <param type="variant" direction="in" name="gmfix">
+        <type>string</type><type>stringVec</type>
         <any type="variant" limittypes="string stringArray"/>
         <description>Parameters of individual gaussians in gaussian multiplets to fix during fit.</description>
         <value type="string"/>
@@ -201,6 +215,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <value>True</value>
     </param>
     <param type="any" direction="in" name="pfunc" subparam="true">
+        <type>string</type><type>stringVec</type>
         <any type="variant" limittypes="string stringArray"/>
         <description>PCF singlet functions to fit. "gaussian" or "lorentzian" (minimal match supported). Unspecified means all gaussians.</description>
         <value type="string"/>
@@ -220,6 +235,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <param type="any" direction="in" name="sigma">
         <any type="variant" limittypes="string doubleArray intArray"/>
         <description>Standard deviation array or image name.</description>
+        <type>string</type>
+        <type>intVec</type>
+        <type>intArray</type>
+        <type>doubleVec</type>
+        <type>doubleArray</type>
         <value type="string"/>
     </param>
     <param type="string" direction="in" name="outsigma" subparam="true">
@@ -253,7 +273,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                     <value type="string"/>
                 </default>
             </equals>
-            
+
         </when>
         <when param="multifit">
             <!-- the false case must be explicitly specified first in order for the desired default value (False) to be presented -->
@@ -328,12 +348,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <returns type="record"/>
 
 <example>
-    
+
 This task simultaneously fits one or more gaussian singlets lorentzian singlets, gaussian multiplets, and/or a polynomial to one dimensional profiles.
 
 PARAMETER SUMMARY
 imagename       Name of the input (CASA, FITS, MIRIAD) image
-box             Rectangular region to select in direction plane. 
+box             Rectangular region to select in direction plane.
                 for details. Default is to use the entire direction plane.
 region          Region selection. Default is to use the
                 full image.
@@ -345,7 +365,7 @@ axis            Axis along which to do the fit(s). &lt;0 means use the spectral 
                 zeroth axis if a spectral axis is not present.
 mask            Mask to use. Default is none.
 stretch         Stretch the input mask if necessary and possible? Only used if a mask is specified.
-                
+
 ngauss          Maximum number of gaussians to fit.
 poly            Order of polynomial to fit. &lt;0 means do not fit a polynomial.
 estimates       Name of file containing initial gaussian estimates.
@@ -362,7 +382,7 @@ fwhmerr         Name of fwhm solution error image. Default: do not write the ima
 integral        Name of integral solution image. Default: do not write the image ("")
 integralerr     Name of integral solution error image. Default: do not write the image ("")
 wantreturn      If true, return a record summarizing the fit results, if false, return false.
-stretch         Stretch the mask if necessary and possible? 
+stretch         Stretch the mask if necessary and possible?
 logresults      Output results to logger?
 pampest         Initial estimate of PCF profile (gaussian or lorentzian) amplitudes.
 pcenterest      Initial estimate PCF profile centers, in pixels.
@@ -490,7 +510,7 @@ being a triplet.
 
 Initial estimates of all gaussians in all multiplets are specified via the gm*est parameters which must be arrays of numbers. The order
 starts with the zeroth component of the zeroth multiplet to the last component of the zeroth multiplet, then the zeroth component of
-the first multiplet to the last compoenent of the first multiplet, etc to the zeroth component of the last multiplet to the last 
+the first multiplet to the last compoenent of the first multiplet, etc to the zeroth component of the last multiplet to the last
 element of the last multiplet. The zeroth element of a multiplet is defined as the reference component of that multiplet and has the special
 significance that it is the profile to which all constraints of all other profiles in that multiplet are referenced (see below). So,
 in our example of gmncomps=[2, 4, 3], gmampest, gmcenterest, and gmfwhmest must each be nine (the total number of individual gaussian
@@ -519,7 +539,7 @@ gfwhmcon=""
 In this case we have our previous example of one doublet, one quadruplet, and one triplet. The first component of the doublet has the constraint
 that its center is offset by 24.2 pixels from the zeroth (reference) component. The first component of the quadruplet is constrained to have
 an amplitude of 0.2 times that of the quadruplet's zeroth component and its center is constrained to be offset by 45.6 pixels from the
-reference component. The second component of the quadruplet is constained to have its center offset by 92.7 pixels from the associated 
+reference component. The second component of the quadruplet is constained to have its center offset by 92.7 pixels from the associated
 reference component and the third component is constrained to have an amplitude of 0.1 times that of the associated reference component.
 The first component of the triplet is constrained to have an amplitude of 4.5 times that of its associated reference component and its center
 is constrained to be offset by -22.8 pixels from the reference component's center. The second component of the triplet is constrained to have
@@ -655,8 +675,7 @@ Writing analogous images for polynomial coefficients is not supported.
 EXAMPLE
 res = specif(imagename="myspectrum.im", ngauss=2, box="3,3,4,5", poly=2, multifit=true, wantreturn=True)
 </example>
-    
+
 </task>
 
 </casaxml>
-
