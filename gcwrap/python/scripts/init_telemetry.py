@@ -13,8 +13,13 @@ from casac import casac
 telemetryhelper = casac.telemetryhelper()
 hostid = telemetryhelper.getUniqueId()
 
+myUtils = casac.utils()
+ver = myUtils.version()
+casaver = str(ver[0])+ str(ver[1]) + str(ver[2])+ "-" + str(ver[3])
+
 logdir = casa['dirs']['rc']
-logpattern = 'casastats-*.log'
+logpattern = 'casastats-' + casaver + '-' + hostid + '*.log'
+#print logpattern
 
 def submitStatistics():
     if (casa['state']['telemetry-enabled'] == True):
@@ -71,9 +76,6 @@ if ( casa['flags'].telemetry or
          #print "Inactive log size: " + str(inactiveTLogSize)
      else :
          print "Creating a new telemetry file"
-         myUtils = casac.utils()
-         ver = myUtils.version()
-         casaver = str(ver[0])+ str(ver[1]) + str(ver[2])+ "-" + str(ver[3])
          casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + '/casastats-' + casaver +'-'  + hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
 
      # Submit statistics at shutdown
