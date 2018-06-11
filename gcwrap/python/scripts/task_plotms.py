@@ -335,13 +335,16 @@ def plotms(vis=None,
                 # start process with procmgr
                 procmgr.create("plotms", [plotmsApp, "--nogui", "--nopopups",
                     "--casapy", "--logfilename="+logfile])
-                if procIsRunning("plotms"):  # started ok
-                    # connect future pm calls to this plotms
-                    plotmspid = procmgr.fetch('plotms').pid
-                    pm.setPlotmsPid(plotmspid)
-                else:
-                    casalog.post("plotms failed to start", "SEVERE")
-                    return False
+            if procIsRunning("plotms"):
+                # plotms is running, but is it connected? CAS-11306
+                procmgrPid = procmgr.fetch('plotms').pid
+                plotmsPid = pm.getPlotMSPid()
+                if plotmsPid != procmgrPid:
+                    # connect future pm calls to procmgr plotms
+                    pm.setPlotMSPid(procmgrPid)
+            else:
+                casalog.post("plotms failed to start", "SEVERE")
+                return False
 
         # Determine whether this is going to be a scripting client or 
         # a full GUI supporting user interaction.  This must be done 
@@ -548,7 +551,13 @@ def plotms(vis=None,
             return False
         if not yselfscale and ysharedaxis:
             casalog.post( "Plots cannot share a y-axis unless they use the same y-axis scale.", "ERROR")
-            return False    
+            return False
+        if xsharedaxis and gridrows < 2:
+            casalog.post( "Plots cannot share an x-axis when gridrows=1.", "WARN")
+            xsharedaxis=False
+        if ysharedaxis and gridcols < 2:
+            casalog.post( "Plots cannot share a y-axis when gridcols=1.", "WARN")
+            ysharedaxis=False
         pm.setPlotMSIterate(iteraxis,rowindex,colindex,
                             xselfscale,yselfscale,
                             xsharedaxis,ysharedaxis,False,plotindex);
@@ -798,13 +807,17 @@ def plotms(vis=None,
 
 def procIsRunning(procname):
     procrun = procmgr.running(procname)
-    process = procmgr.fetch(procname)
-    try:
-        if procrun and not process.is_alive():  # crash!
-            process.stop()  # let procmgr know it crashed
-            procrun = False
-    except AttributeError:  # process fetch failed: None.is_alive()
-        pass
+    if not procrun:
+        time.sleep(2) # for slow startups
+        procrun = procmgr.running(procname)
+    if procrun:
+        try:
+            process = procmgr.fetch(procname)
+            if not process.is_alive():  # crash!
+                process.stop()  # let procmgr know it crashed
+                procrun = False
+        except AttributeError:  # fetch returned None: None.is_alive()
+            pass
     return procrun
 
 def checkProcesses():

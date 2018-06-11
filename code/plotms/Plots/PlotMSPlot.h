@@ -344,6 +344,9 @@ private:
     casacore::String addFreqFrame(casacore::String freqLabel);
     PMS::Axis getCalAxis(casacore::String calType, PMS::Axis axis);
     PMS::Axis getDefaultXAxis();
+    PMS::Axis getGsplineAxis(const casacore::String filename);
+	void checkColoraxis(casacore::String caltype, PMS_PP_Display* display); 
+	void checkIteraxis(casacore::String caltype, PMS_PP_Iteration* iter);
 
     //Note:  First index for a plot is the dataCount,
     //second index is the number of iteration.

@@ -289,6 +289,8 @@ int main( int argc, const char *argv[] ) {
 		// initialize CASAviewer app data...
 		if ( ! casacore::AppStateSource::fetch( ).initialized( ) ) {
 			// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+			// Mac OSX  --  path is specific to package format
+			// -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   - 
 			// initialize CASAviewer app data...
 			// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 			// generate path to data...
@@ -316,6 +318,36 @@ int main( int argc, const char *argv[] ) {
 			QCoreApplication::addLibraryPath(QString(pluginpath.c_str( )));
 		}
 
+	} else if ( ends_with(exepath, "/AppRun") ) {
+
+		// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+		// linux  --  path is specific to package format
+		// -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   - 
+		// initialize CASAviewer app data...
+		// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+		// generate path to data...
+		std::string datapath(exepath);
+		datapath.erase( datapath.end( ) -  6, datapath.end( ) );
+		std::string pgplotpath = datapath;			   // save for later...
+		std::string pluginpath = datapath;			   // save for later...
+		datapath += "data";
+		// initialize casacore...
+		std::list<std::string> datadirs;
+		datadirs.push_back(datapath);
+		casacore::AppStateSource::initialize(new ViewerDataState(datadirs));
+		// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+		// initialize CASAviewer app data...
+		// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+		// configure pgpplot...
+		std::string rgbpath = std::string("PGPLOT_RGB=") + pgplotpath + "usr/lib/pgplot/rgb.txt";
+		std::string fontpath = std::string("PGPLOT_FONT=") + pgplotpath + "usr/lib/pgplot/grfont.dat";
+		putenv(strdup(rgbpath.c_str( )));
+		putenv(strdup(fontpath.c_str( )));
+		// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+		// set up Qt Plugin Path
+		// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+		pluginpath += "usr/lib/plugins";
+		QCoreApplication::addLibraryPath(QString(pluginpath.c_str( )));
 	}
 
 	//

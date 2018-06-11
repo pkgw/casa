@@ -30,7 +30,9 @@
 
 #include <casa/Containers/Record.h>
 #include <synthesis/ImagerObjects/MPIGlue.h>
+#if ! defined(WITHOUT_DBUS)
 #include <synthesis/ImagerObjects/DistributedSynthesisIterBot.h>
+#endif
 #include <synthesis/ImagerObjects/ParallelImager.h>
 
 #include <memory>
@@ -40,8 +42,9 @@ namespace casa {
 class IterationControl {
 
 private:
+#if ! defined(WITHOUT_DBUS)
 	std::unique_ptr<DistributedSynthesisIterBot> it;
-
+#endif
 protected:
 	void
 	setup_iteration_controller(MPI_Comm comm, casacore::Record &iter_pars) {
@@ -49,45 +52,67 @@ protected:
 		// Instantiate an iterbot. Use DistributedSynthesisIterBot when
 		// interaction with new GUI works; for now,
 		// DistributedSynthesisIterBotWithOldGUI works.
+#if ! defined(WITHOUT_DBUS)
 		it = std::unique_ptr<DistributedSynthesisIterBot>(
 			new DistributedSynthesisIterBotWithOldGUI(comm));
 		it->setupIteration(iter_pars);
+#endif
 	};
 
 	void
 	teardown_iteration_controller() {
+#if ! defined(WITHOUT_DBUS)
 		it.reset();
+#endif
 	}
 
 public:
 	void
 	end_major_cycle() {
+#if ! defined(WITHOUT_DBUS)
 		it->endMajorCycle();
+#endif
 	};
 
 	casacore::Record
 	get_minor_cycle_controls() {
+#if ! defined(WITHOUT_DBUS)
 		return it->getSubIterBot();
+#else
+        return casacore::Record( );
+#endif
 	};
 
 	void
 	merge_execution_records(const casacore::Vector<casacore::Record> &recs) {
+#if ! defined(WITHOUT_DBUS)
 		it->endMinorCycle(recs);
+#endif
 	};
 
 	void
 	merge_initialization_records(const casacore::Vector<casacore::Record> &recs) {
+#if ! defined(WITHOUT_DBUS)
 		it->startMinorCycle(recs);
+#endif
 	};
 
 	bool
 	is_clean_complete() {
+#if ! defined(WITHOUT_DBUS)
 		return it->cleanComplete() > 0;
+#else
+        return false;
+#endif
 	};
 
 	casacore::Record
 	get_summary() {
+#if ! defined(WITHOUT_DBUS)
 		return it->getIterationSummary();
+#else
+        return casacore::Record( );
+#endif
 	};
 
 	static int effective_rank(MPI_Comm comm) {

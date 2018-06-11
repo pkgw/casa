@@ -22,6 +22,8 @@
 #include <components/ComponentModels/test/FluxStandard2_GTest.h>
 #include <measures/Measures/MFrequency.h>
 #include <limits>
+#include <casatools/Config/State.h>
+
 typedef std::numeric_limits< double > dbl;
 
 using namespace casacore;
@@ -47,8 +49,13 @@ void NewFluxStandardTest::SetUp()
 };
 
 Bool NewFluxStandardTest::modelExists(String tablename) {
-  String stdPath = "data/nrao/VLA/standards/";
-  Bool dataExists = Aipsrc::findDir(foundModelPath, stdPath+tablename);
+  const string stdPath = "nrao/VLA/standards/"+tablename;
+  string resolvepath = casatools::get_state( ).resolve(stdPath);
+  if ( resolvepath != stdPath ) {
+    foundModelPath = resolvepath;
+    return true;
+  }
+  Bool dataExists = Aipsrc::findDir(foundModelPath, "data/"+stdPath);
   return dataExists;
 };
 
@@ -79,6 +86,19 @@ void AltSrcNameTest::SetUp()
 
 void AltSrcNameTest::TearDown() { };
 
+AltSrcNamePB2017Test::AltSrcNamePB2017Test() {};
+AltSrcNamePB2017Test::~AltSrcNamePB2017Test() {};
+void AltSrcNamePB2017Test::SetUp() 
+{
+  coeffsTbName = "PerleyButler2017Coeffs";
+  flxStdName = std::tr1::get<0>(GetParam());
+  srcName = std::tr1::get<1>(GetParam());
+  freq = std::tr1::get<2>(GetParam());
+  expFlxStdEnum = std::tr1::get<3>(GetParam());
+}
+
+void AltSrcNamePB2017Test::TearDown() { };
+
 SetInterpMethodTest::SetInterpMethodTest() {};
 SetInterpMethodTest::~SetInterpMethodTest() {};
 void SetInterpMethodTest::SetUp()
@@ -103,6 +123,18 @@ void FluxValueTest::SetUp()
 }
 void FluxValueTest::TearDown() {};
 
+PB2017FluxValueTest::PB2017FluxValueTest() {};
+PB2017FluxValueTest::~PB2017FluxValueTest() {};
+void PB2017FluxValueTest::SetUp() 
+{
+  NewFluxStandardTest::SetUp();
+  flxStdName = std::tr1::get<0>(GetParam());
+  srcName = std::tr1::get<1>(GetParam());
+  freq = std::tr1::get<2>(GetParam());
+  expFlxStdEnum = std::tr1::get<3>(GetParam());
+  expFlxVal = std::tr1::get<4>(GetParam());
+}
+void PB2017FluxValueTest::TearDown() {};
 
 //Define parameter sets to be tested
 // short param set just for the match check
@@ -110,7 +142,8 @@ void FluxValueTest::TearDown() {};
 std::tr1::tuple<String,FluxStandard::FluxScale> flxStdParams[] =
 {
   make_tuple("Perley-Butler 2013", FluxStandard::PERLEY_BUTLER_2013),
-  make_tuple("Scaife-Heald 2012", FluxStandard::SCAIFE_HEALD_2012)
+  make_tuple("Scaife-Heald 2012", FluxStandard::SCAIFE_HEALD_2012),
+  make_tuple("Perley-Butler 2017", FluxStandard::PERLEY_BUTLER_2017)
 };
 
 // for testing alternative source names
@@ -188,6 +221,140 @@ std::tr1::tuple<String,String,Double,FluxStandard::FluxScale> flxStdParamsAltSrc
   make_tuple("Scaife-Heald 2012","J1829+4845", 0.2, FluxStandard::SCAIFE_HEALD_2012)
 };
 
+//For Perley-Butler 2017 new sources
+std::tr1::tuple<String,String,Double,FluxStandard::FluxScale> flxStdParamsAltSrcNamesPB2017[] =
+{
+  //
+  //{"J0133-3629"};
+  //{"FORNAX_A", "FORNAX A", "FOR-A", "FOR A", "J0322-3712"};
+  //{"J0444-2809"};
+  //{"PICTOR_A", "PICTOR A", "PIC-A", "PIC A", "J0519-4546"};
+  //{"TAURUS_A", "TAURUS A", "TAU-A", "TAU A", "J0534+2200", "3C144", "3C 144", "3C_144", "CRAB"};
+  //{"HYDRA_A", "HYDRA A", "HYA-A", "HYA A", "J0918-1205", "3C218", "3C 218", "3C_218"};
+  //{"VIRGO_A", "VIRGO A", "VIR-A", "VIR A", "J1230+1223", "3C274", "3C 274", "3C_274", "M87"};
+  //{"HERCULES_A", "HERCULES A", "HER-A", "HER A", "J1651+0459", "3C348", "3C 348", "3C_348"};
+  //{"3C353", "3C 353", "3C_353", "J1720-0059"};
+  //{"CYGNUS_A", "CYGNUS A", "CYG-A", "CYG A", "J1959+4044", "3C405", "3C 405", "3C_405"};
+  //{"3C444", "3C 444", "3C_444", "J2214-1701"};
+  //{"CASSIOPEIA_A", "CASSIOPEIA A", "CAS-A", "CAS A", "J2323+5848", "3C461", "3C 461", "3C_461"};
+
+  //J0133-3629
+  make_tuple("Perley-Butler 2017","J0133-3629", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  //FORNAX A
+  make_tuple("Perley-Butler 2017","Fornax_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","FORNAX_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Fornax A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","FORNAX A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","For-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","FOR-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","For A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","FOR A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","J0322-3712", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  //J0444-2809
+  make_tuple("Perley-Butler 2017","J0444-2809", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  //PICTOR A
+  make_tuple("Perley-Butler 2017","Pictor_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","PICTOR_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Pictor A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","PICTOR A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Pic-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","PIC-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Pic A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","PIC A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","J0519-4546", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  //TAURUS A
+  make_tuple("Perley-Butler 2017","Taurus_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","TAURUS_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Taurus A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","TAURUS A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Tau-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","TAU-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Tau A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","TAU A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","J0534+2200", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C144", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C 144", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C_144", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","CRAB", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  //HYDRA A
+  make_tuple("Perley-Butler 2017","Hydra_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","HYDRA_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Hydra A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","HYDRA A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Hya-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","HYA-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Hya A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","HYA A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","J0918-1205", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C218", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C 218", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C_218", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  //VIRGO A
+  make_tuple("Perley-Butler 2017","Virgo_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","VIRGO_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Virgo A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","VIRGO A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Vir-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","VIR-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Vir A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","VIR A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","J1230+1223", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C274", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C 274", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C_274", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","M87", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  //HERCULES A
+  make_tuple("Perley-Butler 2017","Hercules_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","HERCULES_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Hercules A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","HERCULES A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Her-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","HER-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Her A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","HER A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","J1651+0459", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C348", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C 348", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C_348", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  //3C353
+  make_tuple("Perley-Butler 2017","3C353", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C 353", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C_353", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","J1720-0059", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  //CYGNUS A
+  //make_tuple("Perley-Butler 2017","Cygnus_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","CYGNUS_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Cygnus A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","CYGNUS A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Cyg-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","CYG-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Cyg A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","CYG A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","J1959+4044", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C405", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C 405", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C_405", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  //3C444
+  make_tuple("Perley-Butler 2017","3C444", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C 444", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C_444", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","J2214-1701", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  //CASSIOPEIA A
+  /***
+  make_tuple("Perley-Butler 2017","Cassiopeia_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","CASSIOPEIA_A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Cassiopeia A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","CASSIOPEIA A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Cas-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","CAS-A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","Cas A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","CAS A", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","J2323+5848", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C461", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C 461", 2.0, FluxStandard::PERLEY_BUTLER_2017),
+  make_tuple("Perley-Butler 2017","3C_461", 2.0, FluxStandard::PERLEY_BUTLER_2017)
+***/
+};
 // for setInterpMethod test
 std::tr1::tuple<String,Double> flxStdParamsVarSrc[] =
 {
@@ -237,6 +404,39 @@ std::tr1::tuple<String,String,Double,FluxStandard::FluxScale,Double> flxStdParam
   make_tuple("Scaife-Heald 2012","3C380", 0.3, FluxStandard::SCAIFE_HEALD_2012, 45.454985119727866)
 };
 
+//for Flux Value PB2017 test
+// flux at 2017 epoch
+std::tr1::tuple<String,String,Double,FluxStandard::FluxScale,Double> flxStdParamsFullPB2017[] =
+{
+  make_tuple("Perley-Butler 2017","J0133-3629", 2.0, FluxStandard::PERLEY_BUTLER_2017,6.67330337245),
+  make_tuple("Perley-Butler 2017","3C48", 2.0, FluxStandard::PERLEY_BUTLER_2017, 12.0766376419),
+  make_tuple("Perley-Butler 2017","3C48", 20.0, FluxStandard::PERLEY_BUTLER_2017, 1.34376748572),
+  make_tuple("Perley-Butler 2017","Fornax_A", 0.2, FluxStandard::PERLEY_BUTLER_2017, 477.792755885),
+  make_tuple("Perley-Butler 2017","Fornax_A", 0.5, FluxStandard::PERLEY_BUTLER_2017, 260.831709946),
+  make_tuple("Perley-Butler 2017","3C123", 2.0, FluxStandard::PERLEY_BUTLER_2017, 35.8415070329),
+  make_tuple("Perley-Butler 2017","3C123", 20.0, FluxStandard::PERLEY_BUTLER_2017, 3.73204541165),
+  make_tuple("Perley-Butler 2017","J0444-2809", 2.0, FluxStandard::PERLEY_BUTLER_2017, 4.91227416939),
+  make_tuple("Perley-Butler 2017","3C138", 2.0, FluxStandard::PERLEY_BUTLER_2017, 6.99355160643),
+  make_tuple("Perley-Butler 2017","3C138", 20.0, FluxStandard::PERLEY_BUTLER_2017, 1.37874384626),
+  make_tuple("Perley-Butler 2017","Pictor_A", 2.0, FluxStandard::PERLEY_BUTLER_2017, 50.8667294544),
+  make_tuple("Perley-Butler 2017","Taurus_A", 2.0, FluxStandard::PERLEY_BUTLER_2017, 758.684772777),
+  make_tuple("Perley-Butler 2017","3C147", 2.0, FluxStandard::PERLEY_BUTLER_2017, 16.7997184717),
+  make_tuple("Perley-Butler 2017","3C147", 20.0, FluxStandard::PERLEY_BUTLER_2017, 2.09874986844),
+  make_tuple("Perley-Butler 2017","3C196", 2.0, FluxStandard::PERLEY_BUTLER_2017, 10.3786270159),
+  make_tuple("Perley-Butler 2017","3C196", 20.0, FluxStandard::PERLEY_BUTLER_2017, 0.853708631823),
+  make_tuple("Perley-Butler 2017","Hydra_A", 2.0, FluxStandard::PERLEY_BUTLER_2017, 31.2967163783),
+  make_tuple("Perley-Butler 2017","Virgo_A", 2.0, FluxStandard::PERLEY_BUTLER_2017, 157.72738616),
+  make_tuple("Perley-Butler 2017","3C286", 2.0, FluxStandard::PERLEY_BUTLER_2017, 12.5056530041),
+  make_tuple("Perley-Butler 2017","3C286", 20.0, FluxStandard::PERLEY_BUTLER_2017, 2.72898772521),
+  make_tuple("Perley-Butler 2017","3C295", 2.0, FluxStandard::PERLEY_BUTLER_2017, 16.3591315603),
+  make_tuple("Perley-Butler 2017","3C295", 20.0, FluxStandard::PERLEY_BUTLER_2017, 1.09928230977),
+  make_tuple("Perley-Butler 2017","Hercules_A", 2.0, FluxStandard::PERLEY_BUTLER_2017, 32.562420997),
+  make_tuple("Perley-Butler 2017","3C353", 2.0, FluxStandard::PERLEY_BUTLER_2017, 43.9344075193),
+  make_tuple("Perley-Butler 2017","3C380", 2.0, FluxStandard::PERLEY_BUTLER_2017, 10.0762542624),
+  make_tuple("Perley-Butler 2017","Cygnus_A", 2.0, FluxStandard::PERLEY_BUTLER_2017, 1068.37333938),
+  make_tuple("Perley-Butler 2017","3C444", 2.0, FluxStandard::PERLEY_BUTLER_2017, 6.2361409066),
+  make_tuple("Perley-Butler 2017","Cassiopeia_A", 2.0, FluxStandard::PERLEY_BUTLER_2017, 1339.73252473)
+};
 INSTANTIATE_TEST_CASE_P(checkStandardMatch, MatchStandardTest,::testing::ValuesIn(flxStdParams));
 TEST_P(MatchStandardTest, checkStandardMatch)
 {
@@ -260,6 +460,22 @@ TEST_P(AltSrcNameTest, checkAltSrcNames)
   }
 }
 
+INSTANTIATE_TEST_CASE_P(checkAltSrcNamesPB2017,AltSrcNamePB2017Test,::testing::ValuesIn(flxStdParamsAltSrcNamesPB2017));
+TEST_P(AltSrcNamePB2017Test, checkAltSrcNamesPB2017)
+{
+  if (modelExists(coeffsTbName)) {
+    fluxStd.reset(new FluxStandard(expFlxStdEnum));
+    mfreq = MFrequency(Quantity(freq,"GHz"));
+    mtime = MEpoch(Quantity(57754.0,"d")); //2017-01-01
+    fluxStd->setInterpMethod("spline");
+    foundStd = fluxStd->compute(srcName, srcDir, mfreq, mtime, returnFlux, returnFluxErr);
+    EXPECT_TRUE(foundStd);
+  }
+  else {
+    cout <<" The model parameter table, "<<foundModelPath<<" does not seem to exist. Skip this test"<<endl;
+  }
+}
+
 INSTANTIATE_TEST_CASE_P(checkInterpolation, SetInterpMethodTest,::testing::ValuesIn(flxStdParamsVarSrc));
 TEST_P(SetInterpMethodTest, checkInterpolation)
 {
@@ -269,7 +485,7 @@ TEST_P(SetInterpMethodTest, checkInterpolation)
   if (modelExists(coeffsTbName)) {
     fluxStd.reset(new FluxStandard(FluxStandard::PERLEY_BUTLER_2013));
     mfreq = MFrequency(Quantity(2.0,"GHz")); 
-    cerr<<"set interpolation to "<<interpMethod<<endl;
+    cout<<"set interpolation to "<<interpMethod<<endl;
     fluxStd->setInterpMethod(interpMethod);
     foundStd = fluxStd->compute(srcName, srcDir, mfreq, mtime, returnFlux, returnFluxErr);
     returnFlux.value(fluxUsed);
@@ -282,7 +498,6 @@ TEST_P(SetInterpMethodTest, checkInterpolation)
     cout <<" The model parameter table, "<<foundModelPath<<" does not seem to exist. Skip this test"<<endl;
   }
 }
-
 
 INSTANTIATE_TEST_CASE_P(ckeckFluxValues,FluxValueTest,::testing::ValuesIn(flxStdParamsFull));
 TEST_P(FluxValueTest, checkFluxValues)
@@ -305,6 +520,32 @@ TEST_P(FluxValueTest, checkFluxValues)
     //EXPECT_DOUBLE_EQ(expFlxVal,fluxUsed[0]);
     EXPECT_NEAR(expFlxVal,fluxUsed[0],tol);
     //cerr<<setprecision(dbl::max_digits10)<<flxStdName<<" fluxUsed[0]="<<fluxUsed[0]<<" for srcName="<<srcName<<" freq="<<freq<<endl; 
+  }
+  else {
+    cout <<" The model parameter table,"<<foundModelPath<<" does not seem to exist. Skip this test"<<endl;
+  }
+}
+
+INSTANTIATE_TEST_CASE_P(ckeckFluxValues,PB2017FluxValueTest,::testing::ValuesIn(flxStdParamsFullPB2017));
+TEST_P(PB2017FluxValueTest, checkFluxValues)
+{
+  // calc values were checked against calculation against a python script to be consistent at the tolerance level of  
+  Double tol = 0.0001;
+  mtime = MEpoch(Quantity(57754.0,"d")); //2017-01-01
+  fluxStd.reset(new FluxStandard(expFlxStdEnum));
+  if (expFlxStdEnum == FluxStandard::PERLEY_BUTLER_2017) {
+    coeffsTbName = "PerleyButler2017Coeffs";
+  }
+  if (modelExists(coeffsTbName)) {
+    mfreq = MFrequency(Quantity(freq,"GHz")); 
+    fluxStd->setInterpMethod("nearest");
+    foundStd = fluxStd->compute(srcName, srcDir, mfreq, mtime, returnFlux, returnFluxErr);
+    returnFlux.value(fluxUsed);
+    EXPECT_TRUE(foundStd);
+    //EXPECT_DOUBLE_EQ(expFlxVal,fluxUsed[0]);
+    EXPECT_NEAR(expFlxVal,fluxUsed[0],tol);
+    //cerr<<setprecision(dbl::max_digits10)<<flxStdName<<" fluxUsed[0]="<<fluxUsed[0] <<"(exp: "<<expFlxVal<<") for srcName="<<srcName<<" freq="<<freq<<endl; 
+
   }
   else {
     cout <<" The model parameter table,"<<foundModelPath<<" does not seem to exist. Skip this test"<<endl;

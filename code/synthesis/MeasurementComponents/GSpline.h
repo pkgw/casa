@@ -117,6 +117,8 @@ public:
   // Set parameters for phase wrapping resolution
   void setPhaseWrapHelp(const casacore::Int& numpoi, const casacore::Double& phaseWrap);
 */
+  // Expose calculating pars for plotting
+  inline void doCalcPar() { calcPar(); }
 
  protected:
 

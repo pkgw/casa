@@ -52,7 +52,8 @@ PlotAxisScale PMS::axisScale(Axis axis) {
 
 bool PMS::axisIsData(Axis axis) {
     switch(axis) {
-    case AMP: case PHASE: case REAL: case IMAG: case WTxAMP: return true;
+    case AMP: case PHASE: case REAL: case IMAG: case WTxAMP: 
+	case GAMP: case GPHASE: case GREAL: case GIMAG: return true;
     default: return false;
     }
 }
@@ -78,6 +79,13 @@ bool PMS::axisIsWeight(Axis axis) {
 bool PMS::axisIsUV(Axis axis) {
     switch(axis) {
     case U: case V: case UWAVE: case VWAVE: return true;
+    default: return false;
+    }
+}
+
+bool PMS::axisIsOverlay(Axis axis) {
+    switch(axis) {
+    case ATM: case TSKY: return true;
     default: return false;
     }
 }

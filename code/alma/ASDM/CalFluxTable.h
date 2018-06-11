@@ -189,14 +189,14 @@ class CalFluxRow;
  * </TR>
 	
  * <TR>
- * <TD> numFrequencyRanges (\f$N_{Freq}\f$)</TD> 
+ * <TD> numFrequencyRanges (numFrequencyRanges)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of frequency ranges. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numStokes (\f$N_{Stok}\f$)</TD> 
+ * <TD> numStokes (numStokes)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of Stokes parameters. </TD>

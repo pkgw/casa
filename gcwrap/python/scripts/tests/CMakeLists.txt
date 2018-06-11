@@ -80,6 +80,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_ia_fromrecord.py
   test_ia_fromshape.py
   test_ia_getregion.py
+  test_ia_getslice.py
   test_ia_hanning.py
   test_ia_histograms.py
   test_ia_imageconcat.py
@@ -120,6 +121,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_importasdm.py
   test_importasdm_mms.py
   test_importatca.py
+  test_importcasa.py
   test_importevla.py
   test_importfitsidi.py
   test_importmiriad.py
@@ -221,7 +223,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_viewer.py
   test_virtualconcat.py
   test_vishead.py
-  test_visstatold.py
   test_visstat.py
   test_vpmanager.py
   test_wvrgcal.py
@@ -233,4 +234,5 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   testutils.py
   unittests_list.txt
   uTest_list.json
+  uTest_Template.dat
 )

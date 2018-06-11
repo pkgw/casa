@@ -1642,33 +1642,32 @@ FlagDataHandler::setTimeAverageIter(bool activated)
     enableTimeAvg_p = activated;
 
     // Setup the time averaging options
-    if (dataColumnType_p.compare("DATA") == 0)
+    if (dataColumnType_p == "DATA")
     {
         timeAvgOptions_p |= vi::AveragingOptions::AverageObserved;
         timeAvgOptions_p |= vi::AveragingOptions::ObservedFlagWeightAvgFromSIGMA;
     }
-    else if (dataColumnType_p.compare("CORRECTED") == 0)
+    else if (dataColumnType_p == "CORRECTED")
     {
         timeAvgOptions_p |= vi::AveragingOptions::AverageCorrected;
         timeAvgOptions_p |= vi::AveragingOptions::CorrectedFlagWeightAvgFromWEIGHT;
     }
-    else if (dataColumnType_p.compare("MODEL") == 0)
+    else if (dataColumnType_p == "MODEL")
     {
         timeAvgOptions_p |= vi::AveragingOptions::AverageModel;
         timeAvgOptions_p |= vi::AveragingOptions::ModelPlainAvg;
     }
-    else if (dataColumnType_p.compare("FLOAT_DATA") == 0)
+    else if (dataColumnType_p == "FLOAT_DATA")
     {
         timeAvgOptions_p |= vi::AveragingOptions::AverageFloat;
     }
-/*    else if (dataColumnType_p.compare("RESIDUAL") == 0)
+    else if (dataColumnType_p == "RESIDUAL")
     {
         timeAvgOptions_p |= vi::AveragingOptions::AverageCorrected;
+        timeAvgOptions_p |= vi::AveragingOptions::CorrectedFlagWeightAvgFromWEIGHT;
         timeAvgOptions_p |= vi::AveragingOptions::AverageModel;
-        timeAvgOptions_p |= vi::AveragingOptions::ModelPlainAvg;
-        timeAvgOptions_p |= vi::AveragingOptions::CorrectedFlagWeightAvgFromWEIGHT
-    }*/
-
+        timeAvgOptions_p |= vi::AveragingOptions::ModelFlagWeightAvgFromWEIGHT;
+    }
 }
 
 // ----------------------------------------------------------------------------

@@ -164,7 +164,7 @@ class AnnotationRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numAntenna(\f$N_{Ante}\f$)</TD> 
+ * <TD> numAntenna(numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; number of antennas. </TD>
@@ -178,7 +178,7 @@ class AnnotationRow;
  * </TR>
 	
  * <TR>
- * <TD> numBaseband(\f$N_{Base}\f$)</TD> 
+ * <TD> numBaseband(numBaseband)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; number of basebands. </TD>

@@ -123,21 +123,21 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
 
     if(msId_p != vb.msId()) {
         msId_p=vb.msId();
-        ROMSColumns mscol(vb.ms());
-        const ROMSAntennaColumns& ac=mscol.antenna();
+        //ROMSColumns mscol(vb.ms());
+        const ROMSAntennaColumns& ac=vb.subtableColumns().antenna();
         antIndexToDiamIndex_p.resize(ac.nrow());
         antIndexToDiamIndex_p.set(-1);
         Int diamIndex=antDiam2IndexMap_p.ndefined();
         Vector<Double> dishDiam=ac.dishDiameter().getColumn();
         Vector<String>dishName=ac.name().getColumn();
-        String telescop=mscol.observation().telescopeName()(0);
+        String telescop=vb.subtableColumns().observation().telescopeName()(0);
         PBMath::CommonPB whichPB;
         if(pbClass_p==PBMathInterface::COMMONPB) {
             String band;
             String commonPBName;
             // This frequency is ONLY required to determine which PB model to use:
             // The VLA, the ATNF, and WSRT have frequency - dependent PB models
-            Quantity freq( mscol.spectralWindow().refFrequency()(0), "Hz");
+            Quantity freq( vb.subtableColumns().spectralWindow().refFrequency()(0), "Hz");
 
 
             PBMath::whichCommonPBtoUse( telescop, freq, band, whichPB, commonPBName );
@@ -165,7 +165,7 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
                             Quantity blockDiam= Quantity(dishDiam(k)/12.0*.75, "m");
                             ///For ALMA 12m dish it is effectively 10.7 m according to Todd Hunter
                             ///@ 2011-12-06
-                            if((mscol.observation().telescopeName()(0) =="ALMA") || (mscol.observation().telescopeName()(0) =="ACA")){
+                            if((vb.subtableColumns().observation().telescopeName()(0) =="ALMA") || (vb.subtableColumns().observation().telescopeName()(0) =="ACA")){
 
 			      if((abs(dishDiam[k] - 12.0) < 0.5)) {
 				qdiam= Quantity(10.7, "m");
@@ -351,7 +351,8 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
                                         Vector<Int>& convSupport,
                                         Vector<Int>& convFuncPolMap,
                                         Vector<Int>& convFuncChanMap,
-                                        Vector<Int>& convFuncRowMap, Bool getConjConvFunc)
+                                        Vector<Int>& convFuncRowMap, Bool getConjConvFunc,
+					const MVDirection& extraShift, const Bool useExtraShift)
 {
 
     storeImageParams(iimage,vb);
@@ -380,7 +381,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
     convsize.resize();
     convSupport.resize();
 
-    Int isCached=checkPBOfField(vb, convFuncRowMap);
+    Int isCached=checkPBOfField(vb, convFuncRowMap, extraShift, useExtraShift);
     //cout << "isCached " << isCached <<  endl;
     if(isCached==1 && (convFuncRowMap.shape()[0]==vb.nRows())) {
         /*convFunc.reference(convFunc_p);
@@ -462,11 +463,14 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
 
     if(!doneMainConv_p[actualConvIndex_p]) {
+      //cerr << "doneMainConv_p " << actualConvIndex_p << endl;
+
         Vector<Double> sampling;
+	
         sampling = dc.increment();
-        sampling*=Double(convSampling);
-        sampling(0)*=Double(nx)/Double(convSize_p);
-        sampling(1)*=Double(ny)/Double(convSize_p);
+	sampling*=Double(convSampling);
+	sampling(0)*=Double(nx)/Double(convSize_p);
+	sampling(1)*=Double(ny)/Double(convSize_p);
         dc.setIncrement(sampling);
 
         Vector<Double> unitVec(2);
@@ -482,6 +486,8 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
         spCoord.setReferenceValue(Vector<Double>(1, beamFreqs(0)));
         if(beamFreqs.nelements() >1)
 	  spCoord.setIncrement(Vector<Double>(1, beamFreqs(1)-beamFreqs(0)));
+	//cerr << "spcoord " ;
+	//spCoord.print(std::cerr);
         coords.replaceCoordinate(spCoord, spind);
 	CoordinateSystem conjCoord=coords;
 	Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
@@ -585,6 +591,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 					//wtime1+=omp_get_wtime()-wtime0;
                     //subim.copyData((LatticeExpr<Complex>) (iif(abs(subim)> 5e-2, subim, 0)));
                     //subim2.copyData((LatticeExpr<Complex>) (iif(abs(subim2)> 25e-4, subim2, 0)));
+
 					//wtime0=omp_get_wtime();
 					ft_p.c2cFFTInDouble(subim);
 					ft_p.c2cFFTInDouble(subim2);
@@ -790,15 +797,15 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
     }
     */
-    /*////////////////TESTOOO
-		 CoordinateSystem TMP = coords;
-	  CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
-	  PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJUVI2"+String::toString(actualConvIndex_p));
-	  SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
-	   PagedImage<Complex> SCREEN3(TiledShape(convWeights_p[actualConvIndex_p]->shape()), TMP, "FTWEIGHTVI2"+String::toString(actualConvIndex_p));
-	  SCREEN3.put(*convWeights_p[actualConvIndex_p]  );
+    ////////////////TESTOOO
+    //		 CoordinateSystem TMP = coords;
+    //	  CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
+    //	  PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJUVI2"+String::toString(actualConvIndex_p));
+    //	  SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
+    //	   PagedImage<Complex> SCREEN3(TiledShape(convWeights_p[actualConvIndex_p]->shape()), TMP, "FTWEIGHTVI2"+String::toString(actualConvIndex_p));
+    //	  SCREEN3.put(*convWeights_p[actualConvIndex_p]  );
 	
-    /////////////////*/
+    /////////////////
 
     makerowmap(vb, convFuncRowMap);
     ///need to deal with only the maximum of different baselines available in this
@@ -819,7 +826,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
     convFunc_p.resize();
 	if((nchan_p == 1) && getConjConvFunc) {
-	  //cerr << this << " recovering " << actualConvIndex_p <<  "   " <<convFunctionsConjFreq_p.size() << endl;
+	  // cerr << this << " recovering " << actualConvIndex_p <<  "   " <<convFunctionsConjFreq_p.size() << endl;
 	  if(Int(convFunctionsConjFreq_p.size()) <= actualConvIndex_p){
 	    fillConjConvFunc(beamFreqs);
 	    
@@ -1181,17 +1188,16 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
     Bool found=false;
     Int trial=0;
     for (trial=0; trial< (convSize/2-2); ++trial) {
-        //Searching down a diagonal
-     if((abs(convPlane(convSize/2-trial-1,convSize/2-1-trial)) <  (7.5e-2*maxAbsConvFunc)) || (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) 
+      ///largest along either axis
+      if((abs(convPlane(convSize/2-trial-1,convSize/2-1)) <  (7.5e-2*maxAbsConvFunc)) &&(abs(convPlane(convSize/2-1,convSize/2-trial-1)) <  (7.5e-2*maxAbsConvFunc)) )// || (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) 
      { 
 //|| (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) {
             found=true;
-            trial=Int(sqrt(2.0*Float(trial*trial)));
+            //trial=Int(sqrt(2.0*Float(trial*trial)));
 	    
             break;
         }
     }
-   
     if(!found) {
         if((maxAbsConvFunc-minAbsConvFunc) > (7.5e-2*maxAbsConvFunc))
             found=true;
@@ -1221,7 +1227,6 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
         //OTF may have flagged stuff ...
         convSupport=0;
     }
-   
     convSupport_p(plane)=convSupport;
     Double pbSum=0.0;
     /*
@@ -1288,9 +1293,9 @@ Int HetArrayConvFunc::factorial(Int n) {
 
 
 Int HetArrayConvFunc::checkPBOfField(const vi::VisBuffer2& vb,
-                                     Vector<Int>& /*rowMap*/) {
+                                     Vector<Int>& /*rowMap*/, const MVDirection& extraShift, const Bool useExtraShift) {
 
-    toPix(vb);
+  toPix(vb, extraShift, useExtraShift);
     Vector<Int> pixdepoint(2);
     convertArray(pixdepoint, thePix_p);
     if((pixdepoint(0) < 0) ||  pixdepoint(0) >= nx_p || pixdepoint(1) < 0 ||
@@ -1410,7 +1415,6 @@ Array<Complex> HetArrayConvFunc::resample(const Array<Complex>& inarray, const D
     shp(1)=Int(ny*factor/2.0)*2;
     Int newNx=shp(0);
     Int newNy=shp(1);
-
     
     Array<Complex> out(shp, 0.0);
    // cerr << "SHP " << shp << endl;

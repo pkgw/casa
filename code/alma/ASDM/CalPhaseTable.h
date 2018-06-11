@@ -227,14 +227,14 @@ class CalPhaseRow;
  * </TR>
 	
  * <TR>
- * <TD> numBaseline (\f$N_{Base}\f$)</TD> 
+ * <TD> numBaseline (numBaseline)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of baselines. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -329,7 +329,7 @@ class CalPhaseRow;
  * </TR>
 	
  * <TR>
- * <TD> numAntenna(\f$N_{Ante}\f$)</TD> 
+ * <TD> numAntenna(numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of antennas. Defines the size singleAntennaName, phaseAnt, phaseAntRMS. One must pay attention to the fact that numBaseline and numAntenna must verify the the relation  : numBaseline == numAntenna * ( numAntenna - 1 )  / 2

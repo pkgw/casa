@@ -4,8 +4,8 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
-  
-<task type="function" name="simalma" category="simulation" visibility="experimental">
+
+<task type="function" name="simalma" category="simulation">
 
   <shortdescription>Simulation task for ALMA </shortdescription>
   <description>
@@ -15,68 +15,68 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     This task makes multiple calls to simobserve (to calculate visibilities
     and total power spectra), followed by gridding of total power spectra
     (if total power is requested), concatenation of the simulated
-    visibilities, calls to the simanalyze task for visibility inversion and 
-    deconvolution and calculation of difference and fidelity images, 
-    and feathering of single dish and interferometric data. 
+    visibilities, calls to the simanalyze task for visibility inversion and
+    deconvolution and calculation of difference and fidelity images,
+    and feathering of single dish and interferometric data.
 
-    These steps may not all be familiar to new users, so the simalma task 
-    runs by default in a "dryrun" mode, in which it assesses the user's 
+    These steps may not all be familiar to new users, so the simalma task
+    runs by default in a "dryrun" mode, in which it assesses the user's
     input parameters and sky model, and prints an informational report
-    including the required calls to other CASA tasks, both to the screen 
-    and to a text file in the project directory (defined below). 
+    including the required calls to other CASA tasks, both to the screen
+    and to a text file in the project directory (defined below).
 
-    The user can modify their parameters based on the information, 
-    then either run with dryrun=False to actually call the other tasks 
-    to create the simulated data, or run the other tasks individually 
-    one at a time to better understand and control the process. 
+    The user can modify their parameters based on the information,
+    then either run with dryrun=False to actually call the other tasks
+    to create the simulated data, or run the other tasks individually
+    one at a time to better understand and control the process.
 
-    NOTE The ALMA project is refining the optimal method of combining the 
-    three types of data.  If that best practice is changed after this 
+    NOTE The ALMA project is refining the optimal method of combining the
+    three types of data.  If that best practice is changed after this
     release of CASA, the user can control the process by modifying the calls
     to the other CASA tasks.
 
 </description>
-<example>  
+<example>
     -------------------------------
     Parameters:
 
-    project -- root filename for all output files.  A subdirectory will be 
+    project -- root filename for all output files.  A subdirectory will be
          created, and all created files will be placed in that subdirectory
          including the informational report.
 
     -------------------------------
     skymodel -- input image (used as a model of the sky)
-       * simalma requires a CASA or fits image. If you merely have a grid of 
-         numbers, you will need to write them out as fits or write a 
-         CASA script to read them in and use the ia tool to create an image 
+       * simalma requires a CASA or fits image. If you merely have a grid of
+         numbers, you will need to write them out as fits or write a
+         CASA script to read them in and use the ia tool to create an image
          and insert the data.
-       
+
        * simalma does NOT require a coordinate system in the header. If the
          coordinate information is incomplete, missing, or you would like to
-         override it, set the appropriate "in" parameters. NOTE that setting 
+         override it, set the appropriate "in" parameters. NOTE that setting
          those parameters simply changes the header values, ignoring
          any values already in the image. No regridding is performed.
-   
+
        * If you have a proper Coordinate System, simalma will do its best to
          generate visibilities from that, and then create a synthesis image
-         according to the specified user parameters. 
+         according to the specified user parameters.
 
        * You can manipulate an image header manually with the "imhead" task.
 
-    inbright -- peak brightness to scale the image to in Jy/pixel, 
+    inbright -- peak brightness to scale the image to in Jy/pixel,
          or "" for unchanged
-       * NOTE: "unchanged" will take the numerical values in your image 
-         and assume they are in Jy/pixel, even if it says some other unit 
-         in the header. 
+       * NOTE: "unchanged" will take the numerical values in your image
+         and assume they are in Jy/pixel, even if it says some other unit
+         in the header.
 
-    indirection -- central direction to place the sky model image, 
+    indirection -- central direction to place the sky model image,
          or "" to use whatever is in the image already
 
-    incell -- spatial pixel size to scale the skymodel image, 
+    incell -- spatial pixel size to scale the skymodel image,
          or "" to use whatever is in the image already.
 
-    incenter -- frequency to use for the center channel (or only channel, 
-         if the skymodel is 2D)  e.g. "89GHz", 
+    incenter -- frequency to use for the center channel (or only channel,
+         if the skymodel is 2D)  e.g. "89GHz",
          or "" to use what is in the header.
 
     inwidth -- width of channels to use, or "" to use what is in the image
@@ -90,33 +90,33 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     complist -- component list model of the sky, added to or instead of skymodel
          see http://casaguides.nrao.edu/index.php?title=Simulation_Guide_Component_Lists_%28CASA_4.1%29
 
-    compwidth -- bandwidth of components; if simulating from components only, 
+    compwidth -- bandwidth of components; if simulating from components only,
          this defines the bandwidth of the MS and output images
 
     -------------------------------
     setpointings -- if true, calculate a map of pointings and write ptgfile.
        * if graphics are on, display the pointings shown on the model image
-       * observations with the ALMA 12m and ACA 7m arrays will observe a 
-         region of size "mapsize" using the same hexagonal algorithm as 
+       * observations with the ALMA 12m and ACA 7m arrays will observe a
+         region of size "mapsize" using the same hexagonal algorithm as
          the ALMA OT, with Nyquist sampling.
-       * The total power array maps a slightly (+1 primary beam) larger area 
-         than the 12m array does, to improve later image combination. 
+       * The total power array maps a slightly (+1 primary beam) larger area
+         than the 12m array does, to improve later image combination.
          It samples the region with lattice grids of spacing 0.33 lambda/D.
        * if setpointings=false, read pointings from ptgfile.
 
-    ptgfile -- a text file specifying directions in the same 
+    ptgfile -- a text file specifying directions in the same
          format as the example, and optional integration times, e.g.
          #Epoch     RA          DEC      TIME(optional)
          J2000 23h59m28.10 -019d52m12.35 10.0
        * if the time column is not present in the file, it will use
          "integration" for all pointings.
        * NOTE: at this time the file should contain only science pointings:
-         simalma will observe these until totaltime is used up. 
+         simalma will observe these until totaltime is used up.
 
     integration --- Time interval for each integration e.g '10s'
-       * NOTE: to simulate a "scan" longer than one integration, use 
-         setpointings to generate a pointing file, and then edit the 
-         file to increase the time at each point to be larger than 
+       * NOTE: to simulate a "scan" longer than one integration, use
+         setpointings to generate a pointing file, and then edit the
+         file to increase the time at each point to be larger than
          the parameter integration time.
 
     direction -- mosaic center direction e.g 'J2000 19h00m00 -40d00m00'
@@ -128,12 +128,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
        * set to "" to cover the model image
 
     -------------------------------
-    antennalist -- vector of ascii files containing antenna positions, 
+    antennalist -- vector of ascii files containing antenna positions,
          one for each configuration of 7m or 12m dishes.
        * NOTE: In this task, it should be an ALMA configuration.
-       * standard arrays are found in your CASA data repository, 
-         os.getenv("CASAPATH").split()[0]+"/data/alma/simmos/"        
-       * a string of the form "alma;0.5arcsec" will be parsed into a 
+       * standard arrays are found in your CASA data repository,
+         os.getenv("CASAPATH").split()[0]+"/data/alma/simmos/"
+       * a string of the form "alma;0.5arcsec" will be parsed into a
          12m ALMA configuration - see casaguides.nrao.edu
        * examples: ['alma.cycle2.5.cfg','aca.cycle2.i.cfg']
               ['alma.cycle1;0.3arcsec','alma.cycle1.1.cfg','aca.i.cfg']
@@ -142,22 +142,22 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
        * note that if you don't add a unit, it will assume seconds.
 
     totaltime --- total time of observations. This should either be a scalar
-         time quantity expressed as a string e.g. '1h', '3600sec', '10min', 
-         or a vector of such quantities, corresponding to the elements of 
-         the antennalist vector, e.g. ['5min','20min','3h'].  If you 
-         specify a scalar, that will be used for the highest resolution 
-         12m configuration in antennalist, and any lower resolution 12m 
+         time quantity expressed as a string e.g. '1h', '3600sec', '10min',
+         or a vector of such quantities, corresponding to the elements of
+         the antennalist vector, e.g. ['5min','20min','3h'].  If you
+         specify a scalar, that will be used for the highest resolution
+         12m configuration in antennalist, and any lower resolution 12m
          configurations, any 7m configurations, and any TP configurations
-         will have observing times relative to totaltime of 0.5, 2,and 4, 
+         will have observing times relative to totaltime of 0.5, 2,and 4,
          respectively.
     -------------------------------
 
     tpnant -- the number of total power antennas to use in simulation.
 
-    tptime -- if tpnant&gt;0, the user must specify the observing time for 
-         total power as a CASA quantity e.g. '4h'.  
-       * NOTE: this is not broken up among multiple days - 
-         a 20h track will include observations below the horizon, 
+    tptime -- if tpnant&gt;0, the user must specify the observing time for
+         total power as a CASA quantity e.g. '4h'.
+       * NOTE: this is not broken up among multiple days -
+         a 20h track will include observations below the horizon,
          which is probably not what is desired.
 
     -------------------------------
@@ -166,7 +166,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
          applied to the simulated data.
        * J. Pardo's ATM library will be used to construct anatmospheric
          profile for the ALMA site:
-         altitude 5000m, ground pressure 650mbar, relhum=20%, 
+         altitude 5000m, ground pressure 650mbar, relhum=20%,
          a water layer of pwv at altitude of 2km,
          the sky brightness temperature returned by ATM, and internally
          tabulated receiver temperatures.
@@ -183,7 +183,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     imsize -- image size in spatial pixels (x,y)
        0 or -1 will use the model image size; example: imsize=[500,500]
 
-    imdirection -- phase center for synthesized image.  default is to 
+    imdirection -- phase center for synthesized image.  default is to
        center on the sky model.
 
     cell -- cell size e.g '10arcsec'.  "" defaults to the skymodel cell
@@ -200,9 +200,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     Please see the documents of simobserve and simanalyze for
     the list of outputs produced.
   </example>
-  
+
   <input>
-    
+
     <param type="string" name="project">
       <description>root prefix for output file names</description>
       <value>sim</value>
@@ -212,7 +212,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <description>dryrun=True will only produce the informative report, not run simobserve/analyze</description>
       <value>True</value>
     </param>
-    
+
 
 
 
@@ -239,11 +239,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <description>set new cell/pixel size e.g. "0.1arcsec"</description>
       <value type="string"></value>
     </param>
-    
+
     <param type="string" name="incenter" subparam="true">
       <description>set new frequency of center channel e.g. "89GHz" (required even for 2D model)</description>
       <value type="string"></value>
-    </param>    
+    </param>
 
     <param type="string" name="inwidth" subparam="true">
       <description>set new channel width e.g. "10MHz" (required even for 2D model)</description>
@@ -331,7 +331,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <description>hour angle of observation center e.g. -3:00:00, or "transit"</description>
       <value>transit</value>
     </param>
-    
+
     <param type="stringArray" name="totaltime">
       <description>total time of observation; vector corresponding to antennalist</description>
       <value type="vector">
@@ -376,7 +376,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	<value type="string">False</value>
 	<value type="string">F</value>
       </allowed>
-    </param>    
+    </param>
     <param type="double" name="user_pwv" subparam="true">
       <description>Precipitable Water Vapor in mm</description>
       <value>1.</value>
@@ -391,7 +391,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
        <description>atmospheric temperature</description>
        <value>260.</value>
       <allowed kind="range"><value range="min">0</value></allowed>
-    </param>	
+    </param>
     <param type="double" name="tau0" subparam="true">
       <description>zenith opacity</description><value>0.1</value>
       <allowed kind="range"><value range="min">0</value></allowed>
@@ -400,21 +400,21 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <param type="int" name="seed" subparam="true">
       <description>random number seed</description><value>11111</value>
     </param>
-    
+
     <param type="double" name="leakage">
       <description>cross polarization (interferometer only)</description>
       <value>0.0</value>
       <allowed kind="range"><value range="min">0</value></allowed>
-    </param>    
+    </param>
 -->
-    
 
-<!--  IMAGE   -->    
+
+<!--  IMAGE   -->
 
     <param type="bool" name="image">
       <description>image simulated data</description>
       <value>True</value>
-    </param>    
+    </param>
 
 <!--
     <param type="string" name="vis" subparam='true'>
@@ -427,7 +427,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <value type="string"></value>
     </param>
 -->
-    
+
     <param type="intArray" name="imsize" subparam="true">
       <description>output image size in pixels (x,y) or 0 to match model</description>
       <value type="vector"><value>128</value><value>128</value></value>
@@ -442,7 +442,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <description>cell size with units or "" to equal model</description>
       <value type="string"></value>
     </param>
-    
+
     <param type="int" name="niter" subparam="true">
       <description>maximum number of iterations (0 for dirty image)</description>
       <value>0</value>
@@ -460,7 +460,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <allowed kind="enum">
 	<value>natural</value>
 	<value>uniform</value>
-	<value>briggs</value>  
+	<value>briggs</value>
       </allowed>
     </param>
 
@@ -526,10 +526,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 
 
-        
-    
-<!--  CONSTRAINTS  -->    
-    
+
+
+<!--  CONSTRAINTS  -->
+
     <constraints>
       <when param="skymodel">
 	<notequals value="">
@@ -617,11 +617,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       </when>
       <!-- **********************************************************  -->
     </constraints>
-    
-    
-    
+
+
+
   </input>
   <returns type="bool"/>
-  
+
 </task>
 </casaxml>

@@ -31,6 +31,7 @@
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
 #include <synthesis/CalTables/NewCalTable.h>
 #include <synthesis/CalTables/CTSummary.h>
+#include <synthesis/CalTables/CalSummary.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 #include <ms/MSOper/MSSummary.h>
 #include <casa/Logging/LogFilter.h>
@@ -113,6 +114,25 @@ bool ActionSummary::doActionSpecific(PlotMSApp* plotms) {
 				case PMS::S_HISTORY_CT:      cts.listHistory(log); break;
 				case PMS::S_SPW_CT:          cts.listSpectralWindow(log, vb); break;
 				default: 					 cts.listMain(log, vb); break;
+			}
+			success = true;
+		} else if (tab.keywordSet().isDefined("CAL_DESC")) {
+			CalTable ct = CalTable(filename, Table::Old);
+			CalSummary calsum(ct);
+			// Log summary of the appropriate type and verbosity.
+			switch( CTsummaryType ) {
+				case PMS::S_ALL_CT:          calsum.list(log, vb); break;
+				case PMS::S_WHERE_CT:        calsum.listWhere(log, vb); break;
+				case PMS::S_WHAT_CT:         calsum.listWhat(log, vb); break;
+				case PMS::S_HOW_CT:          calsum.listHow(log, vb); break;
+				case PMS::S_MAIN_CT:         calsum.listMain(log, vb); break;
+				case PMS::S_TABLES_CT:       calsum.listTables(log, vb); break;
+				case PMS::S_ANTENNA_CT:      calsum.listAntenna(log, vb); break;
+				case PMS::S_FIELD_CT:        calsum.listField(log, vb); break;
+				case PMS::S_OBSERVATION_CT:  calsum.listObservation(log, vb); break;
+				case PMS::S_HISTORY_CT:      calsum.listHistory(log); break;
+				case PMS::S_SPW_CT:          calsum.listSpectralWindow(log, vb); break;
+				default: 					 calsum.listMain(log, vb); break;
 			}
 			success = true;
 		} else {
