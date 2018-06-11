@@ -162,6 +162,7 @@ scripts/task_listvis.py
 scripts/task_makemask.py
 scripts/task_mstransform.py
 scripts/task_msuvbin.py
+scripts/task_partition.py
 scripts/task_plotants.py
 scripts/task_plotbandpass.py
 scripts/task_plotcal.py
