@@ -159,7 +159,7 @@ scripts/task_listobs.py
 scripts/task_listpartition.py
 scripts/task_listsdm.py
 scripts/task_listvis.py
-scripts/task_makemask.py 
+scripts/task_makemask.py
 scripts/task_mstransform.py
 scripts/task_msuvbin.py
 scripts/task_plotants.py
@@ -197,7 +197,7 @@ scripts/task_split.py
 #scripts/task_split2.py
 scripts/task_spxfit.py
 scripts/task_statwt.py
-scripts/task_statwt2.py
+scripts/task_oldstatwt.py
 scripts/task_tclean.py
 scripts/task_tclean2.py
 scripts/task_testconcat.py

@@ -1,4 +1,4 @@
-casa_add_tasks( tools  casa_tasks 
+casa_add_tasks( tools  casa_tasks
 accor.xml
 accum.xml
 applycal.xml
@@ -109,8 +109,8 @@ splattotable.xml
 split.xml
 #split2.xml
 spxfit.xml
+oldstatwt.xml
 statwt.xml
-statwt2.xml
 tclean.xml
 tclean2.xml
 testconcat.xml
