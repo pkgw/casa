@@ -149,6 +149,8 @@ public:
   void setSourceCoeffsfromVec(casacore::uInt& i);
   // Get currently set coefficients
   casacore::RigidVector<casacore::Vector<casacore::Float>,2 >  getCurrentCoeffs() {return tvcoeffs_p;}
+  //casacore::RigidVector<casacore::Double,2 >  getValidFreqRange() {return validfreqrange_p;}
+  casacore::Vector<casacore::MFrequency>  getValidFreqRange() {return validfreqrange_p;}
 
   //keep track if it is non-time var source for Perley-Butler2013
   void isTimeVar(casacore::Bool istimevar); 
@@ -177,6 +179,7 @@ private:
   casacore::Vector<casacore::Float> fluxes_p;
   //casacore::Vector<casacore::Float> tvcoeffs_p;
   casacore::RigidVector<casacore::Vector<casacore::Float>,2> tvcoeffs_p;
+  casacore::Vector<casacore::MFrequency> validfreqrange_p;
   casacore::Table Table_p;
   casacore::Bool istimevar_p;
   //virtual casacore::Bool setCoeffs() = 0;

@@ -101,6 +101,21 @@ protected:
     virtual void TearDown();
 };
 
+class AltSrcNamePB2017Test: public NewFluxStandardTest,
+       public ::testing::WithParamInterface<std::tr1::tuple<casacore::String, casacore::String, casacore::Double, casa::FluxStandard::FluxScale>>
+{
+
+public:
+
+    AltSrcNamePB2017Test();
+    virtual ~AltSrcNamePB2017Test();
+    
+protected:
+    
+    virtual void SetUp();
+    virtual void TearDown();
+};
+
 class SetInterpMethodTest: public NewFluxStandardTest,
        public ::testing::WithParamInterface<std::tr1::tuple<casacore::String, casacore::Double>>
 {
@@ -124,6 +139,22 @@ public:
 
     FluxValueTest();
     virtual ~FluxValueTest();
+    
+protected:
+    
+    virtual void SetUp();
+    virtual void TearDown();
+    //casacore::Double expFlxVal;
+};
+
+class PB2017FluxValueTest: public NewFluxStandardTest, 
+       public ::testing::WithParamInterface<std::tr1::tuple<casacore::String, casacore::String, casacore::Double, casa::FluxStandard::FluxScale, casacore::Double>>
+{
+
+public:
+
+    PB2017FluxValueTest();
+    virtual ~PB2017FluxValueTest();
     
 protected:
     

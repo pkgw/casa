@@ -9,7 +9,7 @@ from taskinit import *
 #                     imsize, cell, phasecenter, ephemsrcname, pointingcolumn,
 #                     restfreq, stokes, minweight, clipminmax):
 def sdsidebandsplit(imagename, outfile, overwrite, signalshift, imageshift,
-                    getbothside, refpix, refval, useother, threshold):
+                    getbothside, refchan, refval, useother, threshold):
     casalog.origin('sdsidebandsplit')
     
     separator = casac.sidebandseparator()
@@ -26,7 +26,7 @@ def sdsidebandsplit(imagename, outfile, overwrite, signalshift, imageshift,
             else:
                 myqa = qatool()
                 qrefval = myqa.quantity(refval)
-            separator.set_imageband_frequency(refpix, qrefval)
+            separator.set_imageband_frequency(refchan, qrefval)
         separator.setsolveother(useother)
         separator.separate(outfile, overwrite)
     finally:

@@ -6,7 +6,7 @@
                              file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 
-	<task type="function" name="tclean2" category="imaging" visibility="experimental">
+	<task type="function" name="tclean2" category="imaging" visibility="hidden">
 
 		<shortdescription>Radio Interferometric Image Reconstruction</shortdescription>
 

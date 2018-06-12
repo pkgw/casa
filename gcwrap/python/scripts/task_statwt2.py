@@ -8,6 +8,7 @@ def statwt2(
     flagbackup, preview, datacolumn
 ):
     casalog.origin('statwt2')
+    casalog.post("Warning: the task statwt2 has undergone significant development and will be called statwt starting in CASA 5.4.", "WARN")
     if not selectdata:
         # CAS-10761, requirement provided by Urvashi
         if field or spw or intent or array or observation:
@@ -34,7 +35,7 @@ def statwt2(
         myms = mstool()
         myms.open(vis, nomodify=preview)
         sel = {}
-        sel['spw'] = spw 
+        sel['spw'] = spw
         #sel['time'] = timerange
         sel['field'] = field
         #sel['baseline'] = antenna
@@ -54,7 +55,7 @@ def statwt2(
             center=center, lside=lside, zscore=zscore,
             maxiter=maxiter, excludechans=excludechans,
             wtrange=wtrange, preview=preview, datacolumn=datacolumn
-        ) 
+        )
     except Exception, instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
         raise

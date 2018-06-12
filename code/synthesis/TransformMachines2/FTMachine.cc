@@ -90,14 +90,14 @@ using namespace casa::vi;
   FTMachine::FTMachine() : isDryRun(false), image(0), uvwMachine_p(0), 
 			   tangentSpecified_p(false), fixMovingSource_p(false), 
 			   movingDirShift_p(0.0), 
-			   distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), 
+			   distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
 			   useDoubleGrid_p(false), 
 			   freqFrameValid_p(false), 
 			   freqInterpMethod_p(InterpolateArray1D<Double,Complex>::nearestNeighbour), 
 			   pointingDirCol_p("DIRECTION"),
 			   cfStokes_p(), cfCache_p(), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(), 
 			   canComputeResiduals_p(false), toVis_p(true), 
-                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(False)
+                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -109,14 +109,14 @@ using namespace casa::vi;
   FTMachine::FTMachine(CountedPtr<CFCache>& cfcache,CountedPtr<ConvolutionFunction>& cf):
     isDryRun(false), image(0), uvwMachine_p(0), 
     tangentSpecified_p(false), fixMovingSource_p(false), movingDirShift_p(0.0),
-    distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), 
+    distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
     useDoubleGrid_p(false), 
     freqFrameValid_p(false), 
     freqInterpMethod_p(InterpolateArray1D<Double,Complex>::nearestNeighbour), 
     pointingDirCol_p("DIRECTION"),
     cfStokes_p(), cfCache_p(cfcache), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(),
     convFuncCtor_p(cf),canComputeResiduals_p(false), toVis_p(true), numthreads_p(-1), 
-    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(False)
+    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -137,7 +137,7 @@ using namespace casa::vi;
       distance_p=other.distance_p;
       lastFieldId_p=other.lastFieldId_p;
       lastMSId_p=other.lastMSId_p;
-      
+      romscol_p=other.romscol_p;
       tangentSpecified_p=other.tangentSpecified_p;
       mTangent_p=other.mTangent_p;
       mImage_p=other.mImage_p;
@@ -269,10 +269,11 @@ using namespace casa::vi;
       // Set the frame for the UVWMachine
       if(vb.isAttached()){
 	//mFrame_p=MeasFrame(MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()), mLocation_p);
+	romscol_p=new ROMSColumns(vb.ms());
 	if(!mFrame_p.epoch()) 
-	  mFrame_p.set(MEpoch(Quantity(vb.time()(0), "s"),  ROMSColumns(vb.ms()).timeMeas()(0).getRef()));
+	  mFrame_p.set(MEpoch(Quantity(vb.time()(0), "s"),  (romscol_p->timeMeas())(0).getRef()));
 	else
-	  mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"),  ROMSColumns(vb.ms()).timeMeas()(0).getRef()));
+	  mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"), (romscol_p->timeMeas())(0).getRef()));
 	if(!mFrame_p.position())
 	  mFrame_p.set(mLocation_p);
 	else
@@ -355,7 +356,7 @@ using namespace casa::vi;
       if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
       String observatory;
       if(vb.isAttached())
-	observatory=ROMSColumns(vb.ms()).observation().telescopeName()(0);
+	observatory=(vb.subtableColumns().observation()).telescopeName()(0);
       else
 	throw(AipsError("Cannot define frame because of no access to OBSERVATION table")); 
       if(observatory.contains("ATCA") || observatory.contains("DRAO")
@@ -887,8 +888,8 @@ using namespace casa::vi;
     //the uvw rotation is done for common tangent reprojection or if the 
     //image center is different from the phasecenter
     // UVrotation is false only if field never changes
-  
-   ROMSColumns mscol(vb.ms());
+  if(lastMSId_p != vb.msId())
+    romscol_p=new ROMSColumns(vb.ms());
    if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p)){
       doUVWRotation_p=true;
    } 
@@ -902,7 +903,7 @@ using namespace casa::vi;
       
       mFrame_p.epoch() != 0 ? 
 	mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"))):
-	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), mscol.timeMeas()(0).getRef()));
+	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), (romscol_p->timeMeas())(0).getRef()));
       MDirection::Types outType;
       MDirection::getType(outType, mImage_p.getRefString());
       MDirection phasecenter=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), MDirection::Ref(outType, mFrame_p))();
@@ -934,7 +935,7 @@ using namespace casa::vi;
       // will reproject to that plane iso the image plane
       if(doUVWRotation_p || fixMovingSource_p) {
 	
-	String observatory=mscol.observation().telescopeName()(0);
+	String observatory=(vb.subtableColumns().observation()).telescopeName()(0);
 	if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
 	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
 		//Tangent specified is being wrongly used...it should be for a
@@ -1005,7 +1006,8 @@ using namespace casa::vi;
     {
 
 
-
+      if(lastMSId_p != vb.msId())
+	romscol_p=new ROMSColumns(vb.ms());
       //the uvw rotation is done for common tangent reprojection or if the
       //image center is different from the phasecenter
       // UVrotation is false only if field never changes
@@ -1026,7 +1028,7 @@ using namespace casa::vi;
         mFrame_p.epoch() != 0 ?
 	  mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"))):
 	 
-	  mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()));
+	  mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), (romscol_p->timeMeas())(0).getRef()));
 
         MDirection phasecenter=mImage_p;
         if(fixMovingSource_p){
@@ -1058,7 +1060,7 @@ using namespace casa::vi;
         // will reproject to that plane iso the image plane
         if(doUVWRotation_p || fixMovingSource_p) {
 
-  	String observatory=ROMSColumns(vb.ms()).observation().telescopeName()(0);
+	  String observatory=(vb.subtableColumns().observation()).telescopeName()(0);
   	if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
   	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
   		//Tangent specified is being wrongly used...it should be for a
@@ -1470,7 +1472,7 @@ using namespace casa::vi;
     inRecord.get("phasecentertime", phaseCenterTime_p);
     ///No need to store this...recalculate thread partion because environment 
     ///may have changed.
-    doneThreadPartition_p=False;
+    doneThreadPartition_p=-1;
     return true;
   };
   
@@ -2350,18 +2352,23 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
       {
 	Int elrow=icounter/ixsub;
 	Int elcol=(icounter-elrow*ixsub);
-	//cerr << "row "<< elrow << " col " << elcol; 
+	//cerr << "row "<< elrow << " col " << elcol << endl; 
 	//nxsub=Int(floor(((ceil(fabs(float(2*elcol+1-ixsub)/2.0))-1.0)*5 +1)*nxp/36.0 + 0.5));
 	Float factor=0;
-	for (Int k=0; k < ixsub/2; ++k)
-	  factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
+	if(ixsub > 1){
+	  for (Int k=0; k < ixsub/2; ++k)
+	    factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
 	  //factor= linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
-	factor *= 2.0;
-	if(linear)
-	  nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
-	else
-	  //nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
-	  nxsub=Int(floor((sqrt(ceil(fabs(float(2*elcol+1-ixsub)/2.0)))/factor)*nxp + 0.5));
+	  factor *= 2.0;
+	  if(linear)
+	    nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
+	  else
+	    //nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
+	    nxsub=Int(floor((sqrt(ceil(fabs(float(2*elcol+1-ixsub)/2.0)))/factor)*nxp + 0.5));
+	}
+	else{
+	  nxsub=nxp;
+	}
         //cerr << nxp << " col " << elcol << " nxsub " << nxsub << endl;
 	x0=minx;
 	elcol-=1;
@@ -2376,15 +2383,20 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
 	  elcol-=1;
 	}
 	factor=0;
-	for (Int k=0; k < iysub/2; ++k)
-	  //factor=linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
-	  factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
-	factor *= 2.0;
-	//nysub=Int(floor(((ceil(fabs(float(2*elrow+1-iysub)/2.0))-1.0)*5 +1)*nyp/36.0+0.5));
-	if(linear)
-	  nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
-	else
-	  nysub=Int(floor((sqrt(ceil(fabs(float(2*elrow+1-iysub)/2.0)))/factor)*nyp + 0.5));
+	if(iysub >1){
+	  for (Int k=0; k < iysub/2; ++k)
+	    //factor=linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
+	    factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
+	  factor *= 2.0;
+	  //nysub=Int(floor(((ceil(fabs(float(2*elrow+1-iysub)/2.0))-1.0)*5 +1)*nyp/36.0+0.5));
+	  if(linear)
+	    nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
+	  else
+	    nysub=Int(floor((sqrt(ceil(fabs(float(2*elrow+1-iysub)/2.0)))/factor)*nyp + 0.5));
+	}
+	else{
+	  nysub=nyp;
+	}
 	  //nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
 	y0=miny;
 	elrow-=1;
@@ -2403,13 +2415,15 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
 
       y0+=1;
       x0+=1;
-      
+      //cerr << icounter << " x0, y0 " << x0 << "  " << y0 << "  ixsub, iysub " <<  nxsub << "   " << nysub << endl;
+      if(doneThreadPartition_p < 0)
+	doneThreadPartition_p=1;
    
 }
 
   void FTMachine::tweakGridSector(const Int& nx, const Int& ny, const Int& ixsub, const Int& iysub){
-    if(doneThreadPartition_p)
-      return;
+    //if(doneThreadPartition_p)
+    //  return;
     Vector<Int> x0, y0, nxsub, nysub;
     Vector<Float> xcut(nx/2);
     Vector<Float> ycut(ny/2);
@@ -2491,7 +2505,8 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
     }
     nysub(iysub-1)+=1;
     
-    
+    if(anyEQ(nxsub, 0) || anyEQ(nysub, 0))
+      return;
     //cerr << " x0 " << x0 << "  nxsub " << nxsub << endl;
     //cerr << " y0 " << y0 << "  nysub " << nysub << endl;
     x0+=1;
@@ -2510,7 +2525,7 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
       }
     }
 
-
+    ++doneThreadPartition_p;
 
   }
  

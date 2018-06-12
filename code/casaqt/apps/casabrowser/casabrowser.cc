@@ -43,24 +43,3 @@ static void preprocess_args( int argc, const char *argv[], int &numargs, char **
 	}
     }
 }
-
-
-
-/* casabrowser script
-
-#!/bin/sh
-
-aipspath=($CASAPATH)
-CASAROOT=${aipspath[0]}
-
-case $(uname) in
-  Darwin)
-     echo "Adjust this as it will cause problems for Boyd with the distro"
-     $CASAROOT/darwin/apps/qcasabrowser.app/Contents/MacOS/qcasabrowser $@
-  ;;
-  Linux)
-        qcasabrowser $@
-  ;;
-esac
-
-*/

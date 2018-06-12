@@ -7,7 +7,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <!-- This is the parameter set for asdmsummary -->
 
-<task type="function" name="asdmsummary" category="information" visibility="experimental">
+<task type="function" name="asdmsummary" category="information">
 
   <shortdescription>Summarized description of an ASDM dataset.</shortdescription>
 
@@ -27,7 +27,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
   <example>
 
 	The asdmsummary task prints to the CASA log a description of the content of an SDM dataset.
-	
+
 	Example:
 
 	asdmsummary(asdm='10C-119_sb3070258_1.55628.42186299768')
@@ -36,9 +36,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
         Keyword argument:
 
-        asdm -- Name of input ASDM directory.  
+        asdm -- Name of input ASDM directory.
                example: asdm='10C-119_sb3070258_1.55628.42186299768'
-	       	
+
   </example>
 
 </task>

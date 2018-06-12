@@ -83,6 +83,13 @@ bool PMS::axisIsUV(Axis axis) {
     }
 }
 
+bool PMS::axisIsOverlay(Axis axis) {
+    switch(axis) {
+    case ATM: case TSKY: return true;
+    default: return false;
+    }
+}
+
 PMS::AxisType PMS::axisType(Axis axis) {
     switch(axis) {
     case FLAG:

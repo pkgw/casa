@@ -200,6 +200,9 @@ private:
   // may want to cache ALL ranges for all loaded values to avoid recomputation.
   void computeRanges();
 
+  // Adjust the Y range for overlays to make room at top of plot
+  void adjustYRange(double& yMin, double& yMax);
+
   // Compute baseline's length in meters between ant1 and ant2
   casacore::Double computeBaselineLength(casacore::Int ant1, casacore::Int ant2);
 
@@ -279,8 +282,7 @@ private:
   // Cope with const-ness in the get methods
   PlotMSIndexer* self;
 
-
-  int dataIndex;
+  int dataIndex_;
 
 };
 
