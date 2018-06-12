@@ -95,13 +95,12 @@ template <class T> SPIIT ImageFactory::createImage(
     const vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs
 ) {
     _checkOutfile(outfile, overwrite);
-    casacore::Bool blank = outfile.empty();
     ThrowIf(
         shape.nelements() != cSys.nPixelAxes(),
         "Supplied CoordinateSystem and image shape are inconsistent"
     );
     SPIIT image;
-    if (blank) {
+    if (outfile.empty()) {
         image.reset(new casacore::TempImage<T>(shape, cSys));
         ThrowIf(! image, "Failed to create TempImage");
     }
@@ -112,23 +111,19 @@ template <class T> SPIIT ImageFactory::createImage(
             "Failed to create PagedImage"
         );
     }
-    ostringstream os;
     T *x = 0;
-    os << "Created "
-       << (blank ? "Temp" : "Paged") << " image "
-       << (blank ? "" : "'" + outfile + "'")
-       << " of shape " << shape << " with "
-       << whatType(x) << " valued pixels.";
+    auto creationMsg = _imageCreationMessage(outfile, shape, whatType(x));
     ImageHistory<T> hist(image);
     if (msgs) {
         hist.addHistory(*msgs);
     }
-    casacore::LogOrigin lor("ImageFactory", __func__);
-    hist.addHistory(lor, os.str());
+    LogOrigin lor("ImageFactory", __func__);
+    hist.addHistory(lor, creationMsg);
     image->set(0.0);
     if (log) {
-        casacore::LogIO mylog;
-        mylog << casacore::LogIO::NORMAL << os.str() << casacore::LogIO::POST; 
+        LogIO mylog;
+        mylog << LogOrigin("ImageFactory", __func__)
+            << LogIO::NORMAL << creationMsg << LogIO::POST;
     }
     return image;
 }
