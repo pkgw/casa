@@ -37,7 +37,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_conjugatevis.py
   test_coordsys.py
   test_createmultims.py
-  test_csvclean.py
   test_cvel.py
   test_cvel2.py
   test_cvelfreqs.py
