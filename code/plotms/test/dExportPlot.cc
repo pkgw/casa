@@ -50,7 +50,9 @@ int main(int /*argc*/, char** /*argv[]*/) {
     PlotMSApp app(false, false);
 
 
-    // Set up parameters for plot.
+    // Set up default parameters for plot.
+	// Can also set parameters for averaging, transformation,
+	// iteration, display, etc. in PlotMSPlotParameterGroups
     PlotMSPlotParameters plotParams = PlotMSPlot::makeParameters(&app);
 
     PMS_PP_MSData* ppdata = plotParams.typedGroup<PMS_PP_MSData>();

@@ -81,6 +81,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
         LogIO os( LogOrigin("SynthesisDeconvolver","descructor",WHERE) );
 	os << LogIO::DEBUG1 << "SynthesisDeconvolver destroyed" << LogIO::POST;
+	SynthesisUtilMethods::getResource("End SynthesisDeconvolver");
+
   }
 
   void SynthesisDeconvolver::setupDeconvolution(const SynthesisParamsDeconv& decpars)
@@ -501,7 +503,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
           itsMaskHandler->fillMask( itsImages, itsMaskList);
           if( itsPBMask > 0.0 ) {  
-            itsMaskHandler->makePBMask(itsImages, itsPBMask);
+            itsMaskHandler->makePBMask(itsImages, itsPBMask, True);
           }
         }
         else if( itsMaskType=="pb") {

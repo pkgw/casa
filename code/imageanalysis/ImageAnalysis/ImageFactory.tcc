@@ -95,13 +95,12 @@ template <class T> SPIIT ImageFactory::createImage(
     const vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs
 ) {
     _checkOutfile(outfile, overwrite);
-    casacore::Bool blank = outfile.empty();
     ThrowIf(
         shape.nelements() != cSys.nPixelAxes(),
         "Supplied CoordinateSystem and image shape are inconsistent"
     );
     SPIIT image;
-    if (blank) {
+    if (outfile.empty()) {
         image.reset(new casacore::TempImage<T>(shape, cSys));
         ThrowIf(! image, "Failed to create TempImage");
     }
@@ -112,23 +111,19 @@ template <class T> SPIIT ImageFactory::createImage(
             "Failed to create PagedImage"
         );
     }
-    ostringstream os;
     T *x = 0;
-    os << "Created "
-       << (blank ? "Temp" : "Paged") << " image "
-       << (blank ? "" : "'" + outfile + "'")
-       << " of shape " << shape << " with "
-       << whatType(x) << " valued pixels.";
+    auto creationMsg = _imageCreationMessage(outfile, shape, whatType(x));
     ImageHistory<T> hist(image);
     if (msgs) {
         hist.addHistory(*msgs);
     }
-    casacore::LogOrigin lor("ImageFactory", __func__);
-    hist.addHistory(lor, os.str());
+    LogOrigin lor("ImageFactory", __func__);
+    hist.addHistory(lor, creationMsg);
     image->set(0.0);
     if (log) {
-        casacore::LogIO mylog;
-        mylog << casacore::LogIO::NORMAL << os.str() << casacore::LogIO::POST; 
+        LogIO mylog;
+        mylog << LogOrigin("ImageFactory", __func__)
+            << LogIO::NORMAL << creationMsg << LogIO::POST;
     }
     return image;
 }
@@ -204,8 +199,9 @@ template <class T> SPIIT ImageFactory::_fromRecord(
     return image;
 }
 
-template <class T> pair<SPIIF, SPIIC> ImageFactory::_rename(
-	SPIIT& image, const casacore::String& name, const casacore::Bool overwrite
+template <class T> ITUPLE ImageFactory::_rename(
+	SPIIT& image, const casacore::String& name,
+	const casacore::Bool overwrite
 ) {
 	casacore::LogIO mylog;
 	mylog << casacore::LogOrigin(className(), __func__);
@@ -227,7 +223,6 @@ template <class T> pair<SPIIF, SPIIC> ImageFactory::_rename(
 		oldName == name,
 		"Specified output name is the same as the current image name"
 	);
-
 	// Let's see if it exists.  If it doesn't, then the user has deleted it
 	casacore::File file(oldName);
 	if (file.isSymLink()) {
@@ -237,10 +232,8 @@ template <class T> pair<SPIIF, SPIIC> ImageFactory::_rename(
 		! file.exists(), "The image to be renamed no longer exists"
 	);
 	_checkOutfile(name, overwrite);
-
 	// close image before renaming
 	image.reset();
-
 	// Now try and move it
 	casacore::Bool follow(true);
 	if (file.isRegular(follow)) {
@@ -255,10 +248,8 @@ template <class T> pair<SPIIF, SPIIC> ImageFactory::_rename(
 	else {
 		ThrowCc("Failed to rename file " + oldName + " to " + name);
 	}
-
 	mylog << casacore::LogIO::NORMAL << "Successfully renamed file " << oldName
-			<< " to " << name << casacore::LogIO::POST;
-
+	    << " to " << name << casacore::LogIO::POST;
 	return fromFile(name);
 
 }

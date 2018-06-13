@@ -367,7 +367,7 @@ template <class T> void Image2DConvolver<T>::_doMultipleBeams(
     vector<Quantity>& kernelParms, Array<T>& kernel,
     VectorKernel::KernelTypes kernelType, Bool logFactors, Double pixelArea
 ) const {
-    ImageMetaData md(imageOut);
+    ImageMetaData<T> md(imageOut);
     casacore::uInt nChan = md.nChannels();
     casacore::uInt nPol = md.nStokes();
     // initialize all beams to be null

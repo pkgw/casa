@@ -115,11 +115,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       if(mss_p[k])
 	delete mss_p[k];
     }
-  }
+      SynthesisUtilMethods::getResource("End Run");
+}
 
   Bool SynthesisImagerVi2::selectData(const SynthesisParamsSelect& selpars){
  LogIO os( LogOrigin("SynthesisImagerVi2","selectData",WHERE) );
  Bool retval=True;
+
+    SynthesisUtilMethods::getResource("Start Run");
 
     try
       {
@@ -765,7 +768,8 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 	 vi_p->useImagingWeight(imwgt_p);
       ///////////////////////////////
 	 
-	 
+	     SynthesisUtilMethods::getResource("Set Weighting");
+
 	 ///	 return true;
 	 
        }
@@ -812,13 +816,13 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
           // heuristic factors multiplied to imshape based on gridder
           size_t fudge_factor = 15;
           if (ftm->name()=="MosaicFTNew") {
-              fudge_factor = 15;
+              fudge_factor = 20;
           }
           else if (ftm->name()=="GridFT") {
               fudge_factor = 9;
           }
 
-          size_t required_mem = fudge_factor * sizeof(Float);
+          Double required_mem = fudge_factor * sizeof(Float);
           for (size_t i = 0; i < imshape.nelements(); i++) {
               // gridding pads image and increases to composite number
               if (i < 2) {
@@ -837,7 +841,6 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
           }
           // assumes all processes need the same amount of memory
           required_mem *= nlocal_procs;
-
           Double usr_memfrac, usr_mem;
           AipsrcValue<Double>::find(usr_memfrac, "system.resources.memfrac", 80.);
           AipsrcValue<Double>::find(usr_mem, "system.resources.memory", -1.);
@@ -846,9 +849,8 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
               memory_avail = usr_mem * 1024. * 1024.;
           }
           else {
-              memory_avail = HostInfo::memoryTotal(false) * (usr_memfrac / 100.) * 1024.;
+	    memory_avail = Double(HostInfo::memoryFree()) * (usr_memfrac / 100.) * 1024.;
           }
-
           // compute required chanchunks to fit into the available memory
           chanchunks = (int)std::ceil((Double)required_mem / memory_avail);
           if (imshape.nelements() == 4 && imshape[3] < chanchunks) {

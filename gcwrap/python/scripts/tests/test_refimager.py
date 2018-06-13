@@ -465,6 +465,12 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report1+report2+report3)
           
+     def test_iterbot_cube_tol(self): 
+          """ [iterbot] Test_Iterbot_cube_tol :threshold test to allow a tolerance (1/100)  (verification of CAS-11278 fix) """
+          self.prepData('refim_point_withline.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',specmode='cube',deconvolver='hogbom',niter=1000000,threshold='0.50001Jy',gain=0.1,cycleniter=5,interactive=0)
+          report=self.th.checkall(ret=ret,iterdone=158,nmajordone=4,imexist=[self.img+'.psf', self.img+'.residual'])
+
      def test_iterbot_cube_nsigma(self): 
           """ [iterbot] Test_Iterbot_cube_nsigma : nsigma threshold for cube"""
           self.prepData('refim_point_withline.ms')
@@ -649,34 +655,36 @@ class test_multifield(testref_base):
 
 
      def test_multifield_facets_mfs(self):
-          """ [multifield] Test_Multifield_mfs_facets : Facetted imaging (mfs) """
+          """ [multifield] Test_Multifield_facets_mfs : Facetted imaging (mfs) """
           self.prepData("refim_twopoints_twochan.ms")
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=200,cell='8.0arcsec',phasecenter="J2000 19:59:00.2 +40.50.15.50",facets=2,deconvolver='hogbom',niter=30)
           report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf'],imval=[(self.img+'.psf',1.0,[100,100,0,0]),(self.img+'.image',5.56,[127,143,0,0]) ] )
           self.checkfinal(report)
 
      def test_multifield_facets_mtmfs(self):
-          """ [multifield] Test_facets_mtmfs : Facetted imaging (mt-mfs) """
+          """ [multifield] Test_multifield_facets_mtmfs : Facetted imaging (mt-mfs) """
           self.prepData("refim_twopoints_twochan.ms")
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=200,cell='8.0arcsec',phasecenter="J2000 19:59:00.2 +40.50.15.50",facets=2,deconvolver='mtmfs',niter=30)
           report=self.th.checkall(imexist=[self.img+'.image.tt0', self.img+'.psf.tt0', self.img+'.alpha'],imval=[(self.img+'.psf.tt0',1.0,[100,100,0,0]),(self.img+'.image.tt0',5.56,[127,143,0,0]),(self.img+'.alpha',-1.0,[127,143,0,0]) ] )
           self.checkfinal(report)
 
+     @unittest.skip('Skip test.')
+     def test_multifield_cube_chunks(self):
+          """ [multifield] Test_Multifield_cube_chunks : Two fields, two sections of the same cube"""
+          self.prepData("refim_point.ms")
+          self.th.write_file(self.img+'.out.txt', 'imagename='+self.img+'1\nnchan=5\nstart=5')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='10.0arcsec',specmode='cube',nchan=5,start=0,outlierfile=self.img+'.out.txt',niter=10,deconvolver='hogbom',interactive=0,interpolation='nearest')
+          report=self.th.checkall(ret=ret,
+                        iterdone=38,
+                        nmajordone=2,
+                        imexist=[self.img+'.image', self.img+'1.image'],
+                        imval=[(self.img+'.image',1.434,[50,50,0,0]),
+                               (self.img+'1.image',7.452,[40,40,0,0]),
+                               (self.img+'.image',0.762,[50,50,0,1]),
+                               (self.img+'1.image',3.702,[40,40,0,1]) ])
+          self.checkfinal(report)
 
-#     def test_multifield_cube_chunks(self):
-#          """ [multifield] Test_Multifield_cube_chunks : Two fields, two sections of the same cube"""
-#          self.prepData("refim_point.ms")
-#          self.th.write_file(self.img+'.out.txt', 'imagename='+self.img+'1\nnchan=5\nstart=5')
-#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='10.0arcsec',specmode='cube',nchan=5,start=0,outlierfile=self.img+'.out.txt',niter=10,deconvolver='hogbom',interactive=0,interpolation='nearest')
-#          report=self.th.checkall(ret=ret, 
-#                        iterdone=38,
-#                        nmajordone=2,
-#                        imexist=[self.img+'.image', self.img+'1.image'],
-#                        imval=[(self.img+'.image',1.434,[50,50,0,0]),
-#                               (self.img+'1.image',7.452,[40,40,0,0]),
-#                               (self.img+'.image',0.762,[50,50,0,1]),
-#                               (self.img+'1.image',3.702,[40,40,0,1]) ])
-#          self.checkfinal(report)
+
 ##############################################
 ##############################################
 
@@ -785,15 +793,45 @@ class test_stokes(testref_base):
           """ [onefield] Test_Stokes_mtmfs_Q : mtmfs with stokes Q"""
           self.prepData('refim_point_linRL.ms')
           tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='Q',deconvolver='mtmfs',nterms=2)
-          report=self.th.checkall(imexist=[self.img+'.image.tt0'], imexistnot=[self.img+'.image.alpha'], imval=[(self.img+'.image.tt0',2.0,[50,50,0,0]) ] )
+          report=self.th.checkall(imexist=[self.img+append for append in
+                                           ['.image.tt0', '.mask', '.model.tt0',
+                                            '.pb.tt0', '.psf.tt0', '.residual.tt0',
+                                            '.sumwt.tt0']],
+                                  imexistnot=[self.img+'.image.alpha',
+                                              self.img+'.alpha_error'],
+                                  imval=[(self.img+'.image.tt0',2.0,[50,50,0,0]) ] )
           self.checkfinal(report)
 
      def test_stokes_mtmfs_IQUV(self):
           """ [onefield] Test_Stokes_mtmfs_IQUV : mtmfs with stokes IQUV"""
           self.prepData('refim_point_linRL.ms')
           tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IQUV',deconvolver='mtmfs',nterms=2)
-          report=self.th.checkall(imexist=[self.img+'.image.tt0'],imexistnot=[self.img+'.image.alpha'], imval=[(self.img+'.image.tt0',1.0,[50,50,0,0]),(self.img+'.image.tt0',2.0,[50,50,1,0]), (self.img+'.image.tt0',3.0,[50,50,2,0]),(self.img+'.image.tt0',4.0,[50,50,3,0]) ])
+          report=self.th.checkall(imexist=[self.img+append for append in
+                                           ['.image.tt0', '.mask', '.model.tt0',
+                                            '.pb.tt0', '.psf.tt0', '.residual.tt0',
+                                            '.sumwt.tt0']],
+                                  imexistnot=[self.img+'.image.alpha',
+                                              self.img+'.alpha_error'],
+                                  imval=[(self.img+'.image.tt0',1.0,[50,50,0,0]),
+                                         (self.img+'.image.tt0',2.0,[50,50,1,0]),
+                                         (self.img+'.image.tt0',3.0,[50,50,2,0]),
+                                         (self.img+'.image.tt0',4.0,[50,50,3,0]) ])
           self.checkfinal(report)
+
+
+     @unittest.skip('Skip func test')
+     def test_stokes_cube_I_flags(self):
+          """ [onefield] Test_Stokes_cube_I_flags : cube with stokes I and only XY or YX flagged"""
+          self.prepData('refim_point_linXY.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IQUV',interactive=0,specmode='cube')
+          report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',1.0,[50,50,0,1]),(self.img+'.image',2.0,[50,50,1,1]), (self.img+'.image',3.0,[50,50,2,1]),(self.img+'.image',4.0,[50,50,4,1]) ])
+
+     @unittest.skip('Skip func test')
+     def test_stokes_cube_pseudo_I_flags(self):
+          """ [onefield] Test_Stokes_cube_pseudo_I_flags : cube with stokes I and one of XX or YY flagged"""
+          self.prepData('refim_point_linXY.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IQUV',interactive=0,specmode='cube')
+          report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',1.0,[50,50,0,1]),(self.img+'.image',2.0,[50,50,1,1]), (self.img+'.image',3.0,[50,50,2,1]),(self.img+'.image',4.0,[50,50,4,1]) ])
 
 
      def test_stokes_pseudoI_1(self):
@@ -1551,10 +1589,11 @@ class test_cube(testref_base):
           ## line is tighter
           self.checkfinal(report)
 
-#     def test_cube_D3(self):
-#          """ EMPTY : [cube] Test_Cube_D3 : specmode cubesrc - Doppler correct to a SOURCE ephemeris"""
-#          ret = tclean(vis=self.msfile,field='1',spw='0:105~135',specmode='cubesrc',nchan=30,start=105,width=1,veltype='radio',imagename=self.img,imsize=256,cell='0.01arcmin',phasecenter=1,deconvolver='hogbom',niter=10)
-#          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.residual') )
+     @unittest.skip('Skip test.')
+     def test_cube_D3(self):
+          """ EMPTY : [cube] Test_Cube_D3 : specmode cubesrc - Doppler correct to a SOURCE ephemeris"""
+          ret = tclean(vis=self.msfile,field='1',spw='0:105~135',specmode='cubesrc',nchan=30,start=105,width=1,veltype='radio',imagename=self.img,imsize=256,cell='0.01arcmin',phasecenter=1,deconvolver='hogbom',niter=10)
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.residual') )
 
      def test_cube_continuum_subtract_uvsub(self):
           """ [cube] Test_Cube_continuum_subtract :  Using uvsub """
@@ -1740,26 +1779,34 @@ class test_mask(testref_base):
           report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[250,250,0,0]),(self.img+'.mask',0.0,[250,285,0,0]),(self.img+'.mask',0.0,[360,360])])
           self.checkfinal(report)
 
-# This test deprecated. removed autoadjust param.
-#     def test_mask_autobox_autoadjust(self):
-#          """ [mask] test_mask_autobox_autoadjust : Autoboxing with autoadjust=T """
-#          self.prepData('refim_point.ms')
-#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',
-#                       interactive=0,usemask='auto-thresh',autoadjust=True)
-#          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
-#          self.checkfinal(report)
-      
-#     def test_mask_pbmask(self):
-#          """ [mask] test_mask_pbmask :  pb mask """
-#
-#     def test_mask_combined_1(self):
-#          """ [mask] test_mask_combined_1 :  string + pbmask """
-#
-#     def test_mask_combined_2(self):
-#          """ [mask] test_mask_combined_2 :  Autobox + pbmask """
-#
-#     def test_mask_outlier(self):
-#          """ [mask] test_mask_outlier : With outlier fields """
+     @unittest.skip('Skip. This test deprecated. removed autoadjust param.')
+     def test_mask_autobox_autoadjust(self):
+          """ [mask] test_mask_autobox_autoadjust : Autoboxing with autoadjust=T """
+          self.prepData('refim_point.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',
+                       interactive=0,usemask='auto-thresh',autoadjust=True)
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+          self.checkfinal(report)
+
+     @unittest.skip('Skip test.')
+     def test_mask_pbmask(self):
+          """ [mask] test_mask_pbmask :  pb mask """
+          pass
+
+     @unittest.skip('Skip test.')
+     def test_mask_combined_1(self):
+          """ [mask] test_mask_combined_1 :  string + pbmask """
+          pass
+
+     @unittest.skip('Skip test.')
+     def test_mask_combined_2(self):
+          """ [mask] test_mask_combined_2 :  Autobox + pbmask """
+          pass
+
+     @unittest.skip('Skip test.')
+     def test_mask_outlier(self):
+          """ [mask] test_mask_outlier : With outlier fields """
+          pass
 
      def test_mask_restart(self):
           """ [mask] test_mask_restart : Test that mask reloads upon restart """
@@ -1805,12 +1852,13 @@ class test_mask(testref_base):
           report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[60,40,0,0]),(self.img+'.mask',0.0,[65,50,0,0])])
           self.checkfinal(report)
 
-#     def test_mask_outregion(self):
-#          """ [mask] test_mask_outregion : Input mask has region that goes outside the image """
-#          self.prepData('refim_twochan.ms')
-#          mstr = 'circle[[50pix,110pix],20pix]'
-#          ret2 = tclean(vis=self.msfile,imagename=self.img+'2',imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='user',mask=mstr)
-#          report=self.th.checkall(imexist=[self.img+'2.mask'], imval=[(self.img+'2.mask',0.0,[50,50,0,0]),(self.img+'2.mask',1.0,[50,95,0,0])])
+     @unittest.skip('Skip func. test')
+     def test_mask_outregion(self):
+          """ [mask] test_mask_outregion : Input mask has region that goes outside the image """
+          self.prepData('refim_twochan.ms')
+          mstr = 'circle[[50pix,110pix],20pix]'
+          ret2 = tclean(vis=self.msfile,imagename=self.img+'2',imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='user',mask=mstr)
+          report=self.th.checkall(imexist=[self.img+'2.mask'], imval=[(self.img+'2.mask',0.0,[50,50,0,0]),(self.img+'2.mask',1.0,[50,95,0,0])])
 
      def test_mask_zerostart(self):
           """ [mask] test_mask_zerostart : Test that a zero starting mask is caught  """
@@ -2012,7 +2060,7 @@ class test_mask(testref_base):
           # extending to all channels and preserving mask of each stokes 
           self.prepData('refim_point_linRL.ms') 
           # input mask will different for different stokes plane
-          self.prepInputmask('refim_cube_stokesI_input.mask')
+          self.prepInputmask('refim_cube_StokesI_input.mask')
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
           niter=10,interactive=0,interpolation='nearest', stokes='IQUV',
@@ -2042,7 +2090,7 @@ class test_mask(testref_base):
           # extending to all channels and preserving mask of each stokes 
           self.prepData('refim_point_linRL.ms') 
           # input mask will different for different stokes plane
-          self.prepInputmask('refim_cube_stokesI_input.mask')
+          self.prepInputmask('refim_cube_StokesI_input.mask')
           imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True);
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
@@ -2150,21 +2198,22 @@ class test_widefield(testref_base):
           ## alpha should be ZERO as the pb spectrum has been taken out.
           self.checkfinal(report)
 
+     @unittest.skip('Skip func. test')
+     def test_widefield_wbaproj_subsets(self):
+          """ [widefield] Test_Widefield_wbaproj_subsets : MFS with the AWProjection gridder and A,W turned off  """
+          self.prepData("refim_mawproject.ms")
+          ## PS only
+          ret = tclean(vis=self.msfile,spw='*',field='*',imagename=self.img,imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",niter=30,gridder='awproject',psterm=True,aterm=False,wprojplanes=1,computepastep=360.0,rotatepastep=360.0,deconvolver='hogbom',pblimit=0.3)
+          report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf', self.img+'.weight'],imval=[(self.img+'.image',1.0,[256,256,0,0]),(self.img+'.weight',0.493,[256,256,0,0]) ] )
 
-#     def test_widefield_wbaproj_subsets(self):
-#          """ [widefield] Test_Widefield_wbaproj_subsets : MFS with the AWProjection gridder and A,W turned off  """
-#          self.prepData("refim_mawproject.ms")
-#          ## PS only
-#          ret = tclean(vis=self.msfile,spw='*',field='*',imagename=self.img,imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",niter=30,gridder='awproject',psterm=True,aterm=False,wprojplanes=1,computepastep=360.0,rotatepastep=360.0,deconvolver='hogbom',pblimit=0.3)
-#          #report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf', self.img+'.weight'],imval=[(self.img+'.image',1.0,[256,256,0,0]),(self.img+'.weight',0.493,[256,256,0,0]) ] )
-#
-#          ## W and PS only
-#          ret = tclean(vis=self.msfile,spw='*',field='*',imagename=self.img,imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",niter=30,gridder='awproject',psterm=True,aterm=False,wprojplanes=16,computepastep=360.0,rotatepastep=360.0,deconvolver='hogbom',pblimit=0.3)
-#          #report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf', self.img+'.weight'],imval=[(self.img+'.image',1.0,[256,256,0,0]),(self.img+'.weight',0.493,[256,256,0,0]) ] )
+          ## W and PS only
+          ret = tclean(vis=self.msfile,spw='*',field='*',imagename=self.img,imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",niter=30,gridder='awproject',psterm=True,aterm=False,wprojplanes=16,computepastep=360.0,rotatepastep=360.0,deconvolver='hogbom',pblimit=0.3)
+          report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf', self.img+'.weight'],imval=[(self.img+'.image',1.0,[256,256,0,0]),(self.img+'.weight',0.493,[256,256,0,0]) ] )
 
-
-#     def test_widefield_multispws(self):
-#          """ [widefield] Test_Widefield_multispws : Test cube imaging with mosaicft and awproj  """
+     @unittest.skip('Skip func. test')
+     def test_widefield_multispws(self):
+          """ [widefield] Test_Widefield_multispws : Test cube imaging with mosaicft and awproj  """
+          pass
 
      ## CHECK NORMALIZATION OF WEIGHTIMAGE = normed to peak=1
      ## TODO : make vpman recognize EVLA in addition to VLA.
