@@ -478,28 +478,18 @@ class TestHelpers():
                  # There are a couple of chanchunks tests that don't seem to produce any
                  # miscinfo (the ones where chanchunks!=-1) and leave objectname empty
                  check_misc = not 'tstcc.image' in imname
-                 # These two multifield_facets tests also don't set miscinfo, and
-                 # leave objectname empty
-                 check_misc = (check_misc and
-                               testname not in ['test_multifield_facets_mfs',
-                                                'test_multifield_facets_mtmfs'])
+
                  # parallel tests that misbehave at the moment
-                 check_misc = (check_misc and 
+                 check_misc = (check_misc and
                                testname not in ['test_cont_hogbom_gridft',
                                                 'test_cont_mtmfs_2spws_2MSs',
                                                 'test_cont_mtmfs_gridft'])
                  # skip these for now
                  if not check_misc:
                      continue
-                     
-                 # This ones don't get all the miscinfo fields (distance, INSTRUME, etc.)
-                 extended = (not imname.endswith('.alpha') and
-                             not imname.endswith('.tt0') and
-                             not imname.endswith('.tt1') and
-                             not imname.endswith('.mask') and
-                             '.par.' not in imname)
+
                  issues = self.check_im_keywords(imname, check_misc=check_misc,
-                                                 check_extended=extended)
+                                                 check_extended=True)
                  if issues:
                      pstr += '[{0}] {1}: {2}'.format(testname, imname, issues)
          return pstr
