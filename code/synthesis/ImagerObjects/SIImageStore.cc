@@ -2743,15 +2743,23 @@ Bool SIImageStore::isModelEmpty()
     minMax( minVal, maxVal, posmin, posmax, lattice );
   }
 
-Array<Double> SIImageStore::calcRobustRMS()
+Array<Double> SIImageStore::calcRobustRMS(const Float pbmasklevel)
 {    
   LogIO os( LogOrigin("SIImageStore","calcRobustRMS",WHERE) );
   Record*  regionPtr=0;
   String LELmask("");
- 
+  ArrayLattice<Bool> pbmasklat(residual()->shape());
+  pbmasklat.set(False);
+  LatticeExpr<Bool> pbmask(pbmasklat);
+  if (hasPB()) {
+    // set bool mask: False = masked
+    pbmask = LatticeExpr<Bool> (iif(*pb() > pbmasklevel, True, False));
+  }
+  
+   
   //Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
   // use the new statistic calculation algorithm
-  Record thestats = SDMaskHandler::calcRobustImageStatistics(*residual(), *mask(),  LELmask, regionPtr, True);
+  Record thestats = SDMaskHandler::calcRobustImageStatistics(*residual(), *mask(), pbmask,  LELmask, regionPtr, True);
 
   /***
   ImageStatsCalculator imcalc( residual(), regionPtr, LELmask, False); 

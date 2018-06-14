@@ -345,6 +345,7 @@ public:
   void printAutomaskSummary(const casacore::Array<casacore::Double>& rmss,
                             const casacore::Array<casacore::Double>& maxs, 
                             const casacore::Array<casacore::Double>& mins, 
+                            const casacore::Array<casacore::Double>& mdns,
                             const casacore::Vector<casacore::Float>& maskthreshold, 
                             const casacore::Vector<casacore::String>& masktype,
                             const casacore::Vector<casacore::Bool>& chanflag,
@@ -378,9 +379,15 @@ public:
   //    and inside the primary beam mask. 
   static casacore::Record calcRobustImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
                                        casacore::ImageInterface<casacore::Float>& prevmask, 
+                                       casacore::LatticeExpr<casacore::Bool>& pbmask,
                                        casacore::String& lelmask,
                                        casacore::Record* regionPtr,
                                        const casacore::Bool robust);
+
+  // Store pbmask level (a.k.a pblimit for mask)
+  void setPBMaskLevel(const casacore::Float pbmasklevel);
+  casacore::Float getPBMaskLevel();
+
 protected:
 #if ! defined(WITHOUT_DBUS)
   InteractiveMasking *interactiveMasker_p;
@@ -390,6 +397,7 @@ private:
   double itsRms;
   double itsMax;
   float itsSidelobeLevel;
+  float itsPBMaskLevel;
 };
 
 

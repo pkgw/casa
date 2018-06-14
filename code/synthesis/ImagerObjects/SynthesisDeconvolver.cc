@@ -246,7 +246,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       itsLoopController.setMaxPsfSidelobe( itsImages->getPSFSidelobeLevel() );
 
       //re-calculate current nsigma threhold
-      Array<Double> robustrms = itsImages->calcRobustRMS();
+      //os<<"Calling calcRobustRMS ....syndeconv."<<LogIO::POST;
+      itsMaskHandler->setPBMaskLevel(itsPBMask);
+      Array<Double> robustrms = itsImages->calcRobustRMS(itsPBMask);
       // Before the first iteration the iteration parameters have not been
       // set in SIMinorCycleController
       // Use nsigma pass to SynthesisDeconvolver directly for now...
@@ -256,6 +258,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Float nsigmathresh = itsNsigma * (Float)maxrobustrms;
       if (itsNsigma>0.0 ) os << "Current nsigma threshold (maximum along spectral channels) ="<<nsigmathresh<<LogIO::POST;
       itsLoopController.setNsigmaThreshold(nsigmathresh);
+      itsLoopController.setPBMask(itsPBMask);
 
 
       if ( itsAutoMaskAlgorithm=="multithresh" && !initializeChanMaskFlag ) {
