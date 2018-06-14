@@ -139,6 +139,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
+  // Used from SynthesisNormalizer::makeImageStore()
   SIImageStore::SIImageStore(String imagename, 
 			     CoordinateSystem &imcoordsys, 
 			     IPosition imshape, 
@@ -182,17 +183,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     validate();
   }
 
-  SIImageStore::SIImageStore(String imagename,const Bool ignorefacets) 
+  // Used from SynthesisNormalizer::makeImageStore()
+  SIImageStore::SIImageStore(String imagename, const Bool ignorefacets)
   {
     LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
 
-    /*
-    init();
-    String fname( imagename + ".info" );
-    recreate( fname );
-    */
-
-   
     itsPsf.reset( );
     itsModel.reset( );
     itsResidual.reset( );
@@ -283,19 +278,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     validate();
   }
 
-  SIImageStore::SIImageStore(SHARED_PTR<ImageInterface<Float> > modelim, 
-			     SHARED_PTR<ImageInterface<Float> > residim,
-			     SHARED_PTR<ImageInterface<Float> > psfim, 
-			     SHARED_PTR<ImageInterface<Float> > weightim, 
-			     SHARED_PTR<ImageInterface<Float> > restoredim, 
-			     SHARED_PTR<ImageInterface<Float> > maskim,
-			     SHARED_PTR<ImageInterface<Float> > sumwtim,
-			     SHARED_PTR<ImageInterface<Float> > gridwtim,
-			     SHARED_PTR<ImageInterface<Float> > pbim,
-			     SHARED_PTR<ImageInterface<Float> > restoredpbcorim,
-			     CoordinateSystem& csys,
-			     IPosition imshape,
-			     String imagename,
+  // used from getSubImageStore(), for example when creating the facets list
+  // this would be safer if it was refactored as a copy constructor of the generic stuff +
+  // initialization of the facet related parameters
+  SIImageStore::SIImageStore(const SHARED_PTR<ImageInterface<Float> > &modelim,
+			     const SHARED_PTR<ImageInterface<Float> > &residim,
+			     const SHARED_PTR<ImageInterface<Float> > &psfim,
+			     const SHARED_PTR<ImageInterface<Float> > &weightim,
+			     const SHARED_PTR<ImageInterface<Float> > &restoredim,
+			     const SHARED_PTR<ImageInterface<Float> > &maskim,
+			     const SHARED_PTR<ImageInterface<Float> > &sumwtim,
+			     const SHARED_PTR<ImageInterface<Float> > &gridwtim,
+			     const SHARED_PTR<ImageInterface<Float> > &pbim,
+			     const SHARED_PTR<ImageInterface<Float> > &restoredpbcorim,
+			     const CoordinateSystem &csys,
+			     const IPosition &imshape,
+			     const String &imagename,
+			     const String &objectname,
+			     const Record &miscinfo,
 			     const Int facet, const Int nfacets,
 			     const Int chan, const Int nchanchunks,
 			     const Int pol, const Int npolchunks,
@@ -316,6 +316,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsImagePBcor=restoredpbcorim;
 
     itsPBScaleFactor=1.0;// No need to set properly here as it will be computed in makePSF.
+
+    itsObjectName = objectname;
+    itsMiscInfo = miscinfo;
 
     itsNFacets = nfacets;
     itsFacetId = facet;
@@ -414,7 +417,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 							  const Int chan, const Int nchanchunks, 
 							  const Int pol, const Int npolchunks)
   {
-    return SHARED_PTR<SIImageStore>(new SIImageStore(itsModel, itsResidual, itsPsf, itsWeight, itsImage, itsMask, itsSumWt, itsGridWt, itsPB, itsImagePBcor, itsCoordSys,itsImageShape, itsImageName, facet, nfacets,chan,nchanchunks,pol,npolchunks,itsUseWeight));
+    return std::make_shared<SIImageStore>(itsModel, itsResidual, itsPsf, itsWeight, itsImage, itsMask, itsSumWt, itsGridWt, itsPB, itsImagePBcor, itsCoordSys, itsImageShape, itsImageName, itsObjectName, itsMiscInfo, facet, nfacets, chan, nchanchunks, pol, npolchunks, itsUseWeight);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -576,6 +579,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsOpened++;
     imptr.reset( new PagedImage<Float> (shape, csys, name) );
     initMetaInfo(imptr, name);
+
 
     /*
     Int MEMFACTOR = 18;
