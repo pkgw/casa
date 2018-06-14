@@ -1252,12 +1252,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	if( mappertype=="default" || mappertype=="imagemosaic" )
 	  {
 	    imstor=std::make_shared<SIImageStore>(imageName, cSys, imShape, overwrite, (useweightimage || (mappertype=="imagemosaic") ));
-	    //	    imstor=new SIImageStore(imageName, cSys, imShape, facets, overwrite, (useweightimage || (mappertype=="imagemosaic") ));
 	  }
 	else if (mappertype == "multiterm" )  // Currently does not support imagemosaic.
 	  {
-	    //cout << "Making multiterm IS with nterms : " << ntaylorterms << endl;
-	    imstor=new SIImageStoreMultiTerm(imageName, cSys, imShape, facets, overwrite, ntaylorterms, useweightimage);
+            // upcast with shared_ptr and then assign to CountedPtr<SIImageStore>
+            std::shared_ptr<SIImageStore> multiTermStore = std::make_shared<SIImageStoreMultiTerm>(imageName, cSys, imShape, facets, overwrite, ntaylorterms, useweightimage);
+            imstor = multiTermStore;
 	  }
 	else
 	  {
