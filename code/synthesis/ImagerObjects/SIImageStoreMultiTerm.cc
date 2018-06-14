@@ -93,11 +93,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
   // Used from SynthesisNormalizer::makeImageStore()
-  SIImageStoreMultiTerm::SIImageStoreMultiTerm(String imagename, 
-					       CoordinateSystem &imcoordsys, 
-					       IPosition imshape, 
+  SIImageStoreMultiTerm::SIImageStoreMultiTerm(const String &imagename,
+					       const CoordinateSystem &imcoordsys,
+					       const IPosition &imshape,
+					       const String &objectname,
+					       const Record &miscinfo,
 					       const Int /*nfacets*/,
-					       const Bool /*overwrite*/, 
+					       const Bool /*overwrite*/,
 					       uInt ntaylorterms,
 					       Bool useweightimage)
   {
@@ -120,15 +122,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsForwardGrids.resize(itsNTerms);
     itsBackwardGrids.resize(2 * itsNTerms - 1);
 
-    //cout << "Input imshape : " << imshape << endl;
-
-    itsImageName = imagename;
-    itsImageShape = imshape;
-    itsCoordSys = imcoordsys;
-
     //    itsNFacets = nfacets;  // So that sumwt shape happens properly, via checkValidity
     //    itsFacetId = -1;
-
     itsNFacets=1;
     itsFacetId=0;
     itsNChanChunks = 1;
@@ -136,10 +131,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsNPolChunks = 1;
     itsPolId = 0;
 
+    itsImageName = imagename;
+    itsCoordSys = imcoordsys;
+    itsImageShape = imshape;
+    itsObjectName = objectname;
+    itsMiscInfo = miscinfo;
 
     itsUseWeight = useweightimage;
-
-    itsMiscInfo=Record();
 
     init();
 
@@ -148,7 +146,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
   // Used from SynthesisNormalizer::makeImageStore()
-  SIImageStoreMultiTerm::SIImageStoreMultiTerm(String imagename, uInt ntaylorterms,
+  SIImageStoreMultiTerm::SIImageStoreMultiTerm(const String &imagename, uInt ntaylorterms,
                                                const Bool ignorefacets)
   {
     LogIO os( LogOrigin("SIImageStoreMultiTerm","Open existing Images",WHERE) );

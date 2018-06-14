@@ -53,10 +53,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   // Default constructor
 
   SIImageStoreMultiTerm();
-  SIImageStoreMultiTerm(casacore::String imagename, casacore::uInt ntaylorterms=1, const casacore::Bool ignorefacets=false);
-  SIImageStoreMultiTerm(casacore::String imagename, casacore::CoordinateSystem &imcoordsys, 
-			casacore::IPosition imshape, const int nfacets, 
-			const casacore::Bool overwrite=false, casacore::uInt ntaylorterms=1,casacore::Bool useweightimage=false);
+  SIImageStoreMultiTerm(const casacore::String &imagename, casacore::uInt ntaylorterms=1,
+                        const casacore::Bool ignorefacets=false);
+
+  SIImageStoreMultiTerm(const casacore::String &imagename,
+                        const casacore::CoordinateSystem &imcoordsys,
+			const casacore::IPosition &imshape,
+			const casacore::String &objectname,
+			const casacore::Record &miscinfo,
+                        const int nfacets,
+			const casacore::Bool overwrite=false,
+                        casacore::uInt ntaylorterms=1,casacore::Bool useweightimage=false);
 
   /*
   SIImageStoreMultiTerm(casacore::Block<SHARED_PTR<casacore::ImageInterface<casacore::Float> > >modelims, 

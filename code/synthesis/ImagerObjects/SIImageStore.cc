@@ -140,10 +140,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
   // Used from SynthesisNormalizer::makeImageStore()
-  SIImageStore::SIImageStore(String imagename, 
-			     CoordinateSystem &imcoordsys, 
-			     IPosition imshape, 
-			     //			     const Int nfacets, 
+  SIImageStore::SIImageStore(const String &imagename,
+			     const CoordinateSystem &imcoordsys,
+			     const IPosition &imshape,
+                             const String &objectname,
+                             const Record &miscinfo,
+			     //	const Int nfacets,
 			     const Bool /*overwrite*/,
 			     const Bool useweightimage)
   // TODO : Add parameter to indicate weight image shape. 
@@ -173,10 +175,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsPolId = 0;
 
     itsImageName = imagename;
-    itsImageShape = imshape;
     itsCoordSys = imcoordsys;
-
-    itsMiscInfo=Record();
+    itsImageShape = imshape;
+    itsObjectName = objectname;
+    itsMiscInfo = miscinfo;
 
     init();
 
@@ -184,7 +186,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
   // Used from SynthesisNormalizer::makeImageStore()
-  SIImageStore::SIImageStore(String imagename, const Bool ignorefacets)
+  SIImageStore::SIImageStore(const String &imagename, const Bool ignorefacets)
   {
     LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
 
