@@ -824,7 +824,7 @@ using namespace casa::vi;
     try
       {
 	// Prepare miscellaneous image information
-        auto objectName = msc.field().name()(msc.fieldId()(0));
+	auto objectName = msc.field().name()(msc.fieldId()(0));
 	///// misc info fpr ImageStore. This will go to the 'miscinfo' table keyword
 	Record miscInfo;
 	auto telescop=msc.observation().telescopeName()(0);

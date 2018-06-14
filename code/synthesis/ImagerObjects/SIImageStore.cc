@@ -582,7 +582,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     imptr.reset( new PagedImage<Float> (shape, csys, name) );
     initMetaInfo(imptr, name);
 
-
     /*
     Int MEMFACTOR = 18;
     Double memoryMB=HostInfo::memoryTotal(True)/1024/(MEMFACTOR*itsOpened);
