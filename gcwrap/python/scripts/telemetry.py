@@ -9,7 +9,7 @@ import urllib2
 
 class telemetry:
 
-    def __init__(self, logdir, logpattern, logger):
+    def __init__(self, logdir, logpattern, casa):
         if (logdir is None or logdir == ""):
             print "No log directory provided. Can't submit telemetry data."
             return
@@ -19,7 +19,21 @@ class telemetry:
         self.logdir = logdir
         self.logpattern = logpattern
         self.stampfile = self.logdir + "/telemetry.stamp"
+        self.casa = casa
+
+
+    def setCasaLog(self, logger):
         self.logger = logger
+
+    def submitStatistics(self):
+        if (self.casa['state']['telemetry-enabled'] == True):
+            self.logger.poststat("Stop CASA")
+            self.logger.post("Checking telemetry submission interval")
+            self.createStampFile()
+            if (self.isSubmitInterval()):
+                self.send('https://casa.nrao.edu/cgi-bin/crash-report.pl')
+                self.refreshStampFile()
+
 
     def isSubmitInterval(self):
         currentTime = time.time()

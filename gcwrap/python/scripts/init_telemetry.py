@@ -21,16 +21,6 @@ logdir = casa['dirs']['rc']
 logpattern = 'casastats-' + casaver + '-' + hostid + '*.log'
 #print logpattern
 
-def submitStatistics():
-    if (casa['state']['telemetry-enabled'] == True):
-        casalog.poststat("Stop CASA")
-    casalog.post("Checking telemetry submission interval")
-    mytelemetry = telemetry(logdir + '/', logpattern, casalog)
-    mytelemetry.createStampFile()
-    if (mytelemetry.isSubmitInterval()):
-        mytelemetry.send('https://casa.nrao.edu/cgi-bin/crash-report.pl')
-        mytelemetry.refreshStampFile()
-
 casa['state']['telemetry-enabled'] = False
 
 casa_util = __casac__.utils.utils()
@@ -78,9 +68,6 @@ if ( casa['flags'].telemetry or
          print "Creating a new telemetry file"
          casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + '/casastats-' + casaver +'-'  + hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
 
-     # Submit statistics at shutdown
-     add_shutdown_hook(submitStatistics)
-
      # Subtract the inactive log sizes from the total log file size limit
      tLogSizeLimit = tLogSizeLimit - inactiveTLogSize
      if (tLogSizeLimit <= 0):
@@ -89,4 +76,5 @@ if ( casa['flags'].telemetry or
      else :
          tLogMonitor = TelemetryLogMonitor.TelemetryLogMonitor()
          tLogMonitor.start(casa['files']['telemetry-logfile'],tLogSizeLimit, tLogSizeInterval, casa)
+         casatelemetry = telemetry(logdir, logpattern, casa)
          print "Telemetry initialized."

@@ -60,8 +60,11 @@ if deploylogger and casa['files']['logfile'] != '/dev/null':
 
 if (casa['state']['telemetry-enabled']):
     casalog = casac.logsink(casa['files']['logfile'], True, casa['files']['telemetry-logfile'])
+    casatelemetry.setCasaLog(casalog)
+    casatelemetry.submitStatistics()
 else :
     casalog = casac.logsink(casa['files']['logfile'])
+
 
 processor_origin = MPIEnvironment.processor_origin
 casalog.processorOrigin(processor_origin)
