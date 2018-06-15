@@ -36,15 +36,15 @@ This is used to construct {\tt synthesismaskhandler} tool.
 </input>
 <returns type="synthesismaskhandler"/>
 <example>
-# create a syntheismaskhandler tool
-maskhandler=casac.sysnthesismaskhandler()
+# create a synthesismaskhandler tool
+maskhandler=casac.synthesismaskhandler()
 
 nchan=5 # input mask is a cube of 5 channel
 
 #define channel flag: 1 to skip the channel for pruning
 chanflag = np.zeros(nchan)  # prune every channel
 
-maskhandler.pruneregions('testMask.image',2.0, chnaflag)
+maskhandler.pruneregions('testMask.image',2.0, chanflag)
 
 # output python dictionary contains the number of origin regions
 and the number of regions removed at each channel, and prunesize used.
@@ -55,7 +55,7 @@ For skipped channels, N_reg and N_reg_pruned elements will be -1.
  'prunesize': 2.0}
 
 # the resultant pruned mask is create as  testMask.image.pruned
-
+maskhandler.done() # to close the synthesismaskhandler tool
 </example>
 </method>
 
