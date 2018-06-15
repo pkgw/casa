@@ -71,6 +71,7 @@ from tasks import *
 from taskinit import *
 from __main__ import *
 import unittest
+import numpy
 
 class ia_getregion_test(unittest.TestCase):
     
@@ -99,6 +100,34 @@ class ia_getregion_test(unittest.TestCase):
         )
         self.assertTrue(type(zz) == type(yy.getchunk()))
         yy.done()
+        
+    def test_precision(self):
+        """Test support for images with pixel values of various precisions"""
+        myia = iatool()
+        jj = 1.2345678901234567890123456789
+        for mytype in ('f', 'd'):
+            myia.fromshape("", [4,4], type=mytype)
+            gg = myia.getchunk()
+            gg[:] = jj
+            myia.putchunk(gg)
+            reg = myia.getregion()
+            if mytype == 'f':
+                self.assertTrue(numpy.isclose(reg, jj, 1e-8, 1e-8).all())
+                self.assertFalse(numpy.isclose(reg, jj, 1e-9, 1e-9).all())
+            else:
+                self.assertTrue((reg == jj).all())
+        jj = jj*(1+1j)
+        for mytype in ('c', 'cd'):
+            myia.fromshape("", [4,4], type=mytype)
+            gg = myia.getchunk()
+            gg[:] = jj
+            myia.putchunk(gg)
+            reg = myia.getregion()
+            if mytype == 'c':
+                self.assertTrue(numpy.isclose(reg, jj, 1e-8, 1e-8).all())
+                self.assertFalse(numpy.isclose(reg, jj, 1e-9, 1e-9).all())
+            else:
+                self.assertTrue((reg == jj).all())
         
 def suite():
     return [ia_getregion_test]

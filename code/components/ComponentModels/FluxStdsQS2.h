@@ -339,6 +339,44 @@ class FluxStdStevensReynolds2016 : public virtual FluxCalcVQS,
 private:
   virtual casacore::Bool setSourceCoeffs();
 };
+//
+// <summary>
+// // FluxStdPerleyButler2017: The PerleyButler2017 flux standard.
+// // </summary>
+// //
+// // <use visibility=export>
+// //
+// // <reviewed reviewer="" date="" tests="" demos="">
+// //
+// // <prerequisite>
+// // <li><linkto class="FluxStandard">FluxStandard</linkto> module
+// // <li><linkto class="FluxCalcLogFreqPolynomial">FluxCalcLogFreqPolynomial</linkto> module
+// // </prerequisite>
+// //
+// // <etymology>
+// // From "flux density", "standard", "Perley", "Butler", and "2017".
+// // </etymology>
+// //
+// // <synopsis>
+// // This specializes FluxCalcLogFreqPolynomial with the PerleyButler2017 coefficients and
+// // list of recognized sources. The coeffients are stored in a table along with epoch information. 
+// // </synopsis>
+// //
+// // <example>
+// // <srcblock>
+// // </srcblock>
+// // </example>
+// //
+// // <motivation>
+// // Support flux density calibration.
+// // </motivation>
+//
+class FluxStdPerleyButler2017 : public virtual FluxCalcVQS,
+                                private FluxCalcLogFreqPolynomial
+{
+private:
+  virtual casacore::Bool setSourceCoeffs();
+};
 
 } //# NAMESPACE NSTDS -END
 } //# NAMESPACE CASA - END

@@ -116,11 +116,15 @@ SPIIT ImageConcatenator<T>::concatenate(
 	}
 	casacore::uInt i = 1;
 	for(casacore::String name: imageNames) {
-		auto mypair = ImageFactory::fromFile(name);
-		auto oDType = mypair.first ? mypair.first->dataType() : mypair.second->dataType();
-		const auto& oCsys = mypair.first
-			? mypair.first->coordinates()
-			: mypair.second->coordinates();
+		auto imagePtrs = ImageFactory::fromFile(name);
+        SPCIIF imageF;
+        SPCIIC imageC;
+        std::tie(imageF, imageC, std::ignore, std::ignore) = imagePtrs;
+        ThrowIf(! (imageF || imageC), "Unsupported image pixel data type");
+		auto oDType = imageF ? imageF->dataType() : imageC->dataType();
+		const auto& oCsys = imageF
+			? imageF->coordinates()
+			: imageC->coordinates();
 		ThrowIf(
 			oDType != dataType,
 			"Concatenation of images of different data types is not supported"
@@ -129,11 +133,11 @@ SPIIT ImageConcatenator<T>::concatenate(
 			ThrowIf(
 				_minMaxAxisValues(
 					minVals[i], maxVals[i],
-					mypair.first ? mypair.first->ndim() : mypair.second->ndim(),
+					imageF ? imageF->ndim() : imageC->ndim(),
 					oCsys,
-					mypair.first
-						? mypair.first->shape()
-						: mypair.second->shape()
+					imageF
+						? imageF->shape()
+						: imageC->shape()
 				) != isIncreasing,
 				"Coordinate axes in different images with opposing increment signs "
 				"is not permitted if relax=false or reorder=true"

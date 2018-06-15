@@ -226,11 +226,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  {
 	    //	    imptr.reset( new PagedImage<Float> (itsImageName+String(".psf")) );
 	    buildImage( imptr, (itsImageName+String(".psf")) );
+            itsObjectName=imptr->imageInfo().objectName();
 	    itsMiscInfo=imptr->miscInfo();
 	  }
 	else if ( doesImageExist(itsImageName+String(".residual")) ){
 	  //imptr.reset( new PagedImage<Float> (itsImageName+String(".residual")) );
 	  buildImage( imptr, (itsImageName+String(".residual")) );
+          itsObjectName=imptr->imageInfo().objectName();
 	  itsMiscInfo=imptr->miscInfo();
 	}
 	else
@@ -565,24 +567,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return imPtr;
   }
 
-
-  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr,IPosition shape, CoordinateSystem csys, String name)
+  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, IPosition shape,
+                                CoordinateSystem csys, const String name)
   {
-
-    //    LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
-    //    os  <<"Opening new image " << name << LogIO::POST;
+    LogIO os( LogOrigin("SIImageStore", "Open non-existing image", WHERE) );
+    os  <<"Opening image, name: " << name << LogIO::DEBUG1;
 
     itsOpened++;
     imptr.reset( new PagedImage<Float> (shape, csys, name) );
-    
-    ImageInfo info = imptr->imageInfo();
-    String objectName("");
-    if( itsMiscInfo.isDefined("OBJECT") ){ itsMiscInfo.get("OBJECT", objectName); }
-    if(objectName != String("")){
-      info.setObjectName(objectName);
-      imptr->setImageInfo( info );
-    }
-    imptr->setMiscInfo( itsMiscInfo );
+    initMetaInfo(imptr, name);
+
     /*
     Int MEMFACTOR = 18;
     Double memoryMB=HostInfo::memoryTotal(True)/1024/(MEMFACTOR*itsOpened);
@@ -598,11 +592,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     */
   }
 
-  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, String name)
+  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, const String name)
   {
-
-    //    LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
-    //    os  <<"Opening existing image " << name << LogIO::POST;
+    LogIO os(LogOrigin("SIImageStore", "Open existing Images", WHERE));
+    os  <<"Opening image, name: " << name << LogIO::DEBUG1;
 
     itsOpened++;
     //imptr.reset( new PagedImage<Float>( name ) );
@@ -648,12 +641,40 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
+  /**
+   * Sets ImageInfo and MiscInfo on an image
+   *
+   * @param imptr image to initialize
+   */
+  void SIImageStore::initMetaInfo(SHARED_PTR<ImageInterface<Float> > &imptr,
+                                  const String name)
+  {
+      // Check objectname, as one of the mandatory fields. What this is meant to check is -
+      // has the metainfo been initialized? If not, grab info from associated PSF
+      if (not itsObjectName.empty()) {
+          ImageInfo info = imptr->imageInfo();
+          info.setObjectName(itsObjectName);
+          imptr->setImageInfo(info);
+          imptr->setMiscInfo(itsMiscInfo);
+      } else if (std::string::npos == name.find(imageExts(PSF))) {
+          auto srcImg = psf(0);
+          if (nullptr != srcImg) {
+              imptr->setImageInfo(srcImg->imageInfo());
+              imptr->setMiscInfo(srcImg->miscInfo());
+          }
+      }
+  }
 
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  void SIImageStore::setImageInfo(const Record miscinfo)
+  void SIImageStore::setMiscInfo(const Record miscinfo)
   {
     itsMiscInfo = miscinfo;
+  }
+
+  void SIImageStore::setObjectName(const String name)
+  {
+    itsObjectName = name;
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

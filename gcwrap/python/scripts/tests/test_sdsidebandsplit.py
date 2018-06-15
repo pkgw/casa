@@ -46,7 +46,7 @@ class sdsidebandsplitTestBase(unittest.TestCase):
         signalshift = [0.0, -102, +8, +62, +88, +100],
         imageshift = [0.0, 102, -8, -62, -88, -100],
         getbothside = False,
-        refpix = 0.0,
+        refchan = 0.0,
         refval = '805GHz',
         otherside = False,
         threshold = 0.2
@@ -83,6 +83,11 @@ class sdsidebandsplitTestBase(unittest.TestCase):
                 shutil.rmtree(prefix+suffix)
 
     def tearDown(self):
+        # remove input images
+        for name in self.standard_param['imagename']:
+            if os.path.exists(name):
+                shutil.rmtree(name)
+                
         # remove output files
         prefix = self.standard_param['outfile']
         for suffix in ['.signalband', '.imageband']:
@@ -123,7 +128,7 @@ class sdsidebandsplitTestBase(unittest.TestCase):
                             'Internal Error: No valid reference value for image sideband')
             # modify refcsys for image sideband
             spid = refcsys.findaxisbyname('spectral')
-            refcsys.setreferencepixel(task_param['refpix'], 'spectral')
+            refcsys.setreferencepixel(task_param['refchan'], 'spectral')
             myqa = qatool()
             refcsys.setreferencevalue(myqa.convert(task_param['refval'],
                                                    refcsys.units()[spid])['value'],
@@ -335,6 +340,13 @@ class standardTestCase(sdsidebandsplitTestBase):
                                       SpectralInfo(1700, 2700, 6.05933, 1.02671, 4.92205, 2297.6872, 19.75842, 1.14450)),
                               image=(SpectralInfo(1000, 2000, 8.07553, 1.05448, 6.94301, 1600.1052, 19.95953, 1.13069),
                                      SpectralInfo(2500, 3500, 3.06859, 1.00263, 1.99147, 2999.9953, 9.92538, 1.07988)))
+    
+    def assertAlmostEqual2(self, first, second, eps=1.0e-7, msg=None):
+        if second == 0:
+            self.assertLessEqual(abs(first), eps, msg)
+        else:
+            reldiff = abs((first - second) / second)
+            self.assertLessEqual(reldiff, eps, msg)
  
     def compare_image_data(self, data, reference):
         """
@@ -350,14 +362,20 @@ class standardTestCase(sdsidebandsplitTestBase):
         for seg in reference:
             sp = data[0,0,0,seg.start:seg.end]
             x = range(seg.start, seg.end)
-            self.assertAlmostEqual(sp.max(), seg.max, 3, 'Max comparison failed')
-            self.assertAlmostEqual(sp.min(), seg.min, 3, 'Min comparison failed')
+            #print('Max: ref {0} val {1}'.format(seg.max, sp.max()))
+            #print('Min: ref {0} val {1}'.format(seg.min, sp.min()))
+            self.assertAlmostEqual2(sp.max(), seg.max, 1e-3, 'Max comparison failed')
+            self.assertAlmostEqual2(sp.min(), seg.min, 0.01, 'Min comparison failed')
             # compare gaussian fit
             fitp, _dummy = gauss_fit(x, sp)
-            self.assertAlmostEqual(fitp[0], seg.peak, 3, 'Peak comparison failed')
-            self.assertAlmostEqual(fitp[1], seg.center, 2, 'Peak position comparison failed')
-            self.assertAlmostEqual(numpy.abs(fitp[2]), numpy.abs(seg.width), 3, 'Width comparison failed')
-            self.assertAlmostEqual(fitp[3], seg.offset, 3, 'Offset comparison failed')
+            #print('Peak: ref {0} val {1}'.format(seg.peak, fitp[0]))
+            #print('Peak Pos: ref {0} val {1}'.format(seg.center, fitp[1]))
+            #print('Width: ref {0} val {1}'.format(seg.width, fitp[2]))
+            #print('Offset: ref {0} val {1}'.format(seg.offset, fitp[3]))
+            self.assertAlmostEqual2(fitp[0], seg.peak, 1e-3, 'Peak comparison failed')
+            self.assertAlmostEqual2(fitp[1], seg.center, 1e-3, 'Peak position comparison failed')
+            self.assertAlmostEqual2(numpy.abs(fitp[2]), numpy.abs(seg.width), 1e-3, 'Width comparison failed')
+            self.assertAlmostEqual2(fitp[3], seg.offset, 1e-3, 'Offset comparison failed')
     
     # T-002
     def test_imagename_2images(self):
@@ -408,14 +426,14 @@ class standardTestCase(sdsidebandsplitTestBase):
         self.run_test(self.standard_reference, getbothside=True)
 
     # T-020
-    def test_refpix_negative(self):
-        """refpix = -1.0"""
-        self.run_test(self.standard_reference, getbothside=True, refpix=-1.0)
+    def test_refchan_negative(self):
+        """refchan = -1.0"""
+        self.run_test(self.standard_reference, getbothside=True, refchan=-1.0)
 
     # T-021
-    def test_refpix_large(self):
-        """refpix > nchan"""
-        self.run_test(self.standard_reference, getbothside=True, refpix=5000.0)
+    def test_refchan_large(self):
+        """refchan > nchan"""
+        self.run_test(self.standard_reference, getbothside=True, refchan=5000.0)
 
     # T-025
     def test_otherside(self):
@@ -455,7 +473,7 @@ class MultiPixTestCase(sdsidebandsplitTestBase):
         signalshift = [0.0, -102, +8, +62, +88, +100],
         imageshift = [0.0, 102, -8, -62, -88, -100],
         getbothside = False,
-        refpix = 0.0,
+        refchan = 0.0,
         refval = '805GHz',
         otherside = False,
         threshold = 0.2

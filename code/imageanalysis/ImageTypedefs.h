@@ -48,7 +48,11 @@ namespace casa {
 	using SPIIF = SHARED_PTR<casacore::ImageInterface<casacore::Float> >;
 	using SPCIIC = SHARED_PTR<const casacore::ImageInterface<casacore::Complex> >;
 	using SPIIC = SHARED_PTR<casacore::ImageInterface<casacore::Complex> >;
-
+	using SPCIID = SHARED_PTR<const casacore::ImageInterface<casacore::Double> >;
+	using SPIID = SHARED_PTR<casacore::ImageInterface<casacore::Double> >;
+	using SPCIIDC = SHARED_PTR<const casacore::ImageInterface<casacore::DComplex> >;
+	using SPIIDC = SHARED_PTR<casacore::ImageInterface<casacore::DComplex> >;
+	using ITUPLE = std::tuple<SPIIF, SPIIC, SPIID, SPIIDC>;
 }
 
 #endif

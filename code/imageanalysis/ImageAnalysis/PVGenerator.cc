@@ -331,7 +331,7 @@ SPIIF PVGenerator::_doCollapse(
 
     // to determine the pixel increment of the angular offset axis, get the
     // distance between the end points
-    ImageMetaData md(collapsed);
+    ImageMetaData<Float> md(collapsed);
     Vector<Int> dirShape = md.directionShape();
     AlwaysAssert(dirShape[1] == 1, AipsError);
     const auto& dc = collCoords.directionCoordinate();

@@ -1265,17 +1265,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 	
 	// Fill in miscellaneous information needed by FITS
-	//ROMSColumns msc(mss4vi_p[0]);
+        auto objectName = msc.field().name()(msc.fieldId()(0));
+        imstor->setObjectName(objectName);
 	Record info;
-	
-	String objectName=msc.field().name()(msc.fieldId()(0));
-	String telescop=msc.observation().telescopeName()(0);
-	info.define("OBJECT", objectName);
-	info.define("TELESCOP", telescop);
+	auto telescop=msc.observation().telescopeName()(0);
 	info.define("INSTRUME", telescop);
 	info.define("distance", distance.get("m").getValue());
-	////////////// Send misc info into ImageStore. 
-	imstor->setImageInfo( info );
+	///// Send misc info into ImageStore. This will go to the 'miscinfo' table keyword
+	imstor->setMiscInfo( info );
 
 	// Get polRep from 'msc' here, and send to imstore. 
 	StokesImageUtil::PolRep polRep(StokesImageUtil::CIRCULAR);
@@ -1501,13 +1498,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           // heuristic factors multiplied to imshape based on gridder
           size_t fudge_factor = 15;
           if (ftm->name()=="MosaicFTNew") {
-              fudge_factor = 15;
+              fudge_factor = 20;
           }
           else if (ftm->name()=="GridFT") {
               fudge_factor = 9;
           }
 
-          size_t required_mem = fudge_factor * sizeof(Float);
+          Double required_mem = fudge_factor * sizeof(Float);
           for (size_t i = 0; i < imshape.nelements(); i++) {
               // gridding pads image and increases to composite number
               if (i < 2) {
@@ -1526,7 +1523,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           }
           // assumes all processes need the same amount of memory
           required_mem *= nlocal_procs;
-
           Double usr_memfrac, usr_mem;
           AipsrcValue<Double>::find(usr_memfrac, "system.resources.memfrac", 80.);
           AipsrcValue<Double>::find(usr_mem, "system.resources.memory", -1024.);
@@ -1535,9 +1531,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               memory_avail = usr_mem * 1024. * 1024.;
           }
           else {
-              memory_avail = HostInfo::memoryTotal(false) * (usr_memfrac / 100.) * 1024.;
+	    memory_avail = Double(HostInfo::memoryFree()) * (usr_memfrac / 100.) * 1024.;
           }
-
 
           // compute required chanchunks to fit into the available memory
           chanchunks = (int)std::ceil((Double)required_mem / memory_avail);
