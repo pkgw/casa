@@ -320,7 +320,7 @@
                 <value type="string"></value>
             </param>
             <param type="double" name="timedevscale" subparam="true">
-                <description>Threshold scaling for timedev [aips:fparm(9)]. Ignored for the purpose of calculating thresholds (when action is "calculate") It is used when applying flags and displaying reports..</description>
+                <description>Threshold scaling for timedev [aips:fparm(9)]. Ignored for the purpose of calculating thresholds (when action is 'calculate') It is used when applying flags (i.e. action='apply') and displaying reports when action='calculate'.</description>
                 <value>5.0</value>
             </param>
             <param type="double" name="freqdevscale" subparam="true">
