@@ -10,6 +10,10 @@ from casac import casac
 import TelemetryLogMonitor
 from casac import casac
 
+def logShutdown():
+    if (casa['state']['telemetry-enabled'] == True):
+        casalog.poststat("Stop CASA")
+
 telemetryhelper = casac.telemetryhelper()
 hostid = telemetryhelper.getUniqueId()
 
@@ -55,6 +59,7 @@ if ( casa['flags'].telemetry or
 
      logfiles.sort(reverse=True)
 
+     add_shutdown_hook(logShutdown)
      # Size of the existing (non-active) logfiles
      inactiveTLogSize = 0
 

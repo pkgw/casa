@@ -27,7 +27,6 @@ class telemetry:
 
     def submitStatistics(self):
         if (self.casa['state']['telemetry-enabled'] == True):
-            self.logger.poststat("Stop CASA")
             self.logger.post("Checking telemetry submission interval")
             self.createStampFile()
             if (self.isSubmitInterval()):
