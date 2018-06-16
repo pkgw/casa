@@ -473,7 +473,7 @@ FlagReport FlagAgentRFlag::getReport()
     Int nEntriesNoise = field_spw_noise_map_p.size();
     Int nEntriesScutoff = field_spw_scutoff_map_p.size();
 
-    if(nEntriesNoise>0 || nEntriesScutoff>0)
+    if(nEntriesNoise > 0 || nEntriesScutoff > 0)
     {
         Matrix<Double> timedev(nEntriesNoise,3), freqdev(nEntriesScutoff,3);
         Int threshCountTime = 0, threshCountFreq = 0;
@@ -749,7 +749,7 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
 
   // Time-Direction analysis: Fix channel/polarization and compute stats with all time-steps
   // NOTE: It is better to operate in channel/polarization sequence for data contiguity
-  if ( (noise < 0) or ((noise > 0) and (doflag_p == true) and (prepass_p == false)) )
+  if ( (noise <= 0) or ((noise >= 0) and (doflag_p == true) and (prepass_p == false)) )
     {
       for (uInt chan_j=0; chan_j<(uInt)nChannels; ++chan_j)
 	{
@@ -804,7 +804,7 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
 		  // Apply flags or generate histogram?
 		  // NOTE: AIPS RFlag has the previous code duplicated in two separated
 		  // routines, but I don't see a reason to do this, performance-wise
-		  if (noise < 0)
+		  if (noise <= 0)
 		    {
 		      field_spw_noise_histogram_counts_p[spw_field][chan_j] += 1;
 		      field_spw_noise_histogram_sum_p[spw_field][chan_j]  += StdTotal;
@@ -827,7 +827,7 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
     }
 
   // Spectral analysis: Fix timestep/polarization and compute stats with all channels
-  if ( (scutoff < 0) or ((scutoff > 0) and (doflag_p == true) and (prepass_p == false)) )
+  if ( (scutoff <= 0) or ((scutoff >= 0) and (doflag_p == true) and (prepass_p == false)) )
     {
       for (uInt timestep_i=centralTime; timestep_i<=centralTime; ++timestep_i)
 	{
@@ -846,7 +846,7 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
 						visibilities,
 						flags);
 
-	      if (scutoff < 0)
+	      if (scutoff <= 0)
 		{
 		  for (uInt chan_j=0; chan_j<(uInt) nChannels; ++chan_j)
 		    {
