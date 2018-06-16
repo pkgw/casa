@@ -810,7 +810,8 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
 		      field_spw_noise_histogram_sum_p[spw_field][chan_j]  += StdTotal;
 		      field_spw_noise_histogram_sum_squares_p[spw_field][chan_j]  += StdTotal*StdTotal;
 		    }
-		  else if (StdTotal > noise)
+
+		  if (noise >=0 and StdTotal > noise)
 		    {
 		      for (uInt timestep_i=timeStart; timestep_i<=timeStop; ++timestep_i)
 			{
@@ -873,7 +874,8 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
 			}
 		    }
 		}
-	      else
+
+	      if (scutoff >=0)
 		{
 		  // Flag all channels?
 		  if (	(StdReal > spectralmax_p) or
