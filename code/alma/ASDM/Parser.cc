@@ -35,9 +35,7 @@
 #include <Base64.h>
 
 #include <Parser.h>
-#ifndef WITHOUT_BOOST
 #include <boost/property_tree/detail/xml_parser_utils.hpp>
-#endif
 #include <OutOfBoundsException.h>
 #include <NumberFormatException.h>
 #include <BooleanWrapper.h>

@@ -5,9 +5,7 @@
 #include <ArrayTimeInterval.h>
 #include <CAtmPhaseCorrection.h>
 
-#ifndef WITHOUT_BOOST
 #include <boost/shared_array.hpp>
-#endif
 
 using asdm::ArrayTime;
 using asdm::Interval;
