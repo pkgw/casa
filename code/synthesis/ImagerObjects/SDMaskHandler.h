@@ -271,7 +271,10 @@ public:
   casacore::Float pixelBeamArea(const casacore::GaussianBeam& beam, const casacore::CoordinateSystem& csys); 
 
   // Create a mask image applying PB level
-  void makePBMask(SHARED_PTR<SIImageStore> imstore, casacore::Float pblimit=0.1);
+  // @param[in, out] imstore SIImageStore 
+  // @param[in] pblimit Primary beam cut off level
+  // @param[in] pblimit Primary beam cut off level
+  void makePBMask(SHARED_PTR<SIImageStore> imstore, casacore::Float pblimit=0.1, casacore::Bool combinemask=false);
 
   void autoMaskWithinPB(SHARED_PTR<SIImageStore> imstore, 
                         casacore::TempImage<casacore::Float>& posmask,
@@ -362,6 +365,8 @@ public:
 
 
   // 
+  casacore::Bool compareSpectralCoordinate(const casacore::ImageInterface<casacore::Float>& inImage, 
+                                    const casacore::ImageInterface<casacore::Float>& outImage);
   static casacore::Bool cloneImShape(const casacore::ImageInterface<casacore::Float>& inImage, const casacore::String& outImageName);
   // max MB of memory to use in TempImage
   static inline casacore::Double memoryToUse() {return 1.0;};

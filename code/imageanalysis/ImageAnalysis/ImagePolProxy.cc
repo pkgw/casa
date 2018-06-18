@@ -146,8 +146,8 @@ namespace casa { //# name space casa begins
     // If not given make RM with no ambiguity
     Vector<Float> rm2(rm.size());
     if (rmDefault) {
-      Double l1 = QC::c.getValue(Unit("m/s")) / f0;
-      Double l2 = QC::c.getValue(Unit("m/s")) / (f0+df);
+      Double l1 = QC::c( ).getValue(Unit("m/s")) / f0;
+      Double l2 = QC::c( ).getValue(Unit("m/s")) / (f0+df);
       rm2.resize(1);
       rm2(0) = C::pi / 2 / (l1*l1 - l2*l2);
     } else {
@@ -1190,7 +1190,7 @@ Bool  ImagePol::fillIQUV (ImageInterface<Float>& im, uInt stokesAxis,
   const SpectralCoordinate& sC = cSys.spectralCoordinate(spectralCoord);
   //
   IPosition shape = im.shape();
-  Double c = QC::c.getValue(Unit("m/s"));
+  Double c = QC::c( ).getValue(Unit("m/s"));
   Double lambdasq;
   MFrequency freq;
   IPosition blc(4,0);

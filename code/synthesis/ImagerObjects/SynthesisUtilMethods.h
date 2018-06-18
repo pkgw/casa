@@ -133,8 +133,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     static casacore::Int getOptimumSize(const casacore::Int npix);
 
-    static casacore::Int parseLine(char* line);
-    static void getResource(casacore::String label="",casacore::String fname="");
+    static void getResource(casacore::String label="", casacore::String fname="");
     
     // return comprehensible direction string from given MDirection object
     static casacore::String asComprehensibleDirectionString(casacore::MDirection const &direction);
@@ -144,6 +143,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     static casacore::Vector<casacore::uInt> primeFactors(casacore::uInt n, casacore::Bool douniq=true);
 
+  private:
+    static casacore::String makeResourceFilename(int pid);
+
+    static casacore::String g_hostname;
+    static casacore::String g_startTimestamp;
+    static const casacore::String g_enableOptMemProfile;
+
+    static casacore::Int parseProcStatusLine(const std::string &str);
   };
 
 class SynthesisParams
@@ -251,6 +258,9 @@ public:
   casacore::Bool useNCP;
   casacore::MDirection phaseCenter;
   casacore::Int phaseCenterFieldId;
+
+  // Stokes info
+  casacore::Bool pseudoi;
 
   // Spectral coordinates ( TT : Add other params here  )
   casacore::Int nchan, nTaylorTerms, chanStart, chanStep;

@@ -3904,6 +3904,8 @@ VisibilityIteratorImpl2::initializeBackWriters()
 		makeBackWriter(& VisibilityIteratorImpl2::writeWeight, & VisBuffer2::weight);
 	backWriters_p[VisBufferComponent2::WeightSpectrum] =
 		makeBackWriter(& VisibilityIteratorImpl2::writeWeightSpectrum, & VisBuffer2::weightSpectrum);
+	backWriters_p[VisBufferComponent2::SigmaSpectrum] =
+		makeBackWriter(& VisibilityIteratorImpl2::writeSigmaSpectrum, & VisBuffer2::sigmaSpectrum);
 
 	// Now do the visibilities.
 

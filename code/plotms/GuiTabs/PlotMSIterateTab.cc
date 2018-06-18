@@ -450,11 +450,12 @@ void PlotMSIterateTab::getValue(PlotMSPlotParameters& params) const   {
 	d->setGlobalScaleX( globalXCheck->isChecked());
 	d->setGlobalScaleY( globalYCheck->isChecked());
 
-	d->setCommonAxisX( sharedXCheck->isChecked());
-	d->setCommonAxisY( sharedYCheck->isChecked());
+	// only set if grid
+	d->setCommonAxisX( gridRowSpin->maximum()>1 && sharedXCheck->isChecked());
+	d->setCommonAxisY( gridColSpin->maximum()>1 && sharedYCheck->isChecked());
 
-	//Note, we are subtracting 1 because UI values start with 1, but internal
-	//values are 0 based.
+	//Note, we are subtracting 1 because UI values start with 1,
+	//but internal values are 0 based.
 	int rowSpinIndex = gridRowSpin->value() - 1;
 	int colSpinIndex = gridColSpin->value() - 1;
 	d->setGridRow( rowSpinIndex );
@@ -480,6 +481,7 @@ void PlotMSIterateTab::setValue(const PlotMSPlotParameters& params) {
   sharedYCheck->setChecked( d->isCommonAxisY() );
   globalXCheck->setChecked( d->isGlobalScaleX() );
   globalYCheck->setChecked( d->isGlobalScaleY() );
+  globalChanged();
 
   int rowIndex = d->getGridRow();
   int colIndex = d->getGridCol();

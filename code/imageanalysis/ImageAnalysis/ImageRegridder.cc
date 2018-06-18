@@ -225,7 +225,7 @@ SPIIF ImageRegridder::_regrid() const {
 }
 
 SPIIF ImageRegridder::_decimateStokes(SPIIF workIm) const {
-    ImageMetaData md(workIm);
+    ImageMetaData<Float> md(workIm);
     if (_getOutputStokes().size() >= md.nStokes()) {
         return workIm;
     }
@@ -496,8 +496,8 @@ Bool ImageRegridder::_doImagesOverlap(
     const CoordinateSystem csys1 = image1->coordinates();
     IPosition shape0 = image0->shape();
     IPosition shape1 = image1->shape();
-    ImageMetaData md0(image0);
-    ImageMetaData md1(image1);
+    ImageMetaData<Float> md0(image0);
+    ImageMetaData<Float> md1(image1);
     Bool overlap = false;
     if (
         csys0.hasDirectionCoordinate()

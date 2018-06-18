@@ -7,7 +7,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <!-- This is the parameter set for listsdm -->
 
-<task type="function" name="listsdm" category="information" visibility="experimental">
+<task type="function" name="listsdm" category="information">
 
   <shortdescription>Lists observation information present in an SDM directory.</shortdescription>
 
@@ -44,7 +44,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	'spws'       list of spectral windows
 	'start'      observation start time (UTC)
 	'timerange'  start time - end time range (UTC)
-	
+
 	Example:
 
 	myscans = listsdm(sdm='AS1039_sb1382796_2_000.55368.51883247685')
@@ -54,9 +54,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
         Keyword argument:
 
-        sdm -- Name of input SDM directory.  
+        sdm -- Name of input SDM directory.
                example: sdm='AG836_sb1377811_1.55345.300883159725'
-	       	
+
   </example>
 
 </task>

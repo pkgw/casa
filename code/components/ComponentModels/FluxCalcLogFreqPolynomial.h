@@ -129,6 +129,8 @@ private:
   // same number of coefficients as the first element, or even any
   // coefficients.  Both Vectors start with the 0th order term.
   casacore::RigidVector<casacore::Vector<casacore::Float>, 2> coeffs_p;
+  //casacore::RigidVector<casacore::Double, 2> validfrange_p;
+  casacore::Vector<casacore::MFrequency> validfrange_p;
 
   // The frequency unit (e.g. "MHz" or "GHz") assumed by coeffs_p.
   casacore::String freqUnit_p;

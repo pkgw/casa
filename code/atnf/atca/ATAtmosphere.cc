@@ -134,13 +134,13 @@ void ATAtmosphere::recomputeAtmosphereModel()
   const Double g = 9.81;
   
   const Double wvGndSaturationPressure = wvSaturationPressure(itsGndTemperature);
-  const Double gndPressure = itsPressure*exp(-M*g/(QC::R.get().getValue()*itsGndTemperature)*
+  const Double gndPressure = itsPressure*exp(-M*g/(QC::R( ).get().getValue()*itsGndTemperature)*
                    (itsObsHeight+0.5*itsLapseRate*itsObsHeight*itsObsHeight/itsGndTemperature));
   for (Int layer = 0; layer < nLayers(); ++layer) {
        const Double height = Double(layer)*heightStep;
        itsHeights[layer] = height;
        itsTemperatures[layer] = itsGndTemperature/(1.+itsLapseRate*height/itsGndTemperature);
-       const Double pressure = gndPressure * exp(-M*g/(QC::R.get().getValue()*itsGndTemperature)*
+       const Double pressure = gndPressure * exp(-M*g/(QC::R( ).get().getValue()*itsGndTemperature)*
                    (height+0.5*itsLapseRate*height*height/itsGndTemperature));
        itsVapourPressures[layer] = casacore::min(itsGndHumidity*exp(-height/itsWVScale)*wvGndSaturationPressure,
                                              wvSaturationPressure(itsTemperatures[layer]));
@@ -389,7 +389,7 @@ Double ATAtmosphere::zenithOpacity(Double freq) const
        const Double nImag = 1e-6*std::imag(dryRefractivity(freq,itsTemperatures[layer],itsDryPressures[layer],
              itsVapourPressures[layer])+vapourRefractivity(freq,itsTemperatures[layer],itsDryPressures[layer],
              itsVapourPressures[layer]));
-       tau += dH*4.*casacore::C::pi/QC::c.get().getValue()*freq*nImag;
+       tau += dH*4.*casacore::C::pi/QC::c( ).get().getValue()*freq*nImag;
   }
   return tau;
 }
@@ -442,7 +442,7 @@ Double ATAtmosphere::opacity(Double freq, Double el) const
        const Double nReal = 1. + 1e-6*std::real(n);
        // length increment
        const Double dL = dH*nReal/sqrt(nReal*nReal+sineEl*sineEl-1.);
-       tau += dL*4.*casacore::C::pi/QC::c.get().getValue()*freq*nImag;
+       tau += dL*4.*casacore::C::pi/QC::c( ).get().getValue()*freq*nImag;
   }
   return tau;  
 }

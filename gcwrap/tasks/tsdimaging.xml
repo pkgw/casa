@@ -37,7 +37,14 @@ channels selected.\n
 Finally, polarizations of image is defined by stokes parameter or
 polarization. For example, stokes='XXYY' produces an image cube with
 each plane contains the image of one of the polarizations, while
-stokes='I' produces a 'total intensity' or Stokes I image.\n
+stokes='I' produces a 'total intensity' or Stokes I image.
+The stokes parameter has a special option, 'pseudoI'. The option is 
+introduced to support imaging of partially flagged correlations. 
+Main difference between 'I' and 'pseudoI' is that the former only takes 
+into account the data whose correlations are all valid (this is the 
+Stokes I in the strict sense) while the latter accumulates partially 
+flagged data in addition. Note that the 'pseudoI' option is compatible 
+with 'I' for sdimaging task. 
 
 The task also supports various grid function (convolution kernel) to
 weight spectra as well as an option to remove the most extreme minimum 
@@ -247,7 +254,25 @@ values. See description below for details of gridfunction available.
 
     <param type="string" name="stokes">
             <description>stokes parameters or polarization types to image, e.g. \'I\', \'XX\'</description>
-            <value></value>
+            <value type="string">I</value>
+            <allowed kind="enum">
+            <value>I</value>
+            <value>Q</value>
+            <value>U</value>
+            <value>V</value>
+            <value>IV</value>
+            <value>QU</value>
+            <value>IQ</value>
+            <value>UV</value>
+            <value>IQUV</value>
+            <value>RR</value>
+            <value>LL</value>
+            <value>XX</value>
+            <value>YY</value>
+            <value>RRLL</value>
+            <value>XXYY</value>
+            <value>pseudoI</value>
+	    </allowed>
     </param>
 
     <param type="double" name="minweight">
@@ -525,9 +550,12 @@ pointingcolumn -- pointing data column to use
 restfreq -- specify rest frequency to use for output image
         default: '' (refer input data)
         example: 1.0e11, '100GHz'
-stokes -- stokes parameters or polarization types to image
-        default: '' (use all polarizations)
-        example: 'XX'
+stokes -- Stokes Planes to make
+        default='I'; example: stokes='XXYY';
+        options: 'I','Q','U','V','IV','QU','IQ','UV','IQUV','RR','LL','XX','YY','RRLL','XXYY','pseudoI' 
+        Note : The 'pseudoI' option is a partial solution, allowing Stokes I imaging
+               when either of the parallel-hand correlations are unflagged. 
+
 minweight -- Minimum weight ratio to the median of weight used in 
              weight correction and weight based masking
         default: 0.1

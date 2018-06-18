@@ -5,7 +5,7 @@
       xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-<task type="function" name="msuvbin" category="ms, averaging">
+<task type="function" name="msuvbin" category="calibration" visibility="experimental">
 	<shortdescription>grid the visibility data onto a defined uniform grid (in the form of an ms); multiple MS\'s can be done onto the same grid</shortdescription>
 	<description>
 	  msuvbin is a uv gridding task. The use is for large volumes
@@ -14,7 +14,7 @@
 	  average them after wards. Rather than doing this averaging
 	  the visibilities on a common uv grid has several convenience
 	  advantages like easily doing the proper weighted averaging and imaging.
-	  If an output grid already exists and a second ms is gridded on the grid 
+	  If an output grid already exists and a second ms is gridded on the grid
 	  then the output grid parameters is ignored but the existant grid is used.
 
 	</description>
@@ -83,7 +83,7 @@
 		<param type="bool" name="wproject">
 			<description>Do wprojection correction while gridding</description>
 			<value>False</value>
-		</param>	
+		</param>
 		<param type="double" name="memfrac">
 		  <description>Limit how much of memory to use</description>
 		  <value>0.5</value>
@@ -93,15 +93,15 @@
 		  </allowed>
 		</param>
 
-	
+
 
 	</input>
 <returns type="void"/>
 
 <example>
 
-      
-               
+
+
 
        Keyword arguments:
        vis -- Name of input visibility file
@@ -116,10 +116,10 @@
        taql  --TaQl expression for data selection (see http://www.astron.nl/casacore/trunk/casacore/doc/notes/199.html)
                default taql=''
 	       Example select all data where U &gt; 1 m in the ms
-	       taql='UVW[0] &gt; 1' 
+	       taql='UVW[0] &gt; 1'
        outvis -- name of output grid
                default: ''  The user has to give something here
-       phasecenter -- phasecenter of the grid          
+       phasecenter -- phasecenter of the grid
                default= ''
                 phasecenter='J2000 18h03m04 -20d00m45.1'
       nx  -- number of pixels along the x axis of the grid
@@ -146,8 +146,8 @@
                 wproject=True
         memfrac -- control how much of computer's memory is available for  gridding
                 default=0.5
-                memfrac=0.9 
-               
+                memfrac=0.9
+
  </example>
  </task>
  </casaxml>
