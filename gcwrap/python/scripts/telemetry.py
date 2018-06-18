@@ -6,21 +6,74 @@ from casac import casac
 import datetime
 import time
 import urllib2
+import __casac__
+import TelemetryLogMonitor
 
 class telemetry:
 
-    def __init__(self, logdir, logpattern, casa):
-        if (logdir is None or logdir == ""):
-            print "No log directory provided. Can't submit telemetry data."
-            return
-        if (logpattern is None or logpattern == ""):
-            print "No log pattern provided. Can't submit telemetry data."
-            return
-        self.logdir = logdir
-        self.logpattern = logpattern
+    def __init__(self, casa):
+
+        self.setCasaVersion()
+        self.setHostId()
+        self.logdir = casa['dirs']['rc']
+        self.logpattern = 'casastats-' + self.casaver + '-' + self.hostid + '*.log'
         self.stampfile = self.logdir + "/telemetry.stamp"
         self.casa = casa
 
+        logfiles = []
+
+        for file in os.listdir(self.logdir):
+            if fnmatch.fnmatch(file, self.logpattern):
+                 #print "Matched: " + file
+                 logfiles.append(file)
+
+        logfiles.sort(reverse=True)
+        # Size of the existing (non-active) logfiles
+        inactiveTLogSize = 0
+
+        if (logfiles and logfiles[0] != None):
+            print "Found an existing telemetry logfile: " + casa['dirs']['rc'] + "/" + logfiles[0]
+            casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + "/" + logfiles[0]
+            for i in range(1, len(logfiles)):
+                inactiveTLogSize = inactiveTLogSize + os.path.getsize(casa['dirs']['rc'] + "/" + logfiles[i])/1024
+                #print "Inactive log size: " + str(inactiveTLogSize)
+        else :
+             print "Creating a new telemetry file"
+             self.setNewTelemetryFile()
+
+        # Setup Telemetry log size monitoring
+        casa_util = __casac__.utils.utils()
+
+        # Size limit for the telemetry logs
+        tLogSizeLimit = 10000
+        # File size check interval
+        tLogSizeInterval = 60
+        try:
+            tLogSizeLimit = int(casa_util.getrc("TelemetryLogLimit"))
+            tLogSizeInterval = int(casa_util.getrc("TelemetryLogSizeInterval"))
+        except:
+            pass
+        # Subtract the inactive log sizes from the total log file size limit
+        tLogSizeLimit = tLogSizeLimit - inactiveTLogSize
+        if (tLogSizeLimit <= 0):
+            print "Telemetry log size limit exceeded. Disabling telemetry."
+            casa['state']['telemetry-enabled'] = False
+        else :
+            tLogMonitor = TelemetryLogMonitor.TelemetryLogMonitor()
+            tLogMonitor.start(casa['files']['telemetry-logfile'],tLogSizeLimit, tLogSizeInterval, casa)
+            print "Telemetry initialized."
+
+    def setNewTelemetryFile(self):
+        self.casa['files']['telemetry-logfile'] = self.casa['dirs']['rc'] + '/casastats-' + self.casaver +'-'  + self.hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
+
+    def setCasaVersion(self):
+        myUtils = casac.utils()
+        ver = myUtils.version()
+        self.casaver = str(ver[0])+ str(ver[1]) + str(ver[2])+ "-" + str(ver[3])
+
+    def setHostId(self):
+        telemetryhelper = casac.telemetryhelper()
+        self.hostid = telemetryhelper.getUniqueId()
 
     def setCasaLog(self, logger):
         self.logger = logger
@@ -32,6 +85,7 @@ class telemetry:
             if (self.isSubmitInterval()):
                 self.send('https://casa.nrao.edu/cgi-bin/crash-report.pl')
                 self.refreshStampFile()
+                self.setNewTelemetryFile()
 
 
     def isSubmitInterval(self):
@@ -85,7 +139,7 @@ class telemetry:
         if (len(logfiles) > 0):
             #Tar logfiles
             current_date = datetime.datetime.today().strftime('%Y%m%d%H%M%S')
-            tarfileid = self.logdir + "telemetry-" \
+            tarfileid = self.logdir + "/telemetry-" \
                         + telemetryhelper.getUniqueId() + "-" \
                         + current_date + ".tar.gz"
             tar = tarfile.open(tarfileid, "w:gz")
