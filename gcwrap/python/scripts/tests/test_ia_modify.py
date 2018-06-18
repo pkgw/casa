@@ -276,7 +276,10 @@ class ia_modify_test(unittest.TestCase):
         stats = myim.statistics(list=False)
         self.assertTrue(stats, 'failed to get statistics')
         diff = abs(stats['flux']-flux)/flux
-        self.assertTrue(numpy.isclose(stats['flux'], flux, 0.001), 'model image 1 has wrong values')
+        self.assertTrue(
+            numpy.isclose(stats['flux'], flux, 0.001),
+            'model image 1 has wrong values'
+        )
         # Subtract it again
         # debug
         self.assertTrue(myim.modify(cl0.torecord(), subtract=True))
@@ -302,7 +305,27 @@ class ia_modify_test(unittest.TestCase):
         self.assertTrue(cl1['converged'], 'fitcomponents 1 did not converge')
         cl1tool=cltool()
         cl1tool.fromrecord(cl1['results'])
-        self.assertTrue(compareComponentList(cl0,cl1tool), 'failed fitcomponents 1')
+        self.assertTrue(
+            compareComponentList(cl0,cl1tool), 'failed fitcomponents 1'
+        )
+        
+    def test_point_source_fix(self):
+        """Test fix of x/y swap bug CAS-11502"""
+        mycl = cltool()
+        # pixel [10, 30]
+        mycl.addcomponent(flux=1, dir=['J2000', '00:02:40.00', '-00.20.00.0'])
+        myia = iatool()
+        myia.fromshape("", [100, 100, 1, 1])
+        self.assertTrue(
+            myia.modify(model=mycl.torecord()), "Failed to run ia.modify"
+        )
+        mycl.done()
+        stats = myia.statistics()
+        myia.done()
+        self.assertTrue(
+            (stats['minpos'] == [10, 30, 0, 0]).all(),
+            "Incorrect point source pixel posiiton"
+        )
 
 def suite():
     return [ia_modify_test]
