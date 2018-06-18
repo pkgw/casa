@@ -1420,9 +1420,9 @@ public:
 			updated();
 		}
 	}
-	string xConnect(unsigned int index=0) {
+	string xConnect(unsigned int index=0) const {
 		if (index >= itsXConnects_.size())
-			itsXConnects_.resize(index+1);
+			const_cast < vector < string >&>(itsXConnects_).resize (index + 1);
 		return itsXConnects_[index];
 	}
 	void setXConnect(const string& value, unsigned int index=0) {
@@ -1443,9 +1443,9 @@ public:
 			updated();
 		}
 	}
-	bool timeConnect(unsigned int index=0) {
+	bool timeConnect(unsigned int index=0) const {
 		if (index >= itsTimeConnects_.size())
-			itsTimeConnects_.resize(index+1);
+			const_cast < vector < bool >&>(itsTimeConnects_).resize (index + 1);
 		return itsTimeConnects_[index];
 	}
 	void setTimeConnect(const bool& value, unsigned int index=0) {

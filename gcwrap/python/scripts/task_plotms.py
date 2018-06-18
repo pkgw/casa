@@ -555,11 +555,11 @@ def plotms(vis=None,
                             flaggedSymbolOutline, False, plotindex, i)
  
         # connect the dots
-		if not xconnector:
-			xconnector = 'none'
-		if not timeconnector:
-			timeconnector = False
-		pm.setConnect(xconnector, timeconnector, False, plotindex)
+        if not xconnector:
+            xconnector = 'none'
+        if not timeconnector:
+            timeconnector = False
+        pm.setConnect(xconnector, timeconnector, False, plotindex)
 
         # Legend
         if not showlegend:
