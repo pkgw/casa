@@ -92,15 +92,18 @@ void FreqAxisTVITest::TearDown()
     String rm_command;
 
     rm_command = String ("rm -rf ") + testFile_p;
-    system(rm_command.c_str());
+    ASSERT_TRUE(system(rm_command.c_str()) == 0)
+        << "Failed to remove " <<testFile_p;
 
     rm_command = String ("rm -rf ") + referenceFile_p;
-    system(rm_command.c_str());
+    ASSERT_TRUE(system(rm_command.c_str()) == 0)
+        << "Failed to remove " <<referenceFile_p;
 
     if (autoMode_p)
     {
         rm_command = String ("rm -rf ") + inpFile_p;
-        system(rm_command.c_str());
+        ASSERT_TRUE(system(rm_command.c_str()) == 0)
+            << "Failed to remove " <<inpFile_p;
     }
 
     return;
@@ -357,11 +360,13 @@ void copyTestFile(String &path,String &filename,String &outfilename)
 
             // Remove any previously existing copy
             String rm_command = String ("rm -rf ") + outfilename;
-            system(rm_command.c_str());
+            ASSERT_TRUE(system(rm_command.c_str()) == 0)
+                << "Failed to remove " <<outfilename;
 
             // Make a copy of the file in the working directory
             String cp_command = String ("cp -r ") + fullfilename + String(" ") + outfilename;
-            system(cp_command.c_str());
+            ASSERT_TRUE(system(cp_command.c_str()) == 0)
+                << "Failed to copy " <<fullfilename<<" to "<<outfilename;
         }
         else
         {
@@ -372,12 +377,13 @@ void copyTestFile(String &path,String &filename,String &outfilename)
     {
         // Remove any previously existing copy
         String rm_command = String ("rm -rf ") + outfilename;
-        system(rm_command.c_str());
+        ASSERT_TRUE(system(rm_command.c_str()) == 0)
+            << "Failed to remove " <<outfilename;
 
         // Make a copy of the file in the working directory
         String cp_command = String ("cp -r ") + filename + String(" ") + outfilename;
         ASSERT_TRUE(system(cp_command.c_str()) != 0)
-            << "Test file not found: " << filename;
+            << "Failed to copy " << filename << " to "<<outfilename;
     }
 }
 
