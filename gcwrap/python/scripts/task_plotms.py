@@ -551,7 +551,13 @@ def plotms(vis=None,
             return False
         if not yselfscale and ysharedaxis:
             casalog.post( "Plots cannot share a y-axis unless they use the same y-axis scale.", "ERROR")
-            return False    
+            return False
+        if xsharedaxis and gridrows < 2:
+            casalog.post( "Plots cannot share an x-axis when gridrows=1.", "WARN")
+            xsharedaxis=False
+        if ysharedaxis and gridcols < 2:
+            casalog.post( "Plots cannot share a y-axis when gridcols=1.", "WARN")
+            ysharedaxis=False
         pm.setPlotMSIterate(iteraxis,rowindex,colindex,
                             xselfscale,yselfscale,
                             xsharedaxis,ysharedaxis,False,plotindex);

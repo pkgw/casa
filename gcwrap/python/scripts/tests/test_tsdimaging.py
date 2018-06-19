@@ -2709,6 +2709,158 @@ class sdimaging_test_mapextent(unittest.TestCase):
 ###
 class sdimaging_test_interp(unittest.TestCase):
     """
+    tests:
+    test_spline_interp_single_infiles: check if spline interpolation works for single MS
+    test_spline_interp_multiple_infiles: check if spline interpolation works for multiple MSs
+
+    data:
+    Both 'pointing6.ms' and 'pointing6-2.ms' contain 1000 rows for TP data, while only 10 
+    rows given for POINTING data. 
+    The pointing data is given as corner points of a hexagon centered at (RA, Dec) = 
+    (0h00m00s, 0d00m00s) and with side of 0.001 radian and 0.0008 radian for 'pointing6.ms' 
+    and 'pointing6-2.ms', respectively.
+    The resulting pattern of weight image should be nearly circular if spline interpolation
+    does work, while it should be hexagonal if linear interpolation, the old algorithm, is
+    applied.
+    Also, 'pointing6-2.ms' has 5 hours lag behind 'pointing6.ms'. 
+    """
+    datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdimaging/'
+    params = dict(antenna = "0",
+                  intent  = "*ON_SOURCE*",
+                  gridfunction = "SF",
+                  convsupport = 6,
+                  imsize = [512, 512],
+                  cell = "2arcsec",
+                  phasecenter = "J2000 0:00:00.0 00.00.00.0",
+                  ephemsrcname = '',
+                  pointingcolumn = "direction",
+                  stokes = 'I')
+    infiles = []
+    outfiles = [] # have a list of outfiles as multiple task execution may occur in a test
+
+    def __remove_table(self, f):
+        if os.path.exists(f):
+            shutil.rmtree(f)
+    
+    def __copy_table(self, f):
+        self.__remove_table(f)
+        testutils.copytree_ignore_subversion(self.datapath, f)
+        
+    def setUp(self):
+        self.infiles = []
+        self.outfiles = []
+        default(sdimaging)
+        
+    def tearDown(self):
+        for infile in self.infiles:
+            self.__remove_table(infile)
+        for outfile in self.outfiles:
+            os.system('rm -rf %s*'%(outfile))
+        self.assertEqual(len(get_table_cache()), 0)
+
+    def run_task(self, infiles, outfile, **kwargs):
+        if isinstance(infiles, str):
+            infiles = [ infiles ]
+        for i in range(len(infiles)):
+            self.infiles.append(infiles[i])
+        self.outfiles.append(outfile)
+
+        for infile in infiles:
+            self.__copy_table(infile)
+        self.params.update(**kwargs)
+
+        status = sdimaging(infiles=infiles, outfile=outfile, **self.params)
+        self.assertIsNone(status, msg = 'sdimaging failed to execute')
+        self.assertTrue(os.path.exists(outfile+'.image'), msg='output image is not created.')
+        
+    def check_spline_works(self, outfile, multiple_ms=False):
+        weightfile = outfile + '.weight'
+        with tbmanager(weightfile) as tb:
+            mapdata = tb.getcell('map', 0)
+        # for pixels with strong weight value(>14), collect their distance from the image
+        # center and then compute the mean and sigma of their distribution.
+        dist_answer = [0.0, 0.0]
+        dist_answer[0] = 0.001*180.0/numpy.pi*3600.0/float(self.params['cell'][0])
+        dist_answer[1] = dist_answer[0]*0.8
+        dist_sep = (dist_answer[0] + dist_answer[1])/2.0
+
+        dist_list = [[], []]
+        for i in range(self.params['imsize'][0]):
+            for j in range(self.params['imsize'][1]):
+                if mapdata[i][j][0][0] > 14.0:
+                    cenx = float(self.params['imsize'][0])/2.0
+                    ceny = float(self.params['imsize'][1])/2.0
+                    dx = float(i) - cenx
+                    dy = float(j) - ceny
+                    dr = numpy.sqrt(dx*dx + dy*dy)
+                    idx = 0 if (dist_sep < dr) else 1
+                    dist_list[idx].append(dr)
+        dist_mean1 = [0.0, 0.0]
+        dist_mean2 = [0.0, 0.0]
+        dist_sigma = [0.0, 0.0]
+        dist_llim = [0.0, 0.0]
+        dist_ulim = [0.0, 0.0]
+        idx2 = 2 if multiple_ms else 1
+        for i in range(idx2):
+            for j in range(len(dist_list[i])):
+                dist_mean1[i] += dist_list[i][j]
+                dist_mean2[i] += dist_list[i][j] * dist_list[i][j]
+            dist_mean1[i] = dist_mean1[i] / float(len(dist_list[i]))
+            dist_mean2[i] = dist_mean2[i] / float(len(dist_list[i]))
+            dist_sigma[i] = numpy.sqrt(dist_mean2[i] - dist_mean1[i] * dist_mean1[i])
+
+            dist_llim[i] = dist_mean1[i] - dist_sigma[i]
+            dist_ulim[i] = dist_mean1[i] + dist_sigma[i]
+
+            """
+            if spline interpolation is done, the range [dist_llim[0], dist_ulim[0]]
+            will be a narrow range (102.683 ~ 103.318) and encloses the answer
+            value (103.132), while linear interpolation will result in a wider
+            range (94.240 +- 4.281) and depart from the answer value at 2-sigma
+            level.
+            FYI, [dist_llim[1], dist_ulim[1]] and dist_answer[1] will be 
+            (81.609 - 83.151) and (82.506), respectively.
+            """
+            self.assertTrue(((dist_llim[i] < dist_answer[i]) and (dist_answer[i] < dist_ulim[i])),
+                            msg = 'spline interpolation seems not working.')
+            #print '['+str(i)+'] --- ' + str(dist_llim[i]) + ' - ' + str(dist_ulim[i])
+
+
+    def check_images_identical(self, image1, image2, weight_image=False):
+        suffix = '.weight' if weight_image else '.image'
+        img1 = image1 + suffix
+        img2 = image2 + suffix
+
+        with tbmanager(img1) as tb:
+            mapdata1 = tb.getcell('map', 0)
+        with tbmanager(img2) as tb:
+            mapdata2 = tb.getcell('map', 0)
+
+        self.assertTrue(numpy.allclose(mapdata1, mapdata2, rtol=1.0e-5, atol=1.0e-5),
+                        msg="%s and %s are not identical" % (img1, img2))
+
+    def test_spline_interp_single_infiles(self):
+        """test_spline_interp_single_infiles: Check if spline interpolation works for single fast-scan data."""
+        outfile = 'pointing6.out'
+        self.run_task(infiles=['pointing6.ms'], outfile=outfile)
+        self.check_spline_works(outfile)
+
+    def test_spline_interp_multiple_infiles(self):
+        """test_spline_interp_multiple_infiles: Check if spline interpolation works for multiple fast-scan data."""
+        outfile12 = "1and2.out"
+        self.run_task(infiles=['pointing6.ms', 'pointing6-2.ms'], outfile=outfile12)
+        outfile21 = "2and1.out"
+        self.run_task(infiles=['pointing6-2.ms', 'pointing6.ms'], outfile=outfile21)
+
+        #check if spline interpolation works
+        self.check_spline_works(outfile12, True)
+        #check if the results (both image and weight) don't change when infiles has inversed order
+        self.check_images_identical(outfile12, outfile21)
+        self.check_images_identical(outfile12, outfile21, True)
+
+
+class sdimaging_test_interp_old(unittest.TestCase):
+    """
     The test data 'pointing6.ms' contains 1000 rows for TP data, while only 10 rows given
     for POINTING data. The pointing data is given as corner points of a hexagon centered at
     (RA, Dec) = (0h00m00s, 0d00m00s) and with side of 0.001 radian.
@@ -3315,5 +3467,7 @@ def suite():
             sdimaging_test_mslist,
             sdimaging_test_restfreq, 
             sdimaging_test_mapextent,
-            sdimaging_test_interp,sdimaging_test_clipping,
-            sdimaging_test_projection]
+            sdimaging_test_interp,
+            sdimaging_test_clipping,
+            sdimaging_test_projection
+            ]
