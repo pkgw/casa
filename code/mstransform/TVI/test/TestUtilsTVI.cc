@@ -361,8 +361,7 @@ void copyTestFile(String &path,String &filename,String &outfilename)
 
             // Make a copy of the file in the working directory
             String cp_command = String ("cp -r ") + fullfilename + String(" ") + outfilename;
-            ASSERT_TRUE(system(cp_command.c_str()) != 0)
-                << "Test file not found: " << fullfilename;
+            system(cp_command.c_str());
         }
         else
         {
