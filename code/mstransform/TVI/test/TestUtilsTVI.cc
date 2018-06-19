@@ -46,9 +46,9 @@ FreqAxisTVITest::FreqAxisTVITest():
 FreqAxisTVITest::FreqAxisTVITest(Record configuration):
 		autoMode_p(false), testResult_p(true)
 {
-	configuration.get (configuration.fieldNumber ("inputms"), inpFile_p);
-	testFile_p = inpFile_p + String(".test");
-	referenceFile_p = inpFile_p + String(".ref");
+    configuration.get (configuration.fieldNumber ("inputms"), inpFile_p);
+    testFile_p = inpFile_p + String(".test");
+    referenceFile_p = inpFile_p + String(".ref");
 }
 
 // -----------------------------------------------------------------------
@@ -56,9 +56,9 @@ FreqAxisTVITest::FreqAxisTVITest(Record configuration):
 // -----------------------------------------------------------------------
 FreqAxisTVITest::~FreqAxisTVITest()
 {
-	TearDown();
+    TearDown();
 
-	return;
+    return;
 }
 
 // -----------------------------------------------------------------------
@@ -66,8 +66,8 @@ FreqAxisTVITest::~FreqAxisTVITest()
 // -----------------------------------------------------------------------
 void FreqAxisTVITest::init(Record &configuration)
 {
-	initTestConfiguration(configuration);
-	initReferenceConfiguration(configuration);
+    initTestConfiguration(configuration);
+    initReferenceConfiguration(configuration);
 }
 
 // -----------------------------------------------------------------------
@@ -75,13 +75,13 @@ void FreqAxisTVITest::init(Record &configuration)
 // -----------------------------------------------------------------------
 void FreqAxisTVITest::SetUp()
 {
-	// Generate test file
-	generateTestFile();
+    // Generate test file
+    generateTestFile();
 
-	// Generate reference file
-	generateReferenceFile();
+    // Generate reference file
+    generateReferenceFile();
 
-	return;
+    return;
 }
 
 // -----------------------------------------------------------------------
@@ -89,21 +89,21 @@ void FreqAxisTVITest::SetUp()
 // -----------------------------------------------------------------------
 void FreqAxisTVITest::TearDown()
 {
-	String rm_command;
+    String rm_command;
 
-	rm_command = String ("rm -rf ") + testFile_p;
-	system(rm_command.c_str());
+    rm_command = String ("rm -rf ") + testFile_p;
+    system(rm_command.c_str());
 
-	rm_command = String ("rm -rf ") + referenceFile_p;
-	system(rm_command.c_str());
+    rm_command = String ("rm -rf ") + referenceFile_p;
+    system(rm_command.c_str());
 
-	if (autoMode_p)
-	{
-		rm_command = String ("rm -rf ") + inpFile_p;
-		system(rm_command.c_str());
-	}
+    if (autoMode_p)
+    {
+        rm_command = String ("rm -rf ") + inpFile_p;
+        system(rm_command.c_str());
+    }
 
-	return;
+    return;
 }
 
 
@@ -169,171 +169,171 @@ template <class T> void compareMatrix(	const Char* column,
 //
 // -----------------------------------------------------------------------
 template <class T> void compareCube(const Char* column,
-									const Cube<T> &inp,
-									const Cube<T> &ref,
-									const Vector<uInt> &rowIds,
-									Float tolerance)
+                                    const Cube<T> &inp,
+                                    const Cube<T> &ref,
+                                    const Vector<uInt> &rowIds,
+                                    Float tolerance)
 {
     // Check matching shape
     ASSERT_EQ(inp.shape(), ref.shape()) 
          << " test and reference cubes don't have the same shape";
 
-	// Compare values
-	const IPosition &shape = inp.shape();
-	for (uInt row=0;row < shape(2); row++)
-	{
-		for (uInt chan=0;chan < shape(1); chan++)
-		{
-			for (uInt corr=0;corr < shape(0); corr++)
-			{
+    // Compare values
+    const IPosition &shape = inp.shape();
+    for (uInt row=0;row < shape(2); row++)
+    {
+        for (uInt chan=0;chan < shape(1); chan++)
+        {
+            for (uInt corr=0;corr < shape(0); corr++)
+            {
                 ASSERT_NEAR(abs(inp(corr,chan,row) - ref(corr,chan,row)), 0, tolerance)
 	                << column << " does not match in position (row,chan,corr)="
 			        << "("<< row << "," << chan << "," << corr << ")"
 			        << " rowId=" << rowIds(row)
                     << " test=" << inp(corr,chan,row)
                     << " reference=" << ref(corr,chan,row);
-			}
-		}
-	}
+            }
+        }
+    }
 }
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
 void compareVisibilityIterators(VisibilityIterator2 &testTVI,
-								VisibilityIterator2 &refTVI,
-								VisBufferComponents2 &columns,
-								Float tolerance,
-								dataColMap *datacolmap)
+                                VisibilityIterator2 &refTVI,
+                                VisBufferComponents2 &columns,
+                                Float tolerance,
+                                dataColMap *datacolmap)
 {
-	// Declare working variables
-	String columnName;
-	Int chunk = 0,buffer = 0;
+    // Declare working variables
+    String columnName;
+    Int chunk = 0,buffer = 0;
 
-	// Get VisBuffers
-	VisBuffer2 *refVb = refTVI.getVisBuffer();
-	VisBuffer2 *testVb = testTVI.getVisBuffer();
+    // Get VisBuffers
+    VisBuffer2 *refVb = refTVI.getVisBuffer();
+    VisBuffer2 *testVb = testTVI.getVisBuffer();
 
-	// Compare selected columns
-	try
-	{
-		refTVI.originChunks();
-		testTVI.originChunks();
-		while (refTVI.moreChunks() and testTVI.moreChunks())
-		{
-			chunk += 1;
-			buffer = 0;
+    // Compare selected columns
+    try
+    {
+        refTVI.originChunks();
+        testTVI.originChunks();
+        while (refTVI.moreChunks() and testTVI.moreChunks())
+        {
+            chunk += 1;
+            buffer = 0;
 
-			refTVI.origin();
-			testTVI.origin();
+            refTVI.origin();
+            testTVI.origin();
 
-			while (refTVI.more() and testTVI.more())
-			{
-				buffer += 1;
+            while (refTVI.more() and testTVI.more())
+            {
+                buffer += 1;
                 SCOPED_TRACE(string("Comparing chunk ") + to_string(chunk) + 
                              " buffer " + to_string(buffer) +
                              " Spw " + to_string(refVb->spectralWindows()[0]) + 
                              " scan " + to_string(refVb->scan()[0]));
 
-				if (columns.contains(VisBufferComponent2::NRows))
+                if (columns.contains(VisBufferComponent2::NRows))
                     ASSERT_EQ(testVb->nRows() , refVb->nRows());
 
-				if (columns.contains(VisBufferComponent2::NChannels))
+                if (columns.contains(VisBufferComponent2::NChannels))
                     ASSERT_EQ(testVb->nChannels(), refVb->nChannels());
 
-				if (columns.contains(VisBufferComponent2::NCorrelations))
+                if (columns.contains(VisBufferComponent2::NCorrelations))
                     ASSERT_EQ(testVb->nCorrelations(), refVb->nCorrelations());
 
-				if (columns.contains(VisBufferComponent2::FlagRow))
-				{
-					columnName = VisBufferComponents2::name(VisBufferComponent2::FlagRow);
-					compareVector(columnName.c_str(),testVb->flagRow(),refVb->flagRow(),
-							refVb->rowIds(),tolerance);
-				}
+                if (columns.contains(VisBufferComponent2::FlagRow))
+                {
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::FlagRow);
+                    compareVector(columnName.c_str(),testVb->flagRow(),refVb->flagRow(),
+                                  refVb->rowIds(),tolerance);
+                }
 
-				if (columns.contains(VisBufferComponent2::FlagCube))
-				{
-					columnName = VisBufferComponents2::name(VisBufferComponent2::FlagCube);
-					compareCube(columnName.c_str(),testVb->flagCube(),refVb->flagCube(),
-							refVb->rowIds(),tolerance);
-				}
+                if (columns.contains(VisBufferComponent2::FlagCube))
+                {
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::FlagCube);
+                    compareCube(columnName.c_str(),testVb->flagCube(),refVb->flagCube(),
+                                refVb->rowIds(),tolerance);
+                }
 
-				if (columns.contains(VisBufferComponent2::VisibilityCubeObserved))
-				{
-					columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeObserved);
-					compareCube(columnName.c_str(),testVb->visCube(),getViscube(refVb,MS::DATA,datacolmap),
-							refVb->rowIds(),tolerance);
-				}
+                if (columns.contains(VisBufferComponent2::VisibilityCubeObserved))
+                {
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeObserved);
+                    compareCube(columnName.c_str(),testVb->visCube(),getViscube(refVb,MS::DATA,datacolmap),
+                                refVb->rowIds(),tolerance);
+                }
 
-				if (columns.contains(VisBufferComponent2::VisibilityCubeCorrected))
-				{
-					columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeCorrected);
+                if (columns.contains(VisBufferComponent2::VisibilityCubeCorrected))
+                {
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeCorrected);
                     compareCube(columnName.c_str(),testVb->visCubeCorrected(),getViscube(refVb,MS::CORRECTED_DATA,datacolmap),
-							refVb->rowIds(),tolerance);
-				}
+                                refVb->rowIds(),tolerance);
+                }
 
-				if (columns.contains(VisBufferComponent2::VisibilityCubeModel))
-				{
-					columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeModel);
+                if (columns.contains(VisBufferComponent2::VisibilityCubeModel))
+                {
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeModel);
                     compareCube(columnName.c_str(),testVb->visCubeModel(),getViscube(refVb,MS::MODEL_DATA,datacolmap),
-							refVb->rowIds(),tolerance);
-				}
+                                refVb->rowIds(),tolerance);
+                }
 
-				if (columns.contains(VisBufferComponent2::VisibilityCubeFloat))
-				{
-					columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeFloat);
+                if (columns.contains(VisBufferComponent2::VisibilityCubeFloat))
+                {
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeFloat);
                     compareCube(columnName.c_str(),testVb->visCubeFloat(),refVb->visCubeFloat(),
-							refVb->rowIds(),tolerance);
-				}
+                                refVb->rowIds(),tolerance);
+                }
 
-				if (columns.contains(VisBufferComponent2::WeightSpectrum))
-				{
-					columnName = VisBufferComponents2::name(VisBufferComponent2::WeightSpectrum);
+                if (columns.contains(VisBufferComponent2::WeightSpectrum))
+                {
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::WeightSpectrum);
                     compareCube(columnName.c_str(),testVb->weightSpectrum(),refVb->weightSpectrum(),
-							refVb->rowIds(),tolerance);
-				}
+                                refVb->rowIds(),tolerance);
+                }
 
-				if (columns.contains(VisBufferComponent2::SigmaSpectrum))
-				{
-					columnName = VisBufferComponents2::name(VisBufferComponent2::SigmaSpectrum);
+                if (columns.contains(VisBufferComponent2::SigmaSpectrum))
+                {
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::SigmaSpectrum);
                     compareCube(columnName.c_str(),testVb->sigmaSpectrum(),refVb->sigmaSpectrum(),
-							refVb->rowIds(),tolerance);
-				}
+                                refVb->rowIds(),tolerance);
+                }
 
-				if (columns.contains(VisBufferComponent2::Weight))
-				{
-					columnName = VisBufferComponents2::name(VisBufferComponent2::Weight);
+                if (columns.contains(VisBufferComponent2::Weight))
+                {
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::Weight);
                     compareMatrix(columnName.c_str(),testVb->weight(),refVb->weight(),
-							refVb->rowIds(),tolerance);
-				}
+                                  refVb->rowIds(),tolerance);
+                }
 
-				if (columns.contains(VisBufferComponent2::Sigma))
-				{
-					columnName = VisBufferComponents2::name(VisBufferComponent2::Sigma);
+                if (columns.contains(VisBufferComponent2::Sigma))
+                {
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::Sigma);
                     compareMatrix(columnName.c_str(),testVb->sigma(),refVb->sigma(),
-							refVb->rowIds(),tolerance);
-				}
+                                  refVb->rowIds(),tolerance);
+                }
 
-				if (columns.contains(VisBufferComponent2::Frequencies))
-				{
-					columnName = VisBufferComponents2::name(VisBufferComponent2::Frequencies);
+                if (columns.contains(VisBufferComponent2::Frequencies))
+                {
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::Frequencies);
                     compareVector(columnName.c_str(),testVb->getFrequencies(0),refVb->getFrequencies(0),
-							refVb->rowIds(),tolerance);
-				}
+                                  refVb->rowIds(),tolerance);
+                }
 
-				refTVI.next();
-				testTVI.next();
-			}
+                refTVI.next();
+                testTVI.next();
+            }
 
-			refTVI.nextChunk();
-			testTVI.nextChunk();
-		}
-	}
-	catch (AipsError &ex)
-	{
+            refTVI.nextChunk();
+            testTVI.nextChunk();
+        }
+    }
+    catch (AipsError &ex)
+    {
         FAIL()<< "Exception comparing visibility iterators: " << ex.getMesg() 
                       << endl << "Stack Trace: " << ex.getStackTrace();
-	}
+    }
 }
 
 // -----------------------------------------------------------------------
@@ -341,45 +341,45 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 // -----------------------------------------------------------------------
 void copyTestFile(String &path,String &filename,String &outfilename)
 {
-	if (path.size() > 0)
-	{
-		char* pathChar = getenv ("CASAPATH");
-		if (pathChar != NULL)
-		{
-			// Get base path
-			String pathStr(pathChar);
-			String res[2];
-			casacore::split(pathChar,res,2,String(" "));
+    if (path.size() > 0)
+    {
+        char* pathChar = getenv ("CASAPATH");
+        if (pathChar != NULL)
+        {
+            // Get base path
+            String pathStr(pathChar);
+            String res[2];
+            casacore::split(pathChar,res,2,String(" "));
 
-			// Generate full qualified filename
-			String fullfilename(res[0]);
-			fullfilename += path + "/" + filename;
+            // Generate full qualified filename
+            String fullfilename(res[0]);
+            fullfilename += path + "/" + filename;
 
-			// Remove any previously existing copy
-			String rm_command = String ("rm -rf ") + outfilename;
-			system(rm_command.c_str());
+            // Remove any previously existing copy
+            String rm_command = String ("rm -rf ") + outfilename;
+            system(rm_command.c_str());
 
-			// Make a copy of the file in the working directory
-			String cp_command = String ("cp -r ") + fullfilename + String(" ") + outfilename;
-			ASSERT_TRUE(system(cp_command.c_str()))
+            // Make a copy of the file in the working directory
+            String cp_command = String ("cp -r ") + fullfilename + String(" ") + outfilename;
+            ASSERT_TRUE(system(cp_command.c_str()) != 0)
                 << "Test file not found: " << fullfilename;
-		}
-		else
-		{
+        }
+        else
+        {
             FAIL() << "CASAPATH environmental variable not defined ";
-		}
-	}
-	else
-	{
-		// Remove any previously existing copy
-		String rm_command = String ("rm -rf ") + outfilename;
-		system(rm_command.c_str());
+        }
+    }
+    else
+    {
+        // Remove any previously existing copy
+        String rm_command = String ("rm -rf ") + outfilename;
+        system(rm_command.c_str());
 
-		// Make a copy of the file in the working directory
-		String cp_command = String ("cp -r ") + filename + String(" ") + outfilename;
-        ASSERT_TRUE(system(cp_command.c_str()))
+        // Make a copy of the file in the working directory
+        String cp_command = String ("cp -r ") + filename + String(" ") + outfilename;
+        ASSERT_TRUE(system(cp_command.c_str()) != 0)
             << "Test file not found: " << filename;
-	}
+    }
 }
 
 // -----------------------------------------------------------------------
@@ -389,22 +389,22 @@ const Cube<Complex> & getViscube(	VisBuffer2 *vb,
 									MS::PredefinedColumns datacol,
 									dataColMap *datacolmap)
 {
-	MS::PredefinedColumns mappeddatacol;
-	if (datacolmap == NULL)
-	{
-		mappeddatacol = datacol;
-	}
-	else
-	{
-		if (datacolmap->find(datacol) != datacolmap->end())
-		{
-			mappeddatacol = datacolmap->at(datacol);
-		}
-		else
-		{
-			mappeddatacol = datacol;
-		}
-	}
+    MS::PredefinedColumns mappeddatacol;
+    if (datacolmap == NULL)
+    {
+        mappeddatacol = datacol;
+    }
+    else
+    {
+        if (datacolmap->find(datacol) != datacolmap->end())
+        {
+            mappeddatacol = datacolmap->at(datacol);
+        }
+        else
+        {
+            mappeddatacol = datacol;
+        }
+    }
 
 
 	switch (mappeddatacol)
@@ -437,67 +437,67 @@ const Cube<Complex> & getViscube(	VisBuffer2 *vb,
 // -----------------------------------------------------------------------
 void flagEachOtherChannel(VisibilityIterator2 &vi)
 {
-	// Declare working variables
-	Int chunk = 0,buffer = 0;
+    // Declare working variables
+    Int chunk = 0,buffer = 0;
 
-	// Get VisBuffer
-	VisBuffer2 *vb = vi.getVisBuffer();
+    // Get VisBuffer
+    VisBuffer2 *vb = vi.getVisBuffer();
 
-	// Propagate flags
-	vi.originChunks();
-	while (vi.moreChunks())
-	{
-		chunk += 1;
-		buffer = 0;
+    // Propagate flags
+    vi.originChunks();
+    while (vi.moreChunks())
+    {
+        chunk += 1;
+        buffer = 0;
 
-		vi.origin();
-		vi.origin();
+        vi.origin();
+        vi.origin();
 
-		while (vi.more())
-		{
-			buffer += 1;
+        while (vi.more())
+        {
+            buffer += 1;
 
-			// Initialize flag cube
-			IPosition shape = vb->getShape();
-			Cube<Bool> flagCube(shape,false);
+            // Initialize flag cube
+            IPosition shape = vb->getShape();
+            Cube<Bool> flagCube(shape,false);
 
-			// Switch each other buffer the sign of the flag of the first block of channels
-			Bool firstChanBlockFlag = buffer % 2? true:False;
+            // Switch each other buffer the sign of the flag of the first block of channels
+            Bool firstChanBlockFlag = buffer % 2? true:False;
 
-			// Fill flag cube alternating flags per blocks channels
-			size_t nCorr = shape(0);
-			size_t nChan = shape(1);
-			size_t nRows = shape(2);
-			for (size_t row_i =0;row_i<nRows;row_i++)
-			{
-				// Row completely flagged
-				if (row_i % 2)
-				{
-					flagCube.xyPlane(row_i) = true;
-				}
-				else
-				{
-					for (size_t chan_i =0;chan_i<nChan;chan_i++)
-					{
-						// Set the flags in each other block of channels
-						Bool chanBlockFlag = chan_i % 2? firstChanBlockFlag:!firstChanBlockFlag;
+            // Fill flag cube alternating flags per blocks channels
+            size_t nCorr = shape(0);
+            size_t nChan = shape(1);
+            size_t nRows = shape(2);
+            for (size_t row_i =0;row_i<nRows;row_i++)
+            {
+                // Row completely flagged
+                if (row_i % 2)
+                {
+                    flagCube.xyPlane(row_i) = true;
+                }
+                else
+                {
+                    for (size_t chan_i =0;chan_i<nChan;chan_i++)
+                    {
+                        // Set the flags in each other block of channels
+                        Bool chanBlockFlag = chan_i % 2? firstChanBlockFlag:!firstChanBlockFlag;
 
-						for (size_t corr_i =0;corr_i<nCorr;corr_i++)
-						{
-							flagCube(corr_i,chan_i,row_i) = chanBlockFlag;
-						}
-					}
-				}
-			}
+                        for (size_t corr_i =0;corr_i<nCorr;corr_i++)
+                        {
+                            flagCube(corr_i,chan_i,row_i) = chanBlockFlag;
+                        }
+                    }
+                }
+            }
 
-			vi.writeFlag(flagCube);
-			vi.next();
-		}
+            vi.writeFlag(flagCube);
+            vi.next();
+        }
 
-		vi.nextChunk();
-	}
+        vi.nextChunk();
+    }
 
-	return;
+    return;
 }
 
 } //# NAMESPACE VI - END
