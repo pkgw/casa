@@ -906,38 +906,42 @@ void loadBDFlags(map<string, unsigned int>& abbrev2bitpos) {
 typedef map<string, unsigned int> s2ui;
 typedef pair<const string, unsigned int> s_ui;
 
-/**
- * This function tries to calculate the sizes of the successives slices of the BDF
- * to be processed given a) the overall size of the BDF and b) the approximative maximum
- * size that one wants for one slice.
- * @paramater BDFsize the overall size of the BDF expressed in bytes,
- * @parameter approxSizeInMemory the approximative size that one wants for one slice, expressed in byte.
- *
- * \par Note:
- * It tries to avoid a last slice, corresponding to
- * the remainder in the euclidean division BDFsize / approxSizeInMemory.
+/** 
+ * This function tries to allocate the number of integrations into slices
+ * based on the average size of one integration and the requested maximum size of one slice.
+ * The sum of all of the values in the returned vector is always equal to nIntegrations.
+ * @parameter nIntegrations the number of integrations in the BDF
+ * @parameter bdfSize the size of the BDF, in bytes
+ * @parameter approxSizeInMemory the approximate size that one wants for one slice, in bytes.
  */
-vector<uint64_t> sizeInMemory(uint64_t BDFsize, uint64_t approxSizeInMemory) {
-  if (debug) cout << "sizeInMemory: entering" << endl;
-  vector<uint64_t> result;
-  uint64_t Q = BDFsize / approxSizeInMemory;
-  if (Q == 0) {
-    result.push_back(BDFsize);
-  }
-  else {
-    result.resize(Q, approxSizeInMemory);
-    unsigned int R = BDFsize % approxSizeInMemory;
-    if ( R > (Q * approxSizeInMemory / 5) )  {
-      result.push_back(R);
-    }
-    else {
-      while (R > 0)
-	for (unsigned int i = 0; R >0 && i < result.size(); i++) {
-	  result[i]++ ; R--;
+vector<unsigned int> getIntegrationSlices(int nIntegrations, uint64_t bdfSize, uint64_t approxSizeInMemory) {
+  if (debug) cout << "getIntegrationSlices: entering" << endl;
+  vector<unsigned int> result;
+  if (nIntegrations > 0) {
+    if (bdfSize < approxSizeInMemory) {
+      result.push_back(nIntegrations);
+    } else {
+      uint64_t avgIntSize = bdfSize/nIntegrations;
+      unsigned int nIntPerSlice = approxSizeInMemory/avgIntSize;
+      unsigned int nSlice = nIntegrations/nIntPerSlice;
+      result.resize(nSlice,nIntPerSlice);
+      unsigned int residualInts = nIntegrations % nIntPerSlice;
+      if (residualInts > (nSlice*nIntPerSlice/5)) {
+	// if the number of left over integrations is more than 1/5 of what's in the other slices
+	// then this makes an acceptable last slice - no need to redistribute
+	result.push_back(residualInts);
+      } else {
+	// final slice would too small, redistribute it to the other slices
+	while(residualInts > 0) {
+	  for (unsigned int i = 0; residualInts > 0 && i < result.size(); i++) {
+	    result[i]++; 
+	    residualInts--;
+	  }
 	}
+      }
     }
   }
-  if (debug) cout << "sizeInMemory: exiting" << endl;
+  if (debug) cout << "getItegrationSlices: exiting" << endl;
   return result;
 }
 
@@ -1107,22 +1111,19 @@ void processCorrelatorFlagsPerSlices(MainRow*					mR_p,
     throw ProcessFlagsException("'" + oss.str() + "' is not a valid sequence of flags axes for an ALMA correlator.");
   }
 
-  uint32_t		N			 = mR_p->getNumIntegration();
-  uint64_t		bdfSize			 = mR_p->getDataSize();
-  vector<uint64_t>	actualSizeInMemory(sizeInMemory(bdfSize, bdfSliceSizeInMb*1024*1024));
-
+  int N	= mR_p->getNumIntegration();
+  uint64_t  bdfSize = mR_p->getDataSize();
+  vector<unsigned int> integrationSlices(getIntegrationSlices(N, bdfSize, bdfSliceSizeInMb*1024*1024));
   int32_t		numberOfIntegrations	 = 0;
   int32_t		numberOfReadIntegrations = 0;
 
   unsigned int				numBAL		= antennas.size() * (antennas.size() - 1) / 2;
   unsigned int				numDD		= dataDescriptions.size();
 
-  for (unsigned int j = 0; j < actualSizeInMemory.size(); j++) {
+  for (unsigned int j = 0; j < integrationSlices.size(); j++) {
     if (debug) cout << "PLATOON" << endl;
-    numberOfIntegrations = min((uint64_t)actualSizeInMemory[j] / (bdfSize / N), (uint64_t)N); // The min to prevent a possible excess when there are very few bytes in the BDF.
-    //numberOfIntegrations = min(actualSizeInMemory[j] / (bdfSize / N), N); // The min to prevent a possible excess when there are very few bytes in the BDF.
-    if (debug) cout << "------------> " << numberOfIntegrations << " , " << actualSizeInMemory[j] << endl;
-
+    numberOfIntegrations = integrationSlices[j];
+    if (debug) cout << "------------> " << numberOfIntegrations << endl;
     if (numberOfIntegrations) {
       MSFlagAccumulator<char> autoAccumulator(numberOfIntegrations, antennas.size(), numDD);
       MSFlagAccumulator<char> crossAccumulator(numberOfIntegrations, numBAL, numDD);
@@ -1165,6 +1166,7 @@ void processCorrelatorFlagsPerSlices(MainRow*					mR_p,
     }
   }
 
+  // this should no longer be necessary, but keep this block in place just in case
   if (debug) cout << "REMAINING" << endl;
   uint32_t numberOfRemainingIntegrations = N - numberOfReadIntegrations;
   if (numberOfRemainingIntegrations) {
