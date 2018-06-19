@@ -1140,7 +1140,7 @@ public:
 
         printf ("+++ Starting SimpleTests ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
@@ -1344,7 +1344,7 @@ public:
 
         printf ("+++ Starting %s ...\n", getName().c_str());
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
@@ -1556,7 +1556,7 @@ public:
     {
         printf ("+++ Starting RowFlaggingTests ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
@@ -1659,7 +1659,7 @@ public:
     {
         printf ("+++ Starting CubeFlaggingTests ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
@@ -1773,7 +1773,7 @@ public:
     {
         printf ("+++ Starting WeightingTests ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
@@ -1902,7 +1902,7 @@ public:
 
         printf ("+++ Starting WeightSelectionTests ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         {
@@ -2183,7 +2183,7 @@ public:
 
         printf ("+++ Starting BaselineDependentAveraging ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
 
         {
 
