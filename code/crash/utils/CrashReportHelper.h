@@ -39,7 +39,9 @@ namespace casac {
 
                     if ( ! (ifaptr->ifa_flags & IFF_LOOPBACK) &&
                         ! (ifaptr->ifa_flags & IFF_POINTOPOINT) ) { // don't count loopback
-                        if (((ifaptr)->ifa_addr)->sa_family == AF_LOWLEVEL) {
+                        // awdl is an OSX specific interface and seems to get a new Mac address assigned at every reboot
+                        // so we filter that out.
+                        if (((ifaptr)->ifa_addr)->sa_family == AF_LOWLEVEL && strncmp("awdl",(ifaptr)->ifa_name,4)) {
                             #ifdef __APPLE__
                             ptr = (unsigned char *)LLADDR((struct sockaddr_dl *)(ifaptr)->ifa_addr);
                             #else
