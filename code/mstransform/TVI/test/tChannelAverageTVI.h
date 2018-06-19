@@ -35,12 +35,12 @@ using namespace casa::vi;
 /////////////////////////////////////////////////////////////////////////
 // ChannelAverageTVITest class
 /////////////////////////////////////////////////////////////////////////
-class ChannelAverageTVITest: public FreqAxisTVITest {
+class ChannelAverageTVICompareTest: public FreqAxisTVITest {
 
 public:
 
-	ChannelAverageTVITest();
-	ChannelAverageTVITest(casacore::Record configuration);
+	ChannelAverageTVICompareTest();
+	ChannelAverageTVICompareTest(casacore::Record configuration);
 
     void TestBody();
     void testCompareTransformedData();
