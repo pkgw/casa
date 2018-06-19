@@ -190,6 +190,11 @@ install (FILES
 	)
 
 install (FILES
+	MSVis/test/TestUtilsTVI.h 
+	DESTINATION include/casacode/msvis/MSVis/test
+	)       
+
+install (FILES
 	MSVis/statistics/Vi2AntennaDataProvider.h
 	MSVis/statistics/Vi2ArrayIdDataProvider.h
 	MSVis/statistics/Vi2CorrectedVisDataProvider.h
@@ -243,7 +248,7 @@ casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/VisibilityIterator_Test.cc
 # Uncomment this when that problem is resolved
 #
 
-casa_add_google_test (MODULES msvis SOURCES MSVis/test/AveragingTvi2_Test.cc MSVis/test/MsFactory.cc )
+casa_add_google_test (MODULES msvis SOURCES MSVis/test/AveragingTvi2_Test.cc MSVis/test/MsFactory.cc MSVis/test/TestUtilsTVI.cc)
 
 casa_add_google_test (MODULES msvis SOURCES MSVis/test/PointingDirectionCache_Test.cc) 
 casa_add_google_test (MODULES msvis SOURCES MSVis/test/VisibilityIterator_Gtest.cc MSVis/test/MsFactory.cc) 
