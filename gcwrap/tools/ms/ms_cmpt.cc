@@ -6293,7 +6293,7 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
     return rstat;
 }
 
-record* ms::statwt2(
+record* ms::statwt(
     const string& combine, const casac::variant& timebin,
     bool slidetimebin, const casac::variant& chanbin,
     int minsamp, const string& statalg, double fence,

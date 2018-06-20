@@ -5,7 +5,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-<task type="function" name="statwt2">
+<task type="function" name="statwt">
     <shortdescription>Compute and set weights based on variance of data.</shortdescription>
 
     <input>
@@ -335,7 +335,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         EXAMPLE 
         
         # update the weights of an MS using time binning of 300s
-        statwt2("my.ms", timebin="300s")
+        statwt("my.ms", timebin="300s")
     </example> 
 </task>
 </casaxml>

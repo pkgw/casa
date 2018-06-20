@@ -3412,7 +3412,7 @@ in spectral window 1.
 
 <!-- ====================================================== -->
  
- <method type="function" name="statwt2">
+ <method type="function" name="statwt">
   <shortdescription>Compute and set weights based on variance of data.</shortdescription>
 
   <input>
@@ -3574,7 +3574,7 @@ in spectral window 1.
        SIGMA_SPECTRUM are set to 1/sqrt(of the newly computed weight).
        If a weight value is 0, the corresponding sigma value is -1.
        In this case, you should either split out the DATA column and
-       run statwt2, or run with datacolumn='corrected' or 'residual'
+       run statwt, or run with datacolumn='corrected' or 'residual'
        to update WEIGHT/WEIGHT_SPECTRUM. Otherwise the data are
        internally not consistent. 
 
@@ -3780,7 +3780,7 @@ in spectral window 1.
       # update the weights of an MS
       ms.open("my.ms", nomodify=False)
       # compute weights, using time bins of 300s
-      if ms.statwt2(timebin=("300s")):
+      if ms.statwt(timebin=("300s")):
           print "Successfully updated weights"
       else:
           print "Updating weights failed"

@@ -268,7 +268,7 @@ from split import  split
 #from split2 import split2
 from spxfit import  spxfit
 from oldstatwt import  oldstatwt
-from statwt2 import  statwt2
+from statwt import  statwt
 from tclean import  tclean
 from tclean2 import  tclean2
 from testconcat import  testconcat
