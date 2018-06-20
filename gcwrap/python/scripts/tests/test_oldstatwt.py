@@ -12,7 +12,7 @@ from cleanhelper import *
 import unittest
 
 '''
-Unit tests for statwt
+Unit tests for oldstatwt
 '''
 #
 # ToDo:
@@ -21,7 +21,7 @@ Unit tests for statwt
 # the AIPS REWAY results) add reference mses
 # and do tests against them
 # 
-class statwt_test(unittest.TestCase):
+class oldstatwt_test(unittest.TestCase):
 
     # Input and output names
     msfile = 'ngc5921.ms'
@@ -78,7 +78,7 @@ class statwt_test(unittest.TestCase):
         test default case
         """
         tol = 1.e-5
-        self.res=statwt(vis=self.msfile)
+        self.res=oldstatwt(vis=self.msfile)
         # need to have better checking....
         self.assertTrue(self.res)
 
@@ -110,7 +110,7 @@ class statwt_test(unittest.TestCase):
               self.assertTrue(abs(diffsg)/s < tol)
 
 def suite():
-    return [statwt_test]
+    return [oldstatwt_test]
 
 if __name__ == '__main__':
     testSuite = []

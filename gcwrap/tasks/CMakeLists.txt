@@ -109,7 +109,7 @@ splattotable.xml
 split.xml
 #split2.xml
 spxfit.xml
-statwt.xml
+oldstatwt.xml
 statwt2.xml
 tclean.xml
 tclean2.xml

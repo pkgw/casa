@@ -3790,10 +3790,10 @@ in spectral window 1.
  
 <!-- ====================================================== -->
 
- <method type="function" name="statwt">
+ <method type="function" name="oldstatwt">
   <shortdescription>Set WEIGHT and SIGMA from the scatter of the visibilities</shortdescription>
    
-  <keyword>statwt</keyword>
+  <keyword>oldstatwt</keyword>
   <input>
      <param type="bool" direction="in" name="dorms">
      <description>How the scatter should be estimated (True -&gt; rms, False -&gt; stddev). </description>
@@ -3916,13 +3916,13 @@ in spectral window 1.
   </description>
   <example>
       ms.open("multiwin.ms", nomodify=False)
-      ms.statwt(fitspw='0:0~123;145~211,2:124~255', field=[0], 
+      ms.oldstatwt(fitspw='0:0~123;145~211,2:124~255', field=[0], 
           spw='0,2') 
 
     In this example the noise estimates are separately made from and
     applied to spws 0 and 2.
 
-      ms.statwt(fitspw='0:0~123;145~211,2:124~255', fitorder=0, 
+      ms.oldstatwt(fitspw='0:0~123;145~211,2:124~255', fitorder=0, 
           field=[0], combine='spw')
       ms.close()
 
