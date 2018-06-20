@@ -37,7 +37,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_conjugatevis.py
   test_coordsys.py
   test_createmultims.py
-  test_csvclean.py
   test_cvel.py
   test_cvel2.py
   test_cvelfreqs.py
@@ -122,7 +121,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_importasdm_mms.py
   test_importatca.py
   test_importcasa.py
-  test_importevla.py
   test_importfitsidi.py
   test_importmiriad.py
   test_importnro.py

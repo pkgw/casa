@@ -3,20 +3,16 @@ accor.xml
 accum.xml
 applycal.xml
 asdmsummary.xml
-autoclean.xml
 bandpass.xml
 blcal.xml
-boxit.xml
 browsetable.xml
 calstat.xml
 caltabconvert.xml
 clean.xml
 clearcal.xml
-clearplot.xml
 clearstat.xml
 concat.xml
 conjugatevis.xml
-csvclean.xml
 cvel.xml
 cvel2.xml
 deconvolve.xml
@@ -49,7 +45,6 @@ impbcor.xml
 importatca.xml
 importasap.xml
 importasdm.xml
-importevla.xml
 importfits.xml
 importfitsidi.xml
 importgmrt.xml
@@ -75,21 +70,16 @@ listpartition.xml
 listsdm.xml
 listvis.xml
 makemask.xml
-mosaic.xml
 msview.xml
 mstransform.xml
 msuvbin.xml
-oldhanningsmooth.xml
-oldplotants.xml
 oldsplit.xml
 plotants.xml
 plotbandpass.xml
 plotcal.xml
 plotms.xml
-plotuv.xml
 plotweather.xml
 plotprofilemap.xml
-#plotxy.xml
 partition.xml
 polcal.xml
 predictcomp.xml
@@ -107,7 +97,6 @@ tsdimaging.xml
 sdsidebandsplit.xml
 sdsmooth.xml
 setjy.xml
-ssoflux.xml
 simalma.xml
 simobserve.xml
 simanalyze.xml
@@ -134,5 +123,4 @@ wvrgcal.xml
 virtualconcat.xml
 vishead.xml
 visstat.xml
-widebandpbcor.xml
-widefield.xml )
+widebandpbcor.xml)
