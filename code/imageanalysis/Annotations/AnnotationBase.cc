@@ -1030,7 +1030,6 @@ void AnnotationBase::_checkAndConvertDirections(
 	const String& origin, const AnnotationBase::Direction& quantities
 ) {
 	_checkMixed(origin, quantities);
-
 	MDirection::Types csysDirectionRefFrame = _csys.directionCoordinate().directionType(false);
 	Bool needsConverting = _directionRefFrame != csysDirectionRefFrame;
 	_convertedDirections.resize(quantities.size());
@@ -1042,7 +1041,6 @@ void AnnotationBase::_checkAndConvertDirections(
 	}
 	// check this now because if converting from world to pixel fails when
 	// regions are being formed, it will wreak havoc
-
 	_testConvertToPixel();
 }
 
@@ -1092,12 +1090,11 @@ std::list<std::string> AnnotationBase::colorChoices() {
 void AnnotationBase::_testConvertToPixel() const {
 	Vector<Double> pixel(2);
 	Vector<Double> world(2);
-	Vector<String> units = _csys.worldAxisUnits();
-	for (
-		Vector<MDirection>::const_iterator iter = _convertedDirections.begin();
-		iter != _convertedDirections.end(); iter++
-	) {
-		world = iter->getAngle().getValue("rad");
+	const auto units = _csys.worldAxisUnits();
+	const auto end = _convertedDirections.end();
+	for (auto iter = _convertedDirections.begin(); iter != end; ++iter) {
+		world[0] = iter->getAngle().getValue(units[0])[0];
+		world[1] = iter->getAngle().getValue(units[1])[1];
 		if (! _csys.directionCoordinate().toPixel(pixel, world)) {
 			ostringstream oss;
 			oss << "Could not convert world coordinate " << world << "to pixel";

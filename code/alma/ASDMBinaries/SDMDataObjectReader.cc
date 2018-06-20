@@ -28,12 +28,21 @@ namespace asdmbinaries {
   const string SDMDataObjectReader::MIMEBOUNDARY_1  = $MIMEBOUNDARY1;
   const string SDMDataObjectReader::MIMEBOUNDARY_2  = $MIMEBOUNDARY2;
 
-  const regex SDMDataObjectReader::CONTENTIDBINREGEXP(" <([a-zA-Z]+)_([_0-9]+)\\.bin>");
-  const regex SDMDataObjectReader::CONTENTIDBINREGEXP1(" <([a-zA-Z]+)_([0-9]+)\\.bin>");
-  const regex SDMDataObjectReader::CONTENTIDBINREGEXP2(" <([a-zA-Z]+)_([0-9]+)_([0-9]+)\\.bin>");
-  //  const regex SDMDataObjectReader::CONTENTIDSUBSETREGEXP(" <(Subset)_([0-9]+)\\.xml>");
-  const regex SDMDataObjectReader::CONTENTIDSUBSETREGEXP(" <(Subset)_([0-9]+)(_[0-9]+)?\\.xml>");
-  const regex SDMDataObjectReader::CONTENTIDDATASTRUCTUREREGEXP(" <DataStructure.xml>");
+#ifndef WITHOUT_BOOST
+  const boost::regex SDMDataObjectReader::CONTENTIDBINREGEXP(" <([a-zA-Z]+)_([_0-9]+)\\.bin>");
+  const boost::regex SDMDataObjectReader::CONTENTIDBINREGEXP1(" <([a-zA-Z]+)_([0-9]+)\\.bin>");
+  const boost::regex SDMDataObjectReader::CONTENTIDBINREGEXP2(" <([a-zA-Z]+)_([0-9]+)_([0-9]+)\\.bin>");
+  //  const boost::regex SDMDataObjectReader::CONTENTIDSUBSETREGEXP(" <(Subset)_([0-9]+)\\.xml>");
+  const boost::regex SDMDataObjectReader::CONTENTIDSUBSETREGEXP(" <(Subset)_([0-9]+)(_[0-9]+)?\\.xml>");
+  const boost::regex SDMDataObjectReader::CONTENTIDDATASTRUCTUREREGEXP(" <DataStructure.xml>");
+#else
+  const std::regex SDMDataObjectReader::CONTENTIDBINREGEXP(" <([a-zA-Z]+)_([_0-9]+)\\.bin>");
+  const std::regex SDMDataObjectReader::CONTENTIDBINREGEXP1(" <([a-zA-Z]+)_([0-9]+)\\.bin>");
+  const std::regex SDMDataObjectReader::CONTENTIDBINREGEXP2(" <([a-zA-Z]+)_([0-9]+)_([0-9]+)\\.bin>");
+  //  const std::regex SDMDataObjectReader::CONTENTIDSUBSETREGEXP(" <(Subset)_([0-9]+)\\.xml>");
+  const std::regex SDMDataObjectReader::CONTENTIDSUBSETREGEXP(" <(Subset)_([0-9]+)(_[0-9]+)?\\.xml>");
+  const std::regex SDMDataObjectReader::CONTENTIDDATASTRUCTUREREGEXP(" <DataStructure.xml>");
+#endif
   set<string> SDMDataObjectReader::BINATTACHNAMES;
   map<string, SDMDataObjectReader::BINATTACHCODES> SDMDataObjectReader::name2code;
   const bool SDMDataObjectReader::initClass_ = SDMDataObjectReader::initClass();
@@ -237,11 +246,17 @@ namespace asdmbinaries {
     string contentLocation = getContentLocation();
 
     // Extract the attachment name and the integration number.
-    cmatch what;
-    
-    regex r(" *" + sdmDataSubset.projectPath()+"(actualDurations|actualTimes|autoData|flags|crossData|zeroLags)\\.bin");
-    if (regex_match(contentLocation.c_str(), what, r)) {
+#ifndef WITHOUT_BOOST
+    boost::cmatch what;
+    boost::regex r(" *" + sdmDataSubset.projectPath()+"(actualDurations|actualTimes|autoData|flags|crossData|zeroLags)\\.bin");
+    if (boost::regex_match(contentLocation.c_str(), what, r)) {
     }
+#else
+    std::cmatch what;
+    std::regex r(" *" + sdmDataSubset.projectPath()+"(actualDurations|actualTimes|autoData|flags|crossData|zeroLags)\\.bin");
+    if (std::regex_match(contentLocation.c_str(), what, r)) {
+    }
+#endif
     else {
       ostringstream oss;
       oss << "Invalid Content-Location field '" << contentLocation <<"' in MIME header of an attachment (approx. char position = " << position_ << ").";
@@ -358,16 +373,29 @@ namespace asdmbinaries {
     // We are 1 character beyond the end of --<MIMEBOUNDARY_2>
     string contentLocation = getContentLocation();
 
-    regex r(" *" + sdmDataObject_.projectPath() + "([[:digit:]]+/){1,2}" + "desc.xml");;
+#ifndef WITHOUT_BOOST
+    boost::regex r(" *" + sdmDataObject_.projectPath() + "([[:digit:]]+/){1,2}" + "desc.xml");;
     ostringstream oss;
     
     // Extract the Subset name and the integration [, subintegration] number.
-    cmatch what;
-    if (!regex_match(contentLocation.c_str(), what, r)) {
+    boost::cmatch what;
+    if (!boost::regex_match(contentLocation.c_str(), what, r)) {
       ostringstream oss;
       oss << "Invalid Content-Location field '" << contentLocation <<"' in MIME header of a Subset (approx. char position = " << position_ << ").";
       throw SDMDataObjectReaderException(oss.str());
     } 
+#else
+    std::regex r(" *" + sdmDataObject_.projectPath() + "([[:digit:]]+/){1,2}" + "desc.xml");;
+    ostringstream oss;
+    
+    // Extract the Subset name and the integration [, subintegration] number.
+    std::cmatch what;
+    if (!std::regex_match(contentLocation.c_str(), what, r)) {
+      ostringstream oss;
+      oss << "Invalid Content-Location field '" << contentLocation <<"' in MIME header of a Subset (approx. char position = " << position_ << ").";
+      throw SDMDataObjectReaderException(oss.str());
+    } 
+#endif
     
     SDMDataSubset integration(&sdmDataObject_);
     
@@ -663,15 +691,27 @@ namespace asdmbinaries {
 
     string contentLocation = getContentLocation();
     // cout << contentLocation << endl;
-    regex r(" *"+sdmDataObject_.projectPath() + "desc.xml");
+#ifndef WITHOUT_BOOST
+    boost::regex r(" *"+sdmDataObject_.projectPath() + "desc.xml");
     
     // Extract the Subset name and the suffix number (which must be equal to 1).
-    cmatch what;
-    if (!regex_match(contentLocation.c_str(), what, r)) {
+    boost::cmatch what;
+    if (!boost::regex_match(contentLocation.c_str(), what, r)) {
       ostringstream oss;
       oss << "Invalid Content-Location field '" << contentLocation <<"' in MIME header of the subset";
       throw SDMDataObjectReaderException(oss.str());
     } 
+#else
+    std::regex r(" *"+sdmDataObject_.projectPath() + "desc.xml");
+    
+    // Extract the Subset name and the suffix number (which must be equal to 1).
+    std::cmatch what;
+    if (!std::regex_match(contentLocation.c_str(), what, r)) {
+      ostringstream oss;
+      oss << "Invalid Content-Location field '" << contentLocation <<"' in MIME header of the subset";
+      throw SDMDataObjectReaderException(oss.str());
+    } 
+#endif
 
     SDMDataSubset subscan(&sdmDataObject_);
 

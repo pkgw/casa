@@ -52,6 +52,7 @@ install (FILES
 	variant.h
 	casac.h
 	version.h
+	optionparser.h
 	DESTINATION include/casacode/stdcasa
 	)
 

@@ -624,15 +624,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     accessImage( itsModels[term], itsParentModels[term], imageExts(MODEL)+".tt"+String::toString(term) );
 
-    // Set up header info the first time.
-    ImageInfo info = itsModels[term]->imageInfo();
-    String objectName("");
-    if( itsMiscInfo.isDefined("OBJECT") ){ itsMiscInfo.get("OBJECT", objectName); }
-    info.setObjectName(objectName);
-    itsModels[term]->setImageInfo( info );
-    itsModels[term]->setMiscInfo( itsMiscInfo );
     itsModels[term]->setUnits("Jy/pixel");
-
     return itsModels[term];
   }
 
@@ -760,7 +752,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIImageStoreMultiTerm::addImages( SHARED_PTR<SIImageStore> imagestoadd,
 					 Bool addpsf, Bool addresidual, Bool addweight, Bool adddensity)
   {
-
     for(uInt tix=0;tix<2*itsNTerms-1;tix++)
       {
 	
