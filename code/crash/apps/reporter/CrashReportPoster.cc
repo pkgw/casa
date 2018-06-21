@@ -177,7 +177,7 @@ CrashReportPoster::captureAdditionalInformation ()
     captureOne ("cat /proc/meminfo", "meminfo.txt");
     captureOne ("mount", "mountinfo.txt");
     captureOne ("lsb_release -a", "lsbinfo.txt");
-    captureOne ("uname -a", "unameinfo.txt");
+    captureOne ("uname -srvmp", "unameinfo.txt");
     if (logFile_p.size() > 0){
         captureOne ("cat " + logFile_p, "casa.log");
     } else {
@@ -193,7 +193,7 @@ CrashReportPoster::captureAdditionalInformation ()
     captureOne ("vm_stat", "meminfo.txt");
     captureOne ("mount", "mountinfo.txt");
     //captureOne ("lsb_release -a", "lsbinfo.txt");
-    captureOne ("uname -a", "unameinfo.txt");
+    captureOne ("uname -srvmp", "unameinfo.txt");
     if (logFile_p.size() > 0){
         captureOne ("cat " + logFile_p, "casa.log");
     } else {

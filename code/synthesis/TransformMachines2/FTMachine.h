@@ -409,6 +409,7 @@ protected:
 
   casacore::Int lastFieldId_p;
   casacore::Int lastMSId_p;
+  casacore::CountedPtr<casacore::ROMSColumns> romscol_p;
   //Use douple precision grid in gridding process
   casacore::Bool useDoubleGrid_p;
 

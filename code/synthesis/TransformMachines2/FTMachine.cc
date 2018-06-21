@@ -90,7 +90,7 @@ using namespace casa::vi;
   FTMachine::FTMachine() : isDryRun(false), image(0), uvwMachine_p(0), 
 			   tangentSpecified_p(false), fixMovingSource_p(false), 
 			   movingDirShift_p(0.0), 
-			   distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), 
+			   distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
 			   useDoubleGrid_p(false), 
 			   freqFrameValid_p(false), 
 			   freqInterpMethod_p(InterpolateArray1D<Double,Complex>::nearestNeighbour), 
@@ -109,7 +109,7 @@ using namespace casa::vi;
   FTMachine::FTMachine(CountedPtr<CFCache>& cfcache,CountedPtr<ConvolutionFunction>& cf):
     isDryRun(false), image(0), uvwMachine_p(0), 
     tangentSpecified_p(false), fixMovingSource_p(false), movingDirShift_p(0.0),
-    distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), 
+    distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
     useDoubleGrid_p(false), 
     freqFrameValid_p(false), 
     freqInterpMethod_p(InterpolateArray1D<Double,Complex>::nearestNeighbour), 
@@ -137,7 +137,7 @@ using namespace casa::vi;
       distance_p=other.distance_p;
       lastFieldId_p=other.lastFieldId_p;
       lastMSId_p=other.lastMSId_p;
-      
+      romscol_p=other.romscol_p;
       tangentSpecified_p=other.tangentSpecified_p;
       mTangent_p=other.mTangent_p;
       mImage_p=other.mImage_p;
@@ -269,10 +269,11 @@ using namespace casa::vi;
       // Set the frame for the UVWMachine
       if(vb.isAttached()){
 	//mFrame_p=MeasFrame(MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()), mLocation_p);
+	romscol_p=new ROMSColumns(vb.ms());
 	if(!mFrame_p.epoch()) 
-	  mFrame_p.set(MEpoch(Quantity(vb.time()(0), "s"),  ROMSColumns(vb.ms()).timeMeas()(0).getRef()));
+	  mFrame_p.set(MEpoch(Quantity(vb.time()(0), "s"),  (romscol_p->timeMeas())(0).getRef()));
 	else
-	  mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"),  ROMSColumns(vb.ms()).timeMeas()(0).getRef()));
+	  mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"), (romscol_p->timeMeas())(0).getRef()));
 	if(!mFrame_p.position())
 	  mFrame_p.set(mLocation_p);
 	else
@@ -355,7 +356,7 @@ using namespace casa::vi;
       if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
       String observatory;
       if(vb.isAttached())
-	observatory=ROMSColumns(vb.ms()).observation().telescopeName()(0);
+	observatory=(vb.subtableColumns().observation()).telescopeName()(0);
       else
 	throw(AipsError("Cannot define frame because of no access to OBSERVATION table")); 
       if(observatory.contains("ATCA") || observatory.contains("DRAO")
@@ -887,8 +888,8 @@ using namespace casa::vi;
     //the uvw rotation is done for common tangent reprojection or if the 
     //image center is different from the phasecenter
     // UVrotation is false only if field never changes
-  
-   ROMSColumns mscol(vb.ms());
+  if(lastMSId_p != vb.msId())
+    romscol_p=new ROMSColumns(vb.ms());
    if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p)){
       doUVWRotation_p=true;
    } 
@@ -902,7 +903,7 @@ using namespace casa::vi;
       
       mFrame_p.epoch() != 0 ? 
 	mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"))):
-	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), mscol.timeMeas()(0).getRef()));
+	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), (romscol_p->timeMeas())(0).getRef()));
       MDirection::Types outType;
       MDirection::getType(outType, mImage_p.getRefString());
       MDirection phasecenter=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), MDirection::Ref(outType, mFrame_p))();
@@ -934,7 +935,7 @@ using namespace casa::vi;
       // will reproject to that plane iso the image plane
       if(doUVWRotation_p || fixMovingSource_p) {
 	
-	String observatory=mscol.observation().telescopeName()(0);
+	String observatory=(vb.subtableColumns().observation()).telescopeName()(0);
 	if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
 	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
 		//Tangent specified is being wrongly used...it should be for a
@@ -1005,7 +1006,8 @@ using namespace casa::vi;
     {
 
 
-
+      if(lastMSId_p != vb.msId())
+	romscol_p=new ROMSColumns(vb.ms());
       //the uvw rotation is done for common tangent reprojection or if the
       //image center is different from the phasecenter
       // UVrotation is false only if field never changes
@@ -1026,7 +1028,7 @@ using namespace casa::vi;
         mFrame_p.epoch() != 0 ?
 	  mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"))):
 	 
-	  mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()));
+	  mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), (romscol_p->timeMeas())(0).getRef()));
 
         MDirection phasecenter=mImage_p;
         if(fixMovingSource_p){
@@ -1058,7 +1060,7 @@ using namespace casa::vi;
         // will reproject to that plane iso the image plane
         if(doUVWRotation_p || fixMovingSource_p) {
 
-  	String observatory=ROMSColumns(vb.ms()).observation().telescopeName()(0);
+	  String observatory=(vb.subtableColumns().observation()).telescopeName()(0);
   	if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
   	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
   		//Tangent specified is being wrongly used...it should be for a
