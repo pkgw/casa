@@ -5276,8 +5276,6 @@ bool image::setcoordsys(const record& csys) {
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
-
         unique_ptr<Record> coordinates(toRecord(csys));
         if (_imageF) {
             ImageMetaDataRW<Float> md(_imageF);
