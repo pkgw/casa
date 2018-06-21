@@ -1107,15 +1107,20 @@ coordsys* image::coordsys(const std::vector<int>& pixelAxes) {
         if (_detached()) {
             return nullptr;
         }
-        _notSupported(__func__);
         if (_imageF) {
             return _coordsys(_imageF, pixelAxes);
         }
         else if (_imageC) {
             return _coordsys(_imageC, pixelAxes);
         }
+        else if (_imageD) {
+            return _coordsys(_imageD, pixelAxes);
+        }
+        else if (_imageDC) {
+            return _coordsys(_imageDC, pixelAxes);
+        }
         else {
-            ThrowCc("This type of image is not supported by this method");
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
@@ -4683,28 +4688,24 @@ image* image::rebin(
 }
 
 image* image::regrid(
-    const string& outfile, const vector<int>& inshape,
-    const record& csys, const vector<int>& inaxes,
-    const variant& region, const variant& vmask,
-    const string& method, int decimate, bool replicate,
-    bool doRefChange, bool dropDegenerateAxes,
-    bool overwrite, bool forceRegrid,
-    bool specAsVelocity, bool /* async */,
-    bool stretch
+    const string& outfile, const vector<int>& inshape, const record& csys,
+    const vector<int>& inaxes, const variant& region, const variant& vmask,
+    const string& method, int decimate, bool replicate, bool doRefChange,
+    bool dropDegenerateAxes, bool overwrite, bool forceRegrid,
+    bool specAsVelocity, bool /* async */, bool stretch
 ) {
     try {
         LogOrigin lor(_class, __func__);
         _log << lor;
         if (_detached()) {
-                throw AipsError("Unable to create image");
-            return 0;
+            ThrowCc("Unable to create image");
         }
-        _notSupported(__func__);
         unique_ptr<Record> csysRec(toRecord(csys));
-        unique_ptr<CoordinateSystem> coordinates(CoordinateSystem::restore(*csysRec, ""));
+        unique_ptr<CoordinateSystem> coordinates(
+            CoordinateSystem::restore(*csysRec, "")
+        );
         ThrowIf (
-            ! coordinates.get(),
-            "Invalid specified coordinate system record."
+            ! coordinates.get(), "Invalid specified coordinate system record."
         );
         auto regionPtr = _getRegion(region, true);
         String mask = _getMask(vmask);
@@ -4715,43 +4716,63 @@ image* image::regrid(
         vector<String> msgs;
         if (_doHistory) {
             vector<String> names {
-                "outfile", "shape", "csys", "axes",
-                "region", "mask", "method", "decimate",
-                "replicate", "doref", "dropdegen",
-                "overwrite", "force", "asvelocity", "stretch"
+                "outfile", "shape", "csys", "axes", "region", "mask", "method",
+                "decimate", "replicate", "doref", "dropdegen", "overwrite",
+                "force", "asvelocity", "stretch"
             };
             vector<variant> values {
-                outfile, inshape, csys, inaxes,
-                region, vmask, method, decimate, replicate,
-                doRefChange, dropDegenerateAxes,
-                overwrite, forceRegrid,
-                specAsVelocity, stretch
+                outfile, inshape, csys, inaxes, region, vmask, method, decimate,
+                replicate, doRefChange, dropDegenerateAxes, overwrite,
+                forceRegrid, specAsVelocity, stretch
             };
             msgs = _newHistory(__func__, names, values);
         }
         if (_imageF) {
-            ImageRegridder regridder(
-                _imageF, regionPtr.get(),
-                mask, outfile, overwrite, *coordinates,
-                IPosition(axes), IPosition(inshape)
+            ImageRegridder<Float> regridder(
+                _imageF, regionPtr.get(), mask, outfile, overwrite,
+                *coordinates, IPosition(axes), IPosition(inshape)
             );
             return _regrid(
-                regridder, method, decimate, replicate,
-                doRefChange, forceRegrid, specAsVelocity,
-                stretch, dropDegenerateAxes, lor, msgs
+                regridder, method, decimate, replicate, doRefChange,
+                forceRegrid, specAsVelocity, stretch, dropDegenerateAxes, lor,
+                msgs
+            );
+        }
+        else if (_imageC) {
+            ComplexImageRegridder<Complex> regridder(
+                _imageC, regionPtr.get(), mask, outfile, overwrite,
+                *coordinates, IPosition(axes), IPosition(inshape)
+            );
+            return _regrid(
+                regridder, method, decimate, replicate, doRefChange,
+                forceRegrid, specAsVelocity, stretch, dropDegenerateAxes, lor,
+                msgs
+            );
+        }
+        if (_imageD) {
+            ImageRegridder<Double> regridder(
+                _imageD, regionPtr.get(), mask, outfile, overwrite,
+                *coordinates, IPosition(axes), IPosition(inshape)
+            );
+            return _regrid(
+                regridder, method, decimate, replicate, doRefChange,
+                forceRegrid, specAsVelocity, stretch, dropDegenerateAxes, lor,
+                msgs
+            );
+        }
+        else if (_imageDC) {
+            ComplexImageRegridder<DComplex> regridder(
+                _imageDC, regionPtr.get(), mask, outfile, overwrite,
+                *coordinates, IPosition(axes), IPosition(inshape)
+            );
+            return _regrid(
+                regridder, method, decimate, replicate, doRefChange,
+                forceRegrid, specAsVelocity, stretch, dropDegenerateAxes, lor,
+                msgs
             );
         }
         else {
-            ComplexImageRegridder regridder(
-                _imageC, regionPtr.get(),
-                mask, outfile, overwrite, *coordinates,
-                IPosition(axes), IPosition(inshape)
-            );
-            return _regrid(
-                regridder, method, decimate, replicate,
-                doRefChange, forceRegrid, specAsVelocity,
-                stretch, dropDegenerateAxes, lor, msgs
-            );
+            ThrowCc("Logic Error");
         }
     }
     catch (const AipsError& x) {

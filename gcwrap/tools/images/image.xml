@@ -8004,167 +8004,151 @@ ia.close()
 
 <description>
 
-This function regrids the current image onto a grid specified by the
-given Coordinate System.   You can also specify the shape of the
-output image.
+This function regrids the current image onto a grid specified by the given
+coordinate system. The shape of the output image may also be specified.
 
-The Coordinate System must be given via a <link
-anchor="images:coordsys">Coordsys</link> \tool\ (using
-coordsys.torecord()).  It is optional; if not specified, the Coordinate
-System from the input image (i.e.  the one to which you are applying
-the regrid function) is taken.  The order of the coordinates and axes
-in the output image is always the same as the input image.  It simply
-'finds' the relevant coordinate in the supplied Coordinate System in
-order to figure out the regridding parameters.  The supplied
-Coordinate System must have at least as many coordinates as are
-required to accomodate the axes you are regridding (e.g.  if you
-regrid the first two axes, and these belong to a Direction Coordinate,
-you need one Direction Coordinate in the supplied Coordinate System).
-Coordinates pertaining to axes that are not being regridded are
-supplied from the input image, not the given Coordinate System.
+The coordinate system must be specified via a cs tool (using cs.torecord()). It
+is optional; if not specified, the coordinate system from the input image (ie,
+the one to which you are applying the regrid function) is used. The order of the
+coordinates and axes in the output image is always the same as the input image.
+It simply finds the relevant coordinate in the supplied coordinate system in
+order to determine the regridding parameters. The supplied coordinate system
+must have at least as many coordinates as are required to accomodate the axes 
+that are to be regridded (eg, if the first two axes are to be regridded, and
+these belong to a direction coordinate, one direction coordinate in the supplied
+coordinate system is required). Coordinates pertaining to axes that are not
+being regridded are supplied from the input image, not the specified coordinate
+system.
 
-Reference changes are handled (e.g.  J2000 to B1950, LSR to TOPO).  In
-general, the conversion machinery attempts to work out how sophisticated
-it needs to be (e.g.  am I regridding LSR to LSR or LSR to TOPO). 
-However, it errs on the side of conservatism so that it can be that the
-conversion machine requires more information than it actually needs. 
-For full frame conversions, one needs to know things like location on
-earth (e.g.  observatory), direction of observation, and time of
-observation.  
+Reference changes are handled (eg, J2000 to B1950, LSR to TOPO). In general, the
+conversion machinery attempts to work out how sophisticated it needs to be (eg,
+is the regridding being done from LSR to LSR or from LSR to TOPO). However, it
+errs on the side of caution if the conversion machine requires more information
+than it actually needs. For full frame conversions, one needs to know things
+like the position on the earth's surface where the observation occurred,
+direction (celestial coordinates) of observation, and time of observation.  
 
-If you get the above errors and you {\bf are} doing a frame conversion,
-then that means you must insert some extra information into the
-Coordinate System of your image.  Most likely it's the time
-(<link anchor="images:coordsys.setepoch.function">coordsys.setepoch</link>) and location
-(<link anchor="images:coordsys.settelescope.function">coordsys.settelescope</link>) that are
-missing. If you get these errors and you {\bf know} that you are not
-specifying a frame change (e.g.  regrid LSR to LSR) then try setting
-{\stfaf doref=F}.  This will (silently) bypass all possible frame
-conversions.  Note that if you {\bf are} requesting a frame conversion
-and you set {\stfaf doref=F} you are doing a bad thing (and you will
-get no warnings).
+If you get such errors and you are doing a frame conversion, then that means you
+must insert some extra information into the coordinate system of your image.
+Most likely it's the time (in which case you can use cs.setepoch()) and/or
+position (in which case you can use cs.settelescope()) that are missing. If you
+get these errors and you are certain that you are not specifying a frame change
+(eg, regrid LSR to LSR) then try setting doref=False. This will (silently)
+bypass all possible frame conversions. Note that if you are requesting a frame
+conversion and you set doref=False, no warnings will be emitted and the output
+image will likely be nonsensical.
 
-If you regrid a plane holding a Direction Coordinate and the units are
-Jy/pixel then the output is scaled to conserve flux (roughly; just one
-scale factor at the reference pixel is computed). 
+If you regrid a plane holding a direction coordinate and the units are Jy/pixel,
+then the output is scaled to conserve flux (roughly; just one scale factor at
+the reference pixel is computed).
 
-Regridding of complex-valued images is supported. The real and imaginary parts are
-regridded independently and the resulting regridded pixel values are combined to
-form the regridded, complex-valued image.
+Regridding of complex-valued images is supported. The real and imaginary parts
+are regridded independently and the resulting regridded pixel values are
+combined to form the regridded, complex-valued image.
 
-A variety of interpolation schemes are provided (you need only specify
-the first three characters to {\stfaf method}).  The cubic interpolation
-is substantially slower than linear, and often the improvement is
-modest.  By default you get linear interpolation. 
+A variety of interpolation schemes are provided (you need only specify the first
+three characters to the method parameter).  The cubic interpolation is
+substantially slower than linear, and often the improvement is modest. By
+default, linear interpolation is used.
 
-You specify the shape of the output image ({\stfaf shape}) and which
-output axes you want to regrid ({\stfaf axes}).  Note that a Stokes axis
-cannot be regridded (you will get a warning if you try).
+You specify the shape of the output image using the shape parameter and which
+output axes you want to regrid.  Note that a Stokes axis cannot be regridded
+(you will get a warning if you try).
 
-The {\stfaf axes} argument cannot be used to discard axes from the
-output image; it can only be used to specify which {\bf output} axes are
-going to be regridded and which are not.  Any axis that you are not
-regridding must have the same output shape as the input image shape for
-that axis. 
+The axes parameter cannot be used to discard axes from the output image; it can
+only be used to specify which output axes are going to be regridded and which
+are not. Any axis that you are not regridding must have the same output shape as
+the input image shape for that axis. 
 
-The {\stfaf axes} argument can also be used to specify the order in
-which the {\bf output} axes are regridded.  This may give you
-significant performance benefits.  For example, imagine we are going to
-regrid a spectral-line cube of shape [512,512,1204] to shape
-[256,256,32].  If you specified {\stfaf axes=[0,1,2]} then first, the
-Direction axes would be regridded for each of the 1024 pixels (and
-stored in a temporary image).  Then each profile at each spatial
-location in the temporary image would be regridded to 32 pixels.  You
-could speed this process up significantly by setting {\stfaf
-axes=[2,0,1]}.  In this case, first each profile would be regridded to
-32 pixels, and then each plane of the 32 pixels would be regridded. 
-Note that the order of {\stfaf axes} does not affect the order of the
-{\stfaf shape} argument.  I.e.  it should be given in the natural pixel
-axis order of the image {\stfaf [256,256,32]} in both cases. 
+The axes parameter can also be used to specify the order in which the output
+axes are regridded. This may give you significant performance benefits. For
+example, imagine we are going to regrid a spectral-line cube of shape
+[512,512,1204] to shape [256,256,32]. If you specified axes=[0,1,2] then first,
+the direction axes would be regridded for each of the 1024 pixels (and stored in
+a temporary image). Then each spectral profile at each spatial location in the
+temporary image would be regridded to 32 pixels.  You could speed this process
+up significantly by setting axes=[2,0,1]. In this case, first each spectral
+profile would be regridded to 32 pixels, and then each plane of the 32 pixels
+would be regridded. Note that the order of axes does not affect the order of the
+shape parameter; ie, it should be given in the natural pixel axis order of the
+image ()[256,256,32] in both cases of this example). 
 
-You can also specify a \region\ to be applied to the input image.  If
-you do this, you need to be careful with the output shape for
-non-regridded axes (must match that of the region - use function
-<link anchor="images:image.boundingbox.function">boundingbox</link> to find that out). 
+You can also specify a region to be applied to the input image. If you do this,
+you need to be careful with the output shape for non-regridded axes (must match
+that of the region - use function ia.boundingbox() to determine that). 
 
-If {\stfaf outfile} is given, the image is written to the specified
-disk file.  If {\stfaf outfile} is unset, the on-the-fly Image \tool\
-returned by this function is associated with a temporary image.  This
-temporary image may be in memory or on disk, depending on its size.
-When you destroy the on-the-fly Image \tool\ (with the <link
-anchor="images:image.done.function">done</link> function) this
-temporary image is deleted.
+If the outfile parameter is specified, the image is written to the specified
+disk file.  If this parameter is unset, the on-the-fly image analysis tool
+returned by this method is associated with a temporary image.  This temporary
+image may be in memory or on disk, depending on its size. When you destroy the
+on-the-fly image analysis tool (with either the ia.close() or ia.done()
+methods), this temporary image is deleted.
 
-The argument {\stfaf replicate} can be used to simply replicate pixels
-rather than regridding them.  Normally ({\stfaf replicate=F}), for every
-output pixel, its world coordinate is computed and the corresponding
-input pixel found (then a little interpolation grid is generated).  If
-you set {\stfaf replicate=T}, then what happens is that for every output
-axis, a vector of regularly sampled input pixels is generated (based on
-the ratio of the output and input axis shapes).  So this just means the
-pixels get replicated (by whatever interpolation scheme you use) rather
-than regridded in world coordinate space.  This process is much faster,
-but its not a true world coordinate based regrid. 
+The replicate parameter can be used to simply replicate pixels rather than
+regridding them.  Normally replicate=False, for every output pixel, its world
+coordinate is computed and the corresponding input pixel found (then a little
+interpolation grid is generated).  If replicate=True, then for every output
+axis, a vector of regularly sampled input pixels is generated (based on the
+ratio of the output and input axis shapes).  So this just means the pixels get
+replicated (by whatever interpolation scheme you use) rather than regridded in
+world coordinate space.  This process is much faster, but its not a true world
+coordinate based regrid. 
 
-As decribed above, when {\stfaf replicate} is False, a coordinate is
-computed for each output pixel; this is an expensive operation.  The
-argument {\stfaf decimate} allows you to decimate the computation of
-that coordinate grid to a sparse grid, which is then filled in via fast
-interpolation.  The default for {\stfaf decimate} is 10.  The number of
-pixels per axis in the sparse grid is the number of output pixels for
-that axis divided by the decimation factor.  A factor of 10 does pretty
-well.  You may find that for very non-linear coordinate systems (e.g. 
-very close to the pole) that you have to reduce the decimation factor.
-You may also have to reduce the decimation factor if the number of pixels
-in the output image along an axis to be regridded is less than about 50, or
-the output image may be completely masked.
+As decribed above, when replicate=False, a coordinate is computed for each
+output pixel; this is an expensive operation.  The decimate parameter allows you
+to decimate the computation of that coordinate grid to a sparse grid, which is
+then filled in via fast interpolation.  The default is decimate=10. The number
+of pixels per axis in the sparse grid is the number of output pixels for that
+axis divided by the decimation factor. A factor of 10 does pretty well. You may
+find that for very non-linear coordinate systems (e.g. very close to the pole)
+that you have to reduce the decimation factor. You may also have to reduce the
+decimation factor if the number of pixels in the output image along an axis to
+be regridded is less than about 50, or the output image may be completely
+masked.
 
-If one of the axes to be regridded is a spectral axis and asvelocity=True,
-the axis will be regridded to match the velocity, not the frequency,
-description of the template coordinate system. Thus the output pixel
-values will correspond only to the velocity, not the frequency, of the
-output axis.
+If one of the axes to be regridded is a spectral axis and asvelocity=True, the
+axis will be regridded to match the velocity, not the frequency, description of
+the template spectral coordinate. Thus the output pixel values will correspond
+only to the velocity, not the frequency, of the output axis.
 
-Sometimes it is useful to drop axes of length one (degenerate axes). 
-Use the {\stfaf dropdeg} argument if you want to do this.  It will
-discard the axes from the input image.  Therefore the output shape and
-Coordinate System that you supply must be consistent with the input
-image after the degenerate axes are dropped. 
+Sometimes it is useful to drop axes of length one (degenerate axes). Setting
+the dropdeg parameter to True will do that. It will discard the axes from the
+input image.  Therefore the output shape and coordinate system that you supply
+must be consistent with the input image after the degenerate axes are dropped. 
 
-Argument {\stfaf force} can be used to force all specified axes to be
-regridded, even if the algorithm determines that they don't need to be (because
-the input and output coordinate information is identical).
+The force parameter can be used to force all specified axes to be regridded,
+even if the algorithm determines that they don't need to be (because the input
+and output coordinate information is identical).
 
-There is a useful function
-<link anchor="images:coordsys.setreferencelocation.function">setreferencelocation</link> that
-you can use to keep a specific world coordinate in the center of an
-image when regridding (see example below). 
+The cs tool has a useful method, cs.setreferencelocation(), that can be used to
+keep a specific world coordinate in the center of an image when regridding (see
+example below).
 
-The output \pixelmask\ will be good (T) unless the regridding failed to
-find a value for that output pixel in which case it will be bad (F).
-For example, if the total input mask (default input \pixelmask\ plus OTF
-mask) for all of the relevant input pixels were masked bad 
-then the output pixel would be masked bad (F).
+The output pixel mask will be True (good) unless the regridding failed to find a
+value for that output pixel in which case it will be False. For example, if the
+total input mask (default input pixel mask plus OTF mask) for all of the
+relevant input pixels were masked bad then the output pixel would be masked
+(False).
 
-{\bf Multiple axis Coordinates limitation} -- Some cooordinates pertain
-to more than one axis.  E.g.  a Direction Coordinate holds longitude and
-latitude.  A Linear Coordinate can also hold many axes.  When you regrid
-*any* axis from a Coordinate which holds multiple axes, you must fully
-specify the coordinate information for all axes in that Coordinate in
-the Coordinate System that you provide.  For example, you have a Linear
-Coordinate with two axes and you want to regrid axis one only.  In the
-Coordinate System you provide, the coordinate information for axis two
-(not being regridded) must correctly be a copy from the input coordinate
-system (it won't be filled in for you). 
+MULTIPLE AXIS COORDINATES LIMITATION
+Some cooordinates contain multiple axes. For example, a direction coordinate
+contains both longitude-like and latitude-like axes. A linear coordinate can
+also contain multiple axes.  When you regrid *any* axis from a coordinate which
+contains multiple axes, you must fully specify the coordinate information for
+all axes in that coordinate in the coordinate system that you provide. For
+example, if you have a linear coordinate with two axes and you want to regrid
+axis one only. In the coordinate system you provide, the coordinate information
+for axis two (not being regridded) must correctly be a copy from the input
+coordinate system (it won't be filled in for you).
 
 If an image has per-plane beams and one attempts to regrid the spectral axis,
 an exception is thrown.
 
 IMPORTANT NOTE ABOUT FLUX CONSERVATION
-in general regridding is inaccurate for images that the angular resolution is poorly
-sampled. A check is done for such cases and a warning message is emitted if a beam present.
-However, no such check is done if there is no beam present. To add a restoring beam to
-an image, use ia.setrestoringbeam().
+in general regridding is inaccurate for images that the angular resolution is
+poorly sampled. A check is done for such cases and a warning message is emitted
+if a beam present. However, no such check is done if there is no beam present.
+To add a restoring beam to an image, use ia.setrestoringbeam().
 
 </description>
 
