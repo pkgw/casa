@@ -204,7 +204,7 @@ class ImagerParameters():
 
                                     'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold, 'growiterations':growiterations, 
                                      'dogrowprune':dogrowprune, 'minpercentchange':minpercentchange, 'verbose':verbose,
-                                    'interactive':interactive, 'startmodel':startmodel, 'nsigma':nsigma, , 'imagename':imagename}) })
+                                    'interactive':interactive, 'startmodel':startmodel, 'nsigma':nsigma,  'imagename':imagename}) })
 
         ######### Iteration control. 
         self.iterpars = fixedDict({ 'niter':niter, 'cycleniter':cycleniter, 'threshold':threshold, 

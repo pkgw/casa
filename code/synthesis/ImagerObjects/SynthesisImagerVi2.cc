@@ -1816,6 +1816,7 @@ void SynthesisImagerVi2::unlockMSs()
     */
 
    refim::VPSkyJones* vps=NULL;
+   //cerr << "rec " << rec << " kpb " << kpb << endl;
     if(rec.asString("name")=="COMMONPB" && kpb !=PBMath::UNKNOWN ){
       vps= new refim::VPSkyJones(msc, true, Quantity(rotatePAStep, "deg"), BeamSquint::GOFIGURE, Quantity(360.0, "deg"));
       /////Don't know which parameter has pb threshold cutoff that the user want 
@@ -1829,7 +1830,7 @@ void SynthesisImagerVi2::unlockMSs()
       PBMathInterface::namePBClass(myPB.whichPBClass(), whichPBMath);
       os  << "Using the PB defined by " << whichPBMath << " for beam calculation for telescope " << telescop << LogIO::POST;
       vps= new refim::VPSkyJones(telescop, myPB, Quantity(rotatePAStep, "deg"), BeamSquint::GOFIGURE, Quantity(360.0, "deg"));
-      kpb=PBMath::DEFAULT;
+      //kpb=PBMath::DEFAULT;
     }
    
     
@@ -1841,7 +1842,7 @@ void SynthesisImagerVi2::unlockMSs()
     ///Use Heterogenous array mode for the following
     if((kpb == PBMath::UNKNOWN) || (kpb==PBMath::OVRO) || (kpb==PBMath::ACA)
        || (kpb==PBMath::ALMA) || (kpb==PBMath::EVLA) || multiTel){
-      CountedPtr<refim::SimplePBConvFunc> mospb=new refim::HetArrayConvFunc(pbtype, "");
+      CountedPtr<refim::SimplePBConvFunc> mospb=new refim::HetArrayConvFunc(pbtype, itsVpTable);
       static_cast<refim::MosaicFTNew &>(*theFT).setConvFunc(mospb);
     }
     ///////////////////make sure both FTMachine share the same conv functions.
