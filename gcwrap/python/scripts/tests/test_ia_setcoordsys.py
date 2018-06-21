@@ -84,7 +84,7 @@ class ia_setcoordsys_test(unittest.TestCase):
         """verify history writing"""
         myia = self._myia
         for mytype in ['f', 'c', 'd', 'cd']:
-            myia.fromshape("zz" + mytype + ".im", [20, 20])
+            myia.fromshape("zz" + mytype + ".im", [20, 20], type=mytype)
             csys = myia.coordsys()
             myia.setcoordsys(csys.torecord())
             msgs = myia.history()
