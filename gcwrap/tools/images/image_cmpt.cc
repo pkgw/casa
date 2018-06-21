@@ -5287,6 +5287,14 @@ bool image::setcoordsys(const record& csys) {
             ImageMetaDataRW<Complex> md(_imageC);
             md.setCsys(*coordinates);
         }
+        else if (_imageD) {
+            ImageMetaDataRW<Double> md(_imageD);
+            md.setCsys(*coordinates);
+        }
+        else if (_imageDC) {
+            ImageMetaDataRW<DComplex> md(_imageDC);
+                md.setCsys(*coordinates);
+        }
         else {
             ThrowCc("Logic error");
         }
@@ -5389,7 +5397,8 @@ bool image::setrestoringbeam(
             );
             ThrowIf(
                 channel >= 0 || polarization >= 0,
-                "Neither channel nor polarization can be non-negative if imagename is specified"
+                "Neither channel nor polarization can be non-negative if "
+                "imagename is specified"
             );
             PtrHolder<ImageInterface<Float> > k;
             ImageUtilities::openImage(k, imagename);
@@ -5412,26 +5421,26 @@ bool image::setrestoringbeam(
         }
         if (_imageF) {
             _setrestoringbeam(
-                _imageF, major, minor, pa, beam, remove,
-                log, channel, polarization, *rec, bs
+                _imageF, major, minor, pa, remove, log,
+                channel, polarization, *rec, bs
             );
         }
         else if (_imageC) {
             _setrestoringbeam(
-                _imageC, major, minor, pa, beam, remove,
-                log, channel, polarization, *rec, bs
+                _imageC, major, minor, pa, remove, log,
+                channel, polarization, *rec, bs
             );
         }
         else if (_imageD) {
             _setrestoringbeam(
-                _imageD, major, minor, pa, beam, remove,
-                log, channel, polarization, *rec, bs
+                _imageD, major, minor, pa, remove, log,
+                channel, polarization, *rec, bs
             );
         }
         else if (_imageDC) {
             _setrestoringbeam(
-                _imageDC, major, minor, pa, beam, remove,
-                log, channel, polarization, *rec, bs
+                _imageDC, major, minor, pa, remove, log,
+                channel, polarization, *rec, bs
             );
         }
         else {
@@ -5444,8 +5453,8 @@ bool image::setrestoringbeam(
             auto paKey = rec->isDefined("pa") ? "pa" : "positionangle";
             oss << "{'major': " << _quantityRecToString(rec->asRecord("major"))
                 << ", 'minor': " << _quantityRecToString(rec->asRecord("minor"))
-                << ", 'positionangle': " << _quantityRecToString(rec->asRecord(paKey))
-                << "}";
+                << ", 'positionangle': "
+                << _quantityRecToString(rec->asRecord(paKey)) << "}";
             myb = oss.str();
             dontQuote.insert("beam");
         }
@@ -5458,7 +5467,9 @@ bool image::setrestoringbeam(
                 major, minor, pa, myb, remove, log,
                 channel, polarization, imagename
             };
-            _addHistory(__func__, names, values, vector<casacore::String>(), dontQuote);
+            _addHistory(
+                __func__, names, values, vector<casacore::String>(), dontQuote
+            );
         }
         return true;
     }
@@ -5472,7 +5483,7 @@ bool image::setrestoringbeam(
 
 template<class T> void image::_setrestoringbeam(
     SPIIT image, const variant& major, const variant& minor, const variant& pa,
-    const record& beam, bool remove, bool log, int channel, int polarization,
+    bool remove, bool log, int channel, int polarization,
     const Record& rec, const ImageBeamSet& bs
 ) {
     BeamManipulator<T> bManip(image);
