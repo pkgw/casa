@@ -540,15 +540,25 @@ bool image::calcmask(
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
         Record region;
         if (_imageF) {
             ImageMaskHandler<Float> imh(_imageF);
             imh.calcmask(mask, region, maskName, makeDefault);
         }
-        else {
+        else if (_imageC){
             ImageMaskHandler<Complex> imh(_imageC);
             imh.calcmask(mask, region, maskName, makeDefault);
+        }
+        else if (_imageD) {
+            ImageMaskHandler<Double> imh(_imageD);
+            imh.calcmask(mask, region, maskName, makeDefault);
+        }
+        else if (_imageDC) {
+            ImageMaskHandler<DComplex> imh(_imageDC);
+            imh.calcmask(mask, region, maskName, makeDefault);
+        }
+        else {
+            ThrowCc("Logic error");
         }
         vector<String> names {"mask", "name", "asdefault"};
         vector<variant> values {mask, maskName, makeDefault};
@@ -2293,9 +2303,8 @@ bool image::fromrecord(const record& imrecord, const string& outfile) {
 }
 
 bool image::fromshape(
-    const string& outfile, const vector<int>& shape,
-    const record& csys, const bool linear, const bool overwrite,
-    const bool log, const string& type
+    const string& outfile, const vector<int>& shape, const record& csys,
+    const bool linear, const bool overwrite, const bool log, const string& type
 ) {
     try {
         LogOrigin lor("image", __func__);
@@ -2927,14 +2936,23 @@ std::vector<std::string> image::history(bool list) {
             return vector<string>();
         }
         if (_imageF) {
-            SPIIF im = _imageF;
-            ImageHistory<Float> hist(im);
+            ImageHistory<Float> hist(_imageF);
+            return fromVectorString(hist.get(list));
+        }
+        else if (_imageC) {
+            ImageHistory<Complex> hist(_imageC);
+            return fromVectorString(hist.get(list));
+        }
+        else if (_imageD) {
+            ImageHistory<Double> hist(_imageD);
+            return fromVectorString(hist.get(list));
+        }
+        else if (_imageDC) {
+            ImageHistory<DComplex> hist(_imageDC);
             return fromVectorString(hist.get(list));
         }
         else {
-            SPIIC im = _imageC;
-            ImageHistory<Complex> hist(im);
-            return fromVectorString(hist.get(list));
+            ThrowCc("Logic error");
         }
     } catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -3398,12 +3416,24 @@ vector<string> image::maskhandler(
         if (_detached()) {
             return vector<string>(0);
         }
-        _notSupported(__func__);
         String oper = op;
         oper.upcase();
-        vector<string> res = _imageF
-            ? _handleMask(_imageF, oper, name)
-            : _handleMask(_imageC, oper, name);
+        vector<string> res;
+        if (_imageF) {
+            res = _handleMask(_imageF, oper, name);
+        }
+        else if (_imageC) {
+            res = _handleMask(_imageC, oper, name);
+        }
+        else if (_imageD) {
+            res = _handleMask(_imageD, oper, name);
+        }
+        else if (_imageDC) {
+            res = _handleMask(_imageDC, oper, name);
+        }
+        else {
+            ThrowCc("Logic error");
+        }
         if (res.empty()) {
             res = vector<string>(1, "T");
         }
@@ -3722,10 +3752,18 @@ String image::_name(bool strippath) const {
 }
 
 image* image::newimage(const string& fileName) {
-    image *rstat = newimagefromfile(fileName);
-    if (!rstat)
-            throw AipsError("Unable to create image");
-    return rstat;
+    try {
+        _log << _ORIGIN;
+        auto *rstat = newimagefromfile(fileName);
+        ThrowIf(! rstat, "Unable to create image");
+        return rstat;
+    }
+    catch (const AipsError& x) {
+        _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+            << LogIO::POST;
+        RETHROW(x);
+    }
+    return nullptr;
 }
 
 image* image::newimagefromarray(
@@ -3765,24 +3803,9 @@ image* image::newimagefromarray(
 image* image::newimagefromfile(const string& fileName) {
     try {
         _log << _ORIGIN;
-        SPIIF imageF;
-        SPIIC imageC;
-        std::tie(imageF, imageC, std::ignore, std::ignore)
-            = ImageFactory::fromFile(fileName);
-        if (imageF || imageC) {
-            unique_ptr<image> ret(
-                    imageF ? new image(imageF)
-                    : new image(imageC)
-            );
-            // not adding history because all this method does is open
-            // the image, it doesn't change it
-            return ret.release();
-        }
-        else {
-            _log << LogIO::WARN << "Pixel data type of requested image not supported"
-                << LogIO::POST;
-            return new image();
-        }
+        // not adding history because all this method does is open
+        // the image, it doesn't change it
+        return new image(ImageFactory::fromFile(fileName));
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -3841,34 +3864,18 @@ image* image::newimagefromimage(
 }
 
 image* image::newimagefromshape(
-    const string& outfile, const vector<int>& shape,
-    const record& csys, bool linear,
-    bool overwrite, bool log, const string& type
+    const string& outfile, const vector<int>& shape, const record& csys,
+    bool linear, bool overwrite, bool log, const string& type
 ) {
     try {
         _log << _ORIGIN;
-        unique_ptr<Record> coordinates(toRecord(csys));
-        String mytype = type;
-        mytype.downcase();
+        unique_ptr<image> ret(new image());
+        ret->dohistory(False);
         ThrowIf(
-            ! mytype.startsWith("f") && ! mytype.startsWith("c"),
-            "Input parm type must start with either 'f' or 'c'"
+            ! ret->fromshape(
+                outfile, shape, csys, linear, overwrite, log, type
+            ), "Failed to create image from shape"
         );
-        unique_ptr<image> ret;
-        if (mytype.startsWith("f")) {
-            SPIIF myfloat = ImageFactory::floatImageFromShape(
-                outfile, shape, *coordinates,
-                linear, overwrite, log
-            );
-            ret.reset(new image(myfloat));
-        }
-        else {
-            SPIIC mycomplex = ImageFactory::complexImageFromShape(
-                outfile, shape, *coordinates,
-                linear, overwrite, log
-            );
-            ret.reset(new image(mycomplex));
-        }
         vector<String> names {
             "outfile", "shape", "csys", "linear",
             "overwrite", "log", "type"
@@ -3877,6 +3884,7 @@ image* image::newimagefromshape(
             outfile, shape, csys, linear,
             overwrite, log, type
         };
+        ret->dohistory(True);
         if (_doHistory) {
             ret->_addHistory(__func__, names, values);
         }
@@ -5356,10 +5364,8 @@ bool image::setmiscinfo(const record& info) {
 }
 
 bool image::setrestoringbeam(
-    const variant& major, const variant& minor,
-    const variant& pa, const record& beam,
-    bool remove, bool log,
-    int channel, int polarization,
+    const variant& major, const variant& minor, const variant& pa,
+    const record& beam, bool remove, bool log, int channel, int polarization,
     const string& imagename
 ) {
     try {
@@ -5367,7 +5373,6 @@ bool image::setrestoringbeam(
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
         std::unique_ptr<Record> rec(toRecord(beam));
         ImageBeamSet bs;
         if (! imagename.empty()) {
@@ -5406,42 +5411,32 @@ bool image::setrestoringbeam(
             );
         }
         if (_imageF) {
-            BeamManipulator<Float> bManip(_imageF);
-            bManip.setVerbose(log);
-            if (remove) {
-                bManip.remove();
-            }
-            else if (! bs.empty()) {
-                bManip.set(bs);
-            }
-            else {
-                bManip.set(
-                    major.empty() ? casacore::Quantity() : _casaQuantityFromVar(major),
-                    minor.empty() ? casacore::Quantity() : _casaQuantityFromVar(minor),
-                    pa.empty() ? casacore::Quantity() : _casaQuantityFromVar(pa),
-                    *rec, channel, polarization
-                );
-            }
+            _setrestoringbeam(
+                _imageF, major, minor, pa, beam, remove,
+                log, channel, polarization, *rec, bs
+            );
+        }
+        else if (_imageC) {
+            _setrestoringbeam(
+                _imageC, major, minor, pa, beam, remove,
+                log, channel, polarization, *rec, bs
+            );
+        }
+        else if (_imageD) {
+            _setrestoringbeam(
+                _imageD, major, minor, pa, beam, remove,
+                log, channel, polarization, *rec, bs
+            );
+        }
+        else if (_imageDC) {
+            _setrestoringbeam(
+                _imageDC, major, minor, pa, beam, remove,
+                log, channel, polarization, *rec, bs
+            );
         }
         else {
-            BeamManipulator<Complex> bManip(_imageC);
-            bManip.setVerbose(log);
-            if (remove) {
-                bManip.remove();
-            }
-            else if (! bs.empty()) {
-                bManip.set(bs);
-            }
-            else {
-                bManip.set(
-                    major.empty() ? casacore::Quantity() : _casaQuantityFromVar(major),
-                    minor.empty() ? casacore::Quantity() : _casaQuantityFromVar(minor),
-                    pa.empty() ? casacore::Quantity() : _casaQuantityFromVar(pa),
-                    *rec, channel, polarization
-                );
-            }
+            ThrowCc("Logic error");
         }
-
         variant myb = beam;
         std::set<String> dontQuote;
         if (rec && ! rec->empty()) {
@@ -5473,6 +5468,29 @@ bool image::setrestoringbeam(
         RETHROW(x);
     }
     return false;
+}
+
+template<class T> void image::_setrestoringbeam(
+    SPIIT image, const variant& major, const variant& minor, const variant& pa,
+    const record& beam, bool remove, bool log, int channel, int polarization,
+    const Record& rec, const ImageBeamSet& bs
+) {
+    BeamManipulator<T> bManip(image);
+    bManip.setVerbose(log);
+    if (remove) {
+        bManip.remove();
+    }
+    else if (! bs.empty()) {
+        bManip.set(bs);
+    }
+    else {
+        bManip.set(
+            major.empty() ? casacore::Quantity() : _casaQuantityFromVar(major),
+            minor.empty() ? casacore::Quantity() : _casaQuantityFromVar(minor),
+            pa.empty() ? casacore::Quantity() : _casaQuantityFromVar(pa),
+            rec, channel, polarization
+        );
+    }
 }
 
 String image::_quantityRecToString(const Record& q) {
@@ -5656,67 +5674,44 @@ record* image::statistics(
 }
 
 image* image::subimage(
-    const string& outfile, const variant& region,
-    const variant& vmask, bool dropDegenerateAxes,
-    bool overwrite, bool list, bool stretch,
+    const string& outfile, const variant& region, const variant& vmask,
+    bool dropDegenerateAxes, bool overwrite, bool list, bool stretch,
     bool wantreturn, const vector<int>& keepaxes
 ) {
     try {
         _log << _ORIGIN;
-        ThrowIf(
-            _detached(),
-            "Unable to create image"
-        );
-        _notSupported(__func__);
-        SHARED_PTR<Record> regionRec = _getRegion(region, false);
-        String regionStr = region.type() == variant::STRING
-            ? region.toString()
-            : "";
-        String mask = vmask.toString();
-        if (mask == "[]") {
-            mask = "";
-        }
+        ThrowIf(_detached(), "Unable to create image");
         if (outfile.empty() && ! wantreturn) {
-            _log << LogIO::WARN << "outfile was not specified and wantreturn is false. "
-                << "The resulting image will be inaccessible" << LogIO::POST;
-        }
-        vector<String> names;
-        vector<variant> values;
-        if (_doHistory) {
-            vector<String> n {
-                "outfile", "region", "mask", "dropdeg", "overwrite",
-                "list", "stretch", "wantreturn", "keepaxes"
-            };
-            vector<variant> v {
-                outfile, region, vmask, dropDegenerateAxes,
-                overwrite, list, stretch, wantreturn, keepaxes
-            };
-            names = n;
-            values = v;
+            _log << LogIO::WARN << "outfile was not specified and wantreturn "
+                << "is false. The resulting image will be inaccessible"
+                << LogIO::POST;
         }
         if (_imageF) {
-            auto im = _subimage<Float>(
-                SHARED_PTR<ImageInterface<Float> >(
-                    _imageF->cloneII()
-                ),
-                outfile, *regionRec, mask, dropDegenerateAxes,
-                overwrite, list, stretch, keepaxes
+            return _subimage<Float>(
+                _imageF, outfile, region, vmask, dropDegenerateAxes, overwrite,
+                list, stretch, keepaxes, wantreturn
             );
-            _addHistory(im, __func__, names, values);
-            auto res = wantreturn ? new image(im) : nullptr;
-            return res;
+        }
+        else if (_imageC) {
+            return _subimage<Complex>(
+                _imageC, outfile, region, vmask, dropDegenerateAxes, overwrite,
+                list, stretch, keepaxes, wantreturn
+            );
+        }
+        else if (_imageD) {
+            return _subimage<Double>(
+                _imageD, outfile, region, vmask, dropDegenerateAxes, overwrite,
+                list, stretch, keepaxes, wantreturn
+            );
+        }
+        else if (_imageDC) {
+            return _subimage<DComplex>(
+                _imageDC, outfile, region, vmask, dropDegenerateAxes, overwrite,
+                list, stretch, keepaxes, wantreturn
+            );
         }
         else {
-            auto im = _subimage<Complex>(
-                SHARED_PTR<ImageInterface<Complex> >(
-                    _imageC->cloneII()
-                ),
-                outfile, *regionRec, mask, dropDegenerateAxes,
-                overwrite, list, stretch, keepaxes
-            );
-            _addHistory(im, __func__, names, values);
-            auto res = wantreturn ? new image(im) : nullptr;
-            return res;
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
@@ -5727,30 +5722,39 @@ image* image::subimage(
     return nullptr;
 }
 
-template<class T> SPIIT image::_subimage(
-    SPIIT clone,
-    const String& outfile, const Record& region,
-    const String& mask, bool dropDegenerateAxes,
-    bool overwrite, bool list, bool stretch,
-    const vector<int>& keepaxes
+template<class T> image* image::_subimage(
+    SPIIT clone, const String& outfile, const variant& region,
+    const variant& vmask, bool dropDegenerateAxes, bool overwrite, bool list,
+    bool stretch, const vector<int>& keepaxes, bool wantreturn
 ) {
+    SPIIT im;
+    auto regionRec = _getRegion(region, false);
+    auto mask = _getMask(vmask);
     if (! dropDegenerateAxes || keepaxes.empty()) {
-        return SPIIT(
-            SubImageFactory<T>::createImage(
-                *clone, outfile, region, mask,
-                dropDegenerateAxes, overwrite, list, stretch
-            )
+        im = SubImageFactory<T>::createImage(
+            *clone, outfile, *regionRec, mask, dropDegenerateAxes,
+            overwrite, list, stretch
         );
     }
     else {
-        return SPIIT(
-            SubImageFactory<T>::createImage(
-                *clone, outfile, region, mask,
-                AxesSpecifier(IPosition(Vector<Int>(keepaxes))),
-                overwrite, list, stretch
-            )
+        im = SubImageFactory<T>::createImage(
+            *clone, outfile, *regionRec, mask,
+            AxesSpecifier(IPosition(Vector<Int>(keepaxes))),
+            overwrite, list, stretch
         );
     }
+    if (_doHistory) {
+        vector<String> names {
+            "outfile", "region", "mask", "dropdeg", "overwrite",
+            "list", "stretch", "wantreturn", "keepaxes"
+        };
+        vector<variant> values {
+            outfile, region, vmask, dropDegenerateAxes,
+            overwrite, list, stretch, wantreturn, keepaxes
+        };
+        _addHistory(im, "subimage", names, values);
+    }
+    return wantreturn ? new image(im) : nullptr;
 }
 
 record* image::summary(
@@ -5762,7 +5766,6 @@ record* image::summary(
         if (_detached()) {
             return 0;
         }
-        _notSupported(__func__);
         if (_imageF) {
             return _summary(
                 _imageF, doppler, list, pixelorder, verbose
@@ -5773,11 +5776,18 @@ record* image::summary(
                 _imageC, doppler, list, pixelorder, verbose
             );
         }
-        else {
-            ThrowCc(
-                "This image data type is not supported by "
-                + String(__func__)
+        else if (_imageD) {
+            return _summary(
+                _imageD, doppler, list, pixelorder, verbose
             );
+        }
+        else if (_imageDC) {
+            return _summary(
+                _imageDC, doppler, list, pixelorder, verbose
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
