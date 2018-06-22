@@ -15,16 +15,27 @@ def logShutdown():
 casa['state']['telemetry-enabled'] = False
 
 casa_util = __casac__.utils.utils()
+
 rcTelemetryFlag = str.upper(casa_util.getrc("EnableTelemetry"))
 
-if ( casa['flags'].telemetry or
-    (os.environ.has_key('CASA_ENABLE_TELEMETRY') and
-     os.environ['CASA_ENABLE_TELEMETRY'].upper( ) == 'TRUE') or
-     rcTelemetryFlag == 'TRUE'):
+# Use the value from casarc file if it is set, otherwise leave it as is
+if (rcTelemetryFlag):
+    if (rcTelemetryFlag == 'TRUE'):
+        casa['state']['telemetry-enabled'] = True
+    if (rcTelemetryFlag == 'FALSE'):
+        casa['state']['telemetry-enabled'] = False
 
-     # Enable telemetry
-     casa['state']['telemetry-enabled'] = True
+# Use and environment variable if it is set
+if (os.environ.has_key('CASA_ENABLE_TELEMETRY')):
+    if (os.environ['CASA_ENABLE_TELEMETRY'].upper( ) == 'TRUE'):
+        casa['state']['telemetry-enabled'] = True
+    if (os.environ['CASA_ENABLE_TELEMETRY'].upper( ) == 'FALSE'):
+        casa['state']['telemetry-enabled'] = False
 
-     add_shutdown_hook(logShutdown)
+# Command line telemetry flag is only used to enable telemetry temporarily
+if (casa['flags'].telemetry == True):
+    casa['state']['telemetry-enabled'] = True
 
-     casatelemetry = telemetry(casa)
+if (casa['state']['telemetry-enabled'] == True):
+    add_shutdown_hook(logShutdown)
+    casatelemetry = telemetry(casa)
