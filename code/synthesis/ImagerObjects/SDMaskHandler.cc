@@ -1255,12 +1255,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Bool debugStats(true);
 
-    TempImage<Float>* tempres = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse()); 
-    Array<Float> resdata;
-    //
+    //TempImage<Float>* tempres = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse()); 
+    //Array<Float> resdata;
     
-    res.get(resdata);
-    tempres->put(resdata);
+    //res.get(resdata);
+    //tempres->put(resdata);
     // if input image (res) has a pixel mask, make sure to honor it so the region is exclude from statistics
     //if (res.hasPixelMask()) {
     //  tempres->attachMask(res.pixelMask());
@@ -1268,87 +1267,241 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if (nfalse(pbmask.getMask())) {
       os<<LogIO::DEBUG1<<"has pbmask..."<<LogIO::POST;
     }
-    
-    // check if mask is empty (evaulated as the whole input mask )
-    Array<Float> maskdata; 
-    IPosition maskshape = prevmask.shape();
-    Int naxis = maskshape.size();
-    IPosition blc(naxis,0);
-    IPosition trc=maskshape-1;
-    Slicer sl(blc,trc,Slicer::endIsLast);
-    prevmask.doGetSlice(maskdata,sl);
-    Float nmaskpix = sum(maskdata);
-    Array<Bool> booldata;
-    pbmask.doGetSlice(booldata,sl);
-    //os<<"valid pix ntrue(booldata)="<<ntrue(booldata)<<LogIO::POST;
-    if (nmaskpix==0) {
-        //if (res.hasPixelMask()) {
-        if (ntrue(booldata)) {
-          os<<LogIO::DEBUG1<<"No existing mask but apply pbmask..."<<LogIO::POST;
-          tempres->attachMask(pbmask);
-          //os<<"ntrue tempres pixelmask=="<<ntrue(tempres->getMask())<<LogIO::POST;
+   
+    //check Stokes and spectral axes
+    //IPosition shp = tempres->shape();
+    IPosition shp = res.shape();
+    //Int specaxis = CoordinateUtil::findSpectralAxis(tempres->coordinates());
+    Int specaxis = CoordinateUtil::findSpectralAxis(res.coordinates());
+    uInt nchan = shp(specaxis);
+    Vector<Stokes::StokesTypes> whichPols;
+    //Int stokesaxis = CoordinateUtil::findStokesAxis(whichPols, tempres->coordinates());
+    Int stokesaxis = CoordinateUtil::findStokesAxis(whichPols, res.coordinates());
+    uInt nStokes= shp(stokesaxis);
+    uInt iaxis2;
+    uInt iaxis3;
+   
+    //TempImage<Bool> pbmaskim(shp, tempres->coordinates(), memoryToUse());
+    TempImage<Bool> pbmaskim(shp, res.coordinates(), memoryToUse());
+    pbmaskim.copyData(pbmask);
+ 
+    //check dimensions of tempres, prevmask, pbmask 
+    if (prevmask.shape()!=shp) {
+      throw(AipsError("Mismatch in shapes of the previous mask and residual image"));
+    }
+    else if (pbmask.shape()!=shp) {
+      throw(AipsError("Mismatch in shapes of pbmask and residual image"));
+    }
+
+    //for stats storage
+    IPosition statshape(2, shp(2), shp(3));
+    Array<Double> outMins(statshape);
+    Array<Double> outMaxs(statshape);
+    Array<Double> outRmss(statshape);
+    Array<Double> outMads(statshape);
+    Array<Double> outMdns(statshape);
+
+    for (uInt istokes = 0; istokes < nStokes; istokes++) {
+      std::vector<double> mins, maxs, rmss, mads, mdns;
+      for (uInt ichan = 0; ichan < nchan; ichan++ ) {
+        if (stokesaxis==3) {
+          iaxis2 = ichan;
+          iaxis3 = istokes;
         }
+        else {
+          iaxis2 = istokes;
+          iaxis3 = ichan;
+        } 
+ 
+        // check if mask is empty (evaulated as the whole input mask )
+        Array<Float> maskdata; 
+        //IPosition maskshape = prevmask.shape();
+        //Int naxis = maskshape.size();
+        //IPosition blc(naxis,0);
+        //IPosition trc=maskshape-1;
+        //Slicer sl(blc,trc,Slicer::endIsLast);
+        IPosition start(4, 0, 0, iaxis2, iaxis3);
+        IPosition length(4, shp(0),shp(1), 1, 1);
+        Slicer sl(start, length);
+        //os<<"slicer for subimage start="<<start<<" length="<<length<<LogIO::POST;
+        // create subimage (slice) of tempres
+        AxesSpecifier aspec(False);
+        SubImage<Float>* subRes = new SubImage<Float>(res, sl, aspec, True);
+        TempImage<Float>* tempSubRes = new TempImage<Float>(subRes->shape(), subRes->coordinates(), memoryToUse());
+        tempSubRes->copyData(*subRes);
+        SubImage<Float>* subprevmask = new SubImage<Float>(prevmask, sl, aspec, True);
+        SubImage<Bool>* subpbmask = new SubImage<Bool>(pbmaskim, sl, aspec, True);
+
+        prevmask.doGetSlice(maskdata,sl); // single plane
+        Float nmaskpix = sum(maskdata);
+        Array<Bool> booldata;
+        pbmask.doGetSlice(booldata,sl); // single plane pbmask
+        //os<<"valid pix ntrue(booldata)="<<ntrue(booldata)<<LogIO::POST;
+
+        if (nmaskpix==0) {
+          if (ntrue(booldata)) {
+            os<<LogIO::DEBUG1<<"No existing mask but apply pbmask..."<<LogIO::POST;
+             tempSubRes->attachMask(*subpbmask);
+             //os<<"ntrue tempres pixelmask=="<<ntrue(tempres->getMask())<<LogIO::POST;
+          }
+        }
+        else {
+          os<<"Do stats outside mask..."<<LogIO::POST;
+          LatticeExpr<Bool> outsideMaskReg;
+          //if (res.hasPixelMask()) {
+          if (nfalse(booldata)) {
+            //LatticeExpr<Bool> pbmask(iif(res.pixelMask());
+            outsideMaskReg = LatticeExpr<Bool> (iif(*subprevmask == 1.0 || !*subpbmask, False, True));
+            // for debug
+            //if (debugStats) {
+            //  PagedImage<Float> pbmaskSave(res.shape(), res.coordinates(), "pbmasksaved.im");
+            //  LatticeExpr<Float> temppbmasksave(iif(subpbmask, 1.0, 0.0));
+            //  pbmaskSave.copyData(temppbmasksave);
+            //}
+          }
+          else {
+            outsideMaskReg = LatticeExpr<Bool> (iif(*subprevmask == 1.0, False, True));
+            //LatticeExpr<Bool> outsideMaskReg(iif((*subprevmask == 1.0 || !*subpbmask, False, True));
+          }
+          //tempres->attachMask(outsideMaskReg);
+          tempSubRes->attachMask(outsideMaskReg);
+        }
+    
+        //DEBUG
+        //if(debugStats) {
+        //  PagedImage<Float> temptempIm(res.shape(), res.coordinates(), "temptempmask.im");
+        //  temptempIm.copyData(prevmask);
+        //  PagedImage<Float> temptempResIm(res.shape(), res.coordinates(), "temptempres.im");
+        //  temptempResIm.copyData(*tempres);
+        //  temptempResIm.makeMask("maskcopy",True, True);
+        //  if (tempres->hasPixelMask()) {
+        //    temptempResIm.pixelMask().put((tempres->pixelMask()).get());
+        //  }
+        //} //for debug
+
+        SHARED_PTR<casacore::ImageInterface<Float> > tempres_ptr(tempSubRes);
+    
+        // 2nd arg is regionRecord, 3rd is LELmask expression and those will be AND 
+        // to define a region to be get statistics
+        //ImageStatsCalculator imcalc( tempres_ptr, 0, "", False); 
+        ImageStatsCalculator imcalc( tempres_ptr, regionPtr, LELmask, True); 
+        Vector<Int> axes(2);
+        axes[0] = 0;
+        axes[1] = 1;
+        imcalc.setAxes(axes);
+
+        // for an empty (= no mask) mask, use Chauvenet algorithm with maxiter=5 and zscore=-1
+        if (nmaskpix==0.0) {
+          os<<"Using Chauvenet algorithm for image statistics"<<LogIO::POST;
+          imcalc.configureChauvenet(Double(-1.0), Int(5));
+        }
+        imcalc.setRobust(robust);
+        Record thestats = imcalc.statistics();
+        Array<Double> arrmins, arrmaxs, arrrmss, arrmads, arrmdns;  
+    
+        // repack 
+        thestats.get(RecordFieldId("min"), arrmins);
+        thestats.get(RecordFieldId("max"), arrmaxs);
+        thestats.get(RecordFieldId("rms"), arrrmss);
+        //robust = True only 
+        if (robust) { 
+          thestats.get(RecordFieldId("medabsdevmed"), arrmads);
+          thestats.get(RecordFieldId("median"), arrmdns);
+        }
+        //os<<"max="<<arrmaxs<<" rms="<<arrrmss<<LogIO::POST;
+        IPosition zeroindx(arrmins.ndim(), 0);
+        //os<<"Store min statistics items in vector zeroindx="<<zeroindx<<LogIO::POST;
+        mins.push_back(arrmins(zeroindx));
+        maxs.push_back(arrmaxs(zeroindx));
+        rmss.push_back(arrrmss(zeroindx));
+        if (robust) { 
+          mads.push_back(arrmads(zeroindx));
+          mdns.push_back(arrmdns(zeroindx));
+        }
+
+        //os<<"deleting tempSubRes"<<LogIO::POST;
+        //delete tempSubRes; tempSubRes=0;
+        delete subRes; subRes=0;
+        delete subprevmask; subprevmask=0;
+        delete subpbmask; subpbmask=0;
+      } // chan-for-loop end
+      //os<<" rms vector for stokes="<<istokes<<" : "<<rmss<<LogIO::POST;
+      //os<<"outMins.shape="<<outMins.shape()<<LogIO::POST;
+        
+      IPosition start(2, istokes, 0);
+      IPosition length(2, 1, nchan); // slicer per Stokes
+      //Slicer sl(blc, trc,Slicer::endIsLast );
+      Slicer slstokes(start, length);
+      //cerr<<"set outMin slstokes="<<slstokes<<" to the mins vector"<<endl;
+      Vector<Double> minvec(mins);
+      Vector<Double> maxvec(maxs);
+      Vector<Double> rmsvec(rmss);
+      //os<<"stl vector rmss"<<rmss<<LogIO::POST;
+      //os<<"rmsvec.shape="<<rmsvec.shape()<<" rmsvec="<<rmsvec<<LogIO::POST;
+      Matrix<Double> minmat(minvec);
+      Matrix<Double> maxmat(maxvec);
+      //Matrix<Double> rmsmat((Vector<Double>) rmss);
+      Matrix<Double> rmsmat(rmsvec);
+      //os<<"Intial shape of rmsmat="<<rmsmat.shape()<<LogIO::POST;
+      //os<<"Intial content of rmsmat="<<rmsmat<<LogIO::POST;
+      // copyValues do not work if there is a degerate axis in front
+      minmat.resize(IPosition(2, nchan, 1),True);
+      maxmat.resize(IPosition(2, nchan, 1),True);
+      rmsmat.resize(IPosition(2, nchan, 1),True);
+      Array<Double> minarr = transpose(minmat);
+      Array<Double> maxarr = transpose(maxmat);
+      Array<Double> rmsarr = transpose(rmsmat);
+      if (robust) {
+        Vector<Double> madvec(mads);
+        Vector<Double> mdnvec(mdns);
+        Matrix<Double> madmat(madvec);
+        Matrix<Double> mdnmat(mdnvec);
+        madmat.resize(IPosition(2, nchan, 1),True);
+        mdnmat.resize(IPosition(2, nchan, 1),True);
+        Array<Double> madarr = transpose(madmat);
+        Array<Double> mdnarr = transpose(mdnmat);
+        outMads(slstokes) = madarr;
+        outMdns(slstokes) = mdnarr;
+        //os<<"madarr="<<madarr<<LogIO::POST;
+        //os<<"mdnarr="<<mdnarr<<LogIO::POST;
+      }
+      //os<<"rmsarr="<<rmsarr<<LogIO::POST;
+      outMins(slstokes) = minarr;
+      outMaxs(slstokes) = maxarr;
+      outRmss(slstokes) = rmsarr;
+      //cerr<<"Done setting outMin sltokes="<<slstokes<<" to the mins vector"<<endl;
+    } // stokes-for-loop end
+
+    Record theOutStatRec;
+    if (shp(2) == 1) { //Single Stokes plane
+      // remove degenerate axis 
+      theOutStatRec.define("min", outMins.nonDegenerate(IPosition(1,1)));
+      theOutStatRec.define("max", outMaxs.nonDegenerate(IPosition(1,1)));
+      theOutStatRec.define("rms", outRmss.nonDegenerate(IPosition(1,1)));
+      if (robust) {
+        theOutStatRec.define("medabsdevmed", outMads.nonDegenerate(IPosition(1,1)));
+        theOutStatRec.define("median", outMdns.nonDegenerate(IPosition(1,1)));
+      }
+    }
+    else if(shp(3) == 1) { //Single channel plane
+      theOutStatRec.define("min", outMins.nonDegenerate(IPosition(1,0)));
+      theOutStatRec.define("max", outMaxs.nonDegenerate(IPosition(1,0)));
+      theOutStatRec.define("rms", outRmss.nonDegenerate(IPosition(1,0)));
+      if (robust) {
+        theOutStatRec.define("medabsdevmed", outMads.nonDegenerate(IPosition(1,0)));
+        theOutStatRec.define("median", outMdns.nonDegenerate(IPosition(1,0)));
+      }
     }
     else {
-        os<<"Do stats outside mask..."<<LogIO::POST;
-       LatticeExpr<Bool> outsideMaskReg;
-       //if (res.hasPixelMask()) {
-       if (nfalse(booldata)) {
-         //LatticeExpr<Bool> pbmask(iif(res.pixelMask());
-         outsideMaskReg = LatticeExpr<Bool> (iif(prevmask == 1.0 || !pbmask, False, True));
-         // for debug
-         if (debugStats) {
-           PagedImage<Float> pbmaskSave(res.shape(), res.coordinates(), "pbmasksaved.im");
-           LatticeExpr<Float> temppbmasksave(iif(pbmask, 1.0, 0.0));
-           pbmaskSave.copyData(temppbmasksave);
-         }
-       }
-       else {
-         outsideMaskReg = LatticeExpr<Bool> (iif(prevmask == 1.0, False, True));
-       //LatticeExpr<Bool> outsideMaskReg(iif(prevmask == 1.0 || !pbmask, False, True));
-       }
-       tempres->attachMask(outsideMaskReg);
+      theOutStatRec.define("min", outMins);
+      theOutStatRec.define("max", outMaxs);
+      theOutStatRec.define("rms", outRmss);
+      if (robust) {
+        theOutStatRec.define("medabsdevmed", outMads);
+        theOutStatRec.define("median", outMdns);
+      }
     }
-    
-    
-    tempres->setImageInfo(res.imageInfo());
-    //DEBUG
-    if(debugStats) {
-    PagedImage<Float> temptempIm(res.shape(), res.coordinates(), "temptempmask.im");
-    temptempIm.copyData(prevmask);
-    PagedImage<Float> temptempResIm(res.shape(), res.coordinates(), "temptempres.im");
-    
-    temptempResIm.copyData(*tempres);
-    temptempResIm.makeMask("maskcopy",True, True);
-    if (tempres->hasPixelMask()) {
-      temptempResIm.pixelMask().put((tempres->pixelMask()).get());
-    }
-    } //for debug
-
-    SHARED_PTR<casacore::ImageInterface<Float> > tempres_ptr(tempres);
-    
-    // 2nd arg is regionRecord, 3rd is LELmask expression and those will be AND 
-    // to define a region to be get statistics
-    //ImageStatsCalculator imcalc( tempres_ptr, 0, "", False); 
-     
-
-    ImageStatsCalculator imcalc( tempres_ptr, regionPtr, LELmask, True); 
-    Vector<Int> axes(2);
-    axes[0] = 0;
-    axes[1] = 1;
-    imcalc.setAxes(axes);
-
-    // for an empty (= no mask) mask, use Chauvenet algorithm with maxiter=5 and zscore=-1
-    if (nmaskpix==0.0) {
-      os<<"Using Chauvenet algorithm for image statistics"<<LogIO::POST;
-      imcalc.configureChauvenet(Double(-1.0), Int(5));
-    }
-    imcalc.setRobust(robust);
-    Record thestats = imcalc.statistics();
-    //cerr<<"thestats="<<thestats<<endl;
-    //Array<Double> max, min, rms, mad;
-    //thestats.get(RecordFieldId("max"), max);
-    return thestats;
+    return theOutStatRec;
   }
 
   void SDMaskHandler::autoMaskByThreshold(ImageInterface<Float>& mask,

@@ -138,7 +138,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
             // returns as an Array but itsImages is already single plane so 
             // the return rms contains only a single element
-            os <<" Calling CalcRobustRMS....itsPBMask="<<itsPBMask<<LogIO::POST;
             robustrms = itsImages->calcRobustRMS(itsPBMask);
             //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
