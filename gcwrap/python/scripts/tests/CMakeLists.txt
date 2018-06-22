@@ -212,8 +212,8 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_split.py
   test_split2.py
   test_spxfit.py
+  test_oldstatwt.py
   test_statwt.py
-  test_statwt2.py
   test_testconcat.py
   test_uvcontsub.py
   test_uvcontsub3.py
