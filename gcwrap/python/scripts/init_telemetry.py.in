@@ -12,7 +12,7 @@ def logShutdown():
     if (casa['state']['telemetry-enabled'] == True):
         casalog.poststat("Stop CASA")
 
-casa['state']['telemetry-enabled'] = False
+casa['state']['telemetry-enabled'] = ${TELEMETRY_DEFAULT}
 
 casa_util = __casac__.utils.utils()
 
