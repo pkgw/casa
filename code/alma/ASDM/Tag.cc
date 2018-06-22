@@ -27,7 +27,9 @@
 #include <Tag.h>
 #include <OutOfBoundsException.h>
 #include <InvalidArgumentException.h>
+#ifndef WITHOUT_BOOST
 #include <boost/algorithm/string/trim.hpp>
+#endif
 
 using asdm::OutOfBoundsException;
 using asdm::InvalidArgumentException;
@@ -36,7 +38,11 @@ using namespace std;
 
 namespace asdm {	
   
-  regex Tag::tagSyntax = regex("([A-Z][a-zA-Z]+)_([0-9]+)");
+#ifndef WITHOUT_BOOST
+  boost::regex Tag::tagSyntax = boost::regex("([A-Z][a-zA-Z]+)_([0-9]+)");
+#else
+  std::regex Tag::tagSyntax = std::regex("([A-Z][a-zA-Z]+)_([0-9]+)");
+#endif
 
   Tag::Tag() : tag(""), type(0) { }
   Tag::Tag(unsigned int i) {
@@ -128,12 +134,25 @@ namespace asdm {
     string s;
     is.clear();
     is >> s;
-    trim(s);
-    cmatch what ;
+#ifndef WITHOUT_BOOST
+    boost::trim(s);
+    boost::cmatch what ;
     if (!regex_match(s.c_str(), what, Tag::tagSyntax)) {
       is.setstate(ios::failbit);
       return is;
     }
+#else
+    // using std and asdm namespaces explicitly here may not be necessary, 
+    // but it keep until boost is completely gone
+    // to improve readability and make sure the expected version is being used
+    // this comes from Misc.h
+    asdm::trim(s);
+    std::cmatch what ;
+    if (!std::regex_match(s.c_str(), what, Tag::tagSyntax)) {
+      is.setstate(ios::failbit);
+      return is;
+    }
+#endif
 	
     string stype; stype.assign(what[1].first, what[1].second);
     const TagType* tagType = TagType::getTagType(stype);

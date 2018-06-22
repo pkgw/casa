@@ -1,3 +1,5 @@
+#include <casacore/casa/Exceptions/Error.h>
+
 #include <casa/stdio.h>
 #include <cstdlib>
 #include <stdcasa/variant.h>
@@ -1556,8 +1558,8 @@ void variant::as( TYPE t, int size ) {
 
 #define GETIT(CONST,CONST2,RET_TYPE,NAME,TYPE,VAL,DEREF)        \
 CONST RET_TYPE variant::NAME( ) CONST2 throw(error) {           \
-    if ( typev != TYPE )					\
-	throw( create_message( #NAME " called for type") );	\
+    if ( typev != TYPE )                                        \
+	ThrowCc( create_message( #NAME " called for type") );	    \
     return DEREF val.VAL;					\
 }
 

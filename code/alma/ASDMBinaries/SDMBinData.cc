@@ -2671,17 +2671,6 @@ namespace sdmbin {
     return getNextMSMainCols( e_qcm, es_qapc, nDataSubset);
   }
 
-  void SDMBinData::getNextMSMainCols(unsigned int nDataSubset, boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp) {
-    Enum<CorrelationMode>       e_qcm;
-    EnumSet<AtmPhaseCorrection> es_qapc;
-    if(canSelect_){
-      cout<<"INFORM: context allow to select"<<endl;
-      e_qcm   = e_qcm_;
-      es_qapc = es_qapc_;
-    }
-    getNextMSMainCols( e_qcm, es_qapc, nDataSubset, vmsData_p_sp );
-  }
-
   const VMSData* SDMBinData::getNextMSMainCols(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int nDataSubset) {
     if (verbose_) cout << "SDMBinData::getNextMSMainCols : entering" << endl;
 
@@ -2833,6 +2822,20 @@ namespace sdmbin {
     return vmsDataPtr_;
   }
 
+  // shared_ptr not needed by CASA, do not compile this for the WITHOUT_BOOST option
+  // It may be needed by ALMA code, so do not elimiate it yet.
+#ifndef WITHOUT_BOOST
+  void SDMBinData::getNextMSMainCols(unsigned int nDataSubset, boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp) {
+    Enum<CorrelationMode>       e_qcm;
+    EnumSet<AtmPhaseCorrection> es_qapc;
+    if(canSelect_){
+      cout<<"INFORM: context allow to select"<<endl;
+      e_qcm   = e_qcm_;
+      es_qapc = es_qapc_;
+    }
+    getNextMSMainCols( e_qcm, es_qapc, nDataSubset, vmsData_p_sp );
+  }
+
   void  SDMBinData::getNextMSMainCols(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int nDataSubset,  boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp ) {
     if (verbose_) cout << "SDMBinData::getNextMSMainCols (with VMSDataSharedPtr) : entering" << endl;
 
@@ -2968,6 +2971,7 @@ namespace sdmbin {
     }
     if (verbose_) cout << "SDMBinData::getNextMSMainCols : exiting" << endl; 
   }
+#endif
 
   vector<MSData*> SDMBinData::getMSDataFromBDFData(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int nDataSubsets) {
     if (verbose_) cout << "SDMBinData::getMSDataFromBDFData: entering (e_qcm="<<e_qcm.str()
