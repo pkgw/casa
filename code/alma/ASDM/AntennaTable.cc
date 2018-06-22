@@ -62,9 +62,12 @@ using namespace asdm;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -982,11 +985,19 @@ AntennaRow* AntennaTable::lookup(string name, AntennaMakeMod::AntennaMake antenn
 	}
 
 	
-	void AntennaTable::setFromFile(const string& directory) {		
+	void AntennaTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Antenna.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Antenna.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/Antenna.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/Antenna.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the Antenna table", "Antenna");
 	}			

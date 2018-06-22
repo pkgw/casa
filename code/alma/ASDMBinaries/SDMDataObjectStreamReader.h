@@ -8,19 +8,22 @@
 #include <map>
 #include <set>
 #include <bitset>
+#ifndef WITHOUT_BOOST
 #include <boost/algorithm/string.hpp>
+#endif
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/regex.hpp>
+#endif
 
 #include "SDMDataObjectParser.h"
 #include "SDMDataObject.h"
 #include "CPrimitiveDataType.h"
 
 using namespace std;
-using namespace boost;
 
 namespace asdmbinaries {
   class SDMDataObjectStreamReaderException {

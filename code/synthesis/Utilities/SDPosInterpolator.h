@@ -59,10 +59,13 @@ public:
 					    const casacore::Int& index,
 					    const casacore::Int& antid);
   casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > getSplineCoeff();
+  casacore::Bool inTimeRange(const casacore::Double& time, const casacore::Int& antid);
 private:
   casacore::Vector<casacore::Vector<casacore::Double> > timePointing; //(antid)(index)
   casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > dirPointing; //(antid)(index)(xy)
   casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > splineCoeff; //(antid)(index)(xy)(order)
+  casacore::Vector<casacore::Double> timeRangeStart; //(antid)
+  casacore::Vector<casacore::Double> timeRangeEnd; //(antid)
   void setup(const VisBuffer& vb,
 	     const casacore::String& pointingDirCol_p);
   void setup(const vi::VisBuffer2& vb,
