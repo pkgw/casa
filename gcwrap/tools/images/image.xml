@@ -865,8 +865,7 @@ print "\t----\t Intro Ex 10 \t----"
    </method>
 
    <method type="function" name="newimage">
-   <shortdescription>Construct a new image analysis tool using the specified image.
-(Also known as newimagefromfile.)</shortdescription>
+   <shortdescription>Construct a new image analysis tool using the specified image. (Also known as newimagefromfile.)</shortdescription>
    
 <input>
   
@@ -877,15 +876,13 @@ print "\t----\t Intro Ex 10 \t----"
 </input>
 <returns type="image"/>
 <description>
-This method is identical to ia.newimagefromfile(). The description of
-how it works is in the online help for that method.
+This method is identical to ia.newimagefromfile(). The description of how it works is in the help for that method.
 </description>
 </method>
 
 
    <method type="function" name="newimagefromfile">
-   <shortdescription>Construct a new image analysis tool using the specified image.
-(Also known as newimage.)</shortdescription>
+   <shortdescription>Construct a new image analysis tool using the specified image. (Also known as newimage.)</shortdescription>
    
 <input>
   
@@ -898,11 +895,11 @@ how it works is in the online help for that method.
 <description>
 This method returns an image analysis tool associated with the specified image.
 Constructing a image analysis tool in addition to the default ia tool allows the
-user to operate on multiple images without having to close one
-before opening another. All ia.newimagefrom*() methods share this functionality.
+user to operate on multiple images simultaneously. All ia.newimagefrom*()
+methods share this behavior.
     
 The parameter infile may refer to a CASA image, a Miriad image, or a FITS image.
-FITS images of types Float, Double, Long, and Short are supported.
+FITS images of types Float are supported.
 
 When finished with the newly created tool, the user should close it to free
 up system resources (eg memory).
@@ -2102,31 +2099,29 @@ of the image, and all pixels of other axes.
 <returns type="bool"/>
 <description>
 
-This function creates a CASA image with the specified shape.  All
-the pixel values in the image are set to 0. One may create an image
-with float precision pixels (type='f'), complex float precision pixels
-(type='c'), double precision pixels (type='d'), or complex double
-precision pixels ('cd'). To use a numpy array of values to create an
-image, use ia.fromarray(). To make a 2-D image from a packaged FITS
-file, use ia.maketestimage().
+This function creates a CASA image with the specified shape.  All the pixel
+values in the image are set to 0. One may create an image with float precision
+pixels (type='f'), complex float precision pixels (type='c'), double precision
+pixels (type='d'), or complex double precision pixels ('cd'). To use a numpy
+array of values to create an image, use ia.fromarray(). To make a 2-D image from
+a packaged FITS file, use ia.maketestimage().
 
-If outfile is given, the image is written to the specified disk
-file.  If outfile is unset, the image analysis tool is associated with
-a temporary image.  This temporary image may be in memory or on disk,
-depending on its size.  When you close the image analysis tool  (with
-the ia.close() method, the temporary image is deleted.
+If outfile is given, the image is written to the specified disk file.  If
+outfile is unset, the image analysis tool is associated with a temporary image.
+This temporary image may be in memory or on disk, depending on its size.  When
+you close the image analysis tool  (with the ia.close() method, the temporary
+image is deleted.
 
-The coordinate system, provided as a coordinate system tool record, is
-optional. If provided, it must be dimensionally consistent with the
-specified shape.
+The coordinate system, provided as a coordinate system tool record, is optional.
+If provided, it must be dimensionally consistent with the specified shape.
 
-If the coordinate system is not provided, a default coordinate system
-will be created.  If linear=False (the default), then it is a
-standard RA/DEC/Stokes/Spectral coordinate system depending exactly upon
-the shape (the Stokes axis must be no longer than 4 pixels and spectral
-axis may occur prior to the Stokes axis if eg, shape=[64,64,32,4]. Extra
-dimensions are given linear coordinates. If linear=True, then the
-coordinate system will have linear coordinates. 
+If the coordinate system is not provided, a default coordinate system will be
+created.  If linear=False (the default), then it is a
+standard RA/DEC/Stokes/Spectral coordinate system depending exactly upon the
+shape (the Stokes axis must be no longer than 4 pixels and spectral axis may
+occur prior to the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are
+given linear coordinates. If linear=True, then the coordinate system will have
+linear coordinates. 
 
 The method returns True if successful, False otherwise.
 
@@ -9040,14 +9035,13 @@ print ia.brightnessunit()
 <returns type="bool">T or fail</returns>
 <description>
 
-This function replaces the coordinate system in the image. It is supported for both
-float and complex valued images. Coordinate systems are manipulated with the
-<link anchor="images:coordsys">cs</link> \tool.  The coordinate system can be
-recovered from an image via the <link anchor="images:coordsys">coordsys</link>
-function.
+This method replaces the coordinate system in the image. Coordinate systems are
+manipulated with the cs (coordintate system) tool. The coordinate system can be
+recovered from an image via the coordsys() method of the image analysis (ia)
+tool.
 
-Note that changing the cs \tool\ has no effect on the original
-image, until it is replaced with this function; the value returned
+Note that changing the coordinate system using the cs tool has no effect on the
+original image, until it is replaced with this method; the value returned
 by coordsys() is a copy of, not a reference to, the image's coordinate system.
 
 </description>
@@ -9137,24 +9131,20 @@ ia.close()
 
 <description>
 
-A \casa\ \imagefile\ can accumulate miscellaneous information
-during its lifetime; it is stored in a record called the {\stff
-miscinfo} record.  For example, the \fits\ reader
-(<link anchor="images:image.fromfits.constructor">fromfits</link>) puts header keywords
-it doesn't otherwise use into the {\stff miscinfo} record.  The {\stff
-miscinfo} record is not guaranteed to have any entries, so it's up to
-you to check for any fields that you require. 
+A CASA image can include user-specified or miscellaneous metadata. This metadata
+is stored in a data structure referred to as a miscinfo record. For example, the
+FITS reader ia.fromfits() puts header keywords it doesn't otherwise use into 
+such a record.  The miscinfo record is not required to be populated, though. 
 
-This function sets the {\cf miscinfo} record of the \imagefile.  Note
-that this function {\em replaces} the record, it doesn't add to it, so
-if you want to augment the existing record, you should first capture
-it with the <link
-anchor="images:image.miscinfo.function">miscinfo</link> function, add
-to the record, and then put it back.  The \fits\ writer will attempt
-to write all the fields in the {\stff miscinfo} record to the \fits\ file.
-It can do so for scalars and 1-dimensional arrays.  Records
+This method sets the  miscinfo record of an image. Note that this method will
+overwrite, not add to, an existing miscinfo record. Thus if the user wishes
+to augment an existing record, they must first capture the existing record using
+the ia.miscinfo() method, modify the captured record, and then replace the
+record in the image using setmiscinfo() by passing it the modified record. The
+FITS writer will attempt to write all the fields in the miscinfo record to the
+FITS file it creates. It can do so for scalars and 1-dimensional arrays. Records
 will be omitted, and multi-dimensional arrays will be flattened into
-1-dimensional arrays.
+one dimensional arrays.
 
 </description>
 
@@ -9258,73 +9248,72 @@ ia.close()
     <returns type="bool">T or fail</returns>
     <description>
 
-This function sets the restoring beam(s) for an image.
+This method sets the restoring beam(s) for an image.
 
-You may supply the beam in one of two ways.  
+The beam may be specified in one of two ways.  
 
-First, you can use the argument {\stfaf beam} which you must assign to a
-record containing  fields 'major', 'minor' and 'positionangle'.  
-Each of these fields contains a quantity.   This record is in the same
-format as  one returned by function
-<link anchor="images:image.restoringbeam.function">restoringbeam</link>. 
-If {\stfaf beam} is used, the arguments {\stfaf major, minor, \&amp; pa} are
+First, the beam parameter may be specified for which a dictionary must be set
+containing  fields 'major', 'minor' and 'positionangle'. Each of these fields
+must contain a quantity.  This record is in the same format as  one returned by
+restoringbeam() method. In this case, the major, minor, and pa parameters are
 ignored.
 
-Second, you can use the arguments {\stfaf major}, {\stfaf minor}
-and {\stfaf pa}.   Only the ones that you assign are used.
-Each argument should be assigned either a quantity or a float (units
-are implicitly those of the current beam - or if none, arcsec for
-the axes and degrees for the position angle). These parameters are only
-used if {\stfaf beam} is not specified.
+Second, major, minor, and pa may be specified.  Only the ones that are 
+specified are used. Each parameter should be assigned either a quantity or a
+float (units are implicitly those of the current beam - or if none, arcsec for
+the axes and degrees for the position angle). These parameters are only used if
+the beam parameter is not specified.
 
 An image must have exactly one of the following states:
 
-1. An image can have a single "traditional" beam. In that case, the beam applies
-to every channel and polarization in the image.
+1. An image can have a single "traditional" or global beam. In that case, the
+beam applies to every channel and polarization in the image.
 
 2. If an image has more than one spectral channel or more than one polarization,
-it can have a set of beams. In this case, each channel and/or polarization will have
-its own beam.
+it can have a set of beams. In this case, each channel and/or polarization will
+have its own beam.
 
-3. An image can have neither a traditional beam nor a beam set.
+3. An image can have neither a global beam nor a beam set.
 
-It is never permissible for an image to have both a traditional (global) beam and
-a set of per-plane beams. Task and method behavior is undefined in that case and
-any resulting products are considered corrupt.
+It is never permissible for an image to have both a traditional (global) beam
+and a set of per-plane beams. Task and method behavior is undefined in that case
+and any resulting products are considered corrupt.
 
 RULES FOR BEAM MODIFICATION
 
 If an image has no beams, a traditional (global) beam can be added by setting
 both channel and polarization to negative values.
 
-If an image has no beams, a set of per-plane beams can be added by setting either
-or both channel and/or polarization to a non-negative value. In this case, a number
-of per-plane beams are added consistent with the image and they are all set to be
-the same with parameters equal to those specified by either the beam or major/minor/pa
-parameters.
+If an image has no beams, a set of per-plane beams can be added by setting
+either or both channel and/or polarization to a non-negative value. In this
+case, a number of per-plane beams are added consistent with the image and they
+are all set to be the same with parameters equal to those specified by either
+the beam or major/minor/pa parameters.
 
-If an image has a traditional beam, it can be modified by setting both channel and
-polarization to negative values. If one or both is not set to a negative value, an
-exception is thrown, and nothing is modified.
+If an image has a traditional beam, it can be modified by setting both channel
+and polarization to negative values. If one or both is not set to a negative
+value, an exception is thrown, and nothing is modified.
 
-If an image has a set of per plane beams, one at a time of these can be modified by 
-setting the appropriate channel number and/or polarization number. All the per-plane
-beams can be modified to the same values in one go by setting both channel and
-polarization to negative values. Also, in the case where an image has multiple channels,
-the beams associated with all channels for a given polarization can be modified to the same
-beam by setting polarization equal to the desired polarization plane number and by setting
-channel to a negative value. Similarly, in the case where an image has multiple polarizations,
-the beams associated with all polarizations for a given spectral channel can be modified to the same
-beam by setting channel equal to the desired spectral channel number and by setting
-polarization to a negative value.
+If an image has a set of per plane beams, one at a time of these can be modified
+by setting the appropriate channel number and/or polarization number. All the
+per-plane beams can be modified to the same values in one go by setting both
+channel and polarization to negative values. Also, in the case where an image
+has multiple channels, the beams associated with all channels for a given
+polarization can be modified to the same beam by setting polarization equal to
+the desired polarization plane number and by setting channel to a negative
+value. Similarly, in the case where an image has multiple polarizations, the
+beams associated with all polarizations for a given spectral channel can be
+modified to the same beam by setting channel equal to the desired spectral
+channel number and by setting polarization to a negative value.
 
-A beam or set of beams can be copied from another image using the imagename parameter to specify
-that image's name. If both the current image and specified image have multiple beams, the current
-image shape must be consistent with the specified image beam set shape.
+A beam or set of beams can be copied from another image using the imagename
+parameter to specify that image's name. If both the current image and specified
+image have multiple beams, the current image shape must be consistent with the
+specified image beam set shape.
 
-The traditional beam or a set of multiple beams can be deleted from an image by setting {\stfaf delete=T}. If set
-to true, all other parameters are then ignored; all existing beams
-will be irrevocably deleted.
+The traditional beam or a set of multiple beams can be deleted from an image by
+setting remove=True. If set to true, all other parameters are then ignored;
+all existing beams will be irrevocably deleted.
 
 </description>
 
@@ -10118,7 +10107,7 @@ subim.done()
 
  
    <method type="function" name="summary">
-   <shortdescription>Summarize basic information about the image</shortdescription>
+   <shortdescription>Summarize metadata from the image</shortdescription>
    
 <input>
      <param type="string"  name="doppler">
@@ -10144,65 +10133,59 @@ subim.done()
 <returns type="record"/>
 <description>
 
-This function summarizes miscellaneous information such as shape, Coordinate System,
+This function summarizes various metadata such as shape, Coordinate System,
 restoring beams, and masks.
 
-If called without any arguments, this function displays a summary of the
-image header to the logger; where appropriate, values will be
-formatted nicely (e.g.  HH:MM:SS.SS for the reference value of RA axes). 
+If called without any arguments, this function displays a summary of the image
+metadata to the logger; where appropriate, values will be formatted nicely (e.g.
+HH:MM:SS.SS for the reference value of RA axes).
 
-For spectral axes, the information is listed as a velocity as well as
-a frequency.  The argument {\stfaf doppler} allows you to specify what
-velocity doppler convention it is listed in.  You can choose from
-{\stfaf radio, optical} and {\stfaf true}.  Alternative names are
-{\stfaf z} for {\stfaf optical}, and {\stfaf beta} or {\stfaf
-relativistic} for {\stfaf true}.  The default is {\stfaf radio}.  The
-definitions are
+For spectral axes, the information is listed in both the velocity and frequency
+domains.  The doppler parameter allows one to specify what velocity doppler
+convention it is listed in.  Supported values are: "radio", "optical", and
+"true". Alternative values are "z" for "optical", and "beta" or "relativistic"
+for true.  The default is "radio".  The definitions are
 
 \begin{itemize}
 \item radio: $1 - F$
 \item optical: $-1 + 1/F$
 \item true: $(1 - F^2)/(1 + F^2)$
 \end{itemize}
-where $F = \nu/\nu_0$ and $\nu_0$ is the rest frequency.  If the rest
-frequency has not been set in your image, you can set it via
-a Coordsys \tool\ with
-the function <link anchor="images:coordsys.setrestfrequency.function">setrestfrequency</link>.
+where $F = \nu/\nu_0$ and $\nu_0$ is the rest frequency.  If the rest frequency
+has not been set in your image, you can set it via a coordinate system (cs) tool
+using the setrestfrequency() method().
 
-If the output of summary is saved to a variable, then the {\stfaf
-header} field (for instance, {\stfaf mysummary['header']}) has the
-following fields filled in:
+If the output of summary is saved to a variable, then the header field (for
+instance, mysummary['header']) has the following fields:
 
-\begin{description}
-    \item[ndim]       Dimension of the image.
-    \item[shape]      Length of each axis in the image.
-    \item[tileshape]  Shape of the chunk which is most efficient for I/O.
-    \item[axisnames]  Name of each axis.
-    \item[refpix]     Reference pixel for each axis (0-relative)
-    \item[refval]     Reference value for each axis.
-    \item[incr]       Increment for each axis.
-    \item[axisunits]  Unit name for each axis.
-    \item[unit]       Brightness units for the pixels.
-    \item[hasmask]    True if the image has a mask.
-    \item[defaultmask]The name of the mask which is applied by default.
-    \item[masks]      The names of all the masks stored in this image.
-    \item[restoringbeam] The restoring beam(s) if present.
-    \item[imagetype]   The image type.
-\end{description}
+ndim          Dimension of the image.
+shape         Length of each axis in the image.
+tileshape     Shape of the chunk which is most efficient for I/O.
+axisnames     Name of each axis.
+refpix        Reference pixel for each axis (0-relative)
+refval        Reference value for each axis.
+incr          Increment for each axis.
+axisunits     Unit name for each axis.
+unit          Brightness units for the pixels.
+hasmask       True if the image has a mask.
+defaultmask   The name of the mask which is applied by default.
+masks         The names of all the masks stored in this image.
+restoringbeam The restoring beam(s) if present.
+imagetype     The image type.
 
-For an image with multiple beams, the restoringbeam field is a dictionary of dictionaries with
-keys of names "*" followed by the channel number, if the image has a spectral coordinate,
-or the polarization number if it does not. That is, the keys have names "*0", "*1", "*2", etc.
-If the image has both a spectral and a polarization coordinate, each of these dictionaries is
-a dictionary with keys of the same form which range from 0 to the number of polarizations
-minus 1; "*0", "*1", ... The dictionaries pointed to by the channel and/or polarization number
-contain information for the beam at that position.
+For an image with multiple beams, the restoringbeam field is a dictionary of
+dictionaries with keys of names "*" followed by the channel number, if the image
+has a spectral coordinate, or the polarization number if it does not. That is,
+the keys have names "*0", "*1", "*2", etc. If the image has both a spectral and
+a polarization coordinate, each of these dictionaries is a dictionary with keys
+of the same form which range from 0 to the number of polarizations minus 1;
+"*0", "*1", ... The dictionaries pointed to by the channel and/or polarization
+number contain information for the beam at that position.
 
-If you set {\stfaf list=F}, then the summary will not be written to
-the logger.  The
-return value of the function, in the {\stfaf header} field is a
-vector string containing the formatted output that would normally
-have gone to the logger. 
+If the list parameter is set to False, then the summary will not be written to
+the logger.  The return value of the method, in the "header" field is a vector
+string containing the formatted output that would have been logged in the
+list=True case.
 
 If verbose is True and the image contains multiple beams, the formatted output,
 whether it is written to the logger or placed in the output record, will have
@@ -10210,8 +10193,8 @@ information on every beam in the dataset. If verbose=False and the image has
 multiple beams, only a summary of beams for each polarization is listed. In this
 case, the beams with the maximum area, the minimum area, and the median area for
 each polarization are listed. However, all the beams can still be found in the
-restoringbeam field of the returned dictionary. If the image does not have multiple
-beams, verbose is not used.
+restoringbeam field of the returned dictionary. If the image does not have
+multiple beams, verbose is not used.
 
 </description>
 <example>
@@ -10227,22 +10210,6 @@ if s['header']['ndim'] == 2: # program using header values
 ia.close()
 #
 """
-
-
-<!--
-Note that the Spectral Coordinate is listed twice; once with frequency
-and once with velocity units.  You can distinguish this double listing
-because the shape of the axis is only listed once (in
-this case on the Frequency line). 
-
-Note also that this image has three masks present.  The first one is the
-default which means that it is applied by applications.  Any of the
-other masks, listed in square brackets, could be made the default mask
-by application of the <link anchor="images:image.maskhandler.function">maskhandler</link>
-function.   If there was no default mask (effectively that means
-an all good mask would be applied), all the mask names would be 
-listed in square brackets.
--->
 
 </example>
 
@@ -11001,8 +10968,6 @@ im2.done()
 #
 """
 
-<!--The specified \region\ takes a quarter by area of the first two axes
-of the image, and all pixels of other axes.-->
 </example>
 </method>
 
@@ -11014,7 +10979,7 @@ of the image, and all pixels of other axes.-->
   
      <param type="string"  name="outfile">
      <description>Name of output image file.  Default is unset.</description>
-     <value></value>
+     <value/>
      </param>
   
      <param type="intArray"  name="shape">
@@ -11049,33 +11014,31 @@ of the image, and all pixels of other axes.-->
 <returns type="image"/>
 <description>
 
-This function creates a \casa\ \imagefile\ with the specified shape.  All
-the pixel values in the image are set to 0.  Both float valued and complex
-valued images are supported; the data type of the image is specified via
-the type parameter.
+This function creates a CASA image with the specified shape. It is similar to
+ia.fromshape(), but instead returns a new image analysis tool attached to the
+new image, rather than attaching the new image to the current tool. All the
+pixel values in the image are set to 0. One may create an image with float
+precision pixels (type='f'), complex float precision pixels (type='c'), double
+precision pixels (type='d'), or complex double precision pixels ('cd'). To use a
+numpy array of values to create an image, use ia.(newimage)fromarray(). To make
+a 2-D image from a packaged FITS file, use ia.maketestimage().
 
-If {\stfaf outfile} is given, the image is written to the specified
-disk file.  If {\stfaf outfile} is unset, the on-the-fly Image \tool\
-returned by this function is associated with a temporary image.  This
-temporary image may be in memory or on disk, depending on its size.
-When you destroy the on-the-fly Image \tool\ (with the <link
-anchor="images:image.done.function">done</link> function) this
-temporary image is deleted.
+If outfile is given, the image is written to the specified disk file.  If
+outfile is unset, the image analysis tool is associated with a temporary image.
+This temporary image may be in memory or on disk, depending on its size.  When
+you close the image analysis tool  (with the ia.close() method, the temporary
+image is deleted.
 
-The Coordinate System, provided as a record describing a <link
-anchor="images:coordsys">Coordsys</link> \tool\ (created via
-coordsys.torecord(), for instance), is optional.  If you provide it,
-it must be dimensionally consistent with the pixels array you give
-(see also <link
-anchor="images:image.coordsys.function">coordsys</link>).
+The coordinate system, provided as a coordinate system tool record, is optional.
+If provided, it must be dimensionally consistent with the specified shape.
 
-If you don't provide the Coordinate System, a default Coordinate System
-is made for you.  If {\stfaf linear=F} (the default) then it is a
-standard RA/DEC/Stokes/Spectral Coordinate System depending exactly upon
-the shape (Stokes axis must be no longer than 4 pixels and you may find
-the spectral axis coming out before the Stokes axis if say, {\cf
-shape=[64,64,32,4]}).  Extra dimensions are given linear coordinates. 
-If {\stfaf linear=T} then you get a linear Coordinate System. 
+If the coordinate system is not provided, a default coordinate system will be
+created.  If linear=False (the default), then it is a
+standard RA/DEC/Stokes/Spectral coordinate system depending exactly upon the
+shape (the Stokes axis must be no longer than 4 pixels and spectral axis may
+occur prior to the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are
+given linear coordinates. If linear=True, then the coordinate system will have
+linear coordinates. 
 
 </description>
 <example>
