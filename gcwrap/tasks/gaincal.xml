@@ -125,6 +125,15 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
 		<value>False</value>
 	</param>
 
+	<param type="string" name="normtype" subparam="true">
+		<description>Solution normalization type</description>
+		<value>mean</value>
+		<allowed kind="enum">
+			<value>mean</value>
+			<value>median</value>
+		</allowed>
+	</param>
+
 	<param type="string" name="gaintype">
 		<description>Type of gain solution (G,T,GSPLINE,K,KCROSS)</description>
 		<value>G</value>
@@ -234,6 +243,12 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
 			<default param="phasewrap"><value>180.0</value></default>
 		</equals>
 	</when>
+        <when param="solnorm">
+		<equals type="bool" value="False"/>
+                <equals type="bool" value="True">
+                        <default param="normtype"><value type="string">mean</value></default>
+		</equals>
+        </when>
         <when param="docallib">
                 <equals type="bool" value="False">
                         <default param="gaintable"><value type="stringArray"/></default>
