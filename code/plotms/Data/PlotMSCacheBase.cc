@@ -1874,7 +1874,7 @@ bool PlotMSCacheBase::hasOverlay() {
 	// check loaded axes for overlays
 	bool overlay(false);
 	std::vector<PMS::Axis> axes(loadedAxes());
-	for (int i=0; i<axes.size(); ++i) {
+	for (uInt i=0; i<axes.size(); ++i) {
 		if (PMS::axisIsOverlay(axes[i])) {
 			overlay = true;
 			break;

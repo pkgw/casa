@@ -1480,7 +1480,7 @@ void PMS_PP_Display::setDefaults()
 	itsTitleFormats_ = vector<PlotMSLabelFormat>(1, PlotMSLabelFormat(PMS::DEFAULT_TITLE_FORMAT));
 	itsColorizeFlags_ = vector<bool>(1, false);
 	itsColorizeAxes_ = vector<PMS::Axis>(1, PMS::DEFAULT_COLOR_AXIS);
-	itsXConnects_ = vector<string>(1, "none");
+	itsXConnects_ = vector<casacore::String>(1, "none");
 	itsTimeConnects_ = vector<bool>(1, false);
 
 }
@@ -1540,7 +1540,7 @@ void PMS_PP_Display::setColorize (const bool & value, unsigned int index ) {
 	}
 }
 
-void PMS_PP_Display::setConnect(const string& xconnect, const bool& timeconnect,
+void PMS_PP_Display::setConnect(const casacore::String& xconnect, const bool& timeconnect,
 		unsigned int index) {
 	if (index >= itsXConnects_.size())
 		itsXConnects_.resize (index + 1, "none");

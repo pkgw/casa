@@ -1409,23 +1409,23 @@ public:
 	}
 
 
-	void setConnect(const string& xconnect, const bool& timeconnect, unsigned int index = 0);
+	void setConnect(const casacore::String& xconnect, const bool& timeconnect, unsigned int index = 0);
 
-	const vector<string>& xConnects() const {
+	const vector<casacore::String>& xConnects() const {
 		return itsXConnects_;
 	}
-	void setXConnects(const vector<string>& value) {
+	void setXConnects(const vector<casacore::String>& value) {
 		if (itsXConnects_ != value) {
 			itsXConnects_ = value;
 			updated();
 		}
 	}
-	string xConnect(unsigned int index=0) const {
+	casacore::String xConnect(unsigned int index=0) const {
 		if (index >= itsXConnects_.size())
-			const_cast < vector < string >&>(itsXConnects_).resize (index + 1);
+			const_cast < vector < casacore::String >&>(itsXConnects_).resize (index + 1);
 		return itsXConnects_[index];
 	}
-	void setXConnect(const string& value, unsigned int index=0) {
+	void setXConnect(const casacore::String& value, unsigned int index=0) {
 		if (index >= itsXConnects_.size())
 			itsXConnects_.resize (index + 1);
 		if (itsXConnects_[index] != value) {
@@ -1469,7 +1469,7 @@ private:
 	vector<PlotMSLabelFormat> itsTitleFormats_;
 	vector<bool> itsColorizeFlags_;
 	vector<PMS::Axis> itsColorizeAxes_;
-	vector<string> itsXConnects_;
+	vector<casacore::String> itsXConnects_;
 	vector<bool> itsTimeConnects_;
 
 
