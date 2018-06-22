@@ -62,9 +62,12 @@ using namespace asdm;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -95,7 +98,11 @@ namespace asdm {
 		
 			, "numPairedAntenna"
 		
+			, "numChan"
+		
 			, "polarizationType"
+		
+			, "channel"
 		
 			, "pairedAntennaId"
 		
@@ -115,7 +122,7 @@ namespace asdm {
     
     	 "flagId" , "startTime" , "endTime" , "reason" , "numAntenna" , "antennaId" 
     	,
-    	 "numPolarizationType" , "numSpectralWindow" , "numPairedAntenna" , "polarizationType" , "pairedAntennaId" , "spectralWindowId" 
+    	 "numPolarizationType" , "numSpectralWindow" , "numPairedAntenna" , "numChan" , "polarizationType" , "channel" , "pairedAntennaId" , "spectralWindowId" 
     
 	};
 	        			
@@ -522,7 +529,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<FlagTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:flag=\"http://Alma/XASDM/FlagTable\" xsi:schemaLocation=\"http://Alma/XASDM/FlagTable http://almaobservatory.org/XML/XASDM/3/FlagTable.xsd\" schemaVersion=\"3\" schemaRevision=\"1.64\">\n");
+		buf.append("<FlagTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:flag=\"http://Alma/XASDM/FlagTable\" xsi:schemaLocation=\"http://Alma/XASDM/FlagTable http://almaobservatory.org/XML/XASDM/3/FlagTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -551,12 +558,11 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 		// Look for a version information in the schemaVersion of the XML
 		//
 		xmlDoc *doc;
-		#if LIBXML_VERSION >= 20703
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+#if LIBXML_VERSION >= 20703
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
+		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Flag");
 		
@@ -630,9 +636,10 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 				
 		if (!xml.isStr("</FlagTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
 		
 	}
 
@@ -649,7 +656,7 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<FlagTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:flag=\"http://Alma/XASDM/FlagTable\" xsi:schemaLocation=\"http://Alma/XASDM/FlagTable http://almaobservatory.org/XML/XASDM/3/FlagTable.xsd\" schemaVersion=\"3\" schemaRevision=\"1.64\">\n";
+		oss << "<FlagTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:flag=\"http://Alma/XASDM/FlagTable\" xsi:schemaLocation=\"http://Alma/XASDM/FlagTable http://almaobservatory.org/XML/XASDM/3/FlagTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='FlagTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -665,7 +672,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 		oss << "<numPolarizationType/>\n"; 
 		oss << "<numSpectralWindow/>\n"; 
 		oss << "<numPairedAntenna/>\n"; 
+		oss << "<numChan/>\n"; 
 		oss << "<polarizationType/>\n"; 
+		oss << "<channel/>\n"; 
 		oss << "<pairedAntennaId/>\n"; 
 		oss << "<spectralWindowId/>\n"; 
 		oss << "</Attributes>\n";		
@@ -802,7 +811,11 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
     	 
     attributesSeq.push_back("numPairedAntenna") ; 
     	 
+    attributesSeq.push_back("numChan") ; 
+    	 
     attributesSeq.push_back("polarizationType") ; 
+    	 
+    attributesSeq.push_back("channel") ; 
     	 
     attributesSeq.push_back("pairedAntennaId") ; 
     	 
@@ -906,8 +919,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
 	}
 	
 	void FlagTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -961,11 +975,19 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 	}
 
 	
-	void FlagTable::setFromFile(const string& directory) {		
+	void FlagTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Flag.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Flag.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/Flag.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/Flag.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the Flag table", "Flag");
 	}			

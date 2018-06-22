@@ -45,11 +45,11 @@
 	
 
 	
-#include <Tag.h>
+#include <Frequency.h>
 	
 
 	
-#include <Frequency.h>
+#include <Tag.h>
 	
 
 
@@ -127,7 +127,7 @@ class CalCurveRow;
  * Result of time-dependent calibration performed on-line by TelCal
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalCurve </CAPTION>
@@ -206,21 +206,21 @@ class CalCurveRow;
  * </TR>
 	
  * <TR>
- * <TD> numAntenna </TD> 
+ * <TD> numAntenna (numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numPoly </TD> 
+ * <TD> numPoly (numPoly)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients of the polynomials. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -266,14 +266,14 @@ class CalCurveRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numBaseline </TD> 
+ * <TD> numBaseline(numBaseline)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of baselines. </TD>
  * </TR>
 	
  * <TR>
- * <TD> rms </TD> 
+ * <TD> rms</TD> 
  * <TD> vector<vector<float > > </TD>
  * <TD>  numReceptor, numBaseline  </TD>
  * <TD>&nbsp; the amplitude or phase residuals (one array of numBaselines values per receptor). </TD>
@@ -600,6 +600,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

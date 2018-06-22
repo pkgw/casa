@@ -108,6 +108,7 @@ def tclean(
     niter,#=0, 
     gain,#=0.1,
     threshold,#=0.0, 
+    nsigma,#=0.0
     cycleniter,#=0, 
     cyclefactor,#=1.0,
     minpsffraction,#=0.1,
@@ -131,6 +132,9 @@ def tclean(
     minbeamfrac,#=0.3, 
     cutthreshold,#=0.01,
     growiterations,#=100
+    dogrowprune,#=True
+    minpercentchange,#=0.0
+    verbose, #=False
 
     ## Misc
 
@@ -154,9 +158,9 @@ def tclean(
     if specmode=='cont':
         specmode='mfs'
 
-    if specmode=='mfs' and nterms==1 and deconvolver == "mtmfs":
-        casalog.post( "The MTMFS deconvolution algorithm (deconvolver='mtmfs') needs nterms>1.Please set nterms=2 (or more). ", "WARN", "task_tclean" )
-        return
+#    if specmode=='mfs' and nterms==1 and deconvolver == "mtmfs":
+#        casalog.post( "The MTMFS deconvolution algorithm (deconvolver='mtmfs') needs nterms>1.Please set nterms=2 (or more). ", "WARN", "task_tclean" )
+#        return
 
     if specmode!='mfs' and deconvolver=="mtmfs":
         casalog.post( "The MSMFS algorithm (deconvolver='mtmfs') applies only to specmode='mfs'.", "WARN", "task_tclean" )
@@ -168,6 +172,10 @@ def tclean(
 
     imager = None
     paramList = None
+
+    # deprecation message
+    if usemask=='auto-thresh' or usemask=='auto-thresh2':
+        casalog.post(usemask+" is deprecated, will be removed in CASA 5.4.  It is recommended to use auto-multithresh instead", "WARN") 
 
     # Put all parameters into dictionaries and check them. 
     paramList = ImagerParameters(
@@ -240,6 +248,7 @@ def tclean(
         cycleniter=cycleniter,
         loopgain=gain,
         threshold=threshold,
+        nsigma=nsigma,
         cyclefactor=cyclefactor,
         minpsffraction=minpsffraction, 
         maxpsffraction=maxpsffraction,
@@ -268,10 +277,13 @@ def tclean(
         minbeamfrac=minbeamfrac,
         cutthreshold=cutthreshold,
         growiterations=growiterations,
+        dogrowprune=dogrowprune,
+        minpercentchange=minpercentchange,
+        verbose=verbose,
  
         savemodel=savemodel
         )
-    
+
     #paramList.printParameters()
 
     pcube=False
@@ -285,7 +297,6 @@ def tclean(
         casalog.post( "Interactive mode is not currently supported with parallel cube CLEANing, please restart by setting interactive=F", "WARN", "task_tclean" )
         return False
    
-
     ## Setup Imager objects, for different parallelization schemes.
     if parallel==False and pcube==False:
    
@@ -410,6 +421,11 @@ def tclean(
 
         ## Close tools.
         imager.deleteTools()
+
+        # CAS-10721 
+        if niter>0 and savemodel != "none":
+            casalog.post("Please check the casa log file for a message confirming that the model was saved after the last major cycle. If it doesn't exist, please re-run tclean with niter=0,calcres=False,calcpsf=False in order to trigger a 'predict model' step that obeys the savemodel parameter.","WARN","task_tclean")
+
 
     except Exception as e:
         #print 'Exception : ' + str(e)

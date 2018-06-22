@@ -62,7 +62,6 @@ SPIIF ImageRotator::rotate() {
     // We automatically find a DirectionCoordinate or LInearCoordinate
     // These must hold *only* 2 axes at this point (restriction in ImageRegrid)
     Vector<Int> pixelAxes;
-
     if (cSysTo.hasDirectionCoordinate()) {
         auto index = cSysTo.directionCoordinateNumber();
         pixelAxes = cSysTo.pixelAxes(index);
@@ -96,8 +95,7 @@ SPIIF ImageRotator::rotate() {
         );
     }
     IPosition axes2(pixelAxes);
-
-    ImageRegridder regridder(
+    ImageRegridder<Float> regridder(
         subImage, nullptr, "", this->_getOutname(),
         this->_getOverwrite(), cSysTo, axes2, _shape
     );

@@ -81,7 +81,7 @@ class DataDescriptionRow;
  * Spectro-polarization description.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of DataDescription </CAPTION>
@@ -117,6 +117,16 @@ class DataDescriptionRow;
  * </TR>
 	
 
+
+ * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
+	
+ * <TR>
+ * <TD> pulsarId</TD> 
+ * <TD> Tag </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp;  </TD>
+ * </TR>
+	
 
  * </TABLE>
  */
@@ -371,6 +381,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

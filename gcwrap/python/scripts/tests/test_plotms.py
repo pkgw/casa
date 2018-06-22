@@ -106,7 +106,7 @@ class plotms_test_base(unittest.TestCase):
 
 # ------------------------------------------------------------------------------
  
-class plotms_test_basic(plotms_test_base):
+class test_basic(plotms_test_base):
     ''' Test basic single plots and overplots '''
 
     def setUp(self):
@@ -127,13 +127,13 @@ class plotms_test_basic(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat="jpg", 
                      showgui=False, highres=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 60000)
+        self.checkPlotfile(self.plotfile_jpg, 200000)
         self.removePlotfile()
         # default xaxis only
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat="jpg", 
                      yaxis='freq', showgui=False, highres=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 60000)
+        self.checkPlotfile(self.plotfile_jpg, 250000)
         self.removePlotfile()
         # default yaxis only
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat="jpg", 
@@ -162,7 +162,7 @@ class plotms_test_basic(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat='jpg', 
                      showgui=False, highres=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 60000)
+        self.checkPlotfile(self.plotfile_jpg, 200000)
 
         # Next, overwrite is False so the save should fail.
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat='jpg', 
@@ -173,7 +173,7 @@ class plotms_test_basic(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat='jpg', 
                      overwrite=True, showgui=False, highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 60000)
+        self.checkPlotfile(self.plotfile_jpg, 200000)
         print
 
     def test_basic_overplot2MS(self):
@@ -241,7 +241,7 @@ class plotms_test_basic(plotms_test_base):
                          customsymbol=True, symbolshape='diamond',
                          symbolsize=1, symbolcolor='0000ff', highres=True)
             self.assertTrue(res)
-            self.checkPlotfile(self.plotfile_jpg, 60000)   
+            self.checkPlotfile(self.plotfile_jpg, 50000)
         else:
             print "Skipping test, no path to alternate MS"
         print
@@ -272,7 +272,7 @@ class plotms_test_basic(plotms_test_base):
 
     def xtest_basic_pdfExport(self):
         '''test_basic_pdfExport: Export plot in pdf format'''
-        plotfile_pdf = os.path.join(self.outputDir, "testBasic09.png")
+        plotfile_pdf = os.path.join(self.outputDir, "testBasic09.pdf")
         self.removePlotfile(plotfile_pdf)
         time.sleep(5)
         res = plotms(vis=self.ms, plotfile=plotfile_pdf, expformat="pdf", 
@@ -282,9 +282,35 @@ class plotms_test_basic(plotms_test_base):
         self.removePlotfile(plotfile_pdf)
         print
 
+    def test_basic_overlays(self):
+        '''test_basic_overlays: showatm and showtsky overplots'''
+        self.plotfile_jpg = os.path.join(self.outputDir, "testBasic10.jpg")
+        self.removePlotfile()
+        time.sleep(5)
+        # basic plot with showatm, xaxis chan
+        res = plotms(vis=self.ms, xaxis='chan', plotfile=self.plotfile_jpg,
+            expformat="jpg", showgui=False, highres=True, showatm=True)   
+        self.assertTrue(res)
+        self.checkPlotfile(self.plotfile_jpg, 90000)
+        self.removePlotfile()
+        # basic plot with showtsky, xaxis freq
+        res = plotms(vis=self.ms, xaxis='freq', plotfile=self.plotfile_jpg,
+            expformat="jpg", showgui=False, highres=True, showtsky=True)   
+        self.assertTrue(res)
+        self.checkPlotfile(self.plotfile_jpg, 90000)
+        self.removePlotfile()
+        # plotfile without overlay: xaxis must be chan or freq
+        # so ignores showatm/tsky
+        res = plotms(vis=self.ms, plotfile=self.plotfile_jpg,
+            expformat="jpg", showgui=False, highres=True, showatm=True)   
+        self.assertTrue(res)
+        self.checkPlotfile(self.plotfile_jpg, 200000)
+        self.removePlotfile()
+        print
+
 # ------------------------------------------------------------------------------
 
-class plotms_test_averaging(plotms_test_base):
+class test_averaging(plotms_test_base):
     ''' test plotms averaging options '''
 
     def setUp(self):
@@ -339,7 +365,7 @@ class plotms_test_averaging(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, highres=True,
                      showgui=False, avgchannel='7')
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 180000, 220000)  
+        self.checkPlotfile(self.plotfile_jpg, 170000, 220000)  
         print
 
     def test_averaging_baseline(self):
@@ -387,7 +413,7 @@ class plotms_test_averaging(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_axis(plotms_test_base):
+class test_axis(plotms_test_base):
     ''' test axis and datacolumn options '''
 
     def setUp(self):
@@ -410,7 +436,7 @@ class plotms_test_axis(plotms_test_base):
                      symbolsize=[5,5], symbolcolor=['ff0000','00ff00'], 
                      symbolfill=['mesh3','mesh3'], highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 60000)
+        self.checkPlotfile(self.plotfile_jpg, 50000)
         print
         
     def test_axis_twoAxes(self):
@@ -424,7 +450,7 @@ class plotms_test_axis(plotms_test_base):
                      plotfile=self.plotfile_jpg, expformat='jpg',
                      highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 247000)
+        self.checkPlotfile(self.plotfile_jpg, 220000)
         self.removePlotfile()
         
         print
@@ -617,7 +643,7 @@ class plotms_test_axis(plotms_test_base):
 
 # ------------------------------------------------------------------------------
        
-class plotms_test_calibration(plotms_test_base):
+class test_calibration(plotms_test_base):
     ''' test plotms callib parameter '''
 
     def setUp(self):
@@ -659,7 +685,7 @@ class plotms_test_calibration(plotms_test_base):
 
 # ------------------------------------------------------------------------------
  
-class plotms_test_calplots(plotms_test_base):
+class test_calplots(plotms_test_base):
     ''' Test basic single plots and overplots '''
 
     def setUp(self):
@@ -738,7 +764,7 @@ class plotms_test_calplots(plotms_test_base):
         res = plotms(vis=self.caltable, plotfile=self.plotfile_jpg, expformat="jpg", 
                      showgui=False, highres=True, correlation='/', overwrite=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 65000)
+        self.checkPlotfile(self.plotfile_jpg, 60000)
         self.removePlotfile()
         print
 
@@ -746,7 +772,7 @@ class plotms_test_calplots(plotms_test_base):
 
 class PlotmsPageHeader:
     ''' Analyze PlotMS page header from png image of PlotMS Plot 
-        Assumptions: graphical area has a black frame, header background is white
+        Assumptions: graphical area has a black frame, header background color is light
     '''
     def __init__(self,png_path,debug=False):
         self.png_path = png_path
@@ -760,11 +786,12 @@ class PlotmsPageHeader:
 
     def _analyze(self):
         gray_img = self.color_img.min(axis=2)
-        gray_xproj = gray_img.min(axis=1)
         # Binarize
-        non_white_pixels = ( gray_xproj < 1.0 )
-        gray_xproj_bin = gray_xproj.copy()
-        gray_xproj_bin[non_white_pixels] = 0.0
+        is_light = gray_img > 0.75
+        bin_img = np.zeros(gray_img.shape,dtype=gray_img.dtype)
+        bin_img[is_light] = 1.0
+        # Project on X (vertical) axis
+        gray_xproj_bin = bin_img.min(axis=1)
         # White to black transitions
         (steps_down,) = np.where(np.diff(gray_xproj_bin) == -1.0 )
         if steps_down.size > 0 :
@@ -787,7 +814,7 @@ class PlotmsPageHeader:
     def hasCorrectHeightRatio(self):
         return 0.10 <= self.height_ratio <= 0.30
 
-class plotms_test_pageheader(plotms_test_base):
+class test_pageheader(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -838,7 +865,7 @@ class plotms_test_pageheader(plotms_test_base):
                      antenna='0&2',headeritems='filename,telescope,projid,observer',
                      showgui=False, highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_png, 22000)
+        self.checkPlotfile(self.plotfile_png, 21000)
         self.checkPageHeader(expected_rows=2)
 
     def test_pageheader_items02(self):
@@ -850,12 +877,12 @@ class plotms_test_pageheader(plotms_test_base):
                      antenna='0&2',headeritems='targdir,telescope,targname,observer,ycolumn',
                      showgui=False, highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_png, 26000)
+        self.checkPlotfile(self.plotfile_png, 25000)
         self.checkPageHeader(expected_rows=3)
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_display(plotms_test_base):
+class test_display(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -1002,7 +1029,7 @@ class plotms_test_display(plotms_test_base):
                      symbolsize=[5,5], symbolcolor=['ff0000','00ff00'], 
                      symbolfill=['mesh3','mesh3'])
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 65000) 
+        self.checkPlotfile(self.plotfile_jpg, 60000)
         print    
         
     def test_display_yaxisloc_iter(self):
@@ -1021,7 +1048,7 @@ class plotms_test_display(plotms_test_base):
                      symbolsize=[5,5], symbolcolor=['ff0000','00ff00'], 
                      symbolfill=['mesh3','mesh3'])
         self.assertTrue(res)
-        self.checkPlotfile(plotfile1_jpg, 165000) 
+        self.checkPlotfile(plotfile1_jpg, 160000)
         self.removePlotfile(plotfile1_jpg)
         print       
       
@@ -1080,7 +1107,7 @@ class plotms_test_display(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_grid(plotms_test_base):
+class test_grid(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -1188,7 +1215,7 @@ class plotms_test_grid(plotms_test_base):
         print 'Added iteration plot, now exporting'
         self.checkPlotfile(plotFiles[0], 190000)
         self.removePlotfile(plotFiles[0])
-        self.checkPlotfile(plotFiles[1], 190000)
+        self.checkPlotfile(plotFiles[1], 180000)
         self.removePlotfile(plotFiles[1])
         self.checkPlotfile(plotFiles[2], 40000)
         self.removePlotfile(plotFiles[2])
@@ -1255,7 +1282,7 @@ class plotms_test_grid(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_iteration(plotms_test_base):
+class test_iteration(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -1363,7 +1390,7 @@ class plotms_test_iteration(plotms_test_base):
                      gridrows=3, gridcols=2, highres=True,
                      yaxis=['amp'], yaxislocation=['right'])
         self.assertTrue(res)
-        self.checkPlotfile(plotfile1_jpg, 200000)
+        self.checkPlotfile(plotfile1_jpg, 190000)
         self.removePlotfile(plotfile1_jpg)
         self.checkPlotfile(plotfile2_jpg, 40000)
         self.removePlotfile(plotfile2_jpg) 
@@ -1389,9 +1416,9 @@ class plotms_test_iteration(plotms_test_base):
         self.assertEqual(fileCount, 3)
         self.checkPlotfile(plotfile1_jpg, 200000)
         self.removePlotfile(plotfile1_jpg)
-        self.checkPlotfile(plotfile2_jpg, 200000)
+        self.checkPlotfile(plotfile2_jpg, 190000)
         self.removePlotfile(plotfile2_jpg)
-        self.checkPlotfile(plotfile3_jpg, 180000)
+        self.checkPlotfile(plotfile3_jpg, 170000)
         self.removePlotfile(plotfile3_jpg)
         print
         
@@ -1458,15 +1485,15 @@ class plotms_test_iteration(plotms_test_base):
         self.assertTrue(res)
         fileCount = self.getFilecount(self.outputDir, "testIteration11_")
         self.assertEqual(fileCount, 2)
-        self.checkPlotfile(plotfile1_jpg, 250000)
+        self.checkPlotfile(plotfile1_jpg, 240000)
         self.removePlotfile(plotfile1_jpg)
-        self.checkPlotfile(plotfile2_jpg, 250000)
+        self.checkPlotfile(plotfile2_jpg, 230000)
         self.removePlotfile(plotfile2_jpg)
         print
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_multi(plotms_test_base):
+class test_multi(plotms_test_base):
     ''' tests of multiple plotms arguments '''
 
     def setUp(self):
@@ -1579,7 +1606,7 @@ class plotms_test_multi(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_selection(plotms_test_base):
+class test_selection(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -1606,13 +1633,13 @@ class plotms_test_selection(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=plotfile2_jpg, expformat='jpg', 
                      overwrite=True, showgui=False, scan='2,4', highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(plotfile2_jpg, 84000, 125000)
+        self.checkPlotfile(plotfile2_jpg, 70000, 125000)
         self.removePlotfile(plotfile2_jpg)
         # Succeed with different scan selection (CAS-6813)
         res = plotms(vis=self.ms, plotfile=plotfile3_jpg, expformat='jpg', 
                      overwrite=True, showgui=False, scan='5,7', highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(plotfile3_jpg, 84000, 125000)
+        self.checkPlotfile(plotfile3_jpg, 70000, 125000)
         self.removePlotfile(plotfile3_jpg)
         print
 
@@ -1709,7 +1736,7 @@ class plotms_test_selection(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_transform(plotms_test_base):
+class test_transform(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -1729,7 +1756,7 @@ class plotms_test_transform(plotms_test_base):
             res = plotms(vis=self.ms, plotfile=plotfile, yaxis='freq', 
                          showgui=False, freqframe=frame, highres=True)
             self.assertTrue(res)
-            self.checkPlotfile(plotfile, 210000)
+            self.checkPlotfile(plotfile, 200000)
             self.removePlotfile(plotfile)
         print
 
@@ -1756,7 +1783,7 @@ class plotms_test_transform(plotms_test_base):
             res = plotms(vis=self.ms, plotfile=plotfile, yaxis='freq', 
                          showgui=False, veldef=vel, highres=True)
             self.assertTrue(res)
-            self.checkPlotfile(plotfile, 300000)
+            self.checkPlotfile(plotfile, 290000)
             self.removePlotfile(plotfile)
         print
 
@@ -1768,7 +1795,7 @@ class plotms_test_transform(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, yaxis='freq', 
                      showgui=False, restfreq='1420', highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 300000)
+        self.checkPlotfile(self.plotfile_jpg, 290000)
         print
         
     def test_transform_shift(self):
@@ -1787,17 +1814,17 @@ class plotms_test_transform(plotms_test_base):
 def suite():
     print 'Tests may fail due to DBUS timeout if the version of Qt is not at least 4.8.5'
     print
-    return [plotms_test_basic,
-            plotms_test_averaging,
-            plotms_test_axis,
-            plotms_test_calibration,
-            plotms_test_calplots,
-            plotms_test_pageheader,
-            plotms_test_display,
-            plotms_test_grid,
-            plotms_test_iteration,
-            plotms_test_multi,
-            plotms_test_selection,
-            plotms_test_transform
+    return [test_basic,
+            test_averaging,
+            test_axis,
+            test_calibration,
+            test_calplots,
+            test_pageheader,
+            test_display,
+            test_grid,
+            test_iteration,
+            test_multi,
+            test_selection,
+            test_transform
            ]
  

@@ -24,6 +24,8 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 //# $Id$
+#include <QFileDialog>
+#include <QMessageBox>
 #include <display/RegionShapes/QtRegionShapeManager.qo.h>
 #include <display/RegionShapes/QtSingleRegionShape.qo.h>
 #include <display/QtViewer/QtDisplayPanel.qo.h>

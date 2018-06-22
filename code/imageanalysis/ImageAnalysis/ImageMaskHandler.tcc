@@ -85,19 +85,22 @@ template <class T> void ImageMaskHandler<T>::copy(
 			! proxy.shape().isEqual(_image->shape()),
 			"Images have different shapes"
 		);
-		auto imagePair = ImageFactory::fromFile(mask2[0]);
-		if (imagePair.first) {
+		auto imagePtrs = ImageFactory::fromFile(mask2[0]);
+		if (auto myImage = std::get<0>(imagePtrs)) {
 			casacore::ImageUtilities::copyMask(
-				*_image, *imagePair.first,
+				*_image, *myImage,
 				newName, mask2[1], casacore::AxesSpecifier()
 			);
 		}
-		else {
+		else if (auto myimage = std::get<1>(imagePtrs)) {
 			casacore::ImageUtilities::copyMask(
-				*_image, *imagePair.second,
+				*_image, *myimage,
 				newName, mask2[1], casacore::AxesSpecifier()
 			);
 		}
+        else {
+            ThrowCc("This image pixel data type not supported");
+        }
 	}
 	else {
 		casacore::ImageUtilities::copyMask(
@@ -143,8 +146,7 @@ template <class T> void ImageMaskHandler<T>::calcmask(
 	ThrowIf(mask.empty(), "You must specify an expression");
 	ThrowIf (
 		! _image->canDefineRegion(),
-		"Cannot make requested mask for this type of image"
-		"It is of type" + _image->imageType()
+		"Cannot make requested mask for this image type which is " + _image->imageType()
 	);
 	casacore::Block<casacore::LatticeExprNode> temps;
 	casacore::PtrBlock<const casacore::ImageRegion*> tempRegs;

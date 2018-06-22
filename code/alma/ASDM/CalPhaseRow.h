@@ -52,15 +52,7 @@
 	
 
 	 
-#include <Interval.h>
-	
-
-	 
 #include <Angle.h>
-	
-
-	 
-#include <Tag.h>
 	
 
 	 
@@ -69,6 +61,14 @@
 
 	 
 #include <Frequency.h>
+	
+
+	 
+#include <Tag.h>
+	
+
+	 
+#include <Interval.h>
 	
 
 
@@ -120,6 +120,16 @@
 
 	
 
+	
+
+	
+
+	
+
+	
+
+	
+
 
 
 #include <ConversionException.h>
@@ -130,7 +140,7 @@
 //#include <TableStreamReader.h>
 
 /*\file CalPhase.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -152,7 +162,7 @@ typedef void (CalPhaseRow::*CalPhaseAttributeFromText) (const string& s);
 /**
  * The CalPhaseRow class is a row of a CalPhaseTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class CalPhaseRow {
@@ -766,6 +776,211 @@ public:
 	
 
 
+	
+	// ===> Attribute numAntenna, which is optional
+	
+	
+	
+	/**
+	 * The attribute numAntenna is optional. Return true if this attribute exists.
+	 * @return true if and only if the numAntenna attribute exists. 
+	 */
+	bool isNumAntennaExists() const;
+	
+
+	
+ 	/**
+ 	 * Get numAntenna, which is optional.
+ 	 * @return numAntenna as int
+ 	 * @throws IllegalAccessException If numAntenna does not exist.
+ 	 */
+ 	int getNumAntenna() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set numAntenna with the specified int.
+ 	 * @param numAntenna The int value to which numAntenna is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setNumAntenna (int numAntenna);
+		
+	
+	
+	
+	/**
+	 * Mark numAntenna, which is an optional field, as non-existent.
+	 */
+	void clearNumAntenna ();
+	
+
+
+	
+	// ===> Attribute singleAntennaName, which is optional
+	
+	
+	
+	/**
+	 * The attribute singleAntennaName is optional. Return true if this attribute exists.
+	 * @return true if and only if the singleAntennaName attribute exists. 
+	 */
+	bool isSingleAntennaNameExists() const;
+	
+
+	
+ 	/**
+ 	 * Get singleAntennaName, which is optional.
+ 	 * @return singleAntennaName as vector<string >
+ 	 * @throws IllegalAccessException If singleAntennaName does not exist.
+ 	 */
+ 	vector<string > getSingleAntennaName() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set singleAntennaName with the specified vector<string >.
+ 	 * @param singleAntennaName The vector<string > value to which singleAntennaName is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setSingleAntennaName (vector<string > singleAntennaName);
+		
+	
+	
+	
+	/**
+	 * Mark singleAntennaName, which is an optional field, as non-existent.
+	 */
+	void clearSingleAntennaName ();
+	
+
+
+	
+	// ===> Attribute refAntennaName, which is optional
+	
+	
+	
+	/**
+	 * The attribute refAntennaName is optional. Return true if this attribute exists.
+	 * @return true if and only if the refAntennaName attribute exists. 
+	 */
+	bool isRefAntennaNameExists() const;
+	
+
+	
+ 	/**
+ 	 * Get refAntennaName, which is optional.
+ 	 * @return refAntennaName as string
+ 	 * @throws IllegalAccessException If refAntennaName does not exist.
+ 	 */
+ 	string getRefAntennaName() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set refAntennaName with the specified string.
+ 	 * @param refAntennaName The string value to which refAntennaName is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setRefAntennaName (string refAntennaName);
+		
+	
+	
+	
+	/**
+	 * Mark refAntennaName, which is an optional field, as non-existent.
+	 */
+	void clearRefAntennaName ();
+	
+
+
+	
+	// ===> Attribute phaseAnt, which is optional
+	
+	
+	
+	/**
+	 * The attribute phaseAnt is optional. Return true if this attribute exists.
+	 * @return true if and only if the phaseAnt attribute exists. 
+	 */
+	bool isPhaseAntExists() const;
+	
+
+	
+ 	/**
+ 	 * Get phaseAnt, which is optional.
+ 	 * @return phaseAnt as vector<vector<float > >
+ 	 * @throws IllegalAccessException If phaseAnt does not exist.
+ 	 */
+ 	vector<vector<float > > getPhaseAnt() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set phaseAnt with the specified vector<vector<float > >.
+ 	 * @param phaseAnt The vector<vector<float > > value to which phaseAnt is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setPhaseAnt (vector<vector<float > > phaseAnt);
+		
+	
+	
+	
+	/**
+	 * Mark phaseAnt, which is an optional field, as non-existent.
+	 */
+	void clearPhaseAnt ();
+	
+
+
+	
+	// ===> Attribute phaseAntRMS, which is optional
+	
+	
+	
+	/**
+	 * The attribute phaseAntRMS is optional. Return true if this attribute exists.
+	 * @return true if and only if the phaseAntRMS attribute exists. 
+	 */
+	bool isPhaseAntRMSExists() const;
+	
+
+	
+ 	/**
+ 	 * Get phaseAntRMS, which is optional.
+ 	 * @return phaseAntRMS as vector<vector<float > >
+ 	 * @throws IllegalAccessException If phaseAntRMS does not exist.
+ 	 */
+ 	vector<vector<float > > getPhaseAntRMS() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set phaseAntRMS with the specified vector<vector<float > >.
+ 	 * @param phaseAntRMS The vector<vector<float > > value to which phaseAntRMS is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setPhaseAntRMS (vector<vector<float > > phaseAntRMS);
+		
+	
+	
+	
+	/**
+	 * Mark phaseAntRMS, which is an optional field, as non-existent.
+	 */
+	void clearPhaseAntRMS ();
+	
+
+
 	////////////////////////////////
 	// Extrinsic Table Attributes //
 	////////////////////////////////
@@ -1037,6 +1252,11 @@ void phaseRMSFromBin( EndianIStream& eis);
 void statPhaseRMSFromBin( EndianIStream& eis);
 
 void correctionValidityFromBin( EndianIStream& eis);
+void numAntennaFromBin( EndianIStream& eis);
+void singleAntennaNameFromBin( EndianIStream& eis);
+void refAntennaNameFromBin( EndianIStream& eis);
+void phaseAntFromBin( EndianIStream& eis);
+void phaseAntRMSFromBin( EndianIStream& eis);
 
 
 	 /**
@@ -1315,6 +1535,71 @@ private:
 	
  	
 
+	
+	// ===> Attribute numAntenna, which is optional
+	
+	
+	bool numAntennaExists;
+	
+
+	int numAntenna;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute singleAntennaName, which is optional
+	
+	
+	bool singleAntennaNameExists;
+	
+
+	vector<string > singleAntennaName;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute refAntennaName, which is optional
+	
+	
+	bool refAntennaNameExists;
+	
+
+	string refAntennaName;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute phaseAnt, which is optional
+	
+	
+	bool phaseAntExists;
+	
+
+	vector<vector<float > > phaseAnt;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute phaseAntRMS, which is optional
+	
+	
+	bool phaseAntRMSExists;
+	
+
+	vector<vector<float > > phaseAntRMS;
+
+	
+	
+ 	
+
 	////////////////////////////////
 	// Extrinsic Table Attributes //
 	////////////////////////////////
@@ -1387,6 +1672,11 @@ void phaseRMSFromBin( EndianIStream& eis);
 void statPhaseRMSFromBin( EndianIStream& eis);
 
 void correctionValidityFromBin( EndianIStream& eis);
+void numAntennaFromBin( EndianIStream& eis);
+void singleAntennaNameFromBin( EndianIStream& eis);
+void refAntennaNameFromBin( EndianIStream& eis);
+void phaseAntFromBin( EndianIStream& eis);
+void phaseAntRMSFromBin( EndianIStream& eis);
 
 */
 	
@@ -1457,6 +1747,21 @@ void statPhaseRMSFromText (const string & s);
 
 	
 void correctionValidityFromText (const string & s);
+	
+	
+void numAntennaFromText (const string & s);
+	
+	
+void singleAntennaNameFromText (const string & s);
+	
+	
+void refAntennaNameFromText (const string & s);
+	
+	
+void phaseAntFromText (const string & s);
+	
+	
+void phaseAntRMSFromText (const string & s);
 	
 	
 	

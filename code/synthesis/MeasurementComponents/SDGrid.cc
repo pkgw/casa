@@ -814,6 +814,7 @@ extern "C" {
                  const Complex*,
                  Int*,
                  Int*,
+                 Int*,
                  const Int*,
                  const Int*,
                  const Float*,
@@ -1041,6 +1042,7 @@ void SDGrid::put(const VisBuffer& vb, Int row, Bool dopsf,
           datStorage,
           &s[0],
           &s[1],
+          &idopsf,
           flags.getStorage(del),
           rowFlags.getStorage(del),
           wgtStorage,
@@ -1572,6 +1574,13 @@ Bool SDGrid::getXYPos(const VisBuffer& vb, Int row) {
     if (!isSplineInterpolationReady) {
       interpolator = new SDPosInterpolator(vb, pointingDirCol_p);
       isSplineInterpolationReady = true;
+    } else {
+      if (!interpolator->inTimeRange(vb.time()(row), vb.antenna1()(row))) {
+	// setup spline interpolator for the current dataset (CAS-11261, 2018/5/22 WK)
+	delete interpolator;
+	interpolator = 0;
+	interpolator = new SDPosInterpolator(vb, pointingDirCol_p);
+      }
     }
   }
 
@@ -1613,9 +1622,9 @@ Bool SDGrid::getXYPos(const VisBuffer& vb, Int row) {
 
   if (!nullPointingTable) {
     if (dointerp) {
-      worldPosMeas = (*pointingToImage)(directionMeas(act_mspc, pointIndex, vb.time()(row)));
       MDirection newdir = directionMeas(act_mspc, pointIndex, vb.time()(row));
-      Vector<Double> newdirv = newdir.getAngle("rad").getValue();
+      worldPosMeas = (*pointingToImage)(newdir);
+      //Vector<Double> newdirv = newdir.getAngle("rad").getValue();
       //cerr<<"dir0="<<newdirv(0)<<endl;
    
     //fprintf(pfile,"%.8f %.8f \n", newdirv(0), newdirv(1));

@@ -275,7 +275,14 @@ namespace asdm {
       int numSkips = 0;
       std::string line;
       do {
+#ifndef WITHOUT_BOOST
+        // not sure where this trim is coming from
 	line = trim(nextLine());
+#else
+        // using function in Misc.h
+        line = nextLine();
+	trim(line);
+#endif
 	numSkips++;
       } 
       while (line.size() != 0 && numSkips <= maxSkips);
@@ -322,37 +329,56 @@ namespace asdm {
 std::string requireMIMEHeader() {
   // MIME-Version
   pair<std::string, std::string>name_value(headerField2Pair(nextLine()));
-// cout << name_value.first << "=" << name_value.second << endl;
-// if (currentLine != "MIME-Version: 1.0") // a work around for the case when the very first character is not the expected "M" (happened with some corrupted data).
-if (! boost::algorithm::iends_with(currentLine, "IME-Version: 1.0"))
-  throw asdm::ConversionException("'MIME-Version: 1.0' missing at the very beginning of the file '"+ tablePath +"'.", T::name());
+  // cout << name_value.first << "=" << name_value.second << endl;
+  // if (currentLine != "MIME-Version: 1.0") // a work around for the case when the very first character is not the expected "M" (happened with some corrupted data).
+#ifndef WITHOUT_BOOST
+  if (! boost::algorithm::iends_with(currentLine, "IME-Version: 1.0"))
+#else
+  std::string versionEnd = "IME-Version: 1.0";
+  if ((currentLine.size()<=versionEnd.size()) || (currentLine.compare((currentLine.size()-versionEnd.size()),versionEnd.size(),versionEnd)!=0))
+#endif
+    throw asdm::ConversionException("'MIME-Version: 1.0' missing at the very beginning of the file '"+ tablePath +"'.", T::name());
 
-// Content-Type
-boundary_1 = requireBoundaryInCT(requireHeaderField("CONTENT-TYPE").second);
+  // Content-Type
+  boundary_1 = requireBoundaryInCT(requireHeaderField("CONTENT-TYPE").second);
 
-// cout << "boundary_1 =" << boundary_1 << endl;
+  // cout << "boundary_1 =" << boundary_1 << endl;
+  
+  // Content-Description
+  //name_value = requireHeaderField("CONTENT-DESCRIPTION");
 
-// Content-Description
-//name_value = requireHeaderField("CONTENT-DESCRIPTION");
+  // Content-Location
+  //name_value = requireHeaderField("CONTENT-LOCATION");
 
-// Content-Location
-//name_value = requireHeaderField("CONTENT-LOCATION");
+  // Look for an empty line in the at most 10 subsequent lines.
+  skipUntilEmptyLine(20);
 
-// Look for an empty line in the at most 10 subsequent lines.
-skipUntilEmptyLine(20);
-
-return boundary_1;
+  return boundary_1;
 }    
 
 pair<std::string, std::string> requireHeaderField(const std::string & hf) {
-  std::string s = trim_copy(nextLine());
+#ifndef WITHOUT_BOOST
+  std::string s = boost::trim_copy(nextLine());
   while (boost::algorithm::iends_with(s, ";")) {
-    s += trim_copy(nextLine());
+    s += boost::trim_copy(nextLine());
   }
+#else
+  std::string s = asdm::trim_copy(nextLine());
+  while (s.back()==';') {
+    s += asdm::trim_copy(nextLine());
+  }
+#endif
+
   pair<std::string, std::string> hf2pair(headerField2Pair(s));
-if (to_upper_copy(hf2pair.first) != hf)
-  throw asdm::ConversionException("read '" + currentLine + "'. Was expecting '" + hf + "'...", T::name());
-return hf2pair;
+
+#ifndef WITHOUT_BOOST
+  if (boost::algorithm::to_upper_copy(hf2pair.first) != hf)
+    throw asdm::ConversionException("read '" + currentLine + "'. Was expecting '" + hf + "'...", T::name());
+#else
+  if (asdm::str_toupper(hf2pair.first) != hf)
+    throw asdm::ConversionException("read '" + currentLine + "'. Was expecting '" + hf + "'...", T::name());
+#endif
+  return hf2pair;
 }
 
 void requireBoundary(const std::string& boundary, int maxLines) {
@@ -377,10 +403,24 @@ std::string accumulateUntilBoundary(const std::string& boundary, int maxLines) {
   int numLines = 0;
   std::string line ;
   std::string result;
+
+#ifndef WITHOUT_BOOST
+  // not sure where this trim is coming from
   line=trim(nextLine());
+#else
+  // using function in Misc.h
+  line = nextLine();
+  trim(line);
+#endif
+
   while ( numLines <= maxLines && line.find("--"+boundary) == std::string::npos ) {
     result += line;
+#ifndef WITHOUT_BOOST
     line=trim(nextLine());
+#else
+    line = nextLine();
+    trim(line);
+#endif
     numLines++;
   }
   
@@ -395,14 +435,25 @@ std::string accumulateUntilBoundary(const std::string& boundary, int maxLines) {
 std::string requireBoundaryInCT(const std::string& ctValue) {
   vector<std::string> cvValueItems;
  
-split (cvValueItems, ctValue, is_any_of(";"));
-vector<std::string> cvValueItemsNameValue;
-for ( vector<std::string>::const_iterator iter = cvValueItems.begin(); iter != cvValueItems.end() ; iter++ ) {
-  cvValueItemsNameValue.clear();
-  split(cvValueItemsNameValue, *iter, is_any_of("="));
-  string boundary;
-  if ((cvValueItemsNameValue.size() > 1) && (to_upper_copy(trim_copy(cvValueItemsNameValue[0])) == "BOUNDARY") && (unquote(cvValueItemsNameValue[1], boundary).size() > 0))
-    return boundary;
+#ifndef WITHOUT_BOOST
+  boost::algorithm::split (cvValueItems, ctValue, boost::algorithm::is_any_of(";"));
+#else
+  asdm::strsplit(ctValue,';',cvValueItems);
+#endif
+  vector<std::string> cvValueItemsNameValue;
+  for ( vector<std::string>::const_iterator iter = cvValueItems.begin(); iter != cvValueItems.end() ; iter++ ) {
+    cvValueItemsNameValue.clear();
+#ifndef WITHOUT_BOOST
+    boost::algorithm::split(cvValueItemsNameValue, *iter, boost::algorithm::is_any_of("="));
+    string boundary;
+    if ((cvValueItemsNameValue.size() > 1) && (boost::to_upper_copy(boost::trim_copy(cvValueItemsNameValue[0])) == "BOUNDARY") && (unquote(cvValueItemsNameValue[1], boundary).size() > 0))
+      return boundary;
+#else
+    asdm::strsplit(*iter,'=',cvValueItemsNameValue);
+    string boundary;
+    if ((cvValueItemsNameValue.size() > 1) && (asdm::str_toupper(asdm::trim_copy(cvValueItemsNameValue[0])) == "BOUNDARY") && (unquote(cvValueItemsNameValue[1], boundary).size() > 0))
+      return boundary;
+#endif
 													     }
 throw asdm::ConversionException("could not find a boundary definition in '" + ctValue + "'.", T::name());
 }

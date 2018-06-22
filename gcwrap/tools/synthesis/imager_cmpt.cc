@@ -28,7 +28,6 @@
 #include <ms/MeasurementSets/MSHistoryHandler.h>
 #include <casa/Logging/LogIO.h>
 #include <imager_cmpt.h>
-#include <image_cmpt.h>
 #include <casa/iostream.h>
 //#include <casa/System/PGPlotterNull.h>
 //#include <graphics/Graphics/PGPlotterLocal.h>
@@ -521,13 +520,13 @@ bool imager::fixvis(const std::vector<int>& fields,
 }
 
 bool
-imager::ft(const std::vector<std::string>& model, const std::string& complist, const bool incremental, const bool /*async*/)
+imager::ft(const std::vector<std::string>& model, const std::string& complist, const bool incremental, const double phasecenttime)
 {
    Bool rstat(false);
    if(hasValidMS_p){
    try {
       Vector <String> amodel(toVectorString(model));
-      rstat = itsImager->ft(amodel, complist, incremental);
+      rstat = itsImager->ft(amodel, complist, incremental, phasecenttime);
     } catch  (AipsError x) {
        //*itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
        RETHROW(x);

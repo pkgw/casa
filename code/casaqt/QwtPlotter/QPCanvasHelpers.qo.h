@@ -135,6 +135,9 @@ public:
 #endif
 
 private:
+	// finds step between tick values for precision
+	int getTickPrecision() const;
+
 	// Parent.
 	QwtPlot* m_parent;
 	

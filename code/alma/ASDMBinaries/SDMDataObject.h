@@ -38,7 +38,11 @@ using namespace NetSidebandMod;
 
 using namespace std;
 
-
+#ifndef WITHOUT_BOOST
+#include <boost/regex.hpp> 
+#else
+#include <regex>
+#endif
 
 #ifdef REG_BASIC
 #undef REG_BASIC
@@ -88,24 +92,11 @@ using namespace std;
 #undef REG_ECOLLATE
 #endif
 
-#include <boost/regex.hpp> 
-using namespace boost;
-
 #if defined(__APPLE__)
 #include <machine/endian.h>
 #else 
 #include <endian.h>
 #endif
-
-/*
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/posix_time/posix_time_duration.hpp>
-
-#include <boost/date_time/gregorian/gregorian.hpp>
-
-using namespace boost::posix_time;
-using namespace boost::gregorian;
-*/
 
 /**
  * @mainpage
@@ -931,10 +922,10 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     string title() const;
     void title(const string& value) ;
 
-    /**
-     * Returns the byte order of the binary parts.
-     * @return a pointer of a ByteOrder instance.
-     */
+     /**
+      * Returns the byte order of the binary parts.
+      * @return a pointer of a ByteOrder instance.
+      */
     const ByteOrder* byteOrder() const;
 
     /**
@@ -1030,7 +1021,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * @return a value from the enumeration ProcessorType.
      */
     ProcessorType processorType() const;
-
+    
 
     /**
      * Returns the correlator type.
@@ -1270,7 +1261,11 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
 
     void updateIdImageSPW();
 
-    const static regex  SPWID;
+#ifndef WITHOUT_BOOST
+    const static boost::regex  SPWID;
+#else
+    const static std::regex  SPWID;
+#endif
 
   };
   // SDMDataObject::

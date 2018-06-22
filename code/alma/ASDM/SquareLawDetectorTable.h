@@ -87,7 +87,7 @@ class SquareLawDetectorRow;
  * Processor information for total power detectors.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of SquareLawDetector </CAPTION>
@@ -109,7 +109,7 @@ class SquareLawDetectorRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numBand </TD> 
+ * <TD> numBand (numBand)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of bands. </TD>
@@ -377,6 +377,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

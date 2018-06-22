@@ -4,6 +4,8 @@ except ImportError, e:
     print "failed to load casa:\n", e
     sys.exit(1)
 
+from casa_system import casa
+
 def gentools(tools=None):
 	"""
 	Generate a fresh set of tools; only the ones who have
@@ -171,6 +173,8 @@ mt = mttool()
 sdmstool = casac.singledishms
 sdms = sdmstool()
 parallelimager = casac.parallelimager()
+sbstool = casac.sidebandseparator
+sbs = sbstool()
 
 ##
 ## viewer tool

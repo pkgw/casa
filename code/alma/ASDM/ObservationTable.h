@@ -81,7 +81,7 @@ class ObservationRow;
  * At the present time, this table is not defined.  In the AEDF document, it's name is Observation_Unit.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Observation </CAPTION>
@@ -329,6 +329,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

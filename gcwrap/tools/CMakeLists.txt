@@ -117,9 +117,11 @@ casa_add_library( tools
  synthesis/linearmosaic_cmpt.cc
  synthesis/CalTables/PlotCal.cc
  synthesis/parallelimager_cmpt.cc
+ synthesis/sidebandseparator_cmpt.cc
  synthesis/simulator_cmpt.cc
  synthesis/synthesisimager_cmpt.cc
  synthesis/synthesisdeconvolver_cmpt.cc
+ synthesis/synthesismaskhandler_cmpt.cc
  synthesis/synthesisnormalizer_cmpt.cc
  synthesis/synthesisimstore_cmpt.cc
  synthesis/synthesisiterbot_cmpt.cc
@@ -185,9 +187,11 @@ casa_add_tools( tools_swig tools_sources tools_py
  synthesis/imager.xml
  synthesis/linearmosaic.xml
  synthesis/parallelimager.xml
+ synthesis/sidebandseparator.xml
  synthesis/simulator.xml
  synthesis/synthesisimager.xml
  synthesis/synthesisdeconvolver.xml
+ synthesis/synthesismaskhandler.xml
  synthesis/synthesisnormalizer.xml
  synthesis/synthesisimstore.xml
  synthesis/synthesisiterbot.xml

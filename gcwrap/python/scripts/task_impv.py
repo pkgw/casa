@@ -1,4 +1,5 @@
 from taskinit import *
+from ialib import write_image_history
 
 def impv(
     imagename, outfile, mode, start, end, center, length, pa, width,
@@ -30,14 +31,24 @@ def impv(
         else:
             raise Exception, "Unsupported value for mode."
         myia = iatool()
+        myia.dohistory(False)
         if (not myia.open(imagename)):
             raise Exception, "Cannot create image analysis tool using " + imagename
-        myia.pv(
+        outia = myia.pv(
             outfile=outfile, start=start, end=end, center=center,
             length=length, pa=pa, width=width, unit=unit,
             overwrite=overwrite, region=region, chans=chans,
-            stokes=stokes, mask=mask, stretch=stretch, wantreturn=False
+            stokes=stokes, mask=mask, stretch=stretch, wantreturn=True
         )
+        try:
+            param_names = impv.func_code.co_varnames[:impv.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]   
+            write_image_history(
+                outia, sys._getframe().f_code.co_name,
+                param_names, param_vals, casalog
+            )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
     except Exception, instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
@@ -45,3 +56,5 @@ def impv(
     finally:
         if (myia):
             myia.done()
+        if (outia):
+            outia.done()

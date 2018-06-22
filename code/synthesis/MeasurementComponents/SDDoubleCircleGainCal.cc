@@ -29,6 +29,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <cassert>
 #include <map>
 
 // Debug Message Handling

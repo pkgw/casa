@@ -426,8 +426,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       for (uInt ii=0; ii < ndish; ++ii){
 	support=max((antMath_p[ii])->support(coords), support);
       }
-      support=Int(max(nx_p, ny_p)*2.0)/2;
-      convSize_p=Int(max(nx_p, ny_p)*2.0)/2*convSampling;
+      support=Int(min(Float(support), max(Float(nx_p), Float(ny_p)))*2.0)/2;
+      convSize_p=support*convSampling;
       // Make this a nice composite number, to speed up FFTs
       CompositeNumber cn(uInt(convSize_p*2.0));    
       convSize_p  = cn.nextLargerEven(Int(convSize_p));
@@ -478,6 +478,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       spCoord.setReferenceValue(Vector<Double>(1, beamFreqs(0)));
       if(beamFreqs.nelements() >1)
 	spCoord.setIncrement(Vector<Double>(1, beamFreqs(1)-beamFreqs(0)));
+
       coords.replaceCoordinate(spCoord, spind);
 
       IPosition pbShape(4, convSize_p, convSize_p, 1, nBeamChans);
@@ -549,9 +550,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   //subim2.copyData((LatticeExpr<Complex>) (iif(abs(subim2)> 25e-4, subim2, 0)));
 	   
 	
-	   ft_p.c2cFFT(subim);
+	   //ft_p.c2cFFT(subim);
 	  
-	   ft_p.c2cFFT(subim2);
+	   //ft_p.c2cFFT(subim2);
+	   ft_p.c2cFFTInDouble(subim);
+	   ft_p.c2cFFTInDouble(subim2);
 	   //LatticeFFT::cfft2d(subim2);
 	    //  tim.show("after ffts ");
 	   // cerr << kk << " applies " << wtime1-wtime0 << " ffts " << omp_get_wtime()-wtime1 << endl;
@@ -735,6 +738,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     }
     */
+
+    
     makerowmap(vb, convFuncRowMap);
     ///need to deal with only the maximum of different baselines available in this
     ///vb
@@ -1028,8 +1033,8 @@ typedef unsigned long long ooLong;
 	Bool found=false;
 	Int trial=0;
 	for (trial=convSize/2-2;trial>0;trial--) {
-	  //Searching down a diagonal
-	  if(abs(convPlane(convSize/2-trial,convSize/2-trial)) >  (1e-3*maxAbsConvFunc)) {
+	  //largest of either
+	  if((abs(convPlane(convSize/2-trial-1,convSize/2-1)) >  (1e-3*maxAbsConvFunc)) || (abs(convPlane(convSize/2-1,convSize/2-trial-1)) >  (1e-3*maxAbsConvFunc))) {
 	    found=true;
 	    trial=Int(sqrt(2.0*Float(trial*trial)));
 	    break;
@@ -1256,6 +1261,7 @@ typedef unsigned long long ooLong;
     IPosition shp=inarray.shape();
     shp(0)=Int(nx*factor);
     shp(1)=Int(ny*factor);
+    cerr << "nx " << nx << " ny " << ny << " shape " << shp << endl;
 
     Array<Complex> out(shp);
     ArrayIterator<Complex> inIt(inarray, 2);

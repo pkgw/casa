@@ -5,7 +5,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-<task type="function" name="oldsplit" category="manipulation">
+<task type="function" name="oldsplit" category="manipulation" visibility="hidden">
      <shortdescription>Create a visibility subset from an existing visibility set</shortdescription>
 
 <description>
@@ -81,7 +81,7 @@ average over frequency (channels) and time (integrations).
 	</param>
 
 	<param type="string" name="timebin">
-		<description>Bin width for time averaging</description>		
+		<description>Bin width for time averaging</description>
 		<value type="string">0s</value>
 	</param>
 
@@ -259,7 +259,7 @@ average over frequency (channels) and time (integrations).
                      parameter, flagged data is never included in averaging
                      calculations.
 
-                     The only time keepflags matters is if 
+                     The only time keepflags matters is if
                      1. the input MS has some completely flagged rows
                      and
                      2. time averaging is not being done.
@@ -269,10 +269,10 @@ average over frequency (channels) and time (integrations).
                      be included (subject to the selection parameters).
 
         keepmms -- If true and the input is a multi-MS, make the output one, too.
-	           Otherwise, the output will be a normal MS without partitioning. 
+	           Otherwise, the output will be a normal MS without partitioning.
 		   (experimental)
                    Default: False
 
-</example> 
+</example>
 </task>
 </casaxml>

@@ -143,6 +143,7 @@ metool = _casac.measures
 iatool = _casac.image
 potool = _casac.imagepol
 lmtool= _casac.linearmosaic
+sbstool = _casac.sidebandseparator
 smtool = _casac.simulator
 cltool = _casac.componentlist
 coordsystool = _casac.coordsys
@@ -165,20 +166,16 @@ attool = _casac.atmosphere
 from accum import accum
 from applycal import applycal
 from asdmsummary import asdmsummary
-from autoclean import autoclean
 from bandpass import bandpass
 from blcal import  blcal
-from boxit import  boxit
 from browsetable import  browsetable
 from calstat import  calstat
 from caltabconvert import  caltabconvert
 from clean import  clean
 from clearcal import  clearcal
-from clearplot import  clearplot
 from clearstat import  clearstat
 from concat import  concat
 from conjugatevis import  conjugatevis
-from csvclean import  csvclean
 from cvel import  cvel
 from cvel2 import  cvel2
 from deconvolve import  deconvolve
@@ -187,13 +184,13 @@ from exportasdm import  exportasdm
 from exportfits import  exportfits
 from exportuvfits import  exportuvfits
 from feather import  feather
-from find import  find
 from fixplanets import  fixplanets
 from fixvis import  fixvis
 from flagcmd import  flagcmd
 from flagdata import  flagdata
 from flagmanager import  flagmanager
 from fluxscale import  fluxscale
+from fringefit import  fringefit
 from ft import  ft
 from gaincal import  gaincal
 from gencal import  gencal
@@ -210,7 +207,6 @@ from impbcor import  impbcor
 from importatca import  importatca
 from importasap import  importasap
 from importasdm import  importasdm
-from importevla import  importevla
 from importfits import  importfits
 from importfitsidi import  importfitsidi
 from importgmrt import  importgmrt
@@ -235,16 +231,13 @@ from listpartition import  listpartition
 from listsdm import  listsdm
 from listvis import  listvis
 from makemask import  makemask
-from mosaic import  mosaic
 from mstransform import  mstransform
 from msuvbin import  msuvbin
-from oldhanningsmooth import  oldhanningsmooth
 from oldsplit import  oldsplit
 from plotants import  plotants
 from plotbandpass import  plotbandpass
 from plotcal import  plotcal
 from plotms import  plotms
-from plotuv import  plotuv
 from plotweather import  plotweather
 from plotprofilemap import  plotprofilemap
 from partition import  partition
@@ -259,9 +252,9 @@ from sdfit import  sdfit
 from sdfixscan import  sdfixscan
 from sdgaincal import  sdgaincal
 from sdimaging import  sdimaging
+from sdsidebandsplit import  sdsidebandsplit
 from sdsmooth import  sdsmooth
 from setjy import  setjy
-from ssoflux import  ssoflux
 from simalma import  simalma
 from simobserve import  simobserve
 from simanalyze import  simanalyze
@@ -274,8 +267,8 @@ from splattotable import  splattotable
 from split import  split
 #from split2 import split2
 from spxfit import  spxfit
+from oldstatwt import  oldstatwt
 from statwt import  statwt
-from statwt2 import  statwt2
 from tclean import  tclean
 from tclean2 import  tclean2
 from testconcat import  testconcat
@@ -287,7 +280,4 @@ from wvrgcal import  wvrgcal
 from virtualconcat import  virtualconcat
 from vishead import  vishead
 from visstat import  visstat
-from visstat2 import  visstat2
-from visstatold import  visstatold
 from widebandpbcor import  widebandpbcor
-from widefield import  widefield

@@ -69,6 +69,7 @@
 #include <images/Images/ImageInfo.h>
 #include <lattices/Lattices/LatticeIterator.h>
 #include <lattices/Lattices/LatticeStepper.h>
+
 #include <casa/iostream.h>
 
 #include <iomanip>
@@ -77,8 +78,7 @@ using namespace casacore;
 namespace casa {
 
 ComponentImager::ComponentImager(
-	const SPIIF image, const Record *const &region,
-	const String& mask
+	const SPIIF image, const Record *const &region, const String& mask
 ) : ImageTask<Float>(image, region, mask, "", false),
 	_image(image) {
 	_construct();
@@ -93,11 +93,8 @@ void ComponentImager::modify(Bool verbose) {
 	for (int i = 0; i < nelem; ++i) {
 		mod[i] = _list.component(i);
 	}
-
 	const auto n = mod.size();
-	ThrowIf(
-		n == 0, "There are no components in the model componentlist"
-	);
+	ThrowIf(n == 0, "There are no components in the model componentlist");
 	auto subImage = SubImageFactory<Float>::createSubImageRW(
 		*_image, *this->_getRegion(), this->_getMask(),
 		(verbose ? this->_getLog().get() : nullptr),
@@ -112,7 +109,69 @@ void ComponentImager::modify(Bool verbose) {
 		}
 		cl.add(sky);
 	}
-	project(*subImage, cl);
+    ComponentListImage cli(
+        cl, subImage->coordinates(), subImage->shape(), False
+    );
+    Lattice<Float>* x = &cli;
+    LatticeExpr<Float> expr;
+	const auto& imageUnitName = subImage->units().getName();
+	static const Unit solidAngleUnit("arcsec.arcsec");
+	if (imageUnitName.contains("pixel")) {
+	    // nothing needs to be done
+	}
+	else if (imageUnitName.contains("beam")) {
+	    const auto& imageInfo = subImage->imageInfo();
+	    const auto& csys = subImage->coordinates();
+	    const auto& dc = csys.directionCoordinate();
+	    if (imageInfo.hasSingleBeam()) {
+	        auto f = imageInfo.getBeamAreaInPixels(0, 0, dc);
+	        expr = cli * f;
+	        x = &expr;
+	    }
+	    else if (imageInfo.hasMultipleBeams()) {
+	        auto nchan = imageInfo.nChannels();
+	        auto nstokes = imageInfo.nStokes();
+	        auto freqAxis = csys.spectralAxisNumber(False);
+	        auto stokesAxis = csys.polarizationAxisNumber(False);
+	        auto n = subImage->ndim();
+	        IPosition latShape(n, 1);
+	        auto hasFreq = freqAxis >= 0;
+	        auto hasStokes = stokesAxis >= 0;
+	        if (hasFreq) {
+	            latShape[freqAxis] = nchan;
+	        }
+	        if (hasStokes) {
+	            latShape[stokesAxis] = nstokes;
+	        }
+	        ArrayLattice<Float> beamAreas(latShape);
+	        IPosition pos(n, 0);
+	        for (uInt c=0; c<nchan; ++c) {
+	            if (hasFreq) {
+	                pos[freqAxis] = c;
+	            }
+	            for (uInt s=0; s<nstokes; ++s) {
+	                if (hasStokes) {
+	                    pos[stokesAxis] = s;
+	                }
+	                beamAreas.putAt(imageInfo.getBeamAreaInPixels(c, s, dc), pos);
+	            }
+	        }
+	        expr = cli * beamAreas;
+	        x = &expr;
+	    }
+	    else {
+	        *_getLog() << LogIO::WARN
+	            << "No beam defined even though the image units contain a beam. "
+	            << "Will assume the beam area is one pixel" << LogIO::POST;
+	    }
+	}
+	else {
+	    *_getLog() << LogIO::WARN
+	        << "Image units [" << imageUnitName
+	        << "] are not dimensionally equivalent to Jy/pixel or Jy/beam. "
+	        << "Assuming they are equivalent Jy/pixel" << LogIO::POST;
+	}
+    *subImage += *x;
 }
 
 void ComponentImager::project(ImageInterface<Float>& image, const ComponentList& list) {

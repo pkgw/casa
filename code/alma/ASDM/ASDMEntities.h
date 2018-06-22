@@ -39,6 +39,10 @@
 
 #include <CalAmpliRow.h>
 
+#include <CalAntennaSolutionsRow.h>
+
+#include <CalAppPhaseRow.h>
+
 #include <CalAtmosphereRow.h>
 
 #include <CalBandpassRow.h>
@@ -85,6 +89,10 @@
 
 #include <DelayModelRow.h>
 
+#include <DelayModelFixedParametersRow.h>
+
+#include <DelayModelVariableParametersRow.h>
+
 #include <DopplerRow.h>
 
 #include <EphemerisRow.h>
@@ -120,6 +128,8 @@
 #include <PolarizationRow.h>
 
 #include <ProcessorRow.h>
+
+#include <PulsarRow.h>
 
 #include <ReceiverRow.h>
 
@@ -167,6 +177,10 @@
 
 #include <CalAmpliTable.h>
 
+#include <CalAntennaSolutionsTable.h>
+
+#include <CalAppPhaseTable.h>
+
 #include <CalAtmosphereTable.h>
 
 #include <CalBandpassTable.h>
@@ -213,6 +227,10 @@
 
 #include <DelayModelTable.h>
 
+#include <DelayModelFixedParametersTable.h>
+
+#include <DelayModelVariableParametersTable.h>
+
 #include <DopplerTable.h>
 
 #include <EphemerisTable.h>
@@ -248,6 +266,8 @@
 #include <PolarizationTable.h>
 
 #include <ProcessorTable.h>
+
+#include <PulsarTable.h>
 
 #include <ReceiverTable.h>
 

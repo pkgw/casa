@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <Angle.h>
 	
 
 	 
-#include <Angle.h>
+#include <ArrayTime.h>
 	
 
 	 
@@ -116,7 +116,7 @@
 //#include <TableStreamReader.h>
 
 /*\file CalPointingModel.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -138,7 +138,7 @@ typedef void (CalPointingModelRow::*CalPointingModelAttributeFromText) (const st
 /**
  * The CalPointingModelRow class is a row of a CalPointingModelTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class CalPointingModelRow {

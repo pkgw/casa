@@ -52,6 +52,7 @@
 #include <ms/MeasurementSets/MeasurementSet.h>
 
 #include <synthesis/ImagerObjects/SIImageStore.h>
+#include <synthesis/ImagerObjects/SDMaskHandler.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
 #include <synthesis/TransformMachines/Utils.h>
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
@@ -223,15 +224,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	SHARED_PTR<ImageInterface<Float> > imptr;
 	if( doesImageExist(itsImageName+String(".psf")) )
 	  {
-	    imptr.reset( new PagedImage<Float> (itsImageName+String(".psf")) );
+	    //	    imptr.reset( new PagedImage<Float> (itsImageName+String(".psf")) );
+	    buildImage( imptr, (itsImageName+String(".psf")) );
+            itsObjectName=imptr->imageInfo().objectName();
 	    itsMiscInfo=imptr->miscInfo();
 	  }
 	else if ( doesImageExist(itsImageName+String(".residual")) ){
-	  imptr.reset( new PagedImage<Float> (itsImageName+String(".residual")) );
+	  //imptr.reset( new PagedImage<Float> (itsImageName+String(".residual")) );
+	  buildImage( imptr, (itsImageName+String(".residual")) );
+          itsObjectName=imptr->imageInfo().objectName();
 	  itsMiscInfo=imptr->miscInfo();
 	}
-	else 
-	  imptr.reset( new PagedImage<Float> (itsImageName+String(".gridwt")) );
+	else
+	  { 
+	  //imptr.reset( new PagedImage<Float> (itsImageName+String(".gridwt")) );
+	    buildImage( imptr, (itsImageName+String(".gridwt")) );
+	  }
 	  
 	itsImageShape = imptr->shape();
 	itsCoordSys = imptr->coordinates();
@@ -249,7 +257,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if( doesImageExist(itsImageName+String(".sumwt"))  )
       {
 	SHARED_PTR<ImageInterface<Float> > imptr;
-	imptr.reset( new PagedImage<Float> (itsImageName+String(".sumwt")) );
+	//imptr.reset( new PagedImage<Float> (itsImageName+String(".sumwt")) );
+	buildImage( imptr, (itsImageName+String(".sumwt")) );
 	itsNFacets = imptr->shape()[0];
 	itsFacetId = 0;
 	itsUseWeight = getUseWeightImage( *imptr );
@@ -475,7 +484,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }// overwrite existing image
 	else // open existing image ( Always tries this )
 	  {
-	    if(Table::isWritable( imagenamefull ))
+	    if(1) //Table::isWritable( imagenamefull ))
 	      {
 		if(dbg) cout << "Trying to open existing image : "<< imagenamefull << endl;
 		try{
@@ -558,20 +567,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return imPtr;
   }
 
-
-  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr,IPosition shape, CoordinateSystem csys, String name)
+  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, IPosition shape,
+                                CoordinateSystem csys, const String name)
   {
+    LogIO os( LogOrigin("SIImageStore", "Open non-existing image", WHERE) );
+    os  <<"Opening image, name: " << name << LogIO::DEBUG1;
+
     itsOpened++;
     imptr.reset( new PagedImage<Float> (shape, csys, name) );
-    
-    ImageInfo info = imptr->imageInfo();
-    String objectName("");
-    if( itsMiscInfo.isDefined("OBJECT") ){ itsMiscInfo.get("OBJECT", objectName); }
-    if(objectName != String("")){
-      info.setObjectName(objectName);
-      imptr->setImageInfo( info );
-    }
-    imptr->setMiscInfo( itsMiscInfo );
+    initMetaInfo(imptr, name);
+
     /*
     Int MEMFACTOR = 18;
     Double memoryMB=HostInfo::memoryTotal(True)/1024/(MEMFACTOR*itsOpened);
@@ -587,11 +592,46 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     */
   }
 
-  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, String name)
+  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, const String name)
   {
+    LogIO os(LogOrigin("SIImageStore", "Open existing Images", WHERE));
+    os  <<"Opening image, name: " << name << LogIO::DEBUG1;
 
     itsOpened++;
-    imptr.reset( new PagedImage<Float>( name ) );
+    //imptr.reset( new PagedImage<Float>( name ) );
+
+        LatticeBase* latt =ImageOpener::openImage(name);
+    if(!latt)
+      {
+	throw(AipsError("Error in opening Image : "+name));
+      }
+    DataType dtype=latt->dataType();
+    if(dtype==TpFloat)
+      {
+	imptr.reset(dynamic_cast<ImageInterface<Float>* >(latt));
+      }
+    else
+      {
+	throw AipsError( "Need image to have float values :  "+name);
+      }
+
+    /*    
+    SHARED_PTR<casacore::ImageInterface<Float> > fim;
+    SHARED_PTR<casacore::ImageInterface<Complex> > cim;
+
+    std::tie(fim , cim)=ImageFactory::fromFile(name);
+    if(fim)
+      {
+	imptr.reset( dynamic_cast<SHARED_PTR<casacore::ImageInterface<Float> > >(*fim) );
+      }
+    else
+      {
+	throw( AipsError("Cannot open with ImageFactory : "+name));
+      }
+    */
+
+
+
 
     /*
     IPosition cimageShape;
@@ -601,12 +641,40 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
+  /**
+   * Sets ImageInfo and MiscInfo on an image
+   *
+   * @param imptr image to initialize
+   */
+  void SIImageStore::initMetaInfo(SHARED_PTR<ImageInterface<Float> > &imptr,
+                                  const String name)
+  {
+      // Check objectname, as one of the mandatory fields. What this is meant to check is -
+      // has the metainfo been initialized? If not, grab info from associated PSF
+      if (not itsObjectName.empty()) {
+          ImageInfo info = imptr->imageInfo();
+          info.setObjectName(itsObjectName);
+          imptr->setImageInfo(info);
+          imptr->setMiscInfo(itsMiscInfo);
+      } else if (std::string::npos == name.find(imageExts(PSF))) {
+          auto srcImg = psf(0);
+          if (nullptr != srcImg) {
+              imptr->setImageInfo(srcImg->imageInfo());
+              imptr->setMiscInfo(srcImg->miscInfo());
+          }
+      }
+  }
 
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  void SIImageStore::setImageInfo(const Record miscinfo)
+  void SIImageStore::setMiscInfo(const Record miscinfo)
   {
     itsMiscInfo = miscinfo;
+  }
+
+  void SIImageStore::setObjectName(const String name)
+  {
+    itsObjectName = name;
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1961,6 +2029,7 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
     //// If rbeam is Null but usebeam=='common', calculate a common beam and set 'rbeam'
     //// If rbeam is given (or exists due to 'common'), just use it.
     if( rbeam.isNull() && usebeam=="common") {
+      os << "Getting common beam" << LogIO::POST;
       rbeam = CasaImageBeamSet(itsPSFBeams).getCommonBeam();
     }
     if( !rbeam.isNull() ) {
@@ -1972,6 +2041,9 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
       }//for polid
       */
       itsRestoredBeams=ImageBeamSet(rbeam);
+      GaussianBeam beam = itsRestoredBeams.getBeam();
+      os << "Common Beam : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
+
     }// if rbeam not NULL
     //// Done modifying beamset if needed
 
@@ -1994,7 +2066,8 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 
 
 	GaussianBeam beam = itsRestoredBeams.getBeam( chanid, polid );;
-	
+	os << "Common Beam for chan : " << chanid << " : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
+
 	try
 	  {
 	    // Initialize restored image
@@ -2037,7 +2110,17 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 
 	//	if(hasPB()){copyMask(residual(term),image(term));}
 	ImageInfo iminf = image(term)->imageInfo();
-        iminf.setBeams( itsRestoredBeams);
+        //iminf.setBeams( itsRestoredBeams);
+
+	os << "Beam Set : Single beam : " << itsRestoredBeams.hasSingleBeam() << "  Multi-beam : " << itsRestoredBeams.hasMultiBeam() << LogIO::DEBUG2;
+
+	iminf.removeRestoringBeam();
+
+	if( itsRestoredBeams.hasSingleBeam() )
+	  { iminf.setRestoringBeam( itsRestoredBeams.getBeam() );}
+	else
+	  {iminf.setBeams( itsRestoredBeams);}
+
 	image(term)->setImageInfo(iminf);
  
       }
@@ -2666,6 +2749,9 @@ Array<Double> SIImageStore::calcRobustRMS()
   Record*  regionPtr=0;
   String LELmask("");
  
+  Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+
+  /***
   ImageStatsCalculator imcalc( residual(), regionPtr, LELmask, False); 
 
   Vector<Int> axes(2);
@@ -2675,15 +2761,16 @@ Array<Double> SIImageStore::calcRobustRMS()
   imcalc.setRobust(True);
   Record thestats = imcalc.statistics();
   //cout<<"thestats="<<thestats<<endl;
+  ***/
 
   Array<Double> maxs, rmss, mads;
   thestats.get(RecordFieldId("max"), maxs);
   thestats.get(RecordFieldId("rms"), rmss);
   thestats.get(RecordFieldId("medabsdevmed"), mads);
   
-  os << "Max : " << maxs << LogIO::POST;
-  os << "RMS : " << rmss << LogIO::POST;
-  os << "MAD : " << mads << LogIO::POST;
+  os << LogIO::DEBUG1 << "Max : " << maxs << LogIO::POST;
+  os << LogIO::DEBUG1 << "RMS : " << rmss << LogIO::POST;
+  os << LogIO::DEBUG1 << "MAD : " << mads << LogIO::POST;
   
   return mads*1.4826;
 }

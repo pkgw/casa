@@ -26,6 +26,7 @@
 //# $Id: $
 #include <plotms/Data/MSCache.h>
 #include <plotms/Data/PlotMSIndexer.h>
+#include <plotms/Data/PlotMSAtm.h>
 
 #include <casa/OS/Timer.h>
 #include <casa/OS/Memory.h>
@@ -126,7 +127,7 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
         logWarn(PMS::LOG_ORIGIN_LOAD_CACHE, "Scalar averaging ignored: no other averaging is enabled.");
     averaging_.setScalarAve(useScalarAve);
 
-	if ( averaging_.baseline() || averaging_.antenna() || useScalarAve) {
+	if ( averaging_.baseline() || averaging_.antenna() || averaging_.spw() || useScalarAve) {
         // Averaging with PlotMSVBAverager
         // Create visibility iterator vi_p
         setUpVisIter(selection_, calibration_, dataColumn_, 
@@ -167,6 +168,7 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
 	completeLoadPageHeaderCache();
 
 	deleteVi(); // close any open tables
+    deleteAtm();
 }
 
 void MSCache::loadError(String mesg) {
@@ -174,6 +176,7 @@ void MSCache::loadError(String mesg) {
 	logLoad(mesg);
 	clear();
 	deleteVi();  // close any open tables
+    deleteAtm();
 	stringstream ss;
 	ss << mesg;
 	throw(AipsError(ss.str()));
@@ -282,12 +285,12 @@ String MSCache::getDataColumn(vector<PMS::Axis>& loadAxes,
 PMS::DataColumn MSCache::checkReqDataColumn(PMS::DataColumn reqDataCol) {
 	// Check if requested data, scratch, or float cols exist
     PMS::DataColumn datacol = reqDataCol;
-	Bool datacolOk(false), corcolOk(false), floatcolOk(false);
 	Table thisTable(filename_);
 	const ColumnDescSet cds = thisTable.tableDesc().columnDescSet();
-	datacolOk  = cds.isDefined("DATA");
-	corcolOk   = cds.isDefined("CORRECTED_DATA");
-	floatcolOk = cds.isDefined("FLOAT_DATA");
+	Bool datacolOk(cds.isDefined("DATA")), 
+		corrcolOk(cds.isDefined("CORRECTED_DATA") || calibration_.useCallib()),
+		modelcolOk(cds.isDefined("MODEL_DATA")),
+		floatcolOk(cds.isDefined("FLOAT_DATA"));
 
     switch (reqDataCol) {
         case PMS::DATA: {
@@ -298,33 +301,80 @@ PMS::DataColumn MSCache::checkReqDataColumn(PMS::DataColumn reqDataCol) {
             }
             break;
         }
-        case PMS::CORRECTED:
-        case PMS::CORRECTED_DIVIDE_MODEL:
-        case PMS::CORRMODEL: {
+        case PMS::CORRECTED: {
             // requested corrected data but no (real or OTF) corrected column
-            if (!corcolOk && !calibration_.useCallib()) {
+            if (!corrcolOk) {
                 if (datacolOk) {
                     // CAS-5214 - use DATA if no CORRECTED_DATA with warning
                     datacol = PMS::DATA;
-                    logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set or enabled; will use DATA instead.");
+                    logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set/enabled; will use DATA instead of CORRECTED or residuals.");
                 } else if (floatcolOk) {
                     // CAS-7761 - for singledish, use FLOAT if no CORRECTED or DATA
                     datacol = PMS::FLOAT_DATA;
-                    logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set or enabled; will use FLOAT_DATA instead.");
+                    logWarn( "load_cache", "CORRECTED_DATA column not present and callibration library not set/enabled; will use FLOAT_DATA instead of CORRECTED or residuals.");
                 }
-            }
-            break;
+				break;
+            } 
+			break;
         }
+		case PMS::MODEL: {
+			if (floatcolOk && !modelcolOk) {
+				// model not auto-generated for singledish
+               	throw(AipsError("MODEL_DATA not present; use FLOAT_DATA."));
+			}
+			break;
+		}
+        case PMS::CORRECTED_DIVIDE_MODEL:
+        case PMS::CORRMODEL: {
+            // requested corrected residuals but no (real or OTF) corrected column
+            if (!corrcolOk) {
+                if (datacolOk) {
+					if (reqDataCol==PMS::CORRECTED_DIVIDE_MODEL) {
+                    	datacol = PMS::DATA_DIVIDE_MODEL;
+                    	logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set/enabled");
+						logWarn("load_cache", "Using data/model instead of corrected/model.");
+					} else {
+						datacol = PMS::DATAMODEL;
+                    	logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set/enabled");
+						logWarn("load_cache", "Using data-model instead of corrected-model.");
+					}
+				} else {
+               		throw(AipsError("CORRECTED_DATA not present for residuals; use FLOAT_DATA."));
+				}
+				break;
+			}
+			if (floatcolOk && !modelcolOk) { 
+				// residuals requested for singledish; model not auto-generated
+               	throw(AipsError("MODEL_DATA not present for residuals; use CORRECTED_DATA or FLOAT_DATA."));
+            	break;
+			}
+			break;
+		}
+        case PMS::DATAMODEL:
+		case PMS::DATA_DIVIDE_MODEL: {
+			if (floatcolOk) {
+				if (!modelcolOk) {
+					// model not auto-generated for singledish
+               		throw(AipsError("MODEL_DATA not present; use FLOAT_DATA."));
+				} else {
+					// If model columns added to singledish (future),
+					// create FLOATMODEL and FLOAT_DIVIDE_MODEL columns to use instead
+					// But for now...
+               		throw(AipsError("DATA not present, cannot plot these residuals."));
+				}
+			}
+			break;
+		}
         case PMS::FLOAT_DATA: {
             // requested float data but no FLOAT column 
-            if (!floatcolOk) {
-                throw(AipsError("FLOAT_DATA not present, please use DATA"));
+            if (!floatcolOk && datacolOk) {
+                throw(AipsError("FLOAT_DATA not present; use DATA"));
             }
             break;
         }
         default:
             break;
-    } // switch
+    }
     return datacol;
 }
 
@@ -362,7 +412,7 @@ String MSCache::checkLoadedAxesDatacol() {
 String MSCache::normalizeColumnName(String plotmscol)
 {
 	// Convert datacolumn as needed for MSTransformManager
-    String colname = plotmscol;
+	String colname = plotmscol;
 	if ((plotmscol == "corrected-model") || 
 	    (plotmscol == "data-model") ||
 	    (plotmscol == "data/model") || 
@@ -370,7 +420,7 @@ String MSCache::normalizeColumnName(String plotmscol)
 			colname = "ALL";
 	} else if (plotmscol == "float") {
 		colname = "FLOAT_DATA";
-	} else {   // "data", "corrected", "model"	
+	} else {   // "data", "corrected", "model"
 		colname.upcase();
 	}
 	return colname;
@@ -412,6 +462,7 @@ void MSCache::setUpVisIter(PlotMSSelection& selection,
 	// Start with data selection; rename fields with expected keywords
 	Record configuration = selection.toRecord();
 	configuration.renameField("correlation", configuration.fieldNumber("corr"));
+	configuration.renameField("taql", configuration.fieldNumber("msselect"));
 
 	// Add needed fields
 	configuration.define("inputms", filename_);
@@ -441,8 +492,8 @@ void MSCache::setUpVisIter(PlotMSSelection& selection,
 		    configuration.define("timeaverage", true);
 		    String timespanStr = "state";
 		    if (averaging_.field())
-			    timespanStr += ",scan,field";
-		    else if (averaging_.scan())
+			    timespanStr += ",field";
+		    if (averaging_.scan())
 			    timespanStr += ",scan";
 		    configuration.define("timespan", timespanStr);
         }
@@ -467,7 +518,9 @@ void MSCache::setUpVisIter(PlotMSSelection& selection,
         configuration.define("spwaverage", true);
     }
 
-    LogFilter oldFilter(plotms_->getParameters().logPriority());
+    LogFilter oldFilter(LogMessage::NORMAL);
+	if (plotms_ != nullptr)
+    	LogFilter oldFilter(plotms_->getParameters().logPriority());
 	MSTransformIteratorFactory* factory = NULL;
 	try {
         // Filter out MSTransformManager setup messages
@@ -563,7 +616,7 @@ void MSCache::updateEstimateProgress(ThreadCommunication* thread) {
 bool MSCache::countChunks(vi::VisibilityIterator2& vi,
         Vector<Int>& nIterPerAve,
         vector<PMS::Axis>& loadAxes,
-		vector<PMS::DataColumn>& loadData, 
+        vector<PMS::DataColumn>& loadData, 
         ThreadCommunication* thread) {
     // Let plotms count the chunks for memory estimation 
     //   when baseline/antenna/spw/scalar averaging
@@ -714,16 +767,16 @@ void MSCache::trapExcessVolume(map<PMS::Axis,Bool> pendingLoadAxes) {
 			}
 			s = vm_->evalVolume(pendingLoadAxes, mask);
 		}
-        logLoad(s);
+		logLoad(s);
 	} catch(AipsError& log) {
 		// catch detected volume excess, clear the existing cache, and rethrow
 		logLoad(log.getMesg());
 		deleteVm();
 		stringstream ss;
-        ss << "Estimated cache exceeds limits." << endl
-           << "Please try using data selection, averaging," << endl
-           << "checking 'Reload' (to clear unneeded cache items)," << endl
-		   << "or letting other memory-intensive processes finish.";
+		ss << "Estimated cache exceeds limits." << endl
+			<< "Please try using data selection, averaging," << endl
+			<< "checking 'Reload' (to clear unneeded cache items),"
+			<< "or letting other memory-intensive processes finish.";
 		throw(AipsError(ss.str()));
 	}
 }
@@ -736,7 +789,7 @@ void MSCache::updateProgress(ThreadCommunication* thread, Int chunk) {
 				" / " + String::toString(nChunk_) + ".");
 		progress = ((double)chunk+1) / nChunk_;
 		thread->setProgress((unsigned int)((progress * 100) + 0.5));
-    }
+	}
 }
 
 void MSCache::loadChunks(vi::VisibilityIterator2& vi,
@@ -768,7 +821,7 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 	if (freqFrame_ == MFrequency::N_Types)
 		freqFrame_ = static_cast<MFrequency::Types>(vi.getReportingFrameOfReference());
 
-	Int chunk = 0;
+	Int chunk(0), lastscan(0), thisscan(0), lastspw(-1), thisspw(0);
 	chshapes_.resize(4,nChunk_);
 	goodChunk_.resize(nChunk_);
 	goodChunk_.set(false);
@@ -801,8 +854,27 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
                         return;
                     }
                     loadAxis(vb, chunk, loadAxes[i], loadData[i]);
+                    if (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY) {
+                        thisscan = vb->scan()(0);
+                        if (thisscan != lastscan) {
+                            printAtmStats(thisscan);
+                            lastscan = thisscan;
+                        }
+                        thisspw = vb->spectralWindows()(0);
+                        if (thisspw != lastspw) {
+                            uInt vectorsize = ( loadAxes[i]==PMS::ATM ?
+                                (*atm_[chunk]).nelements() :
+                                (*tsky_[chunk]).nelements());
+                            if (vectorsize==1) {
+                                logWarn("load_cache", "Setting " + 
+                                  PMS::axis(loadAxes[i]) + " for spw " +
+                                  String::toString(thisspw) +
+                                  " to zero because it has only one channel.");
+                            }
+                            lastspw = thisspw;
+                        }
+                    }
                 }
-
                 chunk++;
             }
 		}
@@ -844,7 +916,9 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
     goodChunk_.resize(nChunk_);
     goodChunk_.set(false);
     Int nAnts;
-    vi::VisBuffer2* vbToUse = NULL;
+    vi::VisBuffer2* vbToUse(NULL);
+    casacore::Int lastscan(0), thisscan(0);  // for printing atm stats
+    casacore::Int lastspw(-1), thisspw(0);  // for printing ATM/TSKY warning 
 
     for (Int chunk=0; chunk<nChunk_; ++chunk) {
         if (chunk >= nChunk_) {  // nChunk_ was just an estimate!
@@ -881,6 +955,7 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
             }
             // Accumulate into the averager
             pmsvba.accumulate(*vb);
+            
 
             // Advance to next VB unless you are going to finalize
             if (iter+1 < nIterPerAve(chunk)) {
@@ -925,6 +1000,26 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
                     vbToUse = vb;
                 }
                 loadAxis(vbToUse, chunk, loadAxes[i], loadData[i]);
+                if (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY) {
+                    thisscan = vbToUse->scan()(0);
+                    if (thisscan != lastscan) {
+                        printAtmStats(thisscan);
+                        lastscan = thisscan;
+                    }
+                    thisspw = vbToUse->spectralWindows()(0);
+                    if (thisspw != lastspw) {
+                        uInt vectorsize = ( loadAxes[i]==PMS::ATM ?
+                            (*atm_[chunk]).nelements() :
+                            (*tsky_[chunk]).nelements());
+                        if (vectorsize==1) {
+                            logWarn("load_cache", "Setting " + 
+                              PMS::axis(loadAxes[i]) + " for spw " +
+                              String::toString(thisspw) +
+                              " to zero because it has only one channel.");
+                        }
+                        lastspw = thisspw;
+                    } 
+                }
             }
         } else {
             // no points in this chunk
@@ -968,7 +1063,9 @@ bool MSCache::useAveragedVisBuffer(PMS::Axis axis) {
 	case PMS::AZIMUTH:
 	case PMS::ELEVATION:
 	case PMS::PARANG:
-	case PMS::ROW: {
+	case PMS::ROW:
+	case PMS::ATM:
+	case PMS::TSKY: {
 		useAvg = false;
 		break;
 	}
@@ -1471,22 +1568,22 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		}
 		case PMS::CORRMODEL: {
 			*realCorrModel_[vbnum] = 
-                real(vb->visCubeCorrected()) - real(vb->visCubeModel());
+                real(vb->visCubeCorrected()- vb->visCubeModel());
 			break;
 		}
 		case PMS::DATAMODEL: {
 			*realDataModel_[vbnum] = 
-                real(vb->visCube()) - real(vb->visCubeModel());
+                real(vb->visCube() - vb->visCubeModel());
 			break;
 		}
 		case PMS::DATA_DIVIDE_MODEL: {
 			*realDataDivModel_[vbnum] = 
-                real(vb->visCube()) / real(vb->visCubeModel());
+                real(vb->visCube() / vb->visCubeModel());
 			break;
 		}
 		case PMS::CORRECTED_DIVIDE_MODEL: {
 			*realCorrDivModel_[vbnum] = 
-                real(vb->visCubeCorrected()) / real(vb->visCubeModel());
+                real(vb->visCubeCorrected() / vb->visCubeModel());
 			break;
 		}
 		case PMS::FLOAT_DATA: {
@@ -1512,22 +1609,22 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		}
 		case PMS::CORRMODEL: {
 			*imagCorrModel_[vbnum] = 
-                imag(vb->visCubeCorrected()) - imag(vb->visCubeModel());
+                imag(vb->visCubeCorrected() - vb->visCubeModel());
 			break;
 		}
 		case PMS::DATAMODEL: {
 			*imagDataModel_[vbnum] = 
-                imag(vb->visCube()) - imag(vb->visCubeModel());
+                imag(vb->visCube() - vb->visCubeModel());
 			break;
 		}
 		case PMS::DATA_DIVIDE_MODEL: {
 			*imagDataDivModel_[vbnum] = 
-                imag(vb->visCube()) / imag(vb->visCubeModel());
+                imag(vb->visCube() / vb->visCubeModel());
 			break;
 		}
 		case PMS::CORRECTED_DIVIDE_MODEL: {
 			*imagCorrDivModel_[vbnum] = 
-                imag(vb->visCubeCorrected()) / imag(vb->visCubeModel());
+                imag(vb->visCubeCorrected() / vb->visCubeModel());
 			break;
 		}
 		case PMS::FLOAT_DATA:  // should have caught this already
@@ -1586,7 +1683,7 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		}
 		case PMS::CORRMODEL: {
 			*wtxampCorrModel_[vbnum] = 
-                amplitude(vb->visCubeCorrected() - vb->visCube());
+                amplitude(vb->visCubeCorrected() - vb->visCubeModel());
 		    Cube<Float> wtA(*wtxampCorrModel_[vbnum]);
 		    for(uInt c = 0; c < nchannels; ++c) {
 			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
@@ -1720,17 +1817,43 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		break;
 	}
 
+    case PMS::ATM:
+    case PMS::TSKY: {
+        casacore::Int spw = vb->spectralWindows()(0);
+        casacore::Int scan = vb->scan()(0);
+        casacore::Array<casacore::Double> chanFreqGHz =
+            vb->getFrequencies(0, freqFrame_)/1e9;
+        casacore::Vector<casacore::Double> curve(1, 0.0);
+        bool isAtm = (axis==PMS::ATM);
+        if (plotmsAtm_) {
+            curve.resize();    
+            curve = plotmsAtm_->calcOverlayCurve(spw, scan, chanFreqGHz,
+                    isAtm);
+        }
+        if (isAtm) 
+            *atm_[vbnum] = curve;
+        else
+            *tsky_[vbnum] = curve;
+        break;
+    }
 	default: {
 		throw(AipsError("Axis choice not supported for MS"));
 		break;
 	}
-	}
+	} // end switch
 }
 
 bool MSCache::isEphemeris(){
 	if ( !ephemerisInitialized ){
-	        Table::TableOption tabopt(Table::Old);
-		MeasurementSet ms(filename_,TableLock(TableLock::AutoLocking), tabopt);
+		Table::TableOption tabopt(Table::Old);
+		MeasurementSet ms;
+		try {
+			ms = MeasurementSet(filename_,TableLock(TableLock::AutoLocking), 
+					tabopt);
+		} catch (AipsError& err) {
+			throw(AipsError("MeasurementSet setup failed.\n" + err.getMesg()));
+		}
+
 		ROMSColumns msc(ms);
 
                 // Check the field subtable for ephemeris fields

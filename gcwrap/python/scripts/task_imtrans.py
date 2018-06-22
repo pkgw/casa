@@ -63,17 +63,28 @@
 
 ###########################################################################
 from taskinit import *
+from ialib import write_image_history
 
 def imtrans(imagename, outfile, order):
     casalog.origin('imtrans')
     myia = iatool()
-    mynewim = None
+    myia.dohistory(False)
+    outia = None
     try:
         if (not myia.open(imagename)):
             raise Exception, "Cannot create image analysis tool using " + imagename
         if (len(outfile) == 0):
             raise Exception, "outfile parameter must be specified."
-        mynewim = myia.transpose(outfile=outfile, order=order)
+        outia = myia.transpose(outfile=outfile, order=order)
+        try:
+            param_names = imtrans.func_code.co_varnames[:imtrans.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]   
+            write_image_history(
+                outia, sys._getframe().f_code.co_name,
+                param_names, param_vals, casalog
+            )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
     except Exception, instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
@@ -81,5 +92,5 @@ def imtrans(imagename, outfile, order):
     finally:
         if myia:
             myia.done()
-        if mynewim:
-            mynewim.done()
+        if outia:
+            outia.done()

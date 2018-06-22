@@ -42,6 +42,8 @@
 
 #include <CalAmpliTable.h>
 
+#include <CalAntennaSolutionsTable.h>
+
 #include <CalAppPhaseTable.h>
 
 #include <CalAtmosphereTable.h>
@@ -130,6 +132,8 @@
 
 #include <ProcessorTable.h>
 
+#include <PulsarTable.h>
+
 #include <ReceiverTable.h>
 
 #include <SBSummaryTable.h>
@@ -176,6 +180,8 @@ using asdm::AnnotationTable;
 using asdm::AntennaTable;
 
 using asdm::CalAmpliTable;
+
+using asdm::CalAntennaSolutionsTable;
 
 using asdm::CalAppPhaseTable;
 
@@ -265,6 +271,8 @@ using asdm::PolarizationTable;
 
 using asdm::ProcessorTable;
 
+using asdm::PulsarTable;
+
 using asdm::ReceiverTable;
 
 using asdm::SBSummaryTable;
@@ -353,6 +361,10 @@ namespace asdm {
 		calAmpli = new CalAmpliTable (*this);
 		table.push_back(calAmpli);
 		tableEntity["CalAmpli"] = emptyEntity;
+
+		calAntennaSolutions = new CalAntennaSolutionsTable (*this);
+		table.push_back(calAntennaSolutions);
+		tableEntity["CalAntennaSolutions"] = emptyEntity;
 
 		calAppPhase = new CalAppPhaseTable (*this);
 		table.push_back(calAppPhase);
@@ -530,6 +542,10 @@ namespace asdm {
 		table.push_back(processor);
 		tableEntity["Processor"] = emptyEntity;
 
+		pulsar = new PulsarTable (*this);
+		table.push_back(pulsar);
+		tableEntity["Pulsar"] = emptyEntity;
+
 		receiver = new ReceiverTable (*this);
 		table.push_back(receiver);
 		tableEntity["Receiver"] = emptyEntity;
@@ -676,6 +692,14 @@ namespace asdm {
 	 */
 	CalAmpliTable & ASDM::getCalAmpli () const {
 		return *calAmpli;
+	}
+
+	/**
+	 * Get the table CalAntennaSolutions.
+	 * @return The table CalAntennaSolutions as a CalAntennaSolutionsTable.
+	 */
+	CalAntennaSolutionsTable & ASDM::getCalAntennaSolutions () const {
+		return *calAntennaSolutions;
 	}
 
 	/**
@@ -1031,6 +1055,14 @@ namespace asdm {
 	}
 
 	/**
+	 * Get the table Pulsar.
+	 * @return The table Pulsar as a PulsarTable.
+	 */
+	PulsarTable & ASDM::getPulsar () const {
+		return *pulsar;
+	}
+
+	/**
 	 * Get the table Receiver.
 	 * @return The table Receiver as a ReceiverTable.
 	 */
@@ -1297,6 +1329,8 @@ namespace asdm {
 		
 		result->calAmpli = *(this->calAmpli->toIDL());
 		
+		result->calAntennaSolutions = *(this->calAntennaSolutions->toIDL());
+		
 		result->calAppPhase = *(this->calAppPhase->toIDL());
 		
 		result->calAtmosphere = *(this->calAtmosphere->toIDL());
@@ -1385,6 +1419,8 @@ namespace asdm {
 		
 		result->processor = *(this->processor->toIDL());
 		
+		result->pulsar = *(this->pulsar->toIDL());
+		
 		result->receiver = *(this->receiver->toIDL());
 		
 		result->sBSummary = *(this->sBSummary->toIDL());
@@ -1433,6 +1469,8 @@ namespace asdm {
 		this->antenna->fromIDL(x->antenna);
 		
 		this->calAmpli->fromIDL(x->calAmpli);
+		
+		this->calAntennaSolutions->fromIDL(x->calAntennaSolutions);
 		
 		this->calAppPhase->fromIDL(x->calAppPhase);
 		
@@ -1521,6 +1559,8 @@ namespace asdm {
 		this->polarization->fromIDL(x->polarization);
 		
 		this->processor->fromIDL(x->processor);
+		
+		this->pulsar->fromIDL(x->pulsar);
 		
 		this->receiver->fromIDL(x->receiver);
 		
@@ -1819,6 +1859,43 @@ namespace asdm {
 			
 			// And finally parse the XML document to populate the table.	
 			dataset->getCalAmpli().fromXML(tableDoc);						
+		}
+
+		entity = dataset->tableEntity["CalAntennaSolutions"];
+		if (entity.getEntityId().getId().length()  != 0) {
+			// Which file must we read ?
+			string tablename = xmlDirectory + "/CalAntennaSolutions.xml";
+
+			// Determine the file size
+			ifstream::pos_type size;	
+			ifstream tablein (tablename.c_str() , ios::in|ios::binary|ios::ate);
+  			if (tablein.is_open()) { 
+  				size = tablein.tellg(); 
+  			}
+			else {
+				throw ConversionException("Could not open file " + tablename, "CalAntennaSolutions");
+			}
+			
+			// Read the file in a string
+			string tableDoc;
+
+			tableDoc.reserve(size);
+			tablein.seekg (0);	
+			int nread = BLOCKSIZE;	
+			while (nread == BLOCKSIZE) {
+				tablein.read(c, BLOCKSIZE);
+				if (tablein.rdstate() == istream::failbit || tablein.rdstate() == istream::badbit) {
+					throw ConversionException("Error reading file " + tablename,"ASDM");
+				}
+				nread = tablein.gcount();
+				tableDoc.append(c, nread);
+			}
+			tablein.close();
+			if (tablein.rdstate() == istream::failbit)
+				throw ConversionException("Could not close file " + tablename,"ASDM");
+			
+			// And finally parse the XML document to populate the table.	
+			dataset->getCalAntennaSolutions().fromXML(tableDoc);						
 		}
 
 		entity = dataset->tableEntity["CalAppPhase"];
@@ -3449,6 +3526,43 @@ namespace asdm {
 			dataset->getProcessor().fromXML(tableDoc);						
 		}
 
+		entity = dataset->tableEntity["Pulsar"];
+		if (entity.getEntityId().getId().length()  != 0) {
+			// Which file must we read ?
+			string tablename = xmlDirectory + "/Pulsar.xml";
+
+			// Determine the file size
+			ifstream::pos_type size;	
+			ifstream tablein (tablename.c_str() , ios::in|ios::binary|ios::ate);
+  			if (tablein.is_open()) { 
+  				size = tablein.tellg(); 
+  			}
+			else {
+				throw ConversionException("Could not open file " + tablename, "Pulsar");
+			}
+			
+			// Read the file in a string
+			string tableDoc;
+
+			tableDoc.reserve(size);
+			tablein.seekg (0);	
+			int nread = BLOCKSIZE;	
+			while (nread == BLOCKSIZE) {
+				tablein.read(c, BLOCKSIZE);
+				if (tablein.rdstate() == istream::failbit || tablein.rdstate() == istream::badbit) {
+					throw ConversionException("Error reading file " + tablename,"ASDM");
+				}
+				nread = tablein.gcount();
+				tableDoc.append(c, nread);
+			}
+			tablein.close();
+			if (tablein.rdstate() == istream::failbit)
+				throw ConversionException("Could not close file " + tablename,"ASDM");
+			
+			// And finally parse the XML document to populate the table.	
+			dataset->getPulsar().fromXML(tableDoc);						
+		}
+
 		entity = dataset->tableEntity["Receiver"];
 		if (entity.getEntityId().getId().length()  != 0) {
 			// Which file must we read ?
@@ -4087,7 +4201,7 @@ namespace asdm {
 		;
 	}
 	
-	void ASDM::setFromMIME(const string & mimeMsg) {
+	void ASDM::setFromMIME(const string & /* mimeMsg */) {
 		// To be implemented
 		;
 	}
@@ -4143,6 +4257,10 @@ namespace asdm {
 	
 		if (getCalAmpli().size() > 0) {
 			getCalAmpli().toFile(directory);
+		}
+	
+		if (getCalAntennaSolutions().size() > 0) {
+			getCalAntennaSolutions().toFile(directory);
 		}
 	
 		if (getCalAppPhase().size() > 0) {
@@ -4321,6 +4439,10 @@ namespace asdm {
 			getProcessor().toFile(directory);
 		}
 	
+		if (getPulsar().size() > 0) {
+			getPulsar().toFile(directory);
+		}
+	
 		if (getReceiver().size() > 0) {
 			getReceiver().toFile(directory);
 		}
@@ -4402,7 +4524,7 @@ namespace asdm {
 
 		this->loadTablesOnDemand_ = parse.loadTablesOnDemand_;
 		this->checkRowUniqueness_ = parse.checkRowUniqueness_;
-		this->directory_          = directory;
+		this->directory_ = directory;					
 		string fileName;
 		if (fileAsBin) {
 			fileName = directory + "/ASDM.bin";
@@ -4452,7 +4574,7 @@ namespace asdm {
     			throw ConversionException("I cannot read this dataset with version='UNKNOWN' and origin='UNKNOWN'", "ASDM");
  		
     		string xsltPath;
- 			bool proceed = (origin == ASDMUtils::EVLA)  
+ 			bool proceed = (version.compare("3") && (origin == ASDMUtils::EVLA))  
     				    || (version.compare("3") && ( origin == ASDMUtils::ALMA)); // If it's an ALMA then we must check its version.
 			string xmlDoc;
  			try {
@@ -4508,6 +4630,11 @@ namespace asdm {
 			entity = tableEntity["CalAmpli"];
 			if (entity.getEntityId().getId().length()  != 0) {
 				getCalAmpli().setFromFile(directory_);
+			}
+	
+			entity = tableEntity["CalAntennaSolutions"];
+			if (entity.getEntityId().getId().length()  != 0) {
+				getCalAntennaSolutions().setFromFile(directory_);
 			}
 	
 			entity = tableEntity["CalAppPhase"];
@@ -4730,6 +4857,11 @@ namespace asdm {
 				getProcessor().setFromFile(directory_);
 			}
 	
+			entity = tableEntity["Pulsar"];
+			if (entity.getEntityId().getId().length()  != 0) {
+				getPulsar().setFromFile(directory_);
+			}
+	
 			entity = tableEntity["Receiver"];
 			if (entity.getEntityId().getId().length()  != 0) {
 				getReceiver().setFromFile(directory_);
@@ -4828,6 +4960,8 @@ namespace asdm {
 	
 			getCalAmpli().presentInMemory = tableEntity["CalAmpli"].getEntityId().getId().length() == 0;	
 	
+			getCalAntennaSolutions().presentInMemory = tableEntity["CalAntennaSolutions"].getEntityId().getId().length() == 0;	
+	
 			getCalAppPhase().presentInMemory = tableEntity["CalAppPhase"].getEntityId().getId().length() == 0;	
 	
 			getCalAtmosphere().presentInMemory = tableEntity["CalAtmosphere"].getEntityId().getId().length() == 0;	
@@ -4916,6 +5050,8 @@ namespace asdm {
 	
 			getProcessor().presentInMemory = tableEntity["Processor"].getEntityId().getId().length() == 0;	
 	
+			getPulsar().presentInMemory = tableEntity["Pulsar"].getEntityId().getId().length() == 0;	
+	
 			getReceiver().presentInMemory = tableEntity["Receiver"].getEntityId().getId().length() == 0;	
 	
 			getSBSummary().presentInMemory = tableEntity["SBSummary"].getEntityId().getId().length() == 0;	
@@ -4952,7 +5088,7 @@ namespace asdm {
 				
 		}
 			
-		origin = FILE;		
+		origin = FILE;
 	}
 	
 	bool ASDM::checkRowUniqueness() const { return checkRowUniqueness_; } 
@@ -5033,6 +5169,13 @@ namespace asdm {
 			container->getCalAmpli().setEntity(entity);
 			xml = getXMLEntity(entity.getEntityId());
 			container->getCalAmpli().fromXML(xml);
+		}
+			
+		entity = container->tableEntity["CalAntennaSolutions"];
+		if (entity.getEntityId().getId().size() != 0) {
+			container->getCalAntennaSolutions().setEntity(entity);
+			xml = getXMLEntity(entity.getEntityId());
+			container->getCalAntennaSolutions().fromXML(xml);
 		}
 			
 		entity = container->tableEntity["CalAppPhase"];
@@ -5343,6 +5486,13 @@ namespace asdm {
 			container->getProcessor().fromXML(xml);
 		}
 			
+		entity = container->tableEntity["Pulsar"];
+		if (entity.getEntityId().getId().size() != 0) {
+			container->getPulsar().setEntity(entity);
+			xml = getXMLEntity(entity.getEntityId());
+			container->getPulsar().fromXML(xml);
+		}
+			
 		entity = container->tableEntity["Receiver"];
 		if (entity.getEntityId().getId().size() != 0) {
 			container->getReceiver().setEntity(entity);
@@ -5596,11 +5746,11 @@ namespace asdm {
 		throw ConversionException("Invalid xml document","ASDM");
 	}
 	
-	string ASDM::getXMLEntity(EntityId id) {
+	string ASDM::getXMLEntity(EntityId /* id */) {
 		throw ConversionException("Not implemented","ASDM");
 	}
 	
-	void ASDM::putXMLEntity(string xml) {
+	void ASDM::putXMLEntity(string /* xml */) {
 		throw ConversionException("Not implemented","ASDM");
 	}
 	

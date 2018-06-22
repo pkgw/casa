@@ -44,6 +44,7 @@ class PMS_PP_Cache;
 class PMS_PP_Canvas;
 class PMS_PP_Axes;
 class PMS_PP_Iteration;
+class PMS_PP_MSData;
 class PMS_PP_Display;
 
 // Class for a single "plot" concept.  Generally speaking this one
@@ -64,6 +65,7 @@ public:
     static void makeParameters(PlotMSPlotParameters& params, PlotMSApp* plotms);
     
     void customizeAutoSymbol( const PlotSymbolPtr& baseSymbol, casacore::uInt dataSize  );
+    void customizeOverlaySymbol( const PlotSymbolPtr& baseSymbol, casacore::uInt dataSize  );
     // Non-Static //
     
     // Constructor which takes the parent PlotMS object.  Starts out with
@@ -199,13 +201,13 @@ public:
     vector<PMS::DataColumn> getCachedData();
 
     casacore::Record locateInfo(int plotIterIndex, const casacore::Vector<PlotRegion>& regions,
-    		bool showUnflagged, bool showFlagged, bool selectAll ) const ;
+        bool showUnflagged, bool showFlagged, bool selectAll ) const ;
 
     PlotLogMessage* locateRange( int plotIterIndex, const casacore::Vector<PlotRegion> & regions,
-    		bool showUnflagged, bool showFlagged);
+        bool showUnflagged, bool showFlagged);
 
     PlotLogMessage* flagRange( int canvasIndex, casa::PlotMSFlagging& flagging,
-    		const casacore::Vector<PlotRegion>& regions, bool showFlagged);
+        const casacore::Vector<PlotRegion>& regions, bool showFlagged);
 
     // Generates and assigns canvases that this plot will be using, with the
     // given PlotMSPages object.  This is called when the plot is first
@@ -235,9 +237,9 @@ public:
     static void cacheLoaded(void *obj, bool wasCanceled){
         PlotMSPlot *cobj = static_cast<PlotMSPlot*>(obj);
         if(cobj != NULL){
-        	cobj->setCacheUpdating( false );
+            cobj->setCacheUpdating( false );
             if ( ! cobj->itsParent_->guiShown() ){
-            	cobj->cacheLoaded_(wasCanceled);
+                cobj->cacheLoaded_(wasCanceled);
             }
         }
     }
@@ -328,15 +330,23 @@ private:
     void logMessage( const QString& msg ) const;
 
     void clearCanvasProperties( int row, int col);
-    void setCanvasProperties (int row, int col, PMS_PP_Cache*,
-    		PMS_PP_Axes* axes, bool set, PMS_PP_Canvas *canv,
-    		casacore::uInt rows, casacore::uInt cols, PMS_PP_Iteration *iter,
-    		casacore::uInt iteration, PlotMSAveraging averaging );
+    void setCanvasProperties (int row, int col, int numplots, uInt iteration,
+            PMS_PP_Axes* axesParams, PMS_PP_Cache* cacheParams, 
+            PMS_PP_Canvas *canvParams, PMS_PP_Iteration *iterParams,
+            PMS_PP_MSData* dataParams, PMS_PP_Display* displayParams );
+
+    // range must be modified in certain cases
+    void setAxisRange(PMS::Axis axis, PlotAxis paxis, double min, double max,
+        PlotCanvasPtr& canvas);
+
     // To modify axis label if needed:
     bool axisIsAveraged(PMS::Axis axis, PlotMSAveraging averaging);
     casacore::String addFreqFrame(casacore::String freqLabel);
     PMS::Axis getCalAxis(casacore::String calType, PMS::Axis axis);
     PMS::Axis getDefaultXAxis();
+    PMS::Axis getGsplineAxis(const casacore::String filename);
+	void checkColoraxis(casacore::String caltype, PMS_PP_Display* display); 
+	void checkIteraxis(casacore::String caltype, PMS_PP_Iteration* iter);
 
     //Note:  First index for a plot is the dataCount,
     //second index is the number of iteration.
@@ -357,6 +367,7 @@ private:
     static const casacore::uInt PIXEL_THRESHOLD;
     static const casacore::uInt MEDIUM_THRESHOLD;
     static const casacore::uInt LARGE_THRESHOLD;
+    static const casacore::uInt XLARGE_THRESHOLD;
 };
 
 }

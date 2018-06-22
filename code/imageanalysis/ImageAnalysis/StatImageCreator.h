@@ -87,8 +87,6 @@ protected:
 
 private:
 
-    static const casacore::Double PHI;
-
     Quantity _xlen = Quantity(1, "pix");
     Quantity _ylen = Quantity(1, "pix");
 
@@ -102,7 +100,7 @@ private:
     casacore::StatisticsData::STATS _statType
         = casacore::StatisticsData::STDDEV;
     casacore::Bool _doMask = casacore::False;
-    casacore::Bool _doPhi = casacore::False;
+    casacore::Bool _doProbit = casacore::False;
 
     void _doInterpolation(
         /*TempImage<Float>& */ SPIIF output, TempImage<Float>& store,

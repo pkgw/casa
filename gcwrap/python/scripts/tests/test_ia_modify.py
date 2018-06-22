@@ -153,5 +153,179 @@ class ia_modify_test(unittest.TestCase):
         self.assertTrue("ia.modify" in msgs[-2], "History not written")
         self.assertTrue("ia.modify" in msgs[-1], "History not written")
  
+    def test_oldtests(self):
+        """tests moved from imagetest_regression test_25"""
+        
+        def gaussian(flux, major, minor, pa, dir=None):
+            newcl = cltool()
+            newcl.simulate(1,log=False);
+            newcl.setshape(which=0, type='Gaussian',
+                majoraxis=major, minoraxis=minor, positionangle=pa,
+                majoraxiserror = '0arcsec', minoraxiserror = '0arcsec',
+                positionangleerror = '0deg', log=False
+            )
+            flux2 = [flux, 0, 0, 0];
+            newcl.setflux(
+                which=0, value=flux2, unit='Jy',
+                polarization='Stokes', log=False
+            )
+            if dir==None:
+                dir = me.direction('J2000', '0rad', '0rad')
+            values = me.getvalue(dir);
+            newcl.setrefdir(which=0, ra=values['m0'], dec=values['m1'], log=False);
+            return newcl;
+
+        def compareComponentList(cl0, cl1, tol=0.005, dotype=True):
+            n0 = cl0.length()
+            n1 = cl1.length()
+            errmsg = 'compareComponentList: '
+            if (n0 != n1):
+                errmsg += 'Number of components differ'
+                print cl0.torecord()
+                print cl1.torecord()
+                info(errmsg)
+                return False
+            #
+            for i in range(0,n0):
+                f0 = cl0.getfluxvalue(i)
+                f1 = cl1.getfluxvalue(i)
+                t = tol * f0[0]
+                self.assertTrue(
+                    numpy.isclose(f1, f0, t).all(), 'Component fluxes differ'
+                )
+                shp0 = cl0.getshape(i)
+                shp1 = cl1.getshape(i)
+                type0 = cl0.shapetype(i)
+                type1 = cl1.shapetype(i)
+                if (dotype and type0!=type1):
+                    errmsg+='Component types differ'
+                    info(errmsg)
+                    return False
+                #
+                dir0 = cl0.getrefdir(i)
+                dir1 = cl1.getrefdir(i)
+                #
+                v0 = me.getvalue(dir0)
+                v1 = me.getvalue(dir1)
+                #
+                d = abs(qa.convert(v1['m0'],v0['m0']['unit'])['value'] - v0['m0']['value'])
+                t = tol * abs(v0['m0']['value'])
+                if (d > t):
+                    errmsg+='Longitudes differ'
+                    info(errmsg)
+                    return False
+                #
+                d = abs(qa.convert(v1['m1'],v0['m1']['unit'])['value'] - v0['m1']['value'])
+                t = tol * abs(v0['m1']['value'])
+                if (d > t):
+                    errmsg+='Latitudes differ'
+                    info(errmsg)
+                    return False
+                #
+                if dotype and (type0=='Gaussian' or type1=='Disk'):
+                    q0 = shp0['majoraxis']
+                    q1 = shp1['majoraxis']
+                    d = abs(qa.convert(q1,q0['unit'])['value']  - q0['value'])
+                    t = tol * q0['value']
+                    if (d > t):
+                        errmsg+='Major axes differ'
+                        info(errmsg)
+                        return False
+                    #
+                    q0 = shp0['minoraxis']
+                    q1 = shp1['minoraxis']
+                    d = abs(qa.convert(q1,q0['unit'])['value']  - q0['value'])
+                    t = tol * q0['value'];
+                    if (d > t):
+                        errmsg+='Minor axes differ'
+                        info(errmsg)
+                        return False
+                    #
+                    q0 = shp0['positionangle']
+                    q1 = shp1['positionangle']
+                    d = abs(qa.convert(q1,q0['unit'])['value']  - q0['value'])
+                    t = tol * q0['value']
+                    if (d > t):
+                        errmsg+='Position angles differ'
+                        info(errmsg)
+                        return False
+                    #
+            return True
+
+        imname = 'ia.fromshape.image'
+        imshape = [128,128,1]
+        myim = ia.newimagefromshape(imname, imshape)
+        self.assertTrue(myim, 'ia.fromshape constructor 1 failed')
+        self.assertTrue(myim.setbrightnessunit('Jy/beam'), 'failed in setbrightnessunit')
+        self.assertTrue(
+            myim.setrestoringbeam(
+                major='5arcmin', minor='2.5arcmin', pa='60deg', log=False
+            ), 'failed in setrestoringbeam'
+        )
+        #
+        # Pretty hard to test properly.  Add model
+        #
+        qmaj = '10arcmin'  
+        qmin = '5arcmin'   
+        qpa = '45.0deg'   
+        flux = 100.0
+        cl0 = gaussian(flux, qmaj, qmin, qpa) 
+        self.assertTrue(
+            myim.modify(cl0.torecord(), subtract=False), 'failed in modify'
+        )
+        stats = myim.statistics(list=False)
+        self.assertTrue(stats, 'failed to get statistics')
+        diff = abs(stats['flux']-flux)/flux
+        self.assertTrue(
+            numpy.isclose(stats['flux'], flux, 0.001),
+            'model image 1 has wrong values'
+        )
+        # Subtract it again
+        # debug
+        self.assertTrue(myim.modify(cl0.torecord(), subtract=True))
+        stats = myim.statistics(list=False)
+        self.assertTrue(stats)
+        p = myim.getchunk()
+        self.assertTrue(
+            numpy.all(numpy.isclose(p, 0, atol=1e-6)),
+            'model image 2 has wrong values'
+        )
+        #
+        # Now add the model for fitting
+        #
+        self.assertTrue(myim.modify(cl0.torecord(), subtract=False))
+        #
+
+        cl1 = myim.fitcomponents(
+            region=rg.box(blc=[32, 32, 0],
+            trc=[96, 96, 0])
+        )
+        myim.done()
+        self.assertTrue(cl1, 'fitcomponents 1 failed')
+        self.assertTrue(cl1['converged'], 'fitcomponents 1 did not converge')
+        cl1tool=cltool()
+        cl1tool.fromrecord(cl1['results'])
+        self.assertTrue(
+            compareComponentList(cl0,cl1tool), 'failed fitcomponents 1'
+        )
+        
+    def test_point_source_fix(self):
+        """Test fix of x/y swap bug CAS-11502"""
+        mycl = cltool()
+        # pixel [10, 30]
+        mycl.addcomponent(flux=1, dir=['J2000', '00:02:40.00', '-00.20.00.0'])
+        myia = iatool()
+        myia.fromshape("", [100, 100, 1, 1])
+        self.assertTrue(
+            myia.modify(model=mycl.torecord()), "Failed to run ia.modify"
+        )
+        mycl.done()
+        stats = myia.statistics()
+        myia.done()
+        self.assertTrue(
+            (stats['minpos'] == [10, 30, 0, 0]).all(),
+            "Incorrect point source pixel posiiton"
+        )
+
 def suite():
     return [ia_modify_test]

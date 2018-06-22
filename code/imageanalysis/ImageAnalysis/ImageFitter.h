@@ -190,18 +190,19 @@ private:
     SHARED_PTR<std::pair<casacore::Float, casacore::Float> > _includePixelRange{}, _excludePixelRange{};
     ComponentList _estimates{}, _curConvolvedList, _curDeconvolvedList;
     casacore::Vector<casacore::String> _fixed{}, _deconvolvedMessages;
-    casacore::Bool _fitDone{false}, _noBeam{false}, _doZeroLevel{}, _zeroLevelIsFixed{},
+    casacore::Bool _fitDone{false}, _noBeam{false}, _doZeroLevel{false}, _zeroLevelIsFixed{false},
         _correlatedNoise, _useBeamForNoise;
     casacore::Vector<casacore::Bool> _fitConverged{};
-    casacore::Vector<casacore::Quantity> _peakIntensities{}, _peakIntensityErrors, _fluxDensityErrors,
-        _fluxDensities, _majorAxes, _majorAxisErrors, _minorAxes, _minorAxisErrors,
-        _positionAngles, _positionAngleErrors;
-    vector<casacore::Quantity> _allConvolvedPeakIntensities{}, _allConvolvedPeakIntensityErrors{}, _allSums{},
-        _allFluxDensities{}, _allFluxDensityErrors{};
-    vector<casacore::GaussianBeam> _allBeams;
-    vector<casacore::Double> _allBeamsPix, _allBeamsSter;
-    vector<casacore::uInt> _allChanNums;
-    vector<casacore::Bool> _isPoint;
+    std::vector<casacore::Quantity> _peakIntensities{}, _peakIntensityErrors{}, _fluxDensityErrors{},
+        _fluxDensities{}, _majorAxes{}, _majorAxisErrors{}, _minorAxes{}, _minorAxisErrors{},
+        _positionAngles{}, _positionAngleErrors{};
+    std::vector<casacore::Quantity> _allConvolvedPeakIntensities{}, _allConvolvedPeakIntensityErrors{},
+        _allSums{}, _allFluxDensities{}, _allFluxDensityErrors{};
+    std::vector<std::shared_ptr<casacore::Vector<casacore::Double>>> _pixelCoords{};
+    std::vector<casacore::GaussianBeam> _allBeams;
+    std::vector<casacore::Double> _allBeamsPix, _allBeamsSter;
+    std::vector<casacore::uInt> _allChanNums;
+    std::vector<casacore::Bool> _isPoint;
     casacore::Record _residStats, inputStats, _output;
     casacore::Double _rms = -1;
     casacore::String _kludgedStokes;
@@ -209,7 +210,7 @@ private:
     casacore::Vector<casacore::uInt> _chanVec;
     casacore::uInt _curChan;
     casacore::Double _zeroLevelOffsetEstimate = 0;
-    vector<casacore::Double> _zeroLevelOffsetSolution, _zeroLevelOffsetError;
+    std::vector<casacore::Double> _zeroLevelOffsetSolution, _zeroLevelOffsetError;
     casacore::Int _stokesPixNumber = -1, _chanPixNumber = -1;
     ImageFitterResults _results;
     std::unique_ptr<casacore::Quantity> _noiseFWHM{};
@@ -235,7 +236,7 @@ private:
     //casacore::String _resultsHeader() const;
 
     // summarize the results in a nicely formatted string
-    casacore::String _resultsToString(casacore::uInt nPixels) const;
+    casacore::String _resultsToString(casacore::uInt nPixels);
 
     //summarize the size details in a nicely formatted string
     casacore::String _sizeToString(const casacore::uInt compNumber) const;

@@ -35,6 +35,7 @@
 #include <synthesis/MeasurementComponents/EPJones.h>
 #include <synthesis/MeasurementComponents/FJones.h>
 #include <synthesis/MeasurementComponents/FringeJones.h>
+#include <synthesis/MeasurementComponents/AccorJones.h>
 #include <synthesis/MeasurementComponents/KJones.h>
 #include <synthesis/MeasurementComponents/LJJones.h>
 #include <synthesis/MeasurementComponents/AMueller.h>
@@ -228,6 +229,9 @@ SolvableVisCal* createSolvableVisCal(const String& type, VisSet& vs) {
   else if (uptype.contains("FRINGE"))   // Fringe-fitting
     return new FringeJones(vs);
 
+  else if (uptype.contains("ACCOR"))
+    return new AccorJones(vs);
+
   else if (uptype.contains("SDSKY_PS"))
     return new SingleDishPositionSwitchCal(vs);
 
@@ -374,6 +378,9 @@ SolvableVisCal* createSolvableVisCal(const String& type, String msname, Int MSnA
 
   else if (uptype.contains("FRINGE"))  // Fringe-fitting
     return new FringeJones(msname,MSnAnt,MSnSpw);
+
+  else if (uptype.contains("ACCOR"))
+    return new AccorJones(msname,MSnAnt,MSnSpw);
 
   else if (uptype.contains("SDSKY_PS"))
     throw(AipsError(uptype+" not yet supported via SingleDishPositionSwitchCal(msname,MSnAnt,MSnSpw)"));
@@ -522,6 +529,9 @@ SolvableVisCal* createSolvableVisCal(const String& type, const MSMetaInfoForCal&
   else if (uptype.contains("FRINGE"))  // Fringe-fitting
     return new FringeJones(msmc);
 
+  else if (uptype.contains("ACCOR"))
+    return new AccorJones(msmc);
+
   else if (uptype.contains("SDSKY_PS"))
     return new SingleDishPositionSwitchCal(msmc);
 
@@ -598,9 +608,9 @@ Slice calParSliceByType(String caltype, String what, String pol)
   else if (caltype=="TOPAC") {
     if (what=="OPAC") {
       if (pol=="")
-	return Slice(0,1,1); // trivial
+        return Slice(0,1,1); // trivial
       else
-	throw(AipsError("Can't select with pol='"+pol+"' on unpolarized OPAC table."));
+        throw(AipsError("Can't select with pol='"+pol+"' on unpolarized OPAC table."));
     }
     else
       throw(AipsError("Unsupported value type: "+what));
@@ -615,46 +625,65 @@ Slice calParSliceByType(String caltype, String what, String pol)
     else
       throw(AipsError("Unsupported value type: "+what));
   }
-  else if ((caltype[0]=='G' && caltype!="GSPLINE") ||
+  else if ((caltype[0]=='G') ||
             caltype[0]=='B' ||
             caltype[0]=='D') {
     if (what=="AMP" ||
-	    what=="PHASE" ||
-	    what=="REAL" ||
-	    what=="IMAG") {
+        what=="PHASE" ||
+        what=="REAL" ||
+        what=="IMAG") {
       s=0;  // nominal start is first pol
       i=1;  // increment is nominally 1 (only good for 1-par-per-pol caltypes
     }
     else
       throw(AipsError("Unsupported value type: "+what));
   } 
-  else if (caltype[0]=='T') {
+  else if ((caltype[0]=='T') || (caltype[0]=='X' && !caltype.contains("MUELLER"))) {
     if (what=="AMP" ||
-	    what=="PHASE" ||
-	    what=="REAL" ||
-	    what=="IMAG") {
+        what=="PHASE" ||
+        what=="REAL" ||
+        what=="IMAG") {
       if (pol=="")
-	return Slice(0,1,1); // trivial
+         return Slice(0,1,1); // trivial
       else
-	throw(AipsError("Can't select with pol='"+pol+"' on unpolarized T table."));
+         throw(AipsError("Can't select with pol='"+pol+"' on unpolarized table."));
     }
     else
       throw(AipsError("Unsupported value type: "+what));
   }
-  else if (caltype[0]=='K' && caltype!="KAntPos Jones") {
+  else if (caltype[0]=='A') {
+    if (what=="AMP" ||
+        what=="PHASE" ||
+        what=="REAL" ||
+        what=="IMAG") {
+      s=0;  // nominal start is first pol
+      i=1;  // increment is nominally 1 (only good for 1-par-per-pol caltypes
+    }
+    else
+      throw(AipsError("Unsupported value type: "+what));
+  } 
+  else if (caltype[0]=='K') {
+    if (caltype=="KANTPOS JONES") {
+      // antenna x,y,z corrections not pol
+      if (pol=="")
+        return Slice(0,3,1);
+      else
+        throw(AipsError("Can't select with pol='"+pol+"' on antpos table."));
+    } else {
       if (what=="DELAY") {
         s=0;
         i=1;
       } else {
         throw(AipsError("Unsupported value type: "+what));
       }
+    }
   }
   else if (caltype[0]=='F') {
     if (what=="TEC") {
       if (pol=="")
-	return Slice(0,1,1); // trivial
+        return Slice(0,1,1); // trivial
       else
-	throw(AipsError("Can't select with pol='"+pol+"' on unpolarized TEC table."));
+        throw(AipsError("Can't select with pol='"+pol+"' on unpolarized TEC table."));
     }
     else
       throw(AipsError("Unsupported value type: "+what));
@@ -667,7 +696,15 @@ Slice calParSliceByType(String caltype, String what, String pol)
       throw(AipsError("Unsupported value type: "+what));
     }
   }
-
+  else if (caltype=="EGAINCURVE") {
+    if (what=="AMP" ||
+        what=="PHASE" ||
+        what=="REAL" ||
+        what=="IMAG") {
+      if (pol=="")
+        return Slice(0,8,1);
+    }
+  }
   else
     throw(AipsError("Unsupported cal type: "+caltype));
 
@@ -677,8 +714,7 @@ Slice calParSliceByType(String caltype, String what, String pol)
     s+=i; // jump by incr to 2nd pol
     n=1;
   }
-  else if (pol=="R" ||
-	   pol=="X") {
+  else if (pol=="R" || pol=="X") {
     n=1;  // for _all_ single-pol selections
   }
   else if (pol=="" || pol=="RL" || pol=="XY") {

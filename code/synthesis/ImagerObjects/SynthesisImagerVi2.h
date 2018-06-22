@@ -64,6 +64,7 @@ public:
   
   casacore::Bool setWeightDensity();
   void predictModel();
+  virtual void makeSdImage(casacore::Bool dopsf=false);
 
   void dryGridding(const casacore::Vector<casacore::String>& cfList);
   void fillCFCache(const casacore::Vector<casacore::String>& cfList,
@@ -118,7 +119,16 @@ public:
 		       const casacore::Int cache=1000000000,
 		       const casacore::Int tile=16,
 		       const casacore::String stokes="I",
-		       const casacore::String imageNamePrefix="");
+		       const casacore::String imageNamePrefix="",
+		       const casacore::String &pointingDirCol=casacore::String("direction"),
+		       const casacore::Float skyPosThreshold=0.0,
+           const casacore::Int convSupport=-1,
+           const casacore::Quantity &truncateSize=casacore::Quantity(-1),
+           const casacore::Quantity &gwidth=casacore::Quantity(-1),
+           const casacore::Quantity &jwidth=casacore::Quantity(-1),
+           const casacore::Float minWeight=0.1,
+		       const casacore::Bool clipMinMax=false,
+		       const casacore::Bool pseudoI=false);
 
   void createAWPFTMachine(casacore::CountedPtr<refim::FTMachine>& theFT, casacore::CountedPtr<refim::FTMachine>& theIFT, 
 			  const casacore::String& ftmName,
@@ -143,6 +153,24 @@ public:
 			  const casacore::Int cache,          
 			  const casacore::Int tile,
 			  const casacore::String imageNamePrefix="");
+
+  void createSDFTMachine(casacore::CountedPtr<refim::FTMachine>& theFT,
+      casacore::CountedPtr<refim::FTMachine>& theIFT,
+      const casacore::String &pointingDirCol,
+      const casacore::Float skyPosThreshold,
+      const casacore::Bool doPBCorr,
+      const casacore::Float rotatePAStep,
+      const casacore::String& gridFunction,
+      const casacore::Int convSupport,
+      const casacore::Quantity& truncateSize,
+      const casacore::Quantity& gwidth,
+      const casacore::Quantity& jwidth,
+      const casacore::Float minWeight,
+      const casacore::Bool clipMinMax,
+      const casacore::Int cache,
+      const casacore::Int tile,
+      const casacore::String &stokes,
+      const casacore::Bool pseudoI=false);
  
 // Do the major cycle
   virtual void runMajorCycle(const casacore::Bool dopsf=false, const casacore::Bool savemodel=false);
@@ -168,6 +196,10 @@ public:
   void  andFreqSelection(const casacore::Int msId, const casacore::Int spwId,  const casacore::Double freqBeg, const casacore::Double freqEnd, const casacore::MFrequency::Types frame);
   void andChanSelection(const casacore::Int msId, const casacore::Int spwId, const casacore::Int startchan, const casacore::Int endchan);
   void tuneChunk(const casacore::Int gmap);
+  //Set up tracking direction ; return False if no tracking is set.
+  //return Direction of moving source is in the frame of vb.phaseCenter() at the time of the first row of the vb
+  casacore::Bool getMovingDirection(const vi::VisBuffer2& vb,  casacore::MDirection& movingDir);
+  
    // Other Options
   //casacore::Block<const casacore::MeasurementSet *> mss_p;
   casacore::CountedPtr<vi::VisibilityIterator2>  vi_p;

@@ -67,7 +67,6 @@
 
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/Arrays/Slice.h>
-#include <imageanalysis/ImageAnalysis/ImageAnalysis.h>
 #include <images/Images/ImageExpr.h>
 #include <imageanalysis/ImageAnalysis/ImagePolarimetry.h>
 #include <synthesis/MeasurementEquations/ClarkCleanProgress.h>
@@ -168,10 +167,12 @@
 #include <components/ComponentModels/PointShape.h>
 #include <components/ComponentModels/DiskShape.h>
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
+#endif
 
 #include <casa/OS/HostInfo.h>
 
@@ -201,7 +202,11 @@ Imager::Imager()
   :  msname_p(""), vs_p(0), rvi_p(0), wvi_p(0), ft_p(0), 
      cft_p(0), se_p(0),
      sm_p(0), vp_p(0), gvp_p(0), setimaged_p(false), nullSelect_p(false), 
-     mssFreqSel_p(), mssChanSel_p(), viewer_p(0), clean_panel_p(0), image_id_p(0), mask_id_p(0), 
+     mssFreqSel_p(), mssChanSel_p(),
+#if ! defined(WITHOUT_DBUS)
+     viewer_p(0),
+#endif
+     clean_panel_p(0), image_id_p(0), mask_id_p(0), 
       prev_image_id_p(0), prev_mask_id_p(0), projection_p("SIN")
 {
   ms_p=0;
@@ -324,7 +329,11 @@ Imager::Imager(MeasurementSet& theMS,  Bool compress, Bool useModel)
   : msname_p(""), vs_p(0), rvi_p(0), wvi_p(0), 
     ft_p(0), cft_p(0), se_p(0),
     sm_p(0), vp_p(0), gvp_p(0), setimaged_p(false), nullSelect_p(false), 
-    mssFreqSel_p(), mssChanSel_p(), viewer_p(0), clean_panel_p(0), image_id_p(0), mask_id_p(0), prev_image_id_p(0), prev_mask_id_p(0),
+    mssFreqSel_p(), mssChanSel_p(),
+#if ! defined(WITHOUT_DBUS)
+    viewer_p(0),
+#endif
+    clean_panel_p(0), image_id_p(0), mask_id_p(0), prev_image_id_p(0), prev_mask_id_p(0),
     projection_p("SIN")
 
 {
@@ -347,7 +356,11 @@ Imager::Imager(MeasurementSet& theMS,  Bool compress, Bool useModel)
 Imager::Imager(MeasurementSet& theMS, Bool compress)
   :  msname_p(""),  vs_p(0), rvi_p(0), wvi_p(0), ft_p(0), cft_p(0), se_p(0),
      sm_p(0), vp_p(0), gvp_p(0), setimaged_p(false), nullSelect_p(false), 
-     mssFreqSel_p(), mssChanSel_p(), viewer_p(0), clean_panel_p(0), image_id_p(0), mask_id_p(0),
+     mssFreqSel_p(), mssChanSel_p(),
+#if ! defined(WITHOUT_DBUS)
+     viewer_p(0),
+#endif
+     clean_panel_p(0), image_id_p(0), mask_id_p(0),
      prev_image_id_p(0), prev_mask_id_p(0), projection_p("SIN")
 {
   mssel_p=0;
@@ -368,7 +381,10 @@ Imager::Imager(const Imager & other)
   :  msname_p(""), vs_p(0), rvi_p(0), wvi_p(0), 
      ft_p(0), cft_p(0), se_p(0),
      sm_p(0), vp_p(0), gvp_p(0), setimaged_p(false), nullSelect_p(false), 
-     viewer_p(0), clean_panel_p(0), image_id_p(0), mask_id_p(0), prev_image_id_p(0), prev_mask_id_p(0)
+#if ! defined(WITHOUT_DBUS)
+     viewer_p(0),
+#endif
+     clean_panel_p(0), image_id_p(0), mask_id_p(0), prev_image_id_p(0), prev_mask_id_p(0)
 {
   mssel_p=0;
   ms_p=0;
@@ -473,11 +489,13 @@ Imager::~Imager()
     }
     cft_p = 0;
 
+#if ! defined(WITHOUT_DBUS)
     if ( viewer_p ) {
       // viewer_p->close( clean_panel_p );
       viewer_p->done();
       delete viewer_p;
     }
+#endif
 
   }
   catch (AipsError x){
@@ -4489,7 +4507,7 @@ Bool Imager::nnls(const String&,  const Int niter, const Float tolerance,
 
 // Fourier transform the model and componentlist
 Bool Imager::ft(const Vector<String>& model, const String& complist,
-		const Bool incremental)
+		const Bool incremental, const Double phaseCenTime)
 {
   if(!valid()) return false;
   
@@ -4522,7 +4540,7 @@ Bool Imager::ft(const Vector<String>& model, const String& complist,
 	(sm_p->deltaImage(mod)).copyData(sm_p->image(mod));
       }
     }
-    
+    se_p->setPhaseCenterTime(phaseCenTime);
     se_p->predict(incremental);
     
     // destroySkyEquation();
@@ -4590,7 +4608,7 @@ Bool Imager::setjy(const Vector<Int>& /*fieldid*/,
     for (uInt kk=0; kk<fldids.nelements(); ++kk) {
       fldid=fldids[kk];
       // Extract field name and field center position 
-      MDirection position=msc.field().phaseDirMeas(fldid);
+      MDirection position=msc.field().phaseDirMeas(fldid, meantime);
       String fieldName=msc.field().name()(fldid);
 
       for (uInt jj=0; jj< spwids.nelements(); ++jj) {
@@ -4882,7 +4900,8 @@ Record Imager::setjy(const Vector<Int>& /*fieldid*/,
       throw(AipsError(standard + " is not a recognized flux density scale"));
 
     FluxStandard fluxStd(fluxScaleEnum);
-    if (fluxScaleEnum==FluxStandard::PERLEY_BUTLER_2013) {
+    if (fluxScaleEnum==FluxStandard::PERLEY_BUTLER_2013 || 
+        fluxScaleEnum==FluxStandard::PERLEY_BUTLER_2017 ) {
       fluxStd.setInterpMethod(interpolation);
     }
 
@@ -4900,7 +4919,7 @@ Record Imager::setjy(const Vector<Int>& /*fieldid*/,
     for(Int fldInd = fldids.nelements(); fldInd--;){
       Int fldid = fldids[fldInd];
       // Extract field name and field center position 
-      MDirection fieldDir = msc.field().phaseDirMeas(fldid);
+      MDirection fieldDir = msc.field().phaseDirMeas(fldid, msc.time()(0));
       String fieldName = msc.field().name()(fldid);
       Bool foundSrc = false;
     
@@ -5255,7 +5274,12 @@ String Imager::make_comp(const String& objName,
     returnFluxErrs[0].resize(nfreqs);
 
     MDirection objDir;
-     
+    
+    if (fluxScaleEnum==FluxStandard::PERLEY_BUTLER_2013 || 
+        fluxScaleEnum==FluxStandard::PERLEY_BUTLER_2017) 
+    { 
+      fluxStd.setInterpMethod("nearest");
+    }
     foundSrc = fluxStd.computeCL(objName, mfreqs, mtime, objDir,
 				 returnFluxes, returnFluxErrs,
 				 clistnames, prefix);
@@ -5450,7 +5474,6 @@ Bool Imager::sjy_computeFlux(LogIO& os, FluxStandard& fluxStd,
   meantime += 0.5 * (msc.time()(msc.nrow() - 1) - meantime);
   MEpoch mtime(msc.timeMeas()(0));
   mtime.set(Quantity(meantime, "s"));
-
   if(model != ""){
     // Just get the fluxes and their uncertainties for scaling the image.
     //foundSrc = fluxStd.compute(fieldName, mfreqs, returnFluxes,
@@ -6574,6 +6597,7 @@ Bool Imager::plotuv(const Bool rotate)
    
     if(rotate) {
     
+#if ! defined(WITHOUT_DBUS)
       PlotServerProxy *plotter = dbus::launch<PlotServerProxy>( );
       dbus::variant panel_id = plotter->panel( "UV-Coverage for "+imageName(), "U (wavelengths)", "V (wavelengths)", "UV-Plot",
 					       std::vector<int>( ), "right");
@@ -6587,8 +6611,12 @@ Bool Imager::plotuv(const Bool rotate)
       plotter->scatter(dbus::af(u),dbus::af(v),"blue","unrotated","hexagon",6,-1,panel_id.getInt( ));
       plotter->scatter(dbus::af(uRotated),dbus::af(vRotated),"red","rotated","ellipse",6,-1,panel_id.getInt( ));
       plotter->release( panel_id.getInt( ) );
+#else
+      return false;
+#endif
     }
     else {
+#if ! defined(WITHOUT_DBUS)
       PlotServerProxy *plotter = dbus::launch<PlotServerProxy>( );
       dbus::variant panel_id = plotter->panel( "UV-Coverage for "+imageName(), "U (wavelengths)", "V (wavelengths)", "UV-Plot" ,
 					       std::vector<int>( ), "right");
@@ -6604,6 +6632,9 @@ Bool Imager::plotuv(const Bool rotate)
       v=v*Float(-1.0);
       plotter->scatter(dbus::af(u),dbus::af(v),"red","conjugate","ellipse",6,-1,panel_id.getInt( ));
       plotter->release( panel_id.getInt( ) );
+#else
+      return false;
+#endif
     }
     
     this->unlock();
@@ -6827,6 +6858,7 @@ Bool Imager::plotvis(const String& type, const Int increment)
       }
    
 
+#if ! defined(WITHOUT_DBUS)
     PlotServerProxy *plotter = dbus::launch<PlotServerProxy>( );
     dbus::variant panel_id = plotter->panel( "Stokes I Visibility for "+imageName(),"UVDistance (wavelengths)" , "Amplitude", "Vis-Plot",
 					     std::vector<int>( ), "right", "bottom", 0, false, false);
@@ -6853,8 +6885,9 @@ Bool Imager::plotvis(const String& type, const Int increment)
       plotter->scatter(dbus::af(uvDistance),dbus::af(residualAmp),"yellow","residual","cross",6,-1,panel_id.getInt( ));
     }
     plotter->release( panel_id.getInt( ) );
-   
-
+#else
+    return false;
+#endif
 
     
     this->unlock();
@@ -6949,6 +6982,7 @@ Bool Imager::plotweights(const Bool gridded, const Int increment)
       //Float vmax=Float(ny_p/2)/vscale;
 
 
+#if ! defined(WITHOUT_DBUS)
       PlotServerProxy *plotter = dbus::launch<PlotServerProxy>( );
       dbus::variant panel_id = plotter->panel( "Gridded weights for "+imageName(), "U (wavelengths)", "V (wavelengths)", "ImagingWeight-plot" );
       if ( panel_id.type() != dbus::variant::INT ) {
@@ -6971,7 +7005,9 @@ Bool Imager::plotweights(const Bool gridded, const Int increment)
 
       plotter->raster( data, (int) shape[1], (int) shape[0] );
       //  plotter->release( panel_id.getInt( ) );
-
+#else
+      return false;
+#endif
     }
     else {
       
@@ -7050,6 +7086,7 @@ Bool Imager::plotweights(const Bool gridded, const Int increment)
       }
 
 
+#if ! defined(WITHOUT_DBUS)
       PlotServerProxy *plotter = dbus::launch<PlotServerProxy>( );
       dbus::variant panel_id = plotter->panel( "Weights for "+imageName(), "UVDistance (wavelengths)", "Weights", "ImagingWeight-plot" );
 
@@ -7061,6 +7098,9 @@ Bool Imager::plotweights(const Bool gridded, const Int increment)
       
       plotter->scatter(dbus::af(uvDistance),dbus::af(weights),"blue","","hexagon",4,-1,panel_id.getInt( ));
       //plotter->release( panel_id.getInt( ) );
+#else
+      return false;
+#endif
     }
     
 
@@ -7435,6 +7475,7 @@ Bool Imager::makemodelfromsd(const String& sdImage, const String& modelImage,
 }
 
 
+#if ! defined(WITHOUT_DBUS)
 class interactive_clean_callback {
     public:
 	interactive_clean_callback( ) { }
@@ -7452,7 +7493,7 @@ bool interactive_clean_callback::callback( const DBus::Message &msg ) {
     }
     return true;
 }
-
+#endif
 Int Imager::interactivemask(const String& image, const String& mask, 
 			    Int& niter, Int& ncycles, String& thresh, const Bool forceReload){
 
@@ -7467,7 +7508,7 @@ Int Imager::interactivemask(const String& image, const String& mask,
    else{
      clone(image, mask);
    }
-
+#if ! defined(WITHOUT_DBUS)
    if ( viewer_p == 0 ) {
      std::list<std::string> args;
      args.push_back("--oldregions");
@@ -7616,6 +7657,9 @@ Int Imager::interactivemask(const String& image, const String& mask,
     // return 1 if "no more interaction"
     // return 2 if "stop"
     return result;
+#else
+   return false;
+#endif
 }
 
   Record Imager::iClean(const String& algorithm, const Int niter, const Double gain, 
@@ -7771,6 +7815,7 @@ Int Imager::interactivemask(const String& image, const String& mask,
 	      }
 	    }
 	  }
+#if ! defined(WITHOUT_DBUS)
 	  ///guess we are done with the viewer
 	  if((viewer_p !=0) && (clean_panel_p != 0)){
 	    if(image_id_p !=0)
@@ -7782,6 +7827,7 @@ Int Imager::interactivemask(const String& image, const String& mask,
 	    image_id_p=0;
 	    mask_id_p=0;
 	  }
+#endif
 	  
 	}
 

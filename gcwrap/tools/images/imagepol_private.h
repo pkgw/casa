@@ -1,7 +1,7 @@
-/* Private parts (ouch ! bad pun) of imagepol component */
-
-
-
 casacore::LogIO *itsLog;
-casa::ImageAnalysis *itsImage;
 casa::ImagePol *itsImPol;
+
+SHARED_PTR<casacore::Record> _getRegion(
+    const casac::variant& region, bool nullIfEmpty
+) const;
+

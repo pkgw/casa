@@ -35,6 +35,9 @@
 #include <iostream>
 #include <sstream>
 
+// string.h provides strcpy, strtok and strcat
+#include <string.h>
+
 #include <libxml/xmlmemory.h>
 #include <libxml/debugXML.h>
 #include <libxml/HTMLtree.h>
@@ -49,9 +52,6 @@
 #include <libxslt/xsltutils.h>
 
 using namespace std;
-
-using namespace boost::filesystem;
-using namespace boost::algorithm;
 
 extern int xmlLoadExtDtdDefaultValue;
 
@@ -169,17 +169,15 @@ namespace asdm {
 
   const string& ASDMUtilsException::getMessage() { return message; }
 
+#ifndef WITHOUT_BOOST
   ASDMUtils::DotXMLFilter::DotXMLFilter(vector<string>& filenames) {this->filenames = &filenames;}
 
-  void ASDMUtils::DotXMLFilter::operator()(directory_entry& p) {
+  void ASDMUtils::DotXMLFilter::operator()(boost::filesystem::directory_entry& p) {
     if (!extension(p).compare(".xml")) {
-#if (BOOST_FILESYSTEM_VERSION == 3)
       filenames->push_back(p.path().string());
-#else
-      filenames->push_back(p.string());
-#endif
     }
   }
+#endif
  
   set<string>				ASDMUtils::evlaValidNames;
   set<string>				ASDMUtils::almaValidNames;
@@ -209,12 +207,21 @@ namespace asdm {
 
     string result;
 
+#ifndef WITHOUT_BOOST
+    string ASDMPath = boost::algorithm::trim_copy(asdmPath);
+    if (!boost::algorithm::ends_with(ASDMPath, "/")) ASDMPath+="/";
+#else
     string ASDMPath = trim_copy(asdmPath);
-    if (!ends_with(ASDMPath, "/")) ASDMPath+="/";
+    if (ASDMPath.back()!='/') ASDMPath+="/";
+#endif
     ASDMPath += "ASDM.xml";
 
     // Does ASDMPath exist ?
-    if (!exists(path(ASDMPath))) {
+#ifndef WITHOUT_BOOST
+    if (!boost::filesystem::exists(boost::filesystem::path(ASDMPath))) {
+#else
+    if (!file_exists(ASDMPath)) {
+#endif
       throw ASDMUtilsException("File not found '"+ASDMPath+"'.");
     }
 
@@ -244,13 +251,22 @@ namespace asdm {
 
     // No ? then try another approach ... Can we find a dataUID element in the row elements of the Main table and in such a case
     // make the assumption that it's a v3 ASDM.
+#ifndef WITHOUT_BOOST
+    string MainPath = boost::algorithm::trim_copy(asdmPath);
+    if (!boost::algorithm::ends_with(MainPath, "/")) MainPath+="/";
+#else
     string MainPath = trim_copy(asdmPath);
-    if (!ends_with(MainPath, "/")) MainPath+="/";
+    if (MainPath.back()!='/') MainPath+="/";
+#endif
     MainPath += "Main.xml";    
 
     result = "UNKNOWN";
     // Does MainPath exist ?
-    if (exists(path(MainPath))) {
+#ifndef WITHOUT_BOOST
+    if (boost::filesystem::exists(boost::filesystem::path(MainPath))) {
+#else
+    if (file_exists(MainPath)) {
+#endif
       xmlDocPtr MainDoc =  xmlParseFile(MainPath.c_str());
   
       if (MainDoc == NULL ) {
@@ -288,7 +304,8 @@ namespace asdm {
     return result;
   }
 
-  bool ASDMUtils::hasChild(xmlDocPtr doc, xmlNodePtr node, const xmlChar* childName) {
+  bool ASDMUtils::hasChild(xmlDocPtr, // doc
+			   xmlNodePtr node, const xmlChar* childName) {
     node = node->xmlChildrenNode;
 
     while (node != NULL) {
@@ -322,12 +339,21 @@ namespace asdm {
   vector<string> ASDMUtils::telescopeNames(const string& asdmPath) {
     vector<string> result;
 
+#ifndef WITHOUT_BOOST
+    string execBlockPath = boost::algorithm::trim_copy(asdmPath);
+    if (!boost::algorithm::ends_with(execBlockPath, "/")) execBlockPath+="/";
+#else
     string execBlockPath = trim_copy(asdmPath);
-    if (!ends_with(execBlockPath, "/")) execBlockPath+="/";
+    if (execBlockPath.back()!='/') execBlockPath+="/";
+#endif
     execBlockPath += "ExecBlock.xml";
 
     // Does execBlockPath exist ?
-    if (!exists(path(execBlockPath))) {
+#ifndef WITHOUT_BOOST
+    if (!boost::filesystem::exists(boost::filesystem::path(execBlockPath))) {
+#else
+    if (!file_exists(execBlockPath)) {
+#endif
       throw ASDMUtilsException("File not found '"+execBlockPath+"'.");
     }
 
@@ -343,7 +369,11 @@ namespace asdm {
     cur = xmlDocGetRootElement(execBlockDoc)->xmlChildrenNode;
     while (cur != NULL) {
       if (!xmlStrcmp(cur->name, (const xmlChar*) "row")) {
+#ifndef WITHOUT_BOOST
+	result.push_back(boost::algorithm::trim_copy(parseRow(execBlockDoc, cur, (const xmlChar *) "telescopeName")));
+#else
 	result.push_back(trim_copy(parseRow(execBlockDoc, cur, (const xmlChar *) "telescopeName")));
+#endif
       }
       cur = cur -> next;
     }
@@ -373,45 +403,92 @@ namespace asdm {
   vector<string> ASDMUtils::xmlFilenames ( const string & asdmPath  ) {
     vector<string> result;
 
-    path p(asdmPath);
+#ifndef WITHOUT_BOOST
+    boost::filesystem::path p(asdmPath);
     DotXMLFilter dotXMLFilter(result);
-    std::for_each(directory_iterator(p), directory_iterator(), dotXMLFilter);
+    std::for_each(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), dotXMLFilter);
+#else
+    DIR *dir;
+    if ((dir = opendir(asdmPath.c_str())) != NULL) {
+      struct dirent *ent;
+      string dirSep="/";
+      if (asdmPath.back()=='/') dirSep="";
+
+      while ((ent = readdir(dir)) != NULL) {
+	string thisFile = ent->d_name;
+	if (thisFile.size() > 4) {
+	  if (thisFile.compare((thisFile.size()-4),4,".xml")==0) {
+	    result.push_back(asdmPath+dirSep+thisFile);
+	  }
+	}
+      }
+      closedir(dir);
+    } else {
+      throw ASDMUtilsException("Could not open ASDM directory to retrieve xml files: "+asdmPath);
+    }
+#endif
     return result;
   }
 
   string ASDMUtils::pathToxslTransform( const string& xsltFilename) {
-    char * envVars[] = {"INTROOT", "ACSROOT"};
+    const char * envVars[] = {"INTROOT", "ACSROOT"};
     char * rootDir_p;
     for (unsigned int i = 0; i < sizeof(envVars) / sizeof(char *) ; i++) 
       if ((rootDir_p = getenv(envVars[i])) != 0) {
 	string rootPath(rootDir_p);
 	vector<string> rootPathElements;
-	split(rootPathElements, rootPath, is_any_of(" "));
+#ifndef WITHOUT_BOOST
+	boost::algorithm::split(rootPathElements, rootPath, boost::algorithm::is_any_of(" "));
 	for ( vector<string>::iterator iter = rootPathElements.begin(); iter != rootPathElements.end(); iter++) {
 	  string xsltPath = *iter;
-	  if (!ends_with(xsltPath, "/")) xsltPath+="/";
+	  if (!boost::algorithm::ends_with(xsltPath, "/")) xsltPath+="/";
 	  xsltPath+=rootSubdir[string(envVars[i])]+ xsltFilename;
 	  if (getenv("ASDM_DEBUG"))
 	    cout << "pathToxslTransform tries to locate '" << xsltPath << "'." << endl;
-	  if (exists(path(xsltPath)))
+	  if (boost::filesystem::exists(boost::filesystem::path(xsltPath)))
 	    return xsltPath;
 	}
+#else
+	strsplit(rootPath,' ',rootPathElements);
+	for ( vector<string>::iterator iter = rootPathElements.begin(); iter != rootPathElements.end(); iter++) {
+	  string xsltPath = *iter;
+	  if (xsltPath.back()!='/') xsltPath+="/";
+	  xsltPath+=rootSubdir[string(envVars[i])]+ xsltFilename;
+	  if (getenv("ASDM_DEBUG"))
+	    cout << "pathToxslTransform tries to locate '" << xsltPath << "'." << endl;
+	  if (file_exists(xsltPath))
+	    return xsltPath;
+	}
+#endif
       }
 
     // Ok it seems that we are not in an ALMA/ACS environment, then look for $CASAPATH/data.
     if ((rootDir_p = getenv("CASAPATH")) != 0) {
       string rootPath(rootDir_p);
       vector<string> rootPathElements;
-      split(rootPathElements, rootPath, is_any_of(" "));
+#ifndef WITHOUT_BOOST
+      boost::algorithm::split(rootPathElements, rootPath, boost::algorithm::is_any_of(" "));
       string xsltPath = rootPathElements[0];
-      if (!ends_with(xsltPath, "/")) xsltPath+="/";
+      if (!boost::algorithm::ends_with(xsltPath, "/")) xsltPath+="/";
       xsltPath+="data/alma/asdm/";
       xsltPath+=xsltFilename;
       if (getenv("ASDM_DEBUG"))
 	cout << "pathToxslTransform tries to locate '" << xsltPath << "'." << endl;
 
-      if (exists(path(xsltPath)))
+      if (boost::filesystem::exists(boost::filesystem::path(xsltPath)))
 	return xsltPath;
+#else
+      strsplit(rootPath, ' ', rootPathElements);
+      string xsltPath = rootPathElements[0];
+      if (xsltPath.back()!='/') xsltPath+="/";
+      xsltPath+="data/alma/asdm/";
+      xsltPath+=xsltFilename;
+      if (getenv("ASDM_DEBUG"))
+	cout << "pathToxslTransform tries to locate '" << xsltPath << "'." << endl;
+
+      if (file_exists(xsltPath))
+	return xsltPath;
+#endif
     }
 
     if (getenv("ASDM_DEBUG"))
@@ -571,11 +648,12 @@ namespace asdm {
     output << "Origin=" << s << ",Version=" << p.version_ << ",LoadTablesOnDemand=" << p.loadTablesOnDemand_ << ",CheckRowUniqueness=" << p.checkRowUniqueness_;
     return output;  // for multiple << operators.
   }
+
   CharComparator::CharComparator(std::ifstream * is_p, off_t limit):is_p(is_p), limit(limit){asdmDebug_p = getenv("ASDM_DEBUG");}
 
   bool CharComparator::operator() (char cl, char cr) {
     if (asdmDebug_p) cout << "Entering CharComparator::operator()" << endl;
-    if (is_p && is_p->tellg() > limit)
+    if (is_p && is_p->tellg() > limit) 
       return true;
     else 
       return toupper(cl) == cr;
@@ -589,7 +667,7 @@ namespace asdm {
     if (asdmDebug_p) cout << "Entering CharCompAccumulator::operator()" << endl;
     bool result = false;
     // Are we beyond the limit ?
-    if (is_p && is_p->tellg( ) > limit) 
+    if (is_p && is_p->tellg() > limit) 
       result = true;      // Yes
     else {                // No
       if (toupper(cl) == toupper(cr)) {

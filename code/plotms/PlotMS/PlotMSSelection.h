@@ -29,6 +29,8 @@
 
 #include <casa/Containers/Record.h>
 #include <ms/MSSel/MSSelection.h>
+#include <ms/MeasurementSets/MeasurementSet.h>
+#include <synthesis/CalTables/CalTable.h>
 #include <plotms/PlotMS/PlotMSConstants.h>
 
 #include <map>
@@ -80,7 +82,8 @@ public:
     
     
     // Converts this object to/from a record.  The record keys are the values
-    // of the Field enum in casacore::String form, and the values are the casacore::String values.
+    // of the Field enum in casacore::String form, and the values are the 
+	// casacore::String values.
     // <group>
     void fromRecord(const casacore::RecordInterface& record);
     casacore::Record toRecord() const;
@@ -89,17 +92,22 @@ public:
     //Print out an abbreviated summary of the selection.
     casacore::String toStringShort() const;
 
-    // Applies this selection using the first casacore::MS into the second MS.  (See the
-    // mssSetData method in ms/MSSel/MSSelectionTools.h for details.)
+    // Applies this selection using the first casacore::MS into the second MS.
+    // (See the mssSetData method in ms/MSSel/MSSelectionTools.h for details.)
     void apply(casacore::MeasurementSet& ms, casacore::MeasurementSet& selectedMS,
-               casacore::Vector<casacore::Vector<casacore::Slice> >& chansel,
-	       casacore::Vector<casacore::Vector<casacore::Slice> >& corrsel);
+        casacore::Vector<casacore::Vector<casacore::Slice> >& chansel,
+        casacore::Vector<casacore::Vector<casacore::Slice> >& corrsel);
         
-    // Applies this selection to a NewCaltable
+    // Applies this selection to a NewCalTable
     void apply(NewCalTable& ct, NewCalTable& selectedCT,
-               casacore::Vector<casacore::Vector<casacore::Slice> >& chansel,
-    	       casacore::Vector<casacore::Vector<casacore::Slice> >& corrsel);
+        casacore::Vector<casacore::Vector<casacore::Slice> >& chansel,
+        casacore::Vector<casacore::Vector<casacore::Slice> >& corrsel);
         
+    // Applies this selection to a Table
+    void apply(CalTable& ct, CalTable& selectedCT,
+        casacore::Vector<casacore::Vector<casacore::Slice> >& chansel,
+        casacore::Vector<casacore::Vector<casacore::Slice> >& corrsel);
+
     // Gets/Sets the value for the given selection field.
     // <group>
     const casacore::String& getValue(Field f) const;
@@ -162,20 +170,26 @@ public:
 
     //Returns whether or not any selections have been made.
     bool isEmpty() const;
+
 private:    
     // Selection field values.
     std::map<Field, casacore::String> itsValues_;
 
-
-
     // Force appearance of new selection (even when not new)
     casacore::Int forceNew_;
-	casacore::Vector<int> selAnts;
-	casacore::Vector<int> selAnts2;
+    casacore::Vector<int> selAnts1;
+    casacore::Vector<int> selAnts2;
     
     // Initializes the values to their defaults.
     void initDefaults();
 
+    // CalTable::select uses taql string for selection
+    casacore::String getTaql(CalTable& ct);
+	// handle negation
+	casacore::String getAntTaql(casacore::MSSelection& mss,
+        casacore::MeasurementSet& ms, casacore::String antExpr);
+	// For MS + MSSelection
+	casacore::String getMSName(CalTable& ct);
 };
 
 }
