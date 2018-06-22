@@ -511,6 +511,13 @@ class TestHelpers():
          Forbidden keywords lists introduced with CAS-9231 (prevent duplication of
          TELESCOP and OBJECT).
 
+         Note that if imname is the top level of a refconcat image, there's no table to open
+         to look for its keywords. In these cases nothing is checked. We would not have the
+         'imageinfo' keywords, only the MiscInfo that goes in imageconcat.json and I'm not
+         sure yet how that one is supposed to behave.
+         Tests should check the 'getNParts() from imname' to make sure the components of
+         the refconcat image exist, have the expected keywords, etc.
+
          :param imname: image name (output image from tclean)
          :param check_misc: whether to check miscinfo in addition to imageinfo'
          :param check_extended: can leave enabled for images other than .tt?, .alpha, etc.
@@ -520,9 +527,18 @@ class TestHelpers():
          """
 
          tbt = tbtool()
-         tbt.open(imname)
-         keys = tbt.getkeywords()
-         tbt.close()
+         try:
+             tbt.open(imname)
+             keys = tbt.getkeywords()
+         except RuntimeError as exc:
+             if os.path.isfile(os.path.join(os.path.dirname(imname), 'imageconcat.json')):
+                 # Looks like a refconcat image, nothing to check
+                 return ''
+             else:
+                 pstr = 'Cannot open image table to check keywords: {0}'.format(imname)
+                 return pstr
+         finally:
+             tbt.close()
 
          pstr = ''
          if len(keys) <= 0:

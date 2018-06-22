@@ -122,14 +122,14 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
       String tel= imInfo.telescope();
       MPosition pos;
       ROMSColumns mscol(vb.ms());
-      if (mscol.observation().nrow() > 0) {
-	tel =mscol.observation().telescopeName()(mscol.observationId()(0));
+      if (vb.subtableColumns().observation().nrow() > 0) {
+	tel =vb.subtableColumns().observation().telescopeName()(mscol.observationId()(0));
       }
       if (tel.length() == 0 || !tel.contains("VLA") ||
 	  !MeasTable::Observatory(pos,tel)) {
 	// unknown observatory, use first antenna
     	  Int ant1=vb.antenna1()(0);
-    	  pos=mscol.antenna().positionMeas()(ant1);
+    	  pos=vb.subtableColumns().antenna().positionMeas()(ant1);
       }
       //cout << "TELESCOPE " << tel << endl;
       //Store this to build epochs via the time access of visbuffer later
@@ -175,7 +175,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     		//use first antenna as direction1_p is used to calculate pointing
     		// as only VLA uses observatory pos for calculations
     	    	  Int ant1=vb.antenna1()(0);
-    	    	  MPosition pos=ROMSColumns(vb.ms()).antenna().positionMeas()(ant1);
+    	    	  MPosition pos=vb.subtableColumns().antenna().positionMeas()(ant1);
     	    	  pointFrame_p.resetPosition(pos);
     	}
       MEpoch timenow(Quantity(vb.time()(0), timeUnit_p), timeMType_p);
@@ -841,7 +841,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
     
 	  
 	Int spw=vb.spectralWindows()(0);
-	bandName_p=ROMSColumns(vb.ms()).spectralWindow().name()(spw);
+	bandName_p=vb.subtableColumns().spectralWindow().name()(spw);
 	chanMap.resize(freq.nelements());
     Vector<Double> localfreq=vb.getFrequencies(0, MFrequency::TOPO);
     Double minfreq=min(freq);
