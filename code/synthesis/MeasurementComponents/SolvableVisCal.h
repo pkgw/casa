@@ -72,6 +72,34 @@ class VisEquation;
 class SolveDataBuffer;
 class SDBList;
 
+
+class SolNorm {
+
+public:
+
+  enum Type { MEAN, MEDIAN, UNKNOWN };
+
+  SolNorm(casacore::Bool donorm=false, casacore::String normtype=casacore::String("mean"));
+  SolNorm(const SolNorm& other);
+
+  inline casacore::Bool solnorm() const { return solnorm_; };
+  inline Type normtype() const { return normtype_; };
+  inline casacore::String normtypeString() const { return normTypeAsString(normtype_); };
+
+  void report();
+
+private:
+
+  // data 
+  casacore::Bool solnorm_;
+  Type normtype_;
+
+  static Type normTypeFromString(casacore::String name);
+  static casacore::String normTypeAsString(Type type);
+
+  
+};
+ 
 class SolvableVisCal : virtual public VisCal {
 public:
 
@@ -113,7 +141,9 @@ public:
   inline casacore::String&      solint()         { return solint_; };
   inline casacore::String&      fsolint()        { return fsolint_; };
   inline casacore::Double&      preavg()         { return preavg_; };
-  inline casacore::Bool&        solnorm()        { return solnorm_;};
+  //inline casacore::Bool&        solnorm()        { return solnorm_;};
+  inline const SolNorm&         solNorm()        { return solnorm__;};
+  inline casacore::Bool         solnorm()        { return solnorm__.solnorm();};
   inline casacore::Float&       minSNR()         { return minSNR_; };
 
   inline casacore::String&      combine()        { return combine_; };
@@ -602,6 +632,7 @@ private:
 
   // Do solution normalization after a solve
   casacore::Bool solnorm_;
+  SolNorm solnorm__;
 
   // SNR threshold
   casacore::Float minSNR_;
