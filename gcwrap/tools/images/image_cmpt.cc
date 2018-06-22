@@ -540,15 +540,25 @@ bool image::calcmask(
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
         Record region;
         if (_imageF) {
             ImageMaskHandler<Float> imh(_imageF);
             imh.calcmask(mask, region, maskName, makeDefault);
         }
-        else {
+        else if (_imageC){
             ImageMaskHandler<Complex> imh(_imageC);
             imh.calcmask(mask, region, maskName, makeDefault);
+        }
+        else if (_imageD) {
+            ImageMaskHandler<Double> imh(_imageD);
+            imh.calcmask(mask, region, maskName, makeDefault);
+        }
+        else if (_imageDC) {
+            ImageMaskHandler<DComplex> imh(_imageDC);
+            imh.calcmask(mask, region, maskName, makeDefault);
+        }
+        else {
+            ThrowCc("Logic error");
         }
         vector<String> names {"mask", "name", "asdefault"};
         vector<variant> values {mask, maskName, makeDefault};
@@ -2927,14 +2937,23 @@ std::vector<std::string> image::history(bool list) {
             return vector<string>();
         }
         if (_imageF) {
-            SPIIF im = _imageF;
-            ImageHistory<Float> hist(im);
+            ImageHistory<Float> hist(_imageF);
+            return fromVectorString(hist.get(list));
+        }
+        else if (_imageC) {
+            ImageHistory<Complex> hist(_imageC);
+            return fromVectorString(hist.get(list));
+        }
+        else if (_imageD) {
+            ImageHistory<Double> hist(_imageD);
+            return fromVectorString(hist.get(list));
+        }
+        else if (_imageDC) {
+            ImageHistory<DComplex> hist(_imageDC);
             return fromVectorString(hist.get(list));
         }
         else {
-            SPIIC im = _imageC;
-            ImageHistory<Complex> hist(im);
-            return fromVectorString(hist.get(list));
+            ThrowCc("Logic error");
         }
     } catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -3398,12 +3417,24 @@ vector<string> image::maskhandler(
         if (_detached()) {
             return vector<string>(0);
         }
-        _notSupported(__func__);
         String oper = op;
         oper.upcase();
-        vector<string> res = _imageF
-            ? _handleMask(_imageF, oper, name)
-            : _handleMask(_imageC, oper, name);
+        vector<string> res;
+        if (_imageF) {
+            res = _handleMask(_imageF, oper, name);
+        }
+        else if (_imageC) {
+            res = _handleMask(_imageC, oper, name);
+        }
+        else if (_imageD) {
+            res = _handleMask(_imageD, oper, name);
+        }
+        else if (_imageDC) {
+            res = _handleMask(_imageDC, oper, name);
+        }
+        else {
+            ThrowCc("Logic error");
+        }
         if (res.empty()) {
             res = vector<string>(1, "T");
         }

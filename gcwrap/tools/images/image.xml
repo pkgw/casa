@@ -3080,30 +3080,24 @@ This shows a mixed type expression.  The real part of the complex image
 
 <description> 
 
-This method is used to create a new \pixelmask\ via a Boolean LEL expression.
-This gives you much more scope than the simple
-<link anchor="images:image.set.function">set</link> and
-<link anchor="images:image.putregion.function">putregion</link> functions.
-Both float and complex valued images are supported.
+This method is used to create a new pixel mask via a boolean LEL expression.
 
-See http://casa.nrao.edu/aips2_docs/notes/223/index.shtml
-which describes the the syntax and functionality of LEL in detail. Also
-in this document is a description of ways to escape image names that
-contain certain non-alphanumeric characters so they are compatible
-with LEL syntax. 
+See http://casa.nrao.edu/aips2_docs/notes/223/index.shtml which describes the
+the syntax and functionality of LEL in detail. Also in this document is a
+description of ways to escape image names that contain certain non-alphanumeric
+characters so they are compatible with LEL syntax.
 
-If the expression is not a scalar, the shapes and coordinates of the
-image and expression must conform.    If the expression is a scalar
-then the entire \pixelmask\ will be set to that value.
+If the expression is not a scalar, the shapes and coordinates of the image and
+expression must conform. If the expression is a scalar then the entire pixel
+mask will be set to that value.
 
-By default (argument {\stfaf name}) the name of a new \pixelmask\ is made up
-for you.  However, if you specify a \pixelmask\ name (use function
-<link anchor="images:image.summary.function">summary</link> or
-<link anchor="images:image.maskhandler.function">maskhandler</link> to see the mask names)
-then it is used.  If the \pixelmask\ already exists, it is overwritten. 
+By specifying the name parameter to be an empty string, the method automatically
+determines the name of the output mask. Otherwise, the output mask is named the
+value specified by the name parameter. If a mask by that name already exists,
+it is overwritten. Use method ia.summary() to view existing mask names.
 
-You can specify whether the new \pixelmask\ should be the default mask or not.
-By default, it is made the default \pixelmask\ !
+The asdefault parameter specifies if the new mask should be set as the default
+pixel mask of the image. This value is set to True by default.
 
 </description>
 
@@ -6185,21 +6179,14 @@ ia.close()
 
 <description>
 
-This function allows you to access the history file.
+This method interogates the history of an image.
 
-<!--
-By default, you browse it with the Table browser ({\stfaf browse=T})
-and the return value is T or a fail. -->
+The history is returned as an array of strings, where each element represents
+an individual history entry. If True, the list parameter will also cause the
+history to be emitted by the logger.
 
-If {\stfaf browse=F} and {\stfaf list=F}, the history is returned by
-the function as a vector of strings.  If {\stfaf list=T}, the history
-is sent to the logger.  <!-- and the function returns T or a fail.-->
-
-\casa\ tools that modify the MeasurementSet or an image file will save
-history information.  Also, you can directly annotate the history file
-with the function <link
-anchor="images:image.sethistory.function">sethistory</link>.  History
-from \fits\ file conversions is also stored and listable here.
+Note that entries can be permanently added to the image history by using the
+ia.sethistory() method.
 
 </description>
 
@@ -6541,63 +6528,45 @@ ia.makefloat('abs.im', 'complex.im', 'abs') # creates abs.im
 
 <description>
 
-This function <!-- (short-hand name {\stff mh}) --> is used to manage
-or handle \pixelmasks\ . <!-- (there is also a custom GUI interface
-through the <link
-anchor="images:image.maskhandlergui.function">maskhandlergui</link>
-function). --> A \casa\ image may contain zero, one or more
-\pixelmasks.  Any of these masks can be designated the default
-\pixelmask.  The default mask is acted upon by \casa\ applications.
-For example, if you ask for statistics from an image, pixels which are
-masked as bad (F) will be excluded from the calculations.
+This method is used to manage or handle pixel masks . A CASA image may contain
+zero, one, or more pixel masks.  Any of these masks can be designated the
+default pixel mask assoicated with the given image.  The default mask is acted
+upon and/or used by CASA applications. For example, if ia.statistics() will
+exclude pixels which are masked as bad (False) from the calculations.
 
-This function has an argument ({\stfaf op}) that specifies the
-behaviour.  In all cases, you can shorten the operation string to three
-characters.  It is not the job of this function to modify the values of
-masks. 
+This method does not modify the individual boolean values of any masks.
 
-\begin{itemize} 
+The op parameter is used to specify the behaviour.  In all cases, the specified
+operation can be specified by a three character string. Supported values of the
+op parameter are:
 
-\item{default - } this retrieves  the name of the default \pixelmask\
-as the return value of the function call.
+'default': Retrieve the name of the default pixel mask associated with the
+image. A one element array containing the empty string is returned if the image
+has no default mask.
 
-\item{get - } this retrieves the name(s) of the existing \pixelmasks\
-as the return value of the function call (string or vector of strings).
+'get': Retrieve the name(s) of all the existing pixel masks. Note that the
+ia.summary() method may also be used to view the pixel masks associated with an
+image.
 
-\item{set - } this lets you change the default \pixelmask\ to that given by the
-{\stfaf name} argument.  If {\stfaf name} is empty, then the default
-mask is unset (i.e. an all good mask is effectively applied).
+'set': Set the default pixel mask to the value specified by the name parameter.
+If the value of the name parameter is the empty string, then the default mask is
+unset (ie, all the pixels will be treated as being unmasked).
 
-\item{delete - } this lets you delete the \pixelmasks\ specified by the
-{\stfaf name} argument.  To delete more than one mask, {\stfaf name} can
-be a vector of strings.    Any supplied \pixelmask\ name that does not
-exist is silently ignored.
+'delete': Delete the pixel mask(s) specified by the name parameter. To delete
+more than one mask, the name parameter can be an array of strings. Any supplied
+pixel mask name that does not exist is silently ignored.
 
-\item{rename - } this lets you rename the mask specified by {\stfaf name[0]}
-to {\stfaf name[1]}.  Thus the {\stfaf name} argument must be a vector of
-length 2.
+'rename': Rename the mask specified as the first element of the name array
+parameter (name[0]) to the value specified in the second element of the name
+array parameter (name[1]]. In this case, the name array parameter must have
+exactly two elements.
 
-\item{copy - } this lets you copy a mask to another in the same image, or
-copy a mask from another image into this image.  Thus the {\stfaf name}
-argument must be a vector of length 2.
-
-For the first case, the first element of {\stfaf name} must be the name
-of the mask to copy, and the second element must be the name of the
-\pixelmask\ to which it will be copied. 
-
-For the second case, the first element of {\stfaf name} must be the name
-of the input image and \pixelmask\ with a colon delimiter (e.g. {\cf
-hcn:mask2}). The second element must be the name of the \pixelmask\ to
-which the input \pixelmask\ will be copied. 
-
-\end{itemize}
-
-Use the <link anchor="images:image.summary.function">summary</link> function to see the
-available \pixelmasks.  You can do this either via the logger display, or via
-the returned record, which contains the mask names. In the logger display,
-any \pixelmask\ which is not the default mask is listed in square brackets.  If
-a default mask is set, it is listed first, and is not enclosed in square
-brackets. 
+'copy': Copy the mask specified in the first element of the name array
+parameter (name[0]) to the a mask name specified in the second element of the
+name array parameter (name[1]]. In this case, the name array parameter must have
+exactly two elements. A mask from another image can be copied by using the
+imagename:maskname syntax for the first element in the name array, eg,
+'myimage:mask2'.
 
 </description>
 
