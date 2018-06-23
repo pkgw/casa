@@ -294,6 +294,61 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
                                   refVb->rowIds(),tolerance);
                 }
 
+                if (columns.contains(VisBufferComponent2::SpectralWindows))
+                {
+                    SCOPED_TRACE("Comparing SpectralWindows component ");
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::SpectralWindows);
+                    compareVector(columnName.c_str(),testVb->spectralWindows(),refVb->spectralWindows(),
+                                  refVb->rowIds(),0);
+                }
+
+                if (columns.contains(VisBufferComponent2::Antenna1))
+                {
+                    SCOPED_TRACE("Comparing Antenna1 component ");
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::Antenna1);
+                    compareVector(columnName.c_str(),testVb->antenna1(),refVb->antenna1(),
+                                  refVb->rowIds(),0);
+                }
+
+                if (columns.contains(VisBufferComponent2::Antenna2))
+                {
+                    SCOPED_TRACE("Comparing Antenna2 component ");
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::Antenna2);
+                    compareVector(columnName.c_str(),testVb->antenna2(),refVb->antenna2(),
+                                  refVb->rowIds(),0);
+                }
+
+                if (columns.contains(VisBufferComponent2::DataDescriptionIds))
+                {
+                    SCOPED_TRACE("Comparing DataDescriptionIds component ");
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::DataDescriptionIds);
+                    compareVector(columnName.c_str(),testVb->dataDescriptionIds(),refVb->dataDescriptionIds(),
+                                  refVb->rowIds(),0);
+                }
+
+                if (columns.contains(VisBufferComponent2::PolarizationId))
+                {
+                    SCOPED_TRACE("Comparing PolarizationId component ");
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::PolarizationId);
+                    ASSERT_EQ(testVb->polarizationId(), refVb->polarizationId());
+                }
+
+                if (columns.contains(VisBufferComponent2::RowIds))
+                {
+                    SCOPED_TRACE("Comparing RowIds component ");
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::RowIds);
+                    compareVector(columnName.c_str(),testVb->rowIds(),refVb->rowIds(),
+                                  refVb->rowIds(),0);
+                }
+
+                if (columns.contains(VisBufferComponent2::Uvw))
+                {
+                    SCOPED_TRACE("Comparing Uvw component ");
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::Uvw);
+                    compareMatrix(columnName.c_str(),testVb->uvw(),refVb->uvw(),
+                                  refVb->rowIds(),0);
+                }
+
                 if (columns.contains(VisBufferComponent2::FlagRow))
                 {
                     SCOPED_TRACE("Comparing FlagRow component ");
