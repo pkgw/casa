@@ -71,6 +71,20 @@ public:
     void writeFlag (const casacore::Cube<casacore::Bool> & flag);
     void writeFlagRow (const casacore::Vector<casacore::Bool> & rowflags);
 
+    virtual void visibilityCorrected(casacore::Cube<casacore::Complex>& vis) const;
+    virtual void visibilityModel(casacore::Cube<casacore::Complex>& vis) const;
+    virtual void visibilityObserved(casacore::Cube<casacore::Complex>& vis) const;
+    virtual void weight(casacore::Matrix<casacore::Float>& wtmat) const;
+    virtual void sigma(casacore::Matrix<casacore::Float>& sigmat) const;
+    virtual void weightSpectrum (casacore::Cube<casacore::Float> & wtsp) const;
+    virtual void sigmaSpectrum (casacore::Cube<casacore::Float> & sigsp) const;
+    virtual void exposure (casacore::Vector<double> & expo) const;
+    virtual void getRowIds (casacore::Vector<casacore::uInt> & rowids) const;
+    virtual void time (casacore::Vector<double> & t) const;
+    virtual void timeInterval (casacore::Vector<double> & ti) const;
+    virtual void timeCentroid (casacore::Vector<double> & t) const;
+    virtual void uvw (casacore::Matrix<double> & uvwmat) const;
+
     static casacore::Float weightToSigma (casacore::Float weight);
     static inline casacore::Float sigmaToWeight (casacore::Float sigma)
     {

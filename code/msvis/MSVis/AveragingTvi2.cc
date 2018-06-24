@@ -2699,6 +2699,98 @@ void AveragingTvi2::writeFlagRow (const Vector<Bool> & flagRow)
 	return;
 }
 
+void AveragingTvi2::visibilityObserved(casacore::Cube<casacore::Complex>& vis) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    vis = vb->visCube();
+    return;
+}
+
+void AveragingTvi2::visibilityCorrected(casacore::Cube<casacore::Complex>& vis) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    vis = vb->visCubeCorrected();
+    return;
+}
+
+void AveragingTvi2::visibilityModel(casacore::Cube<casacore::Complex>& vis) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    vis = vb->visCubeModel();
+    return;
+}
+
+void AveragingTvi2::sigma(casacore::Matrix<casacore::Float> & sigmat) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    sigmat = vb->sigma();
+    return;
+}
+
+void AveragingTvi2::weight (casacore::Matrix<casacore::Float> & wtmat) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    wtmat = vb->weight();
+    return;
+}
+
+void AveragingTvi2::weightSpectrum (casacore::Cube<casacore::Float> & wtsp) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    wtsp = vb->weightSpectrum();
+    return;
+}
+
+void AveragingTvi2::sigmaSpectrum (casacore::Cube<casacore::Float> & sigsp) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    sigsp = vb->sigmaSpectrum();
+    return;
+}
+
+void AveragingTvi2::exposure (casacore::Vector<double> & expo) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    expo = vb->exposure();
+    return;
+}
+
+void AveragingTvi2::getRowIds (casacore::Vector<casacore::uInt> & rowids) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    rowids = vb->rowIds();
+    return;
+}
+
+void AveragingTvi2::time (casacore::Vector<double> & t) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    t = vb->time();
+    return;
+}
+
+void AveragingTvi2::timeInterval (casacore::Vector<double> & ti) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    ti = vb->timeInterval();
+    return;
+}
+
+void AveragingTvi2::timeCentroid (casacore::Vector<double> & t) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    t = vb->timeCentroid();
+    return;
+}
+
+void AveragingTvi2::uvw (casacore::Matrix<double> & uvwmat) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    uvwmat = vb->uvw();
+    return;
+}
+
+
 } // end namespace vi
 
 using namespace casacore;
