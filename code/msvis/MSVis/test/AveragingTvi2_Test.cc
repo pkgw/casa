@@ -1024,6 +1024,38 @@ private:
     mutable Vector <Double> previousTime_p;
 };
 
+class GenerateModulation : public Generator<Float> {
+
+public:
+
+    GenerateModulation (float mean = 1, 
+                        float amplitude = 0.2, size_t repeat = 100) : 
+        mean_p (mean), amplitude_p(amplitude), repeat_p(repeat), idx_p(0) {}
+
+    float
+    operator() (const FillState & fillState, Int channel, Int correlation) const
+    {
+        (void)fillState;
+        (void)channel;
+        (void)correlation;
+        // Generate a sine modulation with mean mean_p, a maximum mouldation
+        // amplitude of amplitude_p and that repeates itself every 
+        // repeat_p generated values
+        if(idx_p == repeat_p)
+            idx_p = 0;
+        float modulation = amplitude_p * sin(2* M_PI * idx_p / repeat_p);
+        idx_p++;
+        return mean_p + modulation;
+    }
+
+private:
+
+    float mean_p;
+    float amplitude_p;
+    size_t repeat_p;
+    mutable size_t idx_p;
+};
+
 class UvwMotionGenerator : public Generator<Vector <Double> > {
 
 public:
@@ -2191,20 +2223,18 @@ protected:
                                      new GenerateConstant<Double> (interval_p));
         msFactory->setDataGenerator (MSMainEnums::INTERVAL,
                                      new GenerateConstant<Double> (interval_p));
-        msFactory->setDataGenerator (MSMainEnums::SIGMA,
-                                     new GenerateConstant<Float> (1.0f));
-        msFactory->setDataGenerator (MSMainEnums::WEIGHT,
-                                     new GenerateConstant<Float> (1.0f));
 
         // For the data cubes fill it with a ramp.  The real part of the ramp will
         // be multiplied by the factor supplied in the constructor to check that
         // there's no "crosstalk" between the columns.
 
         msFactory->setDataGenerator(MSMainEnums::DATA, new GenerateRamp());
-
         msFactory->setDataGenerator(MSMainEnums::CORRECTED_DATA, new GenerateRamp(2));
-
         msFactory->setDataGenerator(MSMainEnums::MODEL_DATA, new GenerateRamp(3));
+        msFactory->setDataGenerator (MSMainEnums::SIGMA,
+                                     new GenerateModulation());
+        msFactory->setDataGenerator (MSMainEnums::WEIGHT,
+                                     new GenerateModulation());
 
         // Set all of the data to be unflagged.
 
