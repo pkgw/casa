@@ -2790,6 +2790,19 @@ void AveragingTvi2::uvw (casacore::Matrix<double> & uvwmat) const
     return;
 }
 
+casacore::Bool AveragingTvi2::weightSpectrumExists () const
+{
+  //According to VbAvg::startChunk code comments,
+  //there is always an output weightSpectrum. See also CAS-11559.
+  return true;
+}
+
+casacore::Bool AveragingTvi2::sigmaSpectrumExists () const
+{
+  //According to VbAvg::startChunk code comments,
+  //there is always an output sigmaSpectrum. See also CAS-11559.
+  return true;
+}
 
 } // end namespace vi
 

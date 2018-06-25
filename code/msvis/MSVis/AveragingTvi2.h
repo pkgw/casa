@@ -78,6 +78,8 @@ public:
     virtual void sigma(casacore::Matrix<casacore::Float>& sigmat) const;
     virtual void weightSpectrum (casacore::Cube<casacore::Float> & wtsp) const;
     virtual void sigmaSpectrum (casacore::Cube<casacore::Float> & sigsp) const;
+    virtual casacore::Bool weightSpectrumExists () const;
+    virtual casacore::Bool sigmaSpectrumExists () const;
     virtual void exposure (casacore::Vector<double> & expo) const;
     virtual void getRowIds (casacore::Vector<casacore::uInt> & rowids) const;
     virtual void time (casacore::Vector<double> & t) const;
