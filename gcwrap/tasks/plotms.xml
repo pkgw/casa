@@ -56,12 +56,12 @@ MS Parameters
   
   <param type="int" name="gridrows">
     <description>Number of subplot rows</description>
-  	<value>1</value>
+    <value>1</value>
   </param>
   
   <param type="int" name="gridcols">
     <description>Number of subplot columns</description>
-  	<value>1</value>
+    <value>1</value>
   </param>
   
    <param type="int" name="rowindex">
@@ -74,10 +74,10 @@ MS Parameters
        <value>0</value>
    </param>
   
-  <param type="int" name="plotindex">
-    	<description>Index to address a subplot (0-based)</description>
-    	<value>0</value>
-  	</param>
+   <param type="int" name="plotindex">
+       <description>Index to address a subplot (0-based)</description>
+       <value>0</value>
+   </param>
  
 
   <param type="string" name="xaxis">
@@ -709,22 +709,22 @@ Iteration Parameters
    </param>
 
    <param type="bool" name="xselfscale" subparam="true">
-       <description>Iterated plots share a common x-axis label per column</description>
+       <description>When True, iterated plots have a common x-axis range (scale).</description>
        <value>False</value>
    </param>
 
    <param type="bool" name="yselfscale" subparam="true">
-       <description>Iterated plots share a common y-axis label per row</description>
+       <description>When True, iterated plots have a common y-axis range (scale).</description>
        <value>False</value>
    </param>
    
    <param type="bool" name="xsharedaxis" subparam="true">
-       <description>Iterated plots share a common x-axis. Must also set xselfscale=True.</description>
+	   <description>Iterated plots on a grid share a common external x-axis per column. Must also set xselfscale=True and gridrows>1.</description>
        <value>False</value>
    </param>
 
    <param type="bool" name="ysharedaxis" subparam="true">
-       <description>Iterated plots share a common y-axis. Must also set yselfscale=True.</description>
+	   <description>Iterated plots on a grid share a common external y-axis per row. Must also set yselfscale=True and gridcols>1.</description>
        <value>False</value>
    </param>
 
@@ -1008,7 +1008,7 @@ Canvas Parameters
     <description>Legend position.</description>
     <value></value>
     <allowed kind="enum">
-    	<value />
+        <value />
         <value>upperRight</value>
         <value>upperLeft</value>
         <value>lowerRight</value>
@@ -1079,17 +1079,17 @@ Export plot as image Parameters
 ###############################################################################
 -->
      <param type="bool" name="showgui">
-         <description>Show GUI</description>
-         <value>True</value>
+        <description>Show GUI</description>
+        <value>True</value>
      </param>
      
      <param type="bool" name="clearplots" subparam="true">
-     	<description>Remove any existing plots so new ones can replace them.</description>
-     	<value>True</value>
+        <description>Remove any existing plots so new ones can replace them.</description>
+        <value>True</value>
      </param>
      
      <param type="stringArray" name="callib">
-     	<description>Calibration library string or filename for on-the-fly calibration.</description>
+        <description>Calibration library string or filename for on-the-fly calibration.</description>
         <value></value>
      </param>
      
@@ -1442,7 +1442,7 @@ Constraints
             <default param="ysharedaxis"><value>False</value></default>
         </notequals>
     </when>
- 	<!--<when param="exprange">
+    <!--<when param="exprange">
         <notequals type="string" value="">
         </notequals>
     </when> -->
@@ -1501,9 +1501,9 @@ Constraints
     </when>
     
     <when param="showgui">
-    	<equals type="bool" value="True">
-    		<default param="clearplots"><value type="bool">True</value></default>
-    	</equals>
+        <equals type="bool" value="True">
+            <default param="clearplots"><value type="bool">True</value></default>
+        </equals>
         <equals type="bool" value="False">
             <default param="clearplots"><value type="bool">True</value></default>
         </equals>
@@ -1584,15 +1584,15 @@ Constraints
     vis -- input MS or CalTable
            default: ''  (will merely launch the gui)
     gridrows -- Number of subplot rows
-    				default: 1 
+                    default: 1 
     gridcols -- Number of subplot columns
-    				default: 1
+                    default: 1
     rowindex -- Row location of the subplot (0-based).
                     default: 0
     colindex -- Column location of the subplot (0-based).
                     default: 0
     plotindex -- Index to address a subplot (0-based). 
-    				default: 0                         
+                    default: 0                         
     xaxis, yaxis -- what to plot on the two axes
                     default: '' (defaults are xaxis='time',
                                  yaxis='amp' on first execution;
@@ -1818,13 +1818,13 @@ Constraints
                 default: '' (no iteration)
                 options: 'scan','field','spw','baseline','antenna','time','corr',''
       &gt;&gt;&gt; iteraxis expandable parameters
-        xselfscale -- If true, iterated plots should share a common x-axis label per column.
-        yselfscale -- If true, iterated plots should share a common y-axis label per row.
-                      default: false, which will scale all plots globally
-        xsharedaxis -- If true, iterated plots should share a common x-axis (must also set xselfscale=True) 
-        			  default: false, each plot will have its own x-axis.
-        ysharedaxis -- If true, iterated plots should share a common y-axis (must also set yselfscale=True)
-        			  default: false, each plot will have its own y-axis.              
+        xselfscale -- When True, iterated plots have a common x-axis range (scale).
+        yselfscale -- When True, iterated plots have a common y-axis range (scale).
+                      default: false, which will scale all plots individually
+        xsharedaxis -- Iterated plots on a grid share a common external x-axis per column (must also set xselfscale=True and gridcols>1) 
+                      default: false, each plot will have its own x-axis.
+        ysharedaxis -- Iterated plots on a grid share a common external y-axis per row (must also set yselfscale=True and gridrows>1)
+                      default: false, each plot will have its own y-axis.              
 
     customsymbol -- If true, use a custom symbol for drawing unflagged points
                     default: False
@@ -1906,8 +1906,8 @@ Constraints
                      default:  ''   (plotfile extension will be used)
                      options: 'jpg', 'png', 'ps', 'pdf', 'txt'
         exprange -- pages to export for iteration plots
-        			default:   ''
-        			options: 'current', 'all'             
+                    default:   ''
+                    options: 'current', 'all'             
         highres -- use high resolution in exported plot 
                    default: False (use screen resolution)
         dpi -- DPI of exported plot

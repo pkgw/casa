@@ -286,29 +286,6 @@ CoordinateSystem* ImageFactory::_makeCoordinateSystem(
     return csys.release();
 }
 
-SHARED_PTR<TempImage<Complex> > ImageFactory::complexFromFloat(
-	SPCIIF realPart, const Array<Float>& imagPart
-) {
-	SHARED_PTR<TempImage<Complex> > newImage(
-		new TempImage<Complex>(
-			TiledShape(realPart->shape()),
-			realPart->coordinates()
-		)
-	);
-	{
-		Array<Bool> mymask = realPart->getMask();
-		if (realPart->hasPixelMask()) {
-			mymask = mymask && realPart->pixelMask().get();
-		}
-		if (! allTrue(mymask)) {
-			newImage->attachMask(ArrayLattice<Bool>(mymask));
-		}
-	}
-	ImageUtilities::copyMiscellaneous(*newImage, *realPart);
-	newImage->put(casacore::makeComplex(realPart->get(), imagPart));
-	return newImage;
-}
-
 SPIIC ImageFactory::makeComplex(
 	SPCIIF realPart, SPCIIF imagPart, const String& outfile,
 	const Record& region, Bool overwrite
@@ -334,45 +311,18 @@ SPIIC ImageFactory::makeComplex(
 	auto subImagImage = SubImageFactory<Float>::createSubImageRO(
 		*imagPart, region, mask, nullptr
 	);
-	auto complexImage = complexFromFloat(
-		subRealImage, subImagImage->get(false)
+	auto complexImage = makeComplexImage(
+	    DYNAMIC_POINTER_CAST<const casacore::ImageInterface<casacore::Float>>(
+	        subRealImage
+	    ),
+	    DYNAMIC_POINTER_CAST<const casacore::ImageInterface<casacore::Float>>(
+	        subImagImage
+	    )
 	);
 	return SubImageFactory<Complex>::createImage(
 		*complexImage, outfile, Record(), "", AxesSpecifier(),
 		overwrite, false, false
 	);
-}
-
-SHARED_PTR<TempImage<Float> > ImageFactory::floatFromComplex(
-	SPCIIC complexImage, ComplexToFloatFunction function
-) {
-	SHARED_PTR<TempImage<Float> > newImage(
-		new TempImage<Float>(
-			TiledShape(complexImage->shape()),
-			complexImage->coordinates()
-		)
-	);
-	{
-		Array<Bool> mymask = complexImage->getMask();
-		if (complexImage->hasPixelMask()) {
-			mymask = mymask && complexImage->pixelMask().get();
-		}
-		if (! allTrue(mymask)) {
-			newImage->attachMask(ArrayLattice<Bool>(mymask));
-		}
-	}
-	ImageUtilities::copyMiscellaneous(*newImage, *complexImage);
-	switch (function) {
-	case REAL:
-		newImage->put(real(complexImage->get()));
-		break;
-	case IMAG:
-		newImage->put(imag(complexImage->get()));
-		break;
-	default:
-		ThrowCc("Logic Error: Unhandled function");
-	}
-	return newImage;
 }
 
 ITUPLE ImageFactory::fromFile(const String& infile, Bool cache) {
