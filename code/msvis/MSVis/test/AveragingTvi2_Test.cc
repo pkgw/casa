@@ -2203,7 +2203,7 @@ protected:
 
         nAntennas_p = 4;
         nBaselines_p = ((nAntennas_p - 1) * nAntennas_p) / 2;
-        msFactory->setTimeInfo (0, 120, interval_p);
+        msFactory->setTimeInfo (0, 100, interval_p);
         msFactory->addSpectralWindows(1); // only one spw for now
         msFactory->addAntennas(nAntennas_p);
         msFactory->addFeeds (10); // needs antennas and spws to be setup first
@@ -2264,9 +2264,8 @@ protected:
             msFactory->setDataGenerator(MSMainEnums::MODEL_DATA, new GenerateRamp(3));
 
         // Set all of the data to be unflagged.
-
-        msFactory->setDataGenerator(MSMainEnums::FLAG, new GenerateConstant<Bool> (false));
-        msFactory->setDataGenerator(MSMainEnums::FLAG_ROW, new GenerateConstant<Bool> (false));
+        msFactory->setDataGenerator(MSMainEnums::FLAG, new GenerateAlternatingFlagRows());
+        msFactory->setDataGenerator(MSMainEnums::FLAG_ROW, new GenerateAlternatingFlagRows());
 
         // Set the time centroid to be the middle of the sample interval.
 
