@@ -29,7 +29,11 @@
 #include "SDMDataObjectReader.h"
 #include "SDMDataObjectStreamReader.h"
 
+// shared_ptr not needed by CASA, do not compile this for the WITHOUT_BOOST option
+// It may be needed by ALMA code, so do not elimiate it yet.
+#ifndef WITHOUT_BOOST
 #include <boost/shared_ptr.hpp>
+#endif
 
 using namespace asdmbinaries;
 
@@ -266,10 +270,14 @@ class SDMBinData{
    * @return a pointer to a VMSData containing the values to populate MS rows.
    */
   const VMSData* getNextMSMainCols(unsigned int n);
-  void getNextMSMainCols(unsigned int n, boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp);
-
   const VMSData* getNextMSMainCols(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int n);
+
+  // shared_ptr not needed by CASA, do not compile this for the WITHOUT_BOOST option
+  // It may be needed by ALMA code, so do not elimiate it yet.
+#ifndef WITHOUT_BOOST
+  void getNextMSMainCols(unsigned int n, boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp);
   void getNextMSMainCols(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int n, boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp);
+#endif
 
   vector<MSData*> getMSDataFromBDFData(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int n);
 

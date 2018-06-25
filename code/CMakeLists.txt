@@ -34,6 +34,7 @@ if (UseCcache)
 endif()
 
 add_definitions ("-DUseCasacoreNamespace")
+add_definitions ("-DWITHOUT_BOOST")
 
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
 
@@ -1053,7 +1054,7 @@ endif()
 
 casa_find( CASACORE
            VERSION 2.0.2
-           PREFIX_HINTS ${CASACORE_ROOT_DIR} ${Boost_INCLUDE_DIR}
+           PREFIX_HINTS ${CASACORE_ROOT_DIR}
            DEFINITIONS "-DUseCasacoreNamespace"
            INCLUDES casa/aips.h
                     casa/version.h
@@ -1062,7 +1063,7 @@ casa_find( CASACORE
            PREFIX_HINTS ${casacore_prefix}
            CPP_VERSION CASACORE_VERSION
            RUN_VERSION "casacore::getVersionCASA()"
-           DEPENDS LAPACK CFITSIO WCSLIB FFTW3 DL )
+           DEPENDS LAPACK CFITSIO WCSLIB FFTW3 DL)
 # Listing explicitly CASACore's dependency libraries is not necessary if the CASACore libraries
 # were built with correct linking information, which they are not.
 
@@ -1113,7 +1114,7 @@ casa_find( GSL
 #
 if(CMAKE_SYSTEM_NAME STREQUAL Linux AND GSL_LIBRARIES)
     if(EXISTS "/usr/lib64/atlas/libsatlas.so")
-        set( Boost_LIBRARIES "${Boost_LIBRARIES};${GSL_LIBRARIES};/usr/lib64/atlas/libsatlas.so" )
+        set( GSL_LIBRARIES "${GSL_LIBRARIES};/usr/lib64/atlas/libsatlas.so" )
     endif( )
 endif( )
 
@@ -1398,22 +1399,22 @@ casa_config_end()
 
 # for linux RPM & binary distros libgraphics contains pgplot (linked in)...
 if( APPLE )
-  casa_add_module( graphics CASACORE PGPLOT WCSLIB)
+  casa_add_module( graphics CASACORE PGPLOT WCSLIB )
 else()
   if( NOT SKIP_PGPLOT )
-    casa_add_module( graphics CASACORE PGPLOT X11 WCSLIB)
+    casa_add_module( graphics CASACORE PGPLOT X11 WCSLIB )
   else()
-    casa_add_module( graphics CASACORE X11 WCSLIB)
+    casa_add_module( graphics CASACORE X11 WCSLIB )
   endif()
 endif()
 casa_add_module( atmosphere )
 casa_add_module( casatools CASACORE )
 casa_add_module( stdcasa CASACORE )
 casa_add_module( parallel CASACORE )
-casa_add_module( casadbus CASACORE DBUS)
-casa_add_module( casaqt CASACORE QT4 QWT XERCES graphics stdcasa)
+casa_add_module( casadbus CASACORE DBUS )
+casa_add_module( casaqt CASACORE QT4 QWT XERCES graphics stdcasa )
 ###casa_add_module ( CasaDataObjects CASACORE)
-casa_add_module( components stdcasa casatools CASACORE GSL)
+casa_add_module( components stdcasa casatools CASACORE GSL )
 casa_add_module( imageanalysis CASACORE components)
 casa_add_module( asdmstman CASACORE )
 casa_add_module( msvis CASACORE asdmstman ) # WarningsAsErrors)
@@ -1424,17 +1425,17 @@ casa_add_module( spectrallines CASACORE imageanalysis SQLITE)
 casa_add_module( guitools CASACORE QT4 QWT synthesis)
 casa_add_module( display CASACORE WCSLIB QT4 casaqt guitools synthesis imageanalysis stdcasa casadbus spectrallines components)
 casa_add_module( plotms CASACORE QT4 casaqt synthesis )
-casa_add_module( calanalysis CASACORE synthesis)
-casa_add_module( alma CASACORE LIBXML2 LIBXSLT Boost synthesis msvis)
-#casa_add_module( alma_v3 CASACORE LIBXML2 LIBXSLT Boost synthesis)
-#casa_add_module( oldalma CASACORE LIBXML2 Boost )
-casa_add_module( nrao CASACORE)
+casa_add_module( calanalysis CASACORE synthesis )
+casa_add_module( alma CASACORE LIBXML2 LIBXSLT synthesis msvis)
+#casa_add_module( alma_v3 CASACORE LIBXML2 LIBXSLT synthesis)
+#casa_add_module( oldalma CASACORE LIBXML2 )
+casa_add_module( nrao CASACORE )
 casa_add_module( atnf CASACORE RPFITS)
 casa_add_module( miriad CASACORE components)
 casa_add_module( casa_sakura CASACORE LIBSAKURA)
 casa_add_module( singledishfiller CASACORE )
 casa_add_module( singledish CASACORE casa_sakura singledishfiller msvis mstransform)
-casa_add_module( bnmin1 GSL GSLCBLAS CASACORE Boost )
+casa_add_module( bnmin1 Boost GSL GSLCBLAS CASACORE )
 casa_add_module( air_casawvr CASACORE bnmin1 Boost synthesis WCSLIB CFITSIO LAPACK )
 
 if (UseCrashReporter AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
@@ -1477,7 +1478,6 @@ file( WRITE ${CMAKE_INSTALL_PREFIX}/makedefs
   CORELIB = ${_cc}\n
   WCSLIBLIB = ${WCSLIB_wcs}\n
   WCSLIBLIBD = .\n
-  BOOSTROOT = ${BOOST_ROOT}\n
   RPFITSLIBD = ${rpfitslibd}\n
   CFITSIOLIBD = ${cfitsiolibd}\n
   CFITSIOINCD =  ${CFITSIO_INCLUDE_DIRS}\n
