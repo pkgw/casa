@@ -82,20 +82,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 SolNorm::SolNorm(Bool donorm, String type) :
-  solnorm_(donorm),
+  donorm_(donorm),
   normtype_(normTypeFromString(type))
 {
   //  report();
 }
 
 SolNorm::SolNorm(const SolNorm& other) : 
-  solnorm_(other.solnorm_),
+  donorm_(other.donorm_),
   normtype_(other.normtype_)
 {}
 
 void SolNorm::report() {
   cout << "Forming SolNorm object:" << endl;
-  cout << " solnorm=" << boolalpha << solnorm_ << endl
+  cout << " donorm=" << boolalpha << donorm_ << endl
        << " normtype=" << normtypeString() << endl;
 }
  
@@ -165,8 +165,7 @@ SolvableVisCal::SolvableVisCal(VisSet& vs) :
   fintervalHz_(-1.0),
   fintervalCh_(vs.numberSpw(),0.0),
   chanAveBounds_(vs.numberSpw(),Matrix<Int>()),
-  solnorm_(false),
-  solnorm__(false,"mean"),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -235,8 +234,7 @@ SolvableVisCal::SolvableVisCal(String msname,Int MSnAnt,Int MSnSpw) :
   fintervalHz_(-1.0),
   fintervalCh_(MSnSpw,0.0),
   chanAveBounds_(MSnSpw,Matrix<Int>()),
-  solnorm_(false),
-  solnorm__(false,"mean"),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -307,8 +305,7 @@ SolvableVisCal::SolvableVisCal(const MSMetaInfoForCal& msmc) :
   fintervalHz_(-1.0),
   fintervalCh_(nSpw(),0.0),
   chanAveBounds_(nSpw(),Matrix<Int>()),
-  solnorm_(false),
-  solnorm__(false,"mean"),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -371,8 +368,7 @@ SolvableVisCal::SolvableVisCal(const Int& nAnt) :
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
   fsolint_("none"),
-  solnorm_(false),
-  solnorm__(false,"mean"),
+  solnorm_(false,"mean"),
   minSNR_(0.0),
   combine_(""),
   focusChan_(0),
@@ -1146,8 +1142,7 @@ void SolvableVisCal::setSolve() {
   urefantlist_(0)=-1;
   apmode()="AP";
   calTableName()="<none>";
-  solnorm_=false;
-  solnorm__=SolNorm(false,String("mean"));
+  solnorm_=SolNorm(false,String("mean"));
   minSNR()=0.0f;
 
   // This is the solve context
@@ -1284,15 +1279,16 @@ void SolvableVisCal::setSolve(const Record& solve)
     append()=solve.asBool("append");
 
   if (solve.isDefined("solnorm")) {
-    solnorm_=solve.asBool("solnorm");
-    // Set the SolNorm object
+    Bool solnorm=solve.asBool("solnorm");
+
+    // normtype="mean" if not specified
+    String normtype("mean");
     if (solve.isDefined("normtype")) 
-      solnorm__=SolNorm(solnorm_,solve.asString("normtype"));
-    else {
-      if (solnorm_)
-	cout << "Need log message here,,.." << endl;
-      solnorm__=SolNorm(solnorm_,"mean");
-    }
+      normtype=solve.asString("normtype");
+
+    // Set the SolNorm object
+    solnorm_=SolNorm(solnorm,normtype);
+
   }
 
   if (solve.isDefined("minsnr"))
@@ -4138,7 +4134,7 @@ void SolvableVisCal::normalize() {
 
     // TBD: trap attempts to normalize a caltable containing FPARAM (non-Complex)?
 
-    logSink() << "Normalizing solution amplitudes per spw." 
+    logSink() << "Normalizing solution amplitudes per spw with " << solNorm().normtypeString()
 	      << LogIO::POST;
 
     // In this generic version, one normalization factor per spw
@@ -4149,11 +4145,14 @@ void SolvableVisCal::normalize() {
     while (!ctiter.pastEnd()) {
       Cube<Complex> p(ctiter.cparam());
       Cube<Bool> fl(ctiter.flag());
-      if (nfalse(fl)>0)
-	normSolnArray(p,!fl,false);  // don't do phase
+      if (nfalse(fl)>0) {
+	Complex normfactor=normSolnArray(p,!fl,false);  // don't do phase
+	logSink() << " Normalization factor (" << solNorm().normtypeString() << ") for spw " << ctiter.thisSpw() << " = " << abs(normfactor)
+	      << LogIO::POST;
 
-      // record result...
-      ctiter.setcparam(p);
+	// record result...
+	ctiter.setcparam(p);
+      }
       ctiter.next();
     }
 
@@ -4311,14 +4310,14 @@ void SolvableVisCal::stateSVC(const Bool& doVC) {
 
 }
 
-void SolvableVisCal::normSolnArray(Array<Complex>& sol, 
-				   const Array<Bool>& solOK,
-				   const Bool doPhase) {
+Complex SolvableVisCal::normSolnArray(Array<Complex>& sol, 
+				      const Array<Bool>& solOK,
+				      const Bool doPhase) {
 
   // Only do something if 2 or more good solutions
+  Complex factor(1.0);
   if (ntrue(solOK)>1) {
 
-    Complex factor(1.0);
     
     Array<Float> amp(amplitude(sol));
 
@@ -4341,6 +4340,9 @@ void SolvableVisCal::normSolnArray(Array<Complex>& sol,
     
   } // ntrue > 0
 
+  // Return the net normlization factor
+  return factor;
+  
 }
 
 
