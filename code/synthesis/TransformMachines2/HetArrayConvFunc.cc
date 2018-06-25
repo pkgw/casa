@@ -508,10 +508,17 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 	Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
 	SpectralCoordinate conjSpCoord=spCoord;
 		//cerr << "centreFreq " << centerFreq << " beamFreqs " << beamFreqs(0) << "  " << beamFreqs(1) << endl;
-	conjSpCoord.setReferenceValue(Vector<Double>(1, 2*centerFreq-beamFreqs(0)));
+	conjSpCoord.setReferenceValue(Vector<Double>(1, sqrt(2*centerFreq*centerFreq-beamFreqs(0)*beamFreqs(0))));
 		///Increment should go in the reverse direction
-	if(beamFreqs.nelements() >1)
-	  conjSpCoord.setIncrement(Vector<Double>(1, beamFreqs(0)-beamFreqs(1)));
+	if(beamFreqs.nelements() >1){
+	  Vector<Double> conjFreqs(beamFreqs.nelements());
+	  for (uInt kk=0; kk< beamFreqs.nelements(); ++kk){
+	    conjFreqs[kk]=sqrt(2*centerFreq*centerFreq-beamFreqs(kk)*beamFreqs(kk));
+	    
+	  }
+	  conjSpCoord=SpectralCoordinate(spCoord.frequencySystem(), conjFreqs, spCoord.restFrequency());
+	  //conjSpCoord.setIncrement(Vector<Double>(1, beamFreqs(0)-beamFreqs(1)));
+	}
 	conjCoord.replaceCoordinate(conjSpCoord, spind);
         IPosition pbShape(4, convSize_p, convSize_p, 1, nBeamChans);
         //TempImage<Complex> twoDPB(pbShape, coords);
@@ -928,7 +935,8 @@ Int  HetArrayConvFunc::conjSupport(const casacore::Vector<casacore::Double>& fre
   Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
   Double maxRatio=-1.0;
   for (Int k=0; k < freqs.shape()[0]; ++k) {
-    Double conjFreq=(centerFreq-freqs[k])+centerFreq;
+    //Double conjFreq=(centerFreq-freqs[k])+centerFreq;
+    Double conjFreq=sqrt(2*centerFreq*centerFreq-freqs(k)*freqs(k));
     if(maxRatio < conjFreq/freqs[k] )
       maxRatio=conjFreq/freqs[k];
   }
