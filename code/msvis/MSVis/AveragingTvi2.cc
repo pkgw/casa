@@ -2790,6 +2790,20 @@ void AveragingTvi2::uvw (casacore::Matrix<double> & uvwmat) const
     return;
 }
 
+void AveragingTvi2::antenna1 (casacore::Vector<casacore::Int> & ant1) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    ant1 = vb->antenna1();
+    return;
+}
+
+void AveragingTvi2::antenna2 (casacore::Vector<casacore::Int> & ant2) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    ant2 = vb->antenna2();
+    return;
+}
+
 casacore::Bool AveragingTvi2::weightSpectrumExists () const
 {
   //According to VbAvg::startChunk code comments,

@@ -85,6 +85,8 @@ public:
     virtual void time (casacore::Vector<double> & t) const;
     virtual void timeInterval (casacore::Vector<double> & ti) const;
     virtual void timeCentroid (casacore::Vector<double> & t) const;
+    virtual void antenna1 (casacore::Vector<casacore::Int> & ant1) const;
+    virtual void antenna2 (casacore::Vector<casacore::Int> & ant2) const;
     virtual void uvw (casacore::Matrix<double> & uvwmat) const;
 
     static casacore::Float weightToSigma (casacore::Float weight);
