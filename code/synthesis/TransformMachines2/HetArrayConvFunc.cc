@@ -513,8 +513,8 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 	if(beamFreqs.nelements() >1){
 	  Vector<Double> conjFreqs(beamFreqs.nelements());
 	  for (uInt kk=0; kk< beamFreqs.nelements(); ++kk){
-	    conjFreqs[kk]=sqrt(2*centerFreq*centerFreq-beamFreqs(kk)*beamFreqs(kk));
-	    
+	    //conjFreqs[kk]=sqrt(2*centerFreq*centerFreq-beamFreqs(kk)*beamFreqs(kk));
+	    conjFreqs[kk]=SynthesisUtils::conjFreq(beamFreqs[kk], centerFreq);
 	  }
 	  conjSpCoord=SpectralCoordinate(spCoord.frequencySystem(), conjFreqs, spCoord.restFrequency());
 	  //conjSpCoord.setIncrement(Vector<Double>(1, beamFreqs(0)-beamFreqs(1)));
@@ -936,7 +936,7 @@ Int  HetArrayConvFunc::conjSupport(const casacore::Vector<casacore::Double>& fre
   Double maxRatio=-1.0;
   for (Int k=0; k < freqs.shape()[0]; ++k) {
     //Double conjFreq=(centerFreq-freqs[k])+centerFreq;
-    Double conjFreq=sqrt(2*centerFreq*centerFreq-freqs(k)*freqs(k));
+    Double conjFreq=SynthesisUtils::conjFreq(freqs[k], centerFreq);
     if(maxRatio < conjFreq/freqs[k] )
       maxRatio=conjFreq/freqs[k];
   }
