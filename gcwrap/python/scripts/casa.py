@@ -163,6 +163,7 @@ sdmstool = _casac.singledishms
 catool = _casac.calanalysis
 attool = _casac.atmosphere
 
+from accor import accor
 from accum import accum
 from applycal import applycal
 from asdmsummary import asdmsummary
