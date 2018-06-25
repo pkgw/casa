@@ -645,8 +645,8 @@ TBD
 
      <param type="string" direction="in" name="normtype">
      <description>Solution normalization type</description>
-     <value>mean</value>
      <value>median</value>
+     <value>mean</value>
      </param>
 
      <param type="float" direction="in" name="minsnr">
