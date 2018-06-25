@@ -3753,10 +3753,18 @@ String image::_name(bool strippath) const {
 }
 
 image* image::newimage(const string& fileName) {
-    image *rstat = newimagefromfile(fileName);
-    if (!rstat)
-            throw AipsError("Unable to create image");
-    return rstat;
+    try {
+        _log << _ORIGIN;
+        auto *rstat = newimagefromfile(fileName);
+        ThrowIf(! rstat, "Unable to create image");
+        return rstat;
+    }
+    catch (const AipsError& x) {
+        _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+            << LogIO::POST;
+        RETHROW(x);
+    }
+    return nullptr;
 }
 
 image* image::newimagefromarray(
@@ -3796,24 +3804,9 @@ image* image::newimagefromarray(
 image* image::newimagefromfile(const string& fileName) {
     try {
         _log << _ORIGIN;
-        SPIIF imageF;
-        SPIIC imageC;
-        std::tie(imageF, imageC, std::ignore, std::ignore)
-            = ImageFactory::fromFile(fileName);
-        if (imageF || imageC) {
-            unique_ptr<image> ret(
-                    imageF ? new image(imageF)
-                    : new image(imageC)
-            );
-            // not adding history because all this method does is open
-            // the image, it doesn't change it
-            return ret.release();
-        }
-        else {
-            _log << LogIO::WARN << "Pixel data type of requested image not supported"
-                << LogIO::POST;
-            return new image();
-        }
+        // not adding history because all this method does is open
+        // the image, it doesn't change it
+        return new image(ImageFactory::fromFile(fileName));
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
