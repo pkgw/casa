@@ -638,7 +638,79 @@ Define the image coordinate systems and shapes.
 <input/>
 <returns type="bool"/>
 </method>
+<!-- ===================================== -->
+   <method type="function" name="makeimage">
+   <shortdescription>calculate images of different type by gridding</shortdescription>
 
+<description>
+This tool function actually does gridding (and Fourier inversion if
+needed) of visibility data to make an image. It allows calculation of
+various types of image:
+\begin{description}
+\item[observed] Make the dirty image from the DATA column ({\em default})
+\item[model] Make the dirty image from the MODEL\_DATA column
+\item[corrected] Make the dirty image from the CORRECTED\_DATA column
+\item[residual] Make the dirty image from the difference of the
+CORRECTED\_DATA and MODEL\_DATA columns
+\item[psf] Make the point spread function
+\item[singledish] Make a single dish image
+\item[coverage] Make a single dish or mosaic coverage image
+\item[holography] Make a complex holography image (experimental)
+
+\end{description}
+</description>
+<input>
+
+     <param type="string" name="type">
+     <description>Type of output image</description>
+     <value>observed</value>
+     <allowed kind="enum">
+      <value>observed</value>
+      <value>model</value>
+      <value>corrected</value>
+      <value>residual</value>
+      <value>psf</value>
+      <value>singledish</value>
+      <value>coverage</value>
+      <value>holography</value>
+     </allowed>
+     </param>
+
+     <param type="string" name="image">
+     <description>Name of output image</description>
+     <value></value>
+     </param>
+
+     <param type="string" name="compleximage">
+     <description>Name of output complex image</description>
+     <value></value>  
+     </param>
+
+     <param type="int" name="model">
+     <description>In case of multifield which image</description>
+     <value>0</value>
+     </param>
+
+     
+     
+</input>
+<returns type="bool"/>
+</method>
+<!-- ===================================== -->
+   <method type="function" name="unlockimages">
+   <shortdescription>release some images attached to this process</shortdescription>
+
+<description>
+  Try to unlock images if the need arise
+</description>
+<input>
+   <param type="int" name="imagefieldid">
+     <description>which image or outlier to unlock</description>
+     <value>0</value>
+   </param>
+   </input>
+<returns type="bool"/>
+</method>
 <!-- ===================================== -->
 
    <method type="function" name="getimstore">

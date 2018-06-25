@@ -131,7 +131,12 @@ public:
 		 vi::VisibilityIterator2& vs,
 		 casacore::ImageInterface<casacore::Complex>& image,
 		 casacore::Matrix<casacore::Float>& weight);
-
+  ////Make the multi term images
+  ////caller make sure vector is the size of nterms or npsfterms required 
+  void makeMTImages(refim::FTMachine::Type type,
+		 vi::VisibilityIterator2& vi,
+		    casacore::Vector<casacore::CountedPtr<casacore::ImageInterface<casacore::Complex> > >& image,
+		    casacore::Vector<casacore::CountedPtr<casacore::Matrix<casacore::Float> > >& weight);
   // Get the final image: do the Fourier transform grid-correct, then 
   // optionally normalize by the summed weights
   // Note : Post-gridding residual-image divisions by PBs will go here.
@@ -180,6 +185,10 @@ public:
   };
   virtual casacore::Bool isUsingCFCache() {casacore::Bool v=false; if (subftms_p.nelements() > 0) v=subftms_p[0]->isUsingCFCache(); return v;};
 
+  ///return number of terms
+
+  virtual casacore::Int nTerms(){ return nterms_p;};
+  virtual casacore::Int psfNTerms(){ return psfnterms_p;};
 protected:
   // have to call the initmaps of subftm
   virtual void initMaps(const vi::VisBuffer2& vb);

@@ -221,6 +221,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	itsNFacets = imptr->shape()[0];
 	itsFacetId = 0;
 	itsUseWeight = getUseWeightImage( *imptr );
+	/////redo this here as psf may have different coordinates
+	itsCoordSys = imptr->coordinates();
+	itsMiscInfo=imptr->miscInfo();
 	if( itsUseWeight && ! doesImageExist(itsImageName+String(".weight.tt0")) )
 	  {
 	    throw(AipsError("Internal error : MultiTerm Sumwt has a useweightimage=true but the weight image does not exist."));
