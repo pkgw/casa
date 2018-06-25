@@ -78,7 +78,7 @@ casa_tasks = ['accum', 'applycal', 'asdmsummary', 'bandpass',
 'rmtables', 'sdbaseline', 'sdcal', 'sdfit', 'sdfixscan', 'sdgaincal', 
 'sdimaging', 'sdsmooth', 'setjy', 'simalma', 'simanalyze', 'simobserve', 
 'slsearch', 'smoothcal', 'specfit', 'splattotable', 'split', 'spxfit', 
-'startup', 'statwt', 'taskhelp', 'tasklist', 'tclean', 'testconcat', 'toolhelp', 
+'startup', 'oldstatwt', 'taskhelp', 'tasklist', 'tclean', 'testconcat', 'toolhelp', 
 'uvcontsub', 'uvcontsub3', 'uvmodelfit', 'uvsub', 'viewer', 'virtualconcat', 
 'vishead', 'visstat', 'widebandpbcor', 'widefield', 'wvrgcal']
 

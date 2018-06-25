@@ -197,8 +197,8 @@ scripts/task_splattotable.py
 scripts/task_split.py
 #scripts/task_split2.py
 scripts/task_spxfit.py
+scripts/task_oldstatwt.py
 scripts/task_statwt.py
-scripts/task_statwt2.py
 scripts/task_tclean.py
 scripts/task_tclean2.py
 scripts/task_testconcat.py
