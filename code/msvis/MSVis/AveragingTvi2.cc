@@ -2720,6 +2720,20 @@ void AveragingTvi2::visibilityModel(casacore::Cube<casacore::Complex>& vis) cons
     return;
 }
 
+void AveragingTvi2::flag(casacore::Cube<casacore::Bool>& flags) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    flags = vb->flagCube();
+    return;
+}
+
+void AveragingTvi2::flagRow(casacore::Vector<casacore::Bool>& rowflags) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    rowflags = vb->flagRow();
+    return;
+}
+
 void AveragingTvi2::sigma(casacore::Matrix<casacore::Float> & sigmat) const
 {
     VisBuffer2* vb = getVisBuffer();

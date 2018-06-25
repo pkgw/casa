@@ -74,6 +74,8 @@ public:
     virtual void visibilityCorrected(casacore::Cube<casacore::Complex>& vis) const;
     virtual void visibilityModel(casacore::Cube<casacore::Complex>& vis) const;
     virtual void visibilityObserved(casacore::Cube<casacore::Complex>& vis) const;
+    virtual void flag(casacore::Cube<casacore::Bool>& flags) const;
+    virtual void flagRow(casacore::Vector<casacore::Bool>& rowflags) const;
     virtual void weight(casacore::Matrix<casacore::Float>& wtmat) const;
     virtual void sigma(casacore::Matrix<casacore::Float>& sigmat) const;
     virtual void weightSpectrum (casacore::Cube<casacore::Float> & wtsp) const;
