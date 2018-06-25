@@ -2161,20 +2161,31 @@ public:
     {
         printf ("+++ Starting AvgInTVIStackTest ...\n");
 
-        String msName ("AveragingTvi2.ms");
-        auto_ptr<MeasurementSet> ms;
+        for(bool withModelData: {false, true})
+        {
+            for(bool withCorrectedData: {false, true})
+            {
+                for(bool withWeightSpec : {false, true})
+                {
+                    String msName ("AveragingTvi2.ms");
+                    auto_ptr<MeasurementSet> ms;
 
-        MeasurementSet * msTmp;
-        const Double interval = 1.0;
-        tie (msTmp, nRows_p) = createMs (msName);
-        ms.reset (msTmp);
+                    MeasurementSet * msTmp;
+                    const Double interval = 1.0;
+                    tie (msTmp, nRows_p) = createMs (msName, withWeightSpec, 
+                         withCorrectedData, withModelData);
+                    ms.reset (msTmp);
 
-        doTest (ms.get(), interval, 10, 1); // interval, chunkInterval, factor
-
-        doTest (ms.get(), interval, 10, 2);
-
-        doTest (ms.get(), interval, 12, 4);
-
+                    for(size_t chunkInterval = 1; chunkInterval <= 64; chunkInterval *= 4)
+                    {
+                        for(size_t factor = 1; factor <= 4 && factor < chunkInterval; factor *= 2)
+                        {
+                            doTest (ms.get(), interval, chunkInterval, factor);
+                        }
+                    }
+                }
+            }
+        }
         printf ("--- ... completed AvgInTVIStackTest\n");
     }
 
@@ -2183,7 +2194,8 @@ public:
 protected:
 
     pair<MeasurementSet *,Int>
-    createMs (const String & msName)
+    createMs (const String & msName, 
+              bool withWeightSpec, bool withCorrectedData, bool withModelData)
     {
         system (String::format ("rm -r %s", msName.c_str()).c_str());
 
@@ -2195,7 +2207,7 @@ protected:
         msFactory->addSpectralWindows(1); // only one spw for now
         msFactory->addAntennas(nAntennas_p);
         msFactory->addFeeds (10); // needs antennas and spws to be setup first
-        msFactory->addWeightSpectrum (false);
+        msFactory->addWeightSpectrum (withWeightSpec);
 
         for (Int i = 0; i < 10; i++){
             msFactory->addField (String::format ("field%d", i), MDirection());
@@ -2233,13 +2245,23 @@ protected:
         msFactory->setDataGenerator (MSMainEnums::WEIGHT,
                                      new GenerateModulation<float>());
 
+        if(withWeightSpec)
+        {
+            msFactory->setDataGenerator(MSMainEnums::WEIGHT_SPECTRUM,
+                                        new GenerateModulation<float>());
+            msFactory->setDataGenerator(MSMainEnums::SIGMA_SPECTRUM,
+                                        new GenerateModulation<float>());
+        }
+
         // For the data cubes fill it with a ramp.  The real part of the ramp will
         // be multiplied by the factor supplied in the constructor to check that
         // there's no "crosstalk" between the columns.
 
         msFactory->setDataGenerator(MSMainEnums::DATA, new GenerateRamp());
-        msFactory->setDataGenerator(MSMainEnums::CORRECTED_DATA, new GenerateRamp(2));
-        msFactory->setDataGenerator(MSMainEnums::MODEL_DATA, new GenerateRamp(3));
+        if(withCorrectedData)
+            msFactory->setDataGenerator(MSMainEnums::CORRECTED_DATA, new GenerateRamp(2));
+        if(withModelData)
+            msFactory->setDataGenerator(MSMainEnums::MODEL_DATA, new GenerateRamp(3));
 
         // Set all of the data to be unflagged.
 
