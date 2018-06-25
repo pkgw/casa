@@ -1157,7 +1157,7 @@ void BJones::normalize() {
 		    << " time=" << MVTime(ctiter.thisTime()/C::day).string(MVTime::YMD,7)
 		    << " ant=" << ctiter.thisAntenna1() 
 		    << " pol " << ipol%2
-		    << " = " << abs(normfactor) << ", " << arg(normfactor)*180.0/C::pi
+		    << " = " << abs(normfactor) << ", " << arg(normfactor)*180.0/C::pi << "deg"
 		    << LogIO::POST;
 	  soliter.next();
 	  fliter.next();
