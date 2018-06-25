@@ -155,17 +155,21 @@ public:
         const casacore::Bool linear, const casacore::Bool overwrite
     );
 
-    // Create a float-valued image from a complex-valued image. All metadata is copied
-    // and pixel values are initialized according to <src>func</src>.
-    static SHARED_PTR<casacore::TempImage<casacore::Float> > floatFromComplex(
-    	SPCIIC complexImage, ComplexToFloatFunction func
+    // Create a float-valued image from a complex-valued image. All metadata is
+    // copied and pixel values are initialized according to <src>func</src>.
+    template<class T>
+    static SHARED_PTR<casacore::TempImage<T>> floatFromComplex(
+        SHARED_PTR<
+            const casacore::ImageInterface<std::complex<T>>
+        > complexImage, ComplexToFloatFunction func
     );
 
-    // Create a complex-valued image from a float-valued image (real part)
-    // and float-valued array (imaginary part). All metadata is copied from the
-    // real image and pixel values are initialized to realPart + i*complexPart
-    static SHARED_PTR<casacore::TempImage<casacore::Complex> > complexFromFloat(
-    	SPCIIF realPart, const casacore::Array<casacore::Float>& imagPart
+    // Create a complex-valued image from two real valued images. All metadata
+    // is copied from the real image and pixel values are initialized to
+    // realPart + i*complexPart
+    template<class T>
+    static SHARED_PTR<casacore::TempImage<std::complex<T>>> makeComplexImage(
+    	SPCIIT realPart, SPCIIT imagPart
     );
 
     // Create a complex-valued image from a float-valued image (real part)
