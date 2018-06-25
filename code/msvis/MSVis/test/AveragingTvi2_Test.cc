@@ -2293,10 +2293,6 @@ protected:
         columns += VisBufferComponent2::VisibilityCubeObserved;
         columns += VisBufferComponent2::VisibilityCubeCorrected;
         columns += VisBufferComponent2::VisibilityCubeModel;
-        columns += VisBufferComponent2::Weight;
-        columns += VisBufferComponent2::WeightSpectrum;
-        columns += VisBufferComponent2::Sigma;
-        columns += VisBufferComponent2::SigmaSpectrum;
         columns += VisBufferComponent2::Time;
         columns += VisBufferComponent2::TimeCentroid;
         columns += VisBufferComponent2::TimeInterval;
@@ -2309,9 +2305,18 @@ protected:
         columns += VisBufferComponent2::RowIds;
         columns += VisBufferComponent2::Uvw;
 
-        double tolerance = std::numeric_limits<double>::epsilon();
+        double dblTol = std::numeric_limits<double>::epsilon();
 
-        compareVisibilityIterators(*stackedTVI, avgTVI, columns, tolerance);
+        compareVisibilityIterators(*stackedTVI, avgTVI, columns, dblTol);
+
+        VisBufferComponents2 columnsFl;
+        columnsFl += VisBufferComponent2::FloatData;
+        columnsFl += VisBufferComponent2::Weight;
+        columnsFl += VisBufferComponent2::WeightSpectrum;
+        columnsFl += VisBufferComponent2::Sigma;
+        columnsFl += VisBufferComponent2::SigmaSpectrum;
+        double flTol = std::numeric_limits<float>::epsilon();
+        compareVisibilityIterators(*stackedTVI, avgTVI, columnsFl, flTol);
 
         printf ("\n...completed averaging of %d samples ...\n", averagingFactor);
     }
