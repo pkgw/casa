@@ -1024,15 +1024,16 @@ private:
     mutable Vector <Double> previousTime_p;
 };
 
-class GenerateModulation : public Generator<Float> {
+template <class T>
+class GenerateModulation : public Generator<T> {
 
 public:
 
-    GenerateModulation (float mean = 1, 
-                        float amplitude = 0.2, size_t repeat = 100) : 
+    GenerateModulation (T mean = 1, 
+                        T amplitude = 0.2, size_t repeat = 100) : 
         mean_p (mean), amplitude_p(amplitude), repeat_p(repeat), idx_p(0) {}
 
-    float
+    T
     operator() (const FillState & fillState, Int channel, Int correlation) const
     {
         (void)fillState;
@@ -1043,15 +1044,15 @@ public:
         // repeat_p generated values
         if(idx_p == repeat_p)
             idx_p = 0;
-        float modulation = amplitude_p * sin(2* M_PI * idx_p / repeat_p);
+        T modulation = amplitude_p * sin(2* M_PI * idx_p / repeat_p);
         idx_p++;
         return mean_p + modulation;
     }
 
 private:
 
-    float mean_p;
-    float amplitude_p;
+    T mean_p;
+    T amplitude_p;
     size_t repeat_p;
     mutable size_t idx_p;
 };
@@ -2219,10 +2220,18 @@ protected:
                                      new GenerateConstant<Int> (17));
         msFactory->setDataGenerator (MSMainEnums::PROCESSOR_ID,
                                      new GenerateConstant<Int> (18));
-        msFactory->setDataGenerator (MSMainEnums::EXPOSURE,
-                                     new GenerateConstant<Double> (interval_p));
         msFactory->setDataGenerator (MSMainEnums::INTERVAL,
                                      new GenerateConstant<Double> (interval_p));
+
+        // Fill some of the values with a modulation. This would help catch
+        // errors for non-implemented virtual methods
+        msFactory->setDataGenerator (MSMainEnums::EXPOSURE,
+                                     new GenerateModulation<double>(interval_p/2., 
+                                                                    interval_p/10.));
+        msFactory->setDataGenerator (MSMainEnums::SIGMA,
+                                     new GenerateModulation<float>());
+        msFactory->setDataGenerator (MSMainEnums::WEIGHT,
+                                     new GenerateModulation<float>());
 
         // For the data cubes fill it with a ramp.  The real part of the ramp will
         // be multiplied by the factor supplied in the constructor to check that
@@ -2231,10 +2240,6 @@ protected:
         msFactory->setDataGenerator(MSMainEnums::DATA, new GenerateRamp());
         msFactory->setDataGenerator(MSMainEnums::CORRECTED_DATA, new GenerateRamp(2));
         msFactory->setDataGenerator(MSMainEnums::MODEL_DATA, new GenerateRamp(3));
-        msFactory->setDataGenerator (MSMainEnums::SIGMA,
-                                     new GenerateModulation());
-        msFactory->setDataGenerator (MSMainEnums::WEIGHT,
-                                     new GenerateModulation());
 
         // Set all of the data to be unflagged.
 
