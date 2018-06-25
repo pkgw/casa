@@ -5687,67 +5687,44 @@ record* image::statistics(
 }
 
 image* image::subimage(
-    const string& outfile, const variant& region,
-    const variant& vmask, bool dropDegenerateAxes,
-    bool overwrite, bool list, bool stretch,
+    const string& outfile, const variant& region, const variant& vmask,
+    bool dropDegenerateAxes, bool overwrite, bool list, bool stretch,
     bool wantreturn, const vector<int>& keepaxes
 ) {
     try {
         _log << _ORIGIN;
-        ThrowIf(
-            _detached(),
-            "Unable to create image"
-        );
-        _notSupported(__func__);
-        SHARED_PTR<Record> regionRec = _getRegion(region, false);
-        String regionStr = region.type() == variant::STRING
-            ? region.toString()
-            : "";
-        String mask = vmask.toString();
-        if (mask == "[]") {
-            mask = "";
-        }
+        ThrowIf(_detached(), "Unable to create image");
         if (outfile.empty() && ! wantreturn) {
-            _log << LogIO::WARN << "outfile was not specified and wantreturn is false. "
-                << "The resulting image will be inaccessible" << LogIO::POST;
-        }
-        vector<String> names;
-        vector<variant> values;
-        if (_doHistory) {
-            vector<String> n {
-                "outfile", "region", "mask", "dropdeg", "overwrite",
-                "list", "stretch", "wantreturn", "keepaxes"
-            };
-            vector<variant> v {
-                outfile, region, vmask, dropDegenerateAxes,
-                overwrite, list, stretch, wantreturn, keepaxes
-            };
-            names = n;
-            values = v;
+            _log << LogIO::WARN << "outfile was not specified and wantreturn "
+                << "is false. The resulting image will be inaccessible"
+                << LogIO::POST;
         }
         if (_imageF) {
-            auto im = _subimage<Float>(
-                SHARED_PTR<ImageInterface<Float> >(
-                    _imageF->cloneII()
-                ),
-                outfile, *regionRec, mask, dropDegenerateAxes,
-                overwrite, list, stretch, keepaxes
+            return _subimage<Float>(
+                _imageF, outfile, region, vmask, dropDegenerateAxes, overwrite,
+                list, stretch, keepaxes, wantreturn
             );
-            _addHistory(im, __func__, names, values);
-            auto res = wantreturn ? new image(im) : nullptr;
-            return res;
+        }
+        else if (_imageC) {
+            return _subimage<Complex>(
+                _imageC, outfile, region, vmask, dropDegenerateAxes, overwrite,
+                list, stretch, keepaxes, wantreturn
+            );
+        }
+        else if (_imageD) {
+            return _subimage<Double>(
+                _imageD, outfile, region, vmask, dropDegenerateAxes, overwrite,
+                list, stretch, keepaxes, wantreturn
+            );
+        }
+        else if (_imageDC) {
+            return _subimage<DComplex>(
+                _imageDC, outfile, region, vmask, dropDegenerateAxes, overwrite,
+                list, stretch, keepaxes, wantreturn
+            );
         }
         else {
-            auto im = _subimage<Complex>(
-                SHARED_PTR<ImageInterface<Complex> >(
-                    _imageC->cloneII()
-                ),
-                outfile, *regionRec, mask, dropDegenerateAxes,
-                overwrite, list, stretch, keepaxes
-            );
-            _addHistory(im, __func__, names, values);
-            auto res = wantreturn ? new image(im) : nullptr;
-            return res;
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
@@ -5758,30 +5735,39 @@ image* image::subimage(
     return nullptr;
 }
 
-template<class T> SPIIT image::_subimage(
-    SPIIT clone,
-    const String& outfile, const Record& region,
-    const String& mask, bool dropDegenerateAxes,
-    bool overwrite, bool list, bool stretch,
-    const vector<int>& keepaxes
+template<class T> image* image::_subimage(
+    SPIIT clone, const String& outfile, const variant& region,
+    const variant& vmask, bool dropDegenerateAxes, bool overwrite, bool list,
+    bool stretch, const vector<int>& keepaxes, bool wantreturn
 ) {
+    SPIIT im;
+    auto regionRec = _getRegion(region, false);
+    auto mask = _getMask(vmask);
     if (! dropDegenerateAxes || keepaxes.empty()) {
-        return SPIIT(
-            SubImageFactory<T>::createImage(
-                *clone, outfile, region, mask,
-                dropDegenerateAxes, overwrite, list, stretch
-            )
+        im = SubImageFactory<T>::createImage(
+            *clone, outfile, *regionRec, mask, dropDegenerateAxes,
+            overwrite, list, stretch
         );
     }
     else {
-        return SPIIT(
-            SubImageFactory<T>::createImage(
-                *clone, outfile, region, mask,
-                AxesSpecifier(IPosition(Vector<Int>(keepaxes))),
-                overwrite, list, stretch
-            )
+        im = SubImageFactory<T>::createImage(
+            *clone, outfile, *regionRec, mask,
+            AxesSpecifier(IPosition(Vector<Int>(keepaxes))),
+            overwrite, list, stretch
         );
     }
+    if (_doHistory) {
+        vector<String> names {
+            "outfile", "region", "mask", "dropdeg", "overwrite",
+            "list", "stretch", "wantreturn", "keepaxes"
+        };
+        vector<variant> values {
+            outfile, region, vmask, dropDegenerateAxes,
+            overwrite, list, stretch, wantreturn, keepaxes
+        };
+        _addHistory(im, "subimage", names, values);
+    }
+    return wantreturn ? new image(im) : nullptr;
 }
 
 record* image::summary(
