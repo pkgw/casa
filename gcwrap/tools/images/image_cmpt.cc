@@ -2303,9 +2303,8 @@ bool image::fromrecord(const record& imrecord, const string& outfile) {
 }
 
 bool image::fromshape(
-    const string& outfile, const vector<int>& shape,
-    const record& csys, const bool linear, const bool overwrite,
-    const bool log, const string& type
+    const string& outfile, const vector<int>& shape, const record& csys,
+    const bool linear, const bool overwrite, const bool log, const string& type
 ) {
     try {
         LogOrigin lor("image", __func__);
@@ -3865,34 +3864,18 @@ image* image::newimagefromimage(
 }
 
 image* image::newimagefromshape(
-    const string& outfile, const vector<int>& shape,
-    const record& csys, bool linear,
-    bool overwrite, bool log, const string& type
+    const string& outfile, const vector<int>& shape, const record& csys,
+    bool linear, bool overwrite, bool log, const string& type
 ) {
     try {
         _log << _ORIGIN;
-        unique_ptr<Record> coordinates(toRecord(csys));
-        String mytype = type;
-        mytype.downcase();
+        unique_ptr<image> ret(new image());
+        ret->dohistory(False);
         ThrowIf(
-            ! mytype.startsWith("f") && ! mytype.startsWith("c"),
-            "Input parm type must start with either 'f' or 'c'"
+            ! ret->fromshape(
+                outfile, shape, csys, linear, overwrite, log, type
+            ), "Failed to create image from shape"
         );
-        unique_ptr<image> ret;
-        if (mytype.startsWith("f")) {
-            SPIIF myfloat = ImageFactory::floatImageFromShape(
-                outfile, shape, *coordinates,
-                linear, overwrite, log
-            );
-            ret.reset(new image(myfloat));
-        }
-        else {
-            SPIIC mycomplex = ImageFactory::complexImageFromShape(
-                outfile, shape, *coordinates,
-                linear, overwrite, log
-            );
-            ret.reset(new image(mycomplex));
-        }
         vector<String> names {
             "outfile", "shape", "csys", "linear",
             "overwrite", "log", "type"
@@ -3901,6 +3884,7 @@ image* image::newimagefromshape(
             outfile, shape, csys, linear,
             overwrite, log, type
         };
+        ret->dohistory(True);
         if (_doHistory) {
             ret->_addHistory(__func__, names, values);
         }
