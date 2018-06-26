@@ -658,14 +658,26 @@ class test_multifield(testref_base):
           """ [multifield] Test_Multifield_facets_mfs : Facetted imaging (mfs) """
           self.prepData("refim_twopoints_twochan.ms")
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=200,cell='8.0arcsec',phasecenter="J2000 19:59:00.2 +40.50.15.50",facets=2,deconvolver='hogbom',niter=30)
-          report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf'],imval=[(self.img+'.psf',1.0,[100,100,0,0]),(self.img+'.image',5.56,[127,143,0,0]) ] )
+
+          imexist = [self.img + ext for ext in ['.image', '.mask', '.model', '.pb', '.psf',
+                                                '.residual', '.sumwt']]
+          report=self.th.checkall(imexist=imexist,
+                                  imval=[(self.img+'.psf',1.0,[100,100,0,0]),
+                                         (self.img+'.image',5.56,[127,143,0,0]) ] )
           self.checkfinal(report)
 
      def test_multifield_facets_mtmfs(self):
           """ [multifield] Test_multifield_facets_mtmfs : Facetted imaging (mt-mfs) """
           self.prepData("refim_twopoints_twochan.ms")
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=200,cell='8.0arcsec',phasecenter="J2000 19:59:00.2 +40.50.15.50",facets=2,deconvolver='mtmfs',niter=30)
-          report=self.th.checkall(imexist=[self.img+'.image.tt0', self.img+'.psf.tt0', self.img+'.alpha'],imval=[(self.img+'.psf.tt0',1.0,[100,100,0,0]),(self.img+'.image.tt0',5.56,[127,143,0,0]),(self.img+'.alpha',-1.0,[127,143,0,0]) ] )
+
+          imexist = [self.img + ext for ext in ['.image.tt0', '.psf.tt0', '.model.tt0',
+                                                '.pb.tt0', '.residual.tt0', '.sumwt.tt0',
+                                                '.mask', '.alpha', '.alpha.error']]
+          report=self.th.checkall(imexist=imexist,
+                                  imval=[(self.img+'.psf.tt0',1.0,[100,100,0,0]),
+                                         (self.img+'.image.tt0',5.56,[127,143,0,0]),
+                                         (self.img+'.alpha',-1.0,[127,143,0,0]) ] )
           self.checkfinal(report)
 
      @unittest.skip('Skip test.')
