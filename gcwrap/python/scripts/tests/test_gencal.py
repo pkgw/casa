@@ -110,6 +110,12 @@ class test_gencal_antpos_alma(unittest.TestCase):
     """
     Tests the automatic generation of antenna position corrections for ALMA
 
+    New REST web service:
+    https://bitbucket.sco.alma.cl/projects/ALMA/repos/almasw/browse/CONTROL-SERVICES/PositionsService
+
+
+    Old SOAP web service:
+    http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl
     Example minimalistic use of a client to query the service:
       from suds.client import Client
       srv_wsdl_url = 'http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl'
@@ -170,7 +176,9 @@ class test_gencal_antpos_alma(unittest.TestCase):
 
         self.remove_caltable(out_caltable)
 
-    def tmp_disabled_test_antpos_alma_server(self):
+    @unittest.skip('SOAP AntennaPad Positions SOAP service needs to be removed once the '
+                   'TMCDB based auto correction in gencal is validated.')
+    def tmp_disabled_test_antpos_alma_server_SOAP_methods(self):
         """
         gencal: connection to alma TCM DB AntennaPadService for ALMA
         """
@@ -193,16 +201,20 @@ class test_gencal_antpos_alma(unittest.TestCase):
                   'service')
             raise
 
-    def tmp_disabled_test_antpos_auto_alma_empty_query(self):
+    @unittest.skip('SOAP AntennaPad Positions SOAP service needs to be removed once the '
+                   'TMCDB based auto correction in gencal is validated.')
+    def tmp_disabled_test_antpos_auto_alma_SOAP_empty_query(self):
         """
-        gencal: empty query (empty antennas list) to the TCM DB AntennaPadService (ALMA)
+        gencal: empty query (empty antennas list) to the (old) SOAP TCMDB AntennaPadService
+        web service (ALMA)
         """
         try:
-            import urllib2
-            from suds.client import Client
-            ws_cli = Client(self.ALMA_SRV_WSDL_URL)
-            # Run empty query
-            res = ws_cli.service.getAntennaPositions("CURRENT.AOS", "", "2015-07-28T16:53:54")
+            import correct_ant_posns_alma as almacor
+
+            resp = almacor.query_tmcdb_antennas_rest([], '2017-01-01T16:53:54.000')
+            if resp:
+                raise RuntimeError('Unexpected response for an empty query: {0}'.
+                                   format(resp))
         except ImportError:
             print('Cannot import required dependencies to query the ALMA TCM DB '
                   'web service')
@@ -212,7 +224,9 @@ class test_gencal_antpos_alma(unittest.TestCase):
                   'service')
             raise
 
-    def tmp_disabled_test_antpos_auto_web_srv_alma(self):
+    @unittest.skip('SOAP AntennaPad Positions SOAP service needs to be removed once the '
+                   'TMCDB based auto correction in gencal is validated.')
+    def tmp_disabled_test_antpos_auto_web_srv_SOAP_alma(self):
         """
         gencal: auto gencal using data from TCM DB AntennaPadService (ALMA)
         """
@@ -230,6 +244,75 @@ class test_gencal_antpos_alma(unittest.TestCase):
             raise
         except urllib2.URLError:
             print('Connection/network error while querying the ALMA TCM DB web'
+                  'service')
+            raise
+
+        self.assertTrue(os.path.exists(out_caltable),
+                        "The output cal table should have been created: {0}".
+                        format(out_caltable))
+
+        # Compare against ref file
+        self.assertTrue(th.compTables(out_caltable,
+                                      self.REF_CALTABLE_AUTO,
+                                      self.IGNORE_COLS))
+        self.remove_caltable(out_caltable)
+
+
+    @unittest.skip('REST Position service needs validation and final deployment')
+    def tmp_disabled_test_antpos_auto_alma_REST_empty_query(self):
+        """
+        gencal: empty query (empty antennas list) to the (new) REST TCMDB Positions
+        web service (ALMA)
+        """
+        import urllib2
+
+        TEST_HOSTNAME = 'https://2018may.asa-test.alma.cl'
+
+        hostname = TEST_HOSTNAME
+        port = 443
+        api = 'antenna-position/position/antenna'
+        try:
+            import requests
+            import correct_ant_posns_alma as almacor
+
+            tstamp = '2017-01-01T16:53:54.000'
+            # query via correct_ant_posns function
+            resp = almacor.query_tmcdb_antennas_rest([], tstamp)
+            if resp:
+                raise RuntimeError('Unexpected response for an empty query: {0}'.
+                                   format(resp))
+
+            # query directly via requests
+            url = '{}:{}/{}?antenna={}&timestamp={}'.format(hostname, port, api, '',
+                                                            '2017-01-01T16:53:54.000')
+            resp = requests.get(url)
+            if resp:
+                raise RuntimeError('Unexpected response for an empty query: {0}'.
+                                   format(resp))
+        except ImportError:
+            print('Cannot import required dependencies to query the ALMA TCM DB '
+                  'web service')
+            raise
+        except urllib2.URLError, exc:
+            print('Connection/network error while querying the ALMA TCM DB web'
+                  'service')
+            raise
+
+    @unittest.skip('REST Position service needs validation and final deployment')
+    def tmp_disabled_test_antpos_auto_web_srv_REST_alma(self):
+        """
+        gencal: auto gencal using data from TCMDB Positions service (ALMA)
+        """
+
+        import urllib2
+
+        out_caltable = 'ant_pos_web_srv.cal'
+        try:
+            # This will import the required libraries, urllib2, suds, etc.
+            # Coul also use additional parameters: antenna='', parameter=''
+            gencal(vis=self.ALMA_MS, caltable=out_caltable, caltype=self.CAL_TYPE)
+        except urllib2.URLError:
+            print('Connection/network error while querying the ALMA TCMDB Positions web'
                   'service')
             raise
 

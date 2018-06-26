@@ -17,6 +17,9 @@ def fetch_tmcdb_info(ant_names, obs_time):
 
 def query_tmcdb_antennas_rest(ant_names, timestamp):
     """
+    Queries the new REST web service for positions of a list of antennas at a given
+    timestamp.
+
     REST service deployed for testing https://2018may.asa-test.alma.cl/antenna-position
     Service doc:
     https://bitbucket.sco.alma.cl/projects/ALMA/repos/almasw/browse/CONTROL-SERVICES/PositionsService
@@ -68,7 +71,7 @@ def query_tmcdb_antennas_rest(ant_names, timestamp):
 
 def process_tmcdb_response_rest_for_gencal(ant_names, responses):
     """
-    Takes a list of response from the TMC DB AntennaPad service (REST)
+    Takes a list of response from the TMCDB Positions service (REST)
     and produces a list of antenna names and a list of their position
     correction parameters.
 
@@ -132,6 +135,10 @@ def query_tmcdb_antennas_soap(ant_names, timestamp):
     See service documentation:
     https://ictwiki.alma.cl/twiki/bin/view/SoftOps/TMCDBAntennaPadService
 
+    TODO: deprecate and remove SOAP stuff once the auto gencal mode is validated with
+    information from the TMCDB. This stuff is left here now for testing purposes - cross-
+    comparison of SOAP and REST service.
+
     :param ant_names: list of antenna names as strings
     :param timestamp: timestamp specification string (in
                      '2017-01-01T16:53:54' format)
@@ -139,7 +146,9 @@ def query_tmcdb_antennas_soap(ant_names, timestamp):
     :returns: response as retrieved from the web service
     :raises urllib2.URLError: if network or server issues
     """
+
     SRV_WSDL_URL = 'http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl'
+
     ALMA_CONFIG_NAME = 'CURRENT.AOS'
 
     import time
@@ -321,7 +330,7 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
             casalog.post('Could not find pad and antenna position information '
                          'from the ASDM_ANTENNA and ASDM_STATION subtables. '
                          'Defaulting to the POSITION column of the ANTENNA '
-                         'subtable. This means that the parameter calculates '
+                         'subtable. This means that the parameters calculated '
                          'are most likely inaccurate. Error description: {0}'.
                          format(exc), 'WARN')
             tb_tool.open(vis_name + '/ANTENNA')
@@ -391,6 +400,44 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
             else:
                 return calc_param_diff_diff_pad_pos(name, ant_corr_pos, pad_pos, ant_pos_ms,
                                                     pad_pos_ms)
+
+        def calc_param_diff_same_pad_pos(name, ant_corr_pos, pad_pos, ant_pos_ms):
+            """
+            Calculate correction parameters for an antenna when the pad position has not
+            changed, comparing between the info that was recorded in the MS and the current
+            info from the TMC DB.
+
+            Subtracts A (found from the TMCDB) - B (found in the MS), where
+            A is: pad position + antenna position correction/vector
+            B is: antenna position in MS
+            to produce the correction parameters expected by gencal
+
+            :param name: antenna name
+            :param ant_corr_pos: antenna position from the TMCDB
+            :param pad_pos: pad position from the TMCDB
+            :param ant_pos_ms: antenna position from the MS/ASDM
+            :param ant_pos_ms: pad position from the MS/ASDM
+
+            :returns: position correction parameters for one antenna
+                      (Bx, By, Bz)
+            """
+            from math import sqrt, sin, cos, asin, atan2
+
+            lat = (asin(pad_pos[2] / sqrt(pad_pos[0]**2 + pad_pos[1]**2 +
+                                          pad_pos[2]**2)))
+            lon = atan2(pad_pos[1], pad_pos[0])
+
+            itrf_diff = ant_corr_pos - ant_pos_ms
+            param = np.array([0, 0, 0], dtype=float)
+            param[0] = (-sin(lon) * itrf_diff[0]
+                        - cos(lon) * sin(lat) * itrf_diff[1]
+                        + cos(lon) * cos(lat) * itrf_diff[2])
+            param[1] = (cos(lon) * itrf_diff[0]
+                        - sin(lon) * sin(lat) * itrf_diff[1]
+                        + sin(lon) * cos(lat) * itrf_diff[2])
+            param[2] = (cos(lat) * itrf_diff[1] + sin(lat) * itrf_diff[2])
+
+            return param
 
         def calc_param_diff_diff_pad_pos(name, ant_corr_pos, pad_pos, ant_pos_ms,
                                          pad_pos_ms):
@@ -472,44 +519,6 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
                              format(name, norm_par, correction_thresh), 'WARN')
 
             return pos_par_diff
-
-        def calc_param_diff_same_pad_pos(name, ant_corr_pos, pad_pos, ant_pos_ms):
-            """
-            Calculate correction parameters for an antenna when the pad position has not
-            changed, comparing between the info that was recorded in the MS and the current
-            info from the TMC DB.
-
-            Subtracts A (found from the TMCDB) - B (found in the MS), where
-            A is: pad position + antenna position correction/vector
-            B is: antenna position in MS
-            to produce the correction parameters expected by gencal
-
-            :param name: antenna name
-            :param ant_corr_pos: antenna position from the TMCDB
-            :param pad_pos: pad position from the TMCDB
-            :param ant_pos_ms: antenna position from the MS/ASDM
-            :param ant_pos_ms: pad position from the MS/ASDM
-
-            :returns: position correction parameters for one antenna
-                      (Bx, By, Bz)
-            """
-            from math import sqrt, sin, cos, asin, atan2
-
-            lat = (asin(pad_pos[2] / sqrt(pad_pos[0]**2 + pad_pos[1]**2 +
-                                          pad_pos[2]**2)))
-            lon = atan2(pad_pos[1], pad_pos[0])
-
-            itrf_diff = ant_corr_pos - ant_pos_ms
-            param = np.array([0, 0, 0], dtype=float)
-            param[0] = (-sin(lon) * itrf_diff[0]
-                        - cos(lon) * sin(lat) * itrf_diff[1]
-                        + cos(lon) * cos(lat) * itrf_diff[2])
-            param[1] = (cos(lon) * itrf_diff[0]
-                        - sin(lon) * sin(lat) * itrf_diff[1]
-                        + sin(lon) * cos(lat) * itrf_diff[2])
-            param[2] = (cos(lat) * itrf_diff[1] + sin(lat) * itrf_diff[2])
-
-            return param
 
         ant_params = []
         casalog.post('Antennas {0}\nPositions from TMC DB: {1},\nPositions '
