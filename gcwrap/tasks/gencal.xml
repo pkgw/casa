@@ -167,7 +167,10 @@
      automated lookup of the antenna position corrections is enabled
      when antenna is unspecified (antenna='') for this caltype. Note
      that this requires internet connection to access the EVLA antenna
-     position correction site, or the ALMA TMC DB AntennaPad web service.
+     position correction site, or the ALMA TMCDB Positions web service.
+     Please note that corrections using the ALMA TMCDB have not
+     been yet validated scientifically.
+
      For VLA position corrections in the VLA-centric frame, use 
      caltype='antposvla', and gencal will rotate them to ITRF before 
      storing them in the output caltable.

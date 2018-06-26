@@ -18,9 +18,12 @@ def fetch_tmcdb_info(ant_names, obs_time):
 def query_tmcdb_antennas_rest(ant_names, timestamp):
     """
     REST service deployed for testing https://2018may.asa-test.alma.cl/antenna-position
-    Service doc (in ICT ticket branch for now): https://bitbucket.sco.alma.cl/projects/ALMA/repos/almasw/browse/CONTROL-SERVICES/PositionsService?at=refs%2Fheads%2Ffeature%2FICT-10558
+    Service doc:
+    https://bitbucket.sco.alma.cl/projects/ALMA/repos/almasw/browse/CONTROL-SERVICES/PositionsService
+    Swagger TMCDB Positions API doc:
+    https://2018may.asa-test.alma.cl/antenna-position/swagger-ui.html
 
-    Example:
+    Example query:
     https://2018may.asa-test.alma.cl/antenna-position/position/antenna?configuration=CURRENT.AOS&antenna=DV10&timestamp=2015-04-19T16:53:54.000
 
     :param ant_names: list of antenna names as strings
@@ -46,7 +49,8 @@ def query_tmcdb_antennas_rest(ant_names, timestamp):
     time_start = time.time()
     try:
         for aname in ant_names:
-            url = '{}:{}/{}?antenna={}&timestamp={}'.format(hostname, port, api, aname, tstamp_ms)
+            url = '{}:{}/{}?antenna={}&timestamp={}'.format(hostname, port, api, aname,
+                                                            tstamp_ms)
             resp = requests.get(url)
             casalog.post('Queried antenna "{0}". Response status: {1}. Response text: {2}'.
                          format(aname, resp.status_code, resp.text), 'DEBUG2')
@@ -390,6 +394,9 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
 
         def calc_param_diff_diff_pad_pos(name, ant_corr_pos, pad_pos, ant_pos_ms,
                                          pad_pos_ms):
+            """
+            Calculate correction parameters for an antenna when the pad position has changed.
+            """
             from math import sqrt, cos, sin, asin, atan2
 
             lat = (asin(pad_pos[2] / sqrt(pad_pos[0]**2 + pad_pos[1]**2 + pad_pos[2]**2)))
@@ -468,6 +475,10 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
 
         def calc_param_diff_same_pad_pos(name, ant_corr_pos, pad_pos, ant_pos_ms):
             """
+            Calculate correction parameters for an antenna when the pad position has not
+            changed, comparing between the info that was recorded in the MS and the current
+            info from the TMC DB.
+
             Subtracts A (found from the TMCDB) - B (found in the MS), where
             A is: pad position + antenna position correction/vector
             B is: antenna position in MS
