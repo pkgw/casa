@@ -26,7 +26,7 @@
 
 #include <msvis/MSVis/IteratingParameters.h>
 #include <msvis/MSVis/LayeredVi2Factory.h>
-#include <stdcasa/StdCasa/variant.cc>
+#include <StdCasa/variant.h>
 
 using namespace casacore;
 using namespace casac;
