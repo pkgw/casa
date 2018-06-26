@@ -917,6 +917,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 
 
    }
+   
  //utility to reject consecutive similar value for sorting
  void VisBufferUtil::rejectConsecutive(const Vector<Double>& t, Vector<Double>& retval){
      uInt n=t.nelements();
