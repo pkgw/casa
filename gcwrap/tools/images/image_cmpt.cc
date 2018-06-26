@@ -5364,10 +5364,8 @@ bool image::setmiscinfo(const record& info) {
 }
 
 bool image::setrestoringbeam(
-    const variant& major, const variant& minor,
-    const variant& pa, const record& beam,
-    bool remove, bool log,
-    int channel, int polarization,
+    const variant& major, const variant& minor, const variant& pa,
+    const record& beam, bool remove, bool log, int channel, int polarization,
     const string& imagename
 ) {
     try {
@@ -5375,7 +5373,6 @@ bool image::setrestoringbeam(
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
         std::unique_ptr<Record> rec(toRecord(beam));
         ImageBeamSet bs;
         if (! imagename.empty()) {
@@ -5414,42 +5411,32 @@ bool image::setrestoringbeam(
             );
         }
         if (_imageF) {
-            BeamManipulator<Float> bManip(_imageF);
-            bManip.setVerbose(log);
-            if (remove) {
-                bManip.remove();
-            }
-            else if (! bs.empty()) {
-                bManip.set(bs);
-            }
-            else {
-                bManip.set(
-                    major.empty() ? casacore::Quantity() : _casaQuantityFromVar(major),
-                    minor.empty() ? casacore::Quantity() : _casaQuantityFromVar(minor),
-                    pa.empty() ? casacore::Quantity() : _casaQuantityFromVar(pa),
-                    *rec, channel, polarization
-                );
-            }
+            _setrestoringbeam(
+                _imageF, major, minor, pa, beam, remove,
+                log, channel, polarization, *rec, bs
+            );
+        }
+        else if (_imageC) {
+            _setrestoringbeam(
+                _imageC, major, minor, pa, beam, remove,
+                log, channel, polarization, *rec, bs
+            );
+        }
+        else if (_imageD) {
+            _setrestoringbeam(
+                _imageD, major, minor, pa, beam, remove,
+                log, channel, polarization, *rec, bs
+            );
+        }
+        else if (_imageDC) {
+            _setrestoringbeam(
+                _imageDC, major, minor, pa, beam, remove,
+                log, channel, polarization, *rec, bs
+            );
         }
         else {
-            BeamManipulator<Complex> bManip(_imageC);
-            bManip.setVerbose(log);
-            if (remove) {
-                bManip.remove();
-            }
-            else if (! bs.empty()) {
-                bManip.set(bs);
-            }
-            else {
-                bManip.set(
-                    major.empty() ? casacore::Quantity() : _casaQuantityFromVar(major),
-                    minor.empty() ? casacore::Quantity() : _casaQuantityFromVar(minor),
-                    pa.empty() ? casacore::Quantity() : _casaQuantityFromVar(pa),
-                    *rec, channel, polarization
-                );
-            }
+            ThrowCc("Logic error");
         }
-
         variant myb = beam;
         std::set<String> dontQuote;
         if (rec && ! rec->empty()) {
@@ -5481,6 +5468,29 @@ bool image::setrestoringbeam(
         RETHROW(x);
     }
     return false;
+}
+
+template<class T> void image::_setrestoringbeam(
+    SPIIT image, const variant& major, const variant& minor, const variant& pa,
+    const record& beam, bool remove, bool log, int channel, int polarization,
+    const Record& rec, const ImageBeamSet& bs
+) {
+    BeamManipulator<T> bManip(image);
+    bManip.setVerbose(log);
+    if (remove) {
+        bManip.remove();
+    }
+    else if (! bs.empty()) {
+        bManip.set(bs);
+    }
+    else {
+        bManip.set(
+            major.empty() ? casacore::Quantity() : _casaQuantityFromVar(major),
+            minor.empty() ? casacore::Quantity() : _casaQuantityFromVar(minor),
+            pa.empty() ? casacore::Quantity() : _casaQuantityFromVar(pa),
+            rec, channel, polarization
+        );
+    }
 }
 
 String image::_quantityRecToString(const Record& q) {
@@ -5756,7 +5766,6 @@ record* image::summary(
         if (_detached()) {
             return 0;
         }
-        _notSupported(__func__);
         if (_imageF) {
             return _summary(
                 _imageF, doppler, list, pixelorder, verbose
@@ -5767,11 +5776,18 @@ record* image::summary(
                 _imageC, doppler, list, pixelorder, verbose
             );
         }
-        else {
-            ThrowCc(
-                "This image data type is not supported by "
-                + String(__func__)
+        else if (_imageD) {
+            return _summary(
+                _imageD, doppler, list, pixelorder, verbose
             );
+        }
+        else if (_imageDC) {
+            return _summary(
+                _imageDC, doppler, list, pixelorder, verbose
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
