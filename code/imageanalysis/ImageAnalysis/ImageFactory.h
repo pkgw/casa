@@ -135,7 +135,7 @@ public:
 
     // only the pointer of the correct data type will be valid, the other
     // will be null.
-    static std::pair<SPIIF, SPIIC> fromImage(
+    static ITUPLE fromImage(
         const casacore::String& outfile, const casacore::String& infile,
         const casacore::Record& region, const casacore::String& mask,
         casacore::Bool dropdeg=false,
@@ -155,17 +155,21 @@ public:
         const casacore::Bool linear, const casacore::Bool overwrite
     );
 
-    // Create a float-valued image from a complex-valued image. All metadata is copied
-    // and pixel values are initialized according to <src>func</src>.
-    static SHARED_PTR<casacore::TempImage<casacore::Float> > floatFromComplex(
-    	SPCIIC complexImage, ComplexToFloatFunction func
+    // Create a float-valued image from a complex-valued image. All metadata is
+    // copied and pixel values are initialized according to <src>func</src>.
+    template<class T>
+    static SHARED_PTR<casacore::TempImage<T>> floatFromComplex(
+        SHARED_PTR<
+            const casacore::ImageInterface<std::complex<T>>
+        > complexImage, ComplexToFloatFunction func
     );
 
-    // Create a complex-valued image from a float-valued image (real part)
-    // and float-valued array (imaginary part). All metadata is copied from the
-    // real image and pixel values are initialized to realPart + i*complexPart
-    static SHARED_PTR<casacore::TempImage<casacore::Complex> > complexFromFloat(
-    	SPCIIF realPart, const casacore::Array<casacore::Float>& imagPart
+    // Create a complex-valued image from two real valued images. All metadata
+    // is copied from the real image and pixel values are initialized to
+    // realPart + i*complexPart
+    template<class T>
+    static SHARED_PTR<casacore::TempImage<std::complex<T>>> makeComplexImage(
+    	SPCIIT realPart, SPCIIT imagPart
     );
 
     // Create a complex-valued image from a float-valued image (real part)
@@ -256,6 +260,15 @@ private:
 
     static ITUPLE _fromLatticeBase(
         std::unique_ptr<casacore::LatticeBase>& latt
+    );
+
+    static casacore::String _imageCreationMessage(
+        const casacore::String& outfile, const ITUPLE& imagePtrs
+    );
+
+    static casacore::String _imageCreationMessage(
+        const casacore::String& outfile, const casacore::IPosition& shape,
+        casacore::DataType dataType
     );
 
     // if successful, image will point to the newly named image

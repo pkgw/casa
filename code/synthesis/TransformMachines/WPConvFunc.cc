@@ -246,8 +246,8 @@ void WPConvFunc::findConvFunction(const ImageInterface<Complex>& image,
    
    Int warner=0;
    Vector<Complex> maxes(wConvSize);
-  Bool maxdel;
-  Complex* maxptr=maxes.getStorage(maxdel);
+  // Bool maxdel;
+  // Complex* maxptr=maxes.getStorage(maxdel);
   Matrix<Complex> corr(inner, inner);
   Vector<Complex> correction(inner);
    for (Int iy=-inner/2;iy<inner/2;iy++) {

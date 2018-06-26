@@ -1,6 +1,7 @@
-from casa import imager as im
-from casa import image as ia
-from casa import regionmanager as rg
+from casac import casac
+im=casac.imager()
+ia=casac.image()
+rg=casac.regionmanager()
 import os 
 import shutil
 

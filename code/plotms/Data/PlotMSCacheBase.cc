@@ -99,15 +99,10 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent):
 		  scan_(),
 		  dataLoaded_(false),
 		  userCanceled_(false),
-          xminG_(0),
-          yminG_(0),
-          xmaxG_(0),
-          ymaxG_(0),
           calType_(""),
           polnRatio_(false),
           plotmsAtm_(NULL)
 {
-
 	// Make the empty indexer0 object so we have and empty PlotData object
 	int dataCount = 1;
 	currentX_.resize(dataCount, PMS::DEFAULT_XAXIS);
@@ -123,6 +118,22 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent):
 		indexer_[i].set( NULL );
 		plmask_[i].set( NULL  );
 	}
+	xminG_.resize(dataCount);
+	xminG_.set(0);
+	xmaxG_.resize(dataCount);
+	xmaxG_.set(0);
+	yminG_.resize(dataCount);
+	yminG_.set(0);
+	ymaxG_.resize(dataCount);
+	ymaxG_.set(0);
+	xflminG_.resize(dataCount);
+	xflminG_.set(0);
+	xflmaxG_.resize(dataCount);
+	xflmaxG_.set(0);
+	yflminG_.resize(dataCount);
+	yflminG_.set(0);
+	yflmaxG_.resize(dataCount);
+	yflmaxG_.set(0);
 
 	// Set up loaded axes to be initially empty, and set up data columns for
 	// data-based axes.
@@ -854,11 +865,25 @@ void PlotMSCacheBase::resizeIndexer( int size ){
 	deleteIndexer();
 	indexer_.resize( size );
 	//plmask_.resize( size );
+	xminG_.resize(size);
+	xmaxG_.resize(size);
+	yminG_.resize(size);
+	ymaxG_.resize(size);
+	xflminG_.resize(size);
+	xflmaxG_.resize(size);
+	yflminG_.resize(size);
+	yflmaxG_.resize(size);
 }
 
 void PlotMSCacheBase::clearRanges(){
-	xminG_=yminG_=xflminG_=yflminG_=DBL_MAX;
-	xmaxG_=ymaxG_=xflmaxG_=yflmaxG_=-DBL_MAX;
+	xminG_.set(DBL_MAX);
+	yminG_.set(DBL_MAX);
+	xflminG_.set(DBL_MAX);
+	yflminG_.set(DBL_MAX);
+	xmaxG_.set(-DBL_MAX);
+	ymaxG_.set(-DBL_MAX);
+	xflmaxG_.set(-DBL_MAX);
+	yflmaxG_.set(-DBL_MAX);
 }
 
 String PlotMSCacheBase::getTimeBounds( int iterValue ){
@@ -911,30 +936,30 @@ pair<Double,Double> PlotMSCacheBase::getTimeBounds() const {
 	int dataCount = getDataCount();
 	for ( int i = 0; i < dataCount; i++ ){
 		if (PMS::axis(currentY_[i]) == "Time") {
-			timeBounds.first = yminG_;
-			timeBounds.second = ymaxG_;
+			timeBounds.first = yminG_[i];
+			timeBounds.second = ymaxG_[i];
 			break;
 		}
 		else if (PMS::axis(currentX_[i]) == "Time") {
-			timeBounds.first = xminG_;
-			timeBounds.second = xmaxG_;
+			timeBounds.first = xminG_[i];
+			timeBounds.second = xmaxG_[i];
 			break;
 		}
 	}
 	return timeBounds;
 }
 
-pair<Double,Double> PlotMSCacheBase::getYAxisBounds() const {
+pair<Double,Double> PlotMSCacheBase::getYAxisBounds(int index) const {
     pair<Double,Double> axisBounds;
-	axisBounds.first = yminG_;
-	axisBounds.second = ymaxG_;
+	axisBounds.first = yminG_[index];
+	axisBounds.second = ymaxG_[index];
 	return axisBounds;
 }
 
-pair<Double,Double> PlotMSCacheBase::getXAxisBounds() const {
+pair<Double,Double> PlotMSCacheBase::getXAxisBounds(int index) const {
     pair<Double,Double> axisBounds;
-	axisBounds.first = xminG_;
-	axisBounds.second = xmaxG_;
+	axisBounds.first = xminG_[index];
+	axisBounds.second = xmaxG_[index];
 	return axisBounds;
 }
 
@@ -1174,16 +1199,16 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 	Double ixflmin,iyflmin,ixflmax,iyflmax;
 	for (Int iter=0;iter<nIter;++iter) {
 		indexer_[dataIndex][iter]->unmaskedMinsMaxesRaw(ixmin,ixmax,iymin,iymax);
-		xminG_=min(xminG_,ixmin);
-		xmaxG_=max(xmaxG_,ixmax);
-		yminG_=min(yminG_,iymin);
-		ymaxG_=max(ymaxG_,iymax);
+		xminG_[dataIndex] = min(xminG_[dataIndex], ixmin);
+		xmaxG_[dataIndex] = max(xmaxG_[dataIndex], ixmax);
+		yminG_[dataIndex] = min(yminG_[dataIndex], iymin);
+		ymaxG_[dataIndex] = max(ymaxG_[dataIndex], iymax);
 
 		indexer_[dataIndex][iter]->maskedMinsMaxesRaw(ixflmin,ixflmax,iyflmin,iyflmax);
-		xflminG_=min(xflminG_,ixflmin);
-		xflmaxG_=max(xflmaxG_,ixflmax);
-		yflminG_=min(yflminG_,iyflmin);
-		yflmaxG_=max(yflmaxG_,iyflmax);
+		xflminG_[dataIndex] = min(xflminG_[dataIndex], ixflmin);
+		xflmaxG_[dataIndex] = max(xflmaxG_[dataIndex], ixflmax);
+		yflminG_[dataIndex] = min(yflminG_[dataIndex], iyflmin);
+		yflmaxG_[dataIndex] = max(yflmaxG_[dataIndex], iyflmax);
 
 		// set usage of globals
 		indexer_[dataIndex][iter]->setGlobalMinMax(globalXRange,globalYRange);
@@ -1199,7 +1224,7 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
         if (PMS::axisIsData(currentX_[dataIndex])) 
             ss << ":" << PMS::dataColumn(currentXData_[dataIndex]);
         ss << ": " << ixmin << " to " << ixmax << " (unflagged); ";
-        if (xflminG_ == DBL_MAX)
+        if (xflminG_[dataIndex] == DBL_MAX)
             ss << "(no flagged data)" << endl;
         else 
 		   ss << "; " << ixflmin << " to " << ixflmax << " (flagged)." << endl;
@@ -1207,7 +1232,7 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
         if (PMS::axisIsData(currentY_[dataIndex])) 
             ss << ":" << PMS::dataColumn(currentYData_[dataIndex]);
         ss << ": " << iymin << " to " << iymax << " (unflagged); ";
-        if (yflminG_ == DBL_MAX)
+        if (yflminG_ [dataIndex]== DBL_MAX)
             ss << "(no flagged data)";
         else
 		    ss << iyflmin << " to " << iyflmax << "(flagged).";
@@ -1843,6 +1868,19 @@ void PlotMSCacheBase::printAtmStats(casacore::Int scan) {
         ss << fixed << plotmsAtm_->getAirmass();
         logLoad(ss.str());
     }
+}
+
+bool PlotMSCacheBase::hasOverlay() {
+	// check loaded axes for overlays
+	bool overlay(false);
+	std::vector<PMS::Axis> axes(loadedAxes());
+	for (int i=0; i<axes.size(); ++i) {
+		if (PMS::axisIsOverlay(axes[i])) {
+			overlay = true;
+			break;
+		}
+	}
+	return overlay;
 }
 
 }

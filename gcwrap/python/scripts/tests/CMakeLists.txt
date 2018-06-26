@@ -37,7 +37,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_conjugatevis.py
   test_coordsys.py
   test_createmultims.py
-  test_csvclean.py
   test_cvel.py
   test_cvel2.py
   test_cvelfreqs.py
@@ -80,6 +79,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_ia_fromrecord.py
   test_ia_fromshape.py
   test_ia_getregion.py
+  test_ia_getslice.py
   test_ia_hanning.py
   test_ia_histograms.py
   test_ia_imageconcat.py
@@ -120,7 +120,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_importasdm.py
   test_importasdm_mms.py
   test_importatca.py
-  test_importevla.py
+  test_importcasa.py
   test_importfitsidi.py
   test_importmiriad.py
   test_importnro.py
@@ -212,8 +212,8 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_split.py
   test_split2.py
   test_spxfit.py
+  test_oldstatwt.py
   test_statwt.py
-  test_statwt2.py
   test_testconcat.py
   test_uvcontsub.py
   test_uvcontsub3.py

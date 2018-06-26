@@ -13,6 +13,7 @@
 namespace casacore{
 
 	class GaussianBeam;
+	class ImageBeamSet;
 	class ImageRegion;
 	class LogIO;
 	template<class T> class ImageStatistics;
