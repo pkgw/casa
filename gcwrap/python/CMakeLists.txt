@@ -57,6 +57,8 @@ scripts/check_exceptionhandling.py
 scripts/check_input_saverestore.py
 scripts/cleanhelper.py
 scripts/correct_ant_posns.py
+scripts/correct_ant_posns_evla.py
+scripts/correct_ant_posns_alma.py
 scripts/crashrpt_conf.py
 scripts/dbusutil.py
 scripts/dict_to_table.py
