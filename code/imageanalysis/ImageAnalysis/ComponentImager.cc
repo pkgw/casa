@@ -78,8 +78,7 @@ using namespace casacore;
 namespace casa {
 
 ComponentImager::ComponentImager(
-	const SPIIF image, const Record *const &region,
-	const String& mask
+	const SPIIF image, const Record *const &region, const String& mask
 ) : ImageTask<Float>(image, region, mask, "", false),
 	_image(image) {
 	_construct();
@@ -94,11 +93,8 @@ void ComponentImager::modify(Bool verbose) {
 	for (int i = 0; i < nelem; ++i) {
 		mod[i] = _list.component(i);
 	}
-
 	const auto n = mod.size();
-	ThrowIf(
-		n == 0, "There are no components in the model componentlist"
-	);
+	ThrowIf(n == 0, "There are no components in the model componentlist");
 	auto subImage = SubImageFactory<Float>::createSubImageRW(
 		*_image, *this->_getRegion(), this->_getMask(),
 		(verbose ? this->_getLog().get() : nullptr),
@@ -113,9 +109,9 @@ void ComponentImager::modify(Bool verbose) {
 		}
 		cl.add(sky);
 	}
-	// project(*subImage, cl);
-
-    ComponentListImage cli(cl, subImage->coordinates(), subImage->shape(), False);
+    ComponentListImage cli(
+        cl, subImage->coordinates(), subImage->shape(), False
+    );
     Lattice<Float>* x = &cli;
     LatticeExpr<Float> expr;
 	const auto& imageUnitName = subImage->units().getName();

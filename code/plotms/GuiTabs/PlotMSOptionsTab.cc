@@ -203,6 +203,7 @@ void PlotMSOptionsTab::gridChanged(){
 
 		itsParameters_.setRowCount(rowCount);
 		itsParameters_.setColCount(colCount);
+		itsPlotter_->gridSizeChanged(rowCount, colCount);
 		//Required so that if the user has unplotted changes, for example, selection
 		//the new grid will pick up the changes.
 		bool plotted = itsPlotter_->plot();

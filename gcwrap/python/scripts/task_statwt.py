@@ -1,81 +1,62 @@
 from taskinit import mstool, tbtool, casalog, write_history
+import flaghelper
 
-def statwt(vis, dorms, byantenna, sepacs, fitspw, fitcorr, combine,
-           timebin, minsamp, field, spw, antenna, timerange, scan, intent,
-           array, correlation, obs, datacolumn):
-    """
-    Sets WEIGHT and SIGMA using the scatter of the visibilities.
-    """
+def statwt(
+    vis, selectdata, field, spw, intent, array, observation, combine,
+    timebin, slidetimebin, chanbin, minsamp, statalg, fence, center,
+    lside, zscore, maxiter, excludechans, wtrange,
+    flagbackup, preview, datacolumn
+):
     casalog.origin('statwt')
-    retval = True
+    if not selectdata:
+        # CAS-10761, requirement provided by Urvashi
+        if field or spw or intent or array or observation:
+            casalog.post(
+                "selectdata=False, any explicitly set data "
+                + "selection parameters will be ignored",
+                "WARN"
+            )
+        field = ""
+        spw = ""
+        intent = ""
+        array = ""
+        observation = ""
     try:
+        if (flagbackup):
+            if (preview):
+                casalog.post(
+                    "Running in preview mode. No flags will be "
+                    + "modified, so existing flags will not be backed up."
+                )
+            else:
+                casalog.post('Backup original flags before applying new flags')
+                flaghelper.backupFlags(aflocal=None, msfile=vis, prename='statwt')
         myms = mstool()
-        mytb = tbtool()
-        
-        # parameter check for those not fully implemeted
-        # (should be taken out once implemented)
-        if byantenna:
-          raise ValueError("byantenna=True is not supported yet")
-        if fitcorr !='':
-          raise ValueError("fitcorr is not supported yet")
-        if timebin !='0s' and timebin !='-1s':
-          raise ValueError("timebin is not supported yet")
-                     
-        datacol = 'DATA'
-        mytb.open(vis)
-        colnames  = mytb.colnames()
-        mytb.close()
-
-
-        for datacol in ['CORRECTED_DATA', 'DATA', 'junk']:
-            if datacol in colnames:
-                break
-        if datacol == 'junk':
-            raise ValueError(vis + " does not have a data column")        
-
-        if datacolumn == 'float_data':
-           raise ValueError("float_data is not yet supported") 
-
-        if datacolumn == 'corrected' and datacol == 'DATA': # no CORRECTED_DATA case (fall back to DATA)
-           casalog.post("No %s column found, using %s column" % (datacolumn.upper()+'_DATA', datacol),'WARN')
-           datacolumn = datacol
-        else:
-           if datacolumn=='corrected':
-               datacolumn_name=datacolumn.upper()+'_DATA'
-           else:
-               datacolumn_name=datacolumn.upper()
-           casalog.post("Using %s column to determine visibility scatter" % datacolumn_name)
-       
-        if ':' in spw:
-            casalog.post('The channel selection part of spw will be ignored.', 'WARN')
-        
-        if len(correlation)>0:
-            correlation=''
-            casalog.post('Correlation selection in statwt has been disabled as of CASA v4.5', 'WARN')
-
-        myms.open(vis, nomodify=False)
-        retval = myms.statwt(dorms, byantenna, sepacs, fitspw, fitcorr, combine,
-                             timebin, minsamp, field, spw, antenna, timerange, scan, intent,
-                             array, correlation, obs, datacolumn)
-        myms.close()
-    except Exception, e:
-        casalog.post("Error setting WEIGHT and SIGMA for %s:" % vis, 'SEVERE')
-        casalog.post("%s" % e, 'SEVERE')
-        if False:  # Set True for debugging.
-            for p in statwt.func_code.co_varnames[:statwt.func_code.co_argcount]:
-                v = eval(p)
-                print p, "=", v, ", type =", type(v)
-        retval = False
-
-    if retval:
-        try:
-            param_names = statwt.func_code.co_varnames[:statwt.func_code.co_argcount]
-            param_vals = [eval(p) for p in param_names]
-            retval &= write_history(myms, vis, 'statwt', param_names, param_vals,
-                                    casalog)
-        except Exception, instance:
-            casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
-                         'WARN')        
-    return retval
-        
-    
+        myms.open(vis, nomodify=preview)
+        sel = {}
+        sel['spw'] = spw
+        #sel['time'] = timerange
+        sel['field'] = field
+        #sel['baseline'] = antenna
+        #sel['scan'] = scan
+        sel['scanintent'] = intent
+        #sel['polarization'] = correlation
+        #sel['uvdist'] = uvrange
+        sel['observation'] = str(observation)
+        sel['array'] = array
+        #sel['feed'] = feed
+        # Select the data. Only-parse is set to false.
+        myms.msselect(sel, False)
+        return myms.statwt(
+            combine=combine, timebin=timebin,
+            slidetimebin=slidetimebin, chanbin=chanbin,
+            minsamp=minsamp, statalg=statalg, fence=fence,
+            center=center, lside=lside, zscore=zscore,
+            maxiter=maxiter, excludechans=excludechans,
+            wtrange=wtrange, preview=preview, datacolumn=datacolumn
+        )
+    except Exception, instance:
+        casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
+        raise
+    finally:
+        myms.done()

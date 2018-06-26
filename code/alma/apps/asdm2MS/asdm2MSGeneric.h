@@ -8,6 +8,7 @@
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
+#include <casa/OS/Path.h>
 
 #include <memory>
 
@@ -383,14 +384,8 @@ template <class	T, class R, class RFilter>
 	    std::ostringstream oss;
 	    oss.str("");
 	    oss << "Appended " << filteredRows.size() << " rows to the MS SYSPOWER table." << endl;
-#if (BOOST_FILESYSTEM_VERSION == 3)
-	    casacore::LogSink::postGlobally(casacore::LogMessage(oss.str(), casacore::LogOrigin((boost::filesystem::path(getexepath())).filename().string(), WHERE),
-#else
-	    casacore::LogSink::postGlobally(casacore::LogMessage(oss.str(), casacore::LogOrigin((boost::filesystem::path(getexepath())).filename(), WHERE),
-#endif
-					     casacore::LogMessage::NORMAL
-					     )
-				  );	
+	    casacore::LogSink::postGlobally(casacore::LogMessage(oss.str(), casacore::LogOrigin((casacore::Path(getexepath())).baseName(), WHERE),
+								 casacore::LogMessage::NORMAL));
 	  }
 	}
 	//
@@ -435,14 +430,8 @@ template <class	T, class R, class RFilter>
 	    std::ostringstream oss;
 	    oss.str("");
 	    oss << "Appended " << filteredRows.size() << " rows to the MS SYSPOWER table." << endl;
-#if (BOOST_FILESYSTEM_VERSION == 3)
-	    casacore::LogSink::postGlobally(casacore::LogMessage(oss.str(), casacore::LogOrigin((boost::filesystem::path(getexepath())).filename().string(), WHERE),
-#else
-	    casacore::LogSink::postGlobally(casacore::LogMessage(oss.str(), casacore::LogOrigin((boost::filesystem::path(getexepath())).filename(), WHERE),
-#endif
-					     casacore::LogMessage::NORMAL
-					     )
-				  );	
+	    casacore::LogSink::postGlobally(casacore::LogMessage(oss.str(), casacore::LogOrigin((casacore::Path(getexepath())).baseName(), WHERE),
+								 casacore::LogMessage::NORMAL));
 	  }
 	}
 	V2CTX_P(v_p)->rows.clear();
