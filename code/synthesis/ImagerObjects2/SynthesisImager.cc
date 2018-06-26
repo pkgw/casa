@@ -823,32 +823,34 @@ using namespace casa::vi;
 
     try
       {
-	
+	// Prepare miscellaneous image information
+	auto objectName = msc.field().name()(msc.fieldId()(0));
+	///// misc info fpr ImageStore. This will go to the 'miscinfo' table keyword
+	Record miscInfo;
+	auto telescop=msc.observation().telescopeName()(0);
+	miscInfo.define("INSTRUME", telescop);
+	miscInfo.define("distance", distance.get("m").getValue());
+
 	if( mappertype=="default" || mappertype=="imagemosaic" )
 	  {
-	    imstor=new SIImageStore(imageName, cSys, imShape, overwrite, (useweightimage || (mappertype=="imagemosaic") ));
-	    //	    imstor=new SIImageStore(imageName, cSys, imShape, facets, overwrite, (useweightimage || (mappertype=="imagemosaic") ));
+            imstor = std::make_shared<SIImageStore>(imageName, cSys, imShape, objectName,
+                                                    miscInfo, overwrite,
+                                                    (useweightimage || (mappertype=="imagemosaic")
+                                                     ));
 	  }
 	else if (mappertype == "multiterm" )  // Currently does not support imagemosaic.
 	  {
-	    //cout << "Making multiterm IS with nterms : " << ntaylorterms << endl;
-	    imstor=new SIImageStoreMultiTerm(imageName, cSys, imShape, facets, overwrite, ntaylorterms, useweightimage);
+            // upcast with shared_ptr and then assign to CountedPtr<SIImageStore>
+            std::shared_ptr<SIImageStore> multiTermStore =
+                std::make_shared<SIImageStoreMultiTerm>(imageName, cSys, imShape,
+                                                        objectName, miscInfo, facets,
+                                                        overwrite, ntaylorterms, useweightimage);
+            imstor = multiTermStore;
 	  }
 	else
 	  {
 	    throw(AipsError("Internal Error : Invalid mapper type in SynthesisImager::createIMStore"));
 	  }
-	
-	// Fill in miscellaneous information needed by FITS
-        auto objectName = msc.field().name()(msc.fieldId()(0));
-        imstor->setObjectName(objectName);
-	ROMSColumns msc(*mss_p[0]);
-	Record info;
-	auto telescop = msc.observation().telescopeName()(0);
-	info.define("INSTRUME", telescop);
-	info.define("distance", distance.get("m").getValue());
-	///// Send misc info into ImageStore. This will go to the 'miscinfo' table keyword
-	imstor->setMiscInfo(info);
 
 	// Get polRep from 'msc' here, and send to imstore. 
 	StokesImageUtil::PolRep polRep(StokesImageUtil::CIRCULAR);

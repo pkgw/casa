@@ -1636,6 +1636,11 @@ public:
 	static string substring(const string &s, int a, int b);
 	static string trim(const string &s);
 
+	// encode special characters for use in XML
+	static string encode(const string &s);
+	// decode special characters used in XML
+	static string decode(const string &s, const string &tableName);
+
 }; // End class Parser
 
 inline Parser::Parser(const string &s) : str(s), pos(0), beg(0), end(0) {

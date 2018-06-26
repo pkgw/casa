@@ -12,7 +12,11 @@ namespace asdmbinaries {
 
   // Names of XML elements/attributes in an sdmDataHeader.
 
-  const regex  HeaderParser::PROJECTPATH3("([0-9]+)/([0-9]+)/([0-9]+)/");
+#ifndef WITHOUT_BOOST
+  const boost::regex  HeaderParser::PROJECTPATH3("([0-9]+)/([0-9]+)/([0-9]+)/");
+#else
+  const std::regex  HeaderParser::PROJECTPATH3("([0-9]+)/([0-9]+)/([0-9]+)/");
+#endif
   const string HeaderParser::SDMDATAHEADER      = "sdmDataHeader";
   const string HeaderParser::SCHEMAVERSION      = "schemaVersion";
   const string HeaderParser::BYTEORDER          = "byteOrder";
@@ -61,9 +65,15 @@ namespace asdmbinaries {
 
   // Names of XML elements/attributes in an sdmSubsetDataHeader with dimensionality==1 (Correlator)
 
-  const regex  SDMDataObjectParser::PROJECTPATH3("([0-9]+)/([0-9]+)/([0-9]+)/"); 
-  const regex  SDMDataObjectParser::PROJECTPATH4("([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/");
-  const regex  SDMDataObjectParser::PROJECTPATH5("([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/");
+#ifndef WITHOUT_BOOST
+  const boost::regex  SDMDataObjectParser::PROJECTPATH3("([0-9]+)/([0-9]+)/([0-9]+)/"); 
+  const boost::regex  SDMDataObjectParser::PROJECTPATH4("([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/");
+  const boost::regex  SDMDataObjectParser::PROJECTPATH5("([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/");
+#else
+  const std::regex  SDMDataObjectParser::PROJECTPATH3("([0-9]+)/([0-9]+)/([0-9]+)/"); 
+  const std::regex  SDMDataObjectParser::PROJECTPATH4("([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/");
+  const std::regex  SDMDataObjectParser::PROJECTPATH5("([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/");
+#endif
 
 
   const string CorrSubsetHeaderParser::SDMDATASUBSETHEADER = "sdmDataSubsetHeader";
@@ -87,7 +97,11 @@ namespace asdmbinaries {
   const string CorrSubsetHeaderParser::TYPE                = "type";
 
   // Names of XML elements/attributes in an sdmSubsetDataHeader with dimensionality==0 (TP)
-  const regex  TPSubsetHeaderParser::PROJECTPATH3("([0-9]+)/([0-9]+)/([0-9]+)/"); 
+#ifndef WITHOUT_BOOST
+  const boost::regex  TPSubsetHeaderParser::PROJECTPATH3("([0-9]+)/([0-9]+)/([0-9]+)/"); 
+#else
+  const std::regex  TPSubsetHeaderParser::PROJECTPATH3("([0-9]+)/([0-9]+)/([0-9]+)/");
+#endif
   const string TPSubsetHeaderParser::SDMDATASUBSETHEADER = "sdmDataSubsetHeader";
   const string TPSubsetHeaderParser::PROJECTPATH         = "projectPath";
   const string TPSubsetHeaderParser::SCHEDULEPERIODTIME  = "schedulePeriodTime";
@@ -211,9 +225,9 @@ namespace asdmbinaries {
 //   void HeaderParser::parseProjectPath(xmlNode* a_node, SDMDataObject& sdmDataObject) {
 //     string projectPath = SDMDataObjectParser::parseStringAttr(a_node, HeaderParser::PROJECTPATH);
     
-//     cmatch what;
+//     boost::cmatch what;
     
-//     if (regex_match(projectPath.c_str(), what,PROJECTPATH3) && what[0].matched) {
+//     if (boost::regex_match(projectPath.c_str(), what,PROJECTPATH3) && what[0].matched) {
 //       sdmDataObject.execBlockNum(::atoi(what[1].first));
 //       sdmDataObject.scanNum(::atoi(what[2].first));
 //       sdmDataObject.subscanNum(::atoi(what[3].first));
@@ -699,13 +713,13 @@ namespace asdmbinaries {
 //   void CorrSubsetHeaderParser::parseProjectPath (xmlNode* a_node, SDMDataSubset& sdmCorrDataSubset) {
 //     string projectPath = SDMDataObjectParser::parseStringAttr(a_node,CorrSubsetHeaderParser::PROJECTPATH);
     
-//     cmatch what;
+//     boost::cmatch what;
 //     unsigned int execBlockNum = 0;
 //     unsigned int scanNum      = 0;
 //     unsigned int subscanNum   = 0;
 //     switch (sdmCorrDataSubset.owner()->spectralResolutionType()) {
 //     case FULL_RESOLUTION:
-//       if (regex_match(projectPath.c_str(), what, SDMDataObjectParser::PROJECTPATH4) && what[0].matched) {
+//       if (boost::regex_match(projectPath.c_str(), what, SDMDataObjectParser::PROJECTPATH4) && what[0].matched) {
 // 	execBlockNum = ::atoi(what[1].first);
 // 	scanNum      = ::atoi(what[2].first);
 // 	subscanNum   = ::atoi(what[3].first);
@@ -716,7 +730,7 @@ namespace asdmbinaries {
 //       break;
 
 //     case  CHANNEL_AVERAGE:
-//       if (regex_match(projectPath.c_str(), what, SDMDataObjectParser::PROJECTPATH5) && what[0].matched) {
+//       if (boost::regex_match(projectPath.c_str(), what, SDMDataObjectParser::PROJECTPATH5) && what[0].matched) {
 // 	execBlockNum = ::atoi(what[1].first);
 // 	scanNum      = ::atoi(what[2].first);
 // 	subscanNum   = ::atoi(what[3].first);
@@ -882,12 +896,20 @@ namespace asdmbinaries {
   void TPSubsetHeaderParser::parseProjectPath(xmlNode* a_node, SDMDataSubset& sdmTPDataSubset) {
     string projectPath = SDMDataObjectParser::parseStringAttr(a_node,TPSubsetHeaderParser::PROJECTPATH);
     
-    cmatch what;
+#ifndef WITHOUT_BOOST
+    boost::cmatch what;
+#else
+    std::cmatch what;
+#endif
     unsigned int execBlockNum = 0;
     unsigned int scanNum      = 0;
     unsigned int subscanNum   = 0;
 
-    if (regex_match(projectPath.c_str(), what, PROJECTPATH3) && what[0].matched) {
+#ifndef WITHOUT_BOOST
+    if (boost::regex_match(projectPath.c_str(), what, PROJECTPATH3) && what[0].matched) {
+#else
+    if (std::regex_match(projectPath.c_str(), what, PROJECTPATH3) && what[0].matched) {
+#endif
       execBlockNum = ::atoi(what[1].first);
       scanNum      = ::atoi(what[2].first);
       subscanNum   = ::atoi(what[3].first);
@@ -1052,11 +1074,19 @@ namespace asdmbinaries {
   int SDMDataObjectParser::parseInt(xmlNode* a_node) {
     //cout << "Entering parseInt with " << a_node->content << endl;
     if ((a_node != NULL) && (a_node->next == NULL)) {
-      const regex UINT("[0-9]+");
-      cmatch what;
-      if (regex_match((char*)a_node->content, what, UINT)) {
+#ifndef WITHOUT_BOOST
+      const boost::regex UINT("[0-9]+");
+      boost::cmatch what;
+      if (boost::regex_match((char*)a_node->content, what, UINT)) {
 	return (::atoi(what[0].first));
       }
+#else
+      const std::regex UINT("[0-9]+");
+      std::cmatch what;
+      if (std::regex_match((char*)a_node->content, what, UINT)) {
+	return (::atoi(what[0].first));
+      }
+#endif
       else
 	throw SDMDataObjectParserException("failed to parse '"+string((const char*)a_node->content)+"' as an int in " + string((const char*)a_node->parent->name));
     }
@@ -1066,11 +1096,19 @@ namespace asdmbinaries {
 
   bool SDMDataObjectParser::parseBool(xmlNode* a_node) {
     if ((a_node != NULL) && (a_node->next == NULL)) {
-      const regex TORF("true|false");
-      cmatch what;
-      if (regex_match((char*)a_node->content, what, TORF)) {
+#ifndef WITHOUT_BOOST
+      const boost::regex TORF("true|false");
+      boost::cmatch what;
+      if (boost::regex_match((char*)a_node->content, what, TORF)) {
 	return ( *(what[0].first) == 't') ? true:false;
       }
+#else
+      const std::regex TORF("true|false");
+      std::cmatch what;
+      if (std::regex_match((char*)a_node->content, what, TORF)) {
+	return ( *(what[0].first) == 't') ? true:false;
+      }
+#endif
       else
 	throw SDMDataObjectParserException("failed to parse '"+string((const char*)a_node->content)+"' as an int in " + string((const char*)a_node->parent->name));
     }
@@ -1166,11 +1204,19 @@ namespace asdmbinaries {
     string projectPath = SDMDataObjectParser::parseStringAttr(a_node, HeaderParser::PROJECTPATH);
     vector<unsigned int> result;
     bool matched = true;
-    cmatch what;
+#ifndef WITHOUT_BOOST
+    boost::cmatch what;
     switch (len) {
-    case 3: matched = regex_match(projectPath.c_str(), what, PROJECTPATH3); break;
-    case 4: matched = regex_match(projectPath.c_str(), what, PROJECTPATH4); break;
-    case 5: matched = regex_match(projectPath.c_str(), what, PROJECTPATH5); break;	
+    case 3: matched = boost::regex_match(projectPath.c_str(), what, PROJECTPATH3); break;
+    case 4: matched = boost::regex_match(projectPath.c_str(), what, PROJECTPATH4); break;
+    case 5: matched = boost::regex_match(projectPath.c_str(), what, PROJECTPATH5); break;
+#else	
+    std::cmatch what;
+    switch (len) {
+    case 3: matched = std::regex_match(projectPath.c_str(), what, PROJECTPATH3); break;
+    case 4: matched = std::regex_match(projectPath.c_str(), what, PROJECTPATH4); break;
+    case 5: matched = std::regex_match(projectPath.c_str(), what, PROJECTPATH5); break;
+#endif	
     default: throw SDMDataObjectParserException ("internal error in method 'parseProjectPath'. The parameter 'len' has a value out of the range [3,5]");
     }
     
@@ -1183,15 +1229,24 @@ namespace asdmbinaries {
     return result;
   }
 
-  const regex  SDMDataObjectParser::PROJECTPATH4OR5("([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+/)?");
+#ifndef WITHOUT_BOOST
+  const boost::regex  SDMDataObjectParser::PROJECTPATH4OR5("([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+/)?");
+#else
+  const std::regex  SDMDataObjectParser::PROJECTPATH4OR5("([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+/)?");
+#endif
   vector<unsigned int> SDMDataObjectParser::parseProjectPath(xmlNode* a_node) {
     string projectPath = SDMDataObjectParser::parseStringAttr(a_node, HeaderParser::PROJECTPATH);
     vector<unsigned int> result;
     
     bool matched = true;
-    cmatch what;
-    
-    matched = regex_match(projectPath.c_str(), what, PROJECTPATH4OR5);
+
+#ifndef WITHOUT_BOOST
+    boost::cmatch what;
+    matched = boost::regex_match(projectPath.c_str(), what, PROJECTPATH4OR5);
+#else
+    std::cmatch what;
+    matched = std::regex_match(projectPath.c_str(), what, PROJECTPATH4OR5);
+#endif
     
     if (!matched)
       throw SDMDataObjectException("'" + projectPath + "' is an invalid string for a 'projectPath' attribute.");
