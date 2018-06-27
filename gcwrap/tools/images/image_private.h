@@ -225,7 +225,7 @@ void _setImage(casa::ITUPLE mytuple);
 
 template<class T> void _setrestoringbeam(
     SPIIT image, const variant& major, const variant& minor, const variant& pa,
-    const record& beam, bool remove, bool log, int channel, int polarization,
+    bool remove, bool log, int channel, int polarization,
     const casacore::Record& rec, const ImageBeamSet& bs
 );
 

@@ -9035,14 +9035,13 @@ print ia.brightnessunit()
 <returns type="bool">T or fail</returns>
 <description>
 
-This function replaces the coordinate system in the image. It is supported for both
-float and complex valued images. Coordinate systems are manipulated with the
-<link anchor="images:coordsys">cs</link> \tool.  The coordinate system can be
-recovered from an image via the <link anchor="images:coordsys">coordsys</link>
-function.
+This method replaces the coordinate system in the image. Coordinate systems are
+manipulated with the cs (coordintate system) tool. The coordinate system can be
+recovered from an image via the coordsys() method of the image analysis (ia)
+tool.
 
-Note that changing the cs \tool\ has no effect on the original
-image, until it is replaced with this function; the value returned
+Note that changing the coordinate system using the cs tool has no effect on the
+original image, until it is replaced with this method; the value returned
 by coordsys() is a copy of, not a reference to, the image's coordinate system.
 
 </description>
