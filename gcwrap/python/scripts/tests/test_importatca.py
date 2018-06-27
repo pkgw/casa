@@ -23,6 +23,7 @@ from __main__ import default
 from tasks import *
 from taskinit import *
 import unittest
+import numpy
 
 myname = 'importatca-unit-test'
 
@@ -238,7 +239,32 @@ class test_importatca(unittest.TestCase):
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
                 
         self.assertTrue(retValue['success'])
+        
+        # test atm pressure
+        self._check_atm_pressure(msname)
                 
+    def _check_atm_pressure(self, vis):
+        weather_table = os.path.join(vis, 'WEATHER')
+        tb.open(weather_table)
+        try:
+            # PRESSURE column should exist
+            self.assertTrue('PRESSURE' in tb.colnames())
+            
+            # unit should be hPa
+            colkeys = tb.getcolkeywords('PRESSURE')
+            self.assertTrue('QuantumUnits' in colkeys)
+            pressure_unit = colkeys['QuantumUnits'][0]
+            print('Pressure unit is {0}'.format(pressure_unit))
+            self.assertEqual(pressure_unit, 'hPa')
+            
+            # value should be in reasonable range
+            pressure_min = 400.0
+            pressure_max = 1100.0
+            pressure_value = tb.getcol('PRESSURE')
+            self.assertTrue(numpy.all(pressure_min < pressure_value))
+            self.assertTrue(numpy.all(pressure_value < pressure_max))
+        finally:
+            tb.close()
     
 def suite():
     return [test_importatca]

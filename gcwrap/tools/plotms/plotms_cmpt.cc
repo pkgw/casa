@@ -844,13 +844,14 @@ void plotms::clearPlots(){
 		PlotMSDBusApp::METHOD_CLEARPLOTS, Record(), asyncCall );
 }
 
-bool plotms::save(const string& filename, const string& format,
+bool plotms::save(const string& filename, const string& format, const bool verbose,
 		const bool highres, int dpi, int width, int height) {
     bool retValue(false);
     if (launchApp()) {  // if plotms or dbus crashed, return false to task
 		Record params;
 		params.define(PlotMSDBusApp::PARAM_EXPORT_FILENAME, filename);
 		params.define(PlotMSDBusApp::PARAM_EXPORT_FORMAT, format);
+		params.define(PlotMSDBusApp::PARAM_EXPORT_VERBOSE, verbose);
 		params.define(PlotMSDBusApp::PARAM_EXPORT_HIGHRES, highres);
 		params.define(PlotMSDBusApp::PARAM_EXPORT_DPI, dpi);
 		params.define(PlotMSDBusApp::PARAM_EXPORT_WIDTH, width);
