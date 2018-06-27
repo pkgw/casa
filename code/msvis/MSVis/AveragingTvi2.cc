@@ -2012,6 +2012,8 @@ VbAvg::startChunk (ViImplementation2 * vi)
 {
     empty_p = true;
 
+    rowIdGenerator_p = 0;
+    
     // See if the new MS has corrected and/or model data columns
 
     doing_p.observedData_p = averagingOptions_p.contains (AveragingOptions::AverageObserved);
