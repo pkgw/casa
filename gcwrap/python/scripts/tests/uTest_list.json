@@ -302,8 +302,8 @@
         },
         {
              "testNumber":"3170",
-             "testName":"Statwt",
-             "testScript":"test_statwt",
+             "testName":"Oldtatwt",
+             "testScript":"test_oldstatwt",
              "testType":"functionalTest",
              "testLevel":"critical",
              "Maintainer":"Takahiro Tsutsumi",
@@ -315,8 +315,8 @@
         },
         {
              "testNumber":"3171",
-             "testName":"Statwt2",
-             "testScript":"test_statwt2",
+             "testName":"Statwt",
+             "testScript":"test_statwt",
              "testType":"functionalTest",
              "testLevel":"critical",
              "Maintainer":"David Mehringer",

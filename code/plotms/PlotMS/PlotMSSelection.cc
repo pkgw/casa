@@ -164,10 +164,10 @@ void PlotMSSelection::apply(NewCalTable& ct, NewCalTable& selCT,
   if (feed().length()>0)
     throw(AipsError("Selection by feed not supported for NewCalTable"));
 
-  // Set the selected NewCalTable to be the same initially 
-  // as the input NewCalTable
-  selCT = ct;
-  if (!isEmpty()) {
+  if (isEmpty()) {
+    // Set the selected NewCalTable to be the same as the input NewCalTable
+    selCT = ct;
+  } else {
     // set up CTSelection with expressions
     CTSelection cts;
     cts.setTimeExpr(timerange());
@@ -182,7 +182,7 @@ void PlotMSSelection::apply(NewCalTable& ct, NewCalTable& selCT,
     CTInterface cti(ct);
     TableExprNode ten = cts.toTableExprNode(&cti);
     try {
-      getSelectedTable(selCT, ct, ten, "");
+      selCT = ct(ten);
     } catch(AipsError x) {
       throw(AipsError("Error selecting on caltable:\n" + x.getMesg()));
     }

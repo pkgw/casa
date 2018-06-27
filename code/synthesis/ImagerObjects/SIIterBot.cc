@@ -21,8 +21,10 @@
 //# $Id: $
 
 #include <synthesis/ImagerObjects/SIIterBot.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/session/DBusSession.h>
 #include <casadbus/utilities/Conversion.h>
+#endif
 
 /* Include file for the lock guard */
 #include <mutex>
@@ -468,10 +470,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		//    summaryUpdate();
 	}
 
+#if defined(WITHOUT_DBUS)
+	casac::variant SIIterBot_state::getSummary( ) {
+		std::cout << __FUNCTION__ << " executing" << std::endl;
+		return casac::variant( );
+	}
+#else
 	DBus::Variant SIIterBot_state::getSummary( ) {
 		std::cout << __FUNCTION__ << " executing" << std::endl;
 		return DBus::Variant( );
 	}
+#endif
 
 	int SIIterBot_state::getNumberOfControllers( ) {
 		std::lock_guard<std::recursive_mutex> guard(recordMutex);    

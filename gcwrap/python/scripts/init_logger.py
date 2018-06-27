@@ -1,5 +1,6 @@
 from mpi4casa.MPIEnvironment import MPIEnvironment
 
+
 def casalogger(logfile=''):
     """
     Spawn a new casalogger using logfile as the filename.
@@ -57,7 +58,13 @@ if MPIEnvironment.is_mpi_enabled and not MPIEnvironment.is_mpi_client:
 if deploylogger and casa['files']['logfile'] != '/dev/null':
     casalogger(casa['files']['logfile'])
 
-casalog = casac.logsink(casa['files']['logfile'])
+if (casa['state']['telemetry-enabled']):
+    casalog = casac.logsink(casa['files']['logfile'], True, casa['files']['telemetry-logfile'])
+    casatelemetry.setCasaLog(casalog)
+    casatelemetry.submitStatistics()
+else :
+    casalog = casac.logsink(casa['files']['logfile'])
+
 
 processor_origin = MPIEnvironment.processor_origin
 casalog.processorOrigin(processor_origin)

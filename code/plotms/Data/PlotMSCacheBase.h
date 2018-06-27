@@ -91,7 +91,10 @@ public:
   // Meta axes info
   int nmetadata() const {return N_METADATA;};
   PMS::Axis metadata(int i) {return METADATA[i];};
-  
+
+  // loaded ATM or TSKY
+  bool hasOverlay();
+
   // Reference an indexer; returns -1 if there is no indexer
   // for the given dataIndex.
   PlotMSIndexer& indexer( int dataIndex, casacore::uInt i) {
@@ -440,8 +443,8 @@ public:
   // Return the time as doubles 
   pair<casacore::Double,casacore::Double> getTimeBounds() const;
   // Return the axes ranges
-  pair<casacore::Double,casacore::Double> getXAxisBounds() const;
-  pair<casacore::Double,casacore::Double> getYAxisBounds() const;
+  pair<casacore::Double,casacore::Double> getXAxisBounds(int index) const;
+  pair<casacore::Double,casacore::Double> getYAxisBounds(int index) const;
 
   inline PMS::DataColumn getXDataColumn() { return currentXData_[0]; };
   inline PMS::DataColumn getYDataColumn(int index) { return currentYData_[index]; };
@@ -633,8 +636,9 @@ protected:
   //map<PMS::Axis, std::set<PMS::DataColumn>> loadedAxesData_;
   map<PMS::Axis, bool> pendingLoadAxes_;
 
-  // Global ranges
-  casacore::Double xminG_,yminG_,xflminG_,yflminG_,xmaxG_,ymaxG_,xflmaxG_,yflmaxG_;
+  // Global ranges (unflagged and flagged, per indexer)
+  casacore::Vector<casacore::Double> xminG_, xmaxG_, yminG_, ymaxG_,
+	  xflminG_, xflmaxG_, yflminG_, yflmaxG_;
 
   // A copy of the casacore::Data parameters 
   casacore::String filename_;
