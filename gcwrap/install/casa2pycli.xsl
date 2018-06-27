@@ -219,6 +219,8 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
           spaces = ' '*(18-len(tname))
           casalog.post('\n##########################################'+
                        '\n##### Begin Task: ' + tname + spaces + ' #####')
+          if (casa['state']['telemetry-enabled']):
+              casalog.poststat('Begin Task: ' + tname)
           if type(self.__call__.func_defaults) is NoneType:
               casalog.post(scriptstr[0]+'\n', 'INFO')
           else :
@@ -226,6 +228,8 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
           result = <xsl:value-of select="$taskname"/>(<xsl:call-template name="doargs2"/>)
           casalog.post('##### End Task: ' + tname + '  ' + spaces + ' #####'+
                        '\n##########################################')
+          if (casa['state']['telemetry-enabled']):
+              casalog.poststat('End Task: ' + tname)
 </xsl:for-each>
 <xsl:text disable-output-escaping="yes">
 	except Exception, instance:
