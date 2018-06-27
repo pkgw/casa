@@ -45,6 +45,7 @@ scripts/init_tools.py
 scripts/init_logger.py
 scripts/init_funcs.py
 scripts/init_pipeline.py
+scripts/init_telemetry.py
 scripts/init_testing.py
 scripts/init_tasks.py
 scripts/init_welcome.py
@@ -57,6 +58,8 @@ scripts/check_exceptionhandling.py
 scripts/check_input_saverestore.py
 scripts/cleanhelper.py
 scripts/correct_ant_posns.py
+scripts/correct_ant_posns_evla.py
+scripts/correct_ant_posns_alma.py
 scripts/crashrpt_conf.py
 scripts/dbusutil.py
 scripts/dict_to_table.py
@@ -197,8 +200,8 @@ scripts/task_splattotable.py
 scripts/task_split.py
 #scripts/task_split2.py
 scripts/task_spxfit.py
+scripts/task_oldstatwt.py
 scripts/task_statwt.py
-scripts/task_statwt2.py
 scripts/task_tclean.py
 scripts/task_tclean2.py
 scripts/task_testconcat.py
@@ -214,6 +217,8 @@ scripts/task_imview.py
 scripts/task_vishead.py
 scripts/task_visstat.py
 scripts/task_widebandpbcor.py
+scripts/telemetry.py
+scripts/TelemetryLogMonitor.py
 scripts/TerminalController.py
 scripts/tget.py
 scripts/update_spw.py
