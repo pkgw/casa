@@ -281,7 +281,8 @@ public:
     casacore::Float
     operator () (const FillState & fillState, casacore::Int channel, casacore::Int correlation) const {
 
-        casacore::Float r = fillState.rowNumber_p * 10 + fillState.spectralWindow_p;
+        casacore::Float r = fillState.rowNumber_p * 10 + 
+            fillState.spectralWindow_p + channel * 100 + correlation * 1000;
         return r;
     }
 

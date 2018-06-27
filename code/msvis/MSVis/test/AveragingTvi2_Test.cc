@@ -1039,8 +1039,8 @@ public:
         (void)fillState;
         (void)channel;
         (void)correlation;
-        // Generate a sine modulation with mean mean_p, a maximum mouldation
-        // amplitude of amplitude_p and that repeates itself every 
+        // Generate a sine modulation with mean mean_p, a maximum modulation
+        // amplitude of amplitude_p and that repeats itself every 
         // repeat_p generated values
         if(idx_p == repeat_p)
             idx_p = 0;
@@ -2161,26 +2161,37 @@ public:
     {
         printf ("+++ Starting AvgInTVIStackTest ...\n");
 
-        for(bool withModelData: {false, true})
+        for(bool withFloatData: {false, true})
         {
-            for(bool withCorrectedData: {false, true})
+            for(bool withModelData: {false, true})
             {
-                for(bool withWeightSpec : {false, true})
+                for(bool withCorrectedData: {false, true})
                 {
-                    String msName ("AveragingTvi2.ms");
-                    auto_ptr<MeasurementSet> ms;
-
-                    MeasurementSet * msTmp;
-                    const Double interval = 1.0;
-                    tie (msTmp, nRows_p) = createMs (msName, withWeightSpec, 
-                         withCorrectedData, withModelData);
-                    ms.reset (msTmp);
-
-                    for(size_t chunkInterval = 1; chunkInterval <= 64; chunkInterval *= 4)
+                    for(bool withWeightSpec : {false, true})
                     {
-                        for(size_t factor = 1; factor <= 4 && factor < chunkInterval; factor *= 2)
+                        String msName ("AveragingTvi2.ms");
+                        auto_ptr<MeasurementSet> ms;
+
+                        MeasurementSet * msTmp;
+                        const Double interval = 1.0;
+                        tie (msTmp, nRows_p) = createMs (msName, withWeightSpec, 
+                             withCorrectedData, withModelData, withFloatData);
+                        ms.reset (msTmp);
+
+                        for(size_t chunkInterval = 1; chunkInterval <= 64; chunkInterval *= 4)
                         {
-                            doTest (ms.get(), interval, chunkInterval, factor);
+                            for(size_t factor = 1; factor <= 4 && factor < chunkInterval; factor *= 2)
+                            {
+                                SCOPED_TRACE("Testing ms with float data="+to_string(withFloatData)+
+                                    " model data="+to_string(withModelData)+
+                                    " corrected data="+to_string(withCorrectedData)+
+                                    " weigh spec="+to_string(withWeightSpec)+
+                                    " chunkInterval="+to_string(chunkInterval)+
+                                    " factor="+to_string(factor));
+                                doTest (ms.get(), interval, chunkInterval,
+                                    factor, withWeightSpec, withCorrectedData, 
+                                    withModelData, withFloatData);
+                            }
                         }
                     }
                 }
@@ -2195,7 +2206,8 @@ protected:
 
     pair<MeasurementSet *,Int>
     createMs (const String & msName, 
-              bool withWeightSpec, bool withCorrectedData, bool withModelData)
+              bool withWeightSpec, bool withCorrectedData, 
+              bool withModelData, bool withFloatData)
     {
         system (String::format ("rm -r %s", msName.c_str()).c_str());
 
@@ -2208,6 +2220,11 @@ protected:
         msFactory->addAntennas(nAntennas_p);
         msFactory->addFeeds (10); // needs antennas and spws to be setup first
         msFactory->addWeightSpectrum (withWeightSpec);
+        msFactory->addFloatData (withFloatData);
+        if(!withModelData)
+            msFactory->removeColumn(MSMainEnums::MODEL_DATA);
+        if(!withCorrectedData)
+            msFactory->removeColumn(MSMainEnums::CORRECTED_DATA);
 
         for (Int i = 0; i < 10; i++){
             msFactory->addField (String::format ("field%d", i), MDirection());
@@ -2262,6 +2279,8 @@ protected:
             msFactory->setDataGenerator(MSMainEnums::CORRECTED_DATA, new GenerateRamp(2));
         if(withModelData)
             msFactory->setDataGenerator(MSMainEnums::MODEL_DATA, new GenerateRamp(3));
+        if(withFloatData)
+            msFactory->setDataGenerator(MSMainEnums::FLOAT_DATA, new GenerateModulation<float>(10));
 
         // Set all of the data to be unflagged.
         msFactory->setDataGenerator(MSMainEnums::FLAG, new GenerateAlternatingFlagRows());
@@ -2277,32 +2296,45 @@ protected:
     }
 
     void
-    doTest (MeasurementSet * ms, Double interval, Int chunkInterval, Int averagingFactor)
+    doTest (MeasurementSet * ms, Double interval, Int chunkInterval, 
+            Int averagingFactor, bool withWeightSpec, bool withCorrectedData, 
+            bool withModelData, bool withFloatData)
     {
         printf ("\nStarting averaging of %d samples ...\n", averagingFactor);
 
+        AveragingOptions avgOpts(AveragingOptions::AverageObserved |
+                                 AveragingOptions::ObservedFlagAvg |
+                                 AveragingOptions::ModelFlagWeightAvgFromWEIGHT |
+                                 AveragingOptions::CorrectedWeightAvgFromWEIGHT);
+        if(withCorrectedData)
+          avgOpts = avgOpts | AveragingOptions::AverageCorrected;
+        if(withModelData)
+          avgOpts = avgOpts | AveragingOptions::AverageModel;
+        if(withFloatData)
+          avgOpts = avgOpts | AveragingOptions::AverageFloat;
+        
         AveragingParameters parameters (interval * averagingFactor,
-                                        chunkInterval,
-                                        SortColumns (),
-                                        AveragingOptions (AveragingOptions::AverageObserved |
-                                                          AveragingOptions::AverageModel |
-                                                          AveragingOptions::AverageCorrected |
-                                                          AveragingOptions::ObservedFlagAvg |
-                                                          AveragingOptions::ModelFlagWeightAvgFromWEIGHT |
-                                                          AveragingOptions::CorrectedWeightAvgFromWEIGHT));
+                                        chunkInterval, SortColumns(), avgOpts);
         VisibilityIterator2 avgTVI (AveragingVi2Factory (parameters, ms));
 
         IteratingParameters ipar;
         VisIterImpl2LayerFactory diskFactory(ms, ipar, false);
         AveragingVi2LayerFactory timeAvgFactory(parameters);
         PassThroughTVILayerFactory passThroughFactory;
-        Vector<ViiLayerFactory*> factories(3);
-        factories[0] = &diskFactory;
-        factories[1] = &passThroughFactory;
-        factories[2] = &timeAvgFactory;
+        Vector<ViiLayerFactory*> tviFactories1(3);
+        tviFactories1[0] = &diskFactory;
+        tviFactories1[1] = &timeAvgFactory;
+        tviFactories1[2] = &passThroughFactory;
 
-        std::unique_ptr<VisibilityIterator2> stackedTVI;
-        stackedTVI.reset( new VisibilityIterator2(factories) );
+        std::unique_ptr<VisibilityIterator2> timeAvgStackedMiddleVI;
+        timeAvgStackedMiddleVI.reset( new VisibilityIterator2(tviFactories1) );
+
+        Vector<ViiLayerFactory*> tviFactories2(2);
+        tviFactories2[0] = &diskFactory;
+        tviFactories2[1] = &timeAvgFactory;
+
+        std::unique_ptr<VisibilityIterator2> timeAvgStackedTopVI;
+        timeAvgStackedTopVI.reset( new VisibilityIterator2(tviFactories2) );
 
         VisBufferComponents2 columns;
         columns += VisBufferComponent2::NRows;
@@ -2312,8 +2344,10 @@ protected:
         columns += VisBufferComponent2::FlagRow;
         columns += VisBufferComponent2::FlagCube;
         columns += VisBufferComponent2::VisibilityCubeObserved;
-        columns += VisBufferComponent2::VisibilityCubeCorrected;
-        columns += VisBufferComponent2::VisibilityCubeModel;
+        if(withCorrectedData)
+            columns += VisBufferComponent2::VisibilityCubeCorrected;
+        if(withModelData)
+            columns += VisBufferComponent2::VisibilityCubeModel;
         columns += VisBufferComponent2::Time;
         columns += VisBufferComponent2::TimeCentroid;
         columns += VisBufferComponent2::TimeInterval;
@@ -2328,16 +2362,22 @@ protected:
 
         double dblTol = std::numeric_limits<double>::epsilon();
 
-        compareVisibilityIterators(*stackedTVI, avgTVI, columns, dblTol);
+        compareVisibilityIterators(*timeAvgStackedMiddleVI, avgTVI, columns, dblTol);
 
         VisBufferComponents2 columnsFl;
-        columnsFl += VisBufferComponent2::FloatData;
+        if(withFloatData)
+        {
+            columnsFl += VisBufferComponent2::FloatData;
+            columnsFl += VisBufferComponent2::VisibilityCubeFloat;
+        }
         columnsFl += VisBufferComponent2::Weight;
-        columnsFl += VisBufferComponent2::WeightSpectrum;
+        if(withWeightSpec)
+            columnsFl += VisBufferComponent2::WeightSpectrum;
         columnsFl += VisBufferComponent2::Sigma;
-        columnsFl += VisBufferComponent2::SigmaSpectrum;
+        if(withWeightSpec)
+            columnsFl += VisBufferComponent2::SigmaSpectrum;
         double flTol = std::numeric_limits<float>::epsilon();
-        compareVisibilityIterators(*stackedTVI, avgTVI, columnsFl, flTol);
+        compareVisibilityIterators(*timeAvgStackedMiddleVI, avgTVI, columnsFl, flTol);
 
         printf ("\n...completed averaging of %d samples ...\n", averagingFactor);
     }
