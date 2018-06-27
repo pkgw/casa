@@ -107,6 +107,9 @@ public:
     // Implements Plot::setLine().
     void setLine(const PlotLine& line);
     
+    // Implements ScatterPlot::linesStep() and setLinesStep().
+    inline bool linesStep() const { return m_step; }
+    inline void setLinesStep(bool linesStep = true) { m_step = linesStep; }
     
     // ScatterPlot Methods //
     
@@ -145,6 +148,10 @@ public:
 
     // Implements MaskedScatterPlot::setMaskedLine().
     void setMaskedLine(const PlotLine& line);
+
+    // Implements MaskedScatterPlot::maskedLinesStep() and setMaskedLinesStep().
+    inline bool maskedLinesStep() const { return m_maskedStep; }
+    inline void setMaskedLinesStep(bool linesStep = true) { m_maskedStep = linesStep; }
 
     // Implements MaskedScatterPlot::maskedSymbolsShown().
     bool maskedSymbolsShown() const;
@@ -222,10 +229,12 @@ private:
     // <group>
     QPSymbol m_symbol;
     QPLine m_line;
+    bool m_step;
     QPSymbol m_maskedSymbol;
     QPLine m_maskedLine;
     QPLine m_errorLine;
     unsigned int m_errorCap;
+    bool m_maskedStep;
     // </group>
     
     // Binned colors.

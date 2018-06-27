@@ -83,6 +83,9 @@ void CacheThread::setCalibration( PlotMSCalibration calibration ){
 	itsCalibration = calibration;
 }
 
+void CacheThread::setXConnect( String xconnect ){
+	itsXConnect = xconnect;
+}
 void CacheThread::setPlot( PlotMSPlot* plot ){
 	itsPlot = plot;
 }
@@ -104,7 +107,7 @@ bool CacheThread::doWork(){
 			if ( itsCache ){
 				itsCache->load(workAxes, itsAxesData, itsMSName, 
 					itsSelection, itsAveraging,
-					itsTransformations, itsCalibration, 
+					itsTransformations, itsCalibration,
                     threadController );
 			}
 			else {
@@ -125,7 +128,7 @@ bool CacheThread::doWork(){
                         itsCache->clearRanges();
                         bool globalRanges = false;
                         for ( int i = 0; i < dataCount; i++ ){
-                            itsCache->setUpIndexer(PMS::NONE, globalRanges, globalRanges, i);
+                            itsCache->setUpIndexer(PMS::NONE, globalRanges, globalRanges, itsXConnect, i);
                         }
                     }
                 }

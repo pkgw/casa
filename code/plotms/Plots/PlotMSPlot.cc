@@ -657,6 +657,29 @@ bool PlotMSPlot::updateDisplay() {
 				if (nIter > 0 && colorizeChanged )
 					plot->dataChanged();
 
+				// set xconnector
+				String xconnector = display->xConnect();
+				bool connectorChanged = itsCache_->indexer(row,col).connect(xconnector);
+				if (connectorChanged)
+					plot->dataChanged();
+				if (xconnector == "none") {
+					plot->setLinesShown(false);
+					plot->setMaskedLinesShown(false);
+				} else {
+					// only connect symbols being plotted
+					if (symbolUnmasked->symbol() != PlotSymbol::NOSYMBOL) {
+						plot->setLinesShown(true);
+						plot->setLine(symbolUnmasked->getColor());
+					}
+					if (symbolMasked->symbol() != PlotSymbol::NOSYMBOL) {
+						plot->setMaskedLinesShown(true);
+						plot->setMaskedLine(symbolMasked->getColor());
+					}
+					bool step = (xconnector == "step");
+					plot->setLinesStep(step);
+					plot->setMaskedLinesStep(step);
+				}
+
 				// Set item axes
 				plot->setAxes(axes->xAxis(row), axes->yAxis(row));
 
@@ -758,9 +781,11 @@ void PlotMSPlot::clearPlotData() {
 bool PlotMSPlot::updateIndexing() {
 	PMS_PP_Iteration *iter = itsParams_.typedGroup<PMS_PP_Iteration>();
 	PMS_PP_Axes* axes = itsParams_.typedGroup<PMS_PP_Axes>();
+	PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
 	bool globalX = iter->isGlobalScaleX();
 	bool globalY = iter->isGlobalScaleY();
 	PMS::Axis iterAxis = iter->iterationAxis();
+	String xconnect = disp->xConnect();
 
 	String caltype = itsCache_->calType();
 	checkIteraxis(caltype, iter);
@@ -781,7 +806,7 @@ bool PlotMSPlot::updateIndexing() {
 		itsCache_->clearRanges();
 		//Set up the indexer.
 		for ( int i = 0; i < dataCount; i++ )
-			itsCache_->setUpIndexer(iterAxis, globalX, globalY, i);
+			itsCache_->setUpIndexer(iterAxis, globalX, globalY, xconnect, i);
 	}
 	return true;
 }
@@ -1761,7 +1786,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		if ( axesParams->xRangeSet() ){
 			// Custom axes ranges set by user
 			canvas->setAxisRange(cx, axesParams->xRange());
-		} else if (xPtsToPlot && !iterParams->isGlobalScaleX()) {
+		} else if (xPtsToPlot) {
 			setAxisRange(x, cx, xmin, xmax, canvas);
 			if (PMS::axisIsUV(x)) {
 				xIsUV = true;
@@ -1776,8 +1801,15 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			if ( axesParams->yRangeSet(i) ){
 				// Custom axes ranges set by user
 				canvas->setAxisRange(cy, axesParams->yRange(i));
-			} else if (yPtsToPlot && !iterParams->isGlobalScaleY()) {
+			} else if (yPtsToPlot) {
 				PMS::Axis y = cacheParams->yAxis(i);
+				// add margin if showAtm so overlay doesn't overlap plot
+				if ((cacheParams->showAtm() && y!=PMS::ATM) ||
+					(cacheParams->showTsky() && y!=PMS::TSKY)) {
+					ymax += (ymax-ymin)*0.5;
+					pair<double, double> ybounds = make_pair(ymin, ymax);
+					canvas->setAxisRange(cy, ybounds);
+				}
 				setAxisRange(y, cy, ymin, ymax, canvas);
 				if (PMS::axisIsUV(y) && xIsUV) {
 					// set x and y ranges equally
@@ -1789,7 +1821,13 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					makeSquare = true;
 					if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE))
 						waveplot=true;
-				}
+                } else if (y==PMS::ATM || y==PMS::TSKY) {
+                    itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
+                    pair<double,double> atmrange;
+                    if (y==PMS::ATM) atmrange = make_pair(0, min(ymax+1.0, 100.0));
+                    else atmrange = make_pair(0, ymax+0.1);
+                    canvas->setAxisRange(cy, atmrange);
+                }
 			}
 		}
 	}

@@ -53,10 +53,12 @@ const String QPScatterPlot::CLASS_NAME = "QPScatterPlot";
 QPScatterPlot::QPScatterPlot(PlotPointDataPtr data, const String& title):
         m_data(data), m_symbol(QPFactory::defaultPlotSymbol()),
         m_line(QPFactory::defaultPlotLine()),
+        m_step(false),
         m_maskedSymbol(QPFactory::defaultPlotMaskedSymbol()),
         m_maskedLine(QPFactory::defaultPlotLine()),
         m_errorLine(QPFactory::defaultPlotLine()),
-        m_errorCap(QPFactory::DEFAULT_ERROR_CAP) {
+        m_errorCap(QPFactory::DEFAULT_ERROR_CAP),
+        m_maskedStep(false) {
     QPPlotItem::setTitle(title);
     
     if(!data.null()) {
@@ -75,10 +77,12 @@ QPScatterPlot::QPScatterPlot(PlotPointDataPtr data, const String& title):
 QPScatterPlot::QPScatterPlot(const ScatterPlot& copy) :
         m_data(copy.pointData()), m_symbol(QPFactory::defaultPlotSymbol()),
         m_line(QPFactory::defaultPlotLine()),
+        m_step(false),
         m_maskedSymbol(QPFactory::defaultPlotMaskedSymbol()),
         m_maskedLine(QPFactory::defaultPlotLine()),
         m_errorLine(QPFactory::defaultPlotLine()),
-        m_errorCap(QPFactory::DEFAULT_ERROR_CAP) {
+        m_errorCap(QPFactory::DEFAULT_ERROR_CAP), 
+        m_maskedStep(false) {
     QPPlotItem::setTitle(copy.title());
     
     if(!m_data.null()) {
@@ -177,11 +181,11 @@ QwtGraphic QPScatterPlot::legendIcon(int /*index*/, const QSizeF& size) const {
 }
 #else
 QWidget* QPScatterPlot::legendItem() const {
-	QPen legendPen = m_line.asQPen();
-	if ( !linesShown() ){
-		QColor penColor = m_symbol.drawPen().color();
-		legendPen = QPen(penColor );
-	}
+    QPen legendPen = m_line.asQPen();
+    if ( !linesShown() ){
+        QColor penColor = m_symbol.drawPen().color();
+        legendPen = QPen(penColor );
+    }
     QwtLegendItem* i= new QwtLegendItem(m_symbol, legendPen, qwtTitle());
     i->setIdentifierMode(QwtLegendItem::ShowLine | QwtLegendItem::ShowSymbol |
                          QwtLegendItem::ShowText);
@@ -460,32 +464,53 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
     // Draw normal/masked lines
     bool drawLine = m_line.style() != PlotLine::NOLINE,
          drawMaskedLine = !m_maskedData.null() &&
-                          m_maskedLine.style() != PlotLine::NOLINE;
+                          m_maskedLine.style() != PlotLine::NOLINE,
+         diffColorLine = !m_coloredData.null() && m_coloredData->isBinned();    
     if(drawLine || drawMaskedLine) {
         double tempx, tempy, tempx2, tempy2;
         int ix, iy, ix2, iy2;
         if(!m_maskedData.null()) {
-            bool mask;
+            bool mask, sameLine;
             
             // set the painter's pen only once if possible
             bool samePen = m_line.asQPen() == m_maskedLine.asQPen();
-            if(!drawMaskedLine || samePen) p->setPen(m_line.asQPen());
+            if (!drawMaskedLine || samePen) p->setPen(m_line.asQPen());
             
             m_maskedData->xyAndMaskAt(drawIndex, tempx, tempy, mask);
             ix = xMap.transform(tempx); iy = yMap.transform(tempy);
             
             for(unsigned int i = drawIndex + 1; i < n; i++) {
                 m_maskedData->xAndYAt(i, tempx2, tempy2);
+                sameLine = (tempx2 > tempx);
                 ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
-                if(drawLine && !mask) {
-                    if(drawMaskedLine && !samePen) p->setPen(m_line.asQPen());
+                if (diffColorLine) {
+                    QPen linePen = m_line.asQPen();
+                    QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(i)];
+                    linePen.setBrush(coloredBrush);
+                    QColor brushColor = coloredBrush.color();
+                    linePen.setColor(brushColor);
+                    p->setPen(linePen);
+                }
+                if(drawLine && !mask && sameLine) {
+                    if(drawMaskedLine && !samePen && !diffColorLine) p->setPen(m_line.asQPen());
                     if(brect.contains(ix, iy) || brect.contains(ix2, iy2))
-                        p->drawLine(ix, iy, ix2, iy2);
-                } else if(drawMaskedLine && mask) {
-                    if(drawLine && !samePen) p->setPen(m_maskedLine.asQPen());
+                        if (m_step) {
+                            p->drawLine(ix, iy, ix2, iy);
+                            p->drawLine(ix2, iy, ix2, iy2);
+                        } else {
+                            p->drawLine(ix, iy, ix2, iy2);
+                        }
+                } else if(drawMaskedLine && mask && sameLine ) {
+                    if(drawLine && !samePen && !diffColorLine) p->setPen(m_maskedLine.asQPen());
                     ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
-                    if(brect.contains(ix, iy) || brect.contains(ix2, iy2))
-                        p->drawLine(ix, iy, ix2, iy2);
+                    if(brect.contains(ix, iy) || brect.contains(ix2, iy2)) {
+                        if (m_maskedStep) {
+                            p->drawLine(ix, iy, ix2, iy);
+                            p->drawLine(ix2, iy, ix2, iy2);
+                        } else {
+                            p->drawLine(ix, iy, ix2, iy2);
+                        }
+                    }
                 }
                 tempx = tempx2; tempy = tempy2;
                 ix = ix2; iy = iy2;
@@ -537,9 +562,9 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
 
             for(unsigned int i = drawIndex; i < n; i++) {
                 m_maskedData->xyAndMaskAt(i, tempx, tempy, mask);
-				// don't plot nan and inf !
+                // don't plot nan and inf !
                 if (!casacore::isNaN(tempx) && !casacore::isNaN(tempy) &&
-					!casacore::isInf(tempx) && !casacore::isInf(tempy)) {
+                    !casacore::isInf(tempx) && !casacore::isInf(tempy)) {
                   if(drawSymbol && !mask) {
                     for (unsigned int pt=0; pt<ptsToDraw; ++pt) {
                         if (pt==0) {

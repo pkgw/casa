@@ -53,6 +53,7 @@ public:
 	void setAveraging( PlotMSAveraging averaging );
 	void setTransformations( PlotMSTransformations transforms );
 	void setCalibration( PlotMSCalibration calibration );
+	void setXConnect( casacore::String xconnect );
 	virtual ~CacheThread();
 protected:
 	virtual bool doWork();
@@ -70,7 +71,7 @@ private:
 	PlotMSCacheBase* itsCache;
 	vector<PMS::Axis> workAxes;
 	vector<PMS::DataColumn> itsAxesData;
-	casacore::String itsMSName;
+	casacore::String itsMSName, itsXConnect;
 	PlotMSSelection itsSelection;
 	PlotMSAveraging itsAveraging;
 	PlotMSTransformations itsTransformations;
