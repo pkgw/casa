@@ -223,11 +223,17 @@ void _reset();
 
 void _setImage(casa::ITUPLE mytuple);
 
-template<class T> SHARED_PTR<casacore::ImageInterface<T> > _subimage(
+template<class T> void _setrestoringbeam(
+    SPIIT image, const variant& major, const variant& minor, const variant& pa,
+    const record& beam, bool remove, bool log, int channel, int polarization,
+    const casacore::Record& rec, const ImageBeamSet& bs
+);
+
+template<class T> image* _subimage(
 	SHARED_PTR<casacore::ImageInterface<T> > clone,
-	const casacore::String& outfile, const casacore::Record& region,
-	const casacore::String& mask, bool dropDegenerateAxes,
-	bool overwrite, bool list, bool stretch, const vector<int>& keepaxes
+	const casacore::String& outfile, const casac::variant& region,
+	const casac::variant& vmask, bool dropDegenerateAxes, 	bool overwrite,
+	bool list, bool stretch, const vector<int>& keepaxes, bool wantReturn
 );
 
 template <class T> static record* _summary(

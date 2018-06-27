@@ -33,9 +33,10 @@
 
 namespace casa {
 
-class ComplexImageRegridder : public ImageRegridderBase<casacore::Complex> {
+template<class T> class ComplexImageRegridder : public ImageRegridderBase<T> {
 	// <summary>
-	// Top level interface which regrids an image with complex-valued pixels to a specified coordinate system
+	// Top level interface which regrids an image with complex-valued pixels to
+    // a specified coordinate system
 	// </summary>
 
 	// <reviewed reviewer="" date="" tests="" demos="">
@@ -49,30 +50,32 @@ class ComplexImageRegridder : public ImageRegridderBase<casacore::Complex> {
 	// </etymology>
 
 	// <synopsis>
-	// High level interface for regridding an image. Note that in the case of a complex-valued
-	// image, the image is first divided into its composite real and imaginary parts, and these
-	// parts are regridded independently. The resulting regridded images are combined to form
-	// the final regridded complex-valued image.
+	// High level interface for regridding an image. Note that in the case of a
+    // complex-valued image, the image is first divided into its composite real
+    // and imaginary parts, and these parts are regridded independently. The
+    // resulting regridded images are combined to form the final regridded
+    // complex-valued image.
 	// </synopsis>
 
 public:
 
-	// if <src>outname</src> is empty, no image will be written
-	// if <src>overwrite</src> is true, if image already exists it will be removed
-	// if <src>overwrite</src> is false, if image already exists exception will be thrown
-	// <group>
+    ComplexImageRegridder() = delete;
 
+	// if <src>outname</src> is empty, no image will be written
+	// if <src>overwrite</src> is true, if image already exists it will be
+    // removed if <src>overwrite</src> is false, if image already exists
+    // exception will be thrown
+	// <group>
 	ComplexImageRegridder(
-		const SPCIIC image,
-		const casacore::Record *const regionRec,
-		const casacore::String& maskInp, const casacore::String& outname, casacore::Bool overwrite,
-		const casacore::CoordinateSystem& csysTo, const casacore::IPosition& axes,
-		const casacore::IPosition& shape
+	    SPCIIT image, const casacore::Record *const regionRec,
+		const casacore::String& maskInp, const casacore::String& outname,
+		casacore::Bool overwrite, const casacore::CoordinateSystem& csysTo,
+		const casacore::IPosition& axes, const casacore::IPosition& shape
 	);
 
-	template <class T> ComplexImageRegridder(
-		const SPCIIC image, const casacore::String& outname,
-		const SPCIIT templateIm, const casacore::IPosition& axes=casacore::IPosition(),
+	template<class U> ComplexImageRegridder(
+		SPCIIT image, const casacore::String& outname, SPCIIU templateIm,
+		const casacore::IPosition& axes=casacore::IPosition(),
 		const casacore::Record *const regionRec=0,
 		const casacore::String& maskInp="", casacore::Bool overwrite=false,
 		const casacore::IPosition& shape=casacore::IPosition()
@@ -83,7 +86,7 @@ public:
 	~ComplexImageRegridder();
 
 	// perform the regrid.
-	SPIIC regrid() const;
+	SPIIT regrid() const;
 
 protected:
 
@@ -93,10 +96,10 @@ private:
 
 	static const casacore::String _class;
 
-	// disallow default constructor
-	ComplexImageRegridder();
-
 };
 }
 
+#ifndef CASACORE_NO_AUTO_TEMPLATES
+#include <imageanalysis/ImageAnalysis/ComplexImageRegridder.tcc>
+#endif
 #endif

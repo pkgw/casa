@@ -331,12 +331,12 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
 }
 
 DelayRateFFT::DelayRateFFT(Array<Complex>& data, Int nPadFactor, Float f0, Float df, Float dt, SDBList& s) :
-    gm_(s),
     refant_(0),
+    gm_(s),
     nPadFactor_(nPadFactor),
+    dt_(dt),
     f0_(f0),
     df_(df),
-    dt_(dt),
     Vpad_(),
     sumw_(),
     sumww_(),
@@ -1336,7 +1336,7 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
             Double h = gsl_matrix_get(inv_hess, i, i);
             Double snr0 = sqrt(sigma2*h*0.5);
             snr0 = min(snr0, 9999.999);
-            Double snr = (snr0 > 1e-20) ? snr = 1.0/snr0 : snr0;
+            Double snr = (snr0 > 1e-20) ? 1.0/snr0 : snr0;
             // cerr << "Antenna " << i/3 << " h " << h << " SNR0 " << snr0 << " SNR  = " << snr << endl;
             gsl_vector_set(snr_vector, i, snr);
         }
@@ -1467,7 +1467,8 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         
         gsl_vector_sub(gp_orig, w->x);
         gsl_vector *diff = gp_orig;
-        double diffsize = gsl_blas_dnrm2(diff);
+        // double diffsize =
+        gsl_blas_dnrm2(diff);
     
         gsl_vector *res = gsl_multilarge_nlinear_position(w);
         
@@ -1479,7 +1480,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         gsl_vector_set_zero(snr_vector);
         expb_hess(gp, &bundle, hess, chi1*chi1, snr_vector, logSink);
         
-        Double log_det = 0;
+        // Double log_det = 0;
         // cerr << "Hessian diagonal: [" ;
         // for (size_t i=0; i<p; i+=1)
         // {
@@ -1495,16 +1496,17 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
             Int iparam = bundle.get_param_corr_index(iant);
             if (iparam<0) continue;
             if (0) {
-                bool flag = false;
-                if (fabs(gsl_vector_get(diff, iparam + 0) > FLT_EPSILON)) {
-                    flag = true;
-                }
-                if (fabs(gsl_vector_get(diff, iparam + 1) > FLT_EPSILON)) {
-                    flag = true;
-                }
-                if (fabs(gsl_vector_get(diff, iparam + 2) > 1e-30)) {
-                    flag = true;
-                }
+                // flag unused
+                // bool flag = false;
+                // if (fabs(gsl_vector_get(diff, iparam + 0) > FLT_EPSILON)) {
+                //     flag = true;
+                // }
+                // if (fabs(gsl_vector_get(diff, iparam + 1) > FLT_EPSILON)) {
+                //     flag = true;
+                // }
+                // if (fabs(gsl_vector_get(diff, iparam + 2) > 1e-30)) {
+                //     flag = true;
+                // }
                 if (DEVDEBUG) {
                     logSink << "Old values for ant " << iant << " correlation " << icor 
                             << ": Angle " << casa_param(3*icor + 0, iant)
@@ -2035,13 +2037,15 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
 
     for (Int iant=0; iant != nAnt(); iant++) {
         for (size_t icor=0; icor != nCorr; icor++) {
-            Double df_bootleg = drf.get_df_all();
+            // Double df_bootleg =
+            drf.get_df_all();
             Double phi0 = sRP(3*icor + 0, iant);
             Double delay = sRP(3*icor + 1, iant);
             Double rate = sRP(3*icor + 2, iant);
             // Double delta1 = df0*delay;
             // Double delta1 = 0.5*df_bootleg*delay/1e9;
-            auto it = aggregateTime.find(iant);
+            // auto it =
+            aggregateTime.find(iant);
             // We assume the reference frequency for fringe fitting
             // (which is NOT the one stored in the SPECTRAL_WINDOW
             // table) is the left-hand edge of the frequency grid.
