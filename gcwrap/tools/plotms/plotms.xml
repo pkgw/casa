@@ -2016,6 +2016,10 @@ Execution Methods
     <param type="string" name="format">
         <description>Format type, if not provided, attempt will be made to guess from plotfile extension</description>
      </param>
+     <param type="bool" name="verbose">
+         <description>Use verbose format (txt only)</description>
+         <value>true</value>
+     </param>
      <param type="bool" name="highres">
          <description>Use high resolution</description>
          <value>false</value>
