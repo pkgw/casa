@@ -57,6 +57,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QLabel" name="dataLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Column:</string>
        </property>
@@ -66,7 +72,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="dataChooser"/>
+      <widget class="QComboBox" name="dataChooser">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
