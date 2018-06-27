@@ -869,18 +869,24 @@ image* image::convolve(
         if (_detached()) {
             return nullptr;
         }
+        ThrowIf(
+            ! (_imageF || _imageD),
+            "This method only supports real-valued images"
+        );
         if (_imageF) {
             return _convolve(
                 _imageF, outfile, kernel, scale,
                 region, vmask, overwrite, stretch
             );
         }
+        /*
         else if (_imageC) {
             return _convolve(
                 _imageC, outfile, kernel, scale,
                 region, vmask, overwrite, stretch
             );
         }
+        */
         else if (_imageD) {
             return _convolve(
                 _imageD, outfile, kernel, scale,
