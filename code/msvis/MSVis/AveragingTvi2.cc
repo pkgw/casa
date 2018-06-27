@@ -2720,6 +2720,13 @@ void AveragingTvi2::visibilityModel(casacore::Cube<casacore::Complex>& vis) cons
     return;
 }
 
+void AveragingTvi2::floatData(casacore::Cube<casacore::Float>& fcube) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    fcube = vb->visCubeFloat();
+    return;
+}
+
 void AveragingTvi2::flag(casacore::Cube<casacore::Bool>& flags) const
 {
     VisBuffer2* vb = getVisBuffer();
