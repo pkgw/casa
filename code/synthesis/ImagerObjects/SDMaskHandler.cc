@@ -1849,7 +1849,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
     
     //set true if calcImageStatistics2 is used in autoMask
-    Bool newstats(true);
+    //2018-6-27: FOR TESTING ONLY set newstats to false to use location = 0 for
+    //noisethreshold and sidelobethreshold calc (NEED SET BACK to true after testing)
+    Bool newstats(false);
 
     //Timer
     Timer timer;
