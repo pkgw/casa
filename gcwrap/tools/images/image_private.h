@@ -75,7 +75,8 @@ void _addHistory(
 );
 
 template <class T> void _addHistory(
-    SPIIT image, const casacore::String& method, const std::vector<casacore::String>& keys,
+    SPIIT image, const casacore::String& method,
+    const std::vector<casacore::String>& keys,
     const std::vector<casac::variant>& vals,
     const std::vector<casacore::String>& appendMsgs=std::vector<casacore::String>(),
     const std::set<casacore::String>& dontQuote=std::set<casacore::String>()
@@ -91,6 +92,11 @@ template <class T> image* _boxcar(
 );
 
 casacore::Quantity _casaQuantityFromVar(const ::casac::variant& theVar);
+
+template<class T> image* _convolve(
+    SPIIT image, const string& outfile, const variant& kernel, double scale,
+    const variant& region, const variant& vmask, bool overwrite, bool stretch
+);
 
 template<class T> image* _decimate(
 	SPCIIT image, const string& outfile, int axis,

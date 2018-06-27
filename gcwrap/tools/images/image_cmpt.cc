@@ -869,59 +869,35 @@ image* image::convolve(
         if (_detached()) {
             return nullptr;
         }
-        ThrowIf(
-            ! _imageF,
-            "This method only supports float valued images"
-        );
-        Array<Float> fkernelArray;
-        casacore::String kernelFileName = "";
-        if (kernel.type() == variant::DOUBLEVEC) {
-            const auto kernelVector = kernel.toDoubleVec();
-            const auto shape = kernel.arrayshape();
-            fkernelArray.resize(IPosition(shape));
-            Vector<Double> localkern(kernelVector);
-            convertArray(fkernelArray, localkern.reform(IPosition(shape)));
+        if (_imageF) {
+            return _convolve(
+                _imageF, outfile, kernel, scale,
+                region, vmask, overwrite, stretch
+            );
         }
-        else if (kernel.type() == variant::INTVEC) {
-            const auto kernelVector = kernel.toIntVec();
-            const auto shape = kernel.arrayshape();
-            fkernelArray.resize(IPosition(shape));
-            Vector<Int> localkern(kernelVector);
-            convertArray(fkernelArray, localkern.reform(IPosition(shape)));
+        else if (_imageC) {
+            return _convolve(
+                _imageC, outfile, kernel, scale,
+                region, vmask, overwrite, stretch
+            );
         }
-        else if (
-            kernel.type() == variant::STRING
-            || kernel.type() == variant::STRINGVEC
-        ) {
-            kernelFileName = kernel.toString();
-            fkernelArray = PagedImage<Float>(kernelFileName).get();
+        else if (_imageD) {
+            return _convolve(
+                _imageD, outfile, kernel, scale,
+                region, vmask, overwrite, stretch
+            );
         }
+        /*
+        else if (_imageDC) {
+            return _convolve(
+                _imageDC, outfile, kernel, scale,
+                region, vmask, overwrite, stretch
+            );
+        }
+        */
         else {
-            ThrowCc("kernel is not understood, try using an array or an image");
+            ThrowCc("Logic Error");
         }
-        auto theMask = _getMask(vmask);
-        SHARED_PTR<Record> myregion = _getRegion(region, false);
-        ImageConvolverTask<Float> ic(
-            _imageF, myregion.get(),
-            theMask, outfile, overwrite
-        );
-        ic.setScale(scale);
-        ic.setStretch(stretch);
-        ic.setKernel(fkernelArray);
-        vector<String> names {
-            "outfile", "kernel", "scale", "region",
-            "vmask", "overwrite", "stretch"
-        };
-        vector<variant> values {
-            outfile, kernel, scale, region,
-            vmask, overwrite, stretch
-        };
-        if (_doHistory) {
-            auto msgs = _newHistory(__func__, names, values);
-            ic.addHistory(_ORIGIN, msgs);
-        }
-        auto z = ic.convolve();
-        return new image(z);
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -929,6 +905,59 @@ image* image::convolve(
         RETHROW(x);
     }
     return nullptr;
+}
+
+template <class T> image* image::_convolve(
+    SPIIT myImage, const string& outfile, const variant& kernel, double scale,
+    const variant& region, const variant& vmask, bool overwrite, bool stretch
+) {
+    Array<T> fkernelArray;
+    String kernelFileName = "";
+    if (kernel.type() == variant::DOUBLEVEC) {
+        const auto kernelVector = kernel.toDoubleVec();
+        const auto shape = kernel.arrayshape();
+        fkernelArray.resize(IPosition(shape));
+        Vector<Double> localkern(kernelVector);
+        convertArray(fkernelArray, localkern.reform(IPosition(shape)));
+    }
+    else if (kernel.type() == variant::INTVEC) {
+        const auto kernelVector = kernel.toIntVec();
+        const auto shape = kernel.arrayshape();
+        fkernelArray.resize(IPosition(shape));
+        Vector<Int> localkern(kernelVector);
+        convertArray(fkernelArray, localkern.reform(IPosition(shape)));
+    }
+    else if (
+        kernel.type() == variant::STRING
+        || kernel.type() == variant::STRINGVEC
+    ) {
+        kernelFileName = kernel.toString();
+        fkernelArray = PagedImage<T>(kernelFileName).get();
+    }
+    else {
+        ThrowCc("kernel is not understood, try using an array or an image");
+    }
+    auto theMask = _getMask(vmask);
+    SHARED_PTR<Record> myregion = _getRegion(region, false);
+    ImageConvolverTask<T> ic(
+        myImage, myregion.get(), theMask, outfile, overwrite
+    );
+    ic.setScale(scale);
+    ic.setStretch(stretch);
+    ic.setKernel(fkernelArray);
+    if (_doHistory) {
+        vector<String> names {
+        "outfile", "kernel", "scale", "region", "vmask", "overwrite", "stretch"
+        };
+        vector<variant> values {
+            outfile, kernel, scale, region,
+            vmask, overwrite, stretch
+        };
+        auto msgs = _newHistory("convolve", names, values);
+        ic.addHistory(LogOrigin(_class, "convolve"), msgs);
+    }
+    auto z = ic.convolve();
+    return new image(z);
 }
 
 image* image::convolve2d(
