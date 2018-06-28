@@ -190,16 +190,34 @@ vector<PMS::Axis> PlotMSCacheBase::loadedAxes() const {
 
 Record PlotMSCacheBase::locateInfo(int plotIterIndex, const Vector<PlotRegion>& regions,
     		bool showUnflagged, bool showFlagged, bool selectAll ){
+	// Returned record is:
+	// 	0: {   // datacount 0 (first y-axis)
+	//   xaxis:  (for dataCount 0)
+	// 	 yaxis:  (for dataCount 0)
+	// 	 0: {
+	// 			< info for point 0 >
+	// 	 }
+	// 	 etc. (info for all points)
+	// 	}
+	//  1: {   // datacount 1 (second y-axis)
+	//   xaxis:  (for dataCount 1)
+	// 	 yaxis:  (for dataCount 1)
+	// 	 etc. (info for each point)
+	// 	}
+	// 	iteration: plotIterIndex
+	// }
 	Record record;
 	int indexCount = indexer_.size();
-	int dataCount = getDataCount();
-	if ( 0 <= plotIterIndex && plotIterIndex < indexCount){
-		for ( int i = 0; i < dataCount; i++ ){
-			Record subRecord = indexer_[i][plotIterIndex]->locateInfo(regions, showUnflagged,
+	for ( int i = 0; i < indexCount; i++ ){
+		int iterCount = indexer_[i].size();
+		if ( 0 <= plotIterIndex && plotIterIndex < iterCount){
+			Record dataSubRecord = indexer_[i][plotIterIndex]->locateInfo(regions, showUnflagged,
 							showFlagged, selectAll);
-			record.defineRecord( i, subRecord );
+			record.defineRecord( i, dataSubRecord );
 		}
 	}
+	if (plotIterIndex > 0)
+		record.define("iteration", plotIterIndex+1);
 	return record;
 }
 
@@ -1874,7 +1892,7 @@ bool PlotMSCacheBase::hasOverlay() {
 	// check loaded axes for overlays
 	bool overlay(false);
 	std::vector<PMS::Axis> axes(loadedAxes());
-	for (int i=0; i<axes.size(); ++i) {
+	for (uInt i=0; i<axes.size(); ++i) {
 		if (PMS::axisIsOverlay(axes[i])) {
 			overlay = true;
 			break;
