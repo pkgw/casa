@@ -1755,7 +1755,7 @@ void MSTransformManager::setup()
 
   //Even in the case of no regridding or combinespw, if the SPW selection
   //has less spw's than the original we need to reindex the DDI subtable. 
-  if(reindex_p && !regridding_p && !combinespws_p)
+  if(reindex_p && !regridding_p && !combinespws_p && !spwSelection_p.empty())
 	  reindexDDISubTable();
 	
 	// Generate Iterator

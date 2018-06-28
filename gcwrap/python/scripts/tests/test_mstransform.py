@@ -6034,6 +6034,29 @@ class test_splitUpdateFlagCmd(test_base):
         flagcmd(self.outputms, action='list', savepars=True, outfile='mstspwnames.txt', useapplied=True)
         self.assertTrue(filecmp.cmp(self.flagfile, 'mstspwnames.txt',1))
         
+class test_selectiononly_notransformation(test_base):
+    def setUp(self):
+        self.outputms = "selectiononly_notransformation.ms"
+        self.setUp_CAS_6951()
+
+    def tearDown(self):
+        pass
+        os.system('rm -rf '+ self.vis)
+        os.system('rm -rf '+ self.outputms)
+
+    def test_select_several_channels_different_spw(self):
+        '''mstransform: apply a selection of different channels over several spw'''
+        '''See CAS-10596, CAS-11087 for cases in which this went wrong'''
+        default(mstransform)
+        mstransform(vis=self.vis, outputvis=self.outputms, spw='1:5;10;15,3:5;10;15,5:5;10;15', scan='1', datacolumn='data', reindex=True)
+        # Verify that some sub-tables are properly re-indexed.
+        spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
+        print spw_col
+        self.assertEqual(spw_col.keys().__len__(), 3, 'Wrong number of rows in DD table')
+        self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
+        self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
+        self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing DATA_DESCRIPTION table')
+
 # Cleanup class
 class Cleanup(test_base):
 
@@ -6098,6 +6121,7 @@ def suite():
             test_no_reindexing,
             test_no_reindexing_ephemeris_copy,
             test_splitUpdateFlagCmd,
+            test_selectiononly_notransformation,
             # jagonzal: Replace median with mean to capture overall behaviour
             # test_spectrum_transformations_median,
             # jagonzal: mstransform has been optimized to not use weight spectrum for chan. avg. DATA when 
