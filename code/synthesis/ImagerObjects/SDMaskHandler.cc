@@ -1848,10 +1848,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Bool debug(false); // create additional temp masks for debugging
     Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
     
-    //set true if calcImageStatistics2 is used in autoMask
-    //2018-6-27: FOR TESTING ONLY set newstats to false to use location = 0 for
-    //noisethreshold and sidelobethreshold calc (NEED SET BACK to true after testing)
-    Bool newstats(false);
+    //set true to use calcImageStatistics2 and thresholds adjusted for the location (median)
+    Bool newstats(True);
 
     //Timer
     Timer timer;
@@ -1984,14 +1982,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
       // turn on a new definition for new stats --- remove old one once tested
       if (newstats) {
-         noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
+        noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
+        lowNoiseThreshold = (Float)mdns(chindx) + lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+        negativeThreshold = (Float)mdns(chindx) + negativeThresholdFactor * (Float)resRmss(chindx);
       }
       else { 
         noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
+        lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+        negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
       }
-
-      lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
-      negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
       maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
       lowMaskThreshold(ich) = max(sidelobeThreshold, lowNoiseThreshold);
       ThresholdType(ich) = (maskThreshold(ich) == sidelobeThreshold? "sidelobe": "noise");
