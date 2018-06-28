@@ -1691,14 +1691,14 @@ class split_test_wttosig(SplitChecker):
                         [  7.07106769e-01,   7.07106769e-01,   7.07106769e-01,       7.07106769e-01],
                         [  7.07106769e-01,   7.07106769e-01,   7.07106769e-01,       7.07106769e-01]]), 0.001)
 
-class split_test_singlespw_severalchranges(SplitChecker):
+class split_test_singlespw_severalchranges(unittest.TestCase):
     """
     Check that if the selection contains a single SPW but several channel
     ranges within the same SPW, you get as an output a single SPW in the
     data description table. See CAS-11087
     """ 
-    self.inpms = datapath + '../flagdata/uid___A002_X30a93d_X43e_small.ms'
-    self.outms = 'uid___A002_X30a93d_X43e_small_chanl4.ms'
+    inpms = datapath + '../flagdata/uid___A002_X30a93d_X43e_small.ms'
+    outms = 'uid___A002_X30a93d_X43e_small_chanl4.ms'
     
     def setUp(self):
         try:
