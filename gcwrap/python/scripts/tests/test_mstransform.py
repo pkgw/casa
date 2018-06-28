@@ -6040,7 +6040,6 @@ class test_selectiononly_notransformation(test_base):
         self.setUp_CAS_6951()
 
     def tearDown(self):
-        pass
         os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outputms)
 
@@ -6051,7 +6050,6 @@ class test_selectiononly_notransformation(test_base):
         mstransform(vis=self.vis, outputvis=self.outputms, spw='1:5;10;15,3:5;10;15,5:5;10;15', scan='1', datacolumn='data', reindex=True)
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        print spw_col
         self.assertEqual(spw_col.keys().__len__(), 3, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
