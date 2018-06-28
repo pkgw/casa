@@ -1196,6 +1196,7 @@ void VisModelData::modifyDiskImagePath(Record& rec, const VisBuffer& vb){
       }
       ///Now let's deal with a key that has not been visited before
       if((itCLMap == clindex2_p.end()) && (itFTMap == ftindex2_p.end() )){
+	cerr << "no matching holder " <<  Vector<Int>(indexInBuf) << " num of cl " << clholder_p.nelements() << endl;
 	updateHolders(vb, indexInBuf);
 	getMatchingMachines(ft, cl, vb);
 		  
@@ -1221,6 +1222,16 @@ void VisModelData::modifyDiskImagePath(Record& rec, const VisBuffer& vb){
 		  ftindex2_p[indexInBuf]=-1;
 		  return;
 	  }
+	   //if we have already filled for this field
+	 for (auto it=ftindex2_p.begin(); it != ftindex2_p.end(); ++it){
+	    //  cerr << Vector<Int>(it->first) << "   val " << it->second << endl;
+	   if((it->first)[0]==fieldId){
+	     clindex2_p[indexInBuf]=-2;
+	     ftindex2_p[indexInBuf]=-2;
+	     return;
+	   }
+	     
+	 } 
 	  //We do have this key
 	  TableRecord therec;
 	  getModelRecord(modelkey, therec, thems);
@@ -1308,7 +1319,7 @@ void VisModelData::modifyDiskImagePath(Record& rec, const VisBuffer& vb){
 				}
 			}
 			else{
-				clindex2_p[key]=indexft;
+				clindex2_p[key]=indexcl;
 			}
 		}
 		

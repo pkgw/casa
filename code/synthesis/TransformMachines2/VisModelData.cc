@@ -1198,11 +1198,14 @@ void VisModelData::putModel(const MeasurementSet& thems, const RecordInterface& 
 	  cl.resize(0);
 	}
 	else{
+	  //cerr << "matching " << Vector<Int>(itCLMap->first) << "   " <<  itCLMap->second << endl;
 			cl=clholder_p[itCLMap->second];
+			//		cerr << "returned length  " << cl.nelements() << endl;
 	}
       }
       ///Now let's deal with a key that has not been visited before
       if((itCLMap == clindex2_p.end()) && (itFTMap == ftindex2_p.end() )){
+	//cerr << "no matching holder " <<  Vector<Int>(indexInBuf) << " num of cl " << clholder_p.nelements() << endl;
 		  updateHolders(vb, indexInBuf);
 		  getMatchingMachines(ft, cl, vb);
 		  
@@ -1224,10 +1227,21 @@ void VisModelData::putModel(const MeasurementSet& thems, const RecordInterface& 
 	  //cerr <<"IndexInBuf " << Vector<Int>(indexInBuf) << " nelem " << ftindex2_p.size() << "   " << clindex2_p.size() << endl; 
 	  hasmodkey=isModelDefined(fieldId, thems, modelkey, snum);
 	  if(!hasmodkey){
+	    //cerr << "NOHAS KEY fieldId " << fieldId << endl;
 		  clindex2_p[indexInBuf]=-1;
 		  ftindex2_p[indexInBuf]=-1;
 		  return;
 	  }
+	  //if we have already filled for this field
+	 for (auto it=ftindex2_p.begin(); it != ftindex2_p.end(); ++it){
+	    //  cerr << Vector<Int>(it->first) << "   val " << it->second << endl;
+	   if((it->first)[0]==fieldId){
+	     clindex2_p[indexInBuf]=-2;
+	     ftindex2_p[indexInBuf]=-2;
+	     return;
+	   }
+	     
+	 } 
 	  //We do have this key
 	  TableRecord therec;
 	  getModelRecord(modelkey, therec, thems);
@@ -1282,9 +1296,17 @@ void VisModelData::putModel(const MeasurementSet& thems, const RecordInterface& 
 	    }
 	    if(ftindex2_p.count(indexInBuf)==0)
 	      ftindex2_p[indexInBuf]=-2;
-		Int indexcl=-1;
-		if(therec.isDefined("numcl")){
+	    Int indexcl=-1;
+	    ////////////
+	    //cerr <<"map " << endl;
+	    //for (auto it=clindex2_p.begin(); it != clindex2_p.end(); ++it){
+	    // cerr << Vector<Int>(it->first) << "   val " << it->second << endl;
+
+	    //}
+	    ///////////
+	    if(therec.isDefined("numcl")){
 		  Int numcl=therec.asInt("numcl");
+		  //cerr << "numcl " << numcl << endl;
 		  if(numcl >0){
 		    for(Int clk=0; clk < numcl; ++clk){
 	  
@@ -1301,7 +1323,9 @@ void VisModelData::putModel(const MeasurementSet& thems, const RecordInterface& 
 			throw(AipsError("Component model failed to load for field "+String::toString(clcombind.column(0))));
 		      for(uInt row=0; row < clcombind.nrow(); ++row){
 			std::vector<int> key=clcombind.row(row).tovector();
+			
 			key.push_back(int(vb.msId()));
+			//cerr << "key " <<  Vector<Int>(key) << endl;
 			if(clindex2_p.count(key) >0){
 			  Int numclforkey=clholder_p[clindex2_p[key]].nelements();
 			  Int indx=clindex2_p[key];
@@ -1315,7 +1339,7 @@ void VisModelData::putModel(const MeasurementSet& thems, const RecordInterface& 
 			  }
 			}
 			else{
-			  clindex2_p[key]=indexft;
+			  clindex2_p[key]=indexcl;
 			}
 		      }
 		
@@ -1325,7 +1349,7 @@ void VisModelData::putModel(const MeasurementSet& thems, const RecordInterface& 
 		if(clindex2_p.count(indexInBuf)==0)
 		  clindex2_p[indexInBuf]=-2;
 	  }
-	    
+	  //cerr <<"update holder " << clholder_p.nelements() << endl; 
 	 
 	  
   }
@@ -1382,12 +1406,14 @@ void VisModelData::putModel(const MeasurementSet& thems, const RecordInterface& 
     Cube<Complex> mod(vb.nCorrelations(), vb.nChannels(), vb.nRows(), Complex(0.0));
     vb.setVisCubeModel(mod);
     Bool incremental=false;
+    //cerr << "CL nelements visbuff " << cl.nelements() << endl;
     if( cl.nelements()>0){
       //     cerr << "In cft " << cl.nelements() << endl;
       for (uInt k=0; k < cl.nelements(); ++k)
 	if(!cl[k].null()){
 	  cft_p->get(vb, *(cl[k]), -1); 
-      //cerr << "max " << max(vb.modelVisCube()) << endl;
+	  //cerr << "max " << max(vb.visCubeModel()) << endl;
+	  //cout << "max " << max(vb.visCubeModel()) << endl;
 	  incremental=true;
 	}
     }
@@ -1407,7 +1433,7 @@ void VisModelData::putModel(const MeasurementSet& thems, const RecordInterface& 
 	  allnull=false;
 	}
       }
-      //cerr << "min max after ft " << min(vb.modelVisCube()) << max(vb.modelVisCube()) << endl;
+      //cerr << "min max after ft " << min(vb.visCubeModel()) << max(vb.visCubeModel()) << endl;
       if(!allnull){
 	if(ft.nelements()>1 || incremental)
 	  vb.setVisCubeModel(tmpModel);
