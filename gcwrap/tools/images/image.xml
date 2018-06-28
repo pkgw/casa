@@ -9131,24 +9131,20 @@ ia.close()
 
 <description>
 
-A \casa\ \imagefile\ can accumulate miscellaneous information
-during its lifetime; it is stored in a record called the {\stff
-miscinfo} record.  For example, the \fits\ reader
-(<link anchor="images:image.fromfits.constructor">fromfits</link>) puts header keywords
-it doesn't otherwise use into the {\stff miscinfo} record.  The {\stff
-miscinfo} record is not guaranteed to have any entries, so it's up to
-you to check for any fields that you require. 
+A CASA image can include user-specified or miscellaneous metadata. This metadata
+is stored in a data structure referred to as a miscinfo record. For example, the
+FITS reader ia.fromfits() puts header keywords it doesn't otherwise use into 
+such a record.  The miscinfo record is not required to be populated, though. 
 
-This function sets the {\cf miscinfo} record of the \imagefile.  Note
-that this function {\em replaces} the record, it doesn't add to it, so
-if you want to augment the existing record, you should first capture
-it with the <link
-anchor="images:image.miscinfo.function">miscinfo</link> function, add
-to the record, and then put it back.  The \fits\ writer will attempt
-to write all the fields in the {\stff miscinfo} record to the \fits\ file.
-It can do so for scalars and 1-dimensional arrays.  Records
+This method sets the  miscinfo record of an image. Note that this method will
+overwrite, not add to, an existing miscinfo record. Thus if the user wishes
+to augment an existing record, they must first capture the existing record using
+the ia.miscinfo() method, modify the captured record, and then replace the
+record in the image using setmiscinfo() by passing it the modified record. The
+FITS writer will attempt to write all the fields in the miscinfo record to the
+FITS file it creates. It can do so for scalars and 1-dimensional arrays. Records
 will be omitted, and multi-dimensional arrays will be flattened into
-1-dimensional arrays.
+one dimensional arrays.
 
 </description>
 

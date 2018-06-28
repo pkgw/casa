@@ -5348,12 +5348,23 @@ bool image::setmiscinfo(const record& info) {
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
-
         std::unique_ptr<Record> tmp(toRecord(info));
-        Bool res = _imageF
-            ? _imageF->setMiscInfo(*tmp)
-            : _imageC->setMiscInfo(*tmp);
+        auto res = False;
+        if (_imageF) {
+            res = _imageF->setMiscInfo(*tmp);
+        }
+        else if (_imageC) {
+            res = _imageC->setMiscInfo(*tmp);
+        }
+        else if (_imageD) {
+            res = _imageD->setMiscInfo(*tmp);
+        }
+        else if (_imageDC) {
+            res = _imageDC->setMiscInfo(*tmp);
+        }
+        else {
+            ThrowCc("Logic error");
+        }
         if (res && _doHistory) {
             vector<String> names {"info"};
             vector<variant> values {info};
