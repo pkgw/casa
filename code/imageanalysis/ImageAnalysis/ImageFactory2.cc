@@ -286,45 +286,6 @@ CoordinateSystem* ImageFactory::_makeCoordinateSystem(
     return csys.release();
 }
 
-SPIIC ImageFactory::makeComplex(
-	SPCIIF realPart, SPCIIF imagPart, const String& outfile,
-	const Record& region, Bool overwrite
-) {
-	_checkOutfile(outfile, overwrite);
-	const IPosition realShape = realPart->shape();
-	const IPosition imagShape = imagPart->shape();
-	ThrowIf(
-		!realShape.isEqual(imagShape),
-		"Image shapes are not identical"
-	);
-	const auto& cSysReal = realPart->coordinates();
-	const auto& cSysImag = imagPart->coordinates();
-	ThrowIf(
-		!cSysReal.near(cSysImag),
-		"Image Coordinate systems are not conformant"
-	);
-
-	String mask;
-	auto subRealImage = SubImageFactory<Float>::createSubImageRO(
-		*realPart, region, mask, nullptr
-	);
-	auto subImagImage = SubImageFactory<Float>::createSubImageRO(
-		*imagPart, region, mask, nullptr
-	);
-	auto complexImage = makeComplexImage(
-	    DYNAMIC_POINTER_CAST<const casacore::ImageInterface<casacore::Float>>(
-	        subRealImage
-	    ),
-	    DYNAMIC_POINTER_CAST<const casacore::ImageInterface<casacore::Float>>(
-	        subImagImage
-	    )
-	);
-	return SubImageFactory<Complex>::createImage(
-		*complexImage, outfile, Record(), "", AxesSpecifier(),
-		overwrite, false, false
-	);
-}
-
 ITUPLE ImageFactory::fromFile(const String& infile, Bool cache) {
     _checkInfile(infile);
     ComponentListImage::registerOpenFunction();
