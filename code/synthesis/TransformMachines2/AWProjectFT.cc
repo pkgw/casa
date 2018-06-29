@@ -2039,11 +2039,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
       }
 
-    // {
-    //   // TempImage<Complex> tt(lattice->shape(), image->coordinates());
-    //   // tt.put(lattice->get());
-    //   storeImg(String("uvgrid.im"), *image);
-    // }
+    {
+      // TempImage<Complex> tt(lattice->shape(), image->coordinates());
+      // tt.put(lattice->get());
+      //storeImg(String("uvgrid.im"), *image);
+    }
 
     return *image;
   }
@@ -2066,8 +2066,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Int nx=latticeShape(0);
     Int ny=latticeShape(1);
     
-    IPosition loc(2, 0);
-    IPosition cursorShape(4, nx, ny, 1, 1);
+    IPosition cursorShape(4, nx, ny, latticeShape(2), latticeShape(3));
     IPosition axisPath(4, 0, 1, 2, 3);
     LatticeStepper lsx(latticeShape, cursorShape, axisPath);
     LatticeIterator<Float> lix(weightImage, lsx);
@@ -2079,6 +2078,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	//lix.rwCursor()=weights(pol,chan);
 	lix.rwCursor()=liy.rwCursor();
       }
+
+    // {
+    //   String name("wtim.im");
+    //   storeImg(name,weightImage);
+    //   String nameavgpb("avgpb.im");
+    //   storeImg(nameavgpb,*avgPB_p);
+    // }
   }
   //
   //---------------------------------------------------------------
