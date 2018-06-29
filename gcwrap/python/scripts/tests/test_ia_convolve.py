@@ -73,10 +73,6 @@ from taskinit import *
 from __main__ import *
 import unittest
 
-
-
-
-
 class ia_convolve_test(unittest.TestCase):
     
     def setUp(self):
