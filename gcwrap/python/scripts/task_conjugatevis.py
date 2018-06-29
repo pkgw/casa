@@ -18,6 +18,9 @@ def conjugatevis(vis,spwlist=[],outputvis="",overwrite=False):
 	"""
 
 	#Python script
+	
+	tb = tbtool()
+	
 	try:
 		casalog.origin('conjugatevis')
 		myddlist = []
@@ -81,7 +84,17 @@ def conjugatevis(vis,spwlist=[],outputvis="",overwrite=False):
 		else:
 			tb.close()
 			casalog.post('Cannot write to output MS '+str(outname), 'WARN')
-
+			
+		# Write history to output MS
+		try:
+			param_names = conjugatevis.func_code.co_varnames[:conjugatevis.func_code.co_argcount]
+			param_vals = [eval(p) for p in param_names]
+			write_history(mstool(), outputvis, 'conjugatevis', param_names,
+						  param_vals, casalog)
+		except Exception, instance:
+			casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
+						 'WARN')
+			
 	except Exception, instance:
 		tb.close()
 		print '*** Error ***', instance

@@ -47,7 +47,9 @@ def statwt(
         #sel['feed'] = feed
         # Select the data. Only-parse is set to false.
         myms.msselect(sel, False)
-        return myms.statwt(
+        
+        rval = None
+        rval = myms.statwt(
             combine=combine, timebin=timebin,
             slidetimebin=slidetimebin, chanbin=chanbin,
             minsamp=minsamp, statalg=statalg, fence=fence,
@@ -55,6 +57,19 @@ def statwt(
             maxiter=maxiter, excludechans=excludechans,
             wtrange=wtrange, preview=preview, datacolumn=datacolumn
         )
+        
+        if rval != None:
+            # Write history to MS
+            try:
+                param_names = statwt.func_code.co_varnames[:statwt.func_code.co_argcount]
+                param_vals = [eval(p) for p in param_names]
+                write_history(mstool(), vis, 'statwt', param_names,
+                              param_vals, casalog)
+            except Exception, instance:
+                casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
+                             'WARN')            
+            
+        return rval
     except Exception, instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
         raise
