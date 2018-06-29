@@ -3257,25 +3257,50 @@ bool image::makecomplex(
             return false;
         }
         ThrowIf(
-            ! _imageF, "The attached image must be float valued"
+            ! (_imageF || _imageD), "The attached image must be float valued"
         );
         SHARED_PTR<Record> Region(_getRegion(region, false));
         auto imagePtrs = ImageFactory::fromFile(imagFile);
         auto imageF = std::get<0>(imagePtrs);
+        auto imageD = std::get<2>(imagePtrs);
         ThrowIf(
-            ! imageF, imagFile + " does not have float valued pixels"
+            ! (imageF || imageD),
+            imagFile + " does not have supported real valued pixels"
         );
-        auto cImage = ImageFactory::makeComplex(
-            _imageF, imageF, outfile,
-            *Region, overwrite
+        ThrowIf(
+            (_imageF && imageD) || (_imageD && imageF),
+            "Real and imaginary images do not have the same precision"
         );
+        SPIIC cImage;
+        SPIIDC dcImage;
+        if (_imageF) {
+            cImage = ImageFactory::makeComplex<Float>(
+                _imageF, imageF, outfile, *Region, overwrite
+            );
+        }
+        else if (_imageD) {
+            dcImage = ImageFactory::makeComplex<Double>(
+                _imageD, imageD, outfile, *Region, overwrite
+            );
+        }
+        else {
+            ThrowCc("Logic error");
+        }
         vector<String> names = {
             "outfile", "imag", "region", "overwrite"
         };
         vector<variant> values = {
             outfile, imagFile, region, overwrite
         };
-        _addHistory(cImage, __func__, names, values);
+        if (cImage) {
+            _addHistory(cImage, __func__, names, values);
+        }
+        else if (dcImage) {
+            _addHistory(dcImage, __func__, names, values);
+        }
+        else {
+            ThrowCc("Logic Error");
+        }
         return true;
     }
     catch (const AipsError& x) {

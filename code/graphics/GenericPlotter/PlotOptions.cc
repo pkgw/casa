@@ -730,7 +730,8 @@ void PlotAxesStack::shrinkStacks(unsigned int n) {
 //////////////////////////////////
 
 PlotExportFormat::PlotExportFormat(Type t, const String& file) : type(t),
-        location(file), resolution(SCREEN), dpi(-1), width(-1), height(-1) { }
+        verbose(true), location(file), resolution(SCREEN), dpi(-1),
+		width(-1), height(-1) { }
 
 PlotExportFormat::~PlotExportFormat() { }
 
