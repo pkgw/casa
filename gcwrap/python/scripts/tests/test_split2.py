@@ -1704,12 +1704,12 @@ class split_test_singlespw_severalchranges(unittest.TestCase):
         try:
             shutil.rmtree(self.outms, ignore_errors=True)
             print "\nChecking DDI after channel selection ranges in single SPW"
-            splitran = split2(self.inpms, self.outms, keepmms=True, field='',
-                              spw='1:1~2;5~6', scan='', antenna='', 
-                              correlation='', timerange='', intent='',
-                              array='', uvrange='', observation='',
-                              feed='', datacolumn='DATA', keepflags=True,
-                              width=1, timebin='0s', combine='')
+            split2(self.inpms, self.outms, keepmms=True, field='',
+                   spw='1:1~2;5~6', scan='', antenna='', 
+                   correlation='', timerange='', intent='',
+                   array='', uvrange='', observation='',
+                   feed='', datacolumn='DATA', keepflags=True,
+                   width=1, timebin='0s', combine='')
         except Exception, e:
             print "Error running split selecting different channel ranges in single SPW from", self.inpms
             raise e
@@ -1724,7 +1724,7 @@ class split_test_singlespw_severalchranges(unittest.TestCase):
         tblocal.close()
         check_eq(nrows_ddi, 1)
 
-class split_test_fc(unittest.TestCase):
+class split_test_fc(SplitChecker):
     """
     Check FLAG_CATEGORY after various selections and averagings.
     """
