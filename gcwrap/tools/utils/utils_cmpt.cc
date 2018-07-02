@@ -361,7 +361,7 @@ utils::_crash_reporter_initialize (const string & crashDirectory,
 
     return status;
 #else
-    return "";
+    return "no-op";
 #endif
 }
 
@@ -408,6 +408,9 @@ utils::version_desc( ) { return VersionInfo::desc( ); }
 
 std::string
 utils::version_info( ) { return VersionInfo::info( ); }
+
+std::string
+utils::version_string( ) { return VersionInfo::str( ); }
 
 bool
  utils::compare_version(const  string& comparitor,  const std::vector<int>& vec) {

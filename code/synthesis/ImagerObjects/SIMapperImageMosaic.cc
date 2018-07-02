@@ -69,7 +69,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					    CountedPtr<FTMachine>& iftm)
     //		      CountedPtr<VPSkyJones>& vp)
     : SIMapper( imagestore, ftm, iftm )
-    //    vb_p (vi::VisBuffer2::factory (vi::VbPlain, vi::VbRekeyable))
+    //    vb_p (vi::VisBuffer2::factory (vi::VbRekeyable))
   {
     LogIO os( LogOrigin("SIMapperImageMosaic","Constructor",WHERE) );
 
@@ -91,7 +91,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					    CountedPtr<refim::FTMachine>& ftm, 
 					    CountedPtr<refim::FTMachine>& iftm)
     //		      CountedPtr<VPSkyJones>& vp)
-    : SIMapper( imagestore, ftm, iftm ), vb_p (vi::VisBuffer2::factory (vi::VbPlain, vi::VbRekeyable))
+    : SIMapper( imagestore, ftm, iftm ), vb_p (vi::VisBuffer2::factory (vi::VbRekeyable))
   {
     LogIO os( LogOrigin("SIMapperImageMosaic","Constructor",WHERE) );
 
@@ -112,7 +112,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   SIMapperImageMosaic::SIMapperImageMosaic(const ComponentList& cl, 
 					   String& whichMachine)
     //		     CountedPtr<VPSkyJones>& vp)
-    : SIMapper(cl, whichMachine ), vb_p (vi::VisBuffer2::factory (vi::VbPlain, vi::VbRekeyable))
+    : SIMapper(cl, whichMachine ), vb_p (vi::VisBuffer2::factory (vi::VbRekeyable))
   {
 
     /*

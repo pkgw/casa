@@ -49,7 +49,7 @@ FreqAxisTVI::FreqAxisTVI(	ViImplementation2 * inputVii,
 	initialize();
 
 	// Initialize attached VisBuffer
-	setVisBuffer(createAttachedVisBuffer (VbPlain,VbRekeyable));
+	setVisBuffer(createAttachedVisBuffer (VbRekeyable));
 
 	return;
 }
@@ -263,7 +263,7 @@ void FreqAxisTVI::writeFlagRow (const Vector<Bool> & flag)
 void FreqAxisTVI::flagRow (Vector<Bool> & flagRow) const
 {
 	// Get flagCube from own VisBuffer
-	const Cube<Bool> &flagCube = getVisBufferConst()->flagCube();
+	const Cube<Bool> &flagCube = getVisBuffer()->flagCube();
 
 	// Calculate output flagRow
 	accumulateFlagCube(flagCube,flagRow);
@@ -277,8 +277,8 @@ void FreqAxisTVI::weight (Matrix<Float> & weight) const
 	if (weightSpectrumExists()) // Defined by each derived class or inner TVI
 	{
 		// Get flags and weightSpectrum from own VisBuffer
-		const Cube<Bool> &flags = getVisBufferConst()->flagCube();
-		const Cube<Float> &weightSpectrum = getVisBufferConst()->weightSpectrum();
+		const Cube<Bool> &flags = getVisBuffer()->flagCube();
+		const Cube<Float> &weightSpectrum = getVisBuffer()->weightSpectrum();
 
 		// Calculate output weight
 		accumulateWeightCube(weightSpectrum,flags,weight);
@@ -299,8 +299,8 @@ void FreqAxisTVI::sigma (Matrix<Float> & sigma) const
 	if (sigmaSpectrumExists())
 	{
 		// Get flags and sigmaSpectrum from own VisBuffer
-		const Cube<Bool> &flags = getVisBufferConst()->flagCube();
-		const Cube<Float> &sigmaSpectrum = getVisBufferConst()->sigmaSpectrum();
+		const Cube<Bool> &flags = getVisBuffer()->flagCube();
+		const Cube<Float> &sigmaSpectrum = getVisBuffer()->sigmaSpectrum();
 
 		// Calculate output sigma
 		accumulateWeightCube(sigmaSpectrum,flags,sigma);

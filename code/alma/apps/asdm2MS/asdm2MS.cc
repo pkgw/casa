@@ -1862,10 +1862,12 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
 	    //
 	    // RADVEL
 	    //
-	    radVelMS_v.push_back(evalPoly(radvel_coeff_v.size(),
-					  radvel_coeff_v,
-					  timeOrigin,
-					  tabulation_time));
+	    if (radVelExists) {
+	      radVelMS_v.push_back(evalPoly(radvel_coeff_v.size(),
+					    radvel_coeff_v,
+					    timeOrigin,
+					    tabulation_time));
+	    }
 	  }
 	}
       }

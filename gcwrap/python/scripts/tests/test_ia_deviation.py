@@ -234,7 +234,10 @@ class ia_deviation_test(unittest.TestCase):
         self.assertFalse(mask2.all())
         self._myia.putregion(pixelmask=mask2)
         self.assertTrue((self._myia.getchunk(getmask=True) == mask2).all()) 
-        mm = self._myia.deviation("", grid=[3,3], anchor=[2,2], xlength="4pix", ylength="4pix", interp="linear")
+        mm = self._myia.deviation(
+            "", grid=[3,3], anchor=[2,2], xlength="4pix",
+            ylength="4pix", interp="linear"
+        )
         self._myia.done()
         expec = mask2[:]
         expec[0:5, 0:5, 0] = False
@@ -244,7 +247,34 @@ class ia_deviation_test(unittest.TestCase):
         self.assertTrue((mm.getchunk(getmask=True) == expec).all()) 
         mm.done()
         
-
+    def test_circle(self):
+        """test circles work correctly CAS-10296"""
+        myia = self._myia
+        imagename = "mycirc.im"
+        myia.fromshape(imagename, [100, 100])
+        bb = myia.getchunk()
+        bb[:] = 1
+        myia.putchunk(bb)
+        zz = myia.deviation(
+            "", xlength="40pix", ylength="", stattype="sum", grid=[20,20]
+        )
+        myia.done()
+        self.assertTrue(
+            numpy.isclose(zz.getchunk()[50,50], 1257.0, 1e-7),
+            "incorrect grid pixel value"
+        )
+        zz.done()
+        outfile = "mycirc_out.im"
+        imdev(
+            imagename=imagename,outfile=outfile, xlength="40pix",
+            ylength="", stattype="sum", grid=[20,20]
+        )
+        myia.open(outfile)
+        self.assertTrue(
+            numpy.isclose(myia.getchunk()[50,50], 1257.0, 1e-7),
+            "incorrect grid pixel value"
+        )
+        myia.done()
 
 def suite():
     return [ia_deviation_test]

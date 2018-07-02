@@ -207,7 +207,7 @@ void ChannelAverageTVI::flag(Cube<Bool>& flagCube) const
 
 
 	// Reshape output data before passing it to the DataCubeHolder
-	flagCube.resize(getVisBufferConst()->getShape(),false);
+	flagCube.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -262,7 +262,7 @@ void ChannelAverageTVI::floatData (Cube<Float> & vis) const
 	}
 
 	// Reshape output data before passing it to the DataCubeHolder
-	vis.resize(getVisBufferConst()->getShape(),false);
+	vis.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -310,7 +310,7 @@ void ChannelAverageTVI::visibilityObserved (Cube<Complex> & vis) const
 	Int inputSPW = vb->spectralWindows()(0);
 
 	// Reshape output data before passing it to the DataCubeHolder
-	vis.resize(getVisBufferConst()->getShape(),false);
+	vis.resize(getVisBuffer()->getShape(),false);
 
 	// Get weightSpectrum from sigmaSpectrum
 	Cube<Float> weightSpFromSigmaSp;
@@ -381,7 +381,7 @@ void ChannelAverageTVI::visibilityCorrected (Cube<Complex> & vis) const
 
 
 	// Reshape output data before passing it to the DataCubeHolder
-	vis.resize(getVisBufferConst()->getShape(),false);
+	vis.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -493,7 +493,7 @@ void ChannelAverageTVI::visibilityModel (Cube<Complex> & vis) const
 
 
 	// Reshape output data before passing it to the DataCubeHolder
-	vis.resize(getVisBufferConst()->getShape(),false);
+	vis.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -558,7 +558,7 @@ void ChannelAverageTVI::weightSpectrum(Cube<Float> &weightSp) const
 
 
 	// Reshape output data before passing it to the DataCubeHolder
-	weightSp.resize(getVisBufferConst()->getShape(),false);
+	weightSp.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -621,7 +621,7 @@ void ChannelAverageTVI::sigmaSpectrum(Cube<Float> &sigmaSp) const
 #endif
 
 	// Reshape output data before passing it to the DataCubeHolder
-	sigmaSp.resize(getVisBufferConst()->getShape(),false);
+	sigmaSp.resize(getVisBuffer()->getShape(),false);
 
 	// Get weightSpectrum from sigmaSpectrum
 	Cube<Float> weightSpFromSigmaSp;

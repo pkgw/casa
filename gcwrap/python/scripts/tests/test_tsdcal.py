@@ -1885,12 +1885,192 @@ class sdcal_test_apply(sdcal_test_base):
         sdcal(infile=self.infile, calmode='tsys,apply', applytable=self.applytable,
                spwmap={1:[9], 3:[11]})
 
+class sdcal_test_single_polarization(sdcal_test_base):   
+    """
+    Unit test for task sdcal (calibration/application of single-polarization data).
+
+    The list of tests:
+    test_single_pol_ps --- generate caltable for single-polarization data
+    test_single_pol_apply --- apply caltable to single-polarization data
+    test_single_pol_apply_composite --- on-the-fly calibration/application on single-polarization data
+    """
+    datapath = os.environ.get('CASAPATH').split()[0]+ '/data/regression/unittest/singledish/'
+    # Input
+    infile = 'analytic_spectra.ms'
+    #applytable = infile + '.sky'
+    
+    # task execution result
+    result = None
+    
+    @property
+    def outfile(self):
+        return self.applytable
+    
+    def setUp(self):
+        self._setUp([self.infile], sdcal)
+
+    def tearDown(self):
+        self._tearDown([self.infile, self.outfile])
+        
+    def _verify_caltable(self):
+        """
+        verify single polarization caltable
+        
+        This method checks if 
+        
+            - calibration solution is properly stored in pol 0
+            - pol 1 is all flagged
+            
+        Generated caltable will have the following properties:
+        
+            - number of rows is 2
+            - FPARAM (pol 0) has identical value to infile rows that 
+              corresponds to OFF_SOURCE intents (STATE_ID 1)
+            - FPARAM (pol 1) is all 0 and is all flagged
+        """
+        # get reference data from infile
+        with sdutil.tbmanager(self.infile, nomodify=False) as tb:
+            tsel = tb.query('STATE_ID == 1', sortlist='TIME')
+            try:
+                reftime = tsel.getcol('TIME')
+                refdata = tsel.getcol('FLOAT_DATA')
+                refflag = tsel.getcol('FLAG')
+            finally:
+                tsel.close()
+                
+        # verify caltable
+        with sdutil.tbmanager(self.outfile, nomodify=False) as tb:
+            caltime = tb.getcol('TIME')
+            fparam = tb.getcol('FPARAM')
+            calflag = tb.getcol('FLAG')
+            
+        self.assertEqual(len(caltime), len(reftime))
+        self.assertTrue(numpy.all(caltime == reftime))
+        
+        nrow = len(caltime)
+        
+        self.assertEqual(fparam.shape, calflag.shape)
+        calshape = fparam.shape
+        datashape = refdata.shape
+        self.assertEqual(calshape[0], 2)
+        self.assertEqual(datashape[0], 1)
+        self.assertEqual(calshape[1], datashape[1])
+        self.assertEqual(calshape[2], datashape[2])
+        
+        for irow in xrange(nrow):
+            # FPARAM (pol 0)
+            self.assertTrue(numpy.all(fparam[0, :, irow] == refdata[0, :, irow]))
+            self.assertTrue(numpy.all(calflag[0, :, irow] == refflag[0, :, irow]))
+            
+            # FPARAM (pol 1)
+            self.assertTrue(numpy.all(fparam[1, :, irow] == 0))
+            self.assertTrue(numpy.all(calflag[1, :, irow] == True))
+    
+    
+    def _verify_application(self):
+        """
+        verify single polarization application result
+        
+        This method checks if 
+        
+            - calibration solution is properly applied 
+            
+        CORRECTED_DATA column will have the following properties:
+        
+            - For calibration spectra (STATE_ID 0), CORRECTED_DATA is identical to FLOAT_DATA
+            - For OFF_SOURCE spectra (STATE_ID 1), CORRECTED_DATA is all 0
+            - For ON_SOURCE spectra (STATE_ID 2), CORRECTED_DATA is a calculated result of 
+              (ON - OFF) / OFF with interpolated OFF in time
+        """
+        with sdutil.tbmanager(self.infile, nomodify=False) as tb:
+            # calibration spectra (STATE_ID 0)
+            tsel = tb.query('STATE_ID == 0')
+            try:
+                float_data = tsel.getcol('FLOAT_DATA')
+                corrected_data = tsel.getcol('CORRECTED_DATA')
+                
+                self.assertTrue(numpy.all(corrected_data.real == float_data))
+                self.assertTrue(numpy.all(corrected_data.imag == 0.0))
+            finally:
+                tsel.close()
+                
+            # OFF_SOURCE spectra (STATE_ID 1)
+            reftime = None
+            refdata = None
+            tsel = tb.query('STATE_ID == 1', sortlist='TIME')
+            try:
+                corrected_data = tsel.getcol('CORRECTED_DATA')
+                
+                self.assertTrue(numpy.all(corrected_data.real == 0.0))
+                self.assertTrue(numpy.all(corrected_data.imag == 0.0))
+            finally:
+                reftime = tsel.getcol('TIME')
+                refdata = tsel.getcol('FLOAT_DATA')
+                
+                tsel.close()
+                
+            # ON_SOURCE spectra (STATE_ID 2)
+            self.assertFalse(reftime is None)
+            self.assertFalse(refdata is None)
+            tsel = tb.query('STATE_ID == 2')
+            try:
+                sptime = tsel.getcol('TIME')
+                float_data = tsel.getcol('FLOAT_DATA')
+                corrected_data = tsel.getcol('CORRECTED_DATA')
+                
+                self.assertEqual(len(reftime), 2)
+                
+                nrow = float_data.shape[2]
+                
+                off_data = numpy.zeros(corrected_data.shape, dtype=numpy.float64)
+                for irow in xrange(nrow):
+                    off_data[:,:,irow] = (refdata[:,:,1] * (sptime[irow] - reftime[0]) \
+                                          + refdata[:,:,0] * (reftime[1] - sptime[irow])) \
+                                            / (reftime[1] - reftime[0])
+                calibrated = (float_data - off_data) / off_data
+                
+                # exclude nan
+                idx_not_nan = numpy.where(numpy.isfinite(float_data))
+                diff = numpy.abs((corrected_data.real - calibrated) / calibrated)
+                diff_not_nan = diff[idx_not_nan]
+                eps = 1.0e-7
+                #print 'maxdiff = {}'.format(diff_not_nan.max())
+                self.assertTrue(numpy.all(diff_not_nan < eps))
+                self.assertTrue(numpy.all(corrected_data[idx_not_nan].imag == 0.0))
+            finally:
+                tsel.close()
+            
+    def test_single_pol_ps(self):
+        """
+        test_single_pol_ps --- generate caltable for single-polarization data
+        """
+        self.result = sdcal(infile=self.infile, calmode='ps', outfile=self.outfile)
+        self._verify_caltable()
+    
+    def test_single_pol_apply(self):
+        """
+        test_single_pol_apply --- apply caltable to single-polarization data
+        """
+        self.test_single_pol_ps()
+        self.assertTrue(os.path.exists(self.outfile))
+        
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=self.outfile)
+        self._verify_application()
+    
+    def test_single_pol_apply_composite(self):
+        """
+        test_single_pol_apply_composite --- on-the-fly calibration/application on single-polarization data
+        """
+        self.result = sdcal(infile=self.infile, calmode='ps,apply')
+        self._verify_application()
+
 def suite():
     return [  sdcal_test
             , sdcal_test_ps
             , sdcal_test_otfraster
             , sdcal_test_otf
             , sdcal_test_apply
-            , sdcal_test_otf_ephem]
+            , sdcal_test_otf_ephem
+            , sdcal_test_single_polarization]
 
 

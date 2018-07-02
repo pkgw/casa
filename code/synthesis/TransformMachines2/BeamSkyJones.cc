@@ -138,7 +138,7 @@ void BeamSkyJones::updatePBMathIndices(const vi::VisBuffer2 &vb, Int row) const
  
   ///////////////AS visbuffer2 copy does not seem to work and there is no way to know the state of the previous vb...will update it anyways.
   /*if (!lastUpdateVisBuffer_p.null() && vb.rowIds()(0)==lastUpdateVisBuffer_p->rowIds()(0) && row==lastUpdateRow_p) return;
-  lastUpdateVisBuffer_p=vi::VisBuffer2::factory(vi::VbPlain, vi::VbRekeyable);
+  lastUpdateVisBuffer_p=vi::VisBuffer2::factory(vi::VbRekeyable);
   // lastUpdateVisBuffer_p->setShape(vb.getShape()(0), vb.getShape()(1), vb.getShape()(2));
   //lastUpdateVisBuffer_p->copy(vb,true);
   

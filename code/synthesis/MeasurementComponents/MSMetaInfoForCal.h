@@ -73,6 +73,9 @@ public:
   //  Would like this to be const, but many methods in MSMetaData aren't....
   casacore::MSMetaData& msmd() const;
 
+  // Return accss to SimpleSimVi2Parameters object (if avail)
+  const vi::SimpleSimVi2Parameters& ssp() const;
+
   // The number of antennas
   casacore::uInt nAnt() const { return nAnt_;};
 
@@ -120,6 +123,9 @@ private:
 
   // MSMetaData pointer
   casacore::MSMetaData *msmd_;
+
+  // SimpleSimVi2Parameters pointer
+  vi::SimpleSimVi2Parameters* ssp_;
 
 
 };
