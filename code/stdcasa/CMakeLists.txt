@@ -52,6 +52,7 @@ install (FILES
 	variant.h
 	casac.h
 	version.h
+	optionparser.h
 	DESTINATION include/casacode/stdcasa
 	)
 
@@ -73,3 +74,5 @@ install (FILES
     thread/Barrier.h
 	DESTINATION include/casacode/stdcasa/thread
 	)
+
+casa_add_google_test( MODULES stdcasa SOURCES test/tVersionInfo.cc )

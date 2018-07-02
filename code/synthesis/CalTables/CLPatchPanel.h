@@ -225,17 +225,26 @@ public:
   CLPatchPanel(const casacore::String& ctname,
 	       const casacore::Record& callib,
 	       VisCalEnum::MatrixType mtype,
-	       casacore::Int nPar);
+	       casacore::Int nPar,
+	       const CTTIFactoryPtr cttifactoryptr=&CTTimeInterp1::factory);
 
    // From caltable name and (selected) casacore::MS 
   CLPatchPanel(const casacore::String& ctname,
 	       const casacore::MeasurementSet& ms,
 	       const casacore::Record& callib,
 	       VisCalEnum::MatrixType mtype,
-	       casacore::Int nPar);
- 
+	       casacore::Int nPar,
+	       const CTTIFactoryPtr cttifactoryptr=&CTTimeInterp1::factory);
   // Destructor
   virtual ~CLPatchPanel();
+
+  // Is specific calibration explicitly available for a obs,fld,intent,spw,ant combination?
+  casacore::Bool calAvailable(casacore::Int obs, casacore::Int fld, casacore::Int ent, 
+			      casacore::Int spw, casacore::Int ant=-1);
+  // Are specified indices OK for this CL (i.e., not explicitly marked as expected but absent)
+  //  Will be calibrated if calAvailable=true, will be ignored if calAvailable()=false
+  casacore::Bool MSIndicesOK(casacore::Int obs, casacore::Int fld, casacore::Int ent, 
+			     casacore::Int spw, casacore::Int ant=-1);
 
   // Interpolate, given input obs, field, intent, spw, timestamp, & (optionally) freq 
   //    returns T if new result (anywhere,anyhow)
@@ -268,12 +277,15 @@ public:
 
 
   // Access to CalTable's freq info
-  //casacore::Vector<casacore::Double> freqIn(casacore::Int spw);  // NYI
+  const casacore::Vector<casacore::Double>& freqIn(casacore::Int spw)  {return freqIn_[spw]; }; // per spw
   const casacore::Vector<casacore::Double>& refFreqIn() { return refFreqIn_; };  // indexed by spw
 
   // Report state
   void listmappings();
   void state();
+
+  // CASA version of the internal caltable
+  casacore::String CTCASAvers() { return ct_.CASAvers(); };
 
 private:
 
@@ -323,6 +335,10 @@ private:
   casacore::InterpolateArray1D<casacore::Double,casacore::Float>::InterpolationMethod ftype(casacore::String& strtype);
 
 
+  void recordBadMSIndices(const casacore::Vector<casacore::Int>& obs, const casacore::Vector<casacore::Int>& fld,
+			  const casacore::Vector<casacore::Int>& ent, const casacore::Vector<casacore::Int>& spw);
+
+
 
   // PRIVATE DATA:
   
@@ -364,6 +380,7 @@ private:
 
   std::map<MSCalPatchKey,CLPPResult> msTres_,msFres_;
   std::map<MSCalPatchKey,casacore::String> msciname_;
+  std::map<MSCalPatchKey,casacore::String> badmsciname_;
   std::map<MSCalPatchKey,casacore::Int> ctspw_;
   std::map<MSCalPatchKey,casacore::String> finterp_;
   std::map<MSCalPatchKey,CTTimeInterp1*> msci_;
@@ -380,6 +397,8 @@ private:
 
   casacore::LogIO logsink_;
 
+  // The factory to use to create CTTimeInterp1s
+  CTTIFactoryPtr cttifactoryptr_;
 
 };
 

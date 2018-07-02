@@ -659,7 +659,7 @@ void setStokes (ImageInterface<Float>*& pIm, uInt stokesAxis,
 
    IPosition shape(pIm->shape());
 //
-   Double c = QC::c.getValue(Unit("m/s"));
+   Double c = QC::c( ).getValue(Unit("m/s"));
    Double lambdasq;
    SpectralCoordinate sc = cSys.spectralCoordinate(spectralCoord);
    MFrequency freq;
@@ -755,8 +755,8 @@ void traditionalRotationMeasure (Double rm, Double rmFg, Double rmMax,
      
    if (rm==-9999.0) {
       Double df = dF / Double(nchan);
-      Double l1 = QC::c.getValue(Unit("m/s")) / f0;
-      Double l2 = QC::c.getValue(Unit("m/s")) / (f0+df);
+      Double l1 = QC::c( ).getValue(Unit("m/s")) / f0;
+      Double l2 = QC::c( ).getValue(Unit("m/s")) / (f0+df);
       rm = C::pi / 2 / (l1*l1 - l2*l2);
    }
    if (rmMax<0) rmMax = 1.1*rm;
@@ -855,7 +855,7 @@ void fourierRotationMeasure (Double rm, const String& plotter, LogIO& os)
 
      if (rm==-9999.0) {
         Double fc = f0 + -df/2.0 + dF/2.0;
-        Double lambdac = QC::c.getValue(Unit("m/s")) / fc;
+        Double lambdac = QC::c( ).getValue(Unit("m/s")) / fc;
         const Float drm = C::pi * fc / 2.0 / lambdac / lambdac / dF;
         rm = nchan / 4 * drm;
      }

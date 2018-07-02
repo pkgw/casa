@@ -62,9 +62,12 @@ using namespace asdm;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -488,7 +491,7 @@ StationRow* StationTable::lookup(string name, vector<Length > position, StationT
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<StationTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sttn=\"http://Alma/XASDM/StationTable\" xsi:schemaLocation=\"http://Alma/XASDM/StationTable http://almaobservatory.org/XML/XASDM/3/StationTable.xsd\" schemaVersion=\"3\" schemaRevision=\"1.64\">\n");
+		buf.append("<StationTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sttn=\"http://Alma/XASDM/StationTable\" xsi:schemaLocation=\"http://Alma/XASDM/StationTable http://almaobservatory.org/XML/XASDM/3/StationTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -517,12 +520,11 @@ StationRow* StationTable::lookup(string name, vector<Length > position, StationT
 		// Look for a version information in the schemaVersion of the XML
 		//
 		xmlDoc *doc;
-		#if LIBXML_VERSION >= 20703
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+#if LIBXML_VERSION >= 20703
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
+		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Station");
 		
@@ -596,9 +598,10 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 				
 		if (!xml.isStr("</StationTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
 		
 	}
 
@@ -615,7 +618,7 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<StationTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sttn=\"http://Alma/XASDM/StationTable\" xsi:schemaLocation=\"http://Alma/XASDM/StationTable http://almaobservatory.org/XML/XASDM/3/StationTable.xsd\" schemaVersion=\"3\" schemaRevision=\"1.64\">\n";
+		oss << "<StationTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sttn=\"http://Alma/XASDM/StationTable\" xsi:schemaLocation=\"http://Alma/XASDM/StationTable http://almaobservatory.org/XML/XASDM/3/StationTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='StationTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -851,8 +854,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
 	}
 	
 	void StationTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -906,11 +910,19 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 	}
 
 	
-	void StationTable::setFromFile(const string& directory) {		
+	void StationTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Station.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Station.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/Station.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/Station.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the Station table", "Station");
 	}			

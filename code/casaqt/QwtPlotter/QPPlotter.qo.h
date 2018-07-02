@@ -32,6 +32,11 @@
 #include <graphics/GenericPlotter/Plotter.h>
 #include <casaqt/QwtPlotter/QPPlotter.ui.h>
 
+#include <casaqt/QwtPlotter/QtPageHeaderDataModel.h>
+#include <casaqt/QwtPlotter/QPHeaderTableWidget.qo.h>
+#include <plotms/Gui/PlotMSPageHeaderDataModel.qo.h>
+
+
 #include <QtGui>
 
 namespace casa {
@@ -213,7 +218,12 @@ public:
     const QWidget* canvasWidget() const;
     QWidget* canvasWidget();
     // </group>
+    // Returns the frame used to hold the page header.
+    const QWidget* pageHeaderWidget() const;
+    QWidget* pageHeaderWidget();
     
+    QPHeaderTable* pageHeaderTable();
+
     // Overrides QWidget::sizeHint() to return an invalid size.
     QSize sizeHint() const;
     
@@ -222,15 +232,20 @@ public:
 
     // Implements Plotter::makeSquarePlot to set width=height
     virtual void makeSquarePlot(bool square, bool waveplot=false);
-    bool isSquarePlot() { return (m_sizeRatio != 1.0); }
-    // For iteration plot exports
-    int squareHeight() { return m_squareHeight; }
+    inline int plotWidth() { return m_plotWidth; }
+    inline int plotHeight() { return m_plotHeight; }
     
     virtual bool exportPlot(const PlotExportFormat& format );
 
-	//Return the number of rows and columns in the current grid.
+    //Return the number of rows and columns in the current grid.
     int getRowCount();
     int getColCount();
+
+    // Implements Plotter::refreshPageHeaderDataModel(PageHeaderDataModelPtr dataModel)
+    void refreshPageHeaderDataModel(PageHeaderDataModelPtr dataModel);
+    void setHeaderTableDataModel(QAbstractItemModel *model);
+    void refreshPageHeader();
+
 protected:
     // For catching resize events.
     void resizeEvent(QResizeEvent* event);
@@ -244,6 +259,10 @@ protected:
             bool entering, const casacore::String& message = casacore::String());
     
 private:
+    // Page Header Table
+    QPHeaderTable *headerTable;
+    QAbstractItemModel *newHeaderTableDataModel;
+
     // Canvas layout.
     PlotCanvasLayoutPtr m_layout;
     
@@ -268,13 +287,6 @@ private:
     
     QList<QPAxis*> externalAxes;
 
-    // Save height for square iteration plots
-    int m_squareHeight;
-
-    // For restoring rectangular plot after square one;
-    // ratio of width/height
-    double m_sizeRatio;
-    
     // Sets up the canvas QFrame for the current layout.
     void setupCanvasFrame();
     
@@ -283,6 +295,10 @@ private:
     
     void clearExternalAxes();
     void emptyLayout();
+
+    // for exports
+    int m_plotWidth;
+    int m_plotHeight;
 
     // Static //
     

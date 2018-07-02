@@ -73,6 +73,9 @@ class AntennaTable;
 //class asdm::CalAmpliTable;
 class CalAmpliTable;
 
+//class asdm::CalAntennaSolutionsTable;
+class CalAntennaSolutionsTable;
+
 //class asdm::CalAppPhaseTable;
 class CalAppPhaseTable;
 
@@ -205,6 +208,9 @@ class PolarizationTable;
 //class asdm::ProcessorTable;
 class ProcessorTable;
 
+//class asdm::PulsarTable;
+class PulsarTable;
+
 //class asdm::ReceiverTable;
 class ReceiverTable;
 
@@ -305,6 +311,12 @@ public:
 	 * @return The table CalAmpli as a CalAmpliTable.
 	 */
 	CalAmpliTable & getCalAmpli () const;
+
+	/**
+	 * Get the table CalAntennaSolutions.
+	 * @return The table CalAntennaSolutions as a CalAntennaSolutionsTable.
+	 */
+	CalAntennaSolutionsTable & getCalAntennaSolutions () const;
 
 	/**
 	 * Get the table CalAppPhase.
@@ -571,6 +583,12 @@ public:
 	ProcessorTable & getProcessor () const;
 
 	/**
+	 * Get the table Pulsar.
+	 * @return The table Pulsar as a PulsarTable.
+	 */
+	PulsarTable & getPulsar () const;
+
+	/**
 	 * Get the table Receiver.
 	 * @return The table Receiver as a ReceiverTable.
 	 */
@@ -729,7 +747,7 @@ public:
 	 * @param mimeMsg the string containing the MIME message.
 	 * @throws ConversionException
 	 */
-	 void setFromMIME(const std::string & mimeMsg);	
+	 void setFromMIME(const std::string & /* mimeMsg */);	
 
 	/**
 	 * Write this ASDM dataset to the specified directory
@@ -1025,6 +1043,11 @@ private:
 	CalAmpliTable * calAmpli;
 
 	/**
+	 * The table CalAntennaSolutions
+	 */
+	CalAntennaSolutionsTable * calAntennaSolutions;
+
+	/**
 	 * The table CalAppPhase
 	 */
 	CalAppPhaseTable * calAppPhase;
@@ -1245,6 +1268,11 @@ private:
 	ProcessorTable * processor;
 
 	/**
+	 * The table Pulsar
+	 */
+	PulsarTable * pulsar;
+
+	/**
 	 * The table Receiver
 	 */
 	ReceiverTable * receiver;
@@ -1381,8 +1409,8 @@ private:
 
 	
 	void error() ; // throw(ConversionException);
-	static std::string getXMLEntity(EntityId id); // throw(ConversionException);
-	static void putXMLEntity(std::string xml); // throw(ConversionException);
+	static std::string getXMLEntity(EntityId /* id */); // throw(ConversionException);
+	static void putXMLEntity(std::string /* xml */); // throw(ConversionException);
 	
 	XSLTransformer xslTransformer;
 	

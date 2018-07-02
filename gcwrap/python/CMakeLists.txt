@@ -21,7 +21,6 @@
 #casa_add_executable(tableplot projtable  apps/projtable/projtable.cc)
 casa_add_python( python  casa_python lib/python${PYTHONV}
 scripts/tf.py
-#scripts/asap_init.py
 scripts/assignmentFilter.py
 scripts/callibrary.py
 scripts/carta.py
@@ -35,6 +34,8 @@ scripts/casa_builtin.py
 scripts/start_casa.py
 scripts/casa_system.py
 scripts/casa_system_defaults.py
+scripts/init_begin_startup.py
+scripts/init_end_startup.py
 scripts/init_system.py
 scripts/init_crashrpt.py
 scripts/init_mpi.py
@@ -56,6 +57,7 @@ scripts/check_exceptionhandling.py
 scripts/check_input_saverestore.py
 scripts/cleanhelper.py
 scripts/correct_ant_posns.py
+scripts/crashrpt_conf.py
 scripts/dbusutil.py
 scripts/dict_to_table.py
 scripts/filecatalog.py
@@ -85,6 +87,7 @@ scripts/solar_system_setjy.py
 scripts/testhelper.py
 scripts/TablePlotQt4Agg.py
 scripts/TablePlotTkAgg.py
+scripts/task_accor.py
 scripts/task_accum.py
 scripts/task_applycal.py
 scripts/task_autoclean.py
@@ -110,13 +113,13 @@ scripts/task_exportasdm.py
 scripts/task_exportfits.py
 scripts/task_exportuvfits.py
 scripts/task_feather.py
-scripts/task_find.py
 scripts/task_fixplanets.py
 scripts/task_fixvis.py
 scripts/task_flagcmd.py
 scripts/task_flagdata.py
 scripts/task_flagmanager.py
 scripts/task_fluxscale.py
+scripts/task_fringefit.py
 scripts/task_ft.py
 scripts/task_gaincal.py
 scripts/task_gencal.py
@@ -154,6 +157,7 @@ scripts/task_imtrans.py
 scripts/task_imval.py
 scripts/task_initweights.py
 scripts/taskinit.py
+scripts/ialib.py
 scripts/task_listcal.py
 scripts/task_listhistory.py
 scripts/task_listfits.py
@@ -174,6 +178,7 @@ scripts/task_plotweather.py
 scripts/task_plotprofilemap.py
 #scripts/task_plotxy.py
 scripts/task_oldhanningsmooth.py
+scripts/task_oldplotants.py
 scripts/task_oldsplit.py
 scripts/task_partition.py
 scripts/task_polcal.py
@@ -187,6 +192,8 @@ scripts/task_sdfit.py
 scripts/task_sdfixscan.py
 scripts/task_sdgaincal.py
 scripts/task_sdimaging.py
+scripts/task_tsdimaging.py
+scripts/task_sdsidebandsplit.py
 scripts/task_sdsmooth.py
 scripts/task_setjy.py
 scripts/task_ssoflux.py
@@ -218,7 +225,6 @@ scripts/task_msview.py
 scripts/task_imview.py
 scripts/task_vishead.py
 scripts/task_visstat.py
-scripts/task_visstat2.py
 scripts/task_widebandpbcor.py
 scripts/task_widefield.py
 scripts/TerminalController.py

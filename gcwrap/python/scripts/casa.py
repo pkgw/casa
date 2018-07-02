@@ -143,6 +143,7 @@ metool = _casac.measures
 iatool = _casac.image
 potool = _casac.imagepol
 lmtool= _casac.linearmosaic
+sbstool = _casac.sidebandseparator
 smtool = _casac.simulator
 cltool = _casac.componentlist
 coordsystool = _casac.coordsys
@@ -187,13 +188,13 @@ from exportasdm import  exportasdm
 from exportfits import  exportfits
 from exportuvfits import  exportuvfits
 from feather import  feather
-from find import  find
 from fixplanets import  fixplanets
 from fixvis import  fixvis
 from flagcmd import  flagcmd
 from flagdata import  flagdata
 from flagmanager import  flagmanager
 from fluxscale import  fluxscale
+from fringefit import  fringefit
 from ft import  ft
 from gaincal import  gaincal
 from gencal import  gencal
@@ -239,6 +240,7 @@ from mosaic import  mosaic
 from mstransform import  mstransform
 from msuvbin import  msuvbin
 from oldhanningsmooth import  oldhanningsmooth
+from oldplotants import  oldplotants
 from oldsplit import  oldsplit
 from plotants import  plotants
 from plotbandpass import  plotbandpass
@@ -259,6 +261,7 @@ from sdfit import  sdfit
 from sdfixscan import  sdfixscan
 from sdgaincal import  sdgaincal
 from sdimaging import  sdimaging
+from sdsidebandsplit import  sdsidebandsplit
 from sdsmooth import  sdsmooth
 from setjy import  setjy
 from ssoflux import  ssoflux
@@ -287,6 +290,5 @@ from wvrgcal import  wvrgcal
 from virtualconcat import  virtualconcat
 from vishead import  vishead
 from visstat import  visstat
-from visstat2 import  visstat2
 from widebandpbcor import  widebandpbcor
 from widefield import  widefield

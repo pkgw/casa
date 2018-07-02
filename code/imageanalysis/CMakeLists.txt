@@ -35,33 +35,37 @@ Annotations/AnnText.cc
 Annotations/AnnVector.cc
 Annotations/RegionTextList.cc
 
+Images/ComponentListImage.cc
+
 ImageAnalysis/AntennaResponses.cc
 ImageAnalysis/CasaImageBeamSet.cc
 ImageAnalysis/ComplexImageRegridder.cc
 ImageAnalysis/ComponentImager.cc
-ImageAnalysis/ImageAnalysis.cc
 ImageAnalysis/ImageCollapserData.cc
+ImageAnalysis/ImageCollapser2.cc
 ImageAnalysis/ImageFactory2.cc
 ImageAnalysis/ImageFFT.cc
 ImageAnalysis/ImageFitter.cc
 ImageAnalysis/ImageHistogramsCalculator.cc
 ImageAnalysis/ImageInputProcessor.cc
 ImageAnalysis/ImageMask.cc
-ImageAnalysis/ImageMetaData.cc
-ImageAnalysis/ImageMetaDataBase.cc
-ImageAnalysis/ImageMetaDataRW.cc
+ImageAnalysis/ImageMetaDataConstants.cc
 ImageAnalysis/ImageMomentsProgress.cc
 ImageAnalysis/ImageMomentsProgressMonitor.cc
 ImageAnalysis/ImagePadder.cc
 ImageAnalysis/ImagePolarimetry.cc
 ImageAnalysis/ImagePolProxy.cc
+ImageAnalysis/ImagePolTask.cc
 ImageAnalysis/ImagePrimaryBeamCorrector.cc
 ImageAnalysis/ImageProfileFitter.cc
 ImageAnalysis/ImageRegridder.cc
 ImageAnalysis/ImageRotator.cc
 ImageAnalysis/ImageStatsCalculator.cc
 ImageAnalysis/ImageStatsConfigurator.cc
+ImageAnalysis/ImageTotalPolarization.cc
 ImageAnalysis/ImageTransposer.cc
+ImageAnalysis/LinearPolarizationAngleCalculator.cc
+ImageAnalysis/LinearPolarizationCalculator.cc
 ImageAnalysis/PeakIntensityFluxDensityConverter.cc
 ImageAnalysis/PixelValueManipulatorData.cc
 ImageAnalysis/ProfileFitResults.cc
@@ -136,8 +140,6 @@ install (FILES
 	ImageAnalysis/Image1DSmoother.tcc
 	ImageAnalysis/Image2DConvolver.h
 	ImageAnalysis/Image2DConvolver.tcc
-	ImageAnalysis/ImageAnalysis.h
-	ImageAnalysis/ImageAnalysis2.tcc
     ImageAnalysis/ImageBoxcarSmoother.h
     ImageAnalysis/ImageBoxcarSmoother.tcc
 	ImageAnalysis/ImageCollapser.h
@@ -190,7 +192,9 @@ install (FILES
 	ImageAnalysis/ImageMetaData.h
     ImageAnalysis/ImageMetaData.tcc
     ImageAnalysis/ImageMetaDataBase.h
+    ImageAnalysis/ImageMetaDataBase.tcc
     ImageAnalysis/ImageMetaDataRW.h
+    ImageAnalysis/ImageMetaDataRW.tcc
 	ImageAnalysis/ImageMoments.h
 	ImageAnalysis/ImageMoments.tcc
 	ImageAnalysis/ImageMomentsTask.h
@@ -200,6 +204,7 @@ install (FILES
 	ImageAnalysis/ImagePadder.h
 	ImageAnalysis/ImagePolarimetry.h
 	ImageAnalysis/ImagePolProxy.h
+	ImageAnalysis/ImagePolTask.h
 	ImageAnalysis/ImagePrimaryBeamCorrector.h
 	ImageAnalysis/ImageProfileFitter.h
     ImageAnalysis/ImageRebinner.h
@@ -214,9 +219,12 @@ install (FILES
 	ImageAnalysis/ImageStatsConfigurator.h
 	ImageAnalysis/ImageTask.h
     ImageAnalysis/ImageTask.tcc
+    ImageAnalysis/ImageTotalPolarization.h
 	ImageAnalysis/ImageTransposer.h
 	ImageAnalysis/ImageTwoPtCorr.h
 	ImageAnalysis/ImageTwoPtCorr.tcc
+	ImageAnalysis/LinearPolarizationAngleCalculator.h
+	ImageAnalysis/LinearPolarizationCalculator.h
 	ImageAnalysis/MomentsBase.h
 	ImageAnalysis/MomentsBase.tcc
 	ImageAnalysis/MomentCalcBase.h
@@ -246,6 +254,10 @@ install (FILES
 	DESTINATION include/casacode/imageanalysis/ImageAnalysis
 	)
 install (FILES
+    Images/ComponentListImage.h
+    DESTINATION include/casacode/imageanalysis/Images
+    )
+install (FILES
 	Regions/CasacRegionManager.h
 	DESTINATION include/casacode/imageanalysis/Regions
 	)
@@ -258,13 +270,10 @@ casa_add_demo( imageanalysis ImageAnalysis/test/dImageHistograms.cc )
 message ("WARNING: ImageAnalysis/test/dImageMoments.cc not building: repair or remove")
 #casa_add_demo( imageanalysis ImageAnalysis/test/dImageMoments.cc )
 
-casa_add_assay( imageanalysis ImageAnalysis/test/tImageAnalysis.cc )
-casa_add_assay( imageanalysis ImageAnalysis/test/tImageAnalysis2.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageConvolver.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageDecomposer.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageFit1D.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageFFT.cc )
-casa_add_assay( imageanalysis ImageAnalysis/test/tImageFitter.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageMetaData.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageMoments.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImagePolarimetry.cc )
@@ -283,6 +292,8 @@ casa_add_assay( imageanalysis IO/test/tProfileFitterEstimatesFileParser.cc )
 casa_add_assay( imageanalysis IO/test/tRegionTextParser.cc )
 
 casa_add_assay( imageanalysis Regions/test/tCasacRegionManager.cc )
+
+casa_add_google_test (MODULES imageanalysis SOURCES Images/test/ComponentListImage_Gtest.cc Images/test/ComponentListImageTest.cc)
 
 casa_add_google_test (MODULES imageanalysis SOURCES ImageAnalysis/test/ImageMaskHandler_Gtest.cc ImageAnalysis/test/ImageMaskHandlerTest.cc)
 
@@ -304,5 +315,6 @@ casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tCasaImage
 casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tComponentImager.cc )
 casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tImage2DConvolver.cc )
 casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tImageCollapser.cc )
+casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tImageFitter.cc )
 casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tImageStatsCalculator.cc )
 

@@ -66,7 +66,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <limits>
-
+#include <tuple>
 #include <sys/time.h>
 #include<sys/resource.h>
 
@@ -74,7 +74,12 @@ using namespace std;
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
- 
+
+  casacore::String SynthesisUtilMethods::g_hostname;
+  casacore::String SynthesisUtilMethods::g_startTimestamp;
+  const casacore::String SynthesisUtilMethods::g_enableOptMemProfile =
+      "synthesis.imager.memprofile.enable";
+
   SynthesisUtilMethods::SynthesisUtilMethods()
   {
     
@@ -178,71 +183,156 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
 
-  Int SynthesisUtilMethods::parseLine(char* line){
-        int i = strlen(line);
-        while (*line < '0' || *line > '9') line++;
-        line[i-3] = '\0';
-        i = atoi(line);
-        return i;
-    }
-    
-  void SynthesisUtilMethods::getResource(String label, String fname)
-  {
-               return;
-
-     LogIO os( LogOrigin("SynthesisUtilMethods","getResource",WHERE) );
-
-
-        FILE* file = fopen("/proc/self/status", "r");
-        int vmSize = -1, vmRSS=-1, pid=-1;
-	int fdSize=-1;
-        char line[128];
-    
-        while (fgets(line, 128, file) != NULL){
-	  if (strncmp(line, "VmSize:", 7) == 0){
-	    vmSize = parseLine(line)/1024.0;
-	  }
-	  if (strncmp(line, "VmRSS:", 6) == 0){
-	    vmRSS = parseLine(line)/1024.0;
-	  }
-	  	  if (strncmp(line, "FDSize:", 7) == 0){
-	    fdSize = parseLine(line);
-	  }
-	  if (strncmp(line, "Pid:", 4) == 0){
-	    pid = parseLine(line);
-	  }
-	}
-        fclose(file);
-
-	struct rusage usage;
-	struct timeval now;
-	getrusage(RUSAGE_SELF, &usage);
-	now = usage.ru_utime;
-
-	ostringstream oss;
-	
-	oss << " PID: " << pid ;
-	oss << " MemRSS: " << vmRSS << " MB.";
-	oss << " VirtMem: " << vmSize << " MB.";
-	oss << " ProcTime: " << now.tv_sec << "." << now.tv_usec;
-	oss << " FDSize: " << fdSize;
-	oss <<  " [" << label << "] ";
-
-
-	os << oss.str() << LogIO::NORMAL3 <<  LogIO::POST;
-	//	cout << oss.str() << endl;
-
-	// Write this to a file too...
-	fname = "memprofile";
-	if( fname.size() > 0 )
-	  {
-	    ofstream myfile;
-	    myfile.open (fname+"."+String::toString(pid), ios::app);
-	    myfile << oss.str() << endl;
-	    myfile.close();
-	  }
+  /**
+   * Get values from lines of a /proc/self/status file. For example:
+   * 'VmRSS:     600 kB'
+   * @param str line from status file
+   * @return integer value (memory amount, etc.)
+   */
+  Int SynthesisUtilMethods::parseProcStatusLine(const std::string &str) {
+    istringstream is(str);
+    std::string token;
+    is >> token;
+    is >> token;
+    Int value = stoi(token);
+    return value;
   }
 
+  /**
+   * Produces a name for a 'memprofile' output file. For example:
+   * casa.synthesis.imager.memprofile.23514.pc22555.hq.eso.org.20171209_120446.txt
+   * (where 23514 is the PID passed as input parameter).
+   *
+   * @param pid PID of the process running the imager
+   *
+   * @return a longish 'memprofile' filename including PID, machine, timestamp, etc.
+   **/
+  String SynthesisUtilMethods::makeResourceFilename(int pid)
+  {
+    if (g_hostname.empty() or g_startTimestamp.empty()) {
+      // TODO: not using HOST_NAME_MAX because of issues with __APPLE__
+      // somehow tests tAWPFTM, tSynthesisImager, and tSynthesisImagerVi2 fail.
+      const int strMax = 255;
+      char hostname[strMax];
+      gethostname(hostname, strMax);
+      g_hostname = hostname;
+
+      auto time = std::time(nullptr);
+      auto gmt = std::gmtime(&time);
+      const char* format = "%Y%m%d_%H%M%S";
+      char timestr[strMax];
+      std::strftime(timestr, strMax, format, gmt);
+      g_startTimestamp = timestr;
+    }
+
+    return String("casa.synthesis.imager.memprofile." + String::toString(pid) +
+		  "." + g_hostname + "." + g_startTimestamp + ".txt");
+  }
+
+  void SynthesisUtilMethods::getResource(String label, String fname)
+  {
+     // TODO: not tested on anything else than LINUX (MACOS for the future)
+#if !defined(AIPS_LINUX)
+      return;
+#endif
+
+     Bool isOn = false;
+     AipsrcValue<Bool>::find(isOn, g_enableOptMemProfile);
+     if (!isOn)
+         return;
+
+     // TODO: reorganize, use struct or something to hold and pass info over. ifdef lnx
+     LogIO casalog( LogOrigin("SynthesisUtilMethods", "getResource", WHERE) );
+
+     // To hold memory stats, in MB
+     int vmRSS = -1, vmHWM = -1, vmSize = -1, vmPeak = -1, vmSwap = -1;
+     pid_t pid = -1;
+     int fdSize = -1;
+
+     // TODO: this won't probably work on anything but linux
+     ifstream procFile("/proc/self/status");
+     if (procFile.is_open()) {
+       std::string line;
+       while (not procFile.eof()) {
+	 getline(procFile, line);
+	 const std::string startVmRSS = "VmRSS:";
+	 const std::string startVmWHM = "VmHWM:";
+	 const std::string startVmSize = "VmSize:";
+	 const std::string startVmPeak = "VmPeak:";
+	 const std::string startVmSwap = "VmSwap:";
+	 const std::string startFDSize = "FDSize:";
+         const double KB_TO_MB = 1024.0;
+	 if (startVmRSS == line.substr(0, startVmRSS.size())) {
+	   vmRSS = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startVmWHM == line.substr(0, startVmWHM.size())) {
+	   vmHWM = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startVmSize == line.substr(0, startVmSize.size())) {
+	   vmSize = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+         } else if (startVmPeak == line.substr(0, startVmPeak.size())) {
+	   vmPeak = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startVmSwap == line.substr(0, startVmSwap.size())) {
+	   vmSwap = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startFDSize == line.substr(0, startFDSize.size())) {
+	   fdSize = parseProcStatusLine(line.c_str());
+	 }
+       }
+       procFile.close();
+     }
+
+     pid = getpid();
+
+     struct rusage usage;
+     struct timeval now;
+     getrusage(RUSAGE_SELF, &usage);
+     now = usage.ru_utime;
+
+     // TODO: check if this works as expected when /proc/self/status is not there
+     // Not clear at all if VmHWM and .ru_maxrss measure the same thing
+     // Some alternative is needed for the other fields as well: VmSize, VMHWM, FDSize.
+     if (vmHWM < 0) {
+       vmHWM = usage.ru_maxrss;
+     }
+
+     ostringstream oss;
+     oss << "PID: " << pid ;
+     oss << " MemRSS (VmRSS): " << vmRSS << " MB.";
+     oss << " VmWHM: " << vmHWM << " MB.";
+     oss << " VirtMem (VmSize): " << vmSize << " MB.";
+     oss << " VmPeak: " << vmPeak << " MB.";
+     oss << " VmSwap: " << vmSwap << " MB.";
+     oss << " ProcTime: " << now.tv_sec << '.' << now.tv_usec;
+     oss << " FDSize: " << fdSize;
+     oss <<  " [" << label << "] ";
+     casalog << oss.str() << LogIO::NORMAL3 <<  LogIO::POST;
+
+     // Write this to a file too...
+     try {
+       if (fname.empty()) {
+         fname = makeResourceFilename(pid);
+       }
+       ofstream ofile(fname, ios::app);
+       if (ofile.is_open()) {
+         if (0 == ofile.tellp()) {
+             casalog << g_enableOptMemProfile << " is enabled, initializing output file for "
+                 "imager profiling information (memory and run time): " << fname <<
+                 LogIO::NORMAL <<  LogIO::POST;
+             ostringstream header;
+             header << "# PID, MemRSS_(VmRSS)_MB, VmWHM_MB, VirtMem_(VmSize)_MB, VmPeak_MB, "
+                 "VmSwap_MB, ProcTime_sec, FDSize, label_checkpoint";
+             ofile << header.str() << '\n';
+         }
+         ostringstream line;
+         line << pid << ',' << vmRSS << ',' << vmHWM << ',' << vmSize << ','
+              << vmPeak << ','<< vmSwap << ',' << now.tv_sec << '.' << now.tv_usec << ','
+              << fdSize << ',' << '[' << label << ']';
+         ofile << line.str() << '\n';
+         ofile.close();
+       }
+     } catch(std::runtime_error &exc) {
+         casalog << "Could not write imager memory+runtime information into output file: "
+                 << fname << LogIO::WARN <<  LogIO::POST;
+     }
+  }
 
 
   // Data partitioning rules for CONTINUUM imaging
@@ -620,6 +710,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
+  String SynthesisUtilMethods::asComprehensibleDirectionString(MDirection const &direction)
+  {
+    MVAngle mvRa=direction.getAngle().getValue()(0);
+    MVAngle mvDec=direction.getAngle().getValue()(1);
+    ostringstream oos;
+    oos << "     ";
+    Int widthRA=20;
+    Int widthDec=20;
+    oos.setf(ios::left, ios::adjustfield);
+    oos.width(widthRA);  oos << mvRa(0.0).string(MVAngle::TIME,8);
+    oos.width(widthDec); oos << mvDec.string(MVAngle::DIG2,8);
+    oos << "     "
+        << MDirection::showType(direction.getRefPtr()->getType());
+    return String(oos);
+  }
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////    Parameter Containers     ///////////////////////////////////////////////////////
@@ -804,7 +910,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	MDirection::Types theRF;
-	MDirection::getType(theRF, tmpRF);
+	Bool status = MDirection::getType(theRF, tmpRF);
+	if (!status) {
+	  throw AipsError();
+	}
 	md = MDirection (tmpQRA, tmpQDEC, theRF);
 	return String("");
       }
@@ -851,15 +960,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   // Convert Quantity to String
   String SynthesisParams::QuantityToString(Quantity val) const
   {
-    //std::ostringstream ss;
+    std::ostringstream ss;
     //use digits10 to ensure the conersions involve use full decimal digits guranteed to be 
     //correct plus extra digits to deal with least significant digits (or replace with
     // max_digits10 when it is available)
-    //ss.precision(std::numeric_limits<double>::digits10+2);
-    //ss << val;
-    //return ss.str();
+    ss.precision(std::numeric_limits<double>::digits10+2);
+    ss << val;
+    return ss.str();
+    // NOTE - 2017.10.04: It was found (CAS-10773) that we cannot use to_string for this as
+    // the decimal place is fixed to 6 digits. 
     //TT: change to C++11 to_string which handles double value to string conversion 
-    return String(std::to_string( val.getValue(val.getUnit()) )) + val.getUnit() ;
+    //return String(std::to_string( val.getValue(val.getUnit()) )) + val.getUnit() ;
   }
   
   // Convert Record contains Quantity or Measure quantities to String
@@ -1159,7 +1270,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	//// stokes
 	err += readVal( inrec, String("stokes"), stokes);
-	    
+	if(stokes.matches("pseudoI"))
+	  {
+	    stokes="I";
+	    pseudoi=true;
+	  }
+	else {pseudoi=false;}
+
+	/// PseudoI
+
 	////nchan
 	err += readVal( inrec, String("nchan"), nchan);
 
@@ -1711,6 +1830,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     startModel=Vector<String>(0);
     overwrite=false;
 
+    // PseudoI
+    pseudoi=false;
+
     // Spectral coordinates
     nchan=1;
     mode="mfs";
@@ -1750,7 +1872,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     cells[0] = QuantityToString( cellsize[0] );
     cells[1] = QuantityToString( cellsize[1] );
     impar.define("cell", cells );
-    impar.define("stokes", stokes);
+    if(pseudoi==true){impar.define("stokes","pseudoI");}
+    else{impar.define("stokes", stokes);}
     impar.define("nchan", nchan);
     impar.define("nterms", nTaylorTerms);
     impar.define("deconvolver",deconvolver);
@@ -1843,6 +1966,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       } 
     //    else cout << " NO CSYS INFO to write to output record " << endl;
 
+
     return impar;
   }
 
@@ -1855,14 +1979,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   
-  CoordinateSystem SynthesisParamsImage::buildCoordinateSystem(vi::VisibilityIterator2& vi2) 
+
+  CoordinateSystem SynthesisParamsImage::buildCoordinateSystem(vi::VisibilityIterator2& vi2, const std::map<Int, std::map<Int, Vector<Int> > >& chansel, Block<const MeasurementSet *> mss) 
+
   {
-    
-    
     //vi2.getImpl()->spectralWindows( spwids );
     //The above is not right
     //////////// ///Kludge to find all spw selected
-    std::vector<Int> pushspw;
+    //std::vector<Int> pushspw;
     vi::VisBuffer2* vb=vi2.getVisBuffer();
     vi2.originChunks();
     vi2.origin();
@@ -1870,44 +1994,76 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // get the first ms for multiple MSes
     MeasurementSet msobj=vi2.ms();
     Int fld=vb->fieldId()(0);
-    for (vi2.originChunks(); vi2.moreChunks();vi2.nextChunk())
-    	{
-	  for (vi2.origin(); vi2.more();vi2.next())
-	    {
-	      //Collect info on first ms only
-	      if(vb->msId() == 0){
-		Int a=vb->spectralWindows()(0);
-		if(std::find(pushspw.begin(), pushspw.end(), a) == pushspw.end()) {
-		  
-		  pushspw.push_back(a);
-		}
-	      }
-	      
 
-
-	    }
+	//handling first ms only
+        Double gfreqmax=-1.0;
+	Double gdatafend=-1.0;
+	Double gdatafstart=1e14;
+	Double gfreqmin=1e14;
+	Vector<Int> spwids0;
+	Int j=0;
+	for (auto forMS0=chansel.begin(); forMS0 !=chansel.end(); ++forMS0, ++j){
+    //auto forMS0=chansel.find(0);
+	  map<Int, Vector<Int> > spwsels=forMS0->second;
+	  Int nspws=spwsels.size();
+	  Vector<Int> spwids(nspws);
+	  Vector<Int> nChannels(nspws);
+	  Vector<Int> firstChannels(nspws);
+	  //Vector<Int> channelIncrement(nspws);
+	  
+	  Int k=0;
+	  for (auto it=spwsels.begin(); it != spwsels.end(); ++it, ++k){
+	    spwids[k]=it->first;
+	    nChannels[k]=(it->second)[0];
+	    firstChannels[k]=(it->second)[1];
+	  }
+	  if(j==0)
+	    spwids0=spwids;
+	  // std::tie (spwids, nChannels, firstChannels, channelIncrement)=(static_cast<vi::VisibilityIteratorImpl2 * >(vi2.getImpl()))->getChannelInformation(false);
+	  
+	  //cerr << "SPWIDS "<< spwids <<  "  nchan " << nChannels << " firstchan " << firstChannels << endl;
+	  
+	  //////////////////This returns junk for multiple ms CAS-9994..so kludged up along with spw kludge
+	  //Vector<Int> flds;
+	  //vi2.getImpl()->fieldIds( flds );
+	  //AlwaysAssert( flds.nelements()>0 , AipsError );
+	  //fld = flds[0];
+	  Double freqmin=0, freqmax=0;
+	  freqFrameValid=(freqFrame != MFrequency::REST );
+	  
+	  //MFrequency::Types dataFrame=(MFrequency::Types)vi2.subtableColumns().spectralWindow().measFreqRef()(spwids[0]);
+	  MFrequency::Types dataFrame=(MFrequency::Types)ROMSColumns(*mss[j]).spectralWindow().measFreqRef()(spwids[0]);
+	  
+	  Double datafstart, datafend;
+	  //VisBufferUtil::getFreqRange(datafstart, datafend, vi2, dataFrame );
+	  //cerr << std::setprecision(12) << "before " << datafstart << "   " << datafend << endl;
+	  Bool status=MSUtil::getFreqRangeInSpw( datafstart, datafend, spwids, firstChannels, nChannels,*mss[j], dataFrame,  True);
+	  //cerr << "after " << datafstart << "   " << datafend << endl;
+	  if((datafstart > datafend) || !status)
+	    throw(AipsError("spw selection failed")); 
+	  //cerr << "datafstart " << datafstart << " end " << datafend << endl;
+	  
+	  if (mode=="cubedata") {
+	    
+	    freqmin = datafstart;
+	    freqmax = datafend;
+	  }
+	  else {
+	    
+	    //VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
+	    //cerr << "before " << freqmin << "   " << freqmax << endl;
+	    MSUtil::getFreqRangeInSpw( freqmin, freqmax, spwids, firstChannels,
+				       nChannels,*mss[j], freqFrameValid? freqFrame:MFrequency::REST , True);
+	    //cerr << "after " << freqmin << "   " << freqmax << endl;
+	  }
+	  if(freqmin < gfreqmin) gfreqmin=freqmin;
+	  if(freqmax > gfreqmax) gfreqmax=freqmax;
+	  if(datafstart < gdatafstart) gdatafstart=datafstart;
+	  if(datafend > gdatafend) gdatafend=datafend;
 	}
-    Vector<Int> spwids(pushspw);
-    //////////////////This returns junk for multiple ms CAS-9994..so kludged up along with spw kludge
-    //Vector<Int> flds;
-    //vi2.getImpl()->fieldIds( flds );
-    //AlwaysAssert( flds.nelements()>0 , AipsError );
-    //fld = flds[0];
-    Double freqmin=0, freqmax=0;
-    freqFrameValid=(freqFrame != MFrequency::REST );
-    MFrequency::Types dataFrame=(MFrequency::Types)vi2.subtableColumns().spectralWindow().measFreqRef()(spwids[0]);
-    Double datafstart, datafend;
-    VisBufferUtil::getFreqRange(datafstart, datafend, vi2, dataFrame );
-    if (mode=="cubedata") {
-       freqmin = datafstart;
-       freqmax = datafend;
-    }
-    else {
-       VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
-    }
+    //cerr << "freqmin " <<freqmin << " max " <<freqmax << endl;
     
-
-    return buildCoordinateSystemCore( msobj, spwids, fld, freqmin, freqmax, datafstart, datafend );
+    return buildCoordinateSystemCore( msobj, spwids0, fld, gfreqmin, gfreqmax, gdatafstart, gdatafend );
   }
   
 
@@ -2935,6 +3091,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 	if(gridder=="awproject" || gridder=="awprojectft")
 	  {ftmachine="awprojectft";}
+	if(gridder=="singledish") {
+	  ftmachine="sd";
+	}
 
 	String deconvolver;
 	err += readVal( inrec, String("deconvolver"), deconvolver );
@@ -2966,6 +3125,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	err += readVal( inrec, String("computepastep"), computePAStep );
 	err += readVal( inrec, String("rotatepastep"), rotatePAStep );
 
+	// The extra params for single-dish
+	err += readVal( inrec, String("pointingcolumntouse"), pointingDirCol );
+	err += readVal( inrec, String("skypolthreshold"), skyPosThreshold );
+	err += readVal( inrec, String("convsupport"), convSupport );
+	err += readVal( inrec, String("truncate"), truncateSize );
+	err += readVal( inrec, String("gwidth"), gwidth );
+	err += readVal( inrec, String("jwidth"), jwidth );
+	err += readVal( inrec, String("minweight"), minWeight );
+	err += readVal( inrec, String("clipminmax"), clipMinMax );
+
 	// Single or MultiTerm mapper : read in 'deconvolver' and set mType here.
 	//	err += readVal( inrec, String("mtype"), mType );
 
@@ -2995,7 +3164,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if( (ftmachine != "gridft") && (ftmachine != "wprojectft") && 
 	(ftmachine != "mosaicft") && (ftmachine != "awprojectft") && 
-	(ftmachine != "mawprojectft") && (ftmachine != "protoft"))
+	(ftmachine != "mawprojectft") && (ftmachine != "protoft") &&
+	(ftmachine != "sd"))
       { err += "Invalid ftmachine name. Must be one of 'gridft', 'wprojectft', 'mosaicft', 'awprojectft', 'mawpojectft'";   }
 
     if( ((ftmachine=="mosaicft") && (mType=="imagemosaic"))  || 
@@ -3027,6 +3197,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if( (ftmachine=="mosaicft") && (facets>1) )
       { err += "The combination of mosaicft gridding with multiple facets is not supported. "
 	  "Please use the awprojectft gridder instead, and set wprojplanes to a value > 1 to trigger AW-Projection. \n"; }
+
+    // todo: any single-dish specific limitation?
 
     return err;
   }
@@ -3071,6 +3243,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     computePAStep=360.0;
     rotatePAStep=5.0;
 
+    // extra params for single-dish
+    pointingDirCol = "";
+    skyPosThreshold = 0.0;
+    convSupport = -1;
+    truncateSize = Quantity(-1.0);
+    gwidth = Quantity(-1.0);
+    jwidth = Quantity(-1.0);
+    minWeight = 0.0;
+    clipMinMax = False;
+
     // Mapper type
     mType = String("default");
     
@@ -3107,6 +3289,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     gridpar.define("conjbeams",conjBeams );
     gridpar.define("computepastep", computePAStep);
     gridpar.define("rotatepastep", rotatePAStep);
+
+    gridpar.define("pointingcolumntouse", pointingDirCol );
+    gridpar.define("skyposthreshold", skyPosThreshold );
+    gridpar.define("convsupport", convSupport );
+    gridpar.define("truncate", QuantityToString(truncateSize) );
+    gridpar.define("gwidth", QuantityToString(gwidth) );
+    gridpar.define("jwidth", QuantityToString(jwidth) );
+    gridpar.define("minweight", minWeight );
+    gridpar.define("clipminmax", clipMinMax );
 
     if( mType=="multiterm") gridpar.define("deconvolver","mtmfs");
     ///    else gridpar.define("deconvolver","singleterm");
@@ -3331,6 +3522,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 err+= "lownoisethreshold must be a float or double";
               }
           }
+        if( inrec.isDefined("negativethreshold"))
+          {
+            if(inrec.dataType("negativethreshold")==TpFloat || inrec.dataType("negativethreshold")==TpDouble )
+              {
+                err+= readVal(inrec, String("negativethreshold"), negativeThreshold );
+              }
+            else 
+              {
+                err+= "negativethreshold must be a float or double";
+              }
+          }
         if( inrec.isDefined("smoothfactor"))
           {
             if( inrec.dataType("smoothfactor")==TpFloat || inrec.dataType("smoothfactor")==TpDouble )
@@ -3369,6 +3571,51 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 err+= "cutthreshold must be a float or double";
             }
           }
+        if( inrec.isDefined("growiterations"))
+          {
+            if (inrec.dataType("growiterations")==TpInt) {
+                err+= readVal(inrec, String("growiterations"), growIterations );
+            }
+            else {
+                err+= "growiterations must be an integer\n";
+            }
+          } 
+        if( inrec.isDefined("dogrowprune"))
+          {
+            if (inrec.dataType("dogrowprune")==TpBool) {
+                err+= readVal(inrec, String("dogrowprune"), doGrowPrune );
+            }
+            else {
+                err+= "dogrowprune must be a bool\n";
+            }
+          } 
+        if( inrec.isDefined("minpercentchange"))
+          {
+            if (inrec.dataType("minpercentchange")==TpFloat || inrec.dataType("minpercentchange")==TpDouble ) {
+                err+= readVal(inrec, String("minpercentchange"), minPercentChange );
+            }
+            else {
+                err+= "minpercentchange must be a float or double";
+            }
+          }
+        if( inrec.isDefined("verbose")) 
+          {
+            if (inrec.dataType("verbose")==TpBool ) {
+               err+= readVal(inrec, String("verbose"), verbose);
+            }
+            else {
+               err+= "verbose must be a bool";
+            }
+          }
+        if( inrec.isDefined("nsigma") )
+          {
+            if(inrec.dataType("nsigma")==TpFloat || inrec.dataType("nsigma")==TpDouble ) {
+               err+= readVal(inrec, String("nsigma"), nsigma );
+              }
+            else {
+               err+= "nsigma be a float or double";
+            }
+          }
         if( inrec.isDefined("restoringbeam") )     
 	  {
 	    String errinfo("");
@@ -3377,7 +3624,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      if( inrec.dataType("restoringbeam")==TpString )     
 		{
 		  err += readVal( inrec, String("restoringbeam"), usebeam); 
-		  if( ! usebeam.matches("common") && ! usebeam.length()==0 )  
+		  if( (! usebeam.matches("common")) && ! usebeam.length()==0 )
 		    {
 		      Quantity bsize;
 		      err += readVal( inrec, String("restoringbeam"), bsize );
@@ -3533,10 +3780,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     decpar.define("sidelobethreshold",sidelobeThreshold);
     decpar.define("noisethreshold",noiseThreshold);
     decpar.define("lownoisethreshold",lowNoiseThreshold);
+    decpar.define("negativethreshold",negativeThreshold);
     decpar.define("smoothfactor",smoothFactor);
     decpar.define("minbeamfrac",minBeamFrac);
     decpar.define("cutthreshold",cutThreshold);
+    decpar.define("growiterations",growIterations);
+    decpar.define("dogrowprune",doGrowPrune);
+    decpar.define("minpercentchange",minPercentChange);
+    decpar.define("verbose", verbose);
     decpar.define("interactive",interactive);
+    decpar.define("nsigma",nsigma);
 
     return decpar;
   }

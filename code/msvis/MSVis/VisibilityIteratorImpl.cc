@@ -797,11 +797,7 @@ VisibilityIteratorReadImpl::setTileCache ()
 
                 for (uInt kk = 0; kk < refTables.nelements (); ++kk) {
 
-                    MeasurementSet elms (refTables[kk]);
-
-                    MrsEligibility mrSubtables = MrsEligibility::defaultEligible();
-                    elms.setMemoryResidentSubtables (mrSubtables);
-
+                    Table elms (refTables[kk]);
                     ROTiledStManAccessor tacc (elms, columns[k], true);
 
 		    // Cleverly sense full-row cache size (in tiles)

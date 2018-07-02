@@ -57,8 +57,6 @@ using namespace casacore;
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-MSIter msi;
-
 VisBuffer::VisBuffer()
     : corrSorted_p(false),
       lastPointTableRow_p(0),
@@ -2356,6 +2354,18 @@ MDirection& VisBuffer::fillPhaseCenter()
   CheckVisIter ();
   phaseCenterOK_p = true;
   return phaseCenter_p = visIter_p->phaseCenter();
+}
+const MDirection VisBuffer::phaseCenter(const Double time) const 
+{
+  CheckVisIter ();
+  
+  return This->phaseCenter(This->fieldId(), time);
+}
+const MDirection VisBuffer::phaseCenter(const Int field, const Double time) const 
+{
+  CheckVisIter ();
+ 
+  return visIter_p->phaseCenter(field, time);
 }
 
 Int& VisBuffer::fillPolFrame()

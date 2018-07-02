@@ -4,14 +4,26 @@
 
 import os
 import signal
-import tempfile
+import crashrpt_conf
 
 casa['state']['crash-reporter'] = False
 if ( casa['flags'].crash_report and
      os.environ.has_key('CASA_USE_CRASH_REPORTER') and
      os.environ['CASA_USE_CRASH_REPORTER'].upper( ) == 'TRUE'):
     try:
-        temporaryDirectory = tempfile.gettempdir()
+        systemTempDir = crashrpt_conf.systemTempDir
+        temporaryDirectoryCommon = crashrpt_conf.temporaryDirectoryCommon
+        temporaryDirectory = crashrpt_conf.temporaryDirectory
+        # Create common temporary directory for multi-user environments
+        # Configure permissions based on system temporary directory
+        if not os.path.exists(temporaryDirectoryCommon):
+                os.makedirs(temporaryDirectoryCommon)
+                st = os.stat(systemTempDir)
+                perm = st.st_mode
+                os.chmod(temporaryDirectoryCommon, perm)
+        # Create temporary directory for user
+        if not os.path.exists(temporaryDirectory):
+                os.makedirs(temporaryDirectory)
         posterApp = casa['helpers']['crashPoster']
         if posterApp is None: posterApp = "" # handle case where it wasn't found
         postingUrl = "https://casa.nrao.edu/cgi-bin/crash-report.pl"

@@ -149,13 +149,13 @@ class viewertool(object):
 	if (os.uname()[0]=='Darwin'):
             if myf['casa']['state']['init_version'] > 0:
                 from casa_system import procmgr
-                procmgr.create(self.__state['dbus name'],args,procmgr.output_option.STDOUT)
+                procmgr.create(self.__state['dbus name'],args,procmgr.output_option.DISCARD)
             else:
 		vwrpid=os.spawnvp( os.P_NOWAIT, viewer_path, args )
 	elif (os.uname()[0]=='Linux'):
             if myf['casa']['state']['init_version'] > 0:
                 from casa_system import procmgr
-                procmgr.create(self.__state['dbus name'],args,procmgr.output_option.STDOUT)
+                procmgr.create(self.__state['dbus name'],args,procmgr.output_option.DISCARD)
             else:
 		vwrpid=os.spawnlp( os.P_NOWAIT, viewer_path, *args )
 	else:
@@ -173,7 +173,7 @@ class viewertool(object):
 
         error = None
         for i in range(1,500):
-            time.sleep(0.1)
+            time.sleep(0.25)
             try:
                 self.__state['proxy'] = bus.get_object( "edu.nrao.casa." + self.__state['dbus name'], "/casa/" + self.__state['dbus name'] )
                 if self.__state['proxy'] == None:
@@ -218,7 +218,8 @@ class viewertool(object):
 
     def panel( self, paneltype="viewer" ) :
         if type(paneltype) != str or (paneltype != "viewer" and paneltype != "clean"):
-            raise Exception, "the only valid panel types are 'viewer' and 'clean'"
+            if not (paneltype.endswith('.rstr') and os.path.isfile(paneltype)):
+                raise Exception, "the only valid panel types are 'viewer' and 'clean' or path to restore file"
         if self.__state['proxy'] == None:
             self.__connect( )
 

@@ -3,9 +3,16 @@
 #include <sstream>
 #include <bitset>
 #include <vector>
+#include <string>
+#include <regex>
 #include <algorithm>
+#include <iterator>
 #include <utility>
 #include <stdlib.h>
+
+#include <stdcasa/optionparser.h>
+#include <alma/Options/AlmaArg.h>
+using namespace alma;
 
 using namespace std;
 
@@ -31,24 +38,11 @@ using namespace ProcessorTypeMod;
 #include "SDMDataObjectStreamReader.h"
 
 using namespace asdmbinaries;
+using namespace casacore;
 
 #include "asdm2MSGeneric.h"
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/regex.hpp>
-using namespace boost;
 
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/convenience.hpp>
-using namespace boost::filesystem;
-
-#include <boost/program_options.hpp>
-namespace po = boost::program_options;
-
-#include <boost/program_options.hpp>
-
-#include <boost/assign/std/vector.hpp> // for 'operator+=()'
-using namespace boost::assign; // bring 'operator+=()' into scope
+#include "ScansParser.h"
 
 bool verbose = false; // By default, let's stay quiet.
 bool ddebug = false;
@@ -110,8 +104,6 @@ ostringstream infostream;
 
 #include <casa/Logging/StreamLogSink.h>
 #include <casa/Logging/LogSink.h>
-using namespace casacore;
-
 
 string appName; // The name of the application.
 
@@ -478,23 +470,28 @@ public:
   }
 
   pair< vector<FLAG_SHAPE *>*,
-	vector<FLAG_V *>* >  orderedByDDTIMBAL() {
+	vector<FLAG_V *>* >  orderedByDDTIMBAL(bool skipFirstIntegration=false) {
     LOGENTER("MSFlagAccumulator::orderedByDDTIMBAL(bool MSORDER=true)");
 
+    unsigned int numIntUsed = skipFirstIntegration ? (numIntegration_-1) : numIntegration_;
     flagShapes_p_v.clear();
-    flagShapes_p_v.resize(numIntegration_*numBAL_*numDD_);
+    flagShapes_p_v.resize(numIntUsed*numBAL_*numDD_);
     flagValues_p_v.clear();
-    flagValues_p_v.resize(numIntegration_*numBAL_*numDD_);
-
+    flagValues_p_v.resize(numIntUsed*numBAL_*numDD_);
+    
     unsigned int k = 0;
-    for (unsigned int iDD = 0; iDD < numDD_; iDD++)
-      for (unsigned int iIntegration = 0; iIntegration < numIntegration_; iIntegration++)
+    for (unsigned int iDD = 0; iDD < numDD_; iDD++) {
+      for (unsigned int iIntegration = 0; iIntegration < numIntegration_; iIntegration++) {
+	if (skipFirstIntegration && (iIntegration==0)) continue;
+	
 	for (unsigned int iBAL = 0; iBAL < numBAL_; iBAL++) {
 	  flagShapes_p_v[k] = &(flagCell_vvv[iIntegration][iBAL][iDD].first);
 	  flagValues_p_v[k] = &(flagCell_vvv[iIntegration][iBAL][iDD].second);
 	  k++;
 	}
-
+      }
+    }
+    
     LOGEXIT("MSFlagAccumulator::orderedByDDTIMBAL(bool MSORDER=true)");
     return make_pair< vector<FLAG_SHAPE *> *, vector<FLAG_V * > *> (&flagShapes_p_v, &flagValues_p_v);
   }
@@ -521,75 +518,6 @@ public:
     LOGEXIT("MSFlagAccumulator::dump");
   }
 }; // end of class MSFlagAccumulator
-
-
-//
-// A collection of declarations and functions used for the parsing of the 'scans' option.
-//
-#include <boost/spirit/include/classic.hpp>
-#include <boost/spirit/include/classic_assign_actor.hpp>
-#include <boost/spirit/include/classic_push_back_actor.hpp>
-using namespace boost::spirit::classic;
-
-vector<int> eb_v;
-int allEbs = -1;
-int ebNumber = allEbs;
-int readEb = allEbs;
-
-set<int> scan_s;
-int scanNumber0, scanNumber1;
-
-map<int, set<int> > eb_scan_m;
-
-/*
-** Inserts all the integer values in the range [scanNumber0, scanNumber1] in the set referred
-** to by the global variable scan_s.
-** The two parameters begin and end are not used and here only to comply with the Spirit parser's convention.
-*/
-void fillScanSet(const char* , const char* ) {
-  for (int i = scanNumber0; i < (scanNumber1+1); i++)
-    scan_s.insert(i);
-}
-
-/*
-** Inserts all the elements of the set referred to by the global variable scan_s into
-** the set associated with the (int) key equal to the last value of the global vector eb_v
-** in the global map eb_scan_m.
-** The two parameters begin and end are not used and here only to comply with the Spirit parser's convention.
-*/
-void mergeScanSet(const char* , const char* ) {
-  int key = eb_v.back();
-  eb_scan_m[key].insert(scan_s.begin(), scan_s.end());
-}
-
-/*
-** Empties the global set scan_s.
-** The two parameters begin and end are not used and here only to comply with the Spirit parser's convention.
-*/
-void clearScanSet(const char* , const char* ) {
-  scan_s.clear();
-}
-
-/*
-** Defines the grammar and the behaviour of a Spirit parser
-** able to process a scan selection.
-*/
-struct eb_scan_selection : public grammar<eb_scan_selection> {
-  template<typename ScannerT> struct definition {
-    definition (eb_scan_selection const& ) {
-      eb_scan_list   = eb_scan >> *(';' >> eb_scan);
-      eb_scan	     = (eb[push_back_a(eb_v, ebNumber)][assign_a(ebNumber, allEbs)] >> scan_list)[&mergeScanSet][&clearScanSet];
-      eb	     = !(int_p[assign_a(readEb)] >> ':')[assign_a(ebNumber, readEb)];
-      scan_list	     = !((scan_selection >> *(',' >> scan_selection)));
-      scan_selection = (int_p[assign_a(scanNumber0)][assign_a(scanNumber1)] >> !('~' >> int_p[assign_a(scanNumber1)]))
-	[&fillScanSet]
-	[assign_a(scanNumber0, -1)]
-	[assign_a(scanNumber1, -1)];
-    }
-    rule<ScannerT> eb_scan_list, eb_scan, eb, scan_list, scan_selection;
-    rule<ScannerT> const& start() const { return eb_scan_list ; }
-  };
-};
 
 
 /*
@@ -883,10 +811,11 @@ pair<uInt, uInt> mergeAndPut(CorrelationModeMod::CorrelationMode correlationMode
 pair<uInt, uInt> put(MSFlagAccumulator<char>& accumulator,
 		     uInt iRow0,
 		     ArrayColumn<Bool>& flag,
-		     ScalarColumn<Bool> flagRow) {
+		     ScalarColumn<Bool> flagRow,
+		     bool skipFirstIntegration=false) {
   LOGENTER("put");
   pair< vector<FLAG_SHAPE * >*,
-	vector<FLAG_V * >* > cds = accumulator.orderedByDDTIMBAL();
+        vector<FLAG_V * >* > cds = accumulator.orderedByDDTIMBAL(skipFirstIntegration); 
 
   vector<pair <unsigned int, unsigned int> *>* shapes_p_v_p = cds.first;
   vector<vector<char> *>* values_p_v_p = cds.second;
@@ -935,13 +864,13 @@ void loadBDFlags(map<string, unsigned int>& abbrev2bitpos) {
   if ((rootDir_p = getenv("CASAPATH")) != 0) {
     string rootPath(rootDir_p);
     vector<string> rootPathElements;
-    split(rootPathElements, rootPath, is_any_of(" "));
+    asdm::strsplit(rootPath, ' ', rootPathElements);
     string bdflagsPath = rootPathElements[0];
-    if (!ends_with(bdflagsPath, "/")) bdflagsPath+="/";
+    if (bdflagsPath.back()!='/') bdflagsPath+="/";
     bdflagsPath+="data/alma/asdm/";
     bdflagsPath+=bdflagsFilename;
 
-    if (!exists(path(bdflagsPath))) {
+    if (!file_exists(bdflagsPath)) {
       errstream.str("");
       errstream << "The file '" << bdflagsPath << "' containing the collection of BDF flags can't be found." << endl;
       error(errstream.str());
@@ -1039,7 +968,7 @@ void processCorrelatorFlags(unsigned int numIntegration,
 			    ScalarColumn<Bool>&	                        flagRow,
 			    CorrelationModeMod::CorrelationMode         ocorrelationMode
 			    ) {
-  boost::regex  ALMACorrelatorFlagsAxesRegex("(BAL )?ANT (BAB )?(SPW )?(POL )?");
+  std::regex  ALMACorrelatorFlagsAxesRegex("(BAL )?ANT (BAB )?(SPW )?(POL )?");
 
   uInt numFlaggedRows = 0;
   SDMDataObjectStreamReader sdosr;
@@ -1077,7 +1006,7 @@ void processCorrelatorFlags(unsigned int numIntegration,
   }
 
   // Check the validity of the sequence of flags axes.
-  if (!regex_match(axes_s, ALMACorrelatorFlagsAxesRegex)) {
+  if (!std::regex_match(axes_s, ALMACorrelatorFlagsAxesRegex)) {
     throw ProcessFlagsException("'" + oss.str() + "' is not a valid sequence of flags axes for an ALMA correlator.");
   }
 
@@ -1136,7 +1065,7 @@ void processCorrelatorFlagsPerSlices(MainRow*					mR_p,
 				     CorrelationModeMod::CorrelationMode        ocorrelationMode
 				     ) {
   // Regular expressions for the correct sequences of axes in the flags in the case of ALMA data.
-  boost::regex  ALMACorrelatorFlagsAxesRegex("(BAL )?ANT (BAB )?(SPW )?(POL )?");
+  std::regex  ALMACorrelatorFlagsAxesRegex("(BAL )?ANT (BAB )?(SPW )?(POL )?");
 
   uInt numFlaggedRows = 0;
   SDMDataObjectStreamReader sdosr;
@@ -1174,7 +1103,7 @@ void processCorrelatorFlagsPerSlices(MainRow*					mR_p,
   }
 
   // Check the validity of the sequence of flags axes.
-  if (!regex_match(axes_s, ALMACorrelatorFlagsAxesRegex)) {
+  if (!std::regex_match(axes_s, ALMACorrelatorFlagsAxesRegex)) {
     throw ProcessFlagsException("'" + oss.str() + "' is not a valid sequence of flags axes for an ALMA correlator.");
   }
 
@@ -1281,16 +1210,22 @@ void processCorrelatorFlagsPerSlices(MainRow*					mR_p,
 }
 
 
-int main (int argC, char * argV[]) {
-  LOGENTER("int main (int argC, char * argV[])");
+int main (int argc, char * argv[]) {
+  LOGENTER("int main (int argc, char * argv[])");
   string dsName;
   string msName;
   bitset<32> flagmask;
   map<string, unsigned int> abbrev2bitpos;
 
-  appName = string(argV[0]);
+  appName = string(argv[0]);
 
   uint64_t bdfSliceSizeInMb = 500; // The default size of the BDF slice hold in memory.
+  bool lazy = false;  // must be set to true with the option "--lazy=true" if the MS has been produced by asdm2MS with the option --lazy !!!
+  bool checkdupints = true; // hidden option, used to turn off duplicate integration checks for RADIOMETER data during unit tests.
+  bool processUncorrectedData = true;
+  string scansOptionValue;
+  CorrelationModeMod::CorrelationMode ocorrelationMode = CorrelationModeMod::CROSS_AND_AUTO;
+
   LogSink::globalSink();
 
   // Load the BDF flags abbreviations.
@@ -1300,95 +1235,181 @@ int main (int argC, char * argV[]) {
   hack02 hack02_instance(abbrevList);
   for_each (abbrev2bitpos.begin(), abbrev2bitpos.end(), hack02_instance);
 
-  po::variables_map vm;
+  // process command line options and parameters
 
-  bool lazy = false;  // must be set to true with the option "--lazy=true" if the MS has been produced by asdm2MS with the option --lazy !!!
-  string ocm("ac") ; // A default value for the option --ocm.
+  // all of the non-positional options are enumerated here
+  // also note that asdm-directory and ms-directory can be specified as named options
+  // those are hidden in the usage output by supplying empty help strings
+  // The positional argument version of each takes precedence.
+
+  enum optionIndex { UNKNOWN, HELP, FLAGCOND, SCANS, WVRCORRDATA, LAZY, OCM,
+		     VERBOSE, LOGFILE, ASDMDIR, MSDIR, CHECKDUPINTS };
+
   try {
-    string flagcondDoc = "specifies the list of flagging conditions to consider. The list must be a white space separated list of valid flagging conditions names. Note that the flag names can be shortened as long as there is no ambiguity (i.e. \"FFT, SI\" is valid and will be interpreted as \"FFT_OVERFLOW , SIGMA_OVERFLOW\"). If no flagging condition is provided the application exits immediately. A flag is set at the appropriate location in the MS Main row whenever at least one of the flagging conditions present in the option --flagcond is read at the relevant location in the relevant BDF file. The flagging conditions are :\n" + abbrevList + "\n\n. Note that the special value \"ALL\" to set all the flagging conditions.";
-    po::options_description generic("Generates MS Flag information from the flagging conditions contained in the BDF files of an ASDM dataset.\n\n"
-				    "Usage : \n" + appName + "[options] asdm-directory ms-directory \n\n"
-				    "Command parameters : \n"
-				    "asdm-directory : the pathname to the ASDM dataset to read \n"
-				    "ms-directory : the pathname of the MS where the flagging information will be written. \n"
-				    "\n\n"
-				    "Allowed options:");
-    generic.add_options()
-      ("help", "produces help message.")
-      ("flagcond,f", po::value<string>()->default_value(""), flagcondDoc.c_str())
-      ("scans,s", po::value<string>(), "processes only the scans specified in the option's value. This value is a semicolon separated list of scan specifications. A scan specification consists in an exec bock index followed by the character ':' followed by a comma separated list of scan indexes or scan index ranges. A scan index is relative to the exec block it belongs to. Scan indexes are 1-based while exec blocks's are 0-based. \"0:1\" or \"2:2~6\" or \"0:1,1:2~6,8;2:,3:24~30\" \"1,2\" are valid values for the option. \"3:\" alone will be interpreted as 'all the scans of the exec block#3'. An scan index or a scan index range not preceded by an exec block index will be interpreted as 'all the scans with such indexes in all the exec blocks'.  By default all the scans are considered.")
-      ("wvr-corrected-data", po::value<bool>()->default_value(false), "must be set to True (resp. False) whenever the MS to be populated contains corrected (resp. uncorrected) data (default==false)")
-      ("lazy", po::value<bool>()->default_value(false), "must be set to True if the measurement set has been produced by asdm2MS run with the option --lazy (default==false")
-      ("ocm", po::value<string>(&ocm)->default_value("ca"), "specifies the output correlation mode, i.e. the correlation mode of the ASDM/BDF's data for which the MS flags will be written. The value given to this option must *imperatively* be the same than the one given to the --ocm option for the execution of the filler which produced the MS. Valid values are 'ca' for CROSS_AND_AUTO, 'ao' for AUTO_ONLY and 'co' for CROSS_ONLY.")
-      ("verbose,v",  "logs numerous informations as the application is running.")
-      ("logfile,l", po::value<string>(), "specifies the log filename. If the option is not used then the logged informations are written to the standard error stream.")
-      ;
+
+    // remove the program name
+    argc--;
+    argv++;
+
+    string flagcondDoc = 
+      " --f [--flagcond] arg \tspecifies the list of flagging conditions to consider. "
+      "The list must be a white space separated list of valid flagging conditions names. "
+      "Note that the flag names can be shortened as long as there is no ambiguity "
+      "(i.e. \"FFT, SI\" is valid and will be interpreted as \"FFT_OVERFLOW , SIGMA_OVERFLOW\"). "
+      "If no flagging condition is provided the application exits immediately. "
+      "A flag is set at the appropriate location in the MS Main row whenever at least "
+      "one of the flagging conditions present in the option --flagcond is read at the "
+      "relevant location in the relevant BDF file. The flagging conditions are :\n" + abbrevList + "\n\n"
+      "\tNote the special value \"ALL\" used to set all the flagging conditions.\n";
+
+    string usageIntro = 
+      "Generates MS Flag information from the flagging conditions contained in the BDF files of an ASDM dataset.\n\n"
+      "Usage : \n" + appName + "[options] asdm-directory ms-directory \n\n"
+      "Command parameters : \n";
+
+    // Descriptor elements are: OptionIndex, OptionType, shortopt, longopt, check_arg, help
+    option::Descriptor usage[] = {
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, usageIntro.c_str()},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, " \tasdm-directory : \tthe pathname to the ASDM dataset to read"},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, " \tms-directory : \tthe pathname of the MS where the flagging information will be written."},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, "\nAllowed options:\n"},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, 0}, // helps with formatting
+    
+      // these are the non-positional options
+      { HELP, 0, "", "help", AlmaArg::None, " --help  \tproduces this help message."},
+      { FLAGCOND, 0, "f", "flagcond", AlmaArg::Required, flagcondDoc.c_str()},
+      { SCANS, 0, "s", "scans", AlmaArg::Required, 
+	" -s [--scans] arg \tprocesses only the scans specified in the option's value."
+	"This value is a semicolon separated list of scan specifications. "
+	"A scan specification consists in an exec bock index followed by the character ':' "
+	"followed by a comma separated list of scan indexes or scan index ranges. "
+	"A scan index is relative to the exec block it belongs to. Scan indexes are "
+	"1-based while exec blocks's are 0-based. \"0:1\" or \"2:2~6\" or \"0:1,1:2~6,8;2:,3:24~30\" \"1,2\" "
+	"are valid values for the option. \"3:\" alone will be interpreted as 'all the scans of "
+	"the exec block#3'. An scan index or a scan index range not preceded by an exec block "
+	"index will be interpreted as 'all the scans with such indexes in all the exec blocks'.  "
+	"By default all the scans are considered."},
+      { WVRCORRDATA, 0, "", "wvr-corrected-data", AlmaArg::Bool, 
+	" --wvr-corrected-data arg (=false) \tmust be set to true (resp. false) whenever "
+	"the MS to be populated contains corrected (resp. uncorrected) data (default==false)"},
+      { LAZY, 0, "", "lazy", AlmaArg::Bool, " --lazy arg (=false) \tmust be set to True if the measurement set has been produced by asdm2MS using the option --lazy (default==false"},
+      { OCM, 0, "", "ocm", AlmaArg::Required, 
+	" --ocm  arg (=ca) \tspecifies the output correlation mode, "
+	"i.e. the correlation mode of the ASDM/BDF's data for which the "
+	"MS flags will be written. The value given to this option must *imperatively* "
+	"be the same than the one given to the --ocm option for the execution of the "
+	"filler which produced the MS. Valid values are 'ca' for CROSS_AND_AUTO, "
+	"'ao' for AUTO_ONLY and 'co' for CROSS_ONLY (default=='ca')."},
+      { VERBOSE, 0, "v", "verbose",  AlmaArg::None, " -v [--verbose] \tlogs numerous information as the application is running."},
+      { LOGFILE, 0, "l", "logfile",  AlmaArg::Required, 
+	" -l [--logfile]  arg \tspecifies the log filename. "
+	"If the option is not used then the logged information is written to the standard error stream."},
+      // these can be set by the command line, but are not shown to the user.
+      { ASDMDIR, 0, "", "asdm-directory", AlmaArg::Required, 0},
+      { MSDIR, 0, "", "ms-directory", AlmaArg::Required, 0},
+      // used in unit tests to turn off duplicate integration time checks for RADIOMETER data, not intended for normal use, hidden from the user.
+      { CHECKDUPINTS, 0, "", "checkdupints", AlmaArg::Bool, 0},
+      { 0, 0, 0, 0, 0, 0 } };
 
 
-    po::options_description hidden("Hidden options");
-    hidden.add_options()
-      ("asdm-directory", po::value<string>(), "asdm directory")
-      ("ms-directory", po::value<string>(), "ms directory")
-      ;
+    // defaults are set by parsing an argv-like set of options where the values are the defaults
+    const char * defaults[] = { "--wvr-corrected-data=false",
+				"--lazy=false",
+				"--ocm=ca",
+				"--checkdupints=true",
+				(const char *)-1};  // unambiguously signal the end
 
-    po::options_description cmdline_options;
-    cmdline_options.add(generic).add(hidden);
+    // count defaults, more robust than setting a value here that must be changed when defaults changes
+    int defaultCount = 0;
+    while (defaults[defaultCount] != (const char *)-1) ++defaultCount;
 
-    po::positional_options_description p;
-    p.add("asdm-directory", 1);
-    p.add("ms-directory", 1);
+    // parse defaults, argv
+    // establish sizes
+    option::Stats stats;
+    // true here turns on re-ordering of args so that positional arguments are always seen last
+    stats.add(true, usage, defaultCount, defaults);
+    stats.add(true, usage, argc,argv);
 
-    // Parse the command line and retrieve the options and parameters.
-    po::store(po::command_line_parser(argC, argV).options(cmdline_options).positional(p).run(), vm);
-    po::notify(vm);
+    // buffers to hold the parsed options
+    // options has one element per optionIndex, last value is the last time that option was set
+    // buffer has one element for each option encountered, in order. Not used here.
+    option::Option options[stats.options_max], buffer[stats.buffer_max];
+    option::Parser parse;
+    // parse the defaults first, then argv. User set options always come last.
+    // true here has same meaning as in stats above. This may not be necessary here, I think
+    // the stats usage above has already reordered argv in place.
+    parse.parse(true, usage, defaultCount, defaults, options, buffer);
+    parse.parse(true, usage, argc, argv, options, buffer);
 
-    // Where do the log messages should go ?
-    if (vm.count("logfile")) {
-      freopen(vm["logfile"].as<string>().c_str(), "a", stderr);
+    if (parse.error()) {
+      errstream.str("");
+      errstream << "Problem parsing the command line arguments";
+      error(errstream.str());
+    }
+
+    // User-specified logfile?
+    if (options[LOGFILE] != NULL && options[LOGFILE].last()->arg != NULL) {
+      freopen(options[LOGFILE].last()->arg, "a", stderr);
     }
 
     // Help ? displays help's content and don't go further.
-    if (vm.count("help")) {
+    if (options[HELP] || (argc==0) ) {
       errstream.str("");
-      errstream << generic << "\n" ;
+      option::printUsage(errstream, usage, 80);
+      error(errstream.str());
+    }
+
+    // too many positional arguments?
+    if (parse.nonOptionsCount() > 2) {
+      errstream.str("");
+      errstream << "Too many positinal options" << endl;
       error(errstream.str());
     }
 
     // Verbose or quiet ?
-    verbose = vm.count("verbose") > 0;
+    verbose = options[VERBOSE] != NULL;
 
     // What's the dataset to use ?
-    if (vm.count("asdm-directory")) {
-      string dummy = vm["asdm-directory"].as< string >();
+    if (parse.nonOptionsCount() > 0 || options[ASDMDIR]) {
+      string dummy;
+      if (parse.nonOptionsCount() > 0) {
+	dummy = string(parse.nonOption(0));
+      } else {
+	// ASDMDIR must have been set
+	dummy = string(options[ASDMDIR].last()->arg);
+      }
       dsName = trim_copy(dummy) ;
-      if (boost::algorithm::ends_with(dsName,"/")) dsName.erase(dsName.size()-1);
-    }
-    else {
+      if (dsName.back()=='/') dsName.erase(dsName.size()-1);
+    } else {
       errstream.str("");
-      errstream << generic ;
+      option::printUsage(errstream, usage);
       error(errstream.str());
     }
 
     // Which MS the flagging informations
     // should be written into ?
-    if (vm.count("ms-directory")) {
-      string dummy = vm["ms-directory"].as< string >();
+    if (parse.nonOptionsCount() > 1 || options[MSDIR]) {
+      string dummy;
+      if (parse.nonOptionsCount()>1) {
+	dummy = string(parse.nonOption(1));
+      } else {
+	dummy = string(options[MSDIR].last()->arg);
+      }
       msName = trim_copy(dummy) ;
-      if (boost::algorithm::ends_with(msName,"/")) msName.erase(msName.size()-1);
-    }
-    else {
+      if (msName.back()=='/') msName.erase(msName.size()-1);
+    } else {
       errstream.str("");
-      errstream << generic ;
+      option::printUsage(errstream, usage);
       error(errstream.str());
     }
 
-    if (vm.count("flagcond")) {
+    if (options[FLAGCOND]) {
       istringstream iss;
       string token;
 
       flagmask.reset();
 
-      string flagcond_opt = vm["flagcond"].as<string>();
+      string flagcond_opt = string(options[FLAGCOND].last()->arg);
       //
       // Stop here if no flag mask was given.
       //
@@ -1404,7 +1425,7 @@ int main (int argC, char * argV[]) {
       iss.clear();
       iss.str(flagcond_opt);
       while (iss >> token) {
-	if ( to_upper_copy(token) == "ALL") {
+	if ( str_toupper(token) == "ALL") {
 	  for ( s_ui p: abbrev2bitpos ) {
 	    flagmask.set(p.second, true);
 	    infostream << " " << p.first;
@@ -1415,7 +1436,8 @@ int main (int argC, char * argV[]) {
 	  unsigned hits = 0;
 	  unsigned int bitpos = 0;
 	  for ( s_ui p: abbrev2bitpos ) {
-	    if (starts_with(p.first, to_upper_copy(trim_copy(token)))) {
+	    string tokenToTest = str_toupper(trim_copy(token));
+	    if (p.first.compare(0,tokenToTest.size(),tokenToTest)) {
 	      bitpos = p.second;
 	      hits++;
 	      infostream << " " <<  p.first;
@@ -1444,11 +1466,52 @@ int main (int argC, char * argV[]) {
       info(infostream.str());
     }
 
-    if (vm.count("lazy")) {
-      lazy=vm["lazy"].as<bool>();
+    // this always has a value because of defaults
+    string lazyOpt(options[LAZY].last()->arg);
+    trim(lazyOpt);
+    lazyOpt = str_tolower(lazyOpt);
+    // AlmaArg::Bool already guarantees this is either "true" or "false"
+    lazy = (lazyOpt == "true");
+
+    // this always has a value because of defaults
+    string checkdupintsOpt(options[CHECKDUPINTS].last()->arg);
+    trim(checkdupintsOpt);
+    checkdupintsOpt = str_tolower(checkdupintsOpt);
+    // AlmaArg::Bool already guarantees this is either "true" or "false"
+    checkdupints = (checkdupintsOpt == "true");
+ 
+    // this always has a value because of defaults
+    string wvrCorrDataOpt(options[WVRCORRDATA].last()->arg);
+    trim(wvrCorrDataOpt);
+    wvrCorrDataOpt = str_tolower(wvrCorrDataOpt);
+    // AlmaArg::Bool already guarantees this is either "true" or "false"
+    processUncorrectedData = (wvrCorrDataOpt != "true");
+
+    if (options[SCANS]) {
+      scansOptionValue = string(options[SCANS].last()->arg);
     }
-  }
-  catch (std::exception& e) {
+
+    //
+    // Selection of the output correlation mode, i.e. the correlation mode of the data for which the flag are evaluated.
+    // This works if and only the value given to the option --ocm is equal to the value given to the same option of asdm2MS
+    // when the filler which produced the MS of interest was run.
+    //
+    // this always has a value because of defaults
+    string ocm = string(options[OCM].last()->arg);
+    ocm = str_tolower(ocm);
+
+    if (ocm == "ca")
+      ocorrelationMode = CorrelationModeMod::CROSS_AND_AUTO;
+    else if (ocm == "ao")
+      ocorrelationMode =  CorrelationModeMod::AUTO_ONLY;
+    else if (ocm == "co")
+      ocorrelationMode = CorrelationModeMod::CROSS_ONLY;
+    else {
+      errstream.str("");
+      errstream << "The value given to the option ocm ('" << ocm << "') is invalid. Expecting one of {'ca', 'ao'}" << endl;
+      error(errstream.str());
+    }
+  } catch (std::exception& e) {
     errstream.str("");
     errstream << e.what();
     error(errstream.str());
@@ -1488,23 +1551,22 @@ int main (int argC, char * argV[]) {
     error(errstream.str());
   }
   ExecBlockRow * ebR = ebRs[0];
-  string telescopeName = to_upper_copy(trim_copy(ebR->getTelescopeName()));
-  vector<string> telescopeNames;
-  telescopeNames += "ALMA", "OSF", "AOS";
+  string telescopeName = str_toupper(trim_copy(ebR->getTelescopeName()));
+  vector<string> telescopeNames = {"ALMA", "OSF", "AOS"};
   if (find(telescopeNames.begin(), telescopeNames.end(), telescopeName) == telescopeNames.end()) {
     errstream.str("");
     errstream << "This dataset announces telescopeName == '" << telescopeName << "', which is not ALMA. Flags can't be processed." << endl;
     error(errstream.str());
   }
 
+  if (debug) {
+    cout << "checkdupints : " << checkdupints << endl;
+  }
+
   //
   // Selection of the kind of data - uncorrected or corrected - to consider.
   //
   infostream.str("");
-  bool processUncorrectedData = true;
-  if (vm.count("wvr-corrected-data")) {
-    processUncorrectedData = !vm["wvr-corrected-data"].as< bool >();
-  }
   infostream << "only " << (processUncorrectedData ? "uncorrected" : "corrected") << " data will be considered." << endl;
   info(infostream.str());
 
@@ -1520,11 +1582,9 @@ int main (int argC, char * argV[]) {
   map<int, set<int> >   selected_eb_scan_m;
 
   string scansOptionInfo;
-  if (vm.count("scans")) {
-    string scansOptionValue = vm["scans"].as< string >();
-    eb_scan_selection ebs;
-
-    int status = parse(scansOptionValue.c_str(), ebs, space_p).full;
+  if (scansOptionValue.size()>0) {
+    map<int, set<int> > eb_scan_m;
+    int status = scansParser(scansOptionValue, eb_scan_m);
 
     if (status == 0) {
       errstream.str("");
@@ -1576,28 +1636,6 @@ int main (int argC, char * argV[]) {
   infostream << scansOptionInfo;
   info(infostream.str());
 
-  //
-  // Selection of the output correlation mode, i.e. the correlation mode of the data for which the flag are evaluated.
-  // This works if and only the value given to the option --ocm is equal to the value given to the same option of asdm2MS
-  // when the filler which produced the MS of interest was run.
-  //
-  CorrelationModeMod::CorrelationMode ocorrelationMode = CorrelationModeMod::CROSS_AND_AUTO;
-  if (vm.count("ocm")) {
-    // Let's filter the value given to ocm
-    //
-    ocm = to_lower_copy(ocm);
-    if (ocm == "ca")
-      ocorrelationMode = CorrelationModeMod::CROSS_AND_AUTO;
-    else if (ocm == "ao")
-      ocorrelationMode =  CorrelationModeMod::AUTO_ONLY;
-    else if (ocm == "co")
-      ocorrelationMode = CorrelationModeMod::CROSS_ONLY;
-    else {
-      errstream.str("");
-      errstream << "The value given to the option ocm ('" << ocm << "') is invalid. Expecting one of {'ca', 'ao'}" << endl;
-      error(errstream.str());
-    }
-  }
   infostream.str("");
   infostream << "The MS FLAG column will be calculated for the correlation mode '" << CCorrelationMode::toString(ocorrelationMode) << "'." << endl;
   info(infostream.str());
@@ -1623,8 +1661,8 @@ int main (int argC, char * argV[]) {
   }
 
   // Regular expressions for the correct sequences of axes in the flags in the case of ALMA data.
-  boost::regex ALMARadiometerPackedFlagsAxesRegex("(TIM ANT )?(BAB BIN POL )?");
-  boost::regex ALMARadiometerFlagsAxesRegex("(ANT )?(BAB BIN POL )?");
+  std::regex ALMARadiometerPackedFlagsAxesRegex("(TIM ANT )?(BAB BIN POL )?");
+  std::regex ALMARadiometerFlagsAxesRegex("(ANT )?(BAB BIN POL )?");
 
 
   ConfigDescriptionTable &	cfgT = ds.getConfigDescription();
@@ -1682,6 +1720,10 @@ int main (int argC, char * argV[]) {
 
   unsigned int numFlaggedRowsTotal = 0;
 
+  // used in checking for duplicate integrations in the WVR (Radiometer) case
+  // This holds the most recent last integration time for each configDescriptionId - but only for Radiometer data.
+  map<Tag, double> lastTimeMap;
+
   iMSRowBegin = iMSRow;
   unsigned int iASDMIndex = 0;
   for (MainRow * mR: v) {
@@ -1710,7 +1752,10 @@ int main (int argC, char * argV[]) {
 	     ddRs.end(),
 	     hack05_instance);
 
-    string bdfPath = dsName+"/ASDMBinary/"+replace_all_copy(replace_all_copy(mR->getDataUID().getEntityId().toString(), "/", "_"), ":", "_");
+    string dataUID = mR->getDataUID().getEntityId().toString();
+    replace(dataUID.begin(),dataUID.end(),':','_');
+    replace(dataUID.begin(),dataUID.end(),'/','_');
+    string bdfPath = dsName+"/ASDMBinary/"+dataUID;
     if (debug) cout << "BDF " << bdfPath << endl;
     ProcessorType pt = cfgR->getProcessorType();
     uInt numFlaggedRows = 0;
@@ -1780,59 +1825,89 @@ int main (int argC, char * argV[]) {
       case ProcessorTypeMod::RADIOMETER :
 	{
 	  const SDMDataObject& sdo = sdor.read(bdfPath);
-	  const SDMDataObject::BinaryPart & flagsBP = sdo.dataStruct().flags();
-	  const vector<AxisName> & flagsAxes = flagsBP.axes();
-	  ostringstream oss;
-	  hack06 hack06_instance(oss);
-	  for_each(flagsAxes.begin(), flagsAxes.end(), hack06_instance);
 
-	  // Check the validity of the sequence of flags axes (depending on the fact that data are packed or not).
-	  if (sdo.hasPackedData()) {
-	    if (!regex_match(oss.str(), ALMARadiometerPackedFlagsAxesRegex))
-	      throw ProcessFlagsException("'" + oss.str() + "' is not a valid sequence of flags axes for an ALMA radiometer.");
-	  }
-	  else {
-	    if (!regex_match(oss.str(), ALMARadiometerFlagsAxesRegex))
-	      throw ProcessFlagsException("'" + oss.str() + "' is not a valid sequence of flags axes for an ALMA radiometer.");
-	  }
-	  unsigned int numIntegrations = sdo.hasPackedData() ? sdo.numTime() : sdo.sdmDataSubsets().size();
-	  MSFlagAccumulator<char> accumulator( numIntegrations, antennas.size(), numDD);
-
-
-	  if (numIntegrations != numIntegration) {
-	    infostream << "(the number of integrations actually read in the BDF (numIntegrations = " << numIntegrations << ") is different from the value announced in the Main table (numIntegration = " << numIntegration
-		       << "). Using " << numIntegrations << ")";
-	  }
-
-	  const FLAGSTYPE *	flags_p	 = NULL;
-	  unsigned int		numFlags = 0;
-
-	  if (sdo.hasPackedData()) {
-	    numFlags = sdo.tpDataSubset().flags(flags_p);
-	    pair<unsigned int, const FLAGSTYPE *> flagsPair(numFlags, flags_p);
-	    accumulator.resetIntegration();
-	    traverseALMARadiometerFlagsAxes(numIntegrations, sdo.dataStruct().basebands(), antennas, flagsPair, flagEval, accumulator);
-	  }
-	  else {
-	    const vector<SDMDataSubset>& sdmDataSubsets = sdo.sdmDataSubsets();
-	    accumulator.resetIntegration();
-	    for (unsigned int iIntegration = 0; iIntegration < numIntegrations; iIntegration++) {
-	      numFlags = sdmDataSubsets[iIntegration].flags(flags_p);
-	      pair<unsigned int, const FLAGSTYPE *> flagsPair(numFlags, flags_p);
-	      traverseALMARadiometerFlagsAxes(1, sdo.dataStruct().basebands(), antennas, flagsPair, flagEval, accumulator);
+	  // should this correlationMode be skipped? This is probably always AUTO_ONLY, but this is a general test just in case
+	  if ((sdo.correlationMode()==CorrelationModeMod::AUTO_ONLY and ocorrelationMode==CorrelationModeMod::CROSS_ONLY) || 
+	      (sdo.correlationMode()==CorrelationModeMod::CROSS_ONLY and ocorrelationMode==CorrelationModeMod::AUTO_ONLY)) {
+	    if (debug) {
+	      cout << "Skipped file " << bdfPath << " due to output correlation mode selection" << endl;
 	    }
-	    const vector < vector < vector <FLAG_CELL> > >& x = accumulator.flagCell();
+	  } else {
+	    const SDMDataObject::BinaryPart & flagsBP = sdo.dataStruct().flags();
+	    const vector<AxisName> & flagsAxes = flagsBP.axes();
+	    ostringstream oss;
+	    hack06 hack06_instance(oss);
+	    for_each(flagsAxes.begin(), flagsAxes.end(), hack06_instance);
+	    
+	    // Check the validity of the sequence of flags axes (depending on the fact that data are packed or not).
+	    // also check tos ee if the first integration should be skipped - only done for packed data
+	    // must be known before accumulator is instantiated.
+	    bool skipFirstIntegration = false;
+	    if (sdo.hasPackedData()) {
+	      if (!std::regex_match(oss.str(), ALMARadiometerPackedFlagsAxesRegex))
+		throw ProcessFlagsException("'" + oss.str() + "' is not a valid sequence of flags axes for an ALMA radiometer.");
+
+	      // determine if the first integration should be skipped due a duplicate time from a subscan.
+	      const SDMDataSubset& sdmDataSubset = sdo.sdmDataSubsets()[0];
+	      int64_t  deltaTime = sdmDataSubset.interval() / sdo.numTime();
+	      int64_t startTime = (int64_t)sdmDataSubset.time() -  (int64_t)sdmDataSubset.interval()/2LL + deltaTime/2LL;
+
+	      // should the first integration be skipped? Any actual skipping happens later.
+	      skipFirstIntegration = checkdupints && lastTimeMap[mR->getConfigDescriptionId()] == ArrayTime(startTime).getMJD();
+	      if (debug && skipFirstIntegration) {
+		cout << "Duplicate time seen in Row : " << mainRowIndex[iASDMIndex]
+		     << " cdId : " << mR->getConfigDescriptionId()
+		     << " " << mR->getDataUID().getEntityId().toString()
+		     << " numTime : " << sdo.numTime()
+		     << endl;
+	      }
+	      lastTimeMap[mR->getConfigDescriptionId()] = ArrayTime(startTime+(sdo.numTime()-1)*deltaTime).getMJD();
+	    }
+	    else {
+	      if (!std::regex_match(oss.str(), ALMARadiometerFlagsAxesRegex))
+		throw ProcessFlagsException("'" + oss.str() + "' is not a valid sequence of flags axes for an ALMA radiometer.");
+	    }
+	    unsigned int numIntegrations = sdo.hasPackedData() ? sdo.numTime() : sdo.sdmDataSubsets().size();
+	    if (numIntegrations != numIntegration) {
+	      infostream << "(the number of integrations actually read in the BDF (numIntegrations = " << numIntegrations << ") is different from the value announced in the Main table (numIntegration = " << numIntegration
+			 << "). Using " << numIntegrations << ")";
+	    }
+	    MSFlagAccumulator<char> accumulator(numIntegrations, antennas.size(), numDD);
+
+	    const FLAGSTYPE *	flags_p	 = NULL;
+	    unsigned int	numFlags = 0;
+
+	    if (sdo.hasPackedData()) {
+	      numFlags = sdo.tpDataSubset().flags(flags_p);
+	      pair<unsigned int, const FLAGSTYPE *> flagsPair(numFlags, flags_p);
+	      accumulator.resetIntegration();
+	      traverseALMARadiometerFlagsAxes(numIntegrations, sdo.dataStruct().basebands(), antennas, flagsPair, flagEval, accumulator);
+	    }
+	    else {
+	      // duplicate integrations are not checked or skipped here
+	      const vector<SDMDataSubset>& sdmDataSubsets = sdo.sdmDataSubsets();
+	      accumulator.resetIntegration();
+	      for (unsigned int iIntegration = 0; iIntegration < numIntegrations; iIntegration++) {
+		numFlags = sdmDataSubsets[iIntegration].flags(flags_p);
+		pair<unsigned int, const FLAGSTYPE *> flagsPair(numFlags, flags_p);
+		traverseALMARadiometerFlagsAxes(1, sdo.dataStruct().basebands(), antennas, flagsPair, flagEval, accumulator);
+	      }
+	      // MAFlagAccumulator::flagCell() just returns a data member, it doesn't change anything
+	      // in the object, and here, the returned value (x) is not used.  So this can be
+	      // safely commented out.
+	      // const vector < vector < vector <FLAG_CELL> > >& x = accumulator.flagCell();
+	    }
+	    infostream.str("");
+
+	    infostream << "ASDM Main row #" << mainRowIndex[iASDMIndex] << " - " << numIntegrations  << "/" << numIntegrations << " integrations done so far.";
+	    info(infostream.str());
+
+	    pair<uInt, uInt> putReturn = put(accumulator, iMSRow, flag, flagRow,skipFirstIntegration);
+	    //	  accumulator.dump(cout, true);
+	    iMSRow = putReturn.first;
+	    numFlaggedRows = putReturn.second;
 	  }
-	  infostream.str("");
-
-	  infostream << "ASDM Main row #" << mainRowIndex[iASDMIndex] << " - " << numIntegrations  << "/" << numIntegrations << " integrations done so far.";
-	  info(infostream.str());
-
 	  sdor.done();
-	  pair<uInt, uInt> putReturn = put(accumulator, iMSRow, flag, flagRow);
-	  //	  accumulator.dump(cout, true);
-	  iMSRow = putReturn.first;
-	  numFlaggedRows = putReturn.second;
 	}
 	break;
 
@@ -1903,5 +1978,5 @@ int main (int argC, char * argV[]) {
   }
   mainTable.flush();
 
-  LOGEXIT("int main (int argC, char * argV[])");
+  LOGEXIT("int main (int argc, char * argv[])");
 }

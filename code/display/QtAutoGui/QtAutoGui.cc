@@ -27,8 +27,10 @@
 //# $Id$
 
 #include <graphics/X11/X_enter.h>
-#  include <QtGui/QtGui>
+#  include <QtGui>
 #  include <QtCore/qdebug.h>
+#include <QWidget>
+#include <QMessageBox>
 #include <graphics/X11/X_exit.h>
 
 #include "QtAutoGui.qo.h"
@@ -318,10 +320,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			}
 
 			wgt->setLayout(vLayout);
-			wgt->setShown(button->isChecked());
+			wgt->setVisible(button->isChecked());
 			vboxLayout->addWidget(wgt);
 			QObject::connect(button, SIGNAL(toggled(bool)),
-			                 wgt,    SLOT(setShown(bool)));
+			                 wgt,    SLOT(setVisible(bool)));
 			QObject::connect(button, SIGNAL(clicked()), this, SLOT(adjustHeight()));
 
 		}

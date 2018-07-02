@@ -3,7 +3,7 @@ import unittest
 import os
 import filecmp
 import pprint
-from tasks import flagcmd, flagdata, mstransform
+from tasks import flagcmd, flagdata, mstransform, setjy
 from taskinit import aftool, tbtool
 from __main__ import default
 import exceptions
@@ -116,16 +116,16 @@ class test_base(unittest.TestCase):
     def setUp_data4tfcrop(self):
         '''EVLA MS, 4 ants, scan=30,31 spw=0~15, 64 chans, RR,RL,LR,LL'''
         self.vis = "Four_ants_3C286.ms"
+        self._check_path_move_remove_versions_unflag_etc()
 
-        if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
-        else:
-            print "Moving data..."
-            os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
-
-        os.system('rm -rf ' + self.vis + '.flagversions')
-        self.unflag_ms()
-        default(flagdata)
+    def setUp_data4preaveraging(self):
+        # Four_ants_3C286_spw9_small_for_preaveraging.ms was generated with a command like:
+        # mstransform(vis='Four_ants_3C286.ms',
+        #             outputvis='Four_ants_3C286_spw9_small_for_preaveraging.ms',
+        #             datacolumn='data',spw='9', antenna='1&2',
+        #             timerange='2010/10/16/14:45:08.50~2010/10/16/14:45:11.50')
+        self.vis = 'Four_ants_3C286_spw9_small_for_preaveraging.ms'
+        self._check_path_move_remove_versions_unflag_etc()
 
     def setUp_shadowdata1(self):
         '''ALMA ACA observation with one field in APP ref frame'''
@@ -322,6 +322,19 @@ class test_base(unittest.TestCase):
                   
         return summary_list
 
+    def _check_path_move_remove_versions_unflag_etc(self):
+        if os.path.exists(self.vis):
+            print "The MS is already around, just unflag"
+        else:
+            print "Moving data..."
+            os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
+
+        os.system('rm -rf ' + self.vis + '.flagversions')
+
+        self.unflag_ms()
+        default(flagdata)
+
+
 class test_tfcrop(test_base):
     """flagdata:: Test of mode = 'tfcrop'"""
     
@@ -450,7 +463,7 @@ class test_rflag(test_base):
     
     def setUp(self):
         self.setUp_data4tfcrop()
-        
+
     def test_rflag1(self):
         '''flagdata:: mode = rflag : automatic thresholds'''
         flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev=[], freqdev=[], flagbackup=False,
@@ -554,6 +567,10 @@ class test_rflag(test_base):
 
     def test_rflag_return_dict1(self):
         '''flagdata:: Use provided value for time stats, but automatically computed value for freq. stats'''
+        if testmms:
+            print "Skip this test in parallel, until CAS-10202 is implemented"
+            return
+        
         rflag_dict = flagdata(vis=self.vis, mode='rflag', field = '1', spw='10', timedev=0.1, \
                  timedevscale=5.0, freqdevscale=5.0, action='calculate', flagbackup=False)
         
@@ -637,7 +654,41 @@ class test_rflag(test_base):
         self.assertEqual(res['report1']['antenna']['ea19']['flagged'], 18411)
         self.assertEqual(res['report1']['spw']['7']['flagged'], 0,)
         
-        
+    def test_rflag_residual_data(self):
+        '''flagdata: rflag using MODEL and virtual MODEL columns'''
+        from tasks import delmod
+
+        # Delete model columns, if any
+        delmod(vis=self.vis,otf=True,scr=True)
+
+        # Create MODEL_COLUMN
+        setjy(vis=self.vis, field='3C286_A',usescratch=True)
+
+        # rflag
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',datacolumn='RESIDUAL_DATA',flagbackup=False)
+        # 448772.0 flags on MODEL col
+        # '1': {'flagged': 8224.0
+        flags_mod = flagdata(vis=self.vis, mode='summary',spw='9,10')
+
+        # Now use a virtual MODEL column
+        # Unflag
+        flagdata(vis=self.vis, mode='unflag', flagbackup=False)
+        delmod(vis=self.vis,otf=True,scr=True)
+
+        # Create virtual MODEL_COLUMN
+        setjy(vis=self.vis, field='3C286_A',usescratch=False)
+ 
+        # rflag
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',datacolumn='RESIDUAL_DATA',flagbackup=False)
+        # 444576.0 flags on virtual MODEL col
+        flags_vmod = flagdata(vis=self.vis, mode='summary',spw='9,10')
+
+        # Flags should be the same
+        self.assertTrue(flags_mod['flagged'],flags_vmod['flagged'])
+
+        # This test is mischievous, manipulates the model column. Don't leave a messed up MS.
+        os.system('rm -rf {0}'.format(self.vis))
+       
 class test_shadow(test_base):
     def setUp(self):
         self.setUp_shadowdata2()
@@ -1984,11 +2035,13 @@ class test_clip(test_base):
         
         # STEP 1
         # Create time averaged output in mstransform
-        mstransform('timeavg.ms',outputvis='step1_timeavg.ms',datacolumn='data',timeaverage=True,timebin='2s')
+        mstransform('timeavg.ms',outputvis='test_residual_step1_timeavg.ms',
+                    datacolumn='data',timeaverage=True,timebin='2s')
         
         # clip it
-        flagdata('step1_timeavg.ms',flagbackup=False, mode='clip',clipminmax=[0.0,0.08])
-        res1 = flagdata(vis='step1_timeavg.ms', mode='summary', spwchan=True)
+        flagdata('test_residual_step1_timeavg.ms',flagbackup=False, mode='clip',
+                 clipminmax=[0.0,0.08])
+        res1 = flagdata(vis='test_residual_step1_timeavg.ms', mode='summary', spwchan=True)
 
         # STEP 2
         # Clip with time averaging.
@@ -1997,9 +2050,10 @@ class test_clip(test_base):
                  timeavg=True, timebin='2s', clipminmax=[0.0,0.08])
         
         # Do another time average in mstransform to have the corrected averaged visibilities
-        mstransform('timeavg.ms',outputvis='step2_timeavg.ms',datacolumn='data',timeaverage=True,timebin='2s')
+        mstransform('timeavg.ms',outputvis='test_residual_step2_timeavg.ms',
+                    datacolumn='data',timeaverage=True,timebin='2s')
         
-        res2 = flagdata(vis='step2_timeavg.ms', mode='summary', spwchan=True)
+        res2 = flagdata(vis='test_residual_step2_timeavg.ms', mode='summary', spwchan=True)
 
         self.assertEqual(res1['flagged'], res2['flagged'])
         self.assertEqual(res2['spw:channel']['0:21']['flagged'], 1)
@@ -3302,39 +3356,12 @@ class TestMergeManualTimerange(unittest.TestCase):
         self.assertEqual(res[5]['timerange'], '00:04~00:05,00:06~00:07')
         self.assertEqual(res[6]['mode'], 'summary3')
 
-# Cleanup class 
-class cleanup(test_base):
-    
-    def tearDown(self):
-        os.system('rm -rf ngc5921.*ms* testwma*ms*')
-        os.system('rm -rf flagdatatest.*ms*')
-        os.system('rm -rf missing-baseline.*ms*')
-        os.system('rm -rf multiobs.*ms*')
-        os.system('rm -rf uid___A002_X30a93d_X43e_small.*ms*')
-        os.system('rm -rf Four_ants_3C286.*ms*')
-        os.system('rm -rf shadow*.*ms*')
-        os.system('rm -rf testmwa.*ms*')
-        os.system('rm -rf cal.fewscans.bpass*')
-        os.system('rm -rf X7ef.tsys* ap314.gcal*')
-        os.system('rm -rf list*txt*')
-        os.system('rm -rf fourrows*')
-        os.system('rm -rf SDFloatColumn*')
-        os.system('rm -rf *weight*ms*')
-        os.system('rm -rf uid___A002_X72c4aa_X8f5_scan21_spw18*')
-
-    def test_runTest(self):
-        '''flagdata: Cleanup'''
-        pass
-
 
 class test_preaveraging(test_base):
     """Test channel/time pre-averaging for visibility-based flagging"""
     
     def setUp(self):
-        self.setUp_data4tfcrop()
-        mstransform(vis=self.vis,outputvis='test_preaveraging.ms',datacolumn='data',spw='9',scan='30',
-                    antenna='1&2',timerange='2010/10/16/14:45:08.50~2010/10/16/14:45:11.50') 
-        self.vis = 'test_preaveraging.ms'     
+        self.setUp_data4preaveraging()
         
     def tearDown(self):    
         os.system('rm -rf test_preaveraging.ms')        
@@ -3429,7 +3456,7 @@ class test_preaveraging(test_base):
         # Unflag the original input data
         flagdata(self.vis, flagbackup=False, mode='unflag')      
         
-        # STEP 1: Time average with mstransform, then flagging with normal clip
+        # STEP 1: Time average with mstransform, then flagging with normal rflag
         mstransform(vis=self.vis,outputvis='test_rflag_timeavg_step1.ms',datacolumn='data',
                     timeaverage=True,timebin='2s')
         flagdata(vis='test_rflag_timeavg_step1.ms',flagbackup=False, mode='rflag',extendflags=False)
@@ -3438,7 +3465,7 @@ class test_preaveraging(test_base):
         # Unflag the original input data
         flagdata(self.vis, flagbackup=False, mode='unflag')
 
-        # STEP 2: Flagging with clip using time average, then time average with mstransform
+        # STEP 2: Flagging with rflag using time average, then time average with mstransform
         flagdata(vis=self.vis, flagbackup=False, mode='rflag', datacolumn='DATA', 
                  timeavg=True, timebin='2s', extendflags=False)
         mstransform(vis=self.vis,outputvis='test_rflag_timeavg_step2.ms',datacolumn='data',
@@ -3446,15 +3473,15 @@ class test_preaveraging(test_base):
         res2 = flagdata(vis='test_rflag_timeavg_step2.ms', mode='summary', spwchan=True)
 
         # Compare results
-        self.assertEqual(res2['flagged'], 20)        
-        
+        self.assertEqual(res2['flagged'], 20)
+
     def test_rflag_chanavg(self):
         '''flagdata: rflag with chan average and compare vs mstransform'''
         
         # Unflag the original input data
         flagdata(self.vis, flagbackup=False, mode='unflag')
         
-        # STEP 1: Chan average with mstransform, then flagging with normal clip
+        # STEP 1: Chan average with mstransform, then flagging with normal rflag
         mstransform(vis=self.vis,outputvis='test_rflag_chanavg_step1.ms',datacolumn='data',
                     chanaverage=True,chanbin=2)
         flagdata(vis='test_rflag_chanavg_step1.ms',flagbackup=False, mode='rflag',extendflags=False)
@@ -3463,8 +3490,8 @@ class test_preaveraging(test_base):
         # Unflag the original input data
         flagdata(vis=self.vis, flagbackup=False, mode='unflag')
 
-        # STEP 2: Flagging with clip using time average, then time average with mstransform
-        flagdata(vis=self.vis, flagbackup=False, mode='rflag', datacolumn='DATA', 
+        # STEP 2: Flagging with rflag using time average, then time average with mstransform
+        flagdata(vis=self.vis, flagbackup=False, mode='rflag', datacolumn='DATA',
                  channelavg=True, chanbin=2,extendflags=False)
         mstransform(vis=self.vis, outputvis='test_rflag_chanavg_step2.ms',datacolumn='data',
                     chanaverage=True,chanbin=2)
@@ -3472,56 +3499,65 @@ class test_preaveraging(test_base):
 
         # Compare results
         self.assertEqual(res1['flagged'], res2['flagged'])   
-        
+
     def test_rflag_time_chanavg(self):
         '''flagdata: rflag with time/chan average and compare vs mstransform'''
-        
+
         # Unflag the original input data
         flagdata(self.vis, flagbackup=False, mode='unflag')
-        
-        # STEP 1: Chan average with mstransform, then flagging with normal clip
-        mstransform(vis=self.vis,outputvis='test_rflag_time_chanavg_step1.ms',datacolumn='data',
-                    timeaverage=True,timebin='2s',chanaverage=True,chanbin=2)
-        flagdata(vis='test_rflag_time_chanavg_step1.ms',flagbackup=False, mode='clip',extendflags=False)
-        res1 = flagdata(vis='test_rflag_time_chanavg_step1.ms', mode='summary', spwchan=True)
-        
-        # Unflag the original input data
-        flagdata(vis=self.vis, flagbackup=False, mode='unflag')
 
-        # STEP 2: Flagging with clip using time average, then time average with mstransform
-        flagdata(vis=self.vis, flagbackup=False, mode='clip', datacolumn='DATA', 
+        # STEP 1: chan+time average with mstransform, then flagging with normal rflag
+        mstransform(vis=self.vis,outputvis='test_rflag_time_chanavg_step1.ms',
+                    datacolumn='data', timeaverage=True, timebin='2s',
+                    chanaverage=True, chanbin=2)
+        res1 = flagdata(vis='test_rflag_time_chanavg_step1.ms', action='calculate',
+                        mode='rflag', extendflags=False)
+
+        # STEP 2: rflag using chan+time average, then mstransform using chan+time avg
+        flagdata(vis=self.vis, flagbackup=False, mode='rflag', datacolumn='DATA',
                  timeavg=True, timebin='2s', channelavg=True, chanbin=2, extendflags=False)
-        mstransform(vis=self.vis, outputvis='test_rflag_time_chanavg_step2.ms',datacolumn='data',
-                    timeaverage=True,timebin='2s',chanaverage=True,chanbin=2)
-        res2 = flagdata(vis='test_rflag_time_chanavg_step2.ms', mode='summary', spwchan=True)
+        mstransform(vis=self.vis, outputvis='test_rflag_time_chanavg_step2.ms',
+                    datacolumn='data', timeaverage=True, timebin='2s',
+                    chanaverage=True, chanbin=2)
+        res2 = flagdata(vis='test_rflag_time_chanavg_step2.ms', action='calculate',
+                        mode='rflag', extendflags=False)
 
-        # Compare results
-        self.assertEqual(res1['flagged'], res2['flagged'])            
-        
+        # Check results. Note when doing chan+time avg we cannot assume the thresholds and #
+        # of flagged channels will be the same
+        self.assertEqual(res1['type'], 'list')
+        self.assertEqual(res1['type'], res2['type'])
+        tol = 6.6e-1
+        import numpy as np
+        for threshold_type in ['freqdev', 'timedev']:
+            self.assertTrue(np.allclose(res1['report0'][threshold_type],
+                                        res2['report0'][threshold_type], rtol=tol))
+
     def test_tfcrop_timeavg(self):
         '''flagdata: tfcrop with time average and compare vs mstransform'''
         
         # Unflag the original input data
         flagdata(self.vis, flagbackup=False, mode='unflag')      
         
-        # STEP 1: Time average with mstransform, then flagging with normal clip
+        # STEP 1: Time average with mstransform, then flagging with normal tfcrop
         mstransform(vis=self.vis,outputvis='test_tfcrop_timeavg_step1.ms',datacolumn='data',
                     timeaverage=True,timebin='2s')
-        flagdata(vis='test_tfcrop_timeavg_step1.ms',flagbackup=False, mode='rflag',extendflags=False)
+        flagdata(vis='test_tfcrop_timeavg_step1.ms',flagbackup=False, mode='tfcrop',
+                 extendflags=False)
         res1 = flagdata(vis='test_tfcrop_timeavg_step1.ms', mode='summary', spwchan=True)
         
         # Unflag the original input data
         flagdata(self.vis, flagbackup=False, mode='unflag')
 
-        # STEP 2: Flagging with clip using time average, then time average with mstransform
-        flagdata(vis=self.vis, flagbackup=False, mode='rflag', datacolumn='DATA', 
+        # STEP 2: Flagging with tfcrop using time average, then time average with mstransform
+        flagdata(vis=self.vis, flagbackup=False, mode='tfcrop', datacolumn='DATA',
                  timeavg=True, timebin='2s', extendflags=False)
         mstransform(vis=self.vis,outputvis='test_tfcrop_timeavg_step2.ms',datacolumn='data',
                     timeaverage=True,timebin='2s')
         res2 = flagdata(vis='test_tfcrop_timeavg_step2.ms', mode='summary', spwchan=True)
 
-        # Compare results
-        self.assertEqual(res2['flagged'], 20)        
+        # Check results
+        self.assertEqual(res1['flagged'], 36)
+        self.assertEqual(res2['flagged'], 0)
         
     def test_tfcrop_chanavg(self):
         '''flagdata: tfcrop with chan average and compare vs mstransform'''
@@ -3529,17 +3565,18 @@ class test_preaveraging(test_base):
         # Unflag the original input data
         flagdata(self.vis, flagbackup=False, mode='unflag')
         
-        # STEP 1: Chan average with mstransform, then flagging with normal clip
+        # STEP 1: Chan average with mstransform, then flagging with normal tfcrop
         mstransform(vis=self.vis,outputvis='test_tfcrop_chanavg_step1.ms',datacolumn='data',
                     chanaverage=True,chanbin=2)
-        flagdata(vis='test_tfcrop_chanavg_step1.ms',flagbackup=False, mode='rflag',extendflags=False)
+        flagdata(vis='test_tfcrop_chanavg_step1.ms',flagbackup=False, mode='tfcrop',
+                 extendflags=False)
         res1 = flagdata(vis='test_tfcrop_chanavg_step1.ms', mode='summary', spwchan=True)
         
         # Unflag the original input data
         flagdata(vis=self.vis, flagbackup=False, mode='unflag')
 
-        # STEP 2: Flagging with clip using time average, then time average with mstransform
-        flagdata(vis=self.vis, flagbackup=False, mode='rflag', datacolumn='DATA', 
+        # STEP 2: Flagging with tfcrop using time average, then time average with mstransform
+        flagdata(vis=self.vis, flagbackup=False, mode='tfcrop', datacolumn='DATA',
                  channelavg=True, chanbin=2,extendflags=False)
         mstransform(vis=self.vis, outputvis='test_tfcrop_chanavg_step2.ms',datacolumn='data',
                     chanaverage=True,chanbin=2)
@@ -3554,17 +3591,17 @@ class test_preaveraging(test_base):
         # Unflag the original input data
         flagdata(self.vis, flagbackup=False, mode='unflag')
         
-        # STEP 1: Chan average with mstransform, then flagging with normal clip
+        # STEP 1: Chan average with mstransform, then flagging with normal tfcrop
         mstransform(vis=self.vis,outputvis='test_tfcrop_time_chanavg_step1.ms',datacolumn='data',
                     timeaverage=True,timebin='2s',chanaverage=True,chanbin=2)
-        flagdata(vis='test_tfcrop_time_chanavg_step1.ms',flagbackup=False, mode='clip',extendflags=False)
+        flagdata(vis='test_tfcrop_time_chanavg_step1.ms',flagbackup=False, mode='tfcrop',extendflags=False)
         res1 = flagdata(vis='test_tfcrop_time_chanavg_step1.ms', mode='summary', spwchan=True)
         
         # Unflag the original input data
         flagdata(vis=self.vis, flagbackup=False, mode='unflag')
 
-        # STEP 2: Flagging with clip using time average, then time average with mstransform
-        flagdata(vis=self.vis, flagbackup=False, mode='clip', datacolumn='DATA', 
+        # STEP 2: Flagging with tfcrop using time average, then time average with mstransform
+        flagdata(vis=self.vis, flagbackup=False, mode='tfcrop', datacolumn='DATA',
                  timeavg=True, timebin='2s', channelavg=True, chanbin=2, extendflags=False)
         mstransform(vis=self.vis, outputvis='test_tfcrop_time_chanavg_step2.ms',datacolumn='data',
                     timeaverage=True,timebin='2s',chanaverage=True,chanbin=2)
@@ -3572,6 +3609,208 @@ class test_preaveraging(test_base):
 
         # Compare results
         self.assertEqual(res2['flagged'], res2['flagged'])          
+
+
+# Motivated by CAS-11397. test_preaveraging is about datacolumn='data', and checks what
+# flags are written to the output
+# test_preaveraging_rflag_residual is about datacolumn='residual' and doesn't write flags. It
+# checks the threshold calculations from RFlag
+class test_preaveraging_rflag_residual(test_base):
+    """Test pre-averaging (channel / time) with RFlag and datacolumn='residual'"""
+
+    def setUp(self):
+        self.setUp_data4tfcrop()
+
+    def tearDown(self):
+        os.system('rm -rf test_rflag_timeavg_residual*step2*ms')
+        os.system('rm -rf test_rflag_channelavg_residual*step2*ms')
+
+    def test_rflag_timeavg_on_residual(self):
+        '''flagdata: rflag with timeavg on residual (corrected - model), and compare
+        vs mstransform + rflag without timeavg'''
+
+        # Initial integration time of 'Four_ants_3C286.ms' is 1s
+        timebin = '8s'
+
+        # using action calculate, which is faster (reduced I/O) and enough to test thresholds
+        # using only these spws for speed
+        spws = '0,1,2'
+
+        # STEP 1: rflag-calculate with original time
+        res1 = flagdata(vis=self.vis, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', extendflags=False)
+
+        # STEP 2: timeavg with mstransform, then rflag-calculate on residual
+        flagged2 = 'test_rflag_timeavg_residual_step2.ms'
+        mstransform(vis=self.vis, spw=spws, outputvis=flagged2,
+                    datacolumn='data,model,corrected', timeaverage=True, timebin=timebin)
+        res2 = flagdata(vis=flagged2, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', extendflags=False)
+
+        # STEP 3: rflag-calculate with timeavg on residual
+        res3 = flagdata(vis=self.vis, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', timeavg=True, timebin=timebin,
+                        extendflags=False)
+
+        def check_reports_timeavg(report1, report2, report3):
+            import numpy as np
+            self.assertEqual(report2['type'], 'rflag')
+            self.assertEqual(report3['type'], report2['type'])
+            freq_tol = 1e-1
+            self.assertTrue(np.allclose(report1['freqdev'], report3['freqdev'],
+                                        rtol=freq_tol))
+            self.assertTrue(np.allclose(report2['freqdev'], report3['freqdev'],
+                                        rtol=freq_tol))
+            # divide 3rd column (thresholds). Matrices have rows like: field, spw, threshold.
+            report1['timedev'][:,2] = report1['timedev'][:,2] / np.sqrt(8)
+            time_div_tol = 3.3e-1
+            self.assertTrue(np.allclose(report1['timedev'], report3['timedev'],
+                                        rtol=time_div_tol))
+            time_tol = 1.5e-1
+            self.assertTrue(np.allclose(report2['timedev'],
+                                        report3['timedev'], rtol=time_tol))
+
+        self.assertEqual(res1['type'], 'list')
+        self.assertEqual(res1['type'], res2['type'])
+        self.assertEqual(res1['type'], res3['type'])
+        check_reports_timeavg(res1['report0'], res2['report0'], res3['report0'])
+
+    def test_rflag_channelavg_on_residual(self):
+        '''flagdata: rflag with channelavg on residual (corrected - model), and compare
+        vs mstransform + rflag without average'''
+
+        # Initial integration time of 'Four_ants_3C286.ms' is 1s
+        timebin = '8s'
+
+        # using action calculate, which is faster (reduced I/O) and enough to test thresholds
+        # using only these spws for speed
+        spws = '0,1,2'
+
+        # STEP 1: rflag-calculate with original MS
+        res1 = flagdata(vis=self.vis, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', extendflags=False)
+
+        # STEP 2: chanavg with mstransform, then rflag-calculate on residual
+        flagged2 = 'test_rflag_channelavg_residual_step2.ms'
+        mstransform(vis=self.vis, spw=spws, outputvis=flagged2,
+                    datacolumn='data,model,corrected', chanaverage=True, chanbin=32)
+        res2 = flagdata(vis=flagged2, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', extendflags=False)
+
+        # STEP 3: rflag-calculate with channelavg on residual
+        res3 = flagdata(vis=self.vis, spw=spws, action='calculate', mode='rflag',
+                        datacolumn='residual', channelavg=True, chanbin=32,
+                        extendflags=False)
+
+        def check_reports_channelavg(report1, report2, report3):
+            import numpy as np
+            self.assertEqual(report2['type'], 'rflag')
+            self.assertEqual(report3['type'], report2['type'])
+            # divide 3rd column (thresholds). Matrices have rows like: field, spw, threshold.
+            report1['freqdev'][:,2] = report1['freqdev'][:,2] / 2
+            freq_div_tol = 1e-1
+            self.assertTrue(np.allclose(report1['freqdev'], report3['freqdev'],
+                                        rtol=freq_div_tol))
+            freq_tol = 5e-2
+            self.assertTrue(np.allclose(report2['freqdev'], report3['freqdev'],
+                                        rtol=freq_tol))
+
+            report1['timedev'][:,2] = report1['timedev'][:,2] / 4
+            time_div_tol = 6.6e-1
+            self.assertTrue(np.allclose(report1['timedev'], report3['timedev'],
+                                        rtol=time_div_tol))
+            time_tol = 5e-2
+            self.assertTrue(np.allclose(report2['timedev'],
+                                        report3['timedev'], rtol=time_tol))
+
+        self.assertEqual(res1['type'], 'list')
+        self.assertEqual(res1['type'], res2['type'])
+        self.assertEqual(res1['type'], res3['type'])
+        check_reports_channelavg(res1['report0'], res2['report0'], res3['report0'])
+
+
+class test_virtual_col(test_base):
+    def setUp(self):
+        self.setUp_ngc5921(force=True)        
+        
+    def tearDown(self):    
+        os.system('rm -rf ngc5921*')        
+
+    @unittest.skip('Skip until CAS-10383 is fixed')
+    def test_no_model_col(self):
+        '''flagdata: catch failure when MODEL or virtual MODEL do not exist'''
+        # Verify that a MODEL or virtual MODEL column do not exist in MS
+        tblocal = tbtool()
+        tblocal.open(self.vis)
+        cols = tblocal.colnames()
+        tblocal.close()
+        
+        tblocal.open(self.vis+'/SOURCE')
+        cols_v = tblocal.colnames()
+        tblocal.close()
+       
+        self.assertFalse('MODEL_DATA' in cols, 'Test cannot have a MODEL_DATA column')
+        self.assertFalse('SOURCE_MODEL' in cols_v, 'Test cannot have a virtual MODEL column')
+        
+        # Run flagdata on it. RESIDUAL_DATA = DATA - MODEL
+        flagdata(self.vis, mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],clipoutside=False)
+
+    def test_virtual_model_col(self):
+        '''flagdata: Tests using a virtual MODEL column'''
+        
+        # Copy MS to new MS
+        os.system('cp -RH ngc5921.ms ngc5921_virtual.ms')
+        self.MSvirtual = 'ngc5921_virtual.ms'
+        
+        # First, run setjy to create a virtual MODEl column (SOURCE_MODEL)
+        setjy(vis=self.MSvirtual, field='1331+305*',modimage='',standard='Perley-Taylor 99',
+                scalebychan=False, usescratch=False)
+        
+        # Verify that the virtual column exist
+        import testhelper as th
+        mcol = th.getColDesc(self.MSvirtual+'/SOURCE', 'SOURCE_MODEL')
+        mkeys = mcol.keys()
+        self.assertTrue(mkeys.__len__() > 0, 'Should have a SOURCE_MODEL column')
+        
+        # Run flagdata on it. RESIDUAL_DATA = DATA - MODEL
+        flagdata(vis=self.MSvirtual,mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],clipoutside=False)
+        res_virtual = flagdata(vis=self.MSvirtual, mode='summary')['flagged']
+
+        # Compare with a normal MODEL column flagging
+        # Run setjy to create a normal MODEl column (SOURCE_MODEL)
+        setjy(vis=self.vis, field='1331+305*',modimage='',standard='Perley-Taylor 99',
+                scalebychan=False, usescratch=True)
+        
+        flagdata(vis=self.vis,mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],clipoutside=False)
+        res = flagdata(vis=self.vis, mode='summary')['flagged']
+        
+        self.assertEqual(res_virtual, res, 'Flagging using virtual MODEL column differs from normal MODEL column')
+
+
+# Cleanup class
+class cleanup(test_base):
+
+    def tearDown(self):
+        os.system('rm -rf ngc5921.*ms* testwma*ms*')
+        os.system('rm -rf flagdatatest.*ms*')
+        os.system('rm -rf missing-baseline.*ms*')
+        os.system('rm -rf multiobs.*ms*')
+        os.system('rm -rf uid___A002_X30a93d_X43e_small.*ms*')
+        os.system('rm -rf Four_ants_3C286*.ms')
+        os.system('rm -rf shadow*.*ms*')
+        os.system('rm -rf testmwa.*ms*')
+        os.system('rm -rf cal.fewscans.bpass*')
+        os.system('rm -rf X7ef.tsys* ap314.gcal*')
+        os.system('rm -rf list*txt*')
+        os.system('rm -rf fourrows*')
+        os.system('rm -rf SDFloatColumn*')
+        os.system('rm -rf *weight*ms*')
+        os.system('rm -rf uid___A002_X72c4aa_X8f5_scan21_spw18*')
+        os.system('rm -rf test_residual_step*.ms')
+
+    def test_runTest(self):
+        '''flagdata: Cleanup'''
+        pass
 
 
 def suite():
@@ -3598,4 +3837,6 @@ def suite():
             test_tbuff,
             TestMergeManualTimerange,
             test_preaveraging,
+            test_preaveraging_rflag_residual,
+            test_virtual_col,
             cleanup]

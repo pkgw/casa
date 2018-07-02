@@ -307,7 +307,7 @@ namespace casa {
 
 		//Zoom functionality
 		void zoomYBasedOnX( QtPlotSettings& settings, double zoomFactor, bool zoomIn );
-		pair<double,double> getRangeFor( double zoomFactor, bool zoomIn, double minX, double maxX );
+		std::pair<double,double> getRangeFor( double zoomFactor, bool zoomIn, double minX, double maxX );
 		void increaseCurZoom();
 		void defaultZoomIn();
 		void defaultZoomOut();

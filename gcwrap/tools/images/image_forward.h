@@ -28,6 +28,7 @@ namespace casa {
 	class ImageStatsCalculator;
 
 	template<class T> class ImageHistograms;
+	template<class T> class ImageMetaData;
 	template<class T> class ImageRegridderBase;
 	class SkyComponent;
 }

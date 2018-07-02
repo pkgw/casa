@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <ArrayTimeInterval.h>
 	
 
 	
@@ -53,7 +53,7 @@
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 
@@ -109,7 +109,7 @@ class WVMCalRow;
  * Coefficients to use water vapour monitor information to correct for  pathlength variations. This contains the coefficients actually used, while  CalWVR contains the coefficients derived from TelCal calibration.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of WVMCal </CAPTION>
@@ -163,21 +163,21 @@ class WVMCalRow;
  * </TR>
 	
  * <TR>
- * <TD> numInputAntenna </TD> 
+ * <TD> numInputAntenna (numInputAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;The number of antennas used for the calculations. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numChan </TD> 
+ * <TD> numChan (numChan)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of WVR channels. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numPoly </TD> 
+ * <TD> numPoly (numPoly)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients used in the polynomial expansions. </TD>
@@ -519,6 +519,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

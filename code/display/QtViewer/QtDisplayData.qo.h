@@ -155,7 +155,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Returns a casacore::String with value and position information,
 		// suitable for a cursor tracking display.
-		virtual pair<casacore::String,casacore::String> trackingInfo(const WCMotionEvent& ev);
+		virtual std::pair<casacore::String,casacore::String> trackingInfo(const WCMotionEvent& ev);
 
 
 		// Convert 2-D 'pseudoregion' (or 'mouse region' casacore::Record, from the region
@@ -336,6 +336,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		void setColormap(const casacore::String& clrMapName) {
 			setColormap_(clrMapName);
 		}
+
+		void setRasterPowerScaling( float powerScale );
+
 		void setHistogramColorMapping( float minValue, float maxValue, float powerScale );
 		//  This is used to get the display data to set a saturation range
 		//  from another image.

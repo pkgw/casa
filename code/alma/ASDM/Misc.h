@@ -28,18 +28,26 @@
  */
 
 #include <iostream>
-#include <iterator>
 #include <fstream>
 #include <string> 
 #include <vector>
 #include <set>
 #include <map>
 
+#ifndef WITHOUT_BOOST
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/convenience.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
+#else
+#include <sys/stat.h>
+#include <sstream>
+#endif
+
+#include <algorithm>
+#include <cctype>
+#include <locale>
 
 typedef unsigned char xmlChar;
 
@@ -147,6 +155,79 @@ namespace asdm {
    */
   std::string uniqSlashes(const std::string& s);
 
+
+#ifdef WITHOUT_BOOST
+  // string trimming functions to be used in place of boost functions
+  // uses lambdas (c++11)
+
+  // trim from start (in place)
+  inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+	  return !std::isspace(ch);
+	}));
+  }
+
+  // trim from end (in place)
+  inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+	  return !std::isspace(ch);
+	}).base(), s.end());
+  }
+
+  // trim from both ends (in place)
+  inline void trim(std::string &s) {
+    ltrim(s);
+    rtrim(s);
+  }
+
+  // trim from start (copying)
+  inline std::string ltrim_copy(std::string s) {
+    ltrim(s);
+    return s;
+  }
+
+  // trim from end (copying)
+  inline std::string rtrim_copy(std::string s) {
+    rtrim(s);
+    return s;
+  }
+
+  // trim from both ends (copying)
+  inline std::string trim_copy(std::string s) {
+    trim(s);
+    return s;
+  }
+
+  // return a copy of str with everything transformed to upper case
+  inline std::string str_toupper(std::string s) {
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::toupper(c); });
+    return s;
+  }
+
+  // return a copy of str with everything transformed to lower case
+  inline std::string str_tolower(std::string s) {
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
+    return s;
+  }
+
+  // split a string into vector using provided character as the delimiter
+  // resuls are added to the pre-existing results vector
+  inline void strsplit(const std::string &str, char delim, std::vector<std::string> &result) {
+    std::stringstream ss(str);
+    std::string token;
+    while(std::getline(ss,token,delim)) {
+      result.push_back(token);
+    }
+  }
+
+  // check to see if a file exists using posix 'stat(...)'
+  inline bool file_exists(const std::string &filename) {
+    struct stat statbuf;
+    return (stat(filename.c_str(),&statbuf)==0);
+  }
+
+#endif
+
   class ASDMUtilsException {
   public:
     ASDMUtilsException();
@@ -170,6 +251,7 @@ namespace asdm {
     static std::string pathToV2V3EVLAxslTransform() ;
     static std::string nameOfV2V3xslTransform(ASDMUtils::Origin origin);
 
+#ifndef WITHOUT_BOOST
     struct DotXMLFilter {
     public:
       DotXMLFilter(std::vector<std::string>& filenames);
@@ -178,6 +260,7 @@ namespace asdm {
     private:
       std::vector<std::string>* filenames;    
     };
+#endif
     
   private :
     static bool initialize();

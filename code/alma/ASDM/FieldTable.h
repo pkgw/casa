@@ -41,11 +41,11 @@
 
 
 	
-#include <ArrayTime.h>
+#include <Angle.h>
 	
 
 	
-#include <Angle.h>
+#include <ArrayTime.h>
 	
 
 	
@@ -140,7 +140,7 @@ class FieldRow;
  * </TR>
 	
  * <TR>
- * <TD> numPoly </TD> 
+ * <TD> numPoly (numPoly)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;number of coefficients of the polynomials. </TD>
@@ -172,56 +172,56 @@ class FieldRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> time </TD> 
+ * <TD> time</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; value used as the origin for the polynomials. </TD>
  * </TR>
 	
  * <TR>
- * <TD> code </TD> 
+ * <TD> code</TD> 
  * <TD> string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; describes the function of the field. </TD>
  * </TR>
 	
  * <TR>
- * <TD> directionCode </TD> 
+ * <TD> directionCode</TD> 
  * <TD> DirectionReferenceCodeMod::DirectionReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the direction reference code of the field. </TD>
  * </TR>
 	
  * <TR>
- * <TD> directionEquinox </TD> 
+ * <TD> directionEquinox</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the direction reference equinox of the field. </TD>
  * </TR>
 	
  * <TR>
- * <TD> assocNature </TD> 
+ * <TD> assocNature</TD> 
  * <TD> string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the nature of the association with the row refered to by fieldId. </TD>
  * </TR>
 	
  * <TR>
- * <TD> ephemerisId </TD> 
+ * <TD> ephemerisId</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to a collection of rows in the EphemerisTable. </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceId </TD> 
+ * <TD> sourceId</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to a collection of rows in SourceTable. </TD>
  * </TR>
 	
  * <TR>
- * <TD> assocFieldId </TD> 
+ * <TD> assocFieldId</TD> 
  * <TD> Tag </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Associated Field ID </TD>
@@ -493,6 +493,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

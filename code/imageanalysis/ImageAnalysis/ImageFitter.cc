@@ -104,16 +104,15 @@ std::pair<ComponentList, ComponentList> ImageFitter::fit() {
     }
     _useBeamForNoise = _correlatedNoise && ! _noiseFWHM.get()
         && _getImage()->imageInfo().hasBeam();
-
     {
         // CAS-6971
         String msg;
-        if (_noiseFWHM.get() && ! _correlatedNoise) {
+        if (_noiseFWHM && ! _correlatedNoise) {
             msg = "Specified noise FWHM is less than a pixel "
                 "width, so uncertainties will be computed "
                 "assuming uncorrelated pixel noise.";
         }
-        else if (! _noiseFWHM.get()) {
+        else if (! _noiseFWHM) {
             if (_getImage()->imageInfo().hasBeam()) {
                 msg = "noise FWHM not specified, so uncertainties "
                     "will be computed using the beam geometric mean "
@@ -144,7 +143,7 @@ std::pair<ComponentList, ComponentList> ImageFitter::fit() {
         _getMask(), _includePixelRange, _excludePixelRange,
         _estimatesString
     );
-    LogOrigin origin(_class, __func__);;
+    LogOrigin origin(_class, __func__);
     *_getLog() << origin;
     *_getLog() << LogIO::NORMAL << resultsString << LogIO::POST;
     ComponentList convolvedList, deconvolvedList;
@@ -236,7 +235,8 @@ void ImageFitter::_createOutputRecord(
         decon.toRecord(error, allDeconvolved);
     }
     Bool addBeam = ! _allBeams.empty();
-    for (uInt i=0; i<convolved.nelements(); i++) {
+    uInt n = convolved.nelements();
+    for (uInt i=0; i<n; ++i) {
         Record peak;
         peak.define("value", _allConvolvedPeakIntensities[i].getValue());
         String unit = _allConvolvedPeakIntensities[i].getUnit();
@@ -262,9 +262,12 @@ void ImageFitter::_createOutputRecord(
         if (dodecon) {
             sub.define("ispoint", _isPoint[i]);
         }
+        if (_pixelCoords[i]) {
+            sub.define("pixelcoords", *(_pixelCoords)[i]);
+        }
         allConvolved.defineRecord(compString, sub);
         if (dodecon) {
-            Record sub = allDeconvolved.asRecord(compString);
+            Record sub1 = allDeconvolved.asRecord(compString);
             if (decon.getShape(i)->type() == ComponentType::GAUSSIAN) {
                 Double areaRatio = (
                     static_cast<const GaussianShape *>(convolved.getShape(i))->getArea()
@@ -280,18 +283,18 @@ void ImageFitter::_createOutputRecord(
                         "error",
                         _allConvolvedPeakIntensityErrors[i].getValue()*areaRatio
                     );
-                    sub.defineRecord("peak", peak);
+                    sub1.defineRecord("peak", peak);
                 }
                 if (addBeam) {
-                    sub.defineRecord("beam", beam);
+                    sub1.defineRecord("beam", beam);
                 }
             }
-            sub.defineRecord("sum", sum);
-            Record spectrum = sub.asRecord("spectrum");
+            sub1.defineRecord("sum", sum);
+            Record spectrum = sub1.asRecord("spectrum");
             spectrum.define("channel", _allChanNums[i]);
-            sub.defineRecord("spectrum", spectrum);
-            sub.define("ispoint", _isPoint[i]);
-            allDeconvolved.defineRecord(compString, sub);
+            sub1.defineRecord("spectrum", spectrum);
+            sub1.define("ispoint", _isPoint[i]);
+            allDeconvolved.defineRecord(compString, sub1);
         }
     }
     _output.defineRecord("results", allConvolved);
@@ -299,6 +302,13 @@ void ImageFitter::_createOutputRecord(
         _output.defineRecord("deconvolved", allDeconvolved);
     }
     _output.define("converged", _fitConverged);
+    const auto& dc = _getImage()->coordinates().directionCoordinate();
+    auto inc = dc.increment();
+    auto units = dc.worldAxisUnits();
+    Vector<Double> pixelsPerArcsec(2);
+    pixelsPerArcsec[0] = abs(1/Quantity(inc[0], units[0]).getValue("arcsec"));
+    pixelsPerArcsec[1] = abs(1/Quantity(inc[1], units[1]).getValue("arcsec"));
+    _output.define("pixelsperarcsec", pixelsPerArcsec);
     if (_doZeroLevel) {
         Record z;
         z.define("value", Vector<Double>(_zeroLevelOffsetSolution));
@@ -323,7 +333,7 @@ void ImageFitter::_fitLoop(
     uInt ngauss = _estimates.nelements() > 0 ? _estimates.nelements() : 1;
     Vector<String> models(ngauss, "gaussian");
     IPosition planeShape(_getImage()->ndim(), 1);
-    ImageMetaData md(_getImage());
+    ImageMetaData<Float> md(_getImage());
     Vector<Int> dirShape = md.directionShape();
     Vector<Int> dirAxisNumbers = _getImage()->coordinates().directionAxesNumbers();
     planeShape[dirAxisNumbers[0]] = dirShape[0];
@@ -369,7 +379,6 @@ void ImageFitter::_fitLoop(
         }
         *_getLog() << origin;
         anyConverged |= converged;
-
         if (converged) {
             _doConverged(
                 convolvedList, deconvolvedList,
@@ -418,7 +427,7 @@ void ImageFitter::_fitLoop(
         _results.setPeakIntensities(_peakIntensities);
         _results.setPeakIntensityErrors(_peakIntensityErrors);
         _results.setPositionAngles(_positionAngles);
-        String currentResultsString = _resultsToString(fitter.numberPoints());
+        auto currentResultsString = _resultsToString(fitter.numberPoints());
         resultsString += currentResultsString;
         *_getLog() << LogIO::NORMAL << currentResultsString << LogIO::POST;
     }
@@ -751,7 +760,7 @@ void ImageFitter::_calculateErrors() {
                 Double ma = _majorAxes[i].getValue("arcsec");
                 Double mi = _minorAxes[i].getValue("arcsec");
                 _positionAngleErrors[i] = ma == mi
-                    ? QC::qTurn
+                    ? QC::qTurn( )
                     :  Quantity(baseFac*C::sqrt2*(ma*mi/(ma*ma - mi*mi)), "rad");
             }
             _positionAngleErrors[i].convert(_positionAngles[i]);
@@ -778,7 +787,7 @@ void ImageFitter::_calculateErrors() {
                 }
                 sigmaY0 =  baseFac*_minorAxes[i]/f1;
             }
-            Double pr = fixFullPos ? 0 : (-1)*(_positionAngles[i] + QC::qTurn).getValue("rad");
+            Double pr = fixFullPos ? 0 : (-1)*(_positionAngles[i] + QC::qTurn( )).getValue("rad");
             Double cp = fixFullPos ? 0 : cos(pr);
             Double sp = fixFullPos ? 0 : sin(pr);
             Quantity longErr(0, "arcsec");
@@ -997,7 +1006,7 @@ void ImageFitter::_finishConstruction(const String& estimatesFilename) {
     }
 }
 
-String ImageFitter::_resultsToString(uInt nPixels) const {
+String ImageFitter::_resultsToString(uInt nPixels) {
     ostringstream summary;
     summary << "*** Details of fit for channel number " << _curChan << endl;
     summary << "Number of pixels used in fit: " << nPixels <<  endl;
@@ -1019,11 +1028,14 @@ String ImageFitter::_resultsToString(uInt nPixels) const {
                 << units << endl;
         }
         uInt n = _curConvolvedList.nelements();
-        for (uInt i = 0; i < n; i++) {
+        for (uInt i=0; i<n; ++i) {
+            shared_ptr<Vector<Double>> x;
+
             summary << "Fit on " << _getImage()->name(true) << " component " << i << endl;
             summary << _curConvolvedList.component(i).positionToString(
-                &(_getImage()->coordinates().directionCoordinate()), true
+                x, &(_getImage()->coordinates().directionCoordinate()), true
             ) << endl;
+            _pixelCoords.push_back(x);
             summary << _sizeToString(i) << endl;
             summary << _results.fluxToString(i, ! _noBeam) << endl;
             summary << _spectrumToString(i) << endl;
@@ -1199,7 +1211,7 @@ void ImageFitter::_setDeconvolvedSizes() {
                                     Quantity errMin = abs(bestDecon.getMinor() - decon.getMinor());
                                     errMin.convert(emin.getUnit());
                                     Quantity errPA = abs(bestDecon.getPA(true) - decon.getPA(true));
-                                    errPA = min(errPA, abs(errPA-QC::hTurn));
+                                    errPA = min(errPA, abs(errPA-QC::hTurn( )));
                                     errPA.convert(epa.getUnit());
                                     emaj = max(emaj, errMaj);
                                     emin = max(emin, errMin);
@@ -1347,7 +1359,7 @@ void ImageFitter::_fitsky(
             false, false, false, _getStretch()
         )
     );
-    ImageMetaData md(subImageTmp);
+    ImageMetaData<Float> md(subImageTmp);
     ThrowIf(
         anyTrue(md.directionShape() <= 1),
         "Invalid region specification. The extent of the region in the direction plane must be "

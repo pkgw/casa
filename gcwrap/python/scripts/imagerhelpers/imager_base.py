@@ -205,7 +205,7 @@ class PySynthesisImager:
          #print 'Converged : ', stopflag
          if( stopflag>0 ):
              #stopreasons = ['iteration limit', 'threshold', 'force stop','no change in peak residual across two major cycles']
-             stopreasons = ['iteration limit', 'threshold', 'force stop','no change in peak residual across two major cycles', 'peak residual increased by more than 5 times from the previous major cycle','peak residual increased by more than 5 times from the minimum reached','zero mask']
+             stopreasons = ['iteration limit', 'threshold', 'force stop','no change in peak residual across two major cycles', 'peak residual increased by more than 3 times from the previous major cycle','peak residual increased by more than 3 times from the minimum reached','zero mask', 'any combination of n-sigma and other valid exit criterion']
              casalog.post("Reached global stopping criterion : " + stopreasons[stopflag-1], "INFO")
 
              # revert the current automask to the previous one 
@@ -357,6 +357,28 @@ class PySynthesisImager:
 #############################################
     def makePBCore(self):
         self.SItool.makepb()
+
+#############################################
+    def makeSdImage(self):
+        self.makeSdImageCore()
+        for immod in range(0,self.NF):
+            self.PStools[immod].gatherresidual() 
+            self.PStools[immod].divideresidualbyweight()
+
+#############################################
+    def makeSdPSF(self):
+        self.makeSdPSFCore()
+        for immod in range(0,self.NF):
+            self.PStools[immod].gatherresidual() 
+            self.PStools[immod].dividepsfbyweight()
+
+#############################################
+    def makeSdImageCore(self):
+        self.SItool.makesdimage()
+
+#############################################
+    def makeSdPSFCore(self):
+        self.SItool.makesdpsf()
 
 #############################################
 

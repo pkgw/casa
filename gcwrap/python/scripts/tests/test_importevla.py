@@ -31,7 +31,6 @@ from tasks import importevla, flagdata, flagcmd
 from taskinit import *
 import unittest
 
-
 def checktable(msname, thename, theexpectation):
     global myname
     tb.open(msname+"/"+thename)
@@ -294,12 +293,11 @@ class importevla_test(unittest.TestCase):
             mssum = ms.summary()
             ms.close()
 
-            if(mssum['scan_5']['0']['FieldName']=='URANUS' and mssum['field_2']['direction']['m0']['value']==0.3783275670495854):
-                print myname, ": MS summary as expected."
-                retValue['success']=True
-            else:
-                retValue['success']=False
-                retValue['error_msgs']=retValue['error_msgs']+'Unexepcted mssummary.'
+            self.assertEqual(mssum['scan_5']['0']['FieldName'],'URANUS')
+            self.assertAlmostEqual(mssum['field_2']['direction']['m0']['value'],0.3783275670495854,15)
+            self.assertAlmostEqual(mssum['field_2']['direction']['m1']['value'],0.1475256359637771,15)
+            print myname, ": MS summary as expected."
+            retValue['success']=True
                 
         self.assertTrue(retValue['success'])
 

@@ -1,3 +1,6 @@
+// Google test
+#include <gtest/gtest.h>
+
 #include <casa/BasicSL.h>
 #include <casa/string.h>
 #include <casa/Logging.h>
@@ -1140,7 +1143,7 @@ public:
 
         printf ("+++ Starting SimpleTests ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
@@ -1344,7 +1347,7 @@ public:
 
         printf ("+++ Starting %s ...\n", getName().c_str());
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
@@ -1556,7 +1559,7 @@ public:
     {
         printf ("+++ Starting RowFlaggingTests ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
@@ -1659,7 +1662,7 @@ public:
     {
         printf ("+++ Starting CubeFlaggingTests ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
@@ -1773,7 +1776,7 @@ public:
     {
         printf ("+++ Starting WeightingTests ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
@@ -1902,7 +1905,7 @@ public:
 
         printf ("+++ Starting WeightSelectionTests ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
         auto_ptr<MeasurementSet> ms;
 
         {
@@ -2183,7 +2186,7 @@ public:
 
         printf ("+++ Starting BaselineDependentAveraging ...\n");
 
-        String msName (getParameter ("msName", "AveragingTvi2.ms"));
+        String msName ("AveragingTvi2.ms");
 
         {
 
@@ -2844,18 +2847,26 @@ using namespace casacore;
 using namespace casacore;
 using namespace casa;
 
+TEST(AllAveragingTests, AllTests)
+{
+
+    casa::vi::test::Tester tester;
+
+    char * arguments[] = {};
+    casa::Bool ok = tester.doTests (1, arguments);
+
+    ASSERT_TRUE(ok);
+}
+
 int
-main (int nArgs, char * args [])
+main (int argc, char * argv [])
 {
     LogSink::globalSink().filter (LogFilter (LogMessage::WARN));
 
     LogIO os;
 
-    casa::vi::test::Tester tester;
-
-    casa::Bool ok = tester.doTests (nArgs, args);
-
-    exit (ok ? 0 : 1);
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
 
 

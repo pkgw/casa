@@ -364,7 +364,30 @@ def getChannels(msname, spwid, chanlist):
         tb.close()
         
     return selchans
+
+def get_channel_freqs_widths(msname, spwid):
+    '''
+    Get frequencies and widths of all the channels for an spw ID
+       msname       --> name of MS
+       spwid        --> spw ID
+
+    Return two numpy arrays (frequencies, widths), each of the same length as the number of
+    channels'''
+
+    try:
+        spw_table = os.path.join(msname, 'SPECTRAL_WINDOW')
+        try:
+            tb.open(spw_table)
+        except RuntimeError:
+            print 'Cannot open table: {0}'.format(spw_table)
+
+        freqs = tb.getcell("CHAN_FREQ", spwid)
+        widths = tb.getcell("CHAN_WIDTH", spwid)
     
+    finally:
+        tb.close()
+
+    return freqs, widths
     
 def getColDesc(table, colname):
     '''Get the description of a column in a table
@@ -668,7 +691,8 @@ def compMS(ms0,ms1,keys=['mean','min','max','rms'],ap="amp",tol=1e-4,verbose=Fal
             print mss[i]+" not found"
             return False
         myms.open(mss[1])
-        s.append(myms.statistics("DATA",ap)["DATA"])
+        stats = myms.statistics("DATA",ap)
+        s.append(stats[stats.keys()[0]])
         myms.done()
     status=True
     for ik in range(len(keys)):

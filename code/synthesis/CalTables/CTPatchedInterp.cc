@@ -50,7 +50,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 				 const String& freqtype,
 				 const String& fieldtype,
 				 Vector<Int> spwmap,
-				 Vector<Int> fldmap) :
+				 Vector<Int> fldmap,
+				 const CTTIFactoryPtr cttifactoryptr) :
   ct_(ct),
   mtype_(mtype),
   isCmplx_(false),
@@ -83,7 +84,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   tI_(),
   tIdel_(),
   lastFld_(ct.spectralWindow().nrow(),-1),
-  lastObs_(ct.spectralWindow().nrow(),-1)
+  lastObs_(ct.spectralWindow().nrow(),-1),
+  cttifactoryptr_(cttifactoryptr)
 {
   if (CTPATCHEDINTERPVERB) cout << "CTPatchedInterp::CTPatchedInterp(<no MS>)" << endl;
 
@@ -217,7 +219,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 				 const String& freqtype,
 				 const String& fieldtype,
 				 const MeasurementSet& ms,
-				 Vector<Int> spwmap) :
+				 Vector<Int> spwmap,
+				 const CTTIFactoryPtr cttifactoryptr) :
   ct_(ct),
   mtype_(mtype),
   isCmplx_(false),
@@ -250,7 +253,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   tI_(),
   tIdel_(),
   lastFld_(ms.spectralWindow().nrow(),-1),
-  lastObs_(ms.spectralWindow().nrow(),-1)
+  lastObs_(ms.spectralWindow().nrow(),-1),
+  cttifactoryptr_(cttifactoryptr)
 {
 
   if (CTPATCHEDINTERPVERB) cout << "CTPatchedInterp::CTPatchedInterp(CT,MS)" << endl;
@@ -380,7 +384,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 				 const String& freqtype,
 				 const String& fieldtype,
 				 const ROMSColumns& mscol,
-				 Vector<Int> spwmap) :
+				 Vector<Int> spwmap,
+				 const CTTIFactoryPtr cttifactoryptr) :
   ct_(ct),
   mtype_(mtype),
   isCmplx_(false),
@@ -411,7 +416,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   tI_(),
   tIdel_(),
   lastFld_(mscol.spectralWindow().nrow(),-1),
-  lastObs_(mscol.spectralWindow().nrow(),-1)
+  lastObs_(mscol.spectralWindow().nrow(),-1),
+  cttifactoryptr_(cttifactoryptr)
 {
   if (CTPATCHEDINTERPVERB) cout << "CTPatchedInterp::CTPatchedInterp(mscol)" << endl;
 
@@ -573,11 +579,12 @@ Bool CTPatchedInterp::interpolate(Int msobs, Int msfld, Int msspw, Double time, 
   uInt nMSChan=freq.nelements();
 
   // Ensure freq result Array is properly sized
-  if (freqResult_(msspw,msfld,thisobs(msobs)).nelements()!=nMSChan) {
+  if (freqResult_(msspw,msfld,thisobs(msobs)).nelements()==0) {
      Int thisAltFld=altFld_(msfld);
-     if (freqResult_(msspw,thisAltFld,thisobs(msobs)).nelements()!=nMSChan) {
+     if (freqResult_(msspw,thisAltFld,thisobs(msobs)).nelements()==0) {
        freqResult_(msspw,thisAltFld,thisobs(msobs)).resize(nFPar_,nMSChan,nMSElem_);
        freqResFlag_(msspw,thisAltFld,thisobs(msobs)).resize(nPar_,nMSChan,nMSElem_);
+       freqResFlag_(msspw,thisAltFld,thisobs(msobs)).set(true);
      }
      if (thisAltFld!=msfld) {
        freqResult_(msspw,msfld,thisobs(msobs)).reference(freqResult_(msspw,thisAltFld,thisobs(msobs)));
@@ -821,6 +828,7 @@ void CTPatchedInterp::makeInterpolators() {
 	  if (timeResult_(iMSSpw,iMSFld,iMSObs).nelements()==0) {
 	    timeResult_(iMSSpw,iMSFld,iMSObs).resize(nFPar_,nChanIn_(spwMap_(iMSSpw)),nMSElem_);
 	    timeResFlag_(iMSSpw,iMSFld,iMSObs).resize(nPar_,nChanIn_(spwMap_(iMSSpw)),nMSElem_);
+	    timeResFlag_(iMSSpw,iMSFld,iMSObs).set(true);
 	  }
 	  for (Int iMSElem=0;iMSElem<nMSElem_;++iMSElem) {
 	    // Realize the mapping 
@@ -833,7 +841,7 @@ void CTPatchedInterp::makeInterpolators() {
 	    if (ctSlices_(ictip)) {
 	      NewCalTable& ict(*ctSlices_(ictip));
 	      if (!ict.isNull()) {
-		tI_(tIip)=new CTTimeInterp1(ict,timeType_,tR,tRf);
+		tI_(tIip)=(*cttifactoryptr_)(ict,timeType_,tR,tRf);
 		tIdel_(tIip)=true;
 	      }
 	    }
@@ -1239,6 +1247,18 @@ void CTPatchedInterp::resampleFlagsInFreq(Vector<Bool>& flgout,const Vector<Doub
       // Find nominal registration (the _index_ just left)
       Bool exact(false);
       ireg=binarySearch(exact,finGHz,fout(iflgout),nflg,0);
+
+      // If registration is exact, assign verbatim
+      // NB: the calibration value calculation occurs agnostically w.r.t. flags,
+      //     so the calculated value should also match
+      // TBD: Add "|| near(finGHz[ireg],fout(iflgout),1e-10) in case "exact" has
+      //      precision issues?
+      if (exact) {
+	flgout[iflgout]=flgin[ireg];
+	continue;
+      }
+
+      // Not exact, so carefully handle bracketing
       if (ireg>0)
 	ireg-=1;
       ireg=min(ireg,nflg-1);

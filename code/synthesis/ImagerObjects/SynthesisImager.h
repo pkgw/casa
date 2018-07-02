@@ -181,6 +181,7 @@ class SynthesisImager
   virtual bool makePB();
   
   virtual void predictModel();
+  virtual void makeSdImage(casacore::Bool dopsf=false);
   //  void makeImage();
   /* Access method to the Loop Controller held in this class */
   //SIIterBot& getLoopControls();
@@ -194,6 +195,9 @@ class SynthesisImager
  
   const SynthesisParamsGrid& getSynthesisParamsGrid() {return gridpars_p;};
   const SynthesisParamsImage& getSynthesisParamsImage() {return impars_p;};
+  ///This will set the movingSource_p
+  void setMovingSource(const casacore::String& movsource);
+
 
 protected:
  
@@ -236,7 +240,9 @@ protected:
                           const casacore::Bool useAutoCorr,
                           const casacore::Bool useDoublePrec,
                           const casacore::Float rotatePAStep,
-                          const casacore::String Stokes="I");
+                          const casacore::String Stokes="I",
+						  const casacore::Bool doConjConvFunc=false
+ 						);
 
   // Choose between different types of ImageStore types (single term, multiterm, faceted)
   casacore::CountedPtr<SIImageStore> createIMStore(casacore::String imageName, 
@@ -394,6 +400,7 @@ protected:
 
   SynthesisParamsGrid gridpars_p;
   SynthesisParamsImage impars_p;
+  String movingSource_p;
 
 
 };

@@ -237,7 +237,12 @@ class imregrid_test(unittest.TestCase):
                            'MECLIPTIC', 'TECLIPTIC',
                            'ITRF', 'TOPO']:
                 rec1['coordsys']['coordsys']['direction0']['conversionSystem'] = ref
-                
+                if ref == "COMET":
+                    ### To regrid to COMET frame you have to specify a COMET table or ephemeris
+                    ### to measures. As this is not possible in this interface,
+                    ### avoiding this regridding (CAS-11403)
+                    self.assertRaises(Exception, myia.fromrecord, rec1, out5)
+                    continue
                 myia.fromrecord(rec1, out5)
                 myia.close()
                 if (  os.path.exists(out1 ) ):
@@ -423,68 +428,84 @@ class imregrid_test(unittest.TestCase):
              == myia.coordsys().referencevalue()["numeric"]
             ).all()
         )
-        
-    def test_ref_code(self):
-        """Test regridding to a new reference frame"""
-        imregrid(imagename=datapath + "myim.im", template="GALACTIC", output=out6)
-        myia = self._myia
-        myia.open(out6)
-        got = myia.getchunk()
-        myia.open(datapath + "mygal.im")
-        expec = myia.getchunk()
-        self.assertTrue((got == expec).all())
-        
-        imregrid(
-            imagename=datapath + "nrefcode.im", template="GALACTIC",
-            output=out6, overwrite=True
-        )
-        myia.open(out6)
-        got = myia.getchunk()
-        myia.open(datapath + "mmm.im")
-        expec = myia.getchunk()
-        self.assertTrue((numpy.max(numpy.abs(got- expec))) < 1e-14)
-        
-        imregrid(
-            imagename=datapath + "nrefcode_t.im", template="GALACTIC",
-            output=out6, overwrite=True
-        )
-        myia.open(out6)
-        got = myia.getchunk()
-        myia.open(datapath + "mmm_t.im")
-        expec = myia.getchunk()
-        self.assertTrue(numpy.max(numpy.abs(got - expec)) < 1e-12)
-        
+ 
     def test_ref_code_preserves_position(self):
         """Test that regridding to new refcode preserves source positions"""
-        gal = "mygalactic.im"
-        imregrid(datapath+gim,template="GALACTIC", output=gal)
+        shutil.copytree(datapath + gim, gim)
         orig = iatool()
-        orig.open(datapath+gim)
-        ofit = orig.fitcomponents(box="850,150,950,250")
-        orig.done()
-        ocl = cltool()
-        ocl.add(ofit['results']['component0'])
-        orefdir = ocl.getrefdir(0)
-        galtool = iatool()
-        galtool.open(gal)
-        gfit = galtool.fitcomponents(box="1120,520,1170,570")
-        galtool.done()
-        gcl = cltool()
-        gcl.add(gfit['results']['component0'])
-        grefdir = gcl.getrefdir(0)
         myme = metool()
-        self.assertTrue(qa.getvalue(qa.convert(myme.separation(orefdir, grefdir), "arcsec")) < 0.003)
-        rev = "back_to_J2000.im"
-        imregrid(gal,template="J2000", output=rev)
-        revtool = iatool()
-        revtool.open(rev)
-        rfit = revtool.fitcomponents(box="850,150,950,250")
-        revtool.done()
-        rcl = cltool()
-        rcl.add(rfit['results']['component0'])
-        rrefdir = rcl.getrefdir(0)
-        self.assertTrue(qa.getvalue(qa.convert(myme.separation(orefdir, rrefdir), "arcsec")) < 2e-4)
-        
+        for rah in (0, 4, 8, 12, 16, 20):
+            # image has axis units of arcmin
+            ra = rah*60*15
+            for decdeg in (-80, -60, -40, -20, 0, 20, 40, 68, 80):
+                # image has axis units of arcmin
+                dec = decdeg*60
+                orig.open(gim)
+                csys = orig.coordsys()
+                csys.setreferencevalue([ra, dec])
+                orig.setcoordsys(csys.torecord())
+                csys.done()
+                orig.done()
+                ctype_range = ["J2000"]
+                if decdeg == 0 and rah == 0:
+                    ctype_range = ["J2000", "GALACTIC"]
+                for ctype in ctype_range:
+                    if ctype == "GALACITC":
+                        orig.open(gim)
+                        csys = orig.coordsys()
+                        csys.setconversiontype(ctype)
+                        orig.setcoordsys(csys.torecord())
+                        csys.done()
+                        orig.done()
+                    image_id = (
+                        "_ra" + str(rah) + "_dec" + str(decdeg) 
+                        + "_origconv" + ctype
+                    )
+                    gal = "mygalactic" + image_id + ".im"
+                    imregrid(gim,template="GALACTIC", output=gal)
+                    orig.open(gim)
+                    ofit = orig.fitcomponents(box="850,150,950,250")
+                    orig.done()
+                    ocl = cltool()
+                    ocl.add(ofit['results']['component0'])
+                    orefdir = ocl.getrefdir(0)
+                    galtool = iatool()
+                    galtool.open(gal)
+                    #gfit = galtool.fitcomponents(box="1120,520,1170,570")
+                    gfit = galtool.fitcomponents(mask= "'" + gal + "'> 0.001")
+                    galtool.done()
+                    gcl = cltool()
+                    gcl.add(gfit['results']['component0'])
+                    grefdir = gcl.getrefdir(0)
+                    print "diff", qa.getvalue(
+                            qa.convert(
+                                myme.separation(orefdir, grefdir), "arcsec"
+                            )
+                        ) 
+                    self.assertTrue(
+                        qa.getvalue(
+                            qa.convert(
+                                myme.separation(orefdir, grefdir), "arcsec"
+                            )
+                        ) < 0.003
+                    )
+                    rev = "back_to_J2000" + image_id + ".im"
+                    imregrid(gal,template="J2000", output=rev)
+                    revtool = iatool()
+                    revtool.open(rev)
+                    rfit = revtool.fitcomponents(box="850,150,950,250")
+                    revtool.done()
+                    rcl = cltool()
+                    rcl.add(rfit['results']['component0'])
+                    rrefdir = rcl.getrefdir(0)
+                    self.assertTrue(
+                        qa.getvalue(
+                            qa.convert(
+                                myme.separation(orefdir, rrefdir), "arcsec"
+                            )
+                        ) < 1e-2
+                    )
+            
     def test_get(self):
         """Test using template='get' works"""
         tempfile = "xyz.im"
@@ -1149,7 +1170,26 @@ class imregrid_test(unittest.TestCase):
 
         myia.done()
                 
-                          
+    def test_history(self):
+        """Test history writing"""
+        myia = self._myia
+        imagename = "zz.im"
+        myia.fromshape(imagename, [20, 20, 10])
+        myia.done()
+        outfile = "zz_out.im"
+        self.assertTrue(
+            imregrid(
+                imagename=imagename, output=outfile,
+                template="GALACTIC", decimate=5
+            )
+        )
+        myia.open(outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "imregrid"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
         
 def suite():
     return [imregrid_test]

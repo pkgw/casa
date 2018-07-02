@@ -8,7 +8,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <!-- This is the param set for tsdcal -->
 
-<task type="function" name="sdgaincal" category="single dish" visibility="experimental">
+<task type="function" name="sdgaincal" category="single dish">
 
   <shortdescription> MS SD gain calibration task</shortdescription>
 
@@ -62,7 +62,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <description>select data by scan numbers, e.g. "21~23" (""=all)</description>
       <value></value>
     </param>
-    
+
     <param type="string" name="intent" subparam="true">
       <description>select data by observation intent, e.g. "OBSERVE_TARGET#ON_SOURCE" (""=all)</description>
       <value></value>
@@ -73,6 +73,17 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <any type="variant" limittype="string stringArray"/>
       <value type="string"></value>
     </param>
+
+	<param type="any" name="interp" subparam="true">
+		<description>Interp type in time[,freq], per gaintable. default==linear,linear</description>
+	    <any type="variant" limittype="string stringArray"/>
+		<value type="string"></value>
+	</param>
+
+	<param type="intArray" name="spwmap" subparam="true">
+		<description>Spectral windows combinations to form for gaintables(s)</description>
+		<value></value>
+	</param>
 
     <param type="string" name="outfile">
       <description>name of output caltable</description>
@@ -92,6 +103,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
           <default param="smooth"><value type="bool">True</value></default>
         </equals>
       </when>
+      <when param="applytable">
+        <notequals value="">
+          <default param="interp"><value type="string"></value></default>
+          <default param="spwmap"><value type="intArray">-1</value></default>
+        </notequals>
+      </when>
     </constraints>
 
   </input>
@@ -106,7 +123,7 @@ calmode -- Gain calibration mode. Currently, only 'doublecircle' is supported.
         default: 'doublecircle'
     &gt;&gt;&gt; calmode expandable parameter
         radius -- Radius of the central region for double circle calibration.
-                  Default ('') is a radius of the primary beam. If numeric value 
+                  Default ('') is a radius of the primary beam. If numeric value
                   is given, it is interpreted as a value in arcsec.
                 default: ''
                 options: '20arcsec', 20.0
@@ -142,16 +159,95 @@ intent -- select data by observational intent, also referred to as 'scan intent'
         this selection is in addition to the other selections to data
 applytable -- List of sky/Tsys calibration tables you want to pre-apply.
                 default: ''
+    &gt;&gt;&gt; applytable expandable parameter
+       interp -- Interpolation type (in time[,freq]) to use for each gaintable.
+                When frequency interpolation is relevant (bandpass solutions,
+                frequency-dependent polcal solutions, ALMA Tsys)
+                separate time-dependent and freq-dependent interp
+                types with a comma (freq _after_ the comma).
+                Specifications for frequency are ignored when the
+                calibration table has no channel-dependence.
+                Time-dependent interp options ending in 'PD' enable a
+                "phase delay" correction per spw for non-channel-dependent
+                calibration types.
+                For multi-obsId datasets, 'perobs' can be appended to
+                the time-dependent interpolation specification to
+                enforce obsId boundaries when interpolating in time.
+                Add 'flag' to the freq-dependent interpolation options
+                to enforce channel-dependent flagging (rather than
+                interpolation/extrapolation).
+                default: '' --&gt; 'linear,linear' for all gaintable(s)
+                example: interp='nearest'   (in time, freq-dep will be
+                                             linear, if relevant)
+                         interp='linear,cubic'  (linear in time, cubic
+                                                 in freq)
+                         interp='linearperobs,splineflag' (linear in time
+                                                          per obsId,
+                                                          spline in
+                                                          freq with
+                                                          channelized
+                                                          flagging)
+                         interp=',spline'  (spline in freq; linear in
+                                            time by default)
+                         interp=['nearest,spline','linear']  (for multiple gaintables)
+                Options: Time: 'nearest', 'linear', 'nearestPD', 'linearPD'
+                         Freq: 'nearest', 'linear', 'cubic', 'spline',
+                               'nearestflag', 'linearflag', 'cubicflag', 'splineflag',
+
+       spwmap -- Spectral windows combinations to form for gaintable(s)
+               default: [] (apply solutions from each spw to that spw only)
+               Example:  spwmap=[0,0,1,1] means apply the caltable solutions
+                         from spw = 0 to the spw 0,1 and spw 1 to spw 2,3.
+                         spwmap=[[0,0,1,1],[0,1,0,1]]  (for multiple gaintables)
+
+          Complicated example:
+
+            gaintable=['tab1','tab2','tab3']
+            gainfield='3C286'
+            interp=['linear','nearest']
+            spwmap=[[],[0,0,2]]
+
+            This means: apply 3 cal tables, selecting only solutions for 3C286
+            from tab1 (but all fields from tab2 and tab3, indicated by
+            no gainfield entry for these files).  Linear interpolation
+            (in time) will be used for 'tab1' and 'tab3' (default); 'tab2' will
+            use nearest.  For the 'tab2', the calibration spws map
+            will be mapped to the data spws according to 0-&gt;0, 0-&gt;1, 2-&gt;2.
+            (I.e., for data spw=0 and 2, the spw mapping is one to one,
+            but data spw 1 will be calibrated by solutions from spw 0.)
+
 outfile -- Name of output caltable.
-        default: '' (&lt;infile&gt;_&lt;suffix&gt; for calibration) 
+        default: '' (&lt;infile&gt;_&lt;suffix&gt; for calibration)
 overwrite -- overwrite the output caltable if already exists
         options: (bool) True,False
         default: False
 
 
 DESCRIPTION:
+sdgaincal computes and removes a time-dependent gain variation in single-dish
+data on a per-spectral-window and per-antenna basis. Presently the task
+operates only on data taken with the ALMA fast-mapped, double-circle
+observation modes [1]. This task exploits the fact that the double-circle mode
+observes the same position in the center of the mapped field, approximately
+circular every sub-cycle, and normalizes the gains throughout the entire
+dataset, relative to the measured brightness at the center position.
 
+Note that this gain calibration task is done independently of the atmosphere
+(i.e. Tsys) and sky calibration steps. This can be applied through the sdcal
+task. Alternatively, you can pass those caltables to applytable parameter to
+apply them on-the-fly prior to gain calibration.
 
+Presently, this task has only one calibration mode: calmode='doublecircle'.
+In this mode, the size of the region that CASA regards as "the center" is
+user-configurable via the expandable 'radius' (in arcsec) parameter (under
+'calmode'). The default is to use the size of the primary beam. The data can
+also be smoothed in the time domain, prior to computation of the gain variation.
+Selection is by specral window/channels, field IDs, and antenna through the spw,
+field, and antenna selection parameters. The default is to use all data for the
+gain calibration. The caltable can be output with the 'outfile' parameter.
+
+REFERENCE:
+[1] Phillips et al, 2015. Fast Single-Dish Scans of the Sun Using ALMA
   </example>
 
 </task>

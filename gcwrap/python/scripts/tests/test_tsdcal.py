@@ -4,6 +4,7 @@ import shutil
 import re
 import numpy
 import math
+import contextlib
 
 from __main__ import default
 from tasks import *
@@ -14,11 +15,25 @@ import listing
 import sdutil
 
 from sdcal import sdcal
+from partition import partition
 
 try:
     from testutils import copytree_ignore_subversion
 except:
     from tests.testutils import copytree_ignore_subversion
+    
+@contextlib.contextmanager
+def mmshelper(vis, separationaxis='auto'):
+    outputvis = vis.rstrip('/') + '.mms'
+    os.system('rm -rf {0}*'.format(outputvis))
+    try:
+        partition(vis=vis, outputvis=outputvis, separationaxis=separationaxis)
+        if os.path.exists(outputvis):
+            yield outputvis
+        else:
+            yield None
+    finally:
+        os.system('rm -rf {0}*'.format(outputvis))
 
 class sdcal_test(unittest.TestCase):
 
@@ -40,6 +55,7 @@ class sdcal_test(unittest.TestCase):
     # Input 
     infile1 = 'uid___A002_X6218fb_X264.ms.sel'
     infiles = [infile1]
+    tsystable = 'out.cal'
 
     def setUp(self):
         for infile in self.infiles:
@@ -52,6 +68,9 @@ class sdcal_test(unittest.TestCase):
         for infile in self.infiles:
             if (os.path.exists(infile)):
                 shutil.rmtree(infile)
+                
+        if os.path.exists(self.tsystable):
+            shutil.rmtree(self.tsystable)
 
     def _compareOutFile(self,out,reference):
         self.assertTrue(os.path.exists(out))
@@ -63,9 +82,49 @@ class sdcal_test(unittest.TestCase):
 
         tid = "00"
         infile = self.infile1
-        sdcal(infile=infile, calmode='tsys', outfile='out.cal')
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
         compfile1=infile+'/SYSCAL'
-        compfile2='out.cal'
+        compfile2=self.tsystable
+
+        tb.open(compfile1)
+        subt1=tb.query('', sortlist='ANTENNA_ID, TIME, SPECTRAL_WINDOW_ID', columns='TSYS_SPECTRUM')
+        tsys1=subt1.getcol('TSYS_SPECTRUM')
+        tb.close()
+        subt1.close()
+
+        tb.open(compfile2)
+        subt2=tb.query('', sortlist='ANTENNA1, TIME, SPECTRAL_WINDOW_ID', columns='FPARAM, FLAG')
+        tsys2=subt2.getcol('FPARAM')
+        flag=subt2.getcol('FLAG')
+
+        tb.close()
+        subt2.close()
+
+        if (tsys1 == tsys2).all():
+            print ''
+            print 'The shape of the MS/SYSCAL/TSYS_SPECTRUM', tsys1.shape
+            print 'The shape of the FPARAM extracted with sdcal', tsys2.shape  
+            print 'Both tables are identical.'
+        else:
+            print ''
+            print 'The shape of the MS/SYSCAL/TSYS_SPECTRUM', tsys1.shape
+            print 'The shape of the FPARAM of the extraction with sdcal', tsys2.shape
+            print 'Both tables are not identical.'
+
+        if flag.all()==0:
+            print 'ALL FLAGs are set to zero.'
+
+
+    def test00M(self):
+        """Test00M:Check the identification of TSYS_SPECTRuM and FPARAM (MMS)"""
+
+        tid = "00M"
+        infile = self.infile1
+        with mmshelper(infile) as mvis:
+            self.assertTrue(mvis is not None)
+            sdcal(infile=mvis, calmode='tsys', outfile=self.tsystable)
+        compfile1=infile+'/SYSCAL'
+        compfile2=self.tsystable
 
         tb.open(compfile1)
         subt1=tb.query('', sortlist='ANTENNA_ID, TIME, SPECTRAL_WINDOW_ID', columns='TSYS_SPECTRUM')
@@ -104,13 +163,13 @@ class sdcal_test(unittest.TestCase):
         
         tid = "01"
         infile = self.infile1
-        sdcal(infile=infile, calmode='tsys', outfile='tsys.cal')
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
         initweights(vis=infile, wtmode='nyq', dowtsp=True)        
         #spwmap_list=[0,1,2,3,4,5,6,7,8,1,10,3,12,5,14,7,16]
         #spwmap_dict={1:[9],3:[11],5:[13],7:[15]}
         
         spwmap_dict={1:[1],3:[3],5:[5],7:[7]}        
-        sdcal(infile=infile, calmode='apply', spwmap=spwmap_dict, applytable='tsys.cal', outfile='')
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap_dict, applytable=self.tsystable, outfile='')
         
                 
         tb.open(infile)
@@ -120,7 +179,7 @@ class sdcal_test(unittest.TestCase):
         weight10=tb.getcol('WEIGHT')[1][0]
         tb.close()
         
-        tb.open('tsys.cal')
+        tb.open(self.tsystable)
         sum_fparam0=0
         sum_fparam1=0
         for i in range(128):
@@ -153,13 +212,13 @@ class sdcal_test(unittest.TestCase):
         
         tid = "02"
         infile = self.infile1
-        sdcal(infile=infile, calmode='tsys', outfile='tsys2.cal')
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
         initweights(vis=infile, wtmode='nyq', dowtsp=True)        
         spwmap_list=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
         #spwmap_dict={1:[9],3:[11],5:[13],7:[15]}
         
         #spwmap_dict={1:[1],3:[3],5:[5],7:[7]}        
-        sdcal(infile=infile, calmode='apply', spwmap=spwmap_list, applytable='tsys2.cal', outfile='')
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap_list, applytable=self.tsystable, outfile='')
         
                 
         tb.open(infile)
@@ -169,7 +228,7 @@ class sdcal_test(unittest.TestCase):
         weight10=tb.getcol('WEIGHT')[1][0]
         tb.close()
         
-        tb.open('tsys2.cal')
+        tb.open(self.tsystable)
         sum_fparam0=0
         sum_fparam1=0
         for i in range(128):
@@ -249,7 +308,7 @@ class sdcal_test(unittest.TestCase):
 
         tid ="03"
         infile=self.infile1
-        tsysfile='tsys3.cal'
+        tsysfile=self.tsystable
         
         
         #tsys table is produced 
@@ -290,7 +349,7 @@ class sdcal_test(unittest.TestCase):
         
         tid ="04"
         infile=self.infile1
-        tsysfile='tsys4.cal'
+        tsysfile=self.tsystable
     
         #tsys table is produced 
         sdcal(infile=infile, calmode='tsys', outfile=tsysfile)
@@ -331,7 +390,7 @@ class sdcal_test(unittest.TestCase):
         
         tid ="05"
         infile=self.infile1
-        tsysfile='tsys5.cal'
+        tsysfile=self.tsystable
     
         #tsys table is produced 
         sdcal(infile=infile, calmode='tsys', outfile=tsysfile)
@@ -367,13 +426,13 @@ class sdcal_test(unittest.TestCase):
         
         tid = "06"
         infile = self.infile1
-        sdcal(infile=infile, calmode='tsys', outfile='tsys6.cal')
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
         initweights(vis=infile, wtmode='nyq', dowtsp=True)        
         #spwmap_list=[0,1,2,3,4,5,6,7,8,1,10,3,12,5,14,7,16]
         #spwmap_dict={1:[9],3:[11],5:[13],7:[15]}
         
         spwmap_dict={1:[1],3:[3],5:[5],7:[7]}        
-        sdcal(infile=infile, calmode='apply', spwmap=spwmap_dict, applytable='tsys6.cal', interp='nearest', outfile='')
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap_dict, applytable=self.tsystable, interp='nearest', outfile='')
         
         row=0
         eps = 1.0e-1
@@ -384,7 +443,7 @@ class sdcal_test(unittest.TestCase):
         total_ch=tb.getcell('WEIGHT_SPECTRUM',row).shape[1]
         tb.close()
         
-        tb.open('tsys.cal')
+        tb.open(self.tsystable)
         fparam=tb.getcell('FPARAM', row)
         for ch in range(total_ch):
             #print 'SIGMA00 ', sigma[0]
@@ -640,6 +699,15 @@ class sdcal_test_ps(sdcal_test_base):
         test_ps05 --- position switch calibration ('ps')
         """
         self.result = sdcal(infile=self.infile, calmode='ps', outfile=self.outfile)
+
+    @normal_case()
+    def test_ps05M(self):
+        """
+        test_ps05M --- position switch calibration ('ps') for MMS
+        """
+        with mmshelper(vis=self.infile) as mvis:
+            self.assertTrue(mvis is not None)
+            self.result = sdcal(infile=mvis, calmode='ps', outfile=self.outfile)
 
     @normal_case(spw='9')
     def test_ps06(self):
@@ -900,6 +968,16 @@ class sdcal_test_otfraster(sdcal_test_base):
         self.result = sdcal(infile=self.infile, outfile=self.outfile,
                              calmode='otfraster')
 
+    @normal_case(numedge=1)
+    def test_otfraster07M(self):
+        """
+        test_otfraster07M --- OTF raster calibration ('otfraster') with default setting (MMS)
+        """
+        with mmshelper(vis=self.infile) as mvis:
+            self.assertTrue(mvis is not None)
+            self.result = sdcal(infile=mvis, outfile=self.outfile,
+                                calmode='otfraster')
+
     @normal_case(numedge=2)
     def test_otfraster08(self):
         """
@@ -1136,6 +1214,29 @@ class sdcal_test_otf(unittest.TestCase):
         }
         expected_result = MsCalTableChecker(self.ref_caltable())
         self.run_sdcal()
+        sdcal_result = MsCalTableChecker(self.sdcal_params['outfile'])
+        self.assertEqual(sdcal_result,expected_result) # AlmostEqual semantics
+
+    def test_otf03M(self):
+        """
+        test_otf03 --- Compute calibration table. calmode='otf' ms=lissajous.ms (MMS)
+        """
+        self.sdcal_params = {
+            'infile':'lissajous.ms',
+            'calmode':'otf',
+            'outfile':'test_otf03.ms_caltable'
+        }
+        self.current_test_params = {
+            'ref_caltable':'lissajous.edges_new_fraction_0.1.ms_caltable'
+        }
+        expected_result = MsCalTableChecker(self.ref_caltable())
+        self.setup()
+        infile = self.sdcal_params['infile']
+        with mmshelper(vis=infile) as mvis:
+            self.assertTrue(mvis is not None)
+            self.sdcal_params['infile'] = mvis
+            sdcal(**self.sdcal_params)
+            self.sdcal_params['infile'] = infile
         sdcal_result = MsCalTableChecker(self.sdcal_params['outfile'])
         self.assertEqual(sdcal_result,expected_result) # AlmostEqual semantics
 
@@ -1620,6 +1721,14 @@ class sdcal_test_apply(sdcal_test_base):
                     tinterp = 'linear'
                 if len(finterp) == 0:
                     finterp = 'linearflag'
+                    
+                # CAS-10772
+                # Linear flag interpolation along spectral axis behaves like "nearest" if science and 
+                # calibrater data have same set of frequency channels. This is always true for single 
+                # dish sky calibration. 
+                # So, finterp option for flags should always be 'nearestflag'.
+                if finterp == 'linearflag':
+                    finterp = 'nearestflag'
                 
                 # result depends on interp
                 print 'Interpolation option:', tinterp, finterp
@@ -1737,8 +1846,8 @@ class sdcal_test_apply(sdcal_test_base):
         """
         test_apply_sky06 --- invalid interp value
         """
-        # 'cubic' interpolation along time axis is not supported yet
-        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='cubic')
+        # 'sinusoid' interpolation along time axis is not supported
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='sinusoid')
     
     @exception_case(RuntimeError, '^Applytable \'.+\' is not a caltable format$')
     def test_apply_sky07(self):
@@ -1753,6 +1862,14 @@ class sdcal_test_apply(sdcal_test_base):
         test_apply_sky08 --- apply data (linear)
         """
         self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='linear')
+
+    @normal_case()
+    def test_apply_sky08M(self):
+        """
+        test_apply_sky08M --- apply data (linear) for MMS
+        """
+        self.skipTest('Skip test_apply_sky08M until calibrator tool supports processing MMS on serial casa')
+        #self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='linear')
 
     @normal_case(spw='9')
     def test_apply_sky09(self):

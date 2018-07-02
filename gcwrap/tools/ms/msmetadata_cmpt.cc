@@ -47,7 +47,7 @@
 #include <msvis/MSVis/MSChecker.h>
 
 #include <algorithm>
-#include <boost/regex.hpp>
+#include <regex>
 
 #include <casa/namespace.h>
 
@@ -2061,6 +2061,54 @@ vector<int> msmetadata::tdmspws() {
 	return vector<int>();
 }
 
+variant* msmetadata::timesforspws(const variant& spws) {
+    _FUNC(
+        auto type = spws.type();
+        std::vector<Int> myspws;
+        Int nspw = _msmd->nSpw(True);
+        if (type == variant::BOOLVEC) {
+            myspws.resize(nspw);
+            std::iota(myspws.begin(), myspws.end(), 0);
+        }
+        else if (type == variant::INT) {
+            auto spw = spws.toInt();
+            if (spw >= 0) {
+                myspws.push_back(spw);
+            }
+            else {
+                std::iota(myspws.begin(), myspws.end(), 0);
+            }
+        }
+        else if(type == variant::INTVEC) {
+            myspws = spws.toIntVec();
+            Vector<Int> test(myspws);
+            ThrowIf(min(test) < 0, "If spws is an array, all values must be non-negative");
+            ThrowIf(
+                max(test) >= nspw,
+                "Values in spws array must all be less than the number "
+                "of spectral windows, which is " + String::toString(nspw)
+            );
+        }
+        else {
+            ThrowCc("Unsupported type for spws");
+        }
+        variant ret;
+        auto vec = _msmd->getTimesForSpws(True);
+        if (myspws.size() == 1) {
+            auto spw = myspws[0];
+            return new variant(vector<Double>(vec[spw].begin(), vec[spw].end()));
+        }
+        else {
+            record x;
+            for (const auto& spw: myspws) {
+                vector<Double> times(vec[spw].begin(), vec[spw].end());
+                x[String::toString(spw)] = times;
+            }
+            return new variant(x);
+        }
+    )
+    return nullptr;
+}
 
 variant* msmetadata::transitions(int sourceid, int spw) {
     _FUNC(
@@ -2321,10 +2369,10 @@ std::set<T> msmetadata::_idsFromExpansion(
 	const std::map<String, std::set<T> >& mymap, const String& matchString
 ) {
 	std::set<T> ids;
-	boost::regex re;
+	std::regex re;
 	re.assign(_escapeExpansion(matchString));
 	for(auto kv : mymap) {
-		if (boost::regex_match(kv.first, re)) {
+		if (std::regex_match(kv.first, re)) {
 			ids.insert(kv.second.begin(), kv.second.end());
 		}
 	}
@@ -2335,10 +2383,10 @@ std::set<Int> msmetadata::_idsFromExpansion(
 	const std::map<String, std::set<uInt> >& mymap, const String& matchString
 ) {
 	std::set<Int> ids;
-	boost::regex re;
+	std::regex re;
 	re.assign(_escapeExpansion(matchString));
 	for(auto kv : mymap) {
-		if (boost::regex_match(kv.first, re)) {
+		if (std::regex_match(kv.first, re)) {
 			ids.insert(kv.second.begin(), kv.second.end());
 		}
 	}
@@ -2371,10 +2419,10 @@ std::vector<casacore::String> msmetadata::_match(
 	const vector<casacore::String>& candidates, const casacore::String& matchString
 ) {
 	vector<casacore::String> matches;
-	boost::regex re;
+	std::regex re;
 	re.assign(_escapeExpansion(matchString));
 	for(auto candidate : candidates) {
-		if (boost::regex_match(candidate, re)) {
+		if (std::regex_match(candidate, re)) {
 			matches.push_back(candidate);
 		}
 	}
@@ -2382,15 +2430,15 @@ std::vector<casacore::String> msmetadata::_match(
 }
 
 std::string msmetadata::_escapeExpansion(const casacore::String& stringToEscape) {
-	const boost::regex esc("[\\^\\.\\$\\|\\(\\)\\[\\]\\+\\?\\/\\\\]");
+	const std::regex esc("[\\^\\.\\$\\|\\(\\)\\[\\]\\+\\?\\/\\\\]");
 	const std::string rep("\\\\\\1");
 	std::string result = regex_replace(
-		stringToEscape, esc, rep, boost::match_default | boost::format_sed
+		stringToEscape, esc, rep, std::regex_constants::match_default | std::regex_constants::format_sed
 	);
-	const boost::regex expand("\\*");
+	const std::regex expand("\\*");
 	const std::string rep1(".*");
 	return regex_replace(
-		result, expand, rep1, boost::match_default | boost::format_sed
+		result, expand, rep1, std::regex_constants::match_default | std::regex_constants::format_sed
 	);
 }
 

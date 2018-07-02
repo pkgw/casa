@@ -31,11 +31,6 @@
 using namespace casacore;
 namespace casa {
 
-	const QString QtPlotSettings::RADIO_VELOCITY   = "radio velocity";
-	const QString QtPlotSettings::OPTICAL_VELOCITY = "optical velocity";
-	const QString QtPlotSettings::OPTICAL_WAVELENGTH = "air wavelength";
-	const double QtPlotSettings::ZERO_LIMIT        = 0.0000000000000005f;
-
 	QtPlotSettings::QtPlotSettings( ) {
 		const int TICK_MIN = 0;
 		const int TICK_MAX = 10;
@@ -67,11 +62,11 @@ namespace casa {
 		maxY += dy * stepY;
 	}
 
-	pair<double,double> QtPlotSettings::getZoomOutY( double zoomFactor ) const {
+	std::pair<double,double> QtPlotSettings::getZoomOutY( double zoomFactor ) const {
 		double prevSpanY = spanY();
 		double minY = this->minY - zoomFactor * prevSpanY;
 		double maxY = this->maxY + zoomFactor * prevSpanY;
-		pair<double,double> percentageSpan( minY, maxY );
+		std::pair<double,double> percentageSpan( minY, maxY );
 		return percentageSpan;
 	}
 
@@ -88,11 +83,11 @@ namespace casa {
 	}
 
 
-	pair<double,double> QtPlotSettings::getZoomInY( double zoomFactor ) const {
+	std::pair<double,double> QtPlotSettings::getZoomInY( double zoomFactor ) const {
 		double prevSpanY = spanY();
 		double minY = this->minY + zoomFactor * prevSpanY;
 		double maxY = this->maxY - zoomFactor * prevSpanY;
-		pair<double,double> percentageSpan( minY,maxY);
+		std::pair<double,double> percentageSpan( minY,maxY);
 		return percentageSpan;
 	}
 
@@ -131,7 +126,7 @@ namespace casa {
 		m_bottomUnits = bottomUnits;
 		if ( autoScaleX ) {
 			//Adjust the bottom axis allowing it to set the number of ticks.
-			pair<double,double> percentChange=adjustAxis( minX[xBottom], maxX[xBottom], numXTicks);
+			std::pair<double,double> percentChange=adjustAxis( minX[xBottom], maxX[xBottom], numXTicks);
 
 			if ( percentChange.first > 0 ){
 				minPercentage = percentChange.first;
@@ -159,7 +154,7 @@ namespace casa {
 	}
 
 
-	pair<double,double> QtPlotSettings::adjustAxis(double &min, double &max,
+	std::pair<double,double> QtPlotSettings::adjustAxis(double &min, double &max,
 	                                int &numTicks ) {
 		const int MinTicks = 4;
 		double grossStep = fabs(max - min) / MinTicks;
@@ -181,7 +176,7 @@ namespace casa {
 		min = newMin;
 		max = newMax;
 
-		pair<double,double> percentageChange( minPercentage, maxPercentage );
+		std::pair<double,double> percentageChange( minPercentage, maxPercentage );
 		return percentageChange;
 	}
 
@@ -215,7 +210,7 @@ namespace casa {
 
 			//If the top axis involves optical units, then we need to set the doppler
 			//before being able to convert.
-			if ( m_topType == OPTICAL_VELOCITY || m_topType == OPTICAL_WAVELENGTH ){
+			if ( m_topType == OPTICAL_VELOCITY( ) || m_topType == OPTICAL_WAVELENGTH( ) ){
 				std::pair<double,double> topBounds = convertBottomBounds( minHz, maxHz, m_topUnits, m_topType);
 				min = topBounds.first;
 				max = topBounds.second;
@@ -324,13 +319,13 @@ namespace casa {
 				}
 			}
 			if ( tickIndex == 0 || (tickIndex == tickCount - 1) || bracketed ){
-				if ( m_topType == OPTICAL_VELOCITY ){
-					if ( m_bottomType == RADIO_VELOCITY){
+				if ( m_topType == OPTICAL_VELOCITY( ) ){
+					if ( m_bottomType == RADIO_VELOCITY( )){
 						label = 0;
 					}
 				}
-				else if ( m_topType == RADIO_VELOCITY ){
-					if ( m_bottomType == OPTICAL_VELOCITY){
+				else if ( m_topType == RADIO_VELOCITY( ) ){
+					if ( m_bottomType == OPTICAL_VELOCITY( )){
 						label = 0;
 					}
 				}
@@ -347,10 +342,10 @@ namespace casa {
 
 	MDoppler::Types QtPlotSettings::getDoppler(  const QString& unitType ){
 		MDoppler::Types dopplerType = MDoppler::RELATIVISTIC;
-		if ( unitType == RADIO_VELOCITY ){
+		if ( unitType == RADIO_VELOCITY( ) ){
 			dopplerType = MDoppler::RADIO;
 		}
-		else if ( unitType == OPTICAL_VELOCITY ){
+		else if ( unitType == OPTICAL_VELOCITY( ) ){
 			dopplerType = MDoppler::OPTICAL;
 		}
 		return dopplerType;
@@ -374,7 +369,7 @@ namespace casa {
 		else {
 			// unit must be conformant with meters
 			m_spectralCoordinate.setWavelengthUnit(units.toStdString().c_str());
-			if ( unitType == OPTICAL_WAVELENGTH ){
+			if ( unitType == OPTICAL_WAVELENGTH( ) ){
 				m_spectralCoordinate.frequencyToAirWavelength( coords, coords );
 			}
 			else {

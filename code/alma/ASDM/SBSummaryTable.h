@@ -41,15 +41,11 @@
 
 
 	
-#include <ArrayTime.h>
-	
-
-	
 #include <Angle.h>
 	
 
 	
-#include <Interval.h>
+#include <ArrayTime.h>
 	
 
 	
@@ -58,6 +54,10 @@
 
 	
 #include <EntityRef.h>
+	
+
+	
+#include <Interval.h>
 	
 
 
@@ -137,7 +137,7 @@ class SBSummaryRow;
  * Characteristics of the Scheduling Block that has been executed. Much of the  data here is reproduced from the Scheduling block itself.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of SBSummary </CAPTION>
@@ -208,7 +208,7 @@ class SBSummaryRow;
  * </TR>
 	
  * <TR>
- * <TD> numObservingMode </TD> 
+ * <TD> numObservingMode (numObservingMode)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of observing modes. </TD>
@@ -222,14 +222,14 @@ class SBSummaryRow;
  * </TR>
 	
  * <TR>
- * <TD> numberRepeats </TD> 
+ * <TD> numberRepeats (numberRepeats)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of repeats. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numScienceGoal </TD> 
+ * <TD> numScienceGoal (numScienceGoal)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of scientific goals. </TD>
@@ -243,7 +243,7 @@ class SBSummaryRow;
  * </TR>
 	
  * <TR>
- * <TD> numWeatherConstraint </TD> 
+ * <TD> numWeatherConstraint (numWeatherConstraint)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of weather constraints. </TD>
@@ -261,21 +261,21 @@ class SBSummaryRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> centerDirection </TD> 
+ * <TD> centerDirection</TD> 
  * <TD> vector<Angle > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the representative target direction. </TD>
  * </TR>
 	
  * <TR>
- * <TD> centerDirectionCode </TD> 
+ * <TD> centerDirectionCode</TD> 
  * <TD> DirectionReferenceCodeMod::DirectionReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the direction reference frame associated with centerDirection. </TD>
  * </TR>
 	
  * <TR>
- * <TD> centerDirectionEquinox </TD> 
+ * <TD> centerDirectionEquinox</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the equinox associated to centerDirectionReferenceCode (if needed). </TD>
@@ -583,6 +583,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

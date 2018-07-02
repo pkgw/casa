@@ -15,6 +15,10 @@
 #include <casacore/measures/Measures/MDirection.h>
 #include <casacore/tables/Tables/TableRecord.h>
 #include <casacore/measures/Measures/Stokes.h>
+#include <casacore/tables/Tables/Table.h>
+#include <casacore/tables/Tables/ScaColDesc.h>
+#include <casacore/tables/Tables/SetupNewTab.h>
+
 #include <singledishfiller/Filler/AntennaRecord.h>
 #include <singledishfiller/Filler/DataRecord.h>
 #include <singledishfiller/Filler/FieldRecord.h>
@@ -25,6 +29,9 @@
 #include <singledishfiller/Filler/SpectralWindowRecord.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+// forward declaration
+template<class T> class NullOptionalTables;
 
 // NonCopyable Mixin (CRTP)
 template<class T>
@@ -43,8 +50,10 @@ private:
 
 class ReaderInterface: private NonCopyable<ReaderInterface> {
 public:
-  ReaderInterface(std::string const &name, bool const is_nro = false) :
-    name_(name), is_nro_(is_nro) {
+  typedef NullOptionalTables<ReaderInterface> OptionalTables;
+
+  ReaderInterface(std::string const &name) :
+    name_(name) {
   }
 
   virtual ~ReaderInterface() {
@@ -54,10 +63,10 @@ public:
     return name_;
   }
 
-  bool isNROData() {
-    return is_nro_;
+  virtual casacore::String getDataUnit() const {
+    return "";
   }
-  
+
   virtual int getNROArraySize() {
     return 0;
   }
@@ -143,13 +152,21 @@ protected:
   virtual void finalizeSpecific() = 0;
 
   std::string const name_;
-  bool const is_nro_;
 
 private:
   // common initialization/finalization actions
   void initializeCommon() {
   }
   void finalizeCommon() {
+  }
+};
+
+// empty OptionalTables class
+template<class Reader>
+class NullOptionalTables {
+public:
+  static void Generate(casacore::Table &/*table*/, Reader const &/*reader*/) {
+    //std::cout << "This is default. NullOptionalTables::Generate" << std::endl;
   }
 };
 

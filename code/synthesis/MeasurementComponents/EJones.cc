@@ -60,8 +60,7 @@ EGainCurve::EGainCurve(VisSet& vs) :
   VisMueller(vs),
   SolvableVisJones(vs),
   za_(),
-  eff_(nSpw(),1.0),
-  spwOK_()
+  eff_(nSpw(),1.0)
 {
   if (prtlev()>2) cout << "EGainCurve::EGainCurve(vs)" << endl;
 }
@@ -71,8 +70,7 @@ EGainCurve::EGainCurve(String msname,Int MSnAnt,Int MSnSpw) :
   VisMueller(msname,MSnAnt,MSnSpw),
   SolvableVisJones(msname,MSnAnt,MSnSpw),
   za_(),
-  eff_(nSpw(),1.0),
-  spwOK_()
+  eff_(nSpw(),1.0)
 {
   if (prtlev()>2) cout << "EGainCurve::EGainCurve(msname,MSnAnt,MSnSpw)" << endl;
 }
@@ -82,8 +80,7 @@ EGainCurve::EGainCurve(const MSMetaInfoForCal& msmc) :
   VisMueller(msmc),
   SolvableVisJones(msmc),
   za_(),
-  eff_(nSpw(),1.0),
-  spwOK_()
+  eff_(nSpw(),1.0)
 {
   if (prtlev()>2) cout << "EGainCurve::EGainCurve(msmc)" << endl;
 }
@@ -179,10 +176,32 @@ void EGainCurve::setSpecify(const Record& specify) {
   const ROMSObservationColumns& obscol(mscol.observation());
 
   String telescope(obscol.telescopeName()(0));
-  if (telescope.contains("VLA")) {
+
+  // Parse infile
+  if (specify.isDefined("infile"))
+    gainCurveSrc_=specify.asString("infile");
+
+  // Use external file, if specified
+  if (gainCurveSrc_!="") {
+    if ( !Table::isReadable(gainCurveSrc_) )
+      throw(AipsError("Specified gain curve table: "+gainCurveSrc_+" is unreadable or absent."));
+
+    // Specified table exists, so we'll try to use it
+    logSink() << "Using user-specified gaincurve table: " 
+	      << gainCurveSrc_ 
+	      << LogIO::POST;
+
+  } 
+  // If VLA, use standard file
+  else if (telescope.contains("VLA")) {
     gainCurveSrc_=Aipsrc::aipsRoot() + "/data/nrao/VLA/GainCurves";
     if ( !Table::isReadable(gainCurveSrc_) )
-      throw(AipsError("Gain curve table "+calTableName()+" is unreadable or absent."));
+      throw(AipsError("Standard VLA gain curve table "+gainCurveSrc_+" is unreadable or absent."));
+
+    // VLA gaincurve exists, so we'll try to use it
+    logSink() << "Using standard VLA gaincurve table from the data repository: " 
+	      << gainCurveSrc_ 
+	      << LogIO::POST;
 
     // Strip any ea/va baloney from the MS antenna names so 
     //  they match the integers (as strings) in the GainCurves table
@@ -191,6 +210,10 @@ void EGainCurve::setSpecify(const Record& specify) {
       if (antnames_(iant).find('0')==0)
 	antnames_(iant)=antnames_(iant).after('0');
     }
+  }
+  // Unspecified and not VLA: gain curve unsupported...
+  else {
+    throw(AipsError("Automatic gain curve not supported for "+telescope));
   }
 
   Vector<Double> timerange(obscol.timeRange()(0));
@@ -308,8 +331,8 @@ void EGainCurve::specify(const Record& specify) {
                                  && rawgaintab.col("ETIME") > obstime_);
 
   // ...for each spw:
-  spwOK_.resize(nSpw());  
-  spwOK_.set(false);  // will set true when we find them
+  Vector<Bool> spwFound_(nSpw(),false);  
+  spwFound_.set(false);  // will set true when we find them
 
   for (Int ispw=0; ispw<nSpw(); ispw++) {
 
@@ -374,7 +397,7 @@ void EGainCurve::specify(const Record& specify) {
 	  */
 	}
 	
-	spwOK_(currSpw())=true;
+	spwFound_(currSpw())=true;
 	
       }
       else {
@@ -398,7 +421,7 @@ void EGainCurve::specify(const Record& specify) {
       solveAllRPar().set(0.0);
       solveAllRPar()(Slice(0,1,1),Slice(),Slice()).set(1.0);
       solveAllRPar()(Slice(4,1,1),Slice(),Slice()).set(1.0);
-      spwOK_(currSpw())=true;
+      spwFound_(currSpw())=true;
     }
 
     // Scale by efficiency factor, if requested
@@ -411,7 +434,7 @@ void EGainCurve::specify(const Record& specify) {
 
   } // ispw
 
-  if (allEQ(spwOK_,false))
+  if (allEQ(spwFound_,false))
     throw(AipsError("Found no gaincurve data for any spw."));
 
 

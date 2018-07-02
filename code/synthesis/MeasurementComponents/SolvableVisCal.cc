@@ -64,10 +64,11 @@
 #include <casa/iomanip.h>
 #include <casa/Containers/RecordField.h>
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/plotserver/PlotServerProxy.h>
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
-
+#endif
 
 #include <casa/Logging/LogMessage.h>
 #include <casa/Logging/LogSink.h>
@@ -495,7 +496,7 @@ void SolvableVisCal::setApply(const Record& apply) {
 
   // Make the interpolation engine
   MeasurementSet ms(msName());
-  ci_ = new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),fInterpType(),fieldtype,ms,spwMap());
+  ci_ = new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),fInterpType(),fieldtype,ms,spwMap(),cttifactoryptr());
 
   // Channel counting info 
   //  (soon will deprecate, I think, because there will be no need
@@ -540,9 +541,12 @@ void SolvableVisCal::setCallib(const Record& callib,
 	    << LogIO::POST;
 
   // Make the interpolation engine
-  cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar());
+  cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar(),cttifactoryptr());
+  //cpp_->listmappings();
 
-  //  cpp_->listmappings();
+  // Setup ct_ in SVC private data, because some derived classes need this
+  //  NB:  Not loaded into memory in the callib context (CLPatchPanel has that)
+  ct_= new NewCalTable(calTableName(),Table::Old,Table::Plain);
 
 }
 
@@ -1017,7 +1021,7 @@ void SolvableVisCal::setSimulate(VisSet& vs, Record& simpar, Vector<Double>& sol
       delete ci_;
 
     MeasurementSet ms(msName());
-    ci_=new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),"linear","",ms,spwMap());
+    ci_=new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),"linear","",ms,spwMap(),cttifactoryptr());
 
   }
 
@@ -2265,6 +2269,12 @@ void SolvableVisCal::reParseSolintForVI2() {
   else
     // interpret as only time-dep solint
     solint()=usolint_;
+
+  // solint is always "int" for single dish calibration
+  if (longTypeName().startsWith("SDGAIN_OTFD")) {
+    //return;
+    solint() = "int";
+  }
 
   // Handle solint format
   if (upcase(solint()).contains("INF") || solint()=="") {
@@ -3848,6 +3858,95 @@ Bool SolvableVisCal::spwOK(Int ispw) {
   }
 }
 
+// Is the data in this VB calibrate-able?  This replaces the old spwOK and
+//   is more specific as regards obs, fld, intent.  Used at wide scopes
+//   (Calibrater/VisEquation) to control entering expensive loops.
+// "OK for Cal" or "Calibrate-able" here means:
+//   a) this SVC can actually calibrate the data within the VB because
+//       there are solutions explicitly available to do it (see
+//       SVC::calAvailable(vb) below)
+// OR
+//   b) that this SVC is agnostic about the data within the VB according
+//       to arrangements made by CalLibrary specifictions and
+//       embodied within the CLPatchPanel (cpp_).  Agnosticism is
+//       supported ONLY when using the CalLibrary and CLPatchPanel
+Bool SolvableVisCal::VBOKforCalApply(vi::VisBuffer2& vb) {
+
+  // Current spw
+  //  TBD: Use syncMeta2?
+  const Int& ispw(vb.spectralWindows()(0));
+
+  if (isSolved())
+    return spwOK_(ispw);
+
+  if (isApplied()) {
+
+    if (ci_)
+      // Get it from the old-fashioned CTPatchedInterp
+      return spwOK_(ispw)=ci_->spwOK(ispw);
+
+    else if (cpp_) {
+      // Get it from the new CLPatchPanel, which has
+      //  obs, fld, intent specificity, too!
+      const Int& iobs(vb.observationId()(0));
+      const Int& ifld(vb.fieldId()(0));
+      const Int& ient(vb.stateId()(0));
+      return cpp_->MSIndicesOK(iobs,ifld,ient,ispw,-1); // all ants
+    }
+    else
+      // Assume ok for non-interpolable types
+      return true;
+  }
+
+  // Shouldn't reach here, assume true (could trigger failure elsewhere)
+  return true;
+
+}
+
+// Is calibration for the specified VB actually available?
+//  This returns true when condition "a" described above
+//  is true.  If the CLPatchPanel is agnostic, this returns
+//  false.  This is used by VisCal::correct2 control whether
+//  calibration update and algebraic apply can/should be done. 
+//  In the CalLibrary context, this enables agnosticism (when
+//  false)
+//  The implementation here is almost the same as VBOKforCal,
+//   differing only in the call to cpp_->calAvailable.
+Bool SolvableVisCal::calAvailable(vi::VisBuffer2& vb) {
+
+  // Current spw
+  //  TBD: Use syncMeta2?
+  const Int& ispw(vb.spectralWindows()(0));
+
+  if (isSolved())
+    return spwOK_(ispw);
+
+  if (isApplied()) {
+
+    if (ci_)
+      // Get it from the old-fashioned CTPatchedInterp
+      return spwOK_(ispw)=ci_->spwOK(ispw);
+
+    else if (cpp_) {
+      // Get it from the new CLPatchPanel, which has
+      //  obs, fld, intent specificity, too!
+      const Int& iobs(vb.observationId()(0));
+      const Int& ifld(vb.fieldId()(0));
+      const Int& ient(vb.stateId()(0));
+      return cpp_->calAvailable(iobs,ifld,ient,ispw,-1); // all ants
+    }
+    else
+      // Assume ok for non-interpolable types
+      return true;
+  }
+
+  // Shouldn't reach here, assume true (could trigger failure elsewhere)
+  return true;
+
+}
+
+
+
 // File a solved solution (and meta-data) into the in-memory Caltable
 void SolvableVisCal::keepNCT() {
 
@@ -4640,8 +4739,10 @@ SolvableVisJones::SolvableVisJones(VisSet& vs) :
   dJ1_(NULL),                           // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(false),
-  plotter_(NULL)
+  DJValid_(false)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(vs)" << endl;
 }
@@ -4654,8 +4755,10 @@ SolvableVisJones::SolvableVisJones(String msname,Int MSnAnt,Int MSnSpw) :
   dJ1_(NULL),                           // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(false),
-  plotter_(NULL)
+  DJValid_(false)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(msname,MSnAnt,MSnSpw)" << endl;
 }
@@ -4668,8 +4771,10 @@ SolvableVisJones::SolvableVisJones(const MSMetaInfoForCal& msmc) :
   dJ1_(NULL),               // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(False),
-  plotter_(NULL)
+  DJValid_(False)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(msmc)" << endl;
 }
@@ -4683,8 +4788,10 @@ SolvableVisJones::SolvableVisJones(const Int& nAnt) :
   dJ1_(NULL),                 // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(false),
-  plotter_(NULL)
+  DJValid_(false)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(i,j,k)" << endl;
 }
@@ -7341,8 +7448,10 @@ void SolvableVisJones::fluxscale(const String& outfile,
 
 void SolvableVisJones::setupPlotter() {
 // setjup plotserver
+#if ! defined(WITHOUT_DBUS)
   plotter_ = dbus::launch<PlotServerProxy>( );
   panels_id_.resize(nSpw());
+#endif
 }
 
 void SolvableVisJones::plotHistogram(const String& title,
@@ -7353,15 +7462,19 @@ void SolvableVisJones::plotHistogram(const String& title,
   std::string legendloc = "bottom";
   std::string zoomloc = "";
   if (index==0) {
+#if ! defined(WITHOUT_DBUS)
     panels_id_[0] = plotter_->panel( title, "ratio", "N", "Fluxscale",
                                    std::vector<int>( ), legendloc,zoomloc,0,false,false);
+#endif
     std::vector<std::string> loc;
     loc.push_back("top");
     //plotter_->loaddock( dock_xml_p, "bottom", loc, panels_id_[0].getInt());
   }
   else {
+#if ! defined(WITHOUT_DBUS)
     panels_id_[index] = plotter_->panel( title, "ratio", "N", "",
     std::vector<int>( ), legendloc,zoomloc,panels_id_[index-1].getInt(),false,false);
+#endif
      
     // multirow panels
     /***
@@ -7383,8 +7496,10 @@ void SolvableVisJones::plotHistogram(const String& title,
     ***/
   }
   // plot histogram
+#if ! defined(WITHOUT_DBUS)
   plotter_->erase( panels_id_[index].getInt() );
   plotter_->histogram(dbus::af(data),nbins,"blue",title,panels_id_[index].getInt( ));
+#endif
 
 }
 

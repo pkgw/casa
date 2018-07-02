@@ -9,6 +9,7 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
         ###
 	#Python script
         casalog.origin('mosaic')
+	casalog.post("Task mosaic has been deprecated and will be removed in release 5.4.", "WARN")
 
 	if(mask==[]):
 		mask=['']
@@ -61,11 +62,11 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
                         imsize=[imsize,imsize]
                 if ((type(cell)==int) | (type(cell)==float) | (type(cell)==str)):
                         cell=[cell,cell]
-                if ((len(imsize)==1)): 
+                if ((len(imsize)==1)):
                         imsize=[imsize[0],imsize[0]]
                 if ((len(cell)==1)):
                         cell=[cell[0],cell[0]]
-		
+
 		cellx=cell[0]
 		celly=cell[1]
 		if((type(cell[0])==int) or (type(cell[0])==float)):
@@ -80,7 +81,7 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
 			if(qa.quantity(start)['unit'].find('Hz') < 1):
 				raise TypeError, "start parameter is not a valid frequency quantity "
 			if(qa.quantity(width)['unit'].find('Hz') < 1):
-				raise TypeError, "start parameter is not a valid frequency quantity "	
+				raise TypeError, "start parameter is not a valid frequency quantity "
                 elif(mode=='velocity'):
                         ##check that start and step have units
                         if(qa.quantity(start)['unit'].find('m/s') < 0):
@@ -88,7 +89,7 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
                         if(qa.quantity(width)['unit'].find('m/s') < 0):
                                 raise TypeError, "start parameter is not a valid velocity quantity "
 		else:
-			if((type(width) != int) 
+			if((type(width) != int)
 			   or (type(start) != int)):
 				raise TypeError, "start, width have to be  integers with mode %s" %mode
 
@@ -96,9 +97,9 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
 
 
 ###try to minimize the number of data selection
-		### when natural mosweight is irrelevant		
+		### when natural mosweight is irrelevant
 		if(weighting=='natural'):
-			mosweight=False 
+			mosweight=False
 		imMos.selectvis(field=field,spw=spw,time=timerange, usescratch=True)
 		imMos.weight(type=weighting,rmode=rmode,robust=robust,npixels=npixels, noise=noise, mosaic=mosweight)
 
@@ -134,8 +135,8 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
 
 #		imMos.make(modelimage)
 # Using SD image as model
-		if (sdimage!=''): 
-			if (mask[0]==''):  
+		if (sdimage!=''):
+			if (mask[0]==''):
 				imMos.makemodelfromsd(sdimage=sdimage,modelimage=modelimage,maskimage=imagename+'.mask')
 				mask[0]=imagename+'.mask'
 			else:
@@ -170,4 +171,3 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
 	except Exception, instance:
 		print '*** Error *** ',instance
 		raise Exception, instance
-

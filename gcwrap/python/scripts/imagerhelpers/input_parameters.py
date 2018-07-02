@@ -94,6 +94,7 @@ class ImagerParameters():
                  cycleniter=0, 
                  loopgain=0.1,
                  threshold='0.0Jy',
+                 nsigma=0.0,
                  cyclefactor=1.0,
                  minpsffraction=0.1,
                  maxpsffraction=0.8,
@@ -117,9 +118,14 @@ class ImagerParameters():
                  sidelobethreshold=5.0,
                  noisethreshold=3.0,
                  lownoisethreshold=3.0,
+                 negativethreshold=0.0,
                  smoothfactor=1.0,
                  minbeamfrac=0.3,
                  cutthreshold=0.01,
+                 growiterations=100,
+                 dogrowprune=True,
+                 minpercentchange=0.0,
+                 verbose=False,
 
 #                 usescratch=True,
 #                 readonly=True,
@@ -128,7 +134,17 @@ class ImagerParameters():
                  workdir='',
 
                  ## CFCache params
-                 cflist=[]
+                 cflist=[],
+                 
+                 ## single-dish imaging params
+                 gridfunction='SF',
+                 convsupport=-1,
+                 truncate="-1",
+                 gwidth="-1",
+                 jwidth="-1",
+                 pointingcolumntouse='direction',
+                 minweight=0.0,
+                 clipminmax=False
                  ):
 
         self.defaultKey="0";
@@ -162,7 +178,11 @@ class ImagerParameters():
                                    'rotatepastep':rotatepastep, #'mtype':mtype, # 'weightlimit':weightlimit,
                                    'facets':facets,'chanchunks':chanchunks,
                                    'interpolation':interpolation, 'wprojplanes':wprojplanes,
-                                   'deconvolver':deconvolver, 'vptable':vptable }     }
+                                   'deconvolver':deconvolver, 'vptable':vptable,
+                                   ## single-dish specific
+                                   'convfunc': gridfunction, 'convsupport': convsupport,
+                                   'truncate': truncate, 'gwidth': gwidth, 'jwidth': jwidth,
+                                   'minweight': minweight, 'clipminmax': clipminmax}     }
         ######### weighting
         self.weightpars = {'type':weighting,'robust':robust, 'npixels':npixels,'uvtaper':uvtaper}
 
@@ -179,15 +199,17 @@ class ImagerParameters():
                                     'maskresolution':maskresolution, 'nmask':nmask,
                                     #'maskresolution':maskresolution, 'nmask':nmask,'autoadjust':autoadjust,
                                     'sidelobethreshold':sidelobethreshold, 'noisethreshold':noisethreshold,
-                                    'lownoisethreshold':lownoisethreshold, 'smoothfactor':smoothfactor,
-                                    'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold,
-                                    'interactive':interactive, 'startmodel':startmodel} }
+                                    'lownoisethreshold':lownoisethreshold, 'negativethreshold':negativethreshold,'smoothfactor':smoothfactor,
+                                    'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold, 'growiterations':growiterations, 
+                                     'dogrowprune':dogrowprune, 'minpercentchange':minpercentchange, 'verbose':verbose,
+                                    'interactive':interactive, 'startmodel':startmodel, 'nsigma':nsigma} }
 
         ######### Iteration control. 
         self.iterpars = { 'niter':niter, 'cycleniter':cycleniter, 'threshold':threshold, 
                           'loopgain':loopgain, 'interactive':interactive,
                           'cyclefactor':cyclefactor, 'minpsffraction':minpsffraction, 
-                          'maxpsffraction':maxpsffraction, 'savemodel':savemodel}
+                          'maxpsffraction':maxpsffraction,
+                          'savemodel':savemodel,'nsigma':nsigma}
 
         ######### CFCache params. 
         self.cfcachepars = {'cflist': cflist};

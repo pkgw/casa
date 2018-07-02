@@ -78,6 +78,7 @@ qt4_wrap_cpp( outfiles_qoh
   QwtPlotter/QPPlotItem.qo.h
   QwtPlotter/QPPlotter.qo.h
   QwtPlotter/QPTool.qo.h
+  QwtPlotter/QPHeaderTableWidget.qo.h
   )
 
 casa_qt4_wrap_ui( outfiles_ui
@@ -219,9 +220,11 @@ casa_add_library( casaqt
   QwtPlotter/QPScatterPlot.cc
   QwtPlotter/QPShape.cc
   QwtPlotter/QPTool.cc
+  QwtPlotter/QPHeaderTableWidget.cc
   )
 install (FILES
 	PlotterImplementations/PlotterImplementations.h
+	QwtPlotter/QtPageHeaderDataModel.h
 	DESTINATION include/casacode/casaqt/QwtPlotter
 	)
 install (FILES
@@ -337,6 +340,7 @@ install (FILES
 	QwtPlotter/QPScatterPlot.h
 	QwtPlotter/QPShape.h
 	QwtPlotter/QPTool.qo.h
+	QwtPlotter/QPHeaderTableWidget.qo.h
 	DESTINATION include/casacode/casaqt/QwtPlotter
 	)
 
@@ -345,8 +349,7 @@ casa_add_executable( casaqt casalogger apps/casalogger/casalogger.cc )
 casa_add_executable( casaqt casapictureviewer apps/casapictureviewer/casapictureviewer.cc )
 casa_add_executable( casaqt casaplotserver apps/casaplotserver/casaplotserver.cc )
 casa_add_executable( casaqt casaprogresstimer apps/casaprogresstimer/casaprogresstimer.cc )
-casa_add_executable( casaqt qcasabrowser apps/qcasabrowser/qcasabrowser.cc )
+casa_add_executable( casaqt casabrowser apps/casabrowser/casabrowser.cc )
 casa_add_executable( casaqt qwtplottertest apps/qwtplottertest/qwtplottertest.cc )
 
-install( PROGRAMS apps/qcasabrowser/casabrowser DESTINATION bin )
 casa_add_demo( casaqt QtProgressMeter/test/dProgressMeter.cc )

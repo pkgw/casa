@@ -1,4 +1,4 @@
-//# PlotMSCache2.cc: Data cache for plotms.
+//# PlotMSCacheBase.cc: Data cache for plotms.
 //# Copyright (C) 2009
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -27,6 +27,7 @@
 #include <plotms/Data/PlotMSCacheBase.h>
 #include <plotms/Data/PlotMSIndexer.h>
 #include <plotms/Threads/ThreadCommunication.h>
+#include <plotms/Data/PlotMSAtm.h>
 #include <casa/OS/Timer.h>
 #include <casa/OS/HostInfo.h>
 #include <casa/OS/Memory.h>
@@ -67,12 +68,10 @@ const PMS::Axis PlotMSCacheBase::METADATA[] =
 		PMS::BASELINE,
 		PMS::FLAG,
 		PMS::OBSERVATION,
-		PMS::INTENT,
+		PMS::INTENT
 };
-
 //      PMS::TIME_INTERVAL,
 //      PMS::FLAG_ROW
-
 
 bool PlotMSCacheBase::axisIsMetaData(PMS::Axis axis) {
 	for(unsigned int i = 0; i < N_METADATA; i++)
@@ -100,14 +99,10 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent):
 		  scan_(),
 		  dataLoaded_(false),
 		  userCanceled_(false),
-          xminG_(0),
-          yminG_(0),
-          xmaxG_(0),
-          ymaxG_(0),
           calType_(""),
-          polnRatio_(false)
+          polnRatio_(false),
+          plotmsAtm_(NULL)
 {
-
 	// Make the empty indexer0 object so we have and empty PlotData object
 	int dataCount = 1;
 	currentX_.resize(dataCount, PMS::DEFAULT_XAXIS);
@@ -123,6 +118,22 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent):
 		indexer_[i].set( NULL );
 		plmask_[i].set( NULL  );
 	}
+	xminG_.resize(dataCount);
+	xminG_.set(0);
+	xmaxG_.resize(dataCount);
+	xmaxG_.set(0);
+	yminG_.resize(dataCount);
+	yminG_.set(0);
+	ymaxG_.resize(dataCount);
+	ymaxG_.set(0);
+	xflminG_.resize(dataCount);
+	xflminG_.set(0);
+	xflmaxG_.resize(dataCount);
+	xflmaxG_.set(0);
+	yflminG_.resize(dataCount);
+	yflminG_.set(0);
+	yflmaxG_.resize(dataCount);
+	yflmaxG_.set(0);
 
 	// Set up loaded axes to be initially empty, and set up data columns for
 	// data-based axes.
@@ -149,6 +160,7 @@ PlotMSCacheBase::~PlotMSCacheBase() {
 	deleteIndexer();
 	deletePlotMask();
 	deleteCache();
+    deleteAtm();
 }
 
 Int PlotMSCacheBase::nIter( int dataIndex ) const {
@@ -228,6 +240,14 @@ PlotLogMessage* PlotMSCacheBase::locateRange( int plotIterIndex, const Vector<Pl
 PlotLogMessage* PlotMSCacheBase::flagRange( int plotIterIndex, casa::PlotMSFlagging& flagging,
      		const Vector<PlotRegion>& regions, bool showFlagged){
 	PlotLogMessage* mesg = NULL;
+
+	// not allowed for solvable cal tables!
+	String type(calType());
+	if (type=="BPOLY" || type=="GSPLINE") {
+		String method = (showFlagged ? "flag" : "unflag");
+		throw(AipsError("Cannot interactively " + method + " solvable CalTable types. Solutions are flagged by the solver."));
+	}
+
 	int dataCount = indexer_.size();
 	if ( dataCount == 0 ){
 		int indexCount = indexer_[0].size();
@@ -278,7 +298,6 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	// need a way to keep track of whether:
 	// 1) we already have the metadata loaded
 	// 2) the underlying MS has changed, requiring a reloading of metadata
-
     userCanceled_ = false;
 
     // Trap ratio plots, only for cal tables
@@ -291,27 +310,35 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	currentXData_.clear();
 	currentYData_.clear();
 	int dataCount = axes.size() / 2;
+    bool doAtm(false);
 	for ( int i = 0; i < dataCount; i++ ){
 		currentX_.push_back(axes[i]);
         currentXData_.push_back(data[i]);
 		currentY_.push_back(axes[dataCount+i]);
         currentYData_.push_back(data[dataCount+i]);
+        if (axes[dataCount+i]==PMS::ATM || axes[dataCount+i]==PMS::TSKY)
+            doAtm=true;
 	}
 
 	// Maintain access to this msname, selection, & averager, because we'll
 	// use it if/when we flag, etc.
 	if ( filename_ != filename ){
+		setFilename(filename);  // sets filename_ and calType_ for cal table
 		ephemerisInitialized = false;
 	    const vector<PMS::Axis>& axes = PMS::axes();
 	    for(unsigned int i = 0; i < axes.size(); i++) 
 		    loadedAxes_[axes[i]] = false;
         loadedAxesData_.clear();
 	}
-	filename_ = filename;
 	selection_ = selection;
 	averaging_ = averaging;
 	transformations_ = transformations;
 	calibration_ = calibration;
+
+    if (doAtm) {
+        plotmsAtm_ = new PlotMSAtm(filename_, selection_,
+            cacheType()==PlotMSCacheBase::MS, this);
+    }
 
 	//logLoad(selection_.summary());
 	logLoad(transformations_.summary());
@@ -405,7 +432,20 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	//   works---it is used to pre-estimate memory requirements.
 	pendingLoadAxes_.clear();
 
+	bool isCalCache(cacheType()==PlotMSCacheBase::CAL);
+    String caltype(calType());
 	for(Int i = 0; i < nmetadata(); ++i) {
+      // skip invalid metadata axes for cal tables
+	  if (isCalCache) {
+		  if (metadata(i)==PMS::INTENT)
+			  continue;
+		  else if ((metadata(i)==PMS::ANTENNA2 || metadata(i)==PMS::BASELINE) &&
+                   (caltype=="BPOLY" || caltype=="GSPLINE"))
+			  continue;
+          else if ((metadata(i)==PMS::CHANNEL || metadata(i)==PMS::FREQUENCY) &&
+				    caltype=="GSPLINE")
+			  continue;
+      }
 	  pendingLoadAxes_[metadata(i)]=true; // all meta data will be loaded
 	  if(!loadedAxes_[metadata(i)]) {
 		loadAxes.push_back(metadata(i));
@@ -501,7 +541,7 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 		// Call method that actually does the loading (MS- or Cal-specific)
 		loadIt(loadAxes,loadData,thread);
 
-		// Update loaded axes if not canceled.
+		// Update loaded axes if not canceled or failed.
         if (wasCanceled()) { 
             logLoad("Cache loading cancelled.");
             return;  // no need to continue
@@ -511,7 +551,8 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
                 loadedAxes_[axis] = true;
                 String datacol = PMS::dataColumn(loadData[i]);
                 if(PMS::axisIsData(axis)) 
-                    loadedAxesData_[axis].defineRecord(datacol, averaging.toRecord());
+                    loadedAxesData_[axis].defineRecord(datacol, 
+                        averaging.toRecord());
             }
         }
 
@@ -612,8 +653,10 @@ void PlotMSCacheBase::clear() {
 	deleteIndexer();
 	deletePlotMask();
 	deleteCache();
+    deleteAtm();
 	refTime_p=0.0;
 	dataLoaded_=false;
+	pageHeaderCache_.clear();
 }
 
 #define PMSC_DELETE(VAR)                                                \
@@ -778,9 +821,15 @@ void PlotMSCacheBase::release(const vector<PMS::Axis>& axes) {
                 break;
 			case PMS::SNR: PMSC_DELETE(snr_)
                 break;
+			case PMS::ANTPOS: PMSC_DELETE(antpos_)
+                break;
 			case PMS::RADIAL_VELOCITY: radialVelocity_.resize(0);
                 break;
 			case PMS::RHO: rho_.resize(0);
+                break;
+			case PMS::ATM: PMSC_DELETE(atm_)
+                break;
+			case PMS::TSKY: PMSC_DELETE(tsky_)
                 break;
 			case PMS::NONE:
                 break;
@@ -816,11 +865,25 @@ void PlotMSCacheBase::resizeIndexer( int size ){
 	deleteIndexer();
 	indexer_.resize( size );
 	//plmask_.resize( size );
+	xminG_.resize(size);
+	xmaxG_.resize(size);
+	yminG_.resize(size);
+	ymaxG_.resize(size);
+	xflminG_.resize(size);
+	xflmaxG_.resize(size);
+	yflminG_.resize(size);
+	yflmaxG_.resize(size);
 }
 
 void PlotMSCacheBase::clearRanges(){
-	xminG_=yminG_=xflminG_=yflminG_=DBL_MAX;
-	xmaxG_=ymaxG_=xflmaxG_=yflmaxG_=-DBL_MAX;
+	xminG_.set(DBL_MAX);
+	yminG_.set(DBL_MAX);
+	xflminG_.set(DBL_MAX);
+	yflminG_.set(DBL_MAX);
+	xmaxG_.set(-DBL_MAX);
+	ymaxG_.set(-DBL_MAX);
+	xflmaxG_.set(-DBL_MAX);
+	yflmaxG_.set(-DBL_MAX);
 }
 
 String PlotMSCacheBase::getTimeBounds( int iterValue ){
@@ -873,30 +936,30 @@ pair<Double,Double> PlotMSCacheBase::getTimeBounds() const {
 	int dataCount = getDataCount();
 	for ( int i = 0; i < dataCount; i++ ){
 		if (PMS::axis(currentY_[i]) == "Time") {
-			timeBounds.first = yminG_;
-			timeBounds.second = ymaxG_;
+			timeBounds.first = yminG_[i];
+			timeBounds.second = ymaxG_[i];
 			break;
 		}
 		else if (PMS::axis(currentX_[i]) == "Time") {
-			timeBounds.first = xminG_;
-			timeBounds.second = xmaxG_;
+			timeBounds.first = xminG_[i];
+			timeBounds.second = xmaxG_[i];
 			break;
 		}
 	}
 	return timeBounds;
 }
 
-pair<Double,Double> PlotMSCacheBase::getYAxisBounds() const {
+pair<Double,Double> PlotMSCacheBase::getYAxisBounds(int index) const {
     pair<Double,Double> axisBounds;
-	axisBounds.first = yminG_;
-	axisBounds.second = ymaxG_;
+	axisBounds.first = yminG_[index];
+	axisBounds.second = ymaxG_[index];
 	return axisBounds;
 }
 
-pair<Double,Double> PlotMSCacheBase::getXAxisBounds() const {
+pair<Double,Double> PlotMSCacheBase::getXAxisBounds(int index) const {
     pair<Double,Double> axisBounds;
-	axisBounds.first = xminG_;
-	axisBounds.second = xmaxG_;
+	axisBounds.first = xminG_[index];
+	axisBounds.second = xmaxG_[index];
 	return axisBounds;
 }
 
@@ -931,8 +994,6 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 
 	logLoad("Setting up iteration indexing (if necessary), and calculating plot ranges.");
 
-	//cout << "############ PlotMSCacheBase::setUpIndexer: " << PMS::axis(iteraxis)
-	//     << " cacheReady() = " << boolalpha << cacheReady() << endl;
 	Int nIter=0;
 	Vector<Int> iterValues;
 
@@ -1018,8 +1079,11 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 					Int a1 =*(antenna1_[ich]->data()+ibl);
 					_updateAntennaMask( a1, antMask, selAnts1 );
 
-					Int a2 =*(antenna2_[ich]->data()+ibl);
-					_updateAntennaMask( a2, antMask, selAnts2 );
+					// some cal tables iterate on antenna (antenna1)
+					if (!antenna2_.empty()) {
+						Int a2 =*(antenna2_[ich]->data()+ibl);
+						_updateAntennaMask( a2, antMask, selAnts2 );
+					}
 				}
 			}
 		}
@@ -1122,7 +1186,6 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 
 	indexer_[dataIndex].resize(nIter);
 	indexer_[dataIndex].set( NULL );
-
 	for (Int iter=0;iter<nIter;++iter){
 		indexer_[dataIndex][iter] = new PlotMSIndexer(this, 
             currentX_[dataIndex], currentXData_[dataIndex], 
@@ -1133,18 +1196,19 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 	// Initialize limits
 
 	Double ixmin,iymin,ixmax,iymax;
+	Double ixflmin,iyflmin,ixflmax,iyflmax;
 	for (Int iter=0;iter<nIter;++iter) {
 		indexer_[dataIndex][iter]->unmaskedMinsMaxesRaw(ixmin,ixmax,iymin,iymax);
-		xminG_=min(xminG_,ixmin);
-		xmaxG_=max(xmaxG_,ixmax);
-		yminG_=min(yminG_,iymin);
-		ymaxG_=max(ymaxG_,iymax);
+		xminG_[dataIndex] = min(xminG_[dataIndex], ixmin);
+		xmaxG_[dataIndex] = max(xmaxG_[dataIndex], ixmax);
+		yminG_[dataIndex] = min(yminG_[dataIndex], iymin);
+		ymaxG_[dataIndex] = max(ymaxG_[dataIndex], iymax);
 
-		indexer_[dataIndex][iter]->maskedMinsMaxesRaw(ixmin,ixmax,iymin,iymax);
-		xflminG_=min(xflminG_,ixmin);
-		xflmaxG_=max(xflmaxG_,ixmax);
-		yflminG_=min(yflminG_,iymin);
-		yflmaxG_=max(yflmaxG_,iymax);
+		indexer_[dataIndex][iter]->maskedMinsMaxesRaw(ixflmin,ixflmax,iyflmin,iyflmax);
+		xflminG_[dataIndex] = min(xflminG_[dataIndex], ixflmin);
+		xflmaxG_[dataIndex] = max(xflmaxG_[dataIndex], ixflmax);
+		yflminG_[dataIndex] = min(yflminG_[dataIndex], iyflmin);
+		yflmaxG_[dataIndex] = max(yflmaxG_[dataIndex], iyflmax);
 
 		// set usage of globals
 		indexer_[dataIndex][iter]->setGlobalMinMax(globalXRange,globalYRange);
@@ -1155,23 +1219,23 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 
 	{
 		stringstream ss;
-		ss << "Global ranges:" << endl
+		ss << "Axes ranges:" << endl
 		   << PMS::axis(currentX_[dataIndex]);
         if (PMS::axisIsData(currentX_[dataIndex])) 
             ss << ":" << PMS::dataColumn(currentXData_[dataIndex]);
-        ss << ": " << xminG_ << " to " << xmaxG_ << " (unflagged); ";
-        if (xflminG_ == DBL_MAX)
+        ss << ": " << ixmin << " to " << ixmax << " (unflagged); ";
+        if (xflminG_[dataIndex] == DBL_MAX)
             ss << "(no flagged data)" << endl;
         else 
-		   ss << "; " << xflminG_ << " to " << xflmaxG_ << " (flagged)." << endl;
+		   ss << "; " << ixflmin << " to " << ixflmax << " (flagged)." << endl;
 		ss << PMS::axis(currentY_[dataIndex]);
         if (PMS::axisIsData(currentY_[dataIndex])) 
             ss << ":" << PMS::dataColumn(currentYData_[dataIndex]);
-        ss << ": " << yminG_ << " to " << ymaxG_ << " (unflagged); ";
-        if (yflminG_ == DBL_MAX)
+        ss << ": " << iymin << " to " << iymax << " (unflagged); ";
+        if (yflminG_ [dataIndex]== DBL_MAX)
             ss << "(no flagged data)";
         else
-		    ss << yflminG_ << " to " << yflmaxG_ << "(flagged).";
+		    ss << iyflmin << " to " << iyflmax << "(flagged).";
 		logLoad(ss.str());
     
         if (indexer_[dataIndex][0]->plotConjugates()) {
@@ -1512,6 +1576,9 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::TEC:
 		        addArrays(par_);
                 break;
+            case PMS::ANTPOS:
+		        addArrays(antpos_);
+                break;
 	        case PMS::RADIAL_VELOCITY: {
                 radialVelocity_.resize(nChunk_,true);
                 }
@@ -1519,6 +1586,12 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::RHO: {
                 rho_.resize(nChunk_,true);
                 }
+                break;
+            case PMS::ATM:
+		        addVectors(atm_);
+                break;
+            case PMS::TSKY:
+		        addVectors(tsky_);
                 break;
             case PMS::NONE:
                 break;
@@ -1609,6 +1682,7 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 	case PMS::OPAC:
 	case PMS::SNR:
 	case PMS::TEC:
+	case PMS::ANTPOS:
 	case PMS::FLAG:
 	case PMS::WTxAMP:
 	case PMS::WTSP:
@@ -1667,6 +1741,8 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 	case PMS::INTENT:
 	case PMS::FEED1:
 	case PMS::FEED2:
+	case PMS::ATM:
+	case PMS::TSKY:
 	case PMS::NONE:
 		break;
 	}
@@ -1753,11 +1829,11 @@ void PlotMSCacheBase::deletePlotMask() {
 
 }
 
-
-
 void PlotMSCacheBase::log(const String& method, const String& message,
 		int eventType) {
-	plotms_->getLogger()->postMessage(PMS::LOG_ORIGIN,method,message,eventType);
+	if (plotms_ != nullptr) {
+		plotms_->getLogger()->postMessage(PMS::LOG_ORIGIN,method,message,eventType);
+	}
 }
 
 int PlotMSCacheBase::findColorIndex( int chunk, bool initialize ){
@@ -1773,6 +1849,38 @@ int PlotMSCacheBase::findColorIndex( int chunk, bool initialize ){
 	double timeChunk = getTime(chunk,0);
 	int index = uniqueTimes.indexOf( timeChunk );
 	return index;
+}
+
+void PlotMSCacheBase::deleteAtm() {
+    if (plotmsAtm_) {
+        delete plotmsAtm_;
+        plotmsAtm_ = NULL;
+    }
+}
+
+void PlotMSCacheBase::printAtmStats(casacore::Int scan) {
+    if (plotmsAtm_) {
+        stringstream ss;
+        ss << "Atmospheric curve stats for scan " << scan;
+        ss.precision(2);
+        ss << ": PWV " << fixed << plotmsAtm_->getPwv() << " mm, airmass ";
+        ss.precision(3); 
+        ss << fixed << plotmsAtm_->getAirmass();
+        logLoad(ss.str());
+    }
+}
+
+bool PlotMSCacheBase::hasOverlay() {
+	// check loaded axes for overlays
+	bool overlay(false);
+	std::vector<PMS::Axis> axes(loadedAxes());
+	for (int i=0; i<axes.size(); ++i) {
+		if (PMS::axisIsOverlay(axes[i])) {
+			overlay = true;
+			break;
+		}
+	}
+	return overlay;
 }
 
 }

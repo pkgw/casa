@@ -39,7 +39,12 @@ using namespace std;
 using asdmIDLTypes::IDLTag;
 #endif
 
+#ifndef WITHOUT_BOOST
 #include <boost/regex.hpp>
+#else
+#include <regex>
+#endif
+
 #include <StringTokenizer.h>
 #include <InvalidArgumentException.h>
 #include <TagFormatException.h>
@@ -53,8 +58,6 @@ using asdm::InvalidArgumentException;
 #include "EndianStream.h"
 using asdm::EndianOSStream;
 using asdm::EndianIStream;
-
-using namespace boost;
 
 namespace asdm {
 
@@ -262,7 +265,11 @@ protected:
 	TagType* type;
 
  private:
+#ifndef WITHOUT_BOOST
 	static boost::regex tagSyntax;
+#else
+	static std::regex tagSyntax;
+#endif
 };
 
 // End namespace asdm

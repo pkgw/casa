@@ -2417,11 +2417,13 @@ basebandName = CBasebandName::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the CalAmpliRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool CalAmpliRow::equalByRequiredValue(CalAmpliRow* x) {
+	bool CalAmpliRow::equalByRequiredValue(CalAmpliRow*  x ) {
 		
 			
 		if (this->numReceptor != x->numReceptor) return false;

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" ?>
+<casaxml xmlns="http://casa.nrao.edu/schema/psetTypes.html"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
+file:///opt/casa/code/xmlcasa/xml/casa.xsd">
+
+
+<!-- This is the param set for sdsidebandsplit -->
+
+<task type="function" name="sdsidebandsplit" category="single dish" visibility="experimental">
+
+  <shortdescription>[EXPERIMENTAL] invoke sideband separation using FFT</shortdescription>
+
+  <description>[EXPERIMENTAL] SD sideband separation and supression task:
+        Invoke sideband separation / supression using FFT
+</description>
+
+  <input>
+<!--
+    <param type="stringArray" name="infiles"  mustexist="True">
+    <description>list of names of input SD Measurementset</description>
+    <value></value>
+    </param>
+ -->
+
+    <param type="stringArray" name="imagename"  mustexist="True">
+    <shortdescription>a list of names of input images</shortdescription>
+    <description>a list of names of input images. At least two valid images are required for processing</description>
+    <value></value>
+    </param>
+
+    <param type="string" name="outfile">
+      <shortdescription>Prefix of output image name</shortdescription>
+      <description>Prefix of output image name.
+      A suffix, ".signalband" or ".imageband" is added to 
+      output image name depending on the side band side being solved.</description>
+      <value></value>
+    </param>
+
+    <param type="bool" name="overwrite">
+      <description>overwrite option</description>
+      <value>False</value>
+    </param>
+
+<!-- separation parameters -->
+    <param type="doubleArray" name="signalshift">
+      <shortdescription>a list of channel number shifts in signal side band</shortdescription>
+      <description>a list of channel number shifts in signal side band.
+      The number of elements must be equal to that of imagename</description>
+      <value></value>
+    </param>
+
+    <param type="doubleArray" name="imageshift">
+      <shortdescription>a list of channel number shifts in image side band</shortdescription>
+      <description> a list of channel number shifts in image side band.
+      The number of elements must be either zero or equal to that of imagename.
+      In case of zero length array, the values are obtained from signalshift
+      assuming the shifts are the same magnitude in opposite direction.</description>
+      <value></value>
+    </param>
+
+    <param type="bool" name="getbothside">
+	    <description>sideband separation (True) or supression (False)</description>
+            <value>False</value>
+    </param>
+
+    <param type="double" name="refchan" subparam="true">
+        <description>reference channel of spectral axis in image sideband</description>
+        <value>0.0</value>
+    </param>
+
+     <param type="string" name="refval" subparam="true">
+        <description>frequency at the reference channel of spectral axis in image sideband (e.g., "100GHz")</description>
+        <value></value>
+    </param>
+ 
+    <param type="bool" name="otherside">
+	    <description>solve the solution of the other side band side and subtract the solution</description>
+            <value>False</value>
+    </param>
+
+    <param type="double" name="threshold">
+      <shortdescription>Rejection limit of solution</shortdescription>
+      <description>Rejection limit of solution. The value must be greater than 0.0 and less than 1.0.</description>
+      <value>0.2</value>
+      <allowed kind="range">
+	      <value range="min">0.0</value>
+	      <value range="max">1.0</value>
+	  </allowed>
+    </param>
+
+<!-- CONSTRAINTS -->
+    <constraints>
+            <when param="getbothside">
+                <equals type="bool" value="False"/>
+                <equals type="bool" value="True">
+                    <default param="refchan"><value>0.0</value></default>
+                    <default param="refval"><value type="string"></value></default>
+                </equals>
+            </when>
+    </constraints>
+
+    </input>
+
+  <returns type="void"/>
+  <example>
+Solve signal sideband
+
+    sdsidebandsplit(imagename=['shift_0ch.image', 'shift_132ch.image', 'shift_neg81ch.image'],
+                  outfile='separated.image', signalshift=[0.0, +132.0, -81.0],
+                  imageshift=[0.0, -132.0, +81.0])
+
+The output image is 'separated.image.signalband'.
+
+Solve both signal and image sidebands (need to set frequency of image sideband explicitly)
+
+    sdsidebandsplit(imagename=['shift_0ch.image', 'shift_132ch.image', 'shift_neg81ch.image'],
+                  outfile='separated.image', signalshift=[0.0, +132.0, -81.0],
+                  imageshift=[0.0, -132.0, +81.0],
+                  getbothside=True, refchan=0.0, refval='805.8869GHz')
+
+The output images are 'separated.image.signalband' and 'separated.image.imageband'
+for signal and image sideband, respectively.
+
+Obtain signal sideband image by solving image sideband
+
+    sdsidebandsplit(imagename=['shift_0ch.image', 'shift_132ch.image', 'shift_neg81ch.image'],
+                  outfile='separated.image', signalshift=[0.0, +132.0, -81.0],
+                  imageshift=[0.0, -132.0, +81.0], otherside=True)
+
+Solution of image sidband is obtained and subtracted from the original (double sideband) spectra
+to derive spectra of signal sideband.
+
+  </example>
+
+</task>
+
+</casaxml>

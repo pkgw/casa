@@ -28,6 +28,7 @@
 #include <imageanalysis/ImageAnalysis/ImageFactory.h>
 
 #include <casa/OS/EnvVar.h>
+#include <casacore/casa/System/AppState.h>
 #include <images/Images/ImageFITSConverter.h>
 #include <images/Images/ImageUtilities.h>
 #include <images/Images/ImageOpener.h>
@@ -39,6 +40,47 @@ using namespace std;
 
 using namespace casacore;
 namespace casa {
+
+
+SHARED_PTR<ComponentListImage> ImageFactory::createComponentListImage(
+    const String& outfile, const Record& cl, const Vector<Int>& shape,
+    const Record& csys, Bool overwrite, Bool log, Bool cache
+) {
+    _checkOutfile(outfile, overwrite);
+    ComponentList mycl;
+    String err;
+    ThrowIf(! mycl.fromRecord(err, cl), err);
+    CoordinateSystem mycsys;
+    std::unique_ptr<CoordinateSystem> csysPtr;
+    if (csys.empty()) {
+        mycsys = CoordinateUtil::makeCoordinateSystem(shape, False);
+        _centerRefPix(mycsys, shape);
+    }
+    else {
+        csysPtr.reset(
+            _makeCoordinateSystem(csys, shape)
+        );
+        mycsys = *csysPtr;
+    }
+
+    SHARED_PTR<ComponentListImage> image(
+        outfile.empty()
+        ? new ComponentListImage(mycl, mycsys, IPosition(shape), cache)
+        : new ComponentListImage(mycl, mycsys, IPosition(shape), outfile, cache)
+    );
+    ostringstream os;
+    os << "Created ComponentListImage " << outfile
+       << " of shape " << shape << ".";
+    ImageHistory<Float> hist(image);
+    LogOrigin lor("ImageFactory", __func__);
+    hist.addHistory(lor, os.str());
+    if (log) {
+        casacore::LogIO mylog;
+        mylog << casacore::LogIO::NORMAL << os.str() << casacore::LogIO::POST;
+    }
+    return image;
+}
+
 
 SPIIF ImageFactory::floatImageFromShape(
 		const String& outfile, const Vector<Int>& shape,
@@ -62,6 +104,30 @@ SPIIC ImageFactory::complexImageFromShape(
 			outfile, shape, csys, linear,
 			overwrite, verbose, msgs
 	);
+}
+
+SPIID ImageFactory::doubleImageFromShape(
+    const String& outfile, const Vector<casacore::Int>& shape,
+    const Record& csys, Bool linear,
+    Bool overwrite, Bool verbose,
+    const std::vector<std::pair<LogOrigin, String> > *const &msgs
+) {
+    return _fromShape<Double>(
+        outfile, shape, csys, linear,
+        overwrite, verbose, msgs
+    );
+}
+
+SPIIDC ImageFactory::complexDoubleImageFromShape(
+    const String& outfile, const Vector<Int>& shape,
+    const Record& csys, casacore::Bool linear,
+    Bool overwrite, casacore::Bool verbose,
+    const std::vector<std::pair<LogOrigin, String> > *const &msgs
+) {
+    return _fromShape<DComplex>(
+        outfile, shape, csys, linear,
+        overwrite, verbose, msgs
+    );
 }
 
 SPIIF ImageFactory::fromASCII(
@@ -109,45 +175,51 @@ SPIIF ImageFactory::fromASCII(
     return imageFromArray(outfile, pixels, csys, linear, overwrite);
 }
 
-pair<SPIIF, SPIIC> ImageFactory::fromImage(
+ITUPLE ImageFactory::fromImage(
     const String& outfile, const String& infile,
     const Record& region, const String& mask, Bool dropdeg,
     Bool overwrite
 ) {
-    _checkInfile(infile);
-    unique_ptr<LatticeBase> latt(ImageOpener::openImage(infile));
-    ThrowIf (! latt, "Unable to open lattice");
-    auto imagePair = _fromLatticeBase(latt);
-    LogIO mylog;
-    mylog << LogOrigin("ImageFactory", __func__);
-    if (imagePair.first) {
-        imagePair.first = SubImageFactory<Float>::createImage(
-                *imagePair.first, outfile, region,
-                mask, dropdeg, overwrite, false, false
-        );
-        ThrowIf(
-           ! imagePair.first,
-           "Failed to create PagedImage"
-        );
-        mylog << LogIO::NORMAL << "Created image '" << outfile
-            << "' of shape " << imagePair.first->shape() << LogIO::POST;
-    }
-    else {
-        imagePair.second = SubImageFactory<Complex>::createImage(
-            *imagePair.second, outfile, region,
+    auto imagePtrs = fromFile(infile, False);
+    auto imageF = std::get<0>(imagePtrs);
+    auto imageC = std::get<1>(imagePtrs);
+    auto imageD = std::get<2>(imagePtrs);
+    auto imageDC = std::get<3>(imagePtrs);
+    if (imageF) {
+        imageF = SubImageFactory<Float>::createImage(
+            *imageF, outfile, region,
             mask, dropdeg, overwrite, false, false
         );
-        ThrowIf(
-            ! imagePair.second,
-            "Failed to create PagedImage"
-        );
-        mylog << LogIO::NORMAL << "Created image '" << outfile
-            << "' of shape " << imagePair.second->shape() << LogIO::POST;
-
+        ThrowIf(! imageF, "Failed to create image");
     }
-    return imagePair;
+    else if (imageC) {
+        imageC = SubImageFactory<Complex>::createImage(
+            *imageC, outfile, region,
+            mask, dropdeg, overwrite, false, false
+        );
+        ThrowIf(! imageC, "Failed to create image");
+    }
+    else if (imageD) {
+        imageD = SubImageFactory<Double>::createImage(
+            *imageD, outfile, region,
+            mask, dropdeg, overwrite, false, false
+        );
+        ThrowIf(! imageD, "Failed to create image");
+    }
+    else {
+        imageDC = SubImageFactory<DComplex>::createImage(
+            *imageDC, outfile, region,
+            mask, dropdeg, overwrite, false, false
+        );
+        ThrowIf(! imageDC, "Failed to create image");
+    }
+    LogIO mylog;
+    mylog << LogOrigin("ImageFactory", __func__);
+    ITUPLE ret(imageF, imageC, imageD, imageDC);
+    mylog << LogIO::NORMAL << _imageCreationMessage(outfile, ret)
+        << LogIO::POST;
+    return ret;
 }
-
 
 pair<SPIIF, SPIIC> ImageFactory::fromRecord(
     const RecordInterface& rec, const String& name
@@ -184,22 +256,34 @@ void ImageFactory::_centerRefPix(
 CoordinateSystem* ImageFactory::_makeCoordinateSystem(
     const Record& coordinates, const IPosition& shape
 ) {
-    std::unique_ptr<CoordinateSystem> pCS;
-    if (coordinates.nfields() == 1) { 
+    std::unique_ptr<CoordinateSystem> csys;
+    if (coordinates.nfields() == 1) {
         // must be a record as an element
         Record tmp(coordinates.asRecord(RecordFieldId(0)));
-        pCS.reset(CoordinateSystem::restore(tmp, ""));
+        csys.reset(CoordinateSystem::restore(tmp, ""));
     } 
     else {
-        pCS.reset(CoordinateSystem::restore(coordinates, ""));
+        csys.reset(CoordinateSystem::restore(coordinates, ""));
     }
     // Fix up any body longitude ranges...
     String errMsg;
-    ThrowIf(
-        ! CoordinateUtil::cylindricalFix(*pCS, errMsg, shape),
-        errMsg
-    ); 
-    return pCS.release();
+    if (csys->hasDirectionCoordinate()) {
+        auto axes = csys->directionAxesNumbers();
+        if (min(axes) >= 0) {
+            ThrowIf(
+                ! CoordinateUtil::cylindricalFix(*csys, errMsg, shape),
+                errMsg
+            );
+        }
+        else {
+            LogIO log(LogOrigin("ImageFactory", __func__));
+            log << LogIO::WARN << "Direction coordinate has at least one "
+                << "axis that has been removed, skipping cylindrical fix "
+                << "which is normally only important for imported image formats "
+                << "such as FITS" << LogIO::POST;
+        }
+    }
+    return csys.release();
 }
 
 SHARED_PTR<TempImage<Complex> > ImageFactory::complexFromFloat(
@@ -291,47 +375,61 @@ SHARED_PTR<TempImage<Float> > ImageFactory::floatFromComplex(
 	return newImage;
 }
 
-pair<SPIIF, SPIIC> ImageFactory::fromFile(const String& infile) {
+ITUPLE ImageFactory::fromFile(const String& infile, Bool cache) {
     _checkInfile(infile);
+    ComponentListImage::registerOpenFunction();
     unique_ptr<LatticeBase> latt(ImageOpener::openImage(infile));
-    ThrowIf (! latt, "Unable to open lattice");
-    return _fromLatticeBase(latt);
+    ThrowIf (! latt, "Unable to open image");
+    auto imagePtrs = _fromLatticeBase(latt);
+    auto imageF = std::get<0>(imagePtrs);
+    if (
+        imageF
+        && imageF->imageType().contains(ComponentListImage::IMAGE_TYPE)
+    ) {
+        std::dynamic_pointer_cast<ComponentListImage>(imageF)->setCache(cache);
+    }
+    return imagePtrs;
 }
 
-pair<SPIIF, SPIIC> ImageFactory::_fromLatticeBase(unique_ptr<LatticeBase>& latt) {
+ITUPLE ImageFactory::_fromLatticeBase(
+    unique_ptr<LatticeBase>& latt
+) {
     DataType dataType = latt->dataType();
-    pair<SPIIF, SPIIC> ret(nullptr, nullptr);
-    if (isReal(dataType)) {
-        if (dataType != TpFloat) {
-            ostringstream os;
-            os << dataType;
-            LogIO log;
-            log << LogOrigin(className(), __func__);
-            log << LogIO::WARN << "Converting " << os.str() << " precision pixel values "
-                << "to float precision in CASA image" << LogIO::POST;
-        }
-        return pair<SPIIF, SPIIC>(
-            SPIIF(dynamic_cast<ImageInterface<Float> *>(latt.release())),
-            SPIIC(nullptr)
+    tuple<SPIIF, SPIIC, SPIID, SPIIDC> ret(nullptr, nullptr, nullptr, nullptr);
+    if (dataType == TpFloat) {
+        auto f = SPIIF(
+            dynamic_cast<ImageInterface<Float> *>(latt.release())
         );
+        ThrowIf(! f, "Could not cast LatticeBase to ImageInterface<Float>");
+        std::get<0>(ret) = f;
     }
-    else if (isComplex(dataType)) {
-        if (dataType != TpComplex) {
-            ostringstream os;
-            os << dataType;
-            LogIO log;
-            log << LogOrigin(className(), __func__);
-            log << LogIO::WARN << "Converting " << os.str() << " precision pixel values "
-                << "to complex float precision in CASA image" << LogIO::POST;
-        }
-        return pair<SPIIF, SPIIC>(
-            SPIIF(nullptr),
-            SPIIC(dynamic_cast<ImageInterface<Complex> *>(latt.release()))
+    else if (dataType == TpComplex) {
+        auto c = SPIIC(
+            dynamic_cast<ImageInterface<Complex> *>(latt.release())
         );
+        ThrowIf(! c, "Could not cast LatticeBase to ImageInterface<Complex>");
+        std::get<1>(ret) = c;
     }
-    ostringstream os;
-    os << dataType;
-    throw AipsError("unsupported image data type " + os.str());
+    else if (dataType == TpDouble) {
+        auto d = SPIID(
+            dynamic_cast<ImageInterface<Double> *>(latt.release())
+        );
+        ThrowIf(! d, "Could not cast LatticeBase to ImageInterface<Double>");
+        std::get<2>(ret) = d;
+    }
+    else if (dataType == TpDComplex) {
+        auto dc = SPIIDC(
+            dynamic_cast<ImageInterface<DComplex> *>(latt.release())
+        );
+        ThrowIf(! dc, "Could not cast LatticeBase to ImageInterface<DComplex>");
+        std::get<3>(ret) = dc;
+    }
+    else {
+        ostringstream os;
+        os << dataType;
+        throw AipsError("unsupported image data type " + os.str());
+    }
+    return ret;
 }
 
 void ImageFactory::_checkInfile(const String& infile) {
@@ -369,13 +467,13 @@ SPIIF ImageFactory::fromFITS(
 void ImageFactory::rename(
 	SPIIF& image, const String& name, const Bool overwrite
 ) {
-	image = _rename(image, name, overwrite).first;
+	image = std::get<0>(_rename(image, name, overwrite));
 }
 
 void ImageFactory::rename(
 	SPIIC& image, const String& name, const Bool overwrite
 ) {
-	image = _rename(image, name, overwrite).second;
+	image = std::get<1>(_rename(image, name, overwrite));
 }
 
 void ImageFactory::toASCII(
@@ -517,27 +615,38 @@ SPIIF ImageFactory::testImage(
     const String& outfile, const Bool overwrite,
     const String& imagetype
 ) {
-    String var = EnvironmentVariable::get("CASAPATH");
-    if (var.empty()) {
-        var = EnvironmentVariable::get("AIPSPATH");
-    }
-    ThrowIf(
-        var.empty(),
-        "Neither CASAPATH nor AIPSPATH is set, so cannot locate data directory"
-    );
-    String fields[4];
-    Int num = split(var, fields, 4, String(" "));
-    ThrowIf (num <= 0, "Bad CASAPATH/AIPSPATH value: " + var);
-    String fitsfile;
+    // setup image name relative to the data root...
+    String testname;
     if (imagetype.contains("cube")) {
-        fitsfile = fields[0] + "/data/demo/Images/test_imageFloat.fits";
+        testname = "demo/Images/test_imageFloat.fits";
     }
     else if (imagetype.contains("2d")) {
-        fitsfile = fields[0] + "/data/demo/Images/imagetestimage.fits";
+        testname = "demo/Images/imagetestimage.fits";
     }
     else {
         ThrowCc("imageType must be either \"cube\" or \"2d\"");
     }
+
+    String fitsfile;
+
+    const casacore::AppState &state = casacore::AppStateSource::fetch( );
+    if ( state.initialized( ) )
+        fitsfile = state.resolve(testname);
+
+    else {
+        String var = EnvironmentVariable::get("CASAPATH");
+        if (var.empty()) {
+            var = EnvironmentVariable::get("AIPSPATH");
+        }
+        ThrowIf( var.empty(),
+                 "Neither CASAPATH nor AIPSPATH is set, so cannot locate data directory" );
+        String fields[4];
+        Int num = split(var, fields, 4, String(" "));
+        ThrowIf (num <= 0, "Bad CASAPATH/AIPSPATH value: " + var);
+
+        fitsfile = fields[0] + "/data/" + testname;
+    }
+
     return fromFITS(
         outfile, fitsfile, 0, 0, false, overwrite
     );
@@ -552,6 +661,49 @@ void ImageFactory::_checkOutfile(const String& outfile, Bool overwrite) {
         );
     }
 }
+
+String ImageFactory::_imageCreationMessage(
+    const String& outfile, const IPosition& shape,
+    DataType dataType
+) {
+    auto blank = outfile.empty();
+    ostringstream os;
+    os << "Created "
+        << (blank ? "Temp" : "Paged") << " image "
+        << (blank ? "" : "'" + outfile + "'")
+        << " of shape " << shape << " with "
+        << dataType << " valued pixels.";
+    return os.str();
+}
+
+String ImageFactory::_imageCreationMessage(
+    const String& outfile, const ITUPLE& imagePtrs
+) {
+    if (auto x = std::get<0>(imagePtrs)) {
+        return _imageCreationMessage(
+            outfile, x->shape(), TpFloat
+        );
+    }
+    else if (auto x = std::get<1>(imagePtrs)) {
+        return _imageCreationMessage(
+            outfile, x->shape(), TpComplex
+        );
+    }
+    else if (auto x = std::get<2>(imagePtrs)) {
+        return _imageCreationMessage(
+            outfile, x->shape(), TpDouble
+        );
+    }
+    else if (auto x = std::get<3>(imagePtrs)) {
+        return _imageCreationMessage(
+            outfile, x->shape(), TpDComplex
+        );
+    }
+    else {
+        ThrowCc("Logic Error");
+    }
+}
+
 
 }
 

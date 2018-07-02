@@ -412,7 +412,7 @@ void SingleDishMSFiller<T>::initialize() {
   casacore::String ref_string = casacore::MDirection::showType(direction_frame);
   meas_info.define("Ref", ref_string);
   record.defineRecord("MEASINFO", meas_info);
-
+  
   POST_END;
 }
 
@@ -455,14 +455,16 @@ template<class T>
 void SingleDishMSFiller<T>::setupMS() {
 //  std::cout << "Start " << __PRETTY_FUNCTION__ << std::endl;
 
-//  casacore::String dunit = table_->getHeader().fluxunit ;
+  casacore::String const dunit = reader_->getDataUnit();
 
   casacore::TableDesc ms_main_description = casacore::MeasurementSet::requiredTableDesc();
   if (is_float_) {
     casacore::MeasurementSet::addColumnToDesc(ms_main_description,
         casacore::MSMainEnums::FLOAT_DATA, 2);
+    ms_main_description.rwColumnDesc(MS::columnName(MS::FLOAT_DATA)).rwKeywordSet().define("UNIT", dunit);
   } else {
     casacore::MeasurementSet::addColumnToDesc(ms_main_description, casacore::MSMainEnums::DATA, 2);
+    ms_main_description.rwColumnDesc(MS::columnName(MS::DATA)).rwKeywordSet().define("UNIT", dunit);
   }
 
   casacore::String const scratch_table_name = casacore::File::newUniqueName(".",
@@ -663,11 +665,9 @@ void SingleDishMSFiller<T>::fillPreProcessTables() {
   // fill SPECTRAL_WINDOW table
   fillSpectralWindow();
 
-  // Add and fill NRO_ARRAY table (only for NRO data)
-  if (reader_->isNROData()) {
-    fillNROArray();
-  }
-
+  // Generate optional tables if necessary
+  T::OptionalTables::Generate(*ms_, *reader_);
+  
   POST_END;
 }
 
@@ -819,43 +819,6 @@ void SingleDishMSFiller<T>::fillSpectralWindow() {
 }
 
 template<class T>
-void SingleDishMSFiller<T>::fillNROArray() {
-  POST_START;
-
-  String const nro_tablename = "NRO_ARRAY";
-
-  casacore::TableDesc td(nro_tablename, TableDesc::Scratch);
-  td.addColumn(ScalarColumnDesc<Int>("ARRAY"));
-  td.addColumn(ScalarColumnDesc<Int>("BEAM"));
-  td.addColumn(ScalarColumnDesc<Int>("POLARIZATION"));
-  td.addColumn(ScalarColumnDesc<Int>("SPECTRAL_WINDOW"));
-  casacore::String tabname = ms_->tableName() + "/" + nro_tablename;
-  casacore::SetupNewTable newtab(tabname, td, Table::Scratch);
-  ms_->rwKeywordSet().defineTable(nro_tablename, Table(newtab, reader_->getNROArraySize()));
-
-  casacore::Table nro_table = ms_->rwKeywordSet().asTable(nro_tablename);
-  casacore::ScalarColumn<int> arr(nro_table, "ARRAY");
-  casacore::ScalarColumn<int> bea(nro_table, "BEAM");
-  casacore::ScalarColumn<int> pol(nro_table, "POLARIZATION");
- casacore:: ScalarColumn<int> spw(nro_table, "SPECTRAL_WINDOW");
-  for (int iarr = 0; iarr < reader_->getNROArraySize(); ++iarr) {
-        arr.put(iarr, iarr);
-        if (reader_->isNROArrayUsed(iarr)) {
-          bea.put(iarr, reader_->getNROArrayBeamId(iarr));
-          pol.put(iarr, reader_->getNROArrayPol(iarr));
-          spw.put(iarr, reader_->getNROArraySpwId(iarr));
-        } else {
-          // array is not used, fill with -1
-          bea.put(iarr, -1);
-          pol.put(iarr, -1);
-          spw.put(iarr, -1);
-        }
-  }
-
-  POST_END;
-}
-
-template<class T>
 casacore::Int SingleDishMSFiller<T>::updatePolarization(casacore::Vector<casacore::Int> const &corr_type,
     casacore::Int const &num_pol) {
   casacore::uInt num_corr = corr_type.size();
@@ -942,6 +905,8 @@ Int SingleDishMSFiller<T>::updateFeed(casacore::Int const &feed_id, casacore::In
     polarization_type = &linear_type;
   } else if (pol_type == "circular") {
     polarization_type = &circular_type;
+  } else {
+    polarization_type = &linear_type;
   }
   //static std::vector< casacore::Vector<casacore::String> *> polarization_type_pool;
 
@@ -1328,6 +1293,13 @@ void SingleDishMSFiller<T>::sortPointing() {
     }
   }
 
+  // sort INTERVAL
+  {
+    casacore::Vector<casacore::Double> interval_list = mycolumns.interval().getColumn();
+    for (casacore::uInt i = 0; i < nrow; ++i) {
+      mycolumns.interval().put(i, interval_list[index_vector[i]]);
+    }
+  }
   POST_END;
 }
 

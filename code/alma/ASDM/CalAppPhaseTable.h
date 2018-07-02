@@ -134,7 +134,7 @@ class CalAppPhaseRow;
  * <BR>
  * 
  * \par Role
- * 
+ * The CalAppPhase table is relevant to the ALMA observatory when the antennas are being phased to form a coherent sum during the observation. For each scan, the table provides information about which antennas are included in the sum, their relative phase adjustments, the efficiency of the sum (relative to best performance) and the quality of each antenna participating in the system. This data is used in real-time to provide the phased sum signal, and after the observation to analyze the result.
  * <BR>
  
  * Generated from model's revision "-1", branch ""
@@ -189,28 +189,28 @@ class CalAppPhaseRow;
  * <TD> startValidTime </TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;time-bound on validity. </TD>
+ * <TD> &nbsp;start of phasing solution validity. </TD>
  * </TR>
 	
  * <TR>
  * <TD> endValidTime </TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;time-bound on validity. </TD>
+ * <TD> &nbsp;end of phasing solution validity. </TD>
  * </TR>
 	
  * <TR>
  * <TD> adjustTime </TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;The time of the last adjustment to the phasing analysis via the \code ParameterTuning \endcode interface. Usually, this is the timestamp of the commanding of the last slow phasing correction. However, other adjustments might also have been made (e.g. \code phasedArray \endcode membership changed in the correlator hardware). </TD>
+ * <TD> &nbsp;The time of the last adjustment to the phasing analysis via the \c ParameterTuning  interface. </TD>
  * </TR>
 	
  * <TR>
  * <TD> adjustToken </TD> 
  * <TD> string </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;A parameter supplied via the \code ParameterTuning \endcode interface to indicate the form of adjustment(s) made at adjustTime. Note that TELCAL merely passes this datum and adjustTime through to this table. </TD>
+ * <TD> &nbsp;A parameter supplied via the \c ParameterTuning interface to indicate the form of adjustment(s) made at adjustTime. Note that TELCAL merely passes this datum and adjustTime through to this table. </TD>
  * </TR>
 	
  * <TR>
@@ -221,7 +221,7 @@ class CalAppPhaseRow;
  * </TR>
 	
  * <TR>
- * <TD> numPhasedAntennas </TD> 
+ * <TD> numPhasedAntennas (numPhasedAntennas)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas in phased sum, \f$N_p\f$. </TD>
@@ -238,7 +238,7 @@ class CalAppPhaseRow;
  * <TD> refAntennaIndex </TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;the index of the reference antenna in the array \code phasedAntennas\endcode. It must be an integer value in the interval \f$ [0, N_p-1]\f$. </TD>
+ * <TD> &nbsp;the index of the reference antenna in the array \c phasedAntennas . It must be an integer value in the interval \f$ [0, N_p-1]\f$. </TD>
  * </TR>
 	
  * <TR>
@@ -252,25 +252,25 @@ class CalAppPhaseRow;
  * <TD> phasePacking </TD> 
  * <TD> string </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;how to unpack \code phaseValues\endcode. </TD>
+ * <TD> &nbsp;how to unpack \c phaseValues. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numReceptors </TD> 
+ * <TD> numReceptors (numReceptors)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors per antenna, \f$N_r\f$.The number (\f$N_r \le 2 \f$) of receptors per antenna, usually two (polarizations), but it might be one in special cases. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numChannels </TD> 
+ * <TD> numChannels (numChannels)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of data channels, \f$N_d\f$.  </TD>
  * </TR>
 	
  * <TR>
- * <TD> numPhaseValues </TD> 
+ * <TD> numPhaseValues (numPhaseValues)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;The number  of phase data values present in the table, \f$N_v\f$. </TD>
@@ -284,14 +284,14 @@ class CalAppPhaseRow;
  * </TR>
 	
  * <TR>
- * <TD> numCompare </TD> 
+ * <TD> numCompare (numCompare)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of comparison antennas, \f$N_c\f$. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numEfficiencies </TD> 
+ * <TD> numEfficiencies (numEfficiencies)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of efficiencies, \f$N_e\f$. </TD>
@@ -308,13 +308,13 @@ class CalAppPhaseRow;
  * <TD> efficiencyIndices </TD> 
  * <TD> vector<int > </TD>
  * <TD>  numEfficiencies </TD> 
- * <TD> &nbsp;indices of the antenna(s) in \code compareArray \endcode used to calculate efficiencies; they must be distinct integers in the interval \f$[0, N_c]\f$. </TD>
+ * <TD> &nbsp;indices of the antenna(s) in \c compareArray used to calculate \c efficiencies; they must be distinct integers in the interval \f$[0, N_c]\f$. </TD>
  * </TR>
 	
  * <TR>
  * <TD> efficiencies </TD> 
  * <TD> vector<vector<float > > </TD>
- * <TD>  numChannels, numEfficiencies </TD> 
+ * <TD>  numEfficiencies, numChannels </TD> 
  * <TD> &nbsp;an array of efficiencies of phased sum. </TD>
  * </TR>
 	
@@ -337,21 +337,21 @@ class CalAppPhaseRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> typeSupports </TD> 
+ * <TD> typeSupports</TD> 
  * <TD> string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; encoding of supporting data values. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numSupports </TD> 
+ * <TD> numSupports(numSupports)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of supporting data values, \f$N_s\f$. </TD>
  * </TR>
 	
  * <TR>
- * <TD> phaseSupports </TD> 
+ * <TD> phaseSupports</TD> 
  * <TD> vector<float > </TD>
  * <TD>  numSupports  </TD>
  * <TD>&nbsp; an array of supporting data values. </TD>
@@ -712,6 +712,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

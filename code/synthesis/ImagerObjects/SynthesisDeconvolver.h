@@ -164,16 +164,25 @@ protected:
   casacore::Float itsSidelobeThreshold;
   casacore::Float itsNoiseThreshold;
   casacore::Float itsLowNoiseThreshold;
+  casacore::Float itsNegativeThreshold;
   casacore::Float itsSmoothFactor;
   casacore::Float itsMinBeamFrac;
   casacore::Float itsCutThreshold;
   casacore::Int itsIterDone;
+  casacore::Int itsGrowIterations;
+  casacore::Bool itsDoGrowPrune;
+  casacore::Float  itsMinPercentChange;
+  casacore::Bool itsVerbose;  
+  casacore::Vector<casacore::Bool> itsChanFlag;
+  casacore::Bool initializeChanMaskFlag; 
+  casacore::TempImage<casacore::Float> itsPosMask;
   
   casacore::Bool itsIsMaskLoaded; // Try to get rid of this state variable ! 
   casacore::Bool itsIsInteractive;
 
   casacore::Float itsMaskSum;
- 
+
+  casacore::Float itsNsigma;
 };
 
 

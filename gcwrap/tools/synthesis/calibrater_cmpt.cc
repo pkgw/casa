@@ -31,6 +31,7 @@
 #include <ms/MeasurementSets/MSField.h>
 #include <ms/MeasurementSets/MSSpectralWindow.h>
 #include <synthesis/TransformMachines/VisModelData.h>
+#include <synthesis/CalLibrary/CalLibraryTools.h>
 
 #include <measures/Measures/MeasTable.h>
 #include <iostream>
@@ -361,7 +362,8 @@ calibrater::setsolve(const std::string& type,
                      const float fraction,
                      const int numedge,
                      const std::string& radius,
-                     const bool smooth)
+                     const bool smooth,
+                     const bool zerorates)
 {
   if (! itsMS) {
     *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
@@ -388,7 +390,7 @@ calibrater::setsolve(const std::string& type,
 			    minblperant,
 			    toCasaString(refant),refantmode,
 			    solnorm,minsnr,combine,fillgaps,
-			    cfcache, painc, fitorder, fraction, numedge, radius, smooth);
+			    cfcache, painc, fitorder, fraction, numedge, radius, smooth, zerorates);
     
   } catch(AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -1024,7 +1026,8 @@ calibrater::specifycal(const std::string& caltable,
 		       const std::string& pol,
 		       const std::string& caltype, 
 		       const std::vector<double>& parameter,
-		       const std::string& infile ) {
+		       const std::string& infile,
+		       bool uniform) {
 
   if (!itsMS) {
     *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
@@ -1038,7 +1041,7 @@ calibrater::specifycal(const std::string& caltable,
     LogIO os (LogOrigin ("calibrater", "specifycal"), logSink_p);
     os << "Beginning specifycal-----------------------" << LogIO::POST;
 
-    itsCalibrater->specifycal(caltype,caltable,time,spw,antenna,pol,parameter,infile);
+    itsCalibrater->specifycal(caltype,caltable,time,spw,antenna,pol,parameter,infile,uniform);
     
   } catch (AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -1347,6 +1350,46 @@ calibrater::done()
 
 
 //----------------------------------------------------------------------------
+// parsecallibfile - convert callib file to a record
+casac::record* calibrater::parsecallibfile(const std::string& filein )
+{
+
+  casac::record* oRec;
+
+  try {
+
+    /*
+    if (! itsMS) {
+      *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
+  	    << endl << LogIO::POST;
+      throw( AipsError( "Must first open a MeasurementSet." ) );
+    }
+    */
+
+    // Log
+    logSink_p.clearLocally();
+    LogIO os(LogOrigin("calibrater", "parsecallibfile"), logSink_p);
+    os << "Beginning parsecallibfile-)-------" << LogIO::POST;
+
+    // Check existence of specified file
+    File diskfile(filein);
+    if (!diskfile.exists())
+      throw( AipsError( "Specified cal library file ('"+filein+ "') does not exist!") );
+
+    // Call parser
+    Record callibRec = callibSetParams(filein);
+
+    oRec = fromRecord( callibRec );
+  } catch (AipsError x) {
+    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+    RETHROW(x);
+  }
+
+  return( oRec );
+ 
+}
+
+//----------------------------------------------------------------------------
 
 bool calibrater::setvi(const bool old, const bool quiet)
 {
@@ -1489,7 +1532,7 @@ void calibrater::uvtaql(std::string& uvsel, bool& noselect,
     ScalarColumn<Double> reffreq(spwtab, "REF_FREQUENCY");
     uvsel = "( ";
     uInt nfreq=reffreq.nrow();
-    Double c = (QC::c).getValue();
+    Double c = (QC::c( )).getValue();
     double ffact;
     vector<int> dd;
 

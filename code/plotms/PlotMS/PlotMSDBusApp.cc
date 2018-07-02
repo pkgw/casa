@@ -28,6 +28,7 @@
 #include <plotms/Actions/ActionFactory.h>
 #include <plotms/Actions/PlotMSAction.h>
 #include <plotms/PlotMS/PlotMSFlagging.h>
+#include <plotms/PlotMS/PlotMSPageHeaderParam.h>
 #include <graphics/GenericPlotter/PlotOptions.h>
 
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
@@ -54,6 +55,8 @@ const String PlotMSDBusApp::PARAM_AVERAGING = "averaging";
 const String PlotMSDBusApp::PARAM_AXIS_X = "xAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y = "yAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y_LOCATION = "yAxisLocation";
+const String PlotMSDBusApp::PARAM_SHOWATM = "showatm";
+const String PlotMSDBusApp::PARAM_SHOWTSKY = "showtsky";
 const String PlotMSDBusApp::PARAM_GRIDROWS = "gridRows";
 const String PlotMSDBusApp::PARAM_GRIDCOLS = "gridCols";
 const String PlotMSDBusApp::PARAM_SHOWLEGEND = "showLegend";
@@ -71,6 +74,7 @@ const String PlotMSDBusApp::PARAM_PRIORITY = "priority";
 const String PlotMSDBusApp::PARAM_SELECTION = "selection";
 const String PlotMSDBusApp::PARAM_TRANSFORMATIONS = "transformations";
 const String PlotMSDBusApp::PARAM_CALIBRATION = "calibration";
+const String PlotMSDBusApp::PARAM_PAGE_HEADER_ITEMS = "pageHeaderItems";
 const String PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY = "updateImmediately";
 const String PlotMSDBusApp::PARAM_WIDTH = "width";
 
@@ -148,7 +152,6 @@ const String PlotMSDBusApp::METHOD_ISDRAWING   = "isDrawing";
 const String PlotMSDBusApp::METHOD_ISCLOSED  = "isClosed";
 
 const String PlotMSDBusApp::METHOD_LOCATEINFO = "locateInfo";
-
 
 
 /* 
@@ -399,6 +402,8 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ret.define(PARAM_AXIS_Y, PMS::axis(c->yAxis()));
 				ret.define(PARAM_DATACOLUMN_Y,
 						PMS::dataColumn(c->yDataColumn()));
+				ret.define(PARAM_SHOWATM, c->showAtm());
+				ret.define(PARAM_SHOWTSKY, c->showTsky());
 			}
 
 			if (disp!=NULL)  {
@@ -476,6 +481,13 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			ppp.setGroup<PMS_PP_Canvas>();
 			ppcan = ppp.typedGroup<PMS_PP_Canvas>();
 		}
+
+		PMS_PP_PageHeader* pp_pgheader = ppp.typedGroup<PMS_PP_PageHeader>();
+		if (pp_pgheader == NULL) {
+			ppp.setGroup<PMS_PP_PageHeader>();
+			pp_pgheader = ppp.typedGroup<PMS_PP_PageHeader>();
+		}
+
 		PMS_PP_Iteration* ppiter = ppp.typedGroup<PMS_PP_Iteration>();
 		if (ppiter == NULL) {
 			ppp.setGroup<PMS_PP_Iteration>();
@@ -514,6 +526,13 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			PlotMSCalibration calib = ppdata->calibration();
 			calib.fromRecord(parameters.asRecord(PARAM_CALIBRATION));
 			ppdata->setCalibration(calib);
+		}
+
+		if(parameters.isDefined(PARAM_PAGE_HEADER_ITEMS) &&
+				parameters.dataType(PARAM_PAGE_HEADER_ITEMS) == TpString) {
+			PageHeaderItems headerItems;
+			headerItems.setItems(parameters.asString(PARAM_PAGE_HEADER_ITEMS));
+			pp_pgheader->setPageHeaderItems(headerItems);
 		}
 
 		if(parameters.isDefined(PARAM_ITERATE) &&
@@ -560,6 +579,17 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			if(ok){
 				ppcache->setYDataColumn(dc, dataIndex);
 			}
+		}
+		if(parameters.isDefined(PARAM_SHOWATM) &&
+				parameters.dataType(PARAM_SHOWATM) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWATM);
+			ppcache->setShowAtm(show);
+		}
+
+		if(parameters.isDefined(PARAM_SHOWTSKY) &&
+				parameters.dataType(PARAM_SHOWTSKY) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWTSKY);
+			ppcache->setShowTsky(show);
 		}
 
 
@@ -690,6 +720,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			ppdisp->setFlaggedSymbol(ps, dataIndex);
 		}
 
+
 		if(parameters.isDefined(PARAM_COLORIZE) &&
 				parameters.dataType(PARAM_COLORIZE) == TpBool)   {
 			bool want = parameters.asBool(PARAM_COLORIZE);
@@ -813,6 +844,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 	}
 	else if(methodName == METHOD_SHOW || methodName == METHOD_HIDE) {
 		itsPlotms_.showGUI(methodName == METHOD_SHOW);
+		itsPlotms_.allowPopups(false); // default for task
 		if(itsPlotms_.guiShown() && itsUpdateFlag_) {
 			bool completed = update();
 			if ( !completed ){
@@ -944,6 +976,10 @@ void PlotMSDBusApp::dbusXmlReceived(const QtDBusXML& xml) {
 void PlotMSDBusApp::log(const String& m) {
 	itsPlotms_.getLogger()->postMessage(PMS::LOG_ORIGIN, PMS::LOG_ORIGIN_DBUS,
 			m, PMS::LOG_EVENT_DBUS);
+}
+
+void PlotMSDBusApp::logWarn(const String& m) {
+    itsPlotms_.getLogger()->postMessage(PMS::LOG_ORIGIN, PMS::LOG_ORIGIN_DBUS, m, PMS::LOG_EVENT_DBUSWARN);
 }
 
 bool PlotMSDBusApp::plotParameters(int& plotIndex) const {

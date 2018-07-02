@@ -132,8 +132,10 @@ test_rg_fromtextfile            dmehring@nrao.edu
 test_rg_selectedchannels        dmehring@nrao.edu
 test_slsearch                   dmehring@nrao.edu
 test_sdfixscan                  takeshi.nakazato@nao.ac.jp
-test_sdaincal                   takeshi.nakazato@nao.ac.jp
+test_sdgaincal                  takeshi.nakazato@nao.ac.jp
 test_sdimaging                  takeshi.nakazato@nao.ac.jp
+test_tsdimaging                 takeshi.nakazato@nao.ac.jp
+test_sdsidebandsplit            kana.sugi@nao.ac.jp
 test_setjy			ttsutsum@nrao.edu
 test_simobserve                 kana.sugi@ezweb.ne.jp
 test_smoothcal                  gmoellen@aoc.nrao.edu
@@ -144,7 +146,7 @@ test_split2                     scastro@eso.org
 test_spxfit                     dmehring@nrao.edu
 test_statwt                     ttsutsum@nrao.edu
 test_tsdbaseline                wataru.kawasaki@nao.ac.jp
-test_tsdcal                     masaya.kuniyoshi@nao.ac.jp
+test_tsdcal                     takeshi.nakazato@nao.ac.jp
 test_tsdfit                     wataru.kawasaki@nao.ac.jp
 test_tsdsmooth                  takeshi.nakazato@nao.ac.jp
 test_uvcontsub			ttsutsum@nrao.edu

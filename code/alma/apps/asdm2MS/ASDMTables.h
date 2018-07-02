@@ -31,7 +31,7 @@
  * | If you do, all changes will be lost when the file is re-generated. |
  *  --------------------------------------------------------------------
  *
- * casacore::File ASDMTables.h
+ * File ASDMTables.h
  */
  
 	
@@ -93,6 +93,19 @@ class ASDM_CALAMPLI : public ASDM_TABLE_SINGLETON<ASDM_CALAMPLI>, public ASDM_TA
  private:
   ASDM_CALAMPLI();
   ~ASDM_CALAMPLI();
+  casacore::TableDesc tableDesc_;
+
+ public:
+  const casacore::TableDesc& tableDesc() const;
+  void fill(const ASDM& asdm);
+};
+	
+class ASDM_CALANTENNASOLUTIONS : public ASDM_TABLE_SINGLETON<ASDM_CALANTENNASOLUTIONS>, public ASDM_TABLE_BASE {
+  friend class ASDM_TABLE_SINGLETON<ASDM_CALANTENNASOLUTIONS>;
+
+ private:
+  ASDM_CALANTENNASOLUTIONS();
+  ~ASDM_CALANTENNASOLUTIONS();
   casacore::TableDesc tableDesc_;
 
  public:
@@ -665,6 +678,19 @@ class ASDM_PROCESSOR : public ASDM_TABLE_SINGLETON<ASDM_PROCESSOR>, public ASDM_
  private:
   ASDM_PROCESSOR();
   ~ASDM_PROCESSOR();
+  casacore::TableDesc tableDesc_;
+
+ public:
+  const casacore::TableDesc& tableDesc() const;
+  void fill(const ASDM& asdm);
+};
+	
+class ASDM_PULSAR : public ASDM_TABLE_SINGLETON<ASDM_PULSAR>, public ASDM_TABLE_BASE {
+  friend class ASDM_TABLE_SINGLETON<ASDM_PULSAR>;
+
+ private:
+  ASDM_PULSAR();
+  ~ASDM_PULSAR();
   casacore::TableDesc tableDesc_;
 
  public:

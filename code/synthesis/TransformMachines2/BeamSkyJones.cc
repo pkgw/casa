@@ -83,7 +83,7 @@ BeamSkyJones::BeamSkyJones(
      parallacticAngleIncrement_p(parallacticAngleIncrement.getValue("rad")),
      skyPositionThreshold_p(skyPositionThreshold.getValue("rad")),
      lastUpdateVisBuffer_p( ), lastUpdateRow_p(-1),
-     lastUpdateIndex1_p(-1), lastUpdateIndex2_p(-1), hasBeenApplied(false)
+     lastUpdateIndex1_p(-1), lastUpdateIndex2_p(-1), hasBeenApplied(false), vbutil_p(nullptr)
      
 {  
   reset();
@@ -285,13 +285,17 @@ void BeamSkyJones::update(const vi::VisBuffer2& vb, Int row)
   lastArrayId_p=vb.arrayId()(0);
   lastMSId_p=vb.msId();
 
+  if(!vbutil_p){
+    vbutil_p=new VisBufferUtil(vb);
+  }
   // The pointing direction depends on feed, antenna, pointing errors, etc  
-  MDirection pointingDirection1_p = vb.direction1()(row);
-  MDirection pointingDirection2_p = vb.direction2()(row);
-
-  //cerr << "DIR1 " << pointingDirection1_p.toString() << "   " <<  pointingDirection2_p.toString() << endl; 
+  //MDirection pointingDirection1 = vb.direction1()(row);
+  //MDirection pointingDirection2 = vb.direction2()(row);
+  MDirection pointingDirection1 = vbutil_p->getPointingDir(vb, vb.antenna1()(row), row);
+  MDirection pointingDirection2 = vbutil_p->getPointingDir(vb, vb.antenna2()(row), row);
+  //cerr << "DIR1 " << pointingDirection1.toString() << "   " <<  pointingDirection2.toString() << endl; 
   // Look up correct telescope
-  const ROMSObservationColumns& msoc=ROMSColumns(vb.ms()).observation();
+  const ROMSObservationColumns& msoc=vb.subtableColumns().observation();
   telescope_p = msoc.telescopeName()(vb.arrayId()(0));
 
   updatePBMathIndices(vb,row); // lastUpdateIndex?_p are now valid
@@ -305,7 +309,7 @@ void BeamSkyJones::update(const vi::VisBuffer2& vb, Int row)
        lastDirections_p.resize(myPBMaths_p.nelements());
        
   if (lastUpdateIndex1_p == lastUpdateIndex2_p &&
-      !directionsCloseEnough(pointingDirection1_p,pointingDirection2_p)) {
+      !directionsCloseEnough(pointingDirection1,pointingDirection2)) {
         // the case is inhomogeneous: pointing directions are slightly
 	// different at different antennae
     //This check is an overkill for standard arrays...need to find a better one
@@ -323,10 +327,10 @@ void BeamSkyJones::update(const vi::VisBuffer2& vb, Int row)
   }
   
   if (lastUpdateIndex1_p!=-1)
-      lastDirections_p[lastUpdateIndex1_p]=pointingDirection1_p;
+      lastDirections_p[lastUpdateIndex1_p]=pointingDirection1;
   ////CAS-6688 using antenna1 only for now
   // if (lastUpdateIndex2_p!=-1)
-  //    lastDirections_p[lastUpdateIndex2_p]=pointingDirection2_p;
+  //    lastDirections_p[lastUpdateIndex2_p]=pointingDirection2;
   
   // Obtaining a reference on parallactic angles is a fast operation as
   // caching is implemented inside VisBuffer.
@@ -720,14 +724,14 @@ MDirection BeamSkyJones::convertDir(const vi::VisBuffer2& vb, const MDirection& 
    MPosition pos;
    String tel("");
    ROMSColumns msc(vb.ms());
-   if (msc.observation().nrow() > 0) {
-     tel = msc.observation().telescopeName()(msc.observationId()(0));
+   if (vb.subtableColumns().observation().nrow() > 0) {
+     tel = vb.subtableColumns().observation().telescopeName()(vb.observationId()(0));
    }
    if (tel.length() == 0 || !tel.contains("VLA") ||
        !MeasTable::Observatory(pos,tel)) {
      // unknown observatory, use first antenna
      Int ant1=vb.antenna1()(0);
-     pos=msc.antenna().positionMeas()(ant1);
+     pos=vb.subtableColumns().antenna().positionMeas()(ant1);
    }
    MEpoch::Types timeMType=MEpoch::castType(msc.timeMeas()(0).getRef().getType());
    Unit timeUnit=Unit(msc.timeMeas().measDesc().getUnits()(0).getName());

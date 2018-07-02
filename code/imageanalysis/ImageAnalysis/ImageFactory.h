@@ -30,12 +30,14 @@
 
 #include <imageanalysis/ImageTypedefs.h>
 
-#include <casa/Arrays/Array.h>
-#include <casa/BasicSL/String.h>
-#include <casa/Containers/Record.h>
-#include <casa/Logging/LogOrigin.h>
-#include <casa/namespace.h>
-#include <lattices/Lattices/LatticeBase.h>
+#include <imageanalysis/Images/ComponentListImage.h>
+
+#include <casacore/casa/Arrays/Array.h>
+#include <casacore/casa/BasicSL/String.h>
+#include <casacore/casa/Containers/Record.h>
+#include <casacore/casa/Logging/LogOrigin.h>
+#include <casacore/casa/namespace.h>
+#include <casacore/lattices/Lattices/LatticeBase.h>
 #include <utility>
 #include <vector>
 
@@ -49,7 +51,6 @@ template <class T> class Vector;
 }
 
 namespace casa {
-
 
 class ImageFactory {
 	// <summary>
@@ -89,6 +90,13 @@ public:
         const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs
     );
 
+    // create a ComponentListImage
+    static SHARED_PTR<ComponentListImage> createComponentListImage(
+        const casacore::String& outfile, const casacore::Record& cl,
+        const casacore::Vector<casacore::Int>& shape, const casacore::Record& csys,
+        casacore::Bool overwrite, casacore::Bool log, casacore::Bool cache
+    );
+
     static casacore::String className() { static const casacore::String s = "ImageFactory"; return s; }
 
     // create an image with the specified shape and specified coordinate system.
@@ -111,9 +119,23 @@ public:
         const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs=0
     );
 
+    static SPIID doubleImageFromShape(
+        const casacore::String& outfile, const casacore::Vector<casacore::Int>& shape,
+        const casacore::Record& csys, casacore::Bool linear=true,
+        casacore::Bool overwrite=false, casacore::Bool verbose=true,
+        const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs=0
+    );
+
+    static SPIIDC complexDoubleImageFromShape(
+        const casacore::String& outfile, const casacore::Vector<casacore::Int>& shape,
+        const casacore::Record& csys, casacore::Bool linear=true,
+        casacore::Bool overwrite=false, casacore::Bool verbose=true,
+        const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs=0
+    );
+
     // only the pointer of the correct data type will be valid, the other
     // will be null.
-    static std::pair<SPIIF, SPIIC> fromImage(
+    static ITUPLE fromImage(
         const casacore::String& outfile, const casacore::String& infile,
         const casacore::Record& region, const casacore::String& mask,
         casacore::Bool dropdeg=false,
@@ -155,8 +177,10 @@ public:
     );
 
     // exactly one of the pointers will not be null, indicating the
-    // pixel data type
-    static std::pair<SPIIF, SPIIC> fromFile(const casacore::String& filename);
+    // pixel data type. Cache is only used if the image is a CompoenentListImage
+    static ITUPLE fromFile(
+        const casacore::String& filename, casacore::Bool cache=casacore::True
+    );
 
     static SPIIF fromFITS(
         const casacore::String& outfile, const casacore::String& fitsfile,
@@ -230,12 +254,24 @@ private:
 
     static void _checkOutfile(const casacore::String& outfile, casacore::Bool overwrite);
 
-    static std::pair<SPIIF, SPIIC> _fromLatticeBase(std::unique_ptr<casacore::LatticeBase>& latt);
+    static ITUPLE _fromLatticeBase(
+        std::unique_ptr<casacore::LatticeBase>& latt
+    );
+
+    static casacore::String _imageCreationMessage(
+        const casacore::String& outfile, const ITUPLE& imagePtrs
+    );
+
+    static casacore::String _imageCreationMessage(
+        const casacore::String& outfile, const casacore::IPosition& shape,
+        casacore::DataType dataType
+    );
 
     // if successful, image will point to the newly named image
     // upone return
-    template <class T> static std::pair<SPIIF, SPIIC> _rename(
-    	SPIIT& image, const casacore::String& name, const casacore::Bool overwrite
+    template <class T> static ITUPLE _rename(
+    	SPIIT& image, const casacore::String& name,
+    	const casacore::Bool overwrite
     );
 
 };

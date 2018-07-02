@@ -92,13 +92,13 @@ using namespace casa::refim;
 
   MosaicFT::MosaicFT(SkyJones* sj, MPosition mloc, String stokes,
 		   Long icachesize, Int itilesize, 
-		     Bool usezero, Bool useDoublePrec)
+		     Bool usezero, Bool useDoublePrec, Bool useConjConvFunc)
   : FTMachine(), sj_p(sj),
     imageCache(0),  cachesize(icachesize), tilesize(itilesize), gridder(0),
     isTiled(false),
     maxAbsData(0.0), centerLoc(IPosition(4,0)), offsetLoc(IPosition(4,0)),
     mspc(0), msac(0), pointingToImage(0), usezero_p(usezero), convSampling(1),
-    skyCoverage_p( ), machineName_p("MosaicFT"), stokes_p(stokes)
+    skyCoverage_p( ), machineName_p("MosaicFT"), stokes_p(stokes), useConjConvFunc_p(useConjConvFunc), timemass_p(0.0), timegrid_p(0.0), timedegrid_p(0.0)
 {
   convSize=0;
   lastIndex_p=0;
@@ -168,8 +168,12 @@ MosaicFT& MosaicFT::operator=(const MosaicFT& other)
       gridder = new ConvolveGridder<Double, Complex>(IPosition(2, nx, ny),
 						     uvScale, uvOffset,
 						     "SF");
+	  
     }
-    
+    useConjConvFunc_p=other.useConjConvFunc_p;
+    timemass_p=other.timemass_p;
+    timegrid_p=other.timegrid_p;
+    timedegrid_p=other.timedegrid_p;
   };
   return *this;
 };
@@ -285,7 +289,7 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
     AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
   }
   pbConvFunc_p->findConvFunction(iimage, vb, convSampling, interpVisFreq_p, convFunc, weightConvFunc_p, convSizePlanes_p, convSupportPlanes_p,
-		  convPolMap_p, convChanMap_p, convRowMap_p);
+				 convPolMap_p, convChanMap_p, convRowMap_p, (useConjConvFunc_p && !toVis_p), MVDirection(-(movingDirShift_p.getAngle())), fixMovingSource_p);
 
   // cerr << "MAX of convFunc " << max(abs(convFunc)) << endl;
   //For now only use one size and support
@@ -315,11 +319,13 @@ void MosaicFT::initializeToVis(ImageInterface<Complex>& iimage,
   // Initialize the maps for polarization and channel. These maps
   // translate visibility indices into image indices
   initMaps(vb);
-  //make sure we rotate the first field too
+  pbConvFunc_p->setVBUtil(vbutil_p);
+ //make sure we rotate the first field too
   lastFieldId_p=-1;
   phaseShifter_p=new UVWMachine(*uvwMachine_p);
   //This is needed here as we need to know the grid correction before FFTing 
   findConvFunction(*image, vb);
+  
   prepGridForDegrid();
 
 }
@@ -423,6 +429,9 @@ void MosaicFT::prepGridForDegrid(){
 
 void MosaicFT::finalizeToVis()
 {
+  //cerr << "Time degrid " << timedegrid_p << endl;
+  timedegrid_p=0.0;
+  
   if(!arrayLattice.null()) arrayLattice=0;
   if(!lattice.null()) lattice=0;
   griddedData.resize();
@@ -457,7 +466,7 @@ void MosaicFT::initializeToSky(ImageInterface<Complex>& iimage,
 {
   // image always points to the image
   image=&iimage;
-  
+  toVis_p=False;
   //  if(convSize==0) {
     init();
     
@@ -466,6 +475,7 @@ void MosaicFT::initializeToSky(ImageInterface<Complex>& iimage,
   // Initialize the maps for polarization and channel. These maps
   // translate visibility indices into image indices
   initMaps(vb);
+  pbConvFunc_p->setVBUtil(vbutil_p);
   //make sure we rotate the first field too
   lastFieldId_p=-1;
   phaseShifter_p=new UVWMachine(*uvwMachine_p);
@@ -566,7 +576,11 @@ void MosaicFT::reset(){
 
 void MosaicFT::finalizeToSky()
 {
-  
+
+  //cerr<< "time massage data " << timemass_p << endl;
+  //cerr << "time gridding " << timegrid_p << endl;
+   timemass_p=0.0;
+   timegrid_p=0.0;
   // Now we flush the cache and report statistics
   // For memory based, we don't write anything out yet.
   /*if(isTiled) {
@@ -956,7 +970,8 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
 
   
   
-  
+  Timer tim;
+  tim.mark();
  
   matchChannel(vb);
  
@@ -965,10 +980,6 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   //No point in reading data if its not matching in frequency
   if(max(chanMap)==-1)
     return;
-
-
-  //cerr << "chanMap " << chanMap << endl;
- 
 
   const Matrix<Float> *imagingweight;
   imagingweight=&(vb.imagingWeight());
@@ -981,11 +992,7 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   Matrix<Float> elWeight;
   interpolateFrequencyTogrid(vb, *imagingweight,data, flags, elWeight, type);
   
-  // This needs to be after the interp to get the interpolated channels
-  findConvFunction(*image, vb);
-  //nothing to grid here as the pointing resulted in a zero support convfunc
-  if(convSupport <= 0)
-    return;
+ 
 
   Bool iswgtCopy;
   const Float *wgtStorage;
@@ -1015,10 +1022,7 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   }
   
   // Get the uvws in a form that Fortran can use and do that
-  // necessary phase rotation. On a Pentium Pro 200 MHz
-  // when null, this step takes about 50us per uvw point. This
-  // is just barely noticeable for Stokes I continuum and
-  // irrelevant for other cases.
+  // necessary phase rotation. 
   Matrix<Double> uvw(negateUV(vb));
   Vector<Double> dphase(vb.nRows());
   dphase=0.0;
@@ -1026,7 +1030,13 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   doUVWRotation_p=true;
   girarUVW(uvw, dphase, vb);
   refocus(uvw, vb.antenna1(), vb.antenna2(), dphase, vb);
-
+  // This needs to be after the interp to get the interpolated channels
+  //Also has to be after rotateuvw in case tracking is on
+  findConvFunction(*image, vb);
+  //nothing to grid here as the pointing resulted in a zero support convfunc
+  if(convSupport <= 0)
+    return;
+  
   // Get the pointing positions. This can easily consume a lot 
   // of time thus we are for now assuming a field per 
   // vb chunk...need to change that accordingly if we start using
@@ -1096,7 +1106,7 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   else{   
     nth= omp_get_max_threads();
   }
-  nth=min(4,nth);
+  //nth=min(4,nth);
 #endif
   Double cinv=Double(1.0)/C::c;
  
@@ -1112,31 +1122,47 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   }  
 
  }//end pragma parallel
-Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
+
+
+ 
+timemass_p +=tim.real();
+Int  ixsub, iysub, icounter;
   ixsub=1;
   iysub=1;
   //////***********************DEBUGGING
   //nth=1;
   ////////***************
   if (nth >3){
-    ixsub=2;
-    iysub=2; 
+    ixsub=16;
+    iysub=16; 
   }
   else if(nth >1){
      ixsub=2;
-     iysub=1; 
+     iysub=2; 
   }
-  x0=1;
-  y0=1;
-  nxsub=nx;
-  nysub=ny;
   Int rbeg=startRow+1;
   Int rend=endRow+1;
   Block<Matrix<Double> > sumwgt(ixsub*iysub);
+  Vector<Double *> swgtptr(ixsub*iysub);
+  Vector<Bool> swgtdel(ixsub*iysub);
   for (icounter=0; icounter < ixsub*iysub; ++icounter){
     sumwgt[icounter].resize(sumWeight.shape());
     sumwgt[icounter].set(0.0);
+    swgtptr[icounter]=sumwgt[icounter].getStorage(swgtdel(icounter));
   }
+  //cerr << "done thread " << doneThreadPartition_p << "  " << ixsub*iysub << endl;
+   if(doneThreadPartition_p < 0){
+    xsect_p.resize(ixsub*iysub);
+    ysect_p.resize(ixsub*iysub);
+    nxsect_p.resize(ixsub*iysub);
+    nysect_p.resize(ixsub*iysub);
+    for (icounter=0; icounter < ixsub*iysub; ++icounter){
+      findGridSector(nx, ny, ixsub, iysub, 0, 0, icounter, xsect_p(icounter), ysect_p(icounter), nxsect_p(icounter), nysect_p(icounter), true);
+    }
+  }
+   Vector<Int> xsect, ysect, nxsect, nysect;
+   xsect=xsect_p; ysect=ysect_p; nxsect=nxsect_p; nysect=nysect_p;
+   //cerr << xsect.shape() << "  " << xsect << endl;
   const Int* pmapstor=polMap.getStorage(del);
   const Int* cmapstor=chanMap.getStorage(del);
   Int nc=nchan;
@@ -1151,15 +1177,21 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
   const Int *convchanmapstor=convChanMap_p.getStorage(del);
   const Int *convpolmapstor=convPolMap_p.getStorage(del);
   ////////***************************
-
+  tim.mark(); 
 
   if(useDoubleGrid_p) {
     DComplex *gridstor=griddedData2.getStorage(gridcopy);
     
-#pragma omp parallel default(none) private(icounter,ix,iy,x0,y0,nxsub,nysub, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor,  csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc) shared(sumwgt) num_threads(ixsub*iysub)
+#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor,  csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc,xsect, ysect, nxsect, nysect) shared(swgtptr) 
     {   
-#pragma omp for schedule(dynamic, 1)      
+#pragma omp for schedule(dynamic)      
     for(icounter=0; icounter < ixsub*iysub; ++icounter){
+      Int x0=xsect(icounter);
+      Int y0=ysect(icounter);
+      Int nxsub=nxsect(icounter);
+      Int nysub=nysect(icounter);
+      
+      /*
       ix= (icounter+1)-((icounter)/ixsub)*ixsub;
       iy=(icounter)/ixsub+1;
       y0=(nyp/iysub)*(iy-1)+1;
@@ -1172,7 +1204,7 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
       if( ix == ixsub){
 	nxsub=nxp-(nxp/ixsub)*(ix-1);
       } 
- 
+      */
 
     sectgmosd2(datStorage,
 	   &nvp,
@@ -1193,7 +1225,7 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
 	   convstor,
 	   cmapstor,
 	   pmapstor,
-	   (sumwgt[icounter]).getStorage(del),
+	   swgtptr[icounter],
 	   convrowmapstor,
 	   convchanmapstor,
 	   convpolmapstor,
@@ -1204,10 +1236,15 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
     }
     }//end pragma parallel
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
+      sumwgt[icounter].putStorage(swgtptr[icounter],swgtdel[icounter]);
       sumWeight=sumWeight+sumwgt[icounter];
     }    
-    //cerr << "SUMWGT " << sumWeight << endl;
+    
     griddedData2.putStorage(gridstor, gridcopy);
+    if(dopsf && (nth >4))
+      tweakGridSector(nx, ny, ixsub, iysub);
+    timegrid_p+=tim.real();
+    tim.mark();
     if(!doneWeightImage_p){
       //This can be parallelized by making copy of the central part of the griddedWeight
       //and adding it after dooing the gridding
@@ -1222,16 +1259,17 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
       griddedWeight2.putStorage(gridwgtstor, weightcopy);
     
     }
+    timemass_p+=tim.real();
   }
   else {
     //cerr << "maps "  << convChanMap_p << "   " << chanMap  << endl;
     //cerr << "nchan " << nchan << "  nchanconv " << nChanConv << endl;
     Complex *gridstor=griddedData.getStorage(gridcopy);
-#pragma omp parallel default(none) private(icounter,ix,iy,x0,y0,nxsub,nysub, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor, csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc) shared(sumwgt) num_threads(ixsub*iysub)
+#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor, csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc, xsect, ysect, nxsect, nysect)  shared(swgtptr) 
     {   
-#pragma omp for schedule(dynamic, 1)      
+#pragma omp for schedule(dynamic)      
       for(icounter=0; icounter < ixsub*iysub; ++icounter){
-	ix= (icounter+1)-((icounter)/ixsub)*ixsub;
+	/*ix= (icounter+1)-((icounter)/ixsub)*ixsub;
 	iy=(icounter)/ixsub+1;
 	y0=(nyp/iysub)*(iy-1)+1;
 	nysub=nyp/iysub;
@@ -1243,7 +1281,12 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
 	if( ix == ixsub){
 	  nxsub=nxp-(nxp/ixsub)*(ix-1);
 	} 
-	
+	*/
+	Int x0=xsect(icounter);
+	Int y0=ysect(icounter);
+	Int nxsub=nxsect(icounter);
+	Int nysub=nysect(icounter);
+
 	   sectgmoss2(datStorage,
 	   &nvp,
 	   &nvc,
@@ -1263,7 +1306,7 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
 	   convstor,
 	   cmapstor,
 	   pmapstor,
-	   (sumwgt[icounter]).getStorage(del),
+	   swgtptr[icounter],
 	   convrowmapstor,
 	   convchanmapstor,
 	   convpolmapstor,
@@ -1276,9 +1319,14 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
     }
     } //end pragma   
      for (icounter=0; icounter < ixsub*iysub; ++icounter){
-      sumWeight=sumWeight+sumwgt[icounter];
+       sumwgt[icounter].putStorage(swgtptr[icounter],swgtdel[icounter]);
+       sumWeight=sumWeight+sumwgt[icounter];
     }
     griddedData.putStorage(gridstor, gridcopy);
+    if(dopsf && (nth > 4))
+      tweakGridSector(nx, ny, ixsub, iysub);
+    timegrid_p+=tim.real();
+    tim.mark();
     if(!doneWeightImage_p){
       Complex *gridwgtstor=griddedWeight.getStorage(weightcopy);
       gmoswgts(&nvp, &nvc,flagstor, rowflagstor, wgtStorage, &nvisrow, 
@@ -1291,7 +1339,7 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
       griddedWeight.putStorage(gridwgtstor, weightcopy);
     
     }
-
+    timemass_p+=tim.real();
   }
   convFunc.freeStorage(convstor, convcopy);
   weightConvFunc_p.freeStorage(wconvstor, wconvcopy);
@@ -1358,7 +1406,7 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
   Complex *datStorage;
   Bool isCopy;
   datStorage=data.getStorage(isCopy);
-
+  
 
   Vector<Int> rowFlags(vb.nRows());
   rowFlags=0;
@@ -1414,8 +1462,12 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
   else{   
     nth= omp_get_max_threads();
   }
-  nth=min(4,nth);
+  //nth=min(4,nth);
 #endif
+
+  Timer tim;
+  tim.mark();
+
    Int dow=0;
    Double cinv=Double(1.0)/C::c;
 #pragma omp parallel default(none) private(irow) firstprivate(visfreqstor, nvc, scalestor, offsetstor, csamp, phasorstor, uvwstor, locstor, offstor, dpstor, dow, cinv) shared(startRow, endRow) num_threads(nth)  
@@ -1433,13 +1485,8 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
  }//end pragma parallel
  Int rbeg=startRow+1;
  Int rend=endRow+1;
- Int npart=1;
- if (nth >3){
-   npart=4;
- }
- else if(nth >1){
-   npart=2; 
- }
+ Int npart=nth*2;
+ 
  Bool gridcopy;
  const Complex *gridstor=griddedData.getStorage(gridcopy);
  Bool convcopy;
@@ -1449,7 +1496,7 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
   Int ix=0;
 #pragma omp parallel default(none) private(ix, rbeg, rend) firstprivate(uvwstor, datStorage, flagstor, rowflagstor, convstor, pmapstor, cmapstor, gridstor, nxp, nyp, np, nc, csamp, csize, csupp, nvp, nvc, nvisrow, phasorstor, locstor, offstor, nPolConv, nChanConv, nConvFunc, convrowmapstor, convpolmapstor, convchanmapstor, npart)  num_threads(npart)
   {
-    #pragma omp for schedule(dynamic,1) 
+    #pragma omp for schedule(dynamic) 
     for (ix=0; ix< npart; ++ix){
       rbeg=ix*(nvisrow/npart)+1;
       rend=(ix != (npart-1)) ? (rbeg+(nvisrow/npart)-1) : (rbeg+(nvisrow/npart)-1+nvisrow%npart) ;
@@ -1488,7 +1535,7 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
   griddedData.freeStorage(gridstor, gridcopy);
   convFunc.freeStorage(convstor, convcopy);
   
-
+   timedegrid_p+=tim.real();
 
   interpolateFrequencyFromgrid(vb, data, FTMachine::MODEL);
 }
@@ -1645,7 +1692,6 @@ ImageInterface<Complex>& MosaicFT::getImage(Matrix<Float>& weights,
   logIO() << LogOrigin("MosaicFT", "getImage") << LogIO::NORMAL;
   
   weights.resize(sumWeight.shape());
-  
   convertArray(weights, sumWeight);
   SynthesisUtilMethods::getResource("mem peak in getImage");
   
@@ -1861,11 +1907,12 @@ Bool MosaicFT::toRecord(String&  error,
   outRec.define("convsizeplanes", convSizePlanes_p);
   outRec.define("convRowMap",  convRowMap_p);
   outRec.define("stokes", stokes_p);
+  outRec.define("useconjconvfunc", useConjConvFunc_p);
   if(!pbConvFunc_p.null()){
     Record subRec;
     //cerr << "Doing pbconvrec " << endl;
     pbConvFunc_p->toRecord(subRec);
-    outRec.defineRecord("pbconvfunc", subRec);
+    outRec.defineRecord("pbconvfunc", subRec);	
   }
   
 
@@ -1918,6 +1965,7 @@ Bool MosaicFT::fromRecord(String& error,
   inRec.get("convsizeplanes", convSizePlanes_p);
   inRec.get("convRowMap",  convRowMap_p);
   inRec.get("stokes", stokes_p);
+  inRec.get("useconjconvfunc", useConjConvFunc_p);
   if(inRec.isDefined("pbconvfunc")){
     Record subRec=inRec.asRecord("pbconvfunc");
     String elname=subRec.asString("name");
