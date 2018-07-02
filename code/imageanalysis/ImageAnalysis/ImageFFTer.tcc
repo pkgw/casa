@@ -33,7 +33,7 @@ template<class T> void ImageFFTer<T>::fft() const {
 		*this->_getImage(), *this->_getRegion(), this->_getMask(), this->_getLog().get(),
 		casacore::AxesSpecifier(), this->_getStretch()
 	);
-	ImageFFT fft;
+	ImageFFT<T> fft;
 	if (_axes.size() == 0) {
 		*this->_getLog() << casacore::LogIO::NORMAL << "FFT the direction coordinate" << casacore::LogIO::POST;
 		fft.fftsky(*subImage);
