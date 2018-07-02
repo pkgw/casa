@@ -5,292 +5,337 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-<task type="function" name="statwt" category="manipulation">
+<task type="function" name="statwt">
+    <shortdescription>Compute and set weights based on variance of data.</shortdescription>
 
-  <shortdescription> Reweight visibilities according to their scatter (Experimental)</shortdescription>
-
-
-<input>
-	<param type="string" name="vis" mustexist="true">
-		<description>Name of measurement set</description>
-		<value></value>
-	</param>
-
-	<param type="bool" name="dorms">
-	  <description>Use rms instead of stddev?</description>
-	  <value>False</value>
-	</param>
-
-	<param type="bool" name="byantenna">
-	  <description>Estimate the noise per antenna -not implemented (vs. per baseline)</description>
-	  <value>False</value>
-	</param>
-
-	<param type="bool" name="sepacs" subparam="true">
-	  <description>If solving by antenna, treat autocorrs separately (not implemented)</description>
-	  <value>True</value>
-	</param>
-
-	<param type="any" name="fitspw">
-		<description>The signal-free spectral window:channels to estimate the scatter from</description>
-		<any type="variant" limittypes="string stringArray int intArray"/>
-		<value type="string"></value>
-	</param>
-
-	<param type="any" name="fitcorr">
-		<description>The signal-free correlation(s) to estimate the scatter from (not implemented)</description>
-		<any type="variant" limittypes="string stringArray int intArray"/>
-		<value type="string"></value>
-	</param>
-
-	<param type="any" name="combine">
-		<description>Let estimates span changes in spw, corr, scan and/or state</description>
-		<any type="variant" limittypes="string stringArray"/>
-		<value type="string"></value>
-	</param>
-
-	<param type="string" name="timebin">
-		<description>Bin length for estimates (not implemented)</description>
-		<value type="string">0s</value>
-	</param>
-
-	<param type="int" name="minsamp">
-	  <description>Minimum number of unflagged visibilities for estimating the scatter</description>
-	  <value>2</value>
-	</param>
-
-        <param type="any" name="field">
-                <description>Select field using ID(s) or name(s)</description>
-		<any type="variant" limittypes="string stringArray int intArray"/>
-                <value type="string"></value>
+    <input>
+	    <param type="string" name="vis" mustexist="true">
+		    <description>Name of measurement set</description>
+		    <value/>
+	    </param>
+	    <param type="bool" name="selectdata">
+	       <description>Enable data selection parameters</description>
+	       <value type="bool">True</value>
+	    </param>
+        <param type="string" name="field" subparam="true">
+            <description>Selection based on field names or field index numbers. Default is all.</description>
+            <value/>
+            <example>"0~2", or "3C286"</example>
         </param>
-
-	<param type="any" name="spw">
-		<description>Select spectral window/channels</description>
-		<any type="variant" limittypes="string stringArray int intArray"/>
-		<value type="string"></value>
-	</param>
-
-	<param type="any" name="antenna">
-		<description>Select data based on antenna/baseline</description>
-		<any type="variant" limittypes="string stringArray int intArray"/>
-		<value type="string"></value>
-	</param>
-
-	<param type="string" name="timerange" >
-		<description>Select data by time range</description>
-		<value></value>
-	</param>
-	<param type="string" name="scan" >
-		<description>Select data by scan numbers</description>
-		<value></value>
-	</param>
-	<param type="string" name="intent" >
-		<description>Select data by scan intents</description>
-		<value></value>
-	</param>
-        <param type="string" name="array">
-                <description>Select (sub)array(s) by array ID number</description>
-                <value></value>
+        <param type="string" name="spw" subparam="true">
+            <description>Selection based on spectral windows:channels. Default is all.</description>
+            <value/>
+            <example>"3"</example>
         </param>
-	<param type="any" name="correlation">
-		<description>Select correlations to reweight (DEPRECATED in CASA v4.5)</description>
-		<any type="variant" limittypes="string stringArray"/>
-		<value type="string"></value>
-	</param>
-        <param type="any" name="observation">
-                <description>Select by observation ID(s)</description>
-		<any type="variant" limittypes="string int"/>
-		<value type="string"></value>
+        <param type="string" name="intent" subparam="true">
+            <description>Selection based on intents. Default is all.</description>
+            <value/>
+            <example>"my_intent"</example>
         </param>
-
-	<param type="string" name="datacolumn" ignorecase="True">
-		<description>Which data column to calculate the scatter from</description>
-		<value>corrected</value>
-		<allowed kind="enum" ignorecase="True">
-			<value>data</value>
-			<value>corrected</value>
-			<value>float_data</value>
-			<value>model</value>
-			<!-- <value>lag_data</value> -->
-		</allowed>
-	</param>
-
+        <param type="string" name="array" subparam="true">
+            <description>Selection based on array IDs. Default is all.</description>
+            <value/>
+            <example>"1"</example>
+        </param>
+        <param type="string" name="observation" subparam="true">
+            <description>Selection based on observation IDs. Default is all.</description>
+            <value/>
+            <example>"1"</example>
+        </param>
+        <param type="string" name="combine">
+            <description>Ignore changes in these columns (scan, field, and/or state) when aggregating samples to compute weights. The value "corr" is also supported to aggregate samples across correlations.</description>
+            <value/>
+            <example>"scan,field"</example>
+        </param>
+	    <param type="any" name="timebin">
+            <description>Length for binning in time to determine statistics. Can either be integer to be multiplied by the representative integration time, a quantity (string) in time units</description>
+            <any type="variant" limittypes="string int" />
+            <value type="int">1</value>
+            <example>5 or "100s"</example>
+        </param>
+        <param type="bool" name="slidetimebin">
+            <description>Use a sliding window for time binning, as opposed to time block processing?</description>
+            <value>False</value>
+            <example>True</example>
+        </param>
+        <param type="any" name="chanbin">
+            <any type="variant" limittypes="string int"/>
+            <description>Channel bin width for computing weights. Can either be integer, in which case it is interpreted as number of channels to include in each bin, or a string "spw" or quantity with frequency units.</description>
+            <value type="string">spw</value>
+            <example>5 or "1.5MHz"</example>
+        </param>
+        <param type="int" name="minsamp">
+            <description>Minimum number of unflagged visibilities required for computing weights in a sample. Must be &gt;= 2.</description>
+            <value>2</value>
+            <example>10</example>
+        </param>
+        <param type="string" name="statalg">
+            <description>Statistics algorithm to use for computing variances. Supported values are "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported, although the full string must be specified for the subparameters to appear in the inputs list.</description>
+            <value>classic</value>
+            <example>"cl", "ch", "f", or "h"</example>
+        </param>
+        <param type="double" name="fence" subparam="true">
+            <description>Fence value for statalg="hinges-fences". A negative value means use the entire data set (ie default to the "classic" algorithm). Ignored if statalg is not "hinges-fences".</description>
+            <value>-1</value>
+            <example>0.2</example>
+        </param>
+        <param type="string" name="center" subparam="true">
+            <description>Center to use for statalg="fit-half". Valid choices are "mean", "median", and "zero". Ignored if statalg is not "fit-half".</description>
+            <value>mean</value>
+            <example>"mean", "median", or "zero"</example>
+        </param>
+        <param type="bool" name="lside" subparam="true">
+            <description>For statalg="fit-half", real data are &lt;=; center? If false, real data are &gt;= center. Ignored if statalg is not "fit-half".</description>
+            <value>True</value>
+            <example>True</example>
+        </param>
+        <param type="double" name="zscore" subparam="true">
+            <description>For statalg="chauvenet", this is the target maximum number of standard deviations data may have to be included. If negative, use Chauvenet\'s criterion. Ignored if statalg is not "chauvenet".</description>
+            <value>-1</value>
+            <example>3.5</example>
+        </param>
+        <param type="int" name="maxiter" subparam="true">
+            <description>For statalg="chauvenet", this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, iterate until the zscore criterion is met. Ignored if statalg is not "chauvenet".</description>
+            <value>-1</value>
+            <example>10</example>
+        </param>
+        <param type="string" name="excludechans">
+                <description>Channels to exclude from the computation of weights. Specified as an MS select channel selection string.</description>
+                <value/>
+                <example>"0:5~30"</example>
+            </param>
+        <param type="doubleArray" name="wtrange">
+            <description>Range of acceptable weights. Data with weights outside this range will be flagged. Empty array (default) means all weights are good.</description>
+            <value/>
+            <example>[0.1, 10]</example>
+        </param>
+        <param type="bool" name="flagbackup">
+            <description>Back up the state of flags before the run?</description>
+            <value>True</value>
+            <example>True, False</example>
+        </param>
+        <param type="bool" name="preview">
+            <description>Preview mode. If True, no data is changed, although the amount of data that would have been flagged is reported.</description>
+            <value>False</value>
+            <example>True or False</example>
+        </param>
+        <param type="string" name="datacolumn">
+            <description>Data column to use to compute weights. Supported values are "data", "corrected", "residual", and "residual_data" (case insensitive, minimum match supported).</description>
+            <value>corrected</value>
+            <example>"data" or "corrected"</example>
+        </param>
         <constraints>
-	  <when param="byantenna">
-            <equals type="bool" value="False">
-            </equals>
-            <equals type="bool" value="True">
-              <default param="sepacs"><value type="bool">True</value></default>
-            </equals>
-          </when>
+            <when param="selectdata">
+                <equals type="bool" value="True">
+                    <default param="field"><value>""</value></default>
+                    <default param="spw"><value>""</value></default>
+                    <default param="observation"><value>""</value></default>
+                    <default param="intent"><value>""</value></default>
+                    <default param="array"><value>""</value></default>
+                </equals>
+            </when>
+            <when param="statalg">
+                <equals type="string" value="classic"/>
+                <equals type="string" value="hinges-fences">
+                    <default param="fence">
+                        <value>-1</value>
+                    </default>
+                </equals>
+                <equals type="string" value="fit-half">
+                    <default param="center">
+                        <value type="string">mean</value>
+                    </default>
+                    <default param="lside">
+                        <value>True</value>
+                    </default>
+                </equals>
+                <equals type="string" value="chauvenet">
+                    <default param="zscore">
+                        <value>-1</value>
+                    </default>
+                    <default param="maxiter">
+                        <value>-1</value>
+                    </default>
+                </equals>
+            </when>
         </constraints>
-</input>
-<example>
+    </input>
+    <example>
+        IF NOT RUN IN PREVIEW MODE, THIS APPLICATION WILL MODIFY THE WEIGHT, WEIGHT SPECTRUM, FLAG,
+        AND FLAG_ROW COLUMNS OF THE INPUT MS. IF YOU WANT A PRISTINE COPY OF THE INPUT MS TO BE
+        PRESERVED, YOU SHOULD MAKE A COPY OF IT BEFORE RUNNING THIS APPLICATION.
 
-    The WEIGHT and SIGMA columns of measurement sets are often set to arbitrary
-    values (e.g. 1), or theoretically estimated from poorly known antenna and
-    receiver properties.  Many tasks (e.g. clean) are insensitive to an overall
-    scale error in WEIGHT, but are affected by errors in the relative weights
-    between visibilities.  Other tasks, such as uvmodelfit, or anything which
-    depends on theoretical estimates of the noise, require (reasonably) correct
-    weights and sigmas.  statwt empirically measures the visibility scatter
-    (typically as a function of time, antenna, and/or baseline) and uses that
-    to set WEIGHT and SIGMA. It is important that all necessary calibrations
-    are applied to the data prior to running this task for correct determination of
-    weights and sigmas.
+        This application computes weights for the WEIGHT and WEIGHT_SPECTRUM (if present) columns
+        based on the variance of values in the CORRECTED_DATA or DATA column. If the MS does not
+        have the specified data column, the application will fail. The following algorithm is used:
+ 
+        1. For unflagged data in each sample, create two sets of values, one set is composed solely
+           of the real part of the data values, the other set is composed solely of the imaginary
+           part of the data values.
+        2. Compute the variance of each of these sets, vr and vi.
+        3. Compute veq = (vr + vi)/2.
+        4. The associated weight is just the reciprocal of veq. The weight will have unit
+           of (data unit)^(-2), eg Jy^(-2).
 
-    Note: Some of the parameters (byantenna, sepacs, fitcorr, and timebin)
-          are not fully implemented for CASA 3.4.
+        Data are aggregated on a per-baseline, per-data description ID basis. Data are aggregated
+        in bins determined by the specified values of the timebin and chanbin parameters. By default,
+        data for separate correlations are aggregated separately. This behavior can be overriden
+        by specifying combine="corr" (see below).
+            
+        RULES REGARDING CREATING/INITIALIZING WEIGHT_SPECTRUM COLUMN
 
+        1. If run in preview mode (preview=True), no data are modified and no columns are added.
+        2. Else if the MS already has a WEIGHT_SPECTRUM and this column has been initialized (has values),
+           it will always be populated with the new weights.  The WEIGHT column will be populated with
+           the corresponding median values of the associated WEIGHT_SPECTRUM array.
+        3. Else if the frequency range specified for the sample is not the default ("spw"), the
+           WEIGHT_SPECTRUM column will be created (if it doesn't already exist) and the new weights
+           will be written to it.  The WEIGHT column should be populated with the corresponding median
+           values of the WEIGHT_SPECTRUM array.
+        4. Otherwise the single value for each spectral window will be written to the WEIGHT column;
+           the WEIGHT_SPECTRUM column will not be added if it doesn't already exist, and if it does,
+           it will remain uninitialized (no values will be written to it).
+            
+        TIME BINNING
+            
+        One of two algorithms can be used for time binning. If slidetimebin=True, then
+        a sliding time bin of the specified width is used. If slidetimebin=False, then
+        block time processing is used. The sliding time bin algorithm will generally be
+        both more memory intensive and take longer than the block processing algorithm.
+        Each algorithm is discussed in detail below.
+            
+        If the value of timebin is an integer, it means that the specified value should be
+        multiplied by the representative integration time in the MS. This integration is the
+        median value of all the values in the INTERVAL column. Flags are not considered in
+        the integration time computation. If either extrema in the INTERVAL column differs from
+        the median by more than 25%, the application will fail because the values vary too much
+        for there to be a single, representative, integration time. The timebin parameter can
+        also be specified as a quantity (string) that must have time conformant units.
+            
+        Block Time Processing
+            
+        The data are processed in blocks. This means that all weight spectrum values will be set to
+        the same value for all points within the same time bin/channel bin/correlation bin (
+        see the section on channel binning and description of combine="corr" for more details on
+        channel binning and correlation binning).
+        The time bins are not necessarily contiguous and are not necessarily the same width. The start
+        of a bin is always coincident with a value from the TIME column, So for example, if values
+        from the time column are [20, 60, 100, 140, 180, 230], and the width of the bins is chosen
+        to be 110s, the first bin would start at 20s and run to 130s, so that data from timestamps
+        20, 60, and 100 will be included in the first bin. The second bin would start at 140s, so that
+        data for timestamps 140, 180, and 230 would be included in the second bin. Also, time binning
+        does not span scan boundaries, so that data associated with different scan numbers will
+        always be binned separately; changes in SCAN_NUMBER will cause a new time bin to be created,
+        with its starting value coincident with the time of the new SCAN_NUMBER. Similar behavior can
+        be expected for changes in FIELD_ID and ARRAY_ID. One can override this behavior for some
+        columns by specifying the combine parameter (see below).
+            
+        Sliding Time Window Processing
+            
+        In this case, the time window is always centered on the timestamp of the row in question
+        and extends +/-timebin/2 around that timestamp, subject the the time block boundaries.
+        Rows with the same baselines and data description IDs which are included in that window
+        are used for determining the weight of that row. The boundaries of the time block to which
+        the window is restricted are determined by changes in FIELD_ID, ARRAY_ID, and SCAN_NUMBER.
+        One can override this behavior for FIELD_ID and/or SCAN_NUMBER by specifying the combine
+        parameter (see below). Unlike the time block processing algorithm, this sliding time window
+        algorithm requires that details all rows for the time block in question are kept in memory,
+        and thus the sliding window algorithm in general requires more memory than the  blcok
+        processing method. Also, unlike the block processing method which computes a single value
+        for all weights within a single bin, the sliding window method requires that each row
+        (along with each channel and correlation bin) be processed individually, so in general
+        the sliding window method will take longer than the block processing method.
+            
+        CHANNEL BINNING
+            
+        The width of channel bins is specified via the chanbin parameter. Channel binning occurs within
+        individual spectral windows; bins never span multiple spectral windows. Each channel will
+        be included in exactly one bin.
+            
+        The default value "spw" indicates that all channels in each spectral window are to be
+        included in a single bin.
+            
+        Any other string value is interpreted as a quantity, and so should have frequency units, eg
+        "1MHz". In this case, the channel frequencies from the CHAN_FREQ column of the SPECTRAL_WINDOW
+        subtable of the MS are used to determine the bins. The first bin starts at the channel frequency
+        of the 0th channel in the spectral window. Channels with frequencies that differ by less than
+        the value specified by the chanbin parameter are included in this bin. The next bin starts at
+        the frequency of the first channel outside the first bin, and the process is repeated until all
+        channels have been binned.
+            
+        If specified as an integer, the value is interpreted as the number of channels to include in
+        each bin. The final bin in the spectral window may not necessarily contain this number of
+        channels. For example, if a spectral window has 15 channels, and chanbin is specified to be 6,
+        then channels 0-5 will comprise the first bin, channels 6-11 the second, and channels 12-14 the
+        third, so that only three channels will comprise the final bin.
+  
+        MINIMUM REQUIRED NUMBER OF VISIBILITIES
+        
+        The minsamp parameter allows the user to specify the minimum number of unflagged visibilities that
+        must be present in a sample for that sample's weight to be computed. If a sample has less than
+        this number of unflagged points, the associated weights of all the points in the sample are
+        set to zero, and all the points in the sample are flagged.
+            
+        AGGREGATING DATA ACROSS BOUNDARIES
+            
+        By default, data are not aggregated across changes in values in the columns ARRAY_ID,
+        SCAN_NUMBER, STATE_ID, FIELD_ID, and DATA_DESC_ID. One can override this behavior for
+        SCAN_NUMBER, STATE_ID, and FIELD_ID by specifying the combine parameter. For example,
+        specifying combine="scan" will ignore scan boundaries when aggregating data. Specifying 
+        combine="field, scan" will ignore both scan and field boundaries when aggregating data.
+            
+        Also by default, data for separate correlations are aggregated separately. Data for all
+        correlations within each spectral window can be aggregated together by specifying
+        "corr" in the combine parameter.
+            
+        Any combination and permutation of "scan", "field", "state", and "corr" are supported
+        by the combine parameter. Other values will be silently ignored.
 
-        Keyword arguments:
-        vis -- Name of the measurement set.
-                default: none; example: vis='ngc5921.ms'
+        STATISTICS ALGORITHMS
+            
+        The supported statistics algorithms are described in detail in the imstat and ia.statistics()
+        help. For the current application, these algorithms are used to compute vr and vi (see above),
+        such that the set of the real parts of the visibilities and the set of the imaginary parts of
+        the visibilities are treated as independent data sets.
 
-        dorms -- Estimate the scatter using rms instead of the standard
-                 deviation?
+        RANGE OF ACCEPTABLE WEIGHTS
+            
+        The wtrange parameter allows one to specify the acceptable range (inclusive, except for zero)
+        for weights. Data with weights computed to be outside this range will be flagged. If not
+        specified (empty array), all weights are considered to be acceptable. If specified, the array
+        must contain exactly two nonnegative numeric values. Note that data with weights of zero are
+        always flagged.
 
-                 Ideally the visibilities used to estimate the scatter, as
-                 selected by fitspw and fitcorr, should be pure noise.  If you
-                 know for certain that they are, then setting dorms to True
-                 will give the best result.  Otherwise, use False (standard
-                 sample standard deviation).  More robust scatter estimates
-                 like the interquartile range or median absolute deviation from
-                 the median are not offered because they require sorting by
-                 value, which is not possible for complex numbers.
-               default: False
+        EXCLUDING CHANNELS
+        
+        Channels can be excluded from the computation of the weights by specifying the excludechans
+        parameter. This parameter accepts a valid MS channel selection string. Data associated with
+        the selected channels will not be used in computing the weights.
+            
+        PREVIEW MODE
+            
+        By setting preview=True, the application is run in "preview" mode. In this mode, no data
+        in the input MS are changed, although the amount of data that the application would have
+        flagged is reported.
 
-        byantenna -- Assume that the noise is factorable by antenna (feed).
-                     If false, treat it separately for each baseline
-                     (recommended if there is strong signal).
-               default: False (*** byantenna=True is not yet implemented)
+        DATA COLUMN
+            
+        The datacolumn parameter can be specified to indicate which data column should be used
+        for computing the weights. The values "corrected" for the CORRECTED_DATA column and "data"
+        for the DATA column are supported (minimum match, case insensitive).
+      
+        OTHER CONSIDERATIONS
+            
+        Flagged values are not used in computing the weights, although the associated weights of
+        these values are updated.
 
-        sepacs -- If solving by antenna, treat autocorrelations separately.
-                  (Acknowledge that what autocorrelations "see" is very
-                   different from what crosscorrelations see.)
-               default: True (*** not yet implemented)
+        If the variance for a set of data is 0, all associated flags for that data are set to True,
+        and the corresponding weights are set to 0.
 
-
-        --- Data Selection (see help par.selectdata for more detailed
-            information)
-
-        fitspw -- The (ideally) signal-free spectral window:channels to
-                  estimate the scatter from.
-               default: '' (All)
-
-        fitcorr -- The (ideally) signal-free correlations to
-                   estimate the scatter from.
-               default: '' (All)
-               *** not yet implemented
-
-        combine -- Let samples span multiple spws, corrs, scans, and/or states.
-                   combine = 'spw': Recommended when a line spans an entire spw
-                                    - set fitspw to the neighboring spws and
-                                    apply their weight to the line spw(s).
-                                    However, the effect of the line signal per
-                                    visibility may be relatively harmless
-                                    compared to the noise difference between
-                                    spws.
-                   combine = 'scan': Can be useful when the scan number
-                                     goes up with each integration,
-                                     as in many WSRT MSes.
-                   combine = ['scan', 'spw']: disregard scan and spw
-                                              numbers when gathering samples.
-                   combine = 'spw,scan': Same as above.
-              default: '' (None)
-
-        timebin -- Sample interval.
-                   default: '0s' or '-1s' (1 integration at a time)
-                   example: timebin='30s'
-                            '10' means '10s'
-                   *** not yet implemented
-
-        minsamp -- Minimum number of unflagged visibilities for estimating the
-                   scatter.  Selected visibilities for which the weight cannot
-                   be estimated will be flagged.  Note that minsamp is
-                   effectively at least 2 if dorms is False, and 1 if it is
-                   True.
-
-        field -- Select field using field id(s) or field name(s).
-                  [run listobs to obtain the list id's or names]
-               default: ''=all fields If field string is a non-negative
-               integer, it is assumed to be a field index
-               otherwise, it is assumed to be a field name
-               field='0~2'; field ids 0,1,2
-               field='0,4,5~7'; field ids 0,4,5,6,7
-               field='3C286,3C295'; fields named 3C286 and 3C295
-               field = '3,4C*'; field id 3, all names starting with 4C
-
-        spw -- Select spectral window/channels for changing WEIGHT and SIGMA.
-               default: ''=all spectral windows and channels
-               spw='0~2,4'; spectral windows 0,1,2,4 (all channels)
-               spw='&lt;2';  spectral windows less than 2 (i.e. 0,1)
-               spw='0:5~61'; spw 0, channels 5 to 61
-               spw='0,10,3:3~45'; spw 0,10 all channels, spw 3 - chans 3 to 45.
-               spw='0~2:2~6'; spw 0,1,2 with channels 2 through 6 in each.
-               spw = '*:3~64'  channels 3 through 64 for all sp id's
-                       spw = ' :3~64' will NOT work.
-               statwt does not support multiple channel ranges per spectral
-               window (';') because it is not clear whether to keep the ranges
-               in the original spectral window or make a new spectral window
-               for each additional range.
-
-        antenna -- Select antennas/baselines for changing WEIGHT and SIGMA.
-               default: '' (all)
-                Non-negative integers are assumed to be antenna indices, and
-                anything else is taken as an antenna name.
-
-                Examples:
-                antenna='5&amp;6': baseline between antenna index 5 and index 6.
-                antenna='VA05&amp;VA06': baseline between VLA antenna 5 and 6.
-                antenna='5&amp;6;7&amp;8': baselines 5-6 and 7-8
-                antenna='5': all baselines with antenna 5
-                antenna='5,6,10': all baselines including antennas 5, 6, or 10
-                antenna='5,6,10&amp;': all baselines with *only* antennas 5, 6, or
-                                       10.  (cross-correlations only.  Use &amp;&amp;
-                                       to include autocorrelations, and &amp;&amp;&amp;
-                                       to get only autocorrelations.)
-                antenna='!ea03,ea12,ea17': all baselines except those that
-                                           include EVLA antennas ea03, ea12, or
-                                           ea17.
-        timerange -- Select data based on time range:
-               default = '' (all); examples,
-               timerange = 'YYYY/MM/DD/hh:mm:ss~YYYY/MM/DD/hh:mm:ss'
-               Note: if YYYY/MM/DD is missing date, timerange defaults to the
-               first day in the dataset
-               timerange='09:14:0~09:54:0' picks 40 min on first day
-               timerange='25:00:00~27:30:00' picks 1 hr to 3 hr 30min
-               on next day
-               timerange='09:44:00' data within one integration of time
-               timerange='&gt;10:24:00' data after this time
-	scan -- Scan number range
-            default: ''=all
-        intent -- Select by scan intent (state).  Case sensitive.
-            default: '' = all
-            Examples:
-            intent = 'CALIBRATE_ATMOSPHERE_REFERENCE'
-            intent = 'calibrate_atmosphere_reference'.upper() # same as above
-            # Select states that include one or both of CALIBRATE_WVR.REFERENCE
-            # or OBSERVE_TARGET_ON_SOURCE.
-            intent = 'CALIBRATE_WVR.REFERENCE, OBSERVE_TARGET_ON_SOURCE'
-        array -- (Sub)array number range
-            default: ''=all
-        correlation -- Select correlations, e.g. 'rr, ll' or ['XY', 'YX'].
-                       default '' (all).
-                       NB: In CASA v4.5, non-trivial correlation selection has
-                       been disabled since it was not working correctly, and
-                       it is likely undesirable to set the weights in a
-                       correlation-dependent way.
-
-        observation -- Select by observation ID(s).
-                       default: '' = all
-       datacolumn -- Which data column to calculate the scatter from
-                  default='corrected'; example: datacolumn='data'
-                  Options: 'data', 'corrected', 'model', 'float_data'
-                  note: 'corrected' will fall back to DATA if CORRECTED_DATA
-                        is absent.
-
-</example>
+        EXAMPLE 
+        
+        # update the weights of an MS using time binning of 300s
+        statwt("my.ms", timebin="300s")
+    </example> 
 </task>
 </casaxml>

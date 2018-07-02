@@ -816,13 +816,13 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
           // heuristic factors multiplied to imshape based on gridder
           size_t fudge_factor = 15;
           if (ftm->name()=="MosaicFTNew") {
-              fudge_factor = 15;
+              fudge_factor = 20;
           }
           else if (ftm->name()=="GridFT") {
               fudge_factor = 9;
           }
 
-          size_t required_mem = fudge_factor * sizeof(Float);
+          Double required_mem = fudge_factor * sizeof(Float);
           for (size_t i = 0; i < imshape.nelements(); i++) {
               // gridding pads image and increases to composite number
               if (i < 2) {
@@ -841,7 +841,6 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
           }
           // assumes all processes need the same amount of memory
           required_mem *= nlocal_procs;
-
           Double usr_memfrac, usr_mem;
           AipsrcValue<Double>::find(usr_memfrac, "system.resources.memfrac", 80.);
           AipsrcValue<Double>::find(usr_mem, "system.resources.memory", -1.);
@@ -850,9 +849,8 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
               memory_avail = usr_mem * 1024. * 1024.;
           }
           else {
-              memory_avail = HostInfo::memoryTotal(false) * (usr_memfrac / 100.) * 1024.;
+	    memory_avail = Double(HostInfo::memoryFree()) * (usr_memfrac / 100.) * 1024.;
           }
-
           // compute required chanchunks to fit into the available memory
           chanchunks = (int)std::ceil((Double)required_mem / memory_avail);
           if (imshape.nelements() == 4 && imshape[3] < chanchunks) {
@@ -1260,8 +1258,149 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 
     unlockMSs();
 
-  }// end makeImage
+  }// end makeSDImage
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  void SynthesisImagerVi2::makeImage(String type, const String& imagename, const String& complexImage, const Int whichModel)
+  {
+    LogIO os( LogOrigin("SynthesisImager","makeImage",WHERE) );
+
+    
+    refim::FTMachine::Type seType(refim::FTMachine::OBSERVED);
+    if(type=="observed") {
+      seType=refim::FTMachine::OBSERVED;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="model") {
+      seType=refim::FTMachine::MODEL;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="corrected") {
+      seType=refim::FTMachine::CORRECTED;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="psf") {
+      seType=refim::FTMachine::PSF;
+      os << "Making point spread function "
+	 << LogIO::POST;
+    }
+    else if (type=="residual") {
+      seType=refim::FTMachine::RESIDUAL;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="singledish-observed") {
+      seType=refim::FTMachine::OBSERVED;
+      os << LogIO::NORMAL 
+         << "Making single dish image from observed data" << LogIO::POST;
+    }
+    else if (type=="singledish") {
+      seType=refim::FTMachine::CORRECTED;
+      os << LogIO::NORMAL 
+         << "Making single dish image from corrected data" << LogIO::POST;
+    }
+    else if (type=="coverage") {
+      seType=refim::FTMachine::COVERAGE;
+      os << LogIO::NORMAL 
+         << "Making single dish coverage function "
+	 << LogIO::POST;
+    }
+    else if (type=="holography") {
+      seType=refim::FTMachine::CORRECTED;
+      os << LogIO::NORMAL
+         << "Making complex holographic image from corrected data "
+	 << LogIO::POST;
+    }
+    else if (type=="holography-observed") {
+      seType=refim::FTMachine::OBSERVED;
+      os << LogIO::NORMAL 
+         << "Making complex holographic image from observed data "
+	 << LogIO::POST;
+    }
+
+    String imageName=(itsMappers.imageStore(whichModel))->getName();
+    String cImageName(complexImage);
+    if(complexImage=="") {
+      cImageName=imageName+".compleximage";
+    }
+    Bool keepComplexImage=(complexImage!="")||(type.contains("holography"));
+    //cerr << "name " << (itsMappers.getFTM2(whichModel))->name() << endl;
+ if(((itsMappers.getFTM2(whichModel))->name())!="MultiTermFTNew"){
+   ////Non multiterm case    
+    PagedImage<Float> theImage((itsMappers.imageStore(whichModel))->getShape(), (itsMappers.imageStore(whichModel))->getCSys(), imagename);
+    PagedImage<Complex> cImageImage(theImage.shape(),
+				    theImage.coordinates(),
+				    cImageName);
+    if(!keepComplexImage)
+      cImageImage.table().markForDelete();
+
+
+    Matrix<Float> weight;
+    
+    (itsMappers.getFTM2(whichModel))->makeImage(seType, *vi_p, cImageImage, weight);
+
+    if(seType==refim::FTMachine::PSF){
+       StokesImageUtil::ToStokesPSF(theImage, cImageImage);
+       StokesImageUtil::normalizePSF(theImage);
+    }
+    else{
+      StokesImageUtil::To(theImage, cImageImage);
+    }
+ }
+ else{
+   ///Multiterm
+   //refim::MultiTermFTNew *theft=static_cast<refim::MultiTermFTNew *>( (itsMappers.getFTM2(whichModel))->cloneFTM());
+   refim::MultiTermFTNew *theft=static_cast<refim::MultiTermFTNew *>( (itsMappers.getFTM2(whichModel)).get());
+   Int ntaylor= seType==refim::FTMachine::PSF ? theft->psfNTerms() : theft->nTerms();
+   if(ntaylor<2)
+     throw(AipsError("some issue with muti term setting "));
+   Vector<CountedPtr<ImageInterface<Float> > >theImage(ntaylor);
+   Vector<CountedPtr<ImageInterface<Complex> > >cImageImage(ntaylor);
+   Vector<CountedPtr<Matrix<Float> > >weight(ntaylor);
+   for (Int taylor=0; taylor < ntaylor; ++taylor){
+     theImage[taylor]=new PagedImage<Float>((itsMappers.imageStore(whichModel))->getShape(), (itsMappers.imageStore(whichModel))->getCSys(), imagename+".tt"+String::toString(taylor));
+     cImageImage[taylor]=new PagedImage<Complex> (theImage[taylor]->shape(),
+						  theImage[taylor]->coordinates(),
+						  cImageName+".tt"+String::toString(taylor));
+      if(!keepComplexImage)
+	static_cast<PagedImage<Complex> *> (cImageImage[taylor].get())->table().markForDelete();
+      weight[taylor]=new Matrix<Float>();
+
+   }
+   theft->makeMTImages(seType, *vi_p, cImageImage, weight);
+   Float maxpsf=1.0;
+   for (Int taylor=0; taylor < ntaylor; ++taylor){
+     if(seType==refim::FTMachine::PSF){
+       StokesImageUtil::ToStokesPSF(*(theImage[taylor]), *(cImageImage[taylor]));
+       if(taylor==0){
+	 maxpsf=StokesImageUtil::normalizePSF(*theImage[taylor]);
+	 //cerr << "maxpsf " << maxpsf << endl;
+       }
+       else{
+	 ///divide by max;
+	 (*theImage[taylor]).copyData((LatticeExpr<Float>)((*theImage[taylor])/maxpsf));
+       }
+    }
+    else{
+      StokesImageUtil::To(*(theImage[taylor]), *(cImageImage[taylor]));
+    }
+   }
+   //delete theft;
+     
+ }
+    unlockMSs();
+
+  }// end makeImage
+  /////////////////////////////////////////////////////
+
+
+
 
 
 CountedPtr<SIMapper> SynthesisImagerVi2::createSIMapper(String mappertype,  
@@ -1682,6 +1821,7 @@ void SynthesisImagerVi2::unlockMSs()
     */
 
    refim::VPSkyJones* vps=NULL;
+   //cerr << "rec " << rec << " kpb " << kpb << endl;
     if(rec.asString("name")=="COMMONPB" && kpb !=PBMath::UNKNOWN ){
       vps= new refim::VPSkyJones(msc, true, Quantity(rotatePAStep, "deg"), BeamSquint::GOFIGURE, Quantity(360.0, "deg"));
       /////Don't know which parameter has pb threshold cutoff that the user want 
@@ -1695,7 +1835,7 @@ void SynthesisImagerVi2::unlockMSs()
       PBMathInterface::namePBClass(myPB.whichPBClass(), whichPBMath);
       os  << "Using the PB defined by " << whichPBMath << " for beam calculation for telescope " << telescop << LogIO::POST;
       vps= new refim::VPSkyJones(telescop, myPB, Quantity(rotatePAStep, "deg"), BeamSquint::GOFIGURE, Quantity(360.0, "deg"));
-      kpb=PBMath::DEFAULT;
+      //kpb=PBMath::DEFAULT;
     }
    
     
@@ -1707,7 +1847,7 @@ void SynthesisImagerVi2::unlockMSs()
     ///Use Heterogenous array mode for the following
     if((kpb == PBMath::UNKNOWN) || (kpb==PBMath::OVRO) || (kpb==PBMath::ACA)
        || (kpb==PBMath::ALMA) || (kpb==PBMath::EVLA) || multiTel){
-      CountedPtr<refim::SimplePBConvFunc> mospb=new refim::HetArrayConvFunc(pbtype, "");
+      CountedPtr<refim::SimplePBConvFunc> mospb=new refim::HetArrayConvFunc(pbtype, itsVpTable);
       static_cast<refim::MosaicFTNew &>(*theFT).setConvFunc(mospb);
     }
     ///////////////////make sure both FTMachine share the same conv functions.

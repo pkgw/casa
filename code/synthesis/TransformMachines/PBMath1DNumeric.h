@@ -142,6 +142,8 @@ public:
   // Summarize the construction data for this primary beam
   void summary(casacore::Int nValues=0);
 
+  virtual casacore::Int support (const casacore::CoordinateSystem& cs);
+
 protected:
 
   // Fill in vp_p array from construction parameters

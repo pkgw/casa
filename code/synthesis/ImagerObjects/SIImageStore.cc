@@ -139,10 +139,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  SIImageStore::SIImageStore(String imagename, 
-			     CoordinateSystem &imcoordsys, 
-			     IPosition imshape, 
-			     //			     const Int nfacets, 
+  // Used from SynthesisNormalizer::makeImageStore()
+  SIImageStore::SIImageStore(const String &imagename,
+			     const CoordinateSystem &imcoordsys,
+			     const IPosition &imshape,
+                             const String &objectname,
+                             const Record &miscinfo,
+			     //	const Int nfacets,
 			     const Bool /*overwrite*/,
 			     const Bool useweightimage)
   // TODO : Add parameter to indicate weight image shape. 
@@ -172,27 +175,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsPolId = 0;
 
     itsImageName = imagename;
-    itsImageShape = imshape;
     itsCoordSys = imcoordsys;
-
-    itsMiscInfo=Record();
+    itsImageShape = imshape;
+    itsObjectName = objectname;
+    itsMiscInfo = miscinfo;
 
     init();
 
     validate();
   }
 
-  SIImageStore::SIImageStore(String imagename,const Bool ignorefacets) 
+  // Used from SynthesisNormalizer::makeImageStore()
+  SIImageStore::SIImageStore(const String &imagename, const Bool ignorefacets)
   {
     LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
 
-    /*
-    init();
-    String fname( imagename + ".info" );
-    recreate( fname );
-    */
-
-   
     itsPsf.reset( );
     itsModel.reset( );
     itsResidual.reset( );
@@ -264,7 +261,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	itsFacetId = 0;
 	itsUseWeight = getUseWeightImage( *imptr );
 	itsPBScaleFactor=1.0; ///// No need to set properly here as it will be calc'd in ()
-
+	/////redo this here as psf may have different coordinates
+	itsCoordSys = imptr->coordinates();
+	itsMiscInfo=imptr->miscInfo();
 	if( itsUseWeight && ! doesImageExist(itsImageName+String(".weight")) )
 	  {
 	    throw(AipsError("Internal error : Sumwt has a useweightimage=True but the weight image does not exist."));
@@ -284,19 +283,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     validate();
   }
 
-  SIImageStore::SIImageStore(SHARED_PTR<ImageInterface<Float> > modelim, 
-			     SHARED_PTR<ImageInterface<Float> > residim,
-			     SHARED_PTR<ImageInterface<Float> > psfim, 
-			     SHARED_PTR<ImageInterface<Float> > weightim, 
-			     SHARED_PTR<ImageInterface<Float> > restoredim, 
-			     SHARED_PTR<ImageInterface<Float> > maskim,
-			     SHARED_PTR<ImageInterface<Float> > sumwtim,
-			     SHARED_PTR<ImageInterface<Float> > gridwtim,
-			     SHARED_PTR<ImageInterface<Float> > pbim,
-			     SHARED_PTR<ImageInterface<Float> > restoredpbcorim,
-			     CoordinateSystem& csys,
-			     IPosition imshape,
-			     String imagename,
+  // used from getSubImageStore(), for example when creating the facets list
+  // this would be safer if it was refactored as a copy constructor of the generic stuff +
+  // initialization of the facet related parameters
+  SIImageStore::SIImageStore(const SHARED_PTR<ImageInterface<Float> > &modelim,
+			     const SHARED_PTR<ImageInterface<Float> > &residim,
+			     const SHARED_PTR<ImageInterface<Float> > &psfim,
+			     const SHARED_PTR<ImageInterface<Float> > &weightim,
+			     const SHARED_PTR<ImageInterface<Float> > &restoredim,
+			     const SHARED_PTR<ImageInterface<Float> > &maskim,
+			     const SHARED_PTR<ImageInterface<Float> > &sumwtim,
+			     const SHARED_PTR<ImageInterface<Float> > &gridwtim,
+			     const SHARED_PTR<ImageInterface<Float> > &pbim,
+			     const SHARED_PTR<ImageInterface<Float> > &restoredpbcorim,
+			     const CoordinateSystem &csys,
+			     const IPosition &imshape,
+			     const String &imagename,
+			     const String &objectname,
+			     const Record &miscinfo,
 			     const Int facet, const Int nfacets,
 			     const Int chan, const Int nchanchunks,
 			     const Int pol, const Int npolchunks,
@@ -317,6 +321,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsImagePBcor=restoredpbcorim;
 
     itsPBScaleFactor=1.0;// No need to set properly here as it will be computed in makePSF.
+
+    itsObjectName = objectname;
+    itsMiscInfo = miscinfo;
 
     itsNFacets = nfacets;
     itsFacetId = facet;
@@ -415,7 +422,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 							  const Int chan, const Int nchanchunks, 
 							  const Int pol, const Int npolchunks)
   {
-    return SHARED_PTR<SIImageStore>(new SIImageStore(itsModel, itsResidual, itsPsf, itsWeight, itsImage, itsMask, itsSumWt, itsGridWt, itsPB, itsImagePBcor, itsCoordSys,itsImageShape, itsImageName, facet, nfacets,chan,nchanchunks,pol,npolchunks,itsUseWeight));
+    return std::make_shared<SIImageStore>(itsModel, itsResidual, itsPsf, itsWeight, itsImage, itsMask, itsSumWt, itsGridWt, itsPB, itsImagePBcor, itsCoordSys, itsImageShape, itsImageName, itsObjectName, itsMiscInfo, facet, nfacets, chan, nchanchunks, pol, npolchunks, itsUseWeight);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -423,11 +430,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   SHARED_PTR<ImageInterface<Float> > SIImageStore::openImage(const String imagenamefull, 
 							     const Bool overwrite, 
-							     const Bool dosumwt, const Int nfacetsperside)
+							     const Bool dosumwt, const Int nfacetsperside, const Bool checkCoordSys)
   {
 
     SHARED_PTR<ImageInterface<Float> > imPtr;
-
     IPosition useShape( itsParentImageShape );
 
     if( dosumwt ) // change shape to sumwt image shape.
@@ -502,7 +508,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			  oo1 << useShape; oo2 << imPtr->shape();
 			  throw( AipsError( "There is a shape mismatch between existing images ("+oo2.str()+") and current parameters ("+oo1.str()+"). If you are attempting to restart a run with a new image shape, please change imagename and supply the old model or mask as inputs (via the startmodel or mask parameters) so that they can be regridded to the new shape before continuing." ) );
 			}
-		      if( itsParentCoordSys.nCoordinates()>0 &&  ! itsParentCoordSys.near( imPtr->coordinates() ) )
+		     
+		      if( itsParentCoordSys.nCoordinates()>0 &&  checkCoordSys && ! itsParentCoordSys.near( imPtr->coordinates() ) )
 			{
 
 			  /// Implement an exception to get CAS-9977 to work.
@@ -992,7 +999,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 	else
 	  {
-	    ptr = openImage(itsImageName+label , itsOverWrite, sw, 1 ); 
+	    ///coordsys for psf can be different ...shape should be the same.
+	    ptr = openImage(itsImageName+label , itsOverWrite, sw, 1, !(label.contains(imageExts(PSF)))); 
 	    //cout << "Opening image : " << itsImageName+label << " of shape " << ptr->shape() << endl;
 	  }
       }
@@ -3032,12 +3040,7 @@ void SIImageStore::regridToModelImage( ImageInterface<Float> &inputimage, Int te
     inFile >> token; if (token=="itsUseWeight:") inFile >> itsUseWeight;
 
     Bool coordSysLoaded=False;
-    String itsName;
-    try 
-      {
-	itsName=itsImageName+imageExts(PSF);casa::openImage(itsName,      itsPsf);
-	if (coordSysLoaded==False) {itsCoordSys=itsPsf->coordinates(); itsMiscInfo=itsPsf->miscInfo();coordSysLoaded=True;}
-      } catch (AipsIO& x) {logIO << "\"" << itsName << "\" not found." << LogIO::WARN;};
+    String itsName;      
     try 
       {
 	itsName=itsImageName+imageExts(MASK);casa::openImage(itsName,     itsMask);
@@ -3067,6 +3070,11 @@ void SIImageStore::regridToModelImage( ImageInterface<Float> &inputimage, Int te
       {
 	itsName=itsImageName+imageExts(SUMWT);casa::openImage(itsName,    itsSumWt);
 	if (coordSysLoaded==False) {itsCoordSys=itsSumWt->coordinates(); itsMiscInfo=itsSumWt->miscInfo();coordSysLoaded=True;}
+      } catch (AipsIO& x) {logIO << "\"" << itsName << "\" not found." << LogIO::WARN;};
+    try
+      {
+	itsName=itsImageName+imageExts(PSF);casa::openImage(itsName,      itsPsf);
+	if (coordSysLoaded==False) {itsCoordSys=itsPsf->coordinates(); itsMiscInfo=itsPsf->miscInfo();coordSysLoaded=True;}
       } catch (AipsIO& x) {logIO << "\"" << itsName << "\" not found." << LogIO::WARN;};
     try
       {

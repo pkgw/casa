@@ -378,7 +378,7 @@ void MSIter2::construct2(const Block<Int>& sortColumns,
 
 }
 
-MSIter2::MSIter2(const MSIter2& other) 
+MSIter2::MSIter2(const MSIter2& other): MSIter(other)
 {
   operator=(other);
 }
