@@ -20,7 +20,12 @@
 //#  MA 02111-1307  USA
 //# $Id: $
 
+#define _XOPEN_SOURCE 500 //For nftw()
+
+#include <ftw.h>
 #include <msvis/MSVis/test/TestUtilsTVI.h>
+#include <msvis/MSVis/VisBuffer.h>
+#include <msvis/MSVis/TransformingVi2.h>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -208,7 +213,7 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
                                 VisibilityIterator2 &refTVI,
                                 VisBufferComponents2 &columns,
                                 Float tolerance,
-                                dataColMap *datacolmap)
+                                std::map<casacore::MS::PredefinedColumns,casacore::MS::PredefinedColumns> *datacolmap)
 {
     // Declare working variables
     String columnName;
@@ -234,10 +239,10 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
             while (refTVI.more() and testTVI.more())
             {
                 buffer += 1;
-                SCOPED_TRACE(string("Comparing chunk ") + to_string(chunk) + 
-                             " buffer " + to_string(buffer) +
-                             " Spw " + to_string(refVb->spectralWindows()[0]) + 
-                             " scan " + to_string(refVb->scan()[0]));
+                SCOPED_TRACE(string("Comparing chunk ") + std::to_string(chunk) + 
+                             " buffer " + std::to_string(buffer) +
+                             " Spw " + std::to_string(refVb->spectralWindows()[0]) + 
+                             " scan " + std::to_string(refVb->scan()[0]));
 
                 if (columns.contains(VisBufferComponent2::NRows))
                     ASSERT_EQ(testVb->nRows() , refVb->nRows());
@@ -393,7 +398,7 @@ void copyTestFile(String &path,String &filename,String &outfilename)
 // -----------------------------------------------------------------------
 const Cube<Complex> & getViscube(	VisBuffer2 *vb,
 									MS::PredefinedColumns datacol,
-									dataColMap *datacolmap)
+									std::map<casacore::MS::PredefinedColumns,casacore::MS::PredefinedColumns> *datacolmap)
 {
     MS::PredefinedColumns mappeddatacol;
     if (datacolmap == NULL)
