@@ -23,7 +23,7 @@
 #ifndef ChannelAverageTVITest_H_
 #define ChannelAverageTVITest_H_
 
-#include <mstransform/TVI/test/TestUtilsTVI.h>
+#include <msvis/MSVis/test/TestUtilsTVI.h>
 #include <mstransform/TVI/ChannelAverageTVI.h>
 #include <mstransform/MSTransform/MSTransformIteratorFactory.h>
 

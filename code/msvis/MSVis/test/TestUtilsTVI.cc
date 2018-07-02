@@ -20,7 +20,7 @@
 //#  MA 02111-1307  USA
 //# $Id: $
 
-#include <mstransform/TVI/test/TestUtilsTVI.h>
+#include <msvis/MSVis/test/TestUtilsTVI.h>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -361,12 +361,13 @@ void copyTestFile(String &path,String &filename,String &outfilename)
 
             // Remove any previously existing copy
             String rm_command = String ("rm -rf ") + outfilename;
-            system(rm_command.c_str());
+            ASSERT_TRUE(system(rm_command.c_str()) == 0)
+                << "Failed to remove " <<outfilename;
 
             // Make a copy of the file in the working directory
             String cp_command = String ("cp -r ") + fullfilename + String(" ") + outfilename;
-            ASSERT_EQ(system(cp_command.c_str()), 0)
-                << "Test file not found: " << fullfilename;
+            ASSERT_TRUE(system(cp_command.c_str()) == 0)
+                << "Failed to copy " <<fullfilename<<" to "<<outfilename;
         }
         else
         {
@@ -377,12 +378,13 @@ void copyTestFile(String &path,String &filename,String &outfilename)
     {
         // Remove any previously existing copy
         String rm_command = String ("rm -rf ") + outfilename;
-        system(rm_command.c_str());
+        ASSERT_TRUE(system(rm_command.c_str()) == 0)
+            << "Failed to remove " <<outfilename;
 
         // Make a copy of the file in the working directory
         String cp_command = String ("cp -r ") + filename + String(" ") + outfilename;
-        ASSERT_EQ(system(cp_command.c_str()), 0)
-            << "Test file not found: " << filename;
+        ASSERT_TRUE(system(cp_command.c_str()) != 0)
+            << "Failed to copy " << filename << " to "<<outfilename;
     }
 }
 
