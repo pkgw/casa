@@ -131,10 +131,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // </todo>
 
 
-class ImageFFT 
-{
+class ImageFFT {
 public:
-	ImageFFT ();
+    ImageFFT ();
 
 	ImageFFT(const ImageFFT& other);
 
@@ -145,9 +144,9 @@ public:
 
 	// Do the FFT of the sky plane to the uv plane
 	// Masked pixels are set to zero before the FT
-	void fftsky (const casacore::ImageInterface<casacore::Float>& in);
+	void fftskyReal (const casacore::ImageInterface<casacore::Float>& in);
 
-	void fftsky (const casacore::ImageInterface<casacore::Complex>& in);
+	void fftskyComplex (const casacore::ImageInterface<casacore::Complex>& in);
 
 
 // Do the FFT of the specified pixel axes (true to FT).  
@@ -206,26 +205,31 @@ private:
    void copyMiscellaneous (casacore::ImageInterface<casacore::Complex>& out) const;
 // </group>
 
-   void _fftsky2 (
+   static void _fftskyRealToComplex (
 		   casacore::ImageInterface<casacore::Complex>& out,
 		   const casacore::ImageInterface<casacore::Float>& in,
 		   const casacore::Vector<casacore::Int>& pixelAxes
    );
 
-   void _fftsky2 (
+   static void _fftskyComplexToComplex (
 		   casacore::ImageInterface<casacore::Complex>& out,
    		   const casacore::ImageInterface<casacore::Complex>& in,
    		   const casacore::Vector<casacore::Int>& pixelAxes
    );
-// FFT (casacore::Float) given axes
-   void fft2(casacore::ImageInterface<casacore::Complex>& out,
-             const casacore::ImageInterface<casacore::Float>& in,
-             const casacore::Vector<casacore::Bool>& axes);
 
-// FFT (casacore::Complex) given axes
-   void fft3(casacore::ImageInterface<casacore::Complex>& out,
-             const casacore::ImageInterface<casacore::Complex>& in,
-             const casacore::Vector<casacore::Bool>& axes);
+   // FFT (real) given axes
+   static void _fftRealToComplex(
+       casacore::ImageInterface<casacore::Complex>& out,
+       const casacore::ImageInterface<casacore::Float>& in,
+       const casacore::Vector<casacore::Bool>& axes
+   );
+
+   // FFT (complex) given axes
+   void _fftComplexToComplex(
+       casacore::ImageInterface<casacore::Complex>& out,
+       const casacore::ImageInterface<casacore::Complex>& in,
+       const casacore::Vector<casacore::Bool>& axes
+   );
 
 // Find the sky axes in this CoordinateSystem
    casacore::Bool _findSky(
@@ -235,7 +239,7 @@ private:
    );
 
 // Overwrite the coordinate system with Fourier coordinates for sky axes only
-   void _setSkyCoordinates (
+   static void _setSkyCoordinates (
 		   casacore::ImageInterface<casacore::Complex>& out,
 		   const casacore::CoordinateSystem& csys, const casacore::IPosition& shape,
 		   casacore::uInt dC
