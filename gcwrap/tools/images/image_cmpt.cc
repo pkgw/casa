@@ -233,9 +233,10 @@ bool image::addnoise(
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
-        SHARED_PTR<Record> pRegion = _getRegion(region, false);
-        SHARED_PTR<std::pair<Int, Int> > seedPair(new std::pair<Int, Int>(0, 0));
+        auto pRegion = _getRegion(region, false);
+        SHARED_PTR<std::pair<Int, Int> > seedPair(
+            new std::pair<Int, Int>(0, 0)
+        );
         if (seeds.size() >= 2) {
             seedPair->first = seeds[0];
             seedPair->second = seeds[1];
@@ -254,11 +255,26 @@ bool image::addnoise(
                 pars, zeroIt, seedPair.get()
             );
         }
-        else {
+        else if (_imageC) {
             PixelValueManipulator<Complex>::addNoise(
                 _imageC, type, *pRegion,
                 pars, zeroIt, seedPair.get()
             );
+        }
+        else if (_imageD) {
+            PixelValueManipulator<Double>::addNoise(
+                _imageD, type, *pRegion,
+                pars, zeroIt, seedPair.get()
+            );
+        }
+        else if (_imageDC) {
+            PixelValueManipulator<DComplex>::addNoise(
+                _imageDC, type, *pRegion,
+                pars, zeroIt, seedPair.get()
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
         vector<String> names { "type", "pars", "region", "zeroit", "seeds" };
         vector<variant> values { type, pars, region, zeroIt, seeds };
@@ -3206,25 +3222,50 @@ bool image::makecomplex(
             return false;
         }
         ThrowIf(
-            ! _imageF, "The attached image must be float valued"
+            ! (_imageF || _imageD), "The attached image must be float valued"
         );
         SHARED_PTR<Record> Region(_getRegion(region, false));
         auto imagePtrs = ImageFactory::fromFile(imagFile);
         auto imageF = std::get<0>(imagePtrs);
+        auto imageD = std::get<2>(imagePtrs);
         ThrowIf(
-            ! imageF, imagFile + " does not have float valued pixels"
+            ! (imageF || imageD),
+            imagFile + " does not have supported real valued pixels"
         );
-        auto cImage = ImageFactory::makeComplex(
-            _imageF, imageF, outfile,
-            *Region, overwrite
+        ThrowIf(
+            (_imageF && imageD) || (_imageD && imageF),
+            "Real and imaginary images do not have the same precision"
         );
+        SPIIC cImage;
+        SPIIDC dcImage;
+        if (_imageF) {
+            cImage = ImageFactory::makeComplex<Float>(
+                _imageF, imageF, outfile, *Region, overwrite
+            );
+        }
+        else if (_imageD) {
+            dcImage = ImageFactory::makeComplex<Double>(
+                _imageD, imageD, outfile, *Region, overwrite
+            );
+        }
+        else {
+            ThrowCc("Logic error");
+        }
         vector<String> names = {
             "outfile", "imag", "region", "overwrite"
         };
         vector<variant> values = {
             outfile, imagFile, region, overwrite
         };
-        _addHistory(cImage, __func__, names, values);
+        if (cImage) {
+            _addHistory(cImage, __func__, names, values);
+        }
+        else if (dcImage) {
+            _addHistory(dcImage, __func__, names, values);
+        }
+        else {
+            ThrowCc("Logic Error");
+        }
         return true;
     }
     catch (const AipsError& x) {
