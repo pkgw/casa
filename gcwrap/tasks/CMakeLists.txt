@@ -1,6 +1,7 @@
 casa_add_tasks( tools  casa_tasks 
 accor.xml
 accum.xml
+apparentsens.xml
 applycal.xml
 asdmsummary.xml
 bandpass.xml

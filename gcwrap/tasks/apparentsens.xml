@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" ?>
+<casaxml xmlns="http://casa.nrao.edu/schema/psetTypes.html"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
+file:///opt/casa/code/xmlcasa/xml/casa.xsd">
+
+<task type="function" name="apparentsens" category="imaging">
+<shortdescription>Estimate imaging sensitivity</shortdescription>
+<description>
+The imaging sensitivity is calculated from the visibility weights
+of the selected data, along with imaging parameters, including
+visibility plane weighting functions.
+
+Currently, only the continuum imaging sensitivity is supported.
+
+</description>
+<input>
+	<param type="string" name="vis" mustexist="true">
+		<description>Name of input visibility file</description>
+		<value></value>
+	</param>
+
+	<param type="string" name="field">
+		<description>Select field using field id(s) or field name(s)</description>
+		<value></value>
+	</param>
+
+	<param type="string" name="spw">
+		<description>Select spectral window/channels</description>
+		<value></value>
+	</param>
+
+	<param type="string" name="intent">
+		<description>Select observing intent</description>
+		<value></value>
+	</param>
+
+	<param type="bool" name="selectdata">
+		<description>Other data selection parameters</description>
+		<value>True</value>
+	</param>
+
+	<param type="string" name="timerange" subparam="true">
+		<description>Select data based on time range</description>
+		<value></value>
+	</param>
+
+	<param type="any" name="uvrange" subparam="true">
+		<description>Select data within uvrange (default units meters)</description>
+		<any type="variant"/>
+		<value type="string"></value>
+	</param>
+
+	<param type="string" name="antenna" subparam="true">
+		<description>Select data based on antenna/baseline</description>
+		<value></value>
+	</param>
+
+	<param type="string" name="scan" subparam="true">
+		<description>Scan number range</description>
+		<value></value>
+	</param>
+
+        <param type="any" name="observation" subparam="true">
+                <description>Select by observation ID(s)</description>
+		<any type="variant" limittypes="string int"/>
+		<value type="string"></value>
+        </param>
+
+	<param type="string" name="msselect" subparam="true">
+		<description>Optional complex data selection (ignore for now)</description>
+		<value></value>
+	</param>
+
+	<param type="any" name="imsize" > <!-- subparam="true"> -->
+	  <shortdescription>Number of pixels</shortdescription>
+	  <description>Number of pixels
+            example :  imsize = [350,250]
+            imsize = 500 is equivalent to [500,500]
+            To take proper advantage of internal optimized FFT routines, the
+            number of pixels must be even and factorizable by 2,3,5,7 only.
+	  </description>
+	  <any type="variant" limittypes="int intArray"/>
+	  <value type="intArray">100</value>
+	</param>
+
+	<param type="any" name="cell" > <!-- subparam="true"> -->
+	  <shortdescription>Cell size</shortdescription>
+	  <description>Cell size
+            example: cell=['0.5arcsec,'0.5arcsec'] or
+            cell=['1arcmin', '1arcmin']
+            cell = '1arcsec' is equivalent to ['1arcsec','1arcsec']
+	  </description>
+	  <any type="variant" limittypes="int double intArray doubleArray string stringArray"/>
+	  <value type="stringArray">"1arcsec"</value>
+	</param>
+
+	<param type="string" name="stokes" > <!-- subparam="true"> -->
+	  <shortdescription>Stokes Planes to make</shortdescription>
+	  <description>Stokes Planes to make
+            default='I'; example: stokes='IQUV';
+            Options: 'I','Q','U','V','IV','QU','IQ','UV','IQUV','RR','LL','XX','YY','RRLL','XXYY','pseudoI'
+	    
+            Note : Due to current internal code constraints, if any correlation pair
+            is flagged, by default, no data for that row in the MS will be used.
+            So, in an MS with XX,YY, if only YY is flagged, neither a
+            Stokes I image nor an XX image can be made from those data points.
+            In such a situation, please split out only the unflagged correlation into
+            a separate MS.
+	    
+            Note : The 'pseudoI' option is a partial solution, allowing Stokes I imaging
+            when either of the parallel-hand correlations are unflagged.
+	    
+            The remaining constraints shall be removed (where logical) in a future release.
+	    
+	  </description>
+	  <value type="string">I</value>
+          <allowed kind="enum">
+            <value>I</value>
+            <value>Q</value>
+            <value>U</value>
+            <value>V</value>
+            <value>IV</value>
+            <value>QU</value>
+            <value>IQ</value>
+            <value>UV</value>
+            <value>IQUV</value>
+            <value>RR</value>
+            <value>LL</value>
+            <value>XX</value>
+            <value>YY</value>
+            <value>RRLL</value>
+            <value>XXYY</value>
+            <value>pseudoI</value>
+          </allowed>
+	</param>
+
+	<param type="any" name="specmode" required="true">
+	  <shortdescription>Spectral definition mode (mfs,cube,cubedata)</shortdescription>
+	  <description>Spectral definition mode (mfs,cube,cubedata)
+	    
+            mode='mfs' : Continuum imaging with only one output image channel.
+            (mode='cont' can also be used here)
+	    
+	  </description>
+	  <value type="string">mfs</value>
+          <allowed kind="enum">
+            <value>mfs</value>
+            <value>cont</value>
+            <value>cube</value>
+            <value>cubedata</value>
+          </allowed>
+	</param>
+	
+	<param type="string" name="weighting">
+	  <shortdescription>Weighting scheme (natural,uniform,briggs)</shortdescription>
+	  <description>Weighting scheme (natural,uniform,briggs,superuniform,radial)
+	  </description>
+          <value type="string">natural</value>
+          <allowed kind="enum">
+            <value>natural</value>
+            <value>uniform</value>
+            <value>briggs</value>
+            <value>radial</value>
+            <value>superuniform</value>
+          </allowed>
+	  
+	</param>
+
+	<param type="double" name="robust" subparam="true">
+          <shortdescription>Robustness parameter</shortdescription>
+	  <description>Robustness parameter for Briggs weighting.
+	  </description>
+          <value type="double">0.5</value>
+          <allowed kind="range">
+            <value range="min">-2.0</value>
+            <value range="max">2.0</value>
+          </allowed>
+	</param>
+	
+	<param type="int" name="npixels" subparam="true">
+          <shortdescription>Number of pixels to determine uv-cell size (0 : -/+ 3 pixels)</shortdescription>
+	  <description>Number of pixels to determine uv-cell size for super-uniform weighting
+	  </description>
+          <value type="int">0</value>
+	</param>
+	
+	<param type="stringArray" name="uvtaper" subparam="true">
+	  <shortdescription>uv-taper on outer baselines in uv-plane</shortdescription>
+	  <description>uv-taper on outer baselines in uv-plane
+	    
+	  </description>
+	  <value type="vector">
+            <value></value>
+	  </value>
+	</param>
+
+
+   <constraints>
+     <when param="selectdata">
+       <equals type="bool" value="True">
+	 <default param="timerange"><value type="string"/></default>
+	 <default param="uvrange"><value type="string"/></default>
+	 <default param="antenna"><value type="string"/></default>
+	 <default param="scan"><value type="string"/></default>
+	 <default param="observation"><value type="string"/></default>
+	 <default param="msselect"><value type="string"/></default>
+       </equals>
+       <equals type="bool" value="False"/>
+     </when>
+     
+     <when param="weighting">
+       <equals type="string" value="natural">
+         <default param="uvtaper"><value>[]</value></default>
+       </equals>
+       <equals type="string" value="uniform">
+       </equals>
+       <equals type="string" value="briggs">
+         <default param="robust"><value>0.5</value></default>
+         <default param="npixels"><value>0</value></default>
+         <default param="uvtaper"><value>[]</value></default>
+       </equals>
+     </when>
+
+   </constraints>
+</input>
+<example>
+
+</example> 
+
+</task>
+</casaxml>
