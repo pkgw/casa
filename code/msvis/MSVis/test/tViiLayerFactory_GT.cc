@@ -315,7 +315,7 @@ public:
     size_t nFac = 1;
     if(withSwappingDataTVI_p) 
       nFac++;
-    Vector<ViiLayerFactory*> factories(nFac);
+    std::vector<ViiLayerFactory*> factories(nFac);
     factories[0]=&diskItFac;
     if(withSwappingDataTVI_p)
       factories[1]= swapFac.get();

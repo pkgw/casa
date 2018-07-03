@@ -152,7 +152,7 @@ void MsFactoryTVITester::createMS()
     ms_p.reset(p.first); //MsFactory has given up ownership
 }
 
-void MsFactoryTVITester::instantiateVI(casacore::Vector<ViiLayerFactory*>& factories)
+void MsFactoryTVITester::instantiateVI(std::vector<ViiLayerFactory*>& factories)
 {
     //Create the top VI using the factories provided
     vi_p.reset(new VisibilityIterator2(factories));
