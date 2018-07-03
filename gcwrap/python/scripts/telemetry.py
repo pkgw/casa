@@ -17,6 +17,7 @@ class telemetry:
         self.setHostId()
         self.logdir = casa['dirs']['rc']
         self.logpattern = 'casastats-' + self.casaver + '-' + self.hostid + '*.log'
+        self.sendlogpattern = 'casastats-*'+ self.hostid + '*.log'
         self.stampfile = self.logdir + "/telemetry.stamp"
         self.casa = casa
 
@@ -132,7 +133,7 @@ class telemetry:
 
         # Find logfiles
         for file in os.listdir(self.logdir):
-            if fnmatch.fnmatch(file, self.logpattern):
+            if fnmatch.fnmatch(file, self.sendlogpattern):
                 #print "Matched: " + file
                 logfiles.append(file)
 
