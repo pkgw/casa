@@ -25,13 +25,7 @@
 //#
 //# $Id$
 
-#define _POSIX_C_SOURCE 200809L //For mkdtemp(), stpcpy()
-#define _XOPEN_SOURCE 500 //For nftw()
-#define _DARWIN_C_SOURCE //in macOS mkdtemp() is not available if  _POSIX_C_SOURCE=200809L (Apple bugreport #35851865)
 
-#include <ftw.h>
-#include <limits.h>
-#include <unistd.h> //in macOS mkdtemp() is not in stdlib.h as POSIX dictates..(Apple bugreport #35830645) 
 #include <casa/aips.h>
 #include <casa/Exceptions/Error.h>
 #include <casacore/casa/OS/EnvVar.h>
@@ -54,27 +48,12 @@ using namespace casacore;
 using namespace casa::vi;
 using namespace casa::vi::test;
 
-int removeFile(const char *fpath, const struct stat *sb, int typeflag, 
-               struct FTW* ftwbuf);
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
 
-int removeFile(const char *fpath, const struct stat *sb, int typeflag, 
-               struct FTW* ftwbuf)
-{
-  (void)sb;  //Unused vars
-  (void)typeflag;
-  (void)ftwbuf;
-    
-  int rv = remove(fpath);
-  if(rv)
-    perror(fpath);
-  return rv;
-}
- 
 TEST( ViiLayerFactoryTest , ViiLayerFactoryBasicTest ) {
  
   // A very rudimentary test of a single layer

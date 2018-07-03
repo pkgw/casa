@@ -20,11 +20,13 @@
 //#  MA 02111-1307  USA
 //# $Id: $
 
-#define _XOPEN_SOURCE 700 //For nftw(), stpcpy()
+#define _XOPEN_SOURCE 700 //For nftw(), stpcpy(), mkdtemp()
+#define _DARWIN_SOURCE //im macOS mkdtemp() is not available if _POSIX_C_SOURCE=200809L (Apple bug report #35851865)
 
 #include <ftw.h>
 #include <string.h>
 #include <limits.h>
+#include <unistd.h> //im macOS mkdtemp() is not defined in stdlib.h as POSIX dictates (Apple bug report #35830645)
 #include <msvis/MSVis/test/TestUtilsTVI.h>
 #include <msvis/MSVis/VisBuffer.h>
 #include <msvis/MSVis/TransformingVi2.h>
