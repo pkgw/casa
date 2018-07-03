@@ -1562,7 +1562,6 @@ bool image::fft(
                 axes, region, vmask, stretch, complexOut
             );
         }
-        /*
         else if (_imageD) {
             return _fft(
                 _imageD, realOut, imagOut, ampOut, phaseOut,
@@ -1575,7 +1574,6 @@ bool image::fft(
                 axes, region, vmask, stretch, complexOut
             );
         }
-        */
         else {
             ThrowCc("Logic error");
         }

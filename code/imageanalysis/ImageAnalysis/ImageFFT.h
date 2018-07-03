@@ -29,7 +29,8 @@
 #define IMAGES_IMAGEFFT_H
 
 #include <casa/aips.h>
-#include <images/Images/ImageInterface.h>
+#include <casacore/scimath/Mathematics/NumericTraits.h>
+
 #include <imageanalysis/ImageTypedefs.h>
 
 namespace casacore {
@@ -39,8 +40,7 @@ class IPosition;
 template<class T> class Vector;
 }
 
-namespace casa { //# NAMESPACE CASA - BEGIN
-
+namespace casa {
 
 // <summary>
 // FFT an image
@@ -133,6 +133,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 template <class T> class ImageFFT {
 public:
+
+    using ComplexType
+        = std::complex<typename casacore::NumericTraits<T>::BaseType>;
+
+    using RealType = typename casacore::NumericTraits<T>::BaseType;
+
     ImageFFT ();
 
 	ImageFFT(const ImageFFT& other);
@@ -162,17 +168,20 @@ public:
 	// be transferred. Any output mask should be initialized to
 	// true before calling these functions.
 	// <group>
-	void getComplex (casacore::ImageInterface<casacore::Complex>& out) const;
-	void getReal (casacore::ImageInterface<casacore::Float>& out) const;
-	void getImaginary (casacore::ImageInterface<casacore::Float>& out) const;
-	void getAmplitude (casacore::ImageInterface<casacore::Float>& out) const;
-	void getPhase (casacore::ImageInterface<casacore::Float>& out) const;
+	void getComplex (casacore::ImageInterface<ComplexType>& out) const;
+
+	void getReal (casacore::ImageInterface<RealType>& out) const;
+
+	void getImaginary (casacore::ImageInterface<RealType>& out) const;
+
+	void getAmplitude (casacore::ImageInterface<RealType>& out) const;
+
+	void getPhase (casacore::ImageInterface<RealType>& out) const;
 	// </group>
 
 private:
-
-	SPIIC _tempImagePtr = SPIIC(nullptr);
-	SPIIT _image = SPIIT(nullptr);
+	SPIICT _tempImagePtr = nullptr;
+	SPIIT _image = nullptr;
 	casacore::Bool _done = casacore::False;
 
     // Check axes for multi-dim FFT
@@ -194,14 +203,16 @@ private:
     // common image copy stuff
     template <class U> void _copyMost(casacore::ImageInterface<U>& out) const;
 
-    static void _fftsky(
-        casacore::ImageInterface<casacore::Complex>& out,
+    // U must be a complex type (Complex, DComplex)
+    template <class U> static void _fftsky(
+        casacore::ImageInterface<U>& out,
         const casacore::ImageInterface<T>& in,
         const casacore::Vector<casacore::Int>& pixelAxes
     );
 
-    static void _fft(
-        casacore::ImageInterface<casacore::Complex>& out,
+    // U must be a complex type (Complex, DComplex)
+    template <class U> static void _fft(
+        casacore::ImageInterface<U>& out,
         const casacore::ImageInterface<T>& in,
         const casacore::Vector<casacore::Bool>& axes
     );
@@ -216,7 +227,7 @@ private:
     // Overwrite the coordinate system with
     // Fourier coordinates for sky axes only
     static void _setSkyCoordinates (
-        casacore::ImageInterface<casacore::Complex>& out,
+        casacore::ImageInterface<ComplexType>& out,
         const casacore::CoordinateSystem& csys,
         const casacore::IPosition& shape, casacore::uInt dC
     );
@@ -224,7 +235,7 @@ private:
     // Overwrite the coordinate system with Fourier coordinates for all
     // designated axes
     void _setCoordinates (
-        casacore::ImageInterface<casacore::Complex>& out,
+        casacore::ImageInterface<ComplexType>& out,
         const casacore::CoordinateSystem& cSys,
         const casacore::Vector<casacore::Bool>& axes,
         const casacore::IPosition& shape

@@ -84,7 +84,6 @@ template <class T> ImageFFT<T>& ImageFFT<T>::operator=(
 }
 
 template <class T> void ImageFFT<T>::fftsky(const ImageInterface<T>& in) {
-	LogIO os(LogOrigin("ImageFFT", __func__, WHERE));
 	// Try and find the sky first.   Exception if not there
 	Int dC;
 	Vector<Int> pixelAxes, worldAxes;
@@ -92,7 +91,7 @@ template <class T> void ImageFFT<T>::fftsky(const ImageInterface<T>& in) {
 	_image.reset(in.cloneII());
 	// Create TempImage
 	_tempImagePtr.reset(
-		new TempImage<Complex>(in.shape(), in.coordinates())
+		new casacore::TempImage<ComplexType>(in.shape(), in.coordinates())
 	);
 	// Set new coordinate system in TempImage
 	uInt dC2 = dC;
@@ -105,12 +104,15 @@ template <class T> void ImageFFT<T>::fftsky(const ImageInterface<T>& in) {
 }
 
 template <class T> void ImageFFT<T>::fft(
-    const ImageInterface<T>& in, const Vector<Bool>& axes
+    const casacore::ImageInterface<T>& in,
+    const casacore::Vector<casacore::Bool>& axes
 ) {
     // Check axes are ok
     checkAxes (in.coordinates(), in.ndim(), axes);
     _image.reset(in.cloneII());
-    _tempImagePtr.reset(new TempImage<Complex>(in.shape(), in.coordinates()));
+    _tempImagePtr.reset(
+        new TempImage<ComplexType>(in.shape(), in.coordinates())
+    );
     // Set new coordinate system in TempImage
     _setCoordinates(*_tempImagePtr, _image->coordinates(), axes, in.shape());
     // Do complex FFT
@@ -119,35 +121,53 @@ template <class T> void ImageFFT<T>::fft(
 }
 
 template <class T>
-void ImageFFT<T>::getComplex(ImageInterface<Complex>& out) const {
+void ImageFFT<T>::getComplex(casacore::ImageInterface<ComplexType>& out) const {
+    ThrowIf(
+        ! casacore::isComplex(out.dataType()),
+        "Data type of input must be a complex type"
+    );
     _copyMost(out);
     out.copyData(*_tempImagePtr);
 }
 
-template <class T> void ImageFFT<T>::getReal(ImageInterface<Float>& out) const {
+template <class T>
+void ImageFFT<T>::getReal(ImageInterface<RealType>& out) const {
+    ThrowIf(
+        ! casacore::isReal(out.dataType()),
+        "Data type of input must be a real type"
+    );
     _copyMost(out);
-	out.copyData(LatticeExpr<Float>(real(*_tempImagePtr)));
+	out.copyData(LatticeExpr<RealType>(real(*_tempImagePtr)));
 }
 
-template <class T> void ImageFFT<T>::getImaginary(
-    ImageInterface<Float>& out
-) const {
+template <class T>
+void ImageFFT<T>::getImaginary(ImageInterface<RealType>& out) const {
+    ThrowIf(
+        ! casacore::isReal(out.dataType()),
+        "Data type of input must be a real type"
+    );
     _copyMost(out);
-    out.copyData(LatticeExpr<Float>(imag(*_tempImagePtr)));
+    out.copyData(LatticeExpr<RealType>(imag(*_tempImagePtr)));
 }
 
-template <class T> void ImageFFT<T>::getAmplitude(
-    ImageInterface<Float>& out
-) const {
+template <class T>
+void ImageFFT<T>::getAmplitude(ImageInterface<RealType>& out) const {
+    ThrowIf(
+        ! casacore::isReal(out.dataType()),
+        "Data type of input must be a real type"
+    );
     _copyMost(out);
-    out.copyData(LatticeExpr<Float>(abs(*_tempImagePtr)));
+    out.copyData(LatticeExpr<RealType>(abs(*_tempImagePtr)));
 }
 
-template <class T> void ImageFFT<T>::getPhase(
-    ImageInterface<Float>& out
-) const {
+template <class T>
+void ImageFFT<T>::getPhase(ImageInterface<RealType>& out) const {
+    ThrowIf(
+        ! casacore::isReal(out.dataType()),
+        "Data type of input must be a real type"
+    );
 	_copyMost(out);
-  	out.copyData(LatticeExpr<Float>(arg(*_tempImagePtr)));
+  	out.copyData(LatticeExpr<RealType>(arg(*_tempImagePtr)));
   	out.setUnits(Unit("deg"));
 }
 
@@ -228,73 +248,85 @@ template <class T> template <class U> void ImageFFT<T>::_copyMiscellaneous(
     out.appendLog(_image->logger());
 }
 
-template <class T> void ImageFFT<T>::_fftsky(
-	ImageInterface<Complex>& out, const ImageInterface<T>& in,
+template <class T> template <class U> void ImageFFT<T>::_fftsky(
+	ImageInterface<U>& out, const ImageInterface<T>& in,
 	const Vector<Int>& pixelAxes
 ) {
-    // Do the FFT.  Use in place complex because it does
-	// all the unscrambling for me.  Replace masked values
-	// by zero and then convert to Complex.  LEL is a marvel.
-	if (in.isMasked()) {
-		T zero(0.0);
-		LatticeExpr<Complex> expr(toComplex(replace(in,zero)));
-		out.copyData(expr);
-	}
-	else {
-		LatticeExpr<Complex> expr(toComplex(in));
-		out.copyData(expr);
-	}
 	Vector<Bool> whichAxes(in.ndim(), false);
-	whichAxes(pixelAxes(0)) = true;
-	whichAxes(pixelAxes(1)) = true;
-	LatticeFFT::cfft(out, whichAxes, true);
+	whichAxes[pixelAxes[0]] = true;
+	whichAxes[pixelAxes[1]] = true;
+	_fft(out, in, whichAxes);
+	// LatticeFFT::cfft(out, whichAxes, true);
 }
 
-template <class T> void ImageFFT<T>::_fft(
-    ImageInterface<Complex>& out, const ImageInterface<T>& in,
+template <class T> template <class U> void ImageFFT<T>::_fft(
+    ImageInterface<U>& out, const ImageInterface<T>& in,
     const Vector<Bool>& axes
 ) {
+    static const U dummy(0.0);
+    static const auto myType = casacore::whatType(&dummy);
+    ThrowIf(
+        ! (myType == casacore::TpDComplex || myType == casacore::TpComplex),
+        "Logic error. ImageFFT<T>::_fft called with "
+        "output image of unsupported type"
+    );
     // Do the FFT.  Use in place complex because it does
     // all the unscrambling for me.  Replace masked values
     // by zero and then convert to Complex.  LEL is a marvel.
-    Float zero = 0.0;
-    LatticeExpr<Complex> expr(toComplex(replace(in,zero)));
+    static const T zero(0.0);
+    LatticeExpr<U> expr;
+    if (in.isMasked()) {
+        auto zeroed = replace(in, zero);
+        expr = casacore::isReal(in.dataType())
+            ? LatticeExpr<U>(toComplex(zeroed))
+            : LatticeExpr<U>(zeroed);
+    }
+    else {
+        expr = casacore::isReal(in.dataType())
+            ? LatticeExpr<U>(toComplex(in))
+            : LatticeExpr<U>(in);
+    }
     out.copyData(expr);
     LatticeFFT::cfft(out, axes, true);
 }
 
-template <class T> void ImageFFT<T>::_setSkyCoordinates (
-	ImageInterface<Complex>& out, const CoordinateSystem& csys,
-	const IPosition& shape, uInt dC
+template <class T>
+void ImageFFT<T>::_setSkyCoordinates (
+	casacore::ImageInterface<ComplexType>& out,
+	const casacore::CoordinateSystem& csys, const casacore::IPosition& shape,
+	casacore::uInt dC
 ) {
 	// dC is the DC coordinate number
 	// Find the input CoordinateSystem
-	Vector<Int> pixelAxes = csys.pixelAxes(dC);
+	auto pixelAxes = csys.pixelAxes(dC);
 	AlwaysAssert(pixelAxes.nelements()==2,AipsError);
 	// Set the DirectionCoordinate axes to true
-	Vector<Bool> axes(csys.nPixelAxes(), false);
-	axes(pixelAxes(0)) = true;
-	axes(pixelAxes(1)) = true;
+	casacore::Vector<casacore::Bool> axes(csys.nPixelAxes(), false);
+	axes[pixelAxes[0]] = true;
+	axes[pixelAxes[1]] = true;
 	// FT the CS
-	SHARED_PTR<Coordinate> pC(
+	SHARED_PTR<casacore::Coordinate> pC(
 		csys.makeFourierCoordinate(axes, shape.asVector())
 	);
 	// Replace TempImage CS with the new one
-	CoordinateSystem* pC2 = (CoordinateSystem*)(pC.get());
+	auto* pC2 = (CoordinateSystem*)(pC.get());
 	ThrowIf(
 		! out.setCoordinateInfo(*pC2),
 		"Could not replace Coordinate System in internal complex image"
 	);
 }
 
-template <class T> void ImageFFT<T>::_setCoordinates (
-	ImageInterface<Complex>& out, const CoordinateSystem& cSys,
-	const Vector<Bool>& axes, const IPosition& shape
+template <class T>
+void ImageFFT<T>::_setCoordinates (
+	casacore::ImageInterface<ComplexType>& out,
+	const casacore::CoordinateSystem& cSys,
+	const casacore::Vector<casacore::Bool>& axes,
+	const casacore::IPosition& shape
 ) {
-	SHARED_PTR<Coordinate> pC(
+	SHARED_PTR<casacore::Coordinate> pC(
 		cSys.makeFourierCoordinate(axes, shape.asVector())
 	);
-	CoordinateSystem *pCS = (CoordinateSystem*)(pC.get());
+	auto *pCS = (CoordinateSystem*)(pC.get());
 	ThrowIf(
 		! out.setCoordinateInfo(*pCS),
 		"Could not replace Coordinate System in internal complex image"
