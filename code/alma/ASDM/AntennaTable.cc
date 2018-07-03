@@ -662,6 +662,9 @@ AntennaRow* AntennaTable::lookup(string name, AntennaMakeMod::AntennaMake antenn
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -932,6 +935,8 @@ AntennaRow* AntennaTable::lookup(string name, AntennaMakeMod::AntennaMake antenn
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void AntennaTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1148,7 +1153,9 @@ AntennaRow* AntennaTable::lookup(string name, AntennaMakeMod::AntennaMake antenn
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 
