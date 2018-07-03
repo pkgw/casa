@@ -35,6 +35,7 @@
 // VI/VB framework
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
+#include <msvis/MSVis/test/MsFactory.h>
 
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -71,6 +72,66 @@ protected:
     casacore::String referenceFile_p;
     casacore::Record refConfiguration_p;
     casacore::Record testConfiguration_p;
+};
+
+class MsFactoryTVITester : public ::testing::Test
+{
+public:
+  
+    /*
+     * Constructor: create the temporary dir and the MsFactory used later on
+     * to create the MS.
+     * @param testSubdir The subdirectory to create under the temporary dir
+     * @param msName     The name of the MS to create (under testSubdir)
+     */
+    MsFactoryTVITester(const std::string& testSubdir ="MsFactoryTVITester",
+                       const std::string& msName = "MsFactory");
+
+    //Google test fixture constructor
+    void SetUp();
+
+    //Google test fixture destructor
+    void TearDown();
+
+    /*
+     * Create the synthetic MS and the TVI stack to access it. 
+     */
+    void instantiateVI(casacore::Vector<ViiLayerFactory*>& factories);
+
+    /*
+     * Iterate the whole MS calling a user provided function.
+     * The only useful case is having a lambda as a visitor function.
+     * It can access the visibility buffer from variable vb_p
+     */
+    void visitIterator(std::function<void(void)> visitor);
+
+    /* 
+     * Return the MsFactory for full customization if needed 
+     */
+    casa::vi::test::MsFactory& getMsFactory();
+  
+    //Destructor
+    ~MsFactoryTVITester();
+
+protected:
+    
+    //The temporary dir where the synthetic MS is created  
+    char tmpdir_p[_POSIX_PATH_MAX];
+
+    //The helper class to create synthetic MS
+    std::unique_ptr<casa::vi::test::MsFactory> msf_p;
+
+    //The synthetic MS.
+    std::unique_ptr<casacore::MeasurementSet> ms_p;
+
+    //The VisibilityIterator2 used to iterate trough the data
+    std::unique_ptr<VisibilityIterator2> vi_p;
+
+    //The name of the ms created by MsFactory
+    std::string msName_p;
+
+    //The attached VisBuffer
+    VisBuffer2 * vb_p;
 };
 
 

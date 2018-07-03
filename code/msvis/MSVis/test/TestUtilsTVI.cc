@@ -24,6 +24,7 @@
 
 #include <ftw.h>
 #include <string.h>
+#include <limits.h>
 #include <msvis/MSVis/test/TestUtilsTVI.h>
 #include <msvis/MSVis/VisBuffer.h>
 #include <msvis/MSVis/TransformingVi2.h>
@@ -120,6 +121,78 @@ void FreqAxisTVITest::TearDown()
         nftw(inpFile_p.c_str(), removeFile, 64, FTW_DEPTH | FTW_PHYS);
 
     return;
+}
+
+MsFactoryTVITester::MsFactoryTVITester(const std::string& testSubdir, 
+                                       const std::string& msName) :
+    msName_p(msName)
+{
+    //Use the system temp dir, if not defined or too long resort to /tmp
+    char * sys_tmpdir = getenv("TMPDIR");
+    if(sys_tmpdir != NULL &&
+       strlen(sys_tmpdir) < _POSIX_PATH_MAX - 1 - testSubdir.size() + 8)
+        strncpy(tmpdir_p, sys_tmpdir, strlen(sys_tmpdir)+1);
+    else
+        strncpy(tmpdir_p, "/tmp", 5);
+    stpcpy (tmpdir_p+strlen(tmpdir_p), (std::string("/")+testSubdir+"_XXXXXX").c_str());
+    
+}
+
+void MsFactoryTVITester::SetUp()
+{
+    mkdtemp(tmpdir_p);
+    msf_p.reset(new casa::vi::test::MsFactory(String::format
+        ("%s/%s.ms", tmpdir_p,msName_p.c_str())));
+}
+  
+  /*
+   * Create the synthetic MS and the TVI stack to access it. 
+   */
+void MsFactoryTVITester::instantiateVI(casacore::Vector<ViiLayerFactory*>& factories)
+{
+    //Create MS using the simulator MsFactory
+    std::pair<MeasurementSet *, Int> p = msf_p->createMs();
+    ms_p.reset(p.first); //MsFactory has given up ownership
+
+    //Create the top VI using the factories provided
+    vi_p.reset(new VisibilityIterator2(factories));
+
+    vb_p = vi_p->getVisBuffer();
+}
+
+  /*
+   * Iterate the whole MS calling a user provided function.
+   * The only useful case is having a lambda as a visitor function.
+   * It can access the visibility buffer from variable vb_p
+   */
+void MsFactoryTVITester::visitIterator(std::function<void(void)> visitor)
+{
+    for (vi_p->originChunks (); vi_p->moreChunks(); vi_p->nextChunk())
+    {
+        for (vi_p->origin(); vi_p->more (); vi_p->next())
+        {
+            visitor();
+        }
+    }
+}
+
+casa::vi::test::MsFactory& MsFactoryTVITester::getMsFactory()
+{
+    return *msf_p;
+}
+  
+void MsFactoryTVITester::TearDown()
+{
+    //The MS destructor will update the file system, so deleting it before removing the directory 
+    msf_p.reset();
+    ms_p.reset();
+    vi_p.reset();
+    //This will recursively remove everything in the directory
+    nftw(tmpdir_p, removeFile, 64, FTW_DEPTH | FTW_PHYS);
+}
+
+MsFactoryTVITester::~MsFactoryTVITester()
+{
 }
 
 
