@@ -20,7 +20,7 @@
 //#  MA 02111-1307  USA
 //# $Id: $
 
-#define _XOPEN_SOURCE 500 //For nftw()
+#define _XOPEN_SOURCE 700 //For nftw(), stpcpy()
 
 #include <ftw.h>
 #include <string.h>
