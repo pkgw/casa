@@ -23,6 +23,7 @@
 #define _XOPEN_SOURCE 500 //For nftw()
 
 #include <ftw.h>
+#include <string.h>
 #include <msvis/MSVis/test/TestUtilsTVI.h>
 #include <msvis/MSVis/VisBuffer.h>
 #include <msvis/MSVis/TransformingVi2.h>
