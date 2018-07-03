@@ -158,9 +158,9 @@ def tclean(
     if specmode=='cont':
         specmode='mfs'
 
-    if specmode=='mfs' and nterms==1 and deconvolver == "mtmfs":
-        casalog.post( "The MTMFS deconvolution algorithm (deconvolver='mtmfs') needs nterms>1.Please set nterms=2 (or more). ", "WARN", "task_tclean" )
-        return
+#    if specmode=='mfs' and nterms==1 and deconvolver == "mtmfs":
+#        casalog.post( "The MTMFS deconvolution algorithm (deconvolver='mtmfs') needs nterms>1.Please set nterms=2 (or more). ", "WARN", "task_tclean" )
+#        return
 
     if specmode!='mfs' and deconvolver=="mtmfs":
         casalog.post( "The MSMFS algorithm (deconvolver='mtmfs') applies only to specmode='mfs'.", "WARN", "task_tclean" )

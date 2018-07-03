@@ -57,28 +57,33 @@ class SIImageStore
 
   SIImageStore();
 
-  SIImageStore(casacore::String imagename,const casacore::Bool ignorefacets=casacore::False);
+  SIImageStore(const casacore::String &imagename,
+               const casacore::Bool ignorefacets=casacore::False);
 
-  SIImageStore(casacore::String imagename, 
-	       casacore::CoordinateSystem &imcoordsys, 
-	       casacore::IPosition imshape, 
-	       //	       const casacore::Int nfacets=1, 
+  SIImageStore(const casacore::String &imagename,
+	       const casacore::CoordinateSystem &imcoordsys,
+	       const casacore::IPosition &imshape,
+	       const casacore::String &objectname,
+               const casacore::Record &miscinfo,
+	       // const casacore::Int nfacets=1,
 	       const casacore::Bool overwrite=casacore::False,
 	       const casacore::Bool useweightimage=casacore::False);
 
-  SIImageStore(SHARED_PTR<casacore::ImageInterface<casacore::Float> > modelim, 
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > residim,
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > psfim, 
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > weightim, 
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > restoredim, 
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > maskim,
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > sumwtim,
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > gridwtim,
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > pbim,
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > restoredpbcorim,
-	       casacore::CoordinateSystem& csys, 
-	       casacore::IPosition imshape, 
-	       casacore::String imagename, 
+  SIImageStore(const SHARED_PTR<casacore::ImageInterface<casacore::Float> > &modelim,
+	       const SHARED_PTR<casacore::ImageInterface<casacore::Float> > &residim,
+	       const SHARED_PTR<casacore::ImageInterface<casacore::Float> > &psfim,
+	       const SHARED_PTR<casacore::ImageInterface<casacore::Float> > &weightim,
+	       const SHARED_PTR<casacore::ImageInterface<casacore::Float> > &restoredim,
+	       const SHARED_PTR<casacore::ImageInterface<casacore::Float> > &maskim,
+	       const SHARED_PTR<casacore::ImageInterface<casacore::Float> > &sumwtim,
+	       const SHARED_PTR<casacore::ImageInterface<casacore::Float> > &gridwtim,
+	       const SHARED_PTR<casacore::ImageInterface<casacore::Float> > &pbim,
+	       const SHARED_PTR<casacore::ImageInterface<casacore::Float> > &restoredpbcorim,
+	       const casacore::CoordinateSystem &csys,
+	       const casacore::IPosition &imshape,
+	       const casacore::String &imagename,
+	       const casacore::String &objectname,
+	       const casacore::Record &miscinfo,
 	       const casacore::Int facet=0, const casacore::Int nfacets=1,
 	       const casacore::Int chan=0, const casacore::Int nchanchunks=1,
 	       const casacore::Int pol=0, const casacore::Int npolchunks=1,
@@ -291,8 +296,8 @@ protected:
 
 private:
 
-  void initMetaInfo(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr,
-                    const casacore::String name);
+  virtual void initMetaInfo(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr,
+                            const casacore::String name);
 
   SHARED_PTR<casacore::ImageInterface<casacore::Float> > itsPsf, itsModel, itsResidual, itsWeight, itsImage, itsSumWt, itsImagePBcor, itsPB;
   SHARED_PTR<casacore::ImageInterface<casacore::Complex> > itsForwardGrid, itsBackwardGrid;

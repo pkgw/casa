@@ -7187,7 +7187,7 @@ int main(int argc, char *argv[]) {
   for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
        iter != msFillers.end();
        ++iter)
-    iter->second->end(0.0);
+    iter->second->end();
   
   
   for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
