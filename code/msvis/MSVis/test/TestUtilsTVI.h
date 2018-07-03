@@ -94,7 +94,12 @@ public:
     void TearDown();
 
     /*
-     * Create the synthetic MS and the TVI stack to access it. 
+     * Create the synthetic MS  
+     */
+    void createMS();
+
+    /*
+     * Create the TVI stack to access the MS. 
      */
     void instantiateVI(casacore::Vector<ViiLayerFactory*>& factories);
 

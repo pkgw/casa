@@ -300,6 +300,8 @@ public:
    */
   void createTVIs()
   {
+    createMS();
+    
     //Create a disk layer type VI Factory
     IteratingParameters ipar;
     VisIterImpl2LayerFactory diskItFac(ms_p.get(),ipar,false);

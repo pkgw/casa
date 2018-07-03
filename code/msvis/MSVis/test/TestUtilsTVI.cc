@@ -145,26 +145,21 @@ void MsFactoryTVITester::SetUp()
         ("%s/%s.ms", tmpdir_p,msName_p.c_str())));
 }
   
-  /*
-   * Create the synthetic MS and the TVI stack to access it. 
-   */
-void MsFactoryTVITester::instantiateVI(casacore::Vector<ViiLayerFactory*>& factories)
+void MsFactoryTVITester::createMS()
 {
     //Create MS using the simulator MsFactory
     std::pair<MeasurementSet *, Int> p = msf_p->createMs();
     ms_p.reset(p.first); //MsFactory has given up ownership
+}
 
+void MsFactoryTVITester::instantiateVI(casacore::Vector<ViiLayerFactory*>& factories)
+{
     //Create the top VI using the factories provided
     vi_p.reset(new VisibilityIterator2(factories));
 
     vb_p = vi_p->getVisBuffer();
 }
 
-  /*
-   * Iterate the whole MS calling a user provided function.
-   * The only useful case is having a lambda as a visitor function.
-   * It can access the visibility buffer from variable vb_p
-   */
 void MsFactoryTVITester::visitIterator(std::function<void(void)> visitor)
 {
     for (vi_p->originChunks (); vi_p->moreChunks(); vi_p->nextChunk())
