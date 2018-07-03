@@ -49,6 +49,7 @@
 #include <images/Images/SubImage.h>
 #include <images/Regions/ImageRegion.h>
 
+#include <imageanalysis/ImageAnalysis/CasaImageBeamSet.h>
 #include <synthesis/ImagerObjects/SynthesisDeconvolver.h>
 
 #include <sys/types.h>
@@ -143,6 +144,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	// Set restoring beam options
 	itsDeconvolver->setRestoringBeam( decpars.restoringbeam, decpars.usebeam );
+        itsUseBeam = decpars.usebeam;// store this info also here.
 
 	// Set Masking options
 	//	itsDeconvolver->setMaskOptions( decpars.maskType );
@@ -572,7 +574,33 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        }
      }
   }
- 
+
+  // check if restoring beam is reasonable 
+  void SynthesisDeconvolver::checkRestoringBeam() 
+  {
+    LogIO os( LogOrigin("SynthesisDeconvolver","checkRestoringBeam",WHERE) );
+    //check for a bad restoring beam
+    GaussianBeam beam;
+    
+    if( ! itsImages ) itsImages = makeImageStore( itsImageName );
+    ImageInfo psfInfo = itsImages->psf()->imageInfo();
+    if (psfInfo.hasSingleBeam()) {
+      beam = psfInfo.restoringBeam();  
+    }
+    else if (psfInfo.hasMultipleBeams() && itsUseBeam=="common") {
+      beam = CasaImageBeamSet(psfInfo.getBeamSet()).getCommonBeam(); 
+    }
+    Double beammaj = beam.getMajor(Unit("arcsec"));
+    Double beammin = beam.getMinor(Unit("arcsec"));
+    if (std::isinf(beammaj) || std::isinf(beammin)) {
+      String msg;
+      if (itsUseBeam=="common") {
+        msg+="Bad restoring beam using the common beam (at least one of the beam axes has an infinite size)  ";
+        throw(AipsError(msg));
+      }
+    }
+  }
+    
   // This is for interactive-clean.
   void SynthesisDeconvolver::getCopyOfResidualAndMask( TempImage<Float> &/*residual*/,
                                            TempImage<Float> &/*mask*/ )
