@@ -21,7 +21,7 @@
 //# $Id: $
 
 #define _XOPEN_SOURCE 700 //For nftw(), stpcpy(), mkdtemp()
-#define _DARWIN_SOURCE //im macOS mkdtemp() is not available if _POSIX_C_SOURCE=200809L (Apple bug report #35851865)
+#define _DARWIN_C_SOURCE //im macOS mkdtemp() is not available if _POSIX_C_SOURCE=200809L (Apple bug report #35851865)
 
 #include <ftw.h>
 #include <string.h>
