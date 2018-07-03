@@ -377,6 +377,7 @@ namespace asdm {
       }
       cur = cur -> next;
     }
+    xmlFreeDoc(execBlockDoc);
 
     return result;
   }
