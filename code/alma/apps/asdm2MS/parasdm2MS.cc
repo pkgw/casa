@@ -76,11 +76,6 @@ using namespace SpectralResolutionTypeMod;
 #include "Name2Table.h"
 #include "ASDMVerbatimFiller.h"
 
-#include "SDMDataObjectStreamReader.h"
-#include "SDMDataObjectReader.h"
-#include "SDMDataObject.h"
-using namespace asdmbinaries;
-
 #include "TableStreamReader.h"
 #include "asdm2MSGeneric.h"
 
@@ -5038,7 +5033,7 @@ void fillTopMS(ASDM*					ds_p,
   for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
        iter != msFillers.end();
        ++iter)
-    iter->second->end(0.0);
+    iter->second->end();
 
   for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
        iter != msFillers.end();
