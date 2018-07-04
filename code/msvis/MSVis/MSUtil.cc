@@ -494,8 +494,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Int> fldid=mscol.fieldId().getColumn();
     Vector<Int> ddId=mscol.dataDescId().getColumn();
     Vector<Int> spwid=mscol.dataDescription().spectralWindowId().getColumn();
-	   Vector<uInt>  uniqIndx;
-	   uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, t, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
+    Vector<uInt>  uniqIndx;
+    {
+      Vector<Double> ddIdD(ddId.shape());
+      convertArray(ddIdD, ddId);
+      ddIdD+= 1.0; //no zero id
+      //we have to do this as one can have multiple dd for the same time. 
+      t*=ddIdD;
+    }
+    uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, t, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
 	   Vector<Int> comb(4);
 	   
 	   for (uInt k=0; k < nTimes; ++k){
@@ -519,7 +526,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   retval2.resize(retval.nelements(),4);
 	   for (uInt j=0; j < retval.nelements(); ++j)
 	     retval2.row(j)=retval[j];
-
 
   }
 

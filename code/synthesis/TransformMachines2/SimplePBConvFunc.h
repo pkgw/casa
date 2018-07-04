@@ -124,6 +124,7 @@ namespace refim{ //namespace for imaging refactor
 
       virtual void setSkyJones(SkyJones* sj);
       virtual void setVBUtil(casacore::CountedPtr<VisBufferUtil> vbutil) {vbutil_p=vbutil;};
+      virtual  casacore::CountedPtr<VisBufferUtil> getVBUtil() {return vbutil_p;};
       casacore::Bool findSupport(casacore::Array<casacore::Complex>& /*func*/, casacore::Float& /*threshold*/,casacore::Int& /*origin*/, casacore::Int& /*R*/) 
       {throw(casacore::AipsError("SimplePBConvFunc::findSupport() not implemented"));};
       virtual casacore::Bool makeAverageResponse(const vi::VisBuffer2& /*vb*/, 

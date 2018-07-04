@@ -47,7 +47,7 @@
 #include <synthesis/TransformMachines2/SimpleComponentFTMachine.h>
 #include <synthesis/TransformMachines2/GridFT.h>
 //#include <synthesis/TransformMachines/rGridFT.h>
-//#include <synthesis/TransformMachines/MosaicFT.h>
+#include <synthesis/TransformMachines2/MosaicFTNew.h>
 #include <synthesis/TransformMachines2/WProjectFT.h>
 //#include <synthesis/TransformMachines/MultiTermFT.h>
 #include <synthesis/TransformMachines2/MultiTermFTNew.h>
@@ -1130,8 +1130,10 @@ void VisModelData::putModel(const MeasurementSet& thems, const RecordInterface& 
       return new WProjectFT(ftrec);
     //if(name=="MultiTermFT")
     //  return new MultiTermFT(ftrec);
-    //if(name=="MosaicFT")
-    //  return new MosaicFT(ftrec);
+    if(name=="MosaicFT")
+      return new MosaicFT(ftrec);
+    if(name=="MosaicFTNew")
+      return new MosaicFTNew(ftrec);
     if(name=="SetJyGridFT")
       return new SetJyGridFT(ftrec);
     if(name=="MultiTermFTNew")

@@ -244,8 +244,11 @@ using namespace casa::vi;
   }
   
   void MultiTermFTNew::initMaps(const VisBuffer2& vb){
-    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+    
+    for (uInt k=0;  k < subftms_p.nelements(); ++k){
+      //cerr << "doing k" << k << " initmaps " << endl;
       (subftms_p[k])->initMaps(vb);
+    }
   }
   // Reset the imaging weights back to their original values
   // to be called just after "put"
@@ -513,7 +516,7 @@ void MultiTermFTNew::finalizeToSkyNew(Bool dopsf,
   //---------------------------------------------------------------------------------------------------
   Bool MultiTermFTNew::fromRecord(String& error, const RecordInterface& inRec)
   {
-    cout << "MTFTNew :: fromRecord "<< endl;
+    //cout << "MTFTNew :: fromRecord "<< endl;
     Bool retval = true;
     
     inRec.get("nterms",nterms_p);
@@ -526,11 +529,15 @@ void MultiTermFTNew::finalizeToSkyNew(Bool dopsf,
     inRec.get("numfts",nftms);
     
     subftms_p.resize(nftms);
+    //cerr << "number of ft " << nftms << endl;
     for(Int tix=0;tix<nftms;tix++)
       {
 	Record subFTMRec=inRec.asRecord("subftm_"+String::toString(tix));
 	subftms_p[tix]=VisModelData::NEW_FT(subFTMRec);
-	retval = (retval || subftms_p[tix]->fromRecord(error, subFTMRec));    
+	if(subftms_p[tix].null())
+	  throw(AipsError("Could not recover from record term "+String::toString(tix)+" ftmachine"));
+	retval = (retval || subftms_p[tix]->fromRecord(error, subFTMRec));
+	if(!retval) throw(AipsError("Could not recover term "+String::toString(tix)+" ftmachine; \n Error being "+error));
       }
     
     

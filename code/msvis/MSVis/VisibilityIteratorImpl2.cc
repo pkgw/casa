@@ -3669,7 +3669,6 @@ VisibilityIteratorImpl2::writeModel(
 
 	Matrix<Int>  combiIndex;
 	MSUtil::getIndexCombination(ROMSColumns(ms()), combiIndex);
-	cerr << "put Combindex " << combiIndex << endl;
 	Vector<Int> selectedWindows;
 	Vector<Int> nChannels;
 	Vector<Int> firstChannels;
@@ -4079,7 +4078,6 @@ VisibilityIteratorImpl2::fillFromVirtualModel(Cube <Complex> & value) const
 		// be the model component of the VIIs VB2 then this will be a no-op.
 
 		value = vb_p->visCubeModel();
-
 		return true; // filled it
 	}
 
