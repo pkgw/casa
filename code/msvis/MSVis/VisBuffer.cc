@@ -57,8 +57,6 @@ using namespace casacore;
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-MSIter msi;
-
 VisBuffer::VisBuffer()
     : corrSorted_p(false),
       lastPointTableRow_p(0),

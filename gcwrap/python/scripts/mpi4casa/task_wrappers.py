@@ -4,17 +4,13 @@
 from imstat_pg import imstat_pg as imstat
 from flagdata_pg import flagdata_pg as flagdata
 from flagcmd_pg import flagcmd_pg as flagcmd
-from importevla_pg import importevla_pg as importevla
 from split_pg import split_pg as split
 from oldsplit_pg import oldsplit_pg as oldsplit
 from importvla_pg import importvla_pg as importvla
 from hanningsmooth_pg import hanningsmooth_pg as hanningsmooth
-from oldhanningsmooth_pg import oldhanningsmooth_pg as oldhanningsmooth
-from widefield_pg import widefield_pg as widefield
 from immoments_pg import immoments_pg as immoments
 from uvcontsub_pg import uvcontsub_pg as uvcontsub
 from listhistory_pg import listhistory_pg as listhistory
-from mosaic_pg import mosaic_pg as mosaic
 from importfits_pg import importfits_pg as importfits
 from imfit_pg import imfit_pg as imfit
 from deconvolve_pg import deconvolve_pg as deconvolve

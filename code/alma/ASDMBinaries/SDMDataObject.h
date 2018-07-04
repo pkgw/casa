@@ -38,7 +38,11 @@ using namespace NetSidebandMod;
 
 using namespace std;
 
+#ifndef WITHOUT_BOOST
 #include <boost/regex.hpp> 
+#else
+#include <regex>
+#endif
 
 #ifdef REG_BASIC
 #undef REG_BASIC
@@ -93,16 +97,6 @@ using namespace std;
 #else 
 #include <endian.h>
 #endif
-
-/*
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/posix_time/posix_time_duration.hpp>
-
-#include <boost/date_time/gregorian/gregorian.hpp>
-
-using namespace boost::posix_time;
-using namespace boost::gregorian;
-*/
 
 /**
  * @mainpage
@@ -1267,7 +1261,11 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
 
     void updateIdImageSPW();
 
+#ifndef WITHOUT_BOOST
     const static boost::regex  SPWID;
+#else
+    const static std::regex  SPWID;
+#endif
 
   };
   // SDMDataObject::

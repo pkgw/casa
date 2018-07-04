@@ -197,8 +197,18 @@ using namespace casa::vi;
   MultiTermFTNew::~MultiTermFTNew()
   {
   }
-  
-  
+  void MultiTermFTNew::setMovingSource(const String& sourcename, const String& ephemtable){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setMovingSource(sourcename, ephemtable);
+  }
+  void MultiTermFTNew::setMovingSource(const MDirection& mdir){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setMovingSource(mdir);
+  }
+  void MultiTermFTNew::setLocation(const MPosition& mloc){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setLocation(mloc);
+  }
   //---------------------------------------------------------------------------------------------------
   //------------ Multi-Term Specific Functions --------------------------------------------------------
   //---------------------------------------------------------------------------------------------------

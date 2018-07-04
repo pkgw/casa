@@ -123,21 +123,21 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
 
     if(msId_p != vb.msId()) {
         msId_p=vb.msId();
-        ROMSColumns mscol(vb.ms());
-        const ROMSAntennaColumns& ac=mscol.antenna();
+        //ROMSColumns mscol(vb.ms());
+        const ROMSAntennaColumns& ac=vb.subtableColumns().antenna();
         antIndexToDiamIndex_p.resize(ac.nrow());
         antIndexToDiamIndex_p.set(-1);
         Int diamIndex=antDiam2IndexMap_p.ndefined();
         Vector<Double> dishDiam=ac.dishDiameter().getColumn();
         Vector<String>dishName=ac.name().getColumn();
-        String telescop=mscol.observation().telescopeName()(0);
+        String telescop=vb.subtableColumns().observation().telescopeName()(0);
         PBMath::CommonPB whichPB;
         if(pbClass_p==PBMathInterface::COMMONPB) {
             String band;
             String commonPBName;
             // This frequency is ONLY required to determine which PB model to use:
             // The VLA, the ATNF, and WSRT have frequency - dependent PB models
-            Quantity freq( mscol.spectralWindow().refFrequency()(0), "Hz");
+            Quantity freq( vb.subtableColumns().spectralWindow().refFrequency()(0), "Hz");
 
 
             PBMath::whichCommonPBtoUse( telescop, freq, band, whichPB, commonPBName );
@@ -165,7 +165,7 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
                             Quantity blockDiam= Quantity(dishDiam(k)/12.0*.75, "m");
                             ///For ALMA 12m dish it is effectively 10.7 m according to Todd Hunter
                             ///@ 2011-12-06
-                            if((mscol.observation().telescopeName()(0) =="ALMA") || (mscol.observation().telescopeName()(0) =="ACA")){
+                            if((vb.subtableColumns().observation().telescopeName()(0) =="ALMA") || (vb.subtableColumns().observation().telescopeName()(0) =="ACA")){
 
 			      if((abs(dishDiam[k] - 12.0) < 0.5)) {
 				qdiam= Quantity(10.7, "m");

@@ -1,5 +1,10 @@
 #include "SDMDataObjectStreamReader.h"
 
+#ifdef WITHOUT_BOOST
+#include <regex>
+#include "Misc.h"
+#endif
+
 namespace asdmbinaries {
 
   SDMDataObjectStreamReaderException::SDMDataObjectStreamReaderException():message("SDMDataObjectStreamReaderException:") {;}
@@ -231,12 +236,20 @@ namespace asdmbinaries {
 
     if (colonIndex > 0) {
       name = hf.substr(0, colonIndex);
-      trim(name);
+#ifndef WITHOUT_BOOST
+      boost::algorithm::trim(name);
+#else
+      asdm::trim(name);
+#endif
     }
 
     if (colonIndex < hf.size()) {
       value = hf.substr(colonIndex+1);
-      trim(value);
+#ifndef WITHOUT_BOOST
+      boost::algorithm::trim(value);
+#else
+      asdm::trim(value);
+#endif
     }
 
     return make_pair(name, value);
@@ -245,8 +258,13 @@ namespace asdmbinaries {
   pair<string, string> SDMDataObjectStreamReader::requireHeaderField(const string & hf) {
     pair<string, string> hf2pair(headerField2Pair(nextLine()));
     // cout << hf2pair.first << ", " << hf2pair.second << endl;
-    if (to_upper_copy(hf2pair.first) != hf)
+#ifndef WITHOUT_BOOST
+    if (boost::algorithm::to_upper_copy(hf2pair.first) != hf)
       throw SDMDataObjectStreamReaderException("read '" + currentLine + "'. Was expecting '" + hf + "'...");
+#else
+    if (asdm::str_toupper(hf2pair.first) != hf)
+      throw SDMDataObjectStreamReaderException("read '" + currentLine + "'. Was expecting '" + hf + "'...");
+#endif
     return hf2pair;
   }
 
@@ -270,15 +288,27 @@ namespace asdmbinaries {
   string SDMDataObjectStreamReader::requireBoundaryInCT(const string& ctValue) {
     vector<string> cvValueItems;
  
-    split (cvValueItems, ctValue, is_any_of(";"));
+#ifndef WITHOUT_BOOST
+    boost::algorithm::split (cvValueItems, ctValue, boost::algorithm::is_any_of(";"));
     vector<string> cvValueItemsNameValue;
     for ( vector<string>::const_iterator iter = cvValueItems.begin(); iter != cvValueItems.end() ; iter++ ) {
       cvValueItemsNameValue.clear();
-      split(cvValueItemsNameValue, *iter, is_any_of("="));
+      boost::algorithm::split(cvValueItemsNameValue, *iter, boost::algorithm::is_any_of("="));
       string boundary;
-      if ((cvValueItemsNameValue.size() > 1) && (to_upper_copy(trim_copy(cvValueItemsNameValue[0])) == "BOUNDARY") && (unquote(cvValueItemsNameValue[1], boundary).size() > 0))
+      if ((cvValueItemsNameValue.size() > 1) && (boost::algorithm::to_upper_copy(boost::algorithm::trim_copy(cvValueItemsNameValue[0])) == "BOUNDARY") && (unquote(cvValueItemsNameValue[1], boundary).size() > 0))
 	return boundary;
     }
+#else
+    asdm::strsplit (ctValue, ';', cvValueItems);
+    vector<string> cvValueItemsNameValue;
+    for ( vector<string>::const_iterator iter = cvValueItems.begin(); iter != cvValueItems.end() ; iter++ ) {
+      cvValueItemsNameValue.clear();
+      asdm::strsplit(*iter,'=',cvValueItemsNameValue);
+      string boundary;
+      if ((cvValueItemsNameValue.size() > 1) && (asdm::str_toupper(asdm::trim_copy(cvValueItemsNameValue[0])) == "BOUNDARY") && (unquote(cvValueItemsNameValue[1], boundary).size() > 0))
+	return boundary;
+    }
+#endif
     throw SDMDataObjectStreamReaderException("could not find a boundary definition in '" + ctValue + "'.");
   }
 
@@ -316,7 +346,12 @@ namespace asdmbinaries {
     pair<string, string>name_value(headerField2Pair(nextLine()));
     // cout << name_value.first << "=" << name_value.second << endl;
     // if (currentLine != "MIME-Version: 1.0") // a work around for the case when the very first character is not the expected "M" (happened with some corrupted data).
+#ifndef WITHOUT_BOOST
     if (! boost::algorithm::iends_with(currentLine, "IME-Version: 1.0"))
+#else
+    std::string versionEnd = "IME-Version: 1.0";
+    if ((currentLine.size()<=versionEnd.size()) || (currentLine.compare((currentLine.size()-versionEnd.size()),versionEnd.size(),versionEnd)!=0))
+#endif
       throw SDMDataObjectStreamReaderException("'MIME-Version: 1.0' missing at the very beginning of the file '"+path+"'.");
 
     // Content-Type
@@ -374,7 +409,11 @@ namespace asdmbinaries {
   }
 
   void SDMDataObjectStreamReader::lookForBinaryPartSize(xmlNode* aNode) {
-    const regex UINT("[0-9]+");
+#ifndef WITHOUT_BOOST
+    const boost::regex UINT("[0-9]+");
+#else
+    const std::regex UINT("[0-9]+");
+#endif
     xmlNode *curNode = NULL;
 
     for (curNode = aNode; curNode ; curNode = curNode->next) {
@@ -382,8 +421,13 @@ namespace asdmbinaries {
 	if (s_partNames.find(string((char *)curNode->name)) != s_partNames.end()){
 	  if (xmlHasProp(curNode, (const xmlChar*) "size")) {
 	    xmlChar * value = xmlGetProp(curNode, (const xmlChar *) "size");
-	    cmatch what;
-	    if (regex_match((char*) value, what, UINT)) {
+#ifndef WITHOUT_BOOST
+	    boost::cmatch what;
+	    if (boost::regex_match((char*) value, what, UINT)) {
+#else
+	    std::cmatch what;
+	    if (std::regex_match((char*) value, what, UINT)) {
+#endif
 	      int64_t result = ::atoi(what[0].first);
 	      xmlFree(value);
 	      binaryPartSize[string((char *) curNode->name)] = result;
@@ -518,17 +562,29 @@ namespace asdmbinaries {
       parser.parseMemoryTPSubsetHeader(sdmDataSubsetHeader, sdmDataSubset);
 
     attachmentFlags.reset();
-    regex BINARYPARTLOC("([0-9]+/)+(actualDurations|actualTimes|autoData|crossData|zeroLags|flags)\\.bin");
+#ifndef WITHOUT_BOOST
+    boost::regex BINARYPARTLOC("([0-9]+/)+(actualDurations|actualTimes|autoData|crossData|zeroLags|flags)\\.bin");
+#else
+    std::regex BINARYPARTLOC("([0-9]+/)+(actualDurations|actualTimes|autoData|crossData|zeroLags|flags)\\.bin");
+#endif
     bool done = false;
     while (!done) {
       name_value = requireHeaderField("CONTENT-TYPE");
       name_value = requireHeaderField("CONTENT-LOCATION");
     
-      smatch what;
-      const string contentLocation = trim_copy(name_value.second);
-      if (!regex_search(contentLocation, what, BINARYPARTLOC)) {
+#ifndef WITHOUT_BOOST
+      boost::smatch what;
+      const string contentLocation = boost::algorithm::trim_copy(name_value.second);
+      if (!boost::regex_search(contentLocation, what, BINARYPARTLOC)) {
 	throw SDMDataObjectStreamReaderException("Invalid field : '" + name_value.first + ":" + name_value.second + "'.");
       }
+#else
+      std::smatch what;
+      const string contentLocation = asdm::trim_copy(name_value.second);
+      if (!std::regex_search(contentLocation, what, BINARYPARTLOC)) {
+	throw SDMDataObjectStreamReaderException("Invalid field : '" + name_value.first + ":" + name_value.second + "'.");
+      }
+#endif
       // cout << "Binary part name = " << what[2] << "...";
       string binaryPartName = string(what[2]);
       if (binaryPartSize.find(binaryPartName) == binaryPartSize.end())

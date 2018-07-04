@@ -51,8 +51,8 @@ namespace casa {
 CalCache::CalCache(PlotMSApp* parent):
   PlotMSCacheBase(parent),
   divZero_(False),
-  ci_p(NULL),
-  wci_p(NULL),
+  ci_p(nullptr),
+  wci_p(nullptr),
   basis_("unknown"),
   parsAreComplex_(False),
   msname_("")
@@ -102,7 +102,7 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
 
   // Trap unsupported modes: cal types, averaging, transforms, poln ratio
   if (calType_[0]=='A' || calType_[0]=='M' || 
-		  (calType_[0]=='X' && calType_.contains("Mueller"))) {
+     (calType_[0]=='X' && calType_.contains("Mueller"))) {
     throw AipsError("Cal table type " + calType_ + " is unsupported in plotms. Please continue to use plotcal.");
   }
 
@@ -148,10 +148,11 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
 void CalCache::loadNewCalTable(vector<PMS::Axis>& loadAxes,
     vector<PMS::DataColumn>& loadData, ThreadCommunication* thread) {
   // Get various names, properties from cal table
-  NewCalTable ct(NewCalTable::createCT(filename_, Table::Old, Table::Plain));
-  basis_ = ct.polBasis();
-  parsAreComplex_ = ct.isComplex();
-  ROCTColumns ctCol(ct);
+  TableLock lock(TableLock::AutoNoReadLocking);
+  NewCalTable* ct = new NewCalTable(filename_, lock, Table::Old, Table::Plain);
+  basis_ = ct->polBasis();
+  parsAreComplex_ = ct->isComplex();
+  ROCTColumns ctCol(*ct);
   antnames_ = ctCol.antenna().name().getColumn();
   stanames_ = ctCol.antenna().station().getColumn();
   antstanames_ = antnames_ + String("@") + stanames_;
@@ -159,18 +160,33 @@ void CalCache::loadNewCalTable(vector<PMS::Axis>& loadAxes,
   positions_ = ctCol.antenna().position().getColumn();    
   nAnt_ = ctCol.antenna().nrow();
 
-  setUpCalIter(filename_,selection_, True,True,True);
+  // Apply selection to get selected cal table
+  NewCalTable* selct = new NewCalTable();
+  Vector<Vector<Slice> > chansel;
+  Vector<Vector<Slice> > corrsel;
+  selection_.apply(*ct, *selct, chansel, corrsel);
+
+  Bool readonly(True); // no write access for loading cache
+  setUpCalIter(*selct, readonly);
   countChunks(*ci_p, loadAxes, loadData, thread);
   loadCalChunks(*ci_p, loadAxes, thread);
-  if (ci_p)
+
+  // delete NCT and iter to release table locks
+  if (ct != nullptr) {
+    delete ct;
+    ct = nullptr;
+  }
+  if (selct != nullptr) {
+    delete selct;
+    selct = nullptr;
+  }
+  if (ci_p != nullptr) {
     delete ci_p;
-  ci_p = NULL;
+    ci_p = nullptr;
+  }
 }
 
-void CalCache::setUpCalIter(const String& ctname,
-    PlotMSSelection& selection, Bool readonly,
-    Bool /*chanselect*/, Bool /*corrselect*/) {
-  // for NewCalTable
+void CalCache::setUpCalIter(NewCalTable& selct, Bool readonly) {
   Int nsortcol(4);
   Block<String> columns(nsortcol);
   columns[0]="SCAN_NUMBER";
@@ -178,37 +194,15 @@ void CalCache::setUpCalIter(const String& ctname,
   columns[2]="SPECTRAL_WINDOW_ID";
   columns[3]="TIME";
 
-  // Now open the MS, select on it, make the VisIter
-  TableLock lock(TableLock::AutoNoReadLocking);
-  Table::TableOption tabopt(Table::Update);
-  if (readonly) tabopt = Table::Old;
-  NewCalTable ct(ctname, lock, tabopt, Table::Plain);
-
-  // Apply selection
-  NewCalTable selct;
-  Vector<Vector<Slice> > chansel;
-  Vector<Vector<Slice> > corrsel;
-  selection.apply(ct, selct, chansel, corrsel);
-
-  // setup the volume meter
-  //  vm_.reset();
-  //  vm_= PMSCacheVolMeter(ms,averaging_,chansel,corrsel);
-
   if (readonly) {
     // Readonly version, for caching
-    ci_p = new ROCTIter(selct,columns);
-    wci_p =NULL;
-  }
-  else {
+    ci_p = new ROCTIter(selct, columns);
+    wci_p = nullptr;
+  } else {
     // Writable, e.g. for flagging
-    wci_p = new CTIter(selct,columns);
+    wci_p = new CTIter(selct, columns);
     ci_p = wci_p;  // const access
   }
-
-  // Apply chan/corr selection
-  //if (chanselect) rci_p->selectChannel(chansel);
-  //if (corrselect) rci_p->selectCorrelation(corrsel);
-
 }
       
 void CalCache::countChunks(ROCTIter& ci,
@@ -216,8 +210,7 @@ void CalCache::countChunks(ROCTIter& ci,
     vector<PMS::DataColumn>& loadData,
     ThreadCommunication* thread) {
   // for NewCalTable
-
-  if (thread!=NULL) {
+  if (thread!=nullptr) {
     thread->setStatus("Establishing cache size.  Please wait...");
     thread->setAllowedOperations(false,false,false);
   }
@@ -229,42 +222,17 @@ void CalCache::countChunks(ROCTIter& ci,
     ++chunk;
     ci.next0();
   }
-
   setCache(chunk, loadAxes, loadData);
-  //    cout << " Found " << nChunk_ << " chunks." << endl;
 }
-
-  /*
-void MSCache::trapExcessVolume(map<PMS::Axis,Bool> pendingLoadAxes) {
-  try {
-    String s;
-    s=vm_.evalVolume(pendingLoadAxes,netAxesMask(currentX_,currentY_));
-    logLoad(s);
-  } catch(AipsError& log) {
-    // catch detected volume excess, clear the existing cache, and rethrow
-    logLoad(log.getMesg());
-    clear();
-    stringstream ss;
-    ss << "Please try selecting less data," << endl
-       << "averaging, checking 'Reload' (to clear unneeded cache items)," << endl
-       << "or letting other memory-intensive processes finish.";
-    throw(AipsError(ss.str()));
-  }
-}
-  */ 
 
 void CalCache::loadCalChunks(ROCTIter& ci,
      const vector<PMS::Axis> loadAxes,
      ThreadCommunication* thread) {
   // for NewCalTable
   // permit cancel in progress meter:
-  if(thread != NULL)
+  if(thread != nullptr)
     thread->setAllowedOperations(false,false,true);
-    
   logLoad("Loading chunks......");
-
-  // Initialize the freq/vel calculator (in case we use it)
-  //  vbu_=VisBufferUtil(vb);
 
   Int chunk(0), lastscan(0), thisscan(0), lastspw(-1), thisspw(0);
   chshapes_.resize(4,nChunk_);
@@ -274,17 +242,14 @@ void CalCache::loadCalChunks(ROCTIter& ci,
 
   // Reset iterator
   ci.reset();
-
   while (!ci.pastEnd()) {
-
       // If a thread is given, check if the user canceled.
-      if(thread != NULL && thread->wasCanceled()) {
+      if(thread != nullptr && thread->wasCanceled()) {
         dataLoaded_ = false;
         return;
       }
-      
       // If a thread is given, update it.
-      if(thread != NULL && (nChunk_ <= (int)THREAD_SEGMENT ||
+      if(thread != nullptr && (nChunk_ <= (int)THREAD_SEGMENT ||
          chunk % THREAD_SEGMENT == 0)) {
           thread->setStatus("Loading chunk " + String::toString(chunk) +
               " / " + String::toString(nChunk_) + ".");
@@ -342,7 +307,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
         ci.next();
       
         // If a thread is given, update it.
-        if(thread != NULL && (nChunk_ <= (int)THREAD_SEGMENT ||
+        if(thread != nullptr && (nChunk_ <= (int)THREAD_SEGMENT ||
             chunk % THREAD_SEGMENT == 0)) {
             progress = ((double)chunk+1) / nChunk_;
             thread->setProgress((unsigned int)((progress * 100) + 0.5));
@@ -701,11 +666,14 @@ void CalCache::flagToDisk(const PlotMSFlagging& flagging,
   stringstream ss;
 
   // Make the VisIterator writable, with selection revised as appropriate
-  Bool selectchan(netAxesMask_[dataIndex](1) && !flagging.channel());
-  Bool selectcorr(netAxesMask_[dataIndex](0) && !flagging.corrAll());
+  NewCalTable* ct = new NewCalTable(filename_, Table::Update, Table::Plain);
+  NewCalTable* selct = new NewCalTable();
+  Vector<Vector<Slice> > chansel;
+  Vector<Vector<Slice> > corrsel;
+  selection_.apply(*ct, *selct, chansel, corrsel);
 
-  // Set up a write-able CTIter (ci_p also points to it)
-  setUpCalIter(filename_,selection_,False,selectchan,selectcorr);
+  Bool readonly(False); // write access for flagging
+  setUpCalIter(*selct, readonly);
   ci_p->reset();
 
   Int iflag(0);
@@ -847,11 +815,21 @@ void CalCache::flagToDisk(const PlotMSFlagging& flagging,
     } // flaggable chunk
   } // ichk
 
-  // Delete the VisIter so lock is released
-  if (wci_p)
+  // Delete the NCTs and VisIter so lock is released
+  if (ct != nullptr) {
+    delete ct;
+    ct = nullptr;
+  }
+  if (selct != nullptr) {
+    delete selct;
+    selct = nullptr;
+  }
+  if (wci_p != nullptr) {
     delete wci_p;
-  wci_p=NULL;
-  ci_p=NULL;
+    wci_p = nullptr;
+  }
+  ci_p = nullptr;
+
   logFlag(ss.str());
 }
 
@@ -862,7 +840,7 @@ void CalCache::flagToDisk(const PlotMSFlagging& flagging,
 void CalCache::countChunks(Int nchunks, vector<PMS::Axis>& loadAxes,
     vector<PMS::DataColumn>& loadData, ThreadCommunication* thread) {
   // for CalTable
-  if (thread!=NULL) {
+  if (thread!=nullptr) {
     thread->setStatus("Establishing cache size.  Please wait...");
     thread->setAllowedOperations(false,false,false);
   }
@@ -891,7 +869,7 @@ void CalCache::getNamesFromMS() {
 void CalCache::setUpLoad(ThreadCommunication* thread, Slice& parSlice) {
   // common setup for CalTables
   // permit cancel in progress meter:
-  if(thread != NULL)
+  if(thread != nullptr)
     thread->setAllowedOperations(false,false,true);
   logLoad("Loading chunks......");
 
@@ -1105,7 +1083,7 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
     }
 
     // If a thread is given, update it.
-    if(thread != NULL) {
+    if(thread != nullptr) {
       double progress = ((double)row) / nrow;
       thread->setProgress((unsigned int)((progress * 100) + 0.5));
     }
@@ -1499,7 +1477,7 @@ void CalCache::loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
     }
 
     // If a thread is given, update it.
-    if(thread != NULL) {
+    if(thread != nullptr) {
       double progress = ((double)sample) / nsample;
       thread->setProgress((unsigned int)((progress * 100) + 0.5));
     }

@@ -1574,6 +1574,13 @@ Bool SDGrid::getXYPos(const VisBuffer& vb, Int row) {
     if (!isSplineInterpolationReady) {
       interpolator = new SDPosInterpolator(vb, pointingDirCol_p);
       isSplineInterpolationReady = true;
+    } else {
+      if (!interpolator->inTimeRange(vb.time()(row), vb.antenna1()(row))) {
+	// setup spline interpolator for the current dataset (CAS-11261, 2018/5/22 WK)
+	delete interpolator;
+	interpolator = 0;
+	interpolator = new SDPosInterpolator(vb, pointingDirCol_p);
+      }
     }
   }
 
