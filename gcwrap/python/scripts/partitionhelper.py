@@ -110,12 +110,14 @@ class convertToMMS():
             casalog.post('--------------- Successfully created MMS -----------------')
                     
                 
-        # Create links to the other files
-        for file in nonmslist:
-            bfile = os.path.basename(file)
+        # Copy non-MS files to MMS directory
+        for ff in nonmslist:
+            bfile = os.path.basename(ff)
             lfile = os.path.join(self.mmsdir, bfile)
-            casalog.post('Creating symbolic link to '+bfile)
-            os.symlink(file, lfile)
+            casalog.post('Copying non-MS file '+bfile)
+#            os.symlink(file, lfile)
+#            shutil.copytree(ff, lfile, symlinks=False)
+            os.system("cp -RL "+ff+" "+lfile)
             
 
     def getMSlist(self, files):
