@@ -450,6 +450,11 @@ public:
                        casacore::Double timeInterval = 0);
 
   VisibilityIterator2 (const ViFactory & factory);
+  
+  // Creates an iterator from a stack of VI factories
+  // <thrown>
+  //    <li>  AipsError if the last factory is NULL 
+  // </thrown>
   VisibilityIterator2 (const casacore::Vector<ViiLayerFactory*> & factories);
 
   // Destructor
