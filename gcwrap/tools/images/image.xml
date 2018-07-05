@@ -4289,22 +4289,19 @@ ia.close()
 
 <description>
 
-This function fast Fourier Transforms the supplied image to the Fourier plane.
-Both float valued and complex valued images are supported.
-If the {\stfaf axes} parameter is left unset, then the sky plane of the image (if
+This method fast Fourier Transforms the supplied image to the Fourier plane.
+If the axes parameter is left unset, then the direction plane of the image (if
 there is one) is transformed.  Otherwise, the user can specify which axes are
-to be transformed.  Note that if a sky axis is to be transformed, both of them
-must be specified.
+to be transformed.  Note that if the direction plane is to be transformed, both
+axes associated with it must be specified.
 
 The user specifies which form is desired in the result by specifying the
 desired output image file name(s).
 
-Before the FFT is performed, any masked pixels are set to values of zero.
-The output mask is the combination (logical OR) of the default input
-\pixelmask\ (if any) and the OTF mask.  Any other input \pixelmasks\
-will not be copied.  The function
-<link anchor="images:image.maskhandler.function">maskhandler</link> can be
-used if there is a need to copy other masks too.
+Before the FFT is performed, any masked pixels are set to values of zero. The
+output mask is the result of ANDing the default input pixel mask (if any) and
+the OTF mask.  Any other input pixel masks will not be copied.  The method
+maskhandler() can be used if there is a need to copy other masks.
 
 </description>
 
