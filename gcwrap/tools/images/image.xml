@@ -4289,22 +4289,19 @@ ia.close()
 
 <description>
 
-This function fast Fourier Transforms the supplied image to the Fourier plane.
-Both float valued and complex valued images are supported.
-If the {\stfaf axes} parameter is left unset, then the sky plane of the image (if
+This method fast Fourier Transforms the supplied image to the Fourier plane.
+If the axes parameter is left unset, then the direction plane of the image (if
 there is one) is transformed.  Otherwise, the user can specify which axes are
-to be transformed.  Note that if a sky axis is to be transformed, both of them
-must be specified.
+to be transformed.  Note that if the direction plane is to be transformed, both
+axes associated with it must be specified.
 
 The user specifies which form is desired in the result by specifying the
 desired output image file name(s).
 
-Before the FFT is performed, any masked pixels are set to values of zero.
-The output mask is the combination (logical OR) of the default input
-\pixelmask\ (if any) and the OTF mask.  Any other input \pixelmasks\
-will not be copied.  The function
-<link anchor="images:image.maskhandler.function">maskhandler</link> can be
-used if there is a need to copy other masks too.
+Before the FFT is performed, any masked pixels are set to values of zero. The
+output mask is the result of ANDing the default input pixel mask (if any) and
+the OTF mask.  Any other input pixel masks will not be copied.  The method
+maskhandler() can be used if there is a need to copy other masks.
 
 </description>
 
@@ -6421,8 +6418,15 @@ and acquire a readonly lock.
 
 This function combines the current image with another image to make
 a complex image.  The current image (i.e. that associated with this
-Image \tool\ is assumed to be the Real image).  You supply
-the Imaginary image; it must be disk-based at this time.
+Image must have real valued pixels).  The image used for generating the
+imaginary part of the pixel values is specified using the imag parameter, and
+it must persistent. The image attached to this tool and the image specified
+using the imag parameter must have the same precision, or else an exception
+will be thrown. If both are float precision, the resulting image will have
+float precision pixel values. If both are double precision, the resulting image
+will have double precision pixel values. The coordinate systems of the two
+input images must be conformant. The metadata written to the resulting image is
+copied from the image attached to this tool.
 
 </description>
 
