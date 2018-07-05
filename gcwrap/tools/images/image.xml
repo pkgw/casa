@@ -10592,7 +10592,7 @@ formatted as measures instead.
      <value>n</value>
      </param>
      <param type="bool" name="dovelocity">
-        <description>Compute corresponding spectral velocities?</description>
+        <description>Compute corresponding spectral velocities if format='m'?</description>
         <value>True</value>
      </param>
 </input>
@@ -10600,12 +10600,14 @@ formatted as measures instead.
 
 <description>
 
-This function converts between absolute pixel coordinate (0-rel)   
-and world (physical coordinate).
-
-This function is just a wrapper for the Coordsys \tool\ function
-<link anchor="images:coordsys.toworld.function">toworld</link> so see the documentation there
-for a description of the arguments and more examples. 
+This method converts between pixel and world coordinates. A variety of return
+formats is supported. If format='n', numerical values are returned.
+If format='q', values formatted as quantities are returned. If format='s',
+values formatted as strings are returned. If format='m', values formatted as
+measures are returned. If format='m', one can choose to have the corresponding
+velcocites of an extant spectral coordinate computed as well by specifyting
+dovelocity=True (dovelocity is ignored if format is not equal to 'm' or if the
+image does not have a spectral coordinate).
 
 </description>
 
