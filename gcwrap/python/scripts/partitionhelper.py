@@ -152,30 +152,30 @@ class convertToMMS():
         
         return mslist
 
-    def isItMS(self, dir):
+    def isItMS(self, mydir):
         '''Check the type of a directory.
-           dir  --> full path of a directory.
+           mydir  --> full path of a directory.
                 Returns 1 for an MS, 2 for a cal table and 3 for a MMS.
                 If 0 is returned, it means any other type or an error.'''
                 
         ret = 0
         
         # Listing of this directory
-        ldir = os.listdir(dir)
+        ldir = os.listdir(mydir)
         
         if not ldir.__contains__('table.info'): 
             return ret
                 
-        cmd1 = 'grep Type '+dir+'/table.info'
-        type = commands.getoutput(cmd1)
-        cmd2 = 'grep SubType '+dir+'/table.info'
+        cmd1 = 'grep Type '+mydir+'/table.info'
+        mytype = commands.getoutput(cmd1)
+        cmd2 = 'grep SubType '+mydir+'/table.info'
         stype = commands.getoutput(cmd2)
         
         # It is a cal table
-        if type.__contains__('Calibration'):
+        if mytype.__contains__('Calibration'):
             ret = 2
         
-        elif type.__contains__('Measurement'):
+        elif mytype.__contains__('Measurement'):
             # It is a Multi-MS
             if stype.__contains__('CONCATENATED'):
                 # Further check
@@ -212,11 +212,11 @@ class convertToMMS():
                 continue
             
             # Full path for directory
-            dir = os.path.join(topdir,d)
+            mydir = os.path.join(topdir,d)
             
-            # It is a Calibration
-            if self.isItMS(dir) == 2:
-                fileslist.append(dir)
+            # It is not an MS
+            if self.isItMS(mydir) != 1:
+                fileslist.append(mydir)
 
 
         # Get non-directory files        
@@ -226,8 +226,8 @@ class convertToMMS():
                 continue
             
             # Full path for file
-            file = os.path.join(topdir, f)
-            fileslist.append(file)
+            myfile = os.path.join(topdir, f)
+            fileslist.append(myfile)
             
         return fileslist
 
