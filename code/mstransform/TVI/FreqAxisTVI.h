@@ -177,13 +177,11 @@ protected:
 		return;
 	}
 
-	casacore::Bool parseConfiguration(const casacore::Record &configuration);
 	void initialize();
 
 	// Form spwInpChanIdxMap_p via calls to underlying Vii
-	void formSelectedChanMap();
+	void formChanMap();
 
-	casacore::String spwSelection_p;
 	mutable casacore::LogIO logger_p;
 	mutable map<casacore::Int,casacore::uInt > spwOutChanNumMap_p; // Must be accessed from const methods
 	mutable map<casacore::Int,vector<casacore::Int> > spwInpChanIdxMap_p; // Must be accessed from const methods
