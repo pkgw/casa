@@ -659,7 +659,7 @@ bool PlotMSPlot::updateDisplay() {
 
 				// set xconnector
 				String xconnector = display->xConnect();
-				bool connectorChanged = itsCache_->indexer(row,col).connect(xconnector);
+				bool connectorChanged = itsCache_->indexer(row,col).setConnect(xconnector);
 				if (connectorChanged)
 					plot->dataChanged();
 				if (xconnector == "none") {

@@ -493,13 +493,14 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                 }
                 if(drawLine && !mask && sameLine) {
                     if(drawMaskedLine && !samePen && !diffColorLine) p->setPen(m_line.asQPen());
-                    if(brect.contains(ix, iy) || brect.contains(ix2, iy2))
+                    if(brect.contains(ix, iy) || brect.contains(ix2, iy2)) {
                         if (m_step) {
                             p->drawLine(ix, iy, ix2, iy);
                             p->drawLine(ix2, iy, ix2, iy2);
                         } else {
                             p->drawLine(ix, iy, ix2, iy2);
                         }
+                    }
                 } else if(drawMaskedLine && mask && sameLine ) {
                     if(drawLine && !samePen && !diffColorLine) p->setPen(m_maskedLine.asQPen());
                     ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
