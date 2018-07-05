@@ -344,6 +344,21 @@ template <class T> void ImageTask<T>::_copyData(
     }
 }
 
+template <class T> casacore::Bool ImageTask<T>::_isPVImage() const {
+    const CoordinateSystem& csys = _image->coordinates();
+    if (csys.hasLinearCoordinate() && csys.hasSpectralAxis()) {
+        auto pixelAxes = csys.linearAxesNumbers();
+        auto nPixelAxes = pixelAxes.size();
+        auto names = csys.worldAxisNames();
+        for (uInt j=0; j<nPixelAxes; ++j) {
+            if (pixelAxes[j] >= 0 && names[pixelAxes[j]] == "Offset") {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 template <class T> SPIIT ImageTask<T>::_prepareOutputImage(
     const casacore::ImageInterface<T>& image, const casacore::Array<T> *const values,
     const casacore::ArrayLattice<casacore::Bool> *const mask,

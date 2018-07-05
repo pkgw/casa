@@ -70,49 +70,36 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
   SIImageStoreMultiTerm::SIImageStoreMultiTerm():SIImageStore()
   {
+    itsNTerms=0;
+
     itsPsfs.resize(0);
     itsModels.resize(0);
     itsResiduals.resize(0);
     itsWeights.resize(0);
     itsImages.resize(0);
     itsSumWts.resize(0);
-    itsPBs.resize(0);
     itsImagePBcors.resize(0);
-    itsMask.reset( );
-    itsGridWt.reset( );
+    itsPBs.resize(0);
     
     itsForwardGrids.resize(0);
     itsBackwardGrids.resize(0);
 
-    itsNTerms=0;
-
-    itsNFacets=1;
-    itsFacetId=0;
-    itsNChanChunks = 1;
-    itsChanId = 0;
-    itsNPolChunks = 1;
-    itsPolId = 0;
-
     itsUseWeight=false;
-
-    itsImageShape=IPosition(4,0,0,0,0);
-    itsImageName=String("");
-    itsCoordSys=CoordinateSystem();
-    itsMiscInfo=Record();
-
-    //    itsValidity = false;
 
     init();
 
     validate();
 
   }
-  
-  SIImageStoreMultiTerm::SIImageStoreMultiTerm(String imagename, 
-					       CoordinateSystem &imcoordsys, 
-					       IPosition imshape, 
+
+  // Used from SynthesisNormalizer::makeImageStore()
+  SIImageStoreMultiTerm::SIImageStoreMultiTerm(const String &imagename,
+					       const CoordinateSystem &imcoordsys,
+					       const IPosition &imshape,
+					       const String &objectname,
+					       const Record &miscinfo,
 					       const Int /*nfacets*/,
-					       const Bool /*overwrite*/, 
+					       const Bool /*overwrite*/,
 					       uInt ntaylorterms,
 					       Bool useweightimage)
   {
@@ -135,15 +122,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsForwardGrids.resize(itsNTerms);
     itsBackwardGrids.resize(2 * itsNTerms - 1);
 
-    //cout << "Input imshape : " << imshape << endl;
-
-    itsImageName = imagename;
-    itsImageShape = imshape;
-    itsCoordSys = imcoordsys;
-
     //    itsNFacets = nfacets;  // So that sumwt shape happens properly, via checkValidity
     //    itsFacetId = -1;
-
     itsNFacets=1;
     itsFacetId=0;
     itsNChanChunks = 1;
@@ -151,10 +131,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsNPolChunks = 1;
     itsPolId = 0;
 
+    itsImageName = imagename;
+    itsCoordSys = imcoordsys;
+    itsImageShape = imshape;
+    itsObjectName = objectname;
+    itsMiscInfo = miscinfo;
 
     itsUseWeight = useweightimage;
-
-    itsMiscInfo=Record();
 
     init();
 
@@ -162,7 +145,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  SIImageStoreMultiTerm::SIImageStoreMultiTerm(String imagename, uInt ntaylorterms,const Bool ignorefacets) 
+  // Used from SynthesisNormalizer::makeImageStore()
+  SIImageStoreMultiTerm::SIImageStoreMultiTerm(const String &imagename, uInt ntaylorterms,
+                                               const Bool ignorefacets)
   {
     LogIO os( LogOrigin("SIImageStoreMultiTerm","Open existing Images",WHERE) );
 
@@ -304,28 +289,32 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////Constructor with pointers already created else where but taken over here
-  SIImageStoreMultiTerm::SIImageStoreMultiTerm(Block<SHARED_PTR<ImageInterface<Float> > > modelims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >residims,
-					       Block<SHARED_PTR<ImageInterface<Float> > >psfims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >weightims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >restoredims,
-					       Block<SHARED_PTR<ImageInterface<Float> > >sumwtims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >pbims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >restoredpbcorims, 
-					       SHARED_PTR<ImageInterface<Float> > newmask,
-					       SHARED_PTR<ImageInterface<Float> > newalpha,
-					       SHARED_PTR<ImageInterface<Float> > newbeta,
-					       SHARED_PTR<ImageInterface<Float> > newalphaerror,
-					       SHARED_PTR<ImageInterface<Float> > newalphapbcor,
-					       SHARED_PTR<ImageInterface<Float> > newbetapbcor,
-					       CoordinateSystem& csys,
-					       IPosition imshape,
-					       String imagename,
+  // used from getSubImageStore(), for example when creating the facets list
+  // this would be safer if it was refactored as a copy constructor of the generic stuff +
+  // initialization of the facet related parameters
+  SIImageStoreMultiTerm::SIImageStoreMultiTerm(const Block<SHARED_PTR<ImageInterface<Float> > > &modelims,
+					       const Block<SHARED_PTR<ImageInterface<Float> > > &residims,
+					       const Block<SHARED_PTR<ImageInterface<Float> > > &psfims,
+					       const Block<SHARED_PTR<ImageInterface<Float> > > &weightims,
+					       const Block<SHARED_PTR<ImageInterface<Float> > > &restoredims,
+					       const Block<SHARED_PTR<ImageInterface<Float> > > &sumwtims,
+					       const Block<SHARED_PTR<ImageInterface<Float> > > &pbims,
+					       const Block<SHARED_PTR<ImageInterface<Float> > > &restoredpbcorims,
+					       const SHARED_PTR<ImageInterface<Float> > &newmask,
+					       const SHARED_PTR<ImageInterface<Float> > &newalpha,
+					       const SHARED_PTR<ImageInterface<Float> > &newbeta,
+					       const SHARED_PTR<ImageInterface<Float> > &newalphaerror,
+					       const SHARED_PTR<ImageInterface<Float> > &newalphapbcor,
+					       const SHARED_PTR<ImageInterface<Float> > &newbetapbcor,
+					       const CoordinateSystem& csys,
+					       const IPosition &imshape,
+					       const String &imagename,
+					       const String &objectname,
+					       const Record &miscinfo,
 					       const Int facet, const Int nfacets,
 					       const Int chan, const Int nchanchunks,
 					       const Int pol, const Int npolchunks)
   {
-    
     itsPsfs=psfims;
     itsModels=modelims;
     itsResiduals=residims;
@@ -351,6 +340,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     itsForwardGrids.resize( itsNTerms );
     itsBackwardGrids.resize( 2 * itsNTerms - 1 );
+
+    itsObjectName = objectname;
+    itsMiscInfo = miscinfo;
 
     itsNFacets = nfacets;
     itsFacetId = facet;
@@ -383,7 +375,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     itsMask.reset( );
 
-     validate();
+    validate();
 
   }
 
@@ -624,15 +616,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     accessImage( itsModels[term], itsParentModels[term], imageExts(MODEL)+".tt"+String::toString(term) );
 
-    // Set up header info the first time.
-    ImageInfo info = itsModels[term]->imageInfo();
-    String objectName("");
-    if( itsMiscInfo.isDefined("OBJECT") ){ itsMiscInfo.get("OBJECT", objectName); }
-    info.setObjectName(objectName);
-    itsModels[term]->setImageInfo( info );
-    itsModels[term]->setMiscInfo( itsMiscInfo );
     itsModels[term]->setUnits("Jy/pixel");
-
     return itsModels[term];
   }
 
@@ -761,7 +745,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIImageStoreMultiTerm::addImages( SHARED_PTR<SIImageStore> imagestoadd,
 					 Bool addpsf, Bool addresidual, Bool addweight, Bool adddensity)
   {
-
     for(uInt tix=0;tix<2*itsNTerms-1;tix++)
       {
 	
@@ -1306,12 +1289,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     os<<LogIO::POST;
 
   }
-  
+
   SHARED_PTR<SIImageStore> SIImageStoreMultiTerm::getSubImageStore(const Int facet, const Int nfacets, 
 							  const Int chan, const Int nchanchunks, 
 							  const Int pol, const Int npolchunks)
   {
-    return SHARED_PTR<SIImageStore>(new SIImageStoreMultiTerm(itsModels, itsResiduals, itsPsfs, itsWeights, itsImages, itsSumWts, itsPBs, itsImagePBcors, itsMask, itsAlpha, itsBeta, itsAlphaError,itsAlphaPBcor, itsBetaPBcor,  itsCoordSys,itsParentImageShape, itsImageName, facet, nfacets,chan,nchanchunks,pol,npolchunks));
+      std::shared_ptr<SIImageStore> multiTermStore =
+          std::make_shared<SIImageStoreMultiTerm>(itsModels, itsResiduals, itsPsfs, itsWeights, itsImages, itsSumWts, itsPBs, itsImagePBcors, itsMask, itsAlpha, itsBeta, itsAlphaError,itsAlphaPBcor, itsBetaPBcor,  itsCoordSys, itsParentImageShape, itsImageName, itsObjectName, itsMiscInfo, facet, nfacets, chan, nchanchunks, pol, npolchunks);
+      return multiTermStore;
   }
 
 

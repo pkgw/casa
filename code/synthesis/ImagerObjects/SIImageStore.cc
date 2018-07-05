@@ -139,10 +139,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  SIImageStore::SIImageStore(String imagename, 
-			     CoordinateSystem &imcoordsys, 
-			     IPosition imshape, 
-			     //			     const Int nfacets, 
+  // Used from SynthesisNormalizer::makeImageStore()
+  SIImageStore::SIImageStore(const String &imagename,
+			     const CoordinateSystem &imcoordsys,
+			     const IPosition &imshape,
+                             const String &objectname,
+                             const Record &miscinfo,
+			     //	const Int nfacets,
 			     const Bool /*overwrite*/,
 			     const Bool useweightimage)
   // TODO : Add parameter to indicate weight image shape. 
@@ -172,27 +175,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsPolId = 0;
 
     itsImageName = imagename;
-    itsImageShape = imshape;
     itsCoordSys = imcoordsys;
-
-    itsMiscInfo=Record();
+    itsImageShape = imshape;
+    itsObjectName = objectname;
+    itsMiscInfo = miscinfo;
 
     init();
 
     validate();
   }
 
-  SIImageStore::SIImageStore(String imagename,const Bool ignorefacets) 
+  // Used from SynthesisNormalizer::makeImageStore()
+  SIImageStore::SIImageStore(const String &imagename, const Bool ignorefacets)
   {
     LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
 
-    /*
-    init();
-    String fname( imagename + ".info" );
-    recreate( fname );
-    */
-
-   
     itsPsf.reset( );
     itsModel.reset( );
     itsResidual.reset( );
@@ -227,11 +224,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  {
 	    //	    imptr.reset( new PagedImage<Float> (itsImageName+String(".psf")) );
 	    buildImage( imptr, (itsImageName+String(".psf")) );
+            itsObjectName=imptr->imageInfo().objectName();
 	    itsMiscInfo=imptr->miscInfo();
 	  }
 	else if ( doesImageExist(itsImageName+String(".residual")) ){
 	  //imptr.reset( new PagedImage<Float> (itsImageName+String(".residual")) );
 	  buildImage( imptr, (itsImageName+String(".residual")) );
+          itsObjectName=imptr->imageInfo().objectName();
 	  itsMiscInfo=imptr->miscInfo();
 	}
 	else
@@ -282,19 +281,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     validate();
   }
 
-  SIImageStore::SIImageStore(SHARED_PTR<ImageInterface<Float> > modelim, 
-			     SHARED_PTR<ImageInterface<Float> > residim,
-			     SHARED_PTR<ImageInterface<Float> > psfim, 
-			     SHARED_PTR<ImageInterface<Float> > weightim, 
-			     SHARED_PTR<ImageInterface<Float> > restoredim, 
-			     SHARED_PTR<ImageInterface<Float> > maskim,
-			     SHARED_PTR<ImageInterface<Float> > sumwtim,
-			     SHARED_PTR<ImageInterface<Float> > gridwtim,
-			     SHARED_PTR<ImageInterface<Float> > pbim,
-			     SHARED_PTR<ImageInterface<Float> > restoredpbcorim,
-			     CoordinateSystem& csys,
-			     IPosition imshape,
-			     String imagename,
+  // used from getSubImageStore(), for example when creating the facets list
+  // this would be safer if it was refactored as a copy constructor of the generic stuff +
+  // initialization of the facet related parameters
+  SIImageStore::SIImageStore(const SHARED_PTR<ImageInterface<Float> > &modelim,
+			     const SHARED_PTR<ImageInterface<Float> > &residim,
+			     const SHARED_PTR<ImageInterface<Float> > &psfim,
+			     const SHARED_PTR<ImageInterface<Float> > &weightim,
+			     const SHARED_PTR<ImageInterface<Float> > &restoredim,
+			     const SHARED_PTR<ImageInterface<Float> > &maskim,
+			     const SHARED_PTR<ImageInterface<Float> > &sumwtim,
+			     const SHARED_PTR<ImageInterface<Float> > &gridwtim,
+			     const SHARED_PTR<ImageInterface<Float> > &pbim,
+			     const SHARED_PTR<ImageInterface<Float> > &restoredpbcorim,
+			     const CoordinateSystem &csys,
+			     const IPosition &imshape,
+			     const String &imagename,
+			     const String &objectname,
+			     const Record &miscinfo,
 			     const Int facet, const Int nfacets,
 			     const Int chan, const Int nchanchunks,
 			     const Int pol, const Int npolchunks,
@@ -315,6 +319,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsImagePBcor=restoredpbcorim;
 
     itsPBScaleFactor=1.0;// No need to set properly here as it will be computed in makePSF.
+
+    itsObjectName = objectname;
+    itsMiscInfo = miscinfo;
 
     itsNFacets = nfacets;
     itsFacetId = facet;
@@ -413,7 +420,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 							  const Int chan, const Int nchanchunks, 
 							  const Int pol, const Int npolchunks)
   {
-    return SHARED_PTR<SIImageStore>(new SIImageStore(itsModel, itsResidual, itsPsf, itsWeight, itsImage, itsMask, itsSumWt, itsGridWt, itsPB, itsImagePBcor, itsCoordSys,itsImageShape, itsImageName, facet, nfacets,chan,nchanchunks,pol,npolchunks,itsUseWeight));
+    return std::make_shared<SIImageStore>(itsModel, itsResidual, itsPsf, itsWeight, itsImage, itsMask, itsSumWt, itsGridWt, itsPB, itsImagePBcor, itsCoordSys, itsImageShape, itsImageName, itsObjectName, itsMiscInfo, facet, nfacets, chan, nchanchunks, pol, npolchunks, itsUseWeight);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -577,24 +584,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return imPtr;
   }
 
-
-  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr,IPosition shape, CoordinateSystem csys, String name)
+  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, IPosition shape,
+                                CoordinateSystem csys, const String name)
   {
-
-    //    LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
-    //    os  <<"Opening new image " << name << LogIO::POST;
+    LogIO os( LogOrigin("SIImageStore", "Open non-existing image", WHERE) );
+    os  <<"Opening image, name: " << name << LogIO::DEBUG1;
 
     itsOpened++;
     imptr.reset( new PagedImage<Float> (shape, csys, name) );
-    
-    ImageInfo info = imptr->imageInfo();
-    String objectName("");
-    if( itsMiscInfo.isDefined("OBJECT") ){ itsMiscInfo.get("OBJECT", objectName); }
-    if(objectName != String("")){
-      info.setObjectName(objectName);
-      imptr->setImageInfo( info );
-    }
-    imptr->setMiscInfo( itsMiscInfo );
+    initMetaInfo(imptr, name);
+
     /*
     Int MEMFACTOR = 18;
     Double memoryMB=HostInfo::memoryTotal(True)/1024/(MEMFACTOR*itsOpened);
@@ -610,11 +609,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     */
   }
 
-  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, String name)
+  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, const String name)
   {
-
-    //    LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
-    //    os  <<"Opening existing image " << name << LogIO::POST;
+    LogIO os(LogOrigin("SIImageStore", "Open existing Images", WHERE));
+    os  <<"Opening image, name: " << name << LogIO::DEBUG1;
 
     itsOpened++;
     //imptr.reset( new PagedImage<Float>( name ) );
@@ -660,12 +658,40 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
+  /**
+   * Sets ImageInfo and MiscInfo on an image
+   *
+   * @param imptr image to initialize
+   */
+  void SIImageStore::initMetaInfo(SHARED_PTR<ImageInterface<Float> > &imptr,
+                                  const String name)
+  {
+      // Check objectname, as one of the mandatory fields. What this is meant to check is -
+      // has the metainfo been initialized? If not, grab info from associated PSF
+      if (not itsObjectName.empty()) {
+          ImageInfo info = imptr->imageInfo();
+          info.setObjectName(itsObjectName);
+          imptr->setImageInfo(info);
+          imptr->setMiscInfo(itsMiscInfo);
+      } else if (std::string::npos == name.find(imageExts(PSF))) {
+          auto srcImg = psf(0);
+          if (nullptr != srcImg) {
+              imptr->setImageInfo(srcImg->imageInfo());
+              imptr->setMiscInfo(srcImg->miscInfo());
+          }
+      }
+  }
 
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  void SIImageStore::setImageInfo(const Record miscinfo)
+  void SIImageStore::setMiscInfo(const Record miscinfo)
   {
     itsMiscInfo = miscinfo;
+  }
+
+  void SIImageStore::setObjectName(const String name)
+  {
+    itsObjectName = name;
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

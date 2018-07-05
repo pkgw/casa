@@ -13,6 +13,7 @@
 namespace casacore{
 
 	class GaussianBeam;
+	class ImageBeamSet;
 	class ImageRegion;
 	class LogIO;
 	template<class T> class ImageStatistics;
@@ -28,6 +29,7 @@ namespace casa {
 	class ImageStatsCalculator;
 
 	template<class T> class ImageHistograms;
+	template<class T> class ImageMetaData;
 	template<class T> class ImageRegridderBase;
 	class SkyComponent;
 }

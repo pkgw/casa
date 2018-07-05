@@ -3514,11 +3514,11 @@ namespace casa {
 				//Calculate h nu/ k T where h is Plank's constant, k is boltzman's constant
 				//nu is observing frequency and T is the maximum temperature.
 				pair<double,double> freqTempPair = getMaximumTemperature( );
-				double proportion = ( QC::h.getValue() * freqTempPair.first ) / ( QC::k.getValue() * freqTempPair.second );
+				double proportion = ( QC::h( ).getValue() * freqTempPair.first ) / ( QC::k( ).getValue() * freqTempPair.second );
 				const float RATIO_THRESHOLD = 0.1;
 				if ( proportion > RATIO_THRESHOLD ) {
 					//Calculate the Kelvin threshold 5 h nu / kB
-					double kelvinThreshold = ( 5 * QC::h.getValue() * freqTempPair.first ) / QC::k.getValue();
+					double kelvinThreshold = ( 5 * QC::h( ).getValue() * freqTempPair.first ) / QC::k( ).getValue();
 					QString msg( "Warning: Brightness was calculated using the Raleigh Jeans approximation.  For source temperatures < " );
 					msg.append( QString::number(kelvinThreshold));
 					msg.append( " K errors are >~10%");
