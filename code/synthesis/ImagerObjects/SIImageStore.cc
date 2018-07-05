@@ -1951,7 +1951,7 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
     return itsPSFBeams; 
   }
 
-  void SIImageStore::printBeamSet()
+  void SIImageStore::printBeamSet(Bool verbose)
   {
     LogIO os( LogOrigin("SIImageStore","printBeamSet",WHERE) );
     AlwaysAssert( itsImageShape.nelements() == 4, AipsError );
@@ -1965,7 +1965,8 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 	// TODO : Enable this, when this function doesn't complain about 0 rest freq.
 	//                                 or when rest freq is never zero !
 	try{
-		itsPSFBeams.summarize( os, False, itsCoordSys );
+		//itsPSFBeams.summarize( os, False, itsCoordSys );
+		itsPSFBeams.summarize( os, verbose, itsCoordSys );
 	}
 	catch(AipsError &x)
 	  {
@@ -2029,6 +2030,8 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 	  }
       }
 
+    // toggle for printing common beam to the log 
+    Bool printcommonbeam(False);
     //// Modify the beamset if needed
     //// if ( rbeam is Null and usebeam=="" ) Don't do anything.
     //// If rbeam is Null but usebeam=='common', calculate a common beam and set 'rbeam'
@@ -2036,6 +2039,8 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
     if( rbeam.isNull() && usebeam=="common") {
       os << "Getting common beam" << LogIO::POST;
       rbeam = CasaImageBeamSet(itsPSFBeams).getCommonBeam();
+      os << "Common Beam : " << rbeam.getMajor(Unit("arcsec")) << " arcsec, " << rbeam.getMinor(Unit("arcsec"))<< " arcsec, " << rbeam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
+      printcommonbeam=True;
     }
     if( !rbeam.isNull() ) {
       /*for( Int chanid=0; chanid<nchan;chanid++) {
@@ -2047,8 +2052,12 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
       */
       itsRestoredBeams=ImageBeamSet(rbeam);
       GaussianBeam beam = itsRestoredBeams.getBeam();
-      os << "Common Beam : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
-
+     
+      //if commonbeam has not printed in the log
+      if (!printcommonbeam) {
+        os << "Common Beam : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
+      printcommonbeam=True; // to avoid duplicate the info is printed to th elog
+      }
     }// if rbeam not NULL
     //// Done modifying beamset if needed
 
@@ -2059,7 +2068,6 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
     if(emptymodel) os << LogIO::WARN << "Restoring with an empty model image. Only residuals will be processed to form the output restored image." << LogIO::POST;
     
     //// Use beamset to restore
-    Bool printcommonbeam(False);
     for( Int chanid=0; chanid<nchan;chanid++) {
       for( Int polid=0; polid<npol; polid++ ) {
 	
@@ -2074,9 +2082,9 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 	GaussianBeam beam = itsRestoredBeams.getBeam( chanid, polid );;
 
 	//os << "Common Beam for chan : " << chanid << " : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
-        if(!printcommonbeam) {
-	  os << "Common Beam : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
-          printcommonbeam=True;
+        // only print per-chan beam if the common beam is not used for restoring beam
+        if(!printcommonbeam) { 
+	  os << "Beam for chan : " << chanid << " : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
         }
 
 	try
