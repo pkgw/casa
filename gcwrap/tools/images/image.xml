@@ -10481,10 +10481,9 @@ ia.toASCII('myfile2.ascii',overwrite=true)
   
 <description>
 
-You can convert an associated image to a record for manipulation or passing it to inputs of other function of other tools.
-This and fromrecord are used for serialization and deserialization.
-
-<!--These functions are not for general user use.-->
+You can convert an associated image to a record for manipulation or passing it
+to inputs of other methods of other tools. This method and fromrecord() are used
+for serialization and deserialization.
 
 </description>
 
