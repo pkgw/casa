@@ -55,6 +55,7 @@ asteroids = {'ceres':        1,
 
 planets_and_moons = {'mercury':    199,
                      'venus':      299,
+                     'moon':301,
                      'mars':       499,
                      'phobos':     401,
                      'deimos':     402,
@@ -128,6 +129,7 @@ planets_and_moons = {'mercury':    199,
                      # 'hydra':      903 Unknown radius, 2010
 }
 
+# defaults 
 should_have_orientation = ['mars', 'deimos', 'phobos', 'vesta', 'jupiter', 'io',
                            'janus', 'enceladus', 'mimas', 'iapetus',
                            'phoebe', 'tethys', 'uranus', 'ariel', 'miranda',
@@ -151,7 +153,8 @@ default_date_incrs = {
     'mimas': '0.2d',
     'miranda': '0.25 d',
     'phobos': '0.05d',
-    'tethys': '0.4d'
+    'tethys': '0.4d',
+    'moon': '1 h'
     }
 
 def request_from_JPL(objnam, enddate,

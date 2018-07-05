@@ -23,21 +23,27 @@
 #ifndef SYNTHESIS_SIITERBOT
 #define SYNTHESIS_SIITERBOT
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/utilities/BusAccess.h>
+#else
+#include <stdcasa/variant.h>
+#endif
 // .casarc interface
 #include <casa/System/AipsrcValue.h>
 
 // System utilities (for profiling macros)
 #include <casa/OS/HostInfo.h>
 #include <sys/time.h>
+#if ! defined(WITHOUT_DBUS)
 #if defined(DBUS_CPP)
 #include <dbus-cpp/dbus.h> /*for DBus::Variant... probably can be removed with *_adaptor class*/
 #else
 #include <dbus-c++/dbus.h>
 #endif
-
+#endif
 
 // Boost Libraries for mutex and noncopyable semantics
+#include <map>
 #include <mutex>
 #include <condition_variable>
 
@@ -193,16 +199,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			std::string getDescription( );
 			void setDescription( const std::string &value );
 
+#if defined(WITHOUT_DBUS)
+            std::map<std::string,casac::variant> getDetails( );
+            casac::variant getSummary();
+			void controlUpdate(const std::map<std::string, casac::variant>& parameters);
+#else
 #ifdef INTERACTIVE_ITERATION
 			std::map<std::string,DBus::Variant> getDetails();
-#endif
-			DBus::Variant getSummary();
-    
-			void interactionComplete();
-
-#ifdef INTERACTIVE_ITERATION
 			void controlUpdate(const std::map<std::string, DBus::Variant>& parameters);
 #endif
+			DBus::Variant getSummary();
+#endif
+			void interactionComplete();
+
 			//// START /// Functions for runtime parameter modification
 
 			/* Methods to get the state of the iterbot as a casacore::Record*/
@@ -300,7 +309,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	};
 
 	class SIIterBot_adaptor
-#ifdef INTERACTIVE_ITERATION
+#if defined(INTERACTIVE_ITERATION) && ! defined(WITHOUT_DBUS)
 		: private dbus::address,
 		  private edu::nrao::casa::SynthesisImager_adaptor,
 		  public DBus::IntrospectableAdaptor,
@@ -321,7 +330,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					(void)val;  // To get the compiler to not warn...
 #endif
 				}
-				void controlUpdate(const std::map< std::string, ::DBus::Variant >& newParams)
+#if defined(WITHOUT_DBUS)
+          void controlUpdate(const std::map< std::string, casac::variant >& newParams)
+											{
+												state->controlUpdate(newParams);
+											}
+#else
+          void controlUpdate(const std::map< std::string, ::DBus::Variant >& newParams)
 											{
 #ifdef INTERACTIVE_ITERATION
 												state->controlUpdate(newParams);
@@ -330,6 +345,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 											       
 #endif
 											}
+#endif
 				void interactionComplete( )
 											{ state->interactionComplete( ); }
 				void changePauseFlag(const bool& pauseState)
@@ -340,6 +356,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 											{ state->changeInteractiveMode(interactiveMode); }
 				std::string getDescription( )
 											{ return state->getDescription( ); }
+#if defined(WITHOUT_DBUS)
+				std::map< std::string, casac::variant > getDetails( )
+											{
+												return state->getDetails( );
+											}
+				casac::variant getSummary( )
+											{ return state->getSummary( ); }
+
+#else
 				std::map< std::string, ::DBus::Variant > getDetails( )
 											{
 #ifdef INTERACTIVE_ITERATION
@@ -351,6 +376,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				::DBus::Variant getSummary( )
 											{ return state->getSummary( ); }
 
+#endif
 			private:
 				SHARED_PTR<SIIterBot_state> state;
 

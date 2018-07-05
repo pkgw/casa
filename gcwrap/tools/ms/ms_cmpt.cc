@@ -5917,7 +5917,7 @@ bool ms::contsub(const std::string& outputms,    const ::casac::variant& fitspw,
     return rstat;
 }
 
-bool ms::statwt(const bool dorms,                const bool /*byantenna*/,
+bool ms::oldstatwt(const bool dorms,                const bool /*byantenna*/,
                 const bool /*sepacs*/,               const ::casac::variant& fitspw,
                 const ::casac::variant& /*fitcorr*/, const std::string& combine,
                 const ::casac::variant& timebin, const int minsamp,
@@ -5930,7 +5930,7 @@ bool ms::statwt(const bool dorms,                const bool /*byantenna*/,
     Bool rstat(false);
 
     try {
-        *itsLog << LogOrigin("ms", "statwt");
+        *itsLog << LogOrigin("ms", __func__);
 
         Reweighter reweighter(itsMS->tableName(), dorms, minsamp);
 
@@ -6295,7 +6295,7 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
     return rstat;
 }
 
-record* ms::statwt2(
+record* ms::statwt(
     const string& combine, const casac::variant& timebin,
     bool slidetimebin, const casac::variant& chanbin,
     int minsamp, const string& statalg, double fence,

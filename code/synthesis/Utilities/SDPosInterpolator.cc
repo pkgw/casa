@@ -84,6 +84,14 @@ void SDPosInterpolator::setup(const Vector<Vector<Double> >& time,
       
     calcSplineCoeff(timePointing(i), dirPointing(i), splineCoeff(i));
   }
+
+  //(3) keep time range
+  timeRangeStart.resize(nant);
+  timeRangeEnd.resize(nant);
+  for (Int iant = 0; iant < nant; ++iant) {
+    timeRangeStart(iant) = timePointing(iant)(0);
+    timeRangeEnd(iant)   = timePointing(iant)(timePointing(iant).nelements()-1);
+  }
 }
 
 void SDPosInterpolator::setup(const VisBuffer& vb, const String& pointingDirCol_p) {
@@ -170,6 +178,14 @@ void SDPosInterpolator::setup(const VisBuffer& vb, const String& pointingDirCol_
     
     calcSplineCoeff(timePointing(i), dirPointing(i), splineCoeff(i));
   }
+
+  //(3) keep time range
+  timeRangeStart.resize(nant);
+  timeRangeEnd.resize(nant);
+  for (Int iant = 0; iant < nant; ++iant) {
+    timeRangeStart(iant) = timePointing(iant)(0);
+    timeRangeEnd(iant)   = timePointing(iant)(timePointing(iant).nelements()-1);
+  }
 }
 
 void SDPosInterpolator::setup(const vi::VisBuffer2& vb, const String& pointingDirCol_p) {
@@ -255,6 +271,14 @@ void SDPosInterpolator::setup(const vi::VisBuffer2& vb, const String& pointingDi
     }
 
     calcSplineCoeff(timePointing(i), dirPointing(i), splineCoeff(i));
+  }
+
+  //(3) keep time range
+  timeRangeStart.resize(nant);
+  timeRangeEnd.resize(nant);
+  for (Int iant = 0; iant < nant; ++iant) {
+    timeRangeStart(iant) = timePointing(iant)(0);
+    timeRangeEnd(iant)   = timePointing(iant)(timePointing(iant).nelements()-1);
   }
 }
 
@@ -363,6 +387,14 @@ MDirection SDPosInterpolator::interpolateDirectionMeasSpline(const ROMSPointingC
 
 Vector<Vector<Vector<Vector<Double> > > > SDPosInterpolator::getSplineCoeff() {
   return splineCoeff;
+}
+
+Bool SDPosInterpolator::inTimeRange(const Double& time, const Int& antid) {
+  Bool inrange = false;
+  if ((timeRangeStart(antid) <= time) && (time <= timeRangeEnd(antid))) {
+    inrange = true;
+  }
+  return inrange;
 }
 
 } //#End casa namespace

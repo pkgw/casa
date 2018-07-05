@@ -180,6 +180,13 @@ public:
   };
   virtual casacore::Bool isUsingCFCache() {casacore::Bool v=false; if (subftms_p.nelements() > 0) v=subftms_p[0]->isUsingCFCache(); return v;};
 
+  // set a moving source aka planets or comets =>  adjust phase center
+  // on the fly for gridding 
+  virtual void setMovingSource(const casacore::String& sourcename, const casacore::String& ephemtable="");
+  virtual void setMovingSource(const casacore::MDirection& mdir);
+  // set and get the location used for frame 
+  virtual void setLocation(const casacore::MPosition& loc);
+  
 protected:
   // have to call the initmaps of subftm
   virtual void initMaps(const vi::VisBuffer2& vb);
