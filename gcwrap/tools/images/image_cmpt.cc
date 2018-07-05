@@ -1166,8 +1166,7 @@ template <class T> coordsys* image::_coordsys(
     }
     ImageMetaData<T> imd(image);
     auto csys =  imd.coordsys(myAxes);
-    std::unique_ptr<casac::coordsys> rstat;
-    rstat.reset(new ::casac::coordsys());
+    std::unique_ptr<casac::coordsys> rstat(new ::casac::coordsys());
     rstat->setcoordsys(csys);
     return rstat.release();
 }
@@ -5987,19 +5986,13 @@ record* image::topixel(const variant& value) {
         if (_detached()) {
             return nullptr;
         }
-        _notSupported(__func__);
-        auto cSys = _imageF
-            ? _imageF->coordinates()
-            : _imageC->coordinates();
-        casac::coordsys mycoords;
         //NOT using _image->toworld as most of the math is in casac namespace
         //in coordsys...should revisit this when casac::coordsys is cleaned
-        mycoords.setcoordsys(cSys);
-        return mycoords.topixel(value);
+        return coordsys()->topixel(value);
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return nullptr;

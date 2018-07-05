@@ -10538,14 +10538,12 @@ a script to make sure this variable is an Image
 
 <description>
 
-This function converts from absolute world to pixel coordinate (0-rel). 
-The world coordinate can be provided in many formats (numeric, string,
-quantum etc.) via the argument {\stfaf value}.  These match the output
-formats of function <link anchor="images:image.toworld.function">toworld</link>. 
+This method converts from world to pixel coordinates. The world coordinate can
+be provided in many formats (numeric, string, quantum etc.) via the value
+parameter.  These match the output of the toworld() method. 
 
-This function is just a wrapper for the Coordsys \tool\ function
-<link anchor="images:coordsys.topixel.function">topixel</link> so see the documentation there
-for a description and more examples. 
+This function is just a wrapper for the coordsys tool method of the same name,
+so see that documentation for a description and more examples. 
 
 </description>
 
