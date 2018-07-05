@@ -91,7 +91,7 @@ void ChannelAverageTVICompareTest::initReferenceConfiguration(Record &configurat
 // -----------------------------------------------------------------------
 ChannelAverageTVICompareTest::ChannelAverageTVICompareTest(): FreqAxisTVITest ()
 {
-	inpFile_p = String("Four_ants_3C286.ms");
+	  inpFile_p = String("Four_ants_3C286.ms");
     testFile_p = String("Four_ants_3C286.ms.test");
     referenceFile_p = String("Four_ants_3C286.ms.ref");
 
@@ -99,7 +99,7 @@ ChannelAverageTVICompareTest::ChannelAverageTVICompareTest(): FreqAxisTVITest ()
     configuration.define ("spw", "1:8~63,4:16~63");
     configuration.define ("chanbin", 8);
 
-	init(configuration);
+    init(configuration);
 }
 
 // -----------------------------------------------------------------------
@@ -107,7 +107,7 @@ ChannelAverageTVICompareTest::ChannelAverageTVICompareTest(): FreqAxisTVITest ()
 // -----------------------------------------------------------------------
 ChannelAverageTVICompareTest::ChannelAverageTVICompareTest(Record configuration): FreqAxisTVITest(configuration)
 {
-	init(configuration);
+    init(configuration);
 }
 
 // -----------------------------------------------------------------------
@@ -501,25 +501,19 @@ void ChannelAverageTVISpwChannTest::createTVIs()
     std::unique_ptr<ChannelAverageTVILayerFactory> chanAvgFac;
     casacore::Record configuration;
     configuration.define ("chanbin", 5);
-    //configuration.define ("spw", "0:1;3;5;7;9");
     chanAvgFac.reset(new ChannelAverageTVILayerFactory(configuration));
 
     //Create a layered factory with all the layers of factories
     //If requested a PassThroughTVI is added to test that ChannelAverage
     //forwards properly all the information to layers above
-    size_t nFac = 2;
-    if(addPassThroughTVI_p)
-        nFac++;
-    if(addExtraAvgTVI_p)
-        nFac++;
-    std::vector<ViiLayerFactory*> factories(nFac);
-    factories[0]= diskItFac.get();
-    factories[1]= chanAvgFac.get();
+    std::vector<ViiLayerFactory*> factories;
+    factories.push_back(diskItFac.get());
+    factories.push_back(chanAvgFac.get());
     std::unique_ptr<PassThroughTVILayerFactory> passThroughFactory;
     if(addPassThroughTVI_p)
     {
         passThroughFactory.reset(new PassThroughTVILayerFactory());
-        factories[2]= passThroughFactory.get();
+        factories.push_back(passThroughFactory.get());
     }
     //Add a second averaging layer if requested
     std::unique_ptr<ChannelAverageTVILayerFactory> chanAvgFac2;
@@ -531,7 +525,7 @@ void ChannelAverageTVISpwChannTest::createTVIs()
         chanArr[1] = 5;
         configuration2.define ("chanbin", chanArr);
         chanAvgFac2.reset(new ChannelAverageTVILayerFactory(configuration2));
-        factories[3]= chanAvgFac2.get();
+        factories.push_back(chanAvgFac2.get());
     }
     
     //Finally create the VI resulting from all the layered TVIs
