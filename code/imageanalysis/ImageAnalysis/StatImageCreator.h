@@ -9,7 +9,7 @@
 
 namespace casa {
 
-class StatImageCreator : public ImageStatsConfigurator {
+class StatImageCreator : public ImageStatsConfigurator<Float> {
 	// <summary>
 	// Create a "statistic" image from an image.
 	// </summary>

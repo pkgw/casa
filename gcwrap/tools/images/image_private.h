@@ -35,7 +35,8 @@ casa::SPIIC _imageC = casa::SPIIC();
 casa::SPIID _imageD = casa::SPIID();
 casa::SPIIDC _imageDC = casa::SPIIDC();
 
-std::auto_ptr<casa::ImageStatsCalculator> _stats;
+std::auto_ptr<casa::ImageStatsCalculator<casacore::Float>> _statsF;
+std::auto_ptr<casa::ImageStatsCalculator<casacore::Double>> _statsD;
 
 static const casacore::String _class;
 

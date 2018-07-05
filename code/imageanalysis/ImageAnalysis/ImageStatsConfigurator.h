@@ -43,7 +43,10 @@ namespace casa {
 
 class C11Timer;
 
-class ImageStatsConfigurator: public ImageTask<casacore::Float> {
+template <class T> class ImageStatsConfigurator: public ImageTask<T> {
+    // TODO This class was useful at some point, but I suspect it can now
+    // be refactored into ImageStatsCalculator.
+
     // <summary>
     // This adds configuration methods for statistics classes.
     // </summary>
@@ -80,7 +83,9 @@ public:
 
     void configureBiweight(casacore::Int maxIter);
 
-    void configureChauvenet(casacore::Double zscore, casacore::Int maxIterations);
+    void configureChauvenet(
+        casacore::Double zscore, casacore::Int maxIterations
+    );
 
     void configureClassical(PreferredClassicalAlgorithm p);
 
@@ -105,7 +110,7 @@ protected:
         // fit to half data portion to use
         casacore::FitToHalfStatisticsData::USE_DATA ud;
         // fit to half center value
-        casacore::Float cv;
+        T cv;
         // Chauvenet zscore
         casacore::Double zs;
         // Chauvenet/Biweight max iterations
@@ -113,7 +118,7 @@ protected:
     };
 
     ImageStatsConfigurator(
-        const SPCIIF image,
+        const SPCIIT image,
         const casacore::Record *const &regionPtr,
         const casacore::String& maskInp,
         const casacore::String& outname="",
@@ -122,7 +127,7 @@ protected:
 
     casacore::String _configureAlgorithm();
 
-    std::unique_ptr<casacore::ImageStatistics<casacore::Float> >& _getImageStats() {
+    std::unique_ptr<casacore::ImageStatistics<T>>& _getImageStats() {
         return _statistics;
     }
 
@@ -134,15 +139,22 @@ protected:
         return _algConf;
     }
 
-    void _resetStats(ImageStatistics<Float>* stat=nullptr) { _statistics.reset(stat); }
+    void _resetStats(ImageStatistics<T>* stat=nullptr) {
+        _statistics.reset(stat);
+    }
 
 private:
 
-    std::unique_ptr<casacore::ImageStatistics<casacore::Float> > _statistics;
+    std::unique_ptr<casacore::ImageStatistics<T>> _statistics;
     AlgConf _algConf;
     PreferredClassicalAlgorithm _prefClassStatsAlg;
 
 };
+
 }
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <imageanalysis/ImageAnalysis/ImageStatsConfigurator.tcc>
+#endif
 
 #endif

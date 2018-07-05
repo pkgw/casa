@@ -279,7 +279,8 @@ bool image::addnoise(
         vector<String> names { "type", "pars", "region", "zeroit", "seeds" };
         vector<variant> values { type, pars, region, zeroIt, seeds };
         _addHistory(__func__, names, values);
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         return true;
     }
     catch (const AipsError& x) {
@@ -537,7 +538,8 @@ bool image::calc(const std::string& expr, bool verbose) {
         vector<String> names = {"expr", "verbose"};
         vector<variant> values = {expr, verbose};
         _addHistory(__func__, names, values);
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         return true;
     }
     catch (const AipsError& x) {
@@ -3146,7 +3148,8 @@ bool image::insert(
             infile, region, locate, verbose
         };
         _addHistory(__func__, names, values);
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         return true;
     }
     catch (const AipsError& x) {
@@ -3383,7 +3386,7 @@ image* image::deviation(
         StatImageCreator sic(_imageF, myreg.get(), mask, outfile, overwrite);
         mystatalg.downcase();
         if (mystatalg.startsWith("cl")) {
-            sic.configureClassical(ImageStatsConfigurator::AUTO);
+            sic.configureClassical(ImageStatsConfigurator<Float>::AUTO);
         }
         else if (mystatalg.startsWith("ch")) {
             sic.configureChauvenet(zscore, maxiter);
@@ -3492,13 +3495,14 @@ vector<string> image::maskhandler(
             vector<String> names {"op", "name"};
             vector<variant> values {op, name};
             _addHistory(__func__, names, values);
-            _stats.reset();
+            _statsF.reset();
+            _statsD.reset();
         }
         return res;
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return vector<string>();
@@ -3620,7 +3624,8 @@ bool image::modify(
         ci.setSubtract(subtract);
         ci.setStretch(stretch);
         ci.modify(list);
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         vector<String> names {
             "model", "region", "mask",
             "subtract", "list", "stretch"
@@ -4319,7 +4324,8 @@ bool image::putregion(
             ThrowCc("Logic error")
         }
         if (ret) {
-            _stats.reset(0);
+            _statsF.reset();
+            _statsD.reset();
             vector<String> names {
                 "pixels", "pixelmask", "region",
                 "list", "usemask", "replicate"
@@ -4946,7 +4952,8 @@ bool image::rename(const string& name, bool overwrite) {
             return false;
         }
         _notSupported(__func__);
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         auto oldName = this->name(False);
         if (_imageF) {
             auto myimage = _imageF;
@@ -5005,7 +5012,8 @@ bool image::replacemaskedpixels(
             impr.replace(pixels.toString(), updateMask, list);
             _imageC = mycomplex;
         }
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         vector<String> names = {
             "pixels", "region", "mask", "update",
             "list", "stretch"
@@ -5269,7 +5277,8 @@ bool image::set(
                 _imageF, pixels, pixelmask, *pRegion, list
             )
         ) {
-            _stats.reset(nullptr);
+            _statsF.reset();
+            _statsD.reset();
             if (_doHistory) {
                 vector<String> names = {
                     "pixels", "pixelmask", "region", "list"
@@ -5307,7 +5316,8 @@ bool image::setbrightnessunit(const std::string& unit) {
             vector<variant> values = {unit};
             _addHistory(__func__, names, values);
         }
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         return true;
     }
     catch (const AipsError& x) {
@@ -5644,21 +5654,21 @@ record* image::statistics(
                 << _name(true) << LogIO::POST;
         }
         Record ret;
-        if (force || _stats.get() == 0) {
-            _stats.reset(
-                new ImageStatsCalculator(
+        if (force || ! _statsF.get()) {
+            _statsF.reset(
+                new ImageStatsCalculator<Float>(
                     _imageF, regionRec.get(), mtmp, verbose
                 )
             );
         }
         else {
-            _stats->setMask(mtmp);
-            _stats->setRegion(regionRec ? *regionRec : Record());
+            _statsF->setMask(mtmp);
+            _statsF->setRegion(regionRec ? *regionRec : Record());
         }
         String myalg = algorithm;
         myalg.downcase();
         if (myalg.startsWith("b")) {
-            _stats->configureBiweight(niter);
+            _statsF->configureBiweight(niter);
             if (robust) {
                 _log << LogIO::WARN << "The biweight algorithm "
                     << "does not support computation of quantile-like "
@@ -5669,25 +5679,25 @@ record* image::statistics(
             }
         }
         else if (myalg.startsWith("ch")) {
-            _stats->configureChauvenet(zscore, maxiter);
+            _statsF->configureChauvenet(zscore, maxiter);
         }
         else if (myalg.startsWith("cl")) {
             String mymethod = clmethod;
             mymethod.downcase();
-            ImageStatsCalculator::PreferredClassicalAlgorithm method;
+            ImageStatsCalculator<Float>::PreferredClassicalAlgorithm method;
             if (mymethod.startsWith("a")) {
-                method = ImageStatsCalculator::AUTO;
+                method = ImageStatsCalculator<Float>::AUTO;
             }
             else if (mymethod.startsWith("t")) {
-                method = ImageStatsCalculator::TILED_APPLY;
+                method = ImageStatsCalculator<Float>::TILED_APPLY;
             }
             else if (mymethod.startsWith("f")) {
-                method = ImageStatsCalculator::STATS_FRAMEWORK;
+                method = ImageStatsCalculator<Float>::STATS_FRAMEWORK;
             }
             else {
                 ThrowCc("Unsupported classical method " + clmethod);
             }
-            _stats->configureClassical(method);
+            _statsF->configureClassical(method);
         }
         else if (myalg.startsWith("f")) {
             String mycenter = center;
@@ -5708,30 +5718,30 @@ record* image::statistics(
             FitToHalfStatisticsData::USE_DATA useData = lside
                 ? FitToHalfStatisticsData::LE_CENTER
                 : FitToHalfStatisticsData::GE_CENTER;
-            _stats->configureFitToHalf(centerType, useData, 0.0);
+            _statsF->configureFitToHalf(centerType, useData, 0.0);
         }
         else if (myalg.startsWith("h")) {
-            _stats->configureHingesFences(fence);
+            _statsF->configureHingesFences(fence);
         }
         else {
             ThrowCc("Unsupported algorithm " + algorithm);
         }
-        _stats->setAxes(tmpaxes);
-        _stats->setIncludePix(tmpinclude);
-        _stats->setExcludePix(tmpexclude);
-        _stats->setList(list);
+        _statsF->setAxes(tmpaxes);
+        _statsF->setIncludePix(tmpinclude);
+        _statsF->setExcludePix(tmpexclude);
+        _statsF->setList(list);
         if (force) {
-            _stats->forceNewStorage();
+            _statsF->forceNewStorage();
         }
-        _stats->setDisk(disk);
-        _stats->setRobust(robust);
-        _stats->setVerbose(verbose);
-        _stats->setStretch(stretch);
+        _statsF->setDisk(disk);
+        _statsF->setRobust(robust);
+        _statsF->setVerbose(verbose);
+        _statsF->setStretch(stretch);
         if (! logfile.empty()) {
-            _stats->setLogfile(logfile);
+            _statsF->setLogfile(logfile);
         }
-        _stats->setLogfileAppend(append);
-        return fromRecord(_stats->calculate());
+        _statsF->setLogfileAppend(append);
+        return fromRecord(_statsF->calculate());
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -6392,7 +6402,8 @@ void image::_reset() {
     _imageC.reset();
     _imageD.reset();
     _imageDC.reset();
-    _stats.reset();
+    _statsF.reset();
+    _statsD.reset();
 }
 
 image* image::newimagefromfits(
