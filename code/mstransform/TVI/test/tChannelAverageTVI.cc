@@ -349,17 +349,17 @@ TEST(ChannelAverageTVIConfTest, WrongChanbinForMultipleSpw)
 
 TEST(ChannelAverageTVIExecuteSimulatedTest, UniformMS)
 {
-    for(int nField = 1; nField < 4; nField++)
+    for(int nField = 1; nField < 4; nField+=2)
     {
         for(int nScan = 1; nScan < 3; nScan++)
         {
-            for(int nSpw = 1; nSpw < 4; nSpw++)
+            for(int nSpw = 1; nSpw < 4; nSpw+=2)
             {
                 for(int nAnt = 4; nAnt <= 8; nAnt*=2)
                 {
                     for(int nTimePerField = 1; nTimePerField <= 10; nTimePerField*=10)
                     {
-                        for(int nChan = 4; nChan <= 128; nChan*=2)
+                        for(int nChan = 4; nChan <= 64; nChan*=2)
                         {
                             for(int chanbin = 0; chanbin <= nChan; 
                                     chanbin = (chanbin == 0 ? 1 : chanbin*4))
