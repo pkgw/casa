@@ -34,9 +34,8 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-HanningSmoothTVI::HanningSmoothTVI(	ViImplementation2 * inputVii,
-								const Record &configuration):
-								ConvolutionTVI (inputVii,configuration)
+HanningSmoothTVI::HanningSmoothTVI(	ViImplementation2 * inputVii):
+								ConvolutionTVI (inputVii)
 {
 	initialize();
 
@@ -63,11 +62,9 @@ void HanningSmoothTVI::initialize()
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-HanningSmoothTVIFactory::HanningSmoothTVIFactory (	Record &configuration,
-													ViImplementation2 *inputVii)
+HanningSmoothTVIFactory::HanningSmoothTVIFactory (ViImplementation2 *inputVii)
 {
 	inputVii_p = inputVii;
-	configuration_p = configuration;
 }
 
 // -----------------------------------------------------------------------
@@ -75,7 +72,7 @@ HanningSmoothTVIFactory::HanningSmoothTVIFactory (	Record &configuration,
 // -----------------------------------------------------------------------
 vi::ViImplementation2 * HanningSmoothTVIFactory::createVi(VisibilityIterator2 *) const
 {
-	return new HanningSmoothTVI(inputVii_p,configuration_p);
+	return new HanningSmoothTVI(inputVii_p);
 }
 
 // -----------------------------------------------------------------------
@@ -83,7 +80,7 @@ vi::ViImplementation2 * HanningSmoothTVIFactory::createVi(VisibilityIterator2 *)
 // -----------------------------------------------------------------------
 vi::ViImplementation2 * HanningSmoothTVIFactory::createVi() const
 {
-	return new HanningSmoothTVI(inputVii_p,configuration_p);
+	return new HanningSmoothTVI(inputVii_p);
 }
 
 } //# NAMESPACE VI - END
