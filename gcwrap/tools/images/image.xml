@@ -9499,9 +9499,9 @@ ib.done()
 
 <description>
 
-This function computes statistics
-from the pixel values in the image.  You can then list them
-and retrieve them (into a record) for further analysis. 
+This method computes statistics from the pixel values in the image.  You can
+then list them and retrieve them (into a record) for further analysis. This
+method supports only real valued images.
 
 The names of the fields in the returned record are summarized below:
 

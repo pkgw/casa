@@ -29,6 +29,8 @@
 
 #include <imageanalysis/ImageAnalysis/ImageTask.h>
 
+#include <imageanalysis/ImageAnalysis/ImageStatsData.h>
+
 #include <images/Images/ImageStatistics.h>
 #include <casa/namespace.h>
 
@@ -45,8 +47,6 @@ namespace casa {
 class C11Timer;
 
 template <class T> class ImageStatsBase: public ImageTask<T> {
-    // TODO This class was useful at some point, but I suspect it can now
-    // be refactored into ImageStatsCalculator.
 
     // <summary>
     // This adds configuration methods for statistics classes.
@@ -68,16 +68,6 @@ template <class T> class ImageStatsBase: public ImageTask<T> {
 
 public:
 
-    enum PreferredClassicalAlgorithm {
-        // old algorithm
-        TILED_APPLY,
-        // new algorithm
-        STATS_FRAMEWORK,
-        // decide based on size and number of steps needed for
-        // stats
-        AUTO
-    };
-
     ImageStatsBase() = delete;
 
     ~ImageStatsBase();
@@ -88,7 +78,7 @@ public:
         casacore::Double zscore, casacore::Int maxIterations
     );
 
-    void configureClassical(PreferredClassicalAlgorithm p);
+    void configureClassical(ImageStatsData::PreferredClassicalAlgorithm p);
 
     // configure fit to half algorithm
     void configureFitToHalf(
@@ -148,7 +138,8 @@ private:
 
     std::unique_ptr<casacore::ImageStatistics<T>> _statistics;
     AlgConf _algConf;
-    PreferredClassicalAlgorithm _prefClassStatsAlg;
+    ImageStatsData::PreferredClassicalAlgorithm _prefClassStatsAlg
+        = ImageStatsData::AUTO;
 
 };
 

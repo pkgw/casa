@@ -237,6 +237,16 @@ template<class T> void _setrestoringbeam(
     const casacore::Record& rec, const ImageBeamSet& bs
 );
 
+template <class T> record* _statistics(
+    std::auto_ptr<casa::ImageStatsCalculator<T>>& stats, SPIIT myImage,
+    const vector<int>& axes, const variant& region,
+    const variant& mask, const vector<double>& includepix,
+    const vector<double>& excludepix, bool list, bool force, bool disk,
+    bool robust, bool verbose, bool stretch, const string& logfile, bool append,
+    const string& algorithm, double fence, const string& center, bool lside,
+    double zscore, int maxiter, const string& clmethod, int niter
+);
+
 template<class T> image* _subimage(
 	SHARED_PTR<casacore::ImageInterface<T> > clone,
 	const casacore::String& outfile, const casac::variant& region,

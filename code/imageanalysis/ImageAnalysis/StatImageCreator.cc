@@ -1,7 +1,5 @@
 #include <imageanalysis/ImageAnalysis/StatImageCreator.h>
 
-#include <casacore/images/Images/ImageStatistics.h>
-
 #include <imageanalysis/Annotations/AnnCenterBox.h>
 #include <imageanalysis/Annotations/AnnCircle.h>
 #include <casacore/lattices/LEL/LatticeExpr.h>

@@ -36,7 +36,7 @@ template <class T> ImageStatsBase<T>::ImageStatsBase(
     const casacore::String& outname, casacore::Bool overwrite
 ) : ImageTask<T>(
         image, regionPtr, maskInp, outname, overwrite
-    ), _statistics(), _algConf() , _prefClassStatsAlg(AUTO) {
+    ), _statistics(), _algConf() {
     _algConf.algorithm = StatisticsData::CLASSICAL;
 }
 
@@ -69,13 +69,13 @@ template <class T> void ImageStatsBase<T>::configureChauvenet(
 }
 
 template <class T> void ImageStatsBase<T>::configureClassical(
-    PreferredClassicalAlgorithm p
+    ImageStatsData::PreferredClassicalAlgorithm p
 ) {
     if (
-        _algConf.algorithm != StatisticsData::CLASSICAL
+        _algConf.algorithm != casacore::StatisticsData::CLASSICAL
         || p != _prefClassStatsAlg
     ) {
-        _algConf.algorithm = StatisticsData::CLASSICAL;
+        _algConf.algorithm = casacore::StatisticsData::CLASSICAL;
         _prefClassStatsAlg = p;
         _statistics.reset();
     }
@@ -128,13 +128,13 @@ template <class T> String ImageStatsBase<T>::_configureAlgorithm() {
         break;
     case StatisticsData::CLASSICAL:
         switch (_prefClassStatsAlg) {
-        case AUTO:
+        case ImageStatsData::AUTO:
             _statistics->configureClassical();
             break;
-        case TILED_APPLY:
+        case ImageStatsData::TILED_APPLY:
             _statistics->configureClassical(0, 0, 1, 1);
             break;
-        case STATS_FRAMEWORK:
+        case ImageStatsData::STATS_FRAMEWORK:
             _statistics->configureClassical(1, 1, 0, 0);
             break;
         default:

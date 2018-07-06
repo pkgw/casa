@@ -103,26 +103,28 @@ private:
     casacore::Bool _doProbit = casacore::False;
 
     void _doInterpolation(
-        /*TempImage<Float>& */ SPIIF output, TempImage<Float>& store,
-        SPCIIF subImage, uInt nxpts, uInt nypts, Int xstart, Int ystart
+        SPIIF output, TempImage<Float>& store, SPCIIF subImage,
+        uInt nxpts, uInt nypts, Int xstart, Int ystart
     ) const;
 
     void _computeStat(
-        TempImage<Float>& writeTo,
-        SPCIIF subImage, uInt nxpts, uInt nypts,
-        Int xstart, Int ystart
+        TempImage<Float>& writeTo, SPCIIF subImage, uInt nxpts,
+        uInt nypts, Int xstart, Int ystart
     );
 
     void _doStatsLoop(
-        casacore::TempImage<Float>& writeTo, casacore::RO_MaskedLatticeIterator<Float>& lattIter,
-        casacore::uInt nxpts, casacore::uInt nypts, casacore::Int xstart, casacore::Int ystart,
-        casacore::uInt xBlcOff, casacore::uInt yBlcOff, casacore::uInt xChunkSize,
-        casacore::uInt yChunkSize, const casacore::IPosition& imshape,
+        casacore::TempImage<Float>& writeTo,
+        casacore::RO_MaskedLatticeIterator<Float>& lattIter,
+        casacore::uInt nxpts, casacore::uInt nypts, casacore::Int xstart,
+        casacore::Int ystart, casacore::uInt xBlcOff, casacore::uInt yBlcOff,
+        casacore::uInt xChunkSize, casacore::uInt yChunkSize,
+        const casacore::IPosition& imshape,
         const casacore::IPosition& chunkShape,
         SHARED_PTR<casacore::Array<casacore::Bool>> regionMask,
         SHARED_PTR<
             casacore::StatisticsAlgorithm<
-                casacore::Double, casacore::Array<casacore::Float>::const_iterator,
+                casacore::Double,
+                casacore::Array<casacore::Float>::const_iterator,
                 casacore::Array<casacore::Bool>::const_iterator,
                 casacore::Array<casacore::Float>::const_iterator
             >
@@ -137,10 +139,11 @@ private:
     // corresponds to pixel (start/pointsPerCell - 1) in the storage matrix (which
     // is always negative and always greater than -1).
     void _interpolate(
-        Matrix<Float>& result, Matrix<Bool>& resultMask,
-        const Matrix<Float>& storage,
-        const Matrix<Bool>& storeMask,
-        const std::pair<uInt, uInt>& start
+        casacore::Matrix<casacore::Float>& result,
+        casacore::Matrix<casacore::Bool>& resultMask,
+        const casacore::Matrix<casacore::Float>& storage,
+        const casacore::Matrix<casacore::Bool>& storeMask,
+        const std::pair<casacore::uInt, casacore::uInt>& start
     ) const;
 
     // the Blc offsets are the pixel offsets from the grid point
