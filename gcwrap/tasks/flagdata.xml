@@ -231,7 +231,7 @@
                 <value type="string">beg</value>
             </param>
             <param type="any" name="quackincrement" subparam="true">
-                <description>Flag incrementally in time?</description>
+                <description>Increment quack flagging in time taking into account flagged data or not.</description>
                 <any type="variant" limittypes="bool boolArray" />
                 <value type="bool">False</value>
             </param>
@@ -825,13 +825,17 @@
                 For optimization and whenever possible, the task will create a union of the data selection 
                 parameters present in the list and select only that portion of the MS.
 
-                    NOTE: the flag commands will be applied only when action='apply'. If
+                    NOTE1: the flag commands will be applied only when action='apply'. If
                           action='calculate' the flags will be calculated, but not applied.
                           This is useful if display is set to something other than 'none'. If
                           action='' or 'none', the flag commands will not be applied either.
                           An empty action is useful only to save the parameters of the list
                           to a file or to the FLAG_CMD sub-table.
-                  
+ 
+                    NOTE2: In list mode the parameter quackincrement=True is not supported as
+                           part of any quack flag command. Such command will be ignored during run time.
+                      
+	                 
                inpfile -- Input ASCII file, list of files or a Python list of command strings.
                   default: ''
                   options: [] with flag commands or 
@@ -1024,13 +1028,14 @@
                              +++++++++++++++++++++++++++++++++-----------
 
 
-               quackincrement -- Quack incrementally in time?
+               quackincrement -- Increment quack flagging in time taking into account flagged data or not.
                     default: False
                     type: bool
                              False  ==> the quack interval is counted from the
-                                        beginning of the scan
+                                        scan boundaries, as determined by the quackmode parameter,
+                                        regardless of if data has been flagged or not.
                              True   ==> the quack interval is counted from the
-                                        first unflagged data in the scan
+                                        first unflagged data in the scan.
 
         shadow -- Option to flag data of shadowed antennas. This mode is not available
                     for cal tables.
