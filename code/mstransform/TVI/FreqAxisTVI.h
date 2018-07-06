@@ -56,7 +56,7 @@ class FreqAxisTVI : public TransformingVi2
 public:
 
 	// Lifecycle
-	FreqAxisTVI(ViImplementation2 * inputVii,const casacore::Record &configuration);
+	FreqAxisTVI(ViImplementation2 * inputVii);
 	~FreqAxisTVI();
 
 	// Navigation methods

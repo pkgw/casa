@@ -36,7 +36,7 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 RegriddingTVI::RegriddingTVI(	ViImplementation2 * inputVii,
 								const Record &configuration):
-								FreqAxisTVI (inputVii,configuration)
+								FreqAxisTVI (inputVii)
 {
 	// Frequency specification parameters
 	nChan_p = -1;

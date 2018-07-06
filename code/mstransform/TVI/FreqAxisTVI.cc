@@ -34,8 +34,7 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-FreqAxisTVI::FreqAxisTVI(	ViImplementation2 * inputVii,
-							const Record &configuration):
+FreqAxisTVI::FreqAxisTVI(	ViImplementation2 * inputVii) :
 							TransformingVi2 (inputVii)
 {
 	initialize();
