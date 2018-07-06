@@ -1506,7 +1506,7 @@
                     Example2:
 
                         Here we reduce the fraction of channels that are required to be
-                        flagged, and print information for every integratino that is
+                        flagged, and print information for every integration that is
                         flagged.
 
                         flagdata(vis, ..., spw='9', antint_ref_antenna='ea01', minchanfrac=0.3, verbose=True)
