@@ -48,7 +48,7 @@ template <class T> ImageStatsCalculator<T>::ImageStatsCalculator(
     const Record *const &regionPtr,
     const String& maskInp,
     Bool beVerboseDuringConstruction
-) : ImageStatsConfigurator<T>(
+) : ImageStatsBase<T>(
         image, regionPtr, maskInp
     ) {
     this->_construct(beVerboseDuringConstruction);

@@ -3386,7 +3386,7 @@ image* image::deviation(
         StatImageCreator sic(_imageF, myreg.get(), mask, outfile, overwrite);
         mystatalg.downcase();
         if (mystatalg.startsWith("cl")) {
-            sic.configureClassical(ImageStatsConfigurator<Float>::AUTO);
+            sic.configureClassical(ImageStatsBase<Float>::AUTO);
         }
         else if (mystatalg.startsWith("ch")) {
             sic.configureChauvenet(zscore, maxiter);

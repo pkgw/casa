@@ -215,8 +215,8 @@ install (FILES
 	ImageAnalysis/ImageSourceFinder.tcc
 	ImageAnalysis/ImageStatsCalculator.h
     ImageAnalysis/ImageStatsCalculator.tcc
-	ImageAnalysis/ImageStatsConfigurator.h
-	ImageAnalysis/ImageStatsConfigurator.tcc
+	ImageAnalysis/ImageStatsBase.h
+	ImageAnalysis/ImageStatsBase.tcc
 	ImageAnalysis/ImageTask.h
     ImageAnalysis/ImageTask.tcc
     ImageAnalysis/ImageTotalPolarization.h

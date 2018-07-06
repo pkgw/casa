@@ -11,7 +11,7 @@ namespace casa {
 StatImageCreator::StatImageCreator(
     const SPCIIF image, const Record *const region,
 	const String& mask, const String& outname, Bool overwrite
-) : ImageStatsConfigurator(image, region, mask, outname, overwrite) {
+) : ImageStatsBase(image, region, mask, outname, overwrite) {
     this->_construct();
 	auto da = _getImage()->coordinates().directionAxesNumbers();
     _dirAxes[0] = da[0];

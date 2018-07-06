@@ -1,7 +1,7 @@
 #ifndef IMAGEANALYSIS_STATIMAGECREATOR_H
 #define IMAGEANALYSIS_STATIMAGECREATOR_H
 
-#include <imageanalysis/ImageAnalysis/ImageStatsConfigurator.h>
+#include <imageanalysis/ImageAnalysis/ImageStatsBase.h>
 
 #include <casacore/scimath/Mathematics/Interpolate2D.h>
 
@@ -9,7 +9,7 @@
 
 namespace casa {
 
-class StatImageCreator : public ImageStatsConfigurator<Float> {
+class StatImageCreator : public ImageStatsBase<Float> {
 	// <summary>
 	// Create a "statistic" image from an image.
 	// </summary>

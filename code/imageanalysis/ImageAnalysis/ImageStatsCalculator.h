@@ -28,7 +28,7 @@
 #ifndef IMAGEANALYSIS_IMAGESTATSCALCULATOR_H
 #define IMAGEANALYSIS_IMAGESTATSCALCULATOR_H
 
-#include <imageanalysis/ImageAnalysis/ImageStatsConfigurator.h>
+#include <imageanalysis/ImageAnalysis/ImageStatsBase.h>
 
 #include <casa/namespace.h>
 
@@ -39,7 +39,7 @@ template <class T> class CountedPtr;
 
 namespace casa {
 
-template <class T> class ImageStatsCalculator: public ImageStatsConfigurator<T> {
+template <class T> class ImageStatsCalculator: public ImageStatsBase<T> {
     // <summary>
     // Top level class used for statistics calculations
     // </summary>
