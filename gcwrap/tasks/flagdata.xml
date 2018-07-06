@@ -1037,6 +1037,10 @@
                              True   ==> the quack interval is counted from the
                                         first unflagged data in the scan.
 
+                             NOTE: quackincrement = True is not supported in 'list' mode. Such command when
+                                   if part of a list of flag commands, will be ignored and the task will issue
+                                   a WARNING.
+
         shadow -- Option to flag data of shadowed antennas. This mode is not available
                     for cal tables.
                     
