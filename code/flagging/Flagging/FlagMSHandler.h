@@ -25,6 +25,7 @@
 
 #include <flagging/Flagging/FlagDataHandler.h>
 #include <msvis/MSVis/ViFrequencySelection.h>
+#include <msvis/MSVis/LayeredVi2Factory.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -93,7 +94,7 @@ private:
 
 	// Apply channel selection for asyn or normal iterator
 	// NOTE: We always have to do this, even if there is no SPW:channel selection
-	void applyChannelSelection(vi::VisibilityIterator2 *visIter);
+	void applyChannelSelection(vi::VisIterImpl2LayerFactory *viFactory);
 
 
 	// Measurement set section
