@@ -69,6 +69,27 @@ protected:
 	ViImplementation2 *inputVii_p;;
 };
 
+//////////////////////////////////////////////////////////////////////////
+// HanningSmoothTVILayerFactory class  (for _recursive_ layering)
+//////////////////////////////////////////////////////////////////////////
+
+class HanningSmoothTVILayerFactory : public ViiLayerFactory
+{
+
+public:
+
+  HanningSmoothTVILayerFactory();
+
+  virtual ~HanningSmoothTVILayerFactory() {};
+
+protected:
+
+  
+  virtual ViImplementation2 * createInstance(ViImplementation2* vii0) const;
+
+};
+
+
 } //# NAMESPACE VI - END
 
 } //# NAMESPACE CASA - END

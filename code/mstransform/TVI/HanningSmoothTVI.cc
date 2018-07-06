@@ -83,6 +83,22 @@ vi::ViImplementation2 * HanningSmoothTVIFactory::createVi() const
 	return new HanningSmoothTVI(inputVii_p);
 }
 
+//////////////////////////////////////////////////////////////////////////
+// HanningSmoothTVILayerFactory class
+//////////////////////////////////////////////////////////////////////////
+
+HanningSmoothTVILayerFactory::HanningSmoothTVILayerFactory() :
+  ViiLayerFactory()
+{}
+
+ViImplementation2* 
+HanningSmoothTVILayerFactory::createInstance(ViImplementation2* vii0) const 
+{
+  // Make the HanningSmoothTVi2, using supplied ViImplementation2, and return it
+  ViImplementation2 *vii = new HanningSmoothTVI(vii0);
+  return vii;
+}
+
 } //# NAMESPACE VI - END
 
 } //# NAMESPACE CASA - END
