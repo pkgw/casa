@@ -833,8 +833,9 @@
                           to a file or to the FLAG_CMD sub-table.
  
                     NOTE2: In list mode the parameter quackincrement=True is not supported as
-                           part of any quack flag command. Such command will be ignored during run time.
-                      
+                           part of any quack flag command, unless it is the first command of the list.
+                           See more about this in the quack mode section of this help. 
+	                      
 	                 
                inpfile -- Input ASCII file, list of files or a Python list of command strings.
                   default: ''
@@ -1037,9 +1038,14 @@
                              True   ==> the quack interval is counted from the
                                         first unflagged data in the scan.
 
-                             NOTE: quackincrement = True is not supported in 'list' mode. Such command when
-                                   if part of a list of flag commands, will be ignored and the task will issue
-                                   a WARNING.
+                             NOTE on adding quack to a command in 'list' mode: quackincrement = True works 
+                                  based on the state of prior flagging, and unless it is the first item in 
+                                  the list the agent doing the quacking in list mode doesn't know about the 
+                                  state of prior flags. In this case, the command with quackincrement=True 
+                                  will be ignored and the task will issue a WARNING.
+
+	
+     ------------------------------------- SHADOW MODE -----------------------------------------------    		
 
         shadow -- Option to flag data of shadowed antennas. This mode is not available
                     for cal tables.
