@@ -327,6 +327,8 @@ public:
     static const Axis DEFAULT_YAXIS;
     static const DataColumn DEFAULT_DATACOLUMN;
     static const DataColumn DEFAULT_DATACOLUMN_WT;
+    static const CoordSystem DEFAULT_COORDSYSTEM;
+    static const InterpMethod DEFAULT_INTERPMETHOD;
     static const Axis DEFAULT_COLOR_AXIS;
     // </group>
     

@@ -602,10 +602,11 @@ void plotms::setPlotYAxis(const string& yAxis, const string& yDataColumn,
 
 
 void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
-        const string& xDataColumn, const string& yDataColumn, const string& yAxisLocation,
-        const bool updateImmediately, const int plotIndex, const int dataIndex,
-		const string& xFrame, const string& yFrame,
-		const string& xInterp, const string& yInterp) {
+        const string& xDataColumn, const string& yDataColumn,
+        const string& xFrame,      const string& yFrame,
+        const string& xInterp,     const string& yInterp,
+        const string& yAxisLocation,
+        const bool updateImmediately, const int plotIndex, const int dataIndex) {
     launchApp();
     string xdc = xDataColumn, ydc = yDataColumn;
     if(xdc == "residual") xdc = "corrected-model";
@@ -622,10 +623,10 @@ void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
         params.define(PlotMSDBusApp::PARAM_DATACOLUMN_X, xdc);
     }
     if(!xFrame.empty()){
-        params.define(PlotMSDBusApp::PARAM_FRAME_X, xdc);
+        params.define(PlotMSDBusApp::PARAM_FRAME_X, xFrame);
     }
     if(!xInterp.empty()){
-        params.define(PlotMSDBusApp::PARAM_INTERP_X, xdc);
+        params.define(PlotMSDBusApp::PARAM_INTERP_X, xInterp);
     }
 
     // Y Axis
@@ -637,20 +638,20 @@ void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
     if(!ydc.empty()){
         params.define(PlotMSDBusApp::PARAM_DATACOLUMN_Y, ydc);
     }
-    if (!yAxisLocation.empty()){
-    	params.define(PlotMSDBusApp::PARAM_AXIS_Y_LOCATION, yAxisLocation);
-    }
     if(!yFrame.empty()){
-        params.define(PlotMSDBusApp::PARAM_FRAME_Y, xdc);
+        params.define(PlotMSDBusApp::PARAM_FRAME_Y, yFrame);
     }
     if(!yInterp.empty()){
-        params.define(PlotMSDBusApp::PARAM_INTERP_Y, xdc);
+        params.define(PlotMSDBusApp::PARAM_INTERP_Y, yInterp);
+    }
+    if (!yAxisLocation.empty()){
+        params.define(PlotMSDBusApp::PARAM_AXIS_Y_LOCATION, yAxisLocation);
     }
 
     // DBus call
     if(params.nfields() == 0) return;
 
-    params.define( PlotMSDBusApp::PARAM_DATA_INDEX, dataIndex );
+    params.define(PlotMSDBusApp::PARAM_DATA_INDEX, dataIndex );
     params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
     params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
 

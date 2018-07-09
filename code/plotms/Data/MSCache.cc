@@ -790,6 +790,9 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 		auto colEnum = static_cast<MSMainEnums::PredefinedColumns>(colIdInt);
 		logLoad(String("Sort Column: ") + MS::columnName(colEnum));
 	}
+	const auto & params  = plotMSPlot_->parameters();
+	// Next step: copy directly ra/dec params from
+	// End Renaud
 	for(vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
 		for(vi.origin(); vi.more(); vi.next()) {
             if (vb->nRows() > 0) {

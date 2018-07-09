@@ -41,6 +41,7 @@ namespace casa {
 
 //# Forward declarations.
 class PlotMSApp;
+class PlotMSCacheBase;
 class PlotMSIndexer;  // needed for method pointer typedefs
 
 typedef casacore::Double(PlotMSCacheBase::*CacheMemPtr)(casacore::Int,casacore::Int);
@@ -188,10 +189,10 @@ private:
   */
 
   // Report the number of chunks
-  casacore::Int nChunk() const { return (plotmscache_ ? plotmscache_->nChunk() : 0); };
+  casacore::Int nChunk() const; // { return (plotmscache_ ? plotmscache_->nChunk() : 0); };
 
   // Report the reference time for this cache (in seconds)
-  inline casacore::Double refTime() { return plotmscache_->refTime(); };
+  inline casacore::Double refTime(); // { return plotmscache_->refTime(); };
 
   // Set currChunk_ according to a supplied index
   void setChunk(casacore::uInt i) const;

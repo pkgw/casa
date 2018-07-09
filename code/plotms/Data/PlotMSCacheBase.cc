@@ -81,8 +81,9 @@ bool PlotMSCacheBase::axisIsMetaData(PMS::Axis axis) {
 
 const unsigned int PlotMSCacheBase::THREAD_SEGMENT = 10;
 
-PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent):
+PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent, PlotMSPlot* plot):
 		  plotms_(parent),
+		  plotMSPlot_(plot),
 		  indexer0_(NULL),
 		  indexer_(0),
 		  nChunk_(0),

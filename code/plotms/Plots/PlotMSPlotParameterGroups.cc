@@ -371,6 +371,10 @@ bool PMS_PP_Cache::operator==(const Group& other) const
 	if (itsYAxes_ != o->itsYAxes_) return false;
 	if (itsXData_ != o->itsXData_) return false;
 	if (itsYData_ != o->itsYData_) return false;
+	if (itsXFrame_ != o->itsXFrame_) return false;
+	if (itsYFrame_ != o->itsYFrame_) return false;
+	if (itsXInterp_ != o->itsXInterp_) return false;
+	if (itsYInterp_ != o->itsYInterp_) return false;
     if (itsShowAtm_ != o->itsShowAtm_) return false;
     if (itsShowTsky_ != o->itsShowTsky_) return false;
 	return true;
@@ -385,6 +389,10 @@ void PMS_PP_Cache::setDefaults(){
 	itsYAxes_ = vector<PMS::Axis>(1, PMS::NONE);
 	itsXData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
 	itsYData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
+	itsXFrame_ = vector<PMS::CoordSystem>(1, PMS::DEFAULT_COORDSYSTEM);
+	itsYFrame_ = vector<PMS::CoordSystem>(1, PMS::DEFAULT_COORDSYSTEM);
+	itsXInterp_ = vector<PMS::InterpMethod>(1, PMS::DEFAULT_INTERPMETHOD);
+	itsYInterp_ = vector<PMS::InterpMethod>(1, PMS::DEFAULT_INTERPMETHOD);
     itsShowAtm_ = false;
     itsShowTsky_ = false;
 }
@@ -394,6 +402,10 @@ void PMS_PP_Cache::resize( int count ){
 	itsYAxes_ = vector<PMS::Axis>(count, PMS::NONE);
 	itsXData_ = vector<PMS::DataColumn>(count, PMS::DEFAULT_DATACOLUMN);
 	itsYData_ = vector<PMS::DataColumn>(count, PMS::DEFAULT_DATACOLUMN);
+	itsXFrame_ = vector<PMS::CoordSystem>(count, PMS::DEFAULT_COORDSYSTEM);
+	itsYFrame_ = vector<PMS::CoordSystem>(count, PMS::DEFAULT_COORDSYSTEM);
+	itsXInterp_ = vector<PMS::InterpMethod>(count, PMS::DEFAULT_INTERPMETHOD);
+	itsYInterp_ = vector<PMS::InterpMethod>(count, PMS::DEFAULT_INTERPMETHOD);
 }
 
 unsigned int PMS_PP_Cache::numXAxes() const{

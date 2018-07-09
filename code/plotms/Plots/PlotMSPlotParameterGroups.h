@@ -425,6 +425,111 @@ public:
 		}
 	}
 
+
+	const vector < PMS::CoordSystem > &xFrames() const {
+		return itsXFrame_;
+	}
+	void setXFrames (const vector < PMS::CoordSystem > &value) {
+		if (itsXFrame_ != value) {
+			itsXFrame_ = value;
+			updated();
+		}
+	}
+	PMS::CoordSystem xFrame (unsigned int index = 0) const {
+		if (index >= itsXFrame_.size())
+			const_cast < vector < PMS::CoordSystem >
+		&>(itsXFrame_).resize (index + 1);
+		return itsXFrame_[index];
+	}
+	void setXFrame (const PMS::CoordSystem & value, unsigned int index =
+			0) {
+		if (index >= itsXFrame_.size())
+			itsXFrame_.resize (index + 1);
+		if (itsXFrame_[index] != value)   {
+			itsXFrame_[index] = value;
+			updated();
+		}
+	}
+
+
+	const vector < PMS::CoordSystem > &yFrames() const {
+		return itsYFrame_;
+	}
+	void setYFrames (const vector < PMS::CoordSystem > &value) {
+		if (itsYFrame_ != value) {
+			itsYFrame_ = value;
+			updated();
+		}
+	}
+	PMS::CoordSystem yFrame (unsigned int index = 0) const {
+		if (index >= itsYFrame_.size())
+			const_cast < vector < PMS::CoordSystem >
+		&>(itsYFrame_).resize (index + 1);
+		return itsYFrame_[index];
+	}
+	void setYFrame (const PMS::CoordSystem & value, unsigned int index =
+			0) {
+		if (index >= itsYFrame_.size())
+			itsYFrame_.resize (index + 1);
+		if (itsYFrame_[index] != value)   {
+			itsYFrame_[index] = value;
+			updated();
+		}
+	}
+
+
+	const vector < PMS::InterpMethod > &xInterps() const {
+		return itsXInterp_;
+	}
+	void setXInterps (const vector < PMS::InterpMethod > &value) {
+		if (itsXInterp_ != value) {
+			itsXInterp_ = value;
+			updated();
+		}
+	}
+	PMS::InterpMethod xInterp (unsigned int index = 0) const {
+		if (index >= itsXInterp_.size())
+			const_cast < vector < PMS::InterpMethod >
+		&>(itsXInterp_).resize (index + 1);
+		return itsXInterp_[index];
+	}
+	void setXInterp (const PMS::InterpMethod & value, unsigned int index =
+			0) {
+		if (index >= itsXInterp_.size())
+			itsXInterp_.resize (index + 1);
+		if (itsXInterp_[index] != value)   {
+			itsXInterp_[index] = value;
+			updated();
+		}
+	}
+
+
+	const vector < PMS::InterpMethod > &yInterps() const {
+		return itsYInterp_;
+	}
+	void setYInterps (const vector < PMS::InterpMethod > &value) {
+		if (itsYInterp_ != value) {
+			itsYInterp_ = value;
+			updated();
+		}
+	}
+	PMS::InterpMethod yInterp (unsigned int index = 0) const {
+		if (index >= itsYInterp_.size())
+			const_cast < vector < PMS::InterpMethod >
+		&>(itsYInterp_).resize (index + 1);
+		return itsYInterp_[index];
+	}
+	void setYInterp (const PMS::InterpMethod & value, unsigned int index =
+			0) {
+		if (index >= itsYInterp_.size())
+			itsYInterp_.resize (index + 1);
+		if (itsYInterp_[index] != value)   {
+			itsYInterp_[index] = value;
+			updated();
+		}
+	}
+
+
 	bool showAtm() const {
 		return itsShowAtm_;
 	}

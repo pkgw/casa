@@ -78,7 +78,7 @@ MS Parameters
     	<description>Index to address a subplot (0-based)</description>
     	<value>0</value>
   	</param>
- 
+
 
   <param type="string" name="xaxis">
     <description>Plot x-axis (blank for default/current)</description>
@@ -256,51 +256,31 @@ MS Parameters
         <value>float</value>
       </allowed>
     </param>
-
-    <param type="string" name="xframe" subparam="true">
-      <description>Coordinate frame to use for xaxis</description>
-      <value />
-      <allowed kind="enum">
-        <value />
-        <value>icrs</value>
-        <value>azel</value>
-      </allowed>
-    </param>
-
-    <param type="string" name="yframe" subparam="true">
-      <description>Coordinate frame to use for yaxis</description>
-      <value />
-      <allowed kind="enum">
-        <value />
-        <value>icrs</value>
-        <value>azel</value>
-      </allowed>
-    </param>
-
-    <param type="string" name="xinterp" subparam="true">
-      <description>Interpolation method for x axis</description>
-      <value />
-      <allowed kind="enum">
-        <value />
-        <value>nearest</value>
-        <value>linear</value>
-        <value>cubic</value>
-      </allowed>
-    </param>
-
-    <param type="string" name="yinterp" subparam="true">
-      <description>Interpolation method for x axis</description>
-      <value />
-      <allowed kind="enum">
-        <value />
-        <value>nearest</value>
-        <value>linear</value>
-        <value>cubic</value>
-      </allowed>
-    </param>
-
     
-  <param type="any" name="yaxis">    
+    <param type="string" name="xframe" subparam="true">
+      <description>Coordinate frame to use for x-axis</description>
+      <value />
+      <allowed kind="enum">
+        <value />
+        <value>icrs</value>
+        <value>j2000</value>
+        <value>azelgeo</value>
+      </allowed>
+    </param>
+    
+    <param type="string" name="xinterp" subparam="true">
+      <description>Interpolation method for x-axis</description>
+      <value />
+      <allowed kind="enum">
+        <value />
+        <value>nearest</value>
+        <value>linear</value>
+        <value>cubic</value>
+      </allowed>
+    </param>
+    
+    
+  <param type="any" name="yaxis">
   <description>Plot y-axis (blank for default/current)</description>
   <any type="variant" limittype="string stringArray"/>
    <value type="string" />
@@ -483,7 +463,32 @@ MS Parameters
       </allowed>
     </param>
     
-    <param type="any" name="yaxislocation" subparam="true">
+    <param type="any" name="yframe" subparam="true">
+      <description>Coordinate frame to use for y-axis</description>
+      <any type="variant" limittype='string stringArray'/>
+      <value type="string"/>
+      <allowed kind="enum" type="string">
+        <value />
+        <value>icrs</value>
+        <value>j2000</value>
+        <value>azelgeo</value>
+      </allowed>
+    </param>
+    
+    <param type="any" name="yinterp" subparam="true">
+      <description>Interpolation method for y-axis</description>
+      <any type="variant" limittype='string stringArray'/>
+      <value type="string"/>
+      <allowed kind="enum" type="string">
+        <value />
+        <value>nearest</value>
+        <value>linear</value>
+        <value>cubic</value>
+      </allowed>
+    </param>
+    
+    
+    <param type="any" name="yaxislocation" subparam="false">
       <description>Left or right y-axis for the data (blank for default)</description>
       <any type="variant" limittype='string stringArray'/>
       <value type="string" />

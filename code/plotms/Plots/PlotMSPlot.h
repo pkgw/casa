@@ -40,6 +40,7 @@ namespace casa {
 
 //# Forward declarations
 class PlotMSPages;
+class PlotMSCacheBase;
 class PMS_PP_Cache;
 class PMS_PP_Canvas;
 class PMS_PP_Axes;
@@ -330,7 +331,7 @@ private:
     void logMessage( const QString& msg ) const;
 
     void clearCanvasProperties( int row, int col);
-    void setCanvasProperties (int row, int col, int numplots, uInt iteration,
+    void setCanvasProperties (int row, int col, int numplots, casacore::uInt iteration,
             PMS_PP_Axes* axesParams, PMS_PP_Cache* cacheParams, 
             PMS_PP_Canvas *canvParams, PMS_PP_Iteration *iterParams,
             PMS_PP_MSData* dataParams, PMS_PP_Display* displayParams );

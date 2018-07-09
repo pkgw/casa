@@ -5667,16 +5667,17 @@ void MSTransformManager::generateIterator()
 	{
 		visibilityIterator_p = new vi::VisibilityIterator2(vi::AveragingVi2Factory(*timeavgParams, selectedInputMs_p));
 	}
-  // Polarization Averaging VI
-  else if (polAverage_p) {
-    visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
-        vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
-  }
-  else if (pointingsInterpolation_p) {
-	  visibilityIterator_p = new vi::VisibilityIterator2(vi::PointingInterpolationVi2Factory(pointingsInterpolationConfig_p, selectedInputMs_p,
-		      vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
-  }
-	  // Plain VI
+	// Polarization Averaging VI
+	else if (polAverage_p) {
+		visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
+				vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
+	}
+	// VI interpolating pointing directions
+	else if (pointingsInterpolation_p) {
+		visibilityIterator_p = new vi::VisibilityIterator2(vi::PointingInterpolationVi2Factory(pointingsInterpolationConfig_p, selectedInputMs_p,
+				vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
+	}
+	// Plain VI
 	else
 	{
 		visibilityIterator_p = new vi::VisibilityIterator2(*selectedInputMs_p,vi::SortColumns(sortColumns_p, false),

@@ -8,7 +8,7 @@ def plotms(vis=None,
            rowindex=None,colindex=None,
            plotindex=None,
            xaxis=None, xdatacolumn=None, xframe=None, xinterp=None,
-           yaxis=None, ydatacolumn=None, yaxislocation=None, yframe=None, yinterp=None,
+           yaxis=None, ydatacolumn=None, yframe=None, yinterp=None, yaxislocation=None,
            selectdata=None, field=None, spw=None,
            timerange=None, uvrange=None, antenna=None, scan=None,
            correlation=None, array=None, observation=None, 
@@ -76,6 +76,12 @@ def plotms(vis=None,
         &gt;&gt;&gt; xaxis, yaxis expandable parameters
         xdatacolumn, 
         ydatacolumn -- which data column to use for data axes
+                       default: '' (uses PlotMS default/current set).
+        xframe,
+        yframe      -- which coordinates frame to use for ant-ra,ant-dec axes
+                       default: '' (uses PlotMS default/current set).
+        xinterp,
+        yinterp     -- which interpolation method to use for ant-ra,ant-dec axes
                        default: '' (uses PlotMS default/current set).
         yaxislocation -- whether the data should be plotted using the left or right y-axis
                        default: '' (uses PlotMS default).
@@ -389,8 +395,10 @@ def plotms(vis=None,
                 ydatacolumn=''
             if not yaxis:
                 yaxis = ''
-            pm.setPlotAxes(xaxis, yaxis, xdatacolumn, ydatacolumn, 
-                yaxislocation, False, plotindex, 0)
+            pm.setPlotAxes(xaxis, yaxis, xdatacolumn, ydatacolumn,
+                xframe, yframe, xinterp, yinterp,
+                yaxislocation,
+                False, plotindex, 0)
         else:
             # make ydatacolumn and yaxislocation same length as yaxis
             # and check that no duplicate y axes
@@ -427,7 +435,9 @@ def plotms(vis=None,
                     if i < yLocationCount:
                         yAxisLocation = yaxislocation[i]
                     pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, 
-                        yAxisLocation, False, plotindex, i)
+                        xframe, yframe, xinterp, yinterp,
+                        yAxisLocation,
+                        False, plotindex, i)
             else :
                 raise Exception, 'Please remove duplicate y-axes.'
 

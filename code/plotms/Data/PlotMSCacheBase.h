@@ -33,6 +33,8 @@
 #include <plotms/PlotMS/PlotMSTransformations.h>
 #include <plotms/PlotMS/PlotMSCalibration.h>
 
+#include <plotms/Plots/PlotMSPlot.h>
+
 #include <plotms/Data/PageHeaderCache.h>
 
 #include <casa/aips.h>
@@ -46,6 +48,7 @@ namespace casa {
 
 //# Forward declarations.
 class PlotMSApp;
+class PlotMSPlot;
 class PlotMSIndexer;
 class ThreadCommunication;
 class PlotMSAtm;
@@ -71,7 +74,7 @@ public:
 
   
   // Constructor which takes parent PlotMS.
-  PlotMSCacheBase(PlotMSApp* parent);
+  PlotMSCacheBase(PlotMSApp* parent, PlotMSPlot* plot = nullptr);
   
   // Destructor
   virtual ~PlotMSCacheBase();
@@ -401,6 +404,9 @@ protected:
   // Parent plotms.
   //  (used only for access to logger, so far)
   PlotMSApp* plotms_;
+
+  // Parent PlotMSPlot
+  PlotMSPlot* plotMSPlot_;
 
   // An empty indexer (its an empty PlotData object used for initialization)
   PlotMSIndexer* indexer0_;

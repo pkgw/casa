@@ -696,7 +696,15 @@ bool PlotMSIndexer::isGlobalYRange() const {
 void PlotMSIndexer::setGlobalMinMax(Bool globalX, Bool globalY ) {
     globalXMinMax_=globalX;
     globalYMinMax_=globalY;
-};
+}
+
+Int PlotMSIndexer::nChunk() const {
+	return plotmscache_ ? plotmscache_->nChunk() : 0;
+}
+
+inline Double PlotMSIndexer::refTime() {
+	return plotmscache_->refTime();
+}
 
 void PlotMSIndexer::setChunk(uInt i) const {
 
