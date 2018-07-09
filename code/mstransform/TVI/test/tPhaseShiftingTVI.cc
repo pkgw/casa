@@ -255,8 +255,8 @@ void PhaseShiftingTVISpwChannTest::createTVIs()
     if(addExtraHanningTVI_p)
     {
         casacore::Record configuration2;
-        configuration.define ("XpcOffset", -0.1);
-        configuration.define ("YpcOffset", -0.5);
+        configuration2.define ("XpcOffset", -0.1);
+        configuration2.define ("YpcOffset", -0.5);
         phaseShiftFac2.reset(new PhaseShiftingTVILayerFactory(configuration2));
         factories.push_back(phaseShiftFac2.get());
     }
