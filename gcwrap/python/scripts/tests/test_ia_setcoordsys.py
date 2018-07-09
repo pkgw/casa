@@ -83,12 +83,14 @@ class ia_setcoordsys_test(unittest.TestCase):
     def test_history(self):
         """verify history writing"""
         myia = self._myia
-        myia.fromshape("zz",[20, 20])
-        csys = myia.coordsys()
-        myia.setcoordsys(csys.torecord())
-        msgs = myia.history()
-        self.assertTrue("ia.setcoordsys" in msgs[-2])
-        self.assertTrue("ia.setcoordsys" in msgs[-1])
+        for mytype in ['f', 'c', 'd', 'cd']:
+            myia.fromshape("zz" + mytype + ".im", [20, 20], type=mytype)
+            csys = myia.coordsys()
+            myia.setcoordsys(csys.torecord())
+            msgs = myia.history()
+            myia.done()
+            self.assertTrue("ia.setcoordsys" in msgs[-2])
+            self.assertTrue("ia.setcoordsys" in msgs[-1])
 
     def test_one_direction_axis(self):
         """Verify fix for CAS-10447"""

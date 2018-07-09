@@ -39,7 +39,6 @@ Images/ComponentListImage.cc
 
 ImageAnalysis/AntennaResponses.cc
 ImageAnalysis/CasaImageBeamSet.cc
-ImageAnalysis/ComplexImageRegridder.cc
 ImageAnalysis/ComponentImager.cc
 ImageAnalysis/ImageCollapserData.cc
 ImageAnalysis/ImageCollapser2.cc
@@ -49,9 +48,7 @@ ImageAnalysis/ImageFitter.cc
 ImageAnalysis/ImageHistogramsCalculator.cc
 ImageAnalysis/ImageInputProcessor.cc
 ImageAnalysis/ImageMask.cc
-ImageAnalysis/ImageMetaData.cc
-ImageAnalysis/ImageMetaDataBase.cc
-ImageAnalysis/ImageMetaDataRW.cc
+ImageAnalysis/ImageMetaDataConstants.cc
 ImageAnalysis/ImageMomentsProgress.cc
 ImageAnalysis/ImageMomentsProgressMonitor.cc
 ImageAnalysis/ImagePadder.cc
@@ -60,7 +57,6 @@ ImageAnalysis/ImagePolProxy.cc
 ImageAnalysis/ImagePolTask.cc
 ImageAnalysis/ImagePrimaryBeamCorrector.cc
 ImageAnalysis/ImageProfileFitter.cc
-ImageAnalysis/ImageRegridder.cc
 ImageAnalysis/ImageRotator.cc
 ImageAnalysis/ImageStatsCalculator.cc
 ImageAnalysis/ImageStatsConfigurator.cc
@@ -135,6 +131,7 @@ install (FILES
 	ImageAnalysis/BeamManipulator.tcc
 	ImageAnalysis/CasaImageBeamSet.h
 	ImageAnalysis/ComplexImageRegridder.h
+	ImageAnalysis/ComplexImageRegridder.tcc
 	ImageAnalysis/ComponentImager.h
 	ImageAnalysis/ComponentListDeconvolver.h
     ImageAnalysis/ComponentListDeconvolver.tcc
@@ -194,7 +191,9 @@ install (FILES
 	ImageAnalysis/ImageMetaData.h
     ImageAnalysis/ImageMetaData.tcc
     ImageAnalysis/ImageMetaDataBase.h
+    ImageAnalysis/ImageMetaDataBase.tcc
     ImageAnalysis/ImageMetaDataRW.h
+    ImageAnalysis/ImageMetaDataRW.tcc
 	ImageAnalysis/ImageMoments.h
 	ImageAnalysis/ImageMoments.tcc
 	ImageAnalysis/ImageMomentsTask.h
@@ -210,6 +209,7 @@ install (FILES
     ImageAnalysis/ImageRebinner.h
     ImageAnalysis/ImageRebinner.tcc
     ImageAnalysis/ImageRegridder.h
+    ImageAnalysis/ImageRegridder.tcc
     ImageAnalysis/ImageRegridderBase.h
     ImageAnalysis/ImageRegridderBase.tcc
     ImageAnalysis/ImageRotator.h

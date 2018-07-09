@@ -164,23 +164,32 @@ QwtText QPScaleDraw::label(double value) const {
 			m_referenceSet ? m_relativeDateFormat : m_dateFormat, value,
 			m_scale, m_referenceSet, timePrecision).c_str());
 	} else {
-		stringstream ss;
-		ss.precision(getTickPrecision());
-		ss << fixed << value;
-		return QString(ss.str().c_str());
+		int tprecision = getTickPrecision();
+		if (tprecision >=0) {
+			stringstream ss;
+			ss.precision(tprecision);
+			ss << fixed << value;
+			return QString(ss.str().c_str());
+		} else {  // with shared axis, ticks are not set
+			return QwtScaleDraw::label(value);
+		}
 	}
 }
 
 int QPScaleDraw::getTickPrecision() const {
 	// find tick step to get precision and make labels uniform
 	QList<double> ticks = scaleDiv().ticks(QwtScaleDiv::MajorTick);
-	double step = abs(ticks[1] - ticks[0]);
-	int tickPrecision = floor(log10(step));
-	if (tickPrecision > 0) // int
-		tickPrecision = 0;
-	else
-		tickPrecision = abs(tickPrecision);
-	return tickPrecision;
+	if (ticks.size() == 0) {
+		return -1;
+	} else {
+		double step = abs(ticks[1] - ticks[0]);
+		int tickPrecision = floor(log10(step));
+		if (tickPrecision > 0) // int
+			tickPrecision = 0;
+		else
+			tickPrecision = abs(tickPrecision);
+		return tickPrecision;
+	}
 }
 
 //////////////////////////

@@ -85,7 +85,7 @@ class ia_summary_test(unittest.TestCase):
         """test per plane beams get accounted for correctly"""
         myia = self._myia
         shape = [10, 10, 10, 4]
-        for t in ['f', 'c']:
+        for t in ['f', 'c', 'd', 'cd']:
             myia.fromshape("", shape, type=t)
             bmaj = qa.quantity("4arcsec")
             bmin = qa.quantity("2arcsec")
