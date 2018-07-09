@@ -290,13 +290,6 @@ class PySynthesisImager:
             self.PStools[immod].gatherpsfweight() 
             self.PStools[immod].dividepsfbyweight()
 
-
-#############################################
-    def calcVisAppSens(self):
-
-        return self.SItool.apparentsens()
-
-
 #############################################
 
     def runMajorCycle(self):
