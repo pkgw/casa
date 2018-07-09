@@ -126,7 +126,7 @@ void PlotMSSelection::apply(MeasurementSet& ms, MeasurementSet& selMS,
                timerange(), antenna(), field(), spwstr,
                uvrange(), msselect(), corr(), scan(), array(),
                intent(), observation(), feed(), 1, &mss );
-        } catch(AipsError x) {
+        } catch(AipsError& x) {
             String errormsg = x.getMesg();
             if (errormsg.startsWith("Spw Expression: No match found") && (spwstr[0] != '"') && (spwstr.find('-') != std::string::npos)) {
                 errormsg += "\nTIP: For a name match (particularly names with a hyphen), add double quotes around the name in the spw string."; 
@@ -181,9 +181,10 @@ void PlotMSSelection::apply(NewCalTable& ct, NewCalTable& selCT,
     // do selection
     CTInterface cti(ct);
     TableExprNode ten = cts.toTableExprNode(&cti);
+
     try {
       selCT = ct(ten);
-    } catch(AipsError x) {
+    } catch(AipsError& x) {
       throw(AipsError("Error selecting on caltable:\n" + x.getMesg()));
     }
 

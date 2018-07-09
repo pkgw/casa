@@ -66,22 +66,6 @@ void	timer( double *cpu_time ,		/* cpu timer */
 using namespace casacore;
 using namespace casa;
 
-// Methods of timeMgr class.
-timeMgr::timeMgr() {
-  index = -1;
-  startTime = 0.0;
-}
-
-timeMgr::timeMgr(int i, double t) {
-  index = i;
-  startTime = t;
-}
-
-void   timeMgr::setIndex(int i) { index = i;}
-void   timeMgr::setStartTime(double t) {startTime = t;}
-int    timeMgr::getIndex() {return index;}
-double timeMgr::getStartTime() {return startTime;}
-
 // Methods of ddMgr class.
 ddMgr::ddMgr() {
   int i;
@@ -224,15 +208,6 @@ ASDM2MSFiller::ASDM2MSFiller(const string& name_,
                              int           maxNumChan,
                              bool          withCorrectedData,
 			     bool          useAsdmStMan4DATA):
-  itsFeedTimeMgr(0),
-  itsFieldTimeMgr(0),
-  itsObservationTimeMgr(0),
-  itsPointingTimeMgr(0),
-  //itsSourceTimeMgr(timeMgr()),
-  itsSourceTimeMgr(0),
-  itsSyscalTimeMgr(0),
-  itsWeatherTimeMgr(0),
-
   itsWithRadioMeters(withRadioMeters_),
   itsFirstScan(true),
   itsMSMainRow(0),
@@ -246,7 +221,6 @@ ASDM2MSFiller::ASDM2MSFiller(const string& name_,
   itsMS			= 0;
   itsMSCol		= 0;
   itsNumAntenna		= 0;
-  itsObservationTimeMgr = new timeMgr[1]; 
   itsScanNumber         = 0;
 
   //cout << "About to call createMS" << endl;
@@ -265,7 +239,8 @@ ASDM2MSFiller::ASDM2MSFiller(const string& name_,
 
 // The destructor
 ASDM2MSFiller::~ASDM2MSFiller() {
-  ;
+  // end flushes to the MS and deletes itsMS and itsMSCol
+  end();
 }
 
 int ASDM2MSFiller::createMS(const string& msName,
@@ -1482,9 +1457,6 @@ void ASDM2MSFiller::addObservation(const string&		telescopeName_,
 
   // Fill the columns
   crow = msobs.nrow();
-  /*
-    itsObservationTimeMgr[0].setIndex(crow);
-  */
   msobs.addRow();
 
   msobsCol.telescopeName().put(crow, String(telescopeName_));
@@ -2246,8 +2218,15 @@ void ASDM2MSFiller::addCalDevice(int				antennaId,
   //itsMSCalDeviceTable.flush();
 }
 
-void ASDM2MSFiller::end(double /* time_ */) {
-  itsMS->flush();
-  delete itsMS;
+void ASDM2MSFiller::end() {
+  if (itsMSCol) {
+    delete itsMSCol;
+    itsMSCol = 0;
+  }
+  if (itsMS) {
+    itsMS->flush();
+    delete itsMS;
+    itsMS = 0;
+  }
 }
 

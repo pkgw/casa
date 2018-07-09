@@ -165,12 +165,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Vector<casacore::Int> ant1list;
     casacore::Int antId;
 
+    // so the table is not left open CAS-11483
+    const casacore::Table* tab = msLike->table();
+    CTInterface cti(*tab);
+
     // get taql antenna1 selections (not negations) from baselines
     casacore::String antExpr = msSelection_p->getExpr(
         casacore::MSSelection::ANTENNA_EXPR);
     if (!antExpr.empty()) {
         mssel.setAntennaExpr(antExpr);
-        ten = mssel.toTableExprNode(msLike);
+        ten = mssel.toTableExprNode(&cti);
         ant1list = mssel.getAntenna1List();
         for (casacore::uInt i=0; i<ant1list.size(); ++i) {
             antId = ant1list(i);
@@ -187,7 +191,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         mssel.clear();
         ant1list.resize();
         mssel.setAntennaExpr(antsel);
-        ten = mssel.toTableExprNode(msLike);
+        ten = mssel.toTableExprNode(&cti);
         ant1list = mssel.getAntenna1List();
         // Get antenna2 ids (reference antennas) for suffix
         casacore::Vector<casacore::Int> refAntIds = getRefAntIds(msLike);
