@@ -229,6 +229,13 @@ void _remove(bool verbose);
 
 void _reset();
 
+template <class T> image* _rotate(
+    SPIIT image, const string& outfile, const vector<int>& inshape,
+    const variant& inpa, const variant& region, const variant& vmask,
+    const string& method, int decimate, bool replicate, bool dropdeg,
+    bool overwrite, bool stretch
+);
+
 void _setImage(casa::ITUPLE mytuple);
 
 template<class T> void _setrestoringbeam(
