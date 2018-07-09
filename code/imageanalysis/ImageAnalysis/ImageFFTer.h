@@ -7,6 +7,8 @@
 
 namespace casa {
 
+template <class T> class ImageFFT;
+
 template <class T> class ImageFFTer : public ImageTask<T> {
 	// <summary>
 	// Top level interface which allows FFTing of images.
@@ -29,9 +31,9 @@ template <class T> class ImageFFTer : public ImageTask<T> {
 public:
 
 	ImageFFTer(
-		const SPCIIT image,
-		const casacore::Record *const region,
-		const casacore::String& maskInp, const casacore::Vector<casacore::uInt>& axes
+		const SPCIIT image, const casacore::Record *const region,
+		const casacore::String& maskInp,
+		const casacore::Vector<casacore::uInt>& axes
 	);
 
 	// destructor
@@ -45,14 +47,17 @@ public:
 	void setPhase(const casacore::String& name) { _phase = name; }
 	void setComplex(const casacore::String& name) { _complex = name; }
 
-	casacore::String getClass() const { const static casacore::String s = "ImageFFTer"; return s; }
+	casacore::String getClass() const {
+	    const static casacore::String s = "ImageFFTer";
+	    return s;
+	}
 
 protected:
-	inline  CasacRegionManager::StokesControl _getStokesControl() const {
+	CasacRegionManager::StokesControl _getStokesControl() const {
 		return CasacRegionManager::USE_ALL_STOKES;
 	}
 
-	inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+	std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
 		return std::vector<casacore::Coordinate::Type>();
 	}
 
@@ -63,12 +68,13 @@ private:
 	// disallow default constructor
 	ImageFFTer();
 
-	SPIIF _createFloatImage(
-		const casacore::String& name, const casacore::SubImage<T>& subimage
+	void _createOutputImages(
+	    const casacore::SubImage<T>& subImage, const ImageFFT<T>& fft
 	) const;
 
-	SPIIC _createComplexImage(
-		const casacore::String& name, const casacore::SubImage<T>& subimage
+	template <class U> void _createImage(
+	    SPIIU& out, const casacore::String& name,
+	    const casacore::SubImage<T>& subimage
 	) const;
 
 	static void _checkExists(const casacore::String& name);
