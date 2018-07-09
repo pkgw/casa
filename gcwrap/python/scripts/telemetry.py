@@ -23,6 +23,12 @@ class telemetry:
 
         logfiles = []
 
+        # Check if user has defined a telemetry log location
+        casa_util = __casac__.utils.utils()
+
+        if (casa_util.getrc("TelemetryLogDirectory") != 'Unknown value'):
+            self.logdir = casa_util.getrc("TelemetryLogDirectory")
+      
         for file in os.listdir(self.logdir):
             if fnmatch.fnmatch(file, self.logpattern):
                  #print "Matched: " + file
@@ -33,18 +39,16 @@ class telemetry:
         inactiveTLogSize = 0
 
         if (logfiles and logfiles[0] != None):
-            print "Found an existing telemetry logfile: " + casa['dirs']['rc'] + "/" + logfiles[0]
-            casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + "/" + logfiles[0]
+            print "Found an existing telemetry logfile: " + self.logdir  + "/" + logfiles[0]
+            casa['files']['telemetry-logfile'] = self.logdir  + "/" + logfiles[0]
             for i in range(1, len(logfiles)):
-                inactiveTLogSize = inactiveTLogSize + os.path.getsize(casa['dirs']['rc'] + "/" + logfiles[i])/1024
+                inactiveTLogSize = inactiveTLogSize + os.path.getsize(self.logdir  + "/" + logfiles[i])/1024
                 #print "Inactive log size: " + str(inactiveTLogSize)
         else :
-             print "Creating a new telemetry file"
-             self.setNewTelemetryFile()
+            print "Creating a new telemetry file"
+            self.setNewTelemetryFile()
 
         # Setup Telemetry log size monitoring
-        casa_util = __casac__.utils.utils()
-
         # Size limit for the telemetry logs
         tLogSizeLimit = 10000
         # File size check interval
@@ -65,7 +69,7 @@ class telemetry:
             print "Telemetry initialized."
 
     def setNewTelemetryFile(self):
-        self.casa['files']['telemetry-logfile'] = self.casa['dirs']['rc'] + '/casastats-' + self.casaver +'-'  + self.hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
+        self.casa['files']['telemetry-logfile'] =  self.logdir + '/casastats-' + self.casaver +'-'  + self.hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
 
     def setCasaVersion(self):
         myUtils = casac.utils()
