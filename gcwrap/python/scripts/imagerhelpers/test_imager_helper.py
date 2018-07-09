@@ -475,33 +475,14 @@ class TestHelpers():
          pstr = ''
          for imname in imlist:
              if os.path.exists(imname):
-                 # There are a couple of chanchunks tests that don't seem to produce any
-                 # miscinfo (the ones where chanchunks!=-1) and leave objectname empty
-                 check_misc = not 'tstcc.image' in imname
-                 # These two multifield_facets tests also don't set miscinfo, and
-                 # leave objectname empty
-                 check_misc = (check_misc and
-                               testname not in ['test_multifield_facets_mfs',
-                                                'test_multifield_facets_mtmfs'])
-                 # parallel tests that misbehave at the moment
-                 check_misc = (check_misc and 
-                               testname not in ['test_cont_hogbom_gridft',
-                                                'test_cont_mtmfs_2spws_2MSs',
-                                                'test_cont_mtmfs_gridft'])
-                 # skip these for now
-                 if not check_misc:
-                     continue
-                     
-                 # This ones don't get all the miscinfo fields (distance, INSTRUME, etc.)
-                 extended = (not imname.endswith('.alpha') and
-                             not imname.endswith('.tt0') and
-                             not imname.endswith('.tt1') and
-                             not imname.endswith('.mask') and
-                             '.par.' not in imname)
-                 issues = self.check_im_keywords(imname, check_misc=check_misc,
-                                                 check_extended=extended)
+                 issues = self.check_im_keywords(imname, check_misc=True,
+                                                 check_extended=True)
                  if issues:
                      pstr += '[{0}] {1}: {2}'.format(testname, imname, issues)
+
+         if not pstr:
+             pstr += 'All expected keywords in imageinfo, miscinfo, and coords found.\n'
+
          return pstr
 
      def check_im_keywords(self, imname, check_misc=True, check_extended=True):
@@ -510,6 +491,13 @@ class TestHelpers():
          keywords.
          Forbidden keywords lists introduced with CAS-9231 (prevent duplication of
          TELESCOP and OBJECT).
+
+         Note that if imname is the top level of a refconcat image, there's no table to open
+         to look for its keywords. In these cases nothing is checked. We would not have the
+         'imageinfo' keywords, only the MiscInfo that goes in imageconcat.json and I'm not
+         sure yet how that one is supposed to behave.
+         Tests should check the 'getNParts() from imname' to make sure the components of
+         the refconcat image exist, have the expected keywords, etc.
 
          :param imname: image name (output image from tclean)
          :param check_misc: whether to check miscinfo in addition to imageinfo'
@@ -520,9 +508,18 @@ class TestHelpers():
          """
 
          tbt = tbtool()
-         tbt.open(imname)
-         keys = tbt.getkeywords()
-         tbt.close()
+         try:
+             tbt.open(imname)
+             keys = tbt.getkeywords()
+         except RuntimeError as exc:
+             if os.path.isfile(os.path.join(os.path.dirname(imname), 'imageconcat.json')):
+                 # Looks like a refconcat image, nothing to check
+                 return ''
+             else:
+                 pstr = 'Cannot open image table to check keywords: {0}'.format(imname)
+                 return pstr
+         finally:
+             tbt.close()
 
          pstr = ''
          if len(keys) <= 0:
@@ -566,7 +563,7 @@ class TestHelpers():
                  pstr += ('entry {0} not found in record {1} ({2})\n'.
                           format(entry, record, self.verdict(False)))
              else:
-                 # TODO: many tests leave 'distance' empty...
+                 # TODO: many tests leave 'distance' empty. Assume that's acceptable...
                  if entry != 'distance' and not keys[record][entry]:
                      pstr += ('entry {0} is found in record {1} but it is empty ({2})\n'.
                               format(entry, record, self.verdict(False)))

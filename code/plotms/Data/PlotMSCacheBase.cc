@@ -99,15 +99,10 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent):
 		  scan_(),
 		  dataLoaded_(false),
 		  userCanceled_(false),
-          xminG_(0),
-          yminG_(0),
-          xmaxG_(0),
-          ymaxG_(0),
           calType_(""),
           polnRatio_(false),
           plotmsAtm_(NULL)
 {
-
 	// Make the empty indexer0 object so we have and empty PlotData object
 	int dataCount = 1;
 	currentX_.resize(dataCount, PMS::DEFAULT_XAXIS);
@@ -123,72 +118,99 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent):
 		indexer_[i].set( NULL );
 		plmask_[i].set( NULL  );
 	}
+	xminG_.resize(dataCount);
+	xminG_.set(0);
+	xmaxG_.resize(dataCount);
+	xmaxG_.set(0);
+	yminG_.resize(dataCount);
+	yminG_.set(0);
+	ymaxG_.resize(dataCount);
+	ymaxG_.set(0);
+	xflminG_.resize(dataCount);
+	xflminG_.set(0);
+	xflmaxG_.resize(dataCount);
+	xflmaxG_.set(0);
+	yflminG_.resize(dataCount);
+	yflminG_.set(0);
+	yflmaxG_.resize(dataCount);
+	yflmaxG_.set(0);
 
 	// Set up loaded axes to be initially empty, and set up data columns for
 	// data-based axes.
 	const vector<PMS::Axis>& axes = PMS::axes();
 	for(unsigned int i = 0; i < axes.size(); i++) {
 		loadedAxes_[axes[i]] = false;
-		//if(PMS::axisIsData(axes[i]))
-		//	loadedAxesData_[axes[i]]= PMS::DEFAULT_DATACOLUMN;
 	}
-    loadedAxesData_.clear();
+	loadedAxesData_.clear();
 	this->iterAxis = PMS::NONE;
 
-    // Default frequency frame
-    freqFrame_ = MFrequency::N_Types;
+	// Default frequency frame
+	freqFrame_ = MFrequency::N_Types;
 }
 
 PlotMSCacheBase::~PlotMSCacheBase() {
-
 	//  cout << "PMSCB::~PMSCB" << endl;
-	
 	delete indexer0_;
 
 	// Deflate everything
 	deleteIndexer();
 	deletePlotMask();
 	deleteCache();
-    deleteAtm();
+	deleteAtm();
 }
 
 Int PlotMSCacheBase::nIter( int dataIndex ) const {
-	  int iterationCount = -1;
-	  int indexerSize = indexer_.size();
-	  if ( 0 <= dataIndex && dataIndex < indexerSize ){
-		  if ( !indexer_[dataIndex].empty() ){
-		  	  iterationCount = indexer_[dataIndex].nelements();
-	  	  }
-	  }
-	  return iterationCount;
- };
+	int iterationCount = -1;
+	int indexerSize = indexer_.size();
+	if ( 0 <= dataIndex && dataIndex < indexerSize ){
+		if ( !indexer_[dataIndex].empty() ){
+			iterationCount = indexer_[dataIndex].nelements();
+		}
+	}
+	return iterationCount;
+};
 
 vector<PMS::Axis> PlotMSCacheBase::loadedAxes() const {    
 	// have to const-cast loaded axes because the [] operator is not const,
 	// even though we're not changing it.
 	map<PMS::Axis, bool>& la = const_cast<map<PMS::Axis, bool>& >(loadedAxes_);
-
 	vector<PMS::Axis> v;
 	const vector<PMS::Axis>& axes = PMS::axes();
 	for(unsigned int i = 0; i < axes.size(); i++)
-		if(la[axes[i]])
-			v.push_back(axes[i]);
-
+		if(la[axes[i]]) v.push_back(axes[i]);
 	return v;
 }
 
 Record PlotMSCacheBase::locateInfo(int plotIterIndex, const Vector<PlotRegion>& regions,
     		bool showUnflagged, bool showFlagged, bool selectAll ){
+	// Returned record is:
+	// 	0: {   // datacount 0 (first y-axis)
+	//   xaxis:  (for dataCount 0)
+	// 	 yaxis:  (for dataCount 0)
+	// 	 0: {
+	// 			< info for point 0 >
+	// 	 }
+	// 	 etc. (info for all points)
+	// 	}
+	//  1: {   // datacount 1 (second y-axis)
+	//   xaxis:  (for dataCount 1)
+	// 	 yaxis:  (for dataCount 1)
+	// 	 etc. (info for each point)
+	// 	}
+	// 	iteration: plotIterIndex
+	// }
 	Record record;
 	int indexCount = indexer_.size();
-	int dataCount = getDataCount();
-	if ( 0 <= plotIterIndex && plotIterIndex < indexCount){
-		for ( int i = 0; i < dataCount; i++ ){
-			Record subRecord = indexer_[i][plotIterIndex]->locateInfo(regions, showUnflagged,
+	for ( int i = 0; i < indexCount; i++ ){
+		int iterCount = indexer_[i].size();
+		if ( 0 <= plotIterIndex && plotIterIndex < iterCount){
+			Record dataSubRecord = indexer_[i][plotIterIndex]->locateInfo(regions, showUnflagged,
 							showFlagged, selectAll);
-			record.defineRecord( i, subRecord );
+			record.defineRecord( i, dataSubRecord );
 		}
 	}
+	if (plotIterIndex > 0)
+		record.define("iteration", plotIterIndex+1);
 	return record;
 }
 
@@ -197,7 +219,7 @@ PMS::Axis PlotMSCacheBase::getIterAxis() const {
 }
 
 PlotLogMessage* PlotMSCacheBase::locateRange( int plotIterIndex, const Vector<PlotRegion> & regions,
-     		bool showUnflagged, bool showFlagged){
+		bool showUnflagged, bool showFlagged){
 	PlotLogMessage* mesg = NULL;
 	String mesgContents;
 	int dataCount = indexer_.size();
@@ -227,7 +249,7 @@ PlotLogMessage* PlotMSCacheBase::locateRange( int plotIterIndex, const Vector<Pl
 }
 
 PlotLogMessage* PlotMSCacheBase::flagRange( int plotIterIndex, casa::PlotMSFlagging& flagging,
-     		const Vector<PlotRegion>& regions, bool showFlagged){
+		const Vector<PlotRegion>& regions, bool showFlagged){
 	PlotLogMessage* mesg = NULL;
 
 	// not allowed for solvable cal tables!
@@ -287,11 +309,11 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	// need a way to keep track of whether:
 	// 1) we already have the metadata loaded
 	// 2) the underlying MS has changed, requiring a reloading of metadata
-    userCanceled_ = false;
+	userCanceled_ = false;
 
-    // Trap ratio plots, only for cal tables
-    if ((selection.corr()=='/') && (cacheType()==PlotMSCacheBase::MS))
-	    throw(AipsError("Polarization ratio plots not supported for measurement sets."));
+	// Trap ratio plots, only for cal tables
+	if ((selection.corr()=='/') && (cacheType()==PlotMSCacheBase::MS))
+		throw(AipsError("Polarization ratio plots not supported for measurement sets."));
 
 	// Remember the axes that we will load for plotting:
 	currentX_.clear();
@@ -299,14 +321,14 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	currentXData_.clear();
 	currentYData_.clear();
 	int dataCount = axes.size() / 2;
-    bool doAtm(false);
+	bool doAtm(false);
 	for ( int i = 0; i < dataCount; i++ ){
 		currentX_.push_back(axes[i]);
-        currentXData_.push_back(data[i]);
+		currentXData_.push_back(data[i]);
 		currentY_.push_back(axes[dataCount+i]);
-        currentYData_.push_back(data[dataCount+i]);
-        if (axes[dataCount+i]==PMS::ATM || axes[dataCount+i]==PMS::TSKY)
-            doAtm=true;
+		currentYData_.push_back(data[dataCount+i]);
+		if (axes[dataCount+i]==PMS::ATM || axes[dataCount+i]==PMS::TSKY)
+			doAtm=true;
 	}
 
 	// Maintain access to this msname, selection, & averager, because we'll
@@ -314,20 +336,18 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	if ( filename_ != filename ){
 		setFilename(filename);  // sets filename_ and calType_ for cal table
 		ephemerisInitialized = false;
-	    const vector<PMS::Axis>& axes = PMS::axes();
-	    for(unsigned int i = 0; i < axes.size(); i++) 
-		    loadedAxes_[axes[i]] = false;
-        loadedAxesData_.clear();
+		const vector<PMS::Axis>& axes = PMS::axes();
+		for(unsigned int i = 0; i < axes.size(); i++) 
+			loadedAxes_[axes[i]] = false;
+		loadedAxesData_.clear();
 	}
 	selection_ = selection;
 	averaging_ = averaging;
 	transformations_ = transformations;
 	calibration_ = calibration;
 
-    if (doAtm) {
-        plotmsAtm_ = new PlotMSAtm(filename_, selection_,
-            cacheType()==PlotMSCacheBase::MS, this);
-    }
+	if (doAtm)
+		plotmsAtm_ = new PlotMSAtm(filename_, selection_, cacheType()==PlotMSCacheBase::MS, this);
 
 	//logLoad(selection_.summary());
 	logLoad(transformations_.summary());
@@ -336,7 +356,6 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 
 	// Trap (currently) unsupported modes
 	for ( int i = 0; i < dataCount; i++ ){
-
 		// Forbid antenna-based/baseline-based combination plots, for now
 		Vector<Bool> nAM=netAxesMask(currentX_[i],currentY_[i]);
 		if (nAM(2)&&nAM(3)){
@@ -344,31 +363,28 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 					PMS::axis(currentX_[i])+" and "+PMS::axis(currentY_[i])+")"));
 		}
 
-        // Check averaging validity
+		// Check averaging validity
 		if (averaging_.time() && averaging_.timeValue() < 0.0) {
 			logError("load", "Cannot average negative time value");
-            throw(AipsError("Invalid avgtime"));
-        }
-        if (averaging_.channel() && averaging_.channelValue() < 0.0) {
+			throw(AipsError("Invalid avgtime"));
+		}
+		if (averaging_.channel() && averaging_.channelValue() < 0.0) {
 			logError("load", "Cannot average negative number of channels");
-            throw(AipsError("Invalid avgchannel"));
-        }
-		if ( averaging_.baseline() || averaging_.antenna() || averaging_.spw() || averaging_.scalarAve())
-		{
+			throw(AipsError("Invalid avgchannel"));
+		}
+		if ( averaging_.baseline() || averaging_.antenna() || averaging_.spw() || averaging_.scalarAve()) {
 			int axesCount = axes.size();
-			for ( int j = 0; j < axesCount; j++ ){
-		        // Can't plot averaged weights yet with plotms-averaging code
-                if (PMS::axisIsWeight(axes[j])) {
+			for ( int j = 0; j < axesCount; j++ ) {
+				// Can't plot averaged weights yet with plotms-averaging code
+				if (PMS::axisIsWeight(axes[j]))
 					throw(AipsError("Selected averaging does not yet support Weight and Sigma axes."));
-				}
-                // Check axis/averaging compatibility
-				if ( !axisIsValid(axes[j], averaging_) ) {
+				// Check axis/averaging compatibility
+				if ( !axisIsValid(axes[j], averaging_) )
 					throw(AipsError(PMS::axis(axes[j]) + " axis is not valid for selected averaging."));
-				}
 			}
 		}
 
-        // Check ephemeris validity
+		// Check ephemeris validity
 		bool ephemerisX = isEphemerisAxis( currentX_[i]);
 		bool ephemerisY = isEphemerisAxis( currentY_[i]);
 		if ( ephemerisX || ephemerisY ){
@@ -400,12 +416,12 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	ss << "Caching for the new plot: ";
 	for ( int i = 0; i < dataCount; i++ ){
 		ss << PMS::axis(currentY_[i]) << "(" << currentY_[i] << ")";  
-        if (PMS::axisIsData(currentY_[i]))
-            ss << ":" << PMS::dataColumn(currentYData_[i]);
-        ss << " vs. " << PMS::axis(currentX_[i]) << "(" << currentX_[i] << ")";
-        if (PMS::axisIsData(currentX_[i]))
-            ss << ":" << PMS::dataColumn(currentXData_[i]);
-        ss << "...\n";
+		if (PMS::axisIsData(currentY_[i]))
+			ss << ":" << PMS::dataColumn(currentYData_[i]);
+		ss << " vs. " << PMS::axis(currentX_[i]) << "(" << currentX_[i] << ")";
+		if (PMS::axisIsData(currentX_[i]))
+			ss << ":" << PMS::dataColumn(currentXData_[i]);
+		ss << "...\n";
 	}
 	logLoad(ss.str());
 
@@ -416,31 +432,31 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	vector<PMS::Axis> loadAxes;
 	vector<PMS::DataColumn> loadData;
 
-	// A map that keeps track of all pending loaded axes
-	//  this is a list of all axes that will be loaded, if everything
-	//   works---it is used to pre-estimate memory requirements.
+	// A map that keeps track of all pending loaded axes.
+	//  This is a list of all axes that will be loaded, if everything
+	//  works---it is used to pre-estimate memory requirements.
 	pendingLoadAxes_.clear();
 
 	bool isCalCache(cacheType()==PlotMSCacheBase::CAL);
-    String caltype(calType());
+	String caltype(calType());
 	for(Int i = 0; i < nmetadata(); ++i) {
-      // skip invalid metadata axes for cal tables
-	  if (isCalCache) {
-		  if (metadata(i)==PMS::INTENT)
-			  continue;
-		  else if ((metadata(i)==PMS::ANTENNA2 || metadata(i)==PMS::BASELINE) &&
-                   (caltype=="BPOLY" || caltype=="GSPLINE"))
-			  continue;
-          else if ((metadata(i)==PMS::CHANNEL || metadata(i)==PMS::FREQUENCY) &&
-				    caltype=="GSPLINE")
-			  continue;
-      }
-	  pendingLoadAxes_[metadata(i)]=true; // all meta data will be loaded
-	  if(!loadedAxes_[metadata(i)]) {
-		loadAxes.push_back(metadata(i));
-		loadData.push_back(PMS::DEFAULT_DATACOLUMN);
- 	  }
-    }
+		// skip invalid metadata axes for cal tables
+		if (isCalCache) {
+			if (metadata(i)==PMS::INTENT)
+				continue;
+			else if ((metadata(i)==PMS::ANTENNA2 || metadata(i)==PMS::BASELINE) &&
+				(caltype=="BPOLY" || caltype=="GSPLINE"))
+				continue;
+			else if ((metadata(i)==PMS::CHANNEL || metadata(i)==PMS::FREQUENCY) &&
+				caltype=="GSPLINE")
+				continue;
+		}
+		pendingLoadAxes_[metadata(i)]=true; // all meta data will be loaded
+		if(!loadedAxes_[metadata(i)]) {
+			loadAxes.push_back(metadata(i));
+			loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+		}
+	}
 
 	// Ensure all _already-loaded_ axes are in the pending list
 	for (Int i= 0;i<PMS::NONE;++i)
@@ -458,8 +474,7 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 		// add to pending list
 		pendingLoadAxes_[axis]=true;
 
-		// if data vector is not the same length as axes vector, assume
-		// default data column
+		// If data vector is not the same length as axes vector, assume default data column
 		dc = PMS::DEFAULT_DATACOLUMN;
 		if(i < data.size()) dc = data[i];
 
@@ -468,8 +483,8 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 			if(loadAxes[j]==axis && loadData[j]==dc) found = true;
 		if(found) continue;
 
-		//If ephemeris data is not available we should not load axes 
-        //associated with ephemeris data.
+		// If ephemeris data is not available we should not load axes 
+		// associated with ephemeris data.
 		bool ephemerisAvailable = isEphemeris();
 		if ( !ephemerisAvailable ){
 			if ( axis == PMS::RADIAL_VELOCITY || axis == PMS::RHO ){
@@ -485,119 +500,77 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 
 		// 3)  data axis is loaded; check if data column loaded
 		else if(PMS::axisIsData(axis)) {
-            // Reload if averaging, else see if datacol is already loaded
-            //std::set<PMS::DataColumn> datacols = loadedAxesData_[axis];
-            String datacolStr = PMS::dataColumn(dc);
-            Bool datacolLoaded = loadedAxesData_[axis].isDefined(datacolStr);
-            if (!datacolLoaded) { 
-			    loadAxes.push_back(axis);
-			    loadData.push_back(dc);
-            } else {
-              // check if averaging changed since loading
-              Record datacolRec = loadedAxesData_[axis].subRecord(datacolStr);
-              PlotMSAveraging datacolAvg;
-              datacolAvg.fromRecord(datacolRec);
-              if (datacolAvg != averaging) {
-			    loadAxes.push_back(axis);
-			    loadData.push_back(dc);
-              }
-            }
-        }
-	}
-
-    
-
-	if (false) {
-		{
-			cout << "Already loaded axes: " << flush;
-			Int nload(0);
-			for (Int i= 0;i<PMS::NONE;++i)
-				if (loadedAxes_[PMS::Axis(i)]) {
-					++nload;
-					cout << PMS::axis(PMS::Axis(i)) << " " << flush;
+			// Reload if averaging, else see if datacol is already loaded
+			//std::set<PMS::DataColumn> datacols = loadedAxesData_[axis];
+			String datacolStr = PMS::dataColumn(dc);
+			Bool datacolLoaded = loadedAxesData_[axis].isDefined(datacolStr);
+			if (!datacolLoaded) { 
+				loadAxes.push_back(axis);
+				loadData.push_back(dc);
+			} else {
+				// check if averaging changed since loading
+				Record datacolRec = loadedAxesData_[axis].subRecord(datacolStr);
+				PlotMSAveraging datacolAvg;
+				datacolAvg.fromRecord(datacolRec);
+				if (datacolAvg != averaging) {
+					loadAxes.push_back(axis);
+					loadData.push_back(dc);
 				}
-			cout << " (" << nload << ")" <<  endl;
+			}
 		}
-		cout << "To be loaded axes (" << loadAxes.size() << "): " << flush;
-		for (uInt i=0;i<loadAxes.size();++i)
-			cout << PMS::axis(loadAxes[i]) << " " << flush;
-		cout << endl;
 	}
 
 	// Now Load data if the user doesn't cancel.
 	if(loadAxes.size() > 0) {
-
 		// Call method that actually does the loading (MS- or Cal-specific)
 		loadIt(loadAxes,loadData,thread);
-
 		// Update loaded axes if not canceled or failed.
-        if (wasCanceled()) { 
-            logLoad("Cache loading cancelled.");
-            return;  // no need to continue
-        } else {
-            for(unsigned int i = 0; i < loadAxes.size(); i++) {
-                axis = loadAxes[i];
-                loadedAxes_[axis] = true;
-                String datacol = PMS::dataColumn(loadData[i]);
-                if(PMS::axisIsData(axis)) 
-                    loadedAxesData_[axis].defineRecord(datacol, 
-                        averaging.toRecord());
-            }
-        }
-
-		if (false) {
-			{
-				cout << "Finally loaded axes: " << flush;
-				Int nload(0);
-				for (Int i= 0;i<PMS::NONE;++i)
-					if (loadedAxes_[PMS::Axis(i)]) {
-						++nload;
-						cout << PMS::axis(PMS::Axis(i)) << " " << flush;
-					}
-				cout << " (" << nload << ")" <<  endl;
+		if (wasCanceled()) { 
+			logLoad("Cache loading cancelled.");
+			return;  // no need to continue
+		} else {
+			for(unsigned int i = 0; i < loadAxes.size(); i++) {
+				axis = loadAxes[i];
+				loadedAxes_[axis] = true;
+				String datacol = PMS::dataColumn(loadData[i]);
+				if(PMS::axisIsData(axis)) 
+					loadedAxesData_[axis].defineRecord(datacol, averaging.toRecord());
 			}
 		}
-
 	} // something to load
 
-    if (wasCanceled()) { 
-        logLoad("Cache loading cancelled.");
-        return;  // no need to continue
-    }
+	if (wasCanceled()) { 
+		logLoad("Cache loading cancelled.");
+		return;  // no need to continue
+	}
 
-    // Setup/revis masks that we use to realize axes relationships
-    netAxesMask_.resize( dataCount );
-    for ( int i = 0; i < dataCount; i++ ){
-        Vector<Bool> xmask(4,false);
-        Vector<Bool> ymask(4,false);
-        setAxesMask(currentX_[i],xmask);
-        setAxesMask(currentY_[i],ymask);
-        netAxesMask_[i]=(xmask || ymask);
-    }
-    /*
-  cout << boolalpha;
-  cout << "xmask = " << xmask << endl;
-  cout << "ymask = " << ymask << endl;
-  cout << "netAxesMask_ = " << netAxesMask_ << endl;
-    */
+	// Setup/revis masks that we use to realize axes relationships
+	netAxesMask_.resize( dataCount );
+	for ( int i = 0; i < dataCount; i++ ){
+		Vector<Bool> xmask(4,false);
+		Vector<Bool> ymask(4,false);
+		setAxesMask(currentX_[i],xmask);
+		setAxesMask(currentY_[i],ymask);
+		netAxesMask_[i]=(xmask || ymask);
+	}
 
-    // Generate the plot mask from scratch
-    deletePlotMask();
-    plmask_.resize( dataCount );
-    for ( int i = 0; i < dataCount; i++ ){
-        setPlotMask( i );
-    }
+	// Generate the plot mask from scratch
+	deletePlotMask();
+	plmask_.resize( dataCount );
+	for ( int i = 0; i < dataCount; i++ ){
+		setPlotMask( i );
+	}
 
-    // Calculate refTime (for plot labels)
-    refTime_p=min(time_);
-    refTime_p=86400.0*floor(refTime_p/86400.0);
-    logLoad("refTime = "+MVTime(refTime_p/C::day).string(MVTime::YMD,7));
-    QString timeMesg("refTime = ");
-    timeMesg.append(MVTime(refTime_p/C::day).string(MVTime::YMD,7).c_str());
+	// Calculate refTime (for plot labels)
+	refTime_p=min(time_);
+	refTime_p=86400.0*floor(refTime_p/86400.0);
+	logLoad("refTime = "+MVTime(refTime_p/C::day).string(MVTime::YMD,7));
+	QString timeMesg("refTime = ");
+	timeMesg.append(MVTime(refTime_p/C::day).string(MVTime::YMD,7).c_str());
 
-    // At this stage, data is loaded and ready for indexing then plotting
-    dataLoaded_ = true;
-    logLoad("Finished loading.");
+	// At this stage, data is loaded and ready for indexing then plotting
+	dataLoaded_ = true;
+	logLoad("Finished loading.");
 }
 
 bool PlotMSCacheBase::axisIsValid(PMS::Axis axis, const PlotMSAveraging& averaging) {
@@ -642,7 +615,7 @@ void PlotMSCacheBase::clear() {
 	deleteIndexer();
 	deletePlotMask();
 	deleteCache();
-    deleteAtm();
+	deleteAtm();
 	refTime_p=0.0;
 	dataLoaded_=false;
 	pageHeaderCache_.clear();
@@ -659,169 +632,166 @@ void PlotMSCacheBase::clear() {
 		}
 
 
-//    cout << VAR.size() << " " << j << " " << PMS::axis(axes[i]) << " " << VAR[j]->nrefs() << " " << VAR[j] << endl; \
-
-
 void PlotMSCacheBase::release(const vector<PMS::Axis>& axes) {
 		for(unsigned int i = 0; i < axes.size(); i++) {
 			switch(axes[i]) {
 			case PMS::SCAN: scan_.resize(0);
-                break;
+				break;
 			case PMS::FIELD: field_.resize(0);
-                break;
+				break;
 			case PMS::TIME: time_.resize(0);
-                break;
+				break;
 			case PMS::TIME_INTERVAL: timeIntr_.resize(0);
-                break;
+				break;
 			case PMS::SPW: spw_.resize(0);
-                break;
+				break;
 			case PMS::CHANNEL: { 
-                PMSC_DELETE(chan_)
-                PMSC_DELETE(chansPerBin_)
-                }
-                break;
+				PMSC_DELETE(chan_)
+				PMSC_DELETE(chansPerBin_)
+				}
+				break;
 			case PMS::FREQUENCY: PMSC_DELETE(freq_)
-                break;
+				break;
 			case PMS::VELOCITY: PMSC_DELETE(vel_)
-                break;
+				break;
 			case PMS::CORR: PMSC_DELETE(corr_)
-                break;
+				break;
 			case PMS::ANTENNA1: PMSC_DELETE(antenna1_)
-                break;
+				break;
 			case PMS::ANTENNA2: PMSC_DELETE(antenna2_)
-                break;
+				break;
 			case PMS::BASELINE: PMSC_DELETE(baseline_)
-                break;
+				break;
 			case PMS::ROW: PMSC_DELETE(row_)
-                break;
+				break;
 			case PMS::OBSERVATION: PMSC_DELETE(obsid_)
-                break;
+				break;
 			case PMS::INTENT: PMSC_DELETE(intent_)
-                break;
+				break;
 			case PMS::FEED1: PMSC_DELETE(feed1_)
-                break;
+				break;
 			case PMS::FEED2: PMSC_DELETE(feed2_)
-                break;
+				break;
 			case PMS::AMP:
 			case PMS::GAMP: {
-                PMSC_DELETE(amp_)
-                PMSC_DELETE(ampCorr_)
-                PMSC_DELETE(ampModel_)
-                PMSC_DELETE(ampCorrModel_)
-                PMSC_DELETE(ampDataModel_)
-                PMSC_DELETE(ampDataDivModel_)
-                PMSC_DELETE(ampCorrDivModel_)
-                PMSC_DELETE(ampFloat_)
-                }
-                break;
+				PMSC_DELETE(amp_)
+				PMSC_DELETE(ampCorr_)
+				PMSC_DELETE(ampModel_)
+				PMSC_DELETE(ampCorrModel_)
+				PMSC_DELETE(ampDataModel_)
+				PMSC_DELETE(ampDataDivModel_)
+				PMSC_DELETE(ampCorrDivModel_)
+				PMSC_DELETE(ampFloat_)
+				}
+				break;
 			case PMS::PHASE:
 			case PMS::GPHASE: {
-                PMSC_DELETE(pha_)
-                PMSC_DELETE(phaCorr_)
-                PMSC_DELETE(phaModel_)
-                PMSC_DELETE(phaCorrModel_)
-                PMSC_DELETE(phaDataModel_)
-                PMSC_DELETE(phaDataDivModel_)
-                PMSC_DELETE(phaCorrDivModel_)
-                }
-                break;
+				PMSC_DELETE(pha_)
+				PMSC_DELETE(phaCorr_)
+				PMSC_DELETE(phaModel_)
+				PMSC_DELETE(phaCorrModel_)
+				PMSC_DELETE(phaDataModel_)
+				PMSC_DELETE(phaDataDivModel_)
+				PMSC_DELETE(phaCorrDivModel_)
+				}
+				break;
 			case PMS::REAL:
 			case PMS::GREAL: {
-                PMSC_DELETE(real_)
-                PMSC_DELETE(realCorr_)
-                PMSC_DELETE(realModel_)
-                PMSC_DELETE(realCorrModel_)
-                PMSC_DELETE(realDataModel_)
-                PMSC_DELETE(realDataDivModel_)
-                PMSC_DELETE(realCorrDivModel_)
-                }
-                break;
+				PMSC_DELETE(real_)
+				PMSC_DELETE(realCorr_)
+				PMSC_DELETE(realModel_)
+				PMSC_DELETE(realCorrModel_)
+				PMSC_DELETE(realDataModel_)
+				PMSC_DELETE(realDataDivModel_)
+				PMSC_DELETE(realCorrDivModel_)
+				}
+				break;
 			case PMS::IMAG:
 			case PMS::GIMAG: {
-                PMSC_DELETE(imag_)
-                PMSC_DELETE(imagCorr_)
-                PMSC_DELETE(imagModel_)
-                PMSC_DELETE(imagCorrModel_)
-                PMSC_DELETE(imagDataModel_)
-                PMSC_DELETE(imagDataDivModel_)
-                PMSC_DELETE(imagCorrDivModel_)
-                }
-                break;
+				PMSC_DELETE(imag_)
+				PMSC_DELETE(imagCorr_)
+				PMSC_DELETE(imagModel_)
+				PMSC_DELETE(imagCorrModel_)
+				PMSC_DELETE(imagDataModel_)
+				PMSC_DELETE(imagDataDivModel_)
+				PMSC_DELETE(imagCorrDivModel_)
+				}
+				break;
 			case PMS::WTxAMP: {
-                PMSC_DELETE(wtxamp_)
-                PMSC_DELETE(wtxampCorr_)
-                PMSC_DELETE(wtxampModel_)
-                PMSC_DELETE(wtxampCorrModel_)
-                PMSC_DELETE(wtxampDataModel_)
-                PMSC_DELETE(wtxampDataDivModel_)
-                PMSC_DELETE(wtxampCorrDivModel_)
-                PMSC_DELETE(wtxampFloat_)
-                }
-                break;
+				PMSC_DELETE(wtxamp_)
+				PMSC_DELETE(wtxampCorr_)
+				PMSC_DELETE(wtxampModel_)
+				PMSC_DELETE(wtxampCorrModel_)
+				PMSC_DELETE(wtxampDataModel_)
+				PMSC_DELETE(wtxampDataDivModel_)
+				PMSC_DELETE(wtxampCorrDivModel_)
+				PMSC_DELETE(wtxampFloat_)
+				}
+				break;
 			case PMS::WT: PMSC_DELETE(wt_)
-                break;
+				break;
 			case PMS::WTSP: PMSC_DELETE(wtsp_)
-                break;
+				break;
 			case PMS::SIGMA: PMSC_DELETE(sigma_)
-                break;
+				break;
 			case PMS::SIGMASP: PMSC_DELETE(sigmasp_)
-                break;
+				break;
 			case PMS::FLAG: PMSC_DELETE(flag_)
-                break;
+				break;
 			case PMS::FLAG_ROW: PMSC_DELETE(flagrow_)
-                break;
+				break;
 			case PMS::UVDIST: PMSC_DELETE(uvdist_)
-                break;
+				break;
 			case PMS::UVDIST_L: PMSC_DELETE(uvdistL_)
-                break;
+				break;
 			case PMS::U: PMSC_DELETE(u_)
-                break;
+				break;
 			case PMS::V: PMSC_DELETE(v_)
-                break;
+				break;
 			case PMS::W: PMSC_DELETE(w_)
-                break;
+				break;
 			case PMS::UWAVE: PMSC_DELETE(uwave_)
-                break;
+				break;
 			case PMS::VWAVE: PMSC_DELETE(vwave_)
-                break;
+				break;
 			case PMS::WWAVE: PMSC_DELETE(wwave_)
-                break;
+				break;
 			case PMS::AZ0: az0_.resize(0);
-                break;
+				break;
 			case PMS::EL0: el0_.resize(0);
-                break;
+				break;
 			case PMS::HA0: ha0_.resize(0);
-                break;
+				break;
 			case PMS::PA0: pa0_.resize(0);
-                break;
+				break;
 			case PMS::ANTENNA: PMSC_DELETE(antenna_)
-                break;
+				break;
 			case PMS::AZIMUTH: PMSC_DELETE(az_)
-                break;
+				break;
 			case PMS::ELEVATION: PMSC_DELETE(el_)
-                break;
+				break;
 			case PMS::PARANG: PMSC_DELETE(parang_)
-                break;
+				break;
 			case PMS::DELAY:
 			case PMS::SWP:
 			case PMS::TSYS:
 			case PMS::OPAC:
 			case PMS::TEC: PMSC_DELETE(par_)
-                break;
+				break;
 			case PMS::SNR: PMSC_DELETE(snr_)
-                break;
+				break;
 			case PMS::ANTPOS: PMSC_DELETE(antpos_)
-                break;
+				break;
 			case PMS::RADIAL_VELOCITY: radialVelocity_.resize(0);
-                break;
+				break;
 			case PMS::RHO: rho_.resize(0);
-                break;
+				break;
 			case PMS::ATM: PMSC_DELETE(atm_)
-                break;
+				break;
 			case PMS::TSKY: PMSC_DELETE(tsky_)
-                break;
+				break;
 			case PMS::NONE:
-                break;
+				break;
 			}
 
 			loadedAxes_[axes[i]] = false;
@@ -854,11 +824,25 @@ void PlotMSCacheBase::resizeIndexer( int size ){
 	deleteIndexer();
 	indexer_.resize( size );
 	//plmask_.resize( size );
+	xminG_.resize(size);
+	xmaxG_.resize(size);
+	yminG_.resize(size);
+	ymaxG_.resize(size);
+	xflminG_.resize(size);
+	xflmaxG_.resize(size);
+	yflminG_.resize(size);
+	yflmaxG_.resize(size);
 }
 
 void PlotMSCacheBase::clearRanges(){
-	xminG_=yminG_=xflminG_=yflminG_=DBL_MAX;
-	xmaxG_=ymaxG_=xflmaxG_=yflmaxG_=-DBL_MAX;
+	xminG_.set(DBL_MAX);
+	yminG_.set(DBL_MAX);
+	xflminG_.set(DBL_MAX);
+	yflminG_.set(DBL_MAX);
+	xmaxG_.set(-DBL_MAX);
+	ymaxG_.set(-DBL_MAX);
+	xflmaxG_.set(-DBL_MAX);
+	yflmaxG_.set(-DBL_MAX);
 }
 
 String PlotMSCacheBase::getTimeBounds( int iterValue ){
@@ -911,30 +895,30 @@ pair<Double,Double> PlotMSCacheBase::getTimeBounds() const {
 	int dataCount = getDataCount();
 	for ( int i = 0; i < dataCount; i++ ){
 		if (PMS::axis(currentY_[i]) == "Time") {
-			timeBounds.first = yminG_;
-			timeBounds.second = ymaxG_;
+			timeBounds.first = yminG_[i];
+			timeBounds.second = ymaxG_[i];
 			break;
 		}
 		else if (PMS::axis(currentX_[i]) == "Time") {
-			timeBounds.first = xminG_;
-			timeBounds.second = xmaxG_;
+			timeBounds.first = xminG_[i];
+			timeBounds.second = xmaxG_[i];
 			break;
 		}
 	}
 	return timeBounds;
 }
 
-pair<Double,Double> PlotMSCacheBase::getYAxisBounds() const {
+pair<Double,Double> PlotMSCacheBase::getYAxisBounds(int index) const {
     pair<Double,Double> axisBounds;
-	axisBounds.first = yminG_;
-	axisBounds.second = ymaxG_;
+	axisBounds.first = yminG_[index];
+	axisBounds.second = ymaxG_[index];
 	return axisBounds;
 }
 
-pair<Double,Double> PlotMSCacheBase::getXAxisBounds() const {
+pair<Double,Double> PlotMSCacheBase::getXAxisBounds(int index) const {
     pair<Double,Double> axisBounds;
-	axisBounds.first = xminG_;
-	axisBounds.second = xmaxG_;
+	axisBounds.first = xminG_[index];
+	axisBounds.second = xmaxG_[index];
 	return axisBounds;
 }
 
@@ -943,19 +927,16 @@ bool PlotMSCacheBase::isIndexerInitialized( PMS::Axis iteraxis, Bool globalXRang
 	bool initialized = true;
 	if ( this->iterAxis != iteraxis ){
 		initialized = false;
-	}
-	else {
+	} else {
 		if ( static_cast<int>(indexer_.size())<= dataIndex ){
 			initialized = false;
-		}
-		else {
+		} else {
 			if ( indexer_[dataIndex].empty()){
 				initialized = false;
-			}
-			else {
+			} else {
 				if ( indexer_[dataIndex][0] == NULL ||
 						indexer_[dataIndex][0]->isGlobalXRange() != globalXRange ||
-					indexer_[dataIndex][0]->isGlobalYRange() != globalYRange ){
+						indexer_[dataIndex][0]->isGlobalYRange() != globalYRange ) {
 					initialized = false;
 				}
 			}
@@ -966,9 +947,7 @@ bool PlotMSCacheBase::isIndexerInitialized( PMS::Axis iteraxis, Bool globalXRang
 
 void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 		Bool globalYRange, int dataIndex ) {
-
 	logLoad("Setting up iteration indexing (if necessary), and calculating plot ranges.");
-
 	Int nIter=0;
 	Vector<Int> iterValues;
 
@@ -991,7 +970,6 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 		break;
 	}
 	case PMS::BASELINE: {
-
 		// Revise axes mask, etc., to ensure baseline-dependence
 		if (!netAxesMask_[dataIndex](2)) {
 			netAxesMask_[dataIndex](2)=true;
@@ -1005,12 +983,6 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 		Vector<Int> bslnList(nBslnMax);
 		Vector<Bool> bslnMask(nBslnMax,false);
 		indgen(bslnList);
-		/*
-    cout << "*baseline_[0] = " << *baseline_[0] << endl;
-    cout << "*antenna1_[0] = " << *antenna1_[0] << endl;
-    cout << "*antenna2_[0] = " << *antenna2_[0] << endl;
-    cout << "bslnList = " << bslnList << endl;
-		 */
 
 		for (Int ich=0;ich<nChunk_;++ich)
 			if (goodChunk_(ich))
@@ -1025,7 +997,6 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 		break;
 	}
 	case PMS::ANTENNA: {
-
 		// Escape if (full) baseline averaging is on, since we won't find any iterations
 		if (averaging_.baseline())
 			throw(AipsError("Iteration over antenna not supported with full baseline averaging."));
@@ -1053,7 +1024,6 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 				for (Int ibl=0;ibl<chunkShapes()(2,ich);++ibl) {
 					Int a1 =*(antenna1_[ich]->data()+ibl);
 					_updateAntennaMask( a1, antMask, selAnts1 );
-
 					// some cal tables iterate on antenna (antenna1)
 					if (!antenna2_.empty()) {
 						Int a2 =*(antenna2_[ich]->data()+ibl);
@@ -1069,8 +1039,6 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 		break;
 	}
 	case PMS::TIME: {
-
-
 		if (averaging_.time()){
 			double timeInterval= averaging_.timeValue();
 			if ( timeInterval <= 0 ){
@@ -1082,7 +1050,7 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 			double quotient = qRound(totalTime / timeInterval);
 			nIter = static_cast<int>( quotient )+1;
 
-		    //It does not make sense to have more iterations than number of chunks.
+			//It does not make sense to have more iterations than number of chunks.
 			//This could happen if averaging is set less than the time interval between chunks.
 			if ( nIter > nChunk_){
 				nIter = nChunk_;
@@ -1096,10 +1064,8 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 				timeList[j] = timeIndex;
 			}
 			iterValues = timeList;
-		}
-
-		//We are not averaging time.  Store and count the unique time values.
-		else {
+		} else {
+			//We are not averaging time.  Store and count the unique time values.
 			::QList<double> uniqueTimes;
 			::QVector<int> timeList;
 			for ( int i = 0; i < nChunk(); i++ ){
@@ -1117,28 +1083,27 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 		}
 		break;
 	}
-    case PMS::CORR: {
-        // Revise axes mask, etc., to ensure correlation-dependence
-        if (!netAxesMask_[dataIndex](0)) {
-            netAxesMask_[dataIndex](0)=true;
-            setPlotMask( dataIndex );
-        }
-
-        Int nCorrMax = Stokes::NumberOfTypes;
-        Vector<Int> corrList(nCorrMax);
-        Vector<Bool> corrMask(nCorrMax,false);
-        indgen(corrList);
-        for (Int ich=0;ich<nChunk_;++ich){
-            if (goodChunk_(ich)){
-                for (Int icorr=0; icorr<chunkShapes()(0,ich); ++icorr) {
-                    corrMask(*(corr_[ich]->data()+icorr))=true;
-                }
-            }
-        }
-        iterValues=corrList(corrMask).getCompressedArray();
-        nIter=iterValues.nelements();
-        break;
-    }
+	case PMS::CORR: {
+		// Revise axes mask, etc., to ensure correlation-dependence
+		if (!netAxesMask_[dataIndex](0)) {
+			netAxesMask_[dataIndex](0)=true;
+			setPlotMask( dataIndex );
+		}
+		Int nCorrMax = Stokes::NumberOfTypes;
+		Vector<Int> corrList(nCorrMax);
+		Vector<Bool> corrMask(nCorrMax,false);
+		indgen(corrList);
+		for (Int ich=0;ich<nChunk_;++ich){
+			if (goodChunk_(ich)){
+				for (Int icorr=0; icorr<chunkShapes()(0,ich); ++icorr) {
+					corrMask(*(corr_[ich]->data()+icorr))=true;
+				}
+			}
+		}
+		iterValues=corrList(corrMask).getCompressedArray();
+		nIter=iterValues.nelements();
+		break;
+	}
 	case PMS::NONE: {
 		nIter=1;
 		iterValues.resize(1);
@@ -1156,50 +1121,46 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 		logLoad(ss.str());
 	}
 
-	// cout << "********nIter = " << nIter << " iterValues = " << iterValues(IPosition(1,0),IPosition(1,nIter-1)) << endl;
-
-
 	indexer_[dataIndex].resize(nIter);
 	indexer_[dataIndex].set( NULL );
-	for (Int iter=0;iter<nIter;++iter){
+	for (Int iter=0;iter<nIter;++iter) {
 		indexer_[dataIndex][iter] = new PlotMSIndexer(this, 
-            currentX_[dataIndex], currentXData_[dataIndex], 
-            currentY_[dataIndex], currentYData_[dataIndex],
-            iteraxis, iterValues(iter), dataIndex);
+			currentX_[dataIndex], currentXData_[dataIndex], 
+			currentY_[dataIndex], currentYData_[dataIndex],
+			iteraxis, iterValues(iter), dataIndex);
 	}
+
 	// Extract global ranges from the indexers
 	// Initialize limits
-
 	Double ixmin,iymin,ixmax,iymax;
 	Double ixflmin,iyflmin,ixflmax,iyflmax;
 	for (Int iter=0;iter<nIter;++iter) {
 		indexer_[dataIndex][iter]->unmaskedMinsMaxesRaw(ixmin,ixmax,iymin,iymax);
-		xminG_=min(xminG_,ixmin);
-		xmaxG_=max(xmaxG_,ixmax);
-		yminG_=min(yminG_,iymin);
-		ymaxG_=max(ymaxG_,iymax);
+		xminG_[dataIndex] = min(xminG_[dataIndex], ixmin);
+		xmaxG_[dataIndex] = max(xmaxG_[dataIndex], ixmax);
+		yminG_[dataIndex] = min(yminG_[dataIndex], iymin);
+		ymaxG_[dataIndex] = max(ymaxG_[dataIndex], iymax);
 
 		indexer_[dataIndex][iter]->maskedMinsMaxesRaw(ixflmin,ixflmax,iyflmin,iyflmax);
-		xflminG_=min(xflminG_,ixflmin);
-		xflmaxG_=max(xflmaxG_,ixflmax);
-		yflminG_=min(yflminG_,iyflmin);
-		yflmaxG_=max(yflmaxG_,iyflmax);
+		xflminG_[dataIndex] = min(xflminG_[dataIndex], ixflmin);
+		xflmaxG_[dataIndex] = max(xflmaxG_[dataIndex], ixflmax);
+		yflminG_[dataIndex] = min(yflminG_[dataIndex], iyflmin);
+		yflmaxG_[dataIndex] = max(yflmaxG_[dataIndex], iyflmax);
 
 		// set usage of globals
 		indexer_[dataIndex][iter]->setGlobalMinMax(globalXRange,globalYRange);
 	}
-
 	//Store the iteration axis.
 	this->iterAxis = iteraxis;
-
 	{
 		stringstream ss;
 		ss << "Axes ranges:" << endl
 		   << PMS::axis(currentX_[dataIndex]);
+
         if (PMS::axisIsData(currentX_[dataIndex])) 
             ss << ":" << PMS::dataColumn(currentXData_[dataIndex]);
         ss << ": " << ixmin << " to " << ixmax << " (unflagged); ";
-        if (xflminG_ == DBL_MAX)
+        if (xflminG_[dataIndex] == DBL_MAX)
             ss << "(no flagged data)" << endl;
         else 
 		   ss << "; " << ixflmin << " to " << ixflmax << " (flagged)." << endl;
@@ -1207,19 +1168,19 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
         if (PMS::axisIsData(currentY_[dataIndex])) 
             ss << ":" << PMS::dataColumn(currentYData_[dataIndex]);
         ss << ": " << iymin << " to " << iymax << " (unflagged); ";
-        if (yflminG_ == DBL_MAX)
+        if (yflminG_ [dataIndex]== DBL_MAX)
             ss << "(no flagged data)";
         else
 		    ss << iyflmin << " to " << iyflmax << "(flagged).";
 		logLoad(ss.str());
     
-        if (indexer_[dataIndex][0]->plotConjugates()) {
-            stringstream ss;
-            ss << "For a UV plot, plotms will plot the conjugates of the points in the MS." << endl;
-            ss << "However, the Locate and Flag functions will not work for these conjugate points!" << endl;
-            ss << "The global ranges above do not include the conjugates.";
-            logWarn("load_cache", ss.str());
-        } 
+		if (indexer_[dataIndex][0]->plotConjugates()) {
+			stringstream ss;
+			ss << "For a UV plot, plotms will plot the conjugates of the points in the MS." << endl;
+			ss << "However, the Locate and Flag functions will not work for these conjugate points!" << endl;
+			ss << "The global ranges above do not include the conjugates.";
+			logWarn("load_cache", ss.str());
+		} 
 	}
 }
 
@@ -1249,8 +1210,6 @@ void PlotMSCacheBase::_updateAntennaMask( Int a, Vector<Bool>& antMask,
 //*********************************
 // protected method implementations
 
-
-
 // set the number of chunks we can store
 void PlotMSCacheBase::setCache(Int newnChunk, 
     const vector<PMS::Axis>& loadAxes, 
@@ -1260,10 +1219,10 @@ void PlotMSCacheBase::setCache(Int newnChunk,
 
     // Resize axes we will load
     for (uInt i=0; i<loadAxes.size(); ++i) {
-	    // Resize, copying existing contents
+        // Resize, copying existing contents
         switch(loadAxes[i]) {
             case PMS::SCAN: {
-	            scan_.resize(nChunk_,true);
+                scan_.resize(nChunk_,true);
                 }
                 break;
             case PMS::FIELD: {
@@ -1278,74 +1237,86 @@ void PlotMSCacheBase::setCache(Int newnChunk,
                 timeIntr_.resize(nChunk_,true);
                 }
                 break;
-	        case PMS::SPW: {
+            case PMS::SPW: {
                 spw_.resize(nChunk_,true);
                 }
                 break;
             case PMS::CHANNEL: {
-		        addVectors(chan_);
-		        addArrays(chansPerBin_);
+                addVectors(chan_);
+                addArrays(chansPerBin_);
                 }
                 break;
             case PMS::FREQUENCY:
-		        addVectors(freq_);
+                addVectors(freq_);
                 break;
             case PMS::VELOCITY:
-		        addVectors(vel_);
+                addVectors(vel_);
                 break;
             case PMS::CORR:
-		        addVectors(corr_);
+                addVectors(corr_);
                 break;
-	        case PMS::ANTENNA1:
-		        addVectors(antenna1_);
+            case PMS::ANTENNA1:
+                addVectors(antenna1_);
                 break;
             case PMS::ANTENNA2:
-		        addVectors(antenna2_);
+                addVectors(antenna2_);
                 break;
             case PMS::BASELINE:
-		        addVectors(baseline_);
+                addVectors(baseline_);
                 break;
             case PMS::ROW:
                 addVectors(row_);
                 break;
             case PMS::OBSERVATION:
-		        addVectors(obsid_);
+                addVectors(obsid_);
                 break;
             case PMS::INTENT:
-		        addVectors(intent_);
+                addVectors(intent_);
                 break;
             case PMS::FEED1:
-		        addVectors(feed1_);
+                addVectors(feed1_);
                 break;
             case PMS::FEED2:
-		        addVectors(feed2_);
+                addVectors(feed2_);
                 break;
-	        case PMS::AMP: 
+            case PMS::AMP: 
             case PMS::GAMP: {
                 switch(loadData[i]) {
                     case PMS::DATA:
-		                addArrays(amp_);
+                        addArrays(amp_);
                         break;
                     case PMS::CORRECTED:
-		                addArrays(ampCorr_);
+                        addArrays(ampCorr_);
                         break;
                     case PMS::MODEL:
-		                addArrays(ampModel_);
+                        addArrays(ampModel_);
                         break;
-                    case PMS::CORRMODEL:
-		                addArrays(ampCorrModel_);
+                    case PMS::CORRMODEL_V:
+                        addArrays(ampCorrModel_);
                         break;
-                    case PMS::DATAMODEL:
-		                addArrays(ampDataModel_);
+                    case PMS::CORRMODEL_S:
+                        addArrays(ampCorrModelS_);
                         break;
-                    case PMS::DATA_DIVIDE_MODEL:
-		                addArrays(ampDataDivModel_);
+                    case PMS::DATAMODEL_V:
+                        addArrays(ampDataModel_);
                         break;
-                    case PMS::CORRECTED_DIVIDE_MODEL:
-		                addArrays(ampCorrDivModel_);
+                    case PMS::DATAMODEL_S:
+                        addArrays(ampDataModelS_);
+                        break;
+                    case PMS::DATA_DIV_MODEL_V:
+                        addArrays(ampDataDivModel_);
+                        break;
+                    case PMS::DATA_DIV_MODEL_S:
+                        addArrays(ampDataDivModelS_);
+                        break;
+                    case PMS::CORR_DIV_MODEL_V:
+                        addArrays(ampCorrDivModel_);
+                        break;
+                    case PMS::CORR_DIV_MODEL_S:
+                        addArrays(ampCorrDivModelS_);
                         break;
                     case PMS::FLOAT_DATA:
-		                addArrays(ampFloat_);
+                        addArrays(ampFloat_);
                         break;
                     }
                 }
@@ -1354,25 +1325,37 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::GPHASE: {
                 switch(loadData[i]) {
                     case PMS::DATA:
-		                addArrays(pha_);
+                        addArrays(pha_);
                         break;
                     case PMS::CORRECTED:
-		                addArrays(phaCorr_);
+                        addArrays(phaCorr_);
                         break;
                     case PMS::MODEL:
-		                addArrays(phaModel_);
+                        addArrays(phaModel_);
                         break;
-                    case PMS::CORRMODEL:
-		                addArrays(phaCorrModel_);
+                    case PMS::CORRMODEL_V:
+                        addArrays(phaCorrModel_);
                         break;
-                    case PMS::DATAMODEL:
-		                addArrays(phaDataModel_);
+                    case PMS::CORRMODEL_S:
+                        addArrays(phaCorrModelS_);
                         break;
-                    case PMS::DATA_DIVIDE_MODEL:
-		                addArrays(phaDataDivModel_);
+                    case PMS::DATAMODEL_V:
+                        addArrays(phaDataModel_);
                         break;
-                    case PMS::CORRECTED_DIVIDE_MODEL:
-		                addArrays(phaCorrDivModel_);
+                    case PMS::DATAMODEL_S:
+                        addArrays(phaDataModelS_);
+                        break;
+                    case PMS::DATA_DIV_MODEL_V:
+                        addArrays(phaDataDivModel_);
+                        break;
+                    case PMS::DATA_DIV_MODEL_S:
+                        addArrays(phaDataDivModelS_);
+                        break;
+                    case PMS::CORR_DIV_MODEL_V:
+                        addArrays(phaCorrDivModel_);
+                        break;
+                    case PMS::CORR_DIV_MODEL_S:
+                        addArrays(phaCorrDivModelS_);
                         break;
                     case PMS::FLOAT_DATA:
                         break;
@@ -1383,28 +1366,40 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::GREAL: {
                 switch(loadData[i]) {
                     case PMS::DATA:
-		                addArrays(real_);
+                        addArrays(real_);
                         break;
                     case PMS::CORRECTED:
-		                addArrays(realCorr_);
+                        addArrays(realCorr_);
                         break;
                     case PMS::MODEL:
-		                addArrays(realModel_);
+                        addArrays(realModel_);
                         break;
-                    case PMS::CORRMODEL:
-		                addArrays(realCorrModel_);
+                    case PMS::CORRMODEL_V:
+                        addArrays(realCorrModel_);
                         break;
-                    case PMS::DATAMODEL:
-		                addArrays(realDataModel_);
+                    case PMS::CORRMODEL_S:
+                        addArrays(realCorrModelS_);
                         break;
-                    case PMS::DATA_DIVIDE_MODEL:
-		                addArrays(realDataDivModel_);
+                    case PMS::DATAMODEL_V:
+                        addArrays(realDataModel_);
                         break;
-                    case PMS::CORRECTED_DIVIDE_MODEL:
-		                addArrays(realCorrDivModel_);
+                    case PMS::DATAMODEL_S:
+                        addArrays(realDataModelS_);
+                        break;
+                    case PMS::DATA_DIV_MODEL_V:
+                        addArrays(realDataDivModel_);
+                        break;
+                    case PMS::DATA_DIV_MODEL_S:
+                        addArrays(realDataDivModelS_);
+                        break;
+                    case PMS::CORR_DIV_MODEL_V:
+                        addArrays(realCorrDivModel_);
+                        break;
+                    case PMS::CORR_DIV_MODEL_S:
+                        addArrays(realCorrDivModelS_);
                         break;
                     case PMS::FLOAT_DATA:
-		                addArrays(real_);
+                        addArrays(real_);
                         break;
                     }
                 }
@@ -1413,25 +1408,37 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::GIMAG: {
                 switch(loadData[i]) {
                     case PMS::DATA:
-		                addArrays(imag_);
+                        addArrays(imag_);
                         break;
                     case PMS::CORRECTED:
-		                addArrays(imagCorr_);
+                        addArrays(imagCorr_);
                         break;
                     case PMS::MODEL: 
-		                addArrays(imagModel_);
+                        addArrays(imagModel_);
                         break;
-                    case PMS::CORRMODEL:
-		                addArrays(imagCorrModel_);
+                    case PMS::CORRMODEL_V:
+                        addArrays(imagCorrModel_);
                         break;
-                    case PMS::DATAMODEL:
-		                addArrays(imagDataModel_);
+                    case PMS::CORRMODEL_S:
+                        addArrays(imagCorrModelS_);
                         break;
-                    case PMS::DATA_DIVIDE_MODEL: 
-		                addArrays(imagDataDivModel_);
+                    case PMS::DATAMODEL_V:
+                        addArrays(imagDataModel_);
                         break;
-                    case PMS::CORRECTED_DIVIDE_MODEL:
-		                addArrays(imagCorrDivModel_);
+                    case PMS::DATAMODEL_S:
+                        addArrays(imagDataModelS_);
+                        break;
+                    case PMS::DATA_DIV_MODEL_V: 
+                        addArrays(imagDataDivModel_);
+                        break;
+                    case PMS::DATA_DIV_MODEL_S: 
+                        addArrays(imagDataDivModelS_);
+                        break;
+                    case PMS::CORR_DIV_MODEL_V:
+                        addArrays(imagCorrDivModel_);
+                        break;
+                    case PMS::CORR_DIV_MODEL_S:
+                        addArrays(imagCorrDivModelS_);
                         break;
                     case PMS::FLOAT_DATA:
                         break;
@@ -1441,75 +1448,87 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::WTxAMP: {
                 switch(loadData[i]) {
                     case PMS::DATA:
-		                addArrays(wtxamp_);
+                        addArrays(wtxamp_);
                         break;
                     case PMS::CORRECTED:
-		                addArrays(wtxampCorr_);
+                        addArrays(wtxampCorr_);
                         break;
                     case PMS::MODEL:
-		                addArrays(wtxampModel_);
+                        addArrays(wtxampModel_);
                         break;
-                    case PMS::CORRMODEL:
-		                addArrays(wtxampCorrModel_);
+                    case PMS::CORRMODEL_V:
+                        addArrays(wtxampCorrModel_);
                         break;
-                    case PMS::DATAMODEL:
-		                addArrays(wtxampDataModel_);
+                    case PMS::CORRMODEL_S:
+                        addArrays(wtxampCorrModelS_);
                         break;
-                    case PMS::DATA_DIVIDE_MODEL:
-		                addArrays(wtxampDataDivModel_);
+                    case PMS::DATAMODEL_V:
+                        addArrays(wtxampDataModel_);
                         break;
-                    case PMS::CORRECTED_DIVIDE_MODEL:
-		                addArrays(wtxampCorrDivModel_);
+                    case PMS::DATAMODEL_S:
+                        addArrays(wtxampDataModelS_);
+                        break;
+                    case PMS::DATA_DIV_MODEL_V:
+                        addArrays(wtxampDataDivModel_);
+                        break;
+                    case PMS::DATA_DIV_MODEL_S:
+                        addArrays(wtxampDataDivModelS_);
+                        break;
+                    case PMS::CORR_DIV_MODEL_V:
+                        addArrays(wtxampCorrDivModel_);
+                        break;
+                    case PMS::CORR_DIV_MODEL_S:
+                        addArrays(wtxampCorrDivModelS_);
                         break;
                     case PMS::FLOAT_DATA:
-		                addArrays(wtxampFloat_);
+                        addArrays(wtxampFloat_);
                         break;
                     }
                 }
                 break;
             case PMS::WT:
-		        addArrays(wt_);
+                addArrays(wt_);
                 break;
             case PMS::WTSP:
-		        addArrays(wtsp_);
+                addArrays(wtsp_);
                 break;
             case PMS::SIGMA:
-		        addArrays(sigma_);
+                addArrays(sigma_);
                 break;
             case PMS::SIGMASP:
-		        addArrays(sigmasp_);
+                addArrays(sigmasp_);
                 break;
             case PMS::FLAG:
             case PMS::FLAG_ROW: {
-		        addArrays(flag_);
-		        addVectors(flagrow_);
+                addArrays(flag_);
+                addVectors(flagrow_);
                 break;
             }
-	        case PMS::UVDIST:
-		        addVectors(uvdist_);
+            case PMS::UVDIST:
+                addVectors(uvdist_);
                 break;
-	        case PMS::UVDIST_L:
-		        addMatrices(uvdistL_);
+            case PMS::UVDIST_L:
+                addMatrices(uvdistL_);
                 break;
             case PMS::U:
-		        addVectors(u_);
+                addVectors(u_);
                 break;
             case PMS::V:
-		        addVectors(v_);
+                addVectors(v_);
                 break;
             case PMS::W:
-		        addVectors(w_);
+                addVectors(w_);
                 break;
             case PMS::UWAVE:
-		        addMatrices(uwave_);
+                addMatrices(uwave_);
                 break;
             case PMS::VWAVE:
-		        addMatrices(vwave_);
+                addMatrices(vwave_);
                 break;
             case PMS::WWAVE:
-		        addMatrices(wwave_);
+                addMatrices(wwave_);
                 break;
-	        case PMS::AZ0:
+            case PMS::AZ0:
             case PMS::EL0: {
                 az0_.resize(nChunk_,true);
                 el0_.resize(nChunk_,true);
@@ -1521,40 +1540,40 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::PA0:
                 pa0_.resize(nChunk_,true);
                 break;
-	        case PMS::ANTENNA:
-		        addVectors(antenna_);
+            case PMS::ANTENNA:
+                addVectors(antenna_);
                 break;
             case PMS::AZIMUTH:
             case PMS::ELEVATION: {
-		        addVectors(az_);
-		        addVectors(el_);
+                addVectors(az_);
+                addVectors(el_);
                 break;
             }
-	        case PMS::PARANG:
-		        addVectors(parang_);
+            case PMS::PARANG:
+                addVectors(parang_);
                 break;
-	        case PMS::DELAY:
-		        addArrays(par_);
+            case PMS::DELAY:
+                addArrays(par_);
                 break;
             case PMS::SWP:
-		        addArrays(par_);
+                addArrays(par_);
                 break;
             case PMS::TSYS:
-		        addArrays(par_);
+                addArrays(par_);
                 break;
             case PMS::OPAC:
-		        addArrays(par_);
+                addArrays(par_);
                 break;
             case PMS::SNR:
-		        addArrays(snr_);
+                addArrays(snr_);
                 break;
             case PMS::TEC:
-		        addArrays(par_);
+                addArrays(par_);
                 break;
             case PMS::ANTPOS:
-		        addArrays(antpos_);
+                addArrays(antpos_);
                 break;
-	        case PMS::RADIAL_VELOCITY: {
+            case PMS::RADIAL_VELOCITY: {
                 radialVelocity_.resize(nChunk_,true);
                 }
                 break;
@@ -1563,15 +1582,15 @@ void PlotMSCacheBase::setCache(Int newnChunk,
                 }
                 break;
             case PMS::ATM:
-		        addVectors(atm_);
+                addVectors(atm_);
                 break;
             case PMS::TSKY:
-		        addVectors(tsky_);
+                addVectors(tsky_);
                 break;
             case PMS::NONE:
                 break;
         }
-	}
+    }
 }
 
 template<typename T>
@@ -1579,8 +1598,8 @@ void PlotMSCacheBase::addArrays(PtrBlock<Array<T>*>& input) {
     Int oldsize = input.size();
     if (nChunk_ > oldsize) {
         input.resize(nChunk_, false, true);
-	    // Construct (empty) pointed-to Vectors
-	    for (Int ic=oldsize; ic<nChunk_; ++ic) 
+        // Construct (empty) pointed-to Vectors
+        for (Int ic=oldsize; ic<nChunk_; ++ic) 
             input[ic] = new Array<T>();
     } else {
         input.resize(nChunk_, true, false);
@@ -1592,8 +1611,8 @@ void PlotMSCacheBase::addMatrices(PtrBlock<Matrix<T>*>& input) {
     Int oldsize = input.size();
     if (nChunk_ > oldsize) {
         input.resize(nChunk_, false, true);
-	    // Construct (empty) pointed-to Vectors
-	    for (Int ic=oldsize; ic<nChunk_; ++ic) 
+        // Construct (empty) pointed-to Vectors
+        for (Int ic=oldsize; ic<nChunk_; ++ic) 
             input[ic] = new Matrix<T>();
     } else {
         input.resize(nChunk_, true, false);
@@ -1605,8 +1624,8 @@ void PlotMSCacheBase::addVectors(PtrBlock<Vector<T>*>& input) {
     Int oldsize = input.size();
     if (nChunk_ > oldsize) {
         input.resize(nChunk_, false, true);
-	    // Construct (empty) pointed-to Vectors
-	    for (Int ic=oldsize; ic<nChunk_; ++ic) 
+        // Construct (empty) pointed-to Vectors
+        for (Int ic=oldsize; ic<nChunk_; ++ic) 
             input[ic] = new Vector<T>();
     } else {
         input.resize(nChunk_, true, false);
@@ -1614,34 +1633,32 @@ void PlotMSCacheBase::addVectors(PtrBlock<Vector<T>*>& input) {
 }
 
 void PlotMSCacheBase::deleteCache() {
-	// Release all axes.
-	release(PMS::axes());
+    // Release all axes.
+    release(PMS::axes());
 
-	// zero the meta-name containers
-	antnames_.resize();
-	stanames_.resize();
-	antstanames_.resize();
-	fldnames_.resize();
+    // zero the meta-name containers
+    antnames_.resize();
+    stanames_.resize();
+    antstanames_.resize();
+    fldnames_.resize();
 
 }
 void PlotMSCacheBase::deleteIndexer() {
-	int indexerCount = indexer_.size();
-	for ( int j = 0; j < indexerCount; j++ ){
-		for (uInt i=0;i<indexer_[j].nelements();++i){
-			if (indexer_[j][i]){
-				delete indexer_[j][i];
-			}
-		}
-		indexer_[j].resize(0,true);
-	}
-	indexer_.clear();
+    int indexerCount = indexer_.size();
+    for ( int j = 0; j < indexerCount; j++ ){
+        for (uInt i=0;i<indexer_[j].nelements();++i){
+            if (indexer_[j][i]){
+                delete indexer_[j][i];
+            }
+        }
+        indexer_[j].resize(0,true);
+    }
+    indexer_.clear();
 }
 
 void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
-
 	// Nominally all false
 	axismask.set(false);
-
 	switch(axis) {
 	case PMS::AMP:
 	case PMS::PHASE:
@@ -1721,33 +1738,25 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 	case PMS::NONE:
 		break;
 	}
-
 }
 
 Vector<Bool> PlotMSCacheBase::netAxesMask(PMS::Axis xaxis,PMS::Axis yaxis) {
-
 	if (xaxis==PMS::NONE || yaxis==PMS::NONE)
 		throw(AipsError("Problem in PlotMSCacheBase::netAxesMask()."));
-
 	Vector<Bool> xmask(4,false);
 	setAxesMask(xaxis,xmask);
 	Vector<Bool> ymask(4,false);
 	setAxesMask(yaxis,ymask);
-
 	return (xmask || ymask);
-
 }
 
 
 void PlotMSCacheBase::setPlotMask( int dataIndex ) {
-
 	logLoad("Generating the plot mask.");
-
 	// Generate the plot mask
 	//deletePlotMask();
 	plmask_[dataIndex].resize(nChunk());
 	plmask_[dataIndex].set(NULL);
-
 	for (Int ichk=0; ichk<nChunk(); ++ichk) {
 		plmask_[dataIndex][ichk] = new Array<Bool>();
 		// create a collapsed version of the flags for this chunk
@@ -1757,13 +1766,10 @@ void PlotMSCacheBase::setPlotMask( int dataIndex ) {
 
 
 void PlotMSCacheBase::setPlotMask(Int dataIndex, Int chunk) {
-
 	// Do nothing if chunk empty
 	if (!goodChunk_(chunk))
 		return;
-
 	IPosition nsh(3,1,1,1),csh;
-
 	for (Int iax=0;iax<3;++iax) {
 		if (netAxesMask_[dataIndex](iax))
 			// non-trivial size for this axis
@@ -1772,10 +1778,8 @@ void PlotMSCacheBase::setPlotMask(Int dataIndex, Int chunk) {
 			// add this axis to collapse list
 			csh.append(IPosition(1,iax));
 	}
-
 	if (netAxesMask_[dataIndex](3) && !netAxesMask_[dataIndex](2)) {
 		nsh(2)=chunkShapes()(3,chunk);   // antenna axis length
-
 		plmask_[dataIndex][chunk]->resize(nsh);
 		// TBD: derive antenna flags from baseline flags
 		plmask_[dataIndex][chunk]->set(true);
@@ -1784,7 +1788,6 @@ void PlotMSCacheBase::setPlotMask(Int dataIndex, Int chunk) {
 		plmask_[dataIndex][chunk]->resize(nsh);
 		(*plmask_[dataIndex][chunk]) = operator>(partialNFalse(*flag_[chunk],csh).reform(nsh),uInt(0));
 	}
-
 }
 
 void PlotMSCacheBase::deletePlotMask() {
@@ -1798,10 +1801,6 @@ void PlotMSCacheBase::deletePlotMask() {
 		plmask_[j].resize(0,true);
 	}
 	plmask_.resize( 0 );
-
-	// This indexer is no longer ready for plotting
-	//dataLoaded_=false;
-
 }
 
 void PlotMSCacheBase::log(const String& method, const String& message,
@@ -1843,6 +1842,19 @@ void PlotMSCacheBase::printAtmStats(casacore::Int scan) {
         ss << fixed << plotmsAtm_->getAirmass();
         logLoad(ss.str());
     }
+}
+
+bool PlotMSCacheBase::hasOverlay() {
+	// check loaded axes for overlays
+	bool overlay(false);
+	std::vector<PMS::Axis> axes(loadedAxes());
+	for (uInt i=0; i<axes.size(); ++i) {
+		if (PMS::axisIsOverlay(axes[i])) {
+			overlay = true;
+			break;
+		}
+	}
+	return overlay;
 }
 
 }

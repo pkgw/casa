@@ -83,15 +83,17 @@ class ia_maskhandler_test(unittest.TestCase):
     def test_history(self):
         """Verify ia.insert writes history to image"""
         myia = self.ia
-        imag = "hist_zxye.im"
         shape = [20, 20]
-        myia.fromshape(imag, shape)
-        myia.calcmask(imag + ">0")
-        myia.maskhandler("rename", ["mask0", "blahmask"])
-        msgs = myia.history()
-        myia.done()
-        self.assertTrue("ia.maskhandler" in msgs[-2]) 
-        self.assertTrue("ia.maskhandler" in msgs[-1])        
+        # also test support for all image pixel precision types
+        for mytype in ('f', 'c', 'd', 'cd'):
+            imag = "hist_zxye_" + mytype + ".im"
+            myia.fromshape(imag, shape, type=mytype)
+            myia.calcmask(imag + ">0")
+            myia.maskhandler("rename", ["mask0", "blahmask"])
+            msgs = myia.history()
+            myia.done()
+            self.assertTrue("ia.maskhandler" in msgs[-2]) 
+            self.assertTrue("ia.maskhandler" in msgs[-1])        
    
 def suite():
     return [ia_maskhandler_test]

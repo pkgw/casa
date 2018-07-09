@@ -78,6 +78,7 @@ PlotMSExportParam PlotMSExportTab::getExportParams() const {
 	return params;
 }
 
+
 void PlotMSExportTab::dpiChanged() {
     ui.dpiSpinner->setEnabled(ui.dpi->isChecked());
 }
@@ -109,6 +110,7 @@ String PlotMSExportTab::getMsNameFromPath(String msfilepath)
 void PlotMSExportTab::setExportFormat(PlotExportFormat format)
 {
     itsFileWidget_->setFile(format.location);
+    ui.verbose->setChecked(format.verbose);
     ui.dpiSpinner->setValue(format.dpi);
     if (!format.location.empty()) fileSelected();
 }
@@ -119,6 +121,7 @@ PlotExportFormat PlotMSExportTab::currentlySetExportFormat() const {
             PlotExportFormat::typeForExtension(file) :
             PlotExportFormat::exportFormat(ui.format->currentText().toStdString());
     PlotExportFormat format(t, file);
+	format.verbose = ui.verbose->isChecked();
     format.resolution = ui.highRes->isChecked() ? PlotExportFormat::HIGH :
                                                PlotExportFormat::SCREEN;
     format.dpi = ui.dpi->isChecked() ? ui.dpiSpinner->value() : -1;
