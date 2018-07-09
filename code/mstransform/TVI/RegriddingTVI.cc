@@ -779,6 +779,23 @@ vi::ViImplementation2 * RegriddingTVIFactory::createVi() const
 }
 
 //////////////////////////////////////////////////////////////////////////
+// RegriddingTVILayerFactory class
+//////////////////////////////////////////////////////////////////////////
+
+RegriddingTVILayerFactory::RegriddingTVILayerFactory(Record &configuration) :
+  ViiLayerFactory(),
+  configuration_p(configuration)
+{}
+
+ViImplementation2*
+RegriddingTVILayerFactory::createInstance(ViImplementation2* vii0) const
+{
+  // Make the RegriddingTVi2, using supplied ViImplementation2, and return it
+  ViImplementation2 *vii = new RegriddingTVI(vii0,configuration_p);
+  return vii;
+}
+
+//////////////////////////////////////////////////////////////////////////
 // RegriddingTransformEngine class
 //////////////////////////////////////////////////////////////////////////
 
