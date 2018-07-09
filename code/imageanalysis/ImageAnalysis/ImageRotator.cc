@@ -95,7 +95,7 @@ SPIIF ImageRotator::rotate() {
         );
     }
     IPosition axes2(pixelAxes);
-    ImageRegridder regridder(
+    ImageRegridder<Float> regridder(
         subImage, nullptr, "", this->_getOutname(),
         this->_getOverwrite(), cSysTo, axes2, _shape
     );

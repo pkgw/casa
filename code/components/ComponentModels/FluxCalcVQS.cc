@@ -33,6 +33,9 @@
 #include <measures/Measures/MEpoch.h>
 #include <tables/Tables/ScalarColumn.h>
 #include <tables/Tables/ArrayColumn.h>
+#include <tables/Tables/TableRecord.h>
+#include <tables/Tables/TableRecord.h>
+#include <tables/Tables/TableProxy.h>
 
 // Handy for passing anonymous arrays to functions.
 #include <scimath/Mathematics/RigidVector.h>
@@ -47,6 +50,7 @@ using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 FluxCalcVQS::FluxCalcVQS() :
   srcEnum_p(FluxStdSrcs::UNKNOWN_SOURCE),
+  validfreqrange_p(2),
   istimevar_p(false)
 { }
 
@@ -70,7 +74,7 @@ Bool FluxCalcVQS::operator()(Vector<Flux<Double> >& values,
   Bool success = true;
   for(uInt f = 0; f < nfreqs; ++f)
     success &= (*this)(values[f], errors[f], mfreqs[f], false);
-
+  
   return success;
 }
 
@@ -158,6 +162,7 @@ void FluxCalcVQS::readQSCoeffsTable(const Path& fileName)
   
   AlwaysAssert(Table::isReadable(fullName), AipsError);
   Table_p = Table(fullName, Table::Old);
+  ///TableProxy tab2(Table_p);
   //String srcName(names_p[srcEnum_p](0));
   String srcName(EnumToSrcName(srcEnum_p));
   String srcCoeffColName=srcName+"_coeffs";
@@ -170,6 +175,20 @@ void FluxCalcVQS::readQSCoeffsTable(const Path& fileName)
   const ROScalarColumn<Double> epochCol(Table_p, "Epoch");
   const ROArrayColumn<Float> CoeffCol(Table_p, srcCoeffColName);
   const ROArrayColumn<Float> CoeffErrorCol(Table_p, srcCoeffErrorColName);
+  // check if col contains a valid freq range info in a keyword
+  if (CoeffCol.keywordSet().isDefined("ValidFreqRange")) {
+    Vector<Double> validfreqRange;
+    String freqRangeUnit;
+    CoeffCol.keywordSet().asRecord("ValidFreqRange").get("freqRange",validfreqRange);
+    CoeffCol.keywordSet().asRecord("ValidFreqRange").get("freqRangeUnit",freqRangeUnit);
+    Vector<MFrequency> mvalidfreqs;
+    validfreqrange_p(0) = MFrequency(Quantity(validfreqRange(0),freqRangeUnit), MFrequency::TOPO);
+    validfreqrange_p(1) = MFrequency(Quantity(validfreqRange(1),freqRangeUnit), MFrequency::TOPO);
+  } 
+  else {
+    validfreqrange_p(0) = MFrequency(Quantity(0.0,"GHz"), MFrequency::TOPO);
+    validfreqrange_p(1) = MFrequency(Quantity(0.0,"GHz"), MFrequency::TOPO);
+  }
   Vector<Double> tempEpochs;
   epochCol.getColumn(tempEpochs,true);
   CoeffCol.getColumn(coeffsmat_p,true);
@@ -180,6 +199,7 @@ void FluxCalcVQS::readQSCoeffsTable(const Path& fileName)
      << "nepoch="<<epochvec_p.nelements()
      << "coeff_0 for the first epoch (coeffsmat_p(0,0))="<<coeffsmat_p(0,0) 
      << LogIO::POST;
+
 }
 
 void FluxCalcVQS::interpolate(const String& interpmethod)
@@ -222,11 +242,9 @@ void FluxCalcVQS::convertYearFracToMjd(const Vector<Double>& yearfrac, Vector<Do
     
 void FluxCalcVQS::setSourceCoeffsfromVec(uInt& i) 
 {
-  //cerr<<"i="<<i<<endl;
   //Vector<Float> err(4,0.0);
   tvcoeffs_p(0)=coeffsmat_p.column(i); 
-  //cerr<<"coeffsmat_p.column.nelements()="<<coeffsmat_p.column(i).nelements()<<endl;
-  //cerr<<"err.elements()="<<err.nelements()<<endl;
+  //cerr<<"coeffsmat_p.column="<<coeffsmat_p.column(i)(0)<<endl;
   tvcoeffs_p(1)=coefferrsmat_p.column(i); 
 }
 

@@ -6,11 +6,10 @@
 #include <iostream>
 #include <sstream>
 
-
+#ifndef WITHOUT_BOOST
 #include <boost/range/iterator_range.hpp>
 #include <boost/algorithm/string/find.hpp>
-
-using namespace boost;
+#endif
 
 using namespace asdmbinaries;
 
@@ -29,7 +28,11 @@ namespace asdmbinaries {
   }
 
   // A regular expression to define the syntax of a spectral window identifier.
-  const regex SDMDataObject::SPWID("[0-9]+");
+#ifndef WITHOUT_BOOST
+  const boost::regex SDMDataObject::SPWID("[0-9]+");
+#else
+  const std::regex SDMDataObject::SPWID("[0-9]+");
+#endif
   
   // SDMDataObject::SpectralWindow:: methods
   //
@@ -107,7 +110,11 @@ namespace asdmbinaries {
   NetSidebandMod::NetSideband SDMDataObject::SpectralWindow::sideband() const { return sideband_; }
 
   void SDMDataObject::SpectralWindow::strImage(const string& s) {
-    cmatch what;
+#ifndef WITHOUT_BOOST
+    boost::cmatch what;
+#else
+    std::cmatch what;
+#endif
     if ((s.size() == 0) || regex_match(s.c_str(), what, SDMDataObject::SPWID)) {
       strImage_ = s;
     }
@@ -118,7 +125,11 @@ namespace asdmbinaries {
   const string& SDMDataObject::SpectralWindow::strImage() const { return strImage_; }
 
   void SDMDataObject::SpectralWindow::strSw(const string& s) {
-    cmatch what;
+#ifndef WITHOUT_BOOST
+    boost::cmatch what;
+#else
+    std::cmatch what;
+#endif
     if ((s.size() == 0) || regex_match(s.c_str(), what, SDMDataObject::SPWID)) {
       strSw_ = s;
     }

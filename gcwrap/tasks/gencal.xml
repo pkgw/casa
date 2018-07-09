@@ -163,11 +163,14 @@
      calibration tables may also be present, if applicable.
 
      For antenna position corrections (caltype='antpos'), the antenna 
-     position offsets are specified in the ITRF frame. For EVLA, automated 
-     lookup of the antenna position corrections is enabled when antenna is 
-     unspecified (antenna='') for this caltype. Note that this requires 
-     internet connection to access the EVLA antenna position correction 
-     site. 
+     position offsets are specified in the ITRF frame. For EVLA and ALMA,
+     automated lookup of the antenna position corrections is enabled
+     when antenna is unspecified (antenna='') for this caltype. Note
+     that this requires internet connection to access the EVLA antenna
+     position correction site, or the ALMA TMCDB Positions web service.
+     Please note that corrections using the ALMA TMCDB have not
+     been yet validated scientifically.
+
      For VLA position corrections in the VLA-centric frame, use 
      caltype='antposvla', and gencal will rotate them to ITRF before 
      storing them in the output caltable.
@@ -231,7 +234,7 @@
                             ITRF offset parameters per antenna; spw, pol
                             selection will be ignored)
                             With antenna='', this triggers an automated lookup
-                            of antenna positions for EVLA.
+                            of antenna positions for EVLA and ALMA.
                  'antposvla' = antenna position corrections (m) specified
                                in the old VLA-centric coordinate system
                  'tsys' = Tsys from the SYSCAL table (ALMA)
@@ -334,7 +337,7 @@
 
        gencal(vis='test.ms',caltable='test.G',caltype='antpos',antenna='')
      
-         --> *** Currently EVLA observations only ***
+         --> *** Currently EVLA and ALMA observations only ***
              Antenna position corrections will be retrieved automatically
              over internet to generate the caltable with antenna=''.
 

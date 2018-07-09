@@ -796,22 +796,22 @@ specifying multiple plots per page will be added here)
     </param>
     
     <param type="bool" name="xselfscale">
-      <description>If true, iterated plots should share a common x-axis label per column.</description>
+      <description>When true, iterated plots have a common x-axis range (scale).</description>
       <value>false</value>
     </param>
 
     <param type="bool" name="yselfscale">
-      <description>If true, iterated plots should share a common y-axis label per row.</description>
+      <description>When true, iterated plots have a common y-axis range (scale).</description>
       <value>false</value>
     </param>
     
     <param type="bool" name="commonAxisX">
-      <description>Plots should share a common x-axis. Must also set xselfscale=True.</description>
+	  <description>Iterated plots on a grid share a common external x-axis per column. Must also set xselfscale=True and gridrows>1.</description>
       <value>false</value>
     </param>
 
     <param type="bool" name="commonAxisY">
-      <description>Plots should share a common y-axis. Must also set yselfscale=True.</description>
+	  <description>Iterated plots on a grid share a common external y-axis per row. Must also set yselfscale=True and gridcols>1.</description>
       <value>false</value>
     </param>
 
@@ -921,7 +921,7 @@ Gets the MS calibration parameters for the plot at the given index as a record
   <shortdescription>Export all iteration plots or only the current one.</shortdescription>
   
   <description>
-	Plot export range (for multiple page iterations): All plots or only the current one (blank).
+    Plot export range (for multiple page iterations): All plots or only the current one (blank).
   </description>
   
   <input>
@@ -2034,6 +2034,10 @@ Execution Methods
     </param>
     <param type="string" name="format">
         <description>Format type, if not provided, attempt will be made to guess from plotfile extension</description>
+     </param>
+     <param type="bool" name="verbose">
+         <description>Use verbose format (txt only)</description>
+         <value>true</value>
      </param>
      <param type="bool" name="highres">
          <description>Use high resolution</description>

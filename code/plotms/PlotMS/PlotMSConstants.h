@@ -196,6 +196,8 @@ public:
     static bool axisIsWeight(Axis axis);
     // for loading conjugates and setting axis ranges
     static bool axisIsUV(Axis axis);
+	// for adjusting axis ranges
+    static bool axisIsOverlay(Axis axis);
               
     // Enum for different axes types.  Currently only used to display this
     // information to the user in the GUI's cache tab.

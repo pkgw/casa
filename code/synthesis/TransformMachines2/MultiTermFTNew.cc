@@ -51,6 +51,7 @@
 #include <scimath/Mathematics/MatrixMathLA.h>
 
 #include <synthesis/TransformMachines2/MultiTermFTNew.h>
+#include <synthesis/TransformMachines2/MosaicFTNew.h>
 #include <synthesis/TransformMachines2/Utils.h>
 
 // This is the list of FTMachine types supported by MultiTermFTNew
@@ -93,8 +94,16 @@ using namespace casa::vi;
     for(uInt termindex=0;termindex<psfnterms_p;termindex++)
       {
 	//        cout << "Creating new FTM of type : " << subftm->name() << endl;
-	if( termindex==0 ){ subftms_p[termindex] = subftm; }
-	else { subftms_p[termindex] = getNewFTM(subftm); }
+	if( termindex==0 ){ 
+	  subftms_p[termindex] = subftm; 
+	}
+	else { 
+	  subftms_p[termindex] = getNewFTM(subftm); 
+	  if((subftms_p[termindex]->name())=="MosaicFTNew"){ 
+	    (static_cast<MosaicFTNew *>(subftms_p[termindex].get()))->setConvFunc(  (static_cast<MosaicFTNew * >(subftm.get()))->getConvFunc());
+
+	  }
+	}
 
 	subftms_p[termindex]->setMiscInfo(termindex); 
       }
@@ -188,8 +197,18 @@ using namespace casa::vi;
   MultiTermFTNew::~MultiTermFTNew()
   {
   }
-  
-  
+  void MultiTermFTNew::setMovingSource(const String& sourcename, const String& ephemtable){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setMovingSource(sourcename, ephemtable);
+  }
+  void MultiTermFTNew::setMovingSource(const MDirection& mdir){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setMovingSource(mdir);
+  }
+  void MultiTermFTNew::setLocation(const MPosition& mloc){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setLocation(mloc);
+  }
   //---------------------------------------------------------------------------------------------------
   //------------ Multi-Term Specific Functions --------------------------------------------------------
   //---------------------------------------------------------------------------------------------------

@@ -84,6 +84,7 @@ const String PlotMSDBusApp::PARAM_WIDTH = "width";
 
 const String PlotMSDBusApp::PARAM_EXPORT_FILENAME = "plotfile";
 const String PlotMSDBusApp::PARAM_EXPORT_FORMAT = "expformat";
+const String PlotMSDBusApp::PARAM_EXPORT_VERBOSE = "verbose";
 const String PlotMSDBusApp::PARAM_EXPORT_RANGE = "exprange";
 const String PlotMSDBusApp::PARAM_EXPORT_HIGHRES = "highres";
 const String PlotMSDBusApp::PARAM_EXPORT_DPI = "dpi";
@@ -979,6 +980,9 @@ bool PlotMSDBusApp::_savePlot(const Record& parameters) {
 		}
 		if(ok) {
 			PlotExportFormat format(type, filename);
+			format.verbose = parameters.isDefined(PARAM_EXPORT_VERBOSE) ?
+				parameters.asBool(PARAM_EXPORT_VERBOSE) : True;
+			
 			format.resolution = (
 					parameters.isDefined(PARAM_EXPORT_HIGHRES)
 					&& parameters.asBool(PARAM_EXPORT_HIGHRES)

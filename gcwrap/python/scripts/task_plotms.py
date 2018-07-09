@@ -34,7 +34,7 @@ def plotms(vis=None,
            showmajorgrid=None, majorwidth=None, majorstyle=None,  majorcolor=None,    
            showminorgrid=None, minorwidth=None, minorstyle=None,  minorcolor=None, 
            showlegend=None, legendposition=None,   
-           plotfile=None, expformat=None, exprange=None,
+           plotfile=None, expformat=None, verbose=True, exprange=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
            callib=None, headeritems=None, showatm=None, showtsky=None
@@ -563,7 +563,13 @@ def plotms(vis=None,
             return False
         if not yselfscale and ysharedaxis:
             casalog.post( "Plots cannot share a y-axis unless they use the same y-axis scale.", "ERROR")
-            return False    
+            return False
+        if xsharedaxis and gridrows < 2:
+            casalog.post( "Plots cannot share an x-axis when gridrows=1.", "WARN")
+            xsharedaxis=False
+        if ysharedaxis and gridcols < 2:
+            casalog.post( "Plots cannot share a y-axis when gridcols=1.", "WARN")
+            ysharedaxis=False
         pm.setPlotMSIterate(iteraxis,rowindex,colindex,
                             xselfscale,yselfscale,
                             xsharedaxis,ysharedaxis,False,plotindex);
@@ -801,7 +807,7 @@ def plotms(vis=None,
                     while (pm.isDrawing()):
                         time.sleep(1.0)
                 casalog.post("Exporting the plot.",'NORMAL')
-                plotUpdated = pm.save( plotfile, expformat, highres, dpi, width, height)
+                plotUpdated = pm.save( plotfile, expformat, verbose, highres, dpi, width, height)
 
     except Exception, instance:
         plotUpdated = False

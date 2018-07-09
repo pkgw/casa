@@ -62,9 +62,12 @@ using namespace asdm;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -662,6 +665,9 @@ SysPowerRow* SysPowerTable::newRow(SysPowerRow* row) {
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -926,6 +932,8 @@ SysPowerRow* SysPowerTable::newRow(SysPowerRow* row) {
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void SysPowerTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -979,11 +987,19 @@ SysPowerRow* SysPowerTable::newRow(SysPowerRow* row) {
 	}
 
 	
-	void SysPowerTable::setFromFile(const string& directory) {		
+	void SysPowerTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/SysPower.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/SysPower.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/SysPower.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/SysPower.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the SysPower table", "SysPower");
 	}			
@@ -1134,7 +1150,9 @@ SysPowerRow* SysPowerTable::newRow(SysPowerRow* row) {
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 
