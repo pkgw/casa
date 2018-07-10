@@ -621,27 +621,43 @@ void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
         const bool updateImmediately, const int plotIndex, const int dataIndex) {
     launchApp();
     string xdc = xDataColumn, ydc = yDataColumn;
-    if(xdc == "residual") xdc = "corrected-model";
-    if(ydc == "residual") ydc = "corrected-model";
+    if(xdc == "residual" || xdc == "corrected-model")
+        xdc = "corrected-model_vector";
+    if(ydc == "residual" || ydc == "corrected-model")
+        ydc = "corrected-model_vector";
+    if(xdc == "corrected/model")
+        xdc = "corrected/model_vector";
+    if(ydc == "corrected/model")
+        ydc = "corrected/model_vector";
+
+    if(xdc == "data-model")
+        xdc = "data-model_vector";
+    if(ydc == "data-model")
+        ydc = "data-model_vector";
+    if(xdc == "data/model")
+        xdc = "data/model_vector";
+    if(ydc == "data/model")
+        ydc = "data/model_vector";
+
     Record params;
     if(!xAxis.empty()){
-    	params.define(PlotMSDBusApp::PARAM_AXIS_X, xAxis);
+        params.define(PlotMSDBusApp::PARAM_AXIS_X, xAxis);
     } else if (!yAxis.empty()) { 
-    	params.define(PlotMSDBusApp::PARAM_AXIS_X, "None");
+        params.define(PlotMSDBusApp::PARAM_AXIS_X, "None");
     }
     if(!xdc.empty()){
         params.define(PlotMSDBusApp::PARAM_DATACOLUMN_X, xdc);
     }
     if(!yAxis.empty()){
-    	params.define(PlotMSDBusApp::PARAM_AXIS_Y, yAxis);
+        params.define(PlotMSDBusApp::PARAM_AXIS_Y, yAxis);
     } else if (!xAxis.empty()) { 
-    	params.define(PlotMSDBusApp::PARAM_AXIS_Y, "None");
+        params.define(PlotMSDBusApp::PARAM_AXIS_Y, "None");
     }
     if(!ydc.empty()){
         params.define(PlotMSDBusApp::PARAM_DATACOLUMN_Y, ydc);
     }
     if (!yAxisLocation.empty()){
-    	params.define(PlotMSDBusApp::PARAM_AXIS_Y_LOCATION, yAxisLocation);
+        params.define(PlotMSDBusApp::PARAM_AXIS_Y_LOCATION, yAxisLocation);
     }
     if(params.nfields() == 0) return;
 
