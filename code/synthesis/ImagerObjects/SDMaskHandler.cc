@@ -1218,7 +1218,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //String lelstring = pbname+">0.92 && "+pbname+"<0.98";
     //cerr<<"lelstring = "<<lelstring<<endl;
     //cerr<<"LELMask="<<LELmask<<endl;
-    ImageStatsCalculator imcalc( tempres_ptr, regionPtr, LELmask, False); 
+    ImageStatsCalculator<Float> imcalc( tempres_ptr, regionPtr, LELmask, False); 
     Vector<Int> axes(2);
     axes[0] = 0;
     axes[1] = 1;
@@ -2257,7 +2257,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     tempImForStat->copyData(tempRebinnedIm);
     SHARED_PTR<casacore::ImageInterface<float> > temprebin_ptr(tempImForStat);
     //os<<" temprebin_ptr.get()->hasPixelMask()="<<temprebin_ptr.get()->hasPixelMask()<<LogIO::POST;
-    ImageStatsCalculator imcalc( temprebin_ptr, 0, "", False);
+    ImageStatsCalculator<Float> imcalc( temprebin_ptr, 0, "", False);
     Vector<Int> stataxes(2);
     stataxes[0] = 0;
     stataxes[1] = 1;

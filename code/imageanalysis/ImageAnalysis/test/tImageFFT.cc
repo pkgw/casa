@@ -130,7 +130,7 @@ try {
 
         {
            os << LogIO::NORMAL << "FFT the sky" << LogIO::POST;
-           ImageFFT fft;
+           ImageFFT<Float> fft;
            fft.fftsky(inImage);
            Array<Float> rArray0 = inImage.get();
 //
@@ -147,7 +147,7 @@ try {
 // Copy constructor
 
            os << LogIO::NORMAL << "Copy constructor, get FFT and check values" << LogIO::POST;
-           ImageFFT fft2(fft);
+           ImageFFT<Float> fft2(fft);
            fft2.getReal(outReal);
            fft2.getImaginary(outImag);
            fft2.getAmplitude(outAmp);
@@ -160,7 +160,7 @@ try {
 // Assignment operator
 
            os << LogIO::NORMAL << "Assignment operator, get FFT and check values" << LogIO::POST;
-           ImageFFT fft3;
+           ImageFFT<Float> fft3;
            fft3 = fft2;
            fft3.getReal(outReal);
            fft3.getImaginary(outImag);
@@ -202,7 +202,7 @@ try {
               }
            }
 //
-           ImageFFT fft;
+           ImageFFT<Float> fft;
            fft.fft(inImage, which);
            fft.getReal(outReal2);
            fft.getImaginary(outImag2);
