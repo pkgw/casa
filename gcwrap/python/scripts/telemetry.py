@@ -19,7 +19,7 @@ class telemetry:
         self.logdir = casa['dirs']['rc']
         self.logpattern = 'casastats-' + self.casaver + '-' + self.hostid + '*.log'
         self.sendlogpattern = 'casastats-*'+ self.hostid + '*.log'
-        self.stampfile = self.logdir + '/telemetry' + self.hostid + '.stamp'
+        self.stampfile = self.logdir + '/telemetry-' + self.hostid + '.stamp'
         self.casa = casa
 
         logfiles = []
