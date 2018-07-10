@@ -1,4 +1,4 @@
-# CASA - Common Astronomy Software Applications 
+# CASA - Common Astronomy Software Applications
 # Copyright (C) 2010 by ESO (in the framework of the ALMA collaboration)
 # Copyright (C) 2010 by NAOJ (in the framework of the ALMA collaboration)
 # Copyright (C) 2010 Associated Universities, Inc. Washington DC, USA.
@@ -33,6 +33,15 @@ if (UseCcache)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
     endif(CCACHE_FOUND)
 endif()
+
+if (TELEMETRY_DEFAULT)
+    message("TelemetryToggle set to ${TELEMETRY_DEFAULT}")
+else()
+    message("No command line option provided. Setting TelemetryToggle to False")
+    set (TELEMETRY_DEFAULT False)
+endif()
+
+configure_file( ${CMAKE_SOURCE_DIR}/python/scripts/init_telemetry.py.in ${CMAKE_SOURCE_DIR}/python/scripts/init_telemetry.py )
 
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
 

@@ -728,6 +728,9 @@ ConfigDescriptionRow* ConfigDescriptionTable::lookup(int numAntenna, int numData
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -1022,6 +1025,8 @@ ConfigDescriptionRow* ConfigDescriptionTable::lookup(int numAntenna, int numData
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void ConfigDescriptionTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1238,7 +1243,9 @@ ConfigDescriptionRow* ConfigDescriptionTable::lookup(int numAntenna, int numData
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 
