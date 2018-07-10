@@ -50,6 +50,7 @@ PlotMSIndexer::PlotMSIndexer():
 		  currentX_(PMS::SCAN),
 		  currentY_(PMS::SCAN),
 		  indexerReady_(false),
+		  connectReady_(false),
 		  icorrmax_(),
 		  ichanmax_(),
 		  ibslnmax_(),
@@ -76,6 +77,7 @@ PlotMSIndexer::PlotMSIndexer():
 		  iterValue_(-999),
 		  itsColorize_(false),
 		  itsColorizeAxis_(PMS::DEFAULT_COLOR_AXIS),
+		  itsXConnect_("none"),
 		  self(const_cast<PlotMSIndexer*>(this))
 {
 	dataIndex_ = 0;
@@ -83,7 +85,7 @@ PlotMSIndexer::PlotMSIndexer():
 
 PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent, PMS::Axis xAxis,
         PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-        int index ):
+        String xconnect, int index ):
 		  plotmscache_(parent),
 		  currChunk_(0),
 		  irel_(0),
@@ -97,6 +99,7 @@ PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent, PMS::Axis xAxis,
 		  currentXdata_(xData),
 		  currentYdata_(yData),
 		  indexerReady_(false),
+		  connectReady_(false),
 		  icorrmax_(),
 		  ichanmax_(),
 		  ibslnmax_(),
@@ -123,6 +126,7 @@ PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent, PMS::Axis xAxis,
 		  iterValue_(-999),
 		  itsColorize_(false),
 		  itsColorizeAxis_(PMS::DEFAULT_COLOR_AXIS),
+		  itsXConnect_(xconnect),
 		  self(const_cast<PlotMSIndexer*>(this))
 {
 	dataIndex_ = index;
@@ -132,7 +136,8 @@ PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent, PMS::Axis xAxis,
 PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent,
         PMS::Axis xAxis, PMS::DataColumn xDataColumn, 
         PMS::Axis yAxis, PMS::DataColumn yDataColumn, 
-        PMS::Axis iterAxis, Int iterValue, int index ):
+        PMS::Axis iterAxis, Int iterValue,
+		String xconnect, int index ):
 		plotmscache_(parent),
 		currChunk_(0),
 		irel_(0),
@@ -146,6 +151,7 @@ PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent,
         currentXdata_(xDataColumn),
         currentYdata_(yDataColumn),
 		indexerReady_(false),
+		connectReady_(false),
 		icorrmax_(),
 		ichanmax_(),
 		ibslnmax_(),
@@ -172,6 +178,7 @@ PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent,
 		iterValue_(iterValue),
 		itsColorize_(false),
 		itsColorizeAxis_(PMS::DEFAULT_COLOR_AXIS),
+		itsXConnect_(xconnect),
 		self(const_cast<PlotMSIndexer*>(this))
 { 
 	dataIndex_ = index;
@@ -198,7 +205,7 @@ double PlotMSIndexer::yAt(unsigned int i) const {
 			(self->*YIndexer_)(currChunk_,irel_));
 }
 void PlotMSIndexer::xAndYAt(unsigned int index, 
-		double& x, double& y) const {
+		double& x, double& y) {
 	setChunk(index);  // sets chunk and relative index in chunk
 	x=(plotmscache_->*getXFromCache_)(currChunk_,
 			(self->*XIndexer_)(currChunk_,irel_));
@@ -246,7 +253,7 @@ bool PlotMSIndexer::maskedAt( unsigned int index) const {
 
 void PlotMSIndexer::xyAndMaskAt(unsigned int index,
 		double& x, double& y,
-		bool& mask) const {
+		bool& mask) {
 	setChunk(index);
 	x=(plotmscache_->*getXFromCache_)(currChunk_,
 			(self->*XIndexer_)(currChunk_,irel_));
@@ -366,13 +373,12 @@ bool PlotMSIndexer::unmaskedMinsMaxesRaw(double& xMin, double& xMax,
 
 
 unsigned int PlotMSIndexer::numBins() const {
-	// TODO
 	return PMS::COLORS_LIST().size();
 }
 
 unsigned int PlotMSIndexer::binAt(unsigned int i) const {
-	unsigned int binValue = 0;
-	if(itsColorize_) {
+	unsigned int binValue(0);
+	if (itsColorize_) { 
 		setChunk(i);
 		unsigned int val = (unsigned int)(plotmscache_->*getColFromCache_)(currChunk_,
 				(self->*ColIndexer_)(currChunk_,irel_));
@@ -401,17 +407,23 @@ unsigned int PlotMSIndexer::binAt(unsigned int i) const {
 
 			}
 		}
+	} else if (itsXConnect_ != "none") {
+		for (casacore::Int bin=0; bin<nSegment_; ++bin) {
+			if (i < nCumulPoints_(bin)) {
+				binValue = bin % numBins();
+				break;
+			}
+		}
 	}
+
 	return binValue;
 }
 
 bool PlotMSIndexer::isBinned() const {
-	// TODO
-	return itsColorize_;
+	return itsColorize_ || (itsXConnect_ != "none");
 }
 
 bool PlotMSIndexer::colorize(bool doColorize, PMS::Axis colorizeAxis) {
-	// TODO
 	bool changed = (doColorize != itsColorize_) ||
 			(doColorize && colorizeAxis != itsColorizeAxis_);
 	itsColorize_ = doColorize;
@@ -423,11 +435,15 @@ bool PlotMSIndexer::colorize(bool doColorize, PMS::Axis colorizeAxis) {
 		setIndexer(ColIndexer_,itsColorizeAxis_);
 	}
 
-	//cout << "COLORIZE!! " << boolalpha << itsColorize_ << " " << PMS::axis(itsColorizeAxis_) << endl;
-
 	return changed;
 }
 
+bool PlotMSIndexer::setConnect(String xconnect) {
+	bool changed = (xconnect != itsXConnect_);
+	itsXConnect_ = xconnect;
+	if (changed) setUpIndexing();
+	return changed;
+}
 
 void PlotMSIndexer::setUpIndexing() {
 
@@ -464,15 +480,6 @@ void PlotMSIndexer::setUpIndexing() {
 
 	nperant_.reference(nperbsln_);
 
-
-  /*cout << "ichanbslnmax_ = " << ichanbslnmax_ << endl;
-  cout << "nperchan_     = " << nperchan_ << endl;
-  cout << "nperbsln_     = " << nperbsln_ << endl;
-  cout << "nperant_      = " << nperant_ << endl;
-
-  cout << "...done." << endl << "Set methods..." << flush;
-*/
-
 	// Set up method pointers for the chosen axes
 	setMethod(getXFromCache_, currentX_, currentXdata_);
 	setMethod(getYFromCache_, currentY_, currentYdata_);
@@ -480,19 +487,6 @@ void PlotMSIndexer::setUpIndexing() {
 	// And the indexers
 	setIndexer(XIndexer_, currentX_);
 	setIndexer(YIndexer_, currentY_);
-
-	//  cout << "done." << endl;
-
-	// And the mask collapsers
-	//  setCollapser(collapseXMask_,currentX_);
-	//  setCollapser(collapseYMask_,currentY_);
-
-	// Count up the total number of points we will plot
-	//   (keep a cumualtive running total)
-
-	//  cout << "*>*>*>*>*>*> iterate_=" << boolalpha << iterate_ << " Axis: " << PMS::axis(iterAxis_) << " iterValue_ = " << iterValue_ << endl;
-
-	//  cout << "Count points..." << flush;
 
 	// Count data segments in this iteration
 	switch (iterAxis_) {
@@ -575,7 +569,6 @@ void PlotMSIndexer::setUpIndexing() {
 	double iterTime = plotmscache_->time_[iterValue_];
 
 	for (Int ic=0; ic<nChunk(); ++ic) {
-
 		// skip this chunk if empty
 		if (!plotmscache_->goodChunk(ic)){
 			continue;
@@ -678,8 +671,7 @@ void PlotMSIndexer::setUpIndexing() {
 		nSegment_ = iseg+1;
 
 		// Cope with no segments found
-		//  (this happens when all data is flagged, time-averaging is on,
-		//    and iteration is off, in v3.2)
+		//  (this happens when all data is flagged, time-averaging is on, iteration is off, in v3.2)
 		if (nSegment_==0) nSegment_=1;
 
 		// (w/ copy)
@@ -693,18 +685,358 @@ void PlotMSIndexer::setUpIndexing() {
 	nCumulPoints_(0) = nSegPoints_(0);
 	for (Int iseg=1; iseg<nSegment_; ++iseg)
 		nCumulPoints_(iseg) = nCumulPoints_(iseg-1) + nSegPoints_(iseg);
-
 	nPoints_.reference(nSegPoints_);
 	nCumulative_.reference(nCumulPoints_);
 
-	//  cout << "done." << endl;
+	if (itsXConnect_ != "none") 
+		reindexForConnect();
 
 	// Compute the nominal plot ranges
 	computeRanges();
 
 	// The indexer is now ready for plotting
 	indexerReady_ = true;
+}
 
+void PlotMSIndexer::reindexForConnect() {
+	// Need points reordered for connecting points.
+	// get set of times, spws, corrs, ant1s
+	std::set<casacore::Double> times;
+	std::set<casacore::Int> spws, corrs, ant1s;
+	getConnectSets(times, spws, corrs, ant1s);
+
+	// If iteraxis, only use points for current iteration
+	uInt npoints(nCumulPoints_(nSegment_-1));
+	Vector<bool> itermask(npoints, true);
+	if (iterAxis_ != PMS::NONE) {
+		if (iterAxis_ == PMS::ANTENNA) {
+			for (uInt ipt=0; ipt<npoints; ++ipt) {
+				setChunk(ipt, true);
+				if ((plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) != iterValue_) &&
+					(plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_)) != iterValue_))
+					itermask(ipt) = false;
+			}
+		} else {
+			CacheMemPtr getIterFromCache;
+			IndexerMethPtr iterIndexer;
+			setMethod(getIterFromCache, iterAxis_, PMS::DEFAULT_DATACOLUMN);
+			setIndexer(iterIndexer, iterAxis_);
+			for (uInt ipt=0; ipt<npoints; ++ipt) {
+				setChunk(ipt, true);
+				// use point if correct iteration
+				if (iterAxis_ == PMS::TIME) {
+					if ((plotmscache_->*getIterFromCache)(currChunk_,(self->*iterIndexer)(currChunk_, irel_))
+							!= plotmscache_->time_[iterValue_])
+						itermask(ipt) = false;
+				} else {
+					if ((plotmscache_->*getIterFromCache)(currChunk_,(self->*iterIndexer)(currChunk_, irel_))
+							!= iterValue_)
+						itermask(ipt) = false;
+				}
+			}
+		}
+	}
+
+	if (currentX_ == iterAxis_) {
+		reindexForAllConnect(times, spws, corrs, ant1s, itermask);
+	} else {
+		switch (currentX_) {
+			case PMS::TIME:
+				reindexForTimeConnect(spws, corrs, ant1s, itermask);
+				break;
+			case PMS::SPW:
+			case PMS::FREQUENCY:
+				reindexForSpwConnect(times, corrs, ant1s, itermask);
+				break;
+			case PMS::CORR:
+				reindexForCorrConnect(times, spws, ant1s, itermask);
+				break;
+			case PMS::ANTENNA1:
+				reindexForAnt1Connect(times, spws, corrs, itermask);
+				break;
+			default:
+				reindexForAllConnect(times, spws, corrs, ant1s, itermask);
+				break;
+		}
+	}
+
+	// Fill cumulative counter
+	nCumulPoints_.resize(nSegment_);
+	nCumulPoints_(0) = nSegPoints_(0);
+	for (Int iseg=1; iseg<nSegment_; ++iseg)
+		nCumulPoints_(iseg) = nCumulPoints_(iseg-1) + nSegPoints_(iseg);
+	connectReady_ = true;
+}
+
+void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& corrs, 
+		std::set<Int>& ant1s) {
+	// We need these values if the axis are not the x-axis, unless it is the iteraxis
+	bool needTime(true), needSpw(true), needCorr(true), needAnt1(true);
+	PMS::Axis connectAxes[] = { PMS::TIME, PMS::SPW, PMS::CORR, PMS::ANTENNA1 };
+	for (PMS::Axis axis : connectAxes) {
+		bool axisIsX(axis == currentX_), axisIsIter(axis == iterAxis_);
+		switch(axis) {
+			case PMS::TIME: {
+				if (axisIsX || axisIsIter)
+					needTime = false;
+				if (axisIsIter)  // itervalue is index for time
+					times.insert(plotmscache_->time_[iterValue_]);
+				break;
+			}
+			case PMS::SPW: {
+				if (axisIsX || axisIsIter)
+					needSpw = false;
+				if (axisIsIter) 
+					spws.insert(iterValue_);
+				break;
+			}
+			case PMS::CORR: {
+				if (axisIsX || axisIsIter)
+					needCorr = false;
+				if (axisIsIter) 
+					corrs.insert(iterValue_);
+				break;
+			}
+			case PMS::ANTENNA: {
+				if (axisIsX || axisIsIter)
+					needAnt1 = false;
+				if (axisIsIter) 
+					ant1s.insert(iterValue_);
+				break;
+			}
+			default:
+				break;
+		}
+	}
+	for (uInt chunk : cacheChunk_) {
+		if (needTime)
+			times.insert(plotmscache_->time(chunk));
+		if (needSpw)
+			spws.insert(plotmscache_->spw(chunk));
+		if (needCorr) {
+			Vector<Int> corr(plotmscache_->corr(chunk));
+			for (Int thiscorr : corr) corrs.insert(thiscorr);
+		}
+		if (needAnt1) {
+			Vector<Int> ant1(plotmscache_->ant1(chunk));
+			for (Int thisant : ant1) ant1s.insert(thisant);
+		}
+	}
+}
+
+void PlotMSIndexer::reindexForAllConnect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& corrs, 
+		std::set<Int>& ant1s, Vector<bool>& itermask) {
+	// Reindex by all metadata axes (time, spw, corr, ant1) to create new cacheChunk_ and cacheOffset_
+	nSegment_ = (times.size() * spws.size() * corrs.size() * ant1s.size());
+	nSegPoints_.resize(nSegment_);
+	nSegPoints_.set(0);
+
+	// Populate each connect segment with points in that bin
+	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
+	Int iseg(-1);
+	bool ant2ok(false); // some tables do not have antenna2
+	for (Double time : times) {
+		for (Int spw : spws) {
+			for (Int corr : corrs) {
+				for (Int ant1 : ant1s) {
+					++iseg;
+					for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
+						// use point if correct iteration
+						if (itermask(ipt)) {
+							setChunk(ipt, true);
+							// add point if time, spw, corr, and ant match
+							// but don't check antenna2 for BPOLY and GSPLINE (does not exist)
+							if (plotmscache_->calType() == "BPOLY" || plotmscache_->calType() == "GSPLINE")
+								ant2ok = false; // only pass if ant1 matches
+							else
+								ant2ok = (plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_)) == ant1);
+							if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
+								(plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
+								(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr) &&
+								// one iteration is ref ant so check ant2
+								((plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1) || ant2ok)) {
+									newCacheChunk.push_back(currChunk_);
+									newCacheOffset.push_back(irel_);
+									++nSegPoints_(iseg);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	cacheChunk_.resize();
+	cacheChunk_ = newCacheChunk;
+	cacheOffset_.resize();
+	cacheOffset_ = newCacheOffset;
+}
+
+void PlotMSIndexer::reindexForTimeConnect(std::set<Int>& spws, std::set<Int>& corrs, std::set<Int>& ant1s,
+		Vector<bool>& itermask) {
+	// Reindex to connect time axis (spw, corr, ant1) to create new cacheChunk_ and cacheOffset_
+	nSegment_ = (spws.size() * corrs.size() * ant1s.size());
+	nSegPoints_.resize(nSegment_);
+	nSegPoints_.set(0);
+	
+	// Populate each connect segment with points in that bin
+	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
+	bool ant2ok(false); // some tables do not have antenna2
+	Int iseg(-1);
+	for (Int spw : spws) {
+		for (Int corr : corrs) {
+			for (Int ant1 : ant1s) {
+				++iseg;
+				for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
+					// use point if correct iteration
+					if (itermask(ipt)) {
+						// use point if time, spw, corr, and ant match
+						setChunk(ipt, true);
+						// add point if spw, corr, and ant match
+						// but don't check antenna2 for BPOLY and GSPLINE (does not exist)
+						if (plotmscache_->calType() == "BPOLY" || plotmscache_->calType() == "GSPLINE")
+							ant2ok = false;
+						else
+							ant2ok = (plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_)) == ant1);
+						// one iteration for cal table is ref ant so check ant2
+						if ((plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
+							(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr) &&
+							((plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1) || ant2ok)) {
+								newCacheChunk.push_back(currChunk_);
+								newCacheOffset.push_back(irel_);
+								++nSegPoints_(iseg);
+						}
+					}
+				}
+			}
+		}
+	}
+	cacheChunk_.resize();
+	cacheChunk_ = newCacheChunk;
+	cacheOffset_.resize();
+	cacheOffset_ = newCacheOffset;
+}
+
+void PlotMSIndexer::reindexForSpwConnect(std::set<Double>& times, std::set<Int>& corrs, std::set<Int>& ant1s, 
+		Vector<bool>& itermask) {
+	// Reindex to connect spw axis (time, corr, ant1) to create new cacheChunk_ and cacheOffset_
+	nSegment_ = (times.size() * corrs.size() * ant1s.size());
+	nSegPoints_.resize(nSegment_);
+	nSegPoints_.set(0);
+
+	// Populate each connect segment with points in that bin
+	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
+	Int iseg(-1);
+	bool ant2ok(false); // some tables do not have antenna2
+	for (Double time : times) {
+		for (Int corr : corrs) {
+			for (Int ant1 : ant1s) {
+				++iseg;
+				for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
+					if (itermask(ipt)) {
+						setChunk(ipt, true);
+						// add point if spw, corr, and ant match
+						// but don't check antenna2 for BPOLY and GSPLINE (does not exist)
+						if (plotmscache_->calType() == "BPOLY" || plotmscache_->calType() == "GSPLINE")
+							ant2ok = false;
+						else
+							ant2ok = (plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_)) == ant1);
+						// use point if time, corr, and ant match
+						if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
+							(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr) &&
+							// one iteration is ref ant so check ant2
+							((plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1) || ant2ok)) {
+								newCacheChunk.push_back(currChunk_);
+								newCacheOffset.push_back(irel_);
+								++nSegPoints_(iseg);
+						}
+					}
+				}
+			}
+		}
+	}
+	cacheChunk_.resize();
+	cacheChunk_ = newCacheChunk;
+	cacheOffset_.resize();
+	cacheOffset_ = newCacheOffset;
+}
+
+void PlotMSIndexer::reindexForCorrConnect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& ant1s, 
+		Vector<bool>& itermask) {
+	// Reindex to connect corr axis (time, spw, ant1) to create new cacheChunk_ and cacheOffset_
+	nSegment_ = (times.size() * spws.size() * ant1s.size());
+	nSegPoints_.resize(nSegment_);
+	nSegPoints_.set(0);
+
+	// Populate each connect segment with points in that bin
+	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
+	Int iseg(-1);
+	bool ant2ok(false); // some tables do not have antenna2
+	for (Double time : times) {
+		for (Int spw : spws) {
+			for (Int ant1 : ant1s) {
+				++iseg;
+				for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
+					if (itermask(ipt)) {
+						setChunk(ipt, true);
+						// use point if time, spw, and ant match
+						// but don't check antenna2 for BPOLY and GSPLINE (does not exist)
+						if (plotmscache_->calType() == "BPOLY" || plotmscache_->calType() == "GSPLINE")
+							ant2ok = false;
+						else
+							ant2ok = (plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_)) == ant1);
+						if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
+							(plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
+							// one iteration is ref ant so check ant2
+							((plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1) || ant2ok)) {
+								newCacheChunk.push_back(currChunk_);
+								newCacheOffset.push_back(irel_);
+								++nSegPoints_(iseg);
+						}
+					}
+				}
+			}
+		}
+	}
+	cacheChunk_.resize();
+	cacheChunk_ = newCacheChunk;
+	cacheOffset_.resize();
+	cacheOffset_ = newCacheOffset;
+}
+
+void PlotMSIndexer::reindexForAnt1Connect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& corrs,
+		Vector<bool>& itermask) {
+	// Reindex to connect ant1 axis (time, spw, corr) to create new cacheChunk_ and cacheOffset_
+	nSegment_ = (times.size() * spws.size() * corrs.size());
+	nSegPoints_.resize(nSegment_);
+	nSegPoints_.set(0);
+
+	// Populate each connect segment with points in that bin
+	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
+	Int iseg(-1);
+	for (Double time : times) {
+		for (Int spw : spws) {
+			for (Int corr : corrs) {
+				++iseg;
+				for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
+					if (itermask(ipt)) {
+						setChunk(ipt, true);
+						// use point if time, spw, and corr match
+						if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
+							(plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
+							(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr)) {
+								newCacheChunk.push_back(currChunk_);
+								newCacheOffset.push_back(irel_);
+								++nSegPoints_(iseg);
+						}
+					}
+				}
+			}
+		}
+	}
+	cacheChunk_.resize();
+	cacheChunk_ = newCacheChunk;
+	cacheOffset_.resize();
+	cacheOffset_ = newCacheOffset;
 }
 
 bool PlotMSIndexer::isGlobalXRange() const {
@@ -720,40 +1052,41 @@ void PlotMSIndexer::setGlobalMinMax(Bool globalX, Bool globalY ) {
     globalYMinMax_=globalY;
 };
 
-void PlotMSIndexer::setChunk(uInt i) const {
+void PlotMSIndexer::setChunk(uInt i, bool ignoreReindex) const {
 
 	// NB: this method assumes that i>=lasti, for now
-
-	if (i==lasti_)
+	if (i==lasti_) {
 		// already found this one on previous call (e.g., for mask
 		//   or the other axis), so change nothing
 		return;
+	}
 
-	// reset to the first chunk if very first or earlier point requested
-	if (i==0 || i<lasti_) currSeg_=0;
+	if (itsXConnect_=="none" || ignoreReindex) {
+		// reset to the first chunk if very first or earlier point requested
+		if (i==0 || i<lasti_) currSeg_=0;
 
-	// Bump at segment boundaries
-	while (i > (nCumulPoints_(currSeg_)-1)) ++currSeg_;
+		// Bump at segment boundaries
+		while (i > (nCumulPoints_(currSeg_)-1)) ++currSeg_;
 
-	// TBD:  Back up to a previous chunk?
-	//  while (i < (nCumulative_(currChunk_)) && currChunk_>0) --currChunk_;
+		// Found current Indexer _segment_, so set current _cache_ chunk:
+		currChunk_=cacheChunk_(currSeg_);
 
+		// Calculate the offset into the current chunk
+		if (currSeg_>0)
+			irel_=Int(i-nCumulPoints_(currSeg_-1));
+		else
+			irel_=Int(i);
 
-	// Found current Indexer _segment_, so set current _cache_ chunk:
-	currChunk_=cacheChunk_(currSeg_);
+		// Offset into the cache (e.g., non-zero for baseline iteration)
+		irel_ += cacheOffset_(currSeg_);
 
-	// Calculate the offset into the current chunk
-	if (currSeg_>0)
-		irel_=Int(i-nCumulPoints_(currSeg_-1));
-	else
-		irel_=Int(i);
-
-	// Offset into the cache (e.g., non-zero for baseline iteration)
-	irel_+=cacheOffset_(currSeg_);
-
-	// Remember this i next time around
-	lasti_=i;
-
+		// Remember this i next time around
+		lasti_=i;
+	} else {
+		currChunk_ = cacheChunk_(i);
+		irel_ = cacheOffset_(i);
+		lasti_ = i;
+	}
 }
 
 void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,

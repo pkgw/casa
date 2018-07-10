@@ -470,7 +470,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
         double tempx, tempy, tempx2, tempy2;
         int ix, iy, ix2, iy2;
         if(!m_maskedData.null()) {
-            bool mask, sameLine;
+            bool mask, mask2, sameMask, sameLine, sameColor;
             
             // set the painter's pen only once if possible
             bool samePen = m_line.asQPen() == m_maskedLine.asQPen();
@@ -478,9 +478,11 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
             
             m_maskedData->xyAndMaskAt(drawIndex, tempx, tempy, mask);
             ix = xMap.transform(tempx); iy = yMap.transform(tempy);
+            QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(drawIndex)];
+            QColor lastColor = coloredBrush.color();
             
             for(unsigned int i = drawIndex + 1; i < n; i++) {
-                m_maskedData->xAndYAt(i, tempx2, tempy2);
+                m_maskedData->xyAndMaskAt(i, tempx2, tempy2, mask2);
                 sameLine = (tempx2 > tempx);
                 ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
                 if (diffColorLine) {
@@ -490,31 +492,39 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                     QColor brushColor = coloredBrush.color();
                     linePen.setColor(brushColor);
                     p->setPen(linePen);
+                    sameColor = (brushColor == lastColor);
+                    lastColor = brushColor;
                 }
-                if(drawLine && !mask && sameLine) {
-                    if(drawMaskedLine && !samePen && !diffColorLine) p->setPen(m_line.asQPen());
-                    if(brect.contains(ix, iy) || brect.contains(ix2, iy2)) {
-                        if (m_step) {
-                            p->drawLine(ix, iy, ix2, iy);
-                            p->drawLine(ix2, iy, ix2, iy2);
-                        } else {
-                            p->drawLine(ix, iy, ix2, iy2);
-                        }
-                    }
-                } else if(drawMaskedLine && mask && sameLine ) {
-                    if(drawLine && !samePen && !diffColorLine) p->setPen(m_maskedLine.asQPen());
-                    ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
-                    if(brect.contains(ix, iy) || brect.contains(ix2, iy2)) {
-                        if (m_maskedStep) {
-                            p->drawLine(ix, iy, ix2, iy);
-                            p->drawLine(ix2, iy, ix2, iy2);
-                        } else {
-                            p->drawLine(ix, iy, ix2, iy2);
-                        }
-                    }
-                }
+                // don't connect nan and inf !
+                if (!casacore::isNaN(tempx2) && !casacore::isNaN(tempy2) &&
+                    !casacore::isInf(tempx2) && !casacore::isInf(tempy2)) {
+					sameMask = (mask2==mask); // only connect unflagged or flagged pts
+					if(drawLine && !mask2 && sameLine && sameColor && sameMask) {
+						if(drawMaskedLine && !samePen && !diffColorLine) p->setPen(m_line.asQPen());
+						if(brect.contains(ix, iy) || brect.contains(ix2, iy2)) {
+							if (m_step) {
+								p->drawLine(ix, iy, ix2, iy);
+								p->drawLine(ix2, iy, ix2, iy2);
+							} else {
+								p->drawLine(ix, iy, ix2, iy2);
+							}
+						}
+					} else if(drawMaskedLine && mask2 && sameLine && sameColor && sameMask) {
+						if(drawLine && !samePen && !diffColorLine) p->setPen(m_maskedLine.asQPen());
+						ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
+						if(brect.contains(ix, iy) || brect.contains(ix2, iy2)) {
+							if (m_maskedStep) {
+								p->drawLine(ix, iy, ix2, iy);
+								p->drawLine(ix2, iy, ix2, iy2);
+							} else {
+								p->drawLine(ix, iy, ix2, iy2);
+							}
+						}
+					}
+				}
                 tempx = tempx2; tempy = tempy2;
                 ix = ix2; iy = iy2;
+				mask = mask2;
             }
             
         } else {

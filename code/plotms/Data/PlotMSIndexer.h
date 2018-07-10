@@ -59,11 +59,13 @@ public:
     
   // Constructor which takes parent PlotMSCache, x and y axes (non-iteration)
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
-    PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData, int index);
+    PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
+	casacore::String xconnect, int index);
   // Constructor which supports iteration
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
     PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-    PMS::Axis iterAxis, casacore::Int iterValue, int index);
+    PMS::Axis iterAxis, casacore::Int iterValue, 
+	casacore::String xconnect, int index);
   
   // Destructor
   ~PlotMSIndexer();
@@ -80,14 +82,14 @@ public:
   unsigned int size() const;
   double xAt(unsigned int i) const;
   double yAt(unsigned int i) const;
-  void xAndYAt(unsigned int index, double& x, double& y) const;
+  void xAndYAt(unsigned int index, double& x, double& y);
   bool minsMaxes(double& xMin, double& xMax, double& yMin, double& yMax);
   // </group>
     
   // Implemented PlotMaskedPointData methods.
   // <group>
   bool maskedAt(unsigned int index) const;
-  void xyAndMaskAt(unsigned int index, double& x, double& y, bool& mask) const;
+  void xyAndMaskAt(unsigned int index, double& x, double& y, bool& mask);
   // </group>
     
   // Unimplemented PlotMaskedPointData methods.
@@ -161,6 +163,8 @@ public:
 
   // 
   bool colorize(bool doColorize, PMS::Axis colorizeAxis);
+  bool setConnect(casacore::String xconnect);
+  inline casacore::String getConnect() { return itsXConnect_; }
 
   bool plotConjugates() const { return (PMS::axisIsUV(currentX_) && 
           PMS::axisIsUV(currentY_)); }
@@ -172,7 +176,20 @@ private:
 
   // get method for data axes depends on column
   void setMethod(CacheMemPtr& getmethod, PMS::Axis axis, PMS::DataColumn data);
-  void setIndexer(IndexerMethPtr& indexmethod, PMS::Axis axis); 
+  void setIndexer(IndexerMethPtr& indexmethod, PMS::Axis axis);
+  void reindexForConnect();
+  void getConnectSets(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
+	std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s);
+  void reindexForAllConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
+	std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
+  void reindexForTimeConnect(std::set<casacore::Int>& spws, std::set<casacore::Int>& corrs,
+	std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
+  void reindexForSpwConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& corrs,
+	std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
+  void reindexForCorrConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
+	std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
+  void reindexForAnt1Connect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
+	std::set<casacore::Int>& corrs, casacore::Vector<bool>& itermask);
   //  void setCollapser(CollapseMethPtr& collmethod, PMS::Axis axis);
 
   // Generate collapsed versions of the plmask 
@@ -194,7 +211,7 @@ private:
   inline casacore::Double refTime() { return plotmscache_->refTime(); };
 
   // Set currChunk_ according to a supplied index
-  void setChunk(casacore::uInt i) const;
+  void setChunk(casacore::uInt i, bool ignoreReindex=false) const;
 
   // Computes the X and Y limits for the currently set axes.  In the future we
   // may want to cache ALL ranges for all loaded values to avoid recomputation.
@@ -253,7 +270,7 @@ private:
   // Current setup/state.
   PMS::Axis currentX_, currentY_;
   PMS::DataColumn currentXdata_, currentYdata_;
-  bool indexerReady_;
+  bool indexerReady_, connectReady_;
 
   // Indexing parameters
   casacore::Vector<casacore::Int> icorrmax_, ichanmax_, ibslnmax_, idatamax_;
@@ -278,7 +295,10 @@ private:
   bool itsColorize_;
   PMS::Axis itsColorizeAxis_;
   // </group>
-  
+
+  // For plotlines and colorization  
+  casacore::String itsXConnect_;
+
   // Cope with const-ness in the get methods
   PlotMSIndexer* self;
 
