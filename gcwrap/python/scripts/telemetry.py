@@ -8,6 +8,7 @@ import time
 import urllib2
 import __casac__
 import TelemetryLogMonitor
+import ssl
 
 class telemetry:
 
@@ -28,7 +29,7 @@ class telemetry:
 
         if (casa_util.getrc("TelemetryLogDirectory") != 'Unknown value'):
             self.logdir = casa_util.getrc("TelemetryLogDirectory")
-      
+
         for file in os.listdir(self.logdir):
             if fnmatch.fnmatch(file, self.logpattern):
                  #print "Matched: " + file
@@ -130,8 +131,9 @@ class telemetry:
         logfiles = []
 
         # Test if internet connection is available.
+        context = ssl._create_unverified_context()
         try:
-            urllib2.urlopen('https://casa.nrao.edu/', timeout=2)
+            urllib2.urlopen('https://casa.nrao.edu/', timeout=20, context=context)
         except urllib2.URLError as err:
             return
 
