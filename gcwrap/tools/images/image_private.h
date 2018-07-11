@@ -156,6 +156,12 @@ template <class T> image* _hanning(
 	const std::vector<casac::variant> values
 ) const;
 
+template <class T> record* _histograms(
+    SPIIT myImage, const vector<int>& axes, const variant& region,
+    const variant& mask, int nbins, const vector<double>& includepix, bool cumu,
+    bool log, bool stretch
+);
+
 template<class T> SPIIT _imagecalc(
 	const string& outfile, const string& pixels,
 	bool overwrite, const string& imagemd
