@@ -71,6 +71,7 @@ class telemetry:
 
     def setNewTelemetryFile(self):
         self.casa['files']['telemetry-logfile'] =  self.logdir + '/casastats-' + self.casaver +'-'  + self.hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
+        self.logger.setstatslogfile(self.casa['files']['telemetry-logfile'])
 
     def setCasaVersion(self):
         myUtils = casac.utils()
