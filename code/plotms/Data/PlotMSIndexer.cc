@@ -826,17 +826,29 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
             case PMS::MODEL:
                 getmethod = &PlotMSCacheBase::getAmpModel;
                 break;
-            case PMS::CORRMODEL:
+            case PMS::CORRMODEL_V:
                 getmethod = &PlotMSCacheBase::getAmpCorrMod;
                 break;
-            case PMS::DATAMODEL:
+            case PMS::CORRMODEL_S: 
+                getmethod = &PlotMSCacheBase::getAmpCorrModS;
+                break;
+            case PMS::DATAMODEL_V:
                 getmethod = &PlotMSCacheBase::getAmpDataMod;
                 break;
-            case PMS::DATA_DIVIDE_MODEL:
+            case PMS::DATAMODEL_S:
+                getmethod = &PlotMSCacheBase::getAmpDataModS;
+                break;
+            case PMS::DATA_DIV_MODEL_V:
                 getmethod = &PlotMSCacheBase::getAmpDataDivMod;
                 break;
-            case PMS::CORRECTED_DIVIDE_MODEL:
+            case PMS::DATA_DIV_MODEL_S:
+                getmethod = &PlotMSCacheBase::getAmpDataDivModS;
+                break;
+            case PMS::CORR_DIV_MODEL_V:
                 getmethod = &PlotMSCacheBase::getAmpCorrDivMod;
+                break;
+            case PMS::CORR_DIV_MODEL_S:
+                getmethod = &PlotMSCacheBase::getAmpCorrDivModS;
                 break;
             case PMS::FLOAT_DATA:
                 getmethod = &PlotMSCacheBase::getAmpFloat;
@@ -855,17 +867,29 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
             case PMS::MODEL:
                 getmethod = &PlotMSCacheBase::getPhaModel;
                 break;
-            case PMS::CORRMODEL:
+            case PMS::CORRMODEL_V:
                 getmethod = &PlotMSCacheBase::getPhaCorrMod;
                 break;
-            case PMS::DATAMODEL:
+            case PMS::CORRMODEL_S:
+                getmethod = &PlotMSCacheBase::getPhaCorrModS;
+                break;
+            case PMS::DATAMODEL_V:
                 getmethod = &PlotMSCacheBase::getPhaDataMod;
                 break;
-            case PMS::DATA_DIVIDE_MODEL:
+            case PMS::DATAMODEL_S:
+                getmethod = &PlotMSCacheBase::getPhaDataModS;
+                break;
+            case PMS::DATA_DIV_MODEL_V:
                 getmethod = &PlotMSCacheBase::getPhaDataDivMod;
                 break;
-            case PMS::CORRECTED_DIVIDE_MODEL:
+            case PMS::DATA_DIV_MODEL_S:
+                getmethod = &PlotMSCacheBase::getPhaDataDivModS;
+                break;
+            case PMS::CORR_DIV_MODEL_V:
                 getmethod = &PlotMSCacheBase::getPhaCorrDivMod;
+                break;
+            case PMS::CORR_DIV_MODEL_S:
+                getmethod = &PlotMSCacheBase::getPhaCorrDivModS;
                 break;
             case PMS::FLOAT_DATA:
                 break;
@@ -883,17 +907,29 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
             case PMS::MODEL:
                 getmethod = &PlotMSCacheBase::getRealModel;
                 break;
-            case PMS::CORRMODEL:
+            case PMS::CORRMODEL_V:
                 getmethod = &PlotMSCacheBase::getRealCorrMod;
                 break;
-            case PMS::DATAMODEL:
+            case PMS::CORRMODEL_S:
+                getmethod = &PlotMSCacheBase::getRealCorrModS;
+                break;
+            case PMS::DATAMODEL_V:
                 getmethod = &PlotMSCacheBase::getRealDataMod;
                 break;
-            case PMS::DATA_DIVIDE_MODEL:
+            case PMS::DATAMODEL_S:
+                getmethod = &PlotMSCacheBase::getRealDataModS;
+                break;
+            case PMS::DATA_DIV_MODEL_V:
                 getmethod = &PlotMSCacheBase::getRealDataDivMod;
                 break;
-            case PMS::CORRECTED_DIVIDE_MODEL:
+            case PMS::DATA_DIV_MODEL_S:
+                getmethod = &PlotMSCacheBase::getRealDataDivModS;
+                break;
+            case PMS::CORR_DIV_MODEL_V:
                 getmethod = &PlotMSCacheBase::getRealCorrDivMod;
+                break;
+            case PMS::CORR_DIV_MODEL_S:
+                getmethod = &PlotMSCacheBase::getRealCorrDivModS;
                 break;
             case PMS::FLOAT_DATA:
                 getmethod = &PlotMSCacheBase::getReal;
@@ -912,17 +948,29 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
             case PMS::MODEL:
                 getmethod = &PlotMSCacheBase::getImagModel;
                 break;
-            case PMS::CORRMODEL:
+            case PMS::CORRMODEL_V:
                 getmethod = &PlotMSCacheBase::getImagCorrMod;
                 break;
-            case PMS::DATAMODEL:
+            case PMS::CORRMODEL_S:
+                getmethod = &PlotMSCacheBase::getImagCorrModS;
+                break;
+            case PMS::DATAMODEL_V:
                 getmethod = &PlotMSCacheBase::getImagDataMod;
                 break;
-            case PMS::DATA_DIVIDE_MODEL:
+            case PMS::DATAMODEL_S:
+                getmethod = &PlotMSCacheBase::getImagDataModS;
+                break;
+            case PMS::DATA_DIV_MODEL_V:
                 getmethod = &PlotMSCacheBase::getImagDataDivMod;
                 break;
-            case PMS::CORRECTED_DIVIDE_MODEL:
+            case PMS::DATA_DIV_MODEL_S:
+                getmethod = &PlotMSCacheBase::getImagDataDivModS;
+                break;
+            case PMS::CORR_DIV_MODEL_V:
                 getmethod = &PlotMSCacheBase::getImagCorrDivMod;
+                break;
+            case PMS::CORR_DIV_MODEL_S:
+                getmethod = &PlotMSCacheBase::getImagCorrDivModS;
                 break;
             case PMS::FLOAT_DATA:
                 break;
@@ -940,17 +988,29 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
             case PMS::MODEL:
                 getmethod = &PlotMSCacheBase::getWtxAmpModel;
                 break;
-            case PMS::CORRMODEL:
+            case PMS::CORRMODEL_V:
                 getmethod = &PlotMSCacheBase::getWtxAmpCorrMod;
                 break;
-            case PMS::DATAMODEL:
+            case PMS::CORRMODEL_S:
+                getmethod = &PlotMSCacheBase::getWtxAmpCorrModS;
+                break;
+            case PMS::DATAMODEL_V:
                 getmethod = &PlotMSCacheBase::getWtxAmpDataMod;
                 break;
-            case PMS::DATA_DIVIDE_MODEL:
+            case PMS::DATAMODEL_S:
+                getmethod = &PlotMSCacheBase::getWtxAmpDataModS;
+                break;
+            case PMS::DATA_DIV_MODEL_V:
                 getmethod = &PlotMSCacheBase::getWtxAmpDataDivMod;
                 break;
-            case PMS::CORRECTED_DIVIDE_MODEL:
+            case PMS::DATA_DIV_MODEL_S:
+                getmethod = &PlotMSCacheBase::getWtxAmpDataDivModS;
+                break;
+            case PMS::CORR_DIV_MODEL_V:
                 getmethod = &PlotMSCacheBase::getWtxAmpCorrDivMod;
+                break;
+            case PMS::CORR_DIV_MODEL_S:
+                getmethod = &PlotMSCacheBase::getWtxAmpCorrDivModS;
                 break;
             case PMS::FLOAT_DATA:
                 getmethod = &PlotMSCacheBase::getWtxAmpFloat;

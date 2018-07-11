@@ -863,7 +863,7 @@ Bool NRO2MSReader::getData(size_t irow, DataRecord &record) {
   record.setTsysSize(1);
   record.tsys(0) = scan_data.TSYS0;
 
-  record.temperature = scan_data.TEMP0;
+  record.temperature = scan_data.TEMP0 + 273.15; // Celsius to Kelvin
   record.pressure = scan_data.PATM0;
   record.rel_humidity = scan_data.PH200;
   record.wind_speed = scan_data.VWIND0;

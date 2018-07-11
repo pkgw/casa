@@ -74,6 +74,9 @@ class importasap_test(unittest.TestCase):
 
         # check flagversions
         self._check_flagversions(self.outfile)
+        
+        # check pressure unit and its value
+        self._check_atm_pressure(self.outfile)
 
     def test_flagversions(self):
         """test_flagversions -- Check if existing flagversions file is overwritten"""
@@ -197,6 +200,29 @@ class importasap_test(unittest.TestCase):
 
     def _flagversions(self, vis):
         return vis.rstrip('/') + '.flagversions'
+    
+    def _check_atm_pressure(self, vis):
+        weather_table = os.path.join(vis, 'WEATHER')
+        tb.open(weather_table)
+        try:
+            # PRESSURE column should exist
+            self.assertTrue('PRESSURE' in tb.colnames())
+            
+            # unit should be hPa
+            colkeys = tb.getcolkeywords('PRESSURE')
+            self.assertTrue('QuantumUnits' in colkeys)
+            pressure_unit = colkeys['QuantumUnits'][0]
+            print('Pressure unit is {0}'.format(pressure_unit))
+            self.assertEqual(pressure_unit, 'hPa')
+            
+            # value should be in reasonable range
+            pressure_min = 400.0
+            pressure_max = 1100.0
+            pressure_value = tb.getcol('PRESSURE')
+            self.assertTrue(numpy.all(pressure_min < pressure_value))
+            self.assertTrue(numpy.all(pressure_value < pressure_max))
+        finally:
+            tb.close()
 
 
 def suite():

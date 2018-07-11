@@ -27,7 +27,6 @@
 #define IMAGEANALYSIS_IMAGEREGRIDDERBASE_H
 
 #include <imageanalysis/ImageAnalysis/ImageTask.h>
-//#include <casa/Arrays/IPosition.h>
 #include <scimath/Mathematics/Interpolate2D.h>
 #include <casa/namespace.h>
 
@@ -64,7 +63,10 @@ public:
 	void setSpecAsVelocity(casacore::Bool v) { _specAsVelocity = v; }
 
 	// Set interpolation method.
-	void setMethod(const casacore::String& method) { _method = casacore::Interpolate2D::stringToMethod(method); }
+	void setMethod(const casacore::String& method) {
+	    _method = casacore::Interpolate2D::stringToMethod(method);
+	}
+
 	void setMethod(casacore::Interpolate2D::Method method) { _method = method; }
 
 	void setDoRefChange(casacore::Bool d) { _doRefChange = d; }
@@ -86,9 +88,9 @@ protected:
 
 	ImageRegridderBase(
 		const SPCIIT image, const casacore::Record *const regionRec,
-		const casacore::String& maskInp, const casacore::String& outname, casacore::Bool overwrite,
-		const casacore::CoordinateSystem& csys, const casacore::IPosition& axes,
-		const casacore::IPosition& shape
+		const casacore::String& maskInp, const casacore::String& outname,
+		casacore::Bool overwrite, const casacore::CoordinateSystem& csys,
+		const casacore::IPosition& axes, const casacore::IPosition& shape
 	);
 
 	casacore::Interpolate2D::Method _getMethod() const { return _method; }
@@ -113,7 +115,9 @@ protected:
 
 	casacore::IPosition _getShape() const {return _shape;}
 
-	const casacore::CoordinateSystem& _getTemplateCoords() const { return _csysTo; }
+	const casacore::CoordinateSystem& _getTemplateCoords() const {
+	    return _csysTo;
+	}
 
 	casacore::IPosition _getAxes() const { return _axes; }
 

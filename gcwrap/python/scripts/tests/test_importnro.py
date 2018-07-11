@@ -123,6 +123,9 @@ class importnro_test(unittest.TestCase):
         # check subtables
         self._check_optional_subtables(self.outfile)
         
+        # check WEATHER table
+        self._check_weather(self.outfile)
+        
     def _check_weights(self, vis):
         _tb = gentools(['tb'])[0]
         take_diff = lambda actual, expected: numpy.abs((actual - expected) / expected)
@@ -250,6 +253,34 @@ class importnro_test(unittest.TestCase):
         self.assertLessEqual(elevation['value'], 90.0, msg='Elevation is above the upper limit (> 90deg). {}'.format(msg))
         self.assertGreaterEqual(elevation['value'], 0.0, msg='Elevation is below the lower limit (< 0deg). {}'.format(msg))
 
+    def _check_weather(self, vis):
+        # check PRESSURE
+        self._check_weather_column(vis, 'PRESSURE', 'hPa', 400.0, 1100.0)
+        
+        # check TEMPERATURE
+        self._check_weather_column(vis, 'TEMPERATURE', 'K', 243.0, 313.0)
+        
+    def _check_weather_column(self, vis, colname, unit, value_min, value_max):
+        weather_table = os.path.join(vis, 'WEATHER')
+        tb.open(weather_table)
+        try:
+            # column should exist
+            self.assertTrue(colname in tb.colnames())
+            
+            # unit check
+            colkeys = tb.getcolkeywords(colname)
+            self.assertTrue('QuantumUnits' in colkeys)
+            column_unit = colkeys['QuantumUnits'][0]
+            print('{0} unit is {1}'.format(colname, column_unit))
+            self.assertEqual(column_unit, unit)
+            
+            # value should be in reasonable range
+            column_value = tb.getcol(colname)
+            self.assertTrue(numpy.all(value_min < column_value))
+            self.assertTrue(numpy.all(column_value < value_max))
+        finally:
+            tb.close()
+        
 
 def suite():
     return [importnro_test]
