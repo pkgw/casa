@@ -6264,10 +6264,6 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
             if (chanAverage) {
                 Record config;
                 config.define("chanbin", chansel_p[2]);
-                if (chanSelection) {
-                    String spwExpr = getSpwExpr() + chanselExpr_p;
-                    config.define("spw", spwExpr);
-                }
                 vi::ChannelAverageTVILayerFactory* chanavglayer =
                     new vi::ChannelAverageTVILayerFactory(config);
                 layers.resize(layers.size()+1, True);
