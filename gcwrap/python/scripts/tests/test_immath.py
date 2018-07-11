@@ -1551,13 +1551,13 @@ class immath_test3(unittest.TestCase):
                 expecv = 2*mycomplex
             if mytype == 'f' or mytype == 'c':
                 self.assertTrue(
-                numpy.isclose(cc, expecv, 1e-8).all(), 
-                "wrong values for " + mytype
-            )
+                    numpy.isclose(cc, expecv, 1e-8).all(),
+                    "wrong values for " + mytype
+                )
             else:
-                self.assertTrue((cc == expecv).all(),
-                "wrong values for " + mytype
-            )
+                self.assertTrue(
+                    (cc == expecv).all(), "wrong values for " + mytype
+                )
         
     def test_8(self):
         """Tests moved from imagetest regression, some are probably useless"""
