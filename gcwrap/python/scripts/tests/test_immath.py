@@ -1521,7 +1521,7 @@ class immath_test3(unittest.TestCase):
         expec['c'] = 'complex'
         expec['cd'] = 'dcomplex'
         shape = [2,2]
-        for mytype in ['f', 'c', 'd', 'cd']:
+        for mytype in expec.keys():
             out0 = "calc0_" + mytype + ".im"
             out1 = "calc1_" + mytype + ".im"
             for i in [0, 1]:
@@ -1539,7 +1539,7 @@ class immath_test3(unittest.TestCase):
                 myia.done()
             zz = myia.imagecalc("", out0 + "+" + out1)
             self.assertTrue(
-                zz.pixeltype() == expec[mytype],
+                zz.pixeltype() == expec[mytype], 
                 "Wrong image type for " + mytype
             )
             cc = zz.getchunk()
