@@ -947,7 +947,6 @@ bool PlotMSCacheBase::isIndexerInitialized( PMS::Axis iteraxis, Bool globalXRang
 
 void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 		Bool globalYRange, const String& xconnect, int dataIndex) {
-		Bool globalYRange, int dataIndex ) {
 	logLoad("Setting up iteration indexing (if necessary), and calculating plot ranges.");
 	Int nIter=0;
 	Vector<Int> iterValues;
