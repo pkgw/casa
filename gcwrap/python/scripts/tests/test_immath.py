@@ -1510,23 +1510,54 @@ class immath_test3(unittest.TestCase):
         # Note that im.4 has been moved into im.1.
         ok = global_iet_im1.done()
       
-    def test_complex(self):
-        """Test creating and manipulating complex images"""
+    def test_precision(self):
+        """Test ia.imagecalc() support for various precisions"""
         myia = iatool()
-        floatim = "float.im"
-        myia.fromshape(floatim, [2,2], type='f')
-        self.assertTrue(type(myia.getchunk()[0,0]) == numpy.float64)
-        myia.done()
-        complexim = "complex.im"
-        zz = myia.imagecalc(complexim, "complex(" + floatim + ")")
-        self.assertTrue(type(zz.getchunk()[0,0]) == numpy.complex128)
-        complexim2 = "complex2.im"
-        yy = zz.subimage(complexim2)
-        zz.done()
-        yy.done()
-        zz = myia.imagecalc("", complexim + "+" + complexim2)
-        self.assertTrue(type(zz.getchunk()[0,0]) == numpy.complex128)
-        zz.done()
+        myreal = 1.2345678901234567890123456789
+        mycomplex = myreal * (1 + 1j)
+        expec = {}
+        expec['f'] = 'float'
+        expec['d'] = 'double'
+        expec['c'] = 'complex'
+        expec['cd'] = 'dcomplex'
+        shape = [2,2]
+        for mytype in ['f', 'c', 'd', 'cd']:
+            out0 = "calc0_" + mytype + ".im"
+            out1 = "calc1_" + mytype + ".im"
+            for i in [0, 1]:
+                if i == 0:
+                    outfile = out0
+                else:
+                    outfile = out1
+                myia.fromshape(outfile, shape, type=mytype)
+                bb = myia.getchunk()
+                if mytype == 'f' or mytype == 'd':
+                    bb[:] = myreal
+                else:
+                    bb[:] = mycomplex
+                myia.putchunk(bb)
+                myia.done()
+            zz = myia.imagecalc("", out0 + "+" + out1)
+            self.assertTrue(
+                zz.pixeltype() == expec[mytype],
+                "Wrong image type for " + mytype
+            )
+            cc = zz.getchunk()
+            myia.done()
+            zz.done()
+            if mytype == 'f' or mytype == 'd':
+                expecv = 2*myreal
+            else:
+                expecv = 2*mycomplex
+            if mytype == 'f' or mytype == 'c':
+                self.assertTrue(
+                numpy.isclose(cc, expecv, 1e-8).all(), 
+                "wrong values for " + mytype
+            )
+            else:
+                self.assertTrue((cc == expecv).all(),
+                "wrong values for " + mytype
+            )
         
     def test_8(self):
         """Tests moved from imagetest regression, some are probably useless"""
