@@ -53,7 +53,9 @@ public:
 	void setAveraging( PlotMSAveraging averaging );
 	void setTransformations( PlotMSTransformations transforms );
 	void setCalibration( PlotMSCalibration calibration );
+	// although these are "display" params, they change the cache indexer setup
 	void setXConnect( casacore::String xconnect );
+	void setTimeConnect( bool xconnect );
 	virtual ~CacheThread();
 protected:
 	virtual bool doWork();
@@ -68,6 +70,7 @@ private:
 
 	bool itsLoad;
 	bool itsSetupPlot;
+	bool itsTimeConnect;
 	PlotMSCacheBase* itsCache;
 	vector<PMS::Axis> workAxes;
 	vector<PMS::DataColumn> itsAxesData;

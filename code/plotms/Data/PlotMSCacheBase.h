@@ -179,7 +179,8 @@ public:
     casacore::Bool globalYRange, int dataIndex ) const;
   void setUpIndexer(PMS::Axis iteraxis=PMS::SCAN,
     casacore::Bool globalXRange=false, casacore::Bool globalYRange=false, 
-    const casacore::String& xconnect = "none", int dataIndex = 0);
+    const casacore::String& xconnect = "none", bool timeconnect=false,
+	int dataIndex = 0);
 
   /*** Axis-specific generic gets, per chunk and relative index (from indexer) ***/
   inline casacore::Double getScan(casacore::Int chnk,casacore::Int irel)     { return scan_(chnk);   (void)irel; };

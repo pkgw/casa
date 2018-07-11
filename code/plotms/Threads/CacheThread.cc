@@ -86,6 +86,11 @@ void CacheThread::setCalibration( PlotMSCalibration calibration ){
 void CacheThread::setXConnect( String xconnect ){
 	itsXConnect = xconnect;
 }
+
+void CacheThread::setTimeConnect( bool timeconnect ){
+	itsTimeConnect = timeconnect;
+}
+
 void CacheThread::setPlot( PlotMSPlot* plot ){
 	itsPlot = plot;
 }
@@ -128,7 +133,7 @@ bool CacheThread::doWork(){
                         itsCache->clearRanges();
                         bool globalRanges = false;
                         for ( int i = 0; i < dataCount; i++ ){
-                            itsCache->setUpIndexer(PMS::NONE, globalRanges, globalRanges, itsXConnect, i);
+                            itsCache->setUpIndexer(PMS::NONE, globalRanges, globalRanges, itsXConnect, itsTimeConnect, i);
                         }
                     }
                 }

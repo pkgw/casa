@@ -78,6 +78,7 @@ PlotMSIndexer::PlotMSIndexer():
 		  itsColorize_(false),
 		  itsColorizeAxis_(PMS::DEFAULT_COLOR_AXIS),
 		  itsXConnect_("none"),
+		  itsTimeConnect_(false),
 		  self(const_cast<PlotMSIndexer*>(this))
 {
 	dataIndex_ = 0;
@@ -85,7 +86,7 @@ PlotMSIndexer::PlotMSIndexer():
 
 PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent, PMS::Axis xAxis,
         PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-        String xconnect, int index ):
+        String xconnect, bool timeconnect, int index ):
 		  plotmscache_(parent),
 		  currChunk_(0),
 		  irel_(0),
@@ -127,6 +128,7 @@ PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent, PMS::Axis xAxis,
 		  itsColorize_(false),
 		  itsColorizeAxis_(PMS::DEFAULT_COLOR_AXIS),
 		  itsXConnect_(xconnect),
+		  itsTimeConnect_(timeconnect),
 		  self(const_cast<PlotMSIndexer*>(this))
 {
 	dataIndex_ = index;
@@ -137,7 +139,7 @@ PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent,
         PMS::Axis xAxis, PMS::DataColumn xDataColumn, 
         PMS::Axis yAxis, PMS::DataColumn yDataColumn, 
         PMS::Axis iterAxis, Int iterValue,
-		String xconnect, int index ):
+		String xconnect, bool timeconnect, int index ):
 		plotmscache_(parent),
 		currChunk_(0),
 		irel_(0),
@@ -179,6 +181,7 @@ PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent,
 		itsColorize_(false),
 		itsColorizeAxis_(PMS::DEFAULT_COLOR_AXIS),
 		itsXConnect_(xconnect),
+		itsTimeConnect_(timeconnect),
 		self(const_cast<PlotMSIndexer*>(this))
 { 
 	dataIndex_ = index;
@@ -438,9 +441,10 @@ bool PlotMSIndexer::colorize(bool doColorize, PMS::Axis colorizeAxis) {
 	return changed;
 }
 
-bool PlotMSIndexer::setConnect(String xconnect) {
-	bool changed = (xconnect != itsXConnect_);
+bool PlotMSIndexer::setConnect(String xconnect, bool timeconnect) {
+	bool changed = (xconnect != itsXConnect_ || timeconnect != itsTimeConnect_);
 	itsXConnect_ = xconnect;
+	itsTimeConnect_ = timeconnect;
 	if (changed) setUpIndexing();
 	return changed;
 }
@@ -737,7 +741,9 @@ void PlotMSIndexer::reindexForConnect() {
 		}
 	}
 
-	if (currentX_ == iterAxis_) {
+	if (itsTimeConnect_) {
+		reindexForTimeConnect(spws, corrs, ant1s, itermask);
+	} else if (currentX_ == iterAxis_) {
 		reindexForAllConnect(times, spws, corrs, ant1s, itermask);
 	} else {
 		switch (currentX_) {
@@ -768,37 +774,38 @@ void PlotMSIndexer::reindexForConnect() {
 	connectReady_ = true;
 }
 
-void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& corrs, 
-		std::set<Int>& ant1s) {
+void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
+		std::set<Int>& corrs, std::set<Int>& ant1s) {
 	// We need these values if the axis are not the x-axis, unless it is the iteraxis
 	bool needTime(true), needSpw(true), needCorr(true), needAnt1(true);
 	PMS::Axis connectAxes[] = { PMS::TIME, PMS::SPW, PMS::CORR, PMS::ANTENNA1 };
 	for (PMS::Axis axis : connectAxes) {
-		bool axisIsX(axis == currentX_), axisIsIter(axis == iterAxis_);
+		bool connectX(axis == currentX_), axisIsIter(axis == iterAxis_);
+		if (itsTimeConnect_) connectX = false;  // do not connect along X axis
 		switch(axis) {
 			case PMS::TIME: {
-				if (axisIsX || axisIsIter)
+				if (connectX || axisIsIter || itsTimeConnect_)
 					needTime = false;
 				if (axisIsIter)  // itervalue is index for time
 					times.insert(plotmscache_->time_[iterValue_]);
 				break;
 			}
 			case PMS::SPW: {
-				if (axisIsX || axisIsIter)
+				if (connectX || axisIsIter)
 					needSpw = false;
 				if (axisIsIter) 
 					spws.insert(iterValue_);
 				break;
 			}
 			case PMS::CORR: {
-				if (axisIsX || axisIsIter)
+				if (connectX || axisIsIter)
 					needCorr = false;
 				if (axisIsIter) 
 					corrs.insert(iterValue_);
 				break;
 			}
 			case PMS::ANTENNA: {
-				if (axisIsX || axisIsIter)
+				if (connectX || axisIsIter)
 					needAnt1 = false;
 				if (axisIsIter) 
 					ant1s.insert(iterValue_);

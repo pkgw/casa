@@ -60,12 +60,12 @@ public:
   // Constructor which takes parent PlotMSCache, x and y axes (non-iteration)
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
     PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-	casacore::String xconnect, int index);
+	casacore::String xconnect, bool timeconnect, int index);
   // Constructor which supports iteration
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
     PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
     PMS::Axis iterAxis, casacore::Int iterValue, 
-	casacore::String xconnect, int index);
+	casacore::String xconnect, bool timeconnect, int index);
   
   // Destructor
   ~PlotMSIndexer();
@@ -163,8 +163,7 @@ public:
 
   // 
   bool colorize(bool doColorize, PMS::Axis colorizeAxis);
-  bool setConnect(casacore::String xconnect);
-  inline casacore::String getConnect() { return itsXConnect_; }
+  bool setConnect(casacore::String xconnect, bool timeconnect);
 
   bool plotConjugates() const { return (PMS::axisIsUV(currentX_) && 
           PMS::axisIsUV(currentY_)); }
@@ -298,6 +297,7 @@ private:
 
   // For plotlines and colorization  
   casacore::String itsXConnect_;
+  bool itsTimeConnect_;
 
   // Cope with const-ness in the get methods
   PlotMSIndexer* self;

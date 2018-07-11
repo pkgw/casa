@@ -137,6 +137,7 @@ void ActionCacheLoad::setUpWorkParameters(CacheThread* cacheThread, int plotInde
 		cacheThread->setTransformations(paramsData->transformations());
 		cacheThread->setCalibration(paramsData->calibration());
 		cacheThread->setXConnect(paramsDisplay->xConnect(plotIndex));
+		cacheThread->setTimeConnect(paramsDisplay->timeConnect(plotIndex));
 		cacheThread->setSetupPlot( setupPlot );
 	}
 }

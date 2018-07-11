@@ -657,9 +657,11 @@ bool PlotMSPlot::updateDisplay() {
 				if (nIter > 0 && colorizeChanged )
 					plot->dataChanged();
 
-				// set xconnector
+				// Set xconnector in indexer and plot;
+				// time connector changes indexer only
 				String xconnector = display->xConnect();
-				bool connectorChanged = itsCache_->indexer(row,col).setConnect(xconnector);
+				bool timeconnector = display->timeConnect();
+				bool connectorChanged = itsCache_->indexer(row,col).setConnect(xconnector, timeconnector);
 				if (connectorChanged)
 					plot->dataChanged();
 				if (xconnector == "none") {
