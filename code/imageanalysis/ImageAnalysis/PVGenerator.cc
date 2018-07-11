@@ -473,7 +473,7 @@ SPCIIF PVGenerator::_doRotate(
         auto outShape = subShape;
         outShape[xAxis] = (Int)(endPixRot[0] + nPixels + 6);
         outShape[yAxis] = (Int)(startPixRot[1] + halfwidth) + nPixels + 6;
-        ImageRotator rotator(imageToRotate, &lcbox, "", "", false);
+        ImageRotator<Float> rotator(imageToRotate, &lcbox, "", "", false);
         rotator.setAngle(Quantity(paInRad, "rad"));
         rotator.setShape(outShape);
         return rotator.rotate();
