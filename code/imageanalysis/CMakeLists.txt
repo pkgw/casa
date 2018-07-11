@@ -43,9 +43,7 @@ ImageAnalysis/ComponentImager.cc
 ImageAnalysis/ImageCollapserData.cc
 ImageAnalysis/ImageCollapser2.cc
 ImageAnalysis/ImageFactory2.cc
-ImageAnalysis/ImageFFT.cc
 ImageAnalysis/ImageFitter.cc
-ImageAnalysis/ImageHistogramsCalculator.cc
 ImageAnalysis/ImageInputProcessor.cc
 ImageAnalysis/ImageMask.cc
 ImageAnalysis/ImageMetaDataConstants.cc
@@ -57,9 +55,6 @@ ImageAnalysis/ImagePolProxy.cc
 ImageAnalysis/ImagePolTask.cc
 ImageAnalysis/ImagePrimaryBeamCorrector.cc
 ImageAnalysis/ImageProfileFitter.cc
-ImageAnalysis/ImageRotator.cc
-ImageAnalysis/ImageStatsCalculator.cc
-ImageAnalysis/ImageStatsConfigurator.cc
 ImageAnalysis/ImageTotalPolarization.cc
 ImageAnalysis/ImageTransposer.cc
 ImageAnalysis/LinearPolarizationAngleCalculator.cc
@@ -130,8 +125,6 @@ install (FILES
 	ImageAnalysis/BeamManipulator.h
 	ImageAnalysis/BeamManipulator.tcc
 	ImageAnalysis/CasaImageBeamSet.h
-	ImageAnalysis/ComplexImageRegridder.h
-	ImageAnalysis/ComplexImageRegridder.tcc
 	ImageAnalysis/ComponentImager.h
 	ImageAnalysis/ComponentListDeconvolver.h
     ImageAnalysis/ComponentListDeconvolver.tcc
@@ -164,6 +157,7 @@ install (FILES
 	ImageAnalysis/ImageFactory.h
 	ImageAnalysis/ImageFactory.tcc
 	ImageAnalysis/ImageFFT.h
+    ImageAnalysis/ImageFFT.tcc
 	ImageAnalysis/ImageFFTer.h
 	ImageAnalysis/ImageFFTer.tcc
 	ImageAnalysis/ImageFitter.h
@@ -174,6 +168,7 @@ install (FILES
     ImageAnalysis/ImageHistograms.h
     ImageAnalysis/ImageHistograms.tcc
     ImageAnalysis/ImageHistogramsCalculator.h
+    ImageAnalysis/ImageHistogramsCalculator.tcc
     ImageAnalysis/ImageHistory.h
     ImageAnalysis/ImageHistory.tcc
 	ImageAnalysis/ImageInputProcessor.h
@@ -213,10 +208,14 @@ install (FILES
     ImageAnalysis/ImageRegridderBase.h
     ImageAnalysis/ImageRegridderBase.tcc
     ImageAnalysis/ImageRotator.h
+    ImageAnalysis/ImageRotator.tcc
 	ImageAnalysis/ImageSourceFinder.h
 	ImageAnalysis/ImageSourceFinder.tcc
 	ImageAnalysis/ImageStatsCalculator.h
-	ImageAnalysis/ImageStatsConfigurator.h
+    ImageAnalysis/ImageStatsCalculator.tcc
+	ImageAnalysis/ImageStatsBase.h
+	ImageAnalysis/ImageStatsBase.tcc
+    ImageAnalysis/ImageStatsData.h
 	ImageAnalysis/ImageTask.h
     ImageAnalysis/ImageTask.tcc
     ImageAnalysis/ImageTotalPolarization.h

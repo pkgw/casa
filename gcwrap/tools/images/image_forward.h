@@ -25,11 +25,9 @@ namespace casacore{
 }
 
 namespace casa {
-	class ImageAnalysis;
-	class ImageStatsCalculator;
-
 	template<class T> class ImageHistograms;
 	template<class T> class ImageMetaData;
 	template<class T> class ImageRegridderBase;
+	template<class T> class ImageStatsCalculator;
 	class SkyComponent;
 }

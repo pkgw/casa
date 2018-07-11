@@ -35,7 +35,8 @@ casa::SPIIC _imageC = casa::SPIIC();
 casa::SPIID _imageD = casa::SPIID();
 casa::SPIIDC _imageDC = casa::SPIIDC();
 
-std::auto_ptr<casa::ImageStatsCalculator> _stats;
+std::auto_ptr<casa::ImageStatsCalculator<casacore::Float>> _statsF;
+std::auto_ptr<casa::ImageStatsCalculator<casacore::Double>> _statsD;
 
 static const casacore::String _class;
 
@@ -100,6 +101,13 @@ template<class T> image* _decimate(
 	const vector<casacore::String>& msgs
 ) const;
 
+template<class T> bool _fft(
+    SPIIT myImage, const string& realOut, const string& imagOut,
+    const string& ampOut, const string& phaseOut, const std::vector<int>& axes,
+    const variant& region, const variant& vmask, bool stretch,
+    const string& complexOut
+);
+
 casa::ITUPLE _fromarray(
     const std::string& outfile, const casac::variant& pixels,
     const casac::record& csys, bool linear, bool overwrite,
@@ -147,6 +155,12 @@ template <class T> image* _hanning(
 	casa::ImageDecimatorData::Function dFunction,
 	const std::vector<casac::variant> values
 ) const;
+
+template <class T> record* _histograms(
+    SPIIT myImage, const vector<int>& axes, const variant& region,
+    const variant& mask, int nbins, const vector<double>& includepix, bool cumu,
+    bool log, bool stretch
+);
 
 template<class T> SPIIT _imagecalc(
 	const string& outfile, const string& pixels,
@@ -221,12 +235,29 @@ void _remove(bool verbose);
 
 void _reset();
 
+template <class T> image* _rotate(
+    SPIIT image, const string& outfile, const vector<int>& inshape,
+    const variant& inpa, const variant& region, const variant& vmask,
+    const string& method, int decimate, bool replicate, bool dropdeg,
+    bool overwrite, bool stretch
+);
+
 void _setImage(casa::ITUPLE mytuple);
 
 template<class T> void _setrestoringbeam(
     SPIIT image, const variant& major, const variant& minor, const variant& pa,
     bool remove, bool log, int channel, int polarization,
     const casacore::Record& rec, const ImageBeamSet& bs
+);
+
+template <class T> record* _statistics(
+    std::auto_ptr<casa::ImageStatsCalculator<T>>& stats, SPIIT myImage,
+    const vector<int>& axes, const variant& region,
+    const variant& mask, const vector<double>& includepix,
+    const vector<double>& excludepix, bool list, bool force, bool disk,
+    bool robust, bool verbose, bool stretch, const string& logfile, bool append,
+    const string& algorithm, double fence, const string& center, bool lside,
+    double zscore, int maxiter, const string& clmethod, int niter
 );
 
 template<class T> image* _subimage(
