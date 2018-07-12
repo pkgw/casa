@@ -831,7 +831,7 @@ protected:
     uInt const nRowPolarizationTable = ms.polarization().nrow();
     auto const desc = ms.tableDesc();
     auto const correctedExists = desc.isColumn("CORRECTED_DATA");
-    auto const modelExists = desc.isColumn("MODEL_DATA");
+    auto const modelExists = vi->existsColumn(VisBufferComponent2::VisibilityModel);
     auto const dataExists = desc.isColumn("DATA");
     auto const floatExists = desc.isColumn("FLOAT_DATA");
     //auto const weightSpExists = desc.isColumn("WEIGHT_SPECTRUM");
