@@ -1780,8 +1780,7 @@ VisibilityIteratorImpl2::existsColumn(VisBufferComponent2 id) const
 	case VisBufferComponent2::VisibilityModel:
 	case VisBufferComponent2::VisibilityCubeModel:
 
-		result =
-			!columns_p.modelVis_p.isNull() && columns_p.modelVis_p.isDefined(0);
+	  result = True;
 		break;
 
 	case VisBufferComponent2::VisibilityObserved:
