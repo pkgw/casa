@@ -79,13 +79,11 @@ class ia_imageconcat_test(unittest.TestCase):
     def tearDown(self):
         self._myia.done()
 
-
     def test_multibeam(self):
         """Test concatenating images with different beams"""
         myia = self._myia
         shape = [4, 4, 20]
         myia.fromshape("", shape)
-        print "*** here 1"
         blc1=[0, 0, 0]
         trc1=[shape[0]-1, shape[1]-1, shape[2]/2-1]
         rg1 = rg.box(blc=blc1, trc=trc1)
@@ -105,8 +103,6 @@ class ia_imageconcat_test(unittest.TestCase):
         major3 = qa.quantity("5arcmin")
         minor3 = qa.quantity("4arcmin")
         pa3 = qa.quantity("20deg")
-        print "*** here 2"
-
         # first image has no beam while second does
         sub1.setbrightnessunit("Jy/pixel") 
         sub2.setrestoringbeam(major=major, minor=minor, pa=pa)
@@ -238,7 +234,8 @@ class ia_imageconcat_test(unittest.TestCase):
             self.assertTrue(got == expec)
             
         self.assertRaises(
-            Exception, myia.imageconcat, outfile="blah.im", infiles=[names[0], names[1], names[3]]
+            Exception, myia.imageconcat, outfile="blah.im",
+            infiles=[names[0], names[1], names[3]]
         )
         concat = myia.imageconcat(
             infiles=[names[0], names[1], names[3]], relax=True
@@ -305,6 +302,28 @@ class ia_imageconcat_test(unittest.TestCase):
         msgs = zz.history()
         self.assertTrue("ia.imageconcat" in msgs[-1])
         self.assertTrue("ia.imageconcat" in msgs[-2])
+
+    def test_precision(self):
+        """Test different image precisions"""
+        myia = self._myia
+        shape = [4, 4, 5]
+        expec = {}
+        expec['f'] = 'float'
+        expec['c'] = 'complex'
+        expec['d'] = 'double'
+        expec['cd'] = 'dcomplex'
+        for mytype in ['f', 'c', 'd', 'cd']:
+            out0 = "c0_" + mytype + ".im"
+            myia.fromshape(out0, shape, type=mytype)
+            out1 = "c1_" + mytype + ".im"
+            myia.fromshape(out1, shape, type=mytype)
+            myia.done()
+            concat = myia.imageconcat("", [out0, out1], relax=True, axis=2)
+            myia.done()
+            self.assertTrue(
+                concat.pixeltype() == expec[mytype], "wrong type for " + mytype
+            )
+            concat.done()
 
 def suite():
     return [ia_imageconcat_test]

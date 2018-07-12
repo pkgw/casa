@@ -128,9 +128,7 @@ std::pair<ComponentList, ComponentList> ImageFitter::fit() {
             << LogIO::NORMAL << msg << LogIO::POST;
     }
     String errmsg;
-    ImageStatsCalculator myStats(
-        _getImage(), _getRegion(), "", false
-    );
+    ImageStatsCalculator<Float> myStats(_getImage(), _getRegion(), "", false);
     myStats.setList(false);
     myStats.setVerbose(false);
     myStats.setAxes(_getImage()->coordinates().directionAxesNumbers());
@@ -1598,7 +1596,7 @@ void ImageFitter::_setSum(
     SPCIIF tmp = SubImageFactory<Float>::createImage(
         im, "", r, "", true, false, true, false
     );
-    ImageStatsCalculator statsCalc(tmp, 0,    String(""), false);
+    ImageStatsCalculator<Float> statsCalc(tmp, 0,    String(""), false);
     statsCalc.setList(false);
     statsCalc.setVerbose(false);
     Array<Double> mySums = statsCalc.statistics().asArrayDouble("sum");
