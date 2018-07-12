@@ -75,6 +75,8 @@ refdatapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest
 #refdatapath = "/export/home/riya/rurvashi/Work/ImagerRefactor/Runs/UnitData/"
 #refdatapath = "/home/vega/rurvashi/TestCASA/ImagerRefactor/Runs/WFtests/"
 
+ 
+
 ## Base Test class with Utility functions
 class testref_base(unittest.TestCase):
 
@@ -118,6 +120,7 @@ class testref_base(unittest.TestCase):
           casalog.post(pstr,'INFO')
           if( pstr.count("(Fail") > 0 ):
                self.fail("\n"+pstr)
+
 
 ##############################################
 ##############################################
@@ -780,112 +783,112 @@ class test_multifield(testref_base):
 class test_stokes(testref_base):
 
      def test_stokes_mfs_I(self):
-          """ [onefield] Test_Stokes_I_mfs mfs with stokes I"""
+          """ [stokes] Test_Stokes_I_mfs mfs with stokes I"""
           self.prepData('refim_point_linRL.ms')
           tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='I',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',1.0,[50,50,0,0])])
           self.checkfinal(report)
 
      def test_stokes_mfs_IV(self):
-          """ [onefield] Test_Stokes_mfs_IV : mfs with stokes IV"""
+          """ [stokes] Test_Stokes_mfs_IV : mfs with stokes IV"""
           self.prepData('refim_point_linRL.ms')
           tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IV',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',1.0,[50,50,0,0]),(self.img+'.image',4.0,[50,50,1,0])  ])
           self.checkfinal(report)
 
      def test_stokes_mfs_QU(self):
-          """ [onefield] Test_Stokes_mfs_QU : mfs with stokes QU"""
+          """ [stokes] Test_Stokes_mfs_QU : mfs with stokes QU"""
           self.prepData('refim_point_linRL.ms')
           tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='QU',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',2.0,[50,50,0,0]),(self.img+'.image',3.0,[50,50,1,0])  ])
           self.checkfinal(report)
 
      def test_stokes_mfs_Q(self):
-          """ [onefield] Test_Stokes_mfs_Q : mfs with stokes Q"""
+          """ [stokes] Test_Stokes_mfs_Q : mfs with stokes Q"""
           self.prepData('refim_point_linRL.ms')
           tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='Q',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',2.0,[50,50,0,0]) ] )
           self.checkfinal(report)
 
      def test_stokes_mfs_U(self):
-          """ [onefield] Test_Stokes_mfs_U : mfs with stokes U"""
+          """ [stokes] Test_Stokes_mfs_U : mfs with stokes U"""
           self.prepData('refim_point_linRL.ms')
           tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='U',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',3.0,[50,50,0,0]) ] )
           self.checkfinal(report)
 
      def test_stokes_mfs_V(self):
-          """ [onefield] Test_Stokes_mfs_V : mfs with stokes V"""
+          """ [stokes] Test_Stokes_mfs_V : mfs with stokes V"""
           self.prepData('refim_point_linRL.ms')
           tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='V',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',4.0,[50,50,0,0]) ] )
           self.checkfinal(report)
 
      def test_stokes_cube_I(self):
-          """ [onefield] Test_Stokes_cube_I : cube with stokes I"""
+          """ [stokes] Test_Stokes_cube_I : cube with stokes I"""
           self.prepData('refim_point_linRL.ms')
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='I',interactive=0,specmode='cube',interpolation='nearest',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',1.0,[50,50,0,0]),(self.img+'.image',1.0,[50,50,0,1]),(self.img+'.image',1.0,[50,50,0,2]) ] )
           self.checkfinal(report)
 
      def test_stokes_cube_IV(self):
-          """ [onefield] Test_Stokes_stokes_IV : cube with stokes V"""
+          """ [stokes] Test_Stokes_stokes_IV : cube with stokes V"""
           self.prepData('refim_point_linRL.ms')
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IV',interactive=0,specmode='cube',interpolation='nearest',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',1.0,[50,50,0,0]),(self.img+'.image',1.0,[50,50,0,1]),(self.img+'.image',1.0,[50,50,0,2]),  (self.img+'.image',4.0,[50,50,1,0]),(self.img+'.image',4.0,[50,50,1,1]),(self.img+'.image',4.0,[50,50,1,2])] )
           self.checkfinal(report)
 
      def test_stokes_cube_QU(self):
-          """ [onefield] Test_Stokes_stokes_QU : cube with stokes QU"""
+          """ [stokes] Test_Stokes_stokes_QU : cube with stokes QU"""
           self.prepData('refim_point_linRL.ms')
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='QU',interactive=0,specmode='cube',interpolation='nearest',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',2.0,[50,50,0,0]),(self.img+'.image',2.0,[50,50,0,1]),(self.img+'.image',2.0,[50,50,0,2]),  (self.img+'.image',3.0,[50,50,1,0]),(self.img+'.image',3.0,[50,50,1,1]),(self.img+'.image',3.0,[50,50,1,2])] )
           self.checkfinal(report)
 
      def test_stokes_cube_Q(self):
-          """ [onefield] Test_Stokes_cube_Q : cube with stokes Q"""
+          """ [stokes] Test_Stokes_cube_Q : cube with stokes Q"""
           self.prepData('refim_point_linRL.ms')
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='Q',interactive=0,specmode='cube',interpolation='nearest',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',2.0,[50,50,0,0]),(self.img+'.image',2.0,[50,50,0,1]) ,(self.img+'.image',2.0,[50,50,0,2]) ])
           self.checkfinal(report)
 
      def test_stokes_cube_U(self):
-          """ [onefield] Test_Stokes_cube_U : cube with stokes U"""
+          """ [stokes] Test_Stokes_cube_U : cube with stokes U"""
           self.prepData('refim_point_linRL.ms')
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='U',interactive=0,specmode='cube',interpolation='nearest',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',3.0,[50,50,0,0]),(self.img+'.image',3.0,[50,50,0,1]) ,(self.img+'.image',3.0,[50,50,0,2]) ])
           self.checkfinal(report)
 
      def test_stokes_cube_V(self):
-          """ [onefield] Test_Stokes_cube_V : cube with stokes V"""
+          """ [stokes] Test_Stokes_cube_V : cube with stokes V"""
           self.prepData('refim_point_linRL.ms')
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='V',interactive=0,specmode='cube',interpolation='nearest',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',4.0,[50,50,0,0]),(self.img+'.image',4.0,[50,50,0,1]) ,(self.img+'.image',4.0,[50,50,0,2]) ])
           self.checkfinal(report)
 
      def test_stokes_cube_IQUV_fromRL(self):
-          """ [onefield] Test_Stokes_cube_IQUV_fromRL : cube with stokes IQUV"""
+          """ [stokes] Test_Stokes_cube_IQUV_fromRL : cube with stokes IQUV"""
           self.prepData('refim_point_linRL.ms')
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IQUV',interactive=0,specmode='cube',interpolation='nearest',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',1.0,[50,50,0,1]),(self.img+'.image',2.0,[50,50,1,1]), (self.img+'.image',3.0,[50,50,2,1]),(self.img+'.image',4.0,[50,50,3,1]) ])
           self.checkfinal(report)
 
      def test_stokes_cube_IQUV_fromXY(self):
-          """ [onefield] Test_Stokes_cube_IQUV_fromXY : cube with stokes IQUV"""
+          """ [stokes] Test_Stokes_cube_IQUV_fromXY : cube with stokes IQUV"""
           self.prepData('refim_point_linXY.ms')
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IQUV',interactive=0,specmode='cube',interpolation='nearest',parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',1.0,[50,50,0,1]),(self.img+'.image',2.0,[50,50,1,1]), (self.img+'.image',3.0,[50,50,2,1]),(self.img+'.image',4.0,[50,50,3,1]) ])
           self.checkfinal(report)
 
      def test_stokes_mtmfs_Q(self):
-          """ [onefield] Test_Stokes_mtmfs_Q : mtmfs with stokes Q"""
+          """ [stokes] Test_Stokes_mtmfs_Q : mtmfs with stokes Q"""
           self.prepData('refim_point_linRL.ms')
           tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='Q',deconvolver='mtmfs',nterms=2,parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image.tt0'], imexistnot=[self.img+'.image.alpha'], imval=[(self.img+'.image.tt0',2.0,[50,50,0,0]) ] )
           self.checkfinal(report)
 
      def test_stokes_mtmfs_IQUV(self):
-          """ [onefield] Test_Stokes_mtmfs_IQUV : mtmfs with stokes IQUV"""
+          """ [stokes] Test_Stokes_mtmfs_IQUV : mtmfs with stokes IQUV"""
           self.prepData('refim_point_linRL.ms')
           tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IQUV',deconvolver='mtmfs',nterms=2,parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.image.tt0'],imexistnot=[self.img+'.image.alpha'], imval=[(self.img+'.image.tt0',1.0,[50,50,0,0]),(self.img+'.image.tt0',2.0,[50,50,1,0]), (self.img+'.image.tt0',3.0,[50,50,2,0]),(self.img+'.image.tt0',4.0,[50,50,3,0]) ])
@@ -1136,18 +1139,29 @@ class test_cube(testref_base):
 
      def test_cube_7(self):
           """ [cube] Test_Cube_7  """
-          # start 1.1GHz(TOPO)=chan5 spw=4~19
-          ##as of 03/23/2017 it is  not.... chan2 = 1.1e9 (in refim_point.ms)  
+          # start 1.1GHz(TOPO)=chan2 spw=4~19
+          # Currently different behaviors between serial and parallel on non-overlapping data and image
+          # parameter selections.
+          # serial: result in chan 0&1 psf blanked  
+          # parallel: spw channel selection will be ignored and tuneselectdata will 
+          # select overlapping data and image selections (this seems to me more correct? behavior)
           testid=7
           print " : " , self.testList[testid]['desc']
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
           self.assertTrue(os.path.exists(self.img+self.testList[testid]['imagename']+'.psf') and os.path.exists(self.img+self.testList[testid]['imagename']+'.residual') )
-          report=self.th.checkall(imexist=[self.img+self.testList[testid]['imagename']+'.image'],
-          imval=[(self.img+self.testList[testid]['imagename']+'.image',0.0,
-          [50,50,0,0]),(self.img+self.testList[testid]['imagename']+'.image',1.2000,
-          [50,50,0,3])])
+          # parallel 
+          if self.parallel:
+              report=self.th.checkall(imexist=[self.img+self.testList[testid]['imagename']+'.image'],
+              imval=[(self.img+self.testList[testid]['imagename']+'.image',1.36,
+              [50,50,0,0]),(self.img+self.testList[testid]['imagename']+'.image',1.2000,
+              [50,50,0,3])])
+          else: # serial
+              report=self.th.checkall(imexist=[self.img+self.testList[testid]['imagename']+'.image'],
+              imval=[(self.img+self.testList[testid]['imagename']+'.image',0.0,
+              [50,50,0,0]),(self.img+self.testList[testid]['imagename']+'.image',1.2000,
+              [50,50,0,3])])
           report2 = self.th.checkspecframe(self.img+self.testList[testid]['imagename']+'.image','TOPO',1.1e9)
           self.checkfinal(report+report2)
 
@@ -1351,6 +1365,7 @@ class test_cube(testref_base):
           report2 = self.th.checkspecframe(self.img+self.testList[testid]['imagename']+'.image','LSRK',1.199989152e9)
           self.checkfinal(report+report2)
 
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "skipped the test, data sel with channel gaps is not supported in parallel mode")
      def test_cube_21(self):
           """ [cube] Test_Cube_21  """
           # data sel with channel gap (10,11 excluded) 4~9, 12~14
@@ -1630,6 +1645,7 @@ class test_cube(testref_base):
           # Let's include a subdir in the output image name. This could cause failures, at
           # least in parallel mode (CAS-10937).
           imagename = os.path.join(self.img_subdir, self.img)
+          print "IMAGENAME=",imagename
           ret = tclean(vis=self.msfile,imagename=imagename,imsize=100,cell='8.0arcsec', spw='0:12~19',niter=50,gain=0.2,savemodel='modelcolumn',
                        deconvolver='mtmfs',parallel=self.parallel)
 #          self.assertTrue(self.th.exists(self.img+'.model') )
@@ -1637,7 +1653,7 @@ class test_cube(testref_base):
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step1.png',title="model after partial mtmfs on some channels")
 
           delmod(self.msfile);self.th.delmodels(msname=self.msfile,modcol='reset0')
-          ret = tclean(vis=self.msfile,imagename=self.img+'1',imsize=100,cell='8.0arcsec',startmodel=[self.img+'.model.tt0',self.img+'.model.tt1'], 
+          ret = tclean(vis=self.msfile,imagename=self.img+'1',imsize=100,cell='8.0arcsec',startmodel=[imagename+'.model.tt0',imagename+'.model.tt1'], 
                        spw='0',niter=0,savemodel='modelcolumn',deconvolver='mtmfs',parallel=self.parallel)
 #          self.assertTrue( self.th.checkmodelchan(self.msfile,10) > 0.0 and self.th.checkmodelchan(self.msfile,3) > 0.0 
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step2.png',title="model after mtmfs predict on full spw" )
@@ -1657,7 +1673,14 @@ class test_cube(testref_base):
           report1=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',0.889,[54,50,0,0]) , (self.img+'.image',0.0602,[54,50,0,19]) , (self.img+'.residual',0.033942,[54,50,0,19]) ])
           # first channel's psf is 'bad' and wider along one axis. This offcenter location is higher in value
 
-          ret = tclean(vis=self.msfile,imagename=self.img+'1',specmode='cube',imsize=100,cell='10.0arcsec',niter=10,deconvolver='hogbom',
+          #  For parallel mode, to get common beam, need to run anoter tclean run with serial
+          if self.parallel:
+              ret = tclean(vis=self.msfile,imagename=self.img+'1',specmode='cube',imsize=100,cell='10.0arcsec',niter=10,deconvolver='hogbom',
+                       restoration=False, parallel=self.parallel)
+              ret2 = tclean(vis=self.msfile,imagename=self.img+'1',specmode='cube',imsize=100,cell='10.0arcsec',niter=0,deconvolver='hogbom',
+                       restoration=True, restoringbeam='common', calcres=False, calcpsf=False, parallel=False)
+          else:    
+              ret = tclean(vis=self.msfile,imagename=self.img+'1',specmode='cube',imsize=100,cell='10.0arcsec',niter=10,deconvolver='hogbom',
                        restoringbeam='common',parallel=self.parallel)
           self.assertTrue(os.path.exists(self.img+'1.psf') and os.path.exists(self.img+'1.image') )
           report2=self.th.checkall(imexist=[self.img+'1.image'],imval=[(self.img+'1.image',0.8906,[54,50,0,0]), (self.img+'1.image',0.35945,[54,50,0,19]) , (self.img+'1.residual',0.033942,[54,50,0,19]) ])
