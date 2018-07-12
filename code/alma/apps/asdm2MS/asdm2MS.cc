@@ -32,6 +32,7 @@ using namespace alma;
 
 #include <ASDMAll.h>
 #include <Misc.h>
+#include <alma/Enumerations/CWindowFunction.h>
 
 #include "SDMBinData.h"
 using namespace sdmbin;
@@ -2444,6 +2445,8 @@ void fillSpectralWindow(ASDM* ds_p, map<unsigned int, double>& effectiveBwPerSpw
       int ifConvChain       = 0;
       int freqGroup         = r->isFreqGroupExists()?r->getFreqGroup():0;
       string freqGroupName  = r->isFreqGroupNameExists()?r->getFreqGroupName().c_str():"";
+      // windowFunction is a required field
+      string windowFunction = CWindowFunction::name(r->getWindowFunction());
 
       for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
@@ -2464,7 +2467,8 @@ void fillSpectralWindow(ASDM* ds_p, map<unsigned int, double>& effectiveBwPerSpw
 					freqGroupName,
 					numAssocValues,
 					assocSpectralWindowId_,
-					assocNature_);      
+					assocNature_,
+					windowFunction);
       }      
     }
     if (nSpectralWindow) {

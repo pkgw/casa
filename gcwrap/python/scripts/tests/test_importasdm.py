@@ -1041,21 +1041,21 @@ class asdm_import7(test_base):
 
             if(os.path.exists('reference.ms')):
                 retValue['success'] = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
-                                                    +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1.DATA,t2.DATA, 1.e-06)))") == 0
+                                                       +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1.DATA,t2.DATA, 1.e-06)))") == 0
                 if not retValue['success']:
                     print "ERROR: DATA does not agree with reference."
                 else:
                     print "DATA columns agree."
 
                 retValueTmp = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
-                                                    +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1.WEIGHT,t2.WEIGHT, 1.e-06)))") == 0
+                                               +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1.WEIGHT,t2.WEIGHT, 1.e-06)))") == 0
                 if not retValueTmp:
                     print "ERROR: WEIGHT does not agree with reference."
                 else:
                     print "WEIGHT columns agree."
                     
                 retValueTmp2 = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
-                                            +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(t1.FLAG==t2.FLAG)) ") == 0
+                                                +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(t1.FLAG==t2.FLAG)) ") == 0
                 if not retValueTmp2:
                     print "ERROR: FLAG does not agree with reference."
                 else:
@@ -1118,6 +1118,25 @@ class asdm_import7(test_base):
                 except:
                     retValue['success'] = False
                     print "ERROR getting units of PRESSURE column in WEATHER table."
+
+                try:
+                    # test that the SDM_WINDOW_FUNCTION column exists and has the exepcted values
+                    winFuncOK = tblocal.open(themsname+'/SPECTRAL_WINDOW');
+                    if winFuncOK:
+                        winFuncCol = tblocal.getcol('SDM_WINDOW_FUNCTION');
+                        tblocal.close()
+                        # test values here
+                        # expect 55 rows, rows 1:24 are HANNING, the rest are UNIFORM
+                        indx = numpy.arange(len(winFuncCol))
+                        winFuncOK = winFuncOK and (numpy.array_equal(indx[winFuncCol=="HANNING"],(numpy.arange(24)+1)))
+                        winFuncOK = winFuncOK and (len(indx[winFuncCol=="UNIFORM"])==31)
+
+                    retValue['success'] = winFuncOK and retValue['success']
+                    if not winFuncOK:
+                        print "SDM_WINDOW_FUNCTION column in the SPECTRAL_WINDOW table is missing or has incorrect values"
+                except:
+                    retValue['success'] = False
+                    print "ERROR checking the value of the SDM_WINDOW_FUNCTION column in the SPECTRAL_WINDOW table."
 
         os.system("mv moved_"+myasdmname+" "+myasdmname)
                 
