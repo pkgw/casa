@@ -1025,7 +1025,7 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 					Int a1 =*(antenna1_[ich]->data()+ibl);
 					_updateAntennaMask( a1, antMask, selAnts1 );
 					// some cal tables iterate on antenna (antenna1)
-					if (!antenna2_.empty()) {
+					if ((cacheType()==PlotMSCacheBase::MS) && !antenna2_.empty()) {
 						Int a2 =*(antenna2_[ich]->data()+ibl);
 						_updateAntennaMask( a2, antMask, selAnts2 );
 					}
