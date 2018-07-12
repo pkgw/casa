@@ -115,6 +115,17 @@ template<class T> bool _fft(
     const string& complexOut
 );
 
+template <class T> record* _fitcomponents(
+    SPIIT myImage, const string& box, const variant& region,
+    const variant& chans, const string& stokes, const variant& vmask,
+    const vector<double>& in_includepix, const vector<double>& in_excludepix,
+    const string& residual, const string& model, const string& estimates,
+    const string& logfile, const bool append, const string& newestimates,
+    const string& complist, bool overwrite, bool dooff, double offset,
+    bool fixoffset, bool stretch, const variant& rms, const variant& noisefwhm,
+    const string& summary
+);
+
 casa::ITUPLE _fromarray(
     const std::string& outfile, const casac::variant& pixels,
     const casac::record& csys, bool linear, bool overwrite,

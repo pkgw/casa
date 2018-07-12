@@ -38,8 +38,7 @@ template<class T> class Vector;
 
 namespace casa {
 
-
-class ImageFitterResults {
+template <class T> class ImageFitterResults {
 	// <summary>
     // Used exclusively by ImageFitter. Unless you are modifying that class,
     // you should have no reason to use this class.
@@ -72,7 +71,7 @@ public:
 
 	ImageFitterResults() = delete;
 
-	ImageFitterResults(SPCIIF image, SHARED_PTR<casacore::LogIO> log);
+	ImageFitterResults(SPCIIT image, SHARED_PTR<casacore::LogIO> log);
 
 	~ImageFitterResults();
 
@@ -123,8 +122,8 @@ public:
 	casacore::String resultsHeader(
 		const casacore::String& chans, const casacore::Vector<casacore::uInt>& chanVec,
 		const casacore::String& region, const casacore::String& mask,
-		SHARED_PTR<std::pair<casacore::Float, casacore::Float> > includePixelRange,
-		SHARED_PTR<std::pair<casacore::Float, casacore::Float> > excludePixelRange,
+		SHARED_PTR<std::pair<T, T>> includePixelRange,
+		SHARED_PTR<std::pair<T, T>> excludePixelRange,
 		const casacore::String& estimates
 	) const;
 
@@ -141,7 +140,7 @@ public:
 	) const;
 
 private:
-	SPCIIF _image;
+	SPCIIT _image;
 	SHARED_PTR<casacore::LogIO> _log;
 	ComponentList _convolvedList{}, _deconvolvedList{};
 	std::vector<casacore::Quantity> _peakIntensities, _peakIntensityErrors,
@@ -152,6 +151,11 @@ private:
 	const static casacore::String _class;
 	static std::vector<casacore::String> _prefixes, _prefixesWithCenti;
 };
+
 }
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <imageanalysis/IO/ImageFitterResults.tcc>
+#endif
 
 #endif
