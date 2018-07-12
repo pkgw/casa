@@ -126,7 +126,6 @@ def plotms(vis=None,
     synonyms['radialvelocity']= synonyms['Radial Velocity'] = 'Radial Velocity [km/s]'
     synonyms['rho']=synonyms['Distance']='Distance (rho) [km]'
     # data columns: unspecified residuals default to vector
-    synonyms['cor']=synonyms['corr']='corrected'
     synonyms['residual']=synonyms['corrected-model']='corrected-model_vector'
     synonyms['data-model']='data-model_vector'
     synonyms['corrected/model']='corrected/model_vector'

@@ -208,7 +208,7 @@ double PlotMSIndexer::yAt(unsigned int i) const {
 			(self->*YIndexer_)(currChunk_,irel_));
 }
 void PlotMSIndexer::xAndYAt(unsigned int index, 
-		double& x, double& y) {
+		double& x, double& y) const {
 	setChunk(index);  // sets chunk and relative index in chunk
 	x=(plotmscache_->*getXFromCache_)(currChunk_,
 			(self->*XIndexer_)(currChunk_,irel_));
@@ -256,7 +256,7 @@ bool PlotMSIndexer::maskedAt( unsigned int index) const {
 
 void PlotMSIndexer::xyAndMaskAt(unsigned int index,
 		double& x, double& y,
-		bool& mask) {
+		bool& mask) const {
 	setChunk(index);
 	x=(plotmscache_->*getXFromCache_)(currChunk_,
 			(self->*XIndexer_)(currChunk_,irel_));
@@ -428,7 +428,7 @@ bool PlotMSIndexer::isBinned() const {
 
 bool PlotMSIndexer::colorize(bool doColorize, PMS::Axis colorizeAxis) {
 	bool changed = (doColorize != itsColorize_) ||
-			(doColorize && colorizeAxis != itsColorizeAxis_);
+			(doColorize && (colorizeAxis != itsColorizeAxis_));
 	itsColorize_ = doColorize;
 	itsColorizeAxis_ = colorizeAxis;
 
@@ -756,7 +756,7 @@ void PlotMSIndexer::reindexForConnect() {
 		}
 	}
 
-	if (itsTimeConnect_) {
+	if (itsXConnect_ != "none" && itsTimeConnect_) {
 		reindexForTimeConnect(spws, corrs, ant1s, itermask);
 	} else if (currentX_ == iterAxis_) {
 		reindexForAllConnect(times, spws, corrs, ant1s, itermask);
@@ -794,14 +794,15 @@ void PlotMSIndexer::reindexForConnect() {
 void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
 		std::set<Int>& corrs, std::set<Int>& ant1s) {
 	// We need these values if the axis are not the x-axis, unless it is the iteraxis
+	bool timeconnect(itsXConnect_ != "none" && itsTimeConnect_);
 	bool needTime(true), needSpw(true), needCorr(true), needAnt1(true);
 	PMS::Axis connectAxes[] = { PMS::TIME, PMS::SPW, PMS::CORR, PMS::ANTENNA1 };
 	for (PMS::Axis axis : connectAxes) {
 		bool connectX(axis == currentX_), axisIsIter(axis == iterAxis_);
-		if (itsTimeConnect_) connectX = false;  // do not connect along X axis
+		if (timeconnect) connectX = false;  // do not connect along X axis
 		switch(axis) {
 			case PMS::TIME: {
-				if (connectX || axisIsIter || itsTimeConnect_)
+				if (connectX || axisIsIter || timeconnect)
 					needTime = false;
 				if (axisIsIter)  // itervalue is index for time
 					times.insert(plotmscache_->time_[iterValue_]);

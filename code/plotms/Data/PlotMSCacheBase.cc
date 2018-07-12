@@ -950,6 +950,11 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 	logLoad("Setting up iteration indexing (if necessary), and calculating plot ranges.");
 	Int nIter=0;
 	Vector<Int> iterValues;
+	String xconnector(xconnect);
+	if (cacheType()==MS && xconnect != "none") {
+		logWarn("load_cache", "Connecting points in plotms is implemented for calibration tables only.");
+		xconnector = "none";
+	}
 
 	// If the cache hasn't been filled, do nothing
 	if (!cacheReady()) return;
@@ -1127,7 +1132,7 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 		indexer_[dataIndex][iter] = new PlotMSIndexer(this, 
             currentX_[dataIndex], currentXData_[dataIndex], 
             currentY_[dataIndex], currentYData_[dataIndex],
-            iteraxis, iterValues(iter), xconnect, timeconnect, dataIndex);
+            iteraxis, iterValues(iter), xconnector, timeconnect, dataIndex);
 	}
 
 	// Extract global ranges from the indexers

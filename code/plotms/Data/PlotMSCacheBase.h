@@ -180,7 +180,7 @@ public:
   void setUpIndexer(PMS::Axis iteraxis=PMS::SCAN,
     casacore::Bool globalXRange=false, casacore::Bool globalYRange=false, 
     const casacore::String& xconnect = "none", bool timeconnect=false,
-	int dataIndex = 0);
+    int dataIndex = 0);
 
   /*** Axis-specific generic gets, per chunk and relative index (from indexer) ***/
   inline casacore::Double getScan(casacore::Int chnk,casacore::Int irel)     { return scan_(chnk);   (void)irel; };
@@ -587,24 +587,24 @@ protected:
   casacore::PtrBlock<casacore::Array<casacore::Float>*> amp_, 
       ampCorr_, ampModel_, ampCorrModel_, ampCorrModelS_, ampDataModel_, 
       ampDataModelS_, ampDataDivModel_, ampDataDivModelS_, ampCorrDivModel_,
-	  ampCorrDivModelS_, ampFloat_;
+      ampCorrDivModelS_, ampFloat_;
   casacore::PtrBlock<casacore::Array<casacore::Float>*> pha_, 
       phaCorr_, phaModel_, phaCorrModel_, phaCorrModelS_, phaDataModel_, 
       phaDataModelS_, phaDataDivModel_, phaDataDivModelS_, phaCorrDivModel_,
-	  phaCorrDivModelS_;  // no phase for FLOAT_DATA
+      phaCorrDivModelS_;  // no phase for FLOAT_DATA
   casacore::PtrBlock<casacore::Array<casacore::Float>*> real_, 
       realCorr_, realModel_, realCorrModel_, realCorrModelS_, realDataModel_,
       realDataModelS_, realDataDivModel_, realDataDivModelS_, realCorrDivModel_,
-	  realCorrDivModelS_;  // use real_ for FLOAT_DATA
+      realCorrDivModelS_;  // use real_ for FLOAT_DATA
   casacore::PtrBlock<casacore::Array<casacore::Float>*> imag_,
       imagCorr_, imagModel_, imagCorrModel_, imagCorrModelS_, imagDataModel_,
       imagDataModelS_, imagDataDivModel_, imagDataDivModelS_, imagCorrDivModel_,
-	  imagCorrDivModelS_;  // no imag for FLOAT_DATA
+      imagCorrDivModelS_;  // no imag for FLOAT_DATA
   casacore::PtrBlock<casacore::Array<casacore::Float>*> wtxamp_,
       wtxampCorr_, wtxampModel_, wtxampCorrModel_, wtxampCorrModelS_,
-	  wtxampDataModel_, wtxampDataModelS_, wtxampDataDivModel_, 
-	  wtxampDataDivModelS_, wtxampCorrDivModel_, wtxampCorrDivModelS_,
-	  wtxampFloat_;
+      wtxampDataModel_, wtxampDataModelS_, wtxampDataDivModel_,
+      wtxampDataDivModelS_, wtxampCorrDivModel_, wtxampCorrDivModelS_,
+      wtxampFloat_;
 
   casacore::PtrBlock<casacore::Array<casacore::Bool>*> flag_;
   casacore::PtrBlock<casacore::Vector<casacore::Bool>*> flagrow_;
@@ -639,7 +639,7 @@ protected:
 
   // Global ranges (unflagged and flagged, per indexer)
   casacore::Vector<casacore::Double> xminG_, xmaxG_, yminG_, ymaxG_,
-	  xflminG_, xflmaxG_, yflminG_, yflmaxG_;
+      xflminG_, xflmaxG_, yflminG_, yflmaxG_;
 
   // A copy of the casacore::Data parameters 
   casacore::String filename_;

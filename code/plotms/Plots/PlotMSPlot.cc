@@ -654,33 +654,35 @@ bool PlotMSPlot::updateDisplay() {
 				String caltype = itsCache_->calType();
 				checkColoraxis(caltype, display);
 				bool colorizeChanged = itsCache_->indexer(row,col).colorize(display->colorizeFlag(), display->colorizeAxis());
-				if (nIter > 0 && colorizeChanged )
-					plot->dataChanged();
 
 				// Set xconnector in indexer and plot;
 				// time connector changes indexer only
 				String xconnector = display->xConnect();
-				bool timeconnector = display->timeConnect();
-				bool connectorChanged = itsCache_->indexer(row,col).setConnect(xconnector, timeconnector);
-				if (connectorChanged)
-					plot->dataChanged();
-				if (xconnector == "none") {
-					plot->setLinesShown(false);
-					plot->setMaskedLinesShown(false);
-				} else {
-					// only connect symbols being plotted
-					if (symbolUnmasked->symbol() != PlotSymbol::NOSYMBOL) {
-						plot->setLinesShown(true);
-						plot->setLine(symbolUnmasked->getColor());
+				bool connectorChanged(false);
+				if (itsCache_->cacheType()==PlotMSCacheBase::CAL) {
+					bool timeconnector = display->timeConnect();
+					connectorChanged = itsCache_->indexer(row,col).setConnect(xconnector, timeconnector);
+					if (xconnector == "none") {
+						plot->setLinesShown(false);
+						plot->setMaskedLinesShown(false);
+					} else {
+						// only connect symbols being plotted
+						if (symbolUnmasked->symbol() != PlotSymbol::NOSYMBOL) {
+							plot->setLinesShown(true);
+							plot->setLine(symbolUnmasked->getColor());
+						}
+						if (symbolMasked->symbol() != PlotSymbol::NOSYMBOL) {
+							plot->setMaskedLinesShown(true);
+							plot->setMaskedLine(symbolMasked->getColor());
+						}
+						bool step = (xconnector == "step");
+						plot->setLinesStep(step);
+						plot->setMaskedLinesStep(step);
 					}
-					if (symbolMasked->symbol() != PlotSymbol::NOSYMBOL) {
-						plot->setMaskedLinesShown(true);
-						plot->setMaskedLine(symbolMasked->getColor());
-					}
-					bool step = (xconnector == "step");
-					plot->setLinesStep(step);
-					plot->setMaskedLinesStep(step);
 				}
+
+				if ((nIter > 0) && (colorizeChanged || connectorChanged))
+					plot->dataChanged();
 
 				// Set item axes
 				plot->setAxes(axes->xAxis(row), axes->yAxis(row));

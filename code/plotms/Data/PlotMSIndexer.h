@@ -82,14 +82,14 @@ public:
   unsigned int size() const;
   double xAt(unsigned int i) const;
   double yAt(unsigned int i) const;
-  void xAndYAt(unsigned int index, double& x, double& y);
+  void xAndYAt(unsigned int index, double& x, double& y) const;
   bool minsMaxes(double& xMin, double& xMax, double& yMin, double& yMax);
   // </group>
     
   // Implemented PlotMaskedPointData methods.
   // <group>
   bool maskedAt(unsigned int index) const;
-  void xyAndMaskAt(unsigned int index, double& x, double& y, bool& mask);
+  void xyAndMaskAt(unsigned int index, double& x, double& y, bool& mask) const;
   // </group>
     
   // Unimplemented PlotMaskedPointData methods.
@@ -295,7 +295,7 @@ private:
   PMS::Axis itsColorizeAxis_;
   // </group>
 
-  // For plotlines and colorization  
+  // Reindex and bin when connecting points
   casacore::String itsXConnect_;
   bool itsTimeConnect_;
 

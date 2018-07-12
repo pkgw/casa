@@ -1459,7 +1459,7 @@ bool PMS_PP_Display::operator==(const Group& other) const
 		(itsColorizeFlags_.size() != itsColorizeAxes_.size())) return false;
 	for (unsigned int i = 0; i < itsColorizeFlags_.size(); i++){
 		if ((itsColorizeFlags_[i] != o->itsColorizeFlags_[i]) ||
-		    (itsColorizeFlags_[i] && itsColorizeAxes_[i] != o->itsColorizeAxes_[i])){
+		    (itsColorizeFlags_[i] && (itsColorizeAxes_[i] != o->itsColorizeAxes_[i]))){
 			return false;
 		}
 	}
