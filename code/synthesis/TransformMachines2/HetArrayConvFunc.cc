@@ -508,13 +508,14 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 	Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
 	SpectralCoordinate conjSpCoord=spCoord;
 		//cerr << "centreFreq " << centerFreq << " beamFreqs " << beamFreqs(0) << "  " << beamFreqs(1) << endl;
-	conjSpCoord.setReferenceValue(Vector<Double>(1, sqrt(2*centerFreq*centerFreq-beamFreqs(0)*beamFreqs(0))));
-		///Increment should go in the reverse direction
+	conjSpCoord.setReferenceValue(Vector<Double>(1,SynthesisUtils::conjFreq(beamFreqs[0], centerFreq)));
+	///Increment should go in the reverse direction
+	////Do a tabular spectral coordinate for more than 1 channel 
 	if(beamFreqs.nelements() >1){
 	  Vector<Double> conjFreqs(beamFreqs.nelements());
 	  for (uInt kk=0; kk< beamFreqs.nelements(); ++kk){
-	    conjFreqs[kk]=sqrt(2*centerFreq*centerFreq-beamFreqs(kk)*beamFreqs(kk));
-	    
+	    //conjFreqs[kk]=sqrt(2*centerFreq*centerFreq-beamFreqs(kk)*beamFreqs(kk));
+	    conjFreqs[kk]=SynthesisUtils::conjFreq(beamFreqs[kk], centerFreq);
 	  }
 	  conjSpCoord=SpectralCoordinate(spCoord.frequencySystem(), conjFreqs, spCoord.restFrequency());
 	  //conjSpCoord.setIncrement(Vector<Double>(1, beamFreqs(0)-beamFreqs(1)));
@@ -936,7 +937,7 @@ Int  HetArrayConvFunc::conjSupport(const casacore::Vector<casacore::Double>& fre
   Double maxRatio=-1.0;
   for (Int k=0; k < freqs.shape()[0]; ++k) {
     //Double conjFreq=(centerFreq-freqs[k])+centerFreq;
-    Double conjFreq=sqrt(2*centerFreq*centerFreq-freqs(k)*freqs(k));
+    Double conjFreq=SynthesisUtils::conjFreq(freqs[k], centerFreq);
     if(maxRatio < conjFreq/freqs[k] )
       maxRatio=conjFreq/freqs[k];
   }
@@ -965,7 +966,8 @@ void HetArrayConvFunc::fillConjConvFunc(const Vector<Double>& freqs) {
     IPosition trcOut(1)= Int(shp(1)*maxRatio/2.0)*2-1;
     */
     for (Int k=0; k < freqs.shape()[0]; ++k) {
-        Double conjFreq=(centerFreq-freqs[k])+centerFreq;
+      //Double conjFreq=(centerFreq-freqs[k])+centerFreq;
+      Double conjFreq=SynthesisUtils::conjFreq(freqs[k], centerFreq);
         blc[3]=k;
         trc[3]=k;
         //cerr << "blc " << blc << " trc "<< trc << " ratio " << conjFreq/freqs[k] << endl; 
