@@ -308,8 +308,8 @@ public:
   virtual casacore::String name() const =0;// { return "None";};
  
   // set and get the location used for frame 
-  void setLocation(const casacore::MPosition& loc);
-  casacore::MPosition& getLocation();
+  virtual void setLocation(const casacore::MPosition& loc);
+  virtual casacore::MPosition& getLocation();
 
   // set a moving source aka planets or comets =>  adjust phase center
   // on the fly for gridding 
