@@ -487,33 +487,22 @@ class test_axis(plotms_test_base):
     def test_axis_datacolumns(self):
         '''test_axis_datacolumns: Test datacolumn options'''
         datacols = ['data', 'corrected', 'model', 'residual',
-                    'corrected-model', 'data-model'] 
+                    'corrected-model', 'corrected-model_vector', 'corrected-model_scalar',
+                    'data-model', 'data-model_vector', 'data-model_scalar',
+                    'corrected/model', 'corrected/model_vector', 'corrected/model_scalar',
+                    'data/model', 'data/model_vector', 'data/model_scalar']
         for datacol in datacols:
-            filename = "testAxis05_" + datacol + ".jpg"
+            filename = "testAxis05_datacolumn.jpg"
             plotfile = os.path.join(self.outputDir, filename)
             self.removePlotfile(plotfile)
             res = plotms(vis=self.ms, plotfile=plotfile, highres=True,
                          showgui=False, ydatacolumn=datacol)
             self.assertTrue(res)
-            self.checkPlotfile(plotfile, 40000)
+            minSize = 190000
+            if datacol is 'model':
+                minSize = 40000
+            self.checkPlotfile(plotfile, minSize)
             self.removePlotfile(plotfile)
-
-        # can't put these in a filename!
-        plotfile = os.path.join(self.outputDir, "testAxis05_datadivmodel.jpg")
-        self.removePlotfile(plotfile)
-        res = plotms(vis=self.ms, plotfile=plotfile, highres=True,
-                     showgui=False, ydatacolumn='data/model')
-        self.assertTrue(res)
-        self.checkPlotfile(plotfile, 50000)
-        self.removePlotfile(plotfile)
-
-        plotfile = os.path.join(self.outputDir, "testAxis05_corrdivmodel.jpg")
-        self.removePlotfile(plotfile)
-        res = plotms(vis=self.ms, plotfile=plotfile, highres=True,
-                     showgui=False, ydatacolumn='corrected/model')
-        self.assertTrue(res)
-        self.checkPlotfile(plotfile, 50000)
-        self.removePlotfile(plotfile)
         print
 
     def test_axis_baddatacolumn(self):
