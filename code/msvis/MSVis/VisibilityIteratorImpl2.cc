@@ -1767,57 +1767,57 @@ VisibilityIteratorImpl2::newSpectralWindow() const
 Bool
 VisibilityIteratorImpl2::existsColumn(VisBufferComponent2 id) const
 {
-	Bool result;
-	switch (id) {
+  Bool result;
+  switch (id) {
 
-	case VisBufferComponent2::VisibilityCorrected:
-	case VisBufferComponent2::VisibilityCubeCorrected:
+  case VisBufferComponent2::VisibilityCorrected:
+  case VisBufferComponent2::VisibilityCubeCorrected:
 
-		result =
-			!columns_p.corrVis_p.isNull() && columns_p.corrVis_p.isDefined(0);
-		break;
+    result =
+        !columns_p.corrVis_p.isNull() && columns_p.corrVis_p.isDefined(0);
+    break;
 
-	case VisBufferComponent2::VisibilityModel:
-	case VisBufferComponent2::VisibilityCubeModel:
+  case VisBufferComponent2::VisibilityModel:
+  case VisBufferComponent2::VisibilityCubeModel:
 
-	  result = True;
-		break;
+    result = true;
+    break;
 
-	case VisBufferComponent2::VisibilityObserved:
-	case VisBufferComponent2::VisibilityCubeObserved:
+  case VisBufferComponent2::VisibilityObserved:
+  case VisBufferComponent2::VisibilityCubeObserved:
 
-		result = (!columns_p.vis_p.isNull() && columns_p.vis_p.isDefined(0)) ||
-			(columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isNull());
+    result = (!columns_p.vis_p.isNull() && columns_p.vis_p.isDefined(0)) ||
+    (columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isNull());
 
-		break;
+    break;
 
-	case VisBufferComponent2::VisibilityCubeFloat:
+  case VisBufferComponent2::VisibilityCubeFloat:
 
-		result =
-			!columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isDefined(0);
+    result =
+        !columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isDefined(0);
 
-		break;
+    break;
 
-	case VisBufferComponent2::WeightSpectrum:
+  case VisBufferComponent2::WeightSpectrum:
 
-		result =
-			!columns_p.weightSpectrum_p.isNull()
-			&& columns_p.weightSpectrum_p.isDefined(0);
-		break;
+    result =
+        !columns_p.weightSpectrum_p.isNull()
+        && columns_p.weightSpectrum_p.isDefined(0);
+    break;
 
-	case VisBufferComponent2::SigmaSpectrum:
+  case VisBufferComponent2::SigmaSpectrum:
 
-		result =
-			!columns_p.sigmaSpectrum_p.isNull()
-			&& columns_p.sigmaSpectrum_p.isDefined(0);
-		break;
+    result =
+        !columns_p.sigmaSpectrum_p.isNull()
+        && columns_p.sigmaSpectrum_p.isDefined(0);
+    break;
 
-	default:
-		result = true; // required columns
-		break;
-	}
+  default:
+    result = true; // required columns
+    break;
+  }
 
-	return result;
+  return result;
 }
 
 const SubtableColumns &
