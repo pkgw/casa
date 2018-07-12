@@ -1780,7 +1780,9 @@ VisibilityIteratorImpl2::existsColumn(VisBufferComponent2 id) const
   case VisBufferComponent2::VisibilityModel:
   case VisBufferComponent2::VisibilityCubeModel:
 
-    result = true;
+    result = 
+        (!columns_p.modelVis_p.isNull() && columns_p.modelVis_p.isDefined(0)) ||
+        modelDataGenerator_p != nullptr;
     break;
 
   case VisBufferComponent2::VisibilityObserved:
@@ -4031,8 +4033,9 @@ VisibilityIteratorImpl2::fillFromVirtualModel(Cube <Complex> & value) const
 
 	if (isVirtual) {
 
-		if (modelDataGenerator_p->hasModel(
-			    msId(), vb_p->fieldId()(0), vb_p->spectralWindows()(0)) == -1) {
+	  auto field = vb_p->fieldId()(0);
+	  auto spw = vb_p->spectralWindows()(0);
+		if (modelDataGenerator_p->hasModel(msId(),field , spw) == -1) {
 
 			// If the model generator does not have a model for this(ms,field,
 			// spectralWindow) then try to add it.
