@@ -786,6 +786,8 @@ void PlotMSIndexer::reindexForConnect() {
 	nCumulPoints_(0) = nSegPoints_(0);
 	for (Int iseg=1; iseg<nSegment_; ++iseg)
 		nCumulPoints_(iseg) = nCumulPoints_(iseg-1) + nSegPoints_(iseg);
+	nPoints_.reference(nSegPoints_);
+	nCumulative_.reference(nCumulPoints_);
 	connectReady_ = true;
 }
 
@@ -856,7 +858,6 @@ void PlotMSIndexer::reindexForAllConnect(std::set<Double>& times, std::set<Int>&
 	// Populate each connect segment with points in that bin
 	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
 	Int iseg(-1);
-	bool ant2ok(false); // some tables do not have antenna2
 	for (Double time : times) {
 		for (Int spw : spws) {
 			for (Int corr : corrs) {
@@ -867,16 +868,10 @@ void PlotMSIndexer::reindexForAllConnect(std::set<Double>& times, std::set<Int>&
 						if (itermask(ipt)) {
 							setChunk(ipt, true);
 							// add point if time, spw, corr, and ant match
-							// but don't check antenna2 for BPOLY and GSPLINE (does not exist)
-							if (plotmscache_->calType() == "BPOLY" || plotmscache_->calType() == "GSPLINE")
-								ant2ok = false; // only pass if ant1 matches
-							else
-								ant2ok = (plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_)) == ant1);
 							if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
 								(plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
 								(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr) &&
-								// one iteration is ref ant so check ant2
-								((plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1) || ant2ok)) {
+								(plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1)) {
 									newCacheChunk.push_back(currChunk_);
 									newCacheOffset.push_back(irel_);
 									++nSegPoints_(iseg);
@@ -902,7 +897,6 @@ void PlotMSIndexer::reindexForTimeConnect(std::set<Int>& spws, std::set<Int>& co
 	
 	// Populate each connect segment with points in that bin
 	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
-	bool ant2ok(false); // some tables do not have antenna2
 	Int iseg(-1);
 	for (Int spw : spws) {
 		for (Int corr : corrs) {
@@ -911,18 +905,11 @@ void PlotMSIndexer::reindexForTimeConnect(std::set<Int>& spws, std::set<Int>& co
 				for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
 					// use point if correct iteration
 					if (itermask(ipt)) {
-						// use point if time, spw, corr, and ant match
 						setChunk(ipt, true);
 						// add point if spw, corr, and ant match
-						// but don't check antenna2 for BPOLY and GSPLINE (does not exist)
-						if (plotmscache_->calType() == "BPOLY" || plotmscache_->calType() == "GSPLINE")
-							ant2ok = false;
-						else
-							ant2ok = (plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_)) == ant1);
-						// one iteration for cal table is ref ant so check ant2
 						if ((plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
 							(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr) &&
-							((plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1) || ant2ok)) {
+							(plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1)) {
 								newCacheChunk.push_back(currChunk_);
 								newCacheOffset.push_back(irel_);
 								++nSegPoints_(iseg);
@@ -948,7 +935,6 @@ void PlotMSIndexer::reindexForSpwConnect(std::set<Double>& times, std::set<Int>&
 	// Populate each connect segment with points in that bin
 	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
 	Int iseg(-1);
-	bool ant2ok(false); // some tables do not have antenna2
 	for (Double time : times) {
 		for (Int corr : corrs) {
 			for (Int ant1 : ant1s) {
@@ -957,16 +943,9 @@ void PlotMSIndexer::reindexForSpwConnect(std::set<Double>& times, std::set<Int>&
 					if (itermask(ipt)) {
 						setChunk(ipt, true);
 						// add point if spw, corr, and ant match
-						// but don't check antenna2 for BPOLY and GSPLINE (does not exist)
-						if (plotmscache_->calType() == "BPOLY" || plotmscache_->calType() == "GSPLINE")
-							ant2ok = false;
-						else
-							ant2ok = (plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_)) == ant1);
-						// use point if time, corr, and ant match
 						if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
 							(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr) &&
-							// one iteration is ref ant so check ant2
-							((plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1) || ant2ok)) {
+							(plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1)) {
 								newCacheChunk.push_back(currChunk_);
 								newCacheOffset.push_back(irel_);
 								++nSegPoints_(iseg);
@@ -992,7 +971,6 @@ void PlotMSIndexer::reindexForCorrConnect(std::set<Double>& times, std::set<Int>
 	// Populate each connect segment with points in that bin
 	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
 	Int iseg(-1);
-	bool ant2ok(false); // some tables do not have antenna2
 	for (Double time : times) {
 		for (Int spw : spws) {
 			for (Int ant1 : ant1s) {
@@ -1001,15 +979,9 @@ void PlotMSIndexer::reindexForCorrConnect(std::set<Double>& times, std::set<Int>
 					if (itermask(ipt)) {
 						setChunk(ipt, true);
 						// use point if time, spw, and ant match
-						// but don't check antenna2 for BPOLY and GSPLINE (does not exist)
-						if (plotmscache_->calType() == "BPOLY" || plotmscache_->calType() == "GSPLINE")
-							ant2ok = false;
-						else
-							ant2ok = (plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_)) == ant1);
 						if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
 							(plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
-							// one iteration is ref ant so check ant2
-							((plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1) || ant2ok)) {
+							(plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1)) {
 								newCacheChunk.push_back(currChunk_);
 								newCacheOffset.push_back(irel_);
 								++nSegPoints_(iseg);
