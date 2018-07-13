@@ -1290,6 +1290,10 @@ void MSTransformManager::open()
 	checkDataColumnsAvailable();
 	checkDataColumnsToFill();
 	
+
+	// Check whether the MS has correlator pre-averaging and we are smoothing or averaging
+	checkCorrelatorPreaveraging();
+
 	// Set virtual column operation
 	dataHandler_p->setVirtualModelCol(makeVirtualModelColReal_p);
 	dataHandler_p->setVirtualCorrectedCol(makeVirtualCorrectedColReal_p);
@@ -4925,6 +4929,47 @@ void MSTransformManager::checkSPWChannelsKnownLimitation()
 		    "selected has " + std::to_string(firstNum) + " channels, but another "
 		    "selected SPW has " + std::to_string(otherNum) + " channels.");
   }
+}
+
+/**
+ * Early check to issue a warning if the data was preaveraged
+ * by the correlator ans we are performing a further
+ * smoothing and average.
+ */
+void MSTransformManager::checkCorrelatorPreaveraging()
+{
+  std::string spwPreaveraged;
+  if (hanningSmooth_p || channelAverage_p)
+  {
+    auto spwTable = inputMs_p->spectralWindow();
+    if(spwTable.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+       spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION"))
+    {
+      ROMSSpWindowColumns spwColumns(spwTable);
+      auto nrows = spwColumns.nrow();
+      auto effBWCol = spwColumns.effectiveBW();
+      auto chanWidthCol = spwColumns.chanWidth();
+      ROScalarColumn<String> windowFuncCol(spwTable, "SDM_WINDOW_FUNCTION");
+      for (size_t spwIdx = 0; spwIdx < nrows; spwIdx++)
+      {
+        auto ratioBandwidth =  effBWCol(spwIdx) / chanWidthCol(spwIdx);
+        auto windowFunction = windowFuncCol(spwIdx);
+        auto tol = std::numeric_limits<float>::epsilon();
+        if(windowFunction != "UNKNOWN" &&
+           std::all_of(ratioBandwidth.begin(), ratioBandwidth.end(),
+                       [tol](double r){return std::abs(r - 1) < tol;}))
+        {
+          spwPreaveraged += std::to_string(spwIdx)+" ";
+        }
+      }
+    }
+  }
+
+  if(spwPreaveraged != "")
+    logger_p << LogIO::WARN<<LogOrigin("MSTransformManager", __func__) <<
+        "The data has already been preaveraged by the correlator but "
+        "further smoothing or averaging has been requested. "
+        "Preaveraged SPWs are: "<<spwPreaveraged<<LogIO::POST;
 }
 
 // -----------------------------------------------------------------------
