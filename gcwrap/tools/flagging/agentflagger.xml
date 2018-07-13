@@ -841,7 +841,7 @@ for the quack mode. Data selection follows the MS Selection syntax.
      </param>
 
      <param type="bool" name="quackincrement">
-     <description>Flag incrementally in time. Default:</description>
+     <description>Increment quack flagging in time taking into account flagged data or not. Default:</description>
      <value>false</value>
      </param>
 
