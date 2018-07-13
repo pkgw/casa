@@ -367,7 +367,6 @@ class asdm_import1(test_base):
                 apcorrected=False,
                 useversion='v3'
                 )
-            print "rval is ", rval
             if not rval:
                 raise Exception
             os.system('rm -rf '+asdmname+'; mv exportasdm-output.asdm '+asdmname)
@@ -548,7 +547,6 @@ class asdm_import2(test_base):
                 apcorrected=False,
                 useversion='v3'
                 )
-            print "rval is ", rval
             if not rval:
                 raise Exception
             os.system('rm -rf '+asdmname+'; mv exportasdm-output.asdm '+asdmname)

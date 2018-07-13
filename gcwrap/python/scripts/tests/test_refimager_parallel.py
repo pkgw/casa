@@ -91,7 +91,7 @@ class test_cont(testref_base_parallel):
 
                self.prepData('refim_point.ms')
                
-               imexts = ['psf', 'residual', 'image', 'model']
+               imexts = ['psf', 'residual', 'image', 'model', 'sumwt', 'pb']
 
                ## Non-parallel run
                ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',
@@ -109,8 +109,9 @@ class test_cont(testref_base_parallel):
 
                checkims = [imgpar + '.' + ext for ext in imexts]
                imexts.remove('image')
+               imexts.remove('pb')
                checkims += self.th.getNParts(imprefix=imgpar, imexts=imexts)
-
+               checkims += [os.path.join(imgpar + '.workdirectory', imgpar + '.n1.pb')]
                report = self.th.checkall(ret=retpar, peakres=0.332, 
                                          modflux=0.726, iterdone=10, 
                                          imexist=checkims, 
@@ -147,11 +148,15 @@ class test_cont(testref_base_parallel):
                imgpar = self.img+'.par'
                retpar = tclean(vis=self.msfile,imagename=imgpar,imsize=100,cell='8.0arcsec',
                                interactive=0,niter=10,deconvolver='mtmfs',parallel=True)
-               
-               checkims = [imgpar + ext for ext in ['.psf.tt0', '.residual.tt0',
-                                                    '.image.tt0', '.model.tt0']]
-               checkims += self.th.getNParts(imprefix=imgpar,
-                                             imexts=['residual.tt0','residual.tt1','psf.tt0','psf.tt1','model.tt0','model.tt1'])
+
+               imexts = ['psf.tt0', 'psf.tt1', 'psf.tt2', 'residual.tt0', 'residual.tt1',
+                         'model.tt0', 'model.tt1', 'sumwt.tt0']
+
+               checkims = [imgpar + '.' + ext for ext in imexts]
+               checkims += self.th.getNParts(imprefix=imgpar, imexts=imexts)
+               checkims += [imgpar + '.' + ext for ext in
+                            ['image.tt0', 'image.tt1', 'pb.tt0', 'mask', 'alpha',
+                             'alpha.error']]
                report2 = self.th.checkall(ret=retpar, 
                                           peakres=0.369, modflux=0.689, iterdone=10, nmajordone=2,
                                           imexist=checkims, 
@@ -195,8 +200,13 @@ class test_cont(testref_base_parallel):
                imgpar = os.path.join(self.img_subdir, self.img + '.par')
                retpar = tclean(vis=[ms1,ms2],imagename=imgpar,imsize=100,cell='8.0arcsec',
                                interactive=0,niter=10,deconvolver='mtmfs',parallel=True)
-               
-               checkims = [imgpar+'.psf.tt0', imgpar+'.residual.tt0', imgpar+'.image.tt0',imgpar+'.model.tt0']  
+
+               imexts = ['.psf.tt0', '.psf.tt1', '.residual.tt0', '.residual.tt1',
+                         '.image.tt0', '.image.tt1', '.model.tt0', '.model.tt1',
+                         '.mask', '.pb.tt0', '.sumwt.tt0', '.sumwt.tt1', '.alpha',
+                         '.alpha.error']
+
+               checkims = [imgpar + ext for ext in imexts]
                checkims += self.th.getNParts(imprefix=imgpar,
                                              imexts=['residual.tt0','residual.tt1','psf.tt0','psf.tt1','model.tt0','model.tt1'])
                report2 = self.th.checkall(ret=retpar, 

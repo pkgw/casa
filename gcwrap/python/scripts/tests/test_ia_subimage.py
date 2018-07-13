@@ -127,7 +127,6 @@ class ia_subimage_test(unittest.TestCase):
         myia.done()
         self.assertFalse(imsubimage(imname, "junk", mask=mask3, stretch=True))
 
-
     def test_beams(self):
         """ Test per plane beams """
         myia = self.myia
@@ -184,13 +183,29 @@ class ia_subimage_test(unittest.TestCase):
         beams = myia.restoringbeam()
         self.assertTrue(len(beams['beams']) == 12)
         
-    def test_complex(self):
-        """Test complex valued image support"""
+    def test_precision(self):
+        """Test various precision valued image support"""
         myia = self.myia
-        myia.fromshape("",[2,2], type='c')
-        subim = myia.subimage()
-        myia.done()
-        self.assertTrue(type(subim.getchunk()[0,0]) == numpy.complex128)
+        j = 1.2345678901234567890123456789
+        k = j*(1+1j)
+        for mytype in ['f', 'c', 'd', 'cd']:
+            myia.fromshape("",[2,2], type=mytype)
+            zz = myia.getchunk()
+            expectype = type(zz[0, 0])
+            if mytype == 'f' or mytype =='d':
+                zz[:] = j
+            else:
+                zz[:] = k
+            myia.putchunk(zz)
+            subim = myia.subimage()
+            myia.done()
+            yy = subim.getchunk()
+            subim.done()
+            self.assertTrue(type(yy[0,0]) == expectype)
+            if mytype == 'f' or mytype == 'c':
+                self.assertTrue(numpy.isclose(yy, zz, 1e-8, 1e-8).all())
+            else:
+                self.assertTrue((yy == zz).all())
 
     def test_CAS7704(self):
         """Test CAS-7704, chans can be specified with region file"""

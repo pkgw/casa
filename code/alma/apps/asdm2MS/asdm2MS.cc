@@ -21,25 +21,17 @@
 #include <sstream>
 #include <stdlib.h>
 #include <string>
+#include <regex>
+#include <algorithm>
 #include <vector>
 #include <iomanip>
 
-#include <boost/algorithm/string.hpp>
-
-#include <boost/program_options.hpp>
-namespace po = boost::program_options;
-
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/regex.hpp>
-using namespace boost;
-
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/convenience.hpp>
-using namespace boost::filesystem;
-
-#include <boost/regex.hpp> 
+#include <stdcasa/optionparser.h>
+#include <alma/Options/AlmaArg.h>
+using namespace alma;
 
 #include <ASDMAll.h>
+#include <Misc.h>
 
 #include "SDMBinData.h"
 using namespace sdmbin;
@@ -59,9 +51,9 @@ using namespace casacore;
 #include <tables/Tables/TableCopy.h>
 #include <tables/Tables/TableInfo.h>
 #include <casa/Arrays/MatrixMath.h>
+#include <casa/OS/Path.h>
 #include <casa/Quanta/Quantum.h>
 #include <casa/BasicMath/Math.h>
-
 #include "CBasebandName.h"
 #include "CCalibrationDevice.h"
 using namespace CalibrationDeviceMod;
@@ -85,6 +77,8 @@ using namespace SubscanIntentMod;
 
 #include "asdmstman/AsdmStMan.h"
 #include "BDF2AsdmStManIndex.h"
+
+#include "ScansParser.h"
 
 #include "ASDM2MSException.h"
 
@@ -192,6 +186,7 @@ void warning (const string& message) {
 void error(const string& message, int status=1) {
   LogSink::postGlobally(LogMessage(message, LogOrigin(appName,WHERE), LogMessage::NORMAL));
   //os << LogIO::POST;
+  // cout << message << endl;
   exit(status);
 }
 
@@ -241,7 +236,6 @@ string lrtrim(std::string& s,const std::string& drop = " ")
   std::string r=s.erase(s.find_last_not_of(drop)+1);
   return r.erase(0,r.find_first_not_of(drop));
 }
-
 
 // These classes provide mappings from some ALMA Enumerations to their CASA counterparts.
 class StokesMapper {
@@ -865,79 +859,11 @@ EnumSet<AtmPhaseCorrection>      es_apc;
 // 
 bool                             withCompression = false;
 
-//
+//s
 // A function to determine if overTheTop is present in a given row of the Pointing table.
 //
 bool overTheTopExists(PointingRow* row) { return row->isOverTheTopExists(); }
 
-//
-// A collection of declarations and functions used for the parsing of the 'scans' option.
-//
-#include <boost/spirit/include/classic.hpp>
-#include <boost/spirit/include/classic_assign_actor.hpp>
-#include <boost/spirit/include/classic_push_back_actor.hpp>
-using namespace boost::spirit::classic;
-
-vector<int> eb_v;
-int allEbs = -1;
-int ebNumber = allEbs;
-int readEb = allEbs;
-
-set<int> scan_s;
-int scanNumber0, scanNumber1;
-
-map<int, set<int> > eb_scan_m;
-
-/*
-** Inserts all the integer values in the range [scanNumber0, scanNumber1] in the set referred 
-** to by the global variable scan_s.
-** The two parameters begin and end are not used and here only to comply with the Spirit parser's convention.
-**
-*/
-void fillScanSet(const char* , const char* ) {
-  for (int i = scanNumber0; i < (scanNumber1+1); i++)
-    scan_s.insert(i);
-}
-
-/*
-** Inserts all the elements of the set referred to by the global variable scan_s into
-** the set associated with the (int) key equal to the last value of the global vector eb_v
-** in the global map eb_scan_m.
-** The two parameters begin and end are not used and here only to comply with the Spirit parser's convention.
-*/  
-void mergeScanSet(const char* , const char*) {
-  int key = eb_v.back();
-  eb_scan_m[key].insert(scan_s.begin(), scan_s.end());
-}
-
-/*
-** Empties the global set scan_s.
-** The two parameters begin and end are not used and here only to comply with the Spirit parser's convention.
-*/
-void clearScanSet(const char*, const char*) {
-  scan_s.clear();
-}
-
-/*
-** Defines the grammar and the behaviour of a Spirit parser
-** able to process a scan selection.
-*/
-struct eb_scan_selection : public grammar<eb_scan_selection> {
-  template<typename ScannerT> struct definition {
-    definition (eb_scan_selection const& /* self */) {
-      eb_scan_list   = eb_scan >> *(';' >> eb_scan);
-      eb_scan	     = (eb[push_back_a(eb_v, ebNumber)][assign_a(ebNumber, allEbs)] >> scan_list)[&mergeScanSet][&clearScanSet];
-      eb	     = !(int_p[assign_a(readEb)] >> ':')[assign_a(ebNumber, readEb)];
-      scan_list	     = !((scan_selection >> *(',' >> scan_selection)));
-      scan_selection = (int_p[assign_a(scanNumber0)][assign_a(scanNumber1)] >> !('~' >> int_p[assign_a(scanNumber1)]))
-	[&fillScanSet]
-	[assign_a(scanNumber0, -1)]
-	[assign_a(scanNumber1, -1)];
-    }
-    rule<ScannerT> eb_scan_list, eb_scan, eb, scan_list, scan_selection;
-    rule<ScannerT> const& start() const { return eb_scan_list ; }
-  };
-};
 
 map<int, int> swIdx2Idx ;                       // A map which associates old and new index of Spectral Windows before/after reordering.
 
@@ -1453,8 +1379,9 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
 	+ TO_STRING(mjd0)
 	+ ".tab";
 
-      boost::regex e("[\\[\\]\\(\\)\\{\\}\\/ ]");
-      tableName = replace_all_regex_copy(tableName, e, std::string("_"));
+      // The following characters are replaced with "_" : (){}[]/ and " " (space)
+      std::regex e("[\\[\\]\\(\\)\\{\\}\\/ ]");
+      tableName = std::regex_replace(tableName, e, "_");
       
 
       map<AtmPhaseCorrection, Table*> apc2EphemTable_m;
@@ -2160,8 +2087,8 @@ void fillField(ASDM* ds_p, bool considerEphemeris) {
        * about this replacement.
        */
       string fieldName = r->getFieldName();
-      if (find_first(fieldName, "&")) {
-	replace_all(fieldName, "&", "#");
+      if (fieldName.front()=='&') {
+	replace(fieldName.begin(), fieldName.end(), '&', '#');
 	infostream.str("");
 	infostream << "ATTENTION !!! In row #" << i << " of the Field table, the character '&' has been replaced by the character '#' in the field name." << endl;
 	info(infostream.str());
@@ -2697,7 +2624,7 @@ void fillMainLazily(const string& dsName,
 		    std::map<int, std::set<int> >& selected_eb_scan_m,
 		    std::map<unsigned int , double>& effectiveBwPerDD_m,
 		    Enum<CorrelationMode> e_query_cm,
-		    bool checkDupInts) {
+		    bool checkdupints) {
 
   LOGENTER("fillMainLazily");
 
@@ -2724,8 +2651,10 @@ void fillMainLazily(const string& dsName,
   for ( vector<MainRow *>::const_iterator iter_v = temp.begin(); iter_v != temp.end(); iter_v++) {
     map<int, set<int> >::iterator iter_m = selected_eb_scan_m.find((*iter_v)->getExecBlockId().getTagValue());
     if ( iter_m != selected_eb_scan_m.end() && iter_m->second.find((*iter_v)->getScanNumber()) != iter_m->second.end() ) {
-
-      string abspath = complete(path(dsName)).string() + "/ASDMBinary/" + replace_all_copy(replace_all_copy((*iter_v)->getDataUID().getEntityId().toString(), ":", "_"), "/", "_");
+      string dataUID = (*iter_v)->getDataUID().getEntityId().toString();
+      replace(dataUID.begin(),dataUID.end(),':','_');
+      replace(dataUID.begin(),dataUID.end(),'/','_');
+      string abspath = Path(dsName + "/ASDMBinary/" + dataUID).absoluteName();
 
       // Are these data radiometric , if yes consider them both for corrected and uncorrected ms?
       // ProcessorType processorType = procT.getRowByKey(cfgDscT.getRowByKey((*iter_v)->getConfigDescriptionId())->getProcessorId())->getProcessorType();
@@ -3074,7 +3003,7 @@ void fillMainLazily(const string& dsName,
 	double   interval = deltaTime / 1000000000.0;
 	
 	// should the first integration be skipped? Any actual skipping happens later.
-	bool skipFirstIntegration = checkDupInts && lastTimeMap[mR_p->getConfigDescriptionId()] == ArrayTime(startTime).getMJD();
+	bool skipFirstIntegration = checkdupints && lastTimeMap[mR_p->getConfigDescriptionId()] == ArrayTime(startTime).getMJD();
 	if (debug && skipFirstIntegration) {
 	  cout << "Duplicate time seen in Row : " << mainRowIndex
 	       << " cdId : " << mR_p->getConfigDescriptionId()
@@ -4318,7 +4247,7 @@ void fillSysPower(const string asdmDirectory, ASDM* ds_p, bool ignoreTime, const
       //
       // We can assume that there is an SysPower table , but we don't know yet if it's stored in a binary or an XML file.
       // 
-      if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(asdmDirectory + "/SysPower.bin")))) {
+      if (file_exists(uniqSlashes(asdmDirectory + "/SysPower.bin"))) {
 
 	LOG("fillSysPower : working with SysPower.bin by successive slices.");
 
@@ -4349,7 +4278,7 @@ void fillSysPower(const string asdmDirectory, ASDM* ds_p, bool ignoreTime, const
 	tsrSysPower.close();
       }
       
-      else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(asdmDirectory + "/SysPower.xml")))) {
+      else if (file_exists(uniqSlashes(asdmDirectory + "/SysPower.xml"))) {
 
 	LOG("fillSysPower : working with SysPower.xml read with a TableSAXReader");
 
@@ -4510,6 +4439,7 @@ int main(int argc, char *argv[]) {
   string msNameExtension;
 
   appName = string(argv[0]);
+
   ofstream ofs;
 
   //LogSinkInterface& lsif = LogSink::globalSink();
@@ -4519,135 +4449,270 @@ int main(int argc, char *argv[]) {
 
   bool mute = false;
 
-  bool doparallel = false;
-
   bool ac_xc_per_timestamp = false; // for the time being the option is 'preserve the old order'
 
-  bool		interpolate_ephemeris	       = false ; 
-  double	polyephem_tabtimestep	       = 0.001;
+  bool		interpolate_ephemeris	       = false; 
   bool		tabulate_ephemeris_polynomials = false;
-
-  bool checkDupInts = true;
+  double	polyephem_tabtimestep	       = 0.001;
+  bool          checkRowUniqueness = false; 
+  string        scansOptionInfo;
+  string        asisOption;
+  bool	ignoreTime = false;
+  bool	processSysPower = true;
+  bool	processCalDevice = true;
+  bool  processPointing	= true;
+  bool  withPointingCorrection = false;
+  bool  processEphemeris = true;
+  bool checkdupints = true;
   
   //   Process command line options and parameters.
-  po::variables_map vm;
+
+  // all of the non-positional options need to be enumerated here
+  // note that asdm-directory and ms-directory-prefix can be specified as both
+  // positional arguments and as named arguments. The positional argument takes
+  // precedence.
+
+  enum optionIndex { UNKNOWN, HELP, ICM, ISRT, ITS, OCM, COMPRESSION, 
+		     ASIS, WVRCORRDATA, SCANS, LOGFILE, VERBOSE, REVISION, 
+		     DRYRUN, IGNORETIME, NOCALDEV, NOEPHEMERIS, NOSYSPOWER,
+		     NOPOINTING, CHECKROWUNIQ, BDFSLICESIZE, LAZY,
+		     WITHPCORR, ACXCPERTIME, POLYEPHTSTEP, INTEPHEM,
+                     ASDMDIR, MSDIRPREFIX, CHECKDUPINTS };
+
 
   try {
 
+    // remove the program name
+    argc--;
+    argv++;
 
-    // Declare the supported options.
-    po::options_description generic("Converts an ASDM dataset into a CASA measurement set.\n"
-				    "Usage : " + appName +" [options] asdm-directory [ms-directory-prefix]\n\n"
-				    "Command parameters: \n"
-				    " asdm-directory : the pathname to the ASDM dataset to be converted \n"
-				    " ms-directory-prefix : the prefix of the pathname(s) of the measurement set(s ) to be created,\n"
-				    " this prefis is completed by a suffix to form the name(s) of the resulting measurement set(s), \n"
-				    " this suffix depends on the selected options (see options compression and wvr-corrected-data) \n"
-				    ".\n\n"
-				    "Allowed options:");
-    generic.add_options()
-      ("help", "produces help message.")
-      ("icm",  po::value<string>()->default_value("all"), "specifies the correlation mode to be considered on input. A quoted string containing a sequence of 'ao' 'co' 'ac' 'all' separated by whitespaces is expected")
-      ("isrt", po::value<string>()->default_value("all"), "specifies the spectral resolution type to be considered on input. A quoted string containing a sequence of 'fr' 'ca' 'bw' 'all' separated by whitespaces is expected")
-      ("its",  po::value<string>()->default_value("all"), "specifies the time sampling (INTEGRATION and/or SUBINTEGRATION)  to be considered on input. A quoted string containing a sequence of 'i' 'si' 'all' separated by whitespaces is expected")  
-      ("ocm",  po::value<string>()->default_value("ca"),  "output data for correlation mode AUTO_ONLY (ao) or CROSS_ONLY (co) or CROSS_AND_AUTO (ca)")
-      ("compression,c", "produces compressed columns in the resulting measurement set (not set by default). When this option is selected the string '-compressed' is inserted in the pathname of the resulting measurement set.")
-      ("asis", po::value<string>(), "creates verbatim copies of the ASDM tables in the output measurement set. The value given to this option must be a quoted string containing a list of table names separated by space characters; the wildcard character '*' is allowed in table names.")
-      ("wvr-corrected-data", po::value<string>()->default_value("no"),  "specifies wich values are considered in the ASDM binary data to fill the DATA column in the MAIN table of the MS. Expected values for this option are 'no' for the uncorrected data (this is the default), 'yes' for the corrected data and 'both' for corrected and uncorrected data. In the latter case, two measurement sets are created, one containing the uncorrected data and the other one, whose name is suffixed by '-wvr-corrected', containing the corrected data.")
-      ("scans,s", po::value<string>(), "processes only the scans specified in the option's value. This value is a semicolon separated list of scan specifications. A scan specification consists in an exec bock index followed by the character ':' followed by a comma separated list of scan indexes or scan index ranges. A scan index is relative to the exec block it belongs to. Scan indexes are 1-based while exec blocks's are 0-based. \"0:1\" or \"2:2~6\" or \"0:1,1:2~6,8;2:,3:24~30\" \"1,2\" are valid values for the option. \"3:\" alone will be interpreted as 'all the scans of the exec block#3'. An scan index or a scan index range not preceded by an exec block index will be interpreted as 'all the scans with such indexes in all the exec blocks'.  By default all the scans are considered.")
-      ("logfile,l", po::value<string>(), "specifies the log filename. If the option is not used then the logged informations are written to the standard error stream.")
-      ("verbose,v", "logs numerous informations as the filler is working.")
-      ("revision,r", "logs information about the revision of this application.")
-      ("dry-run,m", "does not fill the MS MAIN table.")
-      ("ignore-time,t", "all the rows of the tables Feed, History, Pointing, Source, SysCal, CalDevice, SysPower and Weather are processed independently of the time range of the selected exec block / scan.")
-      ("no-caldevice", "The CalDevice table will be ignored.")
-      ("no-ephemeris", "The ephemeris table will be ignored.")
-      ("no-syspower", "the SysPower table will be  ignored.")
-      ("no-pointing", "The Pointing table will be ignored.")
-      ("check-row-uniqueness", "The row uniqueness constraint will be checked in the tables where it's defined")
-      ("bdf-slice-size", po::value<uint64_t>(&bdfSliceSizeInMb)->default_value(500),  "The maximum amount of memory expressed as an integer in units of megabytes (1024*1024) allocated for BDF data. The default is 500 (megabytes)") 
-      //("parallel", "run with multithreading mode.")
-      ("lazy", "defers the production of the observational data in the MS Main table (DATA column) - Purely experimental, don't use in production !")
-      ("with-pointing-correction", "add (ASDM::Pointing::encoder - ASDM::Pointing::pointingDirection) to the value to be written in MS::Pointing::direction - (related with JIRA tickets CSV-2878 and ICT-1532))")
-      ("ac-xc-per-timestamp", po::value<string>()->default_value("no"), "if set to yes, then the filler writes in that order autocorrelations and cross correlations rows for one given data description and timestamp. Otherwise auto correlations data are grouped for a sequence of time stamps and then come the cross correlations data for the same sequence of timestamps.")
-      ("polyephem-tabtimestep", po::value<double>(&polyephem_tabtimestep)->default_value(0.001), "Defines the time step used to tabulate the polynomials found in the columns 'dir', 'distance' and optionally 'radVel' of the ASDM Ephemeris table. The unit to express the time step is the day and the default value is 0.001. If 'radvel' is not present then the radial velocity will be obtained by tabulating the derivative of the polynomial found in 'distance'.") 
-      ("interpolate-ephemeris", po::value<string>()->default_value("no"), "if set to 'yes' then the filler will resample the sequence of times found in the ASDM Ephemeris table into an evenly spaced sequence of times on which the ephemeris paarameters will obtained by an interpolation of degree 1. Otherwise (!= 'yes') the ephemeris parameters will be copies of what's in the ASDM Ephemeris table on the same sequence of times");
+    string usageIntro = 
+      "Converts an ASDM dataset into a CASA measurement set.\n"
+      "Usage : " + appName + " [options] asdm-directory [ms-directory-prefix]\n\n"
+      "Command parameters: \n";
 
-    // Hidden options, will be allowed both on command line and
-    // in config file, but will not be shown to the user.
-    po::options_description hidden("Hidden options");
-    hidden.add_options()
-      ("asdm-directory", po::value< string >(), "asdm directory")
-      ;
-    hidden.add_options()
-      ("ms-directory-prefix", po::value< string >(), "ms directory prefix")
-      ;
+    // Descriptor elements are: OptionIndex, OptionType, shortopt, longopt, check_arg, help
+    option::Descriptor usage[] = {
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown,  usageIntro.c_str()},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown,  " \tasdm-directory :  \tthe pathname to the ASDM dataset to be converted"},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown,  
+	" \tms-directory-prefix :  \tthe prefix of the pathname(s) of the measurement "
+	"set(s) to be created. This prefix is completed by a suffix to form the "
+	"name(s) of the resulting measurement set(s). "
+	"this suffix depends on the selected options (see options compression and wvr-corrected-data)."},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown,  "\nAllowed options:\n"},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown,  0 }, // helps with formatting
 
-    // This is only used by the test programs. Not indended for general use.
-    hidden.add_options()
-      ("checkdupints", po::value<bool>()->default_value("true"),"a value of false turns off checks for duplicate integration times in RADIOMETER data")
-      ;
+      // these are the actual options
+      { HELP, 0, "", "help", AlmaArg::None, " --help  \tproduces this help message."},
+      { ICM, 0, "", "icm",  AlmaArg::Required, 
+	" --icm arg (=all) \tspecifies the correlation mode to be considered on input. "
+	"A quoted string containing a sequence of 'ao' 'co' 'ac' 'all' separated by whitespaces is expected"},
+      { ISRT, 0, "", "isrt", AlmaArg::Required, 
+	" --isrt arg (=all) \tspecifies the spectral resolution type to be considered on input. "
+	"A quoted string containing a sequence of 'fr' 'ca' 'bw' 'all' separated by whitespaces is expected"},
+      { ITS, 0, "", "its",  AlmaArg::Required, 
+	" --its arg (=all) \tspecifies the time sampling (INTEGRATION and/or SUBINTEGRATION)  to be considered on input. "
+	"A quoted string containing a sequence of 'i' 'si' 'all' separated by whitespaces is expected"},  
+      { OCM, 0, "", "ocm", AlmaArg::Required,
+	" --ocm arg (=ca) \toutput data for correlation mode AUTO_ONLY (ao) or CROSS_ONLY (co) or CROSS_AND_AUTO (ca)"},
+      { COMPRESSION, 0, "c", "compression", AlmaArg::None,
+	" --c [--compression]  \tproduces compressed columns in the resulting measurement set "
+	"(not set by default). When this option is selected the string '-compressed' is inserted "
+	"in the pathname of the resulting measurement set."},
+      { ASIS, 0, "", "asis", AlmaArg::Required, 
+	" --asis arg \tcreates verbatim copies of the ASDM tables in the output measurement set. "
+	"The value given to this option must be a quoted string containing a list of table names "
+	"separated by space characters; the wildcard character '*' is allowed in table names."},
+      { WVRCORRDATA, 0, "", "wvr-corrected-data", AlmaArg::Required,  
+	" --wvr-corrected-data arg (=no) \tspecifies wich values are considered in the ASDM binary data "
+	"to fill the DATA column in the MAIN table of the MS. Expected values for this option are "
+	"'no' for the uncorrected data (this is the default), 'yes' for the corrected data and "
+	"'both' for corrected and uncorrected data. In the latter case, two measurement sets are "
+	"created, one containing the uncorrected data and the other one, whose name is suffixed "
+	"by '-wvr-corrected', containing the corrected data."},
+      { SCANS, 0, "s", "scans", AlmaArg::Required,
+	" --s [--scans] arg \tprocesses only the scans specified in the option's value. "
+	"This value is a semicolon separated list of scan specifications. A scan specification "
+	"consists of an exec bock index followed by the character ':' followed by a comma separated "
+	"list of scan indexes or scan index ranges. A scan index is relative to the exec block it "
+	"belongs to. Scan indexes are 1-based while exec blocks's are 0-based. "
+	"\"0:1\" or \"2:2~6\" or \"0:1,1:2~6,8;2:,3:24~30\" \"1,2\" are valid values for the option. "
+	"\"3:\" alone will be interpreted as 'all the scans of the exec block#3'. A scan index or a "
+	"scan index range not preceded by an exec block index will be interpreted as 'all the scans with "
+	"such indexes in all the exec blocks'.  By default all the scans are considered."},
+      { LOGFILE, 0, "l", "logfile", AlmaArg::Required, 
+	" -l [--logfile] arg \tspecifies the log filename. If the option is not used then the "
+	"logged informations are written to the standard error stream."},
+      { VERBOSE, 0, "v", "verbose", AlmaArg::None, " -v [--verbose]  \tlogs numerous informations as the filler is working."},
+      { REVISION, 0, "r", "revision", AlmaArg::None, " -r [--revision]  \tlogs information about the revision of this application."},
+      { DRYRUN, 0, "m", "dry-run", AlmaArg::None, " -m [--dry-run]  \tdoes not fill the MS MAIN table."},
+      { IGNORETIME, 0, "t", "ignore-time", AlmaArg::None, 
+	" -t [--ignore-time]  \tall the rows of the tables Feed, History, Pointing, Source, "
+	"SysCal, CalDevice, SysPower and Weather are processed independently of the time range of the "
+	"selected exec block / scan."},
+      { NOCALDEV, 0, "", "no-caldevice", AlmaArg::None, " --no-caldevice  \tThe CalDevice table will be ignored."},
+      { NOEPHEMERIS, 0, "", "no-ephemeris", AlmaArg::None, " --no-ephemeris  \tThe ephemeris table will be ignored."},
+      { NOSYSPOWER, 0, "", "no-syspower", AlmaArg::None, " --no-syspower  \tThe SysPower table will be  ignored."},
+      { NOPOINTING, 0, "", "no-pointing", AlmaArg::None, " --no-pointing  \tThe Pointing table will be ignored."},
+      { CHECKROWUNIQ, 0, "", "check-row-uniqueness", AlmaArg::None, " --check-row-uniqueness  \tThe row uniqueness constraint will be checked in the tables where it's defined"},
+      { BDFSLICESIZE, 0, "", "bdf-slice-size", AlmaArg::Long,  
+	" --bdf-slice-size arg (=500) \tThe maximum amount of memory expressed as an integer "
+	"in units of megabytes (1024*1024) allocated for BDF data. The default is 500 (megabytes)"},
+      { LAZY, 0, "", "lazy", AlmaArg::None, " --lazy  \tdefers the production of the observational data in the MS Main table (DATA column) - Purely experimental, don't use in production !"},
+      { WITHPCORR, 0, "", "with-pointing-correction", AlmaArg::None, 
+	" --with-pointing-correction  \tadd (ASDM::Pointing::encoder - ASDM::Pointing::pointingDirection) "
+	"to the value to be written in MS::Pointing::direction - (related with JIRA tickets CSV-2878 and ICT-1532))"},
+      { ACXCPERTIME, 0, "", "ac-xc-per-timestamp", AlmaArg::Required, 
+	" --ac-xc-per-timestamp arg (=no) \tif set to yes, then the filler writes in that order autocorrelations "
+	"and cross correlations rows for one given data description and timestamp. Otherwise auto "
+	"correlations data are grouped for a sequence of time stamps and then come the cross correlations "
+	"data for the same sequence of timestamps."},
+      { POLYEPHTSTEP, 0, "", "polyephem-tabtimestep", AlmaArg::Float, 
+	" --polyephem-tabtimestep arg (=0.001) \tDefines the time step used to tabulate the polynomials "
+	"found in the columns 'dir', 'distance' and optionally 'radVel' of the ASDM Ephemeris table. "
+	"The unit to express the time step is the day and the default value is 0.001. If 'radvel' "
+	"is not present then the radial velocity will be obtained by tabulating the derivative of "
+	"the polynomial found in 'distance'."},
+      { INTEPHEM, 0, "", "interpolate-ephemeris", AlmaArg::Required, 
+	" --interpolate-ephemeris arg (=no) \tif set to 'yes' then the filler will resample the sequence "
+	"of times found in the ASDM Ephemeris table into an evenly spaced sequence of times on which "
+	"the ephemeris paarameters will obtained by an interpolation of degree 1. Otherwise (!= 'yes') "
+	"the ephemeris parameters will be copies of what's in the ASDM Ephemeris table on the same "
+	"sequence of times"},
+      // these can be set by the command line, but are not shown the user. A config file may set these to be used as a parameter.
+      { ASDMDIR, 0, "", "asdm-directory", AlmaArg::Required, 0 },
+      { MSDIRPREFIX, 0, "", "ms-directory-prefix", AlmaArg::Required, 0},
+      // checkdupints is used by the unit tests to turn off checks for duplicate integration times in RADIOMETER data, not intended for normal use
+      { CHECKDUPINTS, 0, "", "checkdupints", AlmaArg::Bool, 0},
+      { 0, 0, 0, 0, 0, 0 } };
 
-    po::options_description cmdline_options;
-    cmdline_options.add(generic).add(hidden);
+    // Defaults are set by parsing an argv-like set of options where the values are the defaults
+    const char *defaults[] = { "--icm=all",
+			       "--isrt=all",
+			       "--its=all",
+			       "--ocm=ca",
+			       "--wvr-corrected-data=no",
+			       "--bdf-slice-size=500",
+			       "--ac-xc-per-timestamp=no",
+			       "--polyephem-tabtimestep=0.001",
+			       "--interpolate-ephemeris=no",
+			       "--checkdupints=true",
+			       (const char *)-1};   // unambiguously signal the end
+
+    // count defaults, more robust than setting a value here that must be changed when defaults changes
+    int defaultCount = 0;
+    while (defaults[defaultCount] != (const char *) -1) ++defaultCount;
+
+    // parse defaults, argv
+    // establish sizes
+    option::Stats stats;
+    // true here turns on re-ordering of args so that positional argument are always seen last
+    stats.add(true, usage, defaultCount, defaults);
+    stats.add(true, usage, argc, argv);
+
+    // buffers to hold the parsed options
+    // options has one element per optionIndex, last value is the last time it was set
+    // buffer has one element for each option encountered, in order. Not used here.
+    option::Option options[stats.options_max], buffer[stats.buffer_max];
+    option::Parser parse;
+    // parse the defaults first, then argv. User set options always come last
+    // true here has same meaning as in stats above. This may not be necessary here, I think
+    // the stats usage above has already reorderded argv in place.
+    parse.parse(true, usage, defaultCount, defaults, options, buffer);
+    parse.parse(true, usage, argc, argv, options, buffer);
     
-    po::positional_options_description p;
-    p.add("asdm-directory", 1);
-    p.add("ms-directory-prefix", 1);
+    if (parse.error()) {
+      errstream.str("");
+      errstream << "Problem parsing the command line arguments";
+      error(errstream.str());
+    }
     
-    // Parse the command line and retrieve the options and parameters.
-    po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
-
-    po::notify(vm);
-    
-    // Where do the log messages should go ?
-    if (vm.count("logfile")) {
-      //LogSinkInterface *theSink;
+    // User-specified logfile?
+    if (options[LOGFILE] != NULL && options[LOGFILE].last()->arg != NULL) {
 #if 0     
       // Replaced the change at the LogSink level ...
-      ofs.open(vm["logfile"].as<string>().c_str(), ios_base::app);
+      ofs.open(options[LOGFILE].last()->arg, ios_base::app);
       LogSinkInterface *theSink = new casacore::StreamLogSink(&ofs);
       LogSink::globalSink(theSink);
 #else
       // ... with a change at the cerr (stderr) level since by default global logs are going to cerr (stderr).
-      freopen(vm["logfile"].as<string>().c_str(), "a", stderr);
+      freopen(options[LOGFILE].last()->arg, "a", stderr);
 #endif
     }
 
     // Help ? displays help's content and don't go further.
 
-    if (vm.count("help")) {
+    if (options[HELP] || (argc==0) ) {
       errstream.str("");
-      errstream << generic << "\n" ;
+      option::printUsage(errstream, usage,80);
+      error(errstream.str());
+    }
+
+    // too many positional arguments?
+    if (parse.nonOptionsCount() > 2) {
+      errstream.str("");
+      errstream << "Too many positional options" << endl;
       error(errstream.str());
     }
 
     // Verbose or quiet ?
-    verbose = vm.count("verbose") > 0;
+    verbose = options[VERBOSE] != NULL;
    
     // Revision ? displays revision's info and don't go further if there is no dataset to process otherwise proceed....
     string revision = "$Id: asdm2MS.cpp,v 1.84 2011/10/25 14:56:48 mcaillat Exp $\n";
-    if (vm.count("revision")) {
-      if (!vm.count("asdm-directory")) {
+    if (options[REVISION]) {
+      if (options[ASDMDIR] || parse.nonOptionsCount() > 0) {
+	// don't judge the validity of any asdm-directory here, just that it's set somewhere
+	infostream.str("");
+	infostream << revision ;
+	info(infostream.str());
+      } else {
 	errstream.str("");
 	errstream << revision ;
 	error(errstream.str());
       }
-      else {
-	infostream.str("");
-	infostream << revision ;
-	info(infostream.str());
+    }
+
+    // set the non-string options with required values - always available because of defaults
+    // just make sure the last one provided is always the one used
+    {
+      stringstream str(options[BDFSLICESIZE].last()->arg);
+      str >> bdfSliceSizeInMb;
+      if (!str) {
+	// unlikely given that any value was already checked by AlmaArg::Long
+	errstream.str("");
+	errstream << "There was an error converting the bdf-slice-size value to an integer.";
+	error(errstream.str());
+      }
+    }
+    {
+      stringstream str(options[POLYEPHTSTEP].last()->arg);
+      str >> polyephem_tabtimestep;
+      if (!str) {
+	// unlikely given that any value was already checked by AlmaArg::Float
+	errstream.str("");
+	errstream << "There was an error converting the polyephem-tabtimestep value to a double";
+	error(errstream.str());
       }
     }
 
     // non-default input data selection is incompatible with the lazy mode
     bool lazyModeOK = true;
 
+    // this always has a value because of defaults
+    string checkdupintsOpt(options[CHECKDUPINTS].last()->arg);
+    trim(checkdupintsOpt);
+    checkdupintsOpt = str_tolower(checkdupintsOpt);
+    // AlmaArg::Bool already guarantees this is either "true" or "false"
+    checkdupints = (checkdupintsOpt == "true");
+
     // Selection of correlation mode of data to be considered on input.
     istringstream iss;
     string token;
 
-    string icm_opt = vm["icm"].as< string >();
+    // this always has a value because of defaults
+    string icm_opt = string(options[ICM].last()->arg);
     iss.clear();
     iss.str(icm_opt);
     
@@ -4666,14 +4731,15 @@ int main(int argc, char *argv[]) {
       } else {
 	errstream.str("");
 	errstream << "Token '" << token << "' invalid for --icm option." << endl;
-	errstream << generic << endl;
+	option::printUsage(errstream, usage);
 	error(errstream.str());
       }
     }
 
     // Selection of spectral resolution type of data to be considered.
 
-    string isrt_opt = vm["isrt"].as< string >();
+    // this always has a value because of defaults
+    string isrt_opt = string(options[ISRT].last()->arg);
     iss.clear();
     iss.str(isrt_opt);
 
@@ -4692,15 +4758,15 @@ int main(int argc, char *argv[]) {
       } else { 
 	errstream.str("");
 	errstream << "Token '" << token << "' invalid for --isrt option." << endl;
-	errstream << generic;
+	option::printUsage(errstream, usage);
 	error(errstream.str());
       }
     }
 
 
     // Selection of the time sampling of data to be considered (integration and/or subintegration)
-
-    string its_opt = vm["its"].as < string >();
+    // this always has a value because of defaults
+    string its_opt = string(options[ITS].last()->arg);
     iss.clear();
     iss.str(its_opt);
 
@@ -4716,14 +4782,14 @@ int main(int argc, char *argv[]) {
       } else {
 	errstream.str("");
 	errstream << "Token '" << token << "' invalid for its option." << endl;
-	errstream << generic ;
+	option::printUsage(errstream, usage);
 	error(errstream.str());
       }
     }
 
     // Selection of the correlation mode of data to be produced in the measurement set.
-
-    string ocm_opt = vm["ocm"].as< string >();
+    // this always has a value because of defaults
+    string ocm_opt = string(options[OCM].last()->arg);
     if ( ocm_opt.compare("co") == 0 )
       e_query_cm = CROSS_ONLY;
     else if ( ocm_opt.compare("ao") == 0 )
@@ -4733,35 +4799,51 @@ int main(int argc, char *argv[]) {
     else {
       errstream.str("");
       errstream << "Token '" << ocm_opt << "' invalid for ocm option." << endl;
-      errstream << generic ;
+      option::printUsage(errstream, usage);
       error(errstream.str());
     }
 
-    if (vm.count("asdm-directory")) {
-      string dummy = vm["asdm-directory"].as< string >();
+    if (parse.nonOptionsCount() > 0 || options[ASDMDIR]) {
+      string dummy;
+      if (parse.nonOptionsCount() > 0) {
+	dummy = string(parse.nonOption(0));
+      } else {
+	// ASDMDIR must have been set
+	dummy = string(options[ASDMDIR].last()->arg);
+      }
       dsName = lrtrim(dummy) ;
-      if (boost::algorithm::ends_with(dsName,"/")) dsName.erase(dsName.size()-1);
-    }
-    else {
+      if (dsName.back()=='/') dsName.erase(dsName.size()-1);
+    } else {
       errstream.str("");
-      errstream << generic ;
+      option::printUsage(errstream, usage);
       error(errstream.str());
     }
-
-    if (vm.count("ms-directory-prefix")) {
-      string dummyMSName = vm["ms-directory-prefix"].as< string >();
+    
+    if (parse.nonOptionsCount() > 1 || options[MSDIRPREFIX]) {
+      string dummyMSName;
+      if (parse.nonOptionsCount() > 1) {
+	dummyMSName = string(parse.nonOption(1));
+      } else {
+	// MSDIRPREFIX must be set
+	dummyMSName = string(options[MSDIRPREFIX].last()->arg);
+      }
       dummyMSName = lrtrim(dummyMSName);
-      if (boost::algorithm::ends_with(dummyMSName, "/")) dummyMSName.erase(dummyMSName.size()-1);
-#if (BOOST_FILESYSTEM_VERSION == 3)
-      boost::filesystem::path msPath(lrtrim(dummyMSName));
-#else
-      boost::filesystem::path msPath(lrtrim(dummyMSName),&boost::filesystem::no_check);
-#endif
-      string msDirectory = msPath.branch_path().string();
-      msDirectory = lrtrim(msDirectory);
+      if (dummyMSName.back()=='/') dummyMSName.erase(dummyMSName.size()-1);
+      Path msPath(dummyMSName);
+      string msDirectory = msPath.dirName();
       if (msDirectory.size() == 0) msDirectory = ".";
-      msNamePrefix = msDirectory + "/" + boost::filesystem::basename(msPath);
-      msNameExtension = boost::filesystem::extension(msPath);
+      // extract the prefix and extension. Prefix is everything before any final "."
+      // extension is everything after any final ".", including that final dot.
+      string msPathBasename = msPath.baseName();
+      size_t rdot = msPathBasename.find_last_of('.');
+      if (rdot != std::string::npos) {
+	msNameExtension = msPathBasename.substr(rdot,msPathBasename.size()-rdot);
+	msNamePrefix = msPathBasename.substr(0,rdot);
+      } else {
+	msNameExtension = "";
+	msNamePrefix = msPathBasename;
+      } 
+      msNamePrefix = msDirectory + "/" + msNamePrefix;
     }
     else {
       msNamePrefix = dsName;
@@ -4769,19 +4851,19 @@ int main(int argc, char *argv[]) {
     }
     
     // Does the user want compressed columns in the resulting MS ?
-    if ((withCompression = (vm.count("compression") != 0))) {
+    if ((withCompression = (options[COMPRESSION] != NULL))) {
       infostream.str("");
       infostream << "Compressed columns in the resulting MS(s) : Yes" ;
       info(infostream.str());
-    }
-    else {
+    } else {
       infostream.str("");
       infostream << "Compressed columns in the resulting MS(s) : No" ;
       info(infostream.str());
     }
 
     // WVR uncorrected and|or corrected data required ?
-    string wvr_corrected_data = vm["wvr-corrected-data"].as<string>();
+    // always available because of defaults
+    string wvr_corrected_data = string(options[WVRCORRDATA].last()->arg);
     if (wvr_corrected_data.compare("no") == 0)
       es_query_apc.fromString("AP_UNCORRECTED");
     else if (wvr_corrected_data.compare("yes") == 0)
@@ -4791,12 +4873,12 @@ int main(int argc, char *argv[]) {
     else {
       errstream.str("");
       errstream << "Token '" << wvr_corrected_data << "' invalid for wvr-corrected-data." << endl;
-      errstream << generic;
+      option::printUsage(errstream, usage);
       error(errstream.str());
     }
     
     // Do we want an MS Main table to be filled or not ?
-    mute = vm.count("dry-run") != 0;
+    mute = (options[DRYRUN] != NULL);
     if (mute) {
       infostream.str("");
       infostream << "option dry-run is used, the MS Main table will not be filled" << endl;
@@ -4808,15 +4890,7 @@ int main(int argc, char *argv[]) {
     infostream << "the BDF slice size is set to " << bdfSliceSizeInMb << " megabytes." << endl;
     info(infostream.str());
 
-    // Do we process in parallel ?
-    doparallel = vm.count("parallel") != 0;
-    if (doparallel) {
-      infostream.str("");
-      infostream << "run in multithreading mode" << endl;
-      info(infostream.str());
-    }
-
-    lazy = vm.count("lazy") != 0;
+    lazy = options[LAZY] != NULL;
 
     if (lazy && !lazyModeOK) {
       lazy = false;
@@ -4827,33 +4901,62 @@ int main(int argc, char *argv[]) {
       warning(infostream.str());
     }
 
-    // check for duplicate integrations in RADIOMETER data?
-    checkDupInts = vm["checkdupints"].as< bool >();
     if (debug) {
-      cout << "checkDupInts : " << checkDupInts << endl;
+      cout << "checkdupints : " << checkdupints << endl;
     }
 
     // Do we consider another order than ac_xc_per_timestamp ?
-    ac_xc_per_timestamp = boost::algorithm::to_lower_copy(vm["ac-xc-per-timestamp"].as<string>()) == "yes";
+    // always available because of defaults
+    string acXcOpt = string(options[ACXCPERTIME].last()->arg);
+    ac_xc_per_timestamp = str_tolower(acXcOpt) == "yes";
 
-    // Do we want interpolate the values found in the ASDM Ephemeris table or not ?
-    interpolate_ephemeris = boost::algorithm::to_lower_copy(vm["interpolate-ephemeris"].as<string>()) == "yes";
+    // Do we want to tabulate polynomial present in the ephemeris table ?
+    // This is inferred by seeing if the user specifically set this.
+    // But it's set at least once because of defaults, so, look for there being
+    // more than one of these in options.
+    tabulate_ephemeris_polynomials = (options[POLYEPHTSTEP].count() > 1);
+    
+    if (tabulate_ephemeris_polynomials) {
+      // If we tabluate then ignore all the other options about ephemeris    
+      //  infostream.str();
+      //  infostream << "The MS Ephemeris table(s) will be produced by tabulating the polynomials found in the columns 'dir', 'distance' and optionally 'radVel' with a timestep of '"
+      //		 << polyephem_tabtimestep << "' day, i.e. '"<< ((uint64_t) (polyephem_tabtimestep * 86400 * 1.e09)) <<"' nanoseconds."; 
+      // info(infostream.str());
+    } else {
+      // Do we want interpolate the values found in the ASDM Ephemeris table or not ?
+      // always available because of defaults
+      string intEphOpt = string(options[INTEPHEM].last()->arg);
+      interpolate_ephemeris = str_tolower(intEphOpt) == "yes";
+      infostream.str("");
+      if (interpolate_ephemeris) {
+	infostream << "the MS Ephemeris table(s) will be produced by interpolation of the values present in the ASDM Ephemeris table on a resampled time grid."; 
+      }
+      else {
+	infostream << "the MS Ephemeris tables(s) will be produced by simple copies of the values found in the ASDM Ephemeris table with just units conversion.";
+      }
+      info(infostream.str());
+    }
+
+    checkRowUniqueness = options[CHECKROWUNIQ] != NULL;
+    if (options[SCANS]) {
+      scansOptionInfo = string(options[SCANS].last()->arg);
+    }
+    if (options[ASIS]) {
+      asisOption = string(options[ASIS].last()->arg);
+    }
+    ignoreTime = options[IGNORETIME] != NULL;
+    processSysPower = options[NOSYSPOWER] == NULL;
+    processCalDevice = options[NOCALDEV] == NULL;
+    processPointing = options[NOPOINTING] == NULL;
+    withPointingCorrection = options[WITHPCORR] != NULL;
+    processEphemeris = options[NOEPHEMERIS] == NULL;
   }
   catch (std::exception& e) {
     errstream.str("");
     errstream << e.what();
     error(errstream.str());
   }
-  // this just a dummy number for now (innthread may
-  // come from user input in future..)
-  // Also setting environment variable, OMP_NUM_THREADS=1
-  // one can excute multiwrite part in a single thread.
-  int innthread = 4;
-  if (doparallel && innthread > 1) {
-    doparallel = true;
-  }
 
-  //if(doparallel) cerr<<"DO PARALLEL...."<<endl;
   //
   // Try to open an ASDM dataset whose name has been passed as a parameter on the command line
   //
@@ -4865,9 +4968,8 @@ int main(int argc, char *argv[]) {
   mode = 0; myTimer(&cpu_time_parse_xml, &real_time_parse_xml, &mode);
 
   ASDM* ds = new ASDM();
-  bool  checkRowUniqueness = vm.count("check-row-uniqueness") != 0;
-  infostream.str("");
 
+  infostream.str("");
   if (checkRowUniqueness) 
     infostream << "Row uniqueness constraint will be applied." << endl;
   else
@@ -4965,16 +5067,13 @@ int main(int argc, char *argv[]) {
   vector<ScanRow *>	selectedScanRow_v;
   map<int, set<int> >   selected_eb_scan_m;
   
-  string scansOptionInfo;
-  if (vm.count("scans")) {
-    string scansOptionValue = vm["scans"].as< string >();
-    eb_scan_selection ebs;
-    
-    int status = parse(scansOptionValue.c_str(), ebs, space_p).full;
-    
+  if (scansOptionInfo.size()>0) {
+    map<int, set<int> > eb_scan_m;
+    int status = scansParser(scansOptionInfo, eb_scan_m);
+        
     if (status == 0) {
       errstream.str("");
-      errstream << "'" << scansOptionValue << "' is an invalid scans selection." << endl;
+      errstream << "'" << scansOptionInfo << "' is an invalid scans selection." << endl;
       error(errstream.str());
     }
 
@@ -5019,12 +5118,6 @@ int main(int argc, char *argv[]) {
     scansOptionInfo = "All scans of all exec blocks will be processed \n";
   }
 
-  bool	ignoreTime		= vm.count("ignore-time") != 0;
-  bool	processSysPower		= vm.count("no-syspower") == 0;
-  bool	processCalDevice	= vm.count("no-caldevice") == 0;
-  bool  processPointing		= vm.count("no-pointing") == 0;
-  bool  withPointingCorrection	= vm.count("with-pointing-correction") != 0;
-  bool  processEphemeris	= vm.count("no-ephemeris") == 0;
   //
   // Report the selection's parameters.
   //
@@ -5160,40 +5253,19 @@ int main(int argc, char *argv[]) {
   // Create the measurement set(s). 
   if (!false) {
     try {
-      if(doparallel) {
-        // should use pass vec. of spectral ids
-        // partitionMS(SwIds,
-	// 	    msNames,
-	// 	    complexData,
-	// 	    withCompression,
-	// 	    telName,
-	// 	    maxNumCorr,
-	// 	    maxNumChan);
-
-        /***
-	    for (int i=0; i < msFillers_v.size(); i++) {
-	    for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers_v[i].begin();
-	    iter != msFillers_v[i].end(); ++iter) {
-            //cerr<<"ms name: "<<iter->second->msPath()<<endl;
-	    }
-	    }
-        ***/
-      }
-      else { // single thread case
-	if (lazy)  casa::AsdmStMan::registerClass();
-        for (map<AtmPhaseCorrection, string>::iterator iter = msNames.begin(); iter != msNames.end(); ++iter) {
-	  info("About to create a filler for the measurement set '" + msNames[iter->first] + "'");
-	  msFillers[iter->first] = new ASDM2MSFiller(msNames[iter->first],
-						     0.0,
-						     false,
-						     complexData,
-						     withCompression,
-						     telName,
-						     maxNumCorr,
-						     maxNumChan,
-						     false,
-						     lazy);
-        }
+      if (lazy)  casa::AsdmStMan::registerClass();
+      for (map<AtmPhaseCorrection, string>::iterator iter = msNames.begin(); iter != msNames.end(); ++iter) {
+	info("About to create a filler for the measurement set '" + msNames[iter->first] + "'");
+	msFillers[iter->first] = new ASDM2MSFiller(msNames[iter->first],
+						   0.0,
+						   false,
+						   complexData,
+						   withCompression,
+						   telName,
+						   maxNumCorr,
+						   maxNumChan,
+						   false,
+						   lazy);
       }
     }
     catch(AipsError & e) {
@@ -5207,13 +5279,7 @@ int main(int argc, char *argv[]) {
       error(errstream.str());
     }
 
-
-    // if (doparallel) {
-    //   msFillers = msFillers_v[0];
-    // }
-
-    msFiller = msFillers.begin()->second;
-    
+    msFiller = msFillers.begin()->second;    
   }
 
   //
@@ -5358,7 +5424,7 @@ int main(int argc, char *argv[]) {
 	** "&" are not recommanded in antenna names in order to avoid bumps with MS Selection syntax.
 	*/ 
 	string aName = r->getName();
-	if (find_first(aName, "&")) replace_all(aName, "&", "#");
+	if (aName.find_first_of('&')) replace(aName.begin(), aName.end(), '&', '#');
 	
 	static_cast<void>(iter->second->addAntenna(aName,
 						   r->getStationUsingStationId()->getName(),
@@ -6818,7 +6884,7 @@ int main(int argc, char *argv[]) {
   // And then finally process the state and the main table.
   //
   if (lazy) {
-    fillMainLazily(dsName, ds, selected_eb_scan_m,effectiveBwPerDD_m,e_query_cm,checkDupInts);
+    fillMainLazily(dsName, ds, selected_eb_scan_m,effectiveBwPerDD_m,e_query_cm,checkdupints);
   } 
   else {
 
@@ -6881,7 +6947,10 @@ int main(int argc, char *argv[]) {
 	infostream << "ASDM Main row #" << mainRowIndex[i] << " contains data produced by a '" << CProcessorType::name(processorType) << "'." ;
 	info(infostream.str());
 
-	string absBDFpath = complete(path(dsName)).string() + "/ASDMBinary/" + replace_all_copy(replace_all_copy(v[i]->getDataUID().getEntityId().toString(), ":", "_"), "/", "_");
+	string dataUID = v[i]->getDataUID().getEntityId().toString();
+	replace(dataUID.begin(),dataUID.end(),':','_');
+	replace(dataUID.begin(),dataUID.end(),'/','_');
+	string absBDFpath = Path(dsName + "/ASDMBinary/" + dataUID).absoluteName();
 	infostream.str("");
 	infostream << "ASDM Main row #" << mainRowIndex[i]
 		   << " (scan #" << v[i]->getScanNumber()
@@ -6917,7 +6986,7 @@ int main(int argc, char *argv[]) {
 	    continue;
 	  }
 	  vmsDataPtr = sdmBinData.getDataCols();
-	  bool skipFirstIntegration = checkDupInts && lastTimeMap[cdId] == vmsDataPtr->v_time[0];
+	  bool skipFirstIntegration = checkdupints && lastTimeMap[cdId] == vmsDataPtr->v_time[0];
 	  unsigned int skipValues = 0;
 	  // useful just for debugging
 	  if (skipFirstIntegration) {
@@ -7091,10 +7160,10 @@ int main(int argc, char *argv[]) {
   }
     
   // Do we also want to store the verbatim copies of some tables of the ASDM dataset ?
-  if (vm.count("asis")) {
+  if (asisOption.size() > 0) {
     try {
       istringstream iss;
-      iss.str(vm["asis"].as<string>());
+      iss.str(asisOption);
       string word;
       vector<string> tablenames;
       while (iss>>word)
@@ -7114,7 +7183,7 @@ int main(int argc, char *argv[]) {
   for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
        iter != msFillers.end();
        ++iter)
-    iter->second->end(0.0);
+    iter->second->end();
   
   
   for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();

@@ -28,6 +28,29 @@
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
+/**
+ * <summary>
+ * A flag agent that implements the 'rflag' flagdata mode.
+ * </summary>
+ *
+ * Uses the FlagAgentBase::ANTENNA_PAIRS iteration approach.
+ *
+ * Note that the user interface provided by flagdata is
+ * complex/misleading in trying to replicate the use patterns of RFlag
+ * in AIPS. This produces a potentially confusing pattern when
+ * implementing the virtuals of FlagAgentBase. The per-channel
+ * RMS/variance values are calculated in
+ * computeAntennaPairFlagsCore(). Then, the overall thresholds
+ * (timedev, freqdev) are calculated in getReport().  The different
+ * display modes are essentially implemented in getReportCore().
+ *
+ * This implementation takes as reference implementation the AIPS task RFlag
+ * by Erich Greisen, see
+ * The AIPS Cookbook
+ * Appendix E : Special Considerations for EVLA data calibration and imaging in AIPS
+ * E.5 Detailed Flagging
+ * http://www.aips.nrao.edu/cook.html#CEE
+ */
 class FlagAgentRFlag : public FlagAgentBase {
 
 	enum optype {
@@ -72,7 +95,7 @@ protected:
 	// casacore::Function to be called for each timestep/channel
 	void computeAntennaPairFlagsCore(	pair<casacore::Int,casacore::Int> spw_field,
 										casacore::Double noise,
-										casacore::Double scutof,
+										casacore::Double scutoff,
 										casacore::uInt timeStart,
 										casacore::uInt timeStop,
 										casacore::uInt centralTime,
@@ -120,8 +143,7 @@ protected:
 								map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &dataSquared,
 								map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &counts,
 								map< pair<casacore::Int,casacore::Int>,casacore::Double > &threshold,
-								string label,
-								casacore::Double scale);
+								string label);
 
 private:
 
@@ -129,8 +151,10 @@ private:
 	casacore::Bool doflag_p;
 	casacore::Bool doplot_p;
 	casacore::uInt nTimeSteps_p;
+	// flagdata task param timedevscale
 	casacore::Double noiseScale_p;
-	casacore::Double scutofScale_p;
+	// flagdata task param freqdevscale
+	casacore::Double scutoffScale_p;
 
 	// Spectral Robust fit
 	casacore::uInt nIterationsRobust_p;
@@ -146,6 +170,7 @@ private:
 
 	// casacore::Time-direction analysis
 	casacore::Double noise_p;
+	// holds the timedev thresholds for every field-SPW pair
 	map< pair<casacore::Int,casacore::Int>,casacore::Double > field_spw_noise_map_p;
 	map< pair<casacore::Int,casacore::Int>,casacore::Bool > user_field_spw_noise_map_p;
 	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_noise_histogram_sum_p;
@@ -153,12 +178,13 @@ private:
 	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_noise_histogram_counts_p;
 
 	// Spectral analysis
-	casacore::Double scutof_p;
-	map< pair<casacore::Int,casacore::Int>,casacore::Double > field_spw_scutof_map_p;
-	map< pair<casacore::Int,casacore::Int>,casacore::Bool > user_field_spw_scutof_map_p;
-	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutof_histogram_sum_p;
-	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutof_histogram_sum_squares_p;
-	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutof_histogram_counts_p;
+	casacore::Double scutoff_p;
+	// holds the freqdev thresholds for every field-SPW pair
+	map< pair<casacore::Int,casacore::Int>,casacore::Double > field_spw_scutoff_map_p;
+	map< pair<casacore::Int,casacore::Int>,casacore::Bool > user_field_spw_scutoff_map_p;
+	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutoff_histogram_sum_p;
+	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutoff_histogram_sum_squares_p;
+	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutoff_histogram_counts_p;
 };
 
 

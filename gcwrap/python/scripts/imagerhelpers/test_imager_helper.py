@@ -475,33 +475,14 @@ class TestHelpers():
          pstr = ''
          for imname in imlist:
              if os.path.exists(imname):
-                 # There are a couple of chanchunks tests that don't seem to produce any
-                 # miscinfo (the ones where chanchunks!=-1) and leave objectname empty
-                 check_misc = not 'tstcc.image' in imname
-                 # These two multifield_facets tests also don't set miscinfo, and
-                 # leave objectname empty
-                 check_misc = (check_misc and
-                               testname not in ['test_multifield_facets_mfs',
-                                                'test_multifield_facets_mtmfs'])
-                 # parallel tests that misbehave at the moment
-                 check_misc = (check_misc and 
-                               testname not in ['test_cont_hogbom_gridft',
-                                                'test_cont_mtmfs_2spws_2MSs',
-                                                'test_cont_mtmfs_gridft'])
-                 # skip these for now
-                 if not check_misc:
-                     continue
-                     
-                 # This ones don't get all the miscinfo fields (distance, INSTRUME, etc.)
-                 extended = (not imname.endswith('.alpha') and
-                             not imname.endswith('.tt0') and
-                             not imname.endswith('.tt1') and
-                             not imname.endswith('.mask') and
-                             '.par.' not in imname)
-                 issues = self.check_im_keywords(imname, check_misc=check_misc,
-                                                 check_extended=extended)
+                 issues = self.check_im_keywords(imname, check_misc=True,
+                                                 check_extended=True)
                  if issues:
                      pstr += '[{0}] {1}: {2}'.format(testname, imname, issues)
+
+         if not pstr:
+             pstr += 'All expected keywords in imageinfo, miscinfo, and coords found.\n'
+
          return pstr
 
      def check_im_keywords(self, imname, check_misc=True, check_extended=True):
@@ -582,7 +563,7 @@ class TestHelpers():
                  pstr += ('entry {0} not found in record {1} ({2})\n'.
                           format(entry, record, self.verdict(False)))
              else:
-                 # TODO: many tests leave 'distance' empty...
+                 # TODO: many tests leave 'distance' empty. Assume that's acceptable...
                  if entry != 'distance' and not keys[record][entry]:
                      pstr += ('entry {0} is found in record {1} but it is empty ({2})\n'.
                               format(entry, record, self.verdict(False)))

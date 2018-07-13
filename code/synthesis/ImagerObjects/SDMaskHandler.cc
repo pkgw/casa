@@ -551,7 +551,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       SPCIIF templateim(new TempImage<Float>(outshape,outcsys, memoryToUse()));
       Record* dummyrec = 0;
       //ImageRegridder regridder(tempim, outfilename, templateim, axes, dummyrec, "", true, outshape);
-      ImageRegridder regridder(tempim, "", templateim, axes, dummyrec, "", true, outshape);
+      ImageRegridder<Float> regridder(tempim, "", templateim, axes, dummyrec, "", true, outshape);
       regridder.setMethod(Interpolate2D::LINEAR);
       SPIIF retim = regridder.regrid();
       //outImageMask.copyData( (LatticeExpr<Float>) iif(*retim > 0.1, 1.0, 0.0)  );
@@ -1635,7 +1635,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       axes(2) = CoordinateUtil::findSpectralAxis(incsys);
       Record* dummyrec = 0;
       SPCIIF inmask_ptr(tempIm_ptr);
-      ImageRegridder regridder(inmask_ptr, "", tempIm2_ptr, axes, dummyrec, "", True, shp);
+      ImageRegridder<Float> regridder(inmask_ptr, "", tempIm2_ptr, axes, dummyrec, "", True, shp);
       regridder.setMethod(Interpolate2D::LINEAR);
       tempIm_ptr = regridder.regrid();
       //for debugging: save the mask at this stage

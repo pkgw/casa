@@ -62,9 +62,12 @@ using namespace asdm;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -619,6 +622,9 @@ AnnotationRow* AnnotationTable::lookup(ArrayTime time, string issue, string deta
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -904,6 +910,8 @@ AnnotationRow* AnnotationTable::lookup(ArrayTime time, string issue, string deta
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void AnnotationTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -957,11 +965,19 @@ AnnotationRow* AnnotationTable::lookup(ArrayTime time, string issue, string deta
 	}
 
 	
-	void AnnotationTable::setFromFile(const string& directory) {		
+	void AnnotationTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Annotation.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Annotation.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/Annotation.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/Annotation.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the Annotation table", "Annotation");
 	}			
@@ -1112,7 +1128,9 @@ AnnotationRow* AnnotationTable::lookup(ArrayTime time, string issue, string deta
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

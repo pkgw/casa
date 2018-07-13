@@ -88,6 +88,64 @@ template <class T> void ImageFactory::remove(SPIIT& image, casacore::Bool verbos
 	}
 }
 
+template<class T>
+SHARED_PTR<TempImage<std::complex<T>>> ImageFactory::makeComplexImage(
+    SPCIIT realPart, SPCIIT imagPart
+) {
+    auto shape = realPart->shape();
+    ThrowIf(
+        shape != imagPart->shape(),
+        "Real and imaginary parts have different shapes"
+    );
+    SHARED_PTR<TempImage<std::complex<T>>> newImage(
+        new TempImage<std::complex<T>>(shape, realPart->coordinates())
+    );
+    LatticeExpr<std::complex<T>> expr(
+        casacore::formComplex(*realPart, *imagPart)
+    );
+    if (ImageMask::isAllMaskTrue(expr)) {
+        newImage->copyData(expr);
+    }
+    else {
+        newImage->attachMask(casacore::ArrayLattice<Bool>(shape));
+        LogIO os;
+        casacore::LatticeUtilities::copyDataAndMask(os, *newImage, expr, False);
+    }
+    ImageUtilities::copyMiscellaneous(*newImage, *realPart);
+    return newImage;
+}
+
+template <class T>
+SHARED_PTR<casacore::ImageInterface<std::complex<T>>> ImageFactory::makeComplex(
+    SPCIIT realPart, SPCIIT imagPart, const String& outfile,
+    const Record& region, Bool overwrite
+) {
+    _checkOutfile(outfile, overwrite);
+    const IPosition realShape = realPart->shape();
+    const IPosition imagShape = imagPart->shape();
+    ThrowIf(! realShape.isEqual(imagShape), "Image shapes are not identical");
+    const auto& cSysReal = realPart->coordinates();
+    const auto& cSysImag = imagPart->coordinates();
+    ThrowIf(
+        !cSysReal.near(cSysImag), "Image Coordinate systems are not conformant"
+    );
+    String mask;
+    auto subRealImage = SubImageFactory<T>::createSubImageRO(
+        *realPart, region, mask, nullptr
+    );
+    auto subImagImage = SubImageFactory<T>::createSubImageRO(
+        *imagPart, region, mask, nullptr
+    );
+    auto complexImage = makeComplexImage(
+        DYNAMIC_POINTER_CAST<const casacore::ImageInterface<T>>(subRealImage),
+        DYNAMIC_POINTER_CAST<const casacore::ImageInterface<T>>(subImagImage)
+    );
+    return SubImageFactory<std::complex<T>>::createImage(
+        *complexImage, outfile, Record(), "", AxesSpecifier(),
+        overwrite, false, false
+    );
+}
+
 template <class T> SPIIT ImageFactory::createImage(
     const casacore::String& outfile,
     const casacore::CoordinateSystem& cSys, const casacore::IPosition& shape,
@@ -126,6 +184,43 @@ template <class T> SPIIT ImageFactory::createImage(
             << LogIO::NORMAL << creationMsg << LogIO::POST;
     }
     return image;
+}
+
+template<class T>
+SHARED_PTR<casacore::TempImage<T>> ImageFactory::floatFromComplex(
+    SHARED_PTR<const casacore::ImageInterface<std::complex<T>>> complexImage,
+    ComplexToFloatFunction function
+) {
+    SHARED_PTR<TempImage<T>> newImage(
+        new TempImage<T>(
+            TiledShape(complexImage->shape()),
+            complexImage->coordinates()
+        )
+    );
+    {
+        // FIXME use lattice copies
+        auto mymask = complexImage->getMask();
+        if (complexImage->hasPixelMask()) {
+            mymask = mymask && complexImage->pixelMask().get();
+        }
+        if (! allTrue(mymask)) {
+            newImage->attachMask(ArrayLattice<Bool>(mymask));
+        }
+    }
+    ImageUtilities::copyMiscellaneous(*newImage, *complexImage);
+    switch (function) {
+    case REAL:
+        // FIXME use lattice copies
+        newImage->put(real(complexImage->get()));
+        break;
+    case IMAG:
+        // FIXME use lattice copies
+        newImage->put(imag(complexImage->get()));
+        break;
+    default:
+        ThrowCc("Logic Error: Unhandled function");
+    }
+    return newImage;
 }
 
 template <class T> SPIIT ImageFactory::_fromShape(
