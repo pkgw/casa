@@ -482,6 +482,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     LogIO os( LogOrigin("SynthesisDeconvolver","setupMask",WHERE) );
     Bool maskchanged=False;
+    //debug
     if( itsIsMaskLoaded==false ) {
       // use mask(s) 
       if(  itsMaskList[0] != "" || itsMaskType == "pb" || itsAutoMaskAlgorithm != "" ) {
@@ -518,7 +519,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       } else {
 
-	if( ! itsImages->hasMask() ) // i.e. if there is no existing mask to re-use...
+        // new im statistics creates an empty mask and need to take care of that case 
+        Bool emptyMask(False);
+        if( itsImages->hasMask() ) 
+          {
+            if (itsImages->getMaskSum()==0.0) {
+              emptyMask=True;
+            }
+          }
+	if( ! itsImages->hasMask() || emptyMask ) // i.e. if there is no existing mask to re-use...
 	  {
 	    if( itsIsInteractive ) itsImages->mask()->set(0.0);
 	    else itsImages->mask()->set(1.0);

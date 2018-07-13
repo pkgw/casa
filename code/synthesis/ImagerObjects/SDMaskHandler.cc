@@ -1255,6 +1255,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Bool debugStats(true);
 
+    Array<Float> wholemaskdata;
+    IPosition maskshp = prevmask.shape();
+    IPosition maskstart(4,0);
+    IPosition masklength(4,maskshp(0),maskshp(1), 1, 1);
+    Slicer masksl(maskstart, masklength);
+    prevmask.doGetSlice(wholemaskdata,masksl); // single plane
+    Float npixwholemask = sum(wholemaskdata); 
+    Bool fullmask(False);
+    if (npixwholemask == (Float) maskshp(0) * (Float) maskshp(1) ) {
+       fullmask=True;
+       os<<LogIO::DEBUG1 <<"Appears to be fully masked! npix for the whole mask ="<<npixwholemask<<LogIO::POST;
+     }
     //TempImage<Float>* tempres = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse()); 
     //Array<Float> resdata;
     
@@ -1338,15 +1350,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         pbmask.doGetSlice(booldata,sl); // single plane pbmask
         //os<<"valid pix ntrue(booldata)="<<ntrue(booldata)<<LogIO::POST;
 
-        if (nmaskpix==0) {
+        if (nmaskpix==0 ) {
           if (ntrue(booldata)) {
             os<<LogIO::DEBUG1<<"No existing mask but apply pbmask..."<<LogIO::POST;
              tempSubRes->attachMask(*subpbmask);
              //os<<"ntrue tempres pixelmask=="<<ntrue(tempres->getMask())<<LogIO::POST;
           }
         }
-        else {
-          os<<"Do stats outside mask..."<<LogIO::POST;
+        else if (!fullmask) {
+          os<<LogIO::DEBUG1<<"Do the image statitistics in a region outside the mask..."<<LogIO::POST;
           LatticeExpr<Bool> outsideMaskReg;
           //if (res.hasPixelMask()) {
           if (nfalse(booldata)) {
@@ -1391,12 +1403,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         imcalc.setAxes(axes);
 
         // for an empty (= no mask) mask, use Chauvenet algorithm with maxiter=5 and zscore=-1
-        if (nmaskpix==0.0) {
+        if (nmaskpix==0.0 || fullmask ) {
           os<<"Using Chauvenet algorithm for image statistics"<<LogIO::POST;
           imcalc.configureChauvenet(Double(-1.0), Int(5));
         }
         imcalc.setRobust(robust);
         Record thestats = imcalc.statistics();
+
         Array<Double> arrmins, arrmaxs, arrrmss, arrmads, arrmdns;  
     
         // repack 
@@ -1408,7 +1421,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           thestats.get(RecordFieldId("medabsdevmed"), arrmads);
           thestats.get(RecordFieldId("median"), arrmdns);
         }
-        //os<<"max="<<arrmaxs<<" rms="<<arrrmss<<LogIO::POST;
+        if (arrmaxs.nelements()==0 ){
+          throw(AipsError("No image statisitics is returned. Possible the whole image is masked."));
+        }
         IPosition zeroindx(arrmins.ndim(), 0);
         //os<<"Store min statistics items in vector zeroindx="<<zeroindx<<LogIO::POST;
         mins.push_back(arrmins(zeroindx));
@@ -1418,7 +1433,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           mads.push_back(arrmads(zeroindx));
           mdns.push_back(arrmdns(zeroindx));
         }
-
         //os<<"deleting tempSubRes"<<LogIO::POST;
         //delete tempSubRes; tempSubRes=0;
         delete subRes; subRes=0;
