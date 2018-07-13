@@ -233,9 +233,10 @@ bool image::addnoise(
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
-        SHARED_PTR<Record> pRegion = _getRegion(region, false);
-        SHARED_PTR<std::pair<Int, Int> > seedPair(new std::pair<Int, Int>(0, 0));
+        auto pRegion = _getRegion(region, false);
+        SHARED_PTR<std::pair<Int, Int> > seedPair(
+            new std::pair<Int, Int>(0, 0)
+        );
         if (seeds.size() >= 2) {
             seedPair->first = seeds[0];
             seedPair->second = seeds[1];
@@ -254,11 +255,26 @@ bool image::addnoise(
                 pars, zeroIt, seedPair.get()
             );
         }
-        else {
+        else if (_imageC) {
             PixelValueManipulator<Complex>::addNoise(
                 _imageC, type, *pRegion,
                 pars, zeroIt, seedPair.get()
             );
+        }
+        else if (_imageD) {
+            PixelValueManipulator<Double>::addNoise(
+                _imageD, type, *pRegion,
+                pars, zeroIt, seedPair.get()
+            );
+        }
+        else if (_imageDC) {
+            PixelValueManipulator<DComplex>::addNoise(
+                _imageDC, type, *pRegion,
+                pars, zeroIt, seedPair.get()
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
         vector<String> names { "type", "pars", "region", "zeroit", "seeds" };
         vector<variant> values { type, pars, region, zeroIt, seeds };
