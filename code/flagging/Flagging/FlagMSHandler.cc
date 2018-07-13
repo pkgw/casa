@@ -520,18 +520,11 @@ FlagMSHandler::generateIterator()
     }
 
     iteratorGenerated_p = true;
-    chunksInitialized_p = false;
-    buffersInitialized_p = false;
-    stopIteration_p = false;
-    processedRows = 0;
   }
-  else
-  {
-    chunksInitialized_p = false;
-    buffersInitialized_p = false;
-    stopIteration_p = false;
-    processedRows = 0;
-  }
+  chunksInitialized_p = false;
+  buffersInitialized_p = false;
+  stopIteration_p = false;
+  processedRows = 0;
 
   return true;
 }
