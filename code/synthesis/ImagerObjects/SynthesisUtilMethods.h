@@ -286,6 +286,13 @@ public:
   casacore::Bool overwrite;
 
   casacore::String deconvolver;
+  //moving source
+  // Moving phase center ? 
+  casacore::Quantity distance;
+  casacore::MDirection trackDir;
+  casacore::Bool trackSource;
+  casacore::String movingSource;
+  
 
 };
 
@@ -322,7 +329,8 @@ public:
   // Moving phase center ? 
   casacore::Quantity distance;
   casacore::MDirection trackDir;
-  casacore::Bool trackSource; 
+  casacore::Bool trackSource;
+  casacore::String movingSource;
   
   // For wb-aprojection ftm.
   casacore::Bool aTermOn, psTermOn,mTermOn,wbAWP,doPointing, doPBCorr, conjBeams;

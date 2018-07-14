@@ -1,5 +1,5 @@
 //# SynthesisUtilMethods.cc: 
-//# Copyright (C) 2013-2014
+//# Copyright (C) 2013-2018
 //# Associated Universities, Inc. Washington DC, USA.
 //#
 //# This program is free software; you can redistribute it and/or modify it
@@ -2029,7 +2029,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  //AlwaysAssert( flds.nelements()>0 , AipsError );
 	  //fld = flds[0];
 	  Double freqmin=0, freqmax=0;
-	  freqFrameValid=(freqFrame != MFrequency::REST );
+	  freqFrameValid=(freqFrame != MFrequency::REST || mode=="cubesource");
 	  
 	  //MFrequency::Types dataFrame=(MFrequency::Types)vi2.subtableColumns().spectralWindow().measFreqRef()(spwids[0]);
 	  MFrequency::Types dataFrame=(MFrequency::Types)ROMSColumns(*mss[j]).spectralWindow().measFreqRef()(spwids[0]);
@@ -2047,6 +2047,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    
 	    freqmin = datafstart;
 	    freqmax = datafend;
+	  }
+	  else if(mode == "cubesource"){
+	    if(!trackSource){
+	      throw(AipsError("Cannot be in cubesource without tracking a moving source"));
+	    }
+	    String ephemtab("");
+	    if(movingSource=="TRACKFIELD"){
+	      Int fieldID=ROMSColumns(*mss[j]).fieldId()(0);
+	      ephemtab=Path(ROMSColumns(*mss[j]).field().ephemPath(fieldID)).absoluteName();
+	    }
+	    MSUtil::getFreqRangeInSpw(freqmin,freqmax,spwids,firstChannels,
+				      nChannels, *mss[j], ephemtab, trackDir, true);
 	  }
 	  else {
 	    

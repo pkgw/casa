@@ -30,6 +30,7 @@
 #define MSVIS_MSUTIL_H
 #include <casa/aips.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
+#include <measures/Measures/MDirection.h>
 namespace casa { //# NAMESPACE CASA - BEGIN
 
   class MSUtil{
@@ -96,6 +97,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			      const casacore::MeasurementSet& ms, 
 			      const casacore::MFrequency::Types freqframe,
 					      const casacore::Vector<casacore::Int>& fieldId, const casacore::Bool edge=true, const casacore::Bool useFieldsInMS=false );
+     //This version gets the range of frequency in SOURCE frame for an ephem source
+     //either trackDIr should be a known planet or ephemPath should not be an
+     //empty string
+     static  casacore::Bool getFreqRangeInSpw( casacore::Double& freqStart,
+						       casacore::Double& freqEnd,
+						       const casacore::Vector<casacore::Int>& spw,
+						       const casacore::Vector<casacore::Int>& start,
+						       const casacore::Vector<casacore::Int>& nchan,
+						       const casacore::MeasurementSet& ms, 
+						      
+						       const casacore::String& ephemPath=casacore::String(""),
+						       const casacore::MDirection& trackDir=casacore::MDirection(casacore::MDirection::APP),
+						       const casacore::Bool fromEdge=true);
+     
     //Return all the selected SPW types selected in the selected casacore::MS if the input ms
     //is a reference MS. Else it will return all the types in the  SPW table
     static casacore::Vector<casacore::String> getSpectralFrames(casacore::Vector<casacore::MFrequency::Types>& types, const casacore::MeasurementSet& ms);
