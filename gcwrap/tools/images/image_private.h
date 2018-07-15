@@ -98,6 +98,14 @@ template<class T> image* _convolve(
     const variant& region, const variant& vmask, bool overwrite, bool stretch
 );
 
+template<class T> image* _convolve2d(
+    SPIIT myImage, const string& outFile, const vector<int>& axes,
+    const string& type, const variant& major, const variant& minor,
+    const variant& pa, double in_scale, const variant& region,
+    const variant& vmask, bool overwrite, bool stretch,
+    bool targetres, const record& beam
+);
+
 template<class T> image* _decimate(
 	SPCIIT image, const string& outfile, int axis,
 	int factor, casa::ImageDecimatorData::Function f,
