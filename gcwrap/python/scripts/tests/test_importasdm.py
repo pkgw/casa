@@ -32,8 +32,9 @@ import shutil
 import numpy
 from __main__ import default
 from tasks import importasdm, flagdata, exportasdm, flagcmd
-from taskinit import mstool, tbtool, cbtool
+from taskinit import mstool, tbtool, cbtool, qatool, aftool, casalog
 import testhelper as th
+import flaghelper as fh
 import unittest
 import partitionhelper as ph
 from parallel.parallel_data_helper import ParallelDataHelper
@@ -58,9 +59,9 @@ reimp_msname = 'reimported-'+myms_dataset_name
 tblocal = tbtool()
 mslocal = mstool()
 
-def checktable(thename, theexpectation):
-    global msname, myname
-    tblocal.open(msname+"/"+thename)
+def checktable(themsname, thename, theexpectation):
+    global myname
+    tblocal.open(themsname+"/"+thename)
     if thename == "":
         thename = "MAIN"
     for mycell in theexpectation:
@@ -168,16 +169,22 @@ class test_base(unittest.TestCase):
         default(importasdm)
 
     def setUp_xosro(self):
-        self.asdm = 'X_osro_013.55979.93803716435'
+        self.asdm = 'X_osro_013.55979.93803716435'  #EVLA SDM
         datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/flagdata/'
         if(not os.path.lexists(self.asdm)):
             os.system('ln -s '+datapath+self.asdm +' '+self.asdm)
             
         default(importasdm)
 
+    def setUp_polyuranus(self):
+        self.asdm = 'polyuranus'  # EVLA SDM with ephemeris
+        datapath = os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/importevla/'
+        if (not os.path.lexists(self.asdm)):
+            os.system('ln -s '+datapath+self.asdm+' '+self.asdm)
+        default(importasdm)
 
     def setUp_autocorr(self):
-        self.asdm = 'AutocorrASDM'
+        self.asdm = 'AutocorrASDM'  # ALMA 
         datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/importasdm/'
         if(not os.path.lexists(self.asdm)):
             os.system('ln -s '+datapath+self.asdm +' '+self.asdm)
@@ -311,7 +318,7 @@ class asdm_import1(test_base):
                          ['EXPOSURE',  42, 1.008, 0],
                          ['DATA',      42, [ [10.5526886+0.0j] ], 1E-7]
                          ]
-            results = checktable(name, expected)
+            results = checktable(msname, name, expected)
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table MAIN failed'
@@ -322,7 +329,7 @@ class asdm_import1(test_base):
                          ['EXPOSURE',  638, 1.008, 0],
                          ['DATA',      638, [ [0.00362284+0.00340279j] ], 1E-8]
                          ]
-            results = checktable(name, expected)
+            results = checktable(msname, name, expected)
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table MAIN failed'
@@ -332,7 +339,7 @@ class asdm_import1(test_base):
                          ['POSITION',     1, [2202242.5520, -5445215.1570, -2485305.0920], 0.0001],
                          ['DISH_DIAMETER',1, 12.0, 0]
                          ]
-            results = checktable(name, expected)
+            results = checktable(msname, name, expected)
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table ANTENNA failed'
@@ -346,7 +353,7 @@ class asdm_import1(test_base):
                          ['POINTING_OFFSET', 10, [[ 0.],[ 0.]], 0],
                          ['ENCODER',         10, [ 1.94851533,  1.19867576], 1E-8 ]
                          ]
-            results = checktable(name, expected)
+            results = checktable(msname, name, expected)
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table POINTING failed'
@@ -483,7 +490,7 @@ class asdm_import2(test_base):
                          ['EXPOSURE',  42, 1.008, 0],
                          ['DATA',      42, [ [10.5526886+0.0j] ], 1E-7]
                          ]
-            results = checktable(name, expected)
+            results = checktable(msname, name, expected)
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table MAIN failed'
@@ -496,7 +503,7 @@ class asdm_import2(test_base):
                          ['EXPOSURE',  638, 1.008, 0],
                          ['DATA',      638, [ [0.00362284+0.00340279j] ], 1E-8]
                          ]
-            results = checktable(name, expected)
+            results = checktable(msname, name, expected)
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table MAIN failed'
@@ -508,7 +515,7 @@ class asdm_import2(test_base):
                          ['POSITION',     1, [2202242.5520, -5445215.1570, -2485305.0920], 0.0001],
                          ['DISH_DIAMETER',1, 12.0, 0]
                          ]
-            results = checktable(name, expected)
+            results = checktable(msname, name, expected)
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table ANTENNA failed'
@@ -524,7 +531,7 @@ class asdm_import2(test_base):
                          ['POINTING_OFFSET', 10, [[ 0.],[ 0.]], 0],
                          ['ENCODER',         10, [ 1.94851533,  1.19867576], 1E-8 ]
                          ]
-            results = checktable(name, expected)
+            results = checktable(msname, name, expected)
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table POINTING failed'
@@ -579,12 +586,141 @@ class asdm_import2(test_base):
             raise
         
 class asdm_import3(test_base):
+    # most of these (except test_CAS4532) were formerly found in test_importevla
     
     def setUp(self):
+        # multiple SDMs used here, do not trust self.asdm to be correct, this just make a link to the data
         self.setUp_xosro()
+        self.setUp_polyuranus()
         
     def tearDown(self):
-        os.system('rm -rf '+self.asdm)
+        for myasdmname in ['X_osro_013.55979.93803716435', 'polyuranus']:
+            os.system('rm -rf '+myasdmname)  # a link
+            shutil.rmtree(myasdmname+".ms",ignore_errors=True)
+            shutil.rmtree(myasdmname+".ms.flagversions",ignore_errors=True)
+
+    # functions to duplicate what importevla did after filling the MS - shadow and zero-level flagging
+    def getmsmjds(self,msname):
+        # Get start and end times from MS, return in mjds
+        # this might take too long for large MS
+        # NOTE: could also use values from OBSERVATION table col TIME_RANGE
+        mslocal2 = mstool()
+        success = True
+        ms_startmjds = None
+        ms_endmjds = None
+        try:
+            mslocal2.open(msname)
+            timd = mslocal2.range(['time'])
+            mslocal2.close()
+        except:
+            success = False
+            print 'Error opening MS ' + vis
+        if success: 
+            ms_startmjds = timd['time'][0]
+            ms_endmjds = timd['time'][1]
+        else:
+            print 'WARNING: Could not open vis as MS to find times'
+        return (ms_startmjds, ms_endmjds)
+
+    def flagzero(self,startMJDsec, endMJDsec, flagpol):
+        # returns a dictionary of flag commands related to zero data values
+        # over the time interval given in the arguments
+        # startMJDsec : start of interval, MJD, seconds
+        # endMJDsec : end of interval, MJD, seconds
+        # if flagpol = True, then flag all polarizations, else just RR and LL
+        # there will be either a single command (flagpol=True) or
+        # two commands (flagpol=False)
+
+        result = {}
+
+        flagz = {}
+        flagz['time'] = 0.5*(startMJDsec+endMJDsec)
+        flagz['interval'] = endMJDsec - startMJDsec 
+        flagz['level'] = 0
+        flagz['severity'] = 0
+        flagz['type'] = 'FLAG'
+        flagz['applied'] = False
+        flagz['antenna'] = ''
+        flagz['mode'] = 'clip'
+        
+        if flagpol:
+            flagz['reason'] = 'CLIP_ZERO_ALL'
+            command = {}
+            command['mode'] = 'clip'
+            command['clipzeros'] = True
+            command['correlation'] = 'ABS_ALL'
+            flagz['command'] = command
+            flagz['id'] = 'ZERO_ALL'
+            result[len(result)] = flagz.copy()
+        else:
+            flagz['reason'] = 'CLIP_ZERO_RR'
+            command = {}
+            command['mode'] = 'clip'
+            command['clipzeros'] = True
+            command['correlation'] = 'ABS_RR'
+            flagz['command'] = command
+            flagz['id'] = 'ZERO_RR'
+            result[len(result)] = flagz.copy()
+            
+            flagz['reason'] = 'CLIP_ZERO_LL'
+            command = {}
+            command['mode'] = 'clip'
+            command['clipzeros'] = True
+            command['correlation'] = 'ABS_LL'
+            flagz['command'] = command
+            flagz['id'] = 'ZERO_LL'
+            result[len(result)] = flagz.copy()
+
+        return result
+
+    def flagshadow(self,startMJDsec, endMJDsec, tolerance, addantenna):
+        # create a set of flag commands related to shadowed data
+        # the tolerance is given by tolerance
+        # addantenna : may be a filename or a string
+    
+        result = {}
+        command = {}
+        # flag shadowed data
+        result['time'] = 0.5 * (startMJDsec + endMJDsec)
+        result['interval'] = endMJDsec - startMJDsec
+        result['level'] = 0
+        result['severity'] = 0
+        result['type'] = 'FLAG'
+        result['applied'] = False
+        result['antenna'] = ''
+        result['mode'] = 'shadow'
+        result['reason'] = 'SHADOW'
+    
+        command['mode'] = 'shadow'
+        command['tolerance'] = tolerance
+
+        if type(addantenna) == str:
+            if addantenna != '':
+                # it's a filename, create a dictionary
+                antdict = fh.readAntennaList(addantenna)
+                command['addantenna'] = antdict
+                    
+        elif type(addantenna) == dict:
+            if addantenna != {}:
+                command['addantenna'] = addantenna
+            
+        result['command'] = command
+        result['id'] = 'SHADOW'
+
+        return result
+
+    def applyflags(self,allflags, mspath):
+        # aftool is agentflagger
+        aflocal = aftool()
+        if (len(allflags)) > 0:
+            aflocal.open(mspath)
+            aflocal.selectdata()
+            fh.parseAgents(aflocal,allflags,[],True,True,'')
+            aflocal.init()
+            stats = aflocal.run(True,True)
+            aflocal.done()
+            # writes these to the FLAG_CMD table, append is True
+            fh.writeFlagCommands(mspath,allflags,True,'','',True)
        
     def test_CAS4532(self):
         '''importasdm CAS-4532: white spaces on Antenna.xml'''
@@ -593,12 +729,530 @@ class asdm_import3(test_base):
         # the tags. This should not cause any error in the XML 
         # parser from fh.readXML
         import flaghelper as fh
+
+        self.asdm = 'X_osro_013.55979.93803716435'
         
         flagcmddict = fh.readXML(self.asdm, 0.0)
         self.assertTrue(flagcmddict, 'Some XML file may contain white spaces not handled by readXML')
         
         self.assertEqual(flagcmddict.keys().__len__(),214)
 
+    def test_evlatest1(self):
+        '''test of importing evla data, test1: Good input asdm'''
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }  
+
+        self.asdm = 'X_osro_013.55979.93803716435'
+        msname = self.asdm+".ms"
+
+        # note that ocorr_mode defaulted to "co" for importevla and with_pointing_correction defaulted to True, so both must be set here
+        # polyephem_tabtimestep defaulted to 0.001 in importevla, but that's only relevant for ephemeral objects, not relevant here
+        self.res = importasdm(asdm=self.asdm, vis=msname, scans='2',ocorr_mode='co',with_pointing_correction=True)
+        print myname, ": Success! Now checking output ..."
+        # this is probably not the best way to test sucess, too dependent on table system details, which might change without invalidating the result
+        # but this is how it was written. These are the components it currently produces.
+        # not a complete list of all of the table.* files in each directory
+        mscomponents = set(["table.dat",
+                            "table.f1",
+                            "table.f2",
+                            "table.f3",
+                            "table.f4",
+                            "table.f5",
+                            "table.f6",
+                            "table.f7",
+                            "table.f8",
+                            # importevla copied these over, importasdm does not
+                            #"Antenna.xml",
+                            #"Flag.xml",
+                            #"SpectralWindow.xml",
+                            "ANTENNA/table.dat",
+                            "ANTENNA/table.f0",
+                            "CALDEVICE/table.dat",
+                            "CALDEVICE/table.f0",
+                            "DATA_DESCRIPTION/table.dat",
+                            "DATA_DESCRIPTION/table.f0",
+                            "FEED/table.dat",
+                            "FEED/table.f0",
+                            "FIELD/table.dat",
+                            "FIELD/table.f0",
+                            "FLAG_CMD/table.dat",
+                            "FLAG_CMD/table.f0",
+                            "HISTORY/table.dat",
+                            "HISTORY/table.f0",
+                            "OBSERVATION/table.dat",
+                            "OBSERVATION/table.f0",
+                            "POINTING/table.dat",
+                            "POINTING/table.f0",
+                            "POLARIZATION/table.dat",
+                            "POLARIZATION/table.f0",
+                            "PROCESSOR/table.dat",
+                            "PROCESSOR/table.f0",
+                            "SOURCE/table.dat",
+                            "SOURCE/table.f0",
+                            "SPECTRAL_WINDOW/table.dat",
+                            "SPECTRAL_WINDOW/table.f0",
+                            "STATE/table.dat",
+                            "STATE/table.f0",
+                            "SYSCAL/table.f0",
+                            "SYSCAL/table.dat",
+                            "SYSPOWER/table.dat",
+                            "SYSPOWER/table.f0",
+                            "WEATHER/table.dat",
+                            "WEATHER/table.f0"
+                            ])
+        for name in mscomponents:
+            if not os.access(msname+"/"+name, os.F_OK):
+                print myname, ": Error  ", msname+"/"+name, "doesn't exist ..."
+                retValue['success']=False
+                retValue['error_msgs']=retValue['error_msgs']+msname+'/'+name+' does not exist'
+            else:
+                print myname, ": ", name, "present."
+        print myname, ": MS exists. All tables present. Try opening as MS ..."
+        try:
+            mslocal.open(msname)
+        except:
+            print myname, ": Error  Cannot open MS table", msname
+            retValue['success']=False
+            retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+msname
+        else:
+            mslocal.close()
+            print myname, ": OK. Checking tables in detail ..."
+    
+            # check main table first
+            name = ""
+            #             col name, row number, expected value, tolerance
+            expected = [
+                         ['UVW',       42, [  1607.50778695, -1241.40287976 , 584.50368163], 1E-8],
+                         ['EXPOSURE',  42, 1.0, 0]
+                       ]
+            results = checktable(msname, name, expected)
+            if not results:
+                retValue['success']=False
+                retValue['error_msgs']=retValue['error_msgs']+'Check of table MAIN failed'
+            else:
+                retValue['success']=True
+    
+            expected = [
+                         ['UVW',       638, [14.20193237, 722.59606805 , 57.57988905], 1E-8],
+                         ['EXPOSURE',  638, 1.0, 0]
+                       ]
+            results = checktable(msname, name, expected)
+            if not results:
+                retValue['success']=False
+                retValue['error_msgs']=retValue['error_msgs']+'Check of table MAIN failed'
+            else:
+                retValue['success']=True
+            
+            name = "ANTENNA"
+            expected = [ ['OFFSET',       1, [ -4.80000000e-12,  0.,  0.], 0],
+                         ['POSITION',     1, [-1599644.8611, -5042953.6623, 3554197.0332], 0.0001],
+                         ['DISH_DIAMETER',1, 25.0, 0]
+                         ]
+            results = checktable(msname, name, expected)
+            if not results:
+                retValue['success']=False
+                retValue['error_msgs']=retValue['error_msgs']+'Check of table ANTENNA failed'
+            else:
+                retValue['success']=True
+            
+        self.assertTrue(retValue['success'])
+
+    def test_evlatest2(self):
+        '''test of importing evla data, test2: Good input asdm with polynomial ephemeris'''
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+
+        self.asdm = 'polyuranus'
+        msname = self.asdm+".ms"
+
+        # note that ocorr_mode defaulted to "co" for importevla and with_pointing_correction defaulted to True, so both must be set here
+        # polyephem_tabtimestep defaulted to 0.001 must also be set here since this includes ephemeris data (unsure what the default is otherwise)
+        # importevla did not have the convert_ephem2geo step so it must be disabled here to duplicate that behavior
+        self.res = importasdm(asdm=self.asdm, vis=msname, scans='0:5',ocorr_mode='co',with_pointing_correction=True,polyephem_tabtimestep=0.001,convert_ephem2geo=False)
+        print myname, ": Success! Now checking output ..."
+        mscomponents = set(["table.dat",
+                            "table.f1",
+                            "table.f2",
+                            "table.f3",
+                            "table.f4",
+                            "table.f5",
+                            "table.f6",
+                            "table.f7",
+                            "table.f8",
+                            # importevla copied these over, importasdm does not
+                            #"Antenna.xml",
+                            #"Flag.xml",
+                            #"SpectralWindow.xml",
+                            "ANTENNA/table.dat",
+                            "DATA_DESCRIPTION/table.dat",
+                            "FEED/table.dat",
+                            "FIELD/table.dat",
+                            "FLAG_CMD/table.dat",
+                            "HISTORY/table.dat",
+                            "OBSERVATION/table.dat",
+                            "POINTING/table.dat",
+                            "POLARIZATION/table.dat",
+                            "PROCESSOR/table.dat",
+                            "SOURCE/table.dat",
+                            "SPECTRAL_WINDOW/table.dat",
+                            "STATE/table.dat",
+                            "SYSCAL/table.dat",
+                            "WEATHER/table.dat",
+                            "ANTENNA/table.f0",
+                            "DATA_DESCRIPTION/table.f0",
+                            "FEED/table.f0",
+                            "FIELD/table.f0",
+                            "FIELD/EPHEM0_URANUS_57545.8.tab/table.f0",  # the ephemeris table!
+                            "FLAG_CMD/table.f0",
+                            "HISTORY/table.f0",
+                            "OBSERVATION/table.f0",
+                            "POINTING/table.f0",
+                            "POLARIZATION/table.f0",
+                            "PROCESSOR/table.f0",
+                            "SOURCE/table.f0",
+                            "SPECTRAL_WINDOW/table.f0",
+                            "STATE/table.f0",
+                            "SYSCAL/table.f0",
+                            "WEATHER/table.f0"
+                            ])
+        for name in mscomponents:
+            if not os.access(msname+"/"+name, os.F_OK):
+                print myname, ": Error  ", msname+"/"+name, "doesn't exist ..."
+                retValue['success']=False
+                retValue['error_msgs']=retValue['error_msgs']+msname+'/'+name+' does not exist'
+            else:
+                print myname, ": ", name, "present."
+        print myname, ": MS exists. All tables present. Try opening as MS ..."
+        try:
+            mslocal.open(msname)
+        except:
+            print myname, ": Error  Cannot open MS table", msname
+            retValue['success']=False
+            retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+msname
+        else:
+            mslocal.close()
+            print myname, ": OK. Checking tables in detail ..."
+    
+            mslocal.open(msname)
+            mssum = mslocal.summary()
+            mslocal.close()
+
+            if(mssum['scan_5']['0']['FieldName']=='URANUS' and mssum['field_2']['direction']['m0']['value']==0.37832756704958537):
+                print myname, ": MS summary as expected."
+                retValue['success']=True
+            else:
+                retValue['success']=False
+                retValue['error_msgs']=retValue['error_msgs']+'Unexepcted mssummary.'
+                
+        self.assertTrue(retValue['success'])
+
+    def test_evla_apply1(self):
+        '''test of importing evla data, apply all flags, and save to file'''
+        retValue = {'success':True, 'msg':"", 'error_msgs':''}
+
+        self.asdm = 'X_osro_013.55979.93803716435'
+        msname = self.asdm + ".ms"
+        cmdfile = msname.replace('.ms','_cmd.txt')
+
+        if os.path.exists(msname):
+            os.system('rm -rf '+msname)
+        if os.path.exists(cmdfile):
+            os.system('rm -rf '+cmdfile)
+            
+        # this applies and saves the online commands, which is all importasdm can do
+        # note that there is no ephemeris data here so those arguments are not used in this call
+        self.res = importasdm(asdm=self.asdm, vis=msname, scans='2', ocorr_mode='co', with_pointing_correction=True,
+                              process_flags=True, applyflags=True, savecmds=True, flagbackup=False)
+
+        print myname, ": importasdm success. Checking that filled MS can be opened as MS ..."
+        try:
+            mslocal.open(msname)
+        except:
+            print myname, ": Error  Cannot open MS table", msname
+            retValue['success'] = False
+            retValue['error_msgs'] = retValue['error_msgs']+'Cannot open MS table '+msname
+        else:
+            mslocal.close()
+
+        if (retValue['success']):
+            try:
+                print myname," : OK. doing flagzero and shadow flagging"
+
+                (startMJDs,endMJDs) = self.getmsmjds(msname)
+                flagz = self.flagzero(startMJDs,endMJDs,True)
+                flagh = self.flagshadow(startMJDs,endMJDs,0.0,'')
+                allflags = flagz.copy()
+                allflags[len(allflags)] = flagh
+                self.applyflags(allflags,msname)
+                fh.writeFlagCommands(msname,allflags,False,'',cmdfile,True)
+                print myname," : Checking flags"
+            
+                # Check flags
+                res = flagdata(vis=msname, mode='summary')
+                self.assertEqual(res['flagged'],2446080)
+        
+                # Check output file existence
+                self.assertTrue(os.path.exists(cmdfile))
+        
+                # Check file content
+                cmdlist = open(cmdfile,'r').readlines()
+                self.assertEqual(len(cmdlist),216,'unexpected number of flag commands in saved ascii file : %s'%str(len(cmdlist)))
+            except AssertionError as error:
+                print myname,' : assertion error while testing flags after filling: ' + str(error)
+                retValue['success'] = False
+                retValue['error_msg']=retValue['error_msg']+str(error)
+            except:
+                print myname," : post fill flagging and checking failed."
+                retValue['success'] = False
+                retValue['error_msg']=retValue['error_msgs']+'Unexpected post-fill flagging result'
+        self.assertTrue(retValue['success'])
+        
+    def test_evla_apply2(self):
+        '''test of importing evla data and applying the online flags'''
+        retValue = {'success':True, 'msg':"", 'error_msgs':''}
+
+        self.asdm = 'X_osro_013.55979.93803716435'
+        msname = self.asdm + ".ms"
+        cmdfile = msname.replace('.ms','_cmd.txt')
+
+        if os.path.exists(msname):
+            os.system('rm -rf '+msname)
+            
+        # importasdm can everything importevla did in this case
+        self.res  = importasdm(asdm=self.asdm, vis=msname, scans='2',ocorr_mode='co', with_pointing_correction=True,
+                               process_flags=True, applyflags=True, savecmds=False, flagbackup=False)
+        
+        # Check flags
+        res = flagdata(vis=msname, mode='summary')
+        self.assertEqual(res['flagged'],2446080)
+        self.assertEqual(res['scan']['2']['flagged'],2446080)
+        
+    def test_evla_apply3(self):
+        '''test of importing evla data, do not apply online flags; post fill - apply clip zeros on RR and LL and save to file'''
+        retValue = {'success':True, 'msg':"", 'error_msgs':''}
+
+        self.asdm = 'X_osro_013.55979.93803716435'
+        msname = self.asdm + ".ms"
+        cmdfile = msname.replace('.ms','_cmd.txt')
+
+        if os.path.exists(msname):
+            os.system('rm -rf '+msname)
+        if os.path.exists(cmdfile):
+            os.system('rm -rf '+cmdfile)
+            
+        # do NOT use the online flags here
+        self.res = importasdm(asdm=self.asdm, vis=msname, scans='2,13', ocorr_mode='co', with_pointing_correction=True,
+                              process_flags=False,flagbackup=False)
+
+        print myname, ": importasdm success. Checking that filled MS can be opened as MS ..."
+        try:
+            mslocal.open(msname)
+        except:
+            print myname, ": Error  Cannot open MS table", msname
+            retValue['success'] = False
+            retValue['error_msgs'] = retValue['error_msgs']+'Cannot open MS table '+msname
+        else:
+            mslocal.close()
+
+        if (retValue['success']):
+            try:
+                print myname," : OK, doing flagzero with flagpol=False"
+                (startMJDs,endMJDs) = self.getmsmjds(msname)
+                flagz = self.flagzero(startMJDs,endMJDs,False)
+                self.applyflags(flagz,msname)
+                fh.writeFlagCommands(msname,flagz,False,'',cmdfile,True)
+
+                print myname," : Checking flags"
+
+                # Check flags - not the most useful test case
+                res = flagdata(vis=msname, mode='summary')
+                self.assertEqual(res['flagged'],0,'There are no zeros in this data set')
+                self.assertEqual(res['scan']['2']['flagged'],0,'No flags should have been applied')
+                self.assertEqual(res['scan']['13']['flagged'],0,'No flags should have been applied')
+        
+                # Check output file existence
+                self.assertTrue(os.path.exists(cmdfile))
+        
+                # Check file content
+                cmdlist = open(cmdfile,'r').readlines()
+                self.assertEqual(len(cmdlist),2,'Only clip zeros should be saved to file (2) : %s'%str(len(cmdlist)))
+
+            except AssertionError as error:
+                print myname,' : assertion error while testing flags after filling: ' + str(error)
+                retValue['success'] = False
+                retValue['error_msg']=retValue['error_msg']+str(error)
+            except:
+                print myname," : post fill flagging and checking failed."
+                retValue['success'] = False
+                retValue['error_msg']=retValue['error_msgs']+'Unexpected post-fill flagging result'
+        self.assertTrue(retValue['success'])
+
+    def test_evla_apply4(self):
+        '''test of importing evla data: Save online flags to FLAG_CMD and file; do not apply'''
+
+        self.asdm = 'X_osro_013.55979.93803716435'
+        msname = self.asdm + ".ms"
+        cmdfile = msname.replace('.ms','_cmd.txt')
+
+        if os.path.exists(msname):
+            os.system('rm -rf '+msname)
+        if os.path.exists(cmdfile):
+            os.system('rm -rf '+cmdfile)
+            
+        # importasdm can do all of this
+        self.res = importasdm(asdm=self.asdm, vis=msname, scans='2', ocorr_mode='co', with_pointing_correction=True,
+                              process_flags=True, applyflags=False,savecmds=True, flagbackup=False)
+        print myname, ": importasdm success. Checking that filled MS can be opened as MS ..."
+        ok = True
+        try:
+            mslocal.open(msname)
+            mslocal.close()
+        except:
+            print myname, ": Error  Cannot open MS table", msname
+            ok = False
+
+        self.assertTrue(ok,'Error opening MS')
+
+        # No flags were applied
+        res = flagdata(vis=msname, mode='summary')
+        self.assertEqual(res['flagged'],0)
+        
+        # Apply only row 213 using flagcmd
+        # The command in row 213 is the following:
+        # antenna='ea06' timerange='2012/02/22/22:30:55.200~2012/02/22/22:35:08.199' 
+        # spw='EVLA_X#A0C0#0' correlation='LL,LR,RL
+        flagcmd(vis=msname, action='apply', tablerows=213)
+        
+        # Check flags. RR should no be flagged
+        res = flagdata(vis=msname, mode='summary')
+        self.assertEqual(res['correlation']['RR']['flagged'],0,'RR should not be flagged')
+        self.assertEqual(res['correlation']['LL']['flagged'],29440)
+        self.assertEqual(res['correlation']['LR']['flagged'],29440)
+        self.assertEqual(res['correlation']['RL']['flagged'],29440)
+        self.assertEqual(res['antenna']['ea06']['flagged'],88320)
+        self.assertEqual(res['antenna']['ea07']['flagged'],3840,'Only a few baselines should be flagged')
+        self.assertEqual(res['antenna']['ea08']['flagged'],3840,'Only a few baselines should be flagged')
+        
+        # Check output file existence       
+        self.assertTrue(os.path.exists(cmdfile))
+        
+        # Check file content
+        cmdlist = open(cmdfile,'r').readlines()
+        self.assertEqual(len(cmdlist), 214, 'Only Online cmds should have been saved to file')
+
+    def test_evla_apply5(self):
+        '''test of importing evla data: Apply only shadow flags'''
+
+        retValue = {'success':True, 'msg':"", 'error_msgs':''}
+
+        self.asdm = 'X_osro_013.55979.93803716435'
+        msname = self.asdm + ".ms"
+        if os.path.exists(msname):
+            os.system('rm -rf '+msname)
+ 
+        self.res = importasdm(asdm=self.asdm, vis=msname, ocorr_mode='co', with_pointing_correction=True,
+                              process_flags=False, flagbackup=False)
+        print myname, ": importasdm success. Checking that filled MS can be opened as MS ..."
+        try:
+            mslocal.open(msname)
+        except:
+            print myname, ": Error  Cannot open MS table", msname
+            retValue['success'] = False
+            retValue['error_msgs'] = retValue['error_msgs']+'Cannot open MS table '+msname
+        else:
+            mslocal.close()
+
+        if (retValue['success']):
+            try:
+                print myname," : OK. shadow flagging"
+
+                (startMJDs,endMJDs) = self.getmsmjds(msname)
+                flagh = self.flagshadow(startMJDs,endMJDs,0.0,'')
+                allflags = {}
+                allflags[0] = flagh
+                self.applyflags(allflags,msname)
+
+                # This data set doesn't have shadow. Not a very useful sdm.
+                res = flagdata(vis=msname, mode='summary')
+                self.assertEqual(res['flagged'],0,'There are shadowed antenna in this data set')
+
+            except AssertionError as error:
+                print myname,' : assertion error while testing flags after filling: ' + str(error)
+                retValue['success'] = False
+                retValue['error_msg']=retValue['error_msg']+str(error)
+            except:
+                print myname," : post fill flagging and checking failed."
+                retValue['success'] = False
+                retValue['error_msg']=retValue['error_msgs']+'Unexpected post-fill flagging result'
+
+        self.assertTrue(retValue['success'])
+
+    def test_evla_savepars(self):
+        '''test importing evla data: save the flag commands and do not apply'''
+        retValue = {'success':True, 'msg':"", 'error_msgs':''}
+
+        self.asdm = 'X_osro_013.55979.93803716435'
+        msname = self.asdm + ".ms"
+        cmdfile = msname.replace('.ms','_cmd.txt')
+
+        if os.path.exists(msname):
+            os.system('rm -rf '+msname)
+        if os.path.exists(cmdfile):
+            os.system('rm -rf '+cmdfile)
+
+        self.res = importasdm(asdm=self.asdm, vis=msname,scans='11~13', ocorr_mode='co', with_pointing_correction=True,
+                              process_flags=True, applyflags=False, savecmds=True, flagbackup=False)
+
+        print myname, ": importasdm success. Checking that filled MS can be opened as MS ..."
+        try:
+            mslocal.open(msname)
+        except:
+            print myname, ": Error  Cannot open MS table", msname
+            retValue['success'] = False
+            retValue['error_msgs'] = retValue['error_msgs']+'Cannot open MS table '+msname
+        else:
+            mslocal.close()
+
+        if (retValue['success']):
+            try:
+                print myname," : OK. doing flagzero and shadow flagging"
+
+                (startMJDs,endMJDs) = self.getmsmjds(msname)
+                flagz = self.flagzero(startMJDs,endMJDs,True)
+                flagh = self.flagshadow(startMJDs,endMJDs,0.0,'')
+                allflags = flagz.copy()
+                allflags[len(allflags)] = flagh
+
+                # do NOT apply, but only append them to the command file
+                fh.writeFlagCommands(msname,allflags,False,'',cmdfile,True)
+
+                # Check flags - non should be applied
+                res = flagdata(vis=msname, mode='summary')
+                self.assertEqual(res['flagged'],0,'No flags should have been applied')
+
+                # Check output file existence
+                self.assertTrue(os.path.exists(cmdfile))
+        
+                # Check file content
+                cmdlist = open(cmdfile,'r').readlines()
+                self.assertEqual(len(cmdlist), 216, 'Online, shadow and clip zeros should be saved to file')
+
+                # NOW apply the flags
+                # Apply flags using flagdata
+                flagdata(vis=msname, mode='list', inpfile=cmdfile)
+        
+                # and check that they've been applied as expected
+                res = flagdata(vis=msname, mode='summary')
+                self.assertEqual(res['flagged'],6090624)
+
+            except AssertionError as error:
+                print myname,' : assertion error while testing flags after filling: ' + str(error)
+                retValue['success'] = False
+                retValue['error_msg']=retValue['error_msg']+str(error)
+            except:
+                print myname," : post fill flagging and checking failed."
+                retValue['success'] = False
+                retValue['error_msg']=retValue['error_msgs']+'Unexpected post-fill flagging result'
+        self.assertTrue(retValue['success'])
+                
 class asdm_import4(test_base):
     
     def setUp(self):
