@@ -1396,7 +1396,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         // 2nd arg is regionRecord, 3rd is LELmask expression and those will be AND 
         // to define a region to be get statistics
         //ImageStatsCalculator imcalc( tempres_ptr, 0, "", False); 
-        ImageStatsCalculator imcalc( tempres_ptr, regionPtr, LELmask, True); 
+        ImageStatsCalculator<Float> imcalc( tempres_ptr, regionPtr, LELmask, True); 
         Vector<Int> axes(2);
         axes[0] = 0;
         axes[1] = 1;
