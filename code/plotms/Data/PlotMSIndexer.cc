@@ -731,8 +731,7 @@ void PlotMSIndexer::reindexForConnect() {
 		if (iterAxis_ == PMS::ANTENNA) {
 			for (uInt ipt=0; ipt<npoints; ++ipt) {
 				setChunk(ipt, true);
-				if ((plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) != iterValue_) &&
-					(plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_)) != iterValue_))
+				if (plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) != iterValue_)
 					itermask(ipt) = false;
 			}
 		} else {
