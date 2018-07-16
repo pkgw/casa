@@ -425,7 +425,15 @@ class PySynthesisImager:
         self.ncycle+=1
         for immod in range(0,self.NF):  
             if self.stopMinor[str(immod)]<3 :
+
+                if os.environ.has_key('SAVE_ALL_RESIMS') and os.environ['SAVE_ALL_RESIMS']=="true":
+                    resname = self.allimpars[str(immod)]['imagename']+'.residual'
+                    tempresname = self.allimpars[str(immod)]['imagename']+'.inputres'+str(self.ncycle)
+                    if os.path.isdir(resname):
+                        shutil.copytree(resname, tempresname)
+
                 exrec = self.SDtools[immod].executeminorcycle( iterbotrecord = iterbotrec )
+
                 #print '.... iterdone for ', immod, ' : ' , exrec['iterdone']
                 self.IBtool.mergeexecrecord( exrec )
                 if os.environ.has_key('SAVE_ALL_AUTOMASKS') and os.environ['SAVE_ALL_AUTOMASKS']=="true":

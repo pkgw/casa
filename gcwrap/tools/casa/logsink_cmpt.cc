@@ -71,16 +71,7 @@ logsink::logsink(const std::string &filename, bool telemetrytoggle, const std::s
   }
 
   if (telemetryEnabled) {
-    if( ! telemetryLog.size( ) ){
-       char *buff = NULL;
-       if ( inTelemetryfilename.at(0) == '/' )
-           telemetryLog = inTelemetryfilename;
-       else {
-           char *mybuff = getcwd(buff, MAXPATHLEN);
-           telemetryLog = string(mybuff) + "/" + inTelemetryfilename;
-       }
-    }
-    telemetryLoggerPid = std::to_string(getpid());
+     setstatslogfile(inTelemetryfilename);
   }
 
   // jagonzal: Set task and processor name
@@ -380,9 +371,18 @@ bool logsink::setlogfile(const std::string& filename)
 
 bool logsink::setstatslogfile(const std::string& filename)
 {
-   telemetryLog = filename;
-   return true;
+  //cout << "Setting stats file to " << filename << "\n";
+  char *buff = NULL;
+  if ( filename.at(0) == '/' )
+     telemetryLog = filename;
+  else {
+     char *mybuff = getcwd(buff, MAXPATHLEN);
+     telemetryLog = string(mybuff) + "/" + filename;
+  }
+  telemetryLoggerPid = std::to_string(getpid());
+  return true;
 }
+
 string logsink::getstatslogfile()
 {
    return telemetryLog ;
