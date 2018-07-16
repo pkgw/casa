@@ -1620,82 +1620,42 @@ record* image::findsources(
 }
 
 bool image::fft(
-    const string& realOut, const string& imagOut,
-    const string& ampOut, const string& phaseOut,
-    const std::vector<int>& axes, const variant& region,
-    const variant& vmask, bool stretch,
-    const string& complexOut
+    const string& realOut, const string& imagOut, const string& ampOut,
+    const string& phaseOut, const std::vector<int>& axes, const variant& region,
+    const variant& vmask, bool stretch, const string& complexOut
 ) {
     try {
         _log << LogOrigin(_class, __func__);
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
-        SHARED_PTR<Record> myregion(_getRegion(region, false));
-        String mask = vmask.toString();
-        if (mask == "[]") {
-            mask = "";
-        }
-        Vector<uInt> leAxes(0);
-        if (
-            axes.size() > 1
-            || (axes.size() == 1 && axes[0] >= 0)
-        ) {
-            leAxes.resize(axes.size());
-            for (uInt i=0; i<axes.size(); i++) {
-                ThrowIf(
-                    axes[i] < 0,
-                    "None of the elements of axes may be less than zero"
-                );
-                leAxes[i] = axes[i];
-            }
-        }
-        vector<String> msgs;
-        if (_doHistory) {
-            vector<String> names = {
-                "real", "imag", "amp", "phase", "axes",
-                "region", "mask", "stretch", "complex"
-            };
-            vector<variant> values = {
-                realOut, imagOut, ampOut, phaseOut, axes,
-                region, vmask, stretch, complexOut
-            };
-            msgs = _newHistory(__func__, names, values);
-        }
         if (_imageF) {
-            ImageFFTer<Float> ffter(
-                _imageF,
-                myregion.get(), mask, leAxes
+            return _fft(
+                _imageF, realOut, imagOut, ampOut, phaseOut,
+                axes, region, vmask, stretch, complexOut
             );
-            ffter.setStretch(stretch);
-            ffter.setReal(realOut);
-            ffter.setImag(imagOut);
-            ffter.setAmp(ampOut);
-            ffter.setPhase(phaseOut);
-            ffter.setComplex(complexOut);
-            if (_doHistory) {
-                ffter.addHistory(_ORIGIN, msgs);
-            }
-            ffter.fft();
+        }
+        else if (_imageC) {
+            return _fft(
+                _imageC, realOut, imagOut, ampOut, phaseOut,
+                axes, region, vmask, stretch, complexOut
+            );
+        }
+        else if (_imageD) {
+            return _fft(
+                _imageD, realOut, imagOut, ampOut, phaseOut,
+                axes, region, vmask, stretch, complexOut
+            );
+        }
+        else if (_imageDC) {
+            return _fft(
+                _imageDC, realOut, imagOut, ampOut, phaseOut,
+                axes, region, vmask, stretch, complexOut
+            );
         }
         else {
-            ImageFFTer<Complex> ffter(
-                _imageC,
-                myregion.get(), mask, leAxes
-            );
-            ffter.setStretch(stretch);
-            ffter.setReal(realOut);
-            ffter.setImag(imagOut);
-            ffter.setAmp(ampOut);
-            ffter.setPhase(phaseOut);
-            ffter.setComplex(complexOut);
-            if (_doHistory) {
-                ffter.addHistory(_ORIGIN, msgs);
-            }
-            ffter.fft();
+            ThrowCc("Logic error");
         }
-        return true;
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -1703,6 +1663,54 @@ bool image::fft(
         RETHROW(x);
     }
     return false;
+}
+
+template<class T> bool image::_fft(
+    SPIIT myImage, const string& realOut, const string& imagOut,
+    const string& ampOut, const string& phaseOut, const std::vector<int>& axes,
+    const variant& region, const variant& vmask, bool stretch,
+    const string& complexOut
+) {
+    SHARED_PTR<Record> myregion(_getRegion(region, false));
+    String mask = vmask.toString();
+    if (mask == "[]") {
+        mask = "";
+    }
+    Vector<uInt> leAxes(0);
+    if (axes.size() > 1 || (axes.size() == 1 && axes[0] >= 0)) {
+        leAxes.resize(axes.size());
+        for (uInt i=0; i<axes.size(); i++) {
+            ThrowIf(
+                axes[i] < 0,
+                "None of the elements of axes may be less than zero"
+            );
+            leAxes[i] = axes[i];
+        }
+    }
+    vector<String> msgs;
+    if (_doHistory) {
+        vector<String> names = {
+            "real", "imag", "amp", "phase", "axes",
+            "region", "mask", "stretch", "complex"
+        };
+        vector<variant> values = {
+            realOut, imagOut, ampOut, phaseOut, axes,
+            region, vmask, stretch, complexOut
+        };
+        msgs = _newHistory("fft", names, values);
+    }
+    ImageFFTer<T> ffter(myImage, myregion.get(), mask, leAxes);
+    ffter.setStretch(stretch);
+    ffter.setReal(realOut);
+    ffter.setImag(imagOut);
+    ffter.setAmp(ampOut);
+    ffter.setPhase(phaseOut);
+    ffter.setComplex(complexOut);
+    if (_doHistory) {
+        ffter.addHistory(_ORIGIN, msgs);
+    }
+    ffter.fft();
+    return true;
 }
 
 record* image::fitcomponents(

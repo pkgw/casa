@@ -43,7 +43,6 @@ ImageAnalysis/ComponentImager.cc
 ImageAnalysis/ImageCollapserData.cc
 ImageAnalysis/ImageCollapser2.cc
 ImageAnalysis/ImageFactory2.cc
-ImageAnalysis/ImageFFT.cc
 ImageAnalysis/ImageFitter.cc
 ImageAnalysis/ImageHistogramsCalculator.cc
 ImageAnalysis/ImageInputProcessor.cc
@@ -164,6 +163,7 @@ install (FILES
 	ImageAnalysis/ImageFactory.h
 	ImageAnalysis/ImageFactory.tcc
 	ImageAnalysis/ImageFFT.h
+    ImageAnalysis/ImageFFT.tcc
 	ImageAnalysis/ImageFFTer.h
 	ImageAnalysis/ImageFFTer.tcc
 	ImageAnalysis/ImageFitter.h

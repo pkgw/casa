@@ -114,6 +114,13 @@ template<class T> image* _decimate(
 	const vector<casacore::String>& msgs
 ) const;
 
+template<class T> bool _fft(
+    SPIIT myImage, const string& realOut, const string& imagOut,
+    const string& ampOut, const string& phaseOut, const std::vector<int>& axes,
+    const variant& region, const variant& vmask, bool stretch,
+    const string& complexOut
+);
+
 casa::ITUPLE _fromarray(
     const std::string& outfile, const casac::variant& pixels,
     const casac::record& csys, bool linear, bool overwrite,
