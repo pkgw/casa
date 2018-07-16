@@ -115,6 +115,37 @@ SHARED_PTR<TempImage<std::complex<T>>> ImageFactory::makeComplexImage(
     return newImage;
 }
 
+template <class T>
+SHARED_PTR<casacore::ImageInterface<std::complex<T>>> ImageFactory::makeComplex(
+    SPCIIT realPart, SPCIIT imagPart, const String& outfile,
+    const Record& region, Bool overwrite
+) {
+    _checkOutfile(outfile, overwrite);
+    const IPosition realShape = realPart->shape();
+    const IPosition imagShape = imagPart->shape();
+    ThrowIf(! realShape.isEqual(imagShape), "Image shapes are not identical");
+    const auto& cSysReal = realPart->coordinates();
+    const auto& cSysImag = imagPart->coordinates();
+    ThrowIf(
+        !cSysReal.near(cSysImag), "Image Coordinate systems are not conformant"
+    );
+    String mask;
+    auto subRealImage = SubImageFactory<T>::createSubImageRO(
+        *realPart, region, mask, nullptr
+    );
+    auto subImagImage = SubImageFactory<T>::createSubImageRO(
+        *imagPart, region, mask, nullptr
+    );
+    auto complexImage = makeComplexImage(
+        DYNAMIC_POINTER_CAST<const casacore::ImageInterface<T>>(subRealImage),
+        DYNAMIC_POINTER_CAST<const casacore::ImageInterface<T>>(subImagImage)
+    );
+    return SubImageFactory<std::complex<T>>::createImage(
+        *complexImage, outfile, Record(), "", AxesSpecifier(),
+        overwrite, false, false
+    );
+}
+
 template <class T> SPIIT ImageFactory::createImage(
     const casacore::String& outfile,
     const casacore::CoordinateSystem& cSys, const casacore::IPosition& shape,

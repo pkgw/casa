@@ -73,10 +73,6 @@ from taskinit import *
 from __main__ import *
 import unittest
 
-
-
-
-
 class ia_convolve_test(unittest.TestCase):
     
     def setUp(self):
@@ -113,17 +109,20 @@ class ia_convolve_test(unittest.TestCase):
         yy = iatool()
         kernel = "khistory"
         shape = [200,200,1,20]
-        yy.fromshape(kernel, shape)
-        yy.fromshape("", shape)
-        yy.addnoise()
-        yy.done()
-        yy.fromshape("", shape)
-        zz = yy.convolve("", kernel)
-        yy.done()
-        msgs = zz.history()
-        zz.done()
-        self.assertTrue("convolve" in msgs[-2])
-        self.assertTrue("convolve" in msgs[-1])
+        for mytype in ('f', 'c', 'd', 'cd'):
+            yy.fromshape(kernel, shape, overwrite=True, type=mytype)
+            yy.fromshape("", shape)
+            yy.addnoise()
+            yy.fromshape("", shape, type=mytype)
+            if mytype == 'c' or mytype == 'cd':
+                self.assertRaises(Exception, yy.convolve, "", kernel)
+                continue
+            zz = yy.convolve("", kernel)
+            yy.done()
+            msgs = zz.history()
+            zz.done()
+            self.assertTrue("convolve" in msgs[-2])
+            self.assertTrue("convolve" in msgs[-1])
         
 def suite():
     return [ia_convolve_test]

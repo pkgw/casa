@@ -172,11 +172,12 @@ public:
     	SPCIIT realPart, SPCIIT imagPart
     );
 
-    // Create a complex-valued image from a float-valued image (real part)
-    // and float-valued array (imaginary part). All metadata is copied from the
-    // real image and pixel values are initialized to realPart + i*complexPart
-    static SPIIC makeComplex(
-    	SPCIIF realPart, SPCIIF imagPart, const casacore::String& outfile,
+    // Create a complex-valued image from two real-valued images. All metadata
+    // is copied from the real image and pixel values are initialized to
+    // realPart + i*complexPart
+    template<class T>
+    static SHARED_PTR<casacore::ImageInterface<std::complex<T>>> makeComplex(
+    	SPCIIT realPart, SPCIIT imagPart, const casacore::String& outfile,
 		const casacore::Record& region, casacore::Bool overwrite = false
     );
 
