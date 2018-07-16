@@ -871,58 +871,40 @@ image* image::convolve(
             return nullptr;
         }
         ThrowIf(
-            ! _imageF,
-            "This method only supports float valued images"
+            ! (_imageF || _imageD),
+            "This method only supports real-valued images"
         );
-        Array<Float> fkernelArray;
-        casacore::String kernelFileName = "";
-        if (kernel.type() == variant::DOUBLEVEC) {
-            const auto kernelVector = kernel.toDoubleVec();
-            const auto shape = kernel.arrayshape();
-            fkernelArray.resize(IPosition(shape));
-            Vector<Double> localkern(kernelVector);
-            convertArray(fkernelArray, localkern.reform(IPosition(shape)));
+        if (_imageF) {
+            return _convolve(
+                _imageF, outfile, kernel, scale,
+                region, vmask, overwrite, stretch
+            );
         }
-        else if (kernel.type() == variant::INTVEC) {
-            const auto kernelVector = kernel.toIntVec();
-            const auto shape = kernel.arrayshape();
-            fkernelArray.resize(IPosition(shape));
-            Vector<Int> localkern(kernelVector);
-            convertArray(fkernelArray, localkern.reform(IPosition(shape)));
+        /*
+        else if (_imageC) {
+            return _convolve(
+                _imageC, outfile, kernel, scale,
+                region, vmask, overwrite, stretch
+            );
         }
-        else if (
-            kernel.type() == variant::STRING
-            || kernel.type() == variant::STRINGVEC
-        ) {
-            kernelFileName = kernel.toString();
-            fkernelArray = PagedImage<Float>(kernelFileName).get();
+        */
+        else if (_imageD) {
+            return _convolve(
+                _imageD, outfile, kernel, scale,
+                region, vmask, overwrite, stretch
+            );
         }
+        /*
+        else if (_imageDC) {
+            return _convolve(
+                _imageDC, outfile, kernel, scale,
+                region, vmask, overwrite, stretch
+            );
+        }
+        */
         else {
-            ThrowCc("kernel is not understood, try using an array or an image");
+            ThrowCc("Logic Error");
         }
-        auto theMask = _getMask(vmask);
-        SHARED_PTR<Record> myregion = _getRegion(region, false);
-        ImageConvolverTask<Float> ic(
-            _imageF, myregion.get(),
-            theMask, outfile, overwrite
-        );
-        ic.setScale(scale);
-        ic.setStretch(stretch);
-        ic.setKernel(fkernelArray);
-        vector<String> names {
-            "outfile", "kernel", "scale", "region",
-            "vmask", "overwrite", "stretch"
-        };
-        vector<variant> values {
-            outfile, kernel, scale, region,
-            vmask, overwrite, stretch
-        };
-        if (_doHistory) {
-            auto msgs = _newHistory(__func__, names, values);
-            ic.addHistory(_ORIGIN, msgs);
-        }
-        auto z = ic.convolve();
-        return new image(z);
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -930,6 +912,59 @@ image* image::convolve(
         RETHROW(x);
     }
     return nullptr;
+}
+
+template <class T> image* image::_convolve(
+    SPIIT myImage, const string& outfile, const variant& kernel, double scale,
+    const variant& region, const variant& vmask, bool overwrite, bool stretch
+) {
+    Array<T> fkernelArray;
+    String kernelFileName = "";
+    if (kernel.type() == variant::DOUBLEVEC) {
+        const auto kernelVector = kernel.toDoubleVec();
+        const auto shape = kernel.arrayshape();
+        fkernelArray.resize(IPosition(shape));
+        Vector<Double> localkern(kernelVector);
+        convertArray(fkernelArray, localkern.reform(IPosition(shape)));
+    }
+    else if (kernel.type() == variant::INTVEC) {
+        const auto kernelVector = kernel.toIntVec();
+        const auto shape = kernel.arrayshape();
+        fkernelArray.resize(IPosition(shape));
+        Vector<Int> localkern(kernelVector);
+        convertArray(fkernelArray, localkern.reform(IPosition(shape)));
+    }
+    else if (
+        kernel.type() == variant::STRING
+        || kernel.type() == variant::STRINGVEC
+    ) {
+        kernelFileName = kernel.toString();
+        fkernelArray = PagedImage<T>(kernelFileName).get();
+    }
+    else {
+        ThrowCc("kernel is not understood, try using an array or an image");
+    }
+    auto theMask = _getMask(vmask);
+    SHARED_PTR<Record> myregion = _getRegion(region, false);
+    ImageConvolverTask<T> ic(
+        myImage, myregion.get(), theMask, outfile, overwrite
+    );
+    ic.setScale(scale);
+    ic.setStretch(stretch);
+    ic.setKernel(fkernelArray);
+    if (_doHistory) {
+        vector<String> names {
+        "outfile", "kernel", "scale", "region", "vmask", "overwrite", "stretch"
+        };
+        vector<variant> values {
+            outfile, kernel, scale, region,
+            vmask, overwrite, stretch
+        };
+        auto msgs = _newHistory("convolve", names, values);
+        ic.addHistory(LogOrigin(_class, "convolve"), msgs);
+    }
+    auto z = ic.convolve();
+    return new image(z);
 }
 
 image* image::convolve2d(
@@ -944,122 +979,41 @@ image* image::convolve2d(
         if (_detached()) {
             return nullptr;
         }
-        _notSupported(__func__);
-        UnitMap::putUser("pix", UnitVal(1.0), "pixel units");
-        SHARED_PTR<Record> Region(_getRegion(region, false));
-        auto mask = _getMask(vmask);
-        String kernel(type);
-        casacore::Quantity majorKernel;
-        casacore::Quantity minorKernel;
-        casacore::Quantity paKernel;
-        _log << _ORIGIN;
-        if (! beam.empty()) {
-            ThrowIf(
-                ! String(type).startsWith("g") && ! String(type).startsWith("G"),
-                "beam can only be given with a gaussian kernel"
-            );
-            ThrowIf(
-                ! major.toString(false).empty()
-                || ! minor.toString(false).empty()
-                || ! pa.toString(false).empty(),
-                "major, minor, and/or pa may not be specified if beam is specified"
-            );
-            ThrowIf(
-                beam.size() != 3,
-                "If given, beam must have exactly three fields"
-            );
-            ThrowIf(
-                beam.find("major") == beam.end(),
-                "Beam must have a 'major' field"
-            );
-            ThrowIf(
-                beam.find("minor") == beam.end(),
-                "Beam must have a 'minor' field"
-            );
-            ThrowIf(
-                beam.find("positionangle") == beam.end()
-                && beam.find("pa") == beam.end(),
-                "Beam must have a 'positionangle' or 'pa' field"
-            );
-            std::unique_ptr<Record> nbeam(toRecord(beam));
-            for (uInt i=0; i<3; ++i) {
-                String key = i == 0
-                    ? "major"
-                    : i == 1
-                        ? "minor"
-                        : beam.find("pa") == beam.end()
-                            ? "positionangle"
-                            : "pa";
-                casacore::Quantity x;
-                auto type = nbeam->dataType(nbeam->fieldNumber(key));
-                String err;
-                QuantumHolder z;
-                Bool success;
-                if (type == TpString) {
-                    success = z.fromString(err, nbeam->asString(key));
-                }
-                else if (type == TpRecord) {
-                    success = z.fromRecord(err, nbeam->asRecord(key));
-                }
-                else {
-                    ThrowCc("Unsupported data type for beam");
-                }
-                if (! success) {
-                    ThrowCc("Error converting beam to Quantity");
-                }
-                if (key == "major") {
-                    majorKernel = z.asQuantity();
-                }
-                else if (key == "minor") {
-                    minorKernel = z.asQuantity();
-                }
-                else {
-                    paKernel = z.asQuantity();
-                }
-            }
-        }
-        else {
-            majorKernel = _casaQuantityFromVar(major);
-            minorKernel = _casaQuantityFromVar(minor);
-            paKernel = _casaQuantityFromVar(pa);
-        }
-        _log << _ORIGIN;
-        Vector<Int> Axes(axes);
-        if (Axes.size() == 0) {
-            Axes.resize(2);
-            Axes[0] = 0;
-            Axes[1] = 1;
-        }
-        else {
-            ThrowIf(
-                axes.size() != 2,
-                "Number of axes to convolve must be exactly 2"
-            );
-        }
-        Image2DConvolver<Float> convolver(
-            _imageF, Region.get(), mask, outFile, overwrite
+        ThrowIf(
+            ! (_imageF || _imageD),
+            String(__func__) + " only supports real-valued images"
         );
-        convolver.setAxes(std::make_pair(Axes[0], Axes[1]));
-        convolver.setKernel(type, majorKernel, minorKernel, paKernel);
-        convolver.setScale(in_scale);
-        convolver.setStretch(stretch);
-        convolver.setTargetRes(targetres);
-        if (_doHistory) {
-            vector<String> names = {
-                "outfile", "axes", "type", "major",
-                "minor", "pa", "scale", "region",
-                "mask", "overwrite", "stretch",
-                "targetres", "beam"
-            };
-            vector<variant> values = {
-                outFile, axes, type, major, minor,
-                pa, in_scale, region, vmask,
-                overwrite, stretch, targetres, beam
-            };
-            auto msgs = _newHistory(__func__, names, values);
-            convolver.addHistory(_ORIGIN, msgs);
+        if (_imageF) {
+            return _convolve2d(
+                _imageF, outFile, axes, type, major, minor, pa, in_scale,
+                region, vmask, overwrite, stretch, targetres, beam
+            );
         }
-        return new image(convolver.convolve());
+        /*
+        else if (_imageC) {
+            return _convolve2d(
+                _imageC, outFile, axes, type, major, minor, pa, in_scale,
+                region, vmask, overwrite, stretch, targetres, beam
+            );
+        }
+        */
+        else if (_imageD) {
+            return _convolve2d(
+                _imageD, outFile, axes, type, major, minor, pa, in_scale,
+                region, vmask, overwrite, stretch, targetres, beam
+            );
+        }
+        /*
+        else if (_imageDC) {
+            return _convolve2d(
+                _imageDC, outFile, axes, type, major, minor, pa, in_scale,
+                region, vmask, overwrite, stretch, targetres, beam
+            );
+        }
+        */
+        else {
+            ThrowCc("Logic error");
+        }
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: "
@@ -1067,6 +1021,131 @@ image* image::convolve2d(
         RETHROW(x);
     }
     return nullptr;
+}
+
+template<class T> image* image::_convolve2d(
+    SPIIT myImage, const string& outFile, const vector<int>& axes,
+    const string& type, const variant& major, const variant& minor,
+    const variant& pa, double in_scale, const variant& region,
+    const variant& vmask, bool overwrite, bool stretch,
+    bool targetres, const record& beam
+) {
+    UnitMap::putUser("pix", UnitVal(1.0), "pixel units");
+    SHARED_PTR<Record> Region(_getRegion(region, false));
+    auto mask = _getMask(vmask);
+    String kernel(type);
+    casacore::Quantity majorKernel;
+    casacore::Quantity minorKernel;
+    casacore::Quantity paKernel;
+    _log << _ORIGIN;
+    if (! beam.empty()) {
+        ThrowIf(
+            ! String(type).startsWith("g") && ! String(type).startsWith("G"),
+            "beam can only be given with a gaussian kernel"
+        );
+        ThrowIf(
+            ! major.toString(false).empty()
+            || ! minor.toString(false).empty()
+            || ! pa.toString(false).empty(),
+            "major, minor, and/or pa may not be specified if beam is specified"
+        );
+        ThrowIf(
+            beam.size() != 3,
+            "If given, beam must have exactly three fields"
+        );
+        ThrowIf(
+            beam.find("major") == beam.end(),
+            "Beam must have a 'major' field"
+        );
+        ThrowIf(
+            beam.find("minor") == beam.end(),
+            "Beam must have a 'minor' field"
+        );
+        ThrowIf(
+            beam.find("positionangle") == beam.end()
+            && beam.find("pa") == beam.end(),
+            "Beam must have a 'positionangle' or 'pa' field"
+        );
+        std::unique_ptr<Record> nbeam(toRecord(beam));
+        for (uInt i=0; i<3; ++i) {
+            String key = i == 0
+                ? "major"
+                : i == 1
+                    ? "minor"
+                    : beam.find("pa") == beam.end()
+                        ? "positionangle"
+                        : "pa";
+            casacore::Quantity x;
+            auto type = nbeam->dataType(nbeam->fieldNumber(key));
+            String err;
+            QuantumHolder z;
+            Bool success;
+            if (type == TpString) {
+                success = z.fromString(err, nbeam->asString(key));
+            }
+            else if (type == TpRecord) {
+                success = z.fromRecord(err, nbeam->asRecord(key));
+            }
+            else {
+                ThrowCc("Unsupported data type for beam");
+            }
+            if (! success) {
+                ThrowCc("Error converting beam to Quantity");
+            }
+            if (key == "major") {
+                majorKernel = z.asQuantity();
+            }
+            else if (key == "minor") {
+                minorKernel = z.asQuantity();
+            }
+            else {
+                paKernel = z.asQuantity();
+            }
+        }
+    }
+    else {
+        majorKernel = _casaQuantityFromVar(major);
+        minorKernel = _casaQuantityFromVar(minor);
+        paKernel = _casaQuantityFromVar(pa);
+    }
+    _log << _ORIGIN;
+    Vector<Int> Axes(axes);
+    if (Axes.size() == 0) {
+        Axes.resize(2);
+        Axes[0] = 0;
+        Axes[1] = 1;
+    }
+    else {
+        ThrowIf(
+            axes.size() != 2,
+            "Number of axes to convolve must be exactly 2"
+        );
+    }
+    Image2DConvolver<T> convolver(
+        myImage, Region.get(), mask, outFile, overwrite
+    );
+    convolver.setAxes(std::make_pair(Axes[0], Axes[1]));
+    convolver.setKernel(type, majorKernel, minorKernel, paKernel);
+    convolver.setScale(in_scale);
+    convolver.setStretch(stretch);
+    convolver.setTargetRes(targetres);
+    if (_doHistory) {
+        vector<String> names = {
+            "outfile", "axes", "type", "major",
+            "minor", "pa", "scale", "region",
+            "mask", "overwrite", "stretch",
+            "targetres", "beam"
+        };
+        vector<variant> values = {
+            outFile, axes, type, major, minor,
+            pa, in_scale, region, vmask,
+            overwrite, stretch, targetres, beam
+        };
+        auto msgs = _newHistory("convolve2d", names, values);
+        convolver.addHistory(_ORIGIN, msgs);
+    }
+    cout << __FILE__ << " " << __LINE__ << endl;
+    return new image(convolver.convolve());
 }
 
 record* image::coordmeasures(
@@ -1122,7 +1201,7 @@ record* image::coordmeasures(
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return nullptr;
