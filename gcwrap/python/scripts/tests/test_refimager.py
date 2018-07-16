@@ -1924,7 +1924,7 @@ class test_mask(testref_base):
           expanding input continuum Stokes I mask with its degenerate axes removed to cube imaging  """
           self.prepData('refim_point_linRL.ms')
           self.prepInputmask('refim_cont_stokesI_input.mask')
-          imsubimage(imagename=self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True)
+          imsubimage(imagename=self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True, overwrite=True)
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
           niter=10,interactive=0,interpolation='nearest', usemask='user',
@@ -1952,7 +1952,7 @@ class test_mask(testref_base):
           input continuum Stokes I mask with its degenerate axes removed to continuum multi-stokes imaging  """
           self.prepData('refim_point_linRL.ms')
           self.prepInputmask('refim_cont_stokesI_input.mask')
-          imsubimage(imagename=self.maskname, outfile=self.maskname+"_dropdeg", dropdeg=True)
+          imsubimage(imagename=self.maskname, outfile=self.maskname+"_dropdeg", dropdeg=True, overwrite=True)
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="mfs", imsize=100, cell='8.0arcsec',
           niter=10,interactive=0, stokes='IQUV', usemask='user',
@@ -2050,7 +2050,7 @@ class test_mask(testref_base):
           self.prepData('refim_point_linRL.ms') 
           # input mask will different for different stokes plane
           self.prepInputmask('refim_cont_stokesIQUV_input.mask')
-          imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True);
+          imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True, overwrite=True);
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
           niter=10,interactive=0,interpolation='nearest', stokes='IQUV',
@@ -2110,7 +2110,7 @@ class test_mask(testref_base):
           self.prepData('refim_point_linRL.ms') 
           # input mask will different for different stokes plane
           self.prepInputmask('refim_cube_StokesI_input.mask')
-          imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True);
+          imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True, overwrite=True);
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
           niter=10,interactive=0,interpolation='nearest', stokes='IQUV',
