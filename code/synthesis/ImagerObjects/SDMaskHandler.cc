@@ -1900,6 +1900,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       else {
         beam = CasaImageBeamSet(psfInfo.getBeamSet()).getCommonBeam(); 
       }
+      // check
+      if(std::isinf( beam.getMajor(Unit("arcsec"))) || std::isinf( beam.getMinor(Unit("arcsec"))) ){
+        throw(AipsError("A bad common beam, which is used to set smoothing and pruning sizes for automask. At least one of the axes of the beam is infinite."));
+      }
       Quantity bmaj = beam.getMajor();
       Quantity bmin = beam.getMinor();
       //for pruning for now
