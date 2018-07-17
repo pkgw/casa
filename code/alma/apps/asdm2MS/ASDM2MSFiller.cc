@@ -462,9 +462,6 @@ int ASDM2MSFiller::createMS(const string& msName,
 					 IPosition(1,3),
 					 ColumnDesc::Direct));
 
-    // Reset the PRESSURE units from incorrect default "Pa" to correct default "hPa"
-    TableQuantumDesc pressureTQD(td, MSWeather::columnName(MSWeather::PRESSURE), Unit("hPa"));
-    pressureTQD.write(td);
 		 
     SetupNewTable tabSetup(itsMS->weatherTableName(), td, Table::New);
     itsMS->rwKeywordSet().defineTable(MS::keywordName(MS::WEATHER),
