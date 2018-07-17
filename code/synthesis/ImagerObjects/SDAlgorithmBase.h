@@ -109,7 +109,7 @@ protected:
   casacore::Float itsPeakResidual;
   casacore::Float itsModelFlux;
 
-  //  SDMaskHandler itsMaskHandler;
+  SDMaskHandler itsMaskHandler;
   //casacore::Array<casacore::Float> itsMatMask;
 
   casacore::GaussianBeam itsRestoringBeam;
