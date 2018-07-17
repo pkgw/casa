@@ -289,6 +289,9 @@ class PySynthesisImager:
         for immod in range(0,self.NF):
             self.PStools[immod].gatherpsfweight() 
             self.PStools[immod].dividepsfbyweight()
+            if self.SDtools != []:
+                if immod <= len(self.SDtools) - 1:
+                    self.SDtools[immod].checkrestoringbeam()
 
 #############################################
 
