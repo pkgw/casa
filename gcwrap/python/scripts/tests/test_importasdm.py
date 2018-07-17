@@ -245,6 +245,8 @@ class asdm_import1(test_base):
         shutil.rmtree(msname,ignore_errors=True)
         shutil.rmtree(msname+'.flagversions',ignore_errors=True)
         os.system('rm -rf reimported-M51.ms*')
+        os.system('rm -rf myinput.ms')
+        os.system('rm -rf '+asdmname)
                 
     def test1(self):
         '''Asdm-import: Test good v1.2 input with filler v3 and inverse filler v3 '''
@@ -416,6 +418,7 @@ class asdm_import2(test_base):
         shutil.rmtree(msname,ignore_errors=True)
         shutil.rmtree(msname+'.flagversions',ignore_errors=True)
         shutil.rmtree('myinput.ms', ignore_errors=True)
+        os.system('rm -rf reimported-M51.ms*')
         shutil.rmtree('M51.ms.asdm', ignore_errors=True)
                 
     def test_import2(self):
@@ -598,6 +601,7 @@ class asdm_import3(test_base):
             os.system('rm -rf '+myasdmname)  # a link
             shutil.rmtree(myasdmname+".ms",ignore_errors=True)
             shutil.rmtree(myasdmname+".ms.flagversions",ignore_errors=True)
+        os.system('rm -rf X_osro_013.55979.93803716435_cmd.txt')
 
     # functions to duplicate what importevla did after filling the MS - shadow and zero-level flagging
     def getmsmjds(self,msname):
@@ -1262,6 +1266,9 @@ class asdm_import4(test_base):
         os.system('rm -rf '+self.asdm)
         os.system('rm -rf x54.ms*')
         os.system('rm -rf scan3.ms* autocorr.ms*')
+        os.system('rm -rf scan3flags.txt')
+        os.system('rm -rf scan3flags1.txt')
+        os.system('rm -rf fbackup1.ms*')
         
     def test_autocorr(self):
         '''importasdm: auto-correlations should be written to online flags'''
@@ -1478,8 +1485,8 @@ class asdm_import6(test_base):
     def tearDown(self):
         myasdmname = 'uid___A002_X72bc38_X000'
         os.system('rm '+myasdmname) # a link
-        shutil.rmtree(msname,ignore_errors=True)
-        shutil.rmtree(msname+'.flagversions',ignore_errors=True)
+        shutil.rmtree(myasdmname+".ms",ignore_errors=True)
+        shutil.rmtree(myasdmname+".ms.flagversions",ignore_errors=True)
         os.system('rm -rf reference.ms*')
                
     def test6_lazy1(self):
@@ -1617,7 +1624,9 @@ class asdm_import7(test_base):
             os.system('rm -f '+myasdmname) # a link
             shutil.rmtree(myasdmname+".ms",ignore_errors=True)
             shutil.rmtree(myasdmname+'.ms.flagversions',ignore_errors=True)
-            shutil.rmtree("reference.ms",ignore_errors=True)
+        shutil.rmtree("reference.ms",ignore_errors=True)
+        shutil.rmtree("reference.ms.flagversions",ignore_errors=True)
+        shutil.rmtree("uid___A002_X997a62_X8c-short.interp.ms",ignore_errors=True)
                
     def test7_lazy1(self):
         '''Asdm-import: Test good 12 m ASDM with mixed pol/channelisation input with default filler in lazy mode'''
@@ -2420,7 +2429,6 @@ class asdm_import7(test_base):
 
         # the same tests are done for lazy being False and True
         for lazy in [False, True]:
-            print myname," Test loop with lazy = ",lazy
             # always start with a clean slate
             shutil.rmtree(themsname,True)
             shutil.rmtree('referemce.ms',True)
@@ -2486,7 +2494,7 @@ class asdm_import7(test_base):
                 # this must be done using asdm2MS and bdflags2MS directly
                 asdm2MScmd = 'asdm2MS --ocm "ao" --checkdupints false'
                 if lazy:
-                    asdm2MScmd = asdm2MScmd + " -lazy"
+                    asdm2MScmd = asdm2MScmd + " --lazy"
                 asdm2MScmd = asdm2MScmd + " " + myasdmname + " reference.ms"
                 print myname,'Running asdm2MS standalone invoked as:'
                 print asdm2MScmd
@@ -2500,7 +2508,7 @@ class asdm_import7(test_base):
                 
                 bdflags2MScmd = 'bdflags2MS -f ALL --ocm "ao" --checkdupints false'
                 if lazy:
-                    bdflags2MScmd = bdflags2MScmd + " -lazy=true"
+                    bdflags2MScmd = bdflags2MScmd + " --lazy=true"
                 bdflags2MScmd = bdflags2MScmd + " " + myasdmname + " reference.ms"
                 print myname,'Running bdflags2MS standalone invoked as:'
                 print bdflags2MScmd
