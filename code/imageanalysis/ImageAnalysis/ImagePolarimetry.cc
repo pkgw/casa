@@ -430,7 +430,7 @@ void ImagePolarimetry::fourierRotationMeasure(ImageInterface<Complex>& cpol,
 
    Vector<Bool> axes(ie.ndim(),false);
    axes(fAxis) = true;
-   ImageFFT fftserver;
+   ImageFFT<Complex> fftserver;
    fftserver.fft(ie, axes);
 // Recover Complex result. Coordinates are updated to include Fourier coordinate,
 // miscellaneous things (MiscInfo, ImageInfo, units, history) and mask

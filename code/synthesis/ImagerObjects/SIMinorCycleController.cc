@@ -180,6 +180,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsNsigmaThreshold = nsigmaThreshold;
   }
 
+  void SIMinorCycleController::setPBMask(Float pbMaskLevel)
+  {
+    itsPBMaskLevel = pbMaskLevel;
+  }
+
   void SIMinorCycleController::setMaskSum(Float maskSum)
   {
     itsMaskSum = maskSum;
@@ -247,6 +252,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     returnRecord.define( RecordFieldId("peakresidualnomask"), itsPeakResidualNoMask);
 
     return returnRecord;
+  }
+
+  Float SIMinorCycleController::getPBMask() {
+    return itsPBMaskLevel;
   }
 
   Record SIMinorCycleController::getCycleInitializationRecord() {
