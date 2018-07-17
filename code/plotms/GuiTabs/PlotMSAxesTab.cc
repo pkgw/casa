@@ -270,23 +270,19 @@ void PlotMSAxesTab::setValue(const PlotMSPlotParameters& params) {
     const PMS_PP_Axes* a = params.typedGroup<PMS_PP_Axes>();
     if(c == NULL || a == NULL) return; // shouldn't happen
 
-    PMS::Axis cacheAxis = c->xAxis();    
-    PMS::DataColumn cacheColumn =  c->xDataColumn();
-    PlotAxis axesAxis = a->xAxis();
-    bool axesXRangeSet = a->xRangeSet();
-    std::pair<double, double> axesXRange = a->xRange();
-    itsXWidget_->setValue(cacheAxis, cacheColumn, axesAxis,
-            axesXRangeSet, axesXRange);
-    //itsXWidget_->setValue(c->xAxis(), c->xDataColumn(), a->xAxis(),
-    //        a->xRangeSet(), a->xRange());
+    itsXWidget_->setValue(c->xAxis(), c->xDataColumn(), a->xAxis(),
+       a->xRangeSet(), a->xRange());
     bool atm(c->showAtm()), tsky(c->showTsky()), overlay(atm || tsky);
     atmRadio->setChecked(atm);
     tskyRadio->setChecked(tsky);
     noneRadio->setChecked(!overlay);
-    int yAxisCount = a->numYAxes();
+	unsigned int cacheYAxisCount(c->numYAxes());
     int yWidgetSize = itsYWidgets_.size();
-    int minValue = qMin( yAxisCount, yWidgetSize );
-    for ( int i = 0; i < minValue; i++ ){
+	if (cacheYAxisCount > yWidgetSize)
+		addYWidget();
+	else if (yWidgetSize > cacheYAxisCount)
+		removeYWidget();
+    for ( unsigned int i = 0; i < cacheYAxisCount; i++ ){
     	itsYWidgets_[i]->setValue(c->yAxis(i), c->yDataColumn(i), a->yAxis(i),
             a->yRangeSet(i), a->yRange(i));
     }

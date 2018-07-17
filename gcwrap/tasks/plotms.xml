@@ -246,7 +246,7 @@ MS Parameters
   </param>
   
     <param type="string" name="xdatacolumn" subparam="true" >
-      <description>Data column to use for x-axis (blank for default/current).  Note that residuals are complex (vector) differences or ratios.</description>
+      <description>Data column to use for x-axis (blank for default/current).</description>
       <value />
       <allowed kind="enum">
         <value />
@@ -437,11 +437,11 @@ MS Parameters
     </param>
     
     <param type="any" name="ydatacolumn" subparam="true" >
-      <description>Data column to use for y-axis (blank for default/current). Note that residuals are complex (vector) differences or ratios.</description>
+      <description>Data column to use for y-axis (blank for default/current).</description>
       <any type="variant" limittype='string stringArray'/>
       <value type="string"/>
       <allowed kind="enum" type="string">
-		<value/>
+        <value/>
         <value>data</value>
         <value>corrected</value>
         <value>model</value>
@@ -1016,7 +1016,7 @@ Canvas Parameters
 </param>
 
 
-<param type="bool" name="showlegend" subparam="false">
+<param type="bool" name="showlegend">
     <description>Show a legend on the plot.</description>
     <value>False</value>
 </param>
@@ -1426,492 +1426,10 @@ Constraints
 
     
     <when param="yaxis">
-      <equals type="string" value="" />
-      <equals type="string" value="amp">
+      <notequals type="string" value="">
         <default param="ydatacolumn"><value type="string" /></default>
         <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="amplitude">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="Amp">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="phase">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="Phase">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="real">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="Real">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="imag">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="imaginary">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="Imag">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="wtamp">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="wt*amp">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Wt*Amp">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="WtAmp">
-        <default param="ydatacolumn"><value type="string" /></default>
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="scan">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Scan">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="field">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Field">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="time">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Time">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="interval">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="timeinterval">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="timeint">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="time_interval">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Interval">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="spw">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Spw">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="channel">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="chan">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Channel">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="frequency">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="freq">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Frequency">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="velocity">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="vel">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Velocity">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="corr">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="correlation">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Corr">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="antenna1">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="ant1">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Antenna1">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="antenna2">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="ant2">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Antenna2">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="baseline">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Baseline">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="row">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Row">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="observation">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Observation">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="intent">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Intent">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="feed1">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Feed1">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="feed2">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Feed2">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="wt">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Wt">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="weight">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Weight">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="wtsp">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="WtSp">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="weightspectrum">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="WeightSpectrum">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="sigma">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Sigma">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="sigmasp">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="SigmaSp">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="sigmaspectrum">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="SigmaSpectrum">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="flag">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Flag">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="flagrow">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="FlagRow">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="uvdist">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="UVdist">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="uvwave">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="UVwave">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="uvdistl">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="uvdist_l">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="u">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="U">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="v">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="V">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="w">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="W">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="uwave">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Uwave">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="vwave">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Vwave">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="wwave">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Wwave">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="azimuth">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Azimuth">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="elevation">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Elevation">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="hourangle">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="hourang">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="HourAngle">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="parangle">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="parang">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="parallacticangle">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="ParAngle">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="antenna">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Antenna">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="ant">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="ant-azimuth">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Ant-Azimuth">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="ant-elevation">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Ant-Elevation">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="ant-parang">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Ant-ParAngle">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="ant-parangle">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="ant-parallacticangle">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Gain Amp">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="gamp">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="gainamp">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="GainAmp">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Gain Phase">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="GainPhase">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="gphase">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="gainphase">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Gain Real">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="GainReal">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="gainreal">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="greal">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Gain Imag">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="GainImag">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="gainimag">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="gimag">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="delay">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Delay">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="del">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="swp">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="switchedpower">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="swpower">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="spgain">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="SwPower">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Tsys">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="tsys">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="TSYS">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Opac">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="opac">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="opacity">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="snr">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="SNR">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="tec">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="TEC">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="antpos">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Antenna Positions">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="antenna positions">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Radial Velocity">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="radialvelocity">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="rho">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="distance">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
-      <equals value="Distance">
-        <default param="yaxislocation"><value type="string" /></default>
-      </equals>
+      </notequals>
     </when>
     
     <when param="selectdata">
@@ -2062,6 +1580,12 @@ Constraints
       </equals>
     </when>
 
+    <when param="showlegend">
+      <equals type="bool" value="False" />
+      <equals type="bool" value="True">
+        <default param="legendposition"><value type="string" /></default>
+      </equals>
+    </when>
 <!--    
     <when param="plotxycomp">
       <equals type="bool" value="False" />
@@ -2196,15 +1720,21 @@ Constraints
                                      thereafter the most recent
                                      setting is used)
                         valid options:  'data'      (observed)
-                                        'corrected'='corr'
+                                        'corrected'
                                         'model'
-                                        'residual'  (aliases 'corrected-model')
-                                        'corrected-model'
-                                        'data-model'
-                                        'data/model'
-                                        'corected/model'
                                         'float'
-                        Note that residuals are complex (vector) differences or ratios.
+                                        'residual'  (aliases 'corrected-model_vector')
+                                        'corrected-model_vector'
+                                        'corrected-model_scalar'
+                                        'data-model_vector'
+                                        'data-model_scalar'
+                                        'corrected/model_vector'
+                                        'corrected/model_scalar'
+                                        'data/model_vector'
+                                        'data/model_scalar'
+        yaxislocation  -- location of y-axis
+                        valid options:  'left'
+                                        'right'
     
     selectdata -- data selection parameters flag
                   default: True  (reveals data selection parameters
@@ -2387,18 +1917,18 @@ Constraints
     customflaggedsymbol -- If true, use a custom symbol for drawing flagged points
                            default: False
       &gt;&gt;&gt; customflaggedsymbol expandable parameters
-        symbolshape -- If true, use a custom shape to draw flagged symbols
+        flaggedsymbolshape -- If true, use a custom shape to draw flagged symbols
                        default: 'nosymbol'
                        options: 'autoscaling', 'circle', 'square', 'diamond', 'pixel', 'nosymbol'
-        symbolsize -- size of the flagged symbols in pixels
+        flaggedsymbolsize -- size of the flagged symbols in pixels
                       default: 2
-        symbolcolor -- color to use for flagged symbols; can be a RGB hex code or a color name
+        flaggedsymbolcolor -- color to use for flagged symbols; can be a RGB hex code or a color name
                        default: '0000ff'
                        example: 'purple'
-        symbolfill -- type of fill to use for flagged symbols
+        flaggedsymbolfill -- type of fill to use for flagged symbols
                       default: 'fill'
                       options: 'fill', 'mesh1', 'mesh2', 'mesh3', 'nofill'
-        symboloutline -- If true, outline flagged symbols in black
+        flaggedsymboloutline -- If true, outline flagged symbols in black
 
     plotrange -- manual plot axis ranges: [xmin,xmax,ymin,ymax]
                  Does not affect data selection.
@@ -2419,7 +1949,6 @@ Constraints
     yaxisfont -- y-axis font size
                  default: 0 (autosize)
     
-    
     showmajorgrid  -- show major grid lines 
                   default: False
       &gt;&gt;&gt;  showmajorgrid expandable parameters
@@ -2434,6 +1963,13 @@ Constraints
         minorstyle  --  minor grid line style: solid dash dot none
         minorcolor  --  color in hex code of minor grid lines
 
+    showlegend -- show legend for plot
+                  default: False
+      &gt;&gt;&gt;  showlegend expandable parameters
+        legendposition  -- position of legend for plot
+                     default: 'upperRight'
+                     options: 'upperRight','upperLeft','lowerRight','lowerLeft',
+                     'exteriorRight','exteriorLeft','exteriorTop','exteriorBottom'
     plotfile -- name of plot file to save automatically
                 default: ''  (i.e., draw an interactive plot in the gui)
       &gt;&gt;&gt; plotfile expandable parameters
@@ -2456,12 +1992,15 @@ Constraints
         overwrite -- overwrite plot file if it already exists
                      default: False
       
+    showgui - Whether or not to display the plotting GUI
+              default: True
+      &gt;&gt;&gt; showgui expandable parameters
+        clearplots - whether to remove existing plots
+              default: True
+              
     callib -- calibration library string, list of strings, or filename
               default: '' 
     
-    showgui - Whether or not to display the plotting GUI
-              default: True
-              
     headeritems -- append header items specific to this plot to the current list
                 of page header items.
                 Comma-separated string of header item selection keywords.
@@ -2471,6 +2010,10 @@ Constraints
                 default: ''
                 example: 'filename,projid,targname'
 
+    showatm - overlay the atmospheric transmission curve
+              default: False
+    showtsky - overlay the sky temperature curve
+              default: False
 <!--
 
         extspw - extend flags based on spw?
