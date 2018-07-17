@@ -72,16 +72,14 @@ TEST( PlotMSCacheTest, testDataOnlyMS ) {
 
 	// Datacolumn options:
 	std::vector<PMS::DataColumn> visCols {PMS::DATA, PMS::CORRECTED,
-		PMS::MODEL, PMS::CORRMODEL, PMS::DATAMODEL,
-		PMS::DATA_DIVIDE_MODEL, PMS::CORRECTED_DIVIDE_MODEL};
+		PMS::MODEL, PMS::CORRMODEL_V, PMS::DATAMODEL_V,
+		PMS::DATA_DIV_MODEL_V, PMS::CORR_DIV_MODEL_V};
 	std::vector<PMS::Axis> loadAxes{PMS::AMP, PMS::TIME};
 	for (auto datacol : visCols) {
 		std::vector<PMS::DataColumn> loadData{datacol, PMS::DATA};
 		switch (datacol) {
 			case PMS::DATA:
-			case PMS::CORRECTED:
-			case PMS::CORRMODEL:
-			case PMS::CORRECTED_DIVIDE_MODEL: {
+			case PMS::CORRECTED: {
 				// no corrected data, uses data instead
 				cache->load(loadAxes, loadData, dataPath, 
 					itsSelection, itsAveraging,	itsTransformations,
@@ -93,8 +91,14 @@ TEST( PlotMSCacheTest, testDataOnlyMS ) {
 				break;
 				}
 			case PMS::MODEL:
-			case PMS::DATAMODEL:
-			case PMS::DATA_DIVIDE_MODEL: {
+			case PMS::CORRMODEL_V:
+			case PMS::CORRMODEL_S:
+			case PMS::DATAMODEL_V:
+			case PMS::DATAMODEL_S:
+			case PMS::CORR_DIV_MODEL_V:
+			case PMS::CORR_DIV_MODEL_S:
+			case PMS::DATA_DIV_MODEL_V:
+			case PMS::DATA_DIV_MODEL_S: {
 				// generates model dynamically
 				ASSERT_NO_THROW(cache->load(loadAxes, loadData, dataPath, 
 					itsSelection, itsAveraging,	itsTransformations,
@@ -145,8 +149,8 @@ TEST( PlotMSCacheTest, testFloatOnlyMS) {
 		PMS::REAL, PMS::IMAG};
 	// Datacolumn options:
 	std::vector<PMS::DataColumn> visCols {PMS::DATA, PMS::CORRECTED,
-		PMS::MODEL, PMS::CORRMODEL, PMS::DATAMODEL,
-		PMS::DATA_DIVIDE_MODEL, PMS::CORRECTED_DIVIDE_MODEL};
+		PMS::MODEL, PMS::CORRMODEL_V, PMS::DATAMODEL_V,
+		PMS::DATA_DIV_MODEL_V, PMS::CORR_DIV_MODEL_V};
 
 	MSCache* cache = new MSCache(nullptr);
 	ASSERT_NE(nullptr, cache);  // make sure we have a cache
@@ -181,10 +185,14 @@ TEST( PlotMSCacheTest, testFloatOnlyMS) {
 							break;
 							}
 						case PMS::MODEL:
-						case PMS::DATAMODEL:
-						case PMS::DATA_DIVIDE_MODEL:
-						case PMS::CORRMODEL:
-						case PMS::CORRECTED_DIVIDE_MODEL: {
+						case PMS::CORRMODEL_V:
+						case PMS::CORRMODEL_S:
+						case PMS::DATAMODEL_V:
+						case PMS::DATAMODEL_S:
+						case PMS::CORR_DIV_MODEL_V:
+						case PMS::CORR_DIV_MODEL_S:
+						case PMS::DATA_DIV_MODEL_V:
+						case PMS::DATA_DIV_MODEL_S: {
 							ASSERT_THROW(cache->load(loadAxes, loadData, dataPath, 
 								itsSelection, itsAveraging,	itsTransformations,
 								itsCalibration, nullptr ), AipsError);

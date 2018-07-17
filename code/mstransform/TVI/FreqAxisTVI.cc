@@ -43,7 +43,7 @@ FreqAxisTVI::FreqAxisTVI(	ViImplementation2 * inputVii,
 	// associated with the object itself is cleaned up — there is no memory leak.
 	if (not parseConfiguration(configuration))
 	{
-		throw AipsError("Error parsing ChannelAverageTVI configuration");
+		throw AipsError("Error parsing FreqAxisTVI configuration");
 	}
 
 	initialize();
@@ -103,42 +103,45 @@ Bool FreqAxisTVI::parseConfiguration(const Record &configuration)
 void FreqAxisTVI::initialize()
 {
 
-  if (inputVii_p->msName()=="<noms>")
-    // Handle "no-MS" case  (SimpleSimVi2 as base layer)
-    formSelectedChanMap();
-  else {
+    if (inputVii_p == nullptr)
+        return;
 
-	// Get list of selected SPWs and channels
-	MSSelection mssel;
-	mssel.setSpwExpr(spwSelection_p);
-	Matrix<Int> spwchan = mssel.getChanList(&(inputVii_p->ms()));
-	logger_p << LogIO::DEBUG1 << LogOrigin("FreqAxisTVI", __FUNCTION__)
-			<< "Selected SPW:Channels are " << spwchan << LogIO::POST;
+    if (inputVii_p->msName()=="<noms>")
+        // Handle "no-MS" case  (SimpleSimVi2 as base layer)
+        formSelectedChanMap();
+    else {
 
-	// Convert list of selected SPWs/Channels into a map
-	spwInpChanIdxMap_p.clear();
-    uInt nSelections = spwchan.shape()[0];
-	Int spw,channelStart,channelStop,channelStep;
-	for(uInt selection_i=0;selection_i<nSelections;selection_i++)
-	{
-		spw = spwchan(selection_i,0);
-		channelStart = spwchan(selection_i,1);
-		channelStop = spwchan(selection_i,2);
-		channelStep = spwchan(selection_i,3);
+        // Get list of selected SPWs and channels
+        MSSelection mssel;
+        mssel.setSpwExpr(spwSelection_p);
+        Matrix<Int> spwchan = mssel.getChanList(&(inputVii_p->ms()));
+        logger_p << LogIO::DEBUG1 << LogOrigin("FreqAxisTVI", __FUNCTION__)
+			        << "Selected SPW:Channels are " << spwchan << LogIO::POST;
 
-		if (spwInpChanIdxMap_p.find(spw) == spwInpChanIdxMap_p.end())
-		{
-			spwInpChanIdxMap_p[spw].clear(); // Accessing the vector creates it
-		}
+        // Convert list of selected SPWs/Channels into a map
+        spwInpChanIdxMap_p.clear();
+        uInt nSelections = spwchan.shape()[0];
+        Int spw,channelStart,channelStop,channelStep;
+        for(uInt selection_i=0;selection_i<nSelections;selection_i++)
+        {
+            spw = spwchan(selection_i,0);
+            channelStart = spwchan(selection_i,1);
+            channelStop = spwchan(selection_i,2);
+            channelStep = spwchan(selection_i,3);
 
-		for (Int inpChan=channelStart;inpChan<=channelStop;inpChan += channelStep)
-		{
-			spwInpChanIdxMap_p[spw].push_back(inpChan);
-		}
-	}
-  }
+            if (spwInpChanIdxMap_p.find(spw) == spwInpChanIdxMap_p.end())
+            {
+                spwInpChanIdxMap_p[spw].clear(); // Accessing the vector creates it
+            }
 
-	return;
+            for (Int inpChan=channelStart;inpChan<=channelStop;inpChan += channelStep)
+            {
+                spwInpChanIdxMap_p[spw].push_back(inpChan);
+            }
+        }
+    }
+
+    return;
 }
 
 // -----------------------------------------------------------------------

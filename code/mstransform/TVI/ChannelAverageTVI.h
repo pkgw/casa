@@ -106,7 +106,6 @@ public:
 
 protected:
 
-	vi::ViImplementation2 * createVi (VisibilityIterator2 *) const;
 	vi::ViImplementation2 * createVi () const;
 
 	casacore::Record configuration_p;
