@@ -1855,6 +1855,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     freqFrame=MFrequency::LSRK;
     sysvel="";
     sysvelframe="";
+    sysvelvalue=Quantity(0.0,"m/s");
     nTaylorTerms=1;
     deconvolver="hogbom";
     ///csysRecord=Record();
@@ -2052,13 +2053,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    if(!trackSource){
 	      throw(AipsError("Cannot be in cubesource without tracking a moving source"));
 	    }
-	    String ephemtab("");
+	    String ephemtab(movingSource);
 	    if(movingSource=="TRACKFIELD"){
 	      Int fieldID=ROMSColumns(*mss[j]).fieldId()(0);
 	      ephemtab=Path(ROMSColumns(*mss[j]).field().ephemPath(fieldID)).absoluteName();
 	    }
-	    MSUtil::getFreqRangeInSpw(freqmin,freqmax,spwids,firstChannels,
-				      nChannels, *mss[j], ephemtab, trackDir, true);
+	    MEpoch refep=ROMSColumns(*mss[j]).timeMeas()(0);
+	    Quantity refsysvel;
+	    MSUtil::getFreqRangeAndRefFreqShift(freqmin,freqmax,refsysvel, refep, spwids,firstChannels, nChannels, *mss[j], ephemtab, trackDir, true);
+	    if(j==0)
+	      sysvelvalue=refsysvel;
+	    /*Double freqMinTopo, freqMaxTopo;
+	    MSUtil::getFreqRangeInSpw( freqMinTopo, freqMaxTopo, spwids, firstChannels,
+				       nChannels,*mss[j], freqFrameValid? MFrequency::TOPO:MFrequency::REST , True);
+	    cerr << std::setprecision(10) << (freqmin-freqMinTopo) << "       "  << (freqmax-freqMaxTopo) << endl;
+	    sysfreqshift=((freqmin-freqMinTopo)+(freqmax-freqMaxTopo))/2.0;
+	    */
 	  }
 	  else {
 	    
@@ -2193,9 +2203,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         os << LogIO::WARN
            << "Please contact CASA to add it to the repository."
            << LogIO::POST;
-        os << LogIO::WARN << "Frequency conversion will not work " << LogIO::POST;
+        os << LogIO::WARN << "Using first antenna position as refence " << LogIO::POST;
+	 // unknown observatory, use first antenna
+      obsPosition=msc.antenna().positionMeas()(0);
       }
-
+    obslocation=obsPosition;
     ObsInfo myobsinfo;
     myobsinfo.setTelescope(telescop);
     myobsinfo.setPointingCenter(mvPhaseCenter);
@@ -2326,6 +2338,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> chanFreqStep;
     String specmode;
 
+    if(mode=="cubesource"){
+      MDoppler mdop(sysvelvalue, MDoppler::RELATIVISTIC);
+      dataChanFreq=mdop.shiftFrequency(dataChanFreq);
+      dataChanWidth=mdop.shiftFrequency(dataChanWidth);
+    }
+    
     if (!getImFreq(chanFreq, chanFreqStep, refPix, specmode, obsEpoch, 
 		   obsPosition, dataChanFreq, dataChanWidth, dataFrame, qrestfreq, freqmin, freqmax,
 		   phaseCenterToUse))
@@ -2367,6 +2385,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                              MFrequency::REST : MFrequency::Undefined, 
         	                             startf, stepf, refPix, restf);
           }
+	else if(mode=="cubesource") 
+          {
+	    /*stepf=chanFreq.nelements() > 1 ?(freqmax-freqmin)/Double(chanFreq.nelements()-1) : freqmax-freqmin;
+	    startf=freqmin+stepf/2.0;
+	    */
+             mySpectral = SpectralCoordinate(MFrequency::REST, 
+        	                             startf, stepf, refPix, restf);
+          }
         else 
           {
              mySpectral = SpectralCoordinate(freqFrameValid ? freqFrame : MFrequency::REST, 
@@ -2381,6 +2407,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             //mySpectral = SpectralCoordinate(freqFrameValid ? MFrequency::Undefined : MFrequency::REST,
             mySpectral = SpectralCoordinate(freqFrame == MFrequency::REST ? 
                                             MFrequency::REST : MFrequency::Undefined,
+                                            chanFreq, (Double)qrestfreq.getValue("Hz"));
+          }
+	else if (mode=="cubesource") 
+          {
+            mySpectral = SpectralCoordinate(MFrequency::REST,
                                             chanFreq, (Double)qrestfreq.getValue("Hz"));
           }
         else 
@@ -2792,8 +2823,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       MRadialVelocity mSysVel; 
       Quantity qVel;
       MRadialVelocity::Types mRef;
-      if(mode!="cubesrc") 
+      if(mode!="cubesource") 
         {
+	  
+	  
           if(freqframe=="SOURCE") 
             {
               os << LogIO::SEVERE << "freqframe=\"SOURCE\" is only allowed for mode=\"cubesrc\""
@@ -2803,6 +2836,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         }
       else // only for cubesrc mode: TODO- check for the ephemeris info.
         {
+	  freqframe=MFrequency::showType(dataFrame);
           if(sysvel!="") {
             stringToQuantity(sysvel,qVel);
             MRadialVelocity::getType(mRef,sysvelframe);
@@ -2832,7 +2866,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       ostringstream ostr;
       ostr << " phaseCenter='" << phaseCenter;
       os << String(ostr)<<"' ";
-
 
       //Bool rst=SubMS::calcChanFreqs(os,
       Double dummy; // dummy variable  - weightScale is not used here

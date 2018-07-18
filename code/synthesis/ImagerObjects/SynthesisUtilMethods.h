@@ -258,7 +258,8 @@ public:
   casacore::Bool useNCP;
   casacore::MDirection phaseCenter;
   casacore::Int phaseCenterFieldId;
-
+  casacore::MPosition obslocation;
+  
   // Stokes info
   casacore::Bool pseudoi;
 
@@ -270,6 +271,8 @@ public:
   casacore::MRadialVelocity mVelStart, mVelStep;
   casacore::Vector<casacore::Quantity> restFreq;
   casacore::String start, step, frame, veltype, mode, reffreq, sysvel, sysvelframe;
+  casacore::Quantity sysvelvalue;
+  
   // private variable to store ref frame defined in casacore::Quantity or casacore::Measure 
   // in start or step parameters and veltype from measure (e.g. casacore::MDoppler)
   casacore::String qmframe, mveltype;

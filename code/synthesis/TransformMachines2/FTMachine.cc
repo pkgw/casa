@@ -267,10 +267,12 @@ using namespace casa::vi;
       logIO() << LogOrigin("FTMachine", "initMaps") << LogIO::NORMAL;
 
       AlwaysAssert(image, AipsError);
-
+      
       // Set the frame for the UVWMachine
       if(vb.isAttached()){
 	//mFrame_p=MeasFrame(MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()), mLocation_p);
+	if(vbutil_p.null())
+	  vbutil_p=new VisBufferUtil(vb);	
 	romscol_p=new ROMSColumns(vb.ms());
 	Unit epochUnit=(romscol_p->time()).keywordSet().asArrayString("QuantumUnits")(IPosition(1,0));
 	if(!mFrame_p.epoch()) 
@@ -280,7 +282,11 @@ using namespace casa::vi;
 	if(!mFrame_p.position())
 	  mFrame_p.set(mLocation_p);
 	else
-	  mFrame_p.resetPosition(mLocation_p);		    			    
+	  mFrame_p.resetPosition(mLocation_p);
+	if(!mFrame_p.direction())
+	  mFrame_p.set(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
+	else
+	  mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
       }
       else{
 	throw(AipsError("Cannot define some frame as no Visiter/MS is attached"));
@@ -298,11 +304,10 @@ using namespace casa::vi;
       Int spectralIndex=coords.findCoordinate(Coordinate::SPECTRAL);
       AlwaysAssert(spectralIndex>-1, AipsError);
       spectralCoord_p=coords.spectralCoordinate(spectralIndex);
-      if(vbutil_p.null())
-	vbutil_p=new VisBufferUtil(vb);
+      
       // get the first position of moving source
       if(fixMovingSource_p){
-	cerr << "obsinfo time " << coords.obsInfo().obsDate() << "    epoch used in frame " <<  MEpoch((mFrame_p.epoch())) << endl;
+	//cerr << "obsinfo time " << coords.obsInfo().obsDate() << "    epoch used in frame " <<  MEpoch((mFrame_p.epoch())) << endl;
         //First convert to HA-DEC or AZEL for parallax correction
         MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
         MDirection tmphadec;
@@ -583,7 +588,7 @@ using namespace casa::vi;
     }
       
     }
-    obsvelconv_p=MRadialVelocity::Convert (MRadialVelocity(MVRadialVelocity(0.0),
+     obsvelconv_p=MRadialVelocity::Convert (MRadialVelocity(MVRadialVelocity(0.0),
 							 MRadialVelocity::Ref(MRadialVelocity::TOPO, mFrame_p)),
 							 MRadialVelocity::Ref(refvel));
 
@@ -598,6 +603,9 @@ using namespace casa::vi;
       MEpoch::Convert toUT(ep, MEpoch::UT);
       MVRadialVelocity cometvel;
       (*mFrame_p.comet()).getRadVel(cometvel, toUT(ep).get("d").getValue());
+      //cerr << std::setprecision(10) << "UT " << toUT(ep).get("d").getValue() << " cometvel " << cometvel.get("km/s").getValue("km/s") << endl;
+      
+      //cerr  << "pos " << MPosition(mFrame_p.position()) << " obsevatory vel " << obsvelconv_p().get("km/s").getValue("km/s") << endl;
       dopshift=MDoppler(Quantity(-cometvel.get("km/s").getValue("km/s")+obsvelconv_p().get("km/s").getValue("km/s") , "km/s"), MDoppler::RELATIVISTIC);
       
     }
@@ -754,8 +762,6 @@ using namespace casa::vi;
         chanMap.resize(interpVisFreq_p.nelements());
         indgen(chanMap);
       }
-
-	  
       if(type != FTMachine::PSF){ // Interpolating the data
    	//Need to get  new interpolate functions that interpolate explicitly on the 2nd axis
   	//2 swap of axes needed
@@ -1730,6 +1736,7 @@ using namespace casa::vi;
 
       //cerr << "doConve " << spw << "   " << doConversion_p[spw] << " freqframeval " << freqFrameValid_p << endl;
 //cerr <<"valid frame " << freqFrameValid_p << " polmap "<< polMap << endl;
+    //cerr << "spectral coord system " << spectralCoord_p.frequencySystem(False) << endl;
      if(freqFrameValid_p &&spectralCoord_p.frequencySystem(False)!=MFrequency::REST )
     	 lsrFreq=vb.getFrequencies(0,MFrequency::LSRK);
      else
@@ -1746,6 +1753,7 @@ using namespace casa::vi;
        }
 	
        mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s")));
+       mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
        shiftFreqToSource(lsrFreq);
      }
      //cerr << "lsrFreq " << lsrFreq.shape() << " nvischan " << nvischan << endl;

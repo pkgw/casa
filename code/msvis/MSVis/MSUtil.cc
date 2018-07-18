@@ -33,7 +33,7 @@
 #include <msvis/MSVis/MSUtil.h>
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/OS/Path.h>
-
+#include <iomanip>
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -428,8 +428,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
 
-  Bool MSUtil::getFreqRangeInSpw( Double& freqStart,
-				  Double& freqEnd, const Vector<Int>& spw, const Vector<Int>& start,
+  Bool MSUtil::getFreqRangeAndRefFreqShift( Double& freqStart,
+					    Double& freqEnd, Quantity& sysvel, const MEpoch& refEp, const Vector<Int>& spw, const Vector<Int>& start,
 				  const Vector<Int>& nchan,
 				  const MeasurementSet& ms, 
 				  const String& ephemPath,   const MDirection& trackDir, 
@@ -442,7 +442,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     MeasComet mcomet;
     MeasTable::Types mtype=MeasTable::BARYEARTH;
     if(Table::isReadable(ephemPath)){
-      MeasComet mcomet(Path(ephemPath).absoluteName());
+      mcomet=MeasComet(Path(ephemPath).absoluteName());
       isephem=True;
     }
     else{
@@ -527,7 +527,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     MDirection dir;
     dir=fieldCol.phaseDirMeas(fldId[0]);
     MSDataDescIndex mddin(ms.dataDescription());
-    MFrequency::Types obsMFreqType= (MFrequency::Types) (spwCol.measFreqRef()(0));
     MEpoch ep;
     timeCol.get(0, ep);
     String observatory;
@@ -543,6 +542,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       obsPos=msc.antenna().positionMeas()(0);
     }
     //////
+    //cerr << "obspos " << obsPos << endl;
     MeasFrame mframe(ep, obsPos, dir);
     ////Will use UT for now for ephem tables as it is not clear that they are being
     ///filled with TDB as intended in MeasComet.h 
@@ -550,6 +550,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     MEpoch::Convert toTDB(ep, MEpoch::TDB);
     MRadialVelocity::Types refvel=MRadialVelocity::GEO;
     if(isephem){
+      //cerr << "dist " << mcomet.getTopo().getLength("km") << endl;
       if(mcomet.getTopo().getLength("km").getValue() > 1.0e-3){
 	refvel=MRadialVelocity::TOPO;
       }
@@ -580,12 +581,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       MFrequency::Types obsMFreqType= (MFrequency::Types) (spwCol.measFreqRef()(spw[ispw]));
       if(obsMFreqType==MFrequency::REST)
 	throw(AipsError("cannot do Source frame conversion from REST"));
-      	MFrequency::Convert toTOPO(obsMFreqType,
-				   MFrequency::Ref(MFrequency::TOPO, mframe));
+      MFrequency::Convert toTOPO(obsMFreqType,
+				 MFrequency::Ref(MFrequency::TOPO, mframe));
+      Double diffepoch=1e37;
+      sysvel=Quantity(0.0,"m/s");
+	
       for (uInt j=0; j< nTimes; ++j){
 	  if(anyEQ(ddOfSpw, ddId[elindx[uniqIndx[j]]])){
 	    timeCol.get(elindx[uniqIndx[j]], ep);
-	    dir=fieldCol.phaseDirMeas(fldId[elindx[uniqIndx[j]]]);
+	    dir=fieldCol.phaseDirMeas(fldId[elindx[uniqIndx[j]]], ep.get("s").getValue());
 	    mframe.resetEpoch(ep);
 	    mframe.resetDirection(dir);
 	    if(obsMFreqType != MFrequency::TOPO){
@@ -595,7 +599,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    MDoppler mdop;
 	    if(isephem){
 	      mcomet.getRadVel(cometvel, toUT(ep).get("d").getValue());
-	      mdop=MDoppler(Quantity(-cometvel.get("km/s").getValue("km/s")+obsvelconv().get("km/s").getValue("km/s") , "km/s"), MDoppler::RELATIVISTIC);	      
+	      mdop=MDoppler(Quantity(-cometvel.get("km/s").getValue("km/s")+obsvelconv().get("km/s").getValue("km/s") , "km/s"), MDoppler::RELATIVISTIC);
+	      //	      cerr << std::setprecision(10) <<  toUT(ep).get("d").getValue() << " fieldid " << fldId[elindx[uniqIndx[j]]] << " cometvel " << cometvel.get("km/s").getValue("km/s") << " obsvel " << obsvelconv().get("km/s").getValue("km/s") << endl;
 	    }
 	    else{
 	      earthparam=MeasTable::Planetary(MeasTable::EARTH, toTDB(ep).get("d").getValue());
@@ -613,6 +618,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
 	    Vector<Double> range(2); range(0)=freqStartObs; range(1)=freqEndObs;
 	    range=mdop.shiftFrequency(range);
+	    if(diffepoch > fabs(ep.get("s").getValue("s")-refEp.get("s").getValue("s"))){
+	      diffepoch= fabs(ep.get("s").getValue("s")-refEp.get("s").getValue("s"));
+	      sysvel=mdop.get("km/s");
+	      //cerr << std::setprecision(10) << "shifts " << range(0)-freqStartObs << "   " <<  range(1)-freqEndObs << endl;
+	    }
+	      
 	    
 	    if(freqStart > range[0])  freqStart=range[0];
 	    if(freqEnd < range[0])  freqEnd=range[0];
@@ -621,7 +632,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    if(freqEnd < range[1])  freqEnd=range[1];
 	    retval=True;
 	  }
-	}
+      }
       }
 
     }

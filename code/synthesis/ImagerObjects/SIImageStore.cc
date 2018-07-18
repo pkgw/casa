@@ -1071,14 +1071,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     cimageShape=itsImageShape;
     MFrequency::Types freqframe = itsCoordSys.spectralCoordinate(itsCoordSys.findCoordinate(Coordinate::SPECTRAL)).frequencySystem(True);
     // No need to set a conversion layer if image is in LSRK already or it is 'Undefined'
-    if(freqframe != MFrequency::LSRK && freqframe!=MFrequency::Undefined) 
+    if(freqframe != MFrequency::LSRK && freqframe!=MFrequency::Undefined && freqframe!=MFrequency::REST) 
       { itsCoordSys.setSpectralConversion("LSRK"); }
     CoordinateSystem cimageCoord = StokesImageUtil::CStokesCoord( itsCoordSys,
 								  whichStokes, itsDataPolRep);
     cimageShape(2)=whichStokes.nelements();
+      
     //cout << "Making forward grid of shape : " << cimageShape << " for imshape : " << itsImageShape << endl;
     itsForwardGrid.reset( new TempImage<Complex>(TiledShape(cimageShape, tileShape()), cimageCoord, memoryBeforeLattice()) );
-
+    if(image())
+      itsForwardGrid->setImageInfo((image())->imageInfo());
     return itsForwardGrid;
   }
 
@@ -1093,13 +1095,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     cimageShape=itsImageShape;
     MFrequency::Types freqframe = itsCoordSys.spectralCoordinate(itsCoordSys.findCoordinate(Coordinate::SPECTRAL)).frequencySystem(True);
     // No need to set a conversion layer if image is in LSRK already or it is 'Undefined'
-    if(freqframe != MFrequency::LSRK && freqframe!=MFrequency::Undefined) 
+    if(freqframe != MFrequency::LSRK && freqframe!=MFrequency::Undefined && freqframe!=MFrequency::REST ) 
       { itsCoordSys.setSpectralConversion("LSRK"); }
     CoordinateSystem cimageCoord = StokesImageUtil::CStokesCoord( itsCoordSys,
 								  whichStokes, itsDataPolRep);
     cimageShape(2)=whichStokes.nelements();
     //cout << "Making backward grid of shape : " << cimageShape << " for imshape : " << itsImageShape << endl;
     itsBackwardGrid.reset( new TempImage<Complex>(TiledShape(cimageShape, tileShape()), cimageCoord, memoryBeforeLattice()) );
+    if(image())
+      itsBackwardGrid->setImageInfo((image())->imageInfo());
     return itsBackwardGrid;
     }
   Double SIImageStore::memoryBeforeLattice(){

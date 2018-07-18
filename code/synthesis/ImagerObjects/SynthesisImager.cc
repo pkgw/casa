@@ -824,6 +824,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   if(itsMappers.nMappers() < 1)
 		   ThrowCc("defineimage has to be run before tuneSelectData");
 
+	   if(impars_p.mode=="cubesource")
+	     return dataSel_p;
 	   os << "Tuning frequency data selection to match image spectral coordinates" << LogIO::POST;
 
 	   Vector<SynthesisParamsSelect> origDatSel(dataSel_p.nelements());
@@ -836,7 +838,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   */
 	   Int nchannel=itsMaxShape[3];
 	   CoordinateSystem cs=itsMaxCoordSys;
-	   cs.setSpectralConversion("LSRK");
+	   MFrequency::Types freqframe=cs.spectralCoordinate(cs.findCoordinate(Coordinate::SPECTRAL)).frequencySystem(False);
+	   if(freqframe != MFrequency::REST &&  freqframe != MFrequency::Undefined)
+	     cs.setSpectralConversion("LSRK");
 	   Vector<Double> pix(4);
 	   pix[0]=0; pix[1]=0; pix[2]=0; pix[3]=-0.5;
 	   Double freq1=cs.toWorld(pix)[3];

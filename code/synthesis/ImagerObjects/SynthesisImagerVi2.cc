@@ -522,7 +522,9 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
     CoordinateSystem csys;
     CountedPtr<refim::FTMachine> ftm, iftm;
-
+    impars_p = impars;
+    gridpars_p = gridpars; 
+    
 
     try
       {
@@ -532,7 +534,8 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
 	
 	csys = impars.buildCoordinateSystem( *vi_p, channelSelections_p, mss_p );
-
+	//use the location defined for coordinates frame;
+	mLocation_p=impars.obslocation;
 	IPosition imshape = impars.shp();
 
 	os << "Impars : start " << impars.start << LogIO::POST;

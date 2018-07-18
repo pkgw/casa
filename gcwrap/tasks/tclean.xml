@@ -427,8 +427,8 @@ HPX HEALPix grid.  -->
 <!--============================================== -->
 
     <param type="any" name="specmode" required="true">
-     <shortdescription>Spectral definition mode (mfs,cube,cubedata)</shortdescription>
-<description>Spectral definition mode (mfs,cube,cubedata)
+     <shortdescription>Spectral definition mode (mfs,cube,cubedata, cubesource)</shortdescription>
+<description>Spectral definition mode (mfs,cube,cubedata, cubesource)
 
                        mode='mfs' : Continuum imaging with only one output image channel.
                                              (mode='cont' can also be used here)
@@ -467,7 +467,16 @@ HPX HEALPix grid.  -->
                                                         a spectral line observed over an extended time range
                                                         may be smeared out in frequency. There is strictly
                                                         no valid spectral frame with which to label the output
-                                                        images, but they will list the frame defined in the MS.
+							images, but they will list the frame defined in the MS.
+
+							mode='cubesource': Spectral line imaging while
+							tracking moving source (near field or solar system
+							objects). The velocity of the source is accounted
+							and the frequency reported is in the source frame.
+							As there is not SOURCE frame defined,
+							the frame reported will be REST (as it may not be
+							in the rest frame emission region may be
+							moving w.r.t the systemic velocity frame)
 
 
 </description>
@@ -477,6 +486,7 @@ HPX HEALPix grid.  -->
 	      <value>cont</value>
 	      <value>cube</value>
 	      <value>cubedata</value>
+	      <value>cubesource</value>
 	    </allowed>
     </param>
 
@@ -2408,20 +2418,17 @@ HPX HEALPix grid.  -->
 	 <default param="interpolation"><value>"linear"</value></default>
 	 <default param="chanchunks"><value>1</value></default>
        </equals>
-       <!-- desable for now...
-       <equals type="string" value="cubesrc">
+       <equals type="string" value="cubesource">
 	 <default param="nchan"><value>-1</value></default>
 	 <default param="start"><value>""</value></default>
 	 <default param="width"><value>""</value></default>
-	 <default param="outframe"><value>""</value></default>
+	 <default param="outframe"><value>"REST"</value></default>
 	 <default param="veltype"><value>"radio"</value></default>
 	 <default param="restfreq"><value>[]</value></default>
-	 <default param="sysvel"><value>""</value></default>
-	 <default param="sysvelframe"><value>""</value></default>
 	 <default param="interpolation"><value>"linear"</value></default>
 	 <default param="chanchunks"><value>1</value></default>
        </equals>
-       -->
+       
        <equals type="string" value="cubedata">
 	 <default param="nchan"><value>-1</value></default>
 	 <default param="start"><value>""</value></default>

@@ -99,13 +99,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					      const casacore::Vector<casacore::Int>& fieldId, const casacore::Bool edge=true, const casacore::Bool useFieldsInMS=false );
      //This version gets the range of frequency in SOURCE frame for an ephem source
      //either trackDIr should be a known planet or ephemPath should not be an
-     //empty string
-     static  casacore::Bool getFreqRangeInSpw( casacore::Double& freqStart,
-						       casacore::Double& freqEnd,
-						       const casacore::Vector<casacore::Int>& spw,
-						       const casacore::Vector<casacore::Int>& start,
-						       const casacore::Vector<casacore::Int>& nchan,
-						       const casacore::MeasurementSet& ms, 
+     //empty string. Also return a systemic velocity w.r.t TOPO  at the closest time in
+     // the ms of the reference epoch provided
+     static  casacore::Bool getFreqRangeAndRefFreqShift( casacore::Double& freqStart,
+							 casacore::Double& freqEnd,
+							 casacore::Quantity& sysvel,
+							 const casacore::MEpoch& refEp,
+							 const casacore::Vector<casacore::Int>& spw,
+							 const casacore::Vector<casacore::Int>& start,
+							 const casacore::Vector<casacore::Int>& nchan,
+							 const casacore::MeasurementSet& ms, 
 						      
 						       const casacore::String& ephemPath=casacore::String(""),
 						       const casacore::MDirection& trackDir=casacore::MDirection(casacore::MDirection::APP),
