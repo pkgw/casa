@@ -279,7 +279,8 @@ bool image::addnoise(
         vector<String> names { "type", "pars", "region", "zeroit", "seeds" };
         vector<variant> values { type, pars, region, zeroIt, seeds };
         _addHistory(__func__, names, values);
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         return true;
     }
     catch (const AipsError& x) {
@@ -537,7 +538,8 @@ bool image::calc(const std::string& expr, bool verbose) {
         vector<String> names = {"expr", "verbose"};
         vector<variant> values = {expr, verbose};
         _addHistory(__func__, names, values);
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         return true;
     }
     catch (const AipsError& x) {
@@ -3225,7 +3227,8 @@ bool image::insert(
             infile, region, locate, verbose
         };
         _addHistory(__func__, names, values);
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         return true;
     }
     catch (const AipsError& x) {
@@ -3462,7 +3465,7 @@ image* image::deviation(
         StatImageCreator sic(_imageF, myreg.get(), mask, outfile, overwrite);
         mystatalg.downcase();
         if (mystatalg.startsWith("cl")) {
-            sic.configureClassical(ImageStatsConfigurator::AUTO);
+            sic.configureClassical(ImageStatsData::AUTO);
         }
         else if (mystatalg.startsWith("ch")) {
             sic.configureChauvenet(zscore, maxiter);
@@ -3571,13 +3574,14 @@ vector<string> image::maskhandler(
             vector<String> names {"op", "name"};
             vector<variant> values {op, name};
             _addHistory(__func__, names, values);
-            _stats.reset();
+            _statsF.reset();
+            _statsD.reset();
         }
         return res;
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return vector<string>();
@@ -3699,7 +3703,8 @@ bool image::modify(
         ci.setSubtract(subtract);
         ci.setStretch(stretch);
         ci.modify(list);
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         vector<String> names {
             "model", "region", "mask",
             "subtract", "list", "stretch"
@@ -3873,8 +3878,17 @@ String image::_name(bool strippath) const {
     if (_imageF) {
         return _imageF->name(strippath);
     }
-    else {
+    else if (_imageC) {
         return _imageC->name(strippath);
+    }
+    else if (_imageD) {
+        return _imageD->name(strippath);
+    }
+    else if (_imageDC) {
+        return _imageDC->name(strippath);
+    }
+    else {
+        ThrowCc("Logic error");
     }
 }
 
@@ -4398,7 +4412,8 @@ bool image::putregion(
             ThrowCc("Logic error")
         }
         if (ret) {
-            _stats.reset(0);
+            _statsF.reset();
+            _statsD.reset();
             vector<String> names {
                 "pixels", "pixelmask", "region",
                 "list", "usemask", "replicate"
@@ -5025,7 +5040,8 @@ bool image::rename(const string& name, bool overwrite) {
             return false;
         }
         _notSupported(__func__);
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         auto oldName = this->name(False);
         if (_imageF) {
             auto myimage = _imageF;
@@ -5084,7 +5100,8 @@ bool image::replacemaskedpixels(
             impr.replace(pixels.toString(), updateMask, list);
             _imageC = mycomplex;
         }
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         vector<String> names = {
             "pixels", "region", "mask", "update",
             "list", "stretch"
@@ -5348,7 +5365,8 @@ bool image::set(
                 _imageF, pixels, pixelmask, *pRegion, list
             )
         ) {
-            _stats.reset(nullptr);
+            _statsF.reset();
+            _statsD.reset();
             if (_doHistory) {
                 vector<String> names = {
                     "pixels", "pixelmask", "region", "list"
@@ -5386,7 +5404,8 @@ bool image::setbrightnessunit(const std::string& unit) {
             vector<variant> values = {unit};
             _addHistory(__func__, names, values);
         }
-        _stats.reset();
+        _statsF.reset();
+        _statsD.reset();
         return true;
     }
     catch (const AipsError& x) {
@@ -5669,15 +5688,12 @@ vector<int> image::shape() {
 }
 
 record* image::statistics(
-    const vector<int>& axes, const variant& region,
-    const variant& mask,
-    const vector<double>& includepix,
-    const vector<double>& excludepix, bool list, bool force,
-    bool disk, bool robust, bool verbose,
-    bool stretch, const string& logfile,
-    bool append, const string& algorithm, double fence,
-    const string& center, bool lside, double zscore,
-    int maxiter, const string& clmethod, int niter
+    const vector<int>& axes, const variant& region, const variant& mask,
+    const vector<double>& includepix, const vector<double>& excludepix,
+    bool list, bool force, bool disk, bool robust, bool verbose, bool stretch,
+    const string& logfile, bool append, const string& algorithm, double fence,
+    const string& center, bool lside, double zscore, int maxiter,
+    const string& clmethod, int niter
 ) {
     _log << _ORIGIN;
     if (_detached()) {
@@ -5685,139 +5701,159 @@ record* image::statistics(
         return nullptr;
     }
     try {
-        _notSupported(__func__);
         ThrowIf(
-            ! _imageF,
-            "This method only supports Float valued images"
+            ! (_imageF || _imageD),
+            "This method only supports real valued images"
         );
-        SHARED_PTR<Record> regionRec(_getRegion(region, true));
-        String mtmp = mask.toString();
-        if (mtmp == "false" || mtmp == "[]") {
-            mtmp = "";
+        if (_imageF) {
+            return _statistics(
+                _statsF, _imageF, axes, region, mask, includepix,
+                excludepix, list, force, disk, robust, verbose, stretch,
+                logfile, append, algorithm, fence, center, lside,
+                zscore, maxiter, clmethod, niter
+            );
         }
-        Vector<Int> tmpaxes(axes);
-        if (tmpaxes.size() == 1 && tmpaxes[0] == -1) {
-            tmpaxes.resize(0);
-        }
-        Vector<Float> tmpinclude;
-        Vector<Float> tmpexclude;
-        if (
-            !(
-                includepix.size() == 1
-                && includepix[0] == -1
-            )
-        ) {
-            tmpinclude.resize(includepix.size());
-            for (uInt i=0; i<includepix.size(); i++) {
-                tmpinclude[i] = includepix[i];
-            }
-        }
-        if (!(excludepix.size() == 1 && excludepix[0] == -1)) {
-            tmpexclude.resize(excludepix.size());
-            for (uInt i = 0; i < excludepix.size(); i++) {
-                tmpexclude[i] = excludepix[i];
-            }
-        }
-        if (verbose) {
-            _log << LogIO::NORMAL << "Determining stats for image "
-                << _name(true) << LogIO::POST;
-        }
-        Record ret;
-        if (force || _stats.get() == 0) {
-            _stats.reset(
-                new ImageStatsCalculator(
-                    _imageF, regionRec.get(), mtmp, verbose
-                )
+        else if (_imageD) {
+            return _statistics(
+                _statsD, _imageD, axes, region, mask, includepix,
+                excludepix, list, force, disk, robust, verbose, stretch,
+                logfile, append, algorithm, fence, center, lside,
+                zscore, maxiter, clmethod, niter
             );
         }
         else {
-            _stats->setMask(mtmp);
-            _stats->setRegion(regionRec ? *regionRec : Record());
+            ThrowCc("Logic error");
         }
-        String myalg = algorithm;
-        myalg.downcase();
-        if (myalg.startsWith("b")) {
-            _stats->configureBiweight(niter);
-            if (robust) {
-                _log << LogIO::WARN << "The biweight algorithm "
-                    << "does not support computation of quantile-like "
-                    << "(median, MADM, first/third quartile, IQR) "
-                    << "statistics (robust=True). Proceeding without "
-                    << "calculating those stats." << LogIO::POST;
-                robust = False;
-            }
-        }
-        else if (myalg.startsWith("ch")) {
-            _stats->configureChauvenet(zscore, maxiter);
-        }
-        else if (myalg.startsWith("cl")) {
-            String mymethod = clmethod;
-            mymethod.downcase();
-            ImageStatsCalculator::PreferredClassicalAlgorithm method;
-            if (mymethod.startsWith("a")) {
-                method = ImageStatsCalculator::AUTO;
-            }
-            else if (mymethod.startsWith("t")) {
-                method = ImageStatsCalculator::TILED_APPLY;
-            }
-            else if (mymethod.startsWith("f")) {
-                method = ImageStatsCalculator::STATS_FRAMEWORK;
-            }
-            else {
-                ThrowCc("Unsupported classical method " + clmethod);
-            }
-            _stats->configureClassical(method);
-        }
-        else if (myalg.startsWith("f")) {
-            String mycenter = center;
-            mycenter.downcase();
-            FitToHalfStatisticsData::CENTER centerType;
-            if (mycenter.startsWith("mea")) {
-                centerType = FitToHalfStatisticsData::CMEAN;
-            }
-            else if (mycenter.startsWith("med")) {
-                centerType = FitToHalfStatisticsData::CMEDIAN;
-            }
-            else if (mycenter.startsWith("z")) {
-                centerType = FitToHalfStatisticsData::CVALUE;
-            }
-            else {
-                ThrowCc("Unsupported center value " + center);
-            }
-            FitToHalfStatisticsData::USE_DATA useData = lside
-                ? FitToHalfStatisticsData::LE_CENTER
-                : FitToHalfStatisticsData::GE_CENTER;
-            _stats->configureFitToHalf(centerType, useData, 0.0);
-        }
-        else if (myalg.startsWith("h")) {
-            _stats->configureHingesFences(fence);
-        }
-        else {
-            ThrowCc("Unsupported algorithm " + algorithm);
-        }
-        _stats->setAxes(tmpaxes);
-        _stats->setIncludePix(tmpinclude);
-        _stats->setExcludePix(tmpexclude);
-        _stats->setList(list);
-        if (force) {
-            _stats->forceNewStorage();
-        }
-        _stats->setDisk(disk);
-        _stats->setRobust(robust);
-        _stats->setVerbose(verbose);
-        _stats->setStretch(stretch);
-        if (! logfile.empty()) {
-            _stats->setLogfile(logfile);
-        }
-        _stats->setLogfileAppend(append);
-        return fromRecord(_stats->calculate());
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return nullptr;
+}
+
+template <class T> record* image::_statistics(
+    std::auto_ptr<casa::ImageStatsCalculator<T>>& stats, SPIIT myImage,
+    const vector<int>& axes, const variant& region,
+    const variant& mask, const vector<double>& includepix,
+    const vector<double>& excludepix, bool list, bool force, bool disk,
+    bool robust, bool verbose, bool stretch, const string& logfile, bool append,
+    const string& algorithm, double fence, const string& center, bool lside,
+    double zscore, int maxiter, const string& clmethod, int niter
+) {
+    auto regionRec = _getRegion(region, true);
+    auto mtmp = mask.toString();
+    if (mtmp == "false" || mtmp == "[]") {
+        mtmp = "";
+    }
+    Vector<Int> tmpaxes(axes);
+    if (tmpaxes.size() == 1 && tmpaxes[0] == -1) {
+        tmpaxes.resize(0);
+    }
+    Vector<T> tmpinclude, tmpexclude;
+    if (! (includepix.size() == 1 && includepix[0] == -1)) {
+        tmpinclude.resize(includepix.size());
+        for (uInt i=0; i<includepix.size(); ++i) {
+            tmpinclude[i] = includepix[i];
+        }
+    }
+    if (!(excludepix.size() == 1 && excludepix[0] == -1)) {
+        tmpexclude.resize(excludepix.size());
+        for (uInt i = 0; i < excludepix.size(); ++i) {
+            tmpexclude[i] = excludepix[i];
+        }
+    }
+    if (verbose) {
+        _log << LogIO::NORMAL << "Determining stats for image "
+            << _name(true) << LogIO::POST;
+    }
+    Record ret;
+    if (force || ! stats.get()) {
+        stats.reset(
+            new ImageStatsCalculator<T>(myImage, regionRec.get(), mtmp, verbose)
+        );
+    }
+    else {
+        stats->setMask(mtmp);
+        stats->setRegion(regionRec ? *regionRec : Record());
+    }
+    String myalg = algorithm;
+    myalg.downcase();
+    if (myalg.startsWith("b")) {
+        stats->configureBiweight(niter);
+        if (robust) {
+            _log << LogIO::WARN << "The biweight algorithm does not support "
+                << "computation of quantile-related (median, MADM, first/third "
+                << "quartile, IQR) statistics (robust=True). Proceeding "
+                << "without calculating those stats." << LogIO::POST;
+            robust = False;
+        }
+    }
+    else if (myalg.startsWith("ch")) {
+        stats->configureChauvenet(zscore, maxiter);
+    }
+    else if (myalg.startsWith("cl")) {
+        String mymethod = clmethod;
+        mymethod.downcase();
+        ImageStatsData::PreferredClassicalAlgorithm method;
+        if (mymethod.startsWith("a")) {
+            method = ImageStatsData::AUTO;
+        }
+        else if (mymethod.startsWith("t")) {
+            method = ImageStatsData::TILED_APPLY;
+        }
+        else if (mymethod.startsWith("f")) {
+            method = ImageStatsData::STATS_FRAMEWORK;
+        }
+        else {
+            ThrowCc("Unsupported classical method " + clmethod);
+        }
+        stats->configureClassical(method);
+    }
+    else if (myalg.startsWith("f")) {
+        String mycenter = center;
+        mycenter.downcase();
+        FitToHalfStatisticsData::CENTER centerType;
+        if (mycenter.startsWith("mea")) {
+            centerType = FitToHalfStatisticsData::CMEAN;
+        }
+        else if (mycenter.startsWith("med")) {
+            centerType = FitToHalfStatisticsData::CMEDIAN;
+        }
+        else if (mycenter.startsWith("z")) {
+            centerType = FitToHalfStatisticsData::CVALUE;
+        }
+        else {
+            ThrowCc("Unsupported center value " + center);
+        }
+        FitToHalfStatisticsData::USE_DATA useData = lside
+            ? FitToHalfStatisticsData::LE_CENTER
+            : FitToHalfStatisticsData::GE_CENTER;
+        stats->configureFitToHalf(centerType, useData, 0.0);
+    }
+    else if (myalg.startsWith("h")) {
+        stats->configureHingesFences(fence);
+    }
+    else {
+        ThrowCc("Unsupported algorithm " + algorithm);
+    }
+    stats->setAxes(tmpaxes);
+    stats->setIncludePix(tmpinclude);
+    stats->setExcludePix(tmpexclude);
+    stats->setList(list);
+    if (force) {
+        stats->forceNewStorage();
+    }
+    stats->setDisk(disk);
+    stats->setRobust(robust);
+    stats->setVerbose(verbose);
+    stats->setStretch(stretch);
+    if (! logfile.empty()) {
+        stats->setLogfile(logfile);
+    }
+    stats->setLogfileAppend(append);
+    return fromRecord(stats->calculate());
 }
 
 image* image::subimage(
@@ -6471,7 +6507,8 @@ void image::_reset() {
     _imageC.reset();
     _imageD.reset();
     _imageDC.reset();
-    _stats.reset();
+    _statsF.reset();
+    _statsD.reset();
 }
 
 image* image::newimagefromfits(
