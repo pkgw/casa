@@ -93,11 +93,14 @@ public:
     // create a ComponentListImage
     static SHARED_PTR<ComponentListImage> createComponentListImage(
         const casacore::String& outfile, const casacore::Record& cl,
-        const casacore::Vector<casacore::Int>& shape, const casacore::Record& csys,
-        casacore::Bool overwrite, casacore::Bool log, casacore::Bool cache
+        const casacore::Vector<casacore::Int>& shape,
+        const casacore::Record& csys, casacore::Bool overwrite,
+        casacore::Bool log, casacore::Bool cache
     );
 
-    static casacore::String className() { static const casacore::String s = "ImageFactory"; return s; }
+    static casacore::String className() {
+        static const casacore::String s = "ImageFactory"; return s;
+    }
 
     // create an image with the specified shape and specified coordinate system.
     // If outfile is blank, the returned object is a casacore::TempImage, casacore::PagedImage otherwise.
@@ -106,31 +109,42 @@ public:
     // is true, it has linear coordinates in place of the direction coordinate.
 
     static SPIIF floatImageFromShape(
-    	const casacore::String& outfile, const casacore::Vector<casacore::Int>& shape,
+    	const casacore::String& outfile,
+    	const casacore::Vector<casacore::Int>& shape,
     	const casacore::Record& csys, casacore::Bool linear=true,
     	casacore::Bool overwrite=false, casacore::Bool verbose=true,
-        const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs=0
+        const std::vector<
+            std::pair<casacore::LogOrigin, casacore::String>
+        > *const &msgs=nullptr
     );
 
     static SPIIC complexImageFromShape(
-    	const casacore::String& outfile, const casacore::Vector<casacore::Int>& shape,
+    	const casacore::String& outfile,
+    	const casacore::Vector<casacore::Int>& shape,
     	const casacore::Record& csys, casacore::Bool linear=true,
     	casacore::Bool overwrite=false, casacore::Bool verbose=true,
-        const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs=0
+        const std::vector<
+            std::pair<casacore::LogOrigin, casacore::String>
+        > *const &msgs=nullptr
     );
 
     static SPIID doubleImageFromShape(
-        const casacore::String& outfile, const casacore::Vector<casacore::Int>& shape,
+        const casacore::String& outfile,
+        const casacore::Vector<casacore::Int>& shape,
         const casacore::Record& csys, casacore::Bool linear=true,
         casacore::Bool overwrite=false, casacore::Bool verbose=true,
-        const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs=0
+        const std::vector<
+            std::pair<casacore::LogOrigin, casacore::String>
+        > *const &msgs=nullptr
     );
 
     static SPIIDC complexDoubleImageFromShape(
         const casacore::String& outfile, const casacore::Vector<casacore::Int>& shape,
         const casacore::Record& csys, casacore::Bool linear=true,
         casacore::Bool overwrite=false, casacore::Bool verbose=true,
-        const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs=0
+        const std::vector<
+            std::pair<casacore::LogOrigin, casacore::String>
+        > *const &msgs=nullptr
     );
 
     // only the pointer of the correct data type will be valid, the other
@@ -146,13 +160,26 @@ public:
     	const casacore::String& outfile, const casacore::Array<T>& pixels,
     	const casacore::Record& csys, casacore::Bool linear=false,
     	casacore::Bool overwrite=false, casacore::Bool verbose=true,
-    	const vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs=0
+    	const vector<
+    	    std::pair<casacore::LogOrigin, casacore::String>
+        > *const &msgs=nullptr
     );
 
     static SPIIF fromASCII(
         const casacore::String& outfile, const casacore::String& infile,
-        const casacore::IPosition& shape, const casacore::String& sep, const casacore::Record& csys,
-        const casacore::Bool linear, const casacore::Bool overwrite
+        const casacore::IPosition& shape, const casacore::String& sep,
+        const casacore::Record& csys, const casacore::Bool linear,
+        const casacore::Bool overwrite
+    );
+
+    template <class T> static SPIIT fromShape(
+        const casacore::String& outfile,
+        const casacore::Vector<casacore::Int>& shape,
+        const casacore::Record& csys, casacore::Bool linear=false,
+        casacore::Bool overwrite=false, casacore::Bool verbose=false,
+        const std::vector<
+            std::pair<casacore::LogOrigin, casacore::String>
+        > *const &msgs=nullptr
     );
 
     // Create a float-valued image from a complex-valued image. All metadata is
@@ -233,13 +260,6 @@ public:
     );
 
 private:
-
-	template <class T> static SPIIT _fromShape(
-		const casacore::String& outfile, const casacore::Vector<casacore::Int>& shape,
-		const casacore::Record& csys, casacore::Bool linear,
-		casacore::Bool overwrite, casacore::Bool verbose,
-        const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs
-	);
 
 	template <class T> static SPIIT _fromRecord(
 	    const casacore::RecordInterface& rec, const casacore::String& name

@@ -57,8 +57,6 @@ ImageAnalysis/ImagePolTask.cc
 ImageAnalysis/ImagePrimaryBeamCorrector.cc
 ImageAnalysis/ImageProfileFitter.cc
 ImageAnalysis/ImageRotator.cc
-ImageAnalysis/ImageStatsCalculator.cc
-ImageAnalysis/ImageStatsConfigurator.cc
 ImageAnalysis/ImageTotalPolarization.cc
 ImageAnalysis/ImageTransposer.cc
 ImageAnalysis/LinearPolarizationAngleCalculator.cc
@@ -216,7 +214,10 @@ install (FILES
 	ImageAnalysis/ImageSourceFinder.h
 	ImageAnalysis/ImageSourceFinder.tcc
 	ImageAnalysis/ImageStatsCalculator.h
-	ImageAnalysis/ImageStatsConfigurator.h
+    ImageAnalysis/ImageStatsCalculator.tcc
+	ImageAnalysis/ImageStatsBase.h
+	ImageAnalysis/ImageStatsBase.tcc
+    ImageAnalysis/ImageStatsData.h
 	ImageAnalysis/ImageTask.h
     ImageAnalysis/ImageTask.tcc
     ImageAnalysis/ImageTotalPolarization.h
