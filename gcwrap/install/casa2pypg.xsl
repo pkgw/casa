@@ -165,6 +165,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_pg_:</xsl:text>
 	     tname = </xsl:text>'<xsl:value-of select="$taskname"/>'<xsl:text disable-output-escaping="yes">
 	     casalog.post('An error occurred running task %s: %s' % (tname,instance), 'ERROR')
 	     pass
+	casalog.origin('')
 </xsl:text>
 <xsl:for-each select="aps:output">
    <xsl:call-template name="checkoutput"/>
