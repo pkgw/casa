@@ -76,7 +76,8 @@ void _addHistory(
 );
 
 template <class T> void _addHistory(
-    SPIIT image, const casacore::String& method, const std::vector<casacore::String>& keys,
+    SPIIT image, const casacore::String& method,
+    const std::vector<casacore::String>& keys,
     const std::vector<casac::variant>& vals,
     const std::vector<casacore::String>& appendMsgs=std::vector<casacore::String>(),
     const std::set<casacore::String>& dontQuote=std::set<casacore::String>()
@@ -98,6 +99,19 @@ template<class T> SPIIT _concat(
     const variant& infiles, int axis, bool relax, bool tempclose,
     bool overwrite, bool reorder,
     const std::vector<casacore::String>& imageNames
+);
+
+template<class T> image* _convolve(
+    SPIIT image, const string& outfile, const variant& kernel, double scale,
+    const variant& region, const variant& vmask, bool overwrite, bool stretch
+);
+
+template<class T> image* _convolve2d(
+    SPIIT myImage, const string& outFile, const vector<int>& axes,
+    const string& type, const variant& major, const variant& minor,
+    const variant& pa, double in_scale, const variant& region,
+    const variant& vmask, bool overwrite, bool stretch,
+    bool targetres, const record& beam
 );
 
 template<class T> image* _decimate(
