@@ -508,10 +508,21 @@ std::string image::brightnessunit() {
         return "";
     }
     try {
-       auto unit =_imageF
-            ? _imageF->units().getName()
-            : _imageC->units().getName();
-       return unit;
+        if (_imageF) {
+            return _imageF->units().getName();
+        }
+        else if (_imageC) {
+            return _imageC->units().getName();
+        }
+        else if (_imageD) {
+            return _imageD->units().getName();
+        }
+        else if (_imageDC) {
+            return _imageDC->units().getName();
+        }
+        else {
+            ThrowCc("Logic error");
+        }
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -5108,16 +5119,28 @@ record* image::restoringbeam(int channel, int polarization) {
         if (_detached()) {
             return nullptr;
         }
-        _notSupported(__func__);
         if (_imageF) {
             return fromRecord(
                 _imageF->imageInfo().beamToRecord(channel, polarization)
             );
         }
-        else {
+        else if (_imageC) {
             return fromRecord(
                 _imageC->imageInfo().beamToRecord(channel, polarization)
             );
+        }
+        else if (_imageD) {
+            return fromRecord(
+                _imageD->imageInfo().beamToRecord(channel, polarization)
+            );
+        }
+        else if (_imageDC) {
+            return fromRecord(
+                _imageDC->imageInfo().beamToRecord(channel, polarization)
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
