@@ -227,8 +227,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
 
     <param type="string" name="stokes" > <!-- subparam="true"> -->
-     <shortdescription>Stokes Planes to make</shortdescription>
-<description>Stokes Planes to make
+     <shortdescription>Stokes Planes to make (I only, for now)</shortdescription>
+<description>Stokes Planes to make (I only, for now)
                default='I'; example: stokes='IQUV';
                  Options: 'I','Q','U','V','IV','QU','IQ','UV','IQUV','RR','LL','XX','YY','RRLL','XXYY','pseudoI'
 
@@ -274,8 +274,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <!--============================================== -->
 
     <param type="any" name="specmode" required="true">
-     <shortdescription>Spectral definition mode (mfs,cube,cubedata)</shortdescription>
-<description>Spectral definition mode (mfs,cube,cubedata)
+     <shortdescription>Spectral definition mode (mfs only, for now)</shortdescription>
+<description>Spectral definition mode (mfs only, for now)
 
                        mode='mfs' : Continuum imaging with only one output image channel.
                                              (mode='cont' can also be used here)
