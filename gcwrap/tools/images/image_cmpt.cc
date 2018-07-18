@@ -6083,17 +6083,27 @@ record* image::torecord() {
         return new record();
     }
     try {
-        _notSupported(__func__);
         Record rec;
         String err;
-        Bool ret = _imageF ? _imageF->toRecord(err, rec)
-            : _imageC->toRecord(err, rec);
+        Bool ret = false;
+        if (_imageF) {
+            ret = _imageF->toRecord(err, rec);
+        }
+        else if (_imageC) {
+            ret = _imageC->toRecord(err, rec);
+        }
+        else if (_imageD) {
+            ret = _imageD->toRecord(err, rec);
+        }
+        else if (_imageDC) {
+            ret = _imageDC->toRecord(err, rec);
+        }
         ThrowIf (! ret, "Could not convert to record: " + err);
         return fromRecord(rec);
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return new record();
