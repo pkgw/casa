@@ -410,7 +410,7 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
       solnorm -- Normalize (squared) solution amplitudes (G, T only)
               default: False (no normalization)
       normtype -- Solution normalization calculation type: mean or median
-              default: False (no normalization)
+              default: 'mean'
       append -- Append solutions to the (existing) table.  Appended solutions
                  must be derived from the same MS as the existing
                  caltable, and solution spws must have the same
