@@ -1051,6 +1051,7 @@ void processCorrelatorFlags(unsigned int numIntegration,
 					   flagRow);
   iMSRow = putReturn.first;
   numFlaggedRows += putReturn.second;
+  sdosr.close();
 
   return;
 }
