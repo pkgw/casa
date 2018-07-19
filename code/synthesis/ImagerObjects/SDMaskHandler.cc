@@ -1235,7 +1235,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //String lelstring = pbname+">0.92 && "+pbname+"<0.98";
     //cerr<<"lelstring = "<<lelstring<<endl;
     //cerr<<"LELMask="<<LELmask<<endl;
-    ImageStatsCalculator imcalc( tempres_ptr, regionPtr, LELmask, False); 
+    ImageStatsCalculator<Float> imcalc( tempres_ptr, regionPtr, LELmask, False); 
     Vector<Int> axes(2);
     axes[0] = 0;
     axes[1] = 1;
@@ -1396,7 +1396,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         // 2nd arg is regionRecord, 3rd is LELmask expression and those will be AND 
         // to define a region to be get statistics
         //ImageStatsCalculator imcalc( tempres_ptr, 0, "", False); 
-        ImageStatsCalculator imcalc( tempres_ptr, regionPtr, LELmask, True); 
+        ImageStatsCalculator<Float> imcalc( tempres_ptr, regionPtr, LELmask, True); 
         Vector<Int> axes(2);
         axes[0] = 0;
         axes[1] = 1;
@@ -1899,6 +1899,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
       else {
         beam = CasaImageBeamSet(psfInfo.getBeamSet()).getCommonBeam(); 
+      }
+      // check
+      if(std::isinf( beam.getMajor(Unit("arcsec"))) || std::isinf( beam.getMinor(Unit("arcsec"))) ){
+        throw(AipsError("A bad common beam, which is used to set smoothing and pruning sizes for automask. At least one of the axes of the beam is infinite."));
       }
       Quantity bmaj = beam.getMajor();
       Quantity bmin = beam.getMinor();
@@ -2572,7 +2576,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     tempImForStat->copyData(tempRebinnedIm);
     SHARED_PTR<casacore::ImageInterface<float> > temprebin_ptr(tempImForStat);
     //os<<" temprebin_ptr.get()->hasPixelMask()="<<temprebin_ptr.get()->hasPixelMask()<<LogIO::POST;
-    ImageStatsCalculator imcalc( temprebin_ptr, 0, "", False);
+    ImageStatsCalculator<Float> imcalc( temprebin_ptr, 0, "", False);
     Vector<Int> stataxes(2);
     stataxes[0] = 0;
     stataxes[1] = 1;

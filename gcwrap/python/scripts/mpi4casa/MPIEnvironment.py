@@ -163,11 +163,13 @@ class MPIEnvironment:
     # Generate the processor origin for the logger
     processor_origin = ""
     if is_mpi_enabled:
+        # keep it short, take out the domain name if present
+        hostname_wo_domain = hostname.split('.')[0]
+        processor_origin = "@" + hostname_wo_domain
         if is_mpi_client:
-            processor_origin = "@" + hostname + ":MPIClient"
-        else:
-            # Rank information of server is written in the C++ level
-            processor_origin = "@" + hostname   
+            processor_origin += ":MPIClient"
+            # For servers, rank information is written in the C++ level
+
             
     # Set pre-determined log level
     command_handling_log_level = "NORMAL"

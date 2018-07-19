@@ -47,6 +47,7 @@
 #include <tables/Tables/TableLock.h>
 
 #include<synthesis/ImagerObjects/SIMinorCycleController.h>
+#include <imageanalysis/ImageAnalysis/CasaImageBeamSet.h>
 
 #include <casa/sstream.h>
 
@@ -297,6 +298,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SDAlgorithmBase::setRestoringBeam( GaussianBeam restbeam, String usebeam )
   {
+    LogIO os( LogOrigin("SDAlgorithmBase","setRestoringBeam",WHERE) );
     itsRestoringBeam = restbeam;
     itsUseBeam = usebeam;
   }

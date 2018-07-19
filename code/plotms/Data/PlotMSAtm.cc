@@ -377,8 +377,10 @@ void PlotMSAtm::getMeanWeather() {
             casacore::Table wtable = Table::openTable(tableName_ + "::WEATHER");
             TableColumn tempCol = TableColumn(wtable, "TEMPERATURE");
             String tempUnits = tempCol.keywordSet().asArrayString("QuantumUnits").tovector()[0];
+            TableColumn pressCol = TableColumn(wtable, "PRESSURE");
+            String pressUnits = pressCol.keywordSet().asArrayString("QuantumUnits").tovector()[0];
             // select valid stations and values in range
-            casacore::Table selwtable = selectWeatherTable(wtable, tempUnits);
+            casacore::Table selwtable = selectWeatherTable(wtable, tempUnits, pressUnits);
             
             // get columns
             casacore::Vector<casacore::Float> 
@@ -390,38 +392,41 @@ void PlotMSAtm::getMeanWeather() {
 
             // select values based on cal times
             casacore::Vector<casacore::Float> selpressure, selhumidity, seltemperature;
-            casacore::Float meanp(0.0), meanh(0.0), meant(0.0);
+            casacore::Float meanP(0.0), meanH(0.0), meanT(0.0);
             // pressure
             if (!pressureCol.empty()) {
                 selpressure = getValuesNearTimes(pressureCol, timeCol);
                 if (!selpressure.empty()) 
-                    meanp = mean(selpressure);
-                if (meanp==0.0)
+                    meanP = mean(selpressure);
+                if (meanP==0.0) {
                     parent_->logmesg("load_cache", "WEATHER pressure is zero, using default value instead.");
-                else 
-                    pressure = meanp;
+                } else {
+                    if (pressUnits=="Pa" && meanP>1013.25)
+                        meanP /= (float)100.0;  // Pa to hPa
+                    pressure = meanP;
+                }
             }
             // humidity
             if (!humidityCol.empty()) {
                 selhumidity = getValuesNearTimes(humidityCol, timeCol);
                 if (!selhumidity.empty())
-                    meanh = mean(selhumidity);
-                if (meanh==0.0) 
+                    meanH = mean(selhumidity);
+                if (meanH==0.0)
                     parent_->logmesg("load_cache", "WEATHER humidity is zero, using default value instead.");
                 else 
-                    humidity = meanh;
+                    humidity = meanH;
             }
 
             // temperature
             if (!temperatureCol.empty()) {
                 seltemperature = getValuesNearTimes(temperatureCol, timeCol);
                 if (!seltemperature.empty())
-                    meant = mean(seltemperature);
-                if (meant==0.0) {
+                    meanT = mean(seltemperature);
+                if (meanT==0.0) {
                     parent_->logmesg("load_cache", "WEATHER temperature is zero, using default value instead.");
                 } else {
-                    if (tempUnits=="C") meant += (float)273.15;  // convert C to K
-                    temperature = meant;
+                    if (tempUnits=="C") meanT += (float)273.15;  // convert C to K
+                    temperature = meanT;
                 }
             }
             noWeather = false;
@@ -430,9 +435,9 @@ void PlotMSAtm::getMeanWeather() {
         }
     }
 
-	String msg = "Using";
+    String msg = "Using";
     msg += (noWeather ? " default " : " ");
-	msg += "weather values for Atm/Tsky:\n";
+    msg += "weather values for Atm/Tsky:\n";
     msg += "  humidity " + casacore::String::toString(humidity) + 
         ", pressure " + casacore::String::toString(pressure) +
         ", temperature " + casacore::String::toString(temperature);
@@ -443,7 +448,7 @@ void PlotMSAtm::getMeanWeather() {
     weather_.define("temperature", temperature); // K
 }
 
-Table PlotMSAtm::selectWeatherTable(Table& wtable, String tempUnits) {
+Table PlotMSAtm::selectWeatherTable(Table& wtable, String tempUnits, String pressureUnits) {
     // Remove invalid station, values from weather table
     TableExprNode ten;
     if (telescopeName_=="ALMA") {
@@ -457,14 +462,28 @@ Table PlotMSAtm::selectWeatherTable(Table& wtable, String tempUnits) {
             // table does not exist 
         }
     }
-    // SCIREQ-1241
+    // SCIREQ-1241 ranges
     // temperature in the range -30 to +30C
-    // pressure in the range 450 to 800mb
-    // Humidity in the range -10 to +110%
     Float mintemp = (tempUnits=="C" ? -30.0 : 243.15);
     Float maxtemp = (tempUnits=="C" ? 30.0 : 303.15);
     ten = ten && (wtable.col("TEMPERATURE")>=mintemp && wtable.col("TEMPERATURE")<=maxtemp);
-    ten = ten && (wtable.col("PRESSURE")>=450.0 && wtable.col("PRESSURE")<=800.0);
+    // pressure in the range 450 to 800mb
+    // CAS-11528 units are "Pa" but might be hPa
+    // need to check, for legacy datasets
+    if (pressureUnits=="Pa") {
+        TableColumn tabcol(wtable, "PRESSURE");
+        for (uInt irow=0; irow<tabcol.nrow(); ++irow) {
+            float val(tabcol.asfloat(irow));
+            if (val > 0.0 && val < 1013.25) { // avg sea-level pressure mb
+                pressureUnits = "hPa";
+                break;
+            }
+        }
+    }
+    Float minpress = (pressureUnits=="hPa" ? 450.0 : 45000.0);
+    Float maxpress = (pressureUnits=="hPa" ? 900.0 : 90000.0);
+    ten = ten && (wtable.col("PRESSURE")>=minpress && wtable.col("PRESSURE")<=maxpress);
+    // Humidity in the range -10 to +110%
     ten = ten && (wtable.col("REL_HUMIDITY")>=-10.0 && wtable.col("REL_HUMIDITY")<=110.0);
     casacore::Table selwtable(wtable(ten));
     return selwtable;
