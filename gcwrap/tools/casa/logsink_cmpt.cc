@@ -32,7 +32,6 @@
 #include <mutex>
 #include <sys/file.h>
 
-
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -306,6 +305,7 @@ bool logsink::poststat(const std::string& message,
         cout << "Telemetry file is locked by another process. Won't write stats.";
     }
     flock(fd, LOCK_UN);
+    close(fd);
     return true;
 }
 

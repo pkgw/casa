@@ -35,7 +35,8 @@ casa::SPIIC _imageC = casa::SPIIC();
 casa::SPIID _imageD = casa::SPIID();
 casa::SPIIDC _imageDC = casa::SPIIDC();
 
-std::auto_ptr<casa::ImageStatsCalculator> _stats;
+std::auto_ptr<casa::ImageStatsCalculator<casacore::Float>> _statsF;
+std::auto_ptr<casa::ImageStatsCalculator<casacore::Double>> _statsD;
 
 static const casacore::String _class;
 
@@ -248,6 +249,16 @@ template<class T> void _setrestoringbeam(
     SPIIT image, const variant& major, const variant& minor, const variant& pa,
     bool remove, bool log, int channel, int polarization,
     const casacore::Record& rec, const ImageBeamSet& bs
+);
+
+template <class T> record* _statistics(
+    std::auto_ptr<casa::ImageStatsCalculator<T>>& stats, SPIIT myImage,
+    const vector<int>& axes, const variant& region,
+    const variant& mask, const vector<double>& includepix,
+    const vector<double>& excludepix, bool list, bool force, bool disk,
+    bool robust, bool verbose, bool stretch, const string& logfile, bool append,
+    const string& algorithm, double fence, const string& center, bool lside,
+    double zscore, int maxiter, const string& clmethod, int niter
 );
 
 template<class T> image* _subimage(
