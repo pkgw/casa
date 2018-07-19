@@ -275,6 +275,43 @@ class ia_deviation_test(unittest.TestCase):
             "incorrect grid pixel value"
         )
         myia.done()
+        
+    def test_history(self):
+        """verify history writing"""
+        myia = iatool()
+        imagename = "zz.im"
+        myia.fromshape(imagename,[100, 100])
+        xlength = "4arcmin"
+        stattype="sum"
+        grid=[20,20]
+        myia = myia.deviation(xlength=xlength, stattype=stattype, grid=grid)
+        msgs = myia.history()
+        myia.done()
+        teststr = "ia.deviation"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        # verify no history written if dohistory set to False
+        ia2 = iatool()
+        ia2.dohistory(False)
+        ia2.fromshape(imagename,[100, 100], overwrite=True)
+        ia2 = ia2.deviation(xlength=xlength, stattype=stattype, grid=grid)
+        msgs = ia2.history()
+        ia2.done()
+        for m in msgs:
+            self.assertFalse(teststr in m, "History unexpectedly written")
+            
+        outfile = "xx.im"
+        imdev(
+            imagename=imagename, outfile=outfile, xlength=xlength,
+            stattype=stattype, grid=grid
+        )
+        myia.open(outfile)  
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "imdev"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
 
 def suite():
     return [ia_deviation_test]
