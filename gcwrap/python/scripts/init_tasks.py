@@ -619,18 +619,18 @@ def default(taskname=None):
     except TypeError, e:
         print "default --error: ", e
 
-def taskparamgui(useGlobals=True):
-    """
-        Show a parameter-setting GUI for all available tasks.
-    """
-    import paramgui
-
-    if useGlobals:
-        paramgui.setGlobals(stack_frame_find( ))
-    else:
-        paramgui.setGlobals({})
-
-    paramgui.runAll(_ip)
-    paramgui.setGlobals({})
+# def taskparamgui(useGlobals=True):
+#     """
+#         Show a parameter-setting GUI for all available tasks.
+#     """
+#     import paramgui
+# 
+#     if useGlobals:
+#         paramgui.setGlobals(stack_frame_find( ))
+#     else:
+#         paramgui.setGlobals({})
+# 
+#     paramgui.runAll(_ip)
+#     paramgui.setGlobals({})
 
 ####################
