@@ -138,6 +138,7 @@ class telemetry:
         try:
             urllib2.urlopen('https://casa.nrao.edu/', timeout=20, context=context)
         except urllib2.URLError as err:
+            self.logger.post("No telemetry server available. Not submitting data")
             return
 
         # Find logfiles
