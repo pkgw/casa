@@ -904,10 +904,10 @@ ms::writehistory(const std::string& message, const std::string& parms, const std
             MSHistoryHandler::addMessage(outMS, message, app, parms, origin);
             rstat = true;
         }
-    } catch (AipsError x) {
-        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+    } catch (const AipsError &exc) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << exc.getMesg() << LogIO::POST;
         Table::relinquishAutoLocks(true);
-        RETHROW(x);
+        RETHROW(exc);
     }
     Table::relinquishAutoLocks(true);
     return rstat;
@@ -931,15 +931,15 @@ ms::writehistory_batch(const std::vector<std::string>& messages, const std::stri
             setupMSHistory(outMS);
 
             MSHistoryHandler mshh(outMS, app);
-            for (auto &msg : messages) {
+            for (const auto &msg : messages) {
                 mshh.addMessage(msg, parms, origin);
             }
             rstat = true;
         }
-    } catch (AipsError x) {
-        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+    } catch (const AipsError &exc) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << exc.getMesg() << LogIO::POST;
         Table::relinquishAutoLocks(true);
-        RETHROW(x);
+        RETHROW(exc);
     }
     Table::relinquishAutoLocks(true);
     return rstat;
