@@ -1267,16 +1267,16 @@ Constraints
       <equals type="string" value="Imag">
         <default param="xdatacolumn"><value type="string" /></default>
       </equals>
-      <equals value="wtamp">
+      <equals type="string" value="wtamp">
         <default param="xdatacolumn"><value type="string" /></default>
       </equals>
-      <equals value="wt*amp">
+      <equals type="string" value="wt*amp">
         <default param="xdatacolumn"><value type="string" /></default>
       </equals>
-      <equals value="Wt*Amp">
+      <equals type="string" value="Wt*Amp">
         <default param="xdatacolumn"><value type="string" /></default>
       </equals>
-      <equals value="WtAmp">
+      <equals type="string" value="WtAmp">
         <default param="xdatacolumn"><value type="string" /></default>
       </equals>
       <equals value="scan"/>
@@ -1516,7 +1516,24 @@ Constraints
             <default param="symboloutline">
                 <value type="bool">False</value>
             </default>
-        </equals>    
+		</equals>
+		<equals type="boolArray" value="[True,True]">
+            <default param="symbolshape">
+                <value type="stringArray">"autoscaling","autoscaling"</value>
+            </default>
+            <default param="symbolsize">
+                <value type="intArray">2,2</value>
+            </default>
+            <default param="symbolcolor">
+                <value type="stringArray">"0000ff","0000ff"</value>
+            </default>
+            <default param="symbolfill">
+                <value type="stringArray">"fill","fill"</value>
+            </default>
+            <default param="symboloutline">
+                <value type="boolArray">False,False</value>
+            </default>
+        </equals>	
     </when>
 
     <when param="customflaggedsymbol">
@@ -1537,7 +1554,24 @@ Constraints
             <default param="flaggedsymboloutline">
                 <value type="bool">False</value>
             </default>
-        </equals>
+		</equals>
+      	<equals type="boolArray" value="[True,True]">
+            <default param="flaggedsymbolshape">
+                <value type="stringArray">"nosymbol","nosymbol"</value>
+            </default>
+            <default param="flaggedsymbolsize">
+                <value type="intArray">2,2</value>
+            </default>
+            <default param="flaggedsymbolcolor">
+                <value type="stringArray">"ff0000","ff0000"</value>
+            </default>
+            <default param="flaggedsymbolfill">
+                <value type="stringArray">"fill","fill"</value>
+            </default>
+            <default param="flaggedsymboloutline">
+                <value type="boolArray">False,False</value>
+            </default>
+        </equals>  
     </when>
 
     <when param="plotfile">
