@@ -138,6 +138,7 @@ class telemetry:
         try:
             urllib2.urlopen('https://casa.nrao.edu/', timeout=20, context=context)
         except urllib2.URLError as err:
+            self.logger.post("No telemetry server available. Not submitting data")
             return
 
         # Find logfiles
@@ -150,30 +151,45 @@ class telemetry:
             #Tar logfiles
             current_date = datetime.datetime.today().strftime('%Y%m%d%H%M%S')
             tarfileid = self.logdir + "/telemetry-" \
-                        + telemetryhelper.getUniqueId() + "-" \
-                        + current_date + ".tar.gz"
-            tar = tarfile.open(tarfileid, "w:gz")
+                            + telemetryhelper.getUniqueId() + "-" \
+                            + current_date + ".tar.gz"
+            try:
+                tar = tarfile.open(tarfileid, "w:gz")
+                for logfile in logfiles:
+                    tar.add(self.logdir + "/" + logfile,
+                            arcname='telemetry/'+logfile)
+                tar.close()
+            except Exception as e:
+                self.logger.post("Couldn't create telemetry tarfile")
+                self.logger.post(str(e))
 
-            for logfile in logfiles:
-                tar.add(self.logdir + "/" + logfile,
-                        arcname='telemetry/'+logfile)
-            tar.close()
-
-            file_param = 'file=@' + tarfileid #+ '\"'
-            # Submit tarfile
-            #print ['curl', '-F', file_param , telemetry_url]
-            proc = subprocess.Popen(['curl', '-F', file_param , telemetry_url],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            cmd_out, cmd_err = proc.communicate()
-            if cmd_out != None:
-                self.logger.post(cmd_out, 'DEBUG1')
-            if cmd_err != None:
-                self.logger.post(cmd_err, 'DEBUG1')
+            try:
+                file_param = 'file=@' + tarfileid #+ '\"'
+                # Submit tarfile
+                #print ['curl', '-F', file_param , telemetry_url]
+                proc = subprocess.Popen(['curl', '-F', file_param , telemetry_url],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                cmd_out, cmd_err = proc.communicate()
+                if cmd_out != None:
+                    self.logger.post(cmd_out, 'DEBUG1')
+                if cmd_err != None:
+                    self.logger.post(cmd_err, 'DEBUG1')
+            except Exception as e:
+                self.logger.post("Couldn't submit telemetry logs")
+                self.logger.post(str(e))
 
             # Remove files
             for logfile in logfiles:
-                os.remove(self.logdir + "/" + logfile)
-                #print "Removed " + self.logdir + "/" + logfile
-            os.remove(tarfileid)
-            self.logger.post("Removed" + tarfileid)
+                try:
+                    os.remove(self.logdir + "/" + logfile)
+                except Exception as e:
+                    self.logger.post("Couldn't remove logfile " + self.logdir + "/" + logfile)
+                    self.logger.post(str(e))
+                    #print "Removed " + self.logdir + "/" + logfile
+            try:
+                os.remove(tarfileid)
+                self.logger.post("Removed" + tarfileid)
+            except Exception as e:
+                    self.logger.post("Couldn't remove  " + tarfileid)
+                    self.logger.post(str(e))
         else:
             self.logger.post("No telemetry files to submit.")
