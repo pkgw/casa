@@ -98,6 +98,16 @@ Previous calibrations should be applied on the fly.
 		<value>False</value>
 	</param>
 
+   <param type="doubleArray" name="delaywindow">
+		<description>Constrain FFT delay search to a window</description>
+		<value></value>
+	</param>
+
+   <param type="doubleArray" name="ratewindow">
+		<description>Constrain FFT rate search to a window</description>
+		<value></value>
+	</param>
+   
 	<param type="bool" name="append">
 		<description>Append solutions to the (existing) table</description>
 		<value>False</value>
@@ -278,6 +288,11 @@ Previous calibrations should be applied on the fly.
       the case of "manual phase calibration".
                 default: False
 
+
+		delaywindow -- Constrain FFT delay search to a window
+      ratewindow -- Constrain FFT rate search to a window
+      least-squares routine. 0 => off, 1 => weight ^ -1, 2 => weight ^ -2
+      
       --- Other calibrations to apply on the fly before determining
       fringe fit solution
 

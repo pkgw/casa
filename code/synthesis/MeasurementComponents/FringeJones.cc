@@ -67,7 +67,7 @@
 
 // DEVDEBUG gates the development debugging information to standard
 // error; it should be set to 0 for production.
-#define DEVDEBUG 0
+#define DEVDEBUG 1
 
 using namespace casa::vi;
 using namespace casacore;
@@ -174,7 +174,7 @@ SDBListGridManager::swStartIndex(Int spw) {
 
    
 // DelayRateFFT is modeled on DelayFFT in KJones.{cc|h}
-DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
+DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant, Array<Double>& delayWindow, Array<Double>& rateWindow) :
     refant_(refant),
     gm_(sdbs),
     nPadFactor_(max(2, 8  / gm_.nSPW())), 
@@ -190,13 +190,25 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     Vpad_(),
     xcount_(),
     sumw_(),
-    sumww_() {
+    sumww_(),
+    activeAntennas_(),
+    allActiveAntennas_(),
+    delayWindow_(delayWindow),
+    rateWindow_(rateWindow) {
     // This check should be commented out in production:
     // gm_.checkAllGridpoints();
+
     if (nt_ < 2) {
         throw(AipsError("Can't do a 2-dimensional FFT on a single timestep! Please consider changing solint to avoid orphan timesteps."));
     }
-    
+    IPosition ds = delayWindow_.shape();
+    if (ds.size()!=1 || ds.nelements() != 1) {
+        throw AipsError("delaywindow must be a list of length 2.");
+    }
+    IPosition rs = rateWindow_.shape();
+    if (rs.size()!=1 || rs.nelements() != 1) {
+        throw AipsError("ratewindow must be a list of length 2.");
+    }
     Int nCorrOrig(sdbs(0).nCorrelations());
     nCorr_ = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
 
@@ -236,9 +248,13 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     // Don't try to check there are multiple times here; let DelayRateFFT check that.
     IPosition paddedDataSize(4, nCorr_, nElem_, nPadT_, nPadChan_);
     Vpad_.resize(paddedDataSize);
+    Int totalRows = 0;
+    Int goodRows = 0;
 
+    
     for (Int ibuf=0; ibuf != sdbs.nSDB(); ibuf++) {
         SolveDataBuffer& s(sdbs(ibuf));
+        totalRows += s.nRows();
         if (!s.Ok())
             continue;
 
@@ -304,19 +320,34 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
             if (!allTrue(flagged)) {
                 for (Int icorr=0; icorr<nCorr_; ++icorr) {
                     IPosition p(2, icorr, iant);
+                    Bool actually = false;
                     activeAntennas_[icorr].insert(iant);
                     for (Int ichan=0; ichan != (Int) spwchans; ichan++) {
                         IPosition pchan(2, icorr, ichan);
                         if (!flagged(pchan)) {
-                            Float w = weights(pchan);
+                            Float wv = weights(pchan);
+                            if (wv < 0) {
+                                cerr << "spwchans " << spwchans << endl;
+                                cerr << "Negative weight << (" << wv << ") on row "
+                                     << irow << " baseline (" << a1 << ", " << a2 << ") "
+                                     << " channel " << ichan << endl;
+                                cerr << "pchan " << pchan << endl;
+                                cerr << "Weights " << weights << endl;
+                            }
                             xcount_(p)++;
-                            sumw_(p) += w;
-                            sumww_(p) += w*w;
+                            sumw_(p) += wv;
+                            sumww_(p) += wv*wv;
+                            actually = true;
                         }
+                    }
+                    if (actually) {
+                        activeAntennas_[icorr].insert(iant);
+                        goodRows++;
                     }
                 }
             }                
             if (DEVDEBUG && 0) {
+                cerr << "flagged " << flagged << endl;
                 cerr << "flagSlice " << flagSlice << endl
                      << "fl.shape() " << fl.shape() << endl
                      << "Vpad_.shape() " << Vpad_.shape() << endl
@@ -326,11 +357,18 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
         }
     }
     if (DEVDEBUG) {
+        cerr << "In DelayRateFFT::DelayRateFFT " << endl;
+        printActive();
+        cerr << "sumw_ " << sumw_ << endl;
         cerr << "Constructed a DelayRateFFT object." << endl;
+        cerr << "totalRows " << totalRows << endl;
+        cerr << "goodRows " << goodRows << endl;
     }
+    
 }
 
-DelayRateFFT::DelayRateFFT(Array<Complex>& data, Int nPadFactor, Float f0, Float df, Float dt, SDBList& s) :
+DelayRateFFT::DelayRateFFT(Array<Complex>& data, Int nPadFactor, Float f0, Float df, Float dt, SDBList& s,
+                           Array<Double>& delayWindow, Array<Double>& rateWindow) :
     refant_(0),
     gm_(s),
     nPadFactor_(nPadFactor),
@@ -341,7 +379,9 @@ DelayRateFFT::DelayRateFFT(Array<Complex>& data, Int nPadFactor, Float f0, Float
     sumw_(),
     sumww_(),
     param_(),
-    flag_()
+    flag_(),
+    delayWindow_(delayWindow),
+    rateWindow_(rateWindow) 
 {
     IPosition shape = data.shape();
     nCorr_ = shape(0);
@@ -429,7 +469,10 @@ DelayRateFFT::searchPeak() {
     if (DEVDEBUG) {
         cerr << "nt_ " << nt_ << " nPadChan_ " << nPadChan_ << endl;
         cerr << "Vpad_.shape() " << Vpad_.shape() << endl;
+        cerr << "delayWindow_ " << delayWindow_ << endl;
+
     }
+    
     for (Int icorr=0; icorr<nCorr_; ++icorr) {
         flag_(icorr*3 + 0, refant()) = false; 
         flag_(icorr*3 + 1, refant()) = false;
@@ -445,15 +488,50 @@ DelayRateFFT::searchPeak() {
             IPosition step(4,     1,     1,       1,        1);
             Slicer sl(start, stop, step, Slicer::endIsLength);
             Matrix<Complex> aS = Vpad_(sl).nonDegenerate();
-            // cerr << "aS.shape()=" <<aS.shape() << endl;
+            Int sgn = (ielem < refant()) ? 1 : -1;
 
+            // Below is the gory details for turning delay window into index range
+            Double bw = Float(nPadChan_)*df_;
+            Double d0 = sgn*delayWindow_(IPosition(1, 0));
+            Double d1 = sgn*delayWindow_(IPosition(1, 1));
+            if (d0 > d1) std::swap(d0, d1);
+            d0 = max(d0, -0.5/df_);
+            d1 = min(d1, (0.5-1/nPadChan_)/df_);
+
+            // It's simpler to keep the ranges as signed integers and
+            // handle the wrapping of the FFT in the loop over
+            // indices. Recall that the FFT result returned has indices
+            // that run from 0 to nPadChan_/2 -1 and then from
+            // -nPadChan/2 to -1, so far as our delay is concerned.
+            Int i0 = bw*d0;
+            Int i1 = bw*d1;
+            // Now for the gory details for turning rate window into index range
+            Double width = nPadT_*dt_*1e9*f0_;
+            Double r0 = sgn*rateWindow_(IPosition(1,0));
+            Double r1 = sgn*rateWindow_(IPosition(1,1));
+            if (r0 > r1) std::swap(r0, r1);
+            r0 = max(r0, -0.5/(dt_*1e9*f0_));
+            r1 = min(r1, (0.5 - 1/nPadT_)/(dt_*1e9*f0_));
+            
+            Int j0 = width*r0;
+            Int j1 = width*r1;
+            if (DEVDEBUG) {
+                cerr << "Checking the windows for delay and rate search." << endl;
+                cerr << "bw " << bw << endl;
+                cerr << "d0 " << d0 << " i0 " << i0 << endl;
+                cerr << "d1 " << d1 << " i1 " << i1 << endl; 
+                cerr << "r0 " << r0 << " j0 " << j0 << endl;
+                cerr << "r1 " << r1 << " j1 " << j1 << endl; 
+            }
             Matrix<Float> amp(amplitude(aS));
             Int ipkch(0);
             Int ipkt(0);
             Float amax(-1.0);
             // Unlike KJones we have to iterate in time too
-            for (Int itime=0; itime != nPadT_; itime++) {
-                for (Int ich=0; ich != nPadChan_; ich++) {
+            for (Int itime0=j0; itime0 != j1; itime0++) {
+                Int itime = (itime0 < 0) ? itime0 + nPadT_ : itime0;
+                for (Int ich0=i0; ich0 != i1; ich0++) {
+                    Int ich = (ich0 < 0) ? ich0 + nPadChan_ : ich0;
                     if (amp(itime, ich) > amax) {
                         ipkch = ich;
                         ipkt  = itime;
@@ -477,7 +555,6 @@ DelayRateFFT::searchPeak() {
             }
             std::pair<Bool, Float> maybeFpkt = xinterp(alo_t, amax, ahi_t);
 
-            Int sgn = (ielem < refant()) ? 1 : -1;
             if (maybeFpkch.first and maybeFpkt.first) {
                 // Phase
                 Complex c = aS(ipkt, ipkch);
@@ -493,17 +570,6 @@ DelayRateFFT::searchPeak() {
                 Double rate1 = rate0/(1e9 * f0_); 
 
                 param_(icorr*3 + 2, ielem) = Float(sgn*rate1); 
-                if (DEVDEBUG) {
-                    cerr << "maybeFpkch.second=" << maybeFpkch.second
-                         << ", df_ " << df_ 
-                         << " fpkch " << (ipkch + maybeFpkch.second) << endl;
-                    cerr << " maybeFpkt.second=" << maybeFpkt.second
-                         << " rate0 " << rate
-                         << " 1e9 * f0_ " << 1e9 * f0_ 
-                         << ", dt_ " << dt_
-                         << " fpkt " << (ipkt + maybeFpkt.second) << endl;
-                        
-                }
                 if (DEVDEBUG) {
                     cerr << "Found peak for element " << ielem << " correlation " << icorr
                          << " ipkt=" << ipkt << "/" << nPadT_ << ", ipkch=" << ipkch << "/" << nPadChan_
@@ -1824,6 +1890,17 @@ void FringeJones::setSolve(const Record& solve) {
     if (solve.isDefined("zerorates")) {
         zeroRates() = solve.asBool("zerorates");
     }
+    if (solve.isDefined("delaywindow")) {
+        Array<Double> dw = solve.asArrayDouble("delaywindow");
+        delayWindow() = dw;
+    } else {
+        cerr << "No delay window!" << endl;
+    }
+    if (solve.isDefined("ratewindow")) {
+        rateWindow() = solve.asArrayDouble("ratewindow");
+    } else {
+        cerr << "No rate window!" << endl;
+    }
 }
 
 // Note: this was previously omitted
@@ -1956,9 +2033,9 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         for (auto it=aggregateTime.begin(); it!=aggregateTime.end(); ++it)
             std::cerr << it->first << " => " << it->second - t0 << std::endl;
     }
-    
-    DelayRateFFT drf(sdbs, refant());
-    drf.FFT(); 
+
+    DelayRateFFT drf(sdbs, refant(), delayWindow(), rateWindow());
+    drf.FFT();
     drf.searchPeak();
     Matrix<Float> sRP(solveRPar().nonDegenerate(1));
     Matrix<Bool> sPok(solveParOK().nonDegenerate(1));
@@ -1977,7 +2054,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         sRP(sl) = drf.param()(sl);
         sPok(sl) = !(drf.flag()(sl));
     }
-
+    
     size_t nCorrOrig(sdbs(0).nCorrelations());
     size_t nCorr = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
 
@@ -1993,7 +2070,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             if (iant != refant() && (activeAntennas.find(iant) != activeAntennas.end())) {
                 Float s = sSNR(3*icor + 0, iant);
 		// Start the log message; finished below
-		logSink() << "Antenna " << iant << " correlation has (FFT) SNR of " << s;
+		logSink() << "Antenna " << iant << " correlation " << icor << "has (FFT) SNR of " << s;
                 if (s < threshold) {
                     belowThreshold.insert(iant);
                     logSink() << " below threshold (" << threshold << ")";

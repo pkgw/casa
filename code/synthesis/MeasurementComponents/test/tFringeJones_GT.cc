@@ -85,8 +85,17 @@ TEST_F(DelayRateFFTTest, BasicDelayRateFFTTest) {
                                           Slicer::endIsLast)).nonDegenerate();
   const Array<Complex>& V3 = this->appdel(nchan, nt, f0, df, dt, delay, rate);
   V2.nonDegenerate() = V3;
+
+  Array<Double> delayWindow(IPosition(1, 2));
+  Array<Double> rateWindow(IPosition(1, 2));
+  delayWindow(IPosition(1, 0)) = -100.0;
+  delayWindow(IPosition(1, 1)) = +100.0;
+  rateWindow(IPosition(1, 0)) = -100.0;
+  rateWindow(IPosition(1, 1)) = +100.0;
+
+  IPosition ds = delayWindow.shape();
   
-  DelayRateFFT drfft0(Vobs0, nPadfactor, f0, df, dt, s);
+  DelayRateFFT drfft0(Vobs0, nPadfactor, f0, df, dt, s, delayWindow, rateWindow);
   drfft0.FFT();
   drfft0.searchPeak();
   Float rate_resn = 1.0f/(nPadfactor*nt*dt*1e9*f0);
@@ -193,7 +202,17 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   solvePar.define("solint",String("inf"));
   solvePar.define("combine",String(""));
   Vector<Int> refant(1,0); solvePar.define("refant",refant);
+  Array<Double> delayWindow(IPosition(1, 2));
+  Array<Double> rateWindow(IPosition(1, 2));
+  delayWindow(IPosition(1, 0)) = -100.0;
+  delayWindow(IPosition(1, 1)) = +100.0;
+  rateWindow(IPosition(1, 0)) = -100.0;
+  rateWindow(IPosition(1, 1)) = +100.0;
+  solvePar.define("delaywindow", delayWindow);
+  solvePar.define("ratewindow", rateWindow);
+
   FJsol.setSolve(solvePar);
+
 
   SDBList sdbs;
   Double reftime;
@@ -230,6 +249,8 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
     }
   }
 
+
+  
   // Setup meta & sizes for the solve
   FJsol.setMeta(sdbs.aggregateObsId(),
 		sdbs.aggregateScan(),
@@ -247,6 +268,8 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   Float rate1 = 0.0;
   Float rate2 = 0.0;    
 
+  cerr << "delay1 results " << p(1,1) << endl;
+  cerr << "delay2 results " << p(4,1) << endl;
   ASSERT_TRUE(allNearAbs(p(1, 1), delay1, 2e-2));
   ASSERT_TRUE(allNearAbs(p(4, 1), delay2, 2e-2));
   
