@@ -87,33 +87,37 @@ def write_history(myms, vis, tname, param_names, param_vals, myclog=None, debug=
         try:
                 myms.open(vis, nomodify=False)
                 isopen = True
-                myms.writehistory(message='taskname=%s' % tname, origin=tname)
+                messages = ['taskname={0}'.format(tname)]
                 vestr = 'version: '
                 try:
-                        # Don't use myclog.version(); it also prints to the
-                        # logger, which is confusing.
-                        vestr += casa['build']['version'] + ' '
-                        vestr += casa['source']['url'].split('/')[-2]
-                        vestr += ' rev. ' + casa['source']['revision']
-                        vestr += ' ' + casa['build']['time']
+                    # Don't use myclog.version(); it also prints to the
+                    # logger, which is confusing.
+                    vestr += casa['build']['version'] + ' '
+                    vestr += casa['source']['url'].split('/')[-2]
+                    vestr += ' rev. ' + casa['source']['revision']
+                    vestr += ' ' + casa['build']['time']
                 except Exception, instance:
-                        if hasattr(myclog, 'version'):
-                                # Now give it a try.
-                                vestr += myclog.version()
-                        else:
-                                vestr += ' could not be determined' # We tried.
-                myms.writehistory(message=vestr, origin=tname)
+                    if hasattr(myclog, 'version'):
+                        # Now give it a try.
+                        vestr += myclog.version()
+                    else:
+                        vestr += ' could not be determined' # We tried.
 
-                # Write the arguments.
+                messages.append(vestr)
+
+                # Add the task arguments.
                 for argnum in xrange(len(param_names)):
-                        msg = "%-11s = " % param_names[argnum]
-                        val = param_vals[argnum]
-                        if type(val) == str:
-                                msg += '"'
-                        msg += str(val)
-                        if type(val) == str:
-                                msg += '"'
-                        myms.writehistory(message=msg, origin=tname)
+                    msg = "%-11s = " % param_names[argnum]
+                    val = param_vals[argnum]
+                    if type(val) == str:
+                        msg += '"'
+                    msg += str(val)
+                    if type(val) == str:
+                        msg += '"'
+                    messages.append(msg)
+
+                myms.writehistory_batch(messages=messages, origin=tname)
+
         except Exception, instance:
                 if hasattr(myclog, 'post'):
                         myclog.post("*** Error \"%s\" updating HISTORY of %s" % (instance, vis),
