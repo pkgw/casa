@@ -1155,7 +1155,6 @@ template<class T> image* image::_convolve2d(
         auto msgs = _newHistory("convolve2d", names, values);
         convolver.addHistory(_ORIGIN, msgs);
     }
-    cout << __FILE__ << " " << __LINE__ << endl;
     return new image(convolver.convolve());
 }
 
