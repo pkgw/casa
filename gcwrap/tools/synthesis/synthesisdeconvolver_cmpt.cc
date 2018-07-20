@@ -129,6 +129,16 @@ bool synthesisdeconvolver::pbcor()
   return rstat;
 }
 
+bool synthesisdeconvolver::checkrestoringbeam()
+{
+  casac::record* rstat(0);
+  try {
+    itsDeconvolver->checkRestoringBeam();
+  } catch  (AipsError x) {
+    RETHROW(x);
+  }
+  return rstat;
+}
   /*
   bool synthesisdeconvolver::testsummary(const casac::image *imt)
 {

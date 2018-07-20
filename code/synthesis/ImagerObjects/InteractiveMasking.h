@@ -30,7 +30,9 @@
 #include <casa/Logging/LogIO.h>
 #include <casa/Logging/LogMessage.h>
 
-#if ! defined(WITHOUT_DBUS)
+#if defined(WITHOUT_DBUS)
+#include <stdcasa/variant.h>
+#else
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
 #include <casadbus/utilities/BusAccess.h>
@@ -39,16 +41,23 @@
 
 namespace casa { //# NAMESPACE CASA - BEGIN
   casacore::Bool clone(const casacore::String& imageName, const casacore::String& newImageName);
+#if ! defined(WITHOUT_DBUS)
   class ViewerProxy;
-  
+#endif
   class new_interactive_clean_callback 
   {
   public:
     new_interactive_clean_callback( ) { }
+#if defined(WITHOUT_DBUS)
+    casac::variant result( ) { return result_; }
+  private:
+    casac::variant result_;
+#else
     casa::dbus::variant result( ) { return casa::dbus::toVariant(result_); }
     bool callback( const DBus::Message & msg );
   private:
     DBus::Variant result_;
+#endif
   };
   
   class InteractiveMasking 

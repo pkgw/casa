@@ -46,12 +46,12 @@ StatWtTVITest::StatWtTVITest(Record configuration): FreqAxisTVITest(configuratio
 
 void StatWtTVITest::generateTestFile() {
     String path = autoMode_p ? "/data/regression/unittest/simplecluster" : "";
-    ASSERT_TRUE(copyTestFile(path, inpFile_p, testFile_p));
+    copyTestFile(path, inpFile_p, testFile_p);
 }
 
 void StatWtTVITest::generateReferenceFile() {
     String path = autoMode_p ? "/data/regression/unittest/statwt" : "";
-    ASSERT_TRUE(copyTestFile(path, referenceFile_p, referenceFile_p));
+    copyTestFile(path, referenceFile_p, referenceFile_p);
 }
 
 void StatWtTVITest::initTestConfiguration(Record &configuration) {
@@ -114,14 +114,8 @@ void StatWtTVITest::testCompareTransformedData() {
 	columns += VisBufferComponent2::WeightSpectrum;
 	columns += VisBufferComponent2::Weight;
     // Compare
-	Bool res = compareVisibilityIterators(testTVI,refTVI,columns,tolerance);
-
-	// Store result
-	if (not res) {
-        testResult_p = res;
-    }
-	// Trigger google test macro
-	ASSERT_TRUE(res);
+    SCOPED_TRACE("Comparing transformed data");
+    compareVisibilityIterators(testTVI,refTVI,columns,tolerance);
 }
 
 //////////////////////////////////////////////////////////////////////////

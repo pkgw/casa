@@ -55,6 +55,7 @@ namespace casa{
     return true;
   }
   
+#if ! defined(WITHOUT_DBUS)
   bool new_interactive_clean_callback::callback( const DBus::Message &msg ) {
     if (msg.is_signal("edu.nrao.casa.viewer","interact")) {
       DBus::MessageIter ri = msg.reader( );
@@ -63,6 +64,7 @@ namespace casa{
     }
     return true;
   }
+#endif
 
   /*  
   Int InteractiveMasking::interactivemask(const String& image, const String& mask, 
@@ -257,6 +259,9 @@ namespace casa{
 
     Double startmask = maskSum(mask);
 
+#if defined(WITHOUT_DBUS)
+    return false;
+#else
     if ( viewer_p == 0 ) {
       std::list<std::string> args;
       args.push_back("--oldregions");
@@ -437,6 +442,7 @@ namespace casa{
     // return 2 if "no more interaction"
     // return 3 if "stop"
     return result;
+#endif
   }
 
 
