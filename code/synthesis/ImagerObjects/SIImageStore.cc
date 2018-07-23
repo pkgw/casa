@@ -2762,13 +2762,23 @@ Bool SIImageStore::isModelEmpty()
     minMax( minVal, maxVal, posmin, posmax, lattice );
   }
 
-Array<Double> SIImageStore::calcRobustRMS()
+Array<Double> SIImageStore::calcRobustRMS(const Float pbmasklevel)
 {    
   LogIO os( LogOrigin("SIImageStore","calcRobustRMS",WHERE) );
   Record*  regionPtr=0;
   String LELmask("");
- 
-  Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+  ArrayLattice<Bool> pbmasklat(residual()->shape());
+  pbmasklat.set(False);
+  LatticeExpr<Bool> pbmask(pbmasklat);
+  if (hasPB()) {
+    // set bool mask: False = masked
+    pbmask = LatticeExpr<Bool> (iif(*pb() > pbmasklevel, True, False));
+  }
+  
+   
+  //Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+  // use the new statistic calculation algorithm
+  Record thestats = SDMaskHandler::calcRobustImageStatistics(*residual(), *mask(), pbmask,  LELmask, regionPtr, True);
 
   /***
   ImageStatsCalculator imcalc( residual(), regionPtr, LELmask, False); 
@@ -2782,16 +2792,18 @@ Array<Double> SIImageStore::calcRobustRMS()
   //cout<<"thestats="<<thestats<<endl;
   ***/
 
-  Array<Double> maxs, rmss, mads;
-  thestats.get(RecordFieldId("max"), maxs);
+  //Array<Double> maxs, rmss, mads, mdns;
+  Array<Double>rmss, mads, mdns;
+  //thestats.get(RecordFieldId("max"), maxs);
   thestats.get(RecordFieldId("rms"), rmss);
   thestats.get(RecordFieldId("medabsdevmed"), mads);
+  thestats.get(RecordFieldId("median"), mdns);
   
-  os << LogIO::DEBUG1 << "Max : " << maxs << LogIO::POST;
+  //os << LogIO::DEBUG1 << "Max : " << maxs << LogIO::POST;
   os << LogIO::DEBUG1 << "RMS : " << rmss << LogIO::POST;
   os << LogIO::DEBUG1 << "MAD : " << mads << LogIO::POST;
   
-  return mads*1.4826;
+  return mdns+mads*1.4826;
 }
 
   void SIImageStore::printImageStats()

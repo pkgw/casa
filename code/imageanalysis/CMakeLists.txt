@@ -43,7 +43,6 @@ ImageAnalysis/ComponentImager.cc
 ImageAnalysis/ImageCollapserData.cc
 ImageAnalysis/ImageCollapser2.cc
 ImageAnalysis/ImageFactory2.cc
-ImageAnalysis/ImageFFT.cc
 ImageAnalysis/ImageFitter.cc
 ImageAnalysis/ImageHistogramsCalculator.cc
 ImageAnalysis/ImageInputProcessor.cc
@@ -58,8 +57,6 @@ ImageAnalysis/ImagePolTask.cc
 ImageAnalysis/ImagePrimaryBeamCorrector.cc
 ImageAnalysis/ImageProfileFitter.cc
 ImageAnalysis/ImageRotator.cc
-ImageAnalysis/ImageStatsCalculator.cc
-ImageAnalysis/ImageStatsConfigurator.cc
 ImageAnalysis/ImageTotalPolarization.cc
 ImageAnalysis/ImageTransposer.cc
 ImageAnalysis/LinearPolarizationAngleCalculator.cc
@@ -164,6 +161,7 @@ install (FILES
 	ImageAnalysis/ImageFactory.h
 	ImageAnalysis/ImageFactory.tcc
 	ImageAnalysis/ImageFFT.h
+    ImageAnalysis/ImageFFT.tcc
 	ImageAnalysis/ImageFFTer.h
 	ImageAnalysis/ImageFFTer.tcc
 	ImageAnalysis/ImageFitter.h
@@ -216,7 +214,10 @@ install (FILES
 	ImageAnalysis/ImageSourceFinder.h
 	ImageAnalysis/ImageSourceFinder.tcc
 	ImageAnalysis/ImageStatsCalculator.h
-	ImageAnalysis/ImageStatsConfigurator.h
+    ImageAnalysis/ImageStatsCalculator.tcc
+	ImageAnalysis/ImageStatsBase.h
+	ImageAnalysis/ImageStatsBase.tcc
+    ImageAnalysis/ImageStatsData.h
 	ImageAnalysis/ImageTask.h
     ImageAnalysis/ImageTask.tcc
     ImageAnalysis/ImageTotalPolarization.h

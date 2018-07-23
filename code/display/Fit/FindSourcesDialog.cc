@@ -645,7 +645,7 @@ namespace casa {
 //---------------------------------------------------------------
 
 	void FindSourcesDialog::populateImageBounds() {
-		ImageStatsCalculator calc( image, NULL, "", false);
+		ImageStatsCalculator<Float> calc( image, NULL, "", false);
 		calc.setVerbose(false);
 		calc.setList(false);
 		Record result = calc.calculate();

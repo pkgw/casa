@@ -40,6 +40,10 @@ class exportasdm_test(unittest.TestCase):
             os.system('cp -R '+os.environ['CASAPATH'].split()[0]+'/data/regression/exportasdm/input/Itziar.ms .')            
         if(not os.path.exists(self.vis_g)):
             os.system('cp -R '+os.environ['CASAPATH'].split()[0]+'/data/regression/exportasdm/input/M51.ms .')
+        if(not os.path.exists(self.vis_h)):
+            os.system('ln -sf '+os.environ['CASAPATH'].split()[0]+'/data/regression/unittest/importevla/X_osro_013.55979.93803716435')
+            # the final two arguments are equivalent to the defaults for the original importevla used here
+            importasdm('X_osro_013.55979.93803716435', vis = 'xosro2ref.ms', process_flags=False, scans='0:2', ocorr_mode='co', with_pointing_correction=True)
         if(not os.path.exists(self.vis_i)):
             os.system('ln -sf '+os.environ['CASAPATH'].split()[0]+'/data/regression/asdm-import/input/uid___A002_X72bc38_X000')
             importasdm('uid___A002_X72bc38_X000', vis = 'asdm.ms', scans='0:2')
@@ -275,6 +279,8 @@ class exportasdm_test(unittest.TestCase):
         myvis = self.vis_h
         os.system('rm -rf xosro2ref-reimp.ms xosro2asdm')
         self.rval =  exportasdm(vis=myvis, asdm='xosro2asdm', apcorrected=False, verbose=True)
+        # mirroring the importasdm arguments used to create the MS that was just exported
+        importasdm(asdm='xosro2asdm', vis='xosro2ref-reimp.ms', process_flags=False, verbose=True, ocorr_mode='co', with_pointing_correction=True)
         self.rval = self.rval  and th.compmsmainnumcol(myvis, 'xosro2ref-reimp.ms', 1E-5)
         self.rval = self.rval and th.compmsmainboolcol(myvis, 'xosro2ref-reimp.ms')
 

@@ -198,7 +198,7 @@ class SIImageStore
 		  casacore::Float& minVal, casacore::Float& maxVal,
 		  casacore::Float& minValMask, casacore::Float& maxValMask);
   virtual void printImageStats();
-  virtual casacore::Array<casacore::Double> calcRobustRMS();
+  virtual casacore::Array<casacore::Double> calcRobustRMS(casacore::Float pbmasklevel=0.0);
   casacore::Float getMaskSum();
 
   //
