@@ -467,84 +467,140 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                           m_maskedLine.style() != PlotLine::NOLINE,
          diffColorLine = !m_coloredData.null() && m_coloredData->isBinned();    
     if(drawLine || drawMaskedLine) {
-        double tempx, tempy, tempx2, tempy2;
-        int ix, iy, ix2, iy2;
+        // connect last point to this point
+        double lastx, lasty, thisx, thisy;
+        int lastix, lastiy, thisix, thisiy;
         if(!m_maskedData.null()) {
-            bool mask, mask2, sameMask, sameBin;
+            bool lastmask, thismask, sameMask;
+            bool sameBin(true), isColorized(m_maskedData->isColorized()), sameLine(true);
             
             // set the painter's pen only once if possible
-            bool samePen = m_line.asQPen() == m_maskedLine.asQPen();
+            // if unmasked==masked color or only one unmasked/masked line used
+            bool samePen(m_line.asQPen() == m_maskedLine.asQPen());
             if (!drawMaskedLine || samePen) p->setPen(m_line.asQPen());
-            
-            m_maskedData->xyAndMaskAt(drawIndex, tempx, tempy, mask);
-            ix = xMap.transform(tempx); iy = yMap.transform(tempy);
+            if (!drawLine) p->setPen(m_maskedLine.asQPen());
+           
+            // get first point
+            m_maskedData->xyAndMaskAt(drawIndex, lastx, lasty, lastmask);
+            lastix = xMap.transform(lastx);
+            lastiy = yMap.transform(lasty);
 
-			unsigned int bin;
-			if (diffColorLine) {
-				bin = m_coloredData->binAt(drawIndex);
-			}
+            unsigned int lastbin, thisbin;
+            if (diffColorLine) {
+                lastbin = m_coloredData->binAt(drawIndex);
+            }
             for(unsigned int i = drawIndex + 1; i < n; i++) {
-                m_maskedData->xyAndMaskAt(i, tempx2, tempy2, mask2);
-                ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
-                if (diffColorLine) {
-                    QPen linePen = m_line.asQPen();
-					unsigned int bin2 = m_coloredData->binAt(i);
-                    QBrush coloredBrush = m_coloredBrushes[bin2];
-                    linePen.setBrush(coloredBrush);
-                    QColor brushColor2 = coloredBrush.color();
-                    linePen.setColor(brushColor2);
-                    p->setPen(linePen);
-					// compare then save for next point
-                    sameBin = (bin2 == bin);
-                	bin = bin2;
-                } else {
-					sameBin = true;
-				}
-                // don't connect nan and inf !
-                if (!casacore::isNaN(tempx2) && !casacore::isNaN(tempy2) &&
-                    !casacore::isInf(tempx2) && !casacore::isInf(tempy2)) {
-					sameMask = (mask2==mask); 
-					// only connect unflagged or flagged pts in same bin
-					if(drawLine && !mask2 && sameBin && sameMask) {
-						if(drawMaskedLine && !samePen && !diffColorLine)
-							p->setPen(m_line.asQPen());
-						if(brect.contains(ix, iy) || brect.contains(ix2, iy2)) {
-							if (m_step) {
-								p->drawLine(ix, iy, ix2, iy);
-								p->drawLine(ix2, iy, ix2, iy2);
-							} else {
-								p->drawLine(ix, iy, ix2, iy2);
-							}
-						}
-					} else if(drawMaskedLine && mask2 && sameBin && sameMask) {
-						if(drawLine && !samePen && !diffColorLine) p->setPen(m_maskedLine.asQPen());
-						ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
-						if(brect.contains(ix, iy) || brect.contains(ix2, iy2)) {
-							if (m_maskedStep) {
-								p->drawLine(ix, iy, ix2, iy);
-								p->drawLine(ix2, iy, ix2, iy2);
-							} else {
-								p->drawLine(ix, iy, ix2, iy2);
-							}
-						}
-					}
-				}
-                tempx = tempx2; tempy = tempy2;
-                ix = ix2; iy = iy2;
-				mask = mask2;
+                // get this point
+                m_maskedData->xyAndMaskAt(i, thisx, thisy, thismask);
+                thisix = xMap.transform(thisx);
+                thisiy = yMap.transform(thisy);
+                // don't connect nan and inf points 
+                if (!casacore::isNaN(thisx) && !casacore::isNaN(thisy) &&
+                    !casacore::isInf(thisx) && !casacore::isInf(thisy)) {
+
+                    if (diffColorLine) {  // set pen for colorized plot
+                        QPen linePen = m_line.asQPen();
+                        thisbin = m_coloredData->binAt(i);
+                        QBrush coloredBrush = m_coloredBrushes[thisbin];
+                        linePen.setBrush(coloredBrush);
+                        QColor thisbrushColor = coloredBrush.color();
+                        linePen.setColor(thisbrushColor);
+                        p->setPen(linePen);
+                        // compare then save for next point
+                        sameBin = (thisbin==lastbin);
+                        sameLine = sameBin && (thisx > lastx); // for colorized data
+                        lastbin = thisbin;
+                    }
+
+                    sameMask = (thismask==lastmask); // only connect same-masked points
+
+                    if (drawLine && !thismask) { // connect unflagged pts
+                        if(drawMaskedLine && !samePen && !diffColorLine)
+                            p->setPen(m_line.asQPen()); // set pen for unflagged symbols
+                        if(brect.contains(lastix, lastiy) || brect.contains(thisix, thisiy)) {
+                            if (m_step) {  // need midpoint for step
+                                if (thisx == lastx)  // don't connect pts at same x
+                                    continue;
+                                if (sameLine) { // use last point
+                                    int ixdiff(((lastix + thisix)/2) - lastix);
+                                    if (sameMask && sameLine) { // connect to last point
+                                        p->drawLine(lastix, lastiy, thisix-ixdiff, lastiy);
+                                        p->drawLine(thisix-ixdiff, lastiy, thisix-ixdiff, thisiy);
+                                        p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+                                    }
+                                    if (i==drawIndex+1) { // draw leading line for first point
+                                        p->drawLine(lastix-ixdiff, lastiy, lastix, lastiy);
+                                    }
+                                    // peek at next point and draw trailing line
+                                    if ((i<n-1 && (m_coloredData->binAt(i+1) != thisbin)) ||
+                                        (i == n-1)) {  // last point
+                                        p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy);
+                                    }
+                                } else if (i < n-1) {  // first point in line, use next point
+                                    double nextx, nexty;
+                                    m_maskedData->xAndYAt(i+1, nextx, nexty);
+                                    int nextix(xMap.transform(nextx));
+                                    int ixdiff(((thisix + nextix)/2) - thisix);
+                                    p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+                                }
+                            } else if (sameMask && sameBin && (thisx!=lastx)) {
+                                // connect last point to this point
+                                if ((!isColorized) || (isColorized && sameLine))
+                                    p->drawLine(lastix, lastiy, thisix, thisiy);
+                            }
+                        }
+                    } else if(drawMaskedLine && thismask) { // connect flagged points
+                        if(drawLine && !samePen && !diffColorLine)
+                            p->setPen(m_maskedLine.asQPen());  // set pen for flagged symbols
+                        if(brect.contains(lastix, lastiy) || brect.contains(thisix, thisiy)) {
+                            if (m_maskedStep) { // need midpoint for step
+                                if (thisx == lastx)  // don't connect pts at same x
+                                    continue;
+                                if (sameLine) { // use last point
+                                    int ixdiff(((lastix + thisix)/2) - lastix);
+                                    if (sameMask && sameLine) { // connect to last point
+                                        p->drawLine(lastix, lastiy, thisix-ixdiff, lastiy);
+                                        p->drawLine(thisix-ixdiff, lastiy, thisix-ixdiff, thisiy);
+                                        p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+                                    }
+                                    if (i==drawIndex+1) { // draw leading line for first point
+                                        p->drawLine(lastix-ixdiff, lastiy, lastix, lastiy);
+                                    }
+                                    // peek at next point and draw trailing line
+                                    if ((i<n-1 && (m_coloredData->binAt(i+1) != thisbin)) ||
+                                        (i == n-1)) {  // last point
+                                        p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy);
+                                    }
+                                } else if (i < n-1) {  // first point in line, use next point
+                                    double nextx, nexty;
+                                    m_maskedData->xAndYAt(i+1, nextx, nexty);
+                                    int nextix(xMap.transform(nextx));
+                                    int ixdiff(((thisix + nextix)/2) - thisix);
+                                    p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+                                }
+                            } else if (sameMask && sameBin && (thisx!=lastx)) { // connect last point to this point
+                                if (!isColorized || (isColorized && sameLine))
+                                    p->drawLine(lastix, lastiy, thisix, thisiy);
+                            }
+                        }
+                    }
+                }
+                lastx = thisx; lasty = thisy;
+                lastix = thisix; lastiy = thisiy;
+                lastmask = thismask;
             }
             
         } else {
             p->setPen(m_line.asQPen());
-            m_data->xAndYAt(drawIndex, tempx, tempy);
-            ix = xMap.transform(tempx); iy = yMap.transform(tempy);
+            m_data->xAndYAt(drawIndex, lastx, lasty);
+            lastix = xMap.transform(lastx);
+            lastiy = yMap.transform(lasty);
             for(unsigned int i = drawIndex + 1; i < n; i++) {
-                m_data->xAndYAt(i, tempx2, tempy2);
-                ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
-                if(brect.contains(ix, iy) || brect.contains(ix2, iy2))
-                    p->drawLine(ix, iy, ix2, iy2);
-                tempx = tempx2; tempy = tempy2;
-                ix = ix2; iy = iy2;
+                m_data->xAndYAt(i, thisx, thisy);
+                thisix = xMap.transform(thisx); thisiy = yMap.transform(thisy);
+                if(brect.contains(lastix, lastiy) || brect.contains(thisix, thisiy))
+                    p->drawLine(lastix, lastiy, thisix, thisiy);
+                lastix = thisix; lastiy = thisiy;
             }
         }
     }

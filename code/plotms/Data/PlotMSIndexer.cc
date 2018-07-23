@@ -721,8 +721,8 @@ void PlotMSIndexer::reindexForConnect() {
 	// Need points reordered for connecting points.
 	// get set of times, spws, corrs, ant1s
 	std::set<casacore::Double> times;
-	std::set<casacore::Int> spws, corrs, ant1s;
-	getConnectSets(times, spws, corrs, ant1s);
+	std::set<casacore::Int> spws, channels, corrs, ant1s;
+	getConnectSets(times, spws, channels, corrs, ant1s);
 
 	// If iteraxis, only use points for current iteration
 	uInt npoints(nCumulPoints_(nSegment_-1));
@@ -756,26 +756,26 @@ void PlotMSIndexer::reindexForConnect() {
 	}
 
 	if (itsXConnect_ != "none" && itsTimeConnect_) {
-		reindexForTimeConnect(spws, corrs, ant1s, itermask);
+		reindexForTimeConnect(spws, channels, corrs, ant1s, itermask);
 	} else if (currentX_ == iterAxis_) {
-		reindexForAllConnect(times, spws, corrs, ant1s, itermask);
+		reindexForAllConnect(times, spws, channels, corrs, ant1s, itermask);
 	} else {
 		switch (currentX_) {
 			case PMS::TIME:
-				reindexForTimeConnect(spws, corrs, ant1s, itermask);
+				reindexForTimeConnect(spws, channels, corrs, ant1s, itermask);
 				break;
 			case PMS::SPW:
 			case PMS::FREQUENCY:
-				reindexForSpwConnect(times, corrs, ant1s, itermask);
+				reindexForSpwConnect(times, channels, corrs, ant1s, itermask);
 				break;
 			case PMS::CORR:
-				reindexForCorrConnect(times, spws, ant1s, itermask);
+				reindexForCorrConnect(times, spws, channels, ant1s, itermask);
 				break;
 			case PMS::ANTENNA1:
-				reindexForAnt1Connect(times, spws, corrs, itermask);
+				reindexForAnt1Connect(times, spws, channels, corrs, itermask);
 				break;
 			default:
-				reindexForAllConnect(times, spws, corrs, ant1s, itermask);
+				reindexForAllConnect(times, spws, channels, corrs, ant1s, itermask);
 				break;
 		}
 	}
@@ -791,11 +791,11 @@ void PlotMSIndexer::reindexForConnect() {
 }
 
 void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
-		std::set<Int>& corrs, std::set<Int>& ant1s) {
+		std::set<Int>& chans, std::set<Int>& corrs, std::set<Int>& ant1s) {
 	// We need these values if the axis are not the x-axis, unless it is the iteraxis
 	bool timeconnect(itsXConnect_ != "none" && itsTimeConnect_);
-	bool needTime(true), needSpw(true), needCorr(true), needAnt1(true);
-	PMS::Axis connectAxes[] = { PMS::TIME, PMS::SPW, PMS::CORR, PMS::ANTENNA1 };
+	bool needTime(true), needSpw(true), needChan(true), needCorr(true), needAnt1(true);
+	PMS::Axis connectAxes[] = { PMS::TIME, PMS::SPW, PMS::CHANNEL, PMS::CORR, PMS::ANTENNA1 };
 	for (PMS::Axis axis : connectAxes) {
 		bool connectX(axis == currentX_), axisIsIter(axis == iterAxis_);
 		if (timeconnect) connectX = false;  // do not connect along X axis
@@ -812,6 +812,11 @@ void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
 					needSpw = false;
 				if (axisIsIter) 
 					spws.insert(iterValue_);
+				break;
+			}
+			case PMS::CHANNEL: {
+				if (connectX || axisIsIter)
+					needChan = false;
 				break;
 			}
 			case PMS::CORR: {
@@ -837,6 +842,10 @@ void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
 			times.insert(plotmscache_->time(chunk));
 		if (needSpw)
 			spws.insert(plotmscache_->spw(chunk));
+		if (needChan) {
+			Vector<Int> chan(plotmscache_->chan(chunk));
+			for (Int thischan : chan) chans.insert(thischan);
+		}
 		if (needCorr) {
 			Vector<Int> corr(plotmscache_->corr(chunk));
 			for (Int thiscorr : corr) corrs.insert(thiscorr);
@@ -848,8 +857,8 @@ void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
 	}
 }
 
-void PlotMSIndexer::reindexForAllConnect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& corrs, 
-		std::set<Int>& ant1s, Vector<bool>& itermask) {
+void PlotMSIndexer::reindexForAllConnect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& chans, 
+		std::set<Int>& corrs, std::set<Int>& ant1s, Vector<bool>& itermask) {
 	// Reindex by all metadata axes (time, spw, corr, ant1) to create new cacheChunk_ and cacheOffset_
 	nSegment_ = (times.size() * spws.size() * corrs.size() * ant1s.size());
 	nSegPoints_.resize(nSegment_);
@@ -888,8 +897,8 @@ void PlotMSIndexer::reindexForAllConnect(std::set<Double>& times, std::set<Int>&
 	cacheOffset_ = newCacheOffset;
 }
 
-void PlotMSIndexer::reindexForTimeConnect(std::set<Int>& spws, std::set<Int>& corrs, std::set<Int>& ant1s,
-		Vector<bool>& itermask) {
+void PlotMSIndexer::reindexForTimeConnect(std::set<Int>& spws, std::set<Int>& chans, std::set<Int>& corrs,
+		std::set<Int>& ant1s, Vector<bool>& itermask) {
 	// Reindex to connect time axis (spw, corr, ant1) to create new cacheChunk_ and cacheOffset_
 	nSegment_ = (spws.size() * corrs.size() * ant1s.size());
 	nSegPoints_.resize(nSegment_);
@@ -925,8 +934,8 @@ void PlotMSIndexer::reindexForTimeConnect(std::set<Int>& spws, std::set<Int>& co
 	cacheOffset_ = newCacheOffset;
 }
 
-void PlotMSIndexer::reindexForSpwConnect(std::set<Double>& times, std::set<Int>& corrs, std::set<Int>& ant1s, 
-		Vector<bool>& itermask) {
+void PlotMSIndexer::reindexForSpwConnect(std::set<Double>& times, std::set<Int>& chans, std::set<Int>& corrs,
+		std::set<Int>& ant1s, Vector<bool>& itermask) {
 	// Reindex to connect spw axis (time, corr, ant1) to create new cacheChunk_ and cacheOffset_
 	nSegment_ = (times.size() * corrs.size() * ant1s.size());
 	nSegPoints_.resize(nSegment_);
@@ -961,8 +970,8 @@ void PlotMSIndexer::reindexForSpwConnect(std::set<Double>& times, std::set<Int>&
 	cacheOffset_ = newCacheOffset;
 }
 
-void PlotMSIndexer::reindexForCorrConnect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& ant1s, 
-		Vector<bool>& itermask) {
+void PlotMSIndexer::reindexForCorrConnect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& chans, 
+		std::set<Int>& ant1s, Vector<bool>& itermask) {
 	// Reindex to connect corr axis (time, spw, ant1) to create new cacheChunk_ and cacheOffset_
 	nSegment_ = (times.size() * spws.size() * ant1s.size());
 	nSegPoints_.resize(nSegment_);
@@ -997,8 +1006,8 @@ void PlotMSIndexer::reindexForCorrConnect(std::set<Double>& times, std::set<Int>
 	cacheOffset_ = newCacheOffset;
 }
 
-void PlotMSIndexer::reindexForAnt1Connect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& corrs,
-		Vector<bool>& itermask) {
+void PlotMSIndexer::reindexForAnt1Connect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& chans,
+		std::set<Int>& corrs, Vector<bool>& itermask) {
 	// Reindex to connect ant1 axis (time, spw, corr) to create new cacheChunk_ and cacheOffset_
 	nSegment_ = (times.size() * spws.size() * corrs.size());
 	nSegPoints_.resize(nSegment_);

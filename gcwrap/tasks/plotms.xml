@@ -1549,6 +1549,15 @@ Constraints
       </equals>
     </when>
 
+    <when param="xconnector">
+      <equals type="string" value="line">
+		  <default param="timeconnector"><value type="bool">False</value></default>
+      </equals>
+      <equals type="string" value="step">
+		  <default param="timeconnector"><value type="bool">False</value></default>
+      </equals>
+    </when>
+
 <!--    
     <when param="plotxycomp">
       <equals type="bool" value="False" />

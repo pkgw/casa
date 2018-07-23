@@ -161,6 +161,8 @@ public:
     // Returns whether to plot conjugate data (e.g. UV plots)
     virtual bool plotConjugates() const = 0;
     
+    // Returns whether data is colorized by axis
+    virtual bool isColorized() const = 0;
     
     // IMPLEMENTED METHODS //
     
@@ -607,6 +609,8 @@ public:
     }
     
     virtual bool plotConjugates() const { return false; };
+
+    virtual bool isColorized() const { return false; } ;
 
     // Overrides PlotPointDataImpl::willDeleteData().
     bool willDeleteData() const {

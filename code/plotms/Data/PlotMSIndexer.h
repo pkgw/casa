@@ -60,12 +60,12 @@ public:
   // Constructor which takes parent PlotMSCache, x and y axes (non-iteration)
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
     PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-	casacore::String xconnect, bool timeconnect, int index);
+    casacore::String xconnect, bool timeconnect, int index);
   // Constructor which supports iteration
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
     PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
     PMS::Axis iterAxis, casacore::Int iterValue, 
-	casacore::String xconnect, bool timeconnect, int index);
+    casacore::String xconnect, bool timeconnect, int index);
   
   // Destructor
   ~PlotMSIndexer();
@@ -128,9 +128,9 @@ public:
                     casacore::Bool showUnflagged, casacore::Bool showFlagged,
                     casacore::Bool selectAll = true);
   PlotLogMessage* locateRange(const casacore::Vector<PlotRegion>& regions,
-			      casacore::Bool showUnflagged, casacore::Bool showFlagged);
+      casacore::Bool showUnflagged, casacore::Bool showFlagged);
   PlotLogMessage* flagRange(const PlotMSFlagging& flagging,
-			    const casacore::Vector<PlotRegion>& regions, casacore::Bool flag = true);
+      const casacore::Vector<PlotRegion>& regions, casacore::Bool flag = true);
 
 
   // Report meta info for current value of currChunk_/irel_
@@ -161,8 +161,11 @@ public:
   casacore::Int getIndex0001(casacore::Int ch,casacore::Int irel) { return (irel/nperant_(ch))%iantmax_(ch);};
 
 
-  // 
+  // set colorize and whether binned data has coloraxis;
+  // connected points are binned too
   bool colorize(bool doColorize, PMS::Axis colorizeAxis);
+  inline virtual bool isColorized() const { return itsColorize_; };
+
   bool setConnect(casacore::String xconnect, bool timeconnect);
 
   bool plotConjugates() const { return (PMS::axisIsUV(currentX_) && 
@@ -178,17 +181,23 @@ private:
   void setIndexer(IndexerMethPtr& indexmethod, PMS::Axis axis);
   void reindexForConnect();
   void getConnectSets(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
-	std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s);
+    std::set<casacore::Int>& chans, std::set<casacore::Int>& corrs,
+    std::set<casacore::Int>& ant1s);
   void reindexForAllConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
-	std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
-  void reindexForTimeConnect(std::set<casacore::Int>& spws, std::set<casacore::Int>& corrs,
-	std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
-  void reindexForSpwConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& corrs,
-	std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
+    std::set<casacore::Int>& chans, std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
+    casacore::Vector<bool>& itermask);
+  void reindexForTimeConnect(std::set<casacore::Int>& spws, std::set<casacore::Int>& chans,
+    std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
+    casacore::Vector<bool>& itermask);
+  void reindexForSpwConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& chans,
+    std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
+    casacore::Vector<bool>& itermask);
   void reindexForCorrConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
-	std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
+    std::set<casacore::Int>& chans, std::set<casacore::Int>& ant1s,
+    casacore::Vector<bool>& itermask);
   void reindexForAnt1Connect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
-	std::set<casacore::Int>& corrs, casacore::Vector<bool>& itermask);
+    std::set<casacore::Int>& chans, std::set<casacore::Int>& corrs,
+    casacore::Vector<bool>& itermask);
   //  void setCollapser(CollapseMethPtr& collmethod, PMS::Axis axis);
 
   // Generate collapsed versions of the plmask 
