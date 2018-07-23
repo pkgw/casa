@@ -169,7 +169,8 @@ def main(thislist, axis='auto', numsubms=4):
                 partition(vis=WVRGCALPATH+d, outputvis=d, datacolumn='all', numsubms=5,
                           flagbackup=False)
             else:
-                os.symlink(WVRGCALPATH+d, d)
+#                os.symlink(WVRGCALPATH+d, d)
+                os.system("cp -RL "+WVRGCALPATH+d+" "+d)
         os.chdir(origwd)
 
     if ('concat' in thislist):
@@ -187,7 +188,8 @@ def main(thislist, axis='auto', numsubms=4):
                 partition(vis=CONCATPATH+d, outputvis=d, datacolumn='all', numsubms=6,
                           flagbackup=False)
             else:
-                os.symlink(CONCATPATH+d, d)
+#                os.symlink(CONCATPATH+d, d)
+                os.system("cp -RL "+CONCATPATH+d+" "+d)
         os.chdir(origwd)
         
     if ('cvel' in thislist):

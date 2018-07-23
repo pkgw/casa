@@ -5,7 +5,9 @@
 #include <ArrayTimeInterval.h>
 #include <CAtmPhaseCorrection.h>
 
+#ifndef WITHOUT_BOOST
 #include <boost/shared_array.hpp>
+#endif
 
 using asdm::ArrayTime;
 using asdm::Interval;
@@ -121,9 +123,13 @@ namespace sdmbin{
     vector<unsigned int>            v_flag;               //!< from BINARIES  
   } VMSData;
   
+
+  // This struct, using boost::shared_array, is not used by CASA. It is not available when WITHOUT_BOOST is set.
+  // It may be used by ALMA code and so has not been eliminated. 
+#ifndef WITHOUT_BOOST
   /**
    * A structure containing the data from a single SDM BLOB.
-   * The *big* difference with the previous definition (VMSData) is that the visibilities are referred to by a boost::shared_ptr instead
+   * The *big* difference with the previous definition (VMSData) is that the visibilities are referred to by a boost::shared_array instead
    * of a plain old pointer.
    *
    * \note 
@@ -160,6 +166,7 @@ namespace sdmbin{
     vector<MSState>                 v_msState;            //!< from SDM      MS state tuples
     vector<unsigned int>            v_flag;               //!< from BINARIES  
   } VMSDataWithSharedPtr;
+#endif
 }
 
 #define _SDMDATAVIEWS_H

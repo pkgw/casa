@@ -90,6 +90,7 @@ public:
     static const casacore::String PARAM_WIDTH; // int or uInt
     static const casacore::String PARAM_EXPORT_FILENAME; // String
     static const casacore::String PARAM_EXPORT_FORMAT; //String
+    static const casacore::String PARAM_EXPORT_VERBOSE; // bool
     static const casacore::String PARAM_EXPORT_RANGE; //String
     static const casacore::String PARAM_EXPORT_HIGHRES; // bool
     static const casacore::String PARAM_EXPORT_DPI; // int

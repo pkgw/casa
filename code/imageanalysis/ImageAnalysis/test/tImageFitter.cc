@@ -72,7 +72,7 @@ void checkImage(
     axes[1] = 1;
     Record region;
     Vector<String> plotstats(0);
-    ImageStatsCalculator statscalc(x, 0, "", false);
+    ImageStatsCalculator<Float> statscalc(x, 0, "", false);
     Record stats = statscalc.statistics();
     statscalc.statistics();
 

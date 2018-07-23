@@ -128,9 +128,7 @@ std::pair<ComponentList, ComponentList> ImageFitter::fit() {
             << LogIO::NORMAL << msg << LogIO::POST;
     }
     String errmsg;
-    ImageStatsCalculator myStats(
-        _getImage(), _getRegion(), "", false
-    );
+    ImageStatsCalculator<Float> myStats(_getImage(), _getRegion(), "", false);
     myStats.setList(false);
     myStats.setVerbose(false);
     myStats.setAxes(_getImage()->coordinates().directionAxesNumbers());
@@ -333,7 +331,7 @@ void ImageFitter::_fitLoop(
     uInt ngauss = _estimates.nelements() > 0 ? _estimates.nelements() : 1;
     Vector<String> models(ngauss, "gaussian");
     IPosition planeShape(_getImage()->ndim(), 1);
-    ImageMetaData md(_getImage());
+    ImageMetaData<Float> md(_getImage());
     Vector<Int> dirShape = md.directionShape();
     Vector<Int> dirAxisNumbers = _getImage()->coordinates().directionAxesNumbers();
     planeShape[dirAxisNumbers[0]] = dirShape[0];
@@ -1359,7 +1357,7 @@ void ImageFitter::_fitsky(
             false, false, false, _getStretch()
         )
     );
-    ImageMetaData md(subImageTmp);
+    ImageMetaData<Float> md(subImageTmp);
     ThrowIf(
         anyTrue(md.directionShape() <= 1),
         "Invalid region specification. The extent of the region in the direction plane must be "
@@ -1598,7 +1596,7 @@ void ImageFitter::_setSum(
     SPCIIF tmp = SubImageFactory<Float>::createImage(
         im, "", r, "", true, false, true, false
     );
-    ImageStatsCalculator statsCalc(tmp, 0,    String(""), false);
+    ImageStatsCalculator<Float> statsCalc(tmp, 0,    String(""), false);
     statsCalc.setList(false);
     statsCalc.setVerbose(false);
     Array<Double> mySums = statsCalc.statistics().asArrayDouble("sum");

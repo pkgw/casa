@@ -3412,7 +3412,7 @@ in spectral window 1.
 
 <!-- ====================================================== -->
  
- <method type="function" name="statwt2">
+ <method type="function" name="statwt">
   <shortdescription>Compute and set weights based on variance of data.</shortdescription>
 
   <input>
@@ -3574,7 +3574,7 @@ in spectral window 1.
        SIGMA_SPECTRUM are set to 1/sqrt(of the newly computed weight).
        If a weight value is 0, the corresponding sigma value is -1.
        In this case, you should either split out the DATA column and
-       run statwt2, or run with datacolumn='corrected' or 'residual'
+       run statwt, or run with datacolumn='corrected' or 'residual'
        to update WEIGHT/WEIGHT_SPECTRUM. Otherwise the data are
        internally not consistent. 
 
@@ -3780,7 +3780,7 @@ in spectral window 1.
       # update the weights of an MS
       ms.open("my.ms", nomodify=False)
       # compute weights, using time bins of 300s
-      if ms.statwt2(timebin=("300s")):
+      if ms.statwt(timebin=("300s")):
           print "Successfully updated weights"
       else:
           print "Updating weights failed"
@@ -3790,10 +3790,10 @@ in spectral window 1.
  
 <!-- ====================================================== -->
 
- <method type="function" name="statwt">
+ <method type="function" name="oldstatwt">
   <shortdescription>Set WEIGHT and SIGMA from the scatter of the visibilities</shortdescription>
    
-  <keyword>statwt</keyword>
+  <keyword>oldstatwt</keyword>
   <input>
      <param type="bool" direction="in" name="dorms">
      <description>How the scatter should be estimated (True -&gt; rms, False -&gt; stddev). </description>
@@ -3916,13 +3916,13 @@ in spectral window 1.
   </description>
   <example>
       ms.open("multiwin.ms", nomodify=False)
-      ms.statwt(fitspw='0:0~123;145~211,2:124~255', field=[0], 
+      ms.oldstatwt(fitspw='0:0~123;145~211,2:124~255', field=[0], 
           spw='0,2') 
 
     In this example the noise estimates are separately made from and
     applied to spws 0 and 2.
 
-      ms.statwt(fitspw='0:0~123;145~211,2:124~255', fitorder=0, 
+      ms.oldstatwt(fitspw='0:0~123;145~211,2:124~255', fitorder=0, 
           field=[0], combine='spw')
       ms.close()
 

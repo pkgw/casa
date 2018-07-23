@@ -308,8 +308,8 @@ public:
   virtual casacore::String name() const =0;// { return "None";};
  
   // set and get the location used for frame 
-  void setLocation(const casacore::MPosition& loc);
-  casacore::MPosition& getLocation();
+  virtual void setLocation(const casacore::MPosition& loc);
+  virtual casacore::MPosition& getLocation();
 
   // set a moving source aka planets or comets =>  adjust phase center
   // on the fly for gridding 
@@ -409,6 +409,7 @@ protected:
 
   casacore::Int lastFieldId_p;
   casacore::Int lastMSId_p;
+  casacore::CountedPtr<casacore::ROMSColumns> romscol_p;
   //Use douple precision grid in gridding process
   casacore::Bool useDoubleGrid_p;
 

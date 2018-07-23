@@ -102,24 +102,6 @@ struct s_overTheTop {
   bool value;   // The value of overTheTop in that range.
 };
 
-//
-// Class timeMgr is a utility to help for the management
-// of time in tables with TIME and INTERVAL columns
-class timeMgr {
- private:
-  int index;
-  double startTime;
-
- public:
-  timeMgr();
-  timeMgr(int i, double t);
-  void   setIndex(int i);
-  void   setStartTime(double t);
-  int    getIndex();
-  double getStartTime();
-};
-
-
 // Class ddMgr is a utility to help for the management
 // of DataDescription, SpectralWindow and Polarization ids.
 // Here we provide enough space to store 100 values for 
@@ -163,24 +145,7 @@ class ASDM2MSFiller
   int            itsNumCorr;
   casacore::MeasurementSet *itsMS;
   casacore::MSMainColumns  *itsMSCol;
-  /*
-    casacore::Block<timeMgr> itsFeedTimeMgr;
-    casacore::Block<timeMgr> itsPointingTimeMgr;
-    casacore::Block<timeMgr> itsSyscalTimeMgr;
-    casacore::Block<timeMgr> itsWeatherTimeMgr;
-    casacore::Block<timeMgr> itsObservationTimeMgr;
-  */
-    
   casacore::String     itsMSPath;
-  timeMgr* itsFeedTimeMgr;
-  timeMgr* itsFieldTimeMgr;
-  timeMgr* itsObservationTimeMgr;
-  timeMgr* itsPointingTimeMgr;
-  //casacore::OrderedMap<int, timeMgr> itsSourceTimeMgr;
-  timeMgr* itsSourceTimeMgr;
-  timeMgr* itsSyscalTimeMgr;
-  timeMgr* itsWeatherTimeMgr;
-    
   casacore::Bool     itsWithRadioMeters;     /* Are we building an ALMA casacore::MS ?*/
   casacore::Bool     itsFirstScan;
   casacore::uInt     itsMSMainRow;
@@ -544,7 +509,7 @@ class ASDM2MSFiller
 			vector<float>&	switchedPowerSum,
 			vector<float>&	requantizerGain);
 
-  void end(double time_);
+  void end();
 };
 #endif
   
