@@ -69,7 +69,7 @@ class telemetry:
             tLogMonitor.start(casa['files']['telemetry-logfile'],tLogSizeLimit, tLogSizeInterval, casa)
             print "Telemetry initialized. Telemetry will send anonymized usage statistics to NRAO."
             print 'You can disable telemetry by setting environment variable with'
-            print 'export "CASA_ENABLE_TELEMETRY=false'
+            print 'export CASA_ENABLE_TELEMETRY=false'
             print 'or by adding the following line in your ~/.casarc file:'
             print 'EnableTelemetry: False'
 
