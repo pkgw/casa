@@ -164,7 +164,6 @@ public:
   // set colorize and whether binned data has coloraxis;
   // connected points are binned too
   bool colorize(bool doColorize, PMS::Axis colorizeAxis);
-  inline virtual bool isColorized() const { return itsColorize_; };
 
   bool setConnect(casacore::String xconnect, bool timeconnect);
 
@@ -190,6 +189,9 @@ private:
     std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
     casacore::Vector<bool>& itermask);
   void reindexForSpwConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& chans,
+    std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
+    casacore::Vector<bool>& itermask);
+  void reindexForChannelConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
     std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
     casacore::Vector<bool>& itermask);
   void reindexForCorrConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,

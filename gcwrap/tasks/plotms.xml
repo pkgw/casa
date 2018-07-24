@@ -888,9 +888,8 @@ Display Parameters
         <value type="bool">False</value>
     </param>
 
-    <param type="any" name="xconnector">
+    <param type="string" name="xconnector">
         <description>Set connector for data points</description>
-        <any type="variant" limittype="string stringArray"/>
         <value type="string">none</value>
         <allowed kind="enum" type="string">
             <value>none</value>
@@ -1550,6 +1549,8 @@ Constraints
     </when>
 
     <when param="xconnector">
+      <equals type="string" value="" />
+      <equals type="string" value="none" />
       <equals type="string" value="line">
 		  <default param="timeconnector"><value type="bool">False</value></default>
       </equals>
