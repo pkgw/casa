@@ -445,7 +445,6 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
                 columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeObserved);
                 compareCube(columnName.c_str(),testVb->visCube(),getViscube(refVb,MS::DATA,datacolmap),
                             tolerance);
-                ASSERT_EQ(testVb->polarizationId(), refVb->polarizationId());
             }
 
             if (columns.contains(VisBufferComponent2::VisibilityCubeCorrected))
