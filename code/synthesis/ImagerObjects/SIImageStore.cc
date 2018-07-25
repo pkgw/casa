@@ -1962,11 +1962,28 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
  }
     else
       {
+        // per CAS-11415, verbose=True when restoringbeam='common'
+        if( verbose ) 
+          {
+            ostringstream oss;
+            oss<<"Beam";
+	    Int nchan = itsImageShape[3];
+	    for( Int chanid=0; chanid<nchan;chanid++) {
+	      Int polid=0;
+	      //	  for( Int polid=0; polid<npol; polid++ ) {
+	      GaussianBeam beam = itsPSFBeams.getBeam( chanid, polid );
+	      oss << " [C" << chanid << "]: " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg";
+	    }//for chanid
+            os << oss.str() << LogIO::POST;
+          }
+        else 
+          { 
 	// TODO : Enable this, when this function doesn't complain about 0 rest freq.
 	//                                 or when rest freq is never zero !
 	try{
-		//itsPSFBeams.summarize( os, False, itsCoordSys );
-		itsPSFBeams.summarize( os, verbose, itsCoordSys );
+		itsPSFBeams.summarize( os, False, itsCoordSys );
+                // per CAS-11415 request, not turn on this one (it prints out per-channel beam in each line in the logger)
+		//itsPSFBeams.summarize( os, verbose, itsCoordSys );
 	}
 	catch(AipsError &x)
 	  {
@@ -1984,6 +2001,7 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 	      //}//for polid
 	    }//for chanid
 	  }// catch
+        }
       }
   }
   
