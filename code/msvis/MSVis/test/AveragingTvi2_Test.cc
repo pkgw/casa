@@ -2182,10 +2182,10 @@ public:
                         {
                             for(size_t factor = 1; factor <= 4 && factor < chunkInterval; factor *= 2)
                             {
-                                SCOPED_TRACE("Testing ms with float data="+to_string(withFloatData)+
-                                    " model data="+to_string(withModelData)+
-                                    " corrected data="+to_string(withCorrectedData)+
-                                    " weigh spec="+to_string(withWeightSpec)+
+                                SCOPED_TRACE("Testing ms with float_data="+to_string(withFloatData)+
+                                    " model_data="+to_string(withModelData)+
+                                    " corrected_data="+to_string(withCorrectedData)+
+                                    " weight_spec="+to_string(withWeightSpec)+
                                     " chunkInterval="+to_string(chunkInterval)+
                                     " factor="+to_string(factor));
                                 doTest (ms.get(), interval, chunkInterval,
@@ -2363,6 +2363,7 @@ protected:
         double dblTol = std::numeric_limits<double>::epsilon();
 
         compareVisibilityIterators(*timeAvgStackedMiddleVI, avgTVI, columns, dblTol);
+        compareVisibilityIterators(*timeAvgStackedTopVI, avgTVI, columns, dblTol);
 
         VisBufferComponents2 columnsFl;
         if(withFloatData)
@@ -2378,7 +2379,20 @@ protected:
             columnsFl += VisBufferComponent2::SigmaSpectrum;
         double flTol = std::numeric_limits<float>::epsilon();
         compareVisibilityIterators(*timeAvgStackedMiddleVI, avgTVI, columnsFl, flTol);
+        compareVisibilityIterators(*timeAvgStackedTopVI, avgTVI, columnsFl, flTol);
 
+        VisBufferComponents2 columnsThrow;
+        if(!withFloatData)
+            columnsThrow += VisBufferComponent2::VisibilityCubeFloat;
+        if(!withCorrectedData)
+            columnsThrow += VisBufferComponent2::VisibilityCubeCorrected;
+        if(!withModelData)
+            columnsThrow += VisBufferComponent2::VisibilityCubeModel;
+        if(!columnsThrow.empty())
+            EXPECT_THROW(compareVisibilityIterators(*timeAvgStackedMiddleVI, avgTVI, 
+                columnsThrow, flTol), AipsError);
+
+        
         printf ("\n...completed averaging of %d samples ...\n", averagingFactor);
     }
 

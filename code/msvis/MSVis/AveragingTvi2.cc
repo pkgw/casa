@@ -2711,6 +2711,8 @@ void AveragingTvi2::visibilityObserved(casacore::Cube<casacore::Complex>& vis) c
 
 void AveragingTvi2::visibilityCorrected(casacore::Cube<casacore::Complex>& vis) const
 {
+    if(!getVii()->getVisBuffer()->existsColumn (VisBufferComponent2::VisibilityCubeCorrected))
+        throw AipsError("Requesting visibilityCorrected but column not provided by underlying VI");
     VisBuffer2* vb = getVisBuffer();
     vis = vb->visCubeCorrected();
     return;
@@ -2718,6 +2720,8 @@ void AveragingTvi2::visibilityCorrected(casacore::Cube<casacore::Complex>& vis) 
 
 void AveragingTvi2::visibilityModel(casacore::Cube<casacore::Complex>& vis) const
 {
+    if(!getVii()->getVisBuffer()->existsColumn (VisBufferComponent2::VisibilityCubeModel))
+        throw AipsError("Requesting visibilityModel but column not provided by underlying VI");
     VisBuffer2* vb = getVisBuffer();
     vis = vb->visCubeModel();
     return;
@@ -2725,6 +2729,8 @@ void AveragingTvi2::visibilityModel(casacore::Cube<casacore::Complex>& vis) cons
 
 void AveragingTvi2::floatData(casacore::Cube<casacore::Float>& fcube) const
 {
+    if(!getVii()->getVisBuffer()->existsColumn (VisBufferComponent2::VisibilityCubeFloat))
+        throw AipsError("Requesting floatData but column not provided by underlying VI");
     VisBuffer2* vb = getVisBuffer();
     fcube = vb->visCubeFloat();
     return;
