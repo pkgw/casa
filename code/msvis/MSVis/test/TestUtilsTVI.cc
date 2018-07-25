@@ -316,16 +316,64 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
                              " scan " + std::to_string(refVb->scan()[0]));
 
                 if (columns.contains(VisBufferComponent2::NRows))
+                {
+                    SCOPED_TRACE("Comparing NRows component ");
                     ASSERT_EQ(testVb->nRows() , refVb->nRows());
+                }
 
                 if (columns.contains(VisBufferComponent2::NChannels))
+                {
+                    SCOPED_TRACE("Comparing NChannels component ");
                     ASSERT_EQ(testVb->nChannels(), refVb->nChannels());
+                }
 
                 if (columns.contains(VisBufferComponent2::NCorrelations))
-                    ASSERT_EQ(testVb->nCorrelations(), testVb->nCorrelations());
+                {
+                    SCOPED_TRACE("Comparing NCorrelations component ");
+                    ASSERT_EQ(testVb->nCorrelations(), refVb->nCorrelations());
+                }
+
+                if (columns.contains(VisBufferComponent2::NAntennas))
+                {
+                    SCOPED_TRACE("Comparing NAntennas component ");
+                    ASSERT_EQ(testVb->nAntennas(), refVb->nAntennas());
+                }
+
+                if (columns.contains(VisBufferComponent2::Time))
+                {
+                    SCOPED_TRACE("Comparing Time component ");
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::Time);
+                    compareVector(columnName.c_str(),testVb->time(),refVb->time(),
+                                  refVb->rowIds(),tolerance);
+                }
+
+                if (columns.contains(VisBufferComponent2::TimeCentroid))
+                {
+                    SCOPED_TRACE("Comparing TimeCentroid component ");
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::TimeCentroid);
+                    compareVector(columnName.c_str(),testVb->timeCentroid(),refVb->timeCentroid(),
+                                  refVb->rowIds(),tolerance);
+                }
+
+                if (columns.contains(VisBufferComponent2::TimeInterval))
+                {
+                    SCOPED_TRACE("Comparing TimeInterval component ");
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::TimeInterval);
+                    compareVector(columnName.c_str(),testVb->timeInterval(),refVb->timeInterval(),
+                                  refVb->rowIds(),tolerance);
+                }
+
+                if (columns.contains(VisBufferComponent2::Exposure))
+                {
+                    SCOPED_TRACE("Comparing Exposure component ");
+                    columnName = VisBufferComponents2::name(VisBufferComponent2::Exposure);
+                    compareVector(columnName.c_str(),testVb->exposure(),refVb->exposure(),
+                                  refVb->rowIds(),tolerance);
+                }
 
                 if (columns.contains(VisBufferComponent2::FlagRow))
                 {
+                    SCOPED_TRACE("Comparing FlagRow component ");
                     columnName = VisBufferComponents2::name(VisBufferComponent2::FlagRow);
                     compareVector(columnName.c_str(),testVb->flagRow(),refVb->flagRow(),
                                   tolerance);
@@ -333,6 +381,7 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 
                 if (columns.contains(VisBufferComponent2::FlagCube))
                 {
+                    SCOPED_TRACE("Comparing FlagCube component ");
                     columnName = VisBufferComponents2::name(VisBufferComponent2::FlagCube);
                     compareCube(columnName.c_str(),testVb->flagCube(),refVb->flagCube(),
                                 tolerance);
@@ -340,6 +389,7 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 
                 if (columns.contains(VisBufferComponent2::VisibilityCubeObserved))
                 {
+                    SCOPED_TRACE("Comparing VisibilityCubeObserved component ");
                     columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeObserved);
                     compareCube(columnName.c_str(),testVb->visCube(),getViscube(refVb,MS::DATA,datacolmap),
                                 tolerance);
@@ -347,6 +397,7 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 
                 if (columns.contains(VisBufferComponent2::VisibilityCubeCorrected))
                 {
+                    SCOPED_TRACE("Comparing VisibilityCubeCorrected component ");
                     columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeCorrected);
                     compareCube(columnName.c_str(),testVb->visCubeCorrected(),getViscube(refVb,MS::CORRECTED_DATA,datacolmap),
                                 tolerance);
@@ -354,6 +405,7 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 
                 if (columns.contains(VisBufferComponent2::VisibilityCubeModel))
                 {
+                    SCOPED_TRACE("Comparing VisibilityCubeModel component ");
                     columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeModel);
                     compareCube(columnName.c_str(),testVb->visCubeModel(),getViscube(refVb,MS::MODEL_DATA,datacolmap),
                                 tolerance);
@@ -361,6 +413,7 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 
                 if (columns.contains(VisBufferComponent2::VisibilityCubeFloat))
                 {
+                    SCOPED_TRACE("Comparing VisibilityCubeFloat component ");
                     columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeFloat);
                     compareCube(columnName.c_str(),testVb->visCubeFloat(),refVb->visCubeFloat(),
                                 tolerance);
@@ -368,6 +421,7 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 
                 if (columns.contains(VisBufferComponent2::WeightSpectrum))
                 {
+                    SCOPED_TRACE("Comparing WeightSpectrum component ");
                     columnName = VisBufferComponents2::name(VisBufferComponent2::WeightSpectrum);
                     compareCube(columnName.c_str(),testVb->weightSpectrum(),refVb->weightSpectrum(),
                                 tolerance);
@@ -375,6 +429,7 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 
                 if (columns.contains(VisBufferComponent2::SigmaSpectrum))
                 {
+                    SCOPED_TRACE("Comparing SigmaSpectrum component ");
                     columnName = VisBufferComponents2::name(VisBufferComponent2::SigmaSpectrum);
                     compareCube(columnName.c_str(),testVb->sigmaSpectrum(),refVb->sigmaSpectrum(),
                                 tolerance);
@@ -382,6 +437,7 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 
                 if (columns.contains(VisBufferComponent2::Weight))
                 {
+                    SCOPED_TRACE("Comparing Weight component ");
                     columnName = VisBufferComponents2::name(VisBufferComponent2::Weight);
                     compareMatrix(columnName.c_str(),testVb->weight(),refVb->weight(),
                                   tolerance);
@@ -389,6 +445,7 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 
                 if (columns.contains(VisBufferComponent2::Sigma))
                 {
+                    SCOPED_TRACE("Comparing Sigma component ");
                     columnName = VisBufferComponents2::name(VisBufferComponent2::Sigma);
                     compareMatrix(columnName.c_str(),testVb->sigma(),refVb->sigma(),
                                   tolerance);
@@ -396,6 +453,7 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 
                 if (columns.contains(VisBufferComponent2::Frequencies))
                 {
+                    SCOPED_TRACE("Comparing Frequencies component ");
                     columnName = VisBufferComponents2::name(VisBufferComponent2::Frequencies);
                     compareVector(columnName.c_str(),testVb->getFrequencies(0),refVb->getFrequencies(0),
                                   tolerance);
