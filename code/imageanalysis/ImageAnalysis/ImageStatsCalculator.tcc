@@ -1,4 +1,3 @@
-//# t_subImage.cc: Test program for class _subImage
 //# Copyright (C) 1998,1999,2000,2001,2003
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,7 +22,9 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//# $Id: $
+
+#ifndef IMAGEANALYSIS_IMAGESTATSCALCULATOR_TCC
+#define IMAGEANALYSIS_IMAGESTATSCALCULATOR_TCC
 
 #include <imageanalysis/ImageAnalysis/ImageStatsCalculator.h>
 
@@ -36,40 +37,39 @@
 using namespace casacore;
 namespace casa {
 
-const String ImageStatsCalculator::_class = "ImageStatsCalculator";
+template <class T>
+const String ImageStatsCalculator<T>::_class = "ImageStatsCalculator";
 
-const String ImageStatsCalculator::SIGMA = "sigma";
+template <class T>
+const String ImageStatsCalculator<T>::SIGMA = "sigma";
 
-ImageStatsCalculator::ImageStatsCalculator(
-    const SPCIIF image,
+template <class T> ImageStatsCalculator<T>::ImageStatsCalculator(
+    const SPCIIT image,
     const Record *const &regionPtr,
     const String& maskInp,
     Bool beVerboseDuringConstruction
-) : ImageStatsConfigurator(
+) : ImageStatsBase<T>(
         image, regionPtr, maskInp
-    ), _oldStatsRegion(0), _oldStatsMask(0),
-    _axes(), _includepix(), _excludepix(), _list(false),
-    _disk(false), _robust(false), _verbose(false),
-    _subImage() {
-    _construct(beVerboseDuringConstruction);
+    ) {
+    this->_construct(beVerboseDuringConstruction);
 }
 
-ImageStatsCalculator::~ImageStatsCalculator() {}
+template <class T> ImageStatsCalculator<T>::~ImageStatsCalculator() {}
 
-Record ImageStatsCalculator::calculate() {
-    *_getLog() << LogOrigin(_class, __func__);
+template <class T> Record ImageStatsCalculator<T>::calculate() {
+    *this->_getLog() << LogOrigin(_class, __func__);
     std::unique_ptr<std::vector<String> > messageStore(
-        _getLogFile() ? new std::vector<String>() : nullptr
+        this->_getLogFile() ? new std::vector<String>() : nullptr
     );
     Record retval = statistics(messageStore.get());
-    Bool writeFile = _openLogfile();
+    Bool writeFile = this->_openLogfile();
     if (_verbose || writeFile) {
         if (writeFile) {
             for (
                 auto iter = messageStore->begin();
                 iter != messageStore->end(); ++iter
             ) {
-                _writeLogfile("# " + *iter, false, false);
+                this->_writeLogfile("# " + *iter, false, false);
             }
         }
         IPosition shape = _axes.empty() ? IPosition(_subImage->ndim(), 1)
@@ -81,11 +81,11 @@ Record ImageStatsCalculator::calculate() {
         auto csys = _subImage->coordinates();
         csys.save(r, "");
         try {
-            SPIIF tempIm = ImageFactory::floatImageFromShape("", shape.asVector(), r);
+            auto tempIm = ImageFactory::fromShape<T>(casacore::String(""), shape.asVector(), r);
             _reportDetailedStats(tempIm, retval);
         }
         catch (const AipsError& x) {
-            *_getLog() << LogIO::WARN << "Unable to collapse image "
+            *this->_getLog() << LogIO::WARN << "Unable to collapse image "
                 << "so detailed per plane statistics reporting is not "
                 << "possible. The exception message was " << x.getMesg()
                 << LogIO::POST;
@@ -95,18 +95,19 @@ Record ImageStatsCalculator::calculate() {
     return retval;
 }
 
-void ImageStatsCalculator::_sanitizeDueToRegionSelection(Record& retval) const {
+template <class T> void
+ImageStatsCalculator<T>::_sanitizeDueToRegionSelection(Record& retval) const {
     if (_axes.empty()) {
         return;
     }
-    if (! _getRegion() || _getRegion()->empty()) {
+    if (! this->_getRegion() || this->_getRegion()->empty()) {
         // no region selection, nothing to sanitize
         return;
     }
     // create subimage template based on region only
-    TempImage<Float> tempIm(_getImage()->shape(), _getImage()->coordinates());
-    auto subim = SubImageFactory<Float>::createSubImageRO(
-        tempIm, *_getRegion(), "", nullptr, AxesSpecifier(), False
+    TempImage<T> tempIm(this->_getImage()->shape(), this->_getImage()->coordinates());
+    auto subim = SubImageFactory<T>::createSubImageRO(
+        tempIm, *this->_getRegion(), "", nullptr, AxesSpecifier(), False
     );
     if (! subim->isMasked()) {
         // no pixels masked because of region selection
@@ -126,7 +127,7 @@ void ImageStatsCalculator::_sanitizeDueToRegionSelection(Record& retval) const {
         excludePlanes[d] = std::set<uInt>();
         IPosition cursorShape = subim->shape();
         cursorShape[d] = 1;
-        RO_MaskedLatticeIterator<Float> lattIter(*subim, cursorShape);
+        RO_MaskedLatticeIterator<T> lattIter(*subim, cursorShape);
         uInt planeNum = 0;
         for (lattIter.atStart(); ! lattIter.atEnd(); ++lattIter, ++planeNum) {
             if (! anyTrue(lattIter.getMask())) {
@@ -176,13 +177,14 @@ void ImageStatsCalculator::_sanitizeDueToRegionSelection(Record& retval) const {
     }
 }
 
-template <class T> void ImageStatsCalculator::_removePlanes(
-    Array<T>& arr, uInt axis, const std::set<uInt>& planes
+template <class T> template <class U>
+void ImageStatsCalculator<T>::_removePlanes(
+    Array<U>& arr, uInt axis, const std::set<uInt>& planes
 ) const {
     IPosition oldShape = arr.shape();
     IPosition newShape = oldShape;
     newShape[axis] -= planes.size();
-    Array<T> newArray(newShape);
+    Array<U> newArray(newShape);
     // do a plane by plane copy into the new array
     auto nOldPlanes = oldShape[axis];
     auto begin = planes.begin();
@@ -210,31 +212,31 @@ template <class T> void ImageStatsCalculator::_removePlanes(
     arr.assign(newArray);
 }
 
-void ImageStatsCalculator::setVerbose(Bool v) {
+template <class T> void ImageStatsCalculator<T>::setVerbose(Bool v) {
     if (_verbose != v) {
-        _resetStats();
+        this->_resetStats();
     }
     _verbose = v;
 }
 
-void ImageStatsCalculator::setDisk(Bool d) {
+template <class T> void ImageStatsCalculator<T>::setDisk(Bool d) {
     if (_disk != d) {
-        _resetStats();
+        this->_resetStats();
     }
     _disk = d;
 }
 
-void ImageStatsCalculator::_reportDetailedStats(
-    const SPCIIF tempIm, const Record& retval
+template <class T> void ImageStatsCalculator<T>::_reportDetailedStats(
+    const SPCIIT tempIm, const Record& retval
 ) {
     auto nptsArr = retval.asArrayDouble("npts");
     if (nptsArr.empty()) {
         auto msg = "NO UNMASKED POINTS FOUND, NO STATISTICS WERE COMPUTED";
-        *_getLog() << LogIO::NORMAL << msg << LogIO::POST;
-        if (_getLogFile()) {
-            _writeLogfile(msg, false, false);
+        *this->_getLog() << LogIO::NORMAL << msg << LogIO::POST;
+        if (this->_getLogFile()) {
+            this->_writeLogfile(msg, false, false);
         }
-        _closeLogfile();
+        this->_closeLogfile();
         return;
     }
     const CoordinateSystem& csys = tempIm->coordinates();
@@ -320,16 +322,16 @@ void ImageStatsCalculator::_reportDetailedStats(
                     << csys.spectralCoordinate().worldAxisUnits()[0] << endl;
             }
             if (_verbose) {
-                *_getLog() << LogIO::NORMAL << oss.str() << LogIO::POST;
+                *this->_getLog() << LogIO::NORMAL << oss.str() << LogIO::POST;
             }
-            if (_getLogFile()) {
-                _writeLogfile("#" + oss.str(), false, false);
+            if (this->_getLogFile()) {
+                this->_writeLogfile("#" + oss.str(), false, false);
             }
             oss.str("");
         }
     }
-    auto bUnit = _getImage()->units().getName();
-    const auto alg = _getAlgorithm();
+    auto bUnit = this->_getImage()->units().getName();
+    const auto alg = this->_getAlgorithm();
     const auto doBiweight = alg == StatisticsData::BIWEIGHT;
     if (_verbose) {
         oss.str("");
@@ -340,10 +342,10 @@ void ImageStatsCalculator::_reportDetailedStats(
         oss << "Std_dev column unit = " << bUnit << endl;
         oss << "Minimum column unit = " << bUnit << endl;
         oss << "Maximum column unit = " << bUnit << endl;
-        *_getLog() << LogIO::NORMAL << oss.str() << LogIO::POST;
+        *this->_getLog() << LogIO::NORMAL << oss.str() << LogIO::POST;
         oss.str("");
     }
-    if (_getLogFile()) {
+    if (this->_getLogFile()) {
         oss.str("");
         if (! doBiweight) {
             oss << "#Sum column unit = " << bUnit << endl;
@@ -352,7 +354,7 @@ void ImageStatsCalculator::_reportDetailedStats(
         oss << "#Std_dev column unit = " << bUnit << endl;
         oss << "#Minimum column unit = " << bUnit << endl;
         oss << "#Maximum column unit = " << bUnit << endl;
-        _writeLogfile(oss.str(), false, false);
+        this->_writeLogfile(oss.str(), false, false);
         oss.str("");
     }
     for (auto ax : reportAxes) {
@@ -379,17 +381,17 @@ void ImageStatsCalculator::_reportDetailedStats(
         oss << "Npts          Sum           Mean          Rms           Std_dev       Minimum       Maximum     ";
     }
     std::map<String, uInt> chauvIters;
-    const auto& stats = _getImageStats();
+    const auto& stats = this->_getImageStats();
     if (alg == StatisticsData::CHAUVENETCRITERION) {
         chauvIters = stats->getChauvenetNiter();
         oss << "  N Iter";
     }
     oss << endl;
     if (_verbose) {
-        *_getLog() << LogIO::NORMAL << oss.str() << LogIO::POST;
+        *this->_getLog() << LogIO::NORMAL << oss.str() << LogIO::POST;
     }
-    if (_getLogFile()) {
-        _writeLogfile("#" + oss.str(), false, false);
+    if (this->_getLogFile()) {
+        this->_writeLogfile("#" + oss.str(), false, false);
     }
     oss.str("");
     for (uInt i=0; i<7; ++i) {
@@ -402,7 +404,7 @@ void ImageStatsCalculator::_reportDetailedStats(
         tempIm->niceCursorShape(),
         IPosition(tempIm->ndim(), 1), idx
     );
-    RO_MaskedLatticeIterator<Float> inIter(
+    RO_MaskedLatticeIterator<T> inIter(
         *tempIm, ts
     );
     Vector<Double> world;
@@ -483,32 +485,32 @@ void ImageStatsCalculator::_reportDetailedStats(
         }
         oss << endl;
         if (_verbose) {
-            *_getLog() << LogIO::NORMAL << oss.str() << LogIO::POST;
+            *this->_getLog() << LogIO::NORMAL << oss.str() << LogIO::POST;
         }
         // add a space at the beginning of the line to account for the
         // "#" in the column header
-        _writeLogfile(" " + oss.str(), false, false);
+        this->_writeLogfile(" " + oss.str(), false, false);
         oss.str("");
     }
-    _closeLogfile();
+    this->_closeLogfile();
 }
 
-Record ImageStatsCalculator::statistics(
+template <class T> Record ImageStatsCalculator<T>::statistics(
     std::vector<String> *const &messageStore
 ) {
     LogOrigin myOrigin(_class, __func__);
-    *_getLog() << myOrigin;
+    *this->_getLog() << myOrigin;
     CountedPtr<ImageRegion> region, mask;
-    String mtmp = _getMask();
+    String mtmp = this->_getMask();
     if (mtmp == "false" || mtmp == "[]") {
         mtmp = "";
     }
-    _subImage = SubImageFactory<Float>::createSubImageRO(
-        region, mask, *_getImage(), *_getRegion(), mtmp,
-        (_verbose ? _getLog().get() : 0), AxesSpecifier(),
-        _getStretch()
+    _subImage = SubImageFactory<T>::createSubImageRO(
+        region, mask, *this->_getImage(), *this->_getRegion(), mtmp,
+        (_verbose ? this->_getLog().get() : 0), AxesSpecifier(),
+        this->_getStretch()
     );
-    *_getLog() << myOrigin;
+    *this->_getLog() << myOrigin;
     // Find BLC of _subImage in pixels and world coords, and output the
     // information to the logger.
     // NOTE: ImageStatitics can't do this because it only gets the _subImage
@@ -518,14 +520,14 @@ Record ImageStatsCalculator::statistics(
     IPosition trc(shape - 1);
     if (region) {
         LatticeRegion latRegion = region->toLatticeRegion(
-            _getImage()->coordinates(), _getImage()->shape()
+            this->_getImage()->coordinates(), this->_getImage()->shape()
         );
         Slicer sl = latRegion.slicer();
         blc = sl.start();
         trc = sl.end();
     }
     // for precision
-    CoordinateSystem csys = _getImage()->coordinates();
+    CoordinateSystem csys = this->_getImage()->coordinates();
     Int precis = -1;
     if (csys.hasDirectionCoordinate()) {
         DirectionCoordinate dirCoord = csys.directionCoordinate();
@@ -541,12 +543,12 @@ Record ImageStatsCalculator::statistics(
     String blcf, trcf;
     blcf = CoordinateUtil::formatCoordinate(blc, csys, precis);
     trcf = CoordinateUtil::formatCoordinate(trc, csys, precis);
-    auto& stats = _getImageStats();
+    auto& stats = this->_getImageStats();
     if (! stats) {
-        _resetStats(
+        this->_resetStats(
             _verbose
-            ? new ImageStatistics<Float> (*_subImage, *_getLog(), true, _disk)
-            : new ImageStatistics<Float> (*_subImage, true, _disk)
+            ? new ImageStatistics<T> (*_subImage, *this->_getLog(), true, _disk)
+            : new ImageStatistics<T> (*_subImage, true, _disk)
         );
     }
     else {
@@ -562,45 +564,13 @@ Record ImageStatsCalculator::statistics(
     }
     // prevent the table of stats we no longer use from being logged
     stats->setListStats(false);
-    auto myAlg = _configureAlgorithm();
+    auto myAlg = this->_configureAlgorithm();
     _logStartup(
         messageStore, myAlg, blc, trc, blcf, trcf
     );
-    /*
-    if (_list) {
-        *_getLog() << myOrigin << LogIO::NORMAL;
-        String algInfo = "Statistics calculated using "
-            + myAlg + " algorithm";
-        *_getLog() << algInfo << LogIO::POST;
-        if (messageStore) {
-            messageStore->push_back(algInfo + "\n");
-        }
-        // Only write to the logger if the user wants it displayed.
-        Vector<String> x(5);
-        ostringstream y;
-        x[0] = "Regions --- ";
-        y << "         -- bottom-left corner (pixel) [blc]:  " << blc;
-        x[1] = y.str();
-        y.str("");
-        y << "         -- top-right corner (pixel) [trc]:    " << trc;
-        x[2] = y.str();
-        y.str("");
-        y << "         -- bottom-left corner (world) [blcf]: " << blcf;
-        x[3] = y.str();
-        y.str("");
-        y << "         -- top-right corner (world) [trcf]:   " << trcf;
-        x[4] = y.str();
-        for (uInt i=0; i<x.size(); ++i) {
-            *_getLog() << x[i] << LogIO::POST;
-            if (messageStore != 0) {
-                messageStore->push_back(x[i] + "\n");
-            }
-        }
-    }
-    */
-    auto doBiweight = _getAlgorithm() == StatisticsData::BIWEIGHT;
+    auto doBiweight = this->_getAlgorithm() == StatisticsData::BIWEIGHT;
     if (_robust && doBiweight) {
-        *_getLog() << LogIO::WARN << "The biweight algorithm does not "
+        *this->_getLog() << LogIO::WARN << "The biweight algorithm does not "
             << "support the computation of quantile-like statistics. "
             << "These will not be computed" << LogIO::POST;
         _robust = False;
@@ -612,11 +582,11 @@ Record ImageStatsCalculator::statistics(
     stats->setPrecision(precis);
     stats->setBlc(blc);
     // Assign old regions to current regions
-    _oldStatsMask.reset(0);
+    _oldStatsMask.reset();
     _oldStatsRegion = region;
     _oldStatsMask = mask;
     // Set cursor axes
-    *_getLog() << myOrigin;
+    *this->_getLog() << myOrigin;
     ThrowIf(! stats->setAxes(_axes), stats->errorMessage());
     ThrowIf(
         !stats->setInExCludeRange(_includepix, _excludepix, false),
@@ -632,13 +602,13 @@ Record ImageStatsCalculator::statistics(
     Array<Double> rms, fluxDensity, med, medAbsDevMed, quartile, q1, q3;
     Bool ok = true;
     auto doFlux = ! doBiweight;
-    if (doFlux && _getImage()->imageInfo().hasMultipleBeams()) {
+    if (doFlux && this->_getImage()->imageInfo().hasMultipleBeams()) {
         if (csys.hasSpectralAxis() || csys.hasPolarizationCoordinate()) {
             Int spAxis = csys.spectralAxisNumber();
             Int poAxis = csys.polarizationAxisNumber();
             for (Int i=0; i<(Int)_axes.size(); ++i) {
                 if (_axes[i] == spAxis || _axes[i] == poAxis) {
-                    *_getLog() << LogIO::WARN << "At least one cursor axis contains multiple beams. "
+                    *this->_getLog() << LogIO::WARN << "At least one cursor axis contains multiple beams. "
                         << "You should thus use care in interpreting these statistics. Flux densities "
                         << "will not be computed." << LogIO::POST;
                     doFlux = false;
@@ -737,7 +707,7 @@ Record ImageStatsCalculator::statistics(
     return statsout;
 }
 
-void ImageStatsCalculator::_logStartup(
+template <class T> void ImageStatsCalculator<T>::_logStartup(
     std::vector<String> *const &messageStore, const String& myAlg,
     const casacore::IPosition& blc, const casacore::IPosition& trc,
     const casacore::String& blcf, const casacore::String trcf
@@ -746,10 +716,10 @@ void ImageStatsCalculator::_logStartup(
         return;
     }
     LogOrigin myOrigin(_class, __func__);
-    *_getLog() << myOrigin << LogIO::NORMAL;
+    *this->_getLog() << myOrigin << LogIO::NORMAL;
     String algInfo = "Statistics calculated using "
         + myAlg + " algorithm";
-    *_getLog() << algInfo << LogIO::POST;
+    *this->_getLog() << algInfo << LogIO::POST;
     if (messageStore) {
         messageStore->push_back(algInfo + "\n");
     }
@@ -769,18 +739,18 @@ void ImageStatsCalculator::_logStartup(
     y << "         -- top-right corner (world) [trcf]:   " << trcf;
     x[4] = y.str();
     for (uInt i=0; i<x.size(); ++i) {
-        *_getLog() << x[i] << LogIO::POST;
+        *this->_getLog() << x[i] << LogIO::POST;
         if (messageStore != 0) {
             messageStore->push_back(x[i] + "\n");
         }
     }
 }
 
-void ImageStatsCalculator::setRobust(Bool b) {
+template <class T> void ImageStatsCalculator<T>::setRobust(Bool b) {
     _robust = b;
 }
 
-Bool ImageStatsCalculator::_haveRegionsChanged(
+template <class T> casacore::Bool ImageStatsCalculator<T>::_haveRegionsChanged(
     ImageRegion* newRegion,
     ImageRegion* newMask, ImageRegion* oldRegion,
     ImageRegion* oldMask
@@ -804,3 +774,4 @@ Bool ImageStatsCalculator::_haveRegionsChanged(
 
 }
 
+#endif

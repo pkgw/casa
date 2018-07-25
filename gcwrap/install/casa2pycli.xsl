@@ -240,6 +240,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 	     tname = </xsl:text>'<xsl:value-of select="$taskname"/>'<xsl:text disable-output-escaping="yes">
              casalog.post('An error occurred running task '+tname+'.', 'ERROR')
              pass
+	casalog.origin('')
 </xsl:text>
 <xsl:for-each select="aps:output">
    <xsl:call-template name="checkoutput"/>
@@ -250,27 +251,27 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 #
 #
 #
-    def paramgui(self, useGlobals=True, ipython_globals=None):
-        """
-        Opens a parameter GUI for this task.  If useGlobals is true, then any relevant global parameter settings are used.
-        """
-        import paramgui
-	if not hasattr(self, "__globals__") or self.__globals__ == None :
-           self.__globals__=stack_frame_find( )
-
-        if useGlobals:
-	    if ipython_globals == None:
-                myf=self.__globals__
-            else:
-                myf=ipython_globals
-
-            paramgui.setGlobals(myf)
-        else:
-            paramgui.setGlobals({})
-
-        paramgui.runTask(&apos;</xsl:text><xsl:value-of select="$taskname"/><xsl:text disable-output-escaping="yes">&apos;, myf['_ip'])
-        paramgui.setGlobals({})
-
+#    def paramgui(self, useGlobals=True, ipython_globals=None):
+#        """
+#        Opens a parameter GUI for this task.  If useGlobals is true, then any relevant global parameter settings are used.
+#        """
+#        import paramgui
+#	if not hasattr(self, "__globals__") or self.__globals__ == None :
+#           self.__globals__=stack_frame_find( )
+#
+#        if useGlobals:
+#	    if ipython_globals == None:
+#                myf=self.__globals__
+#            else:
+#                myf=ipython_globals
+#
+#            paramgui.setGlobals(myf)
+#        else:
+#            paramgui.setGlobals({})
+#
+#        paramgui.runTask(&apos;</xsl:text><xsl:value-of select="$taskname"/><xsl:text disable-output-escaping="yes">&apos;, myf['_ip'])
+#        paramgui.setGlobals({})
+#
 #
 #
 #
