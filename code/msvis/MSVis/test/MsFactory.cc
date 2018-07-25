@@ -19,6 +19,7 @@ namespace test {
 
 MsFactory::MsFactory (const String & msName)
  : addWeightSpectrum_p (true),
+   addFloatData_p (false),
    includeAutocorrelations_p (false),
    simulator_p (new NewMSSimulator (msName)),
    timeStart_p (-1)
@@ -214,10 +215,19 @@ MsFactory::addWeightSpectrum (Bool addIt)
 }
 
 void
+MsFactory::addFloatData (Bool addIt)
+{
+    addFloatData_p = addIt;
+}
+
+void
 MsFactory::addColumns ()
 {
     if (addWeightSpectrum_p){
         addCubeColumn (MS::WEIGHT_SPECTRUM, "WeightSpectrumTiled");
+    }
+    if (addFloatData_p){
+        addCubeColumn (MS::FLOAT_DATA, "FloatDataTiled");
     }
 }
 
@@ -460,6 +470,7 @@ MsFactory::fillCubes (FillState & fillState)
     fillVisCubeCorrected (fillState);
     fillVisCubeModel (fillState);
     fillVisCubeObserved (fillState);
+    fillVisFloatData (fillState);
 
     fillWeightSpectrumCube (fillState);
     fillWeightSpectrumCorrectedCube (fillState);
@@ -554,6 +565,14 @@ MsFactory::fillVisCubeModel (FillState & fillState)
     if (! columns_p.modelVis_p.isNull ()){
 
         fillCube (columns_p.modelVis_p, fillState, generators_p.get(MSMainEnums::MODEL_DATA));
+    }
+}
+
+void
+MsFactory::fillVisFloatData (FillState & fillState)
+{
+    if (! columns_p.floatVis_p.isNull ()){
+        fillCube (columns_p.floatVis_p, fillState, generators_p.get(MSMainEnums::FLOAT_DATA));
     }
 }
 
