@@ -768,6 +768,7 @@ void PlotMSIndexer::reindexForConnect() {
 				reindexForSpwConnect(times, channels, corrs, ant1s, itermask);
 				break;
 			case PMS::CHANNEL:
+			case PMS::FREQUENCY:
 				reindexForChannelConnect(times, spws, corrs, ant1s, itermask);
 				break;
 			case PMS::CORR:
@@ -816,8 +817,8 @@ void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
 					spws.insert(iterValue_);
 				break;
 			}
-			case PMS::FREQUENCY:
-			case PMS::CHANNEL: {
+			case PMS::CHANNEL:
+			case PMS::FREQUENCY: {
 				if (connectX || axisIsIter)
 					needChan = false;
 				break;

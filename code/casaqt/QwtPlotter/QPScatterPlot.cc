@@ -537,10 +537,13 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                                 } else if ((i < n-1) && (m_coloredData->binAt(i+1)==thisbin))  {
                                     // first point in new line, use next point to draw trailing line
                                     double nextx, nexty;
-                                    m_maskedData->xAndYAt(i+1, nextx, nexty);
-                                    int nextix(xMap.transform(nextx));
-                                    int ixdiff(((thisix + nextix)/2) - thisix);
-                                    p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+                                    bool nextmask;
+                                    m_maskedData->xyAndMaskAt(i+1, nextx, nexty, nextmask);
+                                    if (nextmask==thismask) {
+                                        int nextix(xMap.transform(nextx));
+                                        int ixdiff(((thisix + nextix)/2) - thisix);
+                                        p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+                                    }
                                 }
                             } else if (sameMask && sameLine) { // connect last point to this point
                                 p->drawLine(lastix, lastiy, thisix, thisiy);
