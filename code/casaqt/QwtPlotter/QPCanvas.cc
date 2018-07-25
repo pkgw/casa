@@ -644,6 +644,7 @@ void QPCanvas::setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
 		} else {
         	m_canvas.setAxisScale(QPOptions::axis(xAxis), xFrom, xTo,
            		m_canvas.axisStepSize(QPOptions::axis(xAxis)));
+		m_canvas.updateAxes();
 		}
         changed = true;
 	}
