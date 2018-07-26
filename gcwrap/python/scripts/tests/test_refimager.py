@@ -638,7 +638,7 @@ class test_multifield(testref_base):
      def test_multifield_cube_mfs(self):
           """ [multifield] Test_Multifield_cube_mfs : Two fields, one cube and one mfs"""
           self.prepData("refim_twopoints_twochan.ms")
-          self.th.write_file(self.img+'.out.txt', 'imagename='+self.img+'1\nimsize=[80,80]\ncell=[8.0arcsec,8.0arcsec]\nphasecenter=J2000 19:58:40.895 +40.55.58.543\nspecmode=mfs\n')
+          self.th.write_file(self.img+'.out.txt', 'imagename='+self.img+'1\nimsize=[80,80]\ncell=[8.0arcsec,8.0arcsec]\nphasecenter=J2000 19:58:40.895 +40.55.58.543\nspecmode=mfs\nnchan=1\n')
           retpar = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",outlierfile=self.img+'.out.txt',niter=10,deconvolver='hogbom',interactive=0,specmode='cube',nchan=2,interpolation='nearest',parallel=self.parallel)
           ret={}
           if self.parallel:
