@@ -24,6 +24,7 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 //# $Id: $
+
 #include <plotms/Data/MSCache.h>
 #include <plotms/Data/PlotMSIndexer.h>
 #include <plotms/Data/PlotMSAtm.h>
@@ -43,9 +44,11 @@
 #include <msvis/MSVis/VisSet.h>
 #include <msvis/MSVis/VisBuffer2.h>
 #include <mstransform/MSTransform/MSTransformIteratorFactory.h>
+#include <mstransform/TVI/PointingInterpolationTVI.h>
 #include <plotms/Data/PlotMSVBAverager.h>
 #include <plotms/Data/MSCacheVolMeter.h>
 #include <plotms/PlotMS/PlotMS.h>
+#include <plotms/Plots/PlotMSPlotParameterGroups.h>
 #include <tables/Tables/Table.h>
 #include <measures/Measures/Stokes.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
@@ -831,68 +834,103 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 	chshapes_.resize(4,nChunk_);
 	goodChunk_.resize(nChunk_);
 	goodChunk_.set(false);
-;
-	// Renaud
-	auto * viImpl = vi.getImpl();
-	const auto & sortColumns = viImpl->getSortColumns();
-	for (const auto & colIdInt : sortColumns.getColumnIds()){
-		auto colEnum = static_cast<MSMainEnums::PredefinedColumns>(colIdInt);
-		logLoad(String("Sort Column: ") + MS::columnName(colEnum));
+
+	// Prepare for loading RA and DEC axes
+	using PI_TVI = vi::PointingInterpolationTVI;
+	PI_TVI* piTvi = nullptr;
+	auto isRaOrDec = [](PMS::Axis a) { return a == PMS::RA || a == PMS::DEC ; };
+	auto loadRaOrDec = std::find_if(loadAxes.begin(),loadAxes.end(),isRaOrDec) != loadAxes.end();
+	if (loadRaOrDec) {
+		// Get iterator's implementation, because we need to configure it at run-time
+		auto * viImpl = vi.getImpl();
+		auto * transformIt = dynamic_cast<MSTransformIterator *>(viImpl);
+		if (transformIt != nullptr)
+			piTvi = dynamic_cast<PI_TVI *>(transformIt->getInputViIterator());
+		if (piTvi == nullptr)
+			throw(AipsError("MSCache::loadChunks(): error while preparing for pointings interpolation"));
+		// Debug / check sort columns
+		const auto & sortColumns = viImpl->getSortColumns();
+		for (const auto & colIdInt : sortColumns.getColumnIds()){
+			auto colEnum = static_cast<MSMainEnums::PredefinedColumns>(colIdInt);
+			logLoad(String("Sort Column: ") + MS::columnName(colEnum));
+		}
 	}
-	const auto & params  = plotMSPlot_->parameters();
-	// Next step: copy directly ra/dec params from
-	// End Renaud
+
 	for(vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
 		for(vi.origin(); vi.more(); vi.next()) {
-            if (vb->nRows() > 0) {
-                if (chunk >= nChunk_) {  // nChunk_ was just an estimate
-                    setCache(chunk+1, loadAxes, loadData);
-                    chshapes_.resize(4, nChunk_, true);
-                    goodChunk_.resize(nChunk_, true);
-                }
-
-                // If a thread is given, update its chunk number and progress bar
-                if(thread != NULL)
-                    updateProgress(thread, chunk);
-
-                // Cache the data shapes
-                chshapes_(0,chunk) = vb->nCorrelations();
-                chshapes_(1,chunk) = vb->nChannels();
-                chshapes_(2,chunk) = vb->nRows();
-                chshapes_(3,chunk) = vb->nAntennas();
-                goodChunk_(chunk)  = true;
-                for(unsigned int i = 0; i < loadAxes.size(); i++) {
-                    // If a thread is given, check if the user canceled.
-                    if(thread != NULL && thread->wasCanceled()) {
-                        dataLoaded_ = false;
-                        userCanceled_ = true;
-                        goodChunk_(chunk) = false; //only partially loaded
-                        return;
-                    }
-                    loadAxis(vb, chunk, loadAxes[i], loadData[i]);
-                    if (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY) {
-                        thisscan = vb->scan()(0);
-                        if (thisscan != lastscan) {
-                            printAtmStats(thisscan);
-                            lastscan = thisscan;
-                        }
-                        thisspw = vb->spectralWindows()(0);
-                        if (thisspw != lastspw) {
-                            uInt vectorsize = ( loadAxes[i]==PMS::ATM ?
-                                (*atm_[chunk]).nelements() :
-                                (*tsky_[chunk]).nelements());
-                            if (vectorsize==1) {
-                                logWarn("load_cache", "Setting " + 
-                                  PMS::axis(loadAxes[i]) + " for spw " +
-                                  String::toString(thisspw) +
-                                  " to zero because it has only one channel.");
-                            }
-                            lastspw = thisspw;
-                        }
-                    }
-                }
-                chunk++;
-            }
+			if (vb->nRows() <= 0) continue;
+			if (chunk >= nChunk_) {  // nChunk_ was just an estimate
+				setCache(chunk+1, loadAxes, loadData);
+				chshapes_.resize(4, nChunk_, true);
+				goodChunk_.resize(nChunk_, true);
+			}
+			// If a thread is given, update its chunk number and progress bar
+			if (thread != NULL) updateProgress(thread, chunk);
+			// Cache the data shapes
+			if (true) {
+				chshapes_(0,chunk) = vb->nCorrelations();
+				chshapes_(1,chunk) = vb->nChannels();
+				chshapes_(2,chunk) = vb->nRows();
+				chshapes_(3,chunk) = vb->nAntennas();
+				goodChunk_(chunk)  = true;
+			}
+			// Load axes
+			set<DirectionAxisParams> raDecLoaded;
+			for(unsigned int i = 0; i < loadAxes.size(); i++) {
+				// If a thread is given, check if the user canceled.
+				if(thread != NULL && thread->wasCanceled()) {
+					dataLoaded_ = false;
+					userCanceled_ = true;
+					goodChunk_(chunk) = false; //only partially loaded
+					return;
+				}
+				if (isRaOrDec(loadAxes[i])){
+					DirectionAxisParams raDecParams {loadXYFrame_[i],loadXYInterp_[i]};
+					auto raDecChunkLoaded = ( raDecLoaded.find(raDecParams) != raDecLoaded.end() );
+					if (raDecChunkLoaded) continue;
+					raDecLoaded.insert(raDecParams);
+					using TviInterp = PI_TVI::Interpolator::InterpMethod;
+					auto & interpolator = piTvi->getInterpolator();
+					switch (loadXYInterp_[i]){
+					case PMS::InterpMethod::NEAREST:
+						interpolator.setInterpMethod(TviInterp::NEAREST);
+						break;
+					case PMS::InterpMethod::CUBIC:
+						interpolator.setInterpMethod(TviInterp::SPLINE);
+						break;
+					default:
+						String errMsg("MSCache::loadChunks(): unsupported pointing interpolation method: ");
+						errMsg += PMS::interpMethod(loadXYInterp_[i]);
+						throw(AipsError(errMsg));
+					}
+					auto & raBlock = raMap_.at(raDecParams);
+					loadRa_ = &raBlock;
+					auto & decBlock = decMap_.at(raDecParams);
+					loadDec_ = &decBlock;
+				}
+				loadAxis(vb, chunk, loadAxes[i], loadData[i]);
+				if (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY) {
+					thisscan = vb->scan()(0);
+					if (thisscan != lastscan) {
+						printAtmStats(thisscan);
+						lastscan = thisscan;
+					}
+					thisspw = vb->spectralWindows()(0);
+					if (thisspw != lastspw) {
+						uInt vectorsize = ( loadAxes[i]==PMS::ATM ?
+							(*atm_[chunk]).nelements() :
+							(*tsky_[chunk]).nelements());
+						if (vectorsize==1) {
+							logWarn("load_cache", "Setting " +
+							  PMS::axis(loadAxes[i]) + " for spw " +
+							  String::toString(thisspw) +
+							  " to zero because it has only one channel.");
+						}
+						lastspw = thisspw;
+					}
+				}
+			}
+			chunk++;
 		}
 	}
     // Report averaged channels per spw in log
@@ -1804,6 +1842,8 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		}
 		*ra_[vbnum] = raDecMat.row(0);
 		*dec_[vbnum] = raDecMat.row(1);
+		*((*loadRa_)[vbnum]) = raDecMat.row(0);
+		*((*loadDec_)[vbnum]) = raDecMat.row(1);
 		break;
 	}
 	case PMS::RADIAL_VELOCITY: {

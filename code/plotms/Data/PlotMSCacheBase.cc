@@ -28,6 +28,7 @@
 #include <plotms/Data/PlotMSIndexer.h>
 #include <plotms/Threads/ThreadCommunication.h>
 #include <plotms/Data/PlotMSAtm.h>
+#include <plotms/Plots/PlotMSPlotParameterGroups.h>
 #include <casa/OS/Timer.h>
 #include <casa/OS/HostInfo.h>
 #include <casa/OS/Memory.h>
@@ -48,6 +49,7 @@
 #include <QDebug>
 
 #include <unistd.h>
+#include <algorithm>
 
 using namespace casacore;
 namespace casa {
@@ -83,7 +85,7 @@ const unsigned int PlotMSCacheBase::THREAD_SEGMENT = 10;
 
 PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent, PlotMSPlot* plot):
 		  plotms_(parent),
-		  plotMSPlot_(plot),
+		  itsPlot_(plot),
 		  indexer0_(NULL),
 		  indexer_(0),
 		  nChunk_(0),
@@ -110,6 +112,10 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent, PlotMSPlot* plot):
 	currentY_.resize(dataCount, PMS::DEFAULT_YAXIS);
 	currentXData_.resize(dataCount, PMS::DEFAULT_DATACOLUMN);
 	currentYData_.resize(dataCount, PMS::DEFAULT_DATACOLUMN);
+	currentXFrame_.resize(dataCount, PMS::DEFAULT_COORDSYSTEM);
+	currentYFrame_.resize(dataCount, PMS::DEFAULT_COORDSYSTEM);
+	currentXInterp_.resize(dataCount, PMS::DEFAULT_INTERPMETHOD);
+	currentYInterp_.resize(dataCount, PMS::DEFAULT_INTERPMETHOD);
 	indexer0_ = new PlotMSIndexer();
 	indexer_.resize(dataCount);
 	netAxesMask_.resize( dataCount );
@@ -328,6 +334,11 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	currentY_.clear();
 	currentXData_.clear();
 	currentYData_.clear();
+	// RA/DEC axes params
+	currentXFrame_.clear();
+	currentYFrame_.clear();
+	currentXInterp_.clear();
+	currentYInterp_.clear();
 	int dataCount = axes.size() / 2;
     bool doAtm(false);
 	for ( int i = 0; i < dataCount; i++ ){
@@ -338,6 +349,38 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
         if (axes[dataCount+i]==PMS::ATM || axes[dataCount+i]==PMS::TSKY)
             doAtm=true;
 	}
+	// Copy RA/DEC axes params from plot's parameters,
+	if (itsPlot_ != nullptr){
+		auto * cacheParams = itsPlot_->parameters().typedGroup<PMS_PP_Cache>();
+		if (cacheParams == nullptr)
+			throw(AipsError("PlotMSCacheBase::load(): plot has no Cache parameter group"));
+		currentXFrame_ = cacheParams->xFrames();
+		currentYFrame_ = cacheParams->yFrames();
+		currentXInterp_ = cacheParams->xInterps();
+		currentYInterp_ = cacheParams->yInterps();
+		auto dataCount = axes.size()/2;
+		auto sizeOk = true;
+		sizeOk &= currentXFrame_.size() == dataCount;
+		sizeOk &= currentYFrame_.size() == dataCount;
+		sizeOk &= currentXInterp_.size() == dataCount;
+		sizeOk &= currentYInterp_.size() == dataCount;
+		if (not sizeOk )
+			throw(AipsError("PlotMSCacheBase::load(): Cache parameters: size mismatch"));
+	}
+	else {
+		currentXFrame_ = vector<PMS::CoordSystem>(dataCount,PMS::DEFAULT_COORDSYSTEM);
+		currentYFrame_ = vector<PMS::CoordSystem>(dataCount,PMS::DEFAULT_COORDSYSTEM);
+		currentXInterp_ = vector<PMS::InterpMethod>(dataCount,PMS::DEFAULT_INTERPMETHOD);
+		currentYInterp_ = vector<PMS::InterpMethod>(dataCount,PMS::DEFAULT_INTERPMETHOD);
+	}
+	// Compute the missing stacked parameters for RA/DEC axis parameters
+	xyFrame_.resize(axes.size());
+	std::copy(currentXFrame_.begin(),currentXFrame_.end(),xyFrame_.begin());
+	std::copy(currentYFrame_.begin(),currentYFrame_.end(),xyFrame_.begin()+currentXFrame_.size());
+
+	xyInterp_.resize(axes.size());
+	std::copy(currentXInterp_.begin(),currentXInterp_.end(),xyInterp_.begin());
+	std::copy(currentYInterp_.begin(),currentYInterp_.end(),xyInterp_.begin()+currentXInterp_.size());
 
 	// Maintain access to this msname, selection, & averager, because we'll
 	// use it if/when we flag, etc.
@@ -428,13 +471,20 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 
 	stringstream ss;
 	ss << "Caching for the new plot: ";
+	auto axisIsRaOrDec = [](PMS::Axis a) { return a == PMS::RA || a == PMS::DEC ; };
 	for ( int i = 0; i < dataCount; i++ ){
 		ss << PMS::axis(currentY_[i]) << "(" << currentY_[i] << ")";  
         if (PMS::axisIsData(currentY_[i]))
             ss << ":" << PMS::dataColumn(currentYData_[i]);
+        if ( axisIsRaOrDec(currentY_[i]) )
+            ss << "[" << "ref="    << PMS::coordSystem(currentYFrame_[i]) << ", "
+                      << "interp=" << PMS::interpMethod(currentYInterp_[i]) << "]";
         ss << " vs. " << PMS::axis(currentX_[i]) << "(" << currentX_[i] << ")";
         if (PMS::axisIsData(currentX_[i]))
             ss << ":" << PMS::dataColumn(currentXData_[i]);
+        if ( axisIsRaOrDec(currentX_[i]) )
+            ss << "[" << "ref="    << PMS::coordSystem(currentXFrame_[i]) << ", "
+                      << "interp=" << PMS::interpMethod(currentXInterp_[i]) << "]";
         ss << "...\n";
 	}
 	logLoad(ss.str());
@@ -445,11 +495,14 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	// changed).
 	vector<PMS::Axis> loadAxes;
 	vector<PMS::DataColumn> loadData;
+	loadXYFrame_.clear();
+	loadXYInterp_.clear();
 
 	// A map that keeps track of all pending loaded axes
 	//  this is a list of all axes that will be loaded, if everything
 	//   works---it is used to pre-estimate memory requirements.
 	pendingLoadAxes_.clear();
+
 
 	bool isCalCache(cacheType()==PlotMSCacheBase::CAL);
     String caltype(calType());
@@ -469,6 +522,8 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	  if(!loadedAxes_[metadata(i)]) {
 		loadAxes.push_back(metadata(i));
 		loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+		loadXYFrame_.push_back(PMS::DEFAULT_COORDSYSTEM);
+		loadXYInterp_.push_back(PMS::DEFAULT_INTERPMETHOD);
  	  }
     }
 
@@ -493,10 +548,21 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 		dc = PMS::DEFAULT_DATACOLUMN;
 		if(i < data.size()) dc = data[i];
 
+		auto frame = xyFrame_[i];
+		auto interp = xyInterp_[i];
+
 		// 1)  already in the load list? (loadAxes)
-		for(unsigned int j = 0; !found && j < loadAxes.size(); j++)
-			if(loadAxes[j]==axis && loadData[j]==dc) found = true;
-		if(found) continue;
+		if (not axisIsRaOrDec(axis)) {
+			for(unsigned int j = 0; !found && j < loadAxes.size(); j++)
+				if(loadAxes[j]==axis && loadData[j]==dc) found = true;
+			if(found) continue;
+		}
+		else {
+			for(unsigned int j = 0; !found && j < loadAxes.size(); j++)
+				if (loadAxes[j]==axis && loadXYFrame_[j]==frame && loadXYInterp_[j]==interp)
+					found = true;
+			if(found) continue;
+		}
 
 		//If ephemeris data is not available we should not load axes 
         //associated with ephemeris data.
@@ -511,6 +577,8 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 		if(!loadedAxes_[axis]) {
 			loadAxes.push_back(axis);
 			loadData.push_back(dc);
+			loadXYFrame_.push_back(frame);
+			loadXYInterp_.push_back(interp);
 		}
 
 		// 3)  data axis is loaded; check if data column loaded
@@ -522,6 +590,8 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
             if (!datacolLoaded) { 
 			    loadAxes.push_back(axis);
 			    loadData.push_back(dc);
+				loadXYFrame_.push_back(frame);
+				loadXYInterp_.push_back(interp);
             } else {
               // check if averaging changed since loading
               Record datacolRec = loadedAxesData_[axis].subRecord(datacolStr);
@@ -530,6 +600,8 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
               if (datacolAvg != averaging) {
 			    loadAxes.push_back(axis);
 			    loadData.push_back(dc);
+				loadXYFrame_.push_back(frame);
+				loadXYInterp_.push_back(interp);
               }
             }
         }
@@ -1580,10 +1652,24 @@ void PlotMSCacheBase::setCache(Int newnChunk,
 		        addVectors(el_);
                 break;
             }
-            case PMS::RA:
+            case PMS::RA:{
+            	addVectors(ra_);
+		        DirectionAxisParams params {loadXYFrame_[i],loadXYInterp_[i]};
+		        auto & emptyBlock = raMap_[params];
+		        addVectors(emptyBlock);
+		        //decltype(raMap_)::mapped_type ptrBlock;
+		        //auto iter_wasInserted = raMap_.insert({params,ptrBlock});
+		        //addVectors(iter_wasInserted.first->second);
+            	break;
+            }
             case PMS::DEC: {
-		        addVectors(ra_);
 		        addVectors(dec_);
+		        DirectionAxisParams params {loadXYFrame_[i],loadXYInterp_[i]};
+		        auto & emptyBlock = decMap_[params];
+		        addVectors(emptyBlock);
+		        //decltype(decMap_)::mapped_type ptrBlock;
+		        //auto iter_wasInserted = decMap_.insert({params,ptrBlock});
+		        //addVectors(iter_wasInserted.first->second);
                 break;
             }
 	        case PMS::PARANG:
@@ -1862,6 +1948,36 @@ void PlotMSCacheBase::deletePlotMask() {
 	// This indexer is no longer ready for plotting
 	//dataLoaded_=false;
 
+}
+
+void PlotMSCacheBase::setPlot(PlotMSPlot *plot){
+	itsPlot_ = plot;
+}
+
+const PlotMSCacheBase::RaDecData & PlotMSCacheBase::getRaMap(int index) const {
+	static const auto & ref = PlotMSRaDecIndexer::emptyData_;
+	return ref;
+}
+const PlotMSCacheBase::RaDecData & PlotMSCacheBase::getDecMap(int index) const {
+	static const auto & ref = PlotMSRaDecIndexer::emptyData_;
+	return ref;
+}
+
+bool PlotMSCacheBase::isValidRaDecIndex(int index) const {
+	bool result = index >= 0;
+	return result;
+	/*
+	result &= index <
+	  std::vector<PMS::Axis> currentX_;
+	  std::vector<PMS::Axis> currentY_;
+	  std::vector<PMS::DataColumn> currentXData_;
+	  std::vector<PMS::DataColumn> currentYData_;
+	  std::vector<PMS::CoordSystem> currentXFrame_;
+	  std::vector<PMS::CoordSystem> currentYFrame_;
+	  std::vector<PMS::InterpMethod> currentXInterp_;
+	  std::vector<PMS::InterpMethod> currentYInterp_;
+	return result;
+	*/
 }
 
 void PlotMSCacheBase::log(const String& method, const String& message,

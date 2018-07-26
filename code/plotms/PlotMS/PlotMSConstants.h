@@ -198,6 +198,8 @@ public:
     static bool axisIsUV(Axis axis);
 	// for adjusting axis ranges
     static bool axisIsOverlay(Axis axis);
+    // for Right Ascension / Declination
+    static bool axisIsRaDec(Axis axis);
               
     // Enum for different axes types.  Currently only used to display this
     // information to the user in the GUI's cache tab.

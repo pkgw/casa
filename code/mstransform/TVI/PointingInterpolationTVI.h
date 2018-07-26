@@ -21,39 +21,25 @@ namespace vi {
 using casacore::Vector;
 using casacore::Double;
 
-class PointingInterpolationTVI: public TransformingVi2 {
 
-public:
-	PointingInterpolationTVI(ViImplementation2 * inputVi);
-	~PointingInterpolationTVI();
 
-	virtual casacore::String ViiType() const ;
+class PointingInterpolationTVI : public TransformingVi2 {
 
-	// Sub-chunk navigation methods
-	virtual void origin();
-	virtual void next();
-
-	virtual std::pair<bool, casacore::MDirection> getPointingAngle (int antenna, double time) const;
-
-private:
-	casacore::Unit lonUnit_;
-	casacore::Unit latUnit_;
-	casacore::MDirection::Ref dirRef_;
-	// Output Reference Frame
-	casacore::MDirection::Ref toRef_;
-	void setupInterpolator();
-	// Utilities
-	casacore::String taQLSet(const std::set<int> &);
-
-	// Interpolator based on SDPosInterpolator
-	// TODO: handle corner cases (nPointings < 4) properly
 public:
 	class Interpolator {
 	public:
 		using PointingTimes = Vector<Double>;      // pointingsCount[antId]
 		using PointingDir   = Vector<Double>;      // 2
 		using PointingDirs  = Vector<PointingDir>; // pointingsCount[antId]
-		Interpolator(){}
+		Interpolator();
+
+		enum class InterpMethod {
+			NEAREST,
+			SPLINE
+		};
+
+		void setInterpMethod(InterpMethod method);
+		InterpMethod getInterpMethod() const;
 
 		void setData(const Vector<PointingTimes> &antsTimes, // nAnt
 					 const Vector<PointingDirs> &antsDirs,   // nAnt
@@ -74,12 +60,34 @@ public:
 		Vector<bool> isSelected_;                // nAnt
 		Vector<bool> isInterpolated_;            // nAnt
 		Vector<SplineCoeffs> antsSplinesCoeffs_; // nAnt
-
+		InterpMethod interp_;
 	};
 
-private:
-	Interpolator interpolator_;
+public:
+	PointingInterpolationTVI(ViImplementation2 * inputVi);
+	~PointingInterpolationTVI();
 
+	virtual casacore::String ViiType() const ;
+
+	// Sub-chunk navigation methods
+	virtual void origin();
+	virtual void next();
+
+	PointingInterpolationTVI::Interpolator& getInterpolator();
+
+	virtual std::pair<bool, casacore::MDirection> getPointingAngle (int antenna, double time) const;
+
+private:
+	casacore::Unit lonUnit_;
+	casacore::Unit latUnit_;
+	casacore::MDirection::Ref dirRef_;
+	// Output Reference Frame
+	casacore::MDirection::Ref toRef_;
+	void setupInterpolator();
+	// Utilities
+	casacore::String taQLSet(const std::set<int> &);
+	// Interpolator
+	PointingInterpolationTVI::Interpolator interpolator_;
 };
 
 class PointingInterpolationVi2Factory: public ViFactory {

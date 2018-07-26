@@ -48,6 +48,10 @@ public:
 
 	virtual vi::VisBuffer2 * getVisBuffer () const {return buffer_p;}
 
+	virtual casacore::String ViiType() const ;
+
+	ViImplementation2 * getInputViIterator () const { return inputVii_p; }
+
     void originChunks ();
     casacore::Bool moreChunks () const;
     void nextChunk ();

@@ -355,6 +355,10 @@ PMS_PP_Cache& PMS_PP_Cache::assign(const PMS_PP_Cache* o){
 		itsYAxes_ = o->itsYAxes_;
 		itsXData_ = o->itsXData_;
 		itsYData_ = o->itsYData_;
+		itsXFrame_ = o->itsXFrame_;
+		itsYFrame_ = o->itsYFrame_;
+		itsXInterp_ = o->itsXInterp_;
+		itsYInterp_ = o->itsYInterp_;
         itsShowAtm_ = o->itsShowAtm_;
         itsShowTsky_ = o->itsShowTsky_;
 		updated();

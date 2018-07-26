@@ -34,6 +34,7 @@
 #include <plotms/PlotMS/PlotMSCalibration.h>
 
 #include <plotms/Plots/PlotMSPlot.h>
+#include <plotms/PlotMS/PlotMSParameters.h>
 
 #include <plotms/Data/PageHeaderCache.h>
 
@@ -52,6 +53,7 @@ class PlotMSPlot;
 class PlotMSIndexer;
 class ThreadCommunication;
 class PlotMSAtm;
+
 
 class PlotMSCacheBase {
   
@@ -414,6 +416,16 @@ public:
   inline PMS::DataColumn getXDataColumn() { return currentXData_[0]; };
   inline PMS::DataColumn getYDataColumn(int index) { return currentYData_[index]; };
 
+  void setPlot(PlotMSPlot *plot);
+
+  using RaDecData = casacore::PtrBlock<casacore::Vector<casacore::Double>*>;
+  using RaDecMap = map<DirectionAxisParams,RaDecData>;
+
+  const RaDecData & getRaMap(int index) const;
+  const RaDecData & getDecMap(int index) const;
+  bool isValidRaDecIndex(int index) const;
+
+
   // public log method
   inline void logmesg(const casacore::String& method, 
     const casacore::String& message, int type=PlotLogger::MSG_INFO) 
@@ -505,8 +517,8 @@ protected:
   //  (used only for access to logger, so far)
   PlotMSApp* plotms_;
 
-  // Parent PlotMSPlot
-  PlotMSPlot* plotMSPlot_;
+  // Parent PlotMSPlot, if any
+  PlotMSPlot* itsPlot_;
 
   // An empty indexer (its an empty PlotData object used for initialization)
   PlotMSIndexer* indexer0_;
@@ -577,7 +589,7 @@ protected:
   casacore::PtrBlock<casacore::Vector<casacore::Int>*> antenna_;
   casacore::PtrBlock<casacore::Vector<casacore::Double>*> az_,el_;
   casacore::PtrBlock<casacore::Vector<casacore::Double>*> ra_,dec_;
-
+  map<DirectionAxisParams,RaDecData> raMap_,decMap_;
 
   casacore::Vector<casacore::Double> radialVelocity_, rho_;
   casacore::Vector<casacore::Double> az0_,el0_,ha0_,pa0_;
@@ -595,6 +607,16 @@ protected:
   std::vector<PMS::Axis> currentY_;
   std::vector<PMS::DataColumn> currentXData_;
   std::vector<PMS::DataColumn> currentYData_;
+  std::vector<PMS::CoordSystem> currentXFrame_;
+  std::vector<PMS::CoordSystem> currentYFrame_;
+  std::vector<PMS::InterpMethod> currentXInterp_;
+  std::vector<PMS::InterpMethod> currentYInterp_;
+  std::vector<PMS::CoordSystem> xyFrame_;
+  std::vector<PMS::InterpMethod> xyInterp_;
+  std::vector<PMS::CoordSystem> loadXYFrame_;
+  std::vector<PMS::InterpMethod> loadXYInterp_;
+  decltype(raMap_)::mapped_type *loadRa_;
+  decltype(decMap_)::mapped_type *loadDec_;
   map<PMS::Axis, bool> loadedAxes_;
   map<PMS::Axis, casacore::Record> loadedAxesData_;
   //map<PMS::Axis, std::set<PMS::DataColumn>> loadedAxesData_;

@@ -180,6 +180,11 @@ void PI_TVI::next(){
 	configureNewSubchunk();
 }
 
+PI_TVI::Interpolator &PI_TVI::getInterpolator() {
+	return interpolator_;
+}
+
+
 std::pair<bool, MDirection> PI_TVI::getPointingAngle (int antId, double timeStamp) const {
 	auto dirValue = interpolator_.pointingDir(antId,timeStamp);
 	Quantity qLon(dirValue[0], lonUnit_);
@@ -207,6 +212,15 @@ String PI_TVI::taQLSet(const std::set<int> & inputSet){
 }
 
 using PI_Interp = PI_TVI::Interpolator;
+
+PI_Interp::Interpolator()
+	: interp_(InterpMethod::SPLINE)
+{
+}
+
+void PI_Interp::setInterpMethod(InterpMethod m){
+	interp_ = m;
+}
 
 void PI_Interp::setData(const Vector<PointingTimes> &antsTimes,
 			 const Vector<PointingDirs> &antsDirs,
@@ -405,11 +419,14 @@ Vector<Double> PI_Interp::pointingDir(int antId, double timeStamp) const {
 	//auto const &coeff = splineCoeff(antid)(aindex);
 	const auto & coeff = antsSplinesCoeffs_[antId][aindex];
 	// Double dt = time - timePointing(antid)(aindex);
-	Double dt = timeStamp - antsTimes_[antId][aindex];
+	Double dt = interp_ == InterpMethod::NEAREST ? 0.0 :
+				timeStamp - antsTimes_[antId][aindex];
 
 	Vector<Double> newdir(2);
-	newdir(0) = coeff(0)(0) + coeff(0)(1)*dt + coeff(0)(2)*dt*dt + coeff(0)(3)*dt*dt*dt;
-	newdir(1) = coeff(1)(0) + coeff(1)(1)*dt + coeff(1)(2)*dt*dt + coeff(1)(3)*dt*dt*dt;
+	//newdir(0) = coeff(0)(0) + coeff(0)(1)*dt + coeff(0)(2)*dt*dt + coeff(0)(3)*dt*dt*dt;
+	//newdir(1) = coeff(1)(0) + coeff(1)(1)*dt + coeff(1)(2)*dt*dt + coeff(1)(3)*dt*dt*dt;
+	newdir(0) = coeff(0)(0) + dt*(coeff(0)(1) + dt*(coeff(0)(2) + dt*coeff(0)(3)));
+	newdir(1) = coeff(1)(0) + dt*(coeff(1)(1) + dt*(coeff(1)(2) + dt*coeff(1)(3)));
 
 	return newdir;
 
@@ -433,7 +450,7 @@ PI_Vi2Factory::PointingInterpolationVi2Factory(Record const &configuration,
 
 }
 
-PI_Vi2Factory::PointingInterpolationVi2Factory(const Record &configuration,
+PI_Vi2Factory::PointingInterpolationVi2Factory(const Record & /*configuration*/,
 		const MeasurementSet *ms,
 		const SortColumns &sortColumns,
 		Double timeInterval,

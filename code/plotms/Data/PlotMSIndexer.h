@@ -26,6 +26,7 @@
 //# $Id: $
 #ifndef PLOTMSINDEXER_H_
 #define PLOTMSINDEXER_H_
+#include <map>
 
 #include <casa/aips.h>
 #include <casa/Arrays.h>
@@ -47,7 +48,8 @@ class PlotMSIndexer;  // needed for method pointer typedefs
 typedef casacore::Double(PlotMSCacheBase::*CacheMemPtr)(casacore::Int,casacore::Int);
 typedef    casacore::Int(PlotMSIndexer::*IndexerMethPtr)(casacore::Int,casacore::Int);
 typedef   void(PlotMSIndexer::*CollapseMethPtr)(casacore::Int,casacore::Array<casacore::Bool>&);
- 
+
+
 class PlotMSIndexer : public PlotMaskedPointData, public PlotBinnedData {
 
 public:
@@ -165,7 +167,10 @@ public:
 
   bool plotConjugates() const { return (PMS::axisIsUV(currentX_) && 
           PMS::axisIsUV(currentY_)); }
-  
+
+protected:
+  PlotMSCacheBase* getCache() { return plotmscache_; }
+
 private:
     
   // Forbid copy for now
@@ -288,6 +293,56 @@ private:
 };
 
 typedef casacore::CountedPtr<PlotMSIndexer> PlotMSIndexerPtr;
+
+class PlotMSRaDecIndexer : public PlotMSIndexer {
+
+public:
+
+	// Convenient access to class name.
+	static const casacore::String CLASS_NAME;
+
+	// Empty Indexer
+	PlotMSRaDecIndexer();
+
+	// Constructor which takes parent PlotMSCache, x and y axes (non-iteration)
+	//PlotMSRaDecIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis,
+	//PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData, int index)
+	//: PlotMSIndexer(plotmscache, xAxis,xData,yAxis,yData,index) {}
+
+	// Constructor which supports iteration
+	PlotMSRaDecIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis,
+	PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
+	PMS::Axis iterAxis, casacore::Int iterValue, int index);
+
+	// Destructor
+	~PlotMSRaDecIndexer() {}
+
+	// Implemented PlotPointData methods.
+	//unsigned int size() const;
+	double xAt(unsigned int i) const;
+	double yAt(unsigned int i) const;
+	void xAndYAt(unsigned int index, double& x, double& y) const;
+
+	using RaDecData = casacore::PtrBlock<casacore::Vector<casacore::Double>*>;
+	using RaDecMap = map<DirectionAxisParams,RaDecData>;
+
+	static const RaDecData emptyData_;
+
+private:
+
+	bool cacheOk_;
+	bool doHandleX_;
+	bool doHandleY_;
+	bool axesOk_;
+	bool indexOk_;
+
+	const RaDecData& xRa_;
+	const RaDecData& xDec_;
+
+	const RaDecData& yRa_;
+	const RaDecData& yDec_;
+};
+
 
 }
 

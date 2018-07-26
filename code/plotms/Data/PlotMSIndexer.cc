@@ -26,6 +26,7 @@
 //# $Id: $
 #include <plotms/Data/PlotMSIndexer.h>
 
+#include <casacore/casa/Exceptions/Error.h>
 #include <casa/Quanta/MVTime.h>
 #include <casa/Utilities/Sort.h>
 #include <casa/OS/Timer.h>
@@ -1907,6 +1908,39 @@ void PlotMSIndexer::log(const String& method, const String& message,
 	//  plotms_->getLogger()->postMessage(PMS::LOG_ORIGIN, method, message, eventType);}
 
 }
+
+const String PlotMSRaDecIndexer::CLASS_NAME = "PlotMSRaDecIndexer";
+
+using RaDecData = casacore::PtrBlock<casacore::Vector<casacore::Double>*>;
+const RaDecData emptyData_ = RaDecData();
+
+PlotMSRaDecIndexer::PlotMSRaDecIndexer()
+	: PlotMSIndexer(),
+	  xRa_(emptyData_),
+	  xDec_(emptyData_),
+	  yRa_(emptyData_),
+	  yDec_(emptyData_)
+{
+}
+
+PlotMSRaDecIndexer::PlotMSRaDecIndexer(PlotMSCacheBase* plotmscache,
+		PMS::Axis xAxis, PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
+		PMS::Axis iterAxis, casacore::Int iterValue, int index)
+	:	PlotMSIndexer(plotmscache, xAxis, xData, yAxis, yData,
+					  iterAxis, iterValue, index),
+		cacheOK_( plotmscache == nullptr ?
+				throw AipsError(CLASS_NAME + " constructor: plotmscache pointer is null")
+				: true),
+		doHandleX_(PMS::axisIsRaDec(xAxis)),
+		doHandleY_(PMS::axisIsRaDec(yAxis)),
+		axesOk_( doHandleX_ or doHandleY_ ? true
+				: throw AipsError(CLASS_NAME + " constructor: no Ra/Dec axis")),
+		indexOk_(plotmscache->isValidRaDecIndex(index) ? true
+				: throw AipsError(CLASS_NAME + " constructor: index is not a valid Ra/Dec index in the cache"))
+{
+
+}
+
 
 }
 

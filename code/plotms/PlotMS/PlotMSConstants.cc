@@ -90,6 +90,13 @@ bool PMS::axisIsOverlay(Axis axis) {
     }
 }
 
+bool PMS::axisRaDec(Axis axis) {
+    switch(axis) {
+    case RA: case DEC: return true;
+    default: return false;
+    }
+}
+
 PMS::AxisType PMS::axisType(Axis axis) {
     switch(axis) {
     case FLAG:

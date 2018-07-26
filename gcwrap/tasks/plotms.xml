@@ -1340,8 +1340,6 @@ Constraints
        <equals value="ant"/>
       <equals value="ant-azimuth"/>
       <equals value="ant-elevation"/>
-      <equals value="ant-ra"/>
-      <equals value="ant-dec"/>
       <equals value="ant-hourang"/>
        <equals value="ant-hourangle"/>
       <equals value="ant-parang"/>
@@ -1435,8 +1433,6 @@ Constraints
        <equals value="ant"/>
       <equals value="ant-azimuth"/>
       <equals value="ant-elevation"/>
-      <equals value="ant-ra"/>
-      <equals value="ant-dec"/>
       <equals value="ant-hourang"/>
        <equals value="ant-hourangle"/>
       <equals value="ant-parang"/>
