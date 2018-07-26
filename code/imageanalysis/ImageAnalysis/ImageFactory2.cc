@@ -81,14 +81,13 @@ SHARED_PTR<ComponentListImage> ImageFactory::createComponentListImage(
     return image;
 }
 
-
 SPIIF ImageFactory::floatImageFromShape(
 		const String& outfile, const Vector<Int>& shape,
 		const Record& csys, Bool linear,
 		Bool overwrite, Bool verbose,
 		const vector<std::pair<LogOrigin, String> > *const &msgs
 ) {
-	return _fromShape<Float>(
+	return fromShape<Float>(
 			outfile, shape, csys, linear,
 			overwrite, verbose, msgs
 	);
@@ -100,7 +99,7 @@ SPIIC ImageFactory::complexImageFromShape(
 		Bool overwrite, Bool verbose,
 		const vector<std::pair<LogOrigin, String> > *const &msgs
 ) {
-	return _fromShape<Complex>(
+	return fromShape<Complex>(
 			outfile, shape, csys, linear,
 			overwrite, verbose, msgs
 	);
@@ -112,7 +111,7 @@ SPIID ImageFactory::doubleImageFromShape(
     Bool overwrite, Bool verbose,
     const std::vector<std::pair<LogOrigin, String> > *const &msgs
 ) {
-    return _fromShape<Double>(
+    return fromShape<Double>(
         outfile, shape, csys, linear,
         overwrite, verbose, msgs
     );
@@ -124,9 +123,8 @@ SPIIDC ImageFactory::complexDoubleImageFromShape(
     Bool overwrite, casacore::Bool verbose,
     const std::vector<std::pair<LogOrigin, String> > *const &msgs
 ) {
-    return _fromShape<DComplex>(
-        outfile, shape, csys, linear,
-        overwrite, verbose, msgs
+    return fromShape<DComplex>(
+        outfile, shape, csys, linear, overwrite, verbose, msgs
     );
 }
 
@@ -137,10 +135,8 @@ SPIIF ImageFactory::fromASCII(
 ) {
     Path filePath(infile);
     auto fileName = filePath.expandedName();
-
     ifstream inFile(fileName.c_str());
     ThrowIf(!inFile, "Cannot open " + infile);
-
     auto n = shape.product();
     auto nx = shape[0];
     Vector<Float> a(n, 0.0);
@@ -284,95 +280,6 @@ CoordinateSystem* ImageFactory::_makeCoordinateSystem(
         }
     }
     return csys.release();
-}
-
-SHARED_PTR<TempImage<Complex> > ImageFactory::complexFromFloat(
-	SPCIIF realPart, const Array<Float>& imagPart
-) {
-	SHARED_PTR<TempImage<Complex> > newImage(
-		new TempImage<Complex>(
-			TiledShape(realPart->shape()),
-			realPart->coordinates()
-		)
-	);
-	{
-		Array<Bool> mymask = realPart->getMask();
-		if (realPart->hasPixelMask()) {
-			mymask = mymask && realPart->pixelMask().get();
-		}
-		if (! allTrue(mymask)) {
-			newImage->attachMask(ArrayLattice<Bool>(mymask));
-		}
-	}
-	ImageUtilities::copyMiscellaneous(*newImage, *realPart);
-	newImage->put(casacore::makeComplex(realPart->get(), imagPart));
-	return newImage;
-}
-
-SPIIC ImageFactory::makeComplex(
-	SPCIIF realPart, SPCIIF imagPart, const String& outfile,
-	const Record& region, Bool overwrite
-) {
-	_checkOutfile(outfile, overwrite);
-	const IPosition realShape = realPart->shape();
-	const IPosition imagShape = imagPart->shape();
-	ThrowIf(
-		!realShape.isEqual(imagShape),
-		"Image shapes are not identical"
-	);
-	const auto& cSysReal = realPart->coordinates();
-	const auto& cSysImag = imagPart->coordinates();
-	ThrowIf(
-		!cSysReal.near(cSysImag),
-		"Image Coordinate systems are not conformant"
-	);
-
-	String mask;
-	auto subRealImage = SubImageFactory<Float>::createSubImageRO(
-		*realPart, region, mask, nullptr
-	);
-	auto subImagImage = SubImageFactory<Float>::createSubImageRO(
-		*imagPart, region, mask, nullptr
-	);
-	auto complexImage = complexFromFloat(
-		subRealImage, subImagImage->get(false)
-	);
-	return SubImageFactory<Complex>::createImage(
-		*complexImage, outfile, Record(), "", AxesSpecifier(),
-		overwrite, false, false
-	);
-}
-
-SHARED_PTR<TempImage<Float> > ImageFactory::floatFromComplex(
-	SPCIIC complexImage, ComplexToFloatFunction function
-) {
-	SHARED_PTR<TempImage<Float> > newImage(
-		new TempImage<Float>(
-			TiledShape(complexImage->shape()),
-			complexImage->coordinates()
-		)
-	);
-	{
-		Array<Bool> mymask = complexImage->getMask();
-		if (complexImage->hasPixelMask()) {
-			mymask = mymask && complexImage->pixelMask().get();
-		}
-		if (! allTrue(mymask)) {
-			newImage->attachMask(ArrayLattice<Bool>(mymask));
-		}
-	}
-	ImageUtilities::copyMiscellaneous(*newImage, *complexImage);
-	switch (function) {
-	case REAL:
-		newImage->put(real(complexImage->get()));
-		break;
-	case IMAG:
-		newImage->put(imag(complexImage->get()));
-		break;
-	default:
-		ThrowCc("Logic Error: Unhandled function");
-	}
-	return newImage;
 }
 
 ITUPLE ImageFactory::fromFile(const String& infile, Bool cache) {

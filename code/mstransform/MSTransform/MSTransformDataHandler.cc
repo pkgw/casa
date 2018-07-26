@@ -454,7 +454,8 @@ Bool MSTransformDataHandler::selectSpw(const String& spwstr,const Vector<Int>& s
 
 	MSSelection mssel;
 	String myspwstr(spwstr == "" ? "*" : spwstr);
-
+	spwString_p = myspwstr; 
+	
 	mssel.setSpwExpr(myspwstr);
 
 	widths_p = steps.copy();
@@ -960,7 +961,7 @@ Bool MSTransformDataHandler::makeSelection()
 
 	if (spw_p.nelements() > 0)
 	{
-		thisSelection.setSpwExpr(MSSelection::indexExprStr(spw_p));
+		thisSelection.setSpwExpr(spwString_p);
 	}
 
 	if (antennaSel_p)

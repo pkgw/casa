@@ -640,6 +640,9 @@ FieldRow* FieldTable::lookup(string fieldName, int numPoly, vector<vector<Angle 
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -922,6 +925,8 @@ FieldRow* FieldTable::lookup(string fieldName, int numPoly, vector<vector<Angle 
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void FieldTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1138,7 +1143,9 @@ FieldRow* FieldTable::lookup(string fieldName, int numPoly, vector<vector<Angle 
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

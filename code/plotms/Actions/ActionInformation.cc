@@ -63,10 +63,7 @@ bool ActionInformation::doActionWithResponse(PlotMSApp* plotms, Record &retval) 
 		// Get parameters.
 		PlotMSPlotParameters& params = plot->parameters();
 
-		// Detect if we are showing flagged/unflagged points (for locate)
-		PMS_PP_Display* d = params.typedGroup<PMS_PP_Display>();
-		Bool showUnflagged=(d->unflaggedSymbol()->symbol()!=PlotSymbol::NOSYMBOL);
-		Bool showFlagged=(d->flaggedSymbol()->symbol()!=PlotSymbol::NOSYMBOL);
+		// Detect if we are showing all points or selected region
 		bool selectAll = true;
 		vector<PlotCanvasPtr> canv = plot->canvases();
 		for(uInt j = 0; j < canv.size(); ++j) {
@@ -75,6 +72,11 @@ bool ActionInformation::doActionWithResponse(PlotMSApp* plotms, Record &retval) 
 				break;
 			}
 		}
+		// Detect if we are showing flagged/unflagged points (for locate)
+		PMS_PP_Display* d = params.typedGroup<PMS_PP_Display>();
+		Bool showUnflagged=(d->unflaggedSymbol()->symbol()!=PlotSymbol::NOSYMBOL);
+		Bool showFlagged=(d->flaggedSymbol()->symbol()!=PlotSymbol::NOSYMBOL);
+
 		for(unsigned int j = 0; j < canv.size(); j++) {
 			// Only apply to visible canvases.
 			bool visible = false;
@@ -96,6 +98,8 @@ bool ActionInformation::doActionWithResponse(PlotMSApp* plotms, Record &retval) 
 				Record d;
 				d = plot->locateInfo(plotIterCount, regions, showUnflagged, showFlagged, selectAll );
 
+				// Record is { canvas#: { dataCount#: { point#: { } iteration: #} } }
+
 				retval.defineRecord(i*j + j, d);
 				// ...and catch any reported errors.
 			} catch(AipsError& err) {
@@ -106,6 +110,21 @@ bool ActionInformation::doActionWithResponse(PlotMSApp* plotms, Record &retval) 
 				itsDoActionResult_ = "Unknown error during info!";
 				return false;
 			}
+		}
+		// add plot settings
+		PMS_PP_MSData* msd = params.typedGroup<PMS_PP_MSData>();
+		retval.define("vis", msd->filename());
+		if (!msd->selection().isEmpty())
+			retval.defineRecord("selection", msd->selection().toRecord());
+		if (msd->averaging().anyAveraging())
+			retval.defineRecord("averaging", msd->averaging().toRecord());
+		if (msd->transformations().anyTransform())
+			retval.defineRecord("transformations", msd->transformations().toRecord());
+		if (msd->calibration().useCallib())
+			retval.define("calibration", msd->calibration().calLibrary());
+		PMS_PP_Iteration* iter = params.typedGroup<PMS_PP_Iteration>();
+		if (iter->isIteration()) {
+			retval.define("iteraxis", PMS::axis(iter->iterationAxis()));
 		}
 	}
 	return true;
