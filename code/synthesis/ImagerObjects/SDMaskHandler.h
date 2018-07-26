@@ -382,7 +382,8 @@ public:
                                        casacore::LatticeExpr<casacore::Bool>& pbmask,
                                        casacore::String& lelmask,
                                        casacore::Record* regionPtr,
-                                       const casacore::Bool robust);
+                                       const casacore::Bool robust,
+                                       casacore::Vector<casacore::Bool>& chanflag);
 
   // Store pbmask level (a.k.a pblimit for mask)
   void setPBMaskLevel(const casacore::Float pbmasklevel);

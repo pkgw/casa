@@ -1164,23 +1164,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // at this point tempres has pbmask applied
     LatticeExpr<Bool> pbmask(tempres->pixelMask());
 
-    Record thenewstats; 
-    if (useoldstats) { // skip new stats
-      thenewstats = thestats;
-    }
-    else {
-      //Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust);
-      thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust);
-      Array<Double> newmaxs, newmins, newrmss, newmads;
-      thenewstats.get(RecordFieldId("max"), newmaxs);
-      thenewstats.get(RecordFieldId("rms"), newrmss);
-      os<< LogIO::DEBUG1 << "*** New statistics *** "<<newrmss<<LogIO::POST;
-      os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
-      os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
-      if (alg.contains("multithresh")) {
-        thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
-         os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
-      }
+    
+    Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust, chanflag);
+    Array<Double> newmaxs, newmins, newrmss, newmads;
+    thenewstats.get(RecordFieldId("max"), newmaxs);
+    thenewstats.get(RecordFieldId("rms"), newrmss);
+    os<< LogIO::DEBUG1 << "*** New statistics *** "<<newrmss<<LogIO::POST;
+    os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
+    os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
+    if (alg.contains("multithresh")) {
+       thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
+       os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
     }
     
 
@@ -1258,7 +1252,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
   // robust image statistics for better noise estimation
-  Record SDMaskHandler::calcRobustImageStatistics(ImageInterface<Float>& res, ImageInterface<Float>&  prevmask , LatticeExpr<Bool>& pbmask, String& LELmask,  Record* regionPtr, const Bool robust )
+  Record SDMaskHandler::calcRobustImageStatistics(ImageInterface<Float>& res, ImageInterface<Float>&  prevmask , LatticeExpr<Bool>& pbmask, String& LELmask,  Record* regionPtr, const Bool robust, Vector<Bool>& chanflag )
   { 
     LogIO os( LogOrigin("SDMaskHandler","calcRobustImageStatistics",WHERE) );
 
@@ -1334,6 +1328,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           iaxis3 = ichan;
         } 
  
+        if (chanflag.nelements()==0 || !chanflag(ichan)) { // get new stats
         // check if mask is empty (evaulated as the whole input mask )
         Array<Float> maskdata; 
         //IPosition maskshape = prevmask.shape();
@@ -1434,7 +1429,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           throw(AipsError("No image statisitics is returned. Possible the whole image is masked."));
         }
         IPosition zeroindx(arrmins.ndim(), 0);
-        //os<<"Store min statistics items in vector zeroindx="<<zeroindx<<LogIO::POST;
+
         mins.push_back(arrmins(zeroindx));
         maxs.push_back(arrmaxs(zeroindx));
         rmss.push_back(arrrmss(zeroindx));
@@ -1447,6 +1442,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         delete subRes; subRes=0;
         delete subprevmask; subprevmask=0;
         delete subpbmask; subpbmask=0;
+
+        }// if-ichanflag end
+        else {
+          mins.push_back(Double(0.0));
+          maxs.push_back(Double(0.0));
+          rmss.push_back(Double(0.0));
+          if (robust) { 
+            mads.push_back(Double(0.0));
+            mdns.push_back(Double(0.0));
+          }
+        } 
       } // chan-for-loop end
       //os<<" rms vector for stokes="<<istokes<<" : "<<rmss<<LogIO::POST;
       //os<<"outMins.shape="<<outMins.shape()<<LogIO::POST;

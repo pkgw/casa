@@ -2803,9 +2803,10 @@ Array<Double> SIImageStore::calcRobustRMS(const Float pbmasklevel)
   }
   
    
-  Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
-  // Turned off the new noise calc (CAS-11705) 
-  //Record thestats = SDMaskHandler::calcRobustImageStatistics(*residual(), *mask(), pbmask,  LELmask, regionPtr, True);
+  //Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+  // use the new statistic calculation algorithm
+  Vector<Bool> dummyvec;
+  Record thestats = SDMaskHandler::calcRobustImageStatistics(*residual(), *mask(), pbmask,  LELmask, regionPtr, True, dummyvec);
 
   /***
   ImageStatsCalculator imcalc( residual(), regionPtr, LELmask, False); 
