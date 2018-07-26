@@ -67,7 +67,7 @@
 
 // DEVDEBUG gates the development debugging information to standard
 // error; it should be set to 0 for production.
-#define DEVDEBUG 1
+#define DEVDEBUG false
 
 using namespace casa::vi;
 using namespace casacore;
@@ -505,6 +505,7 @@ DelayRateFFT::searchPeak() {
             // -nPadChan/2 to -1, so far as our delay is concerned.
             Int i0 = bw*d0;
             Int i1 = bw*d1;
+            if (i1==i0) i1++;
             // Now for the gory details for turning rate window into index range
             Double width = nPadT_*dt_*1e9*f0_;
             Double r0 = sgn*rateWindow_(IPosition(1,0));
@@ -515,13 +516,14 @@ DelayRateFFT::searchPeak() {
             
             Int j0 = width*r0;
             Int j1 = width*r1;
+            if (j1==j0) j1++;
             if (DEVDEBUG) {
                 cerr << "Checking the windows for delay and rate search." << endl;
                 cerr << "bw " << bw << endl;
-                cerr << "d0 " << d0 << " i0 " << i0 << endl;
-                cerr << "d1 " << d1 << " i1 " << i1 << endl; 
-                cerr << "r0 " << r0 << " j0 " << j0 << endl;
-                cerr << "r1 " << r1 << " j1 " << j1 << endl; 
+                cerr << "d0 " << d0 << " d1 " << d1 << endl;
+                cerr << "i0 " << i0 << " i1 " << i1 << endl; 
+                cerr << "r0 " << r0 << " r1 " << r1 << endl;
+                cerr << "j0 " << j0 << " j1 " << j1 << endl; 
             }
             Matrix<Float> amp(amplitude(aS));
             Int ipkch(0);
@@ -532,6 +534,7 @@ DelayRateFFT::searchPeak() {
                 Int itime = (itime0 < 0) ? itime0 + nPadT_ : itime0;
                 for (Int ich0=i0; ich0 != i1; ich0++) {
                     Int ich = (ich0 < 0) ? ich0 + nPadChan_ : ich0;
+                    // cerr << "Gridpoint " << itime << ", " << ich << "->" << amp(itime, ich) << endl;
                     if (amp(itime, ich) > amax) {
                         ipkch = ich;
                         ipkt  = itime;
@@ -548,6 +551,7 @@ DelayRateFFT::searchPeak() {
             Float alo_t = amp(ipkt > 0 ? ipkt-1 : nPadT_ -1,     ipkch);
             Float ahi_t = amp(ipkt < (nPadT_ -1) ? ipkt+1 : 0,   ipkch);
             if (DEVDEBUG) {
+                cerr << "For element " << ielem << endl;
                 cerr << "In channel dimension ipkch " << ipkch << " alo " << alo_ch
                      << " amax " << amax << " ahi " << ahi_ch << endl;
                 cerr << "In time dimension ipkt " << ipkt << " alo " << alo_t
@@ -570,6 +574,17 @@ DelayRateFFT::searchPeak() {
                 Double rate1 = rate0/(1e9 * f0_); 
 
                 param_(icorr*3 + 2, ielem) = Float(sgn*rate1); 
+                if (DEVDEBUG) {
+                    cerr << "maybeFpkch.second=" << maybeFpkch.second
+                         << ", df_= " << df_ 
+                         << " fpkch=" << (ipkch + maybeFpkch.second) << endl;
+                    cerr << " maybeFpkt.second=" << maybeFpkt.second
+                         << " rate0=" << rate
+                         << " 1e9 * f0_=" << 1e9 * f0_ 
+                         << ", dt_=" << dt_
+                         << " fpkt=" << (ipkt + maybeFpkt.second) << endl;
+                        
+                }
                 if (DEVDEBUG) {
                     cerr << "Found peak for element " << ielem << " correlation " << icorr
                          << " ipkt=" << ipkt << "/" << nPadT_ << ", ipkch=" << ipkch << "/" << nPadChan_
@@ -1890,6 +1905,9 @@ void FringeJones::setSolve(const Record& solve) {
     if (solve.isDefined("zerorates")) {
         zeroRates() = solve.asBool("zerorates");
     }
+    if (solve.isDefined("globalsolve")) {
+        globalSolve() = solve.asBool("globalsolve");
+    }
     if (solve.isDefined("delaywindow")) {
         Array<Double> dw = solve.asArrayDouble("delaywindow");
         delayWindow() = dw;
@@ -2070,7 +2088,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             if (iant != refant() && (activeAntennas.find(iant) != activeAntennas.end())) {
                 Float s = sSNR(3*icor + 0, iant);
 		// Start the log message; finished below
-		logSink() << "Antenna " << iant << " correlation " << icor << "has (FFT) SNR of " << s;
+		logSink() << "Antenna " << iant << " correlation " << icor << " has (FFT) SNR of " << s;
                 if (s < threshold) {
                     belowThreshold.insert(iant);
                     logSink() << " below threshold (" << threshold << ")";
@@ -2091,8 +2109,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             drf.printActive();
         }
     }
-    // It should probably be possible for users to choose to turn off the least squares optimization.
-    if (1) {
+    if (globalSolve()) {
         logSink() << "Starting least squares optimization." << LogIO::POST;
         // Note that least_squares_driver is *not* a method of
         // FringeJones so we pass everything in, including the logSink
@@ -2100,7 +2117,9 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         // altered in place.
         least_squares_driver(sdbs, sRP, sPok, sSNR, refant(), drf.getActiveAntennas(), logSink());
     }
-
+    else {
+        logSink() << "Skipping least squares optimisation." << LogIO::POST;
+    }
 
     if (DEVDEBUG) {
         cerr << "Ref time " << MVTime(refTime()/C::day).string(MVTime::YMD,7) << endl;
@@ -2141,7 +2160,6 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             if (DEVDEBUG) {
                 cerr << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << " dt " << dt << endl
                      << "dt " << dt << endl
-		  //<< "Ref freq. "<< ref_freq << " Adding corrections for frequency (" << 360*delta1 << ")" 
                      << "centroidFreq "<< centroidFreq << " Adding corrections for frequency (" << 360*delta1 << ")" 
                      << " and time (" << 360*delta2 << ") degrees." << endl;
             }

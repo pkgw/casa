@@ -809,7 +809,7 @@ void VisCal::syncMeta(const Int& spw,
   //  (in solve context, this is handled differently, outside this method)
   if (isApplied()) setCalChannelization(nchan);
 
-  if (prtlev()>5) cout << "      meta: t,fld,freq=" << time << field << freq << endl;
+  if (prtlev()>5) cout << "      meta: t,fld,freq=" << time << ", " << field << ", " << freq << endl;
 }
 
 void VisCal::setCalChannelization(const Int& nChanDat) {

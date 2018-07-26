@@ -248,6 +248,7 @@ public:
   // virtual void solveOneSDB(const SolveDataBuffer&);
 
   virtual casacore::Bool& zeroRates() { return zeroRates_; }
+  virtual casacore::Bool& globalSolve() { return globalSolve_; } 
   virtual casacore::Array<casacore::Double>& delayWindow() { return delayWindow_; }
   virtual casacore::Array<casacore::Double>& rateWindow() { return rateWindow_; }
 
@@ -281,6 +282,7 @@ private:
   void calculateSNR(casacore::Int, DelayRateFFT);
 
   casacore::Bool zeroRates_;
+  casacore::Bool globalSolve_;
   casacore::Array<casacore::Double> delayWindow_;
   casacore::Array<casacore::Double> rateWindow_;
 };

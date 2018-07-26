@@ -98,6 +98,11 @@ Previous calibrations should be applied on the fly.
 		<value>False</value>
 	</param>
 
+   <param type="bool" name="globalsolve">
+		<description>Refine estimates of delay and rate with global least-squares solver</description>
+		<value>True</value>
+	</param>
+
    <param type="doubleArray" name="delaywindow">
 		<description>Constrain FFT delay search to a window</description>
 		<value></value>
@@ -286,6 +291,9 @@ Previous calibrations should be applied on the fly.
               default: False; overwrite existing table or make new table
       zerorates -- Write a solution table with delay-rates zeroed, for
       the case of "manual phase calibration".
+                default: False
+
+      globalsolve -- Refine fringefit solutions with global least-squares solver.
                 default: False
 
 

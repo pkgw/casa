@@ -787,6 +787,7 @@ Bool Calibrater::setsolve (const String& type,
                            const String& radius,
                            const Bool smooth,
                            const Bool zerorates,
+                           const Bool globalsolve,
                            const Vector<Double>& delaywindow, 
                            const Vector<Double>& ratewindow
     )
@@ -815,6 +816,7 @@ Bool Calibrater::setsolve (const String& type,
   // fringe-fit specific fields
   solveparDesc.addField ("minsnr", TpFloat);
   solveparDesc.addField ("zerorates", TpBool);
+  solveparDesc.addField ("globalsolve", TpBool);
   solveparDesc.addField ("delaywindow", TpArrayDouble);
   solveparDesc.addField ("ratewindow", TpArrayDouble);
 
@@ -842,6 +844,7 @@ Bool Calibrater::setsolve (const String& type,
   // Fringe-fit specific
   solvepar.define ("minsnr", minsnr);
   solvepar.define ("zerorates", zerorates);
+  solvepar.define ("globalsolve", globalsolve);
   solvepar.define ("delaywindow", delaywindow);
   solvepar.define ("ratewindow", ratewindow);
   

@@ -715,6 +715,12 @@ Default is True. </description>
      <value>false</value>
      </param>
 
+     <param type="bool" direction="in" name="globalsolve">
+     <description>[FRINGE-FIT SPECIFIC] Use global least-squares solver to improve fringe-fitting
+     parameter estimates </description>
+     <value>true</value>
+     </param>
+
      <param type="doubleArray" direction="in" name="delaywindow">
      <description>[FRINGE-FIT SPECIFIC] Constrain FFT delay search to a window</description>
      <value></value>

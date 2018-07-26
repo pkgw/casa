@@ -364,6 +364,7 @@ calibrater::setsolve(const std::string& type,
                      const std::string& radius,
                      const bool smooth,
                      const bool zerorates,
+                     const bool globalsolve,
                      const vector<double>& delaywindow,
                      const vector<double>& ratewindow
     )
@@ -394,7 +395,7 @@ calibrater::setsolve(const std::string& type,
 			    toCasaString(refant),refantmode,
 			    solnorm,minsnr,combine,fillgaps,
 			    cfcache, painc, fitorder, fraction, numedge, radius, smooth,
-                            zerorates, delaywindow, ratewindow);
+                            zerorates, globalsolve, delaywindow, ratewindow);
     
   } catch(AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
