@@ -1951,7 +1951,7 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
     return itsPSFBeams; 
   }
 
-  void SIImageStore::printBeamSet()
+  void SIImageStore::printBeamSet(Bool verbose)
   {
     LogIO os( LogOrigin("SIImageStore","printBeamSet",WHERE) );
     AlwaysAssert( itsImageShape.nelements() == 4, AipsError );
@@ -1962,10 +1962,28 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
  }
     else
       {
+        // per CAS-11415, verbose=True when restoringbeam='common'
+        if( verbose ) 
+          {
+            ostringstream oss;
+            oss<<"Beam";
+	    Int nchan = itsImageShape[3];
+	    for( Int chanid=0; chanid<nchan;chanid++) {
+	      Int polid=0;
+	      //	  for( Int polid=0; polid<npol; polid++ ) {
+	      GaussianBeam beam = itsPSFBeams.getBeam( chanid, polid );
+	      oss << " [C" << chanid << "]: " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg";
+	    }//for chanid
+            os << oss.str() << LogIO::POST;
+          }
+        else 
+          { 
 	// TODO : Enable this, when this function doesn't complain about 0 rest freq.
 	//                                 or when rest freq is never zero !
 	try{
 		itsPSFBeams.summarize( os, False, itsCoordSys );
+                // per CAS-11415 request, not turn on this one (it prints out per-channel beam in each line in the logger)
+		//itsPSFBeams.summarize( os, verbose, itsCoordSys );
 	}
 	catch(AipsError &x)
 	  {
@@ -1983,6 +2001,7 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 	      //}//for polid
 	    }//for chanid
 	  }// catch
+        }
       }
   }
   
@@ -2029,6 +2048,8 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 	  }
       }
 
+    // toggle for printing common beam to the log 
+    Bool printcommonbeam(False);
     //// Modify the beamset if needed
     //// if ( rbeam is Null and usebeam=="" ) Don't do anything.
     //// If rbeam is Null but usebeam=='common', calculate a common beam and set 'rbeam'
@@ -2036,6 +2057,8 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
     if( rbeam.isNull() && usebeam=="common") {
       os << "Getting common beam" << LogIO::POST;
       rbeam = CasaImageBeamSet(itsPSFBeams).getCommonBeam();
+      os << "Common Beam : " << rbeam.getMajor(Unit("arcsec")) << " arcsec, " << rbeam.getMinor(Unit("arcsec"))<< " arcsec, " << rbeam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
+      printcommonbeam=True;
     }
     if( !rbeam.isNull() ) {
       /*for( Int chanid=0; chanid<nchan;chanid++) {
@@ -2047,8 +2070,12 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
       */
       itsRestoredBeams=ImageBeamSet(rbeam);
       GaussianBeam beam = itsRestoredBeams.getBeam();
-      os << "Common Beam : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
-
+     
+      //if commonbeam has not printed in the log
+      if (!printcommonbeam) {
+        os << "Common Beam : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
+      printcommonbeam=True; // to avoid duplicate the info is printed to th elog
+      }
     }// if rbeam not NULL
     //// Done modifying beamset if needed
 
@@ -2071,7 +2098,12 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 
 
 	GaussianBeam beam = itsRestoredBeams.getBeam( chanid, polid );;
-	os << "Common Beam for chan : " << chanid << " : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
+
+	//os << "Common Beam for chan : " << chanid << " : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
+        // only print per-chan beam if the common beam is not used for restoring beam
+        if(!printcommonbeam) { 
+	  os << "Beam for chan : " << chanid << " : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
+        }
 
 	try
 	  {
