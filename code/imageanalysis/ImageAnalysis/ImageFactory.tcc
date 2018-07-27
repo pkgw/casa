@@ -115,6 +115,37 @@ SHARED_PTR<TempImage<std::complex<T>>> ImageFactory::makeComplexImage(
     return newImage;
 }
 
+template <class T>
+SHARED_PTR<casacore::ImageInterface<std::complex<T>>> ImageFactory::makeComplex(
+    SPCIIT realPart, SPCIIT imagPart, const String& outfile,
+    const Record& region, Bool overwrite
+) {
+    _checkOutfile(outfile, overwrite);
+    const IPosition realShape = realPart->shape();
+    const IPosition imagShape = imagPart->shape();
+    ThrowIf(! realShape.isEqual(imagShape), "Image shapes are not identical");
+    const auto& cSysReal = realPart->coordinates();
+    const auto& cSysImag = imagPart->coordinates();
+    ThrowIf(
+        !cSysReal.near(cSysImag), "Image Coordinate systems are not conformant"
+    );
+    String mask;
+    auto subRealImage = SubImageFactory<T>::createSubImageRO(
+        *realPart, region, mask, nullptr
+    );
+    auto subImagImage = SubImageFactory<T>::createSubImageRO(
+        *imagPart, region, mask, nullptr
+    );
+    auto complexImage = makeComplexImage(
+        DYNAMIC_POINTER_CAST<const casacore::ImageInterface<T>>(subRealImage),
+        DYNAMIC_POINTER_CAST<const casacore::ImageInterface<T>>(subImagImage)
+    );
+    return SubImageFactory<std::complex<T>>::createImage(
+        *complexImage, outfile, Record(), "", AxesSpecifier(),
+        overwrite, false, false
+    );
+}
+
 template <class T> SPIIT ImageFactory::createImage(
     const casacore::String& outfile,
     const casacore::CoordinateSystem& cSys, const casacore::IPosition& shape,
@@ -192,42 +223,28 @@ SHARED_PTR<casacore::TempImage<T>> ImageFactory::floatFromComplex(
     return newImage;
 }
 
-template <class T> SPIIT ImageFactory::_fromShape(
-	const casacore::String& outfile, const casacore::Vector<casacore::Int>& shapeV,
+template <class T> SPIIT ImageFactory::fromShape(
+	const casacore::String& outfile,
+	const casacore::Vector<casacore::Int>& shapeV,
 	const casacore::Record& coordinates, casacore::Bool linear,
 	casacore::Bool overwrite, casacore::Bool verbose,
     const vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs
 ) {
 	ThrowIf(
-		shapeV.nelements() == 0,
-		"The shape must have more than zero elements"
+		shapeV.nelements() == 0, "The shape must have more than zero elements"
 	);
-	ThrowIf(
-		anyTrue(shapeV <= 0),
-		"All elements of shape must be positive"
-	);
-
+	ThrowIf(anyTrue(shapeV <= 0), "All elements of shape must be positive");
     casacore::CoordinateSystem mycsys;
 	std::unique_ptr<casacore::CoordinateSystem> csysPtr;
-
 	if (coordinates.empty()) {
-		mycsys = casacore::CoordinateUtil::makeCoordinateSystem(
-			shapeV, linear
-		);
+		mycsys = casacore::CoordinateUtil::makeCoordinateSystem(shapeV, linear);
 		_centerRefPix(mycsys, shapeV);
 	}
 	else {
-		csysPtr.reset(
-			_makeCoordinateSystem(
-				coordinates, shapeV
-			)
-		);
+		csysPtr.reset(_makeCoordinateSystem(coordinates, shapeV));
         mycsys = *csysPtr;
 	}
-	return createImage<T>(
-		outfile, mycsys, shapeV, verbose,
-		overwrite, msgs
-	);
+	return createImage<T>(outfile, mycsys, shapeV, verbose, overwrite, msgs);
 }
 
 template <class T> SPIIT ImageFactory::imageFromArray(
@@ -236,7 +253,7 @@ template <class T> SPIIT ImageFactory::imageFromArray(
     casacore::Bool overwrite, casacore::Bool verbose,
     const vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs
 ) {
-	SPIIT myim = _fromShape<T>(
+	SPIIT myim = fromShape<T>(
 		outfile, pixels.shape().asVector(),
 		csys, linear, overwrite, verbose, msgs
 	);

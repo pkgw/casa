@@ -248,12 +248,20 @@ MS Parameters
         <value>data</value>
         <value>corrected</value>
         <value>model</value>
+        <value>float</value>
         <value>residual</value>
         <value>corrected-model</value>
+        <value>corrected-model_vector</value>
+        <value>corrected-model_scalar</value>
         <value>data-model</value>
-        <value>data/model</value>
+        <value>data-model_vector</value>
+        <value>data-model_scalar</value>
         <value>corrected/model</value>
-        <value>float</value>
+        <value>corrected/model_vector</value>
+        <value>corrected/model_scalar</value>
+        <value>data/model</value>
+        <value>data/model_vector</value>
+        <value>data/model_scalar</value>
       </allowed>
     </param>
     
@@ -450,16 +458,24 @@ MS Parameters
       <any type="variant" limittype='string stringArray'/>
       <value type="string"/>
       <allowed kind="enum" type="string">
-        <value/>
+		<value/>
         <value>data</value>
         <value>corrected</value>
         <value>model</value>
+        <value>float</value>
         <value>residual</value>
         <value>corrected-model</value>
+        <value>corrected-model_vector</value>
+        <value>corrected-model_scalar</value>
         <value>data-model</value>
-        <value>data/model</value>
+        <value>data-model_vector</value>
+        <value>data-model_scalar</value>
         <value>corrected/model</value>
-        <value>float</value>
+        <value>corrected/model_vector</value>
+        <value>corrected/model_scalar</value>
+        <value>data/model</value>
+        <value>data/model_vector</value>
+        <value>data/model_scalar</value>
       </allowed>
     </param>
     

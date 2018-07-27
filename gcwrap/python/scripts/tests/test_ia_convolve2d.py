@@ -104,5 +104,24 @@ class ia_convolve2d_test(unittest.TestCase):
         yy.done()
         zz.done()
         
+    def test_precision(self):
+        """Test images of various precisions"""
+        yy = iatool()
+        for mytype in ['d', 'c', 'f', 'cd']:
+            yy.fromshape("", [20,  20, 1], type=mytype)
+            yy.addnoise()
+            if mytype == 'f' or mytype == 'd':
+                zz = yy.convolve2d(
+                    "", [0,1], "gaussian", "4arcmin", "4arcmin", "0deg"
+                )
+                self.assertTrue(zz)
+                zz.done()
+            else:
+                self.assertRaises(
+                    Exception, yy.convolve2d, "", [0,1], "gaussian",
+                    "4arcmin", "4arcmin", "0deg"
+                )
+            yy.done()
+            
 def suite():
     return [ia_convolve2d_test]

@@ -287,10 +287,15 @@ def plotms(vis=None,
         synonyms['antpos']='Antenna Positions'
         synonyms['radialvelocity']= synonyms['Radial Velocity'] = 'Radial Velocity [km/s]'
         synonyms['rho']=synonyms['Distance']='Distance (rho) [km]'
+        # data columns: unspecified residuals default to vector
+        synonyms['residual']=synonyms['corrected-model']='corrected-model_vector'
+        synonyms['data-model']='data-model_vector'
+        synonyms['corrected/model']='corrected/model_vector'
+        synonyms['data/model']='data/model_vector'
         
     try:
         # Do preliminary checks on argument values
-        # Set axis synonyms to existing_terms
+        # Set synonyms to existing_terms
         if(synonyms.has_key(xaxis)):
             xaxis = synonyms[xaxis]
         if isinstance(yaxis, str):
@@ -304,9 +309,16 @@ def plotms(vis=None,
         if isinstance(coloraxis, str):
             if synonyms.has_key(coloraxis):
                 coloraxis = synonyms[coloraxis]
-        # synonyms for data columns (only one, so just hardcode it)
-        if (xdatacolumn=='cor' or xdatacolumn=='corr'):  xdatacolumn='corrected'
-        if (ydatacolumn=='cor' or ydatacolumn=='corr'):  ydatacolumn='corrected'
+
+        if(synonyms.has_key(xdatacolumn)):
+            xdatacolumn = synonyms[xdatacolumn]
+        if isinstance(ydatacolumn, str):
+            if synonyms.has_key(ydatacolumn):
+                yaxis = synonyms[ydatacolumn]
+        elif isinstance(ydatacolumn, list):
+            for index,col in enumerate(ydatacolumn):
+                if synonyms.has_key(col):
+                    ydatacolumn[index] = synonyms[col]
 
         # check vis exists
         vis = vis.strip()
