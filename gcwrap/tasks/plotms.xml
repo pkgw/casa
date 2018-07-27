@@ -424,7 +424,7 @@ MS Parameters
       <any type="variant" limittype='string stringArray'/>
       <value type="string"/>
       <allowed kind="enum" type="string">
-		<value/>
+        <value />
         <value>data</value>
         <value>corrected</value>
         <value>model</value>
@@ -735,12 +735,12 @@ Iteration Parameters
    </param>
    
    <param type="bool" name="xsharedaxis" subparam="true">
-	   <description>Iterated plots on a grid share a common external x-axis per column. Must also set xselfscale=True and gridrows>1.</description>
+       <description>Iterated plots on a grid share a common external x-axis per column. Must also set xselfscale=True and gridrows>1.</description>
        <value>False</value>
    </param>
 
    <param type="bool" name="ysharedaxis" subparam="true">
-	   <description>Iterated plots on a grid share a common external y-axis per row. Must also set yselfscale=True and gridcols>1.</description>
+       <description>Iterated plots on a grid share a common external y-axis per row. Must also set yselfscale=True and gridcols>1.</description>
        <value>False</value>
    </param>
 
@@ -890,8 +890,9 @@ Display Parameters
 
     <param type="string" name="xconnector">
         <description>Set connector for data points</description>
-        <value type="string">none</value>
-        <allowed kind="enum" type="string">
+        <value />
+		<allowed kind="enum">
+			<value />
             <value>none</value>
             <value>line</value>
             <value>step</value>
@@ -1071,7 +1072,7 @@ Export plot as image Parameters
             <value>current</value>
             <value>all</value>
         </allowed>
-	</param>
+    </param>
 
      <param type="bool" name="highres" subparam="true">
          <description>Use high resolution</description>
@@ -1511,7 +1512,7 @@ Constraints
     <when param="plotfile">
         <notequals type="string" value="">
             <default param="expformat"><value type="string"/></default>
-			<default param="verbose"><value type="bool">True</value></default>
+            <default param="verbose"><value type="bool">True</value></default>
             <default param="exprange"><value type="string"/></default>
             <default param="highres"><value type="bool">False</value></default>
             <default param="dpi"><value type="int">-1</value></default>
@@ -1552,10 +1553,10 @@ Constraints
       <equals type="string" value="" />
       <equals type="string" value="none" />
       <equals type="string" value="line">
-		  <default param="timeconnector"><value type="bool">False</value></default>
+        <default param="timeconnector"><value type="bool">False</value></default>
       </equals>
       <equals type="string" value="step">
-		  <default param="timeconnector"><value type="bool">False</value></default>
+        <default param="timeconnector"><value type="bool">False</value></default>
       </equals>
     </when>
 
