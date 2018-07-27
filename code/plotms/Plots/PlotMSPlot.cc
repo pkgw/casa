@@ -1093,6 +1093,9 @@ void PlotMSPlot::cacheLoaded_(bool wasCanceled) {
         dataMissing();
         return;
     }
+    // Report we are done
+    if(itsTCLParams_.endCacheLog)
+        itsParent_->getLogger()->releaseMeasurement();
 
     // Make this more specific than canvas-triggered
     if (itsTCLParams_.updateCanvas || itsTCLParams_.updateIteration ){
@@ -1118,9 +1121,6 @@ void PlotMSPlot::cacheLoaded_(bool wasCanceled) {
             updateCanvas();
     }
 
-    // Report we are done
-    if(itsTCLParams_.endCacheLog)
-        itsParent_->getLogger()->releaseMeasurement();
     // Release drawing if needed.
     if(itsTCLParams_.releaseWhenDone && !isCacheUpdating() )
         releaseDrawing();
