@@ -86,7 +86,7 @@ class gencal_antpostest(unittest.TestCase):
         # current EVLA baseline correction URL
         evlabslncorrURL="http://www.vla.nrao.edu/cgi-bin/evlais_blines.cgi?Year="
         try: 
-          urlaccess=urllib2.urlopen(evlabslncorrURL+"2010", timeout=60.0) 
+          urlaccess=urllib2.urlopen(evlabslncorrURL+"2010", timeout=30.0) 
           gencal(vis=self.msfile,
                  caltable=self.caltable,
                  caltype='antpos',

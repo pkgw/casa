@@ -2794,9 +2794,9 @@ Array<Double> SIImageStore::calcRobustRMS(const Float pbmasklevel)
   }
   
    
-  //Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
-  // use the new statistic calculation algorithm
-  Record thestats = SDMaskHandler::calcRobustImageStatistics(*residual(), *mask(), pbmask,  LELmask, regionPtr, True);
+  Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+  // Turned off the new noise calc (CAS-11705) 
+  //Record thestats = SDMaskHandler::calcRobustImageStatistics(*residual(), *mask(), pbmask,  LELmask, regionPtr, True);
 
   /***
   ImageStatsCalculator imcalc( residual(), regionPtr, LELmask, False); 
@@ -2821,7 +2821,10 @@ Array<Double> SIImageStore::calcRobustRMS(const Float pbmasklevel)
   os << LogIO::DEBUG1 << "RMS : " << rmss << LogIO::POST;
   os << LogIO::DEBUG1 << "MAD : " << mads << LogIO::POST;
   
-  return mdns+mads*1.4826;
+  // this for the new noise calc
+  //return mdns+mads*1.4826;
+  // this is the old noise calc
+  return mads*1.4826;
 }
 
   void SIImageStore::printImageStats()
