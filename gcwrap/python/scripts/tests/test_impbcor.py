@@ -373,5 +373,21 @@ class impbcor_test(unittest.TestCase):
         self.assertTrue("ia.pbcor" in msgs[-2])    
         self.assertTrue("ia.pbcor" in msgs[-1])
 
+    def test_empty_region_and_stokes(self):
+        """Test specifying stokes with empty region works (CAS-11708)"""
+        myia = iatool()
+        imagename = "t_in.im"
+        pbimage = "t_pb_in.im"
+        shape = [20, 20, 4, 20]
+        for im in [imagename, pbimage]:
+            myia.fromshape(im, shape)
+            myia.addnoise()
+            myia.done()
+        outfile = "t_out.im"
+        impbcor(imagename, pbimage, outfile=outfile, stokes="I")
+        self.assertTrue(myia.open(outfile))
+        self.assertTrue((myia.shape() == [20,20,1,20]).all(), "Incorrect shape")
+        myia.done()
+
 def suite():
     return [impbcor_test]

@@ -4113,15 +4113,13 @@ image* image::pad(
 }
 
 image* image::pbcor(
-    const variant& pbimage, const string& outfile,
-    bool overwrite, const string& box,
-    const variant& region, const string& chans,
-    const string& stokes, const string& mask,
-    const string& mode, float cutoff,
+    const variant& pbimage, const string& outfile, bool overwrite,
+    const string& box, const variant& region, const string& chans,
+    const string& stokes, const string& mask, const string& mode, float cutoff,
     bool stretch
 ) {
     if (_detached()) {
-        throw AipsError("Unable to create image");
+        ThrowCc("Unable to create image");
     }
     try {
         _log << _ORIGIN;
@@ -4140,10 +4138,9 @@ image* image::pbcor(
         else if (pbimage.type() == variant::STRING) {
             ImageInterface<Float>* pb;
             ImageUtilities::openImage(pb, pbimage.getString());
-            if (pb == 0) {
-                _log << "Unable to open primary beam image " << pbimage.getString()
-                    << LogIO::EXCEPTION;
-            }
+            ThrowIf(
+                ! pb, "Unable to open primary beam image " + pbimage.getString()
+            );
             pb_ptr.reset(pb);
         }
         else {
@@ -4151,7 +4148,7 @@ image* image::pbcor(
                 "Unsupported type " + pbimage.typeString() + " for pbimage"
             );
         }
-        auto myRegion = _getRegion(region, false);
+        auto myRegion = _getRegion(region, true);
         String modecopy = mode;
         modecopy.downcase();
         modecopy.trim();
@@ -4166,21 +4163,18 @@ image* image::pbcor(
         std::unique_ptr<ImagePrimaryBeamCorrector> pbcor(
             (!pb_ptr)
             ? new ImagePrimaryBeamCorrector(
-                shImage, pbPixels, myRegion.get(),
-                "", box, chans, stokes, mask, outfile, overwrite,
-                cutoff, useCutoff, myMode
+                shImage, pbPixels, myRegion.get(), "", box, chans, stokes, mask,
+                outfile, overwrite, cutoff, useCutoff, myMode
             )
             : new ImagePrimaryBeamCorrector(
-                shImage, pb_ptr, myRegion.get(),
-                "", box, chans, stokes, mask, outfile, overwrite,
-                cutoff, useCutoff, myMode
+                shImage, pb_ptr, myRegion.get(), "", box, chans, stokes, mask,
+                outfile, overwrite, cutoff, useCutoff, myMode
             )
         );
         pbcor->setStretch(stretch);
         vector<String> names = {
-            "pbimage", "outfile", "overwrite", "box",
-            "region", "chans", "stokes", "mask", "mode",
-            "cutoff", "stretch"
+            "pbimage", "outfile", "overwrite", "box", "region", "chans",
+            "stokes", "mask", "mode", "cutoff", "stretch"
         };
         vector<variant> values = {
             pbimage.type() == variant::DOUBLEVEC
