@@ -249,16 +249,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       //re-calculate current nsigma threhold
       //os<<"Calling calcRobustRMS ....syndeconv."<<LogIO::POST;
-      itsMaskHandler->setPBMaskLevel(itsPBMask);
-      Array<Double> robustrms = itsImages->calcRobustRMS(itsPBMask);
-      // Before the first iteration the iteration parameters have not been
-      // set in SIMinorCycleController
-      // Use nsigma pass to SynthesisDeconvolver directly for now...
-      //Float nsigma = itsLoopController.getNsigma();
-      Double maxrobustrms = max(robustrms);
-      //Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
-      Float nsigmathresh = itsNsigma * (Float)maxrobustrms;
-      if (itsNsigma>0.0 ) os << "Current nsigma threshold (maximum along spectral channels) ="<<nsigmathresh<<LogIO::POST;
+      Float nsigmathresh = 0.0;
+      if (itsNsigma >0.0) {
+        itsMaskHandler->setPBMaskLevel(itsPBMask);
+        Array<Double> robustrms = itsImages->calcRobustRMS(itsPBMask);
+        // Before the first iteration the iteration parameters have not been
+        // set in SIMinorCycleController
+        // Use nsigma pass to SynthesisDeconvolver directly for now...
+        //Float nsigma = itsLoopController.getNsigma();
+        Double maxrobustrms = max(robustrms);
+        //Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
+        nsigmathresh = itsNsigma * (Float)maxrobustrms;
+        os << "Current nsigma threshold (maximum along spectral channels) ="<<nsigmathresh<<LogIO::POST;
+      }
       itsLoopController.setNsigmaThreshold(nsigmathresh);
       itsLoopController.setPBMask(itsPBMask);
 

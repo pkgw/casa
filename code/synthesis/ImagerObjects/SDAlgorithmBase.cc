@@ -137,9 +137,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    startpeakresidual = peakresidual;
 	    startmodelflux = modelflux;
 
-            // returns as an Array but itsImages is already single plane so 
-            // the return rms contains only a single element
-            robustrms = itsImages->calcRobustRMS(itsPBMask);
             //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
             Float nsigmathresh; 
@@ -153,6 +150,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
  
             Float thresholdtouse;
             if (nsigma>0.0) {
+              // returns as an Array but itsImages is already single plane so 
+              // the return rms contains only a single element
+              robustrms = itsImages->calcRobustRMS(itsPBMask);
+              nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
               thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
             }
             else {

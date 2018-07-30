@@ -1327,7 +1327,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           iaxis2 = istokes;
           iaxis3 = ichan;
         } 
- 
         if (chanflag.nelements()==0 || !chanflag(ichan)) { // get new stats
         // check if mask is empty (evaulated as the whole input mask )
         Array<Float> maskdata; 
