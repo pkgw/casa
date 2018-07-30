@@ -175,13 +175,23 @@ private:
   // Forbid copy for now
   PlotMSIndexer(const PlotMSIndexer& mc);
 
-  // get method for data axes depends on column
+  // get method for x and y axes depends on column
   void setMethod(CacheMemPtr& getmethod, PMS::Axis axis, PMS::DataColumn data);
+
+  // index for iteraxis
   void setIndexer(IndexerMethPtr& indexmethod, PMS::Axis axis);
+
+  // Reindex for connecting points
   void reindexForConnect();
   void getConnectSets(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
     std::set<casacore::Int>& chans, std::set<casacore::Int>& corrs,
     std::set<casacore::Int>& ant1s);
+  // all points in own bin
+  void setConnectBinsPerPt(casacore::Int npoints);
+  // reindex into one vector, by bin
+  void reindexBins(casacore::uInt npoints, std::vector<casacore::uInt>* chunks,
+	std::vector<casacore::uInt>* offsets);
+  // bin data by various axes
   void reindexForAllConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
     std::set<casacore::Int>& chans, std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
     casacore::Vector<bool>& itermask);
@@ -200,6 +210,8 @@ private:
   void reindexForAnt1Connect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
     std::set<casacore::Int>& chans, std::set<casacore::Int>& corrs,
     casacore::Vector<bool>& itermask);
+
+
   //  void setCollapser(CollapseMethPtr& collmethod, PMS::Axis axis);
 
   // Generate collapsed versions of the plmask 

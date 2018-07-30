@@ -494,9 +494,10 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                 m_maskedData->xyAndMaskAt(i, thisx, thisy, thismask);
                 thisix = xMap.transform(thisx);
                 thisiy = yMap.transform(thisy);
-                // don't connect nan and inf points 
+                // don't connect nan and inf points, or points at same x 
                 if (!casacore::isNaN(thisx) && !casacore::isNaN(thisy) &&
-                    !casacore::isInf(thisx) && !casacore::isInf(thisy)) {
+                    !casacore::isInf(thisx) && !casacore::isInf(thisy) &&
+					(thisx != lastx)) {
 
                     if (diffColorLine) {  // set pen for colorized plot
                         QPen linePen = m_line.asQPen();
@@ -518,8 +519,6 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                         if(drawMaskedLine && !samePen && !diffColorLine)
                             p->setPen(m_line.asQPen()); // set pen for unflagged symbols
                         if(brect.contains(lastix, lastiy) || brect.contains(thisix, thisiy)) {
-                            if (thisx == lastx)  // don't connect pts at same x
-                                continue;
                             if (m_step) {  // need midpoint for step
                                 if (sameMask && sameLine) { // connect to last point
                                     int ixdiff(((lastix + thisix)/2) - lastix);
@@ -553,8 +552,6 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                         if(drawLine && !samePen && !diffColorLine)
                             p->setPen(m_maskedLine.asQPen());  // set pen for flagged symbols
                         if(brect.contains(lastix, lastiy) || brect.contains(thisix, thisiy)) {
-                            if (thisx == lastx)  // don't connect pts at same x
-                                continue;
                             if (m_maskedStep) { // need midpoint for step
                                 if (sameMask && sameLine) { // connect to last point
                                     int ixdiff(((lastix + thisix)/2) - lastix);

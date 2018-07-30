@@ -34,6 +34,7 @@
 #include <measures/Measures/Stokes.h>
 //#include <QtCore/qmath.h>
 #include <QDebug>
+#include <chrono>
 
 using namespace casacore;
 namespace casa {
@@ -198,26 +199,20 @@ unsigned int PlotMSIndexer::size() const {
 double PlotMSIndexer::xAt(unsigned int i) const {
 	setChunk(i);  // sets chunk and relative index in chunk
 
-	double x= (plotmscache_->*getXFromCache_)(currChunk_,
-			(self->*XIndexer_)(currChunk_,irel_));
+	double x= (plotmscache_->*getXFromCache_)(currChunk_, (self->*XIndexer_)(currChunk_,irel_));
 	return x;
 }
 double PlotMSIndexer::yAt(unsigned int i) const {
 	setChunk(i);  // sets chunk and relative index in chunk
-	return (plotmscache_->*getYFromCache_)(currChunk_,
-			(self->*YIndexer_)(currChunk_,irel_));
+	return (plotmscache_->*getYFromCache_)(currChunk_, (self->*YIndexer_)(currChunk_,irel_));
 }
-void PlotMSIndexer::xAndYAt(unsigned int index, 
-		double& x, double& y) const {
+void PlotMSIndexer::xAndYAt(unsigned int index, double& x, double& y) const {
 	setChunk(index);  // sets chunk and relative index in chunk
-	x=(plotmscache_->*getXFromCache_)(currChunk_,
-			(self->*XIndexer_)(currChunk_,irel_));
-	y=(plotmscache_->*getYFromCache_)(currChunk_,
-			(self->*YIndexer_)(currChunk_,irel_));
+	x=(plotmscache_->*getXFromCache_)(currChunk_, (self->*XIndexer_)(currChunk_,irel_));
+	y=(plotmscache_->*getYFromCache_)(currChunk_, (self->*YIndexer_)(currChunk_,irel_));
 }
 
-bool PlotMSIndexer::minsMaxes(double& xMin, double& xMax, 
-		double& yMin, double& yMax) {
+bool PlotMSIndexer::minsMaxes(double& xMin, double& xMax, double& yMin, double& yMax) {
 
 	if (this->size()<1) return false;
 
@@ -254,19 +249,14 @@ bool PlotMSIndexer::maskedAt( unsigned int index) const {
 	return !(*(plotmscache_->plmask_[dataIndex_][currChunk_]->data()+irel_));
 }
 
-void PlotMSIndexer::xyAndMaskAt(unsigned int index,
-		double& x, double& y,
-		bool& mask) const {
+void PlotMSIndexer::xyAndMaskAt(unsigned int index, double& x, double& y, bool& mask) const {
 	setChunk(index);
-	x=(plotmscache_->*getXFromCache_)(currChunk_,
-			(self->*XIndexer_)(currChunk_,irel_));
-	y=(plotmscache_->*getYFromCache_)(currChunk_,
-			(self->*YIndexer_)(currChunk_,irel_));
+	x=(plotmscache_->*getXFromCache_)(currChunk_, (self->*XIndexer_)(currChunk_,irel_));
+	y=(plotmscache_->*getYFromCache_)(currChunk_, (self->*YIndexer_)(currChunk_,irel_));
 	mask=!(*(plotmscache_->plmask_[dataIndex_][currChunk_]->data()+irel_));
 }
 
-bool PlotMSIndexer::maskedMinsMaxes(double& xMin, double& xMax, 
-		double& yMin, double& yMax) {
+bool PlotMSIndexer::maskedMinsMaxes(double& xMin, double& xMax, double& yMin, double& yMax) {
 
 	if (this->size()<1) return false;
 
@@ -303,9 +293,7 @@ bool PlotMSIndexer::maskedMinsMaxes(double& xMin, double& xMax,
 
 bool PlotMSIndexer::maskedMinsMaxesRaw(double& xMin, double& xMax, 
 		double& yMin, double& yMax) {
-
 	if (this->size()<1) return false;
-
 	xMin=xflmin_;
 	xMax=xflmax_;
 	yMin=yflmin_;
@@ -363,9 +351,7 @@ void PlotMSIndexer::adjustYRange(double& yMin, double& yMax) {
 
 bool PlotMSIndexer::unmaskedMinsMaxesRaw(double& xMin, double& xMax, 
 		double& yMin, double& yMax) {
-
 	if (this->size()<1) return false;
-
 	xMin=xmin_;
 	xMax=xmax_;
 	yMin=ymin_;
@@ -388,8 +374,7 @@ unsigned int PlotMSIndexer::binAt(unsigned int i) const {
 
 		if ( itsColorizeAxis_ != PMS::TIME ){
 			binValue = val % numBins();
-		}
-		else {
+		} else {
 			if ( plotmscache_->averaging_.time() ){
 				double timeInterval= plotmscache_->averaging_.timeValue();
 				double baseTime = plotmscache_->getTime( 0, 0 );
@@ -397,13 +382,11 @@ unsigned int PlotMSIndexer::binAt(unsigned int i) const {
 				Double timeDiff = time - baseTime;
 				int timeIndex = static_cast<int>( timeDiff / timeInterval );
 				binValue = timeIndex % numBins();
-			}
-			else {
+			} else {
 				int timeIndex = 0;
 				if ( currChunk_ == 0 ){
 					timeIndex = plotmscache_->findColorIndex( currChunk_, false );
-				}
-				else {
+				} else {
 					timeIndex = plotmscache_->findColorIndex( currChunk_, false );
 				}
 				binValue = timeIndex % numBins();
@@ -418,7 +401,6 @@ unsigned int PlotMSIndexer::binAt(unsigned int i) const {
 			}
 		}
 	}
-
 	return binValue;
 }
 
@@ -707,7 +689,7 @@ void PlotMSIndexer::setUpIndexing() {
 	nPoints_.reference(nSegPoints_);
 	nCumulative_.reference(nCumulPoints_);
 
-	if (itsXConnect_ != "none") 
+	if (itsXConnect_ != "none")
 		reindexForConnect();
 
 	// Compute the nominal plot ranges
@@ -725,11 +707,11 @@ void PlotMSIndexer::reindexForConnect() {
 	getConnectSets(times, spws, channels, corrs, ant1s);
 
 	// If iteraxis, only use points for current iteration
-	uInt npoints(nCumulPoints_(nSegment_-1));
+	Int npoints(nCumulPoints_(nSegment_-1));
 	Vector<bool> itermask(npoints, true);
 	if (iterAxis_ != PMS::NONE) {
 		if (iterAxis_ == PMS::ANTENNA) {
-			for (uInt ipt=0; ipt<npoints; ++ipt) {
+			for (Int ipt=0; ipt<npoints; ++ipt) {
 				setChunk(ipt, true);
 				if (plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) != iterValue_)
 					itermask(ipt) = false;
@@ -739,7 +721,7 @@ void PlotMSIndexer::reindexForConnect() {
 			IndexerMethPtr iterIndexer;
 			setMethod(getIterFromCache, iterAxis_, PMS::DEFAULT_DATACOLUMN);
 			setIndexer(iterIndexer, iterAxis_);
-			for (uInt ipt=0; ipt<npoints; ++ipt) {
+			for (Int ipt=0; ipt<npoints; ++ipt) {
 				setChunk(ipt, true);
 				// use point if correct iteration
 				if (iterAxis_ == PMS::TIME) {
@@ -755,12 +737,43 @@ void PlotMSIndexer::reindexForConnect() {
 		}
 	}
 
-	if (itsXConnect_ != "none" && itsTimeConnect_) {
-		reindexForTimeConnect(spws, channels, corrs, ant1s, itermask);
-	} else if (currentX_ == iterAxis_) {
-		reindexForAllConnect(times, spws, channels, corrs, ant1s, itermask);
+	bool doTimeConnect(itsXConnect_ != "none" && itsTimeConnect_),
+		 xIsIter(currentX_ == iterAxis_);
+	if (doTimeConnect)
+		nSegment_ = (spws.size() * channels.size() * corrs.size() * ant1s.size());
+	else if (xIsIter)
+		nSegment_ = (times.size() * spws.size() * channels.size() * corrs.size() * ant1s.size());
+	else switch(currentX_) {
+		case PMS::TIME:
+			nSegment_ = (spws.size() * channels.size() * corrs.size() * ant1s.size());
+			break;
+		case PMS::SPW:
+			nSegment_ = (times.size() * channels.size() * corrs.size() * ant1s.size());
+			break;
+		case PMS::CHANNEL:
+		case PMS::FREQUENCY:
+			nSegment_ = (times.size() * spws.size() * corrs.size() * ant1s.size());
+			break;
+		case PMS::CORR:
+			nSegment_ = (times.size() * spws.size() * channels.size() * ant1s.size());
+			break;
+		case PMS::ANTENNA1:
+			nSegment_ = (times.size() * spws.size() * channels.size() * corrs.size());
+			break;
+		default:
+			nSegment_ = (times.size() * spws.size() * channels.size() * corrs.size() * ant1s.size());
+			break;
+	}
+	nSegPoints_.resize(nSegment_);
+	nSegPoints_.set(0);
+	if (nSegment_ == npoints) {
+		setConnectBinsPerPt(npoints);
 	} else {
-		switch (currentX_) {
+		if (doTimeConnect)
+			reindexForTimeConnect(spws, channels, corrs, ant1s, itermask);
+		else if (xIsIter)
+			reindexForAllConnect(times, spws, channels, corrs, ant1s, itermask);
+		else switch (currentX_) {
 			case PMS::TIME:
 				reindexForTimeConnect(spws, channels, corrs, ant1s, itermask);
 				break;
@@ -861,34 +874,56 @@ void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
 	}
 }
 
+void PlotMSIndexer::setConnectBinsPerPt(Int npoints) {
+	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
+	for (Int ipt=0; ipt<npoints; ++ipt) {
+		setChunk(ipt, true);
+		newCacheChunk.push_back(currChunk_);
+		newCacheOffset.push_back(irel_);
+		nSegPoints_(ipt) = 1;
+	}
+	cacheChunk_.resize();
+	cacheChunk_ = newCacheChunk;
+	cacheOffset_.resize();
+	cacheOffset_ = newCacheOffset;
+}
+
+void PlotMSIndexer::reindexBins(uInt npoints, std::vector<uInt>* chunks, std::vector<uInt>* offsets) {
+	cacheChunk_.resize(npoints);
+	cacheOffset_.resize(npoints);
+	uInt npt(-1);
+	for (Int iseg=0; iseg<nSegment_; ++iseg) {
+		for (uInt isegpt=0; isegpt<nSegPoints_(iseg); ++isegpt) {
+			++npt;
+			cacheChunk_[npt] = chunks[iseg][isegpt];
+			cacheOffset_[npt] = offsets[iseg][isegpt];
+		}
+	}
+}
+
 void PlotMSIndexer::reindexForAllConnect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& chans, 
 		std::set<Int>& corrs, std::set<Int>& ant1s, Vector<bool>& itermask) {
-	// Reindex by all metadata axes (time, spw, corr, ant1) to create new cacheChunk_ and cacheOffset_
-	nSegment_ = (times.size() * spws.size() * chans.size() * corrs.size() * ant1s.size());
-	nSegPoints_.resize(nSegment_);
-	nSegPoints_.set(0);
-
-	// Populate each connect segment with points in that bin
-	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
+	// Sort into bins with same times, spws, chans, corrs, ant1s then reindex
+	uInt npoints(itermask.size());
+	std::vector<casacore::uInt> newCacheChunk[nSegment_], newCacheOffset[nSegment_];
 	Int iseg(-1);
-	for (Double time : times) {
-		for (Int spw : spws) {
-			for (Int corr : corrs) {
-				for (Int chan : chans) {
-					for (Int ant1 : ant1s) {
-						++iseg;
-						for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
-							// use point if correct iteration
-							if (itermask(ipt)) {
-								setChunk(ipt, true);
-								// add point if time, spw, corr, and ant match
+	for (uInt ipt=0; ipt<npoints; ++ipt) {
+		if (itermask(ipt)) { // only use point if correct iteration
+			setChunk(ipt, true);
+			iseg = -1;
+			for (Double time : times) {
+				for (Int spw : spws) {
+					for (Int corr : corrs) {
+						for (Int chan : chans) {
+							for (Int ant1 : ant1s) {
+								++iseg;
 								if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
 									(plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
 									(plotmscache_->getChan(currChunk_, getIndex0100(currChunk_, irel_)) == chan) &&
 									(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr) &&
 									(plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1)) {
-										newCacheChunk.push_back(currChunk_);
-										newCacheOffset.push_back(irel_);
+										newCacheChunk[iseg].push_back(currChunk_);
+										newCacheOffset[iseg].push_back(irel_);
 										++nSegPoints_(iseg);
 								}
 							}
@@ -898,38 +933,30 @@ void PlotMSIndexer::reindexForAllConnect(std::set<Double>& times, std::set<Int>&
 			}
 		}
 	}
-	cacheChunk_.resize();
-	cacheChunk_ = newCacheChunk;
-	cacheOffset_.resize();
-	cacheOffset_ = newCacheOffset;
+	reindexBins(npoints, &newCacheChunk[0], &newCacheOffset[0]);
 }
 
 void PlotMSIndexer::reindexForTimeConnect(std::set<Int>& spws, std::set<Int>& chans, std::set<Int>& corrs,
 		std::set<Int>& ant1s, Vector<bool>& itermask) {
-	// Reindex to connect time axis (spw, corr, ant1) to create new cacheChunk_ and cacheOffset_
-	nSegment_ = (spws.size() * chans.size() * corrs.size() * ant1s.size());
-	nSegPoints_.resize(nSegment_);
-	nSegPoints_.set(0);
-	
-	// Populate each connect segment with points in that bin
-	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
+	// Sort into bins with same spws, chans, corrs, ant1s then reindex
+	uInt npoints(itermask.size());
+	std::vector<casacore::uInt> newCacheChunk[nSegment_], newCacheOffset[nSegment_];
 	Int iseg(-1);
-	for (Int spw : spws) {
-		for (Int corr : corrs) {
-			for (Int chan : chans) {
-				for (Int ant1 : ant1s) {
-					++iseg;
-					for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
-						// use point if correct iteration
-						if (itermask(ipt)) {
-							setChunk(ipt, true);
-							// add point if spw, corr, and ant match
+	for (uInt ipt=0; ipt<npoints; ++ipt) {
+		if (itermask(ipt)) { // only use point if correct iteration
+			setChunk(ipt, true);
+			iseg = -1;
+			for (Int spw : spws) {
+				for (Int corr : corrs) {
+					for (Int chan : chans) {
+						for (Int ant1 : ant1s) {
+							++iseg;
 							if ((plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
 								(plotmscache_->getChan(currChunk_, getIndex0100(currChunk_, irel_)) == chan) &&
 								(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr) &&
 								(plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1)) {
-									newCacheChunk.push_back(currChunk_);
-									newCacheOffset.push_back(irel_);
+									newCacheChunk[iseg].push_back(currChunk_);
+									newCacheOffset[iseg].push_back(irel_);
 									++nSegPoints_(iseg);
 							}
 						}
@@ -938,37 +965,30 @@ void PlotMSIndexer::reindexForTimeConnect(std::set<Int>& spws, std::set<Int>& ch
 			}
 		}
 	}
-	cacheChunk_.resize();
-	cacheChunk_ = newCacheChunk;
-	cacheOffset_.resize();
-	cacheOffset_ = newCacheOffset;
+	reindexBins(npoints, &newCacheChunk[0], &newCacheOffset[0]);
 }
 
 void PlotMSIndexer::reindexForSpwConnect(std::set<Double>& times, std::set<Int>& chans, std::set<Int>& corrs,
 		std::set<Int>& ant1s, Vector<bool>& itermask) {
-	// Reindex to connect spw axis (time, corr, ant1) to create new cacheChunk_ and cacheOffset_
-	nSegment_ = (times.size() * chans.size() * corrs.size() * ant1s.size());
-	nSegPoints_.resize(nSegment_);
-	nSegPoints_.set(0);
-
-	// Populate each connect segment with points in that bin
-	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
+	// Sort into bins with same times, chans, corrs, ant1s then reindex
+	uInt npoints(itermask.size());
+	std::vector<casacore::uInt> newCacheChunk[nSegment_], newCacheOffset[nSegment_];
 	Int iseg(-1);
-	for (Double time : times) {
-		for (Int chan : chans) {
-			for (Int corr : corrs) {
-				for (Int ant1 : ant1s) {
-					++iseg;
-					for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
-						if (itermask(ipt)) {
-							setChunk(ipt, true);
-							// add point if spw, corr, and ant match
+	for (uInt ipt=0; ipt<npoints; ++ipt) {
+		if (itermask(ipt)) { // only use point if correct iteration
+			setChunk(ipt, true);
+			iseg = -1;
+			for (Double time : times) {
+				for (Int chan : chans) {
+					for (Int corr : corrs) {
+						for (Int ant1 : ant1s) {
+							++iseg;
 							if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
 								(plotmscache_->getChan(currChunk_, getIndex0100(currChunk_, irel_)) == chan) &&
 								(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr) &&
 								(plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1)) {
-									newCacheChunk.push_back(currChunk_);
-									newCacheOffset.push_back(irel_);
+									newCacheChunk[iseg].push_back(currChunk_);
+									newCacheOffset[iseg].push_back(irel_);
 									++nSegPoints_(iseg);
 							}
 						}
@@ -977,37 +997,30 @@ void PlotMSIndexer::reindexForSpwConnect(std::set<Double>& times, std::set<Int>&
 			}
 		}
 	}
-	cacheChunk_.resize();
-	cacheChunk_ = newCacheChunk;
-	cacheOffset_.resize();
-	cacheOffset_ = newCacheOffset;
+	reindexBins(npoints, &newCacheChunk[0], &newCacheOffset[0]);
 }
 
 void PlotMSIndexer::reindexForChannelConnect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& corrs,
 		std::set<Int>& ant1s, Vector<bool>& itermask) {
-	// Reindex to connect spw axis (time, corr, ant1) to create new cacheChunk_ and cacheOffset_
-	nSegment_ = (times.size() * spws.size() * corrs.size() * ant1s.size());
-	nSegPoints_.resize(nSegment_);
-	nSegPoints_.set(0);
-
-	// Populate each connect segment with points in that bin
-	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
-	Int iseg(-1);
-	for (Double time : times) {
-		for (Int spw : spws) {
-			for (Int corr : corrs) {
-				for (Int ant1 : ant1s) {
-					++iseg;
-					for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
-						if (itermask(ipt)) {
-							setChunk(ipt, true);
-							// add point if spw, corr, and ant match
+	// Sort into bins with same times, spws, corrs, ant1s then reindex
+	uInt npoints(itermask.size());
+	std::vector<casacore::uInt> newCacheChunk[nSegment_], newCacheOffset[nSegment_];
+	Int iseg;
+	for (uInt ipt=0; ipt<npoints; ++ipt) {
+		iseg = -1;
+		if (itermask(ipt)) { // only use point if correct iteration
+			setChunk(ipt, true);
+			for (Double time : times) {
+				for (Int spw : spws) {
+					for (Int corr : corrs) {
+						for (Int ant1 : ant1s) {
+							++iseg;
 							if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
 								(plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
 								(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr) &&
 								(plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1)) {
-									newCacheChunk.push_back(currChunk_);
-									newCacheOffset.push_back(irel_);
+									newCacheChunk[iseg].push_back(currChunk_);
+									newCacheOffset[iseg].push_back(irel_);
 									++nSegPoints_(iseg);
 							}
 						}
@@ -1016,37 +1029,30 @@ void PlotMSIndexer::reindexForChannelConnect(std::set<Double>& times, std::set<I
 			}
 		}
 	}
-	cacheChunk_.resize();
-	cacheChunk_ = newCacheChunk;
-	cacheOffset_.resize();
-	cacheOffset_ = newCacheOffset;
+	reindexBins(npoints, &newCacheChunk[0], &newCacheOffset[0]);
 }
 
 void PlotMSIndexer::reindexForCorrConnect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& chans, 
 		std::set<Int>& ant1s, Vector<bool>& itermask) {
-	// Reindex to connect corr axis (time, spw, ant1) to create new cacheChunk_ and cacheOffset_
-	nSegment_ = (times.size() * spws.size() * chans.size() * ant1s.size());
-	nSegPoints_.resize(nSegment_);
-	nSegPoints_.set(0);
-
-	// Populate each connect segment with points in that bin
-	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
+	// Sort into bins with same times, spws, chans, ant1s then reindex
+	uInt npoints(itermask.size());
+	std::vector<casacore::uInt> newCacheChunk[nSegment_], newCacheOffset[nSegment_];
 	Int iseg(-1);
-	for (Double time : times) {
-		for (Int spw : spws) {
-			for (Int chan : chans) {
-				for (Int ant1 : ant1s) {
-					++iseg;
-					for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
-						if (itermask(ipt)) {
-							setChunk(ipt, true);
-							// use point if time, spw, and ant match
+	for (uInt ipt=0; ipt<npoints; ++ipt) {
+		if (itermask(ipt)) { // only use point if correct iteration
+			setChunk(ipt, true);
+			iseg = -1;
+			for (Double time : times) {
+				for (Int spw : spws) {
+					for (Int chan : chans) {
+						for (Int ant1 : ant1s) {
+							++iseg;
 							if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
 								(plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
 								(plotmscache_->getChan(currChunk_, getIndex0100(currChunk_, irel_)) == chan) &&
 								(plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1)) {
-									newCacheChunk.push_back(currChunk_);
-									newCacheOffset.push_back(irel_);
+									newCacheChunk[iseg].push_back(currChunk_);
+									newCacheOffset[iseg].push_back(irel_);
 									++nSegPoints_(iseg);
 							}
 						}
@@ -1055,37 +1061,30 @@ void PlotMSIndexer::reindexForCorrConnect(std::set<Double>& times, std::set<Int>
 			}
 		}
 	}
-	cacheChunk_.resize();
-	cacheChunk_ = newCacheChunk;
-	cacheOffset_.resize();
-	cacheOffset_ = newCacheOffset;
+	reindexBins(npoints, &newCacheChunk[0], &newCacheOffset[0]);
 }
 
 void PlotMSIndexer::reindexForAnt1Connect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& chans,
 		std::set<Int>& corrs, Vector<bool>& itermask) {
-	// Reindex to connect ant1 axis (time, spw, corr) to create new cacheChunk_ and cacheOffset_
-	nSegment_ = (times.size() * spws.size() * chans.size() * corrs.size());
-	nSegPoints_.resize(nSegment_);
-	nSegPoints_.set(0);
-
-	// Populate each connect segment with points in that bin
-	std::vector<casacore::uInt> newCacheChunk, newCacheOffset;
+	// Sort into bins with same times, spws, chans, corrs, then reindex
+	uInt npoints(itermask.size());
+	std::vector<casacore::uInt> newCacheChunk[nSegment_], newCacheOffset[nSegment_];
 	Int iseg(-1);
-	for (Double time : times) {
-		for (Int spw : spws) {
-			for (Int chan : chans) {
-				for (Int corr : corrs) {
-					++iseg;
-					for (uInt ipt=0; ipt<itermask.size(); ++ipt) {
-						if (itermask(ipt)) {
-							setChunk(ipt, true);
-							// use point if time, spw, and corr match
+	for (uInt ipt=0; ipt<npoints; ++ipt) {
+		if (itermask(ipt)) { // only use point if correct iteration
+			setChunk(ipt, true);
+			iseg = -1;
+			for (Double time : times) {
+				for (Int spw : spws) {
+					for (Int chan : chans) {
+						for (Int corr : corrs) {
+							++iseg;
 							if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
 								(plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
 								(plotmscache_->getChan(currChunk_, getIndex0100(currChunk_, irel_)) == chan) &&
 								(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr)) {
-									newCacheChunk.push_back(currChunk_);
-									newCacheOffset.push_back(irel_);
+									newCacheChunk[iseg].push_back(currChunk_);
+									newCacheOffset[iseg].push_back(irel_);
 									++nSegPoints_(iseg);
 							}
 						}
@@ -1094,10 +1093,7 @@ void PlotMSIndexer::reindexForAnt1Connect(std::set<Double>& times, std::set<Int>
 			}
 		}
 	}
-	cacheChunk_.resize();
-	cacheChunk_ = newCacheChunk;
-	cacheOffset_.resize();
-	cacheOffset_ = newCacheOffset;
+	reindexBins(npoints, &newCacheChunk[0], &newCacheOffset[0]);
 }
 
 bool PlotMSIndexer::isGlobalXRange() const {
