@@ -115,7 +115,7 @@ class ia_addnoise_test(unittest.TestCase):
                     "mean " + str(mean) + " is wrong for type " + mytype
             )
             self.assertTrue(
-                abs(sigma - expsigma) <  0.02,
+                abs(sigma - expsigma) <  0.03,
                 "sigma " + str(sigma) + " is wrong for type " + mytype
             )
 
