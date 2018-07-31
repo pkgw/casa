@@ -393,11 +393,16 @@ void PlotSymbolWidget::setSymbol(PlotSymbolPtr symbol) {
         charEdit->setText(QString(itsSymbol_->symbolUChar()));
 
     itsFillWidget_->setFill(itsSymbol_->areaFill());
+
     PlotLinePtr line = itsSymbol_->line();
-    if(line->style() == PlotLine::NOLINE) outlineNone->setChecked(true);
-    else if(*line == *itsFactory_->line("black", PlotLine::SOLID, 1))
+    // outline is same color as symbol
+    String color = itsSymbol_->getColor();
+    if (line->style() == PlotLine::NOLINE) {
+        outlineNone->setChecked(true);
+    } else if ((*line == *itsFactory_->line("black", PlotLine::SOLID, 1)) ||
+        (*line == *itsFactory_->line(color, PlotLine::SOLID, 1))) {
         outlineDefault->setChecked(true);
-    else {
+    } else {
         outlineCustom->setChecked(true);
         itsLineWidget_->setLine(line);
     }
