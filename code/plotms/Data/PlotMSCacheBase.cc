@@ -951,9 +951,13 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 	Int nIter=0;
 	Vector<Int> iterValues;
 	String xconnector(xconnect);
-	if (cacheType()==MS && xconnect != "none") {
-		logWarn("load_cache", "Connecting points in plotms is implemented for calibration tables only.");
-		xconnector = "none";
+	if (xconnect != "none") {
+		if (cacheType()==MS) {
+			logWarn("load_cache", "Connecting points in plotms is implemented for calibration tables only.");
+			xconnector = "none";
+		} else {
+			logWarn("load_cache", "Connecting points in plotms will add to indexing time.");
+		}
 	}
 
 	// If the cache hasn't been filled, do nothing
@@ -1187,6 +1191,7 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 			logWarn("load_cache", ss.str());
 		} 
 	}
+	logLoad("Finished indexing.");
 }
 
 void PlotMSCacheBase::_updateAntennaMask( Int a, Vector<Bool>& antMask,

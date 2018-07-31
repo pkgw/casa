@@ -184,33 +184,33 @@ private:
   // Reindex for connecting points
   void reindexForConnect();
   void getConnectSets(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
-    std::set<casacore::Int>& chans, std::set<casacore::Int>& corrs,
-    std::set<casacore::Int>& ant1s);
+    std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
+    std::map<casacore::Int, casacore::Int>& chansPerSpw);
   // all points in own bin
   void setConnectBinsPerPt(casacore::Int npoints);
   // reindex into one vector, by bin
   void reindexBins(casacore::uInt npoints, std::vector<casacore::uInt>* chunks,
-	std::vector<casacore::uInt>* offsets);
-  // bin data by various axes
+    std::vector<casacore::uInt>* offsets);
+  // Bin data by various axes
   void reindexForAllConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
-    std::set<casacore::Int>& chans, std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
-    casacore::Vector<bool>& itermask);
-  void reindexForTimeConnect(std::set<casacore::Int>& spws, std::set<casacore::Int>& chans,
-    std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
-    casacore::Vector<bool>& itermask);
-  void reindexForSpwConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& chans,
-    std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
-    casacore::Vector<bool>& itermask);
+    std::map<casacore::Int, casacore::Int>& chans, std::set<casacore::Int>& corrs,
+    std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
+  void reindexForTimeConnect(std::set<casacore::Int>& spws,
+    std::map<casacore::Int,casacore::Int>& chans, std::set<casacore::Int>& corrs,
+    std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
+  // for GSPLINE:
+  void reindexForTimeConnectNoChans(std::set<casacore::Int>& spws,
+    std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
+  void reindexForSpwConnect(std::set<casacore::Double>& times, casacore::Int nchans,
+    std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
   void reindexForChannelConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
-    std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s,
-    casacore::Vector<bool>& itermask);
+    std::set<casacore::Int>& corrs, std::set<casacore::Int>& ant1s, casacore::Vector<bool>& itermask);
   void reindexForCorrConnect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
-    std::set<casacore::Int>& chans, std::set<casacore::Int>& ant1s,
+    std::map<casacore::Int, casacore::Int>& chans, std::set<casacore::Int>& ant1s,
     casacore::Vector<bool>& itermask);
   void reindexForAnt1Connect(std::set<casacore::Double>& times, std::set<casacore::Int>& spws,
-    std::set<casacore::Int>& chans, std::set<casacore::Int>& corrs,
+    std::map<casacore::Int, casacore::Int>& chans, std::set<casacore::Int>& corrs,
     casacore::Vector<bool>& itermask);
-
 
   //  void setCollapser(CollapseMethPtr& collmethod, PMS::Axis axis);
 
