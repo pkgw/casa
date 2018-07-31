@@ -277,7 +277,7 @@ void PlotMSAxesTab::setValue(const PlotMSPlotParameters& params) {
     tskyRadio->setChecked(tsky);
     noneRadio->setChecked(!overlay);
 	unsigned int cacheYAxisCount(c->numYAxes());
-    int yWidgetSize = itsYWidgets_.size();
+    unsigned int yWidgetSize = itsYWidgets_.size();
 	if (cacheYAxisCount > yWidgetSize)
 		addYWidget();
 	else if (yWidgetSize > cacheYAxisCount)

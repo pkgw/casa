@@ -275,26 +275,25 @@ PlotSymbolWidget::PlotSymbolWidget(PlotFactoryPtr factory,
         QtPlotWidget(factory, parent) {
     setupUi(this);
 
-    //Line
+    // Line
     itsLineWidget_ = new PlotLineWidget(factory, false, showAlphaLine);
     QtUtilities::putInFrame(outlineFrame, itsLineWidget_);
     outlineFrame->setEnabled(false);
-    
     if(!showCustom) outlineCustomFrame->setVisible(false);
     
-    //Symbol
+    // Symbol and Fill
     if(defaultSymbol.null()){
         itsDefault_ = itsFactory_->symbol(PlotSymbol::AUTOSCALING);
     }
     else {
         itsDefault_ = itsFactory_->symbol(*defaultSymbol);
     }
-    setSymbol(itsDefault_);
-    
-    //Fill
+    // Fill - before setSymbol
     String symbolColor = itsDefault_->getColor();
     itsFillWidget_ = new PlotFillWidget(factory, showAlphaFill, symbolColor );
     QtUtilities::putInFrame(fillFrame, itsFillWidget_);
+    // this also sets fill
+    setSymbol(itsDefault_);
 
     if(!showCharacter && itsDefault_->symbol() != PlotSymbol::CHARACTER) {
         SymbolWidget::style->removeItem(4);
@@ -393,7 +392,7 @@ void PlotSymbolWidget::setSymbol(PlotSymbolPtr symbol) {
     if(s == PlotSymbol::CHARACTER)
         charEdit->setText(QString(itsSymbol_->symbolUChar()));
 
-    //itsFillWidget_->setFill(itsSymbol_->areaFill());
+    itsFillWidget_->setFill(itsSymbol_->areaFill());
     PlotLinePtr line = itsSymbol_->line();
     if(line->style() == PlotLine::NOLINE) outlineNone->setChecked(true);
     else if(*line == *itsFactory_->line("black", PlotLine::SOLID, 1))
