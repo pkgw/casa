@@ -1876,6 +1876,8 @@ void SynthesisImagerVi2::unlockMSs()
     //
     vi_p->originChunks();
     vi_p->origin();
+    ////make sure to use the latest imaging weight scheme
+    vi_p->useImagingWeight(imwgt_p);
   }// end of createVisSet
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
