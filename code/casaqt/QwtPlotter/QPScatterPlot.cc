@@ -543,8 +543,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
 
 #if QWT_VERSION >= 0x060000
             bool symIsPixel(m_symbol.symbol()==PlotSymbol::PIXEL),
-		 msymIsPixel(m_maskedSymbol.symbol()==PlotSymbol::PIXEL);
-	    std::vector<QPointF> upoints, mpoints;
+            msymIsPixel(m_maskedSymbol.symbol()==PlotSymbol::PIXEL);
+            std::vector<QPointF> upoints, mpoints;
             QPoint qpt;
             for(unsigned int i = drawIndex; i < n; i++) {
                 m_maskedData->xyAndMaskAt(i, tempx, tempy, mask);
@@ -574,11 +574,11 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             delete coloredSym;
                         } else {
                             QPointF qptf = QPointF(qpt);
-			    upoints.push_back(qptf);
+                            upoints.push_back(qptf);
                             if (upoints.size()==15000) {
                                 if (symIsPixel) p->drawPoints(&upoints[0], upoints.size());
                                 else m_symbol.drawSymbols(p, &upoints[0], upoints.size());
-				upoints.clear();
+                                upoints.clear();
                             }
                         }
                     }
@@ -604,29 +604,29 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             coloredSym->draw(p, mRect);
                         } else {
                             QPointF qptf = QPointF(qpt);
-			    mpoints.push_back(qptf);
+                            mpoints.push_back(qptf);
                             if (mpoints.size()==15000) {
                                 if (msymIsPixel) p->drawPoints(&mpoints[0], mpoints.size());
                                 else m_maskedSymbol.drawSymbols(p, &mpoints[0], mpoints.size());
-				mpoints.clear();
+                                mpoints.clear();
                             }
                         }
                     }
                   }
                 }
             }
-	    // draw the rest
-	    if (!diffColor && drawSymbol) {
-		if (symIsPixel) p->drawPoints(&upoints[0], upoints.size());
-		else m_symbol.drawSymbols(p, &upoints[0], upoints.size());
+            // draw the rest
+            if (!diffColor && drawSymbol) {
+                if (symIsPixel) p->drawPoints(&upoints[0], upoints.size());
+                else m_symbol.drawSymbols(p, &upoints[0], upoints.size());
             }
-	    if (!diffColor && drawMaskedSymbol) {
-		if (msymIsPixel) p->drawPoints(&mpoints[0], mpoints.size());
+            if (!diffColor && drawMaskedSymbol) {
+                if (msymIsPixel) p->drawPoints(&mpoints[0], mpoints.size());
                 else m_maskedSymbol.drawSymbols(p, &mpoints[0], mpoints.size());
             }
 #else
             QPoint qpt;
-	    for(unsigned int i = drawIndex; i < n; i++) {
+            for(unsigned int i = drawIndex; i < n; i++) {
                 m_maskedData->xyAndMaskAt(i, tempx, tempy, mask);
                 // don't plot nan and inf !
                 if (!casacore::isNaN(tempx) && !casacore::isNaN(tempy) &&

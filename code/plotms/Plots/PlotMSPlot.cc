@@ -1958,12 +1958,13 @@ void PlotMSPlot::setAxisRange(PMS::Axis axis, PlotAxis paxis,
 		double diff = maxval - minval;
 		if (diff>120.0) {
 			bounds = make_pair(minval, maxval);
+			canvas->setAxisRange(paxis, bounds);
 		} else if (diff==0.0) {
 			// override autoscale which sets crazy tick marks;
 			// add 2-sec margins
 			bounds = make_pair(minval-2.0, maxval+2.0);
+			canvas->setAxisRange(paxis, bounds);
 		}
-		canvas->setAxisRange(paxis, bounds);
 	}
 
 	// make range symmetrical for uv plot
