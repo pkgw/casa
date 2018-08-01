@@ -377,6 +377,14 @@ public:
   // a. If there is no existing clean mask, calculate statistics using the chauvenet algorithm with maxiter=5 and zscore=-1.
   // b. If there is an existing clean mask, calculate the classic statistics with robust=True in the region outside the clean mask 
   //    and inside the primary beam mask. 
+  static casacore::Record calcRobustImageStatisticsOld(casacore::ImageInterface<casacore::Float>& res, 
+                                       casacore::ImageInterface<casacore::Float>& prevmask, 
+                                       casacore::LatticeExpr<casacore::Bool>& pbmask,
+                                       casacore::String& lelmask,
+                                       casacore::Record* regionPtr,
+                                       const casacore::Bool robust,
+                                       casacore::Vector<casacore::Bool>& chanflag);
+
   static casacore::Record calcRobustImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
                                        casacore::ImageInterface<casacore::Float>& prevmask, 
                                        casacore::LatticeExpr<casacore::Bool>& pbmask,

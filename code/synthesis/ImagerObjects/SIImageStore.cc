@@ -2806,6 +2806,7 @@ Array<Double> SIImageStore::calcRobustRMS(const Float pbmasklevel)
   //Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
   // use the new statistic calculation algorithm
   Vector<Bool> dummyvec;
+  // TT: 2018.08.01 using revised version (the older version of this is renameed to calcRobustImageStatisticsOld)
   Record thestats = SDMaskHandler::calcRobustImageStatistics(*residual(), *mask(), pbmask,  LELmask, regionPtr, True, dummyvec);
 
   /***
