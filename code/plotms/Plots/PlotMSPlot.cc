@@ -32,7 +32,6 @@
 #include <plotms/Data/MSCache.h>
 #include <plotms/Data/CalCache.h>
 #include <QDebug>
-#include <iomanip>
 
 using namespace casacore;
 namespace casa {
@@ -1739,12 +1738,6 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		canvas->setAxisFont(Y_RIGHT, yFont);
 	}
 
-	// For axis ranges, axis labels, and title need all plots on this canvas
-	int gridRow(iterParams->getGridRow());
-	int gridCol(iterParams->getGridCol());
-	QList<PlotMSPlot*> canvasPlots = itsParent_->getPlotManager().getCanvasPlots(gridRow, gridCol);
-	int canvasPlotCount = canvasPlots.size();
-
 	// x and y axis ranges
 	canvas->setAxesAutoRescale(true);
 	bool makeSquare(false), waveplot(false);  // true if uv/uvwave plot
@@ -1801,6 +1794,11 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	}
 	itsParent_->getPlotter()->makeSquarePlot(makeSquare, waveplot);
 
+	// For title and axis labels, need all plots on this canvas
+	int gridRow(iterParams->getGridRow());
+	int gridCol(iterParams->getGridCol());
+	QList<PlotMSPlot*> canvasPlots = itsParent_->getPlotManager().getCanvasPlots(gridRow, gridCol);
+	int canvasPlotCount = canvasPlots.size();
 
 	// determine which are MS and which are CalTable cache types
 	// Needed for cal axes, axis labels, title

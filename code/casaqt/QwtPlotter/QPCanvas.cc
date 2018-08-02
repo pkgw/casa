@@ -41,8 +41,6 @@
 #include <qwt_scale_engine.h>
 #include <qwt_picker_machine.h>
 
-#include <iomanip>
-
 using namespace std;
 
 using namespace casacore;
