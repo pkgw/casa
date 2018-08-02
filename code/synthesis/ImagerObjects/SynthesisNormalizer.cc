@@ -137,7 +137,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       else
 	{ itsNFacets = 1;}
 
-
+      if( normpars.isDefined("restoringbeam") ) 
+        { 
+          if (normpars.dataType("restoringbeam")==TpString) {
+            itsUseBeam = normpars.asString( RecordFieldId("restoringbeam") ); }          
+          else 
+            { itsUseBeam = "";} 
+        }
       }
     catch(AipsError &x)
       {
@@ -300,7 +306,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       itsImages->calcSensitivity();
 
       itsImages->makeImageBeamSet();
-      itsImages->printBeamSet();
+      Bool verbose(False);
+      if (itsUseBeam=="common") verbose=True;
+      itsImages->printBeamSet(verbose);
     }
 
   }
