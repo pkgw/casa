@@ -23,7 +23,7 @@
 #ifndef HanningSmoothTVITest_H_
 #define HanningSmoothTVITest_H_
 
-#include <mstransform/TVI/test/TestUtilsTVI.h>
+#include <msvis/MSVis/test/TestUtilsTVI.h>
 #include <mstransform/TVI/HanningSmoothTVI.h>
 #include <mstransform/MSTransform/MSTransformIteratorFactory.h>
 

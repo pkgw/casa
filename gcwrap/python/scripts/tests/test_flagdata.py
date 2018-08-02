@@ -505,6 +505,10 @@ class test_rflag(test_base):
     def test_rflag_calculate_file_apply_scales(self):
         '''flagdata:: mode = rflag : use output/input time/freq threshold files via two methods, and with different scales'''
 
+        if testmms:
+            print "WARN: Skip this test in parallel, until CAS-10202 is implemented"
+            return
+            
         def check_threshold_files_saved(timedev_filename, freqdev_filename):
             import ast
             timedev_str = open(timedev_filename, 'r').read()
@@ -591,6 +595,10 @@ class test_rflag(test_base):
         '''flagdata:: mode = rflag : output/input via returned dictionary and cmd'''
         # (1) Test input/output files, through the task, mode='rflag'
         # Files tdevfile.txt and fdevfile.txt are created in this step
+        if testmms:
+            print "WARN: Skip this test in parallel, until CAS-10202 is implemented"
+            return
+
         rdict = flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='', 
                       freqdev='', action='calculate', extendflags=False)
         
@@ -635,7 +643,7 @@ class test_rflag(test_base):
     def test_rflag_return_dict1(self):
         '''flagdata:: Use provided value for time stats, but automatically computed value for freq. stats - returning dictionary'''
         if testmms:
-            print "Skip this test in parallel, until CAS-10202 is implemented"
+            print "WARN: Skip this test in parallel, until CAS-10202 is implemented"
             return
         
         rflag_dict = flagdata(vis=self.vis, mode='rflag', field = '1', spw='10', timedev=0.1, \
@@ -1124,6 +1132,47 @@ class test_statistics_queries(test_base):
                  savepars=False, flagbackup=False)
         test_eq(flagdata(vis=self.vis, mode='summary'), 2854278, 1762236)
 #        flagdata(vis=self.vis, mode='unflag', savepars=False, flagbackup=False)
+
+    def test_quackincrement_list(self):
+        
+        # flag 2 minutes; flagged: 91854.0; scan': {'1': {'flagged': 91854.0
+        flagdata(vis=self.vis,mode='manual',timerange='09:18:00~09:20:00',spw='0',scan='1', flagbackup=False)
+        res0 = flagdata(vis=self.vis, spw='0', scan='1', mode='summary')
+        
+        # quack flag it by 120 seconds; 'flagged': 234738.0,
+        flagdata(vis=self.vis,mode='quack',quackinterval=120.0,spw='0',scan='1',quackincrement=False, flagbackup=False)
+        res1 = flagdata(vis=self.vis, spw='0', scan='1', mode='summary')
+        
+        # unflag
+        flagdata(vis=self.vis,mode='unflag')
+        
+        # quackincrement=True in list mode should be ignored
+        flagdata(vis=self.vis, mode='list', flagbackup=False, inpfile=["timerange='09:18:00~09:20:00' spw='0' scan='1'",
+                                                     "mode='quack' quackinterval=120.0 spw='0' scan='1' quackincrement=True"])
+        resT = flagdata(vis=self.vis, spw='0', scan='1', mode='summary')
+        self.assertEqual(resT['flagged'],res0['flagged'])
+                
+        # unflag
+        flagdata(vis=self.vis,mode='unflag')
+        
+        # quackincrement=False in list mode should work fine. It should reflag what was flagged by
+        # the manual cmd above in res0. and more. It should flag the equivalent of 120s ; 'flagged': 234738.0
+        flagdata(vis=self.vis, mode='list', flagbackup=False, inpfile=["timerange='09:18:00~09:20:00' spw='0' scan='1'",
+                                                     "mode='quack' quackinterval=120.0 spw='0' scan='1' quackincrement=False"])
+  
+        resF = flagdata(vis=self.vis, spw='0', scan='1', mode='summary')
+        self.assertEqual(resF['flagged'],res1['flagged'])
+        
+        # unflag
+        flagdata(vis=self.vis,mode='unflag')
+        
+        # If quackincrement=True is the first command in list, it should run fine
+        # flags: 234738.0 because the manual cmd will reflag the same portion already flagged by the quack cmd
+        flagdata(vis=self.vis, mode='list', flagbackup=False, inpfile=[
+                                                "mode='quack' quackinterval=120.0 spw='0' scan='1' quackincrement=True",
+                                                "timerange='09:18:00~09:20:00' spw='0' scan='1'"])
+        resT = flagdata(vis=self.vis, spw='0', scan='1', mode='summary')
+        self.assertEqual(resT['flagged'],res1['flagged'])
 
 
 class test_selections(test_base):
@@ -3602,9 +3651,14 @@ class test_preaveraging(test_base):
         # of flagged channels will be the same
         self.assertEqual(res1['type'], 'list')
         self.assertEqual(res1['type'], res2['type'])
-        tol = 6.6e-1
+
         import numpy as np
-        for threshold_type in ['freqdev', 'timedev']:
+        # The tolerance for timedev needs to be absurdly big because of osx 10.12
+        # See CAS-11572, the "data4preaveraging" dataset should have more than 4 rows.
+        tolerances = [1.1, 7.5e-1]
+        for threshold_type, tol in zip(['freqdev', 'timedev'], tolerances):
+            self.assertTrue(np.less_equal(res2['report0'][threshold_type],
+                                          res1['report0'][threshold_type]).all())
             self.assertTrue(np.allclose(res1['report0'][threshold_type],
                                         res2['report0'][threshold_type], rtol=tol))
 
@@ -3704,6 +3758,9 @@ class test_preaveraging_rflag_residual(test_base):
     def test_rflag_timeavg_on_residual(self):
         '''flagdata: rflag with timeavg on residual (corrected - model), and compare
         vs mstransform + rflag without timeavg'''
+        if testmms:
+            print "WARN: Skip this test in parallel, until CAS-10202 is implemented"
+            return
 
         # Initial integration time of 'Four_ants_3C286.ms' is 1s
         timebin = '8s'

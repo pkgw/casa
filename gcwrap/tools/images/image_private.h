@@ -35,7 +35,8 @@ casa::SPIIC _imageC = casa::SPIIC();
 casa::SPIID _imageD = casa::SPIID();
 casa::SPIIDC _imageDC = casa::SPIIDC();
 
-std::auto_ptr<casa::ImageStatsCalculator> _stats;
+std::auto_ptr<casa::ImageStatsCalculator<casacore::Float>> _statsF;
+std::auto_ptr<casa::ImageStatsCalculator<casacore::Double>> _statsD;
 
 static const casacore::String _class;
 
@@ -75,7 +76,8 @@ void _addHistory(
 );
 
 template <class T> void _addHistory(
-    SPIIT image, const casacore::String& method, const std::vector<casacore::String>& keys,
+    SPIIT image, const casacore::String& method,
+    const std::vector<casacore::String>& keys,
     const std::vector<casac::variant>& vals,
     const std::vector<casacore::String>& appendMsgs=std::vector<casacore::String>(),
     const std::set<casacore::String>& dontQuote=std::set<casacore::String>()
@@ -92,6 +94,19 @@ template <class T> image* _boxcar(
 
 casacore::Quantity _casaQuantityFromVar(const ::casac::variant& theVar);
 
+template<class T> image* _convolve(
+    SPIIT image, const string& outfile, const variant& kernel, double scale,
+    const variant& region, const variant& vmask, bool overwrite, bool stretch
+);
+
+template<class T> image* _convolve2d(
+    SPIIT myImage, const string& outFile, const vector<int>& axes,
+    const string& type, const variant& major, const variant& minor,
+    const variant& pa, double in_scale, const variant& region,
+    const variant& vmask, bool overwrite, bool stretch,
+    bool targetres, const record& beam
+);
+
 template<class T> image* _decimate(
 	SPCIIT image, const string& outfile, int axis,
 	int factor, casa::ImageDecimatorData::Function f,
@@ -99,6 +114,13 @@ template<class T> image* _decimate(
 	const string& mask, bool overwrite, bool stretch,
 	const vector<casacore::String>& msgs
 ) const;
+
+template<class T> bool _fft(
+    SPIIT myImage, const string& realOut, const string& imagOut,
+    const string& ampOut, const string& phaseOut, const std::vector<int>& axes,
+    const variant& region, const variant& vmask, bool stretch,
+    const string& complexOut
+);
 
 casa::ITUPLE _fromarray(
     const std::string& outfile, const casac::variant& pixels,
@@ -225,8 +247,18 @@ void _setImage(casa::ITUPLE mytuple);
 
 template<class T> void _setrestoringbeam(
     SPIIT image, const variant& major, const variant& minor, const variant& pa,
-    const record& beam, bool remove, bool log, int channel, int polarization,
+    bool remove, bool log, int channel, int polarization,
     const casacore::Record& rec, const ImageBeamSet& bs
+);
+
+template <class T> record* _statistics(
+    std::auto_ptr<casa::ImageStatsCalculator<T>>& stats, SPIIT myImage,
+    const vector<int>& axes, const variant& region,
+    const variant& mask, const vector<double>& includepix,
+    const vector<double>& excludepix, bool list, bool force, bool disk,
+    bool robust, bool verbose, bool stretch, const string& logfile, bool append,
+    const string& algorithm, double fence, const string& center, bool lside,
+    double zscore, int maxiter, const string& clmethod, int niter
 );
 
 template<class T> image* _subimage(

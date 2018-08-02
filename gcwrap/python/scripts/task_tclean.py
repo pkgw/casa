@@ -120,9 +120,9 @@ def tclean(
     usemask,#='user',
     mask,#='',
     pbmask,#='',
-    maskthreshold,#='',
-    maskresolution,#='',
-    nmask,#=0,
+    # maskthreshold,#='',
+    # maskresolution,#='',
+    # nmask,#=0,
 
     ##### automask by multithresh
     sidelobethreshold,#=5.0,

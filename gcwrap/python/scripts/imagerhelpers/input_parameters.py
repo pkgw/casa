@@ -7,7 +7,8 @@ import time
 import re;
 from taskinit import *
 import copy
-from imagerhelpers.fixedDict import fixedDict
+#from imagerhelpers.fixedDict import fixedDict
+fixedDict=dict
 
 '''
 A set of helper functions for the tasks  tclean
@@ -191,7 +192,9 @@ class ImagerParameters():
         self.allnormpars = fixedDict({ self.defaultKey : fixedDict({#'mtype': mtype,
                                  'pblimit': pblimit,'nterms':nterms,'facets':facets,
                                  'normtype':normtype, 'workdir':workdir,
-                                 'deconvolver':deconvolver, 'imagename': imagename} )    })
+
+                                 'deconvolver':deconvolver, 'imagename': imagename, 'restoringbeam':restoringbeam} )    })
+
 
         ######### Deconvolution
         self.alldecpars = fixedDict({ self.defaultKey: fixedDict({ 'id':0, 'deconvolver':deconvolver, 'nterms':nterms, 

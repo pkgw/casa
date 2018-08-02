@@ -45,6 +45,7 @@ scripts/init_tools.py
 scripts/init_logger.py
 scripts/init_funcs.py
 scripts/init_pipeline.py
+scripts/init_telemetry.py
 scripts/init_testing.py
 scripts/init_tasks.py
 scripts/init_welcome.py
@@ -216,6 +217,8 @@ scripts/task_imview.py
 scripts/task_vishead.py
 scripts/task_visstat.py
 scripts/task_widebandpbcor.py
+scripts/telemetry.py
+scripts/TelemetryLogMonitor.py
 scripts/TerminalController.py
 scripts/tget.py
 scripts/update_spw.py

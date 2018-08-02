@@ -155,7 +155,7 @@ class SIImageStore
   ////////// Restoring Beams
   virtual void makeImageBeamSet();
   casacore::ImageBeamSet getBeamSet();
-  virtual void printBeamSet();
+  virtual void printBeamSet(casacore::Bool verbose=casacore::False);
   casacore::GaussianBeam findGoodBeam();
   void lineFit(casacore::Vector<casacore::Float> &data, casacore::Vector<casacore::Bool> &flag, casacore::Vector<casacore::Float> &fit, casacore::uInt lim1, casacore::uInt lim2);
   casacore::Float calcMean(casacore::Vector<casacore::Float> &vect, casacore::Vector<casacore::Bool> &flag);
@@ -198,7 +198,7 @@ class SIImageStore
 		  casacore::Float& minVal, casacore::Float& maxVal,
 		  casacore::Float& minValMask, casacore::Float& maxValMask);
   virtual void printImageStats();
-  virtual casacore::Array<casacore::Double> calcRobustRMS();
+  virtual casacore::Array<casacore::Double> calcRobustRMS(casacore::Float pbmasklevel=0.0);
   casacore::Float getMaskSum();
 
   //

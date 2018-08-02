@@ -244,12 +244,20 @@ MS Parameters
         <value>data</value>
         <value>corrected</value>
         <value>model</value>
+        <value>float</value>
         <value>residual</value>
         <value>corrected-model</value>
+        <value>corrected-model_vector</value>
+        <value>corrected-model_scalar</value>
         <value>data-model</value>
-        <value>data/model</value>
+        <value>data-model_vector</value>
+        <value>data-model_scalar</value>
         <value>corrected/model</value>
-        <value>float</value>
+        <value>corrected/model_vector</value>
+        <value>corrected/model_scalar</value>
+        <value>data/model</value>
+        <value>data/model_vector</value>
+        <value>data/model_scalar</value>
       </allowed>
     </param>    
     
@@ -416,16 +424,24 @@ MS Parameters
       <any type="variant" limittype='string stringArray'/>
       <value type="string"/>
       <allowed kind="enum" type="string">
-        <value/>
+		<value/>
         <value>data</value>
         <value>corrected</value>
         <value>model</value>
+        <value>float</value>
         <value>residual</value>
         <value>corrected-model</value>
+        <value>corrected-model_vector</value>
+        <value>corrected-model_scalar</value>
         <value>data-model</value>
-        <value>data/model</value>
+        <value>data-model_vector</value>
+        <value>data-model_scalar</value>
         <value>corrected/model</value>
-        <value>float</value>
+        <value>corrected/model_vector</value>
+        <value>corrected/model_scalar</value>
+        <value>data/model</value>
+        <value>data/model_vector</value>
+        <value>data/model_scalar</value>
       </allowed>
     </param>
     
@@ -1028,6 +1044,11 @@ Export plot as image Parameters
         </allowed>
     </param>
 
+     <param type="bool" name="verbose" subparam="true">
+         <description>Include metadata in text export</description>
+         <value>True</value>
+     </param>
+
     <param type="string" name="exprange" subparam="true">
         <description>Range of iteration plots to export, one plotfile per page.  Multipage pdf exports are not supported.</description>
         <allowed kind="enum">
@@ -1035,7 +1056,7 @@ Export plot as image Parameters
             <value>current</value>
             <value>all</value>
         </allowed>
-    </param>
+	</param>
 
      <param type="bool" name="highres" subparam="true">
          <description>Use high resolution</description>
@@ -1475,6 +1496,7 @@ Constraints
     <when param="plotfile">
         <notequals type="string" value="">
             <default param="expformat"><value type="string"/></default>
+			<default param="verbose"><value type="bool">True</value></default>
             <default param="exprange"><value type="string"/></default>
             <default param="highres"><value type="bool">False</value></default>
             <default param="dpi"><value type="int">-1</value></default>
@@ -1889,6 +1911,8 @@ Constraints
         expformat -- export format type; if 'txt' is used an ASCII dump of the plotted points is generated (also available in the export tab)
                      default:  ''   (plotfile extension will be used)
                      options: 'jpg', 'png', 'ps', 'pdf', 'txt'
+        verbose -- when export format is 'txt', print metadata for x and y values
+                   default: True 
         exprange -- pages to export for iteration plots
                     default:   ''
                     options: 'current', 'all'             

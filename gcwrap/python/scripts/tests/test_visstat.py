@@ -236,7 +236,7 @@ class visstat_test(unittest.TestCase):
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         for a in range(1, 5):
-            s2 = visstat(vis=self.msfile, axis='ANTENNA1', antenna=str(a)+'&26')
+            s2 = visstat(vis=self.msfile, axis='antenna1', antenna=str(a)+'&26')
             print ''
             print "antenna =", a, "; mean = ", s2['DATA_DESC_ID=0']['mean']
 
