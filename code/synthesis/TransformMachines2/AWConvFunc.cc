@@ -204,6 +204,10 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     //Double vbPA = getPA(vb);
     Complex cpeak,wtcpeak;
     aTerm.cacheVBInfo(vb);
+    Int totalCFs=muellerElements.shape().product()*freqValues.shape().product()*wValues.shape().product(),
+      cfsDone=0;
+  
+    ProgressMeter pm(1.0, Double(totalCFs), "fillCF", "","","",true);
 
     for (uInt imx=0;imx<muellerElements.nelements();imx++) // Loop over all MuellerElements
       for (uInt imy=0;imy<muellerElements(imx).nelements();imy++)
@@ -609,6 +613,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		    (cfb.getCFCellPtr(freqValues(inu), wValues(iw), 
 				      muellerElements(imx)(imy)))->initCache(isDryRun);
 
+		    pm.update((Double)cfsDone++);
 		    //tim.show("End*2:");
     		  }
 	      }

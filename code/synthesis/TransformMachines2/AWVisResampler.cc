@@ -363,8 +363,10 @@ namespace casa{
   {
     //cout << "# " << cfRefFreq << " " << imRefFreq << endl;
     //cerr << pointingOffset << " " << cached_PointingOffset_p << endl;
+
     if (
-    	(sum(fabs(pointingOffset-cached_PointingOffset_p)) > 1e-6) ||
+    	((fabs(pointingOffset[0]-cached_PointingOffset_p[0])) > 1e-6) ||
+    	((fabs(pointingOffset[0]-cached_PointingOffset_p[0])) > 1e-6) ||
     	(cached_phaseGrad_p.shape()[0] < cfShape[0])              ||
     	(cached_phaseGrad_p.shape()[1] < cfShape[1])
     	)
@@ -373,7 +375,8 @@ namespace casa{
 	log_l << "Computing phase gradiant for pointing offset " 
 	      << pointingOffset << cfShape << " " << cached_phaseGrad_p.shape() 
 	      << "(SPW: " << spwID << " Field: " << fieldId << ")"
-	      << LogIO::DEBUGGING << LogIO::POST;
+	      << LogIO::DEBUGGING
+	      << LogIO::POST;
 	Int nx=cfShape(0), ny=cfShape(1);
 	Double grad;
 	Complex phx,phy;
@@ -531,7 +534,7 @@ namespace casa{
 			      (fabs(pointingOffset(0))>0) ||  
 			      (fabs(pointingOffset(1))>0)
 			      );
-   //   Bool isGridSinglePrecision=(typeid(gridStore[0]) == typeid(wt));
+   Bool isGridSinglePrecision=(typeid(gridStore[0]) == typeid(wt));
 
    //   Double conjRefFreq = vbs.imRefFreq();
    Int vbSpw = (vbs.vb_p)->spectralWindows()(0);
@@ -667,7 +670,7 @@ namespace casa{
 					  
 					  
 					  convOrigin=cfShape/2;
-					  //Bool psfOnly=((dopsf==true) && (accumCFs==false));
+					  Bool psfOnly=((dopsf==true) && (accumCFs==false));
 					  if (finitePointingOffsets )
 					    cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
 							     vbSpw, vbFieldID);
@@ -874,7 +877,7 @@ namespace casa{
 			      // 			 cfShape, loc, phasor, dummy, dummy,
 			      // 		   finitePointingOffset, cached_phaseGrad_p);
 #include <synthesis/TransformMachines2/accumulateFromGrid.inc>
-			      //#include <synthesis/TransformMachines2/FortranizedLoopsFromGrid.cc>
+<//#include <synthesis/TransformMachines2/FortranizedLoopsFromGrid.cc>
 
 // runTimeDG_p += timer.real();
 
