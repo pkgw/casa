@@ -8,6 +8,7 @@ import time
 import urllib2
 import __casac__
 import TelemetryLogMonitor
+import ssl
 
 class telemetry:
 
@@ -18,10 +19,16 @@ class telemetry:
         self.logdir = casa['dirs']['rc']
         self.logpattern = 'casastats-' + self.casaver + '-' + self.hostid + '*.log'
         self.sendlogpattern = 'casastats-*'+ self.hostid + '*.log'
-        self.stampfile = self.logdir + "/telemetry.stamp"
+        self.stampfile = self.logdir + '/telemetry-' + self.hostid + '.stamp'
         self.casa = casa
 
         logfiles = []
+
+        # Check if user has defined a telemetry log location
+        casa_util = __casac__.utils.utils()
+
+        if (casa_util.getrc("TelemetryLogDirectory") != 'Unknown value'):
+            self.logdir = casa_util.getrc("TelemetryLogDirectory")
 
         for file in os.listdir(self.logdir):
             if fnmatch.fnmatch(file, self.logpattern):
@@ -33,18 +40,16 @@ class telemetry:
         inactiveTLogSize = 0
 
         if (logfiles and logfiles[0] != None):
-            print "Found an existing telemetry logfile: " + casa['dirs']['rc'] + "/" + logfiles[0]
-            casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + "/" + logfiles[0]
+            print "Found an existing telemetry logfile: " + self.logdir  + "/" + logfiles[0]
+            casa['files']['telemetry-logfile'] = self.logdir  + "/" + logfiles[0]
             for i in range(1, len(logfiles)):
-                inactiveTLogSize = inactiveTLogSize + os.path.getsize(casa['dirs']['rc'] + "/" + logfiles[i])/1024
+                inactiveTLogSize = inactiveTLogSize + os.path.getsize(self.logdir  + "/" + logfiles[i])/1024
                 #print "Inactive log size: " + str(inactiveTLogSize)
         else :
-             print "Creating a new telemetry file"
-             self.setNewTelemetryFile()
+            print "Creating a new telemetry file"
+            self.setNewTelemetryFile()
 
         # Setup Telemetry log size monitoring
-        casa_util = __casac__.utils.utils()
-
         # Size limit for the telemetry logs
         tLogSizeLimit = 10000
         # File size check interval
@@ -62,10 +67,17 @@ class telemetry:
         else :
             tLogMonitor = TelemetryLogMonitor.TelemetryLogMonitor()
             tLogMonitor.start(casa['files']['telemetry-logfile'],tLogSizeLimit, tLogSizeInterval, casa)
-            print "Telemetry initialized."
+            print "Telemetry initialized. Telemetry will send anonymized usage statistics to NRAO."
+            print 'You can disable telemetry by setting environment variable with'
+            print 'export CASA_ENABLE_TELEMETRY=false'
+            print 'or by adding the following line in your ~/.casarc file:'
+            print 'EnableTelemetry: False'
 
     def setNewTelemetryFile(self):
-        self.casa['files']['telemetry-logfile'] = self.casa['dirs']['rc'] + '/casastats-' + self.casaver +'-'  + self.hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
+        self.casa['files']['telemetry-logfile'] =  self.logdir + '/casastats-' + self.casaver +'-'  + self.hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
+        # Work around the chicken/egg problem with telemetry/logger initialization
+        if hasattr(self, 'logger'):
+            self.logger.setstatslogfile(self.casa['files']['telemetry-logfile'])
 
     def setCasaVersion(self):
         myUtils = casac.utils()
@@ -126,9 +138,11 @@ class telemetry:
         logfiles = []
 
         # Test if internet connection is available.
+        context = ssl._create_unverified_context()
         try:
-            urllib2.urlopen('https://casa.nrao.edu/', timeout=2)
+            urllib2.urlopen('https://casa.nrao.edu/', timeout=20, context=context)
         except urllib2.URLError as err:
+            self.logger.post("No telemetry server available. Not submitting data")
             return
 
         # Find logfiles
@@ -141,30 +155,45 @@ class telemetry:
             #Tar logfiles
             current_date = datetime.datetime.today().strftime('%Y%m%d%H%M%S')
             tarfileid = self.logdir + "/telemetry-" \
-                        + telemetryhelper.getUniqueId() + "-" \
-                        + current_date + ".tar.gz"
-            tar = tarfile.open(tarfileid, "w:gz")
+                            + telemetryhelper.getUniqueId() + "-" \
+                            + current_date + ".tar.gz"
+            try:
+                tar = tarfile.open(tarfileid, "w:gz")
+                for logfile in logfiles:
+                    tar.add(self.logdir + "/" + logfile,
+                            arcname='telemetry/'+logfile)
+                tar.close()
+            except Exception as e:
+                self.logger.post("Couldn't create telemetry tarfile")
+                self.logger.post(str(e))
 
-            for logfile in logfiles:
-                tar.add(self.logdir + "/" + logfile,
-                        arcname='telemetry/'+logfile)
-            tar.close()
-
-            file_param = 'file=@' + tarfileid #+ '\"'
-            # Submit tarfile
-            #print ['curl', '-F', file_param , telemetry_url]
-            proc = subprocess.Popen(['curl', '-F', file_param , telemetry_url],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            cmd_out, cmd_err = proc.communicate()
-            if cmd_out != None:
-                self.logger.post(cmd_out, 'DEBUG1')
-            if cmd_err != None:
-                self.logger.post(cmd_err, 'DEBUG1')
+            try:
+                file_param = 'file=@' + tarfileid #+ '\"'
+                # Submit tarfile
+                #print ['curl', '-F', file_param , telemetry_url]
+                proc = subprocess.Popen(['curl', '-F', file_param , telemetry_url],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                cmd_out, cmd_err = proc.communicate()
+                if cmd_out != None:
+                    self.logger.post(cmd_out, 'DEBUG1')
+                if cmd_err != None:
+                    self.logger.post(cmd_err, 'DEBUG1')
+            except Exception as e:
+                self.logger.post("Couldn't submit telemetry logs")
+                self.logger.post(str(e))
 
             # Remove files
             for logfile in logfiles:
-                os.remove(self.logdir + "/" + logfile)
-                #print "Removed " + self.logdir + "/" + logfile
-            os.remove(tarfileid)
-            self.logger.post("Removed" + tarfileid)
+                try:
+                    os.remove(self.logdir + "/" + logfile)
+                except Exception as e:
+                    self.logger.post("Couldn't remove logfile " + self.logdir + "/" + logfile)
+                    self.logger.post(str(e))
+                    #print "Removed " + self.logdir + "/" + logfile
+            try:
+                os.remove(tarfileid)
+                self.logger.post("Removed" + tarfileid)
+            except Exception as e:
+                    self.logger.post("Couldn't remove  " + tarfileid)
+                    self.logger.post(str(e))
         else:
             self.logger.post("No telemetry files to submit.")

@@ -1691,6 +1691,39 @@ class split_test_wttosig(SplitChecker):
                         [  7.07106769e-01,   7.07106769e-01,   7.07106769e-01,       7.07106769e-01],
                         [  7.07106769e-01,   7.07106769e-01,   7.07106769e-01,       7.07106769e-01]]), 0.001)
 
+class split_test_singlespw_severalchranges(unittest.TestCase):
+    """
+    Check that if the selection contains a single SPW but several channel
+    ranges within the same SPW, you get as an output a single SPW in the
+    data description table. See CAS-11087
+    """ 
+    inpms = datapath + '../flagdata/uid___A002_X30a93d_X43e_small.ms'
+    outms = 'uid___A002_X30a93d_X43e_small_chanl4.ms'
+    
+    def setUp(self):
+        try:
+            shutil.rmtree(self.outms, ignore_errors=True)
+            print "\nChecking DDI after channel selection ranges in single SPW"
+            split2(self.inpms, self.outms, keepmms=True, field='',
+                   spw='1:1~2;5~6', scan='', antenna='', 
+                   correlation='', timerange='', intent='',
+                   array='', uvrange='', observation='',
+                   feed='', datacolumn='DATA', keepflags=True,
+                   width=1, timebin='0s', combine='')
+        except Exception, e:
+            print "Error running split selecting different channel ranges in single SPW from", self.inpms
+            raise e
+
+    def tearDown(self):
+        shutil.rmtree(self.outms, ignore_errors=True)
+
+    def test_ddi_entries(self):
+        """Check that there is a single row in the DDI table."""
+        tblocal.open(self.outms + '/DATA_DESCRIPTION')
+        nrows_ddi = tblocal.nrows()
+        tblocal.close()
+        check_eq(nrows_ddi, 1)
+
 class split_test_fc(SplitChecker):
     """
     Check FLAG_CATEGORY after various selections and averagings.
@@ -2149,6 +2182,7 @@ def suite():
             split_test_sw_and_fc, 
             split_test_cavcd, 
             split_test_almapol,
+            split_test_singlespw_severalchranges,
 #            split_test_wttosig, 
 #            split_test_fc
             splitTests,

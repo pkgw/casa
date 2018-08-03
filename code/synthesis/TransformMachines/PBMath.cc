@@ -73,20 +73,26 @@ PBMath::PBMath()
   pb_pointer_p = 0;
 };
 
-PBMath::PBMath(const RecordInterface& rec)
-{
+  PBMath::PBMath(const RecordInterface& rec){
+    pb_pointer_p=pbMathInterfaceFromRecord(rec);
+    
+
+  }
+  PBMathInterface* PBMath::pbMathInterfaceFromRecord(const RecordInterface& rec){
   String name;
+  PBMathInterface *pbPoint=nullptr;
   const Int nameFieldNumber=rec.fieldNumber("name");
   if (nameFieldNumber!=-1)
       name = rec.asString(nameFieldNumber);
+
+  //cerr << "Name " << name << endl;
 
   if (name == "COMMONPB") {
     String commonpb;
     PBMath::CommonPB commonpbEnum;
     commonpb = rec.asString (rec.fieldNumber("commonpb"));
     PBMath::enumerateCommonPB(commonpb, commonpbEnum);
-    PBMath  aPBMath(commonpbEnum);
-    *this = aPBMath;
+    pbPoint=pbMathInterfaceForCommonPB(commonpbEnum, False);
   } else if (name == "AIRY") {
 
 
@@ -105,7 +111,7 @@ PBMath::PBMath(const RecordInterface& rec)
     Bool usesymmetricbeam;
     usesymmetricbeam=rec.asBool( rec.fieldNumber("usesymmetricbeam"));
 
-    pb_pointer_p = new PBMath1DAiry( dishdiam, blockagediam,
+    pbPoint = new PBMath1DAiry( dishdiam, blockagediam,
 				     maxrad, reffreq,
 				     BeamSquint(squintdir, squintreffreq),
 				     usesymmetricbeam);
@@ -128,7 +134,7 @@ PBMath::PBMath(const RecordInterface& rec)
     Bool isthisvp;
     isthisvp=rec.asBool( rec.fieldNumber("isthisvp"));
 
-    pb_pointer_p = new PBMath1DGauss( halfwidth, maxrad, reffreq,
+    pbPoint = new PBMath1DGauss( halfwidth, maxrad, reffreq,
 				      isthisvp,
 				      BeamSquint(squintdir, squintreffreq),
 				      usesymmetricbeam);
@@ -151,7 +157,7 @@ PBMath::PBMath(const RecordInterface& rec)
     Bool isthisvp;
     isthisvp=rec.asBool( rec.fieldNumber("isthisvp"));
 
-    pb_pointer_p = new PBMath1DPoly( coeff, maxrad, reffreq,
+    pbPoint = new PBMath1DPoly( coeff, maxrad, reffreq,
 				      isthisvp,
 				      BeamSquint(squintdir, squintreffreq),
 				      usesymmetricbeam);
@@ -177,14 +183,14 @@ PBMath::PBMath(const RecordInterface& rec)
       coeff=rec.asArrayDouble( rec.fieldNumber("coeff"));
       Vector<Double> freqs;
       freqs=rec.asArrayDouble( rec.fieldNumber("fitfreqs"));
-      pb_pointer_p = new PBMath1DIPoly( coeff, freqs, maxrad, reffreq,
+      pbPoint = new PBMath1DIPoly( coeff, freqs, maxrad, reffreq,
 				        isthisvp,
 				        BeamSquint(squintdir, squintreffreq),
 				        usesymmetricbeam);
     } else {
       Vector<Double> coeff;
       coeff=rec.asArrayDouble( rec.fieldNumber("coeff"));
-      pb_pointer_p = new PBMath1DIPoly( coeff, maxrad, reffreq,
+      pbPoint = new PBMath1DIPoly( coeff, maxrad, reffreq,
 				        isthisvp,
 				        BeamSquint(squintdir, squintreffreq),
 				        usesymmetricbeam);
@@ -211,7 +217,7 @@ PBMath::PBMath(const RecordInterface& rec)
     Bool isthisvp;
     isthisvp=rec.asBool( rec.fieldNumber("isthisvp"));
 
-    pb_pointer_p = new PBMath1DCosPoly( coeff, scale, maxrad, reffreq,
+    pbPoint = new PBMath1DCosPoly( coeff, scale, maxrad, reffreq,
 					isthisvp,
 					BeamSquint(squintdir, squintreffreq),
 					usesymmetricbeam);
@@ -237,8 +243,9 @@ PBMath::PBMath(const RecordInterface& rec)
     for (uInt i = 0; i< vect.nelements(); i++) {
       aTempVector(i) = (Float)vect(i);
     }
-
-    pb_pointer_p = new PBMath1DNumeric( aTempVector, maxrad, reffreq,
+    //cerr << "reffreq "<< reffreq << " maxrad " <<  maxrad << " isvp " << isthisvp << endl;
+    
+    pbPoint = new PBMath1DNumeric( aTempVector, maxrad, reffreq,
 					isthisvp,
 					BeamSquint(squintdir, squintreffreq),
 					usesymmetricbeam);
@@ -248,7 +255,7 @@ PBMath::PBMath(const RecordInterface& rec)
       rec.get("compleximage", complexIm);
       if(Table::isReadable(complexIm)) {
 	PagedImage<Complex> cim(complexIm);
-	pb_pointer_p=new  PBMath2DImage(cim);
+	pbPoint=new  PBMath2DImage(cim);
       }
       else{
 	throw(AipsError("Complex Image "+ complexIm + " is not readable"));
@@ -262,19 +269,22 @@ PBMath::PBMath(const RecordInterface& rec)
       PagedImage<Float> realImage(realImageName);
       if(Table::isReadable(imagImageName)) {
 	PagedImage<Float> imagImage(imagImageName);
-	pb_pointer_p = new PBMath2DImage(realImage, imagImage);
+	pbPoint = new PBMath2DImage(realImage, imagImage);
       }
       else {
 	if(!Table::isReadable(imagImageName)) {
-	  pb_pointer_p = new PBMath2DImage(realImage);
+	  pbPoint = new PBMath2DImage(realImage);
 	}
 	else {
 	  throw(AipsError("Image "+ realImageName + " is not readable or does not exist"));
 	}
       }
     }
-  } else 
+  }
+  else{
     throw AipsError("Unrecognized PB name: " + name);
+  }
+  return pbPoint;
 };
 
 PBMath::PBMath(PBMath::CommonPB myPBType, Bool useSymmetricBeam)
@@ -1013,7 +1023,7 @@ void PBMath::enumerateCommonPB(const String & str, PBMath::CommonPB& ipb)
 
 Bool 
 PBMath::getQuantity(const RecordInterface& rec, const String& item, 
-		    Quantity& returnedQuantity) const
+		    Quantity& returnedQuantity) 
 {
   String error;
   QuantumHolder h;
@@ -1032,7 +1042,7 @@ PBMath::getQuantity(const RecordInterface& rec, const String& item,
 
 Bool 
 PBMath::getMDirection(const RecordInterface& rec, const String& item, 
-		      MDirection& returnedMDirection) const
+		      MDirection& returnedMDirection) 
 {
   String error;
   MeasureHolder h;

@@ -190,7 +190,7 @@ class ImagerParameters():
         self.allnormpars = { self.defaultKey : {#'mtype': mtype,
                                  'pblimit': pblimit,'nterms':nterms,'facets':facets,
                                  'normtype':normtype, 'workdir':workdir,
-                                 'deconvolver':deconvolver}     }
+                                 'deconvolver':deconvolver, 'restoringbeam':restoringbeam}     }
 
         ######### Deconvolution
         self.alldecpars = { self.defaultKey: { 'id':0, 'deconvolver':deconvolver, 'nterms':nterms, 

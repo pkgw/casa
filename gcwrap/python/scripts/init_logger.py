@@ -61,7 +61,8 @@ if deploylogger and casa['files']['logfile'] != '/dev/null':
 if (casa['state']['telemetry-enabled']):
     casalog = casac.logsink(casa['files']['logfile'], True, casa['files']['telemetry-logfile'])
     casatelemetry.setCasaLog(casalog)
-    casatelemetry.submitStatistics()
+    if not MPIEnvironment.is_mpi_enabled or (MPIEnvironment.is_mpi_enabled and MPIEnvironment.is_mpi_client):
+        casatelemetry.submitStatistics()
 else :
     casalog = casac.logsink(casa['files']['logfile'])
 

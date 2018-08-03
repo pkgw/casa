@@ -99,6 +99,7 @@ class SynthesisDeconvolver
   void setStartingModel();
   casacore::Bool setupMask();
   void setAutoMask();
+  void checkRestoringBeam(); 
 
 protected:
 
@@ -146,6 +147,8 @@ protected:
 
   casacore::uInt itsDeconvolverId;
   casacore::Vector<casacore::Float> itsScales;
+
+  casacore::String itsUseBeam;
 
   ///// for mask
   casacore::String itsMaskType;

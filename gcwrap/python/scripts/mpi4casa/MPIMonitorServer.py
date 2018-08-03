@@ -221,7 +221,7 @@ class MPIMonitorServer:
             if keyword is None:
                 return dict(self.__status)
             # If keyword is provided check existence and return the mapped value
-            elif keyword is self.__status:
+            elif keyword in self.__status:
                 return self.__status[keyword]
             else:
                 casalog.post("Status keyword %s not defined" % str(keyword),"WARN",casalog_call_origin)
