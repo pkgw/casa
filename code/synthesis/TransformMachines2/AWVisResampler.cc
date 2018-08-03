@@ -209,7 +209,7 @@ namespace casa{
 	Array<Complex>  tt=SynthesisUtils::getCFPixels(cfb.getCFCacheDir(), cfcell->fileName_p);
 	cfcell->setStorage(tt);
 
-	cerr << (cfcell->isRotationallySymmetric_p?"o":"+");
+	//cerr << (cfcell->isRotationallySymmetric_p?"o":"+");
 
 	// No rotation necessary if the CF is rotationally symmetric
 	if (!(cfcell->isRotationallySymmetric_p))
@@ -877,7 +877,7 @@ namespace casa{
 			      // 			 cfShape, loc, phasor, dummy, dummy,
 			      // 		   finitePointingOffset, cached_phaseGrad_p);
 #include <synthesis/TransformMachines2/accumulateFromGrid.inc>
-<//#include <synthesis/TransformMachines2/FortranizedLoopsFromGrid.cc>
+//#include <synthesis/TransformMachines2/FortranizedLoopsFromGrid.cc>
 
 // runTimeDG_p += timer.real();
 
