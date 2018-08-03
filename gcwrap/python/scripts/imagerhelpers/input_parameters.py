@@ -7,7 +7,8 @@ import time
 import re;
 from taskinit import *
 import copy
-from imagerhelpers.fixedDict import fixedDict
+#from imagerhelpers.fixedDict import fixedDict
+fixedDict=dict
 
 '''
 A set of helper functions for the tasks  tclean
