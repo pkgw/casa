@@ -248,7 +248,11 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		//   psTerm.reinit(dummy, uvScale_l, dummyoffset,pss);
 		// }
 		
-		IPosition pbshp(4,nx,ny,1,1);
+		
+		IPosition pbshp(4,nx, ny,1,1);
+		// Set the shape to 2x2 pixel images for dry gridding
+		if (isDryRun) pbshp[0]=pbshp[1]=2;
+
 		//
 		// Cache the A-Term for this polarization and frequency
 		//
@@ -375,7 +379,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			//psTerm.applySky(cfBufMat, false);   // Assign (psScale set in psTerm.init()
 			//psTerm.applySky(cfWtBufMat, false); // Assign
 			psTerm.applySky(cfBufMat, s, cfBufMat.shape()(0)/s(0));   // Assign (psScale set in psTerm.init()
-	    psTerm.applySky(cfWtBufMat, s, cfWtBufMat.shape()(0)/s(0)); // Assign
+			psTerm.applySky(cfWtBufMat, s, cfWtBufMat.shape()(0)/s(0)); // Assign
 
 			cfWtBuf *= cfWtBuf;
 		      }
@@ -523,7 +527,15 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		    ftRef(0)=cfWtBuf.shape()(0)/2.0;
 		    ftRef(1)=cfWtBuf.shape()(1)/2.0;
 		    CoordinateSystem ftCoords=cs_l;
-		    SynthesisUtils::makeFTCoordSys(cs_l, cfWtBuf.shape()(0), ftRef, ftCoords);
+		    if (isDryRun)
+		      {
+			ftRef(0)=nx/2.0;
+			ftRef(1)=ny/2.0;
+			SynthesisUtils::makeFTCoordSys(cs_l, nx,ftRef , ftCoords);
+		      }
+		    else
+		      SynthesisUtils::makeFTCoordSys(cs_l, cfWtBuf.shape()(0), ftRef, ftCoords);
+		    
 		    CountedPtr<CFCell> cfCellPtr;
 		    cfWtb.setParams(inu,iw,imx,imy,//muellerElements(imx)(imy),
 				    freqValues(inu), String(""), wValues(iw), muellerElements(imx)(imy),
@@ -591,7 +603,15 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 
 		    //tim.mark();
 		    ftCoords=cs_l;
-		    SynthesisUtils::makeFTCoordSys(cs_l, cfBuf.shape()(0), ftRef, ftCoords);
+		    if (isDryRun)
+		      {
+			ftRef(0) = nx/2.0;
+			ftRef(1) = ny/2.0;
+			SynthesisUtils::makeFTCoordSys(cs_l, nx, ftRef, ftCoords);
+		      }
+		    else
+		      SynthesisUtils::makeFTCoordSys(cs_l, cfBuf.shape()(0), ftRef, ftCoords);
+		      
 		    cfb.setParams(inu,iw,imx,imy,//muellerElements(imx)(imy),
 				  freqValues(inu), String(""), wValues(iw), muellerElements(imx)(imy),
 				  ftCoords, sampling, xSupport, ySupport,
