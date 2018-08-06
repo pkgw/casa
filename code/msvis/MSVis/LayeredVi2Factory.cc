@@ -187,9 +187,9 @@ VisIterImpl2LayerFactory::VisIterImpl2LayerFactory(MeasurementSet* ms,
     useMSIter2_(useMSIter2)
 {}
   
-void VisIterImpl2LayerFactory::setFrequencySelection(std::shared_ptr<FrequencySelection> selections)
+void VisIterImpl2LayerFactory::setFrequencySelections(std::shared_ptr<FrequencySelections> selections)
 {
-    frequencySelection_p = selections;
+    frequencySelections_p = selections;
 }
 
 // VisIterImpl2-specific layer-creater
@@ -205,12 +205,8 @@ ViImplementation2 * VisIterImpl2LayerFactory::createInstance (ViImplementation2*
                                                        writable_,
 						       useMSIter2_); 
   
-  if(frequencySelection_p)
-  {
-      FrequencySelections selections;
-      selections.add (*frequencySelection_p);
-      vii->setFrequencySelections(selections);
-  }
+  if(frequencySelections_p)
+      vii->setFrequencySelections(*frequencySelections_p);
 
   return vii;
 }

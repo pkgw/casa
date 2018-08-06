@@ -186,7 +186,7 @@ class VisIterImpl2LayerFactory : public ViiLayerFactory {
                            bool writable,
 			                     bool useMSIter2=false);
   
-  void setFrequencySelection(std::shared_ptr<FrequencySelection> selection);
+  void setFrequencySelections(std::shared_ptr<FrequencySelections> selections);
 
   virtual ~VisIterImpl2LayerFactory () {}
 
@@ -211,7 +211,7 @@ class VisIterImpl2LayerFactory : public ViiLayerFactory {
   bool useMSIter2_;
   
   //Frequency selections to be applied to the generated visibility iterator 
-  std::shared_ptr<FrequencySelection> frequencySelection_p;
+  std::shared_ptr<FrequencySelections> frequencySelections_p;
 };
 
 

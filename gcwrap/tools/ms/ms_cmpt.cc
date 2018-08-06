@@ -6236,13 +6236,14 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
             // Define in-row selections with FrequencySelection class
             // The selection has to be applied to the layer directly attached to the MS
             if (polnSelection || (chanSelection)) {
-                auto freqSel = std::make_shared<vi::FrequencySelectionUsingChannels>();
+                auto freqSels = std::make_shared<vi::FrequencySelections>();
+                vi::FrequencySelectionUsingChannels freqSelChan;
                 if (polnSelection) {
                     Vector<Vector<Slice>> corrslices, chanslices;
                     mssSetData(*itsSelectedMS, *itsSelectedMS, 
                         chanslices, corrslices, "", "", "", "", "", "", 
                         "", polnExpr_p, "", "", "", "", 1, itsMSS);
-                    freqSel->addCorrelationSlices(corrslices);
+                    freqSelChan.addCorrelationSlices(corrslices);
                 }
 
                 if (chanSelection) {
@@ -6250,11 +6251,12 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
                     Vector<Int> spws = getspectralwindows();
                     for (Int chanbin=0; chanbin<nchan; ++chanbin) {
                         for (uInt spwIdx=0; spwIdx<spws.size(); ++spwIdx) 
-                            freqSel->add(spws(spwIdx), start, width, 1);
+                            freqSelChan.add(spws(spwIdx), start, width, 1);
                         start += inc;
                     }
                 }
-                viilayer.setFrequencySelection(freqSel);
+                freqSels->add(freqSelChan);
+                viilayer.setFrequencySelections(freqSels);
             }
 
             Vector<vi::ViiLayerFactory*> layers(1);

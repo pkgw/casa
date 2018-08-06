@@ -539,7 +539,7 @@ FlagMSHandler::generateIterator()
 void
 FlagMSHandler::applyChannelSelection(vi::VisIterImpl2LayerFactory *viFactory)
 {
-  auto channelSelector = std::make_shared<vi::FrequencySelectionUsingChannels>();
+    vi::FrequencySelectionUsingChannels channelSelector;
 
 	// Apply channel selection (in row selection cannot be done with MSSelection)
 	// NOTE: Each row of the Matrix has the following elements: SpwID StartCh StopCh Step
@@ -555,10 +555,12 @@ FlagMSHandler::applyChannelSelection(vi::VisIterImpl2LayerFactory *viFactory)
 		channelStop = spwchan(selection_i,2);
 		channelStep = spwchan(selection_i,3);
 		channelWidth = channelStop-channelStart+1;
-		channelSelector->add (spw, channelStart, channelWidth,channelStep);
+		channelSelector.add (spw, channelStart, channelWidth,channelStep);
 	}
 
-	viFactory->setFrequencySelection(channelSelector);
+    auto freqSel = std::make_shared<vi::FrequencySelections>();
+    freqSel->add(channelSelector);
+	viFactory->setFrequencySelections(freqSel);
 
 	return;
 }
