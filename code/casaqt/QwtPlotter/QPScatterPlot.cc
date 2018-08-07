@@ -35,7 +35,7 @@
 
 #include <QPainter>
 #include <QDebug>
-
+#include <iomanip>
 using namespace casacore;
 namespace casa {
 
@@ -497,15 +497,19 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                 // don't connect nan and inf points, or points at same x 
                 if (!casacore::isNaN(thisx) && !casacore::isNaN(thisy) &&
                     !casacore::isInf(thisx) && !casacore::isInf(thisy) &&
-					(thisx != lastx)) {
+                    (thisx != lastx)) {
 
                     if (diffColorLine) {  // set pen for colorized plot
-                        QPen linePen = m_line.asQPen();
+                        QPen linePen;
+                        if (!drawMaskedLine || samePen)
+                           linePen = m_line.asQPen();
+                        if (!drawLine)
+                           linePen = m_maskedLine.asQPen();
                         thisbin = m_coloredData->binAt(i);
                         QBrush coloredBrush = m_coloredBrushes[thisbin];
                         linePen.setBrush(coloredBrush);
-                        QColor thisbrushColor = coloredBrush.color();
-                        linePen.setColor(thisbrushColor);
+                        QColor brushColor = coloredBrush.color();
+                        linePen.setColor(brushColor);
                         p->setPen(linePen);
                         // compare then save for next point
                         sameBin = (thisbin==lastbin);
@@ -534,13 +538,15 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                                         p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy);
                                     }
                                 } else if ((i < n-1) && (m_coloredData->binAt(i+1)==thisbin))  {
-                                    // first point in new line, use next point to draw trailing line
+                                    // first point in new line, use next point to draw leading line
                                     double nextx, nexty;
                                     bool nextmask;
                                     m_maskedData->xyAndMaskAt(i+1, nextx, nexty, nextmask);
                                     if (nextmask==thismask) {
                                         int nextix(xMap.transform(nextx));
                                         int ixdiff(((thisix + nextix)/2) - thisix);
+                                        // don't want ix<0
+                                        if (ixdiff > thisix) ixdiff=thisix;
                                         p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
                                     }
                                 }
@@ -567,11 +573,17 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                                         p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy);
                                     }
                                 } else if ((i < n-1) && (m_coloredData->binAt(i+1)==thisbin))  {
+                                    // first point in new line, use next point to draw leading line
                                     double nextx, nexty;
-                                    m_maskedData->xAndYAt(i+1, nextx, nexty);
-                                    int nextix(xMap.transform(nextx));
-                                    int ixdiff(((thisix + nextix)/2) - thisix);
-                                    p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+                                    bool nextmask;
+                                    m_maskedData->xyAndMaskAt(i+1, nextx, nexty, nextmask);
+                                    if (nextmask==thismask) {
+                                        int nextix(xMap.transform(nextx));
+                                        int ixdiff(((thisix + nextix)/2) - thisix);
+                                        // don't want ix<0
+                                        if (ixdiff > thisix) ixdiff=thisix;
+                                        p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+                                    }
                                 }
                             } else if (sameMask && sameLine) { // connect last point to this point
                                 p->drawLine(lastix, lastiy, thisix, thisiy);
@@ -583,7 +595,6 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                 lastix = thisix; lastiy = thisiy;
                 lastmask = thismask;
             }
-            
         } else {
             p->setPen(m_line.asQPen());
             m_data->xAndYAt(drawIndex, lastx, lasty);
@@ -696,7 +707,6 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                   }
                 }
             }
-
         } else {
             // draw all symbols normally
             const QBrush& brush = m_symbol.drawBrush();
