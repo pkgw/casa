@@ -1358,8 +1358,8 @@ class asdm_import3(test_base):
 
         if (retValue['success']):
             try:
-                print myname," : OK, doing flagzero"  # flagpol=False is not possible using flagdata
-                flagdata(vis=msname, mode='clip', clipzeros=True, savepars=True, cmdreason='CLIP_ZERO_AUTO_ONLY', outfile=cmdfile)
+                print myname," : OK, doing flagzero"  # equivalent to flagpol=False
+                flagdata(vis=msname, mode='clip', clipzeros=True, correlation="ABS_RR,ABS_LL", savepars=True, cmdreason='CLIP_ZERO_AUTO_ONLY', outfile=cmdfile)
                 
                 print myname," : Checking flags"
 
