@@ -101,8 +101,7 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
   setFilename(filename_);
 
   // Trap unsupported modes: cal types, averaging, transforms, poln ratio
-  if (calType_[0]=='A' || calType_[0]=='M' || 
-		  (calType_[0]=='X' && calType_.contains("Mueller"))) {
+  if (calType_[0]=='M' || (calType_[0]=='X' && calType_.contains("Mueller"))) {
     throw AipsError("Cal table type " + calType_ + " is unsupported in plotms. Please continue to use plotcal.");
   }
 
@@ -818,11 +817,11 @@ void CalCache::flagToDisk(const PlotMSFlagging& flagging,
   // Delete the NCTs and VisIter so lock is released
   if (ct != nullptr) {
     delete ct;
-	ct = nullptr;
+    ct = nullptr;
   }
   if (selct != nullptr) {
     delete selct;
-	selct = nullptr;
+    selct = nullptr;
   }
   if (wci_p != nullptr) {
     delete wci_p;

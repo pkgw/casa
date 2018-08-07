@@ -47,6 +47,7 @@
 #include <tables/Tables/TableLock.h>
 
 #include<synthesis/ImagerObjects/SIMinorCycleController.h>
+#include <imageanalysis/ImageAnalysis/CasaImageBeamSet.h>
 
 #include <casa/sstream.h>
 
@@ -103,6 +104,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        << ", Gain=" << loopcontrols.getLoopGain()
        << LogIO::POST;
 
+    Float itsPBMask = loopcontrols.getPBMask();
+
     Float maxResidualAcrossPlanes=0.0; Int maxResChan=0,maxResPol=0;
     Float totalFluxAcrossPlanes=0.0;
 
@@ -136,8 +139,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
             // returns as an Array but itsImages is already single plane so 
             // the return rms contains only a single element
-            robustrms = itsImages->calcRobustRMS();
-            // will set by user, fixed for 3sigma for now.
+            robustrms = itsImages->calcRobustRMS(itsPBMask);
+            //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
             os<<"robustrms nelements="<<robustrms.nelements()<<LogIO::POST;
             Float nsigmathresh; 
@@ -301,6 +304,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SDAlgorithmBase::setRestoringBeam( GaussianBeam restbeam, String usebeam )
   {
+    LogIO os( LogOrigin("SDAlgorithmBase","setRestoringBeam",WHERE) );
     itsRestoringBeam = restbeam;
     itsUseBeam = usebeam;
   }

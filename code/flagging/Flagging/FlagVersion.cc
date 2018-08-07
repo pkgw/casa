@@ -459,12 +459,13 @@ Bool FlagVersion::restoreFlagVersion( String versionname, String merge )
    Bool exists = doesVersionExist(versionname);
    String tabvername = flagtablename_p + versionname;
    
-   /* If doesn't exist, say so and return. */
+   /* If doesn't exist, throw an exception. */
    if(!exists)
    {
-      log->out(String("Flag version ") +  versionname + 
-          " does not exist", fnname, clname, LogMessage::WARN);
-      return false;
+//      log->out(String("Flag version ") +  versionname +
+//          " does not exist", fnname, clname, LogMessage::WARN);
+      throw AipsError("Flag version "+  versionname + " does not exist");
+//      return false;
    }
    
    /* Save current flags from this version to the main table. */

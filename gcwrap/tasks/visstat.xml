@@ -18,8 +18,34 @@
 
 
 			<param type="string" name="axis">
-				<description>Which values to use</description>
+				<description>Values on which to compute statistics</description>
 				<value type="string">amplitude</value>
+				<allowed kind="enum">
+            <!-- <value>uvw</value> -->
+            <value>flag</value>
+			      <!-- <value>weight</value> -->
+            <!-- <value>sigma</value> -->
+            <value>antenna1</value>
+            <value>antenna2</value>
+            <value>feed1</value>
+            <value>feed2</value>
+            <value>field_id</value>
+            <value>array_id</value>
+			      <value>data_desc_id</value>
+            <value>flag_row</value>
+            <value>interval</value>
+            <value>scan</value>
+            <value>scan_number</value>
+            <value>time</value>
+			      <value>weight_spectrum</value>
+            <value>amp</value>
+            <value>amplitude</value>
+            <value>phase</value>
+            <value>real</value>
+            <value>imag</value>
+            <value>imaginary</value>
+			      <value>uvrange</value>
+				</allowed>
 			</param>
 
 			<param type="string" name="datacolumn" subparam="true">
@@ -206,11 +232,12 @@
 			quartiles, minimum, maximum, variance, standard deviation, and root mean
 			square.
 
-			Statistics may be computed on any of the following values: uvw, flag,
-			weight, sigma, antenna1, antenna2, feed1, feed2, field_id, array_id,
-			data_desc_id, flag_row, interval, scan, scan_number, time,
-			weight_spectrum, amp, amplitude, phase, real, imag, imaginary, and
-			uvrange.
+			Statistics may be computed on any of the following values: flag, antenna1,
+			antenna2, feed1, feed2, field_id, array_id, data_desc_id, flag_row,
+			interval, scan_number, time, weight_spectrum, amplitude, phase, real,
+			imaginary, and uvrange (for the 'axis' parameter value, 'amp' is treated
+			as an alias for amplitude, as are 'imag' for imaginary, and 'scan' for
+			scan_number.)
 
       The 'reportingaxes' argument is used to partition the sample set along an
       axis. For example, setting its value to 'ddid' will result in the

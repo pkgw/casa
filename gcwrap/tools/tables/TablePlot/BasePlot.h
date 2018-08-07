@@ -328,7 +328,11 @@ class BasePlot
       
       // Traverse the TaQL parse tree and collect TaQL index ranges
       void ptTraverse(const casacore::TableExprNodeRep *tenr);
-      
+
+      void ptTraverse(const casacore::CountedPtr<casacore::TableExprNodeRep>& ptr) {
+          ptTraverse(ptr.get());
+      }
+
       // Write flags to disk.
       // This does the inverse of getFlags.
       // Flag expansion for TaQL scalar/vector reduction happens here.

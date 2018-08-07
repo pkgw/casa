@@ -732,8 +732,8 @@ Bool NRO2MSReader::getSourceRowImpl(SourceRecord &record) {
   // CAS-11223
   record.time = jst2utcSec(time_sec);
   // 2018/05/30 TN
-  // CAS-11442? come back later
-  record.interval = time_sec - time_range_sec_[0];
+  // CAS-11442
+  record.interval = time_range_sec_[1] - time_range_sec_[0];
 
   source_spw_id_counter_++;
   if (obs_header_.NSPWIN <= source_spw_id_counter_) {
@@ -863,7 +863,7 @@ Bool NRO2MSReader::getData(size_t irow, DataRecord &record) {
   record.setTsysSize(1);
   record.tsys(0) = scan_data.TSYS0;
 
-  record.temperature = scan_data.TEMP0;
+  record.temperature = scan_data.TEMP0 + 273.15; // Celsius to Kelvin
   record.pressure = scan_data.PATM0;
   record.rel_humidity = scan_data.PH200;
   record.wind_speed = scan_data.VWIND0;
