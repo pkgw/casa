@@ -316,7 +316,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
           }
 	  if(! (selectionValid && !ignoreframe)){
-	    os << "Did not match spw selection in the selected ms " << LogIO::WARN << LogIO::POST;
+	    //os << "Did not match spw selection in the selected ms " << LogIO::WARN << LogIO::POST;
 	    retval=False;
 	  }
 	    //fselections_p->add(channelSelector);
