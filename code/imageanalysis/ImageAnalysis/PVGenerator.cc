@@ -265,11 +265,21 @@ SPIIF PVGenerator::generate() const {
         // check already done when setting the points if _width == 1
         _checkWidthSanity(paInRad, halfwidth, start, end, subImage, xAxis, yAxis);
     }
-    _moveRefPixel(subImage, subCoords, start, end, paInRad, xAxis, yAxis);
-    auto rotated = _doRotate(
-        subImage, start, end, 
-        xAxis, yAxis, halfwidth, paInRad
-    ); 
+    SPCIIF rotated = subImage;
+    auto paInDeg = paInRad*180/C::pi;
+    auto mustRotate = abs(fmod(paInDeg, 360)) > 0.001;
+    if (mustRotate) {
+        _moveRefPixel(subImage, subCoords, start, end, paInDeg, xAxis, yAxis);
+        rotated = _doRotate(
+            subImage, start, end, 
+            xAxis, yAxis, halfwidth, paInRad
+        );
+    }
+    else {
+        *_getLog() << LogIO::NORMAL
+            << "Rotation angle (very nearly) 0 degrees, no rotation required"
+            << LogIO::POST;
+    }
     // done with this pointer
     subImage.reset();
     Vector<Double> origStartPixel(subShape.size(), 0);
@@ -283,12 +293,14 @@ SPIIF PVGenerator::generate() const {
     const auto& rotCoords = rotated->coordinates();
     auto rotPixStart = rotCoords.toPixel(startWorld);
     auto rotPixEnd = rotCoords.toPixel(endWorld);
-    Double xdiff = fabs(end[0] - start[0]);
-    Double ydiff = fabs(end[1] - start[1]);
-    _checkRotatedImageSanity(
-        rotated, rotPixStart, rotPixEnd,
-        xAxis, yAxis, xdiff, ydiff
-    );
+    if (mustRotate) {
+        Double xdiff = fabs(end[0] - start[0]);
+        Double ydiff = fabs(end[1] - start[1]);
+        _checkRotatedImageSanity(
+            rotated, rotPixStart, rotPixEnd,
+            xAxis, yAxis, xdiff, ydiff
+        );
+    }
     Int collapsedAxis;
     auto collapsed = _doCollapse(
         collapsedAxis, rotated, xAxis, yAxis, rotPixStart, rotPixEnd, halfwidth
@@ -319,7 +331,7 @@ SPIIF PVGenerator::_doCollapse(
 
     // to determine the pixel increment of the angular offset axis, get the
     // distance between the end points
-    ImageMetaData md(collapsed);
+    ImageMetaData<Float> md(collapsed);
     Vector<Int> dirShape = md.directionShape();
     AlwaysAssert(dirShape[1] == 1, AipsError);
     const auto& dc = collCoords.directionCoordinate();
@@ -328,7 +340,7 @@ SPIIF PVGenerator::_doCollapse(
     auto collapsedStart = dc.toWorld(pixStart);
     Vector<Double> pixEnd(2, 0);
     pixEnd[0] = dirShape[0];
-    MVDirection collapsedEnd = dc.toWorld(pixEnd);
+    auto collapsedEnd = dc.toWorld(pixEnd);
     auto separation = collapsedEnd.separation(
         collapsedStart, dc.worldAxisUnits()[0]
     );
@@ -389,16 +401,28 @@ SPCIIF PVGenerator::_doRotate(
 ) const {
     Vector<Double> worldStart, worldEnd;
     const auto& dc1 = subImage->coordinates().directionCoordinate();
-    dc1.toWorld(worldStart, Vector<Double>(start));
-    dc1.toWorld(worldEnd, Vector<Double>(end));
+    ThrowIf(
+        ! dc1.toWorld(worldStart, Vector<Double>(start)),
+        "dc1.toWorld() of start pixel coordinate failed"
+    );
+    ThrowIf(
+        ! dc1.toWorld(worldEnd, Vector<Double>(end)),
+        "dc1.toWorld() of end coordinate failed"
+    );
     std::unique_ptr<DirectionCoordinate> rotCoord(
         dynamic_cast<DirectionCoordinate *>(
             dc1.rotate(Quantity(paInRad, "rad"))
         )
     );
     Vector<Double> startPixRot, endPixRot;
-    rotCoord->toPixel(startPixRot, worldStart);
-    rotCoord->toPixel(endPixRot, worldEnd);
+    ThrowIf(
+        ! rotCoord->toPixel(startPixRot, worldStart),
+        "Error converting start world coordinate to pixel coordinate"
+    );
+    ThrowIf(
+        ! rotCoord->toPixel(endPixRot, worldEnd),
+        "Error converting end world coordinate to pixel coordinate"
+    );
     AlwaysAssert(abs(startPixRot[1] - endPixRot[1]) < 1e-6, AipsError);
     Double xdiff = fabs(end[0] - start[0]);
     Double ydiff = fabs(end[1] - start[1]);
@@ -492,33 +516,54 @@ void PVGenerator::_checkRotatedImageSanity(
 }
 
 void PVGenerator::_moveRefPixel(
-    SPIIF subImage, CoordinateSystem& subCoords, const vector<Double>& start,
-    const vector<Double>& end, Double paInRad, Int xAxis, Int yAxis
+    SPIIF subImage, CoordinateSystem& subCoords, const std::vector<Double>& start,
+    const std::vector<Double>& end, Double paInDeg, Int xAxis, Int yAxis
 ) const {
     // rotation occurs about the reference pixel, so move the reference pixel to be
     // on the segment, near the midpoint so that the y value is an integer.
-    vector<Double> midpoint(end.size());
+    std::vector<Double> midpoint(end.size());
     // THESE CAN EASILLY BE CHANGED TO ONE PASS WITH C++11 AND LAMBDA FUNCTIONS
     std::transform( end.begin( ), end.end( ), start.begin( ), midpoint.begin( ), std::plus<double>( ) );
     std::transform( midpoint.begin( ), midpoint.end( ), midpoint.begin( ), std::bind2nd(std::divides<double>(),2.0) );
-    Double targety = int(midpoint[1]);
-    Double targetx = (near(targety, midpoint[1], 1e-8))
-        ? midpoint[0]
-        : (
-            start[0]*(end[1] - targety) + end[0]*(targety - start[1])
-        )/(end[1] - start[1]);
     Vector<Double> newRefPix = subCoords.referencePixel();
-    newRefPix[xAxis] = targetx;
-    newRefPix[yAxis] = targety;
+    auto useExactMidPoint = True;
+    if (abs(end[1] - end[0]) > 1) {
+        Double targety = int(midpoint[1]);
+        Double targetx = (near(targety, midpoint[1], 1e-8))
+            ? midpoint[0]
+            : (
+                start[0]*(end[1] - targety) + end[0]*(targety - start[1])
+            )/(end[1] - start[1]);
+        newRefPix[xAxis] = targetx;
+        newRefPix[yAxis] = targety;
+        useExactMidPoint = targetx < min(start[0], start[1]) || targetx > max(start[0], start[1]);
+    }
+    if (useExactMidPoint) {
+        // no or small rotation required, rotate around exact midpoint of segment
+        newRefPix[xAxis] = midpoint[0];
+        newRefPix[yAxis] = midpoint[1];
+    }
     Vector<Double> newRefVal;
-    subCoords.toWorld(newRefVal, newRefPix);
-    subCoords.setReferencePixel(newRefPix);
-    subCoords.setReferenceValue(newRefVal);
-    subImage->setCoordinateInfo(subCoords);
+    ThrowIf(
+        ! subCoords.toWorld(newRefVal, newRefPix),
+        "Failed to find world coordinate value at midpoint of segment"
+    );
+    ThrowIf(
+        ! subCoords.setReferencePixel(newRefPix),
+        "Failed to set reference pixel"
+    );
+    ThrowIf(
+        ! subCoords.setReferenceValue(newRefVal),
+        "Failed to set reference value"
+    );
+    ThrowIf(
+        ! subImage->setCoordinateInfo(subCoords),
+        "Failed to set coordinate system"
+    );
     // rotate the image through this angle, in the opposite direction.
-    *_getLog() << LogIO::NORMAL << "Rotating image by " << (paInRad*180/C::pi)
-        << " degrees about direction coordinate pixel (" << targetx << ", " << targety
-        << ") to align specified slice with the x axis" << LogIO::POST;
+    *_getLog() << LogIO::NORMAL << "Rotating image by " << paInDeg
+        << " degrees about direction coordinate pixel (" << newRefPix[xAxis] << ", "
+        << newRefPix[yAxis] << ") to align specified slice with the x axis" << LogIO::POST;
 }
 
 void PVGenerator::_checkWidthSanity(

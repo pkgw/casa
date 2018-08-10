@@ -25,6 +25,10 @@
 ##                                              True to plot a red bar over the VTEC
 ##                                              to show the observing session)
 ##    Modified by gmoellen     2017/05/30  v2.6 Generate plot disk file
+##    Modified by bkent        2017/10-31  v2.7 Fixed VisibleDeprecationWarning: 
+##                                              using a non-integer 
+##                                              number instead of an integer will 
+##                                              result in an error in the future
 ##
 ##
 ##    Tested in CASA 4.3.0 and 4.2.1 on RHEL release 6.4 (Santiago)
@@ -288,7 +292,7 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
             ## Fill a new array with all the full set of TEC/DTEC values for all days in the observation set.
             if tec_type != '':
                 if ymd_date_num == 0:
-                    full_tec_array = np.zeros((2,points_long,points_lat,(num_maps-1)*call_num+1))
+                    full_tec_array = np.zeros((2,int(points_long),int(points_lat),(int(num_maps)-1)*int(call_num)+1))
                     for iter in range(int(num_maps)):
                         full_tec_array[:,:,:,iter] = tec_array[:,:,:,iter]
                 else:
@@ -566,7 +570,7 @@ def get_IGS_TEC(ymd_date):
     number_of_rows = int(np.ceil(points_long/16))    ## Note there are 16 columns of data in IONEX format
     
     ## 4-D array that will contain TEC & DTEC (a[0] and a[1], respectively) values
-    a = np.zeros((2,points_long,points_lat,num_maps))
+    a = np.zeros((2,int(points_long),int(points_lat),int(num_maps)))
 
     ## Selecting only the TEC/DTEC values to store in the 4-D array.
     for Titer in range(2):
@@ -614,13 +618,13 @@ def get_IGS_TEC(ymd_date):
     ## =========================================================================
     
     ## The native sampling of the IGS maps minutes
-    incr_time = 24*60/int(num_maps-1)    
-    tec_array = np.zeros((2,points_long,points_lat,num_maps))
+    incr_time = 24*60/(int(num_maps)-1)    
+    tec_array = np.zeros((2,int(points_long),int(points_lat),int(num_maps)))
 
     for Titer in range(2):
         incr = 0
         for ilat in range(int(points_lat)):
-            tec_array[Titer,:,ilat,:] = 0.1*a[Titer,:,points_lat-1-ilat,:]
+            tec_array[Titer,:,ilat,:] = 0.1*a[Titer,:,int(points_lat)-1-ilat,:]
 
     return points_long,points_lat,start_long,end_lat,incr_long,np.absolute(incr_lat),incr_time,num_maps,tec_array,tec_type
 

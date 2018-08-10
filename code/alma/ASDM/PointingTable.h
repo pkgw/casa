@@ -41,7 +41,7 @@
 
 
 	
-#include <ArrayTime.h>
+#include <ArrayTimeInterval.h>
 	
 
 	
@@ -49,11 +49,11 @@
 	
 
 	
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 
@@ -125,7 +125,7 @@ class PointingRow;
  * Antenna pointing information.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Pointing </CAPTION>
@@ -156,7 +156,7 @@ class PointingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numSample </TD> 
+ * <TD> numSample (numSample)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of time samples. </TD>
@@ -191,7 +191,7 @@ class PointingRow;
  * </TR>
 	
  * <TR>
- * <TD> numTerm </TD> 
+ * <TD> numTerm (numTerm)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of terms of the polynomials. </TD>
@@ -230,42 +230,42 @@ class PointingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> overTheTop </TD> 
+ * <TD> overTheTop</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; pointing ar elevations larger than 90 degrees (true) or lower (false). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceOffset </TD> 
+ * <TD> sourceOffset</TD> 
  * <TD> vector<vector<Angle > > </TD>
  * <TD>  numTerm, 2  </TD>
  * <TD>&nbsp; sources offsets (one pair per term of the polynomial). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceOffsetReferenceCode </TD> 
+ * <TD> sourceOffsetReferenceCode</TD> 
  * <TD> DirectionReferenceCodeMod::DirectionReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the  direction reference code associated to the source offset. </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceOffsetEquinox </TD> 
+ * <TD> sourceOffsetEquinox</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the equinox information (if needed by sourceReferenceCode). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sampledTimeInterval </TD> 
+ * <TD> sampledTimeInterval</TD> 
  * <TD> vector<ArrayTimeInterval > </TD>
  * <TD>  numSample  </TD>
  * <TD>&nbsp; an array of ArrayTimeInterval which must be given explicitly as soon as the data are irregularily sampled.  </TD>
  * </TR>
 	
  * <TR>
- * <TD> atmosphericCorrection </TD> 
+ * <TD> atmosphericCorrection</TD> 
  * <TD> vector<vector<Angle > > </TD>
  * <TD>  numTerm, 2  </TD>
  * <TD>&nbsp; This is the correction applied to the commanded position to take into account refraction and any other atmospheric effects. This term will always be zero if there is no atmosphere. For ALMA this is the atmospheric refraction correction and will result in a correction in just the elevation axis. </TD>
@@ -587,6 +587,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

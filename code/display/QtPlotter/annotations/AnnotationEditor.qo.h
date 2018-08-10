@@ -1,7 +1,7 @@
 #ifndef ANNOTATIONEDITOR_QO_H
 #define ANNOTATIONEDITOR_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <display/QtPlotter/annotations/AnnotationEditor.ui.h>
 
 namespace casa {

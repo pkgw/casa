@@ -62,9 +62,12 @@ using namespace asdm;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -282,7 +285,6 @@ FlagCmdRow* FlagCmdTable::newRow(FlagCmdRow* row) {
 	//
 
 	
-		
 	
 		
 		  
@@ -306,11 +308,11 @@ FlagCmdRow* FlagCmdTable::newRow(FlagCmdRow* row) {
 		FlagCmdRow * dummy = checkAndAdd(x, true); // We require the check for uniqueness to be skipped.
 		                                           // by passing true in the second parameter
 		                                           // whose value by default is false.
+		// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
                 if (false) cout << (unsigned long long) dummy;
 	}
 	
 
-	
 
 
 	// 
@@ -323,7 +325,7 @@ FlagCmdRow* FlagCmdTable::newRow(FlagCmdRow* row) {
 		
 		
 			
-	FlagCmdRow*  FlagCmdTable::checkAndAdd(FlagCmdRow* x, bool) {
+	FlagCmdRow*  FlagCmdTable::checkAndAdd(FlagCmdRow* x, bool /* skipCheckUniqueness */ ) {
 		if (getRowByKey(
 		
 			x->getTimeInterval()
@@ -475,12 +477,11 @@ FlagCmdRow* FlagCmdTable::newRow(FlagCmdRow* row) {
 		// Look for a version information in the schemaVersion of the XML
 		//
 		xmlDoc *doc;
-		#if LIBXML_VERSION >= 20703
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+#if LIBXML_VERSION >= 20703
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
+		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "FlagCmd");
 		
@@ -554,9 +555,13 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 				
 		if (!xml.isStr("</FlagCmdTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -815,8 +820,11 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void FlagCmdTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -870,11 +878,19 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 	}
 
 	
-	void FlagCmdTable::setFromFile(const string& directory) {		
+	void FlagCmdTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/FlagCmd.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/FlagCmd.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/FlagCmd.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/FlagCmd.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the FlagCmd table", "FlagCmd");
 	}			
@@ -1025,7 +1041,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

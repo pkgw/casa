@@ -131,7 +131,7 @@ class __imview_class(object):
         #vwr.unfreeze( panel )
 
         if not gui:
-            vwr.output(out,scale=out_scale,dpi=out_dpi,format=out_format,orientation=out_orientation,panel=panel)
+            vwr.output(out_file,scale=out_scale,dpi=out_dpi,format=out_format,orientation=out_orientation,panel=panel)
             vwr.close(panel)
 
         self.__popd( vwr )

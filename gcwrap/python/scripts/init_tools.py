@@ -4,27 +4,29 @@ except ImportError, e:
     print "failed to load casa:\n", e
     sys.exit(1)
 
+from casa_system import casa
+
 def gentools(tools=None):
 	"""
 	Generate a fresh set of tools; only the ones who have
-	states..so globally sharing the same one can be unpredicatable 
-	im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm,at=gentools() 
+	states..so globally sharing the same one can be unpredicatable
+	im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm,at=gentools()
 	or if you want specific set of tools
 	im, ia, cb=gentools(['im', 'ia', 'cb'])
 
 	"""
 	tooldic={'im':'imager()', 'cb' :'calibrater()', 'ms':'mstool()',
-		 'tb':'tbtool()',  'me' :'metool()', 
-		 'ia': 'iatool()', 'po':'potool()', 'sm' :'smtool()', 
+		 'tb':'tbtool()',  'me' :'metool()',
+		 'ia': 'iatool()', 'po':'potool()', 'sm' :'smtool()',
 		 'cl': 'cltool()', 'cs' :'cstool()', 'rg':'rgtool()',
 		 'sl':'sltool()', 'dc':'dctool()', 'vp':'vptool()',
-		 'msmd':'msmdtool()','fi':'fitool()','fn':'fntool()', 
+		 'msmd':'msmdtool()','fi':'fitool()','fn':'fntool()',
 		 'imd':'imdtool()','sdms':'sdmstool()', 'lm':'lmtool()',
          'at':'attool()'}
 	reqtools=[]
         if (not tools) or not hasattr(tools, '__iter__'):
 		reqtools=['im', 'cb', 'ms','tb', 'me', 'ia', 'po',
-                          'sm', 'cl', 'cs', 'rg','sl', 'dc', 'vp', 
+                          'sm', 'cl', 'cs', 'rg','sl', 'dc', 'vp',
 			  'msmd', 'fi', 'fn', 'imd', 'sdms', 'lm', 'at']
 	else:
 		reqtools=tools
@@ -49,7 +51,7 @@ def write_history(myms, vis, tname, param_names, param_vals, myclog=None, debug=
         write_history(myms, outputvis, 'split', param_names, param_vals,
                       casalog),
         which appends, e.g.,
-        
+
         vis = 'TWHydra_CO3_2.ms'
         outputvis   = 'scan9.ms'
         datacolumn  = 'data'
@@ -120,7 +122,7 @@ def write_history(myms, vis, tname, param_names, param_vals, myclog=None, debug=
         finally:
                 if isopen:
                         myms.close()
-        return retval        
+        return retval
 
 imager = casac.imager
 imtool=imager
@@ -171,6 +173,9 @@ mt = mttool()
 sdmstool = casac.singledishms
 sdms = sdmstool()
 parallelimager = casac.parallelimager()
+sbstool = casac.sidebandseparator
+sbs = sbstool()
+
 
 ##
 ## viewer tool
@@ -187,4 +192,3 @@ except:
 
 
 im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm,at=gentools()
-

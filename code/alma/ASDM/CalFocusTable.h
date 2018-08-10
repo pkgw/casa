@@ -41,19 +41,15 @@
 
 
 	
-#include <ArrayTime.h>
-	
-
-	
 #include <Temperature.h>
 	
 
 	
-#include <Angle.h>
+#include <ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <Angle.h>
 	
 
 	
@@ -62,6 +58,10 @@
 
 	
 #include <Frequency.h>
+	
+
+	
+#include <Tag.h>
 	
 
 
@@ -273,7 +273,7 @@ class CalFocusRow;
  * </TR>
 	
  * <TR>
- * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>

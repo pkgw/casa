@@ -99,6 +99,7 @@ class SynthesisDeconvolver
   void setStartingModel();
   casacore::Bool setupMask();
   void setAutoMask();
+  void checkRestoringBeam(); 
 
 protected:
 
@@ -147,6 +148,8 @@ protected:
   casacore::uInt itsDeconvolverId;
   casacore::Vector<casacore::Float> itsScales;
 
+  casacore::String itsUseBeam;
+
   ///// for mask
   casacore::String itsMaskType;
   casacore::Vector<casacore::String> itsMaskList;
@@ -170,12 +173,19 @@ protected:
   casacore::Float itsCutThreshold;
   casacore::Int itsIterDone;
   casacore::Int itsGrowIterations;
+  casacore::Bool itsDoGrowPrune;
+  casacore::Float  itsMinPercentChange;
+  casacore::Bool itsVerbose;  
+  casacore::Vector<casacore::Bool> itsChanFlag;
+  casacore::Bool initializeChanMaskFlag; 
+  casacore::TempImage<casacore::Float> itsPosMask;
   
   casacore::Bool itsIsMaskLoaded; // Try to get rid of this state variable ! 
   casacore::Bool itsIsInteractive;
 
   casacore::Float itsMaskSum;
- 
+
+  casacore::Float itsNsigma;
 };
 
 

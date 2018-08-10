@@ -8,8 +8,8 @@
 #define QPHEADERTABLEWIDGET_QO_H_
 
 // For PlotMSHeaderTable
-#include <QtGui/QHeaderView>
-#include <QtGui/QTableView>
+#include <QHeaderView>
+#include <QTableView>
 
 // For HeaderTableDataModel
 #include <QtCore/QAbstractTableModel>

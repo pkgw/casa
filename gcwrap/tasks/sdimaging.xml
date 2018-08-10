@@ -13,11 +13,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
   <shortdescription>SD task: imaging for total power and spectral data</shortdescription>
 
   <description>
-Task sdimaging creates an image from input single-dish data sets.\n
-The input can be either total power and spectral data. Currently,
-this task directly accesses the Measurement Set data because of 
-the data access efficiency. So it differs from other single-dish 
-tasks that mostly operate on the ASAP scantable data format.\n
+Task sdimaging creates an image from input single-dish data sets.
+The input can be either total power and spectral data. 
 
 The coordinate of output image is defined by four axes, i.e., two
 spatial axes, frequency and polarization axes.\n
@@ -38,7 +35,7 @@ start, and width are defined so that all selected spectral windows are
 covered with the channel width equal to separation of first two
 channels selected.\n
 Finally, polarizations of image is defined by stokes parameter or
-polarization.For example, stokes='XXYY' produces an image cube with
+polarization. For example, stokes='XXYY' produces an image cube with
 each plane contains the image of one of the polarizations, while
 stokes='I' produces a 'total intensity' or Stokes I image.\n
 
@@ -450,7 +447,7 @@ mode -- spectral gridding type
                examples: width='1.0km/s', or width='24.2kHz'.
                Setting width>0 gives channels of increasing frequency for 
                mode='frequency', and increasing velocity for mode='velocity'.
-       veltype -- Velocity reference frame of output image
+       veltype -- Velocity definition
            Options: 'radio','optical','true','relativistic'
            default: 'radio'
 outframe -- velocity reference frame of output image
@@ -514,7 +511,7 @@ ephemsrcname -- ephemeris source name for moving source (solar sytem objects)
         not be used when the user wants to activate moving source 
         correction. 
         examples: 'MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN',
-                  'URANUS', 'NEPUTUNE', 'PLUTO', 'SUN', 'MOON'
+                  'URANUS', 'NEPTUNE', 'PLUTO', 'SUN', 'MOON'
 pointingcolumn -- pointing data column to use
         option: 'direction', 'target', 'pointing_offset', 'source_offset', encoder' 
         default: 'direction'

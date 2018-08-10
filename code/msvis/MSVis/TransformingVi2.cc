@@ -727,9 +727,9 @@ TransformingVi2::weightSpectrum (Cube<Float> & wtsp)  const
 }
 
 void
-TransformingVi2::sigmaSpectrum (Cube<Float> & wtsp)  const
+TransformingVi2::sigmaSpectrum (Cube<Float> & sigsp)  const
 {
-     getVii()->sigmaSpectrum (wtsp);
+     getVii()->sigmaSpectrum (sigsp);
 }
 
 Bool

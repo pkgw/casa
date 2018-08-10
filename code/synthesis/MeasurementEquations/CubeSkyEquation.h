@@ -96,6 +96,7 @@ class CubeSkyEquation : public SkyEquation {
   void tmpWBNormalizeImage(casacore::Bool& dopsf, const casacore::Float& pbLimit);
 
   casacore::Bool isNewFTM();
+  void setPhaseCenterTime(const casacore::Double time);
 
  protected:
 

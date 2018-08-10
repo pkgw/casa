@@ -32,17 +32,17 @@
  */
 #include "ASDMTables.h"
 #include "Name2Table.h"
-#include "boost/regex.hpp"
-#include "boost/tokenizer.hpp"
-#include "boost/algorithm/string.hpp"
+
+#include <string>
+#include <regex>
+#include <sstream>
+#include <algorithm>
+#include <iterator>
 
 #include <casa/Logging.h>
 
-using namespace boost; 
 using namespace std;
 using namespace casacore;
-
-typedef tokenizer<boost::char_separator<char> > my_tok;
 
 map<string, ASDM_TABLE_BASE*> Name2Table::name2Table_;
 bool Name2Table::init_ = Name2Table::init();
@@ -59,6 +59,8 @@ bool Name2Table::init() {
 	  name2Table_["Antenna"] = ASDM_ANTENNA::instance();	
 	
 	  name2Table_["CalAmpli"] = ASDM_CALAMPLI::instance();	
+	
+	  name2Table_["CalAntennaSolutions"] = ASDM_CALANTENNASOLUTIONS::instance();	
 	
 	  name2Table_["CalAppPhase"] = ASDM_CALAPPPHASE::instance();	
 	
@@ -148,6 +150,8 @@ bool Name2Table::init() {
 	
 	  name2Table_["Processor"] = ASDM_PROCESSOR::instance();	
 	
+	  name2Table_["Pulsar"] = ASDM_PULSAR::instance();	
+	
 	  name2Table_["Receiver"] = ASDM_RECEIVER::instance();	
 	
 	  name2Table_["SBSummary"] = ASDM_SBSUMMARY::instance();	
@@ -194,29 +198,34 @@ const set<ASDM_TABLE_BASE*>& Name2Table::find (const vector<string>& name, bool 
   table_.clear();
   
   // Process each string given as input
-  string wildcard = "*";
   for (unsigned int i = 0; i < name.size(); i++) {
     // Replace any possible wildcard (*) by a sequences '(.)*'
-    string name_ = name.at(i);
-    char_separator<char> sep("*", "", boost::keep_empty_tokens);
-    my_tok tokens(name_, sep);
+    stringstream ss(name.at(i));
+    string token;
+    bool first = true;
     ostringstream oss;
-    my_tok::iterator tok_iter = tokens.begin();
-    oss << *tok_iter ;
-    ++tok_iter;
-    for (; tok_iter != tokens.end(); ++tok_iter)
-      oss << "(.)*" << *tok_iter ; 
+    while (getline(ss,token,'*')) {
+      if (!first) {
+	oss << "(.)*";
+      } else {
+	first = false;
+      }
+      oss << token;
+    }
+    // watch for a trailing wildcard, will be missed by the above
+    if (name.back()=='*') oss << "(.)*";
 
-    // Build a boost regexp out of this string written onto oss.
-    regex expression(oss.str().c_str()); 
+    // Build a regexp out of this string written onto oss.
+    std::regex expression(oss.str().c_str()); 
 
     // For each table name
     for (map<string, ASDM_TABLE_BASE*>::const_iterator iter = name2Table_.begin();
 	 iter!= name2Table_.end(); iter++) {
       // Is there a match between the string and the name of the table ?
-      cmatch what; 
-      if(regex_match(iter->first.c_str(), what, expression)) {
-      	string uppername = iter->first; to_upper(uppername);
+      std::cmatch what; 
+      if(std::regex_match(iter->first.c_str(), what, expression)) {
+      	string uppername = iter->first;
+	std::transform(uppername.begin(),uppername.end(), uppername.begin(), [](unsigned char c) { return std::toupper(c);});
       	if (verbose) {
       		infostream.str("");
       		infostream << "An ASDM_" << uppername << " table will be added to the MS" << endl;

@@ -41,19 +41,11 @@
 
 
 	
-#include <ArrayTime.h>
-	
-
-	
 #include <Angle.h>
 	
 
 	
-#include <Interval.h>
-	
-
-	
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	
@@ -62,6 +54,14 @@
 
 	
 #include <Frequency.h>
+	
+
+	
+#include <Tag.h>
+	
+
+	
+#include <Interval.h>
 	
 
 
@@ -127,7 +127,7 @@ class CalSeeingRow;
  * The seeing parameters deduced from TelCal calibrations.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalSeeing </CAPTION>
@@ -195,7 +195,7 @@ class CalSeeingRow;
  * </TR>
 	
  * <TR>
- * <TD> numBaseLengths </TD> 
+ * <TD> numBaseLengths (numBaseLengths)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of baselines for which the the RMS phase data is evaluated. </TD>
@@ -234,21 +234,21 @@ class CalSeeingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> exponent </TD> 
+ * <TD> exponent</TD> 
  * <TD> float </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the exponent of the spatial structure function. </TD>
  * </TR>
 	
  * <TR>
- * <TD> outerScale </TD> 
+ * <TD> outerScale</TD> 
  * <TD> Length </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the outer scale. </TD>
  * </TR>
 	
  * <TR>
- * <TD> outerScaleRMS </TD> 
+ * <TD> outerScaleRMS</TD> 
  * <TD> Angle </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the RMS of phase fluctuations at scale length outerScale. </TD>
@@ -555,6 +555,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

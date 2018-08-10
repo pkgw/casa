@@ -25,7 +25,7 @@
 #ifndef IMAGELOADER_QO_H
 #define IMAGELOADER_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <guitools/Histogram/ImageLoader.ui.h>
 
 class QFileSystemModel;

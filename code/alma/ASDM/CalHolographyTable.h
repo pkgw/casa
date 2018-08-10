@@ -41,19 +41,15 @@
 
 
 	
-#include <ArrayTime.h>
-	
-
-	
 #include <Temperature.h>
 	
 
 	
-#include <Angle.h>
+#include <ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <Angle.h>
 	
 
 	
@@ -62,6 +58,10 @@
 
 	
 #include <Frequency.h>
+	
+
+	
+#include <Tag.h>
 	
 
 	
@@ -159,7 +159,7 @@ class CalHolographyRow;
  * Result of holography calibration performed by TelCal.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalHolography </CAPTION>
@@ -248,7 +248,7 @@ class CalHolographyRow;
  * </TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -262,7 +262,7 @@ class CalHolographyRow;
  * </TR>
 	
  * <TR>
- * <TD> numPanelModes </TD> 
+ * <TD> numPanelModes (numPanelModes)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number panel modes fitted. </TD>
@@ -315,56 +315,56 @@ class CalHolographyRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numScrew </TD> 
+ * <TD> numScrew(numScrew)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of screws. </TD>
  * </TR>
 	
  * <TR>
- * <TD> screwName </TD> 
+ * <TD> screwName</TD> 
  * <TD> vector<string > </TD>
  * <TD>  numScrew  </TD>
  * <TD>&nbsp; the names of the screws (one value per screw). </TD>
  * </TR>
 	
  * <TR>
- * <TD> screwMotion </TD> 
+ * <TD> screwMotion</TD> 
  * <TD> vector<Length > </TD>
  * <TD>  numScrew  </TD>
  * <TD>&nbsp; the prescribed screw motions (one value per screw). </TD>
  * </TR>
 	
  * <TR>
- * <TD> screwMotionError </TD> 
+ * <TD> screwMotionError</TD> 
  * <TD> vector<Length > </TD>
  * <TD>  numScrew  </TD>
  * <TD>&nbsp; the uncertainties on the prescribed screw  motions (one value per screw). </TD>
  * </TR>
 	
  * <TR>
- * <TD> gravCorrection </TD> 
+ * <TD> gravCorrection</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; indicates if a gravitational correction was applied (true) or not (false). </TD>
  * </TR>
 	
  * <TR>
- * <TD> gravOptRange </TD> 
+ * <TD> gravOptRange</TD> 
  * <TD> vector<Angle > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the range of gravitational optimization. </TD>
  * </TR>
 	
  * <TR>
- * <TD> tempCorrection </TD> 
+ * <TD> tempCorrection</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; indicates if a temperature correction was applied (true) or not (false). </TD>
  * </TR>
 	
  * <TR>
- * <TD> tempOptRange </TD> 
+ * <TD> tempOptRange</TD> 
  * <TD> vector<Temperature > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the range of temperature optimization. </TD>
@@ -699,6 +699,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

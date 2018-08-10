@@ -30,26 +30,34 @@ namespace casa {
 
 template <class T> ImageRegridderBase<T>::ImageRegridderBase(
 	const SPCIIT image, const casacore::Record *const regionRec,
-	const casacore::String& maskInp, const casacore::String& outname, casacore::Bool overwrite,
-	const casacore::CoordinateSystem& csys, const casacore::IPosition& axes,
-	const casacore::IPosition& shape
+	const casacore::String& maskInp, const casacore::String& outname,
+	casacore::Bool overwrite, const casacore::CoordinateSystem& csys,
+	const casacore::IPosition& axes, const casacore::IPosition& shape
 ) : ImageTask<T>(
 		image, "", regionRec, "", "", "", maskInp, outname, overwrite
 	), _csysTo(csys), _axes(axes), _shape(shape),
 	_specAsVelocity(false), _doRefChange(false),
 	_replicate(false), _forceRegrid(false), _decimate(10),
-	_method(casacore::Interpolate2D::LINEAR), _outputStokes(), _nReplicatedChans(0) {
+	_method(casacore::Interpolate2D::LINEAR), _outputStokes(),
+	_nReplicatedChans(0) {
+    ThrowIf(
+        this->_isPVImage(),
+        "PV images are not supported. Please first regrid the image from which "
+        "the PV image was generated, and then create the PV image from that "
+        "regridded image"
+    );
 	this->_construct();
 	_finishConstruction();
 }
 
 template <class T> ImageRegridderBase<T>::~ImageRegridderBase() {}
 
-template <class T> casacore::Bool ImageRegridderBase<T>::_regriddingDirectionAxes() const {
-	casacore::Vector<casacore::Int> dirAxesNumbers = _csysTo.directionAxesNumbers();
+template <class T>
+casacore::Bool ImageRegridderBase<T>::_regriddingDirectionAxes() const {
+	auto dirAxesNumbers = _csysTo.directionAxesNumbers();
 	if (! dirAxesNumbers.empty()) {
-		vector<casacore::Int> v = dirAxesNumbers.tovector();
-		for (casacore::Int i=0; i<(casacore::Int)_axes.size(); i++) {
+		auto v = dirAxesNumbers.tovector();
+		for (casacore::Int i=0; i<(casacore::Int)_axes.size(); ++i) {
 			if (std::find(v.begin(), v.end(), _axes[i]) != v.end()) {
 				return true;
 			}
@@ -60,8 +68,8 @@ template <class T> casacore::Bool ImageRegridderBase<T>::_regriddingDirectionAxe
 
 template <class T> void ImageRegridderBase<T>::setDecimate(casacore::Int d) {
 	if (d > 1 && _regriddingDirectionAxes()) {
-		casacore::Vector<casacore::Int> dirAxesNumbers = _csysTo.directionAxesNumbers();
-		vector<casacore::Int> v = dirAxesNumbers.tovector();
+		auto dirAxesNumbers = _csysTo.directionAxesNumbers();
+		auto v = dirAxesNumbers.tovector();
 		for (casacore::Int i=0; i<(casacore::Int)_axes.size(); i++) {
 			casacore::Int axis = _axes[i];
 			ThrowIf(
@@ -91,12 +99,15 @@ template <class T> void ImageRegridderBase<T>::_finishConstruction() {
 		}
 	}
 	_kludgedShape = _shape;
-	const casacore::CoordinateSystem csysFrom = this->_getImage()->coordinates();
+	const auto& csysFrom = this->_getImage()->coordinates();
 	// enforce stokes rules CAS-4960
-	if (csysFrom.hasPolarizationCoordinate() && _csysTo.hasPolarizationCoordinate()) {
-		casacore::Vector<casacore::Int> templateStokes = _csysTo.stokesCoordinate().stokes();
-		casacore::Vector<casacore::Int> inputStokes = csysFrom.stokesCoordinate().stokes();
-		casacore::Int inputPolAxisNumber = csysFrom.polarizationAxisNumber();
+	if (
+	    csysFrom.hasPolarizationCoordinate()
+	    && _csysTo.hasPolarizationCoordinate()
+	) {
+		auto templateStokes = _csysTo.stokesCoordinate().stokes();
+		auto inputStokes = csysFrom.stokesCoordinate().stokes();
+		auto inputPolAxisNumber = csysFrom.polarizationAxisNumber();
 		if (
 			(
 				_axes.empty()
@@ -109,34 +120,43 @@ template <class T> void ImageRegridderBase<T>::_finishConstruction() {
 				)
 				|| _axes[inputPolAxisNumber] > 0
 			) {
-				casacore::StokesCoordinate stokesFrom = csysFrom.stokesCoordinate();
-				casacore::StokesCoordinate stokesTo = _csysTo.stokesCoordinate();
+				auto stokesFrom = csysFrom.stokesCoordinate();
+				auto stokesTo = _csysTo.stokesCoordinate();
 				casacore::Stokes::StokesTypes valFrom, valTo;
 				for (casacore::uInt i=0; i<inputStokes.size(); i++) {
 					stokesFrom.toWorld(valFrom, i);
 					for (casacore::uInt j=0; j<templateStokes.size(); j++) {
 						stokesTo.toWorld(valTo, j);
 						if (valFrom == valTo) {
-							_outputStokes.push_back(casacore::Stokes::name(valFrom));
+							_outputStokes.push_back(
+							    casacore::Stokes::name(valFrom)
+							);
 							break;
 						}
 					}
 				}
 				ThrowIf(
 					_outputStokes.empty(),
-					"Input image and template coordinate system have no common stokes."
+					"Input image and template coordinate "
+					"system have no common stokes."
 				);
 				ThrowIf(
-					shapeSpecified && ((casacore::Int)_outputStokes.size() != _shape[inputPolAxisNumber]),
-					"Specified output stokes axis length (" + casacore::String::toString(_shape[inputPolAxisNumber])
+					shapeSpecified && (
+					    (casacore::Int)_outputStokes.size()
+					    != _shape[inputPolAxisNumber]
+					),
+					"Specified output stokes axis length ("
+					+ casacore::String::toString(_shape[inputPolAxisNumber])
 					+ ") does not match the number of common stokes ("
 					+ casacore::String::toString(_outputStokes.size())
 					+ ") in the input image and template coordinate system."
 				);
-				// This is a kludge to fool the underlying casacore::ImageRegrid constructor that the shape
-				// is acceptable to it. We copy just the stokes we from the output of ImageRegrid.
-				ImageMetaData md(this->_getImage());
-				_kludgedShape[csysFrom.polarizationAxisNumber(false)] = md.nStokes();
+				// This is a kludge to fool the underlying casacore::ImageRegrid
+				// constructor that the shape is acceptable to it. We copy just
+				// the stokes we from the output of ImageRegrid.
+				ImageMetaData<T> md(this->_getImage());
+				_kludgedShape[csysFrom.polarizationAxisNumber(false)]
+				    = md.nStokes();
 			}
 		}
 	}
@@ -149,8 +169,8 @@ template <class T> void ImageRegridderBase<T>::_finishConstruction() {
 		casacore::uInt count = 0;
 		for( casacore::Int axis: _axes ) {
 			if (axis == spectralAxisNumber) {
-				*this->_getLog() << casacore::LogIO::NORMAL << "You've specified "
-					<< "explicitly that the spectral axis should be "
+				*this->_getLog() << casacore::LogIO::NORMAL << "You've "
+				    << "specified explicitly that the spectral axis should be "
 					<< "regridded. However, the input image has a "
 					<< "degenerate spectral axis and so it cannot be "
 					<< "regridded. Instead, the resulting single output "
@@ -171,8 +191,9 @@ template <class T> void ImageRegridderBase<T>::_finishConstruction() {
 	}
 }
 
-template <class T> template <class U> void ImageRegridderBase<T>::setConfiguration(
-	const ImageRegridderBase<U>& that
+template <class T> template <class U>
+void ImageRegridderBase<T>::setConfiguration(
+    const ImageRegridderBase<U>& that
 ) {
 	_method = that._method;
 	_decimate = that._getDecimate();

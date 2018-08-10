@@ -63,8 +63,10 @@ class SynthesisIterBot
 
   // Copy constructor and assignment operator
 
+#if ! defined(WITHOUT_DBUS)
   // launch thread which opens DBus connection...
   void openDBus( );
+#endif
 
   // make all pure-inputs const
   void setupIteration(casacore::Record iterpars);
@@ -100,7 +102,9 @@ protected:
 
  private:
   std::thread  *dbus_thread;
+#if ! defined(WITHOUT_DBUS)
   void dbus_thread_launch_pad( );
+#endif
 
   /// Parameters to control the old interactive GUI. Can be moved somewhere more appropriate...
   /*  casacore::Vector<casacore::String> itsImageList;

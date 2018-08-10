@@ -41,19 +41,15 @@
 
 
 	
-#include <ArrayTime.h>
-	
-
-	
 #include <Temperature.h>
 	
 
 	
-#include <Humidity.h>
+#include <ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <Pressure.h>
 	
 
 	
@@ -61,11 +57,15 @@
 	
 
 	
+#include <Humidity.h>
+	
+
+	
 #include <Frequency.h>
 	
 
 	
-#include <Pressure.h>
+#include <Tag.h>
 	
 
 
@@ -179,7 +179,7 @@ class CalAtmosphereRow;
  * Results of atmosphere calibration by TelCal. This calibration determines the system temperatures corrected for atmospheric absorption. Ionospheric effects are not dealt with in the Table.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalAtmosphere </CAPTION>
@@ -251,21 +251,21 @@ class CalAtmosphereRow;
  * </TR>
 	
  * <TR>
- * <TD> numFreq </TD> 
+ * <TD> numFreq (numFreq)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of frequency points. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numLoad </TD> 
+ * <TD> numLoad (numLoad)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of loads. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -416,42 +416,42 @@ class CalAtmosphereRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> alphaSpectrum </TD> 
+ * <TD> alphaSpectrum</TD> 
  * <TD> vector<vector<float > > </TD>
  * <TD>  numReceptor, numFreq  </TD>
  * <TD>&nbsp; the alpha coefficients, two loads only (one value per receptor per frequency). </TD>
  * </TR>
 	
  * <TR>
- * <TD> forwardEfficiency </TD> 
+ * <TD> forwardEfficiency</TD> 
  * <TD> vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the forward efficiencies (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> forwardEfficiencyError </TD> 
+ * <TD> forwardEfficiencyError</TD> 
  * <TD> vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertainties on forwardEfficiency (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sbGain </TD> 
+ * <TD> sbGain</TD> 
  * <TD> vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the relative gains of LO1 sideband (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sbGainError </TD> 
+ * <TD> sbGainError</TD> 
  * <TD> vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertainties on the relative gains of LO1 sideband (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sbGainSpectrum </TD> 
+ * <TD> sbGainSpectrum</TD> 
  * <TD> vector<vector<float > > </TD>
  * <TD>  numReceptor, numFreq  </TD>
  * <TD>&nbsp; the spectra of relative sideband gains (one value  per receptor per frequency). </TD>
@@ -834,6 +834,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

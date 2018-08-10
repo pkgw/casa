@@ -41,11 +41,11 @@
 
 
 	
-#include <ArrayTime.h>
+#include <Angle.h>
 	
 
 	
-#include <Angle.h>
+#include <ArrayTime.h>
 	
 
 	
@@ -131,7 +131,7 @@ class CalPointingModelRow;
  * Result of pointing model calibration performed by TelCal.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalPointingModel </CAPTION>
@@ -215,7 +215,7 @@ class CalPointingModelRow;
  * </TR>
 	
  * <TR>
- * <TD> numCoeff </TD> 
+ * <TD> numCoeff (numCoeff)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients in the pointing model. </TD>
@@ -282,14 +282,14 @@ class CalPointingModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numObs </TD> 
+ * <TD> numObs(numObs)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of source directions observed to derive the pointing model. </TD>
  * </TR>
 	
  * <TR>
- * <TD> coeffFormula </TD> 
+ * <TD> coeffFormula</TD> 
  * <TD> vector<string > </TD>
  * <TD>  numCoeff  </TD>
  * <TD>&nbsp; formulas used for the fitting (one string per coefficient). </TD>
@@ -622,6 +622,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

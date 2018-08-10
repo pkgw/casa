@@ -19,6 +19,7 @@ namespace test {
 
 MsFactory::MsFactory (const String & msName)
  : addWeightSpectrum_p (true),
+   addFloatData_p (false),
    includeAutocorrelations_p (false),
    simulator_p (new NewMSSimulator (msName)),
    timeStart_p (-1)
@@ -28,7 +29,6 @@ MsFactory::MsFactory (const String & msName)
 
 MsFactory::~MsFactory ()
 {
-    delete ms_p;
 }
 
 void
@@ -219,10 +219,19 @@ MsFactory::addWeightSpectrum (Bool addIt)
 }
 
 void
+MsFactory::addFloatData (Bool addIt)
+{
+    addFloatData_p = addIt;
+}
+
+void
 MsFactory::addColumns ()
 {
     if (addWeightSpectrum_p){
         addCubeColumn (MS::WEIGHT_SPECTRUM, "WeightSpectrumTiled");
+    }
+    if (addFloatData_p){
+        addCubeColumn (MS::FLOAT_DATA, "FloatDataTiled");
     }
 }
 
@@ -242,6 +251,15 @@ MsFactory::addCubeColumn (MSMainEnums::PredefinedColumns columnId,
     ms_p->flush();
 }
 
+void
+MsFactory::removeColumn (casacore::MSMainEnums::PredefinedColumns columnId)
+{
+    casacore::String columnName = MS::columnName(columnId);
+
+    ms_p->removeColumn(columnName);
+
+    ms_p->flush();
+}
 
 void
 MsFactory::attachColumns ()
@@ -456,6 +474,7 @@ MsFactory::fillCubes (FillState & fillState)
     fillVisCubeCorrected (fillState);
     fillVisCubeModel (fillState);
     fillVisCubeObserved (fillState);
+    fillVisFloatData (fillState);
 
     fillWeightSpectrumCube (fillState);
     fillWeightSpectrumCorrectedCube (fillState);
@@ -554,9 +573,19 @@ MsFactory::fillVisCubeModel (FillState & fillState)
 }
 
 void
+MsFactory::fillVisFloatData (FillState & fillState)
+{
+    if (! columns_p.floatVis_p.isNull ()){
+        fillCube (columns_p.floatVis_p, fillState, generators_p.get(MSMainEnums::FLOAT_DATA));
+    }
+}
+
+void
 MsFactory::fillVisCubeObserved (FillState & fillState)
 {
+  if (! columns_p.vis_p.isNull ()){
     fillCube (columns_p.vis_p, fillState, generators_p.get (MSMainEnums::DATA));
+  }
 }
 
 void

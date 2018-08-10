@@ -1350,13 +1350,28 @@ class immoment_test2(unittest.TestCase):
     def test_history(self):
         """Verify that history is written"""
         myia = iatool()
-        myia.fromshape("", [20, 20, 20])
+        imagename = "zz.im"
+        myia.fromshape(imagename, [20, 20, 20])
         bb = myia.moments()
         myia.done()
         msgs = bb.history()
         bb.done()
-        self.assertTrue("ia.moments" in msgs[-2])        
-        self.assertTrue("ia.moments" in msgs[-1])        
+        teststr = "ia.moments"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        outfile = "zz_out"
+        moments = [-1, 1, 2]
+        axis = 2
+        immoments(imagename=imagename, outfile=outfile, axis=axis, moments=moments)
+        for s in [".weighted_coord", ".average", ".weighted_dispersion_coord"]:
+            im = outfile + s
+            myia.open(im)
+            msgs = myia.history()
+            myia.done()
+            teststr = "version"
+            self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+            teststr = "immoments"
+            self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
 
     def test_flush(self):
         """CAS-8570: Ensure moments images are flushed to disk"""
@@ -1368,6 +1383,24 @@ class immoment_test2(unittest.TestCase):
         imhistory(outfile)
         myia.done()
         bb.done()
+        
+    def test_CAS_11195(self):
+        """Verify array initialization bug created and fixed in CAS-11195"""
+        myia = iatool()
+        myia.fromshape("", [20, 20, 20])
+        myia.addnoise()
+        pix = myia.getchunk()
+        mmax = pix.max(axis=2)
+        mmin = pix.min(axis=2)
+        outfile = "CAS-11195.im"
+        mom8 = myia.moments(outfile=outfile, moments=[8, 10])
+        myia.open(outfile + ".minimum")
+        pmax = mom8.getchunk()
+        pmin = myia.getchunk()
+        mom8.done()
+        myia.done()
+        self.assertTrue((pmax == mmax).all(), "Error in moment 8")
+        self.assertTrue((pmin == mmin).all(), "Error in moment 10")
         
 def suite():
     return [immoment_test1,immoment_test2]        

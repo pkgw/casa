@@ -5,11 +5,16 @@
  *      Author: alvaro
  */
 
+// Only used by parasdm2MS, could possibly be replaced by a casacore::Record?
+// boost::any is in c++17
+
 #ifndef ANYVALUEMAP_HPP_
 #define ANYVALUEMAP_HPP_
 
 #include <map>
 #include <boost/any.hpp>
+
+// only used by 
 
 using namespace std;
 

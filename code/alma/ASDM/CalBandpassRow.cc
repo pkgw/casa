@@ -338,6 +338,20 @@ namespace asdm {
 	
   		
 		
+		x->numFreqExists = numFreqExists;
+		
+		
+			
+				
+		x->numFreq = numFreq;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
 		x->rmsExists = rmsExists;
 		
 		
@@ -355,6 +369,117 @@ namespace asdm {
 		 				
 			 						
 		
+			
+		
+	
+
+	
+  		
+		
+		x->frequencyRangeExists = frequencyRangeExists;
+		
+		
+			
+		x->frequencyRange.length(frequencyRange.size());
+		for (unsigned int i = 0; i < frequencyRange.size(); ++i) {
+			
+			x->frequencyRange[i] = frequencyRange.at(i).toIDLFrequency();
+			
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x->numSpectralWindowExists = numSpectralWindowExists;
+		
+		
+			
+				
+		x->numSpectralWindow = numSpectralWindow;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
+		x->chanFreqStartExists = chanFreqStartExists;
+		
+		
+			
+		x->chanFreqStart.length(chanFreqStart.size());
+		for (unsigned int i = 0; i < chanFreqStart.size(); ++i) {
+			
+			x->chanFreqStart[i] = chanFreqStart.at(i).toIDLFrequency();
+			
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x->chanFreqStepExists = chanFreqStepExists;
+		
+		
+			
+		x->chanFreqStep.length(chanFreqStep.size());
+		for (unsigned int i = 0; i < chanFreqStep.size(); ++i) {
+			
+			x->chanFreqStep[i] = chanFreqStep.at(i).toIDLFrequency();
+			
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x->numSpectralWindowChanExists = numSpectralWindowChanExists;
+		
+		
+			
+		x->numSpectralWindowChan.length(numSpectralWindowChan.size());
+		for (unsigned int i = 0; i < numSpectralWindowChan.size(); ++i) {
+			
+				
+			x->numSpectralWindowChan[i] = numSpectralWindowChan.at(i);
+	 			
+	 		
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x->spectrumExists = spectrumExists;
+		
+		
+			
+		x->spectrum.length(spectrum.size());
+		for (unsigned int i = 0; i < spectrum.size(); i++) {
+			x->spectrum[i].length(spectrum.at(i).size());
+			for (unsigned int j = 0; j < spectrum.at(i).size(); j++) {
+				x->spectrum[i][j].length(spectrum.at(i).at(j).size());
+			}					 		
+		}
+		
+		for (unsigned int i = 0; i < spectrum.size() ; i++)
+			for (unsigned int j = 0; j < spectrum.at(i).size(); j++)
+				for (unsigned int k = 0; k < spectrum.at(i).at(j).size(); k++)
+					
+						
+					x->spectrum[i][j][k] = spectrum.at(i).at(j).at(k);
+		 				
+			 									
 			
 		
 	
@@ -635,6 +760,20 @@ namespace asdm {
 	
   		
 		
+		x.numFreqExists = numFreqExists;
+		
+		
+			
+				
+		x.numFreq = numFreq;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
 		x.rmsExists = rmsExists;
 		
 		
@@ -652,6 +791,117 @@ namespace asdm {
 		 				
 			 						
 		
+			
+		
+	
+
+	
+  		
+		
+		x.frequencyRangeExists = frequencyRangeExists;
+		
+		
+			
+		x.frequencyRange.length(frequencyRange.size());
+		for (unsigned int i = 0; i < frequencyRange.size(); ++i) {
+			
+			x.frequencyRange[i] = frequencyRange.at(i).toIDLFrequency();
+			
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x.numSpectralWindowExists = numSpectralWindowExists;
+		
+		
+			
+				
+		x.numSpectralWindow = numSpectralWindow;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
+		x.chanFreqStartExists = chanFreqStartExists;
+		
+		
+			
+		x.chanFreqStart.length(chanFreqStart.size());
+		for (unsigned int i = 0; i < chanFreqStart.size(); ++i) {
+			
+			x.chanFreqStart[i] = chanFreqStart.at(i).toIDLFrequency();
+			
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x.chanFreqStepExists = chanFreqStepExists;
+		
+		
+			
+		x.chanFreqStep.length(chanFreqStep.size());
+		for (unsigned int i = 0; i < chanFreqStep.size(); ++i) {
+			
+			x.chanFreqStep[i] = chanFreqStep.at(i).toIDLFrequency();
+			
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x.numSpectralWindowChanExists = numSpectralWindowChanExists;
+		
+		
+			
+		x.numSpectralWindowChan.length(numSpectralWindowChan.size());
+		for (unsigned int i = 0; i < numSpectralWindowChan.size(); ++i) {
+			
+				
+			x.numSpectralWindowChan[i] = numSpectralWindowChan.at(i);
+	 			
+	 		
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x.spectrumExists = spectrumExists;
+		
+		
+			
+		x.spectrum.length(spectrum.size());
+		for (unsigned int i = 0; i < spectrum.size(); i++) {
+			x.spectrum[i].length(spectrum.at(i).size());
+			for (unsigned int j = 0; j < spectrum.at(i).size(); j++) {
+				x.spectrum[i][j].length(spectrum.at(i).at(j).size());
+			}					 		
+		}
+		
+		for (unsigned int i = 0; i < spectrum.size() ; i++)
+			for (unsigned int j = 0; j < spectrum.at(i).size(); j++)
+				for (unsigned int k = 0; k < spectrum.at(i).at(j).size(); k++)
+					
+						
+					x.spectrum[i][j][k] = spectrum.at(i).at(j).at(k);
+		 				
+			 									
 			
 		
 	
@@ -915,6 +1165,21 @@ namespace asdm {
 
 	
 		
+		numFreqExists = x.numFreqExists;
+		if (x.numFreqExists) {
+		
+		
+			
+		setNumFreq(x.numFreq);
+  			
+ 		
+		
+		}
+		
+	
+
+	
+		
 		rmsExists = x.rmsExists;
 		if (x.rmsExists) {
 		
@@ -930,6 +1195,132 @@ namespace asdm {
 	  			
   			}
   			rms.push_back(v_aux_rms);			
+		}
+			
+  		
+		
+		}
+		
+	
+
+	
+		
+		frequencyRangeExists = x.frequencyRangeExists;
+		if (x.frequencyRangeExists) {
+		
+		
+			
+		frequencyRange .clear();
+		for (unsigned int i = 0; i <x.frequencyRange.length(); ++i) {
+			
+			frequencyRange.push_back(Frequency (x.frequencyRange[i]));
+			
+		}
+			
+  		
+		
+		}
+		
+	
+
+	
+		
+		numSpectralWindowExists = x.numSpectralWindowExists;
+		if (x.numSpectralWindowExists) {
+		
+		
+			
+		setNumSpectralWindow(x.numSpectralWindow);
+  			
+ 		
+		
+		}
+		
+	
+
+	
+		
+		chanFreqStartExists = x.chanFreqStartExists;
+		if (x.chanFreqStartExists) {
+		
+		
+			
+		chanFreqStart .clear();
+		for (unsigned int i = 0; i <x.chanFreqStart.length(); ++i) {
+			
+			chanFreqStart.push_back(Frequency (x.chanFreqStart[i]));
+			
+		}
+			
+  		
+		
+		}
+		
+	
+
+	
+		
+		chanFreqStepExists = x.chanFreqStepExists;
+		if (x.chanFreqStepExists) {
+		
+		
+			
+		chanFreqStep .clear();
+		for (unsigned int i = 0; i <x.chanFreqStep.length(); ++i) {
+			
+			chanFreqStep.push_back(Frequency (x.chanFreqStep[i]));
+			
+		}
+			
+  		
+		
+		}
+		
+	
+
+	
+		
+		numSpectralWindowChanExists = x.numSpectralWindowChanExists;
+		if (x.numSpectralWindowChanExists) {
+		
+		
+			
+		numSpectralWindowChan .clear();
+		for (unsigned int i = 0; i <x.numSpectralWindowChan.length(); ++i) {
+			
+			numSpectralWindowChan.push_back(x.numSpectralWindowChan[i]);
+  			
+		}
+			
+  		
+		
+		}
+		
+	
+
+	
+		
+		spectrumExists = x.spectrumExists;
+		if (x.spectrumExists) {
+		
+		
+			
+		spectrum .clear();
+		vector< vector<float> > vv_aux_spectrum;
+		vector<float> v_aux_spectrum;
+		
+		for (unsigned int i = 0; i < x.spectrum.length(); ++i) {
+			vv_aux_spectrum.clear();
+			for (unsigned int j = 0; j < x.spectrum[0].length(); ++j) {
+				v_aux_spectrum.clear();
+				for (unsigned int k = 0; k < x.spectrum[0][0].length(); ++k) {
+					
+					v_aux_spectrum.push_back(x.spectrum[i][j][k]);
+		  			
+		  		}
+		  		vv_aux_spectrum.push_back(v_aux_spectrum);
+  			}
+  			spectrum.push_back(vv_aux_spectrum);
 		}
 			
   		
@@ -1125,10 +1516,94 @@ namespace asdm {
 
   	
  		
+		if (numFreqExists) {
+		
+		
+		Parser::toXML(numFreq, "numFreq", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
 		if (rmsExists) {
 		
 		
 		Parser::toXML(rms, "rms", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (frequencyRangeExists) {
+		
+		
+		Parser::toXML(frequencyRange, "frequencyRange", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (numSpectralWindowExists) {
+		
+		
+		Parser::toXML(numSpectralWindow, "numSpectralWindow", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (chanFreqStartExists) {
+		
+		
+		Parser::toXML(chanFreqStart, "chanFreqStart", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (chanFreqStepExists) {
+		
+		
+		Parser::toXML(chanFreqStep, "chanFreqStep", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (numSpectralWindowChanExists) {
+		
+		
+		Parser::toXML(numSpectralWindowChan, "numSpectralWindowChan", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (spectrumExists) {
+		
+		
+		Parser::toXML(spectrum, "spectrum", buf);
 		
 		
 		}
@@ -1336,10 +1811,90 @@ namespace asdm {
 
 	
   		
+        if (row.isStr("<numFreq>")) {
+			
+	  		setNumFreq(Parser::getInteger("numFreq","CalBandpass",rowDoc));
+			
+		}
+ 		
+	
+
+	
+  		
         if (row.isStr("<rms>")) {
 			
 								
 	  		setRms(Parser::get2DFloat("rms","CalBandpass",rowDoc));
+	  			
+	  		
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<frequencyRange>")) {
+			
+								
+	  		setFrequencyRange(Parser::get1DFrequency("frequencyRange","CalBandpass",rowDoc));
+	  			
+	  		
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<numSpectralWindow>")) {
+			
+	  		setNumSpectralWindow(Parser::getInteger("numSpectralWindow","CalBandpass",rowDoc));
+			
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<chanFreqStart>")) {
+			
+								
+	  		setChanFreqStart(Parser::get1DFrequency("chanFreqStart","CalBandpass",rowDoc));
+	  			
+	  		
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<chanFreqStep>")) {
+			
+								
+	  		setChanFreqStep(Parser::get1DFrequency("chanFreqStep","CalBandpass",rowDoc));
+	  			
+	  		
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<numSpectralWindowChan>")) {
+			
+								
+	  		setNumSpectralWindowChan(Parser::get1DInteger("numSpectralWindowChan","CalBandpass",rowDoc));
+	  			
+	  		
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<spectrum>")) {
+			
+								
+	  		setSpectrum(Parser::get3DFloat("spectrum","CalBandpass",rowDoc));
 	  			
 	  		
 		}
@@ -1581,6 +2136,20 @@ namespace asdm {
 
 	}
 
+	eoss.writeBoolean(numFreqExists);
+	if (numFreqExists) {
+	
+	
+	
+		
+						
+			eoss.writeInt(numFreq);
+				
+		
+	
+
+	}
+
 	eoss.writeBoolean(rmsExists);
 	if (rmsExists) {
 	
@@ -1597,6 +2166,99 @@ namespace asdm {
 				eoss.writeFloat(rms.at(i).at(j));
 				
 	
+						
+		
+	
+
+	}
+
+	eoss.writeBoolean(frequencyRangeExists);
+	if (frequencyRangeExists) {
+	
+	
+	
+		
+	Frequency::toBin(frequencyRange, eoss);
+		
+	
+
+	}
+
+	eoss.writeBoolean(numSpectralWindowExists);
+	if (numSpectralWindowExists) {
+	
+	
+	
+		
+						
+			eoss.writeInt(numSpectralWindow);
+				
+		
+	
+
+	}
+
+	eoss.writeBoolean(chanFreqStartExists);
+	if (chanFreqStartExists) {
+	
+	
+	
+		
+	Frequency::toBin(chanFreqStart, eoss);
+		
+	
+
+	}
+
+	eoss.writeBoolean(chanFreqStepExists);
+	if (chanFreqStepExists) {
+	
+	
+	
+		
+	Frequency::toBin(chanFreqStep, eoss);
+		
+	
+
+	}
+
+	eoss.writeBoolean(numSpectralWindowChanExists);
+	if (numSpectralWindowChanExists) {
+	
+	
+	
+		
+		
+			
+		eoss.writeInt((int) numSpectralWindowChan.size());
+		for (unsigned int i = 0; i < numSpectralWindowChan.size(); i++)
+				
+			eoss.writeInt(numSpectralWindowChan.at(i));
+				
+				
+						
+		
+	
+
+	}
+
+	eoss.writeBoolean(spectrumExists);
+	if (spectrumExists) {
+	
+	
+	
+		
+		
+			
+		eoss.writeInt((int) spectrum.size());
+		eoss.writeInt((int) spectrum.at(0).size());		
+		eoss.writeInt((int) spectrum.at(0).at(0).size());
+		for (unsigned int i = 0; i < spectrum.size(); i++) 
+			for (unsigned int j = 0;  j < spectrum.at(0).size(); j++)
+				for (unsigned int k = 0; k <  spectrum.at(0).at(0).size(); k++)	
+							 
+					eoss.writeFloat(spectrum.at(i).at(j).at(k));
+						
 						
 		
 	
@@ -1878,6 +2540,23 @@ void CalBandpassRow::numBaselineFromBin(EndianIStream& eis) {
 	}
 	
 }
+void CalBandpassRow::numFreqFromBin(EndianIStream& eis) {
+		
+	numFreqExists = eis.readBoolean();
+	if (numFreqExists) {
+		
+	
+	
+		
+			
+		numFreq =  eis.readInt();
+			
+		
+	
+
+	}
+	
+}
 void CalBandpassRow::rmsFromBin(EndianIStream& eis) {
 		
 	rmsExists = eis.readBoolean();
@@ -1902,6 +2581,143 @@ void CalBandpassRow::rmsFromBin(EndianIStream& eis) {
 			rms.push_back(rmsAux1);
 		}
 	
+	
+
+		
+	
+
+	}
+	
+}
+void CalBandpassRow::frequencyRangeFromBin(EndianIStream& eis) {
+		
+	frequencyRangeExists = eis.readBoolean();
+	if (frequencyRangeExists) {
+		
+	
+		
+		
+			
+	
+	frequencyRange = Frequency::from1DBin(eis);	
+	
+
+		
+	
+
+	}
+	
+}
+void CalBandpassRow::numSpectralWindowFromBin(EndianIStream& eis) {
+		
+	numSpectralWindowExists = eis.readBoolean();
+	if (numSpectralWindowExists) {
+		
+	
+	
+		
+			
+		numSpectralWindow =  eis.readInt();
+			
+		
+	
+
+	}
+	
+}
+void CalBandpassRow::chanFreqStartFromBin(EndianIStream& eis) {
+		
+	chanFreqStartExists = eis.readBoolean();
+	if (chanFreqStartExists) {
+		
+	
+		
+		
+			
+	
+	chanFreqStart = Frequency::from1DBin(eis);	
+	
+
+		
+	
+
+	}
+	
+}
+void CalBandpassRow::chanFreqStepFromBin(EndianIStream& eis) {
+		
+	chanFreqStepExists = eis.readBoolean();
+	if (chanFreqStepExists) {
+		
+	
+		
+		
+			
+	
+	chanFreqStep = Frequency::from1DBin(eis);	
+	
+
+		
+	
+
+	}
+	
+}
+void CalBandpassRow::numSpectralWindowChanFromBin(EndianIStream& eis) {
+		
+	numSpectralWindowChanExists = eis.readBoolean();
+	if (numSpectralWindowChanExists) {
+		
+	
+	
+		
+			
+	
+		numSpectralWindowChan.clear();
+		
+		unsigned int numSpectralWindowChanDim1 = eis.readInt();
+		for (unsigned int  i = 0 ; i < numSpectralWindowChanDim1; i++)
+			
+			numSpectralWindowChan.push_back(eis.readInt());
+			
+	
+
+		
+	
+
+	}
+	
+}
+void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
+		
+	spectrumExists = eis.readBoolean();
+	if (spectrumExists) {
+		
+	
+	
+		
+			
+	
+		spectrum.clear();
+			
+		unsigned int spectrumDim1 = eis.readInt();
+		unsigned int spectrumDim2 = eis.readInt();
+		unsigned int spectrumDim3 = eis.readInt();
+		vector <vector<float> > spectrumAux2;
+		vector <float> spectrumAux1;
+		for (unsigned int i = 0; i < spectrumDim1; i++) {
+			spectrumAux2.clear();
+			for (unsigned int j = 0; j < spectrumDim2 ; j++) {
+				spectrumAux1.clear();
+				for (unsigned int k = 0; k < spectrumDim3; k++) {
+			
+					spectrumAux1.push_back(eis.readFloat());
+			
+				}
+				spectrumAux2.push_back(spectrumAux1);
+			}
+			spectrum.push_back(spectrumAux2);
+		}	
 	
 
 		
@@ -2092,11 +2908,74 @@ void CalBandpassRow::rmsFromBin(EndianIStream& eis) {
 	}
 	
 	
+	// Convert a string into an int 
+	void CalBandpassRow::numFreqFromText(const string & s) {
+		numFreqExists = true;
+		 
+		numFreq = ASDMValuesParser::parse<int>(s);
+		
+	}
+	
+	
 	// Convert a string into an float 
 	void CalBandpassRow::rmsFromText(const string & s) {
 		rmsExists = true;
 		 
 		rms = ASDMValuesParser::parse2D<float>(s);
+		
+	}
+	
+	
+	// Convert a string into an Frequency 
+	void CalBandpassRow::frequencyRangeFromText(const string & s) {
+		frequencyRangeExists = true;
+		 
+		frequencyRange = ASDMValuesParser::parse1D<Frequency>(s);
+		
+	}
+	
+	
+	// Convert a string into an int 
+	void CalBandpassRow::numSpectralWindowFromText(const string & s) {
+		numSpectralWindowExists = true;
+		 
+		numSpectralWindow = ASDMValuesParser::parse<int>(s);
+		
+	}
+	
+	
+	// Convert a string into an Frequency 
+	void CalBandpassRow::chanFreqStartFromText(const string & s) {
+		chanFreqStartExists = true;
+		 
+		chanFreqStart = ASDMValuesParser::parse1D<Frequency>(s);
+		
+	}
+	
+	
+	// Convert a string into an Frequency 
+	void CalBandpassRow::chanFreqStepFromText(const string & s) {
+		chanFreqStepExists = true;
+		 
+		chanFreqStep = ASDMValuesParser::parse1D<Frequency>(s);
+		
+	}
+	
+	
+	// Convert a string into an int 
+	void CalBandpassRow::numSpectralWindowChanFromText(const string & s) {
+		numSpectralWindowChanExists = true;
+		 
+		numSpectralWindowChan = ASDMValuesParser::parse1D<int>(s);
+		
+	}
+	
+	
+	// Convert a string into an float 
+	void CalBandpassRow::spectrumFromText(const string & s) {
+		spectrumExists = true;
+		 
+		spectrum = ASDMValuesParser::parse3D<float>(s);
 		
 	}
 	
@@ -2694,6 +3573,53 @@ void CalBandpassRow::rmsFromBin(EndianIStream& eis) {
 
 	
 	/**
+	 * The attribute numFreq is optional. Return true if this attribute exists.
+	 * @return true if and only if the numFreq attribute exists. 
+	 */
+	bool CalBandpassRow::isNumFreqExists() const {
+		return numFreqExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get numFreq, which is optional.
+ 	 * @return numFreq as int
+ 	 * @throw IllegalAccessException If numFreq does not exist.
+ 	 */
+ 	int CalBandpassRow::getNumFreq() const  {
+		if (!numFreqExists) {
+			throw IllegalAccessException("numFreq", "CalBandpass");
+		}
+	
+  		return numFreq;
+ 	}
+
+ 	/**
+ 	 * Set numFreq with the specified int.
+ 	 * @param numFreq The int value to which numFreq is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalBandpassRow::setNumFreq (int numFreq) {
+	
+ 		this->numFreq = numFreq;
+	
+		numFreqExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark numFreq, which is an optional field, as non-existent.
+	 */
+	void CalBandpassRow::clearNumFreq () {
+		numFreqExists = false;
+	}
+	
+
+	
+	/**
 	 * The attribute rms is optional. Return true if this attribute exists.
 	 * @return true if and only if the rms attribute exists. 
 	 */
@@ -2736,6 +3662,288 @@ void CalBandpassRow::rmsFromBin(EndianIStream& eis) {
 	 */
 	void CalBandpassRow::clearRms () {
 		rmsExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute frequencyRange is optional. Return true if this attribute exists.
+	 * @return true if and only if the frequencyRange attribute exists. 
+	 */
+	bool CalBandpassRow::isFrequencyRangeExists() const {
+		return frequencyRangeExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get frequencyRange, which is optional.
+ 	 * @return frequencyRange as vector<Frequency >
+ 	 * @throw IllegalAccessException If frequencyRange does not exist.
+ 	 */
+ 	vector<Frequency > CalBandpassRow::getFrequencyRange() const  {
+		if (!frequencyRangeExists) {
+			throw IllegalAccessException("frequencyRange", "CalBandpass");
+		}
+	
+  		return frequencyRange;
+ 	}
+
+ 	/**
+ 	 * Set frequencyRange with the specified vector<Frequency >.
+ 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalBandpassRow::setFrequencyRange (vector<Frequency > frequencyRange) {
+	
+ 		this->frequencyRange = frequencyRange;
+	
+		frequencyRangeExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark frequencyRange, which is an optional field, as non-existent.
+	 */
+	void CalBandpassRow::clearFrequencyRange () {
+		frequencyRangeExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute numSpectralWindow is optional. Return true if this attribute exists.
+	 * @return true if and only if the numSpectralWindow attribute exists. 
+	 */
+	bool CalBandpassRow::isNumSpectralWindowExists() const {
+		return numSpectralWindowExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get numSpectralWindow, which is optional.
+ 	 * @return numSpectralWindow as int
+ 	 * @throw IllegalAccessException If numSpectralWindow does not exist.
+ 	 */
+ 	int CalBandpassRow::getNumSpectralWindow() const  {
+		if (!numSpectralWindowExists) {
+			throw IllegalAccessException("numSpectralWindow", "CalBandpass");
+		}
+	
+  		return numSpectralWindow;
+ 	}
+
+ 	/**
+ 	 * Set numSpectralWindow with the specified int.
+ 	 * @param numSpectralWindow The int value to which numSpectralWindow is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalBandpassRow::setNumSpectralWindow (int numSpectralWindow) {
+	
+ 		this->numSpectralWindow = numSpectralWindow;
+	
+		numSpectralWindowExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark numSpectralWindow, which is an optional field, as non-existent.
+	 */
+	void CalBandpassRow::clearNumSpectralWindow () {
+		numSpectralWindowExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute chanFreqStart is optional. Return true if this attribute exists.
+	 * @return true if and only if the chanFreqStart attribute exists. 
+	 */
+	bool CalBandpassRow::isChanFreqStartExists() const {
+		return chanFreqStartExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get chanFreqStart, which is optional.
+ 	 * @return chanFreqStart as vector<Frequency >
+ 	 * @throw IllegalAccessException If chanFreqStart does not exist.
+ 	 */
+ 	vector<Frequency > CalBandpassRow::getChanFreqStart() const  {
+		if (!chanFreqStartExists) {
+			throw IllegalAccessException("chanFreqStart", "CalBandpass");
+		}
+	
+  		return chanFreqStart;
+ 	}
+
+ 	/**
+ 	 * Set chanFreqStart with the specified vector<Frequency >.
+ 	 * @param chanFreqStart The vector<Frequency > value to which chanFreqStart is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalBandpassRow::setChanFreqStart (vector<Frequency > chanFreqStart) {
+	
+ 		this->chanFreqStart = chanFreqStart;
+	
+		chanFreqStartExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark chanFreqStart, which is an optional field, as non-existent.
+	 */
+	void CalBandpassRow::clearChanFreqStart () {
+		chanFreqStartExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute chanFreqStep is optional. Return true if this attribute exists.
+	 * @return true if and only if the chanFreqStep attribute exists. 
+	 */
+	bool CalBandpassRow::isChanFreqStepExists() const {
+		return chanFreqStepExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get chanFreqStep, which is optional.
+ 	 * @return chanFreqStep as vector<Frequency >
+ 	 * @throw IllegalAccessException If chanFreqStep does not exist.
+ 	 */
+ 	vector<Frequency > CalBandpassRow::getChanFreqStep() const  {
+		if (!chanFreqStepExists) {
+			throw IllegalAccessException("chanFreqStep", "CalBandpass");
+		}
+	
+  		return chanFreqStep;
+ 	}
+
+ 	/**
+ 	 * Set chanFreqStep with the specified vector<Frequency >.
+ 	 * @param chanFreqStep The vector<Frequency > value to which chanFreqStep is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalBandpassRow::setChanFreqStep (vector<Frequency > chanFreqStep) {
+	
+ 		this->chanFreqStep = chanFreqStep;
+	
+		chanFreqStepExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark chanFreqStep, which is an optional field, as non-existent.
+	 */
+	void CalBandpassRow::clearChanFreqStep () {
+		chanFreqStepExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute numSpectralWindowChan is optional. Return true if this attribute exists.
+	 * @return true if and only if the numSpectralWindowChan attribute exists. 
+	 */
+	bool CalBandpassRow::isNumSpectralWindowChanExists() const {
+		return numSpectralWindowChanExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get numSpectralWindowChan, which is optional.
+ 	 * @return numSpectralWindowChan as vector<int >
+ 	 * @throw IllegalAccessException If numSpectralWindowChan does not exist.
+ 	 */
+ 	vector<int > CalBandpassRow::getNumSpectralWindowChan() const  {
+		if (!numSpectralWindowChanExists) {
+			throw IllegalAccessException("numSpectralWindowChan", "CalBandpass");
+		}
+	
+  		return numSpectralWindowChan;
+ 	}
+
+ 	/**
+ 	 * Set numSpectralWindowChan with the specified vector<int >.
+ 	 * @param numSpectralWindowChan The vector<int > value to which numSpectralWindowChan is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalBandpassRow::setNumSpectralWindowChan (vector<int > numSpectralWindowChan) {
+	
+ 		this->numSpectralWindowChan = numSpectralWindowChan;
+	
+		numSpectralWindowChanExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark numSpectralWindowChan, which is an optional field, as non-existent.
+	 */
+	void CalBandpassRow::clearNumSpectralWindowChan () {
+		numSpectralWindowChanExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute spectrum is optional. Return true if this attribute exists.
+	 * @return true if and only if the spectrum attribute exists. 
+	 */
+	bool CalBandpassRow::isSpectrumExists() const {
+		return spectrumExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get spectrum, which is optional.
+ 	 * @return spectrum as vector<vector<vector<float > > >
+ 	 * @throw IllegalAccessException If spectrum does not exist.
+ 	 */
+ 	vector<vector<vector<float > > > CalBandpassRow::getSpectrum() const  {
+		if (!spectrumExists) {
+			throw IllegalAccessException("spectrum", "CalBandpass");
+		}
+	
+  		return spectrum;
+ 	}
+
+ 	/**
+ 	 * Set spectrum with the specified vector<vector<vector<float > > >.
+ 	 * @param spectrum The vector<vector<vector<float > > > value to which spectrum is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalBandpassRow::setSpectrum (vector<vector<vector<float > > > spectrum) {
+	
+ 		this->spectrum = spectrum;
+	
+		spectrumExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark spectrum, which is an optional field, as non-existent.
+	 */
+	void CalBandpassRow::clearSpectrum () {
+		spectrumExists = false;
 	}
 	
 
@@ -2909,7 +4117,35 @@ void CalBandpassRow::rmsFromBin(EndianIStream& eis) {
 	
 
 	
+		numFreqExists = false;
+	
+
+	
 		rmsExists = false;
+	
+
+	
+		frequencyRangeExists = false;
+	
+
+	
+		numSpectralWindowExists = false;
+	
+
+	
+		chanFreqStartExists = false;
+	
+
+	
+		chanFreqStepExists = false;
+	
+
+	
+		numSpectralWindowChanExists = false;
+	
+
+	
+		spectrumExists = false;
 	
 
 	
@@ -2972,6 +4208,20 @@ receiverBand = CReceiverBand::from_int(0);
 	
 
 	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
 	
 	 fromBinMethods["basebandName"] = &CalBandpassRow::basebandNameFromBin; 
 	 fromBinMethods["sideband"] = &CalBandpassRow::sidebandFromBin; 
@@ -2994,7 +4244,14 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	
 	 fromBinMethods["numBaseline"] = &CalBandpassRow::numBaselineFromBin; 
+	 fromBinMethods["numFreq"] = &CalBandpassRow::numFreqFromBin; 
 	 fromBinMethods["rms"] = &CalBandpassRow::rmsFromBin; 
+	 fromBinMethods["frequencyRange"] = &CalBandpassRow::frequencyRangeFromBin; 
+	 fromBinMethods["numSpectralWindow"] = &CalBandpassRow::numSpectralWindowFromBin; 
+	 fromBinMethods["chanFreqStart"] = &CalBandpassRow::chanFreqStartFromBin; 
+	 fromBinMethods["chanFreqStep"] = &CalBandpassRow::chanFreqStepFromBin; 
+	 fromBinMethods["numSpectralWindowChan"] = &CalBandpassRow::numSpectralWindowChanFromBin; 
+	 fromBinMethods["spectrum"] = &CalBandpassRow::spectrumFromBin; 
 	
 	
 	
@@ -3078,7 +4335,35 @@ receiverBand = CReceiverBand::from_int(0);
 		 	
 	 
 				
+	fromTextMethods["numFreq"] = &CalBandpassRow::numFreqFromText;
+		 	
+	 
+				
 	fromTextMethods["rms"] = &CalBandpassRow::rmsFromText;
+		 	
+	 
+				
+	fromTextMethods["frequencyRange"] = &CalBandpassRow::frequencyRangeFromText;
+		 	
+	 
+				
+	fromTextMethods["numSpectralWindow"] = &CalBandpassRow::numSpectralWindowFromText;
+		 	
+	 
+				
+	fromTextMethods["chanFreqStart"] = &CalBandpassRow::chanFreqStartFromText;
+		 	
+	 
+				
+	fromTextMethods["chanFreqStep"] = &CalBandpassRow::chanFreqStepFromText;
+		 	
+	 
+				
+	fromTextMethods["numSpectralWindowChan"] = &CalBandpassRow::numSpectralWindowChanFromText;
+		 	
+	 
+				
+	fromTextMethods["spectrum"] = &CalBandpassRow::spectrumFromText;
 		 	
 		
 	}
@@ -3126,7 +4411,35 @@ receiverBand = CReceiverBand::from_int(0);
 	
 
 	
+		numFreqExists = false;
+	
+
+	
 		rmsExists = false;
+	
+
+	
+		frequencyRangeExists = false;
+	
+
+	
+		numSpectralWindowExists = false;
+	
+
+	
+		chanFreqStartExists = false;
+	
+
+	
+		chanFreqStepExists = false;
+	
+
+	
+		numSpectralWindowChanExists = false;
+	
+
+	
+		spectrumExists = false;
 	
 
 	
@@ -3187,12 +4500,61 @@ receiverBand = CReceiverBand::from_int(0);
 		else
 			numBaselineExists = false;
 		
+		if (row.numFreqExists) {
+			numFreq = row.numFreq;		
+			numFreqExists = true;
+		}
+		else
+			numFreqExists = false;
+		
 		if (row.rmsExists) {
 			rms = row.rms;		
 			rmsExists = true;
 		}
 		else
 			rmsExists = false;
+		
+		if (row.frequencyRangeExists) {
+			frequencyRange = row.frequencyRange;		
+			frequencyRangeExists = true;
+		}
+		else
+			frequencyRangeExists = false;
+		
+		if (row.numSpectralWindowExists) {
+			numSpectralWindow = row.numSpectralWindow;		
+			numSpectralWindowExists = true;
+		}
+		else
+			numSpectralWindowExists = false;
+		
+		if (row.chanFreqStartExists) {
+			chanFreqStart = row.chanFreqStart;		
+			chanFreqStartExists = true;
+		}
+		else
+			chanFreqStartExists = false;
+		
+		if (row.chanFreqStepExists) {
+			chanFreqStep = row.chanFreqStep;		
+			chanFreqStepExists = true;
+		}
+		else
+			chanFreqStepExists = false;
+		
+		if (row.numSpectralWindowChanExists) {
+			numSpectralWindowChan = row.numSpectralWindowChan;		
+			numSpectralWindowChanExists = true;
+		}
+		else
+			numSpectralWindowChanExists = false;
+		
+		if (row.spectrumExists) {
+			spectrum = row.spectrum;		
+			spectrumExists = true;
+		}
+		else
+			spectrumExists = false;
 		
 		}
 		
@@ -3217,7 +4579,14 @@ receiverBand = CReceiverBand::from_int(0);
 			
 	
 		 fromBinMethods["numBaseline"] = &CalBandpassRow::numBaselineFromBin; 
+		 fromBinMethods["numFreq"] = &CalBandpassRow::numFreqFromBin; 
 		 fromBinMethods["rms"] = &CalBandpassRow::rmsFromBin; 
+		 fromBinMethods["frequencyRange"] = &CalBandpassRow::frequencyRangeFromBin; 
+		 fromBinMethods["numSpectralWindow"] = &CalBandpassRow::numSpectralWindowFromBin; 
+		 fromBinMethods["chanFreqStart"] = &CalBandpassRow::chanFreqStartFromBin; 
+		 fromBinMethods["chanFreqStep"] = &CalBandpassRow::chanFreqStepFromBin; 
+		 fromBinMethods["numSpectralWindowChan"] = &CalBandpassRow::numSpectralWindowChanFromBin; 
+		 fromBinMethods["spectrum"] = &CalBandpassRow::spectrumFromBin; 
 			
 	}
 
@@ -3413,11 +4782,13 @@ receiverBand = CReceiverBand::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the CalBandpassRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool CalBandpassRow::equalByRequiredValue(CalBandpassRow* x) {
+	bool CalBandpassRow::equalByRequiredValue(CalBandpassRow*  x ) {
 		
 			
 		if (this->startValidTime != x->startValidTime) return false;
@@ -3471,7 +4842,14 @@ receiverBand = CReceiverBand::from_int(0);
 		
 		
 		result["numBaseline"] = &CalBandpassRow::numBaselineFromBin;
+		result["numFreq"] = &CalBandpassRow::numFreqFromBin;
 		result["rms"] = &CalBandpassRow::rmsFromBin;
+		result["frequencyRange"] = &CalBandpassRow::frequencyRangeFromBin;
+		result["numSpectralWindow"] = &CalBandpassRow::numSpectralWindowFromBin;
+		result["chanFreqStart"] = &CalBandpassRow::chanFreqStartFromBin;
+		result["chanFreqStep"] = &CalBandpassRow::chanFreqStepFromBin;
+		result["numSpectralWindowChan"] = &CalBandpassRow::numSpectralWindowChanFromBin;
+		result["spectrum"] = &CalBandpassRow::spectrumFromBin;
 			
 		
 		return result;	

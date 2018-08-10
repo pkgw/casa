@@ -52,7 +52,8 @@ PlotAxisScale PMS::axisScale(Axis axis) {
 
 bool PMS::axisIsData(Axis axis) {
     switch(axis) {
-    case AMP: case PHASE: case REAL: case IMAG: case WTxAMP: return true;
+    case AMP: case PHASE: case REAL: case IMAG: case WTxAMP: 
+	case GAMP: case GPHASE: case GREAL: case GIMAG: return true;
     default: return false;
     }
 }
@@ -62,7 +63,7 @@ bool PMS::axisNeedsCalSlice(Axis axis) {
     case AMP: case PHASE: case REAL: case IMAG: 
     case GAMP: case GPHASE: case GREAL: case GIMAG:
     case DELAY: case SWP: case TSYS: case OPAC: case SNR: case TEC:
-    case FLAG:
+	case ANTPOS: case FLAG:
         return true;
     default: return false;
     }
@@ -78,6 +79,13 @@ bool PMS::axisIsWeight(Axis axis) {
 bool PMS::axisIsUV(Axis axis) {
     switch(axis) {
     case U: case V: case UWAVE: case VWAVE: return true;
+    default: return false;
+    }
+}
+
+bool PMS::axisIsOverlay(Axis axis) {
+    switch(axis) {
+    case ATM: case TSKY: return true;
     default: return false;
     }
 }
@@ -118,6 +126,7 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
     case U:
     case V:
     case W:
+    case ANTPOS:
        	return METERS;
     case UVDIST_L:
     case UWAVE:
@@ -141,13 +150,15 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
    case DELAY:
 	   	return NANOSECONDS;
    case TSYS:
+   case TSKY:
 	   	return KELVIN;
    case OPAC:
 	   return NEPERS;
-
-    case RHO:
+   case RHO:
        	return KILOMETERS;
-    default: return UNONE;
+   case ATM:
+        return PERCENT;
+   default: return UNONE;
     //The following axis have units which are proportion to Jansky, but are
     //time varying so Jansky is not accurate.  For now, we are not including
     //units with them.
@@ -386,6 +397,7 @@ const int PMS::LOG_EVENT_##TYPE =                                             \
                                     LogMessage::PRIORITY);
 
 PMS_LOG(DBUS, "dbus", NORMAL3)
+PMS_LOG(DBUSWARN, "dbus", WARN)
 PMS_LOG(FLAG, "flag", NORMAL)
 PMS_LOG(LOAD_CACHE, "load_cache", NORMAL)
 PMS_LOG(LOCATE, "locate", NORMAL)

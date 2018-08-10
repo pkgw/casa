@@ -37,9 +37,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-MSTransformDataHandler::MSTransformDataHandler(	String& theMS, Table::TableOption option,
-												Bool virtualModelCol,Bool virtualCorrectedCol,
-												Bool reindex) :
+    MSTransformDataHandler::MSTransformDataHandler(const String& theMS, Table::TableOption option,
+                                                   Bool virtualModelCol,Bool virtualCorrectedCol,
+                                                   Bool reindex) :
 		  ms_p(MeasurementSet(theMS, option)),
 		  mssel_p(ms_p),
 		  msc_p(NULL),
@@ -68,9 +68,9 @@ MSTransformDataHandler::MSTransformDataHandler(	String& theMS, Table::TableOptio
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-MSTransformDataHandler::MSTransformDataHandler(	MeasurementSet& ms,
-												Bool virtualModelCol,Bool virtualCorrectedCol,
-												Bool reindex) :
+MSTransformDataHandler::MSTransformDataHandler(const MeasurementSet& ms,
+                                               Bool virtualModelCol,Bool virtualCorrectedCol,
+                                               Bool reindex) :
 		   ms_p(ms),
 		   mssel_p(ms_p),
 		   msc_p(NULL),
@@ -454,7 +454,8 @@ Bool MSTransformDataHandler::selectSpw(const String& spwstr,const Vector<Int>& s
 
 	MSSelection mssel;
 	String myspwstr(spwstr == "" ? "*" : spwstr);
-
+	spwString_p = myspwstr; 
+	
 	mssel.setSpwExpr(myspwstr);
 
 	widths_p = steps.copy();
@@ -776,13 +777,16 @@ void MSTransformDataHandler::selectTime(Double timeBin, String timerng)
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-Bool MSTransformDataHandler::makeMSBasicStructure(	String& msname,
-													String& colname,
-													const Vector<Int>& tileShape,
-													const String& combine,
-													Table::TableOption option)
+Bool MSTransformDataHandler::makeMSBasicStructure(String& msname,
+                                                  String& colname,
+                                                  casacore::Bool createWeightSpectrumCols,
+                                                  const Vector<Int>& tileShape,
+                                                  const String& combine,
+                                                  Table::TableOption option)
 {
 	LogIO os(LogOrigin("MSTransformDataHandler", __FUNCTION__));
+        os << LogIO::DEBUG1 << "Preparing to setup output MS with createWeightSpectrumCols: "
+           << createWeightSpectrumCols << LogIO::POST;;
 
 	if ((spw_p.nelements() > 0) && (max(spw_p) >= Int(ms_p.spectralWindow().nrow())))
 	{
@@ -809,29 +813,24 @@ Bool MSTransformDataHandler::makeMSBasicStructure(	String& msname,
 
 	if (tileShape.nelements() == 3)
 	{
-		outpointer = setupMS(msname, nchan_p[0], ncorr_p[0], colNamesTok,tileShape);
+		outpointer = setupMS(msname, nchan_p[0], ncorr_p[0], colNamesTok,
+                                     createWeightSpectrumCols, tileShape);
 	}
 
 	// the following calls MSTileLayout...  disabled for now because it
 	// forces tiles to be the full spw bandwidth in width (gmoellen, 2010/11/07)
 	else if ((tileShape.nelements() == 1) && (tileShape[0] == 0 || tileShape[0]== 1))
 	{
-		outpointer = setupMS(	msname,
-								nchan_p[0],
-								ncorr_p[0],
-								mscIn_p->observation().telescopeName()(0),
-								colNamesTok,
-								tileShape[0]);
+		outpointer = setupMS(msname, nchan_p[0], ncorr_p[0],
+                                     mscIn_p->observation().telescopeName()(0),
+                                     colNamesTok, createWeightSpectrumCols, tileShape[0]);
 	}
 	else {
 		// Sweep all other cases of bad tileshape to a default one.
 		// (this probably never happens)
-		outpointer = setupMS(	msname,
-								nchan_p[0],
-								ncorr_p[0],
-								mscIn_p->observation().telescopeName()(0),
-								colNamesTok,
-								0);
+		outpointer = setupMS(msname, nchan_p[0], ncorr_p[0],
+                                     mscIn_p->observation().telescopeName()(0),
+                                     colNamesTok, createWeightSpectrumCols, 0);
 	}
 
 	combine_p = combine;
@@ -962,7 +961,7 @@ Bool MSTransformDataHandler::makeSelection()
 
 	if (spw_p.nelements() > 0)
 	{
-		thisSelection.setSpwExpr(MSSelection::indexExprStr(spw_p));
+		thisSelection.setSpwExpr(spwString_p);
 	}
 
 	if (antennaSel_p)
@@ -1138,14 +1137,15 @@ Bool MSTransformDataHandler::makeSelection()
 		//So if you see -1 in the main, feed, or pointing tables, fix it
 		antNewIndex_p.set(-1);
 
-		Bool trivial = true;
-		for (uInt k = 0; k < nAnts; ++k)
-		{
-			trivial &= (selAnts[k] == static_cast<Int> (k));
-			antNewIndex_p[selAnts[k]] = k;
-		}
-		// It is possible to exclude baselines without excluding any antennas.
-		antennaSel_p = !trivial;
+    for (uInt k = 0; k < nAnts; ++k)
+      antNewIndex_p[selAnts[k]] = k;
+
+    //If the total number of output antennas is the same as the input antennas
+    //this means that the selection of baselines includes at the end
+    //all the input antennas. Therefore setting antenna selection to false.
+    //See CAS-11111
+    if(nAnts == elms->antenna().nrow())
+      antennaSel_p = false;
 	}
 	// This still gets tripped up by VLA:OUT.
 	else
@@ -1170,28 +1170,31 @@ Bool MSTransformDataHandler::makeSelection()
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-MeasurementSet* MSTransformDataHandler::setupMS(	const String& MSFileName, const Int nchan,
-                                					const Int nCorr, const String& telescop,
-                                					const Vector<MS::PredefinedColumns>& colNames,
-                                					const Int obstype,const Bool compress,
-                                					const asdmStManUseAlternatives asdmStManUse,
-                                					Table::TableOption option)
+MeasurementSet* MSTransformDataHandler::setupMS(const String& MSFileName, const Int nchan,
+                                                const Int nCorr, const String& telescop,
+                                                const Vector<MS::PredefinedColumns>& colNames,
+                                                casacore::Bool createWeightSpectrumCols,
+                                                const Int obstype, const Bool compress,
+                                                const asdmStManUseAlternatives asdmStManUse,
+                                                Table::TableOption option)
  {
 	//Choose an appropriate tileshape
 	IPosition dataShape(2, nCorr, nchan);
 	IPosition tileShape = MSTileLayout::tileShape(dataShape, obstype, telescop);
-	return setupMS(MSFileName, nchan, nCorr, colNames, tileShape.asVector(),compress, asdmStManUse,option);
+	return setupMS(MSFileName, nchan, nCorr, colNames, createWeightSpectrumCols,
+                       tileShape.asVector(),compress, asdmStManUse,option);
  }
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
- MeasurementSet* MSTransformDataHandler::setupMS(	const String& MSFileName, const Int nchan,
-                                					const Int nCorr,
-                                					const Vector<MS::PredefinedColumns>& colNamesTok,
-                                					const Vector<Int>& tshape, const Bool compress,
-                                					const asdmStManUseAlternatives asdmStManUse,
-                                					Table::TableOption option)
+ MeasurementSet* MSTransformDataHandler::setupMS(const String& MSFileName, const Int nchan,
+                                                 const Int nCorr,
+                                                 const Vector<MS::PredefinedColumns>& colNamesTok,
+                                                 casacore::Bool createWeightSpectrumCols,
+                                                 const Vector<Int>& tshape, const Bool compress,
+                                                 const asdmStManUseAlternatives asdmStManUse,
+                                                 Table::TableOption option)
  {
 	if (tshape.nelements() != 3) throw(AipsError("TileShape has to have 3 elements "));
 
@@ -1289,13 +1292,15 @@ MeasurementSet* MSTransformDataHandler::setupMS(	const String& MSFileName, const
 		MS::addColumnCompression(td, MS::SIGMA, true);
 	}
 
-	// Add this optional column because random group fits has a weight per visibility
-	MS::addColumnToDesc(td, MS::WEIGHT_SPECTRUM, 2);
-	MS::addColumnToDesc(td, MS::SIGMA_SPECTRUM, 2);
+        if (createWeightSpectrumCols) {
+            MS::addColumnToDesc(td, MS::WEIGHT_SPECTRUM, 2);
+            MS::addColumnToDesc(td, MS::SIGMA_SPECTRUM, 2);
+
+            td.defineHypercolumn("TiledWgtSpectrum", 3,stringToVector(MS::columnName(MS::WEIGHT_SPECTRUM)));
+            td.defineHypercolumn("TiledSigmaSpectrum", 3,stringToVector(MS::columnName(MS::SIGMA_SPECTRUM)));
+        }
 
 	td.defineHypercolumn("TiledFlagCategory", 4,stringToVector(MS::columnName(MS::FLAG_CATEGORY)));
-	td.defineHypercolumn("TiledWgtSpectrum", 3,stringToVector(MS::columnName(MS::WEIGHT_SPECTRUM)));
-	td.defineHypercolumn("TiledSigmaSpectrum", 3,stringToVector(MS::columnName(MS::SIGMA_SPECTRUM)));
 	td.defineHypercolumn("TiledUVW", 2, stringToVector(MS::columnName(MS::UVW)));
 
 	if (asdmStManUse != USE_FOR_DATA_WEIGHT_SIGMA_FLAG)
@@ -1357,15 +1362,8 @@ MeasurementSet* MSTransformDataHandler::setupMS(	const String& MSFileName, const
 	StandardStMan aipsStMan2("DATA_DESC_ID", cache_val);
 	newtab.bindColumn(MS::columnName(MS::DATA_DESC_ID), aipsStMan2);
 
-	TiledShapeStMan tiledStMan1f("TiledFlag", tileShape);
-	TiledShapeStMan tiledStMan1fc("TiledFlagCategory",IPosition(4, tileShape(0), tileShape(1), 1, tileShape(2)));
-	TiledShapeStMan tiledStMan2("TiledWgtSpectrum", tileShape);
-	TiledShapeStMan tiledStMan6("TiledSigmaSpectrum", tileShape);
-	TiledColumnStMan tiledStMan3("TiledUVW",IPosition(2, 3, (tileShape(0) * tileShape(1) * tileShape(2)) / 3));
-	TiledShapeStMan tiledStMan4("TiledWgt",IPosition(2, tileShape(0), tileShape(1) * tileShape(2)));
-	TiledShapeStMan tiledStMan5("TiledSigma",IPosition(2, tileShape(0), tileShape(1) * tileShape(2)));
-
-	// Bind the DATA, FLAG & WEIGHT_SPECTRUM columns to the tiled stman or asdmStMan
+	// Bind the DATA, FLAG & WEIGHT/SIGMA_SPECTRUM columns to the tiled stman or
+        // asdmStMan
 	AsdmStMan sm;
 
 	if (mustWriteOnlyToData)
@@ -1392,10 +1390,18 @@ MeasurementSet* MSTransformDataHandler::setupMS(	const String& MSFileName, const
 			newtab.bindColumn(MS::columnName(MS::DATA), sm);
 		}
 	}
-	newtab.bindColumn(MS::columnName(MS::FLAG_CATEGORY), tiledStMan1fc);
-	newtab.bindColumn(MS::columnName(MS::WEIGHT_SPECTRUM), tiledStMan2);
-	newtab.bindColumn(MS::columnName(MS::SIGMA_SPECTRUM), tiledStMan6);
 
+	TiledShapeStMan tiledStMan1fc("TiledFlagCategory",IPosition(4, tileShape(0), tileShape(1), 1, tileShape(2)));
+	newtab.bindColumn(MS::columnName(MS::FLAG_CATEGORY), tiledStMan1fc);
+
+        if (createWeightSpectrumCols) {
+            TiledShapeStMan tiledStMan2("TiledWgtSpectrum", tileShape);
+            TiledShapeStMan tiledStMan6("TiledSigmaSpectrum", tileShape);
+            newtab.bindColumn(MS::columnName(MS::WEIGHT_SPECTRUM), tiledStMan2);
+            newtab.bindColumn(MS::columnName(MS::SIGMA_SPECTRUM), tiledStMan6);
+        }
+
+        TiledColumnStMan tiledStMan3("TiledUVW",IPosition(2, 3, (tileShape(0) * tileShape(1) * tileShape(2)) / 3));
 	newtab.bindColumn(MS::columnName(MS::UVW), tiledStMan3);
 	if (asdmStManUse == USE_FOR_DATA_WEIGHT_SIGMA_FLAG)
 	{
@@ -1405,9 +1411,15 @@ MeasurementSet* MSTransformDataHandler::setupMS(	const String& MSFileName, const
 	}
 	else
 	{
-		newtab.bindColumn(MS::columnName(MS::FLAG), tiledStMan1f);
-		newtab.bindColumn(MS::columnName(MS::WEIGHT), tiledStMan4);
-		newtab.bindColumn(MS::columnName(MS::SIGMA), tiledStMan5);
+            TiledShapeStMan tiledStMan1f("TiledFlag", tileShape);
+            TiledShapeStMan tiledStMan4("TiledWgt", IPosition(2, tileShape(0),
+                                                              tileShape(1) * tileShape(2)));
+            TiledShapeStMan tiledStMan5("TiledSigma",IPosition(2, tileShape(0),
+                                                               tileShape(1) * tileShape(2)));
+
+            newtab.bindColumn(MS::columnName(MS::FLAG), tiledStMan1f);
+            newtab.bindColumn(MS::columnName(MS::WEIGHT), tiledStMan4);
+            newtab.bindColumn(MS::columnName(MS::SIGMA), tiledStMan5);
 	}
 
 	// Avoid lock overheads by locking the table permanently

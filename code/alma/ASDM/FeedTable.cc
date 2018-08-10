@@ -62,9 +62,12 @@ using namespace asdm;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -320,7 +323,6 @@ FeedRow* FeedTable::newRow(FeedRow* row) {
 	//
 
 	
-		
 	
 	
 		
@@ -404,6 +406,7 @@ FeedRow* FeedTable::newRow(FeedRow* row) {
 						// insert a new FeedRow with this autoincremented value.
 						insertionId = i+1;
 
+						
 						break;
 						
 						// And goto insertion
@@ -419,7 +422,9 @@ FeedRow* FeedTable::newRow(FeedRow* row) {
 			ID_TIME_ROWS vv;
 			context[k] = vv;
 
-			insertionId = 0;				
+		
+			insertionId = 0;
+						
 		}
 		
 		
@@ -436,11 +441,11 @@ FeedRow* FeedTable::newRow(FeedRow* row) {
 		FeedRow * dummy = checkAndAdd(x, true); // We require the check for uniqueness to be skipped.
 		                                           // by passing true in the second parameter
 		                                           // whose value by default is false.
+		// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
                 if (false) cout << (unsigned long long) dummy;
 	}
 	
 
-	
 
 
 	// 
@@ -749,12 +754,11 @@ FeedRow* FeedTable::lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterva
 		// Look for a version information in the schemaVersion of the XML
 		//
 		xmlDoc *doc;
-		#if LIBXML_VERSION >= 20703
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+#if LIBXML_VERSION >= 20703
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
+		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Feed");
 		
@@ -828,9 +832,13 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 				
 		if (!xml.isStr("</FeedTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -1119,8 +1127,11 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void FeedTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1174,11 +1185,19 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 	}
 
 	
-	void FeedTable::setFromFile(const string& directory) {		
+	void FeedTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Feed.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Feed.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/Feed.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/Feed.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the Feed table", "Feed");
 	}			
@@ -1329,7 +1348,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

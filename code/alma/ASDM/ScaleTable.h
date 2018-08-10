@@ -97,7 +97,7 @@ class ScaleRow;
  * Specifies the time scales and units used in the dataset. 
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Scale </CAPTION>
@@ -409,6 +409,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

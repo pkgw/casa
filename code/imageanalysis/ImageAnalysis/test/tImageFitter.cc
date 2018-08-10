@@ -34,7 +34,7 @@
 #include <components/ComponentModels/SpectralModel.h>
 #include <components/ComponentModels/ComponentShape.h>
 #include <components/ComponentModels/GaussianShape.h>
-#include <imageanalysis/ImageAnalysis/ImageAnalysis.h>
+#include <imageanalysis/ImageAnalysis/ImageExprCalculator.h>
 #include <imageanalysis/ImageAnalysis/ImageMetaData.h>
 #include <imageanalysis/ImageAnalysis/ImageStatsCalculator.h>
 #include <images/Images/FITSImage.h>
@@ -59,21 +59,20 @@ void checkImage(
 		const String& differenceImage
 	) {
 	cout << "dif im " << differenceImage << endl;
-    ImageAnalysis ia;
-    ia.open(gotImage);
+    auto image = ImageFactory::fromFile(gotImage);
     String expr = "\"" + gotImage + "\" - \"" + expectedImage + "\"";
     cout << "*** before " << endl;
-    ia.imagecalc(differenceImage, expr, true);
+    ImageExprCalculator<Float> calc(expr, differenceImage, True);
+    auto x = calc.compute();
     cout << "*** after " << endl;
     cout << "** info " << Table::tableInfo(differenceImage).type();
-    ia.open(differenceImage);
     cout << "after open" << endl;
     Vector<Int> axes(2);
     axes[0] = 0;
     axes[1] = 1;
     Record region;
     Vector<String> plotstats(0);
-    ImageStatsCalculator statscalc(ia.getImage(), 0, "", false);
+    ImageStatsCalculator<Float> statscalc(x, 0, "", false);
     Record stats = statscalc.statistics();
     statscalc.statistics();
 
@@ -259,17 +258,17 @@ int main() {
         }
         {
             cout << "*** test fitter using an includepix (i=0) and excludepix (i=1) range with model with noise" << endl;
-        	ImageAnalysis ia;
         	String outname = dirName + "/myout.im";
-        	SPIIF outIm(ia.newimagefromfits(outname, noisyImage->name(), 0, 0, false, true));
-        	ImageAnalysis ia2(outIm);
+            auto outIm = ImageFactory::fromFITS(
+                outname, noisyImage->name(), 0, 0, False, True
+            );
         	String goodMask = "\"" + outname + "\">40";
         	Record r;
-        	ia2.calcmask(goodMask, r, "mymask", true);
+            ImageMaskHandler<Float> mh(outIm);
+            mh.calcmask(goodMask, r, "mymask", True);
         	// it appears this call is explicitly needed even though the previous statement should have made
         	// the new mask the default mask
         	outIm->setDefaultMask("mymask");
-
             for (uInt i=0; i<4; i++) {
                 String mask;
                 std::pair<Float, Float> includepix, excludepix;

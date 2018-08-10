@@ -41,11 +41,11 @@
 
 
 	
-#include <Tag.h>
+#include <ArrayTimeInterval.h>
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 	
@@ -105,7 +105,7 @@ class GainTrackingRow;
  * Gain tracking information. Contains variable control parameters   affecting the signal coming from a receiver in an antenna. 
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of GainTracking </CAPTION>
@@ -154,7 +154,7 @@ class GainTrackingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -179,28 +179,28 @@ class GainTrackingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> samplingLevel </TD> 
+ * <TD> samplingLevel</TD> 
  * <TD> float </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the sampling level. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numAttFreq </TD> 
+ * <TD> numAttFreq(numAttFreq)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the sizes of attSpectrum and attFreq. </TD>
  * </TR>
 	
  * <TR>
- * <TD> attFreq </TD> 
+ * <TD> attFreq</TD> 
  * <TD> vector<double > </TD>
  * <TD>  numAttFreq  </TD>
  * <TD>&nbsp; the attenuator frequencies. </TD>
  * </TR>
 	
  * <TR>
- * <TD> attSpectrum </TD> 
+ * <TD> attSpectrum</TD> 
  * <TD> vector<Complex > </TD>
  * <TD>  numAttFreq  </TD>
  * <TD>&nbsp; the attenuator's measured spectrum. </TD>
@@ -506,6 +506,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

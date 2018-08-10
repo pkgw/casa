@@ -48,6 +48,7 @@
 #include <tables/Tables/Table.h>
 #include <tables/Tables/TableRecord.h>
 #include <tables/Tables/ScalarColumn.h>
+#include <casatools/Config/State.h>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -240,17 +241,27 @@ Bool FluxCalc_SS_JPL_Butler::readEphem()
   Bool foundUserDir = Aipsrc::find(userpath, "user.ephemerides.directory");
   if(foundUserDir)
     ++nephdirs;
+  String resolvepath;
+  Bool foundResolveDir = false;
+  resolvepath = casatools::get_state( ).resolve("ephemerides/JPL-Horizons");
+  if (resolvepath != "ephemerides/JPL-Horizons") {
+      foundResolveDir = true;
+      ++nephdirs;
+  }
   String horpath;
   Bool foundStd = Aipsrc::findDir(horpath, "data/ephemerides/JPL-Horizons");
   if(foundStd)
     ++nephdirs;
-  
+
+  int nephindex = 0;
   Vector<String> ephdirs(nephdirs);
-  ephdirs[0] = ".";
+  ephdirs[nephindex++] = ".";
   if(foundUserDir)
-    ephdirs[1] = userpath;
+    ephdirs[nephindex++] = userpath;
+  if(foundResolveDir)
+    ephdirs[nephindex++] = resolvepath;
   if(foundStd)
-    ephdirs[nephdirs - 1] = horpath;  // nephdirs = 2 + foundUserDir
+    ephdirs[nephindex++] = horpath;
 
   Bool foundObj = false;
   Bool found = false;        // = foundObj && right time. 	 
@@ -610,15 +621,15 @@ void FluxCalc_SS_JPL_Butler::compute_BB(Vector<Flux<Double> >& values,
   Quantum<Double> temperature(temperature_p, "K");
 
   // The real peak frequency is about 2.82 x this.
-  Quantum<Double> freq_peak(QC::k * temperature / QC::h);
+  Quantum<Double> freq_peak(QC::k( ) * temperature / QC::h( ));
 
   Quantum<Double> rocd2(0.5 * angdiam);	// Dimensionless for now.
 
-  rocd2 /= QC::c;	// Don't put this in the c'tor, it'll give the wrong answer.
+  rocd2 /= QC::c( );	// Don't put this in the c'tor, it'll give the wrong answer.
   rocd2 *= rocd2;
 
   // Frequency independent factor.
-  Quantum<Double> freq_ind_fac(2.0e26 * QC::h * C::pi * rocd2);
+  Quantum<Double> freq_ind_fac(2.0e26 * QC::h( ) * C::pi * rocd2);
 
   LogIO os(LogOrigin("FluxCalc_SS_JPL_Butler", "compute_BB"));
   os << LogIO::DEBUG1
@@ -656,11 +667,11 @@ void FluxCalc_SS_JPL_Butler::compute_GB(Vector<Flux<Double> >& values,
   const uInt nfreqs = mfreqs.nelements();
   Quantum<Double> rocd2(0.5 * angdiam);	// Dimensionless for now.
 
-  rocd2 /= QC::c;	// Don't put this in the c'tor, it'll give the wrong answer.
+  rocd2 /= QC::c( );	// Don't put this in the c'tor, it'll give the wrong answer.
   rocd2 *= rocd2;
 
   // Frequency independent factor.
-  Quantum<Double> freq_ind_fac(2.0e26 * QC::h * C::pi * rocd2);
+  Quantum<Double> freq_ind_fac(2.0e26 * QC::h( ) * C::pi * rocd2);
 
   LogIO os(LogOrigin("FluxCalc_SS_JPL_Butler", "compute_GB"));
   os << LogIO::DEBUG1
@@ -686,7 +697,7 @@ void FluxCalc_SS_JPL_Butler::compute_GB(Vector<Flux<Double> >& values,
     Quantum<Double> temperature(max(temps[f], 2.7), "K");
 
     // The real peak frequency is about 2.82 x this.
-    Quantum<Double> freq_peak(QC::k * temperature / QC::h);
+    Quantum<Double> freq_peak(QC::k( ) * temperature / QC::h( ));
     
     values[f].setUnit(jy);
     Double fd = (freq_ind_fac * freq * freq * freq).getValue() /

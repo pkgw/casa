@@ -78,7 +78,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   virtual void finalizeGrid(vi::VisBuffer2& vb, casacore::Bool dopsf);
   virtual void initializeDegrid(vi::VisBuffer2& vb, casacore::Int row=-1);
   virtual void degrid(vi::VisBuffer2& vb);
-  virtual void addPB(vi::VisBuffer2& vb, PBMath& pbMath);
+  virtual void addPB(vi::VisBuffer2& vb, PBMath& pbMath, const casacore::MDirection& altDir=MDirection(), const casacore::Bool useAltDir=False);
   /////////////////////// OLD VI/VB versions
   virtual void initializeGrid(VisBuffer& vb, casacore::Bool dopsf, casacore::Bool firstaccess=false);
   virtual void grid(VisBuffer& vb, casacore::Bool dopsf, FTMachine::Type col, const casacore::Int whichFTM=-1);

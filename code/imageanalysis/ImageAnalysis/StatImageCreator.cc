@@ -1,19 +1,15 @@
 #include <imageanalysis/ImageAnalysis/StatImageCreator.h>
 
-#include <casacore/images/Images/ImageStatistics.h>
-
 #include <imageanalysis/Annotations/AnnCenterBox.h>
 #include <imageanalysis/Annotations/AnnCircle.h>
 #include <casacore/lattices/LEL/LatticeExpr.h>
 
 namespace casa {
 
-const Double StatImageCreator::PHI = 1.482602218505602;
-
 StatImageCreator::StatImageCreator(
     const SPCIIF image, const Record *const region,
 	const String& mask, const String& outname, Bool overwrite
-) : ImageStatsConfigurator(image, region, mask, outname, overwrite) {
+) : ImageStatsBase(image, region, mask, outname, overwrite) {
     this->_construct();
 	auto da = _getImage()->coordinates().directionAxesNumbers();
     _dirAxes[0] = da[0];
@@ -134,8 +130,8 @@ SPIIF StatImageCreator::compute() {
         writeTo = store.get();
     }
     _computeStat(*writeTo, subImageRO, nxpts, nypts, xstart, ystart);
-    if (_doPhi) {
-        writeTo->copyData((LatticeExpr<Float>)(*writeTo * PHI));
+    if (_doProbit) {
+        writeTo->copyData((LatticeExpr<Float>)(*writeTo * C::probit_3_4));
     }
     if (interpolate) {
         _doInterpolation(
@@ -643,7 +639,7 @@ void StatImageCreator::setStatType(const String& s) {
     else {
         ThrowCc("Statistic " + s + " not supported.");
     }
-    _doPhi = m.startsWith("x");
+    _doProbit = m.startsWith("x");
     setStatType(stat);
 }
 

@@ -333,7 +333,7 @@ template <class T> void ImageTask<T>::_copyMask(
 }
 
 template <class T> void ImageTask<T>::_copyData(
-    casacore::Lattice<T>& data, const casacore::ImageInterface<T>& image
+    Lattice<T>& data, const Lattice<T>& image
 ) {
     auto cursorShape = image.niceCursorShape(4096*4096);
     casacore::LatticeStepper stepper(image.shape(), cursorShape, casacore::LatticeStepper::RESIZE);
@@ -342,6 +342,21 @@ template <class T> void ImageTask<T>::_copyData(
     for (iter.reset(); ! iter.atEnd(); ++iter, ++diter) {
         diter.rwCursor() = iter.cursor();
     }
+}
+
+template <class T> casacore::Bool ImageTask<T>::_isPVImage() const {
+    const CoordinateSystem& csys = _image->coordinates();
+    if (csys.hasLinearCoordinate() && csys.hasSpectralAxis()) {
+        auto pixelAxes = csys.linearAxesNumbers();
+        auto nPixelAxes = pixelAxes.size();
+        auto names = csys.worldAxisNames();
+        for (uInt j=0; j<nPixelAxes; ++j) {
+            if (pixelAxes[j] >= 0 && names[pixelAxes[j]] == "Offset") {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 template <class T> SPIIT ImageTask<T>::_prepareOutputImage(

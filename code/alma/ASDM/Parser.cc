@@ -35,7 +35,9 @@
 #include <Base64.h>
 
 #include <Parser.h>
+#ifndef WITHOUT_BOOST
 #include <boost/property_tree/detail/xml_parser_utils.hpp>
+#endif
 #include <OutOfBoundsException.h>
 #include <NumberFormatException.h>
 #include <BooleanWrapper.h>
@@ -76,6 +78,61 @@ namespace asdm {
 			--j;
 		return substring(s,i,j + 1);		
 	}
+
+	string Parser::encode(const string &s) {
+#ifndef WITHOUT_BOOST
+	    return boost::property_tree::xml_parser::encode_char_entities(s);
+#else
+            string result;		    
+            for (string::const_iterator it=s.begin(); it!=s.end();++it) {
+                switch(*it) {
+                case '&':  result += "&amp;";   break;
+                case '<':  result += "&gt;";    break;
+                case '>':  result += "&lt;";    break;
+                case '\"': result += "&quot;";  break;
+                case '\'': result += "&apos;";  break;
+                default:   result += *it;
+                }
+            }
+            return result;
+#endif
+        }
+
+#ifndef WITHOUT_BOOST
+        string Parser::decode(const string &s, const string &/* tableName */) {
+            return boost::property_tree::xml_parser::decode_char_entities(s);
+        }
+#else
+        string Parser::decode(const string &s, const string &tableName) {
+            string result;
+            for (string::const_iterator it=s.begin(); it!=s.end();++it) {
+                // is this the start of a special set of characters to be decoded
+                if (*it == '&') {
+                    // is it correctly terminated
+                    string::const_iterator term = find(it+1,s.end(),';');
+                    if (term == s.end())
+		        throw ConversionException("Error: Missing semi-colon after start of special characters in \"" + 
+                                 s + "\" : Invalid XML syntax", tableName);
+
+                    string thing(it+1,term);
+                    if (thing == "amp") result += '&';
+                    else if (thing == "gt") result += '>';
+                    else if (thing == "lt") result += '<';
+                    else if (thing == "quot") result += '\"';
+                    else if (thing == "apos") result += '\'';
+                    else 
+		        throw ConversionException("Error: Unrecognized special characters in \"" + 
+                                 s + "\" : Invalid XML syntax", tableName);
+
+                    it = term;
+                } else {
+                    result += *it;
+                }
+            }
+            return result;
+        }
+#endif
+
  
  	/**
 	 * Get the portion of the string bounded by s1 and s2, inclusive.
@@ -144,7 +201,7 @@ namespace asdm {
 			throw  ConversionException("Error: Missing field \"" + 
 					name + "\" or invalid syntax",tableName);
 		*/
-		return boost::property_tree::xml_parser::decode_char_entities(xmlField);
+		return Parser::decode(xmlField,tableName);
 	}
 
 	vector<string> Parser::get1DString(const string &name, const string &tableName, const string &xmlDoc)
@@ -167,11 +224,11 @@ namespace asdm {
 			if (dim0 == 0)
 				return value;
 			t.nextToken("\""); // the space
-			//t.nextToken();
 			value[0] = t.nextToken();
 			for (int i = 1; i < dim0; ++i) {
-				t.nextToken(); // the space		
-				value[i] = boost::property_tree::xml_parser::decode_char_entities(t.nextToken());
+				t.nextToken(); // the space
+				string thisToken = t.nextToken();		
+				value[i] = Parser::decode(thisToken,tableName);
 			}
 			if (t.hasMoreTokens()) {
 				throw ConversionException("Error: Field \"" + 
@@ -213,7 +270,7 @@ namespace asdm {
 			for (int i = 0; i < dim0; ++i) {
 				v_aux.clear();
 				for (int j = 0; j < dim1; ++j) {
-					v_aux.push_back( boost::property_tree::xml_parser::decode_char_entities(t.nextToken()));
+					v_aux.push_back(Parser::decode(t.nextToken(),tableName));
 					if (i != dim0 - 1 || j != dim1 - 1)
 						t.nextToken(); // the space
 				}
@@ -262,7 +319,7 @@ namespace asdm {
 				for (int j = 0; j < dim1; ++j) {
 					v_aux.clear();
 					for (int k = 0; k < dim2; ++k) {
-						v_aux.push_back( boost::property_tree::xml_parser::decode_char_entities(t.nextToken()));
+						v_aux.push_back( Parser::decode(t.nextToken(),tableName));
 						if (i != dim0 - 1 || j != dim1 - 1 || k != dim2 - 1)
 							t.nextToken(); // the space
 					}
@@ -2876,7 +2933,7 @@ namespace asdm {
 		buf.append("<" + name + "> ");
 	
 		if (data.size()>0)
-			buf.append(boost::property_tree::xml_parser::encode_char_entities(data));
+		    buf.append(Parser::encode(data));
 		
 		buf.append(" </" + name + "> ");
 	}
@@ -2893,7 +2950,7 @@ namespace asdm {
 	
 			buf.append("\"");
 			if (data[i].size()>0)	
-				buf.append(boost::property_tree::xml_parser::encode_char_entities(data[i]));
+			    buf.append(Parser::encode(data[i]));
 			buf.append("\"");
 		
 			buf.append(" ");
@@ -2913,7 +2970,8 @@ namespace asdm {
 	
 				buf.append("\"");
 				if(data[i][j].size()>0)	
-					buf.append(boost::property_tree::xml_parser::encode_char_entities(data[i][j]));
+				    buf.append(Parser::encode(data[i][j]));
+
 				buf.append("\"");
 		
 				buf.append(" ");
@@ -2937,7 +2995,8 @@ namespace asdm {
 	
 					buf.append("\"");
 					if (data[i][j][k].size() > 0)	
-						buf.append(boost::property_tree::xml_parser::encode_char_entities(data[i][j][k]));
+					    buf.append(Parser::encode(data[i][j][k]));
+
 					buf.append("\"");
 		
 					buf.append(" ");
@@ -2964,8 +3023,8 @@ namespace asdm {
 					for (unsigned int l = 0; l < data[i][j][k].size(); l++) {
 	
 						buf.append("\"");
-						if (data[i][j][k][l].size() > 0)	
-							buf.append(boost::property_tree::xml_parser::encode_char_entities(data[i][j][k][l]));
+						if (data[i][j][k][l].size() > 0)
+						    Parser::encode(data[i][j][k][l]);
 						buf.append("\"");
 		
 						buf.append(" ");

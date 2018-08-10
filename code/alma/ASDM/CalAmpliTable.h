@@ -45,11 +45,11 @@
 	
 
 	
-#include <Tag.h>
+#include <Frequency.h>
 	
 
 	
-#include <Frequency.h>
+#include <Tag.h>
 	
 
 
@@ -119,7 +119,7 @@ class CalAmpliRow;
  * Amplitude Calibration Result from Telescope Calibration. This calibration checks that observing amplitude calibrators provide reasonable results: From the antenna-based fringe amplitudes rough aperture efficiencies are determined.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalAmpli </CAPTION>
@@ -186,7 +186,7 @@ class CalAmpliRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -239,7 +239,7 @@ class CalAmpliRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> correctionValidity </TD> 
+ * <TD> correctionValidity</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the correction validity. </TD>
@@ -556,6 +556,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

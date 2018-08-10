@@ -240,14 +240,17 @@ String SkyComponent::summarize(
 	myFlux.value(fluxValue);
 	summary << "Flux density: " << fluxValue << " +/- " << myFlux.errors() << endl;
 	summary << "Spectral model: " << spectrum().ident() << endl;
-	summary << "Position: " <<  positionToString(dc, longErrOnGreatCircle) << endl;
+	std::shared_ptr<Vector<Double>> pixCoords;
+	summary << "Position: " <<  positionToString(pixCoords, dc, longErrOnGreatCircle) << endl;
 	summary << "Size: " << endl << shape().sizeToString() << endl;
 	return summary.str();
 }
 
 String SkyComponent::positionToString(
+    SHARED_PTR<casacore::Vector<casacore::Double>>& pixelCoords,
 	const DirectionCoordinate *const &dc ,Bool longErrOnGreatCircle
 ) const {
+    pixelCoords.reset();
 	// FIXME essentially cut and paste of Gareth's python code. Needs work.
 	ostringstream position;
 	MDirection mdir = shape().refDirection();
@@ -302,11 +305,12 @@ String SkyComponent::positionToString(
 	}
 	if (dc) {
 		const Vector<String> units = dc->worldAxisUnits();
-		Vector<Double> world(dc->nWorldAxes(), 0), pixel(dc->nPixelAxes(), 0);
+		Vector<Double> world(dc->nWorldAxes(), 0);
 		world[0] = longitude.getValue(units[0]);
 		world[1] = lat.getValue(units[1]);
 		// TODO do the pixel computations in another method
-		if (dc->toPixel(pixel, world)) {
+		pixelCoords.reset(new Vector<Double>());
+		if (dc->toPixel(*pixelCoords, world)) {
 			Vector<Double> increment = dc->increment();
 			Double longPixErr = dLong.getValue() == 0
 				? 0 : abs(dLong.getValue(units[0])/increment[0]);
@@ -317,14 +321,14 @@ String SkyComponent::positionToString(
 			latPix.set(roundDouble(latPixErr));
 			precision = precisionForValueErrorPairs(longPix, latPix);
 			position << std::fixed <<  setprecision(precision);
-			position << "       --- " << labels.first << " " << pixel[0];
+			position << "       --- " << labels.first << " " << (*pixelCoords)[0];
 			if (dLong.getValue() == 0) {
 				position << " (fixed)" << endl;
 			}
 			else {
 				position << " +/- " << longPixErr << " pixels" << endl;
 			}
-			position << "       --- " << labels.second << " " << pixel[1];
+			position << "       --- " << labels.second << " " << (*pixelCoords)[1];
 			if (dLat.getValue() == 0) {
 				position << " (fixed)" << endl;
 			}

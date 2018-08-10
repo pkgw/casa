@@ -782,6 +782,237 @@ void ASDM_CALAMPLI::fill(const ASDM& asdm) {
 	table_p_->flush();
 }
 	 
+ASDM_CALANTENNASOLUTIONS::ASDM_CALANTENNASOLUTIONS() {
+  name_ = "ASDM_CALANTENNASOLUTIONS";
+  tableDesc_.comment() = "The verbatim copy of the ASDM's dataset CalAntennaSolutions table";
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("antennaName", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("atmPhaseCorrection", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("receiverBand", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("basebandName", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("calDataId", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("calReductionId", "blabla"));
+  		
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<double>("startValidTime", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<double>("endValidTime", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<int>("numReceptor", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("refAntennaName", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<double>("direction", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<double>("frequencyRange", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<double>("integrationTime", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<String>("polarizationTypes", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<bool>("correctionValidity", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<float>("phaseAnt", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<float>("phaseAntRMS", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<float>("amplitudeAnt", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<float>("amplitudeAntRMS", "blabla"));
+  		
+  		  		
+}
+
+ASDM_CALANTENNASOLUTIONS::~ASDM_CALANTENNASOLUTIONS() {
+}
+
+const TableDesc& ASDM_CALANTENNASOLUTIONS::tableDesc() const {
+  return tableDesc_;
+}
+
+#include "CalAntennaSolutionsTable.h"
+#include "CalAntennaSolutionsRow.h"
+
+		
+			
+		
+			
+using namespace AtmPhaseCorrectionMod;
+			
+		
+			
+using namespace BasebandNameMod;
+			
+		
+			
+using namespace ReceiverBandMod;
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+using namespace PolarizationTypeMod;
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+	
+void ASDM_CALANTENNASOLUTIONS::fill(const ASDM& asdm) {
+	vector<CalAntennaSolutionsRow*> rows = asdm.getCalAntennaSolutions().get();
+	unsigned int rowIndex = table_p_->nrow();
+	table_p_->addRow(rows.size());
+  		
+    ScalarColumn<String> antennaName(*table_p_, "antennaName");             
+  		
+    ScalarColumn<String> atmPhaseCorrection(*table_p_, "atmPhaseCorrection");             
+  		
+    ScalarColumn<String> receiverBand(*table_p_, "receiverBand");             
+  		
+    ScalarColumn<String> basebandName(*table_p_, "basebandName");             
+  		
+    ScalarColumn<String> calDataId(*table_p_, "calDataId");             
+  		
+    ScalarColumn<String> calReductionId(*table_p_, "calReductionId");             
+  		
+  		
+    ScalarColumn<double> startValidTime(*table_p_, "startValidTime");             
+  		
+    ScalarColumn<double> endValidTime(*table_p_, "endValidTime");             
+  		
+    ScalarColumn<int> numReceptor(*table_p_, "numReceptor");             
+  		
+    ScalarColumn<String> refAntennaName(*table_p_, "refAntennaName");             
+  		
+    ArrayColumn<double> direction(*table_p_, "direction");             
+  		
+    ArrayColumn<double> frequencyRange(*table_p_, "frequencyRange");             
+  		
+    ScalarColumn<double> integrationTime(*table_p_, "integrationTime");             
+  		
+    ArrayColumn<String> polarizationTypes(*table_p_, "polarizationTypes");             
+  		
+    ScalarColumn<bool> correctionValidity(*table_p_, "correctionValidity");             
+  		
+    ArrayColumn<float> phaseAnt(*table_p_, "phaseAnt");             
+  		
+    ArrayColumn<float> phaseAntRMS(*table_p_, "phaseAntRMS");             
+  		
+    ArrayColumn<float> amplitudeAnt(*table_p_, "amplitudeAnt");             
+  		
+    ArrayColumn<float> amplitudeAntRMS(*table_p_, "amplitudeAntRMS");             
+  		
+  		  	
+
+	for (unsigned int i = 0; i < rows.size(); i++) {
+		
+	
+	antennaName.put(rowIndex, rows.at(i)->getAntennaName());
+	
+
+	
+	atmPhaseCorrection.put(rowIndex, CAtmPhaseCorrection::name(rows.at(i)->getAtmPhaseCorrection()));
+	
+
+	
+	receiverBand.put(rowIndex, CReceiverBand::name(rows.at(i)->getReceiverBand()));
+	
+
+	
+	basebandName.put(rowIndex, CBasebandName::name(rows.at(i)->getBasebandName()));
+	
+
+	
+	calDataId.put(rowIndex, rows.at(i)->getCalDataId().toString());
+	
+
+	
+	calReductionId.put(rowIndex, rows.at(i)->getCalReductionId().toString());
+	
+
+		
+	
+	startValidTime.put(rowIndex, rows.at(i)->getStartValidTime().get()/(1.0e9));
+	
+
+	
+	endValidTime.put(rowIndex, rows.at(i)->getEndValidTime().get()/(1.0e9));
+	
+
+	
+	numReceptor.put(rowIndex, rows.at(i)->getNumReceptor());
+	
+
+	
+	refAntennaName.put(rowIndex, rows.at(i)->getRefAntennaName());
+	
+
+	
+	direction.put(rowIndex, ext2CASA1D<Angle,double>(rows.at(i)->getDirection()));
+	
+
+	
+	frequencyRange.put(rowIndex, ext2CASA1D<Frequency,double>(rows.at(i)->getFrequencyRange()));
+	
+
+	
+	integrationTime.put(rowIndex, rows.at(i)->getIntegrationTime().get()/(1.0e9));
+	
+
+	
+	polarizationTypes.put(rowIndex, enum2CASA1D<PolarizationType,CPolarizationType>(rows.at(i)->getPolarizationTypes()));
+	
+
+	
+	correctionValidity.put(rowIndex, rows.at(i)->getCorrectionValidity());
+	
+
+	
+	phaseAnt.put(rowIndex, basic2CASA1D<float,float>(rows.at(i)->getPhaseAnt()));
+	
+
+	
+	phaseAntRMS.put(rowIndex, basic2CASA1D<float,float>(rows.at(i)->getPhaseAntRMS()));
+	
+
+	
+	amplitudeAnt.put(rowIndex, basic2CASA1D<float,float>(rows.at(i)->getAmplitudeAnt()));
+	
+
+	
+	amplitudeAntRMS.put(rowIndex, basic2CASA1D<float,float>(rows.at(i)->getAmplitudeAntRMS()));
+	
+
+		
+		rowIndex++;		
+	}
+	table_p_->flush();
+}
+	 
 ASDM_CALAPPPHASE::ASDM_CALAPPPHASE() {
   name_ = "ASDM_CALAPPPHASE";
   tableDesc_.comment() = "The verbatim copy of the ASDM's dataset CalAppPhase table";
@@ -1551,7 +1782,21 @@ ASDM_CALBANDPASS::ASDM_CALBANDPASS() {
   		
   tableDesc_.addColumn(ScalarColumnDesc<int>("numBaseline", "blabla"));
   		
+  tableDesc_.addColumn(ScalarColumnDesc<int>("numFreq", "blabla"));
+  		
   tableDesc_.addColumn(ArrayColumnDesc<float>("rms", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<double>("frequencyRange", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<int>("numSpectralWindow", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<double>("chanFreqStart", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<double>("chanFreqStep", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<int>("numSpectralWindowChan", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<float>("spectrum", "blabla"));
   		  		
 }
 
@@ -1614,6 +1859,20 @@ using namespace PolarizationTypeMod;
 		
 			
 		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
 	
 void ASDM_CALBANDPASS::fill(const ASDM& asdm) {
 	vector<CalBandpassRow*> rows = asdm.getCalBandpass().get();
@@ -1660,7 +1919,21 @@ void ASDM_CALBANDPASS::fill(const ASDM& asdm) {
   		
     ScalarColumn<int> numBaseline(*table_p_, "numBaseline");             
   		
+    ScalarColumn<int> numFreq(*table_p_, "numFreq");             
+  		
     ArrayColumn<float> rms(*table_p_, "rms");             
+  		
+    ArrayColumn<double> frequencyRange(*table_p_, "frequencyRange");             
+  		
+    ScalarColumn<int> numSpectralWindow(*table_p_, "numSpectralWindow");             
+  		
+    ArrayColumn<double> chanFreqStart(*table_p_, "chanFreqStart");             
+  		
+    ArrayColumn<double> chanFreqStep(*table_p_, "chanFreqStep");             
+  		
+    ArrayColumn<int> numSpectralWindowChan(*table_p_, "numSpectralWindowChan");             
+  		
+    ArrayColumn<float> spectrum(*table_p_, "spectrum");             
   		  	
 
 	for (unsigned int i = 0; i < rows.size(); i++) {
@@ -1745,8 +2018,43 @@ void ASDM_CALBANDPASS::fill(const ASDM& asdm) {
 	
 
 	
+	if (rows.at(i)->isNumFreqExists())
+		numFreq.put(rowIndex, rows.at(i)->getNumFreq());
+	
+
+	
 	if (rows.at(i)->isRmsExists())
 		rms.put(rowIndex, basic2CASA2D<float,float>(rows.at(i)->getRms()));
+	
+
+	
+	if (rows.at(i)->isFrequencyRangeExists())
+		frequencyRange.put(rowIndex, ext2CASA1D<Frequency,double>(rows.at(i)->getFrequencyRange()));
+	
+
+	
+	if (rows.at(i)->isNumSpectralWindowExists())
+		numSpectralWindow.put(rowIndex, rows.at(i)->getNumSpectralWindow());
+	
+
+	
+	if (rows.at(i)->isChanFreqStartExists())
+		chanFreqStart.put(rowIndex, ext2CASA1D<Frequency,double>(rows.at(i)->getChanFreqStart()));
+	
+
+	
+	if (rows.at(i)->isChanFreqStepExists())
+		chanFreqStep.put(rowIndex, ext2CASA1D<Frequency,double>(rows.at(i)->getChanFreqStep()));
+	
+
+	
+	if (rows.at(i)->isNumSpectralWindowChanExists())
+		numSpectralWindowChan.put(rowIndex, basic2CASA1D<int,int>(rows.at(i)->getNumSpectralWindowChan()));
+	
+
+	
+	if (rows.at(i)->isSpectrumExists())
+		spectrum.put(rowIndex, basic2CASA3D<float,float>(rows.at(i)->getSpectrum()));
 	
 
 		rowIndex++;		
@@ -3968,6 +4276,16 @@ ASDM_CALPHASE::ASDM_CALPHASE() {
   		
   		
   tableDesc_.addColumn(ArrayColumnDesc<bool>("correctionValidity", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<int>("numAntenna", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<String>("singleAntennaName", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("refAntennaName", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<float>("phaseAnt", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<float>("phaseAntRMS", "blabla"));
   		  		
 }
 
@@ -4028,6 +4346,16 @@ using namespace PolarizationTypeMod;
 		
 			
 		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
 	
 void ASDM_CALPHASE::fill(const ASDM& asdm) {
 	vector<CalPhaseRow*> rows = asdm.getCalPhase().get();
@@ -4077,6 +4405,16 @@ void ASDM_CALPHASE::fill(const ASDM& asdm) {
   		
   		
     ArrayColumn<bool> correctionValidity(*table_p_, "correctionValidity");             
+  		
+    ScalarColumn<int> numAntenna(*table_p_, "numAntenna");             
+  		
+    ArrayColumn<String> singleAntennaName(*table_p_, "singleAntennaName");             
+  		
+    ScalarColumn<String> refAntennaName(*table_p_, "refAntennaName");             
+  		
+    ArrayColumn<float> phaseAnt(*table_p_, "phaseAnt");             
+  		
+    ArrayColumn<float> phaseAntRMS(*table_p_, "phaseAntRMS");             
   		  	
 
 	for (unsigned int i = 0; i < rows.size(); i++) {
@@ -4166,6 +4504,31 @@ void ASDM_CALPHASE::fill(const ASDM& asdm) {
 	
 	if (rows.at(i)->isCorrectionValidityExists())
 		correctionValidity.put(rowIndex, basic2CASA1D<bool,bool>(rows.at(i)->getCorrectionValidity()));
+	
+
+	
+	if (rows.at(i)->isNumAntennaExists())
+		numAntenna.put(rowIndex, rows.at(i)->getNumAntenna());
+	
+
+	
+	if (rows.at(i)->isSingleAntennaNameExists())
+		singleAntennaName.put(rowIndex, basic2CASA1D<string,String>(rows.at(i)->getSingleAntennaName()));
+	
+
+	
+	if (rows.at(i)->isRefAntennaNameExists())
+		refAntennaName.put(rowIndex, rows.at(i)->getRefAntennaName());
+	
+
+	
+	if (rows.at(i)->isPhaseAntExists())
+		phaseAnt.put(rowIndex, basic2CASA2D<float,float>(rows.at(i)->getPhaseAnt()));
+	
+
+	
+	if (rows.at(i)->isPhaseAntRMSExists())
+		phaseAntRMS.put(rowIndex, basic2CASA2D<float,float>(rows.at(i)->getPhaseAntRMS()));
 	
 
 		rowIndex++;		
@@ -6225,6 +6588,8 @@ ASDM_DATADESCRIPTION::ASDM_DATADESCRIPTION() {
   		
   tableDesc_.addColumn(ScalarColumnDesc<String>("spectralWindowId", "blabla"));
   		
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("pulsarId", "blabla"));
   		  		
 }
 
@@ -6254,6 +6619,8 @@ void ASDM_DATADESCRIPTION::fill(const ASDM& asdm) {
   		
     ScalarColumn<String> spectralWindowId(*table_p_, "spectralWindowId");             
   		
+  		
+    ScalarColumn<String> pulsarId(*table_p_, "pulsarId");             
   		  	
 
 	for (unsigned int i = 0; i < rows.size(); i++) {
@@ -6272,6 +6639,11 @@ void ASDM_DATADESCRIPTION::fill(const ASDM& asdm) {
 	
 
 		
+	
+	if (rows.at(i)->isPulsarIdExists())
+		pulsarId.put(rowIndex, rows.at(i)->getPulsarId().toString());
+	
+
 		rowIndex++;		
 	}
 	table_p_->flush();
@@ -8056,7 +8428,11 @@ ASDM_FLAG::ASDM_FLAG() {
   		
   tableDesc_.addColumn(ScalarColumnDesc<int>("numPairedAntenna", "blabla"));
   		
+  tableDesc_.addColumn(ScalarColumnDesc<int>("numChan", "blabla"));
+  		
   tableDesc_.addColumn(ArrayColumnDesc<String>("polarizationType", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<int>("channel", "blabla"));
   		
   tableDesc_.addColumn(ArrayColumnDesc<String>("pairedAntennaId", "blabla"));
   		
@@ -8092,7 +8468,11 @@ const TableDesc& ASDM_FLAG::tableDesc() const {
 			
 		
 			
+		
+			
 using namespace PolarizationTypeMod;
+			
+		
 			
 		
 	
@@ -8121,7 +8501,11 @@ void ASDM_FLAG::fill(const ASDM& asdm) {
   		
     ScalarColumn<int> numPairedAntenna(*table_p_, "numPairedAntenna");             
   		
+    ScalarColumn<int> numChan(*table_p_, "numChan");             
+  		
     ArrayColumn<String> polarizationType(*table_p_, "polarizationType");             
+  		
+    ArrayColumn<int> channel(*table_p_, "channel");             
   		
     ArrayColumn<String> pairedAntennaId(*table_p_, "pairedAntennaId");             
   		
@@ -8172,8 +8556,18 @@ void ASDM_FLAG::fill(const ASDM& asdm) {
 	
 
 	
+	if (rows.at(i)->isNumChanExists())
+		numChan.put(rowIndex, rows.at(i)->getNumChan());
+	
+
+	
 	if (rows.at(i)->isPolarizationTypeExists())
 		polarizationType.put(rowIndex, enum2CASA1D<PolarizationType,CPolarizationType>(rows.at(i)->getPolarizationType()));
+	
+
+	
+	if (rows.at(i)->isChannelExists())
+		channel.put(rowIndex, basic2CASA2D<int,int>(rows.at(i)->getChannel()));
 	
 
 	
@@ -9555,6 +9949,170 @@ void ASDM_PROCESSOR::fill(const ASDM& asdm) {
 	
 
 		
+		rowIndex++;		
+	}
+	table_p_->flush();
+}
+	 
+ASDM_PULSAR::ASDM_PULSAR() {
+  name_ = "ASDM_PULSAR";
+  tableDesc_.comment() = "The verbatim copy of the ASDM's dataset Pulsar table";
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("pulsarId", "blabla"));
+  		
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<double>("refTime", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<double>("refPulseFreq", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<double>("refPhase", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<int>("numBin", "blabla"));
+  		
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<int>("numPoly", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<double>("phasePoly", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<double>("timeSpan", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<float>("startPhaseBin", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<float>("endPhaseBin", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<double>("dispersionMeasure", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<double>("refFrequency", "blabla"));
+  		  		
+}
+
+ASDM_PULSAR::~ASDM_PULSAR() {
+}
+
+const TableDesc& ASDM_PULSAR::tableDesc() const {
+  return tableDesc_;
+}
+
+#include "PulsarTable.h"
+#include "PulsarRow.h"
+
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+	
+void ASDM_PULSAR::fill(const ASDM& asdm) {
+	vector<PulsarRow*> rows = asdm.getPulsar().get();
+	unsigned int rowIndex = table_p_->nrow();
+	table_p_->addRow(rows.size());
+  		
+    ScalarColumn<String> pulsarId(*table_p_, "pulsarId");             
+  		
+  		
+    ScalarColumn<double> refTime(*table_p_, "refTime");             
+  		
+    ScalarColumn<double> refPulseFreq(*table_p_, "refPulseFreq");             
+  		
+    ScalarColumn<double> refPhase(*table_p_, "refPhase");             
+  		
+    ScalarColumn<int> numBin(*table_p_, "numBin");             
+  		
+  		
+    ScalarColumn<int> numPoly(*table_p_, "numPoly");             
+  		
+    ArrayColumn<double> phasePoly(*table_p_, "phasePoly");             
+  		
+    ScalarColumn<double> timeSpan(*table_p_, "timeSpan");             
+  		
+    ArrayColumn<float> startPhaseBin(*table_p_, "startPhaseBin");             
+  		
+    ArrayColumn<float> endPhaseBin(*table_p_, "endPhaseBin");             
+  		
+    ScalarColumn<double> dispersionMeasure(*table_p_, "dispersionMeasure");             
+  		
+    ScalarColumn<double> refFrequency(*table_p_, "refFrequency");             
+  		  	
+
+	for (unsigned int i = 0; i < rows.size(); i++) {
+		
+	
+	pulsarId.put(rowIndex, rows.at(i)->getPulsarId().toString());
+	
+
+		
+	
+	refTime.put(rowIndex, rows.at(i)->getRefTime().get()/(1.0e9));
+	
+
+	
+	refPulseFreq.put(rowIndex, rows.at(i)->getRefPulseFreq().get());
+	
+
+	
+	refPhase.put(rowIndex, rows.at(i)->getRefPhase());
+	
+
+	
+	numBin.put(rowIndex, rows.at(i)->getNumBin());
+	
+
+		
+	
+	if (rows.at(i)->isNumPolyExists())
+		numPoly.put(rowIndex, rows.at(i)->getNumPoly());
+	
+
+	
+	if (rows.at(i)->isPhasePolyExists())
+		phasePoly.put(rowIndex, basic2CASA1D<double,double>(rows.at(i)->getPhasePoly()));
+	
+
+	
+	if (rows.at(i)->isTimeSpanExists())
+		timeSpan.put(rowIndex, rows.at(i)->getTimeSpan().get()/(1.0e9));
+	
+
+	
+	if (rows.at(i)->isStartPhaseBinExists())
+		startPhaseBin.put(rowIndex, basic2CASA1D<float,float>(rows.at(i)->getStartPhaseBin()));
+	
+
+	
+	if (rows.at(i)->isEndPhaseBinExists())
+		endPhaseBin.put(rowIndex, basic2CASA1D<float,float>(rows.at(i)->getEndPhaseBin()));
+	
+
+	
+	if (rows.at(i)->isDispersionMeasureExists())
+		dispersionMeasure.put(rowIndex, rows.at(i)->getDispersionMeasure());
+	
+
+	
+	if (rows.at(i)->isRefFrequencyExists())
+		refFrequency.put(rowIndex, rows.at(i)->getRefFrequency().get());
+	
+
 		rowIndex++;		
 	}
 	table_p_->flush();

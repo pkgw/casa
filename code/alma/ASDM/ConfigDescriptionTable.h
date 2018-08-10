@@ -113,7 +113,7 @@ class ConfigDescriptionRow;
  * Defines the hardware configuration used to  obtain the science data.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of ConfigDescription </CAPTION>
@@ -135,21 +135,21 @@ class ConfigDescriptionRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numAntenna </TD> 
+ * <TD> numAntenna (numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numDataDescription </TD> 
+ * <TD> numDataDescription (numDataDescription)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of data descriptions. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numFeed </TD> 
+ * <TD> numFeed (numFeed)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of feeds. </TD>
@@ -163,7 +163,7 @@ class ConfigDescriptionRow;
  * </TR>
 	
  * <TR>
- * <TD> numAtmPhaseCorrection </TD> 
+ * <TD> numAtmPhaseCorrection (numAtmPhaseCorrection)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of descriptions of the atmospheric phase correction. </TD>
@@ -230,28 +230,28 @@ class ConfigDescriptionRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> phasedArrayList </TD> 
+ * <TD> phasedArrayList</TD> 
  * <TD> vector<int > </TD>
  * <TD>  numAntenna  </TD>
  * <TD>&nbsp; phased array identifiers. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numAssocValues </TD> 
+ * <TD> numAssocValues(numAssocValues)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of associated config descriptions. </TD>
  * </TR>
 	
  * <TR>
- * <TD> assocNature </TD> 
+ * <TD> assocNature</TD> 
  * <TD> vector<SpectralResolutionTypeMod::SpectralResolutionType > </TD>
  * <TD>  numAssocValues  </TD>
  * <TD>&nbsp; the natures of the associations with other config descriptions (one value per association). </TD>
  * </TR>
 	
  * <TR>
- * <TD> assocConfigDescriptionId </TD> 
+ * <TD> assocConfigDescriptionId</TD> 
  * <TD> vector<Tag>  </TD>
  * <TD>  numAssocValues  </TD>
  * <TD>&nbsp; refers to one or more rows in ConfigDescriptionTable. </TD>
@@ -555,6 +555,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

@@ -12,8 +12,8 @@
 #include <casa/BasicMath/Math.h>
 
 #include <graphics/X11/X_enter.h>
-#include <QtGui/QImage>
-#include <QtGui/QColor>
+#include <QImage>
+#include <QColor>
 #include <graphics/X11/X_exit.h>
 
 namespace casa {

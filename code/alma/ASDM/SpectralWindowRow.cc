@@ -5679,11 +5679,13 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the SpectralWindowRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool SpectralWindowRow::equalByRequiredValue(SpectralWindowRow* x) {
+	bool SpectralWindowRow::equalByRequiredValue(SpectralWindowRow*  x ) {
 		
 			
 		if (this->basebandName != x->basebandName) return false;

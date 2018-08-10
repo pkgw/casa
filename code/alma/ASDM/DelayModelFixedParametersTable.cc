@@ -62,9 +62,12 @@ using namespace asdm;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -537,12 +540,11 @@ DelayModelFixedParametersRow* DelayModelFixedParametersTable::lookup(string dela
 		// Look for a version information in the schemaVersion of the XML
 		//
 		xmlDoc *doc;
-		#if LIBXML_VERSION >= 20703
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+#if LIBXML_VERSION >= 20703
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
+		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "DelayModelFixedParameters");
 		
@@ -616,9 +618,13 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 				
 		if (!xml.isStr("</DelayModelFixedParametersTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -916,8 +922,11 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void DelayModelFixedParametersTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -971,11 +980,19 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 	}
 
 	
-	void DelayModelFixedParametersTable::setFromFile(const string& directory) {		
+	void DelayModelFixedParametersTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/DelayModelFixedParameters.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/DelayModelFixedParameters.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/DelayModelFixedParameters.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/DelayModelFixedParameters.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the DelayModelFixedParameters table", "DelayModelFixedParameters");
 	}			
@@ -1126,7 +1143,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <ArrayTimeInterval.h>
 	
 
 	
@@ -49,7 +49,7 @@
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 
@@ -109,7 +109,7 @@ class ReceiverRow;
  * Receiver properties.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Receiver </CAPTION>
@@ -156,7 +156,7 @@ class ReceiverRow;
  * </TR>
 	
  * <TR>
- * <TD> numLO </TD> 
+ * <TD> numLO (numLO)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of frequencies of the local oscillator. </TD>
@@ -483,6 +483,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 
