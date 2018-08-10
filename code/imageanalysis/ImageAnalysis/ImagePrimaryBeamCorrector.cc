@@ -64,7 +64,7 @@ ImagePrimaryBeamCorrector::ImagePrimaryBeamCorrector(
 ) : ImageTask<Float>(
 		image, region, regionPtr, box, chanInp, stokes, maskInp, outname, overwrite
 	), _pbImage(pbImage->cloneII()), _cutoff(cutoff),
-	_mode(mode), _useCutoff(useCutoff) {
+	_mode(mode), _useCutoff(useCutoff), _concatHistories(True) {
 	_checkPBSanity();
 	_construct();
 }
@@ -81,7 +81,8 @@ ImagePrimaryBeamCorrector::ImagePrimaryBeamCorrector(
 	const ImagePrimaryBeamCorrector::Mode mode
 ) : ImageTask<Float>(
 		image, region, regionPtr, box, chanInp, stokes, maskInp, outname, overwrite
-	), _cutoff(cutoff), _mode(mode), _useCutoff(useCutoff) {
+	), _cutoff(cutoff), _mode(mode), _useCutoff(useCutoff),
+	_concatHistories(False) {
 	*_getLog() << LogOrigin(_class, __FUNCTION__, WHERE);
 	IPosition imShape = _getImage()->shape();
 	if (pbArray.shape().isEqual(imShape)) {
@@ -200,10 +201,9 @@ CasacRegionManager::StokesControl ImagePrimaryBeamCorrector::_getStokesControl()
 	return CasacRegionManager::USE_ALL_STOKES;
 }
 
-SPIIF ImagePrimaryBeamCorrector::correct(
-	const Bool wantReturn
-) const {
-	*_getLog() << LogOrigin(_class, __FUNCTION__, WHERE);
+SPIIF ImagePrimaryBeamCorrector::correct(Bool wantReturn) {
+    auto origin = LogOrigin(_class, __FUNCTION__, WHERE);
+	*_getLog() << origin;
     std::unique_ptr<ImageInterface<Float> > tmpStore;
     ImageInterface<Float> *pbTemplate = _pbImage.get();
 	if (! _getImage()->shape().isEqual(_pbImage->shape())) {
@@ -247,12 +247,31 @@ SPIIF ImagePrimaryBeamCorrector::correct(
         AxesSpecifier(), _getStretch()
     );
 	tmpStore.reset(0);
-
 	LatticeExpr<Float> expr = (_mode == DIVIDE)
 		? *subImage/(*pbSubImage)
 		: *subImage*(*pbSubImage);
+	if (_concatHistories) {
+	    // don't write history initially, since we need to concat the two
+	    // image histories
+	    suppressHistoryWriting(True);
+	}
 	SPIIF outImage = _prepareOutputImage(*subImage, expr);
-	// outImage->copyData(expr);
+	if (_concatHistories) {
+	    // now write the history as per CAS-10591
+	    ImageHistory<Float> history(outImage);
+	    // because SubImageFactory::createImage() copied the history when
+	    // called in ImageTask, and that currently can't be supressed. That
+	    // probably needs to be addressed.
+	    history.clear();
+	    history.addHistory(origin, "History of image " + _getImage()->name());
+	    history.append(_getImage());
+        history.addHistory(
+            origin, "End history of image " + _getImage()->name()
+        );
+        history.addHistory(origin, "History of image " + _pbImage->name());
+        history.append(_pbImage);
+        history.addHistory(origin, "End history of image " + _pbImage->name());
+	}
     if (! wantReturn) {
     	outImage.reset();
     }
