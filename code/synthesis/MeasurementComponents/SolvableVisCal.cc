@@ -80,6 +80,57 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
+
+SolNorm::SolNorm(Bool donorm, String type) :
+  donorm_(donorm),
+  normtype_(normTypeFromString(type))
+{
+  //  report();
+}
+
+SolNorm::SolNorm(const SolNorm& other) : 
+  donorm_(other.donorm_),
+  normtype_(other.normtype_)
+{}
+
+void SolNorm::report() {
+  cout << "Forming SolNorm object:" << endl;
+  cout << " donorm=" << boolalpha << donorm_ << endl
+       << " normtype=" << normtypeString() << endl;
+}
+ 
+String SolNorm::normTypeAsString(Type type) {
+  switch (type) {
+  case MEAN: {
+    return String("MEAN");
+  }
+  case MEDIAN: { 
+    return String("MEDIAN");
+  }
+  default: {
+    return String("UNKNOWN");
+  }
+  }
+  return String("UNKNOWN");
+}
+  
+SolNorm::Type SolNorm::normTypeFromString(String type) {
+
+  String uptype=upcase(type);
+  if (uptype.contains("MEAN")) return SolNorm::MEAN;
+  else if (uptype.contains("MED")) return SolNorm::MEDIAN;
+  else {
+    throw(AipsError("Invalid normalization type specifiec!"));
+  }						
+  // Shouldn't reach here
+  return SolNorm::UNKNOWN;
+
+}
+
+
+
+
+
 // **********************************************************
 //  SolvableVisCal Implementations
 //
@@ -114,6 +165,7 @@ SolvableVisCal::SolvableVisCal(VisSet& vs) :
   fintervalHz_(-1.0),
   fintervalCh_(vs.numberSpw(),0.0),
   chanAveBounds_(vs.numberSpw(),Matrix<Int>()),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -182,6 +234,7 @@ SolvableVisCal::SolvableVisCal(String msname,Int MSnAnt,Int MSnSpw) :
   fintervalHz_(-1.0),
   fintervalCh_(MSnSpw,0.0),
   chanAveBounds_(MSnSpw,Matrix<Int>()),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -252,6 +305,7 @@ SolvableVisCal::SolvableVisCal(const MSMetaInfoForCal& msmc) :
   fintervalHz_(-1.0),
   fintervalCh_(nSpw(),0.0),
   chanAveBounds_(nSpw(),Matrix<Int>()),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -314,7 +368,7 @@ SolvableVisCal::SolvableVisCal(const Int& nAnt) :
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
   fsolint_("none"),
-  solnorm_(false),
+  solnorm_(false,"mean"),
   minSNR_(0.0),
   combine_(""),
   focusChan_(0),
@@ -1088,7 +1142,7 @@ void SolvableVisCal::setSolve() {
   urefantlist_(0)=-1;
   apmode()="AP";
   calTableName()="<none>";
-  solnorm()=false;
+  solnorm_=SolNorm(false,String("mean"));
   minSNR()=0.0f;
 
   // This is the solve context
@@ -1224,8 +1278,18 @@ void SolvableVisCal::setSolve(const Record& solve)
   if (solve.isDefined("append"))
     append()=solve.asBool("append");
 
-  if (solve.isDefined("solnorm"))
-    solnorm()=solve.asBool("solnorm");
+  if (solve.isDefined("solnorm")) {
+    Bool solnorm=solve.asBool("solnorm");
+
+    // normtype="mean" if not specified
+    String normtype("mean");
+    if (solve.isDefined("normtype")) 
+      normtype=solve.asString("normtype");
+
+    // Set the SolNorm object
+    solnorm_=SolNorm(solnorm,normtype);
+
+  }
 
   if (solve.isDefined("minsnr"))
     minSNR()=solve.asFloat("minsnr");
@@ -1277,7 +1341,8 @@ String SolvableVisCal::solveinfo() {
     << " refant="     << "'" << refantNames << "'" // (id=" << refant() << ")"
     << " minsnr=" << minSNR()
     << " apmode="  << apmode()
-    << " solnorm=" << solnorm();
+    << " solnorm=" << solnorm()
+    << (solnorm() ? " normtype="+solNorm().normtypeString() : "");
   return String(o);
 
 }
@@ -4011,7 +4076,7 @@ void SolvableVisCal::enforceAPonSoln() {
   // Only if we have a CalTable, and it is not empty
   if (ct_ && ct_->nrow()>0) {
 
-    // TBD: trap attempts to normalize a caltable containing FPARAM (non-Complex)?
+    // TBD: trap attempts to enforceAPonSoln a caltable containing FPARAM (non-Complex)?
 
     logSink() << "Enforcing apmode on solutions." 
 	      << LogIO::POST;
@@ -4069,7 +4134,7 @@ void SolvableVisCal::normalize() {
 
     // TBD: trap attempts to normalize a caltable containing FPARAM (non-Complex)?
 
-    logSink() << "Normalizing solution amplitudes per spw." 
+    logSink() << "Normalizing solution amplitudes per spw with " << solNorm().normtypeString()
 	      << LogIO::POST;
 
     // In this generic version, one normalization factor per spw
@@ -4080,11 +4145,14 @@ void SolvableVisCal::normalize() {
     while (!ctiter.pastEnd()) {
       Cube<Complex> p(ctiter.cparam());
       Cube<Bool> fl(ctiter.flag());
-      if (nfalse(fl)>0)
-	normSolnArray(p,!fl,false);  // don't do phase
+      if (nfalse(fl)>0) {
+	Complex normfactor=normSolnArray(p,!fl,false);  // don't do phase
+	logSink() << " Normalization factor (" << solNorm().normtypeString() << ") for spw " << ctiter.thisSpw() << " = " << abs(normfactor)
+	      << LogIO::POST;
 
-      // record result...
-      ctiter.setcparam(p);
+	// record result...
+	ctiter.setcparam(p);
+      }
       ctiter.next();
     }
 
@@ -4242,14 +4310,14 @@ void SolvableVisCal::stateSVC(const Bool& doVC) {
 
 }
 
-void SolvableVisCal::normSolnArray(Array<Complex>& sol, 
-				   const Array<Bool>& solOK,
-				   const Bool doPhase) {
+Complex SolvableVisCal::normSolnArray(Array<Complex>& sol, 
+				      const Array<Bool>& solOK,
+				      const Bool doPhase) {
 
   // Only do something if 2 or more good solutions
+  Complex factor(1.0);
   if (ntrue(solOK)>1) {
 
-    Complex factor(1.0);
     
     Array<Float> amp(amplitude(sol));
 
@@ -4264,7 +4332,7 @@ void SolvableVisCal::normSolnArray(Array<Complex>& sol,
     }
 
     // Determine amplitude normalization factor
-      factor*=calcPowerNorm(amp,solOK);
+    factor*=calcPowerNorm(amp,solOK);
     
     // Apply the normalization factor, if non-zero
     if (abs(factor) > 0.0)
@@ -4272,6 +4340,9 @@ void SolvableVisCal::normSolnArray(Array<Complex>& sol,
     
   } // ntrue > 0
 
+  // Return the net normlization factor
+  return factor;
+  
 }
 
 
@@ -4718,10 +4789,22 @@ Float SolvableVisMueller::calcPowerNorm(Array<Float>& amp, const Array<Bool>& ok
   a2(!ok)=0.0; // zero flagged samples
 
   Float norm(1.0);
-  Float n=Float(ntrue(ok));
-  if (n>0.0)
-    norm=sum(a2)/n;
-
+  switch (solNorm().normtype()) {
+  case SolNorm::MEAN: {
+    Float n=Float(ntrue(ok));
+    if (n>0.0)
+      norm=sum(a2)/n;
+    break;
+  }
+  case SolNorm::MEDIAN: {
+    MaskedArray<Float> a2masked(a2,ok);
+    norm=median(a2masked,false,true);  // unsorted, do mean when even
+    break;
+  }
+  default:
+    throw(AipsError("Proper normalization type not specified."));
+    break;
+  }
   return norm;
 }
 
@@ -5854,10 +5937,24 @@ Float SolvableVisJones::calcPowerNorm(Array<Float>& amp, const Array<Bool>& ok) 
   Array<Float> a2(square(amp));
   a2(!ok)=0.0; // zero flagged samples
 
+
   Float norm2(1.0);
-  Float n=ntrue(ok);
-  if (n>0.0)
-    norm2=(sum(a2)/n);
+  switch (solNorm().normtype()) {
+  case SolNorm::MEAN: {
+    Float n=Float(ntrue(ok));
+    if (n>0.0)
+      norm2=sum(a2)/n;
+    break;
+  }
+  case SolNorm::MEDIAN: {
+    MaskedArray<Float> a2masked(a2,ok);
+    norm2=median(a2masked,false,true);  // unsorted, do mean when even
+    break;
+  }
+  default:
+    throw(AipsError("Proper normalization type not specified."));
+    break;
+  }
 
   // Return sqrt, because Jones are voltages
   return sqrt(norm2); 
