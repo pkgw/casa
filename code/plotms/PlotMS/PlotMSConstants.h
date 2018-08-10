@@ -129,23 +129,6 @@ public:
           RADIAL_VELOCITY, RHO,
           // Overlays
           ATM, TSKY, NONE)
-          // Visibilities and flags
-          AMP,PHASE,REAL,IMAG,WT,WTxAMP,WTSP,
-          SIGMA, SIGMASP,
-          FLAG,FLAG_ROW,
-          // Observational geometry
-          UVDIST,UVDIST_L,U,V,W,UWAVE,VWAVE,WWAVE,
-          AZ0,EL0,HA0,PA0,
-          // Antenna-based
-          ANTENNA,AZIMUTH,ELEVATION,
-          PARANG,
-          // Calibration 
-          GAMP,GPHASE,GREAL,GIMAG,
-          DELAY,SWP,TSYS,OPAC, SNR, TEC, ANTPOS,
-          // Ephemeris
-          RADIAL_VELOCITY, RHO,
-          // Overlays
-          ATM, TSKY, NONE)
 
     PMS_ENUM2(Axis, axes, axesStrings, axis,
           // Metadata

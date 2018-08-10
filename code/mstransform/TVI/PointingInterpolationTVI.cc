@@ -39,27 +39,24 @@ using PI_TVILayerFactory = PointingInterpolationTVILayerFactory;
 
 PI_TVI::PointingInterpolationTVI(ViImplementation2 *inputVII) :
 	TransformingVi2(inputVII) {
+	// Initialize associated output VisBuffer2 object
+	VisBufferOptions vbOptions {VbNoOptions};
+	setVisBuffer(createAttachedVisBuffer(vbOptions));
 
+	// Expecting a pointing table
+	inputVII->ms().pointing().throwIfNull();
 
-		cout << "myTVI.constructor: start" << endl;
-		// Initialize associated output VisBuffer2 object
-		VisBufferOptions vbOptions {VbNoOptions};
-		setVisBuffer(createAttachedVisBuffer(vbOptions));
+	// Input MS / pointing direction units and ref
+	ROMSPointingColumns mspc(getVii()->ms().pointing());
+	auto dirUnits = mspc.directionMeasCol().measDesc().getUnits();
+	lonUnit_ = dirUnits[0];
+	latUnit_ = dirUnits[1];
 
-		// Expecting a pointing table
-		inputVII->ms().pointing().throwIfNull();
+	MDirection::Ref ref(mspc.directionMeasCol().measDesc().getRefCode());
+	dirRef_ = ref;
+	toRef_.setType(MDirection::ICRS);
 
-		// Input MS / pointing direction units and ref
-		ROMSPointingColumns mspc(getVii()->ms().pointing());
-		auto dirUnits = mspc.directionMeasCol().measDesc().getUnits();
-		lonUnit_ = dirUnits[0];
-		latUnit_ = dirUnits[1];
-
-		MDirection::Ref ref(mspc.directionMeasCol().measDesc().getRefCode());
-		dirRef_ = ref;
-		toRef_.setType(MDirection::J2000);
-
-		setupInterpolator();
+	setupInterpolator();
 }
 
 void PI_TVI::setupInterpolator(){
@@ -184,18 +181,29 @@ PI_TVI::Interpolator &PI_TVI::getInterpolator() {
 	return interpolator_;
 }
 
+void PI_TVI::setOutputDirectionFrame(MDirection::Types toRefType){
+	toRef_.setType(toRefType);
+}
 
 std::pair<bool, MDirection> PI_TVI::getPointingAngle (int antId, double timeStamp) const {
 	auto dirValue = interpolator_.pointingDir(antId,timeStamp);
 	Quantity qLon(dirValue[0], lonUnit_);
 	Quantity qLat(dirValue[1], latUnit_);
 	MDirection fromDir(qLon,qLat,dirRef_);
-	MEpoch curEpoch(Quantity(timeStamp,"s"),MEpoch::UTC);
+
+	if (dirRef_.getType() == toRef_.getType())
+		return std::make_pair(true,fromDir);
+
+	using InterpMethod = PI_TVI::Interpolator::InterpMethod;
+	double refTimeStamp = interpolator_.getInterpMethod() == InterpMethod::NEAREST ?
+			  interpolator_.nearestPointingTimeStamp()
+			: timeStamp;
+	MEpoch refEpoch(Quantity(refTimeStamp,"s"),MEpoch::UTC);
 
 	auto antPosition = getVisBuffer()->subtableColumns().antenna().positionMeas()(antId);
 	auto toDir = MDirection::Convert(fromDir,
-			MDirection::Ref(toRef_.getType(),MeasFrame(curEpoch,antPosition)))();
-	// return std::make_pair(true,MDirection(qLon,qLat,dirRef_));
+			MDirection::Ref(toRef_.getType(),MeasFrame(refEpoch,antPosition)))();
+
 	return std::make_pair(true,toDir);
 }
 
@@ -214,12 +222,17 @@ String PI_TVI::taQLSet(const std::set<int> & inputSet){
 using PI_Interp = PI_TVI::Interpolator;
 
 PI_Interp::Interpolator()
-	: interp_(InterpMethod::SPLINE)
+	: interp_(InterpMethod::SPLINE),
+	  nearestPointingTimeStamp_(0.0)
 {
 }
 
 void PI_Interp::setInterpMethod(InterpMethod m){
 	interp_ = m;
+}
+
+PI_Interp::InterpMethod PI_Interp::getInterpMethod() const {
+	return interp_ ;
 }
 
 void PI_Interp::setData(const Vector<PointingTimes> &antsTimes,
@@ -415,6 +428,7 @@ Vector<Double> PI_Interp::pointingDir(int antId, double timeStamp) const {
 	}
 	if (aindex < 0) aindex = 0;
 	if (lastIndex <= aindex) aindex = lastIndex - 1;
+	nearestPointingTimeStamp_ = antsTimes_[antId][aindex];
 
 	//auto const &coeff = splineCoeff(antid)(aindex);
 	const auto & coeff = antsSplinesCoeffs_[antId][aindex];
@@ -438,6 +452,10 @@ Vector<Double> PI_Interp::pointingDir(int antId, double timeStamp) const {
 	// rf = mspc.directionMeas(index).getRef();
 	// }
 	//return MDirection(rDirLon, rDirLat, rf);
+}
+
+double PI_Interp::nearestPointingTimeStamp() const {
+	return nearestPointingTimeStamp_;
 }
 // ------------------------- Factories ---------------------------------
 

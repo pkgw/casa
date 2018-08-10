@@ -44,6 +44,7 @@
 #include <measures/Measures/MFrequency.h>
 
 #include <QVector>
+#include <map>
 
 namespace casa {
 
@@ -459,12 +460,13 @@ public:
   void setPlot(PlotMSPlot *plot);
 
   using RaDecData = casacore::PtrBlock<casacore::Vector<casacore::Double>*>;
-  using RaDecMap = map<DirectionAxisParams,RaDecData>;
+  using RaDecMap = std::map<DirectionAxisParams,RaDecData>;
 
-  const RaDecData & getRaMap(int index) const;
-  const RaDecData & getDecMap(int index) const;
   bool isValidRaDecIndex(int index) const;
-
+  const RaDecData & getRaDataX(int index) const;
+  const RaDecData & getRaDataY(int index) const;
+  const RaDecData & getDecDataX(int index) const;
+  const RaDecData & getDecDataY(int index) const;
 
   // public log method
   inline void logmesg(const casacore::String& method, 
@@ -550,6 +552,9 @@ protected:
   //Return the color lookup index for the chunk.
   int findColorIndex( int chunk, bool initialize );
 
+  // Check access to vector
+  template<typename T>
+  T checkIndex(int index, const std::vector<T>& v, const std::string &vname) const;
 
   // Private data
   
@@ -635,7 +640,7 @@ protected:
   casacore::PtrBlock<casacore::Vector<casacore::Int>*> antenna_;
   casacore::PtrBlock<casacore::Vector<casacore::Double>*> az_,el_;
   casacore::PtrBlock<casacore::Vector<casacore::Double>*> ra_,dec_;
-  map<DirectionAxisParams,RaDecData> raMap_,decMap_;
+  std::map<DirectionAxisParams,RaDecData> raMap_,decMap_;
 
   casacore::Vector<casacore::Double> radialVelocity_, rho_;
   casacore::Vector<casacore::Double> az0_,el0_,ha0_,pa0_;

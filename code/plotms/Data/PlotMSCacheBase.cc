@@ -50,6 +50,8 @@
 
 #include <unistd.h>
 #include <algorithm>
+#include <sstream>
+#include <map>
 
 using namespace casacore;
 namespace casa {
@@ -1218,11 +1220,19 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 
 	indexer_[dataIndex].resize(nIter);
 	indexer_[dataIndex].set( NULL );
+	auto useRaDecIndexer = (
+			PMS::axisIsRaDec(currentX_[dataIndex]) or
+			PMS::axisIsRaDec(currentY_[dataIndex]) );
 	for (Int iter=0;iter<nIter;++iter) {
-		indexer_[dataIndex][iter] = new PlotMSIndexer(this, 
+		indexer_[dataIndex][iter] = useRaDecIndexer ?
+			new PlotMSRaDecIndexer(this,
+			currentX_[dataIndex], currentXData_[dataIndex],
+			currentY_[dataIndex], currentYData_[dataIndex],
+			iteraxis, iterValues(iter), dataIndex)
+		:	new PlotMSIndexer(this,
 			currentX_[dataIndex], currentXData_[dataIndex], 
 			currentY_[dataIndex], currentYData_[dataIndex],
-			iteraxis, iterValues(iter), dataIndex);
+			iteraxis, iterValues(iter), dataIndex) ;
 	}
 
 	// Extract global ranges from the indexers
@@ -1920,15 +1930,6 @@ void PlotMSCacheBase::setPlot(PlotMSPlot *plot){
 	itsPlot_ = plot;
 }
 
-const PlotMSCacheBase::RaDecData & PlotMSCacheBase::getRaMap(int index) const {
-	static const auto & ref = PlotMSRaDecIndexer::emptyData_;
-	return ref;
-}
-const PlotMSCacheBase::RaDecData & PlotMSCacheBase::getDecMap(int index) const {
-	static const auto & ref = PlotMSRaDecIndexer::emptyData_;
-	return ref;
-}
-
 bool PlotMSCacheBase::isValidRaDecIndex(int index) const {
 	bool result = index >= 0;
 	return result;
@@ -1999,5 +2000,117 @@ bool PlotMSCacheBase::hasOverlay() {
 	}
 	return overlay;
 }
+
+template<typename T>
+T PlotMSCacheBase::checkIndex(int index, const std::vector<T>& v, const std::string &vname) const {
+	if (index >= 0 && static_cast<unsigned int>(index) < v.size()) return v[index];
+	stringstream ss;
+	ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+		<< "Illegal access to vector: " << vname << " of size: " << v.size()
+		<< " with index: " << index ;
+	throw AipsError(ss.str());
+	return T();
+}
+
+const PlotMSCacheBase::RaDecData & PlotMSCacheBase::getRaDataX(int index) const {
+	auto axis = checkIndex<PMS::Axis>(index,currentX_,"currentX_");
+	if ( axis != PMS::RA ) {
+		stringstream ss;
+		ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+			<< "Illegal call. Argument index= " << index
+			<< " but currentX_[" << index << "]=" << PMS::axis(axis);
+		throw AipsError(ss.str());
+	}
+	auto frame = checkIndex<PMS::CoordSystem>(index,currentXFrame_,"currentXFrame_");
+	auto interp = checkIndex<PMS::InterpMethod>(index,currentXInterp_,"currentXInterp_");
+	DirectionAxisParams params(frame,interp);
+	auto it = raMap_.find(params);
+	auto found = it != raMap_.end();
+	if ( not found){
+		stringstream ss;
+		ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+			<< "Run-time error. No RA/DEC data for:  index=" << index
+			<< "axis=" << PMS::axis(axis) << " frame=" << PMS::coordSystem(frame)
+			<< " interp=" << PMS::interpMethod(interp);
+		throw AipsError(ss.str());
+	}
+	return it->second;
+}
+
+const PlotMSCacheBase::RaDecData & PlotMSCacheBase::getDecDataX(int index) const {
+	auto axis = checkIndex<PMS::Axis>(index,currentX_,"currentX_");
+	if ( axis != PMS::DEC ) {
+		stringstream ss;
+		ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+			<< "Illegal call. Argument index= " << index
+			<< " but currentX_[" << index << "]=" << PMS::axis(axis);
+		throw AipsError(ss.str());
+	}
+	auto frame = checkIndex<PMS::CoordSystem>(index,currentXFrame_,"currentXFrame_");
+	auto interp = checkIndex<PMS::InterpMethod>(index,currentXInterp_,"currentXInterp_");
+	DirectionAxisParams params(frame,interp);
+	auto it = decMap_.find(params);
+	auto found = it != decMap_.end();
+	if ( not found){
+		stringstream ss;
+		ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+			<< "Run-time error. No RA/DEC data for:  index=" << index
+			<< "axis=" << PMS::axis(axis) << " frame=" << PMS::coordSystem(frame)
+			<< " interp=" << PMS::interpMethod(interp);
+		throw AipsError(ss.str());
+	}
+	return it->second;
+}
+
+const PlotMSCacheBase::RaDecData & PlotMSCacheBase::getRaDataY(int index) const {
+	auto axis = checkIndex<PMS::Axis>(index,currentY_,"currentY_");
+	if ( axis != PMS::RA ) {
+		stringstream ss;
+		ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+			<< "Illegal call. Argument index= " << index
+			<< " but currentY_[" << index << "]=" << PMS::axis(axis);
+		throw AipsError(ss.str());
+	}
+	auto frame = checkIndex<PMS::CoordSystem>(index,currentYFrame_,"currentYFrame_");
+	auto interp = checkIndex<PMS::InterpMethod>(index,currentYInterp_,"currentYInterp_");
+	DirectionAxisParams params(frame,interp);
+	auto it = raMap_.find(params);
+	auto found = it != raMap_.end();
+	if ( not found){
+		stringstream ss;
+		ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+			<< "Run-time error. No RA/DEC data for:  index=" << index
+			<< "axis=" << PMS::axis(axis) << " frame=" << PMS::coordSystem(frame)
+			<< " interp=" << PMS::interpMethod(interp);
+		throw AipsError(ss.str());
+	}
+	return it->second;
+}
+
+const PlotMSCacheBase::RaDecData & PlotMSCacheBase::getDecDataY(int index) const {
+	auto axis = checkIndex<PMS::Axis>(index,currentY_,"currentY_");
+	if ( axis != PMS::DEC ) {
+		stringstream ss;
+		ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+			<< "Illegal call. Argument index= " << index
+			<< " but currentX_[" << index << "]=" << PMS::axis(axis);
+		throw AipsError(ss.str());
+	}
+	auto frame = checkIndex<PMS::CoordSystem>(index,currentYFrame_,"currentYFrame_");
+	auto interp = checkIndex<PMS::InterpMethod>(index,currentYInterp_,"currentYInterp_");
+	DirectionAxisParams params(frame,interp);
+	auto it = decMap_.find(params);
+	auto found = it != decMap_.end();
+	if ( not found){
+		stringstream ss;
+		ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+			<< "Run-time error. No RA/DEC data for:  index=" << index
+			<< "axis=" << PMS::axis(axis) << " frame=" << PMS::coordSystem(frame)
+			<< " interp=" << PMS::interpMethod(interp);
+		throw AipsError(ss.str());
+	}
+	return it->second;
+}
+
 
 }

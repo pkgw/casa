@@ -833,7 +833,7 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 	PI_TVI* piTvi = nullptr;
 	auto isRaOrDec = [](PMS::Axis a) { return a == PMS::RA || a == PMS::DEC ; };
 	auto loadRaOrDec = std::find_if(loadAxes.begin(),loadAxes.end(),isRaOrDec) != loadAxes.end();
-	if (loadRaOrDec) {
+	if (loadRaOrDec) {  // setupRaDecIterator
 		// Get iterator's implementation, because we need to configure it at run-time
 		auto * viImpl = vi.getImpl();
 		auto * transformIt = dynamic_cast<MSTransformIterator *>(viImpl);
@@ -842,6 +842,7 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 		if (piTvi == nullptr)
 			throw(AipsError("MSCache::loadChunks(): error while preparing for pointings interpolation"));
 		// Debug / check sort columns
+		piTvi_ = piTvi;
 		const auto & sortColumns = viImpl->getSortColumns();
 		for (const auto & colIdInt : sortColumns.getColumnIds()){
 			auto colEnum = static_cast<MSMainEnums::PredefinedColumns>(colIdInt);
@@ -877,7 +878,7 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 					goodChunk_(chunk) = false; //only partially loaded
 					return;
 				}
-				if (isRaOrDec(loadAxes[i])){
+				if (isRaOrDec(loadAxes[i])){  // setupRaDecInterpolator(i,raDecLoaded);
 					DirectionAxisParams raDecParams {loadXYFrame_[i],loadXYInterp_[i]};
 					auto raDecChunkLoaded = ( raDecLoaded.find(raDecParams) != raDecLoaded.end() );
 					if (raDecChunkLoaded) continue;
@@ -895,6 +896,17 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 						String errMsg("MSCache::loadChunks(): unsupported pointing interpolation method: ");
 						errMsg += PMS::interpMethod(loadXYInterp_[i]);
 						throw(AipsError(errMsg));
+					}
+					switch (loadXYFrame_[i]){
+					case PMS::CoordSystem::AZEL:
+						piTvi->setOutputDirectionFrame(MDirection::AZELGEO);
+						break;
+					case PMS::CoordSystem::ICRS:
+						piTvi->setOutputDirectionFrame(MDirection::ICRS);
+						break;
+					case PMS::CoordSystem::J2000:
+						piTvi->setOutputDirectionFrame(MDirection::J2000);
+						break;
 					}
 					auto & raBlock = raMap_.at(raDecParams);
 					loadRa_ = &raBlock;
@@ -1895,7 +1907,18 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 	case PMS::DEC: {
 		// Vector<MDirection> azelVec = vb->azel(vb->time()(0));
 		// const auto & dir1Vec = vb->direction1();
-		Vector<MDirection> dir1Vec = vb->direction1();
+		auto vbRows = static_cast<size_t>(vb->nRows());
+		Vector<MDirection> dir1Vec(vbRows); // = vb->direction1();
+		//dir1Vec = piTvi_->d
+		const auto & vbAnt1 = vb->antenna1();
+		auto vbTime = vb->time()[0];
+		auto & interpolator = piTvi_->getInterpolator();
+		for (decltype(vbRows) k=0; k<vbRows; k++){
+			auto antId = vbAnt1[k];
+			//auto  = interpolator.pointingDir(antId,vbTime);
+			dir1Vec[k] = (piTvi_->getPointingAngle(antId,vbTime)).second;
+		}
+
 		Matrix<Double> raDecMat;
 		raDecMat.resize(2, dir1Vec.nelements());
 		auto nAnts = dir1Vec.nelements();

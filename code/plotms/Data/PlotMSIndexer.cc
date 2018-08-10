@@ -33,6 +33,9 @@
 #include <plotms/PlotMS/PlotMS.h>
 #include <tables/Tables/Table.h>
 #include <measures/Measures/Stokes.h>
+#include <casacore/casa/Containers/Block.h>
+#include <casacore/casa/Arrays/Vector.h>
+
 //#include <QtCore/qmath.h>
 #include <QDebug>
 
@@ -1988,14 +1991,22 @@ void PlotMSIndexer::log(const String& method, const String& message,
 const String PlotMSRaDecIndexer::CLASS_NAME = "PlotMSRaDecIndexer";
 
 using RaDecData = casacore::PtrBlock<casacore::Vector<casacore::Double>*>;
-const RaDecData emptyData_ = RaDecData();
+const RaDecData PlotMSRaDecIndexer::EMPTY_DATA = RaDecData();
 
 PlotMSRaDecIndexer::PlotMSRaDecIndexer()
 	: PlotMSIndexer(),
-	  xRa_(emptyData_),
-	  xDec_(emptyData_),
-	  yRa_(emptyData_),
-	  yDec_(emptyData_)
+	cacheOk_(false),
+	axesOk_(false),
+	xAxisIsRa_(false),
+	xAxisIsDec_(false),
+	xAxisIsRaOrDec_(false),
+	yAxisIsRa_(false),
+	yAxisIsDec_(false),
+	yAxisIsRaOrDec_(false),
+	xRa_(EMPTY_DATA),
+	xDec_(EMPTY_DATA),
+	yRa_(EMPTY_DATA),
+	yDec_(EMPTY_DATA)
 {
 }
 
@@ -2004,17 +2015,82 @@ PlotMSRaDecIndexer::PlotMSRaDecIndexer(PlotMSCacheBase* plotmscache,
 		PMS::Axis iterAxis, casacore::Int iterValue, int index)
 	:	PlotMSIndexer(plotmscache, xAxis, xData, yAxis, yData,
 					  iterAxis, iterValue, index),
-		cacheOK_( plotmscache == nullptr ?
-				throw AipsError(CLASS_NAME + " constructor: plotmscache pointer is null")
+		cacheOk_( plotmscache == nullptr ?
+				  throw AipsError(CLASS_NAME + " constructor: plotmscache pointer is null")
 				: true),
-		doHandleX_(PMS::axisIsRaDec(xAxis)),
-		doHandleY_(PMS::axisIsRaDec(yAxis)),
-		axesOk_( doHandleX_ or doHandleY_ ? true
+		axesOk_( PMS::axisIsRaDec(xAxis) or PMS::axisIsRaDec(yAxis) ?
+				  true
 				: throw AipsError(CLASS_NAME + " constructor: no Ra/Dec axis")),
-		indexOk_(plotmscache->isValidRaDecIndex(index) ? true
-				: throw AipsError(CLASS_NAME + " constructor: index is not a valid Ra/Dec index in the cache"))
+		xAxisIsRa_ (xAxis == PMS::RA),
+		xAxisIsDec_(xAxis == PMS::DEC),
+		xAxisIsRaOrDec_(xAxisIsRa_ or xAxisIsDec_),
+		yAxisIsRa_ (yAxis == PMS::RA),
+		yAxisIsDec_(yAxis == PMS::DEC),
+		yAxisIsRaOrDec_(yAxisIsRa_ or yAxisIsDec_),
+		xRa_( xAxisIsRa_ ?
+			  plotmscache->getRaDataX(index)
+			: EMPTY_DATA),
+		xDec_(xAxisIsDec_ ?
+			 plotmscache->getDecDataX(index)
+			: EMPTY_DATA),
+		yRa_( yAxisIsRa_ ?
+			  plotmscache->getRaDataY(index)
+			: EMPTY_DATA),
+		yDec_(yAxisIsDec_ ?
+			  plotmscache->getDecDataY(index)
+			: EMPTY_DATA)
 {
 
+}
+
+double PlotMSRaDecIndexer::xAt(unsigned int i) const {
+	double x;
+	if (xAxisIsRaOrDec_) {
+		setChunk(i);  // sets chunk and relative index in chunk
+		if (xAxisIsRa_) { // getIndex1110, getIndex0001,
+			// getIndex0010: baseline dependence, e.g.:  ROW,ANTENNA1
+			x = getRaX(currChunk_,self->getIndex0010(currChunk_,irel_));
+		} else {
+			x = getDecX(currChunk_,self->getIndex0010(currChunk_,irel_));
+		}
+	} else {
+		x = PlotMSIndexer::xAt(i);
+	}
+	return x;
+}
+
+// Garbage
+//double x= (plotmscache_->*getXFromCache_)(currChunk_,
+//		(self->*XIndexer_)(currChunk_,irel_));
+//inline casacore::Double getRa(casacore::Int chnk,casacore::Int irel)
+//return *(ra_[chnk]->data()+irel); }
+
+double PlotMSRaDecIndexer::yAt(unsigned int i) const {
+	double y;
+	if (yAxisIsRaOrDec_) {
+		setChunk(i);  // sets chunk and relative index in chunk
+		if (yAxisIsRa_) {
+			y = getRaY(currChunk_,self->getIndex0010(currChunk_,irel_));
+		} else {
+			y = getDecY(currChunk_,self->getIndex0010(currChunk_,irel_));
+		}
+	} else {
+		y = PlotMSIndexer::yAt(i);
+	}
+	return y;
+}
+
+void PlotMSRaDecIndexer::xAndYAt(unsigned int index, double& x, double& y) const {
+	x = xAt(index);
+	y = yAt(index);
+}
+
+void PlotMSRaDecIndexer::xyAndMaskAt(unsigned int index,
+		double& x, double& y,
+		bool& mask) const {
+	xAndYAt(index,x,y);
+	mask = false;
+	//mask=!(*(plotmscache_->plmask_[dataIndex_][currChunk_]->data()+irel_));
 }
 
 

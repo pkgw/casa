@@ -47,6 +47,7 @@ public:
 
 		// Interpolation
 		Vector<Double> pointingDir(int ant,double time) const;
+		double nearestPointingTimeStamp() const;
 	private:
 		void clear();
 		void init(const Vector<bool> &antSelected = Vector<bool>());
@@ -61,6 +62,7 @@ public:
 		Vector<bool> isInterpolated_;            // nAnt
 		Vector<SplineCoeffs> antsSplinesCoeffs_; // nAnt
 		InterpMethod interp_;
+		mutable double nearestPointingTimeStamp_;
 	};
 
 public:
@@ -74,6 +76,7 @@ public:
 	virtual void next();
 
 	PointingInterpolationTVI::Interpolator& getInterpolator();
+	void setOutputDirectionFrame(casacore::MDirection::Types toRefType);
 
 	virtual std::pair<bool, casacore::MDirection> getPointingAngle (int antenna, double time) const;
 

@@ -292,6 +292,7 @@ def plotms(vis=None,
         synonyms['data-model']='data-model_vector'
         synonyms['corrected/model']='corrected/model_vector'
         synonyms['data/model']='data/model_vector'
+        synonyms['azelgeo']='AzEl'
         
     try:
         # Do preliminary checks on argument values
@@ -319,6 +320,14 @@ def plotms(vis=None,
             for index,col in enumerate(ydatacolumn):
                 if synonyms.has_key(col):
                     ydatacolumn[index] = synonyms[col]
+
+        if isinstance(yframe, str):
+            if synonyms.has_key(yframe):
+                yframe = synonyms[yframe]
+        elif isinstance(yframe, list):
+            for index,frame in enumerate(yframe):
+                if synonyms.has_key(frame):
+                    yframe[index] = synonyms[frame]
 
         # check vis exists
         vis = vis.strip()
