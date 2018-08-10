@@ -763,7 +763,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 	 /////////////
 	 //tim.show("retrieved cache");
 	 if(rowincache <0)
-		 return vb.phaseCenter();
+	   return getPhaseCenter(vb);
 	 return cachedPointingDir_p[oldMSId_p][rowincache];
 
 
