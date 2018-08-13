@@ -66,7 +66,7 @@ namespace casa {
 //   <li> 
 // </todo>
 
-class ImageRotator : public ImageTask<casacore::Float> {
+template <class T> class ImageRotator : public ImageTask<T> {
 public:
 
 	const static casacore::String CLASS_NAME;
@@ -74,7 +74,7 @@ public:
 	ImageRotator() = delete;
 
 	ImageRotator(
-	    const SPCIIF image, const casacore::Record *const &regionPtr,
+	    const SPCIIT image, const casacore::Record *const &regionPtr,
 	    const casacore::String& mask,const casacore::String& outname,
 	    casacore::Bool overwrite
 	);
@@ -87,7 +87,7 @@ public:
 
 	casacore::String getClass() const { return CLASS_NAME; }
 
-	SPIIF rotate();
+	SPIIT rotate();
 
 	// set angle through which to rotate the direction or linear coordinate
 	void setAngle(const casacore::Quantity& angle) { _angle = angle; }
@@ -115,7 +115,7 @@ protected:
     	return vector<casacore::Coordinate::Type>();
     }
 
-    inline casacore::Bool _supportsMultipleRegions() const {return false;}
+    casacore::Bool _supportsMultipleRegions() const {return false;}
 
 private:
     casacore::IPosition _shape;
@@ -127,4 +127,9 @@ private:
 };
 
 }
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <imageanalysis/ImageAnalysis/ImageRotator.tcc>
+#endif
+
 #endif

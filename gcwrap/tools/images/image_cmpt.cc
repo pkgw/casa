@@ -62,7 +62,6 @@
 
 #include <imageanalysis/ImageAnalysis/BeamManipulator.h>
 #include <imageanalysis/ImageAnalysis/CasaImageBeamSet.h>
-#include <imageanalysis/ImageAnalysis/ComplexImageRegridder.h>
 #include <imageanalysis/ImageAnalysis/ComponentImager.h>
 #include <imageanalysis/ImageAnalysis/ComponentListDeconvolver.h>
 #include <imageanalysis/ImageAnalysis/Image2DConvolver.h>
@@ -4883,7 +4882,7 @@ image* image::regrid(
             );
         }
         else if (_imageC) {
-            ComplexImageRegridder<Complex> regridder(
+            ImageRegridder<Complex> regridder(
                 _imageC, regionPtr.get(), mask, outfile, overwrite,
                 *coordinates, IPosition(axes), IPosition(inshape)
             );
@@ -4905,7 +4904,7 @@ image* image::regrid(
             );
         }
         else if (_imageDC) {
-            ComplexImageRegridder<DComplex> regridder(
+            ImageRegridder<DComplex> regridder(
                 _imageDC, regionPtr.get(), mask, outfile, overwrite,
                 *coordinates, IPosition(axes), IPosition(inshape)
             );
@@ -5124,17 +5123,57 @@ record* image::restoringbeam(int channel, int polarization) {
         _notSupported(__func__);
         if (_imageF) {
             return fromRecord(
-                _imageF->imageInfo().beamToRecord(
-                    channel, polarization
-                )
+                _imageF->imageInfo().beamToRecord(channel, polarization)
             );
         }
         else {
             return fromRecord(
-                _imageC->imageInfo().beamToRecord(
-                    channel, polarization
-                )
+                _imageC->imageInfo().beamToRecord(channel, polarization)
             );
+        }
+    }
+    catch (const AipsError& x) {
+        _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+            << LogIO::POST;
+        RETHROW(x);
+    }
+    return nullptr;
+}
+
+image* image::rotate(
+    const string& outfile, const vector<int>& inshape, const variant& inpa,
+    const variant& region, const variant& vmask, const string& method,
+    int decimate, bool replicate, bool dropdeg, bool overwrite, bool stretch
+) {
+    try {
+        _log << _ORIGIN;
+        ThrowIf(_detached(), "Unable to create image");
+        if (_imageF) {
+            return _rotate(
+                _imageF, outfile, inshape, inpa, region, vmask, method,
+                decimate, replicate, dropdeg, overwrite, stretch
+            );
+        }
+        else if (_imageC) {
+            return _rotate(
+                _imageC, outfile, inshape, inpa, region, vmask, method,
+                decimate, replicate, dropdeg, overwrite, stretch
+            );
+        }
+        else if (_imageD) {
+            return _rotate(
+                _imageD, outfile, inshape, inpa, region, vmask, method,
+                decimate, replicate, dropdeg, overwrite, stretch
+            );
+        }
+        else if (_imageDC) {
+            return _rotate(
+                _imageDC, outfile, inshape, inpa, region, vmask, method,
+                decimate, replicate, dropdeg, overwrite, stretch
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
@@ -5145,59 +5184,43 @@ record* image::restoringbeam(int channel, int polarization) {
     return nullptr;
 }
 
-image* image::rotate(
-    const string& outfile, const vector<int>& inshape,
-    const variant& inpa, const variant& region,
-    const variant& vmask, const string& method,
-    int decimate, bool replicate, bool dropdeg,
+template <class T> image* image::_rotate(
+    SPIIT myImage, const string& outfile, const vector<int>& inshape,
+    const variant& inpa, const variant& region, const variant& vmask,
+    const string& method, int decimate, bool replicate, bool dropdeg,
     bool overwrite, bool stretch
 ) {
-    try {
-        _log << _ORIGIN;
-        ThrowIf(_detached(), "Unable to create image");
-        _notSupported(__func__);
-        Vector<Int> shape(inshape);
-        if (shape.size() == 1 && shape[0] == -1) {
-            shape.resize(0);
-        }
-        auto pa = _casaQuantityFromVar(inpa);
-        auto Region = _getRegion(region, false);
-        auto mask = _getMask(vmask);
-        ImageRotator rotator(
-            _imageF, Region.get(), mask, outfile, overwrite
-        );
-        rotator.setShape(IPosition(shape));
-        rotator.setAngle(pa);
-        rotator.setInterpolationMethod(method);
-        rotator.setDecimate(decimate);
-        rotator.setReplicate(replicate);
-        rotator.setDropDegen(dropdeg);
-        rotator.setStretch(stretch);
-        vector<String> names = {
-            "outfile", "shape", "pa", "region",
-            "mask", "method", "decimate", "replicate",
-            "dropdeg", "overwrite", "stretch"
-        };
-        vector<variant> values = {
-            outfile, inshape, inpa, region,
-            vmask, method, decimate, replicate,
-            dropdeg, overwrite, stretch
-        };
-        if (_doHistory) {
-            auto msgs = _newHistory(__func__, names, values);
-            rotator.addHistory(_ORIGIN, msgs);
-        }
-        auto x = rotator.rotate();
-        _log << LogIO::NORMAL << "Using position angle rotation "
-            << inpa.toString() << LogIO::POST;
-        return new image(x);
+    Vector<Int> shape(inshape);
+    if (shape.size() == 1 && shape[0] == -1) {
+        shape.resize(0);
     }
-    catch (const AipsError& x) {
-        _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
-        RETHROW(x);
+    auto pa = _casaQuantityFromVar(inpa);
+    auto Region = _getRegion(region, false);
+    auto mask = _getMask(vmask);
+    ImageRotator<T> rotator(myImage, Region.get(), mask, outfile, overwrite);
+    rotator.setShape(IPosition(shape));
+    rotator.setAngle(pa);
+    rotator.setInterpolationMethod(method);
+    rotator.setDecimate(decimate);
+    rotator.setReplicate(replicate);
+    rotator.setDropDegen(dropdeg);
+    rotator.setStretch(stretch);
+    vector<String> names = {
+        "outfile", "shape", "pa", "region", "mask", "method", "decimate",
+        "replicate", "dropdeg", "overwrite", "stretch"
+    };
+    vector<variant> values = {
+        outfile, inshape, inpa, region, vmask, method,
+        decimate, replicate, dropdeg, overwrite, stretch
+    };
+    if (_doHistory) {
+        auto msgs = _newHistory("rotate", names, values);
+        rotator.addHistory(_ORIGIN, msgs);
     }
-    return nullptr;
+    auto x = rotator.rotate();
+    _log << LogIO::NORMAL << "Using position angle rotation "
+        << inpa.toString() << LogIO::POST;
+    return new image(x);
 }
 
 bool image::rotatebeam(const variant& angle) {
