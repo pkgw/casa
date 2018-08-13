@@ -643,6 +643,12 @@ TBD
      <value>false</value>
      </param>
 
+     <param type="string" direction="in" name="normtype">
+     <description>Solution normalization type</description>
+     <value>median</value>
+     <value>mean</value>
+     </param>
+
      <param type="float" direction="in" name="minsnr">
      <description>SNR threshold for accepting solutions</description>
      <value>0.0</value>

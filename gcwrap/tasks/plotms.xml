@@ -48,7 +48,7 @@ MS Parameters
 ###############################################################################
 -->
   <param type="string" name="vis" kind="ms">
-    <description>Input MS (or CalTable) (blank for none)</description>
+    <description>Input MS or CalTable (blank for none)</description>
     <value />
   </param>
   
@@ -104,8 +104,11 @@ MS Parameters
       <value>frequency</value>
       <value>freq</value>
       <value>Frequency</value>
-      <value>correlation</value>
+      <value>velocity</value>
+      <value>vel</value>
+      <value>Velocity</value>
       <value>corr</value>
+      <value>correlation</value>
       <value>Corr</value>
       <value>antenna1</value>
       <value>ant1</value>
@@ -125,6 +128,38 @@ MS Parameters
       <value>Feed1</value>
       <value>feed2</value>
       <value>Feed2</value>
+      <value>amp</value>
+      <value>amplitude</value>
+      <value>Amp</value>
+      <value>phase</value>
+      <value>Phase</value>
+      <value>real</value>
+      <value>Real</value>
+      <value>imag</value>
+      <value>imaginary</value>
+      <value>Imag</value>
+      <value>wt</value>
+      <value>Wt</value>
+      <value>weight</value>
+      <value>Weight</value>
+      <value>wtamp</value>
+      <value>WtAmp</value>
+      <value>wt*amp</value>
+      <value>Wt*Amp</value>
+      <value>wtsp</value>
+      <value>WtSp</value>
+      <value>weightspectrum</value>
+      <value>WeightSpectrum</value>
+      <value>sigma</value>
+      <value>Sigma</value>
+      <value>sigmasp</value>
+      <value>SigmaSp</value>
+      <value>sigmaspectrum</value>
+      <value>SigmaSpectrum</value>
+      <value>flag</value>
+      <value>Flag</value>
+      <value>flagrow</value>
+      <value>FlagRow</value>
       <value>uvdist</value>
       <value>UVdist</value>
       <value>uvwave</value>
@@ -143,36 +178,6 @@ MS Parameters
       <value>Vwave</value>
       <value>wwave</value>
       <value>Wwave</value>
-      <value>velocity</value>
-      <value>vel</value>
-      <value>Velocity</value>
-      <value>amp</value>
-      <value>amplitude</value>
-      <value>Amp</value>
-      <value>phase</value>
-      <value>Phase</value>
-      <value>real</value>
-      <value>Real</value>
-      <value>imag</value>
-      <value>imaginary</value>
-      <value>Imag</value>
-      <value>wt</value>
-      <value>Wt</value>
-      <value>weight</value>
-      <value>wt*amp</value>
-      <value>Wt*Amp</value>
-      <value>wtsp</value>
-      <value>WtSp</value>
-      <value>weightspectrum</value>
-      <value>WeightSpectrum</value>
-      <value>sigma</value>
-      <value>Sigma</value>
-      <value>sigmasp</value>
-      <value>SigmaSp</value>
-      <value>sigmaspectrum</value>
-      <value>SigmaSpectrum</value>
-      <value>flag</value>
-      <value>Flag</value>
       <value>azimuth</value>
       <value>Azimuth</value>
       <value>elevation</value>
@@ -195,20 +200,22 @@ MS Parameters
       <value>ant-parangle</value>
       <value>ant-parallacticangle</value>
       <value>Ant-Parangle</value>
-      <value>flagrow</value>
-      <value>FlagRow</value>
       <value>gainamp</value>
       <value>gamp</value>
       <value>GainAmp</value>
+      <value>Gain Amp</value>
       <value>gainphase</value>
       <value>gphase</value>
       <value>GainPhase</value>
+      <value>Gain Phase</value>
       <value>gainreal</value>
       <value>greal</value>
       <value>GainReal</value>
+      <value>Gain Real</value>
       <value>gainimag</value>
       <value>gimag</value>
       <value>GainImag</value>
+      <value>Gain Imag</value>
       <value>delay</value>
       <value>del</value>
       <value>Delay</value>
@@ -219,6 +226,7 @@ MS Parameters
       <value>spgain</value>
       <value>tsys</value>
       <value>Tsys</value>
+      <value>TSYS</value>
       <value>opac</value>
       <value>opacity</value>
       <value>Opac</value>
@@ -232,12 +240,13 @@ MS Parameters
       <value>radialvelocity</value>
       <value>Radial Velocity</value>
       <value>rho</value>
+      <value>distance</value>
       <value>Distance</value>
     </allowed>
   </param>
   
     <param type="string" name="xdatacolumn" subparam="true" >
-      <description>Data column to use for x-axis (blank for default/current).  Note that residuals are complex (vector) differences or ratios.</description>
+      <description>Data column to use for x-axis (blank for default/current).  Note that unspecified residuals are complex (vector) differences or ratios.</description>
       <value />
       <allowed kind="enum">
         <value />
@@ -259,8 +268,8 @@ MS Parameters
         <value>data/model_vector</value>
         <value>data/model_scalar</value>
       </allowed>
-    </param>    
-    
+    </param>
+
   <param type="any" name="yaxis">    
   <description>Plot y-axis (blank for default/current)</description>
   <any type="variant" limittype="string stringArray"/>
@@ -287,6 +296,9 @@ MS Parameters
       <value>frequency</value>
       <value>freq</value>
       <value>Frequency</value>
+      <value>velocity</value>
+      <value>vel</value>
+      <value>Velocity</value>
       <value>correlation</value>
       <value>corr</value>
       <value>Corr</value>
@@ -308,6 +320,37 @@ MS Parameters
       <value>Feed1</value>
       <value>feed2</value>
       <value>Feed2</value>
+      <value>amp</value>
+      <value>amplitude</value>
+      <value>Amp</value>
+      <value>phase</value>
+      <value>Phase</value>
+      <value>real</value>
+      <value>Real</value>
+      <value>imag</value>
+      <value>imaginary</value>
+      <value>Imag</value>
+      <value>wt</value>
+      <value>Wt</value>
+      <value>weight</value>
+      <value>wt*amp</value>
+      <value>wtamp</value>
+      <value>Wt*Amp</value>
+      <value>WtAmp</value>
+      <value>wtsp</value>
+      <value>WtSp</value>
+      <value>weightspectrum</value>
+      <value>WeightSpectrum</value>
+      <value>sigma</value>
+      <value>Sigma</value>
+      <value>sigmasp</value>
+      <value>SigmaSp</value>
+      <value>sigmaspectrum</value>
+      <value>SigmaSpectrum</value>
+      <value>flag</value>
+      <value>Flag</value>
+      <value>flagrow</value>
+      <value>FlagRow</value>
       <value>uvdist</value>
       <value>UVdist</value>
       <value>uvwave</value>
@@ -326,36 +369,6 @@ MS Parameters
       <value>Vwave</value>
       <value>wwave</value>
       <value>Wwave</value>
-      <value>velocity</value>
-      <value>vel</value>
-      <value>Velocity</value>
-      <value>amp</value>
-      <value>amplitude</value>
-      <value>Amp</value>
-      <value>phase</value>
-      <value>Phase</value>
-      <value>real</value>
-      <value>Real</value>
-      <value>imag</value>
-      <value>imaginary</value>
-      <value>Imag</value>
-      <value>wt</value>
-      <value>Wt</value>
-      <value>weight</value>
-      <value>wt*amp</value>
-      <value>Wt*Amp</value>
-      <value>wtsp</value>
-      <value>WtSp</value>
-      <value>weightspectrum</value>
-      <value>WeightSpectrum</value>
-      <value>sigma</value>
-      <value>Sigma</value>
-      <value>sigmasp</value>
-      <value>SigmaSp</value>
-      <value>sigmaspectrum</value>
-      <value>SigmaSpectrum</value>
-      <value>flag</value>
-      <value>Flag</value>
       <value>azimuth</value>
       <value>Azimuth</value>
       <value>elevation</value>
@@ -378,20 +391,22 @@ MS Parameters
       <value>ant-parangle</value>
       <value>ant-parallacticangle</value>
       <value>Ant-Parangle</value>
-      <value>flagrow</value>
-      <value>FlagRow</value>
       <value>gainamp</value>
       <value>gamp</value>
       <value>GainAmp</value>
+      <value>Gain Amp</value>
       <value>gainphase</value>
       <value>gphase</value>
       <value>GainPhase</value>
+      <value>Gain Phase</value>
       <value>gainreal</value>
       <value>greal</value>
       <value>GainReal</value>
+      <value>Gain Real</value>
       <value>gainimag</value>
       <value>gimag</value>
       <value>GainImag</value>
+      <value>Gain Imag</value>
       <value>delay</value>
       <value>del</value>
       <value>Delay</value>
@@ -401,6 +416,7 @@ MS Parameters
       <value>SwPower</value>
       <value>spgain</value>
       <value>tsys</value>
+      <value>TSYS</value>
       <value>Tsys</value>
       <value>opac</value>
       <value>opacity</value>
@@ -415,16 +431,17 @@ MS Parameters
       <value>radialvelocity</value>
       <value>Radial Velocity</value>
       <value>rho</value>
+      <value>distance</value>
       <value>Distance</value>
     </allowed>
     </param>
     
     <param type="any" name="ydatacolumn" subparam="true" >
-      <description>Data column to use for y-axis (blank for default/current). Note that residuals are complex (vector) differences or ratios.</description>
+      <description>Data column to use for y-axis (blank for default/current). Note that unspecified residuals are complex (vector) differences or ratios.</description>
       <any type="variant" limittype='string stringArray'/>
       <value type="string"/>
       <allowed kind="enum" type="string">
-		<value/>
+        <value/>
         <value>data</value>
         <value>corrected</value>
         <value>model</value>
@@ -446,7 +463,7 @@ MS Parameters
     </param>
     
     <param type="any" name="yaxislocation" subparam="true">
-      <description>Left or right y-axis for the data (blank for default)</description>
+      <description>Location of the y-axis (blank for default: left)</description>
       <any type="variant" limittype='string stringArray'/>
       <value type="string" />
       <allowed kind="enum" type="string">
@@ -464,12 +481,12 @@ MS Selection parameters
 -->
 
   <param type="bool" name="selectdata">
-    <description>Data selection parameters</description>
+    <description>Enable data selection parameters</description>
     <value>True</value>
   </param>
   
     <param type="string" name="field" subparam="true">
-      <description>Field names or field index numbers (blank for all)</description>
+      <description>Field names or ids (blank for all)</description>
       <value />
     </param>
     
@@ -489,7 +506,7 @@ MS Selection parameters
     </param>
     
     <param type="string" name="antenna" subparam="true">
-      <description>Antenna/baselines (blank for all)</description>
+      <description>Baseline/antenna names or ids (blank for all)</description>
       <value />
     </param>
     
@@ -499,7 +516,7 @@ MS Selection parameters
     </param>
     
     <param type="string" name="correlation" subparam="true">
-      <description>Correlations (blank for all)</description>
+      <description>Correlations/polarizations (blank for all)</description>
       <value />
     </param>
     
@@ -525,7 +542,7 @@ MS Selection parameters
     </param>
 
     <param type="string" name="msselect" subparam="true">
-      <description>MS selection (blank for all)</description>
+      <description>MSSelection TaQL string (blank for none)</description>
       <value />
     </param>
 
@@ -537,7 +554,7 @@ MS Averaging Parameters
 -->
 
   <param type="bool" name="averagedata">
-    <description>Data averaging parameters</description>
+    <description>Enable data averaging parameters</description>
     <value>True</value>
   </param>
   
@@ -589,7 +606,7 @@ MS Data Transformation Parameters
 -->
 
   <param type="bool" name="transform">
-    <description>Transform data in various ways</description>
+    <description>Enable data transformations</description>
     <value>True</value>
   </param>
 
@@ -642,7 +659,7 @@ Flag Extension Parameters
 -->
 
   <param type="bool" name="extendflag">
-    <description>Extend flagging to other data points</description>
+    <description>Extend flagging to other data points not plotted</description>
     <value>False</value>
   </param>
     
@@ -735,12 +752,12 @@ Iteration Parameters
    </param>
    
    <param type="bool" name="xsharedaxis" subparam="true">
-	   <description>Iterated plots on a grid share a common external x-axis per column. Must also set xselfscale=True and gridrows>1.</description>
+       <description>Iterated plots on a grid share a common external x-axis per column. Must also set xselfscale=True and gridrows>1.</description>
        <value>False</value>
    </param>
 
    <param type="bool" name="ysharedaxis" subparam="true">
-	   <description>Iterated plots on a grid share a common external y-axis per row. Must also set yselfscale=True and gridcols>1.</description>
+       <description>Iterated plots on a grid share a common external y-axis per row. Must also set yselfscale=True and gridcols>1.</description>
        <value>False</value>
    </param>
 
@@ -753,7 +770,7 @@ Display Parameters
    
     
     <param type="any" name="customsymbol">
-        <description>Set a custom symbol(s) for unflagged points</description>
+        <description>Enable custom symbol(s) for unflagged points</description>
          <any type="variant" limittype="bool boolArray"/>
         <value>False</value>
     </param>
@@ -779,7 +796,7 @@ Display Parameters
     </param>
 
     <param type="any" name="symbolcolor" subparam="true">
-        <description>Color of plotted unflagged symbols</description>
+        <description>Color (name or hex code) of plotted unflagged symbols</description>
          <any type="variant" limittype="string stringArray"/>
         <value type="string">0000ff</value>
     </param>
@@ -798,13 +815,13 @@ Display Parameters
     </param>
 
     <param type="any" name="symboloutline" subparam="true">
-        <description>Selects outlining plotted unflagged points</description>
+        <description>Outline plotted unflagged symbols</description>
          <any type="variant" limittype="bool boolArray"/>
         <value type="bool">False</value>
     </param>
 
     <param type="any" name="coloraxis">
-        <description>Selects which data to use for colorizing</description>
+        <description>Selects data axis for colorizing</description>
         <any type="variant" limittype="string stringArray"/>
         <value type="string" />
         <allowed kind="enum" type="string">
@@ -838,7 +855,7 @@ Display Parameters
     </param>
 
     <param type="any" name="customflaggedsymbol">
-        <description>Set a custom plot symbol for flagged points</description>
+        <description>Enable custom symbol(s) for flagged points</description>
         <any type="variant" limittype="bool boolArray"/>
         <value type="bool">False</value>
     </param>
@@ -864,7 +881,7 @@ Display Parameters
     </param>
 
     <param type="any" name="flaggedsymbolcolor" subparam="true">
-        <description>Color of plotted flagged symbols</description>
+        <description>Color (name or hex code) of plotted flagged symbols</description>
         <any type="variant" limittype="string stringArray"/>
         <value type="string">ff0000</value>
     </param>
@@ -883,7 +900,7 @@ Display Parameters
     </param>
 
     <param type="any" name="flaggedsymboloutline" subparam="true">
-        <description>Selects outlining plotted flagged points</description>
+        <description>Outline plotted flagged symbols</description>
         <any type="variant" limittype="bool boolArray"/>
         <value type="bool">False</value>
     </param>
@@ -907,32 +924,32 @@ Label Parameters
 -->
 
   <param type="string" name="title">    
-    <description>Title written along top of plot</description>
+    <description>Title at top of plot</description>
     <value />
   </param>
   
   <param type="int" name="titlefont">
-    <description>Font for plot title</description>
+    <description>Font size for plot title</description>
     <value>0</value>
   </param>
 
   <param type="string" name="xlabel">    
-    <description>Text for horizontal axis. Blank for default.</description>
+    <description>Text for horizontal x-axis. Blank for default.</description>
     <value />
   </param>
   
   <param type="int" name="xaxisfont">
-    <description>Font for plot x-axis</description>
+    <description>Font size for x-axis label</description>
     <value>0</value>
   </param>
 
   <param type="string" name="ylabel">    
-    <description>Text for vertical axis. Blank for default.</description>
+    <description>Text for vertical y-axis. Blank for default.</description>
     <value />
   </param>
 
   <param type="int" name="yaxisfont">
-    <description>Font for plot y-axis</description>
+    <description>Font size for y-axis label</description>
     <value>0</value>
   </param>
 
@@ -966,7 +983,7 @@ Canvas Parameters
 </param>
 
 <param type="string" name="majorcolor" subparam="true">
-    <description>Color as name or hex code of major grid lines</description>
+    <description>Color (name or hex code) of major grid lines</description>
     <value>B0B0B0</value>
 </param>
 
@@ -994,18 +1011,18 @@ Canvas Parameters
 </param>
 
 <param type="string" name="minorcolor" subparam="true">
-    <description>Color as name or hex code of minor grid lines</description>
+    <description>Color (name or hex code) of minor grid lines</description>
     <value>D0D0D0</value>
 </param>
 
 
-<param type="bool" name="showlegend" subparam="false">
+<param type="bool" name="showlegend">
     <description>Show a legend on the plot.</description>
     <value>False</value>
 </param>
 
 <param type="string" name="legendposition" subparam="true">
-    <description>Legend position.</description>
+    <description>Legend position, default upperRight.</description>
     <value></value>
     <allowed kind="enum">
         <value />
@@ -1033,7 +1050,7 @@ Export plot as image Parameters
     </param>
 
     <param type="string" name="expformat" subparam="true">
-        <description>Export format type. If not provided, plotfile extension will be used.</description>
+        <description>Export format type. If not provided, plotfile extension will be used to determine type.</description>
         <allowed kind="enum">
             <value />
             <value>jpg</value>
@@ -1056,7 +1073,7 @@ Export plot as image Parameters
             <value>current</value>
             <value>all</value>
         </allowed>
-	</param>
+    </param>
 
      <param type="bool" name="highres" subparam="true">
          <description>Use high resolution</description>
@@ -1067,11 +1084,11 @@ Export plot as image Parameters
          <value>-1</value>
      </param>
      <param type="int" name="width" subparam="true">
-         <description>Width of exported plot</description>
+         <description>Width in pixels of exported plot</description>
          <value>-1</value>
      </param>
      <param type="int" name="height" subparam="true">
-         <description>Height of exported plot</description>
+         <description>Height in pixels of exported plot</description>
          <value>-1</value>
      </param>
      <param type="bool" name="overwrite" subparam="true">
@@ -1226,10 +1243,19 @@ Constraints
       <equals type="string" value="amplitude">
         <default param="xdatacolumn"><value type="string" /></default>
       </equals>
+      <equals type="string" value="Amp">
+        <default param="xdatacolumn"><value type="string" /></default>
+      </equals>
       <equals type="string" value="phase">
         <default param="xdatacolumn"><value type="string" /></default>
       </equals>
+      <equals type="string" value="Phase">
+        <default param="xdatacolumn"><value type="string" /></default>
+      </equals>
       <equals type="string" value="real">
+        <default param="xdatacolumn"><value type="string" /></default>
+      </equals>
+      <equals type="string" value="Real">
         <default param="xdatacolumn"><value type="string" /></default>
       </equals>
       <equals type="string" value="imag">
@@ -1238,151 +1264,172 @@ Constraints
       <equals type="string" value="imaginary">
         <default param="xdatacolumn"><value type="string" /></default>
       </equals>
+      <equals type="string" value="Imag">
+        <default param="xdatacolumn"><value type="string" /></default>
+      </equals>
+      <equals type="string" value="wtamp">
+        <default param="xdatacolumn"><value type="string" /></default>
+      </equals>
+      <equals type="string" value="wt*amp">
+        <default param="xdatacolumn"><value type="string" /></default>
+      </equals>
+      <equals type="string" value="Wt*Amp">
+        <default param="xdatacolumn"><value type="string" /></default>
+      </equals>
+      <equals type="string" value="WtAmp">
+        <default param="xdatacolumn"><value type="string" /></default>
+      </equals>
       <equals value="scan"/>
-       <equals value="Scan"/>
+      <equals value="Scan"/>
       <equals value="field"/>
+      <equals value="Field"/>
       <equals value="time"/>
+      <equals value="Time"/>
+      <equals value="interval"/>
+      <equals value="timeinterval"/>
+      <equals value="timeint"/>
       <equals value="time_interval"/>
-       <equals value="timeinterval"/>
-       <equals value="timeint"/>
+      <equals value="Interval"/>
       <equals value="spw"/>
+      <equals value="Spw"/>
       <equals value="channel"/>
-       <equals value="chan"/>
+      <equals value="chan"/>
+      <equals value="Channel"/>
       <equals value="frequency"/>
-       <equals value="freq"/>
-      <equals value="correlation"/>
-      <equals value="corr"/>
-      <equals value="antenna1"/>
-       <equals value="ant1"/>
-      <equals value="antenna2"/>
-       <equals value="ant2"/>
-      <equals value="baseline"/>
-      <equals value="uvdist"/>
-      <equals value="uvwave"/>
-       <equals value="uvdist_l"/>
-       <equals value="uvdistl"/>
-      <equals value="u"/>
-      <equals value="v"/>
-      <equals value="w"/>
-      <equals value="uwave"/>
-      <equals value="vwave"/>
-      <equals value="wwave"/>
+      <equals value="freq"/>
+      <equals value="Frequency"/>
       <equals value="velocity"/>
-       <equals value="vel"/>
-      <equals value="wt"/>
-      <equals value="wtsp"/>
-       <equals value="weight"/>
-       <equals value="weightspectrum"/>
-       <equals value="sigma"/>
-       <equals value="sigmasp"/>
-       <equals value="sigmaspectrum"/>
-      <equals value="imwt"/>
-      <equals value="flag"/>
-      <equals value="azimuth"/>
-      <equals value="elevation"/>
-      <equals value="hourang"/>
-       <equals value="hourangle"/>
-      <equals value="parang"/>
-       <equals value="parangle"/>
-       <equals value="parallacticangle"/>
-      <equals value="antenna"/>
-       <equals value="ant"/>
-      <equals value="ant-azimuth"/>
-      <equals value="ant-elevation"/>
-      <equals value="ant-hourang"/>
-       <equals value="ant-hourangle"/>
-      <equals value="ant-parang"/>
-       <equals value="ant-parangle"/>
-       <equals value="ant-parallacticangle"/>
+      <equals value="vel"/>
+      <equals value="Velocity"/>
+      <equals value="corr"/>
+      <equals value="correlation"/>
+      <equals value="Corr"/>
+      <equals value="antenna1"/>
+      <equals value="ant1"/>
+      <equals value="Antenna1"/>
+      <equals value="antenna2"/>
+      <equals value="ant2"/>
+      <equals value="Antenna2"/>
+      <equals value="baseline"/>
+      <equals value="Baseline"/>
       <equals value="row"/>
-      <equals value="flagrow"/>
+      <equals value="Row"/>
       <equals value="observation"/>
+      <equals value="Observation"/>
       <equals value="intent"/>
-      <equals value="feed"/>
+      <equals value="Intent"/>
+      <equals value="feed1"/>
+      <equals value="Feed1"/>
+      <equals value="feed2"/>
+      <equals value="Feed2"/>
+      <equals value="wt"/>
+      <equals value="Wt"/>
+      <equals value="weight"/>
+      <equals value="Weight"/>
+      <equals value="wtsp"/>
+      <equals value="WtSp"/>
+      <equals value="weightspectrum"/>
+      <equals value="WeightSpectrum"/>
+      <equals value="sigma"/>
+      <equals value="Sigma"/>
+      <equals value="sigmasp"/>
+      <equals value="SigmaSp"/>
+      <equals value="sigmaspectrum"/>
+      <equals value="SigmaSpectrum"/>
+      <equals value="flag"/>
+      <equals value="Flag"/>
+      <equals value="flagrow"/>
+      <equals value="FlagRow"/>
+      <equals value="uvdist"/>
+      <equals value="UVdist"/>
+      <equals value="uvwave"/>
+      <equals value="UVwave"/>
+      <equals value="uvdistl"/>
+      <equals value="uvdist_l"/>
+      <equals value="u"/>
+      <equals value="U"/>
+      <equals value="v"/>
+      <equals value="V"/>
+      <equals value="w"/>
+      <equals value="W"/>
+      <equals value="uwave"/>
+      <equals value="Uwave"/>
+      <equals value="vwave"/>
+      <equals value="Vwave"/>
+      <equals value="wwave"/>
+      <equals value="Wwave"/>
+      <equals value="azimuth"/>
+      <equals value="Azimuth"/>
+      <equals value="elevation"/>
+      <equals value="Elevation"/>
+      <equals value="hourangle"/>
+      <equals value="hourang"/>
+      <equals value="HourAngle"/>
+      <equals value="parangle"/>
+      <equals value="parang"/>
+      <equals value="parallacticangle"/>
+      <equals value="ParAngle"/>
+      <equals value="antenna"/>
+      <equals value="Antenna"/>
+      <equals value="ant"/>
+      <equals value="ant-azimuth"/>
+      <equals value="Ant-Azimuth"/>
+      <equals value="ant-elevation"/>
+      <equals value="Ant-Elevation"/>
+      <equals value="ant-parang"/>
+      <equals value="Ant-ParAngle"/>
+      <equals value="ant-parangle"/>
+      <equals value="ant-parallacticangle"/>
+      <equals value="Gain Amp"/>
+      <equals value="gamp"/>
+      <equals value="gainamp"/>
+      <equals value="GainAmp"/>
+      <equals value="Gain Phase"/>
+      <equals value="GainPhase"/>
+      <equals value="gphase"/>
+      <equals value="gainphase"/>
+      <equals value="Gain Real"/>
+      <equals value="GainReal"/>
+      <equals value="gainreal"/>
+      <equals value="greal"/>
+      <equals value="Gain Imag"/>
+      <equals value="GainImag"/>
+      <equals value="gainimag"/>
+      <equals value="gimag"/>
+      <equals value="delay"/>
+      <equals value="Delay"/>
+      <equals value="del"/>
+      <equals value="swp"/>
+      <equals value="switchedpower"/>
+      <equals value="swpower"/>
+      <equals value="spgain"/>
+      <equals value="SwPower"/>
+      <equals value="Tsys"/>
+      <equals value="tsys"/>
+      <equals value="TSYS"/>
+      <equals value="Opac"/>
+      <equals value="opac"/>
+      <equals value="opacity"/>
+      <equals value="snr"/>
+      <equals value="SNR"/>
+      <equals value="tec"/>
+      <equals value="TEC"/>
+      <equals value="antpos"/>
+      <equals value="Antenna Positions"/>
+      <equals value="antenna positions"/>
+      <equals value="Radial Velocity"/>
+      <equals value="radialvelocity"/>
+      <equals value="rho"/>
+      <equals value="distance"/>
+      <equals value="Distance"/>
     </when>
 
     
     <when param="yaxis">
-      <equals type="string" value="" />
-      <equals type="string" value="amp">
+      <notequals type="string" value="">
         <default param="ydatacolumn"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="amplitude">
-        <default param="ydatacolumn"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="phase">
-        <default param="ydatacolumn"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="real">
-        <default param="ydatacolumn"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="imag">
-        <default param="ydatacolumn"><value type="string" /></default>
-      </equals>
-      <equals type="string" value="imaginary">
-        <default param="ydatacolumn"><value type="string" /></default>
-      </equals>
-      <equals value="scan"/>
-       <equals value="Scan"/>
-      <equals value="field"/>
-      <equals value="time"/>
-      <equals value="time_interval"/>
-       <equals value="timeinterval"/>
-       <equals value="timeint"/>
-      <equals value="spw"/>
-      <equals value="channel"/>
-       <equals value="chan"/>
-      <equals value="frequency"/>
-       <equals value="freq"/>
-      <equals value="correlation"/>
-      <equals value="corr"/>
-      <equals value="antenna1"/>
-       <equals value="ant1"/>
-      <equals value="antenna2"/>
-       <equals value="ant2"/>
-      <equals value="baseline"/>
-      <equals value="uvdist"/>
-      <equals value="uvwave"/>
-       <equals value="uvdist_l"/>
-       <equals value="uvdistl"/>
-      <equals value="u"/>
-      <equals value="v"/>
-      <equals value="w"/>
-      <equals value="uwave"/>
-      <equals value="vwave"/>
-      <equals value="wwave"/>
-      <equals value="velocity"/>
-       <equals value="vel"/>
-      <equals value="wt"/>
-      <equals value="wtsp"/>
-       <equals value="weight"/>
-       <equals value="weightspectrum"/>
-       <equals value="sigma"/>
-       <equals value="sigmasp"/>
-       <equals value="sigmaspectrum"/>
-      <equals value="imwt"/>
-      <equals value="flag"/>
-      <equals value="azimuth"/>
-      <equals value="elevation"/>
-      <equals value="hourang"/>
-       <equals value="hourangle"/>
-      <equals value="parang"/>
-       <equals value="parangle"/>
-       <equals value="parallacticangle"/>
-      <equals value="antenna"/>
-       <equals value="ant"/>
-      <equals value="ant-azimuth"/>
-      <equals value="ant-elevation"/>
-      <equals value="ant-hourang"/>
-       <equals value="ant-hourangle"/>
-      <equals value="ant-parang"/>
-       <equals value="ant-parangle"/>
-       <equals value="ant-parallacticangle"/>
-      <equals value="row"/>
-      <equals value="flagrow"/>
-      <equals value="observation"/>
-      <equals value="intent"/>
-      <equals value="feed"/>
+        <default param="yaxislocation"><value type="string" /></default>
+      </notequals>
     </when>
     
     <when param="selectdata">
@@ -1469,7 +1516,24 @@ Constraints
             <default param="symboloutline">
                 <value type="bool">False</value>
             </default>
-        </equals>    
+		</equals>
+		<equals type="boolArray" value="[True,True]">
+            <default param="symbolshape">
+                <value type="stringArray">"autoscaling","autoscaling"</value>
+            </default>
+            <default param="symbolsize">
+                <value type="intArray">2,2</value>
+            </default>
+            <default param="symbolcolor">
+                <value type="stringArray">"0000ff","0000ff"</value>
+            </default>
+            <default param="symbolfill">
+                <value type="stringArray">"fill","fill"</value>
+            </default>
+            <default param="symboloutline">
+                <value type="boolArray">False,False</value>
+            </default>
+        </equals>	
     </when>
 
     <when param="customflaggedsymbol">
@@ -1490,13 +1554,30 @@ Constraints
             <default param="flaggedsymboloutline">
                 <value type="bool">False</value>
             </default>
-        </equals>
+		</equals>
+      	<equals type="boolArray" value="[True,True]">
+            <default param="flaggedsymbolshape">
+                <value type="stringArray">"nosymbol","nosymbol"</value>
+            </default>
+            <default param="flaggedsymbolsize">
+                <value type="intArray">2,2</value>
+            </default>
+            <default param="flaggedsymbolcolor">
+                <value type="stringArray">"ff0000","ff0000"</value>
+            </default>
+            <default param="flaggedsymbolfill">
+                <value type="stringArray">"fill","fill"</value>
+            </default>
+            <default param="flaggedsymboloutline">
+                <value type="boolArray">False,False</value>
+            </default>
+        </equals>  
     </when>
 
     <when param="plotfile">
         <notequals type="string" value="">
             <default param="expformat"><value type="string"/></default>
-			<default param="verbose"><value type="bool">True</value></default>
+            <default param="verbose"><value type="bool">True</value></default>
             <default param="exprange"><value type="string"/></default>
             <default param="highres"><value type="bool">False</value></default>
             <default param="dpi"><value type="int">-1</value></default>
@@ -1533,6 +1614,12 @@ Constraints
       </equals>
     </when>
 
+    <when param="showlegend">
+      <equals type="bool" value="False" />
+      <equals type="bool" value="True">
+        <default param="legendposition"><value type="string" /></default>
+      </equals>
+    </when>
 <!--    
     <when param="plotxycomp">
       <equals type="bool" value="False" />
@@ -1667,15 +1754,21 @@ Constraints
                                      thereafter the most recent
                                      setting is used)
                         valid options:  'data'      (observed)
-                                        'corrected'='corr'
+                                        'corrected'
                                         'model'
-                                        'residual'  (aliases 'corrected-model')
-                                        'corrected-model'
-                                        'data-model'
-                                        'data/model'
-                                        'corected/model'
                                         'float'
-                        Note that residuals are complex (vector) differences or ratios.
+                                        'residual'  (aliases 'corrected-model_vector')
+                                        'corrected-model_vector'
+                                        'corrected-model_scalar'
+                                        'data-model_vector'
+                                        'data-model_scalar'
+                                        'corrected/model_vector'
+                                        'corrected/model_scalar'
+                                        'data/model_vector'
+                                        'data/model_scalar'
+        yaxislocation  -- location of y-axis
+                        valid options:  'left'
+                                        'right'
     
     selectdata -- data selection parameters flag
                   default: True  (reveals data selection parameters
@@ -1858,18 +1951,18 @@ Constraints
     customflaggedsymbol -- If true, use a custom symbol for drawing flagged points
                            default: False
       &gt;&gt;&gt; customflaggedsymbol expandable parameters
-        symbolshape -- If true, use a custom shape to draw flagged symbols
+        flaggedsymbolshape -- If true, use a custom shape to draw flagged symbols
                        default: 'nosymbol'
                        options: 'autoscaling', 'circle', 'square', 'diamond', 'pixel', 'nosymbol'
-        symbolsize -- size of the flagged symbols in pixels
+        flaggedsymbolsize -- size of the flagged symbols in pixels
                       default: 2
-        symbolcolor -- color to use for flagged symbols; can be a RGB hex code or a color name
+        flaggedsymbolcolor -- color to use for flagged symbols; can be a RGB hex code or a color name
                        default: '0000ff'
                        example: 'purple'
-        symbolfill -- type of fill to use for flagged symbols
+        flaggedsymbolfill -- type of fill to use for flagged symbols
                       default: 'fill'
                       options: 'fill', 'mesh1', 'mesh2', 'mesh3', 'nofill'
-        symboloutline -- If true, outline flagged symbols in black
+        flaggedsymboloutline -- If true, outline flagged symbols in black
 
     plotrange -- manual plot axis ranges: [xmin,xmax,ymin,ymax]
                  Does not affect data selection.
@@ -1890,7 +1983,6 @@ Constraints
     yaxisfont -- y-axis font size
                  default: 0 (autosize)
     
-    
     showmajorgrid  -- show major grid lines 
                   default: False
       &gt;&gt;&gt;  showmajorgrid expandable parameters
@@ -1905,6 +1997,13 @@ Constraints
         minorstyle  --  minor grid line style: solid dash dot none
         minorcolor  --  color in hex code of minor grid lines
 
+    showlegend -- show legend for plot
+                  default: False
+      &gt;&gt;&gt;  showlegend expandable parameters
+        legendposition  -- position of legend for plot
+                     default: 'upperRight'
+                     options: 'upperRight','upperLeft','lowerRight','lowerLeft',
+                     'exteriorRight','exteriorLeft','exteriorTop','exteriorBottom'
     plotfile -- name of plot file to save automatically
                 default: ''  (i.e., draw an interactive plot in the gui)
       &gt;&gt;&gt; plotfile expandable parameters
@@ -1927,12 +2026,15 @@ Constraints
         overwrite -- overwrite plot file if it already exists
                      default: False
       
+    showgui - Whether or not to display the plotting GUI
+              default: True
+      &gt;&gt;&gt; showgui expandable parameters
+        clearplots - whether to remove existing plots
+              default: True
+              
     callib -- calibration library string, list of strings, or filename
               default: '' 
     
-    showgui - Whether or not to display the plotting GUI
-              default: True
-              
     headeritems -- append header items specific to this plot to the current list
                 of page header items.
                 Comma-separated string of header item selection keywords.
@@ -1942,6 +2044,10 @@ Constraints
                 default: ''
                 example: 'filename,projid,targname'
 
+    showatm - overlay the atmospheric transmission curve
+              default: False
+    showtsky - overlay the sky temperature curve
+              default: False
 <!--
 
         extspw - extend flags based on spw?
