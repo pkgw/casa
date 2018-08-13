@@ -44,7 +44,7 @@
      <item>
       <widget class="QLabel" name="axisDataLabel">
        <property name="text">
-        <string>Y Axis:</string>
+        <string>Y Axis Data:</string>
        </property>
       </widget>
      </item>
