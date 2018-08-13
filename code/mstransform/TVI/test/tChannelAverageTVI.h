@@ -23,7 +23,7 @@
 #ifndef ChannelAverageTVITest_H_
 #define ChannelAverageTVITest_H_
 
-#include <mstransform/TVI/test/TestUtilsTVI.h>
+#include <msvis/MSVis/test/TestUtilsTVI.h>
 #include <mstransform/TVI/ChannelAverageTVI.h>
 #include <mstransform/MSTransform/MSTransformIteratorFactory.h>
 
@@ -35,12 +35,12 @@ using namespace casa::vi;
 /////////////////////////////////////////////////////////////////////////
 // ChannelAverageTVITest class
 /////////////////////////////////////////////////////////////////////////
-class ChannelAverageTVITest: public FreqAxisTVITest {
+class ChannelAverageTVICompareTest: public FreqAxisTVITest {
 
 public:
 
-	ChannelAverageTVITest();
-	ChannelAverageTVITest(casacore::Record configuration);
+	ChannelAverageTVICompareTest();
+	ChannelAverageTVICompareTest(casacore::Record configuration);
 
     void TestBody();
     void testCompareTransformedData();

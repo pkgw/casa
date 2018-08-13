@@ -1144,7 +1144,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           }
           delete testres; testres=0;
        }
-    } 
+    }
+
+    //temporary turn off new noise calc.
+    Bool useoldstats(True);
+ 
     Record thestats = calcImageStatistics(*tempres, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
     thestats.get(RecordFieldId("max"), maxs);
@@ -1160,17 +1164,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // at this point tempres has pbmask applied
     LatticeExpr<Bool> pbmask(tempres->pixelMask());
 
-    
-    Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust);
-    Array<Double> newmaxs, newmins, newrmss, newmads;
-    thenewstats.get(RecordFieldId("max"), newmaxs);
-    thenewstats.get(RecordFieldId("rms"), newrmss);
-    os<< LogIO::DEBUG1 << "*** New statistics *** "<<newrmss<<LogIO::POST;
-    os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
-    os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
-    if (alg.contains("multithresh")) {
-       thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
-       os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
+    Record thenewstats; 
+    if (useoldstats) { // skip new stats
+      thenewstats = thestats;
+    }
+    else {
+      //Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust);
+      thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust);
+      Array<Double> newmaxs, newmins, newrmss, newmads;
+      thenewstats.get(RecordFieldId("max"), newmaxs);
+      thenewstats.get(RecordFieldId("rms"), newrmss);
+      os<< LogIO::DEBUG1 << "*** New statistics *** "<<newrmss<<LogIO::POST;
+      os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
+      os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
+      if (alg.contains("multithresh")) {
+        thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
+         os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
+      }
     }
     
 
@@ -1189,8 +1199,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       autoMaskByThreshold2(*tempmask, *tempres, *imstore->psf(), qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask);
     }
     else if (alg==String("multithresh")) {
-      autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thestats, thenewstats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold,
-                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune, verbose, isthresholdreached);
+      autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thestats, thenewstats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune, verbose, isthresholdreached);
     }
 
     // this did not work (it won't physically remove the mask from the image 
@@ -1863,7 +1872,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
     
     //set true to use calcImageStatistics2 and thresholds adjusted for the location (median)
-    Bool newstats(True);
+    Bool newstats(False); // turning off as of CAS-11705
 
     //Timer
     Timer timer;
@@ -1899,6 +1908,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
       else {
         beam = CasaImageBeamSet(psfInfo.getBeamSet()).getCommonBeam(); 
+      }
+      // check
+      if(std::isinf( beam.getMajor(Unit("arcsec"))) || std::isinf( beam.getMinor(Unit("arcsec"))) ){
+        throw(AipsError("A bad common beam, which is used to set smoothing and pruning sizes for automask. At least one of the axes of the beam is infinite."));
       }
       Quantity bmaj = beam.getMajor();
       Quantity bmin = beam.getMinor();
