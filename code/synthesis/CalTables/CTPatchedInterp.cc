@@ -156,7 +156,7 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
     if (nctobsavail==1) {
       byObs_=false;
       msg << "Only one ObsId found in "
-	  << ct_.tableName()
+	  << Path(ct_.tableName()).baseName().before(".tempMemCal")
 	  << "; ignoring 'perobs' interpolation.";
       log << msg.str() << LogIO::WARN;
     }
@@ -173,7 +173,7 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 	// only 1 obs, or available nobs doesn't match MS
 	byObs_=false;
 	msg << "Multiple ObsIds found in "
-	    << ct_.tableName()
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal")
 	    << ", but they do not match the MS ObsIds;"
 	    << " turning off 'perobs'.";
 	log << msg.str() << LogIO::WARN;
@@ -331,7 +331,7 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
     if (nctobsavail==1) {
       byObs_=false;
       msg << "Only one ObsId found in "
-	  << ct_.tableName()
+	  << Path(ct_.tableName()).baseName().before(".tempMemCal")
 	  << "; ignoring 'perobs' interpolation.";
       log << msg.str() << LogIO::WARN;
     }
@@ -348,7 +348,7 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 	// only 1 obs, or available nobs doesn't match MS
 	byObs_=false;
 	msg << "Multiple ObsIds found in "
-	    << ct_.tableName()
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal")
 	    << ", but they do not match the MS ObsIds;"
 	    << " turning off 'perobs'.";
 	log << msg.str() << LogIO::WARN;
@@ -617,12 +617,20 @@ Bool CTPatchedInterp::interpolate(Int msobs, Int msfld, Int msspw, Double time, 
     // Check freq sampling adequate for specified freq interpolation
     Int nSolChan=timeResult_(msspw,msfld,thisobs(msobs)).shape()(1);
 
+    LogIO log;
+    ostringstream msg;
+
     //cout << "Requested freqInterpMethod0_ = " << freqInterpMethod0_ << endl;
     switch (freqInterpMethod0_) {
     case LINEAR: {
       if (nSolChan<2 && freqInterpMethodVec_(msspw)!=NEAREST) {
 	freqInterpMethodVec_(msspw)=NEAREST;  // change to nearest for this msspw
-	cout << "Changing to nearest!" << endl;
+	msg << "In caltable "
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal") << ":" << endl
+	    << " Insufficient solution channel sampling (nchan=" << nSolChan << ") for frequency-dependent LINEAR interpolation " << endl
+	    << " of calibration for MS spw=" << msspw << "; using NEAREST instead.";
+	log << LogOrigin("CTPatchedInterp","interpolate") << msg.str() << LogIO::WARN;
+	//cout << "Changing to nearest!" << endl;
       }
       break;
     }
@@ -630,11 +638,19 @@ Bool CTPatchedInterp::interpolate(Int msobs, Int msfld, Int msspw, Double time, 
     case SPLINE: {
       if (nSolChan<2 && freqInterpMethodVec_(msspw)>NEAREST) {
 	freqInterpMethodVec_(msspw)=NEAREST;  // change to nearest for this msspw
-	cout << "Changing to nearest!" << endl;
+	msg << "In caltable "
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal") << ":" << endl
+	    << " Insufficient solution channel sampling (nchan=" << nSolChan << ") for frequency-dependent CUBIC/SPLINE interpolation " << endl
+	    << " of calibration for MS spw=" << msspw << "; using NEAREST instead.";
+	log << LogOrigin("CTPatchedInterp","interpolate") << msg.str() << LogIO::WARN;
       }
       else if (nSolChan<4 && freqInterpMethodVec_(msspw)>LINEAR) {
 	freqInterpMethodVec_(msspw)=LINEAR;  // change to nearest for this msspw
-	cout << "Changing to linear!" << endl;
+	msg << "In caltable "
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal") << ":" << endl
+	    << " Insufficient solution channel sampling (nchan=" << nSolChan << ") for frequency-dependent CUBIC/SPLINE interpolation " << endl
+	    << " of calibration for MS spw=" << msspw << "; using LINEAR instead.";
+	log << LogOrigin("CTPatchedInterp","interpolate") << msg.str() << LogIO::WARN;
       }
       break;
     }
@@ -737,7 +753,7 @@ void CTPatchedInterp::state() {
   if (CTPATCHEDINTERPVERB) cout << "CTPatchedInterp::state()" << endl;
 
   cout << "-state--------" << endl;
-  cout << " ct_      = " << ct_.tableName() << endl;
+  cout << " ct_      = " << Path(ct_.tableName()).baseName().before(".tempMemCal") << endl;
   cout << boolalpha;
   cout << " isCmplx_ = " << isCmplx_ << endl;
   cout << " nPar_    = " << nPar_ << endl;
@@ -1125,7 +1141,7 @@ void CTPatchedInterp::setSpwMap(Vector<Int>& spwmap) {
     if (anyGE(spwmap,nCTSpw_)) {
       ostringstream o;
       o << "Please specify spw indices <= maximum available ("
-	<< (nCTSpw_-1) << " in " << ct_.tableName() << ")";
+	<< (nCTSpw_-1) << " in " << Path(ct_.tableName()).baseName().before(".tempMemCal") << ")";
       throw(AipsError(o.str()));
     }
 
