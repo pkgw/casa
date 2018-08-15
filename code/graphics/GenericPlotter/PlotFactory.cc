@@ -195,8 +195,6 @@ PlotSymbolPtr PlotFactory::createSymbol (const String& descriptor,
 	ps->setAreaFill( paf );
 	if(outline) {
 		ps->setLine("black");
-	} else {
-		ps->setLine("black", PlotLine::NOLINE);
 	}
 	return ps;
 }
