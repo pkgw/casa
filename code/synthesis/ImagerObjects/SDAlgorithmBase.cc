@@ -276,7 +276,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    
 	    loopcontrols.resetCycleIter(); 
 
-	    if( peakresidual > maxResidualAcrossPlanes )
+	    if( peakresidual > maxResidualAcrossPlanes && stopCode!=0 )
 	      {maxResidualAcrossPlanes=peakresidual; maxResChan=chanid; maxResPol=polid;}
 
 	    totalFluxAcrossPlanes += modelflux;
