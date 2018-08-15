@@ -44,7 +44,6 @@ ImageAnalysis/ImageCollapserData.cc
 ImageAnalysis/ImageCollapser2.cc
 ImageAnalysis/ImageFactory2.cc
 ImageAnalysis/ImageFitter.cc
-ImageAnalysis/ImageHistogramsCalculator.cc
 ImageAnalysis/ImageInputProcessor.cc
 ImageAnalysis/ImageMask.cc
 ImageAnalysis/ImageMetaDataConstants.cc
@@ -169,6 +168,7 @@ install (FILES
     ImageAnalysis/ImageHistograms.h
     ImageAnalysis/ImageHistograms.tcc
     ImageAnalysis/ImageHistogramsCalculator.h
+    ImageAnalysis/ImageHistogramsCalculator.tcc
     ImageAnalysis/ImageHistory.h
     ImageAnalysis/ImageHistory.tcc
 	ImageAnalysis/ImageInputProcessor.h
