@@ -142,8 +142,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             robustrms = itsImages->calcRobustRMS(itsPBMask);
             //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
-            Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
-              
+            Float nsigmathresh; 
+            if ( robustrms.nelements() == 0 ) {
+              // no statistics returned, perhaps the channel is flagged...
+              nsigmathresh = 0.0; 
+            }
+            else {
+              nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
+            }
+ 
             Float thresholdtouse;
             if (nsigma>0.0) {
               thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
