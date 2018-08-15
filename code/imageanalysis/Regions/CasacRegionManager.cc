@@ -277,7 +277,7 @@ Record CasacRegionManager::fromBCS(
             );
         }
     }
-    else if (regionPtr != 0) {
+    else if (regionPtr) {
         ThrowIf(
             ! (regionName.empty() && chans.empty() && stokes.empty()),
             "regionPtr and regionName, chans, and/or stokes cannot "
