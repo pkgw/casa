@@ -298,7 +298,7 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
                 else:
                     ## We remove map 0 for the current tec_array because it is a repeat of the last map from the previous tec_array
                     for iter in range(int(num_maps-1)):
-                        full_tec_array[:,:,:,iter+num_maps*ymd_date_num] = tec_array[:,:,:,iter+1]
+                        full_tec_array[:,:,:,iter+int(num_maps)*ymd_date_num] = tec_array[:,:,:,iter+1]
             ymd_date_num +=1
 
         if tec_type != '':
