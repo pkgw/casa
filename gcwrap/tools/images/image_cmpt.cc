@@ -4171,18 +4171,18 @@ image* image::pbcor(
             )
         );
         pbcor->setStretch(stretch);
-        vector<String> names = {
-            "pbimage", "outfile", "overwrite", "box", "region", "chans",
-            "stokes", "mask", "mode", "cutoff", "stretch"
-        };
-        vector<variant> values = {
-            pbimage.type() == variant::DOUBLEVEC
-                && pbimage.size() > 100
-                    ? "(...)" : pbimage,
-            outfile, overwrite, box, region, chans,
-            stokes, mask, mode, cutoff, stretch
-        };
         if (_doHistory) {
+            vector<String> names = {
+                "pbimage", "outfile", "overwrite", "box",
+                "region", "chans", "stokes", "mask", "mode",
+                "cutoff", "stretch"
+            };
+            vector<variant> values = {
+                pbimage.type() == variant::DOUBLEVEC && pbimage.size() > 100
+                    ? "(...)" : pbimage,
+                    outfile, overwrite, box, region, chans,
+                    stokes, mask, mode, cutoff, stretch
+            };
             auto msgs = _newHistory(__func__, names, values);
             pbcor->addHistory(_ORIGIN, msgs);
         }
