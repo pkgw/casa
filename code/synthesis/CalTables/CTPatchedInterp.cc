@@ -614,23 +614,37 @@ Bool CTPatchedInterp::interpolate(Int msobs, Int msfld, Int msspw, Double time, 
   
   
   {
+
+    // CAS-11744
+    // In the following, we verify that there are sufficient soln channels to 
+    // do the requested freq-dep interpolation.  If there are not, we
+    // change the freq-dep interp mode to one that will work (linear or
+    // nearest, for nchan=2 or 1, respectively), and issue a logger warning.
+    // This is necessary specifically for the current _flag_ interpolation code.
+    // The warning is thought warranted since freq-dep calibration (B, Tsys)
+    // usually has adequate nchan, and if it does not, this may be unexpected
+    // (e.g., use of too large a freq solint).
+    
     // Check freq sampling adequate for specified freq interpolation
     Int nSolChan=timeResult_(msspw,msfld,thisobs(msobs)).shape()(1);
-
     LogIO log;
     ostringstream msg;
 
-    //cout << "Requested freqInterpMethod0_ = " << freqInterpMethod0_ << endl;
     switch (freqInterpMethod0_) {
     case LINEAR: {
       if (nSolChan<2 && freqInterpMethodVec_(msspw)!=NEAREST) {
 	freqInterpMethodVec_(msspw)=NEAREST;  // change to nearest for this msspw
+	ostringstream spwmapstr;
+	spwmapstr << " (mapped to CT spw=" << spwMap_(msspw) << ")";
 	msg << "In caltable "
-	    << Path(ct_.tableName()).baseName().before(".tempMemCal") << ":" << endl
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal")
+	    << " (" << ct_.keywordSet().asString("VisCal") << ")"
+	    << ":" << endl
 	    << " Insufficient solution channel sampling (nchan=" << nSolChan << ") for frequency-dependent LINEAR interpolation " << endl
-	    << " of calibration for MS spw=" << msspw << "; using NEAREST instead.";
+	    << " of calibration for MS spw=" << msspw
+	    << ( msspw!=spwMap_(msspw) ? String(spwmapstr) : "" ) 
+	    << "; using NEAREST instead.";
 	log << LogOrigin("CTPatchedInterp","interpolate") << msg.str() << LogIO::WARN;
-	//cout << "Changing to nearest!" << endl;
       }
       break;
     }
@@ -638,18 +652,30 @@ Bool CTPatchedInterp::interpolate(Int msobs, Int msfld, Int msspw, Double time, 
     case SPLINE: {
       if (nSolChan<2 && freqInterpMethodVec_(msspw)>NEAREST) {
 	freqInterpMethodVec_(msspw)=NEAREST;  // change to nearest for this msspw
+	ostringstream spwmapstr;
+	spwmapstr << " (mapped to CT spw=" << spwMap_(msspw) << ")";
 	msg << "In caltable "
-	    << Path(ct_.tableName()).baseName().before(".tempMemCal") << ":" << endl
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal")
+	    << " (" << ct_.keywordSet().asString("VisCal") << ")"
+	    << ":" << endl
 	    << " Insufficient solution channel sampling (nchan=" << nSolChan << ") for frequency-dependent CUBIC/SPLINE interpolation " << endl
-	    << " of calibration for MS spw=" << msspw << "; using NEAREST instead.";
+	    << " of calibration for MS spw=" << msspw
+	    << ( msspw!=spwMap_(msspw) ? String(spwmapstr) : "" ) 
+	    << "; using NEAREST instead.";
 	log << LogOrigin("CTPatchedInterp","interpolate") << msg.str() << LogIO::WARN;
       }
       else if (nSolChan<4 && freqInterpMethodVec_(msspw)>LINEAR) {
 	freqInterpMethodVec_(msspw)=LINEAR;  // change to nearest for this msspw
+	ostringstream spwmapstr;
+	spwmapstr << " (mapped to CT spw=" << spwMap_(msspw) << ")";
 	msg << "In caltable "
-	    << Path(ct_.tableName()).baseName().before(".tempMemCal") << ":" << endl
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal")
+	    << " (" << ct_.keywordSet().asString("VisCal") << ")"
+	    << ":" << endl
 	    << " Insufficient solution channel sampling (nchan=" << nSolChan << ") for frequency-dependent CUBIC/SPLINE interpolation " << endl
-	    << " of calibration for MS spw=" << msspw << "; using LINEAR instead.";
+	    << " of calibration for MS spw=" << msspw
+	    << ( msspw!=spwMap_(msspw) ? String(spwmapstr) : "" ) 
+	    << "; using LINEAR instead.";
 	log << LogOrigin("CTPatchedInterp","interpolate") << msg.str() << LogIO::WARN;
       }
       break;
@@ -660,10 +686,8 @@ Bool CTPatchedInterp::interpolate(Int msobs, Int msfld, Int msspw, Double time, 
     }
   }
 
-
   // Use the msspw-specific one!
   freqInterpMethod_=freqInterpMethodVec_(msspw);
-  //  cout << "Using freqInterpMethod_ = " << freqInterpMethod_ << endl;
 
   Bool newcal(false);
   IPosition ip(4,0,msspw,msfld,thisobs(msobs));
