@@ -508,10 +508,21 @@ std::string image::brightnessunit() {
         return "";
     }
     try {
-       auto unit =_imageF
-            ? _imageF->units().getName()
-            : _imageC->units().getName();
-       return unit;
+        if (_imageF) {
+            return _imageF->units().getName();
+        }
+        else if (_imageC) {
+            return _imageC->units().getName();
+        }
+        else if (_imageD) {
+            return _imageD->units().getName();
+        }
+        else if (_imageDC) {
+            return _imageDC->units().getName();
+        }
+        else {
+            ThrowCc("Logic error");
+        }
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -3012,36 +3023,6 @@ record* image::histograms(
         else {
             ThrowCc("Logic error");
         }
-        /*
-        vector<uInt> myaxes;
-        if (axes.size() != 1 || axes[0] != -1) {
-            ThrowIf(
-                *min_element(axes.begin(), axes.end()) < 0,
-                "All axes must be nonnegative"
-            );
-            myaxes.insert(begin(myaxes), begin(axes), end(axes));
-        }
-        auto regionRec = _getRegion(region, false);
-        String Mask = _getMask(mask);
-        vector<Double> myIncludePix;
-        if (!(includepix.size() == 1 && includepix[0] == -1)) {
-            myIncludePix = includepix;
-        }
-        ImageHistogramsCalculator ihc(
-            _imageF, regionRec.get(), Mask
-        );
-        if (! myaxes.empty()) {
-            ihc.setAxes(myaxes);
-        }
-        ihc.setNBins(nbins);
-        if (! myIncludePix.empty()) {
-            ihc.setIncludeRange(myIncludePix);
-        }
-        ihc.setCumulative(cumu);
-        ihc.setDoLog10(log);
-        ihc.setStretch(stretch);
-        return fromRecord(ihc.compute());
-        */
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -3113,7 +3094,7 @@ std::vector<std::string> image::history(bool list) {
         }
     } catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return vector<string>();
@@ -3129,19 +3110,33 @@ image* image::imagecalc(
             "You must provide an expression using the pixels parameter"
         );
         DataType type = ImageExprParse::command(pixels).dataType();
-        if (type == TpComplex || type == TpDComplex) {
-            return new image(
-                _imagecalc<Complex>(outfile, pixels, overwrite, imagemd)
-            );
-        }
-        else if (type == TpFloat || type == TpDouble || type == TpInt) {
+        if (type == TpFloat || type == TpInt) {
             return new image(
                 _imagecalc<Float>(outfile, pixels, overwrite, imagemd)
             );
         }
-        ThrowCc("Unsupported data type for resulting image");
+        else if (type == TpComplex) {
+            return new image(
+                _imagecalc<Complex>(outfile, pixels, overwrite, imagemd)
+            );
+        }
+        else if (type == TpDouble) {
+            return new image(
+                _imagecalc<Double>(outfile, pixels, overwrite, imagemd)
+            );
+        }
+        else if (type == TpDComplex) {
+            return new image(
+                _imagecalc<DComplex>(outfile, pixels, overwrite, imagemd)
+            );
+        }
+        else {
+            ThrowCc("Unsupported data type for resulting image");
+        }
     }
     catch (const AipsError& x) {
+        _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+            << LogIO::POST;
         RETHROW(x);
     }
     return nullptr;
@@ -5174,16 +5169,28 @@ record* image::restoringbeam(int channel, int polarization) {
         if (_detached()) {
             return nullptr;
         }
-        _notSupported(__func__);
         if (_imageF) {
             return fromRecord(
                 _imageF->imageInfo().beamToRecord(channel, polarization)
             );
         }
-        else {
+        else if (_imageC) {
             return fromRecord(
                 _imageC->imageInfo().beamToRecord(channel, polarization)
             );
+        }
+        else if (_imageD) {
+            return fromRecord(
+                _imageD->imageInfo().beamToRecord(channel, polarization)
+            );
+        }
+        else if (_imageDC) {
+            return fromRecord(
+                _imageDC->imageInfo().beamToRecord(channel, polarization)
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
