@@ -266,7 +266,7 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
     ## Gets the day string and the integer number of days of observation (only tested for two continuous days)
     begin_day = qa.time(str(t_min[0])+'s',form='ymd')[0][:10]
     end_day = qa.time(str(t_max[0])+'s',form='ymd')[0][:10]
-    num_of_days = np.floor((t_max[0]-t_min[0])/86400.)
+    num_of_days = int(np.floor((t_max[0]-t_min[0])/86400.))  # must be an int as used below!
 
     ## Set up the number of times we need to go get TEC files
     if begin_day == end_day:
