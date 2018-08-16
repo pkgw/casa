@@ -804,9 +804,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             default: 0 --> when mode='channel'
 
             When mode='channel', 'start' means the first channel in the input spw
-            to use when creating the output spw. When mode='frequency',
-            'start' means the lowest frequency of the output spw. If this information
-            is not available, leave it blank and mstransform will calculate it.
+            to use when creating the output spw. When mode='frequency' or mode='velocity',
+            'start' means the frequency or velocity, respectively, of the first output
+            channel. If this information is not available, leave it blank and mstransform
+            will calculate it.
 
         width -- Width of input channels that are used to create an output channel. 
             default: 1
