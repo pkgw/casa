@@ -2984,17 +2984,35 @@ vector<bool> image::haslock() {
 }
 
 record* image::histograms(
-    const vector<int>& axes,
-    const variant& region, const variant& mask,
-    int nbins, const vector<double>& includepix,
-    bool cumu, bool log, bool stretch
+    const vector<int>& axes, const variant& region, const variant& mask,
+    int nbins, const vector<double>& includepix, bool cumu, bool log,
+    bool stretch
 ) {
     _log << _ORIGIN;
     if (_detached()) {
         return nullptr;
     }
     try {
-        ThrowIf(! _imageF, "This method only supports float valued imaged");
+        ThrowIf(! (
+            _imageF || _imageD),
+            "This method only supports real-valued images"
+        );
+        if (_imageF) {
+            return _histograms(
+                _imageF, axes, region, mask, nbins,
+                includepix, cumu, log, stretch
+            );
+        }
+        else if (_imageD) {
+            return _histograms(
+                _imageD, axes, region, mask, nbins,
+                includepix, cumu, log, stretch
+            );
+        }
+        else {
+            ThrowCc("Logic error");
+        }
+        /*
         vector<uInt> myaxes;
         if (axes.size() != 1 || axes[0] != -1) {
             ThrowIf(
@@ -3003,7 +3021,7 @@ record* image::histograms(
             );
             myaxes.insert(begin(myaxes), begin(axes), end(axes));
         }
-        SHARED_PTR<Record> regionRec(_getRegion(region, false));
+        auto regionRec = _getRegion(region, false);
         String Mask = _getMask(mask);
         vector<Double> myIncludePix;
         if (!(includepix.size() == 1 && includepix[0] == -1)) {
@@ -3023,13 +3041,49 @@ record* image::histograms(
         ihc.setDoLog10(log);
         ihc.setStretch(stretch);
         return fromRecord(ihc.compute());
+        */
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return nullptr;
+}
+
+template <class T> record* image::_histograms(
+    SPIIT myImage, const vector<int>& axes, const variant& region,
+    const variant& mask, int nbins, const vector<double>& includepix, bool cumu,
+    bool log, bool stretch
+) {
+    vector<uInt> myaxes;
+    if (axes.size() != 1 || axes[0] != -1) {
+        ThrowIf(
+            *min_element(axes.begin(), axes.end()) < 0,
+            "All axes must be nonnegative"
+        );
+        myaxes.insert(begin(myaxes), begin(axes), end(axes));
+    }
+    auto regionRec = _getRegion(region, false);
+    String Mask = _getMask(mask);
+    vector<Double> myIncludePix;
+    if (!(includepix.size() == 1 && includepix[0] == -1)) {
+        myIncludePix = includepix;
+    }
+    ImageHistogramsCalculator<T> ihc(
+        myImage, regionRec.get(), Mask
+    );
+    if (! myaxes.empty()) {
+        ihc.setAxes(myaxes);
+    }
+    ihc.setNBins(nbins);
+    if (! myIncludePix.empty()) {
+        ihc.setIncludeRange(myIncludePix);
+    }
+    ihc.setCumulative(cumu);
+    ihc.setDoLog10(log);
+    ihc.setStretch(stretch);
+    return fromRecord(ihc.compute());
 }
 
 std::vector<std::string> image::history(bool list) {
