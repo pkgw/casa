@@ -125,7 +125,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	LogIO os(LogOrigin("AWProjectFT2", "createTelescopeATerm",WHERE));
 	os << "Telescope name ('"+
 	  telescopeName+"') in the MS not recognized to create the telescope specific ATerm" 
-	   << LogIO::WARN;
+	   << LogIO::EXCEPTION;
       }
     
     return NULL;
