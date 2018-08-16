@@ -98,18 +98,18 @@ Hanning smoothing may not be necessary.
         </param>
 
         <param type="int" name="nchan" subparam="true">
-	    <description>Number of channels in output spw (-1=all)</description>
+	    <description>Number of channels in output spw (-1=all). Used for regridding, together with \'start\' and \'width\'.</description>
 	    <value>-1</value>
         </param>
 
         <param type="any" name="start" subparam="true">
-	    <description>First channel in input to use</description>
+	    <description>Start of the output visibilities. Used for regridding, together with \'width\' and \'nchan\'. It can be in different units, depending on the regridding mode: first input channel (mode=\'channel\'), first velocity (mode=\'velocity\'), or first frequency (mode=\'frequency\'). Example values: \'5\', \'0.0km/s\', \'1.4GHz\', for channel, velocity, and frequency modes, respectively.</description>
 	    <any type="variant"/>
 	    <value type="int">0</value>
         </param>
 
         <param type="any" name="width" subparam="true">
-	    <description>Number of input channels to average</description>
+	    <description>Channel width of the output visibilities. Used for regridding, together with \'start\', and \'nchan\'. It can be in different units, depending on the regridding mode: number of input channels (mode=\'channel\'), velocity (mode=\'velocity\'), or frequency (mode=\'frequency\'. Example values: \'2\', \'1.0km/s\', \'1.0kHz\', for channel, velocity, and frequency modes, respectively.</description>
 	    <any type="variant"/>
 	    <value type="int">1</value>
         </param>
@@ -127,7 +127,7 @@ Hanning smoothing may not be necessary.
         </param>
 
         <param type="any" name="phasecenter">
-	    <description>Phase center direction to be used for the spectral coordinate transformation: position or field index</description>
+	    <description>Phase center direction to be used for the spectral coordinate transformation: direction measure or field index</description>
 	    <any type="variant"/>
 	    <value type="string"></value>
         </param>
@@ -187,15 +187,16 @@ Hanning smoothing may not be necessary.
 		<equals value="channel">
 			<default param="nchan"><value type="int">-1</value></default>
 			<default param="start"><value type="int">0</value>
-			    <description>first input channel to use</description>
+			    <description>First input channel to use</description>
 			</default>
-			<default param="width"><value type="int">1</value></default>
+			<default param="width"><value type="int">1</value>
+			</default>
 			<default param="interpolation"><value type="string">linear</value></default>
 		</equals>
 		<equals value="channel_b">
 			<default param="nchan"><value type="int">-1</value></default>
 			<default param="start"><value type="int">0</value>
-			    <description>first input channel to use</description>
+			    <description>First input channel to use</description>
 			</default>
 			<default param="width"><value type="int">1</value></default>
 			<default param="interpolation"><value type="string">linear</value></default>
@@ -203,20 +204,20 @@ Hanning smoothing may not be necessary.
 	        <equals value="velocity">
 		        <default param="nchan"><value type="int">-1</value></default>
 			<default param="start"><value type="string"></value>
-			    <description>Velocity of first image channel: e.g \'0.0km/s\'</description>
+			    <description>Velocity of first channel: e.g \'0.0km/s\'</description>
 		        </default>
 		        <default param="width"><value type="string"></value>
-			    <description>image channel width in velocity units: e.g \'-1.0km/s\'</description>
+			    <description>Channel width of the output visibilities, in velocity units, e.g \'-1.0km/s\'</description>
 		        </default>
 		        <default param="interpolation"><value type="string">linear</value></default>
 	        </equals>
 	        <equals value="frequency">
 			<default param="nchan"><value type="int">-1</value></default>
 			<default param="start"><value type="string"></value>
-			    <description>Frequency of first image channel: e.q. \'1.4GHz\'</description>
+			    <description>Frequency of first channel: e.q. \'1.4GHz\'</description>
 		    </default>
 		    <default param="width"><value type="string"></value>
-			    <description>Image channel width in frequency units: e.g \'1.0kHz\'</description>
+			    <description>Channel width of the output visibilities, in frequency units, e.g \'1.0kHz\'</description>
 		    </default>
 		    <default param="interpolation"><value type="string">linear</value></default>
 	        </equals>
@@ -370,7 +371,7 @@ Hanning smoothing may not be necessary.
                default: '' =&gt; first field selected ; example: phasecenter=6
                or phasecenter='J2000 19h30m00 -40d00m00'
 
-      restfreq -- Specify rest frequency to use for output image
+      restfreq -- Specify rest frequency to use for output visibilities
                default='' Occasionally it is necessary to set this (for
                example some VLA spectral line data).  For example for
                NH_3 (1,1) put restfreq='23.694496GHz'
