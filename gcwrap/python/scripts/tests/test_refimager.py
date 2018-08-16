@@ -368,6 +368,15 @@ class test_onefield(testref_base):
           
           self.checkfinal(report)
 
+     def test_onefield_mtmfs_nterms1(self):
+          """ [onefield] Test_Onefield_mtmfs_nterms1 : mt-mfs with nterms=1 (CAS-11364, CAS-11367) """
+          self.prepData('refim_point.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='mtmfs',nterms=1,interactive=0,parallel=self.parallel)
+          report=self.th.checkall(ret=ret, peakres=0.369, modflux=0.689, iterdone=10, imexist=[self.img+'.psf.tt0', self.img+'.residual.tt0', self.img+'.image.tt0', self.img+'.model.tt0'], imval=[(self.img+'.psf.tt0',1.0,[50,50,0,0]),(self.img+'.image.tt0',1.05,[50,50,0,0])])
+          ## iterdone=11 only because of the return (iterdone_p+1) in MultiTermMatrixCleaner::mtclean() !
+          self.checkfinal(pstr=report)
+
+
 ##############################################
 ##############################################
 
