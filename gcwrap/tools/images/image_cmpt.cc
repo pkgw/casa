@@ -172,7 +172,6 @@ image* image::adddegaxes(
         if (_detached()) {
             return nullptr;
         }
-        _notSupported(__func__);
         if (_imageF) {
             casa::SPCIIF myim = _imageF;
             return _adddegaxes(
@@ -180,12 +179,29 @@ image* image::adddegaxes(
                 linear, tabular, overwrite, silent
             );
         }
-        else {
+        else if (_imageD) {
+            casa::SPCIID myim = _imageD;
+            return _adddegaxes(
+                myim, outfile, direction, spectral, stokes,
+                linear, tabular, overwrite, silent
+            );
+        }
+        else if (_imageC) {
             casa::SPCIIC myim = _imageC;
             return _adddegaxes(
                 myim, outfile, direction, spectral, stokes,
                 linear, tabular, overwrite, silent
             );
+        }
+        else if (_imageDC) {
+            casa::SPCIIC myim = _imageC;
+            return _adddegaxes(
+                myim, outfile, direction, spectral, stokes,
+                linear, tabular, overwrite, silent
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
@@ -5541,7 +5557,6 @@ bool image::sethistory(
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
         if ((history.size() == 1) && (history[0].size() == 0)) {
             LogOrigin lor("image", "sethistory");
             _log << lor << "history string is empty" << LogIO::POST;
@@ -5551,9 +5566,20 @@ bool image::sethistory(
                 ImageHistory<Float> hist(_imageF);
                 hist.addHistory(origin, history);
             }
-            else {
+            else if (_imageD) {
+                ImageHistory<Double> hist(_imageD);
+                hist.addHistory(origin, history);
+            }
+            else if (_imageC) {
                 ImageHistory<Complex> hist(_imageC);
                 hist.addHistory(origin, history);
+            }
+            else if (_imageDC) {
+                ImageHistory<DComplex> hist(_imageDC);
+                hist.addHistory(origin, history);
+            }
+            else {
+                ThrowCc("Logic error");
             }
         }
         return true;
