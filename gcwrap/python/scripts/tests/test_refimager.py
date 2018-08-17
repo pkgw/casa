@@ -624,6 +624,7 @@ class test_multifield(testref_base):
                                (self.img+'2.image',3.675,[51,40,0,1]) ])
           self.checkfinal(report)
 
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. Diffirent nchans of cubes in multi-field imaging is  not supported in parallel mode")
      def test_multifield_both_cube_diffshape(self):
           """ [multifield] Test_Multifield_both_cube : Two fields, both cube but different nchans"""
           self.prepData("refim_twopoints_twochan.ms")
@@ -644,6 +645,7 @@ class test_multifield(testref_base):
                                (self.img+'1.image',3.70,[40,40,0,1]) ])
           self.checkfinal(report)
 
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. Mixing cube and mfs in multi-field imaging  is not supported in parallel mode")
      def test_multifield_cube_mfs(self):
           """ [multifield] Test_Multifield_cube_mfs : Two fields, one cube and one mfs"""
           self.prepData("refim_twopoints_twochan.ms")
@@ -680,6 +682,7 @@ class test_multifield(testref_base):
                                (self.img+'1.alpha', -1.0, [40,40,0,0])  ])
           self.checkfinal(report)
 
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. Mixing cube and mtmfs in multi-field imaging is not supported in parallel mode")
      def test_multifield_cube_mtmfs(self):
           """ [multifield] Test_Multifield_cube_mtmfs : Two fields, one cube and one mtmfs"""
           self.prepData("refim_twopoints_twochan.ms")
@@ -1381,7 +1384,7 @@ class test_cube(testref_base):
           report2 = self.th.checkspecframe(self.img+self.testList[testid]['imagename']+'.image','LSRK',1.199989152e9)
           self.checkfinal(report+report2)
 
-     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "skipped the test, data sel with channel gaps is not supported in parallel mode")
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. Data sel with channel gaps is not supported in parallel mode")
      def test_cube_21(self):
           """ [cube] Test_Cube_21  """
           # data sel with channel gap (10,11 excluded) 4~9, 12~14
