@@ -489,7 +489,11 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
     Int spectralIndex=cs.findCoordinate(Coordinate::SPECTRAL);
     SpectralCoordinate spectralCoord=cs.spectralCoordinate(spectralIndex);
     MFrequency::Types intype=spectralCoord.frequencySystem(True);
-    VisBufferUtil::getFreqRangeFromRange(minFreq, maxFreq,  intype, minFreq,  maxFreq, *vi_p, selFreqFrame_p);
+    if(!VisBufferUtil::getFreqRangeFromRange(minFreq, maxFreq,  intype, minFreq,  maxFreq, *vi_p, selFreqFrame_p)){
+      //Do not retune if conversion did not happen
+      return;
+    }
+      
     maxFreq+=fabs(spectralCoord.increment()(0))/2.0;
     minFreq-=fabs(spectralCoord.increment()(0))/2.0;
     if(minFreq < 0.0) minFreq=0.0;
