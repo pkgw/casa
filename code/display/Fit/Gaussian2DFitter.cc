@@ -103,7 +103,7 @@ namespace casa {
 	void Gaussian2DFitter::run() {
 		successfulFit = true;
 		String channelStr = String::toString(channelNumber);
-		ImageFitter fitter(image, "", NULL, pixelBox, channelStr, "", "", estimateFile);
+		ImageFitter<Float> fitter(image, "", NULL, pixelBox, channelStr, "", "", estimateFile);
 		String logFile = getLogFilePath().toStdString();
 		fitter.setLogfile( logFile );
 		if (includePixs) {
