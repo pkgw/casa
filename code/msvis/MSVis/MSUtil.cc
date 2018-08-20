@@ -447,7 +447,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else{
       
-      if(planetType >=MDirection::MERCURY && planetType >=MDirection::COMET){
+      if(planetType >=MDirection::MERCURY && planetType < MDirection::COMET){
 	//Damn these enums are not in the same order
 	switch(planetType){
 	case MDirection::MERCURY :
