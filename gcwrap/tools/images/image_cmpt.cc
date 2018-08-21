@@ -172,7 +172,6 @@ image* image::adddegaxes(
         if (_detached()) {
             return nullptr;
         }
-        _notSupported(__func__);
         if (_imageF) {
             casa::SPCIIF myim = _imageF;
             return _adddegaxes(
@@ -180,12 +179,29 @@ image* image::adddegaxes(
                 linear, tabular, overwrite, silent
             );
         }
-        else {
+        else if (_imageD) {
+            casa::SPCIID myim = _imageD;
+            return _adddegaxes(
+                myim, outfile, direction, spectral, stokes,
+                linear, tabular, overwrite, silent
+            );
+        }
+        else if (_imageC) {
             casa::SPCIIC myim = _imageC;
             return _adddegaxes(
                 myim, outfile, direction, spectral, stokes,
                 linear, tabular, overwrite, silent
             );
+        }
+        else if (_imageDC) {
+            casa::SPCIIC myim = _imageC;
+            return _adddegaxes(
+                myim, outfile, direction, spectral, stokes,
+                linear, tabular, overwrite, silent
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
@@ -508,10 +524,21 @@ std::string image::brightnessunit() {
         return "";
     }
     try {
-       auto unit =_imageF
-            ? _imageF->units().getName()
-            : _imageC->units().getName();
-       return unit;
+        if (_imageF) {
+            return _imageF->units().getName();
+        }
+        else if (_imageC) {
+            return _imageC->units().getName();
+        }
+        else if (_imageD) {
+            return _imageD->units().getName();
+        }
+        else if (_imageDC) {
+            return _imageDC->units().getName();
+        }
+        else {
+            ThrowCc("Logic error");
+        }
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -3012,36 +3039,6 @@ record* image::histograms(
         else {
             ThrowCc("Logic error");
         }
-        /*
-        vector<uInt> myaxes;
-        if (axes.size() != 1 || axes[0] != -1) {
-            ThrowIf(
-                *min_element(axes.begin(), axes.end()) < 0,
-                "All axes must be nonnegative"
-            );
-            myaxes.insert(begin(myaxes), begin(axes), end(axes));
-        }
-        auto regionRec = _getRegion(region, false);
-        String Mask = _getMask(mask);
-        vector<Double> myIncludePix;
-        if (!(includepix.size() == 1 && includepix[0] == -1)) {
-            myIncludePix = includepix;
-        }
-        ImageHistogramsCalculator ihc(
-            _imageF, regionRec.get(), Mask
-        );
-        if (! myaxes.empty()) {
-            ihc.setAxes(myaxes);
-        }
-        ihc.setNBins(nbins);
-        if (! myIncludePix.empty()) {
-            ihc.setIncludeRange(myIncludePix);
-        }
-        ihc.setCumulative(cumu);
-        ihc.setDoLog10(log);
-        ihc.setStretch(stretch);
-        return fromRecord(ihc.compute());
-        */
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -3113,7 +3110,7 @@ std::vector<std::string> image::history(bool list) {
         }
     } catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-                << LogIO::POST;
+            << LogIO::POST;
         RETHROW(x);
     }
     return vector<string>();
@@ -3129,19 +3126,33 @@ image* image::imagecalc(
             "You must provide an expression using the pixels parameter"
         );
         DataType type = ImageExprParse::command(pixels).dataType();
-        if (type == TpComplex || type == TpDComplex) {
-            return new image(
-                _imagecalc<Complex>(outfile, pixels, overwrite, imagemd)
-            );
-        }
-        else if (type == TpFloat || type == TpDouble || type == TpInt) {
+        if (type == TpFloat || type == TpInt) {
             return new image(
                 _imagecalc<Float>(outfile, pixels, overwrite, imagemd)
             );
         }
-        ThrowCc("Unsupported data type for resulting image");
+        else if (type == TpComplex) {
+            return new image(
+                _imagecalc<Complex>(outfile, pixels, overwrite, imagemd)
+            );
+        }
+        else if (type == TpDouble) {
+            return new image(
+                _imagecalc<Double>(outfile, pixels, overwrite, imagemd)
+            );
+        }
+        else if (type == TpDComplex) {
+            return new image(
+                _imagecalc<DComplex>(outfile, pixels, overwrite, imagemd)
+            );
+        }
+        else {
+            ThrowCc("Unsupported data type for resulting image");
+        }
     }
     catch (const AipsError& x) {
+        _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+            << LogIO::POST;
         RETHROW(x);
     }
     return nullptr;
@@ -4166,15 +4177,13 @@ image* image::pad(
 }
 
 image* image::pbcor(
-    const variant& pbimage, const string& outfile,
-    bool overwrite, const string& box,
-    const variant& region, const string& chans,
-    const string& stokes, const string& mask,
-    const string& mode, float cutoff,
+    const variant& pbimage, const string& outfile, bool overwrite,
+    const string& box, const variant& region, const string& chans,
+    const string& stokes, const string& mask, const string& mode, float cutoff,
     bool stretch
 ) {
     if (_detached()) {
-        throw AipsError("Unable to create image");
+        ThrowCc("Unable to create image");
     }
     try {
         _log << _ORIGIN;
@@ -4193,10 +4202,9 @@ image* image::pbcor(
         else if (pbimage.type() == variant::STRING) {
             ImageInterface<Float>* pb;
             ImageUtilities::openImage(pb, pbimage.getString());
-            if (pb == 0) {
-                _log << "Unable to open primary beam image " << pbimage.getString()
-                    << LogIO::EXCEPTION;
-            }
+            ThrowIf(
+                ! pb, "Unable to open primary beam image " + pbimage.getString()
+            );
             pb_ptr.reset(pb);
         }
         else {
@@ -4204,7 +4212,7 @@ image* image::pbcor(
                 "Unsupported type " + pbimage.typeString() + " for pbimage"
             );
         }
-        auto myRegion = _getRegion(region, false);
+        auto myRegion = _getRegion(region, true);
         String modecopy = mode;
         modecopy.downcase();
         modecopy.trim();
@@ -4219,30 +4227,27 @@ image* image::pbcor(
         std::unique_ptr<ImagePrimaryBeamCorrector> pbcor(
             (!pb_ptr)
             ? new ImagePrimaryBeamCorrector(
-                shImage, pbPixels, myRegion.get(),
-                "", box, chans, stokes, mask, outfile, overwrite,
-                cutoff, useCutoff, myMode
+                shImage, pbPixels, myRegion.get(), "", box, chans, stokes, mask,
+                outfile, overwrite, cutoff, useCutoff, myMode
             )
             : new ImagePrimaryBeamCorrector(
-                shImage, pb_ptr, myRegion.get(),
-                "", box, chans, stokes, mask, outfile, overwrite,
-                cutoff, useCutoff, myMode
+                shImage, pb_ptr, myRegion.get(), "", box, chans, stokes, mask,
+                outfile, overwrite, cutoff, useCutoff, myMode
             )
         );
         pbcor->setStretch(stretch);
-        vector<String> names = {
-            "pbimage", "outfile", "overwrite", "box",
-            "region", "chans", "stokes", "mask", "mode",
-            "cutoff", "stretch"
-        };
-        vector<variant> values = {
-            pbimage.type() == variant::DOUBLEVEC
-                && pbimage.size() > 100
-                    ? "(...)" : pbimage,
-            outfile, overwrite, box, region, chans,
-            stokes, mask, mode, cutoff, stretch
-        };
         if (_doHistory) {
+            vector<String> names = {
+                "pbimage", "outfile", "overwrite", "box",
+                "region", "chans", "stokes", "mask", "mode",
+                "cutoff", "stretch"
+            };
+            vector<variant> values = {
+                pbimage.type() == variant::DOUBLEVEC && pbimage.size() > 100
+                    ? "(...)" : pbimage,
+                    outfile, overwrite, box, region, chans,
+                    stokes, mask, mode, cutoff, stretch
+            };
             auto msgs = _newHistory(__func__, names, values);
             pbcor->addHistory(_ORIGIN, msgs);
         }
@@ -5180,16 +5185,28 @@ record* image::restoringbeam(int channel, int polarization) {
         if (_detached()) {
             return nullptr;
         }
-        _notSupported(__func__);
         if (_imageF) {
             return fromRecord(
                 _imageF->imageInfo().beamToRecord(channel, polarization)
             );
         }
-        else {
+        else if (_imageC) {
             return fromRecord(
                 _imageC->imageInfo().beamToRecord(channel, polarization)
             );
+        }
+        else if (_imageD) {
+            return fromRecord(
+                _imageD->imageInfo().beamToRecord(channel, polarization)
+            );
+        }
+        else if (_imageDC) {
+            return fromRecord(
+                _imageDC->imageInfo().beamToRecord(channel, polarization)
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
@@ -5540,7 +5557,6 @@ bool image::sethistory(
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
         if ((history.size() == 1) && (history[0].size() == 0)) {
             LogOrigin lor("image", "sethistory");
             _log << lor << "history string is empty" << LogIO::POST;
@@ -5550,9 +5566,20 @@ bool image::sethistory(
                 ImageHistory<Float> hist(_imageF);
                 hist.addHistory(origin, history);
             }
-            else {
+            else if (_imageD) {
+                ImageHistory<Double> hist(_imageD);
+                hist.addHistory(origin, history);
+            }
+            else if (_imageC) {
                 ImageHistory<Complex> hist(_imageC);
                 hist.addHistory(origin, history);
+            }
+            else if (_imageDC) {
+                ImageHistory<DComplex> hist(_imageDC);
+                hist.addHistory(origin, history);
+            }
+            else {
+                ThrowCc("Logic error");
             }
         }
         return true;
