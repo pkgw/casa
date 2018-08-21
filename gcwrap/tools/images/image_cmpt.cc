@@ -172,7 +172,6 @@ image* image::adddegaxes(
         if (_detached()) {
             return nullptr;
         }
-        _notSupported(__func__);
         if (_imageF) {
             casa::SPCIIF myim = _imageF;
             return _adddegaxes(
@@ -180,12 +179,29 @@ image* image::adddegaxes(
                 linear, tabular, overwrite, silent
             );
         }
-        else {
+        else if (_imageD) {
+            casa::SPCIID myim = _imageD;
+            return _adddegaxes(
+                myim, outfile, direction, spectral, stokes,
+                linear, tabular, overwrite, silent
+            );
+        }
+        else if (_imageC) {
             casa::SPCIIC myim = _imageC;
             return _adddegaxes(
                 myim, outfile, direction, spectral, stokes,
                 linear, tabular, overwrite, silent
             );
+        }
+        else if (_imageDC) {
+            casa::SPCIIC myim = _imageC;
+            return _adddegaxes(
+                myim, outfile, direction, spectral, stokes,
+                linear, tabular, overwrite, silent
+            );
+        }
+        else {
+            ThrowCc("Logic error");
         }
     }
     catch (const AipsError& x) {
@@ -4184,15 +4200,13 @@ image* image::pad(
 }
 
 image* image::pbcor(
-    const variant& pbimage, const string& outfile,
-    bool overwrite, const string& box,
-    const variant& region, const string& chans,
-    const string& stokes, const string& mask,
-    const string& mode, float cutoff,
+    const variant& pbimage, const string& outfile, bool overwrite,
+    const string& box, const variant& region, const string& chans,
+    const string& stokes, const string& mask, const string& mode, float cutoff,
     bool stretch
 ) {
     if (_detached()) {
-        throw AipsError("Unable to create image");
+        ThrowCc("Unable to create image");
     }
     try {
         _log << _ORIGIN;
@@ -4211,10 +4225,9 @@ image* image::pbcor(
         else if (pbimage.type() == variant::STRING) {
             ImageInterface<Float>* pb;
             ImageUtilities::openImage(pb, pbimage.getString());
-            if (pb == 0) {
-                _log << "Unable to open primary beam image " << pbimage.getString()
-                    << LogIO::EXCEPTION;
-            }
+            ThrowIf(
+                ! pb, "Unable to open primary beam image " + pbimage.getString()
+            );
             pb_ptr.reset(pb);
         }
         else {
@@ -4222,7 +4235,7 @@ image* image::pbcor(
                 "Unsupported type " + pbimage.typeString() + " for pbimage"
             );
         }
-        auto myRegion = _getRegion(region, false);
+        auto myRegion = _getRegion(region, true);
         String modecopy = mode;
         modecopy.downcase();
         modecopy.trim();
@@ -4237,30 +4250,27 @@ image* image::pbcor(
         std::unique_ptr<ImagePrimaryBeamCorrector> pbcor(
             (!pb_ptr)
             ? new ImagePrimaryBeamCorrector(
-                shImage, pbPixels, myRegion.get(),
-                "", box, chans, stokes, mask, outfile, overwrite,
-                cutoff, useCutoff, myMode
+                shImage, pbPixels, myRegion.get(), "", box, chans, stokes, mask,
+                outfile, overwrite, cutoff, useCutoff, myMode
             )
             : new ImagePrimaryBeamCorrector(
-                shImage, pb_ptr, myRegion.get(),
-                "", box, chans, stokes, mask, outfile, overwrite,
-                cutoff, useCutoff, myMode
+                shImage, pb_ptr, myRegion.get(), "", box, chans, stokes, mask,
+                outfile, overwrite, cutoff, useCutoff, myMode
             )
         );
         pbcor->setStretch(stretch);
-        vector<String> names = {
-            "pbimage", "outfile", "overwrite", "box",
-            "region", "chans", "stokes", "mask", "mode",
-            "cutoff", "stretch"
-        };
-        vector<variant> values = {
-            pbimage.type() == variant::DOUBLEVEC
-                && pbimage.size() > 100
-                    ? "(...)" : pbimage,
-            outfile, overwrite, box, region, chans,
-            stokes, mask, mode, cutoff, stretch
-        };
         if (_doHistory) {
+            vector<String> names = {
+                "pbimage", "outfile", "overwrite", "box",
+                "region", "chans", "stokes", "mask", "mode",
+                "cutoff", "stretch"
+            };
+            vector<variant> values = {
+                pbimage.type() == variant::DOUBLEVEC && pbimage.size() > 100
+                    ? "(...)" : pbimage,
+                    outfile, overwrite, box, region, chans,
+                    stokes, mask, mode, cutoff, stretch
+            };
             auto msgs = _newHistory(__func__, names, values);
             pbcor->addHistory(_ORIGIN, msgs);
         }
@@ -5570,7 +5580,6 @@ bool image::sethistory(
         if (_detached()) {
             return false;
         }
-        _notSupported(__func__);
         if ((history.size() == 1) && (history[0].size() == 0)) {
             LogOrigin lor("image", "sethistory");
             _log << lor << "history string is empty" << LogIO::POST;
@@ -5580,9 +5589,20 @@ bool image::sethistory(
                 ImageHistory<Float> hist(_imageF);
                 hist.addHistory(origin, history);
             }
-            else {
+            else if (_imageD) {
+                ImageHistory<Double> hist(_imageD);
+                hist.addHistory(origin, history);
+            }
+            else if (_imageC) {
                 ImageHistory<Complex> hist(_imageC);
                 hist.addHistory(origin, history);
+            }
+            else if (_imageDC) {
+                ImageHistory<DComplex> hist(_imageDC);
+                hist.addHistory(origin, history);
+            }
+            else {
+                ThrowCc("Logic error");
             }
         }
         return true;
