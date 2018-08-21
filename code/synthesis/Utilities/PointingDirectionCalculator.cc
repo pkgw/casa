@@ -64,7 +64,9 @@ using namespace std;
 //
 //   debuglog << "Any message" << any_value << debugpost;
 //
-//#define DIRECTIONCALC_DEBUG
+
+           #define DIRECTIONCALC_DEBUG
+
 
 namespace {
 struct NullLogger {
@@ -132,17 +134,32 @@ inline void skipMovingSourceCorrection(
 
 using namespace casacore;
 namespace casa {
+
 PointingDirectionCalculator::PointingDirectionCalculator(
         MeasurementSet const &ms) :
-        originalMS_(new MeasurementSet(ms)), selectedMS_(), pointingTable_(), pointingColumns_(), timeColumn_(), intervalColumn_(), antennaColumn_(), directionColumnName_(), accessor_(
-        NULL), antennaPosition_(), referenceEpoch_(), referenceFrame_(
-                referenceEpoch_, antennaPosition_), directionConvert_(
-        NULL), directionType_(MDirection::J2000), movingSource_(NULL), movingSourceConvert_(
-        NULL), movingSourceCorrection_(NULL), antennaBoundary_(), numAntennaBoundary_(
-                0), pointingTimeUTC_(), lastTimeStamp_(-1.0), lastAntennaIndex_(
-                -1), pointingTableIndexCache_(0), shape_(
-                PointingDirectionCalculator::COLUMN_MAJOR) {
-    accessor_ = directionAccessor;
+        originalMS_(new MeasurementSet(ms)), 
+	selectedMS_(), 
+	pointingTable_(), 
+	pointingColumns_(), 
+	timeColumn_(), 
+	intervalColumn_(), 
+	antennaColumn_(), 
+	directionColumnName_(), 
+	accessor_(NULL), 
+	antennaPosition_(), 
+	referenceEpoch_(), 
+	referenceFrame_(referenceEpoch_, antennaPosition_), 
+	directionConvert_(NULL), 
+	directionType_(MDirection::J2000), movingSource_(NULL), movingSourceConvert_(NULL), 
+	movingSourceCorrection_(NULL), 
+	antennaBoundary_(), 
+	numAntennaBoundary_(0), 
+	pointingTimeUTC_(), 
+	lastTimeStamp_(-1.0), 
+	lastAntennaIndex_(-1), 
+	pointingTableIndexCache_(0), 
+	shape_(PointingDirectionCalculator::COLUMN_MAJOR)
+	 {accessor_ = directionAccessor;
 
     Block<String> sortColumns(2);
     sortColumns[0] = "ANTENNA1";
@@ -156,20 +173,31 @@ PointingDirectionCalculator::PointingDirectionCalculator(
 
     // set default direction column name
     setDirectionColumn("DIRECTION");
+
+    // CONFIGURATION TEST //
+
 }
 
+
 void PointingDirectionCalculator::init() {
+
     // attach column
+
     timeColumn_.attach(*selectedMS_, "TIME");
+
     intervalColumn_.attach(*selectedMS_, "INTERVAL");
+
     antennaColumn_.attach(*selectedMS_, "ANTENNA1");
 
     // initial setup
+
     debuglog << "inspectAntenna" << debugpost;
     inspectAntenna();
+
     debuglog << "done" << debugpost;
 
     resetAntennaPosition(antennaColumn_(0));
+
 }
 
 void PointingDirectionCalculator::selectData(String const &antenna,
@@ -177,7 +205,9 @@ void PointingDirectionCalculator::selectData(String const &antenna,
         String const &scan, String const &feed, String const &intent,
         String const &observation, String const &uvrange,
         String const &msselect) {
+
     // table selection
+    printf("Table Selection Start\n");
     MSSelection thisSelection;
     thisSelection.setAntennaExpr(antenna);
     thisSelection.setSpwExpr(spw);
@@ -188,23 +218,80 @@ void PointingDirectionCalculator::selectData(String const &antenna,
     thisSelection.setObservationExpr(observation);
     thisSelection.setUvDistExpr(uvrange);
     thisSelection.setTaQLExpr(msselect);
+    printf("Table Selection End\n");
 
-    TableExprNode exprNode = thisSelection.getTEN(&(*originalMS_));
+#if 0
+    printf("GetTEN start\n");
+    TableExprNode  exprNode = thisSelection.getTEN(&(*originalMS_));
+    printf("GetTEN End\n");
+#else
 
+    //
+    // Problem:
+    //
+    // - casacore:MSSelect::getTEN() occasionally makes exception. 
+    //   when no matched record was found.
+    // - getTEN() and the internal routine checks Antenna fomat gramer
+    //   internally by LEX and YACC. 
+    // - BNF was found in 'MeasurementSet Selection Syntax', 15-JUN-2007
+    // - In order to handle, try{} catch(...) is occasionaly necesary. 
+    //    
+    //        20-Jul-2018 Suminori Nishie 
+    //
+
+    TableExprNode exprNode;
+
+    try 
+    {
+        printf("GetTEN start in try{}\n");
+        exprNode = thisSelection.getTEN(&(*originalMS_));
+        printf("GetTEN End in try{}\n");
+    }
+/*    catch(...) */
+    catch( exception e )
+    {
+        printf ("WARNING: Exception in getTEN() was caught. throw Exeption. \n" );
+	throw;
+    }
+#endif 
     // sort by ANTENNA1 and TIME for performance reason
+
     Block<String> sortColumns(2);
     sortColumns[0] = "ANTENNA1";
     sortColumns[1] = "TIME";
-    if (exprNode.isNull()) {
+
+    printf("Start checking isNull. \n");
+    if (exprNode.isNull()) 
+    {
         debuglog << "NULL selection" << debugpost;
+
         selectedMS_ = new MeasurementSet(originalMS_->sort(sortColumns));
-    } else {
+
+    } 
+    else 
+    {
         debuglog << "Sort of selection" << debugpost;
+
         MeasurementSet tmp = (*originalMS_)(exprNode);
         selectedMS_ = new MeasurementSet(tmp.sort(sortColumns));
     }
+
     debuglog << "selectedMS_->nrow() = " << selectedMS_->nrow() << debugpost;
+ 
+ //+
+ // Following Block is usually UnReachable. (S.Nishie)
+ //   except 
+ //   1) Any entry in Antenna Table, getTEN() normally goes.
+ //   2) However, no Entry matched in MAIN TABLE , selectedMS_ -nrow() becomes Zero.
+ //
+ //   THIS SPECIAL CASE MAY HAPPEN, Pay attention on CountedPtr behavior 
+ //   in case  any update is needed  
+ //-
+
     if (selectedMS_->nrow() == 0) {
+	
+        debuglog << "selectedMS->nrow ==0 No Available Records." << debugpost;
+
         stringstream ss;
         ss << "Selected MS is empty for given selection: " << endl;
         if (!antenna.empty()) {
@@ -237,12 +324,12 @@ void PointingDirectionCalculator::selectData(String const &antenna,
         if (!msselect.empty()) {
             ss << "\tmsselect \"" << msselect << "\"" << endl;
         }
-
+        
+        printf("XX Throwing Exception due to selectedMS->nrow ==0 No Available Records. \n"); 
         throw AipsError(ss.str());
     }
-
+ 
     init();
-
     debuglog << "done selectdata" << debugpost;
 }
 
@@ -266,28 +353,43 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 
     directionColumnName_ = columnNameUpcase;
 
-    if (directionColumnName_ == "DIRECTION") {
+    if (directionColumnName_ 		== "DIRECTION") {
         accessor_ = directionAccessor;
-    } else if (directionColumnName_ == "TARGET") {
+    } else if (directionColumnName_ 	== "TARGET") {
         accessor_ = targetAccessor;
-    } else if (directionColumnName_ == "POINTING_OFFSET") {
+    } else if (directionColumnName_ 	== "POINTING_OFFSET") {
         accessor_ = pointingOffsetAccessor;
-    } else if (directionColumnName_ == "SOURCE_OFFSET") {
+    } else if (directionColumnName_ 	== "SOURCE_OFFSET") {
         accessor_ = sourceOffsetAccessor;
-    } else if (directionColumnName_ == "ENCODER") {
+    } else if (directionColumnName_ 	== "ENCODER") {
         accessor_ = encoderAccessor;
     } else {
         stringstream ss;
         ss << "Column \"" << columnNameUpcase << "\" is not supported.";
         throw AipsError(ss.str());
     }
+#if 0
+//+
+// check accessor
+//-
+        printf("directionAccessor      = %X \n",(void*)directionAccessor );
+        printf("targetAccessor         = %X \n",(void*)targetAccessor );
+        printf("pointingOffsetAccessor = %X \n",(void*)pointingOffsetAccessor );
+        printf("sourceOffsetAccessor   = %X \n",(void*)sourceOffsetAccessor );
+        printf("encorderAccessor       = %X \n",(void*)encoderAccessor );
+	printf("   accessor = %X \n",(void*)accessor_ );
 
+
+#endif 
     configureMovingSourceCorrection();
 }
 
-void PointingDirectionCalculator::setFrame(String const frameType) {
+void PointingDirectionCalculator::setFrame(String const frameType) 
+{
     Bool status = MDirection::getType(directionType_, frameType);
-    if (!status) {
+
+    if (!status) 
+    {
         LogIO os(LogOrigin("PointingDirectionCalculator", "setFrame", WHERE));
         os << LogIO::WARN << "Conversion of frame string \"" << frameType
                 << "\" into direction type enum failed. Use J2000."
@@ -296,13 +398,14 @@ void PointingDirectionCalculator::setFrame(String const frameType) {
     }
 
     // create conversion engine
+
     MDirection nominalInputMeasure = accessor_(*pointingColumns_, 0);
     MDirection::Ref outReference(directionType_, referenceFrame_);
-    directionConvert_ = new MDirection::Convert(nominalInputMeasure,
-            outReference);
-    const MEpoch *e = dynamic_cast<const MEpoch *>(referenceFrame_.epoch());
-    const MPosition *p =
-            dynamic_cast<const MPosition *>(referenceFrame_.position());
+    directionConvert_ = new MDirection::Convert(nominalInputMeasure,outReference);
+
+    const MEpoch *e = 		dynamic_cast<const MEpoch *>(referenceFrame_.epoch());
+    const MPosition *p =      	dynamic_cast<const MPosition *>(referenceFrame_.position());
+    
     debuglog << "Conversion Setup: Epoch "
             << e->get("s").getValue() << " " << e->getRefString() << " Position "
             << p->get("m").getValue() << " " << p->getRefString()
@@ -310,18 +413,21 @@ void PointingDirectionCalculator::setFrame(String const frameType) {
 }
 
 void PointingDirectionCalculator::setDirectionListMatrixShape(
-        PointingDirectionCalculator::MatrixShape const shape) {
+        PointingDirectionCalculator::MatrixShape const shape)
+{
     shape_ = shape;
 }
 
-void PointingDirectionCalculator::setMovingSource(String const sourceName) {
+void PointingDirectionCalculator::setMovingSource(String const sourceName) 
+{
     MDirection sourceDirection(Quantity(0.0, "deg"), Quantity(90.0, "deg"));
     sourceDirection.setRefString(sourceName);
     setMovingSource(sourceDirection);
 }
 
 void PointingDirectionCalculator::setMovingSource(
-        MDirection const &sourceDirection) {
+        MDirection const &sourceDirection) 
+{
     movingSource_ = dynamic_cast<MDirection *>(sourceDirection.clone());
 
     // create conversion engine for moving source
@@ -331,25 +437,35 @@ void PointingDirectionCalculator::setMovingSource(
     configureMovingSourceCorrection();
 }
 
-void PointingDirectionCalculator::unsetMovingSource() {
+void PointingDirectionCalculator::unsetMovingSource() 
+{
   if (!movingSource_.null()) {
-    movingSource_ = nullptr;
+     movingSource_ = nullptr;
   }
 }
 
-Matrix<Double> PointingDirectionCalculator::getDirection() {
-    assert(!selectedMS_.null());
 
+Matrix<Double> PointingDirectionCalculator::getDirection() 
+{
+    assert(!selectedMS_.null());
+ 
+//  printf(">> getDirection()]] entered.");
     uInt const nrow = selectedMS_->nrow();
     debuglog << "selectedMS_->nrow() = " << nrow << debugpost;
     Vector<Double> outDirectionFlattened(2 * nrow);
+
     // column major data offset and increment for outDirectionFlattened,
     // and output matrix shape
+
     uInt offset = nrow;
     uInt increment = 1;
+
     // matrix shape: number of rows is nrow and number of columns is 2
+
     IPosition outShape(2, nrow, 2);
-    if (shape_ == PointingDirectionCalculator::ROW_MAJOR) {
+
+    if (shape_ == PointingDirectionCalculator::ROW_MAJOR) 
+    {
         // column major specific offset, increment and output shape
         offset = 1;
         increment = 2;
@@ -357,18 +473,23 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
         outShape = IPosition(2, 2, nrow);
     }
 
-    for (uInt i = 0; i < numAntennaBoundary_ - 1; ++i) {
+    for (uInt i = 0; i < numAntennaBoundary_ - 1; ++i) 
+    {
         uInt start = antennaBoundary_[i];
         uInt end = antennaBoundary_[i + 1];
         uInt currentAntenna = antennaColumn_(start);
+
         resetAntennaPosition(currentAntenna);
         debuglog << "antenna " << currentAntenna << " start " << start
                 << " end " << end << debugpost;
+
         uInt const nrowPointing = pointingTimeUTC_.nelements();
         debuglog << "nrowPointing = " << nrowPointing << debugpost;
         debuglog << "pointingTimeUTC = " << min(pointingTimeUTC_) << "~"
         << max(pointingTimeUTC_) << debugpost;
-        for (uInt j = start; j < end; ++j) {
+
+        for (uInt j = start; j < end; ++j) 
+        {
             debuglog << "start index " << j << debugpost;
             Vector<Double> direction = doGetDirection(j);
             debuglog << "index for lat: " << (j * increment)
@@ -385,20 +506,28 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
     return Matrix < Double > (outShape, outDirectionFlattened.data());
 }
 
-Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
+Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) 
+{
     debuglog << "doGetDirection(" << irow << ")" << debugpost;
     Double currentTime =
             timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
     resetTime(currentTime);
 
     // search and interpolate if necessary
+
     Bool exactMatch;
     uInt const nrowPointing = pointingTimeUTC_.nelements();
+
     // pointingTableIndexCache_ is not so effective in terms of performance
     // simple binary search may be enough,
-    Int index = binarySearch(exactMatch, pointingTimeUTC_, currentTime,
-            nrowPointing, 0);
+
+    Int index = binarySearch(exactMatch, 
+				pointingTimeUTC_, 
+				currentTime,
+            			nrowPointing, 0);
+
     debuglog << "binarySearch result " << index << debugpost;
+
 //    uInt n = nrowPointing - pointingTableIndexCache_;
 //    Int lower = pointingTableIndexCache_;
 //    debuglog << "do binarySearch n=" << n << " lower=" << lower
@@ -419,19 +548,28 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
 //        debuglog << "second binarySearch result " << index << debugpost;
 //    }
 //    pointingTableIndexCache_ = (uInt) max((Int) 0, (Int) (index - 1));
+
     debuglog << "Time " << setprecision(16) << currentTime << " idx=" << index
             << debugpost;
+
     MDirection direction;
+
     assert(accessor_ != NULL);
-    if (exactMatch) {
-        debuglog << "exact match" << debugpost;
+    if (exactMatch) 
+    {
+        debuglog << "*#* exact match" << debugpost;
         direction = accessor_(*pointingColumns_, index);
-    } else if (index <= 0) {
-        debuglog << "take 0th row" << debugpost;
+
+    } else if (index <= 0) 
+    {
+        debuglog << "*#* take 0th row" << debugpost;
         direction = accessor_(*pointingColumns_, 0);
-    } else if (index > (Int) (nrowPointing - 1)) {
-        debuglog << "take final row" << debugpost;
+
+    } else if (index > (Int) (nrowPointing - 1)) 
+    {
+        debuglog << "*#* take final row" << debugpost;
         direction = accessor_(*pointingColumns_, nrowPointing - 1);
+
 //            } else if (currentInterval > pointingIntervalColumn(index)) {
 //                // Sampling rate of pointing < data dump rate
 //                // nearest interpolation
@@ -445,15 +583,17 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
 //                    direction = accessor_(*pointingColumns_, index);
 //                }
     } else {
-        debuglog << "linear interpolation " << debugpost;
+        debuglog << "*#* linear interpolation " << debugpost;
         // Sampling rate of pointing > data dump rate (fast scan)
         // linear interpolation
         Double t0 = pointingTimeUTC_[index - 1];
         Double t1 = pointingTimeUTC_[index];
         Double dt = t1 - t0;
+
         debuglog << "Interpolate between " << setprecision(16) << index - 1
                 << " (" << t0 << ") and " << index << " (" << t1 << ")"
                 << debugpost;
+
         MDirection dir1 = accessor_(*pointingColumns_, index - 1);
         MDirection dir2 = accessor_(*pointingColumns_, index);
         String dirRef1 = dir1.getRefString();
@@ -461,14 +601,17 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
         MDirection::Types refType1, refType2;
         MDirection::getType(refType1, dirRef1);
         MDirection::getType(refType2, dirRef2);
+
         debuglog << "dirRef1 = " << dirRef1 << " ("
                 << MDirection::showType(refType1) << ")" << debugpost;
+
         if (dirRef1 != dirRef2) {
             MeasFrame referenceFrameLocal((pointingColumns_->timeMeas())(index),
                     *(referenceFrame_.position()));
             dir2 = MDirection::Convert(dir2,
                     MDirection::Ref(refType1, referenceFrameLocal))();
         }
+
         Vector<Double> dirVal1 = dir1.getAngle("rad").getValue();
         Vector<Double> dirVal2 = dir2.getAngle("rad").getValue();
         Vector<Double> scanRate = dirVal2 - dirVal1;
@@ -477,11 +620,14 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
         direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),
                 refType1);
     }
+
     debuglog << "direction = "
             << direction.getAngle("rad").getValue() << " (unit rad reference frame "
             << direction.getRefString()
             << ")" << debugpost;
+
     Vector<Double> outVal(2);
+
     if (direction.getRefString() == MDirection::showType(directionType_)) {
         outVal = direction.getAngle("rad").getValue();
     } else {
@@ -492,19 +638,23 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
     }
 
     // moving source correction
+
     assert(movingSourceCorrection_ != NULL);
     movingSourceCorrection_(movingSourceConvert_, directionConvert_, outVal);
 
     return outVal;
 }
 
-Vector<Double> PointingDirectionCalculator::getDirection(uInt i) {
-    if (i >= selectedMS_->nrow()) {
+Vector<Double> PointingDirectionCalculator::getDirection(uInt i) 
+{
+    if (i >= selectedMS_->nrow()) 
+    {
         stringstream ss;
         ss << "Out of range row index: " << i << " (nrow for selected MS "
                 << getNrowForSelectedMS() << ")" << endl;
         throw AipsError(ss.str());
     }
+
     debuglog << "start row " << i << debugpost;
     Int currentAntennaIndex = antennaColumn_(i);
     debuglog << "currentAntennaIndex = " << currentAntennaIndex
@@ -512,14 +662,19 @@ Vector<Double> PointingDirectionCalculator::getDirection(uInt i) {
     Double currentTime =
             timeColumn_.convert(i, MEpoch::UTC).get("s").getValue();
     resetAntennaPosition(currentAntennaIndex);
+
     debuglog << "currentTime = " << currentTime << " lastTimeStamp_ = "
             << lastTimeStamp_ << debugpost;
+
     if (currentTime != lastTimeStamp_) {
         resetTime(i);
     }
+
     debuglog << "doGetDirection" << debugpost;
     Vector<Double> direction = doGetDirection(i);
+
     return direction;
+
 }
 
 Vector<uInt> PointingDirectionCalculator::getRowId() {
@@ -535,63 +690,118 @@ uInt PointingDirectionCalculator::getRowId(uInt i) {
 }
 
 void PointingDirectionCalculator::inspectAntenna() {
-    // selectedMS_ must be sorted by ["ANTENNA1", "TIME"]
+
+// selectedMS_ must be sorted by ["ANTENNA1", "TIME"]
+
     antennaBoundary_.resize(selectedMS_->antenna().nrow() + 1);
-    antennaBoundary_ = -1;
-    Int count = 0;
-    antennaBoundary_[count] = 0;
+   
+
+    antennaBoundary_ 		= -1;
+    Int count 			= 0;
+    antennaBoundary_[count] 	= 0;
     ++count;
+
     Vector<Int> antennaList = antennaColumn_.getColumn();
+
     uInt nrow = antennaList.nelements();
+
     Int lastAnt = antennaList[0];
-    for (uInt i = 0; i < nrow; ++i) {
-        if (antennaList[i] != lastAnt) {
+
+    for (uInt i = 0; i < nrow; ++i) 
+    {
+        if (antennaList[i] != lastAnt) 
+        {
             antennaBoundary_[count] = i;
             ++count;
             lastAnt = antennaList[i];
         }
     }
+
     antennaBoundary_[count] = nrow;
     ++count;
+
     numAntennaBoundary_ = count;
+
     debuglog << "antennaBoundary_=" << antennaBoundary_ << debugpost;
     debuglog << "numAntennaBoundary_=" << numAntennaBoundary_ << debugpost;
 }
 
-void PointingDirectionCalculator::initPointingTable(Int const antennaId) {
+void PointingDirectionCalculator::initPointingTable(Int const antennaId) 
+{
     if (!pointingTable_.null() && !pointingColumns_.null()
             && pointingTable_->nrow() > 0
-            && pointingColumns_->antennaId()(0) == antennaId) {
+            && pointingColumns_->antennaId()(0) == antennaId) 
+    {
         // no need to update
         return;
     }
+
+
     debuglog << "update pointing table for antenna " << antennaId << debugpost;
+
     MSPointing original = selectedMS_->pointing();
+    
+
     MSPointing selected = original(original.col("ANTENNA_ID") == antennaId);
-    if (selected.nrow() == 0) {
+
+
+    if (selected.nrow() == 0) 
+    {
         debuglog << "no rows for antenna " << antennaId << " try -1"
                 << debugpost;
+
         // try ANTENNA_ID == -1
+
         selected = original(original.col("ANTENNA_ID") == -1);
+
+#if 0
         assert(selected.nrow() > 0);
-        if (selected.nrow() == 0) {
+#else   
+          debuglog << "initPointingTable:: Bad MS file inside. Force return." << debugpost; 
+	 // No accert //
+	
+	{
             stringstream ss;
-            ss << "Internal Error: POINTING table has no entry for antenna "
+            ss << "Internal Error: POINTING table has no entry for antenna (original MS) "
                     << antennaId << "." << endl;
+#if 1
             throw AipsError(ss.str());
+#else
+	    return;
+#endif 
+	}
+	 
+#endif 
+	 
+
+        if (selected.nrow() == 0) {
+
+            stringstream ss;
+            ss << "Internal Error: POINTING table has no entry for antenna (selected MS)"
+                    << antennaId << "." << endl;
+#if 1
+            throw AipsError(ss.str());
+#else
+	    return;
+#endif 
+
         }
     }
+
     debuglog << "selected pointing rows " << selected.nrow() << debugpost;
     pointingTable_ = new MSPointing(selected.sort("TIME"));
 
     // attach columns
+
     pointingColumns_ = new ROMSPointingColumns(*pointingTable_);
 
     // initialize pointingTimeUTC_
+
     uInt const nrowPointing = pointingTable_->nrow();
     pointingTimeUTC_.resize(nrowPointing);
     ROScalarMeasColumn<MEpoch> pointingTimeColumn =
             pointingColumns_->timeMeas();
+
     for (uInt i = 0; i < nrowPointing; ++i) {
         MEpoch e = pointingTimeColumn(i);
         if (e.getRefString() == MEpoch::showType(MEpoch::UTC)) {
@@ -603,38 +813,63 @@ void PointingDirectionCalculator::initPointingTable(Int const antennaId) {
     }
 
     // reset index cache for pointing table
+
     pointingTableIndexCache_ = 0;
 
     debuglog << "done initPointingTable" << debugpost;
 }
 
 void PointingDirectionCalculator::resetAntennaPosition(Int const antennaId) {
+
+//    printf(">> resetAntennaPosition:: attempting [MSAntenna antennaTable = selectedMS_->antenna();]\n" );
     MSAntenna antennaTable = selectedMS_->antenna();
+
+//    printf(">> resetAntennaPosition:: attempting [uInt nrow = antennaTable.nrow();]\n" );
     uInt nrow = antennaTable.nrow();
-    if (antennaId < 0 || (Int) nrow <= antennaId) {
+
+//    printf(">> resetAntennaPosition:: checking condition(1),  antenaId =%d, nrow=%d, lastAntennaIndex_=%d\n", 
+//          antennaId, nrow, lastAntennaIndex_ );
+    
+    if (antennaId < 0 || (Int) nrow <= antennaId) 
+    {
+        printf("ALERTING soon.\n");
+
         stringstream ss;
         ss << "Internal Error: Invalid ANTENNA_ID is specified (" << antennaId
                 << ")." << endl;
+
         throw AipsError(ss.str());
-    } else if (antennaId != lastAntennaIndex_ || lastAntennaIndex_ == -1) {
-        ScalarMeasColumn < MPosition
-                > antennaPositionColumn(antennaTable, "POSITION");
+
+    } 
+    else
+    if (antennaId != lastAntennaIndex_ || lastAntennaIndex_ == -1) {
+ 
+//       printf(">> resetAntennaPosition:: attempting [ScalarMeasColumn < MPosition> antennaPositionColumn(antennaTable, POSITION);]\n");
+       ScalarMeasColumn < MPosition> antennaPositionColumn(antennaTable, "POSITION");
+
+//      printf(">> resetAntennaPosition:: attempting [antennaPosition_ = antennaPositionColumn(antennaId);]\n");
         antennaPosition_ = antennaPositionColumn(antennaId);
+
         debuglog << "antenna position: "
                 << antennaPosition_.getRefString() << " "
                 << setprecision(16) << antennaPosition_.get("m").getValue() << debugpost;
+
+//        printf(">> resetAntennaPosition:: attempting [referenceFrame_.resetPosition(antennaPosition_);]\n");
         referenceFrame_.resetPosition(antennaPosition_);
 
+//        printf(">> resetAntennaPosition:: attempting [initPointingTable(antennaId);]\n");
         initPointingTable(antennaId);
 
         lastAntennaIndex_ = antennaId;
     }
 }
 
-void PointingDirectionCalculator::resetTime(Double const timestamp) {
+void PointingDirectionCalculator::resetTime(Double const timestamp) 
+{
     debuglog << "resetTime(Double " << timestamp << ")" << debugpost;
     debuglog << "lastTimeStamp_ = " << lastTimeStamp_ << " timestamp = "
             << timestamp << debugpost;
+
     if (timestamp != lastTimeStamp_ || lastTimeStamp_ < 0.0) {
         referenceEpoch_ = MEpoch(Quantity(timestamp, "s"), MEpoch::UTC);
         referenceFrame_.resetEpoch(referenceEpoch_);
@@ -642,5 +877,8 @@ void PointingDirectionCalculator::resetTime(Double const timestamp) {
         lastTimeStamp_ = timestamp;
     }
 }
+
+
+
 
 }  //# NAMESPACE CASA - END
