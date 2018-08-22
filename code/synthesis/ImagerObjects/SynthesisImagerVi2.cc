@@ -1749,7 +1749,7 @@ void SynthesisImagerVi2::unlockMSs()
     // With lazy fill ON, CFCache loads the required CFs on-demand
     // from the disk.  And periodically triggers garbage collection to
     // release CFs that aren't required immediately.
-    cfCacheObj->setLazyFill(SynthesisUtils::getenv("CFCache.LAZYFILL",0)==1);
+    cfCacheObj->setLazyFill(SynthesisUtils::getenv("CFCache.LAZYFILL",1)==1);
     //    cerr << "Setting wtImagePrefix to " << imageNamePrefix.c_str() << endl;
     cfCacheObj->setWtImagePrefix(imageNamePrefix.c_str());
     cfCacheObj->initCache2();

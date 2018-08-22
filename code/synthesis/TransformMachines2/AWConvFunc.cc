@@ -204,7 +204,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     //Double vbPA = getPA(vb);
     Complex cpeak,wtcpeak;
     aTerm.cacheVBInfo(vb);
-    Int totalCFs=muellerElements.shape().product()*freqValues.shape().product()*wValues.shape().product(),
+    Int totalCFs=muellerElements.shape().product()*freqValues.shape().product()*wValues.shape().product()*2,
       cfsDone=0;
   
     ProgressMeter pm(1.0, Double(totalCFs), "fillCF", "","","",true);
@@ -981,7 +981,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     Matrix<Int> uniqueBaselineTypeList=makeBaselineList(aTerm_p->getAntTypeList());
     //Quantity dPA(360.0,"deg");
     Quantity dPA(dpa,"rad");
-    Int totalCFs=uniqueBaselineTypeList.shape().product()*wConvSize*freqValues.nelements()*polMap.shape().product();
+    Int totalCFs=uniqueBaselineTypeList.shape().product()*wConvSize*freqValues.nelements()*polMap.shape().product()*2;
     ProgressMeter pm(1.0, Double(totalCFs), "makeCF", "","","",true);
     int cfDone=0;
     for(Int ib=0;ib<uniqueBaselineTypeList.shape()(0);ib++)
