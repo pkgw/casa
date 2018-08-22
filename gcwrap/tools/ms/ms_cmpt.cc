@@ -6319,12 +6319,22 @@ record* ms::statwt(
         }
         else {
             // block time processing
-            if (timebin.type() == casac::variant::INT) {
+            auto tbtype = timebin.type();
+            if (
+                tbtype == casac::variant::BOOLVEC && timebin.toBoolVec().empty()
+            ) {
+                // default for tool method since variants always come in as
+                // boolvecs even if defaults specified in the XML, Because,
+                // you know, no one apparently knows how to fix that bug which
+                // has been around for years
+                statwt.setTimeBinWidth(casacore::Quantity(0.001, "s"));
+            }
+            else if (tbtype == casac::variant::INT) {
                 auto n = timebin.toInt();
                 ThrowIf(n <= 0, "timebin must be positive");
                 statwt.setTimeBinWidthUsingInterval(timebin.touInt());
             }
-            else {
+            else if (tbtype == casac::variant::STRING){
                 casacore::Quantity myTimeBin = casaQuantity(timebin);
                 if (myTimeBin.getUnit().empty()) {
                     myTimeBin.setUnit("s");
@@ -6333,6 +6343,9 @@ record* ms::statwt(
                     myTimeBin.setValue(1e-5);
                 }
                 statwt.setTimeBinWidth(myTimeBin);
+            }
+            else {
+                ThrowCc("Unsupported type for timebin, must be int or string");
             }
         }
         statwt.setCombine(combine);
