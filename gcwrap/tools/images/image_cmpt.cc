@@ -3174,9 +3174,8 @@ template<class T> SPIIT image::_imagecalc(
 }
 
 image* image::imageconcat(
-    const string& outfile, const variant& infiles,
-    int axis, bool relax, bool tempclose,
-    bool overwrite, bool reorder
+    const string& outfile, const variant& infiles, int axis,
+    bool relax, bool tempclose, bool overwrite, bool reorder
 ) {
     try {
         Vector<String> inFiles;
@@ -3192,48 +3191,47 @@ image* image::imageconcat(
         else {
             ThrowCc("Unrecognized infiles datatype");
         }
-        vector<String> imageNames = Directory::shellExpand(inFiles, false).tovector();
+        auto imageNames = Directory::shellExpand(inFiles, false).tovector();
         ThrowIf(
             imageNames.size() < 2,
             "You must provide at least two images to concatentate"
         );
-        String first = imageNames[0];
+        auto first = imageNames[0];
         imageNames.erase(imageNames.begin());
-
-        SPtrHolder<LatticeBase> latt(ImageOpener::openImage(first));
-        ThrowIf (! latt.ptr(), "Unable to open image " + first);
-        DataType dataType = latt->dataType();
-        vector<String> names {
-            "outfile", "infiles", "axis", "relax", "tempclose",
-            "overwrite", "reorder"
-        };
-        vector<variant> values {
-            outfile, infiles, axis,  relax, tempclose,
-            overwrite, reorder
-        };
-        if (dataType == TpComplex) {
-            SPIIC c(dynamic_cast<ImageInterface<Complex> *>(latt.transfer()));
-            ImageConcatenator<Complex> concat(c, outfile, overwrite);
-            concat.setAxis(axis);
-            concat.setRelax(relax);
-            concat.setReorder(reorder);
-            concat.setTempClose(tempclose);
-            if (_doHistory) {
-                concat.addHistory(_ORIGIN, "ia." + String(__func__), names, values);
-            }
-            return new image(concat.concatenate(imageNames));
+        SHARED_PTR<LatticeBase> latt(ImageOpener::openImage(first));
+        ThrowIf (! latt, "Unable to open image " + first);
+        auto dataType = latt->dataType();
+        if (dataType == TpFloat) {
+            return new image(
+                _concat<Float>(
+                    latt, outfile, infiles, axis, relax, tempclose,
+                    overwrite, reorder, imageNames
+                )
+            );
         }
-        else if (dataType == TpFloat) {
-            SPIIF f(dynamic_cast<ImageInterface<Float> *>(latt.transfer()));
-            ImageConcatenator<Float> concat(f, outfile, overwrite);
-            concat.setAxis(axis);
-            concat.setRelax(relax);
-            concat.setReorder(reorder);
-            concat.setTempClose(tempclose);
-            if (_doHistory) {
-                concat.addHistory(_ORIGIN, "ia." + String(__func__), names, values);
-            }
-            return new image(concat.concatenate(imageNames));
+        else if (dataType == TpComplex) {
+            return new image(
+                _concat<Complex>(
+                    latt, outfile, infiles, axis, relax, tempclose,
+                    overwrite, reorder, imageNames
+                )
+            );
+        }
+        else if (dataType == TpDouble) {
+            return new image(
+                _concat<Double>(
+                    latt, outfile, infiles, axis, relax, tempclose,
+                    overwrite, reorder, imageNames
+                )
+            );
+        }
+        else if (dataType == TpDComplex) {
+            return new image(
+                _concat<DComplex>(
+                    latt, outfile, infiles, axis, relax, tempclose,
+                    overwrite, reorder, imageNames
+                )
+            );
         }
         else {
             ostringstream x;
@@ -3247,6 +3245,31 @@ image* image::imageconcat(
         RETHROW(x);
     }
     return nullptr;
+}
+
+template<class T> SPIIT image::_concat(
+    SHARED_PTR<LatticeBase> latt, const string& outfile,
+    const variant& infiles, int axis, bool relax, bool tempclose,
+    bool overwrite, bool reorder, const vector<String>& imageNames
+) {
+    SPIIT im = DYNAMIC_POINTER_CAST<ImageInterface<T>>(latt);
+    ThrowIf(! im, "dynamic cast failed");
+    ImageConcatenator<T> concat(im, outfile, overwrite);
+    concat.setAxis(axis);
+    concat.setRelax(relax);
+    concat.setReorder(reorder);
+    concat.setTempClose(tempclose);
+    if (_doHistory) {
+        vector<String> names {
+            "outfile", "infiles", "axis", "relax", "tempclose",
+            "overwrite", "reorder"
+        };
+        vector<variant> values {
+            outfile, infiles, axis,  relax, tempclose, overwrite, reorder
+        };
+        concat.addHistory(_ORIGIN, "ia.imageconcat", names, values);
+    }
+    return concat.concatenate(imageNames);
 }
 
 bool image::insert(

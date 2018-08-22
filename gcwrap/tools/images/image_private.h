@@ -107,6 +107,13 @@ template<class T> image* _convolve2d(
     bool targetres, const record& beam
 );
 
+template<class T> SPIIT _concat(
+    SHARED_PTR<casacore::LatticeBase> latt, const string& outfile,
+    const variant& infiles, int axis, bool relax, bool tempclose,
+    bool overwrite, bool reorder,
+    const std::vector<casacore::String>& imageNames
+);
+
 template<class T> image* _decimate(
 	SPCIIT image, const string& outfile, int axis,
 	int factor, casa::ImageDecimatorData::Function f,
