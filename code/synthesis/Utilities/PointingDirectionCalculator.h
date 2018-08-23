@@ -252,12 +252,12 @@ public:
     //-
 
     casacore::uInt getRowId(casacore::uInt irow);
-
+#if 0
     //+-+-+-+=+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-----------------
     //  Here, locate debug method for UT
     //  Purpose:: These set of variables makes inplicite State
-    //      Dump Modules are prepared. Use following method 
-    //      to get the member (local) variable. 
+    //      Dump Modules can be prepared. Use following method 
+    //      to get the member (local) variable if needed. 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+------------------
 
     //  Accessor [TENTATIVE]
@@ -297,9 +297,14 @@ public:
     casacore::MEpoch 	getReferenceEpoch() { return referenceEpoch_ ; }
     casacore::MeasFrame getReferenceFrame() { return referenceFrame_ ; }
     casacore::Double     getLastTimeStamp()  { return lastTimeStamp_ ; }
-    
-   void *     getAccessor() {void*  p=(void*)accessor_;return p; }  // Debug Use. //
+#endif 
 
+#if 1
+
+    // This method need in UT, to identify frequenctly used accessor_  //
+
+   void *     getAccessor() {void*  p=(void*)accessor_;return p; }  // Debug Use. //
+#endif 
 private:
 
     void init();
