@@ -1,4 +1,3 @@
-//# tSubImage.cc: Test program for class SubImage
 //# Copyright (C) 1998,1999,2000,2001,2003
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,63 +22,71 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//# $Id: $
+
+#ifndef IMAGEANALYSIS_PEAKINTENSITYFLUXDENSITYCONVERTER_TCC
+#define IMAGEANALYSIS_PEAKINTENSITYFLUXDENSITYCONVERTER_TCC
 
 #include <imageanalysis/ImageAnalysis/PeakIntensityFluxDensityConverter.h>
 
 #include <components/ComponentModels/SkyCompRep.h>
-#include <images/Images/ImageUtilities.h>
+#include <casacore/images/Images/ImageUtilities.h>
 
-using namespace casacore;
 namespace casa {
 
-PeakIntensityFluxDensityConverter::PeakIntensityFluxDensityConverter(
-		const SPCIIF  image
-) : ImageTask<Float>(
+template<class T>
+PeakIntensityFluxDensityConverter<T>::PeakIntensityFluxDensityConverter(
+		const SPCIIT  image
+) : ImageTask<T>(
 		image, "", 0, "", "", "", "", "", ""
 	), _size(Angular2DGaussian::NULL_BEAM), _shape(ComponentType::GAUSSIAN),
-	_beam(GaussianBeam::NULL_BEAM) {
-	_construct(false);
+	_beam(casacore::GaussianBeam::NULL_BEAM) {
+	this->_construct(false);
 }
 
-PeakIntensityFluxDensityConverter::~PeakIntensityFluxDensityConverter() {}
+template<class T>
+PeakIntensityFluxDensityConverter<T>::~PeakIntensityFluxDensityConverter() {}
 
-void PeakIntensityFluxDensityConverter::setBeam(Int channel, Int polarization) {
-	_beam = _getImage()->imageInfo().restoringBeam(channel, polarization);
+template<class T>
+void PeakIntensityFluxDensityConverter<T>::setBeam(
+    casacore::Int channel, casacore::Int polarization
+) {
+	_beam = this->_getImage()->imageInfo().restoringBeam(channel, polarization);
 }
 
-Quantity PeakIntensityFluxDensityConverter::fluxDensityToPeakIntensity(
-	Bool& hadToMakeFakeBeam, const Quantity& fluxDensity
+template<class T>
+casacore::Quantity PeakIntensityFluxDensityConverter<T>::fluxDensityToPeakIntensity(
+	casacore::Bool& hadToMakeFakeBeam, const casacore::Quantity& fluxDensity
 ) const {
 
 	hadToMakeFakeBeam = false;
-	const CoordinateSystem& csys = _getImage()->coordinates();
-	const Unit& brightnessUnit = _getImage()->units();
+	const auto& csys = this->_getImage()->coordinates();
+	const auto& brightnessUnit = this->_getImage()->units();
 	GaussianBeam beam = _beam;
 	if (brightnessUnit.getName().contains("/beam") && beam.isNull()) {
 		beam = ImageUtilities::makeFakeBeam(
-			*_getLog(), csys, _getVerbosity() >= ImageTask<Float>::WHISPER
+			*this->_getLog(), csys,
+			this->_getVerbosity() >= ImageTask<T>::WHISPER
 		);
 		hadToMakeFakeBeam = true;
 	}
 	return SkyCompRep::integralToPeakFlux(
-		csys.directionCoordinate(),
-		_shape, fluxDensity, brightnessUnit,
+		csys.directionCoordinate(), _shape, fluxDensity, brightnessUnit,
 		_size.getMajor(), _size.getMinor(), beam
 	);
 }
 
-Quantity PeakIntensityFluxDensityConverter::peakIntensityToFluxDensity(
-	Bool& hadToMakeFakeBeam, const Quantity& peakIntensity
+template<class T>
+casacore::Quantity PeakIntensityFluxDensityConverter<T>::peakIntensityToFluxDensity(
+	casacore::Bool& hadToMakeFakeBeam, const casacore::Quantity& peakIntensity
 ) const {
-
 	hadToMakeFakeBeam = false;
-	const Unit& brightnessUnit = _getImage()->units();
-	const CoordinateSystem& csys = _getImage()->coordinates();
-	GaussianBeam beam = _beam;
+	const auto& brightnessUnit = this->_getImage()->units();
+	const auto& csys = this->_getImage()->coordinates();
+	auto beam = _beam;
 	if (brightnessUnit.getName().contains("/beam") && beam.isNull()) {
 		beam = ImageUtilities::makeFakeBeam(
-			*_getLog(), csys, _getVerbosity() >= ImageTask<Float>::WHISPER
+			*this->_getLog(), csys,
+			this->_getVerbosity() >= ImageTask<T>::WHISPER
 		);
 		hadToMakeFakeBeam = true;
 	}
@@ -89,4 +96,7 @@ Quantity PeakIntensityFluxDensityConverter::peakIntensityToFluxDensity(
 		_size.getMajor(), _size.getMinor(), beam
 	);
 }
+
 }
+
+#endif

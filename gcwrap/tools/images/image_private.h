@@ -94,6 +94,13 @@ template <class T> image* _boxcar(
 
 casacore::Quantity _casaQuantityFromVar(const ::casac::variant& theVar);
 
+template<class T> SPIIT _concat(
+    SHARED_PTR<casacore::LatticeBase> latt, const string& outfile,
+    const variant& infiles, int axis, bool relax, bool tempclose,
+    bool overwrite, bool reorder,
+    const std::vector<casacore::String>& imageNames
+);
+
 template<class T> image* _convolve(
     SPIIT image, const string& outfile, const variant& kernel, double scale,
     const variant& region, const variant& vmask, bool overwrite, bool stretch
@@ -105,13 +112,6 @@ template<class T> image* _convolve2d(
     const variant& pa, double in_scale, const variant& region,
     const variant& vmask, bool overwrite, bool stretch,
     bool targetres, const record& beam
-);
-
-template<class T> SPIIT _concat(
-    SHARED_PTR<casacore::LatticeBase> latt, const string& outfile,
-    const variant& infiles, int axis, bool relax, bool tempclose,
-    bool overwrite, bool reorder,
-    const std::vector<casacore::String>& imageNames
 );
 
 template<class T> image* _decimate(
@@ -127,6 +127,17 @@ template<class T> bool _fft(
     const string& ampOut, const string& phaseOut, const std::vector<int>& axes,
     const variant& region, const variant& vmask, bool stretch,
     const string& complexOut
+);
+
+template <class T> record* _fitcomponents(
+    SPIIT myImage, const string& box, const variant& region,
+    const variant& chans, const string& stokes, const variant& vmask,
+    const vector<double>& in_includepix, const vector<double>& in_excludepix,
+    const string& residual, const string& model, const string& estimates,
+    const string& logfile, const bool append, const string& newestimates,
+    const string& complist, bool overwrite, bool dooff, double offset,
+    bool fixoffset, bool stretch, const variant& rms, const variant& noisefwhm,
+    const string& summary
 );
 
 casa::ITUPLE _fromarray(

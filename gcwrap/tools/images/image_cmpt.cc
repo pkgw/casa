@@ -867,7 +867,7 @@ record* image::convertflux(
         casacore::Quantity majorAxis = casaQuantity(major);
         casacore::Quantity minorAxis = casaQuantity(minor);
         Bool noBeam = false;
-        PeakIntensityFluxDensityConverter converter(_imageF);
+        PeakIntensityFluxDensityConverter<Float> converter(_imageF);
         converter.setSize(
             Angular2DGaussian(majorAxis, minorAxis, casacore::Quantity(0, "deg"))
         );
@@ -1171,7 +1171,6 @@ template<class T> image* image::_convolve2d(
         auto msgs = _newHistory("convolve2d", names, values);
         convolver.addHistory(_ORIGIN, msgs);
     }
-    cout << __FILE__ << " " << __LINE__ << endl;
     return new image(convolver.convolve());
 }
 
@@ -1743,14 +1742,12 @@ template<class T> bool image::_fft(
 record* image::fitcomponents(
     const string& box, const variant& region, const variant& chans,
     const string& stokes, const variant& vmask,
-    const vector<double>& in_includepix,
-    const vector<double>& in_excludepix, const string& residual,
-    const string& model, const string& estimates,
-    const string& logfile, const bool append,
-    const string& newestimates, const string& complist,
-    bool overwrite, bool dooff, double offset,
-    bool fixoffset, bool stretch, const variant& rms,
-    const variant& noisefwhm, const string& summary
+    const vector<double>& in_includepix, const vector<double>& in_excludepix,
+    const string& residual, const string& model, const string& estimates,
+    const string& logfile, bool append, const string& newestimates,
+    const string& complist, bool overwrite, bool dooff, double offset,
+    bool fixoffset, bool stretch, const variant& rms, const variant& noisefwhm,
+    const string& summary
 ) {
     if (_detached()) {
         return nullptr;
@@ -1758,128 +1755,28 @@ record* image::fitcomponents(
     _log << _ORIGIN;
     try {
         ThrowIf(
-            ! _imageF,
-            "This method only supports Float valued images"
+            ! (_imageF || _imageD),
+            "This method only supports real valued images"
         );
-        auto num = in_includepix.size();
-        Vector<Float> includepix(num);
-        num = in_excludepix.size();
-        Vector<Float> excludepix(num);
-        convertArray(includepix, Vector<Double> (in_includepix));
-        convertArray(excludepix, Vector<Double> (in_excludepix));
-        if (includepix.size() == 1 && includepix[0] == -1) {
-            includepix.resize();
+        if (_imageF) {
+            return _fitcomponents(
+                _imageF, box, region, chans, stokes, vmask, in_includepix,
+                in_excludepix, residual, model, estimates, logfile, append,
+                newestimates, complist, overwrite, dooff, offset, fixoffset,
+                stretch, rms, noisefwhm, summary
+            );
         }
-        if (excludepix.size() == 1 && excludepix[0] == -1) {
-            excludepix.resize();
-        }
-        auto mask = _getMask(vmask);
-        ImageFitterResults::CompListWriteControl writeControl = complist.empty()
-            ? ImageFitterResults::NO_WRITE
-            : overwrite
-                ? ImageFitterResults::OVERWRITE
-                : ImageFitterResults::WRITE_NO_REPLACE;
-        String sChans;
-        if (chans.type() == variant::BOOLVEC) {
-            // for some reason which eludes me, the default variant type is boolvec
-            sChans = "";
-        }
-        else if (chans.type() == variant::STRING) {
-            sChans = chans.toString();
-        }
-        else if (chans.type() == variant::INT) {
-            sChans = String::toString(chans.toInt());
+        else if (_imageD) {
+            return _fitcomponents(
+                _imageD, box, region, chans, stokes, vmask, in_includepix,
+                in_excludepix, residual, model, estimates, logfile, append,
+                newestimates, complist, overwrite, dooff, offset, fixoffset,
+                stretch, rms, noisefwhm, summary
+            );
         }
         else {
-            ThrowCc(
-                "Unsupported type for chans. chans must "
-                "be either an integer or a string"
-            );
+            ThrowCc("Logic error");
         }
-        auto regionRecord = _getRegion(region, true);
-        auto doImages = ! residual.empty() || ! model.empty();
-        ImageFitter fitter(
-            _imageF, "", regionRecord.get(), box, sChans,
-            stokes, mask, estimates, newestimates, complist
-        );
-        if (includepix.size() == 1) {
-            fitter.setIncludePixelRange(
-                std::make_pair(includepix[0],includepix[0])
-            );
-        }
-        else if (includepix.size() == 2) {
-            fitter.setIncludePixelRange(
-                std::make_pair(includepix[0],includepix[1])
-            );
-        }
-        if (excludepix.size() == 1) {
-            fitter.setExcludePixelRange(
-                std::make_pair(excludepix[0],excludepix[0])
-            );
-        }
-        else if (excludepix.size() == 2) {
-            fitter.setExcludePixelRange(
-                std::make_pair(excludepix[0],excludepix[1])
-            );
-        }
-        fitter.setWriteControl(writeControl);
-        fitter.setStretch(stretch);
-        fitter.setModel(model);
-        fitter.setResidual(residual);
-        if (! logfile.empty()) {
-            fitter.setLogfile(logfile);
-            fitter.setLogfileAppend(append);
-        }
-        if (dooff) {
-            fitter.setZeroLevelEstimate(offset, fixoffset);
-        }
-        auto myrms = (rms.type() == variant::DOUBLE || rms.type() == variant::INT)
-            ? casacore::Quantity(rms.toDouble(), brightnessunit())
-            : _casaQuantityFromVar(rms);
-        if (myrms.getValue() > 0) {
-            fitter.setRMS(myrms);
-        }
-        auto noiseType = noisefwhm.type();
-        if (noiseType == variant::DOUBLE || noiseType == variant::INT) {
-            fitter.setNoiseFWHM(noisefwhm.toDouble());
-        }
-        else if (noiseType == variant::BOOLVEC) {
-            fitter.clearNoiseFWHM();
-        }
-        else if (
-            noiseType == variant::STRING || noiseType == variant::RECORD
-        ) {
-            if (noiseType == variant::STRING && noisefwhm.toString().empty()) {
-                fitter.clearNoiseFWHM();
-            }
-            else {
-                fitter.setNoiseFWHM(_casaQuantityFromVar(noisefwhm));
-            }
-        }
-        else {
-            ThrowCc(
-                "Unsupported data type for noisefwhm: " + noisefwhm.typeString()
-            );
-        }
-        if (doImages && _doHistory) {
-            vector<casacore::String> names {
-                "box", "region", "chans", "stokes", "mask", "includepix",
-                "excludepix", "residual", "model", "estimates", "logfile",
-                "append", "newestimates", "complist", "dooff", "offset",
-                "fixoffset", "stretch", "rms", "noisefwhm"
-            };
-            vector<variant> values {
-                box, region, chans, stokes, vmask, in_includepix,
-                in_excludepix, residual, model, estimates, logfile,
-                append, newestimates, complist, dooff, offset, fixoffset,
-                stretch, rms, noisefwhm
-            };
-            auto msgs = _newHistory(__func__, names, values);
-            fitter.addHistory(_ORIGIN, msgs);
-        }
-        fitter.setSummaryFile(summary);
-        auto compLists = fitter.fit();
-        return fromRecord(fitter.getOutputRecord());
     }
     catch (const AipsError& x) {
         _log << "Exception Reported: " << x.getMesg()
@@ -1887,6 +1784,137 @@ record* image::fitcomponents(
         RETHROW(x);
     }
     return nullptr;
+}
+
+template <class T> record* image::_fitcomponents(
+    SPIIT myImage, const string& box, const variant& region,
+    const variant& chans, const string& stokes, const variant& vmask,
+    const vector<double>& in_includepix, const vector<double>& in_excludepix,
+    const string& residual, const string& model, const string& estimates,
+    const string& logfile, const bool append, const string& newestimates,
+    const string& complist, bool overwrite, bool dooff, double offset,
+    bool fixoffset, bool stretch, const variant& rms, const variant& noisefwhm,
+    const string& summary
+) {
+    auto num = in_includepix.size();
+    Vector<Float> includepix(num);
+    num = in_excludepix.size();
+    Vector<Float> excludepix(num);
+    convertArray(includepix, Vector<Double> (in_includepix));
+    convertArray(excludepix, Vector<Double> (in_excludepix));
+    if (includepix.size() == 1 && includepix[0] == -1) {
+        includepix.resize();
+    }
+    if (excludepix.size() == 1 && excludepix[0] == -1) {
+        excludepix.resize();
+    }
+    auto mask = _getMask(vmask);
+    auto writeControl = complist.empty()
+        ? ImageFitterResults<T>::NO_WRITE
+        : overwrite
+          ? ImageFitterResults<T>::OVERWRITE
+          : ImageFitterResults<T>::WRITE_NO_REPLACE;
+    String sChans;
+    if (chans.type() == variant::BOOLVEC) {
+        // for some reason which eludes me, the default variant type is boolvec
+        sChans = "";
+    }
+    else if (chans.type() == variant::STRING) {
+        sChans = chans.toString();
+      }
+    else if (chans.type() == variant::INT) {
+        sChans = String::toString(chans.toInt());
+    }
+    else {
+        ThrowCc(
+            "Unsupported type for chans. chans must "
+            "be either an integer or a string"
+        );
+    }
+    auto regionRecord = _getRegion(region, true);
+    auto doImages = ! residual.empty() || ! model.empty();
+    ImageFitter<T> fitter(
+         myImage, "", regionRecord.get(), box, sChans,
+         stokes, mask, estimates, newestimates, complist
+    );
+    if (includepix.size() == 1) {
+        fitter.setIncludePixelRange(
+            std::make_pair(includepix[0],includepix[0])
+        );
+    }
+    else if (includepix.size() == 2) {
+        fitter.setIncludePixelRange(
+            std::make_pair(includepix[0],includepix[1])
+        );
+    }
+    if (excludepix.size() == 1) {
+        fitter.setExcludePixelRange(
+            std::make_pair(excludepix[0],excludepix[0])
+        );
+    }
+    else if (excludepix.size() == 2) {
+        fitter.setExcludePixelRange(
+            std::make_pair(excludepix[0],excludepix[1])
+        );
+    }
+    fitter.setWriteControl(writeControl);
+    fitter.setStretch(stretch);
+    fitter.setModel(model);
+    fitter.setResidual(residual);
+    if (! logfile.empty()) {
+        fitter.setLogfile(logfile);
+        fitter.setLogfileAppend(append);
+    }
+    if (dooff) {
+        fitter.setZeroLevelEstimate(offset, fixoffset);
+    }
+    auto myrms = (rms.type() == variant::DOUBLE || rms.type() == variant::INT)
+        ? casacore::Quantity(rms.toDouble(), brightnessunit())
+        : _casaQuantityFromVar(rms);
+    if (myrms.getValue() > 0) {
+        fitter.setRMS(myrms);
+    }
+    auto noiseType = noisefwhm.type();
+    if (noiseType == variant::DOUBLE || noiseType == variant::INT) {
+        fitter.setNoiseFWHM(noisefwhm.toDouble());
+    }
+    else if (noiseType == variant::BOOLVEC) {
+        fitter.clearNoiseFWHM();
+    }
+    else if (
+        noiseType == variant::STRING || noiseType == variant::RECORD
+    ) {
+        if (noiseType == variant::STRING && noisefwhm.toString().empty()) {
+            fitter.clearNoiseFWHM();
+        }
+        else {
+            fitter.setNoiseFWHM(_casaQuantityFromVar(noisefwhm));
+        }
+    }
+    else {
+        ThrowCc(
+            "Unsupported data type for noisefwhm: " + noisefwhm.typeString()
+        );
+    }
+    if (doImages && _doHistory) {
+        vector<casacore::String> names {
+            "box", "region", "chans", "stokes", "mask", "includepix",
+            "excludepix", "residual", "model", "estimates", "logfile",
+            "append", "newestimates", "complist", "dooff", "offset",
+            "fixoffset", "stretch", "rms", "noisefwhm"
+        };
+        vector<variant> values {
+            box, region, chans, stokes, vmask, in_includepix,
+            in_excludepix, residual, model, estimates, logfile,
+            append, newestimates, complist, dooff, offset, fixoffset,
+            stretch, rms, noisefwhm
+        };
+        auto msgs = _newHistory("fitcomponents", names, values);
+        fitter.addHistory(_ORIGIN, msgs);
+    }
+    fitter.setSummaryFile(summary);
+    auto compLists = fitter.fit();
+    return fromRecord(fitter.getOutputRecord());
 }
 
 record* image::fitprofile(const string& box, const variant& region,
