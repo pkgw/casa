@@ -65,7 +65,7 @@ using namespace std;
 //   debuglog << "Any message" << any_value << debugpost;
 //
 
-           #define DIRECTIONCALC_DEBUG
+//           #define DIRECTIONCALC_DEBUG
 
 
 namespace {
@@ -111,6 +111,7 @@ SCALAR_DIRECTION(encoder)
 // convertToAzel must be configured with moving source direction and
 // proper reference frame. Also, convertToCelestial must refer proper
 // reference frame.
+
 inline void performMovingSourceCorrection(
         CountedPtr<MDirection::Convert> &convertToAzel,
         CountedPtr<MDirection::Convert> &convertToCelestial,
@@ -118,16 +119,31 @@ inline void performMovingSourceCorrection(
     // moving source handling
     // If moving source is specified, output direction list is always
     // offset from reference position of moving source
+
+        debuglog << "MovingSourceCorrection <Working>." << debugpost;
+ 
+    // DEBUG //
+   assert( convertToCelestial != NULL );
+
+   assert( convertToAzel != NULL ); 
+
+
     MDirection srcAzel = (*convertToAzel)();
     MDirection srcDirection = (*convertToCelestial)(srcAzel);
     Vector<Double> srcDirectionVal = srcDirection.getAngle("rad").getValue();
     direction -= srcDirectionVal;
+
+       debuglog << "MovingSourceCorrection END." << debugpost;
+
 }
 
 inline void skipMovingSourceCorrection(
         CountedPtr<MDirection::Convert> &/*convertToAzel*/,
         CountedPtr<MDirection::Convert> &/*convertToCelestial*/,
         Vector<Double> &/*direction*/) {
+
+        debuglog << "MovingSourceCorrection <NO ACTION>" << debugpost;
+
     // do nothing
 }
 } // anonymous namespace
@@ -334,9 +350,19 @@ void PointingDirectionCalculator::selectData(String const &antenna,
 }
 
 void PointingDirectionCalculator::configureMovingSourceCorrection() {
+#if 0 
     if (!movingSource_.null() || directionColumnName_.contains("OFFSET")) {
+#else
+    if ( !movingSource_.null() && !directionColumnName_.contains("OFFSET") ) 
+    {
+#endif 
+        printf("-configureMovingSourceCorrection:: Perfrom. \n" );
         movingSourceCorrection_ = performMovingSourceCorrection;
+
     } else {
+
+        printf("-configureMovingSourceCorrection:: Skip. \n" );
+
         movingSourceCorrection_ = skipMovingSourceCorrection;
     }
 }
@@ -640,6 +666,8 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow)
     // moving source correction
 
     assert(movingSourceCorrection_ != NULL);
+    assert(directionConvert_       != NULL);
+
     movingSourceCorrection_(movingSourceConvert_, directionConvert_, outVal);
 
     return outVal;

@@ -144,9 +144,9 @@ bool  getMSThrow(int No )
 
 void TestTitle( const String &Title )
 {
-    printf( "====================================== \n");
+    printf( "======================================================== \n");
     printf( " %s  \n",Title.c_str() );
-    printf( "====================================== \n");
+    printf( "======================================================== \n");
 }
 
 void Title(const String &Title, const String &Param)
@@ -174,7 +174,7 @@ public:
         //-
         
         CasaPath        = GetCasaPath( "CASAPATH" );
-        CasaMasterPath  = CasaPath + "regression/unittest/"; 
+        CasaMasterPath  = CasaPath + "/data/regression/unittest/"; 
         CasaMaserMSFullName = CasaMasterPath + "sdimaging/sdimaging.ms";
 
         printf("MyEnv:: Environment Variable Information -----\n" );
@@ -889,7 +889,7 @@ casacore::Vector<double>  generatePseudoDirection(int i)
     //   - use 0, +10000.0, -10000.0
     //-  
 
-    Double intentionalShift = 10000.0;
+    Double intentionalShift = 0.0;
     Double interval = 2.99827;
 
     Double        d = (22 *3600.0 +  5*60 +  41.5 + (double)i * interval + intentionalShift )/(3600*24); 
@@ -976,7 +976,7 @@ void  MSEdit::WriteTestDataOnDirection(String MSname)
 
              // Time Info.  //
              
-                if(true)       pointingTime.           put(row, psd_data[2] ); // Time
+                if(false)       pointingTime.           put(row, psd_data[2] ); // Time
                 if(false)       pointingInterval.       put(row, psd_data[3] ); // Interval 
         }
 
@@ -1189,6 +1189,11 @@ void TestDirection::addColumnDataOnPointing()
     msedit.WriteColumnsPointingTable( MsName );
 }
 
+//+
+// setDirectionColumn
+//  - check thr accsessor
+//  - Must not make exception.
+//-
 TEST_F(TestDirection, setDirectionColumn  )
 {
 
@@ -1273,7 +1278,223 @@ TEST_F(TestDirection, setDirectionColumn  )
         }
 }
 
+//+
+// setDirectionColumn 
+//  and getDirection
+//
+// - Test performing MovingSource Correction.
+// - Only work when "POINTING_OFFSET" or "SOURCE_OFFSET" is specified,
+//
+//-
 
+TEST_F(TestDirection, MovingSourceCorrection  )
+{
+
+    TestTitle( "performMovingSourceCorrection and setDirectionColumns" );
+    String MsName = "./sdimaging-t.ms";    //  
+
+    // MS name for this Test //
+
+          String name =   MsName;
+          printf( " Used MS is [%s] \n", name.c_str() );
+   
+    // List all the point ..//
+#if 0
+          printf( "Listing all POINTING TABLE  \n");
+          msedit.ListPointingTable( MsName, false );
+#endif 
+    // Create Object //
+    
+        MeasurementSet ms( name.c_str() );
+    
+        PointingDirectionCalculator calc(ms);
+    
+    // Initial brief Inspection //
+    
+       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
+       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       EXPECT_NE((uInt)0, ExpectedNrow );
+
+
+    // setFrame, setDirectionListMatrixshape    //
+    // setMovingSource Convert                  //
+
+        Title("setDirectionListMatrixShape()", "COLUMN_MAJOR" );
+        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
+
+
+        Title("setFrame()", "J2000" );
+        EXPECT_NO_THROW( calc.setFrame( "J2000" ) );
+
+    //
+    // setDirectionColumm()  calls 
+    //
+        String Name[6];
+        
+        Name[0] = "DIRECTION";        
+        Name[1] = "TARGET";
+        Name[2] = "POINTING_OFFSET";    // *** NEED to ADD in advance  //
+        Name[3] = "SOURCE_OFFSET"; // *** NEED to Add in advance //
+        Name[4] = "ENCODER";      // *** NEED to add in advance  //
+        Name[5] = "hogehoge";
+
+        // Normal Seq. with setMovingSoure Convert.
+	
+        for(int k=0; k<5; k++)
+        {
+            Title("Column Name" , Name[k] );
+            EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
+
+         if(true)  // TESTING dependency how  setMovingSource() relates. //
+         {
+            String src = "SUN";
+            Title("setMovingSourceConvert()", src);
+            EXPECT_NO_THROW( calc.setMovingSource( src ) );
+         }    
+            Title("calling  getDirection() ", Name[k] );
+            Matrix<Double>  DirList;
+            EXPECT_NO_THROW( DirList= calc.getDirection() );
+
+            int  N_Row    = DirList.nrow();
+
+            printf( "Number of Row = %d \n", N_Row );
+            EXPECT_EQ( N_Row, ExpectedNrow);
+
+        }
+
+        // No SetMovingSouce executution 
+
+        for(int k=0; k<5; k++)
+        {
+            Title("Column Name" , Name[k] );
+            EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
+
+            String src = "SUN";
+            Title("setMovingSourceConvert()", src);
+            EXPECT_NO_THROW( calc.setMovingSource( src ) );
+            
+            Title("calling  getDirection() ", Name[k] );
+            Matrix<Double>  DirList;   
+            EXPECT_NO_THROW( DirList= calc.getDirection() );
+
+            int  N_Row;
+            N_Row  = DirList.nrow();
+
+
+            printf( "Number of Row = %d \n", N_Row );
+            EXPECT_EQ( N_Row, ExpectedNrow);
+
+        }
+
+}
+
+//+ 
+//  UnsetMovingSource and 
+//   with the Conveniation of setMovingSource 
+//-
+
+TEST_F(TestDirection, setMovingSource  )
+{
+
+    TestTitle( "performMovingSourceCorrection and setDirectionColumns" );
+    String MsName = "./sdimaging-t.ms";    //  
+
+    // MS name for this Test //
+
+          String name =   MsName;
+          printf( " Used MS is [%s] \n", name.c_str() );
+   
+    // List all the point ..//
+#if 0
+          printf( "Listing all POINTING TABLE  \n");
+          msedit.ListPointingTable( MsName, false );
+#endif 
+    // Create Object //
+    
+        MeasurementSet ms( name.c_str() );
+    
+        PointingDirectionCalculator calc(ms);
+    
+    // Initial brief Inspection //
+    
+       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
+       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       EXPECT_NE((uInt)0, ExpectedNrow );
+
+
+    // setFrame, setDirectionListMatrixshape    //
+    // setMovingSource Convert                  //
+
+        Title("setDirectionListMatrixShape()", "COLUMN_MAJOR" );
+        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
+
+
+        Title("setFrame()", "J2000" );
+        EXPECT_NO_THROW( calc.setFrame( "J2000" ) );
+
+    //
+    // setDirectionColumm()  calls 
+    //
+        String Name[6];
+        
+        Name[0] = "DIRECTION";        
+        Name[1] = "TARGET";
+        Name[2] = "POINTING_OFFSET";    // *** NEED to ADD in advance  //
+        Name[3] = "SOURCE_OFFSET"; // *** NEED to Add in advance //
+        Name[4] = "ENCODER";      // *** NEED to add in advance  //
+        Name[5] = "hogehoge";
+
+        // Normal Seq. with setMovingSoure Convert.
+	
+      for(int senario = 0; senario < 4; senario++ )	// senario //
+      {   
+          Title("SENARIO" , std::to_string(senario).c_str() ); 
+          for(int k=0; k<5; k++)
+          {
+              Title("- Column Name" , Name[k] );
+              EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
+
+              if( senario==0 )     // Always No call //
+              {
+                /*  nothing */
+              }
+              else
+              if( senario==1 )   // Allways Set //
+              {
+                 String src = "SUN";
+                 Title("- setMovingSource()", src);
+                 EXPECT_NO_THROW( calc.setMovingSource( src ) );
+              }
+              else
+              if( senario==2 )   // Allways unSet //
+              {
+                 String src = "SUN";
+                 Title("- setMovingSource()", src);
+                 EXPECT_NO_THROW( calc.unsetMovingSource() );
+              }
+              else 
+              if( senario==3 )   // Once set and Unset
+              {
+                 String src = "SUN";
+                 Title("- setMovingSource() consequently call unsetMovingSource()", src);
+
+                 EXPECT_NO_THROW( calc.setMovingSource( src ) );
+                 EXPECT_NO_THROW( calc.unsetMovingSource() );
+              }
+
+              Title("- getDirection() ", Name[k] );
+              Matrix<Double>  DirList; 
+              EXPECT_NO_THROW( DirList= calc.getDirection() );
+
+              int  N_Row;
+              N_Row  = DirList.nrow();
+
+              printf( "- Number of Row = %d \n", N_Row );
+             EXPECT_EQ( N_Row, ExpectedNrow);
+          }
+      }
+
+}
 TEST_F(TestDirection, Matrixshape )
 {
 
@@ -1387,6 +1608,18 @@ TEST_F(TestDirection, getDirection )
     //-
 
 #if 1
+
+    for (int row=0; row<N_Row; row++)
+    {
+        double Val_1 = DirList(row,0);
+        double Val_2 = DirList(row,1);
+
+        printf(    "Dir at, [%d], %f,%f \n",   row, Val_1, Val_2 );
+    }
+
+#endif 
+
+#if 0
     FILE *fp = fopen( "Dir.csv", "w" );
 
     for (int row=0; row<N_Row; row++)
@@ -1394,13 +1627,12 @@ TEST_F(TestDirection, getDirection )
         double Val_1 = DirList(row,0);
         double Val_2 = DirList(row,1);
 
-         printf(    "Dir at, [%d], %f,%f \n",   row, Val_1, Val_2 );
         fprintf( fp,"Dir at, [%d], %f,%f \n",   row, Val_1, Val_2 );
- 
+
     }
 
     fclose(fp);
-#endif 
+#endif
 
 
 
