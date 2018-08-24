@@ -913,4 +913,3 @@ casa_add_google_test( MODULES synthesis mstransform SOURCES MeasurementComponent
 casa_add_google_test( MODULES synthesis SOURCES Utilities/test/SDPosInterpolator_GTest.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/SDDoubleCircleGainCalImpl_GTest.cc )
 casa_add_google_test( MODULES synthesis SOURCES CalTables/test/CTSelection_GTest.cc )
-
