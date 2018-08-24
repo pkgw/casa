@@ -144,17 +144,17 @@ bool  getMSThrow(int No )
 
 void TestDescription( const String &Title )
 {
-    printf( "//////////////////////////////////////////////////////// \n");
+    printf( "///////////////////////////////////////////////////////////////////////////// \n");
     printf( " %s  \n",Title.c_str() );
-    printf( "//////////////////////////////////////////////////////// \n");
+    printf( "///////////////////////////////////////////////////////////////////////////// \n");
 }
 
 void FunctionalDescription(const String &Title, const String &Param)
 {
-    printf("===========================\n");
+    printf("=======================================\n");
     printf("# %s \n",Title.c_str());
     printf("# [%s] \n",Param.c_str());
-    printf("===========================\n");
+    printf("=======================================\n");
 }
 
 void Description(const String &Title, const String &Param)
@@ -1102,7 +1102,9 @@ TEST_F(TestMeasurementSet, variousConstructor )
  
     for(int k=0;k<30;k++)
     {
-        if(getMSName(k)=="")    break;
+       FunctionalDescription( "CALC Constructor by various MS", getMSName(k).c_str()  );
+ 
+       if(getMSName(k)=="")    break;
 
         if (getMSThrow(k))
         {
@@ -1455,8 +1457,10 @@ TEST_F(TestDirection, setMovingSource  )
         Name[4] = "ENCODER";      // *** NEED to add in advance  //
         Name[5] = "hogehoge";
 
-        // Normal Seq. with setMovingSoure Convert.
-	
+      //+
+      // Normal Seq. with setMovingSoure Convert.
+      //  5 senarios are executed.
+      //-  	
       for(int senario = 0; senario < 5; senario++ )	// senario //
       {   
           FunctionalDescription("Senario" , std::to_string(senario).c_str() ); 
@@ -1594,10 +1598,11 @@ TEST_F(TestDirection, getDirection )
     //+
     // setDirectionColumn() 
     //-
+  
+        String colname = "DIRECTION"; 
+        Description( "getDirectionColumn()", colname  );
 
-        Description( "getDirectionColumn()","DIRECTION"  );
-
-        calc.setDirectionColumn("DIRECTION");
+        EXPECT_NO_THROW( calc.setDirectionColumn( colname ) );
 
     //+
     //      getDirection
@@ -2380,7 +2385,9 @@ void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, int n
         String converted = DirType.toString();
         String sub_str   = MyFrameTypes[n_frame].name;
 
-        // GTEST :: Check SubString //
+        // GTEST :: Check SubString // 
+        
+    Description( "Checking frame sub-string. ",DirType.toString().c_str() );
 
     if(  MyFrameTypes[n_frame].available == true)       
         EXPECT_TRUE( converted.find(sub_str) !=std::string::npos); 
@@ -2419,41 +2426,17 @@ TEST_F(TestSetFrame, setFrame )
 
     for( int i = 0; MyFrameTypes[i].name !="" ; i++  )
     {
-        Description( "setFrame: Reserved Name.", MyFrameTypes[i].name.c_str() );
+        FunctionalDescription( "setFrame(Rsved Name) ", MyFrameTypes[i].name.c_str() );
 
         // Execute and check Exception and other requirements//
         
         check_direction_info( calc, i ) ;
-  
-
-
     }
 
 
 }
 
 
-
-//+
-//   Environment Set  (UNDER CONSTRUCTION)
-//
-//   - copy file(s) from Master Directort
-//-
-
-void InitEnvironment()
-{
-    MyEnv env;
-    String cmd = " " ;
-
-    //+
-    // Copy Master MS from standard MS data stsrted from CASAPATH
-    //-
-
-    printf( "cmd will be [%s]\n", cmd.c_str() );
-
-//    system ( cmd.c_str() );
-
-}
 
 
 }  // END namespace
@@ -2470,7 +2453,6 @@ int main (int nArgs, char * args [])
  {
 
     casa::MSEdit msedit ;  ////  TENTATIME /////
-
 
     ::testing::InitGoogleTest(& nArgs, args);
 
