@@ -39,19 +39,13 @@ Images/ComponentListImage.cc
 
 ImageAnalysis/AntennaResponses.cc
 ImageAnalysis/CasaImageBeamSet.cc
-ImageAnalysis/ComplexImageRegridder.cc
 ImageAnalysis/ComponentImager.cc
 ImageAnalysis/ImageCollapserData.cc
 ImageAnalysis/ImageCollapser2.cc
 ImageAnalysis/ImageFactory2.cc
-ImageAnalysis/ImageFFT.cc
-ImageAnalysis/ImageFitter.cc
-ImageAnalysis/ImageHistogramsCalculator.cc
 ImageAnalysis/ImageInputProcessor.cc
 ImageAnalysis/ImageMask.cc
-ImageAnalysis/ImageMetaData.cc
-ImageAnalysis/ImageMetaDataBase.cc
-ImageAnalysis/ImageMetaDataRW.cc
+ImageAnalysis/ImageMetaDataConstants.cc
 ImageAnalysis/ImageMomentsProgress.cc
 ImageAnalysis/ImageMomentsProgressMonitor.cc
 ImageAnalysis/ImagePadder.cc
@@ -60,15 +54,10 @@ ImageAnalysis/ImagePolProxy.cc
 ImageAnalysis/ImagePolTask.cc
 ImageAnalysis/ImagePrimaryBeamCorrector.cc
 ImageAnalysis/ImageProfileFitter.cc
-ImageAnalysis/ImageRegridder.cc
-ImageAnalysis/ImageRotator.cc
-ImageAnalysis/ImageStatsCalculator.cc
-ImageAnalysis/ImageStatsConfigurator.cc
 ImageAnalysis/ImageTotalPolarization.cc
 ImageAnalysis/ImageTransposer.cc
 ImageAnalysis/LinearPolarizationAngleCalculator.cc
 ImageAnalysis/LinearPolarizationCalculator.cc
-ImageAnalysis/PeakIntensityFluxDensityConverter.cc
 ImageAnalysis/PixelValueManipulatorData.cc
 ImageAnalysis/ProfileFitResults.cc
 ImageAnalysis/PVGenerator.cc
@@ -78,7 +67,6 @@ ImageAnalysis/StatImageCreator.cc
 
 IO/AsciiAnnotationFileLine.cc
 IO/FitterEstimatesFileParser.cc
-IO/ImageFitterResults.cc
 IO/ImageProfileFitterResults.cc
 IO/LogFile.cc
 IO/OutputDestinationChecker.cc
@@ -116,8 +104,10 @@ install (FILES
 install (FILES
 	IO/AsciiAnnotationFileLine.h
 	IO/FitterEstimatesFileParser.h
+	IO/FitterEstimatesFileParser2.tcc
 	IO/LogFile.h
     IO/ImageFitterResults.h
+    IO/ImageFitterResults.tcc
     IO/ImageProfileFitterResults.h
     IO/OutputDestinationChecker.h
 	IO/ParameterParser.h
@@ -134,7 +124,6 @@ install (FILES
 	ImageAnalysis/BeamManipulator.h
 	ImageAnalysis/BeamManipulator.tcc
 	ImageAnalysis/CasaImageBeamSet.h
-	ImageAnalysis/ComplexImageRegridder.h
 	ImageAnalysis/ComponentImager.h
 	ImageAnalysis/ComponentListDeconvolver.h
     ImageAnalysis/ComponentListDeconvolver.tcc
@@ -167,9 +156,11 @@ install (FILES
 	ImageAnalysis/ImageFactory.h
 	ImageAnalysis/ImageFactory.tcc
 	ImageAnalysis/ImageFFT.h
+    ImageAnalysis/ImageFFT.tcc
 	ImageAnalysis/ImageFFTer.h
 	ImageAnalysis/ImageFFTer.tcc
 	ImageAnalysis/ImageFitter.h
+    ImageAnalysis/ImageFitter.tcc
 	ImageAnalysis/ImageFit1D.h
 	ImageAnalysis/ImageFit1D.tcc
     ImageAnalysis/ImageHanningSmoother.h
@@ -177,6 +168,7 @@ install (FILES
     ImageAnalysis/ImageHistograms.h
     ImageAnalysis/ImageHistograms.tcc
     ImageAnalysis/ImageHistogramsCalculator.h
+    ImageAnalysis/ImageHistogramsCalculator.tcc
     ImageAnalysis/ImageHistory.h
     ImageAnalysis/ImageHistory.tcc
 	ImageAnalysis/ImageInputProcessor.h
@@ -194,7 +186,9 @@ install (FILES
 	ImageAnalysis/ImageMetaData.h
     ImageAnalysis/ImageMetaData.tcc
     ImageAnalysis/ImageMetaDataBase.h
+    ImageAnalysis/ImageMetaDataBase.tcc
     ImageAnalysis/ImageMetaDataRW.h
+    ImageAnalysis/ImageMetaDataRW.tcc
 	ImageAnalysis/ImageMoments.h
 	ImageAnalysis/ImageMoments.tcc
 	ImageAnalysis/ImageMomentsTask.h
@@ -210,13 +204,18 @@ install (FILES
     ImageAnalysis/ImageRebinner.h
     ImageAnalysis/ImageRebinner.tcc
     ImageAnalysis/ImageRegridder.h
+    ImageAnalysis/ImageRegridder.tcc
     ImageAnalysis/ImageRegridderBase.h
     ImageAnalysis/ImageRegridderBase.tcc
     ImageAnalysis/ImageRotator.h
+    ImageAnalysis/ImageRotator.tcc
 	ImageAnalysis/ImageSourceFinder.h
 	ImageAnalysis/ImageSourceFinder.tcc
 	ImageAnalysis/ImageStatsCalculator.h
-	ImageAnalysis/ImageStatsConfigurator.h
+    ImageAnalysis/ImageStatsCalculator.tcc
+	ImageAnalysis/ImageStatsBase.h
+	ImageAnalysis/ImageStatsBase.tcc
+    ImageAnalysis/ImageStatsData.h
 	ImageAnalysis/ImageTask.h
     ImageAnalysis/ImageTask.tcc
     ImageAnalysis/ImageTotalPolarization.h
@@ -236,6 +235,7 @@ install (FILES
     ImageAnalysis/MomentWindow.h
     ImageAnalysis/MomentWindow.tcc
 	ImageAnalysis/PeakIntensityFluxDensityConverter.h
+	ImageAnalysis/PeakIntensityFluxDensityConverter.tcc
 	ImageAnalysis/PixelValueManipulator.h
 	ImageAnalysis/PixelValueManipulator.tcc
 	ImageAnalysis/PixelValueManipulatorData.h

@@ -151,6 +151,9 @@ protected:
     // task to function.
     virtual std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const = 0;
 
+    // Is the attached image a position-velocity (PV) image?
+    casacore::Bool _isPVImage() const;
+
     void _removeExistingOutfileIfNecessary() const;
 
     // if warnOnly is true, log a warning message if file exists and

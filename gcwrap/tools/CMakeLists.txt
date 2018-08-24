@@ -84,6 +84,7 @@ casa_add_library( tools
  calanalysis/calanalysis_cmpt.cc
  calibrater/calplot_cmpt.cc
  casa/logsink_cmpt.cc
+ casa/telemetryhelper_cmpt.cc
  casa/quanta_cmpt.cc
  casa/TSLogSink.cc
  components/componentlist_cmpt.cc
@@ -121,6 +122,7 @@ casa_add_library( tools
  synthesis/simulator_cmpt.cc
  synthesis/synthesisimager_cmpt.cc
  synthesis/synthesisdeconvolver_cmpt.cc
+ synthesis/synthesismaskhandler_cmpt.cc
  synthesis/synthesisnormalizer_cmpt.cc
  synthesis/synthesisimstore_cmpt.cc
  synthesis/synthesisiterbot_cmpt.cc
@@ -158,6 +160,7 @@ casa_add_tools( tools_swig tools_sources tools_py
  calanalysis/calanalysis.xml
  calibrater/calplot.xml
  casa/logsink.xml
+ casa/telemetryhelper.xml
  casa/quanta.xml
  components/componentlist.xml
  #flagging/flagger.xml
@@ -190,6 +193,7 @@ casa_add_tools( tools_swig tools_sources tools_py
  synthesis/simulator.xml
  synthesis/synthesisimager.xml
  synthesis/synthesisdeconvolver.xml
+ synthesis/synthesismaskhandler.xml
  synthesis/synthesisnormalizer.xml
  synthesis/synthesisimstore.xml
  synthesis/synthesisiterbot.xml
@@ -228,4 +232,3 @@ foreach(_tool ${tools_py} )
    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/${_base}.py
 	               DESTINATION lib/python${PYTHONV}/__casac__ )
 endforeach()
-

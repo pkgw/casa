@@ -107,49 +107,49 @@ public:
     // xmlcasa/scripts/task_plotms.py.**
     // <group>
     PMS_ENUM1(Axis, axes, axesStrings, axis,
-		  // Metadata
-	      SCAN,FIELD,TIME,TIME_INTERVAL,
-	      SPW,CHANNEL,FREQUENCY,VELOCITY,CORR,
-	      ANTENNA1,ANTENNA2,BASELINE,ROW,
+          // Metadata
+          SCAN,FIELD,TIME,TIME_INTERVAL,
+          SPW,CHANNEL,FREQUENCY,VELOCITY,CORR,
+          ANTENNA1,ANTENNA2,BASELINE,ROW,
           OBSERVATION,INTENT,FEED1,FEED2,
-		  // Visibilities and flags
-	      AMP,PHASE,REAL,IMAG,WT,WTxAMP,WTSP,
-	      SIGMA, SIGMASP,
-	      FLAG,FLAG_ROW,
-		  // Observational geometry
-	      UVDIST,UVDIST_L,U,V,W,UWAVE,VWAVE,WWAVE,
-	      AZ0,EL0,HA0,PA0,
-		  // Antenna-based
-	      ANTENNA,AZIMUTH,ELEVATION,
-	      PARANG,
-		  // Calibration 
-	      GAMP,GPHASE,GREAL,GIMAG,
-	      DELAY,SWP,TSYS,OPAC, SNR, TEC, ANTPOS,
-		  // Ephemeris
-	      RADIAL_VELOCITY, RHO,
-		  // Overlays
-	      ATM, TSKY, NONE)
+          // Visibilities and flags
+          AMP,PHASE,REAL,IMAG,WT,WTxAMP,WTSP,
+          SIGMA, SIGMASP,
+          FLAG,FLAG_ROW,
+          // Observational geometry
+          UVDIST,UVDIST_L,U,V,W,UWAVE,VWAVE,WWAVE,
+          AZ0,EL0,HA0,PA0,
+          // Antenna-based
+          ANTENNA,AZIMUTH,ELEVATION,
+          PARANG,
+          // Calibration 
+          GAMP,GPHASE,GREAL,GIMAG,
+          DELAY,SWP,TSYS,OPAC, SNR, TEC, ANTPOS,
+          // Ephemeris
+          RADIAL_VELOCITY, RHO,
+          // Overlays
+          ATM, TSKY, NONE)
 
     PMS_ENUM2(Axis, axes, axesStrings, axis,
-		  // Metadata
-	      "Scan","Field","Time","Interval",
-	      "Spw","Channel","Frequency","Velocity","Corr",
-	      "Antenna1","Antenna2","Baseline","Row",
-	      "Observation", "Intent", "Feed1", "Feed2",
-		  // Visibilities and flags
-	      "Amp","Phase","Real","Imag","Wt","Wt*Amp","WtSp",
-	      "Sigma", "SigmaSp", "Flag","FlagRow",
-		  // Observational geometry
-	      "UVdist","UVwave","U","V","W","Uwave","Vwave","Wwave",
-	      "Azimuth","Elevation","HourAngle","ParAngle",
-		  // Antenna-based
-	      "Antenna","Ant-Azimuth","Ant-Elevation","Ant-ParAngle",
-		  // Calibration 
-	      "Gain Amp","Gain Phase","Gain Real","Gain Imag",
-	      "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
-		  "Antenna Positions",
-		  // Ephemeris
-	      "Radial Velocity", "Distance (rho)", 
+          // Metadata
+          "Scan","Field","Time","Interval",
+          "Spw","Channel","Frequency","Velocity","Corr",
+          "Antenna1","Antenna2","Baseline","Row",
+          "Observation", "Intent", "Feed1", "Feed2",
+          // Visibilities and flags
+          "Amp","Phase","Real","Imag","Wt","Wt*Amp","WtSp",
+          "Sigma", "SigmaSp", "Flag","FlagRow",
+          // Observational geometry
+          "UVdist","UVwave","U","V","W","Uwave","Vwave","Wwave",
+          "Azimuth","Elevation","HourAngle","ParAngle",
+          // Antenna-based
+          "Antenna","Ant-Azimuth","Ant-Elevation","Ant-ParAngle",
+          // Calibration 
+          "Gain Amp","Gain Phase","Gain Real","Gain Imag",
+          "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
+          "Antenna Positions",
+          // Ephemeris
+          "Radial Velocity", "Distance (rho)", 
           "Atm Transmission", "Tsky", "None")
     // </group>
               
@@ -162,11 +162,15 @@ public:
     // **If these are changed, also update: xmlcasa/tasks/plotms.xml.**
     // <group>
     PMS_ENUM1(DataColumn, dataColumns, dataColumnStrings, dataColumn,
-              DATA, CORRECTED, MODEL, CORRMODEL, DATAMODEL, DATA_DIVIDE_MODEL, 
-              CORRECTED_DIVIDE_MODEL, FLOAT_DATA)
+              DATA, CORRECTED, MODEL, FLOAT_DATA, CORRMODEL_V, CORRMODEL_S,
+              DATAMODEL_V, DATAMODEL_S, CORR_DIV_MODEL_V, CORR_DIV_MODEL_S,
+              DATA_DIV_MODEL_V, DATA_DIV_MODEL_S)
     PMS_ENUM2(DataColumn, dataColumns, dataColumnStrings, dataColumn,
-              "data", "corrected", "model", "corrected-model", "data-model", 
-              "data/model", "corrected/model", "float")
+              "data", "corrected", "model", "float",
+              "corrected-model_vector", "corrected-model_scalar",
+              "data-model_vector", "data-model_scalar",
+              "corrected/model_vector", "corrected/model_scalar",
+              "data/model_vector", "data/model_scalar")
     // </group>
               
     // Returns whether or not the given axis needs the second data parameter to
@@ -179,6 +183,8 @@ public:
     static bool axisIsWeight(Axis axis);
     // for loading conjugates and setting axis ranges
     static bool axisIsUV(Axis axis);
+	// for adjusting axis ranges
+    static bool axisIsOverlay(Axis axis);
               
     // Enum for different axes types.  Currently only used to display this
     // information to the user in the GUI's cache tab.

@@ -639,21 +639,23 @@ void QPCanvas::setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
     
     // set bounds
     if (xFrom != xTo) {
-		if ((axisScale(xAxis) >= PlotAxisScale::DATE_MJ_SEC) && (xTo-xFrom)>120.0) {
-			setTimeScaleDiv(xAxis, xFrom, xTo);  // ticks to even steps/minutes
-		} else {
-        	m_canvas.setAxisScale(QPOptions::axis(xAxis), xFrom, xTo,
-           		m_canvas.axisStepSize(QPOptions::axis(xAxis)));
-		}
+        if ((axisScale(xAxis) >= PlotAxisScale::DATE_MJ_SEC) && (xTo-xFrom)>120.0) {
+            setTimeScaleDiv(xAxis, xFrom, xTo);  // ticks to even steps/minutes
+        } else {
+            m_canvas.setAxisScale(QPOptions::axis(xAxis), xFrom, xTo,
+                m_canvas.axisStepSize(QPOptions::axis(xAxis)));
+        }
+        m_canvas.updateAxes();
         changed = true;
-	}
-			
+    }
+
     if(yAxis != xAxis && yFrom != yTo) {
-		if (axisScale(yAxis) >= PlotAxisScale::DATE_MJ_SEC && (yTo-yFrom)>120.0) {
-			setTimeScaleDiv(yAxis, yFrom, yTo); // ticks to even steps/minutes
-		} else {
-        	m_canvas.setAxisScale(QPOptions::axis(yAxis), yFrom, yTo);
-		}
+        if (axisScale(yAxis) >= PlotAxisScale::DATE_MJ_SEC && (yTo-yFrom)>120.0) {
+            setTimeScaleDiv(yAxis, yFrom, yTo); // ticks to even steps/minutes
+        } else {
+            m_canvas.setAxisScale(QPOptions::axis(yAxis), yFrom, yTo);
+        }
+        m_canvas.updateAxes();
         changed = true;
     }
     

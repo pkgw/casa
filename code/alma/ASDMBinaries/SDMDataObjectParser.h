@@ -41,8 +41,11 @@
 #undef REG_STARTEND
 #endif
 
-#include <boost/regex.hpp> 
-using namespace boost;
+#ifndef WITHOUT_BOOST
+#include <boost/regex.hpp>
+#else
+#include <regex>
+#endif
 
 #include "SDMDataObject.h"
 
@@ -152,8 +155,12 @@ namespace asdmbinaries {
     //      SDMDataObject::TypedBinaryPart  parseTypedBinaryPart(xmlNode* a_node, const string& attachmentName);
     
     xmlDoc *doc;
-    
-    static const regex  PROJECTPATH3;
+
+#ifndef WITHOUT_BOOST
+    static const boost::regex  PROJECTPATH3;
+#else
+    static const std::regex  PROJECTPATH3;
+#endif
     const static string SDMDATAHEADER;
     const static string SCHEMAVERSION;
     const static string BYTEORDER;
@@ -222,8 +229,13 @@ namespace asdmbinaries {
     
   private:
     // Regular expressions used to decipher the content of projectPath attribute.
-    static const regex PROJECTPATH4;
-    static const regex PROJECTPATH5;
+#ifndef WITHOUT_BOOST
+    static const boost::regex PROJECTPATH4;
+    static const boost::regex PROJECTPATH5;
+#else
+    static const std::regex PROJECTPATH4;
+    static const std::regex PROJECTPATH5;
+#endif
     
     void parseSDMDataSubsetHeader(xmlNode* a_node, SDMDataSubset& sdmCorrDataSubset);
     //    void parseProjectPath(xmlNode* a_node, SDMDataSubset& sdmCorrDataSubset);
@@ -268,7 +280,11 @@ namespace asdmbinaries {
     
   private:
     // Regular expressions used to decipher the content of projectPath attribute.
-    static const regex PROJECTPATH3;
+#ifndef WITHOUT_BOOST
+    static const boost::regex PROJECTPATH3;
+#else
+    static const std::regex PROJECTPATH3;
+#endif
 
     void parseSDMDataSubsetHeader(xmlNode* a_node,SDMDataSubset& sdmTPDataSubset);
     void parseProjectPath(xmlNode* a_node, SDMDataSubset& sdmTPDataSubset);
@@ -403,10 +419,17 @@ namespace asdmbinaries {
 
     private:    
 
-    static const regex PROJECTPATH3;
-    static const regex PROJECTPATH4;
-    static const regex PROJECTPATH5;
-    static const regex PROJECTPATH4OR5;
+#ifndef WITHOUT_BOOST
+    static const boost::regex PROJECTPATH3;
+    static const boost::regex PROJECTPATH4;
+    static const boost::regex PROJECTPATH5;
+    static const boost::regex PROJECTPATH4OR5;
+#else
+    static const std::regex PROJECTPATH3;
+    static const std::regex PROJECTPATH4;
+    static const std::regex PROJECTPATH5;
+    static const std::regex PROJECTPATH4OR5;
+#endif
 
     HeaderParser headerParser;
     CorrSubsetHeaderParser corrSubsetHeaderParser;

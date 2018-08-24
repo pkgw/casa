@@ -115,7 +115,7 @@ private:
     // calculated values
     void getMeanWeather();  // stored in weather_ Record
 	casacore::Table selectWeatherTable(casacore::Table& intable,
-        casacore::String tempUnits);
+        casacore::String tempUnits, casacore::String pressureUnits);
     void getMedianPwv();    // stored in pwv_
     casacore::Double computeMeanAirmass();
     casacore::Double getElevation(casacore::Int fieldId);
