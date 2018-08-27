@@ -31,7 +31,7 @@
 
 #include "gtest/gtest.h"
 
-// Nishie include for TABLE Manupilation //
+// Nishie include for TABLEs  Manupilation //
 
 #include <casacore/casa/OS/Directory.h>
 #include <casacore/casa/OS/Path.h>
