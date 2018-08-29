@@ -645,21 +645,21 @@ void PlotMSIndexer::setUpIndexing() {
 			}
 			break;
 		}
-        case PMS::CORR: {
-            Int nCorr = chsh(0,ic);
-            for (Int icorr=0; icorr<nCorr; ++icorr) {
-                if (*(plotmscache_->corr_[ic]->data()+icorr) == iterValue_) {
-                    for (Int nPoints=0; nPoints<ichanbslnmax_[ic]; ++nPoints) {
-                        ++iseg;
-                        cacheChunk_(iseg)  = ic;
-                        cacheOffset_(iseg) = icorr + nPoints*nCorr;
-					    nSegPoints_(iseg)  = 1;
-                    }
-                }
-            }
-            break;
-        }
-        default:
+		case PMS::CORR: {
+			Int nCorr = chsh(0,ic);
+			for (Int icorr=0; icorr<nCorr; ++icorr) {
+				if (*(plotmscache_->corr_[ic]->data()+icorr) == iterValue_) {
+					for (Int nPoints=0; nPoints<ichanbslnmax_[ic]; ++nPoints) {
+						++iseg;
+						cacheChunk_(iseg)  = ic;
+						cacheOffset_(iseg) = icorr + nPoints*nCorr;
+						nSegPoints_(iseg)  = 1;
+					}
+				}
+			}
+			break;
+		}
+		default:
 			// shouldn't reach here...
 			throw(AipsError("Unsupported iteration axis: "+PMS::axis(iterAxis_)));
 			break;
@@ -703,8 +703,9 @@ void PlotMSIndexer::reindexForConnect() {
 	// get set of times, spws, corrs, ant1s
 	std::set<casacore::Double> times;
 	std::set<casacore::Int> spws, corrs, ant1s;
+	std::map<casacore::Double, casacore::Int> spwPerTime;
 	std::map<casacore::Int, casacore::Int> chansPerSpw;
-	getConnectSets(times, spws, corrs, ant1s, chansPerSpw);
+	getConnectSetsMaps(times, spws, corrs, ant1s, spwPerTime, chansPerSpw);
 
 	// If iteraxis, only use points for current iteration
 	Int npoints(nCumulPoints_(nSegment_-1));
@@ -738,7 +739,7 @@ void PlotMSIndexer::reindexForConnect() {
 	}
 
 	casacore::Int totalSpwChans(0), maxChans(0);
-	if (!chansPerSpw.empty()) {
+	if (!chansPerSpw.empty()) {  // ******** TBD: what if empty
 		for (auto spwchan : chansPerSpw) {
 			Int nchans = spwchan.second;
 			totalSpwChans += nchans;
@@ -750,14 +751,14 @@ void PlotMSIndexer::reindexForConnect() {
 		 xIsIter(currentX_ == iterAxis_),
 		 isGSpline(plotmscache_->calType()=="GSPLINE"); // no chan!
 
-	if (doTimeConnect)
+	if (doTimeConnect) {
 		if (isGSpline)
 			nSegment_ = (spws.size() * corrs.size() * ant1s.size());
 		else
 			nSegment_ = (totalSpwChans * corrs.size() * ant1s.size());
-	else if (xIsIter)
+	} else if (xIsIter) {
 		nSegment_ = (times.size() * totalSpwChans * corrs.size() * ant1s.size());
-	else switch(currentX_) {
+	} else switch(currentX_) {
 		case PMS::TIME: 
 			if (isGSpline)
 				nSegment_ = (spws.size() * corrs.size() * ant1s.size());
@@ -768,8 +769,11 @@ void PlotMSIndexer::reindexForConnect() {
 			nSegment_ = (times.size() * maxChans * corrs.size() * ant1s.size());
 			break;
 		case PMS::CHANNEL:
-		case PMS::FREQUENCY:
-			nSegment_ = (times.size() * spws.size() * corrs.size() * ant1s.size());
+		case PMS::FREQUENCY: 
+			if (spwPerTime.empty()) // spw or time iter
+				nSegment_ = (times.size() * spws.size() * corrs.size() * ant1s.size());
+			else
+				nSegment_ = (spwPerTime.size() * corrs.size() * ant1s.size());
 			break;
 		case PMS::CORR:
 			nSegment_ = (times.size() * totalSpwChans * ant1s.size());
@@ -786,26 +790,25 @@ void PlotMSIndexer::reindexForConnect() {
 	if (nSegment_ == npoints) {
 		setConnectBinsPerPt(npoints);
 	} else {
-		if (doTimeConnect)
-			if (isGSpline)
-				reindexForTimeConnectNoChans(spws, corrs, ant1s, itermask);
-			else
-				reindexForTimeConnect(spws, chansPerSpw, corrs, ant1s, itermask);
-		else if (xIsIter)
+		if (doTimeConnect) {
+			if (isGSpline) reindexForTimeConnectNoChans(spws, corrs, ant1s, itermask);
+			else reindexForTimeConnect(spws, chansPerSpw, corrs, ant1s, itermask);
+		} else if (xIsIter) {
 			reindexForAllConnect(times, spws, chansPerSpw, corrs, ant1s, itermask);
-		else switch (currentX_) {
+		} else switch (currentX_) {
 			case PMS::TIME:
-				if (isGSpline)
-					reindexForTimeConnectNoChans(spws, corrs, ant1s, itermask);
-				else
-					reindexForTimeConnect(spws, chansPerSpw, corrs, ant1s, itermask);
+				if (isGSpline) reindexForTimeConnectNoChans(spws, corrs, ant1s, itermask);
+				else reindexForTimeConnect(spws, chansPerSpw, corrs, ant1s, itermask);
 				break;
 			case PMS::SPW:
 				reindexForSpwConnect(times, maxChans, corrs, ant1s, itermask);
 				break;
 			case PMS::CHANNEL:
 			case PMS::FREQUENCY:
-				reindexForChannelConnect(times, spws, corrs, ant1s, itermask);
+				if (spwPerTime.empty())  // spw or time iter
+					reindexForChannelConnect(times, spws, corrs, ant1s, itermask);
+				else
+					reindexForChannelConnect(spwPerTime, corrs, ant1s, itermask);
 				break;
 			case PMS::CORR:
 				reindexForCorrConnect(times, spws, chansPerSpw, ant1s, itermask);
@@ -829,14 +832,17 @@ void PlotMSIndexer::reindexForConnect() {
 	connectReady_ = true;
 }
 
-void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
-		std::set<Int>& corrs, std::set<Int>& ant1s, std::map<casacore::Int, casacore::Int>& chansPerSpw) {
-	// We need these values if the axis are not the x-axis, unless it is the iteraxis
+void PlotMSIndexer::getConnectSetsMaps(std::set<Double>& times, std::set<Int>& spws,
+		std::set<Int>& corrs, std::set<Int>& ant1s, std::map<casacore::Double, casacore::Int>& spwPerTime,
+		std::map<casacore::Int, casacore::Int>& chansPerSpw) {
+	// We need these values if the axis is not the x-axis, unless it is the iteraxis
 	bool timeconnect(itsXConnect_ != "none" && itsTimeConnect_);
 	bool needTime(true), needSpw(true), needChan(true), needCorr(true), needAnt1(true);
 	PMS::Axis connectAxes[] = { PMS::TIME, PMS::SPW, PMS::CHANNEL, PMS::CORR, PMS::ANTENNA1 };
 	for (PMS::Axis axis : connectAxes) {
 		bool connectX(axis == currentX_), axisIsIter(axis == iterAxis_);
+		if (axis==PMS::CHANNEL)
+			connectX = ((currentX_==PMS::CHANNEL) || (currentX_==PMS::FREQUENCY));
 		if (timeconnect) connectX = false;  // do not connect along X axis
 		switch(axis) {
 			case PMS::TIME: {
@@ -853,8 +859,7 @@ void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
 					spws.insert(iterValue_);
 				break;
 			}
-			case PMS::CHANNEL:
-			case PMS::FREQUENCY: {
+			case PMS::CHANNEL: {
 				if (connectX || axisIsIter)
 					needChan = false;
 				break;
@@ -866,10 +871,10 @@ void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
 					corrs.insert(iterValue_);
 				break;
 			}
-			case PMS::ANTENNA: {
-				if (connectX || axisIsIter)
+			case PMS::ANTENNA1: {
+				if (connectX || (iterAxis_==PMS::ANTENNA))
 					needAnt1 = false;
-				if (axisIsIter) 
+				if (iterAxis_==PMS::ANTENNA) 
 					ant1s.insert(iterValue_);
 				break;
 			}
@@ -881,11 +886,14 @@ void PlotMSIndexer::getConnectSets(std::set<Double>& times, std::set<Int>& spws,
 		needChan = false;  // axis not loaded
 
 	for (uInt chunk : cacheChunk_) {
-		if (needTime)
-			times.insert(plotmscache_->time(chunk));
+		Double time = plotmscache_->time(chunk);
 		casacore::Int spw = plotmscache_->spw(chunk);
+		if (needTime)
+			times.insert(time);
 		if (needSpw)
-			spws.insert(plotmscache_->spw(chunk));
+			spws.insert(spw);
+		if (needTime && needSpw)
+			spwPerTime[time] = spw;
 		if (needChan)
 			chansPerSpw[spw] = plotmscache_->chan(chunk).size();
 		if (needCorr) {
@@ -1084,8 +1092,8 @@ void PlotMSIndexer::reindexForSpwConnect(std::set<Double>& times, Int nchans, st
 	reindexBins(npoints, &newCacheChunk[0], &newCacheOffset[0]);
 }
 
-void PlotMSIndexer::reindexForChannelConnect(std::set<Double>& times, std::set<Int>& spws, std::set<Int>& corrs,
-		std::set<Int>& ant1s, Vector<bool>& itermask) {
+void PlotMSIndexer::reindexForChannelConnect(std::set<Double>& times, std::set<Int>& spws,
+		std::set<Int>& corrs, std::set<Int>& ant1s, Vector<bool>& itermask) {
 	// Sort into bins with same times, spws, corrs, ant1s then reindex
 	uInt npoints(itermask.size());
 	std::vector<casacore::uInt> newCacheChunk[nSegment_], newCacheOffset[nSegment_];
@@ -1114,6 +1122,44 @@ void PlotMSIndexer::reindexForChannelConnect(std::set<Double>& times, std::set<I
 									foundbin = true;
 									break;
 							}
+						}
+					}
+				}
+			}
+		}
+	}
+	reindexBins(npoints, &newCacheChunk[0], &newCacheOffset[0]);
+}
+
+void PlotMSIndexer::reindexForChannelConnect(std::map<Double, Int>& spwPerTime, std::set<Int>& corrs,
+		std::set<Int>& ant1s, Vector<bool>& itermask) {
+	// Sort into bins with same times, spws, corrs, ant1s then reindex
+	uInt npoints(itermask.size());
+	std::vector<casacore::uInt> newCacheChunk[nSegment_], newCacheOffset[nSegment_];
+	Int iseg;
+	bool foundbin(false);  // each point goes into one particular bin
+	for (uInt ipt=0; ipt<npoints; ++ipt) {
+		if (itermask(ipt)) { // only use point if correct iteration
+			setChunk(ipt, true);
+			iseg = -1;
+			foundbin = false;
+			for (auto& spwtime : spwPerTime) {
+				if (foundbin) break;
+				Double time = spwtime.first;
+				Int spw = spwtime.second;
+				for (Int corr : corrs) {
+					if (foundbin) break;
+					for (Int ant1 : ant1s) {
+						++iseg;
+						if ((plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_)) == time) &&
+							(plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_)) == spw) &&
+							(plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_)) == corr) &&
+							(plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_)) == ant1)) {
+								newCacheChunk[iseg].push_back(currChunk_);
+								newCacheOffset[iseg].push_back(irel_);
+								++nSegPoints_(iseg);
+								foundbin = true;
+								break;
 						}
 					}
 				}
