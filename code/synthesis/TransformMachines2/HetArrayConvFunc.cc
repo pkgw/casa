@@ -88,7 +88,7 @@ using namespace casacore;
 using namespace casa::refim;
 
 
-HetArrayConvFunc::HetArrayConvFunc() : convFunctionMap_p(0), nDefined_p(0), antDiam2IndexMap_p(-1),msId_p(-1), actualConvIndex_p(-1)
+  HetArrayConvFunc::HetArrayConvFunc() : convFunctionMap_p(0), nDefined_p(0), antDiam2IndexMap_p(-1),msId_p(-1), actualConvIndex_p(-1), vpTable_p("")
 {
     calcFluxScale_p=true;
     init(PBMathInterface::AIRY);
@@ -121,23 +121,23 @@ void HetArrayConvFunc::init(const PBMathInterface::PBClass typeTouse) {
 
 void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
 
-    if(msId_p != vb.msId()) {
+      if(msId_p != vb.msId()) {
         msId_p=vb.msId();
-        ROMSColumns mscol(vb.ms());
-        const ROMSAntennaColumns& ac=mscol.antenna();
+        //ROMSColumns mscol(vb.ms());
+        const ROMSAntennaColumns& ac=vb.subtableColumns().antenna();
         antIndexToDiamIndex_p.resize(ac.nrow());
         antIndexToDiamIndex_p.set(-1);
         Int diamIndex=antDiam2IndexMap_p.ndefined();
         Vector<Double> dishDiam=ac.dishDiameter().getColumn();
         Vector<String>dishName=ac.name().getColumn();
-        String telescop=mscol.observation().telescopeName()(0);
+        String telescop=vb.subtableColumns().observation().telescopeName()(0);
         PBMath::CommonPB whichPB;
         if(pbClass_p==PBMathInterface::COMMONPB) {
             String band;
             String commonPBName;
             // This frequency is ONLY required to determine which PB model to use:
             // The VLA, the ATNF, and WSRT have frequency - dependent PB models
-            Quantity freq( mscol.spectralWindow().refFrequency()(0), "Hz");
+            Quantity freq( vb.subtableColumns().spectralWindow().refFrequency()(0), "Hz");
 
 
             PBMath::whichCommonPBtoUse( telescop, freq, band, whichPB, commonPBName );
@@ -163,13 +163,15 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
 			  //ALMA ratio of blockage to dish
                             Quantity qdiam= Quantity (dishDiam(k),"m");	
                             Quantity blockDiam= Quantity(dishDiam(k)/12.0*.75, "m");
+			    Quantity support=Quantity(150, "arcsec");
                             ///For ALMA 12m dish it is effectively 10.7 m according to Todd Hunter
                             ///@ 2011-12-06
-                            if((mscol.observation().telescopeName()(0) =="ALMA") || (mscol.observation().telescopeName()(0) =="ACA")){
-
+                            if((vb.subtableColumns().observation().telescopeName()(0) =="ALMA") || (vb.subtableColumns().observation().telescopeName()(0) =="ACA")){
+			      Quantity fov(max(nx_p*dc_p.increment()(0), ny_p*dc_p.increment()(1)), dc_p.worldAxisUnits()(0));
 			      if((abs(dishDiam[k] - 12.0) < 0.5)) {
 				qdiam= Quantity(10.7, "m");
 				blockDiam= Quantity(0.75, "m");
+				support=Quantity(max(150.0, fov.getValue("arcsec")/5.0), "arcsec");
                                 
 			      }
 			      else{
@@ -177,6 +179,7 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
                                
 				qdiam= Quantity(6.25,"m");
 				blockDiam = Quantity(0.75,"m");
+				support=Quantity(max(300.0,fov.getValue("arcsec")/3.0) , "arcsec");
 			      }
 			    }
 			     os << "Overriding PB with Airy of diam,blockage="<<qdiam<<","<<blockDiam<<" starting with antenna "<<k<<LogIO::POST; 
@@ -185,7 +188,7 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
 		    
 
 			antMath_p[diamIndex]=new PBMath1DAiry(qdiam, blockDiam,
-							  Quantity(150,"arcsec"),
+							  support,
 							  Quantity(100.0,"GHz"));
 			}
 
@@ -296,6 +299,25 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
             //Get rid of the static class
             vpman->reset();
         }
+	else if(vpTable_p != String("")){
+	  ////When we get vpmanager to give beams on antenna name we
+	  //should change this key to antenna name and loop over all antenna names
+	  if((diamIndex !=0) && antDiam2IndexMap_p.isDefined(telescop+String("_")+String::toString(dishDiam(0)))) {
+	    antIndexToDiamIndex_p.set(antDiam2IndexMap_p(telescop+String("_")+String::toString(dishDiam(0))));
+	  }
+	  else{
+	    antDiam2IndexMap_p.define(telescop+"_"+String::toString(dishDiam(0)), diamIndex);
+	    antIndexToDiamIndex_p.set(diamIndex);
+	     VPManager *vpman=VPManager::Instance();
+	     vpman->loadfromtable(vpTable_p);
+	     Record rec;
+	     vpman->getvp(rec, telescop);
+	     antMath_p.resize(diamIndex+1);
+	     antMath_p[diamIndex]=PBMath::pbMathInterfaceFromRecord(rec);
+	     vpman->reset();
+	  }
+	  
+	}
         else if(pbClass_p==PBMathInterface::COMMONPB) {
             //cerr << "Doing the commonPB thing" << endl;
             ///Have to use telescop part as string as in multims case different
@@ -310,10 +332,6 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
                 antMath_p.resize(diamIndex+1);
                 antMath_p[diamIndex]=PBMath::pbMathInterfaceForCommonPB(whichPB, True);
             }
-
-
-
-
         }
         else {
 
@@ -424,7 +442,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
     // Set up the convolution function.
     Int nx=nx_p;
     Int ny=ny_p;
-    Int support=0;
+    Int support=max(nx_p, ny_p)/10;
     Int convSampling=1;
     if(!doneMainConv_p[actualConvIndex_p]) {
         for (uInt ii=0; ii < ndish; ++ii) {
@@ -463,11 +481,14 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
 
     if(!doneMainConv_p[actualConvIndex_p]) {
+      //cerr << "doneMainConv_p " << actualConvIndex_p << endl;
+
         Vector<Double> sampling;
+	
         sampling = dc.increment();
-        sampling*=Double(convSampling);
-        sampling(0)*=Double(nx)/Double(convSize_p);
-        sampling(1)*=Double(ny)/Double(convSize_p);
+	sampling*=Double(convSampling);
+	sampling(0)*=Double(nx)/Double(convSize_p);
+	sampling(1)*=Double(ny)/Double(convSize_p);
         dc.setIncrement(sampling);
 
         Vector<Double> unitVec(2);
@@ -477,21 +498,31 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
         fieldDir.set(dc.worldAxisUnits()(0));
         dc.setReferenceValue(fieldDir.getAngle().getValue());
         coords.replaceCoordinate(dc, directionIndex);
-        Int spind=coords.findCoordinate(Coordinate::SPECTRAL);
+	Int spind=coords.findCoordinate(Coordinate::SPECTRAL);
         SpectralCoordinate spCoord=coords.spectralCoordinate(spind);
         spCoord.setReferencePixel(Vector<Double>(1,0.0));
         spCoord.setReferenceValue(Vector<Double>(1, beamFreqs(0)));
         if(beamFreqs.nelements() >1)
 	  spCoord.setIncrement(Vector<Double>(1, beamFreqs(1)-beamFreqs(0)));
+	//cerr << "spcoord " ;
+	//spCoord.print(std::cerr);
         coords.replaceCoordinate(spCoord, spind);
 	CoordinateSystem conjCoord=coords;
 	Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
 	SpectralCoordinate conjSpCoord=spCoord;
 		//cerr << "centreFreq " << centerFreq << " beamFreqs " << beamFreqs(0) << "  " << beamFreqs(1) << endl;
-	conjSpCoord.setReferenceValue(Vector<Double>(1, 2*centerFreq-beamFreqs(0)));
-		///Increment should go in the reverse direction
-	if(beamFreqs.nelements() >1)
-	  conjSpCoord.setIncrement(Vector<Double>(1, beamFreqs(0)-beamFreqs(1)));
+	conjSpCoord.setReferenceValue(Vector<Double>(1,SynthesisUtils::conjFreq(beamFreqs[0], centerFreq)));
+	///Increment should go in the reverse direction
+	////Do a tabular spectral coordinate for more than 1 channel 
+	if(beamFreqs.nelements() >1){
+	  Vector<Double> conjFreqs(beamFreqs.nelements());
+	  for (uInt kk=0; kk< beamFreqs.nelements(); ++kk){
+	    //conjFreqs[kk]=sqrt(2*centerFreq*centerFreq-beamFreqs(kk)*beamFreqs(kk));
+	    conjFreqs[kk]=SynthesisUtils::conjFreq(beamFreqs[kk], centerFreq);
+	  }
+	  conjSpCoord=SpectralCoordinate(spCoord.frequencySystem(), conjFreqs, spCoord.restFrequency());
+	  //conjSpCoord.setIncrement(Vector<Double>(1, beamFreqs(0)-beamFreqs(1)));
+	}
 	conjCoord.replaceCoordinate(conjSpCoord, spind);
         IPosition pbShape(4, convSize_p, convSize_p, 1, nBeamChans);
         //TempImage<Complex> twoDPB(pbShape, coords);
@@ -586,6 +617,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 					//wtime1+=omp_get_wtime()-wtime0;
                     //subim.copyData((LatticeExpr<Complex>) (iif(abs(subim)> 5e-2, subim, 0)));
                     //subim2.copyData((LatticeExpr<Complex>) (iif(abs(subim2)> 25e-4, subim2, 0)));
+
 					//wtime0=omp_get_wtime();
 					ft_p.c2cFFTInDouble(subim);
 					ft_p.c2cFFTInDouble(subim2);
@@ -791,15 +823,15 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
     }
     */
-    /*////////////////TESTOOO
-		 CoordinateSystem TMP = coords;
-	  CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
-	  PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJUVI2"+String::toString(actualConvIndex_p));
-	  SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
-	   PagedImage<Complex> SCREEN3(TiledShape(convWeights_p[actualConvIndex_p]->shape()), TMP, "FTWEIGHTVI2"+String::toString(actualConvIndex_p));
-	  SCREEN3.put(*convWeights_p[actualConvIndex_p]  );
+    ////////////////TESTOOO
+    //		 CoordinateSystem TMP = coords;
+    //	  CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
+    //	  PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJUVI2"+String::toString(actualConvIndex_p));
+    //	  SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
+    //	   PagedImage<Complex> SCREEN3(TiledShape(convWeights_p[actualConvIndex_p]->shape()), TMP, "FTWEIGHTVI2"+String::toString(actualConvIndex_p));
+    //	  SCREEN3.put(*convWeights_p[actualConvIndex_p]  );
 	
-    /////////////////*/
+    /////////////////
 
     makerowmap(vb, convFuncRowMap);
     ///need to deal with only the maximum of different baselines available in this
@@ -820,7 +852,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
     convFunc_p.resize();
 	if((nchan_p == 1) && getConjConvFunc) {
-	  //cerr << this << " recovering " << actualConvIndex_p <<  "   " <<convFunctionsConjFreq_p.size() << endl;
+	  // cerr << this << " recovering " << actualConvIndex_p <<  "   " <<convFunctionsConjFreq_p.size() << endl;
 	  if(Int(convFunctionsConjFreq_p.size()) <= actualConvIndex_p){
 	    fillConjConvFunc(beamFreqs);
 	    
@@ -907,7 +939,8 @@ Int  HetArrayConvFunc::conjSupport(const casacore::Vector<casacore::Double>& fre
   Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
   Double maxRatio=-1.0;
   for (Int k=0; k < freqs.shape()[0]; ++k) {
-    Double conjFreq=(centerFreq-freqs[k])+centerFreq;
+    //Double conjFreq=(centerFreq-freqs[k])+centerFreq;
+    Double conjFreq=SynthesisUtils::conjFreq(freqs[k], centerFreq);
     if(maxRatio < conjFreq/freqs[k] )
       maxRatio=conjFreq/freqs[k];
   }
@@ -936,7 +969,8 @@ void HetArrayConvFunc::fillConjConvFunc(const Vector<Double>& freqs) {
     IPosition trcOut(1)= Int(shp(1)*maxRatio/2.0)*2-1;
     */
     for (Int k=0; k < freqs.shape()[0]; ++k) {
-        Double conjFreq=(centerFreq-freqs[k])+centerFreq;
+      //Double conjFreq=(centerFreq-freqs[k])+centerFreq;
+      Double conjFreq=SynthesisUtils::conjFreq(freqs[k], centerFreq);
         blc[3]=k;
         trc[3]=k;
         //cerr << "blc " << blc << " trc "<< trc << " ratio " << conjFreq/freqs[k] << endl; 
@@ -1177,29 +1211,35 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
     Int convSize=shape(0);
     ///use FT weightconvlat as it is wider
     Matrix<Complex> convPlane=weightConvFuncLat.getSlice(begin, shape, true);
-    Float maxAbsConvFunc=max(amplitude(convPlane));
-    Float minAbsConvFunc=min(amplitude(convPlane));
-    Bool found=false;
+    Float maxAbsConvFunc, minAbsConvFunc;
+    IPosition minpos, maxpos;
+    minMax(minAbsConvFunc, maxAbsConvFunc, minpos, maxpos, amplitude(convPlane));
+     Bool found=false;
     Int trial=0;
-    for (trial=0; trial< (convSize/2-2); ++trial) {
-        //Searching down a diagonal
-     if((abs(convPlane(convSize/2-trial-1,convSize/2-1-trial)) <  (7.5e-2*maxAbsConvFunc)) || (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) 
-     { 
-//|| (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) {
+    Float cutlevel=2.5e-2;
+    //numeric needs a larger ft
+    for (uInt k=0; k < antMath_p.nelements() ; ++k){
+      if((antMath_p[k]->whichPBClass()) == PBMathInterface::NUMERIC)
+	cutlevel=5e-3;
+    }
+    for (trial=0; trial< (convSize-max(maxpos.asVector())-2); ++trial) {
+      ///largest along either axis
+      //cerr << "rat1 " << abs(convPlane(maxpos[0]-trial,maxpos[1]))/maxAbsConvFunc << " rat2 " << abs(convPlane(maxpos[0],maxpos[1]-trial))/maxAbsConvFunc << endl;
+      if((abs(convPlane(maxpos[0]-trial, maxpos[1])) <  (cutlevel*maxAbsConvFunc)) &&(abs(convPlane(maxpos[0],maxpos[1]-trial)) <  (cutlevel*maxAbsConvFunc)) )
+	{
             found=true;
-            trial=Int(sqrt(2.0*Float(trial*trial)));
+            //trial=Int(sqrt(2.0*Float(trial*trial)));
 	    
             break;
         }
     }
-   
     if(!found) {
-        if((maxAbsConvFunc-minAbsConvFunc) > (7.5e-2*maxAbsConvFunc))
+      if((maxAbsConvFunc-minAbsConvFunc) > (cutlevel*maxAbsConvFunc))
             found=true;
         // if it drops by more than 2 magnitudes per pixel
-        trial=( (10*convSampling) < convSize) ? 5*convSampling : (convSize/2 - 4*convSampling);
+        //trial=( (10*convSampling) < convSize) ? 5*convSampling : (convSize/2 - 4*convSampling);
+      trial=convSize/2 - 4*convSampling;
     }
-
 
     if(found) {
         if(trial < 5*convSampling)
@@ -1222,7 +1262,6 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
         //OTF may have flagged stuff ...
         convSupport=0;
     }
-   
     convSupport_p(plane)=convSupport;
     Double pbSum=0.0;
     /*
@@ -1411,7 +1450,6 @@ Array<Complex> HetArrayConvFunc::resample(const Array<Complex>& inarray, const D
     shp(1)=Int(ny*factor/2.0)*2;
     Int newNx=shp(0);
     Int newNy=shp(1);
-
     
     Array<Complex> out(shp, 0.0);
    // cerr << "SHP " << shp << endl;

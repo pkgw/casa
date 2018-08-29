@@ -316,7 +316,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
           }
 	  if(! (selectionValid && !ignoreframe)){
-	    os << "Did not match spw selection in the selected ms " << LogIO::WARN << LogIO::POST;
+	    //os << "Did not match spw selection in the selected ms " << LogIO::WARN << LogIO::POST;
 	    retval=False;
 	  }
 	    //fselections_p->add(channelSelector);
@@ -489,7 +489,11 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
     Int spectralIndex=cs.findCoordinate(Coordinate::SPECTRAL);
     SpectralCoordinate spectralCoord=cs.spectralCoordinate(spectralIndex);
     MFrequency::Types intype=spectralCoord.frequencySystem(True);
-    VisBufferUtil::getFreqRangeFromRange(minFreq, maxFreq,  intype, minFreq,  maxFreq, *vi_p, selFreqFrame_p);
+    if(!VisBufferUtil::getFreqRangeFromRange(minFreq, maxFreq,  intype, minFreq,  maxFreq, *vi_p, selFreqFrame_p)){
+      //Do not retune if conversion did not happen
+      return;
+    }
+      
     maxFreq+=fabs(spectralCoord.increment()(0))/2.0;
     minFreq-=fabs(spectralCoord.increment()(0))/2.0;
     if(minFreq < 0.0) minFreq=0.0;
@@ -522,7 +526,9 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
     CoordinateSystem csys;
     CountedPtr<refim::FTMachine> ftm, iftm;
-
+    impars_p = impars;
+    gridpars_p = gridpars; 
+    
 
     try
       {
@@ -532,7 +538,8 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
 	
 	csys = impars.buildCoordinateSystem( *vi_p, channelSelections_p, mss_p );
-
+	//use the location defined for coordinates frame;
+	mLocation_p=impars.obslocation;
 	IPosition imshape = impars.shp();
 
 	os << "Impars : start " << impars.start << LogIO::POST;
@@ -816,13 +823,13 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
           // heuristic factors multiplied to imshape based on gridder
           size_t fudge_factor = 15;
           if (ftm->name()=="MosaicFTNew") {
-              fudge_factor = 15;
+              fudge_factor = 20;
           }
           else if (ftm->name()=="GridFT") {
               fudge_factor = 9;
           }
 
-          size_t required_mem = fudge_factor * sizeof(Float);
+          Double required_mem = fudge_factor * sizeof(Float);
           for (size_t i = 0; i < imshape.nelements(); i++) {
               // gridding pads image and increases to composite number
               if (i < 2) {
@@ -841,7 +848,6 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
           }
           // assumes all processes need the same amount of memory
           required_mem *= nlocal_procs;
-
           Double usr_memfrac, usr_mem;
           AipsrcValue<Double>::find(usr_memfrac, "system.resources.memfrac", 80.);
           AipsrcValue<Double>::find(usr_mem, "system.resources.memory", -1.);
@@ -850,9 +856,8 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
               memory_avail = usr_mem * 1024. * 1024.;
           }
           else {
-              memory_avail = HostInfo::memoryTotal(false) * (usr_memfrac / 100.) * 1024.;
+	    memory_avail = Double(HostInfo::memoryFree()) * (usr_memfrac / 100.) * 1024.;
           }
-
           // compute required chanchunks to fit into the available memory
           chanchunks = (int)std::ceil((Double)required_mem / memory_avail);
           if (imshape.nelements() == 4 && imshape[3] < chanchunks) {
@@ -1878,6 +1883,8 @@ void SynthesisImagerVi2::unlockMSs()
     //
     vi_p->originChunks();
     vi_p->origin();
+    ////make sure to use the latest imaging weight scheme
+    vi_p->useImagingWeight(imwgt_p);
   }// end of createVisSet
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////

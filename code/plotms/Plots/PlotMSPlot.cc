@@ -33,7 +33,6 @@
 #include <plotms/Data/CalCache.h>
 #include <QDebug>
 
-
 using namespace casacore;
 namespace casa {
 
@@ -1761,7 +1760,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		if ( axesParams->xRangeSet() ){
 			// Custom axes ranges set by user
 			canvas->setAxisRange(cx, axesParams->xRange());
-		} else if (xPtsToPlot) {
+		} else if (xPtsToPlot && !iterParams->isGlobalScaleX()) {
 			setAxisRange(x, cx, xmin, xmax, canvas);
 			if (PMS::axisIsUV(x)) {
 				xIsUV = true;
@@ -1776,15 +1775,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			if ( axesParams->yRangeSet(i) ){
 				// Custom axes ranges set by user
 				canvas->setAxisRange(cy, axesParams->yRange(i));
-			} else if (yPtsToPlot) {
+			} else if (yPtsToPlot && !iterParams->isGlobalScaleY()) {
 				PMS::Axis y = cacheParams->yAxis(i);
-				// add margin if showAtm so overlay doesn't overlap plot
-				if ((cacheParams->showAtm() && y!=PMS::ATM) ||
-					(cacheParams->showTsky() && y!=PMS::TSKY)) {
-					ymax += (ymax-ymin)*0.5;
-					pair<double, double> ybounds = make_pair(ymin, ymax);
-					canvas->setAxisRange(cy, ybounds);
-				}
 				setAxisRange(y, cy, ymin, ymax, canvas);
 				if (PMS::axisIsUV(y) && xIsUV) {
 					// set x and y ranges equally
@@ -1796,13 +1788,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					makeSquare = true;
 					if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE))
 						waveplot=true;
-                } else if (y==PMS::ATM || y==PMS::TSKY) {
-                    itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
-                    pair<double,double> atmrange;
-                    if (y==PMS::ATM) atmrange = make_pair(0, min(ymax+1.0, 100.0));
-                    else atmrange = make_pair(0, ymax+0.1);
-                    canvas->setAxisRange(cy, atmrange);
-                }
+				}
 			}
 		}
 	}
@@ -1958,6 +1944,20 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 void PlotMSPlot::setAxisRange(PMS::Axis axis, PlotAxis paxis, 
 		double minval, double maxval, PlotCanvasPtr& canvas) {
 	pair<double, double> bounds;
+
+	// don't override larger axis range 
+	bool rangeSet(canvas->numPlots() > 0);  // already a plot!
+	double canvRangeMin, canvRangeMax;
+	if (rangeSet) { // get range and check for default
+		canvRangeMin = canvas->axisRange(paxis).first;
+	    canvRangeMax = canvas->axisRange(paxis).second;
+		rangeSet &= ((canvRangeMin != 0.0) && (canvRangeMax != 1000.0));
+	}
+	if (rangeSet) {  // possibly by user on first plot
+		minval = min(minval, canvas->axisRange(paxis).first);
+		maxval = max(maxval, canvas->axisRange(paxis).second);
+	}
+
 	// CAS-3263 points near zero are not plotted, so add lower margin
 	if ((minval > -0.5) && (minval < 1.0) && (maxval > 10.0)) {
 		if (maxval > 100.0) minval -= 1.0; // add larger margin for larger range
@@ -1965,23 +1965,21 @@ void PlotMSPlot::setAxisRange(PMS::Axis axis, PlotAxis paxis,
 		bounds = make_pair(minval, maxval);
 		canvas->setAxisRange(paxis, bounds);
 	}
-
-	// explicitly set range so can set time scale 
+	
 	if (axis==PMS::TIME) {
-	    double diff = maxval - minval;
-		if (diff>120.0) {
+		// explicitly set range so can set time scale 
+		double diff = maxval - minval;
+		if (diff>120.0) {  // seconds (2 minutes)
 			bounds = make_pair(minval, maxval);
 	    	canvas->setAxisRange(paxis, bounds);
 		} else if (diff==0.0) {
 			// override autoscale which sets crazy tick marks;
 			// add 2-sec margins
 			bounds = make_pair(minval-2.0, maxval+2.0);
-		   	canvas->setAxisRange(paxis, bounds);
+	    	canvas->setAxisRange(paxis, bounds);
 		}
-	}
-
-	// make range symmetrical for uv plot
-	if (PMS::axisIsUV(axis)) {
+	} else if (PMS::axisIsUV(axis)) {
+		// make range symmetrical for uv plot
 		if ((minval != DBL_MAX) && (maxval != -DBL_MAX)) {
 			double maximum = round(max(abs(minval),maxval)) + 10.0;
 			minval = -maximum;

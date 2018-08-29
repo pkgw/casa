@@ -99,8 +99,10 @@ protected:
   casacore::Bool setupImagesOnDisk();
   casacore::Bool doImagesExist( casacore::String imagename );
 
-  SHARED_PTR<SIImageStore> makeImageStore( casacore::String imagename );
-  SHARED_PTR<SIImageStore> makeImageStore( casacore::String imagename, casacore::CoordinateSystem& csys, casacore::IPosition shp, casacore::Bool useweightimage );
+  SHARED_PTR<SIImageStore> makeImageStore( const casacore::String &imagename );
+  SHARED_PTR<SIImageStore> makeImageStore( const casacore::String &imagename,
+                                           const casacore::PagedImage<casacore::Float> &part,
+                                           casacore::Bool useweightimage );
 
   void setPsfFromOneFacet();
 
@@ -121,6 +123,8 @@ protected:
   casacore::uInt itsNTaylorTerms, itsNFacets;
 
   casacore::String itsNormType;
+
+  casacore::String itsUseBeam;
 
 };
 

@@ -2668,12 +2668,12 @@ void BasePlot::ptTraverse(const TableExprNodeRep *tenr)
          }
            
          /* get children */
-         PtrBlock<TableExprNodeRep*> tenrarr = tenm->getChildren();
+         auto tenrarr = tenm->getChildren();
 #if LOG0
          ostringstream os;
-         os << "Num elements : " << tenrarr.nelements();
+         os << "Num elements : " << tenrarr.size();
 #endif
-         for(Int i=0;i<(Int)tenrarr.nelements();i++)
+         for(Int i=0;i<(Int)tenrarr.size();i++)
          {
 #if LOG0
             os << "\nChild " << i << " ---> " ; 
@@ -2791,12 +2791,12 @@ void BasePlot::ptTraverse(const TableExprNodeRep *tenr)
          }
            
          /* get children */
-         PtrBlock<TableExprNodeRep*> tenrarr = tefn->getChildren();
+         auto tenrarr = tefn->getChildren();
          ostringstream os;
 #if LOG0
-         os << "Num elements : " << tenrarr.nelements();
+         os << "Num elements : " << tenrarr.size();
 #endif
-         for(Int i=0;i<(Int)tenrarr.nelements();i++)
+         for(Int i=0;i<(Int)tenrarr.size();i++)
          {
 #if LOG0
             os << " Child " << i << " " ; 

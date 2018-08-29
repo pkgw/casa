@@ -266,7 +266,7 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
     ## Gets the day string and the integer number of days of observation (only tested for two continuous days)
     begin_day = qa.time(str(t_min[0])+'s',form='ymd')[0][:10]
     end_day = qa.time(str(t_max[0])+'s',form='ymd')[0][:10]
-    num_of_days = np.floor((t_max[0]-t_min[0])/86400.)
+    num_of_days = int(np.floor((t_max[0]-t_min[0])/86400.))  # must be an int as used below!
 
     ## Set up the number of times we need to go get TEC files
     if begin_day == end_day:
@@ -298,7 +298,7 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
                 else:
                     ## We remove map 0 for the current tec_array because it is a repeat of the last map from the previous tec_array
                     for iter in range(int(num_maps-1)):
-                        full_tec_array[:,:,:,iter+num_maps*ymd_date_num] = tec_array[:,:,:,iter+1]
+                        full_tec_array[:,:,:,iter+int(num_maps)*ymd_date_num] = tec_array[:,:,:,iter+1]
             ymd_date_num +=1
 
         if tec_type != '':

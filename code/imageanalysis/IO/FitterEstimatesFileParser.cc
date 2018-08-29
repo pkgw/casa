@@ -39,30 +39,7 @@
 
 
 using namespace casacore;
-namespace casa { //# NAMESPACE CASA - BEGIN
-
-FitterEstimatesFileParser::FitterEstimatesFileParser (
-		const String& filename,
-		const ImageInterface<Float>& image
-	) : _componentList(), _fixedValues(0), _log(new LogIO()),
-		_peakValues(0), _xposValues(0), _yposValues(0),
-		_majValues(0), _minValues(0), _paValues(0), _contents("") {
-
-	RegularFile myFile(filename);
-	_log->origin(LogOrigin("FitterEstimatesFileParser","constructor"));
-
-	if (! myFile.exists()) {
-		*_log << LogIO::NORMAL << "Estimates file " << filename << " does not exist"
-			<< LogIO::EXCEPTION;
-	}
-	if (! myFile.isReadable()) {
-		*_log << LogIO::NORMAL << "Estimates file " << filename << " is not readable"
-			<< LogIO::EXCEPTION;
-	}
-	_parseFile(myFile);
-	_createComponentList(image);
-
-}
+namespace casa {
 
 FitterEstimatesFileParser::~FitterEstimatesFileParser() {}
 
@@ -201,77 +178,4 @@ void FitterEstimatesFileParser::_parseFile(
 	ThrowIf(componentIndex == 0, "No valid estmates were found in file " + filename);
 }
 
-void FitterEstimatesFileParser::_createComponentList(
-	const ImageInterface<Float>& image
-) {
-	ConstantSpectrum spectrum;
-    const CoordinateSystem csys = image.coordinates();
-    Vector<Double> pos(2,0);
-    Vector<Int> dirAxesNums = csys.directionAxesNumbers();
-    Vector<Double> world;
-    Int dirCoordNumber = csys.directionCoordinateNumber();
-    const DirectionCoordinate& dirCoord = csys.directionCoordinate(
-     	dirCoordNumber
-    );
-    MDirection::Types mtype = dirCoord.directionType();
-    // SkyComponents require the flux density but users and the fitting
-	// code really want to specify peak intensities. So we must convert
-	// here. To do that, we need to know the brightness units of the image.
-
-	Quantity resArea;
-	Quantity intensityToFluxConversion(1.0, "beam");
-
-	// does the image have a restoring beam?
-    if (image.imageInfo().hasBeam()) {
-        if (image.imageInfo().hasMultipleBeams()) {
-            *_log << LogIO::WARN << "This image has multiple beams. The first will be "
-                << "used to determine flux density estimates." << LogIO::POST;
-        }
-        resArea = Quantity(
-            image.imageInfo().getBeamSet().getBeams().begin()->getArea("sr"),
-            "sr"
-        );
-    }
-    else {
-		// if no restoring beam, let's hope the the brightness units are
-		// in [prefix]Jy/pixel and let's find the pixel size.
-    	resArea = dirCoord.getPixelArea();
-	}
-    Vector<String> units = csys.directionCoordinate().worldAxisUnits();
-    String raUnit = units[0];
-    String decUnit = units[1];
-	for(uInt i=0; i<_peakValues.size(); i++) {
-		pos[dirAxesNums[0]] = _xposValues[i];
-		pos[dirAxesNums[1]] = _yposValues[i];
-        csys.directionCoordinate().toWorld(world, pos);
-        Quantity ra(world[0], raUnit);
-        Quantity dec(world[1], decUnit);
-        MDirection mdir(ra, dec, mtype);
-
-        GaussianShape gaussShape(
-        	mdir, _majValues[i], _minValues[i], _paValues[i]
-        );
-		Unit brightnessUnit = image.units();
-		// Estimate the flux density
-		Quantity fluxQuantity = Quantity(_peakValues[i], brightnessUnit) * intensityToFluxConversion;
-		fluxQuantity.convert("Jy");
-		fluxQuantity = fluxQuantity*gaussShape.getArea()/resArea;
-		// convert to Jy again to get rid of the superfluous sr/(sr)
-		fluxQuantity.convert("Jy");
-		// Just fill the Stokes which aren't being fit with the same value as
-		// the Stokes that is. Doesn't matter that the other three are bogus
-		// for the purposes of this, since we only fit one stokes at a time
-		Vector<Double> fluxStokes(4);
-
-		for(uInt j=0; j<4; j++) {
-			fluxStokes[j] = fluxQuantity.getValue();
-		}
-		Quantum<Vector<Double> > fluxVector(fluxStokes, fluxQuantity.getUnit());
-		Flux<Double> flux(fluxVector);
-        SkyComponent skyComp(flux, gaussShape, spectrum);
-        _componentList.add(skyComp);
-	}
-
 }
-} //# NAMESPACE CASA - END
-

@@ -277,7 +277,7 @@ Record CasacRegionManager::fromBCS(
             );
         }
     }
-    else if (regionPtr != 0) {
+    else if (regionPtr) {
         ThrowIf(
             ! (regionName.empty() && chans.empty() && stokes.empty()),
             "regionPtr and regionName, chans, and/or stokes cannot "
@@ -945,7 +945,7 @@ vector<uInt> CasacRegionManager::_spectralRangeFromRegionRecord(
     );
     uInt nChan = 0;
     {
-        ImageMetaData md(subimage);
+        ImageMetaData<Float> md(subimage);
         nChan = md.nChannels();
     }
     const SpectralCoordinate& subsp = subimage->coordinates().spectralCoordinate();

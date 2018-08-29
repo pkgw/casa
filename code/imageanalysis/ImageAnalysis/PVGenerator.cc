@@ -331,7 +331,7 @@ SPIIF PVGenerator::_doCollapse(
 
     // to determine the pixel increment of the angular offset axis, get the
     // distance between the end points
-    ImageMetaData md(collapsed);
+    ImageMetaData<Float> md(collapsed);
     Vector<Int> dirShape = md.directionShape();
     AlwaysAssert(dirShape[1] == 1, AipsError);
     const auto& dc = collCoords.directionCoordinate();
@@ -473,7 +473,7 @@ SPCIIF PVGenerator::_doRotate(
         auto outShape = subShape;
         outShape[xAxis] = (Int)(endPixRot[0] + nPixels + 6);
         outShape[yAxis] = (Int)(startPixRot[1] + halfwidth) + nPixels + 6;
-        ImageRotator rotator(imageToRotate, &lcbox, "", "", false);
+        ImageRotator<Float> rotator(imageToRotate, &lcbox, "", "", false);
         rotator.setAngle(Quantity(paInRad, "rad"));
         rotator.setShape(outShape);
         return rotator.rotate();

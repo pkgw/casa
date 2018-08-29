@@ -955,7 +955,7 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
     sumwgt[icounter].resize(sumWeight.shape());
     sumwgt[icounter].set(0.0);
   }
-  if(!doneThreadPartition_p){
+  if(doneThreadPartition_p < 0){
     xsect_p.resize(ixsub*iysub);
     ysect_p.resize(ixsub*iysub);
     nxsect_p.resize(ixsub*iysub);
@@ -963,7 +963,6 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
       findGridSector(nxp, nyp, ixsub, iysub, minx, miny, icounter, xsect_p(icounter), ysect_p(icounter), nxsect_p(icounter), nysect_p(icounter), true);
     }
-    doneThreadPartition_p=True;
   }
   Vector<Int> xsect, ysect, nxsect, nysect;
   xsect=xsect_p; ysect=ysect_p; nxsect=nxsect_p; nysect=nysect_p;
@@ -1008,7 +1007,8 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
 		 phasorstor);
     }
     }//end pragma parallel
-     //tweakGridSector(nx, ny, ixsub, iysub);
+    if(dopsf && (nth > 4))
+      tweakGridSector(nx, ny, ixsub, iysub);
     timegrid_p+=tim.real();
 
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1055,7 +1055,8 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
 		 phasorstor);
     }
     }//end pragma parallel
-    //tweakGridSector(nx, ny, ixsub, iysub);
+    if(dopsf && (nth > 4))
+      tweakGridSector(nx, ny, ixsub, iysub);
     timegrid_p+=tim.real();
 
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1092,6 +1093,15 @@ void WProjectFT::get(VisBuffer2& vb, Int row)
     //vb.modelVisCube().xyPlane(row)=Complex(0.0,0.0);
   }
   
+  
+//Channel matching for the actual spectral window of buffer
+    matchChannel(vb);
+ 
+  //No point in reading data if its not matching in frequency
+  if(max(chanMap)==-1)
+    return;
+
+
   // Get the uvws in a form that Fortran can use
   Matrix<Double> uvw(negateUV(vb));
   Vector<Double> dphase(vb.nRows());
@@ -1109,19 +1119,7 @@ void WProjectFT::get(VisBuffer2& vb, Int row)
   //  matchAllSpwChans(vb);
   //Here we redo the match or use previous match
   
-  //Channel matching for the actual spectral window of buffer
-  //if(doConversion_p[vb.spectralWindows()[0]]){
-    matchChannel(vb);
-  //}
-  //else{
-  //  chanMap.resize();
-  //  chanMap=multiChanMap_p[vb.spectralWindows()[0]];
-  //}
   
-  //No point in reading data if its not matching in frequency
-  if(max(chanMap)==-1)
-    return;
-
   Cube<Complex> data;
   Cube<Int> flags;
   getInterpolateArrays(vb, data, flags);

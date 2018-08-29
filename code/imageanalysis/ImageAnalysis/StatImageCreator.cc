@@ -1,7 +1,5 @@
 #include <imageanalysis/ImageAnalysis/StatImageCreator.h>
 
-#include <casacore/images/Images/ImageStatistics.h>
-
 #include <imageanalysis/Annotations/AnnCenterBox.h>
 #include <imageanalysis/Annotations/AnnCircle.h>
 #include <casacore/lattices/LEL/LatticeExpr.h>
@@ -11,7 +9,7 @@ namespace casa {
 StatImageCreator::StatImageCreator(
     const SPCIIF image, const Record *const region,
 	const String& mask, const String& outname, Bool overwrite
-) : ImageStatsConfigurator(image, region, mask, outname, overwrite) {
+) : ImageStatsBase(image, region, mask, outname, overwrite) {
     this->_construct();
 	auto da = _getImage()->coordinates().directionAxesNumbers();
     _dirAxes[0] = da[0];

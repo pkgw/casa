@@ -183,6 +183,7 @@ public:
                                           const casacore::ImageInterface<casacore::Float>& res, 
                                           const casacore::ImageInterface<casacore::Float>& psf, 
                                           const casacore::Record& stats, 
+                                          const casacore::Record& newstats, 
                                           const casacore::Int iterdone,
                                           casacore::Vector<casacore::Bool>& chanFlag,
                                           const casacore::Float& maskPercentChange=0.0,
@@ -199,14 +200,6 @@ public:
                                           const casacore::Bool verbose=false,
                                           const casacore::Bool isthresholdreached=false); 
                            
-  // Calculate statistics on a residual image with additional region and LEL mask specificaations
-  /***
-  casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
-                                       casacore::ImageInterface<casacore::Float>& prevmask, 
-                                       casacore::String& lelmask,
-                                       casacore::Record* regionPtr,
-                                       const casacore::Bool robust);
-  ***/
 
   SHARED_PTR<casacore::ImageInterface<float> > makeMaskFromBinnedImage (
                                const casacore::ImageInterface<casacore::Float>& image,
@@ -352,6 +345,7 @@ public:
   void printAutomaskSummary(const casacore::Array<casacore::Double>& rmss,
                             const casacore::Array<casacore::Double>& maxs, 
                             const casacore::Array<casacore::Double>& mins, 
+                            const casacore::Array<casacore::Double>& mdns,
                             const casacore::Vector<casacore::Float>& maskthreshold, 
                             const casacore::Vector<casacore::String>& masktype,
                             const casacore::Vector<casacore::Bool>& chanflag,
@@ -371,10 +365,28 @@ public:
   // max MB of memory to use in TempImage
   static inline casacore::Double memoryToUse() {return 1.0;};
 
+  // Calculate statistics on a residual image with additional region and LEL mask specifications
+  // using classical method
   static casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
                                        casacore::String& lelmask,
                                        casacore::Record* regionPtr,
                                        const casacore::Bool robust);
+
+  // Calcuate statistics on a residual image using robust methods to estimate RMS noise.
+  // Basing on presence of a mask the following logic is used. 
+  // a. If there is no existing clean mask, calculate statistics using the chauvenet algorithm with maxiter=5 and zscore=-1.
+  // b. If there is an existing clean mask, calculate the classic statistics with robust=True in the region outside the clean mask 
+  //    and inside the primary beam mask. 
+  static casacore::Record calcRobustImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
+                                       casacore::ImageInterface<casacore::Float>& prevmask, 
+                                       casacore::LatticeExpr<casacore::Bool>& pbmask,
+                                       casacore::String& lelmask,
+                                       casacore::Record* regionPtr,
+                                       const casacore::Bool robust);
+
+  // Store pbmask level (a.k.a pblimit for mask)
+  void setPBMaskLevel(const casacore::Float pbmasklevel);
+  casacore::Float getPBMaskLevel();
 
 protected:
 #if ! defined(WITHOUT_DBUS)
@@ -385,6 +397,7 @@ private:
   double itsRms;
   double itsMax;
   float itsSidelobeLevel;
+  float itsPBMaskLevel;
 };
 
 
