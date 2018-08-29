@@ -1,4 +1,3 @@
-//# ImageRotator.cc
 //# Copyright (C) 1995,1996,1997,1998,1999,2000,2001,2002
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,7 +22,9 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//   
+
+#ifndef IMAGEANALYSIS_IMAGEROTATOR_TCC
+#define IMAGEANALYSIS_IMAGEROTATOR_TCC
 
 #include <imageanalysis/ImageAnalysis/ImageRotator.h>
 
@@ -32,30 +33,30 @@
 #include <memory>
 
 using namespace casacore;
+
 namespace casa {
 
-const String ImageRotator::CLASS_NAME = "ImageRotator";
+template <class T> const String ImageRotator<T>::CLASS_NAME = "ImageRotator";
 
-ImageRotator::ImageRotator(
-	const SPCIIF image, const Record *const &regionPtr,
+template <class T> ImageRotator<T>::ImageRotator(
+	const SPCIIT image, const Record *const &regionPtr,
     const String& mask,const String& outname, Bool overwrite
-) : ImageTask<Float>(
-        image, "", regionPtr, "", "", "", mask, outname, overwrite
-    ) {
+) : ImageTask<T>(image, "", regionPtr, "", "", "", mask, outname, overwrite) {
 	this->_construct(true);
 }
 
-ImageRotator::~ImageRotator() {}
+template <class T> ImageRotator<T>::~ImageRotator() {}
 
-SPIIF ImageRotator::rotate() {
+template <class T> SPIIT ImageRotator<T>::rotate() {
     *this->_getLog() << LogOrigin(getClass(), __func__);
     if (_shape.empty()) {
-        IPosition imShape = this->_getImage()->shape();
+        const auto imShape = this->_getImage()->shape();
         _shape = this->_getDropDegen() ? imShape.nonDegenerate() : imShape;
     }
-    auto subImage = SubImageFactory<Float>::createSubImageRO(
+    auto subImage = SubImageFactory<T>::createSubImageRO(
         *this->_getImage(), *this->_getRegion(), this->_getMask(),
-        this->_getLog().get(), AxesSpecifier(! this->_getDropDegen()), this->_getStretch()
+        this->_getLog().get(), AxesSpecifier(! this->_getDropDegen()),
+        this->_getStretch()
     );
     const auto& cSysFrom = subImage->coordinates();
     auto cSysTo = cSysFrom;
@@ -95,7 +96,7 @@ SPIIF ImageRotator::rotate() {
         );
     }
     IPosition axes2(pixelAxes);
-    ImageRegridder<Float> regridder(
+    ImageRegridder<T> regridder(
         subImage, nullptr, "", this->_getOutname(),
         this->_getOverwrite(), cSysTo, axes2, _shape
     );
@@ -108,3 +109,5 @@ SPIIF ImageRotator::rotate() {
 }
 
 }
+
+#endif

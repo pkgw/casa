@@ -27,6 +27,10 @@
 #include <boost/foreach.hpp>
 #include <boost/tuple/tuple.hpp>
 
+#include <casa/aips.h>
+#include <casa/Arrays/Vector.h>
+#include <casa/BasicSL/String.h>
+#include <casa/Arrays/ArrayUtil.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 
 #include "../casawvr/mswvrdata.hpp"
@@ -174,84 +178,70 @@ void checkMSandPars(const casacore::MeasurementSet &ms,
     antenna numbers.
  */
 
-
 						   
-#if __cplusplus < 201103L
-struct hack01 {
-	bool operator()(bool acc, const std::map<size_t, std::string >::value_type &p){
-		bool cmp = p.second == ele;
-		if ( cmp ) match = p.first;
-		return acc || cmp;
-	}
-	hack01( size_t &m, const std::string &e ) : match(m), ele(e) { }
-	size_t &match;
-	const std::string &ele;
-};
-
-struct hack02 {
-	bool operator()(bool acc, const std::map<size_t, std::string >::value_type &p) { return acc || (p.first == n); }
-	hack02( int x ) : n(x) { }
-	int n;
-};
-#endif
-
-LibAIR2::AntSet getAntPars(const std::string &s,
-			   const boost::program_options::variables_map &vm,
-			   const casacore::MeasurementSet &ms)
+std::vector<size_t> getAntParsV(const casacore::String &s,
+				const boost::program_options::variables_map &vm,
+				const casacore::MeasurementSet &ms)
 {
   using namespace LibAIR2;
   aname_t anames=getAName(ms);
-  std::vector<std::string> pars=vm[s].as<std::vector<std::string> >();
-  LibAIR2::AntSet res;
+  casacore::Vector<casacore::String> pars = stringToVector(casacore::String(vm[s].as<std::string>()), ',');
+  std::vector<size_t> res;
+
   for (size_t i=0; i<pars.size(); ++i)
   {
-	  size_t match;
-	  if (std::accumulate( anames.begin( ),
-						   anames.end( ), false,
-#if __cplusplus >= 201103L
-						   [&](bool acc, const aname_t::value_type &p){
-							   bool cmp = p.second == pars[i];
-							   if ( cmp ) match = p.first;
-							   return acc || cmp;
-						   }
-#else
-						   hack01(match,pars[i])
-#endif
-))
-    {
-      res.insert(match);
-    }
-    else
-    {
-      // should be an antenna number
-      try {
-	int n=boost::lexical_cast<int>(pars[i]);
-    if ( std::accumulate( anames.begin(),
-                          anames.end(), false,
-#if __cplusplus >= 201103L
-                          [=](bool acc, const aname_t::value_type &p) {
-			    return acc || ((int)p.first == n);
-                          }
-#else
-						  hack02(n)
-#endif
-) == false )
-    {
-	  throw AntIDError(n,
-			   anames);
-	}
-	res.insert(n);
-      }
-      catch (const boost::bad_lexical_cast & bc)
+    size_t match;
+    std::string thisant = pars[i];
+    if (std::accumulate( anames.begin( ),
+			 anames.end( ), false,
+			 [&](bool acc, const aname_t::value_type &p){
+			   bool cmp = p.second == thisant;
+			   if ( cmp ) match = p.first;
+			   return acc || cmp;
+			 }
+			 ))
       {
-	throw AntIDError(pars[i],
-			 anames);
-
+	res.push_back(match);
       }
-
-    }
+    else
+      {
+	// should be an antenna number
+	try {
+	  int n=boost::lexical_cast<int>(thisant);
+	  if ( std::accumulate( anames.begin(),
+				anames.end(), false,
+				[=](bool acc, const aname_t::value_type &p) {
+				  return acc || ((int)p.first == n);
+				}
+				) == false )
+	    {
+	      throw AntIDError(n,
+			       anames);
+	    }
+	  res.push_back(n);
+	}
+	catch (const boost::bad_lexical_cast & bc)
+	  {
+	    throw AntIDError(thisant,
+			     anames); 
+	  }	
+      }
   }
+  return res;
+}
 
+LibAIR2::AntSet getAntPars(const casacore::String &s,
+			   const boost::program_options::variables_map &vm,
+			   const casacore::MeasurementSet &ms)
+{
+  std::vector<size_t> resv = getAntParsV(s, vm, ms);
+  LibAIR2::AntSet res;
+  
+
+  for (size_t i=0; i<resv.size(); ++i)
+  {
+    res.insert(resv[i]);
+  }
 
   return res;
 }
@@ -484,45 +474,41 @@ void statTimeMask(const casacore::MeasurementSet &ms,
     LibAIR2::field_t fnames=LibAIR2::getFieldNames(ms);
 
     std::set<size_t> fselect;
-	size_t val;
+    size_t val;
     if (std::accumulate( fnames.begin( ),
-						 fnames.end( ), false,
-#if __cplusplus >= 201103L
-						 [&](bool acc, const LibAIR2::field_t::value_type &p) {
-							 bool cmp = p.second == fields[0];
-							 if ( cmp ) val = p.first;
-							 return acc || cmp;
-						 }
-#else
-						 hack01(val,fields[0])
-#endif
-))  // User supplied  field *name*
-    {
-      fselect.insert(val);
-    }
+			 fnames.end( ), false,
+			 [&](bool acc, const LibAIR2::field_t::value_type &p) {
+			   bool cmp = p.second == fields[0];
+			   if ( cmp ) val = p.first;
+			   return acc || cmp;
+			 }
+			 ))  // User supplied  field *name*
+      {
+	fselect.insert(val);
+      }
     else
-    {
-      try 
       {
-	size_t n=boost::lexical_cast<int>(fields[0]);
-	fselect.insert(n);
+	try 
+	  {
+	    size_t n=boost::lexical_cast<int>(fields[0]);
+	    fselect.insert(n);
+	  }
+	catch (const boost::bad_lexical_cast & bc)
+	  {
+	    std::cout<<"Warning: Could not understand statfield argument. Will use zeroth field."
+		     <<std::endl;
+	  }
       }
-      catch (const boost::bad_lexical_cast & bc)
-      {
-	std::cout<<"Warning: Could not understand statfield argument. Will use zeroth field."
-		 <<std::endl;
-      }
-    }
     LibAIR2::fieldTimes(time,
-		       flds,
-		       spws,
-		       fselect,
-		       (size_t) wvrspws[0],
-		       tmask);
+			flds,
+			spws,
+			fselect,
+			(size_t) wvrspws[0],
+			tmask);
   }
   LibAIR2::printStatTimes(std::cout,
-			 time,
-			 tmask);
+			  time,
+			  tmask);
 }
 		  
 
@@ -625,22 +611,18 @@ std::vector<std::set<size_t> >  tiedIDs(const std::vector<std::set<std::string> 
         size_t match;
         if ( std::accumulate( srcmap.begin( ),
                               srcmap.end( ), false,
-#if __cplusplus >= 201103L
                               [&](bool acc, const std::map<size_t, std::string >::value_type &p) {
-                                  bool cmp = p.second == *j;
-                                  if ( cmp ) match = p.first;
-                                  return acc || cmp;
+				bool cmp = p.second == *j;
+				if ( cmp ) match = p.first;
+				return acc || cmp;
                               }
-#else
-							  hack01(match,*j)
-#endif
-)) {
+			      )) {
           cs.insert(match);
         } else {
           std::ostringstream oss;
           oss << "Parameter 'tie': The field " << *j << " is not recognised. Please check for typos." << std::endl;
           throw LibAIR2::WVRUserError(oss.str());
-		}
+	}
       }
     } // end for
     res.push_back(cs);
@@ -685,18 +667,14 @@ std::set<size_t> sourceSet(const std::vector<std::string> &sources,
   for(size_t i=0; i<sources.size(); ++i) {
 	size_t match;
 	if (std::accumulate( snames.begin( ),
-						 snames.end( ), false,
-#if __cplusplus >= 201103L
-						 [&](bool acc, const std::map<size_t, std::string >::value_type &p) {
-							 bool cmp = p.second == sources[i];
-							 if ( cmp ) match = p.first;
-							 return acc || cmp;
-						 }
-#else
-						 hack01(match,sources[i])
-#endif
-)) {
-		sset.insert(match);
+			     snames.end( ), false,
+			     [&](bool acc, const std::map<size_t, std::string >::value_type &p) {
+			       bool cmp = p.second == sources[i];
+			       if ( cmp ) match = p.first;
+			       return acc || cmp;
+			     }
+			     )) {
+	  sset.insert(match);
 	}
   }
   return sset;
@@ -817,8 +795,8 @@ static void defineOptions(boost::program_options::options_description &desc,
     ("cont",
      "UNTESTED! Estimate the continuum (e.g., due to clouds)")
     ("wvrflag",
-     value< std::vector<std::string> >(),
-     "Regard this WVR (labelled with either antenna number or antenna name) as bad, and use interpolated values instead")
+     value< std::string >(),
+     "Regard this WVR (labelled with either antenna number or antenna name) as bad, and use interpolated values instead. (Can be comma-separated list without spaces.) ")
     ("sourceflag",
      value< std::vector<std::string> >(),
      "Flag the WVR data for this source and do not produce any phase corrections on it")
@@ -855,8 +833,8 @@ static void defineOptions(boost::program_options::options_description &desc,
      value< std::vector<int> >(),
      "Only use data from these WVR SPWs.")
     ("refant",
-     value< std::vector<std::string> >(),
-     "Use the WVR data from this antenna for calculating the dT/dL parameters.")
+     value<std::string>(),
+     "Use the WVR data from this antenna for calculating the dT/dL parameters. (Can be comma-separated ranked list without spaces.)")
     ("offsets",
      value<std::string>(),
      "Name of the optional input table containing the temperature offsets, e.g. generated by remove_cloud")
@@ -1065,8 +1043,8 @@ int main(int argc,  char* argv[])
      int refant = -1; 
 
      if (vm.count("refant")){
-       LibAIR2::AntSet refants=getAntPars("refant", vm, ms);    
-       for(LibAIR2::AntSet::iterator it=refants.begin(); it != refants.end(); it++){
+       std::vector<size_t> refants=getAntParsV("refant", vm, ms);    
+       for(std::vector<size_t>::iterator it=refants.begin(); it != refants.end(); it++){ // 
 	 if(interpImpossibleAnts.count(*it)==0){
 	   refant = *it; // use the first of the given list of possible ref antennas which was OK or which could be interpolated to
 	   break;

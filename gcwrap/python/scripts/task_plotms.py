@@ -39,7 +39,159 @@ def plotms(vis=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
            callib=None, headeritems=None, showatm=None, showtsky=None):
+# we'll add these later
+#           extspw=None, extantenna=None,
+#           exttime=None, extscans=None, extfield=None,
 
+    """
+    
+            Task for plotting and interacting with visibility data.  A variety
+        of axes choices (including data column) along with MS selection and
+        averaging options are provided for data selection.  Flag extension
+        parameters are also available for flagging operations in the plotter.
+        
+            All of the provided parameters can also be set using the GUI once
+        the application has been launched.  Additional and more specific
+        operations are available through the GUI and/or through the plotms
+        tool (pm).
+        
+
+    Keyword arguments:
+    vis -- input visibility dataset
+           default: ''
+    
+    gridrows -- Number of subplot rows.
+                    default: 1
+    gridcols -- Number of subplot columns.
+                    default: 1 
+    rowindex -- Row location of the subplot (0-based).
+                    default: 0
+    colindex -- Column location of the subplot (0-based).
+                    default: 0          
+    plotindex -- Index to address a subplot (0-based).
+                    default: 0            
+    xaxis, yaxis -- what to plot on the two axes
+                    default: '' (uses PlotMS defaults/current set).
+        &gt;&gt;&gt; xaxis, yaxis expandable parameters
+        xdatacolumn, 
+        ydatacolumn -- which data column to use for data axes
+                       default: '' (uses PlotMS default/current set).
+        yaxislocation -- whether the data should be plotted using the left or right y-axis
+                       default: '' (uses PlotMS default).
+    iteraxis -- what axis to iterate on when doing iteration plots
+                default: ''
+              &gt;&gt;&gt; xsharedaxis, ysharedaxis, xselfscale, yselfscale expandable parameters 
+        xselfscale -- If true, iterated plots should share a common x-axis label per column.
+                       default: False.
+        yselfscale -- If true, iterated plots should share a common y-axis label per row.
+                       default: False.
+        xsharedaxis -- use a common x-axis for vertically aligned plots (must also set xselfscale=True)
+                        default: False.
+        ysharedaxis -- use a common y-axis for horizontally aligned plots (must also set yselfscale=True)
+                        default: False.
+    selectdata -- data selection parameters flag
+                  (see help par.selectdata for more detailed information)
+                  default: False
+      &gt;&gt;&gt; selectdata expandable parameters
+        field -- select using field ID(s) or field name(s)
+                 default: '' (all).
+        spw -- select using spectral window/channels
+               default: '' (all)
+        timerange -- select using time range
+                     default: '' (all).
+        uvrange -- select using uvrange
+                   default: '' (all).
+        antenna -- select using antenna/baseline
+                   default: '' (all).
+        scan -- select using scan number
+                default: '' (all).
+        correlation -- select using correlations
+                       default: '' (all).
+        array -- select using (sub)-array range
+                 default: '' (all).
+        observation -- select by observation ID(s).
+                 default: '' (all).
+        intent -- select observing intent  
+                  default: ''  (no selection by intent)  
+                  intent='*BANDPASS*'  (selects data labelled with  
+                                        BANDPASS intent)
+        feed   -- select feed ID
+                  default: '' (all)
+                  feed='1~2'
+        msselect -- TaQL selection expression
+                    default: '' (all).
+    
+    averagedata -- data averaging parameters flag
+                   default: False.
+      &gt;&gt;&gt; averagedata expandable parameters
+        avgchannel -- average over channel?  either blank for none, or a value
+                      in channels.
+                      default: '' (none).
+        avgtime -- average over time?  either blank for none, or a value in
+                   seconds.
+                   default: '' (none).
+        avgscan -- average over scans?  only valid if time averaging is turned
+                   on.
+                   default: False.
+        avgfield -- average over fields?  only valid if time averaging is
+                    turned on.
+                    default: False.
+        avgbaseline -- average over all baselines?  mutually exclusive with
+                       avgantenna.
+                       default: False.
+        avgantenna -- average by per-antenna?  mutually exclusive with
+                      avgbaseline.
+                      default: False.
+        avgspw -- average over all spectral windows?
+                  default: False.
+    
+    extendflag -- have flagging extend to other data points?
+                  default: False.
+      &gt;&gt;&gt; extendflag expandable parameters
+        extcorr -- extend flags based on correlation?  blank = none.
+                          default: ''.
+        extchannel -- extend flags based on channel?
+                      default: False.
+        extspw -- extend flags based on spw?
+                  default: False.
+        extantenna -- extend flags based on antenna?  should be either blank,
+                      'all' for all baselines, or an antenna-based value.
+                      default: ''.
+        exttime -- extend flags based on time (within scans)?
+                   default: False.
+        extscans -- extend flags based on scans?  only valid if time extension
+                    is turned on.
+                    default: False.
+        extfield -- extend flags based on field?  only valid if time extension
+                    is turned on.
+                    default: False.
+
+    coloraxis -- which axis to use for colorizing
+                     default: ''  (ignored - same as colorizing off)              
+    
+    title  -- title along top of plot (called "canvas" in some places)
+    titlefont -- plot title font size
+                 default: 0 (autosize depending on grid)
+    exprange -- Export all iteration plots ('all') or only the current one.
+                    default: '' (only export the current iteration plot)
+    xlabel, ylabel -- text to label horiz. and vert. axes, with formatting (%% and so on)
+    xaxisfont, yaxisfont -- int for axis font size
+    
+    showlegend -- show a legend on the plot
+                    default: False
+    legendposition -- position for the legend.  Legends can be interior or exterior to the plot
+                    Interior legends can be located in the upper right, lower right, upper left, or lower left.
+                    Exterior legends can be located on the right, left, top, or bottom.
+                    default: 'upperright'
+    showgui -- Whether or not to display the plotting GUI
+                    default: True; example showgui=False
+    clearplots -- clear existing plots so that the new ones coming in can replace them.                 
+    callib -- calibration library string, list of strings, or filename for on-the-fly calibration
+    headeritems -- string of comma-separated page header items keywords
+    showatm -- show atmospheric transmission curve
+    showtsky -- show sky temperature curve
+
+    """
     # Check if DISPLAY environment variable is set.
     if os.getenv('DISPLAY') == None:
         casalog.post('ERROR: DISPLAY environment variable is not set! Cannot run plotms.', 'SEVERE')
