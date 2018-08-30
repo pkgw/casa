@@ -578,7 +578,9 @@ VisibilityIteratorImplAsync2::existsColumn (VisBufferComponent2 id) const
     case VisibilityModel:
     case VisibilityCubeModel:
 
-        result = ! columns_p.modelVis_p.isNull();
+      result = 
+          (!columns_p.modelVis_p.isNull() && columns_p.modelVis_p.isDefined(0)) ||
+          modelDataGenerator_p != nullptr;
         break;
 
     case VisibilityObserved:

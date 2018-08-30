@@ -63,6 +63,7 @@
 
 ###########################################################################
 from taskinit import *
+from ialib import write_image_history
 
 def impbcor(
     imagename=None, pbimage=None, outfile=None, overwrite=None,
@@ -72,16 +73,26 @@ def impbcor(
     casalog.origin('impbcor')
     myia = iatool()
     try:
+        myia.dohistory(False)
         if (not myia.open(imagename)):
             raise Exception, "Cannot create image analysis tool using " + imagename
         if (len(outfile) == 0):
             raise Exception, "outfile must be specified"
-        ia_tool = myia.pbcor(
+        outia = myia.pbcor(
             pbimage=pbimage, outfile=outfile, overwrite=overwrite,
             box=box, region=region, chans=chans, stokes=stokes,
             mask=mask, mode=mode, cutoff=cutoff, stretch=stretch
         )
-        ia_tool.done()
+        try:
+            param_names = impbcor.func_code.co_varnames[:impbcor.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]   
+            write_image_history(
+                outia, sys._getframe().f_code.co_name,
+                param_names, param_vals, casalog
+            )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
+        outia.done()
         return True
     except Exception, instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')

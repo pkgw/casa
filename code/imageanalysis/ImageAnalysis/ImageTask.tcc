@@ -55,13 +55,12 @@ template <class T> ImageTask<T>::ImageTask(
 ) : _image(image), _regionPtr(regionPtr),_region(region), _box(box),
     _chan(chanInp), _stokesString(stokes), _mask(maskInp),
     _outname(outname), _overwrite(overwrite), _stretch(false),
-    _logfile() {
-}
+    _logfile() {}
 
 template <class T> ImageTask<T>::ImageTask(
     const SPCIIT image, const casacore::Record *const &regionPtr,
-    const casacore::String& mask,
-    const casacore::String& outname, casacore::Bool overwrite
+    const casacore::String& mask, const casacore::String& outname,
+    casacore::Bool overwrite
 ) : _image(image), _regionPtr(regionPtr),
     _region(), _box(), _chan(), _stokesString(), _mask(mask),
     _outname(outname), _overwrite(overwrite) {}

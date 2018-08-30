@@ -172,8 +172,6 @@ def plotms(vis=None,
         extfield -- extend flags based on field?  only valid if time extension
                     is turned on.
                     default: False.
-        showgui -- Whether or not to display the plotting GUI
-                  default: True; example showgui=False
 
     coloraxis -- which axis to use for colorizing
                      default: ''  (ignored - same as colorizing off)              
@@ -192,6 +190,8 @@ def plotms(vis=None,
                     Interior legends can be located in the upper right, lower right, upper left, or lower left.
                     Exterior legends can be located on the right, left, top, or bottom.
                     default: 'upperright'
+    showgui -- Whether or not to display the plotting GUI
+                    default: True; example showgui=False
     clearplots -- clear existing plots so that the new ones coming in can replace them.                 
     callib -- calibration library string, list of strings, or filename for on-the-fly calibration
     headeritems -- string of comma-separated page header items keywords

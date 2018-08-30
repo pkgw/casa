@@ -1128,17 +1128,18 @@ void BJones::normalize() {
 
     // TBD: trap attempts to normalize a caltable containing FPARAM (non-Complex)?
 
-    logSink() << "Normalizing solutions per spw, pol, ant, time." 
+    logSink() << "Normalizing solutions per spw, time, ant, pol with " << solNorm().normtypeString()
+	      << " in amplitude (and center channel in phase)."
 	      << LogIO::POST;
 
-    // In this generic version, one normalization factor per spw
+    // Bandpass is normalized per spw, time, antenna, and pol
     Block<String> col(3);
     col[0]="SPECTRAL_WINDOW_ID";
     col[1]="TIME";
     col[2]="ANTENNA1";
     CTIter ctiter(*ct_,col);
 
-    // Cube iteration axes are pol and ant
+    // Cube iteration axes are pol and ant (ant is degenerate)
     IPosition itax(2,0,2);
    
     while (!ctiter.pastEnd()) {
@@ -1148,10 +1149,19 @@ void BJones::normalize() {
 	Cube<Complex> p(ctiter.cparam());
 	ArrayIterator<Complex> soliter(p,itax,false);
 	ArrayIterator<Bool> fliter(fl,itax,false);
+	Int ipol(0);
 	while (!soliter.pastEnd()) {
-	  normSolnArray(soliter.array(),!fliter.array(),true); // Do phase
+	  Complex normfactor=normSolnArray(soliter.array(),!fliter.array(),true); // Do phase
+	  logSink() << " Normalization factor (" << solNorm().normtypeString() << ") for"
+		    << " spw=" << ctiter.thisSpw() 
+		    << " time=" << MVTime(ctiter.thisTime()/C::day).string(MVTime::YMD,7)
+		    << " ant=" << ctiter.thisAntenna1() 
+		    << " pol " << ipol%2
+		    << " = " << abs(normfactor) << ", " << arg(normfactor)*180.0/C::pi << "deg"
+		    << LogIO::POST;
 	  soliter.next();
 	  fliter.next();
+	  ++ipol;
 	}
 	
 	// record result...	
