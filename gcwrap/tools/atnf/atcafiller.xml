@@ -41,21 +41,21 @@ af = casac.atcafiller()
      <param type="string" direction="in" name="msname">
      <description>Filename for MeasurementSet to create
        </description>
-     <value>''</value>
+     <value/>
      </param>
 
     <param type="stringArray" direction="in" name="filenames">
      <description>Existing RPFITS files to read; wild cards accepted,
           don't use commas
        </description>
-     <value>''</value>
+     <value/>
      </param>
 
     <param type="stringArray" direction="in" name="options">
      <description>Processing options: birdie, rfiflag, noxycorr, compress,
           fastmosaic, hires, reweight, noac
        </description>
-     <value>''</value>
+     <value/>
      </param>
    <!--
     <param type="int" direction="in" name="opcor">
