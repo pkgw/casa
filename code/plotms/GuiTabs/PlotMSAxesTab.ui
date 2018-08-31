@@ -69,7 +69,7 @@
         <x>0</x>
         <y>0</y>
         <width>271</width>
-        <height>23</height>
+        <height>27</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -183,7 +183,7 @@
       </sizepolicy>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Sunken</enum>

@@ -80,6 +80,7 @@ void PlotMSAxesTab::yAxisSelected( int index ){
 	QLayout* yAxisLayout = yAxisFrame->layout();
 	if ( yAxisLayout == NULL ){
 		yAxisLayout = new QVBoxLayout();
+		yAxisLayout->setContentsMargins(0, 0, 0, 0);
 	}
 	else {
 		QLayoutItem* layoutItem = yAxisLayout->takeAt( 0 );

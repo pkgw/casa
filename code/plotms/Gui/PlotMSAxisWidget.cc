@@ -236,10 +236,14 @@ void PlotMSAxisWidget::setInCache(bool isInCache) {
 void PlotMSAxisWidget::axisChanged(const QString& value) {
   PMS::Axis currAxis=PMS::axis(value.toStdString());
 
-  // Reveal Data Column chooser, if necessary
+  // Show Data Column chooser, if necessary
   bool dataAxis = PMS::axisIsData(currAxis);
   AxisWidget::dataLabel->setVisible( dataAxis );
   dataChooser->setVisible( dataAxis );
+
+  // Show Direction parameters, if necessary
+  bool needDirParams = PMS::axisIsRaDec(currAxis);
+  AxisWidget::dirParamsFrame->setVisible(needDirParams);
 
   // Revise the range widget to zero
   //itsRangeWidget_->setRange(PMS::axisType(currAxis) == PMS::TTIME, 
