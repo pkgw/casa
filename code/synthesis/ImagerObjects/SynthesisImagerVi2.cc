@@ -315,7 +315,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      andChanSelection(mss_p.nelements()-1, Int(chanlist(k,0)), Int(chanlist(k,1)),Int(chanlist(k,2)));
 	    }
           }
-	  if(! (selectionValid && !ignoreframe)){
+	  //if(! (selectionValid && !ignoreframe)){
+	  if(!selectionValid && !ignoreframe){
 	    os << "Did not match spw selection in the selected ms " << LogIO::WARN << LogIO::POST;
 	    retval=False;
 	  }
@@ -384,6 +385,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const Int startchan, const Int endchan){
+
 	map<Int, Vector<Int> > spwsel;
 	auto it=channelSelections_p.find(msId);
 	if(it !=channelSelections_p.end())
@@ -418,7 +420,7 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
 }
   void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){
     
-   
+    
     Int key=msId;
    
     Bool isDefined=False;
