@@ -272,7 +272,11 @@ macro( casa_add_tools out_swig out_sources out_py )
         SET_SOURCE_FILES_PROPERTIES(${_swigi} PROPERTIES SWIG_FLAGS "-I${CMAKE_SOURCE_DIR};-threads")
     ENDIF()
     #SWIG_ADD_MODULE(${_base} python ${_swig} ${_path}/${_base}_cmpt.cc)
-    SWIG_ADD_MODULE(${_base} python ${_swigi} ${_swigstatics})
+    if (${CMAKE_VERSION} VERSION_LESS "3.8.0")
+       SWIG_ADD_MODULE(${_base} python ${_swigi} ${_swigstatics})
+    else()
+       SWIG_ADD_LIBRARY(${_base} LANGUAGE python SOURCES ${_swigi} ${_swigstatics})
+    endif()
     SWIG_LINK_LIBRARIES( ${_base} ${CASACODE_LIBRARIES} ${INTEL_LIBS}
 	                          ${PYTHON_LIBRARIES}
 				  ${ATM_LIBRARIES}

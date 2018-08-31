@@ -124,6 +124,8 @@ protected:
 
   casacore::String itsNormType;
 
+  casacore::String itsUseBeam;
+
 };
 
 

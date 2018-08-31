@@ -2153,7 +2153,7 @@ namespace casa {
 				}
 
 				Record *rec = new Record(imgReg.toRecord(""));
-				ImageFitter fitter(image, "", rec);
+				ImageFitter<Float> fitter(image, "", rec);
 				Array<Float> medVals;
 
 				// add a sky component to the fit

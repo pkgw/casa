@@ -87,6 +87,7 @@ install (FILES
     ComponentModels/SkyCompBase.h
     ComponentModels/SkyComponent.h
     ComponentModels/SkyComponentFactory.h
+    ComponentModels/SkyComponentFactory2.tcc
     ComponentModels/SkyCompRep.h
     ComponentModels/SpectralIndex.h
     ComponentModels/SpectralModel.h

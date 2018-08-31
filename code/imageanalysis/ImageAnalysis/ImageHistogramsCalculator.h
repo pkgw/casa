@@ -25,8 +25,8 @@
 //#
 //# $Id: Image2DConvolver.h 20229 2008-01-29 15:19:06Z gervandiepen $
 
-#ifndef IMAGES_IMAGEHISTOGRAMSCALCULATOR_H
-#define IMAGES_IMAGEHISTOGRAMSCALCULATOR_H
+#ifndef IMAGEANALYSIS_IMAGEHISTOGRAMSCALCULATOR_H
+#define IMAGEANALYSIS_IMAGEHISTOGRAMSCALCULATOR_H
 
 #include <imageanalysis/ImageAnalysis/ImageTask.h>
 
@@ -65,7 +65,7 @@ namespace casa {
 //   <li> 
 // </todo>
 
-class ImageHistogramsCalculator : public ImageTask<casacore::Float> {
+template <class T> class ImageHistogramsCalculator : public ImageTask<T> {
 public:
 
 	const static casacore::String CLASS_NAME;
@@ -73,7 +73,7 @@ public:
 	ImageHistogramsCalculator() = delete;
 
 	ImageHistogramsCalculator(
-		const SPCIIF image, const casacore::Record *const &regionPtr,
+		const SPCIIT image, const casacore::Record *const &regionPtr,
 	    const casacore::String& mask
 	);
 	
@@ -81,7 +81,9 @@ public:
 
 	~ImageHistogramsCalculator();
 
-	ImageHistogramsCalculator &operator=(const ImageHistogramsCalculator &other) = delete;
+	ImageHistogramsCalculator &operator=(
+	    const ImageHistogramsCalculator &other
+	) = delete;
 
 	casacore::Record compute() const;
 
@@ -108,7 +110,6 @@ public:
 	// set number of bins
 	void setNBins(casacore::uInt n) { _nbins = n; }
 
-
 protected:
 
    	CasacRegionManager::StokesControl _getStokesControl() const {
@@ -133,4 +134,9 @@ private:
 };
 
 }
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <imageanalysis/ImageAnalysis/ImageHistogramsCalculator.tcc>
+#endif
+
 #endif
