@@ -9,13 +9,13 @@ image(casacore::ImageInterface<casacore::Double> * inImage);
 
 image(casacore::ImageInterface<casacore::DComplex> * inImage);
 
-image(SHARED_PTR<casacore::ImageInterface<casacore::Float> > inImage);
+image(std::shared_ptr<casacore::ImageInterface<casacore::Float> > inImage);
 
-image(SHARED_PTR<casacore::ImageInterface<casacore::Complex> > inImage);
+image(std::shared_ptr<casacore::ImageInterface<casacore::Complex> > inImage);
 
-image(SHARED_PTR<casacore::ImageInterface<casacore::Double> > inImage);
+image(std::shared_ptr<casacore::ImageInterface<casacore::Double> > inImage);
 
-image(SHARED_PTR<casacore::ImageInterface<casacore::DComplex> > inImage);
+image(std::shared_ptr<casacore::ImageInterface<casacore::DComplex> > inImage);
 
 image(casa::ITUPLE mytuple);
 
@@ -27,8 +27,8 @@ mutable casacore::LogIO _log = casacore::LogIO();
 
 // This class needs to be templated. For now, we maintain two pointers.
 // At least one of which will be zero for a valid object state.
-// SHARED_PTR<casacore::ImageInterface<casacore::Float> > _imageFloat;
-// SHARED_PTR<casacore::ImageInterface<casacore::Complex> > _imageComplex;
+// std::shared_ptr<casacore::ImageInterface<casacore::Float> > _imageFloat;
+// std::shared_ptr<casacore::ImageInterface<casacore::Complex> > _imageComplex;
 
 casa::SPIIF _imageF = casa::SPIIF();
 casa::SPIIC _imageC = casa::SPIIC();
@@ -95,7 +95,7 @@ template <class T> image* _boxcar(
 casacore::Quantity _casaQuantityFromVar(const ::casac::variant& theVar);
 
 template<class T> SPIIT _concat(
-    SHARED_PTR<casacore::LatticeBase> latt, const string& outfile,
+    std::shared_ptr<casacore::LatticeBase> latt, const string& outfile,
     const variant& infiles, int axis, bool relax, bool tempclose,
     bool overwrite, bool reorder,
     const std::vector<casacore::String>& imageNames
@@ -117,7 +117,7 @@ template<class T> image* _convolve2d(
 template<class T> image* _decimate(
 	SPCIIT image, const string& outfile, int axis,
 	int factor, casa::ImageDecimatorData::Function f,
-	const SHARED_PTR<casacore::Record> region,
+	const std::shared_ptr<casacore::Record> region,
 	const string& mask, bool overwrite, bool stretch,
 	const vector<casacore::String>& msgs
 ) const;
@@ -164,7 +164,7 @@ template <class T> casacore::Record _getprofile(
 	const casacore::String& regionName
 );
 
-SHARED_PTR<casacore::Record> _getRegion(
+std::shared_ptr<casacore::Record> _getRegion(
 	const variant& region, const bool nullIfEmpty,
 	const std::string& otherImageName=""
 ) const;
@@ -181,7 +181,7 @@ template<class T> vector<string>  _handleMask(
 );
 
 template <class T> image* _hanning(
-	SPCIIT image, SHARED_PTR<const casacore::Record> region,
+	SPCIIT image, std::shared_ptr<const casacore::Record> region,
 	const casacore::String& mask, const std::string& outfile, bool overwrite,
 	bool stretch, int axis, bool drop,
 	casa::ImageDecimatorData::Function dFunction,
@@ -293,7 +293,7 @@ template <class T> record* _statistics(
 );
 
 template<class T> image* _subimage(
-	SHARED_PTR<casacore::ImageInterface<T> > clone,
+	std::shared_ptr<casacore::ImageInterface<T> > clone,
 	const casacore::String& outfile, const casac::variant& region,
 	const casac::variant& vmask, bool dropDegenerateAxes, 	bool overwrite,
 	bool list, bool stretch, const vector<int>& keepaxes, bool wantReturn
@@ -313,7 +313,7 @@ template <class T> casac::record* _toworld(
 
 template <class T> SPIIT _twopointcorrelation(
 	SPIIT myimage, const string& outfile,
-	SHARED_PTR<casacore::Record> region, const casacore::String& mask,
+	std::shared_ptr<casacore::Record> region, const casacore::String& mask,
 	const casacore::IPosition& axes, const std::string& method,
 	bool overwrite, bool stretch, const casacore::LogOrigin& origin,
     const vector<casacore::String>& msgs

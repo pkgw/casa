@@ -62,7 +62,7 @@ template<class T> void PixelValueManipulator<T>::addNoise(
         subImage->set(0.0);
     }
     Random::Types typeNoise = Random::asType(type);
-    SHARED_PTR<casacore::LatticeAddNoise> lan(
+    std::shared_ptr<casacore::LatticeAddNoise> lan(
         seeds
         ? new LatticeAddNoise(typeNoise, pars, seeds->first, seeds->second)
         : new LatticeAddNoise(typeNoise, pars)

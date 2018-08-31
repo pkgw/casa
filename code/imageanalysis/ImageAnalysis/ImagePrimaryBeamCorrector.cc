@@ -216,7 +216,7 @@ SPIIF ImagePrimaryBeamCorrector::correct(Bool wantReturn) {
 		);
 		tmpStore.reset(pbTemplate);
 	}
-    SHARED_PTR<const SubImage<Float> > subImage;
+    std::shared_ptr<const SubImage<Float> > subImage;
 	if (_useCutoff) {
 		LatticeExpr<Bool> mask = (_mode == DIVIDE)
 			? *pbTemplate >= _cutoff

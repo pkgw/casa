@@ -142,7 +142,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		casacore::ConstListIter<WorldCanvas* >* myWCLI;
 
-		virtual void addTool(const casacore::String& key, const SHARED_PTR<MultiWCTool> & );
+		virtual void addTool(const casacore::String& key, const std::shared_ptr<MultiWCTool> & );
 		/* virtual void addTool(const casacore::String& key, MultiWCTool* value); */
 		virtual void removeTool(const casacore::String& key);
 		virtual void setToolKey(const casacore::String& toolname,
@@ -153,7 +153,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		virtual void enableTools();
 		virtual void enableTool(const casacore::String& toolname);
 		virtual void disableTool(const casacore::String& toolname);
-		virtual const SHARED_PTR<MultiWCTool> getTool(const casacore::String& key);
+		virtual const std::shared_ptr<MultiWCTool> getTool(const casacore::String& key);
 
 		virtual casacore::ListIter<WorldCanvas* > wcs() {
 			//return itsWCLI;
@@ -234,7 +234,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		//casacore::ListIter<WorldCanvasHolder* >* itsWCHLI;
 
-		casacore::SimpleOrderedMap<casacore::String, SHARED_PTR<MultiWCTool> > itsMWCTools;
+		casacore::SimpleOrderedMap<casacore::String, std::shared_ptr<MultiWCTool> > itsMWCTools;
 
 		// unSetup the Geometry.
 		void unSetupGeometry();
