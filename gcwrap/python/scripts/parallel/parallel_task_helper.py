@@ -289,8 +289,6 @@ class ParallelTaskHelper:
         elif any(isinstance(v,dict) for v in ret_list.itervalues()):
             ret_dict = {}
             for _key, subMS_dict in ret_list.items():
-                casalog.post(" ***** consolidateResults, subMS: {0}".format(subMS_dict),
-                             "WARN", "consolidateResults")
                 if isinstance(subMS_dict, dict):
                     try:
                         ret_dict = ParallelTaskHelper.combine_dictionaries(subMS_dict, ret_dict)
