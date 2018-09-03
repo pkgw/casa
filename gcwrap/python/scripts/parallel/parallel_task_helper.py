@@ -320,8 +320,10 @@ class ParallelTaskHelper:
                     ret_dict[key] = ParallelTaskHelper.combine_dictionaries(item,{})
             else:
                 if ret_dict.has_key(key):
-                    # This is a good default for all reports that have flag counters
-                    ret_dict[key] += item
+                    # the 'nreport' field should not be summed - it's an index
+                    if not isinstance(ret_dict[key],str) and 'nreport' != key:
+                        # This is a good default for all reports that have flag counters
+                        ret_dict[key] += item
                 else:
                     ret_dict[key] = item
 
