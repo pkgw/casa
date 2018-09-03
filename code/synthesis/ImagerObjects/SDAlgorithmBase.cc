@@ -73,7 +73,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   void SDAlgorithmBase::deconvolve( SIMinorCycleController &loopcontrols, 
-				    SHARED_PTR<SIImageStore> &imagestore,
+				    std::shared_ptr<SIImageStore> &imagestore,
 				    Int deconvolverid)
   {
     LogIO os( LogOrigin("SDAlgorithmBase","deconvolve",WHERE) );
@@ -331,7 +331,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
   */
 
-   void SDAlgorithmBase::restore(SHARED_PTR<SIImageStore> imagestore )
+   void SDAlgorithmBase::restore(std::shared_ptr<SIImageStore> imagestore )
   {
 
     LogIO os( LogOrigin("SDAlgorithmBase","restore",WHERE) );
@@ -345,7 +345,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
  
-  void SDAlgorithmBase::pbcor(SHARED_PTR<SIImageStore> imagestore )
+  void SDAlgorithmBase::pbcor(std::shared_ptr<SIImageStore> imagestore )
   {
 
     LogIO os( LogOrigin("SDAlgorithmBase","pbcor",WHERE) );
@@ -410,7 +410,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   ///    - stokes cube clean
   ///    - partitioned-image clean (facets ?)
   ///    - 3D deconvolver
-  void SDAlgorithmBase::partitionImages( SHARED_PTR<SIImageStore> &imagestore )
+  void SDAlgorithmBase::partitionImages( std::shared_ptr<SIImageStore> &imagestore )
   {
     LogIO os( LogOrigin("SDAlgorithmBase","partitionImages",WHERE) );
 
@@ -455,7 +455,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   */
 
   /*
-  void SDAlgorithmBase::initializeSubImages( SHARED_PTR<SIImageStore> &imagestore, uInt subim)
+  void SDAlgorithmBase::initializeSubImages( std::shared_ptr<SIImageStore> &imagestore, uInt subim)
   {
     itsResidual = SubImage<Float>( *(imagestore->residual()), itsDecSlices[subim], true );
     itsPsf = SubImage<Float>( *(imagestore->psf()), itsDecSlices[subim], true );

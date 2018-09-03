@@ -382,7 +382,7 @@ SPIIF PVGenerator::_dropDegen(SPIIF collapsed, Int collapsedAxis) const {
         }
     }
     // now remove the degenerate linear axis
-    SHARED_PTR<const SubImage<Float> > cDropped = SubImageFactory<Float>::createSubImageRO(
+    std::shared_ptr<const SubImage<Float> > cDropped = SubImageFactory<Float>::createSubImageRO(
         *collapsed, Record(), "", 0, AxesSpecifier(keep, axisPath), false, true
     );
     std::unique_ptr<ArrayLattice<Bool> > newMask;

@@ -151,7 +151,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		createCoordinateSystem();
 
 		// Get hold of parent ML (do not delete pointer)
-		SHARED_PTR<const MaskedLattice<Float> > pLat = itsDD->maskedLattice();
+		std::shared_ptr<const MaskedLattice<Float> > pLat = itsDD->maskedLattice();
 
 		// set min and max X values for this DisplayData
 		itsCurrentBlc[0] = 0;

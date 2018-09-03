@@ -101,7 +101,7 @@ namespace casa {
 				SlicePlot* slicePlot = NULL;
 				if ( !slicePlots.contains(key)) {
 					slicePlot = new SlicePlot();
-					SHARED_PTR<ImageInterface<Float> > imagePtr( image );
+					std::shared_ptr<ImageInterface<Float> > imagePtr( image );
 					slicePlot->setImage( /*image*/imagePtr );
 					setPlotLineColor( slicePlot );
 					slicePlots.insert( key , slicePlot );
@@ -134,7 +134,7 @@ namespace casa {
 			if ( wc_ != NULL  ) {
 				DisplayData* dd = wc_->csMaster();
 				if ( dd != NULL ) {
-					SHARED_PTR<ImageInterface<float> > masterImage(dd->imageinterface());
+					std::shared_ptr<ImageInterface<float> > masterImage(dd->imageinterface());
 					if ( masterImage != NULL ) {
 						slicePlot->setImage( masterImage );
 						imageName = masterImage->name(true).c_str();
@@ -1184,8 +1184,8 @@ namespace casa {
 
 		}
 
-		std::list<SHARED_PTR<RegionInfo> > *Polyline::generate_dds_centers() {
-			std::list<SHARED_PTR<RegionInfo> > *region_centers = new std::list<SHARED_PTR<RegionInfo> >( );
+		std::list<std::shared_ptr<RegionInfo> > *Polyline::generate_dds_centers() {
+			std::list<std::shared_ptr<RegionInfo> > *region_centers = new std::list<std::shared_ptr<RegionInfo> >( );
 
 			if( wc_==0 ) return region_centers;
 
@@ -1219,7 +1219,7 @@ namespace casa {
 				try {
 					if ( ! padd->conformsTo(*wc_) ) continue;
 
-					SHARED_PTR<ImageInterface<Float> > image( padd->imageinterface( ));
+					std::shared_ptr<ImageInterface<Float> > image( padd->imageinterface( ));
 
 					if ( ! image ) continue;
 
@@ -1230,7 +1230,7 @@ namespace casa {
 					processed.insert(std::map<String,bool>::value_type(description,true));
 
 					RegionInfo::center_t *layercenter = new RegionInfo::center_t( );
-					region_centers->push_back(SHARED_PTR<RegionInfo>(new SliceRegionInfo(name,description,layercenter, this)));
+					region_centers->push_back(std::shared_ptr<RegionInfo>(new SliceRegionInfo(name,description,layercenter, this)));
 				} catch (const casacore::AipsError& err) {
 					errMsg_ = err.getMesg();
 					fprintf( stderr, "Polyline::generate_dds_centers( ): %s\n", errMsg_.c_str() );
