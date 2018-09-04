@@ -38,7 +38,6 @@ template <class T> class ImageConcat;
 
 namespace casa {
 
-
 template <class T>  class ImageConcatenator : public ImageTask<T> {
 	// <summary>
 	// Top level interface for concatenating images
@@ -60,10 +59,10 @@ template <class T>  class ImageConcatenator : public ImageTask<T> {
 
 public:
 
-	// <src>image</src> should be the first image in the list of images to be concatenated.
+	// <src>image</src> should be the first image in
+    // the list of images to be concatenated.
 	ImageConcatenator(
-		SPCIIT image,
-		const casacore::String& outname, casacore::Bool overwrite
+		SPCIIT image, const casacore::String& outname, casacore::Bool overwrite
 	);
 
 	// destructor
@@ -102,13 +101,17 @@ private:
 	// disallow default constructor
 	ImageConcatenator();
 
-	// returns true if world coordinate values increase with pixel coordinate values
+	// returns true if world coordinate values increase
+	// with pixel coordinate values
 	casacore::Bool _minMaxAxisValues(
 		casacore::Double& min, casacore::Double& max, casacore::uInt ndim,
 		const casacore::CoordinateSystem& csys, const casacore::IPosition& shape
 	) const;
 
-	void _addImage(std::unique_ptr<casacore::ImageConcat<T> >& pConcat, const casacore::String& name) const;
+	void _addImage(
+	    std::unique_ptr<casacore::ImageConcat<T> >& pConcat,
+	    const casacore::String& name
+	) const;
 
 };
 }

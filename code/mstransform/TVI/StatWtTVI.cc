@@ -460,19 +460,23 @@ Double StatWtTVI::getTimeBinWidthInSec(const casacore::Quantity& binWidth) {
 }
 
 void StatWtTVI::checkTimeBinWidth(Double binWidth) {
-    ThrowIf(
-        binWidth <= 0, "time bin width must be positive"
-    );
+    ThrowIf(binWidth <= 0, "time bin width must be positive");
 }
 
-Double StatWtTVI::getTimeBinWidthUsingInterval(const casacore::MeasurementSet *const ms, Int n) {
+Double StatWtTVI::getTimeBinWidthUsingInterval(
+    const casacore::MeasurementSet *const ms, Int n
+) {
     ThrowIf(n <= 0, "number of time intervals must be positive");
     MSMetaData msmd(ms, 0.0);
     auto stats = msmd.getIntervalStatistics();
     ThrowIf(
-        stats.max/stats.median - 1 > 0.25
-        || 1 - stats.min/stats.median > 0.25,
-        "There is not a representative integration time in the INTERVAL column"
+        stats.max/stats.median - 1 > 0.25 || 1 - stats.min/stats.median > 0.25,
+        "There is not a representative integration time in the INTERVAL "
+        "column, likely due to different visibility integration times across "
+        "different scans. Please select only parts of the MeasurementSet that "
+        "have a uniform integration time for each execution of statwt. "
+        "Multiple statwt executions may be needed to cover all MS rows with "
+        "different integration (INTERVAL) values."
     );
     return n*stats.median;
 }

@@ -57,8 +57,8 @@ namespace casa {
 		public:
 			ImageProperties( );
 			ImageProperties( const std::string &/*path*/ );
-			ImageProperties( SHARED_PTR<casacore::ImageInterface<casacore::Float> > );
-			ImageProperties( SHARED_PTR<casacore::ImageInterface<std::complex<float> > > );   /**** throws exception ****/
+			ImageProperties( std::shared_ptr<casacore::ImageInterface<casacore::Float> > );
+			ImageProperties( std::shared_ptr<casacore::ImageInterface<std::complex<float> > > );   /**** throws exception ****/
 			const ImageProperties &operator=( const std::string & );
 
 			bool hasDirectionAxis( ) const {
@@ -127,8 +127,8 @@ namespace casa {
 			std::vector<double> beam_as_vector( const casacore::GaussianBeam &beam ) const;
 			std::vector<std::string> beam_as_string_vector( const casacore::GaussianBeam &beam ) const;
 			void clear_state( );
-			void initialize_state( SHARED_PTR<casacore::ImageInterface<casacore::Float> > image );
-			void reset( SHARED_PTR<casacore::ImageInterface<casacore::Float> > image );
+			void initialize_state( std::shared_ptr<casacore::ImageInterface<casacore::Float> > image );
+			void reset( std::shared_ptr<casacore::ImageInterface<casacore::Float> > image );
 			void reset( const std::string &path="" );
 			bool status_ok;
 			std::string path_;

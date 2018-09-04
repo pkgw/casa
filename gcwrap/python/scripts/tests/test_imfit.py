@@ -1896,5 +1896,24 @@ class imfit_test(unittest.TestCase):
         zz = imfit(imagename=image, estimates=estimates, summary=summary)
         self.assertTrue(sum(1 for line in open(summary)) == 6, "summary line count")
         
+    def test_precision(self):
+        """Test double precision image works"""
+        myfn = fntool()
+        g2d = myfn.gaussian2d(1, [50,60], [20,10], "-20deg")
+        nxpix = 120
+        nypix = 100
+        pixels = numpy.zeros([nxpix, nypix], dtype=np.float64)
+        for x in range(nxpix):
+            for y in range(nypix):
+                pixels[x, y] = g2d.f([x, y])
+        myia = iatool()
+        for mytype in ['f', 'd']:
+            myia.fromarray("", pixels, type=mytype)
+            zz = myia.fitcomponents()
+            myia.done()
+            self.assertTrue(
+                zz['converged'][0], "did not converge for type " + mytype
+            )
+            
 def suite():
     return [imfit_test]

@@ -43,8 +43,6 @@ ImageAnalysis/ComponentImager.cc
 ImageAnalysis/ImageCollapserData.cc
 ImageAnalysis/ImageCollapser2.cc
 ImageAnalysis/ImageFactory2.cc
-ImageAnalysis/ImageFitter.cc
-ImageAnalysis/ImageHistogramsCalculator.cc
 ImageAnalysis/ImageInputProcessor.cc
 ImageAnalysis/ImageMask.cc
 ImageAnalysis/ImageMetaDataConstants.cc
@@ -56,12 +54,10 @@ ImageAnalysis/ImagePolProxy.cc
 ImageAnalysis/ImagePolTask.cc
 ImageAnalysis/ImagePrimaryBeamCorrector.cc
 ImageAnalysis/ImageProfileFitter.cc
-ImageAnalysis/ImageRotator.cc
 ImageAnalysis/ImageTotalPolarization.cc
 ImageAnalysis/ImageTransposer.cc
 ImageAnalysis/LinearPolarizationAngleCalculator.cc
 ImageAnalysis/LinearPolarizationCalculator.cc
-ImageAnalysis/PeakIntensityFluxDensityConverter.cc
 ImageAnalysis/PixelValueManipulatorData.cc
 ImageAnalysis/ProfileFitResults.cc
 ImageAnalysis/PVGenerator.cc
@@ -71,7 +67,6 @@ ImageAnalysis/StatImageCreator.cc
 
 IO/AsciiAnnotationFileLine.cc
 IO/FitterEstimatesFileParser.cc
-IO/ImageFitterResults.cc
 IO/ImageProfileFitterResults.cc
 IO/LogFile.cc
 IO/OutputDestinationChecker.cc
@@ -109,8 +104,10 @@ install (FILES
 install (FILES
 	IO/AsciiAnnotationFileLine.h
 	IO/FitterEstimatesFileParser.h
+	IO/FitterEstimatesFileParser2.tcc
 	IO/LogFile.h
     IO/ImageFitterResults.h
+    IO/ImageFitterResults.tcc
     IO/ImageProfileFitterResults.h
     IO/OutputDestinationChecker.h
 	IO/ParameterParser.h
@@ -127,8 +124,6 @@ install (FILES
 	ImageAnalysis/BeamManipulator.h
 	ImageAnalysis/BeamManipulator.tcc
 	ImageAnalysis/CasaImageBeamSet.h
-	ImageAnalysis/ComplexImageRegridder.h
-	ImageAnalysis/ComplexImageRegridder.tcc
 	ImageAnalysis/ComponentImager.h
 	ImageAnalysis/ComponentListDeconvolver.h
     ImageAnalysis/ComponentListDeconvolver.tcc
@@ -165,6 +160,7 @@ install (FILES
 	ImageAnalysis/ImageFFTer.h
 	ImageAnalysis/ImageFFTer.tcc
 	ImageAnalysis/ImageFitter.h
+    ImageAnalysis/ImageFitter.tcc
 	ImageAnalysis/ImageFit1D.h
 	ImageAnalysis/ImageFit1D.tcc
     ImageAnalysis/ImageHanningSmoother.h
@@ -172,6 +168,7 @@ install (FILES
     ImageAnalysis/ImageHistograms.h
     ImageAnalysis/ImageHistograms.tcc
     ImageAnalysis/ImageHistogramsCalculator.h
+    ImageAnalysis/ImageHistogramsCalculator.tcc
     ImageAnalysis/ImageHistory.h
     ImageAnalysis/ImageHistory.tcc
 	ImageAnalysis/ImageInputProcessor.h
@@ -211,6 +208,7 @@ install (FILES
     ImageAnalysis/ImageRegridderBase.h
     ImageAnalysis/ImageRegridderBase.tcc
     ImageAnalysis/ImageRotator.h
+    ImageAnalysis/ImageRotator.tcc
 	ImageAnalysis/ImageSourceFinder.h
 	ImageAnalysis/ImageSourceFinder.tcc
 	ImageAnalysis/ImageStatsCalculator.h
@@ -237,6 +235,7 @@ install (FILES
     ImageAnalysis/MomentWindow.h
     ImageAnalysis/MomentWindow.tcc
 	ImageAnalysis/PeakIntensityFluxDensityConverter.h
+	ImageAnalysis/PeakIntensityFluxDensityConverter.tcc
 	ImageAnalysis/PixelValueManipulator.h
 	ImageAnalysis/PixelValueManipulator.tcc
 	ImageAnalysis/PixelValueManipulatorData.h

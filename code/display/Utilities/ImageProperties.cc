@@ -72,10 +72,10 @@ namespace casa {
 		ImageProperties::ImageProperties( const std::string &path ) {
 			reset(path);
 		}
-		ImageProperties::ImageProperties(SHARED_PTR<ImageInterface<Float> > image ) {
+		ImageProperties::ImageProperties(std::shared_ptr<ImageInterface<Float> > image ) {
 			reset(image);
 		}
-		ImageProperties::ImageProperties( SHARED_PTR<ImageInterface<std::complex<float> > > ) {
+		ImageProperties::ImageProperties( std::shared_ptr<ImageInterface<std::complex<float> > > ) {
 			throw std::runtime_error("complex images are not supported");
 		}
 
@@ -154,7 +154,7 @@ namespace casa {
 			restoring_beams.resize(0);
 		}
 
-		void ImageProperties::initialize_state( SHARED_PTR<ImageInterface<Float> > image ) {
+		void ImageProperties::initialize_state( std::shared_ptr<ImageInterface<Float> > image ) {
 
 			cs_ = image->coordinates( );
 			shape_ = image->shape( ).asVector( );
@@ -250,7 +250,7 @@ namespace casa {
 			return result;
 		}
 
-		void ImageProperties::reset(SHARED_PTR<ImageInterface<Float> > image ) {
+		void ImageProperties::reset(std::shared_ptr<ImageInterface<Float> > image ) {
 			// clear settings...
 			clear_state( );
 			path_ = image->name(false);
@@ -266,7 +266,7 @@ namespace casa {
 			// check for validity...
 			if ( path_ == "" ) return;
 
-			SHARED_PTR<ImageInterface<Float> > image;
+			std::shared_ptr<ImageInterface<Float> > image;
 
 			// check for a FITS extension in the path name
 			File fin(path_);

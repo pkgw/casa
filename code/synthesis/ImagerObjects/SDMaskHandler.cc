@@ -93,14 +93,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 #endif
   }
   
-  void SDMaskHandler::resetMask(SHARED_PTR<SIImageStore> imstore)
+  void SDMaskHandler::resetMask(std::shared_ptr<SIImageStore> imstore)
   {
     imstore->mask()->set(1.0);
     imstore->mask()->unlock();
   }
 
 /***
-  void SDMaskHandler::fillMask(SHARED_PTR<SIImageStore> imstore, Vector<String> maskStrings)
+  void SDMaskHandler::fillMask(std::shared_ptr<SIImageStore> imstore, Vector<String> maskStrings)
   {
       String maskString;
       if (maskStrings.nelements()) {
@@ -115,7 +115,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 ***/
 
-  void SDMaskHandler::fillMask(SHARED_PTR<SIImageStore> imstore, Vector<String> maskStrings)
+  void SDMaskHandler::fillMask(std::shared_ptr<SIImageStore> imstore, Vector<String> maskStrings)
   {
     LogIO os( LogOrigin("SDMaskHandler","fillMask",WHERE) );
     String maskString;
@@ -214,7 +214,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   
-  void SDMaskHandler::fillMask(SHARED_PTR<SIImageStore> imstore, String maskString)
+  void SDMaskHandler::fillMask(std::shared_ptr<SIImageStore> imstore, String maskString)
   {
 
     try {
@@ -272,7 +272,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	LCBox::verify(blc, trc, inc, imshp);
 	Slicer imslice(blc, trc, inc, Slicer::endIsLast);
 	
-	SHARED_PTR<ImageInterface<Float> >  referenceImage( new SubImage<Float>(*(imstore->mask()), imslice, true) );
+	std::shared_ptr<ImageInterface<Float> >  referenceImage( new SubImage<Float>(*(imstore->mask()), imslice, true) );
 	referenceImage->set(1.0);
       }
 
@@ -285,7 +285,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
   
   //void SDMaskHandler::makeMask()
-   SHARED_PTR<ImageInterface<Float> > SDMaskHandler::makeMask(const String& maskName, const Quantity threshold,
+   std::shared_ptr<ImageInterface<Float> > SDMaskHandler::makeMask(const String& maskName, const Quantity threshold,
    //void SDMaskHandler::makeMask(const String& maskName, const Quantity threshold,
                                ImageInterface<Float>& tempim)
    //                             ImageInterface<Float>& tempim,
@@ -306,7 +306,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //newMaskImage = PagedImage<Float>(maskFileName, TableLock::AutoNoReadLocking);
     //PagedImage<Float>(maskFileName, TableLock::AutoNoReadLocking);
     StokesImageUtil::MaskFrom(*newMaskImage, tempim, threshold);
-    return SHARED_PTR<ImageInterface<Float> >(newMaskImage);
+    return std::shared_ptr<ImageInterface<Float> >(newMaskImage);
   }
 
   //Bool SDMaskHandler::regionToImageMask(const String& maskName, Record* regionRec, Matrix<Quantity>& blctrcs,
@@ -318,7 +318,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     try {
       //PagedImage<Float> tempmask(TiledShape(maskImage->shape(),
       //                                    maskImage->niceCursorShape()), maskImage->coordinates(), tempfname);
-      SHARED_PTR<ImageInterface<Float> > tempmask;
+      std::shared_ptr<ImageInterface<Float> > tempmask;
       tempmask.reset( new TempImage<Float>(TiledShape(maskImage.shape(),maskImage.niceCursorShape()), maskImage.coordinates(), memoryToUse() ) );
       //tempmask = new PagedImage<Float>(maskImage.shape(), maskImage.coordinates(),"__tmp_rgmask");
       tempmask->copyData(maskImage);
@@ -495,7 +495,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
      }  
   }
 
-  void SDMaskHandler::copyAllMasks(const Vector< SHARED_PTR<ImageInterface<Float> > > inImageMasks, ImageInterface<Float>& outImageMask)
+  void SDMaskHandler::copyAllMasks(const Vector< std::shared_ptr<ImageInterface<Float> > > inImageMasks, ImageInterface<Float>& outImageMask)
   {
      LogIO os( LogOrigin("SDMaskHandler", "copyAllMasks", WHERE) );
 
@@ -868,7 +868,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
 
-  Int SDMaskHandler::makeInteractiveMask(SHARED_PTR<SIImageStore>& imstore,
+  Int SDMaskHandler::makeInteractiveMask(std::shared_ptr<SIImageStore>& imstore,
 					 Int& niter, Int& cycleniter, 
 					 String& threshold, String& cyclethreshold)
   {
@@ -889,7 +889,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return ret;
   }
 
-  void SDMaskHandler::makeAutoMask(SHARED_PTR<SIImageStore> imstore)
+  void SDMaskHandler::makeAutoMask(std::shared_ptr<SIImageStore> imstore)
   {
     LogIO os( LogOrigin("SDMaskHandler","makeAutoMask",WHERE) );
 
@@ -950,7 +950,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  void SDMaskHandler::autoMask(SHARED_PTR<SIImageStore> imstore, 
+  void SDMaskHandler::autoMask(std::shared_ptr<SIImageStore> imstore, 
                                TempImage<Float>& posmask,
                                const Int iterdone,
                                Vector<Bool>& chanflag,
@@ -1095,9 +1095,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //resforstats->setImageInfo(imstore->residual()->imageInfo());
     //LatticeExpr<Bool> prevmask( iif(*tempmask > 0.0 , True, False) );
     //resforstats->attachMask(prevmask);
-    //SHARED_PTR<casacore::ImageInterface<float> > tempres_ptr(resforstats);
+    //std::shared_ptr<casacore::ImageInterface<float> > tempres_ptr(resforstats);
     /**
-    SHARED_PTR<casacore::ImageInterface<float> > tempres_ptr(tempres);
+    std::shared_ptr<casacore::ImageInterface<float> > tempres_ptr(tempres);
     //cerr<<" tempres->hasPixelMask? "<<tempres->hasPixelMask()<<endl;
     ImageStatsCalculator imcalc( tempres_ptr, 0, "", False); 
     Vector<Int> axes(2);
@@ -1144,7 +1144,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           }
           delete testres; testres=0;
        }
-    } 
+    }
+
+    //temporary turn off new noise calc.
+    Bool useoldstats(True);
+ 
     Record thestats = calcImageStatistics(*tempres, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
     thestats.get(RecordFieldId("max"), maxs);
@@ -1160,17 +1164,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // at this point tempres has pbmask applied
     LatticeExpr<Bool> pbmask(tempres->pixelMask());
 
-    
-    Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust);
-    Array<Double> newmaxs, newmins, newrmss, newmads;
-    thenewstats.get(RecordFieldId("max"), newmaxs);
-    thenewstats.get(RecordFieldId("rms"), newrmss);
-    os<< LogIO::DEBUG1 << "*** New statistics *** "<<newrmss<<LogIO::POST;
-    os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
-    os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
-    if (alg.contains("multithresh")) {
-       thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
-       os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
+    Record thenewstats; 
+    if (useoldstats) { // skip new stats
+      thenewstats = thestats;
+    }
+    else {
+      //Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust);
+      thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust);
+      Array<Double> newmaxs, newmins, newrmss, newmads;
+      thenewstats.get(RecordFieldId("max"), newmaxs);
+      thenewstats.get(RecordFieldId("rms"), newrmss);
+      os<< LogIO::DEBUG1 << "*** New statistics *** "<<newrmss<<LogIO::POST;
+      os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
+      os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
+      if (alg.contains("multithresh")) {
+        thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
+         os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
+      }
     }
     
 
@@ -1189,8 +1199,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       autoMaskByThreshold2(*tempmask, *tempres, *imstore->psf(), qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask);
     }
     else if (alg==String("multithresh")) {
-      autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thestats, thenewstats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold,
-                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune, verbose, isthresholdreached);
+      autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thestats, thenewstats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune, verbose, isthresholdreached);
     }
 
     // this did not work (it won't physically remove the mask from the image 
@@ -1227,7 +1236,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
       
     tempres->setImageInfo(res.imageInfo());
-    SHARED_PTR<casacore::ImageInterface<Float> > tempres_ptr(tempres);
+    std::shared_ptr<casacore::ImageInterface<Float> > tempres_ptr(tempres);
     
     // 2nd arg is regionRecord, 3rd is LELmask expression and those will be AND 
     // to define a region to be get statistics
@@ -1391,7 +1400,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         //  }
         //} //for debug
 
-        SHARED_PTR<casacore::ImageInterface<Float> > tempres_ptr(tempSubRes);
+        std::shared_ptr<casacore::ImageInterface<Float> > tempres_ptr(tempSubRes);
     
         // 2nd arg is regionRecord, 3rd is LELmask expression and those will be AND 
         // to define a region to be get statistics
@@ -1796,7 +1805,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     os << LogIO::NORMAL2 <<" thresh="<<rmsthresh<<LogIO::POST;
 
-    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = pruneRegions(res, rmsthresh, nmask, beampix);
+    std::shared_ptr<ImageInterface<Float> > tempIm_ptr = pruneRegions(res, rmsthresh, nmask, beampix);
     LatticeExpr<Float> themask( iif( *(tempIm_ptr.get()) > rmsthresh, 1.0, 0.0 ));
 
     //for debug
@@ -1863,7 +1872,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
     
     //set true to use calcImageStatistics2 and thresholds adjusted for the location (median)
-    Bool newstats(True);
+    Bool newstats(False); // turning off as of CAS-11705
 
     //Timer
     Timer timer;
@@ -2047,8 +2056,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
         os << LogIO::NORMAL << "Start pruning: the initial threshold mask" << LogIO::POST;
         timer.mark();
-        //SHARED_PTR<ImageInterface<Float> > tempIm_ptr = pruneRegions2(maskedRes, tempthresh,  -1, pruneSize);
-        SHARED_PTR<ImageInterface<Float> > tempIm_ptr = YAPruneRegions(maskedRes, chanFlag, allPruned, nreg, npruned, pruneSize);
+        //std::shared_ptr<ImageInterface<Float> > tempIm_ptr = pruneRegions2(maskedRes, tempthresh,  -1, pruneSize);
+        std::shared_ptr<ImageInterface<Float> > tempIm_ptr = YAPruneRegions(maskedRes, chanFlag, allPruned, nreg, npruned, pruneSize);
         tempmask.copyData(*(tempIm_ptr.get()));
         Int nAllPruned=ntrue(allPruned);
         if(!iterdone && isEmptyMask(tempmask) && nAllPruned) {
@@ -2192,9 +2201,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        //if (minBeamFrac > 0.0 ) {
        //  //Double thethresh=0.1;
        // os<<LogIO::NORMAL << "Pruning the constraint mask "<<LogIO::POST;
-       // //SHARED_PTR<ImageInterface<Float> > tempPrunedMask_ptr = pruneRegions2(constraintMaskImage, thethresh,  -1, pruneSize);
+       // //std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = pruneRegions2(constraintMaskImage, thethresh,  -1, pruneSize);
        //  Vector<Bool> dummy(0);
-       //  SHARED_PTR<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(constraintMaskImage, dummy, pruneSize);
+       //  std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(constraintMaskImage, dummy, pruneSize);
        //  constraintMaskImage.copyData( *(tempPrunedMask_ptr.get()) );
        //}
        //if(debug2) {
@@ -2240,7 +2249,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        /***
        if (minBeamFrac > 0.0 ) {
          Double thethresh=0.1;
-         SHARED_PTR<ImageInterface<Float> > tempPrunedMask_ptr = pruneRegions2(prevmask, thethresh,  -1, beampix);
+         std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = pruneRegions2(prevmask, thethresh,  -1, beampix);
          prevmask.copyData( *(tempPrunedMask_ptr.get()) );
        }
        ***/
@@ -2249,7 +2258,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
          os << LogIO::NORMAL << "Start pruning: on the grow mask "<< LogIO::POST;
          timer.mark();
          Vector<Bool> dummy(0);
-         SHARED_PTR<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(prevmask, chanFlag, dummy, ngrowreg, ngrowpruned, pruneSize);
+         std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(prevmask, chanFlag, dummy, ngrowreg, ngrowpruned, pruneSize);
          prevmask.copyData( *(tempPrunedMask_ptr.get()) );
          os << LogIO::NORMAL << "End pruning: time to prune the grow mask: real " 
             << timer.real() <<"s (user "<< timer.user() << "s, system "<< timer.system() << "s)" << LogIO::POST;
@@ -2542,7 +2551,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     } // for loop end
   }
 
-  SHARED_PTR<ImageInterface<Float> >  SDMaskHandler::makeMaskFromBinnedImage(const ImageInterface<Float>& image, 
+  std::shared_ptr<ImageInterface<Float> >  SDMaskHandler::makeMaskFromBinnedImage(const ImageInterface<Float>& image, 
                                                                              const Int nx, 
                                                                              const Int ny,  
                                                                              const Float& fracofpeak,
@@ -2574,7 +2583,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     IPosition minRmsPos, maxRmsPos, minMaxPos, maxMaxPos, minMinPos, maxMinPos;
     TempImage<Float>* tempImForStat = new TempImage<Float>(tempRebinnedIm.shape(), tempRebinnedIm.coordinates(), memoryToUse() );
     tempImForStat->copyData(tempRebinnedIm);
-    SHARED_PTR<casacore::ImageInterface<float> > temprebin_ptr(tempImForStat);
+    std::shared_ptr<casacore::ImageInterface<float> > temprebin_ptr(tempImForStat);
     //os<<" temprebin_ptr.get()->hasPixelMask()="<<temprebin_ptr.get()->hasPixelMask()<<LogIO::POST;
     ImageStatsCalculator<Float> imcalc( temprebin_ptr, 0, "", False);
     Vector<Int> stataxes(2);
@@ -2695,7 +2704,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
       // apply threshold to rebinned image to generate a temp image mask
       // first run pruning by limiting n masks (npix=1 as it is already binned)
-      SHARED_PTR<ImageInterface<Float> > dummyim = pruneRegions(tempRebinnedIm, thresh, nmask, 1);
+      std::shared_ptr<ImageInterface<Float> > dummyim = pruneRegions(tempRebinnedIm, thresh, nmask, 1);
 
       os << LogIO::DEBUG1<<" threshold applied ="<<thresh<<LogIO::POST;
       //cerr<<"dummyim shape="<<dummyim.get()->shape()<<endl;
@@ -2706,15 +2715,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //os << LogIO::DEBUG1<<" copying the threshold image....."<<LogIO::POST;
       tempMask->copyData(tempthresh);
     }
-    return SHARED_PTR<ImageInterface<Float> >(tempMask);
+    return std::shared_ptr<ImageInterface<Float> >(tempMask);
   }
 
-  SHARED_PTR<ImageInterface<Float> > SDMaskHandler::convolveMask(const ImageInterface<Float>& inmask, const GaussianBeam& beam)
+  std::shared_ptr<ImageInterface<Float> > SDMaskHandler::convolveMask(const ImageInterface<Float>& inmask, const GaussianBeam& beam)
   {
     LogIO os( LogOrigin("SDMaskHandler","convolveMask",WHERE) );
     TempImage<Float>* tempIm = new TempImage<Float>(inmask.shape(), inmask.coordinates(), memoryToUse() );
     tempIm->copyData(inmask);
-    SHARED_PTR<casacore::ImageInterface<float> > tempIm2_ptr(tempIm);
+    std::shared_ptr<casacore::ImageInterface<float> > tempIm2_ptr(tempIm);
     //DEBUG will be removed 
 
     Vector<Quantity> convbeam(3);
@@ -2733,12 +2742,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return outmask;
   } 
 
-  SHARED_PTR<ImageInterface<Float> > SDMaskHandler::convolveMask(const ImageInterface<Float>& inmask, Int nxpix, Int nypix)
+  std::shared_ptr<ImageInterface<Float> > SDMaskHandler::convolveMask(const ImageInterface<Float>& inmask, Int nxpix, Int nypix)
   {
     LogIO os( LogOrigin("SDMaskHandler","convolveMask",WHERE) );
     TempImage<Float>* tempIm = new TempImage<Float>(inmask.shape(), inmask.coordinates(), memoryToUse() );
     tempIm->copyData(inmask);
-    SHARED_PTR<casacore::ImageInterface<float> > tempIm2_ptr(tempIm);
+    std::shared_ptr<casacore::ImageInterface<float> > tempIm2_ptr(tempIm);
     //DEBUG will be removed 
     os << LogIO::DEBUG1<<"convolve with "<<nxpix<<" pix x "<<nypix<<" pix gaussian"<<LogIO::POST;
 
@@ -2757,7 +2766,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return outmask;
   } 
 
-  SHARED_PTR<casacore::ImageInterface<Float> >  SDMaskHandler::pruneRegions(const ImageInterface<Float>& image, Double& thresh, Int nmask, Int npix)
+  std::shared_ptr<casacore::ImageInterface<Float> >  SDMaskHandler::pruneRegions(const ImageInterface<Float>& image, Double& thresh, Int nmask, Int npix)
   {
     LogIO os( LogOrigin("SDMaskHandler", "pruneRegions",WHERE) );
     Bool debug(False);
@@ -2769,7 +2778,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //No-op
       os<<LogIO::DEBUG1<<"Skip pruning of mask regions"<<LogIO::POST;
       fullIm->copyData(image);
-      return SHARED_PTR<ImageInterface<Float> >(fullIm);
+      return std::shared_ptr<ImageInterface<Float> >(fullIm);
     }  
     os <<LogIO::DEBUG1<< "pruneRegions with nmask="<<nmask<<", size="<<npix<<" is applied"<<LogIO::POST;
     
@@ -2790,12 +2799,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //cerr<<"strReg="<<strReg<<endl;
     //RegionTextList CRTFList(cSys, strReg, shp);
     //Record regRec = CRTFList.regionAsRecord();
-    //SHARED_PTR<casacore::SubImage<Float> > subIm = SubImageFactory<Float>::createSubImageRW(image, regRec, "", &os, aspec, False, False);
+    //std::shared_ptr<casacore::SubImage<Float> > subIm = SubImageFactory<Float>::createSubImageRW(image, regRec, "", &os, aspec, False, False);
 
     //cerr <<" subIm.shape="<<subIm->shape()<<endl;
     IPosition subimShape=subIm->shape();
     uInt ndim = subimShape.nelements();
-    //SHARED_PTR<casacore::ImageInterface<float> > tempIm_ptr(subIm);
+    //std::shared_ptr<casacore::ImageInterface<float> > tempIm_ptr(subIm);
     TempImage<Float>* tempIm = new TempImage<Float> (TiledShape(subIm->shape(), subIm->niceCursorShape()), subIm->coordinates(), memoryToUse() );
     // to search for both positive and negative components
     tempIm->copyData(LatticeExpr<Float> (abs(*subIm)));
@@ -2943,11 +2952,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     delete subIm; subIm=0;
     delete tempIm; tempIm=0;
-    return SHARED_PTR<ImageInterface<Float> >(fullIm);
+    return std::shared_ptr<ImageInterface<Float> >(fullIm);
   }
  
    
-  SHARED_PTR<casacore::ImageInterface<Float> >  SDMaskHandler::pruneRegions2(const ImageInterface<Float>& image, Double& thresh, Int nmask, Double prunesize)
+  std::shared_ptr<casacore::ImageInterface<Float> >  SDMaskHandler::pruneRegions2(const ImageInterface<Float>& image, Double& thresh, Int nmask, Double prunesize)
   {
     LogIO os( LogOrigin("SDMaskHandler", "pruneRegions2",WHERE) );
     Bool debug(False);
@@ -2960,7 +2969,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //No-op
       os<<LogIO::DEBUG1<<"Skip pruning of mask regions"<<LogIO::POST;
       fullIm->copyData(image);
-      return SHARED_PTR<ImageInterface<Float> >(fullIm);
+      return std::shared_ptr<ImageInterface<Float> >(fullIm);
     }
     os <<LogIO::NORMAL<< "pruneRegions with nmask="<<nmask<<", size="<<prunesize<<" is applied"<<LogIO::POST;
 
@@ -3140,11 +3149,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       delete subIm; subIm=0;
       }// if(nRegion) end 
     }
-    return SHARED_PTR<ImageInterface<Float> >(fullIm);
+    return std::shared_ptr<ImageInterface<Float> >(fullIm);
   }
 
   //yet another pruneRegions - using connect component labelling with depth first search alogirthm ..
-  SHARED_PTR<casacore::ImageInterface<Float> >  SDMaskHandler::YAPruneRegions(const ImageInterface<Float>& image, Vector<Bool>& chanflag, Vector<Bool>& allpruned, Vector<uInt>& nreg, Vector<uInt>& npruned, Double prunesize)
+  std::shared_ptr<casacore::ImageInterface<Float> >  SDMaskHandler::YAPruneRegions(const ImageInterface<Float>& image, Vector<Bool>& chanflag, Vector<Bool>& allpruned, Vector<uInt>& nreg, Vector<uInt>& npruned, Double prunesize)
   {
     LogIO os( LogOrigin("SDMaskHandler", "YAPruneRegions",WHERE) );
     Timer timer;
@@ -3163,7 +3172,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //No-op
       os<<LogIO::DEBUG1<<"Skip pruning of mask regions"<<LogIO::POST;
       fullIm->copyData(image);
-      return SHARED_PTR<ImageInterface<Float> >(fullIm);
+      return std::shared_ptr<ImageInterface<Float> >(fullIm);
     }
     os <<LogIO::DEBUG1<< "pruneRegions with size="<<prunesize<<" is applied"<<LogIO::POST;
 
@@ -3267,7 +3276,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         os<<LogIO::DEBUG1<<"Skipping chan "<<ich<<" from pruning"<<LogIO::POST;
       }
     } 
-    return SHARED_PTR<ImageInterface<Float> >(fullIm);
+    return std::shared_ptr<ImageInterface<Float> >(fullIm);
   }
 
 
@@ -3287,7 +3296,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  void SDMaskHandler::makePBMask(SHARED_PTR<SIImageStore> imstore, Float pblimit, Bool combinemask)
+  void SDMaskHandler::makePBMask(std::shared_ptr<SIImageStore> imstore, Float pblimit, Bool combinemask)
   {
     LogIO os( LogOrigin("SDMaskHandler","makePBMask",WHERE) );
 
@@ -3494,7 +3503,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
  
-  void SDMaskHandler::autoMaskWithinPB(SHARED_PTR<SIImageStore> imstore, 
+  void SDMaskHandler::autoMaskWithinPB(std::shared_ptr<SIImageStore> imstore, 
                                        TempImage<Float>& posmask,
                                        const Int iterdone,
                                        Vector<Bool>& chanflag,

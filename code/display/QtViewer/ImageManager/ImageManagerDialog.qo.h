@@ -137,7 +137,7 @@ namespace casa {
 		//Returns the transparency to use when combining images.
 		//float getTransparency() const;
 		//Get the min and max intensity of the image.
-		bool getIntensityMinMax( SHARED_PTR<casacore::ImageInterface<float> > img,
+		bool getIntensityMinMax( std::shared_ptr<casacore::ImageInterface<float> > img,
 		                         double* intensityMin, double* intensityMax );
         //Generate a color map based on a single base color (RGB mode).
 		Colormap* generateColorMap( QColor baseColor);

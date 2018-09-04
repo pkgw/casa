@@ -52,65 +52,69 @@ const String ImagePrimaryBeamCorrector::_class = "ImagePrimaryBeamCorrector";
 uInt _tempTableNumber = 0;
 
 ImagePrimaryBeamCorrector::ImagePrimaryBeamCorrector(
-	const SPCIIF image,
-	const SPCIIF pbImage,
-	const Record *const &regionPtr,
-	const String& region, const String& box,
-	const String& chanInp, const String& stokes,
-	const String& maskInp, const String& outname,
-	const Bool overwrite, const Float cutoff,
-	const Bool useCutoff,
+	const SPCIIF image, const SPCIIF pbImage, const Record *const &regionPtr,
+	const String& region, const String& box, const String& chanInp,
+	const String& stokes, const String& maskInp, const String& outname,
+	const Bool overwrite, const Float cutoff, const Bool useCutoff,
 	const ImagePrimaryBeamCorrector::Mode mode
 ) : ImageTask<Float>(
-		image, region, regionPtr, box, chanInp, stokes, maskInp, outname, overwrite
+		image, region, regionPtr, box, chanInp, stokes, maskInp, outname,
+		overwrite
 	), _pbImage(pbImage->cloneII()), _cutoff(cutoff),
-	_mode(mode), _useCutoff(useCutoff) {
+	_mode(mode), _useCutoff(useCutoff), _concatHistories(True) {
 	_checkPBSanity();
 	_construct();
 }
 
 ImagePrimaryBeamCorrector::ImagePrimaryBeamCorrector(
-	const SPCIIF image,
-	const Array<Float>& pbArray,
-	const Record *const &regionPtr,
-	const String& region, const String& box,
-	const String& chanInp, const String& stokes,
-	const String& maskInp, const String& outname,
-	const Bool overwrite, const Float cutoff,
-	const Bool useCutoff,
-	const ImagePrimaryBeamCorrector::Mode mode
+	const SPCIIF image, const Array<Float>& pbArray,
+	const Record *const &regionPtr, const String& region, const String& box,
+	const String& chanInp, const String& stokes, const String& maskInp,
+	const String& outname, const Bool overwrite, const Float cutoff,
+	const Bool useCutoff, const ImagePrimaryBeamCorrector::Mode mode
 ) : ImageTask<Float>(
 		image, region, regionPtr, box, chanInp, stokes, maskInp, outname, overwrite
-	), _cutoff(cutoff), _mode(mode), _useCutoff(useCutoff) {
-	*_getLog() << LogOrigin(_class, __FUNCTION__, WHERE);
-	IPosition imShape = _getImage()->shape();
+	), _cutoff(cutoff), _mode(mode), _useCutoff(useCutoff),
+	_concatHistories(False) {
+	*_getLog() << LogOrigin(_class, __func__, WHERE);
+	auto imShape = _getImage()->shape();
 	if (pbArray.shape().isEqual(imShape)) {
-		_pbImage.reset(new TempImage<Float>(imShape, _getImage()->coordinates()));
+		_pbImage.reset(
+		    new TempImage<Float>(imShape, _getImage()->coordinates())
+		);
 	}
 	else if (pbArray.ndim() == 2) {
 		if (_getImage()->coordinates().hasDirectionCoordinate()) {
-			Vector<Int> dirAxes = _getImage()->coordinates().directionAxesNumbers();
-			if (
+			auto dirAxes = _getImage()->coordinates().directionAxesNumbers();
+			ThrowIf(
 				pbArray.shape()[0] != imShape[dirAxes[0]]
-				|| pbArray.shape()[1] != imShape[dirAxes[1]]
-			) {
-				*_getLog() << "Array shape does not equal image direction plane shape" << LogIO::EXCEPTION;
-			}
+				|| pbArray.shape()[1] != imShape[dirAxes[1]],
+				"Array shape does not equal image direction plane shape"
+			);
 			IPosition boxShape(imShape.size(), 1);
 			boxShape[dirAxes[0]] = imShape[dirAxes[0]];
 			boxShape[dirAxes[1]] = imShape[dirAxes[1]];
 			LCBox x(IPosition(imShape.size(), 0), boxShape - 1, imShape);
-			SHARED_PTR<const SubImage<Float> > sub = SubImageFactory<Float>::createSubImageRO(
-				*_getImage(), x.toRecord(""), "", _getLog().get(), AxesSpecifier(false)
+			auto sub = SubImageFactory<Float>::createSubImageRO(
+				*_getImage(), x.toRecord(""), "", _getLog().get(),
+				AxesSpecifier(false)
 			);
-			_pbImage.reset(new TempImage<Float>(sub->shape(), sub->coordinates()));
+			_pbImage.reset(new TempImage<Float>(
+			    sub->shape(), sub->coordinates())
+			);
 		}
 		else {
-			ThrowCc("Image " + _getImage()->name() + " does not have direction coordinate");
+			ThrowCc(
+			    "Image " + _getImage()->name()
+			    + " does not have direction coordinate"
+			);
 		}
 	}
 	else {
-		ThrowCc("Primary beam array is of wrong shape (" + pbArray.shape().toString() + ")");
+		ThrowCc(
+		    "Primary beam array is of wrong shape ("
+		    + pbArray.shape().toString() + ")"
+		);
 	}
 	_pbImage->put(pbArray);
 	_construct();
@@ -200,10 +204,9 @@ CasacRegionManager::StokesControl ImagePrimaryBeamCorrector::_getStokesControl()
 	return CasacRegionManager::USE_ALL_STOKES;
 }
 
-SPIIF ImagePrimaryBeamCorrector::correct(
-	const Bool wantReturn
-) const {
-	*_getLog() << LogOrigin(_class, __FUNCTION__, WHERE);
+SPIIF ImagePrimaryBeamCorrector::correct(Bool wantReturn) {
+    auto origin = LogOrigin(_class, __FUNCTION__, WHERE);
+	*_getLog() << origin;
     std::unique_ptr<ImageInterface<Float> > tmpStore;
     ImageInterface<Float> *pbTemplate = _pbImage.get();
 	if (! _getImage()->shape().isEqual(_pbImage->shape())) {
@@ -213,7 +216,7 @@ SPIIF ImagePrimaryBeamCorrector::correct(
 		);
 		tmpStore.reset(pbTemplate);
 	}
-    SHARED_PTR<const SubImage<Float> > subImage;
+    std::shared_ptr<const SubImage<Float> > subImage;
 	if (_useCutoff) {
 		LatticeExpr<Bool> mask = (_mode == DIVIDE)
 			? *pbTemplate >= _cutoff
@@ -247,12 +250,31 @@ SPIIF ImagePrimaryBeamCorrector::correct(
         AxesSpecifier(), _getStretch()
     );
 	tmpStore.reset(0);
-
 	LatticeExpr<Float> expr = (_mode == DIVIDE)
 		? *subImage/(*pbSubImage)
 		: *subImage*(*pbSubImage);
+	if (_concatHistories) {
+	    // don't write history initially, since we need to concat the two
+	    // image histories
+	    suppressHistoryWriting(True);
+	}
 	SPIIF outImage = _prepareOutputImage(*subImage, expr);
-	// outImage->copyData(expr);
+	if (_concatHistories) {
+	    // now write the history as per CAS-10591
+	    ImageHistory<Float> history(outImage);
+	    // because SubImageFactory::createImage() copied the history when
+	    // called in ImageTask, and that currently can't be supressed. That
+	    // probably needs to be addressed.
+	    history.clear();
+	    history.addHistory(origin, "History of image " + _getImage()->name());
+	    history.append(_getImage());
+        history.addHistory(
+            origin, "End history of image " + _getImage()->name()
+        );
+        history.addHistory(origin, "History of image " + _pbImage->name());
+        history.append(_pbImage);
+        history.addHistory(origin, "End history of image " + _pbImage->name());
+	}
     if (! wantReturn) {
     	outImage.reset();
     }

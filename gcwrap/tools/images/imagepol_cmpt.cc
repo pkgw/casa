@@ -190,7 +190,7 @@ imagepol::depolratio(const std::string& infile, const bool debias, const double 
     Bool rstat(false);
     rstat = itsImPol->depolratio(out, infile, debias, clip, sigma, outfile);
     if (rstat) {
-        SHARED_PTR<ImageInterface<Float> > x(out);
+        std::shared_ptr<ImageInterface<Float> > x(out);
         return new image(x);
     }
     else {
@@ -905,21 +905,21 @@ image* imagepol::totpolint(
     }
 }
 
-SHARED_PTR<Record> imagepol::_getRegion(
+std::shared_ptr<Record> imagepol::_getRegion(
     const variant& region, bool nullIfEmpty
 ) const {
     switch (region.type()) {
     case variant::BOOLVEC:
-        return SHARED_PTR<Record>(nullIfEmpty ? nullptr : new Record());
+        return std::shared_ptr<Record>(nullIfEmpty ? nullptr : new Record());
     case variant::STRING: {
         if (region.toString().empty()) {
-            return SHARED_PTR<Record>(nullIfEmpty ? 0 : new Record());
+            return std::shared_ptr<Record>(nullIfEmpty ? 0 : new Record());
         }
         auto image = itsImPol->getImage();
         ThrowIf(
             ! image, "No attached image. Cannot use a string value for region"
         );
-        return SHARED_PTR<Record>(
+        return std::shared_ptr<Record>(
             new Record(
                 CasacRegionManager::regionFromString(
                     image->coordinates(), region.toString(),
@@ -929,11 +929,11 @@ SHARED_PTR<Record> imagepol::_getRegion(
         );
     }
     case variant::RECORD: {
-        return SHARED_PTR<Record>(
+        return std::shared_ptr<Record>(
             nullIfEmpty && region.size() == 0
             ? 0
             : toRecord(
-                SHARED_PTR<variant>(region.clone())->asRecord()
+                std::shared_ptr<variant>(region.clone())->asRecord()
             )
         );
     }

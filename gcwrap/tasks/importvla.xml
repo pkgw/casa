@@ -52,9 +52,9 @@ importvla(archivefiles=None,vis=None,
 		   </allowed>
 	   </param>
 
-	   <param type="double" name="frequencytol" units="Hz">
+	   <param type="any" name="frequencytol">
 		   <description>Frequency shift to define a unique spectra window (Hz)</description>
-		   <value>150000.0</value>
+		   <value type="string">150000.0Hz</value>
 	   </param>
 
 	   <param type="string" name="project">

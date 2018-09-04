@@ -127,7 +127,7 @@ namespace casa {
 			ImageRegion_state( ) : count_(0) { }
 			ImageRegion_state( casacore::ImageRegion *ir, size_t region_count ) : imageregion(ir), count_(region_count) { }
 			ImageRegion_state( const ImageRegion_state &other ) : imageregion(other.imageregion), count_(other.count_) { }
-			operator SHARED_PTR<casacore::ImageRegion>( ) {
+			operator std::shared_ptr<casacore::ImageRegion>( ) {
 				return imageregion;
 			}
 			size_t regionCount( ) const {
@@ -137,7 +137,7 @@ namespace casa {
 			void* operator new (std::size_t) throw (std::logic_error) {
 				throw std::logic_error("allocating an object not intended for dynamic allocation");
 			}
-			SHARED_PTR<casacore::ImageRegion> imageregion;
+			std::shared_ptr<casacore::ImageRegion> imageregion;
 			size_t count_;
 		};
 
@@ -339,15 +339,15 @@ namespace casa {
 				if ( hold_signals < 0 ) hold_signals = 0;
 			}
 
-			virtual std::list<SHARED_PTR<RegionInfo> > *statistics( ) {
+			virtual std::list<std::shared_ptr<RegionInfo> > *statistics( ) {
 				return generate_dds_statistics( );
 			}
 
 			// called when creating regions to allow suppression of corner-handle drawing...
-			static SHARED_PTR<viewer::Region> creatingRegion( ) {
+			static std::shared_ptr<viewer::Region> creatingRegion( ) {
 				return creating_region;
 			}
-			static void creatingRegionBegin( SHARED_PTR<viewer::Region> r ) {
+			static void creatingRegionBegin( std::shared_ptr<viewer::Region> r ) {
 				creating_region = r;
 			}
 			static void creatingRegionEnd( ) {
@@ -497,11 +497,11 @@ namespace casa {
 
 		protected:
 			void initHistogram();
-			virtual std::list<SHARED_PTR<RegionInfo> > *generate_dds_statistics( );
+			virtual std::list<std::shared_ptr<RegionInfo> > *generate_dds_statistics( );
 
 			// hook to allow generate_dds_statistics( ) to generate statistics
 			// for rectangular measurement set regions...
-			virtual void generate_nonimage_statistics( DisplayData*, std::list<SHARED_PTR<RegionInfo> > * ) { }
+			virtual void generate_nonimage_statistics( DisplayData*, std::list<std::shared_ptr<RegionInfo> > * ) { }
 			// newInfoObject(...) is currently only used for PVLine regions, but it should be used for
 			// other regions to allow for specialized creation of the region info objects for display
 			// in "statistics"...
@@ -515,14 +515,14 @@ namespace casa {
 			virtual const std::set<Region*> &get_selected_regions( );
 			virtual ImageRegion_state get_image_selected_region( DisplayData* );
 
-			virtual std::list<SHARED_PTR<RegionInfo> > *generate_dds_centers( ) = 0;
+			virtual std::list<std::shared_ptr<RegionInfo> > *generate_dds_centers( ) = 0;
 
 			static int getAxisIndex( casacore::ImageInterface<float> *image, std::string axtype );
 
 			inline double linear_average( double a, double b ) const {
 				return (a + b) / 2.0;
 			}
-			RegionInfo::center_t *getLayerCenter( PrincipalAxesDD *padd, SHARED_PTR<casacore::ImageInterface<float> > image, casacore::ImageRegion& imgReg);
+			RegionInfo::center_t *getLayerCenter( PrincipalAxesDD *padd, std::shared_ptr<casacore::ImageInterface<float> > image, casacore::ImageRegion& imgReg);
 			RegionInfo::stats_t  *getLayerStats( PrincipalAxesDD *padd, casacore::ImageInterface<float> *image, casacore::ImageRegion& imgReg );
 
 			region::Units current_xunits( ) const;
@@ -560,7 +560,7 @@ namespace casa {
 			bool mouse_in_region;
 
 			// Holds a pointer to the region currently being created...
-			static SHARED_PTR<Region> creating_region;
+			static std::shared_ptr<Region> creating_region;
 
 		private slots:
 			//Called when the histogram stack needs to be changed due

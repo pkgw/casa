@@ -776,6 +776,7 @@ Bool Calibrater::setsolve (const String& type,
                            const String& refant,
                            const String& refantmode,
 			   const Bool solnorm,
+			   const String& normtype,
 			   const Float minsnr,
 			   const String& combine,
 			   const Int fillgaps,
@@ -840,7 +841,7 @@ Bool Calibrater::setsolve (const String& type,
   solvepar.define ("table", table);
   solvepar.define ("append", append);
   solvepar.define ("solnorm", solnorm);
-
+  solvepar.define ("normtype", normtype);
   // Fringe-fit specific
   solvepar.define ("minsnr", minsnr);
   solvepar.define ("zerorates", zerorates);

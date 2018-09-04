@@ -119,8 +119,8 @@ CountedPtr<const WCRegion>  AnnRegion::getRegion() const {
 	return _imageRegion.asWCRegionPtr()->cloneRegion();
 }
 
-SHARED_PTR<const WCRegion>  AnnRegion::getRegion2() const {
-	return SHARED_PTR<const WCRegion>(_imageRegion.asWCRegionPtr()->cloneRegion());
+std::shared_ptr<const WCRegion>  AnnRegion::getRegion2() const {
+	return std::shared_ptr<const WCRegion>(_imageRegion.asWCRegionPtr()->cloneRegion());
 }
 
 Bool AnnRegion::isRegion() const {
