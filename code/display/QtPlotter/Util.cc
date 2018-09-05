@@ -233,7 +233,7 @@ namespace casa {
 		}
 	}
 
-	int Util::getTabularFrequencyAxisIndex(SHARED_PTR<const ImageInterface<Float> > img){
+	int Util::getTabularFrequencyAxisIndex(std::shared_ptr<const ImageInterface<Float> > img){
 		int tabIndex = -1;
 		const DisplayCoordinateSystem cSys = img->coordinates();
 		Int tabularCoordinateIndex = cSys.findCoordinate( Coordinate::TABULAR);
@@ -463,7 +463,7 @@ namespace casa {
 		return regionRecord;
 	}
 
-	std::pair<Vector<Float>,Vector<Float> > Util::getProfile(SHARED_PTR<const casacore::ImageInterface<Float> >& imagePtr,
+	std::pair<Vector<Float>,Vector<Float> > Util::getProfile(std::shared_ptr<const casacore::ImageInterface<Float> >& imagePtr,
 					const Vector<Double>& x, const Vector<Double>& y, const String& shape,
 					int tabularAxis, ImageCollapserData::AggregateType function, String unit,
 					const String& coordinateType, const Quantity *const restFreq, const String& frame){

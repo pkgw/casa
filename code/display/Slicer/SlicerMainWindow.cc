@@ -345,7 +345,7 @@ namespace casa {
 	}
 
 
-	void SlicerMainWindow::setImage( SHARED_PTR<ImageInterface<float> > img ) {
+	void SlicerMainWindow::setImage( std::shared_ptr<ImageInterface<float> > img ) {
 		slicePlot.setImage( img );
 	}
 

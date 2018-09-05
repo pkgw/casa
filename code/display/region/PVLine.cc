@@ -584,9 +584,9 @@ namespace casa {
 			return result;
 		}
 
-		std::list<SHARED_PTR<RegionInfo> > * PVLine::generate_dds_centers( ) {
+		std::list<std::shared_ptr<RegionInfo> > * PVLine::generate_dds_centers( ) {
 
-			std::list<SHARED_PTR<RegionInfo> > *region_centers = new std::list<SHARED_PTR<RegionInfo> >( );
+			std::list<std::shared_ptr<RegionInfo> > *region_centers = new std::list<std::shared_ptr<RegionInfo> >( );
 			if( wc_==0 ) return region_centers;
 
 			Int zindex = 0;
@@ -626,7 +626,7 @@ namespace casa {
 				try {
 					if ( ! padd->conformsTo(*wc_) ) continue;
 
-					SHARED_PTR<ImageInterface<Float> > image(padd->imageinterface( ));
+					std::shared_ptr<ImageInterface<Float> > image(padd->imageinterface( ));
 
 					if ( image == 0 ) continue;
 
@@ -690,7 +690,7 @@ namespace casa {
 					WCBox box(blcq, trcq, cs, Vector<Int>());
 					ImageRegion *imageregion = new ImageRegion(box);
 
-					region_centers->push_back( SHARED_PTR<RegionInfo>( new PVLineRegionInfo( name, description,
+					region_centers->push_back( std::shared_ptr<RegionInfo>( new PVLineRegionInfo( name, description,
 					                           getLayerCenter(padd, image, *imageregion),
 					                           std::vector<std::string>( ),
 					                           std::vector<std::string>( ),
@@ -730,7 +730,7 @@ namespace casa {
 			lin(1) = trc_y;
 			if ( ! wc_->linToWorld(trc, lin)) return 0;
 
-			SHARED_PTR<ImageInterface<Float> > image( padd->imageinterface( ));
+			std::shared_ptr<ImageInterface<Float> > image( padd->imageinterface( ));
 			if ( ! image ) return 0;
 
 			Vector<Int> dispAxes = padd->displayAxes( );
@@ -868,11 +868,11 @@ namespace casa {
 			return path_;
 		}
 
-        SHARED_PTR<ImageInterface<Float> > PVLine::generatePVImage( SHARED_PTR<ImageInterface<Float> > input_image, std::string output_file, int width, bool need_result ) {
+        std::shared_ptr<ImageInterface<Float> > PVLine::generatePVImage( std::shared_ptr<ImageInterface<Float> > input_image, std::string output_file, int width, bool need_result ) {
 			Record dummy;
 			PVGenerator pvgen( input_image, &dummy, "" /*chanInp*/, "" /*stokes*/, "" /*maskInp*/, output_file, true );
 			double startx, starty, endx, endy;
-            SHARED_PTR<ImageInterface<Float> > result;
+            std::shared_ptr<ImageInterface<Float> > result;
 			try {
 				linear_to_pixel( wc_, pt1_x, pt1_y, pt2_x, pt2_y, startx, starty, endx, endy );
 			} catch(...) {
@@ -922,12 +922,12 @@ namespace casa {
 				if ( padd == 0 ) continue;
 				// Hmm doesn't this always return 0?
 				// PrincipalAxesDD.h does not declare it so it has to come from
-				// DisplayData, but that always returns 0 - dmehring SHARED_PTR refactor
-				SHARED_PTR<ImageInterface<Float> > image( padd->imageinterface( ));
-				SHARED_PTR<ImageInterface<Float> > ptr(image);
+				// DisplayData, but that always returns 0 - dmehring std::shared_ptr refactor
+				std::shared_ptr<ImageInterface<Float> > image( padd->imageinterface( ));
+				std::shared_ptr<ImageInterface<Float> > ptr(image);
 				if ( image->name( ) == casa_desc ) {
 					display_element de( name );
-					SHARED_PTR<ImageInterface<Float> > new_image(generatePVImage( ptr, de.outputPath( ), width, true ));
+					std::shared_ptr<ImageInterface<Float> > new_image(generatePVImage( ptr, de.outputPath( ), width, true ));
 					if ( sub_dpg == 0 ) {
 						sub_dpg = dock_->panel( )->createNewPanel( );
 						connect( sub_dpg, SIGNAL(destroyed(QObject*)), SLOT(dpg_deleted(QObject*)) );

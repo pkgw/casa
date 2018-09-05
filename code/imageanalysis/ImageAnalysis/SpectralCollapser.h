@@ -133,7 +133,7 @@ private:
    casacore::Bool _cleanTmpData(const casacore::String &tmpFileName) const;
    casacore::Bool _cleanTmpData(const casacore::String &tmpData, const casacore::String &tmpError) const;
    casacore::Bool _getQualitySubImg(const casacore::ImageInterface<casacore::Float>* image, const casacore::Bool &data, casacore::SubImage<casacore::Float> &qualitySub);
-   casacore::Bool _getQualitySubImgs(SPCIIF image, SHARED_PTR<casacore::SubImage<casacore::Float> > &subData, SHARED_PTR<casacore::SubImage<casacore::Float> > &subError) const;
+   casacore::Bool _getQualitySubImgs(SPCIIF image, std::shared_ptr<casacore::SubImage<casacore::Float> > &subData, std::shared_ptr<casacore::SubImage<casacore::Float> > &subError) const;
    casacore::Bool _getOutputName(const casacore::String &wcsInp, casacore::String &outImg, casacore::String &outImgData, casacore::String &outImgError) const;
    casacore::Bool _collapse(const SPCIIF image, const casacore::String &aggString,
    		const casacore::String& chanInp, const casacore::String& outname) const;

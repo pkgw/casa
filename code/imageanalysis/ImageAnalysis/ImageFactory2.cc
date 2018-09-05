@@ -42,7 +42,7 @@ using namespace casacore;
 namespace casa {
 
 
-SHARED_PTR<ComponentListImage> ImageFactory::createComponentListImage(
+std::shared_ptr<ComponentListImage> ImageFactory::createComponentListImage(
     const String& outfile, const Record& cl, const Vector<Int>& shape,
     const Record& csys, Bool overwrite, Bool log, Bool cache
 ) {
@@ -63,7 +63,7 @@ SHARED_PTR<ComponentListImage> ImageFactory::createComponentListImage(
         mycsys = *csysPtr;
     }
 
-    SHARED_PTR<ComponentListImage> image(
+    std::shared_ptr<ComponentListImage> image(
         outfile.empty()
         ? new ComponentListImage(mycl, mycsys, IPosition(shape), cache)
         : new ComponentListImage(mycl, mycsys, IPosition(shape), outfile, cache)

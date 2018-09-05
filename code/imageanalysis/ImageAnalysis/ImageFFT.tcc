@@ -305,7 +305,7 @@ void ImageFFT<T>::_setSkyCoordinates (
 	axes[pixelAxes[0]] = true;
 	axes[pixelAxes[1]] = true;
 	// FT the CS
-	SHARED_PTR<casacore::Coordinate> pC(
+	std::shared_ptr<casacore::Coordinate> pC(
 		csys.makeFourierCoordinate(axes, shape.asVector())
 	);
 	// Replace TempImage CS with the new one
@@ -323,7 +323,7 @@ void ImageFFT<T>::_setCoordinates (
 	const casacore::Vector<casacore::Bool>& axes,
 	const casacore::IPosition& shape
 ) {
-	SHARED_PTR<casacore::Coordinate> pC(
+	std::shared_ptr<casacore::Coordinate> pC(
 		cSys.makeFourierCoordinate(axes, shape.asVector())
 	);
 	auto *pCS = (CoordinateSystem*)(pC.get());

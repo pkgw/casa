@@ -166,7 +166,7 @@ namespace casa {
 		displayData = dd;
 		if ( displayData != NULL ) {
 			connect( displayData, SIGNAL(colorBarChange()), this, SLOT( colorsChanged()));
-			SHARED_PTR<ImageInterface<float> > img = displayData->imageInterface();
+			std::shared_ptr<ImageInterface<float> > img = displayData->imageInterface();
 			histogram->setImage( img );
 			colorsChanged();
 		}

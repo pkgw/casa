@@ -249,7 +249,7 @@ bool image::addnoise(
             return false;
         }
         auto pRegion = _getRegion(region, false);
-        SHARED_PTR<std::pair<Int, Int> > seedPair(
+        std::shared_ptr<std::pair<Int, Int> > seedPair(
             new std::pair<Int, Int>(0, 0)
         );
         if (seeds.size() >= 2) {
@@ -680,7 +680,7 @@ image* image::collapse(
         else {
             ThrowCc("Unsupported type for parameter axes");
         }
-        SHARED_PTR<Record> regRec = _getRegion(region, true);
+        std::shared_ptr<Record> regRec = _getRegion(region, true);
         String aggString = function;
         aggString.trim();
         aggString.downcase();
@@ -801,7 +801,7 @@ image* image::continuumsub(
                 << "to select the polarization in which you are interested."
                 << LogIO::POST;
         }
-        SHARED_PTR<Record> leRegion = _getRegion(region, false);
+        std::shared_ptr<Record> leRegion = _getRegion(region, false);
         vector<Int> planes = channels;
         if (planes.size() == 1 && planes[0] == -1) {
             planes.resize(0);
@@ -972,7 +972,7 @@ template <class T> image* image::_convolve(
         ThrowCc("kernel is not understood, try using an array or an image");
     }
     auto theMask = _getMask(vmask);
-    SHARED_PTR<Record> myregion = _getRegion(region, false);
+    std::shared_ptr<Record> myregion = _getRegion(region, false);
     ImageConvolverTask<T> ic(
         myImage, myregion.get(), theMask, outfile, overwrite
     );
@@ -1058,7 +1058,7 @@ template<class T> image* image::_convolve2d(
     bool targetres, const record& beam
 ) {
     UnitMap::putUser("pix", UnitVal(1.0), "pixel units");
-    SHARED_PTR<Record> Region(_getRegion(region, false));
+    std::shared_ptr<Record> Region(_getRegion(region, false));
     auto mask = _getMask(vmask);
     String kernel(type);
     casacore::Quantity majorKernel;
@@ -1299,7 +1299,7 @@ image* image::crop(
             }
         }
         std::set<uInt> saxes(axes.begin(), axes.end());
-        SHARED_PTR<Record> regionPtr = _getRegion(region, true);
+        std::shared_ptr<Record> regionPtr = _getRegion(region, true);
         ImageCropper<Float> cropper(
             _imageF, regionPtr.get(), box,
             chans, stokes, mask, outfile, overwrite
@@ -1364,7 +1364,7 @@ image* image::decimate(
         else {
             ThrowCc("Unsupported decimation method " + method);
         }
-        SHARED_PTR<Record> regPtr(_getRegion(region, true));
+        std::shared_ptr<Record> regPtr(_getRegion(region, true));
         vector<String> msgs;
         if (_doHistory) {
             vector<String> names {
@@ -1404,7 +1404,7 @@ template <class T> image* image::_decimate(
     const SPCIIT myimage,
     const string& outfile, int axis, int factor,
     ImageDecimatorData::Function f,
-    const SHARED_PTR<Record> region,
+    const std::shared_ptr<Record> region,
     const string& mask, bool overwrite, bool stretch,
     const vector<String>& msgs
 ) const {
@@ -1621,7 +1621,7 @@ record* image::findsources(
             return nullptr;
         }
         ThrowIf(! _imageF, "This application supports only float-valued images");
-        SHARED_PTR<Record> Region(_getRegion(region, false));
+        std::shared_ptr<Record> Region(_getRegion(region, false));
         auto mask = _getMask(vmask);
         ImageSourceFinder<Float> sf(_imageF, Region.get(), mask);
         sf.setCutoff(cutoff);
@@ -1697,7 +1697,7 @@ template<class T> bool image::_fft(
     const variant& region, const variant& vmask, bool stretch,
     const string& complexOut
 ) {
-    SHARED_PTR<Record> myregion(_getRegion(region, false));
+    std::shared_ptr<Record> myregion(_getRegion(region, false));
     String mask = vmask.toString();
     if (mask == "[]") {
         mask = "";
@@ -1948,7 +1948,7 @@ record* image::fitprofile(const string& box, const variant& region,
             "This method only supports Float valued images"
         );
         String regionName;
-        SHARED_PTR<Record> regionPtr = _getRegion(region, true);
+        std::shared_ptr<Record> regionPtr = _getRegion(region, true);
         if (ngauss < 0) {
             _log << LogIO::WARN
                 << "ngauss < 0 is meaningless. Setting ngauss = 0 "
@@ -2030,7 +2030,7 @@ record* image::fitprofile(const string& box, const variant& region,
             "the either (or neither in which "
             "case you must specify ngauss and/or poly)"
         );
-        SHARED_PTR<ImageProfileFitter> fitter;
+        std::shared_ptr<ImageProfileFitter> fitter;
         if (spectralList.nelements() > 0) {
             fitter.reset(new ImageProfileFitter(
                 _imageF, regionName, regionPtr.get(),
@@ -2411,7 +2411,7 @@ bool image::fromimage(
     try {
         _log << _ORIGIN;
         String theMask = _getMask(mask);
-        SHARED_PTR<Record> regionPtr(_getRegion(region, false));
+        std::shared_ptr<Record> regionPtr(_getRegion(region, false));
         auto imagePtrs = ImageFactory::fromImage(
             outfile, infile, *regionPtr, theMask,
             dropdeg, overwrite
@@ -2689,8 +2689,8 @@ record* image::getprofile(
         );
         _notSupported(__func__);
         ThrowIf(axis<0, "Axis must be greater than 0");
-        SHARED_PTR<Record> myregion(_getRegion(region, false));
-        SHARED_PTR<casacore::Quantity> rfreq;
+        std::shared_ptr<Record> myregion(_getRegion(region, false));
+        std::shared_ptr<casacore::Quantity> rfreq;
         if (restfreq.type() != variant::BOOLVEC) {
             String rf = restfreq.toString();
             rf.trim();
@@ -2984,7 +2984,7 @@ image* image::hanning(
 }
 
 template <class T> image* image::_hanning(
-    SPCIIT myimage, SHARED_PTR<const Record> region,
+    SPCIIT myimage, std::shared_ptr<const Record> region,
     const String& mask, const string& outfile, bool overwrite,
     bool stretch, int axis, bool drop,
     ImageDecimatorData::Function dFunction,
@@ -3226,7 +3226,7 @@ image* image::imageconcat(
         );
         auto first = imageNames[0];
         imageNames.erase(imageNames.begin());
-        SHARED_PTR<LatticeBase> latt(ImageOpener::openImage(first));
+        std::shared_ptr<LatticeBase> latt(ImageOpener::openImage(first));
         ThrowIf (! latt, "Unable to open image " + first);
         auto dataType = latt->dataType();
         if (dataType == TpFloat) {
@@ -3276,7 +3276,7 @@ image* image::imageconcat(
 }
 
 template<class T> SPIIT image::_concat(
-    SHARED_PTR<LatticeBase> latt, const string& outfile,
+    std::shared_ptr<LatticeBase> latt, const string& outfile,
     const variant& infiles, int axis, bool relax, bool tempclose,
     bool overwrite, bool reorder, const vector<String>& imageNames
 ) {
@@ -3428,7 +3428,7 @@ bool image::makecomplex(
         ThrowIf(
             ! (_imageF || _imageD), "The attached image must be float valued"
         );
-        SHARED_PTR<Record> Region(_getRegion(region, false));
+        std::shared_ptr<Record> Region(_getRegion(region, false));
         auto imagePtrs = ImageFactory::fromFile(imagFile);
         auto imageF = std::get<0>(imagePtrs);
         auto imageD = std::get<2>(imagePtrs);
@@ -3809,7 +3809,7 @@ bool image::modify(
             ! cl.fromRecord(error, *mymodel),
             "model is an invalid componentlist record"
         );
-        SHARED_PTR<Record> Region = _getRegion(region, false);
+        std::shared_ptr<Record> Region = _getRegion(region, false);
         String mask = _getMask(vmask);
         ComponentImager ci(
             _imageF, Region.get(), mask
@@ -3861,7 +3861,7 @@ image* image::moments(
         _notSupported(__func__);
         UnitMap::putUser("pix", UnitVal(1.0), "pixel units");
         Vector<Int> whichmoments(moments);
-        SHARED_PTR<Record> Region(_getRegion(region, false));
+        std::shared_ptr<Record> Region(_getRegion(region, false));
         auto mask = _getMask(vmask);
         Vector<String> kernels;
         if (smoothtypes.type() == ::casac::variant::BOOLVEC) {
@@ -4676,9 +4676,9 @@ image* image::pv(
             ! _imageF,
             "This method only supports Float valued images"
         );
-        SHARED_PTR<casacore::MDirection> startMD, endMD, centerMD;
+        std::shared_ptr<casacore::MDirection> startMD, endMD, centerMD;
         Vector<Double> startPix, endPix, centerPix;
-        SHARED_PTR<casacore::Quantity> lengthQ;
+        std::shared_ptr<casacore::Quantity> lengthQ;
         Double lengthD = 0;
         if (! start.empty() && ! end.empty()) {
             ThrowIf(
@@ -4756,7 +4756,7 @@ image* image::pv(
             _log << LogIO::WARN << "outfile was not specified and wantreturn is false. "
                 << "The resulting image will be inaccessible" << LogIO::POST;
         }
-        SHARED_PTR<Record> regionPtr = _getRegion(region, true);
+        std::shared_ptr<Record> regionPtr = _getRegion(region, true);
         PVGenerator pv(
             _imageF, regionPtr.get(),
             chans, stokes, mask, outfile, overwrite
@@ -6170,7 +6170,7 @@ bool image::toASCII(
         ) {
             Mask = mask.toString();
         }
-        SHARED_PTR<Record> pRegion(_getRegion(region, false));
+        std::shared_ptr<Record> pRegion(_getRegion(region, false));
         ImageFactory::toASCII(
             _imageF, outfile, *pRegion, Mask,
             sep, format, maskvalue, overwrite, stretch
@@ -6208,7 +6208,7 @@ bool image::tofits(
             fitsfile == "." || fitsfile == "..",
             "Invalid fitsfile name " + fitsfile
         );
-        SHARED_PTR<Record> pRegion(_getRegion(region, false));
+        std::shared_ptr<Record> pRegion(_getRegion(region, false));
         String mask = vmask.toString();
         if (mask == "[]") {
             mask = "";
@@ -6448,7 +6448,7 @@ bool image::twopointcorrelation(
     try {
         _notSupported(__func__);
         String outFile(outfile);
-        SHARED_PTR<Record> Region(_getRegion(region, false));
+        std::shared_ptr<Record> Region(_getRegion(region, false));
         String mask = vmask.toString();
         if (mask == "[]") {
             mask = "";
@@ -6495,7 +6495,7 @@ bool image::twopointcorrelation(
 
 template <class T> SPIIT image::_twopointcorrelation(
     SPIIT myimage, const std::string& outfile,
-    SHARED_PTR<Record> region, const casacore::String& mask,
+    std::shared_ptr<Record> region, const casacore::String& mask,
     const IPosition& axes, const std::string& method,
     bool overwrite, bool stretch, const LogOrigin& origin,
     const vector<String>& msgs
@@ -6816,7 +6816,7 @@ bool image::isconform(const string& other) {
             : imageC->shape();
         const auto& csys = imageF ? imageF->coordinates()
                 : imageC->coordinates();
-        SHARED_PTR<const ImageInterface<Float> > mine = _imageF;
+        std::shared_ptr<const ImageInterface<Float> > mine = _imageF;
         if (
             _imageF->shape().isEqual(shape)
             && _imageF->coordinates().near(csys)
@@ -6842,13 +6842,13 @@ bool image::isconform(const string& other) {
     }
 }
 
-SHARED_PTR<Record> image::_getRegion(
+std::shared_ptr<Record> image::_getRegion(
     const ::casac::variant& region, const bool nullIfEmpty,
     const string& otherImageName
 ) const {
     switch (region.type()) {
     case variant::BOOLVEC:
-        return SHARED_PTR<Record>(nullIfEmpty ? 0 : new Record());
+        return std::shared_ptr<Record>(nullIfEmpty ? 0 : new Record());
     case variant::STRING: {
         IPosition shape;
         CoordinateSystem csys;
@@ -6884,7 +6884,7 @@ SHARED_PTR<Record> image::_getRegion(
                 csys = imagec->coordinates();
             }
         }
-        return SHARED_PTR<Record>(
+        return std::shared_ptr<Record>(
             region.toString().empty()
                 ? nullIfEmpty ? 0 : new Record()
                 : new Record(
@@ -6897,12 +6897,12 @@ SHARED_PTR<Record> image::_getRegion(
     }
     case variant::RECORD:
         {
-            SHARED_PTR<variant> clon(region.clone());
-            return SHARED_PTR<casacore::Record>(
+            std::shared_ptr<variant> clon(region.clone());
+            return std::shared_ptr<casacore::Record>(
                 nullIfEmpty && region.size() == 0
                     ? nullptr
                     : toRecord(
-                        SHARED_PTR<::casac::variant>(region.clone())->asRecord()
+                        std::shared_ptr<::casac::variant>(region.clone())->asRecord()
                     )
             );
         }

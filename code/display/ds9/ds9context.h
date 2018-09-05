@@ -86,7 +86,7 @@ namespace casa {
 		public:
 			ds9context( WorldCanvas *wc, RegionToolManager *mgr ) : wc_(wc), toolmgr(mgr) { }
 
-			SHARED_PTR<RegionTool> tool ( region::RegionTypes t )
+			std::shared_ptr<RegionTool> tool ( region::RegionTypes t )
 				{ return toolmgr->tool(t); }
 
 			double mapAngleFromRef(double /*angle*/, CoordSystem /*sys*/, SkyFrame /*sky*/) {

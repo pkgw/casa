@@ -57,7 +57,7 @@ namespace casa {
 		void initPlot();
 		void setIndex( int stackIndex );
 		void setNextEnabled( bool enabled );
-		void setImage( SHARED_PTR<casacore::ImageInterface<float> > image );
+		void setImage( std::shared_ptr<casacore::ImageInterface<float> > image );
 		void setImageRegion( casacore::ImageRegion* region, int id );
 
 	signals:

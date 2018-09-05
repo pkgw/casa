@@ -61,27 +61,27 @@ namespace casa {
 				(*(pd->myWCLI))++;
 			}
 
-			SHARED_PTR<RegionTool> point(new QtCrossTool(rsf,pd));
+			std::shared_ptr<RegionTool> point(new QtCrossTool(rsf,pd));
 			tools.insert(tool_map::value_type(PointTool,point));
 			pd->addTool(QtMouseToolNames::POINT, point);
 
-			SHARED_PTR<RegionTool> poly(new QtPolyTool(rsf,pd));
+			std::shared_ptr<RegionTool> poly(new QtPolyTool(rsf,pd));
 			tools.insert(tool_map::value_type(PolyTool,poly));
 			pd->addTool(QtMouseToolNames::POLYGON,poly);
 
-			SHARED_PTR<RegionTool> polyline(new QtPolylineTool(rsf,pd));
+			std::shared_ptr<RegionTool> polyline(new QtPolylineTool(rsf,pd));
 			tools.insert(tool_map::value_type(PolylineTool,polyline));
 			pd->addTool(QtMouseToolNames::POLYLINE,polyline);
 
-			SHARED_PTR<RegionTool> rect(new QtRectTool(rsf,pd));
+			std::shared_ptr<RegionTool> rect(new QtRectTool(rsf,pd));
 			tools.insert(tool_map::value_type(RectTool,rect));
 			pd->addTool(QtMouseToolNames::RECTANGLE, rect);
 
-			SHARED_PTR<RegionTool> ellipse(new QtEllipseTool(rsf,pd));
+			std::shared_ptr<RegionTool> ellipse(new QtEllipseTool(rsf,pd));
 			tools.insert(tool_map::value_type(EllipseTool,ellipse));
 			pd->addTool(QtMouseToolNames::ELLIPSE, ellipse);
 
-			SHARED_PTR<RegionTool> pv(new QtPVTool(rsf,pd));
+			std::shared_ptr<RegionTool> pv(new QtPVTool(rsf,pd));
 			tools.insert(tool_map::value_type(PVTool,pv));
 			pd->addTool(QtMouseToolNames::POSITIONVELOCITY, pv);
 		}
@@ -114,7 +114,7 @@ namespace casa {
 		bool RegionToolManager::add_mark_select( RegionTool::State &state, region::RegionSelect select ) {
 			region::RegionTypes region_type = region::select_to_region(select);
 			if ( state.count( region::PointInside ) > 0 ) {
-				SHARED_PTR<viewer::region::region_list_type> new_marked_regions = state.regions(region::PointInside, select);
+				std::shared_ptr<viewer::region::region_list_type> new_marked_regions = state.regions(region::PointInside, select);
 				for ( region::region_list_type::iterator it=new_marked_regions->begin( ); it != new_marked_regions->end( ); ++it ) {
 					if ( (select == region::SelectAny || region_type == (*it)->type( )) && (*it)->mark_toggle( ) ) {
 						(*it)->selectedInCanvas( );
@@ -161,7 +161,7 @@ namespace casa {
 			r->weaklyUnselectLimited( );
 		}
 		bool RegionToolManager::setup_moving_regions( RegionTool::State &state, region::RegionSelect select ) {
-			SHARED_PTR<viewer::region::region_list_type> point_inside = state.regions( region::PointInside, select );
+			std::shared_ptr<viewer::region::region_list_type> point_inside = state.regions( region::PointInside, select );
 			region::region_list_type intersection;
 
 			// intersection of marked regions and regions inclosing the current point...
@@ -250,7 +250,7 @@ namespace casa {
 		}
 
 		bool RegionToolManager::process_double_click( RegionTool::State &state, region::RegionSelect select ) {
-			SHARED_PTR<viewer::region::region_list_type> point_inside = state.regions( region::PointInside, select );
+			std::shared_ptr<viewer::region::region_list_type> point_inside = state.regions( region::PointInside, select );
 			if ( point_inside->size( ) <= 0 ) return false;
 			region::region_list_type intersection;
 			// intersection of marked regions and regions inclosing the current point...
@@ -298,7 +298,7 @@ namespace casa {
 			if ( ev.keystate() ) {
 
 				// find which buttons are bound to region keys...
-				typedef std::map<Display::KeySym,SHARED_PTR<RegionTool> > keytools_t;
+				typedef std::map<Display::KeySym,std::shared_ptr<RegionTool> > keytools_t;
 				keytools_t region_buttons;
 				for ( tool_map::iterator it = tools.begin( ); it != tools.end( ); ++it ) {
 					Display::KeySym sym = (*it).second->getKey( );
@@ -322,7 +322,7 @@ namespace casa {
 					} else if ( ev.modifiers( ) & Display::KM_Double_Click ) {
 						if ( process_double_click( state, selection ) ) return;
 					} else {
-						SHARED_PTR<viewer::region::region_list_type> handles = state.regions( region::PointHandle, selection );
+						std::shared_ptr<viewer::region::region_list_type> handles = state.regions( region::PointHandle, selection );
 						if ( handles->size( ) > 0 ) {
 							moving_handle = true;
 							moving_handle_info = state.state(*handles->begin());
@@ -1000,7 +1000,7 @@ namespace casa {
             }
         }
 
-		SHARED_PTR<RegionTool> RegionToolManager::tool( region::RegionTypes type ) {
+		std::shared_ptr<RegionTool> RegionToolManager::tool( region::RegionTypes type ) {
 			switch ( type ) {
 			case region::RectRegion:
 				return tools[RectTool];
@@ -1015,7 +1015,7 @@ namespace casa {
 			case region::PVLineRegion:
 				return tools[PVTool];
 			default:
-				return SHARED_PTR<RegionTool>( );
+				return std::shared_ptr<RegionTool>( );
 			}
 		}
 

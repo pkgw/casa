@@ -60,7 +60,7 @@ private:
 	DistSIIterBot_state &operator=(const DistSIIterBot_state &);
 
 public:
-	DistSIIterBot_state(SHARED_PTR<SIIterBot_callback>, MPI_Comm);
+	DistSIIterBot_state(std::shared_ptr<SIIterBot_callback>, MPI_Comm);
 	~DistSIIterBot_state( );
 
 	bool interactiveInputRequired();

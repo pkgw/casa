@@ -53,7 +53,7 @@ SpectralElement::SpectralElement(const SpectralElement &other)
 : _type(other._type), _params(other._params.copy()), _errors(other._errors.copy()),
   _fixed(other._fixed.copy()),
   _function(
-		SHARED_PTR<Function<Double, Double> >(
+		std::shared_ptr<Function<Double, Double> >(
 			other._function->clone()
 		)
 	) {}
@@ -72,7 +72,7 @@ SpectralElement &SpectralElement::operator=(
 		_errors = other._errors.copy();
 		_fixed.resize(n);
 		_fixed = other._fixed.copy();
-		_function = SHARED_PTR<Function<Double, Double> >(
+		_function = std::shared_ptr<Function<Double, Double> >(
 			other._function->clone()
 		);
 	}
@@ -165,7 +165,7 @@ Bool SpectralElement::toType(
 }
 
 void SpectralElement::_setFunction(
-	const SHARED_PTR<Function<Double, Double> >& f
+	const std::shared_ptr<Function<Double, Double> >& f
 ) {
 	_function = f;
 }
