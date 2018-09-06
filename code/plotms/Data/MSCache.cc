@@ -1925,8 +1925,8 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		for (decltype(nAnts) iant = 0; iant < nAnts; ++iant) {
 			raDecMat.column(iant) = dir1Vec(iant).getAngle("deg").getValue();
 		}
-		*ra_[vbnum] = raDecMat.row(0);
-		*dec_[vbnum] = raDecMat.row(1);
+		//*ra_[vbnum] = raDecMat.row(0);
+		//*dec_[vbnum] = raDecMat.row(1);
 		*((*loadRa_)[vbnum]) = raDecMat.row(0);
 		*((*loadDec_)[vbnum]) = raDecMat.row(1);
 		break;

@@ -186,9 +186,9 @@ public:
     // **If these are changed, also update: xmlcasa/tasks/plotms.xml.**
     // <group>
     PMS_ENUM1(InterpMethod, interpMethods, interpMethodStrings, interpMethod,
-              NEAREST, LINEAR, CUBIC)
+              NEAREST, CUBIC)
     PMS_ENUM2(InterpMethod, interpMethods, interpMethodStrings, interpMethod,
-              "Nearest", "Linear", "Cubic")
+              "Nearest", "Cubic")
     // </group>
 
     // Returns whether or not the given axis needs the second data parameter to

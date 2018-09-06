@@ -41,65 +41,82 @@ namespace casa {
 // Constructors/Destructors //
 
 PlotMSAxisWidget::PlotMSAxisWidget(PMS::Axis defaultAxis, int attachAxes,
-        QWidget* parent) : QtEditingWidget(parent) {
-    setupUi(this);
-    
-    // Setup axes choices.
-    const vector<String>& axes = PMS::axesStrings();
-    String def = PMS::axis(defaultAxis);
-    // Hiding the last two axes (overlays) from the user....
-    for(unsigned int i = 0; i < axes.size()-3; i++) {
-        chooser->addItem(axes[i].c_str());
-        if(axes[i] == def) chooser->setCurrentIndex(i);
-    }
-    
-    // Setup attach axes.
-    initPlotAxis( attachAxes );
+		QWidget* parent) : QtEditingWidget(parent) {
+	setupUi(this);
 
-    // Setup data column choices.
-    const vector<String>& data = PMS::dataColumnStrings();
-    def = PMS::dataColumn(PMS::DEFAULT_DATACOLUMN);
+	// Setup axes choices.
+	const vector<String>& axes = PMS::axesStrings();
+	String def = PMS::axis(defaultAxis);
+	// Hiding the last two axes (overlays) from the user....
+	for(unsigned int i = 0; i < axes.size()-3; i++) {
+		chooser->addItem(axes[i].c_str());
+		if(axes[i] == def) chooser->setCurrentIndex(i);
+	}
 
-    for(unsigned int i = 0; i < data.size(); i++) {
-        dataChooser->addItem(data[i].c_str());
-        if(data[i] == def){
-        	dataChooser->setCurrentIndex(i);
-        }
-    }
-    
-    // Setup range widget.
-    itsRangeWidget_ = new PlotRangeWidget(true);
-    QtUtilities::putInFrame(rangeFrame, itsRangeWidget_);
-    
-    setAutoFillBackground( true );
-    QPalette pal = palette();
-    QColor bgColor( "#F0F0F0" );
-    pal.setColor( QPalette::Background, bgColor );
-    setPalette( pal );
+	// Setup attach axes.
+	initPlotAxis( attachAxes );
 
-    axisChanged(chooser->currentText());
-    
-    // Connect widgets.
-    connect(chooser, SIGNAL(currentIndexChanged(const QString&)),
-            SLOT(axisChanged(const QString&)));
-    connect( dataChooser, SIGNAL(currentIndexChanged(const QString&)),
-    		SLOT(axisDataChanged()));
-    
-    connect(chooser, SIGNAL(currentIndexChanged(int)), SIGNAL(axisChanged()));
-    connect(dataChooser, SIGNAL(currentIndexChanged(int)), SIGNAL(axisChanged()));
-    if ( attachBottom != NULL ){
-    	connect(attachBottom, SIGNAL(toggled(bool)), SIGNAL(axisChanged()));
-    }
-    if ( attachTop != NULL ){
-    	connect(attachTop, SIGNAL(toggled(bool)), SIGNAL(axisChanged()));
-    }
-    if ( attachLeft != NULL ){
-    	connect(attachLeft, SIGNAL(toggled(bool)), SIGNAL(changed()));
-    }
-    if ( attachRight != NULL ){
-    	connect(attachRight, SIGNAL(toggled(bool)), SIGNAL(changed()));
-    }
-    connect(itsRangeWidget_, SIGNAL(changed()), SIGNAL(changed()));
+	// Setup data column choices.
+	const vector<String>& data = PMS::dataColumnStrings();
+	def = PMS::dataColumn(PMS::DEFAULT_DATACOLUMN);
+
+	for(unsigned int i = 0; i < data.size(); i++) {
+		dataChooser->addItem(data[i].c_str());
+		if(data[i] == def){
+			dataChooser->setCurrentIndex(i);
+		}
+	}
+	// Setup direction parameters choices.
+	const auto & interpStrings = PMS::interpMethodStrings();
+	auto defaultInterp = PMS::interpMethod(PMS::DEFAULT_INTERPMETHOD);
+	for(unsigned int i = 0; i < interpStrings.size(); i++) {
+		interpChooser->addItem(interpStrings[i].c_str());
+		if(interpStrings[i] == defaultInterp){
+			interpChooser->setCurrentIndex(i);
+		}
+	}
+	const auto & refFrameStrings = PMS::coordSystemStrings();
+	auto defaultRefFrame = PMS::coordSystem(PMS::DEFAULT_COORDSYSTEM);
+	for(unsigned int i = 0; i < refFrameStrings.size(); i++) {
+		refFrameChooser->addItem(refFrameStrings[i].c_str());
+		if(refFrameStrings[i] == defaultRefFrame){
+			refFrameChooser->setCurrentIndex(i);
+		}
+	}
+
+	// Setup range widget.
+	itsRangeWidget_ = new PlotRangeWidget(true);
+	QtUtilities::putInFrame(rangeFrame, itsRangeWidget_);
+
+	setAutoFillBackground( true );
+	QPalette pal = palette();
+	QColor bgColor( "#F0F0F0" );
+	pal.setColor( QPalette::Background, bgColor );
+	setPalette( pal );
+
+	axisChanged(chooser->currentText());
+
+	// Connect widgets.
+	connect(chooser, SIGNAL(currentIndexChanged(const QString&)),
+			SLOT(axisChanged(const QString&)));
+	connect( dataChooser, SIGNAL(currentIndexChanged(const QString&)),
+			SLOT(axisDataChanged()));
+
+	connect(chooser, SIGNAL(currentIndexChanged(int)), SIGNAL(axisChanged()));
+	connect(dataChooser, SIGNAL(currentIndexChanged(int)), SIGNAL(axisChanged()));
+	if ( attachBottom != NULL ){
+		connect(attachBottom, SIGNAL(toggled(bool)), SIGNAL(axisChanged()));
+	}
+	if ( attachTop != NULL ){
+		connect(attachTop, SIGNAL(toggled(bool)), SIGNAL(axisChanged()));
+	}
+	if ( attachLeft != NULL ){
+		connect(attachLeft, SIGNAL(toggled(bool)), SIGNAL(changed()));
+	}
+	if ( attachRight != NULL ){
+		connect(attachRight, SIGNAL(toggled(bool)), SIGNAL(changed()));
+	}
+	connect(itsRangeWidget_, SIGNAL(changed()), SIGNAL(changed()));
 
 }
 
@@ -226,6 +243,11 @@ void PlotMSAxisWidget::setValue(PMS::Axis axis, PMS::DataColumn data,
     setAttachAxis( attachAxis );
     itsRangeWidget_->setRange(PMS::axisType(axis) == PMS::TTIME, rangeCustom,
             range);
+}
+
+void PlotMSAxisWidget::setDirParams(PMS::InterpMethod interp, PMS::CoordSystem refFrame){
+	PlotMSTab::setChooser(interpChooser, PMS::interpMethod(interp));
+	PlotMSTab::setChooser(refFrameChooser, PMS::coordSystem(refFrame));
 }
 
 void PlotMSAxisWidget::setInCache(bool isInCache) {

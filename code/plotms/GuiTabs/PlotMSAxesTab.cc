@@ -267,30 +267,38 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
 }
 
 void PlotMSAxesTab::setValue(const PlotMSPlotParameters& params) {
-    const PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>();
-    const PMS_PP_Axes* a = params.typedGroup<PMS_PP_Axes>();
-    if(c == NULL || a == NULL) return; // shouldn't happen
+	const PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>();
+	const PMS_PP_Axes* a = params.typedGroup<PMS_PP_Axes>();
+	if(c == NULL || a == NULL) return; // shouldn't happen
 
-    PMS::Axis cacheAxis = c->xAxis();    
-    PMS::DataColumn cacheColumn =  c->xDataColumn();
-    PlotAxis axesAxis = a->xAxis();
-    bool axesXRangeSet = a->xRangeSet();
-    std::pair<double, double> axesXRange = a->xRange();
-    itsXWidget_->setValue(cacheAxis, cacheColumn, axesAxis,
-            axesXRangeSet, axesXRange);
-    //itsXWidget_->setValue(c->xAxis(), c->xDataColumn(), a->xAxis(),
-    //        a->xRangeSet(), a->xRange());
-    bool atm(c->showAtm()), tsky(c->showTsky()), overlay(atm || tsky);
-    atmRadio->setChecked(atm);
-    tskyRadio->setChecked(tsky);
-    noneRadio->setChecked(!overlay);
-    int yAxisCount = a->numYAxes();
-    int yWidgetSize = itsYWidgets_.size();
-    int minValue = qMin( yAxisCount, yWidgetSize );
-    for ( int i = 0; i < minValue; i++ ){
-    	itsYWidgets_[i]->setValue(c->yAxis(i), c->yDataColumn(i), a->yAxis(i),
-            a->yRangeSet(i), a->yRange(i));
-    }
+	PMS::Axis cacheAxis = c->xAxis();
+	PMS::DataColumn cacheColumn =  c->xDataColumn();
+	PlotAxis axesAxis = a->xAxis();
+	bool axesXRangeSet = a->xRangeSet();
+	std::pair<double, double> axesXRange = a->xRange();
+	itsXWidget_->setValue(cacheAxis, cacheColumn, axesAxis,
+			axesXRangeSet, axesXRange);
+	//itsXWidget_->setValue(c->xAxis(), c->xDataColumn(), a->xAxis(),
+	//        a->xRangeSet(), a->xRange());
+	bool atm(c->showAtm()), tsky(c->showTsky()), overlay(atm || tsky);
+	atmRadio->setChecked(atm);
+	tskyRadio->setChecked(tsky);
+	noneRadio->setChecked(!overlay);
+	int yAxisCount = a->numYAxes();
+	int yWidgetSize = itsYWidgets_.size();
+	int minValue = qMin( yAxisCount, yWidgetSize );
+	const auto & yFrames = c->yFrames();
+	int nFramesY = yFrames.size();
+	const auto & yInterps = c->yInterps();
+	int nInterpsY = yInterps.size();
+	for ( int i = 0; i < minValue; i++ ){
+		itsYWidgets_[i]->setValue(c->yAxis(i), c->yDataColumn(i), a->yAxis(i),
+			a->yRangeSet(i), a->yRange(i));
+		if (i < nInterpsY and i < nFramesY )
+			itsYWidgets_[i]->setDirParams(yInterps[i],yFrames[i]);
+		else
+			throw AipsError("PlotMS internal error.",AipsError::BOUNDARY);
+	}
 }
 
 void PlotMSAxesTab::axisIdentifierChanged(PlotMSAxisWidget* axisWidget){

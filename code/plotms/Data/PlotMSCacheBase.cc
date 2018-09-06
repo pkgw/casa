@@ -863,9 +863,9 @@ void PlotMSCacheBase::release(const vector<PMS::Axis>& axes) {
 				break;
 			case PMS::ELEVATION: PMSC_DELETE(el_)
 				break;
-			case PMS::RA: PMSC_DELETE(ra_)
+			case PMS::RA: //TODO_PMSC_DELETE(ra_)
 				break;
-			case PMS::DEC: PMSC_DELETE(dec_)
+			case PMS::DEC: //TODO_PMSC_DELETE(dec_)
 				break;
 			case PMS::PARANG: PMSC_DELETE(parang_)
 				break;
@@ -1224,15 +1224,11 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 			PMS::axisIsRaDec(currentX_[dataIndex]) or
 			PMS::axisIsRaDec(currentY_[dataIndex]) );
 	for (Int iter=0;iter<nIter;++iter) {
-		indexer_[dataIndex][iter] = useRaDecIndexer ?
-			new PlotMSRaDecIndexer(this,
-			currentX_[dataIndex], currentXData_[dataIndex],
-			currentY_[dataIndex], currentYData_[dataIndex],
-			iteraxis, iterValues(iter), dataIndex)
-		:	new PlotMSIndexer(this,
-			currentX_[dataIndex], currentXData_[dataIndex], 
-			currentY_[dataIndex], currentYData_[dataIndex],
-			iteraxis, iterValues(iter), dataIndex) ;
+		indexer_[dataIndex][iter] = PlotMSIndexerFactory::initIndexer(this,
+					currentX_[dataIndex], currentXData_[dataIndex],
+					currentY_[dataIndex], currentYData_[dataIndex],
+					iteraxis, iterValues(iter), dataIndex,
+					useRaDecIndexer);
 	}
 
 	// Extract global ranges from the indexers
@@ -1654,13 +1650,17 @@ void PlotMSCacheBase::setCache(Int newnChunk,
                 addVectors(el_);
                 break;
             }
-            case PMS::RA:{
+            case PMS::RA:
+            case PMS::DEC:{
                 addVectors(ra_);
                 DirectionAxisParams params {loadXYFrame_[i],loadXYInterp_[i]};
-                auto & emptyBlock = raMap_[params];
-                addVectors(emptyBlock);
+                auto & raBlock = raMap_[params];
+                addVectors(raBlock);
+                auto & decBlock = decMap_[params];
+                addVectors(decBlock);
                 break;
             }
+            /*
             case PMS::DEC: {
                 addVectors(dec_);
                 DirectionAxisParams params {loadXYFrame_[i],loadXYInterp_[i]};
@@ -1668,6 +1668,7 @@ void PlotMSCacheBase::setCache(Int newnChunk,
                 addVectors(emptyBlock);
                 break;
             }
+            */
             case PMS::PARANG:
                 addVectors(parang_);
                 break;

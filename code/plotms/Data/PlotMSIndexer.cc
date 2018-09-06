@@ -468,15 +468,6 @@ void PlotMSIndexer::setUpIndexing() {
 
 	nperant_.reference(nperbsln_);
 
-
-  /*cout << "ichanbslnmax_ = " << ichanbslnmax_ << endl;
-  cout << "nperchan_     = " << nperchan_ << endl;
-  cout << "nperbsln_     = " << nperbsln_ << endl;
-  cout << "nperant_      = " << nperant_ << endl;
-
-  cout << "...done." << endl << "Set methods..." << flush;
-*/
-
 	// Set up method pointers for the chosen axes
 	setMethod(getXFromCache_, currentX_, currentXdata_);
 	setMethod(getYFromCache_, currentY_, currentYdata_);
@@ -484,19 +475,6 @@ void PlotMSIndexer::setUpIndexing() {
 	// And the indexers
 	setIndexer(XIndexer_, currentX_);
 	setIndexer(YIndexer_, currentY_);
-
-	//  cout << "done." << endl;
-
-	// And the mask collapsers
-	//  setCollapser(collapseXMask_,currentX_);
-	//  setCollapser(collapseYMask_,currentY_);
-
-	// Count up the total number of points we will plot
-	//   (keep a cumualtive running total)
-
-	//  cout << "*>*>*>*>*>*> iterate_=" << boolalpha << iterate_ << " Axis: " << PMS::axis(iterAxis_) << " iterValue_ = " << iterValue_ << endl;
-
-	//  cout << "Count points..." << flush;
 
 	// Count data segments in this iteration
 	switch (iterAxis_) {
@@ -715,15 +693,6 @@ void PlotMSIndexer::setUpIndexing() {
 
 	nPoints_.reference(nSegPoints_);
 	nCumulative_.reference(nCumulPoints_);
-
-	//  cout << "done." << endl;
-
-	// Compute the nominal plot ranges
-	computeRanges();
-
-	// The indexer is now ready for plotting
-	indexerReady_ = true;
-
 }
 
 bool PlotMSIndexer::isGlobalXRange() const {
@@ -2043,6 +2012,25 @@ PlotMSRaDecIndexer::PlotMSRaDecIndexer(PlotMSCacheBase* plotmscache,
 
 }
 
+PlotMSIndexer* PlotMSIndexerFactory::initIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis,
+	PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
+	PMS::Axis iterAxis, casacore::Int iterValue, int index,
+	bool makeRaDecIndexer){
+
+	PlotMSIndexer *indexer;
+
+	if (not makeRaDecIndexer){
+		indexer = new PlotMSIndexer(plotmscache, xAxis, xData, yAxis, yData,
+			iterAxis, iterValue, index);
+	} else {
+		indexer = new PlotMSRaDecIndexer(plotmscache, xAxis, xData, yAxis, yData,
+			iterAxis, iterValue, index);
+	}
+	indexer->computeRanges();
+	indexer->setReady();
+	return indexer;
+}
+
 double PlotMSRaDecIndexer::xAt(unsigned int i) const {
 	double x;
 	if (xAxisIsRaOrDec_) {
@@ -2092,6 +2080,7 @@ void PlotMSRaDecIndexer::xyAndMaskAt(unsigned int index,
 	mask = false;
 	//mask=!(*(plotmscache_->plmask_[dataIndex_][currChunk_]->data()+irel_));
 }
+
 
 
 }

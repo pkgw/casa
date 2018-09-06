@@ -78,6 +78,9 @@ public:
     void setValue(PMS::Axis axis, PMS::DataColumn data, PlotAxis attachAxis,
             bool rangeCustom, prange_t range);
     
+    // Sets the displayed direction parameters values to the given
+    void setDirParams(PMS::InterpMethod interp, PMS::CoordSystem refFrame);
+
     // Sets the "in cache" checkbox to the given.
     void setInCache(bool inCache);
     void insertLabelDefaults( QMap<QLabel*,QString>& map );

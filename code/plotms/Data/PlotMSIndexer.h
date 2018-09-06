@@ -63,11 +63,16 @@ public:
   // Constructor which takes parent PlotMSCache, x and y axes (non-iteration)
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
     PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData, int index);
+
+protected:
   // Constructor which supports iteration
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
     PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
     PMS::Axis iterAxis, casacore::Int iterValue, int index);
-  
+  friend class PlotMSIndexerFactory;
+
+public:
+
   // Destructor
   virtual ~PlotMSIndexer();
 
@@ -172,6 +177,7 @@ protected:
   PlotMSCacheBase* getCache() { return plotmscache_; }
   // Set currChunk_ according to a supplied index
   void setChunk(casacore::uInt i) const;
+  void setReady(bool isReady=true) { indexerReady_ = isReady; };
 
 private:
     
@@ -368,6 +374,13 @@ private:
 	const RaDecData& yDec_;
 };
 
+class PlotMSIndexerFactory {
+public:
+static PlotMSIndexer* initIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis,
+  PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
+  PMS::Axis iterAxis, casacore::Int iterValue, int index,
+  bool makeRaDecIndexer=false);
+};
 
 }
 
