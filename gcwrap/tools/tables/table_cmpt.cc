@@ -2068,9 +2068,9 @@ bool table::fromascii(const std::string& tablename, const std::string& asciifile
       IPosition tautoshape;
       if(!itsTable)
          delete itsTable;
-      if(columnnames[0] != "")
+      if(columnnames.size( ) > 0 && columnnames[0] != "")
 	      atmp = toVectorString(columnnames);
-      if(datatypes[0] != "")
+      if(datatypes.size( ) > 0 && datatypes[0] != "")
 	      btmp = toVectorString(datatypes);
       itsTable = new casacore::TableProxy(String(asciifile), String(headerfile), String(tablename), autoheader, tautoshape, String(sep), String(commentmarker), firstline, lastline, atmp, btmp);
       // itsTable = new casacore::TableProxy(asciifile, headerfile, String(tablename));

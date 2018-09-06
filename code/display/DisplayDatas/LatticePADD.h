@@ -78,8 +78,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Image-based constructors: >2d and 2d
 		// <group>
-		LatticePADisplayData( SHARED_PTR<casacore::ImageInterface<T> > image, const casacore::uInt xAxis, const casacore::uInt yAxis, const casacore::uInt mAxis, const casacore::IPosition fixedPos, viewer::StatusSink *sink=0 );
-		LatticePADisplayData(SHARED_PTR<casacore::ImageInterface<T> > image, const casacore::uInt xAxis,
+		LatticePADisplayData( std::shared_ptr<casacore::ImageInterface<T> > image, const casacore::uInt xAxis, const casacore::uInt yAxis, const casacore::uInt mAxis, const casacore::IPosition fixedPos, viewer::StatusSink *sink=0 );
+		LatticePADisplayData(std::shared_ptr<casacore::ImageInterface<T> > image, const casacore::uInt xAxis,
 		                     const casacore::uInt yAxis);
 		// </group>
 
@@ -100,7 +100,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		casacore::String dataType() const {
 			return "image";
 		}
-		SHARED_PTR<casacore::ImageInterface<casacore::Float> > imageinterface( );
+		std::shared_ptr<casacore::ImageInterface<casacore::Float> > imageinterface( );
 
 
 		// left as pure virtual for implementation in concrete class
@@ -145,7 +145,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			itsComplexToRealMethod = method;
 		}
 
-		virtual SHARED_PTR<casacore::MaskedLattice<T> > maskedLattice() {
+		virtual std::shared_ptr<casacore::MaskedLattice<T> > maskedLattice() {
 			return itsMaskedLatticePtr;
 		}
 
@@ -192,7 +192,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	private:
 
 		// The base image cloned at construction.
-		SHARED_PTR<casacore::ImageInterface<T> > itsBaseImagePtr;
+		std::shared_ptr<casacore::ImageInterface<T> > itsBaseImagePtr;
 
 		// The base array cloned at construction.
 		casacore::Array<T>* itsBaseArrayPtr;
@@ -205,7 +205,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// The masked lattice, effectively referencing one of itsBaseImagePtr
 		// or itsBaseArray, or some sub-region of said.
-		SHARED_PTR<casacore::MaskedLattice<T> > itsMaskedLatticePtr;
+		std::shared_ptr<casacore::MaskedLattice<T> > itsMaskedLatticePtr;
 
 		// Says whether the destructor should delete itsMaskedLattice or not
 		casacore::Bool itsDeleteMLPointer;

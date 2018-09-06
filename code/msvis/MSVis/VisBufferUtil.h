@@ -112,7 +112,8 @@ public:
 
   //Get the freqRange from in Frame to range it represents in outFrame for 
   //all the fields and time selected in the vi
-  static void getFreqRangeFromRange(casacore::Double& outfreqMin, casacore::Double& outfreqMax,  const casacore::MFrequency::Types inFreqFrame, const casacore::Double infreqMin, const casacore::Double infreqMax, vi::VisibilityIterator2& vi, casacore::MFrequency::Types outFreqFrame);
+  //Returns False if failed to do any conversion.
+  static casacore::Bool getFreqRangeFromRange(casacore::Double& outfreqMin, casacore::Double& outfreqMax,  const casacore::MFrequency::Types inFreqFrame, const casacore::Double infreqMin, const casacore::Double infreqMax, vi::VisibilityIterator2& vi, casacore::MFrequency::Types outFreqFrame);
 
   // Converts the frequency in this VisBuffer to velocity in the frame/def requested
   void toVelocity(casacore::Vector<casacore::Double>& outVel, 

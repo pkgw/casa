@@ -73,7 +73,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // >2d image-based ctor
 	template <class T>
-	LatticeAsRaster<T>::LatticeAsRaster( SHARED_PTR<casacore::ImageInterface<T> > image,const casacore::uInt xAxis, const casacore::uInt yAxis, const casacore::uInt mAxis, const casacore::IPosition fixedPos, viewer::StatusSink *sink ) :
+	LatticeAsRaster<T>::LatticeAsRaster( std::shared_ptr<casacore::ImageInterface<T> > image,const casacore::uInt xAxis, const casacore::uInt yAxis, const casacore::uInt mAxis, const casacore::IPosition fixedPos, viewer::StatusSink *sink ) :
 		LatticePADisplayData<T>( image, xAxis, yAxis, mAxis, fixedPos, sink ) {
 		setupElements();
 		casacore::String attString("colormodel");
@@ -85,7 +85,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // 2d image-based ctor
 	template <class T>
-	LatticeAsRaster<T>::LatticeAsRaster(SHARED_PTR<casacore::ImageInterface<T> > image,
+	LatticeAsRaster<T>::LatticeAsRaster(std::shared_ptr<casacore::ImageInterface<T> > image,
 	                                    const casacore::uInt xAxis, const casacore::uInt yAxis) :
 		LatticePADisplayData<T>(image, xAxis, yAxis) {
 		setupElements();

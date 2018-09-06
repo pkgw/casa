@@ -221,8 +221,15 @@ bool synthesisimager::defineimage(const casac::record& impars, const casac::reco
     casacore::Record grecpars = *toRecord( gridpars );
     SynthesisParamsGrid gpars;
     gpars.fromRecord( grecpars );
+    ipars.trackSource=False;
     if(movingSource != casacore::String("")){
       itsImager->setMovingSource(movingSource);
+      ipars.trackSource=True;
+      ipars.movingSource=movingSource;
+      casacore::MDirection::Types refType;
+      if((casacore::MDirection::getType(refType, movingSource)) && (refType > casacore::MDirection::N_Types && refType < casacore::MDirection:: N_Planets ))
+	ipars.trackDir=casacore::MDirection(refType);
+      
     }
     itsImager->defineImage( ipars, gpars );
     

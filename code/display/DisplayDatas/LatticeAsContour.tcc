@@ -67,7 +67,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // >2d image-based ctor
 	template <class T>
 	LatticeAsContour<T>::LatticeAsContour(
-		SHARED_PTR<casacore::ImageInterface<T> > image, const casacore::uInt xAxis,
+		std::shared_ptr<casacore::ImageInterface<T> > image, const casacore::uInt xAxis,
 		const casacore::uInt yAxis, const casacore::uInt mAxis,const casacore::IPosition fixedPos, viewer::StatusSink * /*sink*/
 	) :
 		LatticePADisplayData<T>(image, xAxis, yAxis, mAxis, fixedPos),
@@ -79,7 +79,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // 2d image-based ctor
 	template <class T>
-	LatticeAsContour<T>::LatticeAsContour(SHARED_PTR<casacore::ImageInterface<T> > image,
+	LatticeAsContour<T>::LatticeAsContour(std::shared_ptr<casacore::ImageInterface<T> > image,
 	                                      const casacore::uInt xAxis, const casacore::uInt yAxis) :
 		LatticePADisplayData<T>(image, xAxis, yAxis),
 		itsBaseContour(0), itsUnitContour(0) {

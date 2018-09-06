@@ -31,11 +31,14 @@
 #include <casa/BasicSL/Complexfwd.h>
 #include <casa/Utilities/CountedPtr.h>
 
-#define SPIIT SHARED_PTR<casacore::ImageInterface<T> >
-#define SPCIIT SHARED_PTR<const casacore::ImageInterface<T> >
+#define SPIIT std::shared_ptr<casacore::ImageInterface<T>>
+#define SPCIIT std::shared_ptr<const casacore::ImageInterface<T>>
 
-#define SPIIU SHARED_PTR<casacore::ImageInterface<U> >
-#define SPCIIU SHARED_PTR<const casacore::ImageInterface<U> >
+#define SPIIU std::shared_ptr<casacore::ImageInterface<U>>
+#define SPCIIU std::shared_ptr<const casacore::ImageInterface<U>>
+
+#define SPIICT std::shared_ptr<casacore::ImageInterface<ComplexType>>
+#define SPIIRT std::shared_ptr<casacore::ImageInterface<RealType>>
 
 namespace casacore{
 
@@ -44,14 +47,14 @@ namespace casacore{
 
 namespace casa {
 
-    using SPCIIF = SHARED_PTR<const casacore::ImageInterface<casacore::Float> >;
-	using SPIIF = SHARED_PTR<casacore::ImageInterface<casacore::Float> >;
-	using SPCIIC = SHARED_PTR<const casacore::ImageInterface<casacore::Complex> >;
-	using SPIIC = SHARED_PTR<casacore::ImageInterface<casacore::Complex> >;
-	using SPCIID = SHARED_PTR<const casacore::ImageInterface<casacore::Double> >;
-	using SPIID = SHARED_PTR<casacore::ImageInterface<casacore::Double> >;
-	using SPCIIDC = SHARED_PTR<const casacore::ImageInterface<casacore::DComplex> >;
-	using SPIIDC = SHARED_PTR<casacore::ImageInterface<casacore::DComplex> >;
+    using SPCIIF = std::shared_ptr<const casacore::ImageInterface<casacore::Float> >;
+	using SPIIF = std::shared_ptr<casacore::ImageInterface<casacore::Float> >;
+	using SPCIIC = std::shared_ptr<const casacore::ImageInterface<casacore::Complex> >;
+	using SPIIC = std::shared_ptr<casacore::ImageInterface<casacore::Complex> >;
+	using SPCIID = std::shared_ptr<const casacore::ImageInterface<casacore::Double> >;
+	using SPIID = std::shared_ptr<casacore::ImageInterface<casacore::Double> >;
+	using SPCIIDC = std::shared_ptr<const casacore::ImageInterface<casacore::DComplex> >;
+	using SPIIDC = std::shared_ptr<casacore::ImageInterface<casacore::DComplex> >;
 	using ITUPLE = std::tuple<SPIIF, SPIIC, SPIID, SPIIDC>;
 }
 

@@ -84,11 +84,40 @@ class ia_addnoise_test(unittest.TestCase):
     def test_history(self):
         """Test history is added to image"""
         myia = self._myia
-        myia.fromshape("",[10,10])
-        myia.addnoise()
-        msgs = myia.history();
-        self.assertTrue("addnoise" in msgs[-1])
-        myia.done()
+        for mytype in ['f', 'd', 'c', 'cd']:
+            myia.fromshape("",[10,10], type=mytype)
+            myia.addnoise()
+            msgs = myia.history();
+            self.assertTrue("addnoise" in msgs[-1])
+            myia.done()
+
+    def test_stats(self):
+        myia = self._myia
+        for mytype in ['f', 'd', 'c', 'cd']:
+            myia.fromshape("",[100,100], type=mytype)
+            bb = myia.getchunk()
+            bb[:] = 1
+            if mytype == 'c' or mytype == 'cd':
+                bb[:] = 1 + 1j
+            myia.putchunk(bb)
+            myia.addnoise()
+            bb = myia.getchunk()
+            myia.done()
+            mean = np.mean(bb)
+            sigma = np.std(bb)
+            expmean = 1
+            expsigma = 1
+            if mytype == 'c' or mytype == 'cd':
+                expmean = 1 + 1j
+                expsigma = sqrt(2.0)
+            self.assertTrue(
+                abs(mean - expmean) <  0.1,
+                    "mean " + str(mean) + " is wrong for type " + mytype
+            )
+            self.assertTrue(
+                abs(sigma - expsigma) <  0.03,
+                "sigma " + str(sigma) + " is wrong for type " + mytype
+            )
 
 def suite():
     return [ia_addnoise_test]

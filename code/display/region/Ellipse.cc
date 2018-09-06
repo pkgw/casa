@@ -223,8 +223,8 @@ namespace casa {
 			return result;
 		}
 
-		std::list<SHARED_PTR<RegionInfo> > *Ellipse::generate_dds_centers( ) {
-			std::list<SHARED_PTR<RegionInfo> > *region_centers = new std::list<SHARED_PTR<RegionInfo> >( );
+		std::list<std::shared_ptr<RegionInfo> > *Ellipse::generate_dds_centers( ) {
+			std::list<std::shared_ptr<RegionInfo> > *region_centers = new std::list<std::shared_ptr<RegionInfo> >( );
 
 			if( wc_==0 ) return region_centers;
 
@@ -261,7 +261,7 @@ namespace casa {
 				try {
 					if ( ! padd->conformsTo(*wc_) ) continue;
 
-					SHARED_PTR<ImageInterface<Float> > image (padd->imageinterface( ));
+					std::shared_ptr<ImageInterface<Float> > image (padd->imageinterface( ));
 
 					if ( ! image ) continue;
 
@@ -305,7 +305,7 @@ namespace casa {
 					}
 					WCBox box(blcq, trcq, cs, Vector<Int>());
 					ImageRegion     *imgbox = new ImageRegion(box);
-					SHARED_PTR<SubImage<Float> > boxImg(new SubImage<Float>(*image, *imgbox));
+					std::shared_ptr<SubImage<Float> > boxImg(new SubImage<Float>(*image, *imgbox));
 
 					// generate the WCEllipsoide
 					//Quantum<Double> px0(0.,"pix");
@@ -336,7 +336,7 @@ namespace casa {
 					ImageRegion *imageregion = new ImageRegion(ellipse);
 
 					region_centers->push_back(
-						SHARED_PTR<RegionInfo>(
+						std::shared_ptr<RegionInfo>(
 							new ImageRegionInfo(
 								name,description,
 								getLayerCenter(padd,boxImg,*imageregion)
@@ -429,7 +429,7 @@ namespace casa {
 			PrincipalAxesDD* padd = dynamic_cast<PrincipalAxesDD*>(dd);
 			if ( padd == 0 ) return 0;
 
-			SHARED_PTR<ImageInterface<Float> > image( padd->imageinterface( ));
+			std::shared_ptr<ImageInterface<Float> > image( padd->imageinterface( ));
 			Vector<Int> dispAxes = padd->displayAxes( );
 			dispAxes.resize(2,true);
 

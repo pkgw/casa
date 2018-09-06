@@ -99,5 +99,20 @@ class ia_makecomplex_test(unittest.TestCase):
         self.assertTrue("ia.makecomplex" in msgs[-2]) 
         self.assertTrue("ia.makecomplex" in msgs[-1])
    
+    def test_precision(self):
+       myia = self.ia
+       myfloat = "myfloat.im"
+       mydouble = "mydouble.im"
+       myia.fromshape(myfloat, [20, 20], type='f')
+       myia.fromshape(mydouble, [20, 20], type='d')
+       myia.open(myfloat)
+       self.assertTrue(myia.makecomplex("", myfloat))
+       self.assertRaises(Exception, myia.makecomplex, "", mydouble)
+       myia.done()
+       myia.open(mydouble)
+       self.assertTrue(myia.makecomplex("", mydouble))
+       self.assertRaises(Exception, myia.makecomplex, "", myfloat)
+       myia.done()
+   
 def suite():
     return [ia_makecomplex_test]

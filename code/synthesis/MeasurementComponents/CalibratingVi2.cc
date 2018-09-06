@@ -357,6 +357,7 @@ Bool CalibratingVi2::existsColumn(VisBufferComponent2 id) const
 
     case VisBufferComponent2::VisibilityCorrected:
     case VisBufferComponent2::VisibilityCubeCorrected:
+    case VisBufferComponent2::VisibilityCubeModel:
 
         result = true;
         break;

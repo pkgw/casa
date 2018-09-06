@@ -50,21 +50,22 @@ template<class T> PixelValueManipulator<T>::PixelValueManipulator(
 }
 
 template<class T> void PixelValueManipulator<T>::addNoise(
-    SPIIT image, const casacore::String& type, const casacore::Record& region, const casacore::Vector<casacore::Double>& pars,
-    casacore::Bool zeroIt, const std::pair<casacore::Int, casacore::Int> *const &seeds
+    SPIIT image, const String& type, const Record& region,
+    const Vector<Double>& pars, Bool zeroIt,
+    const std::pair<Int, Int> *const &seeds
 ) {
-    casacore::String mask;
+    String mask;
     auto subImage = SubImageFactory<T>::createSubImageRW(
         *image, region, mask, nullptr
     );
     if (zeroIt) {
         subImage->set(0.0);
     }
-    casacore::Random::Types typeNoise = casacore::Random::asType(type);
-    SHARED_PTR<casacore::LatticeAddNoise> lan(
+    Random::Types typeNoise = Random::asType(type);
+    std::shared_ptr<casacore::LatticeAddNoise> lan(
         seeds
-        ? new casacore::LatticeAddNoise(typeNoise, pars, seeds->first, seeds->second)
-        : new casacore::LatticeAddNoise(typeNoise, pars)
+        ? new LatticeAddNoise(typeNoise, pars, seeds->first, seeds->second)
+        : new LatticeAddNoise(typeNoise, pars)
     );
     lan->add(*subImage);
 }

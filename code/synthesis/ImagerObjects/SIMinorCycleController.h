@@ -99,6 +99,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Float getCycleThreshold();
     casacore::Bool isThresholdReached();
 
+    casacore::Float getPBMask();
+
     /* This method resets the iteration counter for the cycle */
     void resetCycleIter();
 
@@ -123,6 +125,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    void setNsigmaThreshold(casacore::Float nsigmaThreshold);
    void setMaskSum(casacore::Float maskSum);
    void setNsigma(casacore::Float nsigma);
+
+   void setPBMask(casacore::Float pbMaskLevel);
 
    void resetMinResidual();
 
@@ -158,6 +162,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    casacore::Float itsNsigma;
    casacore::Float itsMadRMS;
    casacore::Float itsMaskSum;
+
+   casacore::Float itsPBMaskLevel;
 
     /* Summary Variable */
     casacore::Array<casacore::Double> itsSummaryMinor;

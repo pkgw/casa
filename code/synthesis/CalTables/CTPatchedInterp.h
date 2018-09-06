@@ -117,7 +117,9 @@ public:
 private:
 
   // Null ctor does nothing
-  CTPatchedInterp() :mtype_(VisCalEnum::GLOBAL) {};
+  CTPatchedInterp() :
+    mtype_(VisCalEnum::GLOBAL),
+    freqInterpMethod0_(casacore::InterpolateArray1D<casacore::Double,casacore::Float>::nearestNeighbour) {};
   
   // Setup methods
   void sliceTable();
@@ -184,10 +186,14 @@ private:
   casacore::Int nPar_, nFPar_;
 
   // Interpolation modes
-  casacore::String timeType_, freqType_;
+  casacore::String timeType_, freqTypeStr_;
 
-  casacore::InterpolateArray1D<casacore::Double,casacore::Float>::InterpolationMethod ia1dmethod_;
-
+  // Freq-dep interpolation method (from InterpolateArray1D enum)
+#define INTERPMETHOD casacore::InterpolateArray1D<casacore::Double,casacore::Float>::InterpolationMethod
+  const INTERPMETHOD freqInterpMethod0_;  // user-specified
+  INTERPMETHOD freqInterpMethod_;         // current
+  casacore::Vector<INTERPMETHOD> freqInterpMethodVec_;  // per ms spw
+  
   // Are we slicing caltable by field?
   casacore::Bool byObs_,byField_;
 
