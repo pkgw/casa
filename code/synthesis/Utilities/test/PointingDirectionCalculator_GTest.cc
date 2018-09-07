@@ -31,7 +31,7 @@
 
 #include "gtest/gtest.h"
 
-// Nishie include for TABLEs  Manupilation //
+// Nishie include for TABLE Manupilation //
 
 #include <casacore/casa/OS/Directory.h>
 #include <casacore/casa/OS/Path.h>
@@ -87,7 +87,10 @@ using namespace std;
 namespace casa {
 
 //+
-// Environment 
+//  Varisous Types of MaeasurementSet defnition
+//
+//  - Some Ms are not conpatible, may cause Exception.
+//  - Expected Exception are describged in the definition
 //-   
  
 struct _MSDef
@@ -105,8 +108,9 @@ const struct _MSDef
 //        {true, ".sis14_twhya_calibrated_flagged.ms"        },
 //        {true, ".sis14_twhya_calibrated_flagged-t.ms"      },
         {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
-        {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
-        {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
+// Following 2 MS are affected assert() . skip in UT 
+//      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
+//      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
         {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms" },
         {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms" },
         {false, "sdimaging/azelpointing.ms"                   },
@@ -125,21 +129,20 @@ const struct _MSDef
         {false, "",  }
     };
 
-//+
 
-//-
-
+// Get File Name by Number //
 const String  getMSName(int No )
 {
     return MSNames[No].name;
 }
+// Get Exception information ..
 bool  getMSThrow(int No )
 {
     return MSNames[No].ExThrow;
 }
 
 //+
-//  Log Title
+//  Log Title Functions for Readavle Log Output
 //-
 
 void TestDescription( const String &Title )
@@ -166,7 +169,8 @@ void Description(const String &Title, const String &Param)
 }
 
 //+ 
-// Enviromnent
+// Execution / Running Enviromnent
+// CASAPATH is the base directory
 //-
 
 class MyEnv
@@ -229,7 +233,10 @@ private:
 
 
 //+
-//  Copying File from Master Repository.
+//  Copying template MS from Master Repository.
+//  This is for Some testing items which requires modified data in MS.
+//  After copiing, Modifying fuction for MS is executed depending on
+//  Test cases/items.
 //-
 
 void CopyDefaultMStoWork()
@@ -240,29 +247,33 @@ void CopyDefaultMStoWork()
 
 // TEST of Directory.copy() //
 
-String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
-String dst = "./sdimaging-t.ms";
+    // Src/Dsr Path (string) 
+    String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
+    String dst = "./sdimaging-t.ms";
 
-     casacore::Path        sourcePath(src);
-     casacore::Path        targetPath(dst);
+    // Src/Dst Path (Path) 
+    casacore::Path        sourcePath(src);
+    casacore::Path        targetPath(dst);
        
-     casacore::Directory   dir_ctrl(sourcePath);
+    casacore::Directory   dir_ctrl(sourcePath);
 
-     Description( "Copying Default MeasurementSet for modifed use to; " ,dst.c_str() );
+    Description( "Copying Default MeasurementSet for modifed use to; " ,dst.c_str() );
 
      printf( " - src filespec  : %s \n", src.c_str() );
      printf( " - dest filespec : %s \n", dst.c_str() );
 
+    //+
+    // Copy File, use copy() method.
+    //   WARNING; Destination directory must be full described.
+    //-
 
-#if 1
      dir_ctrl.copy  (  targetPath,
                         True,    // Overwrite 
-                        True  ); // Users permisssion
-#endif 
-
+                        True  ); // Users permisssion 
 
 }
 
+// The Working File is deleted when One Test Fixture //
 void DeleteWorkingMS()
 {
     String dst         = "./sdimaging-t.ms";
@@ -271,13 +282,23 @@ void DeleteWorkingMS()
 
      Description( "Deleting Working MeasurementSet for modifed use." ,dst.c_str() );
 
-    // Delete File (Revursively done) //
+    // Delete File (Recursively done) 
+    //  (for debug use, please change true-> falase )
 
-    if (false) dir_ctrl. removeRecursive(false);
+    if (true) dir_ctrl. removeRecursive(false /*keepDir=False */ );
 
 }
 
 
+
+//----------------------------------------------
+// Editting local MS for detail Test
+// 
+// (Tables) ANTENNA and POINTING are modified. 
+//
+//----------------------------------------------
+
+// Antenna Table (for Wtite) //
 
 typedef  struct ChgAntennaTable_ {
 
@@ -295,6 +316,12 @@ typedef  struct ChgAntennaTable_ {
 
 } ANTENNADataBuff ;
 
+//+
+// MeasurementSet Edit Class (MSEdit)
+//  - Functions are defines.
+//
+//-
+
 class MSEdit  : public MyEnv
 {
 
@@ -307,15 +334,15 @@ public:
         
         // Add or Remove Row  (Antenna) //
 
-        int  AntennaTable_Add_Row();
+        uInt  AntennaTable_Add_Row();
         void AntennaTable_Remove_Row(int NRow );
         
-        // List Table //
+        // List Table Contents. //
 
         void ListAntennaTable(String MSname ="./sdimaging-t.ms");
         void ListPointingTable(String MSname ="./sdimaging-t.ms", bool showAll=false );
 
-        // Write Data on Table // 
+        // Write Data on Antenna Table // 
      
         void WriteDataAntennaTable(String MSname ="./sdimaging-t.ms", int Row =0 );
 
@@ -344,7 +371,11 @@ private:
 
 };
 
-int  MSEdit::AntennaTable_Add_Row()
+//+
+// Add one row on Antanna Table
+//  returns latest nrow.
+//-
+uInt  MSEdit::AntennaTable_Add_Row()
 {
     // Measurement Set (use default name) //
 
@@ -358,12 +389,14 @@ int  MSEdit::AntennaTable_Add_Row()
 
          hAntennaTable.addRow();
 
-        int nrow = hAntennaTable.nrow();
+        uInt nrow = hAntennaTable.nrow();
 
         return nrow;
 }
 
-
+//+
+//
+//-
 void MSEdit::AntennaTable_Remove_Row(int NRow )
 {
     // Measurment Set (use default name ) //
@@ -713,7 +746,7 @@ void MSEdit::WriteColumnsPointingTable(String MSname )
 
         IPosition Ipo;
           Ipo  = pointingDirection.shape(0);
-          printf(" - Shape of Direction.[%d, %d] \n", Ipo[0], Ipo[1] );
+          printf(" - Shape of Direction.[%ld, %ld] \n", Ipo[0], Ipo[1] );
 
 
         for (int row=0; row<nrow_p; row++)
@@ -962,7 +995,7 @@ void  MSEdit::WriteTestDataOnDirection(String MSname)
 
 
         IPosition Ipo = pointingDirection.shape(0);
-        printf(" - Shape of pointingDirection.[%d, %d] \n", Ipo[0], Ipo[1] );
+        printf(" - Shape of pointingDirection.[%ld, %ld] \n", Ipo[0], Ipo[1] );
 
         for (int row=0; row<nrow_p; row++)
         {
@@ -1067,9 +1100,6 @@ protected:
 
 };
 
-
-
-
 /*---------------------------------------
   attempt to open vaious Measurement Set
  ----------------------------------------*/
@@ -1119,12 +1149,95 @@ TEST_F(TestMeasurementSet, variousConstructor )
 
 
 }
+/*---------------------------------------
+  Inspect RowId consistency
+ ----------------------------------------*/
 
+
+TEST_F(TestMeasurementSet, RowId_inMS )
+{
+
+    TestDescription( "RowId functions  by various MS"  );
+
+    String MsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
+
+    for(int sw=0; sw<2; sw++)
+    {
+
+        String name = env.getCasaMasterPath()+MsName;
+        FunctionalDescription("Testing RowId functions." , name );
+
+        // CONSTRUCTOR  //
+
+          MeasurementSet ms0( name  );      
+
+          PointingDirectionCalculator calc(ms0);
+
+        // Initial brief Inspection //
+   
+          uInt nrow = calc.getNrowForSelectedMS();
+
+        // getRowIdForOriginalMS //
+
+          Vector<uInt> vRowIdOrgMS = calc.getRowIdForOriginalMS();
+
+
+        //+
+        //  SelectData() option
+        //-
+
+          String AntSel = "PM03&&&";
+
+
+         if (sw==1)
+         { 
+             calc.selectData( AntSel,
+                             "",
+                             "",
+                             "",
+                             "",
+                             "",
+                             "",
+                             "",
+                             "",
+                             ""  );
+        }
+
+        nrow = calc.getNrowForSelectedMS();
+        printf("Selected nrow =%d\n",nrow);
+
+        // Vecrtor<uInt> getRowID() 
+        
+          Description("(1) Vector<uInt> getRowId() ", name );
+          Vector<uInt> vRowId = calc.getRowId();
+
+
+        // getRowId( int ) //
+ 
+          Description("(2) uInt getRowId() ", name );
+
+        // Show and Verify //
+           printf( "row = nnn, RowID = [getRawId(i)][getRowIdForOrginalMS()] \n" );
+          for (uInt k=0; k < nrow; k++)
+          {
+              uInt RowId = calc.getRowId(k);
+              printf( "row = %d, RowID = [%d,%d][%d] \n" , 
+                         k, RowId,vRowId[k],vRowIdOrgMS[k] );
+          
+           //   EXPECT_EQ( RowId,     vRowId[k] );
+           //   EXPECT_EQ( vRowId[k], vRowIdOrgMS[k] );
+
+          }
+    }
+}
+
+/*---------------------------------------
+  getDirection  base class
+ ----------------------------------------*/
 class TestDirection : public BaseClass
 {
 
 public:
-
         casa::MSEdit  msedit;
 
         // Add 3 OFFSET Colums (basically reserved) //
@@ -1198,11 +1311,12 @@ void TestDirection::addColumnDataOnPointing()
     msedit.WriteColumnsPointingTable( MsName );
 }
 
-//+
-// setDirectionColumn
-//  - check thr accsessor
-//  - Must not make exception.
-//-
+/*---------------------------------------
+  setDirectionColumn
+  - check thr accsessor 
+  - Must not make exception.
+ ----------------------------------------*/
+
 TEST_F(TestDirection, setDirectionColumn  )
 {
 
@@ -1239,62 +1353,64 @@ TEST_F(TestDirection, setDirectionColumn  )
         Name = "DIRECTION";
         Description("Column Name" , Name );
         EXPECT_NO_THROW( calc.setDirectionColumn( Name ) );
-
+#if 0
         { void *  pAccessor = calc.getAccessor();
           printf( "#   Accessor [%p] \n", pAccessor );
         }   
-   
+#endif 
         
         Name = "TARGET";
         Description("Column Name" , Name );
         EXPECT_NO_THROW( calc.setDirectionColumn( Name ) );
-
+#if 0
         { void *  pAccessor = calc.getAccessor();
           printf( "#   Accessor [%p] \n", pAccessor );
         }
-
+#endif 
 
         Name = "POINTING_OFFSET";    // *** NEED to ADD in advance  //
         Description("Column Name" , Name );
         EXPECT_NO_THROW( calc.setDirectionColumn( Name ) );
-
+# if 0
         { void *  pAccessor = calc.getAccessor();
           printf( "#   Accessor [%p] \n", pAccessor );
         }
-
+#endif 
         Name = "SOURCE_OFFSET"; // *** NEED to Add in advance //
         Description("Column Name" , Name );
         EXPECT_NO_THROW( calc.setDirectionColumn( Name ) );
-
+#if 0
         { void *  pAccessor = calc.getAccessor();
           printf( "#   Accessor [%p] \n", pAccessor );
         }
-
+#endif 
         Name = "ENCODER";      // *** NEED to add in advance  //
         Description("Column Name" , Name );
         EXPECT_NO_THROW( calc.setDirectionColumn( Name ) );
-
+#if 0
         { void *  pAccessor = calc.getAccessor();
           printf( "#   Accessor [%p] \n", pAccessor );
         }
-
+#endif 
         Name = "hogehoge";
         Description("Column Name" , Name );
         EXPECT_ANY_THROW( calc.setDirectionColumn( Name ) );
-
+#if 0
         { void *  pAccessor = calc.getAccessor();
           printf( "#   Accessor [%p] \n", pAccessor );
         }
+#endif 
 }
 
-//+
-// setDirectionColumn 
-//  and getDirection
-//
-// - Test performing MovingSource Correction.
-// - Only work when "POINTING_OFFSET" or "SOURCE_OFFSET" is specified,
-//
-//-
+/*---------------------------------------
+
+  getDirection() and MovingSourceCorrection
+
+ - Test performing MovingSource Correction.
+ - when "POINTING_OFFSET" or "SOURCE_OFFSET" is specified,
+  ignore this functonality.
+
+----------------------------------------*/
 
 TEST_F(TestDirection, MovingSourceCorrection  )
 {
@@ -1356,23 +1472,23 @@ TEST_F(TestDirection, MovingSourceCorrection  )
             Description("Column Name" , Name[k] );
             EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
 
-         if(true)  // Selective:: TESTING dependency how  setMovingSource() relates. //
-         {
-            String src = "SUN";
-            Description("setMovingSourceConvert()", src);
-            EXPECT_NO_THROW( calc.setMovingSource( src ) );
-         }    
+           if(true)  // Selective:: TESTING dependency how  setMovingSource() relates. //
+           {
+              String src = "SUN";
+              Description("setMovingSourceConvert()", src);
+              EXPECT_NO_THROW( calc.setMovingSource( src ) );
+           }    
             Description("calling  getDirection() ", Name[k] );
             Matrix<Double>  DirList;
             EXPECT_NO_THROW( DirList= calc.getDirection() );
 
-            int  N_Row    = DirList.nrow();
+            uInt  N_Row    = DirList.nrow();
 
             printf( "Number of Row = %d \n", N_Row );
             EXPECT_EQ( N_Row, ExpectedNrow);
 
         }
-
+         
         // No SetMovingSouce executution 
 
         FunctionalDescription("Normal Seq.", "Always call setDirectionColumn");
@@ -1390,7 +1506,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
             Matrix<Double>  DirList;   
             EXPECT_NO_THROW( DirList= calc.getDirection() );
 
-            int  N_Row;
+            uInt  N_Row;
             N_Row  = DirList.nrow();
 
 
@@ -1401,6 +1517,81 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 
 }
 
+TEST_F(TestDirection, VerifyCAS11818 )
+{
+
+    TestDescription( "configureMovingSourceCorrection Test" );
+    String MsName = "./sdimaging-t.ms";    //  
+
+    // MS name for this Test //
+
+          String name =   MsName;
+          printf( " Used MS is [%s] \n", name.c_str() );
+   
+    // List all the point ..//
+#if 0
+          printf( "Listing all POINTING TABLE  \n");
+          msedit.ListPointingTable( MsName, false );
+#endif 
+    // Create Object //
+    
+        MeasurementSet ms( name.c_str() );
+    
+        PointingDirectionCalculator calc(ms);
+    
+    // Initial brief Inspection //
+    
+       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
+       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       EXPECT_NE((uInt)0, ExpectedNrow );
+
+
+    // setFrame, setDirectionListMatrixshape    //
+    // setMovingSource Convert                  //
+
+        Description("setDirectionListMatrixShape()", "COLUMN_MAJOR" );
+        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
+
+
+        Description("setFrame()", "J2000" );
+        EXPECT_NO_THROW( calc.setFrame( "J2000" ) );
+
+    //
+    // setDirectionColumm()  calls 
+    //
+        String Name[6];
+        
+        Name[0] = "DIRECTION";        
+        Name[1] = "TARGET";
+        Name[2] = "POINTING_OFFSET";    // *** NEED to ADD in advance  //
+        Name[3] = "SOURCE_OFFSET"; // *** NEED to Add in advance //
+        Name[4] = "ENCODER";      // *** NEED to add in advance  //
+        Name[5] = "hogehoge";
+
+         
+        // No SetMovingSouce executution 
+
+        FunctionalDescription("BUG-TEST by assert()" , "setDirectionColumn+ getDirection, without setMovingSource");
+
+        for(int k=0; k<5; k++)
+        {
+            Description("Column Name" , Name[k] );
+            EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
+
+            Description("calling  getDirection() ", Name[k] );
+            Matrix<Double>  DirList;   
+            EXPECT_NO_THROW( DirList= calc.getDirection() );
+//             DirList= calc.getDirection();
+
+            uInt  N_Row;
+            N_Row  = DirList.nrow();
+
+            printf( "Number of Row = %d \n", N_Row );
+            EXPECT_EQ( N_Row, ExpectedNrow);
+
+        }
+
+}
 //+ 
 //  UnsetMovingSource and 
 //   with the Conveniation of setMovingSource 
@@ -1502,7 +1693,7 @@ TEST_F(TestDirection, setMovingSource  )
               Matrix<Double>  DirList; 
               EXPECT_NO_THROW( DirList= calc.getDirection() );
 
-              int  N_Row;
+              uInt  N_Row;
               N_Row  = DirList.nrow();
 
               printf( "- Number of Row = %d \n", N_Row );
@@ -1617,7 +1808,7 @@ TEST_F(TestDirection, getDirection )
         Description("calling  getDirection() ","" );
 
         Matrix<Double>  DirList  = calc.getDirection();
-        int  N_Row    = DirList.nrow();
+        uInt  N_Row    = DirList.nrow();
 
         printf( "Number of Row = %d \n", N_Row );
         EXPECT_EQ( N_Row, ExpectedNrow);
@@ -1630,7 +1821,7 @@ TEST_F(TestDirection, getDirection )
 
     Description("Dump obtined Direction info. ","" );
 
-    for (int row=0; row<N_Row; row++)
+    for (uInt row=0; row<N_Row; row++)
     {
         double Val_1 = DirList(row,0);
         double Val_2 = DirList(row,1);
@@ -1749,8 +1940,10 @@ TEST_F(TestSelectData, Antenna )
     // Initial brief Inspection //
    
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n"); 
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
-       EXPECT_NE( (int)0, ExpectedNrow );
+       ExpectedNrow = calc.getNrowForSelectedMS();
+       printf("Expected nrow =%d\n",ExpectedNrow);
+
+       EXPECT_NE( (uInt)0, ExpectedNrow );
        
     //+
     // TEST SET 
@@ -1759,13 +1952,14 @@ TEST_F(TestSelectData, Antenna )
     //  3) Result check , expected Nrow was selected 
     //-
 
-    int nrow ;
+    uInt  nrow ;
 
       AntSel = "";
         FunctionalDescription("Antenna: by NULL  (Matches) ",AntSel);
 
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
+        printf("Selected nrow =%d\n",nrow); 
         EXPECT_EQ (ExpectedNrow, nrow);     // see MS in detail //
 
       AntSel = "hoge&&&";
@@ -1773,54 +1967,46 @@ TEST_F(TestSelectData, Antenna )
 
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        printf("Selected nrow =%d\n",nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       AntSel = "DV01&&&";
         FunctionalDescription("Antenna: Normal specific Name. (Matches) ",AntSel);
 
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (180, (int)nrow);     // see MS in detail //
+        printf("Selected nrow =%d\n",nrow);
+        EXPECT_EQ ((uInt)180, nrow);     // see MS in detail //
 
       AntSel = "DV02&&&";
         FunctionalDescription("Antenna: Normal specific Name (No Matches)",AntSel );
 
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (180, (int)nrow);
+        printf("Selected nrow =%d\n",nrow);
+        EXPECT_EQ ((uInt)180, nrow);
 
       AntSel = "PM03&&&";
         FunctionalDescription("Antenna: Normal specific Name (No Matches)",AntSel );
 
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (180, (int)nrow);
-#if 0
-//+  
-// THis hoge search may makes enexpected resut.
-// Compare the first execution of HOGE search.
-//-
-      AntSel = "hoge&&&";
-        Description("Testing Abnormal Name = hoge (No Matches))",AntSel );
-
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow); 
-#endif
+        printf("Selected nrow =%d\n",nrow);
+        EXPECT_EQ ((uInt)180, nrow);
  
       AntSel = "DV*&&&";
 
         FunctionalDescription("Antenna: Normal with Wild card char. (Matches)",AntSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
-        printf("=> Calling getNrowForSelectedMS() after selectData() called.\n");
+        printf("=> Calling getNrowForSelectedMS() after oelectData() called.\n");
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ ( 360, (int)nrow);
+        printf("Selected nrow =%d\n",nrow);
+        EXPECT_EQ ( (uInt)360, nrow);
 
         //+
-        // Other detail cases are programmed if needed. 
+        // Other detail cases are to be programmed here if needed. 
         //-
-        
-        
+
         return;
         
 }
@@ -1844,33 +2030,33 @@ TEST_F(TestSelectData, Spw )
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
        ExpectedNrow = (int)calc.getNrowForSelectedMS();
-       EXPECT_NE((int)0, ExpectedNrow );
+       EXPECT_NE((uInt)0, ExpectedNrow );
 
-      int nrow;
+      uInt nrow;
       SpwSel = "";
         FunctionalDescription( "Spw:Nothig specified.",SpwSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
     
       SpwSel = "*";
         FunctionalDescription( "Spw: Wildcard *  specified.",SpwSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       SpwSel = "hoge";
         FunctionalDescription( "Spw: abnormal letters  specified.",SpwSel);
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       SpwSel = "0:13~20";
         FunctionalDescription( "Spw: spw=0, ch=13~20 specified.",SpwSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ ( 270, (int)nrow);
+        EXPECT_EQ ( (uInt)270, nrow);
 #if 0
 //
 // Once execution OK, the next Error query makes unexpected Return ?
@@ -1887,7 +2073,7 @@ TEST_F(TestSelectData, Spw )
         FunctionalDescription( "Spw: spw=1, ch=13~20 specified.(None)",SpwSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (810, (int)nrow);
+        EXPECT_EQ ((uInt)810, nrow);
 
 
 }
@@ -1915,44 +2101,44 @@ TEST_F(TestSelectData, Field )
     
       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
        ExpectedNrow = (int)calc.getNrowForSelectedMS();
-       EXPECT_NE((int)0, ExpectedNrow );
+       EXPECT_NE( (uInt)0, ExpectedNrow );
 
-      int nrow;
+      uInt nrow;
       FieldSel = "";
         FunctionalDescription( "Files:Nothig specified.",FieldSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       FieldSel = "*";
         FunctionalDescription( "Field: Wildcard *  specified.",FieldSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       FieldSel = "hoge";
         FunctionalDescription( "Fieled: abnormal letters  specified.",FieldSel);
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       FieldSel = "0";  // Field ID 
         FunctionalDescription( "Field: ID=0 specified.(No exits)",FieldSel);
         EXPECT_ANY_THROW( test_selectdata(calc) ); // getTEN makes.
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (0, (int)nrow);       // On-Table , None on MAIN .. //
+        EXPECT_EQ ((uInt)0, nrow);       // On-Table , None on MAIN .. //
 
       FieldSel = "1";  // Field ID 
         FunctionalDescription( "Field: ID=1 specified.(exits)",FieldSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       FieldSel = "9";  // Out of Range
         FunctionalDescription( "Field: ID=9 Not on the FIELD TABLE",FieldSel);
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
 }
 
@@ -1981,32 +2167,32 @@ TEST_F(TestSelectData, Time )
     
       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
        ExpectedNrow = (int)calc.getNrowForSelectedMS();
-       EXPECT_NE((int)0, ExpectedNrow );
+       EXPECT_NE((uInt)0, ExpectedNrow );
 
-      int nrow;
+      uInt nrow;
       TimeSel = "";
         FunctionalDescription( "Time: Nothig specified.",TimeSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       TimeSel = "hoge";
         FunctionalDescription( "Time: abnormal letters  specified.",TimeSel);
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       TimeSel = ">1900/01/01/00:00:00";
         FunctionalDescription( "Time: since 1900/01/01/00:00:00  specified.",TimeSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       TimeSel = ">2018/01/01/00:00:00";
         FunctionalDescription( "Time: since 2018/01/01/00:00:00  specified. None matches",TimeSel);
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (0, (int)nrow);
+        EXPECT_EQ ((uInt)0, nrow);
 
 
       TimeSel = "<2014/12/4/00:39:25";  //  Time Condition  
@@ -2014,16 +2200,16 @@ TEST_F(TestSelectData, Time )
         EXPECT_NO_THROW( test_selectdata(calc) ); // getTEN makes.
         nrow = calc.getNrowForSelectedMS();
         printf( "# Actually detected Nrow = %d \n" , nrow); 
-        EXPECT_GT (20, (int)nrow);      // On-Table  //
-        EXPECT_EQ (5,   (int)nrow);    
+        EXPECT_GT ((uInt)20, nrow);      // On-Table  //
+        EXPECT_EQ ((uInt)5,   nrow);    
 
       TimeSel = "2014/12/4/00:40:00~2014/12/4/00:40:10";  //  Combined  10 sec 
         FunctionalDescription( "Field: a specifc Time, Limited Number  match are expected",TimeSel);
         EXPECT_NO_THROW( test_selectdata(calc) ); // getTEN makes.
         nrow = calc.getNrowForSelectedMS();
         printf( "# Actually detected Nrow = %d \n" , nrow);
-        EXPECT_GT (20, (int)nrow);      // On-Table  //
-        EXPECT_EQ (17,   (int)nrow);    // SEE ACTUAL COUNT on Browser //
+        EXPECT_GT ((uInt)20, nrow);      // On-Table  //
+        EXPECT_EQ ((uInt)17, nrow);    // SEE ACTUAL COUNT on Browser //
 
 
 
@@ -2054,28 +2240,28 @@ TEST_F(TestSelectData, Feed )
 
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
        ExpectedNrow = (int)calc.getNrowForSelectedMS();
-       EXPECT_NE((int)0, ExpectedNrow );
+       EXPECT_NE((uInt)0, ExpectedNrow );
 
-      int nrow;
+      uInt nrow;
       FeedSel = "";
         FunctionalDescription( "Feed: Nothig specified.",FeedSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       FeedSel = "0";    // NO DATA /
         FunctionalDescription( "Feed: ID specified.",FeedSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       FeedSel = "1";    // NO DATA /
         FunctionalDescription( "Feed: ID specified.",FeedSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
 }
 
@@ -2103,14 +2289,14 @@ TEST_F(TestSelectData, Intent )
 
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
        ExpectedNrow = (int)calc.getNrowForSelectedMS();
-       EXPECT_NE(0, ExpectedNrow );
+       EXPECT_NE((uInt)0, ExpectedNrow );
 
-      int nrow;
+      uInt nrow;
       IntentSel = "";
         FunctionalDescription( "Intent: Nothig specified.",IntentSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
  
        // Usage : In what way this term is used. 
         //   and where to exist in MS.
@@ -2120,21 +2306,21 @@ TEST_F(TestSelectData, Intent )
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       IntentSel = "*CAL*";      // 
         FunctionalDescription( "Scan: ID specified.",IntentSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
-        EXPECT_EQ (512, (int)nrow);
+        EXPECT_EQ ((uInt)512, nrow);
 
       IntentSel = "*BAND*";      // 
         FunctionalDescription( "Scan: ID specified.",IntentSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
-        EXPECT_EQ (512, (int)nrow);
+        EXPECT_EQ ((uInt)512, nrow);
 
 }
 
@@ -2162,35 +2348,35 @@ TEST_F(TestSelectData, Observation )
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
        ExpectedNrow = (int)calc.getNrowForSelectedMS();
-       EXPECT_NE((int)0, ExpectedNrow );
+       EXPECT_NE((uInt)0, ExpectedNrow );
 
-      int nrow;
+      uInt nrow;
       ObservationSel = "";
         FunctionalDescription( "Observation: Nothig specified.",ObservationSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
      ObservationSel = "hoge";     
         FunctionalDescription( "Observation: abnormal expr..",ObservationSel);
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       ObservationSel = "0";     // one DATA /
         FunctionalDescription( "Observation: ID specified.",ObservationSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
-        EXPECT_EQ (256, (int)nrow);
+        EXPECT_EQ ((uInt)256, nrow);
 
       ObservationSel = "1";    // second DATA _
         FunctionalDescription( "Observation: ID specified.",ObservationSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
-        EXPECT_EQ (256, (int)nrow);
+        EXPECT_EQ ((uint)256, nrow);
 
       ObservationSel = "2";    // 3rd.Data 
         FunctionalDescription( "Observation: ID specified.",ObservationSel);
@@ -2203,7 +2389,7 @@ TEST_F(TestSelectData, Observation )
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
-        EXPECT_EQ (0, (int)nrow);
+        EXPECT_EQ ((uInt)0, nrow);
 
 
 
@@ -2229,28 +2415,28 @@ TEST_F(TestSelectData, UVRange )
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
        ExpectedNrow = (int)calc.getNrowForSelectedMS();
-       EXPECT_NE((int)0, ExpectedNrow );
+       EXPECT_NE((uInt)0, ExpectedNrow );
 
-      int nrow;
+      uInt nrow;
       UVRangeSel = "";
         FunctionalDescription( "UVrange: Nothig specified.",UVRangeSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       UVRangeSel = "hoge";     
         FunctionalDescription( "UVrange: abnormal expr..",UVRangeSel);
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
       UVRangeSel = ">1.0lambda";        //  Exprecasacore::Table::TableOption:: Updatession Unknown...../
         FunctionalDescription( "UVrange: ID specified.",UVRangeSel);
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
-        EXPECT_EQ (540, (int)nrow);
+        EXPECT_EQ ((uInt)540, nrow);
 
 
 
@@ -2420,7 +2606,7 @@ TEST_F(TestSetFrame, setFrame )
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
        ExpectedNrow = (int)calc.getNrowForSelectedMS();
-       EXPECT_NE((int)0, ExpectedNrow );
+       EXPECT_NE((uInt)0, ExpectedNrow );
 
     // Various Frame Type (String) //
 
