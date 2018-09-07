@@ -31,7 +31,7 @@
 
 #include "gtest/gtest.h"
 
-// Nishie include for TABLE Manupilation //
+// include file for TABLE Manupilation //
 
 #include <casacore/casa/OS/Directory.h>
 #include <casacore/casa/OS/Path.h>
@@ -75,10 +75,8 @@ using namespace std;
 
 
 //+
-// Additional CASACORE
-// Added by Nishie //
+// Additional CASACORE include files
 //-
-
 
 #include <cstdio>
 #include <casa/OS/EnvVar.h>
@@ -89,14 +87,14 @@ namespace casa {
 //+
 //  Varisous Types of MaeasurementSet defnition
 //
-//  - Some Ms are not conpatible, may cause Exception.
+//  - Some MSs are not conpatible with the latest, may cause Exception.
 //  - Expected Exception are describged in the definition
 //-   
  
 struct _MSDef
 {
-    bool   ExThrow;
-    String name;
+    bool   ExThrow;  // True = cause Exeption
+    String name;     // MS name, with relative path from CASAPATH
 };
 
 const struct _MSDef
@@ -105,12 +103,13 @@ const struct _MSDef
         // Exeption(bool)  , Filename //
         {true, "./sdimaging-t.ms"                    },
         {false, "sdimaging/sdimaging.ms"                      },
-//        {true, ".sis14_twhya_calibrated_flagged.ms"        },
-//        {true, ".sis14_twhya_calibrated_flagged-t.ms"      },
         {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
-// Following 2 MS are affected assert() . skip in UT 
+
+// Following 2 MS are affected assert(), cannot run here. skip in UT 
+
 //      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
 //      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
+
         {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms" },
         {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms" },
         {false, "sdimaging/azelpointing.ms"                   },
@@ -119,12 +118,14 @@ const struct _MSDef
         {false, "sdimaging/clipping_3rows.ms"         },
         {false, "sdimaging/clipping_3rows_2chans.ms"  },
         {false, "sdimaging/clipping_3rows_suprious.ms"        },
-/*15*/  {false, "sdimaging/pointing6.ms"                      },
+        {false, "sdimaging/pointing6.ms"                      },
         {false, "sdimaging/sdimaging_flagtest.ms"             },
         {false, "sdimaging/selection_intent.ms"               },
         {false, "sdimaging/selection_misc.ms"         },
-/*21*/  {false, "sdimaging/selection_spw.ms"          },
-        {false, "sdimaging/selection_spw_unifreq.ms"  },
+        {false, "sdimaging/selection_spw.ms"          },
+        {false, "sdimaging/selection_spw_unifreq.ms"  },i
+        {true, ".sis14_twhya_calibrated_flagged.ms"        },
+        {true, ".sis14_twhya_calibrated_flagged-t.ms"      },
         {true,  "sdimaging/hogehoge.ms"  },
         {false, "",  }
     };
