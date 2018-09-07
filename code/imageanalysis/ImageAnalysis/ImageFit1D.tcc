@@ -59,7 +59,7 @@ ImageFit1D<T>::ImageFit1D()
 
 template <class T> 
 ImageFit1D<T>::ImageFit1D(
-	SHARED_PTR<const casacore::ImageInterface<T> > image, casacore::uInt pixelAxis
+	std::shared_ptr<const casacore::ImageInterface<T> > image, casacore::uInt pixelAxis
 ) : _image(image), _weights(), _axis(pixelAxis),
 	_converged(false), _success(false), _isValid(true)
 {
@@ -70,8 +70,8 @@ ImageFit1D<T>::ImageFit1D(
 
 template <class T> 
 ImageFit1D<T>::ImageFit1D(
-	SHARED_PTR<const casacore::ImageInterface<T> > image,
-	SHARED_PTR<const casacore::ImageInterface<T> > weights,
+	std::shared_ptr<const casacore::ImageInterface<T> > image,
+	std::shared_ptr<const casacore::ImageInterface<T> > weights,
 	casacore::uInt pixelAxis
 ) : _image(image), _weights(weights),
    _axis(pixelAxis), _converged(false), _success(false), _isValid(true)

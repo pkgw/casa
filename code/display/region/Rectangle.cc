@@ -492,9 +492,9 @@ namespace casa {
 			return result;
 		}
 
-		std::list<SHARED_PTR<RegionInfo> > *Rectangle::generate_dds_centers( ) {
+		std::list<std::shared_ptr<RegionInfo> > *Rectangle::generate_dds_centers( ) {
 
-			std::list<SHARED_PTR<RegionInfo> > *region_centers = new std::list<SHARED_PTR<RegionInfo> >( );
+			std::list<std::shared_ptr<RegionInfo> > *region_centers = new std::list<std::shared_ptr<RegionInfo> >( );
 			if( wc_==0 ) return region_centers;
 
 			Int zindex = 0;
@@ -531,7 +531,7 @@ namespace casa {
 				try {
 					if ( ! padd->conformsTo(*wc_) ) continue;
 
-					SHARED_PTR<ImageInterface<Float> > image(padd->imageinterface( ));
+					std::shared_ptr<ImageInterface<Float> > image(padd->imageinterface( ));
 
 					if ( ! image  ) continue;
 
@@ -595,7 +595,7 @@ namespace casa {
 					WCBox box(blcq, trcq, cs, Vector<Int>());
 					ImageRegion *imageregion = new ImageRegion(box);
 
-					region_centers->push_back(SHARED_PTR<RegionInfo>(new ImageRegionInfo(name,description,getLayerCenter(padd, image, *imageregion))));
+					region_centers->push_back(std::shared_ptr<RegionInfo>(new ImageRegionInfo(name,description,getLayerCenter(padd, image, *imageregion))));
 
 					delete imageregion;
 				} catch (const casacore::AipsError& err) {
@@ -628,7 +628,7 @@ namespace casa {
 			lin(1) = trc_y;
 			if ( ! wc_->linToWorld(trc, lin)) return 0;
 
-			SHARED_PTR<ImageInterface<Float> > image(padd->imageinterface( ));
+			std::shared_ptr<ImageInterface<Float> > image(padd->imageinterface( ));
 			if ( image == 0 ) return 0;
 
 			Vector<Int> dispAxes = padd->displayAxes( );

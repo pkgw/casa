@@ -76,7 +76,7 @@ namespace casa {
 
 	private:
 
-		bool _constructFitter( SHARED_PTR<const casacore::ImageInterface<float> >& image,
+		bool _constructFitter( std::shared_ptr<const casacore::ImageInterface<float> >& image,
 					const casacore::String& region, const casacore::Record* const &regionPtr, const casacore::String& box,
 					const casacore::String& chans, const casacore::String& stokes, const casacore::String& mask, const int axis,
 					const casacore::uInt ngauss, const SpectralList& spectralList );

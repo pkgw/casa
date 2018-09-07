@@ -171,7 +171,7 @@ ControlRecord::asRecord() {
 }
 
 // All DistSIIterBot_states must have 'type' and 'name' defined.
-DistSIIterBot_state::DistSIIterBot_state(SHARED_PTR<SIIterBot_callback> cb,
+DistSIIterBot_state::DistSIIterBot_state(std::shared_ptr<SIIterBot_callback> cb,
                                          MPI_Comm comm)
 	: SIIterBot_state(cb)
 	, comm(comm)

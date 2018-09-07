@@ -435,9 +435,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   ////    Internal Functions start here.  These are not visible to the tool layer.
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  SHARED_PTR<SIImageStore> SynthesisDeconvolver::makeImageStore( String imagename )
+  std::shared_ptr<SIImageStore> SynthesisDeconvolver::makeImageStore( String imagename )
   {
-    SHARED_PTR<SIImageStore> imstore;
+    std::shared_ptr<SIImageStore> imstore;
     if( itsDeconvolver->getAlgorithmName() == "mtmfs" )
       {  imstore.reset( new SIImageStoreMultiTerm( imagename, itsDeconvolver->getNTaylorTerms(), true ) ); }
     else

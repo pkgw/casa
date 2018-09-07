@@ -1754,105 +1754,89 @@ class asdm_import6(test_base):
         tblocal.close()
 
         print myname, ": Success! Now checking output ..."
-        mscomponents = set(["ANTENNA/table.dat",
-                            "DATA_DESCRIPTION/table.dat",
-                            "FEED/table.dat",
-                            "FIELD/table.dat",
-                            "FLAG_CMD/table.dat",
-                            "HISTORY/table.dat",
-                            "OBSERVATION/table.dat",
-                            "POINTING/table.dat",
-                            "POLARIZATION/table.dat",
-                            "PROCESSOR/table.dat",
-                            "SOURCE/table.dat",
-                            "SPECTRAL_WINDOW/table.dat",
-                            "STATE/table.dat",
-                            "SYSCAL/table.dat",
-                            "ANTENNA/table.f0",
-                            "DATA_DESCRIPTION/table.f0",
-                            "FEED/table.f0",
-                            "FIELD/table.f0",
-                            "FLAG_CMD/table.f0",
-                            "HISTORY/table.f0",
-                            "OBSERVATION/table.f0",
-                            "POINTING/table.f0",
-                            "POLARIZATION/table.f0",
-                            "PROCESSOR/table.f0",
-                            "SOURCE/table.f0",
-                            "SPECTRAL_WINDOW/table.f0",
-                            "STATE/table.f0",
-                            "SYSCAL/table.f0"
-                            ])
-        for name in mscomponents:
-            if not os.access(themsname+"/"+name, os.F_OK):
-                print myname, ": Error  ", themsname+"/"+name, "doesn't exist ..."
+        # crude test of success ...
+        # the following tables should exist as directies containing table.dat and table.f0
+        expectedTabs = ["ANTENNA","CALDEVICE","DATA_DESCRIPTION","FEED","FIELD",
+                        "FLAG_CMD","HISTORY","OBSERVATION","POINTING","POLARIZATION",
+                        "PROCESSOR","SOURCE","SPECTRAL_WINDOW","STATE","SYSCAL",
+                        "SYSPOWER","WEATHER"]
+        for name in expectedTabs:
+            for fname in ["table.dat","table.f0"]:
+                tabname = name+"/"+fname
+                thisName = themsname+"/"+tabname
+                if not os.access(thisName, os.F_OK):
+                    print myname, ": Error  ", thisName+"/"+name, "doesn't exist ..."
+                    retValue['success']=False
+                    retValue['error_msgs']=retValue['error_msgs']+themsname+'/'+tabname+' does not exist'
+                else:
+                    print myname, ": ", tabname+"/"+fname, "present."
+        if (retValue['success']):
+            print myname, ": MS exists. All tables present. Try opening as MS ..."
+            try:
+                mslocal.open(themsname)
+            except:
+                print myname, ": Error  Cannot open MS table", themsname
                 retValue['success']=False
-                retValue['error_msgs']=retValue['error_msgs']+themsname+'/'+name+' does not exist'
+                retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+themsname
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All tables present. Try opening as MS ..."
-        try:
-            mslocal.open(themsname)
-        except:
-            print myname, ": Error  Cannot open MS table", themsname
-            retValue['success']=False
-            retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+themsname
-        else:
-            mslocal.close()
-            print myname, ": OK. Checking tables in detail ..."
+                mslocal.close()
+                print myname, ": OK. Checking tables in detail ..."
     
-            importasdm(asdm=myasdmname, vis='reference.ms', lazy=False, overwrite=True, scans='0:1~3')
+                importasdm(asdm=myasdmname, vis='reference.ms', lazy=False, overwrite=True, scans='0:1~3')
 
-            if(os.path.exists('reference.ms')):
-                retValue['success'] = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
-                                                    +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1.DATA,t2.DATA, 1.e-06)))") == 0
-                if not retValue['success']:
-                    print "ERROR: DATA does not agree with reference."
-                else:
-                    print "DATA columns agree."
-                retValueTmp = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
-                                            +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(t1.FLAG==t2.FLAG)) ") == 0
-                if not retValueTmp:
-                    print "ERROR: FLAG does not agree with reference."
-                else:
-                    print "FLAG columns agree."
+                if(os.path.exists('reference.ms')):
+                    retValue['success'] = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
+                                                           +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1.DATA,t2.DATA, 1.e-06)))") == 0
+                    if not retValue['success']:
+                        print "ERROR: DATA does not agree with reference."
+                    else:
+                        print "DATA columns agree."
+                    retValueTmp = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
+                                                   +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(t1.FLAG==t2.FLAG)) ") == 0
+                    if not retValueTmp:
+                        print "ERROR: FLAG does not agree with reference."
+                    else:
+                        print "FLAG columns agree."
 
-                retValue['success'] = retValue['success'] and retValueTmp
+                    retValue['success'] = retValue['success'] and retValueTmp
 
-                for subtname in ["ANTENNA",
-                                 "DATA_DESCRIPTION",
-                                 "FEED",
-                                 "FIELD",
-                                 "FLAG_CMD",
-                                 "OBSERVATION",
-                                 "POINTING",
-                                 "POLARIZATION",
-                                 "PROCESSOR",
-                                 "SOURCE",
-                                 "SPECTRAL_WINDOW",
-                                 "STATE",
-                                 "SYSCAL"]:
-                    
-                    print "\n*** Subtable ",subtname
-                    excllist = []
-                    if subtname=='SOURCE':
-                        excllist=['POSITION', 'TRANSITION', 'REST_FREQUENCY', 'SYSVEL']
-                    if subtname=='SYSCAL':
-                        excllist=['TANT_SPECTRUM', 'TANT_TSYS_SPECTRUM']
-                    if subtname=='SPECTRAL_WINDOW':
-                        excllist=['CHAN_FREQ', 'CHAN_WIDTH', 'EFFECTIVE_BW', 'RESOLUTION']
-                        for colname in excllist: 
-                            retValue['success'] = th.compVarColTables('reference.ms/SPECTRAL_WINDOW',
-                                                                      themsname+'/SPECTRAL_WINDOW', colname, 0.01) and retValue['success']
+                    for subtname in expectedTabs:
+                        print "\n*** Subtable ",subtname
+                        excllist = []
+                        if subtname=='SOURCE':
+                            excllist=['POSITION', 'TRANSITION', 'REST_FREQUENCY', 'SYSVEL']
+                        if subtname=='SYSCAL':
+                            excllist=['TANT_SPECTRUM', 'TANT_TSYS_SPECTRUM']
+                        if subtname=='CALDEVICE':
+                            excllist=["NOISE_CAL","CAL_EFF"]
+                        if subtname=='HISTORY':
+                            excllist=['MESSAGE']
+                        if subtname=="SYSCAL":
+                            exclist=["TANT_SPECTRUM","TANT_TSYS_SPECTRUM"]
+                        if subtname=='SPECTRAL_WINDOW':
+                            excllist=['CHAN_FREQ', 'CHAN_WIDTH', 'EFFECTIVE_BW', 'RESOLUTION']
+                            for colname in excllist: 
+                                retValue['success'] = th.compVarColTables('reference.ms/SPECTRAL_WINDOW',
+                                                                          themsname+'/SPECTRAL_WINDOW', colname, 0.01) and retValue['success']
                         
-                    try:    
-                        retValue['success'] = th.compTables('reference.ms/'+subtname,
-                                                            themsname+'/'+subtname, excllist, 
-                                                            0.01) and retValue['success']
-                    except:
-                        retValue['success'] = False
-                        print "ERROR for table ", subtname
-            
+                        try:    
+                            retValue['success'] = th.compTables('reference.ms/'+subtname,
+                                                                themsname+'/'+subtname, excllist, 
+                                                                0.01) and retValue['success']
+                        except:
+                            retValue['success'] = False
+                            print "ERROR for table ", subtname
+
+                    if retValue['success']:
+                        # For this MS, the WEATHER/DEW_POINT_FLAG is all True and
+                        # the other *FLAG columns are all false, just check PRESSURE_FLAG
+                        tblocal.open(themsname+'/WEATHER')
+                        dewptFlag = tblocal.getcol('DEW_POINT_FLAG')
+                        pressFlag = tblocal.getcol('PRESSURE_FLAG')
+                        tblocal.close()
+                        retValue['success'] = (dewptFlag.sum()==len(dewptFlag)) and (pressFlag.sum()==0)
+                        if not (retValue['success']):
+                            print "ERROR for WEATHER table. Expected values of DEW_POINT_FLAG and PRESSURE_FLAG are not seen."
                 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
         

@@ -86,7 +86,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			SIIterBot_state &operator=( const SIIterBot_state & );
 
 		public:
-			SIIterBot_state( SHARED_PTR<SIIterBot_callback> );
+			SIIterBot_state( std::shared_ptr<SIIterBot_callback> );
 			~SIIterBot_state( );
 
 			/****
@@ -305,7 +305,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			casacore::Array<casacore::Double> itsSummaryMinor;
 			casacore::Array<casacore::Int>    itsSummaryMajor;
 
-			SHARED_PTR<SIIterBot_callback> callback;
+			std::shared_ptr<SIIterBot_callback> callback;
 	};
 
 	class SIIterBot_adaptor
@@ -317,7 +317,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 #endif
 		{
 			public:
-				SIIterBot_adaptor( SHARED_PTR<SIIterBot_state> state, const std::string &bus_name, const std::string &object_path );
+				SIIterBot_adaptor( std::shared_ptr<SIIterBot_state> state, const std::string &bus_name, const std::string &object_path );
 				~SIIterBot_adaptor();
 
 				bool incrementController( )	{ return state->incrementController( ); }
@@ -378,7 +378,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 #endif
 			private:
-				SHARED_PTR<SIIterBot_state> state;
+				std::shared_ptr<SIIterBot_state> state;
 
 		};
     

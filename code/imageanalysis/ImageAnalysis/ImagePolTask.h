@@ -159,8 +159,8 @@ private:
     // These blocks are always size 4, with IQUV in slots 0,1,2,3
     // If your image is IV only, they still use slots 0 and 3
     std::vector<SPIIF> _stokesImage = std::vector<SPIIF>(4);
-    std::vector<SHARED_PTR<casacore::LatticeStatistics<casacore::Float>>> _stokesStats
-        = std::vector<SHARED_PTR<casacore::LatticeStatistics<casacore::Float>>>(4);
+    std::vector<std::shared_ptr<casacore::LatticeStatistics<casacore::Float>>> _stokesStats
+        = std::vector<std::shared_ptr<casacore::LatticeStatistics<casacore::Float>>>(4);
     casacore::Matrix<casacore::Bool> _beamsEqMat
         = casacore::Matrix<casacore::Bool>(4, 4, casacore::False);
     Float _oldClip = 0.0;

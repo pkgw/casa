@@ -1477,7 +1477,7 @@ variant* msmetadata::restfreqs(int sourceid, int spw) {
         ThrowIf(
             sourceid < 0, "sourceid cannot be negative"
         );
-        map<SourceKey COMMA SHARED_PTR<vector<MFrequency> > > mymap
+        map<SourceKey COMMA std::shared_ptr<vector<MFrequency> > > mymap
             = _msmd->getRestFrequencies();
         SourceKey key;
         key.id = sourceid;
@@ -1488,7 +1488,7 @@ variant* msmetadata::restfreqs(int sourceid, int spw) {
             + String::toString(sourceid) + " and SPECTRAL_WINDOW_ID="
             + String::toString(spw)
         );
-        SHARED_PTR<vector<MFrequency> > ptr = mymap[key];
+        std::shared_ptr<vector<MFrequency> > ptr = mymap[key];
         if (ptr) {
             Record mr;
             Record r;
@@ -2023,7 +2023,7 @@ variant* msmetadata::timesforscan(int scan, int obsid, int arrayid, bool perspw)
 					)
 				);
 			}
-			SHARED_PTR<record> rec(fromRecord(ret));
+			std::shared_ptr<record> rec(fromRecord(ret));
 			return new variant(*rec);
 		}
 		else {
@@ -2126,7 +2126,7 @@ variant* msmetadata::transitions(int sourceid, int spw) {
         ThrowIf(
             sourceid < 0, "sourceid cannot be negative"
         );
-        map<SourceKey COMMA SHARED_PTR<vector<String> > > mymap
+        map<SourceKey COMMA std::shared_ptr<vector<String> > > mymap
             = _msmd->getTransitions();
         SourceKey key;
         key.id = sourceid;
@@ -2137,7 +2137,7 @@ variant* msmetadata::transitions(int sourceid, int spw) {
             + String::toString(sourceid) + " and SPECTRAL_WINDOW_ID="
             + String::toString(spw)
         );
-        SHARED_PTR<vector<String> > ptr = mymap[key];
+        std::shared_ptr<vector<String> > ptr = mymap[key];
         if (ptr) {
         	vector<string> v = _vectorStringToStdVectorString(*ptr);
             return new variant(v);

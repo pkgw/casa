@@ -49,7 +49,7 @@ namespace casa {
 		Gaussian2DFitter();
 		void run();
 		bool isFitSuccessful() const;
-		void setFitParameters( SHARED_PTR<const casacore::ImageInterface<casacore::Float> > image, const casacore::String& box,
+		void setFitParameters( std::shared_ptr<const casacore::ImageInterface<casacore::Float> > image, const casacore::String& box,
 		                       int channelNum, const casacore::String& estimatesFileName, const casacore::String& residualImageFile,
 		                       const casacore::Vector<casacore::Float>& includeVector, const casacore::Vector<casacore::Float>& excludeVector);
 		QString getErrorMessage() const;
@@ -58,7 +58,7 @@ namespace casa {
 		QString getResidualImagePath() const;
 		void setFilePath( casacore::String path );
 		bool writeRegionFile() const;
-		QList<RegionShape*> toDrawingDisplay( const SHARED_PTR<const casacore::ImageInterface<casacore::Float> > image, const QString& colorName) const;
+		QList<RegionShape*> toDrawingDisplay( const std::shared_ptr<const casacore::ImageInterface<casacore::Float> > image, const QString& colorName) const;
 		virtual ~Gaussian2DFitter();
 
 	private:
@@ -68,9 +68,9 @@ namespace casa {
 		bool successfulFit;
 		bool logFile;
 		ComponentListWrapper fitResultList;
-        SHARED_PTR<const casacore::ImageInterface<casacore::Float> > image;
-		SHARED_PTR<std::pair<casacore::Float, casacore::Float> > includePixs;
-		SHARED_PTR<std::pair<casacore::Float, casacore::Float> > excludePixs;
+        std::shared_ptr<const casacore::ImageInterface<casacore::Float> > image;
+		std::shared_ptr<std::pair<casacore::Float, casacore::Float> > includePixs;
+		std::shared_ptr<std::pair<casacore::Float, casacore::Float> > excludePixs;
 		casacore::String pixelBox;
 		casacore::String filePath;
 		int channelNumber;
