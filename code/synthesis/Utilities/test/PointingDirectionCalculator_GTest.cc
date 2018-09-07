@@ -1592,10 +1592,11 @@ TEST_F(TestDirection, VerifyCAS11818 )
         }
 
 }
-//+ 
-//  UnsetMovingSource and 
-//   with the Conveniation of setMovingSource 
-//-
+/*-----------------------------------------------
+  UnsetMovingSource and 
+   with the Conveniation of setMovingSource 
+ - 5 different senario, with set/unset / No op.
+------------------------------------------------*/
 
 TEST_F(TestDirection, setMovingSource  )
 {
@@ -1702,6 +1703,12 @@ TEST_F(TestDirection, setMovingSource  )
       }
 
 }
+
+/*------------------------------------------
+   Matric Shape ( COLUMN or ROW )
+   - Inspect  Coumn/Row Number shoud be 
+     in the specification. 
+  ------------------------------------------*/
 TEST_F(TestDirection, Matrixshape )
 {
 
