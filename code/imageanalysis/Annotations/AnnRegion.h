@@ -66,10 +66,10 @@ public:
 	virtual casacore::ImageRegion asImageRegion() const;
 
 	// this version is deprecated, use the version that returns
-	// SHARED_PTR instead
+	// std::shared_ptr instead
 	virtual casacore::CountedPtr<const casacore::WCRegion> getRegion() const;
 
-	virtual SHARED_PTR<const casacore::WCRegion> getRegion2() const;
+	virtual std::shared_ptr<const casacore::WCRegion> getRegion2() const;
 
 	// returns true unless overridden.
 	virtual casacore::Bool isRegion() const;

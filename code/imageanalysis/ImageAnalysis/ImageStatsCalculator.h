@@ -137,7 +137,7 @@ private:
     casacore::Bool _disk = casacore::False;
     casacore::Bool _robust = casacore::False;
     casacore::Bool _verbose = casacore::False;
-    SHARED_PTR<const casacore::SubImage<T>> _subImage = nullptr;
+    std::shared_ptr<const casacore::SubImage<T>> _subImage = nullptr;
     static const casacore::String _class;
 
     // moved from ImageAnalysis
@@ -157,7 +157,7 @@ private:
     ) const;
 
     void _reportDetailedStats(
-        const SHARED_PTR<const casacore::ImageInterface<T>> tempIm,
+        const std::shared_ptr<const casacore::ImageInterface<T>> tempIm,
         const casacore::Record& retval
     );
 

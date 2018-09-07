@@ -80,7 +80,7 @@ namespace casa {
 		virtual QString getYUnit() const;
 		virtual QString getYUnitPrefix() const;
 		virtual casacore::String getXAxisUnit() const;
-		virtual const SHARED_PTR<const casacore::ImageInterface<casacore::Float> > getImage( const QString& name="") const;
+		virtual const std::shared_ptr<const casacore::ImageInterface<casacore::Float> > getImage( const QString& name="") const;
 		virtual const casacore::String getPixelBox() const;
 		virtual const casacore::String getRegionShape() const;
 

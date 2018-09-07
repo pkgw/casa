@@ -352,8 +352,8 @@ template <class T> void ImageFitter<T>::_fitLoop(
     Bool hasSpectralAxis = csys.hasSpectralAxis();
     uInt spectralAxisNumber = csys.spectralAxisNumber();
     Bool outputImages = residualImage || modelImage;
-    SHARED_PTR<ArrayLattice<Bool> > initMask;
-    SHARED_PTR<TempImage<T>> tImage;
+    std::shared_ptr<ArrayLattice<Bool> > initMask;
+    std::shared_ptr<TempImage<T>> tImage;
     IPosition location(this->_getImage()->ndim(), 0);
     for (_curChan=_chanVec[0]; _curChan<=_chanVec[1]; _curChan++) {
         if (_chanPixNumber >= 0) {
@@ -438,8 +438,8 @@ template <class T> void ImageFitter<T>::_doConverged(
     ComponentList& convolvedList, ComponentList& deconvolvedList,
     Double& zeroLevelOffsetEstimate, std::pair<Int, Int>& pixelOffsets,
     SPIIT& residualImage, SPIIT& modelImage,
-    SHARED_PTR<TempImage<T>>& tImage,
-    SHARED_PTR<ArrayLattice<Bool> >& initMask,
+    std::shared_ptr<TempImage<T>>& tImage,
+    std::shared_ptr<ArrayLattice<Bool> >& initMask,
     Double zeroLevelOffsetSolution, Double zeroLevelOffsetError,
     Bool hasSpectralAxis, Int spectralAxisNumber, Bool outputImages,
     const IPosition& planeShape, const Array<T>& pixels,
@@ -473,7 +473,7 @@ template <class T> void ImageFitter<T>::_doConverged(
         curResidPixels, curModelPixels, data,
         pixelOffsets.first, pixelOffsets.second
     );
-    SHARED_PTR<TempImage<T>> fittedResid;
+    std::shared_ptr<TempImage<T>> fittedResid;
     if (modelImage) {
         modelImage->putSlice(curModelPixels, location);
     }
@@ -1085,12 +1085,12 @@ template <class T> void ImageFitter<T>::_setDeconvolvedSizes() {
         Quantity maj = _majorAxes[i];
         Quantity minor = _minorAxes[i];
         Quantity pa = _positionAngles[i];
-        SHARED_PTR<GaussianShape> gaussShape(
+        std::shared_ptr<GaussianShape> gaussShape(
             static_cast<GaussianShape *>(
                 _curConvolvedList.getShape(i)->clone()
             )
         );
-        SHARED_PTR<PointShape> point;
+        std::shared_ptr<PointShape> point;
         Quantity emaj = _majorAxisErrors[i];
         Quantity emin = _minorAxisErrors[i];
         Quantity epa  = _positionAngleErrors[i];

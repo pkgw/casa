@@ -54,7 +54,7 @@ template <class T> vector<String> ImageFitterResults<T>::_prefixesWithCenti = ve
 template <class T> vector<String> ImageFitterResults<T>::_prefixes = vector<String>();
 
 template <class T> ImageFitterResults<T>::ImageFitterResults(
-	SPCIIT image, SHARED_PTR<LogIO> log
+	SPCIIT image, std::shared_ptr<LogIO> log
 ) : _image(image), _log(log), _bUnit(image->units().getName()) {}
 
 template <class T> ImageFitterResults<T>::~ImageFitterResults() {}
@@ -136,8 +136,8 @@ template <class T> void ImageFitterResults<T>::writeCompList(
 template <class T> String ImageFitterResults<T>::resultsHeader(
 	const String& chans, const Vector<uInt>& chanVec,
 	const String& region, const String& mask,
-	SHARED_PTR<std::pair<T, T>> includePixelRange,
-	SHARED_PTR<std::pair<T, T>> excludePixelRange,
+	std::shared_ptr<std::pair<T, T>> includePixelRange,
+	std::shared_ptr<std::pair<T, T>> excludePixelRange,
 	const String& estimates
 ) const {
 	ostringstream summary;

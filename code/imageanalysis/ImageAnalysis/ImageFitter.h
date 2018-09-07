@@ -195,7 +195,7 @@ private:
     casacore::String _regionString{};
     casacore::String _residual{}, _model{}, _estimatesString{}, _summary{};
     casacore::String _newEstimatesFileName, _compListName, _bUnit;
-    SHARED_PTR<std::pair<T, T>> _includePixelRange{}, _excludePixelRange{};
+    std::shared_ptr<std::pair<T, T>> _includePixelRange{}, _excludePixelRange{};
     ComponentList _estimates{}, _curConvolvedList, _curDeconvolvedList;
     casacore::Vector<casacore::String> _fixed{}, _deconvolvedMessages;
     casacore::Bool _fitDone{false}, _noBeam{false}, _doZeroLevel{false},
@@ -313,8 +313,8 @@ private:
         casacore::Double& zeroLevelOffsetEstimate,
         std::pair<casacore::Int, casacore::Int>& pixelOffsets,
         SPIIT& residualImage, SPIIT& modelImage,
-        SHARED_PTR<casacore::TempImage<T>>& tImage,
-        SHARED_PTR<casacore::ArrayLattice<casacore::Bool> >& initMask,
+        std::shared_ptr<casacore::TempImage<T>>& tImage,
+        std::shared_ptr<casacore::ArrayLattice<casacore::Bool> >& initMask,
         casacore::Double zeroLevelOffsetSolution,
         casacore::Double zeroLevelOffsetError, casacore::Bool hasSpectralAxis,
         casacore::Int spectralAxisNumber, casacore::Bool outputImages,
