@@ -295,7 +295,6 @@ class ParallelTaskHelper:
                     except Exception as instance:
                         casalog.post("Error post processing MMS results {0}: {1}".format(
                             subMS_dict, instance), 'WARN', 'consolidateResults')
-                        raise
             return ParallelTaskHelper.finalize_consolidate_results(ret_dict)
 
 
