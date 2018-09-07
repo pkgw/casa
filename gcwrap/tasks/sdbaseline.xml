@@ -200,7 +200,7 @@ pipeline processing for huge dataset.
 
     <param type="any" name="rejwn" subparam="true">
         <description>wave numbers NOT to use</description>
-        <value type="intArray"><value></value></value>
+        <value type="intArray"></value>
     </param>
 
     <param type="double" name="clipthresh" subparam="true">
