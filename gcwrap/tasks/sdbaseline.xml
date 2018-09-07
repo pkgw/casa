@@ -200,7 +200,7 @@ pipeline processing for huge dataset.
 
     <param type="any" name="rejwn" subparam="true">
         <description>wave numbers NOT to use</description>
-        <value type="intArray"></value>
+        <value type="intArray"/>
     </param>
 
     <param type="double" name="clipthresh" subparam="true">
@@ -288,7 +288,7 @@ pipeline processing for huge dataset.
                         <default param="fftmethod"><value type="string">fft</value></default>
                         <default param="fftthresh"><value type="double">3.0</value></default>
                         <default param="addwn"><value type="intArray"><value>0</value></value></default>
-                        <default param="rejwn"><value type="intArray"><value></value></value></default>
+                        <default param="rejwn"><value type="intArray"/></default>
                         <default param="clipthresh"><value>3.0</value></default>
                         <default param="clipniter"><value>0</value></default>
                 </equals> 
