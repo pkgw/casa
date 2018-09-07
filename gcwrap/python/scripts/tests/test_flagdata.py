@@ -62,6 +62,143 @@ if os.environ.has_key('BYPASS_PARALLEL_PROCESSING'):
 # Local copy of the agentflagger tool
 aflocal = aftool()
 
+
+class test_dict_consolidation(unittest.TestCase):
+    '''This could find a better place of its own, somewhere for unit tests of the parallel
+    helper functions, as it can be tested independently from the tasks. For now it's
+    a start as a bunch of checks specific to flagdata dictionaries and rflag in particular'''
+    def test_flagdata_dict_consolidation(self):
+        '''flagdata:: test return dictionary consolidation functions from parallel_task_helper'''
+        import numpy as np
+        from numpy import array
+
+        def assert_dict_allclose(dicta, dictb):
+            """
+            Recursively assert: are dicta and dictb "allclose", in the sense that
+            numpy array values will be approx-compared using np.assert_allclose()?
+            Values of different types will be compared using unittest.assertEqual()
+
+            np.assert_equal handles dictionaries but only supports exact comparisons.
+            All other np. approx comparison functions don't seem to support arbitrary
+            dictionaries
+            """
+            if not dicta:
+                self.assertEqual(dicta, dictb)
+                return
+
+            for key, vala in dicta.items():
+                valb = dictb[key]
+                if type(vala) == dict:
+                    assert_dict_allclose(vala, valb)
+                elif type(vala) == np.ndarray:
+                    np.testing.assert_allclose(vala, valb, rtol=1e-3)
+                else:
+                    self.assertEqual(vala, valb)
+
+        # flagdata-returned dicts and their consolidated dicts
+        ret_bogus = {'i_am_bogus': 3}
+        cons_bogus = None
+
+        # free version of rflag return dict for Four_ants_3C286_mms.ms
+        ret_rflag_4ants_single = {'nreport': 1, 'report0':
+                                  {'freqdev': array([[1, 0, 3.1-02], [1, 1, 2.8-02],
+                                                     [1, 2, 2.3-02], [1, 3, 2.1-02],
+                                                     [1, 4, 2.5-02], [1, 5, 1.6-02],
+                                                     [2, 10, 3.6-02], [2, 11, 2.6-02],
+                                                     [2, 12, 1.6-02], [2, 13, 1.7-02],
+                                                     [3, 14, 1.2-02], [3, 15, 9.4-03]]),
+                                   'name': 'Rflag',
+                                   'timedev': array([[1, 0.0, 7.0-03], [1, 1, 5.9-03],
+                                                   [1, 2, 5.7-03], [1, 3, 5.3-03],
+                                                   [1, 4, 7.7-03], [1, 5, 5.2-03],
+                                                   [2, 10, 2.7-02], [2, 11, 8.9-03],
+                                                   [2, 12, 6.2-03], [2, 13, 4.9-03],
+                                                   [3, 14, 3.6-03], [3, 15, 3.5-03]]),
+                                   'type': 'rflag'}, 'type': 'list'}
+        ret_rflag_4ants_1rep = { '/path/to/dummy.ms/SUBMSS/dummy.ms.0000.ms':
+                            ret_rflag_4ants_single}
+        cons_rflag_4ants_1rep = ret_rflag_4ants_single
+
+        names_6rep = ['/path/to/dummy.ms/SUBMSS/dummy.ms.000{0}.ms'.format(idx) for idx in
+                      range(6)]
+        ret_rflag_4ants_6rep = dict(zip(names_6rep, 6*[ret_rflag_4ants_single]))
+        cons_rflag_4ants_6rep = ret_rflag_4ants_single
+
+        # free version of rflag return dict for ALMA uid___A002_X30a93d_X43e_small.ms
+        ret_x43e = {'/path/to/x43e.ms/SUBMSS/x43e.ms.0000.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[0, 1, 0.00330866]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[0, 1, 1.96219644e-04]])}, 'nreport': 1},
+                    '/path/to/x43e.ms/SUBMSS/x43e.ms.0003.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[2, 3, 0]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[2, 3, 0.01768084]])},
+                     'nreport': 1},
+                    '/path/to/x43e.ms/SUBMSS/x43e.ms.0001.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[2, 2, 0.0054054], [3, 3, 0]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[2, 2, 0.02742571], [3, 3, 0.01728651]])},
+                     'nreport': 1},
+                    '/path/to/x43e.ms/SUBMSS/x43e.ms.0002.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[3, 2, 0.00540063]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[3, 2,  0.02657252]])},
+                     'nreport': 1}}
+        cons_x43e = {'type': 'list', 'report0':
+                     {'type': 'rflag', 'freqdev':
+                      array([[0, 1, 0.00330866], [2, 2, 0.0054054],
+                             [2, 3, 0], [3, 2, 0.00540063], [3, 3, 0]]),
+                      'name': 'Rflag', 'timedev':
+                      array([[0, 1, 1.96219644e-04], [2, 2, 2.74257102e-02],
+                             [2, 3, 1.76808392e-02], [3, 2, 2.65725189e-02],
+                             [3, 3, 1.72865119e-02]])},
+                     'nreport': 1}
+
+        # free version of rflag return dict for ngc5921.ms
+        ret_ngc5921 = {'/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0002.ms':
+                       {'type': 'list', 'report0': {
+                           'freqdev': array([[0, 0, 0.15954576], [1, 0, 0.11957453]]),
+                           'type': 'rflag', 'name': 'Rflag',
+                           'timedev': array([[0, 0, 0.03786448], [1, 0, 0.03808762]])},
+                        'nreport': 1},
+                       '/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0000.ms':
+                       {'type': 'list', 'report0': {'freqdev': array([[2, 0, 0.10978827]]),
+                                                    'type': 'rflag', 'name': 'Rflag',
+                                                    'timedev': array([[2, 0, 0.0282818]])},
+                        'nreport': 1},
+                       '/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0003.ms':
+                       {'type': 'list', 'report0': {'freqdev': array([[1, 0, 0.11688346]]),
+                                                    'type': 'rflag', 'name': 'Rflag',
+                                                    'timedev': array([[1, 0, 0.03754368]])},
+                        'nreport': 1},
+                       '/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0001.ms':
+                       {'type': 'list', 'report0': {'freqdev': array([[1, 0, 0.1189428],
+                                                                      [2, 0, 0.10868936]]),
+                                                    'type': 'rflag', 'name': 'Rflag',
+                                                    'timedev': array([[1, 0, 4.12124127e-04],
+                                                                      [2, 0, 2.73353433e-02]])},
+                        'nreport': 1}}
+        cons_ngc5921 =  {'type': 'list', 'report0':
+                         {'type': 'rflag', 'name': 'Rflag','freqdev':
+                          array([[0, 0, 0.15954576], [1, 0, 0.1189428], [2, 0, 0.10923881]]),
+                           'timedev':
+                          array([[0, 0, 0.03786448], [1, 0, 0.03754368], [2, 0, 0.02780857]])},
+                         'nreport': 1}
+
+        multi_dicts = [ret_bogus, ret_rflag_4ants_1rep, ret_rflag_4ants_6rep,
+                      ret_x43e, ret_ngc5921]
+        expected_cons = [cons_bogus, cons_rflag_4ants_1rep, cons_rflag_4ants_6rep,
+                         cons_x43e, cons_ngc5921]
+
+        for multi, exp_cons in zip(multi_dicts, expected_cons):
+            cons = ParallelTaskHelper.consolidateResults(multi, 'flagdata')
+            assert_dict_allclose(cons, exp_cons)
+
+
 # Base class which defines setUp functions
 # for importing different data sets
 class test_base(unittest.TestCase):
@@ -3947,7 +4084,8 @@ class cleanup(test_base):
 
 
 def suite():
-    return [test_antint,
+    return [test_dict_consolidation,
+            test_antint,
             test_rflag,
             test_tfcrop,
             test_shadow,
