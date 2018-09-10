@@ -123,7 +123,7 @@ const struct _MSDef
         {false, "sdimaging/selection_intent.ms"               },
         {false, "sdimaging/selection_misc.ms"         },
         {false, "sdimaging/selection_spw.ms"          },
-        {false, "sdimaging/selection_spw_unifreq.ms"  },i
+        {false, "sdimaging/selection_spw_unifreq.ms"  },
         {true, ".sis14_twhya_calibrated_flagged.ms"        },
         {true, ".sis14_twhya_calibrated_flagged-t.ms"      },
         {true,  "sdimaging/hogehoge.ms"  },
@@ -143,7 +143,7 @@ bool  getMSThrow(int No )
 }
 
 //+
-//  Log Title Functions for Readavle Log Output
+//  Log Title Functions for readable text output
 //-
 
 void TestDescription( const String &Title )
@@ -155,18 +155,18 @@ void TestDescription( const String &Title )
 
 void FunctionalDescription(const String &Title, const String &Param)
 {
-    printf("=======================================\n");
+    printf("=============================================\n");
     printf("# %s \n",Title.c_str());
     printf("# [%s] \n",Param.c_str());
-    printf("=======================================\n");
+    printf("=============================================\n");
 }
 
 void Description(const String &Title, const String &Param)
 {
-    printf("+--------------------------\n");
+    printf("+-----------------------------\n");
     printf("| %s \n",Title.c_str());
     printf("| [%s] \n",Param.c_str());
-    printf("+--------------------------\n");
+    printf("+-----------------------------\n");
 }
 
 //+ 
@@ -235,9 +235,10 @@ private:
 
 //+
 //  Copying template MS from Master Repository.
-//  This is for Some testing items which requires modified data in MS.
-//  After copiing, Modifying fuction for MS is executed depending on
-//  Test cases/items.
+//
+//   This is for Some testing items which requires modified data in MS.
+//   After copiing, Modifying fuction for MS is executed depending on
+//   Test cases/items.
 //-
 
 void CopyDefaultMStoWork()
@@ -249,13 +250,14 @@ void CopyDefaultMStoWork()
 // TEST of Directory.copy() //
 
     // Src/Dsr Path (string) 
+
     String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
     String dst = "./sdimaging-t.ms";
 
     // Src/Dst Path (Path) 
+
     casacore::Path        sourcePath(src);
-    casacore::Path        targetPath(dst);
-       
+    casacore::Path        targetPath(dst);       
     casacore::Directory   dir_ctrl(sourcePath);
 
     Description( "Copying Default MeasurementSet for modifed use to; " ,dst.c_str() );
@@ -274,7 +276,10 @@ void CopyDefaultMStoWork()
 
 }
 
-// The Working File is deleted when One Test Fixture //
+//+
+// The Working File is deleted when One Test Fixture ends. 
+//-
+
 void DeleteWorkingMS()
 {
     String dst         = "./sdimaging-t.ms";
@@ -284,7 +289,7 @@ void DeleteWorkingMS()
      Description( "Deleting Working MeasurementSet for modifed use." ,dst.c_str() );
 
     // Delete File (Recursively done) 
-    //  (for debug use, please change true-> falase )
+    // NOTE: for debug use, please change true-> falase )
 
     if (true) dir_ctrl. removeRecursive(false /*keepDir=False */ );
 
@@ -295,11 +300,11 @@ void DeleteWorkingMS()
 //----------------------------------------------
 // Editting local MS for detail Test
 // 
-// (Tables) ANTENNA and POINTING are modified. 
+// (Tables) ANTENNA and POINTING . 
 //
 //----------------------------------------------
 
-// Antenna Table (for Wtite) //
+// Antenna Data (for Wtiting individual record) 
 
 typedef  struct ChgAntennaTable_ {
 
@@ -1861,6 +1866,11 @@ TEST_F(TestDirection, getDirection )
 
 }
 
+/*------------------------------------------
+   selectData ( <various types of keys>  )
+   - Inspect that expected number of selected
+     data comes out.
+  ------------------------------------------*/
 
 class TestSelectData : public BaseClass
 {
@@ -1908,6 +1918,11 @@ protected:
 
 };
 
+//+
+// Execution of selectData(...)
+//  - args are given from external variables
+//  - Note that 'calc' MUST be given by reference.
+//-
 
 void TestSelectData::test_selectdata(PointingDirectionCalculator& calc)
 {
@@ -1926,13 +1941,14 @@ void TestSelectData::test_selectdata(PointingDirectionCalculator& calc)
 
 }
 
-
-
+/*------------------------------------------
+   selectData( Antenna )
+   - Inspect the result with Antenna key. 
+  ------------------------------------------*/
 
 TEST_F(TestSelectData, Antenna )
 {
     TestDescription( "selectData (key=Antenna)" );
-
 
     // MS name for this Test //
    
@@ -2019,6 +2035,10 @@ TEST_F(TestSelectData, Antenna )
         
 }
 
+/*------------------------------------------
+   selectData( Spw )
+   - Inspect the result with Spw. 
+  ------------------------------------------*/
 
 TEST_F(TestSelectData, Spw )
 {
@@ -2086,6 +2106,11 @@ TEST_F(TestSelectData, Spw )
 
 }
 
+/*------------------------------------------
+   selectData( Field )
+   - Inspect the result with Field. 
+  ------------------------------------------*/
+
 TEST_F(TestSelectData, Field )
 { 
     TestDescription( "selectData (key=Field)" );
@@ -2150,7 +2175,10 @@ TEST_F(TestSelectData, Field )
 
 }
 
-
+/*------------------------------------------
+   selectData( Time )
+   - Inspect the result with Time range. 
+  ------------------------------------------*/
 
 TEST_F(TestSelectData, Time )
 { 
@@ -2219,11 +2247,12 @@ TEST_F(TestSelectData, Time )
         EXPECT_GT ((uInt)20, nrow);      // On-Table  //
         EXPECT_EQ ((uInt)17, nrow);    // SEE ACTUAL COUNT on Browser //
 
-
-
-
 }
 
+/*------------------------------------------
+   selectData( Feed )
+   - Inspect the result with Feed key. 
+  ------------------------------------------*/
 
 TEST_F(TestSelectData, Feed )
 { 
@@ -2273,6 +2302,10 @@ TEST_F(TestSelectData, Feed )
 
 }
 
+/*------------------------------------------
+   selectData( Intent )
+   - Inspect the result with Intent key. 
+  ------------------------------------------*/
 
 TEST_F(TestSelectData, Intent )
 { 
@@ -2332,6 +2365,10 @@ TEST_F(TestSelectData, Intent )
 
 }
 
+/*------------------------------------------
+   selectData( Observation )
+   - Inspect the result with Observation info. 
+  ------------------------------------------*/
 
 TEST_F(TestSelectData, Observation )
 { 
@@ -2391,6 +2428,7 @@ TEST_F(TestSelectData, Observation )
         EXPECT_NO_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
 
+         EXPECT_EQ ((uint)225, nrow);
 
       ObservationSel = "9";    // No Data (err) 
         FunctionalDescription( "Observation: ID specified.",ObservationSel);
@@ -2399,14 +2437,17 @@ TEST_F(TestSelectData, Observation )
 
         EXPECT_EQ ((uInt)0, nrow);
 
-
-
 }
 
+/*------------------------------------------
+   selectData( UVRange )
+   - Inspect the result with UVRange. 
+  ------------------------------------------*/
 
 TEST_F(TestSelectData, UVRange )
 { 
     TestDescription( "selectData (key=UV Range)" );
+
 
     // MS name for this Test //
     
@@ -2450,6 +2491,11 @@ TEST_F(TestSelectData, UVRange )
 
 }
 
+//
+// Frame definitioan for  setFrame()
+// - Strings and a bool var. wheather it is available in casacore.
+// - Some of them causes Exeption Message from inside.
+//
 
 struct FrameName {
   bool   available;
@@ -2538,6 +2584,15 @@ protected:
 
 };
 
+/*-----------------------------------------------
+  check_direction_into()
+
+   1) setFrame( given name by ARG )
+   2) getDirectionType()
+   - 1)and 2) MUST BE SAME.
+   3) output (converted to string) must be same 
+  -----------------------------------------------*/
+
 void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, int n_frame )
 
 {
@@ -2591,6 +2646,12 @@ void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, int n
 
 }
 
+/*-----------------------------------------------
+  setFrama()
+  - Strings are defined above.
+  - Some keywords intentionally  makes Exception. 
+  -----------------------------------------------*/
+
 TEST_F(TestSetFrame, setFrame )
 { 
     TestDescription( "setFrame (String FrameName)" );
@@ -2626,27 +2687,23 @@ TEST_F(TestSetFrame, setFrame )
         
         check_direction_info( calc, i ) ;
     }
-
-
 }
-
 
 
 
 }  // END namespace
 
 
-
-//--------------------------------------
-//   Unit Test Main (google test)
-//--------------------------------------
-
-
+/************************************************
+   Unit Test Main (google test)
+    - Based on instructed Template for GTest.
+    - Such minimum statements are recommended.
+ *************************************************/
 
 int main (int nArgs, char * args [])
  {
 
-    casa::MSEdit msedit ;  ////  TENTATIME /////
+   // Initialize //
 
     ::testing::InitGoogleTest(& nArgs, args);
 
