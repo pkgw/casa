@@ -304,7 +304,7 @@ class ParallelTaskHelper:
         Combines a flagging (sub-)report dictionary dict_list (from a subMS) into an overall
         report dictionary (ret_dict).
         """
-        from rflag_post_proc import combine_rflag_subreport, is_rflag_report
+        from parallel.rflag_post_proc import combine_rflag_subreport, is_rflag_report
 
         for key, item in dict_list.items():
             if isinstance(item, dict):
@@ -333,7 +333,7 @@ class ParallelTaskHelper:
         For now only needs specific processing to finalize the aggregation of the RFlag
         thresholds (freqdev/timedev) vectors. """
 
-        from rflag_post_proc import finalize_agg_rflag_thresholds, is_rflag_report
+        from parallel.rflag_post_proc import finalize_agg_rflag_thresholds, is_rflag_report
 
         for key, item in ret.items():
             if isinstance(item, dict) and is_rflag_report(item):
