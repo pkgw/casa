@@ -760,9 +760,9 @@ void QtDisplayPanelGui::construct_( QtDisplayPanel *newpanel, const std::list<st
 
 	//Slice1D Tool
 	PanelDisplay* panelDisplay = qdp_->panelDisplay();
-	std::shared_ptr<QtPolylineTool> pos = DYNAMIC_POINTER_CAST<QtPolylineTool>(panelDisplay->getTool(QtMouseToolNames::POLYLINE));
+	std::shared_ptr<QtPolylineTool> pos = std::dynamic_pointer_cast<QtPolylineTool>(panelDisplay->getTool(QtMouseToolNames::POLYLINE));
 	if (pos) {
-		std::shared_ptr<viewer::QtRegionSourceKernel> qrs = DYNAMIC_POINTER_CAST<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
+		std::shared_ptr<viewer::QtRegionSourceKernel> qrs = std::dynamic_pointer_cast<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
 		if ( qrs ) {
 			connect( qrs.get(), SIGNAL(show1DSliceTool()), this, SLOT(showSlicer()));
 
@@ -884,9 +884,9 @@ void QtDisplayPanelGui::showHistogram() {
 void QtDisplayPanelGui::generateHistogramRegionUpdates(){
 	//Region updates
 	PanelDisplay* panelDisplay = qdp_->panelDisplay();
-	std::shared_ptr<QtCrossTool> pos = DYNAMIC_POINTER_CAST<QtCrossTool>(panelDisplay->getTool(QtMouseToolNames::POINT));
+	std::shared_ptr<QtCrossTool> pos = std::dynamic_pointer_cast<QtCrossTool>(panelDisplay->getTool(QtMouseToolNames::POINT));
 	if (pos) {
-		std::shared_ptr<viewer::QtRegionSourceKernel> qrs = DYNAMIC_POINTER_CAST<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
+		std::shared_ptr<viewer::QtRegionSourceKernel> qrs = std::dynamic_pointer_cast<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
 		if ( qrs ) {
 			connect( qrs.get( ), SIGNAL( regionUpdate( int, viewer::region::RegionChanges, const QList<double> &, const QList<double> &,
 					const QList<int> &, const QList<int> & ) ),
@@ -907,9 +907,9 @@ void QtDisplayPanelGui::disconnectHistogram() {
 	//Disconnect all the signals and slots
 	//Region updates
 	PanelDisplay* panelDisplay = qdp_->panelDisplay();
-	std::shared_ptr<QtCrossTool> pos = DYNAMIC_POINTER_CAST<QtCrossTool>(panelDisplay->getTool(QtMouseToolNames::POINT));
+	std::shared_ptr<QtCrossTool> pos = std::dynamic_pointer_cast<QtCrossTool>(panelDisplay->getTool(QtMouseToolNames::POINT));
 	if (pos) {
-		std::shared_ptr<viewer::QtRegionSourceKernel> qrs = DYNAMIC_POINTER_CAST<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
+		std::shared_ptr<viewer::QtRegionSourceKernel> qrs = std::dynamic_pointer_cast<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
 		if ( qrs ) {
 			disconnect( qrs.get( ), SIGNAL( regionUpdate( int, viewer::region::RegionChanges, const QList<double> &, const QList<double> &,
 					const QList<int> &, const QList<int> & ) ),
@@ -1075,11 +1075,11 @@ void QtDisplayPanelGui::initFit2DTool() {
 		fitTool->frameChanged( frameIndex );
 
 		//Connect drawing tools so that regions are updated for the fit.
-		std::shared_ptr<QtRectTool> rect = DYNAMIC_POINTER_CAST<QtRectTool>(panelDisplay->getTool(QtMouseToolNames::RECTANGLE));
+		std::shared_ptr<QtRectTool> rect = std::dynamic_pointer_cast<QtRectTool>(panelDisplay->getTool(QtMouseToolNames::RECTANGLE));
 		// one region source is shared among all of the tools...
 		// so there is no need to connect these signals for all of the tools...
 		if ( rect.get( ) != 0 ) {
-			std::shared_ptr<viewer::QtRegionSourceKernel> qrs = DYNAMIC_POINTER_CAST<viewer::QtRegionSourceKernel>(rect->getRegionSource( )->kernel( ));
+			std::shared_ptr<viewer::QtRegionSourceKernel> qrs = std::dynamic_pointer_cast<viewer::QtRegionSourceKernel>(rect->getRegionSource( )->kernel( ));
 			if ( qrs ) {
 				connect( qrs.get( ), SIGNAL( regionCreated( int, const QString &, const QString &, const QList<double> &,
 					const QList<double> &, const QList<int> &, const QList<int> &,
@@ -2467,11 +2467,11 @@ void QtDisplayPanelGui::showImageProfile() {
 		emit overlay(overlays);
 
 		PanelDisplay* ppd = qdp_->panelDisplay();
-		std::shared_ptr<QtRectTool> rect = DYNAMIC_POINTER_CAST<QtRectTool>(ppd->getTool(QtMouseToolNames::RECTANGLE));
+		std::shared_ptr<QtRectTool> rect = std::dynamic_pointer_cast<QtRectTool>(ppd->getTool(QtMouseToolNames::RECTANGLE));
 		if ( (rect.get( ) != 0 && ! profileVisible) ||
 			(profiledDDChange && profileVisible) ) {
 			// this is the *new* region implementation... all events come from region source...
-			std::shared_ptr<viewer::QtRegionSourceKernel> qrs = DYNAMIC_POINTER_CAST<viewer::QtRegionSourceKernel>(rect->getRegionSource( )->kernel( ));
+			std::shared_ptr<viewer::QtRegionSourceKernel> qrs = std::dynamic_pointer_cast<viewer::QtRegionSourceKernel>(rect->getRegionSource( )->kernel( ));
 			qrs->generateExistingRegionUpdates( );
 		}
 
@@ -2483,7 +2483,7 @@ void QtDisplayPanelGui::showImageProfile() {
 
 
 void QtDisplayPanelGui::connectRegionSignals(PanelDisplay* ppd ) {
-	std::shared_ptr<QtCrossTool> pos = DYNAMIC_POINTER_CAST<QtCrossTool>(ppd->getTool(QtMouseToolNames::POINT));
+	std::shared_ptr<QtCrossTool> pos = std::dynamic_pointer_cast<QtCrossTool>(ppd->getTool(QtMouseToolNames::POINT));
 	if ( pos.get( ) != 0 ) {
 		connect( pos.get( ), SIGNAL(wcNotify( const casacore::String, const casacore::Vector<double>, const casacore::Vector<double>,
 				const casacore::Vector<double>, const casacore::Vector<double>, const ProfileType)),
@@ -2494,7 +2494,7 @@ void QtDisplayPanelGui::connectRegionSignals(PanelDisplay* ppd ) {
 
 		// one region source is shared among all of the tools...
 		// so there is no need to connect these signals for all of the tools...
-		std::shared_ptr<viewer::QtRegionSourceKernel> qrs = DYNAMIC_POINTER_CAST<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
+		std::shared_ptr<viewer::QtRegionSourceKernel> qrs = std::dynamic_pointer_cast<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
 
 		if ( qrs ) {
 			connect( profile_, SIGNAL(adjustPosition(double,double,double,double)),
@@ -2518,7 +2518,7 @@ void QtDisplayPanelGui::connectRegionSignals(PanelDisplay* ppd ) {
 
 		}
 	} else {
-		std::shared_ptr<QtOldCrossTool> pos = DYNAMIC_POINTER_CAST<QtOldCrossTool>(ppd->getTool(QtMouseToolNames::POINT));
+		std::shared_ptr<QtOldCrossTool> pos = std::dynamic_pointer_cast<QtOldCrossTool>(ppd->getTool(QtMouseToolNames::POINT));
 		if ( pos.get( ) != 0 ) {
 			connect( pos.get( ), SIGNAL(wcNotify( const casacore::String, const casacore::Vector<double>, const casacore::Vector<double>,
 					const Vector<double>, const casacore::Vector<double>, const ProfileType)),
@@ -2529,7 +2529,7 @@ void QtDisplayPanelGui::connectRegionSignals(PanelDisplay* ppd ) {
 		}
 	}
 
-	std::shared_ptr<QtRectTool> rect = DYNAMIC_POINTER_CAST<QtRectTool>(ppd->getTool(QtMouseToolNames::RECTANGLE));
+	std::shared_ptr<QtRectTool> rect = std::dynamic_pointer_cast<QtRectTool>(ppd->getTool(QtMouseToolNames::RECTANGLE));
 	if ( rect.get( ) != 0 ) {
 		connect( rect.get( ), SIGNAL(wcNotify( const casacore::String, const casacore::Vector<double>, const casacore::Vector<double>,
 				const casacore::Vector<double>, const casacore::Vector<double>, const ProfileType)),
@@ -2538,7 +2538,7 @@ void QtDisplayPanelGui::connectRegionSignals(PanelDisplay* ppd ) {
 		connect( profile_, SIGNAL(coordinateChange(const casacore::String&)),
 				rect.get( ), SLOT(setCoordType(const casacore::String&)));
 	} else {
-		std::shared_ptr<QtOldRectTool> rect = DYNAMIC_POINTER_CAST<QtOldRectTool>(ppd->getTool(QtMouseToolNames::RECTANGLE));
+		std::shared_ptr<QtOldRectTool> rect = std::dynamic_pointer_cast<QtOldRectTool>(ppd->getTool(QtMouseToolNames::RECTANGLE));
 		if ( rect.get( ) != 0 ) {
 			connect( rect.get( ), SIGNAL(wcNotify( const casacore::String, const casacore::Vector<double>, const casacore::Vector<double>,
 					const casacore::Vector<double>, const casacore::Vector<double>, const ProfileType)),
@@ -2549,7 +2549,7 @@ void QtDisplayPanelGui::connectRegionSignals(PanelDisplay* ppd ) {
 		}
 	}
 
-	std::shared_ptr<QtEllipseTool> ellipse = DYNAMIC_POINTER_CAST<QtEllipseTool>(ppd->getTool(QtMouseToolNames::ELLIPSE));
+	std::shared_ptr<QtEllipseTool> ellipse = std::dynamic_pointer_cast<QtEllipseTool>(ppd->getTool(QtMouseToolNames::ELLIPSE));
 	if ( ellipse.get( ) != 0 ) {
 		connect( ellipse.get( ), SIGNAL(wcNotify( const casacore::String, const casacore::Vector<double>, const casacore::Vector<double>,
 				const casacore::Vector<double>, const casacore::Vector<double>, const ProfileType )),
@@ -2558,7 +2558,7 @@ void QtDisplayPanelGui::connectRegionSignals(PanelDisplay* ppd ) {
 		connect( profile_, SIGNAL(coordinateChange(const casacore::String&)),
 				ellipse.get( ), SLOT(setCoordType(const casacore::String&)));
 	} else {
-		std::shared_ptr<QtOldEllipseTool> ellipse = DYNAMIC_POINTER_CAST<QtOldEllipseTool>(ppd->getTool(QtMouseToolNames::ELLIPSE));
+		std::shared_ptr<QtOldEllipseTool> ellipse = std::dynamic_pointer_cast<QtOldEllipseTool>(ppd->getTool(QtMouseToolNames::ELLIPSE));
 		if ( ellipse.get( ) != 0 ) {
 			connect( ellipse.get( ), SIGNAL(wcNotify( const casacore::String, const casacore::Vector<double>, const casacore::Vector<double>,
 					const casacore::Vector<double>, const casacore::Vector<double>, const ProfileType )),
@@ -2569,7 +2569,7 @@ void QtDisplayPanelGui::connectRegionSignals(PanelDisplay* ppd ) {
 		}
 	}
 
-	std::shared_ptr<QtPolyTool> poly = DYNAMIC_POINTER_CAST<QtPolyTool>(ppd->getTool(QtMouseToolNames::POLYGON));
+	std::shared_ptr<QtPolyTool> poly = std::dynamic_pointer_cast<QtPolyTool>(ppd->getTool(QtMouseToolNames::POLYGON));
 	if ( poly.get( ) != 0 ) {
 		connect( poly.get( ), SIGNAL(wcNotify( const casacore::String, const casacore::Vector<double>, const casacore::Vector<double>,
 				const casacore::Vector<double>, const casacore::Vector<double>, const ProfileType )),
@@ -2578,7 +2578,7 @@ void QtDisplayPanelGui::connectRegionSignals(PanelDisplay* ppd ) {
 		connect( profile_, SIGNAL(coordinateChange(const casacore::String&)),
 				poly.get( ), SLOT(setCoordType(const casacore::String&)));
 	} else {
-		std::shared_ptr<QtOldPolyTool> poly = DYNAMIC_POINTER_CAST<QtOldPolyTool>(ppd->getTool(QtMouseToolNames::POLYGON));
+		std::shared_ptr<QtOldPolyTool> poly = std::dynamic_pointer_cast<QtOldPolyTool>(ppd->getTool(QtMouseToolNames::POLYGON));
 		if ( poly.get( ) != 0 ) {
 			connect( poly.get( ), SIGNAL(wcNotify( const casacore::String, const casacore::Vector<double>, const casacore::Vector<double>,
 					const casacore::Vector<double>, const casacore::Vector<double>, const ProfileType )),
@@ -3252,9 +3252,9 @@ void QtDisplayPanelGui::showSlicer() {
 		sliceTool = new SlicerMainWindow( this );
 		if ( qdp_ != NULL ){
 			PanelDisplay* panelDisplay = qdp_->panelDisplay();
-			std::shared_ptr<QtPolylineTool> pos = DYNAMIC_POINTER_CAST<QtPolylineTool>(panelDisplay->getTool(QtMouseToolNames::POLYLINE));
+			std::shared_ptr<QtPolylineTool> pos = std::dynamic_pointer_cast<QtPolylineTool>(panelDisplay->getTool(QtMouseToolNames::POLYLINE));
 			if (pos) {
-				std::shared_ptr<viewer::QtRegionSourceKernel> qrs = DYNAMIC_POINTER_CAST<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
+				std::shared_ptr<viewer::QtRegionSourceKernel> qrs = std::dynamic_pointer_cast<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
 				if ( qrs ) {
 					//Image updates
 					connect( qdp_, SIGNAL(registrationChange()), this, SLOT(resetListenerImage()), Qt::UniqueConnection );
@@ -3285,9 +3285,9 @@ void QtDisplayPanelGui::generateSliceRegionUpdates(){
 	if ( qdp_ != NULL ){
 		//Region updates
 		PanelDisplay* panelDisplay = qdp_->panelDisplay();
-		std::shared_ptr<QtPolylineTool> pos = DYNAMIC_POINTER_CAST<QtPolylineTool>(panelDisplay->getTool(QtMouseToolNames::POLYLINE));
+		std::shared_ptr<QtPolylineTool> pos = std::dynamic_pointer_cast<QtPolylineTool>(panelDisplay->getTool(QtMouseToolNames::POLYLINE));
 		if (pos) {
-			std::shared_ptr<viewer::QtRegionSourceKernel> qrs = DYNAMIC_POINTER_CAST<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
+			std::shared_ptr<viewer::QtRegionSourceKernel> qrs = std::dynamic_pointer_cast<viewer::QtRegionSourceKernel>(pos->getRegionSource( )->kernel( ));
 			if ( qrs ) {
 				qrs->generateExistingRegionUpdates();
 
