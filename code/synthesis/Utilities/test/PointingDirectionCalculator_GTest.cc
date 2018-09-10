@@ -28,7 +28,7 @@
 //# $Id$
 
 // G_Test Include //
-
+//// HOGE /////
 #include "gtest/gtest.h"
 
 // include file for TABLE Manupilation //
