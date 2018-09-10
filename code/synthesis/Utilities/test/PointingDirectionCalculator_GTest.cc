@@ -325,7 +325,6 @@ typedef  struct ChgAntennaTable_ {
 //+
 // MeasurementSet Edit Class (MSEdit)
 //  - Functions are defines.
-//
 //-
 
 class MSEdit  : public MyEnv
@@ -340,21 +339,21 @@ public:
         
         // Add or Remove Row  (Antenna) //
 
-        uInt  AntennaTable_Add_Row();
-        void AntennaTable_Remove_Row(int NRow );
+        uInt  AntennaTable_AddRow();
+        void AntennaTable_RemoveRow(uInt NRow );
         
         // List Table Contents. //
 
-        void ListAntennaTable(String MSname ="./sdimaging-t.ms");
-        void ListPointingTable(String MSname ="./sdimaging-t.ms", bool showAll=false );
+        void AntennaTable_List(String MSname ="./sdimaging-t.ms");
+        void PointingTable_List(String MSname ="./sdimaging-t.ms", bool showAll=false );
 
         // Write Data on Antenna Table // 
      
-        void WriteDataAntennaTable(String MSname ="./sdimaging-t.ms", int Row =0 );
+        void AntennaTable_WriteData(String MSname ="./sdimaging-t.ms", int Row =0 );
 
         // Write new Columns and init data // 
 
-        void WriteColumnsPointingTable(String MSname ="./sdimaging-t.ms" );
+        void PointingTable_WriteData(String MSname ="./sdimaging-t.ms" );
 
         // Write (generated) Test Data on Pointing Table //
 
@@ -362,7 +361,7 @@ public:
 
         // Add or Remove Column (Pointing) ////
 
-        void AddOffsetColumnsToPointingTable();
+        void CpoyDirectionColumnsToNewColumns();
 
 private:
 
@@ -381,7 +380,8 @@ private:
 // Add one row on Antanna Table
 //  returns latest nrow.
 //-
-uInt  MSEdit::AntennaTable_Add_Row()
+
+uInt  MSEdit::AntennaTable_AddRow()
 {
     // Measurement Set (use default name) //
 
@@ -401,9 +401,9 @@ uInt  MSEdit::AntennaTable_Add_Row()
 }
 
 //+
-//
+// Remove specified row from Antanna Table
 //-
-void MSEdit::AntennaTable_Remove_Row(int NRow )
+void MSEdit::AntennaTable_RemoveRow(uInt NRow )
 {
     // Measurment Set (use default name ) //
         MeasurementSet ms0( MSname.c_str(),casacore::Table::TableOption:: Update );
@@ -418,11 +418,12 @@ void MSEdit::AntennaTable_Remove_Row(int NRow )
 
 }
 
+//+
+// List all the data from Antanna Table
+//  of specified MS.
+//- 
 
-
-
-
-void MSEdit::ListAntennaTable(String MSname )
+void MSEdit::AntennaTable_List(String MSname )
 {
 
     // Open MS by Update mode //
@@ -514,7 +515,7 @@ void MSEdit::ListAntennaTable(String MSname )
 //  Write Data to Antenna Table 
 //-
 
-void MSEdit::WriteDataAntennaTable(String MSname, int Row )
+void MSEdit::AntennaTable_WriteData(String MSname, int Row )
 {
     // Open MS by Update mode //
 
@@ -604,11 +605,12 @@ void MSEdit::WriteDataAntennaTable(String MSname, int Row )
 }
 
 
-//+
-// Write Antenna Table 
-//-
+ //+
+ // List all the data from Pointing Table
+ //  of specified MS.
+ //- 
 
-void MSEdit::ListPointingTable(String MSname, bool showAll)
+void MSEdit::PointingTable_List(String MSname, bool showAll)
 {
 
     // Open MS by Update mode //
@@ -696,11 +698,10 @@ void MSEdit::ListPointingTable(String MSname, bool showAll)
 }
 
 //+
-// 
 // Write Columns on Pointing Table  
 //-
 
-void MSEdit::WriteColumnsPointingTable(String MSname )
+void MSEdit::PointingTable_WriteData(String MSname )
 {
 
     // Open MS by Update mode //
@@ -720,7 +721,6 @@ void MSEdit::WriteColumnsPointingTable(String MSname )
     // Get current row count //
 
         int nrow_p = hPointingTable.nrow();
-
         printf( "Pointing Table nrow =%d \n",nrow_p);
 
     //
@@ -729,7 +729,6 @@ void MSEdit::WriteColumnsPointingTable(String MSname )
 
         casacore::ROMSPointingColumns  *columnPointing;
         columnPointing =  new casacore::ROMSPointingColumns( hPointingTable );
-
 
     //+
     // Listing  (Pointing) 
@@ -749,58 +748,50 @@ void MSEdit::WriteColumnsPointingTable(String MSname )
         ROArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
         ROArrayColumn<Double>  pointingEncoder        = columnPointing ->encoder();
 
-
+        // Matrix Shape //
         IPosition Ipo;
           Ipo  = pointingDirection.shape(0);
           printf(" - Shape of Direction.[%ld, %ld] \n", Ipo[0], Ipo[1] );
 
+        Description( "attempting to add Data on Pointing Table.", "Nrow="+std::to_string(nrow_p)  );
 
         for (int row=0; row<nrow_p; row++)
         {
-
-//          printf( " - attempting to add a data [%d] ( on Testing) \n", row );
-
             // set Shape of New added Colum //
 
             pointingPointingOffset. setShape(row, Ipo); 
             pointingSourceOffset.   setShape(row, Ipo);
             pointingEncoder.        setShape(row, Ipo);
 
-            // initial calue //
-#if 0
-             Array<Double> init_data0( Ipo,  0.1);
-#endif 
+            // prepare initial value //
+
             Array<Double> init_data1( Ipo, -1.0);
             Array<Double> init_data2( Ipo, -2.0);
             Array<Double> init_data3( Ipo, -3.0);
 
 
-            // put initial data //
-#if 0
-            pointingDirection.      put( row, init_data0 );
-            pointingTarget.         put( row, init_data0 );
-#endif 
+            // put initial data to Column //
+            
             pointingPointingOffset. put( row, init_data1 );
             pointingSourceOffset.   put( row, init_data2 );
             pointingEncoder.        put( row, init_data3 );
 
         }
 
-
-        // Flush //
-            Array<Double> init_data( Ipo, -1.0);
-        
+       // Flush // 
         ms0.flush();
-
 }
  
 
 //+
 //   Add and Remove Column 
 //    to/from POINTNG Table 
+//  
+//    - This is for testing MovingSourceCorrection, 
+//      only OFFSET tables are applied. 
 //-
 
-void MSEdit::AddOffsetColumnsToPointingTable()
+void MSEdit::CpoyDirectionColumnsToNewColumns()
 {
 
  
@@ -808,7 +799,7 @@ void MSEdit::AddOffsetColumnsToPointingTable()
 
         String MsName ="./sdimaging-t.ms";
         
-        Description( "Adding 3 Columns on Pointing Table ", MsName.c_str() );
+        Description( "Cpoied from Direction and Adding 3 Columns on Pointing Table ", MsName.c_str() );
 
         String name =  MsName;
 
@@ -817,7 +808,7 @@ void MSEdit::AddOffsetColumnsToPointingTable()
     // Tables Name //
 
         String PointingTableName = ms0.pointingTableName();
-        printf("Pointing Table name [%s] \n",PointingTableName.c_str());
+        printf("Pointing Table name is [%s] \n",PointingTableName.c_str());
 
     // Prepeare Handle //
 
@@ -837,19 +828,18 @@ void MSEdit::AddOffsetColumnsToPointingTable()
        ArrayColumn< Double > colEncoder         =  columnPointing->encoder ();
 
 
-     //
-     // Attempt to create new Column.
-     //
+    //+
+    // Attempt to create new Column.
+    //-
 
     // Table Desc linked from MS //
 
-    TableDesc  tblDsc = hPointingTable.tableDesc();
-
+       TableDesc  tblDsc = hPointingTable.tableDesc();
 
     //+
     // Show current Columns. 
     //-
-        printf("=== Current Columns ====== \n");
+        Description("=== Current Columns ======","");
 
         Vector<String> col_name = tblDsc.columnNames();
         
@@ -882,7 +872,7 @@ void MSEdit::AddOffsetColumnsToPointingTable()
 
     if( ! tblDsc.isColumn( colname1 ) )
     {
-      printf(" ! Intended Table Not exist, Attempt to add Column.\n" );
+      printf(" Intended Table Not exist, Attempt to add Column.\n" );
       // Add Revied Column to TABLE //
 
         hPointingTable.addColumn(RevColumnDesc1);
@@ -898,32 +888,35 @@ void MSEdit::AddOffsetColumnsToPointingTable()
         hPointingTable.removeColumn(colname2);
         hPointingTable.removeColumn(colname3);
 #endif 
-
-   
-
+  
     // Flush ..//
 
         ms0.flush(); 
-
-
-     //
-     //  Access data (shown by Array) 
-     //
-
+ 
+     //+
+     //  Option:: Access data (shown by Array) 
+     //   - If need to inspect , write a code here.
+     //-
+#if 0  
        Array<Double> dir  = colDirection .get(0);
        Array<Double> tar  = colTarget    .get(0);
-#if 0
        Array<Double> ptOff  = colPointingOffset .get(0);
        Array<Double> scOff  = colSourceOffset    .get(0);
        Array<Double> enc    = colEncoder        .get(0);
 #endif 
-
-      printf(" ! Intended Change completed.\n" );
+      printf(" Intended Change completed.\n" );
 
 }
 
-casacore::Vector<double>  generatePseudoDirection(int i)
+//+
+// Generate Pseudo Data on Direction
+//   returns pointng info. by Vecror.
+//-
+
+casacore::Vector<double>  generatePseudoPointData(int i)
 {
+  //  printf( "- Generating Pseudo Pointing Data.\n" );
+
     casacore::Vector<Double> point;
     point.resize(4);
 
@@ -933,6 +926,8 @@ casacore::Vector<double>  generatePseudoDirection(int i)
     //+
     // THis value can change Interporation behabior
     //   - use 0, +10000.0, -10000.0
+    //   - link PointingDirectionCalculator.cc with DEBUGLOG to see the
+    //     internal interporation behabior.n doGetDirection() . 
     //-  
 
     Double intentionalShift = 0.0;
@@ -943,13 +938,24 @@ casacore::Vector<double>  generatePseudoDirection(int i)
 
     casacore::MVTime  tm(2003,11,12 ,d);     
  
- 
-    point[2] = tm.second();    // Time 
-    point[3] = interval;           // Interval 
+    // Vector to return //
+
+    point[0] = 0.0 + 0.01 * (double)i;  // Direction
+    point[1] = 0.0 - 0.01 * (double)i;
+    point[2] = tm.second();             // Time 
+    point[3] = interval;                // Interval 
 
         
     return point;
 }
+
+//*
+// Wtite Test Data on Direction Column in Pointing Table
+//  - Values are got by sub fuction above.
+//  - SetUp() in class TestDirection calls this.
+//  - see also TEST Fixture  
+//*
+
 
 void  MSEdit::WriteTestDataOnDirection(String MSname)
 {
@@ -1010,7 +1016,7 @@ void  MSEdit::WriteTestDataOnDirection(String MSname)
 
                Array<Double> direction(Ipo, -1);   // IP shape and initial val // 
 
-                Vector<Double>  psd_data  = generatePseudoDirection( row );
+                Vector<Double>  psd_data  = generatePseudoPointData( row );
 
                 direction[0][0] = psd_data[0];
                 direction[0][1] = psd_data[1];
@@ -1307,14 +1313,14 @@ void TestDirection::addTestDataOnDirection()
 
 void TestDirection::addColumnsOnPointing()
 {
-    msedit.AddOffsetColumnsToPointingTable();
+    msedit.CpoyDirectionColumnsToNewColumns();
 }
 
 void TestDirection::addColumnDataOnPointing()
 {
     String MsName = "./sdimaging-t.ms";    //  
 
-    msedit.WriteColumnsPointingTable( MsName );
+    msedit.PointingTable_WriteData( MsName );
 }
 
 /*---------------------------------------
@@ -1330,7 +1336,7 @@ TEST_F(TestDirection, setDirectionColumn  )
     String MsName = "./sdimaging-t.ms";    //  
 
             printf( "Listing all POINTING TABLE  \n");
-            msedit.ListPointingTable( MsName, false );
+            msedit.PointingTable_List( MsName, false );
 
  
     // MS name for this Test //
@@ -1350,10 +1356,12 @@ TEST_F(TestDirection, setDirectionColumn  )
        ExpectedNrow = (int)calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
-
-    //
+    //+
     // setDirectionColumm()  calls 
     //
+    //  (note) Checcking 'accessor' address reqires to change header.
+    //         This is not urgent unless, any address error happens.
+    //-
         String Name;
 
         Name = "DIRECTION";
@@ -1408,7 +1416,7 @@ TEST_F(TestDirection, setDirectionColumn  )
 #endif 
 }
 
-/*---------------------------------------
+/*----------------------------------------------------------
 
   getDirection() and MovingSourceCorrection
 
@@ -1416,7 +1424,8 @@ TEST_F(TestDirection, setDirectionColumn  )
  - when "POINTING_OFFSET" or "SOURCE_OFFSET" is specified,
   ignore this functonality.
 
-----------------------------------------*/
+  xx detail description of this fixture , in progress.
+------------------------------------------------------------*/
 
 TEST_F(TestDirection, MovingSourceCorrection  )
 {
@@ -1429,11 +1438,11 @@ TEST_F(TestDirection, MovingSourceCorrection  )
           String name =   MsName;
           printf( " Used MS is [%s] \n", name.c_str() );
    
-    // List all the point ..//
-#if 0
+    // List all info on Pointing Table. //
+
           printf( "Listing all POINTING TABLE  \n");
-          msedit.ListPointingTable( MsName, false );
-#endif 
+          msedit.PointingTable_List( MsName, false );
+ 
     // Create Object //
     
         MeasurementSet ms( name.c_str() );
@@ -1523,10 +1532,15 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 
 }
 
+/*-------------------------------------------
+  Verification Test of CAS-11818
+  - If you use old source, this test causes
+    core dump.
+---------------------------------------------*/
 TEST_F(TestDirection, VerifyCAS11818 )
 {
 
-    TestDescription( "configureMovingSourceCorrection Test" );
+    TestDescription( "configureMovingSourceCorrection(CAS11818) Test" );
     String MsName = "./sdimaging-t.ms";    //  
 
     // MS name for this Test //
@@ -1537,7 +1551,7 @@ TEST_F(TestDirection, VerifyCAS11818 )
     // List all the point ..//
 #if 0
           printf( "Listing all POINTING TABLE  \n");
-          msedit.ListPointingTable( MsName, false );
+          msedit.PointingTable_List( MsName, false );
 #endif 
     // Create Object //
     
@@ -1618,7 +1632,7 @@ TEST_F(TestDirection, setMovingSource  )
     // List all the point ..//
 #if 0
           printf( "Listing all POINTING TABLE  \n");
-          msedit.ListPointingTable( MsName, false );
+          msedit.PointingTable_List( MsName, false );
 #endif 
     // Create Object //
     
