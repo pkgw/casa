@@ -1377,6 +1377,11 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
 
  
 
+  matchChannel(vb);
+ 
+  //No point in reading data if its not matching in frequency
+  if(max(chanMap)==-1)
+    return;
 
   // Get the uvws in a form that Fortran can use
   Matrix<Double> uvw(negateUV(vb));
@@ -1389,12 +1394,7 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
   
   
   
-  matchChannel(vb);
- 
-  //No point in reading data if its not matching in frequency
-  if(max(chanMap)==-1)
-    return;
-
+  
   Cube<Complex> data;
   Cube<Int> flags;
   getInterpolateArrays(vb, data, flags);

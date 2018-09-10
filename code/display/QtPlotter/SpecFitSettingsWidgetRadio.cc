@@ -455,7 +455,7 @@ namespace casa {
 			int potentialEstimateCount = ui.estimateTable->rowCount();
 			if ( nGauss == potentialEstimateCount ) {
 				QString fitCurveName = ui.curveComboBox->currentText();
-				SHARED_PTR<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( fitCurveName );
+				std::shared_ptr<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( fitCurveName );
 				Bool validSpec;
 				SpectralCoordinate coord = taskMonitor->getSpectralCoordinate( imagePtr, validSpec );
 				for ( int i = 0; i < potentialEstimateCount; i++ ) {
@@ -494,7 +494,7 @@ namespace casa {
 							QString newUnitStr( newUnits.c_str() );
 							CanvasCurve curve = pixelCanvas->getCurve( fitCurveName );
 							QString xUnits = pixelCanvas->getUnits();
-							SHARED_PTR<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( fitCurveName );
+							std::shared_ptr<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( fitCurveName );
 							Bool validSpec;
 							SpectralCoordinate coord = taskMonitor->getSpectralCoordinate( imagePtr, validSpec );
 							peakVal = curve.convertValue( peakVal, centerVal, displayYUnits, newUnitStr, xUnits, coord );
@@ -537,7 +537,7 @@ namespace casa {
 		return pixelValue;
 	}
 
-	bool SpecFitSettingsWidgetRadio::_constructFitter( SHARED_PTR<const ImageInterface<float> >& image,
+	bool SpecFitSettingsWidgetRadio::_constructFitter( std::shared_ptr<const ImageInterface<float> >& image,
 			const String& region, const Record* const &regionPtr, const String& box,
 			const String& chans, const String& stokes, const String& mask, const Int axis,
 			const uInt ngauss, const SpectralList& spectralList ){
@@ -565,8 +565,8 @@ namespace casa {
 	void SpecFitSettingsWidgetRadio::doFit( float startVal, float endVal, uint nGauss, bool fitPoly, int polyN ) {
 		reset();
 		QString fitCurveName = ui.curveComboBox->currentText();
-		SHARED_PTR<const ImageInterface<float> > image = getImage( fitCurveName );
-		//SHARED_PTR<ImageInterface<Float> > image( new PagedImage<Float>( "/home/achillea/casa/trunk/test/titan2/titanline-small2.image"));
+		std::shared_ptr<const ImageInterface<float> > image = getImage( fitCurveName );
+		//std::shared_ptr<ImageInterface<Float> > image( new PagedImage<Float>( "/home/achillea/casa/trunk/test/titan2/titanline-small2.image"));
 		const String pixelBox = getPixelBox();
 
 		Bool validSpectralList;
@@ -780,7 +780,7 @@ namespace casa {
 				int includeCount = (endChannelIndex - startChannelIndex)*fitRatio + 1;
 				Vector<Float> xValues(includeCount);
 				Vector<Float> xValuesPix(includeCount);
-				SHARED_PTR<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( curveName );
+				std::shared_ptr<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( curveName );
 				Bool validSpec;
 				SpectralCoordinate coord = taskMonitor->getSpectralCoordinate( imagePtr, validSpec );
 				Converter::UnitType xUnitType= Converter::getUnitType( getXAxisUnit().c_str());
@@ -923,7 +923,7 @@ namespace casa {
 							curves[i]->evaluate( xValues );
 							Vector<Float> yValues = curves[i]->getYValues();
 							QString curveName = curves[i]->getCurveName();
-							SHARED_PTR<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( fitCurveName );
+							std::shared_ptr<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( fitCurveName );
 							Bool validSpec;
 							SpectralCoordinate coord = taskMonitor->getSpectralCoordinate( imagePtr, validSpec );
 							//Send the curve to the canvas for plotting.
@@ -939,7 +939,7 @@ namespace casa {
 					//Add a curve that represents the sum of all the individual fits
 					if ( curves.size() > 1 && curveAdded ) {
 						QString curveName = taskMonitor->getFileName() +"_Sum_FIT";
-						SHARED_PTR<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( curveName );
+						std::shared_ptr<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( curveName );
 						Bool validSpec;
 						SpectralCoordinate coord = taskMonitor->getSpectralCoordinate( imagePtr, validSpec );
 						pixelCanvas->addPolyLine( xValues, yCumValues, beamAngle, beamArea, coord,
@@ -954,7 +954,7 @@ namespace casa {
 	    Vector<float>& xValues, Vector<float>& xValuesPix, const String& fitYUnit) {
 
 		//Iterate through all the fits and post the results
-		Array<SHARED_PTR<ProfileFitResults> > image1DFitters = fitter-> getFitters();
+		Array<std::shared_ptr<ProfileFitResults> > image1DFitters = fitter-> getFitters();
 		IPosition shape = image1DFitters.shape();
 		uint fitIndex = 0;
 		bool successfulFit = false;
@@ -962,7 +962,7 @@ namespace casa {
         ArrayPositionIterator myiter(image1DFitters.shape(), axisPath, false);
         for (myiter.reset(); ! myiter.pastEnd(); myiter.next()) {
         	const IPosition pos = myiter.pos();
-           	SHARED_PTR<ProfileFitResults> image1DFitter = image1DFitters(pos);
+           	std::shared_ptr<ProfileFitResults> image1DFitter = image1DFitters(pos);
             if (! image1DFitter) {
                 continue;
             }
@@ -1040,7 +1040,7 @@ namespace casa {
 		//The coefficients must be in the same units used by the canvas.
 		QString canvasUnits=this->pixelCanvas->getDisplayYUnits();
 		QString fitCurveName = ui.curveComboBox->currentText();
-		SHARED_PTR<const ImageInterface<Float> > img = getImage( fitCurveName );
+		std::shared_ptr<const ImageInterface<Float> > img = getImage( fitCurveName );
 		Unit imageUnit = img->units();
 		const String imageUnits = imageUnit.getName();
 		QString imageUnitStr( imageUnits.c_str() );
@@ -1084,7 +1084,7 @@ namespace casa {
 		//using.
 		QString xAxisUnit = pixelCanvas->getUnits();
 		QString fitCurveName = ui.curveComboBox->currentText();
-		SHARED_PTR<const casacore::ImageInterface<float> > img = taskMonitor->getImage(fitCurveName);
+		std::shared_ptr<const casacore::ImageInterface<float> > img = taskMonitor->getImage(fitCurveName);
 		DisplayCoordinateSystem cSys = img->coordinates();
 		int axisCount = cSys.nPixelAxes();
 		IPosition imPos(axisCount);
@@ -1094,7 +1094,7 @@ namespace casa {
 		int tabularIndex = -1;
 		MFrequency::Types mFrequency = MFrequency::DEFAULT;
 		if ( !cSys.hasSpectralAxis() ){
-			//SHARED_PTR<const casa::ImageInterface<float> > imagePtr( img );
+			//std::shared_ptr<const casa::ImageInterface<float> > imagePtr( img );
 			tabularIndex = Util::getTabularFrequencyAxisIndex( img );
 			mFrequency = taskMonitor->getReferenceFrame();
 		}
@@ -1306,7 +1306,7 @@ namespace casa {
 
 		//Put in a correct spectral coordinate in case we have to do conversions.
 		QString curveName = ui.curveComboBox->currentText();
-		SHARED_PTR<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( curveName );
+		std::shared_ptr<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( curveName );
 		Bool validSpec;
 		SpectralCoordinate coord = taskMonitor->getSpectralCoordinate( imagePtr, validSpec );
 		gaussEstimateDialog.setSpectralCoordinate( coord );
@@ -1360,7 +1360,7 @@ namespace casa {
 		//we need to convert.
 		QString estimateDisplayYUnits = gaussEstimateDialog.getDisplayYUnits();
 		QString fitCurveName = ui.curveComboBox->currentText();
-		SHARED_PTR<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( fitCurveName );
+		std::shared_ptr<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( fitCurveName );
 		Bool validSpec;
 		SpectralCoordinate coord = taskMonitor->getSpectralCoordinate( imagePtr, validSpec );
 		CanvasCurve curve = pixelCanvas->getCurve( fitCurveName );
@@ -1427,7 +1427,7 @@ namespace casa {
 		if ( units != displayYUnits && displayYUnits.length() > 0 ) {
 			int estimateCount = ui.estimateTable->rowCount();
 			QString fitCurveName = ui.curveComboBox->currentText();
-			SHARED_PTR<const ImageInterface<Float> > img = taskMonitor->getImage( fitCurveName );
+			std::shared_ptr<const ImageInterface<Float> > img = taskMonitor->getImage( fitCurveName );
 			Bool validSpec;
 			SpectralCoordinate coord = taskMonitor->getSpectralCoordinate( img, validSpec );
 			CanvasCurve curve = pixelCanvas->getCurve( fitCurveName );

@@ -100,10 +100,12 @@ class PySynthesisImager:
         for fld in range(0,self.NF):
             #print "self.allimpars=",self.allimpars,"\n"
             self.SItool.defineimage( self.allimpars[str(fld)] , self.allgridpars[str(fld)] )
-    
+
+        ###commenting this out so that tuneSelect is done after weighting
+        ###CAS-11687
         # For cube imaging:  align the data selections and image setup
-        if self.allimpars['0']['specmode'] != 'mfs' and self.allimpars['0']['specmode'] != 'cubedata':
-            self.SItool.tuneselectdata()
+        #if self.allimpars['0']['specmode'] != 'mfs' and self.allimpars['0']['specmode'] != 'cubedata':
+         #   self.SItool.tuneselectdata()
 
         #self.makeCFCache(exists);
 
@@ -396,6 +398,11 @@ class PySynthesisImager:
     def setWeighting(self):
         ## Set weighting parameters, and all pars common to all fields.
         self.SItool.setweighting( **(self.weightpars) )
+        ##moved the tuneselect after weighting so that
+        ##the weight densities use all the data selected CAS-11687
+        ###For cube imaging:  align the data selections and image setup
+        if self.allimpars['0']['specmode'] != 'mfs' and self.allimpars['0']['specmode'] != 'cubedata':
+            self.SItool.tuneselectdata()
         
  #       print "get set density from python"
  #       self.SItool.getweightdensity()

@@ -82,7 +82,7 @@ class SynthesisNormalizer
   // Scatter summed gridded weights to all parts
   void scatterWeightDensity();
 
-  SHARED_PTR<SIImageStore> getImageStore();
+  std::shared_ptr<SIImageStore> getImageStore();
   void setImageStore( SIImageStore* imstore );
 
   void divideResidualByWeight();
@@ -99,8 +99,8 @@ protected:
   casacore::Bool setupImagesOnDisk();
   casacore::Bool doImagesExist( casacore::String imagename );
 
-  SHARED_PTR<SIImageStore> makeImageStore( const casacore::String &imagename );
-  SHARED_PTR<SIImageStore> makeImageStore( const casacore::String &imagename,
+  std::shared_ptr<SIImageStore> makeImageStore( const casacore::String &imagename );
+  std::shared_ptr<SIImageStore> makeImageStore( const casacore::String &imagename,
                                            const casacore::PagedImage<casacore::Float> &part,
                                            casacore::Bool useweightimage );
 
@@ -108,9 +108,9 @@ protected:
 
   /////////////// Member Objects
 
-  SHARED_PTR<SIImageStore> itsImages;
-  casacore::Vector<SHARED_PTR<SIImageStore> > itsPartImages;
-  casacore::Block<SHARED_PTR<SIImageStore> > itsFacetImageStores;
+  std::shared_ptr<SIImageStore> itsImages;
+  casacore::Vector<std::shared_ptr<SIImageStore> > itsPartImages;
+  casacore::Block<std::shared_ptr<SIImageStore> > itsFacetImageStores;
 
   casacore::IPosition itsImageShape;
   
@@ -123,6 +123,8 @@ protected:
   casacore::uInt itsNTaylorTerms, itsNFacets;
 
   casacore::String itsNormType;
+
+  casacore::String itsUseBeam;
 
 };
 

@@ -55,13 +55,12 @@ template <class T> ImageTask<T>::ImageTask(
 ) : _image(image), _regionPtr(regionPtr),_region(region), _box(box),
     _chan(chanInp), _stokesString(stokes), _mask(maskInp),
     _outname(outname), _overwrite(overwrite), _stretch(false),
-    _logfile() {
-}
+    _logfile() {}
 
 template <class T> ImageTask<T>::ImageTask(
     const SPCIIT image, const casacore::Record *const &regionPtr,
-    const casacore::String& mask,
-    const casacore::String& outname, casacore::Bool overwrite
+    const casacore::String& mask, const casacore::String& outname,
+    casacore::Bool overwrite
 ) : _image(image), _regionPtr(regionPtr),
     _region(), _box(), _chan(), _stokesString(), _mask(mask),
     _outname(outname), _overwrite(overwrite) {}
@@ -200,7 +199,7 @@ template <class T> void ImageTask<T>::setLogfile(const casacore::String& lf) {
     catch (const casacore::AipsError& x) {}
 }
 
-template <class T> const SHARED_PTR<LogFile> ImageTask<T>::_getLogFile() const {
+template <class T> const std::shared_ptr<LogFile> ImageTask<T>::_getLogFile() const {
     ThrowIf(
         ! _hasLogfileSupport(),
         "Logic Error: This task does not support writing of a log file"
@@ -367,7 +366,7 @@ template <class T> SPIIT ImageTask<T>::_prepareOutputImage(
 ) const {
     casacore::IPosition oShape = outShape == 0 ? image.shape() : *outShape;
     casacore::CoordinateSystem csys = coordsys == 0 ? image.coordinates() : *coordsys;
-    SHARED_PTR<casacore::TempImage<T> > tmpImage(
+    std::shared_ptr<casacore::TempImage<T> > tmpImage(
         new casacore::TempImage<T>(casacore::TiledShape(oShape), csys)
     );
     if (mask != 0) {
@@ -472,7 +471,7 @@ template <class T> SPIIT ImageTask<T>::_prepareOutputImage(
 }
 
 template <class T>
-template <class U> void ImageTask<T>::_doHistory(SHARED_PTR<casacore::ImageInterface<U>>& image) const {
+template <class U> void ImageTask<T>::_doHistory(std::shared_ptr<casacore::ImageInterface<U>>& image) const {
     if (! _suppressHistory) {
         ImageHistory<U> history(image);
         if (history.get(false).empty()) {

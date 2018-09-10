@@ -247,7 +247,7 @@ template<class T> SPIIT ImageRegridder<T>::_decimateStokes(SPIIT workIm) const {
     }
     else {
         // Only include the wanted stokes
-        SHARED_PTR<casacore::ImageConcat<T> > concat(
+        std::shared_ptr<casacore::ImageConcat<T> > concat(
             new casacore::ImageConcat<T>(
                 workIm->coordinates().polarizationAxisNumber(false)
             )

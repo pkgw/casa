@@ -59,8 +59,8 @@ using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
   
   SynthesisNormalizer::SynthesisNormalizer() : 
-				       itsImages(SHARED_PTR<SIImageStore>()),
-				       itsPartImages(Vector<SHARED_PTR<SIImageStore> >()),
+				       itsImages(std::shared_ptr<SIImageStore>()),
+				       itsPartImages(Vector<std::shared_ptr<SIImageStore> >()),
                                        itsImageName(""),
                                        itsPartImageNames(Vector<String>(0)),
 				       itsPBLimit(0.2),
@@ -137,7 +137,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       else
 	{ itsNFacets = 1;}
 
-
+      if( normpars.isDefined("restoringbeam") ) 
+        { 
+          if (normpars.dataType("restoringbeam")==TpString) {
+            itsUseBeam = normpars.asString( RecordFieldId("restoringbeam") ); }          
+          else 
+            { itsUseBeam = "";} 
+        }
       }
     catch(AipsError &x)
       {
@@ -300,7 +306,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       itsImages->calcSensitivity();
 
       itsImages->makeImageBeamSet();
-      itsImages->printBeamSet();
+      Bool verbose(False);
+      if (itsUseBeam=="common") verbose=True;
+      itsImages->printBeamSet(verbose);
     }
 
   }
@@ -357,7 +365,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
  }
 
 
-  SHARED_PTR<SIImageStore> SynthesisNormalizer::getImageStore()
+  std::shared_ptr<SIImageStore> SynthesisNormalizer::getImageStore()
   {
     LogIO os( LogOrigin("SynthesisNormalizer", "getImageStore", WHERE) );
     return itsImages;
@@ -566,12 +574,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }// end of setupImagesOnDisk
 
 
-  SHARED_PTR<SIImageStore> SynthesisNormalizer::makeImageStore(const String &imagename )
+  std::shared_ptr<SIImageStore> SynthesisNormalizer::makeImageStore(const String &imagename )
   {
     if( itsMapperType == "multiterm" )
-      { return SHARED_PTR<SIImageStore>(new SIImageStoreMultiTerm( imagename, itsNTaylorTerms, true ));   }
+      { return std::shared_ptr<SIImageStore>(new SIImageStoreMultiTerm( imagename, itsNTaylorTerms, true ));   }
     else
-      { return SHARED_PTR<SIImageStore>(new SIImageStore( imagename, true ));   }
+      { return std::shared_ptr<SIImageStore>(new SIImageStore( imagename, true ));   }
   }
 
 
@@ -585,7 +593,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   *
   * @return A new SIImageStore object for the image name given.
   */
-  SHARED_PTR<SIImageStore> SynthesisNormalizer::makeImageStore(const String &imagename,
+  std::shared_ptr<SIImageStore> SynthesisNormalizer::makeImageStore(const String &imagename,
                                                                const PagedImage<Float> &part,
                                                                Bool useweightimage)
   {
