@@ -1440,9 +1440,11 @@ TEST_F(TestDirection, MovingSourceCorrection  )
    
     // List all info on Pointing Table. //
 
+    if(false) {
           printf( "Listing all POINTING TABLE  \n");
           msedit.PointingTable_List( MsName, false );
- 
+    }
+
     // Create Object //
     
         MeasurementSet ms( name.c_str() );
@@ -1478,7 +1480,10 @@ TEST_F(TestDirection, MovingSourceCorrection  )
         Name[4] = "ENCODER";      // *** NEED to add in advance  //
         Name[5] = "hogehoge";
 
+        //+
         // Normal Seq. with setMovingSoure Convert.
+        //  using String , deffault values are set.
+        //-
 
 	FunctionalDescription("Normal Seq.", "Selectve Convert");
 
@@ -1503,7 +1508,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
             EXPECT_EQ( N_Row, ExpectedNrow);
 
         }
-         
+
         // No SetMovingSouce executution 
 
         FunctionalDescription("Normal Seq.", "Always call setDirectionColumn");
@@ -2505,6 +2510,79 @@ TEST_F(TestSelectData, UVRange )
 
 }
 
+/*------------------------------------------
+   selectData( MS select ) - TaQL query -
+   - Inspect the result selected by TaQL form. 
+  ------------------------------------------*/
+
+TEST_F(TestSelectData, MSselect )
+{ 
+    TestDescription( "selectData (key=MS Select)" );
+
+    // MS name for this Test //
+    
+        String name = env.getCasaMasterPath() + MsName;
+        printf( " Used MS is [%s] \n", name.c_str() );
+    
+    // Create Object //
+    
+        MeasurementSet ms( name.c_str() );
+    
+        PointingDirectionCalculator calc(ms);
+    
+    // Initial brief Inspection //
+    
+       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
+       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       EXPECT_NE((uInt)0, ExpectedNrow );
+
+      uInt nrow;
+      MSSelect = "";
+        FunctionalDescription( "MSselect: Nothig specified.",MSSelect);
+        EXPECT_NO_THROW( test_selectdata(calc) );
+        nrow = calc.getNrowForSelectedMS();
+        EXPECT_EQ (ExpectedNrow, nrow);
+
+      MSSelect = "hoge";     
+        FunctionalDescription( "MSselect: abnormal expr..",MSSelect);
+        EXPECT_ANY_THROW( test_selectdata(calc) );
+        nrow = calc.getNrowForSelectedMS();
+
+        EXPECT_EQ (ExpectedNrow, nrow);
+
+      MSSelect = "FIELD_ID==0";        //  Query description is here. //
+
+        FunctionalDescription( "MSselect: ID specified.",MSSelect);
+        EXPECT_NO_THROW( test_selectdata(calc) );
+        nrow = calc.getNrowForSelectedMS();
+
+        EXPECT_EQ ((uInt)600, nrow);
+
+      MSSelect = "FIELD_ID==1";        //  Query description is here. //
+
+        FunctionalDescription( "MSselect: ID specified.",MSSelect);
+        EXPECT_NO_THROW( test_selectdata(calc) );
+        nrow = calc.getNrowForSelectedMS();
+
+        EXPECT_EQ ((uInt)360, nrow);
+
+      MSSelect = "FIELD_ID==2";        //  Query description is here. //
+
+        FunctionalDescription( "MSselect: ID specified.",MSSelect);
+        EXPECT_NO_THROW( test_selectdata(calc) );
+        nrow = calc.getNrowForSelectedMS();
+
+        EXPECT_EQ ((uInt)120, nrow);
+
+      MSSelect = "FIELD_ID==3";        //  ERROR :Query description is here. //
+
+        FunctionalDescription( "MSselect: ID specified.",MSSelect);
+        EXPECT_ANY_THROW( test_selectdata(calc) );
+        nrow = calc.getNrowForSelectedMS();
+
+        EXPECT_EQ ((uInt)0, nrow);
+}
+
 //
 // Frame definitioan for  setFrame()
 // - Strings and a bool var. wheather it is available in casacore.
@@ -2605,6 +2683,8 @@ protected:
    2) getDirectionType()
    - 1)and 2) MUST BE SAME.
    3) output (converted to string) must be same 
+
+  Internally use: MDirection getDirectionType()
   -----------------------------------------------*/
 
 void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, int n_frame )
@@ -2617,29 +2697,15 @@ void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, int n
 
       EXPECT_NO_THROW( calc.setFrame( MyFrameTypes[n_frame].name ));
 
+    //+
+    // Durection Type 
+    //  converting to string form to compare.
+    //  output text must contain the specified KEY.
+    //-  
 
-#if 0 
-    //
-    // reference frame 
-    //
-      casacore::MeasFrame refframe = calc.getReferenceFrame(); 
-
-    // Get the epoch pointer (0 if not present)
-         const Measure* epoch   = refframe .epoch();
-   
-    // Get the position pointer (0 if not present)
-         const Measure* position        = refframe .position();
-   
-    // Get the direction pointer (0 if not present)
-         const Measure* direction   = refframe .direction(); 
-                          
-    // Direction Column  Name //
-         casacore::String  DirColName  = calc. getDirectionColumnName(); 
-#endif 
-
-   
-    // Durection Type //
-         casacore::MDirection DirType  = calc.getDirectionType();
+         // Direction Type //
+  
+       casacore::MDirection DirType  = calc.getDirectionType();
  
           printf( "#   MDirection: [%s] \n",  DirType.toString().c_str()  ) ;
           printf( "#   Given String [%s] \n", MyFrameTypes[n_frame].name.c_str() );
@@ -2652,11 +2718,12 @@ void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, int n
         
     Description( "Checking frame sub-string. ",DirType.toString().c_str() );
 
+    // Some of them are not supported and throw Exception //
+
     if(  MyFrameTypes[n_frame].available == true)       
         EXPECT_TRUE( converted.find(sub_str) !=std::string::npos); 
     else
         EXPECT_FALSE( converted.find(sub_str) !=std::string::npos);
-
 
 }
 
