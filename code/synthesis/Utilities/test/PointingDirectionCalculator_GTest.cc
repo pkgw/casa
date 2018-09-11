@@ -70,7 +70,6 @@
 #include <measures/Measures/MDirection.h>
 
 using namespace casacore;
-using namespace casacore;
 using namespace std;
 
 
@@ -1099,13 +1098,11 @@ protected:
         virtual void SetUp()
         {
             BaseClass::SetUp();
-            printf ("TestMeasurementSet::SetUp:: called \n");
         }
 
         virtual void TearDown()
        {
             BaseClass::TearDown();
-            printf ("TestMeasurementSet::TearDown:: called \n");
        }
 
        void test_constructor(int num );
@@ -1275,7 +1272,6 @@ protected:
         virtual void SetUp()
         {
             BaseClass::SetUp();
-            printf ("TestDirection::SetUp:: called \n");
 
             //+
             // Copy and add culumns, 
@@ -1329,15 +1325,34 @@ void TestDirection::addColumnDataOnPointing()
   - Must not make exception.
  ----------------------------------------*/
 
+//*
+// Sub Function (reserved) 
+//  - Method: getAccessor() is to be coded 
+//    to return the accessor address
+//  - At the moment, getAccessor() is not implemented
+//*  
+
+static void assert_accessor()
+{
+#if 0
+    void *  pAccessor = calc.getAccessor();
+    printf( "#   Accessor [%p] \n", pAccessor );
+     
+#endif
+
+}
+
+
 TEST_F(TestDirection, setDirectionColumn  )
 {
 
     TestDescription( "setDirectionColumn (String Fram)" );
     String MsName = "./sdimaging-t.ms";    //  
 
-            printf( "Listing all POINTING TABLE  \n");
-            msedit.PointingTable_List( MsName, false );
-
+    if(false){
+        printf( "Listing all POINTING TABLE  \n");
+        msedit.PointingTable_List( MsName, false );
+    }
  
     // MS name for this Test //
    
@@ -1367,53 +1382,38 @@ TEST_F(TestDirection, setDirectionColumn  )
         Name = "DIRECTION";
         Description("Column Name" , Name );
         EXPECT_NO_THROW( calc.setDirectionColumn( Name ) );
-#if 0
-        { void *  pAccessor = calc.getAccessor();
-          printf( "#   Accessor [%p] \n", pAccessor );
-        }   
-#endif 
-        
+
+        assert_accessor();
+
         Name = "TARGET";
         Description("Column Name" , Name );
         EXPECT_NO_THROW( calc.setDirectionColumn( Name ) );
-#if 0
-        { void *  pAccessor = calc.getAccessor();
-          printf( "#   Accessor [%p] \n", pAccessor );
-        }
-#endif 
 
+        assert_accessor();       
+ 
         Name = "POINTING_OFFSET";    // *** NEED to ADD in advance  //
         Description("Column Name" , Name );
         EXPECT_NO_THROW( calc.setDirectionColumn( Name ) );
-# if 0
-        { void *  pAccessor = calc.getAccessor();
-          printf( "#   Accessor [%p] \n", pAccessor );
-        }
-#endif 
+
+        assert_accessor();
+
         Name = "SOURCE_OFFSET"; // *** NEED to Add in advance //
         Description("Column Name" , Name );
         EXPECT_NO_THROW( calc.setDirectionColumn( Name ) );
-#if 0
-        { void *  pAccessor = calc.getAccessor();
-          printf( "#   Accessor [%p] \n", pAccessor );
-        }
-#endif 
+
+        assert_accessor();
+ 
         Name = "ENCODER";      // *** NEED to add in advance  //
         Description("Column Name" , Name );
         EXPECT_NO_THROW( calc.setDirectionColumn( Name ) );
-#if 0
-        { void *  pAccessor = calc.getAccessor();
-          printf( "#   Accessor [%p] \n", pAccessor );
-        }
-#endif 
+
+        assert_accessor();
+
         Name = "hogehoge";
         Description("Column Name" , Name );
         EXPECT_ANY_THROW( calc.setDirectionColumn( Name ) );
-#if 0
-        { void *  pAccessor = calc.getAccessor();
-          printf( "#   Accessor [%p] \n", pAccessor );
-        }
-#endif 
+
+        assert_accessor();
 }
 
 /*----------------------------------------------------------
@@ -1924,7 +1924,6 @@ protected:
         virtual void SetUp()
         {
             BaseClass::SetUp();
-            printf ("TestMeasurementSet::SetUp:: called \n");
         }
 
         virtual void TearDown()
@@ -2662,7 +2661,6 @@ protected:
         virtual void SetUp()
         {
             BaseClass::SetUp();
-            printf ("TestSetFrame::SetUp:: called \n");
         }
 
         virtual void TearDown()
