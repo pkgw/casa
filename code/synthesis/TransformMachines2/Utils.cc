@@ -766,7 +766,9 @@ namespace casa{
     if (val==defaultVal)
       {
 	char *valStr=NULL;
-	if ((valStr = std::getenv(name)) != NULL)
+	std::string tt(name);
+	tt.replace(tt.find("."), 1, "_");
+	if ((valStr = std::getenv(tt.c_str())) != NULL)
 	  {
 	    stringstream toT2(valStr);
 	    toT2 >> val;
