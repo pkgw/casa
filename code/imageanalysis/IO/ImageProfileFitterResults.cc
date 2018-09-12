@@ -608,7 +608,7 @@ void ImageProfileFitterResults::writeImages(Bool someConverged) const {
                 ImageCollapser<Float> collapser(
                     _subImage, axes, False, ImageCollapserData::ZERO, String(""), False
                 );
-                std::shared_ptr<TempImage<Float> > tmp = DYNAMIC_POINTER_CAST<TempImage<Float> >(
+                std::shared_ptr<TempImage<Float> > tmp = std::dynamic_pointer_cast<TempImage<Float> >(
                     collapser.collapse()
                 );
                 ThrowIf(! tmp, "Unable to perform dynamic cast");

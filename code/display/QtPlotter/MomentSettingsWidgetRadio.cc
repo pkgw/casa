@@ -794,7 +794,7 @@ namespace casa {
 			connect( thresholdingBinDialog, SIGNAL(accepted()), this, SLOT(thresholdSpecified()));
 		}
 		// ImageInterface<Float>* image = const_cast<ImageInterface<Float>* >(taskMonitor->getImage().get());
-		std::shared_ptr<ImageInterface<Float> > image(CONST_POINTER_CAST<ImageInterface<Float> >(taskMonitor->getImage()));
+		std::shared_ptr<ImageInterface<Float> > image(std::const_pointer_cast<ImageInterface<Float> >(taskMonitor->getImage()));
 		thresholdingBinDialog->setImage( image );
 		thresholdingBinDialog->show();
 		QString minValueStr = ui.minThresholdLineEdit->text();

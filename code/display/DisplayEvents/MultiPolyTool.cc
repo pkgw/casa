@@ -553,7 +553,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			return;
 		}
 		creating_region = building_polygon = (rfactory->polygon( wc, linx, liny ));
-		viewer::Region::creatingRegionBegin(DYNAMIC_POINTER_CAST<viewer::Region>(creating_region));
+		viewer::Region::creatingRegionBegin(std::dynamic_pointer_cast<viewer::Region>(creating_region));
 		building_polygon->addVertex(linx,liny);
 		resizing_region_handle = 1;
 		polygons.push_back( building_polygon );
