@@ -254,6 +254,11 @@ def flagdata(vis,
         # Execute the parallel engines
         retVar = FHelper.go()
 
+        # Save overall RFlag values into timedev/freqdev files once the subMS results have
+        # been consolidated, if needed for RFlag (introduced in CAS-11850)
+        opts_dict = {'writeflags': writeflags, 'timedev': timedev, 'freqdev': freqdev}
+        fh.save_rflag_consolidated_files(mode, action, retVar, opts_dict, inpfile)
+
         # In async mode return the job ids
         if ParallelTaskHelper.getAsyncMode():
             return retVar
@@ -698,8 +703,9 @@ def flagdata(vis,
         # Rflag : There can be many 'rflags' in list mode.
 
         ## Pull out RFlag outputs. There will be outputs only if writeflags=False
-        if (mode == 'rflag' or mode== 'list') and (writeflags==False):  
-            pprint.pprint(summary_stats_list)
+        if (mode == 'rflag' or mode== 'list') and (writeflags==False):
+            casalog.post('Saving RFlag return dictionary: {0}'.
+                         format(pprint.pformat(summary_stats_list)), 'INFO')
             fh.parseRFlagOutputFromSummary(mode,summary_stats_list, modified_flagcmd)
 
 

@@ -15,6 +15,7 @@ A set of helper functions for the tasks flagdata and flagcmd.
 Class Parser: to parse flag commands
 
 I/O functions:
+    get_flag_cmd_list
     readFile
     readFiles
     readAndParse
@@ -40,6 +41,7 @@ Others
     convertDictToString
     convertStringToDict
     extractAntennaInfo
+    save_rflag_consolidated_files
     parseRflagOutputFromSummary
     
 '''
@@ -1373,6 +1375,33 @@ def parseRFlagOutputFromSummary(mode,summary_stats_list, flagcmd):
                             # Remove writeflags from the cmd to prevent it from going into savepars
                             cmdline.pop('writeflags')
 
+
+def save_rflag_consolidated_files(mode, action, cons_dict, opts_dict, inpfile):
+    """
+    Utility for RFlag when running in parallel/MMS. Does parseRFlagOutputFromSummary() on
+    the consolidated (on the client process) - only when needed for rflag mode (or list
+    mode when the list of commands contains some RFlag commands).
+
+    :param mode: mode parameter as given to the flagdata task
+    :param action: action parameter as given to the flagdata task
+    :param cons_dict: consolidated dictionary of reports from (RFlag) flagdata commands
+    :param opts_dict: dictionary with the options needed for parseRFlagOutputFromSummary()
+                      (timedev, freqdev and writeflags, from the task input parameters)
+    :param inpfile: inpfile parameter as given to the flagdata task
+    """
+    if (mode == 'rflag' or mode== 'list') and action != 'apply':
+        import pprint
+        casalog.post('Saving RFlag return dictionary: {0}'.
+                     format(pprint.pformat(cons_dict)), 'INFO')
+        # Prepare the list of commands
+        if mode == 'list':
+            cmd_list = fh.get_flag_cmd_list(inpfile)
+        else:
+            # need only the relevant fields to save the output files in
+            # parseRFlagOutputFromSummary()
+            cmd_list = {0: {'command':
+                            dict({'mode': 'rflag'}, **opts_dict)}}
+        parseRFlagOutputFromSummary(mode, cons_dict, cmd_list)
 
 # Not used at the moment!!!!!!!!!!!
 @dump_args
