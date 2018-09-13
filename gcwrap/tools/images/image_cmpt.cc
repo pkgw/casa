@@ -3280,7 +3280,7 @@ template<class T> SPIIT image::_concat(
     const variant& infiles, int axis, bool relax, bool tempclose,
     bool overwrite, bool reorder, const vector<String>& imageNames
 ) {
-    SPIIT im = DYNAMIC_POINTER_CAST<ImageInterface<T>>(latt);
+    SPIIT im = std::dynamic_pointer_cast<ImageInterface<T>>(latt);
     ThrowIf(! im, "dynamic cast failed");
     ImageConcatenator<T> concat(im, outfile, overwrite);
     concat.setAxis(axis);

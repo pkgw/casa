@@ -179,7 +179,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
     <param type="string" name="skymodel" subparam='true'>
       <description>skymodel image to analyze (the .skymodel image created by simobserve or simalma and used by one of those tasks to create an MS; if unspecified, will try to find one similar to your specified output image name)</description>
-      <value></value>
+      <value/>
     </param>
 
     <!-- if IMAGE==True -->
@@ -196,7 +196,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     
     <param type="intArray" name="imsize" subparam="true">
       <description>output image size in pixels (x,y) or 0 to match model</description>
-      <value type="vector"><value>0</value><value>0</value></value>
+      <value type="intArray"><value>0</value><value>0</value></value>
     </param>
 
     <param type="string" name="imdirection" subparam="true">
@@ -254,14 +254,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <description>Cleanbox(es), mask image(s), region(s), or a level</description>
       <any type="variant"/>
       <!-- <value type="stringArray"></value> -->
-      <value type="vector"><value></value></value>
+      <value type="intArray"></value>
     </param>
 
     <param type="stringArray" name="outertaper" subparam="true">
       <description>uv-taper on outer baselines in uv-plane</description>
-      <value type="vector">
-	<value></value>
-      </value>
+	  <value/>
     </param>
 
     <param type="bool" name="pbcor" subparam="true">
@@ -288,7 +286,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
     <param type="string" name="featherimage" subparam='true'>
       <description>image (e.g. total power) to feather with new image</description>
-      <value></value>
+      <value/>
     </param>
 
 
@@ -384,7 +382,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
     <param type="string" name="logfile">
       <description></description>
-      <value></value>
+      <value/>
     </param>
 
 
@@ -409,8 +407,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	  <default param="niter"><value>0</value></default>
 	  <default param="threshold"><value type="string">0.1mJy</value></default>
 	  <default param="weighting"><value type="string">natural</value></default>
-	  <default param="mask">      <value type="vector"><value></value></value></default>
-	  <default param="outertaper"><value type="vector"><value></value></value></default>
+	  <default param="mask">      <value type="intArray"></value></default>
+	  <default param="outertaper"><value type="stringArray"></value></default>
 	  <default param="pbcor"><value type="bool">True</value></default>
 	  <default param="stokes"><value type="string">I</value></default>
 	  <default param="featherimage"><value type="string"></value></default>
