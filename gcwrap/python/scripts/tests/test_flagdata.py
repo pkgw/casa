@@ -641,12 +641,17 @@ class test_rflag(test_base):
 
     def test_rflag_calculate_file_apply_scales(self):
         '''flagdata:: mode = rflag : use output/input time/freq threshold files via two methods, and with different scales'''
-
-        if testmms:
-            print "WARN: Skip this test in parallel, until CAS-10202 is implemented"
-            return
             
         def check_threshold_files_saved(timedev_filename, freqdev_filename):
+            import os.path
+
+            self.assertTrue(os.path.isfile(timedev_filename))
+            self.assertTrue(os.path.isfile(freqdev_filename))
+
+            # CAS-10202 + issue when saving files in parallel/MMS - not checking exact values
+            if testmms:
+                return
+
             import ast
             timedev_str = open(timedev_filename, 'r').read()
             saved_timedev = ast.literal_eval(timedev_str)
@@ -677,6 +682,7 @@ class test_rflag(test_base):
         flagdata(vis=self.vis, mode='rflag', spw='9,10',
                  timedev='tdevfile.txt', freqdev='fdevfile.txt',
                  action='calculate', extendflags=False)
+
         self.assertTrue(os.path.exists('tdevfile.txt'))
         self.assertTrue(os.path.exists('fdevfile.txt'))
         check_threshold_files_saved('tdevfile.txt', 'fdevfile.txt')
@@ -706,8 +712,12 @@ class test_rflag(test_base):
         res2 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
         # A normal 'apply' (res1) and a mode='list' run apply (res2) should match:
-        self.assertEqual(res1['flagged'], 39504.0)
-        self.assertEqual(res1['flagged'], res2['flagged'])
+
+        # 'not testmms' for CAS-10202 differences
+        flagged_cnt = 39504
+        if not testmms:
+            self.assertEqual(res1['flagged'], flagged_cnt)
+            self.assertEqual(res1['flagged'], res2['flagged'])
 
         # (3) Now try different scales with the same input time/freqdevscale files
         self.unflag_ms()
@@ -716,7 +726,8 @@ class test_rflag(test_base):
                  timedevscale=5.0, freqdevscale=5.0,
                  action='apply', extendflags=False);
         res_scale5 = flagdata(vis=self.vis, mode='summary', spw='9,10')
-        self.assertEqual(res_scale5['flagged'], 39504.0)
+        if not testmms:
+            self.assertEqual(res_scale5['flagged'], flagged_cnt)
 
         self.unflag_ms()
         flagdata(vis=self.vis, mode='rflag', spw='9,10',
@@ -724,7 +735,8 @@ class test_rflag(test_base):
                               timedevscale=4.1, freqdevscale=4.1,
                               action='apply', extendflags=False);
         res_scale4 = flagdata(vis=self.vis, mode='summary', spw='9,10')
-        self.assertEqual(res_scale4['flagged'], 51057.0)
+        if not testmms:
+            self.assertEqual(res_scale4['flagged'], 51057.0)
 
         self.cleanup_threshold_txt_files()
 
@@ -732,12 +744,10 @@ class test_rflag(test_base):
         '''flagdata:: mode = rflag : output/input via returned dictionary and cmd'''
         # (1) Test input/output files, through the task, mode='rflag'
         # Files tdevfile.txt and fdevfile.txt are created in this step
-        if testmms:
-            print "WARN: Skip this test in parallel, until CAS-10202 is implemented"
-            return
+        import numpy as np
 
         rdict = flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='', 
-                      freqdev='', action='calculate', extendflags=False)
+                          freqdev='', action='calculate', extendflags=False)
         
         flagdata(vis=self.vis, mode='rflag', spw='9,10',
                  timedev=rdict['report0']['timedev'],
@@ -759,8 +769,24 @@ class test_rflag(test_base):
         flagdata(vis=self.vis, mode='list', inpfile='outcmd.txt', flagbackup=False)
         res2 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
-        self.assertEqual(res1['flagged'], res2['flagged'])
-        self.assertEqual(res1['flagged'], 98403)
+        # Differences with parallel/MMS because of CAS-10202
+        if not testmms:
+            self.assertEqual(res1['flagged'], res2['flagged'])
+            self.assertEqual(res1['flagged'], 98403)
+            rtol_time = 1e-4
+            rtol_freq = 1e-4
+        else:
+            self.assertEqual(res1['flagged'], 104710)
+            self.assertEqual(res2['flagged'], 105560)
+            rtol_freq = 5e-2
+            rtol_time = 1.2e-1
+
+        np.testing.assert_allclose(rdict['report0']['freqdev'], [[1, 9, 0.01583],
+                                                                 [1, 10, 0.041139]],
+                                   rtol=rtol_freq)
+        np.testing.assert_allclose(rdict['report0']['timedev'], [[1, 9, 7.771820e-03],
+                                                                 [1, 10, 3.256665e-02]],
+                                   rtol=rtol_time)
 
     def test_rflag_correlation_selection(self):
         '''flagdata:: mode = rflag : correlation selection'''
@@ -3895,9 +3921,6 @@ class test_preaveraging_rflag_residual(test_base):
     def test_rflag_timeavg_on_residual(self):
         '''flagdata: rflag with timeavg on residual (corrected - model), and compare
         vs mstransform + rflag without timeavg'''
-        if testmms:
-            print "WARN: Skip this test in parallel, until CAS-10202 is implemented"
-            return
 
         # Initial integration time of 'Four_ants_3C286.ms' is 1s
         timebin = '8s'
