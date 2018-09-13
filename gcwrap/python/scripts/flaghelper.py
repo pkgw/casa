@@ -193,6 +193,36 @@ def addAbsolutePath(input_file):
     return output_file
 
 
+def get_flag_cmd_list(inpfile):
+    """
+    For flagdata list mode, get the list of commands from whatever has been given in the
+    inpfile input parameter (a file, a list of files, or a Python string with commands).
+    The output list has one item (command) per line in the input file(s) or string.
+
+    :param inpfile: inpfile parameter as passed to task flagdata
+
+    :returns: list of commands found in file(s) or string
+    """
+    # inpfile is a file
+    if isinstance(inpfile, str) and os.path.isfile(inpfile):
+        flaglist = readFile(inpfile)
+        nlines = len(flaglist)
+        casalog.post('Read %s command(s) from file: %s'%(nlines, inpfile))
+
+    # inpfile is a list of files
+    elif isinstance(inpfile, list) and os.path.isfile(inpfile[0]):
+        flaglist = readFiles(inpfile)
+
+    # Python list of strings
+    elif isinstance(inpfile, list):
+        flaglist = inpfile
+
+    else:
+        raise ValueError('Unsupported input list of flag commands or input file does not '
+                         'exist')
+
+    return flaglist
+
 def readFile(inputfile):
     '''Read in the lines from an input file
     inputfile -->  file in disk with a list of strings per line

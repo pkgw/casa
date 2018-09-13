@@ -211,7 +211,7 @@ def flagdata(vis,
         FHelper.__init__(orig_locals)
         
         # For tests only
-#        FHelper.bypassParallelProcessing(1)
+        # FHelper.bypassParallelProcessing(1)
 
         FHelper.setupCluster('flagdata')
         # (CAS-4119): Override summary minabs,maxabs,minrel,maxrel 
@@ -253,7 +253,7 @@ def flagdata(vis,
             
         # Execute the parallel engines
         retVar = FHelper.go()
-        
+
         # In async mode return the job ids
         if ParallelTaskHelper.getAsyncMode():
             return retVar
@@ -355,41 +355,26 @@ def flagdata(vis,
                          
                     # read in the list and do a simple parsing to apply tbuff
                     flaglist = fh.readAndParse(inpfile, tbuff)
-                     
-                else:                    
-                    # inpfile is a file
-                    if isinstance(inpfile, str) and os.path.isfile(inpfile):
-                        flaglist = fh.readFile(inpfile)
-                        nlines = len(flaglist)
-                        casalog.post('Read %s command(s) from file: %s'%(nlines, inpfile))                              
-                         
-                    # inpfile is a list of files
-                    elif isinstance(inpfile, list) and os.path.isfile(inpfile[0]):
-                        flaglist = fh.readFiles(inpfile)
-                         
-                    # Python list of strings
-                    elif isinstance(inpfile, list):                    
-                        flaglist = inpfile
-                        
-                    else:
-                        raise Exception, 'Unsupported input list of flag commands or input file does not exist'
-                             
-                         
+
+                else:
+                    flaglist = fh.get_flag_cmd_list(inpfile)
+
+
                 # Parse and create a dictionary
                 flagcmd = fh.parseDictionary(flaglist, reason)
-                 
+
                 # Validate the dictionary. 
                 # IMPORTANT: if any parameter changes its type, the following
                 # function needs to be updated. The same if any new parameter is
                 # added or removed from the task
                 fh.evaluateFlagParameters(flagcmd,orig_locals)
-                     
+
                 # List of flag commands in dictionary
                 vrows = flagcmd.keys()
- 
+
                 casalog.post('%s'%flagcmd,'DEBUG1')
-                 
-                 
+
+
             except Exception, instance:
                 casalog.post('%s'%instance,'ERROR')
                 raise Exception, 'Error reading the input list. Make sure the syntax used in the list '\
@@ -717,6 +702,7 @@ def flagdata(vis,
             pprint.pprint(summary_stats_list)
             fh.parseRFlagOutputFromSummary(mode,summary_stats_list, modified_flagcmd)
 
+
         # Save the current parameters/list to FLAG_CMD or to output
         if savepars:  
             if not overwrite and os.path.exists(outfile):
@@ -755,7 +741,7 @@ def flagdata(vis,
                 except Exception, instance:
                     casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                                  'WARN')
-        
+
         # Pull out the 'summary' reports of summary_stats_list.
         if mode == 'summary' or mode == 'list':
            ordered_summary_list = OrderedDict(summary_stats_list)
