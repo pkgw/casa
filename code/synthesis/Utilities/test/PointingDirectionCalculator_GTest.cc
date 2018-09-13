@@ -1715,9 +1715,14 @@ TEST_F(TestDirection, setMovingSource  )
                  EXPECT_NO_THROW( calc.unsetMovingSource() );
               }
 
+              Matrix<Double>  DirList;
+
+              //+
+              // getDirection()
+              //-
+
               Description("- getDirection() ", Name[k] );
-              Matrix<Double>  DirList; 
-              EXPECT_NO_THROW( DirList= calc.getDirection() );
+              EXPECT_NO_THROW( DirList  = calc.getDirection() );
 
               uInt  N_Row;
               N_Row  = DirList.nrow();
@@ -1828,22 +1833,47 @@ TEST_F(TestDirection, getDirection )
         EXPECT_NO_THROW( calc.setDirectionColumn( colname ) );
 
     //+
-    //      getDirection
+    //      MatrixShape
     //-
         Description("calling setDirectionListMatrixShape()" ,"Column Major" );
         EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
 
     //+
-    //  getDirection() call
+    //  setMovingSourceDirection() 
+    //-
+        String src = "SUN";
+        Description("calling setMovingSource()", src);
+
+         EXPECT_NO_THROW( calc.setMovingSource( src ) ); 
+
+    //+
+    //  getDirection()
     //-
 
         Description("calling  getDirection() ","" );
 
-        Matrix<Double>  DirList  = calc.getDirection();
-        uInt  N_Row    = DirList.nrow();
+         Matrix<Double>  DirList1  = calc.getDirection();
+         uInt  N_Row    = DirList1.nrow();
 
-        printf( "Number of Row = %d \n", N_Row );
-        EXPECT_EQ( N_Row, ExpectedNrow);
+         printf( "Number of Row = %d \n", N_Row );
+         EXPECT_EQ( N_Row, ExpectedNrow);
+
+    //+
+    // getMovingSoureceDirection (UNDER CONSTRUCTION)
+    //-
+
+        Description("calling  getMovingSourceDirection() ","" );
+ 
+         casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
+         String strMovDir = MovDir.toString();
+
+         // obtaining any direction info like angle. 
+         // here to write .
+ 
+         printf( "Number of Row = %d \n", N_Row );
+
+         EXPECT_EQ( N_Row, ExpectedNrow);
+       
 
     //+
     // Dump Matrix
@@ -1855,10 +1885,10 @@ TEST_F(TestDirection, getDirection )
 
     for (uInt row=0; row<N_Row; row++)
     {
-        double Val_1 = DirList(row,0);
-        double Val_2 = DirList(row,1);
+        double Val_1 = DirList1(row,0);
+        double Val_2 = DirList1(row,1);
 
-        printf(    "Dir at, [%d], %f,%f \n",   row, Val_1, Val_2 );
+        printf(    "Dir at, [%d], %f,%f, [Mov:%s] \n",   row, Val_1, Val_2, strMovDir.c_str() );
     }
 
 #endif 
