@@ -643,38 +643,38 @@ class test_rflag(test_base):
         '''flagdata:: mode = rflag : use output/input time/freq threshold files via two methods, and with different scales'''
             
         def check_threshold_files_saved(timedev_filename, freqdev_filename):
+            import ast
+            import numpy as np
             import os.path
 
-            self.assertTrue(os.path.isfile(timedev_filename))
             self.assertTrue(os.path.isfile(freqdev_filename))
-
-            # CAS-10202 + issue when saving files in parallel/MMS - not checking exact values
-            if testmms:
-                return
-
-            import ast
-            timedev_str = open(timedev_filename, 'r').read()
-            saved_timedev = ast.literal_eval(timedev_str)
-            self.assertTrue('timedev' in saved_timedev and 'name' in saved_timedev)
-            self.assertEqual(len(saved_timedev['timedev']), 2)
-            self.assertEqual(saved_timedev['timedev'][0][0], 1)
-            self.assertEqual(saved_timedev['timedev'][0][1], 9)
-            self.assertTrue(abs(saved_timedev['timedev'][0][2] - 0.00777182) < 1e-5)
-            self.assertEqual(saved_timedev['timedev'][1][0], 1)
-            self.assertEqual(saved_timedev['timedev'][1][1], 10)
-            self.assertTrue(abs(saved_timedev['timedev'][1][2] - 0.03256665) < 1e-5)
+            self.assertTrue(os.path.isfile(timedev_filename))
 
             freqdev_str = open(freqdev_filename, 'r').read()
             saved_freqdev = ast.literal_eval(freqdev_str)
             self.assertTrue('freqdev' in saved_freqdev and 'name' in saved_freqdev)
             self.assertEqual(saved_freqdev['name'], 'Rflag')
             self.assertEqual(len(saved_freqdev['freqdev']), 2)
-            self.assertEqual(saved_freqdev['freqdev'][0][0], 1)
-            self.assertEqual(saved_freqdev['freqdev'][0][1], 9)
-            self.assertTrue(float(saved_freqdev['freqdev'][0][2] - 0.01583025) < 1e-5)
-            self.assertEqual(saved_freqdev['freqdev'][1][0], 1)
-            self.assertEqual(saved_freqdev['freqdev'][1][1], 10)
-            self.assertTrue(abs(saved_freqdev['freqdev'][1][2] - 0.04113872) < 1e-5)
+            # wider tolerance for parallel/MMS CAS-10202
+            if not testmms:
+                rtol = 1e-5
+            else:
+                rtol = 5e-2
+            np.testing.assert_allclose(
+                saved_freqdev['freqdev'], [[1, 9, 0.01583025], [1, 10, 0.04113872]],
+                rtol=rtol)
+
+            timedev_str = open(timedev_filename, 'r').read()
+            saved_timedev = ast.literal_eval(timedev_str)
+            self.assertTrue('timedev' in saved_timedev and 'name' in saved_timedev)
+            self.assertEqual(len(saved_timedev['timedev']), 2)
+            if not testmms:
+                rtol = 1e-5
+            else:
+                rtol = 2e-1
+            np.testing.assert_allclose(
+                saved_timedev['timedev'], [[1, 9, 0.00777182], [1, 10, 0.03256665]],
+                rtol=rtol)
 
         # (1) Test input/output files, through the task, mode='rflag'
         # Files tdevfile.txt and fdevfile.txt are created in this step
@@ -714,10 +714,12 @@ class test_rflag(test_base):
         # A normal 'apply' (res1) and a mode='list' run apply (res2) should match:
 
         # 'not testmms' for CAS-10202 differences
-        flagged_cnt = 39504
         if not testmms:
-            self.assertEqual(res1['flagged'], flagged_cnt)
-            self.assertEqual(res1['flagged'], res2['flagged'])
+            flagged_cnt = 39504
+        else:
+            flagged_cnt = 42740
+        self.assertEqual(res1['flagged'], flagged_cnt)
+        self.assertLessEqual(res1['flagged'] - res2['flagged'], 20)
 
         # (3) Now try different scales with the same input time/freqdevscale files
         self.unflag_ms()
@@ -726,8 +728,7 @@ class test_rflag(test_base):
                  timedevscale=5.0, freqdevscale=5.0,
                  action='apply', extendflags=False);
         res_scale5 = flagdata(vis=self.vis, mode='summary', spw='9,10')
-        if not testmms:
-            self.assertEqual(res_scale5['flagged'], flagged_cnt)
+        self.assertEqual(res_scale5['flagged'], flagged_cnt)
 
         self.unflag_ms()
         flagdata(vis=self.vis, mode='rflag', spw='9,10',
@@ -736,7 +737,10 @@ class test_rflag(test_base):
                               action='apply', extendflags=False);
         res_scale4 = flagdata(vis=self.vis, mode='summary', spw='9,10')
         if not testmms:
-            self.assertEqual(res_scale4['flagged'], 51057.0)
+            flagged_cnt = 51057
+        else:
+            flagged_cnt = 55159
+        self.assertEqual(res_scale4['flagged'], flagged_cnt)
 
         self.cleanup_threshold_txt_files()
 
