@@ -1134,6 +1134,14 @@ void TestMeasurementSet::test_constructor(int num )
     
 }
 
+/*--------------------------------------------
+ *  Constructor test by Vaisous Measurment Set 
+ *
+ *  - prepare some MSs.
+ *  - Most of them works normal, some throws
+ *    Exception.
+ *  - MS descrition is defines in this file.
+ * --------------------------------------------*/
 
 TEST_F(TestMeasurementSet, variousConstructor )
 {
@@ -1158,9 +1166,16 @@ TEST_F(TestMeasurementSet, variousConstructor )
 
 
 }
-/*---------------------------------------
+/*-----------------------------------------------------
   Inspect RowId consistency
- ----------------------------------------*/
+
+ Step 1: make SelectedMS by selectData()
+         a pair of Antena is the key (6 combiniations)
+ Step 2:  execute getRowId() 
+ Step 3:  record the obtained RowId
+ Step 4: Insect that 1) All the ID appear, 
+          2) No duplication
+ -----------------------------------------------------*/
 
 
 TEST_F(TestMeasurementSet, RowId_inMS )
@@ -1169,50 +1184,68 @@ TEST_F(TestMeasurementSet, RowId_inMS )
     TestDescription( "RowId functions  by various MS"  );
 
     String MsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
+     FunctionalDescription("Testing RowId functions." , MsName );
 
-    for(int sw=0; sw<2; sw++)
+    String name = env.getCasaMasterPath()+MsName;
+
+   // Measurment Set and Constructor //
+
+     MeasurementSet ms0( name  );       
+     PointingDirectionCalculator calc(ms0);
+
+     uInt nrow0 = calc.getNrowForSelectedMS(); 
+
+   // Prepare  Arraay ..//
+
+    Vector<int> RowIdList(nrow0,0);
+
+    for(int sw=1; sw <=6; sw++)
     {
-
-        String name = env.getCasaMasterPath()+MsName;
-        FunctionalDescription("Testing RowId functions." , name );
-
-        // CONSTRUCTOR  //
-
-          MeasurementSet ms0( name  );      
-
-          PointingDirectionCalculator calc(ms0);
-
-        // Initial brief Inspection //
-   
-          uInt nrow = calc.getNrowForSelectedMS();
+         Description("Testing RowId functions." , "case="+std::to_string(sw) );
 
         // getRowIdForOriginalMS //
 
           Vector<uInt> vRowIdOrgMS = calc.getRowIdForOriginalMS();
 
-
         //+
-        //  SelectData() option
+        //  SelectData() selected by Antena Pair
         //-
 
-          String AntSel = "PM03&&&";
-
-
+         String AntSel ="";
          if (sw==1)
          { 
+             AntSel = "DV01&&DV01";
+         }
+         if (sw==2)
+         { 
+             AntSel = "DV02&&DV02";
+         }
+         if (sw==3)
+         { 
+             AntSel = "PM03&&PM03";
+         }
+         if (sw==4)
+         { 
+             AntSel = "DV01&&DV02";
+         }
+         if (sw==5)
+         { 
+             AntSel = "DV01&&PM03";
+         }
+         if (sw==6)
+         { 
+             AntSel = "DV02&&PM03";
+         }
+         printf( " calling selectData() \n");     
+         if( sw !=0 ) 
+	 {
              calc.selectData( AntSel,
-                             "",
-                             "",
-                             "",
-                             "",
-                             "",
-                             "",
-                             "",
-                             "",
-                             ""  );
-        }
+                              "","","","","","","","","" );
+         }
 
-        nrow = calc.getNrowForSelectedMS();
+        // Nrow from Selected //
+
+        uInt nrow = calc.getNrowForSelectedMS();
         printf("Selected nrow =%d\n",nrow);
 
         // Vecrtor<uInt> getRowID() 
@@ -1226,17 +1259,31 @@ TEST_F(TestMeasurementSet, RowId_inMS )
           Description("(2) uInt getRowId() ", name );
 
         // Show and Verify //
-           printf( "row = nnn, RowID = [getRawId(i)][getRowIdForOrginalMS()] \n" );
+        //  
+          printf( "Num Row (Org) = %d \n" , nrow0 );
+          printf( "Num Row (Sel) = %d \n" , nrow );
+          printf( "    key=[%s]\n", AntSel.c_str() ); 
+
           for (uInt k=0; k < nrow; k++)
           {
               uInt RowId = calc.getRowId(k);
-              printf( "row = %d, RowID = [%d,%d][%d] \n" , 
-                         k, RowId,vRowId[k],vRowIdOrgMS[k] );
-          
-           //   EXPECT_EQ( RowId,     vRowId[k] );
-           //   EXPECT_EQ( vRowId[k], vRowIdOrgMS[k] );
-
+              printf( "RowID = [%d] \n", RowId ); 
+              
+              // Check List //
+             RowIdList[RowId] ++;
           }
+    }
+    
+    //*
+    // RowId List 
+    //  - checck all the ID have been appeared once,
+    //  - Duplicattion IS NOT Allowed
+    //* 
+
+    for (uInt i =0; i < nrow0; i++)
+    {
+        // printf( " RowIdList[%d]  = %d \n" ,i, RowIdList[i] );
+        EXPECT_EQ( RowIdList[i],1 );    
     }
 }
 
@@ -1799,6 +1846,10 @@ TEST_F(TestDirection, Matrixshape )
         EXPECT_EQ( N_Row, 2);
 
 }
+/*------------------------------------
+  getDirection () and MovingSource()
+
+ -------------------------------------*/
 
 TEST_F(TestDirection, getDirection )
 {
@@ -1841,7 +1892,7 @@ TEST_F(TestDirection, getDirection )
     //+
     //  setMovingSourceDirection() 
     //-
-        String src = "SUN";
+        String src = "MOON";
         Description("calling setMovingSource()", src);
 
          EXPECT_NO_THROW( calc.setMovingSource( src ) ); 
@@ -1859,23 +1910,6 @@ TEST_F(TestDirection, getDirection )
          EXPECT_EQ( N_Row, ExpectedNrow);
 
     //+
-    // getMovingSoureceDirection (UNDER CONSTRUCTION)
-    //-
-
-        Description("calling  getMovingSourceDirection() ","" );
- 
-         casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
-         String strMovDir = MovDir.toString();
-
-         // obtaining any direction info like angle. 
-         // here to write .
- 
-         printf( "Number of Row = %d \n", N_Row );
-
-         EXPECT_EQ( N_Row, ExpectedNrow);
-       
-
-    //+
     // Dump Matrix
     //-
 
@@ -1887,6 +1921,9 @@ TEST_F(TestDirection, getDirection )
     {
         double Val_1 = DirList1(row,0);
         double Val_2 = DirList1(row,1);
+
+         casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
+         String strMovDir = MovDir.toString();
 
         printf(    "Dir at, [%d], %f,%f, [Mov:%s] \n",   row, Val_1, Val_2, strMovDir.c_str() );
     }
