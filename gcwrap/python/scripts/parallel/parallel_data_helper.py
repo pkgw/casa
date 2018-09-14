@@ -422,6 +422,22 @@ class ParallelDataHelper(ParallelTaskHelper):
         return retval
 
     @staticmethod
+    def isMMSAndNotServer(vis):
+        """
+        Is vis a Multi-MS, and I am not an MPI server?
+        The return value is used to know if sub-MS (sub-task) commands should be dispatched
+        to servers in parallel (MPI) mode.
+
+        :param vis: an MS
+        """
+        # This checks the "NotServer" condition. If I'm a server, no need to check more
+        # if MPIEnvironment.is_mpi_enabled and not MPIEnvironment.is_mpi_client:
+        if ParallelTaskHelper.isMPIEnabled() and not ParallelTaskHelper.isMPIClient():
+            return False
+
+        return ParallelDataHelper.isParallelMS(vis)
+
+    @staticmethod
     def isParallelMS(vis):
         """ This method will read the value of SubType in table.info
             of the Multi-MS or MS. 

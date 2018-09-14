@@ -6,6 +6,7 @@ import copy
 import pprint
 import flaghelper as fh
 from parallel.parallel_task_helper import ParallelTaskHelper
+from parallel.parallel_data_helper import ParallelDataHelper
 # this should be replaced when CASA really moves to Python 2.7
 from OrderedDictionary import OrderedDict
 
@@ -183,9 +184,9 @@ def flagdata(vis,
         iscal = True
 
 
-    # ***************** Input is MMS -- Parallel Processing ***********************   
-         
-    if FHelper.isMPIEnabled() and typevis == 2 and action != '' and action != 'none':
+    # ***************** Input is MMS -- Parallel Processing ***********************
+    if typevis == 2 and ParallelDataHelper.isMMSAndNotServer(vis) and\
+       action != '' and action != 'none':
                             
         # Create a temporary input file with .tmp extension.
         # Use this file for all the processing from now on.

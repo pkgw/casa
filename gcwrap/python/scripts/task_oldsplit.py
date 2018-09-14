@@ -76,7 +76,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
     rval = True
     try:
 
-        if (keepmms and ParallelTaskHelper.isParallelMS(vis)):
+        if (keepmms and ParallelTaskHelper.isMMSAndNotServer(vis)):
             if (timebin!='0s' and timebin!='-1s'):
                 casalog.post('Averaging over time with keepmms=True may lead to results different\n'
                              +'  from those obtained with keepmms=False due to different binning.', 'WARN')

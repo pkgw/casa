@@ -19,7 +19,7 @@ mycb, myms, mytb = gentools(['cb', 'ms', 'tb'])
 
 def uvcontsub(vis, field, fitspw, excludechans, combine, solint, fitorder, spw, want_cont):
     
-    if ParallelTaskHelper.isParallelMS(vis):
+    if ParallelTaskHelper.isMMSAndNotServer(vis):
         helper = ParallelTaskHelper('uvcontsub', locals())
         helper._consolidateOutput = False
         retVar = helper.go()

@@ -35,7 +35,7 @@ def applycal(
     casalog.origin('applycal')
 
     # Take care of the trivial parallelization
-    if ParallelTaskHelper.isParallelMS(vis):
+    if ParallelTaskHelper.isMMSAndNotServer(vis):
         
         # Back up the flags, if requested (and if necessary)
         if flagbackup and applymode != 'calonly' and applymode != 'trial':

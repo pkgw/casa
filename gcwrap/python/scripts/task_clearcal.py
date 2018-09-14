@@ -14,7 +14,7 @@ def clearcal(
     casalog.origin('clearcal')
 
     # Do the trivial parallelization
-    if ParallelTaskHelper.isParallelMS(vis):
+    if ParallelTaskHelper.isMMSAndNotServer(vis):
         helper = ParallelTaskHelper('clearcal', locals())
         helper.go()
         return

@@ -66,7 +66,7 @@ def setjy(vis=None, field=None, spw=None,
 
 
     # Take care of the trivial parallelization
-    if ( not listmodels and ParallelTaskHelper.isParallelMS(vis) and usescratch):
+    if ( not listmodels and ParallelTaskHelper.isMMSAndNotServer(vis) and usescratch):
         # jagonzal: We actually operate in parallel when usescratch=True because only
         # in this case there is a good trade-off between the parallelization overhead
         # and speed up due to the load involved with MODEL_DATA column creation

@@ -10,7 +10,7 @@ def delmod(vis=None,otf=None,field=None,scr=None):
         casalog.origin('delmod')
 
         # Do the trivial parallelization
-        if ParallelTaskHelper.isParallelMS(vis):
+        if ParallelTaskHelper.isMMSAndNotServer(vis):
                 helper = ParallelTaskHelper('delmod', locals())
                 helper.go()
                 return
