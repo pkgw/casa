@@ -165,6 +165,7 @@ or sdreduce.
             </when>
     </constraints>
   </input>
+  <!--  commenting this out should be a no-op for casa 5 but fixes a problem for casa 6
   <output>
     <param type="any" name="xstat">
             <description>RETURN ONLY: a Python dictionary of line statistics</description>
@@ -172,6 +173,7 @@ or sdreduce.
             <value>{}</value>
     </param>
   </output>
+  -->
 
   <returns type="variant" limittype="void record"/>
 

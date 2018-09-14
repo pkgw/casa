@@ -137,8 +137,8 @@ std::shared_ptr<casacore::ImageInterface<std::complex<T>>> ImageFactory::makeCom
         *imagPart, region, mask, nullptr
     );
     auto complexImage = makeComplexImage(
-        DYNAMIC_POINTER_CAST<const casacore::ImageInterface<T>>(subRealImage),
-        DYNAMIC_POINTER_CAST<const casacore::ImageInterface<T>>(subImagImage)
+        std::dynamic_pointer_cast<const casacore::ImageInterface<T>>(subRealImage),
+        std::dynamic_pointer_cast<const casacore::ImageInterface<T>>(subImagImage)
     );
     return SubImageFactory<std::complex<T>>::createImage(
         *complexImage, outfile, Record(), "", AxesSpecifier(),

@@ -286,7 +286,7 @@ Record ImageProfileFitter::fit(Bool doDetailedResults) {
                     ImageCollapserData::MEAN, "", True
                 );
                 SPIIF collapsed = collapsedSigma.collapse();
-                std::shared_ptr<TempImage<Float> >ctmp = DYNAMIC_POINTER_CAST<TempImage<Float> >(collapsed);
+                std::shared_ptr<TempImage<Float> >ctmp = std::dynamic_pointer_cast<TempImage<Float> >(collapsed);
                 ThrowIf(! ctmp, "Dynamic cast failed");
                 _sigma = ctmp;
             }
@@ -438,13 +438,13 @@ void ImageProfileFitter::setSigma(const ImageInterface<Float>* const &sigma) {
         && sigma->shape() == _getImage()->shape()
     ) {
         SPIIF clone(sigma->cloneII());
-        _sigma = DYNAMIC_POINTER_CAST<TempImage<Float> >(clone);
+        _sigma = std::dynamic_pointer_cast<TempImage<Float> >(clone);
         if (! _sigma) {
             SPIIF x = SubImageFactory<Float>::createImage(
                 *sigma, "", Record(), "", False, False ,True, False
             );
             if (x) {
-                _sigma = DYNAMIC_POINTER_CAST<TempImage<Float> >(x);
+                _sigma = std::dynamic_pointer_cast<TempImage<Float> >(x);
                 ThrowIf(
                     ! _sigma,
                     "Unable to create temporary weights image"
