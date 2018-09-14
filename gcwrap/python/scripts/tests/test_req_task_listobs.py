@@ -45,35 +45,36 @@
 # test_listunfl checks that unflagged information is displayed by listobs
 #
 ###########################################################################
-try:
-    print("Importing CASAtools")
-    import CASAtools
-except ImportError:
-    print ("Cannot import CASAtools using taskinit")
-    from __main__ import default
-    from tasks import *
-    from taskinit import *
+CASA6 = False
 import sys
 import os
 import unittest
-#from __main__ import default
-#from tasks import *
-#from taskinit import *
 import hashlib
+try:
+    import CASAtools
+    from CASAtasks import partition, split, listobs, casalog
+    ms = CASAtools.ms()
+    CASA6 = True
+except ImportError:
+    from __main__ import default
+    from tasks import *
+    from taskinit import *
 
-dataroot = os.environ.get('CASAPATH').split()[0] + '/data/regression/'
-datapath = dataroot + 'unittest/listobs/'
+# If the test is being run in CASA6 use the new method to get the CASA path
+if CASA6:
+    datapath = CASAtools.ctsys.resolve('/data/regression/unittest/listobs')
 
-if os.environ.has_key('TEST_DATADIR'):
-    DATADIR = str(os.environ.get('TEST_DATADIR'))
-    if os.path.isdir(DATADIR):
-        datapath = DATADIR
-    else:
-        print('WARN: directory ' +DATADIR+ ' does not exist')
-
+else:
+    dataroot = os.environ.get('CASAPATH').split()[0] + '/data/regression/'
+    datapath = dataroot + 'unittest/listobs/'
 
     # Generate the test data
-mesSet = datapath + 'uid___X02_X3d737_X1_01_small.ms'
+
+if CASA6:
+    mesSet = CASAtools.ctsys.resolve('regression/unittest/listobs/uid___X02_X3d737_X1_01_small.ms')
+else:
+    mesSet = datapath + 'uid___X02_X3d737_X1_01_small.ms'
+
 partition(vis=mesSet, outputvis='genmms.mms', createmms=True)
 multiMesSet = 'genmms.mms'
 split(vis=mesSet, outputvis='gentimeavgms.ms', datacolumn='DATA',timebin='1s')
@@ -81,7 +82,7 @@ timeavg_ms = 'gentimeavgms.ms'
 split(vis=multiMesSet, outputvis='gentimeavgmms.mms', datacolumn='DATA', timebin='1s')
 timeavg_mms = 'gentimeavgmms.mms'
 
-logpath = casa['files']['logfile']
+logpath = casalog.logfile()
 
 
 def _sha1it(filename):
@@ -97,24 +98,16 @@ def _sha1it(filename):
 
 class listobs_test_base(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-
-        pass
-
     def setUp(self):
         self.res = None
-        default(listobs)
+        if not CASA6:
+            default(listobs)
 
     def tearDown(self):
         # remove files and temp logs
         os.system('rm -rf ' + 'listobs*.txt')
         os.system('rm -rf testlog.log')
-        casalog.setlogfile(logpath)
-
-    @classmethod
-    def tearDownClass(cls):
-        pass
+        casalog.setlogfile(str(logpath))
 
     def filefunc(self, dataset, filename):
         listobs(vis=dataset, listfile=filename)
@@ -124,27 +117,38 @@ class listobs_test_base(unittest.TestCase):
         casalog.setlogfile('testlog.log')
         listobs(vis=dataset)
         # Check for either ASCII or UTF-8 encoded
-        with open('testlog.log') as fout:
-            log = fout.readlines()
-            for data in log:
+        ifencoding = False
+        if sys.version_info[0] == 3:
+            try:
+                testfile = open('testlog.log', encoding='UTF-8').read()
+                ifencoding = True
+            except UnicodeError:
+                ifencoding = False
+            if not ifencoding:
                 try:
-                    data.decode('ASCII')
-                except UnicodeDecodeError:
-                    res1 = False
-                else:
-                    res1 = True
+                    testfile = open('testlog.log', encoding='ASCII').read()
+                    ifencoding = True
+                except UnicodeError:
+                    ifencoding = False
+            self.assertTrue(ifencoding)
+        else:
+            with open('testlog.log') as fout:
+                log = fout.readlines()
+                for data in log:
+                    try:
+                        data.decode('UTF-8')
+                        ifencoding = True
+                    except UnicodeDecodeError:
+                        ifencoding = False
 
-                try:
-                    data.decode('UTF-8')
-                except UnicodeDecodeError:
-                    res2 = False
-                else:
-                    res2 = True
+                    if not ifencoding:
+                        try:
+                            data.decode('ASCII')
+                            ifencoding = True
+                        except UnicodeDecodeError:
+                            ifencoding = False
 
-                if res1 == True or res2 == True:
-                    self.assertTrue(True)
-                else:
-                    self.assertTrue(False)
+                    self.assertTrue(ifencoding)
 
     def logfilecontain(self, dataset):
         casalog.setlogfile('testlog.log')
@@ -161,7 +165,11 @@ class listobs_test_base(unittest.TestCase):
         self.assertTrue('Scan' in open('listobs.txt').read(), msg='scan does not exist in output')
         # Check to see if a valid input and invalid input is returns the proper value (pass/fail)
         self.assertTrue(listobs(vis=dataset, scan='1'), msg='Scan fails to select')
-        self.assertFalse(listobs(vis=dataset, scan=1), msg='Scan incorrectly accepts an int')
+        if CASA6:
+            with self.assertRaises(AssertionError):
+                listobs(vis=dataset, scan=1)
+        else:
+            self.assertFalse(listobs(vis=dataset, scan=1), msg='Scan incorrectly accepts an int')
 
         # Make temp log
         casalog.setlogfile('testlog.log')
@@ -176,7 +184,11 @@ class listobs_test_base(unittest.TestCase):
 
     def fieldcheck(self, dataset):
         self.res = listobs(vis=dataset, listfile='listobs.txt')
-        self.assertFalse(listobs(vis=dataset, field=1), msg='An int was given to the field (requires a string)')
+        if CASA6:
+            with self.assertRaises(AssertionError):
+                listobs(vis=dataset, field=1)
+        else:
+            self.assertFalse(listobs(vis=dataset, field=1), msg='An int was given to the field (requires a string)')
         self.assertTrue('FldId' in open('listobs.txt').read(), msg='Field Id does not exist in a MS')
         # section that should raise no warnings
         casalog.setlogfile('testlog.log')
@@ -193,7 +205,11 @@ class listobs_test_base(unittest.TestCase):
 
     def spwcheck(self, dataset):
         self.res = listobs(vis=dataset, listfile='listobs.txt')
-        self.assertFalse(listobs(vis=dataset, spw=1), msg='An int was given to spw (requires string)')
+        if CASA6:
+            with self.assertRaises(AssertionError):
+                listobs(vis=dataset, spw=1)
+        else:
+            self.assertFalse(listobs(vis=dataset, spw=1), msg='An int was given to spw (requires string)')
         self.assertTrue('SpwID' in open('listobs.txt').read(), msg='Spw does not exist in a MS')
         # section that should raise no warnings
         casalog.setlogfile('testlog.log')
@@ -213,7 +229,11 @@ class listobs_test_base(unittest.TestCase):
     def corrcheck(self, dataset):
         self.res = listobs(vis=dataset, listfile='listobs.txt')
         self.assertTrue('Corrs' in open('listobs.txt').read(), msg='Corrs does not exist in a MS')
-        self.assertFalse(listobs(vis=dataset, correlation=1), msg='An int was accepted when a string is required')
+        if CASA6:
+            with self.assertRaises(AssertionError):
+                listobs(vis=dataset, correlation=1)
+        else:
+            self.assertFalse(listobs(vis=dataset, correlation=1), msg='An int was accepted when a string is required')
         # section that should not raise warnings
         casalog.setlogfile('testlog.log')
         listobs(vis=dataset, correlation='XX')
@@ -228,7 +248,12 @@ class listobs_test_base(unittest.TestCase):
     def antcheck(self, dataset):
         self.res = listobs(vis=dataset, listfile='listobs.txt')
         self.assertTrue('Antennas' in open('listobs.txt').read(), msg='Antennas section does not exist in MS')
-        self.assertFalse(listobs(vis=dataset, antenna=0), msg='Accepts an int as an argument when a string is required')
+        if CASA6:
+            with self.assertRaises(AssertionError):
+                listobs(vis=dataset, antenna=0)
+        else:
+            self.assertFalse(listobs(vis=dataset, antenna=0),
+                             msg='Accepts an int as an argument when a string is required')
         # section that should not raise warnings
         casalog.setlogfile('testlog.log')
         listobs(vis=dataset, antenna='0')
@@ -247,18 +272,33 @@ class listobs_test_base(unittest.TestCase):
     def selectcheck(self, dataset):
         # selectdata should fail for all invalid inputs
         self.assertTrue(listobs(vis=dataset, selectdata=False), msg='Passing False to select data fails on a MS')
-        self.assertFalse(listobs(vis=dataset, selectdata=1), msg='An int is accepted for the select data parameter')
-        self.assertFalse(listobs(vis=dataset, selectdata='str'), msg='A string is accepted for the select data parameter')
+        if CASA6:
+            with self.assertRaises(AssertionError):
+                listobs(vis=dataset, selectdata=1)
+            with self.assertRaises(AssertionError):
+                listobs(vis=dataset, selectdata='str')
+        else:
+            self.assertFalse(listobs(vis=dataset, selectdata=1), msg='An int is accepted for the select data parameter')
+            self.assertFalse(listobs(vis=dataset, selectdata='str'),
+                             msg='A string is accepted for the select data parameter')
+            self.assertFalse(listobs(vis=dataset, selectdata=[False]),
+                             msg='Array data type is accepted when it contains values')
         # I'm really not sure why these happen. especially the empty list
-        self.assertTrue(listobs(vis=dataset, selectdata=[]))
-        self.assertTrue(listobs(vis=dataset, selectdata=None))
-
-        self.assertFalse(listobs(vis=dataset, selectdata=[False]), msg='Array data type is accepted when it contains values')
+        if not CASA6:
+            self.assertTrue(listobs(vis=dataset, selectdata=[]))
+            self.assertTrue(listobs(vis=dataset, selectdata=None))
 
     def uvrangecheck(self, dataset):
         self.assertTrue(listobs(vis=dataset, uvrange='0~100klambda'), msg='fails to read valid input for uvrange in a MS')
-        self.assertFalse(listobs(vis=dataset, uvrange=0), msg='Accepts an int when only str should be accepted')
-        self.assertFalse(listobs(vis=dataset, uvrange=[1, 2]), msg='accepts an array of ints when only str should be accepted')
+        if CASA6:
+            with self.assertRaises(AssertionError):
+                listobs(vis=dataset, uvrange=0)
+            with self.assertRaises(AssertionError):
+                listobs(vis=dataset, uvrange=[1, 2])
+        else:
+            self.assertFalse(listobs(vis=dataset, uvrange=0), msg='Accepts an int when only str should be accepted')
+            self.assertFalse(listobs(vis=dataset, uvrange=[1, 2]),
+                             msg='accepts an array of ints when only str should be accepted')
         # Use temp log
         casalog.setlogfile('testlog.log')
         # shouldn't raise Warning
@@ -292,12 +332,20 @@ class listobs_test_base(unittest.TestCase):
         listobs(vis=dataset, timerange='3~4')
         self.assertTrue('MSSelectionNullSelection' in open('testlog.log').read())
         # Check that passing an int fails
-        self.assertFalse(listobs(vis=dataset, timerange=4))
+        if CASA6:
+            with self.assertRaises(AssertionError):
+                listobs(vis=dataset, timerange=4)
+        else:
+            self.assertFalse(listobs(vis=dataset, timerange=4))
 
     def intentcheck(self, dataset):
         # Returns true with a valid input and false with an int
         self.assertTrue(listobs(vis=dataset, intent='CALIBRATE_PHASE.ON_SOURCE,CALIBRATE_POINTING.ON_SOURCE,CALIBRATE_WVR.ON_SOURCE'), msg='Fails with valid input')
-        self.assertFalse(listobs(vis=dataset, intent=1), msg='Accepts int when it should only accept str')
+        if CASA6:
+            with self.assertRaises(AssertionError):
+                listobs(vis=dataset, intent=1)
+        else:
+            self.assertFalse(listobs(vis=dataset, intent=1), msg='Accepts int when it should only accept str')
         # Test for the existence of the column scan intent
         self.res = listobs(vis=dataset, listfile='listobs.txt')
         self.assertTrue('ScanIntent' in open('listobs.txt').read(), msg='There is no ScanIntent information for a MS')
@@ -315,7 +363,11 @@ class listobs_test_base(unittest.TestCase):
 
     def arraycheck(self, dataset):
         self.assertTrue(listobs(vis=dataset, array='0'), msg='Listobs fails to recognize valid array in a MS')
-        self.assertFalse(listobs(vis=dataset, array=0), msg='Listobs fails to recognize invalid data type in a MS')
+        if CASA6:
+            with self.assertRaises(AssertionError):
+               listobs(vis=dataset, array=0)
+        else:
+            self.assertFalse(listobs(vis=dataset, array=0), msg='Listobs fails to recognize invalid data type in a MS')
         self.res = listobs(vis=dataset, listfile='listobs.txt')
         # These should raise warnings
         casalog.setlogfile('testlog.log')
@@ -381,13 +433,14 @@ class test_listobs(listobs_test_base):
 
     def setUp(self):
         self.res = None
-        default(listobs)
+        if not CASA6:
+            default(listobs)
 
     def tearDown(self):
         # remove files and temp logs
         os.system('rm -rf ' + 'listobs*.txt')
         os.system('rm -rf testlog.log')
-        casalog.setlogfile(logpath)
+        casalog.setlogfile(str(logpath))
 
     @classmethod
     def tearDownClass(cls):
@@ -395,8 +448,12 @@ class test_listobs(listobs_test_base):
         os.system('rm -rf genmms.mms')
         os.system('rm -rf gentimeavgms.ms')
         os.system('rm -rf gentimeavgmms.mms')
+        os.system('rm -rf genmms.mms.flagversions')
 
     # Test that Different ms are taken
+    def test_wrongInp(self):
+        if not CASA6:
+            self.assertFalse(listobs(vis='foo.ms'))
 
     def test_input(self):
         '''Listobs test: Check all if listobs can take ms, mms, time averaged ms, and time averaged mms'''
@@ -726,7 +783,11 @@ class test_listobs(listobs_test_base):
 
     def test_CAS_6733(self):
         """Verify listobs runs to completion on data set in CAS-6733. This was an infinite loop bugfix"""
-        vis = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/mstransform/' + "CAS-6733.ms"
+        if CASA6:
+            vis = CASAtools.ctsys.resolve('regression/unittest/mstransform/CAS-6733.ms')
+
+        else:
+            vis = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/mstransform/' + "CAS-6733.ms"
         self.assertTrue(listobs(vis=vis))
 
     # Test average interval
