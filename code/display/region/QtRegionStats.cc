@@ -83,7 +83,7 @@ namespace casa {
 			}
 
 			bool SliceStats::updateStatisticsInfo( std::shared_ptr<casa::viewer::RegionInfo> info ) {
-				std::shared_ptr<SliceRegionInfo> sliceInfo = DYNAMIC_POINTER_CAST<SliceRegionInfo>(info);
+				std::shared_ptr<SliceRegionInfo> sliceInfo = std::dynamic_pointer_cast<SliceRegionInfo>(info);
 				if ( sliceInfo ) {
 					Polyline* polylineRegion = sliceInfo->getRegion();
 					polylineRegion->addPlot( this->getPlotHolder(), sliceInfo->label());
@@ -100,7 +100,7 @@ namespace casa {
 			}
 
 			bool pvline_stats_t::updateStatisticsInfo( std::shared_ptr<casa::viewer::RegionInfo> info ) {
-				std::shared_ptr<PVLineRegionInfo> pvinfo = DYNAMIC_POINTER_CAST<PVLineRegionInfo>(info);
+				std::shared_ptr<PVLineRegionInfo> pvinfo = std::dynamic_pointer_cast<PVLineRegionInfo>(info);
 				if ( pvinfo ) {
 					pixel_pt1->setText(QString::fromStdString(pvinfo->pixelStrings( )[0]));
 					pixel_pt2->setText(QString::fromStdString(pvinfo->pixelStrings( )[1]));

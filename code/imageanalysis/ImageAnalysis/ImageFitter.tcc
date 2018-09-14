@@ -479,7 +479,7 @@ template <class T> void ImageFitter<T>::_doConverged(
     }
     if (residualImage) {
         residualImage->putSlice(curResidPixels, location);
-        fittedResid = DYNAMIC_POINTER_CAST<TempImage<T>>(
+        fittedResid = std::dynamic_pointer_cast<TempImage<T>>(
             SubImageFactory<T>::createImage(
                 *residualImage, "", *this->_getRegion(), this->_getMask(),
                 false, false, false, false
