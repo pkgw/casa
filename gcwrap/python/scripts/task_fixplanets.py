@@ -441,7 +441,7 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
         else:
             casalog.post("UVW coordinates not changed.", 'NORMAL')
 
-        if (ParallelTaskHelper.isMMSAndNotServer(vis)):
+        if (ParallelTaskHelper.isParallelMS(vis)):
             casalog.post("Tidying up the MMS subtables ...", 'NORMAL')
             ParallelTaskHelper.restoreSubtableAgreement(vis)
 
