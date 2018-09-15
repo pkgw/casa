@@ -4,6 +4,7 @@ import numpy as np
 from taskinit import *
 from callibrary import *
 import flaghelper as fh
+from parallel.parallel_data_helper import ParallelDataHelper
 from parallel.parallel_task_helper import ParallelTaskHelper
 
 
@@ -35,7 +36,7 @@ def applycal(
     casalog.origin('applycal')
 
     # Take care of the trivial parallelization
-    if ParallelTaskHelper.isMMSAndNotServer(vis):
+    if ParallelDataHelper.isMMSAndNotServer(vis):
         
         # Back up the flags, if requested (and if necessary)
         if flagbackup and applymode != 'calonly' and applymode != 'trial':

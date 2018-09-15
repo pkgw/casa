@@ -12,14 +12,15 @@ from distutils.dir_util import copy_tree
 from taskinit import *
 from update_spw import *
 
+from parallel.parallel_data_helper import ParallelDataHelper
 from parallel.parallel_task_helper import ParallelTaskHelper
-from virtualconcat_cli import  virtualconcat_cli as virtualconcat
+from virtualconcat_cli import virtualconcat_cli as virtualconcat
 
 mycb, myms, mytb = gentools(['cb', 'ms', 'tb'])
 
 def uvcontsub(vis, field, fitspw, excludechans, combine, solint, fitorder, spw, want_cont):
     
-    if ParallelTaskHelper.isMMSAndNotServer(vis):
+    if ParallelDataHelper.isMMSAndNotServer(vis):
         helper = ParallelTaskHelper('uvcontsub', locals())
         helper._consolidateOutput = False
         retVar = helper.go()

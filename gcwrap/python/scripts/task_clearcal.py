@@ -1,5 +1,6 @@
 import os
 from taskinit import cbtool, tbtool, mstool, casalog, write_history
+from parallel.parallel_data_helper import ParallelDataHelper
 from parallel.parallel_task_helper import ParallelTaskHelper
 
 
@@ -14,7 +15,7 @@ def clearcal(
     casalog.origin('clearcal')
 
     # Do the trivial parallelization
-    if ParallelTaskHelper.isMMSAndNotServer(vis):
+    if ParallelDataHelper.isMMSAndNotServer(vis):
         helper = ParallelTaskHelper('clearcal', locals())
         helper.go()
         return
