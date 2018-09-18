@@ -1146,8 +1146,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        }
     }
 
-    //temporary turn off new noise calc.
-    Bool useoldstats(True);
+    //use new noise calc.
+    Bool useoldstats(False);
  
     Record thestats = calcImageStatistics(*tempres, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
@@ -2167,7 +2167,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
     
     //set true to use calcImageStatistics2 and thresholds adjusted for the location (median)
-    Bool newstats(False); // turning off as of CAS-11705
+    Bool newstats(True); // turn on new stats definition of threshold calc.
 
     //Timer
     Timer timer;
