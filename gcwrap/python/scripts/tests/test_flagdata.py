@@ -825,7 +825,7 @@ class test_rflag(test_base):
         # TODO: The tolerance used to be 1e-5 when this test was disabled for MMS. It might
         # be possible to use a finer tolerance again if a sound solution for CAS-10202 is
         # found (and this small test dataset is well behaved).
-        self.assertTrue(abs(fdev[0, 2] - 0.0410) < 1e-4)
+        np.testing.assert_allclose(fdev[0,2], 0.0410, rtol=5e-3)
 
         self.assertTrue(isinstance(tdev, np.ndarray))
         self.assertEqual(tdev.ndim, 2)
