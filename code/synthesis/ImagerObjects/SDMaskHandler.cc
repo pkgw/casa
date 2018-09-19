@@ -4087,8 +4087,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Double peak = abs(maxs(chanidx))> abs( mins(chanidx))? maxs(chanidx): mins(chanidx);
       String domasking = chanflag[ich]==0? "T":"F";
       //String domasking = zeroChanMask[ich]==1? "F":"T";
+      String mdnsStr, rmssStr, maskthresholdStr;
       String Nreg, Npruned, Ngrowreg, NgrowPruned, Nnegpix;
       String NAstr("--");
+      
+      //if masking is skipped median, rms, thresholdvalue are
+      //set to ---
+      if (domasking=="F") {
+        mdnsStr=NAstr;
+        rmssStr=NAstr;
+        maskthresholdStr=NAstr;
+      }
+      else {
+        mdnsStr=String::toString(mdns(chanidx));
+        rmssStr=String::toString(rmss(chanidx));
+        maskthresholdStr=String::toString(maskthreshold[ich]);
+      }
+
       if (!nreg.nelements()) {
         Nreg = NAstr;
       }
@@ -4122,11 +4137,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       
       os << LogIO::NORMAL << "[C" << ich << "] " 
                           << domasking << "        " 
-                          << mdns(chanidx) << "  "
-                          << rmss(chanidx) << "  " 
+                          //<< mdns(chanidx) << "  "
+                          //<< rmss(chanidx) << "  " 
+                          << mdnsStr << "  "
+                          << rmssStr << "  " 
                           << peak << "  " 
                           << thresholdtype[ich] << "  " 
-                          << maskthreshold[ich] << "        "
+                          //<< maskthreshold[ich] << "        "
+                          << maskthresholdStr << "        "
                           << Nreg << "  " 
                           << Npruned << "  "
                           << Ngrowreg << "  "
