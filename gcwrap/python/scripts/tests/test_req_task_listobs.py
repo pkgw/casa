@@ -50,9 +50,11 @@ import sys
 import os
 import unittest
 import hashlib
+import subprocess
 try:
     import CASAtools
     from CASAtasks import partition, split, listobs, casalog
+    from CASAtools.platform import bytes2str
     ms = CASAtools.ms()
     CASA6 = True
 except ImportError:
@@ -116,39 +118,23 @@ class listobs_test_base(unittest.TestCase):
     def logreadfunc(self, dataset):
         casalog.setlogfile('testlog.log')
         listobs(vis=dataset)
-        # Check for either ASCII or UTF-8 encoded
-        ifencoding = False
+        casalog.setlogfile(logpath)
+        
         if sys.version_info[0] == 3:
-            try:
-                testfile = open('testlog.log', encoding='UTF-8').read()
-                ifencoding = True
-            except UnicodeError:
-                ifencoding = False
-            if not ifencoding:
-                try:
-                    testfile = open('testlog.log', encoding='ASCII').read()
-                    ifencoding = True
-                except UnicodeError:
-                    ifencoding = False
-            self.assertTrue(ifencoding)
+            print('VERSION', ' ', sys.version_info)
+            # Check that the file can be read in python session default encoding
+            with open('testlog.log','r') as fout:
+                list(map(bytes2str, fout.readlines()))
+                print(list(map(bytes2str, fout.readlines())))
+                
         else:
-            with open('testlog.log') as fout:
-                log = fout.readlines()
+            # Check if the file can be decoded as ascii for python 2.7
+            with open('testlog.log','r') as log:
                 for data in log:
                     try:
-                        data.decode('UTF-8')
-                        ifencoding = True
-                    except UnicodeDecodeError:
-                        ifencoding = False
-
-                    if not ifencoding:
-                        try:
-                            data.decode('ASCII')
-                            ifencoding = True
-                        except UnicodeDecodeError:
-                            ifencoding = False
-
-                    self.assertTrue(ifencoding)
+                        data.decode('ASCII')
+                    except:
+                        self.fail()
 
     def logfilecontain(self, dataset):
         casalog.setlogfile('testlog.log')
