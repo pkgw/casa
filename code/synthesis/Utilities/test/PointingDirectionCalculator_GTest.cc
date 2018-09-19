@@ -1201,15 +1201,10 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 
     for(int sw=1; sw <=6; sw++)
     {
-         Description("Testing RowId functions." , "case="+std::to_string(sw) );
-
-        // getRowIdForOriginalMS //
-
-          Vector<uInt> vRowIdOrgMS = calc.getRowIdForOriginalMS();
-
-        //+
-        //  SelectData() selected by Antena Pair
-        //-
+         //+
+         // setlectData() key 
+         //  by Antenna Pair
+         //-
 
          String AntSel ="";
          if (sw==1)
@@ -1236,6 +1231,13 @@ TEST_F(TestMeasurementSet, RowId_inMS )
          { 
              AntSel = "DV02&&PM03";
          }
+
+         Description("Testing RowId functions." , "case="+std::to_string(sw) );
+
+        // getRowIdForOriginalMS //
+
+          Vector<uInt> vRowIdOrgMS = calc.getRowIdForOriginalMS();
+
          printf( " calling selectData() \n");     
          if( sw !=0 ) 
 	 {
