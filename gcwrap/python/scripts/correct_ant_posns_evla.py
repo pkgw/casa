@@ -1,5 +1,5 @@
 from taskinit import *
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import datetime
 import re
 
@@ -48,7 +48,7 @@ def correct_ant_posns_evla(vis_name, print_offsets=False):
     [obs_year,obs_month,obs_day,obs_time_string] = date_time.split('/')
     if (int(obs_year) < 2010):
         if (print_offsets):
-            print 'Does not work for VLA observations'
+            print('Does not work for VLA observations')
         else:
             casalog.post('Does not work for VLA observations',"WARN")
         return [1, '', []]
@@ -73,18 +73,18 @@ def correct_ant_posns_evla(vis_name, print_offsets=False):
     current_year = datetime.datetime.now().year
 # first, see if the internet connection is possible
     try:
-        response = urllib2.urlopen(URL_BASE + '2010')
-    except urllib2.URLError, err:
+        response = urllib.request.urlopen(URL_BASE + '2010')
+    except urllib.error.URLError as err:
         if (print_offsets):
-            print 'No internet connection to antenna position correction URL ', \
-                  err.reason
+            print('No internet connection to antenna position correction URL ', \
+                  err.reason)
         else:
            casalog.post('No internet connection to antenna position correction URL '+ \
                   str(err.reason),"WARN")
         return [2, '', []]
     response.close()
     for year in range(2010,current_year+1):
-        response = urllib2.urlopen(URL_BASE + str(year))
+        response = urllib.request.urlopen(URL_BASE + str(year))
         html = response.read()
         response.close()
         html_lines = html.split('\n')
@@ -174,8 +174,8 @@ def correct_ant_posns_evla(vis_name, print_offsets=False):
         if ((ant_num_sta[3] != 0.0) or (ant_num_sta[4] != 0.0) or \
             (ant_num_sta[3] != 0.0)):
             if (print_offsets):
-                print "offsets for antenna %4s : %8.5f  %8.5f  %8.5f" % \
-                      (ant_num_sta[1], ant_num_sta[3], ant_num_sta[4], ant_num_sta[5])
+                print("offsets for antenna %4s : %8.5f  %8.5f  %8.5f" % \
+                      (ant_num_sta[1], ant_num_sta[3], ant_num_sta[4], ant_num_sta[5]))
             else:
                 casalog.post("offsets for antenna %4s : %8.5f  %8.5f  %8.5f" % \
                       (ant_num_sta[1], ant_num_sta[3], ant_num_sta[4], ant_num_sta[5]))
@@ -187,7 +187,7 @@ def correct_ant_posns_evla(vis_name, print_offsets=False):
     #    print "No offsets found for this MS"
     if (len(parms) == 0):
       if (print_offsets):
-        print "No offsets found for this MS"
+        print("No offsets found for this MS")
       else:
         casalog.post("No offsets found for this MS", "WARN")
     ant_string = ','.join(["%s" % ii for ii in ants])

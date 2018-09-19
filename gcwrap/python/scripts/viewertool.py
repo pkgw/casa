@@ -13,11 +13,11 @@ try:
         bus = dbus.SessionBus( )
         have_dbus_module = True
     except:
-        print "warning: dbus is not properly configured, viewer scripting will not be available"
+        print("warning: dbus is not properly configured, viewer scripting will not be available")
         have_dbus_module = False
         bus = None
 except:
-    print "warning: dbus is not available, viewer scripting will not be available"
+    print("warning: dbus is not available, viewer scripting will not be available")
     have_dbus_module = False
     bus = None
 
@@ -56,7 +56,7 @@ class viewertool(object):
     def __init__( self, with_gui=True, pre_launch=False, use_existing=False ):
 
         if type(with_gui) != bool:
-            raise Exception, "the 'with_gui' parameter must be a boolean"
+            raise Exception("the 'with_gui' parameter must be a boolean")
 
         self.__state = { }
         self.__state['proxy'] = None
@@ -72,7 +72,7 @@ class viewertool(object):
         ## for viewer used from plain python, see if a viewer is already available on dbus first...
         bus = dbus_connection( )
         if bus != None and type(use_existing) == bool and use_existing == True :
-            candidates = seqselect(lambda x: x.startswith('edu.nrao.casa.%s_' % (basename)),map(str,bus.list_names( )))
+            candidates = seqselect(lambda x: x.startswith('edu.nrao.casa.%s_' % (basename)),list(map(str,bus.list_names( ))))
             if len( candidates ) > 0 :
                 candidate = candidates[0]
                 p = re.compile('[^\.]+')
@@ -95,15 +95,15 @@ class viewertool(object):
             return
 
         if dbus_connection( ) == None:
-            raise Exception, "dbus is not available; cannot script the viewer"
+            raise Exception("dbus is not available; cannot script the viewer")
 
         myf=stack_frame_find( )
         self.__rgm = __casac__.regionmanager.regionmanager( )
 
         viewer_path = None
-        if type(myf) == dict and myf.has_key('casa') and type(myf['casa']) == dict :
-            if myf['casa'].has_key('helpers') \
-               and type(myf['casa']['helpers']) == dict and myf['casa']['helpers'].has_key('viewer'):
+        if type(myf) == dict and 'casa' in myf and type(myf['casa']) == dict :
+            if 'helpers' in myf['casa'] \
+               and type(myf['casa']['helpers']) == dict and 'viewer' in myf['casa']['helpers']:
                 viewer_path = myf['casa']['helpers']['viewer']   #### set in casapy.py
                 if len(os.path.dirname(viewer_path)) == 0:
                     for dir in os.getenv('PATH').split(':') :
@@ -123,7 +123,7 @@ class viewertool(object):
                         break
                 args = [ viewer_path ]
 
-            if myf['casa'].has_key('state') and myf['casa']['state'].has_key('init_version'):
+            if 'state' in myf['casa'] and 'init_version' in myf['casa']['state']:
                 if myf['casa']['state']['init_version'] <= 0:
                     args += [ '--daemon' ]
             else:
@@ -138,12 +138,12 @@ class viewertool(object):
         else:
             args += [ '--nogui=' + self.__state['dbus name'] ]
 
-        if type(myf) == dict and myf.has_key('casa') and type(myf['casa']) == dict and myf['casa'].has_key('files') \
-                and type(myf['casa']['files']) == dict and myf['casa']['files'].has_key('logfile'):
+        if type(myf) == dict and 'casa' in myf and type(myf['casa']) == dict and 'files' in myf['casa'] \
+                and type(myf['casa']['files']) == dict and 'logfile' in myf['casa']['files']:
             args += [ '--casalogfile=' + myf['casa']['files']['logfile'] ]
 
-        if  type(myf) == dict and myf.has_key('casa') and type(myf['casa']) == dict and myf['casa'].has_key('flags') \
-                 and type(myf['casa']['flags']) == dict and myf['casa']['flags'].has_key('--rcdir'):
+        if  type(myf) == dict and 'casa' in myf and type(myf['casa']) == dict and 'flags' in myf['casa'] \
+                 and type(myf['casa']['flags']) == dict and '--rcdir' in myf['casa']['flags']:
             args += [ "--rcdir=" + myf['casa']['flags']['--rcdir'] ]
 
 	if (os.uname()[0]=='Darwin'):
@@ -159,7 +159,7 @@ class viewertool(object):
             else:
 		vwrpid=os.spawnlp( os.P_NOWAIT, viewer_path, *args )
 	else:
-        	raise Exception,'unrecognized operating system'
+        	raise Exception('unrecognized operating system')
 
         self.__state['launched'] = True
 
@@ -169,7 +169,7 @@ class viewertool(object):
             self.__launch( )
 
         if not self.__state['launched']:
-            raise Exception, 'launch failed'
+            raise Exception('launch failed')
 
         error = None
         for i in range(1,500):
@@ -181,7 +181,7 @@ class viewertool(object):
                     continue
                 error = None
                 break
-            except dbus.DBusException, e:
+            except dbus.DBusException as e:
                 if e.get_dbus_name() == 'org.freedesktop.DBus.Error.Disconnected' :
                     raise RuntimeError('DBus daemon has died...')
                 elif e.get_dbus_name() == 'org.freedesktop.DBus.Error.ServiceUnknown' :
@@ -189,7 +189,7 @@ class viewertool(object):
                     continue
                 else:
                     raise RuntimeError('Unexpected DBus problem: ' + e.get_dbus_name( ) + "(" + e.args[0] + ")")
-            except Exception, e:
+            except Exception as e:
                 error = e
                 continue
 
@@ -201,7 +201,7 @@ class viewertool(object):
         kwargs['timeout'] = 0x7fffffff / 1000.0
         try:
             result = func(*args,**kwargs)
-        except dbus.DBusException, e:
+        except dbus.DBusException as e:
             if e.get_dbus_name() == 'org.freedesktop.DBus.Error.Disconnected' :
                 raise RuntimeError('DBus daemon has died....')
             elif e.get_dbus_name() == 'org.freedesktop.DBus.Error.ServiceUnknown' :
@@ -209,7 +209,7 @@ class viewertool(object):
             else:
                 raise RuntimeError('Unexpected DBus problem: ' + e.get_dbus_name( ) + "(" + e.args[0] + ")")
 
-        if type(result) == dbus.Dictionary and result.has_key('*error*') :
+        if type(result) == dbus.Dictionary and '*error*' in result :
             raise RuntimeError(str(result['*error*']))
         elif type(result) != dt :
             raise RuntimeError(str(result))
@@ -219,7 +219,7 @@ class viewertool(object):
     def panel( self, paneltype="viewer" ) :
         if type(paneltype) != str or (paneltype != "viewer" and paneltype != "clean"):
             if not (paneltype.endswith('.rstr') and os.path.isfile(paneltype)):
-                raise Exception, "the only valid panel types are 'viewer' and 'clean' or path to restore file"
+                raise Exception("the only valid panel types are 'viewer' and 'clean' or path to restore file")
         if self.__state['proxy'] == None:
             self.__connect( )
 
@@ -228,7 +228,7 @@ class viewertool(object):
     def load( self, path, displaytype="raster", panel=0, scaling=0 ):
         if type(path) != str or type(displaytype) != str or \
                (type(scaling) != float and type(scaling) != int) :
-            raise Exception, "load() takes two strings; only the first arg is required..."
+            raise Exception("load() takes two strings; only the first arg is required...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -237,7 +237,7 @@ class viewertool(object):
 
     def close( self, panel=0 ):
         if type(panel) != int :
-            raise Exception, "close() takes one optional integer..."
+            raise Exception("close() takes one optional integer...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -246,7 +246,7 @@ class viewertool(object):
 
     def popup( self, what, panel=0 ):
         if type(what) != str or type(panel) != int :
-            raise Exception, "popup() takes a string followed by one optional integer..."
+            raise Exception("popup() takes a string followed by one optional integer...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -255,7 +255,7 @@ class viewertool(object):
 
     def freeze( self, panel=0 ):
         if type(panel) != int :
-            raise Exception, "freeze() takes only a panel id..."
+            raise Exception("freeze() takes only a panel id...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -264,7 +264,7 @@ class viewertool(object):
 
     def unfreeze( self, panel=0 ):
         if type(panel) != int :
-            raise Exception, "unfreeze() takes only a panel id..."
+            raise Exception("unfreeze() takes only a panel id...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -274,7 +274,7 @@ class viewertool(object):
 
     def restore( self, path, panel=0 ):
         if type(path) != str or type(panel) != int:
-            raise Exception, "restore() takes a string and an integer; only the first arg is required..."
+            raise Exception("restore() takes a string and an integer; only the first arg is required...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -283,7 +283,7 @@ class viewertool(object):
 
     def cwd( self, new_path='' ):
         if type(new_path) != str:
-            raise Exception, "cwd() takes a single (optional) string..."
+            raise Exception("cwd() takes a single (optional) string...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -295,7 +295,7 @@ class viewertool(object):
         if type(device) != str or type(panel) != int or type(scale) != float or \
                 type(dpi) != int or type(format) != str or type(orientation) != str or \
                 type( media ) != str:
-            raise Exception, "output() takes (str,int,float,int,str,str,str); only the first is required..."
+            raise Exception("output() takes (str,int,float,int,str,str,str); only the first is required...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -304,7 +304,7 @@ class viewertool(object):
 
     def axes( self, x='', y='', z='', panel=0 ):
         if type(x) != str or type(y) != str or type(z) != str or type(panel) != int :
-            raise Exception, "axes() takes one to three strings and an optional panel id..."
+            raise Exception("axes() takes one to three strings and an optional panel id...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -313,29 +313,29 @@ class viewertool(object):
 
     def datarange( self, range, data=0 ):
         if type(range) != list or type(data) != int or \
-           all( map( lambda x: type(x) == int or type(x) == float, range ) ) == False:
-            raise Exception, "datarange() takes (numeric list,int)..."
+           all( [type(x) == int or type(x) == float for x in range] ) == False:
+            raise Exception("datarange() takes (numeric list,int)...")
         if len(range) != 2 or range[0] > range[1] :
-            raise Exception, "range should be [ min, max ]..."
+            raise Exception("range should be [ min, max ]...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
 
-        return self.__invoke( dbus.Boolean, bool, self.__state['proxy'].datarange, map( lambda(x): float(x), range ), data )
+        return self.__invoke( dbus.Boolean, bool, self.__state['proxy'].datarange, [float(x) for x in range], data )
     
     def contourlevels( self, levels=[], baselevel=2147483648.0, unitlevel=2147483648.0, data=0 ):
         if type(levels) != list or type(data) != int or \
-           all( map( lambda x: type(x) == int or type(x) == float, levels ) ) == False:
-            raise Exception, "contorlevels() takes (numeric list,int)..."
+           all( [type(x) == int or type(x) == float for x in levels] ) == False:
+            raise Exception("contorlevels() takes (numeric list,int)...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
 
-        return self.__invoke( dbus.Boolean, bool, self.__state['proxy'].contourlevels, dbus.Array(map( lambda(x): float(x), levels),signature="d"), baselevel, unitlevel, data )
+        return self.__invoke( dbus.Boolean, bool, self.__state['proxy'].contourlevels, dbus.Array([float(x) for x in levels],signature="d"), baselevel, unitlevel, data )
 
     def contourcolor( self, color="foreground", data=0 ):
         if type(color) != str or type(data) != int:
-            raise Exception, "contorcolor() takes color name and data id..."
+            raise Exception("contorcolor() takes color name and data id...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -344,9 +344,9 @@ class viewertool(object):
 
     def contourthickness( self, thickness=0.0, data=0 ):
         if type(thickness) != float or type(data) != int:
-            raise Exception, "contourthickness() takes a float representing the thickness and data id..."
+            raise Exception("contourthickness() takes a float representing the thickness and data id...")
         if thickness < 0 or thickness > 5:
-            raise Exception, "the thickness supplied to contourthickness() should between 0 and 5"
+            raise Exception("the thickness supplied to contourthickness() should between 0 and 5")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -355,7 +355,7 @@ class viewertool(object):
 
     def colormap( self, map, data_or_panel=0 ):
         if type(map) != str or type(data_or_panel) != int :
-            raise Exception, "colormap() takes a colormap name and an optional panel or data id..."
+            raise Exception("colormap() takes a colormap name and an optional panel or data id...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -365,7 +365,7 @@ class viewertool(object):
 
     def colorwedge( self, show, data_or_panel=0 ):
         if type(show) != bool or type(data_or_panel) != int :
-            raise Exception, "colorwedge() takes a boolean and an optional panel or data id..."
+            raise Exception("colorwedge() takes a boolean and an optional panel or data id...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -375,7 +375,7 @@ class viewertool(object):
 
     def channel( self, num=-1, panel=0 ):
         if type(num) != int or type(panel) != int:
-            raise Exception, "frame() takes (int,int); each argument is optional..."
+            raise Exception("frame() takes (int,int); each argument is optional...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -386,7 +386,7 @@ class viewertool(object):
         if (type(level) != int and level != None) or \
                type(blc) != list or type(trc) != list or type(panel) != int or \
                type(coordinates) != str or (type(region) != str and type(region) != dict) :
-            raise Exception, "zoom() takes (int|None,list,list,str,int); each argument is optional..."
+            raise Exception("zoom() takes (int|None,list,list,str,int); each argument is optional...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -398,10 +398,10 @@ class viewertool(object):
                 try:
                     reg = self.__rgm.fromfiletorecord( region )
                 except:
-                    raise Exception, "region file (" + str(region) + ") exists but is not a valid region file"
+                    raise Exception("region file (" + str(region) + ") exists but is not a valid region file")
 
             if type(reg) != dict :
-                raise Exception, "invalid regions or failed to load region"
+                raise Exception("invalid regions or failed to load region")
 
             ( _blc, _trc, _coord ) = self.__extract_region_box( reg )
 
@@ -410,18 +410,18 @@ class viewertool(object):
         elif len(blc) == 2 and len(trc) == 2 and \
                all( map( lambda x,y: (type(x) == int or type(x) == float) and (type(y) == int or type(y) == float), blc, trc ) ) == True:
             if coordinates != "pixel" and coordinates != "world":
-                raise Exception, "zoom() coordinates must be either world or pixel"
-            return self.__invoke( dbus.Boolean, bool, self.__state['proxy'].zoom, map( lambda(x): float(x), blc ), map( lambda(x): float(x), trc ), coordinates, panel )
+                raise Exception("zoom() coordinates must be either world or pixel")
+            return self.__invoke( dbus.Boolean, bool, self.__state['proxy'].zoom, [float(x) for x in blc], [float(x) for x in trc], coordinates, panel )
         elif level != None:
             return self.__invoke( dbus.Boolean, bool, self.__state['proxy'].zoom, level, panel )
         else:
-            raise Exception, "must supply either blc and trc or a level for zoom"
+            raise Exception("must supply either blc and trc or a level for zoom")
 
 
 
     def hide( self, panel=0 ):
         if type(panel) != int:
-            raise Exception, "hide() takes a single (int) panel identifier ..."
+            raise Exception("hide() takes a single (int) panel identifier ...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -430,7 +430,7 @@ class viewertool(object):
 
     def show( self, panel=0 ):
         if type(panel) != int:
-            raise Exception, "show() takes a single (int) panel identifier ..."
+            raise Exception("show() takes a single (int) panel identifier ...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -439,7 +439,7 @@ class viewertool(object):
 
     def fileinfo( self, path ):
         if type(path) != str:
-            raise Exception, "fileinfo() takes a single path..."
+            raise Exception("fileinfo() takes a single path...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
@@ -448,12 +448,12 @@ class viewertool(object):
 
     def keyinfo( self, key ):
         if type(key) != int:
-            raise Exception, "keyinfo() takes a single int..."
+            raise Exception("keyinfo() takes a single int...")
 
         if self.__state['proxy'] == None:
             self.__connect( )
 
-        return self.__invoke( dbus.Array, lambda x: map(str,x), self.__state['proxy'].keyinfo, key )
+        return self.__invoke( dbus.Array, lambda x: list(map(str,x)), self.__state['proxy'].keyinfo, key )
 
     def done( self ):
 
@@ -467,48 +467,48 @@ class viewertool(object):
 
     def __extract_region_box( self, reg ):
 
-        if reg.has_key( 'regions' ) :
-            if type(reg['regions']) != dict or not reg['regions'].has_key( '*1' ) :
-                raise Exception, "invalid region, has 'regions' field but wrong format"
+        if 'regions' in reg :
+            if type(reg['regions']) != dict or '*1' not in reg['regions'] :
+                raise Exception("invalid region, has 'regions' field but wrong format")
             reg=reg['regions']['*1']
 
-        if not reg.has_key('trc') or not reg.has_key('blc'):
-            raise Exception, "region must have a 'blc' and 'trc' field"
+        if 'trc' not in reg or 'blc' not in reg:
+            raise Exception("region must have a 'blc' and 'trc' field")
 
         blc_r = reg['blc']
         trc_r = reg['trc']
 
         if type(blc_r) != dict or type(trc_r) != dict :
-            raise Exception, "region blc/trc of wrong type"
+            raise Exception("region blc/trc of wrong type")
 
-        blc_k = blc_r.keys( )
-        trc_k = trc_r.keys( )
+        blc_k = list(blc_r.keys( ))
+        trc_k = list(trc_r.keys( ))
 
         if len(blc_k) < 2 or len(trc_k) < 2:
-            raise Exception, "degenerate region"
+            raise Exception("degenerate region")
 
         blc_k.sort( )
         trc_k.sort( )
 
         if type(blc_r[blc_k[0]]) != dict or type(blc_r[blc_k[1]]) != dict or \
                type(trc_r[trc_k[0]]) != dict or type(trc_r[trc_k[1]]) != dict :
-            raise Exception, "invalid blc/trc in region"
+            raise Exception("invalid blc/trc in region")
 
-        if not blc_r[blc_k[0]].has_key('value') or not blc_r[blc_k[1]].has_key('value') or \
-               not trc_r[trc_k[0]].has_key('value') or not trc_r[trc_k[1]].has_key('value'):
-            raise Exception, "invalid shape for blc/trc in region"
+        if 'value' not in blc_r[blc_k[0]] or 'value' not in blc_r[blc_k[1]] or \
+               'value' not in trc_r[trc_k[0]] or 'value' not in trc_r[trc_k[1]]:
+            raise Exception("invalid shape for blc/trc in region")
 
         if (type(blc_r[blc_k[0]]['value']) != float and type(blc_r[blc_k[0]]['value']) != int) or \
                (type(blc_r[blc_k[1]]['value']) != float and type(blc_r[blc_k[1]]['value']) != int) or \
                (type(trc_r[trc_k[0]]['value']) != float and type(trc_r[trc_k[0]]['value']) != int) or \
                (type(trc_r[trc_k[0]]['value']) != float and type(trc_r[trc_k[0]]['value']) != int) :
-            raise Exception, "invalid type for blc/trc value in region"
+            raise Exception("invalid type for blc/trc value in region")
 
         blc = [ float(blc_r[blc_k[0]]['value']), float(blc_r[blc_k[1]]['value']) ]
         trc = [ float(trc_r[trc_k[0]]['value']), float(trc_r[trc_k[1]]['value']) ]
 
         coord = "pixel"
-        if reg.has_key('name') and reg['name'] == "WCBox":
+        if 'name' in reg and reg['name'] == "WCBox":
             coord = "world"
 
         return ( blc, trc, coord )

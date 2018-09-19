@@ -81,10 +81,10 @@ os.system('rm -rf ngc4826.tutorial.*')
 prefix='ngc4826.tutorial'
 msfile = prefix + '.16apr98.ms'
 
-print 'Tutorial Regression Script for BIMASONG NGC4826 Mosaic'
-print 'Version for Release 0 (3.0.0) 7-Dec-2009'
-print 'Will do: import, flagging, calibration, imaging'
-print ''
+print('Tutorial Regression Script for BIMASONG NGC4826 Mosaic')
+print('Version for Release 0 (3.0.0) 7-Dec-2009')
+print('Will do: import, flagging, calibration, imaging')
+print('')
 #
 ##########################################################################
 #
@@ -120,11 +120,11 @@ _mydatapath = os.environ.get('CASAPATH').split()[0]+'/data/regression/ngc4826/'
 #
 # USB spectral windows written separately by miriad for 16apr98
 # Assumes these are in sub-directory called "fitsfiles" of working directory
-print '--Importuvfits (16apr98)--'
+print('--Importuvfits (16apr98)--')
 default('importuvfits')
 
-print "Starting from the uvfits files exported by miriad"
-print "The USB spectral windows were written separately by miriad for 16apr98"
+print("Starting from the uvfits files exported by miriad")
+print("The USB spectral windows were written separately by miriad for 16apr98")
 
 importuvfits(fitsfile=_mydatapath+'fitsfiles/3c273.fits5', vis='ngc4826.tutorial.3c273.5.ms')
 
@@ -164,7 +164,7 @@ if benchmarking:
 #
 ##########################################################################
 #
-print '--Concat--'
+print('--Concat--')
 default('concat')
 
 concat(vis=['ngc4826.tutorial.3c273.5.ms',
@@ -258,7 +258,7 @@ if benchmarking:
 #
 # Fix up the MS (temporary, changes to importfits underway)
 #
-print '--Fixing up spw rest frequencies in MS--'
+print('--Fixing up spw rest frequencies in MS--')
 vis='ngc4826.tutorial.ms'
 tb.open(vis+'/SOURCE',nomodify=False)
 spwid=tb.getcol('SPECTRAL_WINDOW_ID')
@@ -274,8 +274,8 @@ tb.close()
 ##########################################################################
 # 16 APR Calibration
 ##########################################################################
-print '--Clearcal--'
-print 'Create scratch columns and initialize in '+'ngc4826.tutorial.ms'
+print('--Clearcal--')
+print('Create scratch columns and initialize in '+'ngc4826.tutorial.ms')
 
 # Force create/initialize of scratch columns
 # NOTE: plotxy will not run properly without this step.
@@ -290,19 +290,19 @@ if benchmarking:
 #
 # List contents of MS
 #
-print '--Listobs--'
+print('--Listobs--')
 listobs(vis='ngc4826.tutorial.ms')
 
 # Should see the listing in logger
 # Some parts shown below
 #
 
-print "There are 3 fields observed in a total of 16 spectral windows"
-print "   field=0    3c273    spwids 0,1,2,3               64 chans "
-print "   field=1    1310+323 spwids 4,5,6,7,8,9,10,11     32 chans "
-print "   field=2~8  NGC4826  spwids 12,13,14,15           64 chans "
-print ""
-print "See listobs summary in logger"
+print("There are 3 fields observed in a total of 16 spectral windows")
+print("   field=0    3c273    spwids 0,1,2,3               64 chans ")
+print("   field=1    1310+323 spwids 4,5,6,7,8,9,10,11     32 chans ")
+print("   field=2~8  NGC4826  spwids 12,13,14,15           64 chans ")
+print("")
+print("See listobs summary in logger")
 
 if benchmarking:
     list2time=time.time()
@@ -471,13 +471,13 @@ if benchmarking:
 #
 # Flag end channels
 #
-print '--Flagdata--'
+print('--Flagdata--')
 default('flagdata')
 
-print ""
-print "Flagging edge channels in all spw"
-print "  0~3:0~1;62~63 , 4~11:0~1;30~31, 12~15:0~1;62~63 "
-print ""
+print("")
+print("Flagging edge channels in all spw")
+print("  0~3:0~1;62~63 , 4~11:0~1;30~31, 12~15:0~1;62~63 ")
+print("")
 
 flagdata(vis='ngc4826.tutorial.ms', mode='manual',
          spw='0~3:0;1;62;63,4~11:0;1;30;31,12~15:0;1;62;63')
@@ -485,10 +485,10 @@ flagdata(vis='ngc4826.tutorial.ms', mode='manual',
 #
 # Flag correlator glitch
 #
-print ""
-print "Flagging bad correlator field 8 antenna 3&9 spw 15 all channels"
-print "  timerange 1998/04/16/06:19:00.0~1998/04/16/06:20:00.0"
-print ""
+print("")
+print("Flagging bad correlator field 8 antenna 3&9 spw 15 all channels")
+print("  timerange 1998/04/16/06:19:00.0~1998/04/16/06:20:00.0")
+print("")
 
 flagdata(vis='ngc4826.tutorial.ms', mode='manual', field='8', spw='15', antenna='3&9',
          timerange='1998/04/16/06:19:00.0~1998/04/16/06:20:00.0')
@@ -518,11 +518,11 @@ flagdata(vis='ngc4826.tutorial.ms', mode='manual', field='8', spw='15', antenna=
 #
 # Use Flagmanager to save a copy of the flags so far
 #
-print '--Flagmanager--'
+print('--Flagmanager--')
 default('flagmanager')
 
-print "Now will use flagmanager to save a copy of the flags we just made"
-print "These are named myflags"
+print("Now will use flagmanager to save a copy of the flags we just made")
+print("These are named myflags")
 
 flagmanager(vis='ngc4826.tutorial.ms',mode='save',versionname='myflags',
             comment='My flags',merge='replace')
@@ -534,7 +534,7 @@ flagmanager(vis='ngc4826.tutorial.ms',mode='list')
 if benchmarking:
     flag2time=time.time()
 
-print "Completed pre-calibration flagging"
+print("Completed pre-calibration flagging")
 
 #
 ##########################################################################
@@ -555,7 +555,7 @@ print "Completed pre-calibration flagging"
 #
 # Set the flux density of 3C273 to 23 Jy
 #
-print '--Setjy (3C273)--'
+print('--Setjy (3C273)--')
 default('setjy')
 
 setjy(vis='ngc4826.tutorial.ms',field='0',standard='manual',fluxdensity=[23.0,0.,0.,0.],spw='0~3', scalebychan=False, usescratch=False)
@@ -571,15 +571,15 @@ if benchmarking:
 #
 # Gain calibration
 #
-print '--Gaincal--'
+print('--Gaincal--')
 default('gaincal')
 
 # This should be combining all spw for the two calibrators for single
 # scan-based solutions
 
-print 'Gain calibration for fields 0,1 and spw 0~11'
-print 'Using solint=inf combining over spw'
-print 'Output table ngc4826.tutorial.16apr98.gcal'
+print('Gain calibration for fields 0,1 and spw 0~11')
+print('Using solint=inf combining over spw')
+print('Output table ngc4826.tutorial.16apr98.gcal')
 
 # spws 0-3  (as 0)
 gaincal(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
@@ -601,12 +601,12 @@ if benchmarking:
 #
 # Transfer the flux density scale:
 #
-print '--Fluxscale--'
+print('--Fluxscale--')
 default('fluxscale')
 
-print ''
-print 'Transferring flux of 3C273 to sources: 1310+323'
-print 'Output table ngc4826.tutorial.16apr98.fcal'
+print('')
+print('Transferring flux of 3C273 to sources: 1310+323')
+print('Output table ngc4826.tutorial.16apr98.fcal')
 
 # refer spw 4 to spw 0
 
@@ -623,25 +623,25 @@ if benchmarking:
 ##########################################################################
 #
 # Plot calibration
-print '--Plotcal (fluxscale)--'
+print('--Plotcal (fluxscale)--')
 default(plotcal)
 
 if scriptmode:
     # Interactive plotcal
     plotcal(caltable='ngc4826.tutorial.16apr98.fcal', yaxis='amp', field='')
-    print ''
-    print 'Plotting final scaled gain calibration table'
-    print 'First amp vs. time for all fields '
+    print('')
+    print('Plotting final scaled gain calibration table')
+    print('First amp vs. time for all fields ')
 
     # Pause script if you are running in scriptmode
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
     plotcal(caltable='ngc4826.tutorial.16apr98.fcal', yaxis='phase', field='')
-    print ''
-    print 'and phase vs. time '
+    print('')
+    print('and phase vs. time ')
 
     # Pause script if you are running in scriptmode
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
     # And you can plot the SNR of the solution
     plotcal(caltable='ngc4826.tutorial.16apr98.fcal', yaxis='snr', field='')
@@ -663,10 +663,10 @@ if benchmarking:
 # Correct the calibrater/target source data:
 # Use new parm spwmap to apply gain solutions derived from spwid1
 # to all other spwids...
-print '--Applycal--'
+print('--Applycal--')
 default('applycal')
 
-print 'Applying calibration table ngc4826.tutorial.16apr98.fcal to data'
+print('Applying calibration table ngc4826.tutorial.16apr98.fcal to data')
 
 applycal(vis='ngc4826.tutorial.ms',
 	 field='', spw='',
@@ -750,7 +750,7 @@ if benchmarking:
 #if benchmarking:
 #    plotfinal2time=time.time()
 
-print "Done calibration and plotting"
+print("Done calibration and plotting")
 #
 ##########################################################################
 #
@@ -762,22 +762,22 @@ print "Done calibration and plotting"
 #
 # Split out calibrated target source and calibrater data:
 #
-print '--Split--'
+print('--Split--')
 default('split')
 
-print 'Splitting 3C273 data to ngc4826.tutorial.16apr98.3C273.split.ms'
+print('Splitting 3C273 data to ngc4826.tutorial.16apr98.3C273.split.ms')
 
 split(vis='ngc4826.tutorial.ms',
       outputvis='ngc4826.tutorial.16apr98.3C273.split.ms',
       field='0',spw='0~3:0~63', datacolumn='corrected')
 
-print 'Splitting 1310+323 data to ngc4826.tutorial.16apr98.1310+323.split.ms'
+print('Splitting 1310+323 data to ngc4826.tutorial.16apr98.1310+323.split.ms')
 
 split(vis='ngc4826.tutorial.ms',
       outputvis='ngc4826.tutorial.16apr98.1310+323.split.ms',
       field='1', spw='4~11:0~31', datacolumn='corrected')
 
-print 'Splitting NGC4826 data to ngc4826.tutorial.16apr98.src.split.ms'
+print('Splitting NGC4826 data to ngc4826.tutorial.16apr98.src.split.ms')
 
 split(vis='ngc4826.tutorial.ms',
       outputvis='ngc4826.tutorial.16apr98.src.split.ms',
@@ -851,12 +851,12 @@ if benchmarking:
 #
 # Image the target source mosaic:
 #
-print '--Clean (NGC4826)--'
+print('--Clean (NGC4826)--')
 default('clean')
 
 # Make image big enough so mosaic is in inner quarter (400x400)
 clnsize = 400
-print " Creating CLEAN image of size "+str(clnsize)
+print(" Creating CLEAN image of size "+str(clnsize))
 
 clean(vis='ngc4826.tutorial.16apr98.src.split.ms',
       imagename='ngc4826.tutorial.16apr98.src.clean',
@@ -904,29 +904,29 @@ if benchmarking:
 ##########################################################################
 #
 # Do interactive viewing of clean image
-print '--Viewer--'
+print('--Viewer--')
 if scriptmode:
     viewer('ngc4826.tutorial.16apr98.src.clean.image')
 
-    print ""
-    print "This is the non-pbcorrected cube of NGC4826"
-    print "Use tape deck to move through channels"
-    print "Close the viewer when done"
-    print ""
+    print("")
+    print("This is the non-pbcorrected cube of NGC4826")
+    print("Use tape deck to move through channels")
+    print("Close the viewer when done")
+    print("")
 
     # Pause script if you are running in scriptmode
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #
 ##########################################################################
 #
 # Statistics on clean image cube
 #
-print '--ImStat (Clean cube)--'
+print('--ImStat (Clean cube)--')
 
 srcstat = imstat('ngc4826.tutorial.16apr98.src.clean.image')
 
-print "Found image max = "+str(srcstat['max'][0])
+print("Found image max = "+str(srcstat['max'][0]))
 
 # 256x256: refpix = '128,128,128,128'
 # 400x400: refpix = '200,200,200,200'
@@ -934,7 +934,7 @@ print "Found image max = "+str(srcstat['max'][0])
 # 800x800: refpix = '400,400,400,400'
 refpix = int(clnsize/2)
 refbox = str(refpix)+','+str(refpix)+','+str(refpix)+','+str(refpix)
-print "  Using Reference Pixel "+refbox
+print("  Using Reference Pixel "+refbox)
 
 # 256x256: offbox = '106,161,153,200'
 # 400x400: offbox = '178,233,225,272'
@@ -945,12 +945,12 @@ blcy = refpix + 33
 trcx = refpix + 25
 trcy = refpix + 72
 offbox = str(blcx)+','+str(blcy)+','+str(trcx)+','+str(trcy)
-print "  Using Off-Source Box "+offbox
+print("  Using Off-Source Box "+offbox)
 
 offstat = imstat('ngc4826.tutorial.16apr98.src.clean.image',
                  box=offbox)
 
-print "Found off-source image rms = "+str(offstat['sigma'][0])
+print("Found off-source image rms = "+str(offstat['sigma'][0]))
 
 # 256x256: cenbox = '108,108,148,148'
 # 400x400: cenbox = '180,180,320,320'
@@ -961,7 +961,7 @@ blcy = refpix - 20
 trcx = refpix + 20
 trcy = refpix + 20
 cenbox = str(blcx)+','+str(blcy)+','+str(trcx)+','+str(trcy)
-print "  Using On-Source Box "+cenbox
+print("  Using On-Source Box "+cenbox)
 
 # offlinechan = '0,1,2,3,4,5,30,31,32,33,34,35'
 
@@ -969,25 +969,25 @@ offlinestat = imstat('ngc4826.tutorial.16apr98.src.clean.image',
                      box=cenbox,
                      chans='0,1,2,3,4,5,30,31,32,33,34,35')
 
-print "Found off-line image rms = "+str(offlinestat['sigma'][0])
+print("Found off-line image rms = "+str(offlinestat['sigma'][0]))
 
 #
 ##########################################################################
 #
 # Statistics on clean model
 #
-print '--ImStat (Clean model)--'
+print('--ImStat (Clean model)--')
 
 modstat = imstat('ngc4826.tutorial.16apr98.src.clean.model')
 
-print "Found total model flux = "+str(modstat['sum'][0])
+print("Found total model flux = "+str(modstat['sum'][0]))
 
 #
 ##########################################################################
 #
 # Manually correct for mosaic response pattern using .image/.flux images
 #
-print '--ImMath (PBcor)--'
+print('--ImMath (PBcor)--')
 
 immath(outfile='ngc4826.tutorial.16apr98.src.clean.pbcor',
        mode='evalexpr',
@@ -1005,32 +1005,32 @@ immath(outfile='ngc4826.tutorial.16apr98.src.clean.pbcormod',
 #
 # Statistics on PBcor image cube
 #
-print '--ImStat (PBcor cube)--'
+print('--ImStat (PBcor cube)--')
 
 pbcorstat = imstat('ngc4826.tutorial.16apr98.src.clean.pbcor')
 
-print "Found image max = "+str(pbcorstat['max'][0])
+print("Found image max = "+str(pbcorstat['max'][0]))
 
 pbcoroffstat = imstat('ngc4826.tutorial.16apr98.src.clean.pbcor',
                       box=offbox)
 
-print "Found off-source image rms = "+str(pbcoroffstat['sigma'][0])
+print("Found off-source image rms = "+str(pbcoroffstat['sigma'][0]))
 
 pbcorofflinestat = imstat('ngc4826.tutorial.16apr98.src.clean.pbcor',
                           box=cenbox,
                           chans='0,1,2,3,4,5,30,31,32,33,34,35')
 
-print "Found off-line image rms = "+str(pbcorofflinestat['sigma'][0])
+print("Found off-line image rms = "+str(pbcorofflinestat['sigma'][0]))
 
 #
 # Statistics on PBcor image cube
 #
-print '--ImStat (PSF)--'
+print('--ImStat (PSF)--')
 
 psfstat = imstat('ngc4826.tutorial.16apr98.src.clean.psf',
                  box=refbox,chans='27')
 
-print "Found PSF value at refpix = "+str(psfstat['mean'][0])+" (should be 1.0)"
+print("Found PSF value at refpix = "+str(psfstat['mean'][0])+" (should be 1.0)")
 
 if benchmarking:
     math2time=time.time()
@@ -1038,11 +1038,11 @@ if benchmarking:
 #
 # Statistics on PBcor model cube
 #
-print '--ImStat (PBcor model)--'
+print('--ImStat (PBcor model)--')
 
 pbcormodstat = imstat('ngc4826.tutorial.16apr98.src.clean.pbcormod')
 
-print "Found total model flux = "+str(pbcormodstat['sum'][0])
+print("Found total model flux = "+str(pbcormodstat['sum'][0]))
 
 #
 ##########################################################################
@@ -1054,14 +1054,14 @@ print "Found total model flux = "+str(pbcormodstat['sum'][0])
 # NOTE: before 02-Jul-2008 (5631) the planes were 1-based, are now 0-based
 # was planes 7~28, now 6~27
 
-print '--ImMoments--'
+print('--ImMoments--')
 default('immoments')
 
 momfile = 'ngc4826.tutorial.16apr98.moments'
 momzeroimage = 'ngc4826.tutorial.16apr98.moments.integrated'
 momoneimage = 'ngc4826.tutorial.16apr98.moments.mom1'
 
-print "Calculating Moments 0,1 for PBcor image"
+print("Calculating Moments 0,1 for PBcor image")
 
 # In the following we will let immoments figure out which axis
 # to collapse along, the spectral axis=3
@@ -1093,14 +1093,14 @@ immoments(imagename='ngc4826.tutorial.16apr98.src.clean.image',
 if scriptmode:
     viewer('ngc4826.tutorial.16apr98.moments.integrated')
     #
-    print "Now viewing Moment-0 ngc4826.tutorial.16apr98.moments.integrated"
-    print "Note PBCOR effects at field edge"
-    print "Change the colorscale to get better image"
-    print "You can also Open and overlay Contours of Moment-1 ngc4826.tutorial.16apr98.moments.mom1"
-    print "Close the viewer when done"
+    print("Now viewing Moment-0 ngc4826.tutorial.16apr98.moments.integrated")
+    print("Note PBCOR effects at field edge")
+    print("Change the colorscale to get better image")
+    print("You can also Open and overlay Contours of Moment-1 ngc4826.tutorial.16apr98.moments.mom1")
+    print("Close the viewer when done")
 
     # Pause script if you are running in scriptmode
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Do a moment one on channel 0 to check that the indexing is right
 # NOTE: THIS STILL CRASHES
@@ -1129,20 +1129,20 @@ if benchmarking:
 #
 # Statistics on moment images
 #
-print '--ImStat (Moment images)--'
+print('--ImStat (Moment images)--')
 
 momzerostat=imstat('ngc4826.tutorial.16apr98.moments.integrated')
 
 try:
-    print "Found moment 0 max = "+str(momzerostat['max'][0])
-    print "Found moment 0 rms = "+str(momzerostat['rms'][0])
+    print("Found moment 0 max = "+str(momzerostat['max'][0]))
+    print("Found moment 0 rms = "+str(momzerostat['rms'][0]))
 except:
     pass
 
 momonestat = imstat('ngc4826.tutorial.16apr98.moments.mom1')
 
 try:
-    print "Found moment 1 median = "+str(momonestat['median'][0])
+    print("Found moment 1 median = "+str(momonestat['median'][0]))
 except:
     pass
 
@@ -1155,14 +1155,14 @@ vel35=0.0
 
 try:
     momoneplane0=imstat('ngc4826.tutorial.16apr98.moments.plane0.mom1')
-    print "Found plane 0 moment 1 value = "+str(momoneplane0['median'][0])
+    print("Found plane 0 moment 1 value = "+str(momoneplane0['median'][0]))
 except:
     pass
 
 
 try:
     momoneplane35=imstat('ngc4826.tutorial.16apr98.moments.plane35.mom1')
-    print "Found plane 35 moment 1 value = "+str(momoneplane35['median'][0])
+    print("Found plane 35 moment 1 value = "+str(momoneplane35['median'][0]))
 except:
     pass
 
@@ -1479,7 +1479,7 @@ canonical['version'] = testvers
 canonical['user'] = 'smyers'
 canonical['host'] = 'sandrock'
 canonical['cwd'] = '/home/sandrock/smyers/Testing/Patch4/N4826'
-print "Using internal regression from "+canonical['version']+" on "+canonical['date']
+print("Using internal regression from "+canonical['version']+" on "+canonical['date'])
 
 canonical_results = {}
 canonical_results['clean_image_max'] = {}
@@ -1517,7 +1517,7 @@ canonical_results['model_pbcor_sum']['value'] = model_pbcor_sum
 
 canonical['results'] = canonical_results
 
-print "Canonical Regression (default) from "+canonical['date']
+print("Canonical Regression (default) from "+canonical['date'])
 
 #
 # Try and load previous results from regression file
@@ -1529,14 +1529,14 @@ prev_results = {}
 try:
     fr = open(regressfile,'r')
 except:
-    print "No previous regression results file "+regressfile
+    print("No previous regression results file "+regressfile)
     regression['exist'] = False
 else:
     u = pickle.Unpickler(fr)
     regression = u.load()
     fr.close()
-    print "Regression results filled from "+regressfile
-    print "Regression from version "+regression['version']+" on "+regression['date']
+    print("Regression results filled from "+regressfile)
+    print("Regression from version "+regression['version']+" on "+regression['date'])
     regression['exist'] = True
 
     prev_results = regression['results']
@@ -1546,8 +1546,8 @@ else:
 # Calculate regression values
 ##########################################################################
 #
-print '--Calculate Results--'
-print ''
+print('--Calculate Results--')
+print('')
 #
 # Currently using non-PBcor values
 #
@@ -1755,11 +1755,11 @@ resultlist = ['clean_image_max','clean_image_offsrc_max','clean_image_offline_ma
 for keys in resultlist:
     res = results[keys]
     prev = None
-    if prev_results.has_key(keys):
+    if keys in prev_results:
         # This is a known regression
         prev = prev_results[keys]
         results[keys]['test'] = 'Last'
-    elif canonical_results.has_key(keys):
+    elif keys in canonical_results:
         # Go back to canonical values
         prev = canonical_results[keys]
         results[keys]['test'] = 'Canon'
@@ -1843,11 +1843,11 @@ p = pickle.Pickler(f)
 p.dump(new_regression)
 f.close()
 
-print ""
-print "Regression result dictionary saved in "+pickfile
-print ""
-print "Use Pickle to retrieve these"
-print ""
+print("")
+print("Regression result dictionary saved in "+pickfile)
+print("")
+print("Use Pickle to retrieve these")
+print("")
 
 # e.g.
 # f = open(pickfile)
@@ -1869,34 +1869,34 @@ outfile='out.'+prefix+'.'+datestring+'.log'
 logfile=open(outfile,'w')
 
 # Print version info to outfile
-print >>logfile,'Running '+myvers+' on host '+myhost
-print >>logfile,'at '+datestring
-print >>logfile,''
+print('Running '+myvers+' on host '+myhost, file=logfile)
+print('at '+datestring, file=logfile)
+print('', file=logfile)
 
 #
 # Report a few key stats
 #
-print '  NGC4826 Image Cube Max = '+str(srcstat['max'][0])
-print "          At ("+str(srcstat['maxpos'][0])+","+str(srcstat['maxpos'][1])+") Channel "+str(srcstat['maxpos'][3])
-print '          '+srcstat['maxposf']
-print ''
-print '          Off-Source Rms = '+str(offstat['sigma'][0])
-print '          Signal-to-Noise ratio = '+str(srcstat['max'][0]/offstat['sigma'][0])
-print ''
-print '          Off-Line   Rms = '+str(offlinestat['sigma'][0])
-print '          Signal-to-Noise ratio = '+str(srcstat['max'][0]/offlinestat['sigma'][0])
-print ''
+print('  NGC4826 Image Cube Max = '+str(srcstat['max'][0]))
+print("          At ("+str(srcstat['maxpos'][0])+","+str(srcstat['maxpos'][1])+") Channel "+str(srcstat['maxpos'][3]))
+print('          '+srcstat['maxposf'])
+print('')
+print('          Off-Source Rms = '+str(offstat['sigma'][0]))
+print('          Signal-to-Noise ratio = '+str(srcstat['max'][0]/offstat['sigma'][0]))
+print('')
+print('          Off-Line   Rms = '+str(offlinestat['sigma'][0]))
+print('          Signal-to-Noise ratio = '+str(srcstat['max'][0]/offlinestat['sigma'][0]))
+print('')
 
-print >>logfile,'  NGC4826 Image Cube Max = '+str(srcstat['max'][0])
-print >>logfile,"          At ("+str(srcstat['maxpos'][0])+","+str(srcstat['maxpos'][1])+") Channel "+str(srcstat['maxpos'][3])
-print >>logfile,'          '+srcstat['maxposf']
-print >>logfile,''
-print >>logfile,'          Off-Source Rms = '+str(offstat['sigma'][0])
-print >>logfile,'          Signal-to-Noise ratio = '+str(srcstat['max'][0]/offstat['sigma'][0])
-print >>logfile,''
-print >>logfile,'          Off-Line   Rms = '+str(offlinestat['sigma'][0])
-print >>logfile,'          Signal-to-Noise ratio = '+str(srcstat['max'][0]/offlinestat['sigma'][0])
-print >>logfile,''
+print('  NGC4826 Image Cube Max = '+str(srcstat['max'][0]), file=logfile)
+print("          At ("+str(srcstat['maxpos'][0])+","+str(srcstat['maxpos'][1])+") Channel "+str(srcstat['maxpos'][3]), file=logfile)
+print('          '+srcstat['maxposf'], file=logfile)
+print('', file=logfile)
+print('          Off-Source Rms = '+str(offstat['sigma'][0]), file=logfile)
+print('          Signal-to-Noise ratio = '+str(srcstat['max'][0]/offstat['sigma'][0]), file=logfile)
+print('', file=logfile)
+print('          Off-Line   Rms = '+str(offlinestat['sigma'][0]), file=logfile)
+print('          Signal-to-Noise ratio = '+str(srcstat['max'][0]/offlinestat['sigma'][0]), file=logfile)
+print('', file=logfile)
 
 # Print out comparison:
 res = {}
@@ -1906,88 +1906,88 @@ resultlist = ['clean_image_max','clean_image_offsrc_max','clean_image_offline_ma
               'vis_mean_cal','vis_mean_src','model_sum','model_pbcor_sum']
 
 # First versus canonical values
-print >>logfile,'---'
-print >>logfile,'Regression versus previous values:'
-print >>logfile,'---'
-print '---'
-print 'Regression versus previous values:'
-print '---'
+print('---', file=logfile)
+print('Regression versus previous values:', file=logfile)
+print('---', file=logfile)
+print('---')
+print('Regression versus previous values:')
+print('---')
 
 if regression['exist']:
-    print >>logfile,"  Regression results filled from "+regressfile
-    print >>logfile,"  Regression from version "+regression['version']+" on "+regression['date']
-    print >>logfile,"  Regression platform "+regression['host']
+    print("  Regression results filled from "+regressfile, file=logfile)
+    print("  Regression from version "+regression['version']+" on "+regression['date'], file=logfile)
+    print("  Regression platform "+regression['host'], file=logfile)
 
-    print "  Regression results filled from "+regressfile
-    print "  Regression from version "+regression['version']+" on "+regression['date']
-    print "  Regression platform "+regression['host']
-    if regression.has_key('aipspath'):
-        print >>logfile,"  Regression casapath "+regression['aipspath']
-        print "  Regression casapath "+regression['aipspath']
+    print("  Regression results filled from "+regressfile)
+    print("  Regression from version "+regression['version']+" on "+regression['date'])
+    print("  Regression platform "+regression['host'])
+    if 'aipspath' in regression:
+        print("  Regression casapath "+regression['aipspath'], file=logfile)
+        print("  Regression casapath "+regression['aipspath'])
 
 else:
-    print >>logfile,"  No previous regression file"
+    print("  No previous regression file", file=logfile)
 
-print ""
-print >>logfile,""
+print("")
+print("", file=logfile)
 
 final_status = 'Passed'
 for keys in resultlist:
     res = results[keys]
-    print '--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] )
-    print >>logfile,'--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] )
+    print('--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] ))
+    print('--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] ), file=logfile)
     if res['status']=='Failed':
         final_status = 'Failed'
 
 if (final_status == 'Passed'):
     regstate=True
-    print >>logfile,'---'
-    print >>logfile,'Passed Regression test for NGC 4826 Mosaic'
-    print >>logfile,'---'
-    print 'Passed Regression test for NGC 4826 Mosaic'
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('---', file=logfile)
+    print('Passed Regression test for NGC 4826 Mosaic', file=logfile)
+    print('---', file=logfile)
+    print('Passed Regression test for NGC 4826 Mosaic')
+    print('')
+    print('Regression PASSED')
+    print('')
 else:
     regstate=False
-    print >>logfile,'----FAILED Regression test for NGC 4826 Mosaic'
-    print '----FAILED Regression test for NGC 4826 Mosaic'
-    print ''
-    print 'Regression FAILED'
-    print ''
+    print('----FAILED Regression test for NGC 4826 Mosaic', file=logfile)
+    print('----FAILED Regression test for NGC 4826 Mosaic')
+    print('')
+    print('Regression FAILED')
+    print('')
 
 #
 ##########################################################################
 # Print benchmarking etc.
 
 if benchmarking:
-    print ''
-    print 'Total wall clock time was: %10.3f ' % total['wall']
-    print 'Total CPU        time was: %10.3f ' % total['cpu']
-    print 'Raw processing rate MB/s was: %8.1f ' % total['rate_raw']
-    print 'MS  processing rate MB/s was: %8.1f ' % total['rate_ms']
-    print ''
-    print '* Breakdown:                              *'
+    print('')
+    print('Total wall clock time was: %10.3f ' % total['wall'])
+    print('Total CPU        time was: %10.3f ' % total['cpu'])
+    print('Raw processing rate MB/s was: %8.1f ' % total['rate_raw'])
+    print('MS  processing rate MB/s was: %8.1f ' % total['rate_ms'])
+    print('')
+    print('* Breakdown:                              *')
 
-    print >>logfile,''
-    print >>logfile,'********* Benchmarking *************************'
-    print >>logfile,'*                                              *'
-    print >>logfile,'Total wall clock time was: %10.3f ' % total['wall']
-    print >>logfile,'Total CPU        time was: %10.3f ' % total['cpu']
-    print >>logfile,'Raw processing rate MB/s was: %8.1f ' % total['rate_raw']
-    print >>logfile,'MS  processing rate MB/s was: %8.1f ' % total['rate_ms']
-    print >>logfile,'* Breakdown:                                   *'
+    print('', file=logfile)
+    print('********* Benchmarking *************************', file=logfile)
+    print('*                                              *', file=logfile)
+    print('Total wall clock time was: %10.3f ' % total['wall'], file=logfile)
+    print('Total CPU        time was: %10.3f ' % total['cpu'], file=logfile)
+    print('Raw processing rate MB/s was: %8.1f ' % total['rate_raw'], file=logfile)
+    print('MS  processing rate MB/s was: %8.1f ' % total['rate_ms'], file=logfile)
+    print('* Breakdown:                                   *', file=logfile)
 
     for i in range(nstages):
-        print '* %16s * time was: %10.3f ' % tuple(stages[i])
-        print >>logfile,'* %16s * time was: %10.3f ' % tuple(stages[i])
+        print('* %16s * time was: %10.3f ' % tuple(stages[i]))
+        print('* %16s * time was: %10.3f ' % tuple(stages[i]), file=logfile)
 
-    print >>logfile,'************************************************'
-    print >>logfile,'sandrock (2008-06-17) wall time was: 377 seconds'
-    print >>logfile,'sandrock (2008-06-17) CPU  time was: 312 seconds'
+    print('************************************************', file=logfile)
+    print('sandrock (2008-06-17) wall time was: 377 seconds', file=logfile)
+    print('sandrock (2008-06-17) CPU  time was: 312 seconds', file=logfile)
 
 logfile.close()
 
-print "Done with NGC4826 Tutorial Regression"
+print("Done with NGC4826 Tutorial Regression")
 #
 ##########################################################################

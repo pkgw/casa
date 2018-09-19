@@ -55,7 +55,7 @@ def statwt(
             maxiter=maxiter, excludechans=excludechans,
             wtrange=wtrange, preview=preview, datacolumn=datacolumn
         )
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
         raise
     finally:

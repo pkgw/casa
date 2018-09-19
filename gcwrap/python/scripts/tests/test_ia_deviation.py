@@ -36,7 +36,7 @@ class ia_deviation_test(unittest.TestCase):
         mytype = type(resold)
         self.assertTrue(mytype == type(resnew), helpstr + ": types differ")
         if mytype == dict:
-            for k in resold.keys():
+            for k in list(resold.keys()):
                 self._compare(resold[k], resnew[k], helpstr)
         elif mytype == numpy.ndarray:
             oldarray = resold.ravel()
@@ -205,7 +205,7 @@ class ia_deviation_test(unittest.TestCase):
         self.assertTrue(numpy.all(numpy.isclose(got, expec)), "ref val as anchor compare") 
 
     def test_mask(self):
-        aa = numpy.array(range(100), dtype=numpy.double)
+        aa = numpy.array(list(range(100)), dtype=numpy.double)
         aa = aa.reshape([10,10])
         self._myia.fromshape("", [10, 10])
         self._myia.putchunk(aa*aa)

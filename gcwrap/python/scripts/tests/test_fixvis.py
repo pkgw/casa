@@ -50,7 +50,7 @@ class fixvis_test1(unittest.TestCase):
 
         def record_error(errmsg, retValue):
             """Helper function to print and update retValue on an error."""
-            print "test_fixvis.test1: Error:", errmsg
+            print("test_fixvis.test1: Error:", errmsg)
             retValue['success'] = False
             retValue['error_msgs'] += errmsg + "\n"
 
@@ -108,7 +108,7 @@ class fixvis_test1(unittest.TestCase):
             self.assertTrue(self.res)
             mystats = self._get_stats(0, 'testy')
         except:
-            print "*** Unexpected error ***"
+            print("*** Unexpected error ***")
 
         return mystats
 
@@ -176,7 +176,7 @@ class fixvis_test1(unittest.TestCase):
             mystats0 = self._get_stats(0, 'testy')
             mystats1 = self._get_stats(1, 'testz')
         except:
-            print "*** Unexpected error ***"
+            print("*** Unexpected error ***")
             self.assertFalse(True)
                                              
         self.assertTrue(mystats0['maxposf']=='18:00:02.309, -29.59.29.999, I, 2.26e+11Hz' and
@@ -202,7 +202,7 @@ class fixvis_test1(unittest.TestCase):
             mystats0 = self._get_stats(0, 'testy') 
 
         except:
-            print "*** Unexpected error ***"
+            print("*** Unexpected error ***")
             self.assertFalse(True)
 
         self.assertTrue(mystats0['maxposf']=='18:00:02.307, -29.59.29.999, I, 2.26e+11Hz' and
@@ -227,7 +227,7 @@ class fixvis_test1(unittest.TestCase):
                                                    # but the phase center change affects the world coordinates anyway
 
         except:
-            print "*** Unexpected error ***"
+            print("*** Unexpected error ***")
             self.assertFalse(True)
 
         self.assertTrue(mystats0['maxposf']=='18:00:02.076, -29.59.29.999, I, 2.26e+11Hz' and
@@ -244,7 +244,7 @@ class fixvis_test1(unittest.TestCase):
                        qa.cos(qa.quantity(31.,'deg')))['value']*24./360.*3600. # (seconds)
             phc = str(x) + 's 0deg'
 
-            print "\nTesting non-existing datacolumn - expected error"
+            print("\nTesting non-existing datacolumn - expected error")
             shutil.rmtree('test9tmp.ms', ignore_errors=True)
             split(vis=outms2, outputvis='test9tmp.ms', datacolumn='corrected') # split out the unchanged column
             shutil.rmtree(outms2)
@@ -253,7 +253,7 @@ class fixvis_test1(unittest.TestCase):
             self.assertFalse(self.res)
 
         except:
-            print "*** Expected error ***"
+            print("*** Expected error ***")
 
 
     def test11(self):
@@ -279,7 +279,7 @@ class fixvis_test1(unittest.TestCase):
             mystats1 = self._get_stats(1, 'testz')
             
         except:
-            print "*** Unexpected error ***"
+            print("*** Unexpected error ***")
             self.assertFalse(True)
 
         self.assertTrue(mystats0['maxposf']=='18:00:02.309, -29.59.29.999, I, 2.26e+11Hz' and
@@ -310,7 +310,7 @@ class fixvis_test1(unittest.TestCase):
             mystats1 = self._get_stats(1, 'testz')
             
         except:
-            print "*** Unexpected error ***"
+            print("*** Unexpected error ***")
             self.assertFalse(True)
 
         self.assertTrue(mystats0['maxposf']=='18:00:02.309, -29.59.29.999, I, 2.26e+11Hz' and
@@ -339,7 +339,7 @@ class fixvis_test1(unittest.TestCase):
             mystats = self._get_stats(0, 'testy')
             shutil.rmtree(outms3, ignore_errors=True)
         except:
-            print "*** Unexpected error ***"
+            print("*** Unexpected error ***")
 
         mystats = self._fixvis_and_get_stats('J2000 18h00m02.3092s -29d59m29.9987s')
 

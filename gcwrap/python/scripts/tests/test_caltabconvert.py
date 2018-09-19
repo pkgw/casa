@@ -38,7 +38,7 @@ class caltabconvert_test(unittest.TestCase):
     def test1(self):
         '''Test 1: Testing default'''
         self.rval = caltabconvert()
-        print "Expected error ..."
+        print("Expected error ...")
         self.assertFalse(self.rval)
 
     def test2(self):

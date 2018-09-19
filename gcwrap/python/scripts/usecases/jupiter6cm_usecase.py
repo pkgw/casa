@@ -83,7 +83,7 @@ os.system('rm -rf '+prefix+'*')
 #
 # Import the data from FITS to MS
 #
-print '--Import--'
+print('--Import--')
 
 # Safest to start from task defaults
 default('importuvfits')
@@ -100,7 +100,7 @@ importuvfits()
 #
 # List a summary of the MS
 #
-print '--Listobs--'
+print('--Listobs--')
 
 # Don't default this one and make use of the previous setting of
 # vis.  Remember, the variables are GLOBAL!
@@ -298,7 +298,7 @@ listobs()
 # 
 # Get rid of the autocorrelations from the MS
 #
-print '--Flag auto-correlations--'
+print('--Flag auto-correlations--')
 
 default(flagdata)
 vis = msfile
@@ -311,7 +311,7 @@ flagdata()
 #
 # Use Flagmanager to save a copy of the flags
 #
-print '--Flagmanager--'
+print('--Flagmanager--')
 default('flagmanager')
 
 vis = msfile
@@ -348,7 +348,7 @@ flagmanager()
 #
 # Use Plotxy to interactively flag the data
 #
-print '--Plotxy--'
+print('--Plotxy--')
 default('plotxy')
 
 vis = msfile
@@ -374,7 +374,7 @@ plotxy()
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # You'll see lots of low points as you step through RR LL RL LR
 # A basic clip at 0.75 for RR LL and 0.055 for RL LR will work
@@ -393,7 +393,7 @@ plotxy()
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #---------------------------------------------------------------------
 # Now do calibrater 0137+331
@@ -412,7 +412,7 @@ plotxy()
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 xaxis = 'time'
 spw = '1'
@@ -429,7 +429,7 @@ plotxy()
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Go back and clean up
 xaxis = 'uvdist'
@@ -445,7 +445,7 @@ plotxy()
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #---------------------------------------------------------------------
 # Finally, do JUPITER
@@ -461,7 +461,7 @@ plotxy()
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Now look at whats left
 correlation = 'RR LL'
@@ -478,7 +478,7 @@ plotxy()
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # The easiset way to kill it:
 
@@ -493,7 +493,7 @@ plotxy()
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Now clean up the rest
 xaxis = 'uvdist'
@@ -513,14 +513,14 @@ plotxy()
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #
 #=====================================================================
 #
 # Use Flagmanager to save a copy of the flags so far
 #
-print '--Flagmanager--'
+print('--Flagmanager--')
 default('flagmanager')
 
 vis = msfile
@@ -536,7 +536,7 @@ flagmanager()
 #
 # You can use Flagdata to explicitly clip the data also
 #
-print '--Flagdata--'
+print('--Flagdata--')
 default('flagdata')
 
 vis = msfile
@@ -572,7 +572,7 @@ flagdata()
 #
 # Set the fluxes of the primary calibrator(s)
 #
-print '--Setjy--'
+print('--Setjy--')
 default('setjy')
 
 vis = msfile
@@ -597,7 +597,7 @@ setjy()
 #
 # Initial gain calibration
 #
-print '--Gaincal--'
+print('--Gaincal--')
 default('gaincal')
 
 vis = msfile
@@ -636,7 +636,7 @@ gaincal()
 #
 # Bootstrap flux scale
 #
-print '--Fluxscale--'
+print('--Fluxscale--')
 default('fluxscale')
 
 vis = msfile
@@ -668,7 +668,7 @@ fluxscale()
 #
 # Interpolate the gains onto Jupiter (and others)
 #
-print '--Accum--'
+print('--Accum--')
 default('accum')
 
 vis = msfile
@@ -694,7 +694,7 @@ accum()
 # Correct the data
 # (This will put calibrated data into the CORRECTED_DATA column)
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
 vis = msfile
@@ -723,7 +723,7 @@ applycal()
 #
 # Now split the Jupiter target data
 #
-print '--Split Jupiter--'
+print('--Split Jupiter--')
 default('split')
 
 vis = msfile
@@ -748,7 +748,7 @@ split()
 # Export the Jupiter data as UVFITS
 # Start with the split file.
 #
-print '--Export UVFITS--'
+print('--Export UVFITS--')
 default('exportuvfits')
 
 srcuvfits = prefix + '.split.uvfits'
@@ -777,7 +777,7 @@ exportuvfits()
 #
 # Now clean an image of Jupiter
 #
-print '--Clean 1--'
+print('--Clean 1--')
 default('clean')
 
 # Pick up our split source data
@@ -912,7 +912,7 @@ viewer(clnimage1,'image')
 # If you've done something in between, can use the ft task to
 # do this manually.
 #
-print '--SelfCal 1--'
+print('--SelfCal 1--')
 default('gaincal')
 
 vis = srcsplitms
@@ -947,7 +947,7 @@ gaincal()
 #
 # Correct the data (no need for interpolation this stage)
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
 vis = srcsplitms
@@ -970,7 +970,7 @@ applycal()
 # SECOND CLEAN / SELFCAL CYCLE
 #=====================================================================
 #
-print '--Clean 2--'
+print('--Clean 2--')
 default('clean')
 
 vis = srcsplitms
@@ -1036,7 +1036,7 @@ viewer(clnimage2,'image')
 #
 # Next self-cal cycle
 #
-print '--SelfCal 2--'
+print('--SelfCal 2--')
 default('gaincal')
 
 vis = srcsplitms
@@ -1063,7 +1063,7 @@ gaincal()
 #
 #---------------------------------------------------------------------
 #
-print '--PlotCal--'
+print('--PlotCal--')
 default('plotcal')
 
 tablein = selfcaltab2
@@ -1076,7 +1076,7 @@ plotcal()
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 yaxis = 'phase'
 
@@ -1087,7 +1087,7 @@ plotcal()
 #
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Lets do some smoothing anyway.
 #
@@ -1095,7 +1095,7 @@ if scriptmode:
 #
 # Smooth calibration solutions
 #
-print '--Smooth--'
+print('--Smooth--')
 default('smoothcal')
 
 vis = srcsplitms
@@ -1123,7 +1123,7 @@ smoothcal()
 #
 # Correct the data
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
 vis = srcsplitms
@@ -1144,7 +1144,7 @@ applycal()
 # THIRD CLEAN / SELFCAL CYCLE
 #=====================================================================
 #
-print '--Clean 3--'
+print('--Clean 3--')
 default('clean')
 
 vis = srcsplitms
@@ -1223,7 +1223,7 @@ clnmask  = clnmask3
 #
 # Export the Final CLEAN Image as FITS
 #
-print '--Final Export CLEAN FITS--'
+print('--Final Export CLEAN FITS--')
 default('exportfits')
 
 clnfits = prefix + '.clean.fits'
@@ -1241,7 +1241,7 @@ exportfits()
 #
 # Export the Final Self-Calibrated Jupiter data as UVFITS
 #
-print '--Final Export UVFITS--'
+print('--Final Export UVFITS--')
 default('exportuvfits')
 
 caluvfits = prefix + '.selfcal.uvfits'
@@ -1271,53 +1271,53 @@ exportuvfits()
 # Treat this like a regression script
 # WARNING: currently requires toolkit
 #
-print ' Jupiter results '
-print ' =============== '
+print(' Jupiter results ')
+print(' =============== ')
 
-print ''
+print('')
 # Pull the max src amp value out of the MS
 ms.open(srcsplitms)
 thistest_src = max(ms.range(["amplitude"]).get('amplitude'))
 oldtest_src =  4.92000198364
-print ' MS max amplitude should be ',oldtest_src
-print ' Found : Max in MS = ',thistest_src
+print(' MS max amplitude should be ',oldtest_src)
+print(' Found : Max in MS = ',thistest_src)
 diff_src = abs((oldtest_src-thistest_src)/oldtest_src)
-print ' Difference (fractional) = ',diff_src
+print(' Difference (fractional) = ',diff_src)
 
 ms.close()
 
-print ''
+print('')
 # Pull the max and rms from the clean image
 ia.open(clnimage)
 on_statistics=ia.statistics(list=True, verbose=True)
 thistest_immax=on_statistics['max'][0]
 oldtest_immax = 1.07732224464
-print ' Clean image ON-SRC max should be ',oldtest_immax
-print ' Found : Max in image = ',thistest_immax
+print(' Clean image ON-SRC max should be ',oldtest_immax)
+print(' Found : Max in image = ',thistest_immax)
 diff_immax = abs((oldtest_immax-thistest_immax)/oldtest_immax)
-print ' Difference (fractional) = ',diff_immax
+print(' Difference (fractional) = ',diff_immax)
 
-print ''
+print('')
 # Now do stats in the lower right corner of the image
 #box = ia.setboxregion([0.75,0.00],[1.00,0.25],frac=true)
 box = rg.box([0.75,0.00],[1.00,0.25],frac=true)
 off_statistics=ia.statistics(region=box, list=True, verbose=True)
 thistest_imrms=off_statistics['rms'][0]
 oldtest_imrms = 0.0010449
-print ' Clean image OFF-SRC rms should be ',oldtest_imrms
-print ' Found : rms in image = ',thistest_imrms
+print(' Clean image OFF-SRC rms should be ',oldtest_imrms)
+print(' Found : rms in image = ',thistest_imrms)
 diff_imrms = abs((oldtest_imrms-thistest_imrms)/oldtest_imrms)
-print ' Difference (fractional) = ',diff_imrms
+print(' Difference (fractional) = ',diff_imrms)
 
-print ''
-print ' Final Clean image Dynamic Range = ',thistest_immax/thistest_imrms
-print ''
-print ' =============== '
+print('')
+print(' Final Clean image Dynamic Range = ',thistest_immax/thistest_imrms)
+print('')
+print(' =============== ')
 
 ia.close()
 
-print ''
-print '--- Done ---'
+print('')
+print('--- Done ---')
 
 #
 #=====================================================================

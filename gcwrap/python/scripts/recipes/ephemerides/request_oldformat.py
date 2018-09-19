@@ -261,7 +261,7 @@ def request_from_JPL(objnam, enddate,
             #mailserver = socket.getfqdn(socket.gethostbyname('mail'))
             mailserver = socket.getfqdn(socket.gethostbyname('smtp'))
         except socket.gaierror:
-            print "Could not find a mailserver."
+            print("Could not find a mailserver.")
             return False
 
     if not startdate:
@@ -281,13 +281,13 @@ def request_from_JPL(objnam, enddate,
     elif lobjnam in planets_and_moons:
         objnum = str(planets_and_moons[lobjnam])
     else:
-        print "The JPL object number for", objnam, "is not known.  Try looking it up at"
-        print 'http://ssd.jpl.nasa.gov/horizons.cgi?s_body=1#top and adding it.'
+        print("The JPL object number for", objnam, "is not known.  Try looking it up at")
+        print('http://ssd.jpl.nasa.gov/horizons.cgi?s_body=1#top and adding it.')
         return False
 
     if obsloc and obsloc.lower() != 'geocentric':
-        print "Topocentric coordinates are not yet supported by this script."
-        print "Defaulting to geocentric."
+        print("Topocentric coordinates are not yet supported by this script.")
+        print("Defaulting to geocentric.")
         # to set site coordinates,
         # CENTER=coord@500
         # COORD_TYPE='GEODETIC'
@@ -321,7 +321,7 @@ def request_from_JPL(objnam, enddate,
         quantities.remove(17)
     # for old format
     quantities.append(10)
-    print "Retrieved quantity code list=",quantities
+    print("Retrieved quantity code list=",quantities)
 
     # It seems that STEP_SIZE must be an integer, but the unit can be changed
     # to hours or minutes.
@@ -336,12 +336,12 @@ def request_from_JPL(objnam, enddate,
             n_time_units *= 60.0
             time_unit = 'm'
         if n_time_units < 1.0:                          # Uh oh.
-            print date_incr, "is an odd request for a date increment."
-            print "Please change it or make your request manually."
+            print(date_incr, "is an odd request for a date increment.")
+            print("Please change it or make your request manually.")
             return False
-        print "Translating date_incr from", date_incr,
+        print("Translating date_incr from", date_incr, end=' ')
         date_incr = "%.0f %s" % (n_time_units, time_unit)
-        print "to", date_incr
+        print("to", date_incr)
     
     instructions = "\n".join(["!$$SOF",
                               "COMMAND= '%s'" % objnum,
@@ -399,7 +399,7 @@ def list_moons():
         if num % 100 == 99:
             planets[planet] = lcname.title()
         else:
-            if not moons.has_key(planet):
+            if planet not in moons:
                 moons[planet] = {}
             moons[planet][num % 100] = lcname.title()
 
@@ -414,15 +414,15 @@ def list_moons():
     maxmoons = max([len(moons.get(p, '')) for p in planets])
     maxwidths = {}
     for planet in planets:
-        if moons.has_key(planet):
-            maxwidths[planet] = max([len(m) for m in moons[planet].values()])
+        if planet in moons:
+            maxwidths[planet] = max([len(m) for m in list(moons[planet].values())])
         else:
             maxwidths[planet] = 0
         if len(planets[planet]) > maxwidths[planet]:
             maxwidths[planet] = len(planets[planet])
 
     # Set up the table columns.
-    plannums = planets.keys()
+    plannums = list(planets.keys())
     plannums.sort()
     sortedmoons = {}
     formstr = ''
@@ -434,28 +434,28 @@ def list_moons():
         else:
             hrule += '+'
         hrule += '-' * (maxwidths[p] + 2)
-        moonkeys = moons.get(p, {}).keys()
+        moonkeys = list(moons.get(p, {}).keys())
         moonkeys.sort()
         sortedmoons[p] = {}
-        for row in xrange(len(moonkeys)):
+        for row in range(len(moonkeys)):
             sortedmoons[p][row] = moons[p][moonkeys[row]]
     formstr += '|'
     hrule   += '|'
 
-    print formstr % tuple([planets[p] for p in plannums])
-    print hrule
-    for row in xrange(maxmoons):
-        print formstr % tuple([sortedmoons[p].get(row, '') for p in plannums])
+    print(formstr % tuple([planets[p] for p in plannums]))
+    print(hrule)
+    for row in range(maxmoons):
+        print(formstr % tuple([sortedmoons[p].get(row, '') for p in plannums]))
 
 def list_asteroids():
     """
     Like list_moons, but list the asteroids by their numbers
     (= order of discovery, ~ albedo * size)
     """
-    astnums = asteroids.values()
+    astnums = list(asteroids.values())
     astnums.sort()
     invast = {}
     for a in asteroids:
         invast[asteroids[a]] = a.title()
     for n in astnums:
-        print "%3d %s" % (n, invast[n])
+        print("%3d %s" % (n, invast[n]))

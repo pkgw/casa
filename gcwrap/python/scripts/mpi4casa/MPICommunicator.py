@@ -2,7 +2,7 @@
 import atexit # To handle destructors
 
 # Import MPIEnvironment static class
-from MPIEnvironment import MPIEnvironment
+from .MPIEnvironment import MPIEnvironment
 
 
 class MPICommunicator: 
@@ -62,7 +62,7 @@ class MPICommunicator:
                 if MPIEnvironment.is_mpi_client:                   
                     atexit.register(self.finalize_server_and_client_mpi_environment)
             
-            except Exception, instance:
+            except Exception as instance:
                 self.__command_channel = -1
                 self.__ping_status_channel = -1
                 self.__control_service_channel = -1               

@@ -79,34 +79,34 @@ LISTofTESTS = TESTS_DIR+'unittests_list.txt'
 MEM = 0
 
 def usage():
-    print '========================================================================='
-    print '\nRunUnitTest will execute Python unit test(s) of CASA tasks.'
-    print 'Usage:\n'
-    print 'casapy [casapy-options] -c runUnitTest.py [options] test_name\n'
-    print 'Options:'
-    print '  no option              print this message and exit.'
-    print '  -a or --all            run all tests defined in '
-    print '                         trunk/gcwrap/python/scripts/tests/unittests_list.txt.'
-    print '  <test_name>            run only <test_name> (more tests are separated by spaces).'
-    print '  -f or --file <list>    run the tests defined in an ASCII file <list>; one test per line.'
-    print '  -d or --datadir <dir>  set an env. variable to a directory, TEST_DATADIR=<dir> '
-    print '                         that can be used inside the tests.'
-    print '  -m or --mem            show the memory used by the tests and the number of files left open.'
-    print '  -g or --debug          set casalog.filter to DEBUG.'
-    print '  -l or --list           print the list of tests from '
-    print '                         trunk/gcwrap/python/scripts/tests/unittests_list.txt.'
-    print '  -s or --classes        print the classes from a test script (those returned by suite()).'
-    print '  -H or --Help           print this message and exit.\n'
-    print 'NOTE: it will look for tests in the install directory, which usually is \r'
-    print '      <casa_install_dir>/python/2.7/tests'
-    print 'See documentation in: http://www.eso.org/~scastro/ALMA/CASAUnitTests.htm\n'
-    print '=========================================================================='
+    print('=========================================================================')
+    print('\nRunUnitTest will execute Python unit test(s) of CASA tasks.')
+    print('Usage:\n')
+    print('casapy [casapy-options] -c runUnitTest.py [options] test_name\n')
+    print('Options:')
+    print('  no option              print this message and exit.')
+    print('  -a or --all            run all tests defined in ')
+    print('                         trunk/gcwrap/python/scripts/tests/unittests_list.txt.')
+    print('  <test_name>            run only <test_name> (more tests are separated by spaces).')
+    print('  -f or --file <list>    run the tests defined in an ASCII file <list>; one test per line.')
+    print('  -d or --datadir <dir>  set an env. variable to a directory, TEST_DATADIR=<dir> ')
+    print('                         that can be used inside the tests.')
+    print('  -m or --mem            show the memory used by the tests and the number of files left open.')
+    print('  -g or --debug          set casalog.filter to DEBUG.')
+    print('  -l or --list           print the list of tests from ')
+    print('                         trunk/gcwrap/python/scripts/tests/unittests_list.txt.')
+    print('  -s or --classes        print the classes from a test script (those returned by suite()).')
+    print('  -H or --Help           print this message and exit.\n')
+    print('NOTE: it will look for tests in the install directory, which usually is \r')
+    print('      <casa_install_dir>/python/2.7/tests')
+    print('See documentation in: http://www.eso.org/~scastro/ALMA/CASAUnitTests.htm\n')
+    print('==========================================================================')
 
 def list_tests():
-    print 'Full list of unit tests'
-    print '-----------------------'
+    print('Full list of unit tests')
+    print('-----------------------')
     for t in readfile(LISTofTESTS):
-        print t
+        print(t)
     
 
 def haslist(name):
@@ -139,7 +139,7 @@ def readfile(FILE):
     # It will skip lines that contain '#' and
     # it will only read words starting with test
     if(not os.path.exists(FILE)):
-        print 'ERROR: List of tests does not exist'
+        print('ERROR: List of tests does not exist')
         return []
     
     List = []
@@ -178,16 +178,16 @@ def getclasses(testnames):
             classes = tt.getTestClasses(filename)
             for c in classes:
                 pprint.pprint('Class '+c.__name__)       
-                for attr, value in c.__dict__.iteritems():
+                for attr, value in list(c.__dict__.items()):
                     if len(attr) >= len("test") and attr[:len("test")] == "test":
-                        print '\t%s'%c(attr)
+                        print(('\t%s'%c(attr)))
                   
             os.remove(filename+'.py')       
             os.remove(filename+'.pyc')       
         
         os.chdir(here)
     except:
-        print '--> ERROR: Cannot copy script to %s'%tmpdir
+        print(('--> ERROR: Cannot copy script to %s'%tmpdir))
         return
 
 def getsubtests(filename,list=[]):
@@ -203,12 +203,12 @@ def getsubtests(filename,list=[]):
         # Check if class has @attr(tag=''). Note: class @attr takes priority over func attr
         if 'tag' in c.__dict__:
             if c.tag == ATTR_VAL:
-                for attr, value in c.__dict__.iteritems():
+                for attr, value in list(c.__dict__.items()):
                     if len(attr) >= len("test") and attr[:len("test")] == "test":
                         testlist_to_execute.append([attr,value.__module__])
         else:
             # Check if functions within each class has @attr(tag = '') or func.tag = ''
-            for attr, value in c.__dict__.iteritems():
+            for attr, value in list(c.__dict__.items()):
                 if len(attr) >= len("test") and attr[:len("test")] == "test":
                     if hasattr(value,'tag'):
                         if value.tag == ATTR_VAL:
@@ -243,7 +243,7 @@ def main(testnames=[]):
         # Get the full list of tests from file
         listtests = readfile(LISTofTESTS)
         if listtests == []:
-            raise Exception, 'List of tests \"%s\" is empty or does not exist'%LISTofTESTS
+            raise Exception('List of tests \"%s\" is empty or does not exist'%LISTofTESTS)
 
     elif (type(testnames) != type([])):
         if (os.path.isfile(testnames)):
@@ -251,9 +251,9 @@ def main(testnames=[]):
             whichtests = 1
             listtests = readfile(testnames)
             if listtests == []:
-                raise Exception, 'List of tests is empty'
+                raise Exception('List of tests is empty')
         else:
-            raise Exception, 'List of tests does not exist'
+            raise Exception('List of tests does not exist')
             
     else:
         # run specific tests
@@ -266,7 +266,7 @@ def main(testnames=[]):
     
     # Create a working directory
     workdir = WDIR
-    print 'Creating work directory '+ workdir
+    print(('Creating work directory '+ workdir))
     if os.access(workdir, os.F_OK) is False:
         os.makedirs(workdir)
     else:
@@ -284,7 +284,7 @@ def main(testnames=[]):
         shutil.rmtree(xmldir)
         os.makedirs(xmldir)
     
-    print "Starting unit tests for %s: " %(listtests)
+    print(("Starting unit tests for %s: " %(listtests)))
 
     # ASSEMBLE and RUN the TESTS
     if not whichtests:
@@ -328,14 +328,14 @@ def main(testnames=[]):
                 if len(tests) == 1 and tests[0].startswith('testsplit:'):
                     import math
                     testcases = UnitTest(ff).getUnitTest()
-                    chk, nchk = map(int, tests[0].split(':')[1].split('-'))
+                    chk, nchk = list(map(int, tests[0].split(':')[1].split('-')))
                     if chk > nchk or chk < 1:
                         raise ValueError('testsplit chunk must be 1 <= nchunks')
                     nchk = min(len(testcases), nchk)
                     chksz = int(math.ceil(len(testcases) / float(nchk)))
                     offset = (chk - 1) * chksz
-                    print 'running tests %d to %d' % \
-                        (offset, min(offset + chksz, len(testcases)))
+                    print(('running tests %d to %d' % \
+                        (offset, min(offset + chksz, len(testcases)))))
                     testcases = testcases[offset:offset + chksz]
                 else:
                     testcases = UnitTest(ff).getUnitTest(tests)
@@ -345,7 +345,7 @@ def main(testnames=[]):
 
 
         if len(testlist_to_execute) == 0:
-            raise ValueError, "Cannot Find Tests with Attribute:'%s'"%(ATTR_VAL)
+            raise ValueError("Cannot Find Tests with Attribute:'%s'"%(ATTR_VAL))
         if not whichtests:
             for i in range(0,len(list)):
                 tmp = []
@@ -362,7 +362,7 @@ def main(testnames=[]):
 
     if (len(list) == 0):
         os.chdir(PWD)
-        raise Exception, 'ERROR: There are no valid tests to run'
+        raise Exception('ERROR: There are no valid tests to run')
                                                                      
                 
     # Run all tests and create a XML report
@@ -378,7 +378,7 @@ def main(testnames=[]):
 
         os.chdir(PWD)
     except:
-        print "Failed to run one or more tests"
+        print("Failed to run one or more tests")
         traceback.print_exc()
     else:
         os.chdir(PWD)
@@ -408,9 +408,9 @@ if __name__ == "__main__":
                                                                      "debug","classes=","file=",
                                                                      "datadir=","attr="])
                 
-            except getopt.GetoptError, err:
+            except getopt.GetoptError as err:
                 # Print help information and exit:
-                print str(err) # will print something like "option -a not recognized"
+                print((str(err))) # will print something like "option -a not recognized"
                 usage()
                 os._exit(2)
                 
@@ -456,12 +456,12 @@ if __name__ == "__main__":
                     # directory with test data
                     datadir = a
                     if not os.path.isdir(datadir):                            
-                        raise Exception, 'Value of --datadir is not a directory -> '+datadir  
+                        raise Exception('Value of --datadir is not a directory -> '+datadir)  
                     
                     # Set an environmental variable for the data directory
                     settestdir(datadir)
-                    if not os.environ.has_key('TEST_DATADIR'):    
-                        raise Exception, 'Could not create environmental variable TEST_DATADIR'                        
+                    if 'TEST_DATADIR' not in os.environ:    
+                        raise Exception('Could not create environmental variable TEST_DATADIR')                        
                         
                 elif o in ("-a", "--all"):
                     alltests = True

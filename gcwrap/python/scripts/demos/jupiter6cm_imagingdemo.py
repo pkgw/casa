@@ -126,15 +126,15 @@ smoothcaltab2 = imprefix + '.smoothcal2.gtable'
 #
 # Reset the CORRECTED_DATA column to data
 #
-print '--Clearcal--'
+print('--Clearcal--')
 default('clearcal')
 
 vis = srcsplitms
 
 clearcal()
 
-print "Reset calibration for MS "+vis
-print ""
+print("Reset calibration for MS "+vis)
+print("")
 #
 #=====================================================================
 # FIRST CLEAN / SELFCAL CYCLE
@@ -143,7 +143,7 @@ print ""
 # Now clean an image of Jupiter
 # NOTE: this uses the new combined invert/clean/mosaic task Patch 2
 #
-print '--Clean 1--'
+print('--Clean 1--')
 default('clean')
 
 # Pick up our split source data
@@ -152,13 +152,13 @@ vis = srcsplitms
 # Make an image root file name
 imagename = imname1
 
-print "Output images will be prefixed with "+imname1
+print("Output images will be prefixed with "+imname1)
 
 # Set up the output continuum image (single plane mfs)
 mode = 'mfs'
 stokes = 'I'
 
-print "Will be a single MFS continuum image"
+print("Will be a single MFS continuum image")
 
 # NOTE: current version field='' doesnt work
 field = '*'
@@ -212,24 +212,24 @@ clean()
 # the region, click 'Done Flagging' and it will go and clean another
 # 100 iterations.  When done, click 'Stop'.
 
-print ""
-print "----------------------------------------------------"
-print "Clean"
-print "Final clean model is "+clnmodel1
-print "Final restored clean image is "+clnimage1
-print "The clean residual image is "+clnresid1
-print "Your final clean mask is "+clnmask1
+print("")
+print("----------------------------------------------------")
+print("Clean")
+print("Final clean model is "+clnmodel1)
+print("Final restored clean image is "+clnimage1)
+print("The clean residual image is "+clnresid1)
+print("Your final clean mask is "+clnmask1)
 
-print ""
-print "This is the final restored clean image in the viewer"
-print "Zoom in and set levels to see faint emission"
-print "Use rectangle drawing tool to box off source"
-print "Double-click inside to print statistics"
-print "Move box on-source and get the max"
-print "Calcualte DynRange = MAXon/RMSoff"
-print "I got 1.060/0.004 = 270"
-print "Still not as good as it can be - lets selfcal"
-print "Close viewer panel when done"
+print("")
+print("This is the final restored clean image in the viewer")
+print("Zoom in and set levels to see faint emission")
+print("Use rectangle drawing tool to box off source")
+print("Double-click inside to print statistics")
+print("Move box on-source and get the max")
+print("Calcualte DynRange = MAXon/RMSoff")
+print("I got 1.060/0.004 = 270")
+print("Still not as good as it can be - lets selfcal")
+print("Close viewer panel when done")
 
 #
 #---------------------------------------------------------------------
@@ -239,7 +239,7 @@ viewer(clnimage1,'image')
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # You can use the right-mouse to draw a box in the lower right
 # corner of the image away from emission, the double-click inside
@@ -272,7 +272,7 @@ if scriptmode:
 #=====================================================================
 #
 # Do some non-interactive image statistics
-print '--Imstat--'
+print('--Imstat--')
 default('imstat')
 
 imagename = clnimage1
@@ -285,11 +285,11 @@ off_statistics1 = imstat()
 
 # Pull the max and rms from the clean image
 thistest_immax=on_statistics1['max'][0]
-print ' Found : Max in image = ',thistest_immax
+print(' Found : Max in image = ',thistest_immax)
 thistest_imrms=off_statistics1['rms'][0]
-print ' Found : rms in image = ',thistest_imrms
-print ' Clean image Dynamic Range = ',thistest_immax/thistest_imrms
-print ''
+print(' Found : rms in image = ',thistest_imrms)
+print(' Clean image Dynamic Range = ',thistest_immax/thistest_imrms)
+print('')
 #
 #---------------------------------------------------------------------
 #
@@ -299,17 +299,17 @@ print ''
 # If you've done something in between, can use the ft task to
 # do this manually.
 #
-print '--SelfCal 1--'
+print('--SelfCal 1--')
 default('gaincal')
 
 vis = srcsplitms
 
-print "Will self-cal using MODEL_DATA left in MS by clean"
+print("Will self-cal using MODEL_DATA left in MS by clean")
 
 # New gain table
 caltable = selfcaltab1
 
-print "Will write gain table "+selfcaltab1
+print("Will write gain table "+selfcaltab1)
 
 # Don't need a-priori cals
 selectdata = False
@@ -326,7 +326,7 @@ calmode = 'ap'
 # Do 30s solutions with SNR>1
 solint = 30.0
 minsnr = 1.0
-print "Calibrating amplitudes and phases on 30s timescale"
+print("Calibrating amplitudes and phases on 30s timescale")
 
 # Do not need to normalize (let gains float)
 solnorm = False
@@ -338,7 +338,7 @@ gaincal()
 # It is useful to put this up in plotcal
 #
 #
-print '--PlotCal--'
+print('--PlotCal--')
 default('plotcal')
 
 caltable = selfcaltab1
@@ -347,40 +347,40 @@ yaxis = 'amp'
 
 plotcal()
 
-print ""
-print "-------------------------------------------------"
-print "Plotcal"
-print "Looking at amplitude in self-cal table "+caltable
+print("")
+print("-------------------------------------------------")
+print("Plotcal")
+print("Looking at amplitude in self-cal table "+caltable)
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 yaxis = 'phase'
 
 plotcal()
 
-print ""
-print "-------------------------------------------------"
-print "Plotcal"
-print "Looking at phases in self-cal table "+caltable
+print("")
+print("-------------------------------------------------")
+print("Plotcal")
+print("Looking at phases in self-cal table "+caltable)
 
 #
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #
 #---------------------------------------------------------------------
 #
 # Correct the data (no need for interpolation this stage)
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
 vis = srcsplitms
 
-print "Will apply self-cal table to over-write CORRECTED_DATA in MS"
+print("Will apply self-cal table to over-write CORRECTED_DATA in MS")
 
 gaintable = selfcaltab1
 
@@ -398,7 +398,7 @@ applycal()
 #=====================================================================
 # Use Plotxy to look at the self-calibrated data
 #
-print '--Plotxy--'
+print('--Plotxy--')
 default('plotxy')
 
 vis = srcsplitms
@@ -419,24 +419,24 @@ iteration = ''
 
 plotxy()
 
-print ""
-print "-----------------------------------------------------"
-print "Plotting JUPITER self-corrected visibilities"
-print "Look for outliers, and you can flag them"
+print("")
+print("-----------------------------------------------------")
+print("Plotting JUPITER self-corrected visibilities")
+print("Look for outliers, and you can flag them")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #
 #=====================================================================
 # SECOND CLEAN / SELFCAL CYCLE
 #=====================================================================
 #
-print '--Clean 2--'
+print('--Clean 2--')
 default('clean')
 
-print "Now clean on self-calibrated data"
+print("Now clean on self-calibrated data")
 
 vis = srcsplitms
 
@@ -465,24 +465,24 @@ npercycle = 100
 saveinputs('clean',imagename+'.clean.saved')
 clean()
 
-print ""
-print "----------------------------------------------------"
-print "Clean"
-print "Final clean model is "+clnmodel2
-print "Final restored clean image is "+clnimage2
-print "The clean residual image is "+clnresid2
-print "Your final clean mask is "+clnmask2
+print("")
+print("----------------------------------------------------")
+print("Clean")
+print("Final clean model is "+clnmodel2)
+print("Final restored clean image is "+clnimage2)
+print("The clean residual image is "+clnresid2)
+print("Your final clean mask is "+clnmask2)
 
-print ""
-print "This is the final restored clean image in the viewer"
-print "Zoom in and set levels to see faint emission"
-print "Use rectangle drawing tool to box off source"
-print "Double-click inside to print statistics"
-print "Move box on-source and get the max"
-print "Calcualte DynRange = MAXon/RMSoff"
-print "This time I got 1.076 / 0.001389 = 775 (better)"
-print "Still not as good as it can be - lets selfcal again"
-print "Close viewer panel when done"
+print("")
+print("This is the final restored clean image in the viewer")
+print("Zoom in and set levels to see faint emission")
+print("Use rectangle drawing tool to box off source")
+print("Double-click inside to print statistics")
+print("Move box on-source and get the max")
+print("Calcualte DynRange = MAXon/RMSoff")
+print("This time I got 1.076 / 0.001389 = 775 (better)")
+print("Still not as good as it can be - lets selfcal again")
+print("Close viewer panel when done")
 
 #
 #---------------------------------------------------------------------
@@ -492,7 +492,7 @@ viewer(clnimage2,'image')
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # jupiter6cm.usecase.clean2.image     (Jy/beam)
 # 
@@ -516,10 +516,10 @@ if scriptmode:
 # Note that the exact numbers you get will depend on how deep you
 # take the interactive clean and how you draw the box for the stats.
 #
-print ""
-print "--------------------------------------------------"
-print "After this script is done you can continue on with"
-print "more self-cal, or try different cleaning options"
+print("")
+print("--------------------------------------------------")
+print("After this script is done you can continue on with")
+print("more self-cal, or try different cleaning options")
 
 #
 #=====================================================================
@@ -527,7 +527,7 @@ print "more self-cal, or try different cleaning options"
 #=====================================================================
 #
 # Can do some image statistics if you wish
-print '--Imstat (Cycle 2)--'
+print('--Imstat (Cycle 2)--')
 default('imstat')
 
 imagename = clnimage2
@@ -540,40 +540,40 @@ off_statistics2 = imstat()
 
 # Pull the max and rms from the clean image
 thistest_immax=on_statistics2['max'][0]
-print ' Found : Max in image = ',thistest_immax
+print(' Found : Max in image = ',thistest_immax)
 thistest_imrms=off_statistics2['rms'][0]
-print ' Found : rms in image = ',thistest_imrms
-print ' Clean image Dynamic Range = ',thistest_immax/thistest_imrms
-print ''
+print(' Found : rms in image = ',thistest_imrms)
+print(' Clean image Dynamic Range = ',thistest_immax/thistest_imrms)
+print('')
 
 #=====================================================================
 #
 # Print results and regression versus previous runs
 #
-print ""
-print ' Final Jupiter results '
-print ' ===================== '
-print ''
+print("")
+print(' Final Jupiter results ')
+print(' ===================== ')
+print('')
 # Pull the max and rms from the clean image
 thistest_immax=on_statistics2['max'][0]
 oldtest_immax = 1.07732224464
-print '   Clean image  ON-SRC max = ',thistest_immax
-print '   Previously found to be  = ',oldtest_immax
+print('   Clean image  ON-SRC max = ',thistest_immax)
+print('   Previously found to be  = ',oldtest_immax)
 diff_immax = abs((oldtest_immax-thistest_immax)/oldtest_immax)
-print '   Difference (fractional) = ',diff_immax
+print('   Difference (fractional) = ',diff_immax)
 
-print ''
+print('')
 thistest_imrms=off_statistics2['rms'][0]
 oldtest_imrms = 0.0010449
-print '   Clean image OFF-SRC rms = ',thistest_imrms
-print '   Previously found to be  = ',oldtest_imrms
+print('   Clean image OFF-SRC rms = ',thistest_imrms)
+print('   Previously found to be  = ',oldtest_imrms)
 diff_imrms = abs((oldtest_imrms-thistest_imrms)/oldtest_imrms)
-print '   Difference (fractional) = ',diff_imrms
+print('   Difference (fractional) = ',diff_imrms)
 
-print ''
-print ' Final Clean image Dynamic Range = ',thistest_immax/thistest_imrms
-print ''
-print '--- Done ---'
+print('')
+print(' Final Clean image Dynamic Range = ',thistest_immax/thistest_imrms)
+print('')
+print('--- Done ---')
 
 #
 #=====================================================================

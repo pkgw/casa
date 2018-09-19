@@ -39,7 +39,7 @@ copyTime=time.time()
 
 if(regstate):
    # Test (1) : Run the clean task
-   print '--Image with MS-MFS--'
+   print('--Image with MS-MFS--')
    default('clean')
    npix=1024;
    ret = clean(vis=pathname + '/data/regression/wideband/VLA_multifrequency_3C286.ms',imagename='reg_3C286',imagermode='',
@@ -48,7 +48,7 @@ if(regstate):
                cell=['2.5arcsec','2.5arcsec'],weighting='briggs',usescratch=False);
 
    # Test (2) : Post-deconvolution PB-correction
-   print '--Post deconvolution wideband PB correction--'
+   print('--Post deconvolution wideband PB correction--')
    ret = widebandpbcor(vis='VLA_multifrequency_3C286.ms', imagename='reg_3C286',
                        nterms=3, threshold='5mJy', action='pbcor', reffreq='1.4GHz',
                        pbmin=0.2, field='',spwlist=[0, 1, 2, 3, 4, 5, 6], chanlist=[8, 8, 8, 8, 8, 8, 8],
@@ -65,38 +65,38 @@ outfile='reg_3C286.'+datestring+'.log'
 logfile=open(outfile,'w')
 
 # Data summary
-print >>logfile,'**************** Regression-test for wide-band imaging *************************'
-print >>logfile,'**                                                                            **'
-print >>logfile,'******************  3C286 wideband data (L-Band) *******************************'
-print >>logfile,''
-print >>logfile,'Observation: VLA'
-print >>logfile,'Data records: 145600       Total integration time = 35435 seconds'
-print >>logfile,'   Observed from   28-Apr-2008/00:53:22.5   to   28-Apr-2008/10:43:57.5 (UTC)'
-print >>logfile,'Fields: 1'
-print >>logfile,'  ID   Code Name         RA            Decl           Epoch   SrcId nVis   '
-print >>logfile,'  0    A    1331+305     13:31:08.2879 +30.30.32.9580 J2000   0     145600 '
-print >>logfile,'   (nVis = Total number of time/baseline visibilities per field) '
-print >>logfile,'Spectral Windows:  (7 unique spectral windows and 1 unique polarization setups)'
-print >>logfile,'  SpwID  #Chans Frame Ch1(MHz)    ChanWid(kHz)TotBW(kHz)  Ref(MHz)    Corrs   '
-print >>logfile,'  0          15 TOPO  1184.0625   1562.5      23437.5     1195        RR  LL  '
-print >>logfile,'  1          15 TOPO  1301.0625   1562.5      23437.5     1312        RR  LL  '
-print >>logfile,'  2          15 TOPO  1401.0625   1562.5      23437.5     1412        RR  LL  '
-print >>logfile,'  3          15 TOPO  1494.0625   1562.5      23437.5     1505        RR  LL  '
-print >>logfile,'  4          15 TOPO  1676.0625   1562.5      23437.5     1687        RR  LL  '
-print >>logfile,'  5          15 TOPO  1751.0625   1562.5      23437.5     1762        RR  LL  '
-print >>logfile,'  6          15 TOPO  1864.0625   1562.5      23437.5     1875        RR  LL  '
+print('**************** Regression-test for wide-band imaging *************************', file=logfile)
+print('**                                                                            **', file=logfile)
+print('******************  3C286 wideband data (L-Band) *******************************', file=logfile)
+print('', file=logfile)
+print('Observation: VLA', file=logfile)
+print('Data records: 145600       Total integration time = 35435 seconds', file=logfile)
+print('   Observed from   28-Apr-2008/00:53:22.5   to   28-Apr-2008/10:43:57.5 (UTC)', file=logfile)
+print('Fields: 1', file=logfile)
+print('  ID   Code Name         RA            Decl           Epoch   SrcId nVis   ', file=logfile)
+print('  0    A    1331+305     13:31:08.2879 +30.30.32.9580 J2000   0     145600 ', file=logfile)
+print('   (nVis = Total number of time/baseline visibilities per field) ', file=logfile)
+print('Spectral Windows:  (7 unique spectral windows and 1 unique polarization setups)', file=logfile)
+print('  SpwID  #Chans Frame Ch1(MHz)    ChanWid(kHz)TotBW(kHz)  Ref(MHz)    Corrs   ', file=logfile)
+print('  0          15 TOPO  1184.0625   1562.5      23437.5     1195        RR  LL  ', file=logfile)
+print('  1          15 TOPO  1301.0625   1562.5      23437.5     1312        RR  LL  ', file=logfile)
+print('  2          15 TOPO  1401.0625   1562.5      23437.5     1412        RR  LL  ', file=logfile)
+print('  3          15 TOPO  1494.0625   1562.5      23437.5     1505        RR  LL  ', file=logfile)
+print('  4          15 TOPO  1676.0625   1562.5      23437.5     1687        RR  LL  ', file=logfile)
+print('  5          15 TOPO  1751.0625   1562.5      23437.5     1762        RR  LL  ', file=logfile)
+print('  6          15 TOPO  1864.0625   1562.5      23437.5     1875        RR  LL  ', file=logfile)
 
 
 # Perform the checks
-print >>logfile,''
-print >>logfile,'*********************** Comparison of results **********************************'
-print >>logfile,'**                                                                            **'
-print >>logfile,'**      (1) MS-MFS on the 3C286 field with nterms=3 and reffreq=1.4GHz        **'
-print >>logfile,'**                                                                            **'
-print >>logfile,'********************************************************************************'
+print('', file=logfile)
+print('*********************** Comparison of results **********************************', file=logfile)
+print('**                                                                            **', file=logfile)
+print('**      (1) MS-MFS on the 3C286 field with nterms=3 and reffreq=1.4GHz        **', file=logfile)
+print('**                                                                            **', file=logfile)
+print('********************************************************************************', file=logfile)
 
 if(not regstate):
-   print >>logfile,'* Data file VLA_multifrequency_3C286.ms cannot be found';
+   print('* Data file VLA_multifrequency_3C286.ms cannot be found', file=logfile);
 else:
    # (6) : (V2.5) This is the truth (for active, 19Jan2012) - wrote coefficient residuals to the output residual image, instead of using them only for alpha,beta calculations
    # Changes from previous numbers 'active r17725' are mainly 'noise' levels. 
@@ -158,19 +158,19 @@ else:
       diff_sigma = abs( (stats['sigma'][0]) - correct_sigma )/correct_sigma;
       diff_sumsq = abs( (stats['sumsq'][0]) - correct_sumsq )/correct_sumsq;
       if(diff_sigma<0.05):
-         print >>logfile,'* Passed residual sigma test ';
+         print('* Passed residual sigma test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED residual sigma test '
+         print('* FAILED residual sigma test ', file=logfile)
 	 regstate = False;
-      print >>logfile,'-- residual sigma : ' + str((stats['sigma'][0])) + ' (' + str(correct_sigma) + ')';
+      print('-- residual sigma : ' + str((stats['sigma'][0])) + ' (' + str(correct_sigma) + ')', file=logfile);
       if(diff_sumsq<0.05): 
-         print >>logfile,'* Passed residual total-power test ';
+         print('* Passed residual total-power test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED residual total-power test '
+         print('* FAILED residual total-power test ', file=logfile)
 	 regstate = False
-      print >>logfile,'-- residual sumsq : ' + str((stats['sumsq'][0])) + ' (' + str(correct_sumsq) + ')';
+      print('-- residual sumsq : ' + str((stats['sumsq'][0])) + ' (' + str(correct_sumsq) + ')', file=logfile);
    else:
-      print >>logfile,' FAILED : No residual image generated.'
+      print(' FAILED : No residual image generated.', file=logfile)
       regstate = False;
    
    # Intensity
@@ -180,13 +180,13 @@ else:
       ia.close();
       diff_intensity = abs( midpix['value']['value'] - correct_intensity )/ abs(correct_intensity);
       if(diff_intensity<0.02): 
-         print >>logfile,'* Passed peak intensity test ';
+         print('* Passed peak intensity test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED peak intensity test '
+         print('* FAILED peak intensity test ', file=logfile)
 	 regstate = False;
-      print >>logfile,'-- peak intensity : ' + str(midpix['value']['value']) + ' (' + str(correct_intensity) + ')';
+      print('-- peak intensity : ' + str(midpix['value']['value']) + ' (' + str(correct_intensity) + ')', file=logfile);
    else:
-      print >>logfile,'-- FAILED : No intensity map generated';
+      print('-- FAILED : No intensity map generated', file=logfile);
       regstate = False;
 
    # Alpha
@@ -196,13 +196,13 @@ else:
       ia.close();
       diff_alpha = abs( midpix['value']['value'] - correct_alpha )/ abs(correct_alpha);
       if(diff_alpha<0.02): 
-         print >>logfile,'* Passed spectral index test ';
+         print('* Passed spectral index test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED spectral index test '
+         print('* FAILED spectral index test ', file=logfile)
 	 regstate = False;
-      print >>logfile,'-- spectral index : ' + str(midpix['value']['value']) + ' (' + str(correct_alpha) + ')';
+      print('-- spectral index : ' + str(midpix['value']['value']) + ' (' + str(correct_alpha) + ')', file=logfile);
    else:
-      print >>logfile,'-- FAILED : No spectral index map generated';
+      print('-- FAILED : No spectral index map generated', file=logfile);
       regstate = False;
 
    # Beta
@@ -212,13 +212,13 @@ else:
       ia.close();
       diff_beta = abs( midpix['value']['value'] - correct_beta )/ abs(correct_beta);
       if(diff_beta<0.02): 
-         print >>logfile,'* Passed spectral curvature test ';
+         print('* Passed spectral curvature test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED spectral curvature test '
+         print('* FAILED spectral curvature test ', file=logfile)
 	 regstate = False;
-      print >>logfile,'-- spectral curvature : ' + str(midpix['value']['value']) + ' (' + str(correct_beta) + ')';
+      print('-- spectral curvature : ' + str(midpix['value']['value']) + ' (' + str(correct_beta) + ')', file=logfile);
    else:
-      print >>logfile,'-- FAILED : No spectral curvature map generated';
+      print('-- FAILED : No spectral curvature map generated', file=logfile);
       regstate = False;
 
    # PB-corrected intensity)
@@ -228,13 +228,13 @@ else:
       ia.close();
       diff_int = abs( offpix['value']['value'] - correct_pbcor_intensity )/ abs(correct_pbcor_intensity);
       if(diff_int<0.02): 
-         print >>logfile,'* Passed widebandpbcor intensity test ';
+         print('* Passed widebandpbcor intensity test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED widebandpbcor intensity test '
+         print('* FAILED widebandpbcor intensity test ', file=logfile)
 	 regstate = False;
-      print >>logfile,'-- pb-corrected intensity : ' + str(offpix['value']['value']) + ' (' + str(correct_pbcor_intensity) + ')';
+      print('-- pb-corrected intensity : ' + str(offpix['value']['value']) + ' (' + str(correct_pbcor_intensity) + ')', file=logfile);
    else:
-      print >>logfile,'-- FAILED : No pb-corrected intensity map generated';
+      print('-- FAILED : No pb-corrected intensity map generated', file=logfile);
       regstate = False;
 
    # PB-corrected alpha (not checking beta)
@@ -244,42 +244,42 @@ else:
       ia.close();
       diff_alpha = abs( offpix['value']['value'] - correct_pbcor_alpha )/ abs(correct_pbcor_alpha);
       if(diff_alpha<0.02): 
-         print >>logfile,'* Passed widebandpbcor alpha test ';
+         print('* Passed widebandpbcor alpha test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED widebandpbcor alpha test '
+         print('* FAILED widebandpbcor alpha test ', file=logfile)
 	 regstate = False;
-      print >>logfile,'-- pb-corrected spectral index : ' + str(offpix['value']['value']) + ' (' + str(correct_pbcor_alpha) + ')';
+      print('-- pb-corrected spectral index : ' + str(offpix['value']['value']) + ' (' + str(correct_pbcor_alpha) + ')', file=logfile);
    else:
-      print >>logfile,'-- FAILED : No pb-corrected spectral index map generated';
+      print('-- FAILED : No pb-corrected spectral index map generated', file=logfile);
       regstate = False;
 
 
 # Final verdict
 if(regstate):
-   print >>logfile,'PASSED regression test for wideband-imaging.'
-   print ''
-   print 'Regression PASSED'
-   print ''
+   print('PASSED regression test for wideband-imaging.', file=logfile)
+   print('')
+   print('Regression PASSED')
+   print('')
 else:
-   print >>logfile,'FAILED regression test for wideband-imaging.'
-   print ''
-   print 'Regression FAILED'
-   print ''
+   print('FAILED regression test for wideband-imaging.', file=logfile)
+   print('')
+   print('Regression FAILED')
+   print('')
 
-print >>logfile,''
+print('', file=logfile)
 
 # Print timing info
-print >>logfile,'********************************************************************************'
-print >>logfile,'**                         Benchmarking                                       **'
-print >>logfile,'********************************************************************************'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,'Processing rate MB/s  was: '+str(278./(endTime - startTime))
-print >>logfile,'* Breakdown:                                                                   *'
-print >>logfile,'*   copy         time was: '+str(copyTime-startTime)
-print >>logfile,'*   imaging      time was: '+str(endTime-copyTime)
-print >>logfile,'*                                                                              *'
-print >>logfile,'********************************************************************************'
+print('********************************************************************************', file=logfile)
+print('**                         Benchmarking                                       **', file=logfile)
+print('********************************************************************************', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+print('Processing rate MB/s  was: '+str(278./(endTime - startTime)), file=logfile)
+print('* Breakdown:                                                                   *', file=logfile)
+print('*   copy         time was: '+str(copyTime-startTime), file=logfile)
+print('*   imaging      time was: '+str(endTime-copyTime), file=logfile)
+print('*                                                                              *', file=logfile)
+print('********************************************************************************', file=logfile)
 
 logfile.close()
 

@@ -77,20 +77,20 @@ def alleqnum(x,num,tolerance=0):
     if len(x.shape)==1:
         for i in range(x.shape[0]):
             if not (abs(x[i]-num) < tolerance):
-                print "x[",i,"]=", x[i]
+                print("x[",i,"]=", x[i])
                 return False
     if len(x.shape)==2:
         for i in range(x.shape[0]):
             for j in range(x.shape[1]):
                 if not (abs(x[i][j]-num) < tolerance):
-                    print "x[",i,"][",j,"]=", x[i][j]
+                    print("x[",i,"][",j,"]=", x[i][j])
                     return False
     if len(x.shape)==3:
         for i in range(x.shape[0]):
             for j in range(x.shape[1]):
                 for k in range(x.shape[2]):
                     if not (abs(x[i][j][k]-num) < tolerance):
-                        print "x[",i,"][",j,"][",k,"]=", x[i][j][k]
+                        print("x[",i,"][",j,"][",k,"]=", x[i][j][k])
                         return False
     if len(x.shape)==4:
         for i in range(x.shape[0]):
@@ -98,7 +98,7 @@ def alleqnum(x,num,tolerance=0):
                 for k in range(x.shape[2]):
                     for l in range(x.shape[3]):
                         if not (abs(x[i][j][k][l]-num) < tolerance):
-                            print "x[",i,"][",j,"][",k,"][",l,"]=", x[i][j][k]
+                            print("x[",i,"][",j,"][",k,"][",l,"]=", x[i][j][k])
                             return False
     if len(x.shape)>4:
         stop('unhandled array shape in alleq')
@@ -130,8 +130,8 @@ class ia_histograms_test(unittest.TestCase):
             self.assertTrue(myim)
             try:
                 ok = myim.histograms(axes=[9,19])
-            except Exception, e:
-                print 'Caught expected Exception' + str(e)
+            except Exception as e:
+                print('Caught expected Exception' + str(e))
                 ok = False
             self.assertFalse(ok, 'Histograms unexpectedly did not fail (1)')
             
@@ -140,7 +140,7 @@ class ia_histograms_test(unittest.TestCase):
             hists = myim.histograms(nbins=nbins)
             self.assertTrue(hists, 'Histograms failed (1)')
             self.assertTrue(
-                hists.has_key('values') and hists.has_key('counts'),
+                'values' in hists and 'counts' in hists,
                 'Histograms record does not have the correct fields'
             )
             self.assertTrue(

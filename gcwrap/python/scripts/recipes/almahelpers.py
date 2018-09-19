@@ -36,6 +36,7 @@ import numpy
 import taskinit
 import os
 import csv # used by editIntentscsv
+from functools import reduce
 
 class SpwMap:
     """
@@ -85,7 +86,7 @@ def areIdentical(spwInfo1,spwInfo2) :
     else : return True
 
 def trimSpwmap(spwMap) :
-    compare = range(len(spwMap))
+    compare = list(range(len(spwMap)))
     evenPoint = compare[-1]
     for i in compare :
         if compare[i:] == spwMap[i:] :
@@ -231,11 +232,11 @@ def fixsyscaltimes(vis,newinterval=2.0):
         msg='In spw='+str(ispw)+' found '+str(nTS)+' Tsys measurements with '+str(nT)+' TIMEs...'
         if nT==nTS:
             msg+='OK.'
-            print msg
+            print(msg)
 
         else:
             msg+=' which is too many, so fixing it:'
-            print msg 
+            print(msg) 
 
             for uts in utimestamps:
                 mask = ((mypl.floor(timestamps))-t0==uts)
@@ -245,15 +246,15 @@ def fixsyscaltimes(vis,newinterval=2.0):
                 msg='  Found '+str(nTIMEs)+' TIMEs at timestamp='+str(myqa.time(str(newtime-newinterval/2)+'s',form='ymd')[0])
                 if nTIMEs>1:
                     msg+=':'
-                    print msg
-                    print '   TIMEs='+str([myqa.time(str(t)+'s',form='ymd')[0] for t in uTIMEs])+' --> '+str(myqa.time(str(newtime)+'s',form='ymd')[0])+' w/ INTERVAL='+str(newinterval)
+                    print(msg)
+                    print('   TIMEs='+str([myqa.time(str(t)+'s',form='ymd')[0] for t in uTIMEs])+' --> '+str(myqa.time(str(newtime)+'s',form='ymd')[0])+' w/ INTERVAL='+str(newinterval))
                     times[mask]=newtime
                     interval[mask]=newinterval
                     st.putcol('TIME',times)
                     st.putcol('INTERVAL',interval)
                 else:
                     msg+='...ok.'
-                    print msg
+                    print(msg)
         st.close()
     mytb.close()
 
@@ -295,7 +296,7 @@ def calantsub(incaltable,outcaltable='',
     
     # trap insufficient ant subant specifications
     if len(ant)==0 or len(subant)==0:
-        raise Exception, "Must specify at least one ant and subant."
+        raise Exception("Must specify at least one ant and subant.")
 
     antlist=ant.split(',')
     sublist=subant.split(',')
@@ -304,7 +305,7 @@ def calantsub(incaltable,outcaltable='',
     nant=len(antlist)
     nsub=len(sublist)
     if nant!=nsub:
-        raise Exception, "Must specify equal number of ant and subant."
+        raise Exception("Must specify equal number of ant and subant.")
 
     # local tb tool
     mytb=taskinit.tbtool()
@@ -317,7 +318,7 @@ def calantsub(incaltable,outcaltable='',
             selstr+=' && '
     if len(scan)>0:
         selstr+='SCAN_NUMBER IN ['+scan+']'
-        print "selstr = '"+selstr+"'"
+        print("selstr = '"+selstr+"'")
 
     # verify selection (if any) selects non-zero rows
     if len(selstr)>0:
@@ -327,12 +328,12 @@ def calantsub(incaltable,outcaltable='',
         st.close()
         mytb.close()
         if nselrows==0:
-            raise Exception, 'Error: scan and/or spw selection selects no rows!'
+            raise Exception('Error: scan and/or spw selection selects no rows!')
 
     # manage the output table
     if outcaltable=='':
         outcaltable=incaltable
-        print "No outcaltable specified; will overwrite incaltable."
+        print("No outcaltable specified; will overwrite incaltable.")
     if outcaltable!=incaltable:
         os.system('cp -r '+incaltable+' '+outcaltable)
 
@@ -354,14 +355,14 @@ def calantsub(incaltable,outcaltable='',
     # scan list
     scans=mypl.unique(stsel.getcol('SCAN_NUMBER'))
 
-    print 'Found scans = ',scans
+    print('Found scans = ',scans)
 
     # do one scan at a time
     for scan in scans:
         st1=stsel.query(query='SCAN_NUMBER=='+str(scan),name='byscan')
         spws=mypl.unique(st1.getcol('SPECTRAL_WINDOW_ID'))
 
-        print 'Scan '+str(scan)+' has spws='+str(spws)
+        print('Scan '+str(scan)+' has spws='+str(spws))
 
         # do one spw at a time
         for ispw in spws:
@@ -378,11 +379,11 @@ def calantsub(incaltable,outcaltable='',
                 if stant.nrows()<1:
                     continue
 
-                print ' scan='+str(scan)+' spw='+str(ispw)+' ants: '+str(sublist[ia])+'->'+str(antlist[ia])
+                print(' scan='+str(scan)+' spw='+str(ispw)+' ants: '+str(sublist[ia])+'->'+str(antlist[ia]))
 
                 # trap (unlikely?) pathological case
                 if stsub.nrows()!=stant.nrows():
-                    raise Exception, "In spw "+str(ispw)+" antenna ids "+str(antlist[ia])+" and "+str(sublist[ia])+" have a different number of solutions."
+                    raise Exception("In spw "+str(ispw)+" antenna ids "+str(antlist[ia])+" and "+str(sublist[ia])+" have a different number of solutions.")
 
                 # substitute values 
                 for col in collist:
@@ -410,7 +411,7 @@ def editIntentscsv(intentcsv, dryrun=False, verbose=False):
     -Todd Hunter
     """
     if (not os.path.exists(intentcsv)):
-        print "Could not find intentcsv file: ", intentcsv
+        print("Could not find intentcsv file: ", intentcsv)
         return
     f = open(intentcsv,'r')
     lines = f.readlines()
@@ -419,14 +420,14 @@ def editIntentscsv(intentcsv, dryrun=False, verbose=False):
         if (originalLine[0] == '#'): continue
         line = originalLine.replace("'",'"').replace(' ','')
         if verbose:
-            print "Parsing reformatted line: ", line[:-1]
+            print("Parsing reformatted line: ", line[:-1])
         if (len(line.split(',')) > 3):
             token = []
             for i in csv.reader([line]):
                 token.append(i)
             token = token[0]
             if (len(token) < 4):
-                print "Skipping invalid line: ", originalLine
+                print("Skipping invalid line: ", originalLine)
                 continue
             vis = token[0].strip()
             field = token[1].strip()
@@ -435,12 +436,12 @@ def editIntentscsv(intentcsv, dryrun=False, verbose=False):
             if (os.path.exists(vis)):
                 cmd = "au.editIntents('%s','%s','%s','%s')" % (vis,field,scan,intents)
                 if dryrun:
-                    print "Would call %s\n" % (cmd)
+                    print("Would call %s\n" % (cmd))
                 else:
-                    print "Calling %s" % (cmd)
+                    print("Calling %s" % (cmd))
                     editIntents(vis,field,scan,intents,verbose=verbose)
             else:
-                print "Could not find requested measurement set: ", vis
+                print("Could not find requested measurement set: ", vis)
 
 def editIntents(msName='', field='', scan='', newintents='', 
                 append=False, verbose=True):
@@ -471,16 +472,16 @@ def editIntents(msName='', field='', scan='', newintents='',
                     'CALIBRATE_WVR', 'OBSERVE_CHECK_SOURCE'
                     ]
     if (msName == ''):
-        print "You must specify a measurement set."
+        print("You must specify a measurement set.")
         return
     if (field == ''):
-        print "You must specify a field ID or name."
+        print("You must specify a field ID or name.")
         return
     mytb = taskinit.tbtool()
     mytb.open(msName + '/FIELD')
     fieldnames = mytb.getcol('NAME')
     if verbose:
-        print "Found fieldnames = ", fieldnames
+        print("Found fieldnames = ", fieldnames)
     mytb.close()
 
     mytb.open(msName + '/STATE')
@@ -502,7 +503,7 @@ def editIntents(msName='', field='', scan='', newintents='',
         
     for intent in desiredintentsList:
         if ((intent in validIntents)==False):
-            print "Invalid intent = %s.  Valid intents = %s" % (intent,validIntents)
+            print("Invalid intent = %s.  Valid intents = %s" % (intent,validIntents))
             mytb.close()
             return
     foundField = False
@@ -512,11 +513,11 @@ def editIntents(msName='', field='', scan='', newintents='',
       if (name == field or str(id) == str(field)):
         foundField = True
         if verbose:
-            print 'FIELD_ID %s has name %s' % (id, name)
+            print('FIELD_ID %s has name %s' % (id, name))
         if scan == '': 
             s = mytb.query('FIELD_ID==%s' % id)
             if verbose:
-                print "Got %d rows in the ms matching field=%s" % (s.nrows(),id)
+                print("Got %d rows in the ms matching field=%s" % (s.nrows(),id))
         else:
             if (type(scan) == str):
                 scans = [int(x) for x in scan.split(',')]
@@ -525,13 +526,13 @@ def editIntents(msName='', field='', scan='', newintents='',
             else:
                 scans = scan
             if verbose:
-                print "Querying: 'FIELD_ID==%s AND SCAN_NUMBER in %s'" % (id, str(scans))
+                print("Querying: 'FIELD_ID==%s AND SCAN_NUMBER in %s'" % (id, str(scans)))
             s = mytb.query('FIELD_ID==%s AND SCAN_NUMBER in %s' % (id, str(scans)))
             if verbose:
-                print "Got %d rows in the ms matching field=%s and scan in %s" % (s.nrows(),id,str(scans))
+                print("Got %d rows in the ms matching field=%s and scan in %s" % (s.nrows(),id,str(scans)))
         if (s.nrows() == 0):
             mytb.close()
-            print "Found zero rows for this field (and/or scan). Stopping."
+            print("Found zero rows for this field (and/or scan). Stopping.")
             return
         state_ids = s.getcol('STATE_ID')
         states = []
@@ -541,9 +542,9 @@ def editIntents(msName='', field='', scan='', newintents='',
         for ij in range(len(states)):
             states[ij] = intentcol[states[ij]]
 
-        print 'current intents are:'
+        print('current intents are:')
         for state in states:
-            print state
+            print(state)
 
         if append == False: states = []
         for desiredintent in desiredintentsList:
@@ -572,29 +573,29 @@ def editIntents(msName='', field='', scan='', newintents='',
             elif desiredintent.find('POINTING')>=0:
                 states.append('CALIBRATE_POINTING#ON_SOURCE')
             else:
-                print "Unrecognized intent = %s" % desiredintent
+                print("Unrecognized intent = %s" % desiredintent)
                 continue
-            print 'setting %s' % (states[-1])
+            print('setting %s' % (states[-1]))
 
         if states != []:
             state = reduce(lambda x,y: '%s,%s' % (x,y), states)
             if state not in intentcol:
                 if verbose:
-                    print 'adding intent to state table'
+                    print('adding intent to state table')
                 intentcol = list(intentcol)
                 intentcol.append(state)
                 intentcol = numpy.array(intentcol)
                 state_id = len(intentcol) - 1
                 naddedrows += 1
                 if verbose:
-                    print 'state_id is', state_id
+                    print('state_id is', state_id)
                 state_ids[:] = state_id
             else:
                 if verbose:
-                    print 'intent already in state table'
+                    print('intent already in state table')
                 state_id = numpy.arange(len(intentcol))[intentcol==state]
                 if verbose:
-                    print 'state_id is', state_id
+                    print('state_id is', state_id)
                 if (type(state_id) == list or type(state_id)==numpy.ndarray):
                     # ms can have identical combinations of INTENT, so just
                     # pick the row for the first appearance - T. Hunter
@@ -603,12 +604,12 @@ def editIntents(msName='', field='', scan='', newintents='',
                     state_ids[:] = state_id
             s.putcol('STATE_ID', state_ids)
     if (foundField == False):
-        print "Field not found"
+        print("Field not found")
         return
     mytb.close()
 
     if verbose:
-        print 'writing new STATE table'
+        print('writing new STATE table')
     mytb.open(msName + '/STATE', nomodify=False)
     if naddedrows > 0:
         mytb.addrows(naddedrows)
@@ -676,9 +677,9 @@ def genImageName(vis='', spw='', field='', imtype='mfs', targettype='sci', stoke
     elif field in range(mymsmd.nfields()):
         theobject = myfieldnames[field]
     else:
-        print "ERROR: invalid field: "+field
-        print "Valid entries are ", myfieldnames
-        print " or ", range(mymsmd.nfields())
+        print("ERROR: invalid field: "+field)
+        print("Valid entries are ", myfieldnames)
+        print(" or ", list(range(mymsmd.nfields())))
         raise Exception("ERROR: invalid field: "+field)
     myspws = mymsmd.spwsforfield(theobject)
     mymsmd.close()
@@ -687,8 +688,8 @@ def genImageName(vis='', spw='', field='', imtype='mfs', targettype='sci', stoke
     if targettype in targettypes:
         thetargettype = targettype
     else:
-        print "ERROR: invalid targettype ", targettype
-        print "  Valid entries are ", targettypes
+        print("ERROR: invalid targettype ", targettype)
+        print("  Valid entries are ", targettypes)
         raise  Exception("ERROR: invalid targettype ", targettype)
 
     # spw
@@ -702,26 +703,26 @@ def genImageName(vis='', spw='', field='', imtype='mfs', targettype='sci', stoke
                 thespwid = thespwid+'_'+str(myspw)                
         else:
             if not type(myspw) == int:
-                print "ERROR: invalid spw: "+str(myspw)+". Valid entries are ", myspws
+                print("ERROR: invalid spw: "+str(myspw)+". Valid entries are ", myspws)
                 raise Exception("ERROR: invalid spw: "+str(myspw)+' Data type must be int.')
             else:
-                print "ERROR: invalid spw: "+str(myspw)+". Valid entries are ", myspws
+                print("ERROR: invalid spw: "+str(myspw)+". Valid entries are ", myspws)
                 raise Exception("ERROR: invalid spw: "+str(myspw))
 
     # imtype
     if imtype in imtypes:
         theimtype = imtype
     else:
-        print "ERROR: invalid imtype ", imtype
-        print "  Valid entries are ", imtypes
+        print("ERROR: invalid imtype ", imtype)
+        print("  Valid entries are ", imtypes)
         raise Exception( "ERROR: invalid imtype "+str(imtype))
 
     # stokes
     if stokes in stokess:
         thestokes = stokes
     else:
-        print "ERROR: invalid stokes ", stokes
-        print "  Valid entries are ", stokess
+        print("ERROR: invalid stokes ", stokes)
+        print("  Valid entries are ", stokess)
         raise Exception("ERROR: invalid stokes "+str(stokes))
 
     # modifying text

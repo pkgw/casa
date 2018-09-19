@@ -1,7 +1,7 @@
 import os
 import sys
 import shutil
-import commands
+import subprocess
 from __main__ import default
 from tasks import *
 from taskinit import *
@@ -48,7 +48,7 @@ class listfits_test(unittest.TestCase):
            listfits(self.fitsfile)
            casalog.setlogfile(thelogfile)
         except:
-           print 'could not open "%s" for writing' % logfile
+           print('could not open "%s" for writing' % logfile)
         
 def suite():
     return [listfits_test]

@@ -4,7 +4,7 @@ from taskinit import casalog
 
 casalog.showconsole(onconsole=True)
 
-print sys.argv
+print(sys.argv)
 
 i = sys.argv.index("-c")
 admin_dir  = sys.argv[i+2]
@@ -18,13 +18,13 @@ else:
     gp = True
 
 sys.path.append(admin_dir)
-print sys.path
+print(sys.path)
 import report
 
 try:
     report.report(reg_dir, report_dir, gen_plot=gp, revision=rev, skull=admin_dir+'/skullnbones.jpg')
 except:
-    print "report execution failed"
+    print("report execution failed")
     raise
     exit()  # sys.exit(1) does not work with IPython
 exit()

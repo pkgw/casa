@@ -14,32 +14,32 @@ import pylab as pl
 rt="cln_w3oh"
 
 l=locals() 
-if not l.has_key("analonly"): 
+if "analonly" not in l: 
     analonly=False
 if not analonly:
-    print "foobar"
+    print("foobar")
     os.system("rm -rf "+rt+"*")
 
 startTime = time.time()
 startProc = time.clock()
 
-print '--Running clean chan/spw test--'
+print('--Running clean chan/spw test--')
 
 import datetime
 datestring = datetime.datetime.isoformat(datetime.datetime.today())
 outfile    = rt + datestring + '.log'
 logfile    = open(outfile, 'w')
-print 'Writing output to ' + outfile + "\n"
+print('Writing output to ' + outfile + "\n")
 
 l=locals() 
-if not l.has_key("repodir"): 
+if "repodir" not in l: 
     repodir=os.getenv("CASAPATH").split(' ')[0]
 
-print 'I think the data repository is at '+repodir
+print('I think the data repository is at '+repodir)
 datadir=repodir+"/data/regression/cvel/input/"
 
 # just do python part, not full on clean
-if not l.has_key("pyonly"): 
+if "pyonly" not in l: 
     pyonly=False 
 
 # Unset this if you want to run all tests.
@@ -72,7 +72,7 @@ for i in range(nch_ms):
     spec[i]=pl.mean(dat[0,i,])
 
 # the line is around ch260
-x=pl.array(range(21))+250
+x=pl.array(list(range(21)))+250
 y=spec[x]
 fitchan_ms = pl.mean((x+1)*y)/pl.mean(y)
 x0=floor(fitchan_ms)
@@ -197,19 +197,19 @@ else:
 
 j=0
 for te in tests:
-    if te.has_key('spw'):
+    if 'spw' in te:
         spw=te['spw']
     else:
         spw=''
-    if te.has_key('nchan'):
+    if 'nchan' in te:
         nchan=te['nchan']
     else:
         nchan=-1
-    if te.has_key('int'):
+    if 'int' in te:
         interp=te['int']
     else:
         interp='nearest'
-    if te.has_key('wid'):
+    if 'wid' in te:
         wid=te['wid']
     else:
         wid=''
@@ -217,14 +217,14 @@ for te in tests:
 #        if te['mode']=='channel':
 #            wid=1
 
-    if te.has_key('veltype'):
+    if 'veltype' in te:
         vtype=te['veltype']
     else:
         vtype='radio'
 
-    if te.has_key('sta'):
+    if 'sta' in te:
         sta=te['sta']
-    elif te.has_key('shift'):
+    elif 'shift' in te:
         start=ch0_ms + te['shift']       
         sta="%f kHz" % start
     else:
@@ -256,7 +256,7 @@ for te in tests:
                 st=swapvel(imstats(rt+'_'+te['name']+'.image'))
             else:
                 st=imstats(rt+'_'+te['name']+'.image')
-            if te.has_key('shift'):
+            if 'shift' in te:
                 # shift back:
                 shift=te['shift']
                 st=(st[0]-shift, st[1],st[2],st[3],st[4], st[5]-shift, st[6]-shift)                
@@ -266,7 +266,7 @@ for te in tests:
                 foo=ia.getchunk(blc=[25,25,0,0],trc=[40,40,0,510],dropdeg=True,axes=[0,1])
                 c=ia.coordsys()
                 n=len(foo)
-                f=pl.array(range(n))
+                f=pl.array(list(range(n)))
                 for i in range(n):
                     f[i]=c.toworld([32,32,0,i])['numeric'][3]
                 ia.done()
@@ -297,13 +297,13 @@ else:
 
 # print "regular" stats:
 # print yo % " "
-print >> logfile, yo % " "
+print(yo % " ", file=logfile)
 for i in range(len(sname)):
     if pyonly:
         #print fmt % sname[i], "%4i %20s %20s" % stats[i]
-        print >> logfile, fmt % sname[i], "%4i %20s %20s" % stats[i]
+        print(fmt % sname[i], "%4i %20s %20s" % stats[i], file=logfile)
     else:
-        print >> logfile, fmt % sname[i], "%15.7f %11.7f %10.7f %10.7f %4i %16.7f %16.7f" % stats[i]
+        print(fmt % sname[i], "%15.7f %11.7f %10.7f %10.7f %4i %16.7f %16.7f" % stats[i], file=logfile)
 
 
 from matplotlib.font_manager import fontManager, FontProperties
@@ -316,17 +316,17 @@ pl.savefig( rt + datestring + ".png")
 
 # print stats w/chans as pixel fractions relative to MS:
 
-print yo % " "
+print(yo % " ")
 if pyonly:
     del imCln
     regstate=True
     # print ms values:
-    print fmt % sname[0], "%4i %20s %20s" % stats[0]
+    print(fmt % sname[0], "%4i %20s %20s" % stats[0])
     # ms goes from ch0_ms to chn_ms in freq.
     for i in range(1,len(sname)):
         if stats[i][0]>0:
             if tests[i-1]['mode']=='velocity':
-                if tests[i-1].has_key('veltype'):
+                if 'veltype' in tests[i-1]:
                     vtype=tests[i-1]['veltype']
                 else:
                     vtype='radio'
@@ -353,25 +353,25 @@ if pyonly:
                 else:
                     f0=ch0_ms + wid_ms*stats[i][1]
                     w=wid_ms*stats[i][2]    
-            print fmt % sname[i], "%4i ch %15f %16fkHz" % (stats[i][0], (f0-ch0_ms)/wid_ms, w)
-            print >> logfile, fmt % sname[i], "%4i ch %15f %16fkHz" % (stats[i][0], (f0-ch0_ms)/wid_ms, w)
+            print(fmt % sname[i], "%4i ch %15f %16fkHz" % (stats[i][0], (f0-ch0_ms)/wid_ms, w))
+            print(fmt % sname[i], "%4i ch %15f %16fkHz" % (stats[i][0], (f0-ch0_ms)/wid_ms, w), file=logfile)
         else:
-            print fmt % sname[i], " FAIL"
-            print >> logfile, fmt % sname[i], " FAIL"    
+            print(fmt % sname[i], " FAIL")
+            print(fmt % sname[i], " FAIL", file=logfile)    
 else:
-    print fmt % sname[0], "%15.7f %10.7f %10.7f %10.7f %4i %16.7f %16.7f" % stats[0]
-    print >> logfile, fmt % sname[0], "%15.7f %10.7f %10.7f %10.7f %4i %16.7f %16.7f" % stats[0]
+    print(fmt % sname[0], "%15.7f %10.7f %10.7f %10.7f %4i %16.7f %16.7f" % stats[0])
+    print(fmt % sname[0], "%15.7f %10.7f %10.7f %10.7f %4i %16.7f %16.7f" % stats[0], file=logfile)
     for i in range(1,len(sname)):
         foo = pl.array(stats[i])
         if stats[i][4]>0:
             foo[0] = (foo[0]-ch0_ms)/wid_ms
             foo[5] = (foo[5]-ch0_ms)/wid_ms
             foo[6] = (foo[6]-fit_ms)/wid_ms
-            print fmt % sname[i], "%15.7f %10.7f %10.7f %10.7f %4i %16.7f %16.7f" % (foo[0],foo[1],foo[2],foo[3],foo[4],foo[5],foo[6])
-            print >> logfile, fmt % sname[i], "%15.7f %10.7f %10.7f %10.7f %4i %16.7f %16.7f" % (foo[0],foo[1],foo[2],foo[3],foo[4],foo[5],foo[6])
+            print(fmt % sname[i], "%15.7f %10.7f %10.7f %10.7f %4i %16.7f %16.7f" % (foo[0],foo[1],foo[2],foo[3],foo[4],foo[5],foo[6]))
+            print(fmt % sname[i], "%15.7f %10.7f %10.7f %10.7f %4i %16.7f %16.7f" % (foo[0],foo[1],foo[2],foo[3],foo[4],foo[5],foo[6]), file=logfile)
         else:
-            print fmt % sname[i], " FAIL"
-            print >> logfile, fmt % sname[i], " FAIL"
+            print(fmt % sname[i], " FAIL")
+            print(fmt % sname[i], " FAIL", file=logfile)
         
         
 # regress
@@ -386,41 +386,41 @@ else:
         for te in range(len(tests)):
             adiff=abs(stats[run][te]-stats[0][te])/stats[0][te]
             if adiff < tol:
-                print >> logfile, "* Passed %-10s test, got %-11.5g expected %-11.5g" % (te,stats[run][te],stats[0][te])
+                print("* Passed %-10s test, got %-11.5g expected %-11.5g" % (te,stats[run][te],stats[0][te]), file=logfile)
             else:
-                print >> logfile, "* FAILED %-10s test, got %-11.5g expected %-11.5g " % (te,stats[run][te],stats[0][te])
+                print("* FAILED %-10s test, got %-11.5g expected %-11.5g " % (te,stats[run][te],stats[0][te]), file=logfile)
                 regstate = False
 
 
         
 
-print >> logfile,'---'
+print('---', file=logfile)
 if regstate:
-    print >> logfile, 'Passed',
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('Passed', end=' ', file=logfile)
+    print('')
+    print('Regression PASSED')
+    print('')
 else:
-    print >> logfile, 'FAILED',
-    print ''
-    print 'Regression FAILED'
-    print ''
-print >> logfile, 'regression test for clean chan/spw'
-print >>logfile,'---'
-print >>logfile,'*********************************'
+    print('FAILED', end=' ', file=logfile)
+    print('')
+    print('Regression FAILED')
+    print('')
+print('regression test for clean chan/spw', file=logfile)
+print('---', file=logfile)
+print('*********************************', file=logfile)
     
 endTime = time.time()
 endProc = time.clock()
 
-print >>logfile,''
-print >>logfile,'********** Benchmarking **************'
-print >>logfile,''
-print >>logfile,'Total wall clock time was: %8.3f s.' % (endTime - startTime)
-print >>logfile,'Total CPU        time was: %8.3f s.' % (endProc - startProc)
-print >>logfile,'Wall processing  rate was: %8.3f MB/s.' % (17896.0 /
-                                                            (endTime - startTime))
+print('', file=logfile)
+print('********** Benchmarking **************', file=logfile)
+print('', file=logfile)
+print('Total wall clock time was: %8.3f s.' % (endTime - startTime), file=logfile)
+print('Total CPU        time was: %8.3f s.' % (endProc - startProc), file=logfile)
+print('Wall processing  rate was: %8.3f MB/s.' % (17896.0 /
+                                                            (endTime - startTime)), file=logfile)
 
 
 logfile.close()
                             
-print '--Finished clean chan/spw--'
+print('--Finished clean chan/spw--')

@@ -37,20 +37,20 @@ def fringe(vis=vis, ms=ms, field='0'):
     # SpwId
     #  0-5   wideband data (15 channels, LSB/USB)
     
-    print '--start calibration over: run cleancal on data--'
+    print('--start calibration over: run cleancal on data--')
 
     clearcal(vis=ms)
 
     # Bandpass calibration
 
     if do_bandpass:
-        print '--Bandpass--'
+        print('--Bandpass--')
         default('bandpass')
         bandpass(vis=ms,caltable=ms+'.bcal',gaintable='',gainfield='',
              interp='',field=field, spw='',selectdata=False,gaincurve=False,
              opacity=0.0,bandtype='B',solint='1000s',combine='scan',refant='8',
              solnorm=False)
-        print '--Bandpass done--'
+        print('--Bandpass done--')
 
     #####
     # setjy and gain calibration
@@ -97,9 +97,9 @@ def fringe(vis=vis, ms=ms, field='0'):
     #        minsnr=2.0, refant='8', gaincurve=False, opacity=0.0, 
     #       solint='600s', combine='scan')
     
-        print '--gaincal done--'
+        print('--gaincal done--')
 
-    print '--fluxscale (nothing) done--'
+    print('--fluxscale (nothing) done--')
 
     #####
     # Apply calibration to calibrator and source data
@@ -144,16 +144,16 @@ def fringe(vis=vis, ms=ms, field='0'):
 def simple(vis=vis, ms=None):
     if ms==None:
         ms = vis + ".ms"
-    print '--simple filler --',vis
+    print('--simple filler --',vis)
     # carmafiller
     cmd = 'rm -rf %s*; carmafiller vis=%s ms=%s' % (ms,vis,ms)
-    print "CMD: ",cmd
+    print("CMD: ",cmd)
     os.system(cmd)
-    print '--simple listobs --'
+    print('--simple listobs --')
     # make a listing
     listobs(vis=ms)
 
-    print '--simple clean --'
+    print('--simple clean --')
     clean(vis=ms,imagename=ms+'.fill.clean',
           cell=[2.,2.],
           imsize=[128,128],
@@ -173,12 +173,12 @@ def simple(vis=vis, ms=None):
           niter=10,
           stokes='I',
           )
-    print '--simple done --'
+    print('--simple done --')
     cmd = 'du -s %s*' % ms
     os.system(cmd)
 
 def old(ms=ms):
-    print '--old clean --',ms
+    print('--old clean --',ms)
     # make a listing
     listobs(vis=ms)
 
@@ -201,18 +201,18 @@ def old(ms=ms):
           niter=10,
           stokes='I',
           )
-    print '--simple done --'
+    print('--simple done --')
     cmd = 'du -s %s*' % ms
     os.system(cmd)
 
 def strange(vis1=vis, vis2=vis, ms=ms):
-    print '--simple2 filler --',vis1,vis2
+    print('--simple2 filler --',vis1,vis2)
 
     if True:
         cmd = 'rm -rf %s*; carmafiller vis=%s ms=%s; ls -l %s/' % (ms,vis1,ms,ms)
-        print "CMD: ",cmd
+        print("CMD: ",cmd)
         os.system(cmd)
-        print '--simple clean1 --'
+        print('--simple clean1 --')
         clean(vis=ms,imagename=ms+'_im',
           cell=[2.,2.],imsize=[128,128],field='0',spw='0',
           threshold=10., psfmode='hogbom',weighting='natural',
@@ -224,16 +224,16 @@ def strange(vis1=vis, vis2=vis, ms=ms):
         # uncommenting out the next line will fix this run, which normally always is ok
         #ms=ms+"_"
         cmd = 'rm -rf %s*; carmafiller vis=%s ms=%s; sum %s/* %s/*/*' % (ms,vis2,ms,ms,ms)
-        print "CMD: ",cmd
+        print("CMD: ",cmd)
         os.system(cmd)
-        print '--simple clean2 --'
+        print('--simple clean2 --')
         clean(vis=ms,imagename=ms+'_im',
           cell=[2.,2.],imsize=[128,128],field='0',spw='0',
           threshold=10., psfmode='hogbom',weighting='natural',
           mode='channel', nchan=15,
           niter=10,stokes='I'
           )
-    print '--simple2 done --'        
+    print('--simple2 done --')        
 
 if __name__ == '__main__':
     #fringe(vis,ms)

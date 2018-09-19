@@ -250,8 +250,8 @@ class spxfit_test(unittest.TestCase):
             if i == 1:
                 rec = spxfit(imagename=imagename, spxtype="plp", spxest=plpestoff)
             sols = rec['plp']['solution'].ravel()
-            print "*** i " + str(i)
-            print "** max ", sols/plpest
+            print("*** i " + str(i))
+            print("** max ", sols/plpest)
             self.assertTrue((abs(1 - sols/plpest) < 4e-2).all())
             plpsol = "plpsol.im"
             plperr = "plperr.im"
@@ -311,7 +311,7 @@ class spxfit_test(unittest.TestCase):
                 rec = myia.fitprofile(ngauss=0, spxtype="ltp", spxest=ltpest)
             if i == 1:
                 rec = spxfit(imagename=imagename, spxtype="ltp", spxest=ltpest)
-            print str(rec)
+            print(str(rec))
             sols = rec['ltp']['solution'].ravel()
             self.assertTrue((abs(1 - sols/ltpest) < 0.1e-7).all())
             if i == 1:
@@ -320,7 +320,7 @@ class spxfit_test(unittest.TestCase):
                 rec = spxfit(imagename=imagename, spxtype="ltp", spxest=[0.4, 3])
             sols = rec['ltp']['solution'].ravel()
             self.assertTrue((abs(1 - sols/ltpest) < 0.1e-7).all())
-            print '*** xUnit ' + rec['xUnit']
+            print('*** xUnit ' + rec['xUnit'])
             self.assertTrue(rec['xUnit'] == "Hz")
         
         myia.addnoise(pars=[0, 0.001])
@@ -483,7 +483,7 @@ class spxfit_test(unittest.TestCase):
             sol + "_0", sol + "_1", err + "_0",
             err + "_1", model, resid
         ):
-            print "checking image product " + im
+            print("checking image product " + im)
             self.checkImage(im, datapath + im)
         global myia
         for im in (sol, err):
@@ -493,7 +493,7 @@ class spxfit_test(unittest.TestCase):
             for j in [0, 1]:
                 myname = im + "_" + str(j)
                 myia.open(myname)
-                print "checking " + key + " " + str(j) + " array"
+                print("checking " + key + " " + str(j) + " array")
                 self.checkArray(res['plp'][key][:,:,:,:,j], myia.getchunk())
                 myia.done()
         got = open(logfile).readlines()

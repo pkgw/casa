@@ -62,12 +62,12 @@ os.system('rm -rf tmosaic* gcal*.split.* tgcal* n4826_t*')
 startTime=time.time()
 startProc=time.clock()
 
-print '--Copy/reinitialize--'
+print('--Copy/reinitialize--')
 #22 APR Calibration
 copystring22apr='cp -r '+datapath+'n4826_22apr98.ms n4826_22apr.ms'
 os.system(copystring22apr)
 tb.open('n4826_22apr.ms/HISTORY', nomodify=False)
-tb.removerows(range(tb.nrows()))
+tb.removerows(list(range(tb.nrows())))
 tb.done()
 ###reset the data as pre calibrated state
 clearcal(vis='n4826_22apr.ms')
@@ -75,12 +75,12 @@ clearcal(vis='n4826_22apr.ms')
 copytime=time.time()
 
 ####set flux scale fo calibrater
-print '--setjy - 22apr98--'
+print('--setjy - 22apr98--')
 default('setjy')
 setjy(vis='n4826_22apr.ms',field='0',fluxdensity=[23.0,0.,0.,0.],scalebychan=False)
 setjy1time=time.time()
 ## Flag bad data non-interactively
-print '--flag data - 22apr97--'
+print('--flag data - 22apr97--')
 default('flagdata')
 #flagdata(vis="n4826_22apr.ms",
 #	 antennaid=-1,baseline=[-1],chans=[-1],
@@ -94,7 +94,7 @@ flagdata(vis="n4826_22apr.ms", mode='clip',
 #setclip=["ABS YY",[0.0, 80.0],True])
 flag1time=time.time()
 ## Derive gain calibration solutions, try VLA-like calibration:
-print '--gaincal - 22par98--'
+print('--gaincal - 22par98--')
 default('gaincal')
 gaincal(vis='n4826_22apr.ms',caltable='n4826_22apr.gcal',
 	field='0,1',spw='0', gaintype='G',
@@ -102,7 +102,7 @@ gaincal(vis='n4826_22apr.ms',caltable='n4826_22apr.gcal',
 	refant='ANT5',solint='inf',combine='obsid')
 gaincal1time=time.time()
 ## Transfer the flux density scale:
-print '--fluxscale - 22apr98--'
+print('--fluxscale - 22apr98--')
 default('fluxscale')
 fluxscale(vis='n4826_22apr.ms',caltable='n4826_22apr.gcal',
 	  fluxtable='n4826_22apr.fcal',
@@ -112,7 +112,7 @@ fluxscale1time=time.time()
 ## Correct the calibrater/target source data:
 ## Use spwmap to apply gain solutions derived from spwid1 to all other spwids... 
 ##
-print '--correct 22apr98--'
+print('--correct 22apr98--')
 default('applycal')
 applycal(vis='n4826_22apr.ms',
 	field='1',spw='0',
@@ -123,7 +123,7 @@ applycal(vis='n4826_22apr.ms',
 correct1time=time.time()
 
 ## Split out calibrated target source  and calibrater data:
-print '--split - 22apr98--'
+print('--split - 22apr98--')
 default('split')
 split(vis='n4826_22apr.ms',outputvis='gcal.split.ms',
 #      field=1,spw=0,nchan=1,start=0,step=1,datacolumn='corrected')
@@ -137,7 +137,7 @@ split1time=time.time()
 
 ## Image the calibrater data:
 ##
-print '--image cal - 22apr98--'
+print('--image cal - 22apr98--')
 default('clean')
 clean(vis='gcal.split.ms',imagename='tgcal',
       cell=[1.,1.],imsize=[256,256],interpolation='nearest',
@@ -146,7 +146,7 @@ clean(vis='gcal.split.ms',imagename='tgcal',
 imagecal1time=time.time()
 ## Image the target source mosaic:
 ##
-print '--image src - 22apr98--'
+print('--image src - 22apr98--')
 default('clean')
 clean(vis='src.split.ms',imagename='tmosaicb',
       nchan=30,start=47,width=4,interpolation='nearest',
@@ -163,7 +163,7 @@ clean(vis='src.split.ms',imagename='tmosaicb',
 imagesrc1time=time.time()
 ## Write image to a fits file:
 ##
-print '--write fits image--'
+print('--write fits image--')
 default('exportfits')
 exportfits(imagename='tmosaicb.image',fitsimage='tmosaicb.fits')
 writefits1time=time.time()
@@ -174,27 +174,27 @@ writefits1time=time.time()
 ###########################################################
 ## Concatenate the separate sources
 ##
-print '--copy/initialize - 16apr98 --'
+print('--copy/initialize - 16apr98 --')
 copystring16apr='cp -r '+datapath+'n4826_16apr98.ms n4826_16apr.ms'
 os.system(copystring16apr)
 tb.open('n4826_16apr.ms/HISTORY', nomodify=False)
-tb.removerows(range(tb.nrows()))
+tb.removerows(list(range(tb.nrows())))
 tb.done()
 clearcal(vis='n4826_16apr.ms')
 copy2time=time.time()
 ## Set the flux density of 3C273 to 23 Jy
-print '--setjy - 16apr98--'
+print('--setjy - 16apr98--')
 default('setjy')
 setjy(vis='n4826_16apr.ms',field='0',fluxdensity=[23.0,0.,0.,0.],scalebychan=False)
 setjy2time=time.time()
 ## Flag end channels
-print '--flagdata - 16apr98 --'
+print('--flagdata - 16apr98 --')
 default('flagdata')
 #flagdata(vis='n4826_16apr.ms',chans=[0,1,62,63],spwid=[2,3,4,5],fieldid=-1)
 flagdata(vis='n4826_16apr.ms',spw='2~5:0;1;62;63', mode='manual')
 flagdata2time=time.time()
 ## Derive gain calibration solutions, try VLA-like calibration:
-print '--gaincal - 16apr98 --'
+print('--gaincal - 16apr98 --')
 default('gaincal')
 gaincal(vis='n4826_16apr.ms',caltable='n4826_16apr.gcal',
 	field='0,1',spw='0,1', gaintype='G',
@@ -203,7 +203,7 @@ gaincal(vis='n4826_16apr.ms',caltable='n4826_16apr.gcal',
 gaincal2time=time.time()
  #     Found 14 good G Jones solutions.
 ## Transfer the flux density scale:
-print '--fluxscale - 16apr98 --'
+print('--fluxscale - 16apr98 --')
 default('fluxscale')
 fluxscale(vis='n4826_16apr.ms',caltable='n4826_16apr.gcal',
 	  fluxtable='n4826_16apr.fcal',
@@ -217,7 +217,7 @@ fluxscale2time=time.time()
 ## Correct the calibrater/target source data:
 ## Use new parm spwmap to apply gain solutions derived from spwid1
 ## to all other spwids... 
-print '--correct - 16apr98 --'
+print('--correct - 16apr98 --')
 default('applycal')
 applycal(vis='n4826_16apr.ms',
 	field='1',spw='1',
@@ -227,7 +227,7 @@ applycal(vis='n4826_16apr.ms',
         gaintable='n4826_16apr.fcal',spwmap=[1])
 correct2time=time.time()
 ## Split out calibrated target source  and calibrater data:
-print '--split - 16apr98 --'
+print('--split - 16apr98 --')
 default('split')
 split(vis='n4826_16apr.ms',outputvis='gcala.split.ms',
 #      field=1,spw=1,nchan=1,start=0,step=1,datacolumn='corrected')
@@ -256,7 +256,7 @@ flagdata(vis="srca.split.ms", mode='clip',
 #setclip=["ABS I",[0.0,0.0],True],
 
 ## Image the calibrater data:
-print '--image cal - 16apr98 --'
+print('--image cal - 16apr98 --')
 default('clean')
 clean(vis='gcala.split.ms',imagename='tgcala',
       cell=[1.,1.],imsize=[256,256],interpolation='nearest',
@@ -266,7 +266,7 @@ imagecal2time=time.time()
 #############################################################
 ## Image the target source mosaic:
 ##
-print '--image src - 16apr98 --'
+print('--image src - 16apr98 --')
 default('clean')
 ### mosaic data ...Sault weighting implies a noise unform image
 ### hence flux scale across image needed to be corrected to get right value
@@ -282,12 +282,12 @@ clean(vis='srca.split.ms',imagename='tmosaica',
 exportfits('tmosaica.image','tmosaica.fits')
 
 #Combine and Image
-print '-- Initialize src.split.ms --'
+print('-- Initialize src.split.ms --')
 os.system('cp -r srca.split.ms n4826_tboth.ms');
 cb.open('src.split.ms')
 cb.initcalset()
 cb.close()
-print '-- Concatenate --'
+print('-- Concatenate --')
 ms.open(thems='n4826_tboth.ms',nomodify=False);
 ms.concatenate(msfile='src.split.ms',freqtol='50MHz')
 ms.close()
@@ -412,47 +412,47 @@ datestring=datetime.datetime.isoformat(datetime.datetime.today())
 outfile='n4826.'+datestring+'.log'
 logfile=open(outfile,'w')
 
-for x in [sys.stdout, logfile]: print >> x,'********** Regression ***********'
-for x in [sys.stdout, logfile]: print >> x,'* (Values: got, then expected)  *'
+for x in [sys.stdout, logfile]: print('********** Regression ***********', file=x)
+for x in [sys.stdout, logfile]: print('* (Values: got, then expected)  *', file=x)
 statstrs = {True: 'Passed', False: 'FAILED'}
-for x in [sys.stdout, logfile]: print >> x, '*', statstrs[diff_cal22apr<0.08], 'cal mean amp (22apr)'
-for x in [sys.stdout, logfile]: print >> x,'--Cal mean amp (22apr) '+str(thistest_cal_22apr)+', '+str(calmean22)
-for x in [sys.stdout, logfile]: print >> x, '*', statstrs[diff_src22apr<0.08], 'src mean amp (22apr)'
-for x in [sys.stdout, logfile]: print >> x,'--Src mean amp (22apr) '+str(thistest_src_22apr)+', '+str(srcmean22)
-for x in [sys.stdout, logfile]: print >> x, '*', statstrs[diff_calmax22<0.08], 'cal image max (22apr)'
-for x in [sys.stdout, logfile]: print >> x,'--Image max (cal;22apr) '+str(im_calmax22)+', '+str(calmax22)
-for x in [sys.stdout, logfile]: print >> x, '*', statstrs[diff_srcmax22<0.08], 'src image max (22apr)'
-for x in [sys.stdout, logfile]: print >> x,'--Image max (src;22apr): '+str(im_srcmax22)+', '+str(srcmax22)
-for x in [sys.stdout, logfile]: print >> x, '*', statstrs[diff_cal16apr<0.08], 'cal mean amp (16apr)'
-for x in [sys.stdout, logfile]: print >> x,'--Cal mean amp (16apr) '+str(thistest_cal_16apr)+', '+str(calmean16)
-for x in [sys.stdout, logfile]: print >> x, '*', statstrs[diff_src16apr<0.08], 'src mean amp (16apr)'
-for x in [sys.stdout, logfile]: print >> x,'--Src mean amp (16apr) '+str(thistest_src_16apr)+', '+str(srcmean16)
-for x in [sys.stdout, logfile]: print >> x, '*', statstrs[diff_calmax16<0.08], 'cal image max (16apr)'
-for x in [sys.stdout, logfile]: print >> x,'--Image max (cal;16apr): '+str(im_calmax16)+', '+str(calmax16)
-for x in [sys.stdout, logfile]: print >> x, '*', statstrs[diff_srcmax16<0.08], 'src image max (16apr)'
-for x in [sys.stdout, logfile]: print >> x,'--Image max (src;16apr): '+str(im_srcmax16)+', '+str(srcmax16)
-for x in [sys.stdout, logfile]: print >> x, '*', statstrs[diff_src<0.08], 'src mean amplitude test'
-for x in [sys.stdout, logfile]: print >> x,'--Src mean amp '+str(thistest_src)+', '+str(srcmean)
-for x in [sys.stdout, logfile]: print >> x, '*', statstrs[diff_immax<0.08], 'image max test'
-for x in [sys.stdout, logfile]: print >> x,'--Image max '+str(thistest_immax)+', '+str(immax)
-for x in [sys.stdout, logfile]: print >> x, '*', statstrs[diff_imrms<0.08], 'image rms test'
-for x in [sys.stdout, logfile]: print >> x,'--Image rms '+str(thistest_imrms)+', '+str(imrms)
+for x in [sys.stdout, logfile]: print('*', statstrs[diff_cal22apr<0.08], 'cal mean amp (22apr)', file=x)
+for x in [sys.stdout, logfile]: print('--Cal mean amp (22apr) '+str(thistest_cal_22apr)+', '+str(calmean22), file=x)
+for x in [sys.stdout, logfile]: print('*', statstrs[diff_src22apr<0.08], 'src mean amp (22apr)', file=x)
+for x in [sys.stdout, logfile]: print('--Src mean amp (22apr) '+str(thistest_src_22apr)+', '+str(srcmean22), file=x)
+for x in [sys.stdout, logfile]: print('*', statstrs[diff_calmax22<0.08], 'cal image max (22apr)', file=x)
+for x in [sys.stdout, logfile]: print('--Image max (cal;22apr) '+str(im_calmax22)+', '+str(calmax22), file=x)
+for x in [sys.stdout, logfile]: print('*', statstrs[diff_srcmax22<0.08], 'src image max (22apr)', file=x)
+for x in [sys.stdout, logfile]: print('--Image max (src;22apr): '+str(im_srcmax22)+', '+str(srcmax22), file=x)
+for x in [sys.stdout, logfile]: print('*', statstrs[diff_cal16apr<0.08], 'cal mean amp (16apr)', file=x)
+for x in [sys.stdout, logfile]: print('--Cal mean amp (16apr) '+str(thistest_cal_16apr)+', '+str(calmean16), file=x)
+for x in [sys.stdout, logfile]: print('*', statstrs[diff_src16apr<0.08], 'src mean amp (16apr)', file=x)
+for x in [sys.stdout, logfile]: print('--Src mean amp (16apr) '+str(thistest_src_16apr)+', '+str(srcmean16), file=x)
+for x in [sys.stdout, logfile]: print('*', statstrs[diff_calmax16<0.08], 'cal image max (16apr)', file=x)
+for x in [sys.stdout, logfile]: print('--Image max (cal;16apr): '+str(im_calmax16)+', '+str(calmax16), file=x)
+for x in [sys.stdout, logfile]: print('*', statstrs[diff_srcmax16<0.08], 'src image max (16apr)', file=x)
+for x in [sys.stdout, logfile]: print('--Image max (src;16apr): '+str(im_srcmax16)+', '+str(srcmax16), file=x)
+for x in [sys.stdout, logfile]: print('*', statstrs[diff_src<0.08], 'src mean amplitude test', file=x)
+for x in [sys.stdout, logfile]: print('--Src mean amp '+str(thistest_src)+', '+str(srcmean), file=x)
+for x in [sys.stdout, logfile]: print('*', statstrs[diff_immax<0.08], 'image max test', file=x)
+for x in [sys.stdout, logfile]: print('--Image max '+str(thistest_immax)+', '+str(immax), file=x)
+for x in [sys.stdout, logfile]: print('*', statstrs[diff_imrms<0.08], 'image rms test', file=x)
+for x in [sys.stdout, logfile]: print('--Image rms '+str(thistest_imrms)+', '+str(imrms), file=x)
 
 if ((diff_cal22apr<0.08) & (diff_src22apr<0.08) & (diff_cal16apr<0.08) & (diff_src16apr<0.08) &(diff_src<0.08) & (diff_immax<0.08) & (diff_imrms<0.08)):
 	regstate=True
-	for x in [sys.stdout, logfile]: print >> x,'---'
-	for x in [sys.stdout, logfile]: print >> x,'Passed Regression test for NGC 4826 Mosaic'
-	for x in [sys.stdout, logfile]: print >> x,'---'
+	for x in [sys.stdout, logfile]: print('---', file=x)
+	for x in [sys.stdout, logfile]: print('Passed Regression test for NGC 4826 Mosaic', file=x)
+	for x in [sys.stdout, logfile]: print('---', file=x)
 else:
 	regstate=False
-	for x in [sys.stdout, logfile]: print >> x,'----FAILED Regression test for NGC 4826 Mosaic'
-for x in [sys.stdout, logfile]: print >> x,'*********************************'
-for x in [sys.stdout, logfile]: print >> x,''
-for x in [sys.stdout, logfile]: print >> x,'********* Benchmarking *****************'
-for x in [sys.stdout, logfile]: print >> x,'*                                      *'
-for x in [sys.stdout, logfile]: print >> x,'Total wall clock time was: '+str(endTime - startTime)
-for x in [sys.stdout, logfile]: print >> x,'Total CPU        time was: '+str(endProc - startProc)
-for x in [sys.stdout, logfile]: print >> x,'Processing rate MB/s  was: '+str(300./(endTime - startTime))
-for x in [sys.stdout, logfile]: print >> x,'* Breakdown:                           *'
+	for x in [sys.stdout, logfile]: print('----FAILED Regression test for NGC 4826 Mosaic', file=x)
+for x in [sys.stdout, logfile]: print('*********************************', file=x)
+for x in [sys.stdout, logfile]: print('', file=x)
+for x in [sys.stdout, logfile]: print('********* Benchmarking *****************', file=x)
+for x in [sys.stdout, logfile]: print('*                                      *', file=x)
+for x in [sys.stdout, logfile]: print('Total wall clock time was: '+str(endTime - startTime), file=x)
+for x in [sys.stdout, logfile]: print('Total CPU        time was: '+str(endProc - startProc), file=x)
+for x in [sys.stdout, logfile]: print('Processing rate MB/s  was: '+str(300./(endTime - startTime)), file=x)
+for x in [sys.stdout, logfile]: print('* Breakdown:                           *', file=x)
 
 logfile.close()

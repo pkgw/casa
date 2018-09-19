@@ -18,15 +18,15 @@ projname = "m51c"
 startTime = time.time()
 startProc = time.clock()
 
-print '--Running simulation of M51 (ALMA-12m INT + ACA-7m INT + 12m TP) --'
+print('--Running simulation of M51 (ALMA-12m INT + ACA-7m INT + 12m TP) --')
 # configs are in the repository
 
 l=locals() 
-if not l.has_key("repodir"): 
+if "repodir" not in l: 
     repodir=os.getenv("CASAPATH").split(' ')[0]
 
-print casa['build']
-print 'I think the data repository is at '+repodir
+print(casa['build'])
+print('I think the data repository is at '+repodir)
 datadir=repodir+"/data/regression/simdata/"
 cfgdir=repodir+"/data/alma/simmos/"
 #importfits(fitsimage=datadir+modelname,imagename="m51.image")
@@ -72,7 +72,7 @@ if noise:
 else:
     thermalnoise=""
 
-if not l.has_key('interactive'): interactive=False
+if 'interactive' not in l: interactive=False
 if interactive:
     graphics="both"
 else:
@@ -123,7 +123,7 @@ if noise:
 else:
     thermalnoise=""
 
-if not l.has_key('interactive'): interactive=False
+if 'interactive' not in l: interactive=False
 if interactive:
     graphics="both"
 else:
@@ -175,7 +175,7 @@ if noise:
 else:
     thermalnoise=""
 
-if not l.has_key('interactive'): interactive=False
+if 'interactive' not in l: interactive=False
 if interactive:
     graphics="both"
 else:
@@ -217,7 +217,7 @@ showpsf = False
 showresidual = False
 showconvolved = True
 
-if not l.has_key('interactive'): interactive=False
+if 'interactive' not in l: interactive=False
 if interactive:
     graphics="both"
 else:
@@ -252,7 +252,7 @@ showpsf = False
 showresidual = False
 showconvolved = True
 
-if not l.has_key('interactive'): interactive=False
+if 'interactive' not in l: interactive=False
 if interactive:
     graphics="both"
 else:
@@ -278,28 +278,28 @@ import testhelper as th
 
 # test SD first so that we can check that indep. from INT
 newMS=project+"/"+project+".aca.tp.sd.ms"
-if verbose: print newMS
+if verbose: print(newMS)
 templateMS=th.findTemplate("sim_m51c",newMS)
 regstate=regstate and th.compMS(newMS,templateMS,verbose=verbose)
 
 newImage=project+"/"+project + '.sd.image'
-if verbose: print newImage
+if verbose: print(newImage)
 templateImage=th.findTemplate("sim_m51c",newImage)
 regstate=regstate and th.compImages(newImage,templateImage,verbose=verbose)
 
 # then INT
 newMS=project+"/"+project+".alma_0.5arcsec.ms"
-if verbose: print newMS
+if verbose: print(newMS)
 templateMS=th.findTemplate("sim_m51c",newMS)
 regstate=regstate and th.compMS(newMS,templateMS,verbose=verbose)
 
 newImage=project+"/"+project + '.alma_0.5arcsec.image'
-if verbose: print newImage
+if verbose: print(newImage)
 templateImage=th.findTemplate("sim_m51c",newImage)
 regstate=regstate and th.compImages(newImage,templateImage,verbose=verbose)
 
 newImage=project+"/"+project + '.alma_0.5arcsec.diff'
-if verbose: print newImage
+if verbose: print(newImage)
 templateImage=th.findTemplate("sim_m51c",newImage)
 regstate=regstate and th.compImages(newImage,templateImage,verbose=verbose)
 
@@ -390,14 +390,14 @@ regstate=regstate and th.compImages(newImage,templateImage,verbose=verbose)
 # print >> logfile,'---'
 if regstate:
 #    print >> logfile, 'Passed',
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('')
+    print('Regression PASSED')
+    print('')
 else:
 #    print >> logfile, 'FAILED',
-    print ''
-    print 'Regression FAILED'
-    print ''
+    print('')
+    print('Regression FAILED')
+    print('')
 #
 #print >> logfile, 'regression test for simdata of M51 (ALMA-12m INT + ACA-7m INT + 12m TP).'
 #print >>logfile,'---'

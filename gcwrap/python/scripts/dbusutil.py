@@ -32,19 +32,19 @@ def dbus_to_python(v):
         or isinstance(v, dbus.UInt32) \
         or isinstance(v, dbus.Int16) \
         or isinstance(v, dbus.UInt16) \
-        or type(v) == types.IntType:
+        or type(v) == int:
         return int(v)
-    elif isinstance(v, dbus.Double) or type(v) == types.FloatType:
+    elif isinstance(v, dbus.Double) or type(v) == float:
         return float(v)
-    elif isinstance(v, dbus.String) or type(v) == types.StringType:
+    elif isinstance(v, dbus.String) or type(v) == bytes:
         return str(v)
-    elif isinstance(v, dbus.Dictionary) or type(v) == types.DictType:
-        return dict( (dbus_to_python(k), dbus_to_python(v)) for k,v in v.iteritems() )
-    elif isinstance(v, dbus.Array) or type(v) == types.ListType:
+    elif isinstance(v, dbus.Dictionary) or type(v) == dict:
+        return dict( (dbus_to_python(k), dbus_to_python(v)) for k,v in v.items() )
+    elif isinstance(v, dbus.Array) or type(v) == list:
         return [dbus_to_python(x) for x in v]
-    elif isinstance(v, dbus.Struct) or type(v) == types.TupleType:
+    elif isinstance(v, dbus.Struct) or type(v) == tuple:
         return tuple(dbus_to_python(x) for x in v)
-    elif isinstance(v, dbus.Boolean) or type(v) == types.BooleanType:
+    elif isinstance(v, dbus.Boolean) or type(v) == bool:
         return bool(v)
     elif isinstance(v, dbus.ObjectPath) or type(v) == ObjectPath:
         return ObjectPath(v)

@@ -4,8 +4,9 @@ import webbrowser
 import subprocess
 import sys
 import xml.etree.cElementTree as ET
-import urllib2
-from urlparse import urlparse
+import urllib.request, urllib.error, urllib.parse
+from urllib.parse import urlparse
+from functools import reduce
 
 class __doc(object):
     "command-line Plone help"
@@ -24,9 +25,9 @@ class __doc(object):
 
     def __welcome( self, welcome="\nOpening packaged documentation.\n" ):
         if welcome is not None:
-            print welcome
-        print "The most recent version of all CASA documentation is available online from:"
-        print "\thttps://casa.nrao.edu/casadocs/\n"
+            print(welcome)
+        print("The most recent version of all CASA documentation is available online from:")
+        print("\thttps://casa.nrao.edu/casadocs/\n")
 
     def __call__( self, sec=None ):
         "open browser with documentation, try \"doc('toc')\""
@@ -34,10 +35,10 @@ class __doc(object):
         ## for now, access to the plone site is turned off
         remote=False
         def show_toc( toc_dict ):
-            width = max(len(key) for key in toc_dict.keys( ))+3
-            for i in sorted(toc_dict.iterkeys( )):
+            width = max(len(key) for key in list(toc_dict.keys( )))+3
+            for i in sorted(toc_dict.keys( )):
                 if "external" in toc_dict[i]['visibility']:
-                    print "".join([i.ljust(width),toc_dict[i]['desc'].replace('\n','')])
+                    print("".join([i.ljust(width),toc_dict[i]['desc'].replace('\n','')]))
 
         def entry_to_dict(acc,e):
             if e.tag == 'entry':
@@ -53,14 +54,14 @@ class __doc(object):
                 return webbrowser.open("https://casa.nrao.edu/casadocs/")
             else:
                 if self.remote_toc is None:
-                    self.remote_toc =  reduce( entry_to_dict, ET.ElementTree(file=urllib2.urlopen(self.remote_toc_url)).getroot( ).getchildren( ), { } )
+                    self.remote_toc =  reduce( entry_to_dict, ET.ElementTree(file=urllib.request.urlopen(self.remote_toc_url)).getroot( ).getchildren( ), { } )
                 if sec == 'toc':
                     show_toc(self.remote_toc)
-                elif self.remote_toc.has_key(sec):
+                elif sec in self.remote_toc:
                     return webbrowser.open("https://casa.nrao.edu/casadocs/stable/" + self.remote_toc[sec]['path'])
                 else:
-                    print "Sorry '%s' is not a recognized section..." % sec
-                    print "------------------------------------------------------------------------------"
+                    print("Sorry '%s' is not a recognized section..." % sec)
+                    print("------------------------------------------------------------------------------")
                     show_toc(self.remote_toc)
         else:
             path = casa['dirs']['doc'] + "/casa.nrao.edu"
@@ -70,15 +71,15 @@ class __doc(object):
                     self.__welcome( )
                     return webbrowser.open("file://" + homepage)
                 else:
-                    print "local documentation tree not found..."
+                    print("local documentation tree not found...")
                     self.__welcome(None)
                     return False
             else:
                 if self.local_toc is None:
                     if self.local_toc_url is not None:
-                        self.local_toc = reduce( entry_to_dict, ET.ElementTree(file=urllib2.urlopen("file://" + self.local_toc_url)).getroot( ).getchildren( ), { } )
+                        self.local_toc = reduce( entry_to_dict, ET.ElementTree(file=urllib.request.urlopen("file://" + self.local_toc_url)).getroot( ).getchildren( ), { } )
                     else:
-                        print "local documentation tree not found..."
+                        print("local documentation tree not found...")
                         self.__welcome(None)
                         return False
                 if sec == 'toc':
@@ -86,22 +87,22 @@ class __doc(object):
                 elif sec == 'start':
                     self.__welcome( )
                     return webbrowser.open("file://" + path + self.local_base + self.local_start_path)
-                elif self.local_toc.has_key(sec):
+                elif sec in self.local_toc:
                     self.__welcome( )
                     return webbrowser.open("file://" + path + self.local_base + self.local_toc[sec]['path'])
                 else:
                     self.__welcome(None)
-                    print "Sorry '%s' is not a recognized section..." % sec
-                    print "------------------------------------------------------------------------------"
+                    print("Sorry '%s' is not a recognized section..." % sec)
+                    print("------------------------------------------------------------------------------")
                     show_toc(self.local_toc)
 
 
     def fetch( self ):
         if casa['dirs']['doc'] is None:
-            print "casa['dirs']['doc'] has not been set..."
+            print("casa['dirs']['doc'] has not been set...")
             return False
         if not os.path.exists(casa['dirs']['doc']):
-            print ("directory %s does not exist..." % casa['dirs']['doc'])
+            print(("directory %s does not exist..." % casa['dirs']['doc']))
             return False
 
         ## rename existing directory
@@ -110,14 +111,14 @@ class __doc(object):
             now = datetime.datetime.now( ).isoformat('-')
             os.rename(path, path + "." + now)
 
-        print "               source:  %s" % self.remote_source_url
-        print "    table of contents:  %s" % self.remote_toc_url
-        print "       download point:  %s" % path
-        print "--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---"
-        print "this will take some time..."
-        print "relax..."
-        print "do not hit ^C ..."
-        print "do not expect output..."
+        print("               source:  %s" % self.remote_source_url)
+        print("    table of contents:  %s" % self.remote_toc_url)
+        print("       download point:  %s" % path)
+        print("--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---")
+        print("this will take some time...")
+        print("relax...")
+        print("do not hit ^C ...")
+        print("do not expect output...")
 
         wgetcmd = "wget"
 
@@ -138,7 +139,7 @@ class __doc(object):
                     os.remove('casa.nrao.edu')
                 os.symlink(self.remote_source_url_components[1],'casa.nrao.edu')
             else:
-                print "warning, could not find mirror (%s/%s)" % (casa['dirs']['doc'],self.remote_source_url_components[1])
+                print("warning, could not find mirror (%s/%s)" % (casa['dirs']['doc'],self.remote_source_url_components[1]))
             os.chdir(orig)
         return (tree, toc)
 

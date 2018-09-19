@@ -44,7 +44,7 @@ def makeMS(choice='RL_all',stokesvals=[1.0,1.0,0.0,0.0],parentpath='.'):
   dirname = parentpath+"/Point"
   choicelist = ['RL_all','RL_par','RR_only','LL_only','XY_all','XY_par','XX_only','YY_only'];
   if(not (choice in choicelist)):
-    print >>logfile, 'Cannot find specs for ', choice;
+    print('Cannot find specs for ', choice, file=logfile);
     return;
   if(choice=='RL_all'):
     basename = dirname+"/point_linRL"
@@ -134,7 +134,7 @@ def makeMS(choice='RL_all',stokesvals=[1.0,1.0,0.0,0.0],parentpath='.'):
   cl.rename(filename=clname);
   cl.close();
 
-  print >>logfile, 'Predicting  : ', clname , ' onto ' , msname;
+  print('Predicting  : ', clname , ' onto ' , msname, file=logfile);
   ft(vis=msname,complist=clname,usescratch=True);
 
   tb.open(msname,nomodify=False);
@@ -153,7 +153,7 @@ def makeMS(choice='RL_all',stokesvals=[1.0,1.0,0.0,0.0],parentpath='.'):
 def runstokes(msname="Point/point_linXY.ms", imname='sctest',stokes='IQ'):
    cmd = 'rm -rf ' + imname + '*';
    os.system(cmd);
-   print >>logfile, '### Running clean with stokes : ', stokes, ' on MS : ', msname;
+   print('### Running clean with stokes : ', stokes, ' on MS : ', msname, file=logfile);
    clean( vis                  =  msname,
              imagename     =  imname,
              niter              =  100,
@@ -174,7 +174,7 @@ def checkoutput(msname='Point/point_linXY.ms', imname='sctest', stokes='IQ'):
     ## check output stokes coordinates.
     resultvals={'ms':msname, 'userstokes':stokes};
     if( not os.path.exists( imname+'.image' ) ):
-        print >>logfile, "### No output file found";
+        print("### No output file found", file=logfile);
         resultvals['answer']='no output image';
         return resultvals;
     ia.open(imname+'.image');
@@ -185,7 +185,7 @@ def checkoutput(msname='Point/point_linXY.ms', imname='sctest', stokes='IQ'):
     midpix = (ia.shape())[0]/2;
     rvals={};
     for st in range(0,len(outstokes)):
-       print >>logfile, '### Output ', outstokes[st], ":",  (ia.pixelvalue([midpix,midpix,st,0]))['value'];
+       print('### Output ', outstokes[st], ":",  (ia.pixelvalue([midpix,midpix,st,0]))['value'], file=logfile);
        rvals[outstokes[st]]=(ia.pixelvalue([midpix,midpix,st,0]))['value'];
     ia.close();
     resultvals['answer']=rvals;
@@ -231,12 +231,12 @@ def doAllChecks(stokesvals=[],parentpath='.'):
  resultlist=[];
  for mss in choicelist:
    for sto in soptions:
-      print >>logfile, '### ---------------------------------------------------------------- ';
+      print('### ---------------------------------------------------------------- ', file=logfile);
       if( not os.path.exists( parentpath+'/'+msnames[mss] ) ):
-          print >>logfile, '### Did not find MS. Making ', parentpath+'/'+msnames[mss];
+          print('### Did not find MS. Making ', parentpath+'/'+msnames[mss], file=logfile);
           makeMS(mss, stokesvals,parentpath);
       else:
-          print >>logfile, '### Found MS ', parentpath+'/'+msnames[mss];
+          print('### Found MS ', parentpath+'/'+msnames[mss], file=logfile);
       resultlist.append( runstokes(msname=parentpath+'/'+msnames[mss],stokes=sto) );
  return resultlist;
 ###############################################
@@ -268,8 +268,8 @@ endTime=time.time()
 
 
 # Perform the checks
-print >>logfile,''
-print >>logfile,'*********************** Comparison of results **********************************'
+print('', file=logfile)
+print('*********************** Comparison of results **********************************', file=logfile)
 
 truestokes=convertToStokes(stokesvals);
 
@@ -280,7 +280,7 @@ totalcount=0;
 for stok in resultlist:
      slist = stok['answer'];
      if(slist == 'no output image'):
-         print >>logfile, 'FAIL : ',stok;
+         print('FAIL : ',stok, file=logfile);
          countfail=countfail+1;
      else:
         stat=True;
@@ -288,10 +288,10 @@ for stok in resultlist:
            if( abs( slist[sout]['value'] - truestokes[sout] ) > 1e-03 ):
                stat=False;
         if(stat==True):
-               print >>logfile, 'PASS : ', stok;
+               print('PASS : ', stok, file=logfile);
                countpass=countpass+1;
         else:
-               print >>logfile, 'FAIL : WRONG NUMBERS : ', stok;
+               print('FAIL : WRONG NUMBERS : ', stok, file=logfile);
                countfail=countfail+1;
                countwrongnumbers=countwrongnumbers+1;
      totalcount=totalcount+1;
@@ -304,10 +304,10 @@ true_countpass = 40;
 true_countfail = 144;
 true_countwrongnumbers = 14;
 
-print >>logfile,  '*********************************************************************************';
-print >>logfile,  'OUTPUT -- Total count : ', totalcount , ' --- Passed : ', countpass , ' --- Failed : ', countfail , ' (', countwrongnumbers, ' wrong numbers) ';
-print >>logfile, 'TRUTH    -- Total count : ', true_totalcount , ' --- Passed : ', true_countpass , ' --- Failed : ', true_countfail , ' (', true_countwrongnumbers, ' wrong numbers) ';
-print >>logfile,  '*********************************************************************************';
+print('*********************************************************************************', file=logfile);
+print('OUTPUT -- Total count : ', totalcount , ' --- Passed : ', countpass , ' --- Failed : ', countfail , ' (', countwrongnumbers, ' wrong numbers) ', file=logfile);
+print('TRUTH    -- Total count : ', true_totalcount , ' --- Passed : ', true_countpass , ' --- Failed : ', true_countfail , ' (', true_countwrongnumbers, ' wrong numbers) ', file=logfile);
+print('*********************************************************************************', file=logfile);
 
 if( not (totalcount==true_totalcount) or not (countpass==true_countpass) or not (countfail==true_countfail) or not (countwrongnumbers==true_countwrongnumbers) ):
      regstate=False;
@@ -315,27 +315,27 @@ if( not (totalcount==true_totalcount) or not (countpass==true_countpass) or not 
 
 # Final verdict
 if(regstate):
-   print >>logfile,'PASSED regression test for stokes selection in imager'
-   print ''
-   print 'Regression PASSED'
-   print ''
+   print('PASSED regression test for stokes selection in imager', file=logfile)
+   print('')
+   print('Regression PASSED')
+   print('')
 else:
-   print >>logfile,'FAILED regression test for stokes selection in imager'
-   print ''
-   print 'Regression FAILED'
-   print ''
+   print('FAILED regression test for stokes selection in imager', file=logfile)
+   print('')
+   print('Regression FAILED')
+   print('')
 
-print >>logfile,''
+print('', file=logfile)
 
 # Print timing info
-print >>logfile,'********************************************************************************'
-print >>logfile,'**                         Benchmarking                                       **'
-print >>logfile,'********************************************************************************'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,'Processing rate MB/s  was: '+str(278./(endTime - startTime))
-print >>logfile,'*                                                                              *'
-print >>logfile,'********************************************************************************'
+print('********************************************************************************', file=logfile)
+print('**                         Benchmarking                                       **', file=logfile)
+print('********************************************************************************', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+print('Processing rate MB/s  was: '+str(278./(endTime - startTime)), file=logfile)
+print('*                                                                              *', file=logfile)
+print('********************************************************************************', file=logfile)
 
 logfile.close()
 

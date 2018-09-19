@@ -10,7 +10,7 @@ def print_test(output, testname):
     elif len(testname) == 0:
         print(output)
     else:
-        print("%s: %s" % (testname, output))
+        print(("%s: %s" % (testname, output)))
 
 def get_band_center_width(numChan, refChan, refFreq, chanSep):
     """

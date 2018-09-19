@@ -14,51 +14,51 @@ startProc = time.clock()
 
 datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/ATST1/NGC7538/'
 
-print '--Import--'
+print('--Import--')
 default('importvla')
 importvla(archivefiles=[datapath+'AP314_A950519.xp1',
                         datapath+'AP314_A950519.xp2',
                         datapath+'AP314_A950519.xp3'],
 	  vis='ngc7538.ms', bandname='K', frequencytol=10000000.0)
 importtime = time.time() 
-print '--Observation summary--'
+print('--Observation summary--')
 listobs(vis='ngc7538.ms')
 #listtime = time.time()
-print '--Flag auto-correlations--'
+print('--Flag auto-correlations--')
 default('flagdata')
 flagdata(vis='ngc7538.ms', mode='manual', autocorr=True)
 flagtime = time.time()
-print '--Setjy--'
+print('--Setjy--')
 default('setjy')
 setjy(vis='ngc7538.ms',field='0',standard='Perley-Taylor 99',scalebychan=False) #set flux density for 1331+305 (3C286)
 setjytime = time.time()
 
-print '--Gencal(opac)--'
+print('--Gencal(opac)--')
 default('gencal')
 gencal(vis='ngc7538.ms', caltable='ap314.opac',
        caltype='opac',parameter=[0.08])
 gencaltime = time.time()
 
-print '--Gaincal--'
+print('--Gaincal--')
 default('gaincal')
 gaincal(vis='ngc7538.ms', caltable='ap314.gcal',
 	field='<2', spw='0~1:2~56', gaintype='G',
 	solint='inf', combine='', refant='VA19',
 	gaintable=['ap314.opac'])
 gaintime = time.time()
-print '--Bandpass--'
+print('--Bandpass--')
 default('bandpass')
 bandpass(vis='ngc7538.ms', caltable='1328.bcal',
 	 field='0',
 	 gaintable=['ap314.opac','ap314.gcal'], interp=['','nearest'],
 	 refant='VA19')
 bptime = time.time()
-print '--Fluxscale--'
+print('--Fluxscale--')
 default('fluxscale')
 fluxscale(vis='ngc7538.ms', caltable='ap314.gcal', fluxtable='ap314.fluxcal',
 	  reference=['1328+307'], transfer=['2229+695'])
 fstime = time.time()
-print '--Apply Cal--'
+print('--Apply Cal--')
 default('applycal')
 applycal(vis='ngc7538.ms',
 	 field='1~5',
@@ -67,22 +67,22 @@ applycal(vis='ngc7538.ms',
 	 
 correcttime = time.time()
 
-print '--Split (fluxcal data)--'
+print('--Split (fluxcal data)--')
 default('split')
 split(vis='ngc7538.ms', outputvis='ngc7538_cal.split.ms',
       field='0',spw='0:0~61', datacolumn='model')
 
-print '--Split (continuum)--'
+print('--Split (continuum)--')
 default('split')
 # This _averages_ 
 split(vis='ngc7538.ms', outputvis='ngc7538d.cont.ms',
       field='3',spw='0:2~56',width=[55], datacolumn='corrected')
 
-print '--Split (mf cont,)--'
+print('--Split (mf cont,)--')
 default('split')
 split(vis='ngc7538.ms', outputvis='ngc7538.cont.ms',
 	field='3,4,5',spw='0:2~56',width=[55], datacolumn='corrected')
-print '--Split (bandcal data)--'
+print('--Split (bandcal data)--')
 default('split')
 split(vis='ngc7538.ms', outputvis='2229.cont2.ms',
       field='1', spw='0:2~56,1:2~56',width=[55,55], datacolumn='corrected')
@@ -92,7 +92,7 @@ split(vis='ngc7538.ms',outputvis='ngc7538d.line.ms',
       field='3',spw='0:2~56,1:2~56',datacolumn='corrected')
 splitsrctime = time.time()
 
-print '--Clean cal--'
+print('--Clean cal--')
 default('clean')
 clean(vis='2229.cont2.ms',imagename='2229.cont2',mode='channel',
       psfmode='hogbom',niter=6000,gain=0.1,threshold=8.,mask='',
@@ -100,7 +100,7 @@ clean(vis='2229.cont2.ms',imagename='2229.cont2',mode='channel',
       imsize=[256,256],cell=[0.5,0.5],
       weighting='briggs',robust=0.5,imagermode='')
 cleantime1 = time.time()
-print '--Clean src cont--'
+print('--Clean src cont--')
 default('clean')
 clean(vis='ngc7538d.cont.ms',imagename='ngc7538d.cont',mode='channel',
       psfmode='hogbom',niter=5000,gain=0.1,threshold=3.,mask='',
@@ -108,7 +108,7 @@ clean(vis='ngc7538d.cont.ms',imagename='ngc7538d.cont',mode='channel',
       imsize=[1024,1024],cell=[0.5,0.5],
       weighting='briggs',robust=0.5,imagermode='')
 cleantime2 = time.time()
-print '--Clean src line--'
+print('--Clean src line--')
 default('clean')
 clean(vis='ngc7538d.line.ms',imagename='ngc7538d.cube',mode='channel',
       psfmode='hogbom',niter=5000,gain=0.1,threshold=30.,mask='',
@@ -169,76 +169,76 @@ datestring=datetime.datetime.isoformat(datetime.datetime.today())
 outfile='ngc7538.'+datestring+'.log'
 logfile=open(outfile,'w')
 
-print >>logfile,''
-print >>logfile,'********** Data Summary *********'
-print >>logfile,'* Observer: unavailable     Project: AP314                                  *'
-print >>logfile,'* Observation: VLA(27 antennas)                                             *'
-print >>logfile,'*  Telescope Observation Date Observer       Project                        *'
-print >>logfile,'*  VLA       [                4.30759e+09, 4.30759e+09]unavailable    AP314 *'
-print >>logfile,'*  VLA       [                4.30759e+09, 4.30762e+09]unavailable    AP314 *'
-print >>logfile,'*  VLA       [                4.30762e+09, 4.30763e+09]unavailable    AP314 *'
-print >>logfile,'*Data records: 838404       Total integration time = 36000 seconds          *'
-print >>logfile,'*   Observed from   09:23:45   to   19:23:45                                *'
-print >>logfile,'*Fields: 6                                                                  *'
-print >>logfile,'*  ID   Name          Right Ascension  Declination   Epoch                  *'
-print >>logfile,'*  0    1328+307      13:31:08.29      +30.30.33.04  J2000                  *'
-print >>logfile,'*  1    2229+695      22:30:36.48      +69.46.28.00  J2000                  *'
-print >>logfile,'*  2    NGC7538C      23:14:02.48      +61.27.14.86  J2000                  *'
-print >>logfile,'*  3    NGC7538D      23:13:43.82      +61.27.00.18  J2000                  *'
-print >>logfile,'*  4    NGC7538E      23:13:34.64      +61.27.26.44  J2000                  *'
-print >>logfile,'*  5    NGC7538F      23:13:35.76      +61.28.33.66  J2000                  *'
-print >>logfile,'* Data descriptions: 2 (2 spectral windows and 2 polarization setups)       *'
-print >>logfile,'*   ID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs  *'
-print >>logfile,'*   0       63 TOPO  23691.4682  118.164062  6152.34375  23694.4955  RR     *'
-print >>logfile,'*   1       63 TOPO  23719.6063  118.164062  6152.34375  23722.6336  LL     *'
-print >>logfile,'*********************************'
-print >>logfile,''
-print >>logfile,'********** Regression ***********'
-print >>logfile,'*                               *'
+print('', file=logfile)
+print('********** Data Summary *********', file=logfile)
+print('* Observer: unavailable     Project: AP314                                  *', file=logfile)
+print('* Observation: VLA(27 antennas)                                             *', file=logfile)
+print('*  Telescope Observation Date Observer       Project                        *', file=logfile)
+print('*  VLA       [                4.30759e+09, 4.30759e+09]unavailable    AP314 *', file=logfile)
+print('*  VLA       [                4.30759e+09, 4.30762e+09]unavailable    AP314 *', file=logfile)
+print('*  VLA       [                4.30762e+09, 4.30763e+09]unavailable    AP314 *', file=logfile)
+print('*Data records: 838404       Total integration time = 36000 seconds          *', file=logfile)
+print('*   Observed from   09:23:45   to   19:23:45                                *', file=logfile)
+print('*Fields: 6                                                                  *', file=logfile)
+print('*  ID   Name          Right Ascension  Declination   Epoch                  *', file=logfile)
+print('*  0    1328+307      13:31:08.29      +30.30.33.04  J2000                  *', file=logfile)
+print('*  1    2229+695      22:30:36.48      +69.46.28.00  J2000                  *', file=logfile)
+print('*  2    NGC7538C      23:14:02.48      +61.27.14.86  J2000                  *', file=logfile)
+print('*  3    NGC7538D      23:13:43.82      +61.27.00.18  J2000                  *', file=logfile)
+print('*  4    NGC7538E      23:13:34.64      +61.27.26.44  J2000                  *', file=logfile)
+print('*  5    NGC7538F      23:13:35.76      +61.28.33.66  J2000                  *', file=logfile)
+print('* Data descriptions: 2 (2 spectral windows and 2 polarization setups)       *', file=logfile)
+print('*   ID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs  *', file=logfile)
+print('*   0       63 TOPO  23691.4682  118.164062  6152.34375  23694.4955  RR     *', file=logfile)
+print('*   1       63 TOPO  23719.6063  118.164062  6152.34375  23722.6336  LL     *', file=logfile)
+print('*********************************', file=logfile)
+print('', file=logfile)
+print('********** Regression ***********', file=logfile)
+print('*                               *', file=logfile)
 passfail = {True: '* Passed',
             False: '* FAILED'}
-print >> logfile, passfail[diff_cal < 0.05], 'cal max amplitude test *'
-print >>logfile,'* Cal max amp '+str(thistest_cal)
-print >> logfile, passfail[diff_src < 0.05], 'src max amplitude test *'
-print >>logfile,'* Src max amp '+str(thistest_src)
-print >> logfile, passfail[diff_immax < 0.05], 'image max test         *'
-print >>logfile,'* Image max '+str(thistest_immax)
-print >> logfile, passfail[diff_imrms < 0.05], 'image rms test         *'
-print >>logfile,'* Image rms '+str(thistest_imrms)
+print(passfail[diff_cal < 0.05], 'cal max amplitude test *', file=logfile)
+print('* Cal max amp '+str(thistest_cal), file=logfile)
+print(passfail[diff_src < 0.05], 'src max amplitude test *', file=logfile)
+print('* Src max amp '+str(thistest_src), file=logfile)
+print(passfail[diff_immax < 0.05], 'image max test         *', file=logfile)
+print('* Image max '+str(thistest_immax), file=logfile)
+print(passfail[diff_imrms < 0.05], 'image rms test         *', file=logfile)
+print('* Image rms '+str(thistest_imrms), file=logfile)
 if ((diff_src<0.05) & (diff_cal<0.05) & (diff_immax<0.05) & (diff_imrms<0.05)): 
 	regstate=True
-	print >>logfile,'---'
-	print >>logfile,'Passed Regression test for NGC7538'
-	print >>logfile,'---'
+	print('---', file=logfile)
+	print('Passed Regression test for NGC7538', file=logfile)
+	print('---', file=logfile)
 else: 
 	regstate=False
-	print >>logfile,'----FAILED Regression test for NGC7538'
-print >>logfile,'*********************************'
+	print('----FAILED Regression test for NGC7538', file=logfile)
+print('*********************************', file=logfile)
 
-print >>logfile,''
-print >>logfile,''
-print >>logfile,'********* Benchmarking *****************'
-print >>logfile,'*                                      *'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,'Processing rate MB/s  was: '+str(240.3/(endTime - startTime))
-print >>logfile,'* Breakdown:                           *'
-print >>logfile,'*   import       time was: '+str(importtime-startTime)
-print >>logfile,'*   flagautocorr time was: '+str(flagtime-importtime)
-print >>logfile,'*   setjy        time was: '+str(setjytime-flagtime)
-print >>logfile,'*   gencal       time was: '+str(gencaltime-setjytime)
-print >>logfile,'*   gaincal      time was: '+str(gaintime-gencaltime)
-print >>logfile,'*   bandpass     time was: '+str(bptime-gaintime)
-print >>logfile,'*   fluxscale    time was: '+str(fstime-bptime)
-print >>logfile,'*   applycal     time was: '+str(correcttime-fstime)
-print >>logfile,'*   split-cal    time was: '+str(splitcaltime-correcttime)
-print >>logfile,'*   split-src    time was: '+str(splitsrctime-splitcaltime)
-print >>logfile,'*   clean-cal    time was: '+str(cleantime1-splitsrctime)
-print >>logfile,'*   clean-src-c  time was: '+str(cleantime2-cleantime1)
-print >>logfile,'*   clean-src-l  time was: '+str(cleantime3-cleantime2)
+print('', file=logfile)
+print('', file=logfile)
+print('********* Benchmarking *****************', file=logfile)
+print('*                                      *', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+print('Processing rate MB/s  was: '+str(240.3/(endTime - startTime)), file=logfile)
+print('* Breakdown:                           *', file=logfile)
+print('*   import       time was: '+str(importtime-startTime), file=logfile)
+print('*   flagautocorr time was: '+str(flagtime-importtime), file=logfile)
+print('*   setjy        time was: '+str(setjytime-flagtime), file=logfile)
+print('*   gencal       time was: '+str(gencaltime-setjytime), file=logfile)
+print('*   gaincal      time was: '+str(gaintime-gencaltime), file=logfile)
+print('*   bandpass     time was: '+str(bptime-gaintime), file=logfile)
+print('*   fluxscale    time was: '+str(fstime-bptime), file=logfile)
+print('*   applycal     time was: '+str(correcttime-fstime), file=logfile)
+print('*   split-cal    time was: '+str(splitcaltime-correcttime), file=logfile)
+print('*   split-src    time was: '+str(splitsrctime-splitcaltime), file=logfile)
+print('*   clean-cal    time was: '+str(cleantime1-splitsrctime), file=logfile)
+print('*   clean-src-c  time was: '+str(cleantime2-cleantime1), file=logfile)
+print('*   clean-src-l  time was: '+str(cleantime3-cleantime2), file=logfile)
 #print '*   contsub      time was: ',contsubtime-cleantime3
-print >>logfile,'*****************************************'
-print >>logfile,'basho (test cpu) time was: 500 seconds'
+print('*****************************************', file=logfile)
+print('basho (test cpu) time was: 500 seconds', file=logfile)
 
 logfile.close()
 

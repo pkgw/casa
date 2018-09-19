@@ -49,12 +49,12 @@ def testconcat(vislist,testconcatvis,freqtol,dirtol,copypointing):
 		else:
 			vis=list(vislist)
 		if((type(testconcatvis)!=str) or (len(testconcatvis.split()) < 1)):
-			raise Exception, 'parameter testconcatvis is invalid'
+			raise Exception('parameter testconcatvis is invalid')
 		if(vis.count(testconcatvis) > 0):
 			vis.remove(testconcatvis)
 
 		if(os.path.exists(testconcatvis)):
-			raise Exception, 'Visibility data set '+testconcatvis+' exists. Will not overwrite.'
+			raise Exception('Visibility data set '+testconcatvis+' exists. Will not overwrite.')
 		else:
 			if(len(vis) >0): 
 				casalog.post('copying structure of '+vis[0]+' to '+testconcatvis , 'INFO')
@@ -97,7 +97,7 @@ def testconcat(vislist,testconcatvis,freqtol,dirtol,copypointing):
 
 		m.close()
 
-	except Exception, instance:
-		print '*** Error ***',instance
-		raise Exception, instance
+	except Exception as instance:
+		print('*** Error ***',instance)
+		raise Exception(instance)
 

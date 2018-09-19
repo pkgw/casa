@@ -4,7 +4,7 @@ import os
 
 casalog.showconsole(onconsole=True)
 
-print sys.argv
+print(sys.argv)
 i = sys.argv.index("-c")
 data_dir  = [sys.argv[i+2]]
 work_dir  = sys.argv[i+3]
@@ -23,7 +23,7 @@ try:
                             data_dir, work_dir + '/work', work_dir + '/result',
                             CPP_PROFILE = p)
 except:
-    print "runTest execution failed"
+    print("runTest execution failed")
     raise
     exit()  # sys.exit(1) does not work with IPython
 exit()

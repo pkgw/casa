@@ -14,15 +14,15 @@ datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/"
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/cvel/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
 
-print 'cvel2 tests will use data from '+datapath     
+print('cvel2 tests will use data from '+datapath)     
     
-if os.environ.has_key('BYPASS_PARALLEL_PROCESSING'):
+if 'BYPASS_PARALLEL_PROCESSING' in os.environ:
     ParallelTaskHelper.bypassParallelProcessing(1)
 
 myname = 'test_cvel'
@@ -59,9 +59,9 @@ def verify_ms(msname, expnumspws, expnumchan, inspw, expchanfreqs=[]):
         return [False,msg]
 
     if not (expchanfreqs==[]):
-        print "Testing channel frequencies ..."
-        print cf
-        print expchanfreqs
+        print("Testing channel frequencies ...")
+        print(cf)
+        print(expchanfreqs)
         if not (expchanfreqs.size == expnumchan):
             msg =  "Internal error: array of expected channel freqs should have dimension ", expnumchan
             return [False,msg]
@@ -179,7 +179,7 @@ class test_base(unittest.TestCase):
             os.system("rm -rf " + self.testmms)
             os.system("rm -rf " + self.testmms +'.flagversions')
             
-        print "................. Creating test MMS .................."
+        print("................. Creating test MMS ..................")
         partition(vis=msfile, outputvis=self.testmms,flagbackup=False, separationaxis=axis, scan=scans, spw=spws, field=fields,
                   numsubms=numms)
 
@@ -196,7 +196,7 @@ class cvel2_test(test_base):
         try:
             cvel2()
         except Exception:
-            print 'Expected error!'
+            print('Expected error!')
     
     def test2(self):
         '''cvel2 2: Only input vis set - expected error'''
@@ -206,7 +206,7 @@ class cvel2_test(test_base):
         try:
             cvel2(vis = 'myinput.ms')
         except Exception:
-            print 'Expected error!'
+            print('Expected error!')
             
     def test3(self):
         '''cvel2 3: Input and output vis set'''
@@ -441,7 +441,7 @@ class cvel2_test(test_base):
             ret = verify_ms(outfile, 1, 2, 0)
             self.assertTrue(ret[0],ret[1])
         except:
-            print "*** Expected error ***"
+            print("*** Expected error ***")
     
     def test15(self):
         '''cvel2 15: I/O vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 8...'''
@@ -1198,7 +1198,7 @@ class cvel2_test(test_base):
             ret = verify_ms(outfile, 1, 2, 0)
             self.assertTrue(ret[0],ret[1])
         except:
-            print "*** Expected error ***"
+            print("*** Expected error ***")
 
     def test50(self):
         '''cvel2 50: test fftshift regridding: channel mode, width positive'''
@@ -1351,7 +1351,7 @@ class cvel2_test(test_base):
                 outframe = ''
                 )
         except Exception:
-            print 'Expected error!'
+            print('Expected error!')
         
     def test_mms_heuristics2(self):
         '''cvel2 : MMS heuristic tests'''
@@ -1371,7 +1371,7 @@ class cvel2_test(test_base):
                 outframe = ''
                 )
         except Exception:
-            print 'Expected error!'
+            print('Expected error!')
              
     def test_mms_heuristics3(self):
         '''cvel2 : MMS heuristic tests'''

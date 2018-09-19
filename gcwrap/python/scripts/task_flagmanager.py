@@ -21,8 +21,7 @@ def flagmanager(
             if mode != 'rename':
                 aflocal.open(vis)
         else:
-            raise Exception, \
-                'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
         if mode == 'list':
             flist = []
             flist = aflocal.getflagversionlist()
@@ -46,12 +45,12 @@ def flagmanager(
                 fversionsdict[k] = singleversion
             
             fversionsdict['MS'] = MS
-            print 'See logger for flag versions for this MS'
+            print('See logger for flag versions for this MS')
             return fversionsdict
             
         elif mode == 'save':
             if versionname == '':
-                raise IOError, "Illegal empty versionname: ''"
+                raise IOError("Illegal empty versionname: ''")
             
             newdir = vis+'.flagversions/flags.'+versionname
             if os.path.exists(newdir):
@@ -105,11 +104,11 @@ def flagmanager(
             olddir = vis + '.flagversions/flags.' + oldname
             newdir = vis + '.flagversions/flags.' + versionname
             if not os.path.isdir(olddir):
-                raise Exception, 'No such flagversions: ' + str(oldname)
+                raise Exception('No such flagversions: ' + str(oldname))
             
             if os.path.exists(newdir):
-                raise Exception, 'Flagversions ' + str(versionname) \
-                    + ' already exists!'
+                raise Exception('Flagversions ' + str(versionname) \
+                    + ' already exists!')
 
             casalog.post('Rename flagversions "%s" to "%s"' % (oldname,
                          versionname))
@@ -133,12 +132,12 @@ def flagmanager(
             fd.close()
             
         else:
-            raise Exception, 'Unknown mode' + str(mode)
+            raise Exception('Unknown mode' + str(mode))
         
         aflocal.done()
-    except Exception, instance:
+    except Exception as instance:
 #        print '*** Error ***', instance
         aflocal.done()
-        raise Exception, instance
+        raise Exception(instance)
 
 

@@ -28,5 +28,5 @@ def drawmaskinimage(image='', maskname='maskoo', makedefault=True):
     ia.open(image)
     ia.calcmask(mask='__muluktani < 0.5', name=maskname, asdefault=makedefault)
     ia.done()
-    print 'regions/mask in ', image, rg.namesintable(image)
+    print('regions/mask in ', image, rg.namesintable(image))
     shutil.rmtree(tmpmaskimage, True)

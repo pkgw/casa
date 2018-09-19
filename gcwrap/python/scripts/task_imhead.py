@@ -104,7 +104,7 @@ def imhead(
                 return True
             elif mode.startswith('s'):
                 return myia.summary(verbose=verbose)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post(str('*** Error *** ') + str(instance), 'SEVERE')
             raise
         finally:
@@ -130,16 +130,16 @@ def imhead(
                 res = myimd.set(hdkey, hdvalue)
             if res:
                 try:
-                    param_names = imhead.func_code.co_varnames[:imhead.func_code.co_argcount]
+                    param_names = imhead.__code__.co_varnames[:imhead.__code__.co_argcount]
                     param_vals = [eval(p) for p in param_names]   
                     write_image_history(
                         imagename, sys._getframe().f_code.co_name,
                         param_names, param_vals, casalog
                     )
-                except Exception, instance:
+                except Exception as instance:
                     casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
             return res
-        except Exception, instance:
+        except Exception as instance:
             casalog.post(str('*** Error *** ') + str(instance), 'SEVERE')
             return False
         finally:

@@ -51,7 +51,7 @@ class ss_setjy_helper:
 	myms.open(self.vis)
 	myms.msselect(sel,False)
 	scansummary=myms.getscansummary()
-	nscan=len(scansummary.keys())
+	nscan=len(list(scansummary.keys()))
         selectedids=myms.msselectedindices()
 	fieldids=selectedids['field']
         obsids=selectedids['observationid']
@@ -68,12 +68,12 @@ class ss_setjy_helper:
 	mytb.open(self.vis+'/FIELD')
         colnames = mytb.colnames()
 	if len(fieldids)==0:
-	  fieldids = range(mytb.nrows())
+	  fieldids = list(range(mytb.nrows()))
         # frame reference for field position
         phdir_info=mytb.getcolkeyword("PHASE_DIR","MEASINFO")
-        if phdir_info.has_key('Ref'):
+        if 'Ref' in phdir_info:
           fieldref=phdir_info['Ref']
-        elif phdir_info.has_key('TabRefTypes'):
+        elif 'TabRefTypes' in phdir_info:
           colnames=mytb.colnames()
           for col in colnames:
             if col=='PhaseDir_Ref':
@@ -131,7 +131,7 @@ class ss_setjy_helper:
 	  trange=myms.range('time')
 	  #if not inparams.has_key(srcnames[fid]):
           #  inparams[srcnames[fid]]={}
-	  if not inparams.has_key(fid):
+	  if fid not in inparams:
             inparams[fid]={}
             inparams[fid]['fieldname']=srcnames[fid]
 
@@ -150,7 +150,7 @@ class ss_setjy_helper:
           #  inparams[srcnames[fid]]['mjds'][0].append([myme.epoch('utc',qa.quantity(tc,'s'))['m0']['value']])
           #else:
           #  inparams[srcnames[fid]]['mjds']=[myme.epoch('utc',qa.quantity(tc,'s'))['m0']['value']]
-	  if inparams[fid].has_key('mjd'):
+	  if 'mjd' in inparams[fid]:
             inparams[fid]['mjds'][0].append([myme.epoch('utc',qa.quantity(tc,'s'))['m0']['value']])
           else:
             inparams[fid]['mjds']=[myme.epoch('utc',qa.quantity(tc,'s'))['m0']['value']]
@@ -176,7 +176,7 @@ class ss_setjy_helper:
           # make sure it is int rather than numpy.int32, etc.
           selspws = [int(ispw) for ispw in selspws]
 	  #inparams[srcnames[fid]]['spwids']= selspws if len(selspws)!=0 else range(nspw) 
-	  inparams[fid]['spwids']= selspws if len(selspws)!=0 else range(nspw) 
+	  inparams[fid]['spwids']= selspws if len(selspws)!=0 else list(range(nspw)) 
 
 	  #create a list of freq ranges with selected spws
 	  # should worry about freq order???
@@ -495,7 +495,7 @@ class ss_setjy_helper:
             mycl.done()
             ncomp = clinrec['nelements']
             if ncomp != len(spwids):
-               raise Exception, "Inconsistency in generated componentlist...Please submit a bug report."
+               raise Exception("Inconsistency in generated componentlist...Please submit a bug report.")
             for icomp in range(ncomp): 
 	      #self.im.selectvis(spw=spwids[icomp],field=field,observation=observation,time=timerange,intent=intent)
 	      ok = self.im.selectvis(spw=spwids[icomp],field=vfid,observation=observation,time=timerange,intent=intent)
@@ -540,7 +540,7 @@ class ss_setjy_helper:
 	  msg="Using channel dependent " if scalebychan else "Using spw dependent "
        
           if clrecs=={}:
-            raise Exception, "No componentlist is generated."
+            raise Exception("No componentlist is generated.")
           #self._casalog.post(clrecs)
 	  self._casalog.post(msg+" flux densities")
 	  #self._reportoLog(clrecs,self._casalog)
@@ -565,7 +565,7 @@ class ss_setjy_helper:
 	send model parameters to log
 	"""
 	#print "clrecs=", clrecs
-	for ky in clrecs.keys():
+	for ky in list(clrecs.keys()):
 	    # expect only one component for each
             nelm = clrecs[ky]['nelements']
             for icomp in range(nelm):
@@ -599,12 +599,12 @@ class ss_setjy_helper:
         Assume componentlist has a name src_spw_xxxx or src_spw
         """
         nelm = -1
-        ncl = len(clrecs.keys())
+        ncl = len(list(clrecs.keys()))
         #print "clrecs=",clrecs
         if ncl == 1:
-            clname = clrecs.keys()[0] 
+            clname = list(clrecs.keys())[0] 
             comprec = clrecs[clname]
-            if comprec.has_key('nelements'):
+            if 'nelements' in comprec:
                 nelm = comprec['nelements']
         
         if ncl != 1 or nelm == -1:
@@ -621,7 +621,7 @@ class ss_setjy_helper:
                       float('%.6g' % comp['shape']['direction']['m1']['value']))
                 casalog.post(msg,'INFO2')
             freq0=''
-            if comp.has_key('spectrum'):
+            if 'spectrum' in comp:
                 freqv = float('%.5g' % comp['spectrum']['frequency']['m0']['value'])
                 freq0 = str(freqv)+comp['spectrum']['frequency']['m0']['unit']
             if nelm==1:
@@ -661,7 +661,7 @@ class ss_setjy_helper:
 	lasttime=mytb.getcol('TIME')[nrow-1]
 	rown=nrow
 	#
-	for ky in clrecs.keys():
+	for ky in list(clrecs.keys()):
 	    # expect only one component for each
 	    comp = clrecs[ky]['component0']
 	    srcn = ky.split('_')[0]
@@ -702,7 +702,7 @@ class ss_setjy_helper:
         lasttime=mytb.getcol('TIME')[nrow-1]
         rown=nrow
         #
-        clname = clrecs.keys()[0]
+        clname = list(clrecs.keys())[0]
 
         #for ky in clrecs.keys():
         srcn = clname.split('_')[0]
@@ -759,10 +759,10 @@ class ss_setjy_helper:
         """
         # flxdict should contains a ditionary per field
         retflxdict={}
-        for fid in flxdict.keys():
+        for fid in list(flxdict.keys()):
             comp=flxdict[fid]
             tmpdict={}
-            for ky in comp.keys():
+            for ky in list(comp.keys()):
 	        srcn = ky.split('_')[0]
 	        ispw = ky.split('_')[1].strip('spw')
                 
@@ -783,9 +783,9 @@ class ss_setjy_helper:
         """
         # flxdict should contains a ditionary per field
         retflxdict={}
-        for fid in flxdict.keys():
+        for fid in list(flxdict.keys()):
             clrecs=flxdict[fid]
-            clname=clrecs.keys()[0]
+            clname=list(clrecs.keys())[0]
 	    srcn = clname.split('_')[0]
             comprec=clrecs[clname]
             nelm = comprec['nelements']

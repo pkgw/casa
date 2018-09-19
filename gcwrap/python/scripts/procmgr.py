@@ -51,7 +51,7 @@ class procmgr(Thread):
                         self.__proc.terminate()
                         sleep(0.5)
                         if self.__proc.poll( ) is None:
-                            print "%s => proc %s is being killed" % (strftime("%y-%m-%d %H:%M:%S", localtime()), self.tag)
+                            print("%s => proc %s is being killed" % (strftime("%y-%m-%d %H:%M:%S", localtime()), self.tag))
                             self.__proc.kill()
                         if self.__watchdog.poll( ) is None:
                             self.__watchdog.kill()
@@ -110,7 +110,7 @@ class procmgr(Thread):
         """tag: process identifier to check
         return True if a process with the given tag exists and is running"""
         if self.__running == False: return False
-        if self.__procs.has_key( tag ):
+        if tag in self.__procs:
             return self.__procs[tag].running( )
         return False
 
@@ -121,10 +121,10 @@ class procmgr(Thread):
         with_output: should output be collected (default is to discard output)"""
         if self.__running == False: return None
         if not isinstance(cmd, (list,str)):
-            print "'cmd' is not a list of strings"
+            print("'cmd' is not a list of strings")
             return None
         if self.running(tag):
-            print "process with %s tag already exists" % tag
+            print("process with %s tag already exists" % tag)
             return None
         self.__procs[tag] = self.proc(tag,cmd,with_output)
         self.__procs[tag].start( )
@@ -134,7 +134,7 @@ class procmgr(Thread):
     def fetch(self,tag):
         """fetch the process associated with 'tag'"""
         if self.__running == False: return None
-        if self.__procs.has_key( tag ):
+        if tag in self.__procs:
             return self.__procs[tag]
         return None
 
@@ -151,16 +151,16 @@ class procmgr(Thread):
             try:
                 os.rmdir(temporaryDirectory)
             except:
-                print "Couldn't remove " + temporaryDirectory
+                print("Couldn't remove " + temporaryDirectory)
 
     def __delitem__(self, key):
-        print "you cannot stop processes this way"
+        print("you cannot stop processes this way")
         return None
     def __getitem__(self, tag):
         """fetch the process associated with 'tag'"""
         return self.fetch(tag)
     def __setitem__(self, key, value):
-        print "you cannot create processes this way"
+        print("you cannot create processes this way")
         return None
 
     def run(self):

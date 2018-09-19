@@ -56,7 +56,7 @@ step_title = { 0 : 'Data import',
 # global defs
 basename=['X54','X220']
 makeplots=False
-print "Make plots?", makeplots
+print("Make plots?", makeplots)
 therefant = 'DV01'
 mynumsubmss = 4
 
@@ -89,17 +89,17 @@ clean_imager = ''
 # thesteps = range(19,31)
 
 # Entire regression
-thesteps = range(31)
+thesteps = list(range(31))
 
 
 try:
-    print 'List of steps to be executed ...', mysteps
+    print('List of steps to be executed ...', mysteps)
     thesteps = mysteps
 except:
-    print 'global variable mysteps not set.'
+    print('global variable mysteps not set.')
 if (thesteps==[]):
-    thesteps = range(0,len(step_title))
-    print 'mysteps empty. Executing all steps: ', thesteps
+    thesteps = list(range(0,len(step_title)))
+    print('mysteps empty. Executing all steps: ', thesteps)
 
 # The Python variable 'mysteps' will control which steps
 # are executed when you start the script using
@@ -145,10 +145,10 @@ myasdm_dataset2_name = "uid___A002_X2a5c2f_X220"
 
 # get the dataset name from the wrapper if possible
 mydict = locals()
-if mydict.has_key("asdm_dataset_name"):
+if "asdm_dataset_name" in mydict:
     if(myasdm_dataset_name != mydict["asdm_dataset_name"]):
         raise("Wrong input file 1")
-if mydict.has_key("asdm_dataset2_name"):
+if "asdm_dataset2_name" in mydict:
     if(myasdm_dataset2_name != mydict["asdm_dataset2_name"]):
         raise("Wrong input file 2")        
 
@@ -157,7 +157,7 @@ try:
 	# data import and partitioning
 	mystep = 0
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    importasdm(asdm='uid___A002_X2a5c2f_X54',vis='X54.ms',asis='Stati* Anten*', overwrite=True,
 	            lazy=True, createmms=mms, numsubms='auto')
@@ -175,7 +175,7 @@ try:
 	# Antenna positions
 	mystep = 1
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf cal-antpos_'+name)
@@ -199,7 +199,7 @@ try:
 	# Tsys table generation
 	mystep = 2
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf cal-tsys_'+name+'.fdm')
@@ -221,7 +221,7 @@ try:
 	# correct Titan position
 	mystep = 3
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	    
 	    for name in basename:
 	        fixplanets(vis=name+'.ms', field='Titan', fixuvw=True, refant=therefant)
@@ -232,7 +232,7 @@ try:
 	# Apriori flagging
 	mystep = 4
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    # Create flagcmd input list
 	    myflagcmd = ["mode='manual' antenna='CM01'",
@@ -258,7 +258,7 @@ try:
 	# WVR cal table generation
 	mystep = 5
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf cal-wvr_'+name)
@@ -274,7 +274,7 @@ try:
 	# delay calibration table generation
 	mystep = 6
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf cal-delay_'+name+'.K')
@@ -291,14 +291,14 @@ try:
 	# applycal
 	mystep = 7
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
-	    print "Using linear interpolation for Tsys in applycal ..."
+	    print("Using linear interpolation for Tsys in applycal ...")
 	    tsysinterp='linear'
 	    tsysspwmap=[0,9,0,11,0,13,0,15]
 	
 	    for myfield in ['3c273 - Bandpass','Titan','3c273 - Phase','1224+213 Phase','M100']:
-	        print "Field ", myfield
+	        print("Field ", myfield)
 	        for name in basename:
 	            applycal(vis=name+'.ms', 
 	                     spw='1,3,5,7',
@@ -315,7 +315,7 @@ try:
 	# Split and save flags
 	mystep = 8
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf '+name+'-line.ms*')
@@ -334,7 +334,7 @@ try:
 	# flagging
 	mystep = 9
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    # Create flagcmd input list (could also call flagdata twice alternatively)
 	    myflagcmd = ["mode='manual' field='' spw='0~3:0~10;3800~3839'",
@@ -368,7 +368,7 @@ try:
 	# Bin it up to lower spectral resolution to about 10 km/s
 	mystep = 10
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf '+name+'-line-vs.ms*')
@@ -387,7 +387,7 @@ try:
 	# Fast phase-only gaincal for bandpass
 	mystep = 11
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf cal-'+name+'-BPint.Gp')
@@ -415,7 +415,7 @@ try:
 	# Bandpass
 	mystep = 12
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf cal-'+name+'.B1')
@@ -452,7 +452,7 @@ try:
 	# Noisy for uvdistances less than 40 klambda
 	mystep = 13
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        flagmanager(vis=name+'-line-vs.ms', mode='restore', versionname='apriori')
@@ -481,7 +481,7 @@ try:
 	# Fast phase-only gaincal 
 	mystep = 14
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf cal-'+name+'-int.Gp')
@@ -512,7 +512,7 @@ try:
 	# Slow phase-only gaincal 
 	mystep = 15
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf cal-'+name+'-scan.Gp')
@@ -544,7 +544,7 @@ try:
 	# Slow amplitude and phase gaincal 
 	mystep = 16
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf cal-'+name+'-scan.Gap')
@@ -575,7 +575,7 @@ try:
 	# Fluxscale
 	mystep = 17
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        fluxscale(vis=name+'-line-vs.ms',caltable='cal-'+name+'-scan.Gap',
@@ -591,7 +591,7 @@ try:
 	# Applycal
 	mystep = 18
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        # to the bandpass cal
@@ -643,7 +643,7 @@ try:
 	# Test image of the secondary phase cal
 	mystep = 19
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf test-'+name+'-sec_phasecal*')
@@ -686,7 +686,7 @@ try:
 	# Test image of the primary phase cal
 	mystep = 20
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf test-'+name+'-prim_phasecal*')
@@ -724,18 +724,18 @@ try:
 	                   out='test-'+name+'-prim_phasecal.png', zoom=1)
 	            calstat=imstat(imagename=imview_input, region='', box='30,30,170,80')
 	            rms=(calstat['rms'][0])
-	            print '>> rms in phase calibrator image: '+str(rms)
+	            print('>> rms in phase calibrator image: '+str(rms))
 	            calstat=imstat(imagename=imview_input, region='')
 	            peak=(calstat['max'][0])
-	            print '>> Peak in phase calibrator image: '+str(peak)
-	            print '>> Dynamic range in phase calibrator image: '+str(peak/rms)
+	            print('>> Peak in phase calibrator image: '+str(peak))
+	            print('>> Dynamic range in phase calibrator image: '+str(peak/rms))
 	
 	    timing()
 	
 	# Test image of Titan
 	mystep = 21
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf test-'+name+'-Titan*')
@@ -766,7 +766,7 @@ try:
 	# Split off the calibrated data on M100
 	mystep = 22
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    for name in basename:
 	        os.system('rm -rf '+name+'-calibrated.ms*')
@@ -782,7 +782,7 @@ try:
 	# Concat
 	mystep = 23
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    os.system('rm -rf M100all.ms*')
 	    virtualconcat(vis=['X54-calibrated.ms', 'X220-calibrated.ms'],
@@ -797,7 +797,7 @@ try:
 	# rebin the data
 	mystep = 24
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    os.system('rm -rf M100all_lores.ms*')
 	    split(vis='M100all.ms', outputvis='M100all_lores.ms',
@@ -812,7 +812,7 @@ try:
 	# Continuum image
 	mystep = 25
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    os.system('rm -rf M100cont.*')
 	    
@@ -854,7 +854,7 @@ try:
 	# uvcontsub2
 	mystep = 26
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	    
 	    os.system('rm -rf M100all_lores.ms.c*')
 	    uvcontsub(vis='M100all_lores.ms',field='',fitspw='0:10~205;260~440',
@@ -866,7 +866,7 @@ try:
 	# Test image of central field
 	mystep = 27
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    os.system('rm -rf test-M100line.*')
 	    
@@ -910,7 +910,7 @@ try:
 	# pclean line cube mosaic
 	mystep = 28
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    os.system('rm -rf M100line.*')
 	    
@@ -962,7 +962,7 @@ try:
 	# Moments
 	mystep = 29
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    os.system('rm -rf M100-CO.mom?')
 	    immoments(imagename='M100line.image',
@@ -1008,7 +1008,7 @@ try:
 	
 	mystep = 30
 	if(mystep in thesteps):
-	    print 'Step ', mystep, step_title[mystep]
+	    print('Step ', mystep, step_title[mystep])
 	
 	    resrms = []
 	    respeak = []
@@ -1153,15 +1153,15 @@ try:
 	        passed = False
 	        
 	    if not passed:
-	        raise Exception, ('Results are different from expectations by more than {0} percent.'.
+	        raise Exception('Results are different from expectations by more than {0} percent.'.
                                   format(err_tolerance))
 	
 	    casalog.post( "\nAll peak and RMS values are within the expectation.")
 	    if passed:
-	        print "Regression PASSED"
+	        print("Regression PASSED")
 	    else:
-	        print "Regression FAILED"    
-	    print 'Done.'
+	        print("Regression FAILED")    
+	    print('Done.')
 	    
 except:
 	formatted_traceback = traceback.format_exc()

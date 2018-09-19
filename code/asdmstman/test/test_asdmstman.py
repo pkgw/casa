@@ -46,14 +46,14 @@ importasdm(asdm=asdmname, vis=asdmname+'.ms')
 os.system(absbuilddir+'/asdmstman/makeAsdmIndex '+asdmname+'.ms index.txt '+asdmname+'/ASDMBinary/ 0 1 > temp.txt')
 
 if not (os.path.getsize('temp.txt') == 33):
-    print "Functional Test FAILED. Inspect asdmstman_test_workdir/temp.txt"
+    print("Functional Test FAILED. Inspect asdmstman_test_workdir/temp.txt")
 else:
-    print "Functional Test PASSED. Products are in asdmstman_test_workdir ."
+    print("Functional Test PASSED. Products are in asdmstman_test_workdir .")
 
-    print "Now performing speed tests."
+    print("Now performing speed tests.")
 
 
-    print "SPEED TEST 1: split"
+    print("SPEED TEST 1: split")
     importasdm(asdm=asdmname, vis=asdmname+'.ms-orig')
     
     os.system('rm -rf from*stman*.ms')
@@ -81,12 +81,12 @@ else:
     mytimeb2 = time.time()
     split(vis=asdmname+'.ms-orig', datacolumn='DATA', outputvis='fromstman2.ms')
     mytimeb2 = time.time() - mytimeb2
-    print "Result:"
-    print "Task split with asdmstman (average over two tries) takes ", (mytime1+mytime2)/2.
-    print "Task split with stman (average over two tries) takes ", (mytimeb1+mytimeb2)/2.
+    print("Result:")
+    print("Task split with asdmstman (average over two tries) takes ", (mytime1+mytime2)/2.)
+    print("Task split with stman (average over two tries) takes ", (mytimeb1+mytimeb2)/2.)
 
 
-    print "SPEED TEST 2: tb.getvarcol"
+    print("SPEED TEST 2: tb.getvarcol")
 
     tb.open(asdmname+'.ms')
     # access table on some other column first
@@ -108,8 +108,8 @@ else:
     gb2 = tb.getvarcol('DATASAVE')
     mytimegb2 = time.time()-mytimegb2
     tb.close()
-    print "Result:"
-    print "tb.getvarcol with asdmstman (average over two tries) takes ", (mytimeg1+mytimeg2)/2.
-    print "tb.getvarcol with stman (average over two tries) takes ", (mytimegb1+mytimegb2)/2.
+    print("Result:")
+    print("tb.getvarcol with asdmstman (average over two tries) takes ", (mytimeg1+mytimeg2)/2.)
+    print("tb.getvarcol with stman (average over two tries) takes ", (mytimegb1+mytimegb2)/2.)
 
 os.chdir('..')

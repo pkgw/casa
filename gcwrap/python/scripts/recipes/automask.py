@@ -30,9 +30,9 @@ def automask(image='', maskimage='', fracofpeak=0, rmsthresh=3.0, resolution=Non
     shp=iaim.shape()
     resol=qa.quantity(resolution, 'arcsec')
     if(shp[0] < 10):
-        raise TypeError, 'you cannot be serious... less than 10 pixels image'
+        raise TypeError('you cannot be serious... less than 10 pixels image')
     if(len(rb) ==0 and resolution==None):
-        raise ValueError, 'No restoring beam or resolution given'
+        raise ValueError('No restoring beam or resolution given')
     if(len(rb) > 0):
         numpix=2*(int(2.0*abs(qa.div(rb['major'], qa.convert(csys.increment('q')['quantity']['*1'],rb['major']['unit']))['value']))/2)
     elif(resol['value'] != 0.0):

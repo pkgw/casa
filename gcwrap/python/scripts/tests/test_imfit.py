@@ -650,7 +650,7 @@ class imfit_test(unittest.TestCase):
 
             self.assertTrue(res['converged'][0])
             got = error['latitude']['value']
-            print "*** got ", got
+            print("*** got ", got)
             self.assertTrue(abs(got) < 1e-6)
     
             got = error['longitude']['value']
@@ -1175,7 +1175,7 @@ class imfit_test(unittest.TestCase):
             got = mycl.getfluxvalue(0)[0]
             expected = 60498.5586
             epsilon = 1e-5
-            print "***got " + str(got)
+            print("***got " + str(got))
             self.assertTrue(near(got, expected, epsilon))
             got = mycl.getfluxvalue(0)[1]
             self.assertTrue(got == 0)
@@ -1471,7 +1471,7 @@ class imfit_test(unittest.TestCase):
         zz = sub.fitcomponents()
         flux = zz['results']['component0']['flux']
         self.assertTrue(near(flux['value'][0], 0.00028916, 1e-4))
-        print "*** xx " + str(flux['error'][0])
+        print("*** xx " + str(flux['error'][0]))
         self.assertTrue(near(flux['error'][0], 2.22688e-8, 1e-4))
         self.assertTrue(flux['unit'] == "K.rad.rad")
         
@@ -1494,7 +1494,7 @@ class imfit_test(unittest.TestCase):
         zz = sub.fitcomponents()
         flux = zz['results']['component0']['flux']
         self.assertTrue(near(flux['value'][0],  0.00028916, 1e-4))
-        print "got ", flux['error'][0]
+        print("got ", flux['error'][0])
         self.assertTrue(near(flux['error'][0], 1.3e-9, 1e-1))
         self.assertTrue(flux['unit'] == "K.rad.rad")
         
@@ -1525,7 +1525,7 @@ class imfit_test(unittest.TestCase):
                 self._check_results2(zz)
                 mycl.fromrecord(zz['results'])
                 got = mycl.getfluxerror(0)[0]
-                print "*** got ", got
+                print("*** got ", got)
                 self.assertTrue(abs(got - 224) < 1)
             
     def _check_results2(self, res):
@@ -1802,7 +1802,7 @@ class imfit_test(unittest.TestCase):
                 res = code()
                 mycl.fromrecord(res['results'])
                 got = mycl.getfluxerror(0)[0]
-                print "*** got", got
+                print("*** got", got)
                 self.assertTrue(near(got, 1.09766, 1e-3))
                 shape = mycl.getshape(0)
                 mj = qa.quantity(shape['majoraxis'])
@@ -1828,8 +1828,8 @@ class imfit_test(unittest.TestCase):
                     self.assertTrue(near(qa.getvalue(longerr), 15.2083, 1e-3))
                     self.assertTrue(near(qa.getvalue(laterr), 33.0745, 1e-3))
                 if chans == 2:
-                    print "long ", qa.getvalue(longerr)
-                    print "lat ", qa.getvalue(laterr)
+                    print("long ", qa.getvalue(longerr))
+                    print("lat ", qa.getvalue(laterr))
                     self.assertTrue(near(qa.getvalue(longerr), 29.6355, 1e-3))
                     self.assertTrue(near(qa.getvalue(laterr), 21.1412, 1e-3))
 

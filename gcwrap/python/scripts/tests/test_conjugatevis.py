@@ -22,12 +22,12 @@ datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/concat
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     testmms = True
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/concat/input/'
     if os.path.isdir(DATADIR):
         datapath = DATADIR
-    print 'conjugatevis tests will use data from '+datapath    
+    print('conjugatevis tests will use data from '+datapath)    
 
 
 def checktable(thename, theexpectation):
@@ -36,7 +36,7 @@ def checktable(thename, theexpectation):
     if thename == "":
         thename = "MAIN"
     for mycell in theexpectation:
-        print myname, ": comparing ", mycell
+        print(myname, ": comparing ", mycell)
         value = tb.getcell(mycell[0], mycell[1])
         # see if value is array
         try:
@@ -59,13 +59,13 @@ def checktable(thename, theexpectation):
                 except:
                     in_agreement = False
         if not in_agreement:
-            print myname, ":  Error in MS subtable", thename, ":"
-            print "     column ", mycell[0], " row ", mycell[1], " contains ", value
-            print "     expected value is ", mycell[2]
+            print(myname, ":  Error in MS subtable", thename, ":")
+            print("     column ", mycell[0], " row ", mycell[1], " contains ", value)
+            print("     expected value is ", mycell[2])
             tb.close()
             return False
     tb.close()
-    print myname, ": table ", thename, " as expected."
+    print(myname, ": table ", thename, " as expected.")
     return True
 
 
@@ -83,7 +83,7 @@ class test_conjugatevis(unittest.TestCase):
         os.chdir(datapath)
         mymsname = 'shortpart1.ms'
         if not mymsname in filespresent:
-            print "Copying ", mymsname
+            print("Copying ", mymsname)
             shutil.copytree(mymsname, cpath+'/'+mymsname)
         os.chdir(cpath)
 
@@ -99,27 +99,27 @@ class test_conjugatevis(unittest.TestCase):
         self.res = conjugatevis(vis='shortpart1.ms', spwlist=[5,7], outputvis=msname)
         self.assertEqual(self.res,None)
 
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["table.dat",
                             "table.f0"
                             ])
         for name in mscomponents:
             if not os.access(msname+"/"+name, os.F_OK):
-                print myname, ": Error  ", msname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", msname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+msname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. Try opening as MS ..."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. Try opening as MS ...")
         try:
             ms.open(msname)
         except:
-            print myname, ": Error  Cannot open MS table", tablename
+            print(myname, ": Error  Cannot open MS table", tablename)
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+tablename
         else:
             ms.close()
-            print myname, ": OK. Checking tables in detail ..."
+            print(myname, ": OK. Checking tables in detail ...")
             retValue['success']=True
 
             # check main table

@@ -83,7 +83,7 @@ def specfit(
     myia.dohistory(False)
     try:
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         target_time = time.time()
         retval = myia.fitprofile(
 			box=box, region=region, chans=chans,
@@ -107,7 +107,7 @@ def specfit(
 			sigma=sigma, outsigma=outsigma
 		)
         try:
-            param_names = specfit.func_code.co_varnames[:specfit.func_code.co_argcount]
+            param_names = specfit.__code__.co_varnames[:specfit.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             ims = [model, residual]
             for x in [amp, amperr, center, centererr, fwhm, fwhmerr, integral, integralerr]:
@@ -118,10 +118,10 @@ def specfit(
              	    im, sys._getframe().f_code.co_name,
             	    param_names, param_vals, casalog
          		)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
 
-    except Exception, instance:
+    except Exception as instance:
         casalog.post('*** Error *** ' + str(instance), 'SEVERE')
         retval = None
     myia.done()

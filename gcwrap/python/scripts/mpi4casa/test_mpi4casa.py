@@ -830,7 +830,7 @@ class test_MPICommandServer(unittest.TestCase):
         # Check output from simple sum command
         self.assertTrue(command_response_list is not None,
                         "Command response should not be empty")
-        self.assertEquals(len(command_response_list), 1,
+        self.assertEqual(len(command_response_list), 1,
                           "Response list from second command should have one element")
         command_response = command_response_list[0]
         self.assertEqual(command_response['status'], expected_sts,
@@ -943,7 +943,7 @@ class test_MPICommandServer(unittest.TestCase):
         try:
             server = MPICommandServer()
             instantiated = True
-        except Exception, instance:
+        except Exception as instance:
             instantiated = False
             
         self.assertEqual(instantiated, False, "It should not be possible to instantiate MPICommandServer in the client")
@@ -986,7 +986,7 @@ class test_MPIInterface(unittest.TestCase):
 
         # Get engines
         engines = self.CL.get_engines()
-        self.assertEqual(engines,range(1,MPIEnvironment.mpi_world_size),"Error getting list of engines")
+        self.assertEqual(engines,list(range(1,MPIEnvironment.mpi_world_size)),"Error getting list of engines")
         
         # Get nodes
         if int(os.environ['OMPI_COMM_WORLD_LOCAL_SIZE'])>1:
@@ -1337,7 +1337,7 @@ class test_mpi4casa_setjy(unittest.TestCase):
             elif (fieldId == 2):
                 self.assertEqual(tblocal.getcell('MODEL_DATA',1)[0][0].real,1.0)
             else:
-                raise AssertionError, "Unrecognized field [%s] found in Sub-MS [%s]" %(str(fieldId),subMS)
+                raise AssertionError("Unrecognized field [%s] found in Sub-MS [%s]" %(str(fieldId),subMS))
                 tblocal.close()
             tblocal.close()
 
@@ -1366,7 +1366,7 @@ class test_mpi4casa_setjy(unittest.TestCase):
             elif (fieldId == 2):
                 self.assertEqual(tblocal.getcell('MODEL_DATA',1)[0][0].real,1.0)
             else:
-                raise AssertionError, "Unrecognized field [%s] found in Sub-MS [%s]" %(str(fieldId),subMS)
+                raise AssertionError("Unrecognized field [%s] found in Sub-MS [%s]" %(str(fieldId),subMS))
                 tblocal.close()
             tblocal.close()        
         

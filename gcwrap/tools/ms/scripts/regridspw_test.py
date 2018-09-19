@@ -46,20 +46,20 @@ def verifycolumn(colname,explength):
     a = tb.getcell(colname,0)
     datalength = len(a[0])
     if(datalength != explength):
-        print "Unexpected length of array in column " + colname
-        print "   expected ", explength, ", found ", datalength
+        print("Unexpected length of array in column " + colname)
+        print("   expected ", explength, ", found ", datalength)
         return 1
-    print colname + ' OK'
+    print(colname + ' OK')
     return 0
 
 def verifycolumnb(colname,explength):
     a = tb.getcell(colname,0)
     datalength = len(a)
     if(datalength != explength):
-        print "Unexpected length of array in column " + colname
-        print "   expected ", explength, ", found ", datalength
+        print("Unexpected length of array in column " + colname)
+        print("   expected ", explength, ", found ", datalength)
         return 1
-    print colname + ' OK'
+    print(colname + ' OK')
     return 0
 
 def verifySPWcolumn(colname,expval):
@@ -69,14 +69,14 @@ def verifySPWcolumn(colname,expval):
         expval = math.floor(expval)
         tb.close()
         if(a != expval):
-            print "Unexpected value of cell in column " + colname
-            print "   expected ", expval, ", found ", a
+            print("Unexpected value of cell in column " + colname)
+            print("   expected ", expval, ", found ", a)
             return 1
-        print colname + ' OK'
+        print(colname + ' OK')
         return 0
     except:
         tb.close()
-        print "Error verifying ", colname, " in SPECTRAL_WINDOW"
+        print("Error verifying ", colname, " in SPECTRAL_WINDOW")
         return 1
 
 def initms(msname, nms, cenchan):
@@ -90,7 +90,7 @@ def initms(msname, nms, cenchan):
     tb.close()
 
     ms.open(msname, nomodify=false)
-    print "Using ", origms[nms]
+    print("Using ", origms[nms])
     return
 
 def verifytabs(numchan):
@@ -101,7 +101,7 @@ def verifytabs(numchan):
         numerr += verifycolumn('FLAG',numchan)
         tb.close()
     except:
-        print "Error verifying MAIN"
+        print("Error verifying MAIN")
         tb.close()
         numerr +=1
     try:
@@ -110,7 +110,7 @@ def verifytabs(numchan):
         numerr += verifycolumnb('CHAN_FREQ',numchan)
         tb.close()
     except:
-        print "Error verifying SPECTRAL_WINDOW"
+        print("Error verifying SPECTRAL_WINDOW")
         tb.close()
         numerr+=1
     return numerr
@@ -121,9 +121,9 @@ def testcenchanfreq(newcenchan):
     cf = math.floor((tb.getcell('CHAN_FREQ',0))[newcenchan])
     tb.close()
     if(cenchanfreq != cf):
-        print "Center channel should have frequency ",  cenchanfreq, " but has ", cf
+        print("Center channel should have frequency ",  cenchanfreq, " but has ", cf)
         return 1
-    print "Central channel frequency OK ", cf, " Hz"
+    print("Central channel frequency OK ", cf, " Hz")
     return 0
 
 
@@ -138,10 +138,10 @@ if dochannelmode:
     # test channel mode
     total += 1
     testnum = testbasenum + 1
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(mode="chan", chanwidth=2)'
+    print('ms.regridspw(mode="chan", chanwidth=2)')
     ms.regridspw(mode="chan", chanwidth=2)
     ms.close()
     numerrors += verifytabs(32)
@@ -149,10 +149,10 @@ if dochannelmode:
 
     total += 1
     testnum = testbasenum + 2
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(mode="chan", center=10, bandwidth=10, chanwidth=2)'
+    print('ms.regridspw(mode="chan", center=10, bandwidth=10, chanwidth=2)')
     ms.regridspw(mode="chan", center=10, bandwidth=10, chanwidth=2)
     ms.close()
     numerrors += verifytabs(5)
@@ -160,10 +160,10 @@ if dochannelmode:
 
     total += 1
     testnum = testbasenum + 3
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(mode="chan", start=5, bandwidth=10, chanwidth=2)'
+    print('ms.regridspw(mode="chan", start=5, bandwidth=10, chanwidth=2)')
     ms.regridspw(mode="chan", start=5, bandwidth=10, chanwidth=2)
     ms.close()
     numerrors += verifytabs(5)
@@ -171,10 +171,10 @@ if dochannelmode:
 
     total += 1
     testnum = testbasenum + 4
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(mode="chan", center=10, bandwidth=9, chanwidth=3)'
+    print('ms.regridspw(mode="chan", center=10, bandwidth=9, chanwidth=3)')
     ms.regridspw(mode="chan", center=10, bandwidth=9, chanwidth=3)
     ms.close()
     numerrors += verifytabs(3)
@@ -183,10 +183,10 @@ if dochannelmode:
 
     total += 1
     testnum = testbasenum + 5
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(mode="chan", center=10, bandwidth=10, chanwidth=4)'
+    print('ms.regridspw(mode="chan", center=10, bandwidth=10, chanwidth=4)')
     ms.regridspw(mode="chan", center=10, bandwidth=10, chanwidth=4)
     ms.close()
     numerrors += verifytabs(4)
@@ -194,10 +194,10 @@ if dochannelmode:
 
     total += 1
     testnum = testbasenum + 6
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(mode="chan", center=10, bandwidth=10, chanwidth=5)'
+    print('ms.regridspw(mode="chan", center=10, bandwidth=10, chanwidth=5)')
     ms.regridspw(mode="chan", center=10, bandwidth=10, chanwidth=5)
     ms.close()
     numerrors += verifytabs(2)
@@ -205,10 +205,10 @@ if dochannelmode:
 
     total += 1
     testnum = testbasenum + 7
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=9)'
+    print('ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=9)')
     ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=9)
     ms.close()
     numerrors += verifytabs(3)
@@ -217,10 +217,10 @@ if dochannelmode:
 
     total += 1
     testnum = testbasenum + 8
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=11)'
+    print('ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=11)')
     ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=11)
     ms.close()
     numerrors += verifytabs(1)
@@ -229,10 +229,10 @@ if dochannelmode:
 
     total += 1
     testnum = testbasenum + 9
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=61)'
+    print('ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=61)')
     ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=61)
     ms.close()
     numerrors += verifytabs(1)
@@ -241,10 +241,10 @@ if dochannelmode:
 
     total += 1
     testnum = testbasenum + 10
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=64)'
+    print('ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=64)')
     ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=64)
     ms.close()
     numerrors += verifytabs(1)
@@ -253,10 +253,10 @@ if dochannelmode:
 
     total += 1
     testnum = testbasenum + 11
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=65)'
+    print('ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=65)')
     ms.regridspw(mode="chan", center=10, bandwidth=11, chanwidth=65)
     ms.close()
     numerrors += verifytabs(1)
@@ -269,10 +269,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 1
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="chan", center=15, bandwidth=21, chanwidth=3)'
+    print('ms.regridspw(outframe="LSRK",mode="chan", center=15, bandwidth=21, chanwidth=3)')
     ms.regridspw(outframe="LSRK", mode="chan", center=15, bandwidth=21, chanwidth=3)
     ms.close()
     numerrors += verifytabs(7)
@@ -280,10 +280,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 2
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="BARY",mode="chan", center=15, bandwidth=21, chanwidth=3)'
+    print('ms.regridspw(outframe="BARY",mode="chan", center=15, bandwidth=21, chanwidth=3)')
     ms.regridspw(outframe="BARY", mode="chan", center=15, bandwidth=21, chanwidth=3)
     ms.close()
     numerrors += verifytabs(7)
@@ -294,10 +294,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 3
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK", mode="chan")'
+    print('ms.regridspw(outframe="LSRK", mode="chan")')
     ms.regridspw(outframe="LSRK", mode="chan")
     ms.close()
     numerrors += verifytabs(7)
@@ -306,10 +306,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 4
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK")'
+    print('ms.regridspw(outframe="LSRK")')
     ms.regridspw(outframe="LSRK")
     ms.close()
     numerrors += verifytabs(7)
@@ -318,10 +318,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 5
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK", mode="wave")'
+    print('ms.regridspw(outframe="LSRK", mode="wave")')
     ms.regridspw(outframe="LSRK", mode="wave")
     ms.close()
     numerrors += verifytabs(7)
@@ -330,16 +330,16 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 6
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
     
     total += 1
     testnum = testbasenum + 7
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="GALACTO",mode="chan", center=15, bandwidth=21, chanwidth=3)'
+    print('ms.regridspw(outframe="GALACTO",mode="chan", center=15, bandwidth=21, chanwidth=3)')
     ms.regridspw(outframe="GALACTO", mode="chan", center=15, bandwidth=21, chanwidth=3)
     ms.close()
     numerrors += verifytabs(7)
@@ -350,10 +350,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 8
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK", mode="chan")'
+    print('ms.regridspw(outframe="LSRK", mode="chan")')
     ms.regridspw(outframe="LSRK", mode="chan")
     ms.close()
     numerrors += verifytabs(7)
@@ -362,10 +362,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 9
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK")'
+    print('ms.regridspw(outframe="LSRK")')
     ms.regridspw(outframe="LSRK")
     ms.close()
     numerrors += verifytabs(7)
@@ -374,10 +374,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 10
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK", mode="wave")'
+    print('ms.regridspw(outframe="LSRK", mode="wave")')
     ms.regridspw(outframe="LSRK", mode="wave")
     ms.close()
     numerrors += verifytabs(7)
@@ -386,16 +386,16 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 11
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
 
     total += 1
     testnum = testbasenum + 12
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LGROUP",mode="chan", center=15, bandwidth=21, chanwidth=3)'
+    print('ms.regridspw(outframe="LGROUP",mode="chan", center=15, bandwidth=21, chanwidth=3)')
     ms.regridspw(outframe="LGROUP", mode="chan", center=15, bandwidth=21, chanwidth=3)
     ms.close()
     numerrors += verifytabs(7)
@@ -406,10 +406,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 13
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK", mode="chan")'
+    print('ms.regridspw(outframe="LSRK", mode="chan")')
     ms.regridspw(outframe="LSRK", mode="chan")
     ms.close()
     numerrors += verifytabs(7)
@@ -418,10 +418,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 14
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK")'
+    print('ms.regridspw(outframe="LSRK")')
     ms.regridspw(outframe="LSRK")
     ms.close()
     numerrors += verifytabs(7)
@@ -430,10 +430,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 15
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK", mode="wave")'
+    print('ms.regridspw(outframe="LSRK", mode="wave")')
     ms.regridspw(outframe="LSRK", mode="wave")
     ms.close()
     numerrors += verifytabs(7)
@@ -442,16 +442,16 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 14
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
 
     total += 1
     testnum = testbasenum + 15
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="CMB",mode="chan", center=15, bandwidth=21, chanwidth=3)'
+    print('ms.regridspw(outframe="CMB",mode="chan", center=15, bandwidth=21, chanwidth=3)')
     ms.regridspw(outframe='CMB', mode="chan", center=15, bandwidth=21, chanwidth=3)
     ms.close()
     numerrors += verifytabs(7)
@@ -462,10 +462,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 16
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK", mode="chan")'
+    print('ms.regridspw(outframe="LSRK", mode="chan")')
     ms.regridspw(outframe="LSRK", mode="chan")
     ms.close()
     numerrors += verifytabs(7)
@@ -474,10 +474,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 17
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK")'
+    print('ms.regridspw(outframe="LSRK")')
     ms.regridspw(outframe="LSRK")
     ms.close()
     numerrors += verifytabs(7)
@@ -486,10 +486,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 18
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK", mode="wave")'
+    print('ms.regridspw(outframe="LSRK", mode="wave")')
     ms.regridspw(outframe="LSRK", mode="wave")
     ms.close()
     numerrors += verifytabs(7)
@@ -498,16 +498,16 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 19
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
     
     total += 1
     testnum = testbasenum + 20
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRD",mode="chan", center=15, bandwidth=21, chanwidth=3)'
+    print('ms.regridspw(outframe="LSRD",mode="chan", center=15, bandwidth=21, chanwidth=3)')
     ms.regridspw(outframe="LSRD", mode="chan", center=15, bandwidth=21, chanwidth=3)
     ms.close()
     numerrors += verifytabs(7)
@@ -518,10 +518,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 21
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK", mode="chan")'
+    print('ms.regridspw(outframe="LSRK", mode="chan")')
     ms.regridspw(outframe="LSRK", mode="chan")
     ms.close()
     numerrors += verifytabs(7)
@@ -530,10 +530,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 22
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK")'
+    print('ms.regridspw(outframe="LSRK")')
     ms.regridspw(outframe="LSRK")
     ms.close()
     numerrors += verifytabs(7)
@@ -542,10 +542,10 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 23
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    print 'ms.regridspw(outframe="LSRK", mode="wave")'
+    print('ms.regridspw(outframe="LSRK", mode="wave")')
     ms.regridspw(outframe="LSRK", mode="wave")
     ms.close()
     numerrors += verifytabs(7)
@@ -554,16 +554,16 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 24
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
     
     total += 1
     testnum = testbasenum + 25
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="GEO",mode="chan", center=15, bandwidth=21, chanwidth=3)'
+    print('ms.regridspw(outframe="GEO",mode="chan", center=15, bandwidth=21, chanwidth=3)')
     ms.regridspw(outframe="GEO", mode="chan", center=15, bandwidth=21, chanwidth=3)
     ms.close()
     numerrors += verifytabs(7)
@@ -572,11 +572,11 @@ if dooutframes:
 
     total += 1
     testnum = testbasenum + 26
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
     # Note: return to LSRK does not work
-    print 'ms.regridspw(outframe="TOPO",mode="chan", center=15, bandwidth=21, chanwidth=3)'
+    print('ms.regridspw(outframe="TOPO",mode="chan", center=15, bandwidth=21, chanwidth=3)')
     ms.regridspw(outframe="TOPO", mode="chan", center=15, bandwidth=21, chanwidth=3)
     ms.close()
     numerrors += verifytabs(7)
@@ -591,10 +591,10 @@ if dofreqmode:
     
     total += 1
     testnum = testbasenum + 1
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(mode="freq", chanwidth=2*1562500.)'
+    print('ms.regridspw(mode="freq", chanwidth=2*1562500.)')
     ms.regridspw(mode="freq", chanwidth=2*1562500.)
     ms.close()
     numerrors += verifytabs(32)
@@ -602,10 +602,10 @@ if dofreqmode:
 
     total += 1
     testnum = testbasenum + 2
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="freq", center=114973628113.0, bandwidth=21.*1562500., chanwidth=3.*1562500.)'
+    print('ms.regridspw(outframe="LSRK",mode="freq", center=114973628113.0, bandwidth=21.*1562500., chanwidth=3.*1562500.)')
     ms.regridspw(outframe="LSRK",mode="freq", center=114973628113.0, bandwidth=21.*1562500., chanwidth=3.*1562500.)
     ms.close()
     numerrors += verifytabs(7)
@@ -615,10 +615,10 @@ if dofreqmode:
 
     total += 1
     testnum = testbasenum + 3
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=10*1562500., chanwidth=2*1562500.)'
+    print('ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=10*1562500., chanwidth=2*1562500.)')
     ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=10*1562500., chanwidth=2*1562500.)
     ms.close()
     numerrors += verifytabs(5)
@@ -626,10 +626,10 @@ if dofreqmode:
 
     total += 1
     testnum = testbasenum + 4
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=9*1562500., chanwidth=3*1562500.)'
+    print('ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=9*1562500., chanwidth=3*1562500.)')
     ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=9*1562500., chanwidth=3*1562500.)
     ms.close()
     numerrors += verifytabs(3)
@@ -638,30 +638,30 @@ if dofreqmode:
 
     total += 1
     testnum = testbasenum + 5
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=10*1562500., chanwidth=4*1562500.)'
+    print('ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=10*1562500., chanwidth=4*1562500.)')
     ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=10*1562500., chanwidth=4*1562500.)
     ms.close()
     numerrors += verifytabs(2)
 
     total += 1
     testnum = testbasenum + 6
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=10*1562500., chanwidth=5*1562500.)'
+    print('ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=10*1562500., chanwidth=5*1562500.)')
     ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=10*1562500., chanwidth=5*1562500.)
     ms.close()
     numerrors += verifytabs(2)
 
     total += 1
     testnum = testbasenum + 7
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=9*1562500.)'
+    print('ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=9*1562500.)')
     ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=9*1562500.)
     ms.close()
     numerrors += verifytabs(1)
@@ -669,10 +669,10 @@ if dofreqmode:
 
     total += 1
     testnum = testbasenum + 8
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=11*1562500.)'
+    print('ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=11*1562500.)')
     ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=11*1562500.)
     ms.close()
     numerrors += verifytabs(1)
@@ -680,10 +680,10 @@ if dofreqmode:
 
     total += 1
     testnum = testbasenum + 9
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=61*1562500.)'
+    print('ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=61*1562500.)')
     ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=61*1562500.)
     ms.close()
     numerrors += verifytabs(1)
@@ -691,10 +691,10 @@ if dofreqmode:
 
     total += 1
     testnum = testbasenum + 10
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=64*1562500.)'
+    print('ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=64*1562500.)')
     ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=64*1562500.)
     ms.close()
     numerrors += verifytabs(1)
@@ -702,10 +702,10 @@ if dofreqmode:
 
     total += 1
     testnum = testbasenum + 11
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 10)
-    print 'ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=65*1562500.)'
+    print('ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=65*1562500.)')
     ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=11*1562500., chanwidth=65*1562500.)
     ms.close()
     numerrors += verifytabs(1)
@@ -717,16 +717,16 @@ if dovradmode:
     spofli = 299792458.
     rest = 114973628113.0
     cw = abs(spofli * (1. - (rest+1562500.)/rest))
-    print "Choose rest freq rest = ", rest
-    print "Original Channel width cw =", cw
+    print("Choose rest freq rest = ", rest)
+    print("Original Channel width cw =", cw)
 
 
     total += 1
     testnum = testbasenum + 1
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(mode="vrad", chanwidth=2*cw, restfreq=rest)'
+    print('ms.regridspw(mode="vrad", chanwidth=2*cw, restfreq=rest)')
     ms.regridspw(mode="vrad", chanwidth=2*cw, restfreq=rest)
     ms.close()
     numerrors += verifytabs(32)
@@ -735,10 +735,10 @@ if dovradmode:
 
     total += 1
     testnum = testbasenum + 2
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=21.*cw, chanwidth=3.*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=21.*cw, chanwidth=3.*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=21.*cw, chanwidth=3.*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(7)
@@ -749,10 +749,10 @@ if dovradmode:
 
     total += 1
     testnum = testbasenum + 3
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=10*cw, chanwidth=2*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=10*cw, chanwidth=2*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=10*cw, chanwidth=2*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(5)
@@ -760,10 +760,10 @@ if dovradmode:
 
     total += 1
     testnum = testbasenum + 4
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=9*cw, chanwidth=3*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=9*cw, chanwidth=3*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=9*cw, chanwidth=3*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(3)
@@ -772,30 +772,30 @@ if dovradmode:
 
     total += 1
     testnum = testbasenum + 5
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=10*cw, chanwidth=4*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=10*cw, chanwidth=4*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=10*cw, chanwidth=4*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(2)
 
     total += 1
     testnum = testbasenum + 6
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=10*cw, chanwidth=5*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=10*cw, chanwidth=5*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=10*cw, chanwidth=5*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(2)
 
     total += 1
     testnum = testbasenum + 7
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=9*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=9*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=9*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -803,10 +803,10 @@ if dovradmode:
 
     total += 1
     testnum = testbasenum + 8
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=11*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=11*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=11*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -814,10 +814,10 @@ if dovradmode:
 
     total += 1
     testnum = testbasenum + 9
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print'ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)' 
+    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)') 
     ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -825,10 +825,10 @@ if dovradmode:
 
     total += 1
     testnum = testbasenum + 10
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=64*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=64*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=64*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -836,10 +836,10 @@ if dovradmode:
 
     total += 1
     testnum = testbasenum + 11
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=65*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=65*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=65*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -851,16 +851,16 @@ if dovoptmode:
     spofli = 299792458.
     rest = 114973628113.0
     cw = abs(spofli * (rest /(rest+1562500.) - 1.))
-    print "Choose rest freq rest = ", rest
-    print "Original Channel width cw =", cw
+    print("Choose rest freq rest = ", rest)
+    print("Original Channel width cw =", cw)
 
 
     total += 1
     testnum = testbasenum + 1
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(mode="vopt", chanwidth=2*cw, restfreq=rest)'
+    print('ms.regridspw(mode="vopt", chanwidth=2*cw, restfreq=rest)')
     ms.regridspw(mode="vopt", chanwidth=2*cw, restfreq=rest)
     ms.close()
     numerrors += verifytabs(31)
@@ -869,10 +869,10 @@ if dovoptmode:
 
     total += 1
     testnum = testbasenum + 2
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=21.*cw, chanwidth=3.*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=21.*cw, chanwidth=3.*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=21.*cw, chanwidth=3.*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(7)
@@ -882,20 +882,20 @@ if dovoptmode:
 
     total += 1
     testnum = testbasenum + 3
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=10*cw, chanwidth=2*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=10*cw, chanwidth=2*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=10*cw, chanwidth=2*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(5)
 
     total += 1
     testnum = testbasenum + 4
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=9*cw, chanwidth=3*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=9*cw, chanwidth=3*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=9*cw, chanwidth=3*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(3)
@@ -903,30 +903,30 @@ if dovoptmode:
 
     total += 1
     testnum = testbasenum + 5
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=10*cw, chanwidth=4*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=10*cw, chanwidth=4*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=10*cw, chanwidth=4*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(2)
 
     total += 1
     testnum = testbasenum + 6
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=10*cw, chanwidth=5*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=10*cw, chanwidth=5*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=10*cw, chanwidth=5*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(2)
 
     total += 1
     testnum = testbasenum + 7
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=9*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=9*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=9*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -934,10 +934,10 @@ if dovoptmode:
 
     total += 1
     testnum = testbasenum + 8
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=11*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=11*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=11*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -945,10 +945,10 @@ if dovoptmode:
 
     total += 1
     testnum = testbasenum + 9
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print'ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)' 
+    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)') 
     ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -956,10 +956,10 @@ if dovoptmode:
 
     total += 1
     testnum = testbasenum + 10
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=64*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=64*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=64*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -967,10 +967,10 @@ if dovoptmode:
 
     total += 1
     testnum = testbasenum + 11
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=65*cw,restfreq=rest)'
+    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=65*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=65*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -983,15 +983,15 @@ if dowavemode:
     regcentf = 114973628113.0
     regcentl = spofli/regcentf
     cw = regcentl - spofli/(regcentf+1562500.)
-    print "Original Channel width cw =", cw
+    print("Original Channel width cw =", cw)
 
 
     total += 1
     testnum = testbasenum + 1
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(mode="wave", chanwidth=2*cw)'
+    print('ms.regridspw(mode="wave", chanwidth=2*cw)')
     ms.regridspw(mode="wave", chanwidth=2*cw)
     ms.close()
     numerrors += verifytabs(31)
@@ -1000,10 +1000,10 @@ if dowavemode:
 
     total += 1
     testnum = testbasenum + 2
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=21.*cw, chanwidth=3.*cw)'
+    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=21.*cw, chanwidth=3.*cw)')
     ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=21.*cw, chanwidth=3.*cw)
     ms.close()
     numerrors += verifytabs(7)
@@ -1013,20 +1013,20 @@ if dowavemode:
 
     total += 1
     testnum = testbasenum + 3
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=10*cw, chanwidth=2*cw)'
+    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=10*cw, chanwidth=2*cw)')
     ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=10*cw, chanwidth=2*cw)
     ms.close()
     numerrors += verifytabs(5)
 
     total += 1
     testnum = testbasenum + 4
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=9*cw, chanwidth=3*cw)'
+    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=9*cw, chanwidth=3*cw)')
     ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=9*cw, chanwidth=3*cw)
     ms.close()
     numerrors += verifytabs(3)
@@ -1035,30 +1035,30 @@ if dowavemode:
 
     total += 1
     testnum = testbasenum + 5
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=10*cw, chanwidth=4*cw)'
+    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=10*cw, chanwidth=4*cw)')
     ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=10*cw, chanwidth=4*cw)
     ms.close()
     numerrors += verifytabs(2)
 
     total += 1
     testnum = testbasenum + 6
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=10*cw, chanwidth=5*cw)'
+    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=10*cw, chanwidth=5*cw)')
     ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=10*cw, chanwidth=5*cw)
     ms.close()
     numerrors += verifytabs(2)
 
     total += 1
     testnum = testbasenum + 7
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=9*cw)'
+    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=9*cw)')
     ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=9*cw)
     ms.close()
     numerrors += verifytabs(1)
@@ -1067,10 +1067,10 @@ if dowavemode:
 
     total += 1
     testnum = testbasenum + 8
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=11*cw)'
+    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=11*cw)')
     ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=11*cw)
     ms.close()
     numerrors += verifytabs(1)
@@ -1079,10 +1079,10 @@ if dowavemode:
 
     total += 1
     testnum = testbasenum + 9
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print'ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=61*cw)' 
+    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=61*cw)') 
     ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=61*cw)
     ms.close()
     numerrors += verifytabs(1)
@@ -1091,10 +1091,10 @@ if dowavemode:
 
     total += 1
     testnum = testbasenum + 10
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=64*cw)'
+    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=64*cw)')
     ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=64*cw)
     ms.close()
     numerrors += verifytabs(1)
@@ -1103,10 +1103,10 @@ if dowavemode:
 
     total += 1
     testnum = testbasenum + 11
-    print ">>>> Test ", testnum
+    print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print 'ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=65*cw)'
+    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=65*cw)')
     ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=65*cw)
     ms.close()
     numerrors += verifytabs(1)
@@ -1119,129 +1119,129 @@ if dowildstuff:
     try:
         total += 1
         testnum = testbasenum + 1
-        print ">>>> Test ", testnum
+        print(">>>> Test ", testnum)
         casalog.post(">>>> Test "+str(testnum))
         initms('test.ms',0, 0)
-        print 'ms.regridspw()'
+        print('ms.regridspw()')
         ms.regridspw()
         ms.close()
     except:
         ms.close()
-        print "Bad input not properly intercepted."
+        print("Bad input not properly intercepted.")
         numerrors += 1
 
     try:
         total += 1
         testnum = testbasenum + 2
-        print ">>>> Test ", testnum
+        print(">>>> Test ", testnum)
         casalog.post(">>>> Test "+str(testnum))
         initms('test.ms',0, 0)
-        print 'ms.regridspw(outframe="VARY")'
+        print('ms.regridspw(outframe="VARY")')
         ms.regridspw(outframe='VARY')
         ms.close()
     except:
         ms.close()
-        print "Bad input not properly intercepted."
+        print("Bad input not properly intercepted.")
         numerrors += 1
 
     try:
         total += 1
         testnum = testbasenum + 3
-        print ">>>> Test ", testnum
+        print(">>>> Test ", testnum)
         casalog.post(">>>> Test "+str(testnum))
         initms('test.ms',0, 0)
-        print 'ms.regridspw(mode="xxx")'
+        print('ms.regridspw(mode="xxx")')
         ms.regridspw(mode='xxx')
         ms.close()
     except:
         ms.close()
-        print "Bad input not properly intercepted."
+        print("Bad input not properly intercepted.")
         numerrors += 1
 
     try:
         total += 1
         testnum = testbasenum + 4
-        print ">>>> Test ", testnum
+        print(">>>> Test ", testnum)
         casalog.post(">>>> Test "+str(testnum))
         initms('test.ms',0, 0)
-        print 'ms.regridspw(outframe="bary", mode="freq", chanwidth=200000., interpolation="guess")'
+        print('ms.regridspw(outframe="bary", mode="freq", chanwidth=200000., interpolation="guess")')
         ms.regridspw(outframe="bary", mode="freq", chanwidth=200000., interpolation="guess")
         ms.close()
     except:
         ms.close()
-        print "Bad input not properly intercepted."
+        print("Bad input not properly intercepted.")
         numerrors += 1
 
     try:
         total += 1
         testnum = testbasenum + 5
-        print ">>>> Test ", testnum
+        print(">>>> Test ", testnum)
         casalog.post(">>>> Test "+str(testnum))
         initms('test.ms',0, 0)
-        print 'ms.regridspw(outframe="bary", mode="wave", center=1)'
+        print('ms.regridspw(outframe="bary", mode="wave", center=1)')
         ms.regridspw(outframe='bary', mode="wave", center=1)
         ms.close()
     except:
         ms.close()
-        print "Bad input not properly intercepted."
+        print("Bad input not properly intercepted.")
         numerrors += 1
 
     try:
         total += 1
         testnum = testbasenum + 6
-        print ">>>> Test ", testnum
+        print(">>>> Test ", testnum)
         casalog.post(">>>> Test "+str(testnum))
         initms('test.ms',0, 0)
-        print 'ms.regridspw(outframe="bary", mode="vopt", bandwidth=1E16)'
+        print('ms.regridspw(outframe="bary", mode="vopt", bandwidth=1E16)')
         ms.regridspw(outframe='bary', mode="vopt", bandwidth=1E16)
         ms.close()
     except:
         ms.close()
-        print "Bad input not properly intercepted."
+        print("Bad input not properly intercepted.")
         numerrors += 1
 
     try:
         total += 1
         testnum = testbasenum + 7
-        print ">>>> Test ", testnum
+        print(">>>> Test ", testnum)
         casalog.post(">>>> Test "+str(testnum))
         initms('test.ms',0, 0)
-        print 'ms.regridspw(outframe="bary", mode="vrad", restfreq=1E9, chanwidth=1E9)'
+        print('ms.regridspw(outframe="bary", mode="vrad", restfreq=1E9, chanwidth=1E9)')
         ms.regridspw(outframe='bary', mode="vrad", restfreq=1E9, chanwidth=1E9)
         ms.close()
     except:
         ms.close()
-        print "Bad input not properly intercepted."
+        print("Bad input not properly intercepted.")
         numerrors += 1
     try:
         total += 1
         testnum = testbasenum + 8
-        print ">>>> Test ", testnum
+        print(">>>> Test ", testnum)
         casalog.post(">>>> Test "+str(testnum))
         initms('test.ms',0, 10)
-        print 'ms.regridspw(mode="chan", center=10, start=2, bandwidth=10, chanwidth=2)'
+        print('ms.regridspw(mode="chan", center=10, start=2, bandwidth=10, chanwidth=2)')
         ms.regridspw(mode="chan", center=10, start=2, bandwidth=10, chanwidth=2)
         ms.close()
     except:
         ms.close()
-        print "Bad input not properly intercepted."
+        print("Bad input not properly intercepted.")
         numerrors += 1
 
     try:
         total += 1
         testnum = testbasenum + 9
-        print ">>>> Test ", testnum
+        print(">>>> Test ", testnum)
         casalog.post(">>>> Test "+str(testnum))
         initms('test.ms',0, 10)
-        print 'ms.regridspw(mode="freq", center=1E9, start=1E9, bandwidth=5E9)'
+        print('ms.regridspw(mode="freq", center=1E9, start=1E9, bandwidth=5E9)')
         ms.regridspw(mode="freq", center=1E9, start=1E9, bandwidth=5E9)
         ms.close()
     except:
         ms.close()
-        print "Bad input not properly intercepted."
+        print("Bad input not properly intercepted.")
         numerrors += 1
 
-print "-- end regridspw test ---------------------"
-print total, " tests"
-print numerrors, " errors total."
+print("-- end regridspw test ---------------------")
+print(total, " tests")
+print(numerrors, " errors total.")
     

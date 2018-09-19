@@ -5,7 +5,7 @@ from __main__ import default
 import os
 import shutil
 import unittest
-from itertools import izip
+
 import copy
 import numpy as np
 
@@ -18,13 +18,13 @@ datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/vi
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):
+if 'TEST_DATADIR' in os.environ:
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/visstat2/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
 
-print 'visstat tests will use data from '+datapath
+print('visstat tests will use data from '+datapath)
 
 class visstat_test(unittest.TestCase):
     def setUp(self):
@@ -77,7 +77,7 @@ class visstat_test(unittest.TestCase):
         os.remove(self.msfile14)
 
     def compare(self, a, b):
-        for d1, d2 in izip(a,b):
+        for d1, d2 in zip(a,b):
             if(d1.split(':')[0]==d2.split(':')[0]):
                 if(not np.allclose(np.array([float(d1.split(':')[1])]), np.array([float(d2.split(':')[1])]))):
                     raise Exception(d1.split(':')[0] + ' ' + 'values are not consistent!')
@@ -110,7 +110,7 @@ class visstat_test(unittest.TestCase):
 
         v2 = visstat(vis=self.msfile, axis='amp', datacolumn='data', reportingaxes='ddid')
 
-        if v2.keys() != expected[self.msfile].keys():
+        if list(v2.keys()) != list(expected[self.msfile].keys()):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Wrong dictionary keys. Expected %s, got %s" % \
@@ -121,16 +121,16 @@ class visstat_test(unittest.TestCase):
 
 
 
-        if not v2.has_key('DATA_DESC_ID=0'):
+        if 'DATA_DESC_ID=0' not in v2:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Dictionary returned from visstat does not have key DATA_DESC_ID=0"
             raise Exception("Dictionary returned from visstat does not have key DATA_DESC_ID=0")
 
-        for e in expected[self.msfile]['DATA_DESC_ID=0'].keys():
-            print ''
-            print "Checking %s: %s vs %s" % \
-                   (e, expected[self.msfile]['DATA_DESC_ID=0'][e], v2['DATA_DESC_ID=0'][e])
+        for e in list(expected[self.msfile]['DATA_DESC_ID=0'].keys()):
+            print('')
+            print("Checking %s: %s vs %s" % \
+                   (e, expected[self.msfile]['DATA_DESC_ID=0'][e], v2['DATA_DESC_ID=0'][e]))
             failed = False
 
             if type(expected[self.msfile]['DATA_DESC_ID=0'][e])==bool:
@@ -154,15 +154,15 @@ class visstat_test(unittest.TestCase):
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         for ch in [1, 2, 4, 7, 13, 62]:
           for corr in ['ll', 'rr', 'll,rr']:
-            print "Call with spw='0:1~"+str(ch)+"', correlation="+corr
+            print("Call with spw='0:1~"+str(ch)+"', correlation="+corr)
             s2 = visstat(vis=self.msfile, axis='amp', datacolumn='data', spw='0:1~'+str(ch), correlation=corr, reportingaxes='ddid', useflags=True)
-            print ''
-            print 's2', s2
+            print('')
+            print('s2', s2)
             n_expected = 2660994/63 * ch
             if corr in ['ll', 'rr']:
                 n_expected /= 2
             n = int(s2['DATA_DESC_ID=0']['npts'])
-            print "Checking npts: %s vs %s" % (n, n_expected)
+            print("Checking npts: %s vs %s" % (n, n_expected))
             if n != n_expected:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
@@ -198,22 +198,22 @@ class visstat_test(unittest.TestCase):
                                         'variance': 0.0}}}
 
         v2 = visstat(vis=self.msfile, axis='amp', datacolumn='model', reportingaxes='ddid')
-        if v2.keys() != expected[self.msfile].keys():
+        if list(v2.keys()) != list(expected[self.msfile].keys()):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Wrong dictionary keys. Expected %s, got %s" % \
                             (expected[self.msfile], v2)
 
-        if not v2.has_key('DATA_DESC_ID=0'):
+        if 'DATA_DESC_ID=0' not in v2:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Dictionary returned from visstat does not have key DATA_DESC_ID=0"
             raise Exception("Dictionary returned from visstat does not have key DATA_DESC_ID=0")
 
-        for e in expected[self.msfile]['DATA_DESC_ID=0'].keys():
-            print ''
-            print "Checking %s: %s vs %s" % \
-                   (e, expected[self.msfile]['DATA_DESC_ID=0'][e], v2['DATA_DESC_ID=0'][e])
+        for e in list(expected[self.msfile]['DATA_DESC_ID=0'].keys()):
+            print('')
+            print("Checking %s: %s vs %s" % \
+                   (e, expected[self.msfile]['DATA_DESC_ID=0'][e], v2['DATA_DESC_ID=0'][e]))
             failed = False
             if expected[self.msfile]['DATA_DESC_ID=0'][e] == 0:
                 if v2['DATA_DESC_ID=0'][e] != 0:
@@ -237,8 +237,8 @@ class visstat_test(unittest.TestCase):
 
         for a in range(1, 5):
             s2 = visstat(vis=self.msfile, axis='antenna1', antenna=str(a)+'&26')
-            print ''
-            print "antenna =", a, "; mean = ", s2['DATA_DESC_ID=0']['mean']
+            print('')
+            print("antenna =", a, "; mean = ", s2['DATA_DESC_ID=0']['mean'])
 
             # Note there's a counting from 0 or 1 issue here
             # with the antenna numbering
@@ -285,16 +285,16 @@ class visstat_test(unittest.TestCase):
         result_list=[]
 
         for dt in datacolumn_list:
-            for col, sd_pol in izip(correlation_type, sd_correlation_type):
+            for col, sd_pol in zip(correlation_type, sd_correlation_type):
                 num_tt=0
                 for time in tt:
                     for spwin in spw_list:
                         trange = qa.time(me.epoch('ref','%fs' % time)['m0'], prec=8, form='ymd')[0]
                         v2 = visstat(vis=self.msfile2, axis='amp', timerange=str(trange),reportingaxes=reporting_axes[0],
                                       correlation=col, datacolumn=dt, spw=spwin, intent=intent_list[0])
-                        v2_keys=v2.keys()
+                        v2_keys=list(v2.keys())
                         for check in check_list:
-                            print check, v2[str(v2_keys[0])][check]
+                            print(check, v2[str(v2_keys[0])][check])
                             result_list.append(check+':' + str(v2[str(v2_keys[0])][check]))
 
                         num_tt +=1
@@ -377,7 +377,7 @@ class visstat_test(unittest.TestCase):
                                         'variance': 268.3701951590845}}}
 
         v2 = visstat(vis=self.msfile, axis='amp', datacolumn='corrected', reportingaxes='ddid')
-        if v2.keys() != expected[self.msfile].keys():
+        if list(v2.keys()) != list(expected[self.msfile].keys()):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Wrong dictionary keys. Expected %s, got %s" % \
@@ -385,16 +385,16 @@ class visstat_test(unittest.TestCase):
             raise Exception("Wrong dictionary keys. Expected %s, got %s" % \
                             (expected[self.msfile], v2))
 
-        if not v2.has_key('DATA_DESC_ID=0'):
+        if 'DATA_DESC_ID=0' not in v2:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Dictionary returned from visstat does not have key DATA_DESC_ID=0"
             raise Exception("Dictionary returned from visstat does not have key DATA_DESC_ID=0")
 
-        for e in expected[self.msfile]['DATA_DESC_ID=0'].keys():
-            print ''
-            print "Checking %s: %s vs %s" % \
-                   (e, expected[self.msfile]['DATA_DESC_ID=0'][e], v2['DATA_DESC_ID=0'][e])
+        for e in list(expected[self.msfile]['DATA_DESC_ID=0'].keys()):
+            print('')
+            print("Checking %s: %s vs %s" % \
+                   (e, expected[self.msfile]['DATA_DESC_ID=0'][e], v2['DATA_DESC_ID=0'][e]))
             failed = False
             if expected[self.msfile]['DATA_DESC_ID=0'][e] == 0:
                 if v2['DATA_DESC_ID=0'][e] != 0:
@@ -428,7 +428,7 @@ class visstat_test(unittest.TestCase):
 
         trange = qa.time(me.epoch('ref','%fs' % tt[0])['m0'], prec=8, form='ymd')[0]
         s2 = visstat(vis=self.msfile, axis='amp', timerange=str(trange),reportingaxes='integration')
-        s2_keys=s2.keys()
+        s2_keys=list(s2.keys())
 
         check_list=['rms', 'medabsdevmed', 'min', 'max', 'sum', 'median', 'sumsq', 'stddev', 'variance', 'npts', 'mean']
         result_list=[]
@@ -471,14 +471,14 @@ class visstat_test(unittest.TestCase):
         result_list=[]
 
         for dt in datacolumn_list:
-            for col, sd_pol in izip(correlation_type, sd_correlation_type):
+            for col, sd_pol in zip(correlation_type, sd_correlation_type):
                 num_tt=0
                 for time in tt:
                     for spwin in spw_list:
                         trange = qa.time(me.epoch('ref','%fs' % time)['m0'], prec=8, form='ymd')[0]
                         v2 = visstat(vis=self.msfile2, axis='amp', timerange=str(trange),reportingaxes=reporting_axes[0],
                                       correlation=col, datacolumn=dt, spw=spwin, intent=intent_list[0])
-                        v2_keys=v2.keys()
+                        v2_keys=list(v2.keys())
                         for check in check_list:
                             result_list.append(check+':' + str(v2[str(v2_keys[0])][check]))
                         num_tt +=1
@@ -506,19 +506,19 @@ class visstat_test(unittest.TestCase):
         intent_off=[]
 
         for dt in datacolumn_list:
-            for col, sd_pol in izip(correlation_type, sd_correlation_type):
+            for col, sd_pol in zip(correlation_type, sd_correlation_type):
                     for fd in field_list:
                         v2_intent_on = visstat(vis=self.msfile3, axis='real',reportingaxes=reporting_axes[0],
                                          correlation=col, datacolumn=dt, intent='OBSERVE_TARGET#ON_SOURCE',field=fd)
                         v2_intent_off = visstat(vis=self.msfile5, axis='real',reportingaxes=reporting_axes[0],
                                          correlation=col, datacolumn=dt, intent='OBSERVE_TARGET#OFF_SOURCE',field=fd)
                         for check in check_list:
-                            print ''
-                            print 'check intent on', check
-                            print v2_intent_on['FIELD_ID='+ fd][check]
+                            print('')
+                            print('check intent on', check)
+                            print(v2_intent_on['FIELD_ID='+ fd][check])
 
-                            print 'check intent off', check
-                            print v2_intent_off['FIELD_ID='+ fd][check]
+                            print('check intent off', check)
+                            print(v2_intent_off['FIELD_ID='+ fd][check])
 
                             intent_on.append(check+':'+str(v2_intent_on['FIELD_ID='+ fd][check]))
                             intent_off.append(check+':'+str(v2_intent_off['FIELD_ID='+ fd][check]))
@@ -560,7 +560,7 @@ class visstat_test(unittest.TestCase):
 
         # sort the dictionary keys, and create an ordered list of dictionary
         # elements (i.e, statistics for every averaging interval)
-        v2_keys = v2.keys()
+        v2_keys = list(v2.keys())
         v2_keys.sort(cmp=compareKeys)
         ordered_v2 = [(scanTime(k), v2[k]) for k in v2_keys]
 
@@ -614,7 +614,7 @@ class visstat_test(unittest.TestCase):
 
         # sort the dictionary keys, and create an ordered list of dictionary
         # elements (i.e, statistics for every averaging interval)
-        v2_keys = v2.keys()
+        v2_keys = list(v2.keys())
         v2_keys.sort(cmp=compareKeys)
         ordered_v2 = [(statTime(k), v2[k]) for k in v2_keys]
 

@@ -26,6 +26,6 @@ def filecatalog():
 	elif (os.uname()[0]=='Linux'):
         	fcpid=os.spawnlp(os.P_NOWAIT,'casafilecatalog','casafilecatalog')
 	else:
-        	print 'Unrecognized OS: No filecatalog available'
+        	print('Unrecognized OS: No filecatalog available')
 
 	myf['fcpid']=fcpid

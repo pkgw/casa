@@ -68,8 +68,8 @@ class __viewer_class(object):
 
 		"""
                 myf=stack_frame_find( )
-                vi = myf['vi'] if myf.has_key('vi') else None
-                ving = myf['ving'] if myf.has_key('ving') else None
+                vi = myf['vi'] if 'vi' in myf else None
+                ving = myf['ving'] if 'ving' in myf else None
 
 		#Python script
 		try:
@@ -91,13 +91,13 @@ class __viewer_class(object):
 				if self.local_vi is not None:
 					vwr = self.local_vi
 				else:
-					vwr = viewertool.viewertool( True, True, (type(myf) == dict and myf.has_key('casa') and type(myf['casa']) == type(os)) )
+					vwr = viewertool.viewertool( True, True, (type(myf) == dict and 'casa' in myf and type(myf['casa']) == type(os)) )
 					self.local_vi = vwr
 			else:
 				if self.local_ving is not None:
 					vwr = self.local_ving
 				else:
-					vwr = viewertool.viewertool( False, True, (type(myf) == dict and myf.has_key('casa') and type(myf['casa']) == type(os)) )
+					vwr = viewertool.viewertool( False, True, (type(myf) == dict and 'casa' in myf and type(myf['casa']) == type(os)) )
 					self.local_ving = vwr
 
 		if type(vwr) != type(None) :
@@ -107,12 +107,12 @@ class __viewer_class(object):
 			try:
 				old_path = vwr.cwd( )
 			except:
-				raise Exception, "viewer() failed to get the current working directory [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]"
+				raise Exception("viewer() failed to get the current working directory [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]")
 
 			try:
 				vwr.cwd(os.path.abspath(os.curdir))
 			except:
-				raise Exception, "viewer() failed to change to the new working directory (" + os.path.abspath(os.curdir) + ") [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]"
+				raise Exception("viewer() failed to change to the new working directory (" + os.path.abspath(os.curdir) + ") [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]")
 
 			panel = vwr.panel("viewer")
 			data = None
@@ -152,7 +152,7 @@ class __viewer_class(object):
 			try:
 				vwr.cwd(old_path)
 			except:
-				raise Exception, "viewer() failed to restore the old working directory (" + old_path + ") [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]"
+				raise Exception("viewer() failed to restore the old working directory (" + old_path + ") [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]")
 
 		else:
 			viewer_path = myf['casa']['helpers']['viewer']   #### set in casapy.py
@@ -169,7 +169,7 @@ class __viewer_class(object):
 			elif (os.uname()[0]=='Linux'):
 				vwrpid=os.spawnlp( os.P_NOWAIT, viewer_path, *args )
 			else:
-				print 'Unrecognized OS: No viewer available'
+				print('Unrecognized OS: No viewer available')
 
 		return None
 

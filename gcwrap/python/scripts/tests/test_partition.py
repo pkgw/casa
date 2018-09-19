@@ -13,7 +13,7 @@ from parallel.parallel_task_helper import ParallelTaskHelper
 ''' Unit Tests for task partition'''
 
 # jagonzal (CAS-4287): Add a cluster-less mode to by-pass parallel processing for MMSs as requested 
-if os.environ.has_key('BYPASS_PARALLEL_PROCESSING'):
+if 'BYPASS_PARALLEL_PROCESSING' in os.environ:
     ParallelTaskHelper.bypassParallelProcessing(1)
 
     
@@ -39,7 +39,7 @@ class test_base(unittest.TestCase):
         if not os.path.exists(self.msfile):        
             shutil.copytree(fpath, self.msfile, symlinks=True)
         else:
-            print 'MS is already around, no need to copy it.'
+            print('MS is already around, no need to copy it.')
 
         default('partition')
 
@@ -63,7 +63,7 @@ class test_base(unittest.TestCase):
         if not os.path.exists(self.msfile):        
             shutil.copytree(fpath, self.msfile, symlinks=True)
         else:
-            print 'MS is already around, no need to copy it.'
+            print('MS is already around, no need to copy it.')
 
         default('partition')
 
@@ -83,7 +83,7 @@ class test_base(unittest.TestCase):
         if not os.path.exists(self.msfile):        
             shutil.copytree(fpath, self.msfile, symlinks=True)
         else:
-            print 'MS is already around, no need to copy it.'
+            print('MS is already around, no need to copy it.')
 
         default('partition')
         
@@ -272,7 +272,7 @@ class partition_test1(test_base):
         # ms_spw = 2 --> mms_spw = 0
         # ms_spw = 3 --> mms_spw = 1, etc.
         # Check that MMS spw IDs have been re-indexed properly
-        indexed_ids = range(4)
+        indexed_ids = list(range(4))
         for s in slist:
             mms_spw = ph.getSpwIds(self.mmsfile, s)
             self.assertEqual(mms_spw, indexed_ids, 'spw IDs were not properly re-indexed')
@@ -303,7 +303,7 @@ class partition_test1(test_base):
         # ms_spw = 2 --> mms_spw = 0
         # ms_spw = 4 --> mms_spw = 1
         # Check that MMS spw IDs have been re-indexed properly
-        indexed_ids = range(2)
+        indexed_ids = list(range(2))
         for s in slist:
             mms_spw = ph.getSpwIds(self.mmsfile, s)
             self.assertEqual(mms_spw, indexed_ids, 'spw IDs were not properly re-indexed')
@@ -311,12 +311,12 @@ class partition_test1(test_base):
     def test_model_keys(self):
         '''partition: CAS-4398, handle the MODEL keywords correctly'''
         
-        print '*** Check that MODEL_DATA is not present in MS first'
+        print('*** Check that MODEL_DATA is not present in MS first')
         mytb = tbtool()
         try:
             mytb.open(self.msfile+'/MODEL_DATA')
-        except Exception, instance:
-            print '*** Expected exception. \"%s\"'%instance
+        except Exception as instance:
+            print('*** Expected exception. \"%s\"'%instance)
             mytb.close()
         
         inpms = 'ngc4826Jy.ms'
@@ -329,7 +329,7 @@ class partition_test1(test_base):
         partition(vis=inpms,outputvis=self.mmsfile, observation='1',spw='1',
                   scan='1,2,3', disableparallel=True, flagbackup=False)  
 
-        print 'Check the SOURCE_MODEL columns....'
+        print('Check the SOURCE_MODEL columns....')
         mytb = tbtool()
         mytb.open(inpms+'/SOURCE')
         msdict = mytb.getcell('SOURCE_MODEL', 0)
@@ -344,8 +344,8 @@ class partition_test1(test_base):
         # Check that the real MODEL_DATA column is not created in MMS
         try:
             mytb.open(self.mmsfile+'/MODEL_DATA')
-        except Exception, instance:
-            print '*** Expected exception. \"%s\"'%instance
+        except Exception as instance:
+            print('*** Expected exception. \"%s\"'%instance)
             mytb.close()
         
 
@@ -575,7 +575,7 @@ class partition_test2(test_base):
         # ms_spw = 1 --> mms_spw = 0
         # ms_spw = 2 --> mms_spw = 1, etc.
         # Check that MMS spw IDs have been re-indexed properly
-        indexed_ids = range(6)
+        indexed_ids = list(range(6))
         for s in slist:
             mms_spw = ph.getSpwIds(self.mmsfile, s)
             self.assertEqual(mms_spw, indexed_ids, 'spw IDs were not properly re-indexed')
@@ -597,7 +597,7 @@ class partition_test2(test_base):
         
         # Check the number of sub-MSs
         mmslist = []
-        klist = thisdict.keys()
+        klist = list(thisdict.keys())
         for kk in klist:
             mmslist.append(thisdict[kk]['MS'])
         
@@ -930,8 +930,8 @@ class test_partition_balanced_multiple_scan(test_base):
         self.assertEqual(len(listpartition_dict), 2)
         self.assertEqual(len(listpartition_dict[0]['scanId']), 26)
         self.assertEqual(len(listpartition_dict[1]['scanId']), 26)
-        self.assertEqual(sum([x['nrows'] for x in listpartition_dict[1]['scanId'].values()]), 4344)
-        self.assertEqual(sum([x['nrows'] for x in listpartition_dict[0]['scanId'].values()]), 4344)
+        self.assertEqual(sum([x['nrows'] for x in list(listpartition_dict[1]['scanId'].values())]), 4344)
+        self.assertEqual(sum([x['nrows'] for x in list(listpartition_dict[0]['scanId'].values())]), 4344)
        
     def test_linked_cols(self):
         '''partition: Verify that SYSPOWER, POINTING and SYSCAL are links'''
@@ -973,7 +973,7 @@ class test_partition_baseline_axis(test_base):
         
         # Take the dictionary and compare with original MS
         thisdict = listpartition(vis=self.outputms, createdict=True)
-        self.assertEqual(len(thisdict.keys()), 6, 'There should be 6 subMSs in output MMS')
+        self.assertEqual(len(list(thisdict.keys())), 6, 'There should be 6 subMSs in output MMS')
         
     def test_baseline_autocorr(self):
         '''partition: create an MMS per baseline axis only for auto-correlations'''
@@ -996,7 +996,7 @@ class test_partition_baseline_axis(test_base):
         
         # Take the dictionary and compare with original MS
         thisdict = listpartition(vis=self.outputms, createdict=True)
-        self.assertEqual(len(thisdict.keys()), 3, 'There should be 3 subMSs in output MMS')
+        self.assertEqual(len(list(thisdict.keys())), 3, 'There should be 3 subMSs in output MMS')
  
 
 # Cleanup class 
@@ -1007,7 +1007,7 @@ class partition_cleanup(test_base):
 
     def test_runTest(self):
         '''partition: Cleanup'''
-        print 'Cleaning up after test_partition'
+        print('Cleaning up after test_partition')
           
 def suite():
     return [partition_test1, 

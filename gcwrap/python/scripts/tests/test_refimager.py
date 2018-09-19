@@ -49,7 +49,7 @@
 import os
 import sys
 import shutil
-import commands
+import subprocess
 import numpy
 from __main__ import default
 from tasks import *
@@ -1007,7 +1007,7 @@ class test_cube(testref_base):
 
      def run_cubetclean(self, testid):
           """ core function to execute a cube tclean """
-          if self.testList[testid].has_key('interpolation'):
+          if 'interpolation' in self.testList[testid]:
               interpolation = self.testList[testid]['interpolation']
           else:
               interpolation = 'linear'
@@ -1027,7 +1027,7 @@ class test_cube(testref_base):
      def test_cube_0(self):
           """ [cube] Test_Cube_0 new """
           testid=0
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1041,7 +1041,7 @@ class test_cube(testref_base):
      def test_cube_1(self):
           """ [cube] Test_Cube_1  """
           testid=1
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1056,7 +1056,7 @@ class test_cube(testref_base):
      def test_cube_2(self):
           """ [cube] Test_Cube_2  """
           testid=2
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1071,7 +1071,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_3  """
           # start = 5 (1.25GHZ IN TOPO)
           testid=3
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1085,7 +1085,7 @@ class test_cube(testref_base):
      def test_cube_4(self):
           """ [cube] Test_Cube_4  """
           testid=4
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1100,7 +1100,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_5  """
           # width by freq (2x chanw) result should be the same as #2
           testid=5
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1115,7 +1115,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_6  """ 
           # start in freq=1.1GHz (=chan5)
           testid=6
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1131,7 +1131,7 @@ class test_cube(testref_base):
           # start 1.1GHz(TOPO)=chan5 spw=4~19
           ##as of 03/23/2017 it is  not.... chan2 = 1.1e9 (in refim_point.ms)  
           testid=7
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1147,7 +1147,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_8  """
           # start =1.5GHz(chan10)  width=-50MHz TOPO (descending freq)
           testid=8
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1162,7 +1162,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_9  """
           # width in vel (=23983.4km/s=2xChanW) def start (=cube will be ascending order in vel)
           testid=9
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1177,7 +1177,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_10  """
           # width in vel = -23983.4m/s def start (cube will be in descending order in vel)
           testid=10
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1192,7 +1192,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_11  """
           # start 11991.7km/s (chan4)
           testid=11
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1207,7 +1207,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_12  """
           # start 11977.6km/s (BARY) = chan4
           testid=12
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1222,7 +1222,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_13  """
           # 
           testid=13
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           # use own tclean command as nchan need to modify
           ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,specmode='cube',nchan=8,restfreq=['1.25GHz'],phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',spw=self.testList[testid]['spw'],imagename=self.img+self.testList[testid]['imagename'],start=self.testList[testid]['start'], width=self.testList[testid]['width'],veltype=self.testList[testid]['veltype'],outframe=self.testList[testid]['outframe'])
@@ -1237,7 +1237,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_14  """
           # start = quantity ('1.2GHz') frame default(LSRK)
           testid=14
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1252,7 +1252,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_15  """
           # measure freq in LSRK ch4
           testid=15
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1267,7 +1267,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_16  """
           # start quantity vel=11991.7km/s outframe=topo (ascending vel order)
           testid=16
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1282,7 +1282,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_17  """
           # start measure vel=11977.6km/s BARY, outframe=TOPO will be overridedden (ascending vel order)
           testid=17
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1298,7 +1298,7 @@ class test_cube(testref_base):
           # defaut start, width in vel (quantity) +11991.7km/s (TOPO, radio)=datachan width, will be
           # ascending order in vel so highet DATA channel will be chan 0 in the image (image chan0=1.45GHz)
           testid=18
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1313,7 +1313,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_19  """
           # default start, width in vel (measure) +11991.7km/s (TOPO, radio)
           testid=19
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1328,7 +1328,7 @@ class test_cube(testref_base):
           """ [cube] Test_Cube_20  """
           # doppler (with ch4 LSRK freq, rest freq=1.25GHz)
           testid=20
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1344,7 +1344,7 @@ class test_cube(testref_base):
           # data sel with channel gap (10,11 excluded) 4~9, 12~14
           testid=21
           self.testList[testid]['interpolation']='nearest'
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1361,7 +1361,7 @@ class test_cube(testref_base):
           # stride (step=2) use nearest interpolation (other interpotion methods
           # may not work well...)
           testid=22
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 
@@ -1375,7 +1375,7 @@ class test_cube(testref_base):
      def test_cube_23(self):
           """ [cube] Test_Cube_23  """
           testid=23
-          print " : " , self.testList[testid]['desc']
+          print(" : " , self.testList[testid]['desc'])
           self.prepData('refim_point.ms')
           ret = self.run_cubetclean(testid)
 

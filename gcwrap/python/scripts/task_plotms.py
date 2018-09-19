@@ -287,28 +287,28 @@ def plotms(vis=None,
     try:
         # Do preliminary checks on argument values
         # Set synonyms to existing_terms
-        if(synonyms.has_key(xaxis)):
+        if(xaxis in synonyms):
             xaxis = synonyms[xaxis]
         if isinstance(yaxis, str):
-            if synonyms.has_key(yaxis):
+            if yaxis in synonyms:
                 yaxis = synonyms[yaxis]
         elif isinstance(yaxis, list):
             for index,axis in enumerate(yaxis):
-                if synonyms.has_key(axis):
+                if axis in synonyms:
                     yaxis[index] = synonyms[axis]
 
         if isinstance(coloraxis, str):
-            if synonyms.has_key(coloraxis):
+            if coloraxis in synonyms:
                 coloraxis = synonyms[coloraxis]
 
-        if(synonyms.has_key(xdatacolumn)):
+        if(xdatacolumn in synonyms):
             xdatacolumn = synonyms[xdatacolumn]
         if isinstance(ydatacolumn, str):
-            if synonyms.has_key(ydatacolumn):
+            if ydatacolumn in synonyms:
                 yaxis = synonyms[ydatacolumn]
         elif isinstance(ydatacolumn, list):
             for index,col in enumerate(ydatacolumn):
-                if synonyms.has_key(col):
+                if col in synonyms:
                     ydatacolumn[index] = synonyms[col]
 
         # check vis exists
@@ -439,7 +439,7 @@ def plotms(vis=None,
                     pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, 
                         yAxisLocation, False, plotindex, i)
             else :
-                raise Exception, 'Please remove duplicate y-axes.'
+                raise Exception('Please remove duplicate y-axes.')
 
         if not showatm:
             showatm = False
@@ -809,9 +809,9 @@ def plotms(vis=None,
                 casalog.post("Exporting the plot.",'NORMAL')
                 plotUpdated = pm.save( plotfile, expformat, verbose, highres, dpi, width, height)
 
-    except Exception, instance:
+    except Exception as instance:
         plotUpdated = False
-        print "Exception during plotms task: ", instance
+        print("Exception during plotms task: ", instance)
         
     if not plotUpdated:
         checkProcesses() # see if something crashed, log failure

@@ -1,7 +1,7 @@
 import os
 import sys
 import shutil
-import commands
+import subprocess
 import numpy
 import numpy.ma as ma
 import testhelper as th
@@ -25,15 +25,15 @@ datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/gencal
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/gencal/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
     else:
-        print 'WARN: directory '+DATADIR+' does not exist'
+        print('WARN: directory '+DATADIR+' does not exist')
 
-print 'gencal tests will use data from '+datapath         
+print('gencal tests will use data from '+datapath)         
 
 
 class gencal_antpostest(unittest.TestCase):
@@ -82,11 +82,11 @@ class gencal_antpostest(unittest.TestCase):
         gencal: test automated antenna position correction
         """
         # check if the URL is reachable
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
         # current EVLA baseline correction URL
         evlabslncorrURL="http://www.vla.nrao.edu/cgi-bin/evlais_blines.cgi?Year="
         try: 
-          urlaccess=urllib2.urlopen(evlabslncorrURL+"2010", timeout=30.0) 
+          urlaccess=urllib.request.urlopen(evlabslncorrURL+"2010", timeout=30.0) 
           gencal(vis=self.msfile,
                  caltable=self.caltable,
                  caltype='antpos',
@@ -101,8 +101,8 @@ class gencal_antpostest(unittest.TestCase):
           reference = self.reffile2
           self.assertTrue(th.compTables(self.caltable, reference, ['WEIGHT','OBSERVATION_ID']))
 
-        except urllib2.URLError, err:
-          print "Cannot access %s , skip this test" % evlabslncorrURL
+        except urllib.error.URLError as err:
+          print("Cannot access %s , skip this test" % evlabslncorrURL)
           self.res=True
 
 
@@ -183,7 +183,7 @@ class test_gencal_antpos_alma(unittest.TestCase):
         gencal: connection to alma TCM DB AntennaPadService for ALMA
         """
         try:
-            import urllib2
+            import urllib.request, urllib.error, urllib.parse
             from suds.client import Client
             ws_cli = Client(self.ALMA_SRV_WSDL_URL)
 
@@ -192,11 +192,11 @@ class test_gencal_antpos_alma(unittest.TestCase):
             self.assertTrue(callable(getattr(ws_cli.service, method_name)),
                             'The client service should have this method: {}, and '
                             'it should be callable.'.format(method_name))
-        except ImportError, exc:
+        except ImportError as exc:
             print('Cannot import required dependencies to query the ALMA TCM DB '
                   'web service')
             raise
-        except urllib2.URLError, exc:
+        except urllib.error.URLError as exc:
             print('Connection/network error while querying the ALMA TCM DB web'
                   'service')
             raise
@@ -219,7 +219,7 @@ class test_gencal_antpos_alma(unittest.TestCase):
             print('Cannot import required dependencies to query the ALMA TCM DB '
                   'web service')
             raise
-        except urllib2.URLError, exc:
+        except urllib.error.URLError as exc:
             print('Connection/network error while querying the ALMA TCM DB web'
                   'service')
             raise
@@ -231,7 +231,7 @@ class test_gencal_antpos_alma(unittest.TestCase):
         gencal: auto gencal using data from TCM DB AntennaPadService (ALMA)
         """
 
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
 
         out_caltable = 'ant_pos_web_srv.cal'
         try:
@@ -242,7 +242,7 @@ class test_gencal_antpos_alma(unittest.TestCase):
             print('Cannot import required dependencies to query the ALMA TCM DB '
                   'web service')
             raise
-        except urllib2.URLError:
+        except urllib.error.URLError:
             print('Connection/network error while querying the ALMA TCM DB web'
                   'service')
             raise
@@ -264,7 +264,7 @@ class test_gencal_antpos_alma(unittest.TestCase):
         gencal: empty query (empty antennas list) to the (new) REST TCMDB Positions
         web service (ALMA)
         """
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
 
         TEST_HOSTNAME = 'https://2018may.asa-test.alma.cl'
 
@@ -293,7 +293,7 @@ class test_gencal_antpos_alma(unittest.TestCase):
             print('Cannot import required dependencies to query the ALMA TCM DB '
                   'web service')
             raise
-        except urllib2.URLError, exc:
+        except urllib.error.URLError as exc:
             print('Connection/network error while querying the ALMA TCM DB web'
                   'service')
             raise
@@ -304,14 +304,14 @@ class test_gencal_antpos_alma(unittest.TestCase):
         gencal: auto gencal using data from TCMDB Positions service (ALMA)
         """
 
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
 
         out_caltable = 'ant_pos_web_srv.cal'
         try:
             # This will import the required libraries, urllib2, suds, etc.
             # Coul also use additional parameters: antenna='', parameter=''
             gencal(vis=self.ALMA_MS, caltable=out_caltable, caltype=self.CAL_TYPE)
-        except urllib2.URLError:
+        except urllib.error.URLError:
             print('Connection/network error while querying the ALMA TCMDB Positions web'
                   'service')
             raise

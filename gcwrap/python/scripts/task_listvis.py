@@ -17,12 +17,12 @@ def listvis(vis, options, datacolumn, field,spw, selectdata, antenna, timerange,
         if ((type(vis)==str) & (os.path.exists(vis))):
             myms.open(vis)
         else:
-            raise Exception, 'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
                 
         myms.lister(options, datacolumn, field, spw, antenna, timerange,
                     correlation, scan, feed, array, str(observation), uvrange,
                     average, showflags, "", pagerows, listfile)
         myms.close()
-    except Exception, instance:
-        print '*** Error in listvis *** ', instance
+    except Exception as instance:
+        print('*** Error in listvis *** ', instance)
     

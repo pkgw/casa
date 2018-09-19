@@ -143,7 +143,7 @@
 ## =============================================================================
 
 
-import glob, pylab, urllib2, os, datetime
+import glob, pylab, urllib.request, urllib.error, urllib.parse, os, datetime
 import numpy as np
 from matplotlib import rc
 from taskinit import *
@@ -326,7 +326,7 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
 
     ## Runs the Madrigal methods; requires "madrigalWeb.py" and "globalDownload.py" and "madrigal.head"
     if tec_server == 'MAPGPS':
-        print '\nCurrently, MAPGPS has been set to "False" \nand you must change tec_maps.py at line 306\n'
+        print('\nCurrently, MAPGPS has been set to "False" \nand you must change tec_maps.py at line 306\n')
         CASA_image = ''
         CASA_RMS_image = ''
 
@@ -338,7 +338,7 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
         mad_file = check_existence(mad_data_file)
         if username!='' and user_email!='' and affiliation!='':
             if mad_file == '': 
-                print 'Retrieving the following MAPGPS files: '+begin_day+' to '+end_day
+                print('Retrieving the following MAPGPS files: '+begin_day+' to '+end_day)
                 begin_mdy = str(begin_day.split('/')[1])+'/'+str(begin_day.split('/')[2])+'/'+str(begin_day.split('/')[0])
                 end_mdy = str(end_day.split('/')[1])+'/'+str(end_day.split('/')[2])+'/'+str(end_day.split('/')[0])
                 os.system('python globalDownload.py --url=http://madrigal.haystack.mit.edu/madrigal --outputDir='+workDir+\
@@ -361,25 +361,25 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
 
 
                 ## Making the CASA table is expensive, so we do it only once.
-                print 'Making a CASA table of: ', mad_data_file
+                print('Making a CASA table of: ', mad_data_file)
                 make_CASA_table(mad_data_file)
 
             try:
                 CASA_image = convert_MAPGPS_TEC(ms_name,mad_data_file,ref_time,ref_start,\
                                                 ref_end,plot_vla_tec,im_name)
             except:
-                print 'An error was encountered retrieving/interpreting the MAPGPS files.'
+                print('An error was encountered retrieving/interpreting the MAPGPS files.')
                 CASA_image = ''
                 CASA_RMS_image = ''
         else:
-            print 'You need to supply your username, e-mail, and affiliation to access the Madrigal server.'
+            print('You need to supply your username, e-mail, and affiliation to access the Madrigal server.')
             CASA_image = ''
             CASA_RMS_image = ''
   
     ## Returns the name of the TEC image generated
-    print 'The following TEC map was generated: '+CASA_image+' & '+CASA_RMS_image
+    print('The following TEC map was generated: '+CASA_image+' & '+CASA_RMS_image)
     if len(plot_name)>0:
-        print 'The following TEC zenith plot was generated: '+plot_name
+        print('The following TEC zenith plot was generated: '+plot_name)
     else:
         plot_name='none'
     return CASA_image,CASA_RMS_image,plot_name
@@ -461,7 +461,7 @@ def get_IGS_TEC(ymd_date):
     does_exist = ''
     does_exist = check_existence(igs_file)
     if does_exist == '':
-        print 'Retrieving the following file: ', igs_file
+        print('Retrieving the following file: ', igs_file)
 
         CDDIS = 'ftp://cddis.gsfc.nasa.gov/gnss/products/ionex'
         file_location = CDDIS+'/'+str(year)+'/'+str(dayofyear)+'/'
@@ -473,34 +473,34 @@ def get_IGS_TEC(ymd_date):
                 os.system('curl '+get_file+' > '+workDir+igs_file+'.Z')
                 os.system('uncompress '+igs_file+'.Z')
             else:
-                print igs_file, 'is unavailable'
+                print(igs_file, 'is unavailable')
                 igs_file = igs_file.replace('igs','igr')
 
                 does_exist = check_existence(igs_file)
 		if does_exist == '':
-                    print 'Retrieving the following file instead: ', igs_file
+                    print('Retrieving the following file instead: ', igs_file)
                     get_file = file_location+igs_file+'.Z'
                     retrieve = test_connection(get_file)
                     if retrieve == True:
                         os.system('curl '+get_file+' > '+workDir+igs_file+'.Z')
                         os.system('uncompress '+igs_file+'.Z')
                     else:
-                        print igs_file, 'is unavailable'
+                        print(igs_file, 'is unavailable')
                         igs_file = igs_file.replace('igr','jpr')
 
                         does_exist = check_existence(igs_file)
                         if does_exist == '':
-                            print 'Retrieving the following file instead: ', igs_file
+                            print('Retrieving the following file instead: ', igs_file)
                             get_file = file_location+igs_file+'.Z'
                             retrieve = test_connection(get_file)
                             if retrieve == True:
                                 os.system('curl '+get_file+' > '+workDir+igs_file+'.Z')
                                 os.system('uncompress '+igs_file+'.Z')
                             else:
-                                print igs_file, 'is unavailable'
-                                print '\nNo data products available. You may try to manually'\
+                                print(igs_file, 'is unavailable')
+                                print('\nNo data products available. You may try to manually'\
                                       ' download the products at:\n'\
-                                      'ftp://cddis.gsfc.nasa.gov/gnss/products/ionex\n'
+                                      'ftp://cddis.gsfc.nasa.gov/gnss/products/ionex\n')
                                 return 0,0,0,0,0,0,0,0,[0],''
                         else:
                             pass
@@ -524,7 +524,7 @@ def get_IGS_TEC(ymd_date):
     ## later in this script.
     ##
     ## =========================================================================
-    print 'Transfering IONEX data format to a TEC/DTEC array for ',ymd_date
+    print('Transfering IONEX data format to a TEC/DTEC array for ',ymd_date)
 
     ## Opening and reading the IONEX file into memory as a list
     linestring = open(igs_file, 'r').read()
@@ -718,7 +718,7 @@ def make_image(prefix,ref_long,ref_lat,ref_time,incr_long,incr_lat,incr_time,tec
 ##
 ## =============================================================================
     """
-    print 'Trying to make an image of', prefix+appendix+'.im'
+    print('Trying to make an image of', prefix+appendix+'.im')
 
     ## Set the coordinate system for the TEC image
     cs0=cs.newcoordsys(linear=3)
@@ -858,9 +858,9 @@ def test_connection(reference):
 ## =============================================================================
     """
     try:
-        response = urllib2.urlopen(reference,timeout=5)
+        response = urllib.request.urlopen(reference,timeout=5)
         return True
-    except urllib2.URLError as err: 
+    except urllib.error.URLError as err: 
         return False
 
 
@@ -919,14 +919,14 @@ def convert_MAPGPS_TEC(ms_name,mad_data_file,ref_time,ref_start,ref_end,plot_vla
     minlat=min(ulat)
     minlong=min(ulong)
 
-    print 'rows',len(utimes)
+    print('rows',len(utimes))
 
     itime=0
     for t in utimes:
         st1=st0.query('UT1_UNIX=='+str(t),name='bytime')
         n=st1.nrows()
         if itime%100==0:
-            print itime, n
+            print(itime, n)
         ilong=st1.getcol('GLON')-minlong
         ilat=st1.getcol('GDLAT')-minlat
         itec=st1.getcol('TEC')

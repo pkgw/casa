@@ -28,7 +28,7 @@ class test_base(unittest.TestCase):
         if os.path.exists(self.vis):
             pass
         else:
-            print "Linking to data..."
+            print("Linking to data...")
             os.system('ln -s ' + os.environ.get('CASAPATH').split()[0] +
                       "/data/regression/unittest/partition/" + self.vis + ' ' + self.vis)
             
@@ -41,7 +41,7 @@ class test_base(unittest.TestCase):
         if os.path.exists(self.vis):
             pass
         else:
-            print "Linking to data..."
+            print("Linking to data...")
             os.system('ln -s ' + os.environ.get('CASAPATH').split()[0] +
                       "/data/regression/unittest/partition/" + self.vis + ' ' + self.vis)
 
@@ -54,7 +54,7 @@ class test_base(unittest.TestCase):
         if os.path.exists(self.vis):
             pass
         else:
-            print "Linking to data..."
+            print("Linking to data...")
             os.system('ln -s ' + os.environ.get('CASAPATH').split()[0] +
                       "/data/regression/unittest/partition/" + self.vis + ' ' + self.vis)
 
@@ -67,7 +67,7 @@ class test_base(unittest.TestCase):
         if os.path.exists(self.vis):
             pass
         else:
-            print "Linking to data..."
+            print("Linking to data...")
             os.system('ln -s ' + os.environ.get('CASAPATH').split()[0] +
                       "/data/regression/unittest/partition/" + self.vis + ' ' + self.vis)
 
@@ -135,14 +135,14 @@ class test_MMS_spw(test_base):
         '''listpartition MMS spw3: Create an output dictionary'''
 
         resdict = listpartition(vis=self.vis, createdict=True)
-        nkeys = resdict.keys().__len__()
+        nkeys = list(resdict.keys()).__len__()
         self.assertEqual(nkeys, 16)
                 
         # Check all scans in all sub-MSs
-        for k in resdict.keys():
+        for k in list(resdict.keys()):
             subms = resdict[k]['MS']
             MS = self.visdata+'/'+subms
-            scans = resdict[k]['scanId'].keys()
+            scans = list(resdict[k]['scanId'].keys())
             for s in scans:
                 nr = resdict[k]['scanId'][s]['nrows']
                 refN = ph.getScanNrows(MS, s)
@@ -181,14 +181,14 @@ class test_MMS_scan(test_base):
         '''listpartition MMS scan3: Create an output dictionary'''
 
         resdict = listpartition(vis=self.vis, createdict=True)
-        nkeys = resdict.keys().__len__()
+        nkeys = list(resdict.keys()).__len__()
         self.assertEqual(nkeys, 2)
                 
         # Check all scans in all sub-MSs
-        for k in resdict.keys():
+        for k in list(resdict.keys()):
             subms = resdict[k]['MS']
             MS = self.visdata+'/'+subms
-            scans = resdict[k]['scanId'].keys()
+            scans = list(resdict[k]['scanId'].keys())
             for s in scans:
                 nr = resdict[k]['scanId'][s]['nrows']
                 refN = ph.getScanNrows(MS, s)
@@ -259,14 +259,14 @@ class test_MMS_mix(test_base):
         '''listpartition MMS mix3: Create an output dictionary'''
 
         resdict = listpartition(vis=self.vis, createdict=True)
-        nkeys = resdict.keys().__len__()
+        nkeys = list(resdict.keys()).__len__()
         self.assertEqual(nkeys, 32)
                 
         # Check all scans in all sub-MSs
-        for k in resdict.keys():
+        for k in list(resdict.keys()):
             subms = resdict[k]['MS']
             MS = self.visdata+'/'+subms
-            scans = resdict[k]['scanId'].keys()
+            scans = list(resdict[k]['scanId'].keys())
             for s in scans:
                 nr = resdict[k]['scanId'][s]['nrows']
                 refN = ph.getScanNrows(MS, s)

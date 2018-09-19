@@ -22,7 +22,7 @@ def polcal(vis=None,caltable=None,
                 if ((type(vis)==str) & (os.path.exists(vis))):
                         mycb.open(filename=vis,compress=False,addcorr=False,addmodel=False)
                 else:
-                        raise Exception, 'Visibility data set not found - please verify the name'
+                        raise Exception('Visibility data set not found - please verify the name')
 
 		# Do data selection according to selectdata
 		casalog.post("NB: gaincal automatically excludes auto-correlations.")
@@ -117,9 +117,9 @@ def polcal(vis=None,caltable=None,
 		mycb.solve()
 		mycb.close()
 
-	except Exception, instance:
-		print '*** Error ***', instance
+	except Exception as instance:
+		print('*** Error ***', instance)
 		mycb.close()
 		casalog.post("Error in polcal: %s" % str(instance), "SEVERE")
-		raise Exception, "Error in polcal: "+str(instance)
+		raise Exception("Error in polcal: "+str(instance))
 

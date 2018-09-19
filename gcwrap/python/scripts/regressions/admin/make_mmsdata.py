@@ -53,25 +53,25 @@ TASKLIST = [
 DATAPATH = os.environ.get('CASAPATH').split()[0] + '/data/regression/'
 
 def usage():
-    print '===================================================================================='
-    print '\nmake_mmsdata will create Multi-MS data for functional tests of defined CASA tasks.'
-    print 'Usage:\n'
-    print 'casapy [casapy-options] -c make_mmsdata.py [options] <tasks>\n'
-    print 'Options:'
-    print '   no option         Print this message and exit.'
-    print '   --all             Create MMS for all tasks in TASKLIST.'
-    print '   --ignore          From all tasks, do no create MMS for the given <tasks>.'
-    print '   --list            Print the list of tasks from TASKLIST and exit.'
-    print '   --axis            separationaxis to use (spw, scan, auto); default:auto'
-    print '   --numsubms        Number of subMSs to use when creating MMS'
-    print ''
-    print 'NOTE: it will look for MS data in the data repository under unittest.\r'
-    print 'Examples:'
-    print ' 1) Create MMS for all tasks, except flagdata and fluxscale'
-    print '          make_mmsdata --ignore flagdata fluxscale'
-    print ' 2) Create MMS for all tasks except setjy and use separation axis scan and numsubms=8'
-    print '          make_mmsdata --axis=scan --numsubms=8 --ignore setjy' 
-    print '===================================================================================='
+    print('====================================================================================')
+    print('\nmake_mmsdata will create Multi-MS data for functional tests of defined CASA tasks.')
+    print('Usage:\n')
+    print('casapy [casapy-options] -c make_mmsdata.py [options] <tasks>\n')
+    print('Options:')
+    print('   no option         Print this message and exit.')
+    print('   --all             Create MMS for all tasks in TASKLIST.')
+    print('   --ignore          From all tasks, do no create MMS for the given <tasks>.')
+    print('   --list            Print the list of tasks from TASKLIST and exit.')
+    print('   --axis            separationaxis to use (spw, scan, auto); default:auto')
+    print('   --numsubms        Number of subMSs to use when creating MMS')
+    print('')
+    print('NOTE: it will look for MS data in the data repository under unittest.\r')
+    print('Examples:')
+    print(' 1) Create MMS for all tasks, except flagdata and fluxscale')
+    print('          make_mmsdata --ignore flagdata fluxscale')
+    print(' 2) Create MMS for all tasks except setjy and use separation axis scan and numsubms=8')
+    print('          make_mmsdata --axis=scan --numsubms=8 --ignore setjy') 
+    print('====================================================================================')
 
 
 def selectList(nolist):
@@ -93,32 +93,32 @@ def mmstest(mytask, axis, subms):
     INPPATH = TESTPATH + mytask
     MMSPATH = './unittest_mms/'+mytask
 
-    print '--------- Will create MMS data for test_'+mytask
+    print('--------- Will create MMS data for test_'+mytask)
     
     ph.convertToMMS(inpdir=INPPATH, mmsdir=MMSPATH, 
                     axis=axis, numsubms=subms, cleanup=True)
 
       
 # Location of the data repository
-if not os.environ.has_key('CASAPATH'):
-    print 'ERROR: Could not find variable CASAPATH'
+if 'CASAPATH' not in os.environ:
+    print('ERROR: Could not find variable CASAPATH')
     os._exit(2)
     
 
 def main(thislist, axis='auto', numsubms=4):
     
     if thislist == []:
-        print 'Need list of tasks to run.'
+        print('Need list of tasks to run.')
         usage()
         os._exit(0)
         
-    print "Will create MMS for the following tasks %s"%thislist
-    print
+    print("Will create MMS for the following tasks %s"%thislist)
+    print()
     
     # Loop through task list
     for t in thislist:
         if t not in TASKLIST:
-            print 'ERROR: task '+t+' is not in TASKLIST. Run this script with -l for the full list.'
+            print('ERROR: task '+t+' is not in TASKLIST. Run this script with -l for the full list.')
             os._exit(0)
             
  #       if t == 'flagdata':
@@ -164,7 +164,7 @@ def main(thislist, axis='auto', numsubms=4):
         os.chdir('input')
         mydirs = os.listdir(WVRGCALPATH)
         for d in mydirs:
-            print d
+            print(d)
             if  os.path.splitext(d)[1]=='.ms':
                 partition(vis=WVRGCALPATH+d, outputvis=d, datacolumn='all', numsubms=5,
                           flagbackup=False)
@@ -183,7 +183,7 @@ def main(thislist, axis='auto', numsubms=4):
         os.chdir('input')
         mydirs = os.listdir(CONCATPATH)
         for d in mydirs:
-            print d
+            print(d)
             if os.path.splitext(d)[1]=='.ms':
                 partition(vis=CONCATPATH+d, outputvis=d, datacolumn='all', numsubms=6,
                           flagbackup=False)
@@ -281,9 +281,9 @@ if __name__ == "__main__":
                 # Get only this script options
                 opts,args=getopt.getopt(sys.argv[i+2:], "ailx:n:", ["all", "ignore","list","axis=","numsubms="])
                 
-            except getopt.GetoptError, err:
+            except getopt.GetoptError as err:
                 # Print help information and exit:
-                print str(err) # will print something like "option -a not recognized"
+                print(str(err)) # will print something like "option -a not recognized"
                 usage()
                 os._exit(2)
                 
@@ -324,7 +324,7 @@ if __name__ == "__main__":
                         break
                     
                     elif o in ("-l", "--list"):
-                        print 'List of tasks to create MMS for:'
+                        print('List of tasks to create MMS for:')
                         pprint.pprint(TASKLIST)
                         os._exit(0)          
                                   
@@ -333,7 +333,7 @@ if __name__ == "__main__":
 
             # Get tasks
             if args == [] and ignore:
-                print "ERROR: --ignore needs a list of tasks."
+                print("ERROR: --ignore needs a list of tasks.")
                 usage()
                 os._exit(0)
                 

@@ -1,12 +1,12 @@
-print qa.type()             # Default tool created for you
+print(qa.type())             # Default tool created for you
 #
-print qa.quantity(5.4, 'km/s')
+print(qa.quantity(5.4, 'km/s'))
 q1 = qa.quantity([8.57132661e+09, 1.71426532e+10], 'km/s')
 q1
-print qa.convert(q1, 'pc/h');
+print(qa.convert(q1, 'pc/h'));
 #
-print qa.quantity('5.4km/s')          
-print qa.quantity(qa.unit('5.4km/s')) 
+print(qa.quantity('5.4km/s'))          
+print(qa.quantity(qa.unit('5.4km/s'))) 
 #
 #q1 = qa.unit("5s 5.4km/s") #can't handle string vector using qh.fromString
 #q1
@@ -37,9 +37,9 @@ qa.compare(q1,qa.unit('3km'))
 #: q1::
 #[id=quant, shape=[3 2] ]
 #
-print qa.map('const')
+print(qa.map('const'))
 boltzmann = qa.constants('k')
-print 'Boltzmann constant is ', boltzmann
+print('Boltzmann constant is ', boltzmann)
 #
 qa.quantity('today')
 qa.quantity('5jul1998')
@@ -49,9 +49,9 @@ qa.quantity('2:2:10')
 qa.unit('23h3m2.2s')  
 #
 a = qa.quantity('today');        # 1 Get the time now
-print a
+print(a)
 b = qa.toangle(a);               # 2 Get the time as an angle
-print b
+print(b)
 qa.angle(qa.norm(qa.toangle(a)));       # 3 Get the time as a normalized angle (-pi to +pi) and show as dms
 qa.angle(qa.norm(qa.toangle(a), 0));    # 4 Get the time as a normalised angle (0 to 2pi) and show as dms
 qa.sub('today',a);                      # 5 Get time since creation of a

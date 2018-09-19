@@ -28,8 +28,8 @@ def sdsmooth(infile=None, datacolumn=None, antenna=None,
                            polarization=pol, intent=intent,
                            reindex=reindex)
         sdms.smooth(type=kernel, width=kwidth, datacolumn=datacolumn, outfile=outfile)
-    except Exception, instance:
-        raise Exception, instance
+    except Exception as instance:
+        raise Exception(instance)
     finally:
         sdms.close()
 

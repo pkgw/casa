@@ -109,15 +109,15 @@ calsplitms = calprefix + '.' + calname + '.split.ms'
 #
 # Reset the CORRECTED_DATA column to data
 #
-print '--Clearcal--'
+print('--Clearcal--')
 default('clearcal')
 
 vis = msfile
 
 clearcal()
 
-print "Reset calibration for MS "+vis
-print ""
+print("Reset calibration for MS "+vis)
+print("")
 #
 #=====================================================================
 # Calibration
@@ -125,10 +125,10 @@ print ""
 #
 # Set the fluxes of the primary calibrator(s)
 #
-print '--Setjy--'
+print('--Setjy--')
 default('setjy')
 
-print "Use setjy to set flux of 1331+305 (3C286)"
+print("Use setjy to set flux of 1331+305 (3C286)")
 
 vis = msfile
 
@@ -147,26 +147,26 @@ setjy()
 # 1331+305  spwid=  1  [I=7.51, Q=0, U=0, V=0] Jy, (Perley-Taylor 99)
 # 
 
-print "Look in logger for the fluxes (should be 7.462 and 7.510 Jy)"
+print("Look in logger for the fluxes (should be 7.462 and 7.510 Jy)")
 
 #
 #=====================================================================
 #
 # Initial gain calibration
 #
-print '--Gaincal--'
+print('--Gaincal--')
 default('gaincal')
 
-print "Solve for antenna gains on 1331+305 and 0137+331"
-print "We have 2 single-channel continuum spw"
-print "Do not want bandpass calibration"
+print("Solve for antenna gains on 1331+305 and 0137+331")
+print("We have 2 single-channel continuum spw")
+print("Do not want bandpass calibration")
 
 vis = msfile
 
 # set the name for the output gain caltable
 caltable = gtable
 
-print "Output gain cal table will be "+gtable
+print("Output gain cal table will be "+gtable)
 
 # Gain calibrators are 1331+305 and 0137+331 (FIELD_ID 7 and 0)
 # We have 2 IFs (SPW 0,1) with one channel each
@@ -203,17 +203,17 @@ gaincal()
 #
 # Bootstrap flux scale
 #
-print '--Fluxscale--'
+print('--Fluxscale--')
 default('fluxscale')
 
-print "Use fluxscale to rescale gain table to make new one"
+print("Use fluxscale to rescale gain table to make new one")
 
 vis = msfile
 
 # set the name for the output rescaled caltable
 fluxtable = ftable
 
-print "Output scaled gain cal table is "+ftable
+print("Output scaled gain cal table is "+ftable)
 
 # point to our first gain cal table
 caltable = gtable
@@ -238,7 +238,7 @@ fluxscale()
 #---------------------------------------------------------------------
 # Plot calibration
 #
-print '--PlotCal--'
+print('--PlotCal--')
 default('plotcal')
 
 showgui = True
@@ -251,14 +251,14 @@ showgui = True
     
 plotcal()
 
-print ""
-print "-------------------------------------------------"
-print "Plotcal"
-print "Looking at amplitude in cal-table "+caltable
+print("")
+print("-------------------------------------------------")
+print("Plotcal")
+print("Looking at amplitude in cal-table "+caltable)
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #
 # Now go back and plot to file
@@ -268,14 +268,14 @@ showgui = False
 yaxis = 'amp'
 
 figfile = caltable + '.plotcal.amp.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 #saveinputs('plotcal',caltable.plotcal.amp.saved')
 plotcal()
 
 yaxis = 'phase'
 
 figfile = caltable + '.plotcal.phase.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 #saveinputs('plotcal',caltable.plotcal.phase.saved')
 plotcal()
 
@@ -285,11 +285,11 @@ plotcal()
 #=====================================================================
 #
 if (dopolcal):
-    print '--Polcal (D)--'
+    print('--Polcal (D)--')
     default('polcal')
     
-    print "Solve for polarization leakage on 0137+331"
-    print "Pretend it has unknown polarization"
+    print("Solve for polarization leakage on 0137+331")
+    print("Pretend it has unknown polarization")
 
     vis = msfile
 
@@ -330,11 +330,11 @@ if (dopolcal):
     #
     # List polcal solutions
     #
-    print '--Listcal (PolD)--'
+    print('--Listcal (PolD)--')
 
     listfile = caltable + '.list'
 
-    print "Listing calibration to file "+listfile
+    print("Listing calibration to file "+listfile)
 
     listcal()
     
@@ -342,7 +342,7 @@ if (dopolcal):
     #
     # Plot polcal solutions
     #
-    print '--Plotcal (PolD)--'
+    print('--Plotcal (PolD)--')
     
     iteration = ''
     showgui = False
@@ -350,28 +350,28 @@ if (dopolcal):
     xaxis = 'real'
     yaxis = 'imag'
     figfile = caltable + '.plotcal.reim.png'
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     #saveinputs('plotcal',caltable+'.plotcal.reim.saved')
     plotcal()
 
     xaxis = 'antenna'
     yaxis = 'amp'
     figfile = caltable + '.plotcal.antamp.png'
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     #saveinputs('plotcal',caltable+'.plotcal.antamp.saved')
     plotcal()
 
     xaxis = 'antenna'
     yaxis = 'phase'
     figfile = caltable + '.plotcal.antphase.png'
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     #saveinputs('plotcal',caltable+'.plotcal.antphase.saved')
     plotcal()
 
     xaxis = 'antenna'
     yaxis = 'snr'
     figfile = caltable + '.plotcal.antsnr.png'
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     #saveinputs('plotcal',caltable+'.plotcal.antsnr.saved')
     plotcal()
 
@@ -379,12 +379,12 @@ if (dopolcal):
     # Do Chi (X) pol angle calibration
     #=====================================================================
     # First set the model
-    print '--Setjy--'
+    print('--Setjy--')
     default('setjy')
         
     vis = msfile
         
-    print "Use setjy to set IQU fluxes of "+polxfield
+    print("Use setjy to set IQU fluxes of "+polxfield)
     field = polxfield
     
     for spw in usespwlist:
@@ -396,10 +396,10 @@ if (dopolcal):
     #
     # Polarization (X-term) calibration
     #
-    print '--PolCal (X)--'
+    print('--PolCal (X)--')
     default('polcal')
     
-    print "Polarization R-L Phase Calibration (linear approx)"
+    print("Polarization R-L Phase Calibration (linear approx)")
     
     vis = msfile
     
@@ -471,11 +471,11 @@ atable = ftable
 # Correct the data
 # (This will put calibrated data into the CORRECTED_DATA column)
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
-print "This will apply the calibration to the DATA"
-print "Fills CORRECTED_DATA"
+print("This will apply the calibration to the DATA")
+print("Fills CORRECTED_DATA")
 
 vis = msfile
 
@@ -505,7 +505,7 @@ applycal()
 #
 # Now split the Jupiter target data
 #
-print '--Split Jupiter--'
+print('--Split Jupiter--')
 default('split')
 
 vis = msfile
@@ -522,7 +522,7 @@ datacolumn = 'corrected'
 # Make an output vis file
 outputvis = srcsplitms
 
-print "Split "+field+" data into new ms "+srcsplitms
+print("Split "+field+" data into new ms "+srcsplitms)
 
 split()
 
@@ -531,7 +531,7 @@ field = calname
 
 outputvis = calsplitms
 
-print "Split "+field+" data into new ms "+calsplitms
+print("Split "+field+" data into new ms "+calsplitms)
 
 split()
 
@@ -547,7 +547,7 @@ clearcal()
 #=====================================================================
 # Use Plotxy to look at the split calibrated data
 #
-print '--Plotxy--'
+print('--Plotxy--')
 default('plotxy')
 
 vis = srcsplitms
@@ -572,14 +572,14 @@ title = field+"  "
 
 plotxy()
 
-print ""
-print "-----------------------------------------------------"
-print "Plotting JUPITER corrected visibilities"
-print "Look for outliers"
+print("")
+print("-----------------------------------------------------")
+print("Plotting JUPITER corrected visibilities")
+print("Look for outliers")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Now go back and plot to files
 interactive = False
@@ -593,7 +593,7 @@ yaxis = 'amp'
 # Use the field name as the title
 title = field+"  "
 figfile = vis + '.plotxy.amp.png'
-print "Plotting to file "+figfile
+print("Plotting to file "+figfile)
 #saveinputs('plotxy',vis+'.plotxy.amp.saved')
 
 plotxy()
@@ -601,7 +601,7 @@ plotxy()
 yaxis = 'phase'
 # Use the field name as the title
 figfile = vis + '.plotxy.phase.png'
-print "Plotting to file "+figfile
+print("Plotting to file "+figfile)
 #saveinputs('plotxy',vis+'.plotxy.phase.saved')
 
 plotxy()
@@ -615,7 +615,7 @@ yaxis = 'amp'
 # Use the field name as the title
 title = field+"  "
 figfile = vis + '.plotxy.amp.png'
-print "Plotting to file "+figfile
+print("Plotting to file "+figfile)
 #saveinputs('plotxy',vis+'.plotxy.amp.saved')
 
 plotxy()
@@ -623,7 +623,7 @@ plotxy()
 yaxis = 'phase'
 # Use the field name as the title
 figfile = vis + '.plotxy.phase.png'
-print "Plotting to file "+figfile
+print("Plotting to file "+figfile)
 #saveinputs('plotxy',vis+'.plotxy.phase.saved')
 
 plotxy()
@@ -632,4 +632,4 @@ plotxy()
 #=====================================================================
 # Done
 
-print 'Calibration completed for '+calprefix
+print('Calibration completed for '+calprefix)

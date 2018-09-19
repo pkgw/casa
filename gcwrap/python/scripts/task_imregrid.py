@@ -40,13 +40,13 @@ def imregrid(
                     shape, overwrite, interpolation, decimate
                 )
                 try:
-                    param_names = imregrid.func_code.co_varnames[:imregrid.func_code.co_argcount]
+                    param_names = imregrid.__code__.co_varnames[:imregrid.__code__.co_argcount]
                     param_vals = [eval(p) for p in param_names]   
                     write_image_history(
                         outia, sys._getframe().f_code.co_name,
                         param_names, param_vals, casalog
                     )
-                except Exception, instance:
+                except Exception as instance:
                     casalog.post(
                         "*** Error \'%s\' updating HISTORY" % (instance), 'WARN'
                     )
@@ -57,7 +57,7 @@ def imregrid(
                     not os.path.isdir(template)
                     or not os.access(template, os.R_OK)
                 ):
-                    raise TypeError, 'Cannot read template image ' + template
+                    raise TypeError('Cannot read template image ' + template)
                 template_ia = iatool()
                 template_ia.open(template)
                 template_csys = template_ia.coordsys()
@@ -122,21 +122,21 @@ def imregrid(
                 replicate=replicate, overwrite=overwrite
             )
             try:
-                param_names = imregrid.func_code.co_varnames[:imregrid.func_code.co_argcount]
+                param_names = imregrid.__code__.co_varnames[:imregrid.__code__.co_argcount]
                 param_vals = [eval(p) for p in param_names]   
                 write_image_history(
                     outia, sys._getframe().f_code.co_name,
                     param_names, param_vals, casalog
                 )
-            except Exception, instance:
+            except Exception as instance:
                 casalog.post(
                     "*** Error \'%s\' updating HISTORY" % (instance), 'WARN'
                 )
             return True
-        except Exception, instance:
+        except Exception as instance:
             # The error message has already been logged by ia.regrid()
             return False
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("Error: " + str(instance), "SEVERE")
         raise instance
     finally:
@@ -166,7 +166,7 @@ def _imregrid_to_new_ref_frame(
         )
     dirinfo = csys.findcoordinate("direction")
     if not dirinfo['return']:
-        raise (Exception, "Image does not have a direction coordinate.")
+        raise Exception
     newrefcode = template.upper()
     oldrefcode = csys.referencecode("direction")[0]
     if oldrefcode == newrefcode:

@@ -58,17 +58,17 @@ def pipeline_regression():
     ASDM = rootdatapath  + "13A-537.sb24066356.eb24324502.56514.05971091435"
     try:
         import pipeline.recipes.hifv as hifv
-    except ImportError, e:
+    except ImportError as e:
         print(e)
         
     
     # Check to see if the ASDM exists
     if not os.path.exists(ASDM):
-        print("Unable to open ASDM ", ASDM)
+        print(("Unable to open ASDM ", ASDM))
 	regstate=False
         raise IOError
     else:
-        print("Using ", ASDM)
+        print(("Using ", ASDM))
     
     # Run the CASA VLA Pipeline standard recipe
     try:
@@ -89,7 +89,7 @@ def run():
     pipeline_regression()
     endTime = time.time()
     endProc = time.clock()
-    print("Run Time = ",endTime-startTime,endProc-startProc)
+    print(("Run Time = ",endTime-startTime,endProc-startProc))
 
 def stats():
     global startTime, endTime, startProc, endProc, regstate, standard_context_file
@@ -100,28 +100,28 @@ def stats():
     
     try:
         import pipeline
-    except ImportError, e:
-        print e
-        print >>logfile, "Unable to import the CASA pipeline"
+    except ImportError as e:
+        print(e)
+        print("Unable to import the CASA pipeline", file=logfile)
         regstate = False
     
     try:
         # Open context
         context = pipeline.Pipeline(context='last').context
         regstate = True
-        print >>logfile,"VLA pipeline context created."
+        print("VLA pipeline context created.", file=logfile)
         print("VLA pipeline context created.")
-        print >>logfile,"Context verification - VLA pipeline regression PASSED."
+        print("Context verification - VLA pipeline regression PASSED.", file=logfile)
         print("Context verification - VLA pipeline regression PASSED.")
         
     except Exception as e:
         regstate = False
-        print >>logfile,"VLA pipeline context NOT created."
+        print("VLA pipeline context NOT created.", file=logfile)
         print("VLA pipeline context NOT created.")
-        print >>logfile,"Context verification - VLA pipeline regression FAILED."
+        print("Context verification - VLA pipeline regression FAILED.", file=logfile)
         print("Context verification - VLA pipeline regression FAILED.")
-        print >>logfile, e
-        print e
+        print(e, file=logfile)
+        print(e)
 
     # Test fluxscale values
     # Test that hifv_fluxboot stage was the 13th stage run (index 12)
@@ -145,32 +145,32 @@ def stats():
         
         result_bool = np.isclose(fluxlist[0][0], value_compare, rtol=rtol, atol=atol, equal_nan=False)
         
-        print >>logfile, "Accepted test value is: ", value_compare, " from CASA-prerelease 5.4.0-3, pipeline r41527 (trunk)"
-        print "Accepted test value is: ", value_compare, " from CASA-prerelease 5.4.0-3, pipeline r41527 (trunk)"
-        print >>logfile, "Regression generated value is: ", fluxlist[0][0]
-        print "Regression generated value is: ", fluxlist[0][0]
+        print("Accepted test value is: ", value_compare, " from CASA-prerelease 5.4.0-3, pipeline r41527 (trunk)", file=logfile)
+        print("Accepted test value is: ", value_compare, " from CASA-prerelease 5.4.0-3, pipeline r41527 (trunk)")
+        print("Regression generated value is: ", fluxlist[0][0], file=logfile)
+        print("Regression generated value is: ", fluxlist[0][0])
         
         if (result_bool):
             regstate=True
-            print >>logfile,"hifv_fluxboot values match within relative tolerance of 1.0e-05 and absolute tolerance of 1.0e-05"
-            print "hifv_fluxboot values match within relative tolerance of 1.0e-05 and absolute tolerance of 1.0e-05"
-            print >>logfile,"hifv_fluxboot test PASSED."
-            print "hifv_fluxboot test PASSED."
+            print("hifv_fluxboot values match within relative tolerance of 1.0e-05 and absolute tolerance of 1.0e-05", file=logfile)
+            print("hifv_fluxboot values match within relative tolerance of 1.0e-05 and absolute tolerance of 1.0e-05")
+            print("hifv_fluxboot test PASSED.", file=logfile)
+            print("hifv_fluxboot test PASSED.")
         else:
             regstate=False
-            print >>logfile,"hifv_fluxboot values are not within tolerances."
-            print "hifv_fluxboot values are not within tolerances."
-            print >>logfile,"hifv_fluxboot test FAILED."
-            print "hifv_fluxboot test FAILED."
+            print("hifv_fluxboot values are not within tolerances.", file=logfile)
+            print("hifv_fluxboot values are not within tolerances.")
+            print("hifv_fluxboot test FAILED.", file=logfile)
+            print("hifv_fluxboot test FAILED.")
         
     except Exception as e:
         regstate=False
-        print >>logfile,"hifv_fluxboot values are not within tolerances."
-        print "hifv_fluxboot values are not within tolerances."
-        print >>logfile,"hifv_fluxboot test FAILED."
-        print "hifv_fluxboot test FAILED."
-        print >>logfile, e
-        print e
+        print("hifv_fluxboot values are not within tolerances.", file=logfile)
+        print("hifv_fluxboot values are not within tolerances.")
+        print("hifv_fluxboot test FAILED.", file=logfile)
+        print("hifv_fluxboot test FAILED.")
+        print(e, file=logfile)
+        print(e)
 
     logfile.close()
 
@@ -185,7 +185,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print "Regstate:" , regstate
+    print("Regstate:" , regstate)
     if regstate:
         print("Regression PASSED")
     else:

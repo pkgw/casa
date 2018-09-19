@@ -96,7 +96,7 @@ class ia_coordmeasures_test(unittest.TestCase):
         csys.setconversiontype(direction='B1950', spectral='CMB')
         myia.setcoordsys(csys.torecord())
         
-        for i in xrange(4):
+        for i in range(4):
             if i == 0:
                 cm = myia.coordmeasures()
             elif i == 1:

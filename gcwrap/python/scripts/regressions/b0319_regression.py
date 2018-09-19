@@ -56,11 +56,11 @@ startProc = time.clock()
 startTime = time.time()
 startProc = time.clock()
 
-print '--Import--'
+print('--Import--')
 default('importuvfits')
 importuvfits(fitsfile=datapath,vis='n1333.ms',antnamescheme='new')
 importtime=time.time()
-print '--Split Data--'
+print('--Split Data--')
 default('split')
 split(vis='n1333.ms',outputvis='B0319_0317.ms',datacolumn='data',field='14',antenna='VA03 & VA17')
 splittime=time.time()
@@ -129,77 +129,77 @@ model_amp=1.0
 
 diff_mod=abs((model_amp-thistest_mod)/model_amp)
 
-print '***'
-print 'model_amp ',model_amp
-print 'thistest_mod ',thistest_mod
-print '***'
+print('***')
+print('model_amp ',model_amp)
+print('thistest_mod ',thistest_mod)
+print('***')
 
 import datetime
 datestring=datetime.datetime.isoformat(datetime.datetime.today())
 outfile='B0319.'+datestring+'.log'
 logfile=open(outfile,'w')
 
-print >>logfile,' Baseline-based calibration of N1333 calibrater'
-print >>logfile,' VLA baseline 3-17 02-May-2003'
-print >>logfile,'           MeasurementSet Name:  B0319_0317.ms      MS Version 2'
-print >>logfile,''
-print >>logfile,'   Observer: AW602     Project:'
-print >>logfile,'Observation: VLA'
-print >>logfile,'Data records: 62       Total integration time = 609.999 seconds'
-print >>logfile,'   Observed from   02-May-2003/20:09:40   to   02-May-2003/20:19:50'
-print >>logfile,''
-print >>logfile,'   ObservationID = 1         ArrayID = 1'
-print >>logfile,'  Date        Timerange                Scan  FldId FieldName      DataDescIds'
-print >>logfile,'  02-May-2003/20:09:40.0 - 20:19:50.0    49      1 0319+415_1     [1]'
-print >>logfile,'Fields: 1'
-print >>logfile,'  ID   Name          Right Ascension  Declination   Epoch'
-print >>logfile,'  1    0319+415_1    03:19:48.16      +41.30.42.10  J2000'
-print >>logfile,'Data descriptions: 1 (1 spectral windows and 1 polarization setups)'
-print >>logfile,'  ID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs'
-print >>logfile,'  1       63 LSRK  43416.2392  97.65625    6250        43419.2666  RR  LL'
-print >>logfile,'Feeds: 29: printing first row only'
-print >>logfile,'  Antenna   Spectral Window     # Receptors    Polarizations'
-print >>logfile,'  1         -1                  2              [         R, L]'
-print >>logfile,'Antennas: 2:'
-print >>logfile,'  ID   Name  Station   Diam.    Long.         Lat.'
-print >>logfile,'  3    3     VLA:E2    25.0 m   -107.37.04.4  +33.54.01.1'
-print >>logfile,'  17   17    VLA:E3    25.0 m   -107.37.02.8  +33.54.00.5'
-print >>logfile,''
-print >>logfile,'********** Regression ***********'
-print >>logfile,'*                               *'
-if (diff_mod<0.05): print >>logfile,'* Passed Model data test'
-print >>logfile,'* Model data mean'+str(thistest_mod)+','+str(model_amp)
+print(' Baseline-based calibration of N1333 calibrater', file=logfile)
+print(' VLA baseline 3-17 02-May-2003', file=logfile)
+print('           MeasurementSet Name:  B0319_0317.ms      MS Version 2', file=logfile)
+print('', file=logfile)
+print('   Observer: AW602     Project:', file=logfile)
+print('Observation: VLA', file=logfile)
+print('Data records: 62       Total integration time = 609.999 seconds', file=logfile)
+print('   Observed from   02-May-2003/20:09:40   to   02-May-2003/20:19:50', file=logfile)
+print('', file=logfile)
+print('   ObservationID = 1         ArrayID = 1', file=logfile)
+print('  Date        Timerange                Scan  FldId FieldName      DataDescIds', file=logfile)
+print('  02-May-2003/20:09:40.0 - 20:19:50.0    49      1 0319+415_1     [1]', file=logfile)
+print('Fields: 1', file=logfile)
+print('  ID   Name          Right Ascension  Declination   Epoch', file=logfile)
+print('  1    0319+415_1    03:19:48.16      +41.30.42.10  J2000', file=logfile)
+print('Data descriptions: 1 (1 spectral windows and 1 polarization setups)', file=logfile)
+print('  ID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs', file=logfile)
+print('  1       63 LSRK  43416.2392  97.65625    6250        43419.2666  RR  LL', file=logfile)
+print('Feeds: 29: printing first row only', file=logfile)
+print('  Antenna   Spectral Window     # Receptors    Polarizations', file=logfile)
+print('  1         -1                  2              [         R, L]', file=logfile)
+print('Antennas: 2:', file=logfile)
+print('  ID   Name  Station   Diam.    Long.         Lat.', file=logfile)
+print('  3    3     VLA:E2    25.0 m   -107.37.04.4  +33.54.01.1', file=logfile)
+print('  17   17    VLA:E3    25.0 m   -107.37.02.8  +33.54.00.5', file=logfile)
+print('', file=logfile)
+print('********** Regression ***********', file=logfile)
+print('*                               *', file=logfile)
+if (diff_mod<0.05): print('* Passed Model data test', file=logfile)
+print('* Model data mean'+str(thistest_mod)+','+str(model_amp), file=logfile)
 
 if (diff_mod<0.05):
 	regstate=True
-	print >>logfile,'---'
-	print >>logfile,'Passed Regression test for B0319'
-	print >>logfile,'---'
-        print ''
-        print 'Regression PASSED'
-        print ''
+	print('---', file=logfile)
+	print('Passed Regression test for B0319', file=logfile)
+	print('---', file=logfile)
+        print('')
+        print('Regression PASSED')
+        print('')
 else:
 	regstate=False
-        print ''
-        print 'Regression FAILED'
-        print ''
-	print >>logfile,'----FAILED Regression test for B0319'
-print >>logfile,'*********************************'
+        print('')
+        print('Regression FAILED')
+        print('')
+	print('----FAILED Regression test for B0319', file=logfile)
+print('*********************************', file=logfile)
 
-print >>logfile,''
-print >>logfile,''
-print >>logfile,'********* Benchmarking *****************'
-print >>logfile,'*                                      *'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
+print('', file=logfile)
+print('', file=logfile)
+print('********* Benchmarking *****************', file=logfile)
+print('*                                      *', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
 #print >>logfile,'Processing rate MB/s  was: '+str(5.0/(endTime - startTime)
-print >>logfile,'* Breakdown:                           *'
-print >>logfile,'*   import       time was: '+str(importtime-startTime)
-print >>logfile,'*   split        time was: '+str(splittime-importtime)
-print >>logfile,'*   calibrate    time was: '+str(calibratetime-splittime)
-print >>logfile,'*   plotcal      time was: '+str(plotcaltime-calibratetime)
-print >>logfile,'*   uvmodelfit   time was: '+str(uvmodelfittime-plotcaltime)
-print >>logfile,'*   ft           time was: '+str(fttime-uvmodelfittime)
-print >>logfile,'*****************************************'
+print('* Breakdown:                           *', file=logfile)
+print('*   import       time was: '+str(importtime-startTime), file=logfile)
+print('*   split        time was: '+str(splittime-importtime), file=logfile)
+print('*   calibrate    time was: '+str(calibratetime-splittime), file=logfile)
+print('*   plotcal      time was: '+str(plotcaltime-calibratetime), file=logfile)
+print('*   uvmodelfit   time was: '+str(uvmodelfittime-plotcaltime), file=logfile)
+print('*   ft           time was: '+str(fttime-uvmodelfittime), file=logfile)
+print('*****************************************', file=logfile)
 
 logfile.close()

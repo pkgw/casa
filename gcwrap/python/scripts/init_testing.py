@@ -10,15 +10,15 @@ def pybot_install( ):
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=tmp )
     (output, err) = checkout.communicate()
     if len(err) > 0:
-        print "OUTPUT: ", output
-        print "ERROR:  ", err
+        print("OUTPUT: ", output)
+        print("ERROR:  ", err)
 
     install = subprocess.Popen( "python setup.py install --install-lib=%s/python/2.7 --install-scripts=%s/bin" % (archdir,archdir), \
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=tmp )
     (output, err) = install.communicate()
     if len(err) > 0:
-        print "OUTPUT: ", output
-        print "ERROR:  ", err
+        print("OUTPUT: ", output)
+        print("ERROR:  ", err)
 
     shutil.rmtree(tmp)
 
@@ -29,8 +29,8 @@ def pybot_setup( ):
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True )
     (output, err) = checkout.communicate()
     if len(err) > 0:
-        print "OUTPUT: ", output
-        print "ERROR:  ", err
+        print("OUTPUT: ", output)
+        print("ERROR:  ", err)
 
 import publish_summary
 import runUnitTest

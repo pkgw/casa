@@ -1,7 +1,7 @@
 try:
     from casac import casac
-except ImportError, e:
-    print "failed to load casa:\n", e
+except ImportError as e:
+    print("failed to load casa:\n", e)
     sys.exit(1)
 
 from casa_system import casa
@@ -73,14 +73,14 @@ def write_history(myms, vis, tname, param_names, param_vals, myclog=None, debug=
         """
         if not hasattr(myms, 'writehistory'):
                 if debug:
-                        print "write_history(myms, %s, %s): myms is not an ms tool" % (vis, tname)
+                        print("write_history(myms, %s, %s): myms is not an ms tool" % (vis, tname))
                 return False
         retval = True
         isopen = False
         try:
                 if not myclog and hasattr(casalog, 'post'):
                         myclog = casalog
-        except Exception, instance:
+        except Exception as instance:
                 # There's no logger to complain to, and I don't want to exit
                 # just because of that.
                 pass
@@ -96,7 +96,7 @@ def write_history(myms, vis, tname, param_names, param_vals, myclog=None, debug=
                         vestr += casa['source']['url'].split('/')[-2]
                         vestr += ' rev. ' + casa['source']['revision']
                         vestr += ' ' + casa['build']['time']
-                except Exception, instance:
+                except Exception as instance:
                         if hasattr(myclog, 'version'):
                                 # Now give it a try.
                                 vestr += myclog.version()
@@ -105,7 +105,7 @@ def write_history(myms, vis, tname, param_names, param_vals, myclog=None, debug=
                 myms.writehistory(message=vestr, origin=tname)
 
                 # Write the arguments.
-                for argnum in xrange(len(param_names)):
+                for argnum in range(len(param_names)):
                         msg = "%-11s = " % param_names[argnum]
                         val = param_vals[argnum]
                         if type(val) == str:
@@ -114,7 +114,7 @@ def write_history(myms, vis, tname, param_names, param_vals, myclog=None, debug=
                         if type(val) == str:
                                 msg += '"'
                         myms.writehistory(message=msg, origin=tname)
-        except Exception, instance:
+        except Exception as instance:
                 if hasattr(myclog, 'post'):
                         myclog.post("*** Error \"%s\" updating HISTORY of %s" % (instance, vis),
                                     'SEVERE')
@@ -188,7 +188,7 @@ try:
     else:
         vi = viewertool( True )
 except:
-    print "Unable to start viewer, maybe no dbus available?"
+    print("Unable to start viewer, maybe no dbus available?")
 
 
 im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm,at=gentools()

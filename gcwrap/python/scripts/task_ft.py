@@ -50,7 +50,7 @@ def ft(vis=None,field=None,spw=None,model=None,nterms=None,reffreq=None,complist
                if ((type(vis)==str) & (os.path.exists(vis))):
                        im.open(vis, usescratch=usescratch)
                else:
-                       raise Exception, 'Visibility data set not found - please verify the name'
+                       raise Exception('Visibility data set not found - please verify the name')
 	
                # Select data
                im.selectvis(field=field,spw=spw)
@@ -60,7 +60,7 @@ def ft(vis=None,field=None,spw=None,model=None,nterms=None,reffreq=None,complist
 
                # Check 'model'. The 'xml' allows a variant => do the checking here.
                if( (not type(model)==str) and (not (type(model)==list) ) ) :
-		       raise Exception, 'The model image must be a string or a list of strings (or \'\' or [])';
+		       raise Exception('The model image must be a string or a list of strings (or \'\' or [])');
 
                # If model is a single string, make it a list
                if( type(model)==str ):
@@ -68,19 +68,19 @@ def ft(vis=None,field=None,spw=None,model=None,nterms=None,reffreq=None,complist
 
                # Check that either a model or a complist has been given.
                if( (model==[] or model==['']) and complist=='' ):
-                       raise Exception, 'Please specify a model image or component list to ft';
+                       raise Exception('Please specify a model image or component list to ft');
 
                #model is a list now. Check that all elements are strings. If so, check file existence too.
                if( type(model)==list ):
                        for onemodel in model:
                               if(not type(onemodel)==str):
-                                    raise Exception, 'Model image names must be strings';
+                                    raise Exception('Model image names must be strings');
                               if( (not onemodel=='') and (not os.path.exists(onemodel)) ):
-                                    raise Exception, 'Model image '+onemodel+' cannot be found';
+                                    raise Exception('Model image '+onemodel+' cannot be found');
 
                # Check complist : one string : name of complist file. Check existance on disk.
                if( (not complist=='') and (not os.path.exists(complist)) ):
-                       raise Exception, 'Componentlist '+complist+' cannot be found';
+                       raise Exception('Componentlist '+complist+' cannot be found');
 
 
                # If nterms>1, then check that len(model)=nterms [ no multifield for now ]
@@ -88,14 +88,14 @@ def ft(vis=None,field=None,spw=None,model=None,nterms=None,reffreq=None,complist
                #               
                if (nterms > 1) :
 		       if(type(model)==str or (not (type(model)==list and len(model)==nterms)) ):
-			       raise Exception, 'For nterms>1, please provide a list of nterms model-image names';
+			       raise Exception('For nterms>1, please provide a list of nterms model-image names');
 		       # parse the reference-frequency field.
                        qat=qatool();
                        try:
 		          rff=qat.canonical(reffreq);
-		       except Exception, instance:
-                          print '*** Error *** In conversion of reffreq=\'',reffreq,'\' to a numerical value';
-                          raise Exception, instance
+		       except Exception as instance:
+                          print('*** Error *** In conversion of reffreq=\'',reffreq,'\' to a numerical value');
+                          raise Exception(instance)
                        reffreqVal=rff['value'];  # This is the frequency in Hz
 		       if(reffreqVal==0.0):   # if unspecified, set the default from the model image
 			       ia.open(model[0]);
@@ -110,7 +110,7 @@ def ft(vis=None,field=None,spw=None,model=None,nterms=None,reffreq=None,complist
 
                # Just checking...
 	       if (nterms < 1) :
-		       raise Exception, 'nterms must be greater than or equal to 1';
+		       raise Exception('nterms must be greater than or equal to 1');
 
 
                # Do the forward transform and close.
@@ -129,6 +129,6 @@ def ft(vis=None,field=None,spw=None,model=None,nterms=None,reffreq=None,complist
                ms.writehistory(message='incremental = "'+str(incremental)+'"',origin='ft')
                ms.close()
 
-       except Exception, instance:
-               print '*** Error ***',instance
-               raise Exception, instance
+       except Exception as instance:
+               print('*** Error ***',instance)
+               raise Exception(instance)

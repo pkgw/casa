@@ -14,7 +14,7 @@ def rmfit(
     tmpim = ""
     try:
         if len(imagename) == 0:
-            raise Exception, "imagename must be specified."
+            raise Exception("imagename must be specified.")
         if type(imagename) == type(['s']):
             # negative axis value means concatenate along spectral axis
             tmpim = tempfile.mkdtemp(suffix=".im", prefix="_rmfit_concat")
@@ -28,24 +28,24 @@ def rmfit(
             mypo.open(tmpim)
         else:
             if (not mypo.open(imagename)):
-                raise Exception, "Cannot create image analysis tool using " + imagename
+                raise Exception("Cannot create image analysis tool using " + imagename)
         mypo.rotationmeasure(
             rm=rm, rmerr=rmerr, pa0=pa0, pa0err=pa0err, nturns=nturns, chisq=chisq,
             sigma=sigma, rmfg=rmfg, rmmax=rmmax, maxpaerr=maxpaerr
         )
         try:
-            param_names = rmfit.func_code.co_varnames[:rmfit.func_code.co_argcount]
+            param_names = rmfit.__code__.co_varnames[:rmfit.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names] 
             for im in [rm, rmerr, pa0, pa0err, nturns, chisq]:
                 write_image_history(
                     im, sys._getframe().f_code.co_name,
                     param_names, param_vals, casalog
                 )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
 
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise
     finally:
@@ -56,6 +56,6 @@ def rmfit(
         if len(tmpim) > 0:
             try:
                 shutil.rmtree(tmpim)
-            except Exception, e:
-                print "Could not remove " + tmpim + " because " + str(e)
+            except Exception as e:
+                print("Could not remove " + tmpim + " because " + str(e))
             

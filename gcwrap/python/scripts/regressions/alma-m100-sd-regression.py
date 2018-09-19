@@ -41,7 +41,7 @@ for name in [rawname, listname, msname, blname]:
 
 casapath = os.environ['CASAPATH']
 datapath = casapath.split()[0]+'/data/regression/alma-sd/M100/'+rawname
-print 'Copying ASDM from '+datapath
+print('Copying ASDM from '+datapath)
 shutil.copytree(datapath, rawname) 
 
 startTime=time.time()
@@ -52,13 +52,13 @@ startProc=time.clock()
 # Check CASA Version #
 
 
-print "You are using " + cu.version_info( )
+print("You are using " + cu.version_info( ))
 
 if (cu.compare_version('<',[4,3,0])):
-    print "YOUR VERSION OF CASA IS TOO OLD FOR THIS GUIDE."
-    print "PLEASE UPDATE IT BEFORE PROCEEDING."
+    print("YOUR VERSION OF CASA IS TOO OLD FOR THIS GUIDE.")
+    print("PLEASE UPDATE IT BEFORE PROCEEDING.")
 else:
-    print "Your version of CASA is appropriate for this guide."
+    print("Your version of CASA is appropriate for this guide.")
 
 
 
@@ -71,7 +71,7 @@ basename = [rawname]
 # Create Measurement Sets from ASDM Data ##
 # importasdm func converts ASDM format to MS format
 
-print '--Import--'
+print('--Import--')
 
 importasdm(asdm = rawname, vis=msname, overwrite=True)
 
@@ -131,7 +131,7 @@ for antname in ['PM03', 'PM04', 'CM03', 'CM05']:
 
 
 # Flagging #
-print '--Flagging--'
+print('--Flagging--')
 
 default(flagdata)
 vis = msname
@@ -147,7 +147,7 @@ flagtime = time.time()
 
 # Apply Calibration and Inspect #
 
-print '--Calibration sdcal--'
+print('--Calibration sdcal--')
 
 default(sdcal)
 infile  = msname
@@ -162,7 +162,7 @@ sdcaltime=time.time()
 
 # Baseline Subtraction and Inspect #
 
-print '--Caribration Baseline --'
+print('--Caribration Baseline --')
 
 default(sdbaseline)
 infile = msname
@@ -229,7 +229,7 @@ for i in range(len(target_spws)):
 
 # Combine all MSs to one MS #
 
-print '--Combine MSs to one MS--'
+print('--Combine MSs to one MS--')
 
 new_spw15 = target_spws.index('15')
 
@@ -427,147 +427,147 @@ print >>logfile,' *  diff_imquartile',diff_imquartile
 print >>logfile,' *  diff_imsumsq',diff_imsumsq
 """
 
-print >>logfile,''
-print >>logfile,'********** Regression ***********'
-print >>logfile,'*                               *'
+print('', file=logfile)
+print('********** Regression ***********', file=logfile)
+print('*                               *', file=logfile)
 
 test_status = True
 if all(thistest_immaxpos == immaxpos):
-    print '* Passed image maxpos test'
+    print('* Passed image maxpos test')
 else :
     test_status = False
-    print '* FAILED image maxpos test'
-print >> logfile, '*  Image maxpos', thistest_immaxpos
+    print('* FAILED image maxpos test')
+print('*  Image maxpos', thistest_immaxpos, file=logfile)
     
 
 if all(thistest_imminpos == imminpos):
-    print '* Passed image minpos test'
+    print('* Passed image minpos test')
 else:
     test_status = False
-    print '* FAILED image minpos test'
-print >> logfile, '*  Image minpos', thistest_imminpos
+    print('* FAILED image minpos test')
+print('*  Image minpos', thistest_imminpos, file=logfile)
 
 if (diff_immax < 0.01): 
-    print '* Passed image max test '
+    print('* Passed image max test ')
 else:
     test_status = False
-    print '* FAILED image max test '
-print >>logfile,'*  Image max ',thistest_immax
+    print('* FAILED image max test ')
+print('*  Image max ',thistest_immax, file=logfile)
 
 if (diff_immin < 0.01): 
-    print '* Passed image min test '
+    print('* Passed image min test ')
 else:
     test_status = False
-    print '* FAILED image min test '
-print >>logfile,'*  Image min ',thistest_immin
+    print('* FAILED image min test ')
+print('*  Image min ',thistest_immin, file=logfile)
 
 if (diff_imrms < 0.01): 
-    print '* Passed image rms test '
+    print('* Passed image rms test ')
 else:
     test_status = False
-    print '* FAILED image rms test '
-print >>logfile,'*  Image rms ',thistest_imrms
+    print('* FAILED image rms test ')
+print('*  Image rms ',thistest_imrms, file=logfile)
 
 if (diff_imflux < 0.01):
-    print '* Passed image flux test '
+    print('* Passed image flux test ')
 else:
     test_status = False
-    print '* FAILED image flux test '
-print >>logfile,'*  Image flux ',thistest_imflux
+    print('* FAILED image flux test ')
+print('*  Image flux ',thistest_imflux, file=logfile)
 
 if (diff_immean< 0.01):
-    print '* Passed image mean test '
+    print('* Passed image mean test ')
 else:
     test_status = False
-    print '* FAILED image mean test '
-print >>logfile,'*  Image mean ',thistest_immean
+    print('* FAILED image mean test ')
+print('*  Image mean ',thistest_immean, file=logfile)
 
 if (diff_immedian<0.01):
-    print '* Passed image median test '
+    print('* Passed image median test ')
 else:
-    print '* FAILED image median test '
+    print('* FAILED image median test ')
     test_status = False
-print >>logfile,'*  Image median ',thistest_immedian
+print('*  Image median ',thistest_immedian, file=logfile)
 
 if (diff_imnpts< 0.01):
-    print '* Passed image npts test '
+    print('* Passed image npts test ')
 else:
-    print '* FAILED image npts test '
+    print('* FAILED image npts test ')
     test_status = False
-print >>logfile,'*  Image npts ',thistest_imnpts 
+print('*  Image npts ',thistest_imnpts, file=logfile) 
 
 if (diff_imsum< 0.01):
-    print '* Passed image sum test '
+    print('* Passed image sum test ')
 else:
-    print '* FAILED image sum test '
+    print('* FAILED image sum test ')
     test_status = False
-print >>logfile,'*  Image sum ',thistest_imsum
+print('*  Image sum ',thistest_imsum, file=logfile)
 
 if (diff_imsigma< 0.01):
-    print '* Passed image sigma test '
+    print('* Passed image sigma test ')
 else:
-    print '* FAILED image sigma test '
+    print('* FAILED image sigma test ')
     test_status = False
-print >>logfile,'*  Image sigma ',thistest_imsigma
+print('*  Image sigma ',thistest_imsigma, file=logfile)
 
 if (diff_immedabsdevmed< 0.01):
-    print '* Passed image medabsdevmed test '
+    print('* Passed image medabsdevmed test ')
 else:
     test_status = False
-    print '* FAILED image medabsdevmed test '
-print >>logfile,'*  Image medabsdevmed ',thistest_immedabsdevmed
+    print('* FAILED image medabsdevmed test ')
+print('*  Image medabsdevmed ',thistest_immedabsdevmed, file=logfile)
 
 if (diff_imquartile< 0.01):
-    print '* Passed image quartile test '
+    print('* Passed image quartile test ')
 else:
     test_status = False
-    print '* FAILED image quartile test '
-print >>logfile,'*  Image quartile ',thistest_imquartile
+    print('* FAILED image quartile test ')
+print('*  Image quartile ',thistest_imquartile, file=logfile)
 
 if (diff_imsumsq< 0.01):
-    print '* Passed image sumsq test '
+    print('* Passed image sumsq test ')
 else:
     test_status = False
-    print '* FAILED image sumsq test '
-print >>logfile,'*  Image sumsq ',thistest_imsumsq
+    print('* FAILED image sumsq test ')
+print('*  Image sumsq ',thistest_imsumsq, file=logfile)
 
 
 if (test_status):
     regstate=True
-    print >>logfile,'---'
-    print >>logfile,'Passed Regression test for M100_SD_PM_03_04'
-    print >>logfile,'---'
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('---', file=logfile)
+    print('Passed Regression test for M100_SD_PM_03_04', file=logfile)
+    print('---', file=logfile)
+    print('')
+    print('Regression PASSED')
+    print('')
 else: 
     regstate=False
-    print ''
-    print 'Regression FAILED'
-    print ''
-    print >>logfile,'----FAILED Regression test for M100_SD_PM_03_04'
+    print('')
+    print('Regression FAILED')
+    print('')
+    print('----FAILED Regression test for M100_SD_PM_03_04', file=logfile)
 
-print >>logfile,'*********************************'
-print >>logfile,''
-print >>logfile,''
-print >>logfile,'********* Benchmarking *****************'
-print >>logfile,'*                                      *'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,'****************************************'
+print('*********************************', file=logfile)
+print('', file=logfile)
+print('', file=logfile)
+print('********* Benchmarking *****************', file=logfile)
+print('*                                      *', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+print('****************************************', file=logfile)
 #print >>logfile,'Processing rate MB/s  was: '+str(4100/(endTime - startTime))
-print >>logfile,'* Breakdown: '
-print >>logfile,'*   import       time was: '+str(importtime-startTime)
-print >>logfile,'*            CPU time was: '+str(importproc-startProc)
-print >>logfile,'*   flag         time was: '+str(flagtime-importtime)
-print >>logfile,'*            CPU time was: '+str(flagproc-importproc)
-print >>logfile,'*   sdcal       time was: '+str(sdcaltime-flagtime)
-print >>logfile,'*            CPU time was: '+str(sdcalproc-flagproc)
-print >>logfile,'*   baseline     time was: '+str(sdbaselinetime-sdcaltime)
-print >>logfile,'*            CPU time was: '+str(sdbaselineproc-sdcalproc)
-print >>logfile,'*   combine MSs  time was: '+str(combtime-sdbaselinetime)
-print >>logfile,'*            CPU time was: '+str(combproc-sdbaselineproc)
-print >>logfile,'****************************************'
+print('* Breakdown: ', file=logfile)
+print('*   import       time was: '+str(importtime-startTime), file=logfile)
+print('*            CPU time was: '+str(importproc-startProc), file=logfile)
+print('*   flag         time was: '+str(flagtime-importtime), file=logfile)
+print('*            CPU time was: '+str(flagproc-importproc), file=logfile)
+print('*   sdcal       time was: '+str(sdcaltime-flagtime), file=logfile)
+print('*            CPU time was: '+str(sdcalproc-flagproc), file=logfile)
+print('*   baseline     time was: '+str(sdbaselinetime-sdcaltime), file=logfile)
+print('*            CPU time was: '+str(sdbaselineproc-sdcalproc), file=logfile)
+print('*   combine MSs  time was: '+str(combtime-sdbaselinetime), file=logfile)
+print('*            CPU time was: '+str(combproc-sdbaselineproc), file=logfile)
+print('****************************************', file=logfile)
 
 logfile.close()
 
