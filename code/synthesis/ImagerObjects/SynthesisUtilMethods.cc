@@ -3187,7 +3187,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	// Spectral interpolation
 	err += readVal( inrec, String("interpolation"), interpolation );// not used in SI yet...
-
+	//mosaic use pointing
+	err += readVal( inrec, String("usepointing"), usePointing );
 	// Track moving source ?
 	err += readVal( inrec, String("distance"), distance );
 	err += readVal( inrec, String("tracksource"), trackSource );
@@ -3306,6 +3307,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Spectral Axis interpolation
     interpolation=String("nearest");
 
+    //mosaic use pointing
+    usePointing=false;
     // Moving phase center ?
     distance=Quantity(0,"m");
     trackSource=false;
@@ -3355,6 +3358,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     gridpar.define("interpolation",interpolation);
 
+    gridpar.define("usepointing", usePointing);
+    
     gridpar.define("distance", QuantityToString(distance));
     gridpar.define("tracksource", trackSource);
     gridpar.define("trackdir", MDirectionToString( trackDir ));

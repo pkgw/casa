@@ -1698,7 +1698,7 @@ void SynthesisImagerVi2::unlockMSs()
    
     
     theFT = new refim::MosaicFTNew(vps, mLocation_p, stokes, 1000000000, 16, useAutoCorr, 
-		      useDoublePrec, doConjBeams);
+				   useDoublePrec, doConjBeams, gridpars_p.usePointing);
     PBMathInterface::PBClass pbtype=((kpb==PBMath::EVLA) || multiTel)? PBMathInterface::COMMONPB: PBMathInterface::AIRY;
     if(rec.asString("name")=="IMAGE")
        pbtype=PBMathInterface::IMAGE;

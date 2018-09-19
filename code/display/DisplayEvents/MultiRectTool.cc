@@ -961,7 +961,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 
 		creating_region = resizing_region = allocate_region( wc, linx, liny, linx, liny, 0 );
-		viewer::Region::creatingRegionBegin(DYNAMIC_POINTER_CAST<viewer::Region>(creating_region));
+		viewer::Region::creatingRegionBegin(std::dynamic_pointer_cast<viewer::Region>(creating_region));
 		rectangles.push_back( resizing_region );
 
 		if ( type( ) != POINTTOOL )
