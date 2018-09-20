@@ -28,13 +28,13 @@
 namespace casa {
 
 template<> void ImageCollapser<Complex>::_doHighPerf(
-    SHARED_PTR<const ImageInterface<Complex>>, TempImage<Complex>&
+    std::shared_ptr<const ImageInterface<Complex>>, TempImage<Complex>&
 ) const {
     ThrowCc("Logic error: This version of the method should never be called");
 }
 
 template<> void ImageCollapser<DComplex>::_doHighPerf(
-    SHARED_PTR<const ImageInterface<DComplex>>, TempImage<DComplex>&
+    std::shared_ptr<const ImageInterface<DComplex>>, TempImage<DComplex>&
 ) const {
     ThrowCc("Logic error: This version of the method should never be called");
 }

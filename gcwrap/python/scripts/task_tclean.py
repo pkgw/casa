@@ -71,7 +71,8 @@ def tclean(
 
     ### PB
     vptable,
-
+    usepointing, #=false
+    mosweight, #=false
     aterm,#=True,
     psterm,#=True,
     wbawp ,#= True,

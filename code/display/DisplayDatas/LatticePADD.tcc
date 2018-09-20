@@ -162,7 +162,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // >2d image-based ctor
 	template <class T>
-	LatticePADisplayData<T>::LatticePADisplayData(SHARED_PTR<casacore::ImageInterface<T> > image,
+	LatticePADisplayData<T>::LatticePADisplayData(std::shared_ptr<casacore::ImageInterface<T> > image,
 	        const casacore::uInt xAxis,
 	        const casacore::uInt yAxis,
 	        const casacore::uInt mAxis,
@@ -196,7 +196,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // 2d image-based ctor
 	template <class T>
-	LatticePADisplayData<T>::LatticePADisplayData(SHARED_PTR<casacore::ImageInterface<T> > image,
+	LatticePADisplayData<T>::LatticePADisplayData(std::shared_ptr<casacore::ImageInterface<T> > image,
 	        const casacore::uInt xAxis,
 	        const casacore::uInt yAxis) :
 		PrincipalAxesDD(xAxis, yAxis),

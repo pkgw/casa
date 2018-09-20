@@ -1,4 +1,3 @@
-//# Image2DConvolver.cc:  convolution of an image by given Array
 //# Copyright (C) 1995,1996,1997,1998,1999,2000,2001,2002
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,7 +22,9 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//   
+
+#ifndef IMAGEANALYSIS_IMAGEHISTOGRAMSCALCULATOR_TCC
+#define IMAGEANALYSIS_IMAGEHISTOGRAMSCALCULATOR_TCC
 
 #include <imageanalysis/ImageAnalysis/ImageHistogramsCalculator.h>
 
@@ -32,37 +33,33 @@
 using namespace casacore;
 namespace casa {
 
-const String ImageHistogramsCalculator::CLASS_NAME = "ImageHistogramsCalculator";
+template <class T> const String ImageHistogramsCalculator<T>::CLASS_NAME
+    = "ImageHistogramsCalculator";
 
-ImageHistogramsCalculator::ImageHistogramsCalculator(
-	const SPCIIF image, const Record *const &region,
+template <class T> ImageHistogramsCalculator<T>::ImageHistogramsCalculator(
+	const SPCIIT image, const Record *const &region,
 	const String& mask
-) : ImageTask<Float>(
+) : ImageTask<T>(
         image, "", region, "", "", "", mask, "", false
     ) {
 	this->_construct(true);
 }
 
-ImageHistogramsCalculator::~ImageHistogramsCalculator() {}
+template <class T> ImageHistogramsCalculator<T>::~ImageHistogramsCalculator() {}
 
-Record ImageHistogramsCalculator::compute() const {
+template <class T> Record ImageHistogramsCalculator<T>::compute() const {
     auto log = this->_getLog();
     *log << LogOrigin(getClass(), __func__);
     CountedPtr<ImageRegion> pRegionRegion, pMaskRegion;
     auto image = this->_getImage();
-    auto subImage = SubImageFactory<Float>::createSubImageRO(
+    auto subImage = SubImageFactory<T>::createSubImageRO(
         pRegionRegion, pMaskRegion, *image,
         *this->_getRegion(), this->_getMask(), log.get(),
         AxesSpecifier(), this->_getStretch()
     );
-
-    ImageHistograms<Float> histograms(
-        *subImage, *log, true, _disk
-    );
-
+    ImageHistograms<T> histograms(*subImage, *log, true, _disk);
     ThrowIf(
-        !histograms.setAxes(Vector<Int>(_axes)),
-        histograms.errorMessage()
+        !histograms.setAxes(Vector<Int>(_axes)), histograms.errorMessage()
     );
     if(
         image->coordinates().hasDirectionCoordinate()
@@ -73,41 +70,32 @@ Record ImageHistogramsCalculator::compute() const {
             for (auto axis: _axes) {
                 if ((Int)axis == d) {
                     *log << LogIO::WARN << "Specified cursor axis " << axis
-                         << " is a direction axis and image has per plane beams. "
-                         << "Care should be used when interpreting the results."
-                         << LogIO::POST;
+                         << " is a direction axis and image has per plane "
+                         << "beams. Care should be used when interpreting the "
+                         << "results." << LogIO::POST;
                     break;
                 }
             }
         }
     }
+    ThrowIf(! histograms.setNBins(_nbins), histograms.errorMessage());
     ThrowIf(
-        ! histograms.setNBins(_nbins),
-        histograms.errorMessage()
+        ! histograms.setIncludeRange(_includeRange), histograms.errorMessage()
     );
     ThrowIf(
-        ! histograms.setIncludeRange(_includeRange),
-        histograms.errorMessage()
+        ! histograms.setForm(_doLog10, _cumulative), histograms.errorMessage()
     );
     ThrowIf(
-        ! histograms.setForm(_doLog10, _cumulative),
-        histograms.errorMessage()
+        ! histograms.setStatsList(_listStats), histograms.errorMessage()
     );
-
-    ThrowIf(
-        ! histograms.setStatsList(_listStats),
-        histograms.errorMessage()
-    );
-
-    Array<Float> values, counts;
-    Array<Vector<Float>> stats;
+    Array<T> values, counts;
+    Array<Vector<T>> stats;
     ThrowIf(
         ! histograms.getHistograms(values, counts, stats),
         histograms.errorMessage()
     );
-
-    Array<Float> mean(stats.shape());
-    Array<Float> stddev(stats.shape());
+    Array<T> mean(stats.shape());
+    Array<T> stddev(stats.shape());
     auto miter = mean.begin();
     auto siter = stddev.begin();
     for (auto& s: stats) {
@@ -124,6 +112,8 @@ Record ImageHistogramsCalculator::compute() const {
     return rec;
 }
 
-
 }
+
+#endif
+
 

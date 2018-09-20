@@ -56,7 +56,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     SDAlgorithmMSMFS(casacore::uInt nTaylorTerms, casacore::Vector<casacore::Float> scalesizes);
     virtual  ~SDAlgorithmMSMFS();
     
-    void restore( SHARED_PTR<SIImageStore> imagestore );
+    void restore( std::shared_ptr<SIImageStore> imagestore );
     
   protected:
     
@@ -69,11 +69,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     casacore::uInt getNTaylorTerms(){ return itsNTerms; };
     
-    //    void initializeSubImages( SHARED_PTR<SIImageStore> &imagestore, casacore::uInt subim);
+    //    void initializeSubImages( std::shared_ptr<SIImageStore> &imagestore, casacore::uInt subim);
 
     casacore::Bool createMask(casacore::LatticeExpr<casacore::Bool> &lemask, casacore::ImageInterface<casacore::Float> &outimage);
 
-    //    SHARED_PTR<SIImageStore> itsImages;
+    //    std::shared_ptr<SIImageStore> itsImages;
 
     casacore::Vector< casacore::Array<casacore::Float> > itsMatPsfs, itsMatResiduals, itsMatModels;
     casacore::Array<casacore::Float> itsMatMask;  // Make an array if we eventually use multi-term masks...

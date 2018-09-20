@@ -217,7 +217,7 @@ private:
     casacore::String _doStandardFormat(casacore::Double value, const casacore::String& unit) const;
 
     casacore::Record _calcStatsT(
-        SHARED_PTR<const casacore::ImageInterface<T> > image
+        std::shared_ptr<const casacore::ImageInterface<T> > image
     ) const;
 
     static casacore::Record _worldVectorToRecord(

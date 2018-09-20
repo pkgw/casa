@@ -22,9 +22,8 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 
-
-#ifndef SKYCOMPONENTFACTORY_H_
-#define SKYCOMPONENTFACTORY_H_
+#ifndef COMPONENTS_SKYCOMPONENTFACTORY_H
+#define COMPONENTS_SKYCOMPONENTFACTORY_H
 
 #include <casa/aips.h>
 
@@ -39,8 +38,6 @@ template <class T> class Vector;
 }
 
 namespace casa {
-
-
 
 class SkyComponentFactory {
 public:
@@ -87,9 +84,9 @@ public:
 	// I also hate having a class with anything like Utilities in the name,
 	// but I needed to move this somewhere and can only tackle one issue
 	// at a time.
-	static SkyComponent encodeSkyComponent(
+	template <class T> static SkyComponent encodeSkyComponent(
 		casacore::LogIO& os, casacore::Double& fluxRatio,
-		const casacore::ImageInterface<casacore::Float>& im,
+		const casacore::ImageInterface<T>& im,
 		casa::ComponentType::Shape modelType,
 		const casacore::Vector<casacore::Double>& parameters,
 		casacore::Stokes::StokesTypes stokes,
@@ -181,6 +178,12 @@ private:
 
 };
 
-} // end namespace casa
+}
+
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <components/ComponentModels/SkyComponentFactory2.tcc>
+#endif
+
 
 #endif

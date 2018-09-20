@@ -89,6 +89,11 @@ template<class T> void ImageHistory<T>::addHistory(
     addHistory(origin.toString(), history);
 }
 
+template<class T> void ImageHistory<T>::clear() {
+    _image->logger().clear();
+}
+
+
 template<class T> casacore::LogIO& ImageHistory<T>::getLogSink() {
     return _image->logSink();
 }
@@ -135,11 +140,12 @@ template<class T> template <class U>  void ImageHistory<T>::append(
 ) {
     _image->logger().append(image->logger());
 }
-/*
-template<class T> void ImageHistory<T>::append(
-        SPCIIC image
+
+template<class T> template <class U>  void ImageHistory<T>::append(
+    SPIIU image
 ) {
-    _image->logger().append(image->logger());
+    append(std::const_pointer_cast<const casacore::ImageInterface<U>>(image));
+    //_image->logger().append(image->logger());
 }
-*/
+
 }

@@ -35,6 +35,8 @@ namespace casa {
 template <class T> class ImageRegridderBase : public ImageTask<T> {
 	// <summary>
 	// casacore::Data store of ImageRegridder and ComplexImageRegridder
+    // TODO ComplexImageRegridder has been removed so this class can probably
+    // be merged into ImageRegridder
 	// </summary>
 
 	// <reviewed reviewer="" date="" tests="" demos="">

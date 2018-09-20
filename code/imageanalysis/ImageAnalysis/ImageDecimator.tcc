@@ -90,7 +90,7 @@ template<class T> SPIIT ImageDecimator<T>::decimate() const {
     casacore::uInt ndim = subImage->ndim();
     casacore::IPosition begin(ndim, 0);
     casacore::IPosition end = cursorShape - 1;
-    SHARED_PTR<casacore::ArrayLattice<casacore::Bool> > outMask(
+    std::shared_ptr<casacore::ArrayLattice<casacore::Bool> > outMask(
         isMasked ? new casacore::ArrayLattice<casacore::Bool>(out.shape()) : 0
     );
     casacore::IPosition outPos = begin;

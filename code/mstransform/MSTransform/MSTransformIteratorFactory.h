@@ -160,7 +160,7 @@ private:
 
 	casacore::Record configuration_p;
 	casacore::String tmpMSFileName_p;
-	mutable SHARED_PTR<MSTransformManager> manager_p;
+	mutable std::shared_ptr<MSTransformManager> manager_p;
 	casacore::MrsEligibility eligibleSubTables_p;
 };
 
