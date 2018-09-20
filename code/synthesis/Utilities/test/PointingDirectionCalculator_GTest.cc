@@ -96,6 +96,66 @@ struct _MSDef
     String name;     // MS name, with relative path from CASAPATH
 };
 
+std::vector<struct _MSDef> MSNames2 
+{
+        // Exeption(bool)  , Filename //
+ 
+       {true, "./sdimaging-t.ms"                    },
+        {false, "sdimaging/sdimaging.ms"                      },
+        {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
+
+// Following 2 MS are affected assert(), cannot run here. skip in UT 
+
+//      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
+//      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
+
+        {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms" },
+        {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms" },
+        {false, "sdimaging/azelpointing.ms"                   },
+        {false, "sdimaging/clipping_1row.ms"          },
+        {false, "sdimaging/clipping_2rows.ms"         },
+        {false, "sdimaging/clipping_3rows.ms"         },
+        {false, "sdimaging/clipping_3rows_2chans.ms"  },
+        {false, "sdimaging/clipping_3rows_suprious.ms"        },
+        {false, "sdimaging/pointing6.ms"                      },
+        {false, "sdimaging/sdimaging_flagtest.ms"             },
+        {false, "sdimaging/selection_intent.ms"               },
+        {false, "sdimaging/selection_misc.ms"         },
+        {false, "sdimaging/selection_spw.ms"          },
+        {false, "sdimaging/selection_spw_unifreq.ms"  },
+        {true, ".sis14_twhya_calibrated_flagged.ms"        },
+        {true, ".sis14_twhya_calibrated_flagged-t.ms"      },
+        {true,  "sdimaging/hogehoge.ms"  },
+
+ };
+
+// Get File Name by Number //
+const String  getMSNameFromList(uInt No )
+{
+    if (MSNames2.size() < No )
+    {
+         throw "Internal Error" ;
+    }
+
+    return MSNames2[No].name;
+}
+
+// Get Exception information ..
+bool  getMSThrowFromList(uInt  No )
+{
+    if (MSNames2.size() < No )
+    { 
+        throw "Internal Error" ;
+    }
+
+    return MSNames2[No].ExThrow;
+}
+uInt getMSCountFromList()
+{
+    return MSNames2.size();
+}
+
+
 const struct _MSDef
     MSNames[30] = {
         
