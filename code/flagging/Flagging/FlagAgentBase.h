@@ -23,17 +23,17 @@
 #ifndef FlagAgentBase_H_
 #define FlagAgentBase_H_
 
-#include <flagging/Flagging/FlagMSHandler.h>
-#include <flagging/Flagging/FlagCalTableHandler.h>
-#include <flagging/Flagging/FlagReport.h>
-#include <casa/Containers/OrdMapIO.h>
-#include <measures/Measures/Stokes.h>
-#include <msvis/MSVis/AsynchronousTools.h>
+#include <casa/Containers/OrderedMap.h>
+// needed for antennaPairMap, polarizationMap, VisMapper, FlagMapper, etc. which should
+// probably be split from the rather large FlagDataHandler.h
+#include <flagging/Flagging/FlagDataHandler.h>
 
-// To handle variant parameters
-#include <stdcasa/StdCasa/CasacSupport.h>
+#include <msvis/MSVis/AsynchronousTools.h>
+#include <flagging/Flagging/FlagReport.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+class FlagDataHandler;
 
 // <summary>
 // A top level class defining the interface for flagging agents
@@ -298,7 +298,7 @@ protected:
 	virtual void passIntermediate(const vi::VisBuffer2 &visBuffer);
 	virtual void passFinal(const vi::VisBuffer2 &visBuffer);
 
-	// Mapping functions as requested by Urvashi
+	// Mapping functions (abs, real, imag, etc.) as requested by Urvashi
 	void setVisibilitiesMap(std::vector<casacore::uInt> *rows,VisMapper *visMap);
 	void setFlagsMap(std::vector<casacore::uInt> *rows, FlagMapper *flagMap);
 	casacore::Bool checkVisExpression(polarizationMap *polMap);
@@ -391,6 +391,7 @@ private:
 	volatile casacore::Bool processing_p;
 
 	// casacore::Data source configuration
+        // selection expression to pass to the VisMapper
 	casacore::String expression_p;
 	casacore::uShort dataReference_p;
 

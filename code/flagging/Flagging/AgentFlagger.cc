@@ -40,6 +40,12 @@
 #include <iostream>
 #include <vector>
 
+#include <flagging/Flagging/FlagCalTableHandler.h>
+#include <flagging/Flagging/FlagMSHandler.h>
+#if ! defined(WITHOUT_DBUS)
+#include <flagging/Flagging/FlagAgentDisplay.h>
+#endif
+
 using namespace casacore;
 namespace casa {
 

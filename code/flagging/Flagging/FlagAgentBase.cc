@@ -22,7 +22,10 @@
 
 #include <flagging/Flagging/FlagAgentBase.h>
 
-// Needed for the factory method (create)
+#include <stdcasa/StdCasa/CasacSupport.h>
+#include <ms/MSSel/MSSelectionTools.h>
+
+// Headers of every concrete agent, needed for the factory method (create)
 #include <flagging/Flagging/FlagAgentTimeFreqCrop.h>
 #include <flagging/Flagging/FlagAgentClipping.h>
 #include <flagging/Flagging/FlagAgentSummary.h>
@@ -821,7 +824,9 @@ FlagAgentBase::setDataSelection(Record config)
 		{
 			*logger_p << LogIO::DEBUG1 << " no correlation selection" << LogIO::POST;
 		}
-		// Only process the polarization selection as in-row selection if there is no complex operator
+
+
+                // Only process the polarization selection as in-row selection if there is no complex operator
 		else if ((polarizationSelection_p.find("REAL") == string::npos) and
 				(polarizationSelection_p.find("IMAG") == string::npos) and
 				(polarizationSelection_p.find("ARG") == string::npos) and

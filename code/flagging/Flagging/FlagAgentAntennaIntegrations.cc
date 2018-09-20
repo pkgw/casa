@@ -21,6 +21,9 @@
 //# $Id: $
 
 #include <flagging/Flagging/FlagAgentAntennaIntegrations.h>
+
+#include <sstream>
+
 #include <casa/Quanta/MVTime.h>
 #include <casa/Utilities/DataType.h>
 
@@ -60,7 +63,7 @@ void FlagAgentAntennaIntegrations::setAgentParameters(casacore::Record config,
   const auto fields = config.nfields();
   *logger_p << casacore::LogIO::NORMAL << "The configuration received by this agent has " 
 	    << fields << " fields with the following values:" << casacore::LogIO::POST;
-  ostringstream ostr;
+  std::ostringstream ostr;
   config.print(ostr);
   *logger_p << casacore::LogIO::NORMAL << ostr.str() << casacore::LogIO::POST;
 
