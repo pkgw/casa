@@ -1526,14 +1526,15 @@ TEST_F(TestDirection, MovingSourceCorrection  )
     //
     // setDirectionColumm()  calls 
     //
-        String Name[6];
-        
-        Name[0] = "DIRECTION";        
-        Name[1] = "TARGET";
-        Name[2] = "POINTING_OFFSET";    // *** NEED to ADD in advance  //
-        Name[3] = "SOURCE_OFFSET"; // *** NEED to Add in advance //
-        Name[4] = "ENCODER";      // *** NEED to add in advance  //
-        Name[5] = "hogehoge";
+        std::vector<String> Name
+        {
+            "DIRECTION",       
+             "TARGET",
+             "POINTING_OFFSET", // *** NEED to ADD in advance  //
+             "SOURCE_OFFSET",   // *** NEED to Add in advance //
+             "ENCODER",          // *** NEED to add in advance  //
+             "DIRECTION"   // extra //
+        };
 
         //+
         // Normal Seq. with setMovingSoure Convert.
@@ -1542,7 +1543,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 
 	FunctionalDescription("Normal Seq.", "Selectve Convert");
 
-        for(int k=0; k<5; k++)
+        for(unsigned int k=0; k<Name.size(); k++)
         {
             Description("Column Name" , Name[k] );
             EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
@@ -1568,7 +1569,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 
         FunctionalDescription("Normal Seq.", "Always call setDirectionColumn");
 
-        for(int k=0; k<5; k++)
+        for(unsigned int k=0; k<Name.size(); k++)
         {
             Description("Column Name" , Name[k] );
             EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
