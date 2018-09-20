@@ -106,8 +106,8 @@ std::vector<struct _MSDef> MSNames2
 
 // Following 2 MS are affected assert(), cannot run here. skip in UT 
 
-//      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
-//      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
+      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
+      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
 
         {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms" },
         {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms" },
@@ -126,7 +126,7 @@ std::vector<struct _MSDef> MSNames2
         {true, ".sis14_twhya_calibrated_flagged.ms"        },
         {true, ".sis14_twhya_calibrated_flagged-t.ms"      },
         {true,  "sdimaging/hogehoge.ms"  },
-
+        {true,  "sdimaging/hogehoge.ms"  },  // Extra Hoge for self-degbug .
  };
 
 // Get File Name by Number //
@@ -134,7 +134,7 @@ const String  getMSNameFromList(uInt No )
 {
     if (MSNames2.size() < No )
     {
-         throw "Internal Error" ;
+         throw "Bugcheck" ;
     }
 
     return MSNames2[No].name;
@@ -145,7 +145,7 @@ bool  getMSThrowFromList(uInt  No )
 {
     if (MSNames2.size() < No )
     { 
-        throw "Internal Error" ;
+        throw "Bugcheck" ;
     }
 
     return MSNames2[No].ExThrow;
@@ -156,50 +156,6 @@ uInt getMSCountFromList()
 }
 
 
-const struct _MSDef
-    MSNames[30] = {
-        
-        // Exeption(bool)  , Filename //
-        {true, "./sdimaging-t.ms"                    },
-        {false, "sdimaging/sdimaging.ms"                      },
-        {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
-
-// Following 2 MS are affected assert(), cannot run here. skip in UT 
-
-//      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
-//      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
-
-        {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms" },
-        {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms" },
-        {false, "sdimaging/azelpointing.ms"                   },
-        {false, "sdimaging/clipping_1row.ms"          },
-        {false, "sdimaging/clipping_2rows.ms"         },
-        {false, "sdimaging/clipping_3rows.ms"         },
-        {false, "sdimaging/clipping_3rows_2chans.ms"  },
-        {false, "sdimaging/clipping_3rows_suprious.ms"        },
-        {false, "sdimaging/pointing6.ms"                      },
-        {false, "sdimaging/sdimaging_flagtest.ms"             },
-        {false, "sdimaging/selection_intent.ms"               },
-        {false, "sdimaging/selection_misc.ms"         },
-        {false, "sdimaging/selection_spw.ms"          },
-        {false, "sdimaging/selection_spw_unifreq.ms"  },
-        {true, ".sis14_twhya_calibrated_flagged.ms"        },
-        {true, ".sis14_twhya_calibrated_flagged-t.ms"      },
-        {true,  "sdimaging/hogehoge.ms"  },
-        {false, "",  }
-    };
-
-
-// Get File Name by Number //
-const String  getMSName(int No )
-{
-    return MSNames[No].name;
-}
-// Get Exception information ..
-bool  getMSThrow(int No )
-{
-    return MSNames[No].ExThrow;
-}
 
 //+
 //  Log Title Functions for readable text output
@@ -1161,7 +1117,7 @@ protected:
             BaseClass::TearDown();
        }
 
-       void test_constructor(int num );
+       void test_constructor(uInt num );
 
 };
 
@@ -1169,11 +1125,11 @@ protected:
   attempt to open vaious Measurement Set
  ----------------------------------------*/
 
-void TestMeasurementSet::test_constructor(int num )
+void TestMeasurementSet::test_constructor(uInt num )
 {
 
-    String name = env.getCasaMasterPath()+getMSName( num );
-    FunctionalDescription("Testing Construcror." , name );
+    String name = env.getCasaMasterPath()+getMSNameFromList( num );
+    Description("Testing Construcror." , name );
 
     // CONSTRUCTOR  //
 
@@ -1185,7 +1141,7 @@ void TestMeasurementSet::test_constructor(int num )
    
 
       printf("# Constuctor Initial Check.  [%s] \n", name.c_str()  );
-      printf("   detected nrow : %d \n", (int)calc.getNrowForSelectedMS() );
+      printf("  detected nrow : %d \n", (int)calc.getNrowForSelectedMS() );
       EXPECT_NE((int)0, (int)calc.getNrowForSelectedMS() );
     
 }
@@ -1202,14 +1158,15 @@ void TestMeasurementSet::test_constructor(int num )
 TEST_F(TestMeasurementSet, variousConstructor )
 {
     TestDescription( "CALC Constructor by various MS" );
- 
-    for(int k=0;k<30;k++)
-    {
-       FunctionalDescription( "CALC Constructor by various MS", getMSName(k).c_str()  );
- 
-       if(getMSName(k)=="")    break;
 
-        if (getMSThrow(k))
+    uInt count = getMSCountFromList();
+    printf("%d MeasruementSet for this test are ready.\n" ,count); 
+
+    for(uInt k=0; k<count; k++)
+    {
+       FunctionalDescription( "CALC Constructor by various MS",getMSNameFromList(k).c_str()  );
+ 
+        if (getMSThrowFromList(k))
         {
           EXPECT_ANY_THROW( test_constructor( k ) );
         }
