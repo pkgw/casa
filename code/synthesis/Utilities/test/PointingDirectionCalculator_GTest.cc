@@ -326,16 +326,12 @@ typedef  struct ChgAntennaTable_ {
 //  - Functions are defines.
 //-
 
-class MSEdit  : public MyEnv
+class MSEdit 
 {
 
 public:
         MSEdit()        { };
 
-        // Env: File Path //
-        
-        MyEnv env;
-        
         // Add or Remove Row  (Antenna) //
 
         uInt  AntennaTable_AddRow();
