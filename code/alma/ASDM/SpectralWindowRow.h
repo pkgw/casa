@@ -128,6 +128,8 @@
 #include "CSpectralResolutionType.h"
 	
 
+	
+
 
 
 #include <ConversionException.h>
@@ -1240,6 +1242,47 @@ public:
 	
 
 
+	
+	// ===> Attribute numBin, which is optional
+	
+	
+	
+	/**
+	 * The attribute numBin is optional. Return true if this attribute exists.
+	 * @return true if and only if the numBin attribute exists. 
+	 */
+	bool isNumBinExists() const;
+	
+
+	
+ 	/**
+ 	 * Get numBin, which is optional.
+ 	 * @return numBin as int
+ 	 * @throws IllegalAccessException If numBin does not exist.
+ 	 */
+ 	int getNumBin() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set numBin with the specified int.
+ 	 * @param numBin The int value to which numBin is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setNumBin (int numBin);
+		
+	
+	
+	
+	/**
+	 * Mark numBin, which is an optional field, as non-existent.
+	 */
+	void clearNumBin ();
+	
+
+
 	////////////////////////////////
 	// Extrinsic Table Attributes //
 	////////////////////////////////
@@ -1591,6 +1634,7 @@ void resolutionFromBin( EndianIStream& eis);
 void resolutionArrayFromBin( EndianIStream& eis);
 void numAssocValuesFromBin( EndianIStream& eis);
 void assocNatureFromBin( EndianIStream& eis);
+void numBinFromBin( EndianIStream& eis);
 void assocSpectralWindowIdFromBin( EndianIStream& eis);
 void imageSpectralWindowIdFromBin( EndianIStream& eis);
 void dopplerIdFromBin( EndianIStream& eis);
@@ -2021,6 +2065,19 @@ private:
 	
  	
 
+	
+	// ===> Attribute numBin, which is optional
+	
+	
+	bool numBinExists;
+	
+
+	int numBin;
+
+	
+	
+ 	
+
 	////////////////////////////////
 	// Extrinsic Table Attributes //
 	////////////////////////////////
@@ -2122,6 +2179,7 @@ void resolutionFromBin( EndianIStream& eis);
 void resolutionArrayFromBin( EndianIStream& eis);
 void numAssocValuesFromBin( EndianIStream& eis);
 void assocNatureFromBin( EndianIStream& eis);
+void numBinFromBin( EndianIStream& eis);
 void assocSpectralWindowIdFromBin( EndianIStream& eis);
 void imageSpectralWindowIdFromBin( EndianIStream& eis);
 void dopplerIdFromBin( EndianIStream& eis);
@@ -2216,6 +2274,9 @@ void numAssocValuesFromText (const string & s);
 	
 	
 void assocNatureFromText (const string & s);
+	
+	
+void numBinFromText (const string & s);
 	
 	
 void assocSpectralWindowIdFromText (const string & s);

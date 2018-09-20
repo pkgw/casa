@@ -121,6 +121,8 @@
 #include "CSpectralResolutionType.h"
 	
 
+	
+
 
 
 #include <ConversionException.h>
@@ -252,14 +254,14 @@ class SpectralWindowRow;
  * <TD> chanWidth</TD> 
  * <TD> Frequency </TD>
  * <TD>  &nbsp; </TD>
- * <TD>&nbsp; the width of the frequency channel (supposedly constant). </TD>
+ * <TD>&nbsp; the nominal channel width. </TD>
  * </TR>
 	
  * <TR>
  * <TD> chanWidthArray</TD> 
  * <TD> vector<Frequency > </TD>
  * <TD>  numChan  </TD>
- * <TD>&nbsp; Array of channel widths </TD>
+ * <TD>&nbsp; Array of channel widths. </TD>
  * </TR>
 	
  * <TR>
@@ -280,7 +282,7 @@ class SpectralWindowRow;
  * <TD> effectiveBwArray</TD> 
  * <TD> vector<Frequency > </TD>
  * <TD>  numChan  </TD>
- * <TD>&nbsp; array of effective bandwidths (one value per channel). </TD>
+ * <TD>&nbsp; array of effective bandwidths. </TD>
  * </TR>
 	
  * <TR>
@@ -343,14 +345,14 @@ class SpectralWindowRow;
  * <TD> resolution</TD> 
  * <TD> Frequency </TD>
  * <TD>  &nbsp; </TD>
- * <TD>&nbsp; the half power frequency resolution (supposedly constant for all the channels). </TD>
+ * <TD>&nbsp; the effective spectral resolution of one channel (see note). </TD>
  * </TR>
 	
  * <TR>
  * <TD> resolutionArray</TD> 
  * <TD> vector<Frequency > </TD>
  * <TD>  numChan  </TD>
- * <TD>&nbsp; the frequency resolutions (possibly variable )(one value per channel). </TD>
+ * <TD>&nbsp; the array of frequency resolution. </TD>
  * </TR>
 	
  * <TR>
@@ -365,6 +367,13 @@ class SpectralWindowRow;
  * <TD> vector<SpectralResolutionTypeMod::SpectralResolutionType > </TD>
  * <TD>  numAssocValues  </TD>
  * <TD>&nbsp; the natures of the associations with the rows refered to by assocSpectralWindowId. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> numBin(numBin)</TD> 
+ * <TD> int </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; the number of channels used in any post-FFT averaging. </TD>
  * </TR>
 	
  * <TR>

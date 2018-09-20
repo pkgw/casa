@@ -136,6 +136,8 @@ namespace asdm {
 		
 			, "assocNature"
 		
+			, "numBin"
+		
 			, "assocSpectralWindowId"
 		
 			, "imageSpectralWindowId"
@@ -156,7 +158,7 @@ namespace asdm {
     
     	 "spectralWindowId" , "basebandName" , "netSideband" , "numChan" , "refFreq" , "sidebandProcessingMode" , "totBandwidth" , "windowFunction" 
     	,
-    	 "chanFreqStart" , "chanFreqStep" , "chanFreqArray" , "chanWidth" , "chanWidthArray" , "correlationBit" , "effectiveBw" , "effectiveBwArray" , "freqGroup" , "freqGroupName" , "lineArray" , "measFreqRef" , "name" , "oversampling" , "quantization" , "refChan" , "resolution" , "resolutionArray" , "numAssocValues" , "assocNature" , "assocSpectralWindowId" , "imageSpectralWindowId" , "dopplerId" 
+    	 "chanFreqStart" , "chanFreqStep" , "chanFreqArray" , "chanWidth" , "chanWidthArray" , "correlationBit" , "effectiveBw" , "effectiveBwArray" , "freqGroup" , "freqGroupName" , "lineArray" , "measFreqRef" , "name" , "oversampling" , "quantization" , "refChan" , "resolution" , "resolutionArray" , "numAssocValues" , "assocNature" , "numBin" , "assocSpectralWindowId" , "imageSpectralWindowId" , "dopplerId" 
     
 	};
 	        			
@@ -748,6 +750,7 @@ SpectralWindowRow* SpectralWindowTable::lookup(BasebandNameMod::BasebandName bas
 		oss << "<resolutionArray/>\n"; 
 		oss << "<numAssocValues/>\n"; 
 		oss << "<assocNature/>\n"; 
+		oss << "<numBin/>\n"; 
 		oss << "<assocSpectralWindowId/>\n"; 
 		oss << "<imageSpectralWindowId/>\n"; 
 		oss << "<dopplerId/>\n"; 
@@ -922,6 +925,8 @@ SpectralWindowRow* SpectralWindowTable::lookup(BasebandNameMod::BasebandName bas
     attributesSeq.push_back("numAssocValues") ; 
     	 
     attributesSeq.push_back("assocNature") ; 
+    	 
+    attributesSeq.push_back("numBin") ; 
     	 
     attributesSeq.push_back("assocSpectralWindowId") ; 
     	 

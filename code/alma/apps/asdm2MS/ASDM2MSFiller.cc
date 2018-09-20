@@ -221,6 +221,7 @@ ASDM2MSFiller::ASDM2MSFiller(const string& name_,
   itsMS			= 0;
   itsMSCol		= 0;
   itsWinFuncCol         = 0;
+  itsNumBinCol          = 0;
   itsNumAntenna		= 0;
   itsScanNumber         = 0;
 
@@ -240,7 +241,7 @@ ASDM2MSFiller::ASDM2MSFiller(const string& name_,
 
 // The destructor
 ASDM2MSFiller::~ASDM2MSFiller() {
-  // end flushes to the MS and deletes itsMS and itsMSCol and itsWinFuncCol
+  // end flushes to the MS and deletes itsMS and itsMSCol and itsWinFuncCol and itsNumBinCol
   end();
 }
 
@@ -413,10 +414,14 @@ int ASDM2MSFiller::createMS(const string& msName,
     MSSpectralWindow::addColumnToDesc (td, MSSpectralWindow::ASSOC_SPW_ID);
     MSSpectralWindow::addColumnToDesc (td, MSSpectralWindow::ASSOC_NATURE);
 
-    // add the non-standard SDM_WINDOW_FUNCTION columns
+    // add the non-standard SDM_WINDOW_FUNCTION and SDM_NUM_BIN columns
     ScalarColumnDesc<String> sdmWinFuncDesc("SDM_WINDOW_FUNCTION","windowFunction value found in SDM");
     sdmWinFuncDesc.setDefault("UNKNOWN");
     td.addColumn(sdmWinFuncDesc);
+
+    ScalarColumnDesc<Int> sdmNumBinDesc("SDM_NUM_BIN","numBin value found in or inferred from SDM");
+    sdmNumBinDesc.setDefault(1);
+    td.addColumn(sdmNumBinDesc);
 
     itsMS->spectralWindow().addColumn(td,spwStMan);
     //SetupNewTable tabSetup(itsMS->spectralWindowTableName(),
@@ -570,6 +575,9 @@ int ASDM2MSFiller::createMS(const string& msName,
   // constructed each time a value is written to it
   itsWinFuncCol = new ScalarColumn<String>(itsMS->spectralWindow(), "SDM_WINDOW_FUNCTION");
 
+  // get the SPECTRAL_WINDOW::SDM_NUM_BIN column here so it doesn't need to be
+  // constructed each time a value is written to it
+  itsNumBinCol = new ScalarColumn<Int>(itsMS->spectralWindow(), "SDM_NUM_BIN");
 
   //cout << "\n";
   {
@@ -1825,7 +1833,8 @@ int ASDM2MSFiller::addSpectralWindow(int			num_chan_,
 				     int			num_assoc_,
 				     const vector<int>&		assoc_sp_id_,
 				     const vector<string>&      assoc_nature_,
-				     const string&              windowFunction_) {
+				     const string&              windowFunction_,
+				     int                        numBin_) {
  
   MSSpectralWindow msspwin = itsMS -> spectralWindow();
   MSSpWindowColumns msspwinCol(msspwin);
@@ -1875,6 +1884,9 @@ int ASDM2MSFiller::addSpectralWindow(int			num_chan_,
 
   // non-standard SDM_WINDOW_FUNCTION column
   itsWinFuncCol->put(crow, windowFunction_);
+
+  // non-standard SDM_NUM_BIN column
+  itsNumBinCol->put(crow, numBin_);
 
   //msspwin.flush();
   // cout << "\n";
@@ -2241,6 +2253,10 @@ void ASDM2MSFiller::end() {
   if (itsWinFuncCol) {
     delete itsWinFuncCol;
     itsWinFuncCol = 0;
+  }
+  if (itsNumBinCol) {
+    delete itsNumBinCol;
+    itsNumBinCol = 0;
   }
   if (itsMS) {
     itsMS->flush();

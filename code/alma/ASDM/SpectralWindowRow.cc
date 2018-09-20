@@ -491,6 +491,20 @@ namespace asdm {
 	
 
 	
+  		
+		
+		x->numBinExists = numBinExists;
+		
+		
+			
+				
+		x->numBin = numBin;
+ 				
+ 			
+		
+	
+
+	
 	
 		
 	
@@ -936,6 +950,20 @@ namespace asdm {
 	 		
 	 	}
 			
+		
+	
+
+	
+  		
+		
+		x.numBinExists = numBinExists;
+		
+		
+			
+				
+		x.numBin = numBin;
+ 				
+ 			
 		
 	
 
@@ -1423,6 +1451,21 @@ namespace asdm {
 	
 
 	
+		
+		numBinExists = x.numBinExists;
+		if (x.numBinExists) {
+		
+		
+			
+		setNumBin(x.numBin);
+  			
+ 		
+		
+		}
+		
+	
+
+	
 	
 		
 	
@@ -1799,6 +1842,18 @@ namespace asdm {
 		
 	
 
+  	
+ 		
+		if (numBinExists) {
+		
+		
+		Parser::toXML(numBin, "numBin", buf);
+		
+		
+		}
+		
+	
+
 	
 	
 		
@@ -2157,6 +2212,16 @@ namespace asdm {
 		assocNatureExists = true;
 	}
 		
+	
+
+	
+  		
+        if (row.isStr("<numBin>")) {
+			
+	  		setNumBin(Parser::getInteger("numBin","SpectralWindow",rowDoc));
+			
+		}
+ 		
 	
 
 	
@@ -2551,6 +2616,20 @@ namespace asdm {
 				
 				
 						
+		
+	
+
+	}
+
+	eoss.writeBoolean(numBinExists);
+	if (numBinExists) {
+	
+	
+	
+		
+						
+			eoss.writeInt(numBin);
+				
 		
 	
 
@@ -3041,6 +3120,23 @@ void SpectralWindowRow::assocNatureFromBin(EndianIStream& eis) {
 	}
 	
 }
+void SpectralWindowRow::numBinFromBin(EndianIStream& eis) {
+		
+	numBinExists = eis.readBoolean();
+	if (numBinExists) {
+		
+	
+	
+		
+			
+		numBin =  eis.readInt();
+			
+		
+	
+
+	}
+	
+}
 void SpectralWindowRow::assocSpectralWindowIdFromBin(EndianIStream& eis) {
 		
 	assocSpectralWindowIdExists = eis.readBoolean();
@@ -3361,6 +3457,15 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 		assocNatureExists = true;
 		 
 		assocNature = ASDMValuesParser::parse1D<SpectralResolutionType>(s);
+		
+	}
+	
+	
+	// Convert a string into an int 
+	void SpectralWindowRow::numBinFromText(const string & s) {
+		numBinExists = true;
+		 
+		numBin = ASDMValuesParser::parse<int>(s);
 		
 	}
 	
@@ -4605,6 +4710,53 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
 
 	
+	/**
+	 * The attribute numBin is optional. Return true if this attribute exists.
+	 * @return true if and only if the numBin attribute exists. 
+	 */
+	bool SpectralWindowRow::isNumBinExists() const {
+		return numBinExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get numBin, which is optional.
+ 	 * @return numBin as int
+ 	 * @throw IllegalAccessException If numBin does not exist.
+ 	 */
+ 	int SpectralWindowRow::getNumBin() const  {
+		if (!numBinExists) {
+			throw IllegalAccessException("numBin", "SpectralWindow");
+		}
+	
+  		return numBin;
+ 	}
+
+ 	/**
+ 	 * Set numBin with the specified int.
+ 	 * @param numBin The int value to which numBin is to be set.
+ 	 
+ 	
+ 	 */
+ 	void SpectralWindowRow::setNumBin (int numBin) {
+	
+ 		this->numBin = numBin;
+	
+		numBinExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark numBin, which is an optional field, as non-existent.
+	 */
+	void SpectralWindowRow::clearNumBin () {
+		numBinExists = false;
+	}
+	
+
+	
 	///////////////////////////////////////////////
 	// Extrinsic Table Attributes getters/setters//
 	///////////////////////////////////////////////
@@ -4984,6 +5136,10 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
 
 	
+		numBinExists = false;
+	
+
+	
 	
 		assocSpectralWindowIdExists = false;
 	
@@ -5074,6 +5230,8 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 	
 
 	
+
+	
 	
 	 fromBinMethods["spectralWindowId"] = &SpectralWindowRow::spectralWindowIdFromBin; 
 	 fromBinMethods["basebandName"] = &SpectralWindowRow::basebandNameFromBin; 
@@ -5105,6 +5263,7 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 	 fromBinMethods["resolutionArray"] = &SpectralWindowRow::resolutionArrayFromBin; 
 	 fromBinMethods["numAssocValues"] = &SpectralWindowRow::numAssocValuesFromBin; 
 	 fromBinMethods["assocNature"] = &SpectralWindowRow::assocNatureFromBin; 
+	 fromBinMethods["numBin"] = &SpectralWindowRow::numBinFromBin; 
 	 fromBinMethods["assocSpectralWindowId"] = &SpectralWindowRow::assocSpectralWindowIdFromBin; 
 	 fromBinMethods["imageSpectralWindowId"] = &SpectralWindowRow::imageSpectralWindowIdFromBin; 
 	 fromBinMethods["dopplerId"] = &SpectralWindowRow::dopplerIdFromBin; 
@@ -5227,6 +5386,10 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 		 	
 	 
 				
+	fromTextMethods["numBin"] = &SpectralWindowRow::numBinFromText;
+		 	
+	 
+				
 	fromTextMethods["assocSpectralWindowId"] = &SpectralWindowRow::assocSpectralWindowIdFromText;
 		 	
 	 
@@ -5340,6 +5503,10 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 
 	
 		assocNatureExists = false;
+	
+
+	
+		numBinExists = false;
 	
 
 	
@@ -5521,6 +5688,13 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 		else
 			assocNatureExists = false;
 		
+		if (row.numBinExists) {
+			numBin = row.numBin;		
+			numBinExists = true;
+		}
+		else
+			numBinExists = false;
+		
 		if (row.assocSpectralWindowIdExists) {
 			assocSpectralWindowId = row.assocSpectralWindowId;		
 			assocSpectralWindowIdExists = true;
@@ -5574,6 +5748,7 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 		 fromBinMethods["resolutionArray"] = &SpectralWindowRow::resolutionArrayFromBin; 
 		 fromBinMethods["numAssocValues"] = &SpectralWindowRow::numAssocValuesFromBin; 
 		 fromBinMethods["assocNature"] = &SpectralWindowRow::assocNatureFromBin; 
+		 fromBinMethods["numBin"] = &SpectralWindowRow::numBinFromBin; 
 		 fromBinMethods["assocSpectralWindowId"] = &SpectralWindowRow::assocSpectralWindowIdFromBin; 
 		 fromBinMethods["imageSpectralWindowId"] = &SpectralWindowRow::imageSpectralWindowIdFromBin; 
 		 fromBinMethods["dopplerId"] = &SpectralWindowRow::dopplerIdFromBin; 
@@ -5740,6 +5915,7 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 		result["resolutionArray"] = &SpectralWindowRow::resolutionArrayFromBin;
 		result["numAssocValues"] = &SpectralWindowRow::numAssocValuesFromBin;
 		result["assocNature"] = &SpectralWindowRow::assocNatureFromBin;
+		result["numBin"] = &SpectralWindowRow::numBinFromBin;
 		result["assocSpectralWindowId"] = &SpectralWindowRow::assocSpectralWindowIdFromBin;
 		result["imageSpectralWindowId"] = &SpectralWindowRow::imageSpectralWindowIdFromBin;
 		result["dopplerId"] = &SpectralWindowRow::dopplerIdFromBin;
