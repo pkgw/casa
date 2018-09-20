@@ -314,7 +314,7 @@ FlagAgentAntennaIntegrations::doPreProcessingTimePointSingleChannel(FlaggedTimes
 
 bool
 FlagAgentAntennaIntegrations::computeRowFlags(const vi::VisBuffer2 &visBuffer,
-					      FlagMapper &flags, casacore::uInt row)
+					      FlagMapper &/*flags*/, casacore::uInt row)
 {
   auto flag = false;
   // As per preprocessBuffer(), all rows for this point in time have to be flagged
