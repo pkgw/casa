@@ -106,8 +106,8 @@ std::vector<struct _MSDef> MSNames2
 
 // Following 2 MS are affected assert(), cannot run here. skip in UT 
 
-      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
-      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
+//      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
+//      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
 
         {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms" },
         {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms" },
@@ -132,24 +132,17 @@ std::vector<struct _MSDef> MSNames2
 // Get File Name by Number //
 const String  getMSNameFromList(uInt No )
 {
-    if (MSNames2.size() < No )
-    {
-         throw "Bugcheck" ;
-    }
-
+    assert(MSNames2.size() >  No );
     return MSNames2[No].name;
 }
 
 // Get Exception information ..
 bool  getMSThrowFromList(uInt  No )
 {
-    if (MSNames2.size() < No )
-    { 
-        throw "Bugcheck" ;
-    }
-
+    assert(MSNames2.size() > No );
     return MSNames2[No].ExThrow;
 }
+
 uInt getMSCountFromList()
 {
     return MSNames2.size();
