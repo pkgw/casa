@@ -369,7 +369,7 @@ public:
 
 private:
 
-        String MSname = "./sdimaging-t.ms";  // default //
+        String MSname = "./sdimaging-t.ms";  // default(C++11) //
 
         //+
         // Buff between table and local var.
@@ -510,7 +510,11 @@ void MSEdit::AntennaTable_List(String MSname )
 
         }
 
+        //+
+        // Free Memory
+        //-
 
+        delete columnAntenna ;
 
 }
 
@@ -606,6 +610,11 @@ void MSEdit::AntennaTable_WriteData(String MSname, int Row )
         
         ms0.flush();
 
+        //
+        // Free Memory
+        //
+ 
+        delete columnAntenna;       
 }
 
 
@@ -699,6 +708,11 @@ void MSEdit::PointingTable_List(String MSname, bool showAll)
           printf( "------------------\n"); 
         }
 
+        //
+        // Free Memory
+        //
+ 
+        delete columnPointing;       
 }
 
 //+
@@ -782,8 +796,14 @@ void MSEdit::PointingTable_WriteData(String MSname )
 
         }
 
-       // Flush // 
+        // Flush // 
         ms0.flush();
+ 
+        //
+        // Free Memory
+        //
+ 
+        delete columnPointing;       
 }
  
 
@@ -910,6 +930,11 @@ void MSEdit::CpoyDirectionColumnsToNewColumns()
 #endif 
       printf(" Intended Change completed.\n" );
 
+     //
+     // Free Memory
+     //
+ 
+         delete columnPointing;       
 }
 
 //+
@@ -1676,7 +1701,7 @@ TEST_F(TestDirection, VerifyCAS11818 )
 /*-----------------------------------------------
   UnsetMovingSource and 
    with the Conveniation of setMovingSource 
- - 5 different senario, with set/unset / No op.
+ - 5 different (C++11)senario, with set/unset / No op.
 ------------------------------------------------*/
 
 TEST_F(TestDirection, setMovingSource  )
@@ -1738,7 +1763,8 @@ TEST_F(TestDirection, setMovingSource  )
       {   
           FunctionalDescription("Senario" , std::to_string(senario).c_str() ); 
 
-          for(int k=0; k<5; k++)
+          uInt numTestCase = 4;
+          for(uInt k=0; k<numTestCase; k++)
           {
               Description("- Column Name" , Name[k] );
               EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
@@ -1784,7 +1810,7 @@ TEST_F(TestDirection, setMovingSource  )
               N_Row  = DirList.nrow();
 
               printf( "- Number of Row = %d \n", N_Row );
-             EXPECT_EQ( N_Row, ExpectedNrow);
+              EXPECT_EQ( N_Row, ExpectedNrow);
           }
       }
 
