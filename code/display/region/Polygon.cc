@@ -890,8 +890,8 @@ namespace casa {
 
 		}
 
-		std::list<SHARED_PTR<RegionInfo> > *Polygon::generate_dds_centers() {
-			std::list<SHARED_PTR<RegionInfo> > *region_centers = new std::list<SHARED_PTR<RegionInfo> >( );
+		std::list<std::shared_ptr<RegionInfo> > *Polygon::generate_dds_centers() {
+			std::list<std::shared_ptr<RegionInfo> > *region_centers = new std::list<std::shared_ptr<RegionInfo> >( );
 
 			if( wc_==0 ) return region_centers;
 
@@ -925,7 +925,7 @@ namespace casa {
 				try {
 					if ( ! padd->conformsTo(*wc_) ) continue;
 
-					SHARED_PTR<ImageInterface<Float> > image ( padd->imageinterface( ));
+					std::shared_ptr<ImageInterface<Float> > image ( padd->imageinterface( ));
 
 					if ( ! image  ) continue;
 
@@ -969,7 +969,7 @@ namespace casa {
 					}
 					WCBox box(blcq, trcq, cs, Vector<Int>());
 					ImageRegion     *imgbox = new ImageRegion(box);
-					SHARED_PTR<SubImage<Float> > boxImg(new SubImage<Float>(*image, *imgbox));
+					std::shared_ptr<SubImage<Float> > boxImg(new SubImage<Float>(*image, *imgbox));
 
 					// technically (I guess), WorldCanvasHolder::worldAxisUnits( ) should be
 					// used here, because it references the "CSmaster" DisplayData which all
@@ -982,7 +982,7 @@ namespace casa {
 
 					ImageRegion *imageregion = new ImageRegion(poly);
 
-					region_centers->push_back(SHARED_PTR<RegionInfo>(new ImageRegionInfo(name,description,getLayerCenter(padd,boxImg,*imageregion))));
+					region_centers->push_back(std::shared_ptr<RegionInfo>(new ImageRegionInfo(name,description,getLayerCenter(padd,boxImg,*imageregion))));
 
 					delete imgbox;
 					delete imageregion;
@@ -1021,7 +1021,7 @@ namespace casa {
 				y[i] = wld[1];
 			}
 
-			SHARED_PTR<ImageInterface<Float> >image (padd->imageinterface( ));
+			std::shared_ptr<ImageInterface<Float> >image (padd->imageinterface( ));
 			if ( ! image ) return 0;
 
 			Vector<Int> dispAxes = padd->displayAxes( );

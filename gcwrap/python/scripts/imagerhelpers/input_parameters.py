@@ -67,7 +67,8 @@ class ImagerParameters():
                  wprojplanes=1,
 
                  vptable="",
-
+                 usepointing=False,
+                 mosweight=False,
                  aterm=True,
                  psterm=True,
                  mterm=True,
@@ -178,13 +179,13 @@ class ImagerParameters():
                                    'rotatepastep':rotatepastep, #'mtype':mtype, # 'weightlimit':weightlimit,
                                    'facets':facets,'chanchunks':chanchunks,
                                    'interpolation':interpolation, 'wprojplanes':wprojplanes,
-                                   'deconvolver':deconvolver, 'vptable':vptable,
+                                               'deconvolver':deconvolver, 'vptable':vptable, 'usepointing':usepointing,
                                    ## single-dish specific
                                    'convfunc': gridfunction, 'convsupport': convsupport,
                                    'truncate': truncate, 'gwidth': gwidth, 'jwidth': jwidth,
                                    'minweight': minweight, 'clipminmax': clipminmax}     }
         ######### weighting
-        self.weightpars = {'type':weighting,'robust':robust, 'npixels':npixels,'uvtaper':uvtaper}
+        self.weightpars = {'type':weighting,'robust':robust, 'npixels':npixels,'uvtaper':uvtaper, 'multifield': mosweight}
 
         ######### Normalizers ( this is where flat noise, flat sky rules will go... )
         self.allnormpars = { self.defaultKey : {#'mtype': mtype,

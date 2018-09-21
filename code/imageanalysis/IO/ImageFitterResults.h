@@ -71,7 +71,7 @@ public:
 
 	ImageFitterResults() = delete;
 
-	ImageFitterResults(SPCIIT image, SHARED_PTR<casacore::LogIO> log);
+	ImageFitterResults(SPCIIT image, std::shared_ptr<casacore::LogIO> log);
 
 	~ImageFitterResults();
 
@@ -122,8 +122,8 @@ public:
 	casacore::String resultsHeader(
 		const casacore::String& chans, const casacore::Vector<casacore::uInt>& chanVec,
 		const casacore::String& region, const casacore::String& mask,
-		SHARED_PTR<std::pair<T, T>> includePixelRange,
-		SHARED_PTR<std::pair<T, T>> excludePixelRange,
+		std::shared_ptr<std::pair<T, T>> includePixelRange,
+		std::shared_ptr<std::pair<T, T>> excludePixelRange,
 		const casacore::String& estimates
 	) const;
 
@@ -141,7 +141,7 @@ public:
 
 private:
 	SPCIIT _image;
-	SHARED_PTR<casacore::LogIO> _log;
+	std::shared_ptr<casacore::LogIO> _log;
 	ComponentList _convolvedList{}, _deconvolvedList{};
 	std::vector<casacore::Quantity> _peakIntensities, _peakIntensityErrors,
 		_majorAxes, _minorAxes, _positionAngles, _fluxDensities, _fluxDensityErrors;

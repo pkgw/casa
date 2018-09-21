@@ -237,7 +237,7 @@ template<class T> void ImageCollapser<T>::_doDegenerateAxesCase(
 }
 
 template<class T> void ImageCollapser<T>::_doFluxUnits(
-    TempImage<T>& tmpIm, const SHARED_PTR<const SubImage<T>> subImage
+    TempImage<T>& tmpIm, const std::shared_ptr<const SubImage<T>> subImage
 ) const {
     // get the flux units right
      auto sbunit = subImage->units().getName();

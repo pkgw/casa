@@ -116,7 +116,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
     <description>Frequency tolerance, the default tolerance for frequency
     is set to be 6 times of the channel width. You may have to tweak the
     tolerance depending on the dataset, just depends. </description>
-    <value>0.0</value>
+    <value type="double">0.0</value>
     </param>
 
     <param type="bool" name="applytsys">

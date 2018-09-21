@@ -144,7 +144,7 @@ template<class T> template <class U>  void ImageHistory<T>::append(
 template<class T> template <class U>  void ImageHistory<T>::append(
     SPIIU image
 ) {
-    append(CONST_POINTER_CAST<const casacore::ImageInterface<U>>(image));
+    append(std::const_pointer_cast<const casacore::ImageInterface<U>>(image));
     //_image->logger().append(image->logger());
 }
 
