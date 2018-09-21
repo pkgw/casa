@@ -83,29 +83,33 @@ using namespace std;
 
 namespace casa {
 
-//+
+//******************************************************************************
 //  Varisous Types of MaeasurementSet defnition
 //
-//  - Some MSs are not conpatible with the latest, may cause Exception.
+//  - Some MSs are not compatible with the required, which may cause Exception.
 //  - Expected Exception are describged in the definition
-//-   
+//******************************************************************************
  
+// MS name and expected Exception //
+
 struct _MSDef
 {
     bool   ExThrow;  // True = cause Exeption
     String name;     // MS name, with relative path from CASAPATH
 };
 
-std::vector<struct _MSDef> MSNames2 
+// MS name-list //
+
+std::vector<struct _MSDef> TestMSList 
 {
         // Exeption(bool)  , Filename //
  
-       {true, "./sdimaging-t.ms"                    },
-        {false, "sdimaging/sdimaging.ms"                      },
+        {true, "./sdimaging-t.ms"           },
+        {false, "sdimaging/sdimaging.ms"    },
         {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
 
-// Following 2 MS are affected assert(), cannot run here. skip in UT 
-
+// Following 2 MS are affected assert(), cannot run on UT
+// Release EXE must throws Excepton. 
 //      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
 //      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
 
@@ -127,32 +131,36 @@ std::vector<struct _MSDef> MSNames2
         {true, ".sis14_twhya_calibrated_flagged-t.ms"      },
         {true,  "sdimaging/hogehoge.ms"  },
         {true,  "sdimaging/hogehoge.ms"  },  // Extra Hoge for self-degbug .
- };
+ 
+        // Any additional definition can be written here as you want. // 
+
+};
 
 // Get File Name by Number //
 const String  getMSNameFromList(uInt No )
 {
-    assert(MSNames2.size() >  No );
-    return MSNames2[No].name;
+    assert(TestMSList.size() >  No );
+    return TestMSList[No].name;
 }
 
 // Get Exception information ..
 bool  getMSThrowFromList(uInt  No )
 {
-    assert(MSNames2.size() > No );
-    return MSNames2[No].ExThrow;
+    assert(TestMSList.size() > No );
+    return TestMSList[No].ExThrow;
 }
 
 uInt getMSCountFromList()
 {
-    return MSNames2.size();
+    return TestMSList.size();
 }
 
 
 
-//+
+//**************************************************
 //  Log Title Functions for readable text output
-//-
+//  of this UT.
+//**************************************************
 
 void TestDescription( const String &Title )
 {
@@ -177,16 +185,14 @@ void Description(const String &Title, const String &Param)
     printf("+-----------------------------\n");
 }
 
-//+ 
+//****************************************
 // Execution / Running Enviromnent
 // CASAPATH is the base directory
-//-
+//****************************************
 
 class MyEnv
 {
-
 public:
-
     MyEnv()
     {
         //+
@@ -230,24 +236,24 @@ public:
         return CasaMasterPath;
     }
 
-
 private:
 
     String CasaPath;            // translated from CASAPATH 
     String CasaMasterPath;
-
     String CasaMaserMSFullName;
 
 };
 
 
-//+
+//**************************************************************************
 //  Copying template MS from Master Repository.
 //
-//   This is for Some testing items which requires modified data in MS.
-//   After copiing, Modifying fuction for MS is executed depending on
+//   This is for Some testing items which must contain test data in the MS.
+//   After copying, Modifying fuction for MS is executed depending on
 //   Test cases/items.
-//-
+//***************************************************************************
+
+static String DefaultLocalMSName = "./sdimaging-t.ms";
 
 void CopyDefaultMStoWork()
 {
@@ -260,7 +266,7 @@ void CopyDefaultMStoWork()
     // Src/Dsr Path (string) 
 
     String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
-    String dst = "./sdimaging-t.ms";
+    String dst = DefaultLocalMSName;
 
     // Src/Dst Path (Path) 
 
@@ -278,19 +284,21 @@ void CopyDefaultMStoWork()
     //   WARNING; Destination directory must be full described.
     //-
 
-     dir_ctrl.copy  (  targetPath,
+    if(true){
+        dir_ctrl.copy( targetPath,
                         True,    // Overwrite 
                         True  ); // Users permisssion 
-
+    }
 }
 
 //+
-// The Working File is deleted when One Test Fixture ends. 
+// The Working File is to bedeleted 
+// when One Test Fixture ends. 
 //-
 
 void DeleteWorkingMS()
 {
-    String dst         = "./sdimaging-t.ms";
+    String dst         = DefaultLocalMSName;
     casacore::Path        path(dst);
     casacore::Directory   dir_ctrl(path);
 
@@ -348,20 +356,20 @@ public:
         
         // List Table Contents. //
 
-        void AntennaTable_List(String MSname ="./sdimaging-t.ms");
-        void PointingTable_List(String MSname ="./sdimaging-t.ms", bool showAll=false );
+        void AntennaTable_List(String MSname =DefaultLocalMSName);
+        void PointingTable_List(String MSname =DefaultLocalMSName, bool showAll=false );
 
         // Write Data on Antenna Table // 
      
-        void AntennaTable_WriteData(String MSname ="./sdimaging-t.ms", int Row =0 );
+        void AntennaTable_WriteData(String MSname =DefaultLocalMSName, int Row =0 );
 
         // Write new Columns and init data // 
 
-        void PointingTable_WriteData(String MSname ="./sdimaging-t.ms" );
+        void PointingTable_WriteData(String MSname =DefaultLocalMSName );
 
         // Write (generated) Test Data on Pointing Table //
 
-        void WriteTestDataOnDirection(String MSname ="./sdimaging-t.ms" );
+        void WriteTestDataOnDirection(String MSname =DefaultLocalMSName );
 
         // Add or Remove Column (Pointing) ////
 
@@ -369,7 +377,7 @@ public:
 
 private:
 
-        String MSname = "./sdimaging-t.ms";  // default(C++11) //
+        String MSname = DefaultLocalMSName;  // default (C++11) //
 
         //+
         // Buff between table and local var.
@@ -821,7 +829,7 @@ void MSEdit::CpoyDirectionColumnsToNewColumns()
  
     // Open MS by Update mode //
 
-        String MsName ="./sdimaging-t.ms";
+        String MsName = DefaultLocalMSName;
         
         Description( "Cpoied from Direction and Adding 3 Columns on Pointing Table ", MsName.c_str() );
 
@@ -1394,8 +1402,7 @@ void TestDirection::addColumnsOnPointing()
 
 void TestDirection::addColumnDataOnPointing()
 {
-    String MsName = "./sdimaging-t.ms";    //  
-
+    String MsName = DefaultLocalMSName;      
     msedit.PointingTable_WriteData( MsName );
 }
 
@@ -1427,7 +1434,7 @@ TEST_F(TestDirection, setDirectionColumn  )
 {
 
     TestDescription( "setDirectionColumn (String Fram)" );
-    String MsName = "./sdimaging-t.ms";    //  
+    String MsName = DefaultLocalMSName;    //  
 
     if(false){
         printf( "Listing all POINTING TABLE  \n");
@@ -1511,7 +1518,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    String MsName = "./sdimaging-t.ms";    //  
+    String MsName = DefaultLocalMSName;    //  
 
     // MS name for this Test //
 
@@ -1630,7 +1637,7 @@ TEST_F(TestDirection, VerifyCAS11818 )
 {
 
     TestDescription( "configureMovingSourceCorrection(CAS11818) Test" );
-    String MsName = "./sdimaging-t.ms";    //  
+    String MsName = DefaultLocalMSName;    //  
 
     // MS name for this Test //
 
@@ -1711,7 +1718,7 @@ TEST_F(TestDirection, setMovingSource  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    String MsName = "./sdimaging-t.ms";    //  
+    String MsName = DefaultLocalMSName;    //  
 
     // MS name for this Test //
 
@@ -1827,7 +1834,7 @@ TEST_F(TestDirection, Matrixshape )
 {
 
     TestDescription( "setDirectionListMatrixShape()" );
-    String MsName = "./sdimaging-t.ms";    //  
+    String MsName = DefaultLocalMSName;    //  
     
     // MS name for this Test //
         String name =  MsName;
@@ -1892,7 +1899,7 @@ TEST_F(TestDirection, getDirection )
 {
 
     TestDescription( "getDirection (J2000)" );
-    String MsName = "./sdimaging-t.ms";    // 
+    String MsName = DefaultLocalMSName;    // 
 
 
     // MS name for this Test //
