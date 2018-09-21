@@ -137,7 +137,7 @@ std::vector<struct _MSDef> TestMSList
 };
 
 // Get File Name by Number //
-const String  getMSNameFromList(uInt No )
+const String  getMsNameFromList(uInt No )
 {
     assert(TestMSList.size() >  No );
     return TestMSList[No].name;
@@ -253,7 +253,7 @@ private:
 //   Test cases/items.
 //***************************************************************************
 
-static String DefaultLocalMSName = "./sdimaging-t.ms";
+static String DefaultLocalMsName = "./sdimaging-t.ms";
 
 void CopyDefaultMStoWork()
 {
@@ -266,7 +266,7 @@ void CopyDefaultMStoWork()
     // Src/Dsr Path (string) 
 
     String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
-    String dst = DefaultLocalMSName;
+    String dst = DefaultLocalMsName;
 
     // Src/Dst Path (Path) 
 
@@ -298,7 +298,7 @@ void CopyDefaultMStoWork()
 
 void DeleteWorkingMS()
 {
-    String dst         = DefaultLocalMSName;
+    String dst         = DefaultLocalMsName;
     casacore::Path        path(dst);
     casacore::Directory   dir_ctrl(path);
 
@@ -339,15 +339,15 @@ typedef  struct ChgAntennaTable_ {
 } ANTENNADataBuff ;
 
 //+
-// MeasurementSet Edit Class (MSEdit)
+// MeasurementSet Edit Class (MsEdit)
 //  - Functions are defines.
 //-
 
-class MSEdit 
+class MsEdit 
 {
 
 public:
-        MSEdit()        { };
+        MsEdit()        { };
 
         // Add or Remove Row  (Antenna) //
 
@@ -356,20 +356,20 @@ public:
         
         // List Table Contents. //
 
-        void AntennaTable_List(String MSname =DefaultLocalMSName);
-        void PointingTable_List(String MSname =DefaultLocalMSName, bool showAll=false );
+        void AntennaTable_List(String MsName =DefaultLocalMsName);
+        void PointingTable_List(String MsName =DefaultLocalMsName, bool showAll=false );
 
         // Write Data on Antenna Table // 
      
-        void AntennaTable_WriteData(String MSname =DefaultLocalMSName, int Row =0 );
+        void AntennaTable_WriteData(String MsName =DefaultLocalMsName, int Row =0 );
 
         // Write new Columns and init data // 
 
-        void PointingTable_WriteData(String MSname =DefaultLocalMSName );
+        void PointingTable_WriteData(String MsName =DefaultLocalMsName );
 
         // Write (generated) Test Data on Pointing Table //
 
-        void WriteTestDataOnDirection(String MSname =DefaultLocalMSName );
+        void WriteTestDataOnDirection(String MsName =DefaultLocalMsName );
 
         // Add or Remove Column (Pointing) ////
 
@@ -377,7 +377,7 @@ public:
 
 private:
 
-        String MSname = DefaultLocalMSName;  // default (C++11) //
+        String MsName = DefaultLocalMsName;  // default (C++11) //
 
         //+
         // Buff between table and local var.
@@ -393,11 +393,11 @@ private:
 //  returns latest nrow.
 //-
 
-uInt  MSEdit::AntennaTable_AddRow()
+uInt  MsEdit::AntennaTable_AddRow()
 {
     // Measurement Set (use default name) //
 
-        MeasurementSet ms0( MSname.c_str(),casacore::Table::TableOption:: Update );
+        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
 
     // Table handle //
 
@@ -415,10 +415,10 @@ uInt  MSEdit::AntennaTable_AddRow()
 //+
 // Remove specified row from Antanna Table
 //-
-void MSEdit::AntennaTable_RemoveRow(uInt NRow )
+void MsEdit::AntennaTable_RemoveRow(uInt NRow )
 {
     // Measurment Set (use default name ) //
-        MeasurementSet ms0( MSname.c_str(),casacore::Table::TableOption:: Update );
+        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
 
     // Table handle //
 
@@ -435,12 +435,12 @@ void MSEdit::AntennaTable_RemoveRow(uInt NRow )
 //  of specified MS.
 //- 
 
-void MSEdit::AntennaTable_List(String MSname )
+void MsEdit::AntennaTable_List(String MsName )
 {
 
     // Open MS by Update mode //
 
-        MeasurementSet ms0( MSname.c_str(),casacore::Table::TableOption:: Update );
+        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
 
     // Tables Name //
 
@@ -531,11 +531,11 @@ void MSEdit::AntennaTable_List(String MSname )
 //  Write Data to Antenna Table 
 //-
 
-void MSEdit::AntennaTable_WriteData(String MSname, int Row )
+void MsEdit::AntennaTable_WriteData(String MsName, int Row )
 {
     // Open MS by Update mode //
 
-        MeasurementSet ms0( MSname.c_str(),casacore::Table::TableOption:: Update );
+        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
 
     // Tables Name //
 
@@ -631,12 +631,12 @@ void MSEdit::AntennaTable_WriteData(String MSname, int Row )
  //  of specified MS.
  //- 
 
-void MSEdit::PointingTable_List(String MSname, bool showAll)
+void MsEdit::PointingTable_List(String MsName, bool showAll)
 {
 
     // Open MS by Update mode //
 
-        MeasurementSet ms0( MSname.c_str(),casacore::Table::TableOption:: Update );
+        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
 
     // Tables Name //
 
@@ -727,12 +727,12 @@ void MSEdit::PointingTable_List(String MSname, bool showAll)
 // Write Columns on Pointing Table  
 //-
 
-void MSEdit::PointingTable_WriteData(String MSname )
+void MsEdit::PointingTable_WriteData(String MsName )
 {
 
     // Open MS by Update mode //
 
-        MeasurementSet ms0( MSname.c_str(),casacore::Table::TableOption:: Update );
+        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
 
     // Tables Name //
 
@@ -823,13 +823,13 @@ void MSEdit::PointingTable_WriteData(String MSname )
 //      only OFFSET tables are applied. 
 //-
 
-void MSEdit::CpoyDirectionColumnsToNewColumns()
+void MsEdit::CpoyDirectionColumnsToNewColumns()
 {
 
  
     // Open MS by Update mode //
 
-        String MsName = DefaultLocalMSName;
+        String MsName = DefaultLocalMsName;
         
         Description( "Cpoied from Direction and Adding 3 Columns on Pointing Table ", MsName.c_str() );
 
@@ -994,14 +994,14 @@ casacore::Vector<double>  generatePseudoPointData(int i)
 //*
 
 
-void  MSEdit::WriteTestDataOnDirection(String MSname)
+void  MsEdit::WriteTestDataOnDirection(String MsName)
 {
         Description( "Writing Test Data on Direcotion Column in Pointing Table", 
-                   MSname.c_str()  );
+                   MsName.c_str()  );
 
     // Open MS by Update mode //
 
-        MeasurementSet ms0( MSname.c_str(),casacore::Table::TableOption:: Update );
+        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
 
     // Tables Name //
 
@@ -1073,6 +1073,9 @@ void  MSEdit::WriteTestDataOnDirection(String MSname)
         
         ms0.flush();
 
+        // free memory //
+
+        delete columnPointing;
 }
 
 
@@ -1084,9 +1087,11 @@ class BaseClass : public ::testing::Test
 
 public:
 
-        uInt    ExpectedNrow = 0;   // C++11 feature //
 
 protected:
+
+        uInt    ExpectedNrow = 0;   // C++11 feature //
+
 
         BaseClass()
         {
@@ -1108,8 +1113,7 @@ protected:
     MyEnv       env;
 
 private:
-
-
+ 
 
 };
 
@@ -1154,7 +1158,7 @@ protected:
 void TestMeasurementSet::test_constructor(uInt num )
 {
 
-    String name = env.getCasaMasterPath()+getMSNameFromList( num );
+    String name = env.getCasaMasterPath()+getMsNameFromList( num );
     Description("Testing Construcror." , name );
 
     // CONSTRUCTOR  //
@@ -1190,7 +1194,7 @@ TEST_F(TestMeasurementSet, variousConstructor )
 
     for(uInt k=0; k<count; k++)
     {
-       FunctionalDescription( "CALC Constructor by various MS",getMSNameFromList(k).c_str()  );
+       FunctionalDescription( "CALC Constructor by various MS",getMsNameFromList(k).c_str()  );
  
         if (getMSThrowFromList(k))
         {
@@ -1335,7 +1339,7 @@ class TestDirection : public BaseClass
 {
 
 public:
-        casa::MSEdit  msedit;
+        casa::MsEdit  msedit;
 
         // Add 3 OFFSET Colums (basically reserved) //
         void addColumnsOnPointing();
@@ -1402,7 +1406,7 @@ void TestDirection::addColumnsOnPointing()
 
 void TestDirection::addColumnDataOnPointing()
 {
-    String MsName = DefaultLocalMSName;      
+    String MsName = DefaultLocalMsName;      
     msedit.PointingTable_WriteData( MsName );
 }
 
@@ -1434,7 +1438,7 @@ TEST_F(TestDirection, setDirectionColumn  )
 {
 
     TestDescription( "setDirectionColumn (String Fram)" );
-    String MsName = DefaultLocalMSName;    //  
+    String MsName = DefaultLocalMsName;    //  
 
     if(false){
         printf( "Listing all POINTING TABLE  \n");
@@ -1518,7 +1522,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    String MsName = DefaultLocalMSName;    //  
+    String MsName = DefaultLocalMsName;    //  
 
     // MS name for this Test //
 
@@ -1637,7 +1641,7 @@ TEST_F(TestDirection, VerifyCAS11818 )
 {
 
     TestDescription( "configureMovingSourceCorrection(CAS11818) Test" );
-    String MsName = DefaultLocalMSName;    //  
+    String MsName = DefaultLocalMsName;    //  
 
     // MS name for this Test //
 
@@ -1718,7 +1722,7 @@ TEST_F(TestDirection, setMovingSource  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    String MsName = DefaultLocalMSName;    //  
+    String MsName = DefaultLocalMsName;    //  
 
     // MS name for this Test //
 
@@ -1834,7 +1838,7 @@ TEST_F(TestDirection, Matrixshape )
 {
 
     TestDescription( "setDirectionListMatrixShape()" );
-    String MsName = DefaultLocalMSName;    //  
+    String MsName = DefaultLocalMsName;    //  
     
     // MS name for this Test //
         String name =  MsName;
@@ -1899,7 +1903,7 @@ TEST_F(TestDirection, getDirection )
 {
 
     TestDescription( "getDirection (J2000)" );
-    String MsName = DefaultLocalMSName;    // 
+    String MsName = DefaultLocalMsName;    // 
 
 
     // MS name for this Test //
