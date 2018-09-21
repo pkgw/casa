@@ -117,15 +117,10 @@ def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None,
                 restore_sorted_table_keyword(infile, sorttab_info)
 
         # Write history to outfile
-        try:
-            param_names = sdbaseline.func_code.co_varnames[:sdbaseline.func_code.co_argcount]
-            param_vals = [eval(p) for p in param_names]
-            write_history(ms, outfile, 'sdbaseline', param_names,
-                          param_vals, casalog)
-        except Exception, instance:
-            casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
-                         'WARN')
-            return False
+        param_names = sdbaseline.func_code.co_varnames[:sdbaseline.func_code.co_argcount]
+        param_vals = [eval(p) for p in param_names]
+        write_history(ms, outfile, 'sdbaseline', param_names,
+                      param_vals, casalog)
 
 
     except Exception, instance:

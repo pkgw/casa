@@ -3,6 +3,7 @@ import shutil
 import stat
 import time
 from taskinit import *
+from mstools import write_history
 import partitionhelper as ph
 from parallel.parallel_task_helper import ParallelTaskHelper
 

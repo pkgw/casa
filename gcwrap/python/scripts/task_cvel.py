@@ -1,6 +1,7 @@
 import os
 import shutil
 from taskinit import *
+from mstools import write_history
 
 def cvel(vis, outputvis,
 	 passall, field, spw, selectdata, antenna, timerange, scan, array,

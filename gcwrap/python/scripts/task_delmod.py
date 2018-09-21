@@ -1,5 +1,6 @@
 import os
-from taskinit import *
+from taskinit import casalog, cbtool, mstool
+from mstools import write_history
 from parallel.parallel_task_helper import ParallelTaskHelper
 
 _ms = mstool( )

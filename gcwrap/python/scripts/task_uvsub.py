@@ -4,7 +4,8 @@
 # Copyright 2007, Associated Universities Inc., Washington DC
 #
 import os
-from taskinit import *
+from taskinit import mstool, casalog
+from mstools import write_history
 
 def uvsub(vis=None,reverse=False):
 

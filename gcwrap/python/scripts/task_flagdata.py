@@ -1,9 +1,10 @@
-from taskinit import *
 import time
 import os
 import sys
 import copy
 import pprint
+from taskinit import casalog, mstool, aftool, tbtool
+from mstools import write_history
 import flaghelper as fh
 from parallel.parallel_task_helper import ParallelTaskHelper
 # this should be replaced when CASA really moves to Python 2.7
@@ -275,7 +276,8 @@ def flagdata(vis,
     # ***************** Input is a normal MS/cal table ****************
     
     # Create local tools
-    aflocal = casac.agentflagger()
+#    aflocal = casac.agentflagger()
+    aflocal = aftool()
     mslocal = mstool()
 
     try: 

@@ -4,6 +4,7 @@ import stat
 import time
 from math import sqrt
 from taskinit import *
+from mstools import write_history
 from parallel.parallel_task_helper import ParallelTaskHelper
 
 _cb = cbtool( )

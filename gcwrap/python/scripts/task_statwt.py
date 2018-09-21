@@ -1,4 +1,5 @@
-from taskinit import mstool, tbtool, casalog, write_history
+from taskinit import mstool, tbtool, casalog
+from mstools import write_history
 import flaghelper
 
 def statwt(
@@ -58,7 +59,8 @@ def statwt(
             wtrange=wtrange, preview=preview, datacolumn=datacolumn
         )
         
-        if rval != None:
+        # Write to HISTORY of MS
+        if rval != None and preview == False:
             # Write history to MS
             try:
                 param_names = statwt.func_code.co_varnames[:statwt.func_code.co_argcount]

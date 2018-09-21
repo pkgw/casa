@@ -1,5 +1,6 @@
 import os
 from taskinit import *
+from mstools import write_history
 
 def conjugatevis(vis,spwlist=[],outputvis="",overwrite=False):
 	""":
