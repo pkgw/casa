@@ -292,8 +292,8 @@ void CopyDefaultMStoWork()
 }
 
 //+
-// The Working File is to bedeleted 
-// when One Test Fixture ends. 
+// The Working File is to be deleted 
+//  whenever One Test Fixture ends. 
 //-
 
 void DeleteWorkingMS()
@@ -458,12 +458,15 @@ void MsEdit::AntennaTable_List(String MsName )
 
         printf( "Antenna Table nrow  =%d \n",nrow_a);
 
-    //
+    //+
     // Get Column handle from Table  (Antenna)
-    //
+    //  NEW FEASURE by C++11: Use samrt pointer.
+    //-
 
-        casacore::MSAntennaColumns     * columnAntenna;
-        columnAntenna = new casacore::MSAntennaColumns( hAntennaTable );
+        // create the Smart Pointer in use. //
+
+        std::shared_ptr<casacore::MSAntennaColumns> 
+                columnAntenna( new casacore::MSAntennaColumns( hAntennaTable ));
 
     // LIST
     //  as follows.  Number of Rows = nrow()
@@ -517,13 +520,6 @@ void MsEdit::AntennaTable_List(String MsName )
           printf( "------------------\n");
 
         }
-
-        //+
-        // Free Memory
-        //-
-
-        delete columnAntenna ;
-
 }
 
 
@@ -557,8 +553,10 @@ void MsEdit::AntennaTable_WriteData(String MsName, int Row )
     // Get Column handle from Table  (Antenna)
     //
 
-        casacore::MSAntennaColumns     * columnAntenna;
-        columnAntenna = new casacore::MSAntennaColumns( hAntennaTable );
+        // create the Smart Pointer in use. //
+
+        std::shared_ptr<casacore::MSAntennaColumns> 
+                columnAntenna( new casacore::MSAntennaColumns( hAntennaTable ));
 
     // LIST
     //  as follows.  Number of Rows = nrow()
@@ -618,11 +616,6 @@ void MsEdit::AntennaTable_WriteData(String MsName, int Row )
         
         ms0.flush();
 
-        //
-        // Free Memory
-        //
- 
-        delete columnAntenna;       
 }
 
 
@@ -657,8 +650,10 @@ void MsEdit::PointingTable_List(String MsName, bool showAll)
     // Get Column handle from Table  (Pointing)
     //  
 
-        casacore::ROMSPointingColumns  *columnPointing;
-        columnPointing =  new casacore::ROMSPointingColumns( hPointingTable );
+        // create the Smart Pointer in use. //
+
+        std::shared_ptr<casacore::ROMSPointingColumns> 
+                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
 
     //+
     // Listing  (Pointing) 
@@ -716,11 +711,6 @@ void MsEdit::PointingTable_List(String MsName, bool showAll)
           printf( "------------------\n"); 
         }
 
-        //
-        // Free Memory
-        //
- 
-        delete columnPointing;       
 }
 
 //+
@@ -753,8 +743,10 @@ void MsEdit::PointingTable_WriteData(String MsName )
     // Get Column handle from Table  (Pointing)
     //  
 
-        casacore::ROMSPointingColumns  *columnPointing;
-        columnPointing =  new casacore::ROMSPointingColumns( hPointingTable );
+        // create the Smart Pointer in use. //
+
+        std::shared_ptr<casacore::ROMSPointingColumns> 
+                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
 
     //+
     // Listing  (Pointing) 
@@ -807,11 +799,6 @@ void MsEdit::PointingTable_WriteData(String MsName )
         // Flush // 
         ms0.flush();
  
-        //
-        // Free Memory
-        //
- 
-        delete columnPointing;       
 }
  
 
@@ -848,8 +835,10 @@ void MsEdit::CpoyDirectionColumnsToNewColumns()
 
     // Prepare Column //
 
-       casacore::MSPointingColumns     * columnPointing;
-       columnPointing = new casacore::MSPointingColumns( hPointingTable );
+        // create the Smart Pointer in use. //
+
+        std::shared_ptr<casacore::MSPointingColumns> 
+                columnPointing( new casacore::MSPointingColumns( hPointingTable ));
 
     // each Column.. used in setDirectionColumn() //
 
@@ -938,11 +927,6 @@ void MsEdit::CpoyDirectionColumnsToNewColumns()
 #endif 
       printf(" Intended Change completed.\n" );
 
-     //
-     // Free Memory
-     //
- 
-         delete columnPointing;       
 }
 
 //+
@@ -1021,8 +1005,10 @@ void  MsEdit::WriteTestDataOnDirection(String MsName)
     // Get Column handle from Table  (Pointing)
     //  
 
-        casacore::ROMSPointingColumns  *columnPointing;
-        columnPointing =  new casacore::ROMSPointingColumns( hPointingTable );
+        // create the Smart Pointer in use. //
+
+        std::shared_ptr<casacore::ROMSPointingColumns> 
+                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
 
     //+
     // Time Info
@@ -1073,9 +1059,6 @@ void  MsEdit::WriteTestDataOnDirection(String MsName)
         
         ms0.flush();
 
-        // free memory //
-
-        delete columnPointing;
 }
 
 
