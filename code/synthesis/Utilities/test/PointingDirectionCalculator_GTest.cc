@@ -474,7 +474,7 @@ void MSEdit::AntennaTable_List(String MSname )
         ROScalarColumn<Double>  antennaDishDiameter    = columnAntenna->dishDiameter();
 
         printf( "=====================================================\n");
-        for (int i=0; i<(int)columnAntenna->nrow(); i++)
+        for (uInt i=0; i<columnAntenna->nrow(); i++)
         {
 
             AntennaData.name            =  antennaName.         get(i);
@@ -1076,7 +1076,7 @@ class BaseClass : public ::testing::Test
 
 public:
 
-        uInt    ExpectedNrow = 0;
+        uInt    ExpectedNrow = 0;   // C++11 feature //
 
 protected:
 
@@ -1159,8 +1159,8 @@ void TestMeasurementSet::test_constructor(uInt num )
    
 
       printf("# Constuctor Initial Check.  [%s] \n", name.c_str()  );
-      printf("  detected nrow : %d \n", (int)calc.getNrowForSelectedMS() );
-      EXPECT_NE((int)0, (int)calc.getNrowForSelectedMS() );
+      printf("  detected nrow : %d \n", calc.getNrowForSelectedMS() );
+      EXPECT_NE((uInt)0, calc.getNrowForSelectedMS() );
     
 }
 
@@ -1448,7 +1448,7 @@ TEST_F(TestDirection, setDirectionColumn  )
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
     //+
@@ -1534,7 +1534,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
 
@@ -1551,7 +1551,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
     //
     // setDirectionColumm()  calls 
     //
-        std::vector<String> Name
+        vector<String> Name
         {
             "DIRECTION",       
              "TARGET",
@@ -1568,7 +1568,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 
 	FunctionalDescription("Normal Seq.", "Selectve Convert");
 
-        for(unsigned int k=0; k<Name.size(); k++)
+        for(unsigned int k=0; k < Name.size(); k++)
         {
             Description("Column Name" , Name[k] );
             EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
@@ -1622,6 +1622,9 @@ TEST_F(TestDirection, MovingSourceCorrection  )
   Verification Test of CAS-11818
   - If you use old source, this test causes
     core dump.
+
+ XX   DO NOT UPDATE !! XX 
+
 ---------------------------------------------*/
 TEST_F(TestDirection, VerifyCAS11818 )
 {
@@ -1648,7 +1651,7 @@ TEST_F(TestDirection, VerifyCAS11818 )
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
 
@@ -1729,7 +1732,7 @@ TEST_F(TestDirection, setMovingSource  )
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
 
@@ -1746,25 +1749,24 @@ TEST_F(TestDirection, setMovingSource  )
     //
     // setDirectionColumm()  calls 
     //
-        String Name[6];
-        
-        Name[0] = "DIRECTION";        
-        Name[1] = "TARGET";
-        Name[2] = "POINTING_OFFSET";    // *** NEED to ADD in advance  //
-        Name[3] = "SOURCE_OFFSET"; // *** NEED to Add in advance //
-        Name[4] = "ENCODER";      // *** NEED to add in advance  //
-        Name[5] = "hogehoge";
+        std::vector<String> Name
+        {
+            "DIRECTION",        
+            "TARGET",
+            "POINTING_OFFSET",  // *** NEED to ADD in advance  //
+            "SOURCE_OFFSET",    // *** NEED to Add in advance //
+            "ENCODER",          // *** NEED to add in advance  //
+//            "hogehoge"        // => Caused Exception 
+        };
+    //+
 
-      //+
-      // Normal Seq. with setMovingSoure Convert.
-      //  5 senarios are executed.
-      //-  	
-      for(int senario = 0; senario < 5; senario++ )	// senario //
-      {   
+    //  5 senarios are executed.
+    //-  	
+    for(int senario = 0; senario <= 3; senario++ )	// senario [0,1,2,3] //
+    {   
           FunctionalDescription("Senario" , std::to_string(senario).c_str() ); 
 
-          uInt numTestCase = 4;
-          for(uInt k=0; k<numTestCase; k++)
+          for(uInt k=0; k<Name.size(); k++)
           {
               Description("- Column Name" , Name[k] );
               EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
@@ -1812,7 +1814,7 @@ TEST_F(TestDirection, setMovingSource  )
               printf( "- Number of Row = %d \n", N_Row );
               EXPECT_EQ( N_Row, ExpectedNrow);
           }
-      }
+    }
 
 }
 
@@ -1841,7 +1843,7 @@ TEST_F(TestDirection, Matrixshape )
     
 
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
     //+
@@ -1906,7 +1908,7 @@ TEST_F(TestDirection, getDirection )
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
     //+
@@ -2177,7 +2179,7 @@ TEST_F(TestSelectData, Spw )
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
       uInt nrow;
@@ -2253,7 +2255,7 @@ TEST_F(TestSelectData, Field )
     // Initial brief Inspection //
     
       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE( (uInt)0, ExpectedNrow );
 
       uInt nrow;
@@ -2322,7 +2324,7 @@ TEST_F(TestSelectData, Time )
     // Initial brief Inspection //
     
       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
       uInt nrow;
@@ -2396,7 +2398,7 @@ TEST_F(TestSelectData, Feed )
     // Initial brief Inspection //
 
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
       uInt nrow;
@@ -2449,7 +2451,7 @@ TEST_F(TestSelectData, Intent )
     // Initial brief Inspection //
 
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
       uInt nrow;
@@ -2512,7 +2514,7 @@ TEST_F(TestSelectData, Observation )
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
       uInt nrow;
@@ -2583,7 +2585,7 @@ TEST_F(TestSelectData, UVRange )
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
       uInt nrow;
@@ -2634,7 +2636,7 @@ TEST_F(TestSelectData, MSselect )
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
       uInt nrow;
@@ -2855,7 +2857,7 @@ TEST_F(TestSetFrame, setFrame )
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = (int)calc.getNrowForSelectedMS();
+       ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
 
     // Various Frame Type (String) //
