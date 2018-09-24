@@ -52,10 +52,10 @@ import unittest
 import hashlib
 import subprocess
 try:
-    import CASAtools
-    from CASAtasks import partition, split, listobs, casalog
-    from CASAtools.platform import bytes2str
-    ms = CASAtools.ms()
+    import casatools
+    from casatasks import partition, split, listobs, casalog
+    from casatools.platform import bytes2str
+    ms = casatools.ms()
     CASA6 = True
 except ImportError:
     from __main__ import default
@@ -64,7 +64,7 @@ except ImportError:
 
 # If the test is being run in CASA6 use the new method to get the CASA path
 if CASA6:
-    datapath = CASAtools.ctsys.resolve('/data/regression/unittest/listobs')
+    datapath = casatools.ctsys.resolve('/data/regression/unittest/listobs')
 
 else:
     dataroot = os.environ.get('CASAPATH').split()[0] + '/data/regression/'
@@ -73,7 +73,7 @@ else:
     # Generate the test data
 
 if CASA6:
-    mesSet = CASAtools.ctsys.resolve('regression/unittest/listobs/uid___X02_X3d737_X1_01_small.ms')
+    mesSet = casatools.ctsys.resolve('regression/unittest/listobs/uid___X02_X3d737_X1_01_small.ms')
 else:
     mesSet = datapath + 'uid___X02_X3d737_X1_01_small.ms'
 
@@ -770,7 +770,7 @@ class test_listobs(listobs_test_base):
     def test_CAS_6733(self):
         """Verify listobs runs to completion on data set in CAS-6733. This was an infinite loop bugfix"""
         if CASA6:
-            vis = CASAtools.ctsys.resolve('regression/unittest/mstransform/CAS-6733.ms')
+            vis = casatools.ctsys.resolve('regression/unittest/mstransform/CAS-6733.ms')
 
         else:
             vis = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/mstransform/' + "CAS-6733.ms"
