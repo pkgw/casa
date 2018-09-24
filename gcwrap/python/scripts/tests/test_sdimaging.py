@@ -65,12 +65,6 @@ def merge_dict(d1, d2):
     d12.update(d2)
     return d12
 
-def get_table_cache():
-    (mytb,) = gentools(['tb'])
-    cache = mytb.showcache()
-    #print 'cache = {}'.format(cache)
-    return cache
-
 ###
 # Base class for sdimaging unit test
 ###
@@ -321,6 +315,8 @@ class sdimaging_test0(sdimaging_unittest_base):
     outfile = prefix+sdimaging_unittest_base.postfix
 
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
         shutil.copytree(self.datapath+self.rawfile, self.rawfile)
@@ -332,7 +328,7 @@ class sdimaging_test0(sdimaging_unittest_base):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
         
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def test000(self):
         """Test 000: Default parameters"""
@@ -517,6 +513,8 @@ class sdimaging_test1(sdimaging_unittest_base):
     width=10
 
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
         shutil.copytree(self.datapath+self.rawfile, self.rawfile)
@@ -537,7 +535,7 @@ class sdimaging_test1(sdimaging_unittest_base):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
 
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def test100(self):
         """Test 100: Integrated image"""
@@ -839,6 +837,8 @@ class sdimaging_test2(sdimaging_unittest_base):
     mode = "frequency"
 
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
         shutil.copytree(self.datapath+self.rawfile, self.rawfile)
@@ -857,7 +857,7 @@ class sdimaging_test2(sdimaging_unittest_base):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
 
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def test200(self):
         """Test 200: Integrated image"""
@@ -967,6 +967,8 @@ class sdimaging_test3(sdimaging_unittest_base):
     mode = "velocity"
 
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
         shutil.copytree(self.datapath+self.rawfile, self.rawfile)
@@ -985,7 +987,7 @@ class sdimaging_test3(sdimaging_unittest_base):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
 
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def test300(self):
         """Test 300: Integrated image"""
@@ -1098,6 +1100,8 @@ class sdimaging_autocoord(sdimaging_unittest_base):
     phasecenter = "J2000 17:18:05 59.30.05"
 
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
         shutil.copytree(self.datapath+self.rawfile, self.rawfile)
@@ -1115,7 +1119,7 @@ class sdimaging_autocoord(sdimaging_unittest_base):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
 
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def run_test(self, task_param, shape, dirax):
         """
@@ -1241,6 +1245,8 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         return True
 
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         for name in self.rawfiles:
             if os.path.exists(name):
                 shutil.rmtree(name)
@@ -1262,7 +1268,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
                 shutil.rmtree(name)
         os.system( 'rm -rf '+self.prefix+'*' )
         
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def run_test(self, task_param, refstats, shape,
                  atol=1.e-8, rtol=1.e-5, box=None):
@@ -2049,6 +2055,8 @@ class sdimaging_test_flag(sdimaging_unittest_base):
     phasecenter = "J2000 00:00:0"+str(pcra)+" 00.00."+str(pcdec)
 
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
         shutil.copytree(self.datapath+self.rawfile, self.rawfile)
@@ -2063,7 +2071,7 @@ class sdimaging_test_flag(sdimaging_unittest_base):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
 
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def testFlag01(self):
         """testFlag01: """
@@ -2211,6 +2219,8 @@ class sdimaging_test_polflag(sdimaging_unittest_base):
     region_all = {'blc': blc_auto, 'trc': trc_auto}
 
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         if os.path.exists(self.infiles):
             shutil.rmtree(self.infiles)
         shutil.copytree(self.datapath+self.infiles, self.infiles)
@@ -2241,7 +2251,7 @@ class sdimaging_test_polflag(sdimaging_unittest_base):
         # Remove test image and its weight image
         os.system( 'rm -rf '+self.prefix+'*' )
 
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def run_test(self, task_param, refstats, shape,
                  atol=1.e-8, rtol=1.e-5, box=None):
@@ -2338,6 +2348,8 @@ class sdimaging_test_mslist(sdimaging_unittest_base):
     # 'blc': blc,'trc': trc, 'blcf': blcf, 'trcf': trcf}
     
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         if os.path.exists(self.outfile):
             os.system('rm -rf %s*' % self.outfile)
         for name in self.infiles:
@@ -2364,7 +2376,7 @@ class sdimaging_test_mslist(sdimaging_unittest_base):
                 if os.path.exists(name):
                     shutil.rmtree(name)
                     
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def run_test(self, task_param=None,refstats=None):
         if task_param is None:
@@ -2434,6 +2446,8 @@ class sdimaging_test_restfreq(sdimaging_unittest_base):
     unifval = 5.98155
 
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         if os.path.exists(self.infiles):
             shutil.rmtree(self.infiles)
         shutil.copytree(self.datapath+self.infiles, self.infiles)
@@ -2445,7 +2459,7 @@ class sdimaging_test_restfreq(sdimaging_unittest_base):
             shutil.rmtree(self.infiles)
         os.system('rm -rf {0}*'.format(self.outfile))
 
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def run_test(self, restfreq_ref, beam_ref, cell_ref, stats, **kwargs):
         self.param.update(**kwargs)
@@ -2545,6 +2559,8 @@ class sdimaging_test_mapextent(unittest.TestCase):
         testutils.copytree_ignore_subversion(self.datapath, f)
         
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         default(sdimaging)
         self.param = self.param_base.copy()
         
@@ -2556,7 +2572,7 @@ class sdimaging_test_mapextent(unittest.TestCase):
         #self.__remove_table(self.outfile)
         os.system('rm -rf %s*'%(self.outfile))
         
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def run_test(self, **kwargs):
         self.param.update(**kwargs)
@@ -2684,6 +2700,8 @@ class sdimaging_test_interp(unittest.TestCase):
         testutils.copytree_ignore_subversion(self.datapath, f)
         
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         self.infiles = []
         self.outfiles = []
         default(sdimaging)
@@ -2693,7 +2711,8 @@ class sdimaging_test_interp(unittest.TestCase):
             self.__remove_table(infile)
         for outfile in self.outfiles:
             os.system('rm -rf %s*'%(outfile))
-        self.assertEqual(len(get_table_cache()), 0)
+
+        self.assertTrue(self.cache_validator.validate())
 
     def run_task(self, infiles, outfile, **kwargs):
         if isinstance(infiles, str):
@@ -2815,6 +2834,8 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
     outfile = 'sdimaging_test_clipping.im'
     outfile_ref = 'sdimaging_test_clipping.ref.im'
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         default(sdimaging)
         
         # clear up test data
@@ -2824,7 +2845,7 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
         # remove test data
         self.__clear_up()
         
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
 
     def __clear_up(self):
         for data in self.data_list:
@@ -3059,6 +3080,8 @@ class sdimaging_test_projection(sdimaging_unittest_base):
           'npts','rms','blc','blcf','trc','trcf','sigma','sum','sumsq']
     
     def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+        
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
         shutil.copytree(self.datapath+self.rawfile, self.rawfile)
@@ -3077,7 +3100,7 @@ class sdimaging_test_projection(sdimaging_unittest_base):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
 
-        self.assertEqual(len(get_table_cache()), 0)
+        self.assertTrue(self.cache_validator.validate())
         
     def run_test_common(self, task_param, refstats, shape, refbeam=None,
                         atol=1.e-8, rtol=1.e-5, compstats=None, ignoremask=True,

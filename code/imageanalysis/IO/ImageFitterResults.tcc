@@ -25,6 +25,10 @@
 //#
 //# $Id: $
 
+
+#ifndef IMAGEANALYSIS_IMAGEFITTERRESULTS_TCC
+#define IMAGEANALYSIS_IMAGEFITTERRESULTS_TCC
+
 #include <imageanalysis/IO/ImageFitterResults.h>
 
 #include <casa/BasicSL/STLIO.h>
@@ -40,22 +44,22 @@
 #include <iomanip>
 
 using namespace casacore;
+
 namespace casa {
 
-const String ImageFitterResults::_class = "ImageFitterResults";
+template <class T> const String ImageFitterResults<T>::_class = "ImageFitterResults";
 
-vector<String> ImageFitterResults::_prefixesWithCenti = vector<String>();
+template <class T> vector<String> ImageFitterResults<T>::_prefixesWithCenti = vector<String>();
 
-vector<String> ImageFitterResults::_prefixes = vector<String>();
+template <class T> vector<String> ImageFitterResults<T>::_prefixes = vector<String>();
 
-
-ImageFitterResults::ImageFitterResults(
-	SPCIIF image, SHARED_PTR<LogIO> log
+template <class T> ImageFitterResults<T>::ImageFitterResults(
+	SPCIIT image, std::shared_ptr<LogIO> log
 ) : _image(image), _log(log), _bUnit(image->units().getName()) {}
 
-ImageFitterResults::~ImageFitterResults() {}
+template <class T> ImageFitterResults<T>::~ImageFitterResults() {}
 
-void ImageFitterResults::writeNewEstimatesFile(const String& filename) const {
+template <class T> void ImageFitterResults<T>::writeNewEstimatesFile(const String& filename) const {
 	ostringstream out;
 	uInt ndim = _image->ndim();
 	const CoordinateSystem csys = _image->coordinates();
@@ -93,7 +97,7 @@ void ImageFitterResults::writeNewEstimatesFile(const String& filename) const {
 		<< LogIO::POST;
 }
 
-void ImageFitterResults::writeCompList(
+template <class T> void ImageFitterResults<T>::writeCompList(
 	ComponentList& list, const String& compListName,
 	CompListWriteControl writeControl
 ) const {
@@ -129,11 +133,11 @@ void ImageFitterResults::writeCompList(
 	}
 }
 
-String ImageFitterResults::resultsHeader(
+template <class T> String ImageFitterResults<T>::resultsHeader(
 	const String& chans, const Vector<uInt>& chanVec,
 	const String& region, const String& mask,
-	SHARED_PTR<std::pair<Float, Float> > includePixelRange,
-	SHARED_PTR<std::pair<Float, Float> > excludePixelRange,
+	std::shared_ptr<std::pair<T, T>> includePixelRange,
+	std::shared_ptr<std::pair<T, T>> excludePixelRange,
 	const String& estimates
 ) const {
 	ostringstream summary;
@@ -159,14 +163,16 @@ String ImageFitterResults::resultsHeader(
 	summary << "       --- include pixel range: [";
 	if (includePixelRange) {
 		ostringstream os;
-		os << *includePixelRange;
+		// os << *includePixelRange;
+		casacore::operator<<(os, *includePixelRange);
 		summary << os.str();
 	}
 	summary << "]" << endl;
 	summary << "       --- exclude pixel range: [";
 	if (excludePixelRange) {
 			ostringstream os;
-			os << *excludePixelRange;
+			// os << *excludePixelRange;
+			casacore::operator<<(os, *excludePixelRange);
 			summary << os.str();
 		}
 		summary << "]" << endl;
@@ -177,7 +183,7 @@ String ImageFitterResults::resultsHeader(
 	return summary.str();
 }
 
-String ImageFitterResults::fluxToString(
+template <class T> String ImageFitterResults<T>::fluxToString(
 	uInt compNumber, Bool hasBeam
 ) const {
 	auto unitPrefix = unitPrefixes(false);
@@ -267,7 +273,7 @@ String ImageFitterResults::fluxToString(
 	return fluxes.str();
 }
 
-std::vector<String> ImageFitterResults::unitPrefixes(Bool includeCenti) {
+template <class T> std::vector<String> ImageFitterResults<T>::unitPrefixes(Bool includeCenti) {
 	if (_prefixes.empty()) {
 #if __cplusplus >= 201103L
 		_prefixesWithCenti = std::vector<String> {"T","G","M","k","","c","m","u","n"};
@@ -285,7 +291,7 @@ std::vector<String> ImageFitterResults::unitPrefixes(Bool includeCenti) {
 	}
 }
 
-void ImageFitterResults::writeSummaryFile(
+template <class T> void ImageFitterResults<T>::writeSummaryFile(
     const String& filename, const CoordinateSystem& csys
 ) const {
     ostringstream oss;
@@ -460,5 +466,6 @@ void ImageFitterResults::writeSummaryFile(
     summary.write(oss.str(), true, true);
 }
 
-
 }
+
+#endif

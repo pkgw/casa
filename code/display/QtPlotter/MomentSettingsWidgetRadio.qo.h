@@ -50,7 +50,7 @@ namespace casa {
 	class CollapseResult {
 
 	public:
-		CollapseResult( const casacore::String& outputName, bool tmp, SHARED_PTR<casacore::ImageInterface<float>> img );
+		CollapseResult( const casacore::String& outputName, bool tmp, std::shared_ptr<casacore::ImageInterface<float>> img );
 
 		casacore::String getOutputFileName() const {
 			return outputFileName;
@@ -58,7 +58,7 @@ namespace casa {
 		bool isTemporaryOutput() const {
 			return temporary;
 		}
-		SHARED_PTR<casacore::ImageInterface<float> > getImage() const {
+		std::shared_ptr<casacore::ImageInterface<float> > getImage() const {
 			return image;
 		}
 
@@ -66,7 +66,7 @@ namespace casa {
 		casacore::String outputFileName;
 		bool temporary;
 
-		SHARED_PTR<casacore::ImageInterface<float> > image;
+		std::shared_ptr<casacore::ImageInterface<float> > image;
 	};
 
 

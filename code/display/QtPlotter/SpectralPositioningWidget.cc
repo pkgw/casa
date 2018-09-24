@@ -375,7 +375,7 @@ namespace casa {
 
 		bool success = true;
 		//ImageInterface<float>* image = const_cast<ImageInterface<float>* >(profileTaskMonitor->getImage());
-		SHARED_PTR<ImageInterface<Float> > image(CONST_POINTER_CAST<ImageInterface<Float> >(profileTaskMonitor->getImage()));
+		std::shared_ptr<ImageInterface<Float> > image(std::const_pointer_cast<ImageInterface<Float> >(profileTaskMonitor->getImage()));
 
 		DisplayCoordinateSystem cSys = image -> coordinates();
 		int nAxes = cSys.nPixelAxes();

@@ -682,7 +682,7 @@ namespace casa {
 		pixelBox = pixelBoxStr.toStdString();
 	}
 
-	void FindSourcesDialog::setImage( SHARED_PTR<const ImageInterface<Float> > img ) {
+	void FindSourcesDialog::setImage( std::shared_ptr<const ImageInterface<Float> > img ) {
 		image = img;
 		if ( image != NULL ) {
 			const DisplayCoordinateSystem cSys = image->coordinates();

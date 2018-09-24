@@ -316,7 +316,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
           }
 	  if(! (selectionValid && !ignoreframe)){
-	    os << "Did not match spw selection in the selected ms " << LogIO::WARN << LogIO::POST;
+	    //os << "Did not match spw selection in the selected ms " << LogIO::WARN << LogIO::POST;
 	    retval=False;
 	  }
 	    //fselections_p->add(channelSelector);
@@ -489,7 +489,11 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
     Int spectralIndex=cs.findCoordinate(Coordinate::SPECTRAL);
     SpectralCoordinate spectralCoord=cs.spectralCoordinate(spectralIndex);
     MFrequency::Types intype=spectralCoord.frequencySystem(True);
-    VisBufferUtil::getFreqRangeFromRange(minFreq, maxFreq,  intype, minFreq,  maxFreq, *vi_p, selFreqFrame_p);
+    if(!VisBufferUtil::getFreqRangeFromRange(minFreq, maxFreq,  intype, minFreq,  maxFreq, *vi_p, selFreqFrame_p)){
+      //Do not retune if conversion did not happen
+      return;
+    }
+      
     maxFreq+=fabs(spectralCoord.increment()(0))/2.0;
     minFreq-=fabs(spectralCoord.increment()(0))/2.0;
     if(minFreq < 0.0) minFreq=0.0;
@@ -522,7 +526,9 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
     CoordinateSystem csys;
     CountedPtr<refim::FTMachine> ftm, iftm;
-
+    impars_p = impars;
+    gridpars_p = gridpars; 
+    
 
     try
       {
@@ -532,7 +538,8 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
 	
 	csys = impars.buildCoordinateSystem( *vi_p, channelSelections_p, mss_p );
-
+	//use the location defined for coordinates frame;
+	mLocation_p=impars.obslocation;
 	IPosition imshape = impars.shp();
 
 	os << "Impars : start " << impars.start << LogIO::POST;
@@ -1691,7 +1698,7 @@ void SynthesisImagerVi2::unlockMSs()
    
     
     theFT = new refim::MosaicFTNew(vps, mLocation_p, stokes, 1000000000, 16, useAutoCorr, 
-		      useDoublePrec, doConjBeams);
+				   useDoublePrec, doConjBeams, gridpars_p.usePointing);
     PBMathInterface::PBClass pbtype=((kpb==PBMath::EVLA) || multiTel)? PBMathInterface::COMMONPB: PBMathInterface::AIRY;
     if(rec.asString("name")=="IMAGE")
        pbtype=PBMathInterface::IMAGE;
@@ -1876,6 +1883,8 @@ void SynthesisImagerVi2::unlockMSs()
     //
     vi_p->originChunks();
     vi_p->origin();
+    ////make sure to use the latest imaging weight scheme
+    vi_p->useImagingWeight(imwgt_p);
   }// end of createVisSet
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////

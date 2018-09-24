@@ -357,6 +357,8 @@ bool logsink::setlogfile(const std::string& filename)
    if(tmpname != "null") {
       casacore::File filein( tmpname ) ;
       logname = filein.path().absoluteName() ;
+      if ( ! thelogsink )
+          thelogsink = &LogSink().globalSink();
       static_cast<TSLogSink*>(thelogsink)->setLogSink(logname);
    }
    else
