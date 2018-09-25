@@ -59,7 +59,7 @@ namespace casa{
   bool new_interactive_clean_callback::callback( const DBus::Message &msg ) {
     if (msg.is_signal("edu.nrao.casa.viewer","interact")) {
       DBus::MessageIter ri = msg.reader( );
-      ::operator >>(ri,result_);
+      ri >> result_;
       casa::DBusSession::instance( ).dispatcher( ).leave( );
     }
     return true;

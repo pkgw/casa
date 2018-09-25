@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <imageanalysis/ImageAnalysis/StatImageCreator.h>
 
 #include <imageanalysis/Annotations/AnnCenterBox.h>
@@ -50,8 +52,8 @@ void StatImageCreator::setAnchorPosition(Int x, Int y) {
 
 void StatImageCreator::useReferencePixelAsAnchor() {
     const auto refPix = _getImage()->coordinates().referencePixel();
-    Int x = round(refPix[_dirAxes[0]]);
-    Int y = round(refPix[_dirAxes[1]]);
+    Int x = rint(refPix[_dirAxes[0]]);
+    Int y = rint(refPix[_dirAxes[1]]);
     *_getLog() << LogIO::NORMAL << LogOrigin("StatImageCreator", __func__)
         << "Anchor being set at pixel [" << x << "," << y
         << "], at/near image reference pixel." << LogIO::POST;
