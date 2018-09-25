@@ -45,7 +45,6 @@ configure_file( ${CMAKE_SOURCE_DIR}/python/scripts/init_telemetry.py.in ${CMAKE_
 
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
 
-add_definitions ("-DUseCasacoreNamespace")
 add_definitions ("-DWITHOUT_BOOST")
 add_definitions(-DUSE_THREADS)                 # new casacore requirement:
                                                # https://github.com/casacore/casacore/commit/2184df898452e1de695a04eb2e785419f707434c
@@ -844,7 +843,6 @@ endif()
 casa_find( CASACORE
            VERSION 2.0.1
            PREFIX_HINTS ${CASACORE_ROOT_DIR}
-           DEFINITIONS "-DUseCasacoreNamespace"
            INCLUDES casa/aips.h
                     casa/version.h
            INCLUDES_SUFFIXES casacore

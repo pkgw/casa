@@ -451,7 +451,6 @@ macro( casa_find package )
         
         file( WRITE ${_try}
           "/* try_run.cc */\n"
-          "#define UseCasacoreNamespace\n"
           "#include <cstdio>  /* Needed for readline/readline.h */\n"
           )
         foreach( _i ${_includes} )
@@ -620,7 +619,6 @@ macro( casa_find package )
       
       file( WRITE ${_try}
         "/* try_run.cc */\n"
-        "#define UseCasacoreNamespace\n"
         "#include <cstdio>  /* Needed for readline/readline.h */\n"
         )
       foreach( _i ${_includes} )

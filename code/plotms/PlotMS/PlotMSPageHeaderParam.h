@@ -15,7 +15,6 @@
 namespace casa {
 
 using namespace std;
-using std::array; // Disambiguation against casacore::array
 
 
 class HeaderItemInfo {
