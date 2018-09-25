@@ -89,7 +89,7 @@ CasaPyInterpreter::CasaPyInterpreter(Bool usegui)
        // Connected to the currently running python interpreter
 
        // Initialize/import the Numeric::arrayobject module
-       import_array();
+       import_array1();
 
 #if LOG0
        pyrunString("print dir()\n" ); 

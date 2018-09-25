@@ -71,15 +71,15 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
                 <xsl:if test="not(@visibility) or @visibility!='hidden'">
                 <xsl:choose>
                 <xsl:when test="aps:description">
-                <xsl:text>                </xsl:text><xsl:value-of select="@name"/><xsl:text>: </xsl:text><xsl:value-of select="aps:description" disable-output-escaping="yes"/>
+                <xsl:text>              </xsl:text><xsl:value-of select="@name"/><xsl:text>:    </xsl:text><xsl:value-of select="aps:description" disable-output-escaping="yes"/>
                 </xsl:when>
                 <xsl:otherwise>
-                <xsl:text>                </xsl:text><xsl:value-of select="@name"/><xsl:text>: </xsl:text><xsl:value-of select="aps:shortdescription" disable-output-escaping="yes"/>
+                <xsl:text>              </xsl:text><xsl:value-of select="@name"/><xsl:text>:    </xsl:text><xsl:value-of select="aps:shortdescription" disable-output-escaping="yes"/>
                 </xsl:otherwise>
                 </xsl:choose>
                 <xsl:text>
 </xsl:text>
-<xsl:text>                   Default Value: </xsl:text><xsl:value-of select="aps:value"/>
+<xsl:text>                 Default Value: </xsl:text><xsl:value-of select="aps:value"/>
 <xsl:if test="aps:allowed">
         <xsl:text>
                    Allowed Values:</xsl:text>
@@ -96,7 +96,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 </xsl:for-each>
 <xsl:if test="aps:returns">
         <xsl:for-each select="aps:returns">
-                <xsl:text>        Returns: </xsl:text><xsl:value-of select="@type"/><xsl:text>
+                <xsl:text>      Returns: </xsl:text><xsl:value-of select="@type"/><xsl:text>
 </xsl:text>
 </xsl:for-each>
 </xsl:if>
@@ -155,7 +155,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
                          exec('myparams[key] = ' + key + ' = {}')
 
         else :
-            print ''
+            print('')
 
 </xsl:text>
 <xsl:for-each select="aps:input">
@@ -243,11 +243,11 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
                        '\n##########################################')
 </xsl:for-each>
 <xsl:text disable-output-escaping="yes">
-        except Exception, instance:
+        except Exception as instance:
           if(self.__globals__.has_key('__rethrow_casa_exceptions') and self.__globals__['__rethrow_casa_exceptions']) :
              raise
           else :
-             #print '**** Error **** ',instance
+             #print('**** Error **** ',instance)
              tname = </xsl:text>'<xsl:value-of select="$taskname"/>'<xsl:text disable-output-escaping="yes">
              casalog.post('An error occurred running task '+tname+'.', 'ERROR')
              pass
@@ -342,7 +342,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
           myf=self.__globals__
       else:
           myf=ipython_globals
-#      print 'param:', param, 'value:', value
+#      print('param:', param, 'value:', value)
       try :
          if str(type(value)) != "&lt;type &apos;instance&apos;&gt;" :
             value0 = value
@@ -352,8 +352,8 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
                if(type(value) == type(value0)):
                   myf[param] = value.tolist()
                else:
-                  #print 'value:', value, 'value0:', value0
-                  #print 'type(value):', type(value), 'type(value0):', type(value0)
+                  #print('value:', value, 'value0:', value0)
+                  #print('type(value):', type(value), 'type(value0):', type(value0))
                   myf[param] = value0
                   if type(value0) != list :
                      matchtype = True
@@ -362,7 +362,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
             value = myf['cu'].verifyparam({param:value})
             if matchtype:
                value = False
-      except Exception, instance:
+      except Exception as instance:
          #ignore the exception and just return it unchecked
          myf[param] = value
       return value

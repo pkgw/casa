@@ -97,7 +97,7 @@ void PythonInterpreter::command(String command) {
     if(m_initialized) {
         stringstream ss;
         // print then run the command
-        ss << "print \"--> " << command << "\"\n" << command;
+        ss << "print(\"--> " << command << "\")\n" << command;
         if(m_standalone)
             PyRun_String(ss.str().c_str(), Py_file_input, m_shell, m_shell);
         else {

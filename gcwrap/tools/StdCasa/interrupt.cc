@@ -27,7 +27,7 @@ bool casa::interrupt::init( bool forward ) {
 	Py_Initialize( );
 	PyObject *mod = PyImport_ImportModule("interrupt");
 	if ( ! mod ) return false;
-	char *modname = PyModule_GetFilename(mod);
+	const char *modname = PyModule_GetFilename(mod);
 	if ( ! modname ) return false;
 	void *dlhandle = dlopen(modname,RTLD_NOW);
 	if ( ! dlhandle ) return false;

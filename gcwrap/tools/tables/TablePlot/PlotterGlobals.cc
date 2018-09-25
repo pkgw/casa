@@ -200,7 +200,13 @@ extern casa::TPGuiBinder* GBB;
         
 // Python-binding globals
 PyObject *plotx_p,*ploty_p;
-void initPyBind(void);
+
+#if PY_MAJOR_VERSION >= 3
+#define INIT_RET_TYPE PyObject *
+#else
+#define INIT_RET_TYPE void
+#endif
+INIT_RET_TYPE initPyBind(void);
 static PyObject* PyBind_readXdata(PyObject *self, PyObject* args);
 static PyObject* PyBind_readYdata(PyObject *self, PyObject* args);
 static PyObject* PyBind_markregion(PyObject *self, PyObject* args);
@@ -239,12 +245,30 @@ static PyMethodDef PyBind_methods[] = {
    {NULL,      NULL, METH_NOARGS, NULL}      // sentinel 
 };
 
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef module_def = {
+  PyModuleDef_HEAD_INIT,
+  "PyBind",
+  NULL,
+  0,
+  PyBind_methods,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
+#endif
+
 // Initialize the PythonBinder
-void
+INIT_RET_TYPE
 initPyBind(void)
 {
+#if PY_MAJOR_VERSION >= 3
+    return PyModule_Create(&module_def);
+#else
    PyImport_AddModule("PyBind");
    Py_InitModule("PyBind", PyBind_methods);
+#endif
 }
 
 // Send out a Python list to python 

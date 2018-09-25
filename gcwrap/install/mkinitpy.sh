@@ -11,5 +11,5 @@ echo ']'
 for file in $*
 do
 	pack=`basename $file .xml`
-	echo "import $pack"
+	echo "from . import $pack"
 done

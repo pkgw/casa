@@ -456,7 +456,7 @@ def find_needed_items(musthave=set([]), listall=False):
         except:
             try:
                 try:
-                    from  casac import *
+                    from casac import casac
                 except:
                     casacpath = glob(os.sep.join(os.environ["CASAPATH"].split() +
                                                  ['python', '2.*']))  # devs
