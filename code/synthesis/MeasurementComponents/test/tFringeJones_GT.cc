@@ -203,7 +203,7 @@ public:
       fpar(5, 0, i) = 0.0;
     }
     // uncomment to see data shape summary from
-    // VisCalTestBase::summary("FringeJonesTest");  
+    //VisCalTestBase::summary("FringeJonesTest");  
   }
 };
 
@@ -265,7 +265,6 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
 
   FJsol.setSolve(solvePar);
 
-
   SDBList sdbs;
   Double reftime;
 
@@ -300,8 +299,6 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
     }
   }
 
-
-  
   // Setup meta & sizes for the solve
   FJsol.setMeta(sdbs.aggregateObsId(),
 		sdbs.aggregateScan(),
