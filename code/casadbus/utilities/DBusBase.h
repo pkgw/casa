@@ -8,10 +8,7 @@
 #include <dbus-c++/dbus.h>
 #endif
 
-namespace casacore{
-
-  class Record;
-}
+#include <casa/Containers/Record.h>
 
 namespace casa {
 
