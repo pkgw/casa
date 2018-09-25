@@ -69,6 +69,7 @@ macro( casa_add_library module )
 
   add_library( lib${module} ${ARGN} )
   set_target_properties( lib${module} PROPERTIES OUTPUT_NAME ${module} )
+  set_target_properties( lib${module} PROPERTIES MACOSX_RPATH ON)
 
   if (${module}_WarningsAsErrors)
     set_property (TARGET lib${module} APPEND PROPERTY COMPILE_FLAGS "-Werror")
