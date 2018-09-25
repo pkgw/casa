@@ -2434,11 +2434,11 @@ public:
 
         Double v = sqrt (pow (vUV.first, 2) + pow (vUV.second, 2));
 
-        Int nAveraged = (v != 0) ? utilj::round (std::floor (maxUvwDistance_p / v)) + 1
+        Int nAveraged = (v != 0) ? utilj::utilj_round (std::floor (maxUvwDistance_p / v)) + 1
                                  : INT_MAX;
 
         if (nAveraged + tBaseline_p [baseline] > lastTime_p){
-            nAveraged = utilj::round (lastTime_p - tBaseline_p [baseline]) + 1;
+            nAveraged = utilj::utilj_round (lastTime_p - tBaseline_p [baseline]) + 1;
         }
 
         Double expected = (nAveraged - 1) * 0.5 + tBaseline_p [baseline];
@@ -2763,8 +2763,8 @@ protected:
 
                 Int nAverages;
                 if (v != 0){
-                    Int nPerAverage = utilj::round (std::floor (maxUvwDistance / v)) + 1;
-                    nAverages = utilj::round (std::ceil (((double) nRowsInput) / nPerAverage));
+                    Int nPerAverage = utilj::utilj_round (std::floor (maxUvwDistance / v)) + 1;
+                    nAverages = utilj::utilj_round (std::ceil (((double) nRowsInput) / nPerAverage));
                 }
                 else{
                     nAverages = 1;

@@ -77,7 +77,7 @@ bool QPPlotter::initColors() {
     }
     
     // seed random number generator
-    srand(time(NULL));
+    srand(::time(NULL));
 
     return true;
 }

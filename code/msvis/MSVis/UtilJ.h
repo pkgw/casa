@@ -262,7 +262,7 @@ mapValues (const std::map<K,V> & aMap)
 
 void printBacktrace (std::ostream & os, const casacore::String & prefix = "");
 
-long round (double d);
+long utilj_round (double d);
 
 void sleepMs (int milliseconds);
 void toStdError (const casacore::String & m, const casacore::String & prefix = "*E* ");

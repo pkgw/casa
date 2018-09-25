@@ -58,7 +58,7 @@ namespace casa {
 	    } else if ( src.signature( ) == "a{sv}" ) {
 		DBus::MessageIter ri = src.reader( );
 		std::map<std::string,DBus::Variant> vm;
-		::operator >>(ri,vm);
+		ri >> vm;
 		record rec;
 		for ( std::map<std::string,DBus::Variant>::iterator iter = vm.begin( );
 		      iter != vm.end( ); ++iter ) {
@@ -72,35 +72,35 @@ namespace casa {
 	static void fromVariant( ::DBus::MessageIter &vi, const variant &src ) {
 	    switch ( src.type() ) {
 	    case variant::INT:
-		::operator <<(vi,src.getInt( ));
+		vi << src.getInt( );
 		break;
 	    case variant::BOOL:
-		::operator <<(vi,src.getBool( ));
+		vi << src.getBool( );
 		break;
 	    case variant::STRING:
-		::operator <<(vi,src.getString( ));
+		vi << src.getString( );
 		break;
 	    case variant::DOUBLE:
-		::operator <<(vi,src.getDouble( ));
+		vi << src.getDouble( );
 		break;
 	    case variant::BOOLVEC:
-		::operator <<(vi,src.getBoolVec( ));
+		vi << src.getBoolVec( );
 		break;
 	    case variant::INTVEC:
-		::operator <<(vi,src.getIntVec( ));
+		vi << src.getIntVec( );
 		break;
 	    case variant::DOUBLEVEC:
-		::operator <<(vi,src.getDoubleVec( ));
+		vi << src.getDoubleVec( );
 		break;
 	    case variant::STRINGVEC:
-		::operator <<(vi,src.getStringVec( ));
+		vi << src.getStringVec( );
 		break;
 	    case variant::RECORD:
 		{   const record &rec = src.getRecord( );
 		    ::DBus::MessageIter ait = vi.new_array("{sv}");
 		    for ( record::const_iterator rit = rec.begin( ); rit != rec.end( ); ++rit ) {
 		        ::DBus::MessageIter eit = ait.new_dict_entry( );
-			::operator <<(eit,rit->first);
+		        eit << rit->first;
 			::DBus::MessageIter val = eit.new_variant( rit->second.sig() );
 			fromVariant( val, rit->second );
 			eit.close_container(val);

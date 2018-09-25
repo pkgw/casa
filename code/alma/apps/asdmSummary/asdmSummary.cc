@@ -412,7 +412,8 @@ int main (int argc, char* argv[]) {
     // buffers to hold the parsed options
     // options has one element per optionIndex, last value is the last time that option was set
     // buffer has one element for each option encountered, in order. Not used here.
-    option::Option options[stats.options_max], buffer[stats.buffer_max];
+    option::Option *options = new option::Option[stats.options_max];
+    option::Option *buffer = new option::Option[stats.buffer_max];
 
     option::Parser parse;
     // true has the same meaning as in stats above. This may not be necessary here.

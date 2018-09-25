@@ -116,8 +116,8 @@ public:
 		return name2item;
 	}
 
-	static const array<Item,n_items>& items();
-	static const array<String,n_items>& itemNames();
+	static const std::array<Item,n_items>& items();
+	static const std::array<String,n_items>& itemNames();
 	static bool isItemName(const String& s);
 
 	static const map<HeaderItemInfo,Item>& info2Item;

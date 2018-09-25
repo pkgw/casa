@@ -2407,13 +2407,8 @@ void MSCache::loadPageHeaderCache(const casacore::MeasurementSet& selectedMS){
 		auto tenSourceID = getTen(SourceColumn::SOURCE_ID);
 		auto tenSpwID = getTen(SourceColumn::SPECTRAL_WINDOW_ID);
 		// ---- Selection criteria
-		auto sourceMatch { tenSourceID == firstSourceId };
-		auto spwIdAny   { tenSpwID == -1  /* row valid for any SPECTRAL_WINDOW_ID */  };
-		auto spwIdMatch { tenSpwID == firstSpwId };
-		// ---- Select and sort by ascending TIME
-		auto qryTargetDirection { sourceMatch && (spwIdAny || spwIdMatch) };
 		const auto & timeColName = sourceTable.columnName(SourceColumn::TIME);
-		Table qryResult = sourceTable(qryTargetDirection).sort(timeColName,Sort::Ascending);
+		Table qryResult = sourceTable(tenSourceID == firstSourceId && (tenSpwID == -1 || tenSpwID == firstSpwId)).sort(timeColName,Sort::Ascending);
 		auto qryResultRows = qryResult.rowNumbers(sourceTable);
 		// ---- Pick-up first direction
 		if ( ! qryResultRows.empty() ) {

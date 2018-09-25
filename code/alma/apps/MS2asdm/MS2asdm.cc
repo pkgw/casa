@@ -153,7 +153,8 @@ int main(int argc, char *argv[]) {
   // buffers to hold the parsed options
   // options has one element per optionIndex, last value is the last time it was set
   // buffer has one element for each option encountered, in order. Not used here.
-  option::Option options[stats.options_max], buffer[stats.buffer_max];
+  option::Option *options = new option::Option[stats.options_max];
+  option::Option *buffer = new option::Option[stats.buffer_max];
   option::Parser parse;
   // parse the defaults first, then argv. User set options always come last
   // true here has same meaning as in stats above. This may not be necessary here, I think

@@ -5889,8 +5889,8 @@ void MSTransformManager::initFrequencyTransGrid(vi::VisBuffer2 *vb)
                          << "new central frequency at current (input SPW) time - new "
                          << "central frequency "
                          << "at reference (output SPW) time\nAbsolute shift: "
-                         << current
-                         << " - " << reference
+                         << current.str()
+                         << " - " << reference.str()
                          << " = " << absoluteShift << ", bandwidth " << bandwidth
                          << ", relative shift: " << fftShift_p << LogIO::POST;
 
