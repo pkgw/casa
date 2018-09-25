@@ -198,7 +198,9 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_VLA_CorrectingBandpass.py
   test_VLA_Flagging.py
   test_VLA_Imaging.py
+  ###
 
+  test_req_task_listobs.py
 
   ###
   test_setjy.py
