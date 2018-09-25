@@ -279,7 +279,6 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
       Int ispw=vb2->spectralWindows()(0);
       Int obsid(vb2->observationId()(0));
       Int scan(vb2->scan()(0));
-      // Double timestamp(vb2->time()(0));
       Int fldid(vb2->fieldId()(0));
       Vector<Double> freqs(vb2->getFrequencies(0));
       Vector<Int> a1(vb2->antenna1());
