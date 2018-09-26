@@ -5,7 +5,7 @@ import string
 import copy
 import math
 import time
-from taskinit import mttool, mstool, tbtool, casalog
+from taskinit import mttool, mstool, tbtool, casalog, qa
 from mstools import write_history
 from parallel.parallel_data_helper import ParallelDataHelper
 import flaghelper as fh

@@ -3,7 +3,7 @@ import os
 import sys
 import copy
 import pprint
-from taskinit import casalog, mstool, aftool, tbtool
+from taskinit import casalog, mstool, aftool, tbtool, qa
 from mstools import write_history
 import flaghelper as fh
 from parallel.parallel_task_helper import ParallelTaskHelper
