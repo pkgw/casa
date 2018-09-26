@@ -2513,7 +2513,10 @@ void fillSpectralWindow(ASDM* ds_p, map<unsigned int, double>& effectiveBwPerSpw
       // windowFunction is a required field
       string windowFunction = CWindowFunction::name(r->getWindowFunction());
       int numBin = getNumBin(r, telescopeName);
-
+      if (telescopeName == "EVLA" && (numBin>1) && (!r->isNumBinExists())) {
+	// numBin has been inferred for EVLA data, adjust resolution 
+	resolution1D = chanWidth1D;
+      }
       for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
