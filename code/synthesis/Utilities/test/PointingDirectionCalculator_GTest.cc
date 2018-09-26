@@ -231,12 +231,12 @@ public:
         }
     }
 
-    String getCasaPath()
+    const String getCasaPath()
     {
         return CasaPath;
     }
 
-    String getCasaMasterPath()
+    const String getCasaMasterPath()
     {
         return CasaMasterPath;
     }
@@ -258,7 +258,7 @@ private:
 //   Test cases/items.
 //***************************************************************************
 
-static String DefaultLocalMsName = "./sdimaging-t.ms";
+static const String DefaultLocalMsName = "./sdimaging-t.ms";
 
 void CopyDefaultMStoWork()
 {
@@ -268,8 +268,8 @@ void CopyDefaultMStoWork()
 
     // Src/Dsr Path (string) 
 
-        String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
-        String dst = DefaultLocalMsName;
+        const String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
+        const String dst = DefaultLocalMsName;
 
     // Src/Dst Path (Path) 
 
@@ -860,60 +860,60 @@ void MsEdit::CreateNewColumnsFromDirection()
 
     // Copy Column Descriptor //
 
-    ColumnDesc  OrgColumnDesc = tblDsc.columnDesc ( "DIRECTION" ) ;    
+        ColumnDesc  OrgColumnDesc = tblDsc.columnDesc ( "DIRECTION" ) ;    
 
-    ColumnDesc  RevColumnDesc1 = ColumnDesc(OrgColumnDesc);
-    ColumnDesc  RevColumnDesc2 = ColumnDesc(OrgColumnDesc);
-    ColumnDesc  RevColumnDesc3 = ColumnDesc(OrgColumnDesc);
+        ColumnDesc  RevColumnDesc1 = ColumnDesc(OrgColumnDesc);
+        ColumnDesc  RevColumnDesc2 = ColumnDesc(OrgColumnDesc);
+        ColumnDesc  RevColumnDesc3 = ColumnDesc(OrgColumnDesc);
 
     // Coumns Name def //
     
-    String colname1 = "POINTING_OFFSET";
-    String colname2 = "SOURCE_OFFSET";
-    String colname3 = "ENCODER";
+        String colname1 = "POINTING_OFFSET";
+        String colname2 = "SOURCE_OFFSET";
+        String colname3 = "ENCODER";
 
+        RevColumnDesc1.setName( colname1 );
+        RevColumnDesc2.setName( colname2 );
+        RevColumnDesc3.setName( colname3 );
 
-    RevColumnDesc1.setName( colname1 );
-    RevColumnDesc2.setName( colname2 );
-    RevColumnDesc3.setName( colname3 );
+        Description( "Adding 3 Columns on Pointing Table ", MsName.c_str() );
 
-       Description( "Adding 3 Columns on Pointing Table ", MsName.c_str() );
+        if( ! tblDsc.isColumn( colname1 ) )
+        {
+            printf(" Intended Table Not exist, Attempt to add Column.\n" );
+      
+            // Add Revied Column to TABLE //
 
-
-    if( ! tblDsc.isColumn( colname1 ) )
-    {
-      printf(" Intended Table Not exist, Attempt to add Column.\n" );
-      // Add Revied Column to TABLE //
-
-        hPointingTable.addColumn(RevColumnDesc1);
-        hPointingTable.addColumn(RevColumnDesc2);
-        hPointingTable.addColumn(RevColumnDesc3); 
-
-    }
+            hPointingTable.addColumn(RevColumnDesc1);
+            hPointingTable.addColumn(RevColumnDesc2);
+            hPointingTable.addColumn(RevColumnDesc3); 
+        }
 
 #if 0
       // Remove Colume (by Name )
 
-        hPointingTable.removeColumn(colname1);
-        hPointingTable.removeColumn(colname2);
-        hPointingTable.removeColumn(colname3);
+          hPointingTable.removeColumn(colname1);
+          hPointingTable.removeColumn(colname2);
+          hPointingTable.removeColumn(colname3);
 #endif 
   
-    // Flush ..//
+     // Flush ..//
 
-        ms0.flush(); 
+         ms0.flush(); 
  
      //+
      //  Option:: Access data (shown by Array) 
      //   - If need to inspect , write a code here.
      //-
+
 #if 0  
-       Array<Double> dir  = colDirection .get(0);
-       Array<Double> tar  = colTarget    .get(0);
-       Array<Double> ptOff  = colPointingOffset .get(0);
-       Array<Double> scOff  = colSourceOffset    .get(0);
-       Array<Double> enc    = colEncoder        .get(0);
+         Array<Double> dir  = colDirection .get(0);
+         Array<Double> tar  = colTarget    .get(0);
+         Array<Double> ptOff  = colPointingOffset .get(0);
+         Array<Double> scOff  = colSourceOffset    .get(0);
+         Array<Double> enc    = colEncoder        .get(0);
 #endif 
+
       printf(" Intended Change completed.\n" );
 
 }
@@ -925,13 +925,14 @@ void MsEdit::CreateNewColumnsFromDirection()
 
 casacore::Vector<double>  generatePseudoPointData(int i)
 {
-  //  printf( "- Generating Pseudo Pointing Data.\n" );
 
-    casacore::Vector<Double> point;
-    point.resize(4);
+//  printf( "- Generating Pseudo Pointing Data.\n" );
 
-    point[0] = 0.0 + 0.01 * (double)i;      // Direction
-    point[1] = 0.0 - 0.01 * (double)i;
+        casacore::Vector<Double> point;
+        point.resize(4);
+
+        point[0] = 0.0 + 0.01 * (double)i;      // Direction
+        point[1] = 0.0 - 0.01 * (double)i;
 
     //+
     // THis value can change Interporation behabior
@@ -940,37 +941,34 @@ casacore::Vector<double>  generatePseudoPointData(int i)
     //     internal interporation behabior.n doGetDirection() . 
     //-  
 
-    Double intentionalShift = 0.0;
-    Double interval = 2.99827;
+        Double intentionalShift = 0.0;
+        Double interval = 2.99827;
 
-    Double        d = (22 *3600.0 +  5*60 +  41.5 + (double)i * interval + intentionalShift )/(3600*24); 
+        Double d = (22 *3600.0 +  5*60 +  41.5 + (double)i * interval + intentionalShift )/(3600*24); 
                       
-
-    casacore::MVTime  tm(2003,11,12 ,d);     
+        casacore::MVTime  tm(2003,11,12 ,d);     
  
     // Vector to return //
 
-    point[0] = 0.0 + 0.01 * (double)i;  // Direction
-    point[1] = 0.0 - 0.01 * (double)i;
-    point[2] = tm.second();             // Time 
-    point[3] = interval;                // Interval 
-
+        point[0] = 0.0 + 0.01 * (double)i;  // Direction
+        point[1] = 0.0 - 0.01 * (double)i;
+        point[2] = tm.second();             // Time 
+        point[3] = interval;                // Interval 
         
-    return point;
+        return point;
 }
 
-//*
+//+
 // Wtite Test Data on Direction Column in Pointing Table
 //  - Values are got by sub fuction above.
 //  - SetUp() in class TestDirection calls this.
 //  - see also TEST Fixture  
-//*
-
+//-
 
 void  MsEdit::WriteTestDataOnDirection(String MsName)
 {
-        Description( "Writing Test Data on Direcotion Column in Pointing Table", 
-                   MsName.c_str()  );
+    Description( "Writing Test Data on Direcotion Column in Pointing Table", 
+                  MsName.c_str()  );
 
     // Open MS by Update mode //
 
@@ -1024,21 +1022,21 @@ void  MsEdit::WriteTestDataOnDirection(String MsName)
         for (int row=0; row<nrow_p; row++)
         {
 
-             // DIRECTION  //
+            // DIRECTION  //
 
-               Array<Double> direction(Ipo, -1);   // IP shape and initial val // 
+                Array<Double> direction(Ipo, -1);   // IP shape and initial val // 
 
-                Vector<Double>  psd_data  = generatePseudoPointData( row );
+                Vector<Double>  psd_data  = generatePseudoPointData( row ); // generated pseudo data. //
 
                 direction[0][0] = psd_data[0];
                 direction[0][1] = psd_data[1];
  
-             // write access //
+            // write access //
 
                 if(false)       pointingDirection.   put(row, direction );
                 if(false)       pointingTarget.      put(row, direction );
 
-             // Time Info.  //
+            // Time Info.  //
              
                 if(false)       pointingTime.           put(row, psd_data[2] ); // Time
                 if(false)       pointingInterval.       put(row, psd_data[3] ); // Interval 
@@ -1050,37 +1048,31 @@ void  MsEdit::WriteTestDataOnDirection(String MsName)
 
 }
 
-
 // 
 // Base TestClass
 //-
+
 class BaseClass : public ::testing::Test
 {
 
 public:
 
-
 protected:
 
-        uInt    ExpectedNrow = 0;   // C++11 feature //
+    uInt    ExpectedNrow = 0;   // C++11 feature //
 
 
-        BaseClass()
-        {
-        }
+    BaseClass()  { }
 
-        ~BaseClass()
-        {
-        }
+    ~BaseClass() { }
 
+    virtual void SetUp()
+    {
+    }
 
-        virtual void SetUp()
-        {
-        }
-
-        virtual void TearDown()
-       {
-       }
+    virtual void TearDown()
+    {
+    }
 
     MyEnv       env;
 
@@ -1115,11 +1107,11 @@ protected:
         }
 
         virtual void TearDown()
-       {
+        {
             BaseClass::TearDown();
-       }
+        }
 
-       void test_constructor(uInt num );
+        void test_constructor(uInt num );
 
 };
 
@@ -1135,16 +1127,17 @@ void TestMeasurementSet::test_constructor(uInt num )
 
     // CONSTRUCTOR  //
 
-      MeasurementSet ms0( name  );      
+        MeasurementSet ms0( name  );      
 
-      PointingDirectionCalculator calc(ms0);
+        PointingDirectionCalculator calc(ms0);
 
     // Initial brief Inspection //
    
 
-      printf("# Constuctor Initial Check.  [%s] \n", name.c_str()  );
-      printf("  detected nrow : %d \n", calc.getNrowForSelectedMS() );
-      EXPECT_NE((uInt)0, calc.getNrowForSelectedMS() );
+        printf("# Constuctor Initial Check.  [%s] \n", name.c_str()  );
+        printf("  detected nrow : %d \n", calc.getNrowForSelectedMS() );
+      
+        EXPECT_NE((uInt)0, calc.getNrowForSelectedMS() );
     
 }
 
@@ -1601,7 +1594,7 @@ TEST_F(TestDirection, VerifyCAS11818 )
 {
 
     TestDescription( "configureMovingSourceCorrection(CAS11818) Test" );
-    String MsName = DefaultLocalMsName;    //  
+    const String MsName = DefaultLocalMsName;    //  
 
     // MS name for this Test //
 
@@ -1684,7 +1677,7 @@ TEST_F(TestDirection, setMovingSource  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    String MsName = DefaultLocalMsName;    //  
+    const String MsName = DefaultLocalMsName;    //  
 
     // List all the point ..//
      
@@ -1799,7 +1792,7 @@ TEST_F(TestDirection, Matrixshape )
 {
 
     TestDescription( "setDirectionListMatrixShape()" );
-    String MsName = DefaultLocalMsName;    //  
+    const String MsName = DefaultLocalMsName;    //  
     
     // Create Object //
     
@@ -1860,16 +1853,11 @@ TEST_F(TestDirection, getDirection )
 {
 
     TestDescription( "getDirection (J2000)" );
-    String MsName = DefaultLocalMsName;    // 
+    const String MsName = DefaultLocalMsName;    // 
 
-
-    // MS name for this Test //
-        String name =  MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
-    
     // Create Object //
     
-        MeasurementSet ms( name.c_str() );
+        MeasurementSet ms( MsName.c_str() );
     
         PointingDirectionCalculator calc(ms);
     
@@ -1883,13 +1871,13 @@ TEST_F(TestDirection, getDirection )
     // setDirectionColumn() 
     //-
   
-        String colname = "DIRECTION"; 
-        Description( "getDirectionColumn()", colname  );
+        String ColName = "DIRECTION"; 
+        Description( "getDirectionColumn()", ColName  );
 
-        EXPECT_NO_THROW( calc.setDirectionColumn( colname ) );
+        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
 
     //+
-    //      MatrixShape
+    //      MatrixShape (COLUMN_MAJOR) 
     //-
         Description("calling setDirectionListMatrixShape()" ,"Column Major" );
         EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
@@ -1909,10 +1897,10 @@ TEST_F(TestDirection, getDirection )
         Description("calling  getDirection() ","" );
 
          Matrix<Double>  DirList1  = calc.getDirection();
-         uInt  N_Row    = DirList1.nrow();
+         uInt  n_row    = DirList1.nrow();
 
-         printf( "Number of Row = %d \n", N_Row );
-         EXPECT_EQ( N_Row, ExpectedNrow);
+         printf( "Number of Row = %d \n", n_row );
+         EXPECT_EQ( n_row, ExpectedNrow);
 
     //+
     // Dump Matrix
@@ -1922,43 +1910,24 @@ TEST_F(TestDirection, getDirection )
 
     Description("Dump obtined Direction info. ","" );
 
-    for (uInt row=0; row<N_Row; row++)
+    for (uInt row=0; row< n_row; row++)
     {
         double Val_1 = DirList1(row,0);
         double Val_2 = DirList1(row,1);
 
-         casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
-         String strMovDir = MovDir.toString();
+        casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
+        String strMovDir = MovDir.toString();
 
         printf(    "Dir at, [%d], %f,%f, [Mov:%s] \n",   row, Val_1, Val_2, strMovDir.c_str() );
     }
 
 #endif 
 
-#if 0
-
-   Description("Dump obtined Direction info. ","" );
-
-    FILE *fp = fopen( "Dir.csv", "w" );
-
-    for (int row=0; row<N_Row; row++)
-    {
-        double Val_1 = DirList(row,0);
-        double Val_2 = DirList(row,1);
-
-        fprintf( fp,"Dir at, [%d], %f,%f \n",   row, Val_1, Val_2 );
-
-    }
-
-    fclose(fp);
-#endif
-
-
-
 }
 
 /*------------------------------------------
    selectData ( <various types of keys>  )
+
    - Inspect that expected number of selected
      data comes out.
   ------------------------------------------*/
@@ -1968,7 +1937,7 @@ class TestSelectData : public BaseClass
 
 public:
  
-    String  AntSel              = "";      // Should be Null, to go throgh GetTEN 
+    String  AntSel              = "";      // [C++11] Should be Null, to go throgh GetTEN 
     String  SpwSel              = "";     
     String  FieldSel            = "";
     String  TimeSel             = "";
@@ -1979,8 +1948,7 @@ public:
     String  UVRangeSel          = "";
     String  MSSelect            = "";
 
-    String MsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
-
+    String DefMsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
 
 protected:
 
@@ -2042,7 +2010,7 @@ TEST_F(TestSelectData, Antenna )
 
     // MS name for this Test //
    
-       String name = env.getCasaMasterPath() + MsName;
+       String name = env.getCasaMasterPath() + DefMsName;
        printf( " Used MS is [%s] \n", name.c_str() );
   
     // Create Object //
@@ -2135,7 +2103,8 @@ TEST_F(TestSelectData, Spw )
     TestDescription( "selectData (key=Spw)" );
 
     // MS name for this Test //
-        String name = env.getCasaMasterPath() + MsName;
+
+        String name = env.getCasaMasterPath() + DefMsName;
         printf( " Used MS is [%s] \n", name.c_str() );
 
     // Create Object //
@@ -2207,7 +2176,7 @@ TEST_F(TestSelectData, Field )
 
     // Using MS //
     
-        String MsName = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
+        const String MsName = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
     
     // MS name for this Test //
     
@@ -2276,7 +2245,7 @@ TEST_F(TestSelectData, Time )
 
     // Using MS //
     
-        String MsName = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
+        const String MsName = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
     
     // MS name for this Test //
     
@@ -2346,11 +2315,11 @@ TEST_F(TestSelectData, Time )
 
 TEST_F(TestSelectData, Feed )
 { 
-    TestDescription( "selectData (key=Feed" );
+    TestDescription( "selectData (key=Feed)" );
 
     // Using MS //
     
-        String MsName = "/sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
+        const String MsName = "/sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
     
     // MS name for this Test //
     
@@ -2403,7 +2372,7 @@ TEST_F(TestSelectData, Intent )
 
     // Using MS //
     
-        String MsName = "sdimaging/selection_intent.ms";    // 
+        const String MsName = "sdimaging/selection_intent.ms";    // 
     
     // MS name for this Test //
     
@@ -2466,7 +2435,7 @@ TEST_F(TestSelectData, Observation )
 
     // Using MS //
     
-        String MsName = "/sdimaging/selection_spw.ms";    //    Three Observation entries.
+        const String MsName = "/sdimaging/selection_spw.ms";    //    Three Observation entries.
     
     // MS name for this Test //
     
@@ -2538,10 +2507,9 @@ TEST_F(TestSelectData, UVRange )
 { 
     TestDescription( "selectData (key=UV Range)" );
 
-
     // MS name for this Test //
     
-        String name = env.getCasaMasterPath() + MsName;
+        String name = env.getCasaMasterPath() + DefMsName;
         printf( " Used MS is [%s] \n", name.c_str() );
     
     // Create Object //
@@ -2592,7 +2560,7 @@ TEST_F(TestSelectData, MSselect )
 
     // MS name for this Test //
     
-        String name = env.getCasaMasterPath() + MsName;
+        String name = env.getCasaMasterPath() + DefMsName;
         printf( " Used MS is [%s] \n", name.c_str() );
     
     // Create Object //
@@ -2660,9 +2628,9 @@ TEST_F(TestSelectData, MSselect )
 // - Some of them causes Exeption Message from inside.
 //
 
-struct FrameName {
-  bool   available;
-  String name;
+struct _FrameName {
+    bool   available;
+    String name;
 };
 
 class TestSetFrame : public BaseClass
@@ -2670,7 +2638,7 @@ class TestSetFrame : public BaseClass
 
 public:
 
-struct FrameName  MyFrameTypes[50]
+std::vector<struct _FrameName> MyFrameTypes
 = {
         {true,  "J2000"},  
         {true,  "JMEAN"}, 
@@ -2713,8 +2681,6 @@ struct FrameName  MyFrameTypes[50]
         {false,  "AZELNEGEO"},
 
         {false,  "Hoge"},               // Bad name //
-        {false,  "HogeHogeHoge"},       // Bad name //
-        {false,  "" }                   // terminator //
 
 };
 
@@ -2738,7 +2704,6 @@ protected:
         virtual void TearDown()
        {
             BaseClass::TearDown();
-            printf ("TestSetFrame::TearDown:: called \n");
        }
         
         void check_direction_info(PointingDirectionCalculator& calc, int n_frame );
@@ -2809,13 +2774,13 @@ TEST_F(TestSetFrame, setFrame )
 
     // Using MS //
     
-        String MsName = "listobs/uid___X02_X3d737_X1_01_small.ms";    
+        const String MsName = "listobs/uid___X02_X3d737_X1_01_small.ms";    
     
     // MS name for this Test //
+
         String name = env.getCasaMasterPath() + MsName;
         printf( " Used MS is [%s] \n", name.c_str() );
 
-    
     // Create Object //
     
         MeasurementSet ms( name.c_str() );
@@ -2824,20 +2789,20 @@ TEST_F(TestSetFrame, setFrame )
     
     // Initial brief Inspection //
     
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
+        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
+        ExpectedNrow = calc.getNrowForSelectedMS();
+        EXPECT_NE((uInt)0, ExpectedNrow );
 
     // Various Frame Type (String) //
 
-    for( int i = 0; MyFrameTypes[i].name !="" ; i++  )
-    {
-        FunctionalDescription( "setFrame(Rsved Name) ", MyFrameTypes[i].name.c_str() );
+        for( uInt i = 0; i < MyFrameTypes.size() ; i++  )
+        {
+            FunctionalDescription( "setFrame(Rsved Name) ", MyFrameTypes[i].name.c_str() );
 
-        // Execute and check Exception and other requirements//
+            // Execute and check Exception and other requirements//
         
-        check_direction_info( calc, i ) ;
-    }
+            check_direction_info( calc, i ) ;
+        }
 }
 
 
@@ -2860,7 +2825,6 @@ int main (int nArgs, char * args [])
 
    // Run Test //
 
-    printf ("Going to RUN_TEST \n" );
     return (RUN_ALL_TESTS()) ;
 
 }
