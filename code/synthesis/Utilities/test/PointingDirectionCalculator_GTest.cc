@@ -102,37 +102,37 @@ struct _MSDef
 
 std::vector<struct _MSDef> TestMSList 
 {
-        // Exeption(bool)  , Filename //
+    // Exeption(bool)  , Filename //
  
-        {true, "./sdimaging-t.ms"           },
-        {false, "sdimaging/sdimaging.ms"    },
+        {true, "./sdimaging-t.ms"   		},
+        {false, "sdimaging/sdimaging.ms"        },
         {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
 
-// Following 2 MS are affected assert(), cannot run on UT
-// Release EXE must throws Excepton. 
-//      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
-//      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
+    // Following 2 MS are affected assert(), cannot run on UT
+    // Release EXE must throws Excepton. 
+    //      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
+    //      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
 
-        {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms" },
-        {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms" },
-        {false, "sdimaging/azelpointing.ms"                   },
-        {false, "sdimaging/clipping_1row.ms"          },
-        {false, "sdimaging/clipping_2rows.ms"         },
-        {false, "sdimaging/clipping_3rows.ms"         },
-        {false, "sdimaging/clipping_3rows_2chans.ms"  },
-        {false, "sdimaging/clipping_3rows_suprious.ms"        },
-        {false, "sdimaging/pointing6.ms"                      },
-        {false, "sdimaging/sdimaging_flagtest.ms"             },
-        {false, "sdimaging/selection_intent.ms"               },
-        {false, "sdimaging/selection_misc.ms"         },
-        {false, "sdimaging/selection_spw.ms"          },
-        {false, "sdimaging/selection_spw_unifreq.ms"  },
-        {true, ".sis14_twhya_calibrated_flagged.ms"        },
-        {true, ".sis14_twhya_calibrated_flagged-t.ms"      },
-        {true,  "sdimaging/hogehoge.ms"  },
-        {true,  "sdimaging/hogehoge.ms"  },  // Extra Hoge for self-degbug .
+        {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms"   },
+        {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms"   },
+        {false, "sdimaging/azelpointing.ms"      	},
+        {false, "sdimaging/clipping_1row.ms"            },
+        {false, "sdimaging/clipping_2rows.ms"           },
+        {false, "sdimaging/clipping_3rows.ms"           },
+        {false, "sdimaging/clipping_3rows_2chans.ms"    },
+        {false, "sdimaging/clipping_3rows_suprious.ms"  },
+        {false, "sdimaging/pointing6.ms"                },
+        {false, "sdimaging/sdimaging_flagtest.ms"       },
+        {false, "sdimaging/selection_intent.ms"         },
+        {false, "sdimaging/selection_misc.ms"           },
+        {false, "sdimaging/selection_spw.ms"            },
+        {false, "sdimaging/selection_spw_unifreq.ms"    },
+        {true, ".sis14_twhya_calibrated_flagged.ms"     },
+        {true, ".sis14_twhya_calibrated_flagged-t.ms"   },
+        {true,  "sdimaging/hogehoge.ms"                 },
+        {true,  "sdimaging/hogehoge.ms"                 },  // Extra Hoge for self-degbug .
  
-        // Any additional definition can be written here as you want. // 
+    // Any additional definition can be written here as you want. // 
 
 };
 
@@ -143,24 +143,22 @@ const String  getMsNameFromList(uInt No )
     return TestMSList[No].name;
 }
 
-// Get Exception information ..
+// Get Exception information //
 bool  getMSThrowFromList(uInt  No )
 {
     assert(TestMSList.size() > No );
     return TestMSList[No].ExThrow;
 }
-
+// Get Count of MS List //
 uInt getMSCountFromList()
 {
     return TestMSList.size();
 }
 
-
-
-//**************************************************
-//  Log Title Functions for readable text output
+//******************************************************
+//  Log Title Output Functions for readable text 
 //  of this UT.
-//**************************************************
+//******************************************************
 
 void TestDescription( const String &Title )
 {
@@ -210,18 +208,24 @@ public:
     
     String GetCasaPath(const String pathname )
     {
-        if (casacore::EnvironmentVariable::isDefined(pathname)) {
+        if (casacore::EnvironmentVariable::isDefined(pathname)) 
+        {
             string casapath = casacore::EnvironmentVariable::get(pathname);
             size_t endindex = casapath.find(" ");
-            if (endindex != string::npos) {
+            if (endindex != string::npos)
+            {
                 string casaroot = casapath.substr(0, endindex);
                 cout << pathname << "=" << casaroot << endl;
                 return (casaroot);
-             } else {
+            } 
+            else 
+            {
                 cout << "hit npos" << endl;
                 return "/hoge/";
-             }
-        } else {
+            }
+        } 
+        else 
+        {
             cout << "ERROR: Specified path " << pathname  << " is not defined" << endl;
             return "";
         }
@@ -231,6 +235,7 @@ public:
     {
         return CasaPath;
     }
+
     String getCasaMasterPath()
     {
         return CasaMasterPath;
@@ -257,38 +262,37 @@ static String DefaultLocalMsName = "./sdimaging-t.ms";
 
 void CopyDefaultMStoWork()
 {
-//  Environment //
+    //  Environment //
 
-    MyEnv env;
-
-// TEST of Directory.copy() //
+        MyEnv env;
 
     // Src/Dsr Path (string) 
 
-    String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
-    String dst = DefaultLocalMsName;
+        String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
+        String dst = DefaultLocalMsName;
 
     // Src/Dst Path (Path) 
 
-    casacore::Path        sourcePath(src);
-    casacore::Path        targetPath(dst);       
-    casacore::Directory   dir_ctrl(sourcePath);
+        casacore::Path        sourcePath(src);
+        casacore::Path        targetPath(dst);       
+        casacore::Directory   dir_ctrl(sourcePath);
 
-    Description( "Copying Default MeasurementSet for modifed use to; " ,dst.c_str() );
+        Description( "Copying Default MeasurementSet for modifed use to; " ,dst.c_str() );
 
-     printf( " - src filespec  : %s \n", src.c_str() );
-     printf( " - dest filespec : %s \n", dst.c_str() );
+        printf( " - src filespec  : %s \n", src.c_str() );
+        printf( " - dest filespec : %s \n", dst.c_str() );
 
     //+
     // Copy File, use copy() method.
     //   WARNING; Destination directory must be full described.
     //-
 
-    if(true){
-        dir_ctrl.copy( targetPath,
-                        True,    // Overwrite 
-                        True  ); // Users permisssion 
-    }
+        if(true)
+        {
+            dir_ctrl.copy( targetPath,
+                           True,    // Overwrite 
+                           True  ); // Users permisssion 
+        }
 }
 
 //+
@@ -299,42 +303,41 @@ void CopyDefaultMStoWork()
 void DeleteWorkingMS()
 {
     String dst         = DefaultLocalMsName;
+
     casacore::Path        path(dst);
     casacore::Directory   dir_ctrl(path);
 
-     Description( "Deleting Working MeasurementSet for modifed use." ,dst.c_str() );
+    Description( "Deleting Working MeasurementSet for modifed use." ,dst.c_str() );
 
     // Delete File (Recursively done) 
     // NOTE: for debug use, please change true-> falase )
 
-    if (true) dir_ctrl. removeRecursive(false /*keepDir=False */ );
-
+    if (true)
+    {
+         dir_ctrl. removeRecursive(false /*keepDir=False */ );
+    }
 }
 
-
-
-//----------------------------------------------
+//+
 // Editting local MS for detail Test
-// 
 // (Tables) ANTENNA and POINTING . 
-//
-//----------------------------------------------
+//-
 
 // Antenna Data (for Wtiting individual record) 
 
-typedef  struct ChgAntennaTable_ {
+typedef  struct AntTblBuf_ {
 
-  String name;
-  String station;
-  String type;
-  String mount;
+    String name;
+    String station;
+    String type;
+    String mount;
 
-  Vector<Double> position;
-  Vector<Double> offset;
+    Vector<Double> position;
+    Vector<Double> offset;
 
-  Double  dish_diameter;
-  Int     orbit_id;
-  Double  mean_orbit[6];
+    Double  dish_diameter;
+    Int     orbit_id;
+    Double  mean_orbit[6];
 
 } ANTENNADataBuff ;
 
@@ -345,33 +348,33 @@ typedef  struct ChgAntennaTable_ {
 
 class MsEdit 
 {
-
 public:
-        MsEdit()        { };
 
-        // Add or Remove Row  (Antenna) //
+    MsEdit()        { };
 
-        uInt  AntennaTable_AddRow();
+    // Add or Remove Row  (Antenna) //
+
+        uInt AntennaTable_AppendRow();
         void AntennaTable_RemoveRow(uInt NRow );
         
-        // List Table Contents. //
+    // List Table Contents. //
 
         void AntennaTable_List(String MsName =DefaultLocalMsName);
         void PointingTable_List(String MsName =DefaultLocalMsName, bool showAll=false );
 
-        // Write Data on Antenna Table // 
+    // Write Data on Antenna Table // 
      
         void AntennaTable_WriteData(String MsName =DefaultLocalMsName, int Row =0 );
 
-        // Write new Columns and init data // 
+    // Write new Columns and init data // 
 
         void PointingTable_WriteData(String MsName =DefaultLocalMsName );
 
-        // Write (generated) Test Data on Pointing Table //
+    // Write (generated) Test Data on Pointing Table //
 
         void WriteTestDataOnDirection(String MsName =DefaultLocalMsName );
 
-        // Add or Remove Column (Pointing) ////
+    // Add or Remove Column (Pointing) ////
 
         void CpoyDirectionColumnsToNewColumns();
 
@@ -379,12 +382,12 @@ private:
 
         String MsName = DefaultLocalMsName;  // default (C++11) //
 
-        //+
-        // Buff between table and local var.
-        //-
+    //+
+    // Buff between table and local var.
+    //-
 
-         ANTENNADataBuff  AntennaData;   // for Read 
-         ANTENNADataBuff  AntennaData1;  // for Write
+        ANTENNADataBuff  AntennaData;   // for Read 
+        ANTENNADataBuff  AntennaData1;  // for Write
 
 };
 
@@ -393,20 +396,19 @@ private:
 //  returns latest nrow.
 //-
 
-uInt  MsEdit::AntennaTable_AddRow()
+uInt  MsEdit::AntennaTable_AppendRow()
 {
     // Measurement Set (use default name) //
 
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
+        MeasurementSet ms0( MsName.c_str(), casacore::Table::TableOption:: Update );
 
     // Table handle //
 
-        MSAntenna   hAntennaTable  = ms0.antenna();
+        MSAntenna   hAntennaTable = ms0.antenna();
 
     // Add Row //
 
-         hAntennaTable.addRow();
-
+        hAntennaTable.addRow();
         uInt nrow = hAntennaTable.nrow();
 
         return nrow;
@@ -415,18 +417,20 @@ uInt  MsEdit::AntennaTable_AddRow()
 //+
 // Remove specified row from Antanna Table
 //-
-void MsEdit::AntennaTable_RemoveRow(uInt NRow )
+
+void MsEdit::AntennaTable_RemoveRow(uInt nrow )
 {
-    // Measurment Set (use default name ) //
+    // Measurment Set (use default name ) 
+
         MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
 
     // Table handle //
 
         MSAntenna   hAntennaTable  = ms0.antenna();
 
-    // Add Row //
+    // Remove Row //
       
-         hAntennaTable.removeRow( NRow );
+         hAntennaTable.removeRow( nrow );
 
 }
 
