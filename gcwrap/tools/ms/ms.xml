@@ -3485,8 +3485,8 @@ in spectral window 1.
      <example>10</example>
      </param>
 
-     <param type="string" name="excludechans">
-     <description>Channels to exclude from the computation of weights. Specified as an MS select channel selection string.</description>
+     <param type="string" name="fitspw">
+     <description>Channels to include in the computation of weights. Specified as an MS select channel selection string.</description>
      <value/>
      <example>"0:5~30"</example>
      </param>
@@ -3716,12 +3716,14 @@ in spectral window 1.
     specified, the array must contain exactly two nonnegative numeric
     values. Note that data with weights of zero are always flagged.
             
-    EXCLUDING CHANNELS
+    INCLUDING CHANNELS
             
-    Channels can be excluded from the computation of the weights by
-    specifying the excludechans parameter. This parameter accepts a
+    Channels can be included in the computation of the weights by
+    specifying the fitspw parameter. This parameter accepts a
     valid MS channel selection string. Data associated with the
-    selected channels will not be used in computing the weights.
+    selected channels will be used in computing the weights; all other
+    channels will be excluded from the computation of weights. By
+    default (empty string), all channels are included.
             
     PREVIEW MODE
             
