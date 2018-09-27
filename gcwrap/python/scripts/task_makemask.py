@@ -60,7 +60,7 @@ import shutil
 from taskinit import *
 from recipes.pixelmask2cleanmask import pixelmask2cleanmask
 (csys,ia,rg) = gentools(['cs','ia','rg']) 
-
+pid = str(os.getpid())
 debug = False 
 #debug = True 
 
@@ -75,9 +75,9 @@ def makemask(mode,inpimage, inpmask, output, overwrite, inpfreqs, outfreqs):
 
     try:
         # temp files
-        tmp_maskimage='__tmp_makemaskimage'
-	tmp_outmaskimage='__tmp_outmakemaskimage'
-        tmp_regridim='__tmp_regridim'
+        tmp_maskimage='__tmp_makemaskimage_'+pid
+	tmp_outmaskimage='__tmp_outmakemaskimage_'+pid
+        tmp_regridim='__tmp_regridim_'+pid
 
         #intial cleanup to make sure nothing left from previous runs
         tmplist = [tmp_maskimage,tmp_outmaskimage,tmp_regridim]
@@ -628,10 +628,10 @@ def makemask(mode,inpimage, inpmask, output, overwrite, inpfreqs, outfreqs):
 
 	#was: if mode=='merge':
 	if mode=='copy':
-	    sum_tmp_outfile='__tmp_outputmask'
-            tmp_inmask='__tmp_frominmask'
-            tmp_allrgmaskim='__tmp_fromAllRgn'
-            tmp_rgmaskim='__tmp_fromRgn'
+	    sum_tmp_outfile='__tmp_outputmask_'+pid
+            tmp_inmask='__tmp_frominmask_'+pid
+            tmp_allrgmaskim='__tmp_fromAllRgn_'+pid
+            tmp_rgmaskim='__tmp_fromRgn_'+pid
             # making sure to remove pre-existing temp files
             cleanuptempfiles([sum_tmp_outfile, tmp_inmask, tmp_allrgmaskim, tmp_rgmaskim])
             usedimfiles=[]
@@ -698,6 +698,7 @@ def makemask(mode,inpimage, inpmask, output, overwrite, inpfreqs, outfreqs):
                         dirname = os.path.dirname(img)
                         basename = os.path.basename(img)
                         tmpregrid= dirname+'/'+'__tmp_regrid.'+basename if len(dirname) else '__tmp_regrid.'+basename
+                        tmpregrid+='_'+pid
                         if os.path.exists(tmpregrid):
                             shutil.rmtree(tmpregrid)
                         # regrid to output image coords
@@ -730,14 +731,14 @@ def makemask(mode,inpimage, inpmask, output, overwrite, inpfreqs, outfreqs):
                         # changed to usemasked=False as of CAS-5443  
 
 			pixelmask2cleanmask(imname, mskname, tmp_inmask, False)    
-                        cleanuptempfiles(['__tmp_fromTFmask']) 
-			regridmask(tmp_inmask,sum_tmp_outfile,'__tmp_fromTFmask')
+                        cleanuptempfiles(['__tmp_fromTFmask_'+pid]) 
+			regridmask(tmp_inmask,sum_tmp_outfile,'__tmp_fromTFmask_'+pid)
                         # for T/F mask do AND operation
                         ia.open(sum_tmp_outfile)
                         if ia.statistics()['sum'][0] != 0:
-			    multiplyimagemask(sum_tmp_outfile,'__tmp_fromTFmask')
+			    multiplyimagemask(sum_tmp_outfile,'__tmp_fromTFmask_'+pid)
                         else:
-			    addimagemask(sum_tmp_outfile,'__tmp_fromTFmask')
+			    addimagemask(sum_tmp_outfile,'__tmp_fromTFmask_'+pid)
                         ia.close()
                         usedbmasks.append(msk)
                         # need this temp file for the process later
@@ -826,10 +827,9 @@ def makemask(mode,inpimage, inpmask, output, overwrite, inpfreqs, outfreqs):
                         
                     if debug: print "Regirdding..."
                     # regrid if necessary
-                    regridded_mask='__tmp_regrid_allrgnmask'
+                    regridded_mask='__tmp_regrid_allrgnmask_'+pid
                     regridmask(tmp_allrgmaskim, sum_tmp_outfile,regridded_mask)
                     addimagemask(sum_tmp_outfile,regridded_mask)
-                    #shutil.rmtree('__tmp_regridded_allrgnmask')
 		    casalog.post("Added mask based on regions to output mask","INFO")
                     #cleanup
                     for tmpfile in [tmp_allrgmaskim,tmp_rgmaskim,regridded_mask]:
@@ -838,15 +838,15 @@ def makemask(mode,inpimage, inpmask, output, overwrite, inpfreqs, outfreqs):
 
                                         
                 # merge the bmasks with AND
-                if os.path.exists('__tmp_fromTFmask') and len(bmasks)>0:
+                if os.path.exists('__tmp_fromTFmask_'+pid) and len(bmasks)>0:
                     if ia.isopen(): ia.close()
                     ia.open(sum_tmp_outfile)
                     if ia.statistics()['sum'][0]!=0:
-                       multiplyimagemask(sum_tmp_outfile,'__tmp_fromTFmask')
+                       multiplyimagemask(sum_tmp_outfile,'__tmp_fromTFmask_'+pid)
                     else:
-                       addimagemask(sum_tmp_outfile,'__tmp_fromTFmask')
+                       addimagemask(sum_tmp_outfile,'__tmp_fromTFmask_'+pid)
                     ia.done()
-                    shutil.rmtree('__tmp_fromTFmask') 
+                    shutil.rmtree('__tmp_fromTFmask_'+pid) 
 		if outbmask!='':
                     casalog.post('Putting mask in T/F','INFO')
                     if ia.isopen(): ia.close()
@@ -930,6 +930,7 @@ def makemask(mode,inpimage, inpmask, output, overwrite, inpfreqs, outfreqs):
                        basename = os.path.basename(im)
                        dirname = os.path.dirname(im)
                        tempregridname = dirname+'/__tmp_regrid.'+basename if len(dirname) else '__tmp_regrid.'+basename
+                       tempregridname+='_'+pid
                        if os.path.isdir(tempregridname):
 		            shutil.rmtree(tempregridname)
                        
@@ -956,8 +957,8 @@ def makemask(mode,inpimage, inpmask, output, overwrite, inpfreqs, outfreqs):
 	    shutil.rmtree(tmp_outmaskimage)
         if os.path.isdir(tmp_regridim):
             shutil.rmtree(tmp_regridim)
-	if os.path.exists('__tmp_fromTFmask'):
-	    shutil.rmtree('__tmp_fromTFmask')
+	if os.path.exists('__tmp_fromTFmask_'+pid):
+	    shutil.rmtree('__tmp_fromTFmask_'+pid)
 
 def findnearest(arr, val):
     import numpy as np
@@ -1128,7 +1129,6 @@ def translatefreqrange(freqrange,csys):
     convert the range in list
     mainly for frequeny and velocity range determination
     """
-    (qa,) = gentools(['qa'])
     if type(freqrange)==list and type(freqrange[0])==int:
         #do nothing
         return freqrange
