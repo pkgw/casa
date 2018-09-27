@@ -139,14 +139,18 @@ std::vector<struct _MSDef> TestMSList
 // Get File Name by Number //
 const String  getMsNameFromList(uInt No )
 {
-    assert(TestMSList.size() >  No );
+    const String msg = "Internal Bugcheck:";
+    if( !(TestMSList.size() >  No) ) throw AipsError(msg.c_str());
+
     return TestMSList[No].name;
 }
 
 // Get Exception information //
 bool  getMSThrowFromList(uInt  No )
 {
-    assert(TestMSList.size() > No );
+    const String msg = "Internal Bugcheck:";
+    if( !(TestMSList.size() >  No) ) throw AipsError(msg.c_str());
+    
     return TestMSList[No].ExThrow;
 }
 // Get Count of MS List //
@@ -199,7 +203,7 @@ public:
         
         CasaPath        = GetCasaPath( "CASAPATH" );
         CasaMasterPath  = CasaPath + "/data/regression/unittest/"; 
-        CasaMaserMSFullName = CasaMasterPath + "sdimaging/sdimaging.ms";
+        UnitTestTMasterFileName = CasaMasterPath + "sdimaging/sdimaging.ms";
 
         printf("MyEnv:: Environment Variable Information -----\n" );
         printf("CASAPATH      :%s \n", CasaPath.c_str());
@@ -245,7 +249,7 @@ private:
 
     String CasaPath;            // translated from CASAPATH 
     String CasaMasterPath;
-    String CasaMaserMSFullName;
+    String UnitTestTMasterFileName;
 
 };
 
@@ -1133,7 +1137,6 @@ void TestMeasurementSet::test_constructor(uInt num )
 
     // Initial brief Inspection //
    
-
         printf("# Constuctor Initial Check.  [%s] \n", name.c_str()  );
         printf("  detected nrow : %d \n", calc.getNrowForSelectedMS() );
       
@@ -1154,10 +1157,10 @@ TEST_F(TestMeasurementSet, variousConstructor )
 {
     TestDescription( "CALC Constructor by various MS" );
 
-    uInt count = getMSCountFromList();
-    printf("%d MeasruementSet for this test are ready.\n" ,count); 
+    uInt max_count = getMSCountFromList();
+    printf("%d MeasruementSet for this test are ready.\n" ,max_count); 
 
-    for(uInt k=0; k<count; k++)
+    for(uInt k=0; k< max_count ; k++)
     {
        FunctionalDescription( "CALC Constructor by various MS",getMsNameFromList(k).c_str()  );
  
@@ -1853,7 +1856,12 @@ TEST_F(TestDirection, getDirection )
 {
 
     TestDescription( "getDirection (J2000)" );
-    const String MsName = DefaultLocalMsName;    // 
+
+#if 0
+    const String MsName = DefaultLocalMsName;    
+#else
+    const String MsName = env.getCasaMasterPath() + "listobs/uid___X02_X3d737_X1_01_small.ms";
+#endif 
 
     // Create Object //
     
@@ -1902,6 +1910,17 @@ TEST_F(TestDirection, getDirection )
          printf( "Number of Row = %d \n", n_row );
          EXPECT_EQ( n_row, ExpectedNrow);
 
+
+
+    //+
+    // uv value 
+    //  (first attach to Column e )
+    //-
+
+        casacore::ROArrayColumn<casacore::Double> uvwColumn;	
+        uvwColumn .attach( ms , "UVW");
+
+
     //+
     // Dump Matrix
     //-
@@ -1912,13 +1931,28 @@ TEST_F(TestDirection, getDirection )
 
     for (uInt row=0; row< n_row; row++)
     {
+
+        // (u,v,w) //
+
+        casacore::Vector<double>  val_uvw = uvwColumn.get(row);
+
+        double u = val_uvw[0];
+        double v = val_uvw[1];
+        double w = val_uvw[2];
+
+        // Direction //
+
         double Val_1 = DirList1(row,0);
         double Val_2 = DirList1(row,1);
 
         casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
         String strMovDir = MovDir.toString();
 
-        printf(    "Dir at, [%d], %f,%f, [Mov:%s] \n",   row, Val_1, Val_2, strMovDir.c_str() );
+        printf(    "Dir at, [%d], %f,%f, [Mov:%s] uv=(%f,%f,%f) \n",  
+                row, Val_1, Val_2, strMovDir.c_str(), 
+                u, v, w );
+
+
     }
 
 #endif 
