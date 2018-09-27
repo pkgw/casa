@@ -1,6 +1,7 @@
 import os
 import shutil
 from taskinit import *
+from mstools import write_history
 
 def cvel(vis, outputvis,
 	 passall, field, spw, selectdata, antenna, timerange, scan, array,
@@ -530,33 +531,14 @@ def cvel(vis, outputvis,
                         raise Exception, "Error in attaching passed-through data ..."
 
 	# Write history to output MS
-        ms.open(outputvis, nomodify=False)
-	ms.writehistory(message='taskname=cvel', origin='cvel')
-	ms.writehistory(message='vis         = "'+str(vis)+'"',
-			origin='cvel')
-	ms.writehistory(message='outputvis   = "'+str(outputvis)+'"',
-			origin='cvel')
-	ms.writehistory(message='passall     = "'+str(passall)+'"',
-			origin='cvel')
-	ms.writehistory(message='field       = "'+str(field)+'"',
-			origin='cvel')
-	ms.writehistory(message='spw         = '+str(spw), origin='cvel')
-	ms.writehistory(message='antenna     = "'+str(antenna)+'"',
-			origin='cvel')
-	ms.writehistory(message='timerange   = "'+str(timerange)+'"',
-			origin='cvel')
-	ms.writehistory(message='mode        = '+str(mode), origin='cvel')
-	ms.writehistory(message='nchan       = '+str(nchan), origin='cvel')
-	ms.writehistory(message='start       = '+str(start), origin='cvel')
-	ms.writehistory(message='width       = '+str(width), origin='cvel')
-	ms.writehistory(message='interpolation = '+str(interpolation), origin='cvel')
-	ms.writehistory(message='outframe    = "'+str(outframe)+'"',
-			origin='cvel')
-	ms.writehistory(message='phasecenter = "'+ str(phasecentername) +'"',
-			origin='cvel')
-	ms.writehistory(message='hanning   = "'+str(hanning)+'"',
-			origin='cvel')
-	ms.close()
+	try:
+		param_names = cvel.func_code.co_varnames[:cvel.func_code.co_argcount]
+		param_vals = [eval(p) for p in param_names]
+		write_history(mstool(), outputvis, 'cvel', param_names,
+					  param_vals, casalog)
+	except Exception, instance:
+		casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
+					 'WARN')
 
         return True
 
