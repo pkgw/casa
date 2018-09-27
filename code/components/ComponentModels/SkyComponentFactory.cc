@@ -73,7 +73,7 @@ SkyComponent SkyComponentFactory::encodeSkyComponent(
         return sky;
 }
 
-
+/*
 // moved from ImageAnalysis. See comments in ImageUtilities.h
 // TODO the only thing that uses this is ImageFitter. So move it there
 SkyComponent SkyComponentFactory::encodeSkyComponent(
@@ -127,6 +127,7 @@ SkyComponent SkyComponentFactory::encodeSkyComponent(
 	}
 	return SkyComponentFactory::deconvolveSkyComponent(os, sky, beam);
 }
+*/
 
 // moved from ImageAnalysis. See comments in ImageUtilities.h
 SkyComponent SkyComponentFactory::deconvolveSkyComponent(

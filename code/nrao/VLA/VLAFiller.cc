@@ -128,7 +128,7 @@ const RecordFieldId chanFlagTileId("FLAG_HYPERCUBE_ID");
 //=====  
 const Quantum<Double> dirTol(10.0, "mas"); // Tolerance on matching fields
 const Quantum<Double> posTol(1, "m");     // Tolerance on matching antennas
-const Double ns2m = QC::c.getValue("m/ns");
+const Double ns2m = QC::c( ).getValue("m/ns");
 
 // The following struct is just ways of bundling up a bunch of arguments to
 // functions to avoid having too many in the function interface.

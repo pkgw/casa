@@ -23,7 +23,7 @@
 #ifndef TSTATWTTVI_H_
 #define TSTATWTTVI_H_
 
-#include <mstransform/TVI/test/TestUtilsTVI.h>
+#include <msvis/MSVis/test/TestUtilsTVI.h>
 #include <mstransform/TVI/StatWtTVI.h>
 
 using namespace std;

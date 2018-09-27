@@ -65,6 +65,7 @@ public:
     static void makeParameters(PlotMSPlotParameters& params, PlotMSApp* plotms);
     
     void customizeAutoSymbol( const PlotSymbolPtr& baseSymbol, casacore::uInt dataSize  );
+    void customizeOverlaySymbol( const PlotSymbolPtr& baseSymbol, casacore::uInt dataSize  );
     // Non-Static //
     
     // Constructor which takes the parent PlotMS object.  Starts out with
@@ -330,15 +331,22 @@ private:
 
     void clearCanvasProperties( int row, int col);
     void setCanvasProperties (int row, int col, int numplots, uInt iteration,
-			PMS_PP_Axes* axesParams, PMS_PP_Cache* cacheParams, 
+            PMS_PP_Axes* axesParams, PMS_PP_Cache* cacheParams, 
             PMS_PP_Canvas *canvParams, PMS_PP_Iteration *iterParams,
             PMS_PP_MSData* dataParams, PMS_PP_Display* displayParams );
+
+    // range must be modified in certain cases
+    void setAxisRange(PMS::Axis axis, PlotAxis paxis, double min, double max,
+        PlotCanvasPtr& canvas);
 
     // To modify axis label if needed:
     bool axisIsAveraged(PMS::Axis axis, PlotMSAveraging averaging);
     casacore::String addFreqFrame(casacore::String freqLabel);
     PMS::Axis getCalAxis(casacore::String calType, PMS::Axis axis);
     PMS::Axis getDefaultXAxis();
+    PMS::Axis getGsplineAxis(const casacore::String filename);
+	void checkColoraxis(casacore::String caltype, PMS_PP_Display* display); 
+	void checkIteraxis(casacore::String caltype, PMS_PP_Iteration* iter);
 
     //Note:  First index for a plot is the dataCount,
     //second index is the number of iteration.
@@ -359,6 +367,7 @@ private:
     static const casacore::uInt PIXEL_THRESHOLD;
     static const casacore::uInt MEDIUM_THRESHOLD;
     static const casacore::uInt LARGE_THRESHOLD;
+    static const casacore::uInt XLARGE_THRESHOLD;
 };
 
 }

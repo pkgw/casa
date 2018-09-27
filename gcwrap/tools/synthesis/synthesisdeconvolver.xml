@@ -150,6 +150,18 @@ This is used to construct {\tt synthesisdeconvolver} tool.
 <returns type="bool"/>
 </method>
 
+<!-- ===================================== -->
+   <method type="function" name="checkrestoringbeam">
+   <shortdescription>check restoring beam.</shortdescription>
+
+<description>
+</description>
+<input>
+</input>
+
+<returns type="bool"/>
+</method>
+
 <!-- ===========================
 
    <method type="function" name="testsummary">
@@ -168,6 +180,7 @@ This is used to construct {\tt synthesisdeconvolver} tool.
 
 <returns type="bool"/>
 </method>
+
 
 ============================== -->
 

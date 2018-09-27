@@ -55,11 +55,12 @@ template <class T>
 void ImageConcatenator<T>::setAxis(int axis) {
 	ThrowIf(
 		axis >= (casacore::Int)this->_getImage()->ndim(),
-		"Specified zero-based value of axis exceeds number of dimensions in image"
+		"Specified zero-based value of axis exceeds "
+		"number of dimensions in image"
 	);
 	if (axis < 0) {
-		ThrowIf(!
-			this->_getImage()->coordinates().hasSpectralAxis(),
+		ThrowIf(
+			! this->_getImage()->coordinates().hasSpectralAxis(),
 			"This image has no spectral axis"
 		);
 		_axis = this->_getImage()->coordinates().spectralAxisNumber(false);
@@ -95,14 +96,11 @@ SPIIT ImageConcatenator<T>::concatenate(
 	casacore::Vector<casacore::Double> pix = csys.referencePixel();
 	vector<casacore::String> imageList;
 	imageList.push_back(myImage->name());
-	//if (! _reorder) {
-		imageList.insert(
-			imageList.end(), imageNames.begin(), imageNames.end()
-		);
-	//}
+	imageList.insert(
+	    imageList.end(), imageNames.begin(), imageNames.end()
+	);
 	casacore::String myName = myImage->name();
 	casacore::Bool isIncreasing = false;
-
 	vector<casacore::Double> minVals, maxVals;
 	casacore::uInt n = 0;
 	if (! _relax || _reorder) {
@@ -116,11 +114,38 @@ SPIIT ImageConcatenator<T>::concatenate(
 	}
 	casacore::uInt i = 1;
 	for(casacore::String name: imageNames) {
-		auto mypair = ImageFactory::fromFile(name);
-		auto oDType = mypair.first ? mypair.first->dataType() : mypair.second->dataType();
-		const auto& oCsys = mypair.first
-			? mypair.first->coordinates()
-			: mypair.second->coordinates();
+		auto imagePtrs = ImageFactory::fromFile(name);
+        SPCIIF imageF;
+        SPCIIC imageC;
+        SPCIID imageD;
+        SPCIIDC imageDC;
+        std::tie(imageF, imageC, imageD, imageDC) = imagePtrs;
+		casacore::DataType oDType;
+		casacore::CoordinateSystem oCsys;
+		casacore::IPosition shape;
+		if (imageF) {
+		    oDType = imageF->dataType();
+		    oCsys = imageF->coordinates();
+		    shape = imageF->shape();
+		}
+		else if (imageC) {
+		    oDType = imageC->dataType();
+		    oCsys = imageC->coordinates();
+		    shape = imageC->shape();
+		}
+		else if (imageD) {
+		    oDType = imageD->dataType();
+		    oCsys = imageD->coordinates();
+		    shape = imageD->shape();
+		}
+		else if (imageDC) {
+		    oDType = imageDC->dataType();
+		    oCsys = imageDC->coordinates();
+		    shape = imageDC->shape();
+		}
+		else {
+		    ThrowCc("Logic error");
+		}
 		ThrowIf(
 			oDType != dataType,
 			"Concatenation of images of different data types is not supported"
@@ -128,15 +153,10 @@ SPIIT ImageConcatenator<T>::concatenate(
 		if (! _relax || _reorder) {
 			ThrowIf(
 				_minMaxAxisValues(
-					minVals[i], maxVals[i],
-					mypair.first ? mypair.first->ndim() : mypair.second->ndim(),
-					oCsys,
-					mypair.first
-						? mypair.first->shape()
-						: mypair.second->shape()
+					minVals[i], maxVals[i], shape.size(), oCsys, shape
 				) != isIncreasing,
-				"Coordinate axes in different images with opposing increment signs "
-				"is not permitted if relax=false or reorder=true"
+				"Coordinate axes in different images with opposing increment "
+				"signs is not permitted if relax=false or reorder=true"
 			);
 		}
 		if (! _relax) {
@@ -155,14 +175,15 @@ SPIIT ImageConcatenator<T>::concatenate(
 		casacore::Sort sorter;
 		sorter.sortKey(
 			minVals.data(), TpDouble, 0,
-			isIncreasing ? casacore::Sort::Ascending : casacore::Sort::Descending
+			isIncreasing ? casacore::Sort::Ascending
+			    : casacore::Sort::Descending
 		);
 		casacore::Vector<casacore::uInt> indices;
 		sorter.sort(indices, n);
 		vector<casacore::String> tmp = imageList;
 		vector<casacore::String>::iterator iter = tmp.begin();
 		vector<casacore::String>::iterator end = tmp.end();
-		casacore::Vector<casacore::uInt>::const_iterator index = indices.begin();
+		auto index = indices.begin();
 		while (iter != end) {
 			*iter++ = imageList[*index++];
 		}
@@ -173,7 +194,9 @@ SPIIT ImageConcatenator<T>::concatenate(
 			<< imageList[0] << " will be used as the reference"
 			<< casacore::LogIO::POST;
 	}
-	std::unique_ptr<casacore::ImageConcat<T> > pConcat(new casacore::ImageConcat<T> (_axis, _tempClose));
+	std::unique_ptr<casacore::ImageConcat<T> > pConcat(
+	    new casacore::ImageConcat<T> (_axis, _tempClose)
+	);
 	ThrowIf(
 		! pConcat.get(), "Failed to create ImageConcat object"
 	);

@@ -75,7 +75,7 @@ public:
         casacore::Bool boolVal;
         AnnotationBase::LineStyle lineStyleVal;
         AnnotationBase::FontStyle fontStyleVal;
-        SHARED_PTR<std::pair<casacore::MFrequency, casacore::MFrequency> > freqRange;
+        std::shared_ptr<std::pair<casacore::MFrequency, casacore::MFrequency> > freqRange;
         casacore::Vector<casacore::Stokes::StokesTypes> stokes;
         AnnotationBase::RGB color;
         vector<casacore::Int> intVec;
@@ -123,8 +123,8 @@ public:
         casacore::Bool& spectralParmsUpdated,
         casacore::LogIO& log, const casacore::String& text, const casacore::String& preamble,
         const casacore::CoordinateSystem& csys,
-        SHARED_PTR<std::pair<casacore::MFrequency, casacore::MFrequency> > overridingFreqRange,
-        SHARED_PTR<casacore::Vector<casacore::Stokes::StokesTypes> > overridingCorrRange
+        std::shared_ptr<std::pair<casacore::MFrequency, casacore::MFrequency> > overridingFreqRange,
+        std::shared_ptr<casacore::Vector<casacore::Stokes::StokesTypes> > overridingCorrRange
     );
 
 private:
@@ -145,9 +145,9 @@ private:
     casacore::uInt _regions;
     casacore::Bool _verbose = true;
 
-    SHARED_PTR<std::pair<casacore::MFrequency, casacore::MFrequency> > _overridingFreqRange;
+    std::shared_ptr<std::pair<casacore::MFrequency, casacore::MFrequency> > _overridingFreqRange;
 
-    SHARED_PTR<casacore::Vector<casacore::Stokes::StokesTypes> > _overridingCorrRange;
+    std::shared_ptr<casacore::Vector<casacore::Stokes::StokesTypes> > _overridingCorrRange;
 
     void _parse(const casacore::String& contents, const casacore::String& fileDesc);
 

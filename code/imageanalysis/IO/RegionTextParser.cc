@@ -258,7 +258,7 @@ void RegionTextParser::_parse(const String& contents, const String& fileDesc) {
                 spectralParmsUpdated, newParams,
                 consumeMe, preamble
             );
-            map<AnnotationBase::Keyword, String> gParms;
+            std::map<AnnotationBase::Keyword, String> gParms;
             for (const auto& p: newParams) {
                 gParms[p.first] = p.second.stringVal;
             }
@@ -569,8 +569,8 @@ RegionTextParser::ParamSet RegionTextParser::getParamSet(
     Bool& spectralParmsUpdated, LogIO& log,
     const String& text, const String& preamble,
     const CoordinateSystem& csys,
-    SHARED_PTR<std::pair<MFrequency, MFrequency> > overridingFreqRange,
-    SHARED_PTR<Vector<Stokes::StokesTypes> > overridingCorrRange
+    std::shared_ptr<std::pair<MFrequency, MFrequency> > overridingFreqRange,
+    std::shared_ptr<Vector<Stokes::StokesTypes> > overridingCorrRange
 ) {
     ParamSet parms;
     spectralParmsUpdated = false;

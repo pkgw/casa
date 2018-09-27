@@ -64,10 +64,11 @@
 #include <casa/iomanip.h>
 #include <casa/Containers/RecordField.h>
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/plotserver/PlotServerProxy.h>
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
-
+#endif
 
 #include <casa/Logging/LogMessage.h>
 #include <casa/Logging/LogSink.h>
@@ -78,6 +79,57 @@
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+
+SolNorm::SolNorm(Bool donorm, String type) :
+  donorm_(donorm),
+  normtype_(normTypeFromString(type))
+{
+  //  report();
+}
+
+SolNorm::SolNorm(const SolNorm& other) : 
+  donorm_(other.donorm_),
+  normtype_(other.normtype_)
+{}
+
+void SolNorm::report() {
+  cout << "Forming SolNorm object:" << endl;
+  cout << " donorm=" << boolalpha << donorm_ << endl
+       << " normtype=" << normtypeString() << endl;
+}
+ 
+String SolNorm::normTypeAsString(Type type) {
+  switch (type) {
+  case MEAN: {
+    return String("MEAN");
+  }
+  case MEDIAN: { 
+    return String("MEDIAN");
+  }
+  default: {
+    return String("UNKNOWN");
+  }
+  }
+  return String("UNKNOWN");
+}
+  
+SolNorm::Type SolNorm::normTypeFromString(String type) {
+
+  String uptype=upcase(type);
+  if (uptype.contains("MEAN")) return SolNorm::MEAN;
+  else if (uptype.contains("MED")) return SolNorm::MEDIAN;
+  else {
+    throw(AipsError("Invalid normalization type specifiec!"));
+  }						
+  // Shouldn't reach here
+  return SolNorm::UNKNOWN;
+
+}
+
+
+
+
 
 // **********************************************************
 //  SolvableVisCal Implementations
@@ -113,6 +165,7 @@ SolvableVisCal::SolvableVisCal(VisSet& vs) :
   fintervalHz_(-1.0),
   fintervalCh_(vs.numberSpw(),0.0),
   chanAveBounds_(vs.numberSpw(),Matrix<Int>()),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -181,6 +234,7 @@ SolvableVisCal::SolvableVisCal(String msname,Int MSnAnt,Int MSnSpw) :
   fintervalHz_(-1.0),
   fintervalCh_(MSnSpw,0.0),
   chanAveBounds_(MSnSpw,Matrix<Int>()),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -251,6 +305,7 @@ SolvableVisCal::SolvableVisCal(const MSMetaInfoForCal& msmc) :
   fintervalHz_(-1.0),
   fintervalCh_(nSpw(),0.0),
   chanAveBounds_(nSpw(),Matrix<Int>()),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -313,7 +368,7 @@ SolvableVisCal::SolvableVisCal(const Int& nAnt) :
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
   fsolint_("none"),
-  solnorm_(false),
+  solnorm_(false,"mean"),
   minSNR_(0.0),
   combine_(""),
   focusChan_(0),
@@ -541,8 +596,11 @@ void SolvableVisCal::setCallib(const Record& callib,
 
   // Make the interpolation engine
   cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar(),cttifactoryptr());
+  //cpp_->listmappings();
 
-  //  cpp_->listmappings();
+  // Setup ct_ in SVC private data, because some derived classes need this
+  //  NB:  Not loaded into memory in the callib context (CLPatchPanel has that)
+  ct_= new NewCalTable(calTableName(),Table::Old,Table::Plain);
 
 }
 
@@ -1084,7 +1142,7 @@ void SolvableVisCal::setSolve() {
   urefantlist_(0)=-1;
   apmode()="AP";
   calTableName()="<none>";
-  solnorm()=false;
+  solnorm_=SolNorm(false,String("mean"));
   minSNR()=0.0f;
 
   // This is the solve context
@@ -1220,8 +1278,18 @@ void SolvableVisCal::setSolve(const Record& solve)
   if (solve.isDefined("append"))
     append()=solve.asBool("append");
 
-  if (solve.isDefined("solnorm"))
-    solnorm()=solve.asBool("solnorm");
+  if (solve.isDefined("solnorm")) {
+    Bool solnorm=solve.asBool("solnorm");
+
+    // normtype="mean" if not specified
+    String normtype("mean");
+    if (solve.isDefined("normtype")) 
+      normtype=solve.asString("normtype");
+
+    // Set the SolNorm object
+    solnorm_=SolNorm(solnorm,normtype);
+
+  }
 
   if (solve.isDefined("minsnr"))
     minSNR()=solve.asFloat("minsnr");
@@ -1273,7 +1341,8 @@ String SolvableVisCal::solveinfo() {
     << " refant="     << "'" << refantNames << "'" // (id=" << refant() << ")"
     << " minsnr=" << minSNR()
     << " apmode="  << apmode()
-    << " solnorm=" << solnorm();
+    << " solnorm=" << solnorm()
+    << (solnorm() ? " normtype="+solNorm().normtypeString() : "");
   return String(o);
 
 }
@@ -3854,6 +3923,95 @@ Bool SolvableVisCal::spwOK(Int ispw) {
   }
 }
 
+// Is the data in this VB calibrate-able?  This replaces the old spwOK and
+//   is more specific as regards obs, fld, intent.  Used at wide scopes
+//   (Calibrater/VisEquation) to control entering expensive loops.
+// "OK for Cal" or "Calibrate-able" here means:
+//   a) this SVC can actually calibrate the data within the VB because
+//       there are solutions explicitly available to do it (see
+//       SVC::calAvailable(vb) below)
+// OR
+//   b) that this SVC is agnostic about the data within the VB according
+//       to arrangements made by CalLibrary specifictions and
+//       embodied within the CLPatchPanel (cpp_).  Agnosticism is
+//       supported ONLY when using the CalLibrary and CLPatchPanel
+Bool SolvableVisCal::VBOKforCalApply(vi::VisBuffer2& vb) {
+
+  // Current spw
+  //  TBD: Use syncMeta2?
+  const Int& ispw(vb.spectralWindows()(0));
+
+  if (isSolved())
+    return spwOK_(ispw);
+
+  if (isApplied()) {
+
+    if (ci_)
+      // Get it from the old-fashioned CTPatchedInterp
+      return spwOK_(ispw)=ci_->spwOK(ispw);
+
+    else if (cpp_) {
+      // Get it from the new CLPatchPanel, which has
+      //  obs, fld, intent specificity, too!
+      const Int& iobs(vb.observationId()(0));
+      const Int& ifld(vb.fieldId()(0));
+      const Int& ient(vb.stateId()(0));
+      return cpp_->MSIndicesOK(iobs,ifld,ient,ispw,-1); // all ants
+    }
+    else
+      // Assume ok for non-interpolable types
+      return true;
+  }
+
+  // Shouldn't reach here, assume true (could trigger failure elsewhere)
+  return true;
+
+}
+
+// Is calibration for the specified VB actually available?
+//  This returns true when condition "a" described above
+//  is true.  If the CLPatchPanel is agnostic, this returns
+//  false.  This is used by VisCal::correct2 control whether
+//  calibration update and algebraic apply can/should be done. 
+//  In the CalLibrary context, this enables agnosticism (when
+//  false)
+//  The implementation here is almost the same as VBOKforCal,
+//   differing only in the call to cpp_->calAvailable.
+Bool SolvableVisCal::calAvailable(vi::VisBuffer2& vb) {
+
+  // Current spw
+  //  TBD: Use syncMeta2?
+  const Int& ispw(vb.spectralWindows()(0));
+
+  if (isSolved())
+    return spwOK_(ispw);
+
+  if (isApplied()) {
+
+    if (ci_)
+      // Get it from the old-fashioned CTPatchedInterp
+      return spwOK_(ispw)=ci_->spwOK(ispw);
+
+    else if (cpp_) {
+      // Get it from the new CLPatchPanel, which has
+      //  obs, fld, intent specificity, too!
+      const Int& iobs(vb.observationId()(0));
+      const Int& ifld(vb.fieldId()(0));
+      const Int& ient(vb.stateId()(0));
+      return cpp_->calAvailable(iobs,ifld,ient,ispw,-1); // all ants
+    }
+    else
+      // Assume ok for non-interpolable types
+      return true;
+  }
+
+  // Shouldn't reach here, assume true (could trigger failure elsewhere)
+  return true;
+
+}
+
+
+
 // File a solved solution (and meta-data) into the in-memory Caltable
 void SolvableVisCal::keepNCT() {
 
@@ -3918,7 +4076,7 @@ void SolvableVisCal::enforceAPonSoln() {
   // Only if we have a CalTable, and it is not empty
   if (ct_ && ct_->nrow()>0) {
 
-    // TBD: trap attempts to normalize a caltable containing FPARAM (non-Complex)?
+    // TBD: trap attempts to enforceAPonSoln a caltable containing FPARAM (non-Complex)?
 
     logSink() << "Enforcing apmode on solutions." 
 	      << LogIO::POST;
@@ -3976,7 +4134,7 @@ void SolvableVisCal::normalize() {
 
     // TBD: trap attempts to normalize a caltable containing FPARAM (non-Complex)?
 
-    logSink() << "Normalizing solution amplitudes per spw." 
+    logSink() << "Normalizing solution amplitudes per spw with " << solNorm().normtypeString()
 	      << LogIO::POST;
 
     // In this generic version, one normalization factor per spw
@@ -3987,11 +4145,14 @@ void SolvableVisCal::normalize() {
     while (!ctiter.pastEnd()) {
       Cube<Complex> p(ctiter.cparam());
       Cube<Bool> fl(ctiter.flag());
-      if (nfalse(fl)>0)
-	normSolnArray(p,!fl,false);  // don't do phase
+      if (nfalse(fl)>0) {
+	Complex normfactor=normSolnArray(p,!fl,false);  // don't do phase
+	logSink() << " Normalization factor (" << solNorm().normtypeString() << ") for spw " << ctiter.thisSpw() << " = " << abs(normfactor)
+	      << LogIO::POST;
 
-      // record result...
-      ctiter.setcparam(p);
+	// record result...
+	ctiter.setcparam(p);
+      }
       ctiter.next();
     }
 
@@ -4149,14 +4310,14 @@ void SolvableVisCal::stateSVC(const Bool& doVC) {
 
 }
 
-void SolvableVisCal::normSolnArray(Array<Complex>& sol, 
-				   const Array<Bool>& solOK,
-				   const Bool doPhase) {
+Complex SolvableVisCal::normSolnArray(Array<Complex>& sol, 
+				      const Array<Bool>& solOK,
+				      const Bool doPhase) {
 
   // Only do something if 2 or more good solutions
+  Complex factor(1.0);
   if (ntrue(solOK)>1) {
 
-    Complex factor(1.0);
     
     Array<Float> amp(amplitude(sol));
 
@@ -4171,7 +4332,7 @@ void SolvableVisCal::normSolnArray(Array<Complex>& sol,
     }
 
     // Determine amplitude normalization factor
-      factor*=calcPowerNorm(amp,solOK);
+    factor*=calcPowerNorm(amp,solOK);
     
     // Apply the normalization factor, if non-zero
     if (abs(factor) > 0.0)
@@ -4179,6 +4340,9 @@ void SolvableVisCal::normSolnArray(Array<Complex>& sol,
     
   } // ntrue > 0
 
+  // Return the net normlization factor
+  return factor;
+  
 }
 
 
@@ -4625,10 +4789,22 @@ Float SolvableVisMueller::calcPowerNorm(Array<Float>& amp, const Array<Bool>& ok
   a2(!ok)=0.0; // zero flagged samples
 
   Float norm(1.0);
-  Float n=Float(ntrue(ok));
-  if (n>0.0)
-    norm=sum(a2)/n;
-
+  switch (solNorm().normtype()) {
+  case SolNorm::MEAN: {
+    Float n=Float(ntrue(ok));
+    if (n>0.0)
+      norm=sum(a2)/n;
+    break;
+  }
+  case SolNorm::MEDIAN: {
+    MaskedArray<Float> a2masked(a2,ok);
+    norm=median(a2masked,false,true);  // unsorted, do mean when even
+    break;
+  }
+  default:
+    throw(AipsError("Proper normalization type not specified."));
+    break;
+  }
   return norm;
 }
 
@@ -4646,8 +4822,10 @@ SolvableVisJones::SolvableVisJones(VisSet& vs) :
   dJ1_(NULL),                           // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(false),
-  plotter_(NULL)
+  DJValid_(false)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(vs)" << endl;
 }
@@ -4660,8 +4838,10 @@ SolvableVisJones::SolvableVisJones(String msname,Int MSnAnt,Int MSnSpw) :
   dJ1_(NULL),                           // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(false),
-  plotter_(NULL)
+  DJValid_(false)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(msname,MSnAnt,MSnSpw)" << endl;
 }
@@ -4674,8 +4854,10 @@ SolvableVisJones::SolvableVisJones(const MSMetaInfoForCal& msmc) :
   dJ1_(NULL),               // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(False),
-  plotter_(NULL)
+  DJValid_(False)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(msmc)" << endl;
 }
@@ -4689,8 +4871,10 @@ SolvableVisJones::SolvableVisJones(const Int& nAnt) :
   dJ1_(NULL),                 // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(false),
-  plotter_(NULL)
+  DJValid_(false)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(i,j,k)" << endl;
 }
@@ -5753,10 +5937,24 @@ Float SolvableVisJones::calcPowerNorm(Array<Float>& amp, const Array<Bool>& ok) 
   Array<Float> a2(square(amp));
   a2(!ok)=0.0; // zero flagged samples
 
+
   Float norm2(1.0);
-  Float n=ntrue(ok);
-  if (n>0.0)
-    norm2=(sum(a2)/n);
+  switch (solNorm().normtype()) {
+  case SolNorm::MEAN: {
+    Float n=Float(ntrue(ok));
+    if (n>0.0)
+      norm2=sum(a2)/n;
+    break;
+  }
+  case SolNorm::MEDIAN: {
+    MaskedArray<Float> a2masked(a2,ok);
+    norm2=median(a2masked,false,true);  // unsorted, do mean when even
+    break;
+  }
+  default:
+    throw(AipsError("Proper normalization type not specified."));
+    break;
+  }
 
   // Return sqrt, because Jones are voltages
   return sqrt(norm2); 
@@ -7347,8 +7545,10 @@ void SolvableVisJones::fluxscale(const String& outfile,
 
 void SolvableVisJones::setupPlotter() {
 // setjup plotserver
+#if ! defined(WITHOUT_DBUS)
   plotter_ = dbus::launch<PlotServerProxy>( );
   panels_id_.resize(nSpw());
+#endif
 }
 
 void SolvableVisJones::plotHistogram(const String& title,
@@ -7359,15 +7559,19 @@ void SolvableVisJones::plotHistogram(const String& title,
   std::string legendloc = "bottom";
   std::string zoomloc = "";
   if (index==0) {
+#if ! defined(WITHOUT_DBUS)
     panels_id_[0] = plotter_->panel( title, "ratio", "N", "Fluxscale",
                                    std::vector<int>( ), legendloc,zoomloc,0,false,false);
+#endif
     std::vector<std::string> loc;
     loc.push_back("top");
     //plotter_->loaddock( dock_xml_p, "bottom", loc, panels_id_[0].getInt());
   }
   else {
+#if ! defined(WITHOUT_DBUS)
     panels_id_[index] = plotter_->panel( title, "ratio", "N", "",
     std::vector<int>( ), legendloc,zoomloc,panels_id_[index-1].getInt(),false,false);
+#endif
      
     // multirow panels
     /***
@@ -7389,8 +7593,10 @@ void SolvableVisJones::plotHistogram(const String& title,
     ***/
   }
   // plot histogram
+#if ! defined(WITHOUT_DBUS)
   plotter_->erase( panels_id_[index].getInt() );
   plotter_->histogram(dbus::af(data),nbins,"blue",title,panels_id_[index].getInt( ));
+#endif
 
 }
 

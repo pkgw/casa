@@ -56,7 +56,9 @@
 #include <ms/MSSel/MSSelection.h>
 
 
+#if ! defined(WITHOUT_DBUS)
 #include <synthesis/ImagerObjects/SIIterBot.h>
+#endif
 #include <synthesis/ImagerObjects/SynthesisImager.h>
 
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
@@ -82,8 +84,10 @@
 #include <synthesis/TransformMachines/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines/NoOpATerm.h>
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
+#endif
 #include <casacore/casa/Utilities/Regex.h>
 #include <casacore/casa/OS/Directory.h>
 
@@ -103,7 +107,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   SynthesisImager::SynthesisImager() : itsMappers(SIMapperCollection()), writeAccess_p(True),
-				       gridpars_p(), impars_p()
+				       gridpars_p(), impars_p(), movingSource_p("")
   {
 
      imwgt_p=VisImagingWeight("natural");
@@ -140,7 +144,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    cerr << "IN DESTR"<< endl;
     //    VisModelData::listModel(mss4vi_p[0]);
 
-    SynthesisUtilMethods::getResource("End Run");
+    SynthesisUtilMethods::getResource("End SynthesisImager");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +199,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     LogIO os( LogOrigin("SynthesisImager","selectData",WHERE) );
 
-    SynthesisUtilMethods::getResource("Start Run");
+    SynthesisUtilMethods::getResource("Start SelectData");
 
     try
       {
@@ -820,6 +824,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   if(itsMappers.nMappers() < 1)
 		   ThrowCc("defineimage has to be run before tuneSelectData");
 
+	   if(impars_p.mode=="cubesource")
+	     return dataSel_p;
 	   os << "Tuning frequency data selection to match image spectral coordinates" << LogIO::POST;
 
 	   Vector<SynthesisParamsSelect> origDatSel(dataSel_p.nelements());
@@ -832,7 +838,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   */
 	   Int nchannel=itsMaxShape[3];
 	   CoordinateSystem cs=itsMaxCoordSys;
-	   cs.setSpectralConversion("LSRK");
+	   MFrequency::Types freqframe=cs.spectralCoordinate(cs.findCoordinate(Coordinate::SPECTRAL)).frequencySystem(False);
+	   if(freqframe != MFrequency::REST &&  freqframe != MFrequency::Undefined)
+	     cs.setSpectralConversion("LSRK");
 	   Vector<Double> pix(4);
 	   pix[0]=0; pix[1]=0; pix[2]=0; pix[3]=-0.5;
 	   Double freq1=cs.toWorld(pix)[3];
@@ -1244,34 +1252,34 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     try
       {
+	// Prepare miscellaneous image information
+	auto objectName = msc.field().name()(msc.fieldId()(0));
+	///// misc info fpr ImageStore. This will go to the 'miscinfo' table keyword
+	Record miscInfo;
+	auto telescop=msc.observation().telescopeName()(0);
+	miscInfo.define("INSTRUME", telescop);
+	miscInfo.define("distance", distance.get("m").getValue());
 	
 	if( mappertype=="default" || mappertype=="imagemosaic" )
 	  {
-	    imstor=std::make_shared<SIImageStore>(imageName, cSys, imShape, overwrite, (useweightimage || (mappertype=="imagemosaic") ));
-	    //	    imstor=new SIImageStore(imageName, cSys, imShape, facets, overwrite, (useweightimage || (mappertype=="imagemosaic") ));
+            imstor = std::make_shared<SIImageStore>(imageName, cSys, imShape, objectName,
+                                                    miscInfo, overwrite,
+                                                    (useweightimage || (mappertype=="imagemosaic")
+                                                     ));
 	  }
 	else if (mappertype == "multiterm" )  // Currently does not support imagemosaic.
 	  {
-	    //cout << "Making multiterm IS with nterms : " << ntaylorterms << endl;
-	    imstor=new SIImageStoreMultiTerm(imageName, cSys, imShape, facets, overwrite, ntaylorterms, useweightimage);
+            // upcast with shared_ptr and then assign to CountedPtr<SIImageStore>
+            std::shared_ptr<SIImageStore> multiTermStore =
+                std::make_shared<SIImageStoreMultiTerm>(imageName, cSys, imShape,
+                                                        objectName, miscInfo, facets,
+                                                        overwrite, ntaylorterms, useweightimage);
+            imstor = multiTermStore;
 	  }
 	else
 	  {
 	    throw(AipsError("Internal Error : Invalid mapper type in SynthesisImager::createIMStore"));
 	  }
-	
-	// Fill in miscellaneous information needed by FITS
-	//ROMSColumns msc(mss4vi_p[0]);
-	Record info;
-	
-	String objectName=msc.field().name()(msc.fieldId()(0));
-	String telescop=msc.observation().telescopeName()(0);
-	info.define("OBJECT", objectName);
-	info.define("TELESCOP", telescop);
-	info.define("INSTRUME", telescop);
-	info.define("distance", distance.get("m").getValue());
-	////////////// Send misc info into ImageStore. 
-	imstor->setImageInfo( info );
 
 	// Get polRep from 'msc' here, and send to imstore. 
 	StokesImageUtil::PolRep polRep(StokesImageUtil::CIRCULAR);
@@ -1497,13 +1505,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           // heuristic factors multiplied to imshape based on gridder
           size_t fudge_factor = 15;
           if (ftm->name()=="MosaicFTNew") {
-              fudge_factor = 15;
+              fudge_factor = 20;
           }
           else if (ftm->name()=="GridFT") {
               fudge_factor = 9;
           }
 
-          size_t required_mem = fudge_factor * sizeof(Float);
+          Double required_mem = fudge_factor * sizeof(Float);
           for (size_t i = 0; i < imshape.nelements(); i++) {
               // gridding pads image and increases to composite number
               if (i < 2) {
@@ -1522,7 +1530,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           }
           // assumes all processes need the same amount of memory
           required_mem *= nlocal_procs;
-
           Double usr_memfrac, usr_mem;
           AipsrcValue<Double>::find(usr_memfrac, "system.resources.memfrac", 80.);
           AipsrcValue<Double>::find(usr_mem, "system.resources.memory", -1024.);
@@ -1531,9 +1538,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               memory_avail = usr_mem * 1024. * 1024.;
           }
           else {
-              memory_avail = HostInfo::memoryTotal(false) * (usr_memfrac / 100.) * 1024.;
+	    memory_avail = Double(HostInfo::memoryFree()) * (usr_memfrac / 100.) * 1024.;
           }
-
 
           // compute required chanchunks to fit into the available memory
           chanchunks = (int)std::ceil((Double)required_mem / memory_avail);
@@ -1951,7 +1957,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	vpman->reset();
       }
 
-    os << "Temporary alert : The state of the vpmanager tool has been modified by loading these primary beam models. If any of your scripts rely on the vpmanager state being preserved throughout your CASA session, please use vp.saveastable() and vp.loadfromtable() as needed. This 'feature'/warning will hopefully go away by the 4.7 release." << LogIO::POST;
+    
     
 
     //    PBMath::CommonPB kpb;
@@ -2163,7 +2169,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	}
     	//cerr << "IN SYNTHE_IMA" << endl;
     	//VisModelData::listModel(rvi_p->getMeasurementSet());
-	//SynthesisUtilMethods::getResource("Before finalize for all mappers");
+	SynthesisUtilMethods::getResource("Before finalize for all mappers");
     	if(!dopsf) itsMappers.finalizeDegrid(*vb);
     	itsMappers.finalizeGrid(*vb, dopsf);
 
@@ -2705,8 +2711,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
     for(rvi_p->originChunks(); rvi_p->moreChunks(); rvi_p->nextChunk()){
       Bool fieldDone=false;
-      for (uInt k=0;  k < fieldsDone.nelements(); ++k)
+      for (uInt k=0;  k < fieldsDone.nelements(); ++k){
 	fieldDone=fieldDone || (vb.fieldId()==fieldsDone(k));
+      }
       if(!fieldDone){
 	++fieldCounter;
 	fieldsDone.resize(fieldCounter, true);
@@ -2723,7 +2730,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       return True;
   }// end makePB
 
-
+  /////===========
+  void SynthesisImager::setMovingSource(const String& movingSource){
+    movingSource_p=movingSource;
+  }
+  
 
 } //# NAMESPACE CASA - END
 

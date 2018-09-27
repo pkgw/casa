@@ -39,7 +39,7 @@
 #include <display/QtViewer/QtDisplayPanel.qo.h>
 #include <display/QtViewer/QtCleanPanelGui.qo.h>
 #include <display/QtViewer/QtCleanPanelGui2.qo.h>
-#include <display/Display/State.h>
+#include <display/Display/DisplayState.h>
 #include <casa/BasicSL/String.h>
 #include <casa/Containers/List.h>
 #include <QtDBus>
@@ -464,14 +464,13 @@ namespace casa {
 				QtDisplayData *result = 0;
 				viewer::DisplayDataOptions ddo;
 
-				if ( scaling != 0.0 ) {
-					char buf[1024];
-					sprintf( buf, "%f", scaling );
-					ddo.insert( "powercycles", buf );
-				}
-
 				result = dpg->createDD( to_string(path), datatype, to_string(displaytype), true,
 										-1, false, false, false, ddo );
+
+				if ( scaling != 0.0 ) {
+					result->setRasterPowerScaling(scaling);
+				}
+
 				dpg->addedData( displaytype, result );
 
 				return QDBusVariant(QVariant(get_id( dpg, result, path, displaytype )));
@@ -648,6 +647,13 @@ namespace casa {
 		else {
 
 			QtDisplayPanelGui *dpg = create_panel( );
+
+			if ( type.endsWith(".rstr") ) {
+				struct stat buf;
+				if ( stat( type.toLatin1( ).constData( ), &buf ) == 0 ) {
+					dpg->restorePanelState(to_string(type));
+				}
+			}
 			result = get_id( dpg );
 
 			if ( hidden ) dpg->hide( );

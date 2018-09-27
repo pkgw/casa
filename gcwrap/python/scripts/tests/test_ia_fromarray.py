@@ -112,5 +112,51 @@ class ia_fromarray_test(unittest.TestCase):
         self.assertTrue("ia.fromarray" in msgs[-2])
         self.assertTrue("ia.fromarray" in msgs[-1])
         
+    def test_precision(self):
+        """Test type parameter"""
+        jj = 1.2345678901234567890123456789
+        zz = numpy.array([jj, jj])
+        myia = self._myia
+        self.assertRaises(Exception, myia.fromarray, "", zz, type="x")
+        ia2 = iatool()
+        for i in [0, 1]:
+            if i == 0:
+                myia.fromarray("", zz, type="f")
+            else:
+                myia = ia2.newimagefromarray("", zz, type="f")
+            kk = myia.getchunk()[0]
+            myia.done()
+            self.assertTrue(numpy.isclose(kk, jj, 1e-8, 1e-8))
+            self.assertFalse(numpy.isclose(kk, jj, 1e-9, 1e-9))
+            if i == 0:
+                myia.fromarray("", zz, type="d")
+            else:
+                myia = ia2.newimagefromarray("", zz, type="d")
+            kk = myia.getchunk()[0]
+            myia.done()
+            self.assertTrue(numpy.isclose(kk, jj, 1e-18, 1e-18))
+            ia2.done()
+        oc = 1 + 1j
+        jj = jj * oc
+        zz = numpy.array([jj, jj])
+        for i in [0, 1]:
+            if i == 0:
+                myia.fromarray("", zz, type="f")
+            else:
+                myia = ia2.newimagefromarray("", zz, type="f")
+            kk = myia.getchunk()[0]
+            myia.done()
+            print "diff", (1 - jj/kk)
+            self.assertTrue(numpy.isclose(kk, jj, 1e-8*oc, 1e-8*oc))
+            self.assertFalse(numpy.isclose(kk, jj, 1e-9*oc, 1e-9*oc))
+            if i == 0:
+                myia.fromarray("", zz, type="d")
+            else:
+                myia = ia2.newimagefromarray("", zz, type="d")
+            kk = myia.getchunk()[0]
+            myia.done()
+            self.assertTrue(numpy.isclose(kk, jj, 1e-18*oc, 1e-18*oc))
+            ia2.done()
+        
 def suite():
     return [ia_fromarray_test]

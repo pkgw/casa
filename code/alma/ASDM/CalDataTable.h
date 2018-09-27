@@ -180,7 +180,7 @@ class CalDataRow;
  * </TR>
 	
  * <TR>
- * <TD> numScan (\f$N_{Scan}\f$)</TD> 
+ * <TD> numScan (numScan)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of scans (in this Execution Block). </TD>

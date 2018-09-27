@@ -37,7 +37,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value/>
             <description>Rectangular region to select in direction plane. Default is to use the entire direction plane.</description>
         </param>
-        <param type="any" direction="in" name="region" subparam="true">
+        <param type="any" direction="in" name="region">
             <any type="variant"/>
             <description>Region selection. Default is to use the full image.</description>
             <value type="string"/>
@@ -74,13 +74,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                         <value>False</value>
                     </default>
                 </notequals>
-            </when>
-            <when param="box">
-                <equals type="string" value="">
-                    <default param="region">
-                        <value>""</value>
-                    </default>
-                </equals>
             </when>
             <when param="mask">
                 <notequals type="string" value="">

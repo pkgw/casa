@@ -560,7 +560,7 @@ class wvrgcal_test(unittest.TestCase):
         myvis = self.vis_h
         os.system('cp -R ' + myvis + ' myinput.ms')
         os.system('rm -rf '+self.out)
-        rvaldict = wvrgcal(vis="myinput.ms",caltable=self.out, toffset=0, refant=['DV11','DV12'], wvrflag=['DA41','DV11'])
+        rvaldict = wvrgcal(vis="myinput.ms",caltable=self.out, toffset=0, refant=['DV11','DV12','DV09'], wvrflag=['DA41','DV11'])
 
         print rvaldict
 

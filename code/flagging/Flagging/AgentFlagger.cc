@@ -53,7 +53,9 @@ AgentFlagger::AgentFlagger ()
 {
 	fdh_p = NULL;
 	summaryAgent_p = NULL;
+#if ! defined(WITHOUT_DBUS)
 	displayAgent_p = NULL;
+#endif
 
 	done();
 }
@@ -118,9 +120,11 @@ AgentFlagger::done()
 		summaryAgent_p = NULL;
 	}
 
+#if ! defined(WITHOUT_DBUS)
 	if(displayAgent_p){
 		displayAgent_p = NULL;
 	}
+#endif
 
 	mode_p = "";
 	agents_config_list_p.clear();
@@ -584,6 +588,10 @@ AgentFlagger::initAgents()
 		String mode;
 		agent_rec.get("mode", mode);
 
+        /*
+         * Special considerations for some agents
+         */
+
         // If clip agent is mixed with other agents and time average is true, skip it
         if ((mode.compare("clip") == 0 and list_size > 1) or
         		(mode.compare("rflag") == 0 and list_size > 2) or
@@ -594,9 +602,21 @@ AgentFlagger::initAgents()
         	if (exists >= 0) agent_rec.get("timeavg", tavg);
 
             if (tavg){
-                os << LogIO::WARN << "Cannot have " << mode <<" mode with timeavg/channelavg=true in list mode" << LogIO::POST;
+                os << LogIO::WARN << "Cannot have " << mode <<" mode with timeavg/channelavg=True in list mode" << LogIO::POST;
                 continue;
             }
+        }
+
+        // If quack mode with quackincrement = true, skip it
+        if (mode.compare("quack") == 0 and i > 0 and list_size > 1){
+        	Bool quackincrement = false;
+        	int exists = agent_rec.fieldNumber ("quackincrement");
+        	if (exists >= 0) agent_rec.get("quackincrement", quackincrement);
+
+			if (quackincrement){
+        		os << LogIO::WARN << "Cannot have quackincrement=True in list mode. Agent will be ignored!" << LogIO::POST;
+        		continue;
+        	}
         }
 
 		// Set the new time interval only once
@@ -688,9 +708,11 @@ AgentFlagger::initAgents()
 */
 
 		// Get the display agent.
+#if ! defined(WITHOUT_DBUS)
 		if (mode.compare("display") == 0){
 			displayAgent_p = (FlagAgentDisplay *) fa;
 		}
+#endif
 
 		// Add the agent to the FlagAgentList
 		agents_list_p.push_back(fa);
@@ -785,8 +807,10 @@ AgentFlagger::run(Bool writeflags, Bool sequential)
 	combinedReport = agents_list_p.gatherReports();
 
 	// Send reports to display agent
+#if ! defined(WITHOUT_DBUS)
 	if (displayAgent_p)
 		displayAgent_p->displayReports(combinedReport);
+#endif
 
 	agents_list_p.clear();
 
@@ -991,7 +1015,8 @@ AgentFlagger::restoreFlagVersion(Vector<String> versionname, String merge)
 	catch (AipsError x)
 	{
 		os << LogIO::SEVERE << "Could not restore Flag Version : " << x.getMesg() << LogIO::POST;
-		return false;
+		throw AipsError(x);
+//		return false;
 	}
 	return true;
 }

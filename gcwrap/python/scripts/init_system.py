@@ -247,12 +247,15 @@ argparser.add_argument( '--iplog',dest='ipython_log',default=False,
 argparser.add_argument( '--nocrashreport',dest='crash_report',default=True,
                           const=False,action='store_const',
                           help='do not submit an online report when CASA crashes' )
+argparser.add_argument( '--telemetry',dest='telemetry',default=False,
+                          const=True,action='store_const',
+                          help='Enable telemetry collection' )
 argparser.add_argument( "-c",dest='execute',default=[],nargs=argparse.REMAINDER,
                         help='python eval string or python script to execute' )
 
 casa['flags'], casa['args'] = argparser.parse_known_args( )
 #### must keep args in sync with 'casa' state...
-casa['files']['logfile'] = casa['flags'].logfile
+casa['files']['logfile'] = '/dev/null' if casa['flags'].nologfile or not os.access('.', os.W_OK) else casa['flags'].logfile
 casa['dirs']['rc'] = casa['flags'].rcdir
 
 #### pipeline requires the Agg backend; any use of

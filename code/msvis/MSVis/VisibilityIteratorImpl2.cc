@@ -1767,58 +1767,59 @@ VisibilityIteratorImpl2::newSpectralWindow() const
 Bool
 VisibilityIteratorImpl2::existsColumn(VisBufferComponent2 id) const
 {
-	Bool result;
-	switch (id) {
+  Bool result;
+  switch (id) {
 
-	case VisBufferComponent2::VisibilityCorrected:
-	case VisBufferComponent2::VisibilityCubeCorrected:
+  case VisBufferComponent2::VisibilityCorrected:
+  case VisBufferComponent2::VisibilityCubeCorrected:
 
-		result =
-			!columns_p.corrVis_p.isNull() && columns_p.corrVis_p.isDefined(0);
-		break;
+    result =
+        !columns_p.corrVis_p.isNull() && columns_p.corrVis_p.isDefined(0);
+    break;
 
-	case VisBufferComponent2::VisibilityModel:
-	case VisBufferComponent2::VisibilityCubeModel:
+  case VisBufferComponent2::VisibilityModel:
+  case VisBufferComponent2::VisibilityCubeModel:
 
-		result =
-			!columns_p.modelVis_p.isNull() && columns_p.modelVis_p.isDefined(0);
-		break;
+    result = 
+        (!columns_p.modelVis_p.isNull() && columns_p.modelVis_p.isDefined(0)) ||
+        modelDataGenerator_p != nullptr;
+    break;
 
-	case VisBufferComponent2::VisibilityObserved:
-	case VisBufferComponent2::VisibilityCubeObserved:
+  case VisBufferComponent2::VisibilityObserved:
+  case VisBufferComponent2::VisibilityCubeObserved:
 
-		result = (!columns_p.vis_p.isNull() && columns_p.vis_p.isDefined(0)) ||
-			(columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isNull());
+    result = (!columns_p.vis_p.isNull() && columns_p.vis_p.isDefined(0)) ||
+    (columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isNull());
 
-		break;
+    break;
 
-	case VisBufferComponent2::VisibilityCubeFloat:
+  case VisBufferComponent2::VisibilityCubeFloat:
 
-		result =
-			!columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isDefined(0);
+    result =
+        !columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isDefined(0);
 
-		break;
+    break;
 
-	case VisBufferComponent2::WeightSpectrum:
+  case VisBufferComponent2::WeightSpectrum:
 
-		result =
-			!columns_p.weightSpectrum_p.isNull()
-			&& columns_p.weightSpectrum_p.isDefined(0);
-		break;
+    result =
+        !columns_p.weightSpectrum_p.isNull()
+        && columns_p.weightSpectrum_p.isDefined(0);
+    break;
 
-	case VisBufferComponent2::SigmaSpectrum:
+  case VisBufferComponent2::SigmaSpectrum:
 
-		result =
-			!columns_p.sigmaSpectrum_p.isNull()
-			&& columns_p.sigmaSpectrum_p.isDefined(0);
-		break;
+    result =
+        !columns_p.sigmaSpectrum_p.isNull()
+        && columns_p.sigmaSpectrum_p.isDefined(0);
+    break;
 
-	default:
-		result = true; // required columns
-		break;
-	}
+  default:
+    result = true; // required columns
+    break;
+  }
 
-	return result;
+  return result;
 }
 
 const SubtableColumns &
@@ -3904,6 +3905,8 @@ VisibilityIteratorImpl2::initializeBackWriters()
 		makeBackWriter(& VisibilityIteratorImpl2::writeWeight, & VisBuffer2::weight);
 	backWriters_p[VisBufferComponent2::WeightSpectrum] =
 		makeBackWriter(& VisibilityIteratorImpl2::writeWeightSpectrum, & VisBuffer2::weightSpectrum);
+	backWriters_p[VisBufferComponent2::SigmaSpectrum] =
+		makeBackWriter(& VisibilityIteratorImpl2::writeSigmaSpectrum, & VisBuffer2::sigmaSpectrum);
 
 	// Now do the visibilities.
 
@@ -4030,8 +4033,9 @@ VisibilityIteratorImpl2::fillFromVirtualModel(Cube <Complex> & value) const
 
 	if (isVirtual) {
 
-		if (modelDataGenerator_p->hasModel(
-			    msId(), vb_p->fieldId()(0), vb_p->spectralWindows()(0)) == -1) {
+	  auto field = vb_p->fieldId()(0);
+	  auto spw = vb_p->spectralWindows()(0);
+		if (modelDataGenerator_p->hasModel(msId(),field , spw) == -1) {
 
 			// If the model generator does not have a model for this(ms,field,
 			// spectralWindow) then try to add it.

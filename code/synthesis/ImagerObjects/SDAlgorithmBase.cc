@@ -47,6 +47,7 @@
 #include <tables/Tables/TableLock.h>
 
 #include<synthesis/ImagerObjects/SIMinorCycleController.h>
+#include <imageanalysis/ImageAnalysis/CasaImageBeamSet.h>
 
 #include <casa/sstream.h>
 
@@ -72,7 +73,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   void SDAlgorithmBase::deconvolve( SIMinorCycleController &loopcontrols, 
-				    SHARED_PTR<SIImageStore> &imagestore,
+				    std::shared_ptr<SIImageStore> &imagestore,
 				    Int deconvolverid)
   {
     LogIO os( LogOrigin("SDAlgorithmBase","deconvolve",WHERE) );
@@ -103,6 +104,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        << ", Gain=" << loopcontrols.getLoopGain()
        << LogIO::POST;
 
+    Float itsPBMask = loopcontrols.getPBMask();
+
     Float maxResidualAcrossPlanes=0.0; Int maxResChan=0,maxResPol=0;
     Float totalFluxAcrossPlanes=0.0;
 
@@ -123,6 +126,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	    Float startpeakresidual = 0.0;
 	    Float startmodelflux = 0.0;
+            Array<Double> robustrms;
+
 	    Bool validMask = ( itsImages->getMaskSum() > 0 );
 
 	    if( validMask ) peakresidual = itsImages->getPeakResidualWithinMask();
@@ -132,9 +137,41 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    startpeakresidual = peakresidual;
 	    startmodelflux = modelflux;
 
+            // returns as an Array but itsImages is already single plane so 
+            // the return rms contains only a single element
+            robustrms = itsImages->calcRobustRMS(itsPBMask);
+            //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
+            Float nsigma = loopcontrols.getNsigma();
+            Float nsigmathresh; 
+            if ( robustrms.nelements() == 0 ) {
+              // no statistics returned, perhaps the channel is flagged...
+              nsigmathresh = 0.0; 
+            }
+            else {
+              nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
+            }
+ 
+            Float thresholdtouse;
+            if (nsigma>0.0) {
+              thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
+            }
+            else {
+              thresholdtouse = loopcontrols.getCycleThreshold();
+            }
+            os << LogIO::DEBUG1<<"loopcontrols.getCycleThreshold()="<<loopcontrols.getCycleThreshold()<<LogIO::POST;
+            os << LogIO::DEBUG1<< "thresholdtouse="<<thresholdtouse<<LogIO::POST;
+            String thresholddesc = (thresholdtouse == loopcontrols.getCycleThreshold() ? "cyclethreshold" : "n-sigma");
+
+            if (thresholddesc=="n-sigma") {
+              os << LogIO::DEBUG1<< "Set nsigma thresh="<<nsigmathresh<<LogIO::POST;
+              loopcontrols.setNsigmaThreshold(nsigmathresh);
+            }
 	    loopcontrols.setPeakResidual( peakresidual );
 	    loopcontrols.resetMinResidual(); // Set it to current initial peakresidual.
+
+            
 	    stopCode = checkStop( loopcontrols,  peakresidual );
+
 
 	    // stopCode=0;
 
@@ -149,17 +186,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// Init the deconvolver
 		initializeDeconvolver();
 
-
 		while ( stopCode==0 )
 		  {
 
+                    if (nsigma>0.0) {
+                      os << "Using " << thresholddesc << " for threshold criterion: (cyclethreshold="<<loopcontrols.getCycleThreshold()<< ", nsigma threshold="<<nsigmathresh<<" )" << LogIO::POST;
+                      loopcontrols.setNsigmaThreshold(nsigmathresh);
+                    }
 		    Int thisniter = loopcontrols.getCycleNiter() <5000 ? loopcontrols.getCycleNiter() : 2000;
 
 		    loopcontrols.setPeakResidual( peakresidual );
 		    takeOneStep( loopcontrols.getLoopGain(), 
 				 //				 loopcontrols.getCycleNiter(),
 				 thisniter,
-				 loopcontrols.getCycleThreshold(),
+				 //loopcontrols.getCycleThreshold(),
+				 thresholdtouse,
 				 peakresidual, 
 				 modelflux,
 				 iterdone);
@@ -225,6 +266,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      case 5:
 		os << ", Exited " << itsAlgorithmName << " minor cycle without reaching any stopping criterion.";
 		break;
+              case 6:
+                os << ", Reached n-sigma threshold.";
 	      default:
 		break;
 	      }
@@ -262,6 +305,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SDAlgorithmBase::setRestoringBeam( GaussianBeam restbeam, String usebeam )
   {
+    LogIO os( LogOrigin("SDAlgorithmBase","setRestoringBeam",WHERE) );
     itsRestoringBeam = restbeam;
     itsUseBeam = usebeam;
   }
@@ -287,7 +331,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
   */
 
-   void SDAlgorithmBase::restore(SHARED_PTR<SIImageStore> imagestore )
+   void SDAlgorithmBase::restore(std::shared_ptr<SIImageStore> imagestore )
   {
 
     LogIO os( LogOrigin("SDAlgorithmBase","restore",WHERE) );
@@ -301,7 +345,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
  
-  void SDAlgorithmBase::pbcor(SHARED_PTR<SIImageStore> imagestore )
+  void SDAlgorithmBase::pbcor(std::shared_ptr<SIImageStore> imagestore )
   {
 
     LogIO os( LogOrigin("SDAlgorithmBase","pbcor",WHERE) );
@@ -366,7 +410,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   ///    - stokes cube clean
   ///    - partitioned-image clean (facets ?)
   ///    - 3D deconvolver
-  void SDAlgorithmBase::partitionImages( SHARED_PTR<SIImageStore> &imagestore )
+  void SDAlgorithmBase::partitionImages( std::shared_ptr<SIImageStore> &imagestore )
   {
     LogIO os( LogOrigin("SDAlgorithmBase","partitionImages",WHERE) );
 
@@ -411,7 +455,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   */
 
   /*
-  void SDAlgorithmBase::initializeSubImages( SHARED_PTR<SIImageStore> &imagestore, uInt subim)
+  void SDAlgorithmBase::initializeSubImages( std::shared_ptr<SIImageStore> &imagestore, uInt subim)
   {
     itsResidual = SubImage<Float>( *(imagestore->residual()), itsDecSlices[subim], true );
     itsPsf = SubImage<Float>( *(imagestore->psf()), itsDecSlices[subim], true );

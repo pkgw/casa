@@ -62,9 +62,12 @@ using namespace asdm;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -115,7 +118,21 @@ namespace asdm {
 		
 			, "numBaseline"
 		
+			, "numFreq"
+		
 			, "rms"
+		
+			, "frequencyRange"
+		
+			, "numSpectralWindow"
+		
+			, "chanFreqStart"
+		
+			, "chanFreqStep"
+		
+			, "numSpectralWindowChan"
+		
+			, "spectrum"
 				
 	};
 	
@@ -131,7 +148,7 @@ namespace asdm {
     
     	 "basebandName" , "sideband" , "atmPhaseCorrection" , "typeCurve" , "receiverBand" , "calDataId" , "calReductionId" , "startValidTime" , "endValidTime" , "numAntenna" , "numPoly" , "numReceptor" , "antennaNames" , "refAntennaName" , "freqLimits" , "polarizationTypes" , "curve" , "reducedChiSquared" 
     	,
-    	 "numBaseline" , "rms" 
+    	 "numBaseline" , "numFreq" , "rms" , "frequencyRange" , "numSpectralWindow" , "chanFreqStart" , "chanFreqStep" , "numSpectralWindowChan" , "spectrum" 
     
 	};
 	        			
@@ -762,6 +779,9 @@ CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandN
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -804,7 +824,14 @@ CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandN
 		oss << "<reducedChiSquared/>\n"; 
 
 		oss << "<numBaseline/>\n"; 
+		oss << "<numFreq/>\n"; 
 		oss << "<rms/>\n"; 
+		oss << "<frequencyRange/>\n"; 
+		oss << "<numSpectralWindow/>\n"; 
+		oss << "<chanFreqStart/>\n"; 
+		oss << "<chanFreqStep/>\n"; 
+		oss << "<numSpectralWindowChan/>\n"; 
+		oss << "<spectrum/>\n"; 
 		oss << "</Attributes>\n";		
 		oss << "</CalBandpassTable>\n";
 
@@ -959,7 +986,21 @@ CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandN
     	 
     attributesSeq.push_back("numBaseline") ; 
     	 
+    attributesSeq.push_back("numFreq") ; 
+    	 
     attributesSeq.push_back("rms") ; 
+    	 
+    attributesSeq.push_back("frequencyRange") ; 
+    	 
+    attributesSeq.push_back("numSpectralWindow") ; 
+    	 
+    attributesSeq.push_back("chanFreqStart") ; 
+    	 
+    attributesSeq.push_back("chanFreqStep") ; 
+    	 
+    attributesSeq.push_back("numSpectralWindowChan") ; 
+    	 
+    attributesSeq.push_back("spectrum") ; 
     	
      
     
@@ -1062,6 +1103,8 @@ CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandN
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void CalBandpassTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1115,11 +1158,19 @@ CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandN
 	}
 
 	
-	void CalBandpassTable::setFromFile(const string& directory) {		
+	void CalBandpassTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/CalBandpass.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/CalBandpass.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/CalBandpass.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/CalBandpass.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the CalBandpass table", "CalBandpass");
 	}			
@@ -1270,7 +1321,9 @@ CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandN
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

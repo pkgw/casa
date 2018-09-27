@@ -251,21 +251,21 @@ class CalAtmosphereRow;
  * </TR>
 	
  * <TR>
- * <TD> numFreq (\f$N_{Freq}\f$)</TD> 
+ * <TD> numFreq (numFreq)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of frequency points. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numLoad (\f$N_{Load}\f$)</TD> 
+ * <TD> numLoad (numLoad)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of loads. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>

@@ -39,15 +39,16 @@
 #undef REG_STARTEND
 #endif
 
-
+#ifndef WITHOUT_BOOST
 #include <boost/regex.hpp> 
+#else
+#include <regex>
+#endif
 
 #include "SDMDataObjectParser.h"
 #include "SDMDataObject.h"
 
 using namespace std;
-using namespace boost;
-
 
 /*
 typedef long long          ACTUALDURATIONSTYPE;
@@ -189,12 +190,19 @@ namespace asdmbinaries {
     static const string MIMEBOUNDARY_2;
     
     // Regular expressions used to identify a Content-ID field in a MIME header
-    static const regex CONTENTIDDATASTRUCTUREREGEXP;
-    static const regex CONTENTIDSUBSETREGEXP;
-    static const regex CONTENTIDBINREGEXP;
-    static const regex CONTENTIDBINREGEXP1;
-    static const regex CONTENTIDBINREGEXP2;
-
+#ifndef WITHOUT_BOOST
+    static const boost::regex CONTENTIDDATASTRUCTUREREGEXP;
+    static const boost::regex CONTENTIDSUBSETREGEXP;
+    static const boost::regex CONTENTIDBINREGEXP;
+    static const boost::regex CONTENTIDBINREGEXP1;
+    static const boost::regex CONTENTIDBINREGEXP2;
+#else
+    static const std::regex CONTENTIDDATASTRUCTUREREGEXP;
+    static const std::regex CONTENTIDSUBSETREGEXP;
+    static const std::regex CONTENTIDBINREGEXP;
+    static const std::regex CONTENTIDBINREGEXP1;
+    static const std::regex CONTENTIDBINREGEXP2;
+#endif
     // Set of valid binary attachment names
     static set<string> BINATTACHNAMES;
     enum BINATTACHCODES {ACTUALDURATIONS=0, ACTUALTIMES=1, AUTODATA=2, FLAGS=3, CROSSDATA=4, ZEROLAGS=5};

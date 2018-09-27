@@ -88,6 +88,7 @@
 #include <msvis/MSVis/statistics/Vi2WeightSpectrumDataProvider.h>
 
 #include <mstransform/MSTransform/StatWt.h>
+#include <mstransform/MSTransform/StatWtColConfig.h>
 #include <mstransform/TVI/StatWtTVI.h>
 
 #include <ms_cmpt.h>
@@ -803,9 +804,7 @@ ms::getspectralwindowinfo()
 }
 
 variant*
-ms::getfielddirmeas(
-    const std::string& dircolname, int fieldid,
-    double time, const string& format)
+ms::getfielddirmeas(const std::string& dircolname, int fieldid, double time, const string& format)
 {
     variant *retval = 0;
     try{
@@ -825,6 +824,9 @@ ms::getfielddirmeas(
             }
             else if(colname=="REFERENCE_DIR"){
                 d = msfc.referenceDirMeas(fieldid, time);
+	    }
+            else if(colname=="EPHEMERIS_DIR"){
+                d = msfc.ephemerisDirMeas(fieldid, time);
             }
             else{
                 *itsLog << LogIO::SEVERE
@@ -2297,7 +2299,7 @@ ms::selectinit(const int datadescid, const bool resetsel)
 					if (retval)
 						retval = doMSSelection(*casacRec); // onlyparse=false
 					initSel_p = retval;
-				} catch (AipsError x) {  // MSSelectionNullSelection
+				} catch (const AipsError &x) {  // MSSelectionNullSelection
 					String mesg = "selectinit failed for datadescid " + selDDID;
 					*itsLog << LogOrigin("ms", "selectinit");
 					*itsLog << LogIO::WARN << mesg << LogIO::POST;
@@ -3588,18 +3590,18 @@ ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int
     ::casac::record *retval(0);
     try {
         if(!detached()) {
+          uInt nrows = itsSelectedMS->nrow();
+          if (nrows == 0) {
+              *itsLog << LogIO::WARN << "Selected table is empty, cannot get data" << LogIO::POST;
+                return retval;
+          }
+
           if (checkinit()) {
             Record out(RecordInterface::Variable);
             Vector<String> itemnames(items);
             Int axisgap = ifraxisgap;
             doingAveraging_p = average;
             bool chanAverage = ((chansel_p.size() > 0) && (chansel_p[2] > 1));
-
-            uInt nrows = itsSelectedMS->nrow();
-            if (nrows == 0) {
-                *itsLog << LogIO::WARN << "Selected table is empty - use selectinit" << LogIO::POST;
-                return retval;
-            }
 
             if (axisgap>0 && ifraxis==false) {
                 *itsLog << LogIO::WARN << "ifraxis not requested, ignoring ifraxisgap argument" << LogIO::POST;
@@ -3899,7 +3901,7 @@ ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int
             retval = casa::fromRecord(out);
           } // checkinit
         } // !detached
-    } catch (AipsError x) {
+    } catch (const AipsError &x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
         Table::relinquishAutoLocks(true);
         RETHROW(x);
@@ -5915,7 +5917,7 @@ bool ms::contsub(const std::string& outputms,    const ::casac::variant& fitspw,
     return rstat;
 }
 
-bool ms::statwt(const bool dorms,                const bool /*byantenna*/,
+bool ms::oldstatwt(const bool dorms,                const bool /*byantenna*/,
                 const bool /*sepacs*/,               const ::casac::variant& fitspw,
                 const ::casac::variant& /*fitcorr*/, const std::string& combine,
                 const ::casac::variant& timebin, const int minsamp,
@@ -5928,7 +5930,7 @@ bool ms::statwt(const bool dorms,                const bool /*byantenna*/,
     Bool rstat(false);
 
     try {
-        *itsLog << LogOrigin("ms", "statwt");
+        *itsLog << LogOrigin("ms", __func__);
 
         Reweighter reweighter(itsMS->tableName(), dorms, minsamp);
 
@@ -6291,11 +6293,12 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
     return rstat;
 }
 
-record* ms::statwt2(
-    const string& combine, const variant& timebin, bool slidetimebin,
-    const variant& chanbin, int minsamp, const string& statalg,
-    double fence, const string& center, bool lside,
-    double zscore, int maxiter, const string& excludechans,
+record* ms::statwt(
+    const string& combine, const casac::variant& timebin,
+    bool slidetimebin, const casac::variant& chanbin,
+    int minsamp, const string& statalg, double fence,
+    const string& center, bool lside, double zscore,
+    int maxiter, const string& excludechans,
     const std::vector<double>& wtrange, bool preview,
     const string& datacolumn
 ) {
@@ -6304,7 +6307,10 @@ record* ms::statwt2(
         if (detached()) {
             return nullptr;
         }
-        StatWt statwt(itsMS);
+        StatWtColConfig statwtColConfig(
+            itsOriginalMS, preview, datacolumn, chanbin
+        );
+        StatWt statwt(itsMS, &statwtColConfig);
         if (slidetimebin) {
             // make the size of the encompassing chunks
             // very large, so that chunk boundaries are determined only
@@ -6313,12 +6319,22 @@ record* ms::statwt2(
         }
         else {
             // block time processing
-            if (timebin.type() == variant::INT) {
+            auto tbtype = timebin.type();
+            if (
+                tbtype == casac::variant::BOOLVEC && timebin.toBoolVec().empty()
+            ) {
+                // default for tool method since variants always come in as
+                // boolvecs even if defaults specified in the XML, Because,
+                // you know, no one apparently knows how to fix that bug which
+                // has been around for years
+                statwt.setTimeBinWidth(casacore::Quantity(0.001, "s"));
+            }
+            else if (tbtype == casac::variant::INT) {
                 auto n = timebin.toInt();
                 ThrowIf(n <= 0, "timebin must be positive");
                 statwt.setTimeBinWidthUsingInterval(timebin.touInt());
             }
-            else {
+            else if (tbtype == casac::variant::STRING){
                 casacore::Quantity myTimeBin = casaQuantity(timebin);
                 if (myTimeBin.getUnit().empty()) {
                     myTimeBin.setUnit("s");
@@ -6327,6 +6343,9 @@ record* ms::statwt2(
                     myTimeBin.setValue(1e-5);
                 }
                 statwt.setTimeBinWidth(myTimeBin);
+            }
+            else {
+                ThrowCc("Unsupported type for timebin, must be int or string");
             }
         }
         statwt.setCombine(combine);
@@ -6831,6 +6850,12 @@ bool ms::msselect(const ::casac::record& exprs, const bool onlyparse)
 	return retVal;
 }
 
+void ms::setNewSel(const MeasurementSet& newSelectedMS) {
+    *itsSelectedMS = newSelectedMS;
+    *itsMS = newSelectedMS;
+    if (itsSel) itsSel->setMS(*itsMS);
+}
+
 Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
 {
 	// for internal use
@@ -6881,18 +6906,23 @@ Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
 				obsExpr);
 			retVal=(itsMSS->getTEN(itsMS).isNull() == false);
 		} else {
-			MeasurementSet newSelectedMS(*itsSelectedMS);
-		    retVal = mssSetData(*itsSelectedMS, newSelectedMS, "",/*outMSName*/
-		        timeExpr, baselineExpr, fieldExpr, spwExpr, uvDistExpr,
-			    taQLExpr, polnExpr, scanExpr,
-			    arrayExpr, scanIntentExpr, obsExpr, itsMSS);
-			*itsSelectedMS = newSelectedMS;
-		    *itsMS = newSelectedMS;
-        	if (itsSel) itsSel->setMS(*itsMS);
-        }
+		    MeasurementSet newSelectedMS(*itsSelectedMS);
+                    try {
+                        retVal = mssSetData(*itsSelectedMS, newSelectedMS, "",/*outMSName*/
+                                            timeExpr, baselineExpr, fieldExpr, spwExpr, uvDistExpr,
+                                            taQLExpr, polnExpr, scanExpr,
+                                            arrayExpr, scanIntentExpr, obsExpr, itsMSS);
+                    } catch (const MSSelectionNullSelection &mssns) {
+                        // Empty selections are valid in principle, and after this happens
+                        // one should be able to know that for example nrow(true) is 0.
+                        setNewSel(newSelectedMS);
+                        throw;
+                    }
+		    setNewSel(newSelectedMS);
+		}
 		return retVal;
 	}
-	catch (AipsError x)
+	catch (const AipsError &x)
 	{
 		Table::relinquishAutoLocks(true);
 		RETHROW(x);
