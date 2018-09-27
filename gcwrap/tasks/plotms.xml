@@ -889,7 +889,7 @@ Display Parameters
     </param>
 
     <param type="string" name="xconnector">
-        <description>Set connector for data points</description>
+        <description>Set connector for data points (blank="none"; "line","step")</description>
         <value />
 		<allowed kind="enum">
 			<value />

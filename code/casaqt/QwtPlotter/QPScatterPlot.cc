@@ -518,6 +518,13 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                     }
 
                     sameMask = (thismask==lastmask); // only connect same-masked points
+                    bool secondpoint(i==drawIndex+1), morepoints(i<n-1);
+
+                    double nextx, nexty;
+                    bool nextmask;
+                    if (morepoints) {
+                        m_maskedData->xyAndMaskAt(i+1, nextx, nexty, nextmask);
+                    }
 
                     if (drawLine && !thismask) { // connect unflagged pts
                         if(drawMaskedLine && !samePen && !diffColorLine)
@@ -525,23 +532,28 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                         if(brect.contains(lastix, lastiy) || brect.contains(thisix, thisiy)) {
                             if (m_step) {  // need midpoint for step
                                 if (sameMask && sameLine) { // connect to last point
-                                    int ixdiff(((lastix + thisix)/2) - lastix);
+                                    int ixdiff(((lastix + thisix)/2) - lastix); // midpoint for step
+                                    // 3 lines: last pt to mid; vertical line; mid to this point
                                     p->drawLine(lastix, lastiy, thisix-ixdiff, lastiy);
                                     p->drawLine(thisix-ixdiff, lastiy, thisix-ixdiff, thisiy);
                                     p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
-                                    if (i==drawIndex+1) { // also draw leading line for first point
+
+                                    if (secondpoint) { // draw leading line for first point in plot
                                         p->drawLine(lastix-ixdiff, lastiy, lastix, lastiy);
                                     }
-                                    // peek at next point and draw trailing line
-                                    if ((i<n-1 && (m_coloredData->binAt(i+1) != thisbin)) ||
-                                        (i == n-1)) {  // last point
-                                        p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy);
+
+                                    // normally, next point draws trailing line for last point unless:
+                                    // 1. this is last point in plot or in this line (bin changes)
+                                    // 2. same bin but mask changes for next point
+                                    if (!morepoints || (morepoints && (m_coloredData->binAt(i+1)!=thisbin))) {
+                                        p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy); // last point
+                                    }
+                                    if ((morepoints && (m_coloredData->binAt(i+1) == thisbin)) &&
+                                        (nextmask != thismask)) {
+                                        p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy); // mask changes
                                     }
                                 } else if ((i < n-1) && (m_coloredData->binAt(i+1)==thisbin))  {
                                     // first point in new line, use next point to draw leading line
-                                    double nextx, nexty;
-                                    bool nextmask;
-                                    m_maskedData->xyAndMaskAt(i+1, nextx, nexty, nextmask);
                                     if (nextmask==thismask) {
                                         int nextix(xMap.transform(nextx));
                                         int ixdiff(((thisix + nextix)/2) - thisix);
@@ -558,29 +570,29 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                         if(drawLine && !samePen && !diffColorLine)
                             p->setPen(m_maskedLine.asQPen());  // set pen for flagged symbols
                         if(brect.contains(lastix, lastiy) || brect.contains(thisix, thisiy)) {
-                            if (m_maskedStep) { // need midpoint for step
-                                if (sameMask && sameLine) { // connect to last point
-                                    int ixdiff(((lastix + thisix)/2) - lastix);
+                            if (m_maskedStep) {
+                                if (sameMask && sameLine) {
+                                    int ixdiff(((lastix + thisix)/2) - lastix); // midpoint for step
                                     p->drawLine(lastix, lastiy, thisix-ixdiff, lastiy);
                                     p->drawLine(thisix-ixdiff, lastiy, thisix-ixdiff, thisiy);
                                     p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
-                                    if (i==drawIndex+1) { // draw leading line for first point
+                                    if (secondpoint) {
                                         p->drawLine(lastix-ixdiff, lastiy, lastix, lastiy);
                                     }
-                                    // peek at next point and draw trailing line
-                                    if ((i<n-1 && (m_coloredData->binAt(i+1) != thisbin)) ||
-                                        (i == n-1)) {  // last point
+                                    if (!morepoints || (morepoints && (m_coloredData->binAt(i+1)!=thisbin))) {
+                                        p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy);
+                                    }
+                                    if ((morepoints && (m_coloredData->binAt(i+1) == thisbin)) &&
+                                        (nextmask != thismask)) {
                                         p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy);
                                     }
                                 } else if ((i < n-1) && (m_coloredData->binAt(i+1)==thisbin))  {
-                                    // first point in new line, use next point to draw leading line
                                     double nextx, nexty;
                                     bool nextmask;
                                     m_maskedData->xyAndMaskAt(i+1, nextx, nexty, nextmask);
                                     if (nextmask==thismask) {
                                         int nextix(xMap.transform(nextx));
                                         int ixdiff(((thisix + nextix)/2) - thisix);
-                                        // don't want ix<0
                                         if (ixdiff > thisix) ixdiff=thisix;
                                         p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
                                     }
