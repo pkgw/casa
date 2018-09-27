@@ -1085,6 +1085,7 @@ def expandchanmask(inimage,inchans,outimage,outchans):
     to output image with the same coordinates (post-regridded)
     only differ by channels
     """
+    (ia,) = gentools(['ia'])
     # input image
     ia.open(inimage)
     inshp=ia.shape()
@@ -1127,6 +1128,7 @@ def translatefreqrange(freqrange,csys):
     convert the range in list
     mainly for frequeny and velocity range determination
     """
+    (qa,) = gentools(['qa'])
     if type(freqrange)==list and type(freqrange[0])==int:
         #do nothing
         return freqrange
@@ -1145,6 +1147,7 @@ def checkinput(inpname):
     """
     do existance check on image and internal mask 
     """
+    (ia,) = gentools(['ia'])
     (parentimage,tfmaskname)=extractmaskname(inpname)
     (parentimexist,tfmaskexist)=checkinmask(parentimage,tfmaskname)
     if parentimexist:
@@ -1154,6 +1157,7 @@ def checkinput(inpname):
             if not tfmaskexist: 
                 ia.open(parentimage)
                 inmasklist=ia.maskhandler('get')
+                ia.close()
                 raise Exception, "Cannot find the internal mask, %s. Candidate mask(s) are %s" % (tfmaskname, str(inmasklist))
             else:
                 return True # image mask and internal mask
@@ -1165,11 +1169,12 @@ def checkinmask(parentimage,tfmaskname):
     """
     check existance of the internal mask
     """
+    (ia,) = gentools(['ia'])
     if os.path.isdir(parentimage):
         if tfmaskname!='':
             ia.open(parentimage)
             inmasks=ia.maskhandler('get')
-            ia.close()
+            ia.done()
             if not any(tfmaskname in msk for msk in inmasks):
                return (True, False)
             else:
