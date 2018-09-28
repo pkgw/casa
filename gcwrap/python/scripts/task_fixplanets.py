@@ -1,4 +1,5 @@
 from taskinit import *
+from mstools import write_history
 import shutil
 from parallel.parallel_task_helper import ParallelTaskHelper
 import recipes.ephemerides.JPLephem_reader2 as jplreader
@@ -445,10 +446,6 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
             casalog.post("Tidying up the MMS subtables ...", 'NORMAL')
             ParallelTaskHelper.restoreSubtableAgreement(vis)
 
-        mst = None
-        tbt = None
-
-        return True
 
     except Exception, instance:
         mst = None
@@ -457,3 +454,21 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
         casalog.post("*** Error \'%s\' " % (instance), 'SEVERE')
         return False
 
+    # Write history to MS
+    try:
+        param_names = fixplanets.func_code.co_varnames[:fixplanets.func_code.co_argcount]
+        param_vals = [eval(p) for p in param_names]
+        write_history(mstool(), vis, 'fixplanets', param_names,
+                      param_vals, casalog)
+    except Exception, instance:
+        casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
+                     'WARN')
+
+    mst = None
+        
+    return True    
+        
+        
+        
+        
+        
