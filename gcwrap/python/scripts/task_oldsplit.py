@@ -3,7 +3,8 @@ import re
 import string
 import time
 import shutil
-from taskinit import casalog, mstool, qa, tbtool, write_history
+from taskinit import casalog, mstool, qa, tbtool
+from mstools import write_history
 from update_spw import update_spwchan
 from parallel.parallel_task_helper import ParallelTaskHelper
 import partitionhelper as ph
