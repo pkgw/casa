@@ -192,10 +192,10 @@ void Description(const String &Title, const String &Param)
 // CASAPATH is the base directory
 //****************************************
 
-class MyEnv
+class RunEnv
 {
 public:
-    MyEnv()
+    RunEnv()
     {
         //+
         // Path and directory Position by Env. Variable.
@@ -205,7 +205,7 @@ public:
         CasaMasterPath  = CasaPath + "/data/regression/unittest/"; 
         UnitTestTMasterFileName = CasaMasterPath + "sdimaging/sdimaging.ms";
 
-        printf("MyEnv:: Environment Variable Information -----\n" );
+        printf("RunEnv:: Environment Variable Information -----\n" );
         printf("CASAPATH      :%s \n", CasaPath.c_str());
         printf("CasaMasterPath:%s \n", CasaMasterPath.c_str());
     }
@@ -268,7 +268,7 @@ void CopyDefaultMStoWork()
 {
     //  Environment //
 
-        MyEnv env;
+        RunEnv env;
 
     // Src/Dsr Path (string) 
 
@@ -1065,7 +1065,6 @@ protected:
 
     uInt    ExpectedNrow = 0;   // C++11 feature //
 
-
     BaseClass()  { }
 
     ~BaseClass() { }
@@ -1078,7 +1077,7 @@ protected:
     {
     }
 
-    MyEnv       env;
+    RunEnv       env;
 
 private:
  
@@ -1855,13 +1854,8 @@ TEST_F(TestDirection, Matrixshape )
 TEST_F(TestDirection, getDirection )
 {
 
-    TestDescription( "getDirection (J2000)" );
-
-#if 0
+    TestDescription( "getDirection (J2000) No data selection" );
     const String MsName = DefaultLocalMsName;    
-#else
-    const String MsName = env.getCasaMasterPath() + "listobs/uid___X02_X3d737_X1_01_small.ms";
-#endif 
 
     // Create Object //
     
@@ -1874,6 +1868,108 @@ TEST_F(TestDirection, getDirection )
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
        ExpectedNrow = calc.getNrowForSelectedMS();
        EXPECT_NE((uInt)0, ExpectedNrow );
+
+    //+
+    // setDirectionColumn() 
+    //-
+  
+        String ColName = "DIRECTION"; 
+        Description( "getDirectionColumn()", ColName  );
+
+        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
+
+    //+
+    //  MatrixShape (COLUMN_MAJOR) 
+    //-
+        Description("calling setDirectionListMatrixShape()" ,"Column Major" );
+        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
+
+    //+
+    //  setMovingSourceDirection() 
+    //-
+        String src = "MOON";
+        Description("calling setMovingSource()", src);
+
+        EXPECT_NO_THROW( calc.setMovingSource( src ) ); 
+
+    //+
+    //  getDirection()
+    //-
+
+        Description("calling  getDirection() ","" );
+
+        Matrix<Double>  DirList1  = calc.getDirection();
+        uInt  n_row    = DirList1.nrow();
+
+        printf( "Number of Row = %d \n", n_row );
+        EXPECT_EQ( n_row, ExpectedNrow);
+
+    //+
+    // Dump Matrix
+    //-
+
+#if 1
+
+    Description("Dump obtined Direction info. ","" );
+
+    for (uInt row=0; row< n_row; row++)
+    {
+        // Direction //
+
+        double Val_1 = DirList1(row,0);
+        double Val_2 = DirList1(row,1);
+
+        casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
+        String strMovDir = MovDir.toString();
+
+        printf(    "Dir at, %d, %f,%f, [Mov:%s]  \n",  
+                row, Val_1, Val_2, strMovDir.c_str() );
+
+    }
+
+#endif 
+
+}
+
+TEST_F(TestDirection, getDirectionExtended )
+{
+
+    TestDescription( "getDirection (J2000) with selected data. uvw available" );
+
+    // Use DefaultMS as a simple sequence.
+    // Use the below to show uv valuses from MS.
+
+#if 0
+    const String MsName = DefaultLocalMsName;    
+#else
+    const String MsName = env.getCasaMasterPath() + "listobs/uid___X02_X3d737_X1_01_small.ms";
+#endif 
+
+    // Create Object //
+    
+        MeasurementSet ms0( MsName.c_str() );
+    
+        PointingDirectionCalculator calc(ms0);
+    
+    // Initial brief Inspection //
+    
+       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
+       ExpectedNrow = calc.getNrowForSelectedMS();
+       EXPECT_NE((uInt)0, ExpectedNrow );
+
+
+    //+
+    // * Option *
+    // selectData()   
+    //  Please change if() to true,
+    //-
+        if(true)
+        {
+            const String AntSel = "DV01&&DV02";
+            calc.selectData( AntSel,  "","","","","","","","","" );
+
+            ExpectedNrow = calc.getNrowForSelectedMS();
+        }
 
     //+
     // setDirectionColumn() 
@@ -1911,15 +2007,13 @@ TEST_F(TestDirection, getDirection )
          EXPECT_EQ( n_row, ExpectedNrow);
 
 
-
     //+
     // uv value 
     //  (first attach to Column e )
     //-
 
         casacore::ROArrayColumn<casacore::Double> uvwColumn;	
-        uvwColumn .attach( ms , "UVW");
-
+        uvwColumn .attach( ms0 , "UVW");
 
     //+
     // Dump Matrix
@@ -1934,7 +2028,8 @@ TEST_F(TestDirection, getDirection )
 
         // (u,v,w) //
 
-        casacore::Vector<double>  val_uvw = uvwColumn.get(row);
+        uInt RowId = calc.getRowId(row); // point the row in Original. //
+        casacore::Vector<double>  val_uvw = uvwColumn.get(RowId);
 
         double u = val_uvw[0];
         double v = val_uvw[1];
@@ -1948,17 +2043,15 @@ TEST_F(TestDirection, getDirection )
         casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
         String strMovDir = MovDir.toString();
 
-        printf(    "Dir at, [%d], %f,%f, [Mov:%s] uv=(%f,%f,%f) \n",  
+        printf(    "Dir at, %d, %f,%f, [Mov:%s], uv=, %f,%f,%f  \n",  
                 row, Val_1, Val_2, strMovDir.c_str(), 
                 u, v, w );
-
 
     }
 
 #endif 
 
 }
-
 /*------------------------------------------
    selectData ( <various types of keys>  )
 
@@ -2672,7 +2765,7 @@ class TestSetFrame : public BaseClass
 
 public:
 
-std::vector<struct _FrameName> MyFrameTypes
+std::vector<struct _FrameName> DefinedFrametypes
 = {
         {true,  "J2000"},  
         {true,  "JMEAN"}, 
@@ -2764,7 +2857,7 @@ void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, int n
     //   No Exception is expected all the time 
     //-
 
-      EXPECT_NO_THROW( calc.setFrame( MyFrameTypes[n_frame].name ));
+      EXPECT_NO_THROW( calc.setFrame( DefinedFrametypes[n_frame].name ));
 
     //+
     // Durection Type 
@@ -2777,11 +2870,11 @@ void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, int n
        casacore::MDirection DirType  = calc.getDirectionType();
  
           printf( "#   MDirection: [%s] \n",  DirType.toString().c_str()  ) ;
-          printf( "#   Given String [%s] \n", MyFrameTypes[n_frame].name.c_str() );
+          printf( "#   Given String [%s] \n", DefinedFrametypes[n_frame].name.c_str() );
 
         
         String converted = DirType.toString();
-        String sub_str   = MyFrameTypes[n_frame].name;
+        String sub_str   = DefinedFrametypes[n_frame].name;
 
         // GTEST :: Check SubString // 
         
@@ -2789,7 +2882,7 @@ void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, int n
 
     // Some of them are not supported and throw Exception //
 
-    if(  MyFrameTypes[n_frame].available == true)       
+    if(  DefinedFrametypes[n_frame].available == true)       
         EXPECT_TRUE( converted.find(sub_str) !=std::string::npos); 
     else
         EXPECT_FALSE( converted.find(sub_str) !=std::string::npos);
@@ -2829,9 +2922,9 @@ TEST_F(TestSetFrame, setFrame )
 
     // Various Frame Type (String) //
 
-        for( uInt i = 0; i < MyFrameTypes.size() ; i++  )
+        for( uInt i = 0; i < DefinedFrametypes.size() ; i++  )
         {
-            FunctionalDescription( "setFrame(Rsved Name) ", MyFrameTypes[i].name.c_str() );
+            FunctionalDescription( "setFrame(Rsved Name) ", DefinedFrametypes[i].name.c_str() );
 
             // Execute and check Exception and other requirements//
         
