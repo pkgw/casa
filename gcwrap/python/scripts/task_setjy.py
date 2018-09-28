@@ -5,6 +5,7 @@ import sys
 import shutil
 from setjy_helper import * 
 from taskinit import *
+from mstools import write_history
 from parallel.parallel_task_helper import ParallelTaskHelper
 import pdb
 
@@ -252,7 +253,6 @@ def setjy_core(vis=None, field=None, spw=None,
             try:
                 param_names = setjy.func_code.co_varnames[:setjy.func_code.co_argcount]
                 param_vals = [eval(p) for p in param_names]   
-                #retval &= write_history(myms, vis, 'setjy', param_names,
                 retval = write_history(myms, vis, 'setjy', param_names,
                                     param_vals, casalog)
             except Exception, instance:

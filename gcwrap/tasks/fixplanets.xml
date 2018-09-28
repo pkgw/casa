@@ -78,7 +78,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <param type="any" name="refant">
       <description>if using pointing table information, use it from this antenna</description>
       <any type="variant"/>
-      <value>0</value>
+      <value type="int">0</value>
     </param>
     <param type="string" name="reftime">
         <description>if using pointing table information, use it from this timestamp </description>

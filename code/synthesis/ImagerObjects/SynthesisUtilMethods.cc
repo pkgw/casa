@@ -2138,15 +2138,35 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         csys = *csysptr;
 
       }
-    else { 
-    MDirection phaseCenterToUse = phaseCenter;
-
+    else {
+      ROMSColumns msc(msobj);
+      String telescop = msc.observation().telescopeName()(0);
+      MEpoch obsEpoch = msc.timeMeas()(0);
+      MPosition obsPosition;
+    if(!(MeasTable::Observatory(obsPosition, telescop)))
+      {
+        os << LogIO::WARN << "Did not get the position of " << telescop
+           << " from data repository" << LogIO::POST;
+        os << LogIO::WARN
+           << "Please contact CASA to add it to the repository."
+           << LogIO::POST;
+        os << LogIO::WARN << "Using first antenna position as refence " << LogIO::POST;
+	 // unknown observatory, use first antenna
+      obsPosition=msc.antenna().positionMeas()(0);
+      }
+      MDirection phaseCenterToUse = phaseCenter;
+      
     if( phaseCenterFieldId != -1 )
       {
 	ROMSFieldColumns msfield(msobj.field());
         if(phaseCenterFieldId == -2) // the case for  phasecenter=''
-          { 
-	    phaseCenterToUse=msfield.phaseDirMeas( fld ); 
+          {
+	    if(trackSource){
+	      phaseCenterToUse=getMovingSourceDir(msobj, obsEpoch, obsPosition, MDirection::ICRS);
+	    }
+	    else{
+	      phaseCenterToUse=msfield.phaseDirMeas( fld );
+	    }
           }
         else 
           {
@@ -2192,21 +2212,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //defining observatory...needed for position on earth
     // get the first ms for multiple MSes
-    ROMSColumns msc(msobj);
-    String telescop = msc.observation().telescopeName()(0);
-    MEpoch obsEpoch = msc.timeMeas()(0);
-    MPosition obsPosition;
-    if(!(MeasTable::Observatory(obsPosition, telescop)))
-      {
-        os << LogIO::WARN << "Did not get the position of " << telescop
-           << " from data repository" << LogIO::POST;
-        os << LogIO::WARN
-           << "Please contact CASA to add it to the repository."
-           << LogIO::POST;
-        os << LogIO::WARN << "Using first antenna position as refence " << LogIO::POST;
-	 // unknown observatory, use first antenna
-      obsPosition=msc.antenna().positionMeas()(0);
-      }
+    
+    
     obslocation=obsPosition;
     ObsInfo myobsinfo;
     myobsinfo.setTelescope(telescop);
@@ -2754,6 +2761,34 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 */
 
+  MDirection SynthesisParamsImage::getMovingSourceDir(const MeasurementSet& ms, const MEpoch& refEp, const MPosition& obsposition, const MDirection::Types outframe){
+    MDirection outdir;
+    String ephemtab(movingSource);
+    if(movingSource=="TRACKFIELD"){
+      Int fieldID=ROMSColumns(ms).fieldId()(0);
+      ephemtab=Path(ROMSColumns(ms).field().ephemPath(fieldID)).absoluteName();
+    }
+    casacore::MDirection::Types planetType=MDirection::castType(trackDir.getRef().getType());
+    if( (! Table::isReadable(ephemtab)) &&   ( (planetType <= MDirection::N_Types) || (planetType >= MDirection::COMET)))
+      throw(AipsError("Does not have a valid ephemeris table or major solar system object defined"));
+    MeasFrame mframe(refEp, obsposition);
+    MDirection::Ref outref1(MDirection::AZEL, mframe);
+    MDirection::Ref outref(outframe, mframe);
+    MDirection tmpazel;
+    if(planetType >=MDirection::MERCURY && planetType <MDirection::COMET){
+      tmpazel=MDirection::Convert(trackDir, outref1)();
+      
+    }
+    else{
+      MeasComet mcomet(Path(ephemtab).absoluteName());
+      mframe.set(mcomet);
+      tmpazel=MDirection::Convert(MDirection(MDirection::COMET), outref1)();
+    }
+    outdir=MDirection::Convert(tmpazel, outref)();
+
+    return outdir;
+  }
+  
   Bool SynthesisParamsImage::getImFreq(Vector<Double>& chanFreq, Vector<Double>& chanFreqStep, 
                                        Double& refPix, String& specmode,
                                        const MEpoch& obsEpoch, const MPosition& obsPosition, 
@@ -3152,7 +3187,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	// Spectral interpolation
 	err += readVal( inrec, String("interpolation"), interpolation );// not used in SI yet...
-
+	//mosaic use pointing
+	err += readVal( inrec, String("usepointing"), usePointing );
 	// Track moving source ?
 	err += readVal( inrec, String("distance"), distance );
 	err += readVal( inrec, String("tracksource"), trackSource );
@@ -3271,6 +3307,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Spectral Axis interpolation
     interpolation=String("nearest");
 
+    //mosaic use pointing
+    usePointing=false;
     // Moving phase center ?
     distance=Quantity(0,"m");
     trackSource=false;
@@ -3320,6 +3358,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     gridpar.define("interpolation",interpolation);
 
+    gridpar.define("usepointing", usePointing);
+    
     gridpar.define("distance", QuantityToString(distance));
     gridpar.define("tracksource", trackSource);
     gridpar.define("trackdir", MDirectionToString( trackDir ));

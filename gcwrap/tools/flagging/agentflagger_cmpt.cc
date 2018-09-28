@@ -57,8 +57,9 @@ agentflagger::~agentflagger()
 		*logger_p << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
 		RETHROW(x);
 	}
-    Table::relinquishAutoLocks(true);
-    MeasIERS::closeTables();
+
+    try { Table::relinquishAutoLocks(true); } catch (AipsError x) { }
+    try { MeasIERS::closeTables(); } catch (AipsError x) { }
 
 }
 

@@ -105,8 +105,8 @@ public:
 protected:
 	/////////////// Member Objects
 
-	SHARED_PTR<SIIterBot_callback> actionRequestSync;
-	SHARED_PTR<DistSIIterBot_state> itsLoopController;
+	std::shared_ptr<SIIterBot_callback> actionRequestSync;
+	std::shared_ptr<DistSIIterBot_state> itsLoopController;
 
 	/////////////// All input parameters
 

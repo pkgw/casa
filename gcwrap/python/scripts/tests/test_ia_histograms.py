@@ -119,77 +119,79 @@ class ia_histograms_test(unittest.TestCase):
         # moved from imagetest_regression.py
         myia = self._myia
         imshape = [5,10]
-        pixels = myia.makearray(0.0, imshape)
-        pixels[0,0] = -100
-        pixels[imshape[0]-1,imshape[1]-1] = 100
-        imname = 'ia.fromarray.image'
-        myim = myia.newimagefromarray(outfile=imname, pixels=pixels)
-        self.assertTrue(myim)
-        try:
-            ok = myim.histograms(axes=[9,19])
-        except Exception, e:
-            print 'Caught expected Exception' + str(e)
-            ok = False
-        self.assertFalse(ok, 'Histograms unexpectedly did not fail (1)')
-        
-        nbins = 25
-        idx = nbins/2+1
-        out = myim.histograms(nbins=nbins)
-        self.assertTrue(out, 'Histograms failed (1)')
-        hists=out
-        self.assertTrue(
-            hists.has_key('values') and hists.has_key('counts'),
-            'Histograms record does not have the correct fields'
-        )
-        self.assertTrue(
-            len(hists['values'])==nbins and len(hists['counts'])==nbins
-            , 'Histograms value arrays have the wrong shape (1)'
-        )
-        ok = hists['counts'][0]==1 and hists['counts'][nbins-1]==1
-        ok = ok and (hists['counts'][idx-1]==(imshape[0]*imshape[1]-2))
-        self.assertTrue(ok, 'histogram counts wrong')
-        
-        blc = [0,0]; trc = [4,4]
-        r1 = rg.box(blc=blc, trc=trc)
-        hists = myim.histograms(nbins=nbins, region=r1)
-        self.assertTrue(hists, 'Histograms failed (2)')
-        ok = (hists['counts'][0]==1) and (hists['counts'][nbins-1]==((trc[0]-blc[0]+1)*(trc[1]-blc[1]+1)-1))
-        self.assertTrue(ok, 'Histograms values are wrong (2)')
-
-        for j in range(imshape[1]):
-            pixels[0,j] = -100*(j+1)
-            pixels[imshape[0]-1,j] = 100*(j+1)
-        ok = myim.putchunk(pixels)
-        self.assertTrue(ok, 'putchunk failed (1)')
-        hists = myim.histograms(nbins=nbins, axes=[0])
-        self.assertTrue(hists, 'Histograms failed (3)')
-        ok = list(hists['values'].shape)==[nbins,imshape[1]]
-        ok = ok and list(hists['counts'].shape)==[nbins,imshape[1]]
-        self.assertTrue(ok, 'Histograms value arrays have the wrong shape (2)')
-        for j in range(imshape[1]):
-            ok = hists['counts'][0,j]==1 and hists['counts'][nbins-1,j]==1
-            ok = ok and alleqnum(hists['counts'][idx-1],(imshape[0]-2),tolerance=0.0001)
-        self.assertTrue(ok, 'Histograms values are wrong (3)')
-        
-        hists = myim.histograms(includepix=[-5,5], nbins=25)
-        self.assertTrue(hists, 'Histograms failed (4)')
-        ok = hists['counts'][idx-1]==(imshape[0]*imshape[1]-(imshape[1]+imshape[1]))
-        self.assertTrue(ok, 'Histograms values are wrong (4)')
-        ok = ok and alleqnum(hists['counts'][0:(idx-2)],0,tolerance=0.0001)
-        self.assertTrue(ok, 'Histograms values are wrong (4)')
-        ok = ok and alleqnum(hists['counts'][idx:nbins],0,tolerance=0.0001)
-        self.assertTrue(ok, 'Histograms values are wrong (4)')
-        
-        hists = myim.histograms()
-        self.assertTrue(hists, 'histograms failed (4)')
-        hists = myim.histograms()
-        self.assertTrue(hists, 'histograms failed (5)')
-        hists = myim.histograms(cumu=True, log=True)
-        self.assertTrue(hists, 'histograms failed (6)')
-
-        ok = myim.done()
-        self.assertTrue(ok, 'Done failed (1)')
+        for mytype in ['f', 'd']:
+            pixels = myia.makearray(0.0, imshape)
+            pixels[0,0] = -100
+            pixels[imshape[0]-1,imshape[1]-1] = 100
+            imname = 'ia.fromarray_' + mytype + '.image'
+            myim = myia.newimagefromarray(
+                outfile=imname, pixels=pixels, type=mytype
+            )
+            self.assertTrue(myim)
+            try:
+                ok = myim.histograms(axes=[9,19])
+            except Exception, e:
+                print 'Caught expected Exception' + str(e)
+                ok = False
+            self.assertFalse(ok, 'Histograms unexpectedly did not fail (1)')
+            
+            nbins = 25
+            idx = nbins/2+1
+            hists = myim.histograms(nbins=nbins)
+            self.assertTrue(hists, 'Histograms failed (1)')
+            self.assertTrue(
+                hists.has_key('values') and hists.has_key('counts'),
+                'Histograms record does not have the correct fields'
+            )
+            self.assertTrue(
+                len(hists['values'])==nbins and len(hists['counts'])==nbins
+                , 'Histograms value arrays have the wrong shape (1)'
+            )
+            ok = hists['counts'][0]==1 and hists['counts'][nbins-1]==1
+            ok = ok and (hists['counts'][idx-1]==(imshape[0]*imshape[1]-2))
+            self.assertTrue(ok, 'histogram counts wrong')
+            
+            blc = [0,0]; trc = [4,4]
+            r1 = rg.box(blc=blc, trc=trc)
+            hists = myim.histograms(nbins=nbins, region=r1)
+            self.assertTrue(hists, 'Histograms failed (2)')
+            ok = (hists['counts'][0]==1) and (hists['counts'][nbins-1]==((trc[0]-blc[0]+1)*(trc[1]-blc[1]+1)-1))
+            self.assertTrue(ok, 'Histograms values are wrong (2)')
     
+            for j in range(imshape[1]):
+                pixels[0,j] = -100*(j+1)
+                pixels[imshape[0]-1,j] = 100*(j+1)
+            ok = myim.putchunk(pixels)
+            self.assertTrue(ok, 'putchunk failed (1)')
+            hists = myim.histograms(nbins=nbins, axes=[0])
+            self.assertTrue(hists, 'Histograms failed (3)')
+            ok = list(hists['values'].shape)==[nbins,imshape[1]]
+            ok = ok and list(hists['counts'].shape)==[nbins,imshape[1]]
+            self.assertTrue(ok, 'Histograms value arrays have the wrong shape (2)')
+            for j in range(imshape[1]):
+                ok = hists['counts'][0,j]==1 and hists['counts'][nbins-1,j]==1
+                ok = ok and alleqnum(hists['counts'][idx-1],(imshape[0]-2),tolerance=0.0001)
+            self.assertTrue(ok, 'Histograms values are wrong (3)')
+            
+            hists = myim.histograms(includepix=[-5,5], nbins=25)
+            self.assertTrue(hists, 'Histograms failed (4)')
+            ok = hists['counts'][idx-1]==(imshape[0]*imshape[1]-(imshape[1]+imshape[1]))
+            self.assertTrue(ok, 'Histograms values are wrong (4)')
+            ok = ok and alleqnum(hists['counts'][0:(idx-2)],0,tolerance=0.0001)
+            self.assertTrue(ok, 'Histograms values are wrong (4)')
+            ok = ok and alleqnum(hists['counts'][idx:nbins],0,tolerance=0.0001)
+            self.assertTrue(ok, 'Histograms values are wrong (4)')
+            
+            hists = myim.histograms()
+            self.assertTrue(hists, 'histograms failed (4)')
+            hists = myim.histograms()
+            self.assertTrue(hists, 'histograms failed (5)')
+            hists = myim.histograms(cumu=True, log=True)
+            self.assertTrue(hists, 'histograms failed (6)')
+    
+            ok = myim.done()
+            self.assertTrue(ok, 'Done failed (1)')
+        
     def test_stretch(self):
         """ ia.histogram(): Test stretch parameter"""
         yy = iatool()

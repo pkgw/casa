@@ -1,6 +1,7 @@
 import os, re
 import string
-from taskinit import casalog, mstool, qa, tbtool, write_history
+from taskinit import casalog, mstool, qa, tbtool
+from mstools import write_history
 from update_spw import join_spws, subtract_spws
 
 def uvcontsub3(vis, fitspw, combine, fitorder, field, spw,

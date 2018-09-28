@@ -333,7 +333,7 @@ void GridFT::initializeToVis(ImageInterface<Complex>& iimage,
   // If we are memory-based then read the image in and create an
   // ArrayLattice otherwise just use the PagedImage
   /*if(isTiled) {
-    lattice=SHARED_PTR<Lattice<Complex> >(image, false);
+    lattice=std::shared_ptr<Lattice<Complex> >(image, false);
   }
   else {
      
@@ -1381,7 +1381,7 @@ Bool GridFT::fromRecord(String& error,
     // Might be changing the shape of sumWeight
 
     if(isTiled) {
-      lattice=SHARED_PTR<Lattice<Complex> >(image, false);
+      lattice=std::shared_ptr<Lattice<Complex> >(image, false);
     }
     else {
       // Make the grid the correct shape and turn it into an array lattice

@@ -248,7 +248,9 @@ public:
   // check consistency of image parameters when csys record exists and update 
   // accordingly based on csys record 
   casacore::Record updateParams(const casacore::Record &impar);
-
+  //get the moving source direction in frame requested
+  casacore::MDirection getMovingSourceDir(const casacore::MeasurementSet& ms, const casacore::MEpoch& refEp, const casacore::MPosition& refpos, const casacore::MDirection::Types outframe);
+  
   // Sky coordinates
   casacore::String imageName, stokes;
   casacore::Vector<casacore::String> startModel;
@@ -329,6 +331,9 @@ public:
   // Spectral axis interpolation
   casacore::String interpolation;
 
+  //mosaic use pointing table
+  casacore::Bool usePointing;
+  
   // Moving phase center ? 
   casacore::Quantity distance;
   casacore::MDirection trackDir;

@@ -633,8 +633,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			return 0;
 		}
 		// Returns a pointer that should *not* be deleted...
-		virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > imageinterface( ) {
-			return SHARED_PTR<casacore::ImageInterface<casacore::Float> >();
+		virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > imageinterface( ) {
+			return std::shared_ptr<casacore::ImageInterface<casacore::Float> >();
 		}
 
 		virtual void setSubstituteTitleText( const casacore::String /*title*/ ){

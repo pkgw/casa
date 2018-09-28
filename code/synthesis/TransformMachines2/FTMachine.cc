@@ -548,7 +548,7 @@ using namespace casa::vi;
       //using a canned DE-200 or 405 source
       MDirection::Types planetType=MDirection::castType(movingDir_p.getRef().getType());
     mtype_p=MeasTable::BARYEARTH;
-    if(planetType >=MDirection::MERCURY && planetType >=MDirection::COMET){
+    if(planetType >=MDirection::MERCURY && planetType <MDirection::COMET){
       //Damn these enums are not in the same order
       switch(planetType){
       case MDirection::MERCURY :

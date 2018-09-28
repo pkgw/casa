@@ -777,7 +777,7 @@ template <class T> Record ImageMetaDataBase<T>::_calcStats() const {
 }
 
 template <class T> Record ImageMetaDataBase<T>::_calcStatsT(
-        SHARED_PTR<const ImageInterface<T> > image
+        std::shared_ptr<const ImageInterface<T> > image
 ) const {
     Record x;
     if (! isReal(image->dataType())) {
