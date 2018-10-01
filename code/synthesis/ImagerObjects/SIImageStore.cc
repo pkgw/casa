@@ -74,7 +74,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   // Global method that I (SB) could make work in SynthesisUtilsMethods.
   //
   template <class T>
-  void openImage(const String& imagenamefull,SHARED_PTR<ImageInterface<T> >& imPtr )
+  void openImage(const String& imagenamefull,std::shared_ptr<ImageInterface<T> >& imPtr )
   {
     LogIO logIO ( LogOrigin("SynthesisImager","openImage(name)") );
     try
@@ -91,9 +91,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //--------------------------------------------------------------
   //
   template 
-  void openImage(const String& imagenamefull, SHARED_PTR<ImageInterface<Float> >& img );
+  void openImage(const String& imagenamefull, std::shared_ptr<ImageInterface<Float> >& img );
   template 
-  void openImage(const String& imagenamefull, SHARED_PTR<ImageInterface<Complex> >& img );
+  void openImage(const String& imagenamefull, std::shared_ptr<ImageInterface<Complex> >& img );
   //
   //===========================================================================
 
@@ -218,7 +218,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	doesImageExist(itsImageName+String(".psf")) ||
 	doesImageExist(itsImageName+String(".gridwt"))  )
       {
-	SHARED_PTR<ImageInterface<Float> > imptr;
+	std::shared_ptr<ImageInterface<Float> > imptr;
 	if( doesImageExist(itsImageName+String(".psf")) )
 	  {
 	    //	    imptr.reset( new PagedImage<Float> (itsImageName+String(".psf")) );
@@ -253,7 +253,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	
     if( doesImageExist(itsImageName+String(".sumwt"))  )
       {
-	SHARED_PTR<ImageInterface<Float> > imptr;
+	std::shared_ptr<ImageInterface<Float> > imptr;
 	//imptr.reset( new PagedImage<Float> (itsImageName+String(".sumwt")) );
 	buildImage( imptr, (itsImageName+String(".sumwt")) );
 	itsNFacets = imptr->shape()[0];
@@ -283,16 +283,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   // used from getSubImageStore(), for example when creating the facets list
   // this would be safer if it was refactored as a copy constructor of the generic stuff +
   // initialization of the facet related parameters
-  SIImageStore::SIImageStore(const SHARED_PTR<ImageInterface<Float> > &modelim,
-			     const SHARED_PTR<ImageInterface<Float> > &residim,
-			     const SHARED_PTR<ImageInterface<Float> > &psfim,
-			     const SHARED_PTR<ImageInterface<Float> > &weightim,
-			     const SHARED_PTR<ImageInterface<Float> > &restoredim,
-			     const SHARED_PTR<ImageInterface<Float> > &maskim,
-			     const SHARED_PTR<ImageInterface<Float> > &sumwtim,
-			     const SHARED_PTR<ImageInterface<Float> > &gridwtim,
-			     const SHARED_PTR<ImageInterface<Float> > &pbim,
-			     const SHARED_PTR<ImageInterface<Float> > &restoredpbcorim,
+  SIImageStore::SIImageStore(const std::shared_ptr<ImageInterface<Float> > &modelim,
+			     const std::shared_ptr<ImageInterface<Float> > &residim,
+			     const std::shared_ptr<ImageInterface<Float> > &psfim,
+			     const std::shared_ptr<ImageInterface<Float> > &weightim,
+			     const std::shared_ptr<ImageInterface<Float> > &restoredim,
+			     const std::shared_ptr<ImageInterface<Float> > &maskim,
+			     const std::shared_ptr<ImageInterface<Float> > &sumwtim,
+			     const std::shared_ptr<ImageInterface<Float> > &gridwtim,
+			     const std::shared_ptr<ImageInterface<Float> > &pbim,
+			     const std::shared_ptr<ImageInterface<Float> > &restoredpbcorim,
 			     const CoordinateSystem &csys,
 			     const IPosition &imshape,
 			     const String &imagename,
@@ -415,7 +415,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  SHARED_PTR<SIImageStore> SIImageStore::getSubImageStore(const Int facet, const Int nfacets, 
+  std::shared_ptr<SIImageStore> SIImageStore::getSubImageStore(const Int facet, const Int nfacets, 
 							  const Int chan, const Int nchanchunks, 
 							  const Int pol, const Int npolchunks)
   {
@@ -425,12 +425,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //// Either read an image from disk, or construct one. 
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::openImage(const String imagenamefull, 
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::openImage(const String imagenamefull, 
 							     const Bool overwrite, 
 							     const Bool dosumwt, const Int nfacetsperside)
   {
 
-    SHARED_PTR<ImageInterface<Float> > imPtr;
+    std::shared_ptr<ImageInterface<Float> > imPtr;
 
     IPosition useShape( itsParentImageShape );
 
@@ -572,7 +572,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return imPtr;
   }
 
-  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, IPosition shape,
+  void SIImageStore::buildImage(std::shared_ptr<ImageInterface<Float> > &imptr, IPosition shape,
                                 CoordinateSystem csys, const String name)
   {
     LogIO os( LogOrigin("SIImageStore", "Open non-existing image", WHERE) );
@@ -597,7 +597,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     */
   }
 
-  void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, const String name)
+  void SIImageStore::buildImage(std::shared_ptr<ImageInterface<Float> > &imptr, const String name)
   {
     LogIO os(LogOrigin("SIImageStore", "Open existing Images", WHERE));
     os  <<"Opening image, name: " << name << LogIO::DEBUG1;
@@ -621,13 +621,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
 
     /*    
-    SHARED_PTR<casacore::ImageInterface<Float> > fim;
-    SHARED_PTR<casacore::ImageInterface<Complex> > cim;
+    std::shared_ptr<casacore::ImageInterface<Float> > fim;
+    std::shared_ptr<casacore::ImageInterface<Complex> > cim;
 
     std::tie(fim , cim)=ImageFactory::fromFile(name);
     if(fim)
       {
-	imptr.reset( dynamic_cast<SHARED_PTR<casacore::ImageInterface<Float> > >(*fim) );
+	imptr.reset( dynamic_cast<std::shared_ptr<casacore::ImageInterface<Float> > >(*fim) );
       }
     else
       {
@@ -651,7 +651,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    *
    * @param imptr image to initialize
    */
-  void SIImageStore::initMetaInfo(SHARED_PTR<ImageInterface<Float> > &imptr,
+  void SIImageStore::initMetaInfo(std::shared_ptr<ImageInterface<Float> > &imptr,
                                   const String name)
   {
       // Check objectname, as one of the mandatory fields. What this is meant to check is -
@@ -684,7 +684,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::makeSubImage(const Int facet, const Int nfacets,
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::makeSubImage(const Int facet, const Int nfacets,
 								const Int chan, const Int nchanchunks,
 								const Int pol, const Int npolchunks,
 								ImageInterface<Float>& image)
@@ -698,7 +698,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Add checks for all dimensions..
     if((facet>(nfacets-1))||(facet<0)) {
       os << LogIO::SEVERE << "Illegal facet " << facet << LogIO::POST;
-      return SHARED_PTR<ImageInterface<Float> >();
+      return std::shared_ptr<ImageInterface<Float> >();
     }
     IPosition imshp=image.shape();
     IPosition blc(imshp.nelements(), 0);
@@ -729,7 +729,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Slicer imslice(blc, trc, inc, Slicer::endIsLast);
 
     // Now create the sub image
-    SHARED_PTR<ImageInterface<Float> >  referenceImage( new SubImage<Float>(image, imslice, True) );
+    std::shared_ptr<ImageInterface<Float> >  referenceImage( new SubImage<Float>(image, imslice, True) );
     referenceImage->setMiscInfo(image.miscInfo());
     referenceImage->setUnits(image.units());
 
@@ -781,7 +781,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return True; // do something more intelligent here.
   }
 
-  void SIImageStore::releaseImage( SHARED_PTR<ImageInterface<Float> > &im )
+  void SIImageStore::releaseImage( std::shared_ptr<ImageInterface<Float> > &im )
   {
     //LogIO os( LogOrigin("SIImageStore","releaseLocks",WHERE) );
     im->flush();
@@ -795,7 +795,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     im = NULL;  // This was added to allow modification by modules independently
   }
   
-  void SIImageStore::releaseImage( SHARED_PTR<ImageInterface<Complex> > &im )
+  void SIImageStore::releaseImage( std::shared_ptr<ImageInterface<Complex> > &im )
   {
     im->tempClose();
   }
@@ -840,7 +840,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	return;
       }
 
-    SHARED_PTR<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
+    std::shared_ptr<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
 
     Bool hasMask = newmodel->isMasked(); /// || newmodel->hasPixelMask() ;
     
@@ -865,12 +865,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      for(Int chan=0; chan<inshape[3]; chan++)
 		{
 		  IPosition pos(4,0,0,pol,chan);
-		  SHARED_PTR<ImageInterface<Float> > subim=makeSubImage(0,1, 
+		  std::shared_ptr<ImageInterface<Float> > subim=makeSubImage(0,1, 
 									chan, inshape[3],
 									pol, inshape[2], 
 									(*newmodel) );
 		  
-		  SHARED_PTR<ImageInterface<Float> > submaskmodel=makeSubImage(0,1, 
+		  std::shared_ptr<ImageInterface<Float> > submaskmodel=makeSubImage(0,1, 
 									       chan, inshape[3],
 									       pol, inshape[2], 
 									       maskmodel );
@@ -937,15 +937,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
   /*
-  void SIImageStore::checkRef( SHARED_PTR<ImageInterface<Float> > ptr, const String label )
+  void SIImageStore::checkRef( std::shared_ptr<ImageInterface<Float> > ptr, const String label )
   {
     if( ! ptr && itsImageName==String("reference") ) 
       {throw(AipsError("Internal Error : Attempt to access null subImageStore "+label + " by reference."));}
   }
   */
 
-  void SIImageStore::accessImage( SHARED_PTR<ImageInterface<Float> > &ptr, 
-		    SHARED_PTR<ImageInterface<Float> > &parentptr, 
+  void SIImageStore::accessImage( std::shared_ptr<ImageInterface<Float> > &ptr, 
+		    std::shared_ptr<ImageInterface<Float> > &parentptr, 
 		    const String label )
   {
     // if ptr is not null, assume it's OK. Perhaps add more checks.
@@ -991,24 +991,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::psf(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::psf(uInt /*nterm*/)
   {
     accessImage( itsPsf, itsParentPsf, imageExts(PSF) );
     return itsPsf;
   }
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::residual(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::residual(uInt /*nterm*/)
   {
     accessImage( itsResidual, itsParentResidual, imageExts(RESIDUAL) );
     //    cout << "read residual : " << itsResidual << endl;
     return itsResidual;
   }
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::weight(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::weight(uInt /*nterm*/)
   {
     accessImage( itsWeight, itsParentWeight, imageExts(WEIGHT) );
     return itsWeight;
   }
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::sumwt(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::sumwt(uInt /*nterm*/)
   {
 
     accessImage( itsSumWt, itsParentSumWt, imageExts(SUMWT) );
@@ -1020,7 +1020,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return itsSumWt;
   }
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::model(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::model(uInt /*nterm*/)
   {
     accessImage( itsModel, itsParentModel, imageExts(MODEL) );
 
@@ -1029,7 +1029,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     return itsModel;
   }
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::image(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::image(uInt /*nterm*/)
   {
     accessImage( itsImage, itsParentImage, imageExts(IMAGE) );
 
@@ -1037,30 +1037,30 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return itsImage;
   }
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::mask(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::mask(uInt /*nterm*/)
   {
     accessImage( itsMask, itsParentMask, imageExts(MASK) );
     return itsMask;
   }
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::gridwt(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::gridwt(uInt /*nterm*/)
   {
     accessImage( itsGridWt, itsParentGridWt, imageExts(GRIDWT) );
     /// change the coordinate system here, to uv.
     return itsGridWt;
   }
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::pb(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::pb(uInt /*nterm*/)
   {
     accessImage( itsPB, itsParentPB, imageExts(PB) );
     return itsPB;
   }
-  SHARED_PTR<ImageInterface<Float> > SIImageStore::imagepbcor(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::imagepbcor(uInt /*nterm*/)
   {
     accessImage( itsImagePBcor, itsParentImagePBcor, imageExts(IMAGEPBCOR) );
     itsImagePBcor->setUnits(Unit("Jy/beam"));
     return itsImagePBcor;
   }
 
-  SHARED_PTR<ImageInterface<Complex> > SIImageStore::forwardGrid(uInt /*nterm*/){
+  std::shared_ptr<ImageInterface<Complex> > SIImageStore::forwardGrid(uInt /*nterm*/){
     if( itsForwardGrid ) // && (itsForwardGrid->shape() == itsImageShape))
       {
 	//	cout << "Forward grid has shape : " << itsForwardGrid->shape() << endl;
@@ -1071,18 +1071,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     cimageShape=itsImageShape;
     MFrequency::Types freqframe = itsCoordSys.spectralCoordinate(itsCoordSys.findCoordinate(Coordinate::SPECTRAL)).frequencySystem(True);
     // No need to set a conversion layer if image is in LSRK already or it is 'Undefined'
-    if(freqframe != MFrequency::LSRK && freqframe!=MFrequency::Undefined) 
+    if(freqframe != MFrequency::LSRK && freqframe!=MFrequency::Undefined && freqframe!=MFrequency::REST) 
       { itsCoordSys.setSpectralConversion("LSRK"); }
     CoordinateSystem cimageCoord = StokesImageUtil::CStokesCoord( itsCoordSys,
 								  whichStokes, itsDataPolRep);
     cimageShape(2)=whichStokes.nelements();
+      
     //cout << "Making forward grid of shape : " << cimageShape << " for imshape : " << itsImageShape << endl;
     itsForwardGrid.reset( new TempImage<Complex>(TiledShape(cimageShape, tileShape()), cimageCoord, memoryBeforeLattice()) );
-
+    //if(image())
+    if(hasRestored())
+      itsForwardGrid->setImageInfo((image())->imageInfo());
     return itsForwardGrid;
   }
 
-  SHARED_PTR<ImageInterface<Complex> > SIImageStore::backwardGrid(uInt /*nterm*/){
+  std::shared_ptr<ImageInterface<Complex> > SIImageStore::backwardGrid(uInt /*nterm*/){
     if( itsBackwardGrid ) //&& (itsBackwardGrid->shape() == itsImageShape))
       {
 	//	cout << "Backward grid has shape : " << itsBackwardGrid->shape() << endl;
@@ -1093,13 +1096,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     cimageShape=itsImageShape;
     MFrequency::Types freqframe = itsCoordSys.spectralCoordinate(itsCoordSys.findCoordinate(Coordinate::SPECTRAL)).frequencySystem(True);
     // No need to set a conversion layer if image is in LSRK already or it is 'Undefined'
-    if(freqframe != MFrequency::LSRK && freqframe!=MFrequency::Undefined) 
+    if(freqframe != MFrequency::LSRK && freqframe!=MFrequency::Undefined && freqframe!=MFrequency::REST ) 
       { itsCoordSys.setSpectralConversion("LSRK"); }
     CoordinateSystem cimageCoord = StokesImageUtil::CStokesCoord( itsCoordSys,
 								  whichStokes, itsDataPolRep);
     cimageShape(2)=whichStokes.nelements();
     //cout << "Making backward grid of shape : " << cimageShape << " for imshape : " << itsImageShape << endl;
     itsBackwardGrid.reset( new TempImage<Complex>(TiledShape(cimageShape, tileShape()), cimageCoord, memoryBeforeLattice()) );
+    //if(image())
+    if(hasRestored())
+      itsBackwardGrid->setImageInfo((image())->imageInfo());
     return itsBackwardGrid;
     }
   Double SIImageStore::memoryBeforeLattice(){
@@ -1131,7 +1137,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if( resetweight ) sumwt()->set(0.0);
   }
 
-  void SIImageStore::addImages( SHARED_PTR<SIImageStore> imagestoadd,
+  void SIImageStore::addImages( std::shared_ptr<SIImageStore> imagestoadd,
 				Bool addpsf, Bool addresidual, Bool addweight, Bool adddensity)
   {
 
@@ -1173,7 +1179,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
+void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
   {
     LogIO os( LogOrigin("SIImageStore","setWeightDensity",WHERE) );
 
@@ -2542,7 +2548,7 @@ Float SIImageStore :: calcStd(Vector<Float> &vect, Vector<Bool> &flag, Float mea
 	    if( lsumwt(pos) != 1.0 )
 	      { 
 		//		SubImage<Float>* subim=makePlane(  chan, True ,pol, True, target );
-		SHARED_PTR<ImageInterface<Float> > subim=makeSubImage(0,1, 
+		std::shared_ptr<ImageInterface<Float> > subim=makeSubImage(0,1, 
 								      chan, lsumwt.shape()[3],
 								      pol, lsumwt.shape()[2], 
 								      target );
@@ -2575,12 +2581,12 @@ Float SIImageStore :: calcStd(Vector<Float> &vect, Vector<Bool> &flag, Float mea
 	  {
 	    ///	    IPosition center(4,itsImageShape[0]/2,itsImageShape[1]/2,pol,chan);
 	    
-	    SHARED_PTR<ImageInterface<Float> > subim=makeSubImage(0,1, 
+	    std::shared_ptr<ImageInterface<Float> > subim=makeSubImage(0,1, 
 								  chan, itsImageShape[3],
 								  pol, itsImageShape[2], 
 								  (*psf(term)) );
 
-	    SHARED_PTR<ImageInterface<Float> > subim0=makeSubImage(0,1, 
+	    std::shared_ptr<ImageInterface<Float> > subim0=makeSubImage(0,1, 
 								  chan, itsImageShape[3],
 								  pol, itsImageShape[2], 
 								  (*psf(0)) );
@@ -2713,7 +2719,7 @@ Bool SIImageStore::isModelEmpty()
 	  {
 	    for(Int chan=0; chan<itsImageShape[3]; chan++)
 	      {
-		SHARED_PTR<ImageInterface<Float> > onepsf=makeSubImage(0,1, 
+		std::shared_ptr<ImageInterface<Float> > onepsf=makeSubImage(0,1, 
 								       chan, itsImageShape[3],
 								       pol, itsImageShape[2], 
 								       (*psf()) );
@@ -3025,8 +3031,8 @@ void SIImageStore::regridToModelImage( ImageInterface<Float> &inputimage, Int te
     //    Record itsMiscInfo; 
     itsMiscInfo.print(outFile);
     
-    // SHARED_PTR<ImageInterface<Float> > itsMask, itsPsf, itsModel, itsResidual, itsWeight, itsImage, itsSumWt;
-    // SHARED_PTR<ImageInterface<Complex> > itsForwardGrid, itsBackwardGrid;
+    // std::shared_ptr<ImageInterface<Float> > itsMask, itsPsf, itsModel, itsResidual, itsWeight, itsImage, itsSumWt;
+    // std::shared_ptr<ImageInterface<Complex> > itsForwardGrid, itsBackwardGrid;
 
     Vector<Bool> ImageExists(MAX_IMAGE_IDS);
     if ( ! itsMask )     ImageExists(MASK)=False;

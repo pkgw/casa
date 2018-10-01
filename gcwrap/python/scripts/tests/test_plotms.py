@@ -866,7 +866,7 @@ class test_pageheader(plotms_test_base):
                      antenna='0&2',headeritems='targdir,telescope,targname,observer,ycolumn',
                      showgui=False, highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_png, 25000)
+        self.checkPlotfile(self.plotfile_png, 24000)
         self.checkPageHeader(expected_rows=3)
 
 # ------------------------------------------------------------------------------

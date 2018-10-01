@@ -3,7 +3,8 @@ import shutil
 import string
 import copy
 import math
-from taskinit import *
+from taskinit import mttool, mstool, casalog
+from mstools import write_history
 from parallel.parallel_data_helper import ParallelDataHelper
 import testhelper as th
 

@@ -1,6 +1,7 @@
 import numpy
 import os
-from taskinit import *
+from taskinit import casalog, gentools
+from mstools import write_history
 import sdutil
 ms,sdms,tb = gentools(['ms','sdms','tb'])
 
@@ -28,6 +29,13 @@ def sdsmooth(infile=None, datacolumn=None, antenna=None,
                            polarization=pol, intent=intent,
                            reindex=reindex)
         sdms.smooth(type=kernel, width=kwidth, datacolumn=datacolumn, outfile=outfile)
+        
+        # Write to HISTORY of outfile MS
+        param_names = sdsmooth.func_code.co_varnames[:sdsmooth.func_code.co_argcount]
+        param_vals = [eval(p) for p in param_names]
+        write_history(ms, outfile, 'sdsmooth', param_names,
+                      param_vals, casalog)
+
     except Exception, instance:
         raise Exception, instance
     finally:

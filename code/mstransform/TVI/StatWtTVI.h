@@ -216,7 +216,7 @@ private:
     casacore::Bool _updateWeight = casacore::True;
     casacore::Bool _noModel = casacore::False;
 
-    SHARED_PTR<
+    std::shared_ptr<
         casacore::ClassicalStatistics<casacore::Double,
         casacore::Array<casacore::Float>::const_iterator,
         casacore::Array<casacore::Bool>::const_iterator>

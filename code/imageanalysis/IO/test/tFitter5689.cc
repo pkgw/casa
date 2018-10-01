@@ -45,7 +45,7 @@ void test1(){
 	int nGauss = 1;
 	SpectralList spectralList;
 
-	SHARED_PTR<ImageInterface<Float> > image( new PagedImage<Float>( "/home/achillea/casa/trunk/test/titan2/titanline-small2.image"));
+	std::shared_ptr<ImageInterface<Float> > image( new PagedImage<Float>( "/home/achillea/casa/trunk/test/titan2/titanline-small2.image"));
 	ImageProfileFitter* fitter = new ImageProfileFitter( image, "", 0, pixelBox,
 											 channelStr, "", "",
 											 spectralAxisNumber,
@@ -143,7 +143,7 @@ void test2(){
 	int channelMax = 27;
 
 	//Load the image.
-	SHARED_PTR<ImageInterface<Float> > image( new PagedImage<Float>( "/home/achillea/casa/trunk/test/titan2/titanline-small2.image"));
+	std::shared_ptr<ImageInterface<Float> > image( new PagedImage<Float>( "/home/achillea/casa/trunk/test/titan2/titanline-small2.image"));
     CoordinateSystem cSys = image->coordinates();
     int spectralAxisNumber = cSys.spectralAxisNumber();
 

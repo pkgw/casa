@@ -46,7 +46,7 @@ PowerLogPolynomialSpectralElement::PowerLogPolynomialSpectralElement(
 	}
 	//_makeFunction();
 	_setFunction(
-		SHARED_PTR<PowerLogarithmicPolynomial<Double> >(
+		std::shared_ptr<PowerLogarithmicPolynomial<Double> >(
 			new PowerLogarithmicPolynomial(n)
 		)
 	);
@@ -57,7 +57,7 @@ PowerLogPolynomialSpectralElement::PowerLogPolynomialSpectralElement(
 ) : SpectralElement(SpectralElement::POWERLOGPOLY, param) {
 	//_makeFunction();
 	_setFunction(
-		SHARED_PTR<PowerLogarithmicPolynomial<Double> >(
+		std::shared_ptr<PowerLogarithmicPolynomial<Double> >(
 			new PowerLogarithmicPolynomial<Double>(param.tovector())
 		)
 	);

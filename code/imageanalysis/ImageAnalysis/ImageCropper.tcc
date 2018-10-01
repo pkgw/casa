@@ -36,7 +36,7 @@ const casacore::String ImageCropper<T>::_class = "ImageCropper";
 
 template <class T>
 ImageCropper<T>::ImageCropper(
-	const SHARED_PTR<const casacore::ImageInterface<T> > image,
+	const std::shared_ptr<const casacore::ImageInterface<T> > image,
 	const casacore::Record *const &regionRec, const casacore::String& box,
 	const casacore::String& chanInp, const casacore::String& stokes,
 	const casacore::String& maskInp, const casacore::String& outname,
@@ -79,12 +79,12 @@ void ImageCropper<T>::setAxes(const std::set<casacore::uInt>& axes) {
 }
 
 template <class T>
-SHARED_PTR<casacore::ImageInterface<T> > ImageCropper<T>::crop(
+std::shared_ptr<casacore::ImageInterface<T> > ImageCropper<T>::crop(
 	const casacore::Bool wantReturn
 ) const {
 	*this->_getLog() << casacore::LogOrigin(_class, __FUNCTION__, WHERE);
 
-	SHARED_PTR<const casacore::SubImage<T> > subImage = SubImageFactory<T>::createSubImageRO(
+	std::shared_ptr<const casacore::SubImage<T> > subImage = SubImageFactory<T>::createSubImageRO(
 		*this->_getImage(), *this->_getRegion(), this->_getMask(),
 		this->_getLog().get(), casacore::AxesSpecifier(), this->_getStretch(), true
 	);
@@ -131,12 +131,12 @@ SHARED_PTR<casacore::ImageInterface<T> > ImageCropper<T>::crop(
 		AlwaysAssert(minFound && maxFound, casacore::AipsError);
 	}
 	casacore::LCBox lcbox(blc, trc, shape);
-	SHARED_PTR<const casacore::SubImage<T> > cropped = SubImageFactory<T>::createSubImageRO(
+	std::shared_ptr<const casacore::SubImage<T> > cropped = SubImageFactory<T>::createSubImageRO(
 		*subImage, lcbox.toRecord(""), "",
 		this->_getLog().get(), casacore::AxesSpecifier(), false, true
 	);
     this->_reportOldNewImageShapes(*cropped);
-	SHARED_PTR<casacore::ImageInterface<T> > outImage( this->_prepareOutputImage(*cropped));
+	std::shared_ptr<casacore::ImageInterface<T> > outImage( this->_prepareOutputImage(*cropped));
 	if (! wantReturn) {
 		outImage.reset();
 	}

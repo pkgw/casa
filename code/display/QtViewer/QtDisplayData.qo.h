@@ -286,7 +286,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		//# that will crash QDD.  Do not assume it is non-zero -- im_ may be zero if
 		//# the QDD's image is complex.  However, if it _is_ non-zero, you should
 		//# be able to assume it will exist for the life of the QDD).
-		SHARED_PTR<casacore::ImageInterface<float> > imageInterface() {
+		std::shared_ptr<casacore::ImageInterface<float> > imageInterface() {
 			return im_;
 		}
 		const viewer::ImageProperties &imageProperties( );
@@ -299,7 +299,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		void init();
 		void initImage();
-		void setImage(SHARED_PTR< casacore::ImageInterface<float> > img);
+		void setImage(std::shared_ptr< casacore::ImageInterface<float> > img);
 		static void setGlobalColorOptions( bool global );
 		void setHistogramColorProperties( bool invert, int logScale );
 
@@ -472,8 +472,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		const std::string TYPE_IMAGE;
 		const std::string SKY_CATALOG;
 		const std::string MS;
-		SHARED_PTR<casacore::ImageInterface<float> > im_;
-		SHARED_PTR<casacore::ImageInterface<casacore::Complex> > cim_;
+		std::shared_ptr<casacore::ImageInterface<float> > im_;
+		std::shared_ptr<casacore::ImageInterface<casacore::Complex> > cim_;
 		DisplayData* dd_;
 
 		std::string name_;
