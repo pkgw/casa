@@ -2,6 +2,7 @@ import os
 import time
 import numpy as np
 from taskinit import *
+from mstools import write_history
 from callibrary import *
 import flaghelper as fh
 from parallel.parallel_data_helper import ParallelDataHelper

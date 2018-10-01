@@ -10,6 +10,7 @@ import numpy as np
 from distutils.dir_util import copy_tree
 
 from taskinit import *
+from mstools import write_history
 from update_spw import *
 
 from parallel.parallel_data_helper import ParallelDataHelper
