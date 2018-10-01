@@ -154,7 +154,7 @@ bool  getMSThrowFromList(uInt  No )
     return TestMSList[No].ExThrow;
 }
 // Get Count of MS List //
-uInt getMSCountFromList()
+size_t getMSCountFromList()
 {
     return TestMSList.size();
 }
@@ -462,7 +462,7 @@ void MsEdit::AntennaTable_List(String MsName )
 
     // Get current row count //
 
-        int nrow_a = hAntennaTable.nrow();
+        uInt nrow_a = hAntennaTable.nrow();
 
         printf( "Antenna Table nrow  =%d \n",nrow_a);
 
@@ -471,7 +471,7 @@ void MsEdit::AntennaTable_List(String MsName )
     //  NEW FEASURE by C++11: Use samrt pointer.
     //-
 
-        std::shared_ptr<casacore::MSAntennaColumns> 
+        std::unique_ptr<casacore::MSAntennaColumns> 
                 columnAntenna( new casacore::MSAntennaColumns( hAntennaTable ));
 
     //+
@@ -557,7 +557,7 @@ void MsEdit::AntennaTable_WriteData(String MsName, int Row )
     // Get Column handle from Table  (Antenna)
     //
 
-        std::shared_ptr<casacore::MSAntennaColumns> 
+        std::unique_ptr<casacore::MSAntennaColumns> 
                 columnAntenna( new casacore::MSAntennaColumns( hAntennaTable ));
 
     //+
@@ -648,7 +648,7 @@ void MsEdit::PointingTable_List(String MsName, bool showAll)
     // Get Column handle from Table  (Pointing)
     //  
 
-        std::shared_ptr<casacore::ROMSPointingColumns> 
+        std::unique_ptr<casacore::ROMSPointingColumns> 
                 columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
 
     //+
@@ -739,7 +739,7 @@ void MsEdit::PointingTable_WriteData(String MsName )
 
         // create the Smart Pointer in use. //
 
-        std::shared_ptr<casacore::ROMSPointingColumns> 
+        std::unique_ptr<casacore::ROMSPointingColumns> 
                 columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
 
     //+
@@ -830,7 +830,7 @@ void MsEdit::CreateNewColumnsFromDirection()
 
         // create the Smart Pointer in use. //
 
-        std::shared_ptr<casacore::MSPointingColumns> 
+        std::unique_ptr<casacore::MSPointingColumns> 
                 columnPointing( new casacore::MSPointingColumns( hPointingTable ));
 
     // each Column.. used in setDirectionColumn() //
@@ -998,7 +998,7 @@ void  MsEdit::WriteTestDataOnDirection(String MsName)
 
         // create the Smart Pointer in use. //
 
-        std::shared_ptr<casacore::ROMSPointingColumns> 
+        std::unique_ptr<casacore::ROMSPointingColumns> 
                 columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
 
     //+
@@ -1156,8 +1156,8 @@ TEST_F(TestMeasurementSet, variousConstructor )
 {
     TestDescription( "CALC Constructor by various MS" );
 
-    uInt max_count = getMSCountFromList();
-    printf("%d MeasruementSet for this test are ready.\n" ,max_count); 
+    size_t max_count = getMSCountFromList();
+    printf("%d MeasruementSet for this test are ready.\n" , (int)max_count); 
 
     for(uInt k=0; k< max_count ; k++)
     {
@@ -1851,7 +1851,7 @@ TEST_F(TestDirection, Matrixshape )
 
  -------------------------------------*/
 
-TEST_F(TestDirection, getDirection )
+TEST_F(TestDirection, getDirection1 )
 {
 
     TestDescription( "getDirection (J2000) No data selection" );
@@ -2279,7 +2279,7 @@ TEST_F(TestSelectData, Spw )
         Description( "Spw: spw=0, ch=13~20 specified.(Syntax ERROR)",SpwSel);
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, (int)nrow);
+        EXPECT_EQ (ExpectedNrow, nrow);
 
 #endif 
 
