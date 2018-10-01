@@ -125,6 +125,7 @@ public:
   // @param[in] minpercentchange Mininum percentage change in mask to stop updating mask 
   // @param[in] verbose Controls automask related logging messages                                
   // @param[in] isthresholdreached Check if cyclethreshold reached threshold
+  // @param[in] fastnoise Toggle to turn on and off fast (but less robust) noise calculation
   // @param[in] pblimit Primary beam cut off level
   //
   void autoMask(std::shared_ptr<SIImageStore> imstore, 
@@ -149,6 +150,7 @@ public:
                 const casacore::Bool dogrowprune=true,
                 const casacore::Float& minpercentchange=0.0,
                 const casacore::Bool verbose=false,
+                const casacore::Bool fastnoise=false,
                 const casacore::Bool isthresholdreached=false,
                 casacore::Float pblimit=0.0);
 
@@ -198,7 +200,7 @@ public:
                                           const casacore::Int growIterations=100,
                                           const casacore::Bool dogrowprune=true,
                                           const casacore::Bool verbose=false,
-                                          const casacore::Bool isthresholdreached=false); 
+                                          const casacore::Bool isthresholdreached=false);
                            
 
   std::shared_ptr<casacore::ImageInterface<float> > makeMaskFromBinnedImage (
@@ -291,6 +293,7 @@ public:
                         const casacore::Bool dogrowprune=true,
                         const casacore::Float& minpercentchange=0.0,
                         const casacore::Bool verbose=false,
+                        const casacore::Bool fastnoise=false,
                         const casacore::Bool isthresholdreached=false,
                         casacore::Float pblimit=0.1);
 

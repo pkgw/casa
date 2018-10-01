@@ -201,6 +201,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         itsDoGrowPrune = decpars.doGrowPrune;
         itsMinPercentChange = decpars.minPercentChange;
         itsVerbose = decpars.verbose;
+        itsFastNoise = decpars.fastnoise;
 	itsIsInteractive = decpars.interactive;
         itsNsigma = decpars.nsigma;
       }
@@ -582,10 +583,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        //os << "itsMinPercentChnage = " << itsMinPercentChange<< LogIO::POST;
 
        if ( itsPBMask > 0.0 ) {
-         itsMaskHandler->autoMaskWithinPB( itsImages, itsPosMask, itsIterDone, itsChanFlag, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold,itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, isThresholdReached, itsPBMask);
+         itsMaskHandler->autoMaskWithinPB( itsImages, itsPosMask, itsIterDone, itsChanFlag, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold,itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, itsFastNoise, isThresholdReached, itsPBMask);
        }
        else {
-         itsMaskHandler->autoMask( itsImages, itsPosMask, itsIterDone, itsChanFlag,itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, isThresholdReached );
+         itsMaskHandler->autoMask( itsImages, itsPosMask, itsIterDone, itsChanFlag,itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, itsFastNoise, isThresholdReached );
        }
      }
   }

@@ -973,6 +973,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                const Bool dogrowprune,
                                const Float& minpercentchange,
                                const Bool verbose, 
+                               const Bool fastnoise,
                                const Bool isthresholdreached,
                                Float pblimit)
   {
@@ -1114,7 +1115,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Record*  region_ptr=0;
     String LELmask("");
     // note: tempres is res image with pblimit applied
-    Bool robust(false);
+    Bool robust(false); // robust is false by default (turn it on for 'multithresh') 
     Bool doAnnulus(false); // turn off stats on an annulus
     if (alg.contains("multithresh") ) {
        robust=true;
@@ -1147,35 +1148,41 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
 
     //use new noise calc.
-    Bool useoldstats(False);
+    //Bool useoldstats(False);
  
     Record thestats = calcImageStatistics(*tempres, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
     thestats.get(RecordFieldId("max"), maxs);
     thestats.get(RecordFieldId("rms"), rmss);
-    os<< LogIO::DEBUG1 << " *** Old statistics for the reference ***"<<LogIO::POST;
-    os<< LogIO::DEBUG1 << "All rms's on the input image -- rms.nelements()="<<rmss.nelements()<<" rms="<<rmss<<LogIO::POST;
-    os<< LogIO::DEBUG1 << "All max's on the input image -- max.nelements()="<<maxs.nelements()<<" max="<<maxs<<LogIO::POST;
-    if (alg.contains("multithresh")) {
-       thestats.get(RecordFieldId("medabsdevmed"), mads);
-       os<< LogIO::DEBUG1 << "All MAD's on the input image -- mad.nelements()="<<mads.nelements()<<" mad="<<mads<<LogIO::POST;
-    }
     //test test test
     // at this point tempres has pbmask applied
     LatticeExpr<Bool> pbmask(tempres->pixelMask());
 
-    
+    Record thenewstats; 
+    if (fastnoise) { // use a faster but less robust noise determination
+      thenewstats = thestats;
+      os<< LogIO::DEBUG1 << " *** Using classic image statistics ***"<<LogIO::POST;
+      os<< LogIO::DEBUG1 << "All rms's on the input image -- rms.nelements()="<<rmss.nelements()<<" rms="<<rmss<<LogIO::POST;
+      //os<< LogIO::DEBUG1 << "All max's on the input image -- max.nelements()="<<maxs.nelements()<<" max="<<maxs<<LogIO::POST;
+      if (alg.contains("multithresh")) {
+        thestats.get(RecordFieldId("medabsdevmed"), mads);
+        os<< LogIO::DEBUG1 << "All MAD's on the input image -- mad.nelements()="<<mads.nelements()<<" mad="<<mads<<LogIO::POST;
+      }
+    }
+    else {
     // Revised version of calcRobustImageStatistics  (previous one- rename to calcRobustImageStatisticsOld)
-    Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust, chanflag);
-    Array<Double> newmaxs, newmins, newrmss, newmads;
-    thenewstats.get(RecordFieldId("max"), newmaxs);
-    thenewstats.get(RecordFieldId("rms"), newrmss);
-    os<< LogIO::DEBUG1 << "*** New statistics *** "<<newrmss<<LogIO::POST;
-    os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
-    os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
-    if (alg.contains("multithresh")) {
-       thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
-       os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
+    //Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust, chanflag);
+      thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust, chanflag);
+      Array<Double> newmaxs, newmins, newrmss, newmads;
+      thenewstats.get(RecordFieldId("max"), newmaxs);
+      thenewstats.get(RecordFieldId("rms"), newrmss);
+      os<< LogIO::DEBUG1 << "*** Using the new image statistics *** "<<LogIO::POST;
+      os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
+      //os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
+      if (alg.contains("multithresh")) {
+         thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
+         os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
+      }
     }
     
 
@@ -2145,7 +2152,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const Int growIterations,
                                           const Bool doGrowPrune,
                                           const Bool verbose,
-                                          const Bool isthresholdreached) 
+                                          const Bool isthresholdreached)
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMaskByMultiThreshold",WHERE) );
     Array<Double> rmss, maxs, mins, mads, mdns;
@@ -2167,7 +2174,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
     
     //set true to use calcImageStatistics2 and thresholds adjusted for the location (median)
-    Bool newstats(True); // turn on new stats definition of threshold calc.
+    //Bool newstats(True); // turn on new stats definition of threshold calc.
 
     //Timer
     Timer timer;
@@ -2287,32 +2294,32 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
       
       // turn on a new definition for new stats --- remove old one once tested
-      if (newstats) {
-        os<<LogIO::DEBUG1<<"Using the new statistics ..."<<LogIO::POST;
-        sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
-      }
-      else {
-        sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
-      } 
+      //if (newstats) {
+      //  os<<LogIO::DEBUG1<<"Using the new statistics ..."<<LogIO::POST;
+      //  sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      //}
+      //else {
+      //  sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      //} 
 
-      // *** Requested but later asked to remove on CAS-9208 ***
-      // add a factor modification in the case of high sidelobe level
-      //Float modfactor = min(sidelobeThresholdFactor*sidelobeLevel, 0.5*(sidelobeLevel+1.0));
-      //if (modfactor != sidelobeThresholdFactor*sidelobeLevel) os<<LogIO::NORMAL<<" sidelobethreshld*sidelobeLevel ="<<sidelobeThresholdFactor*sidelobeLevel<<" appears to be high for automasking, adjusting this factor to "<<modfactor<<LogIO::POST;
-      //sidelobeThreshold = modfactor * (Float)maxs(chindx); 
-      //
-    
       // turn on a new definition for new stats --- remove old one once tested
-      if (newstats) {
-        noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
-        lowNoiseThreshold = (Float)mdns(chindx) + lowNoiseThresholdFactor * (Float)resRmss(chindx); 
-        negativeThreshold = (Float)mdns(chindx) + negativeThresholdFactor * (Float)resRmss(chindx);
-      }
-      else { 
-        noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
-        lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
-        negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
-      }
+      //if (newstats) {
+      //  noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
+      //  lowNoiseThreshold = (Float)mdns(chindx) + lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+      //  negativeThreshold = (Float)mdns(chindx) + negativeThresholdFactor * (Float)resRmss(chindx);
+      //}
+      //else { 
+      //  noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
+      //  lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+      //  negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
+      //}
+      
+      // include location (=median)  for both fastnoise=true and false
+      sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
+      lowNoiseThreshold = (Float)mdns(chindx) + lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+      negativeThreshold = (Float)mdns(chindx) + negativeThresholdFactor * (Float)resRmss(chindx);
+
       maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
       lowMaskThreshold(ich) = max(sidelobeThreshold, lowNoiseThreshold);
       ThresholdType(ich) = (maskThreshold(ich) == sidelobeThreshold? "sidelobe": "noise");
@@ -3821,6 +3828,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        const Bool dogrowprune,
                                        const Float& minpercentchange,
                                        const Bool verbose,
+                                       const Bool fastnoise,
                                        const Bool isthresholdreached,
                                        Float pblimit)
   { 
@@ -3831,7 +3839,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // changed to do automask ater pb mask is generated so automask do stats within pb mask
     autoMask( imstore, posmask, iterdone, chanflag, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
               sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, 
-              minbeamfrac, growiterations, dogrowprune, minpercentchange, verbose, isthresholdreached, pblimit);
+              minbeamfrac, growiterations, dogrowprune, minpercentchange, verbose, fastnoise, isthresholdreached, pblimit);
 
     if( imstore->hasPB() )
       {
