@@ -166,6 +166,7 @@ public:
   bool colorize(bool doColorize, PMS::Axis colorizeAxis);
 
   bool setConnect(casacore::String xconnect, bool timeconnect);
+  virtual bool reverseConnect(unsigned int index) const;
 
   bool plotConjugates() const { return (PMS::axisIsUV(currentX_) && 
           PMS::axisIsUV(currentY_)); }
@@ -321,6 +322,9 @@ private:
   // Reindex and bin when connecting points
   casacore::String itsXConnect_;
   bool itsTimeConnect_;
+  // map<chunk, decrease> : frequencies decrease with channel in chunk
+  // (for reverseConnect)
+  std::map<casacore::uInt, bool> freqsDecrease_;
 
   // Cope with const-ness in the get methods
   PlotMSIndexer* self;

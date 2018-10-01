@@ -158,6 +158,10 @@ public:
     virtual bool unmaskedMinsMaxes(double& xMin, double& xMax, double& yMin,
                                    double& yMax) = 0;
 
+    // Returns whether data is plotted in reverse order (right to left),
+	// needed when connecting points
+    virtual bool reverseConnect(unsigned int index) const = 0;
+
     // Returns whether to plot conjugate data (e.g. UV plots)
     virtual bool plotConjugates() const = 0;
     
@@ -605,6 +609,7 @@ public:
         }
     }
     
+    virtual bool reverseConnect(unsigned int /*index*/) const { return false; };
     virtual bool plotConjugates() const { return false; };
 
     // Overrides PlotPointDataImpl::willDeleteData().

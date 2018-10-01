@@ -79,6 +79,7 @@ PlotMSIndexer::PlotMSIndexer():
 		  itsColorizeAxis_(PMS::DEFAULT_COLOR_AXIS),
 		  itsXConnect_("none"),
 		  itsTimeConnect_(false),
+		  freqsDecrease_(),
 		  self(const_cast<PlotMSIndexer*>(this))
 {
 	dataIndex_ = 0;
@@ -129,6 +130,7 @@ PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent, PMS::Axis xAxis,
 		  itsColorizeAxis_(PMS::DEFAULT_COLOR_AXIS),
 		  itsXConnect_(xconnect),
 		  itsTimeConnect_(timeconnect),
+		  freqsDecrease_(),
 		  self(const_cast<PlotMSIndexer*>(this))
 {
 	dataIndex_ = index;
@@ -182,6 +184,7 @@ PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent,
 		itsColorizeAxis_(PMS::DEFAULT_COLOR_AXIS),
 		itsXConnect_(xconnect),
 		itsTimeConnect_(timeconnect),
+		freqsDecrease_(),
 		self(const_cast<PlotMSIndexer*>(this))
 { 
 	dataIndex_ = index;
@@ -704,11 +707,13 @@ void PlotMSIndexer::reindexForConnect() {
 	std::set<casacore::Double> times;
 	std::set<casacore::Int> spws, corrs, ant1s;
 	std::map<casacore::Int, casacore::Int> chansPerSpw;
+	freqsDecrease_.clear();
 	getConnectSetsMaps(times, spws, corrs, ant1s, chansPerSpw);
 
 	// If iteraxis, only use points for current iteration
 	Int npoints(nCumulPoints_(nSegment_-1));
-	Vector<bool> itermask(npoints, true);
+	Vector<bool> itermask(npoints);
+	itermask.set(true);
 	if (iterAxis_ != PMS::NONE) {
 		if (iterAxis_ == PMS::ANTENNA) {
 			for (Int ipt=0; ipt<npoints; ++ipt) {
@@ -895,6 +900,19 @@ void PlotMSIndexer::getConnectSetsMaps(std::set<Double>& times, std::set<Int>& s
 			Vector<Int> ant1(plotmscache_->ant1(chunk));
 			for (Int thisant : ant1) ant1s.insert(thisant);
 		}
+		if (currentX_==PMS::FREQUENCY) {
+		    Vector<Double> freqs(plotmscache_->freq(chunk));
+		    freqsDecrease_[chunk] = (freqs(0) > freqs(freqs.size()-1));
+		}
+	}
+}
+
+bool PlotMSIndexer::reverseConnect(unsigned int index) const {
+	if (currentX_==PMS::FREQUENCY) {
+		setChunk(index);
+		return freqsDecrease_.at(currChunk_);
+	} else {
+		return false;
 	}
 }
 

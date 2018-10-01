@@ -499,6 +499,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                     !casacore::isInf(thisx) && !casacore::isInf(thisy) &&
                     (thisx != lastx)) {
 
+                    bool reversed(m_maskedData->reverseConnect(i));
                     if (diffColorLine) {  // set pen for colorized plot
                         QPen linePen;
                         if (!drawMaskedLine || samePen)
@@ -513,7 +514,10 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                         p->setPen(linePen);
                         // compare then save for next point
                         sameBin = (thisbin==lastbin);
-                        sameLine = sameBin && (thisx > lastx); // for colorized data
+                        if (reversed)
+                            sameLine = sameBin && (thisx < lastx); // for colorized data
+                        else
+                            sameLine = sameBin && (thisx > lastx); // for colorized data
                         lastbin = thisbin;
                     }
 
