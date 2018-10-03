@@ -56,11 +56,15 @@ def write_image_history(myia, tname, param_names, param_vals, myclog=None):
         for argnum in xrange(n):
             s += param_names[argnum] + "="
             val = param_vals[argnum]
-            if type(val) == str:
-                s += '"'
-            s += str(val)
-            if type(val) == str:
-                s += '"'
+            sval = str(val)
+            if len(sval) > 300:
+                s += "..."
+            else:
+                if type(val) == str:
+                    s += '"'
+                s += sval
+                if type(val) == str:
+                    s += '"'
             if argnum < n-1:
                 s += ", "
         s += ")" 

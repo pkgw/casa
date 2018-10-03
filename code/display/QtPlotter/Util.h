@@ -82,12 +82,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		//Support for tabular axes that are frequency.  Returns -1 if there
 		//is no tabular index in the image in frequency units.
-		static int getTabularFrequencyAxisIndex(SHARED_PTR<const casacore::ImageInterface<casacore::Float> > img);
+		static int getTabularFrequencyAxisIndex(std::shared_ptr<const casacore::ImageInterface<casacore::Float> > img);
 
 		static casacore::Record getRegionRecord( casacore::String shape, const DisplayCoordinateSystem& cSys,
 					const casacore::Vector<casacore::Double>& x, const casacore::Vector<casacore::Double>& y);
 
-		static std::pair<casacore::Vector<casacore::Float>,casacore::Vector<casacore::Float> > getProfile(SHARED_PTR<const casacore::ImageInterface<casacore::Float> >& imagePtr,
+		static std::pair<casacore::Vector<casacore::Float>,casacore::Vector<casacore::Float> > getProfile(std::shared_ptr<const casacore::ImageInterface<casacore::Float> >& imagePtr,
 				const casacore::Vector<casacore::Double>& x, const casacore::Vector<casacore::Double>& y, const casacore::String& shape,
 				int tabularAxis, ImageCollapserData::AggregateType, casacore::String unit,
 				const casacore::String& coordinateType,

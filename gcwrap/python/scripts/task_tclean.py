@@ -70,7 +70,8 @@ def tclean(
 
     ### PB
     vptable,
-
+    usepointing, #=false
+    mosweight, #=false
     aterm,#=True,
     psterm,#=True,
     wbawp ,#= True,
@@ -119,9 +120,9 @@ def tclean(
     usemask,#='user',
     mask,#='',
     pbmask,#='',
-    maskthreshold,#='',
-    maskresolution,#='',
-    nmask,#=0,
+    # maskthreshold,#='',
+    # maskresolution,#='',
+    # nmask,#=0,
 
     ##### automask by multithresh
     sidelobethreshold,#=5.0,
@@ -221,7 +222,8 @@ def tclean(
         wprojplanes=wprojplanes,
 
         vptable=vptable,
-
+        usepointing=usepointing,
+        mosweight=mosweight,
         ### Gridding....
 
         aterm=aterm,
@@ -264,9 +266,9 @@ def tclean(
         usemask=usemask,
         mask=mask,
         pbmask=pbmask,
-        maskthreshold=maskthreshold,
-        maskresolution=maskresolution,
-        nmask=nmask,
+        #maskthreshold=maskthreshold,
+        #maskresolution=maskresolution,
+        #nmask=nmask,
 
         ### automask multithresh params
         sidelobethreshold=sidelobethreshold,

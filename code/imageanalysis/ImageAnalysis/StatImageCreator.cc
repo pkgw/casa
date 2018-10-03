@@ -1,7 +1,5 @@
 #include <imageanalysis/ImageAnalysis/StatImageCreator.h>
 
-#include <casacore/images/Images/ImageStatistics.h>
-
 #include <imageanalysis/Annotations/AnnCenterBox.h>
 #include <imageanalysis/Annotations/AnnCircle.h>
 #include <casacore/lattices/LEL/LatticeExpr.h>
@@ -11,7 +9,7 @@ namespace casa {
 StatImageCreator::StatImageCreator(
     const SPCIIF image, const Record *const region,
 	const String& mask, const String& outname, Bool overwrite
-) : ImageStatsConfigurator(image, region, mask, outname, overwrite) {
+) : ImageStatsBase(image, region, mask, outname, overwrite) {
     this->_construct();
 	auto da = _getImage()->coordinates().directionAxesNumbers();
     _dirAxes[0] = da[0];
@@ -149,7 +147,7 @@ void StatImageCreator::_computeStat(
     TempImage<Float>& writeTo, SPCIIF subImage,
     uInt nxpts, uInt nypts, Int xstart, Int ystart
 ) {
-    SHARED_PTR<Array<Bool>> regionMask;
+    std::shared_ptr<Array<Bool>> regionMask;
     uInt xBlcOff = 0;
     uInt yBlcOff = 0;
     uInt xChunkSize = 0;
@@ -226,8 +224,8 @@ void StatImageCreator::_doStatsLoop(
     TempImage<Float>& writeTo, RO_MaskedLatticeIterator<Float>& lattIter,
     uInt nxpts, uInt nypts, Int xstart, Int ystart, uInt xBlcOff,
     uInt yBlcOff, uInt xChunkSize, uInt yChunkSize, const IPosition& imshape,
-    const IPosition& chunkShape, SHARED_PTR<Array<Bool>> regionMask,
-    SHARED_PTR<
+    const IPosition& chunkShape, std::shared_ptr<Array<Bool>> regionMask,
+    std::shared_ptr<
         StatisticsAlgorithm<
             Double, Array<Float>::const_iterator, Array<Bool>::const_iterator,
             Array<Float>::const_iterator
@@ -305,7 +303,7 @@ void StatImageCreator::_doStatsLoop(
                     xPlaneTrc = min(
                         xblc + (Int)xChunkSize - 1, (Int)ximshape - 1
                     );
-                    SHARED_PTR<Array<Bool>> subRegionMask;
+                    std::shared_ptr<Array<Bool>> subRegionMask;
                     if (regionMask) {
                         auto doMaskSlice = yDoMaskSlice;
                         xRegMaskStart = 0;
@@ -372,7 +370,7 @@ void StatImageCreator::_doStatsLoop(
     }
 }
 
-SHARED_PTR<
+std::shared_ptr<
     StatisticsAlgorithm<Double, Array<Float>::const_iterator,
     Array<Bool>::const_iterator>
 >
@@ -381,7 +379,7 @@ StatImageCreator::_getStatsAlgorithm(String& algName) const {
     switch(ac.algorithm) {
     case StatisticsData::CLASSICAL:
         algName = "classical";
-        return SHARED_PTR<
+        return std::shared_ptr<
             ClassicalStatistics<Double, Array<Float>::const_iterator,
             Array<Bool>::const_iterator>
         >(
@@ -392,7 +390,7 @@ StatImageCreator::_getStatsAlgorithm(String& algName) const {
         );
     case StatisticsData::CHAUVENETCRITERION:
         algName = "Chauvenet criterion/z-score";
-        return SHARED_PTR<ChauvenetCriterionStatistics<
+        return std::shared_ptr<ChauvenetCriterionStatistics<
             Double, Array<Float>::const_iterator,
             Array<Bool>::const_iterator>
         >(
@@ -409,7 +407,7 @@ StatImageCreator::_getStatsAlgorithm(String& algName) const {
 }
 
 void StatImageCreator::_nominalChunkInfo(
-    SHARED_PTR<Array<Bool>>& templateMask, uInt& xBlcOff, uInt& yBlcOff,
+    std::shared_ptr<Array<Bool>>& templateMask, uInt& xBlcOff, uInt& yBlcOff,
     uInt& xChunkSize, uInt& yChunkSize, SPCIIF subimage
 ) const {
     Double xPixLength = 0;

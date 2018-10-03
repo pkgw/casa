@@ -212,6 +212,12 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
 add_definitions( -pthread -fno-strict-aliasing -DNDEBUG ) # may or may not be necessary for compiling python modules
 
+if (${CMAKE_VERSION} VERSION_GREATER "3.11")
+  set_source_files_properties(${tools_sources}} PROPERTIES
+      GENERATED TRUE
+  )
+endif()
+
 add_custom_target( generated_sources SOURCES ${tools_sources} ${tools_swig} )
 add_custom_target( generated_py SOURCES ${tools_py} )
 

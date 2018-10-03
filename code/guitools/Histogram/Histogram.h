@@ -80,7 +80,7 @@ public:
 	void setIntensityRangeDefault();
 	void setChannelRange( int minChannel, int maxChannel, int spectralIndex=-1 );
 	void setIntensityRange( float minimumIntensity, float maximumIntensity );
-	void setImage( const SHARED_PTR<const casacore::ImageInterface<casacore::Float> > image );
+	void setImage( const std::shared_ptr<const casacore::ImageInterface<casacore::Float> > image );
 	static double computeYValue( double value, bool useLog );
 
 signals:
@@ -89,7 +89,7 @@ signals:
 private:
 	Histogram( const Histogram& other );
 	Histogram operator=( const Histogram& other );
-	ImageHistograms<casacore::Float>* filterByChannels( const SHARED_PTR<const casacore::ImageInterface<casacore::Float> >  image );
+	ImageHistograms<casacore::Float>* filterByChannels( const std::shared_ptr<const casacore::ImageInterface<casacore::Float> >  image );
 	HeightSource* heightSource;
 	vector<casacore::Float> xValues;
 	vector<casacore::Float> yValues;
@@ -98,7 +98,7 @@ private:
 
 	const int ALL_CHANNELS;
 	const int ALL_INTENSITIES;
-    SHARED_PTR<const casacore::ImageInterface<casacore::Float> >  image;
+    std::shared_ptr<const casacore::ImageInterface<casacore::Float> >  image;
 	int channelMin;
 	int channelMax;
 	int specIndex;

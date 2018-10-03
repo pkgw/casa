@@ -65,13 +65,13 @@ class ImageProfileFitterResults {
 
 public:
     ImageProfileFitterResults(
-		const SHARED_PTR<casacore::LogIO> log, const casacore::CoordinateSystem& csysIm,
-		const casacore::Array<SHARED_PTR<ProfileFitResults> >* const &fitters,
+		const std::shared_ptr<casacore::LogIO> log, const casacore::CoordinateSystem& csysIm,
+		const casacore::Array<std::shared_ptr<ProfileFitResults> >* const &fitters,
         const SpectralList& nonPolyEstimates,
-		const SHARED_PTR<const casacore::SubImage<casacore::Float> > subImage, casacore::Int fitAxis, casacore::Int polyOrder,
+		const std::shared_ptr<const casacore::SubImage<casacore::Float> > subImage, casacore::Int fitAxis, casacore::Int polyOrder,
 		casacore::uInt nGaussSinglets, casacore::uInt nGaussMultiplets, casacore::uInt nLorentzSinglets,
 		casacore::uInt nPLPCoeffs, casacore::uInt nLTPCoeffs, casacore::Bool logResults, casacore::Bool multiFit,
-		const SHARED_PTR<LogFile> logfile, const casacore::String& xUnit,
+		const std::shared_ptr<LogFile> logfile, const casacore::String& xUnit,
 		const casacore::String& summaryHeader
     );
 
@@ -169,18 +169,18 @@ private:
         _ltpName, _ltpErrName, /*_sigmaName, */ _summaryHeader;
     casacore::uInt _nGaussSinglets, _nGaussMultiplets, _nLorentzSinglets,
         _nPLPCoeffs, _nLTPCoeffs;
-    const casacore::Array<SHARED_PTR<ProfileFitResults> >* const  _fitters;
+    const casacore::Array<std::shared_ptr<ProfileFitResults> >* const  _fitters;
     SpectralList _nonPolyEstimates;
     // subimage contains the region of the original image
     // on which the fit is performed.
-	const SHARED_PTR<const casacore::SubImage<casacore::Float> > _subImage;
+	const std::shared_ptr<const casacore::SubImage<casacore::Float> > _subImage;
 	casacore::Int _polyOrder, _fitAxis;
     vector<axisType> _axisTypes;
 	casacore::Array<casacore::String> _worldCoords;
 	casacore::Record _results;
 	const static casacore::uInt _nOthers, _gsPlane, _lsPlane;
-    SHARED_PTR<LogFile> _logfile;
-	SHARED_PTR<casacore::LogIO> _log;
+    std::shared_ptr<LogFile> _logfile;
+	std::shared_ptr<casacore::LogIO> _log;
    	casacore::Vector<casacore::Double> _goodAmpRange, _goodCenterRange, _goodFWHMRange;
    	const casacore::CoordinateSystem _csysIm;
    	casacore::String _plpDivisor;
@@ -278,7 +278,7 @@ private:
     void _processSolutions(
     	/* casacore::Array<casacore::Bool>& mask, */ casacore::Array<casacore::String>& typeMat, casacore::Array<casacore::Int>& niterArr,
     	casacore::Array<casacore::Int>& nCompArr, const casacore::IPosition& pixel,
-        SHARED_PTR<const ProfileFitResults> fitter,
+        std::shared_ptr<const ProfileFitResults> fitter,
     	/* const casacore::RO_MaskedLatticeIterator<casacore::Float>& inIter, */
     	std::unique_ptr<vector<vector<casacore::Array<casacore::Double> > > >& pcfArrays,
     	vector<casacore::Array<casacore::Double> >& plpArrays, vector<casacore::Array<casacore::Double> >& ltpArrays,

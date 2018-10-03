@@ -113,9 +113,13 @@ inline void performMovingSourceCorrection(
         CountedPtr<MDirection::Convert> &convertToAzel,
         CountedPtr<MDirection::Convert> &convertToCelestial,
         Vector<Double> &direction) {
+//  debuglog << "performMovingSourceCorrection" << debugpost;
     // moving source handling
     // If moving source is specified, output direction list is always
     // offset from reference position of moving source
+    assert(convertToAzel != nullptr);
+    assert(convertToCelestial != nullptr);
+
     MDirection srcAzel = (*convertToAzel)();
     MDirection srcDirection = (*convertToCelestial)(srcAzel);
     Vector<Double> srcDirectionVal = srcDirection.getAngle("rad").getValue();
@@ -126,6 +130,7 @@ inline void skipMovingSourceCorrection(
         CountedPtr<MDirection::Convert> &/*convertToAzel*/,
         CountedPtr<MDirection::Convert> &/*convertToCelestial*/,
         Vector<Double> &/*direction*/) {
+//  debuglog << "skipMovingSourceCorrection" << debugpost;
     // do nothing
 }
 } // anonymous namespace
@@ -247,7 +252,8 @@ void PointingDirectionCalculator::selectData(String const &antenna,
 }
 
 void PointingDirectionCalculator::configureMovingSourceCorrection() {
-    if (!movingSource_.null() || directionColumnName_.contains("OFFSET")) {
+//  if (!movingSource_.null() || directionColumnName_.contains("OFFSET")) {
+    if (!movingSource_.null() && !directionColumnName_.contains("OFFSET")) {
         movingSourceCorrection_ = performMovingSourceCorrection;
     } else {
         movingSourceCorrection_ = skipMovingSourceCorrection;
@@ -493,6 +499,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
 
     // moving source correction
     assert(movingSourceCorrection_ != NULL);
+    debuglog << "calling indirect: movingSourceCorrection_()  " << debugpost;
     movingSourceCorrection_(movingSourceConvert_, directionConvert_, outVal);
 
     return outVal;
