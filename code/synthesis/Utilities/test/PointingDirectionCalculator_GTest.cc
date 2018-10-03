@@ -1,7 +1,7 @@
-//# SDPosInterpolator_GTest.cc: this defines unit tests of
-//# SDPosInterpolator using google test framework
+//# PointingDirectionCalculator_GTest.cc: this defines unit tests of
+//# PointingDirectionCalculator  using google test framework
 //#
-//# Copyright (C) 2016
+//# Copyright (C) 2018
 //# National Astronomical Observatory of Japan
 //#
 //# This library is free software; you can redistribute it and/or modify it
@@ -368,7 +368,7 @@ public:
 
     // Write Data on Antenna Table // 
      
-        void AntennaTable_WriteData(String MsName =DefaultLocalMsName, int Row =0 );
+        void AntennaTable_WriteData(String MsName =DefaultLocalMsName, uInt Row =0 );
 
     // Write new Columns and init data // 
 
@@ -490,36 +490,36 @@ void MsEdit::AntennaTable_List(String MsName )
         ROScalarColumn<Double>  antennaDishDiameter    = columnAntenna->dishDiameter();
 
         printf( "=====================================================\n");
-        for (uInt i=0; i<columnAntenna->nrow(); i++)
+        for (uInt row=0; row<columnAntenna->nrow(); row++)
         {
 
-            AntennaData.name            =  antennaName.         get(i);
-            AntennaData.station         =  antennaStation.      get(i);
-            AntennaData.type            =  antennaType.         get(i);
-            AntennaData.mount           =  antennaMount.        get(i);
-            AntennaData.position        =  antennaPosition.     get(i);
-            AntennaData.offset          =  antennaOffset.       get(i);
+            AntennaData.name            =  antennaName.         get(row);
+            AntennaData.station         =  antennaStation.      get(row);
+            AntennaData.type            =  antennaType.         get(row);
+            AntennaData.mount           =  antennaMount.        get(row);
+            AntennaData.position        =  antennaPosition.     get(row);
+            AntennaData.offset          =  antennaOffset.       get(row);
 
-            AntennaData.dish_diameter   =  antennaDishDiameter. get(i);
+            AntennaData.dish_diameter   =  antennaDishDiameter. get(row);
 
-            printf( "Antenna[%2d]: name     [%s]\n",i,  AntennaData.name.    c_str() );
-            printf( "Antenna[%2d]: station  [%s]\n",i,  AntennaData.station. c_str() );
-            printf( "Antenna[%2d]: type     [%s]\n",i,  AntennaData.type.    c_str() );
-            printf( "Antenna[%2d]: mount    [%s]\n",i,  AntennaData.mount.   c_str() );
+            printf( "Antenna[%2d]: name     [%s]\n",row,  AntennaData.name.    c_str() );
+            printf( "Antenna[%2d]: station  [%s]\n",row,  AntennaData.station. c_str() );
+            printf( "Antenna[%2d]: type     [%s]\n",row,  AntennaData.type.    c_str() );
+            printf( "Antenna[%2d]: mount    [%s]\n",row,  AntennaData.mount.   c_str() );
 
-            printf( "Antenna[%2d]: position [%f,%f,%f] \n",i,  
+            printf( "Antenna[%2d]: position [%f,%f,%f] \n",row,  
                                  AntennaData.position[0],
                                  AntennaData.position[1], 
                                  AntennaData.position[2]  );
 
-            printf( "Antenna[%2d]: offset   [%f,%f,%f] \n",i,
+            printf( "Antenna[%2d]: offset   [%f,%f,%f] \n",row,
                                  AntennaData.offset[0],
                                  AntennaData.offset[1],
                                  AntennaData.offset[2]  );
 
 
  
-            printf( "Antenna[%2d]: dish diameter  [%f]\n",i,  AntennaData.dish_diameter );
+            printf( "Antenna[%2d]: dish diameter  [%f]\n",row,  AntennaData.dish_diameter );
 
             printf( "------------------\n");
 
@@ -531,7 +531,7 @@ void MsEdit::AntennaTable_List(String MsName )
 //  Write Data to Antenna Table 
 //-
 
-void MsEdit::AntennaTable_WriteData(String MsName, int Row )
+void MsEdit::AntennaTable_WriteData(String MsName, uInt Row )
 {
     // Open MS by Update mode //
 
@@ -549,7 +549,7 @@ void MsEdit::AntennaTable_WriteData(String MsName, int Row )
 
     // Get current row count //
 
-        int nrow_a = hAntennaTable.nrow();
+        uInt nrow_a = hAntennaTable.nrow();
 
         printf( "Antenna Table nrow  =%d \n",nrow_a);
 
@@ -640,7 +640,7 @@ void MsEdit::PointingTable_List(String MsName, bool showAll)
 
     // Get current row count //
 
-        int nrow_p = hPointingTable.nrow();
+        uInt nrow_p = hPointingTable.nrow();
 
         printf( "Pointing Table nrow =%d \n",nrow_p);
 
@@ -668,38 +668,38 @@ void MsEdit::PointingTable_List(String MsName, bool showAll)
         ROArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
         ROArrayColumn<Double>  pointingEncoder        = columnPointing ->encoder();
 
-        for (int i=0; i<nrow_p; i++)
+        for (uInt row=0; row<nrow_p; row++)
         {
             if(showAll)
             {
-                printf( "Pointing: Antenna ID  [%d] = %d \n", i, pointingAntennaId.    get(i)  );
-                printf( "Pointing: Time        [%d] = %f \n", i, pointingTime.         get(i)  );
-                printf( "Pointing: Interval    [%d] = %f \n", i, pointingInterval.     get(i)  );
-                printf( "Pointing: Name        [%d] = \"%s\" \n", i, pointingName.       get(i).c_str()  );
-                printf( "Pointing: Num Poly    [%d] = %d \n", i, pointingNumPoly.      get(i)  );
-                printf( "Pointing: Time Origin [%d] = %f \n", i, pointingTimeOrigin.   get(i)  );
+                printf( "Pointing: Antenna ID  [%d] = %d \n", row, pointingAntennaId.    get(row)  );
+                printf( "Pointing: Time        [%d] = %f \n", row, pointingTime.         get(row)  );
+                printf( "Pointing: Interval    [%d] = %f \n", row, pointingInterval.     get(row)  );
+                printf( "Pointing: Name        [%d] = \"%s\" \n", row, pointingName.       get(row).c_str()  );
+                printf( "Pointing: Num Poly    [%d] = %d \n", row, pointingNumPoly.      get(row)  );
+                printf( "Pointing: Time Origin [%d] = %f \n", row, pointingTimeOrigin.   get(row)  );
 
             }
 
-            Vector<Double> valDirection  =   pointingDirection. get(i);
-            Vector<Double> valTarget     =   pointingTarget. get(i);
+            Vector<Double> valDirection  =   pointingDirection. get(row);
+            Vector<Double> valTarget     =   pointingTarget. get(row);
 
-            Vector<Double> valPointingOffset     =   pointingPointingOffset. get(i);
-            Vector<Double> valSourceOffset       =   pointingSourceOffset.   get(i);
-            Vector<Double> valEncoder            =   pointingEncoder.        get(i);
+            Vector<Double> valPointingOffset     =   pointingPointingOffset. get(row);
+            Vector<Double> valSourceOffset       =   pointingSourceOffset.   get(row);
+            Vector<Double> valEncoder            =   pointingEncoder.        get(row);
 
-            printf( "Pointing: Direction        [%d] = (%f,%f)  \n", i, valDirection[0], valDirection[1] );
-            printf( "Pointing: Target           [%d] = (%f,%f)  \n", i, valTarget[0],    valTarget[1] );
-            printf( "Pointing: Pointing Offset  [%d] = (%f,%f)  \n", i, valPointingOffset[0], valPointingOffset[1] );
-            printf( "Pointing: Source   Offset  [%d] = (%f,%f)  \n", i, valSourceOffset[0],   valSourceOffset[1] );
-            printf( "Pointing: encoder          [%d] = (%f,%f)  \n", i, valEncoder[0],        valEncoder[1] );
+            printf( "Pointing: Direction        [%d] = (%f,%f)  \n", row, valDirection[0],      valDirection[1] );
+            printf( "Pointing: Target           [%d] = (%f,%f)  \n", row, valTarget[0],         valTarget[1] );
+            printf( "Pointing: Pointing Offset  [%d] = (%f,%f)  \n", row, valPointingOffset[0], valPointingOffset[1] );
+            printf( "Pointing: Source   Offset  [%d] = (%f,%f)  \n", row, valSourceOffset[0],   valSourceOffset[1] );
+            printf( "Pointing: encoder          [%d] = (%f,%f)  \n", row, valEncoder[0],        valEncoder[1] );
 
 #if 0
-            Vector<Double> valPointingOffset     =   pointingPointingOffset. get(i);
-            Vector<Double> valSourceOffset       =   pointingSourceOffset  . get(i); 
+            Vector<Double> valPointingOffset     =   pointingPointingOffset. get(row);
+            Vector<Double> valSourceOffset       =   pointingSourceOffset  . get(row); 
          
-            printf( "Pointing: Pointing Offset [%d] = (%f,%f)  \n", i, valPointingOffset[0],    valPointingOffset[1] );
-            printf( "Pointing: Source   Offset [%d] = (%f,%f)  \n", i, valSourceOffset[0],      valSourceOffset[1] );
+            printf( "Pointing: Pointing Offset [%d] = (%f,%f)  \n", row, valPointingOffset[0],    valPointingOffset[1] );
+            printf( "Pointing: Source   Offset [%d] = (%f,%f)  \n", row, valSourceOffset[0],      valSourceOffset[1] );
 #endif 
             printf( "------------------\n"); 
 
@@ -730,7 +730,7 @@ void MsEdit::PointingTable_WriteData(String MsName )
 
     // Get current row count //
 
-        int nrow_p = hPointingTable.nrow();
+        uInt  nrow_p = hPointingTable.nrow();
         printf( "Pointing Table nrow =%d \n",nrow_p);
 
     //
@@ -768,7 +768,7 @@ void MsEdit::PointingTable_WriteData(String MsName )
 
         Description( "attempting to add Data on Pointing Table.", "Nrow="+std::to_string(nrow_p)  );
 
-        for (int row=0; row<nrow_p; row++)
+        for (uInt row=0; row<nrow_p; row++)
         {
             // set Shape of New added Colum //
 
@@ -988,7 +988,7 @@ void  MsEdit::WriteTestDataOnDirection(String MsName)
 
     // Get current row count //
 
-        int nrow_p = hPointingTable.nrow();
+        uInt nrow_p = hPointingTable.nrow();
 
         printf( "Pointing Table nrow =%d \n",nrow_p);
 
@@ -1023,7 +1023,7 @@ void  MsEdit::WriteTestDataOnDirection(String MsName)
         IPosition Ipo = pointingDirection.shape(0);
         printf(" - Shape of pointingDirection.[%ld, %ld] \n", Ipo[0], Ipo[1] );
 
-        for (int row=0; row<nrow_p; row++)
+        for (uInt row=0; row<nrow_p; row++)
         {
 
             // DIRECTION  //
@@ -1157,7 +1157,7 @@ TEST_F(TestMeasurementSet, variousConstructor )
     TestDescription( "CALC Constructor by various MS" );
 
     size_t max_count = getMSCountFromList();
-    printf("%d MeasruementSet for this test are ready.\n" , (int)max_count); 
+    printf("- %zu MeasruementSet for this test are ready.\n" , max_count); 
 
     for(uInt k=0; k< max_count ; k++)
     {
@@ -1292,7 +1292,7 @@ TEST_F(TestMeasurementSet, RowId_inMS )
     //  - Duplicattion IS NOT Allowed
     //* 
 
-    for (uInt i =0; i < nrow0; i++)
+    for (uInt i=0; i < nrow0; i++)
     {
         // printf( " RowIdList[%d]  = %d \n" ,i, RowIdList[i] );
         EXPECT_EQ( RowIdList[i],1 );    
@@ -1532,7 +1532,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 
 	FunctionalDescription("Normal Seq.", "Selectve Convert");
 
-        for(unsigned int k=0; k < ColName.size(); k++)
+        for(uInt k=0; k < ColName.size(); k++)
         {
             Description("Column Name" , ColName[k] );
             EXPECT_NO_THROW( calc.setDirectionColumn( ColName[k] ) );
@@ -1638,16 +1638,16 @@ TEST_F(TestDirection, VerifyCAS11818 )
         Name[0] = "DIRECTION";        
         Name[1] = "TARGET";
         Name[2] = "POINTING_OFFSET";    // *** NEED to ADD in advance  //
-        Name[3] = "SOURCE_OFFSET"; // *** NEED to Add in advance //
-        Name[4] = "ENCODER";      // *** NEED to add in advance  //
-        Name[5] = "hogehoge";
+        Name[3] = "SOURCE_OFFSET";      // *** NEED to Add in advance //
+        Name[4] = "ENCODER";            // *** NEED to add in advance  //
+        Name[5] = "hogehoge";         /// NOT USED ///
 
          
         // No SetMovingSouce executution 
 
         FunctionalDescription("BUG-TEST by assert()" , "setDirectionColumn+ getDirection, without setMovingSource");
 
-        for(int k=0; k<5; k++)
+        for(uInt k=0; k<5; k++)
         {
             Description("Column Name" , Name[k] );
             EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
@@ -1728,7 +1728,7 @@ TEST_F(TestDirection, setMovingSource  )
     //  Four senarios are executed.
     //-  	
 
-    for(int senario = 0; senario <= 3; senario++ )	// senario [0,1,2,3] //
+    for(uInt senario = 0; senario <= 3; senario++ )	// senario [0,1,2,3] //
     {   
           FunctionalDescription("Senario" , std::to_string(senario).c_str() ); 
 
@@ -1817,8 +1817,8 @@ TEST_F(TestDirection, Matrixshape )
 
         Matrix<Double> DirList1;
         Matrix<Double> DirList2;
-        int N_Col;  
-        int N_Row ;  
+        uInt N_Col;  
+        uInt N_Row ;  
 
         // COLUMN //
     
@@ -1830,7 +1830,7 @@ TEST_F(TestDirection, Matrixshape )
         N_Row    = DirList1.nrow();
         printf ("# NCol = %d , NRow = %d \n", N_Col, N_Row );
 
-        EXPECT_EQ( N_Col, 2);
+        EXPECT_EQ( N_Col, (uInt)2);
 
         // ROW  //
 
@@ -1842,7 +1842,7 @@ TEST_F(TestDirection, Matrixshape )
         N_Row    = DirList2.nrow();
         printf ("# NCol = %d , NRow = %d \n", N_Col, N_Row );
 
-        EXPECT_EQ( N_Row, 2);
+        EXPECT_EQ( N_Row, (uInt)2);
 
 }
 
@@ -2025,7 +2025,6 @@ TEST_F(TestDirection, getDirectionExtended )
 
     for (uInt row=0; row< n_row; row++)
     {
-
         // (u,v,w) //
 
         uInt RowId = calc.getRowId(row); // point the row in Original. //
@@ -2833,7 +2832,7 @@ protected:
             BaseClass::TearDown();
        }
         
-        void check_direction_info(PointingDirectionCalculator& calc, int n_frame );
+        void check_direction_info(PointingDirectionCalculator& calc, uInt n_frame );
 
 
 };
@@ -2849,7 +2848,7 @@ protected:
   Internally use: MDirection getDirectionType()
   -----------------------------------------------*/
 
-void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, int n_frame )
+void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, uInt n_frame )
 
 {
     //+
@@ -2922,13 +2921,13 @@ TEST_F(TestSetFrame, setFrame )
 
     // Various Frame Type (String) //
 
-        for( uInt i = 0; i < DefinedFrametypes.size() ; i++  )
+        for(uInt k = 0; k < DefinedFrametypes.size() ; k++  )
         {
-            FunctionalDescription( "setFrame(Rsved Name) ", DefinedFrametypes[i].name.c_str() );
+            FunctionalDescription( "setFrame(Rsved Name) ", DefinedFrametypes[k].name.c_str() );
 
             // Execute and check Exception and other requirements//
         
-            check_direction_info( calc, i ) ;
+            check_direction_info( calc, k ) ;
         }
 }
 
