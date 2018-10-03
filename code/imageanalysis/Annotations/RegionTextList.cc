@@ -111,7 +111,7 @@ void RegionTextList::addLine(const AsciiAnnotationFileLine& line) {
                         qtrc[i] = Quantity(blc[i], wUnits[i]);
                     }
                     _regions.push_back(
-                        SHARED_PTR<const WCRegion>(
+                        std::shared_ptr<const WCRegion>(
                             new WCBox(qblc, qtrc, _csys, absRel)
                         )
                     );
@@ -168,7 +168,7 @@ CountedPtr<const WCRegion> RegionTextList::getRegion() const {
         else {
             WCUnion myUnion(false, unionRegions);
             const WCDifference *myDiff = new WCDifference(myUnion, *_regions[count]);
-            _myDiff.push_back(SHARED_PTR<const WCDifference>(myDiff));
+            _myDiff.push_back(std::shared_ptr<const WCDifference>(myDiff));
             unionRegions.resize(1);
             unionRegions[0] = myDiff;
         }

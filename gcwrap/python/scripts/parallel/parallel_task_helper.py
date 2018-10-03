@@ -180,7 +180,7 @@ class ParallelTaskHelper:
     def generateJobs(self):
         """
         This is the method which generates all of the actual jobs to be
-        done.  The default is to asume the input vis is a reference ms and
+        done.  The default is to assume the input vis is a reference ms and
         build one job for each referenced ms.
         """
         
@@ -271,53 +271,77 @@ class ParallelTaskHelper:
             return None
         
         ret = ret_list
-        if self._consolidateOutput: ret = ParallelTaskHelper.consolidateResults(ret_list,self._taskName)
+        if self._consolidateOutput:
+            ret = ParallelTaskHelper.consolidateResults(ret_list,self._taskName)
         
         return ret
         
         
     @staticmethod
     def consolidateResults(ret_list,taskname):
-        
-        index = 0
         if isinstance(ret_list.values()[0],bool):
             retval = True
             for subMs in ret_list:
                 if not ret_list[subMs]:
                     casalog.post("%s failed for sub-MS %s" % (taskname,subMs),"WARN","consolidateResults")
                     retval = False
-                index += 1
             return retval
         elif any(isinstance(v,dict) for v in ret_list.itervalues()):
             ret_dict = {}
-            for subMs in ret_list:
-                dict_i = ret_list[subMs]
-                if isinstance(dict_i,dict):
+            for _key, subMS_dict in ret_list.items():
+                if isinstance(subMS_dict, dict):
                     try:
-                        ret_dict = ParallelTaskHelper.sum_dictionaries(dict_i,ret_dict)
-                    except Exception, instance:
-                        casalog.post("Error post processing MMS results %s: %s" % (subMs,instance),"WARN","consolidateResults")
-            return ret_dict
-        
-        
+                        ret_dict = ParallelTaskHelper.combine_dictionaries(subMS_dict, ret_dict)
+                    except Exception as instance:
+                        casalog.post("Error post processing MMS results {0}: {1}".format(
+                            subMS_dict, instance), 'WARN', 'consolidateResults')
+            return ParallelTaskHelper.finalize_consolidate_results(ret_dict)
+
+
     @staticmethod
-    def sum_dictionaries(dict_list,ret_dict):
-        for key in dict_list:
-            item = dict_list[key]
-            if isinstance(item,dict):
+    def combine_dictionaries(dict_list,ret_dict):
+        """
+        Combines a flagging (sub-)report dictionary dict_list (from a subMS) into an overall
+        report dictionary (ret_dict).
+        """
+        from parallel.rflag_post_proc import combine_rflag_subreport, is_rflag_report
+
+        for key, item in dict_list.items():
+            if isinstance(item, dict):
                 if ret_dict.has_key(key):
-                    ret_dict[key] = ParallelTaskHelper.sum_dictionaries(item,ret_dict[key])
+                    if is_rflag_report(item):
+                        ret_dict[key] = combine_rflag_subreport(item, ret_dict[key])
+                    else:
+                        ret_dict[key] = ParallelTaskHelper.combine_dictionaries(item,ret_dict[key])
                 else:
-                    ret_dict[key] = ParallelTaskHelper.sum_dictionaries(item,{})
+                    ret_dict[key] = ParallelTaskHelper.combine_dictionaries(item,{})
             else:
                 if ret_dict.has_key(key):
-                    if not isinstance(ret_dict[key],str):
+                    # the 'nreport' field should not be summed - it's an index
+                    if not isinstance(ret_dict[key],str) and 'nreport' != key:
+                        # This is a good default for all reports that have flag counters
                         ret_dict[key] += item
                 else:
                     ret_dict[key] = item
-        return ret_dict   
-    
-    
+
+        return ret_dict
+
+
+    @staticmethod
+    def finalize_consolidate_results(ret):
+        """ Applies final step to the items of the report dictionary.
+        For now only needs specific processing to finalize the aggregation of the RFlag
+        thresholds (freqdev/timedev) vectors. """
+
+        from parallel.rflag_post_proc import finalize_agg_rflag_thresholds, is_rflag_report
+
+        for key, item in ret.items():
+            if isinstance(item, dict) and is_rflag_report(item):
+                ret[key] = finalize_agg_rflag_thresholds(item)
+
+        return ret
+
+
     @staticmethod
     def getResult(command_request_id_list,taskname):
         

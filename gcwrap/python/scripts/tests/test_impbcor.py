@@ -363,15 +363,42 @@ class impbcor_test(unittest.TestCase):
     def test_history(self):
         """Test history records are written"""
         myia = iatool()
-        myia.fromshape("",[20,20])
+        imagename = "zz.im"
+        myia.fromshape(imagename, [20,20])
         gg = myia.getchunk()
         gg[:] = 1
         zz = myia.pbcor(gg, "")
         myia.done()
         msgs = zz.history()
         zz.done()
-        self.assertTrue("ia.pbcor" in msgs[-2])    
-        self.assertTrue("ia.pbcor" in msgs[-1])
+        teststr = "ia.pbcor"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")    
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        outfile = "pb_out.im"
+        impbcor(imagename=imagename, pbimage=gg, outfile=outfile)
+        self.assertTrue(myia.open(outfile), "failed to open " + outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "impbcor"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+
+    def test_empty_region_and_stokes(self):
+        """Test specifying stokes with empty region works (CAS-11708)"""
+        myia = iatool()
+        imagename = "t_in.im"
+        pbimage = "t_pb_in.im"
+        shape = [20, 20, 4, 20]
+        for im in [imagename, pbimage]:
+            myia.fromshape(im, shape)
+            myia.addnoise()
+            myia.done()
+        outfile = "t_out.im"
+        impbcor(imagename, pbimage, outfile=outfile, stokes="I")
+        self.assertTrue(myia.open(outfile))
+        self.assertTrue((myia.shape() == [20,20,1,20]).all(), "Incorrect shape")
+        myia.done()
 
 def suite():
     return [impbcor_test]

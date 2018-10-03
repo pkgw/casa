@@ -62,7 +62,7 @@ public:
 
 private:
 	SPIIT _image;
-	SHARED_PTR<casacore::LogIO> _log;
+	std::shared_ptr<casacore::LogIO> _log;
 };
 }
 

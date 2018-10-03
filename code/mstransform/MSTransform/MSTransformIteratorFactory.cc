@@ -59,7 +59,7 @@ MSTransformIteratorFactory::MSTransformIteratorFactory(Record &configuration, Mr
 void MSTransformIteratorFactory::initializeManager()
 {
 	// Initialize manager to unpack parameters
-	manager_p = SHARED_PTR<MSTransformManager>(new MSTransformManager(configuration_p));
+	manager_p = std::shared_ptr<MSTransformManager>(new MSTransformManager(configuration_p));
 
 	// Open manager to create selected inputMS
 	manager_p->open();
