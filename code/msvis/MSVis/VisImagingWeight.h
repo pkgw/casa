@@ -1,18 +1,18 @@
 //# VisImagingWeight.h: Calculate Imaging Weights for a buffer from weight
-//# Copyright (C) 2009
+//# Copyright (C) 2009-2018
 //# Associated Universities, Inc. Washington DC, USA.
 //#
 //# This library is free software; you can redistribute it and/or modify it
-//# under the terms of the GNU Library General Public License as published by
+//# under the terms of the GNU General Public License as published by
 //# the Free Software Foundation; either version 2 of the License, or (at your
 //# option) any later version.
 //#
 //# This library is distributed in the hope that it will be useful, but WITHOUT
 //# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+//# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 //# License for more details.
 //#
-//# You should have received a copy of the GNU Library General Public License
+//# You should have received a copy of the GNU  General Public License
 //# along with this library; if not, write to the Free Software Foundation,
 //# Inc., 675 Massachusetts Ave, Cambridge, MA 02139, USA.
 //#
@@ -37,6 +37,8 @@ namespace casacore{
 
 template<class T> class Matrix;
 template<class T> class Vector;
+ template<class T> class ImageInterface;
+ template<class T> class TempLattice;
 }
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -85,7 +87,7 @@ class ROVisibilityIterator;
 		      const casacore::Int uBox, const casacore::Int vBox, const casacore::Bool multiField=false);
      //Constructor for uniform style weighting when the weight density is calculated 
      //elsewhere
-     VisImagingWeight(ROVisibilityIterator& vi, casacore::Block<casacore::Matrix<casacore::Float> >& grids, const casacore::String& rmode, const casacore::Quantity& noise,
+     VisImagingWeight(ROVisibilityIterator& vi, casacore::Block<casacore::CountedPtr<casacore::TempLattice<casacore::Float> > >& grids, const casacore::String& rmode, const casacore::Quantity& noise,
                                      const casacore::Double robust, const casacore::Quantity& cellx, const casacore::Quantity& celly,
 		      const casacore::Bool multiField=false) ;
      //VisibilityIterator2 version of the above....
@@ -95,15 +97,17 @@ class ROVisibilityIterator;
                                const casacore::Double robust, const casacore::Int nx, const casacore::Int ny,
                                const casacore::Quantity& cellx, const casacore::Quantity& celly,
 		      const casacore::Int uBox, const casacore::Int vBox, const casacore::Bool multiField=false);
-
+     ///Construct uniform weight density from save grid on an image
+     VisImagingWeight(casacore::ImageInterface<casacore::Float>& densityImages) ;
      virtual ~VisImagingWeight();
 
 
      // reference semantically = operator
      VisImagingWeight& operator=(const VisImagingWeight& imwgt);
 
-
-
+     //you have to make sure the imageinterface passed has the shape of gwt
+     //on the first 2 axex and last axis
+     virtual void toImageInterface(casacore::ImageInterface<casacore::Float>& im);
      // casacore::Function to calculate the  uniform style weights, include Brigg's for example
      // imagingWeight should be sized by (nchan, row) already
      // The fieldid and msid parameters must correspond to what VisBuffer  or VisIter fieldId() and msId() returns
@@ -151,10 +155,13 @@ class ROVisibilityIterator;
      // Form corr-indep weight by averaging parallel-hand weights
      void unPolChanWeight(casacore::Matrix<casacore::Float>& chanRowWt, const casacore::Cube<casacore::Float>& corrChanRowWt) const;
 
+     casacore::Vector<casacore::Int> shapeOfdensityGrid();
+     
     private:
      void cube2Matrix(const casacore::Cube<casacore::Bool>& fcube, casacore::Matrix<casacore::Bool>& fMat);
      casacore::SimpleOrderedMap <casacore::String, casacore::Int> multiFieldMap_p;
-     casacore::Block<casacore::Matrix<casacore::Float> > gwt_p;
+     casacore::Block<casacore::CountedPtr<casacore::TempLattice<casacore::Float> > > gwt_p;
+     mutable casacore::Matrix<casacore::Float>  a_gwt_p;
      casacore::String wgtType_p;
      casacore::Float uscale_p, vscale_p;
      casacore::Vector<casacore::Float> f2_p, d2_p;
@@ -168,6 +175,7 @@ class ROVisibilityIterator;
      casacore::Double robust_p;
      casacore::String rmode_p;
      casacore::Quantity noise_p;
+     mutable casacore::Int activeFieldIndex_p;
 
 
  };

@@ -1171,21 +1171,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //// Get/Set Weight Grid.... write to disk and read
 
   /// todo : do for full mapper list, and taylor terms.
-  Bool SynthesisImager::getWeightDensity( )
+  String SynthesisImager::getWeightDensity( )
   {
+    String outname("");
     LogIO os(LogOrigin("SynthesisImager", "getWeightDensity()", WHERE));
     try
       {
-	Block<Matrix<Float> > densitymatrices;
-	imwgt_p.getWeightDensity( densitymatrices );
-	if ( densitymatrices.nelements()>0 )
+	
+	IPosition newshape;
+	Vector<Int> shpOfGrid=imwgt_p.shapeOfdensityGrid();
+	if(shpOfGrid(2) > 1){
+	  newshape=IPosition(5,shpOfGrid[0], shpOfGrid[1],1,1,shpOfGrid[2]);
+	}
+	IPosition where=	IPosition(Vector<Int>((itsMappers.imageStore(0)->gridwt(newshape))->shape().nelements(),0));
+	if ( shpOfGrid[2] > 0 )
 	  {
-	    for (uInt fid=0;fid<densitymatrices.nelements();fid++)
-	      {
-		//cout << "********** Density shape (get) for f " << fid << ": " << densitymatrices[fid].shape() << endl;
-		itsMappers.imageStore(fid)->gridwt(0)->put(densitymatrices[fid]);
-	      }
-	  }
+	    imwgt_p.toImageInterface(*(itsMappers.imageStore(0)->gridwt(newshape)));	    	  }
+	outname=itsMappers.imageStore(0)->gridwt()->name();
 	itsMappers.releaseImageLocks();
 
       }
@@ -1193,27 +1195,29 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {
 	throw(AipsError("In getWeightDensity : "+x.getMesg()));
       }
-    return true;
+    return outname;
   }
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /// todo : do for full mapper list, and taylor terms.
   
-  Bool SynthesisImager::setWeightDensity( )
+  Bool SynthesisImager::setWeightDensity(const String& weightimagename)
   {
     LogIO os(LogOrigin("SynthesisImager", "setWeightDensity()", WHERE));
     try
       {
-	Block<Matrix<Float> > densitymatrices(itsMappers.nMappers());
-	for (uInt fid=0;fid<densitymatrices.nelements();fid++)
-	  {
-	    Array<Float> arr;
-	    itsMappers.imageStore(fid)->gridwt(0)->get(arr,true);
-	    densitymatrices[fid].reference( arr );
-	    //cout << "********** Density shape (set) for f " << fid << " : " << arr.shape() << " : " << densitymatrices[fid].shape() << endl;
-	  }
 
+	//Array<Float> arr;
+	///Use image 0 for weight density shape
+	//itsMappers.imageStore(0)->gridwt()->get(arr,true);
+	if(weightimagename.size() !=0){
+	  Table::isReadable(weightimagename, True);
+	  PagedImage<Float> im(weightimagename);
+	  imwgt_p=VisImagingWeight(im);
+	}
+	else{
+	  imwgt_p=VisImagingWeight(*(itsMappers.imageStore(0)->gridwt()));
 
-	imwgt_p.setWeightDensity( densitymatrices );
+	}
 	rvi_p->useImagingWeight(imwgt_p);
 	itsMappers.releaseImageLocks();
 

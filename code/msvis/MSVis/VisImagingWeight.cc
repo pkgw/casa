@@ -1,18 +1,18 @@
 //# VisImagingWeight.cc: imaging weight calculation for a give buffer
-//# Copyright (C) 2009
+//# Copyright (C) 2009-2018
 //# Associated Universities, Inc. Washington DC, USA.
 //#
 //# This library is free software; you can redistribute it and/or modify it
-//# under the terms of the GNU Library General Public License as published by
+//# under the terms of the GNU General Public License as published by
 //# the Free Software Foundation; either version 2 of the License, or (at your
 //# option) any later version.
 //#
 //# This library is distributed in the hope that it will be useful, but WITHOUT
 //# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+//# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU  General Public
 //# License for more details.
 //#
-//# You should have received a copy of the GNU Library General Public License
+//# You should have received a copy of the GNU General Public License
 //# along with this library; if not, write to the Free Software Foundation,
 //# Inc., 675 Massachusetts Ave, Cambridge, MA 02139, USA.
 //#
@@ -33,17 +33,20 @@
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Vector.h>
+#include <lattices/Lattices/TempLattice.h>
+#include <images/Images/ImageInterface.h>
+#include<coordinates/Coordinates/DirectionCoordinate.h>
 
 
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-  VisImagingWeight::VisImagingWeight() : multiFieldMap_p(-1), wgtType_p("none"), doFilter_p(false), robust_p(0.0), rmode_p("norm"), noise_p(Quantity(0.0, "Jy")) {
+  VisImagingWeight::VisImagingWeight() : multiFieldMap_p(-1), wgtType_p("none"), doFilter_p(false), robust_p(0.0), rmode_p("norm"), noise_p(Quantity(0.0, "Jy")), activeFieldIndex_p(-1) {
 
     }
 
-  VisImagingWeight::VisImagingWeight(const String& type) : multiFieldMap_p(-1),doFilter_p(false),  robust_p(0.0), rmode_p("norm"), noise_p(Quantity(0.0, "Jy")) {
+  VisImagingWeight::VisImagingWeight(const String& type) : multiFieldMap_p(-1),doFilter_p(false),  robust_p(0.0), rmode_p("norm"), noise_p(Quantity(0.0, "Jy")), activeFieldIndex_p(-1) {
 
         wgtType_p=type;
         wgtType_p.downcase();
@@ -58,7 +61,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   VisImagingWeight::VisImagingWeight(ROVisibilityIterator& vi, const String& rmode, const Quantity& noise,
                                      const Double robust, const Int nx, const Int ny,
                                      const Quantity& cellx, const Quantity& celly,
-                                     const Int uBox, const Int vBox, const Bool multiField) : multiFieldMap_p(-1), doFilter_p(false), robust_p(robust), rmode_p(rmode), noise_p(noise) {
+                                     const Int uBox, const Int vBox, const Bool multiField) : multiFieldMap_p(-1), doFilter_p(false), robust_p(robust), rmode_p(rmode), noise_p(noise), activeFieldIndex_p(-1) {
 
       LogIO os(LogOrigin("VisSetUtil", "VisImagingWeight()", WHERE));
 
@@ -85,8 +88,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       String mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId());
       multiFieldMap_p.define(mapid, 0);
-      gwt_p[0].resize(nx, ny);
-      gwt_p[0].set(0.0);
+      gwt_p[0]=new TempLattice<Float>(IPosition(2, nx,ny), 0);
+      gwt_p[0]->set(0.0);
+      a_gwt_p.resize(nx_p, ny_p);
+      a_gwt_p.set(0.0);
 
       Int fields=0;
       for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
@@ -97,12 +102,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                       if(!multiFieldMap_p.isDefined(mapid)){
                           fields+=1;
                           gwt_p.resize(fields+1);
-                          gwt_p[fields].resize(nx,ny);
-                          gwt_p[fields].set(0.0);
+                          gwt_p[fields]=new TempLattice<Float>(IPosition(2, nx_p,ny_p),0);
+                          gwt_p[fields]->set(0.0);
                       }
                   }
                   if(!multiFieldMap_p.isDefined(mapid))
                       multiFieldMap_p.define(mapid, fields);
+		  
               }
           }
       }
@@ -114,8 +120,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Int fid=0;
       for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
           for (vi.origin();vi.more();vi++) {
-              if(vb->newFieldId())
+	    if(vb->newFieldId()){
                   mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId());
+		  if(multiField){
+		    if(activeFieldIndex_p >=0)
+		      gwt_p[activeFieldIndex_p]->put(a_gwt_p);
+		  }
+		  activeFieldIndex_p=multiFieldMap_p(mapid);
+		  gwt_p[activeFieldIndex_p]->get(a_gwt_p);
+		  
+	    }
               fid=multiFieldMap_p(mapid);
               Int nRow=vb->nRow();
               Int nChan=vb->nChannel();
@@ -148,7 +162,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                           if(((ucell-uBox)>0)&&((ucell+uBox)<nx)&&((vcell-vBox)>0)&&((vcell+vBox)<ny)) {
                               for (Int iv=-vBox;iv<=vBox;iv++) {
                                   for (Int iu=-uBox;iu<=uBox;iu++) {
-				      gwt_p[fid](ucell+iu,vcell+iv)+=currwt;
+				      a_gwt_p(ucell+iu,vcell+iv)+=currwt;
                                       sumwt[fid]+=currwt;
                                   }
                               }
@@ -158,7 +172,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                           if(((ucell-uBox)>0)&&((ucell+uBox)<nx)&&((vcell-vBox)>0)&&((vcell+vBox)<ny)) {
                               for (Int iv=-vBox;iv<=vBox;iv++) {
                                   for (Int iu=-uBox;iu<=uBox;iu++) {
-                                      gwt_p[fid](ucell+iu,vcell+iv)+=currwt;
+                                      a_gwt_p(ucell+iu,vcell+iv)+=currwt;
                                       sumwt[fid]+=currwt;
                                   }
                               }
@@ -168,7 +182,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               }
           }
       }
-
+      // make sure last active plane is saved
+      gwt_p[activeFieldIndex_p]->put(a_gwt_p);
       // We use the approximation that all statistical weights are equal to
       // calculate the average summed weights (over visibilities, not bins!)
       // This is simply to try an ensure that the normalization of the robustness
@@ -177,12 +192,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       //Float f2, d2;
       for(fid=0; fid < Int(gwt_p.nelements()); ++fid){
+	gwt_p[fid]->get(a_gwt_p);
+	activeFieldIndex_p=fid;
 	if (rmode=="norm") {
               os << "Normal robustness, robust = " << robust << LogIO::POST;
               Double sumlocwt = 0.;
               for(Int vgrid=0;vgrid<ny;vgrid++) {
                   for(Int ugrid=0;ugrid<nx;ugrid++) {
-                      if(gwt_p[fid](ugrid, vgrid)>0.0) sumlocwt+=square(gwt_p[fid](ugrid,vgrid));
+                      if(a_gwt_p(ugrid, vgrid)>0.0) sumlocwt+=square(a_gwt_p(ugrid,vgrid));
                   }
               }
               f2_p[fid] = square(5.0*pow(10.0,Double(-robust))) / (sumlocwt / sumwt[fid]);
@@ -204,7 +221,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  VisImagingWeight::VisImagingWeight(ROVisibilityIterator& vi, Block<Matrix<Float> >& grids, const String& rmode, const Quantity& noise,
+  VisImagingWeight::VisImagingWeight(ROVisibilityIterator& vi, Block<CountedPtr<TempLattice<Float> > >& grids, const String& rmode, const Quantity& noise,
                                      const Double robust, const Quantity& cellx, const Quantity& celly,
                                      const Bool multiField) : multiFieldMap_p(-1), doFilter_p(false), robust_p(robust), rmode_p(rmode), noise_p(noise) {
 
@@ -214,9 +231,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       wgtType_p="uniform";
       gwt_p.resize(grids.nelements(), true, false);
       for (uInt k =0; k < gwt_p.nelements(); ++k)
-	gwt_p[k].assign(grids[k]);
-      nx_p=gwt_p[0].shape()[0];
-      ny_p=gwt_p[0].shape()[1];
+	gwt_p[k]=grids[k];
+      nx_p=gwt_p[0]->shape()[0];
+      ny_p=gwt_p[0]->shape()[1];
       uscale_p=(nx_p*cellx.get("rad").getValue());
       vscale_p=(ny_p*celly.get("rad").getValue());
       uorigin_p=nx_p/2;
@@ -243,15 +260,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       f2_p.resize(gwt_p.nelements());
       d2_p.resize(gwt_p.nelements());
       for(uInt fid=0; fid < gwt_p.nelements(); ++fid){
+	activeFieldIndex_p=fid;
+	gwt_p[fid]->get(a_gwt_p);
 	if (rmode_p=="norm") {
 	  os << "Normal robustness, robust = " << robust_p << LogIO::POST;
 	  Double sumlocwt = 0.;
 	  for(Int vgrid=0;vgrid<ny_p;vgrid++) {
 	    for(Int ugrid=0;ugrid<nx_p;ugrid++) {
-	      if(gwt_p[fid](ugrid, vgrid)>0.0) sumlocwt+=square(gwt_p[fid](ugrid,vgrid));
+	      if(a_gwt_p(ugrid, vgrid)>0.0) sumlocwt+=square(a_gwt_p(ugrid,vgrid));
 	    }
 	  }
-	  Double sumwt_fid=sum(gwt_p[fid]);
+	  Double sumwt_fid=sum(a_gwt_p);
 	  f2_p[fid] = square(5.0*pow(10.0,Double(-robust_p))) / (sumlocwt / sumwt_fid);
 	  d2_p[fid] = 1.0;
 
@@ -274,7 +293,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				     const String& rmode, const Quantity& noise,
                                      const Double robust, const Int nx, const Int ny,
                                      const Quantity& cellx, const Quantity& celly,
-                                     const Int uBox, const Int vBox, const Bool multiField) : multiFieldMap_p(-1), doFilter_p(false), robust_p(robust), rmode_p(rmode), noise_p(noise) {
+                                     const Int uBox, const Int vBox, const Bool multiField) : multiFieldMap_p(-1), doFilter_p(false), robust_p(robust), rmode_p(rmode), noise_p(noise), activeFieldIndex_p(-1) {
 
       LogIO os(LogOrigin("VisSetUtil", "VisImagingWeight()", WHERE));
 
@@ -299,8 +318,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       visIter.origin();
       String mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId()[0]);
       multiFieldMap_p.define(mapid, 0);
-      gwt_p[0].resize(nx, ny);
-      gwt_p[0].set(0.0);
+      gwt_p[0]=new TempLattice<Float>(IPosition(2,nx_p, ny_p), 0);
+      gwt_p[0]->set(0.0);
+      a_gwt_p.resize(nx_p, ny_p);
+      a_gwt_p.set(0.0);
 
       // Discover if weightSpectrum non-trivially available
       Bool doWtSp=visIter.weightSpectrumExists();
@@ -314,8 +335,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                       if(!multiFieldMap_p.isDefined(mapid)){
                           fields+=1;
                           gwt_p.resize(fields+1);
-                          gwt_p[fields].resize(nx,ny);
-                          gwt_p[fields].set(0.0);
+                          gwt_p[fields]=new TempLattice<Float>(IPosition(2,nx_p, ny_p), 0);
+                          gwt_p[fields]->set(0.0);
                       }
                   }
                   if(!multiFieldMap_p.isDefined(mapid))
@@ -331,8 +352,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Int fid=0;
       for (visIter.originChunks();visIter.moreChunks();visIter.nextChunk()) {
           for (visIter.origin();visIter.more();visIter.next()) {
-              if(vb->isNewFieldId())
+	    if(vb->isNewFieldId()){
                   mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId()[0]);
+		  if(multiField){
+		    if(activeFieldIndex_p >=0)
+		      gwt_p[activeFieldIndex_p]->put(a_gwt_p);
+		  }
+		  activeFieldIndex_p=multiFieldMap_p(mapid);
+		  gwt_p[activeFieldIndex_p]->get(a_gwt_p);		  
+	    }
               fid=multiFieldMap_p(mapid);
               Int nRow=vb->nRows();
               Int nChan=vb->nChannels();
@@ -370,7 +398,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                           if(((ucell-uBox)>0)&&((ucell+uBox)<nx)&&((vcell-vBox)>0)&&((vcell+vBox)<ny)) {
                               for (Int iv=-vBox;iv<=vBox;iv++) {
                                   for (Int iu=-uBox;iu<=uBox;iu++) {
-				      gwt_p[fid](ucell+iu,vcell+iv)+=currwt;
+				      a_gwt_p(ucell+iu,vcell+iv)+=currwt;
                                       sumwt[fid]+=currwt;
                                   }
                               }
@@ -380,7 +408,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                           if(((ucell-uBox)>0)&&((ucell+uBox)<nx)&&((vcell-vBox)>0)&&((vcell+vBox)<ny)) {
                               for (Int iv=-vBox;iv<=vBox;iv++) {
                                   for (Int iu=-uBox;iu<=uBox;iu++) {
-                                      gwt_p[fid](ucell+iu,vcell+iv)+=currwt;
+                                      a_gwt_p(ucell+iu,vcell+iv)+=currwt;
                                       sumwt[fid]+=currwt;
                                   }
                               }
@@ -391,6 +419,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           }
       }
 
+      // make sure last active plane is saved
+      gwt_p[activeFieldIndex_p]->put(a_gwt_p);
       // We use the approximation that all statistical weights are equal to
       // calculate the average summed weights (over visibilities, not bins!)
       // This is simply to try an ensure that the normalization of the robustness
@@ -399,12 +429,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       //Float f2, d2;
       for(fid=0; fid < Int(gwt_p.nelements()); ++fid){
+	gwt_p[fid]->get(a_gwt_p);
+	activeFieldIndex_p=fid;
 	if (rmode=="norm") {
               os << "Normal robustness, robust = " << robust << LogIO::POST;
               Double sumlocwt = 0.;
               for(Int vgrid=0;vgrid<ny;vgrid++) {
                   for(Int ugrid=0;ugrid<nx;ugrid++) {
-                      if(gwt_p[fid](ugrid, vgrid)>0.0) sumlocwt+=square(gwt_p[fid](ugrid,vgrid));
+                      if(a_gwt_p(ugrid, vgrid)>0.0) sumlocwt+=square(a_gwt_p(ugrid,vgrid));
                   }
               }
               f2_p[fid] = square(5.0*pow(10.0,Double(-robust))) / (sumlocwt / sumwt[fid]);
@@ -425,13 +457,110 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
   }
 
-  VisImagingWeight::~VisImagingWeight(){
-      for (uInt fid=0; fid < gwt_p.nelements(); ++fid){
-          gwt_p[fid].resize();
+
+  VisImagingWeight::VisImagingWeight(ImageInterface<Float>& im) : multiFieldMap_p(-1), doFilter_p(false), robust_p(0.0), rmode_p(""), noise_p(Quantity(0.0, "Jy")) {
+
+      LogIO os(LogOrigin("VisSetUtil", "VisImagingWeight()", WHERE));
+
+
+
+      wgtType_p="uniform";
+      nx_p=im.shape()(0);
+      ny_p=im.shape()(1);
+      DirectionCoordinate dc=im.coordinates().directionCoordinate(0);
+      dc.setWorldAxisUnits(Vector<String>(2, "rad"));
+      Double cellx=dc.increment()(0);
+      Double celly=dc.increment()(1);
+      uscale_p=nx_p*cellx;
+      vscale_p=ny_p*celly;
+      uorigin_p=nx_p/2;
+      vorigin_p=ny_p/2;
+      //Now to recover from image density and other parameters
+      Int nplanes=1;
+      if(im.shape().nelements()==5)
+	nplanes=im.shape()[4];
+      gwt_p.resize(nplanes, True, False);
+      if(im.shape().nelements()==5){
+	  IPosition blc(Vector<Int>(5,0));
+	  for (Int fid=0;fid<nplanes;fid++)
+	    {
+	      gwt_p[fid]=new TempLattice<Float>(IPosition(2,nx_p, ny_p), 0);
+	      Array<Float> lala;
+	      blc[4]=fid;
+	      im.getSlice(lala, blc, IPosition(5, nx_p, ny_p,1,1,1), True);
+	      gwt_p[fid]->put( lala.reform(IPosition(2, nx_p, ny_p)));
+	    }
+	}
+	else{
+	  Array<Float> lala;
+	  im.get(lala, True);
+	  gwt_p[0]=new TempLattice<Float>(IPosition(2,nx_p, ny_p), 0);
+	  gwt_p[0]->put( lala.reform(IPosition(2, nx_p, ny_p)));
+	}
+      const TableRecord& rec=im.miscInfo();
+      if(rec.isDefined("d2")){
+	d2_p.resize();
+	rec.get("d2", d2_p);
+	f2_p.resize();
+	rec.get("f2", f2_p);
+	multiFieldMap_p.clear();
+	for(Int k=0; k < nplanes; ++k){
+	  String key;
+	  Int val;
+	  rec.get("key"+String::toString(k), key);
+	  rec.get("val"+String::toString(k), val);
+	  multiFieldMap_p.define(key, val);
+	}
+	
+
       }
+      activeFieldIndex_p=0;
+      gwt_p[0]->get(a_gwt_p);
+      
+ }
+
+  
+  VisImagingWeight::~VisImagingWeight(){
+    /*for (uInt fid=0; fid < gwt_p.nelements(); ++fid){
+          gwt_p[fid].resize();
+	  }*/
+    
   }
 
+    Vector<Int> VisImagingWeight::shapeOfdensityGrid(){
+      Vector<Int> retval(3, 0);
+      retval(2)=gwt_p.nelements();
+      if(retval(2) > 0){
+	retval[0]=gwt_p[0]->shape()(0);
+	retval[1]=gwt_p[0]->shape()(1);
+      }
+      
+      return retval;
+    }
+    void VisImagingWeight::toImageInterface(casacore::ImageInterface<casacore::Float>& im){
 
+      if( wgtType_p != "uniform")
+	throw(AipsError("cannot save weight density for non-Briggs' weighting schemes"));
+      
+      IPosition where=	IPosition(im.shape().nelements(),0);
+      Int lastAx=where.nelements()-1;
+      for (uInt fid=0;fid<gwt_p.nelements(); ++fid){
+	activeFieldIndex_p=fid;
+	gwt_p[fid]->get(a_gwt_p);
+	where[lastAx]=fid;
+	im.putSlice(a_gwt_p, where);
+      }
+      Record rec;
+      rec.define("d2", d2_p);
+      rec.define("f2", f2_p);
+      rec.define("numfield", Int(multiFieldMap_p.ndefined()));
+      for(uInt k=0; k < multiFieldMap_p.ndefined(); ++k){
+	rec.define("key"+String::toString(k), multiFieldMap_p.getKey(k));
+	rec.define("val"+String::toString(k), multiFieldMap_p.getVal(k));
+      }
+      im.setMiscInfo(rec);
+
+    }
   void VisImagingWeight::setFilter(const String& type, const Quantity& bmaj,
 				   const Quantity& bmin, const Quantity& bpa)
   {
@@ -532,7 +661,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       
       Int fid=multiFieldMap_p(mapid);
       //Int ndrop=0;
-    
+      if(activeFieldIndex_p != fid){
+	a_gwt_p=gwt_p[fid]->get();
+	activeFieldIndex_p=fid;
+      }
       Double sumwt=0.0;
       Int nRow=imWeight.shape()(1);
       Int nChannel=imWeight.shape()(0);
@@ -547,8 +679,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    Int ucell=Int(uscale_p*u+uorigin_p);
 	    Int vcell=Int(vscale_p*v+vorigin_p);
 	    imWeight(chn,row)=weight(chn%nChanWt,row);
-	    if((ucell>0)&&(ucell<nx_p)&&(vcell>0)&&(vcell<ny_p) &&gwt_p[fid](ucell,vcell)>0.0) {
-		imWeight(chn,row)/=gwt_p[fid](ucell,vcell)*f2_p[fid]+d2_p[fid];
+	    if((ucell>0)&&(ucell<nx_p)&&(vcell>0)&&(vcell<ny_p) &&a_gwt_p(ucell,vcell)>0.0) {
+		imWeight(chn,row)/=a_gwt_p(ucell,vcell)*f2_p[fid]+d2_p[fid];
 		sumwt+=imWeight(chn,row);
 	      
 	    }
@@ -640,7 +772,7 @@ void VisImagingWeight::weightNatural(Matrix<Float>& imagingWeight, const Matrix<
 
 	    gwt_p.resize(other.gwt_p.nelements(), true, false);
 	    for (uInt k=0; k < gwt_p.nelements(); ++k){
-	      gwt_p[k].resize();
+	      //gwt_p[k].resize();
 	      gwt_p[k]=other.gwt_p[k];
 	    }
 
@@ -680,8 +812,8 @@ void VisImagingWeight::weightNatural(Matrix<Float>& imagingWeight, const Matrix<
     }
     density.resize(gwt_p.nelements(), true, false);
     for (uInt k=0; k < gwt_p.nelements(); ++k){
-      density[k].resize();
-      density[k].assign(gwt_p[k]);
+      density[k].resize(gwt_p[k]->shape());
+      density[k]=gwt_p[k]->get();
     }
     return true;
   }
@@ -689,8 +821,9 @@ void VisImagingWeight::weightNatural(Matrix<Float>& imagingWeight, const Matrix<
     if(wgtType_p=="uniform"){
       gwt_p.resize(density.nelements(), true, false);
       for (uInt k=0; k < gwt_p.nelements(); ++k){
-	gwt_p[k].resize();
-	gwt_p[k]=density[k];
+	//gwt_p[k].resize();
+	gwt_p[k]=new TempLattice<Float>(IPosition(2, density[k].shape()[0],  density[k].shape()[1]),0);
+	gwt_p[k]->put(density[k]);
       }
       //break any old reference
       f2_p.resize();
@@ -701,14 +834,16 @@ void VisImagingWeight::weightNatural(Matrix<Float>& imagingWeight, const Matrix<
       d2_p.set(0.0);
        //Float f2, d2;
       for(uInt fid=0; fid < gwt_p.nelements(); ++fid){
+	activeFieldIndex_p=fid;
+	a_gwt_p=gwt_p[fid]->get();
 	if (rmode_p=="norm") {
 	  Double sumlocwt = 0.;
-	  for(Int vgrid=0;vgrid<gwt_p[fid].shape()(1);vgrid++) {
-	      for(Int ugrid=0;ugrid<gwt_p[fid].shape()(0);ugrid++) {
-		if(gwt_p[fid](ugrid, vgrid)>0.0) sumlocwt+=square(gwt_p[fid](ugrid,vgrid));
+	  for(Int vgrid=0;vgrid<a_gwt_p.shape()(1);vgrid++) {
+	      for(Int ugrid=0;ugrid<a_gwt_p.shape()(0);ugrid++) {
+		if(a_gwt_p(ugrid, vgrid)>0.0) sumlocwt+=square(a_gwt_p(ugrid,vgrid));
 	      }
 	  }
-	  Double sumwt_fid=sum(gwt_p[fid]);
+	  Double sumwt_fid=sum(a_gwt_p);
 	  f2_p[fid] = square(5.0*pow(10.0,Double(-robust_p))) / (sumlocwt / sumwt_fid);
 	  d2_p[fid] = 1.0;
 	}
