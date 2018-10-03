@@ -233,7 +233,7 @@ Bool ImageMoments<T>::setSmoothMethod(
 }
 
 template <class T>
-vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
+vector<std::shared_ptr<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
     casacore::Bool doTemp, const casacore::String& outName, casacore::Bool removeAxis
 ) {
     casacore::LogOrigin myOrigin("ImageMoments", __func__);
@@ -306,7 +306,7 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
     );
     auto nMoments = moments_p.nelements();
     // Resize the vector of pointers for output images
-    vector<SHARED_PTR<casacore::MaskedLattice<T> > > outPt(nMoments);
+    vector<std::shared_ptr<casacore::MaskedLattice<T> > > outPt(nMoments);
     // Loop over desired output moments
     casacore::String suffix;
     casacore::Bool goodUnits;

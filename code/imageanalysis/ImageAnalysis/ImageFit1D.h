@@ -131,13 +131,13 @@ using FitterType = typename casacore::NumericTraits<T>::PrecisionType;
 
 
     // Constructor.  Fitting weights are assumed all unity.
-    ImageFit1D(SHARED_PTR<const casacore::ImageInterface<T> > image, casacore::uInt axis=0);
+    ImageFit1D(std::shared_ptr<const casacore::ImageInterface<T> > image, casacore::uInt axis=0);
 
     // Constructor with fitting weights image.  The data and weights images must
     // be the same shape.
     ImageFit1D(
-    	SHARED_PTR<const casacore::ImageInterface<T> > image,
-    	SHARED_PTR<const casacore::ImageInterface<T> > weights, casacore::uInt axis=0
+    	std::shared_ptr<const casacore::ImageInterface<T> > image,
+    	std::shared_ptr<const casacore::ImageInterface<T> > weights, casacore::uInt axis=0
     );
 
     // Destructor
@@ -293,7 +293,7 @@ using FitterType = typename casacore::NumericTraits<T>::PrecisionType;
 		   casacore::Bool doAbs, const casacore::Double* const &abscissaDivisor
    );
 private:
-   SHARED_PTR<const casacore::ImageInterface<T> > _image, _weights;
+   std::shared_ptr<const casacore::ImageInterface<T> > _image, _weights;
    casacore::uInt _axis;
 
 // In the future I will be able to template the fitter on T. For now

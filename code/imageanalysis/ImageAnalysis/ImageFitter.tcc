@@ -23,6 +23,9 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
+#ifndef IMAGEANALYSIS_IMAGEFITTER_TCC
+#define IMAGEANALYSIS_IMAGEFITTER_TCC
+
 #include <imageanalysis/ImageAnalysis/ImageFitter.h>
 
 #include <casa/BasicSL/STLIO.h>
@@ -47,15 +50,15 @@
 using namespace casacore;
 namespace casa {
 
-const String ImageFitter::_class = "ImageFitter";
+template <class T> const String ImageFitter<T>::_class = "ImageFitter";
 
-ImageFitter::ImageFitter(
-    const SPCIIF image, const String& region,
+template <class T> ImageFitter<T>::ImageFitter(
+    const SPCIIT image, const String& region,
     const Record *const &regionRec, const String& box,
     const String& chanInp, const String& stokes,
     const String& maskInp, const String& estimatesFilename,
     const String& newEstimatesInp, const String& compListName
-) : ImageTask<Float>(
+) : ImageTask<T>(
         image, region, regionRec, box,
         chanInp, stokes,
         maskInp, "", false
@@ -64,7 +67,7 @@ ImageFitter::ImageFitter(
     _compListName(compListName), _bUnit(image->units().getName()),
     _correlatedNoise(image->imageInfo().hasBeam()),
     _zeroLevelOffsetSolution(0), _zeroLevelOffsetError(0),
-    _results(image, _getLog()) {
+    _results(image, this->_getLog()) {
     if (
         stokes.empty() && image->coordinates().hasPolarizationCoordinate()
         && regionRec == 0 && region.empty()
@@ -72,16 +75,16 @@ ImageFitter::ImageFitter(
         const CoordinateSystem& csys = image->coordinates();
         Int polAxis = csys.polarizationAxisNumber();
         Int stokesVal = (Int)csys.toWorld(IPosition(image->ndim(), 0))[polAxis];
-        _setStokes(Stokes::name(Stokes::type(stokesVal)));
+        this->_setStokes(Stokes::name(Stokes::type(stokesVal)));
     }
-    _construct();
+    this->_construct();
     _finishConstruction(estimatesFilename);
 }
 
-ImageFitter::~ImageFitter() {}
+template <class T> ImageFitter<T>::~ImageFitter() {}
 
-std::pair<ComponentList, ComponentList> ImageFitter::fit() {
-    SPIIF modelImage, residualImage, templateImage;
+template <class T> std::pair<ComponentList, ComponentList> ImageFitter<T>::fit() {
+    SPIIT modelImage, residualImage, templateImage;
     Bool doResid = ! _residual.empty();
     Bool doModel = ! _model.empty();
     if (doResid || doModel) {
@@ -103,7 +106,7 @@ std::pair<ComponentList, ComponentList> ImageFitter::fit() {
         _fixed[ngauss] = _zeroLevelIsFixed ? "l" : "";
     }
     _useBeamForNoise = _correlatedNoise && ! _noiseFWHM.get()
-        && _getImage()->imageInfo().hasBeam();
+        && this->_getImage()->imageInfo().hasBeam();
     {
         // CAS-6971
         String msg;
@@ -113,7 +116,7 @@ std::pair<ComponentList, ComponentList> ImageFitter::fit() {
                 "assuming uncorrelated pixel noise.";
         }
         else if (! _noiseFWHM) {
-            if (_getImage()->imageInfo().hasBeam()) {
+            if (this->_getImage()->imageInfo().hasBeam()) {
                 msg = "noise FWHM not specified, so uncertainties "
                     "will be computed using the beam geometric mean "
                     "FWHM as the pixel noise correlation FWHM";
@@ -124,29 +127,29 @@ std::pair<ComponentList, ComponentList> ImageFitter::fit() {
                     "assuming pixel noise is uncorrelated.";
             }
         }
-        *_getLog() << LogOrigin(getClass(), __func__)
+        *this->_getLog() << LogOrigin(getClass(), __func__)
             << LogIO::NORMAL << msg << LogIO::POST;
     }
     String errmsg;
-    ImageStatsCalculator<Float> myStats(_getImage(), _getRegion(), "", false);
+    ImageStatsCalculator<T> myStats(this->_getImage(), this->_getRegion(), "", false);
     myStats.setList(false);
     myStats.setVerbose(false);
-    myStats.setAxes(_getImage()->coordinates().directionAxesNumbers());
+    myStats.setAxes(this->_getImage()->coordinates().directionAxesNumbers());
     inputStats = myStats.statistics();
     Vector<String> allowFluxUnits(2, "Jy.km/s");
     allowFluxUnits[1] = "K.rad2";
-    _results.setStokes(_getStokes());
+    _results.setStokes(this->_getStokes());
     String resultsString = _results.resultsHeader(
-        _getChans(), _chanVec, _regionString,
-        _getMask(), _includePixelRange, _excludePixelRange,
+        this->_getChans(), _chanVec, _regionString,
+        this->_getMask(), _includePixelRange, _excludePixelRange,
         _estimatesString
     );
     LogOrigin origin(_class, __func__);
-    *_getLog() << origin;
-    *_getLog() << LogIO::NORMAL << resultsString << LogIO::POST;
+    *this->_getLog() << origin;
+    *this->_getLog() << LogIO::NORMAL << resultsString << LogIO::POST;
     ComponentList convolvedList, deconvolvedList;
     Bool anyConverged = false;
-    Array<Float> residPixels, modelPixels;
+    Array<T> residPixels, modelPixels;
     _fitLoop(
         anyConverged, convolvedList, deconvolvedList,
         templateImage, residualImage, modelImage,
@@ -159,33 +162,33 @@ std::pair<ComponentList, ComponentList> ImageFitter::fit() {
         );
     }
     else if (! _compListName.empty()) {
-        *_getLog() << LogIO::WARN
+        *this->_getLog() << LogIO::WARN
             << "No fits converged. Will not write component list"
             << LogIO::POST;
     }
     if (residualImage || modelImage) {
         if (residualImage) {
             try {
-                _prepareOutputImage(
+                this->_prepareOutputImage(
                     *residualImage, 0, 0,
                     0, 0, &_residual, true
                 );
             }
             catch (const AipsError& x) {
-                *_getLog() << LogIO::WARN << "Error writing "
+                *this->_getLog() << LogIO::WARN << "Error writing "
                     << "residual image. The reported error is "
                     << x.getMesg() << LogIO::POST;
             }
         }
         if (modelImage) {
             try {
-                _prepareOutputImage(
+                this->_prepareOutputImage(
                     *modelImage, 0, 0,
                     0, 0, &_model, true
                 );
             }
             catch (const AipsError& x) {
-                *_getLog() << LogIO::WARN << "Error writing"
+                *this->_getLog() << LogIO::WARN << "Error writing"
                     << "model image. The reported error is "
                     << x.getMesg() << LogIO::POST;
             }
@@ -211,18 +214,18 @@ std::pair<ComponentList, ComponentList> ImageFitter::fit() {
             _results.setFluxDensityErrors(_allFluxDensityErrors);
             _results.setPeakIntensities(_allConvolvedPeakIntensities);
             _results.setPeakIntensityErrors(_allConvolvedPeakIntensityErrors);
-            _results.writeSummaryFile(_summary, _getImage()->coordinates());
+            _results.writeSummaryFile(_summary, this->_getImage()->coordinates());
         }
     }
     _createOutputRecord(convolvedList, deconvolvedList);
-    _writeLogfile(resultsString);
+    this->_writeLogfile(resultsString);
     std::pair<ComponentList, ComponentList> lists;
     lists.first = convolvedList;
     lists.second = deconvolvedList;
     return lists;
 }
 
-void ImageFitter::_createOutputRecord(
+template <class T> void ImageFitter<T>::_createOutputRecord(
     const ComponentList& convolved, const ComponentList& decon
 ) {
     String error;
@@ -300,7 +303,7 @@ void ImageFitter::_createOutputRecord(
         _output.defineRecord("deconvolved", allDeconvolved);
     }
     _output.define("converged", _fitConverged);
-    const auto& dc = _getImage()->coordinates().directionCoordinate();
+    const auto& dc = this->_getImage()->coordinates().directionCoordinate();
     auto inc = dc.increment();
     auto units = dc.worldAxisUnits();
     Vector<Double> pixelsPerArcsec(2);
@@ -317,10 +320,10 @@ void ImageFitter::_createOutputRecord(
     }
 }
 
-void ImageFitter::_fitLoop(
+template <class T> void ImageFitter<T>::_fitLoop(
     Bool& anyConverged, ComponentList& convolvedList,
-    ComponentList& deconvolvedList, SPIIF templateImage,
-    SPIIF residualImage, SPIIF modelImage,
+    ComponentList& deconvolvedList, SPIIT templateImage,
+    SPIIT residualImage, SPIIT modelImage,
     String& resultsString
 ) {
     Bool converged = false;
@@ -330,10 +333,10 @@ void ImageFitter::_fitLoop(
     Double zeroLevelOffsetEstimate = _doZeroLevel ? _zeroLevelOffsetEstimate : 0;
     uInt ngauss = _estimates.nelements() > 0 ? _estimates.nelements() : 1;
     Vector<String> models(ngauss, "gaussian");
-    IPosition planeShape(_getImage()->ndim(), 1);
-    ImageMetaData<Float> md(_getImage());
+    IPosition planeShape(this->_getImage()->ndim(), 1);
+    ImageMetaData<T> md(this->_getImage());
     Vector<Int> dirShape = md.directionShape();
-    Vector<Int> dirAxisNumbers = _getImage()->coordinates().directionAxesNumbers();
+    Vector<Int> dirAxisNumbers = this->_getImage()->coordinates().directionAxesNumbers();
     planeShape[dirAxisNumbers[0]] = dirShape[0];
     planeShape[dirAxisNumbers[1]] = dirShape[1];
     if (_doZeroLevel) {
@@ -345,20 +348,20 @@ void ImageFitter::_fitLoop(
     String errmsg;
     LogOrigin origin(getClass(), __func__);
     std::pair<Int, Int> pixelOffsets;
-    const CoordinateSystem csys = _getImage()->coordinates();
+    const CoordinateSystem csys = this->_getImage()->coordinates();
     Bool hasSpectralAxis = csys.hasSpectralAxis();
     uInt spectralAxisNumber = csys.spectralAxisNumber();
     Bool outputImages = residualImage || modelImage;
-    SHARED_PTR<ArrayLattice<Bool> > initMask;
-    SHARED_PTR<TempImage<Float> > tImage;
-    IPosition location(_getImage()->ndim(), 0);
+    std::shared_ptr<ArrayLattice<Bool> > initMask;
+    std::shared_ptr<TempImage<T>> tImage;
+    IPosition location(this->_getImage()->ndim(), 0);
     for (_curChan=_chanVec[0]; _curChan<=_chanVec[1]; _curChan++) {
         if (_chanPixNumber >= 0) {
             _chanPixNumber = _curChan;
         }
-        Fit2D fitter(*_getLog());
+        Fit2D fitter(*this->_getLog());
         _setIncludeExclude(fitter);
-        Array<Float> pixels;
+        Array<T> pixels;
         Array<Bool> pixelMask;
         _curConvolvedList = ComponentList();
         _curDeconvolvedList = ComponentList();
@@ -371,11 +374,11 @@ void ImageFitter::_fitLoop(
             );
         }
         catch (const AipsError& x) {
-            *_getLog() << origin << LogIO::WARN << "Fit failed to converge "
+            *this->_getLog() << origin << LogIO::WARN << "Fit failed to converge "
                 << "because of exception: " << x.getMesg() << LogIO::POST;
             converged = false;
         }
-        *_getLog() << origin;
+        *this->_getLog() << origin;
         anyConverged |= converged;
         if (converged) {
             _doConverged(
@@ -397,7 +400,7 @@ void ImageFitter::_fitLoop(
                 if (hasSpectralAxis) {
                     location[spectralAxisNumber] = _curChan - _chanVec[0];
                 }
-                Array<Float> x(templateImage->shape());
+                Array<T> x(templateImage->shape());
                 x.set(0);
                 if (residualImage) {
                     residualImage->putSlice(x, location);
@@ -414,7 +417,7 @@ void ImageFitter::_fitLoop(
             _calculateErrors();
             _setDeconvolvedSizes();
             _curConvolvedList.toRecord(errmsg, estimatesRecord);
-            *_getLog() << origin;
+            *this->_getLog() << origin;
         }
         _results.setConvolvedList(_curConvolvedList);
         _results.setFixed(_fixed);
@@ -427,19 +430,19 @@ void ImageFitter::_fitLoop(
         _results.setPositionAngles(_positionAngles);
         auto currentResultsString = _resultsToString(fitter.numberPoints());
         resultsString += currentResultsString;
-        *_getLog() << LogIO::NORMAL << currentResultsString << LogIO::POST;
+        *this->_getLog() << LogIO::NORMAL << currentResultsString << LogIO::POST;
     }
 }
 
-void ImageFitter::_doConverged(
+template <class T> void ImageFitter<T>::_doConverged(
     ComponentList& convolvedList, ComponentList& deconvolvedList,
     Double& zeroLevelOffsetEstimate, std::pair<Int, Int>& pixelOffsets,
-    SPIIF& residualImage, SPIIF& modelImage,
-    SHARED_PTR<TempImage<Float> >& tImage,
-    SHARED_PTR<ArrayLattice<Bool> >& initMask,
+    SPIIT& residualImage, SPIIT& modelImage,
+    std::shared_ptr<TempImage<T>>& tImage,
+    std::shared_ptr<ArrayLattice<Bool> >& initMask,
     Double zeroLevelOffsetSolution, Double zeroLevelOffsetError,
     Bool hasSpectralAxis, Int spectralAxisNumber, Bool outputImages,
-    const IPosition& planeShape, const Array<Float>& pixels,
+    const IPosition& planeShape, const Array<T>& pixels,
     const Array<Bool>& pixelMask, const Fit2D& fitter
 ) {
     convolvedList.addList(_curConvolvedList);
@@ -454,31 +457,31 @@ void ImageFitter::_doConverged(
         );
         zeroLevelOffsetEstimate = zeroLevelOffsetSolution;
     }
-    IPosition location(_getImage()->ndim(), 0);
+    IPosition location(this->_getImage()->ndim(), 0);
     if (hasSpectralAxis) {
         location[spectralAxisNumber] = _curChan;
     }
-    Array<Float> data = outputImages
-        ? _getImage()->getSlice(location, planeShape, true)
+    Array<T> data = outputImages
+        ? this->_getImage()->getSlice(location, planeShape, true)
         : pixels;
     if (! outputImages) {
         pixelOffsets.first = 0;
         pixelOffsets.second = 0;
     }
-    Array<Float> curResidPixels, curModelPixels;
+    Array<T> curResidPixels, curModelPixels;
     fitter.residual(
         curResidPixels, curModelPixels, data,
         pixelOffsets.first, pixelOffsets.second
     );
-    SHARED_PTR<TempImage<Float> > fittedResid;
+    std::shared_ptr<TempImage<T>> fittedResid;
     if (modelImage) {
         modelImage->putSlice(curModelPixels, location);
     }
     if (residualImage) {
         residualImage->putSlice(curResidPixels, location);
-        fittedResid = DYNAMIC_POINTER_CAST<TempImage<Float> >(
-            SubImageFactory<Float>::createImage(
-                *residualImage, "", *_getRegion(), _getMask(),
+        fittedResid = std::dynamic_pointer_cast<TempImage<T>>(
+            SubImageFactory<T>::createImage(
+                *residualImage, "", *this->_getRegion(), this->_getMask(),
                 false, false, false, false
             )
         );
@@ -494,7 +497,7 @@ void ImageFitter::_doConverged(
     else {
         // coordinates arean't important, just need the stats for a masked lattice.
         tImage.reset(
-            new TempImage<Float>(
+            new TempImage<T>(
                 curResidPixels.shape(), CoordinateUtil::defaultCoords2D()
             )
         );
@@ -508,17 +511,17 @@ void ImageFitter::_doConverged(
         fittedResid->put(curResidPixels);
     }
     LCPixelSet lcResidMask(pixelMask, LCBox(pixelMask.shape()));
-    std::unique_ptr<MaskedLattice<Float> > maskedLattice(fittedResid->cloneML());
-    LatticeStatistics<Float> lStats(*maskedLattice, false);
+    std::unique_ptr<MaskedLattice<T>> maskedLattice(fittedResid->cloneML());
+    LatticeStatistics<T> lStats(*maskedLattice, false);
     Array<Double> stat;
-    lStats.getStatistic(stat, LatticeStatistics<Float>::RMS, true);
+    lStats.getStatistic(stat, LatticeStatistics<T>::RMS, true);
     _residStats.define("rms", stat[0]);
-    lStats.getStatistic(stat, LatticeStatistics<Float>::SIGMA, true);
+    lStats.getStatistic(stat, LatticeStatistics<T>::SIGMA, true);
     _residStats.define("sigma", stat[0]);
-    lStats.getStatistic(stat, LatticeStatistics<Float>::NPTS, true);
+    lStats.getStatistic(stat, LatticeStatistics<T>::NPTS, true);
 }
 
-void ImageFitter::setZeroLevelEstimate(
+template <class T> void ImageFitter<T>::setZeroLevelEstimate(
     Double estimate, Bool isFixed
 ) {
     _doZeroLevel = true;
@@ -526,13 +529,13 @@ void ImageFitter::setZeroLevelEstimate(
     _zeroLevelIsFixed = isFixed;
 }
 
-void ImageFitter::unsetZeroLevelEstimate() {
+template <class T> void ImageFitter<T>::unsetZeroLevelEstimate() {
     _doZeroLevel = false;
     _zeroLevelOffsetEstimate = 0;
     _zeroLevelIsFixed = false;
 }
 
-void ImageFitter::getZeroLevelSolution(
+template <class T> void ImageFitter<T>::getZeroLevelSolution(
     vector<Double>& solution, vector<Double>& error
 ) {
     ThrowIf(! _fitDone, "Fit hasn't been done yet");
@@ -541,7 +544,7 @@ void ImageFitter::getZeroLevelSolution(
     error = _zeroLevelOffsetError;
 }
 
-void ImageFitter::setRMS(const Quantity& rms) {
+template <class T> void ImageFitter<T>::setRMS(const Quantity& rms) {
     Double v = rms.getValue();
     ThrowIf(v <= 0, "rms must be positive.");
     if (rms.getUnit().empty()) {
@@ -556,8 +559,8 @@ void ImageFitter::setRMS(const Quantity& rms) {
     }
 }
 
-void ImageFitter::setNoiseFWHM(Double d) {
-    const DirectionCoordinate dCoord = _getImage()->coordinates().directionCoordinate();
+template <class T> void ImageFitter<T>::setNoiseFWHM(Double d) {
+    const DirectionCoordinate dCoord = this->_getImage()->coordinates().directionCoordinate();
     _noiseFWHM.reset(
         new Quantity(
             d*_pixelWidth()
@@ -566,9 +569,9 @@ void ImageFitter::setNoiseFWHM(Double d) {
     _correlatedNoise = d >= 1;
 }
 
-Quantity ImageFitter::_pixelWidth() {
+template <class T> Quantity ImageFitter<T>::_pixelWidth() {
     if (_pixWidth.getValue() == 0) {
-        const DirectionCoordinate dCoord = _getImage()->coordinates().directionCoordinate();
+        const DirectionCoordinate dCoord = this->_getImage()->coordinates().directionCoordinate();
         _pixWidth = Quantity(
             abs(dCoord.increment()[0]), dCoord.worldAxisUnits()[0]
         );
@@ -576,18 +579,18 @@ Quantity ImageFitter::_pixelWidth() {
     return _pixWidth;
 }
 
-void ImageFitter::clearNoiseFWHM() {
+template <class T> void ImageFitter<T>::clearNoiseFWHM() {
     _noiseFWHM.reset();
-    _correlatedNoise = _getImage()->imageInfo().hasBeam();
+    _correlatedNoise = this->_getImage()->imageInfo().hasBeam();
     if (! _correlatedNoise) {
-        *_getLog() << LogOrigin(getClass(), __func__) <<  LogIO::WARN
+        *this->_getLog() << LogOrigin(getClass(), __func__) <<  LogIO::WARN
             << "noiseFWHM not specified and image has no beam, "
             << "using uncorrelated noise expressions to calculate uncertainties"
             << LogIO::POST;
     }
 }
 
-void ImageFitter::setNoiseFWHM(const Quantity& q) {
+template <class T> void ImageFitter<T>::setNoiseFWHM(const Quantity& q) {
     ThrowIf(
         ! q.isConform("rad"),
         "noiseFWHM unit is not an angular unit"
@@ -595,14 +598,14 @@ void ImageFitter::setNoiseFWHM(const Quantity& q) {
     _noiseFWHM.reset(new Quantity(q));
     _correlatedNoise = q >= _pixelWidth();
     if (! _correlatedNoise) {
-        *_getLog() << LogOrigin(getClass(), __func__) << LogIO::WARN
+        *this->_getLog() << LogOrigin(getClass(), __func__) << LogIO::WARN
             << "noiseFWHM is less than a pixel width, "
             << "using uncorrelated noise expressions to calculate uncertainties"
             << LogIO::POST;
     }
 }
 
-Double ImageFitter::_correlatedOverallSNR(
+template <class T> Double ImageFitter<T>::_correlatedOverallSNR(
     uInt comp, Double a, Double b,  Double signalToNoise
 ) const {
     Double fac = signalToNoise/2*(sqrt(_majorAxes[comp]*_minorAxes[comp])/(*_noiseFWHM)).getValue("");
@@ -613,13 +616,13 @@ Double ImageFitter::_correlatedOverallSNR(
     return fac*fac1*fac2;
 }
 
-GaussianBeam ImageFitter::_getCurrentBeam() const {
-    return _getImage()->imageInfo().restoringBeam(
+template <class T> GaussianBeam ImageFitter<T>::_getCurrentBeam() const {
+    return this->_getImage()->imageInfo().restoringBeam(
         _chanPixNumber, _stokesPixNumber
     );
 }
 
-void ImageFitter::_calculateErrors() {
+template <class T> void ImageFitter<T>::_calculateErrors() {
     static const Double f1 = sqrt(8*C::ln2);
     static const Quantity fac(sqrt(C::pi)/f1, "");
     uInt ncomps = _curConvolvedList.nelements();
@@ -636,8 +639,8 @@ void ImageFitter::_calculateErrors() {
     auto rms = _getRMS();
     auto pixelWidth = _pixelWidth();
 
-    PeakIntensityFluxDensityConverter converter(_getImage());
-    converter.setVerbosity(ImageTask<Float>::NORMAL);
+    PeakIntensityFluxDensityConverter<T> converter(this->_getImage());
+    converter.setVerbosity(ImageTask<T>::NORMAL);
     converter.setShape(ComponentType::GAUSSIAN);
     converter.setBeam(_chanPixNumber, _stokesPixNumber);
     if (_useBeamForNoise) {
@@ -647,13 +650,6 @@ void ImageFitter::_calculateErrors() {
                 sqrt(beam.getMajor()*beam.getMinor()).get("arcsec")
             )
         );
-        /*
-        *_getLog() << LogOrigin(getClass(), __func__)
-            << LogIO::NORMAL << "Noise correlation scale length not specified but "
-            << "image has beam(s), will use the geometric mean of beam axes, "
-            << *_noiseFWHM << ", for noise correlation scale length and will "
-            << "calculate errors using correlated noise equations." << LogIO::POST;
-            */
     }
     Double signalToNoise = 0;
     for (uInt i=0; i<ncomps; ++i) {
@@ -827,14 +823,14 @@ void ImageFitter::_calculateErrors() {
         errors[polnum] = std::complex<double>(_fluxDensityErrors[i].getValue(), 0);
         _curConvolvedList.component(i).flux().setErrors(errors);
         _curConvolvedList.component(i).flux().setErrors(errors);
-        if (_getImage()->imageInfo().hasBeam()) {
+        if (this->_getImage()->imageInfo().hasBeam()) {
             _curDeconvolvedList.component(i).flux().setErrors(errors);
         }
     }
 }
 
-void ImageFitter::_setIncludeExclude(Fit2D& fitter) const {
-    *_getLog() << LogOrigin(_class, __func__);
+template <class T> void ImageFitter<T>::_setIncludeExclude(Fit2D& fitter) const {
+    *this->_getLog() << LogOrigin(_class, __func__);
     ThrowIf(
             _includePixelRange && _excludePixelRange,
             "You cannot give both an include and an exclude pixel range"
@@ -843,62 +839,62 @@ void ImageFitter::_setIncludeExclude(Fit2D& fitter) const {
         return;
     }
     else if (_includePixelRange) {
-        Float *first = &_includePixelRange->first;
-        Float *second = &_includePixelRange->second;
-        if (near(*first, *second)) {
+        auto *first = &_includePixelRange->first;
+        auto *second = &_includePixelRange->second;
+        if (casacore::near(*first, *second)) {
             *first = -abs(*first);
             *second = -(*first);
         }
         fitter.setIncludeRange(
                 *first, *second
         );
-        *_getLog() << LogIO::NORMAL << "Selecting pixels from "
+        *this->_getLog() << LogIO::NORMAL << "Selecting pixels from "
                 << *first << " to " << *second
                 << LogIO::POST;
     }
     else {
-        Float *first = &_excludePixelRange->first;
-        Float *second = &_excludePixelRange->second;
-        if (near(*first, *second)) {
+        auto *first = &_excludePixelRange->first;
+        auto *second = &_excludePixelRange->second;
+        if (casacore::near(*first, *second)) {
             *first = -abs(*first);
             *second = -(*first);
         }
         fitter.setExcludeRange(
                 *first, *second
         );
-        *_getLog() << LogIO::NORMAL << "Excluding pixels from "
-                << *first << " to " << *second
-                << LogIO::POST;
+        *this->_getLog() << LogIO::NORMAL << "Excluding pixels from "
+            << *first << " to " << *second
+            << LogIO::POST;
     }
 }
 
 
-Bool ImageFitter::converged(uInt plane) const {
+template <class T> Bool ImageFitter<T>::converged(uInt plane) const {
     ThrowIf(! _fitDone, "fit has not yet been performed");
     return _fitConverged[plane];
 }
 
-Vector<Bool> ImageFitter::converged() const {
+template <class T> Vector<Bool> ImageFitter<T>::converged() const {
     return _fitConverged;
 }
 
-void ImageFitter::_getStandardDeviations(Double& inputStdDev, Double& residStdDev) const {
+template <class T> void ImageFitter<T>::_getStandardDeviations(Double& inputStdDev, Double& residStdDev) const {
     inputStdDev = _getStatistic("sigma", _curChan - _chanVec[0], inputStats);
     residStdDev = _getStatistic("sigma", 0, _residStats);
 }
 
-void ImageFitter::_getRMSs(Double& inputRMS, Double& residRMS) const {
+template <class T> void ImageFitter<T>::_getRMSs(Double& inputRMS, Double& residRMS) const {
     inputRMS = _getStatistic("rms", _curChan - _chanVec[0], inputStats);
     residRMS = _getStatistic("rms", 0, _residStats);
 }
 
-Double ImageFitter::_getStatistic(const String& type, const uInt index, const Record& stats) const {
+template <class T> Double ImageFitter<T>::_getStatistic(const String& type, const uInt index, const Record& stats) const {
     Vector<Double> statVec;
     stats.get(stats.fieldNumber(type), statVec);
     return statVec[index];
 }
 
-vector<OutputDestinationChecker::OutputStruct> ImageFitter::_getOutputStruct() {
+template <class T> vector<OutputDestinationChecker::OutputStruct> ImageFitter<T>::_getOutputStruct() {
     OutputDestinationChecker::OutputStruct newEstFile;
     newEstFile.label = "new estimates file";
     newEstFile.outputFile = &_newEstimatesFileName;
@@ -909,55 +905,55 @@ vector<OutputDestinationChecker::OutputStruct> ImageFitter::_getOutputStruct() {
     return outputs;
 }
 
-vector<Coordinate::Type> ImageFitter::_getNecessaryCoordinates() const {
+template <class T> vector<Coordinate::Type> ImageFitter<T>::_getNecessaryCoordinates() const {
     vector<Coordinate::Type> coordType(1);
     coordType[0] = Coordinate::DIRECTION;
     return coordType;
 }
 
-CasacRegionManager::StokesControl ImageFitter::_getStokesControl() const {
+template <class T> CasacRegionManager::StokesControl ImageFitter<T>::_getStokesControl() const {
     return CasacRegionManager::USE_FIRST_STOKES;
 }
 
-void ImageFitter::_finishConstruction(const String& estimatesFilename) {
-    *_getLog() << LogOrigin(_class, __func__);
+template <class T> void ImageFitter<T>::_finishConstruction(const String& estimatesFilename) {
+    *this->_getLog() << LogOrigin(_class, __func__);
     //_setSupportsLogfile(true);
     // <todo> kludge because Flux class is really only made for I, Q, U, and V stokes
 
-    _stokesPixNumber = _getImage()->coordinates().hasPolarizationCoordinate()
-        ? _getImage()->coordinates().stokesPixelNumber(_getStokes())
+    _stokesPixNumber = this->_getImage()->coordinates().hasPolarizationCoordinate()
+        ? this->_getImage()->coordinates().stokesPixelNumber(this->_getStokes())
         : -1;
 
     String iquv = "IQUV";
-    _kludgedStokes = (iquv.index(_getStokes()) == String::npos)
-        || _getStokes().empty()
-        ? "I" : String(_getStokes());
+    _kludgedStokes = (iquv.index(this->_getStokes()) == String::npos)
+        || this->_getStokes().empty()
+        ? "I" : String(this->_getStokes());
     // </todo>
     if(estimatesFilename.empty()) {
         _fixed.resize(1);
-        *_getLog() << LogIO::NORMAL
+        *this->_getLog() << LogIO::NORMAL
             << "No estimates file specified, so will attempt to find and fit one gaussian."
             << LogIO::POST;
     }
     else {
-        FitterEstimatesFileParser parser(estimatesFilename, *_getImage());
+        FitterEstimatesFileParser parser(estimatesFilename, *this->_getImage());
         _estimates = parser.getEstimates();
         _estimatesString = parser.getContents();
         _fixed = parser.getFixed();
-        *_getLog() << LogIO::NORMAL << "File " << estimatesFilename
+        *this->_getLog() << LogIO::NORMAL << "File " << estimatesFilename
             << " has " << _estimates.nelements()
             << " specified, so will attempt to fit that many gaussians "
             << LogIO::POST;
     }
 
-    CasacRegionManager rm(_getImage()->coordinates());
+    CasacRegionManager rm(this->_getImage()->coordinates());
     uInt nSelectedChannels;
-    _chanVec = _getChans().empty()
+    _chanVec = this->_getChans().empty()
         ? rm.setSpectralRanges(
-            nSelectedChannels, _getRegion(), _getImage()->shape()
+            nSelectedChannels, this->_getRegion(), this->_getImage()->shape()
         )
         : rm.setSpectralRanges(
-            _getChans(), nSelectedChannels, _getImage()->shape()
+            this->_getChans(), nSelectedChannels, this->_getImage()->shape()
         );
     if (_chanVec.size() == 0) {
         _chanVec.resize(2);
@@ -966,7 +962,7 @@ void ImageFitter::_finishConstruction(const String& estimatesFilename) {
         _chanPixNumber = -1;
     }
     else if (_chanVec.size() > 2) {
-        *_getLog() << "Only a single contiguous channel range is supported" << LogIO::EXCEPTION;
+        *this->_getLog() << "Only a single contiguous channel range is supported" << LogIO::EXCEPTION;
     }
     else {
         _chanPixNumber = _chanVec[0];
@@ -997,27 +993,27 @@ void ImageFitter::_finishConstruction(const String& estimatesFilename) {
             }
         }
         if (! unitOK) {
-            *_getLog() << LogIO::WARN << "Unrecognized intensity unit " << _bUnit
+            *this->_getLog() << LogIO::WARN << "Unrecognized intensity unit " << _bUnit
                 << ". Will assume Jy/pixel" << LogIO::POST;
             _bUnit = "Jy/pixel";
         }
     }
 }
 
-String ImageFitter::_resultsToString(uInt nPixels) {
+template <class T> String ImageFitter<T>::_resultsToString(uInt nPixels) {
     ostringstream summary;
     summary << "*** Details of fit for channel number " << _curChan << endl;
     summary << "Number of pixels used in fit: " << nPixels <<  endl;
     uInt relChan = _curChan - _chanVec[0];
     if (_fitConverged[relChan]) {
         if (_noBeam) {
-            *_getLog() << LogIO::WARN << "Flux density not reported because "
+            *this->_getLog() << LogIO::WARN << "Flux density not reported because "
                 << "there is no clean beam in image header so these quantities cannot "
                 << "be calculated" << LogIO::POST;
         }
         summary << _statisticsToString() << endl;
         if (_doZeroLevel) {
-            String units = _getImage()->units().getName();
+            String units = this->_getImage()->units().getName();
             if (units.empty()) {
                 units = "Jy/pixel";
             }
@@ -1029,9 +1025,9 @@ String ImageFitter::_resultsToString(uInt nPixels) {
         for (uInt i=0; i<n; ++i) {
             shared_ptr<Vector<Double>> x;
 
-            summary << "Fit on " << _getImage()->name(true) << " component " << i << endl;
+            summary << "Fit on " << this->_getImage()->name(true) << " component " << i << endl;
             summary << _curConvolvedList.component(i).positionToString(
-                x, &(_getImage()->coordinates().directionCoordinate()), true
+                x, &(this->_getImage()->coordinates().directionCoordinate()), true
             ) << endl;
             _pixelCoords.push_back(x);
             summary << _sizeToString(i) << endl;
@@ -1045,7 +1041,7 @@ String ImageFitter::_resultsToString(uInt nPixels) {
     return summary.str();
 }
 
-String ImageFitter::_statisticsToString() const {
+template <class T> String ImageFitter<T>::_statisticsToString() const {
     ostringstream stats;
     // TODO It is not clear how this chi squared value is calculated and atm it does not
     // appear to be useful, so don't report it. In the future, investigate more deeply
@@ -1064,7 +1060,7 @@ String ImageFitter::_statisticsToString() const {
     return stats.str();
 }
 
-Double ImageFitter::_getRMS() const {
+template <class T> Double ImageFitter<T>::_getRMS() const {
     if (_rms > 0) {
         return _rms;
     }
@@ -1073,11 +1069,11 @@ Double ImageFitter::_getRMS() const {
     }
 }
 
-void ImageFitter::_setDeconvolvedSizes() {
-    if (! _getImage()->imageInfo().hasBeam()) {
+template <class T> void ImageFitter<T>::_setDeconvolvedSizes() {
+    if (! this->_getImage()->imageInfo().hasBeam()) {
         return;
     }
-    GaussianBeam beam = _getImage()->imageInfo().restoringBeam(
+    GaussianBeam beam = this->_getImage()->imageInfo().restoringBeam(
         _chanPixNumber, _stokesPixNumber
     );
     uInt n = _curConvolvedList.nelements();
@@ -1089,12 +1085,12 @@ void ImageFitter::_setDeconvolvedSizes() {
         Quantity maj = _majorAxes[i];
         Quantity minor = _minorAxes[i];
         Quantity pa = _positionAngles[i];
-        SHARED_PTR<GaussianShape> gaussShape(
+        std::shared_ptr<GaussianShape> gaussShape(
             static_cast<GaussianShape *>(
                 _curConvolvedList.getShape(i)->clone()
             )
         );
-        SHARED_PTR<PointShape> point;
+        std::shared_ptr<PointShape> point;
         Quantity emaj = _majorAxisErrors[i];
         Quantity emin = _minorAxisErrors[i];
         Quantity epa  = _positionAngleErrors[i];
@@ -1246,11 +1242,11 @@ void ImageFitter::_setDeconvolvedSizes() {
     }
 }
 
-String ImageFitter::_sizeToString(const uInt compNumber) const {
+template <class T> String ImageFitter<T>::_sizeToString(const uInt compNumber) const {
     ostringstream size;
     const ComponentShape* compShape = _curConvolvedList.getShape(compNumber);
     AlwaysAssert(compShape->type() == ComponentType::GAUSSIAN, AipsError);
-    Bool hasBeam = _getImage()->imageInfo().hasBeam();
+    Bool hasBeam = this->_getImage()->imageInfo().hasBeam();
     size << "Image component size";
     if (hasBeam) {
         size << " (convolved with beam)";
@@ -1264,7 +1260,7 @@ String ImageFitter::_sizeToString(const uInt compNumber) const {
     }
     size << compShape->sizeToString() << endl;
     if (hasBeam) {
-        GaussianBeam beam = _getImage()->imageInfo().restoringBeam(
+        GaussianBeam beam = this->_getImage()->imageInfo().restoringBeam(
             _chanPixNumber, _stokesPixNumber
         );
         size << "Clean beam size ---" << endl;
@@ -1279,13 +1275,13 @@ String ImageFitter::_sizeToString(const uInt compNumber) const {
     return size.str();
 }
 
-String ImageFitter::_spectrumToString(uInt compNumber) const {
-    vector<String> unitPrefix = ImageFitterResults::unitPrefixes(true);
+template <class T> String ImageFitter<T>::_spectrumToString(uInt compNumber) const {
+    const auto unitPrefix = ImageFitterResults<T>::unitPrefixes(true);
     ostringstream spec;
     const SpectralModel& spectrum = _curConvolvedList.component(compNumber).spectrum();
-    Quantity frequency = spectrum.refFrequency().get("MHz");
+    auto frequency = spectrum.refFrequency().get("MHz");
     Quantity c(C::c, "m/s");
-    Quantity wavelength = c/frequency;
+    auto wavelength = c/frequency;
     String prefUnit;
     for (uInt i=0; i<unitPrefix.size(); i++) {
         prefUnit = unitPrefix[i] + "Hz";
@@ -1307,26 +1303,23 @@ String ImageFitter::_spectrumToString(uInt compNumber) const {
     return spec.str();
 }
 
-SPIIF ImageFitter::_createImageTemplate() const {
-    SPIIF x(
-        SubImageFactory<Float>::createImage(
-            *_getImage(), "", Record(), "",
-            false, false, false, false
-        )
+template <class T> SPIIT ImageFitter<T>::_createImageTemplate() const {
+    auto x = SubImageFactory<T>::createImage(
+        *this->_getImage(), "", Record(), "", false, false, false, false
     );
     x->set(0.0);
     return x;
 }
 
-void ImageFitter::_fitsky(
-    Fit2D& fitter, Array<Float>& pixels, Array<Bool>& pixelMask,
+template <class T> void ImageFitter<T>::_fitsky(
+    Fit2D& fitter, Array<T>& pixels, Array<Bool>& pixelMask,
     Bool& converged, Double& zeroLevelOffsetSolution,
        Double& zeroLevelOffsetError, std::pair<Int, Int>& pixelOffsets,
     const Vector<String>& models, const Bool fitIt,
     const Bool deconvolveIt, const Double zeroLevelEstimate
 ) {
     LogOrigin origin(_class, __func__);
-    *_getLog() << origin;
+    *this->_getLog() << origin;
     String error;
     Vector<SkyComponent> estimate;
     uInt n = _estimates.nelements();
@@ -1351,23 +1344,21 @@ void ImageFitter::_fitsky(
         ! fitIt && nModels > 1,
         "Parameter estimates are only available for a single Gaussian model"
     );
-    SPIIF subImageTmp(
-        SubImageFactory<Float>::createImage(
-            *_getImage(), "", *_getRegion(), _getMask(),
-            false, false, false, _getStretch()
-        )
+    auto subImageTmp = SubImageFactory<T>::createImage(
+        *this->_getImage(), "", *this->_getRegion(), this->_getMask(),
+        false, false, false, this->_getStretch()
     );
-    ImageMetaData<Float> md(subImageTmp);
+    ImageMetaData<T> md(subImageTmp);
     ThrowIf(
         anyTrue(md.directionShape() <= 1),
         "Invalid region specification. The extent of the region in the direction plane must be "
         "at least two pixels in both dimensions"
     );
-    Vector<Double> imRefPix = _getImage()->coordinates().directionCoordinate().referencePixel();
+    Vector<Double> imRefPix = this->_getImage()->coordinates().directionCoordinate().referencePixel();
     Vector<Double> subRefPix = subImageTmp->coordinates().directionCoordinate().referencePixel();
     pixelOffsets.first = (int)floor(subRefPix[0] - imRefPix[0] + 0.5);
     pixelOffsets.second = (int)floor(subRefPix[1] - imRefPix[1] + 0.5);
-    SubImage<Float> allAxesSubImage;
+    SubImage<T> allAxesSubImage;
     {
         IPosition imShape = subImageTmp->shape();
         IPosition startPos(imShape.nelements(), 0);
@@ -1383,18 +1374,18 @@ void ImageFitter::_fitsky(
         }
         if (imcsys.hasPolarizationCoordinate()) {
             uInt stokesAxisNumber = imcsys.polarizationAxisNumber();
-            startPos[stokesAxisNumber] = imcsys.stokesPixelNumber(_getStokes());
+            startPos[stokesAxisNumber] = imcsys.stokesPixelNumber(this->_getStokes());
             endPos[stokesAxisNumber] = startPos[stokesAxisNumber];
         }
         Slicer slice(startPos, endPos, stride, Slicer::endIsLast);
         // CAS-1966, CAS-2633 keep degenerate axes
-        allAxesSubImage = SubImage<Float>(
+        allAxesSubImage = SubImage<T>(
             *subImageTmp, slice, false, AxesSpecifier(true)
         );
     }
     // for some things we don't want the degenerate axes,
     // so make a subimage without them as well
-    SubImage<Float> subImage = SubImage<Float>(
+    SubImage<T> subImage = SubImage<T>(
         allAxesSubImage, AxesSpecifier(false)
     );
     // Make sure the region is 2D and that it holds the sky.  Exception if not.
@@ -1405,8 +1396,8 @@ void ImageFitter::_fitsky(
     // What Stokes type does this plane hold ?
     Stokes::StokesTypes stokes = Stokes::type(_kludgedStokes);
     // Form masked array and find min/max
-    MaskedArray<Float> maskedPixels(pixels, pixelMask, true);
-    Float minVal, maxVal;
+    MaskedArray<T> maskedPixels(pixels, pixelMask, true);
+    T minVal, maxVal;
     IPosition minPos(2), maxPos(2);
     minMax(minVal, maxVal, minPos, maxPos, pixels);
     // Recover just single component estimate if desired and bug out
@@ -1423,10 +1414,10 @@ void ImageFitter::_fitsky(
         Vector<SkyComponent> result(1);
         Double facToJy;
         result(0) = SkyComponentFactory::encodeSkyComponent(
-            *_getLog(), facToJy, allAxesSubImage,
+            *this->_getLog(), facToJy, allAxesSubImage,
             _convertModelType(Fit2D::GAUSSIAN), parameters, stokes, xIsLong,
             deconvolveIt,
-            _getImage()->imageInfo().restoringBeam(_chanPixNumber, _stokesPixNumber)
+            this->_getImage()->imageInfo().restoringBeam(_chanPixNumber, _stokesPixNumber)
         );
         _curConvolvedList.add(result(0));
     }
@@ -1465,7 +1456,7 @@ void ImageFitter::_fitsky(
                 fitter, modelType, maskedPixels,
                 minVal, maxVal, minPos, maxPos
             );
-            *_getLog() << origin;
+            *this->_getLog() << origin;
         }
         else if (modelType == Fit2D::LEVEL) {
             parameters.resize(1);
@@ -1495,25 +1486,25 @@ void ImageFitter::_fitsky(
         }
         fitter.addModel(modelType, parameters, parameterMask);
     }
-    Array<Float> sigma;
+    Array<T> sigma;
     Fit2D::ErrorTypes status = fitter.fit(pixels, pixelMask, sigma);
-    *_getLog() << LogOrigin(_class, __func__);
+    *this->_getLog() << LogOrigin(_class, __func__);
 
     if (status == Fit2D::OK) {
-        *_getLog() << LogIO::NORMAL << "Fitter was able to find a solution in "
+        *this->_getLog() << LogIO::NORMAL << "Fitter was able to find a solution in "
             << fitter.numberIterations() << " iterations." << LogIO::POST;
         converged = true;
     }
     else {
         converged = false;
-        *_getLog() << LogIO::WARN << fitter.errorMessage() << LogIO::POST;
+        *this->_getLog() << LogIO::WARN << fitter.errorMessage() << LogIO::POST;
         return;
     }
     Vector<SkyComponent> result(_doZeroLevel ? nModels - 1 : nModels);
     Double facToJy;
     uInt j = 0;
-    Bool doDeconvolved = _getImage()->imageInfo().hasBeam();
-    GaussianBeam beam = _getImage()->imageInfo().restoringBeam(
+    Bool doDeconvolved = this->_getImage()->imageInfo().hasBeam();
+    GaussianBeam beam = this->_getImage()->imageInfo().restoringBeam(
         _chanPixNumber, _stokesPixNumber
     );
     for (uInt i = 0; i < nModels; ++i) {
@@ -1533,7 +1524,7 @@ void ImageFitter::_fitsky(
             );
             try {
                 result[j] = SkyComponentFactory::encodeSkyComponent(
-                    *_getLog(), facToJy, allAxesSubImage, modelType,
+                    *this->_getLog(), facToJy, allAxesSubImage, modelType,
                     solution, stokes, xIsLong, deconvolveIt, beam
                 );
             }
@@ -1561,7 +1552,7 @@ void ImageFitter::_fitsky(
     _setBeam(beam, j);
 }
 
-void ImageFitter::_setBeam(GaussianBeam& beam, uInt ngauss) {
+template <class T> void ImageFitter<T>::_setBeam(GaussianBeam& beam, uInt ngauss) {
     if (beam.isNull()) {
         return;
     }
@@ -1577,8 +1568,8 @@ void ImageFitter::_setBeam(GaussianBeam& beam, uInt ngauss) {
     }
 }
 
-void ImageFitter::_setSum(
-    const SkyComponent& comp, const SubImage<Float>& im, uInt compNum
+template <class T> void ImageFitter<T>::_setSum(
+    const SkyComponent& comp, const SubImage<T>& im, uInt compNum
 ) {
     const GaussianShape& g = static_cast<const GaussianShape&>(comp.shape());
     Quantum<Vector<Double> > dir = g.refDirection().getAngle();
@@ -1593,10 +1584,10 @@ void ImageFitter::_setSum(
         im.coordinates(), im.shape(), stokes
     );
     Record r = x.getRegion()->toRecord("");
-    SPCIIF tmp = SubImageFactory<Float>::createImage(
+    auto tmp = SubImageFactory<T>::createImage(
         im, "", r, "", true, false, true, false
     );
-    ImageStatsCalculator<Float> statsCalc(tmp, 0,    String(""), false);
+    ImageStatsCalculator<T> statsCalc(tmp, 0,    String(""), false);
     statsCalc.setList(false);
     statsCalc.setVerbose(false);
     Array<Double> mySums = statsCalc.statistics().asArrayDouble("sum");
@@ -1614,16 +1605,16 @@ void ImageFitter::_setSum(
 }
 
 
-Vector<Double> ImageFitter::_singleParameterEstimate(
-    Fit2D& fitter, Fit2D::Types model, const MaskedArray<Float>& pixels,
-    Float minVal, Float maxVal, const IPosition& minPos,
+template <class T> Vector<Double> ImageFitter<T>::_singleParameterEstimate(
+    Fit2D& fitter, Fit2D::Types model, const MaskedArray<T>& pixels,
+    T minVal, T maxVal, const IPosition& minPos,
     const IPosition& maxPos
 ) const {
     // position angle +x -> +y
 
     // Return the initial fit guess as either the model, an auto guess,
     // or some combination.
-    *_getLog() << LogOrigin(_class, __func__);
+    *this->_getLog() << LogOrigin(_class, __func__);
     Vector<Double> parameters;
     if (model == Fit2D::GAUSSIAN || model == Fit2D::DISK) {
         // Auto determine estimate
@@ -1632,7 +1623,7 @@ Vector<Double> ImageFitter::_singleParameterEstimate(
         );
         if (parameters.nelements() == 0) {
             // Fall back parameters
-            *_getLog() << LogIO::WARN
+            *this->_getLog() << LogIO::WARN
                 << "The primary initial estimate failed.  Fallback may be poor"
                 << LogIO::POST;
             parameters.resize(6);
@@ -1663,7 +1654,7 @@ Vector<Double> ImageFitter::_singleParameterEstimate(
     return parameters;
 }
 
-ComponentType::Shape ImageFitter::_convertModelType(Fit2D::Types typeIn) const {
+template <class T> ComponentType::Shape ImageFitter<T>::_convertModelType(Fit2D::Types typeIn) const {
     if (typeIn == Fit2D::GAUSSIAN) {
         return ComponentType::GAUSSIAN;
     }
@@ -1675,7 +1666,7 @@ ComponentType::Shape ImageFitter::_convertModelType(Fit2D::Types typeIn) const {
     }
 }
 
-void ImageFitter::_fitskyExtractBeam(
+template <class T> void ImageFitter<T>::_fitskyExtractBeam(
     Vector<Double>& parameters, const ImageInfo& imageInfo,
     const Bool xIsLong, const CoordinateSystem& cSys
 ) const {
@@ -1712,4 +1703,6 @@ void ImageFitter::_fitskyExtractBeam(
     parameters(5) = dParameters(2);
 }
 
-} // end namespace casa
+}
+
+#endif

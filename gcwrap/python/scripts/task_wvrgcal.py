@@ -200,19 +200,30 @@ def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
 			execute_string+= ' --offsets '+offsetstable
 
 		if (len(wvrflag)>0):
+                        theflagants = ""
 			for ant in wvrflag:
 				if not (type(ant)==int or type(ant)==str):
 					raise Exception, "List elements of parameter wvrflag must be int or string."
 				if (ant != ''):
-					execute_string += ' --wvrflag \"'+str(ant)+'\"'
+                                        if len(theflagants)>0:
+                                                theflagants += ","
+                                        theflagants += str(ant)
+                        if len(theflagants)>0:
+                                execute_string += ' --wvrflag \"'+str(theflagants)+'\"'
+
 		if (type(refant)!=list):
 			refant = [refant]
 		if (len(refant)>0):
-			for ant in refant:
+                        therefants = ""
+                        for ant in refant:
 				if not (type(ant)==int or type(ant)==str):
 					raise Exception, "Parameter refant must be int or string or a list of them."
 				if (ant != ''):
-					execute_string += ' --refant \"'+str(ant)+'\"'
+                                        if len(therefants)>0:
+                                                therefants += ","
+                                        therefants += str(ant)
+                        if len(therefants)>0:
+                                execute_string += ' --refant \"'+str(therefants)+'\"'
 
 		if not (statfield==None or statfield=="") and type(statfield)==str:
 			execute_string += ' --statfield \"'+ statfield + '\"'

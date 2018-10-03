@@ -148,8 +148,8 @@ Bool SpectralCollapser::collapse(const Vector<Float> &specVals, const Float star
 	_getOutputName(wcsInp, outname, outnameData, outnameError);
 
 	if (_hasQualAxis){
-		SHARED_PTR<SubImage<Float> > subData;
-		SHARED_PTR<SubImage<Float> > subError;
+		std::shared_ptr<SubImage<Float> > subData;
+		std::shared_ptr<SubImage<Float> > subError;
 		if (!_getQualitySubImgs(_image, subData, subError)){
 			msg = String("Can not split image: ") + _image->name(true) + String(" to data and error array!");
 			*_log << LogIO::WARN << msg << LogIO::POST;
@@ -458,7 +458,7 @@ Bool SpectralCollapser::_getQualitySubImg(const ImageInterface<Float>* image, co
 	return true;
 }
 
-Bool SpectralCollapser::_getQualitySubImgs(SPCIIF image, SHARED_PTR<SubImage<Float> > &subData, SHARED_PTR<SubImage<Float> > &subError) const{
+Bool SpectralCollapser::_getQualitySubImgs(SPCIIF image, std::shared_ptr<SubImage<Float> > &subData, std::shared_ptr<SubImage<Float> > &subError) const{
 
 	// check whether the image origin is FITS
 	const FITSQualityImage  * const qImg = dynamic_cast<const FITSQualityImage*const>(image.get());
@@ -596,7 +596,7 @@ Bool SpectralCollapser::_moments(const ImageInterface<Float> *image, const Vecto
 	   *_log << LogIO::SEVERE << exc.getMesg() << LogIO::POST;
 	   return false;
    }
-   std::vector<SHARED_PTR<MaskedLattice<Float> > > images;
+   std::vector<std::shared_ptr<MaskedLattice<Float> > > images;
    try {
 	   images = moment.createMoments(false, outname, false);
    }

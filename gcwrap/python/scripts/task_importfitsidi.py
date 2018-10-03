@@ -1,6 +1,7 @@
 import os
 import shutil
-from taskinit import casalog, mstool, tbtool, write_history
+from taskinit import casalog, mstool, tbtool
+from mstools import write_history
 import numpy as np
 
 def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specframe=None):

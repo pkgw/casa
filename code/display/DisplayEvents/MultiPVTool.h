@@ -176,13 +176,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		virtual bool checkType( viewer::region::RegionTypes t ) {
 			return t == viewer::region::PVLineRegion;
 		}
-		virtual SHARED_PTR<viewer::PVLine> allocate_region( WorldCanvas *wc, double x1, double y1, double x2, double y2, VOID *region_specific_state ) const;
+		virtual std::shared_ptr<viewer::PVLine> allocate_region( WorldCanvas *wc, double x1, double y1, double x2, double y2, VOID *region_specific_state ) const;
 
 
 		viewer::RegionSource *rfactory;
 
 	private:
-		typedef std::list<SHARED_PTR<viewer::PVLine> > pvlinelist;
+		typedef std::list<std::shared_ptr<viewer::PVLine> > pvlinelist;
 
 		void update_stats(const WCMotionEvent &ev);
 		void start_new_rectangle( WorldCanvas *, int x, int y );
@@ -200,8 +200,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// and not yet released/reset?
 		casacore::Bool itsActive;
 		// itsActive is being replaced by resizing_region
-		SHARED_PTR<viewer::PVLine> resizing_region;
-		SHARED_PTR<viewer::PVLine> creating_region;
+		std::shared_ptr<viewer::PVLine> resizing_region;
+		std::shared_ptr<viewer::PVLine> creating_region;
 		int resizing_region_handle;
 
 		// (valid only if itsActive==true):

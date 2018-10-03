@@ -1,5 +1,6 @@
 import os
 from taskinit import *
+from mstools import write_history
 
 def importmiriad (
     mirfile=None,
@@ -58,11 +59,12 @@ def importmiriad (
           raise
         # Write the args to HISTORY.
         try:
+            mslocal = mstool()
             param_names = \
                 importmiriad.func_code.co_varnames[:importmiriad.func_code.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(
-                mymf, vis, 'importmiriad', param_names, 
+                mslocal, vis, 'importmiriad', param_names, 
                 param_vals, casalog
             )
         except Exception, instance:
