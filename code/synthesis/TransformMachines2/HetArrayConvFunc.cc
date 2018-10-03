@@ -1222,11 +1222,13 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
       if((antMath_p[k]->whichPBClass()) == PBMathInterface::NUMERIC)
 	cutlevel=5e-3;
     }
+
     for (trial=0; trial< (convSize-max(maxpos.asVector())-2); ++trial) {
       ///largest along either axis
       //cerr << "rat1 " << abs(convPlane(maxpos[0]-trial,maxpos[1]))/maxAbsConvFunc << " rat2 " << abs(convPlane(maxpos[0],maxpos[1]-trial))/maxAbsConvFunc << endl;
       if((abs(convPlane(maxpos[0]-trial, maxpos[1])) <  (cutlevel*maxAbsConvFunc)) &&(abs(convPlane(maxpos[0],maxpos[1]-trial)) <  (cutlevel*maxAbsConvFunc)) )
 	{
+
             found=true;
             //trial=Int(sqrt(2.0*Float(trial*trial)));
 	    

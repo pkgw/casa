@@ -768,7 +768,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    LatticeExpr<Float> adderSumWt( *(sumwt(tix)) + *(imagestoadd->sumwt(tix)) ); 
 	    sumwt(tix)->copyData(adderSumWt);
 	    setUseWeightImage( *sumwt(tix),  getUseWeightImage(*(imagestoadd->sumwt(tix)) ) );
-
 	  }
 
 	if(tix < itsNTerms && addresidual)

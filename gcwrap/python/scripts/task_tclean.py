@@ -167,11 +167,11 @@ def tclean(
     inpparams['scalebias']=inpparams.pop('smallscalebias')
     if specmode=='cont':
         specmode='mfs'
+        inpparams['specmode']='mfs'
 #    if specmode=='mfs' and nterms==1 and deconvolver == "mtmfs":
 #        casalog.post( "The MTMFS deconvolution algorithm (deconvolver='mtmfs') needs nterms>1.Please set nterms=2 (or more). ", "WARN", "task_tclean" )
 #        return
-        inpparams['specmode']='mfs'
-   
+
     if specmode!='mfs' and deconvolver=="mtmfs":
         casalog.post( "The MSMFS algorithm (deconvolver='mtmfs') applies only to specmode='mfs'.", "WARN", "task_tclean" )
         return
@@ -193,115 +193,6 @@ def tclean(
     # deprecation message
     if usemask=='auto-thresh' or usemask=='auto-thresh2':
         casalog.post(usemask+" is deprecated, will be removed in CASA 5.4.  It is recommended to use auto-multithresh instead", "WARN") 
-
-    # Put all parameters into dictionaries and check them. 
-    paramList = ImagerParameters(
-        msname =vis,
-        field=field,
-        spw=spw,
-        timestr=timerange,
-        uvdist=uvrange,
-        antenna=antenna,
-        scan=scan,
-        obs=observation,
-        state=intent,
-        datacolumn=datacolumn,
-
-        ### Image....
-        imagename=imagename,
-        #### Direction Image Coords
-        imsize=imsize, 
-        cell=cell, 
-        phasecenter=phasecenter,
-        stokes=stokes,
-        projection=projection,
-        startmodel=startmodel,
-
-        ### Spectral Image Coords
-        specmode=specmode,
-        reffreq=reffreq,
-        nchan=nchan,
-        start=start,
-        width=width,
-        outframe=outframe,
-        veltype=veltype,
-        restfreq=restfreq,
-        sysvel='', #sysvel,
-        sysvelframe='', #sysvelframe,
-        interpolation=interpolation,
-
-        gridder=gridder,
-#        ftmachine=ftmachine,
-        facets=facets,
-        chanchunks=chanchunks,
-
-        wprojplanes=wprojplanes,
-
-        vptable=vptable,
-        usepointing=usepointing,
-        mosweight=mosweight,
-        ### Gridding....
-
-        aterm=aterm,
-        psterm=psterm,
-        wbawp = wbawp,
-        cfcache = cfcache,
-        conjbeams = conjbeams,
-        computepastep =computepastep,
-        rotatepastep = rotatepastep,
-
-        pblimit=pblimit,
-        normtype=normtype,
-
-        outlierfile=outlierfile,
-        restart=restart,
-
-        weighting=weighting,
-        robust=robust,
-        npixels=npixels,
-        uvtaper=uvtaper,
-
-        ### Deconvolution
-        niter=niter,
-        cycleniter=cycleniter,
-        loopgain=gain,
-        threshold=threshold,
-        nsigma=nsigma,
-        cyclefactor=cyclefactor,
-        minpsffraction=minpsffraction, 
-        maxpsffraction=maxpsffraction,
-        interactive=interactive,
-
-        deconvolver=deconvolver,
-        scales=scales,
-        nterms=nterms,
-        scalebias=smallscalebias,
-        restoringbeam=restoringbeam,
-        
-        ### new mask params
-        usemask=usemask,
-        mask=mask,
-        pbmask=pbmask,
-        #maskthreshold=maskthreshold,
-        #maskresolution=maskresolution,
-        #nmask=nmask,
-
-        ### automask multithresh params
-        sidelobethreshold=sidelobethreshold,
-        noisethreshold=noisethreshold,
-        lownoisethreshold=lownoisethreshold,
-        negativethreshold=negativethreshold,
-        smoothfactor=smoothfactor,
-        minbeamfrac=minbeamfrac,
-        cutthreshold=cutthreshold,
-        growiterations=growiterations,
-        dogrowprune=dogrowprune,
-        minpercentchange=minpercentchange,
-        verbose=verbose,
- 
-        savemodel=savemodel,
-        parallel=parallel
-        )
 
     #paramList.printParameters()
 

@@ -185,6 +185,12 @@ public:
   };
   virtual casacore::Bool isUsingCFCache() {casacore::Bool v=false; if (subftms_p.nelements() > 0) v=subftms_p[0]->isUsingCFCache(); return v;};
 
+
+  ///return number of terms
+
+  virtual casacore::Int nTerms(){ return nterms_p;};
+  virtual casacore::Int psfNTerms(){ return psfnterms_p;};
+
   // set a moving source aka planets or comets =>  adjust phase center
   // on the fly for gridding 
   virtual void setMovingSource(const casacore::String& sourcename, const casacore::String& ephemtable="");

@@ -188,17 +188,16 @@ class ImagerParameters():
                                    'truncate': truncate, 'gwidth': gwidth, 'jwidth': jwidth,
                                    'minweight': minweight, 'clipminmax': clipminmax, 'imagename':imagename})     })
         ######### weighting
-<<<<<<< HEAD
-        self.weightpars = fixedDict({'type':weighting,'robust':robust, 'npixels':npixels,'uvtaper':uvtaper})
-=======
-        self.weightpars = {'type':weighting,'robust':robust, 'npixels':npixels,'uvtaper':uvtaper, 'multifield': mosweight}
->>>>>>> 84c435db938a461686c93e57539b6be15abc98be
+
+        self.weightpars = fixedDict({'type':weighting,'robust':robust, 'npixels':npixels,'uvtaper':uvtaper, 'multifield':mosweight})
 
         ######### Normalizers ( this is where flat noise, flat sky rules will go... )
         self.allnormpars = fixedDict({ self.defaultKey : fixedDict({#'mtype': mtype,
                                  'pblimit': pblimit,'nterms':nterms,'facets':facets,
                                  'normtype':normtype, 'workdir':workdir,
-                                 'deconvolver':deconvolver, 'restoringbeam':restoringbeam}     }
+
+                                 'deconvolver':deconvolver, 'imagename': imagename, 'restoringbeam':restoringbeam} )    })
+
 
         ######### Deconvolution
         self.alldecpars = fixedDict({ self.defaultKey: fixedDict({ 'id':0, 'deconvolver':deconvolver, 'nterms':nterms, 

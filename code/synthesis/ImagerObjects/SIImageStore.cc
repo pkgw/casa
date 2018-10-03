@@ -433,8 +433,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 							     const Bool dosumwt, const Int nfacetsperside, const Bool checkCoordSys)
   {
 
-    std::shared_ptr<ImageInterface<Float> > imPtr;
 
+    std::shared_ptr<ImageInterface<Float> > imPtr;
     IPosition useShape( itsParentImageShape );
 
     if( dosumwt ) // change shape to sumwt image shape.
@@ -1501,14 +1501,8 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
     LogIO os( LogOrigin("SIImageStore","divideResidualByWeight",WHERE) );
     
 
-    
-
     // Normalize by the sumwt, per plane. 
     Bool didNorm = divideImageByWeightVal( *residual() );
-
-    
-    
-   
     if( itsUseWeight )
       {
 	
@@ -1585,6 +1579,7 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
 		//LatticeExpr<Float> ratio(iif( deno > scalepb, (*(ressubim))/ deno, *ressubim ) );
 
 		ressubim->copyData(ratio);
+
 		//cout << "Val of residual before|after normalizing at center for pol " << pol << " chan " << chan << " : " << resval << "|" << ressubim->getAt(ip) << " weight : " << wtsubim->getAt(ip) << endl;
 		}// if not zero
 	      }//chan
@@ -2117,10 +2112,8 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
 	SubImage<Float> subRestored( *image(term) , imslice, True );
 	SubImage<Float> subModel( *model(term) , imslice, True );
 	SubImage<Float> subResidual( *residual(term) , imslice, True );
-
-
+	
 	GaussianBeam beam = itsRestoredBeams.getBeam( chanid, polid );;
-
 	//os << "Common Beam for chan : " << chanid << " : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
         // only print per-chan beam if the common beam is not used for restoring beam
         if(!printcommonbeam) { 
@@ -2131,22 +2124,28 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
 	  {
 	    // Initialize restored image
 	    subRestored.set(0.0);
-	    // Copy model into it
-	    subRestored.copyData( LatticeExpr<Float>( subModel )  );
-	    // Smooth model by beam
-	    if( !emptymodel ) { StokesImageUtil::Convolve( subRestored, beam); }
+	     if( !emptymodel ) { 
+	       // Copy model into it
+	       subRestored.copyData( LatticeExpr<Float>( subModel )  );
+	       // Smooth model by beam
+	       StokesImageUtil::Convolve( subRestored, beam);
+	     }
 	    // Add residual image
 	    if( !rbeam.isNull() || usebeam == "common") // If need to rescale residuals, make a copy and do it.
 	      {
 		//		rescaleResolution(chanid, subResidual, beam, itsPSFBeams.getBeam(chanid, polid));
 		TempImage<Float> tmpSubResidualCopy( IPosition(4,nx,ny,1,1), subResidual.coordinates());
 		tmpSubResidualCopy.copyData( subResidual );
+		
 		rescaleResolution(chanid, tmpSubResidualCopy, beam, itsPSFBeams.getBeam(chanid, polid));
 		subRestored.copyData( LatticeExpr<Float>( subRestored + tmpSubResidualCopy  ) );
 	      }
 	    else// if no need to rescale residuals, just add the residuals.
 	      {
+		
+		
 		subRestored.copyData( LatticeExpr<Float>( subRestored + subResidual  ) );
+		
 	      }
 	    
 	  }
