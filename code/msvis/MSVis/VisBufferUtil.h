@@ -162,7 +162,7 @@ public:
    /// get the pointing direction for a given integration and antenna id
    /// will cache it for large pointing table specially so that it can be reused pronto
    casacore::MDirection getPointingDir(const VisBuffer& vb, const casacore::Int antid, const casacore::Int row);
-   casacore::MDirection getPointingDir(const vi::VisBuffer2& vb, const casacore::Int antid, const casacore::Int row);
+   casacore::MDirection getPointingDir(const vi::VisBuffer2& vb, const casacore::Int antid, const casacore::Int row, const casacore::Bool usePointing=true);
    //get the phaseCenter for a given time   ..cached so that it does not need to do small read every time of access
    // time -ve means   use the first time in the vb
     casacore::MDirection getPhaseCenter(const vi::VisBuffer2& vb, const casacore::Double time=-1.0);

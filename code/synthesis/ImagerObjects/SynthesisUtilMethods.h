@@ -331,6 +331,9 @@ public:
   // Spectral axis interpolation
   casacore::String interpolation;
 
+  //mosaic use pointing table
+  casacore::Bool usePointing;
+  
   // Moving phase center ? 
   casacore::Quantity distance;
   casacore::MDirection trackDir;

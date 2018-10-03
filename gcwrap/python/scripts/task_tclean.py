@@ -71,7 +71,8 @@ def tclean(
 
     ### PB
     vptable,
-
+    usepointing, #=false
+    mosweight, #=false
     aterm,#=True,
     psterm,#=True,
     wbawp ,#= True,
@@ -237,7 +238,8 @@ def tclean(
         wprojplanes=wprojplanes,
 
         vptable=vptable,
-
+        usepointing=usepointing,
+        mosweight=mosweight,
         ### Gridding....
 
         aterm=aterm,

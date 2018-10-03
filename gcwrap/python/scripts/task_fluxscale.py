@@ -1,5 +1,6 @@
 import os
 from taskinit import *
+from mstools import write_history
 
 def fluxscale(vis=None,caltable=None,fluxtable=None,reference=None,transfer=None,listfile=None,append=None,refspwmap=None,gainthreshold=None,antenna=None,timerange=None,scan=None,incremental=None,fitorder=None,display=None):
        """Bootstrap the flux density scale from standard calibrators:
