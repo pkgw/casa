@@ -132,6 +132,7 @@ class ImagerParameters():
 #                 usescratch=True,
 #                 readonly=True,
                  savemodel="none",
+                 parallel=False,
 
                  workdir='',
 
@@ -236,7 +237,7 @@ class ImagerParameters():
         self.outnormparlist=['deconvolver','weightlimit','nterms']
 #        self.outnormparlist=['imagename','mtype','weightlimit','nterms']
 
-        ret = self.checkParameters()
+        ret = self.checkParameters(parallel)
         if ret==False:
             casalog.post('Found errors in input parameters. Please check.', 'WARN')
 
@@ -286,13 +287,13 @@ class ImagerParameters():
 
 
 
-    def checkParameters(self):
+    def checkParameters(self, parallel=False):
         #casalog.origin('refimagerhelper.checkParameters')
         casalog.post('Verifying Input Parameters')
         # Init the error-string
         errs = "" 
         errs += self.checkAndFixSelectionPars()
-        errs += self.makeImagingParamLists()
+        errs += self.makeImagingParamLists(parallel)
         errs += self.checkAndFixIterationPars()
         errs += self.checkAndFixNormPars()
 
@@ -386,9 +387,9 @@ class ImagerParameters():
         return errs
 
 
-    def makeImagingParamLists(self ):
+    def makeImagingParamLists(self, parallel ):
         errs=""
-
+        #print "specmode=",self.allimpars['0']['specmode'], " parallel=",parallel
         ## Multiple images have been specified. 
         ## (1) Parse the outlier file and fill a list of imagedefinitions
         ## OR (2) Parse lists per input parameter into a list of parameter-sets (imagedefinitions)
@@ -397,6 +398,11 @@ class ImagerParameters():
         parseerrors=""
         if len(self.outlierfile)>0:
             outlierpars,parseerrors = self.parseOutlierFile(self.outlierfile) 
+            if parallel:
+                print "CALLING checkParallelMFMixModes..."
+                errs = self.checkParallelMFMixedModes(self.allimpars,outlierpars)
+                if len(errs): 
+                    return errs 
 
         if len(parseerrors)>0:
             errs = errs + "Errors in parsing outlier file : " + parseerrors
@@ -709,4 +715,41 @@ class ImagerParameters():
                     for el in range(0,len(ims)):
                         ims[el] = int(ims[el])
                 allpars[immod][parname] = ims
+
+
+    # check for non-supported multifield in mixed modes in parallel
+    #  (e.g. combination cube and continuum for main and outlier fields)
+    def checkParallelMFMixedModes(self,allimpars,outlierpars):
+        errmsg=''
+        print "outlierpars==",outlierpars
+        mainspecmode= allimpars['0']['specmode']
+        mainnchan = allimpars['0']['nchan'] 
+        print "mainspecmode=",mainspecmode, "mainnchan=",mainnchan
+        cubeoutlier = False
+        contoutlier = False
+        isnchanmatch = True
+        for immod in range(0, len(outlierpars)):
+            if outlierpars[immod].has_key('impars'):
+                if outlierpars[immod]['impars'].has_key('nchan'):
+                    if outlierpars[immod]['impars']['nchan']>1:
+                        cubeoutlier=True
+                        if outlierpars[immod]['impars']['nchan'] != mainnchan:
+                            isnchanmatch=False
+                    else:
+                        contoutlier=True
+                else:
+                    if outlierpars[immod]['impars'].has_key('specmode'):
+                        if outlierpars[immod]['impars']['specmode']=='mfs':
+                           contoutlier=True
+        if mainspecmode.find('cube')==0:
+            if contoutlier:
+                errmsg="Mixed cube and continuum mode for multifields is currently not supported for parallel mode"
+            else: # all cube modes, but need to check if the nchans are the same            
+                if not isnchanmatch:
+                    errmsg="Cubes for multifields with different nchans are currently not supported for parallel mode "
+        else: # mfs 
+            if cubeoutlier:
+                errmsg="Mixed continuum and cube mode for multifields is currently not supported for parallel mode"
+        errs = errmsg
+        return errs
       ############################

@@ -299,7 +299,8 @@ def tclean(
         minpercentchange=minpercentchange,
         verbose=verbose,
  
-        savemodel=savemodel
+        savemodel=savemodel,
+        parallel=parallel
         )
 
     #paramList.printParameters()

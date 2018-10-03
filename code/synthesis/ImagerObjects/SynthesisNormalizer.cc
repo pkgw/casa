@@ -241,7 +241,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	Vector<String> modelNames( itsImages->getNTaylorTerms() );
 	if( itsImages->getType()=="default" ) modelNames[0] = itsImages->getName()+".model";
-	if( itsImages->getType()=="multiterm" )
+	if( itsImages->getType()=="multiterm" ) 
 	  {
 	    for( uInt nt=0;nt<itsImages->getNTaylorTerms();nt++)
 	      modelNames[nt] = itsImages->getName()+".model.tt" + String::toString(nt);
