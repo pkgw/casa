@@ -822,15 +822,19 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
       {
 	log_l << "Using " << wConvSize << " planes for W-projection" << LogIO::POST;
 	Double maxUVW;
-	maxUVW=0.25/abs(image.coordinates().increment()(0));
+	float WFUDGE=4.0;
+	WFUDGE=refim::SynthesisUtils::getenv("WTerm.WFUDGE",WFUDGE);
+
+	//maxUVW=0.25/abs(image.coordinates().increment()(0));
+	maxUVW=1.0/abs(image.coordinates().increment()(0)*WFUDGE);
 	log_l << "Estimating maximum possible W = " << maxUVW
 	      << " (wavelengths)" << LogIO::POST;
 	
-	Double invLambdaC=vb.getFrequencies(0)(0)/C::c;
-	Int nFreq = (vb.getFrequencies(0).nelements())-1;
-	Double invMinL = vb.getFrequencies(0)(nFreq)/C::c;
-	log_l << "wavelength range = " << 1.0/invLambdaC << " (m) to " 
-	      << 1.0/invMinL << " (m)" << LogIO::POST;
+	// Double invLambdaC=vb.getFrequencies(0)(0)/C::c;
+	// Int nFreq = (vb.getFrequencies(0).nelements())-1;
+	// Double invMinL = vb.getFrequencies(0)(nFreq)/C::c;
+	// log_l << "wavelength range = " << 1.0/invLambdaC << " (m) to " 
+	//       << 1.0/invMinL << " (m)" << LogIO::POST;
 	if (wConvSize > 1)
 	  {
 	    wScale=Float((wConvSize-1)*(wConvSize-1))/maxUVW;
