@@ -123,6 +123,12 @@ class importnro_test(unittest.TestCase):
         # check subtables
         self._check_optional_subtables(self.outfile)
         
+        # check SOURCE INTERVAL (CAS-11442)
+        self._check_source_interval(self.outfile)
+        
+        # check WEATHER table
+        self._check_weather(self.outfile)
+        
     def _check_weights(self, vis):
         _tb = gentools(['tb'])[0]
         take_diff = lambda actual, expected: numpy.abs((actual - expected) / expected)
@@ -209,6 +215,33 @@ class importnro_test(unittest.TestCase):
         pol_expected[16:] = -1
         self.assertTrue(numpy.all(pol_expected == pol))
         
+    def _check_source_interval(self, vis):
+        """Check if SOURCE INTERVAL is consistent with OBSERVATION TIME_RANGE"""
+        (mytb,) = gentools(['tb'])
+        
+        source_table = os.path.join(vis, 'SOURCE')
+        observation_table = os.path.join(vis, 'OBSERVATION')
+        
+        # read OBSERVATION.TIME_RANGE
+        mytb.open(observation_table)
+        try:
+            time_range = mytb.getcell('TIME_RANGE', 0)
+        finally:
+            mytb.close()
+            
+        # read SOURCE.TIME and SOURCE.INTERVAL
+        mytb.open(source_table)
+        try:
+            source_time = mytb.getcol('TIME')
+            source_interval = mytb.getcol('INTERVAL')
+        finally:
+            mytb.close()
+            
+        for t, dt in itertools.izip(source_time, source_interval):
+            source_time_range = numpy.asarray([t-dt/2, t+dt/2])
+            diff = numpy.abs((source_time_range - time_range) / time_range)
+            #print 'diff={}'.format(diff)
+            self.assertTrue(numpy.all(diff < 1.0e-16))
             
     def test_timestamp(self):
         """test_timestamp: Check if timestamp is properly converted to UTC"""
@@ -250,6 +283,34 @@ class importnro_test(unittest.TestCase):
         self.assertLessEqual(elevation['value'], 90.0, msg='Elevation is above the upper limit (> 90deg). {}'.format(msg))
         self.assertGreaterEqual(elevation['value'], 0.0, msg='Elevation is below the lower limit (< 0deg). {}'.format(msg))
 
+    def _check_weather(self, vis):
+        # check PRESSURE
+        self._check_weather_column(vis, 'PRESSURE', 'hPa', 400.0, 1100.0)
+        
+        # check TEMPERATURE
+        self._check_weather_column(vis, 'TEMPERATURE', 'K', 243.0, 313.0)
+        
+    def _check_weather_column(self, vis, colname, unit, value_min, value_max):
+        weather_table = os.path.join(vis, 'WEATHER')
+        tb.open(weather_table)
+        try:
+            # column should exist
+            self.assertTrue(colname in tb.colnames())
+            
+            # unit check
+            colkeys = tb.getcolkeywords(colname)
+            self.assertTrue('QuantumUnits' in colkeys)
+            column_unit = colkeys['QuantumUnits'][0]
+            print('{0} unit is {1}'.format(colname, column_unit))
+            self.assertEqual(column_unit, unit)
+            
+            # value should be in reasonable range
+            column_value = tb.getcol(colname)
+            self.assertTrue(numpy.all(value_min < column_value))
+            self.assertTrue(numpy.all(column_value < value_max))
+        finally:
+            tb.close()
+        
 
 def suite():
     return [importnro_test]

@@ -24,26 +24,25 @@
 //#
 //# $Id: $
 
-#include <imageanalysis/ImageAnalysis/ImageStatsConfigurator.h>
+#ifndef IMAGEANALYSIS_IMAGESTATSBASE_TCC
+#define IMAGEANALYSIS_IMAGESTATSBASE_TCC
 
-using namespace casacore;
+#include <imageanalysis/ImageAnalysis/ImageStatsBase.h>
+
 namespace casa {
 
-ImageStatsConfigurator::ImageStatsConfigurator(
-    const SPCIIF image,
-    const Record *const &regionPtr,
-    const String& maskInp,
-    const casacore::String& outname,
-    casacore::Bool overwrite
-) : ImageTask<Float>(
+template <class T> ImageStatsBase<T>::ImageStatsBase(
+    const SPCIIT image, const Record *const &regionPtr, const String& maskInp,
+    const casacore::String& outname, casacore::Bool overwrite
+) : ImageTask<T>(
         image, regionPtr, maskInp, outname, overwrite
-    ), _statistics(), _algConf() , _prefClassStatsAlg(AUTO) {
+    ), _statistics(), _algConf() {
     _algConf.algorithm = StatisticsData::CLASSICAL;
 }
 
-ImageStatsConfigurator::~ImageStatsConfigurator() {}
+template <class T> ImageStatsBase<T>::~ImageStatsBase() {}
 
-void ImageStatsConfigurator::configureBiweight(Int maxIter) {
+template <class T> void ImageStatsBase<T>::configureBiweight(Int maxIter) {
     if (
         _algConf.algorithm != StatisticsData::BIWEIGHT
         || maxIter != _algConf.mi
@@ -54,12 +53,12 @@ void ImageStatsConfigurator::configureBiweight(Int maxIter) {
     }
 }
 
-void ImageStatsConfigurator::configureChauvenet(
-    Double zscore, Int maxIterations
+template <class T> void ImageStatsBase<T>::configureChauvenet(
+    casacore::Double zscore, casacore::Int maxIterations
 ) {
     if (
         _algConf.algorithm != StatisticsData::CHAUVENETCRITERION
-        || ! near(_algConf.zs, zscore)
+        || ! casacore::near(_algConf.zs, zscore)
         || maxIterations != _algConf.mi
     ) {
         _algConf.algorithm = StatisticsData::CHAUVENETCRITERION;
@@ -69,23 +68,23 @@ void ImageStatsConfigurator::configureChauvenet(
     }
 }
 
-void ImageStatsConfigurator::configureClassical(
-    PreferredClassicalAlgorithm p
+template <class T> void ImageStatsBase<T>::configureClassical(
+    ImageStatsData::PreferredClassicalAlgorithm p
 ) {
     if (
-        _algConf.algorithm != StatisticsData::CLASSICAL
+        _algConf.algorithm != casacore::StatisticsData::CLASSICAL
         || p != _prefClassStatsAlg
     ) {
-        _algConf.algorithm = StatisticsData::CLASSICAL;
+        _algConf.algorithm = casacore::StatisticsData::CLASSICAL;
         _prefClassStatsAlg = p;
         _statistics.reset();
     }
 }
 
-void ImageStatsConfigurator::configureFitToHalf(
+template <class T> void ImageStatsBase<T>::configureFitToHalf(
     FitToHalfStatisticsData::CENTER centerType,
     FitToHalfStatisticsData::USE_DATA useData,
-    Double centerValue
+    casacore::Double centerValue
 ) {
     if (
         _algConf.algorithm != StatisticsData::FITTOHALF
@@ -93,7 +92,7 @@ void ImageStatsConfigurator::configureFitToHalf(
         || _algConf.ud != useData
         || (
             centerType == FitToHalfStatisticsData::CVALUE
-            && ! near(_algConf.cv, centerValue)
+            && ! casacore::near(_algConf.cv, centerValue)
         )
     ) {
         _algConf.algorithm = StatisticsData::FITTOHALF;
@@ -104,10 +103,11 @@ void ImageStatsConfigurator::configureFitToHalf(
     }
 }
 
-void ImageStatsConfigurator::configureHingesFences(Double f) {
+template <class T>
+void ImageStatsBase<T>::configureHingesFences(casacore::Double f) {
     if (
         _algConf.algorithm != StatisticsData::HINGESFENCES
-        || ! near(_algConf.hf, f)
+        || ! casacore::near(_algConf.hf, f)
     ) {
         _algConf.algorithm = StatisticsData::HINGESFENCES;
         _algConf.hf = f;
@@ -115,7 +115,7 @@ void ImageStatsConfigurator::configureHingesFences(Double f) {
     }
 }
 
-String ImageStatsConfigurator::_configureAlgorithm() {
+template <class T> String ImageStatsBase<T>::_configureAlgorithm() {
     String myAlg;
     switch (_algConf.algorithm) {
     case StatisticsData::BIWEIGHT:
@@ -128,13 +128,13 @@ String ImageStatsConfigurator::_configureAlgorithm() {
         break;
     case StatisticsData::CLASSICAL:
         switch (_prefClassStatsAlg) {
-        case AUTO:
+        case ImageStatsData::AUTO:
             _statistics->configureClassical();
             break;
-        case TILED_APPLY:
+        case ImageStatsData::TILED_APPLY:
             _statistics->configureClassical(0, 0, 1, 1);
             break;
-        case STATS_FRAMEWORK:
+        case ImageStatsData::STATS_FRAMEWORK:
             _statistics->configureClassical(1, 1, 0, 0);
             break;
         default:
@@ -161,3 +161,4 @@ String ImageStatsConfigurator::_configureAlgorithm() {
 
 }
 
+#endif

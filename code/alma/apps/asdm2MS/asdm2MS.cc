@@ -985,41 +985,44 @@ public:
   }
 };
 
-
-/**
- * This function tries to calculate the sizes of the successives slices of the BDF 
- * to be processed given a) the overall size of the BDF and b) the approximative maximum
- * size that one wants for one slice.
- * @paramater BDFsize the overall size of the BDF expressed in bytes,
- * @parameter approxSizeInMemory the approximative size that one wants for one slice, expressed in byte.
- *
- * \par Note:
- * It tries to avoid a last slice, corresponding to 
- * the remainder in the euclidean division BDFsize / approxSizeInMemory.
+/** 
+ * This function tries to allocate the number of integrations into slices
+ * based on the average size of one integration and the requested maximum size of one slice.
+ * The sum of all of the values in the returned vector is always equal to nIntegrations.
+ * @parameter nIntegrations the number of integrations in the BDF
+ * @parameter bdfSize the size of the BDF, in bytes
+ * @parameter approxSizeInMemory the approximate size that one wants for one slice, in bytes.
  */
-vector<uint64_t> sizeInMemory(uint64_t BDFsize, uint64_t approxSizeInMemory) {
-  if (debug) cout << "sizeInMemory: entering" << endl;
-  vector<uint64_t> result;
-  uint64_t Q = BDFsize / approxSizeInMemory;
-  if (Q == 0) { 
-    result.push_back(BDFsize);
-  }
-  else {
-    result.resize(Q, approxSizeInMemory);
-    unsigned int R = BDFsize % approxSizeInMemory;
-    if ( R > (Q * approxSizeInMemory / 5) )  {
-      result.push_back(R); 
-    }
-    else {
-      while (R > 0) 
-	for (unsigned int i = 0; R >0 && i < result.size(); i++) {
-	  result[i]++ ; R--;
+vector<unsigned int> getIntegrationSlices(int nIntegrations, uint64_t bdfSize, uint64_t approxSizeInMemory) {
+  if (debug) cout << "getIntegrationSlices: entering" << endl;
+  vector<unsigned int> result;
+  if (nIntegrations > 0) {
+    if (bdfSize < approxSizeInMemory) {
+      result.push_back(nIntegrations);
+    } else {
+      uint64_t avgIntSize = bdfSize/nIntegrations;
+      unsigned int nIntPerSlice = approxSizeInMemory/avgIntSize;
+      unsigned int nSlice = nIntegrations/nIntPerSlice;
+      result.resize(nSlice,nIntPerSlice);
+      unsigned int residualInts = nIntegrations % nIntPerSlice;
+      if (residualInts > (nSlice*nIntPerSlice/5)) {
+	// if the number of left over integrations is more than 1/5 of what's in the other slices
+	// then this makes an acceptable last slice - no need to redistribute
+	result.push_back(residualInts);
+      } else {
+	// final slice would too small, redistribute it to the other slices
+	while(residualInts > 0) {
+	  for (unsigned int i = 0; residualInts > 0 && i < result.size(); i++) {
+	    result[i]++; 
+	    residualInts--;
+	  }
 	}
+      }
     }
   }
-  if (debug) cout << "sizeInMemory: exiting" << endl;
+  if (debug) cout << "getItegrationSlices: exiting" << endl;
   return result;
-} 
+}
 
 vector<map<AtmPhaseCorrection,ASDM2MSFiller*> >  msFillers_v;
 
@@ -7039,16 +7042,16 @@ int main(int argc, char *argv[]) {
 	    continue;
 	  }
 	  
-	  uint32_t		N			 = v[i]->getNumIntegration();
-	  uint64_t		bdfSize			 = v[i]->getDataSize();
-	  vector<uint64_t>	actualSizeInMemory(sizeInMemory(bdfSize, bdfSliceSizeInMb*1024*1024));
+	  int N = v[i]->getNumIntegration();
+	  uint64_t  bdfSize = v[i]->getDataSize();
+	  vector<unsigned int> integrationSlices(getIntegrationSlices(N, bdfSize, bdfSliceSizeInMb*1024*1024));
 	  int32_t			numberOfMSMainRows	 = 0;
 	  int32_t			numberOfIntegrations	 = 0;
 	  int32_t			numberOfReadIntegrations = 0;
-	  
+
 	  // For each slice of the BDF with a size approx equal to the required size
-	  for (unsigned int j = 0; j < actualSizeInMemory.size(); j++) {
-	    numberOfIntegrations = min((uint64_t)actualSizeInMemory[j] / (bdfSize / N), (uint64_t)N); // The min to prevent a possible excess when there are very few bytes in the BDF.
+	  for (unsigned int j = 0; j < integrationSlices.size(); j++) {
+	    numberOfIntegrations = integrationSlices[j];
 	    if (numberOfIntegrations) {
 	      infostream.str("");
 	      infostream << "ASDM Main row #" << mainRowIndex[i] << " - " << numberOfReadIntegrations  << " integrations done so far - the next " << numberOfIntegrations << " integrations produced " ;
@@ -7063,6 +7066,7 @@ int main(int argc, char *argv[]) {
 	    }
 	  }
 	  
+	  // this should no longer be necessary, but keep this block in place just in case.
 	  uint32_t numberOfRemainingIntegrations = N - numberOfReadIntegrations;
 	  if (numberOfRemainingIntegrations) { 
 	    vmsDataPtr = sdmBinData.getNextMSMainCols(numberOfRemainingIntegrations);
@@ -7183,7 +7187,7 @@ int main(int argc, char *argv[]) {
   for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
        iter != msFillers.end();
        ++iter)
-    iter->second->end(0.0);
+    iter->second->end();
   
   
   for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();

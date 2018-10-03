@@ -24,26 +24,30 @@
 //#
 //# $Id: tSubImage.cc 20567 2009-04-09 23:12:39Z gervandiepen $
 
-#ifndef IMAGEANALYSIS_IMAGESTATSCONFIGURATOR_H
-#define IMAGEANALYSIS_IMAGESTATSCONFIGURATOR_H
+#ifndef IMAGEANALYSIS_IMAGESTATSBASE_H
+#define IMAGEANALYSIS_IMAGESTATSBASE_H
 
 #include <imageanalysis/ImageAnalysis/ImageTask.h>
+
+#include <imageanalysis/ImageAnalysis/ImageStatsData.h>
 
 #include <images/Images/ImageStatistics.h>
 #include <casa/namespace.h>
 
 #include <memory>
 
-namespace casacore{
+namespace casacore {
 
 template <class T> class CountedPtr;
+
 }
 
 namespace casa {
 
 class C11Timer;
 
-class ImageStatsConfigurator: public ImageTask<casacore::Float> {
+template <class T> class ImageStatsBase: public ImageTask<T> {
+
     // <summary>
     // This adds configuration methods for statistics classes.
     // </summary>
@@ -64,25 +68,17 @@ class ImageStatsConfigurator: public ImageTask<casacore::Float> {
 
 public:
 
-    enum PreferredClassicalAlgorithm {
-        // old algorithm
-        TILED_APPLY,
-        // new algorithm
-        STATS_FRAMEWORK,
-        // decide based on size and number of steps needed for
-        // stats
-        AUTO
-    };
+    ImageStatsBase() = delete;
 
-    ImageStatsConfigurator() = delete;
-
-    ~ImageStatsConfigurator();
+    ~ImageStatsBase();
 
     void configureBiweight(casacore::Int maxIter);
 
-    void configureChauvenet(casacore::Double zscore, casacore::Int maxIterations);
+    void configureChauvenet(
+        casacore::Double zscore, casacore::Int maxIterations
+    );
 
-    void configureClassical(PreferredClassicalAlgorithm p);
+    void configureClassical(ImageStatsData::PreferredClassicalAlgorithm p);
 
     // configure fit to half algorithm
     void configureFitToHalf(
@@ -105,15 +101,15 @@ protected:
         // fit to half data portion to use
         casacore::FitToHalfStatisticsData::USE_DATA ud;
         // fit to half center value
-        casacore::Float cv;
+        T cv;
         // Chauvenet zscore
         casacore::Double zs;
         // Chauvenet/Biweight max iterations
         casacore::Int mi;
     };
 
-    ImageStatsConfigurator(
-        const SPCIIF image,
+    ImageStatsBase(
+        const SPCIIT image,
         const casacore::Record *const &regionPtr,
         const casacore::String& maskInp,
         const casacore::String& outname="",
@@ -122,7 +118,7 @@ protected:
 
     casacore::String _configureAlgorithm();
 
-    std::unique_ptr<casacore::ImageStatistics<casacore::Float> >& _getImageStats() {
+    std::unique_ptr<casacore::ImageStatistics<T>>& _getImageStats() {
         return _statistics;
     }
 
@@ -134,15 +130,23 @@ protected:
         return _algConf;
     }
 
-    void _resetStats(ImageStatistics<Float>* stat=nullptr) { _statistics.reset(stat); }
+    void _resetStats(ImageStatistics<T>* stat=nullptr) {
+        _statistics.reset(stat);
+    }
 
 private:
 
-    std::unique_ptr<casacore::ImageStatistics<casacore::Float> > _statistics;
+    std::unique_ptr<casacore::ImageStatistics<T>> _statistics;
     AlgConf _algConf;
-    PreferredClassicalAlgorithm _prefClassStatsAlg;
+    ImageStatsData::PreferredClassicalAlgorithm _prefClassStatsAlg
+        = ImageStatsData::AUTO;
 
 };
+
 }
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <imageanalysis/ImageAnalysis/ImageStatsBase.tcc>
+#endif
 
 #endif

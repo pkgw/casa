@@ -1,4 +1,3 @@
-//# RegularFileIO.h: Class for IO on a regular file
 //# Copyright (C) 1996,1997,1999,2002
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -25,10 +24,9 @@
 //#
 //# $Id:  $
 
-#ifndef CASA_FITTERESTIMATESFILEPARSER_H
-#define CASA_FITTERESTIMATESFILEPARSER_H
+#ifndef IMAGEANALYSIS_FITTERESTIMATESFILEPARSER_H
+#define IMAGEANALYSIS_FITTERESTIMATESFILEPARSER_H
 
-//# Includes
 #include <casa/aips.h>
 #include <casa/OS/RegularFile.h>
 #include <components/ComponentModels/ComponentList.h>
@@ -83,13 +81,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 class FitterEstimatesFileParser {
 	public:
 
+    FitterEstimatesFileParser() = delete;
+
 		// Constructor
 		// <src>filename</src> Name of file containing estimates
 		// <src>image</src> Image for which the estimates apply
-		explicit FitterEstimatesFileParser(
-			const casacore::String& filename,
-			const casacore::ImageInterface<casacore::Float>& image
-		);
+    template <class T> explicit FitterEstimatesFileParser(
+        const casacore::String& filename,
+        const casacore::ImageInterface<T>& image
+    );
 
 		~FitterEstimatesFileParser();
 
@@ -107,18 +107,20 @@ class FitterEstimatesFileParser {
 		casacore::Vector<casacore::String> _fixedValues;
 		std::unique_ptr<casacore::LogIO> _log;
 		casacore::Vector<casacore::Double> _peakValues, _xposValues, _yposValues;
-		//casacore::Vector<casacore::Quantity> fluxValues, majValues, minValues, paValues;
 		casacore::Vector<casacore::Quantity> _majValues, _minValues, _paValues;
 		casacore::String _contents;
 
-		// default constructor cannot be called.
-		FitterEstimatesFileParser();
-
 		// parse the file
 		void _parseFile(const casacore::RegularFile& myFile);
-		void _createComponentList(const casacore::ImageInterface<casacore::Float>& image);
+		template <class T> void _createComponentList(
+		    const casacore::ImageInterface<T>& image
+		);
 };
 
-} //# NAMESPACE CASA - END
+}
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <imageanalysis/IO/FitterEstimatesFileParser2.tcc>
+#endif
 
 #endif

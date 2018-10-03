@@ -32,6 +32,7 @@
 #include <measures/Measures/Measure.h>
 #include <measures/Measures/MDirection.h>
 #include <measures/Measures/MPosition.h>
+#include <measures/Measures/MeasTable.h>
 #include <casa/Arrays/Array.h>
 #include <casa/Arrays/Vector.h>
 #include <casa/Arrays/Matrix.h>
@@ -308,8 +309,8 @@ public:
   virtual casacore::String name() const =0;// { return "None";};
  
   // set and get the location used for frame 
-  void setLocation(const casacore::MPosition& loc);
-  casacore::MPosition& getLocation();
+  virtual void setLocation(const casacore::MPosition& loc);
+  virtual casacore::MPosition& getLocation();
 
   // set a moving source aka planets or comets =>  adjust phase center
   // on the fly for gridding 
@@ -524,7 +525,11 @@ protected:
   
   virtual void tweakGridSector(const casacore::Int& nx, const casacore::Int& ny, 
 			       const casacore::Int& ixsub, const casacore::Int& iysub);
-
+  void initSourceFreqConv();
+  void shiftFreqToSource(casacore::Vector<casacore::Double>& freqs);
+  ///moving source spectral frame stuff
+  casacore::MRadialVelocity::Convert obsvelconv_p;
+  casacore::MeasTable::Types mtype_p;
 
  private:
   //Some temporary wasteful function for swapping axes because we don't 

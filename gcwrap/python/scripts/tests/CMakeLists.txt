@@ -25,7 +25,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_applycal.py
   test_asdmsummary.py
   test_bandpass.py
-  test_boxit.py
   test_caltabconvert.py
   test_calanalysis.py
   test_clean.py
@@ -182,11 +181,11 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_sdfixscan.py
   test_sdgaincal.py
   test_sdimaging.py
-  test_tsdbaseline.py
-  test_tsdcal.py
-  test_tsdfit.py
+  test_sdbaseline.py
+  test_sdcal.py
+  test_sdfit.py
   test_tsdimaging.py
-  test_tsdsmooth.py
+  test_sdsmooth.py
   test_sdsidebandsplit.py
 
   ### CASAGUIDES ###

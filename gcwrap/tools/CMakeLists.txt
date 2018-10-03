@@ -84,6 +84,7 @@ casa_add_library( tools
  calanalysis/calanalysis_cmpt.cc
  calibrater/calplot_cmpt.cc
  casa/logsink_cmpt.cc
+ casa/telemetryhelper_cmpt.cc
  casa/quanta_cmpt.cc
  casa/TSLogSink.cc
  components/componentlist_cmpt.cc
@@ -159,6 +160,7 @@ casa_add_tools( tools_swig tools_sources tools_py
  calanalysis/calanalysis.xml
  calibrater/calplot.xml
  casa/logsink.xml
+ casa/telemetryhelper.xml
  casa/quanta.xml
  components/componentlist.xml
  #flagging/flagger.xml
@@ -210,6 +212,12 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
 add_definitions( -pthread -fno-strict-aliasing -DNDEBUG ) # may or may not be necessary for compiling python modules
 
+if (${CMAKE_VERSION} VERSION_GREATER "3.11")
+  set_source_files_properties(${tools_sources}} PROPERTIES
+      GENERATED TRUE
+  )
+endif()
+
 add_custom_target( generated_sources SOURCES ${tools_sources} ${tools_swig} )
 add_custom_target( generated_py SOURCES ${tools_py} )
 
@@ -230,4 +238,3 @@ foreach(_tool ${tools_py} )
    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/${_base}.py
 	               DESTINATION lib/python${PYTHONV}/__casac__ )
 endforeach()
-

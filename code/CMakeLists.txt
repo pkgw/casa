@@ -70,7 +70,7 @@ include( target )
 include( CASA )
 
 set( CASA_VERSION_MAJOR   5   )
-set( CASA_VERSION_MINOR   4   )
+set( CASA_VERSION_MINOR   5   )
 set( CASA_VERSION_PATCH   0   )
 set( CASA_VERSION_FEATURE 0 CACHE STRING "feature version" )
 set( CASA_VERSION_DESC    "" )
@@ -1437,10 +1437,7 @@ casa_add_module( singledishfiller CASACORE )
 casa_add_module( singledish CASACORE casa_sakura singledishfiller msvis mstransform)
 casa_add_module( bnmin1 Boost GSL GSLCBLAS CASACORE )
 casa_add_module( air_casawvr CASACORE bnmin1 Boost synthesis WCSLIB CFITSIO LAPACK )
-
-if (UseCrashReporter AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-   add_subdirectory( crash)
-endif( )
+casa_add_module( crash )
 
 #
 # ASAP's build depends on something called a makedefs file. Fake one of those.

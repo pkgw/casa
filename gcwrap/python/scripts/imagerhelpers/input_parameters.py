@@ -192,7 +192,7 @@ class ImagerParameters():
         self.allnormpars = fixedDict({ self.defaultKey : fixedDict({#'mtype': mtype,
                                  'pblimit': pblimit,'nterms':nterms,'facets':facets,
                                  'normtype':normtype, 'workdir':workdir,
-                                 'deconvolver':deconvolver, 'imagename': imagename} )    })
+                                 'deconvolver':deconvolver, 'restoringbeam':restoringbeam}     }
 
         ######### Deconvolution
         self.alldecpars = fixedDict({ self.defaultKey: fixedDict({ 'id':0, 'deconvolver':deconvolver, 'nterms':nterms, 
@@ -294,7 +294,8 @@ class ImagerParameters():
         for mss in sorted( self.allselpars.keys() ):
             if(self.allimpars['0']['specmode']=='cubedata'):
                 self.allselpars[mss]['outframe']='Undefined'
-
+            if(self.allimpars['0']['specmode']=='cubesource'):
+                 self.allselpars[mss]['outframe']='REST'
         ### MOVE this segment of code to the constructor so that it's clear which parameters go where ! 
         ### Copy them from 'impars' to 'normpars' and 'decpars'
         self.iterpars.update({'allimages':{} })
