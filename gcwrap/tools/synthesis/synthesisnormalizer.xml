@@ -195,6 +195,19 @@ This is used to construct {\tt synthesisnormalizer} tool.
 <!-- ===================================== -->
 
 
+   <method type="function" name="unlockimages">
+   <shortdescription>unlock the images held by this normalizer</shortdescription>
+
+<description>
+</description>
+<input/>
+
+<returns type="bool"/>
+</method>
+
+<!-- ===================================== -->
+
+
    <method type="function" name="setimstore">
    <shortdescription>Set ImageStore</shortdescription>
 
