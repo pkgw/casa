@@ -4943,24 +4943,22 @@ void MSTransformManager::checkCorrelatorPreaveraging()
   {
     auto spwTable = inputMs_p->spectralWindow();
     if(spwTable.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
-       spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION"))
+       spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION") &&
+       spwTable.tableDesc().isColumn("SDM_NUM_BIN") &&
+       spwTable.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
     {
       ROMSSpWindowColumns spwColumns(spwTable);
       auto nrows = spwColumns.nrow();
       auto effBWCol = spwColumns.effectiveBW();
       auto chanWidthCol = spwColumns.chanWidth();
+      ROScalarColumn<Int> numBinCol(spwTable, "SDM_NUM_BIN");
       ROScalarColumn<String> windowFuncCol(spwTable, "SDM_WINDOW_FUNCTION");
       for (size_t spwIdx = 0; spwIdx < nrows; spwIdx++)
       {
-        auto ratioBandwidth =  effBWCol(spwIdx) / chanWidthCol(spwIdx);
+        auto numBin =  numBinCol(spwIdx);
         auto windowFunction = windowFuncCol(spwIdx);
-        auto tol = std::numeric_limits<float>::epsilon();
-        if(windowFunction != "UNKNOWN" &&
-           std::all_of(ratioBandwidth.begin(), ratioBandwidth.end(),
-                       [tol](double r){return std::abs(r - 1) < tol;}))
-        {
+        if(windowFunction != "UNKNOWN" && numBinCol != 1)
           spwPreaveraged += std::to_string(spwIdx)+" ";
-        }
       }
     }
   }
