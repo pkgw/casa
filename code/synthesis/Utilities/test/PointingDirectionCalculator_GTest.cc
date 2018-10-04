@@ -72,7 +72,6 @@
 using namespace casacore;
 using namespace std;
 
-
 //+
 // Additional CASACORE include files
 //-
@@ -153,6 +152,7 @@ bool  getMSThrowFromList(uInt  No )
     
     return TestMSList[No].ExThrow;
 }
+
 // Get Count of MS List //
 size_t getMSCountFromList()
 {
@@ -384,7 +384,7 @@ public:
 
 private:
 
-        String MsName = DefaultLocalMsName;  // default (C++11) //
+        const String MsName = DefaultLocalMsName;  // default (C++11) //
 
     //+
     // Buff between table and local var.
@@ -927,7 +927,7 @@ void MsEdit::CreateNewColumnsFromDirection()
 //   returns pointng info. by Vecror.
 //-
 
-casacore::Vector<double>  generatePseudoPointData(int i)
+casacore::Vector<double>  generatePseudoPointData(int tm)
 {
 
 //  printf( "- Generating Pseudo Pointing Data.\n" );
@@ -935,8 +935,8 @@ casacore::Vector<double>  generatePseudoPointData(int i)
         casacore::Vector<Double> point;
         point.resize(4);
 
-        point[0] = 0.0 + 0.01 * (double)i;      // Direction
-        point[1] = 0.0 - 0.01 * (double)i;
+        point[0] = 0.0 + 0.01 * (double)tm;      // Direction
+        point[1] = 0.0 - 0.01 * (double)tm;
 
     //+
     // THis value can change Interporation behabior
@@ -948,15 +948,15 @@ casacore::Vector<double>  generatePseudoPointData(int i)
         Double intentionalShift = 0.0;
         Double interval = 2.99827;
 
-        Double d = (22 *3600.0 +  5*60 +  41.5 + (double)i * interval + intentionalShift )/(3600*24); 
+        Double d = (22 *3600.0 +  5*60 +  41.5 + (double)tm * interval + intentionalShift )/(3600*24); 
                       
-        casacore::MVTime  tm(2003,11,12 ,d);     
+        casacore::MVTime  tm00(2003,11,12 ,d);     
  
     // Vector to return //
 
-        point[0] = 0.0 + 0.01 * (double)i;  // Direction
-        point[1] = 0.0 - 0.01 * (double)i;
-        point[2] = tm.second();             // Time 
+        point[0] = 0.0 + 0.01 * (double)tm;  // Direction
+        point[1] = 0.0 - 0.01 * (double)tm;
+        point[2] = tm00.second();           // Time 
         point[3] = interval;                // Interval 
         
         return point;
@@ -1515,7 +1515,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
     //+
     // setDirectionColumm()  calls 
     //-
-        vector<String> ColName
+        const vector<String> ColName
         {
             "DIRECTION",       
              "TARGET",
@@ -1714,7 +1714,7 @@ TEST_F(TestDirection, setMovingSource  )
     //
     // setDirectionColumm()  calls 
     //
-        std::vector<String> ColName
+        const std::vector<String> ColName
         {
             "DIRECTION",        
             "TARGET",
@@ -2095,7 +2095,6 @@ protected:
         virtual void TearDown()
        {
             BaseClass::TearDown();
-            printf ("TestMeasurementSet::TearDown:: called \n");
        }
 
         void test_selectdata(PointingDirectionCalculator & calc);
@@ -2764,7 +2763,7 @@ class TestSetFrame : public BaseClass
 
 public:
 
-std::vector<struct _FrameName> DefinedFrametypes
+const std::vector<struct _FrameName> DefinedFrametypes
 = {
         {true,  "J2000"},  
         {true,  "JMEAN"}, 
