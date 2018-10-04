@@ -24,6 +24,9 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 //# $Id$
+
+#define CFC_VERBOSE false /* Control the verbosity when building CFCache. */
+
 #include <casa/Exceptions/Error.h>
 #include <casa/iostream.h>
 #include <casa/sstream.h>
@@ -1759,7 +1762,7 @@ void SynthesisImagerVi2::unlockMSs()
     cfCacheObj->setLazyFill(refim::SynthesisUtils::getenv("CFCache.LAZYFILL",1)==1);
     //    cerr << "Setting wtImagePrefix to " << imageNamePrefix.c_str() << endl;
     cfCacheObj->setWtImagePrefix(imageNamePrefix.c_str());
-    cfCacheObj->initCache2();
+    cfCacheObj->initCache2(CFC_VERBOSE);
 
     theFT->setCFCache(cfCacheObj);
     
@@ -2168,7 +2171,7 @@ void SynthesisImagerVi2::unlockMSs()
 	  os << "Re-loading the \"blank\" CFCache for filling" << LogIO::WARN << LogIO::POST;
 
       	  cfCacheObj->initCacheFromList2(cfcPath, cfList_p, wtCFList_p,
-      					 selectedPA, dPA,1);
+      					 selectedPA, dPA,CFC_VERBOSE);
 	  // tmpFT->setCFCache(cfCacheObj);
 	  Vector<Double> uvScale, uvOffset;
 	  Matrix<Double> vbFreqSelection;
