@@ -262,11 +262,11 @@ protected:
   casacore::Bool isTiled;
 
   // casacore::Array lattice
-  SHARED_PTR<casacore::Lattice<casacore::Complex> > arrayLattice;
+  std::shared_ptr<casacore::Lattice<casacore::Complex> > arrayLattice;
 
   // Lattice. For non-tiled gridding, this will point to arrayLattice,
   //  whereas for tiled gridding, this points to the image
-  SHARED_PTR<casacore::Lattice<casacore::Complex> > lattice;
+  std::shared_ptr<casacore::Lattice<casacore::Complex> > lattice;
 
   casacore::String convType;
 

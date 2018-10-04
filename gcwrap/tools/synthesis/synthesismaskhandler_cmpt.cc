@@ -74,7 +74,7 @@ synthesismaskhandler::~synthesismaskhandler()
       Vector<Bool> allpruned;
       Vector<uInt> nreg;
       Vector<uInt> npruned;
-      SHARED_PTR<ImageInterface<Float> > tempIm_ptr = itsMaskHandler->YAPruneRegions(inmask, chanFlag, allpruned, nreg, npruned, prunesize);
+      std::shared_ptr<ImageInterface<Float> > tempIm_ptr = itsMaskHandler->YAPruneRegions(inmask, chanFlag, allpruned, nreg, npruned, prunesize);
       *itsLog<<"nreg="<<nreg<<" npruned="<<npruned<<" prunesize="<<prunesize<<LogIO::POST; 
       outmask.copyData(*(tempIm_ptr.get()));
       casacore::Record outinfo;

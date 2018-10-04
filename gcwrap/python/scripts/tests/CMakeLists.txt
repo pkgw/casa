@@ -25,7 +25,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_applycal.py
   test_asdmsummary.py
   test_bandpass.py
-  test_boxit.py
   test_caltabconvert.py
   test_calanalysis.py
   test_clean.py
@@ -199,7 +198,9 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_VLA_CorrectingBandpass.py
   test_VLA_Flagging.py
   test_VLA_Imaging.py
+  ###
 
+  test_req_task_listobs.py
 
   ###
   test_setjy.py

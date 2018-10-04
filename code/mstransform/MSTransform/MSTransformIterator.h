@@ -41,7 +41,7 @@ class MSTransformIterator : public vi::TransformingVi2
 public:
 
 	MSTransformIterator(	vi::ViImplementation2 * inputVii,
-							SHARED_PTR<MSTransformManager>);
+							std::shared_ptr<MSTransformManager>);
 	~MSTransformIterator();
 
     const casacore::MeasurementSet & ms () const {return *transformedMS_p;};
@@ -65,7 +65,7 @@ protected:
 
 private:
     casacore::String tmpMSFileName_p;
-    SHARED_PTR<MSTransformManager> manager_p;
+    std::shared_ptr<MSTransformManager> manager_p;
 	MSTransformBufferImpl *buffer_p;
 	casacore::MeasurementSet *transformedMS_p;
 };

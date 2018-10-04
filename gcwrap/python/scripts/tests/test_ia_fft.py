@@ -89,7 +89,6 @@ class ia_fft_test(unittest.TestCase):
         yy.done()
         shape = [20,20,1,5]
         yy.fromshape("", shape)
-        #yy.addnoise()
         self.assertRaises(
             Exception,
             yy.fft, real="real1.im", mask=mymask + ">0",
@@ -104,7 +103,7 @@ class ia_fft_test(unittest.TestCase):
     def test_delta(self):
         """Test fft of delta function"""
         myia = iatool()
-        for t in ['f', 'c']:
+        for t in ['f', 'c', 'd', 'cd']:
             myia.fromshape("", [100, 100], type=t)
             bb = myia.getchunk()
             bb[50, 50] = 1

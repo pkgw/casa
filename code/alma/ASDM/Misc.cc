@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <unistd.h>
 
 #include <algorithm> //required for std::swap
 #include <iostream>
@@ -50,11 +51,13 @@
 #include <libxslt/xsltInternals.h>
 #include <libxslt/transform.h>
 #include <libxslt/xsltutils.h>
+#include <casacore/casa/System/AppState.h>
 
 using namespace std;
 
 extern int xmlLoadExtDtdDefaultValue;
 
+#include <casa/OS/Path.h>
 #include "ASDMValuesParser.h"
 
 namespace asdm {
@@ -499,8 +502,36 @@ namespace asdm {
     return "" ;  // An empty string will be interpreted as no file found.
   }
   
-  string ASDMUtils::pathToV2V3ALMAxslTransform() {return pathToxslTransform(filenameOfV2V3xslTransform[ASDMUtils::ALMA]);}
-  string ASDMUtils::pathToV2V3EVLAxslTransform() {return pathToxslTransform(filenameOfV2V3xslTransform[ASDMUtils::EVLA]);}
+  static string xslt_subdir = "alma/asdm";
+
+  string ASDMUtils::pathToV2V3ALMAxslTransform() {
+      struct stat path_stat;
+      string xslt_path = xslt_subdir + "/" + filenameOfV2V3xslTransform[ASDMUtils::ALMA];
+      const std::list<std::string> &state_path = casacore::AppStateSource::fetch( ).dataPath( );
+      if ( state_path.size( ) > 0 ) {
+          for ( std::list<std::string>::const_iterator it=state_path.begin(); it != state_path.end(); ++it ) {
+              string xslpath = casacore::Path( *it + "/" + xslt_path ).absoluteName( );
+              if ( stat(xslpath.c_str( ), &path_stat ) == 0 && S_ISREG(path_stat.st_mode) )
+                  return xslpath;
+          }
+      }
+      return pathToxslTransform(filenameOfV2V3xslTransform[ASDMUtils::ALMA]);
+  }
+  string ASDMUtils::pathToV2V3EVLAxslTransform() {
+      struct stat path_stat;
+      string xslt_path = xslt_subdir + "/" + filenameOfV2V3xslTransform[ASDMUtils::EVLA];
+      const std::list<std::string> &state_path = casacore::AppStateSource::fetch( ).dataPath( );
+      if ( state_path.size( ) > 0 ) {
+          for ( std::list<std::string>::const_iterator it=state_path.begin(); it != state_path.end(); ++it ) {
+              string xslpath = casacore::Path( *it + "/" + xslt_path ).absoluteName( );
+              stat( xslpath.c_str( ), &path_stat );
+              if ( S_ISREG(path_stat.st_mode) )
+                  return xslpath;
+          }
+      }
+      return pathToxslTransform(filenameOfV2V3xslTransform[ASDMUtils::EVLA]);
+  }
+
   string ASDMUtils::nameOfV2V3xslTransform(ASDMUtils::Origin origin) {
     return filenameOfV2V3xslTransform[origin];
   }

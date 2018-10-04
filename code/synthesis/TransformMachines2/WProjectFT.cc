@@ -1093,6 +1093,15 @@ void WProjectFT::get(VisBuffer2& vb, Int row)
     //vb.modelVisCube().xyPlane(row)=Complex(0.0,0.0);
   }
   
+  
+//Channel matching for the actual spectral window of buffer
+    matchChannel(vb);
+ 
+  //No point in reading data if its not matching in frequency
+  if(max(chanMap)==-1)
+    return;
+
+
   // Get the uvws in a form that Fortran can use
   Matrix<Double> uvw(negateUV(vb));
   Vector<Double> dphase(vb.nRows());
@@ -1110,19 +1119,7 @@ void WProjectFT::get(VisBuffer2& vb, Int row)
   //  matchAllSpwChans(vb);
   //Here we redo the match or use previous match
   
-  //Channel matching for the actual spectral window of buffer
-  //if(doConversion_p[vb.spectralWindows()[0]]){
-    matchChannel(vb);
-  //}
-  //else{
-  //  chanMap.resize();
-  //  chanMap=multiChanMap_p[vb.spectralWindows()[0]];
-  //}
   
-  //No point in reading data if its not matching in frequency
-  if(max(chanMap)==-1)
-    return;
-
   Cube<Complex> data;
   Cube<Int> flags;
   getInterpolateArrays(vb, data, flags);

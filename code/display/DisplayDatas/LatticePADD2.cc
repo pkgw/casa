@@ -439,12 +439,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	template <>
-	SHARED_PTR<ImageInterface<Float> > LatticePADisplayData<Complex>::imageinterface( ) {
-		return SHARED_PTR<ImageInterface<Float> >();
+	std::shared_ptr<ImageInterface<Float> > LatticePADisplayData<Complex>::imageinterface( ) {
+		return std::shared_ptr<ImageInterface<Float> >();
 	}
 
 	template <>
-	SHARED_PTR<ImageInterface<Float> > LatticePADisplayData<Float>::imageinterface( ) {
+	std::shared_ptr<ImageInterface<Float> > LatticePADisplayData<Float>::imageinterface( ) {
 		return itsBaseImagePtr;
 	}
 

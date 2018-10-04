@@ -2182,6 +2182,7 @@ void MSTransformManager::initDataSelectionParams()
 				inputOutputChanIndexMap_p[spw].push_back(inpChan);
 			}
 		}
+		
 	}
 
 	// jagonzal: must fill numOfSelChanMap_p
@@ -4289,7 +4290,7 @@ void MSTransformManager::reindexDDISubTable()
 
     	// Add a new row for each of the separated SPWs
     	uInt rowIndex = 0;
-    	for (uInt spw_i=0; spw_i<nspws_p; spw_i++)
+      for (uInt spw_i=0; spw_i<nspws_p; spw_i++)
     	{
     		if (rowIndex > 0)
     		{
@@ -4314,7 +4315,7 @@ void MSTransformManager::reindexDDISubTable()
     	}
 
         // Delete the old rows
-    	uInt nrowsToDelete = ddiCols.nrow()-nspws_p;
+      uInt nrowsToDelete = ddiCols.nrow()-nspws_p;
     	if (nrowsToDelete > 0)
     	{
         	uInt rownr = ddiCols.nrow()-1;

@@ -474,9 +474,6 @@ int ASDM2MSFiller::createMS(const string& msName,
 					 IPosition(1,3),
 					 ColumnDesc::Direct));
 
-    // Reset the PRESSURE units from incorrect default "Pa" to correct default "hPa"
-    TableQuantumDesc pressureTQD(td, MSWeather::columnName(MSWeather::PRESSURE), Unit("hPa"));
-    pressureTQD.write(td);
 		 
     SetupNewTable tabSetup(itsMS->weatherTableName(), td, Table::New);
     itsMS->rwKeywordSet().defineTable(MS::keywordName(MS::WEATHER),
@@ -2022,12 +2019,38 @@ void ASDM2MSFiller:: addSysCal(int    antenna_id,
   msweatherCol.interval().put(crow, interval_);
   msweatherCol.time().put(crow, time_);
 
-  if (pressure_opt_.first) msweatherCol.pressure().put(crow, pressure_opt_.second);
-  if (relHumidity_opt_.first) msweatherCol.relHumidity().put(crow, relHumidity_opt_.second);
-  if (temperature_opt_.first) msweatherCol.temperature().put(crow, temperature_opt_.second);
-  if (windDirection_opt_.first) msweatherCol.windDirection().put(crow, windDirection_opt_.second);
-  if (windSpeed_opt_.first) msweatherCol.windSpeed().put(crow, windSpeed_opt_.second);
-  if (dewPoint_opt_.first) msweatherCol.dewPoint().put(crow, dewPoint_opt_.second);
+  // the default value in the MS for the flag columns is False
+  // they only need to be set when the data are not present in the SDM
+  if (pressure_opt_.first) {
+    msweatherCol.pressure().put(crow, pressure_opt_.second);
+  } else {
+    msweatherCol.pressureFlag().put(crow, true);
+  }
+  if (relHumidity_opt_.first) {
+    msweatherCol.relHumidity().put(crow, relHumidity_opt_.second);
+  } else {
+    msweatherCol.relHumidityFlag().put(crow, true);
+  }
+  if (temperature_opt_.first) {
+    msweatherCol.temperature().put(crow, temperature_opt_.second);
+  } else {
+    msweatherCol.temperatureFlag().put(crow, true);
+  }
+  if (windDirection_opt_.first) {
+    msweatherCol.windDirection().put(crow, windDirection_opt_.second);
+  } else {
+    msweatherCol.windDirectionFlag().put(crow, true);
+  }
+  if (windSpeed_opt_.first) {
+    msweatherCol.windSpeed().put(crow, windSpeed_opt_.second);
+  } else {
+    msweatherCol.windSpeedFlag().put(crow, true);
+  }
+  if (dewPoint_opt_.first) {
+    msweatherCol.dewPoint().put(crow, dewPoint_opt_.second);
+  } else {
+    msweatherCol.dewPointFlag().put(crow, true);
+  }
 
   ScalarColumn<int> nsWXStationId(msweather, "NS_WX_STATION_ID");
   nsWXStationId.put(crow, wx_station_id_);

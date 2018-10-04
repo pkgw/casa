@@ -86,7 +86,11 @@
                 default: none. example: vis='ngc5921.ms'
 
         mode -- Flag version operation
-                default: 'list'; to list existing flagtables
+                default: 'list': it will list in the logger the existing flag versions of the MS.
+                                 This option will also return by default a dictionary containing the
+                                 name of the MS, the name of the flag version and the comment. This 
+                                 information is taken from the FLAG_VERSION_LIST file inside the
+                                 .flagversions directory.
 
                 'save': will save the FLAG column from vis to a specified flag file. If the name given
                         in versionname already exists, the task will give a warning and rename it 
