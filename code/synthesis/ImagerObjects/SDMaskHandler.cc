@@ -155,7 +155,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 // Include checks if the degenerate axes exit or removed.
                 // expandMask will add a degenerate axis to match the output
                 //PagedImage<Float> inmask(maskString); 
-                SHARED_PTR<ImageInterface<Float> > inmaskptr;
+		std::shared_ptr<ImageInterface<Float> > inmaskptr;
                 LatticeBase* latt =ImageOpener::openImage(maskString);
                 inmaskptr.reset(dynamic_cast<ImageInterface<Float>* >(latt));
                 //IPosition inShape = inmask.shape();
