@@ -4957,7 +4957,7 @@ void MSTransformManager::checkCorrelatorPreaveraging()
       {
         auto numBin =  numBinCol(spwIdx);
         auto windowFunction = windowFuncCol(spwIdx);
-        if(windowFunction != "UNKNOWN" && numBinCol != 1)
+        if(windowFunction != "UNKNOWN" && numBin != 1)
           spwPreaveraged += std::to_string(spwIdx)+" ";
       }
     }
