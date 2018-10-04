@@ -259,8 +259,11 @@ namespace casa{
 	memUnit="KB";
       }
 
-    summarize(memCache2_p,   "CFS",   True);
-    summarize(memCacheWt2_p, "WTCFS", False);
+    if (verbose > 0)
+      {
+	summarize(memCache2_p,   "CFS",   True);
+	summarize(memCacheWt2_p, "WTCFS", False);
+      }
 
     if (memUsed0+memUsed1 > 0)
       log_l << "Total CF Cache memory footprint: " << (memUsed0+memUsed1) << " (" << memUsed0 << "," << memUsed1 << ") " << memUnit << LogIO::POST;
