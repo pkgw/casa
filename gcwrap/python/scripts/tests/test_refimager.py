@@ -1623,7 +1623,7 @@ class test_cube(testref_base):
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step1.png',title="model after partial mtmfs on some channels")
 
           delmod(self.msfile);self.th.delmodels(msname=self.msfile,modcol='reset0')
-          ret = tclean(vis=self.msfile,imagename=self.img+'1',imsize=100,cell='8.0arcsec',startmodel=[self.img+'.model.tt0',self.img+'.model.tt1'], spw='0',niter=0,savemodel='modelcolumn',deconvolver='mtmfs')
+          ret = tclean(vis=self.msfile,imagename=self.img+'1',imsize=100,cell='8.0arcsec',startmodel=[imagename+'.model.tt0',imagename+'.model.tt1'], spw='0',niter=0,savemodel='modelcolumn',deconvolver='mtmfs')
 #          self.assertTrue( self.th.checkmodelchan(self.msfile,10) > 0.0 and self.th.checkmodelchan(self.msfile,3) > 0.0 
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step2.png',title="model after mtmfs predict on full spw" )
 
@@ -1738,67 +1738,72 @@ class test_mask(testref_base):
           report=self.th.checkall(imexist=[self.img+'1.mask', self.img+'2.mask'], imval=[(self.img+'1.mask',1.0,[50,50,0,1]),(self.img+'1.mask',1.0,[50,50,0,2]),(self.img+'1.mask',1.0,[50,50,0,9]),(self.img+'2.mask',1.0,[50,50,0,0]),(self.img+'2.mask',1.0,[50,50,0,4]),(self.img+'2.mask',0.0,[50,50,0,5])])
           self.checkfinal(report)
 
-     def test_mask_autobox(self):
-         # changed to use threshold based automasking 
-          """ [mask] test_mask_autobox :  Autobox """
-          self.prepData('refim_twochan.ms')
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-thresh')
-          # temporarily change value test to make it pass until extra masking in final minor cycle is resolved....
-          #report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,80,0,0])])
-          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
-          self.checkfinal(report)
+# the option, auto-thresh removed
+#     def test_mask_autobox(self):
+#         # changed to use threshold based automasking 
+#          """ [mask] test_mask_autobox :  Autobox """
+#          self.prepData('refim_twochan.ms')
+#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-thresh')
+#          # temporarily change value test to make it pass until extra masking in final minor cycle is resolved....
+#          #report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,80,0,0])])
+#          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+#          self.checkfinal(report)
 
-     def test_mask_autobox_redraw(self):
-         # changed to use threshold based automasking 
-          """ [mask] test_mask_autobox_redraw :  Autoboxing with a redraw after each major cycle """
-          self.prepData('refim_eptwochan.ms')
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-thresh',maskthreshold=0.5)
-          ret2 = tclean(vis=self.msfile,imagename=self.img+'2',imsize=100,cell='8.0arcsec',niter=20,cycleniter=10,deconvolver='hogbom',interactive=0,usemask='auto-thresh',maskthreshold=0.5)
-          # tweak in automask threshold in the code changed masking extent 2016-03-21
-          #report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[60,30,0,0]),(self.img+'2.mask',1.0,[60,30,0,0])])
+# the option, auto-thresh removed
+#     def test_mask_autobox_redraw(self):
+#         # changed to use threshold based automasking 
+#          """ [mask] test_mask_autobox_redraw :  Autoboxing with a redraw after each major cycle """
+#          self.prepData('refim_eptwochan.ms')
+#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-thresh',maskthreshold=0.5)
+#          ret2 = tclean(vis=self.msfile,imagename=self.img+'2',imsize=100,cell='8.0arcsec',niter=20,cycleniter=10,deconvolver='hogbom',interactive=0,usemask='auto-thresh',maskthreshold=0.5)
+#          # tweak in automask threshold in the code changed masking extent 2016-03-21
+#          #report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[60,30,0,0]),(self.img+'2.mask',1.0,[60,30,0,0])])
           # temporarily change the value test for unmasked region to make it pass (replace with the above when the extra masking issue is resolved...)
-          #report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[60,85,0,0]),(self.img+'2.mask',1.0,[60,30,0,0])])
-          #change in behavior due to automask code modification on July 1st,2016
-          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[60,85,0,0]),(self.img+'2.mask',0.0,[60,30,0,0])])
-          self.checkfinal(report)
+#          #report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[60,85,0,0]),(self.img+'2.mask',1.0,[60,30,0,0])])
+#          #change in behavior due to automask code modification on July 1st,2016
+#          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[60,85,0,0]),(self.img+'2.mask',0.0,[60,30,0,0])])
+#          self.checkfinal(report)
 
-     def test_mask_autobox_nmask(self):
-          """ [mask] test_mask_autobox_nmask : Autoboxing with nmask """
-          # this won't be triggering actual pruning but just to check going into write places
-          self.prepData('refim_point.ms')
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',
-                       interactive=0,usemask='auto-thresh',nmask=3)
-          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
-          self.checkfinal(report)
+# the option, auto-thresh removed
+#     def test_mask_autobox_nmask(self):
+#          """ [mask] test_mask_autobox_nmask : Autoboxing with nmask """
+#          # this won't be triggering actual pruning but just to check going into write places
+#          self.prepData('refim_point.ms')
+#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',
+#                       interactive=0,usemask='auto-thresh',nmask=3)
+#          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+#          self.checkfinal(report)
            
-     def test_mask_autobox2_nmask(self):
-          """ [mask] test_mask_autobox2_nmask : Autoboxing (no binning) with nmask"""
-          # this won't be triggering actual pruning but just to check going into write places
-          self.prepData('refim_point.ms')
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',
-                       interactive=0,usemask='auto-thresh2',nmask=3)
-          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
-          self.checkfinal(report)
+# the option, auto-thresh2 removed
+#     def test_mask_autobox2_nmask(self):
+#          """ [mask] test_mask_autobox2_nmask : Autoboxing (no binning) with nmask"""
+#          # this won't be triggering actual pruning but just to check going into write places
+#          self.prepData('refim_point.ms')
+#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',
+#                       interactive=0,usemask='auto-thresh2',nmask=3)
+#          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+#          self.checkfinal(report)
 
 
-     def test_mask_autobox_pbmask(self):
-          """ [mask] test_mask_autobox_nmask : Autoboxing  with pbmask"""
-          # this won't be triggering actual pruning but just to check going into write places
-          self.prepData('refim_point.ms')
-          # change imsize to see the pbmask boundary
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=500,cell='8.0arcsec',niter=10,deconvolver='hogbom',
-                       interactive=0,usemask='auto-thresh', pbmask=0.2)
-          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[250,250,0,0]),(self.img+'.mask',0.0,[250,285,0,0]),(self.img+'.mask',0.0,[360,360])])
-          self.checkfinal(report)
+# the option, auto-thresh removed
+#     def test_mask_autobox_pbmask(self):
+#         """ [mask] test_mask_autobox_nmask : Autoboxing  with pbmask"""
+#          # this won't be triggering actual pruning but just to check going into write places
+#          self.prepData('refim_point.ms')
+#          # change imsize to see the pbmask boundary
+#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=500,cell='8.0arcsec',niter=10,deconvolver='hogbom',
+#                       interactive=0,usemask='auto-thresh', pbmask=0.2)
+#          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[250,250,0,0]),(self.img+'.mask',0.0,[250,285,0,0]),(self.img+'.mask',0.0,[360,360])])
+#          self.checkfinal(report)
 
-     @unittest.skip('Skip. This test deprecated. removed autoadjust param.')
-     def test_mask_autobox_autoadjust(self):
-          """ [mask] test_mask_autobox_autoadjust : Autoboxing with autoadjust=T """
-          self.prepData('refim_point.ms')
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',
-                       interactive=0,usemask='auto-thresh',autoadjust=True)
-          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
-          self.checkfinal(report)
+#     @unittest.skip('Skip. This test deprecated. removed autoadjust param.')
+#     def test_mask_autobox_autoadjust(self):
+#          """ [mask] test_mask_autobox_autoadjust : Autoboxing with autoadjust=T """
+#          self.prepData('refim_point.ms')
+#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',
+#                       interactive=0,usemask='auto-thresh',autoadjust=True)
+#          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+#          self.checkfinal(report)
 
      @unittest.skip('Skip test.')
      def test_mask_pbmask(self):
@@ -1820,15 +1825,16 @@ class test_mask(testref_base):
           """ [mask] test_mask_outlier : With outlier fields """
           pass
 
-     def test_mask_restart(self):
-          """ [mask] test_mask_restart : Test that mask reloads upon restart """
-          self.prepData('refim_twochan.ms')
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-thresh')
-          ret2 = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0)
+# the option, auto-thresh removed
+#     def test_mask_restart(self):
+#          """ [mask] test_mask_restart : Test that mask reloads upon restart """
+#          self.prepData('refim_twochan.ms')
+#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-thresh')
+#          ret2 = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0)
           #report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,80,0,0])])
           # temporarily change the value test for unmasked region to make it pass (replace with the above when the extra masking issue is resolved...)
-          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
-          self.checkfinal(report)
+#          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+#          self.checkfinal(report)
 
      def test_mask_autobox_multithresh(self):
           """ [mask] test_mask__autobox_multithresh :  multi-threshold Autobox (default)"""
@@ -1889,15 +1895,16 @@ class test_mask(testref_base):
 
           self.checkfinal(report)
 
-     def test_mask_zeroauto(self):
-          """ [mask] test_mask_zeroauto : Test that an automask-generated zero mask is caught  """
-          self.prepData('refim_point.ms')
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,interactive=0,usemask='auto-thresh',maskthreshold='40.0Jy')
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=10,interactive=0,usemask='auto-thresh',maskthreshold='40.0Jy')
-
-          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'], imval=[(self.img+'.model',0.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,50,0,0])], stopcode=7)
-
-          self.checkfinal(report)
+# the option, auto-thresh removed
+#     def test_mask_zeroauto(self):
+#          """ [mask] test_mask_zeroauto : Test that an automask-generated zero mask is caught  """
+#          self.prepData('refim_point.ms')
+#          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,interactive=0,usemask='auto-thresh',maskthreshold='40.0Jy')
+#          ret = tclean(vis=self.msfile, imagename=self.img,niter=10,interactive=0,usemask='auto-thresh',maskthreshold='40.0Jy')
+#
+#          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'], imval=[(self.img+'.model',0.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,50,0,0])], stopcode=7)
+#
+#          self.checkfinal(report)
 
      def test_mask_expand_contstokesImask_to_cube(self):
           """ [mask] test_mask_expand_contstokesImask_to_cube : Test for
@@ -1917,7 +1924,7 @@ class test_mask(testref_base):
           expanding input continuum Stokes I mask with its degenerate axes removed to cube imaging  """
           self.prepData('refim_point_linRL.ms')
           self.prepInputmask('refim_cont_stokesI_input.mask')
-          imsubimage(imagename=self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True)
+          imsubimage(imagename=self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True, overwrite=True)
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
           niter=10,interactive=0,interpolation='nearest', usemask='user',
@@ -1945,7 +1952,7 @@ class test_mask(testref_base):
           input continuum Stokes I mask with its degenerate axes removed to continuum multi-stokes imaging  """
           self.prepData('refim_point_linRL.ms')
           self.prepInputmask('refim_cont_stokesI_input.mask')
-          imsubimage(imagename=self.maskname, outfile=self.maskname+"_dropdeg", dropdeg=True)
+          imsubimage(imagename=self.maskname, outfile=self.maskname+"_dropdeg", dropdeg=True, overwrite=True)
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="mfs", imsize=100, cell='8.0arcsec',
           niter=10,interactive=0, stokes='IQUV', usemask='user',
@@ -2043,7 +2050,7 @@ class test_mask(testref_base):
           self.prepData('refim_point_linRL.ms') 
           # input mask will different for different stokes plane
           self.prepInputmask('refim_cont_stokesIQUV_input.mask')
-          imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True);
+          imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True, overwrite=True);
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
           niter=10,interactive=0,interpolation='nearest', stokes='IQUV',
@@ -2103,7 +2110,7 @@ class test_mask(testref_base):
           self.prepData('refim_point_linRL.ms') 
           # input mask will different for different stokes plane
           self.prepInputmask('refim_cube_StokesI_input.mask')
-          imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True);
+          imsubimage(self.maskname, outfile=self.maskname+"_dropdeg",dropdeg=True, overwrite=True);
           ret = tclean(vis=self.msfile,
           imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
           niter=10,interactive=0,interpolation='nearest', stokes='IQUV',
@@ -2243,7 +2250,7 @@ class test_widefield(testref_base):
           """ [widefield] Test_Widefield_mosaicft_mtmfs : MT-MFS with mosaicft  stokes I, alpha """
           self.prepData("refim_mawproject.ms")
           ret = tclean(vis=self.msfile,spw='*',field='*',imagename=self.img,imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",niter=60,gridder='mosaicft',deconvolver='mtmfs', conjbeams=False)
-          report=self.th.checkall(imexist=[self.img+'.image.tt0', self.img+'.psf.tt0', self.img+'.weight.tt0'],imval=[(self.img+'.image.tt0',0.9413,[256,256,0,0]),(self.img+'.weight.tt0',0.50546,[256,256,0,0]),(self.img+'.alpha', 0.078076,[256,256,0,0]) ] )
+          report=self.th.checkall(imexist=[self.img+'.image.tt0', self.img+'.psf.tt0', self.img+'.weight.tt0'],imval=[(self.img+'.image.tt0',0.9424,[256,256,0,0]),(self.img+'.weight.tt0',0.50591,[256,256,0,0]),(self.img+'.alpha', 0.07367,[256,256,0,0]) ] )
           ## alpha should represent that of the mosaic PB (twice)... and should then converge to zero
           self.checkfinal(report)
           

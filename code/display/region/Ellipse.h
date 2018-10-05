@@ -69,7 +69,7 @@ namespace casa {
 			}
 
 		protected:
-			std::list<SHARED_PTR<RegionInfo> > *generate_dds_centers(  );
+			std::list<std::shared_ptr<RegionInfo> > *generate_dds_centers(  );
 			casacore::ImageRegion *get_image_region( DisplayData* ) const;
 			// Ellipse is derived from Rectangle, but we have no way to generate ellipse
 			// statistics for a measurement set (our only non-image display data)... so

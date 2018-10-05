@@ -102,7 +102,7 @@ using namespace casa::vi;
 	  if((subftms_p[termindex]->name())=="MosaicFTNew"){ 
 	    (static_cast<MosaicFTNew *>(subftms_p[termindex].get()))->setConvFunc(  (static_cast<MosaicFTNew * >(subftm.get()))->getConvFunc());
 
-	  }
+	    }
 	}
 
 	subftms_p[termindex]->setMiscInfo(termindex); 
@@ -197,8 +197,18 @@ using namespace casa::vi;
   MultiTermFTNew::~MultiTermFTNew()
   {
   }
-  
-  
+  void MultiTermFTNew::setMovingSource(const String& sourcename, const String& ephemtable){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setMovingSource(sourcename, ephemtable);
+  }
+  void MultiTermFTNew::setMovingSource(const MDirection& mdir){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setMovingSource(mdir);
+  }
+  void MultiTermFTNew::setLocation(const MPosition& mloc){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setLocation(mloc);
+  }
   //---------------------------------------------------------------------------------------------------
   //------------ Multi-Term Specific Functions --------------------------------------------------------
   //---------------------------------------------------------------------------------------------------
@@ -244,8 +254,11 @@ using namespace casa::vi;
   }
   
   void MultiTermFTNew::initMaps(const VisBuffer2& vb){
-    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+    for (uInt k=0;  k < subftms_p.nelements(); ++k){
+      (subftms_p[k])->setFrameValidity( freqFrameValid_p);
+      (subftms_p[k])->freqInterpMethod_p=this->freqInterpMethod_p;
       (subftms_p[k])->initMaps(vb);
+    }
   }
   // Reset the imaging weights back to their original values
   // to be called just after "put"

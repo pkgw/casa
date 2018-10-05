@@ -1327,7 +1327,7 @@ protected:
 	map<casacore::Int,vector<casacore::Int> > inputOutputChanIndexMap_p;
 
 	// Frequency transformation parameters
-	casacore::uInt nspws_p = 1;
+  casacore::uInt nspws_p = 1;
 	casacore::Int ddiStart_p = 0;
 	casacore::Bool combinespws_p = false;
 	casacore::Bool enableChanPreAverage_p = false;

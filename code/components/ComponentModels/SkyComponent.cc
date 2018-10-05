@@ -247,7 +247,7 @@ String SkyComponent::summarize(
 }
 
 String SkyComponent::positionToString(
-    SHARED_PTR<casacore::Vector<casacore::Double>>& pixelCoords,
+    std::shared_ptr<casacore::Vector<casacore::Double>>& pixelCoords,
 	const DirectionCoordinate *const &dc ,Bool longErrOnGreatCircle
 ) const {
     pixelCoords.reset();

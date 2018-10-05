@@ -86,7 +86,7 @@ HistogramMain::HistogramMain(bool showFileLoader, bool fitControls,
 	plotWidget->setDisplayAxisTitles( true );
 }
 
-bool HistogramMain::setImage(SHARED_PTR<const ImageInterface<Float> > img ){
+bool HistogramMain::setImage(std::shared_ptr<const ImageInterface<Float> > img ){
 	bool imageSet = plotWidget->setImage( img );
 	return imageSet;
 }
@@ -160,7 +160,7 @@ void HistogramMain::colorsChanged(){
 
 void HistogramMain::imageFileChanged(){
 	QString imageFile = fileLoader.getFilePath();
-    SHARED_PTR<const ImageInterface<Float> > image;
+    std::shared_ptr<const ImageInterface<Float> > image;
 	bool success = generateImage( imageFile, image );
 	if ( success ){
 		/*bool histogramSet =*/ plotWidget->setImage( image );
@@ -172,7 +172,7 @@ void HistogramMain::imageFileChanged(){
 }
 
 bool HistogramMain::generateImage( const QString& imagePath,
-		SHARED_PTR<const ImageInterface<Float> > image ) {
+		std::shared_ptr<const ImageInterface<Float> > image ) {
 	bool success = true;
 	try {
 		String filePath = imagePath.toStdString();

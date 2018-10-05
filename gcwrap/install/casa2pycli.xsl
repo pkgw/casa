@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<xsl:stylesheet version="2.0" 
+<xsl:stylesheet version="2.0"
           xmlns:aps="http://casa.nrao.edu/schema/psetTypes.html"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"     
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<xsl:output omit-xml-declaration="yes"></xsl:output>   
+<xsl:output omit-xml-declaration="yes"></xsl:output>
 <xsl:param name="needscomma"/>
 <xsl:param name="taskname"/>
 <xsl:param name="paramname"/>
@@ -33,7 +33,7 @@ import gc
 import numpy
 from casa_stack_manip import stack_frame_find
 from odict import odict
-from types import * 
+from types import *
 from task_</xsl:text><xsl:value-of select="$taskname"/> import <xsl:value-of select="$taskname"/>
 <xsl:text>
 class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
@@ -153,7 +153,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 		         exec('myparams[key] = ' + key + ' = keyVal[len(keyVal)-1][\'value\']')
 		      else :
 		         exec('myparams[key] = ' + key + ' = {}')
-	 
+
         else :
             print ''
 
@@ -172,7 +172,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
         if type(<xsl:value-of select="@name"/>)==str: <xsl:value-of select="@name"/>=[<xsl:value-of select="@name"/>]<xsl:text/>
 </xsl:when>
 <xsl:when test="lower-case(@type)='doublearray'">
-        if type(<xsl:value-of select="@name"/>)==float: <xsl:value-of select="@name"/>=[<xsl:value-of select="@name"/>]<xsl:text/>       
+        if type(<xsl:value-of select="@name"/>)==float: <xsl:value-of select="@name"/>=[<xsl:value-of select="@name"/>]<xsl:text/>
 </xsl:when>
 </xsl:choose>
 </xsl:for-each>
@@ -219,11 +219,15 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
           spaces = ' '*(18-len(tname))
           casalog.post('\n##########################################'+
                        '\n##### Begin Task: ' + tname + spaces + ' #####')
+          if (casa['state']['telemetry-enabled']):
+              casalog.poststat('Begin Task: ' + tname)
           if type(self.__call__.func_defaults) is NoneType:
               casalog.post(scriptstr[0]+'\n', 'INFO')
           else :
               casalog.post(scriptstr[1][1:]+'\n', 'INFO')
           result = <xsl:value-of select="$taskname"/>(<xsl:call-template name="doargs2"/>)
+          if (casa['state']['telemetry-enabled']):
+              casalog.poststat('End Task: ' + tname)
           casalog.post('##### End Task: ' + tname + '  ' + spaces + ' #####'+
                        '\n##########################################')
 </xsl:for-each>
@@ -236,6 +240,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 	     tname = </xsl:text>'<xsl:value-of select="$taskname"/>'<xsl:text disable-output-escaping="yes">
              casalog.post('An error occurred running task '+tname+'.', 'ERROR')
              pass
+	casalog.origin('')
 </xsl:text>
 <xsl:for-each select="aps:output">
    <xsl:call-template name="checkoutput"/>
@@ -246,27 +251,27 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 #
 #
 #
-    def paramgui(self, useGlobals=True, ipython_globals=None):
-        """
-        Opens a parameter GUI for this task.  If useGlobals is true, then any relevant global parameter settings are used.
-        """
-        import paramgui
-	if not hasattr(self, "__globals__") or self.__globals__ == None :
-           self.__globals__=stack_frame_find( )
-
-        if useGlobals:
-	    if ipython_globals == None:
-                myf=self.__globals__
-            else:
-                myf=ipython_globals
-
-            paramgui.setGlobals(myf)
-        else:
-            paramgui.setGlobals({})
-
-        paramgui.runTask(&apos;</xsl:text><xsl:value-of select="$taskname"/><xsl:text disable-output-escaping="yes">&apos;, myf['_ip'])
-        paramgui.setGlobals({})
-
+#    def paramgui(self, useGlobals=True, ipython_globals=None):
+#        """
+#        Opens a parameter GUI for this task.  If useGlobals is true, then any relevant global parameter settings are used.
+#        """
+#        import paramgui
+#	if not hasattr(self, "__globals__") or self.__globals__ == None :
+#           self.__globals__=stack_frame_find( )
+#
+#        if useGlobals:
+#	    if ipython_globals == None:
+#                myf=self.__globals__
+#            else:
+#                myf=ipython_globals
+#
+#            paramgui.setGlobals(myf)
+#        else:
+#            paramgui.setGlobals({})
+#
+#        paramgui.runTask(&apos;</xsl:text><xsl:value-of select="$taskname"/><xsl:text disable-output-escaping="yes">&apos;, myf['_ip'])
+#        paramgui.setGlobals({})
+#
 #
 #
 #
@@ -282,7 +287,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 </xsl:text>
 <xsl:for-each select="aps:input">
 <xsl:call-template name="setdefaults"/>
-<xsl:for-each select="aps:constraints">       
+<xsl:for-each select="aps:constraints">
 <xsl:call-template name="setdefaults2"/>
 </xsl:for-each>
 </xsl:for-each>
@@ -388,7 +393,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 	      return a[paramname]
 </xsl:text>
 </xsl:for-each>
- 
+
 
 <xsl:value-of select="$taskname"/>_cli = <xsl:value-of select="$taskname"/>_cli_()
 </xsl:template>
@@ -400,7 +405,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 <xsl:template match="aps:shortdescription"><xsl:value-of select="."/></xsl:template>
 <xsl:template match="aps:description"><xsl:text>
 
-	Detailed Description: 
+	Detailed Description:
 </xsl:text><xsl:value-of select="."/></xsl:template>
 <xsl:template match="aps:example"><xsl:value-of select="replace(., '\\.*\{verbatim\}', '')" disable-output-escaping="yes"/></xsl:template>
 
@@ -425,7 +430,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 <xsl:template name="doargs2">
 <xsl:for-each select="aps:param"><xsl:value-of select="@name"/><xsl:if test="position()&lt;last()">, </xsl:if></xsl:for-each>
 </xsl:template>
- 
+
 <xsl:template match="aps:param">
 	<xsl:text>            myparams[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;] = <xsl:value-of select="@name"/> = self.parameters[&apos;<xsl:value-of select="@name"/>&apos;]
 </xsl:template>
@@ -472,19 +477,19 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 <xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = <xsl:call-template name="handlevalue"/><xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:when test="lower-case(@type)='string'">
-<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = &apos;<xsl:value-of select="aps:value"/>&apos;<xsl:text>&#10;</xsl:text>        
+<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = &apos;<xsl:value-of select="aps:value"/>&apos;<xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:when test="lower-case(@type)='boolarray'">
-<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:value-of select="aps:value"/>]<xsl:text>&#10;</xsl:text>        
+<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:value-of select="aps:value"/>]<xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:when test="lower-case(@type)='stringarray'">
-	<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="arraytype"><xsl:value-of>string</xsl:value-of></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>        
+	<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="arraytype"><xsl:value-of>string</xsl:value-of></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:when test="lower-case(@type)='intarray'">
-<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="unitsare"><xsl:if test="@units"><xsl:value-of select="@units"/></xsl:if></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>        
+<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="unitsare"><xsl:if test="@units"><xsl:value-of select="@units"/></xsl:if></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:when test="lower-case(@type)='doublearray'">
-<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="unitsare"><xsl:if test="@units"><xsl:value-of select="@units"/></xsl:if></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>        
+<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="unitsare"><xsl:if test="@units"><xsl:value-of select="@units"/></xsl:if></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:otherwise>
 <xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = <xsl:if test="@units!=''">&apos;</xsl:if><xsl:value-of select="aps:value"/><xsl:if test="@units!=''"><xsl:value-of select="@units"/>&apos;</xsl:if><xsl:text>&#10;</xsl:text>
@@ -526,8 +531,8 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 </xsl:otherwise>
 </xsl:choose>
 
-<xsl:for-each select="aps:default">   
-<xsl:text disable-output-escaping="yes">{&apos;</xsl:text> <xsl:value-of select="@param"/>&apos;:<xsl:call-template name="handlevalue"></xsl:call-template>}<xsl:if test="position()&lt;last()">, </xsl:if>   
+<xsl:for-each select="aps:default">
+<xsl:text disable-output-escaping="yes">{&apos;</xsl:text> <xsl:value-of select="@param"/>&apos;:<xsl:call-template name="handlevalue"></xsl:call-template>}<xsl:if test="position()&lt;last()">, </xsl:if>
 </xsl:for-each>
 <xsl:text>])</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if>
 </xsl:when>
@@ -535,20 +540,20 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 <xsl:choose>
 <xsl:when test="lower-case(@type)='string'">
 <xsl:text disable-output-escaping="yes">
-                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;value&apos;:&apos;</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">&apos;}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if> 
+                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;value&apos;:&apos;</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">&apos;}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if>
 </xsl:when>
 <xsl:when test="@type">
 <xsl:if test="lower-case(@type)!='string'">
 <xsl:text disable-output-escaping="yes">
-                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;value&apos;:</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if> 
+                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;value&apos;:</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if>
 </xsl:if>
 </xsl:when>
 <xsl:otherwise>
 <xsl:text disable-output-escaping="yes">
-                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;value&apos;:&apos;</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">&apos;}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if> 
+                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;value&apos;:&apos;</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">&apos;}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if>
 </xsl:otherwise>
 </xsl:choose>
-</xsl:otherwise> 
+</xsl:otherwise>
 </xsl:choose>
 </xsl:for-each>
 
@@ -570,8 +575,8 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 </xsl:otherwise>
 </xsl:choose>
 
-<xsl:for-each select="aps:default">   
-<xsl:text disable-output-escaping="yes">{&apos;</xsl:text> <xsl:value-of select="@param"/>&apos;:<xsl:call-template name="handlevalue"></xsl:call-template>}<xsl:if test="position()&lt;last()">, </xsl:if>   
+<xsl:for-each select="aps:default">
+<xsl:text disable-output-escaping="yes">{&apos;</xsl:text> <xsl:value-of select="@param"/>&apos;:<xsl:call-template name="handlevalue"></xsl:call-template>}<xsl:if test="position()&lt;last()">, </xsl:if>
 </xsl:for-each>
 <xsl:text>])</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if>
 </xsl:when>
@@ -579,20 +584,20 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 <xsl:choose>
 <xsl:when test="lower-case(@type)='string'">
 <xsl:text disable-output-escaping="yes">
-                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;notvalue&apos;:&apos;</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">&apos;}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if> 
+                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;notvalue&apos;:&apos;</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">&apos;}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if>
 </xsl:when>
 <xsl:when test="@type">
 <xsl:if test="lower-case(@type)!='string'">
 <xsl:text disable-output-escaping="yes">
-                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;notvalue&apos;:</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if> 
+                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;notvalue&apos;:</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if>
 </xsl:if>
 </xsl:when>
 <xsl:otherwise>
 <xsl:text disable-output-escaping="yes">
-                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;notvalue&apos;:&apos;</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">&apos;}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if> 
+                    </xsl:text><xsl:value-of select="position()-1"></xsl:value-of><xsl:text disable-output-escaping="yes">:{&apos;notvalue&apos;:&apos;</xsl:text><xsl:value-of select="@value"/><xsl:text disable-output-escaping="yes">&apos;}</xsl:text><xsl:if test="position()&lt;last()">, </xsl:if>
 </xsl:otherwise>
 </xsl:choose>
-</xsl:otherwise> 
+</xsl:otherwise>
 </xsl:choose>
 </xsl:for-each>
 
@@ -646,19 +651,19 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 <xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = <xsl:call-template name="handlevalue"/><xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:when test="lower-case(@type)='string'">
-<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = &apos;<xsl:value-of select="aps:value"/>&apos;<xsl:text>&#10;</xsl:text>        
+<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = &apos;<xsl:value-of select="aps:value"/>&apos;<xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:when test="lower-case(@type)='boolarray'">
-<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:value-of select="aps:value"/>]<xsl:text>&#10;</xsl:text>        
+<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:value-of select="aps:value"/>]<xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:when test="lower-case(@type)='stringarray'">
-	<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="arraytype"><xsl:value-of>string</xsl:value-of></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>        
+	<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="arraytype"><xsl:value-of>string</xsl:value-of></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:when test="lower-case(@type)='intarray'">
-<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="unitsare"><xsl:if test="@units"><xsl:value-of select="@units"/></xsl:if></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>        
+<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="unitsare"><xsl:if test="@units"><xsl:value-of select="@units"/></xsl:if></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:when test="lower-case(@type)='doublearray'">
-<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="unitsare"><xsl:if test="@units"><xsl:value-of select="@units"/></xsl:if></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>        
+<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="unitsare"><xsl:if test="@units"><xsl:value-of select="@units"/></xsl:if></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>
 </xsl:when>
 <xsl:otherwise>
 <xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = <xsl:if test="@units!=''">&apos;</xsl:if><xsl:value-of select="aps:value"/><xsl:if test="@units!=''"><xsl:value-of select="@units"/>&apos;</xsl:if><xsl:text>&#10;</xsl:text>
@@ -698,7 +703,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 </xsl:choose>
 </xsl:when>
 </xsl:choose>
-<xsl:for-each select="aps:default">   
+<xsl:for-each select="aps:default">
 <xsl:text disable-output-escaping="yes">            a[&apos;</xsl:text> <xsl:value-of select="@param"/>&apos;] = <xsl:call-template name="handlevalue"/>
 <xsl:text>
 </xsl:text>
@@ -729,7 +734,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 </xsl:when>
 </xsl:choose>
 
-<xsl:for-each select="aps:default">   
+<xsl:for-each select="aps:default">
 <xsl:text disable-output-escaping="yes">            a[&apos;</xsl:text> <xsl:value-of select="@param"/>&apos;] = <xsl:call-template name="handlevalue"/>
 <xsl:text>
 </xsl:text>
@@ -744,7 +749,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 <xsl:when test="count(aps:value)">
 	<xsl:for-each select="aps:value">
         <xsl:choose>
-		<xsl:when test="$unitsare!=''">&apos;<xsl:value-of select="."/><xsl:value-of select="$unitsare"></xsl:value-of>&apos;<xsl:if test="position()&lt;last()">, </xsl:if></xsl:when>	
+		<xsl:when test="$unitsare!=''">&apos;<xsl:value-of select="."/><xsl:value-of select="$unitsare"></xsl:value-of>&apos;<xsl:if test="position()&lt;last()">, </xsl:if></xsl:when>
 		<xsl:when test="lower-case(@type)='string'">&apos;<xsl:value-of select="."/>&apos;<xsl:if test="position()&lt;last()">, </xsl:if></xsl:when>
 		<xsl:otherwise><xsl:if test="$arraytype='string'">&apos;</xsl:if><xsl:value-of select="."/><xsl:if test="$arraytype='string'">&apos;</xsl:if><xsl:if test="position()&lt;last()">, </xsl:if></xsl:otherwise>
 	</xsl:choose>

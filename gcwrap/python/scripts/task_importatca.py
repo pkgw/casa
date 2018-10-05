@@ -1,5 +1,6 @@
 import os
-from taskinit import *
+from taskinit import casac, casalog, mstool
+from mstools import write_history
 
 def importatca (
     files=None,
@@ -82,11 +83,11 @@ def importatca (
           raise
         # Write the args to HISTORY.
         try:
-            param_names = \
-                importatca.func_code.co_varnames[:importatca.func_code.co_argcount]
+            mslocal = mstool()
+            param_names = importatca.func_code.co_varnames[:importatca.func_code.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(
-                myaf, vis, 'importatca', param_names, 
+                mslocal, vis, 'importatca', param_names, 
                 param_vals, casalog
             )
         except Exception, instance:

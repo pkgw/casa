@@ -1,5 +1,6 @@
 import os
 from taskinit import *
+from mstools import write_history
 from parallel.parallel_task_helper import ParallelTaskHelper
 
 def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,spwmap=None,dowtsp=None):
@@ -8,6 +9,7 @@ def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,s
 
     # Do the trivial parallelization
     if ParallelTaskHelper.isMPIEnabled() and ParallelTaskHelper.isParallelMS(vis):
+        tsystable = ParallelTaskHelper.findAbsPath(tsystable)
         helper = ParallelTaskHelper('initweights', locals())
         helper.go()
         # Write history to MS.

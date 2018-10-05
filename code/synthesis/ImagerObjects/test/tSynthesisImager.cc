@@ -181,15 +181,15 @@ using namespace casacore;
 
 	  		  for (Int k=0; k < nchan; ++k){
 			    /*    std::shared_ptr<ImageInterface<Float> >subresid=std::make_shared<SubImage<Float> >(SpectralImageUtil::getChannel(*resid, k, k, true));
-			    SHARED_PTR<ImageInterface<Float> >subpsf= std::make_shared<SubImage<Float> >(SpectralImageUtil::getChannel(*psf, k, k, true));
-			    SHARED_PTR<ImageInterface<Float> > subwgt= std::make_shared<SubImage<Float> >(SpectralImageUtil::getChannel(*wgt, k, k, true));
-			    SHARED_PTR<ImageInterface<Float> > submod=std::make_shared<SubImage<Float> >( SpectralImageUtil::getChannel(*mod, k, k, true));
-			    SHARED_PTR<ImageInterface<Float> > subrestor= std::make_shared<SubImage<Float> >(SpectralImageUtil::getChannel(*restor, k, k, true));
+			    std::shared_ptr<ImageInterface<Float> >subpsf= std::make_shared<SubImage<Float> >(SpectralImageUtil::getChannel(*psf, k, k, true));
+			    std::shared_ptr<ImageInterface<Float> > subwgt= std::make_shared<SubImage<Float> >(SpectralImageUtil::getChannel(*wgt, k, k, true));
+			    std::shared_ptr<ImageInterface<Float> > submod=std::make_shared<SubImage<Float> >( SpectralImageUtil::getChannel(*mod, k, k, true));
+			    std::shared_ptr<ImageInterface<Float> > subrestor= std::make_shared<SubImage<Float> >(SpectralImageUtil::getChannel(*restor, k, k, true));
 			    String freqBeg=String::toString(SpectralImageUtil::worldFreq(subresid->coordinates(), Double(-0.5)))+"Hz";
 			    String freqEnd=String::toString(SpectralImageUtil::worldFreq(subresid->coordinates(), Double(0.5)))+"Hz";
 			    CountedPtr<SIImageStore> subImStor=new SIImageStore(submod, subresid, subpsf, subwgt, subrestor, nullptr, nullptr, resid->coordinates(), "");
 			    */
-			    SHARED_PTR<SIImageStore> subImStor=si->getSubImageStore(0, 1, k, nchan, 0,1);
+			    std::shared_ptr<SIImageStore> subImStor=si->getSubImageStore(0, 1, k, nchan, 0,1);
 			    String freqBeg=String::toString(SpectralImageUtil::worldFreq((subImStor->residual())->coordinates(), Double(-0.5)))+"Hz";
 			    String freqEnd=String::toString(SpectralImageUtil::worldFreq((subImStor->residual())->coordinates(), Double(0.5)))+"Hz";
 			    SynthesisImager subImgr;

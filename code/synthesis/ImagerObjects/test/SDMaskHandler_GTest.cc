@@ -95,7 +95,7 @@ void ImageInterfaceTest::testMakeMaskByThreshold()
         templateImage.putAt(val, loc3);
       }
     }
-    SHARED_PTR<ImageInterface<Float> > outmaskimage;
+    std::shared_ptr<ImageInterface<Float> > outmaskimage;
     SDMaskHandler maskhandler;
     outmaskimage = maskhandler.makeMask(outMaskName, threshold, templateImage);
     cerr<<"maskimage.shape()="<< outmaskimage->shape()<<endl;
@@ -461,7 +461,7 @@ void ImageInterfaceTest::testYAPruneRegions()
     Vector<Bool> chanflg(5,False);
     Vector<uInt> nreg;
     Vector<uInt> npruned;
-    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,chanflg, pruned,nreg, npruned, prunesize);
+    std::shared_ptr<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,chanflg, pruned,nreg, npruned, prunesize);
     PagedImage<Float> outMask(InImage.shape(), InImage.coordinates(), "testYAPruneRegions-out.mask");
     outMask.copyData(*(tempIm_ptr.get()) );
 }
@@ -502,7 +502,7 @@ void ImageInterfaceTest::testYAPruneRegionsBigImage()
     Vector<Bool> chanflg(5,False);
     Vector<uInt> nreg;
     Vector<uInt> npruned;
-    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,chanflg, pruned, nreg, npruned, prunesize);
+    std::shared_ptr<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,chanflg, pruned, nreg, npruned, prunesize);
     PagedImage<Float> outMask(InImage.shape(), InImage.coordinates(), "testYAPruneRegions2-out.mask");
     outMask.copyData(*(tempIm_ptr.get()) );
 }
@@ -512,9 +512,9 @@ void ImageInterfaceTest::testYAPruneRegionsBigImage()
 
 
 //methods in SDMaskHandler.h but no tests exist here
-//resetMask(SHARED_PTR<SIImageStore> imstore)
-//fillMask((SHARED_PTR<SIImageStore> imstore, Vector<String> maskStrings)
-//fillMask((SHARED_PTR<SIImageStore> imstore, String maskStrings)
+//resetMask(std::shared_ptr<SIImageStore> imstore)
+//fillMask((std::shared_ptr<SIImageStore> imstore, Vector<String> maskStrings)
+//fillMask((std::shared_ptr<SIImageStore> imstore, String maskStrings)
 //
 //called from regionToImageMask: boxRegionToImageRegion(), circleRegionToImageRegion(), recordRegionToImageRegion()
 //

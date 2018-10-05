@@ -62,6 +62,143 @@ if os.environ.has_key('BYPASS_PARALLEL_PROCESSING'):
 # Local copy of the agentflagger tool
 aflocal = aftool()
 
+
+class test_dict_consolidation(unittest.TestCase):
+    '''This could find a better place of its own, somewhere for unit tests of the parallel
+    helper functions, as it can be tested independently from the tasks. For now it's
+    a start as a bunch of checks specific to flagdata dictionaries and rflag in particular'''
+    def test_flagdata_dict_consolidation(self):
+        '''flagdata:: test return dictionary consolidation functions from parallel_task_helper'''
+        import numpy as np
+        from numpy import array
+
+        def assert_dict_allclose(dicta, dictb):
+            """
+            Recursively assert: are dicta and dictb "allclose", in the sense that
+            numpy array values will be approx-compared using np.assert_allclose()?
+            Values of different types will be compared using unittest.assertEqual()
+
+            np.assert_equal handles dictionaries but only supports exact comparisons.
+            All other np. approx comparison functions don't seem to support arbitrary
+            dictionaries
+            """
+            if not dicta:
+                self.assertEqual(dicta, dictb)
+                return
+
+            for key, vala in dicta.items():
+                valb = dictb[key]
+                if type(vala) == dict:
+                    assert_dict_allclose(vala, valb)
+                elif type(vala) == np.ndarray:
+                    np.testing.assert_allclose(vala, valb, rtol=1e-3)
+                else:
+                    self.assertEqual(vala, valb)
+
+        # flagdata-returned dicts and their consolidated dicts
+        ret_bogus = {'i_am_bogus': 3}
+        cons_bogus = None
+
+        # free version of rflag return dict for Four_ants_3C286_mms.ms
+        ret_rflag_4ants_single = {'nreport': 1, 'report0':
+                                  {'freqdev': array([[1, 0, 3.1-02], [1, 1, 2.8-02],
+                                                     [1, 2, 2.3-02], [1, 3, 2.1-02],
+                                                     [1, 4, 2.5-02], [1, 5, 1.6-02],
+                                                     [2, 10, 3.6-02], [2, 11, 2.6-02],
+                                                     [2, 12, 1.6-02], [2, 13, 1.7-02],
+                                                     [3, 14, 1.2-02], [3, 15, 9.4-03]]),
+                                   'name': 'Rflag',
+                                   'timedev': array([[1, 0.0, 7.0-03], [1, 1, 5.9-03],
+                                                   [1, 2, 5.7-03], [1, 3, 5.3-03],
+                                                   [1, 4, 7.7-03], [1, 5, 5.2-03],
+                                                   [2, 10, 2.7-02], [2, 11, 8.9-03],
+                                                   [2, 12, 6.2-03], [2, 13, 4.9-03],
+                                                   [3, 14, 3.6-03], [3, 15, 3.5-03]]),
+                                   'type': 'rflag'}, 'type': 'list'}
+        ret_rflag_4ants_1rep = { '/path/to/dummy.ms/SUBMSS/dummy.ms.0000.ms':
+                            ret_rflag_4ants_single}
+        cons_rflag_4ants_1rep = ret_rflag_4ants_single
+
+        names_6rep = ['/path/to/dummy.ms/SUBMSS/dummy.ms.000{0}.ms'.format(idx) for idx in
+                      range(6)]
+        ret_rflag_4ants_6rep = dict(zip(names_6rep, 6*[ret_rflag_4ants_single]))
+        cons_rflag_4ants_6rep = ret_rflag_4ants_single
+
+        # free version of rflag return dict for ALMA uid___A002_X30a93d_X43e_small.ms
+        ret_x43e = {'/path/to/x43e.ms/SUBMSS/x43e.ms.0000.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[0, 1, 0.00330866]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[0, 1, 1.96219644e-04]])}, 'nreport': 1},
+                    '/path/to/x43e.ms/SUBMSS/x43e.ms.0003.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[2, 3, 0]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[2, 3, 0.01768084]])},
+                     'nreport': 1},
+                    '/path/to/x43e.ms/SUBMSS/x43e.ms.0001.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[2, 2, 0.0054054], [3, 3, 0]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[2, 2, 0.02742571], [3, 3, 0.01728651]])},
+                     'nreport': 1},
+                    '/path/to/x43e.ms/SUBMSS/x43e.ms.0002.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[3, 2, 0.00540063]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[3, 2,  0.02657252]])},
+                     'nreport': 1}}
+        cons_x43e = {'type': 'list', 'report0':
+                     {'type': 'rflag', 'freqdev':
+                      array([[0, 1, 0.00330866], [2, 2, 0.0054054],
+                             [2, 3, 0], [3, 2, 0.00540063], [3, 3, 0]]),
+                      'name': 'Rflag', 'timedev':
+                      array([[0, 1, 1.96219644e-04], [2, 2, 2.74257102e-02],
+                             [2, 3, 1.76808392e-02], [3, 2, 2.65725189e-02],
+                             [3, 3, 1.72865119e-02]])},
+                     'nreport': 1}
+
+        # free version of rflag return dict for ngc5921.ms
+        ret_ngc5921 = {'/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0002.ms':
+                       {'type': 'list', 'report0': {
+                           'freqdev': array([[0, 0, 0.15954576], [1, 0, 0.11957453]]),
+                           'type': 'rflag', 'name': 'Rflag',
+                           'timedev': array([[0, 0, 0.03786448], [1, 0, 0.03808762]])},
+                        'nreport': 1},
+                       '/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0000.ms':
+                       {'type': 'list', 'report0': {'freqdev': array([[2, 0, 0.10978827]]),
+                                                    'type': 'rflag', 'name': 'Rflag',
+                                                    'timedev': array([[2, 0, 0.0282818]])},
+                        'nreport': 1},
+                       '/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0003.ms':
+                       {'type': 'list', 'report0': {'freqdev': array([[1, 0, 0.11688346]]),
+                                                    'type': 'rflag', 'name': 'Rflag',
+                                                    'timedev': array([[1, 0, 0.03754368]])},
+                        'nreport': 1},
+                       '/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0001.ms':
+                       {'type': 'list', 'report0': {'freqdev': array([[1, 0, 0.1189428],
+                                                                      [2, 0, 0.10868936]]),
+                                                    'type': 'rflag', 'name': 'Rflag',
+                                                    'timedev': array([[1, 0, 4.12124127e-04],
+                                                                      [2, 0, 2.73353433e-02]])},
+                        'nreport': 1}}
+        cons_ngc5921 =  {'type': 'list', 'report0':
+                         {'type': 'rflag', 'name': 'Rflag','freqdev':
+                          array([[0, 0, 0.15954576], [1, 0, 0.1189428], [2, 0, 0.10923881]]),
+                           'timedev':
+                          array([[0, 0, 0.03786448], [1, 0, 0.03754368], [2, 0, 0.02780857]])},
+                         'nreport': 1}
+
+        multi_dicts = [ret_bogus, ret_rflag_4ants_1rep, ret_rflag_4ants_6rep,
+                      ret_x43e, ret_ngc5921]
+        expected_cons = [cons_bogus, cons_rflag_4ants_1rep, cons_rflag_4ants_6rep,
+                         cons_x43e, cons_ngc5921]
+
+        for multi, exp_cons in zip(multi_dicts, expected_cons):
+            cons = ParallelTaskHelper.consolidateResults(multi, 'flagdata')
+            assert_dict_allclose(cons, exp_cons)
+
+
 # Base class which defines setUp functions
 # for importing different data sets
 class test_base(unittest.TestCase):
@@ -464,7 +601,11 @@ class test_rflag(test_base):
     def setUp(self):
         self.setUp_data4tfcrop()
 
-    def test_rflag1(self):
+    def cleanup_threshold_txt_files(self):
+        os.remove('tdevfile.txt')
+        os.remove('fdevfile.txt')
+        
+    def test_rflag_auto_thresholds(self):
         '''flagdata:: mode = rflag : automatic thresholds'''
         flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev=[], freqdev=[], flagbackup=False,
                  extendflags=False)
@@ -473,84 +614,185 @@ class test_rflag(test_base):
         self.assertEqual(res['antenna']['ea19']['flagged'], 18411.0)
         self.assertEqual(res['spw']['7']['flagged'], 0)
 
-    def test_rflag2(self):
+    def test_rflag_partial_thresholds(self):
         '''flagdata:: mode = rflag : partially-specified thresholds'''
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev=[[1,10,0.1],[1,11,0.07]], \
-                       freqdev=0.5, flagbackup=False, extendflags=False)
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev=[[1, 10, 0.1],[1, 11, 0.07]], freqdev=0.5,
+                 flagbackup=False, extendflags=False)
         res = flagdata(vis=self.vis, mode='summary',spw='9,10,11')
-        self.assertEqual(res['flagged'], 52411)
-        self.assertEqual(res['antenna']['ea19']['flagged'], 24142)
+        self.assertEqual(res['flagged'], 24494)
+        self.assertEqual(res['antenna']['ea19']['flagged'], 11413)
         self.assertEqual(res['spw']['11']['flagged'], 0)
         
     def test_rflag_numpy_types(self):
         '''flagdata:: mode = rflag : partially-specified thresholds using numpy types'''
-        # Results should be the same as in test_rflag2 above
+        # Results should be the same as in test_rflag_partial_thresholds above
         import numpy as np
         t1 = [np.int32(1), 10, np.float32(0.1)]
         t2 = [1, np.int16(11), np.float64(0.07)]
 
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev=[t1,t2], \
-                       freqdev=0.5, flagbackup=False, extendflags=False)
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev=[t1, t2], freqdev=0.5,
+                 flagbackup=False, extendflags=False)
         res = flagdata(vis=self.vis, mode='summary',spw='9,10,11')
-        self.assertEqual(res['flagged'], 52411)
-        self.assertEqual(res['antenna']['ea19']['flagged'], 24142)
+        self.assertEqual(res['flagged'], 24494)
+        self.assertEqual(res['antenna']['ea19']['flagged'], 11413)
         self.assertEqual(res['spw']['11']['flagged'], 0)
 
-    def test_rflag3(self):
-        '''flagdata:: mode = rflag : output/input via two methods'''
+    def test_rflag_calculate_file_apply_scales(self):
+        '''flagdata:: mode = rflag : use output/input time/freq threshold files via two methods, and with different scales'''
+            
+        def check_threshold_files_saved(timedev_filename, freqdev_filename):
+            import ast
+            import numpy as np
+            import os.path
+
+            self.assertTrue(os.path.isfile(freqdev_filename))
+            self.assertTrue(os.path.isfile(timedev_filename))
+
+            freqdev_str = open(freqdev_filename, 'r').read()
+            saved_freqdev = ast.literal_eval(freqdev_str)
+            self.assertTrue('freqdev' in saved_freqdev and 'name' in saved_freqdev)
+            self.assertEqual(saved_freqdev['name'], 'Rflag')
+            self.assertEqual(len(saved_freqdev['freqdev']), 2)
+            # wider tolerance for parallel/MMS CAS-10202
+            if not testmms:
+                rtol = 1e-5
+            else:
+                rtol = 5e-2
+            np.testing.assert_allclose(
+                saved_freqdev['freqdev'], [[1, 9, 0.01583025], [1, 10, 0.04113872]],
+                rtol=rtol)
+
+            timedev_str = open(timedev_filename, 'r').read()
+            saved_timedev = ast.literal_eval(timedev_str)
+            self.assertTrue('timedev' in saved_timedev and 'name' in saved_timedev)
+            self.assertEqual(len(saved_timedev['timedev']), 2)
+            if not testmms:
+                rtol = 1e-5
+            else:
+                rtol = 2e-1
+            np.testing.assert_allclose(
+                saved_timedev['timedev'], [[1, 9, 0.00777182], [1, 10, 0.03256665]],
+                rtol=rtol)
+
         # (1) Test input/output files, through the task, mode='rflag'
         # Files tdevfile.txt and fdevfile.txt are created in this step
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='tdevfile.txt', 
-                      freqdev='fdevfile.txt', action='calculate', extendflags=False)
+        #  step 1: calculate thresholds and write them in text files
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev='tdevfile.txt', freqdev='fdevfile.txt',
+                 action='calculate', extendflags=False)
+
         self.assertTrue(os.path.exists('tdevfile.txt'))
         self.assertTrue(os.path.exists('fdevfile.txt'))
-        
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='tdevfile.txt', 
-                      freqdev='fdevfile.txt', action='apply', flagbackup=False, 
-                      extendflags=False)
+        check_threshold_files_saved('tdevfile.txt', 'fdevfile.txt')
+
+        #  step 2: apply thresholds using text files as input
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev='tdevfile.txt', freqdev='fdevfile.txt',
+                 timedevscale=5.0, freqdevscale=5.0,
+                 action='apply', flagbackup=False, extendflags=False)
         res1 = flagdata(vis=self.vis, mode='summary', spw='9,10')
+
+        # unflag like flagdata(vis=self.vis,mode='unflag', flagbackup=False)
+        self.unflag_ms()
+
         # (2) Test rflag output written to cmd file via mode='rflag' and 'savepars' 
         #      and then read back in via list mode. 
         #      Also test the 'savepars' when timedev and freqdev are specified differently...
-#        flagdata(vis=self.vis,mode='unflag', flagbackup=False)
-        self.unflag_ms()
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='', \
-                      freqdev=[],action='calculate',savepars=True,outfile='outcmd.txt',
-                      extendflags=False);
+        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='',
+                 freqdev=[], action='calculate',
+                 extendflags=False, savepars=True, outfile='outcmd.txt');
+        self.assertTrue(os.path.exists('outcmd.txt'))
+
+        # Note: after CAS-5808, when mode='rflag' and action='calculate' the
+        # time/freqdevscale parameters are not considered for the calculation of the
+        # thresholds. The scale factors will be used when action='calculate'.
         flagdata(vis=self.vis, mode='list', inpfile='outcmd.txt', flagbackup=False)
         res2 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
-        #print res1['flagged'], res2['flagged']
-        self.assertTrue(abs(res1['flagged']-res2['flagged'])<10000)
-        self.assertTrue(abs(res1['flagged']-39504.0)<10000)
+        # A normal 'apply' (res1) and a mode='list' run apply (res2) should match:
 
-    def test_rflag3_dict(self):
+        # 'not testmms' for CAS-10202 differences
+        if not testmms:
+            flagged_cnt = 39504
+        else:
+            flagged_cnt = 42740
+        self.assertEqual(res1['flagged'], flagged_cnt)
+        self.assertLessEqual(res1['flagged'] - res2['flagged'], 20)
+
+        # (3) Now try different scales with the same input time/freqdevscale files
+        self.unflag_ms()
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev='tdevfile.txt', freqdev='fdevfile.txt',
+                 timedevscale=5.0, freqdevscale=5.0,
+                 action='apply', extendflags=False);
+        res_scale5 = flagdata(vis=self.vis, mode='summary', spw='9,10')
+        self.assertEqual(res_scale5['flagged'], flagged_cnt)
+
+        self.unflag_ms()
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                              timedev='tdevfile.txt', freqdev='fdevfile.txt',
+                              timedevscale=4.1, freqdevscale=4.1,
+                              action='apply', extendflags=False);
+        res_scale4 = flagdata(vis=self.vis, mode='summary', spw='9,10')
+        if not testmms:
+            flagged_cnt = 51057
+        else:
+            flagged_cnt = 55159
+        self.assertEqual(res_scale4['flagged'], flagged_cnt)
+
+        self.cleanup_threshold_txt_files()
+
+    def test_rflag_calculate_dict_then_apply(self):
         '''flagdata:: mode = rflag : output/input via returned dictionary and cmd'''
         # (1) Test input/output files, through the task, mode='rflag'
         # Files tdevfile.txt and fdevfile.txt are created in this step
+        import numpy as np
+
         rdict = flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='', 
-                      freqdev='', action='calculate', extendflags=False)
+                          freqdev='', action='calculate', extendflags=False)
         
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev=rdict['report0']['timedev'], 
-                      freqdev=rdict['report0']['freqdev'], action='apply', flagbackup=False, 
-                      extendflags=False)
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev=rdict['report0']['timedev'],
+                 freqdev=rdict['report0']['freqdev'],
+                 timedevscale=2.5, freqdevscale=2.5,
+                 action='apply', flagbackup=False, extendflags=False)
         res1 = flagdata(vis=self.vis, mode='summary', spw='9,10')
+
+        # unflag like flagdata(vis=self.vis,mode='unflag', flagbackup=False)
+        self.unflag_ms()
+
         # (2) Test rflag output written to cmd file via mode='rflag' and 'savepars' 
         #      and then read back in via list mode. 
         #      Also test the 'savepars' when timedev and freqdev are specified differently...
-#        flagdata(vis=self.vis,mode='unflag', flagbackup=False)
-        self.unflag_ms()
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='', \
-                      freqdev=[],action='calculate',savepars=True,outfile='outcmd.txt',
-                      extendflags=False);
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev='', freqdev=[], action='calculate', extendflags=False,
+                 timedevscale=2.5, freqdevscale=2.5,
+                 savepars=True, outfile='outcmd.txt')
         flagdata(vis=self.vis, mode='list', inpfile='outcmd.txt', flagbackup=False)
         res2 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
-        #print res1['flagged'], res2['flagged']
-        self.assertTrue(abs(res1['flagged']-res2['flagged'])<10000)
-        self.assertTrue(abs(res1['flagged']-39504.0)<10000)
+        # Differences with parallel/MMS because of CAS-10202
+        if not testmms:
+            self.assertEqual(res1['flagged'], res2['flagged'])
+            self.assertEqual(res1['flagged'], 98403)
+            rtol_time = 1e-4
+            rtol_freq = 1e-4
+        else:
+            self.assertEqual(res1['flagged'], 104710)
+            self.assertEqual(res2['flagged'], 105560)
+            rtol_freq = 5e-2
+            rtol_time = 1.2e-1
 
-    def test_rflag4(self):
+        np.testing.assert_allclose(rdict['report0']['freqdev'], [[1, 9, 0.01583],
+                                                                 [1, 10, 0.041139]],
+                                   rtol=rtol_freq)
+        np.testing.assert_allclose(rdict['report0']['timedev'], [[1, 9, 7.771820e-03],
+                                                                 [1, 10, 3.256665e-02]],
+                                   rtol=rtol_time)
+
+    def test_rflag_correlation_selection(self):
         '''flagdata:: mode = rflag : correlation selection'''
         flagdata(vis=self.vis, mode='rflag', spw='9,10', correlation='rr,ll', flagbackup=False,
                  extendflags=False)
@@ -566,19 +808,28 @@ class test_rflag(test_base):
                  timedevscale=5.0, freqdevscale=5.0, action='calculate', flagbackup=False)
 
     def test_rflag_return_dict1(self):
-        '''flagdata:: Use provided value for time stats, but automatically computed value for freq. stats'''
-        if testmms:
-            print "Skip this test in parallel, until CAS-10202 is implemented"
-            return
+        '''flagdata:: Use provided value for time stats, but automatically computed value for freq. stats - returning dictionary'''
         
         rflag_dict = flagdata(vis=self.vis, mode='rflag', field = '1', spw='10', timedev=0.1, \
                  timedevscale=5.0, freqdevscale=5.0, action='calculate', flagbackup=False)
         
-        fd = rflag_dict['report0']['freqdev']
+        fdev = rflag_dict['report0']['freqdev']
+        tdev = rflag_dict['report0']['timedev']
 
-        self.assertEqual(fd.ndim,2)
-        self.assertEqual(fd.max(),10.0)
-        self.assertGreater(fd.min(),0.07068)
+        import numpy as np
+        self.assertTrue(isinstance(fdev, np.ndarray))
+        self.assertEqual(fdev.ndim, 2)
+        self.assertEqual(fdev.shape, (1,3))
+        self.assertEqual(fdev[0, 0], 1)
+        self.assertEqual(fdev[0, 1], 10.0)
+        # TODO: The tolerance used to be 1e-5 when this test was disabled for MMS. It might
+        # be possible to use a finer tolerance again if a sound solution for CAS-10202 is
+        # found (and this small test dataset is well behaved).
+        np.testing.assert_allclose(fdev[0,2], 0.0410, rtol=5e-3)
+
+        self.assertTrue(isinstance(tdev, np.ndarray))
+        self.assertEqual(tdev.ndim, 2)
+        self.assertEqual(tdev.shape, (0,3))
 
     def test_rflag_extendflags(self):
         '''flagdata: automatically extend the flags after rflag'''    
@@ -598,7 +849,7 @@ class test_rflag(test_base):
         self.assertEqual(pos['spw']['9']['flagged'], pre['spw']['9']['flagged'])
         self.assertEqual(pos['spw']['10']['flagged'], pre['spw']['10']['flagged'])
         
-    def test_rflag_extendflags2(self):
+    def test_rflag_extendflags_list_mode(self):
         '''flagdata: in list mode extend the flags automatically after rflag'''
         def getcounts():
             ### Channel 51 should extend flags, but channel 52 should not.
@@ -1048,6 +1299,47 @@ class test_statistics_queries(test_base):
                  savepars=False, flagbackup=False)
         test_eq(flagdata(vis=self.vis, mode='summary'), 2854278, 1762236)
 #        flagdata(vis=self.vis, mode='unflag', savepars=False, flagbackup=False)
+
+    def test_quackincrement_list(self):
+        
+        # flag 2 minutes; flagged: 91854.0; scan': {'1': {'flagged': 91854.0
+        flagdata(vis=self.vis,mode='manual',timerange='09:18:00~09:20:00',spw='0',scan='1', flagbackup=False)
+        res0 = flagdata(vis=self.vis, spw='0', scan='1', mode='summary')
+        
+        # quack flag it by 120 seconds; 'flagged': 234738.0,
+        flagdata(vis=self.vis,mode='quack',quackinterval=120.0,spw='0',scan='1',quackincrement=False, flagbackup=False)
+        res1 = flagdata(vis=self.vis, spw='0', scan='1', mode='summary')
+        
+        # unflag
+        flagdata(vis=self.vis,mode='unflag')
+        
+        # quackincrement=True in list mode should be ignored
+        flagdata(vis=self.vis, mode='list', flagbackup=False, inpfile=["timerange='09:18:00~09:20:00' spw='0' scan='1'",
+                                                     "mode='quack' quackinterval=120.0 spw='0' scan='1' quackincrement=True"])
+        resT = flagdata(vis=self.vis, spw='0', scan='1', mode='summary')
+        self.assertEqual(resT['flagged'],res0['flagged'])
+                
+        # unflag
+        flagdata(vis=self.vis,mode='unflag')
+        
+        # quackincrement=False in list mode should work fine. It should reflag what was flagged by
+        # the manual cmd above in res0. and more. It should flag the equivalent of 120s ; 'flagged': 234738.0
+        flagdata(vis=self.vis, mode='list', flagbackup=False, inpfile=["timerange='09:18:00~09:20:00' spw='0' scan='1'",
+                                                     "mode='quack' quackinterval=120.0 spw='0' scan='1' quackincrement=False"])
+  
+        resF = flagdata(vis=self.vis, spw='0', scan='1', mode='summary')
+        self.assertEqual(resF['flagged'],res1['flagged'])
+        
+        # unflag
+        flagdata(vis=self.vis,mode='unflag')
+        
+        # If quackincrement=True is the first command in list, it should run fine
+        # flags: 234738.0 because the manual cmd will reflag the same portion already flagged by the quack cmd
+        flagdata(vis=self.vis, mode='list', flagbackup=False, inpfile=[
+                                                "mode='quack' quackinterval=120.0 spw='0' scan='1' quackincrement=True",
+                                                "timerange='09:18:00~09:20:00' spw='0' scan='1'"])
+        resT = flagdata(vis=self.vis, spw='0', scan='1', mode='summary')
+        self.assertEqual(resT['flagged'],res1['flagged'])
 
 
 class test_selections(test_base):
@@ -3526,9 +3818,14 @@ class test_preaveraging(test_base):
         # of flagged channels will be the same
         self.assertEqual(res1['type'], 'list')
         self.assertEqual(res1['type'], res2['type'])
-        tol = 6.6e-1
+
         import numpy as np
-        for threshold_type in ['freqdev', 'timedev']:
+        # The tolerance for timedev needs to be absurdly big because of osx 10.12
+        # See CAS-11572, the "data4preaveraging" dataset should have more than 4 rows.
+        tolerances = [1.1, 7.5e-1]
+        for threshold_type, tol in zip(['freqdev', 'timedev'], tolerances):
+            self.assertTrue(np.less_equal(res2['report0'][threshold_type],
+                                          res1['report0'][threshold_type]).all())
             self.assertTrue(np.allclose(res1['report0'][threshold_type],
                                         res2['report0'][threshold_type], rtol=tol))
 
@@ -3814,7 +4111,8 @@ class cleanup(test_base):
 
 
 def suite():
-    return [test_antint,
+    return [test_dict_consolidation,
+            test_antint,
             test_rflag,
             test_tfcrop,
             test_shadow,

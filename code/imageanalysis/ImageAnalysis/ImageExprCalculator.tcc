@@ -104,7 +104,7 @@ template<class T> void ImageExprCalculator<T>::compute2(
 }
 
 template<class T> void ImageExprCalculator<T>::_calc(
-    SHARED_PTR<casacore::ImageInterface<T> > image,
+    std::shared_ptr<casacore::ImageInterface<T> > image,
     const casacore::LatticeExprNode& node
 ) {
     // Get the shape of the expression and check it matches that

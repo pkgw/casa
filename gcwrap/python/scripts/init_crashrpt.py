@@ -7,9 +7,9 @@ import signal
 import crashrpt_conf
 
 casa['state']['crash-reporter'] = False
-if ( casa['flags'].crash_report and
+if ( casa['flags'].crash_report or (
      os.environ.has_key('CASA_USE_CRASH_REPORTER') and
-     os.environ['CASA_USE_CRASH_REPORTER'].upper( ) == 'TRUE'):
+     os.environ['CASA_USE_CRASH_REPORTER'].upper( ) == 'TRUE')):
     try:
         systemTempDir = crashrpt_conf.systemTempDir
         temporaryDirectoryCommon = crashrpt_conf.temporaryDirectoryCommon

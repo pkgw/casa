@@ -94,6 +94,8 @@ void PlotMSLabelFormat::addDataToTag( String& tag, PMS::Axis axis, PMS::DataColu
 	if ( PMS::axisIsData(axis) ){
 	    if ( column != PMS::DATA ){
 	    	String axisData = PMS::dataColumn(column);
+			axisData.gsub("_vector", " (vector)");
+			axisData.gsub("_scalar", " (scalar)");
 	        tag = tag + ":"+axisData;
 	    }
 	}
