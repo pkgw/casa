@@ -1,9 +1,10 @@
-from taskinit import *
 import time
 import os
 import sys
 import copy
 import pprint
+from taskinit import casalog, mstool, aftool, tbtool, qa
+from mstools import write_history
 import flaghelper as fh
 from parallel.parallel_task_helper import ParallelTaskHelper
 # this should be replaced when CASA really moves to Python 2.7
@@ -280,7 +281,8 @@ def flagdata(vis,
     # ***************** Input is a normal MS/cal table ****************
     
     # Create local tools
-    aflocal = casac.agentflagger()
+#    aflocal = casac.agentflagger()
+    aflocal = aftool()
     mslocal = mstool()
 
     try: 
@@ -706,7 +708,7 @@ def flagdata(vis,
         if (mode == 'rflag' or mode== 'list') and (writeflags==False):
             casalog.post('Saving RFlag return dictionary: {0}'.
                          format(pprint.pformat(summary_stats_list)), 'INFO')
-            fh.parseRFlagOutputFromSummary(mode,summary_stats_list, modified_flagcmd)
+            fh.parseRFlagOutputFromSummary(mode, summary_stats_list, modified_flagcmd)
 
 
         # Save the current parameters/list to FLAG_CMD or to output

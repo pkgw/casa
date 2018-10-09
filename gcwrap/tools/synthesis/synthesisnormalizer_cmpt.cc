@@ -82,6 +82,19 @@ synthesisimstore* synthesisnormalizer::getimstore()
   return rstat;
 }
 
+  bool synthesisnormalizer::unlockimages(){
+
+    Bool rstat(false);
+    try {
+      rstat=(itsNormalizer->getImageStore())->releaseLocks();
+    } catch  (AipsError x) {
+      RETHROW(x);
+    }
+    return rstat;
+
+
+  }
+
 bool synthesisnormalizer::gatherweightdensity()
 {
   Bool rstat(false);

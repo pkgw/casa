@@ -91,6 +91,10 @@ public:
   
   static void locatePeakPSF(casacore::ImageInterface<casacore::Float>& psf, casacore::Int& xpos, casacore::Int& ypos, 
 			    casacore::Float& amp, casacore::Matrix<casacore::Float>& psfplane);
+  ////make the psf of each plane have peak 1.0 (i.e peak in the inner 1/8 of each plane)
+  /// you are on your own if the peak outside that zone :(
+  /// It returns the maximum of the peak value found
+  static casacore::Float normalizePSF(casacore::ImageInterface<casacore::Float>& psf);
 
   // Convolve a casacore::Stokes Image in place
   //<group>
