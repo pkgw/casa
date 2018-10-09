@@ -1532,7 +1532,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 
 	FunctionalDescription("Normal Seq.", "Selectve Convert");
 
-        for(uInt k=0; k < ColName.size(); k++)
+        for(size_t k=0; k < ColName.size(); k++)
         {
             Description("Column Name" , ColName[k] );
             EXPECT_NO_THROW( calc.setDirectionColumn( ColName[k] ) );
@@ -1732,7 +1732,7 @@ TEST_F(TestDirection, setMovingSource  )
     {   
           FunctionalDescription("Senario" , std::to_string(senario).c_str() ); 
 
-          for(uInt k=0; k < ColName.size(); k++)
+          for(size_t k=0; k < ColName.size(); k++)
           {
               Description("- Column Name" , ColName[k] );
               EXPECT_NO_THROW( calc.setDirectionColumn( ColName[k] ) );
