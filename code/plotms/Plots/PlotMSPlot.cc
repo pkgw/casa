@@ -788,7 +788,6 @@ bool PlotMSPlot::updateIndexing() {
 	bool globalX = iter->isGlobalScaleX();
 	bool globalY = iter->isGlobalScaleY();
 	PMS::Axis iterAxis = iter->iterationAxis();
-	String xconnect = disp->xConnect();
 
 	String caltype = itsCache_->calType();
 	checkIteraxis(caltype, iter);
@@ -808,8 +807,11 @@ bool PlotMSPlot::updateIndexing() {
 	if ( requiredUpdate ){
 		itsCache_->clearRanges();
 		//Set up the indexer.
-		for ( int i = 0; i < dataCount; i++ )
-			itsCache_->setUpIndexer(iterAxis, globalX, globalY, xconnect, i);
+		for ( int i = 0; i < dataCount; i++ ) {
+	        String xconnect(disp->xConnect());
+	        bool timeconnect(disp->timeConnect());
+			itsCache_->setUpIndexer(iterAxis, globalX, globalY, xconnect, timeconnect, i);
+        }
 	}
 	return true;
 }
