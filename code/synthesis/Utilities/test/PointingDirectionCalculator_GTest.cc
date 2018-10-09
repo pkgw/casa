@@ -195,6 +195,7 @@ void Description(const String &Title, const String &Param)
 class RunEnv
 {
 public:
+
     RunEnv()
     {
         //+
@@ -209,6 +210,19 @@ public:
         printf("CASAPATH      :%s \n", CasaPath.c_str());
         printf("CasaMasterPath:%s \n", CasaMasterPath.c_str());
     }
+
+
+    const String getCasaPath()
+    {
+        return CasaPath;
+    }
+
+    const String getCasaMasterPath()
+    {
+        return CasaMasterPath;
+    }
+
+private:
     
     String GetCasaPath(const String pathname )
     {
@@ -235,17 +249,6 @@ public:
         }
     }
 
-    const String getCasaPath()
-    {
-        return CasaPath;
-    }
-
-    const String getCasaMasterPath()
-    {
-        return CasaMasterPath;
-    }
-
-private:
 
     String CasaPath;            // translated from CASAPATH 
     String CasaMasterPath;
@@ -1061,6 +1064,8 @@ class BaseClass : public ::testing::Test
 
 public:
 
+     RunEnv       env;
+
 protected:
 
     uInt    ExpectedNrow = 0;   // C++11 feature //
@@ -1077,7 +1082,6 @@ protected:
     {
     }
 
-    RunEnv       env;
 
 private:
  
@@ -1306,6 +1310,9 @@ class TestDirection : public BaseClass
 {
 
 public:
+
+protected:
+
         casa::MsEdit  msedit;
 
         // Add 3 OFFSET Colums (basically reserved) //
@@ -1317,8 +1324,6 @@ public:
         // Add Testing Data(generated) to direction on POINTING //
         void addTestDataOnDirection();
 
-protected:
-
         TestDirection()
         {
         }
@@ -1326,7 +1331,6 @@ protected:
         ~TestDirection()
         {
         }
-
 
         virtual void SetUp()
         {
@@ -1347,7 +1351,7 @@ protected:
         }
 
         virtual void TearDown()
-       {
+        {
 
             BaseClass::TearDown();
 
@@ -1355,7 +1359,7 @@ protected:
 
             DeleteWorkingMS();
 
-       }
+        }
 
 };
 
@@ -2062,21 +2066,21 @@ class TestSelectData : public BaseClass
 {
 
 public:
- 
-    String  AntSel              = "";      // [C++11] Should be Null, to go throgh GetTEN 
-    String  SpwSel              = "";     
-    String  FieldSel            = "";
-    String  TimeSel             = "";
-    String  ScanSel             = "";
-    String  FeedSel             = "";
-    String  IntentSel           = "";
-    String  ObservationSel      = "";
-    String  UVRangeSel          = "";
-    String  MSSelect            = "";
-
-    String DefMsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
 
 protected:
+ 
+        String  AntSel              = "";      // [C++11] Should be Null, to go throgh GetTEN 
+        String  SpwSel              = "";     
+        String  FieldSel            = "";
+        String  TimeSel             = "";
+        String  ScanSel             = "";
+        String  FeedSel             = "";
+        String  IntentSel           = "";
+        String  ObservationSel      = "";
+        String  UVRangeSel          = "";
+        String  MSSelect            = "";
+
+        String DefMsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
 
         TestSelectData()
         {
@@ -2763,8 +2767,10 @@ class TestSetFrame : public BaseClass
 
 public:
 
+protected:
+
 const std::vector<struct _FrameName> DefinedFrametypes
-= {
+    = {
         {true,  "J2000"},  
         {true,  "JMEAN"}, 
         {true,  "JTRUE"}, 
@@ -2807,10 +2813,7 @@ const std::vector<struct _FrameName> DefinedFrametypes
 
         {false,  "Hoge"},               // Bad name //
 
-};
-
-
-protected:
+    };
 
         TestSetFrame ()
         {
