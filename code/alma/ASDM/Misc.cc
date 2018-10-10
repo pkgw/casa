@@ -511,8 +511,7 @@ namespace asdm {
       if ( state_path.size( ) > 0 ) {
           for ( std::list<std::string>::const_iterator it=state_path.begin(); it != state_path.end(); ++it ) {
               string xslpath = casacore::Path( *it + "/" + xslt_path ).absoluteName( );
-              stat( xslpath.c_str( ), &path_stat );
-              if ( S_ISREG(path_stat.st_mode) )
+              if ( stat(xslpath.c_str( ), &path_stat ) == 0 && S_ISREG(path_stat.st_mode) )
                   return xslpath;
           }
       }

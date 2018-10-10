@@ -42,7 +42,7 @@ using namespace casacore;
 namespace casa {
 
 
-SHARED_PTR<ComponentListImage> ImageFactory::createComponentListImage(
+std::shared_ptr<ComponentListImage> ImageFactory::createComponentListImage(
     const String& outfile, const Record& cl, const Vector<Int>& shape,
     const Record& csys, Bool overwrite, Bool log, Bool cache
 ) {
@@ -63,7 +63,7 @@ SHARED_PTR<ComponentListImage> ImageFactory::createComponentListImage(
         mycsys = *csysPtr;
     }
 
-    SHARED_PTR<ComponentListImage> image(
+    std::shared_ptr<ComponentListImage> image(
         outfile.empty()
         ? new ComponentListImage(mycl, mycsys, IPosition(shape), cache)
         : new ComponentListImage(mycl, mycsys, IPosition(shape), outfile, cache)
@@ -81,14 +81,13 @@ SHARED_PTR<ComponentListImage> ImageFactory::createComponentListImage(
     return image;
 }
 
-
 SPIIF ImageFactory::floatImageFromShape(
 		const String& outfile, const Vector<Int>& shape,
 		const Record& csys, Bool linear,
 		Bool overwrite, Bool verbose,
 		const vector<std::pair<LogOrigin, String> > *const &msgs
 ) {
-	return _fromShape<Float>(
+	return fromShape<Float>(
 			outfile, shape, csys, linear,
 			overwrite, verbose, msgs
 	);
@@ -100,7 +99,7 @@ SPIIC ImageFactory::complexImageFromShape(
 		Bool overwrite, Bool verbose,
 		const vector<std::pair<LogOrigin, String> > *const &msgs
 ) {
-	return _fromShape<Complex>(
+	return fromShape<Complex>(
 			outfile, shape, csys, linear,
 			overwrite, verbose, msgs
 	);
@@ -112,7 +111,7 @@ SPIID ImageFactory::doubleImageFromShape(
     Bool overwrite, Bool verbose,
     const std::vector<std::pair<LogOrigin, String> > *const &msgs
 ) {
-    return _fromShape<Double>(
+    return fromShape<Double>(
         outfile, shape, csys, linear,
         overwrite, verbose, msgs
     );
@@ -124,9 +123,8 @@ SPIIDC ImageFactory::complexDoubleImageFromShape(
     Bool overwrite, casacore::Bool verbose,
     const std::vector<std::pair<LogOrigin, String> > *const &msgs
 ) {
-    return _fromShape<DComplex>(
-        outfile, shape, csys, linear,
-        overwrite, verbose, msgs
+    return fromShape<DComplex>(
+        outfile, shape, csys, linear, overwrite, verbose, msgs
     );
 }
 
@@ -137,10 +135,8 @@ SPIIF ImageFactory::fromASCII(
 ) {
     Path filePath(infile);
     auto fileName = filePath.expandedName();
-
     ifstream inFile(fileName.c_str());
     ThrowIf(!inFile, "Cannot open " + infile);
-
     auto n = shape.product();
     auto nx = shape[0];
     Vector<Float> a(n, 0.0);

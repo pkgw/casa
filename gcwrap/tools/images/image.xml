@@ -9493,9 +9493,9 @@ ib.done()
 
 <description>
 
-This function computes statistics
-from the pixel values in the image.  You can then list them
-and retrieve them (into a record) for further analysis. 
+This method computes statistics from the pixel values in the image.  You can
+then list them and retrieve them (into a record) for further analysis. This
+method supports only real valued images.
 
 The names of the fields in the returned record are summarized below:
 
@@ -10475,10 +10475,9 @@ ia.toASCII('myfile2.ascii',overwrite=true)
   
 <description>
 
-You can convert an associated image to a record for manipulation or passing it to inputs of other function of other tools.
-This and fromrecord are used for serialization and deserialization.
-
-<!--These functions are not for general user use.-->
+You can convert an associated image to a record for manipulation or passing it
+to inputs of other methods of other tools. This method and fromrecord() are used
+for serialization and deserialization.
 
 </description>
 

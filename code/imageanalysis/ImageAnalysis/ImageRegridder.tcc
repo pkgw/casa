@@ -206,7 +206,7 @@ template<class T> SPIIT ImageRegridder<T>::_regrid() const {
         const auto fillerMask = workIm->pixelMask().get();
         finalShape[specAxisNumber] = this->_getNReplicatedChans();
         SPIIT replicatedIm(new casacore::TempImage<T>(finalShape, csys));
-        DYNAMIC_POINTER_CAST<casacore::TempImage<T>>(replicatedIm)->attachMask(
+        std::dynamic_pointer_cast<casacore::TempImage<T>>(replicatedIm)->attachMask(
             casacore::ArrayLattice<Bool>(finalShape)
         );
         auto& pixelMask = replicatedIm->pixelMask();
@@ -247,7 +247,7 @@ template<class T> SPIIT ImageRegridder<T>::_decimateStokes(SPIIT workIm) const {
     }
     else {
         // Only include the wanted stokes
-        SHARED_PTR<casacore::ImageConcat<T> > concat(
+        std::shared_ptr<casacore::ImageConcat<T> > concat(
             new casacore::ImageConcat<T>(
                 workIm->coordinates().polarizationAxisNumber(false)
             )

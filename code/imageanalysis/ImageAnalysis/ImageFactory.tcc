@@ -89,7 +89,7 @@ template <class T> void ImageFactory::remove(SPIIT& image, casacore::Bool verbos
 }
 
 template<class T>
-SHARED_PTR<TempImage<std::complex<T>>> ImageFactory::makeComplexImage(
+std::shared_ptr<TempImage<std::complex<T>>> ImageFactory::makeComplexImage(
     SPCIIT realPart, SPCIIT imagPart
 ) {
     auto shape = realPart->shape();
@@ -97,7 +97,7 @@ SHARED_PTR<TempImage<std::complex<T>>> ImageFactory::makeComplexImage(
         shape != imagPart->shape(),
         "Real and imaginary parts have different shapes"
     );
-    SHARED_PTR<TempImage<std::complex<T>>> newImage(
+    std::shared_ptr<TempImage<std::complex<T>>> newImage(
         new TempImage<std::complex<T>>(shape, realPart->coordinates())
     );
     LatticeExpr<std::complex<T>> expr(
@@ -116,7 +116,7 @@ SHARED_PTR<TempImage<std::complex<T>>> ImageFactory::makeComplexImage(
 }
 
 template <class T>
-SHARED_PTR<casacore::ImageInterface<std::complex<T>>> ImageFactory::makeComplex(
+std::shared_ptr<casacore::ImageInterface<std::complex<T>>> ImageFactory::makeComplex(
     SPCIIT realPart, SPCIIT imagPart, const String& outfile,
     const Record& region, Bool overwrite
 ) {
@@ -137,8 +137,8 @@ SHARED_PTR<casacore::ImageInterface<std::complex<T>>> ImageFactory::makeComplex(
         *imagPart, region, mask, nullptr
     );
     auto complexImage = makeComplexImage(
-        DYNAMIC_POINTER_CAST<const casacore::ImageInterface<T>>(subRealImage),
-        DYNAMIC_POINTER_CAST<const casacore::ImageInterface<T>>(subImagImage)
+        std::dynamic_pointer_cast<const casacore::ImageInterface<T>>(subRealImage),
+        std::dynamic_pointer_cast<const casacore::ImageInterface<T>>(subImagImage)
     );
     return SubImageFactory<std::complex<T>>::createImage(
         *complexImage, outfile, Record(), "", AxesSpecifier(),
@@ -187,11 +187,11 @@ template <class T> SPIIT ImageFactory::createImage(
 }
 
 template<class T>
-SHARED_PTR<casacore::TempImage<T>> ImageFactory::floatFromComplex(
-    SHARED_PTR<const casacore::ImageInterface<std::complex<T>>> complexImage,
+std::shared_ptr<casacore::TempImage<T>> ImageFactory::floatFromComplex(
+    std::shared_ptr<const casacore::ImageInterface<std::complex<T>>> complexImage,
     ComplexToFloatFunction function
 ) {
-    SHARED_PTR<TempImage<T>> newImage(
+    std::shared_ptr<TempImage<T>> newImage(
         new TempImage<T>(
             TiledShape(complexImage->shape()),
             complexImage->coordinates()
@@ -223,42 +223,28 @@ SHARED_PTR<casacore::TempImage<T>> ImageFactory::floatFromComplex(
     return newImage;
 }
 
-template <class T> SPIIT ImageFactory::_fromShape(
-	const casacore::String& outfile, const casacore::Vector<casacore::Int>& shapeV,
+template <class T> SPIIT ImageFactory::fromShape(
+	const casacore::String& outfile,
+	const casacore::Vector<casacore::Int>& shapeV,
 	const casacore::Record& coordinates, casacore::Bool linear,
 	casacore::Bool overwrite, casacore::Bool verbose,
     const vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs
 ) {
 	ThrowIf(
-		shapeV.nelements() == 0,
-		"The shape must have more than zero elements"
+		shapeV.nelements() == 0, "The shape must have more than zero elements"
 	);
-	ThrowIf(
-		anyTrue(shapeV <= 0),
-		"All elements of shape must be positive"
-	);
-
+	ThrowIf(anyTrue(shapeV <= 0), "All elements of shape must be positive");
     casacore::CoordinateSystem mycsys;
 	std::unique_ptr<casacore::CoordinateSystem> csysPtr;
-
 	if (coordinates.empty()) {
-		mycsys = casacore::CoordinateUtil::makeCoordinateSystem(
-			shapeV, linear
-		);
+		mycsys = casacore::CoordinateUtil::makeCoordinateSystem(shapeV, linear);
 		_centerRefPix(mycsys, shapeV);
 	}
 	else {
-		csysPtr.reset(
-			_makeCoordinateSystem(
-				coordinates, shapeV
-			)
-		);
+		csysPtr.reset(_makeCoordinateSystem(coordinates, shapeV));
         mycsys = *csysPtr;
 	}
-	return createImage<T>(
-		outfile, mycsys, shapeV, verbose,
-		overwrite, msgs
-	);
+	return createImage<T>(outfile, mycsys, shapeV, verbose, overwrite, msgs);
 }
 
 template <class T> SPIIT ImageFactory::imageFromArray(
@@ -267,7 +253,7 @@ template <class T> SPIIT ImageFactory::imageFromArray(
     casacore::Bool overwrite, casacore::Bool verbose,
     const vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs
 ) {
-	SPIIT myim = _fromShape<T>(
+	SPIIT myim = fromShape<T>(
 		outfile, pixels.shape().asVector(),
 		csys, linear, overwrite, verbose, msgs
 	);

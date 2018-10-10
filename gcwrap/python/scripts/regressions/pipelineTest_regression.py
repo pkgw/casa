@@ -130,7 +130,7 @@ def stats():
         context = pipeline.Pipeline(context='last').context
         fluxlist = context.results[12].read()[0].flux_densities
         rtol = 1.0e-5  #Relative Tolerance
-        atol = 1.0e-8  #Absolute Tolerance
+        atol = 1.0e-5  #Absolute Tolerance
 
         # value_compare43 = 0.6934577681171487
         # value_compare = 0.716367318068  # CASA 4.5
@@ -152,8 +152,8 @@ def stats():
         
         if (result_bool):
             regstate=True
-            print >>logfile,"hifv_fluxboot values match within relative tolerance of 1.0e-05 and absolute tolerance of 1.0e-08"
-            print "hifv_fluxboot values match within relative tolerance of 1.0e-05 and absolute tolerance of 1.0e-08"
+            print >>logfile,"hifv_fluxboot values match within relative tolerance of 1.0e-05 and absolute tolerance of 1.0e-05"
+            print "hifv_fluxboot values match within relative tolerance of 1.0e-05 and absolute tolerance of 1.0e-05"
             print >>logfile,"hifv_fluxboot test PASSED."
             print "hifv_fluxboot test PASSED."
         else:

@@ -49,7 +49,7 @@ namespace casa {
 		imageAnalysis->setProgressMonitor( this );
 	}
 
-	CollapseResult::CollapseResult( const String& outputName, bool tmp, SHARED_PTR<ImageInterface<Float>> img ):
+	CollapseResult::CollapseResult( const String& outputName, bool tmp, std::shared_ptr<ImageInterface<Float>> img ):
 				outputFileName(outputName),
 				temporary( tmp ),
 				image(img) {}
@@ -183,7 +183,7 @@ namespace casa {
 							   false, outFile, false );
 						int newImageCount = newImages.size();
 						for ( int i = 0; i < newImageCount; i++ ){
-							SHARED_PTR<ImageInterface<Float>> newImage = dynamic_pointer_cast<ImageInterface<Float>> (newImages[i]);
+							std::shared_ptr<ImageInterface<Float>> newImage = dynamic_pointer_cast<ImageInterface<Float>> (newImages[i]);
 							CollapseResult result( outFile, outputFileTemporary, newImage );
 							collapseResults.push_back( result );
 						}
@@ -316,7 +316,7 @@ namespace casa {
 				return channelStr;
 			}
 
-			SHARED_PTR<const ImageInterface<float> > image = taskMonitor->getImage();
+			std::shared_ptr<const ImageInterface<float> > image = taskMonitor->getImage();
 			if ( m_units != "Channels"){
 				//Convert the units to Channels
 				Bool valid = true;
@@ -448,9 +448,9 @@ namespace casa {
 				Record region = _makeRegionRecord( );
 				if ( ! region.nfields() > 0 ){
 					String empty("");
-					SHARED_PTR<const ImageInterface<float> > image = taskMonitor->getImage();
+					std::shared_ptr<const ImageInterface<float> > image = taskMonitor->getImage();
 					if ( image ){
-						SHARED_PTR<const SubImage<Float> > result =
+						std::shared_ptr<const SubImage<Float> > result =
 							SubImageFactory<Float>::createSubImageRO(*image, region, empty, NULL);
 						ImageInterface<Float>* image2 = new SubImage<Float>( *result );
 						LogOrigin log("MomentSettingsWidgetRadio", "collapseImage", WHERE);
@@ -475,7 +475,7 @@ namespace casa {
 		Record region;
 		String channelStr = populateChannels( &nSelectedChannels, & channelOK );
 		if ( channelOK ){
-			SHARED_PTR<const ImageInterface<float> > image = taskMonitor->getImage();
+			std::shared_ptr<const ImageInterface<float> > image = taskMonitor->getImage();
 			DisplayCoordinateSystem cSys = image -> coordinates();
 			IPosition pos = image->shape();
 			String regionName;
@@ -495,7 +495,7 @@ namespace casa {
 
 		// Get the spectral axis number.
 		// TODO: Generalize this to any hidden axis
-		SHARED_PTR<const ImageInterface<float> > image = taskMonitor->getImage();
+		std::shared_ptr<const ImageInterface<float> > image = taskMonitor->getImage();
 		DisplayCoordinateSystem cSys = image -> coordinates();
 		int spectralAxisNumber = cSys.spectralAxisNumber();
 		if ( spectralAxisNumber < 0 ){
@@ -580,7 +580,7 @@ namespace casa {
 			for ( int i = 0; i < static_cast<int>(results.size()); i++ ) {
 				String outName = results[i].getOutputFileName();
 				bool outputTemporary = results[i].isTemporaryOutput();
-				SHARED_PTR<ImageInterface<Float> > newImage = results[i].getImage();
+				std::shared_ptr<ImageInterface<Float> > newImage = results[i].getImage();
 				taskMonitor->imageCollapsed(outName, "image", "raster", true, outputTemporary, newImage );
 			}
 			taskMonitor->setPurpose(ProfileTaskMonitor::MOMENTS_COLLAPSE );
@@ -629,7 +629,7 @@ namespace casa {
 		}
 		Converter* converter = Converter::getConverter( oldUnits, newUnits );
 		if ( imageAnalysis != NULL ){
-			SHARED_PTR<const ImageInterface<Float> > imagePtr = taskMonitor->getImage();
+			std::shared_ptr<const ImageInterface<Float> > imagePtr = taskMonitor->getImage();
 			Bool validCoord;
 			SpectralCoordinate coord = taskMonitor->getSpectralCoordinate(imagePtr, validCoord );
 			for ( int i = 0; i < channelIntervalCount; i++ ) {
@@ -794,7 +794,7 @@ namespace casa {
 			connect( thresholdingBinDialog, SIGNAL(accepted()), this, SLOT(thresholdSpecified()));
 		}
 		// ImageInterface<Float>* image = const_cast<ImageInterface<Float>* >(taskMonitor->getImage().get());
-		SHARED_PTR<ImageInterface<Float> > image(CONST_POINTER_CAST<ImageInterface<Float> >(taskMonitor->getImage()));
+		std::shared_ptr<ImageInterface<Float> > image(std::const_pointer_cast<ImageInterface<Float> >(taskMonitor->getImage()));
 		thresholdingBinDialog->setImage( image );
 		thresholdingBinDialog->show();
 		QString minValueStr = ui.minThresholdLineEdit->text();

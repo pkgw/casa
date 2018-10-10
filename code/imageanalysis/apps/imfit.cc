@@ -78,7 +78,7 @@ Int main(Int argc, char *argv[]) {
 	ImageInterface<Float> *image;
 	ImageUtilities::openImage(image, imagename);
 	SPCIIF sImage(image);
-	ImageFitter imFitter(
+	ImageFitter<Float> imFitter(
 		sImage, region, 0, box, chans, stokes, mask,
 		estimatesFilename, newEstimatesFileName
 	);

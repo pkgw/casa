@@ -32,7 +32,6 @@
 #include <mutex>
 #include <sys/file.h>
 
-
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -306,6 +305,7 @@ bool logsink::poststat(const std::string& message,
         cout << "Telemetry file is locked by another process. Won't write stats.";
     }
     flock(fd, LOCK_UN);
+    close(fd);
     return true;
 }
 
@@ -357,6 +357,8 @@ bool logsink::setlogfile(const std::string& filename)
    if(tmpname != "null") {
       casacore::File filein( tmpname ) ;
       logname = filein.path().absoluteName() ;
+      if ( ! thelogsink )
+          thelogsink = &LogSink().globalSink();
       static_cast<TSLogSink*>(thelogsink)->setLogSink(logname);
    }
    else

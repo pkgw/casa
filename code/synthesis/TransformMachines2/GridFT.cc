@@ -322,8 +322,7 @@ void GridFT::initializeToVis(ImageInterface<Complex>& iimage,
   // Initialize the maps for polarization and channel. These maps
   // translate visibility indices into image indices
   initMaps(vb);
-
-  // Need to reset nx, ny for padding
+    // Need to reset nx, ny for padding
   // Padding is possible only for non-tiled processing
   
 
@@ -334,7 +333,7 @@ void GridFT::initializeToVis(ImageInterface<Complex>& iimage,
   // If we are memory-based then read the image in and create an
   // ArrayLattice otherwise just use the PagedImage
   /*if(isTiled) {
-    lattice=SHARED_PTR<Lattice<Complex> >(image, false);
+    lattice=std::shared_ptr<Lattice<Complex> >(image, false);
   }
   else {
      
@@ -998,6 +997,18 @@ void GridFT::get(vi::VisBuffer2& vb, Int row)
     //vb.modelVisCube().xyPlane(row)=Complex(0.0,0.0);
   }
 
+
+///Channel matching for the actual spectral window of buffer
+    matchChannel(vb);
+  
+  
+  //cerr << "chanMap " << chanMap << endl;
+  //No point in reading data if its not matching in frequency
+  if(max(chanMap)==-1)
+    return;
+
+
+
   // Get the uvws in a form that Fortran can use
   Matrix<Double> uvw(negateUV(vb));
   Vector<Double> dphase(vb.nRows());
@@ -1014,20 +1025,7 @@ void GridFT::get(vi::VisBuffer2& vb, Int row)
 
   //Here we redo the match or use previous match
   
-  //Channel matching for the actual spectral window of buffer
-  //if(doConversion_p[vb.spectralWindows()[0]]){
-    matchChannel(vb);
-  //}
-  //else{
-  //  chanMap.resize();
-  //  chanMap=multiChanMap_p[vb.spectralWindows()[0]];
-  //}
-
-  //cerr << "chanMap " << chanMap << endl;
-  //No point in reading data if its not matching in frequency
-  if(max(chanMap)==-1)
-    return;
-
+  
   Cube<Complex> data;
   Cube<Int> flags;
   getInterpolateArrays(vb, data, flags);
@@ -1383,7 +1381,7 @@ Bool GridFT::fromRecord(String& error,
     // Might be changing the shape of sumWeight
 
     if(isTiled) {
-      lattice=SHARED_PTR<Lattice<Complex> >(image, false);
+      lattice=std::shared_ptr<Lattice<Complex> >(image, false);
     }
     else {
       // Make the grid the correct shape and turn it into an array lattice

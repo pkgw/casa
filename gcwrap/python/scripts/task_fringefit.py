@@ -9,7 +9,8 @@ def fringefit(vis=None,caltable=None,
 	      selectdata=None,timerange=None,antenna=None,scan=None,
 	      observation=None, msselect=None,
 	      solint=None,combine=None,refant=None,
-	      minsnr=None,zerorates=None,append=None,
+	      minsnr=None,zerorates=None,globalsolve=None,
+              delaywindow=None,ratewindow=None,append=None,
 	      docallib=None, callib=None, gaintable=None,gainfield=None,interp=None,spwmap=None,
 	      parang=None):
 	#Python script
@@ -46,7 +47,6 @@ def fringefit(vis=None,caltable=None,
 		else:
 
 			# by traditional parameters
-
 			ngaintab = 0;
 			if (gaintable!=['']):
 				ngaintab=len(gaintable)
@@ -85,20 +85,24 @@ def fringefit(vis=None,caltable=None,
 
 					mycb.setapply(t=0.0,table=gaintable[igt],field=thisgainfield,
 						      calwt=True,spwmap=thisspwmap,interp=thisinterp)
-
+                        if len(delaywindow) != 2:
+                                delaywindow = [-1e6, 1e6]
+                        if len(ratewindow) != 2:
+                                ratewindow = [-1e6, 1e6]
 		# ...and now the specialized terms
 		# (BTW, interp irrelevant for these, since they are evaluated)
 		
 		# Apply parallactic angle, if requested
 		if parang: mycb.setapply(type='P')
 
-		# Set up for solving:  
-
-		# Only support one gaintype
+		# Set up for solving; only support one gaintype
 		mycb.setsolve(type="FRINGE",t=solint,refant=refant,preavg=0.01,
 			      minsnr=minsnr,combine=combine,
 			      zerorates=zerorates,
-			      table=caltable,append=append)
+                              globalsolve=globalsolve,
+                              delaywindow=delaywindow,
+                              ratewindow=ratewindow,
+                	      table=caltable,append=append)
 		mycb.solve()
 		reportsolvestats(mycb.activityrec());
 		mycb.close()

@@ -59,7 +59,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	template <class T>
-	LatticeAsMarker<T>::LatticeAsMarker(SHARED_PTR<casacore::ImageInterface<T> > image,
+	LatticeAsMarker<T>::LatticeAsMarker(std::shared_ptr<casacore::ImageInterface<T> > image,
 	                                    const casacore::uInt xAxis, const casacore::uInt yAxis,
 	                                    const casacore::uInt mAxis,
 	                                    const casacore::IPosition fixedPos)
@@ -69,7 +69,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	template <class T>
-	LatticeAsMarker<T>::LatticeAsMarker(SHARED_PTR<casacore::ImageInterface<T> > image,
+	LatticeAsMarker<T>::LatticeAsMarker(std::shared_ptr<casacore::ImageInterface<T> > image,
 	                                    const casacore::uInt xAxis, const casacore::uInt yAxis)
 		: LatticePADisplayData<T>(image, xAxis, yAxis) {
 		setupElements();
