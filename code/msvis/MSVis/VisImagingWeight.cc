@@ -96,6 +96,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Int fields=0;
       for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
           for (vi.origin();vi.more();vi++) {
+	    
               if(vb->newFieldId()){
                   mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId());
                   if(multiField){
@@ -127,7 +128,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		      gwt_p[activeFieldIndex_p]->put(a_gwt_p);
 		  }
 		  activeFieldIndex_p=multiFieldMap_p(mapid);
-		  gwt_p[activeFieldIndex_p]->get(a_gwt_p);
+		  if(multiField && activeFieldIndex_p >=0)
+		    gwt_p[activeFieldIndex_p]->get(a_gwt_p);
 		  
 	    }
               fid=multiFieldMap_p(mapid);
@@ -359,7 +361,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		      gwt_p[activeFieldIndex_p]->put(a_gwt_p);
 		  }
 		  activeFieldIndex_p=multiFieldMap_p(mapid);
-		  gwt_p[activeFieldIndex_p]->get(a_gwt_p);		  
+		  if(multiField && activeFieldIndex_p >=0)
+		    gwt_p[activeFieldIndex_p]->get(a_gwt_p);		  
 	    }
               fid=multiFieldMap_p(mapid);
               Int nRow=vb->nRows();
