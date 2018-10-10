@@ -244,7 +244,7 @@ protected:
   std::shared_ptr<casacore::ImageInterface<casacore::Float> > openImage(const casacore::String imagenamefull, 
 					       const casacore::Bool overwrite, 
 					       const casacore::Bool dosumwt=casacore::False,
-					       const casacore::Int nfacetsperside=1);
+								   const casacore::Int nfacetsperside=1, const  casacore::Bool checkCoord=casacore::True);
 
   void buildImage(std::shared_ptr<casacore::ImageInterface<casacore::Float> > &imptr, casacore::IPosition shape, casacore::CoordinateSystem csys, const casacore::String name);
   void buildImage(std::shared_ptr<casacore::ImageInterface<casacore::Float> > &imptr,const casacore::String name);
