@@ -2172,6 +2172,7 @@ void SynthesisImagerVi2::unlockMSs()
 
       	  cfCacheObj->initCacheFromList2(cfcPath, cfList_p, wtCFList_p,
       					 selectedPA, dPA,CFC_VERBOSE);
+
 	  // tmpFT->setCFCache(cfCacheObj);
 	  Vector<Double> uvScale, uvOffset;
 	  Matrix<Double> vbFreqSelection;
