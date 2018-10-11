@@ -826,7 +826,7 @@ FlagAgentBase::setDataSelection(Record config)
 		}
 
 
-                // Only process the polarization selection as in-row selection if there is no complex operator
+		// Only process the polarization selection as in-row selection if there is no complex operator
 		else if ((polarizationSelection_p.find("REAL") == string::npos) and
 				(polarizationSelection_p.find("IMAG") == string::npos) and
 				(polarizationSelection_p.find("ARG") == string::npos) and

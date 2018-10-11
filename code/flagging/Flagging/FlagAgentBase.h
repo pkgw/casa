@@ -391,7 +391,7 @@ private:
 	volatile casacore::Bool processing_p;
 
 	// casacore::Data source configuration
-        // selection expression to pass to the VisMapper
+	// selection expression to pass to the VisMapper
 	casacore::String expression_p;
 	casacore::uShort dataReference_p;
 
