@@ -2124,7 +2124,7 @@ HPX HEALPix grid.  -->
     </param>
     <param type="bool" name="fastnoise" subparam="true">
            <shortdescription>True: use the faster (old) noise calculation. False: use the new improved noise calculations</shortdescription>
-           <value type="bool">False</value>
+           <value type="bool">True</value>
 <description> If it is set to True,  a simpler but faster noise calucation is used. 
                         The threshold values were determined based on classic statistics (using all
                         unmasked pixels for the calculations).
@@ -2700,6 +2700,9 @@ HPX HEALPix grid.  -->
          <default param="verbose"><value type="bool">False</value></default>
          <default param="fastnoise"><value type="bool">False</value></default>
        </equals>
+       <noteqauls type="string" value="auto-multithresh">
+          <default param="fastnoise"><value type="bool">True</value></default>
+       </noteqauls>
    </when>
 
 <!--
