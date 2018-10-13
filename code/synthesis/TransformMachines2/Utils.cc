@@ -752,30 +752,35 @@ namespace casa{
   // or from a env. variable (in this precidence order).
   //
   template <class T>
-  T SynthesisUtils::getenv(const char *name,const T defaultVal)
-  {
-    stringstream defaultStr;
-    defaultStr << defaultVal;
-    T val;
-    uInt handle = Aipsrc::registerRC(name, defaultStr.str().c_str());    
-    String strVal = Aipsrc::get(handle);
-    stringstream toT(strVal);
-    toT >> val;
-    // Looks like Aipsrc did not find the named variable.  See if an
-    // env. variable is defined.
-    if (val==defaultVal)
+    T SynthesisUtils::getenv(const char *name, const T defaultVal)
+    {
+      T val=defaultVal;
+      stringstream defaultStr;
+      defaultStr << defaultVal;
       {
 	char *valStr=NULL;
 	std::string tt(name);
-	tt.replace(tt.find("."), 1, "_");
+	unsigned int pos;
+	while((pos=tt.find(".")) != tt.npos)
+	  tt.replace(pos, 1, "_");
+
 	if ((valStr = std::getenv(tt.c_str())) != NULL)
 	  {
 	    stringstream toT2(valStr);
 	    toT2 >> val;
 	  }
       }
-    return val;
-  }
+      // If environment variable was not found (val remained set to the
+      // defaulVal), look in ~/.aipsrc.
+      if (val==defaultVal)
+	{
+	  uint handle = Aipsrc::registerRC(name, defaultStr.str().c_str());    
+	  String strVal = Aipsrc::get(handle);
+	  stringstream toT(strVal);
+	  toT >> val;
+	}
+      return val;
+    }
     template 
     Int SynthesisUtils::getenv(const char *name, const Int defaultVal);
     template 
