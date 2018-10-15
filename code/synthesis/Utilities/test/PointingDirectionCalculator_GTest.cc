@@ -319,7 +319,7 @@ void DeleteWorkingMS()
     // Delete File (Recursively done) 
     // NOTE: for debug use, please change true-> falase )
 
-    if (true)
+    if (false)
     {
          dir_ctrl. removeRecursive(false /*keepDir=False */ );
     }
@@ -379,7 +379,11 @@ public:
 
     // Write (generated) Test Data on Pointing Table //
 
-        void WriteTestDataOnDirection(String MsName =DefaultLocalMsName );
+        void WriteTestDataOnPointingTable(String MsName =DefaultLocalMsName );
+
+    // Write (generated) Test Data in MAIN Table //
+
+        void WriteTestDataOnMainTable(String MsName =DefaultLocalMsName);
 
     // Add or Remove Column (Pointing) ////
 
@@ -396,6 +400,11 @@ private:
         ANTENNADataBuff  AntennaData;   // for Read 
         ANTENNADataBuff  AntennaData1;  // for Write
 
+    //+
+    // Interpolation Test
+    //-
+
+        bool useRealData  = false;   // True = use real data in the MS. False = use generated data
 };
 
 //+
@@ -671,6 +680,7 @@ void MsEdit::PointingTable_List(String MsName, bool showAll)
         ROArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
         ROArrayColumn<Double>  pointingEncoder        = columnPointing ->encoder();
 
+        printf("Loop Start.\n" );
         for (uInt row=0; row<nrow_p; row++)
         {
             if(showAll)
@@ -686,16 +696,18 @@ void MsEdit::PointingTable_List(String MsName, bool showAll)
 
             Vector<Double> valDirection  =   pointingDirection. get(row);
             Vector<Double> valTarget     =   pointingTarget. get(row);
-
+#if 0
             Vector<Double> valPointingOffset     =   pointingPointingOffset. get(row);
             Vector<Double> valSourceOffset       =   pointingSourceOffset.   get(row);
             Vector<Double> valEncoder            =   pointingEncoder.        get(row);
-
+#endif 
             printf( "Pointing: Direction        [%d] = (%f,%f)  \n", row, valDirection[0],      valDirection[1] );
             printf( "Pointing: Target           [%d] = (%f,%f)  \n", row, valTarget[0],         valTarget[1] );
+#if 0
             printf( "Pointing: Pointing Offset  [%d] = (%f,%f)  \n", row, valPointingOffset[0], valPointingOffset[1] );
             printf( "Pointing: Source   Offset  [%d] = (%f,%f)  \n", row, valSourceOffset[0],   valSourceOffset[1] );
             printf( "Pointing: encoder          [%d] = (%f,%f)  \n", row, valEncoder[0],        valEncoder[1] );
+#endif 
 
 #if 0
             Vector<Double> valPointingOffset     =   pointingPointingOffset. get(row);
@@ -798,8 +810,6 @@ void MsEdit::PointingTable_WriteData(String MsName )
  
 }
 
-//+
-//   Create three new columns 
 //   copied by Direction Table 
 //  
 //    - This is for testing MovingSourceCorrection, 
@@ -932,14 +942,8 @@ void MsEdit::CreateNewColumnsFromDirection()
 
 casacore::Vector<double>  generatePseudoPointData(int tm)
 {
-
-//  printf( "- Generating Pseudo Pointing Data.\n" );
-
         casacore::Vector<Double> point;
         point.resize(4);
-
-        point[0] = 0.0 + 0.01 * (double)tm;      // Direction
-        point[1] = 0.0 - 0.01 * (double)tm;
 
     //+
     // THis value can change Interporation behabior
@@ -948,17 +952,19 @@ casacore::Vector<double>  generatePseudoPointData(int tm)
     //     internal interporation behabior.n doGetDirection() . 
     //-  
 
-        Double intentionalShift = 0.0;
-        Double interval = 2.99827;
+        Double baseOffset  = 0;
+        Double fitOffset   = 0;
+        Double interval = 1.0 ;
 
-        Double d = (22 *3600.0 +  5*60 +  41.5 + (double)tm * interval + intentionalShift )/(3600*24); 
+        Double d = fitOffset +
+                      (22 *3600.0 +  5*60 +  41.5 + (double)tm * interval + baseOffset )/(3600*24); 
                       
         casacore::MVTime  tm00(2003,11,12 ,d);     
  
     // Vector to return //
 
-        point[0] = 0.0 + 0.01 * (double)tm;  // Direction
-        point[1] = 0.0 - 0.01 * (double)tm;
+        point[0] = -3.0 + 0.001 * (double)tm;  // Direction
+        point[1] = -3.0 + 0.001 * (double)tm;
         point[2] = tm00.second();           // Time 
         point[3] = interval;                // Interval 
         
@@ -972,7 +978,7 @@ casacore::Vector<double>  generatePseudoPointData(int tm)
 //  - see also TEST Fixture  
 //-
 
-void  MsEdit::WriteTestDataOnDirection(String MsName)
+void  MsEdit::WriteTestDataOnPointingTable(String MsName)
 {
     Description( "Writing Test Data on Direcotion Column in Pointing Table", 
                   MsName.c_str()  );
@@ -1018,11 +1024,6 @@ void  MsEdit::WriteTestDataOnDirection(String MsName)
         ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
         ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
 
-        ROArrayColumn<Double>  pointingPointingOffset = columnPointing ->pointingOffset();
-        ROArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
-        ROArrayColumn<Double>  pointingEncoder        = columnPointing ->encoder();
-
-
         IPosition Ipo = pointingDirection.shape(0);
         printf(" - Shape of pointingDirection.[%ld, %ld] \n", Ipo[0], Ipo[1] );
 
@@ -1040,13 +1041,103 @@ void  MsEdit::WriteTestDataOnDirection(String MsName)
  
             // write access //
 
-                if(false)       pointingDirection.   put(row, direction );
-                if(false)       pointingTarget.      put(row, direction );
+                if(true)       pointingDirection.   put(row, direction );
+                if(true)       pointingTarget.      put(row, direction );
 
-            // Time Info.  //
-             
-                if(false)       pointingTime.           put(row, psd_data[2] ); // Time
-                if(false)       pointingInterval.       put(row, psd_data[3] ); // Interval 
+            // Time Info. (current) //
+ 
+                Double curTime      = pointingTime.     get(row);
+                Double curInterval  = pointingInterval. get(row);
+
+            // Show Time //
+            
+                printf( "[%d] Curr / Generated Time, %f ,%f \n", 
+                        row, curTime, psd_data[2] ); 
+
+            // Time Set  //
+
+            if(useRealData)
+            {
+                pointingTime.           put(row, curTime     ); // copy curr. Time
+                pointingInterval.       put(row, curInterval ); // copy curr. Interval 
+            }
+            else
+            {
+                pointingTime.           put(row, psd_data[2] ); // Time
+                pointingInterval.       put(row, psd_data[3] ); // Interval
+            }
+        }
+
+        // Flush //
+        
+        ms0.flush();
+
+}
+
+//+
+// Wtite Test Data on Direction Column in MAIN TABLE
+//  - Values are got by common function.
+//-
+
+void  MsEdit::WriteTestDataOnMainTable(String MsName)
+{
+    Description( "Writing Test Data (Time) in MAIN Table", 
+                  MsName.c_str()  );
+
+    // Open MS by Update mode //
+
+        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
+
+    // Get current row count //
+
+        uInt nrow_ms = ms0.nrow();
+
+        printf( "Main Table nrow =%d \n",nrow_ms);
+
+    //+
+    // Column::
+    //   Time Info
+    //-
+
+        ROScalarColumn<Double> mainTime           ;
+        ROScalarColumn<Double> mainInterval       ;
+ 
+    // Attach ..//
+
+        mainTime      .attach( ms0 , "TIME");
+        mainInterval  .attach( ms0 , "INTERVAL");
+
+    // WRite .. //
+
+        for (uInt row=0; row<nrow_ms; row++)
+        {
+            // Pseudo Data (TEST DATA )
+
+               Vector<Double>  psd_data  = generatePseudoPointData( row ); // generated pseudo data. //
+
+            // Time Info. (current) //
+ 
+                Double curTime      = mainTime.     get(row);
+                Double curInterval  = mainInterval. get(row);
+
+            // Show Time //
+  
+                printf( "[%d] Curr / Interval, %f ,%f \n", 
+                        row, curTime, curInterval ); 
+ 
+            // Time Set  //
+
+            if(useRealData)
+            {
+                mainTime.           put(row, curTime + 0.0); // copy curr. Time
+                mainInterval.       put(row, curInterval ); // copy curr. Interval 
+            }
+            else
+            {
+                mainTime.           put(row, psd_data[2] +0.5 ); // Time
+                mainInterval.       put(row, psd_data[3] ); // Interval
+            }   
+
         }
 
         // Flush //
@@ -1322,7 +1413,7 @@ protected:
         void addColumnDataOnPointing();
 
         // Add Testing Data(generated) to direction on POINTING //
-        void addTestDataOnDirection();
+        void addTestDataForGetDirection();
 
         TestDirection()
         {
@@ -1346,7 +1437,7 @@ protected:
 
             addColumnsOnPointing();
             addColumnDataOnPointing();
-            addTestDataOnDirection();
+            addTestDataForGetDirection();
 
         }
 
@@ -1363,9 +1454,16 @@ protected:
 
 };
 
-void TestDirection::addTestDataOnDirection()
+void TestDirection::addTestDataForGetDirection()
 {
-    msedit.WriteTestDataOnDirection();
+    // Pointing //
+
+    msedit.WriteTestDataOnPointingTable();
+
+    // MAIN //
+
+    msedit.WriteTestDataOnMainTable();
+ 
 }
 
 void TestDirection::addColumnsOnPointing()
@@ -1935,6 +2033,199 @@ TEST_F(TestDirection, getDirection1 )
 
 }
 
+/*--------------------------------------
+   Interpolation Test in getDirection
+ ---------------------------------------*/
+
+//+
+// Sub Fucntion
+//-
+
+
+void DumpPointingTable(String MsName)
+{
+    // Open MS by Update mode //
+
+        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
+
+    // Tables Name //
+
+        String PointingTableName = ms0.pointingTableName();
+        printf("Pointing Table name [%s] \n",PointingTableName.c_str());
+
+    // Prepeare Handle //
+
+        MSPointing  hPointingTable = ms0.pointing();
+
+    // Get current row count //
+
+        uInt nrow_p = hPointingTable.nrow();
+
+        printf( "Pointing Table nrow =%d \n",nrow_p);
+
+    //
+    // Get Column handle from Table  (Pointing)
+    //  
+
+        std::unique_ptr<casacore::ROMSPointingColumns> 
+                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
+
+    //+
+    // Listing  (Pointing) 
+    //-
+
+        ROScalarColumn<Int>    pointingAntennaId      = columnPointing ->antennaId();
+        ROScalarColumn<Double> pointingTime           = columnPointing ->time();
+        ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
+        ROScalarColumn<String> pointingName           = columnPointing ->name();
+        ROScalarColumn<Int>    pointingNumPoly        = columnPointing ->numPoly();
+        ROScalarColumn<Double> pointingTimeOrigin     = columnPointing ->timeOrigin();
+
+        ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
+        ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
+
+        printf( "================================\n");
+        printf( " Pointing TBL Info \n");
+        printf( "-----------------+--------------\n");
+
+        for (uInt row=0; row<nrow_p; row++)
+        {
+            if(false)
+            {
+                printf( "Pointing: Antenna ID  [%d] = %d \n", row, pointingAntennaId.    get(row)  );
+                printf( "Pointing: Time        [%d] = %f \n", row, pointingTime.         get(row)  );
+                printf( "Pointing: Interval    [%d] = %f \n", row, pointingInterval.     get(row)  );
+                printf( "Pointing: Name        [%d] = \"%s\" \n", row, pointingName.       get(row).c_str()  );
+                printf( "Pointing: Num Poly    [%d] = %d \n", row, pointingNumPoly.      get(row)  );
+                printf( "Pointing: Time Origin [%d] = %f \n", row, pointingTimeOrigin.   get(row)  );
+
+            }
+
+            Vector<Double> valDirection  =   pointingDirection. get(row);
+            Vector<Double> valTarget     =   pointingTarget.    get(row);
+	    Double         valTime       =    pointingTime.     get(row);
+
+
+            printf( "Pointing,(pos time dir target), %d , %f, , %f, %f, ,%f, %f)  \n", 
+                    row,  valTime, 
+                    valDirection[0],      valDirection[1],
+                    valTarget[0],         valTarget[1] );
+
+
+        }
+
+}
+    
+
+
+TEST_F(TestDirection, Interpolation )
+{
+
+    TestDescription( "Interpolation Test in getDirection ()" );
+
+    const String MsName = DefaultLocalMsName;
+
+    //  MS (Dump) //
+
+        DumpPointingTable(MsName);
+
+    // Create Object //
+    
+        MeasurementSet ms( MsName.c_str() );
+    
+        PointingDirectionCalculator calc(ms);
+    
+    // Initial brief Inspection //
+    
+       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
+       ExpectedNrow = calc.getNrowForSelectedMS();
+       EXPECT_NE((uInt)0, ExpectedNrow );
+
+    //+
+    // selectData
+    //    0=DA61, 1=PM03, 2=PM04
+    //-
+
+        if(true)
+        {
+              const String AntSel = "";
+            calc.selectData( AntSel,  "","","","","","","","","" );
+ 
+        }
+
+    //+
+    // setDirectionColumn() 
+    //-
+  
+        String ColName = "DIRECTION"; 
+        Description( "getDirectionColumn()", ColName  );
+
+        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
+
+    //+
+    //  MatrixShape (COLUMN_MAJOR) 
+    //-
+        Description("calling setDirectionListMatrixShape()" ,"Column Major" );
+        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
+  
+
+    //+
+    // setFrame()
+    //-
+
+        String FrameName= "J2000";
+
+        EXPECT_NO_THROW( calc.setFrame( FrameName ));
+
+    //  ** No setMovingSouce() **
+    
+    //+
+    //  getDirection()
+    //-
+
+        Description("calling  getDirection() ","" );
+
+        Matrix<Double>  DirList1  = calc.getDirection();
+        size_t   n_col    = DirList1.ncolumn();
+        size_t   n_row    = DirList1.nrow();
+
+        printf( "Number of Row = %zu \n", n_row );
+        printf( "Number of Col = %zu \n", n_col );
+
+    //+
+    // Dump Matrix
+    //-
+
+
+    Description("Dump obtined Direction info. ","" ); 
+   
+    if(true)
+    {
+        for (uInt row=0; row< n_row; row++)
+        {
+            // Direction //
+
+            double Val_1 = DirList1(row,0);
+            double Val_2 = DirList1(row,1);
+
+    
+            // Generated Data for Test //
+            
+                casacore::Vector<double>  out = generatePseudoPointData(row);
+            
+            // Output //
+                printf( "----\n");
+                printf( "Main Table Dir at, %d, %f,%f   \n",  
+                        row, Val_1, Val_2 );
+
+                printf( "Generated data at %d,  %f,%f   \n",
+                      row, out[0], out[1] );
+                
+        }   
+    }
+
+
+}
 TEST_F(TestDirection, getDirectionExtended )
 {
 
