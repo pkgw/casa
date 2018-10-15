@@ -28,8 +28,9 @@
 #ifndef DBUS_LFPLOTSERVERPROXY_H
 #define DBUS_LFPLOTSERVERPROXY_H
 
-#include <stdio.h>
-#include <math.h>
+#include <cmath>
+#include <cstdio>
+
 #include <casadbus/plotserver/PlotServerProxy.h>
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
@@ -97,11 +98,11 @@ class FlagPlotServerProxy : public PlotServerProxy {
 	}
 
 	void check(const int32_t& /*panel*/, const std::string& name, const int32_t& state) {
-	  //std::cout << "check: " << name << "/" << panel << " <" << state << ">" << std::endl;
-	  stringstream rval;
-	  rval << name << ":"<< state;
-	  returnvalue = rval.str();
-	  casa::DBusSession::instance().dispatcher().leave();
+          //std::cout << "check: " << name << "/" << panel << " <" << state << ">" << std::endl;
+          std::stringstream rval;
+          rval << name << ":"<< state;
+          returnvalue = rval.str();
+          casa::DBusSession::instance().dispatcher().leave();
 	}
 
 	void radio(const int32_t& panel, const std::string& name, const bool& state) {

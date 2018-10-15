@@ -645,15 +645,17 @@ image* image::collapse(
     try {
         _notSupported(__func__);
         IPosition myAxes;
-        if (axes.type() == variant::INT) {
+        auto axesType = axes.type();
+        ThrowIf(axesType == variant::BOOLVEC, "axes must be specified");
+        if (axesType == variant::INT) {
             myAxes = IPosition(1, axes.toInt());
         }
-        else if (axes.type() == variant::INTVEC) {
+        else if (axesType == variant::INTVEC) {
             myAxes = IPosition(axes.getIntVec());
         }
         else if (
-            axes.type() == variant::STRINGVEC
-            || axes.type() == variant::STRING
+            axesType == variant::STRINGVEC
+            || axesType == variant::STRING
         ) {
             Vector<String> axVec = (axes.type() == variant::STRING)
                 ? Vector<String> (1, axes.getString())

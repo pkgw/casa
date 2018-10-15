@@ -52,6 +52,7 @@
 #endif
 
 using namespace casacore;
+typedef unsigned long long ooLong; 
 namespace casa {
 
 PBMath2DImage::PBMath2DImage(ImageInterface<Float>& reJonesImage):
@@ -316,7 +317,8 @@ PBMath2DImage::applyJonesFast(const Float*& reJones,
        << LogIO::EXCEPTION;
   }
 
-  Vector<Int> polmap1=polmap;
+  Bool delpolmap;
+  const Int  *polmap1=polmap.getStorage(delpolmap);
   const Float* reJones1=reJones;
   const Float* imJones1=imJones;
 
@@ -351,7 +353,6 @@ PBMath2DImage::applyJonesFast(const Float*& reJones,
        applyJonesFastX(reJones1, imJones1, instor, outstor, polmap1,
 			  lala,	  lala,ipower,  // ie, 1=VP, 2=PB
 		    laloo,circular,forward,ix, nx, ny, npol);
-    
        /* for (Int iy=0; iy<ny; iy++) {
 
       //sp0(1)=iy;
@@ -452,7 +453,10 @@ PBMath2DImage::applyJonesFast(const Float*& reJones,
   } //OMP
   out.putStorage(outstor, delout);
   in.freeStorage(instor, delin);
+  polmap.freeStorage(polmap1, delpolmap);
 }
+
+
 
 
 void 
@@ -460,7 +464,7 @@ PBMath2DImage::applyJonesFastX(const Float*& reJones,
 			  const Float*& imJones,
 			  const Complex*& instor,
 			  Complex*& outstor,
-			  const Vector<Int>& polmap,
+			  const Int*& polmap,
 			  Bool /*inverse*/,
 			  Bool /*conjugate*/,
 			  Int ipower,  // ie, 1=VP, 2=PB
@@ -469,21 +473,21 @@ PBMath2DImage::applyJonesFastX(const Float*& reJones,
 			       Bool forward,
 			       const Int ix, const Int nx, const Int ny, const Int npol){
 
-  Int ind0, ind1, ind2, ind3; 
+  ooLong ind0, ind1, ind2, ind3; 
   // Loop through x, y coordinates of this cube
   Matrix<Complex> cmat(2,2);
 
-  for (Int iy=0; iy<ny; iy++) {
+  for (ooLong iy=0; iy< ooLong(ny) ; iy++) {
     
     //sp0(1)=iy;
     //sp1(1)=iy;
     //sp2(1)=iy;
     //sp3(1)=iy;
     
-    ind0=ix+nx*iy +(nx*ny)*polmap(3);
-    ind1=ix+nx*iy +(nx*ny)*polmap(2);
-    ind2=ix+nx*iy +(nx*ny)*polmap(1);
-    ind3=ix+nx*iy +(nx*ny)*polmap(0);
+    ind0=ooLong(ix)+ooLong(nx)*iy +(ooLong(nx)*ooLong(ny))*ooLong(polmap[3]);
+    ind1=ooLong(ix)+ooLong(nx)*iy +(ooLong(nx)*ooLong(ny))*ooLong(polmap[2]);
+    ind2=ooLong(ix)+ooLong(nx)*iy +(ooLong(nx)*ooLong(ny))*ooLong(polmap[1]);
+    ind3=ooLong(ix)+ooLong(nx)*iy +(ooLong(nx)*ooLong(ny))*ooLong(polmap[0]);
     // E Jones for this pixel
     mjJones4 j4;
     if(imJones) {

@@ -1329,7 +1329,7 @@ def writeFlagCommands(msfile, flagdict, applied, add_reason, outfile, append=Tru
     return True
 
 
-def parseRFlagOutputFromSummary(mode,summary_stats_list, flagcmd):
+def parseRFlagOutputFromSummary(mode, summary_stats_list, flagcmd):
     """
     Function to pull out 'rflag' output from the long dictionary, and 
     (1) write the output files with thresholds. If the filename is specified, use it.
@@ -1340,40 +1340,42 @@ def parseRFlagOutputFromSummary(mode,summary_stats_list, flagcmd):
           accepts inline : e.g.  timedev=[[1,10,0.1],[1,11,0.07]] . This way, the user
           need not keep track of threshold text files if they use 'savepars' with action='apply'.
     """
-    if type(summary_stats_list) is dict:
-        nreps = summary_stats_list['nreport']
-        for rep in range(0,nreps):
-            repname = 'report'+str(rep)
-            if summary_stats_list[repname]['type'] == "rflag":
-                # Pull out the rflag threshold dictionary. This has a 'name' in it.
-                rflag_thresholds = summary_stats_list[repname]
-                # Get the rflag id, to later construct a 'name' from to match the above.
-                rflagid = 0
-                if mode=='list':
-                    rflagid = int( rflag_thresholds['name'].replace('Rflag_','') )
-                # Go through the flagcmd list, to find the 'rflags'.....
-                for key in flagcmd.keys():
-                    # cmdline is a dictionary with flag commands
-                    cmdline = flagcmd[key]['command']
-                    if cmdline.has_key('mode') and cmdline['mode'] == 'rflag':
-                    # Check for match between input flagcmd and output threshold, via the rflag id
-                        if(key == rflagid):  
-                            # If timedev,freqdev are missing from cmdline, add empty ones.
-                            if(not cmdline.has_key('timedev')):  # aah. don't confuse it with timedevscale
-                                cmdline['timedev'] = []
-                            if( not cmdline.has_key('freqdev')):
-                                cmdline['freqdev'] = []
-                            # Write RFlag thresholds to these file names. 
-                            newtimedev,newfreqdev = writeRFlagThresholdFile(rflag_thresholds, cmdline['timedev'], cmdline['freqdev'], rflagid)
-                            ## VERIFY for parser
-                            # Modify the flagcmd string, so that savepars sees the contents of the file
-                            if( isinstance(cmdline['timedev'], list)):
-                                cmdline['timedev'] = newtimedev
-                            if( isinstance(cmdline['freqdev'],list)):
-                                cmdline['freqdev'] = newfreqdev
-                                
-                            # Remove writeflags from the cmd to prevent it from going into savepars
-                            cmdline.pop('writeflags')
+    if not summary_stats_list or dict != type(summary_stats_list):
+        return
+
+    nreps = summary_stats_list['nreport']
+    for rep in range(0,nreps):
+        repname = 'report'+str(rep)
+        if summary_stats_list[repname]['type'] == "rflag":
+            # Pull out the rflag threshold dictionary. This has a 'name' in it.
+            rflag_thresholds = summary_stats_list[repname]
+            # Get the rflag id, to later construct a 'name' from to match the above.
+            rflagid = 0
+            if mode=='list':
+                rflagid = int( rflag_thresholds['name'].replace('Rflag_','') )
+            # Go through the flagcmd list, to find the 'rflags'.....
+            for key in flagcmd.keys():
+                # cmdline is a dictionary with flag commands
+                cmdline = flagcmd[key]['command']
+                if cmdline.has_key('mode') and cmdline['mode'] == 'rflag':
+                # Check for match between input flagcmd and output threshold, via the rflag id
+                    if(key == rflagid):
+                        # If timedev,freqdev are missing from cmdline, add empty ones.
+                        if(not cmdline.has_key('timedev')):  # aah. don't confuse it with timedevscale
+                            cmdline['timedev'] = []
+                        if( not cmdline.has_key('freqdev')):
+                            cmdline['freqdev'] = []
+                        # Write RFlag thresholds to these file names.
+                        newtimedev,newfreqdev = writeRFlagThresholdFile(rflag_thresholds, cmdline['timedev'], cmdline['freqdev'], rflagid)
+                        ## VERIFY for parser
+                        # Modify the flagcmd string, so that savepars sees the contents of the file
+                        if( isinstance(cmdline['timedev'], list)):
+                            cmdline['timedev'] = newtimedev
+                        if( isinstance(cmdline['freqdev'],list)):
+                            cmdline['freqdev'] = newfreqdev
+
+                        # Remove writeflags from the cmd to prevent it from going into savepars
+                        cmdline.pop('writeflags')
 
 
 def save_rflag_consolidated_files(mode, action, cons_dict, opts_dict, inpfile):
@@ -1395,7 +1397,7 @@ def save_rflag_consolidated_files(mode, action, cons_dict, opts_dict, inpfile):
                      format(pprint.pformat(cons_dict)), 'INFO')
         # Prepare the list of commands
         if mode == 'list':
-            cmd_list = fh.get_flag_cmd_list(inpfile)
+            cmd_list = get_flag_cmd_list(inpfile)
         else:
             # need only the relevant fields to save the output files in
             # parseRFlagOutputFromSummary()
@@ -4458,7 +4460,7 @@ def extractRFlagOutputFromSummary(mode,summary_stats_list, flagcmd):
                     cmdline = flagcmd[key]['command'];
                     if cmdline.__contains__('rflag'):
                         # Check for match between input flagcmd and output threshold, via the rflag id
-                        if(key==rflagid):  
+                        if(key==rflagid):
                             # If timedev,freqdev are missing from cmdline, add empty ones.
                             if( not cmdline.__contains__('timedev=') ):  # aah. don't confuse it with timedevscale
                                 cmdline = cmdline + " timedev=[] ";
@@ -4467,7 +4469,7 @@ def extractRFlagOutputFromSummary(mode,summary_stats_list, flagcmd):
                             # Pull out timedev, freqdev strings from flagcmd
                             rflagpars = getLinePars(cmdline , ['timedev','freqdev','writeflags']);
                             ##print "cmdline : ", cmdline
-                            # Write RFlag thresholds to these file names. 
+                            # Write RFlag thresholds to these file names.
                             newtimedev,newfreqdev = writeRFlagThresholdFile(rflag_thresholds, rflagpars['timedev'], rflagpars['freqdev'], rflagid)
                             ## Modify the flagcmd string, so that savepars sees the contents of the file
                             if( rflagpars['timedev'].__contains__('[') ):
