@@ -480,7 +480,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
         Vector<Double> scanRate = dirVal2 - dirVal1;
         Vector<Double> interpolated = dirVal1
                 + scanRate * (currentTime - t0) / dt;
-        direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),
+        direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"), 
                 refType1);
     }
     debuglog << "direction = "
@@ -496,7 +496,6 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
         debuglog << "converted = " << outVal << "(unit rad reference frame "
                 << converted.getRefString() << ")" << debugpost;
     }
-
     // moving source correction
     assert(movingSourceCorrection_ != NULL);
     debuglog << "calling indirect: movingSourceCorrection_()  " << debugpost;
