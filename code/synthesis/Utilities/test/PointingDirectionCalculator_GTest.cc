@@ -319,7 +319,7 @@ void DeleteWorkingMS()
     // Delete File (Recursively done) 
     // NOTE: for debug use, please change true-> falase )
 
-    if (false)
+    if (true)
     {
          dir_ctrl. removeRecursive(false /*keepDir=False */ );
     }
@@ -389,7 +389,14 @@ public:
 
         void CreateNewColumnsFromDirection();
 
-private:
+    // Generating artificial POINTING Trance
+
+        casacore::Vector<double> GeneratePointngForInterporation(int tm);
+
+
+    //+
+    // Default File Name
+    //-
 
         const String MsName = DefaultLocalMsName;  // default (C++11) //
 
@@ -405,10 +412,46 @@ private:
     //-
 
         bool useRealData  = false;   // True = use real data in the MS. False = use generated data
+
+    //+
+    // Generating Parameter 
+    //   (assume AZEL)
+    //    -PI <  AZ < PI,  -PI/2 < EL < PI/2
+    //-
+
+        Double Dir_X_start      = -3.14;
+        Double Dir_X_increment  = 0.001;
+
+        Double Dir_Y_start      = -0.157;
+        Double Dir_Y_increment  = 0.0002;
+
+    // Time Offset and Expected Result //
+
+        Double  ExpectedOffset_X = 0.0;    // 0.0005;     
+        Double  ExpectedOffset_Y = 0.0;    // 0.0005;
+
+    // Parameters  (Time)
+    
+        Double slideOffset   = 0;      // Sliding Time (sec)
+        Double dayOffset     = 0;      // Day offset   (Day)
+
+    ////////////////////
+    
+        // Interval and shift 
+
+        Double pointingInterval = 1.0 ;	        // Interval Time to set in POINTING
+        Double TestOffset       = 0.49;          //   0 < TestOffset < Interval 
+
+        // Interporation Error Limit //
+    
+        Double interpolationErrorLimit = 5.0E-9;
+    
+    ////////////////////
+
 };
 
 //+
-// Add one row on Antanna Table
+// Add onmsedit. erow on Antanna Table
 //  returns latest nrow.
 //-
 
@@ -631,7 +674,7 @@ void MsEdit::AntennaTable_WriteData(String MsName, uInt Row )
 
 
  //+
- // List all the data from Pointing Table
+ // List ALL THE DATA  from Pointing Table
  //  of specified MS.
  //- 
 
@@ -639,7 +682,8 @@ void MsEdit::PointingTable_List(String MsName, bool showAll)
 {
     // Open MS by Update mode //
 
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
+//        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
+        MeasurementSet ms0( MsName.c_str());
 
     // Tables Name //
 
@@ -721,6 +765,8 @@ void MsEdit::PointingTable_List(String MsName, bool showAll)
         }
 
 }
+
+
 
 //+
 // Write Columns on Pointing Table  
@@ -940,33 +986,24 @@ void MsEdit::CreateNewColumnsFromDirection()
 //   returns pointng info. by Vecror.
 //-
 
-casacore::Vector<double>  generatePseudoPointData(int tm)
+casacore::Vector<double> MsEdit::GeneratePointngForInterporation(int tm)
+
 {
         casacore::Vector<Double> point;
         point.resize(4);
 
-    //+
-    // THis value can change Interporation behabior
-    //   - use 0, +10000.0, -10000.0
-    //   - link PointingDirectionCalculator.cc with DEBUGLOG to see the
-    //     internal interporation behabior.n doGetDirection() . 
-    //-  
 
-        Double baseOffset  = 0;
-        Double fitOffset   = 0;
-        Double interval = 1.0 ;
-
-        Double d = fitOffset +
-                      (22 *3600.0 +  5*60 +  41.5 + (double)tm * interval + baseOffset )/(3600*24); 
+        Double d = slideOffset 
+                 +  (22 *3600.0 +  5*60 +  41.5 + (double)tm * pointingInterval + dayOffset )/(3600*24); 
                       
         casacore::MVTime  tm00(2003,11,12 ,d);     
  
     // Vector to return //
 
-        point[0] = -3.0 + 0.001 * (double)tm;  // Direction
-        point[1] = -3.0 + 0.001 * (double)tm;
-        point[2] = tm00.second();           // Time 
-        point[3] = interval;                // Interval 
+        point[0] = Dir_X_start + Dir_X_increment * (double)tm;     // Direction
+        point[1] = Dir_Y_start + Dir_Y_increment * (double)tm;    // Direction
+        point[2] = tm00.second();                  // Time  (sec) 
+        point[3] = pointingInterval;               // Interval (sec)
         
         return point;
 }
@@ -1032,17 +1069,17 @@ void  MsEdit::WriteTestDataOnPointingTable(String MsName)
 
             // DIRECTION  //
 
-                Array<Double> direction(Ipo, -1);   // IP shape and initial val // 
+                Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
 
-                Vector<Double>  psd_data  = generatePseudoPointData( row ); // generated pseudo data. //
+                Vector<Double>  psd_data  = GeneratePointngForInterporation( row ); // generated pseudo data. //
 
                 direction[0][0] = psd_data[0];
                 direction[0][1] = psd_data[1];
- 
+
             // write access //
 
-                if(true)       pointingDirection.   put(row, direction );
-                if(true)       pointingTarget.      put(row, direction );
+                pointingDirection.   put(row, direction );
+                pointingTarget.      put(row, direction );
 
             // Time Info. (current) //
  
@@ -1053,6 +1090,8 @@ void  MsEdit::WriteTestDataOnPointingTable(String MsName)
             
                 printf( "[%d] Curr / Generated Time, %f ,%f \n", 
                         row, curTime, psd_data[2] ); 
+                printf( "     Generated Direction (%f ,%f) \n",
+                        psd_data[0], psd_data[1] );
 
             // Time Set  //
 
@@ -1063,7 +1102,7 @@ void  MsEdit::WriteTestDataOnPointingTable(String MsName)
             }
             else
             {
-                pointingTime.           put(row, psd_data[2] ); // Time
+                pointingTime.           put(row, psd_data[2] + TestOffset); // Time
                 pointingInterval.       put(row, psd_data[3] ); // Interval
             }
         }
@@ -1113,7 +1152,7 @@ void  MsEdit::WriteTestDataOnMainTable(String MsName)
         {
             // Pseudo Data (TEST DATA )
 
-               Vector<Double>  psd_data  = generatePseudoPointData( row ); // generated pseudo data. //
+               Vector<Double>  psd_data  = GeneratePointngForInterporation( row ); // generated pseudo data. //
 
             // Time Info. (current) //
  
@@ -1134,7 +1173,7 @@ void  MsEdit::WriteTestDataOnMainTable(String MsName)
             }
             else
             {
-                mainTime.           put(row, psd_data[2] +0.5 ); // Time
+                mainTime.           put(row, psd_data[2] ); // Time
                 mainInterval.       put(row, psd_data[3] ); // Interval
             }   
 
@@ -1415,6 +1454,7 @@ protected:
         // Add Testing Data(generated) to direction on POINTING //
         void addTestDataForGetDirection();
 
+
         TestDirection()
         {
         }
@@ -1587,7 +1627,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 
     // List all info on Pointing Table. //
 
-    if(false) {
+    if(true) {
           printf( "Listing all POINTING TABLE  \n");
           msedit.PointingTable_List( MsName, false );
     }
@@ -2046,7 +2086,7 @@ void DumpPointingTable(String MsName)
 {
     // Open MS by Update mode //
 
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
+        MeasurementSet ms0( MsName.c_str());
 
     // Tables Name //
 
@@ -2074,43 +2114,26 @@ void DumpPointingTable(String MsName)
     // Listing  (Pointing) 
     //-
 
-        ROScalarColumn<Int>    pointingAntennaId      = columnPointing ->antennaId();
         ROScalarColumn<Double> pointingTime           = columnPointing ->time();
         ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
-        ROScalarColumn<String> pointingName           = columnPointing ->name();
-        ROScalarColumn<Int>    pointingNumPoly        = columnPointing ->numPoly();
-        ROScalarColumn<Double> pointingTimeOrigin     = columnPointing ->timeOrigin();
-
         ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
         ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
 
         printf( "================================\n");
-        printf( " Pointing TBL Info \n");
+        printf( " Pointing (Time and Dir) \n");
         printf( "-----------------+--------------\n");
 
         for (uInt row=0; row<nrow_p; row++)
         {
-            if(false)
-            {
-                printf( "Pointing: Antenna ID  [%d] = %d \n", row, pointingAntennaId.    get(row)  );
-                printf( "Pointing: Time        [%d] = %f \n", row, pointingTime.         get(row)  );
-                printf( "Pointing: Interval    [%d] = %f \n", row, pointingInterval.     get(row)  );
-                printf( "Pointing: Name        [%d] = \"%s\" \n", row, pointingName.       get(row).c_str()  );
-                printf( "Pointing: Num Poly    [%d] = %d \n", row, pointingNumPoly.      get(row)  );
-                printf( "Pointing: Time Origin [%d] = %f \n", row, pointingTimeOrigin.   get(row)  );
-
-            }
 
             Vector<Double> valDirection  =   pointingDirection. get(row);
             Vector<Double> valTarget     =   pointingTarget.    get(row);
 	    Double         valTime       =    pointingTime.     get(row);
 
-
             printf( "Pointing,(pos time dir target), %d , %f, , %f, %f, ,%f, %f)  \n", 
                     row,  valTime, 
                     valDirection[0],      valDirection[1],
                     valTarget[0],         valTarget[1] );
-
 
         }
 
@@ -2148,7 +2171,7 @@ TEST_F(TestDirection, Interpolation )
 
         if(true)
         {
-              const String AntSel = "";
+              const String AntSel = "GBT&&&";
             calc.selectData( AntSel,  "","","","","","","","","" );
  
         }
@@ -2177,13 +2200,19 @@ TEST_F(TestDirection, Interpolation )
 
         EXPECT_NO_THROW( calc.setFrame( FrameName ));
 
-    //  ** No setMovingSouce() **
-    
+    //  Dump (before)
+
+        if(false)
+        {
+            Description("Dump Pointing (before getDirection) ","" );
+            DumpPointingTable( MsName );
+        }
+
     //+
     //  getDirection()
     //-
 
-        Description("calling  getDirection() ","" );
+        Description("Calling  getDirection() ","" );
 
         Matrix<Double>  DirList1  = calc.getDirection();
         size_t   n_col    = DirList1.ncolumn();
@@ -2197,11 +2226,11 @@ TEST_F(TestDirection, Interpolation )
     //-
 
 
-    Description("Dump obtined Direction info. ","" ); 
+    Description("Inspecting  Direction Inerpolation ","" ); 
    
     if(true)
     {
-        for (uInt row=0; row< n_row; row++)
+        for (uInt row=1; row< n_row; row++)  // ACTUNG !!! start from 1 /// 
         {
             // Direction //
 
@@ -2211,17 +2240,34 @@ TEST_F(TestDirection, Interpolation )
     
             // Generated Data for Test //
             
-                casacore::Vector<double>  out = generatePseudoPointData(row);
+                casacore::Vector<double>  gen_out = msedit.GeneratePointngForInterporation(row);
             
             // Output //
                 printf( "----\n");
-                printf( "Main Table Dir at, %d, %f,%f   \n",  
+                printf( "Main Table Dir [%d], %12.9f,%12.9f \n",  
                         row, Val_1, Val_2 );
 
-                printf( "Generated data at %d,  %f,%f   \n",
-                      row, out[0], out[1] );
-                
-        }   
+                printf( "Generated data [%d], %12.9f,%12.9f \n",
+                      row, gen_out[0], gen_out[1] );
+               
+            //  Expected Interporation Factor //
+           
+                msedit.ExpectedOffset_X =  msedit.Dir_X_increment * ( msedit.TestOffset / msedit.pointingInterval );
+                msedit.ExpectedOffset_Y =  msedit.Dir_Y_increment * ( msedit.TestOffset / msedit.pointingInterval );
+ 
+            //+
+            // Google Test 
+            //-
+
+                double Err_1 = (Val_1 + msedit.ExpectedOffset_X) - gen_out[0] ;   // shift =0.5, Interval = 1.0 //
+                double Err_2 = (Val_2 + msedit.ExpectedOffset_Y) - gen_out[1] ;   // shift =0.5, Interval = 1.0 //
+
+                Err_1 = abs(Err_1);
+                Err_2 = abs(Err_2);
+         
+		EXPECT_LE( Err_1, msedit.interpolationErrorLimit  ); 
+                EXPECT_LE( Err_2, msedit.interpolationErrorLimit  ); 
+        }    
     }
 
 
