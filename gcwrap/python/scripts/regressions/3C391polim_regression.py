@@ -274,7 +274,7 @@ else:
     print "***Logging the reulsts***"
     failcnts=0
     for k,v in tests.items():
-      if v=='FAILED': 
+      if 'FAILED' in v: 
         regstate=False
         failcnts+=1
     if regstate:
