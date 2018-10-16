@@ -30,7 +30,6 @@
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
 
-//#include <ms/MeasurementSets/MSColumns.h>
 
 #include <flagging/Flagging/FlagPlotServerProxy.h>
 

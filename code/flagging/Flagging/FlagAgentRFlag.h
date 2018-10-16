@@ -93,7 +93,7 @@ protected:
 	casacore::Double computeThreshold(vector<casacore::Double> &data, vector<casacore::Double> &dataSquared, vector<casacore::Double> &counts);
 
 	// casacore::Function to be called for each timestep/channel
-	void computeAntennaPairFlagsCore(	pair<casacore::Int,casacore::Int> spw_field,
+	void computeAntennaPairFlagsCore(std::pair<casacore::Int,casacore::Int> spw_field,
 										casacore::Double noise,
 										casacore::Double scutoff,
 										casacore::uInt timeStart,
@@ -130,19 +130,19 @@ protected:
 	FlagReport getReport();
 
 	// casacore::Function to return histograms
-	FlagReport getReportCore(	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &data,
-								map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &dataSquared,
-								map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &counts,
-								map< pair<casacore::Int,casacore::Int>,casacore::Double > &threshold,
+	FlagReport getReportCore(	map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &data,
+								map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &dataSquared,
+								map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &counts,
+								map< std::pair<casacore::Int,casacore::Int>,casacore::Double > &threshold,
 								FlagReport &totalReport,
 								string label,
 								casacore::Double scale);
 
 	// Dedicated method to generate threshold values
-	void generateThresholds(	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &data,
-								map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &dataSquared,
-								map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &counts,
-								map< pair<casacore::Int,casacore::Int>,casacore::Double > &threshold,
+	void generateThresholds(	map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &data,
+								map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &dataSquared,
+								map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &counts,
+								map< std::pair<casacore::Int,casacore::Int>,casacore::Double > &threshold,
 								string label);
 
 private:
@@ -165,26 +165,26 @@ private:
 	void (casa::FlagAgentRFlag::*spectralAnalysis_p)(casacore::uInt,casacore::uInt,casacore::uInt,casacore::Double&,casacore::Double&,casacore::Double&,casacore::Double&,casacore::Double&,casacore::Double&,VisMapper&,FlagMapper&);
 
 	// Store frequency to be used in Reports
-	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_frequency_p;
-	map< pair<casacore::Int,casacore::Int>,casacore::Double > field_spw_frequencies_p;
+	map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_frequency_p;
+	map< std::pair<casacore::Int,casacore::Int>,casacore::Double > field_spw_frequencies_p;
 
 	// casacore::Time-direction analysis
 	casacore::Double noise_p;
 	// holds the timedev thresholds for every field-SPW pair
-	map< pair<casacore::Int,casacore::Int>,casacore::Double > field_spw_noise_map_p;
-	map< pair<casacore::Int,casacore::Int>,casacore::Bool > user_field_spw_noise_map_p;
-	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_noise_histogram_sum_p;
-	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_noise_histogram_sum_squares_p;
-	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_noise_histogram_counts_p;
+	map< std::pair<casacore::Int,casacore::Int>,casacore::Double > field_spw_noise_map_p;
+	map< std::pair<casacore::Int,casacore::Int>,casacore::Bool > user_field_spw_noise_map_p;
+	map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_noise_histogram_sum_p;
+	map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_noise_histogram_sum_squares_p;
+	map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_noise_histogram_counts_p;
 
 	// Spectral analysis
 	casacore::Double scutoff_p;
 	// holds the freqdev thresholds for every field-SPW pair
-	map< pair<casacore::Int,casacore::Int>,casacore::Double > field_spw_scutoff_map_p;
-	map< pair<casacore::Int,casacore::Int>,casacore::Bool > user_field_spw_scutoff_map_p;
-	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutoff_histogram_sum_p;
-	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutoff_histogram_sum_squares_p;
-	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutoff_histogram_counts_p;
+	map< std::pair<casacore::Int,casacore::Int>,casacore::Double > field_spw_scutoff_map_p;
+	map< std::pair<casacore::Int,casacore::Int>,casacore::Bool > user_field_spw_scutoff_map_p;
+	map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutoff_histogram_sum_p;
+	map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutoff_histogram_sum_squares_p;
+	map< std::pair<casacore::Int,casacore::Int>,vector<casacore::Double> > field_spw_scutoff_histogram_counts_p;
 };
 
 

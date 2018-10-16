@@ -709,7 +709,7 @@ def flagdata(vis,
         if (mode == 'rflag' or mode== 'list') and (writeflags==False):
             casalog.post('Saving RFlag return dictionary: {0}'.
                          format(pprint.pformat(summary_stats_list)), 'INFO')
-            fh.parseRFlagOutputFromSummary(mode,summary_stats_list, modified_flagcmd)
+            fh.parseRFlagOutputFromSummary(mode, summary_stats_list, modified_flagcmd)
 
 
         # Save the current parameters/list to FLAG_CMD or to output
