@@ -1288,7 +1288,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //  tempres->attachMask(res.pixelMask());
     //}
     if (nfalse(pbmask.getMask())) {
-      os<<LogIO::DEBUG1<<"has pbmask..."<<LogIO::POST;
+      os<<LogIO::DEBUG1<<"has pbmask"<<LogIO::POST;
     }
    
     //check Stokes and spectral axes

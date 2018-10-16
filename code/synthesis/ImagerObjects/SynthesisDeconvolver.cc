@@ -253,14 +253,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Float nsigmathresh = 0.0;
       if (itsNsigma >0.0) {
         itsMaskHandler->setPBMaskLevel(itsPBMask);
-        Array<Double> robustrms = itsImages->calcRobustRMS(itsPBMask);
+        Array<Double> medians;
+        Array<Double> robustrms = itsImages->calcRobustRMS(medians, itsPBMask);
         // Before the first iteration the iteration parameters have not been
         // set in SIMinorCycleController
         // Use nsigma pass to SynthesisDeconvolver directly for now...
         //Float nsigma = itsLoopController.getNsigma();
-        Double maxrobustrms = max(robustrms);
+        Double minval, maxval;
+        IPosition minpos, maxpos;
+        //Double maxrobustrms = max(robustrms);
+        minMax(minval, maxval, minpos, maxpos, robustrms);
+        
         //Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
-        nsigmathresh = itsNsigma * (Float)maxrobustrms;
+        //nsigmathresh = itsNsigma * (Float)maxrobustrms;
+        if (itsAutoMaskAlgorithm=="multithresh") {
+          nsigmathresh = (Float)(medians(maxpos)) + itsNsigma * (Float)maxval;
+        }
+        else {
+          nsigmathresh = itsNsigma * (Float)maxval;
+        }
         os << "Current nsigma threshold (maximum along spectral channels) ="<<nsigmathresh<<LogIO::POST;
       }
       itsLoopController.setNsigmaThreshold(nsigmathresh);
@@ -384,8 +395,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     try {
       //      if ( !itsIsInteractive ) setAutoMask();
       itsLoopController.setCycleControls(minorCycleControlRec);
-
-      itsDeconvolver->deconvolve( itsLoopController, itsImages, itsDeconvolverId );
+      bool automaskon (false);
+      if (itsAutoMaskAlgorithm=="multithresh") {
+        automaskon=true;
+      }
+      itsDeconvolver->deconvolve( itsLoopController, itsImages, itsDeconvolverId, automaskon );
       returnRecord = itsLoopController.getCycleExecutionRecord();
 
       //scatterModel(); // This is a no-op for the single-node case.

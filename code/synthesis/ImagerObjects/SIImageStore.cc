@@ -2789,7 +2789,7 @@ Bool SIImageStore::isModelEmpty()
     minMax( minVal, maxVal, posmin, posmax, lattice );
   }
 
-Array<Double> SIImageStore::calcRobustRMS(const Float pbmasklevel)
+Array<Double> SIImageStore::calcRobustRMS(Array<Double>& mdns, const Float pbmasklevel)
 {    
   LogIO os( LogOrigin("SIImageStore","calcRobustRMS",WHERE) );
   Record*  regionPtr=0;
@@ -2821,8 +2821,8 @@ Array<Double> SIImageStore::calcRobustRMS(const Float pbmasklevel)
   //cout<<"thestats="<<thestats<<endl;
   ***/
 
-  //Array<Double> maxs, rmss, mads, mdns;
-  Array<Double>rmss, mads, mdns;
+  //Array<Double>rmss, mads, mdns;
+  Array<Double>rmss, mads;
   //thestats.get(RecordFieldId("max"), maxs);
   thestats.get(RecordFieldId("rms"), rmss);
   thestats.get(RecordFieldId("medabsdevmed"), mads);

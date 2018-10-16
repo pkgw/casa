@@ -74,7 +74,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SDAlgorithmBase::deconvolve( SIMinorCycleController &loopcontrols, 
 				    std::shared_ptr<SIImageStore> &imagestore,
-				    Int deconvolverid)
+				    Int deconvolverid,
+                                    bool isautomasking)
   {
     LogIO os( LogOrigin("SDAlgorithmBase","deconvolve",WHERE) );
 
@@ -152,8 +153,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             if (nsigma>0.0) {
               // returns as an Array but itsImages is already single plane so 
               // the return rms contains only a single element
-              robustrms = itsImages->calcRobustRMS(itsPBMask);
-              nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
+              Array<Double> medians;
+              robustrms = itsImages->calcRobustRMS(medians, itsPBMask);
+              if (isautomasking) { // new threshold defination
+                nsigmathresh = (Float)medians(IPosition(1,0)) + nsigma * (Float)robustrms(IPosition(1,0));
+              }
+              else {
+                nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
+              }
               thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
             }
             else {
