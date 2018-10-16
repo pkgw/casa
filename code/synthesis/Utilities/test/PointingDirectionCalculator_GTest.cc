@@ -169,6 +169,7 @@ void TestDescription( const String &Title )
     printf( "///////////////////////////////////////////////////////////////////////////// \n");
     printf( " %s  \n",Title.c_str() );
     printf( "///////////////////////////////////////////////////////////////////////////// \n");
+    sleep(2);
 }
 
 void FunctionalDescription(const String &Title, const String &Param)
@@ -389,10 +390,13 @@ public:
 
         void CreateNewColumnsFromDirection();
 
-    // Generating artificial POINTING Trance
+    // Generating artificial POINTING values
 
         casacore::Vector<double> GeneratePointngForInterporation(int tm);
 
+    // SetUp Evaluation parameters for POINTING data //
+    
+        void SetUpEvaluationParametersInPointing(Int param, Int N );
 
     //+
     // Default File Name
@@ -1008,6 +1012,39 @@ casacore::Vector<double> MsEdit::GeneratePointngForInterporation(int tm)
         return point;
 }
 
+void MsEdit::SetUpEvaluationParametersInPointing(Int Param, Int Num )
+{
+        Description("Setting Up parameters ","" );
+  
+        //+
+        // Generating Parameter 
+        //   (assume AZEL)
+        //    -PI <  AZ < PI,  -PI/2 < EL < PI/2
+        //-
+
+            Dir_X_start      = -3.14;
+            Dir_X_increment  = 0.0016;
+
+            Dir_Y_start      = -0.157;
+            Dir_Y_increment  = 0.0004;
+
+        //+
+        // Define Interval and Interpolation Condition // 
+        //-
+            pointingInterval             = 1.0 ;                          // Interval Time to set in POINTING
+            TestOffset                   = (double)Param / (double) Num;  // Offset bwtween 2 Samples. ( 0 < TestOffset < Interval) 
+
+            interpolationErrorLimit      = 1.0e-8;        // Error Limit
+
+        //+
+        // SetUp Threashold  Condition and MeasurmentSet
+        //-
+
+          ExpectedOffset_X =  Dir_X_increment * ( TestOffset / pointingInterval );
+          ExpectedOffset_Y =  Dir_Y_increment * ( TestOffset / pointingInterval );
+
+}
+
 //+
 // Wtite Test Data on Direction Column in Pointing Table
 //  - Values are got by sub fuction above.
@@ -1086,12 +1123,14 @@ void  MsEdit::WriteTestDataOnPointingTable(String MsName)
                 Double curTime      = pointingTime.     get(row);
                 Double curInterval  = pointingInterval. get(row);
 
-            // Show Time //
-            
+            // Show Time (OPTION)//
+
+            if(false) { 
                 printf( "[%d] Curr / Generated Time, %f ,%f \n", 
                         row, curTime, psd_data[2] ); 
                 printf( "     Generated Direction (%f ,%f) \n",
                         psd_data[0], psd_data[1] );
+            }
 
             // Time Set  //
 
@@ -1110,7 +1149,7 @@ void  MsEdit::WriteTestDataOnPointingTable(String MsName)
         // Flush //
         
         ms0.flush();
-
+        sleep(2);
 }
 
 //+
@@ -1161,9 +1200,11 @@ void  MsEdit::WriteTestDataOnMainTable(String MsName)
 
             // Show Time //
   
-                printf( "[%d] Curr / Interval, %f ,%f \n", 
-                        row, curTime, curInterval ); 
- 
+                if (false){  
+                        printf( "[%d] Curr / Interval, %f ,%f \n", 
+                            row, curTime, curInterval ); 
+                }
+
             // Time Set  //
 
             if(useRealData)
@@ -1453,6 +1494,9 @@ protected:
 
         // Add Testing Data(generated) to direction on POINTING //
         void addTestDataForGetDirection();
+
+        // subfunction of TEST_F(TestDirection....)
+        void subTestDirection();
 
 
         TestDirection()
@@ -2139,18 +2183,16 @@ void DumpPointingTable(String MsName)
 
 }
     
-
-
-TEST_F(TestDirection, Interpolation )
+void TestDirection::subTestDirection()
 {
 
     TestDescription( "Interpolation Test in getDirection ()" );
 
     const String MsName = DefaultLocalMsName;
 
-    //  MS (Dump) //
+    //  MS (Dump) ** develper option ** //
 
-        DumpPointingTable(MsName);
+        if(false)  DumpPointingTable(MsName);
 
     // Create Object //
     
@@ -2189,8 +2231,7 @@ TEST_F(TestDirection, Interpolation )
     //  MatrixShape (COLUMN_MAJOR) 
     //-
         Description("calling setDirectionListMatrixShape()" ,"Column Major" );
-        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
-  
+        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ); 
 
     //+
     // setFrame()
@@ -2225,9 +2266,13 @@ TEST_F(TestDirection, Interpolation )
     // Dump Matrix
     //-
 
-
     Description("Inspecting  Direction Inerpolation ","" ); 
-   
+
+    // Worst Error //
+
+      Double ErrorWorst_1 =0.0;
+      Double ErrorWorst_2 =0.0;
+ 
     if(true)
     {
         for (uInt row=1; row< n_row; row++)  // ACTUNG !!! start from 1 /// 
@@ -2242,19 +2287,6 @@ TEST_F(TestDirection, Interpolation )
             
                 casacore::Vector<double>  gen_out = msedit.GeneratePointngForInterporation(row);
             
-            // Output //
-                printf( "----\n");
-                printf( "Main Table Dir [%d], %12.9f,%12.9f \n",  
-                        row, Val_1, Val_2 );
-
-                printf( "Generated data [%d], %12.9f,%12.9f \n",
-                      row, gen_out[0], gen_out[1] );
-               
-            //  Expected Interporation Factor //
-           
-                msedit.ExpectedOffset_X =  msedit.Dir_X_increment * ( msedit.TestOffset / msedit.pointingInterval );
-                msedit.ExpectedOffset_Y =  msedit.Dir_Y_increment * ( msedit.TestOffset / msedit.pointingInterval );
- 
             //+
             // Google Test 
             //-
@@ -2264,14 +2296,58 @@ TEST_F(TestDirection, Interpolation )
 
                 Err_1 = abs(Err_1);
                 Err_2 = abs(Err_2);
-         
+ 
+                if(Err_1 > ErrorWorst_1 ) ErrorWorst_1 = Err_1;
+                if(Err_2 > ErrorWorst_2 ) ErrorWorst_2 = Err_2;
+
+#if 0
 		EXPECT_LE( Err_1, msedit.interpolationErrorLimit  ); 
                 EXPECT_LE( Err_2, msedit.interpolationErrorLimit  ); 
+#else
+                ASSERT_LE( Err_1, msedit.interpolationErrorLimit  ); 
+                ASSERT_LE( Err_2, msedit.interpolationErrorLimit  ); 
+#endif
+            // Output //
+
+                printf( "----\n");
+                printf( "Main Table Dir [%6d], %12.9f,%12.9f \n",   row, Val_1, Val_2 );
+                printf( "Generated data [%6d], %12.9f,%12.9f \n",   row,  gen_out[0], gen_out[1] );
+                printf( "Numerical error[%6d],%5.2e,%5.2e \n",      row,  Err_1, Err_2);
         }    
     }
-
+   
+    printf( "Error Worst 1 = %e \n", ErrorWorst_1 );
+    printf( "Error Worst 2 = %e \n", ErrorWorst_2 ); 
 
 }
+
+TEST_F(TestDirection, Interpolation0 )
+{
+
+    TestDescription( "Interpolation test in getDirection() " );
+
+    // Test Loop 
+    for (uInt loop=1; loop <= 24; loop ++ )
+    {
+
+        // Set Up Parapeters 
+
+           msedit.SetUpEvaluationParametersInPointing( loop, 24 );
+
+        // SetUp Testing  MeasurmentSet
+
+           Description("Making MeasurementSet","k="+to_string( (double)loop/24.0) );
+           addTestDataForGetDirection();
+
+        // Executtion ..// 
+        
+          Description("Execution starts. ","" );
+          subTestDirection();
+
+    }
+
+}
+
 TEST_F(TestDirection, getDirectionExtended )
 {
 
