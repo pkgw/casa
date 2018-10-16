@@ -361,7 +361,7 @@ class Calibrater
 
   // casacore::MSSelection object
   casacore::MSSelection* mss_p;
-  vi::FrequencySelections* frequencySelections_p;
+  std::shared_ptr<vi::FrequencySelections> frequencySelections_p;
 
   // Meta-info server for calibration
   MSMetaInfoForCal* msmc_p;
