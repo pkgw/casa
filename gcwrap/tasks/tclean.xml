@@ -992,7 +992,7 @@ HPX HEALPix grid.  -->
     </param>
 
     <param type="string" name="cfcache" subparam="true">
-           <shortdescription>>Convolution function cache directory name</shortdescription>
+           <shortdescription>Convolution function cache directory name</shortdescription>
 <description>Convolution function cache directory name
 
                        Name of a directory in which to store gridding convolution functions.
@@ -1037,7 +1037,7 @@ HPX HEALPix grid.  -->
     </param>
 
     <param type="double" name="pblimit" subparam="true">
-     <shortdescription>>PB gain level at which to cut off normalizations </shortdescription>
+     <shortdescription>PB gain level at which to cut off normalizations </shortdescription>
 <description>PB gain level at which to cut off normalizations
 
                        Divisions by .pb during normalizations have a cut off at a .pb gain
@@ -2538,9 +2538,9 @@ HPX HEALPix grid.  -->
 	 <default param="computepastep"><value>360.0</value></default>
 	 <default param="rotatepastep"><value>360.0</value></default>
 	 <default param="wbawp"><value>False</value></default>
-	 <default param="conjbeams"><value>False</value></default>
 <!--	 <default param="vptable"><value>""</value></default> -->
 	 <default param="pblimit"><value>0.2</value></default>
+	 <default param="conjbeams"><value>False</value></default>
        </equals>
        <equals type="string" value="awprojectft">
 	 <default param="wprojplanes"><value>1</value></default>
@@ -2551,9 +2551,9 @@ HPX HEALPix grid.  -->
 	 <default param="computepastep"><value>360.0</value></default>
 	 <default param="rotatepastep"><value>360.0</value></default>
 	 <default param="wbawp"><value>False</value></default>
-	 <default param="conjbeams"><value>False</value></default>
 <!--	 <default param="vptable"><value>""</value></default> -->
 	 <default param="pblimit"><value>0.2</value></default>
+	 <default param="conjbeams"><value>False</value></default>
        </equals>
      </when>
 
