@@ -182,12 +182,20 @@ Int PlotMSCacheBase::nIter( int dataIndex ) const {
 vector<PMS::Axis> PlotMSCacheBase::loadedAxes() const {    
 	// have to const-cast loaded axes because the [] operator is not const,
 	// even though we're not changing it.
-	map<PMS::Axis, bool>& la = const_cast<map<PMS::Axis, bool>& >(loadedAxes_);
+	//map<PMS::Axis, bool>& la = const_cast<map<PMS::Axis, bool>& >(loadedAxes_);
 	vector<PMS::Axis> v;
-	const vector<PMS::Axis>& axes = PMS::axes();
-	for(unsigned int i = 0; i < axes.size(); i++)
-		if(la[axes[i]]) v.push_back(axes[i]);
+	//const vector<PMS::Axis>& axes = PMS::axes();
+	//for(unsigned int i = 0; i < axes.size(); i++)
+	//	if(la[axes[i]]) v.push_back(axes[i]);
+	for (const auto & axis_isLoaded : loadedAxes_)
+		if (axis_isLoaded.second) v.push_back(axis_isLoaded.first);
 	return v;
+}
+
+bool PlotMSCacheBase::areRaDecAxesLoaded(const DirectionAxisParams &params) const {
+	auto raLoaded  = raMap_.find(params)  != raMap_.end();
+	auto decLoaded = decMap_.find(params) != decMap_.end();
+	return raLoaded and decLoaded;
 }
 
 Record PlotMSCacheBase::locateInfo(int plotIterIndex, const Vector<PlotRegion>& regions,

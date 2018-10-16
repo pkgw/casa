@@ -53,18 +53,21 @@ public:
     
     // Returns the labels used in the widget.
     // <group>
+    QLabel* axisLabel() { return AxisWidget::axisLabel;}
     QLabel* dataLabel() { return AxisWidget::dataLabel; }
+    QLabel* interpLabel() { return AxisWidget::interpLabel; }
+    QLabel* refFrameLabel() { return AxisWidget::refFrameLabel; }
     QLabel* attachLabel() { return AxisWidget::attachLabel; }
     QLabel* rangeLabel() { return AxisWidget::rangeLabel; }
-    QLabel* axisLabel(){
-    	return AxisWidget::axisLabel;
-    }
+
     // </group>
     
     // Gets the current set values in the widget.
     // <group>
     PMS::Axis axis() const;
     PMS::DataColumn data() const;
+    PMS::InterpMethod interpMethod() const;
+    PMS::CoordSystem refFrame() const;
     PlotAxis attachAxis() const;
     bool matchesData(const PlotMSAxisWidget* other ) const;
     bool rangeCustom() const;
@@ -104,6 +107,8 @@ private slots:
     // Slot for when the axis value changed.
     void axisChanged(const QString& value);
     void axisDataChanged();
+    void axisInterpChanged();
+    void axisRefFrameChanged();
 
 };
 

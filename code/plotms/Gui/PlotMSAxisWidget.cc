@@ -101,9 +101,16 @@ PlotMSAxisWidget::PlotMSAxisWidget(PMS::Axis defaultAxis, int attachAxes,
 			SLOT(axisChanged(const QString&)));
 	connect( dataChooser, SIGNAL(currentIndexChanged(const QString&)),
 			SLOT(axisDataChanged()));
+	connect( interpChooser, SIGNAL(currentIndexChanged(const QString&)),
+			SLOT(axisInterpChanged()));
+	connect( refFrameChooser, SIGNAL(currentIndexChanged(const QString&)),
+			SLOT(axisRefFrameChanged()));
 
 	connect(chooser, SIGNAL(currentIndexChanged(int)), SIGNAL(axisChanged()));
 	connect(dataChooser, SIGNAL(currentIndexChanged(int)), SIGNAL(axisChanged()));
+	connect(interpChooser, SIGNAL(currentIndexChanged(int)), SIGNAL(axisChanged()));
+	connect(refFrameChooser, SIGNAL(currentIndexChanged(int)), SIGNAL(axisChanged()));
+
 	if ( attachBottom != NULL ){
 		connect(attachBottom, SIGNAL(toggled(bool)), SIGNAL(axisChanged()));
 	}
@@ -157,6 +164,15 @@ PMS::Axis PlotMSAxisWidget::axis() const {
 PMS::DataColumn PlotMSAxisWidget::data() const {
 	QString dataText = dataChooser->currentText();
 	return PMS::dataColumn(dataText.toStdString());
+}
+
+PMS::InterpMethod PlotMSAxisWidget::interpMethod() const {
+	QString interpText = interpChooser->currentText();
+	return PMS::interpMethod(interpText.toStdString());
+}
+PMS::CoordSystem PlotMSAxisWidget::refFrame() const {
+	QString refFrameText = refFrameChooser->currentText();
+	return PMS::coordSystem(refFrameText.toStdString());
 }
 
 QString PlotMSAxisWidget::getIdentifier() const {
@@ -274,6 +290,14 @@ void PlotMSAxisWidget::axisChanged(const QString& value) {
 }
 
 void PlotMSAxisWidget::axisDataChanged(){
+	emit axisIdentifierChanged( this );
+}
+
+void PlotMSAxisWidget::axisInterpChanged(){
+	emit axisIdentifierChanged( this );
+}
+
+void PlotMSAxisWidget::axisRefFrameChanged(){
 	emit axisIdentifierChanged( this );
 }
 

@@ -321,6 +321,14 @@ def plotms(vis=None,
                 if synonyms.has_key(col):
                     ydatacolumn[index] = synonyms[col]
 
+        if isinstance(xframe, str):
+            if synonyms.has_key(xframe):
+                xframe = synonyms[xframe]
+        elif isinstance(xframe, list):
+            for index,frame in enumerate(xframe):
+                if synonyms.has_key(frame):
+                    xframe[index] = synonyms[frame]
+
         if isinstance(yframe, str):
             if synonyms.has_key(yframe):
                 yframe = synonyms[yframe]

@@ -223,6 +223,8 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
 
     for ( int i = 0; i < yAxisCount; i++ ){
     	c->setYAxis(itsYWidgets_[i]->axis(), itsYWidgets_[i]->data(), i);
+    	c->setYInterp(itsYWidgets_[i]->interpMethod(),i);
+    	c->setYFrame(itsYWidgets_[i]->refFrame(),i);
     	a->setYAxis(itsYWidgets_[i]->attachAxis(), i);
     	a->setYRange(itsYWidgets_[i]->rangeCustom(), itsYWidgets_[i]->range(), i);
     }
@@ -339,14 +341,19 @@ void PlotMSAxesTab::update(const PlotMSPlot& plot) {
     int yAxisCount = itsYWidgets_.size();
     for ( int j = 0; j < yAxisCount; j++ ){
     	found = false;
-    	PMS::Axis yData = c2->yAxis(j);
+    	PMS::Axis yAxis = c2->yAxis(j);
     	for(unsigned int i = 0; !found && i < laxes.size(); i++){
-    		if(laxes[i] == yData){
+    		if(laxes[i] == yAxis){
     			found = true;
     			break;
     		}
     	}
+    	if (PMS::axisIsRaDec(yAxis)) {
+    		auto yDirParams = c2->yDirectionParams(j);
+    		found = plot.cache().areRaDecAxesLoaded(yDirParams);
+    	}
     	itsYWidgets_[j]->setInCache(found);
+
     }
 
     // Update labels.
@@ -372,19 +379,29 @@ void PlotMSAxesTab::update(const PlotMSPlot& plot) {
     bool overlayChanged = (c->showAtm() != atmRadio->isChecked()) || (c->showTsky() != tskyRadio->isChecked());
     highlightWidgetText(overlayLabel, overlayChanged);
     
-    for ( int i = 0; i < yAxisCount; i++ ){
-    	QLabel* axisLabel = itsYWidgets_[i]->axisLabel();
-    	highlightWidgetText(axisLabel, d->isSet() && (c->yAxis(i) != c2->yAxis(i) ||
-                (PMS::axisIsData(c->yAxis(i)) &&
-                 c->yDataColumn(i) != c2->yDataColumn(i))));
-    	highlightWidgetText(itsYWidgets_[i]->dataLabel(), d->isSet() &&
-                c->yDataColumn(i) != c2->yDataColumn(i));
-    	highlightWidgetText(itsYWidgets_[i]->attachLabel(), d->isSet() &&
-                a->yAxis(i) != a2->yAxis(i));
-    	highlightWidgetText(itsYWidgets_[i]->rangeLabel(), d->isSet() &&
-                (a->yRangeSet(i) != a2->yRangeSet(i) ||
-                (a->yRangeSet(i) && a->yRange(i) != a2->yRange(i))));
-    }
+    if (d->isSet()){
+		for ( int i = 0; i < yAxisCount; i++ ){
+			QLabel* axisLabel = itsYWidgets_[i]->axisLabel();
+			auto yAxisChanged = c->yAxis(i) != c2->yAxis(i);
+			auto yDataAxisParamsChanged = PMS::axisIsData(c->yAxis(i)) &&
+					(c->yDataColumn(i) != c2->yDataColumn(i));
+			auto yDirectionAxisParamsChanged = PMS::axisIsRaDec(c->yAxis(i)) &&
+					(c->yDirectionParams(i) != c2->yDirectionParams(i));
+			auto yAxisParamsChanged = yDataAxisParamsChanged || yDirectionAxisParamsChanged;
+			highlightWidgetText(axisLabel, yAxisChanged || yAxisParamsChanged);
+			highlightWidgetText(itsYWidgets_[i]->dataLabel(),
+				c->yDataColumn(i) != c2->yDataColumn(i));
+			highlightWidgetText(itsYWidgets_[i]->interpLabel(),
+				c->yInterp(i) != c2->yInterp(i));
+			highlightWidgetText(itsYWidgets_[i]->refFrameLabel(),
+				c->yFrame(i) != c2->yFrame(i));
+			highlightWidgetText(itsYWidgets_[i]->attachLabel(),
+				a->yAxis() != a2->yAxis());
+			highlightWidgetText(itsYWidgets_[i]->rangeLabel(),
+				(a->yRangeSet(i) != a2->yRangeSet(i)) ||
+				(a->yRangeSet(i) && (a->yRange(i) != a2->yRange(i))));
+		}
+	}
 
     // If the user hasn't set a custom range, set defaults for time axis.
     // For time axis, get bounds from cache; else use 0 for other axes types

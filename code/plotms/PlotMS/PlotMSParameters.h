@@ -168,6 +168,7 @@ public:
 	PMS::CoordSystem getCoordSystem() const;
 	PMS::InterpMethod getInterpMethod() const;
 	friend bool operator<(const DirectionAxisParams & p1, const DirectionAxisParams & p2);
+	friend bool operator!=(const DirectionAxisParams & p1, const DirectionAxisParams & p2);
 private:
 	PMS::CoordSystem coordSystem_;
 	PMS::InterpMethod interpMethod_;

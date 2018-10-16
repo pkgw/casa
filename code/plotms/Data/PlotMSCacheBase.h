@@ -150,6 +150,10 @@ public:
   // relative memory use of each axis).
   std::vector<PMS::Axis> loadedAxes() const;
 
+  // Returns true if RA/DEC axes data
+  // - for the given parameters - have been loaded
+  bool areRaDecAxesLoaded(const DirectionAxisParams &params) const;
+
   // Access to averaging state in the cache:
   PlotMSAveraging& averaging() { return averaging_; }
 

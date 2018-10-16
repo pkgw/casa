@@ -29,6 +29,7 @@
 
 #include <plotms/Plots/PlotMSPlotParameters.h>
 
+#include <plotms/PlotMS/PlotMSParameters.h>
 #include <plotms/PlotMS/PlotMSAveraging.h>
 #include <plotms/PlotMS/PlotMSExportParam.h>
 #include <plotms/PlotMS/PlotMSIterParam.h>
@@ -467,6 +468,7 @@ public:
 		&>(itsYFrame_).resize (index + 1);
 		return itsYFrame_[index];
 	}
+
 	void setYFrame (const PMS::CoordSystem & value, unsigned int index =
 			0) {
 		if (index >= itsYFrame_.size())
@@ -527,6 +529,13 @@ public:
 			itsYInterp_[index] = value;
 			updated();
 		}
+	}
+
+	DirectionAxisParams xDirectionParams (unsigned int index = 0) const {
+		return DirectionAxisParams(xFrame(index),xInterp(index));
+	}
+	DirectionAxisParams yDirectionParams (unsigned int index = 0) const {
+		return DirectionAxisParams(yFrame(index),yInterp(index));
 	}
 
 
