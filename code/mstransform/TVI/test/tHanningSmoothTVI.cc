@@ -232,7 +232,9 @@ void HanningSmoothTVISpwChannTest::createTVIs()
     if(useMSSelection_p)
     {
         diskItFac.reset(new VisIterImpl2LayerFactory(msSelected.get(),ipar, false));
-        diskItFac->setFrequencySelection(freqSel);
+        FrequencySelections selections;
+        selections.add(freqSel);
+        diskItFac->setFrequencySelections(selections);
     }
     else
         diskItFac.reset(new VisIterImpl2LayerFactory(ms_p.get(),ipar, false));
