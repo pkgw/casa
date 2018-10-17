@@ -29,7 +29,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 namespace vi {
   class FrequencySelectionUsingChannels;
-  class VisIterImpl2LayerFactory'
+  class VisIterImpl2LayerFactory;
 }
 
 // Flag casacore::Data Handler class definition
