@@ -169,7 +169,6 @@ void TestDescription( const String &Title )
     printf( "///////////////////////////////////////////////////////////////////////////// \n");
     printf( " %s  \n",Title.c_str() );
     printf( "///////////////////////////////////////////////////////////////////////////// \n");
-    sleep(2);
 }
 
 void FunctionalDescription(const String &Title, const String &Param)
@@ -320,10 +319,188 @@ void DeleteWorkingMS()
     // Delete File (Recursively done) 
     // NOTE: for debug use, please change true-> falase )
 
-    if (true)
+    if (false)
     {
          dir_ctrl. removeRecursive(false /*keepDir=False */ );
     }
+}
+
+//+
+//  Function Generation 
+//   for Interporation TEST 
+//   in TEST_F (TestDirection )
+//-
+
+class InterpolationGeneration
+{
+
+
+public:
+
+    InterpolationGeneration() { Initialize(); }
+
+    // Init and Define Parameters 
+   
+        void Initialize();
+
+    // Generation
+
+        casacore::Vector<double>  Generate(Double tn);
+
+    //+
+    // Operation Mode
+    //-
+
+        const bool useRealData  = false;   // Swich MS True = use real data in the MS. False = use generated data
+
+    //+
+    // Numerical Error Statictic 
+    //-
+  
+        double interpolationErrorLimit ; 
+
+private:
+       
+    //+
+    // Generating Parameter 
+    //   (assume AZEL)
+    //    -PI <  AZ < PI,  -PI/2 < EL < PI/2
+    //-
+
+        Double Dir_X_start       ;
+        Double Dir_X_ChangeRate  ;
+
+        Double Dir_Y_start       ;
+        Double Dir_Y_ChangeRate  ;
+
+    // Parameters  (Time)
+    
+        Double slideOffset   = 0;      // Sliding Time (sec)
+        Double dayOffset     = 0;      // Day offset   (Day)
+
+    
+    // Interval Time//
+
+        Double pointingIntervalSec ;	        // Interval Time to set in POINTING
+        Double mainIntervalSec     ;
+
+
+};
+
+//+
+// Initialize
+//-
+
+void InterpolationGeneration::Initialize( )
+{
+        Description("Setting Up parameters ","" );
+ 
+
+        //+
+        // Pointing Interval
+        //- 
+
+            pointingIntervalSec = 1.0 ;               // Interval Time to set in POINTING
+            mainIntervalSec     = 1.0 ;              
+
+        //+
+        // Generating Parameter [depending on function forms]
+        //   (assume AZEL)
+        //    -PI <  AZ < PI,  -PI/2 < EL < PI/2
+        //-
+
+            Dir_X_start       = -3.0;
+            Dir_X_ChangeRate  = 0.001;
+
+            Dir_Y_start       = -1.5;
+            Dir_Y_ChangeRate  = 0.0005;
+
+
+        //+
+        //  Error Statistic 
+        //-
+
+         interpolationErrorLimit  = 1.0E-04;
+}
+
+
+//+
+// Generate Pseudo Data on Direction
+//   returns pointng info. by Vecror.
+//-
+
+casacore::Vector<double> InterpolationGeneration::Generate(Double tn )
+{
+        casacore::Vector<Double> point;
+        point.resize(6);
+
+        //+
+        // Base Time on generated MS
+        //    (see MVTime in detail)
+        //-
+
+        Double dd   =  (22 *3600.0 
+                         +  5*60 +  41.5 
+                         + (tn * pointingIntervalSec) + dayOffset )/(3600*24) 
+                         + slideOffset;
+     
+        casacore::MVTime  basetime (2003,11,12 ,dd);     
+ 
+        //+
+        // Designed Function of POINITNG location
+        //-
+
+        Double X;
+        Double Y;
+
+        switch(9)
+        {
+            case 1:    /// 1.st order ///
+        
+                X = Dir_X_start + Dir_X_ChangeRate * tn;     // Direction
+                Y = Dir_Y_start + Dir_Y_ChangeRate * tn;    // Direction
+                break;
+
+            case 8:    /// Sinusoid (slow)/// 
+ 
+                 X = 2.0 * cos( 2.0*M_PI / 3000 * tn );
+                 Y = 1.0 * sin( 2.0*M_PI / 3000 * tn );
+                 break;
+
+            case 9:    /// Sinusoid (quick) /// 
+
+                 X = 2.0 * cos( 2.0*M_PI / 100 * tn );
+                 Y = 1.0 * sin( 2.0*M_PI / 100 * tn );
+                 break;
+
+            case 2:       /// 2.nd oder /// 
+            case 3:       /// 3.rd. order ///
+            case 0:
+            default:
+                X = 0.0;
+                Y = 0.0;
+                break;
+        }
+
+        // Direction Values //
+
+        point[0] = X;
+        point[1] = Y;
+
+        // Time and Interval //
+
+        point[2] = basetime.second();                     // Time  (sec) 
+        point[3] = pointingIntervalSec;               // Interval (sec)
+        
+        //+
+        // (Reserved)
+        //-
+        
+        point[4] = 0.0 ;
+        point[5] = 0.0 ;
+
+        return point;
+
 }
 
 //+
@@ -358,6 +535,8 @@ class MsEdit
 {
 public:
 
+    InterpolationGeneration  msgen;
+
     MsEdit()        { };
 
     // Add or Remove Row  (Antenna) //
@@ -380,23 +559,15 @@ public:
 
     // Write (generated) Test Data on Pointing Table //
 
-        void WriteTestDataOnPointingTable(String MsName =DefaultLocalMsName );
+        void WriteTestDataOnPointingTable(double dt, String MsName =DefaultLocalMsName );
 
     // Write (generated) Test Data in MAIN Table //
 
-        void WriteTestDataOnMainTable(String MsName =DefaultLocalMsName);
+        void WriteTestDataOnMainTable(double dt, String MsName =DefaultLocalMsName);
 
     // Add or Remove Column (Pointing) ////
 
         void CreateNewColumnsFromDirection();
-
-    // Generating artificial POINTING values
-
-        casacore::Vector<double> GeneratePointngForInterporation(double tm);
-
-    // SetUp Evaluation parameters for POINTING data //
-    
-        void SetUpEvaluationParametersInPointing(Int param, Int N );
 
     //+
     // Default File Name
@@ -410,50 +581,6 @@ public:
 
         ANTENNADataBuff  AntennaData;   // for Read 
         ANTENNADataBuff  AntennaData1;  // for Write
-
-    //+
-    // Interpolation Test
-    //-
-
-        bool useRealData  = false;   // True = use real data in the MS. False = use generated data
-
-        double ErrorWorst_1 = 0.0;
-        double ErrorWorst_2 = 0.0;
-
-    //+
-    // Generating Parameter 
-    //   (assume AZEL)
-    //    -PI <  AZ < PI,  -PI/2 < EL < PI/2
-    //-
-
-        Double Dir_X_start      = -3.14;
-        Double Dir_X_increment  = 0.001;
-
-        Double Dir_Y_start      = -0.157;
-        Double Dir_Y_increment  = 0.0002;
-
-    // Time Offset and Expected Result //
-
-        Double  ExpectedOffset_X = 0.0;    // 0.0005;     
-        Double  ExpectedOffset_Y = 0.0;    // 0.0005;
-
-    // Parameters  (Time)
-    
-        Double slideOffset   = 0;      // Sliding Time (sec)
-        Double dayOffset     = 0;      // Day offset   (Day)
-
-    ////////////////////
-    
-        // Interval and shift 
-
-        Double pointingInterval = 1.0 ;	        // Interval Time to set in POINTING
-        Double TestOffset       = 0.49;          //   0 < TestOffset < Interval 
-
-        // Interporation Error Limit //
-    
-        Double interpolationErrorLimit = 5.0E-9;
-    
-    ////////////////////
 
 };
 
@@ -863,6 +990,8 @@ void MsEdit::PointingTable_WriteData(String MsName )
  
 }
 
+//+
+//   Create new columns
 //   copied by Direction Table 
 //  
 //    - This is for testing MovingSourceCorrection, 
@@ -894,7 +1023,7 @@ void MsEdit::CreateNewColumnsFromDirection()
 
     // Prepare Column //
 
-        // create the Smart Pointer in use. //
+        // create the Smart Ponter in use. //
 
         std::unique_ptr<casacore::MSPointingColumns> 
                 columnPointing( new casacore::MSPointingColumns( hPointingTable ));
@@ -988,104 +1117,8 @@ void MsEdit::CreateNewColumnsFromDirection()
 
 }
 
-//+
-// Generate Pseudo Data on Direction
-//   returns pointng info. by Vecror.
-//-
-
-casacore::Vector<double> MsEdit::GeneratePointngForInterporation(Double tn )
-
-{
-        casacore::Vector<Double> point;
-        point.resize(6);
 
 
-        Double d =  (22 *3600.0 
-                     +  5*60 +  41.5 
-                     + (tn * pointingInterval) + dayOffset )/(3600*24) 
-                     + slideOffset;
-     
-        casacore::MVTime  tm00(2003,11,12 ,d);     
- 
-        //+
-        // Designed Function of POINITNG location
-        //-
-
-        switch(1)
-        {
-            case 1:    /// 1.st order ///
-        
-                point[0] = Dir_X_start + Dir_X_increment * tn;     // Direction
-                point[1] = Dir_Y_start + Dir_Y_increment * tn;    // Direction
-                break;
-
-            case 2:       /// 2.nd oder /// 
-   
-                point[0] = Dir_X_start + pow((Dir_X_increment * tn), 2) /(2.0*M_PI);     // Direction
-                point[1] = Dir_Y_start + pow((Dir_Y_increment * tn), 2) /(1.0*M_PI);    // Direction
-                break;
-
-            case 3:       /// 3.rd. order ///
-                
-                point[0] = pow((Dir_X_increment * (tn-1400)) , 3)/(2.0*M_PI*M_PI);  
-                point[1] = pow((Dir_Y_increment * (tn-1400)) , 3)/(2.0*M_PI*M_PI);
-
-                break;
-
-            case 0:
-            default:
-                point[0] = 0.0;
-                point[1] = 0.0;
-                break;
-        }
-
-        // Time and Interval //
-
-        point[2] = tm00.second();                  // Time  (sec) 
-        point[3] = pointingInterval;               // Interval (sec)
-        
-        //+
-        // (Reserved)
-        //-
-        
-        point[4] = 0.0 ;
-        point[5] = 0.0 ;
-
-        return point;
-}
-
-void MsEdit::SetUpEvaluationParametersInPointing(Int Param, Int Num )
-{
-        Description("Setting Up parameters ","" );
-  
-        //+
-        // Generating Parameter 
-        //   (assume AZEL)
-        //    -PI <  AZ < PI,  -PI/2 < EL < PI/2
-        //-
-
-            Dir_X_start      = -3.14;
-            Dir_X_increment  = 0.0016;
-
-            Dir_Y_start      = -1.57;
-            Dir_Y_increment  = 0.0008;
-
-        //+
-        // Define Interval and Interpolation Condition // 
-        //-
-            pointingInterval             = 1.0 ;                          // Interval Time to set in POINTING
-            TestOffset                   = (double)Param / (double) Num;  // Offset bwtween 2 Samples. ( 0 < TestOffset < Interval) 
-
-            interpolationErrorLimit      = 1.0e-02 ;  // 1.2e-8;        // Error Limit
-
-        //+
-        // SetUp Threashold  Condition and MeasurmentSet
-        //-
-
-          ExpectedOffset_X =  Dir_X_increment * ( TestOffset / pointingInterval );
-          ExpectedOffset_Y =  Dir_Y_increment * ( TestOffset / pointingInterval );
-
-}
 
 //+
 // Wtite Test Data on Direction Column in Pointing Table
@@ -1094,7 +1127,7 @@ void MsEdit::SetUpEvaluationParametersInPointing(Int Param, Int Num )
 //  - see also TEST Fixture  
 //-
 
-void  MsEdit::WriteTestDataOnPointingTable(String MsName)
+void  MsEdit::WriteTestDataOnPointingTable(double dt, String MsName)
 {
     Description( "Writing Test Data on Direcotion Column in Pointing Table", 
                   MsName.c_str()  );
@@ -1150,7 +1183,8 @@ void  MsEdit::WriteTestDataOnPointingTable(String MsName)
 
                 Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
 
-                Vector<Double>  psd_data  = GeneratePointngForInterporation( (Double)row ); // generated pseudo data. //
+                Vector<Double>  psd_data  
+                    = msgen.Generate( (Double)row ); // generated pseudo data. //
 
                 direction[0][0] = psd_data[0];
                 direction[0][1] = psd_data[1];
@@ -1176,14 +1210,14 @@ void  MsEdit::WriteTestDataOnPointingTable(String MsName)
 
             // Time Set  //
 
-            if(useRealData)
+            if(false)
             {
                 pointingTime.           put(row, curTime     ); // copy curr. Time
                 pointingInterval.       put(row, curInterval ); // copy curr. Interval 
             }
             else
-            {
-                pointingTime.           put(row, psd_data[2] + TestOffset); // Time
+            {  
+                pointingTime.           put(row, psd_data[2] +dt ); // Time
                 pointingInterval.       put(row, psd_data[3] ); // Interval
             }
         }
@@ -1199,7 +1233,7 @@ void  MsEdit::WriteTestDataOnPointingTable(String MsName)
 //  - Values are got by common function.
 //-
 
-void  MsEdit::WriteTestDataOnMainTable(String MsName)
+void  MsEdit::WriteTestDataOnMainTable(double dt, String MsName)
 {
     Description( "Writing Test Data (Time) in MAIN Table", 
                   MsName.c_str()  );
@@ -1233,7 +1267,8 @@ void  MsEdit::WriteTestDataOnMainTable(String MsName)
         {
             // Pseudo Data (TEST DATA )
 
-               Vector<Double>  psd_data  = GeneratePointngForInterporation( (Double)row ); // generated pseudo data. //
+               Vector<Double>  psd_data 
+                   = msgen.Generate( (Double)row ); // generated pseudo data. //
 
             // Time Info. (current) //
  
@@ -1249,15 +1284,15 @@ void  MsEdit::WriteTestDataOnMainTable(String MsName)
 
             // Time Set  //
 
-            if(useRealData)
+            if(false)
             {
-                mainTime.           put(row, curTime ); // copy curr. Time
+                mainTime.           put(row, curTime + dt ); // copy curr. Time
                 mainInterval.       put(row, curInterval ); // copy curr. Interval 
             }
             else
             {
-                mainTime.           put(row, psd_data[2] ); // Time
-                mainInterval.       put(row, psd_data[3] ); // Interval
+                mainTime.           put(row, psd_data[2]  +dt ); // Time
+                mainInterval.       put(row, psd_data[3] );     // Interval
             }   
 
         }
@@ -1526,7 +1561,9 @@ public:
 
 protected:
 
-        casa::MsEdit  msedit;
+        // MeasurementSet Editting
+     
+            casa::MsEdit  msedit;
 
         // Add 3 OFFSET Colums (basically reserved) //
         void addColumnsOnPointing();
@@ -1535,10 +1572,10 @@ protected:
         void addColumnDataOnPointing();
 
         // Add Testing Data(generated) to direction on POINTING //
-        void addTestDataForGetDirection();
+        void addTestDataForGetDirection(double dt);
 
         // subfunction of TEST_F(TestDirection....)
-        void subTestDirection(Double dt);
+        std::vector<double>  subTestDirection(Double dt);
 
 
         TestDirection()
@@ -1563,7 +1600,7 @@ protected:
 
             addColumnsOnPointing();
             addColumnDataOnPointing();
-            addTestDataForGetDirection();
+            addTestDataForGetDirection(0.0);
 
         }
 
@@ -1580,15 +1617,15 @@ protected:
 
 };
 
-void TestDirection::addTestDataForGetDirection()
+void TestDirection::addTestDataForGetDirection(double dt)
 {
     // Pointing //
 
-    msedit.WriteTestDataOnPointingTable();
+    msedit.WriteTestDataOnPointingTable( 0.0 );
 
     // MAIN //
 
-    msedit.WriteTestDataOnMainTable();
+    msedit.WriteTestDataOnMainTable( dt );
  
 }
 
@@ -2225,7 +2262,17 @@ void DumpPointingTable(String MsName)
 
 }
     
-void TestDirection::subTestDirection( Double dt )
+double  TestOffset(Int Param, Int Num )
+{
+    //+
+    // Define Interval and Interpolation Condition // 
+    //   Offet between 2 values ( 0 <= offset  <= 1.0 ) 
+    //-
+
+    return  (double)Param / (double) Num;
+}
+
+std::vector<double>  TestDirection::subTestDirection(double dt )
 {
 
     TestDescription( "Interpolation Test in getDirection ()" );
@@ -2310,25 +2357,30 @@ void TestDirection::subTestDirection( Double dt )
 
     Description("Inspecting  Direction Inerpolation ","" ); 
 
+    double maxErr_1 = 0.0;
+    double maxErr_2 = 0.0;             
+    double absErr_1 = 0.0;
+    double absErr_2 = 0.0;
+
     if(true)
     {
-        for (uInt row=1; row< n_row; row++)  // ACTUNG !!! start from 1 /// 
+        for (uInt row=0; row< n_row -1 ; row++)  // ACTUNG !!! start from 1 /// 
         {
+ 
             // Direction //
 
               double calculated_1 = DirList1(row,0);
               double calculated_2 = DirList1(row,1);
 
     
-            // Generated Data for Test //
+            // Generated (Estimated) //
             
                 casacore::Vector<double>  gen_out 
-                    = msedit.GeneratePointngForInterporation((Double)row - dt);
-            
+                      = msedit.msgen.Generate((Double)row +dt );
+ 
             //+
-            // Google Test 
+            // calculation 
             //-
-
 
                 double generated_1 = gen_out[0]; 
                 double generated_2 = gen_out[1]; 
@@ -2336,61 +2388,60 @@ void TestDirection::subTestDirection( Double dt )
                 double Err_1 = calculated_1 - generated_1 ;   
                 double Err_2 = calculated_2 - generated_2 ;
 
-                double absErr_1 = abs(Err_1);
-                double absErr_2 = abs(Err_2);
- 
-                if(absErr_1 > msedit.ErrorWorst_1 ) msedit.ErrorWorst_1 = absErr_1;
-                if(absErr_2 > msedit.ErrorWorst_2 ) msedit.ErrorWorst_2 = absErr_2;
+                absErr_1 = abs(Err_1);
+                absErr_2 = abs(Err_2);
+                
+                if( maxErr_1 < absErr_1 ) maxErr_1 = absErr_1;
+                if( maxErr_2 < absErr_2 ) maxErr_2 = absErr_2;
+
+            //+ 
+            // Google Test
+            //-
 
 #if 1
-		EXPECT_LE( absErr_1, msedit.interpolationErrorLimit  ); 
-                EXPECT_LE( absErr_2, msedit.interpolationErrorLimit  ); 
-#else
-                ASSERT_LE( absErr_1, msedit.interpolationErrorLimit  ); 
-                ASSERT_LE( absErr_2, msedit.interpolationErrorLimit  ); 
+		EXPECT_LE( absErr_1, msedit.msgen.interpolationErrorLimit  ); 
+                EXPECT_LE( absErr_2, msedit.msgen.interpolationErrorLimit  ); 
 #endif
             // Output //
 
                 printf( "----\n");
                 printf( "Main Table Dir [%6d], %12.9f,%12.9f \n",   row,  calculated_1, calculated_2 );
                 printf( "Generated data [%6d], %12.9f,%12.9f \n",   row,  generated_1,  generated_2 );
-                printf( "Numerical error[%6d],%5.2e,%5.2e \n",      row,  absErr_1,     absErr_2);
+                printf( "         error [%6d],%5.2e,%5.2e \n",      row,  Err_1,     Err_2);
         }    
     }
    
-    printf( "Error Worst 1 = %e \n", msedit.ErrorWorst_1 );
-    printf( "Error Worst 2 = %e \n", msedit.ErrorWorst_2 ); 
+   std::vector<double> vv(2);
+   vv[0] = maxErr_1;   
+   vv[1] = maxErr_2;
 
+   return vv; 
 }
 
-TEST_F(TestDirection, Interpolation0 )
+TEST_F(TestDirection, InterpolationX )
 {
 
     TestDescription( "Interpolation test in getDirection() " );
 
-    // Reset Statictic //
+    // Max Error //
+    
+    std::vector<double> maxerr;
 
-    msedit.ErrorWorst_1 = 0.0;
-    msedit.ErrorWorst_2 = 0.0;
-
-    // Test Loop 
-    for (uInt loop=1; loop <= 9; loop ++ )
+    // Test Loop  //
+    double nDiv = 10; 
+    for (Int loop=0; loop < nDiv; loop ++ )
     {
-
-        // Set Up Parapeters 
-
-           msedit.SetUpEvaluationParametersInPointing( loop, 10 );
-
         // SetUp Testing  MeasurmentSet
 
-           Description("Making MeasurementSet","k="+to_string( (double)loop/10.0) );
-           addTestDataForGetDirection();
+           Description("Making MeasurementSet","k="+to_string( TestOffset(loop,nDiv) ) );
+           addTestDataForGetDirection( TestOffset(loop,nDiv) );
 
         // Executtion ..// 
         
           Description("Execution starts. ","" );
-          subTestDirection( (double)loop/10.0 );
+          maxerr = subTestDirection( TestOffset(loop, nDiv) );
 
+          printf( " Max Error = %e, %e \n", maxerr[0], maxerr[1] );
     }
 
 }
