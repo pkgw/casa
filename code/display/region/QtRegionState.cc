@@ -274,7 +274,7 @@ namespace casa {
 			updateStatistics( region( )->statistics( ) );
 		}
 
-		void QtRegionState::updateStatistics( std::list<SHARED_PTR<RegionInfo> > *stats ) {
+		void QtRegionState::updateStatistics( std::list<std::shared_ptr<RegionInfo> > *stats ) {
 			if ( stats == 0 || stats->size() == 0 ) {
 				if ( pre_dd_change_statistics_count != -1 ) clearStatistics( );
 				pre_dd_change_statistics_count = -1;
@@ -304,7 +304,7 @@ namespace casa {
 			int firstIndex = 0;
 			QtRegionStats *first = dynamic_cast<QtRegionStats*>(statistics_group->widget(firstIndex));
 			if ( first == 0 ) throw internal_error( );
-			std::list<SHARED_PTR<RegionInfo> >::iterator stat_iter = stats->begin();
+			std::list<std::shared_ptr<RegionInfo> >::iterator stat_iter = stats->begin();
 			if ( (*stat_iter)->list( ) ) {
 				if ( first->updateStatisticsInfo( *stat_iter ) == false ){
 					statisticsUpdate( first, *stat_iter );
@@ -344,7 +344,7 @@ namespace casa {
 			pre_dd_change_statistics_count = -1;
 		}
 
-		void QtRegionState::statisticsUpdate( QtRegionStats *regionStats, SHARED_PTR<casa::viewer::RegionInfo> regionInfo ) {
+		void QtRegionState::statisticsUpdate( QtRegionStats *regionStats, std::shared_ptr<casa::viewer::RegionInfo> regionInfo ) {
 			if ( region_->type( ) != region::PolylineRegion &&
 			        region_->type( ) != region::PVLineRegion ) {
 				regionStats->updateStatistics( regionInfo );
@@ -365,7 +365,7 @@ namespace casa {
 			}
 		}
 
-		void QtRegionState::updateCenters( std::list<SHARED_PTR<RegionInfo> > *centers ) {
+		void QtRegionState::updateCenters( std::list<std::shared_ptr<RegionInfo> > *centers ) {
 			// check if something can be done at all
 			if ( centers == 0 || centers->size() == 0 ) return;
 
@@ -391,7 +391,7 @@ namespace casa {
 			int num = centers_group->count( );
 			QtRegionStats *first = dynamic_cast<QtRegionStats*>(centers_group->widget(0));
 			if ( first == 0 ) throw internal_error( );
-			std::list<SHARED_PTR<RegionInfo> >::iterator center_iter = centers->begin();
+			std::list<std::shared_ptr<RegionInfo> >::iterator center_iter = centers->begin();
 			if ( (*center_iter)->list( ) ) {
 				if ( first->updateStatisticsInfo( *center_iter ) == false )
 					statisticsUpdate( first, *center_iter );

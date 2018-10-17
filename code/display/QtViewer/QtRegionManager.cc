@@ -429,7 +429,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 				if (qdd->imageInterface()) {
 
-					SHARED_PTR<ImageInterface<Float> > pImage;
+					std::shared_ptr<ImageInterface<Float> > pImage;
 					pImage.reset(new SubImage<Float>(
 					    *(qdd->imageInterface()), *reg, false));
 
@@ -1160,7 +1160,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			ImageRegion* reg = (qdd->imageInterface())
 			                   ->getImageRegionPtr(regname);
 
-			SHARED_PTR<ImageInterface<Float> > pImage( new SubImage<Float>(*(qdd->imageInterface()),
+			std::shared_ptr<ImageInterface<Float> > pImage( new SubImage<Float>(*(qdd->imageInterface()),
 			                             *reg, false));
 
 			DisplayData *dd = 0;

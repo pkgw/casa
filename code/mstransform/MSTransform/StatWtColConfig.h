@@ -84,7 +84,7 @@ private:
         casacore::Bool& hasSpec, casacore::Bool& mustWriteSpec,
         casacore::Bool& mustInitSpec, casacore::Bool mustWriteNonSpec,
         const casacore::String& colName, const casacore::String& descName,
-        casacore::Bool specIsInitialized
+        casacore::Bool specIsInitialized, const casacore::String& mgrName
     );
 
     void _determineFlags();

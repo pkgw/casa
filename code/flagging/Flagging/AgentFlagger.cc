@@ -1015,7 +1015,8 @@ AgentFlagger::restoreFlagVersion(Vector<String> versionname, String merge)
 	catch (AipsError x)
 	{
 		os << LogIO::SEVERE << "Could not restore Flag Version : " << x.getMesg() << LogIO::POST;
-		return false;
+		throw AipsError(x);
+//		return false;
 	}
 	return true;
 }

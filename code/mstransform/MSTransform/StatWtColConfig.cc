@@ -99,15 +99,17 @@ void StatWtColConfig::_determineFlags() {
     _mustWriteWtSp = _mustWriteWt && (wtSpIsInitialized || _doChanBin);
     static const auto colNameWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
     static const auto descWtSp = "weight spectrum";
+    static const auto mgrWtSp = "TiledWgtSpectrum";
     _dealWithSpectrumColumn(
         hasWtSp, _mustWriteWtSp, _mustInitWtSp, _mustWriteWt,
-        colNameWtSp, descWtSp, wtSpIsInitialized
+        colNameWtSp, descWtSp, wtSpIsInitialized, mgrWtSp
     );
     static const auto colNameSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
     static const auto descSigSp = "sigma spectrum";
+    static const auto mgrSigSp = "TiledSigSpectrum";
     _dealWithSpectrumColumn(
         hasSigSp, _mustWriteSigSp, _mustInitSigSp, _mustWriteSig,
-        colNameSigSp, descSigSp, sigSpIsInitialized
+        colNameSigSp, descSigSp, sigSpIsInitialized, mgrSigSp
     );
     LogIO log(LogOrigin("StatWtColConfig", __func__));
     if (_mustWriteWt) {
@@ -206,8 +208,8 @@ void StatWtColConfig::_hasSpectrumIsSpectrumInitialized(
 
 void StatWtColConfig::_dealWithSpectrumColumn(
     Bool& hasSpec, Bool& mustWriteSpec, Bool& mustInitSpec,
-    Bool mustWriteNonSpec, const String& colName,
-    const String& descName, Bool specIsInitialized
+    Bool mustWriteNonSpec, const String& colName, const String& descName,
+    Bool specIsInitialized, const String& mgrName
 ) {
     // this conditional structure supports the
     // case of ! hasSpec && ! mustWriteSpec, in which case,
@@ -225,7 +227,9 @@ void StatWtColConfig::_dealWithSpectrumColumn(
             for (uInt i=0; i<dminfo.nfields(); ++i) {
                 Record col = dminfo.asRecord(i);
                 if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
-                    dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
+                    dts = IPosition(
+                        col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE")
+                    );
                     break;
                 }
             }
@@ -233,7 +237,7 @@ void StatWtColConfig::_dealWithSpectrumColumn(
             String colWtSp = colName;
             TableDesc tdWtSp;
             tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, descName, 2));
-            TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
+            TiledShapeStMan wtSpStMan(mgrName, dts);
             _ms->addColumn(tdWtSp, wtSpStMan);
         }
     }

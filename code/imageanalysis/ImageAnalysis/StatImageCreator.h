@@ -120,8 +120,8 @@ private:
         casacore::uInt xChunkSize, casacore::uInt yChunkSize,
         const casacore::IPosition& imshape,
         const casacore::IPosition& chunkShape,
-        SHARED_PTR<casacore::Array<casacore::Bool>> regionMask,
-        SHARED_PTR<
+        std::shared_ptr<casacore::Array<casacore::Bool>> regionMask,
+        std::shared_ptr<
             casacore::StatisticsAlgorithm<
                 casacore::Double,
                 casacore::Array<casacore::Float>::const_iterator,
@@ -148,12 +148,12 @@ private:
 
     // the Blc offsets are the pixel offsets from the grid point
     void _nominalChunkInfo(
-        SHARED_PTR<Array<Bool>>& chunkMask,
+        std::shared_ptr<Array<Bool>>& chunkMask,
         uInt& xBlcOff, uInt& yBlcOff, uInt& xChunkSize, uInt& yChunkSize,
         SPCIIF subimage
     ) const;
 
-    SHARED_PTR<StatisticsAlgorithm<
+    std::shared_ptr<StatisticsAlgorithm<
         Double, Array<Float>::const_iterator, Array<Bool>::const_iterator>
     > _getStatsAlgorithm(String& algName) const;
 

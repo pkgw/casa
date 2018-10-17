@@ -34,6 +34,12 @@
 
 #define CTPATCHEDINTERPVERB false
 
+#define NEAREST InterpolateArray1D<Double,Float>::nearestNeighbour
+#define LINEAR InterpolateArray1D<Double,Float>::linear
+#define CUBIC InterpolateArray1D<Double,Float>::cubic
+#define SPLINE InterpolateArray1D<Double,Float>::spline
+
+
 //#include <casa/BasicSL/Constants.h>
 //#include <casa/OS/File.h>
 //#include <casa/Logging/LogMessage.h>
@@ -58,7 +64,10 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   nPar_(nPar),
   nFPar_(nPar),
   timeType_(timetype),
-  freqType_(freqtype),
+  freqTypeStr_(freqtype),
+  freqInterpMethod0_(ftype(freqTypeStr_)),
+  freqInterpMethod_(freqInterpMethod0_),
+  freqInterpMethodVec_(),
   byObs_(timetype.contains("perobs")), // detect slicing by obs
   byField_(fieldtype=="nearest" || fieldtype=="map"), 
   nChanIn_(),
@@ -89,11 +98,11 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 {
   if (CTPATCHEDINTERPVERB) cout << "CTPatchedInterp::CTPatchedInterp(<no MS>)" << endl;
 
+  //  cout << "freqInterpMethod_ = " << freqInterpMethod_ << endl;
 
-  ia1dmethod_=ftype(freqType_);
-
-  //  cout << "ia1dmethod_ = " << ia1dmethod_ << endl;
-
+  freqInterpMethodVec_.resize(nMSSpw_);
+  freqInterpMethodVec_.set(freqInterpMethod0_);
+    
   switch(mtype_) {
   case VisCalEnum::GLOBAL: {
 
@@ -147,7 +156,7 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
     if (nctobsavail==1) {
       byObs_=false;
       msg << "Only one ObsId found in "
-	  << ct_.tableName()
+	  << Path(ct_.tableName()).baseName().before(".tempMemCal")
 	  << "; ignoring 'perobs' interpolation.";
       log << msg.str() << LogIO::WARN;
     }
@@ -164,7 +173,7 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 	// only 1 obs, or available nobs doesn't match MS
 	byObs_=false;
 	msg << "Multiple ObsIds found in "
-	    << ct_.tableName()
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal")
 	    << ", but they do not match the MS ObsIds;"
 	    << " turning off 'perobs'.";
 	log << msg.str() << LogIO::WARN;
@@ -227,7 +236,10 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   nPar_(nPar),
   nFPar_(nPar),
   timeType_(timetype),
-  freqType_(freqtype),
+  freqTypeStr_(freqtype),
+  freqInterpMethod0_(ftype(freqTypeStr_)),
+  freqInterpMethod_(freqInterpMethod0_),
+  freqInterpMethodVec_(),
   byObs_(timetype.contains("perobs")), // detect slicing by obs
   byField_(fieldtype=="nearest"),  // for now we are NOT slicing by field
   nChanIn_(),
@@ -259,9 +271,12 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 
   if (CTPATCHEDINTERPVERB) cout << "CTPatchedInterp::CTPatchedInterp(CT,MS)" << endl;
 
-  ia1dmethod_=ftype(freqType_);
+  //freqInterpMethod_=ftype(freqTypeStr_);
 
-  //  cout << "ia1dmethod_ = " << ia1dmethod_ << endl;
+  freqInterpMethodVec_.resize(nMSSpw_);
+  freqInterpMethodVec_.set(freqInterpMethod0_);
+
+  //  cout << "freqInterpMethod_ = " << freqInterpMethod_ << endl;
 
   switch(mtype_) {
   case VisCalEnum::GLOBAL: {
@@ -316,7 +331,7 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
     if (nctobsavail==1) {
       byObs_=false;
       msg << "Only one ObsId found in "
-	  << ct_.tableName()
+	  << Path(ct_.tableName()).baseName().before(".tempMemCal")
 	  << "; ignoring 'perobs' interpolation.";
       log << msg.str() << LogIO::WARN;
     }
@@ -333,7 +348,7 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 	// only 1 obs, or available nobs doesn't match MS
 	byObs_=false;
 	msg << "Multiple ObsIds found in "
-	    << ct_.tableName()
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal")
 	    << ", but they do not match the MS ObsIds;"
 	    << " turning off 'perobs'.";
 	log << msg.str() << LogIO::WARN;
@@ -392,7 +407,10 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   nPar_(nPar),
   nFPar_(nPar),
   timeType_(timetype),
-  freqType_(freqtype),
+  freqTypeStr_(freqtype),
+  freqInterpMethod0_(ftype(freqTypeStr_)),
+  freqInterpMethod_(freqInterpMethod0_),
+  freqInterpMethodVec_(),
   byObs_(false),                // turn off for old-fashioned
   byField_(fieldtype=="nearest"),  // for now we are NOT slicing by field
   nChanIn_(),
@@ -421,9 +439,9 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 {
   if (CTPATCHEDINTERPVERB) cout << "CTPatchedInterp::CTPatchedInterp(mscol)" << endl;
 
-  ia1dmethod_=ftype(freqType_);
-
-  //  cout << "ia1dmethod_ = " << ia1dmethod_ << endl;
+  //  cout << "freqInterpMethod_ = " << freqInterpMethod_ << endl;
+  freqInterpMethodVec_.resize(nMSSpw_);
+  freqInterpMethodVec_.set(freqInterpMethod0_);
 
   switch(mtype_) {
   case VisCalEnum::GLOBAL: {
@@ -592,6 +610,85 @@ Bool CTPatchedInterp::interpolate(Int msobs, Int msfld, Int msspw, Double time, 
      }
   }
 
+
+  
+  
+  {
+
+    // CAS-11744
+    // In the following, we verify that there are sufficient soln channels to 
+    // do the requested freq-dep interpolation.  If there are not, we
+    // change the freq-dep interp mode to one that will work (linear or
+    // nearest, for nchan=2 or 1, respectively), and issue a logger warning.
+    // This is necessary specifically for the current _flag_ interpolation code.
+    // The warning is thought warranted since freq-dep calibration (B, Tsys)
+    // usually has adequate nchan, and if it does not, this may be unexpected
+    // (e.g., use of too large a freq solint).
+    
+    // Check freq sampling adequate for specified freq interpolation
+    Int nSolChan=timeResult_(msspw,msfld,thisobs(msobs)).shape()(1);
+    LogIO log;
+    ostringstream msg;
+
+    switch (freqInterpMethod0_) {
+    case LINEAR: {
+      if (nSolChan<2 && freqInterpMethodVec_(msspw)!=NEAREST) {
+	freqInterpMethodVec_(msspw)=NEAREST;  // change to nearest for this msspw
+	ostringstream spwmapstr;
+	spwmapstr << " (mapped to CT spw=" << spwMap_(msspw) << ")";
+	msg << "In caltable "
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal")
+	    << " (" << ct_.keywordSet().asString("VisCal") << ")"
+	    << ":" << endl
+	    << " Insufficient solution channel sampling (nchan=" << nSolChan << ") for frequency-dependent LINEAR interpolation " << endl
+	    << " of calibration for MS spw=" << msspw
+	    << ( msspw!=spwMap_(msspw) ? String(spwmapstr) : "" ) 
+	    << "; using NEAREST instead.";
+	log << LogOrigin("CTPatchedInterp","interpolate") << msg.str() << LogIO::WARN;
+      }
+      break;
+    }
+    case CUBIC:
+    case SPLINE: {
+      if (nSolChan<2 && freqInterpMethodVec_(msspw)>NEAREST) {
+	freqInterpMethodVec_(msspw)=NEAREST;  // change to nearest for this msspw
+	ostringstream spwmapstr;
+	spwmapstr << " (mapped to CT spw=" << spwMap_(msspw) << ")";
+	msg << "In caltable "
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal")
+	    << " (" << ct_.keywordSet().asString("VisCal") << ")"
+	    << ":" << endl
+	    << " Insufficient solution channel sampling (nchan=" << nSolChan << ") for frequency-dependent CUBIC/SPLINE interpolation " << endl
+	    << " of calibration for MS spw=" << msspw
+	    << ( msspw!=spwMap_(msspw) ? String(spwmapstr) : "" ) 
+	    << "; using NEAREST instead.";
+	log << LogOrigin("CTPatchedInterp","interpolate") << msg.str() << LogIO::WARN;
+      }
+      else if (nSolChan<4 && freqInterpMethodVec_(msspw)>LINEAR) {
+	freqInterpMethodVec_(msspw)=LINEAR;  // change to nearest for this msspw
+	ostringstream spwmapstr;
+	spwmapstr << " (mapped to CT spw=" << spwMap_(msspw) << ")";
+	msg << "In caltable "
+	    << Path(ct_.tableName()).baseName().before(".tempMemCal")
+	    << " (" << ct_.keywordSet().asString("VisCal") << ")"
+	    << ":" << endl
+	    << " Insufficient solution channel sampling (nchan=" << nSolChan << ") for frequency-dependent CUBIC/SPLINE interpolation " << endl
+	    << " of calibration for MS spw=" << msspw
+	    << ( msspw!=spwMap_(msspw) ? String(spwmapstr) : "" ) 
+	    << "; using LINEAR instead.";
+	log << LogOrigin("CTPatchedInterp","interpolate") << msg.str() << LogIO::WARN;
+      }
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+  }
+
+  // Use the msspw-specific one!
+  freqInterpMethod_=freqInterpMethodVec_(msspw);
+
   Bool newcal(false);
   IPosition ip(4,0,msspw,msfld,thisobs(msobs));
   // Loop over _output_ antennas
@@ -680,7 +777,7 @@ void CTPatchedInterp::state() {
   if (CTPATCHEDINTERPVERB) cout << "CTPatchedInterp::state()" << endl;
 
   cout << "-state--------" << endl;
-  cout << " ct_      = " << ct_.tableName() << endl;
+  cout << " ct_      = " << Path(ct_.tableName()).baseName().before(".tempMemCal") << endl;
   cout << boolalpha;
   cout << " isCmplx_ = " << isCmplx_ << endl;
   cout << " nPar_    = " << nPar_ << endl;
@@ -702,7 +799,10 @@ void CTPatchedInterp::state() {
   cout << " byField_ = " << byField_ << endl;
   cout << " altFld_  = " << altFld_ << endl;
   cout << " timeType_ = " << timeType_ << endl;
-  cout << " freqType_ = " << freqType_ << endl;
+  cout << " freqTypeStr_ = " << freqTypeStr_ << endl;
+  cout << " freqInterpMethod0_ = " << freqInterpMethod0_ << endl;
+  cout << " freqInterpMethodVec_ = " << freqInterpMethodVec_ << endl;
+  cout << " spwInOK_ = " << spwInOK_ << endl;
 }
 
 void CTPatchedInterp::sliceTable() {
@@ -1065,7 +1165,7 @@ void CTPatchedInterp::setSpwMap(Vector<Int>& spwmap) {
     if (anyGE(spwmap,nCTSpw_)) {
       ostringstream o;
       o << "Please specify spw indices <= maximum available ("
-	<< (nCTSpw_-1) << " in " << ct_.tableName() << ")";
+	<< (nCTSpw_-1) << " in " << Path(ct_.tableName()).baseName().before(".tempMemCal") << ")";
       throw(AipsError(o.str()));
     }
 
@@ -1193,7 +1293,7 @@ void CTPatchedInterp::resampleInFreq(Matrix<Float>& fres,Matrix<Bool>& fflg,cons
     Vector<Float> slfresi(fresi(blc,trc));
     Vector<Double> slfout(fout(blc,trc));
 
-    InterpolateArray1D<Double,Float>::interpolate(slfresi,slfout,mfin,mtresi,ia1dmethod_);
+    InterpolateArray1D<Double,Float>::interpolate(slfresi,slfout,mfin,mtresi,freqInterpMethod_);
 
   }
 }
@@ -1203,20 +1303,15 @@ void CTPatchedInterp::resampleFlagsInFreq(Vector<Bool>& flgout,const Vector<Doub
 
   //  cout << "resampleFlagsInFreq" << endl;
 
-#define NEAREST InterpolateArray1D<Double,Float>::nearestNeighbour
-#define LINEAR InterpolateArray1D<Double,Float>::linear
-#define CUBIC InterpolateArray1D<Double,Float>::cubic
-#define SPLINE InterpolateArray1D<Double,Float>::spline
-
   Vector<Double> finGHz=fin/1e9;
 
   // Handle chan-dep flags
-  if (freqType_.contains("flag")) {
+  if (freqTypeStr_.contains("flag")) {
     
     // Determine implied mode-dep flags indexed by channel registration
     uInt nflg=flgin.nelements();
     Vector<Bool> flreg(nflg,false);
-    switch (ia1dmethod_) {
+    switch (freqInterpMethod_) {
     case NEAREST: {
       // Just use input flags
       flreg.reference(flgin);
@@ -1269,7 +1364,7 @@ void CTPatchedInterp::resampleFlagsInFreq(Vector<Bool>& flgout,const Vector<Doub
       //if (ireg>0 && finGHz(ireg)!=fout(iflgout)) --ireg;  // registration is one sample prior
 
       // refine registration by interp type
-      switch (ia1dmethod_) {
+      switch (freqInterpMethod_) {
       case NEAREST: {
 	// nearest might be forward sample
 	if ( ireg<(nflg-1) &&
@@ -1372,7 +1467,6 @@ InterpolateArray1D<Double,Float>::InterpolationMethod CTPatchedInterp::ftype(Str
 
 
 }
-
 
 
 } //# NAMESPACE CASA - END

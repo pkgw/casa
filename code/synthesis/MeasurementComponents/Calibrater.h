@@ -123,6 +123,7 @@ class Calibrater
 		 const casacore::String& refant="",
 		 const casacore::String& refantmode="flex",
 		 const casacore::Bool solnorm=false,
+		 const casacore::String& normtype="mean",
 		 const casacore::Float minsnr=0.0f,
 		 const casacore::String& combine="",
 		 const casacore::Int fillgaps=0,

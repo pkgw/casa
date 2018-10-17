@@ -72,13 +72,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="dataChooser">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-      </widget>
+      <widget class="QComboBox" name="dataChooser" />
      </item>
     </layout>
    </item>
