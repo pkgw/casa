@@ -1,9 +1,10 @@
 import os
 import re
 from taskinit import *
+from mstools import write_history
 from casac import casac
 
-mysdms, mycb = gentools(['sdms', 'cb'])
+mysdms, mycb, myms = gentools(['sdms', 'cb', 'ms'])
 
 def importasap(infile=None, outputvis=None, flagbackup=None, overwrite=None, parallel=None):
     """
@@ -49,6 +50,12 @@ def importasap(infile=None, outputvis=None, flagbackup=None, overwrite=None, par
                                         comment='Original flags at import into CASA using importasap',
                                         merge='save')
                 aflocal.done()
+
+        # Write history to output MS
+        param_names = importasap.func_code.co_varnames[:importasap.func_code.co_argcount]
+        param_vals = [eval(p) for p in param_names]
+        write_history(myms, outputvis, 'importasap', param_names,
+                      param_vals, casalog)
 
         return status
     except Exception, instance:

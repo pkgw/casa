@@ -1,6 +1,7 @@
 import numpy
 import os
 from taskinit import gentools, casalog
+from mstools import write_history
 import sdutil
 from collections import Counter
 ms,sdms,tb,msmd = gentools(['ms','sdms','tb', 'msmd'])
@@ -114,6 +115,13 @@ def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None,
             
             if (blfunc == 'variable'):
                 restore_sorted_table_keyword(infile, sorttab_info)
+
+        # Write history to outfile
+        param_names = sdbaseline.func_code.co_varnames[:sdbaseline.func_code.co_argcount]
+        param_vals = [eval(p) for p in param_names]
+        write_history(ms, outfile, 'sdbaseline', param_names,
+                      param_vals, casalog)
+
 
     except Exception, instance:
         raise Exception, instance

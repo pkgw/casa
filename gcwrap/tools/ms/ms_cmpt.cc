@@ -875,6 +875,18 @@ ms::listhistory()
     return rstat;
 }
 
+// Helper for the writehistory methods. Just setup the history sub-table
+void setupMSHistory(MeasurementSet &ms)
+{
+    // make sure the MS has a HISTORY table
+    if(!(Table::isReadable(ms.historyTableName()))){
+        TableRecord &kws = ms.rwKeywordSet();
+        SetupNewTable historySetup(ms.historyTableName(),
+                                   MSHistory::requiredTableDesc(),Table::New);
+        kws.defineTable(MS::keywordName(MS::HISTORY), Table(historySetup));
+    }
+}
+
 bool
 ms::writehistory(const std::string& message, const std::string& parms, const std::string& origin, const std::string& msname, const std::string& app)
 {
@@ -888,20 +900,46 @@ ms::writehistory(const std::string& message, const std::string& parms, const std
                 outMS = MeasurementSet(ms::name(),
                                        TableLock::AutoLocking,Table::Update);
             }
-            // make sure the MS has a HISTORY table
-            if(!(Table::isReadable(outMS.historyTableName()))){
-                TableRecord &kws = outMS.rwKeywordSet();
-                SetupNewTable historySetup(outMS.historyTableName(),
-                                           MSHistory::requiredTableDesc(),Table::New);
-                kws.defineTable(MS::keywordName(MS::HISTORY), Table(historySetup));
-            }
+            setupMSHistory(outMS);
             MSHistoryHandler::addMessage(outMS, message, app, parms, origin);
             rstat = true;
         }
-    } catch (AipsError x) {
-        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+    } catch (const AipsError &exc) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << exc.getMesg() << LogIO::POST;
         Table::relinquishAutoLocks(true);
-        RETHROW(x);
+        RETHROW(exc);
+    }
+    Table::relinquishAutoLocks(true);
+    return rstat;
+}
+
+bool
+ms::writehistory_batch(const std::vector<std::string>& messages, const std::string& parms,
+                       const std::string& origin, const std::string& msname,
+                       const std::string& app)
+{
+    Bool rstat(false);
+    try {
+        if (messages.size() > 0 || parms.length() > 0) {
+            MeasurementSet outMS;
+            if (msname.length() > 0) {
+                outMS = MeasurementSet(msname,TableLock::AutoLocking,Table::Update);
+            } else {
+                outMS = MeasurementSet(ms::name(),
+                                       TableLock::AutoLocking,Table::Update);
+            }
+            setupMSHistory(outMS);
+
+            MSHistoryHandler mshh(outMS, app);
+            for (const auto &msg : messages) {
+                mshh.addMessage(msg, parms, origin);
+            }
+            rstat = true;
+        }
+    } catch (const AipsError &exc) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << exc.getMesg() << LogIO::POST;
+        Table::relinquishAutoLocks(true);
+        RETHROW(exc);
     }
     Table::relinquishAutoLocks(true);
     return rstat;

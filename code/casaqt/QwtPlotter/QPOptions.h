@@ -390,6 +390,10 @@ public:
     // beforehand.
     void draw(QPainter* p, const QRect& r) const;
     
+#if QWT_VERSION >= 0x060000
+    inline void drawSymbols(QPainter* p, const QPointF* points, int numPoints) const
+        { QwtSymbol::drawSymbols(p, points, numPoints); };
+#endif
     // Overrides QwtSymbol::clone().
     //QwtSymbol* clone() const;
     

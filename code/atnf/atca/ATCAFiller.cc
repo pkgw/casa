@@ -56,7 +56,11 @@ init_p(false),
 shadow_p(0),
 autoFlag_p(true),
 flagScanType_p(false),
-flagCount_p(NFLAG,0)
+flagCount_p(NFLAG,0),
+bandWidth1_p(0),
+numChan1_p(0),
+lastUT_p(0),
+hires_p(false)
 {}
 
 ATCAFiller::~ATCAFiller() 

@@ -24,10 +24,13 @@
 #define FlagMSHandler_H_
 
 #include <flagging/Flagging/FlagDataHandler.h>
-#include <msvis/MSVis/ViFrequencySelection.h>
-#include <msvis/MSVis/LayeredVi2Factory.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+namespace vi {
+  class FrequencySelectionUsingChannels;
+  class VisIterImpl2LayerFactory'
+}
 
 // Flag casacore::Data Handler class definition
 class FlagMSHandler: public FlagDataHandler
