@@ -6,11 +6,12 @@ import shutil
 
 from taskinit import *
 from applycal import applycal
+from mstools import write_history
 import types
 import sdutil
 
 # Calibrator tool
-(cb,) = gentools(['cb'])
+(cb,myms) = gentools(['cb','ms'])
 
 def sdcal(infile=None, calmode='tsys', fraction='10%', noff=-1,
            width=0.5, elongated=False, applytable='',interp='', spwmap={},
@@ -115,6 +116,13 @@ def sdcal(infile=None, calmode='tsys', fraction='10%', noff=-1,
                     
             # Calibrate
             cb.correct(applymode='calflag')
+            
+            # Write to HISTORY table of MS
+            param_names = sdcal.func_code.co_varnames[:sdcal.func_code.co_argcount] 
+            param_vals = [eval(p) for p in param_names]
+            write_history(myms, infile, 'sdcal', param_names, 
+                              param_vals, casalog) 
+            
 
         else: # Compute calibration table
             # Reconciliating 'Python world' calmode with 'C++ world' calmode

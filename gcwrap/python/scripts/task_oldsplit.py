@@ -3,7 +3,8 @@ import re
 import string
 import time
 import shutil
-from taskinit import casalog, mstool, qa, tbtool, write_history
+from taskinit import casalog, mstool, qa, tbtool
+from mstools import write_history
 from update_spw import update_spwchan
 from parallel.parallel_task_helper import ParallelTaskHelper
 import partitionhelper as ph
@@ -51,7 +52,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
             default '' (all).
     intent -- Scan intents to select.
             default '' (all).
-    array -- (Sub)array IDs to select.     
+    array -- (Sub)array IDs to select.
              default '' (all).
     uvrange -- uv distance range to select.
                default '' (all).
@@ -67,23 +68,24 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
 
     keepmms -- If the input is a multi-MS, make the output one, too. (experimental)
                Default: False
-                 
+
     """
 
     casalog.origin('oldsplit')
+    casalog.post("Warning: the oldsplit task is only for testing. Please use split or mstransform instead.", "WARN")
     mylocals = locals()
     rval = True
     try:
 
-        if (keepmms and ParallelTaskHelper.isParallelMS(vis)): 
-            if (timebin!='0s' and timebin!='-1s'): 
+        if (keepmms and ParallelTaskHelper.isParallelMS(vis)):
+            if (timebin!='0s' and timebin!='-1s'):
                 casalog.post('Averaging over time with keepmms=True may lead to results different\n'
                              +'  from those obtained with keepmms=False due to different binning.', 'WARN')
-                            
+
             myms = mstool()
             myms.open(vis)
             mses = myms.getreferencedtables()
-            myms.close() 
+            myms.close()
             mses.sort()
 
             nfail = 0
@@ -97,7 +99,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
             emptyptab = tempout+'/EMPTY_POINTING'
             nochangeinpointing = (str(antenna)+str(timerange)=='')
 
-            if nochangeinpointing:    
+            if nochangeinpointing:
                 # resulting pointing table is the same for all
                 #  -> replace by empty table if it is a link and won't be modified anyway
                 #     and put back original into the master after split
@@ -125,7 +127,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
             replaced = []
             outputviss = []
             theptabs = []
-            
+
             for m in mses:
 
                 # make sure the SORTED_TABLE keywords are disabled
@@ -186,7 +188,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
                         if not goretval[m]:
                             casalog.post(os.path.basename(m)+': '+str(goretval[m]), 'WARN')
                         else:
-                            casalog.post(os.path.basename(m)+': '+str(goretval[m]), 'NORMAL') 
+                            casalog.post(os.path.basename(m)+': '+str(goretval[m]), 'NORMAL')
 
                     casalog.post('Will construct MMS from subMSs with successful selection ...', 'NORMAL')
 
@@ -197,7 +199,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
                             # copy the original masterptab into the new master
                             shutil.rmtree(successfulmses[0]+'/POINTING')
                             shutil.copytree(masterptab, successfulmses[0]+'/POINTING')
-                    
+
             if rval: # construct new MMS from the output
                 if(width==1 and str(field)+str(spw)+str(antenna)+str(timerange)+str(scan)+str(intent)\
                    +str(array)+str(uvrange)+str(correlation)+str(observation)==''):
@@ -209,7 +211,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
                         myms.virtconcatenate(successfulmses[i], auxfile, '1Hz', '10mas', True)
                     myms.close()
                     os.remove(auxfile)
-                    ph.makeMMS(outputvis, successfulmses, True, ['POINTING']) 
+                    ph.makeMMS(outputvis, successfulmses, True, ['POINTING'])
 
 
             shutil.rmtree(tempout, ignore_errors=True)
@@ -225,7 +227,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
     except Exception, instance:
             casalog.post("*** Error: %s" % (instance), 'SEVERE')
             rval = False
-       
+
 
     return rval
 
@@ -259,14 +261,14 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
     # work properly when spw=''.
     #if(spw == ''):
     #    spw = '*'
-    
+
     if(type(antenna) == list):
         antenna = ', '.join([str(ant) for ant in antenna])
 
     ## Accept digits without units ...assume seconds
     timebin = qa.convert(qa.quantity(timebin), 's')['value']
     timebin = str(timebin) + 's'
-    
+
     if timebin == '0s':
         timebin = '-1s'
 
@@ -280,7 +282,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
     if '^' in spw:
         casalog.post("The interpretation of ^n in split's spw strings has changed from 'average n' to 'skip n' channels!", 'WARN')
         casalog.post("Watch for Slicer errors", 'WARN')
-        
+
     if type(width) == str:
         try:
             if(width.isdigit()):
@@ -292,7 +294,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
                 width = []
                 for ws in splitwidth:
                     if(ws.isdigit()):
-                        width.append(string.atoi(ws)) 
+                        width.append(string.atoi(ws))
             else:
                 width = [1]
         except:
@@ -349,7 +351,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
                 import shutil
                 shutil.rmtree(cavms)
             return False
-        
+
         # The selection was already made, so blank them before time averaging.
         field = ''
         spw = ''
@@ -393,7 +395,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
     # Write history to output MS, not the input ms.
     try:
         param_names = split_core.func_code.co_varnames[:split_core.func_code.co_argcount]
-        param_vals = [eval(p) for p in param_names]   
+        param_vals = [eval(p) for p in param_names]
         retval &= write_history(myms, outputvis, 'oldsplit', param_names, param_vals,
                                 casalog)
     except Exception, instance:
@@ -401,7 +403,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
                      'WARN')
 
     # Update FLAG_CMD if necessary.
-    # If the spw selection is by name or FLAG_CMD contains spw with names, skip the updating    
+    # If the spw selection is by name or FLAG_CMD contains spw with names, skip the updating
 
     if ((spw != '') and (spw != '*')) or do_chan_mod:
         isopen = False
@@ -410,7 +412,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
             mytb.open(outputvis + '/FLAG_CMD', nomodify=False)
             isopen = True
             nflgcmds = mytb.nrows()
-            
+
             if nflgcmds > 0:
                 updateFlagCmd = False
                 # If spw selection is by name in FLAG_CMD, do not update, CAS-7751
@@ -423,10 +425,10 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
                         spwstr = re.search('^[^a-zA-Z]+$', cmd)
                         if spwstr != None and spwstr.string.__len__() > 0:
                             updateFlagCmd = True
-                            break                
-                
-                
-                if updateFlagCmd:                
+                            break
+
+
+                if updateFlagCmd:
                     mademod = False
                     cmds = mytb.getcol('COMMAND')
                     widths = {}
@@ -447,7 +449,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
                                 w = width
                             for i in xrange(nspw):
                                 widths[i] = w
-                    #print 'widths =', widths 
+                    #print 'widths =', widths
                     for rownum in xrange(nflgcmds):
                         # Matches a bare number or a string quoted any way.
                         spwmatch = re.search(r'spw\s*=\s*(\S+)', cmds[rownum])
@@ -488,7 +490,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
                     casalog.post('FLAG_CMD table contains spw selection by name. Will not update it!','DEBUG')
 
             mytb.close()
-            
+
         except Exception, instance:
             if isopen:
                 mytb.close()

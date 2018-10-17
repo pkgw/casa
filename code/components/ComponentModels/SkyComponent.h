@@ -296,7 +296,7 @@ public:
   // as an angular measure will not have this factor applied to it, nor will the error reported in
   // pixels.
   casacore::String positionToString(
-          SHARED_PTR<casacore::Vector<casacore::Double>>& pixelCoords,
+          std::shared_ptr<casacore::Vector<casacore::Double>>& pixelCoords,
 		  const casacore::DirectionCoordinate *const &dc=nullptr, casacore::Bool longErrOnGreatCircle=false
   ) const;
 

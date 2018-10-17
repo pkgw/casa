@@ -245,11 +245,11 @@ class PyParallelImagerHelper():
         namelist = shutil.fnmatch.filter( os.listdir(self.getworkdir(imagename, node)), "*" )
         #print "Deleting : ", namelist, ' from ', dirname, ' starting with ', imname
         for aname in namelist:
-              shutil.rmtree( self.getworkdir(imagename, node) + "/" + aname )
+              shutil.rmtree( os.path.join(self.getworkdir(imagename, node), aname) )
 #############################################
     def getworkdir(self, imagename, nodeid):
         workdir = ''
-        workdir = self.getpath(nodeid) + '/' + imagename+'.workdirectory'
+        workdir = os.path.join(self.getpath(nodeid), imagename + '.workdirectory')
 
         if( not os.path.exists(workdir) ):
             os.mkdir( workdir )
@@ -258,7 +258,21 @@ class PyParallelImagerHelper():
                                     
 #############################################
     def getpartimagename(self, imagename, nodeid):
-        return self.getworkdir(imagename,nodeid) + '/' + imagename + '.n'+str(nodeid)
+        """
+        For imagename = 'imaging_subdir/foo_img', it produces something like:
+        'imaging_subdir/foo_img.workdirectory/foo_img.n5.gridwt' (where n5 is the node idx)
+
+        :param imagename: imagename as passed to the tclean task
+        :param nodeid: id of MPI node
+
+        :returns: (full path) name of a part/sub-image for nodeid, produced by concatenating
+        the working directory, the image basename and the node id as a string.
+        """
+        # don't include subdirs again here - the workdir is already inside the subdir(s)
+        image_basename = os.path.basename(imagename)
+        return os.path.join(self.getworkdir(imagename,nodeid), image_basename + '.n' +
+                            str(nodeid))
+
 
 #############################################
 

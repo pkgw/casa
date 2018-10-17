@@ -1327,7 +1327,7 @@ protected:
 	map<casacore::Int,vector<casacore::Int> > inputOutputChanIndexMap_p;
 
 	// Frequency transformation parameters
-	casacore::uInt nspws_p = 1;
+  casacore::uInt nspws_p = 1;
 	casacore::Int ddiStart_p = 0;
 	casacore::Bool combinespws_p = false;
 	casacore::Bool enableChanPreAverage_p = false;
@@ -1409,7 +1409,7 @@ protected:
 	casacore::MeasurementSet *outputMs_p;
 	casacore::ROMSColumns *selectedInputMsCols_p;
 	casacore::MSColumns *outputMsCols_p;
-	casacore::MSFieldColumns *inputMSFieldCols_p;
+	std::shared_ptr<casacore::MSFieldColumns> inputMSFieldCols_p;
 
 	// VI/VB related members
 	casacore::Block<casacore::Int> sortColumns_p;
@@ -1464,6 +1464,8 @@ protected:
 	casacore::Bool spectrumTransformation_p;
 	casacore::Bool propagateWeights_p;
 	casacore::Bool inputWeightSpectrumAvailable_p;
+	casacore::Bool createWeightSpectrumCols_p;
+	// whether to create and fill the WEIGHT/SIMA_SPECTRUM columns in the output MS
 	casacore::Bool flushWeightSpectrum_p;
 	casacore::Bool weightSpectrumFlatFilled_p;
 	casacore::Bool weightSpectrumFromSigmaFilled_p;
@@ -1501,6 +1503,7 @@ protected:
 	casacore::LogIO logger_p;
 
 private:
+	casacore::Bool shouldCreateOutputWtSpectrum(casacore::Bool usewtspectrum);
 	void createOutputMSStructure();
 
 };

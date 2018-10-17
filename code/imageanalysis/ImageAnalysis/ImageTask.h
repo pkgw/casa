@@ -151,6 +151,9 @@ protected:
     // task to function.
     virtual std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const = 0;
 
+    // Is the attached image a position-velocity (PV) image?
+    casacore::Bool _isPVImage() const;
+
     void _removeExistingOutfileIfNecessary() const;
 
     // if warnOnly is true, log a warning message if file exists and
@@ -161,7 +164,7 @@ protected:
 
     casacore::String _summaryHeader() const;
 
-    inline const SHARED_PTR<casacore::LogIO> _getLog() const {return _log;}
+    inline const std::shared_ptr<casacore::LogIO> _getLog() const {return _log;}
 
     // by default, derived classes are configured to have no log file
     // support.
@@ -171,7 +174,7 @@ protected:
 
     Bool _getSuppressHistory() const { return _suppressHistory; }
 
-    const SHARED_PTR<LogFile> _getLogFile() const;
+    const std::shared_ptr<LogFile> _getLogFile() const;
 
     casacore::Bool _writeLogfile(
         const casacore::String& output, const casacore::Bool open=true,
@@ -232,7 +235,7 @@ protected:
 
     static void _copyData(casacore::Lattice<T>& data, const casacore::Lattice<T>& image);
 
-    template <class U> void _doHistory(SHARED_PTR<casacore::ImageInterface<U>>& image) const;
+    template <class U> void _doHistory(std::shared_ptr<casacore::ImageInterface<U>>& image) const;
 
     void _reportOldNewImageShapes(const ImageInterface<T>& out) const;
     
@@ -240,7 +243,7 @@ protected:
 
 private:
     const SPCIIT _image;
-    mutable SHARED_PTR<casacore::LogIO> _log = SHARED_PTR<casacore::LogIO>(new casacore::LogIO());
+    mutable std::shared_ptr<casacore::LogIO> _log = std::shared_ptr<casacore::LogIO>(new casacore::LogIO());
     const casacore::Record *const _regionPtr;
     casacore::Record _regionRecord;
     casacore::String _region = "";
@@ -256,7 +259,7 @@ private:
     casacore::Bool _dropDegen = false;
     std::unique_ptr<casacore::FiledesIO> _logFileIO;
     Verbosity _verbosity = NORMAL;
-    SHARED_PTR<LogFile> _logfile;
+    std::shared_ptr<LogFile> _logfile;
     mutable vector<std::pair<casacore::String, casacore::String> > _newHistory;
 
     mutable C11Timer _timer;

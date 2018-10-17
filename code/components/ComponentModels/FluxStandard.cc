@@ -190,6 +190,15 @@ Bool FluxStandard::compute(const String& sourceName,
     fluxStdPtr = new NSTDS::FluxStdScaifeHeald2012;
   else if(itsFluxScale == STEVENS_REYNOLDS_2016)
     fluxStdPtr = new NSTDS::FluxStdStevensReynolds2016;
+  else if(itsFluxScale == PERLEY_BUTLER_2017) {
+    fluxStdPtr = new NSTDS::FluxStdPerleyButler2017;
+    timeVariable=true; // to read from the table 
+    if (interpmethod_p=="") {
+      ostringstream oss;
+      oss << "Unset interpmethod. Please set the method first";
+      throw(AipsError(String(oss)));
+    }
+  }
   else{
     if(verbose)
       os << LogIO::SEVERE
@@ -475,6 +484,11 @@ Bool FluxStandard::matchStandard (const String& name,
       (lname.contains("13") || lname.contains("2013"))) {
     stdEnum = FluxStandard::PERLEY_BUTLER_2013;
   }
+  // Perley-Butler (2017)
+  else if (lname.contains("perley") && lname.contains("butler") &&
+      (lname.contains("17") || lname.contains("2017"))) {
+    stdEnum = FluxStandard::PERLEY_BUTLER_2017;
+  }
   // Scaife & Heald (2012)
   else if (lname.contains("scaife") && lname.contains("heald") &&
       (lname.contains("12") || lname.contains("2012"))) {
@@ -541,6 +555,10 @@ String FluxStandard::standardName (const FluxStandard::FluxScale& stdEnum)
   }
     case SCAIFE_HEALD_2012: {
     stdName = "Scaife-Heald 2012";
+    break;
+  }
+  case PERLEY_BUTLER_2017: {
+    stdName = "Perley-Butler 2017";
     break;
   }
     case STEVENS_REYNOLDS_2016: {

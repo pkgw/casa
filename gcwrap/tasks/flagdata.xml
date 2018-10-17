@@ -182,7 +182,7 @@
             <!-- CLIP parameters -->
             <param type="any" name="clipminmax" subparam="true">
                 <description>Range to use for clipping</description>
-                <any type="variant" limittypes="doubleArray doubleArrayArray" />
+                <any type="variant" limittypes="doubleArray" />
                 <value type="doubleArray"></value>
             </param>
             <param type="any" name="datacolumn" subparam="true">
@@ -231,7 +231,7 @@
                 <value type="string">beg</value>
             </param>
             <param type="any" name="quackincrement" subparam="true">
-                <description>Flag incrementally in time?</description>
+                <description>Increment quack flagging in time taking into account flagged data or not.</description>
                 <any type="variant" limittypes="bool boolArray" />
                 <value type="bool">False</value>
             </param>
@@ -320,11 +320,11 @@
                 <value type="string"></value>
             </param>
             <param type="double" name="timedevscale" subparam="true">
-                <description>Threshold scaling for timedev [aips:fparm(9)]</description>
+                <description>Threshold scaling for timedev [aips:fparm(9)]. Ignored for the purpose of calculating thresholds (when action is "calculate") It is used when applying flags (i.e. action="apply") and displaying reports when action="calculate".</description>
                 <value>5.0</value>
             </param>
             <param type="double" name="freqdevscale" subparam="true">
-                <description>Threshold scaling for freqdev [aips:fparm(10)]</description>
+                <description>Threshold scaling for freqdev [aips:fparm(10)]. Similarly as timedevscale, it is used when applying flags and displaying reports.</description>
                 <value>5.0</value>
             </param>
             <param type="double" name="spectralmax" subparam="true">
@@ -825,13 +825,18 @@
                 For optimization and whenever possible, the task will create a union of the data selection 
                 parameters present in the list and select only that portion of the MS.
 
-                    NOTE: the flag commands will be applied only when action='apply'. If
+                    NOTE1: the flag commands will be applied only when action='apply'. If
                           action='calculate' the flags will be calculated, but not applied.
                           This is useful if display is set to something other than 'none'. If
                           action='' or 'none', the flag commands will not be applied either.
                           An empty action is useful only to save the parameters of the list
                           to a file or to the FLAG_CMD sub-table.
-                  
+ 
+                    NOTE2: In list mode the parameter quackincrement=True is not supported as
+                           part of any quack flag command, unless it is the first command of the list.
+                           See more about this in the quack mode section of this help. 
+	                      
+	                 
                inpfile -- Input ASCII file, list of files or a Python list of command strings.
                   default: ''
                   options: [] with flag commands or 
@@ -1024,13 +1029,23 @@
                              +++++++++++++++++++++++++++++++++-----------
 
 
-               quackincrement -- Quack incrementally in time?
+               quackincrement -- Increment quack flagging in time taking into account flagged data or not.
                     default: False
                     type: bool
                              False  ==> the quack interval is counted from the
-                                        beginning of the scan
+                                        scan boundaries, as determined by the quackmode parameter,
+                                        regardless of if data has been flagged or not.
                              True   ==> the quack interval is counted from the
-                                        first unflagged data in the scan
+                                        first unflagged data in the scan.
+
+                             NOTE on adding quack to a command in 'list' mode: quackincrement = True works 
+                                  based on the state of prior flagging, and unless it is the first item in 
+                                  the list the agent doing the quacking in list mode doesn't know about the 
+                                  state of prior flags. In this case, the command with quackincrement=True 
+                                  will be ignored and the task will issue a WARNING.
+
+	
+     ------------------------------------- SHADOW MODE -----------------------------------------------    		
 
         shadow -- Option to flag data of shadowed antennas. This mode is not available
                     for cal tables.
@@ -1287,7 +1302,7 @@
                   (1) Calculate thresholds automatically per scan, and use them to find flags.
                       Specify scale-factor for time-analysis thresholds, use default for frequency.
 
-                      flagdata('my.ms', mode='rflag',spw='9',timedevscale=4.0)
+                      flagdata('my.ms', mode='rflag', spw='9', timedevscale=4.0)
  
                   (2) Supply noise-estimates to be used with default scale-factors. 
   
@@ -1295,10 +1310,12 @@
 
                   (3) Two-passes. This replicates the usage pattern in AIPS.
 
-                      -- The first pass saves commands in an output text files, with auto-calculated 
+                      -- The first pass saves commands in output text files, with auto-calculated
                          thresholds. Thresholds are returned from rflag only when action='calculate'. 
                          The user can edit this file before doing the second pass, 
                          but the python-dictionary structure must be preserved.
+                         The parameters timedevscale and freqdevscale are not used in this
+                         first pass.
 
                       -- The second pass applies these commands (action='apply').
 
@@ -1309,12 +1326,16 @@
 
                         With action='calculate', display='report' will produce diagnostic plots 
                         showing data-statistics and thresholds (the same thresholds as those
-                        written out to 'tdevfile.txt' and 'fdevfile.txt'). 
+                        written out to 'tdevfile.txt' and 'fdevfile.txt'). In this second
+                        pass, with action 'apply', the parameters freqdevscale and
+                        timedevscale can be used to re-scale the thresholds calculated in the
+                        first pass.
            
                         Note : The RFlag algorithm was originally developed by Eric Greisen in 
                                 AIPS (31DEC11).
                         AIPS documentation : Section E.5 of the AIPS cookbook
-                        (Appendix E : Special Considerations for EVLA data calibration and imaging in AIPS,
+                        (Appendix E : Special Considerations for EVLA data calibration and
+                        imaging in AIPS, E.5 Detailed Flagging
                         http://www.aips.nrao.edu/cook.html#CEE )
 
                         Note1 : Since this algorithm operates with two passes through each
@@ -1365,7 +1386,10 @@
                          timedev = [ [1,9,0.2], [1,10,0.5] ] :  Use noise-estimate of 0.2 for field 1, 
                                    spw 9, and noise-estimate of 0.5 for field 1, spw 10.
                          timedev = [] : Auto-calculate noise estimates.
-                
+                         'tdevfile.txt' : Auto-calculate noise estimates and write them into
+                         a file with the name given (any string will be interpreted as a
+                         file name which will be checked for existence).
+
                     
                freqdev -- spectral noise estimate ( scutoff in AIPS ).
                           This step depends on having a relatively-flat bandshape.
@@ -1374,11 +1398,19 @@
                      
 
                timedevscale -- For Step 1 (time analysis), flag a point if local rms around it 
-                               is larger than  'timedevscale' x 'timedev'   ( fparm(0) in AIPS )
+                               is larger than 'timedevscale' x 'timedev'   ( fparm(0) in AIPS ).
+                               This scale parameter is only applied when flagging (action='apply')
+                               and displaying reports (display option). It is not used when
+                               the thresholds are simply calculated and saved into files
+                               (action='calculate', as in the two-passes usage pattern of AIPS)
                     default: 5.0
-                    
+
+
                freqdevscale -- For Step 2 (spectral analysis), flag a point if local rms around it
                                is larger than 'freqdevscale' x 'freqdev'     ( fparm(10) in AIPS )
+                               Similarly as with timedevscale, freqdevscale is not used when
+                               the thresholds are simply calculated and saved into files
+                               (action='calculate', as in the two-passes usage pattern of AIPS)
                     default: 5.0
 
                spectralmax -- Flag whole spectrum if 'freqdev' is greater than spectralmax ( fparm(6) in AIPS )
@@ -1480,7 +1512,7 @@
                     Example2:
 
                         Here we reduce the fraction of channels that are required to be
-                        flagged, and print information for every integratino that is
+                        flagged, and print information for every integration that is
                         flagged.
 
                         flagdata(vis, ..., spw='9', antint_ref_antenna='ea01', minchanfrac=0.3, verbose=True)

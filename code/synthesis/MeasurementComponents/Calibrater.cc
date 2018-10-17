@@ -776,6 +776,7 @@ Bool Calibrater::setsolve (const String& type,
                            const String& refant,
                            const String& refantmode,
 			   const Bool solnorm,
+			   const String& normtype,
 			   const Float minsnr,
 			   const String& combine,
 			   const Int fillgaps,
@@ -785,7 +786,12 @@ Bool Calibrater::setsolve (const String& type,
                            const Float fraction,
                            const Int numedge,
                            const String& radius,
-                           const Bool smooth)
+                           const Bool smooth,
+                           const Bool zerorates,
+                           const Bool globalsolve,
+                           const Vector<Double>& delaywindow, 
+                           const Vector<Double>& ratewindow
+    )
 {
   
   logSink() << LogOrigin("Calibrater","setsolve") << LogIO::NORMAL3;
@@ -801,7 +807,7 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("table", TpString);
   solveparDesc.addField ("append", TpBool);
   solveparDesc.addField ("solnorm", TpBool);
-  solveparDesc.addField ("minsnr", TpFloat);
+  solveparDesc.addField ("normtype", TpString);
   solveparDesc.addField ("type", TpString);
   solveparDesc.addField ("combine", TpString);
   solveparDesc.addField ("maxgap", TpInt);
@@ -809,12 +815,20 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("painc", TpDouble);
   solveparDesc.addField ("fitorder", TpInt);
 
+  // fringe-fit specific fields
+  solveparDesc.addField ("zerorates", TpBool);
+  solveparDesc.addField ("minsnr", TpFloat);
+  solveparDesc.addField ("globalsolve", TpBool);
+  solveparDesc.addField ("delaywindow", TpArrayDouble);
+  solveparDesc.addField ("ratewindow", TpArrayDouble);
+
   // single dish specific fields
   solveparDesc.addField ("fraction", TpFloat);
   solveparDesc.addField ("numedge", TpInt);
   solveparDesc.addField ("radius", TpString);
   solveparDesc.addField ("smooth", TpBool);
-  
+
+
   // Create a solver record with the requisite field values
   Record solvepar(solveparDesc);
   solvepar.define ("solint", solint);
@@ -828,7 +842,15 @@ Bool Calibrater::setsolve (const String& type,
   solvepar.define ("table", table);
   solvepar.define ("append", append);
   solvepar.define ("solnorm", solnorm);
+  solvepar.define ("normtype", normtype);
+  // Fringe-fit specific
   solvepar.define ("minsnr", minsnr);
+  solvepar.define ("zerorates", zerorates);
+  solvepar.define ("globalsolve", globalsolve);
+  solvepar.define ("delaywindow", delaywindow);
+  solvepar.define ("ratewindow", ratewindow);
+  
+  
   String uptype=type;
   uptype.upcase();
   solvepar.define ("type", uptype);

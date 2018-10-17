@@ -1,6 +1,7 @@
 import os
 import shutil
 from taskinit import *
+from mstools import write_history
 import flaghelper as fh
 import testhelper as th
 from casac import casac
@@ -87,7 +88,7 @@ def importasdm(
                     by space characters; the wildcard character '*' is 
                             allowed in table names.
 
-       wvr_corrected_data -- specifies wich values are considered in the 
+       wvr_corrected_data -- specifies which values are considered in the 
                       ASDM binary data to fill the DATA column in 
                       the MAIN table of the MS. Expected values for 
                       this option are 'no' for the uncorrected data 
@@ -326,27 +327,6 @@ def importasdm(
         #
         if not os.path.exists(visoc):
             vistoproc = [myviso for myviso in vistoproc if myviso != visoc]
-
-        # CAS-7369. HISTORY should be written after createmms is tested
-        #
-        # Populate the HISTORY table of the MS with information about the context in which it's been created
-        #
-        try: 
-            mslocal = mstool() 
-            param_names = importasdm.func_code.co_varnames[:importasdm.func_code.co_argcount] 
-            param_vals = [eval(p) for p in param_names]
-
-            for myviso in vistoproc:
-                write_history(mslocal, myviso, 'importasdm', param_names, 
-                              param_vals, casalog) 
-
-        except Exception, instance: 
-            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 
-                         'WARN')
-            return False 
-
-        if mslocal:
-            mslocal = None 
             
         # 
         # Do we apply fixspwbackport
@@ -516,15 +496,18 @@ def importasdm(
                 fpars['outputvis'] = outputmms
                 fpars['separationaxis'] = separationaxis
                 fpars['numsubms'] = numsubms
+                
+                # Run partition only at the MPIServers
                 pdh = ParallelDataHelper('partition', fpars) 
             
                 # Get a cluster
                 pdh.setupCluster(thistask='partition')
                 try:
                     pdh.go()
-                    
+                                        
                     # Remove original MS
                     shutil.rmtree(tempname)
+ 
 
                 except Exception, instance:
                     # Restore MS in case of error in MMS creation
@@ -611,7 +594,17 @@ def importasdm(
         else:
             casalog.post('There is no Flag.xml in ASDM', 'WARN')
 
-        
+
+        # Write parameters to HISTORY table of MS
+        mslocal = mstool() 
+        param_names = importasdm.func_code.co_varnames[:importasdm.func_code.co_argcount] 
+        param_vals = [eval(p) for p in param_names]
+
+        for myviso in vistoproc:
+            write_history(mslocal, myviso, 'importasdm', param_names, 
+                          param_vals, casalog) 
+
+       
         return
     
     except Exception, instance:

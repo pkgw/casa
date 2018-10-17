@@ -40,6 +40,12 @@
 #include <iostream>
 #include <vector>
 
+#include <flagging/Flagging/FlagCalTableHandler.h>
+#include <flagging/Flagging/FlagMSHandler.h>
+#if ! defined(WITHOUT_DBUS)
+#include <flagging/Flagging/FlagAgentDisplay.h>
+#endif
+
 using namespace casacore;
 namespace casa {
 
@@ -588,6 +594,10 @@ AgentFlagger::initAgents()
 		String mode;
 		agent_rec.get("mode", mode);
 
+        /*
+         * Special considerations for some agents
+         */
+
         // If clip agent is mixed with other agents and time average is true, skip it
         if ((mode.compare("clip") == 0 and list_size > 1) or
         		(mode.compare("rflag") == 0 and list_size > 2) or
@@ -598,9 +608,21 @@ AgentFlagger::initAgents()
         	if (exists >= 0) agent_rec.get("timeavg", tavg);
 
             if (tavg){
-                os << LogIO::WARN << "Cannot have " << mode <<" mode with timeavg/channelavg=true in list mode" << LogIO::POST;
+                os << LogIO::WARN << "Cannot have " << mode <<" mode with timeavg/channelavg=True in list mode" << LogIO::POST;
                 continue;
             }
+        }
+
+        // If quack mode with quackincrement = true, skip it
+        if (mode.compare("quack") == 0 and i > 0 and list_size > 1){
+        	Bool quackincrement = false;
+        	int exists = agent_rec.fieldNumber ("quackincrement");
+        	if (exists >= 0) agent_rec.get("quackincrement", quackincrement);
+
+			if (quackincrement){
+        		os << LogIO::WARN << "Cannot have quackincrement=True in list mode. Agent will be ignored!" << LogIO::POST;
+        		continue;
+        	}
         }
 
 		// Set the new time interval only once
@@ -999,7 +1021,8 @@ AgentFlagger::restoreFlagVersion(Vector<String> versionname, String merge)
 	catch (AipsError x)
 	{
 		os << LogIO::SEVERE << "Could not restore Flag Version : " << x.getMesg() << LogIO::POST;
-		return false;
+		throw AipsError(x);
+//		return false;
 	}
 	return true;
 }

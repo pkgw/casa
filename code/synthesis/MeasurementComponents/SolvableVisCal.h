@@ -72,6 +72,34 @@ class VisEquation;
 class SolveDataBuffer;
 class SDBList;
 
+
+class SolNorm {
+
+public:
+
+  enum Type { MEAN, MEDIAN, UNKNOWN };
+
+  SolNorm(casacore::Bool donorm=false, casacore::String normtype=casacore::String("mean"));
+  SolNorm(const SolNorm& other);
+
+  inline casacore::Bool donorm() const { return donorm_; };
+  inline Type normtype() const { return normtype_; };
+  inline casacore::String normtypeString() const { return normTypeAsString(normtype_); };
+
+  void report();
+
+private:
+
+  // data 
+  casacore::Bool donorm_;
+  Type normtype_;
+
+  static Type normTypeFromString(casacore::String name);
+  static casacore::String normTypeAsString(Type type);
+
+  
+};
+ 
 class SolvableVisCal : virtual public VisCal {
 public:
 
@@ -113,7 +141,8 @@ public:
   inline casacore::String&      solint()         { return solint_; };
   inline casacore::String&      fsolint()        { return fsolint_; };
   inline casacore::Double&      preavg()         { return preavg_; };
-  inline casacore::Bool&        solnorm()        { return solnorm_;};
+  inline const SolNorm&         solNorm()        { return solnorm_;};
+  inline casacore::Bool         solnorm()        { return solnorm_.donorm();};
   inline casacore::Float&       minSNR()         { return minSNR_; };
 
   inline casacore::String&      combine()        { return combine_; };
@@ -233,11 +262,24 @@ public:
   inline virtual casacore::Cube<casacore::Bool>&    solveParOK()  {return (*solveParOK_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveParErr() {return (*solveParErr_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveParSNR() {return (*solveParSNR_[currSpw()]);};
+
   inline virtual casacore::Cube<casacore::Complex>& solveAllCPar()   {return (*solveAllCPar_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float>&   solveAllRPar()   {return (*solveAllRPar_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Bool>&    solveAllParOK()  {return (*solveAllParOK_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveAllParErr() {return (*solveAllParErr_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveAllParSNR() {return (*solveAllParSNR_[currSpw()]);};
+
+  // Access to per-spw solution parameters and matrices
+  inline virtual void solveAllCPar(casacore::Int spw, casacore::Cube<casacore::Complex>& cparSpw)
+  	{ if (spw<nSpw()) cparSpw = (*solveAllCPar_[spw]);}
+  inline virtual void solveAllRPar(casacore::Int spw, casacore::Cube<casacore::Float>& rparSpw)
+    { if (spw<nSpw()) rparSpw = (*solveAllRPar_[spw]);}
+  inline virtual void solveAllParOK(casacore::Int spw, casacore::Cube<casacore::Bool>& parokSpw)
+    { if (spw<nSpw()) parokSpw = (*solveAllParOK_[spw]);}
+  inline virtual void solveAllParErr(casacore::Int spw, casacore::Cube<casacore::Float>& parerrSpw) 
+    { if (spw<nSpw()) parerrSpw = (*solveAllParErr_[spw]);}
+  inline virtual void solveAllParSNR(casacore::Int spw, casacore::Cube<casacore::Float>& parsnrSpw) 
+    { if (spw<nSpw()) parsnrSpw = (*solveAllParSNR_[spw]);}
 
   // Access to source pol parameters
   inline casacore::Vector<casacore::Complex>& srcPolPar() { return srcPolPar_; };
@@ -247,7 +289,6 @@ public:
   casacore::Bool syncSolveMeta(VisBuffer& vb, const casacore::Int& fieldId);
   casacore::Bool syncSolveMeta(VisBuffGroupAcc& vbga);
   void syncSolveMeta(SDBList& sdbs);  // VI2   (valid data now checked elsewhere)
-
   // Provide for override of currScan and currObs
   void overrideObsScan(casacore::Int obs, casacore::Int scan);
 
@@ -481,9 +522,9 @@ protected:
   virtual void stateSVC(const casacore::Bool& doVC);
 
   // Normalize a (complex) solution array (generic)
-  void normSolnArray(casacore::Array<casacore::Complex>& sol,
-		     const casacore::Array<casacore::Bool>& solOK,
-		     const casacore::Bool doPhase=false);
+  casacore::Complex normSolnArray(casacore::Array<casacore::Complex>& sol,
+				  const casacore::Array<casacore::Bool>& solOK,
+				  const casacore::Bool doPhase=false);
 
   virtual casacore::Float calcPowerNorm(casacore::Array<casacore::Float>& amp, const casacore::Array<casacore::Bool>& ok)=0;
 
@@ -589,7 +630,7 @@ private:
   casacore::Double preavg_;
 
   // Do solution normalization after a solve
-  casacore::Bool solnorm_;
+  SolNorm solnorm_;
 
   // SNR threshold
   casacore::Float minSNR_;

@@ -20,9 +20,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
     Input Parameters
     vis        -- Name of the input visibility set
-    
+
     field      -- field selection string
-    
+
     fixuvw     -- recalc uvw coordinates? (default: False)
 
     direction  -- if set, don't use pointing table but set direction to this value.
@@ -40,7 +40,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                         Confirmed to work is Thunderbird.
 
                   default= '' (use pointing table)
-                  
+
                   example: 'J2000 19h30m00 -40d00m00'
 
     refant     -- if using pointing table information, use it from this antenna
@@ -50,7 +50,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     reftime    -- if using pointing table information, use it from this timestamp
                   default: 'first'
                   examples: 'median' will use the median timestamp for the given field
-		            using only the unflagged maintable rows 
+		            using only the unflagged maintable rows
                             '2012/07/11/08:41:32' will use the given timestamp (must be
                             within the observaton time)
 </description>
@@ -67,23 +67,26 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <value>""</value>
     </param>
     <param type="bool" name="fixuvw">
-      <description>recalc uvw?</description>
+      <description>Recalculate Fourier-plane u,v,w coordinates</description>
       <value>False</value>
     </param>
     <param type="any" name="direction">
-      <description>if set, don\'t use pointing table but set direction to this value</description>
+      <description>if set, do not use pointing table but set direction to this value</description>
       <any type="variant"/>
       <value type="string"></value>
     </param>
     <param type="any" name="refant">
       <description>if using pointing table information, use it from this antenna</description>
       <any type="variant"/>
-      <value>0</value>
+      <value type="int">0</value>
     </param>
     <param type="string" name="reftime">
-        <description>if using pointing table information, use it from this timestamp (\'first\', \'median\', or YYYY/MM/DD/hh:mm:ss)</description>
+        <description>if using pointing table information, use it from this timestamp </description>
         <value>first</value>
-        <example>reftime='2012/07/11/08:41:32'</example>
+        <example>
+            Timestamp options: ('first', 'median', or YYYY/MM/DD/hh:mm:ss)
+            For example: reftime='2012/07/11/08:41:32'
+        </example>
     </param>
 
 </input>
@@ -93,9 +96,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     Examples:
 
     fixplanets('uid___A002_X1c6e54_X223.ms', 'Titan', True)
-          will look up the pointing direction from antenna 0 for field 'Titan' in 
-          the POINTING table based on the first timestamp in the main table rows for 
-          this field, enter this direction in the FIELD and SOURCE tables, and then 
+          will look up the pointing direction from antenna 0 for field 'Titan' in
+          the POINTING table based on the first timestamp in the main table rows for
+          this field, enter this direction in the FIELD and SOURCE tables, and then
           recalculate the UVW coordinates for this field.
 
     fixplanets('uid___A002_X1c6e54_X223.ms', 'Titan', True, 'Titan_55438-56292dUTC.tab')

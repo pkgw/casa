@@ -118,7 +118,7 @@ bool Histogram::compute( ){
 	return success;
 }
 
-ImageHistograms<Float>* Histogram::filterByChannels( const SHARED_PTR<const ImageInterface<Float> > image ){
+ImageHistograms<Float>* Histogram::filterByChannels( const std::shared_ptr<const ImageInterface<Float> > image ){
 	ImageHistograms<Float>* imageHistogram = NULL;
 	if ( channelMin != ALL_CHANNELS && channelMax != ALL_CHANNELS ){
 		//Create a slicer from the image
@@ -153,7 +153,7 @@ ImageHistograms<Float>* Histogram::filterByChannels( const SHARED_PTR<const Imag
 	return imageHistogram;
 }
 
-void Histogram::setImage(const SHARED_PTR<const ImageInterface<Float> > img ){
+void Histogram::setImage(const std::shared_ptr<const ImageInterface<Float> > img ){
 	image = img;
 }
 
@@ -175,7 +175,7 @@ bool Histogram::reset(FootPrintWidget::PlotMode mode ){
 			}
 			else if ( region != NULL ){
 				//Make the histogram based on the region
-				SHARED_PTR<SubImage<Float> > subImage(new SubImage<Float>( *image, *region ));
+				std::shared_ptr<SubImage<Float> > subImage(new SubImage<Float>( *image, *region ));
 				if ( subImage.get() != NULL ){
 					Array<Bool> mask = subImage->getMask();
 					if ( ! anyTrue( mask ) ){

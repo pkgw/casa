@@ -353,6 +353,7 @@ calibrater::setsolve(const std::string& type,
 		     const std::string& refantmode,
 		     const int minblperant,
 		     const bool solnorm,
+		     const std::string& normtype,
 		     const float minsnr,
 		     const std::string& combine,
 		     const int fillgaps,
@@ -362,7 +363,12 @@ calibrater::setsolve(const std::string& type,
                      const float fraction,
                      const int numedge,
                      const std::string& radius,
-                     const bool smooth)
+                     const bool smooth,
+                     const bool zerorates,
+                     const bool globalsolve,
+                     const vector<double>& delaywindow,
+                     const vector<double>& ratewindow
+    )
 {
   if (! itsMS) {
     *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
@@ -388,9 +394,9 @@ calibrater::setsolve(const std::string& type,
     itsCalibrater->setsolve(type,toCasaString(t),table,append,preavg,mode,
 			    minblperant,
 			    toCasaString(refant),refantmode,
-			    solnorm,minsnr,combine,fillgaps,
-			    cfcache, painc, fitorder, fraction, numedge, radius, smooth);
-    
+			    solnorm,normtype, minsnr,combine,fillgaps,
+			    cfcache, painc, fitorder, fraction, numedge, radius, smooth,
+                            zerorates, globalsolve, delaywindow, ratewindow);
   } catch(AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
     RETHROW(x);
@@ -1531,7 +1537,7 @@ void calibrater::uvtaql(std::string& uvsel, bool& noselect,
     ScalarColumn<Double> reffreq(spwtab, "REF_FREQUENCY");
     uvsel = "( ";
     uInt nfreq=reffreq.nrow();
-    Double c = (QC::c).getValue();
+    Double c = (QC::c( )).getValue();
     double ffact;
     vector<int> dd;
 

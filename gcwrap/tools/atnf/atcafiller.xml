@@ -41,21 +41,21 @@ af = casac.atcafiller()
      <param type="string" direction="in" name="msname">
      <description>Filename for MeasurementSet to create
        </description>
-     <value>''</value>
+     <value/>
      </param>
 
     <param type="stringArray" direction="in" name="filenames">
      <description>Existing RPFITS files to read; wild cards accepted,
           don't use commas
        </description>
-     <value>''</value>
+     <value/>
      </param>
 
     <param type="stringArray" direction="in" name="options">
      <description>Processing options: birdie, rfiflag, noxycorr, compress,
           fastmosaic, hires, reweight, noac
        </description>
-     <value>''</value>
+     <value/>
      </param>
    <!--
     <param type="int" direction="in" name="opcor">
@@ -65,7 +65,7 @@ af = casac.atcafiller()
      <value>0</value>
      </param> -->
 </input>
-<returns type="Bool">Returns open status</returns>
+<returns type="bool"/>
 <example>
 #Specify that we want to load the data from files 1999-01-01\_0101.C999 and 
 #1999-01-01\_0202.C999 in the directory /data/RPFITS into the MeasurementSet 
@@ -121,7 +121,7 @@ mode.
 <method type="function" name="fill">
 <shortdescription>Fill the MeasurementSet
 </shortdescription>
-<returns type="Bool">Returns fill status</returns>
+<returns type="bool"/>
 <example>
 #Specify that we want to load the data from files 1999-01-01\_0101.C999 and 
 #1999-01-01\_0202.C999 in the directory /data/RPFITS into the MeasurementSet #myms.
@@ -194,7 +194,7 @@ For detailed selection of complex observations the last two parameters let
 you specify the required bandwidth (in whole MHz) and number of channels
 of the first frequency chain.
 </description>
-<returns type="Bool"> Selection status</returns>
+<returns type="bool"/>
 <example>
 #Select scans 4 to 10 inclusive, frequency chain 1, all data with a
 #reference frequency of more than 1.4 GHz.

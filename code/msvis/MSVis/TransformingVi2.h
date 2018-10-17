@@ -348,7 +348,7 @@ public:
     // Return weightspectrum (a weight for each channel)
 
     virtual void weightSpectrum (casacore::Cube<casacore::Float> & wtsp) const;
-    virtual void sigmaSpectrum (casacore::Cube<casacore::Float> & wtsp) const;
+    virtual void sigmaSpectrum (casacore::Cube<casacore::Float> & sigsp) const;
 
     // Return the number of sub-intervals in the current chunk
 
@@ -548,7 +548,7 @@ public:
 
     // Write/modify the weightSpectrum
     virtual void writeWeightSpectrum (const casacore::Cube<casacore::Float> & wtsp);
-    virtual void writeSigmaSpectrum (const casacore::Cube<casacore::Float> & wtsp);
+    virtual void writeSigmaSpectrum (const casacore::Cube<casacore::Float> & sigsp);
 
     // Write/modify the Sigma
     virtual void writeSigma (const casacore::Matrix<casacore::Float> & sig);

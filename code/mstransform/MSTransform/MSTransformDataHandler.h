@@ -58,12 +58,12 @@ public:
 		USE_FOR_DATA_WEIGHT_SIGMA_FLAG
 	};
 
-	MSTransformDataHandler(	casacore::String& theMS, casacore::Table::TableOption option,
-							casacore::Bool virtualModelCol=false, casacore::Bool virtualCorrectedCol=false,
-							casacore::Bool reindex=true);
-	MSTransformDataHandler(	casacore::MeasurementSet& ms,
-							casacore::Bool virtualModelCol=false, casacore::Bool virtualCorrectedCol=false,
-							casacore::Bool reindex=true);
+	MSTransformDataHandler(const casacore::String& theMS, casacore::Table::TableOption option,
+                               casacore::Bool virtualModelCol=false, casacore::Bool virtualCorrectedCol=false,
+                               casacore::Bool reindex=true);
+	MSTransformDataHandler(const casacore::MeasurementSet& ms,
+                               casacore::Bool virtualModelCol=false, casacore::Bool virtualCorrectedCol=false,
+                               casacore::Bool reindex=true);
 	~MSTransformDataHandler();
 
 	// Declared static because it's used in setupMS().
@@ -141,11 +141,13 @@ public:
 	//
 	// combine sets combine_p.  (Columns to ignore while time averaging.)
 	//
-	casacore::Bool makeMSBasicStructure(	casacore::String& msname,
-								casacore::String& whichDataCol,
-								const casacore::Vector<casacore::Int>& tileShape = casacore::Vector<casacore::Int> (1, 0),
-								const casacore::String& combine = "",
-								casacore::Table::TableOption option=casacore::Table::New);
+        // createWeightSpectrumCols: add WEIGHT/SIGMA_SPECTRUM columns
+	casacore::Bool makeMSBasicStructure(casacore::String& msname,
+                                            casacore::String& whichDataCol,
+                                            casacore::Bool createWeightSpectrumCols,
+                                            const casacore::Vector<casacore::Int>& tileShape = casacore::Vector<casacore::Int> (1, 0),
+                                            const casacore::String& combine = "",
+                                            casacore::Table::TableOption option=casacore::Table::New);
 
 	casacore::Bool isAllColumns(const casacore::Vector<casacore::MS::PredefinedColumns>& colNames);
 
@@ -155,20 +157,22 @@ public:
 	// This sets up a default new ms
 	// Declared static as it can be (and is) called directly from outside
 	// Therefore it is not dependent on any member variable.
-	static casacore::MeasurementSet* setupMS(	const casacore::String& msname, const casacore::Int nchan,
-									const casacore::Int npol, const casacore::String& telescop,
-									const casacore::Vector<casacore::MS::PredefinedColumns>& colNamesTok,
-									const casacore::Int obstype = 0, const casacore::Bool compress = false,
-									const asdmStManUseAlternatives asdmStManUse = DONT,
-									casacore::Table::TableOption option=casacore::Table::New);
+        static casacore::MeasurementSet* setupMS(const casacore::String& msname, const casacore::Int nchan,
+                                                 const casacore::Int npol, const casacore::String& telescop,
+                                                 const casacore::Vector<casacore::MS::PredefinedColumns>& colNamesTok,
+                                                 casacore::Bool createWeightSpectrumCols,
+                                                 const casacore::Int obstype = 0, const casacore::Bool compress = false,
+                                                 const asdmStManUseAlternatives asdmStManUse = DONT,
+                                                 casacore::Table::TableOption option=casacore::Table::New);
 
 	// Same as above except allowing manual tileshapes
-	static casacore::MeasurementSet* setupMS(	const casacore::String& msname, const casacore::Int nchan,
-									const casacore::Int npol, const casacore::Vector<casacore::MS::PredefinedColumns>& colNamesTok,
-									const casacore::Vector<casacore::Int>& tileShape = casacore::Vector<casacore::Int> (1, 0),
-									const casacore::Bool compress = false,
-									const asdmStManUseAlternatives asdmStManUse = DONT,
-									casacore::Table::TableOption option=casacore::Table::New);
+        static casacore::MeasurementSet* setupMS(const casacore::String& msname, const casacore::Int nchan,
+                                                 const casacore::Int npol, const casacore::Vector<casacore::MS::PredefinedColumns>& colNamesTok,
+                                                 casacore::Bool createWeightSpectrumCols,
+                                                 const casacore::Vector<casacore::Int>& tileShape = casacore::Vector<casacore::Int> (1, 0),
+                                                 const casacore::Bool compress = false,
+                                                 const asdmStManUseAlternatives asdmStManUse = DONT,
+                                                 casacore::Table::TableOption option=casacore::Table::New);
 
 
 	// The output casacore::MS must have (at least?) 1 of DATA, FLOAT_DATA, or LAG_DATA.
@@ -331,7 +335,7 @@ protected:
 			intentString_p, // Selects scans by string.  scanString_p was taken.
 			obsString_p, // casacore::String for observationID selection.
 			uvrangeString_p, taqlString_p, feedString_p;
-	casacore::String timeRange_p, arrayExpr_p, corrString_p;
+	casacore::String timeRange_p, arrayExpr_p, corrString_p, spwString_p;
 	casacore::String combine_p; // Should time averaging not split bins by
 	// scan #, observation, and/or state ID?
 	// Must be lowercase at all times.
