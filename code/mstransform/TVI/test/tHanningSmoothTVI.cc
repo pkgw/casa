@@ -232,8 +232,8 @@ void HanningSmoothTVISpwChannTest::createTVIs()
     if(useMSSelection_p)
     {
         diskItFac.reset(new VisIterImpl2LayerFactory(msSelected.get(),ipar, false));
-        FrequencySelections selections;
-        selections.add(freqSel);
+        auto selections = std::make_shared<vi::FrequencySelections>();
+        selections->add(*freqSel);
         diskItFac->setFrequencySelections(selections);
     }
     else
