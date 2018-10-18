@@ -325,27 +325,29 @@ void DeleteWorkingMS()
     }
 }
 
-//+
-//  Function Generation 
-//   for Interporation TEST 
-//   in TEST_F (TestDirection )
-//-
+//********************************************************
+//  INTERPOLATION  Generation 
+//   for Interporation Verification TEST 
+//
+//  
+//********************************************************
 
 class InterpolationGeneration
 {
-
 
 public:
 
     InterpolationGeneration() { Initialize(); }
 
-    // Init and Define Parameters 
-   
-        void Initialize();
-
+    //+
     // Generation
-
-        casacore::Vector<double>  Generate(Double tn);
+    //-
+        casacore::Vector<double>  Generate(Double tn, int type);
+ 
+    // Interval Time//
+     
+         Double pointingIntervalSec ;            // Interval Time to set in POINTING
+         Double mainIntervalSec     ;  
 
     //+
     // Operation Mode
@@ -360,6 +362,10 @@ public:
         double interpolationErrorLimit ; 
 
 private:
+
+    // Init and Define Parameters 
+        
+        void Initialize();
        
     //+
     // Generating Parameter 
@@ -378,12 +384,6 @@ private:
         Double slideOffset   = 0;      // Sliding Time (sec)
         Double dayOffset     = 0;      // Day offset   (Day)
 
-    
-    // Interval Time//
-
-        Double pointingIntervalSec ;	        // Interval Time to set in POINTING
-        Double mainIntervalSec     ;
-
 
 };
 
@@ -398,9 +398,10 @@ void InterpolationGeneration::Initialize( )
 
         //+
         // Pointing Interval
+        // (2018.10.18, These params are not appropriately implemented.Does not work)
         //- 
 
-            pointingIntervalSec = 1.0 ;               // Interval Time to set in POINTING
+            pointingIntervalSec = 0.1 ;               // Interval Time to set in POINTING
             mainIntervalSec     = 1.0 ;              
 
         //+
@@ -424,12 +425,56 @@ void InterpolationGeneration::Initialize( )
 }
 
 
-//+
-// Generate Pseudo Data on Direction
+//*****************************************************
+// Generate Pseudo POINTING Trajectory
 //   returns pointng info. by Vecror.
+//****************************************************
+
+//+
+// Local function definition
 //-
 
-casacore::Vector<double> InterpolationGeneration::Generate(Double tn )
+void Function_sinusoid_slow( double time, double& X, double& Y)
+{
+ 
+    X = 2.0 * cos( 2.0*M_PI / 200 * time );
+    Y = 1.0 * sin( 2.0*M_PI / 200 * time );
+
+    return;
+}
+
+void Function_sinusoid_quick( double time, double& X, double& Y)
+{   
+    
+    X = 2.0 * cos( 2.0*M_PI / 20 * time );
+    Y = 1.0 * sin( 2.0*M_PI / 20 * time );
+   
+    return;
+}   
+
+void Function_harmonics_sinusoid( double time, double& X, double& Y)
+{        
+    const double Amp1 = 1.6;
+    const double Amp2 = 0.8;
+    const double Omega = 2.0 * M_PI / 100.0; 
+         
+    double x1  = Amp1 * cos( Omega * time );
+    double y1  = Amp2 * sin( Omega * time );
+
+    double x4  = Amp1/1.5 * cos( 4.0 * Omega * time );
+    double y4  = Amp2/1.5 * sin( 4.0 * Omega * time );        
+
+    X = x1 + x4;
+    Y = y1 + y4;
+
+    return;
+}
+ 
+//+
+//  Generation (main body)
+//-
+
+casacore::Vector<double> InterpolationGeneration::Generate(Double tn, int type )
 {
         casacore::Vector<Double> point;
         point.resize(6);
@@ -438,11 +483,15 @@ casacore::Vector<double> InterpolationGeneration::Generate(Double tn )
         // Base Time on generated MS
         //    (see MVTime in detail)
         //-
+        double interval = 1.0;
+        if( type == 1 )  interval = pointingIntervalSec;
+        if( type == 2 )  interval = mainIntervalSec;
 
         Double dd   =  (22 *3600.0 
                          +  5*60 +  41.5 
-                         + (tn * pointingIntervalSec) + dayOffset )/(3600*24) 
-                         + slideOffset;
+                         + (tn * interval) 
+                         + dayOffset )
+                       /(3600*24) + slideOffset;
      
         casacore::MVTime  basetime (2003,11,12 ,dd);     
  
@@ -453,24 +502,31 @@ casacore::Vector<double> InterpolationGeneration::Generate(Double tn )
         Double X;
         Double Y;
 
-        switch(9)
+        // Manually Select Function ..//
+        uInt SelectNum = 1;
+
+        Double time = tn * interval;
+        switch(SelectNum)
         {
             case 1:    /// 1.st order ///
         
-                X = Dir_X_start + Dir_X_ChangeRate * tn;     // Direction
-                Y = Dir_Y_start + Dir_Y_ChangeRate * tn;    // Direction
+                X = Dir_X_start + Dir_X_ChangeRate * time;     // Direction
+                Y = Dir_Y_start + Dir_Y_ChangeRate * time;    // Direction
                 break;
 
             case 8:    /// Sinusoid (slow)/// 
  
-                 X = 2.0 * cos( 2.0*M_PI / 3000 * tn );
-                 Y = 1.0 * sin( 2.0*M_PI / 3000 * tn );
+                 Function_sinusoid_slow(time, X, Y );
                  break;
 
             case 9:    /// Sinusoid (quick) /// 
 
-                 X = 2.0 * cos( 2.0*M_PI / 100 * tn );
-                 Y = 1.0 * sin( 2.0*M_PI / 100 * tn );
+                 Function_sinusoid_quick(time, X, Y );
+                 break;
+
+            case 10:   /// Harmonics Sinusoid ///
+          
+                 Function_harmonics_sinusoid(time, X, Y);
                  break;
 
             case 2:       /// 2.nd oder /// 
@@ -482,6 +538,9 @@ casacore::Vector<double> InterpolationGeneration::Generate(Double tn )
                 break;
         }
 
+        assert( abs(X) < M_PI );
+        assert( abs(Y) < M_PI/2.0 );
+
         // Direction Values //
 
         point[0] = X;
@@ -489,8 +548,8 @@ casacore::Vector<double> InterpolationGeneration::Generate(Double tn )
 
         // Time and Interval //
 
-        point[2] = basetime.second();                     // Time  (sec) 
-        point[3] = pointingIntervalSec;               // Interval (sec)
+        point[2] = basetime.second();                 // Time  (sec) 
+        point[3] = pointingIntervalSec;               // Interval (sec) from Initial def.
         
         //+
         // (Reserved)
@@ -1120,12 +1179,12 @@ void MsEdit::CreateNewColumnsFromDirection()
 
 
 
-//+
+//*****************************************************************
 // Wtite Test Data on Direction Column in Pointing Table
 //  - Values are got by sub fuction above.
 //  - SetUp() in class TestDirection calls this.
 //  - see also TEST Fixture  
-//-
+//****************************************************************
 
 void  MsEdit::WriteTestDataOnPointingTable(double dt, String MsName)
 {
@@ -1184,7 +1243,7 @@ void  MsEdit::WriteTestDataOnPointingTable(double dt, String MsName)
                 Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
 
                 Vector<Double>  psd_data  
-                    = msgen.Generate( (Double)row ); // generated pseudo data. //
+                    = msgen.Generate( (Double)row, 1 ); // generated pseudo data. (Pointing) //
 
                 direction[0][0] = psd_data[0];
                 direction[0][1] = psd_data[1];
@@ -1208,7 +1267,9 @@ void  MsEdit::WriteTestDataOnPointingTable(double dt, String MsName)
                         psd_data[0], psd_data[1] );
             }
 
-            // Time Set  //
+           //+ 
+           // new Time   (intentionally activates interporation)
+           //-
 
             if(false)
             {
@@ -1225,7 +1286,6 @@ void  MsEdit::WriteTestDataOnPointingTable(double dt, String MsName)
         // Flush //
         
         ms0.flush();
-        sleep(2);
 }
 
 //+
@@ -1268,7 +1328,7 @@ void  MsEdit::WriteTestDataOnMainTable(double dt, String MsName)
             // Pseudo Data (TEST DATA )
 
                Vector<Double>  psd_data 
-                   = msgen.Generate( (Double)row ); // generated pseudo data. //
+                   = msgen.Generate( (Double)row, 2 ); // generated pseudo data. (Main table) //
 
             // Time Info. (current) //
  
@@ -2362,9 +2422,14 @@ std::vector<double>  TestDirection::subTestDirection(double dt )
     double absErr_1 = 0.0;
     double absErr_2 = 0.0;
 
+    InterpolationGeneration  ig;
+    uInt    rate =  ig.mainIntervalSec /  ig.pointingIntervalSec;   
+    uInt    LoopCnt = int(n_row / rate) -1 ;
+    printf( "Loop cnt =%d \n", LoopCnt );
+
     if(true)
     {
-        for (uInt row=0; row< n_row -1 ; row++)  // ACTUNG !!! start from 1 /// 
+        for (uInt row=0; row < LoopCnt; row++)  // ACTUNG !!! start from 1 or o ??  /// 
         {
  
             // Direction //
@@ -2374,12 +2439,12 @@ std::vector<double>  TestDirection::subTestDirection(double dt )
 
     
             // Generated (Estimated) //
-            
+
                 casacore::Vector<double>  gen_out 
-                      = msedit.msgen.Generate((Double)row +dt );
+                      = msedit.msgen.Generate(  (Double)row  +dt , 2 );   // estimated from MAIN data //
  
             //+
-            // calculation 
+            // Error calculation (TENTATIVE, -> class lib) 
             //-
 
                 double generated_1 = gen_out[0]; 
@@ -2404,7 +2469,6 @@ std::vector<double>  TestDirection::subTestDirection(double dt )
 #endif
             // Output //
 
-                printf( "----\n");
                 printf( "Main Table Dir [%6d], %12.9f,%12.9f \n",   row,  calculated_1, calculated_2 );
                 printf( "Generated data [%6d], %12.9f,%12.9f \n",   row,  generated_1,  generated_2 );
                 printf( "         error [%6d],%5.2e,%5.2e \n",      row,  Err_1,     Err_2);
@@ -2425,11 +2489,14 @@ TEST_F(TestDirection, InterpolationX )
 
     // Max Error //
     
-    std::vector<double> maxerr;
+    std::vector<double> reterr;
+    std::vector<double> maxerr(2);
+    maxerr[0] = 0.0;
+    maxerr[1] = 0.0;
 
     // Test Loop  //
     double nDiv = 10; 
-    for (Int loop=0; loop < nDiv; loop ++ )
+    for (Int loop=0; loop <= nDiv; loop ++ )
     {
         // SetUp Testing  MeasurmentSet
 
@@ -2439,11 +2506,20 @@ TEST_F(TestDirection, InterpolationX )
         // Executtion ..// 
         
           Description("Execution starts. ","" );
-          maxerr = subTestDirection( TestOffset(loop, nDiv) );
+          reterr = subTestDirection( TestOffset(loop, nDiv) );
 
-          printf( " Max Error = %e, %e \n", maxerr[0], maxerr[1] );
+          printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
+          printf( " Max Error = %e, %e \n", reterr[0], reterr[1] );
+          printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
+
+         // Update //
+         if ( maxerr[0] < reterr[0] ) maxerr[0] = reterr[0];
+         if ( maxerr[1] < reterr[1] ) maxerr[1] = reterr[1]; 
     }
-
+    printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
+    printf( " Total Max Error = %e, %e \n", maxerr[0], maxerr[1] );
+    printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
+ 
 }
 
 TEST_F(TestDirection, getDirectionExtended )
