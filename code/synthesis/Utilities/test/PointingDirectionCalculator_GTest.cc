@@ -249,11 +249,9 @@ private:
         }
     }
 
-
     String CasaPath;            // translated from CASAPATH 
     String CasaMasterPath;
     String UnitTestTMasterFileName;
-
 };
 
 
@@ -332,12 +330,12 @@ void DeleteWorkingMS()
 //  
 //********************************************************
 
-class InterpolationGeneration
+class EvalInterp
 {
 
 public:
 
-    InterpolationGeneration() { Initialize(); }
+    EvalInterp() { Initialize(); }
 
     //+
     // Generation
@@ -348,6 +346,12 @@ public:
      
          Double pointingIntervalSec ;            // Interval Time to set in POINTING
          Double mainIntervalSec     ;  
+
+    // Min. number of record (Under const);
+
+
+         uInt    pointingLoopCount ;
+         uInt    mainLoopCount ;
 
     //+
     // Operation Mode
@@ -391,7 +395,7 @@ private:
 // Initialize
 //-
 
-void InterpolationGeneration::Initialize( )
+void EvalInterp::Initialize( )
 {
         Description("Setting Up parameters ","" );
  
@@ -401,7 +405,7 @@ void InterpolationGeneration::Initialize( )
         // (2018.10.18, These params are not appropriately implemented.Does not work)
         //- 
 
-            pointingIntervalSec = 0.1 ;               // Interval Time to set in POINTING
+            pointingIntervalSec = 0.05 ;               // Interval Time to set in POINTING
             mainIntervalSec     = 1.0 ;              
 
         //+
@@ -411,10 +415,10 @@ void InterpolationGeneration::Initialize( )
         //-
 
             Dir_X_start       = -3.0;
-            Dir_X_ChangeRate  = 0.001;
+            Dir_X_ChangeRate  = 0.00001;
 
             Dir_Y_start       = -1.5;
-            Dir_Y_ChangeRate  = 0.0005;
+            Dir_Y_ChangeRate  = 0.000005;
 
 
         //+
@@ -474,7 +478,7 @@ void Function_harmonics_sinusoid( double time, double& X, double& Y)
 //  Generation (main body)
 //-
 
-casacore::Vector<double> InterpolationGeneration::Generate(Double tn, int type )
+casacore::Vector<double> EvalInterp::Generate(Double tn, int type )
 {
         casacore::Vector<Double> point;
         point.resize(6);
@@ -594,7 +598,7 @@ class MsEdit
 {
 public:
 
-    InterpolationGeneration  msgen;
+    EvalInterp  msgen;
 
     MsEdit()        { };
 
@@ -602,6 +606,8 @@ public:
 
         uInt AntennaTable_AppendRow();
         void AntennaTable_RemoveRow(uInt NRow );
+
+        uInt PointingTable_AppendRow(uInt AddCount );
         
     // List Table Contents. //
 
@@ -644,7 +650,7 @@ public:
 };
 
 //+
-// Add onmsedit. erow on Antanna Table
+// Add one row on Antanna Table
 //  returns latest nrow.
 //-
 
@@ -812,7 +818,7 @@ void MsEdit::AntennaTable_WriteData(String MsName, uInt Row )
     // LIST
     //-
 
-    // Special Cplun //
+    // Special Column //
         
         ROScalarColumn<String> antennaName      = columnAntenna->name(); 
         ROScalarColumn<String> antennaStation   = columnAntenna->station();
@@ -866,10 +872,35 @@ void MsEdit::AntennaTable_WriteData(String MsName, uInt Row )
 }
 
 
- //+
- // List ALL THE DATA  from Pointing Table
- //  of specified MS.
- //- 
+//+
+// Add rows by specified count on Pointing Table Table
+//-
+
+uInt  MsEdit::PointingTable_AppendRow(uInt AddCount )
+{
+    // Measurement Set (use default name) //
+
+        MeasurementSet ms0( MsName.c_str(), casacore::Table::TableOption:: Update );
+        MSPointing  hPointingTable = ms0.pointing();
+
+    // Add Row //
+        printf( "Attempt to append [%d] new rows on Pointing Table. \n",AddCount );
+         
+        hPointingTable.addRow(AddCount);
+        
+        uInt nrow = ms0.nrow();
+        printf( "   New nrow count is %d \n", nrow ); 
+
+       ms0.flush();
+       ms0.resync();
+
+       return nrow;
+}
+
+//+
+// List ALL THE DATA  from Pointing Table
+//  of specified MS.
+//- 
 
 void MsEdit::PointingTable_List(String MsName, bool showAll)
 {
@@ -1235,7 +1266,9 @@ void  MsEdit::WriteTestDataOnPointingTable(double dt, String MsName)
         IPosition Ipo = pointingDirection.shape(0);
         printf(" - Shape of pointingDirection.[%ld, %ld] \n", Ipo[0], Ipo[1] );
 
-        for (uInt row=0; row<nrow_p; row++)
+        uInt LoopCnt = nrow_p;
+
+        for (uInt row=0; row < LoopCnt; row++)
         {
 
             // DIRECTION  //
@@ -1658,8 +1691,14 @@ protected:
             
             CopyDefaultMStoWork();
 
+            msedit.PointingTable_AppendRow(150000);
+
             addColumnsOnPointing();
             addColumnDataOnPointing();
+
+     //     msedit.PointingTable_AppendRow(10);
+
+    
             addTestDataForGetDirection(0.0);
 
         }
@@ -1679,6 +1718,7 @@ protected:
 
 void TestDirection::addTestDataForGetDirection(double dt)
 {
+
     // Pointing //
 
     msedit.WriteTestDataOnPointingTable( 0.0 );
@@ -2344,11 +2384,11 @@ std::vector<double>  TestDirection::subTestDirection(double dt )
         if(false)  DumpPointingTable(MsName);
 
     // Create Object //
-    
+   
         MeasurementSet ms( MsName.c_str() );
-    
-        PointingDirectionCalculator calc(ms);
-    
+
+        PointingDirectionCalculator calc(ms);   
+ 
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
@@ -2422,13 +2462,11 @@ std::vector<double>  TestDirection::subTestDirection(double dt )
     double absErr_1 = 0.0;
     double absErr_2 = 0.0;
 
-    InterpolationGeneration  ig;
-    uInt    rate =  ig.mainIntervalSec /  ig.pointingIntervalSec;   
-    uInt    LoopCnt = int(n_row / rate) -1 ;
-    printf( "Loop cnt =%d \n", LoopCnt );
 
     if(true)
     {
+        uInt LoopCnt = n_row;
+
         for (uInt row=0; row < LoopCnt; row++)  // ACTUNG !!! start from 1 or o ??  /// 
         {
  
@@ -2493,6 +2531,7 @@ TEST_F(TestDirection, InterpolationX )
     std::vector<double> maxerr(2);
     maxerr[0] = 0.0;
     maxerr[1] = 0.0;
+
 
     // Test Loop  //
     double nDiv = 10; 
