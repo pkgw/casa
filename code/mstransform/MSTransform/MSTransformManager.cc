@@ -2414,7 +2414,7 @@ void MSTransformManager::initRefFrameTransParams()
   referenceTime_p = selectedInputMsCols_p->timeMeas()(0);
 
   // Access FIELD cols to get phase center and radial velocity
-  inputMSFieldCols_p = new MSFieldColumns(selectedInputMs_p->field());
+  inputMSFieldCols_p = std::make_shared<MSFieldColumns>(selectedInputMs_p->field());
 
   phaseCenter_p = determinePhaseCenter();
 }
@@ -2484,12 +2484,12 @@ casacore::MDirection MSTransformManager::determinePhaseCenter() {
     // Determine phase center from the first row in the FIELD sub-table of the output
     // (selected) MS
     if (phaseCenter.empty()) {
-      MSFieldColumns *fieldCols;
+      std::shared_ptr<MSFieldColumns> fieldCols;
       if (userBufferMode_p) {
 	fieldCols = inputMSFieldCols_p;
       } else {
 	MSField fieldTable = outputMs_p->field();
-	fieldCols = new MSFieldColumns(fieldTable);
+	fieldCols = std::make_shared<MSFieldColumns>(fieldTable);
       }
 
       // CAS-8870: Mstransform with outframe=’SOURCE’ crashes because of ephemeris type

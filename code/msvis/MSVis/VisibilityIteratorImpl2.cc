@@ -3655,7 +3655,7 @@ VisibilityIteratorImpl2::writeModel(
 {
 
 	ThrowIf(!isWritable(), "This visibility iterator is not writable");
-
+	/* Version 1 stuff
 	Vector<Int> fields = columns_p.field_p.getColumn();
 
 	const Int option = Sort::HeapSort | Sort::NoDuplicates;
@@ -3666,7 +3666,10 @@ VisibilityIteratorImpl2::writeModel(
 	// Make sure  we have the right size
 
 	fields.resize(nFields, true);
+	*/
 
+	Matrix<Int>  combiIndex;
+	MSUtil::getIndexCombination(ROMSColumns(ms()), combiIndex);
 	Vector<Int> selectedWindows;
 	Vector<Int> nChannels;
 	Vector<Int> firstChannels;
@@ -3674,12 +3677,19 @@ VisibilityIteratorImpl2::writeModel(
 
 	std::tie(selectedWindows, nChannels, firstChannels, channelIncrement) =
 		getChannelInformation(false);
-
+	 Matrix<Int> chansel(selectedWindows.nelements(),4);
+	 chansel.column(0)=selectedWindows;
+	 chansel.column(1)=firstChannels;
+	 chansel.column(2)=nChannels;
+	 chansel.column(3)=channelIncrement;
 	CountedPtr<VisModelDataI> visModelData = VisModelDataI::create();
 
-	visModelData->putModelI(
+	/*visModelData->putModelI(
 		ms(), rec, fields, selectedWindows, firstChannels, nChannels,
-		channelIncrement, iscomponentlist, incremental);
+		channelIncrement, iscomponentlist, incremental);*/
+	//Version 2 interface to keep state and scan number in track
+	 visModelData->putModelI (ms(), rec, combiIndex, chansel, iscomponentlist, incremental);
+	
 }
 
 VisibilityIteratorImpl2::ChannelInfo
@@ -4032,9 +4042,14 @@ VisibilityIteratorImpl2::fillFromVirtualModel(Cube <Complex> & value) const
 	Bool isVirtual = hasModelKey || !(ms().tableDesc().isColumn("MODEL_DATA"));
 
 	if (isVirtual) {
+	  modelDataGenerator_p->init(*vb_p);
 
-	  auto field = vb_p->fieldId()(0);
-	  auto spw = vb_p->spectralWindows()(0);
+
+	  //////////This bit can be removed once version 1 is no longer read
+	  if(!(modelDataGenerator_p->isVersion2())){
+
+	    auto field = vb_p->fieldId()(0);
+	    auto spw = vb_p->spectralWindows()(0);
 		if (modelDataGenerator_p->hasModel(msId(),field , spw) == -1) {
 
 			// If the model generator does not have a model for this(ms,field,
@@ -4054,7 +4069,8 @@ VisibilityIteratorImpl2::fillFromVirtualModel(Cube <Complex> & value) const
 				}
 			}
 		}
-
+	  }
+	  /////////////////////////
 		// Now use the model data generator to fill in the model data.
 		// Temporarily make the VisBuffer writable, if it wasn't already.
 
@@ -4066,7 +4082,6 @@ VisibilityIteratorImpl2::fillFromVirtualModel(Cube <Complex> & value) const
 		// be the model component of the VIIs VB2 then this will be a no-op.
 
 		value = vb_p->visCubeModel();
-
 		return true; // filled it
 	}
 
