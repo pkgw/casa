@@ -251,10 +251,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //re-calculate current nsigma threhold
       //os<<"Calling calcRobustRMS ....syndeconv."<<LogIO::POST;
       Float nsigmathresh = 0.0;
+      Bool useautomask = ( itsAutoMaskAlgorithm=="multithresh" ? true : false);
       if (itsNsigma >0.0) {
         itsMaskHandler->setPBMaskLevel(itsPBMask);
         Array<Double> medians;
-        Array<Double> robustrms = itsImages->calcRobustRMS(medians, itsPBMask);
+        Array<Double> robustrms = itsImages->calcRobustRMS(medians, itsPBMask, itsFastNoise);
         // Before the first iteration the iteration parameters have not been
         // set in SIMinorCycleController
         // Use nsigma pass to SynthesisDeconvolver directly for now...
@@ -266,13 +267,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         
         //Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
         //nsigmathresh = itsNsigma * (Float)maxrobustrms;
-        if (itsAutoMaskAlgorithm=="multithresh") {
+        String msg="";
+        if (useautomask) {
           nsigmathresh = (Float)(medians(maxpos)) + itsNsigma * (Float)maxval;
+          msg+=" (nsigma*rms + median)";
         }
         else {
           nsigmathresh = itsNsigma * (Float)maxval;
         }
-        os << "Current nsigma threshold (maximum along spectral channels) ="<<nsigmathresh<<LogIO::POST;
+        os << "Current nsigma threshold (maximum along spectral channels ) ="<<nsigmathresh<< msg <<LogIO::POST;
       }
       itsLoopController.setNsigmaThreshold(nsigmathresh);
       itsLoopController.setPBMask(itsPBMask);
@@ -399,7 +402,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       if (itsAutoMaskAlgorithm=="multithresh") {
         automaskon=true;
       }
-      itsDeconvolver->deconvolve( itsLoopController, itsImages, itsDeconvolverId, automaskon );
+      itsDeconvolver->deconvolve( itsLoopController, itsImages, itsDeconvolverId, automaskon, itsFastNoise );
       returnRecord = itsLoopController.getCycleExecutionRecord();
 
       //scatterModel(); // This is a no-op for the single-node case.

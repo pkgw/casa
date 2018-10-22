@@ -66,7 +66,8 @@ public:
   void deconvolve( SIMinorCycleController& loopController,  
 		   std::shared_ptr<SIImageStore> &imagestore,
 		   casacore::Int deconvolverid, 
-                   bool isautomasking=false);
+                   casacore::Bool isautomasking=false, 
+                   casacore::Bool fastnoise=true);
 
   void setRestoringBeam( casacore::GaussianBeam restbeam, casacore::String usebeam );
   //  void setMaskOptions( casacore::String maskstring );

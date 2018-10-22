@@ -75,7 +75,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SDAlgorithmBase::deconvolve( SIMinorCycleController &loopcontrols, 
 				    std::shared_ptr<SIImageStore> &imagestore,
 				    Int deconvolverid,
-                                    bool isautomasking)
+                                    Bool isautomasking, Bool fastnoise)
   {
     LogIO os( LogOrigin("SDAlgorithmBase","deconvolve",WHERE) );
 
@@ -154,8 +154,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               // returns as an Array but itsImages is already single plane so 
               // the return rms contains only a single element
               Array<Double> medians;
-              robustrms = itsImages->calcRobustRMS(medians, itsPBMask);
-              if (isautomasking) { // new threshold defination
+              robustrms = itsImages->calcRobustRMS(medians, itsPBMask, fastnoise);
+              if (isautomasking) { // new threshold defination 
                 nsigmathresh = (Float)medians(IPosition(1,0)) + nsigma * (Float)robustrms(IPosition(1,0));
               }
               else {
