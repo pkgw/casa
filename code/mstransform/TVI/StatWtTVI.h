@@ -194,15 +194,15 @@ private:
         casacore::Array<casacore::Float>::const_iterator,
         casacore::Array<casacore::Bool>::const_iterator>
     > _statAlg = nullptr;
-    std::unique_ptr<std::pair<casacore::Double, casacore::Double>> _wtrange = nullptr;
-    std::map<casacore::uInt, casacore::Cube<casacore::Bool>> _chanSelFlags;
+    std::unique_ptr<std::pair<casacore::Double, casacore::Double>> _wtrange {};
+    std::map<casacore::uInt, casacore::Cube<casacore::Bool>> _chanSelFlags {};
 
-    mutable casacore::uInt _nTotalPts = 0;
-    mutable casacore::uInt _nNewFlaggedPts = 0;
-    mutable casacore::uInt _nOrigFlaggedPts = 0;
+    mutable casacore::uInt64 _nTotalPts = 0;
+    mutable casacore::uInt64 _nNewFlaggedPts = 0;
+    mutable casacore::uInt64 _nOrigFlaggedPts = 0;
     mutable Column _column = CORRECTED;
-    mutable std::map<casacore::uInt, std::pair<casacore::uInt, casacore::uInt>> _samples;
-    mutable std::set<casacore::uInt> _processedRowIDs = std::set<casacore::uInt>();
+    mutable std::map<casacore::uInt, std::pair<casacore::uInt, casacore::uInt>> _samples {};
+    mutable std::set<casacore::uInt> _processedRowIDs {};
     mutable std::vector<std::vector<casacore::Double>> _timeWindowWts;
     mutable casacore::Cube<casacore::Double> _slidingTimeWindowWeights;
     // if False, the a sliding time window is being used
