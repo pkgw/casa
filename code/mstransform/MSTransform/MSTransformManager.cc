@@ -4953,21 +4953,19 @@ void MSTransformManager::checkCorrelatorPreaveraging()
   if (hanningSmooth_p || channelAverage_p)
   {
     auto spwTable = inputMs_p->spectralWindow();
-    if(spwTable.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
-       spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION") &&
-       spwTable.tableDesc().isColumn("SDM_NUM_BIN") &&
-       spwTable.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
+    ROMSSpWindowColumns spwColumns(spwTable);
+    if(MSTransformDataHandler::columnOk(spwColumns.sdmWindowFunction()) &&
+       MSTransformDataHandler::columnOk(spwColumns.sdmNumBin()))
     {
-      ROMSSpWindowColumns spwColumns(spwTable);
       auto nrows = spwColumns.nrow();
       auto effBWCol = spwColumns.effectiveBW();
       auto chanWidthCol = spwColumns.chanWidth();
-      ROScalarColumn<Int> numBinCol(spwTable, "SDM_NUM_BIN");
-      ROScalarColumn<String> windowFuncCol(spwTable, "SDM_WINDOW_FUNCTION");
+      auto windowFunctionCol = spwColumns.sdmWindowFunction();
+      auto numBinCol = spwColumns.sdmNumBin();
       for (size_t spwIdx = 0; spwIdx < nrows; spwIdx++)
       {
         auto numBin =  numBinCol(spwIdx);
-        auto windowFunction = windowFuncCol(spwIdx);
+        auto windowFunction = windowFunctionCol(spwIdx);
         if(windowFunction != "UNKNOWN" && numBin != 1)
           spwPreaveraged += std::to_string(spwIdx)+" ";
       }
