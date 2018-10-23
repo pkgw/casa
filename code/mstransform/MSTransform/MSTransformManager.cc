@@ -3034,10 +3034,20 @@ void MSTransformManager::separateSpwSubtable()
 						spwCols.dopplerId().put(rowIndex,spwCols.dopplerId()(0));
 					}
 
-					if (MSTransformDataHandler::columnOk(spwCols.receiverId()))
-					{
-						spwCols.receiverId().put(rowIndex,spwCols.receiverId()(0));
-					}
+                    if (MSTransformDataHandler::columnOk(spwCols.receiverId()))
+                    {
+                        spwCols.receiverId().put(rowIndex,spwCols.receiverId()(0));
+                    }
+
+                    if (MSTransformDataHandler::columnOk(spwCols.sdmWindowFunction()))
+                    {
+                        spwCols.sdmWindowFunction().put(rowIndex,spwCols.sdmWindowFunction()(0));
+                    }
+
+                    if (MSTransformDataHandler::columnOk(spwCols.sdmNumBin()))
+                    {
+                        spwCols.sdmNumBin().put(rowIndex,spwCols.sdmNumBin()(0));
+                    }
 
 				}
 

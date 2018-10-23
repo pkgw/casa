@@ -2032,7 +2032,9 @@ Bool MSTransformDataHandler::fillSPWTable()
 	Bool haveSpwASI = columnOk(inSpWCols.assocSpwId());
 	Bool haveSpwBN = columnOk(inSpWCols.bbcNo());
 	Bool haveSpwBS = columnOk(inSpWCols.bbcSideband());
-	Bool haveSpwDI = columnOk(inSpWCols.dopplerId());
+    Bool haveSpwDI = columnOk(inSpWCols.dopplerId());
+    Bool haveSpwSWF = columnOk(inSpWCols.sdmWindowFunction());
+    Bool haveSpwSNB = columnOk(inSpWCols.sdmNumBin());
 
 	uInt nuniqSpws = spw_uniq_p.size();
 
@@ -2229,7 +2231,9 @@ Bool MSTransformDataHandler::fillSPWTable()
 
 		if (haveSpwBN) msSpW.bbcNo().put(outSPWId, inSpWCols.bbcNo()(spw_p[k]));
 		if (haveSpwBS) msSpW.bbcSideband().put(outSPWId, inSpWCols.bbcSideband()(spw_p[k]));
-		if (haveSpwDI) msSpW.dopplerId().put(outSPWId, inSpWCols.dopplerId()(spw_p[k]));
+        if (haveSpwDI) msSpW.dopplerId().put(outSPWId, inSpWCols.dopplerId()(spw_p[k]));
+        if (haveSpwSWF) msSpW.sdmWindowFunction().put(outSPWId, inSpWCols.sdmWindowFunction()(spw_p[k]));
+        if (haveSpwSNB) msSpW.sdmNumBin().put(outSPWId, inSpWCols.sdmNumBin()(spw_p[k]));
 
 
 		if (haveSpwASI)
@@ -3336,6 +3340,12 @@ Bool MSTransformDataHandler::mergeSpwSubTables(Vector<String> filenames)
 
 						if (columnOk(spwCols_i.receiverId()))
 							spwCols_0.receiverId().put(rowIndex,spwCols_i.receiverId()(subms_row_index));
+
+                        if (columnOk(spwCols_i.sdmWindowFunction()))
+                            spwCols_0.sdmWindowFunction().put(rowIndex,spwCols_i.sdmWindowFunction()(subms_row_index));
+
+                        if (columnOk(spwCols_i.sdmNumBin()))
+                            spwCols_0.sdmNumBin().put(rowIndex,spwCols_i.sdmNumBin()(subms_row_index));
 
 						rowIndex += 1;
 					}
