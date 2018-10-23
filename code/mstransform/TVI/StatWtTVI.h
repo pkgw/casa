@@ -65,7 +65,7 @@ public:
     //                   weight values. Data with weights computed to be outside this
     //                   range will be flagged. Both elements must be non-negative. If
     //                   zero length, all weights are acceptable.
-    // excludechans      String. MSSelection string representing channels to exclude from
+    // fitspw            String. MSSelection string representing channels to exclude from
     //                   weight computation.
     // datacolumn        String. Data column to use for computing weights. Supports
     //                   'data' or 'corrected'. Minimum match, case insensitive. If not
