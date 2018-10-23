@@ -6,6 +6,17 @@ import os
 
 class MPIEnvironment:
 
+    @classmethod
+    def is_mpi_disabled_or_client(cls):
+        """
+        :returns: is this the only process (serial mode - MPI disabled) or the client
+        process if MPI is enabled?
+        """
+        # MPIEnvironment.is_mpi_client alone would be enough, as when MPI is disabled,
+        # mpi_processor_rank==0, and is_mpi_client is set to True. This function is
+        # added to be more explicit, and for future maintainability.
+        return not cls.is_mpi_enabled or (cls.is_mpi_enabled and cls.is_mpi_client)
+
     # Static variables #################################################################################################
 
     # Set hostname

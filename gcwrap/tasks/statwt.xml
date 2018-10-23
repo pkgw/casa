@@ -99,8 +99,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value>-1</value>
             <example>10</example>
         </param>
-        <param type="string" name="excludechans">
-                <description>Channels to exclude from the computation of weights. Specified as an MS select channel selection string.</description>
+        <param type="string" name="fitspw">
+                <description>Channels to include in the computation of weights. Specified as an MS select channel selection string.</description>
                 <value/>
                 <example>"0:5~30"</example>
             </param>

@@ -24,14 +24,17 @@
 #define FlagCalTableHandler_H_
 
 #include <flagging/Flagging/FlagDataHandler.h>
+
 #include <ms/MSSel/MSSelectionTools.h>
-#include <synthesis/CalTables/NewCalTable.h>
-#include <synthesis/CalTables/CTInterface.h>
-#include <synthesis/CalTables/CTIter.h>
-#include <synthesis/CalTables/CalBuffer.h>
-#include <measures/Measures/Stokes.h>
+#include <msvis/MSVis/StokesVector.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+// forward decl of CalTable related classes
+class NewCalTable;
+class CTInterface;
+class CTIter;
+class CalBuffer;
 
 namespace vi {
 
