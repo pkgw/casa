@@ -908,8 +908,7 @@ void StatWtTVI::_gatherAndComputeWeightsSlidingTimeWindow() const {
     Cube<Complex> chunkData;
     Cube<Bool> chunkFlags;
     uInt subchunkStartIndex = 0;
-    auto doChanSelFlags = ! _chanSelFlags.empty();
-    auto initChanSelTemplate = doChanSelFlags;
+    auto initChanSelTemplate = True;
     Cube<Bool> chanSelFlagTemplate, chanSelFlags;
     // we cannot know the spw until inside the subchunk loop
     Int spw = -1;
@@ -975,9 +974,8 @@ void StatWtTVI::_gatherAndComputeWeightsSlidingTimeWindow() const {
         }
         const auto dataCube = _dataCube(vb);
         auto resultantFlags = _getResultantFlags(
-            chanSelFlagTemplate, chanSelFlags,
-            initChanSelTemplate, doChanSelFlags, spw,
-            vb->flagCube()
+            chanSelFlagTemplate, chanSelFlags, initChanSelTemplate,
+            spw, vb->flagCube()
         );
         // build up chunkData and chunkFlags one subchunk at a time
         if (chunkData.empty()) {
@@ -1126,8 +1124,7 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
     std::map<BaselineChanBin, Cube<Bool>> flags;
     IPosition blc(3, 0);
     auto trc = blc;
-    auto doChanSelFlags = ! _chanSelFlags.empty();
-    auto initChanSelTemplate = doChanSelFlags;
+    auto initChanSelTemplate = True;
     Cube<Bool> chanSelFlagTemplate, chanSelFlags;
     auto firstTime = True;
     // we cannot know the spw until we are in the subchunks loop
@@ -1151,9 +1148,8 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
         const auto nrows = vb->nRows();
         const auto npol = dataCube.nrow();
         auto resultantFlags = _getResultantFlags(
-            chanSelFlagTemplate, chanSelFlags,
-            initChanSelTemplate, doChanSelFlags, spw,
-            flagCube
+            chanSelFlagTemplate, chanSelFlags, initChanSelTemplate,
+            spw, flagCube
         );
         auto bins = _chanBins.find(spw)->second;
         BaselineChanBin blcb;
@@ -1201,10 +1197,9 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
 
 Cube<Bool> StatWtTVI::_getResultantFlags(
     Cube<Bool>& chanSelFlagTemplate, Cube<Bool>& chanSelFlags,
-    Bool& initTemplate, Bool& doChanSelFlags, Int spw,
-    const casacore::Cube<casacore::Bool>& flagCube
+    Bool& initTemplate, Int spw, const Cube<Bool>& flagCube
 ) const {
-    if (! doChanSelFlags) {
+    if (_chanSelFlags.find(spw) == _chanSelFlags.cend()) {
         // no selection of channels to ignore
         return flagCube;
     }
@@ -1213,11 +1208,7 @@ Cube<Bool> StatWtTVI::_getResultantFlags(
         // in the chunk are guaranteed to have the same spw
         // because each subchunk is guaranteed to have a single
         // data description ID.
-        auto chanSelFlagIter = _chanSelFlags.find(spw);
-        doChanSelFlags = chanSelFlagIter != _chanSelFlags.end();
-        if (doChanSelFlags) {
-            chanSelFlagTemplate = chanSelFlagIter->second;
-        }
+        chanSelFlagTemplate = _chanSelFlags.find(spw)->second;
         initTemplate = False;
     }
     auto dataShape = flagCube.shape();
