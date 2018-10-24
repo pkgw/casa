@@ -206,9 +206,9 @@ private:
     std::unique_ptr<std::pair<casacore::Double, casacore::Double>> _wtrange {};
     std::map<casacore::uInt, casacore::Cube<casacore::Bool>> _chanSelFlags {};
 
-    mutable casacore::uInt64 _nTotalPts = 0;
-    mutable casacore::uInt64 _nNewFlaggedPts = 0;
-    mutable casacore::uInt64 _nOrigFlaggedPts = 0;
+    mutable size_t _nTotalPts = 0;
+    mutable size_t _nNewFlaggedPts = 0;
+    mutable size_t _nOrigFlaggedPts = 0;
     mutable Column _column = CORRECTED;
     mutable std::map<casacore::uInt, std::pair<casacore::uInt, casacore::uInt>>
         _samples {};
