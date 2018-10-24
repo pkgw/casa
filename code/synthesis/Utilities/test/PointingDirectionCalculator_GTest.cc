@@ -317,7 +317,7 @@ void DeleteWorkingMS()
     // Delete File (Recursively done) 
     // NOTE: for debug use, please change true-> falase )
 
-    if (false)
+    if (true)
     {
          dir_ctrl. removeRecursive(false /*keepDir=False */ );
     }
@@ -332,7 +332,6 @@ void DeleteWorkingMS()
 
 class EvalInterp
 {
-
 public:
 
     EvalInterp() { Initialize(); }
@@ -340,7 +339,7 @@ public:
     //+
     // Generation
     //-
-        casacore::Vector<double>  Generate(Double tn, int type);
+        casacore::Vector<double>  PseudoDirInfo(Double tn, int type);
  
     // Interval Time//
      
@@ -365,24 +364,23 @@ public:
   
         double interpolationErrorLimit ; 
 
+        uInt requiredMainTestingRow;
+
+        uInt addInerpolationTestPointingTableRow ;    
+        uInt addInerpolationTestMainTableRow ;
+
+        const uInt defInerpolationTestPointingTableRow   = 3843;
+        const uInt defInerpolationTestMainTableRow       = 3843;
+	
+
+        uInt SelectTestingFunctionNo;
+
 private:
 
     // Init and Define Parameters 
         
         void Initialize();
-       
-    //+
-    // Generating Parameter 
-    //   (assume AZEL)
-    //    -PI <  AZ < PI,  -PI/2 < EL < PI/2
-    //-
-
-        Double Dir_X_start       ;
-        Double Dir_X_ChangeRate  ;
-
-        Double Dir_Y_start       ;
-        Double Dir_Y_ChangeRate  ;
-
+    
     // Parameters  (Time)
     
         Double slideOffset   = 0;      // Sliding Time (sec)
@@ -405,21 +403,56 @@ void EvalInterp::Initialize( )
         // (2018.10.18, These params are not appropriately implemented.Does not work)
         //- 
 
-            pointingIntervalSec = 0.05 ;               // Interval Time to set in POINTING
-            mainIntervalSec     = 1.0 ;              
+/*Tunable*/ pointingIntervalSec = 0.05;               // Interval Time to set in POINTING
+/*Tunable*/ mainIntervalSec     = 1.0 ;              
+
+/*Tunable*/ requiredMainTestingRow      = 4000;    // Given (MUST BE greater than 4000//
+
 
         //+
+        // Testing Fucntion (choose one ! )
+        //-
+
+/*Tunable*/ SelectTestingFunctionNo  = 1;
+
+
+
+        //+
+        //+
+        //  Define Row Count in POINTING and Main
+        //   - the reuired minimum numbers are up to Interval ration.
+        //-
+            uInt ratio = (uInt) (mainIntervalSec / pointingIntervalSec);
+            uInt required_pointing =  requiredMainTestingRow * ratio;
+
+            //*
+            // Optimize Row Count 
+            //*
+
+            if ( required_pointing > defInerpolationTestPointingTableRow )
+            {
+                addInerpolationTestPointingTableRow = required_pointing -defInerpolationTestPointingTableRow;
+            }
+            else
+            {
+                addInerpolationTestPointingTableRow = 0;
+            }
+
+            if ( requiredMainTestingRow > defInerpolationTestMainTableRow )
+            {
+                addInerpolationTestMainTableRow = requiredMainTestingRow - defInerpolationTestMainTableRow;
+            }
+            else
+            {
+                addInerpolationTestMainTableRow  =0 ;
+            }
+
         // Generating Parameter [depending on function forms]
         //   (assume AZEL)
         //    -PI <  AZ < PI,  -PI/2 < EL < PI/2
         //-
 
-            Dir_X_start       = -3.0;
-            Dir_X_ChangeRate  = 0.00001;
-
-            Dir_Y_start       = -1.5;
-            Dir_Y_ChangeRate  = 0.000005;
-
+                /* Reserved */
 
         //+
         //  Error Statistic 
@@ -438,29 +471,38 @@ void EvalInterp::Initialize( )
 // Local function definition
 //-
 
-void Function_sinusoid_slow( double time, double& X, double& Y)
+void Function_NormalizedLinear( double RelTime, double &X, double &Y )
+{
+    // Normalized time :: | RelTime | < 1.0 , this case [0,1.0] is used //
+
+    X =  (RelTime * 2.0 - 1.0 ) * M_PI ;
+    Y =  (RelTime * 2.0 - 1.0 ) * (M_PI / 2.0);
+
+}
+
+void Function_sinusoid_slow( double r_time, double& X, double& Y)
 {
  
-    X = 2.0 * cos( 2.0*M_PI / 200 * time );
-    Y = 1.0 * sin( 2.0*M_PI / 200 * time );
+    X = 2.0 * cos( 2.0*M_PI  * r_time );
+    Y = 1.0 * sin( 2.0*M_PI  * r_time );
 
     return;
 }
 
-void Function_sinusoid_quick( double time, double& X, double& Y)
+void Function_sinusoid_quick( double r_time, double& X, double& Y)
 {   
     
-    X = 2.0 * cos( 2.0*M_PI / 20 * time );
-    Y = 1.0 * sin( 2.0*M_PI / 20 * time );
+    X = 2.0 * cos( 10* 2.0*M_PI  * r_time );
+    Y = 1.0 * sin( 10*  2.0*M_PI  * r_time );
    
     return;
 }   
 
 void Function_harmonics_sinusoid( double time, double& X, double& Y)
 {        
-    const double Amp1 = 1.6;
-    const double Amp2 = 0.8;
-    const double Omega = 2.0 * M_PI / 100.0; 
+    const double Amp1 = 0.5;
+    const double Amp2 = 0.6;
+    const double Omega = 2.0 * M_PI ; 
          
     double x1  = Amp1 * cos( Omega * time );
     double y1  = Amp2 * sin( Omega * time );
@@ -475,25 +517,51 @@ void Function_harmonics_sinusoid( double time, double& X, double& Y)
 }
  
 //+
-//  Generation (main body)
+//  Generate Pseuo Direction / Time Infomation
+//  both for Pointing and Main.
 //-
 
-casacore::Vector<double> EvalInterp::Generate(Double tn, int type )
+casacore::Vector<double> EvalInterp::PseudoDirInfo(Double tn, int type )
 {
         casacore::Vector<Double> point;
         point.resize(6);
+
 
         //+
         // Base Time on generated MS
         //    (see MVTime in detail)
         //-
-        double interval = 1.0;
-        if( type == 1 )  interval = pointingIntervalSec;
-        if( type == 2 )  interval = mainIntervalSec;
+        double interval;
+        double r_time  ;
+        double time;
+
+        //+
+        // Set'real time" multipied by Interbal,
+        //  'Relative time' mormalized by Row count.
+        //    == THIS PART IS NOT OPTIMIZED, NEED TO BE REFACTOR. ==
+        //-
+
+        if( type == 1 )
+        {
+            interval = pointingIntervalSec;
+            time = interval * tn;
+            r_time   = tn / (defInerpolationTestPointingTableRow + addInerpolationTestPointingTableRow);
+        }
+
+        if( type == 2 )
+        {
+            interval = mainIntervalSec;
+            time = interval * tn;
+            r_time   = tn / (defInerpolationTestMainTableRow + addInerpolationTestMainTableRow);
+        }
+
+        //+
+        //  Determin TIME 
+        //-
 
         Double dd   =  (22 *3600.0 
                          +  5*60 +  41.5 
-                         + (tn * interval) 
+                         + time  
                          + dayOffset )
                        /(3600*24) + slideOffset;
      
@@ -506,31 +574,27 @@ casacore::Vector<double> EvalInterp::Generate(Double tn, int type )
         Double X;
         Double Y;
 
-        // Manually Select Function ..//
-        uInt SelectNum = 1;
 
-        Double time = tn * interval;
-        switch(SelectNum)
+        switch(SelectTestingFunctionNo)
         {
             case 1:    /// 1.st order ///
-        
-                X = Dir_X_start + Dir_X_ChangeRate * time;     // Direction
-                Y = Dir_Y_start + Dir_Y_ChangeRate * time;    // Direction
-                break;
+
+                 Function_NormalizedLinear( r_time, X, Y );
+                 break;
 
             case 8:    /// Sinusoid (slow)/// 
  
-                 Function_sinusoid_slow(time, X, Y );
+                 Function_sinusoid_slow(r_time, X, Y );
                  break;
 
             case 9:    /// Sinusoid (quick) /// 
 
-                 Function_sinusoid_quick(time, X, Y );
+                 Function_sinusoid_quick(r_time, X, Y );
                  break;
 
             case 10:   /// Harmonics Sinusoid ///
           
-                 Function_harmonics_sinusoid(time, X, Y);
+                 Function_harmonics_sinusoid(r_time, X, Y);
                  break;
 
             case 2:       /// 2.nd oder /// 
@@ -542,8 +606,9 @@ casacore::Vector<double> EvalInterp::Generate(Double tn, int type )
                 break;
         }
 
-        assert( abs(X) < M_PI );
-        assert( abs(Y) < M_PI/2.0 );
+
+	assert( abs(X) <=  M_PI );
+        assert( abs(Y) <=  M_PI/2.0 );
 
         // Direction Values //
 
@@ -556,11 +621,16 @@ casacore::Vector<double> EvalInterp::Generate(Double tn, int type )
         point[3] = pointingIntervalSec;               // Interval (sec) from Initial def.
         
         //+
-        // (Reserved)
+        // Time on MAIN
+        //   basically with offset from main.
+        //   in orregular case , Time range in MAIN is not included in that of POINTNG,
+        //   or the starting time in MAIN is not included Pointing Time range.
+        // 
+        //   X following statemment can add time shift on MAIN time.
         //-
         
-        point[4] = 0.0 ;
-        point[5] = 0.0 ;
+        point[4] = point[2] ;
+        point[5] = point[3] ;
 
         return point;
 
@@ -607,8 +677,11 @@ public:
         uInt AntennaTable_AppendRow();
         void AntennaTable_RemoveRow(uInt NRow );
 
+    // Add Row for Interpolation TEST //
+
         uInt PointingTable_AppendRow(uInt AddCount );
-        
+        uInt MainTable_AppendRow(uInt AddCount );
+    
     // List Table Contents. //
 
         void AntennaTable_List(String MsName =DefaultLocalMsName);
@@ -884,12 +957,12 @@ uInt  MsEdit::PointingTable_AppendRow(uInt AddCount )
         MSPointing  hPointingTable = ms0.pointing();
 
     // Add Row //
-        printf( "Attempt to append [%d] new rows on Pointing Table. \n",AddCount );
+        printf( "MsEdit:Attempt to append [%d] new rows on Pointing Table. \n",AddCount );
          
         hPointingTable.addRow(AddCount);
         
         uInt nrow = ms0.nrow();
-        printf( "   New nrow count is %d \n", nrow ); 
+        printf( "MsEdit:   New nrow count is %d \n", nrow ); 
 
        ms0.flush();
        ms0.resync();
@@ -1053,6 +1126,12 @@ void MsEdit::PointingTable_WriteData(String MsName )
 
         Description( "attempting to add Data on Pointing Table.", "Nrow="+std::to_string(nrow_p)  );
 
+        // prepare initial value //
+
+        Array<Double> init_data1( Ipo, -0.1);
+        Array<Double> init_data2( Ipo, -0.2);
+        Array<Double> init_data3( Ipo, -0.3);
+
         for (uInt row=0; row<nrow_p; row++)
         {
             // set Shape of New added Colum //
@@ -1060,12 +1139,6 @@ void MsEdit::PointingTable_WriteData(String MsName )
             pointingPointingOffset. setShape(row, Ipo); 
             pointingSourceOffset.   setShape(row, Ipo);
             pointingEncoder.        setShape(row, Ipo);
-
-            // prepare initial value //
-
-            Array<Double> init_data1( Ipo, -1.0);
-            Array<Double> init_data2( Ipo, -2.0);
-            Array<Double> init_data3( Ipo, -3.0);
 
             // put initial data to Column //
             
@@ -1276,7 +1349,7 @@ void  MsEdit::WriteTestDataOnPointingTable(double dt, String MsName)
                 Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
 
                 Vector<Double>  psd_data  
-                    = msgen.Generate( (Double)row, 1 ); // generated pseudo data. (Pointing) //
+                    = msgen.PseudoDirInfo( (Double)row, 1 ); // generated pseudo data. (Pointing) //
 
                 direction[0][0] = psd_data[0];
                 direction[0][1] = psd_data[1];
@@ -1322,13 +1395,38 @@ void  MsEdit::WriteTestDataOnPointingTable(double dt, String MsName)
 }
 
 //+
+// Add rows by specified count 
+// on Main Table Table
+//-
+
+uInt  MsEdit::MainTable_AppendRow(uInt AddCount )
+{
+    // Measurement Set (use default name) //
+
+        MeasurementSet ms0( MsName.c_str(), casacore::Table::TableOption:: Update );
+
+    // Add Row //
+        printf( "MsEdit:INTERPOLATION::Attempt to append [%d] new rows on Pointing Table. \n",AddCount );
+         
+        ms0.addRow(AddCount);
+        
+        uInt nrow = ms0.nrow();
+        printf( "MsEdit:INTERPOLATION::   New nrow count is %d \n", nrow ); 
+
+       ms0.flush();
+       ms0.resync();
+
+       return nrow;
+}
+
+//+
 // Wtite Test Data on Direction Column in MAIN TABLE
 //  - Values are got by common function.
 //-
 
 void  MsEdit::WriteTestDataOnMainTable(double dt, String MsName)
 {
-    Description( "Writing Test Data (Time) in MAIN Table", 
+    Description( "MsEdit:INTERPOLATION::Writing Test Data (Time) in MAIN Table", 
                   MsName.c_str()  );
 
     // Open MS by Update mode //
@@ -1339,7 +1437,7 @@ void  MsEdit::WriteTestDataOnMainTable(double dt, String MsName)
 
         uInt nrow_ms = ms0.nrow();
 
-        printf( "Main Table nrow =%d \n",nrow_ms);
+        printf( "MsEdit:INTERPOLATION::Main Table nrow =%d \n",nrow_ms);
 
     //+
     // Column::
@@ -1361,7 +1459,7 @@ void  MsEdit::WriteTestDataOnMainTable(double dt, String MsName)
             // Pseudo Data (TEST DATA )
 
                Vector<Double>  psd_data 
-                   = msgen.Generate( (Double)row, 2 ); // generated pseudo data. (Main table) //
+                   = msgen.PseudoDirInfo( (Double)row, 2 ); // generated pseudo data. (Main table) //
 
             // Time Info. (current) //
  
@@ -1384,8 +1482,8 @@ void  MsEdit::WriteTestDataOnMainTable(double dt, String MsName)
             }
             else
             {
-                mainTime.           put(row, psd_data[2]  +dt ); // Time
-                mainInterval.       put(row, psd_data[3] );     // Interval
+                mainTime.           put(row, psd_data[4]  +dt ); // Time     (( REvised 10.24))
+                mainInterval.       put(row, psd_data[5] );     // Interval  (( Revised 10.24))
             }   
 
         }
@@ -1665,7 +1763,7 @@ protected:
         void addColumnDataOnPointing();
 
         // Add Testing Data(generated) to direction on POINTING //
-        void addTestDataForGetDirection(double dt);
+//        void addTestDataForGetDirection(double dt);
 
         // subfunction of TEST_F(TestDirection....)
         std::vector<double>  subTestDirection(Double dt);
@@ -1691,15 +1789,20 @@ protected:
             
             CopyDefaultMStoWork();
 
-            msedit.PointingTable_AppendRow(150000);
-
             addColumnsOnPointing();
-            addColumnDataOnPointing();
 
-     //     msedit.PointingTable_AppendRow(10);
+            // Increase Row on MS for large-file.
 
-    
-            addTestDataForGetDirection(0.0);
+              msedit.PointingTable_AppendRow (msedit.msgen.  addInerpolationTestPointingTableRow );
+
+              msedit.MainTable_AppendRow     ( msedit.msgen. addInerpolationTestMainTableRow);
+ 
+              addColumnDataOnPointing();   // FILL DATA 
+
+
+            // Add INTERPOLATION TEST DATA 
+            msedit.WriteTestDataOnPointingTable( 0.0 );  // Pointing //
+ 
 
         }
 
@@ -1715,19 +1818,6 @@ protected:
         }
 
 };
-
-void TestDirection::addTestDataForGetDirection(double dt)
-{
-
-    // Pointing //
-
-    msedit.WriteTestDataOnPointingTable( 0.0 );
-
-    // MAIN //
-
-    msedit.WriteTestDataOnMainTable( dt );
- 
-}
 
 void TestDirection::addColumnsOnPointing()
 {
@@ -2165,7 +2255,7 @@ TEST_F(TestDirection, Matrixshape )
     
         MeasurementSet ms( MsName.c_str() );
     
-        PointingDirectionCalculator calc(ms);
+       PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
     
@@ -2273,26 +2363,25 @@ TEST_F(TestDirection, getDirection1 )
     // Dump Matrix
     //-
 
-#if 1
-
-    Description("Dump obtined Direction info. ","" );
-
-    for (uInt row=0; row< n_row; row++)
+    if (true) 
     {
-        // Direction //
+        Description("Dump obtined Direction info. ","" );
 
-        double Val_1 = DirList1(row,0);
-        double Val_2 = DirList1(row,1);
+        for (uInt row=0; row< n_row; row++)
+        {
+            // Direction //
 
-        casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
-        String strMovDir = MovDir.toString();
+            double Val_1 = DirList1(row,0);
+            double Val_2 = DirList1(row,1);
 
-        printf(    "Dir at, %d, %f,%f, [Mov:%s]  \n",  
-                row, Val_1, Val_2, strMovDir.c_str() );
+            casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
+            String strMovDir = MovDir.toString();
+
+            printf(    "Dir at, %d, %f,%f, [Mov:%s]  \n",  
+                    row, Val_1, Val_2, strMovDir.c_str() );
+         }
 
     }
-
-#endif 
 
 }
 
@@ -2465,7 +2554,7 @@ std::vector<double>  TestDirection::subTestDirection(double dt )
 
     if(true)
     {
-        uInt LoopCnt = n_row;
+        uInt LoopCnt = n_row-1;
 
         for (uInt row=0; row < LoopCnt; row++)  // ACTUNG !!! start from 1 or o ??  /// 
         {
@@ -2479,7 +2568,7 @@ std::vector<double>  TestDirection::subTestDirection(double dt )
             // Generated (Estimated) //
 
                 casacore::Vector<double>  gen_out 
-                      = msedit.msgen.Generate(  (Double)row  +dt , 2 );   // estimated from MAIN data //
+                      = msedit.msgen.PseudoDirInfo(  (Double)row  +dt , 2 );   // estimated from MAIN data //
  
             //+
             // Error calculation (TENTATIVE, -> class lib) 
@@ -2508,7 +2597,7 @@ std::vector<double>  TestDirection::subTestDirection(double dt )
             // Output //
 
                 printf( "Main Table Dir [%6d], %12.9f,%12.9f \n",   row,  calculated_1, calculated_2 );
-                printf( "Generated data [%6d], %12.9f,%12.9f \n",   row,  generated_1,  generated_2 );
+                printf( "Estimated data [%6d], %12.9f,%12.9f \n",   row,  generated_1,  generated_2 );
                 printf( "         error [%6d],%5.2e,%5.2e \n",      row,  Err_1,     Err_2);
         }    
     }
@@ -2540,9 +2629,10 @@ TEST_F(TestDirection, InterpolationX )
         // SetUp Testing  MeasurmentSet
 
            Description("Making MeasurementSet","k="+to_string( TestOffset(loop,nDiv) ) );
-           addTestDataForGetDirection( TestOffset(loop,nDiv) );
 
-        // Executtion ..// 
+           msedit.WriteTestDataOnMainTable( TestOffset(loop,nDiv) );
+
+        // ixecuttion ..// 
         
           Description("Execution starts. ","" );
           reterr = subTestDirection( TestOffset(loop, nDiv) );
