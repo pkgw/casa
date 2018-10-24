@@ -227,7 +227,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
                        '\n##### Begin Task: ' + tname + spaces + ' #####')
           # Don't do telemetry from MPI servers (CASR-329)
           if do_full_logging and casa['state']['telemetry-enabled']:
-              casalog.poststat('Begin Task: ' + tname)
+              #casalog.poststat('Begin Task: ' + tname)
               task_starttime = str(datetime.datetime.now())
           if type(self.__call__.func_defaults) is NoneType:
               casalog.post(scriptstr[0]+'\n', 'INFO')
@@ -238,7 +238,8 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
           result = <xsl:value-of select="$taskname"/>(<xsl:call-template name="doargs2"/>)
 
           if do_full_logging and casa['state']['telemetry-enabled']:
-              casalog.poststat('End Task: ' + tname + ' : Started on: ' + task_starttime )
+              task_endtime = str(datetime.datetime.now())
+              casalog.poststat( 'Task' + tname + ' complete. Start time: ' + task_starttime + ' End time: ' + task_endtime )
           casalog.post('##### End Task: ' + tname + '  ' + spaces + ' #####'+
                        '\n##########################################')
 </xsl:for-each>
