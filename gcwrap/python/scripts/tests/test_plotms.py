@@ -1381,7 +1381,7 @@ class test_iteration(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile1_jpg, 180000)
         self.removePlotfile(plotfile1_jpg)
-        self.checkPlotfile(plotfile2_jpg, 40000)
+        self.checkPlotfile(plotfile2_jpg, 35000)
         self.removePlotfile(plotfile2_jpg) 
         print
 

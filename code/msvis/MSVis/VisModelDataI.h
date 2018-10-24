@@ -1,5 +1,6 @@
-#include <casa/aips.h>
 
+#include <casa/aips.h>
+#include <vector>
 #if ! defined (MSVIS_VisModelDataI_H)
 #define MSVIS_VisModelDataI_H
 
@@ -10,6 +11,7 @@ namespace casacore{
   class String;
   class TableRecord;
   template <typename T> class Vector;
+  template <typename T> class Matrix;
 }
 
 namespace casa {
@@ -17,6 +19,7 @@ namespace casa {
   class VisBuffer;
   namespace vi{class VisBuffer2;}
 
+  
   class VisModelDataI;
 
 
@@ -62,6 +65,9 @@ class VisModelDataI {
 		  	  const casacore::Vector<casacore::Int>& validfields, const casacore::Vector<casacore::Int>& spws,
 			  const casacore::Vector<casacore::Int>& starts, const casacore::Vector<casacore::Int>& nchan,
 			  const casacore::Vector<casacore::Int>& incr, casacore::Bool iscomponentlist=true, casacore::Bool incremental=false) = 0;
+			  //Version 2 record to keep track of state and scan number
+  virtual void putModelI(const casacore::MeasurementSet& thems,const casacore::RecordInterface& rec, const casacore::Matrix<casacore::Int>& indexComb, const casacore::Matrix<casacore::Int>& chansel,
+					  casacore::Bool iscomponentlist=true, casacore::Bool incremental=false)=0;
 
   // //helper function to clear the keywordSet of the ms of the model  for the fields 
   // //in that ms
@@ -88,6 +94,12 @@ class VisModelDataI {
   // //returns a -2 if it has been tested before but does have it.
   // //returns a 1 if it has a model stored 
   virtual casacore::Int hasModel(casacore::Int msid, casacore::Int field, casacore::Int spw) = 0; 
+  
+  virtual casacore::Bool isVersion2() = 0;
+  ///Make sure that VisModel has been called once loaded checks and
+  ///detection of version 1 or 2 is valid
+  virtual void init(const VisBuffer& vb) = 0;
+  virtual void init(const vi::VisBuffer2& vb) = 0;
 
  private:
 
