@@ -1612,7 +1612,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     TempImage<Float>* tempRes = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse());
     tempRes->copyData(res);
     tempRes->attachMask(pbmask);
-    SHARED_PTR<casacore::ImageInterface<Float> > tempres_ptr(tempRes);
+    std::shared_ptr<casacore::ImageInterface<Float> > tempres_ptr(tempRes);
     ImageStatsCalculator<Float> imcalc( tempres_ptr, regionPtr, LELmask, False); 
     Vector<Int> axes(2);
     axes[0] = 0;
@@ -1635,7 +1635,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // need this case? for no existance of pb mask? 
       //outsideMaskReg = LatticeExpr<Bool> (iif(prevmask == 1.0, False, True));
       tempRes2->attachMask(outsideMaskReg);
-      SHARED_PTR<casacore::ImageInterface<Float> > tempres_ptr2(tempRes2);
+      std::shared_ptr<casacore::ImageInterface<Float> > tempres_ptr2(tempRes2);
       ImageStatsCalculator<Float> imcalc2( tempres_ptr2, regionPtr, LELmask, False);
       imcalc2.setAxes(axes);
       imcalc2.setRobust(robust);
