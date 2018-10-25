@@ -193,7 +193,6 @@ namespace refim{ //namespace for imaging refactor
       casacore::Block<casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSizes_p;
       casacore::Block <casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSupportBlock_p;
       casacore::Matrix<casacore::Bool> pointingPix_p;
-      VisBufferUtil vbUtil_p;
       
     };
   }; //end of refim namespace

@@ -270,7 +270,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     ant1PointingCache_p.resize(val+1, true);
     if(hasValidPointing){
       //ant1PointingCache_p[val]=vb.direction1()[0];
-      ant1PointingCache_p[val]=vbUtil_p.getPointingDir(vb, vb.antenna1()(0), 0);
+      ant1PointingCache_p[val]=vbutil_p->getPointingDir(vb, vb.antenna1()(0), 0);
     }
     else
       ant1PointingCache_p[val]=vbutil_p->getPhaseCenter(vb);

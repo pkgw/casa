@@ -37,6 +37,7 @@
 #include <measures/Measures/MFrequency.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 #include <scimath/Mathematics/InterpolateArray1D.h>
+#include <unordered_map>
 namespace casa { //# NAMESPACE CASA - BEGIN
 //forward 
 class VisBuffer;
@@ -181,7 +182,7 @@ public:
   casacore::MeasFrame mframe_;
   casacore::Int oldMSId_p;
    casacore::Int oldPCMSId_p;
-  casacore::Vector<std::map<casacore::String, casacore::Int> > timeAntIndex_p;
+   casacore::Vector<std::unordered_map<std::string, int> > timeAntIndex_p;
   casacore::Vector<casacore::Vector<casacore::MDirection> > cachedPointingDir_p;
   casacore::Vector<std::map<casacore::Double, casacore::MDirection> > cachedPhaseCenter_p;
 };
