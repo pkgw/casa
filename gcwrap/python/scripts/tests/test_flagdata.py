@@ -904,7 +904,7 @@ class test_rflag(test_base):
         self.assertEqual(res['report1']['flagged'], 42728)
         self.assertEqual(res['report1']['antenna']['ea19']['flagged'], 18411)
         self.assertEqual(res['report1']['spw']['7']['flagged'], 0,)
-        
+
     def test_rflag_residual_data(self):
         '''flagdata: rflag using MODEL and virtual MODEL columns'''
         from tasks import delmod
@@ -928,15 +928,15 @@ class test_rflag(test_base):
 
         # Create virtual MODEL_COLUMN
         setjy(vis=self.vis, field='3C286_A',usescratch=False)
- 
+        
         # rflag
         flagdata(vis=self.vis, mode='rflag', spw='9,10',datacolumn='RESIDUAL_DATA',flagbackup=False)
-        # 444576.0 flags on virtual MODEL col
+        # 444576.0 flags on virtual MODEL col        
         flags_vmod = flagdata(vis=self.vis, mode='summary',spw='9,10')
-
+        
         # Flags should be the same
         self.assertTrue(flags_mod['flagged'],flags_vmod['flagged'])
-
+         
         # This test is mischievous, manipulates the model column. Don't leave a messed up MS.
         os.system('rm -rf {0}'.format(self.vis))
        
@@ -2389,6 +2389,64 @@ class test_clip(test_base):
         self.assertEqual(res['spw']['9']['flagged'], 0)
         self.assertEqual(res['flagged'], 274944*2)
 
+    def test_clip_no_model_col(self):
+        "flagdata: Should fail when MODEL or virtual MODEL columns do not exist"
+        # Use an MS without MODEL_DATA column
+        self.setUp_ngc5921(True)
+        
+        # RESIDUAL = CORRECTED - MODEL.
+        # It should fail and not flag anything
+        datacols = ["RESIDUAL","RESIDUAL_DATA"]
+        for col in datacols:
+            flagdata(vis=self.vis, mode='clip',datacolumn=col,clipminmax=[2.3,3.1],clipoutside=False, action='apply')
+            print 'flagadta is expected to fail with datacolumn='+col
+            self.assertEqual(flagdata(vis=self.vis, mode='summary')['flagged'],0.0)
+
+    def test_clip_with_model_col(self):
+        "flagdata: Should flag DATA-MODEL when RESIDUAL-DATA is asked"
+        self.setUp_ngc5921(True)
+        os.system('cp -r '+self.vis + ' ngc5921_virtual_model_col.ms')
+
+        # Create MODEL column
+        setjy(vis=self.vis, field='1331+305*',modimage='',standard='Perley-Taylor 99',scalebychan=False, usescratch=True)
+
+        # Create virtual MODEL column
+        setjy(vis='ngc5921_virtual_model_col.ms', field='1331+305*',modimage='',standard='Perley-Taylor 99',scalebychan=False, usescratch=False)
+        
+        # Flag RESIDUAL_DATA = DATA - MODEL
+        flagdata(vis=self.vis, mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],clipoutside=False, action='apply')
+        self.assertEqual(flagdata(vis=self.vis, mode='summary')['flagged'],412.0)
+                                      
+        # Flag RESIDUAL_DATA = DATA - virtual MODEL
+        flagdata(vis='ngc5921_virtual_model_col.ms', mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],
+                 clipoutside=False, action='apply')
+        self.assertEqual(flagdata(vis='ngc5921_virtual_model_col.ms', mode='summary')['flagged'],412.0)
+
+
+    def test_clip_virtual_model_col_use_delmod(self):
+        "flagdata: Should flag DATA-MODEL when RESIDUAL-DATA is asked"
+        self.setUp_ngc5921(True)
+        from tasks import delmod
+        os.system('cp -r '+self.vis + ' ngc5921_virtual_model_col.ms')
+
+        # Create virtual MODEL column
+        setjy(vis='ngc5921_virtual_model_col.ms', field='1331+305*',modimage='',standard='Perley-Taylor 99',scalebychan=False, 
+              usescratch=False)
+                                              
+        # Flag RESIDUAL_DATA = DATA - virtual MODEL
+        flagdata(vis='ngc5921_virtual_model_col.ms', mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],
+                 clipoutside=False, action='apply')
+        self.assertEqual(flagdata(vis='ngc5921_virtual_model_col.ms', mode='summary')['flagged'],412.0)
+        
+        # Unflag and delete model columns
+        flagdata(vis='ngc5921_virtual_model_col.ms', mode='unflag',flagbackup=False)
+        delmod(vis='ngc5921_virtual_model_col.ms',otf=True,scr=True)
+        
+        # Flag RESIDUAL_DATA should fail because virtual MODEL column doesn't exist
+        flagdata(vis='ngc5921_virtual_model_col.ms', mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],
+                 clipoutside=False, action='apply')
+        self.assertEqual(flagdata(vis='ngc5921_virtual_model_col.ms', mode='summary')['flagged'],0)
+        
 
 class test_antint(test_base):
     """flagdata:: Test of mode = 'antint'"""
