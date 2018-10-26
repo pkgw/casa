@@ -808,7 +808,7 @@ class test_MS_datacols(test_base):
         shutil.rmtree(self.vis, True)
         
     def test_model_no_model_col(self):
-        '''AgentFlagger" raise an error when there isn't a MODEL or virtual MODEL column'''
+        '''AgentFlagger:" raise an error when there isn't a MODEL or virtual MODEL column'''
         aflocal = aftool()
         aflocal.open(self.vis)
         aflocal.selectdata()

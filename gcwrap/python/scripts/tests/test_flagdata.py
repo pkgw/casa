@@ -4091,7 +4091,6 @@ class test_virtual_col(test_base):
     def tearDown(self):    
         os.system('rm -rf ngc5921*')        
 
-    @unittest.skip('Skip until CAS-10383 is fixed')
     def test_no_model_col(self):
         '''flagdata: catch failure when MODEL or virtual MODEL do not exist'''
         # Verify that a MODEL or virtual MODEL column do not exist in MS
