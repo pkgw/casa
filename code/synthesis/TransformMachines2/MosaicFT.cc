@@ -1172,7 +1172,7 @@ Int  ixsub, iysub, icounter;
   Int csize=convSize;
   const Int * flagstor=flags.getStorage(del);
   const Int * rowflagstor=rowFlags.getStorage(del);
-  Int csupp=convSupport;
+  Int csupp=convSupport/2;
   const Int *convrowmapstor=convRowMap_p.getStorage(del);
   const Int *convchanmapstor=convChanMap_p.getStorage(del);
   const Int *convpolmapstor=convPolMap_p.getStorage(del);
@@ -1250,7 +1250,7 @@ Int  ixsub, iysub, icounter;
       //and adding it after dooing the gridding
       DComplex *gridwgtstor=griddedWeight2.getStorage(weightcopy);
       gmoswgtd(&nvp, &nvc,flagstor, rowflagstor, wgtStorage, &nvisrow, 
-	       &nxp, &nyp, &np, &nc, &csupp, &csize, &csamp, 
+	       &nxp, &nyp, &np, &nc, &convSupport, &csize, &csamp, 
 	       cmapstor, pmapstor,
 	       gridwgtstor, wconvstor, convrowmapstor, 
 	       convchanmapstor,  convpolmapstor, 
@@ -1330,7 +1330,7 @@ Int  ixsub, iysub, icounter;
     if(!doneWeightImage_p){
       Complex *gridwgtstor=griddedWeight.getStorage(weightcopy);
       gmoswgts(&nvp, &nvc,flagstor, rowflagstor, wgtStorage, &nvisrow, 
-	       &nxp, &nyp, &np, &nc, &csupp, &csize, &csamp, 
+	       &nxp, &nyp, &np, &nc, &convSupport, &csize, &csamp, 
 	       cmapstor, pmapstor,
 	       gridwgtstor, wconvstor, convrowmapstor, 
 	       convchanmapstor,  convpolmapstor, 
@@ -1421,7 +1421,7 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
   Int nvisrow=data.shape()[2];
   Int csamp=convSampling;
   Int csize=convSize;
-  Int csupp=convSupport;
+  Int csupp=convSupport/2;
   Int nc=nchan;
   Int np=npol;
   Int nxp=nx;
