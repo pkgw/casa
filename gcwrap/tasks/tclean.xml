@@ -1697,6 +1697,8 @@ HPX HEALPix grid.  -->
                        the N-sigma threshold and cyclethreshold, is used to trigger a major cycle
                        (see also the descreption under 'threshold').
                        Set nsigma=0.0 to preserve the previous tclean behavior without this feature.
+                       The top level parameter, fastnoise is relevant for the rms noise calculation which is used 
+                       to determine the threshold. 
 
 </description>
       <value type="double">0.0</value>
@@ -1857,8 +1859,8 @@ HPX HEALPix grid.  -->
 
                        auto-multithresh : auto-masking by multiple thresholds for deconvolution
                           subparameters : sidelobethreshold, noisethreshold, lownoisethreshold, negativethrehsold,  smoothfactor,
-                                          minbeamfrac, cutthreshold, pbmask, growiterations, dogrowprune, minpercentchange, verbose,
-                                          fastnoise
+                                          minbeamfrac, cutthreshold, pbmask, growiterations, dogrowprune, minpercentchange, verbose
+                          Additional top level parameter relevant to auto-multithresh: fastnoise
 
                           if pbmask is >0.0, the region outside the specified pb gain level is excluded from
                           image statistics in determination of the threshold.
@@ -2122,14 +2124,14 @@ HPX HEALPix grid.  -->
                         Note that for a large cube, extra logging may slow down the process.
 </description>
     </param>
-    <param type="bool" name="fastnoise" subparam="true">
+    <param type="bool" name="fastnoise">
            <shortdescription>True: use the faster (old) noise calculation. False: use the new improved noise calculations</shortdescription>
            <value type="bool">True</value>
-<description> If it is set to True,  a simpler but faster noise calucation is used. 
-                        The threshold values were determined based on classic statistics (using all
+<description> Only relevant when automask (user='multi-autothresh') and/or n-sigma stopping threshold (nsigma>0.0) are/is used. If it is set to True,  a simpler but faster noise calucation is used. 
+                        In this case, the threshold values are determined based on classic statistics (using all
                         unmasked pixels for the calculations).
                           
-                        If it is set to False (default), the new noise calculation
+                        If it is set to False,  the new noise calculation
                         method is used based on pre-existing mask.   
  
                         Case 1: no exiting mask
@@ -2698,11 +2700,11 @@ HPX HEALPix grid.  -->
          <default param="dogrowprune"><value type="bool">True</value></default>
          <default param="minpercentchange"><value>-1.0</value></default>
          <default param="verbose"><value type="bool">False</value></default>
-         <default param="fastnoise"><value type="bool">False</value></default>
+         <!--<default param="fastnoise"><value type="bool">False</value></default>-->
        </equals>
-       <noteqauls type="string" value="auto-multithresh">
+       <!--<noteqauls type="string" value="auto-multithresh">
           <default param="fastnoise"><value type="bool">True</value></default>
-       </noteqauls>
+       </noteqauls>-->
    </when>
 
 <!--
