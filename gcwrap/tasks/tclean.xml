@@ -1017,27 +1017,29 @@ HPX HEALPix grid.  -->
     </param>
 
     <param type="double" name="computepastep" subparam="true">
-     <shortdescription>Parallactic angle interval after which to recompute AIFs (deg)</shortdescription>
-<description>The Parallactic Angle interval after which to recompute aperture illumination functions (deg)
+     <shortdescription>Parallactic angle interval after the AIFs are recomputed (deg)</shortdescription>
+<description>Parallactic angle interval after the AIFs are recomputed (deg)
 
                        This parameter controls the accuracy of the aperture illumination function
                        used with AProjection for alt-az mount dishes where the AIF rotates on the
-                       sky as the synthesis image is built up.
+                       sky as the synthesis image is built up.  Once the PA in the data changes by  
+                       the given interval, AIFs are re-computed at the new PA.
 
                        A value of 360.0 deg (the default) implies no re-computation due to PA rotation.
-                       AIFs are computed for the PA value of the first valid data received.
+                       AIFs are computed for the PA value of the first valid data received and used for 
+                       all of the data.
 
 </description>
       <value type="double">360.0</value>
     </param>
 
     <param type="double" name="rotatepastep" subparam="true">
-     <shortdescription>At what parallactic angle interval to rotate nearest AIF (deg) </shortdescription>
-<description>At what parallactic angle interval to rotate nearest
-                       aperture illumination function (deg)
+     <shortdescription>Parallactic angle interval after which the nearest AIF is rotated (deg) </shortdescription>
+<description>Parallactic angle interval after which the nearest AIF is rotated (deg) 
 
                        Instead of recomputing the AIF for every timestep's parallactic angle,
-                       the nearest existing AIF is picked and rotated in steps of this amount.
+                       the nearest existing AIF is used and rotated
+		       after the PA changed by rotatepastep value.
 
                        A value of 360.0 deg (the default) disables rotation of the AIF.
 
