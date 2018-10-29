@@ -1387,6 +1387,19 @@ void  MsEdit::WriteTestDataOnPointingTable(Double dt, String MsName)
         IPosition Ipo = pointingDirection.shape(0);
         printf(" - Shape of pointingDirection.[%ld, %ld] \n", Ipo[0], Ipo[1] );
 
+
+    //+
+    // Experiment   the following cannot be compiled.
+    //  Set AZEL on this Colun 
+    //-
+
+#if 0 
+         pointingDirection.setRefString( "AZELGEO" );
+#endif 
+
+    //+
+    //  Loop for each Row,
+    //-
         uInt LoopCnt = nrow_p;
 
         for (uInt row=0; row < LoopCnt; row++)
@@ -2728,7 +2741,7 @@ TEST_F(TestDirection, InterpolationFull )
     //    See EvalInterp class
     //-
     
-    msedit.evgen.  SelectTestFunction( 8 );
+    msedit.evgen.  SelectTestFunction( 1 );
 
     //+
     // Interval Combiniation
@@ -2768,6 +2781,10 @@ TEST_F(TestDirection, InterpolationFull )
     printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
 }
 
+/*---------------------------------------------------
+    getDirection  with uvw data dump,
+     - Ordinary (standard sequence) 
+  --------------------------------------------------*/
 
 TEST_F(TestDirection, getDirectionExtended )
 {
