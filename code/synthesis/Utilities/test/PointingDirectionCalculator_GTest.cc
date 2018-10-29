@@ -336,13 +336,26 @@ public:
 
     EvalInterp() { Initialize(); }
 
+    // Tune Interval Time //
+
+        void TuneIntervalTime( double pointing_interval, double main_interval );
+
+    // Init and Define Parameters 
+
+        void Initialize();
+
     Double getslideOffset() { return slideOffset ; } 
         casacore::Vector<Double>  PseudoDirInfo(Double tn, uInt type);
- 
+
+
+    // Select Test-Function //
+    
+       void SelectTestFunction( int num ) { SelectTestingFunctionNo = num; };
+
     // Interval Time//
      
-         Double pointingIntervalSec ;            // Interval Time to set in POINTING
-         Double mainIntervalSec     ;  
+         Double pointingIntervalSec = 1.0;            // Interval Time to set in POINTING
+         Double mainIntervalSec     = 1.0;  
 
     // Total Elapsed Time 
 
@@ -367,14 +380,14 @@ public:
         const uInt defInerpolationTestPointingTableRow   = 3843;
         const uInt defInerpolationTestMainTableRow       = 3843;
 	
+        //+
+        // Testing Function Select 
+        //-
 
-        uInt SelectTestingFunctionNo;
+        uInt SelectTestingFunctionNo =0;
 
 private:
 
-    // Init and Define Parameters 
-        
-        void Initialize();
     
     // Parameters  (Time)
     
@@ -390,29 +403,21 @@ private:
 
 void EvalInterp::Initialize( )
 {
-        Description("Setting Up parameters ","" );
- 
+        Description("EveInterp::initialize()::Setting Up parameters ","" ); 
 
         //+
         // Pointing Interval
         // (2018.10.18, These params are not appropriately implemented.Does not work)
         //- 
-/*Tunable*/ pointingIntervalSec =  2;               // Interval Time to set in POINTING
-/*Tunable*/ mainIntervalSec     =  1;              
+/*Tunable*/ pointingIntervalSec =  0.048;               // Interval Time to set in POINTING
+/*Tunable*/ mainIntervalSec     =  1.008;              
 
 
 /*Tunable*/ requiredMainTestingRow      =5000;    // Given (MUST BE greater than 4000//
 
-
-        //+
-        // Testing Fucntion (choose one ! )
-        //-
-
-/*Tunable*/ SelectTestingFunctionNo  = 0;
-
         //  Error Limit 
      
-/*Tunable*/  interpolationErrorLimit  = 1.0E-07;
+/*Tunable*/  interpolationErrorLimit  = 5.0E-08;
 
         //+
         //  Offset Time between in MAIN and in POITING 
@@ -460,6 +465,14 @@ void EvalInterp::Initialize( )
        printf( "File Size: required =%d, adding size = %d \n", requiredMainTestingRow ,addInerpolationTestPointingTableRow);
        printf( "File Size: required =%d, adding size = %d \n", requiredMainTestingRow ,addInerpolationTestMainTableRow);
 
+}
+
+void EvalInterp::TuneIntervalTime( double pointing_interval, double main_interval )
+{
+        pointingIntervalSec =  pointing_interval;               // Interval Time to set in POINTING
+        mainIntervalSec     =  main_interval;
+
+        Initialize() ;
 }
 
 
@@ -542,26 +555,37 @@ casacore::Vector<Double> EvalInterp::PseudoDirInfo(Double delta, uInt type )
         //  Relative Time (r_time) and Total Time
         //-
 
-      
         Double  Interval  = 0.0; // Initilal ..
         uInt    nRow      = 0;
+        Double  r_time     = 0.0;
 
         if(type==1) // POINTING.. //
         {
             Interval = pointingIntervalSec;
-            nRow=   requiredPointingTestingRow;
+            nRow   =   requiredPointingTestingRow;
+            r_time =   delta/nRow;
         }
         else
         if(type==2) // MAIN ..//
         {
             Interval = mainIntervalSec;
             nRow=  requiredMainTestingRow;
+ 
+            if(pointingIntervalSec <= mainIntervalSec )
+            {
+                r_time =   delta / nRow ;
+            }
+            else
+            {
+                 r_time =   delta / defInerpolationTestMainTableRow * mainIntervalSec /pointingIntervalSec  ;
+            }
+    
         }
         else
         {   throw ; } 
 
-        Double  r_time = delta / nRow ; 
         Double  time   = delta * Interval;
+
 
         //+
         //  Determin TIME 
@@ -693,6 +717,7 @@ public:
 
     MsEdit()        { };
 
+
     // Add or Remove Row  (Antenna) //
 
         uInt AntennaTable_AppendRow();
@@ -743,6 +768,7 @@ public:
 
 };
 
+
 //+
 // Add one row on Antanna Table
 //  returns latest nrow.
@@ -765,6 +791,7 @@ uInt  MsEdit::AntennaTable_AppendRow()
 
         return nrow;
 }
+
 
 //+
 // Remove specified row from Antanna Table
@@ -1445,7 +1472,7 @@ uInt  MsEdit::MainTable_AppendRow(uInt AddCount )
 
 void  MsEdit::WriteTestDataOnMainTable(Double delta_shift, String MsName)
 {
-    Description( "MsEdit:INTERPOLATION::WriteTestDataOnMainTable ,Writing Time in MAIN Table", 
+    Description( "MsEdit:INTERPOLATION::WriteTestDataOnMainTable ,1) Writing Time in MAIN Table", 
                   MsName.c_str()  );
     printf( "delta_shift = %f \n", delta_shift );
 
@@ -1502,14 +1529,14 @@ void  MsEdit::WriteTestDataOnMainTable(Double delta_shift, String MsName)
                 mainTime.           put(row, SetTime     );      // Time     (( REvised 10.26))
                 mainInterval.       put(row, interval );         // Interval (( Revised 10.26))
 
-              printf( "  Main create [%d] %f, %f \n", row, SetTime, ((double)row * interval) );
-
-
         }
 
         // Flush //
         
         ms0.flush();
+
+        Description( "MsEdit:INTERPOLATION::WriteTestDataOnMainTable ,2) Writing END",
+                      MsName.c_str()  );
 
 }
 
@@ -1786,7 +1813,10 @@ protected:
 //        void addTestDataForGetDirection(Double dt);
 
         // subfunction of TEST_F(TestDirection....)
+
         std::vector<Double>  subTestDirection(Double dt);
+
+        vector<double> TestSub(double p, double m);
 
 
         TestDirection()
@@ -2612,55 +2642,42 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
    return vv; 
 }
 
-/*-------------------------------------------
-   Interporatio Test in getDirection()
-  -------------------------------------------*/
- 
-TEST_F(TestDirection, InterpolationX )
+std::vector<Double> TestDirection::TestSub(double p_int, double m_int)
 {
+    printf("----------------------------------------\n");
+    printf("INTERPOLATION:: testing [%f,%f ] \n", p_int,m_int );
+    printf("----------------------------------------\n");
 
-    TestDescription( "Interpolation test in getDirection() " );
+    // Set Up Intervals //
 
-    if(true)
-    {
-        // Increase Row on MS for large-file.
-
-        msedit.PointingTable_AppendRow (msedit.evgen.  addInerpolationTestPointingTableRow );
-
-        msedit.MainTable_AppendRow     ( msedit.evgen. addInerpolationTestMainTableRow);
- 
-        addColumnDataOnPointing();   // FILL DATA 
-
-
-        // Add INTERPOLATION TEST DATA 
-  
-        msedit.WriteTestDataOnPointingTable( 0.0 );  // Pointing //
-    }
-
-
-    // Max Error //
+     msedit.evgen.TuneIntervalTime( p_int, m_int );
     
+    // Max Error ///
+
     std::vector<Double> reterr;
     std::vector<Double> maxerr(2);
     maxerr[0] = 0.0;
     maxerr[1] = 0.0;
 
-    //+
+    // Add INTERPOLATION TEST DATA 
+  
+    msedit.WriteTestDataOnPointingTable( 0.0 );  // Pointing //
+
     // Test Loop  
     //   - nDiv should be tunable 
     //-
 
     uInt nDiv = InterpolationDivCount; 
-    //Double interval =  msedit.evgen.mainIntervalSec;
 
-    for (uInt loop=0; loop <=0  /* <= nDiv */; loop ++ )
+    for (uInt loop=0; loop <= nDiv; loop ++ )
     {
         
          //+
          // SetUp Testing  MeasurmentSet
          //-
 
-           Description("Making MeasurementSet","k="+to_string( (double)loop/(double)nDiv  ));
+           Description("INTERPOLATION:: Making MeasurementSet",
+                        "INTERPOLATION::k="+to_string( (double)loop/(double)nDiv  ));
 
            msedit.WriteTestDataOnMainTable( (double)loop/(double)nDiv  );
            
@@ -2681,8 +2698,76 @@ TEST_F(TestDirection, InterpolationX )
     printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
     printf( " Total Max Error = %e, %e \n", maxerr[0], maxerr[1] );
     printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
- 
+
+    printf("----------------------------------------\n");
+    printf("INTERPOLATION:: testing [%f,%f] END     \n", p_int, m_int );
+    printf("----------------------------------------\n");
+
+    return maxerr; 
 }
+/*-------------------------------------------
+   Interporatio Test in getDirection()
+  -------------------------------------------*/
+ 
+TEST_F(TestDirection, InterpolationFull )
+{
+
+    TestDescription( "Interpolation test in getDirection() " );
+
+    // Increase Row on MS for large-file.
+
+      msedit.PointingTable_AppendRow (msedit.evgen.  addInerpolationTestPointingTableRow );
+
+      msedit.MainTable_AppendRow     ( msedit.evgen. addInerpolationTestMainTableRow);
+
+      addColumnDataOnPointing();   // FILL DATA 
+
+
+    //+
+    //  Select Function
+    //    See EvalInterp class
+    //-
+    
+    msedit.evgen.  SelectTestFunction( 8 );
+
+    //+
+    // Interval Combiniation
+    //   Pointing TBL and MAIN TBL
+    //-
+
+#if 0
+    vector<double> P_IntervalList = { 0.01, 0.05, 1.0 };
+    vector<double> M_IntervalList = { 0.001, 0.1, 1.0, 2.0 };
+#else
+    vector<double> P_IntervalList = { 0.01, 0.05 };
+    vector<double> M_IntervalList = { 0.001, 1.0 };
+#endif 
+
+    //+
+    // All the combiniation will be test //
+    //-
+
+    std::vector<Double> g_err = {0,0};
+    std::vector<Double> r_err = {0.0}; 
+
+   for( uInt p=0;  p < P_IntervalList.size(); p++)
+    {
+        for( uint m=0; m < M_IntervalList.size(); m++)
+        {
+              r_err = TestDirection::TestSub(P_IntervalList[p], M_IntervalList[m]);
+
+              // Update //
+
+              if ( g_err[0] < r_err[0] ) g_err[0] = r_err[0];
+              if ( g_err[1] < r_err[1] ) g_err[1] = r_err[1];
+        }
+    }
+
+    printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
+    printf ( "   THE WORST Error = %e, %e \n", g_err[0], g_err[1]);
+    printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
+}
+
 
 TEST_F(TestDirection, getDirectionExtended )
 {
