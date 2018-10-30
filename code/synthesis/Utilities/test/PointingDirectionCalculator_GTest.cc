@@ -317,7 +317,7 @@ void DeleteWorkingMS()
     // Delete File (Recursively done) 
     // NOTE: for debug use, please change true-> falase )
 
-    if (false)
+    if (true)
     {
          dir_ctrl. removeRecursive(false /*keepDir=False */ );
     }
@@ -350,12 +350,12 @@ public:
 
     // Select Test-Function //
     
-       void SelectTestFunction( int num ) { SelectTestingFunctionNo = num; };
+       void SelectTestFunction( uInt num ) { SelectTestingFunctionNo = num; };
 
-    // Interval Time//
-     
-         Double pointingIntervalSec = 1.0;            // Interval Time to set in POINTING
-         Double mainIntervalSec     = 1.0;  
+    // Interval Second.
+
+         Double pointingIntervalSec ;            // Interval Time to set in POINTING
+         Double mainIntervalSec     ;  
 
     // Total Elapsed Time 
 
@@ -391,7 +391,8 @@ private:
     
     // Parameters  (Time)
     
-        Double slideOffset   ;      // Sliding Time (sec) THIS CAUSES  fixed value on the edges of the table.(see doGetDirection() )
+        Double slideOffset   ;      // Sliding Time (sec) THIS CAUSES  fixed value i
+                                    //    on the edges of the table.(see doGetDirection() )
         Double dayOffset     ;      // Day offset   (Day)  ** NOT USED *** 
 
 
@@ -409,11 +410,9 @@ void EvalInterp::Initialize( )
         // Pointing Interval
         // (2018.10.18, These params are not appropriately implemented.Does not work)
         //- 
-/*Tunable*/ pointingIntervalSec =  0.048;               // Interval Time to set in POINTING
-/*Tunable*/ mainIntervalSec     =  1.008;              
-
-
-/*Tunable*/ requiredMainTestingRow      =5000;    // Given (MUST BE greater than 4000//
+/*Tunable*/ pointingIntervalSec         =  0.048;               // Interval Time to set in POINTING
+/*Tunable*/ mainIntervalSec             =  1.008;              
+/*Tunable*/ requiredMainTestingRow      =   5000;    // Given (MUST BE greater than 4000//
 
         //  Error Limit 
      
@@ -1389,22 +1388,23 @@ void  MsEdit::WriteTestDataOnPointingTable(Double dt, String MsName)
 
 
     //+
-    // Experiment   the following cannot be compiled.
-    //  Set AZEL on this Colun 
-    //-
-
-#if 0 
-         pointingDirection.setRefString( "AZELGEO" );
-#endif 
-
-    //+
     //  Loop for each Row,
     //-
         uInt LoopCnt = nrow_p;
 
         for (uInt row=0; row < LoopCnt; row++)
         {
-
+            //+
+            // Experiment   the following cannot be compiled.
+            //  Set AZEL on this Colun 
+            //-
+ 
+#if 0
+                MDirection mdir = columnPointing ->directionMeas (0, 0 );
+                String name =                mdir.getRefString();
+                printf(" MDIR name = %s \n", name.c_str() );
+#endif
+ 
             // DIRECTION  //
 
                 Double delta = (Double)row + dt ;
@@ -1421,22 +1421,11 @@ void  MsEdit::WriteTestDataOnPointingTable(Double dt, String MsName)
                 pointingDirection.   put(row, direction );
                 pointingTarget.      put(row, direction );
 
-            // Time Info. (current) //
- 
+            // Time Info. (current) ** NOT USED *** //
+#if 0 
                 Double curTime      = pointingTime.     get(row);
                 Double curInterval  = pointingInterval. get(row);
-
-            // Show Time (OPTION)//
-            // Show Time //
-
-
-            if(false) 
-            { 
-                printf( "[%d] Curr / Generated Time, %f ,%f \n", 
-                        row, curTime, curInterval ); 
-                printf( "     Generated Direction (%f ,%f) \n",
-                        psd_data[0], psd_data[1] );
-            }
+#endif
 
            //+ 
            // New Time   (intentionally activates interporation)
@@ -1445,6 +1434,19 @@ void  MsEdit::WriteTestDataOnPointingTable(Double dt, String MsName)
 
                 pointingTime.           put(row, psd_data[2] ); // Time
                 pointingInterval.       put(row, psd_data[3] ); // Interval
+
+
+            //+
+            // Show (option)
+            //-
+
+            if(false)
+            {
+                printf( "%d, Time-Interval-dirX- dirY,", row);
+                printf( "%f, %f , ", psd_data[2], psd_data[3] );
+                printf( "%f, %f \n", psd_data[0], psd_data[1] );
+            }
+
         }
 
         // Flush //
@@ -1487,7 +1489,9 @@ void  MsEdit::WriteTestDataOnMainTable(Double delta_shift, String MsName)
 {
     Description( "MsEdit:INTERPOLATION::WriteTestDataOnMainTable ,1) Writing Time in MAIN Table", 
                   MsName.c_str()  );
-    printf( "delta_shift = %f \n", delta_shift );
+    printf( "ddddddddddddddddddddddddddddddddddddd\n");
+    printf( "   delta_shift =, %f \n", delta_shift );
+    printf( "ddddddddddddddddddddddddddddddddddddd\n");
 
     // Open MS by Update mode //
 
@@ -1521,18 +1525,11 @@ void  MsEdit::WriteTestDataOnMainTable(Double delta_shift, String MsName)
                Vector<Double>  psd_data 
                    = evgen.PseudoDirInfo( (Double)row , 2 ); // generated pseudo data. (Main table) //
 
-            // Time Info. (current) //
- 
+            // Time Info. (current) ** NOT USED ** //
+#if 0
                 Double curTime      = mainTime.     get(row);
                 Double curInterval  = mainInterval. get(row);
-
-            // Show Time //
-  
-                if (false){  
-                        printf( "MAIN TBL [%d] Curr / Interval, %f ,%f \n", 
-                            row, curTime, curInterval ); 
-                }
-
+#endif 
             // Time Set  //
                 Double interval = psd_data[3];
                 Double time     = psd_data[2];
@@ -1541,6 +1538,14 @@ void  MsEdit::WriteTestDataOnMainTable(Double delta_shift, String MsName)
 
                 mainTime.           put(row, SetTime     );      // Time     (( REvised 10.26))
                 mainInterval.       put(row, interval );         // Interval (( Revised 10.26))
+
+             // Show Time //
+
+                if (false){
+                        printf( "Main Tbl, %d Time and Interval, %f ,%f \n",
+                            row, SetTime, interval );
+                }
+
 
         }
 
@@ -1829,7 +1834,7 @@ protected:
 
         std::vector<Double>  subTestDirection(Double dt);
 
-        vector<double> TestSub(double p, double m);
+        vector<Double> TestSub(Double p, Double m);
 
 
         TestDirection()
@@ -2598,6 +2603,8 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
     {
         uInt LoopCnt = n_row-1;
 
+        printf("Row, cal_x, cal_y, gen_x. gen_y, err_x, err_y \n");
+
         for (uInt row=0; row < LoopCnt; row++)  // ACTUNG !!! start from 1 or o ??  /// 
         {
  
@@ -2642,9 +2649,10 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
 #endif
             // Output //
 
-                printf( "Main Table Dir [%6d], %12.9f,%12.9f \n",   row,  calculated_1, calculated_2 );
-                printf( "Estimated data [%6d], %12.9f,%12.9f \n",   row,  generated_1,  generated_2 );
-                printf( "         error [%6d],%5.2e,%5.2e \n",      row,  Err_1,     Err_2);
+                printf( "Evaluation,");
+                printf( "%6d, %12.9f,%12.9f,", row,  calculated_1, calculated_2 );
+                printf( "%12.9f,%12.9f,",      generated_1,  generated_2 );
+                printf( "%12.2e,%12.2e \n",      Err_1,     Err_2);
         }    
     }
    
@@ -2657,9 +2665,9 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
 
 std::vector<Double> TestDirection::TestSub(double p_int, double m_int)
 {
-    printf("----------------------------------------\n");
-    printf("INTERPOLATION:: testing [%f,%f ] \n", p_int,m_int );
-    printf("----------------------------------------\n");
+    printf("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII\n");
+    printf("      INTERPOLATION:: testing [%f,%f ] \n", p_int,m_int );
+    printf("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII\n");
 
     // Set Up Intervals //
 
@@ -2701,7 +2709,7 @@ std::vector<Double> TestDirection::TestSub(double p_int, double m_int)
           reterr = subTestDirection( (double)loop/(double)nDiv );
 
           printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
-          printf( " Max Error = %e, %e \n", reterr[0], reterr[1] );
+          printf( " Max Error =, %e, %e \n", reterr[0], reterr[1] );
           printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
 
          // Update //
@@ -2709,7 +2717,7 @@ std::vector<Double> TestDirection::TestSub(double p_int, double m_int)
          if ( maxerr[1] < reterr[1] ) maxerr[1] = reterr[1]; 
     }
     printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
-    printf( " Total Max Error = %e, %e \n", maxerr[0], maxerr[1] );
+    printf( " Total Max Error =, %e, %e \n", maxerr[0], maxerr[1] );
     printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
 
     printf("----------------------------------------\n");
@@ -2735,13 +2743,12 @@ TEST_F(TestDirection, InterpolationFull )
 
       addColumnDataOnPointing();   // FILL DATA 
 
-
     //+
     //  Select Function
     //    See EvalInterp class
     //-
-    
-    msedit.evgen.  SelectTestFunction( 1 );
+
+      msedit.evgen.  SelectTestFunction( 0 );
 
     //+
     // Interval Combiniation
@@ -2752,7 +2759,7 @@ TEST_F(TestDirection, InterpolationFull )
     vector<double> P_IntervalList = { 0.01, 0.05, 1.0 };
     vector<double> M_IntervalList = { 0.001, 0.1, 1.0, 2.0 };
 #else
-    vector<double> P_IntervalList = { 0.01, 0.05 };
+    vector<double> P_IntervalList = { 0.01, 0.05, 1.0, 2.0 };
     vector<double> M_IntervalList = { 0.001, 1.0 };
 #endif 
 
@@ -2767,7 +2774,10 @@ TEST_F(TestDirection, InterpolationFull )
     {
         for( uint m=0; m < M_IntervalList.size(); m++)
         {
-              r_err = TestDirection::TestSub(P_IntervalList[p], M_IntervalList[m]);
+             double p_i = P_IntervalList[p];
+             double p_m = M_IntervalList[m];
+
+              r_err = TestDirection::TestSub( p_i, p_m );
 
               // Update //
 
@@ -2781,6 +2791,45 @@ TEST_F(TestDirection, InterpolationFull )
     printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
 }
 
+
+TEST_F(TestDirection, InterpolationSingle )
+{
+
+    TestDescription( "Interpolation test in getDirection() SINGLE-mode" );
+
+    // Increase Row on MS for large-file.
+
+      msedit.PointingTable_AppendRow (msedit.evgen.  addInerpolationTestPointingTableRow );
+
+      msedit.MainTable_AppendRow     ( msedit.evgen. addInerpolationTestMainTableRow);
+
+      addColumnDataOnPointing();   // FILL DATA 
+
+
+    //+
+    //  Select Function
+    //    See EvalInterp class
+    //-
+
+    msedit.evgen.  SelectTestFunction( 10 );
+
+    //+
+    // Interval Combiniation
+    //   Pointing TBL and MAIN TBL
+    //-
+ 
+      Double pointing_interval = 0.048;
+      Double main_interval     = 1.008;
+
+      std::vector<Double> r_err = {0.0};
+
+      r_err = TestDirection::TestSub(pointing_interval, main_interval);
+
+      printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
+      printf( " Total Max Error = %e, %e \n", r_err[0], r_err[1] );
+      printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
+
+}
 /*---------------------------------------------------
     getDirection  with uvw data dump,
      - Ordinary (standard sequence) 
@@ -2846,7 +2895,6 @@ TEST_F(TestDirection, getDirectionExtended )
     //-
         String src = "MOON";
         Description("calling setMovingSource()", src);
-
          EXPECT_NO_THROW( calc.setMovingSource( src ) ); 
 
     //+
