@@ -22,6 +22,15 @@
 
 #include <flagging/Flagging/FlagAgentShadow.h>
 
+#include <measures/Measures/MBaseline.h>
+#include <measures/Measures/MCBaseline.h>
+#include <measures/Measures/MCDirection.h>
+#include <measures/Measures/MCuvw.h>
+#include <measures/Measures/MDirection.h>
+#include <measures/Measures/MEpoch.h>
+#include <measures/Measures/Muvw.h>
+#include <casacore/measures/TableMeasures/ScalarMeasColumn.h>
+
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 

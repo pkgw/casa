@@ -260,7 +260,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	itsFacetId = 0;
 	itsUseWeight = getUseWeightImage( *imptr );
 	itsPBScaleFactor=1.0; ///// No need to set properly here as it will be calc'd in ()
-
+	/////redo this here as psf may have different coordinates
+	itsCoordSys = imptr->coordinates();
+	itsMiscInfo=imptr->miscInfo();
 	if( itsUseWeight && ! doesImageExist(itsImageName+String(".weight")) )
 	  {
 	    throw(AipsError("Internal error : Sumwt has a useweightimage=True but the weight image does not exist."));
@@ -427,11 +429,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   std::shared_ptr<ImageInterface<Float> > SIImageStore::openImage(const String imagenamefull, 
 							     const Bool overwrite, 
-							     const Bool dosumwt, const Int nfacetsperside)
+							     const Bool dosumwt, const Int nfacetsperside, const Bool checkCoordSys)
   {
 
-    std::shared_ptr<ImageInterface<Float> > imPtr;
 
+    std::shared_ptr<ImageInterface<Float> > imPtr;
     IPosition useShape( itsParentImageShape );
 
     if( dosumwt ) // change shape to sumwt image shape.
@@ -506,7 +508,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			  oo1 << useShape; oo2 << imPtr->shape();
 			  throw( AipsError( "There is a shape mismatch between existing images ("+oo2.str()+") and current parameters ("+oo1.str()+"). If you are attempting to restart a run with a new image shape, please change imagename and supply the old model or mask as inputs (via the startmodel or mask parameters) so that they can be regridded to the new shape before continuing." ) );
 			}
-		      if( itsParentCoordSys.nCoordinates()>0 &&  ! itsParentCoordSys.near( imPtr->coordinates() ) )
+		     
+		      if( itsParentCoordSys.nCoordinates()>0 &&  checkCoordSys && ! itsParentCoordSys.near( imPtr->coordinates() ) )
 			{
 			  throw( AipsError( "There is a coordinate system mismatch between existing images on disk and current parameters ("+itsParentCoordSys.errorMessage()+"). If you are attempting to restart a run, please change imagename and supply the old model or mask as inputs (via the startmodel or mask parameters) so that they can be regridded to the new coordinate system before continuing. " ) );
 			}
@@ -983,7 +986,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 	else
 	  {
-	    ptr = openImage(itsImageName+label , itsOverWrite, sw, 1 ); 
+	    ///coordsys for psf can be different ...shape should be the same.
+	    ptr = openImage(itsImageName+label , itsOverWrite, sw, 1, !(label.contains(imageExts(PSF)))); 
 	    //cout << "Opening image : " << itsImageName+label << " of shape " << ptr->shape() << endl;
 	  }
       }
@@ -1485,14 +1489,8 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
     LogIO os( LogOrigin("SIImageStore","divideResidualByWeight",WHERE) );
     
 
-    
-
     // Normalize by the sumwt, per plane. 
     Bool didNorm = divideImageByWeightVal( *residual() );
-
-    
-    
-   
     if( itsUseWeight )
       {
 	
@@ -1569,6 +1567,7 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
 		//LatticeExpr<Float> ratio(iif( deno > scalepb, (*(ressubim))/ deno, *ressubim ) );
 
 		ressubim->copyData(ratio);
+
 		//cout << "Val of residual before|after normalizing at center for pol " << pol << " chan " << chan << " : " << resval << "|" << ressubim->getAt(ip) << " weight : " << wtsubim->getAt(ip) << endl;
 		}// if not zero
 	      }//chan
@@ -2101,10 +2100,8 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
 	SubImage<Float> subRestored( *image(term) , imslice, True );
 	SubImage<Float> subModel( *model(term) , imslice, True );
 	SubImage<Float> subResidual( *residual(term) , imslice, True );
-
-
+	
 	GaussianBeam beam = itsRestoredBeams.getBeam( chanid, polid );;
-
 	//os << "Common Beam for chan : " << chanid << " : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
         // only print per-chan beam if the common beam is not used for restoring beam
         if(!printcommonbeam) { 
@@ -2115,22 +2112,28 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
 	  {
 	    // Initialize restored image
 	    subRestored.set(0.0);
-	    // Copy model into it
-	    subRestored.copyData( LatticeExpr<Float>( subModel )  );
-	    // Smooth model by beam
-	    if( !emptymodel ) { StokesImageUtil::Convolve( subRestored, beam); }
+	     if( !emptymodel ) { 
+	       // Copy model into it
+	       subRestored.copyData( LatticeExpr<Float>( subModel )  );
+	       // Smooth model by beam
+	       StokesImageUtil::Convolve( subRestored, beam);
+	     }
 	    // Add residual image
 	    if( !rbeam.isNull() || usebeam == "common") // If need to rescale residuals, make a copy and do it.
 	      {
 		//		rescaleResolution(chanid, subResidual, beam, itsPSFBeams.getBeam(chanid, polid));
 		TempImage<Float> tmpSubResidualCopy( IPosition(4,nx,ny,1,1), subResidual.coordinates());
 		tmpSubResidualCopy.copyData( subResidual );
+		
 		rescaleResolution(chanid, tmpSubResidualCopy, beam, itsPSFBeams.getBeam(chanid, polid));
 		subRestored.copyData( LatticeExpr<Float>( subRestored + tmpSubResidualCopy  ) );
 	      }
 	    else// if no need to rescale residuals, just add the residuals.
 	      {
+		
+		
 		subRestored.copyData( LatticeExpr<Float>( subRestored + subResidual  ) );
+		
 	      }
 	    
 	  }
@@ -3076,12 +3079,7 @@ void SIImageStore::regridToModelImage( ImageInterface<Float> &inputimage, Int te
     inFile >> token; if (token=="itsUseWeight:") inFile >> itsUseWeight;
 
     Bool coordSysLoaded=False;
-    String itsName;
-    try 
-      {
-	itsName=itsImageName+imageExts(PSF);casa::openImage(itsName,      itsPsf);
-	if (coordSysLoaded==False) {itsCoordSys=itsPsf->coordinates(); itsMiscInfo=itsPsf->miscInfo();coordSysLoaded=True;}
-      } catch (AipsIO& x) {logIO << "\"" << itsName << "\" not found." << LogIO::WARN;};
+    String itsName;      
     try 
       {
 	itsName=itsImageName+imageExts(MASK);casa::openImage(itsName,     itsMask);
@@ -3111,6 +3109,11 @@ void SIImageStore::regridToModelImage( ImageInterface<Float> &inputimage, Int te
       {
 	itsName=itsImageName+imageExts(SUMWT);casa::openImage(itsName,    itsSumWt);
 	if (coordSysLoaded==False) {itsCoordSys=itsSumWt->coordinates(); itsMiscInfo=itsSumWt->miscInfo();coordSysLoaded=True;}
+      } catch (AipsIO& x) {logIO << "\"" << itsName << "\" not found." << LogIO::WARN;};
+    try
+      {
+	itsName=itsImageName+imageExts(PSF);casa::openImage(itsName,      itsPsf);
+	if (coordSysLoaded==False) {itsCoordSys=itsPsf->coordinates(); itsMiscInfo=itsPsf->miscInfo();coordSysLoaded=True;}
       } catch (AipsIO& x) {logIO << "\"" << itsName << "\" not found." << LogIO::WARN;};
     try
       {

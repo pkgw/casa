@@ -91,6 +91,11 @@ using namespace casa::refim;
     return new MosaicFTNew(*this);
   }
 
+  MosaicFTNew::MosaicFTNew(const RecordInterface& stateRec)
+  : MosaicFT(stateRec)
+{
+  
+}
 // Finalize the FFT to the Sky. Here we actually do the FFT and
 // return the resulting image
 ImageInterface<Complex>& MosaicFTNew::getImage(Matrix<Float>& weights,

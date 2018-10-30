@@ -308,6 +308,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <value type="string"></value>
     </param>
 
+
     <param type="string" name="stokes" > <!-- subparam="true"> -->
      <shortdescription>Stokes Planes to make</shortdescription>
 <description>Stokes Planes to make
@@ -829,6 +830,19 @@ HPX HEALPix grid.  -->
       <value type="int">1</value>
     </param>
 
+<param type="any" name="psfphasecenter"  subparam="true"> 
+     <shortdescription>Phase center of the image</shortdescription>
+<description>For mosaic use psf centered of this optional direction
+               example: psfphasecenter=6
+                        psfphasecenter='J2000 19h30m00 -40d00m00'
+                        psfphasecenter='J2000 292.5deg  -40.0deg'
+                        psfphasecenter='J2000 5.105rad  -0.698rad'
+                        psfphasecenter='ICRS 13:05:27.2780 -049.28.04.458' 
+</description>
+      <any type="variant" limittypes="int string"/>
+      <value type="string"></value>
+    </param>
+
     <param type="int" name="chanchunks" subparam="true">
      <shortdescription>Number of channel chunks</shortdescription>
 <description>Number of channel chunks to grid separately
@@ -913,7 +927,19 @@ HPX HEALPix grid.  -->
 </description>
       <value type="string"></value>
     </param>
-
+    
+  <param type="bool" name="usepointing" subparam="true">
+           <shortdescription>Use Pointing table if available for mosaic pointing</shortdescription>
+<description>Use the pointing table to determine where the beam are for mosaic gridder; if False then phasecenters of the fields selected are used to determine direction of each mosaic pointing.
+</description>
+	    <value type="bool">False</value>
+    </param>
+    <param type="bool" name="mosweight" subparam="true">
+           <shortdescription>Indepently weight each field in a mosaic</shortdescription>
+<description>When doing Brigg's style weighting (including uniform) to perform the weight density calculation for each field indepedently if True. If False the weight density is calculated from the average uv distribution of all the fields.
+</description>
+	    <value type="bool">True</value>
+    </param>
     <param type="bool" name="aterm" subparam="true">
            <shortdescription>Use aperture illumination functions during gridding</shortdescription>
 <description>Use aperture illumination functions during gridding
@@ -2475,18 +2501,26 @@ HPX HEALPix grid.  -->
        <equals type="string" value="mosaic">
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
+	 <default param="usepointing"><value>False</value></default>
+	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>True</value></default>
+	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="mosaicft">
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
+	 <default param="usepointing"><value>False</value></default>
+	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>True</value></default>
+	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="ftmosaic">
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
+	 <default param="usepointing"><value>False</value></default>
+	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
        </equals>
        <equals type="string" value="imagemosaic">

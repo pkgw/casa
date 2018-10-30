@@ -80,20 +80,22 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
         npol_p(-1), pointToPix_p(), directionIndex_p(-1), thePix_p(0),
         filledFluxScale_p(false),doneMainConv_p(0),
                                       
-	calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p()  {
+				      calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p()  {
     //
 
     pbClass_p=PBMathInterface::COMMONPB;
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
 }
 
   SimplePBConvFunc::SimplePBConvFunc(const PBMathInterface::PBClass typeToUse): 
     nchan_p(-1),npol_p(-1),pointToPix_p(),
     directionIndex_p(-1), thePix_p(0), filledFluxScale_p(false),doneMainConv_p(0), 
-     calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p() {
+    calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p() {
     //
     pbClass_p=typeToUse;
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
   }
   SimplePBConvFunc::SimplePBConvFunc(const RecordInterface& rec, const Bool calcfluxneeded)
   : nchan_p(-1),npol_p(-1),pointToPix_p(), directionIndex_p(-1), thePix_p(0), filledFluxScale_p(false),
@@ -103,6 +105,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     String err;
     fromRecord(err, rec, calcfluxneeded);
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
   }
   SimplePBConvFunc::~SimplePBConvFunc(){
     //
@@ -264,8 +267,9 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     }
     Bool hasValidPointing=False;
     if(Table::isReadable(vb.ms().pointingTableName())){
-      hasValidPointing=(vb.ms().pointing().nrow() >0);
+      hasValidPointing=usePointingTable_p &&  (vb.ms().pointing().nrow() >0);
     }
+   
     Int val=ant1PointingCache_p.nelements();
     ant1PointingCache_p.resize(val+1, true);
     if(hasValidPointing){
@@ -1006,6 +1010,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
       rec.define("pbclass", Int(pbClass_p));
       rec.define("actualconvindex",  actualConvIndex_p);
       rec.define("donemainconv", doneMainConv_p);
+      rec.define("usepointingtable", usePointingTable_p);
       //The following is not needed ..can be regenerated
       //rec.define("pointingpix", pointingPix_p);
     }
@@ -1051,6 +1056,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
        }
        pbClass_p=static_cast<PBMathInterface::PBClass>(rec.asInt("pbclass"));
        rec.get("actualconvindex",  actualConvIndex_p);
+       rec.get("usepointingtable", usePointingTable_p);
        pointingPix_p.resize();
        //rec.get("pointingpix", pointingPix_p);
        calcFluxScale_p=calcFluxneeded;

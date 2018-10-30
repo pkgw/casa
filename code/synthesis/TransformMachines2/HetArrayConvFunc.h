@@ -113,6 +113,7 @@ namespace casa {
 			     casacore::Complex*& convWeights, const casacore::Double pixXdir, const casacore::Double pixYdir, 
 			     casacore::Int convSize, const casacore::Int ndishpair, const casacore::Int nchan, const casacore::Int nPol);
    void fillConjConvFunc(const casacore::Vector<casacore::Double>& beamFreqs);
+   void fillConjConvFunc(casacore::Array<casacore::Complex>& out, const casacore::Array<casacore::Complex>& in , const casacore::Double& beamFreq);
    casacore::Int conjSupport(const casacore::Vector<casacore::Double>& beamFreqs);
       casacore::Int factorial(casacore::Int n);
       // the return value are -1 or false for not in cache yet but pointing direction 
@@ -129,7 +130,7 @@ namespace casa {
       void init(const PBMathInterface::PBClass typeToUse);
       void makerowmap(const vi::VisBuffer2& vb, casacore::Vector<casacore::Int>& rowMap);
       casacore::Float interpLanczos( const casacore::Double& x , const casacore::Double& y, const casacore::Double& nx, const casacore::Double& ny,   const casacore::Float* data, const casacore::Float a=3);
-      void diffPointingCorrection(const vi::VisBuffer2& vb, const casacore::Int origSupportSize, casacore::Vector<casacore::Int>& rowmap);
+      void diffPointingCorrection(const vi::VisBuffer2& vb, const casacore::Int origSupportSize, casacore::Vector<casacore::Int>& rowmap, const casacore::Vector<casacore::Double>& freqs, const casacore::Bool doConj=false);
       void rephaseBeams(casacore::Array<casacore::Complex>& pb,
 			casacore::Array<casacore::Complex>& pb2,
 			const vi::VisBuffer2& vb, const casacore::Int row,
@@ -171,7 +172,7 @@ namespace casa {
       casacore::Block<casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSizes_p;
       casacore::Block <casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSupportBlock_p;
       casacore::Vector<casacore::Int> origConvSize_p;
-
+      casacore::Vector<casacore::Float> sincCache_p;
     };
 }; //end of namespace refim
 } // end namespace casa

@@ -34,6 +34,7 @@ scripts/casa_builtin.py
 scripts/start_casa.py
 scripts/casa_system.py
 scripts/casa_system_defaults.py
+scripts/mstools.py
 scripts/init_begin_startup.py
 scripts/init_end_startup.py
 scripts/init_system.py
