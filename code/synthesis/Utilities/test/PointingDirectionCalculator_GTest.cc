@@ -326,8 +326,8 @@ void DeleteWorkingMS()
 //********************************************************
 //  INTERPOLATION  Generation 
 //   for Interporation Verification TEST 
-//
-//  
+//  - Generate testing trace on Direction
+//  - Time and Interval can be tuned for test.
 //********************************************************
 
 class EvalInterp
@@ -344,51 +344,71 @@ public:
 
         void Initialize();
 
-    Double getslideOffset() { return slideOffset ; } 
-        casacore::Vector<Double>  PseudoDirInfo(Double tn, uInt type);
+    // Offset between POINTNG and MAIN //
 
+        Double getslideOffset() { return slideOffset ; } 
+ 
+    // Pseudo Trace(Direction) for the Test
+
+        casacore::Vector<Double>  PseudoDirInfo(Double tn, uInt type);
 
     // Select Test-Function //
     
        void SelectTestFunction( uInt num ) { SelectTestingFunctionNo = num; };
-
+#if 0
     // Interval Second.
 
          Double pointingIntervalSec ;            // Interval Time to set in POINTING
          Double mainIntervalSec     ;  
-
-    // Total Elapsed Time 
-
-         Double TotalTime;
-    //+
-    // Operation Mode (reserved)
-    //-
-
-
+#endif 
     //+
     // Numerical Error Statictic 
     //-
   
-        Double interpolationErrorLimit ; 
+        Double getInterpolationErrorLimit() { return interpolationErrorLimit;  } ; 
 
-        uInt requiredPointingTestingRow;
-        uInt requiredMainTestingRow;
-
-        uInt addInerpolationTestPointingTableRow ;    
-        uInt addInerpolationTestMainTableRow ;
+    // Pre-located row , use tables with extended. See MS (sdimaging.ms) by tool //
 
         const uInt defInerpolationTestPointingTableRow   = 3843;
         const uInt defInerpolationTestMainTableRow       = 3843;
+
+
+        uInt getAddInerpolationTestPointingTableRow() {return addInerpolationTestPointingTableRow; };
+        uInt getAddInerpolationTestMainTableRow()     {return addInerpolationTestMainTableRow; };
 	
+private:
+
+       // Row information //
+     
+        uInt requiredPointingTestingRow;
+        uInt requiredMainTestingRow;
+
+        uInt addInerpolationTestPointingTableRow ;
+        uInt addInerpolationTestMainTableRow ;
+
+
+       // Error Limit (threshold) in GoogleTest Macro //
+
+        Double interpolationErrorLimit ;
+
         //+
         // Testing Function Select 
+        //   0: Simple Linear
+        //   1: Full-scale linear with PI , PI/2
+        //   8: Sinusoid (slow move)
+        //   9: Sinusoid (fast move)
+        //   10: Harmonics Sinusoid. (f0 + 5th.)
         //-
 
         uInt SelectTestingFunctionNo =0;
 
-private:
+    // Interval Second.
 
-    
+         Double pointingIntervalSec ;            // Interval Time to set in POINTING
+         Double mainIntervalSec     ;
+
+         Double TotalTime; 
+ 
     // Parameters  (Time)
     
         Double slideOffset   ;      // Sliding Time (sec) THIS CAUSES  fixed value i
@@ -2644,8 +2664,8 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
             //-
 
 #if 1
-		EXPECT_LE( absErr_1, msedit.evgen.interpolationErrorLimit  ); 
-                EXPECT_LE( absErr_2, msedit.evgen.interpolationErrorLimit  ); 
+		EXPECT_LE( absErr_1, msedit.evgen.getInterpolationErrorLimit()  ); 
+                EXPECT_LE( absErr_2, msedit.evgen.getInterpolationErrorLimit()  ); 
 #endif
             // Output //
 
@@ -2737,9 +2757,9 @@ TEST_F(TestDirection, InterpolationFull )
 
     // Increase Row on MS for large-file.
 
-      msedit.PointingTable_AppendRow (msedit.evgen.  addInerpolationTestPointingTableRow );
+      msedit.PointingTable_AppendRow (msedit.evgen.  getAddInerpolationTestPointingTableRow() );
 
-      msedit.MainTable_AppendRow     ( msedit.evgen. addInerpolationTestMainTableRow);
+      msedit.MainTable_AppendRow     ( msedit.evgen. getAddInerpolationTestMainTableRow() );
 
       addColumnDataOnPointing();   // FILL DATA 
 
@@ -2799,9 +2819,9 @@ TEST_F(TestDirection, InterpolationSingle )
 
     // Increase Row on MS for large-file.
 
-      msedit.PointingTable_AppendRow (msedit.evgen.  addInerpolationTestPointingTableRow );
+      msedit.PointingTable_AppendRow (msedit.evgen.  getAddInerpolationTestPointingTableRow() );
 
-      msedit.MainTable_AppendRow     ( msedit.evgen. addInerpolationTestMainTableRow);
+      msedit.MainTable_AppendRow     ( msedit.evgen. getAddInerpolationTestMainTableRow() );
 
       addColumnDataOnPointing();   // FILL DATA 
 
