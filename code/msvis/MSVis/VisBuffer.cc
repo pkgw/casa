@@ -2476,7 +2476,11 @@ Cube<Complex>& VisBuffer::fillVisCube(VisibilityIterator::DataColumn whichOne)
 	  if (not visModelData_p.null()) hasmodkey = visModelData_p->isModelDefinedI(fieldId(), visIter_p->ms(), modelkey, snum);
 	  if( hasmodkey || !(visIter_p->ms().tableDesc().isColumn("MODEL_DATA")))
 	  {
+	    
 		  //cerr << "HASMOD " << visModelData_p.hasModel(msId(), fieldId(), spectralWindow()) << endl;
+	    visModelData_p->init(*this);
+	    ////This bit can be removed when we do not support old model vesions saved
+	    if(!(visModelData_p->isVersion2())){
 		  if(visModelData_p->hasModel(msId(), fieldId(), spectralWindow()) ==-1){
 			  if(hasmodkey){
 				  //String whichrec=visIter_p->ms().keywordSet().asString(modelkey);
@@ -2486,6 +2490,8 @@ Cube<Complex>& VisBuffer::fillVisCube(VisibilityIterator::DataColumn whichOne)
 				  }
 			  }
 		  }
+	    }
+	    ////////////////////////////
 		  visModelData_p->getModelVis(*this);
 	  }
 	  else

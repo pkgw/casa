@@ -84,19 +84,19 @@ class statwt_test(unittest.TestCase):
         dst = "ngc5921.split.ms"
         rtol = 1e-7
         for combine in ["", "corr"]:
-            for excludechans in ["0:10~20", ""]:
+            for fitspw in ["0:0~9;21~63", ""]:
                 for i in [0,1]:
                     shutil.copytree(src, dst) 
                     myms = mstool()
                     if i == 0:
                         myms.open(dst, nomodify=False)
-                        myms.statwt(combine=combine, excludechans=excludechans)
+                        myms.statwt(combine=combine, fitspw=fitspw)
                         myms.done()
                     else:
-                        statwt(dst, combine=combine, excludechans=excludechans)
+                        statwt(dst, combine=combine, fitspw=fitspw)
                     [wt, wtsp, flag, frow, data] = _get_dst_cols(dst)
                     actflag = flag.copy()
-                    if excludechans != "":
+                    if fitspw != "":
                         actflag[:, 10:21, :] = True
                     dr = numpy.real(data)
                     di = numpy.imag(data)

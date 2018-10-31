@@ -2398,6 +2398,104 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }// end makeSdImage
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  void SynthesisImager::makeImage(String type, const String& imagename, const String& complexImage, const Int whichModel)
+  {
+    LogIO os( LogOrigin("SynthesisImager","makeImage",WHERE) );
+
+    
+    FTMachine::Type seType(FTMachine::OBSERVED);
+    if(type=="observed") {
+      seType=FTMachine::OBSERVED;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="model") {
+      seType=FTMachine::MODEL;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="corrected") {
+      seType=FTMachine::CORRECTED;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="psf") {
+      seType=FTMachine::PSF;
+      os << "Making point spread function "
+	 << LogIO::POST;
+    }
+    else if (type=="residual") {
+      seType=FTMachine::RESIDUAL;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="singledish-observed") {
+      seType=FTMachine::OBSERVED;
+      os << LogIO::NORMAL 
+         << "Making single dish image from observed data" << LogIO::POST;
+    }
+    else if (type=="singledish") {
+      seType=FTMachine::CORRECTED;
+      os << LogIO::NORMAL 
+         << "Making single dish image from corrected data" << LogIO::POST;
+    }
+    else if (type=="coverage") {
+      seType=FTMachine::COVERAGE;
+      os << LogIO::NORMAL 
+         << "Making single dish coverage function "
+	 << LogIO::POST;
+    }
+    else if (type=="holography") {
+      seType=FTMachine::CORRECTED;
+      os << LogIO::NORMAL
+         << "Making complex holographic image from corrected data "
+	 << LogIO::POST;
+    }
+    else if (type=="holography-observed") {
+      seType=FTMachine::OBSERVED;
+      os << LogIO::NORMAL 
+         << "Making complex holographic image from observed data "
+	 << LogIO::POST;
+    }
+
+
+    String imageName=(itsMappers.imageStore(whichModel))->getName();
+    String cImageName(complexImage);
+    Bool keepComplexImage=(complexImage!="")||(type.contains("holography"));
+    if(complexImage=="") {
+      cImageName=imageName+".compleximage";
+    }
+    PagedImage<Float> theImage((itsMappers.imageStore(whichModel))->getShape(), (itsMappers.imageStore(whichModel))->getCSys(), imagename);
+    PagedImage<Complex> cImageImage(theImage.shape(),
+				    theImage.coordinates(),
+				    cImageName);
+    if(!keepComplexImage)
+      cImageImage.table().markForDelete();
+
+
+    Matrix<Float> weight;
+    (itsMappers.getFTM(whichModel))->makeImage(seType, *rvi_p, cImageImage, weight);
+   
+ if(seType==FTMachine::PSF){
+       StokesImageUtil::ToStokesPSF(theImage, cImageImage);
+       StokesImageUtil::normalizePSF(theImage);
+    }
+    else{
+      StokesImageUtil::To(theImage, cImageImage);
+    }
+    
+
+    unlockMSs();
+
+  }// end makeImage
+
+
+
+
  
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////

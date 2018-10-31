@@ -21,7 +21,22 @@
 //# $Id: $
 
 #include <flagging/Flagging/FlagMSHandler.h>
+
+// Measurement Set selection
+#include <ms/MeasurementSets/MeasurementSet.h>
+#include <ms/MSSel/MSSelection.h>
+#include <ms/MeasurementSets/MSAntennaColumns.h>
+#include <ms/MeasurementSets/MSFieldColumns.h>
+#include <ms/MeasurementSets/MSPolColumns.h>
+#include <ms/MeasurementSets/MSSpWindowColumns.h>
+#include <ms/MeasurementSets/MSProcessorColumns.h>
+
+#include <msvis/MSVis/ViFrequencySelection.h>
+
 #include <mstransform/TVI/ChannelAverageTVI.h>
+#include <synthesis/TransformMachines2/VisModelData.h>
+
+
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -95,7 +110,7 @@ FlagMSHandler::open()
 	ROMSAntennaColumns *antennaSubTable = new ROMSAntennaColumns(originalMeasurementSet_p->antenna());
 	antennaNames_p = new Vector<String>(antennaSubTable->name().getColumn());
 	antennaDiameters_p = new Vector<Double>(antennaSubTable->dishDiameter().getColumn());
-	antennaPositions_p = new ROScalarMeasColumn<MPosition>(antennaSubTable->positionMeas());
+	antennaPositions_p = new ScalarMeasColumn<MPosition>(antennaSubTable->positionMeas());
 
 	// File the baseline to Ant1xAnt2 map
 	String baseline;
@@ -949,6 +964,21 @@ FlagMSHandler::processorTable()
 
 	return true;
 
+}
+
+/*
+ *  Check if  a VIRTUAL MODEL column exists
+ */
+bool
+FlagMSHandler::checkIfSourceModelColumnExists()
+{
+	Vector<Int> fieldids;
+
+	if (casa::refim::VisModelData::hasAnyModel(*selectedMeasurementSet_p, fieldids)){
+		return true;
+	}
+
+	return false;
 }
 
 } //# NAMESPACE CASA - END
