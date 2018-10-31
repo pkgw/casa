@@ -467,9 +467,6 @@ public:
   static VisibilityIterator2 * copyingViFactory (const casacore::MeasurementSet & srcMs,
                                                  casacore::MeasurementSet & dstMs);
 
-  template <typename KlugeIn, typename KlugeOut>
-  static KlugeOut KlugeForTesting (KlugeIn);
-
   //
   // END Experimental Section
   //
