@@ -382,6 +382,7 @@ bool SingleDishMS::prepare_for_process(string const &in_column_name,
   os << LogIO::DEBUG1 << str << LogIO::POST;
   // Open the MS and select data
   sdh_->open();
+  sdh_->getOutputMs()->flush();
   // set large timebin if not averaging
   Double timeBin;
   int exists = configure_param.fieldNumber("timebin");
