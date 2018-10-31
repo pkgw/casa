@@ -2,6 +2,7 @@ import os
 from taskinit import casalog, cbtool, mstool
 from mstools import write_history
 from parallel.parallel_task_helper import ParallelTaskHelper
+from parallel.parallel_data_helper import ParallelDataHelper
 
 _ms = mstool( )
 _cb = cbtool( )
@@ -11,7 +12,7 @@ def delmod(vis=None,otf=None,field=None,scr=None):
     casalog.origin('delmod')
 
     # Do the trivial parallelization
-    if ParallelTaskHelper.isParallelMS(vis):
+    if ParallelDataHelper.isMMSAndNotServer(vis):
         helper = ParallelTaskHelper('delmod', locals())
         helper.go()
         return
