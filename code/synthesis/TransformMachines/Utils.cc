@@ -755,10 +755,7 @@ namespace casa{
 	std::string tt(name);
 	unsigned long pos;
 	while((pos=tt.find(".")) != tt.npos)
-	  {
-	    cerr << pos << tt << endl;
-	    tt.replace(pos, 1, "_");
-	  }
+	  tt.replace(pos, 1, "_");
 
 	if ((valStr = std::getenv(tt.c_str())) != NULL)
 	  {

@@ -187,7 +187,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
         # Fill CFCache - it uses all nodes.
         if (not cfcExists):
             self.fillCFCache();
-
+        self.reloadCFCache();
 
 ######################################################################################################################################
         #---------------------------------------
@@ -350,7 +350,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
         joblist=[];
         for node in self.listOfNodes:
             cmd = "toolsi.reloadcfcache()";
-            print "CMD = ",node," ",cmd;
+            #print "CMD = ",node," ",cmd;
             joblist.append(self.PH.runcmd(cmd,node));
         self.PH.checkJobs(joblist);
 #############################################

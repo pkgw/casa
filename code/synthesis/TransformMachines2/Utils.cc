@@ -751,8 +751,8 @@ namespace casa{
   // Get the value of the named variable from ~/.aipsrc (or ~/.casarc)
   // or from a env. variable (in this precidence order).
   //
-    template <class T>
-    T SynthesisUtils::getenv(const char *name,const T defaultVal)
+  template <class T>
+    T SynthesisUtils::getenv(const char *name, const T defaultVal)
     {
       T val=defaultVal;
       stringstream defaultStr;
@@ -781,7 +781,7 @@ namespace casa{
 	}
       return val;
     }
-  template 
+    template 
     Int SynthesisUtils::getenv(const char *name, const Int defaultVal);
   template 
     Bool SynthesisUtils::getenv(const char *name, const Bool defaultVal);

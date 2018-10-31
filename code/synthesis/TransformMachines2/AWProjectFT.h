@@ -412,6 +412,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual void ComputeResiduals(vi::VisBuffer2&vb, casacore::Bool useCorrected);
     void makeWBCFWt(CFStore2& cfs,const casacore::Double imRefFreq);
 
+    virtual const casacore::CountedPtr<refim::FTMachine>& getFTM2(const casacore::Bool )
+    {
+      return self_p;
+    }
+
     CFBStruct cfbst_pub;
     // Image Scaling and offset
     casacore::Vector<casacore::Double> uvScale, uvOffset;
@@ -555,6 +560,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     PolOuterProduct::MuellerType muellerType_p;
 
     casacore::Int previousSPWID_p;
+
+    casacore::CountedPtr<refim::FTMachine> self_p;;
+
 #include "AWProjectFT.FORTRANSTUFF.INC"
   };
 } //# NAMESPACE CASA - END
