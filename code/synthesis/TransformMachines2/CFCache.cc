@@ -439,12 +439,12 @@ namespace casa{
 		    if (loadPixBuf_p)
 		      {
 			Array<Complex> &cfBuf=(*(cfb->getCFCellPtr(fVal, wVal,mVal)->storage_p));
-		    //
-		    // Fill the cfBuf with the pixel array from the
-		    // disk file.  Add it, along with the extracted CF
-		    // parameters to the CFBuffer.
-		    //
-		    cfBuf.assign(pixBuf);
+			//
+			// Fill the cfBuf with the pixel array from the
+			// disk file.  Add it, along with the extracted CF
+			// parameters to the CFBuffer.
+			//
+			cfBuf.assign(pixBuf);
 		      }
 
 		    //cfb->addCF(&cfBuf,coordSys,fsampling,xSupport,ySupport,fVal,wVal,mVal);

@@ -2155,8 +2155,8 @@ void SynthesisImagerVi2::unlockMSs()
 
       Float dPA=360.0,selectedPA=2*360.0;
       if (cfList.nelements() > 0)
-      {
-	CountedPtr<refim::CFCache> cfCacheObj = new refim::CFCache();
+	{
+	  CountedPtr<refim::CFCache> cfCacheObj = new refim::CFCache();
 	  //Vector<String> wtCFList; wtCFList.resize(cfList.nelements());
 	  //for (Int i=0; i<wtCFList.nelements(); i++) wtCFList[i] = "WT"+cfList[i];
 	  //Directory dir(path);
@@ -2204,24 +2204,57 @@ void SynthesisImagerVi2::unlockMSs()
   void SynthesisImagerVi2::reloadCFCache()
   {
       LogIO os( LogOrigin("SynthesisImagerVi2","reloadCFCache",WHERE) );
-      Int whichFTM=0;
-      String ftmName = ((*(itsMappers.getFTM2(whichFTM)))).name();
-      if (!ftmName.contains("AWProject")) return;
+      Int whichFTM=0; 
+      CountedPtr<refim::FTMachine> ftm=itsMappers.getFTM2(whichFTM,true);
 
-      os << "-------------------------------------------- reloadCFCache ---------------------------------------------" << LogIO::POST;
-      String path = itsMappers.getFTM2(whichFTM)->getCacheDir();
-      String imageNamePrefix=itsMappers.getFTM2(whichFTM)->getCFCache()->getWtImagePrefix();
+      // Proceed only if FMTs use the CFCache mechanism. The first FTM
+      // in the Mapper is used to make this decision, not sure if the
+      // framework pipes allow other FTMs in SIMapper to be
+      // fundamentally different. If it does, and if that is
+      // triggered, the current decision may be insufficient.
+      if (!(ftm->isUsingCFCache())) return; // Better check than checking against FTM name
+      
+      os << "-------------------------------------------- Re-load CFCache ---------------------------------------------" << LogIO::POST;
+      String path,imageNamePrefix;
+      // Following code that distinguishes between MultiTermFTM and
+      // all others should ideally be replaced with a polymorphic
+      // solution.  I.e. all FTMs should have a working getFTM2(bool)
+      // method.  This is required since MultiTermFTM is a container
+      // FTM and it's getFTM2() returns the internal (per-MTMFS term)
+      // FTMs.  Non-contain FTMs must return a pointer to themselves.
+      //
+      // Control reaches this stage only if the isUsingCFCache() test
+      // above return True.  The only FTMs what will pass that test
+      // for now are AWProjectFT (and its derivatives) and
+      // MultiTermFTM if it is constructed with AWP.
+      // AWProjectFT::getFTM2() does not yet work.
+      //
+      if (ftm->name().contains("MultiTerm"))
+	{
+	  path = ftm->getFTM2(true)->getCacheDir();
+	  imageNamePrefix = ftm->getFTM2(true)->getCFCache()->getWtImagePrefix();
+	}
+      else
+	{
+	  path = ftm->getCacheDir();
+	  imageNamePrefix = ftm->getCFCache()->getWtImagePrefix();
+	}
+	
 
       CountedPtr<refim::CFCache> cfCacheObj = new refim::CFCache();
-      cfCacheObj->setCacheDir(path.data());
+      cfCacheObj->setCacheDir(path.c_str());
       cfCacheObj->setWtImagePrefix(imageNamePrefix.c_str());
+      cfCacheObj->setLazyFill((refim::SynthesisUtils::getenv("CFCache.LAZYFILL",1)==1));
       cfCacheObj->initCache2();
-      
+
       // This assumes the itsMappers is always SIMapperCollection.
       for (whichFTM = 0; whichFTM < itsMappers.nMappers(); whichFTM++)
 	{
-	  (static_cast<refim::AWProjectWBFTNew &> (*(itsMappers.getFTM2(whichFTM)))).setCFCache(cfCacheObj,true); // Setup iFTM
-	  (static_cast<refim::AWProjectWBFTNew &> (*(itsMappers.getFTM2(whichFTM,false)))).setCFCache(cfCacheObj,true); // Set FTM
+	  CountedPtr<refim::FTMachine> ifftm=itsMappers.getFTM2(whichFTM,true),
+	    fftm=itsMappers.getFTM2(whichFTM,false);
+	
+	  ifftm->setCFCache(cfCacheObj,true);
+	  fftm->setCFCache(cfCacheObj,true);
 	}
   }
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
