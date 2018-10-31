@@ -577,7 +577,7 @@ void  HetArrayConvFunc::reset() {
     }
     //Double wtime1=omp_get_wtime();
     // cerr << std::setprecision(10) << "init time "<< wtime1-wtime0 << endl;  
-    diffPointingCorrection(vb, origConvSize_p[actualConvIndex_p], convFuncRowMap, beamFreqs, (nchan_p == 1) && getConjConvFunc);
+    diffPointingCorrection(vb, origConvSize_p[actualConvIndex_p], convFuncRowMap, convSamp, beamFreqs, (nchan_p == 1) && getConjConvFunc);
      if((nchan_p == 1) && getConjConvFunc) {
        convSupport_p.resize();
        convSupport_p=*convSupportBlock_p[actualConvIndex_p];
@@ -590,9 +590,9 @@ void  HetArrayConvFunc::reset() {
 
      
      // cerr << "diffcorr time " << omp_get_wtime()-wtime1 << endl;
-     convFunc.assign(resample(*convFunctions_p[actualConvIndex_p], Double(convSamp)));
-     weightConvFunc.assign(resample(*convWeights_p[actualConvIndex_p], Double(convSamp)));
-     convsize=convSamp* (*convSizes_p[actualConvIndex_p]);
+     convFunc.assign(*convFunctions_p[actualConvIndex_p]);
+     weightConvFunc.assign(*convWeights_p[actualConvIndex_p]);
+     convsize=(*convSizes_p[actualConvIndex_p]);
      convSupport= *convSupportBlock_p[actualConvIndex_p];
      
  ////////////////TESTOOO
@@ -606,7 +606,7 @@ void  HetArrayConvFunc::reset() {
   
   }
 
-  void HetArrayConvFunc::diffPointingCorrection(const vi::VisBuffer2& vb, const Int origSupportSize, Vector<Int>& convFuncRowMap, const Vector<Double>& freqs, const Bool doConj){
+  void HetArrayConvFunc::diffPointingCorrection(const vi::VisBuffer2& vb, const Int origSupportSize, Vector<Int>& convFuncRowMap, const Int convSamp, const Vector<Double>& freqs, const Bool doConj){
     if(vbutil_p.null())
       vbutil_p=new VisBufferUtil(vb);
     DirectionCoordinate dc=dc_p;
@@ -622,6 +622,7 @@ void  HetArrayConvFunc::reset() {
     convSupportBlock_p[actualConvIndex_p]=new Vector<Int>(shp[4]);
     //MDirection prevDir;
     Vector<Double>prevDirPix(2,-1);
+    Int prevIndex=-1;
     IPosition prevBeg, prevEnd;
     MDirection dir1=vbutil_p->getPhaseCenter(vb);
     MDirection  dir2=dir1;
@@ -672,15 +673,16 @@ void  HetArrayConvFunc::reset() {
       dirpix[0]=dirpix[0]-nx_p/2;
       dirpix[1]=dirpix[1]-ny_p/2;
       //cerr << "index " << index << "actualConv " << actualConvIndex_p << " pix shift " << dirpix << endl;
-      if(k < 1 || !allEQ(prevDirPix, dirpix)){
+      if(k < 1 || !(allEQ(prevDirPix, dirpix) && prevIndex==index)){
 	//Double wtime0=omp_get_wtime();
 	Array<Complex> tmpArr;
 	tmpArr.assign(*baslPBFunctions_p[index]);
+	//cerr <<k << " shape " << tmpArr.shape() << endl;
 	if(tmpArr.shape()[0] != shp[0]){
 	  if(tmpArr.shape()[0]> shp[0])
 	    throw(AipsError("Tell the programmer something unexpected happened"));
-	  shp[0]=tmpArr.shape()[0];
-	  shp[1]=tmpArr.shape()[1];
+	  shp[0]=tmpArr.shape()[0]*convSamp;
+	  shp[1]=tmpArr.shape()[1]*convSamp;
 	  (convFunctions_p[actualConvIndex_p])->resize(shp);
 	  (convWeights_p[actualConvIndex_p])->resize(shp);
 	  end[0]=shp[0]-1;
@@ -704,10 +706,10 @@ void  HetArrayConvFunc::reset() {
 	}
 	applyPhaseGradient(tmpArr, dirpix[0], dirpix[1], nx_p, ny_p);
 	
-	(*(convFunctions_p[actualConvIndex_p]))(begin,end)=tmpArr;
+	(*(convFunctions_p[actualConvIndex_p]))(begin,end)=resample(tmpArr, Double(convSamp));
 	tmpArr.assign(*baslWeightFunctions_p[index]);
 	applyPhaseGradient( tmpArr, dirpix[0], dirpix[1], nx_p, ny_p);	
-	(*(convWeights_p[actualConvIndex_p]))(begin,end)=tmpArr;
+	(*(convWeights_p[actualConvIndex_p]))(begin,end)=resample(tmpArr, Double(convSamp));
       //Use only the max for this baseline for now.
 	(*convSupportBlock_p[actualConvIndex_p])[k]=max(*baslSupport_p[index]);
 	//cerr << "phasegrad time " << omp_get_wtime()-wtime0 << endl;
@@ -722,6 +724,7 @@ void  HetArrayConvFunc::reset() {
       //cerr << "prevDirpix " << prevDirPix << "  " << dirpix << endl;
       prevBeg=begin;
       prevEnd=end;
+      prevIndex=index;
     }
     ///make row map
     convFuncRowMap.resize(vb.nRows());

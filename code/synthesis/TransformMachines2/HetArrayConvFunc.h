@@ -130,7 +130,7 @@ namespace casa {
       void init(const PBMathInterface::PBClass typeToUse);
       void makerowmap(const vi::VisBuffer2& vb, casacore::Vector<casacore::Int>& rowMap);
       casacore::Float interpLanczos( const casacore::Double& x , const casacore::Double& y, const casacore::Double& nx, const casacore::Double& ny,   const casacore::Float* data, const casacore::Float a=3);
-      void diffPointingCorrection(const vi::VisBuffer2& vb, const casacore::Int origSupportSize, casacore::Vector<casacore::Int>& rowmap, const casacore::Vector<casacore::Double>& freqs, const casacore::Bool doConj=false);
+      void diffPointingCorrection(const vi::VisBuffer2& vb, const casacore::Int origSupportSize, casacore::Vector<casacore::Int>& rowmap, const casacore::Int convSamp, const casacore::Vector<casacore::Double>& freqs, const casacore::Bool doConj=false);
       void rephaseBeams(casacore::Array<casacore::Complex>& pb,
 			casacore::Array<casacore::Complex>& pb2,
 			const vi::VisBuffer2& vb, const casacore::Int row,
