@@ -101,7 +101,7 @@ def mstransform(
         return False
 
     # Process the input Multi-MS
-    if ParallelDataHelper.isParallelMS(vis) == True and monolithic_processing == False:
+    if ParallelDataHelper.isMMSAndNotServer(vis) == True and monolithic_processing == False:
         '''
         retval{'status': True,  'axis':''}         --> can run in parallel        
         retval{'status': False, 'axis':'value'}    --> treat MMS as monolithic MS, set new axis for output MMS

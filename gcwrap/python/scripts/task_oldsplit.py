@@ -6,6 +6,7 @@ import shutil
 from taskinit import casalog, mstool, qa, tbtool
 from mstools import write_history
 from update_spw import update_spwchan
+from parallel.parallel_data_helper import ParallelDataHelper
 from parallel.parallel_task_helper import ParallelTaskHelper
 import partitionhelper as ph
 
@@ -77,7 +78,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
     rval = True
     try:
 
-        if (keepmms and ParallelTaskHelper.isParallelMS(vis)):
+        if (keepmms and ParallelDataHelper.isMMSAndNotServer(vis)):
             if (timebin!='0s' and timebin!='-1s'):
                 casalog.post('Averaging over time with keepmms=True may lead to results different\n'
                              +'  from those obtained with keepmms=False due to different binning.', 'WARN')

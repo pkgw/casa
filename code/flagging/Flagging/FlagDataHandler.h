@@ -23,45 +23,29 @@
 #ifndef FLAGDATAHANDLER_H_
 #define FLAGDATAHANDLER_H_
 
-// Measurement Set selection
-#include <ms/MeasurementSets/MeasurementSet.h>
-#include <ms/MSSel/MSSelection.h>
-#include <ms/MeasurementSets/MSAntennaColumns.h>
-#include <ms/MeasurementSets/MSFieldColumns.h>
-#include <ms/MeasurementSets/MSPolColumns.h>
-#include <ms/MeasurementSets/MSSpWindowColumns.h>
-#include <ms/MeasurementSets/MSProcessorColumns.h>
-
 // VI/VB infrastructure
-#include <msvis/MSVis/StokesVector.h>
-#include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
 
 // TVI framework
 #include <msvis/MSVis/AveragingVi2Factory.h>
-#include <msvis/MSVis/AveragingTvi2.h>
-
-// .casarc interface
-#include <casa/System/AipsrcValue.h>
 
 // Records interface
 #include <casa/Containers/Record.h>
 
-// System utilities (for profiling macros)
-#include <casa/OS/HostInfo.h>
-#include <sys/time.h>
-
 // casacore::Data mapping
-#include <algorithm>
 #include <map>
 
-#define STARTCLOCK timeval start,stop; double elapsedTime; if (profiling_p) gettimeofday(&start,0);
-#define STOPCLOCK if (profiling_p) \
-	{\
-		gettimeofday(&stop,0);\
-		elapsedTime = (stop.tv_sec-start.tv_sec)*1000.0+(stop.tv_usec-start.tv_usec)/1000.0;\
-		*logger_p << casacore::LogIO::DEBUG2 << "FlagDataHandler::" << __FUNCTION__ << " Executed in: " << elapsedTime << " ms, Memory free: " << casacore::HostInfo::memoryFree( )/1024.0 << " MB" << casacore::LogIO::POST;\
-	}
+namespace casa {
+  namespace vi {
+    enum class VisBufferComponent2;
+  }
+}
+
+namespace casacore {
+
+  class MSSelection;
+  template <class M> class ScalarMeasColumn;
+}
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -848,6 +832,7 @@ public:
 	virtual casacore::String getTableName() {return casacore::String("none");}
 	virtual bool parseExpression(casacore::MSSelection &/*parser*/) {return true;}
 	virtual bool checkIfColumnExists(casacore::String /*column*/) {return true;}
+	virtual bool checkIfSourceModelColumnExists() {return false;}
 	virtual bool summarySignal() {return true;}
 
 	// Set the iteration approach
@@ -910,7 +895,7 @@ public:
 	casacore::Vector<casacore::String> *antennaNames_p;
 	std::map< string, std::pair<casacore::Int,casacore::Int> > baselineToAnt1Ant2_p;
 	std::map< std::pair<casacore::Int,casacore::Int>, string > Ant1Ant2ToBaseline_p;
-	casacore::ROScalarMeasColumn<casacore::MPosition> *antennaPositions_p;
+	casacore::ScalarMeasColumn<casacore::MPosition> *antennaPositions_p;
 	casacore::Vector<casacore::Double> *antennaDiameters_p;
 	casacore::Vector<casacore::String> *fieldNames_p;
 	std::vector<casacore::String> *corrProducts_p;
@@ -1030,9 +1015,6 @@ protected:
 
 	// Profiling
 	bool profiling_p;
-
-
-
 };
 
 } //# NAMESPACE CASA - END
