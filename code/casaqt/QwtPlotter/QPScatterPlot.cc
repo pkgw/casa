@@ -463,12 +463,14 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
             }
         }
     }
-    
+
+    unsigned int numBins(1);
+    if (!m_coloredData.null()) numBins = m_coloredData->numBins();
     // Draw normal/masked lines
     bool drawLine = m_line.style() != PlotLine::NOLINE,
          drawMaskedLine = !m_maskedData.null() &&
                           m_maskedLine.style() != PlotLine::NOLINE,
-         diffColorLine = !m_coloredData.null() && m_coloredData->isBinned();    
+         diffColorLine = !m_coloredData.null() && m_coloredData->isBinned();
     if(drawLine || drawMaskedLine) {
         // connect last point to this point
         double lastx, lasty, thisx, thisy;
@@ -510,13 +512,14 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                         if (!drawLine)
                            linePen = m_maskedLine.asQPen();
                         thisbin = m_coloredData->binAt(i);
-                        QBrush coloredBrush = m_coloredBrushes[thisbin];
+                        sameBin = (thisbin==lastbin);
+						unsigned int colorBin = thisbin % numBins;
+                        QBrush coloredBrush = m_coloredBrushes[colorBin];
                         linePen.setBrush(coloredBrush);
                         QColor brushColor = coloredBrush.color();
                         linePen.setColor(brushColor);
                         p->setPen(linePen);
                         // compare then save for next point
-                        sameBin = (thisbin==lastbin);
                         if (reversed)
                             sameLine = sameBin && (thisx < lastx); // for colorized data
                         else
@@ -685,7 +688,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             if(!sameBrush) p->setBrush(brush);
                         }
                         if(diffColor) {
-                            QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(i)];
+							unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
+                            QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
@@ -716,7 +720,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             if(!sameBrush) p->setBrush(mbrush);
                         }
                         if(diffColor) {
-                            QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(i)];
+							unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
+                            QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
@@ -812,7 +817,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                                        yMap.transform(tempy)));
                 if(!brect.intersects(rect)) continue;
                 if(diffColor) {
-                    p->setBrush(m_coloredBrushes[m_coloredData->binAt(i)]);
+					unsigned int colorBin = m_coloredData->binAt(i) % numBins;
+                    p->setBrush(m_coloredBrushes[colorBin]);
                 }
                 m_symbol.draw(p, rect);
             }

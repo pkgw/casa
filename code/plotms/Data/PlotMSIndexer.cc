@@ -375,7 +375,7 @@ unsigned int PlotMSIndexer::binAt(unsigned int i) const {
 				(self->*ColIndexer_)(currChunk_,irel_));
 
 		if ( itsColorizeAxis_ != PMS::TIME ){
-			binValue = val % numBins();
+			binValue = val;
 		} else {
 			if ( plotmscache_->averaging_.time() ){
 				double timeInterval= plotmscache_->averaging_.timeValue();
@@ -383,7 +383,7 @@ unsigned int PlotMSIndexer::binAt(unsigned int i) const {
 				Double time = plotmscache_->getTime(currChunk_, 0);
 				Double timeDiff = time - baseTime;
 				int timeIndex = static_cast<int>( timeDiff / timeInterval );
-				binValue = timeIndex % numBins();
+				binValue = timeIndex;
 			} else {
 				int timeIndex = 0;
 				if ( currChunk_ == 0 ){
@@ -391,14 +391,14 @@ unsigned int PlotMSIndexer::binAt(unsigned int i) const {
 				} else {
 					timeIndex = plotmscache_->findColorIndex( currChunk_, false );
 				}
-				binValue = timeIndex % numBins();
+				binValue = timeIndex;
 
 			}
 		}
 	} else if (itsXConnect_ != "none") {
 		for (casacore::Int bin=0; bin<nSegment_; ++bin) {
 			if (i < nCumulPoints_(bin)) {
-				binValue = bin % numBins();
+				binValue = bin;
 				break;
 			}
 		}
