@@ -22,7 +22,9 @@
 
 #include <flagging/Flagging/FlagAgentRFlag.h>
 
+using std::pair;
 using namespace casacore;
+
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 

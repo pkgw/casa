@@ -155,7 +155,7 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
             _wtrange.reset(new std::pair<Double, Double>(*iter, *(++iter)));
         }
     }
-    field = "excludechans";
+    field = "fitspw";
     if (config.isDefined(field)) {
         ThrowIf(
             config.type(config.fieldNumber(field)) != TpString,
@@ -176,13 +176,13 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
                 auto row = chans.row(i);
                 const auto& spw = row[0];
                 if (_chanSelFlags.find(spw) == _chanSelFlags.end()) {
-                    _chanSelFlags[spw] = Cube<Bool>(1, nchans[spw], 1, False);
+                    _chanSelFlags[spw] = Cube<Bool>(1, nchans[spw], 1, True);
                 }
                 start[1] = row[1];
                 stop[1] = row[2];
                 step[1] = row[3];
                 Slicer slice(start, stop, step, Slicer::endIsLast);
-                _chanSelFlags[spw](slice) = True;
+                _chanSelFlags[spw](slice) = False;
             }
         }
     }
