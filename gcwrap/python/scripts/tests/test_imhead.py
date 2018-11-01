@@ -1516,6 +1516,7 @@ class imhead_test(unittest.TestCase):
         myia = iatool()
         image = "cas4355.im"
         myia.fromshape(image, [10,10])
+        myia.done()
         ra = "14:33:10.5"
         key = "crval1"
         imhead(imagename=image, mode="put", hdkey=key, hdvalue=ra)
