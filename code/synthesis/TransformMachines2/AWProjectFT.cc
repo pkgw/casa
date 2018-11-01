@@ -178,7 +178,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false), paNdxProcessed_p(),
       visResampler_p(), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
       rotatedConvFunc_p(),//cfs2_p(), cfwts2_p(), 
-      runTime1_p(0.0), previousSPWID_p(-1)
+    runTime1_p(0.0), previousSPWID_p(-1), self_p()
   {
     //    convSize=0;
     tangentSpecified_p=false;
@@ -208,6 +208,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     pop_p->init();
     CFBuffer::initCFBStruct(cfbst_pub);
     //    rotatedConvFunc_p.data=new Array<Complex>();    
+    //    self_p.reset(this);
   }
   //
   //---------------------------------------------------------------
@@ -236,7 +237,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       rotateOTFPAIncr_p(0.1),
       Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false),
       visResampler_p(visResampler), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
-      rotatedConvFunc_p(), runTime1_p(0.0),  previousSPWID_p(-1)
+    rotatedConvFunc_p(), runTime1_p(0.0),  previousSPWID_p(-1),self_p()
   {
     //convSize=0;
     tangentSpecified_p=false;
@@ -271,12 +272,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    rotatedConvFunc_p.data=new Array<Complex>();
     CFBuffer::initCFBStruct(cfbst_pub);
     muellerType_p = muellerType;
+    //    self_p.reset(this);
   }
   //
   //---------------------------------------------------------------
   //
   AWProjectFT::AWProjectFT(const RecordInterface& stateRec)
-    : FTMachine(),Second("s"),Radian("rad"),Day("d"),visResampler_p()//, cfs2_p(), cfwts2_p()
+    : FTMachine(),Second("s"),Radian("rad"),Day("d"),visResampler_p(), self_p()
   {
     //
     // Construct from the input state record
@@ -298,6 +300,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	cfwts2_p =  CountedPtr<CFStore2>(&cfCache_p->memCacheWt2_p[0],false);//new CFStore2;
       }
     pop_p->init();
+    //    self_p.reset(this);
   }
   //
   //----------------------------------------------------------------------
@@ -412,6 +415,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	runTime1_p = other.runTime1_p;
 	muellerType_p = other.muellerType_p;
 	previousSPWID_p = other.previousSPWID_p;
+	//	self_p = other.self_p;
       };
     return *this;
   };

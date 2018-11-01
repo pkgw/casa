@@ -2553,9 +2553,9 @@ HPX HEALPix grid.  -->
 	 <default param="computepastep"><value>360.0</value></default>
 	 <default param="rotatepastep"><value>360.0</value></default>
 	 <default param="wbawp"><value>False</value></default>
-	 <default param="conjbeams"><value>False</value></default>
 <!--	 <default param="vptable"><value>""</value></default> -->
 	 <default param="pblimit"><value>0.2</value></default>
+	 <default param="conjbeams"><value>False</value></default>
        </equals>
        <equals type="string" value="awprojectft">
 	 <default param="wprojplanes"><value>1</value></default>
@@ -2566,9 +2566,9 @@ HPX HEALPix grid.  -->
 	 <default param="computepastep"><value>360.0</value></default>
 	 <default param="rotatepastep"><value>360.0</value></default>
 	 <default param="wbawp"><value>False</value></default>
-	 <default param="conjbeams"><value>False</value></default>
 <!--	 <default param="vptable"><value>""</value></default> -->
 	 <default param="pblimit"><value>0.2</value></default>
+	 <default param="conjbeams"><value>False</value></default>
        </equals>
      </when>
 
