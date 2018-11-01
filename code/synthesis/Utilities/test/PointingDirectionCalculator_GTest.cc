@@ -326,8 +326,8 @@ void DeleteWorkingMS()
 //********************************************************
 //  INTERPOLATION  Generation 
 //   for Interporation Verification TEST 
-//  - Generate testing trace on Direction
-//  - Time and Interval can be tuned for test.
+//  - Generate testing trajectry in Direction
+//  -  Interval(POINTING, MAIN)  (tunable in initialize() ).
 //********************************************************
 
 class EvalInterp
@@ -338,7 +338,7 @@ public:
 
     // Tune Interval Time //
 
-        void TuneIntervalTime( double pointing_interval, double main_interval );
+        void TuneIntervalTime( Double pointing_interval, Double main_interval );
 
     // Init and Define Parameters 
 
@@ -346,7 +346,7 @@ public:
 
     // Offset between POINTNG and MAIN //
 
-        Double getslideOffset() { return slideOffset ; } 
+        Double getSlideOffset() { return slideOffset ; } 
  
     // Pseudo Trace(Direction) for the Test
 
@@ -355,12 +355,7 @@ public:
     // Select Test-Function //
     
        void SelectTestFunction( uInt num ) { SelectTestingFunctionNo = num; };
-#if 0
-    // Interval Second.
 
-         Double pointingIntervalSec ;            // Interval Time to set in POINTING
-         Double mainIntervalSec     ;  
-#endif 
     //+
     // Numerical Error Statictic 
     //-
@@ -386,13 +381,12 @@ private:
         uInt addInerpolationTestPointingTableRow ;
         uInt addInerpolationTestMainTableRow ;
 
-
        // Error Limit (threshold) in GoogleTest Macro //
 
         Double interpolationErrorLimit ;
 
         //+
-        // Testing Function Select 
+        // Testing Function Select [TENTATIVE]
         //   0: Simple Linear
         //   1: Full-scale linear with PI , PI/2
         //   8: Sinusoid (slow move)
@@ -415,7 +409,6 @@ private:
                                     //    on the edges of the table.(see doGetDirection() )
         Double dayOffset     ;      // Day offset   (Day)  ** NOT USED *** 
 
-
 };
 
 //+
@@ -428,8 +421,8 @@ void EvalInterp::Initialize( )
 
         //+
         // Pointing Interval
-        // (2018.10.18, These params are not appropriately implemented.Does not work)
         //- 
+
 /*Tunable*/ pointingIntervalSec         =  0.048;               // Interval Time to set in POINTING
 /*Tunable*/ mainIntervalSec             =  1.008;              
 /*Tunable*/ requiredMainTestingRow      =   5000;    // Given (MUST BE greater than 4000//
@@ -460,7 +453,7 @@ void EvalInterp::Initialize( )
 
         //+
         // Optimize Row Count
-        //   - when required row is insufficient, set adding count . 
+        //   - when required row is insufficient, set adding count and expand MS later. 
         //-
 
         if ( requiredPointingTestingRow > defInerpolationTestPointingTableRow )
@@ -486,7 +479,7 @@ void EvalInterp::Initialize( )
 
 }
 
-void EvalInterp::TuneIntervalTime( double pointing_interval, double main_interval )
+void EvalInterp::TuneIntervalTime( Double pointing_interval, Double main_interval )
 {
         pointingIntervalSec =  pointing_interval;               // Interval Time to set in POINTING
         mainIntervalSec     =  main_interval;
@@ -502,24 +495,24 @@ void EvalInterp::TuneIntervalTime( double pointing_interval, double main_interva
 
 //+
 // Local function definition
-//     Normalized time :: | RelTime | < 1.0 
+//     Normalized time ::     0 <=  r_time <= 1.0 
 //     func(t) = {x(t), y(t) }:   (0 <= t <= 1)
 //-
 
-void Function_SimpleLinear( Double RelTime, Double &X, Double &Y )
+void Function_SimpleLinear( Double r_time, Double &X, Double &Y )
 {
-    X = -1.0 + 2.0 * RelTime;
-    Y = -1.0 + 2.0 * RelTime;
+    X = -1.0 + 2.0 * r_time;
+    Y = -1.0 + 2.0 * r_time;
 
     return;
 }
 
-void Function_NormalizedLinear( Double RelTime, Double &X, Double &Y )
+void Function_NormalizedLinear( Double r_time, Double &X, Double &Y )
 {
-    // Normalized time :: | RelTime | < 1.0 , this case [0,1.0] is used //
+    // Normalized time :: | Rel_Time | < 1.0 , this case [0,1.0] is used //
 
-    X =  (RelTime * 2.0 - 1.0 ) * M_PI ;
-    Y =  (RelTime * 2.0 - 1.0 ) * (M_PI / 2.0);
+    X =  (r_time * 2.0 - 1.0 ) * M_PI ;
+    Y =  (r_time * 2.0 - 1.0 ) * (M_PI / 2.0);
 
     return;
 }
@@ -542,17 +535,17 @@ void Function_sinusoid_quick( Double r_time, Double& X, Double& Y)
     return;
 }   
 
-void Function_harmonics_sinusoid( Double time, Double& X, Double& Y)
+void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y)
 {        
     const Double Amp1 = 0.5;
     const Double Amp2 = 0.6;
     const Double Omega = 2.0 * M_PI ; 
          
-    Double x1  = Amp1 * cos( Omega * time );
-    Double y1  = Amp2 * sin( Omega * time );
+    Double x1  = Amp1 * cos( Omega * r_time );
+    Double y1  = Amp2 * sin( Omega * r_time );
 
-    Double x4  = Amp1/1.5 * cos( 4.0 * Omega * time );
-    Double y4  = Amp2/1.5 * sin( 4.0 * Omega * time );        
+    Double x4  = Amp1/1.5 * cos( 4.0 * Omega * r_time );
+    Double y4  = Amp2/1.5 * sin( 4.0 * Omega * r_time );        
 
     X = x1 + x4;
     Y = y1 + y4;
@@ -596,19 +589,17 @@ casacore::Vector<Double> EvalInterp::PseudoDirInfo(Double delta, uInt type )
             }
             else
             {
-                 r_time =   delta / defInerpolationTestMainTableRow * mainIntervalSec /pointingIntervalSec  ;
+                r_time =   delta / defInerpolationTestMainTableRow * mainIntervalSec /pointingIntervalSec  ;
             }
-    
         }
         else
         {   throw ; } 
 
         Double  time   = delta * Interval;
 
-
         //+
         //  Determin TIME 
-        //    dd = Jurial Date.
+        //    dd : in day.
         //-
 
         Double dd   =  (22 *3600.0 
@@ -628,6 +619,7 @@ casacore::Vector<Double> EvalInterp::PseudoDirInfo(Double delta, uInt type )
 
         //+
         //  Choose Function
+        //  (In near future, change to Templated Function in C++ )
         //-
 
         switch(SelectTestingFunctionNo)
@@ -669,9 +661,11 @@ casacore::Vector<Double> EvalInterp::PseudoDirInfo(Double delta, uInt type )
                 throw; 
                 break;
         }
-#if 0
-        printf("%f,%f,  %f,%f \n",time, r_time, X, Y);
-#endif 
+
+        if(false)    printf("%f,%f,  %f,%f \n",time, r_time, X, Y);
+
+        // Probe the range //
+
 	assert( abs(X) <=  M_PI );
         assert( abs(Y) <=  M_PI/2.0 );
 
@@ -694,8 +688,7 @@ casacore::Vector<Double> EvalInterp::PseudoDirInfo(Double delta, uInt type )
         // 
         //   X following statemment can add time shift on MAIN time.
         //-
-        
-
+       
         return point;
 
 }
@@ -723,10 +716,11 @@ typedef  struct AntTblBuf_ {
 
 } ANTENNADataBuff ;
 
-//+
+//*******************************************************
 // MeasurementSet Edit Class (MsEdit)
-//  - Functions are defines.
-//-
+//  - Modifying test-MS
+//  - Addinng artificial(pseudo) data onto MS
+//*******************************************************
 
 class MsEdit 
 {
@@ -2636,7 +2630,7 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
     
             // Generated (Estimated) //
 
-                Double offset = msedit.evgen.getslideOffset();
+                Double offset = msedit.evgen.getSlideOffset();
 
                 casacore::Vector<Double>  gen_out 
                       = msedit.evgen.PseudoDirInfo(  (Double)row  
@@ -2663,11 +2657,10 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
             // Google Test
             //-
 
-#if 1
 		EXPECT_LE( absErr_1, msedit.evgen.getInterpolationErrorLimit()  ); 
                 EXPECT_LE( absErr_2, msedit.evgen.getInterpolationErrorLimit()  ); 
-#endif
-            // Output //
+
+            // Output List //
 
                 printf( "Evaluation,");
                 printf( "%6d, %12.9f,%12.9f,", row,  calculated_1, calculated_2 );
@@ -2683,7 +2676,7 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
    return vv; 
 }
 
-std::vector<Double> TestDirection::TestSub(double p_int, double m_int)
+std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
 {
     printf("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII\n");
     printf("      INTERPOLATION:: testing [%f,%f ] \n", p_int,m_int );
@@ -2718,15 +2711,15 @@ std::vector<Double> TestDirection::TestSub(double p_int, double m_int)
          //-
 
            Description("INTERPOLATION:: Making MeasurementSet",
-                        "INTERPOLATION::k="+to_string( (double)loop/(double)nDiv  ));
+                        "INTERPOLATION::k="+to_string( (Double)loop/(Double)nDiv  ));
 
-           msedit.WriteTestDataOnMainTable( (double)loop/(double)nDiv  );
+           msedit.WriteTestDataOnMainTable( (Double)loop/(Double)nDiv  );
            
 
         // excuttion ..// 
         
           Description("Execution starts. ","" );
-          reterr = subTestDirection( (double)loop/(double)nDiv );
+          reterr = subTestDirection( (Double)loop/(Double)nDiv );
 
           printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
           printf( " Max Error =, %e, %e \n", reterr[0], reterr[1] );
@@ -2776,11 +2769,11 @@ TEST_F(TestDirection, InterpolationFull )
     //-
 
 #if 0
-    vector<double> P_IntervalList = { 0.01, 0.05, 1.0 };
-    vector<double> M_IntervalList = { 0.001, 0.1, 1.0, 2.0 };
+    vector<Double> P_IntervalList = { 0.01, 0.05, 1.0 };
+    vector<Double> M_IntervalList = { 0.001, 0.1, 1.0, 2.0 };
 #else
-    vector<double> P_IntervalList = { 0.01, 0.05, 1.0, 2.0 };
-    vector<double> M_IntervalList = { 0.001, 1.0 };
+    vector<Double> P_IntervalList = { 0.01, 0.05, 1.0, 2.0 };
+    vector<Double> M_IntervalList = { 0.001, 1.0 };
 #endif 
 
     //+
@@ -2794,8 +2787,8 @@ TEST_F(TestDirection, InterpolationFull )
     {
         for( uint m=0; m < M_IntervalList.size(); m++)
         {
-             double p_i = P_IntervalList[p];
-             double p_m = M_IntervalList[m];
+             Double p_i = P_IntervalList[p];
+             Double p_m = M_IntervalList[m];
 
               r_err = TestDirection::TestSub( p_i, p_m );
 
@@ -2825,13 +2818,12 @@ TEST_F(TestDirection, InterpolationSingle )
 
       addColumnDataOnPointing();   // FILL DATA 
 
-
     //+
     //  Select Function
     //    See EvalInterp class
     //-
 
-    msedit.evgen.  SelectTestFunction( 10 );
+      msedit.evgen.  SelectTestFunction( 10 );
 
     //+
     // Interval Combiniation
