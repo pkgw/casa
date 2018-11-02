@@ -141,6 +141,8 @@ namespace casa {
       casacore::Float sinc(const casacore::Float x) ;
       casacore::Array<casacore::Complex> resample(const casacore::Array<casacore::Complex>& inarray, const casacore::Double factor);
       casacore::Matrix<casacore::Complex> resample2(const casacore::Matrix<casacore::Complex>& inarray, const casacore::Double factor);
+      void initSincCache();
+      
       PBMathInterface::PBClass pbClass_p;
       //casacore::SimpleOrderedMap <casacore::String, casacore::Int> convFunctionMap_p;
       casacore::Vector<casacore::Int64> convFunctionMap_p;
@@ -172,7 +174,8 @@ namespace casa {
       casacore::Block<casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSizes_p;
       casacore::Block <casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSupportBlock_p;
       casacore::Vector<casacore::Int> origConvSize_p;
-      casacore::Vector<casacore::Float> sincCache_p;
+      std::array<casacore::Float,8000> sincCache_p;
+      casacore::Float *sincCachePtr_p;
     };
 }; //end of namespace refim
 } // end namespace casa

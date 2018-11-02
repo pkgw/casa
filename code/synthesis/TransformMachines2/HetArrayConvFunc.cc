@@ -90,21 +90,21 @@ using namespace casa::refim;
 typedef unsigned long long ooLong;
 
 
-  HetArrayConvFunc::HetArrayConvFunc() : convFunctionMap_p(0), nDefined_p(0), antDiam2IndexMap_p(-1),msId_p(-1), actualConvIndex_p(-1), vpTable_p(""), sincCache_p(0)
+  HetArrayConvFunc::HetArrayConvFunc() : convFunctionMap_p(0), nDefined_p(0), antDiam2IndexMap_p(-1),msId_p(-1), actualConvIndex_p(-1), vpTable_p("")
 {
     calcFluxScale_p=true;
     init(PBMathInterface::AIRY);
 }
 
 HetArrayConvFunc::HetArrayConvFunc(const PBMathInterface::PBClass typeToUse, const String vpTable):
-  convFunctionMap_p(0), nDefined_p(0), antDiam2IndexMap_p(-1),msId_p(-1), actualConvIndex_p(-1), vpTable_p(vpTable), sincCache_p(0)
+  convFunctionMap_p(0), nDefined_p(0), antDiam2IndexMap_p(-1),msId_p(-1), actualConvIndex_p(-1), vpTable_p(vpTable)
 {
     calcFluxScale_p=true;
     init(typeToUse);
 
 }
 
-  HetArrayConvFunc::HetArrayConvFunc(const RecordInterface& rec, Bool calcFluxneeded):convFunctionMap_p(0), nDefined_p(0), antDiam2IndexMap_p(-1),msId_p(-1), actualConvIndex_p(-1), sincCache_p(0) {
+  HetArrayConvFunc::HetArrayConvFunc(const RecordInterface& rec, Bool calcFluxneeded):convFunctionMap_p(0), nDefined_p(0), antDiam2IndexMap_p(-1),msId_p(-1), actualConvIndex_p(-1) {
     String err;
     fromRecord(err, rec, calcFluxneeded);
 }
@@ -119,7 +119,7 @@ void HetArrayConvFunc::init(const PBMathInterface::PBClass typeTouse) {
     usePointingTable_p=False;
     pbClass_p=typeTouse;
     ///Generate the sincCache now as inside the multithread  part it may have race issues
-    sinc(0.5);
+    initSincCache();
 }
 
 
@@ -1598,7 +1598,7 @@ Bool HetArrayConvFunc::fromRecord(String& err, const RecordInterface& rec, Bool 
         pbClass_p=static_cast<PBMathInterface::PBClass>(rec.asInt("pbclass"));
         calcFluxScale_p=calcfluxscale;
 	///Generate the sincCache now as inside the multithread  part it may have race issues
-	sinc(0.5);
+	initSincCache();
     }
     catch(AipsError& x) {
         err=x.getMesg();
@@ -2158,24 +2158,27 @@ Matrix <Complex> HetArrayConvFunc::resample2(const Matrix<Complex>& inarray, con
 }
 Float HetArrayConvFunc::sinc(const Float x)  {
   Int index=x*1000+4000;
-  if(sincCache_p.nelements()==8000){
+ 
     
-    return sincCache_p[index];
+  return sincCachePtr_p[index];
 
-  }
+  
 
-  sincCache_p.resize(8000);
-  for (Float u=-4000; u<4000; ++u){ 
-    Float ux=u/1000.0;
-    if (ux == 0) {
-        sincCache_p[u+4000]=1.0;
-    }
-    else{
-      sincCache_p[u+4000]= sin(C::pi * ux) / (C::pi * ux);
-    }
-  }
-  return sincCache_p[index];
+  
 }
+  void HetArrayConvFunc::initSincCache(){
+    for (Float u=-4000; u<4000; ++u){ 
+      Float ux=u/1000.0;
+      if (ux == 0) {
+        sincCache_p[u+4000]=1.0;
+      }
+      else{
+	sincCache_p[u+4000]= sin(C::pi * ux) / (C::pi * ux);
+      }
+    }
+    sincCachePtr_p=sincCache_p.data();
+  }
+  
 Float HetArrayConvFunc::interpLanczos( const Double& x , const Double& y, const Double& nx, const Double& ny,   const Float* data, const Float a) {
     Double floorx = floor(x);
     Double floory = floor(y);
