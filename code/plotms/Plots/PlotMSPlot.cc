@@ -1189,15 +1189,24 @@ bool PlotMSPlot::parametersHaveChanged_(const PlotMSWatchedParameters &p,
 	const PMS_PP_MSData *data = itsParams_.typedGroup<PMS_PP_MSData>();
 	const PMS_PP_Iteration *iter = itsParams_.typedGroup<PMS_PP_Iteration>();
 	const PMS_PP_Axes *axes = itsParams_.typedGroup<PMS_PP_Axes>();
-	if(data == NULL || iter == NULL || axes == NULL )
+	const PMS_PP_Display *display = itsParams_.typedGroup<PMS_PP_Display>();
+	if(data == NULL || iter == NULL || axes == NULL || display == NULL)
 		return true;
+
+	bool isConnected(false);
+	std::vector<String> connects = display->xConnects();
+	for (size_t i=0; i<connects.size(); ++i) {
+		if (connects[i]=="line" || connects[i]=="step")
+			isConnected = true;
+    }
 
 	itsTCLParams_.releaseWhenDone = releaseWhenDone;
 	itsTCLParams_.updateCanvas = (updateFlag & PMS_PP::UPDATE_AXES) ||
 			(updateFlag & PMS_PP::UPDATE_CACHE) ||
 			(updateFlag & PMS_PP::UPDATE_CANVAS) ||
 			(updateFlag & PMS_PP::UPDATE_ITERATION) ||
-			(updateFlag & PMS_PP::UPDATE_MSDATA) || !data->isSet();
+			(updateFlag & PMS_PP::UPDATE_MSDATA) ||
+			isConnected || !data->isSet();
 
 	itsTCLParams_.updateDisplay = updateFlag & PMS_PP::UPDATE_DISPLAY;
 	itsTCLParams_.endCacheLog = false;
