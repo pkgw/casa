@@ -759,6 +759,62 @@ public:
 
   void writeBackChanges (VisBuffer2 *);
 
+  //**********************************************************************
+  // Methods to access the subtables.
+  //**********************************************************************
+
+  // Access to antenna subtable
+  const casacore::ROMSAntennaColumns& antennaSubtablecols() const;
+
+  // Access to dataDescription subtable
+  const casacore::ROMSDataDescColumns& dataDescriptionSubtablecols() const;
+
+  // Access to feed subtable
+  const casacore::ROMSFeedColumns& feedSubtablecols() const;
+
+  // Access to field subtable
+  const casacore::ROMSFieldColumns& fieldSubtablecols() const;
+
+  // Access to flagCmd subtable
+  const casacore::ROMSFlagCmdColumns& flagCmdSubtablecols() const;
+
+  // Access to history subtable
+  const casacore::ROMSHistoryColumns& historySubtablecols() const;
+
+  // Access to observation subtable
+  const casacore::ROMSObservationColumns& observationSubtablecols() const;
+
+  // Access to pointing subtable
+  const casacore::ROMSPointingColumns& pointingSubtablecols() const;
+
+  // Access to polarization subtable
+  const casacore::ROMSPolarizationColumns& polarizationSubtablecols() const;
+
+  // Access to processor subtable
+  const casacore::ROMSProcessorColumns& processorSubtablecols() const;
+
+  // Access to spectralWindow subtable
+  const casacore::ROMSSpWindowColumns& spectralWindowSubtablecols() const;
+
+  // Access to state subtable
+  const casacore::ROMSStateColumns& stateSubtablecols() const;
+
+  // Access to doppler subtable
+  const casacore::ROMSDopplerColumns& dopplerSubtablecols() const;
+
+  // Access to freqOffset subtable
+  const casacore::ROMSFreqOffsetColumns& freqOffsetSubtablecols() const;
+
+  // Access to source subtable
+  const casacore::ROMSSourceColumns& sourceSubtablecols() const;
+
+  // Access to sysCal subtable
+  const casacore::ROMSSysCalColumns& sysCalSubtablecols() const;
+
+  // Access to weather subtable
+  const casacore::ROMSWeatherColumns& weatherSubtablecols() const;
+
+
 //**********************************************************************
 // Internal methods below this line
 //**********************************************************************

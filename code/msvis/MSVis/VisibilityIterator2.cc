@@ -462,6 +462,125 @@ VisibilityIterator2::hasWeightScaling () const
   return impl_p->hasWeightScaling ();
 }
 
+const casacore::ROMSAntennaColumns& VisibilityIterator2::antennaSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->antennaSubtablecols ();
+}
+
+const casacore::ROMSDataDescColumns& VisibilityIterator2::dataDescriptionSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->dataDescriptionSubtablecols ();
+}
+
+const casacore::ROMSFeedColumns& VisibilityIterator2::feedSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->feedSubtablecols ();
+}
+
+const casacore::ROMSFieldColumns& VisibilityIterator2::fieldSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->fieldSubtablecols ();
+}
+
+const casacore::ROMSFlagCmdColumns& VisibilityIterator2::flagCmdSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->flagCmdSubtablecols ();
+}
+
+const casacore::ROMSHistoryColumns& VisibilityIterator2::historySubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->historySubtablecols ();
+}
+
+const casacore::ROMSObservationColumns& VisibilityIterator2::observationSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->observationSubtablecols ();
+}
+
+const casacore::ROMSPointingColumns& VisibilityIterator2::pointingSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->pointingSubtablecols ();
+}
+
+const casacore::ROMSPolarizationColumns& VisibilityIterator2::polarizationSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->polarizationSubtablecols ();
+}
+
+const casacore::ROMSProcessorColumns& VisibilityIterator2::processorSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->processorSubtablecols ();
+}
+
+const casacore::ROMSSpWindowColumns& VisibilityIterator2::spectralWindowSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->spectralWindowSubtablecols ();
+}
+
+const casacore::ROMSStateColumns& VisibilityIterator2::stateSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->stateSubtablecols ();
+}
+
+const casacore::ROMSDopplerColumns& VisibilityIterator2::dopplerSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->dopplerSubtablecols ();
+}
+
+const casacore::ROMSFreqOffsetColumns& VisibilityIterator2::freqOffsetSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->freqOffsetSubtablecols ();
+}
+
+const casacore::ROMSSourceColumns& VisibilityIterator2::sourceSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->sourceSubtablecols ();
+}
+
+const casacore::ROMSSysCalColumns& VisibilityIterator2::sysCalSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->sysCalSubtablecols ();
+}
+
+const casacore::ROMSWeatherColumns& VisibilityIterator2::weatherSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->weatherSubtablecols ();
+}
+
 SubtableColumns::SubtableColumns (CountedPtr <MSIter> msIter)
 : msIter_p (msIter)
 {}
