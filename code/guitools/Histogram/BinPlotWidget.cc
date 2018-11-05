@@ -1226,7 +1226,7 @@ std::vector<float> BinPlotWidget::getXValues() const {
 	return values;
 }
 
-bool BinPlotWidget::setImage( const SHARED_PTR<const ImageInterface<Float> > img,
+bool BinPlotWidget::setImage( const std::shared_ptr<const ImageInterface<Float> > img,
 		bool waitOnHistogram ){
 	bool success = true;
 	if ( img.get() != NULL && image.get() != img.get()){

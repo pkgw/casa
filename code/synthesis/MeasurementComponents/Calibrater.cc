@@ -776,6 +776,7 @@ Bool Calibrater::setsolve (const String& type,
                            const String& refant,
                            const String& refantmode,
 			   const Bool solnorm,
+			   const String& normtype,
 			   const Float minsnr,
 			   const String& combine,
 			   const Int fillgaps,
@@ -807,6 +808,7 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("table", TpString);
   solveparDesc.addField ("append", TpBool);
   solveparDesc.addField ("solnorm", TpBool);
+  solveparDesc.addField ("normtype", TpString);
   solveparDesc.addField ("type", TpString);
   solveparDesc.addField ("combine", TpString);
   solveparDesc.addField ("maxgap", TpInt);
@@ -815,8 +817,8 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("fitorder", TpInt);
 
   // fringe-fit specific fields
-  solveparDesc.addField ("minsnr", TpFloat);
   solveparDesc.addField ("zerorates", TpBool);
+  solveparDesc.addField ("minsnr", TpFloat);
   solveparDesc.addField ("globalsolve", TpBool);
   solveparDesc.addField ("weightfactor", TpInt);
   solveparDesc.addField ("delaywindow", TpArrayDouble);
@@ -842,6 +844,7 @@ Bool Calibrater::setsolve (const String& type,
   solvepar.define ("table", table);
   solvepar.define ("append", append);
   solvepar.define ("solnorm", solnorm);
+  solvepar.define ("normtype", normtype);
 
   // Fringe-fit specific
   solvepar.define ("minsnr", minsnr);

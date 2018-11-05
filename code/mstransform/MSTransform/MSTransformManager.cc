@@ -1461,8 +1461,7 @@ void MSTransformManager::close()
 {
 	if (outputMs_p)
 	{
-		// Flush and unlock MS
-		outputMs_p->flush();
+		// unlock MS (the MS data handler will flush it when destroying it).
 		outputMs_p->unlock();
 		Table::relinquishAutoLocks(true);
 
@@ -2178,6 +2177,7 @@ void MSTransformManager::initDataSelectionParams()
 				inputOutputChanIndexMap_p[spw].push_back(inpChan);
 			}
 		}
+		
 	}
 
 	// jagonzal: must fill numOfSelChanMap_p
@@ -2413,7 +2413,7 @@ void MSTransformManager::initRefFrameTransParams()
   referenceTime_p = selectedInputMsCols_p->timeMeas()(0);
 
   // Access FIELD cols to get phase center and radial velocity
-  inputMSFieldCols_p = new MSFieldColumns(selectedInputMs_p->field());
+  inputMSFieldCols_p = std::make_shared<MSFieldColumns>(selectedInputMs_p->field());
 
   phaseCenter_p = determinePhaseCenter();
 }
@@ -2483,12 +2483,12 @@ casacore::MDirection MSTransformManager::determinePhaseCenter() {
     // Determine phase center from the first row in the FIELD sub-table of the output
     // (selected) MS
     if (phaseCenter.empty()) {
-      MSFieldColumns *fieldCols;
+      std::shared_ptr<MSFieldColumns> fieldCols;
       if (userBufferMode_p) {
 	fieldCols = inputMSFieldCols_p;
       } else {
 	MSField fieldTable = outputMs_p->field();
-	fieldCols = new MSFieldColumns(fieldTable);
+	fieldCols = std::make_shared<MSFieldColumns>(fieldTable);
       }
 
       // CAS-8870: Mstransform with outframe=’SOURCE’ crashes because of ephemeris type
@@ -2615,9 +2615,6 @@ void MSTransformManager::regridSpwSubTable()
       }
     }
   }
-
-  // Flush changes
-  outputMs_p->flush(true);
 }
 
 // -----------------------------------------------------------------------
@@ -2771,10 +2768,6 @@ void MSTransformManager::regridAndCombineSpwSubtable()
     refFrequencyCol.put(0,outputSpw.REF_FREQUENCY);
     totalBandwidthCol.put(0,outputSpw.TOTAL_BANDWIDTH);
     measFreqRefCol.put(0,outputReferenceFrame_p);
-
-    // Flush changes
-    outputMs_p->flush(true);
-
 
     /// Add input-output SPW pair to map ///////////////////
     inputOutputSpwMap_p[0] = std::make_pair(inputSpw,outputSpw);
@@ -3073,9 +3066,6 @@ void MSTransformManager::separateSpwSubtable()
 
 			// Remove first row
 			// spwTable.removeRow(0);
-
-			// Flush changes
-			spwTable.flush(true,true);
 		}
     	else
     	{
@@ -3178,8 +3168,6 @@ void MSTransformManager::separateFeedSubtable()
 		    	rowIndex += nRowsPerSpw;
 		    }
 
-		    // Flush changes
-		    feedtable.flush(true,true);
 		}
     	else
     	{
@@ -3323,8 +3311,6 @@ void MSTransformManager::separateSourceSubtable()
 		    	rowIndex += nRowsPerSpw;
 		    }
 
-		    // Flush changes
-		    sourcetable.flush(true,true);
 		}
     	else
     	{
@@ -3613,8 +3599,6 @@ void MSTransformManager::separateSyscalSubtable()
 				rowIndex += nRowsPerSpw;
 			}
 
-			// Flush changes
-			syscalTable.flush(true,true);
     	}
     	else
     	{
@@ -3686,8 +3670,6 @@ void MSTransformManager::separateFreqOffsetSubtable()
     			rowIndex += nRowsPerSpw;
     		}
 
-    		// Flush changes
-    		freqoffsetTable.flush(true,true);
     	}
     	else
     	{
@@ -3809,8 +3791,6 @@ void MSTransformManager::separateCalDeviceSubtable()
 	        	rowIndex += nRowsPerSpw;
 	        }
 
-	    	// Flush changes
-			subtable.flush(true,true);
 		}
 		else
 		{
@@ -3913,8 +3893,6 @@ void MSTransformManager::separateSysPowerSubtable()
 	        	rowIndex += nRowsPerSpw;
 	        }
 
-	    	// Flush changes
-			subtable.flush(true,true);
 		}
 		else
 		{
@@ -4257,8 +4235,6 @@ void MSTransformManager::reindexSourceSubTable()
 
     	sourceSubtable.removeRow(duplicateIdx);
 
-    	// Flush changes
-        outputMs_p->flush(true);
     }
     else
     {
@@ -4285,7 +4261,7 @@ void MSTransformManager::reindexDDISubTable()
 
     	// Add a new row for each of the separated SPWs
     	uInt rowIndex = 0;
-    	for (uInt spw_i=0; spw_i<nspws_p; spw_i++)
+      for (uInt spw_i=0; spw_i<nspws_p; spw_i++)
     	{
     		if (rowIndex > 0)
     		{
@@ -4310,7 +4286,7 @@ void MSTransformManager::reindexDDISubTable()
     	}
 
         // Delete the old rows
-    	uInt nrowsToDelete = ddiCols.nrow()-nspws_p;
+      uInt nrowsToDelete = ddiCols.nrow()-nspws_p;
     	if (nrowsToDelete > 0)
     	{
         	uInt rownr = ddiCols.nrow()-1;
@@ -4324,9 +4300,6 @@ void MSTransformManager::reindexDDISubTable()
         	ddiTable.removeRow(rowsToDelete);
     	}
 
-
-        // Flush changes
-        outputMs_p->flush(true);
 
     }
     else
@@ -4386,8 +4359,6 @@ void MSTransformManager::reindexFeedSubTable()
 
     	feedSubtable.removeRow(duplicateIdx);
 
-        // Flush changes
-        outputMs_p->flush(true);
     }
     else
     {
@@ -4447,8 +4418,6 @@ void MSTransformManager::reindexSysCalSubTable()
 
     	syscalSubtable.removeRow(duplicateIdx);
 
-        // Flush changes
-        outputMs_p->flush(true);
     }
     else
     {
@@ -4509,8 +4478,6 @@ void MSTransformManager::reindexFreqOffsetSubTable()
 
     	freqoffsetSubtable.removeRow(duplicateIdx);
 
-        // Flush changes
-        outputMs_p->flush(true);
     }
     else
     {
@@ -4573,8 +4540,6 @@ void MSTransformManager::reindexGenericTimeDependentSubTable(const String& subta
 
 	    	subtable.removeRow(duplicateIdx);
 
-	    	// Flush changes
-			subtable.flush(true,true);
 		}
 		else
 		{
@@ -4736,9 +4701,6 @@ void MSTransformManager::dropNonUniformWidthChannels()
     		if (regridding_p) inputOutputSpwMap_p[spw_idx].second.resize(nChansFinal);
     	}
 	}
-
-	// Flush changes
-	outputMs_p->flush(true);
 
 	return;
 }

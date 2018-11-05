@@ -5,7 +5,8 @@ import string
 import copy
 import math
 import time
-from taskinit import *
+from taskinit import mttool, mstool, tbtool, casalog, qa
+from mstools import write_history
 from parallel.parallel_data_helper import ParallelDataHelper
 import flaghelper as fh
 from update_spw import update_spwchan
@@ -100,7 +101,7 @@ def mstransform(
         return False
 
     # Process the input Multi-MS
-    if ParallelDataHelper.isParallelMS(vis) == True and monolithic_processing == False:
+    if ParallelDataHelper.isMMSAndNotServer(vis) == True and monolithic_processing == False:
         '''
         retval{'status': True,  'axis':''}         --> can run in parallel        
         retval{'status': False, 'axis':'value'}    --> treat MMS as monolithic MS, set new axis for output MMS
@@ -159,7 +160,7 @@ def mstransform(
                     
         
     # Create a local copy of the MSTransform tool
-    mtlocal = casac.mstransformer()
+    mtlocal = mttool()
     mslocal = mstool()
         
     try:

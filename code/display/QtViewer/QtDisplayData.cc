@@ -373,7 +373,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 						if(!f.exists()) throw AipsError("File not found.");
 						///Try if file is one of the new format recognized 
 						///by imagefactory but not taken care above.
-						std::tie(im_ , cim_)=ImageFactory::fromFile(path);	 
+                        auto imagePtrs = ImageFactory::fromFile(path);
+                        // FIXME fromFile() now returns a tuple with more than two pointers
+                        std::tie(im_ , cim_, std::ignore , std::ignore )=imagePtrs;	 
 						if(im_ || cim_){
 						  break;
 						}
@@ -392,7 +394,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 							std::string outpath = viewer::options.temporaryPath(Path(path_).baseName());
 							panel_->status( "generating temporary image: " + outpath );
 							panel_->logIO( ) << "generating temporary image \'" << outpath << "'" << LogIO::POST;
-							ImageRegridder regridder(im_, String(outpath), regrid_to->imageInterface( ) );
+							ImageRegridder<Float> regridder(im_, String(outpath), regrid_to->imageInterface( ) );
 							regridder.setMethod(method);
 							regridder.setSpecAsVelocity(true);
 							im_ = regridder.regrid();
@@ -486,7 +488,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		dd_->setOptions( record, outRecord );
 	}
 
-	void QtDisplayData::setImage(SHARED_PTR<ImageInterface<Float> > img ) {
+	void QtDisplayData::setImage(std::shared_ptr<ImageInterface<Float> > img ) {
 		im_=img;
 	}
 

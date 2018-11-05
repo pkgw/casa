@@ -875,6 +875,18 @@ ms::listhistory()
     return rstat;
 }
 
+// Helper for the writehistory methods. Just setup the history sub-table
+void setupMSHistory(MeasurementSet &ms)
+{
+    // make sure the MS has a HISTORY table
+    if(!(Table::isReadable(ms.historyTableName()))){
+        TableRecord &kws = ms.rwKeywordSet();
+        SetupNewTable historySetup(ms.historyTableName(),
+                                   MSHistory::requiredTableDesc(),Table::New);
+        kws.defineTable(MS::keywordName(MS::HISTORY), Table(historySetup));
+    }
+}
+
 bool
 ms::writehistory(const std::string& message, const std::string& parms, const std::string& origin, const std::string& msname, const std::string& app)
 {
@@ -888,20 +900,46 @@ ms::writehistory(const std::string& message, const std::string& parms, const std
                 outMS = MeasurementSet(ms::name(),
                                        TableLock::AutoLocking,Table::Update);
             }
-            // make sure the MS has a HISTORY table
-            if(!(Table::isReadable(outMS.historyTableName()))){
-                TableRecord &kws = outMS.rwKeywordSet();
-                SetupNewTable historySetup(outMS.historyTableName(),
-                                           MSHistory::requiredTableDesc(),Table::New);
-                kws.defineTable(MS::keywordName(MS::HISTORY), Table(historySetup));
-            }
+            setupMSHistory(outMS);
             MSHistoryHandler::addMessage(outMS, message, app, parms, origin);
             rstat = true;
         }
-    } catch (AipsError x) {
-        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+    } catch (const AipsError &exc) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << exc.getMesg() << LogIO::POST;
         Table::relinquishAutoLocks(true);
-        RETHROW(x);
+        RETHROW(exc);
+    }
+    Table::relinquishAutoLocks(true);
+    return rstat;
+}
+
+bool
+ms::writehistory_batch(const std::vector<std::string>& messages, const std::string& parms,
+                       const std::string& origin, const std::string& msname,
+                       const std::string& app)
+{
+    Bool rstat(false);
+    try {
+        if (messages.size() > 0 || parms.length() > 0) {
+            MeasurementSet outMS;
+            if (msname.length() > 0) {
+                outMS = MeasurementSet(msname,TableLock::AutoLocking,Table::Update);
+            } else {
+                outMS = MeasurementSet(ms::name(),
+                                       TableLock::AutoLocking,Table::Update);
+            }
+            setupMSHistory(outMS);
+
+            MSHistoryHandler mshh(outMS, app);
+            for (const auto &msg : messages) {
+                mshh.addMessage(msg, parms, origin);
+            }
+            rstat = true;
+        }
+    } catch (const AipsError &exc) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << exc.getMesg() << LogIO::POST;
+        Table::relinquishAutoLocks(true);
+        RETHROW(exc);
     }
     Table::relinquishAutoLocks(true);
     return rstat;
@@ -5917,7 +5955,7 @@ bool ms::contsub(const std::string& outputms,    const ::casac::variant& fitspw,
     return rstat;
 }
 
-bool ms::statwt(const bool dorms,                const bool /*byantenna*/,
+bool ms::oldstatwt(const bool dorms,                const bool /*byantenna*/,
                 const bool /*sepacs*/,               const ::casac::variant& fitspw,
                 const ::casac::variant& /*fitcorr*/, const std::string& combine,
                 const ::casac::variant& timebin, const int minsamp,
@@ -5930,7 +5968,7 @@ bool ms::statwt(const bool dorms,                const bool /*byantenna*/,
     Bool rstat(false);
 
     try {
-        *itsLog << LogOrigin("ms", "statwt");
+        *itsLog << LogOrigin("ms", __func__);
 
         Reweighter reweighter(itsMS->tableName(), dorms, minsamp);
 
@@ -6293,12 +6331,12 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
     return rstat;
 }
 
-record* ms::statwt2(
+record* ms::statwt(
     const string& combine, const casac::variant& timebin,
     bool slidetimebin, const casac::variant& chanbin,
     int minsamp, const string& statalg, double fence,
     const string& center, bool lside, double zscore,
-    int maxiter, const string& excludechans,
+    int maxiter, const string& fitspw,
     const std::vector<double>& wtrange, bool preview,
     const string& datacolumn
 ) {
@@ -6319,12 +6357,22 @@ record* ms::statwt2(
         }
         else {
             // block time processing
-            if (timebin.type() == casac::variant::INT) {
+            auto tbtype = timebin.type();
+            if (
+                tbtype == casac::variant::BOOLVEC && timebin.toBoolVec().empty()
+            ) {
+                // default for tool method since variants always come in as
+                // boolvecs even if defaults specified in the XML, Because,
+                // you know, no one apparently knows how to fix that bug which
+                // has been around for years
+                statwt.setTimeBinWidth(casacore::Quantity(0.001, "s"));
+            }
+            else if (tbtype == casac::variant::INT) {
                 auto n = timebin.toInt();
                 ThrowIf(n <= 0, "timebin must be positive");
                 statwt.setTimeBinWidthUsingInterval(timebin.touInt());
             }
-            else {
+            else if (tbtype == casac::variant::STRING){
                 casacore::Quantity myTimeBin = casaQuantity(timebin);
                 if (myTimeBin.getUnit().empty()) {
                     myTimeBin.setUnit("s");
@@ -6333,6 +6381,9 @@ record* ms::statwt2(
                     myTimeBin.setValue(1e-5);
                 }
                 statwt.setTimeBinWidth(myTimeBin);
+            }
+            else {
+                ThrowCc("Unsupported type for timebin, must be int or string");
             }
         }
         statwt.setCombine(combine);
@@ -6349,7 +6400,7 @@ record* ms::statwt2(
         tviConfig["lside"] = lside;
         tviConfig["zscore"] = zscore;
         tviConfig["maxiter"] = maxiter;
-        tviConfig["excludechans"] = excludechans;
+        tviConfig["fitspw"] = fitspw;
         tviConfig["wtrange"] = wtrange;
         tviConfig["datacolumn"] = datacolumn;
         unique_ptr<Record> rec(toRecord(tviConfig));

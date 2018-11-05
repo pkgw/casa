@@ -6,6 +6,17 @@ import os
 
 class MPIEnvironment:
 
+    @classmethod
+    def is_mpi_disabled_or_client(cls):
+        """
+        :returns: is this the only process (serial mode - MPI disabled) or the client
+        process if MPI is enabled?
+        """
+        # MPIEnvironment.is_mpi_client alone would be enough, as when MPI is disabled,
+        # mpi_processor_rank==0, and is_mpi_client is set to True. This function is
+        # added to be more explicit, and for future maintainability.
+        return not cls.is_mpi_enabled or (cls.is_mpi_enabled and cls.is_mpi_client)
+
     # Static variables #################################################################################################
 
     # Set hostname
@@ -163,11 +174,13 @@ class MPIEnvironment:
     # Generate the processor origin for the logger
     processor_origin = ""
     if is_mpi_enabled:
+        # keep it short, take out the domain name if present
+        hostname_wo_domain = hostname.split('.')[0]
+        processor_origin = "@" + hostname_wo_domain
         if is_mpi_client:
-            processor_origin = "@" + hostname + ":MPIClient"
-        else:
-            # Rank information of server is written in the C++ level
-            processor_origin = "@" + hostname   
+            processor_origin += ":MPIClient"
+            # For servers, rank information is written in the C++ level
+
             
     # Set pre-determined log level
     command_handling_log_level = "NORMAL"

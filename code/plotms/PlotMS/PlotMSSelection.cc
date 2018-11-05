@@ -126,7 +126,7 @@ void PlotMSSelection::apply(MeasurementSet& ms, MeasurementSet& selMS,
                timerange(), antenna(), field(), spwstr,
                uvrange(), msselect(), corr(), scan(), array(),
                intent(), observation(), feed(), 1, &mss );
-        } catch(AipsError x) {
+        } catch(AipsError& x) {
             String errormsg = x.getMesg();
             if (errormsg.startsWith("Spw Expression: No match found") && (spwstr[0] != '"') && (spwstr.find('-') != std::string::npos)) {
                 errormsg += "\nTIP: For a name match (particularly names with a hyphen), add double quotes around the name in the spw string."; 
@@ -164,10 +164,10 @@ void PlotMSSelection::apply(NewCalTable& ct, NewCalTable& selCT,
   if (feed().length()>0)
     throw(AipsError("Selection by feed not supported for NewCalTable"));
 
-  // Set the selected NewCalTable to be the same initially 
-  // as the input NewCalTable
-  selCT = ct;
-  if (!isEmpty()) {
+  if (isEmpty()) {
+    // Set the selected NewCalTable to be the same as the input NewCalTable
+    selCT = ct;
+  } else {
     // set up CTSelection with expressions
     CTSelection cts;
     cts.setTimeExpr(timerange());
@@ -181,9 +181,10 @@ void PlotMSSelection::apply(NewCalTable& ct, NewCalTable& selCT,
     // do selection
     CTInterface cti(ct);
     TableExprNode ten = cts.toTableExprNode(&cti);
+
     try {
-      getSelectedTable(selCT, ct, ten, "");
-    } catch(AipsError x) {
+      selCT = ct(ten);
+    } catch(AipsError& x) {
       throw(AipsError("Error selecting on caltable:\n" + x.getMesg()));
     }
 

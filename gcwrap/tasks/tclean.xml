@@ -308,6 +308,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <value type="string"></value>
     </param>
 
+
     <param type="string" name="stokes" > <!-- subparam="true"> -->
      <shortdescription>Stokes Planes to make</shortdescription>
 <description>Stokes Planes to make
@@ -427,8 +428,8 @@ HPX HEALPix grid.  -->
 <!--============================================== -->
 
     <param type="any" name="specmode" required="true">
-     <shortdescription>Spectral definition mode (mfs,cube,cubedata)</shortdescription>
-<description>Spectral definition mode (mfs,cube,cubedata)
+     <shortdescription>Spectral definition mode (mfs,cube,cubedata, cubesource)</shortdescription>
+<description>Spectral definition mode (mfs,cube,cubedata, cubesource)
 
                        mode='mfs' : Continuum imaging with only one output image channel.
                                              (mode='cont' can also be used here)
@@ -467,7 +468,16 @@ HPX HEALPix grid.  -->
                                                         a spectral line observed over an extended time range
                                                         may be smeared out in frequency. There is strictly
                                                         no valid spectral frame with which to label the output
-                                                        images, but they will list the frame defined in the MS.
+							images, but they will list the frame defined in the MS.
+
+							mode='cubesource': Spectral line imaging while
+							tracking moving source (near field or solar system
+							objects). The velocity of the source is accounted
+							and the frequency reported is in the source frame.
+							As there is not SOURCE frame defined,
+							the frame reported will be REST (as it may not be
+							in the rest frame emission region may be
+							moving w.r.t the systemic velocity frame)
 
 
 </description>
@@ -477,6 +487,7 @@ HPX HEALPix grid.  -->
 	      <value>cont</value>
 	      <value>cube</value>
 	      <value>cubedata</value>
+	      <value>cubesource</value>
 	    </allowed>
     </param>
 
@@ -819,6 +830,19 @@ HPX HEALPix grid.  -->
       <value type="int">1</value>
     </param>
 
+<param type="any" name="psfphasecenter"  subparam="true"> 
+     <shortdescription>Phase center of the image</shortdescription>
+<description>For mosaic use psf centered of this optional direction
+               example: psfphasecenter=6
+                        psfphasecenter='J2000 19h30m00 -40d00m00'
+                        psfphasecenter='J2000 292.5deg  -40.0deg'
+                        psfphasecenter='J2000 5.105rad  -0.698rad'
+                        psfphasecenter='ICRS 13:05:27.2780 -049.28.04.458' 
+</description>
+      <any type="variant" limittypes="int string"/>
+      <value type="string"></value>
+    </param>
+
     <param type="int" name="chanchunks" subparam="true">
      <shortdescription>Number of channel chunks</shortdescription>
 <description>Number of channel chunks to grid separately
@@ -903,7 +927,19 @@ HPX HEALPix grid.  -->
 </description>
       <value type="string"></value>
     </param>
-
+    
+  <param type="bool" name="usepointing" subparam="true">
+           <shortdescription>Use Pointing table if available for mosaic pointing</shortdescription>
+<description>Use the pointing table to determine where the beam are for mosaic gridder; if False then phasecenters of the fields selected are used to determine direction of each mosaic pointing.
+</description>
+	    <value type="bool">False</value>
+    </param>
+    <param type="bool" name="mosweight" subparam="true">
+           <shortdescription>Indepently weight each field in a mosaic</shortdescription>
+<description>When doing Brigg's style weighting (including uniform) to perform the weight density calculation for each field indepedently if True. If False the weight density is calculated from the average uv distribution of all the fields.
+</description>
+	    <value type="bool">True</value>
+    </param>
     <param type="bool" name="aterm" subparam="true">
            <shortdescription>Use aperture illumination functions during gridding</shortdescription>
 <description>Use aperture illumination functions during gridding
@@ -1804,7 +1840,7 @@ HPX HEALPix grid.  -->
     <!-- top level mask type selection -->
 
     <param type="string" name="usemask">
-           <shortdescription>Type of mask(s) for deconvolution:  user, pb, auto-multithresh, auto-thresh(deprecated, will be removed in CASA 5.4), or auto-thresh(deprecated, will be removed in CASA 5.4)</shortdescription>
+           <shortdescription>Type of mask(s) for deconvolution:  user, pb, or auto-multithresh</shortdescription>
 
 <description>Type of mask(s) to be used for deconvolution
 
@@ -1819,23 +1855,23 @@ HPX HEALPix grid.  -->
                                              gridders that produce .pb (i.e. mosaic and awproject)
                                              or if an externally produced .pb image exists on disk)
 
-                       [Automasking algorithms available]
-                       auto-multithresh (recommended) : automask by multiple thresholds for deconvolution
+                       auto-multithresh : auto-masking by multiple thresholds for deconvolution
                           subparameters : sidelobethreshold, noisethreshold, lownoisethreshold, negativethrehsold,  smoothfactor,
                                           minbeamfrac, cutthreshold, pbmask, growiterations, dogrowprune, minpercentchange, verbose
 
                           if pbmask is >0.0, the region outside the specified pb gain level is excluded from
                           image statistics in determination of the threshold.
 
-                       auto-thresh (deprecated, will be removed in CASA 5.4): automask by threshold for deconvolution (binned residual image is used for
+                      <!-- auto-thresh (deprecated, will be removed in CASA 5.4): automask by threshold for deconvolution (binned residual image is used for
                                     to defining masks)
                           subparameters : maskthreshold, maskresolution, pbmask, nmask
                           maskresolution and nmask are used to 'prune' the automask regions.
                           if nmask > 0, 'pruning' of the found automask regions will be applied.
-
+                       -->
+                       <!--
                        auto-thresh2 (deprecated, will be removed in CASA 5.4) : automask  by threshold for deconvolution without binning
                           subparameters : maskthreshold, maskresolution, pbmask, nmask
-
+                        -->
 
                        Note: By default the intermediate mask generated by automask at each deconvolution cycle
                              is over-written in the next cycle but one can save them by setting
@@ -1850,8 +1886,6 @@ HPX HEALPix grid.  -->
               <value>user</value>
               <value>pb</value>
 	      <value>auto-multithresh</value>
-	      <value>auto-thresh</value>
-	      <value>auto-thresh2</value>
 	    </allowed>
     </param>
 
@@ -1872,8 +1906,8 @@ HPX HEALPix grid.  -->
                        Manual mask options/examples :
 
                        mask='xxx.mask'  : Use this CASA image named xxx.mask and containing
-                                                       ones and zeros as the mask. If this image is a different
-                                                       shape from what is being made it will be resampled to
+                                                       ones and zeros as the mask. <!--If this image is a different
+                                                       spatial coordinates from what is being made it will be resampled to
                                                        the target coordinate system before being used.
                                                        When a continuum (single channel) mask is given for spectral
                                                        cube imaging, it will be extended (copied) to all channels.
@@ -1882,6 +1916,13 @@ HPX HEALPix grid.  -->
                                                        to other Stokes planes is possible only if the spectral
                                                        coordinate and the number of the channels matches with the output
                                                        image.
+                                                       -->
+                                                       If the mask is only different in spatial coordinates from what is being made 
+                                                       it will be resampled to the target coordinate system before being used.
+                                                       The mask has to have the same shape in velocity and Stokes planes
+                                                       as the output image. Exceptions are single velocity and/or single
+                                                       Stokes plane masks. They will be expanded to cover all velocity and/or
+                                                       Stokes planes of the output cube.
 
                                                        [ Note : If an error occurs during image resampling or
                                                                    if the expected mask does not appear, please try
@@ -1889,6 +1930,7 @@ HPX HEALPix grid.  -->
                                                                    the mask image onto a CASA image with the target
                                                                    shape and coordinates and supply it via the 'mask'
                                                                    parameter. ]
+
 
                        mask='xxx.crtf' : A text file with region strings and the following on the first line
                                                   ( #CRTFv0 CASA Region Text Format version 0 )
@@ -1940,7 +1982,7 @@ HPX HEALPix grid.  -->
 
     <param type="double" name="pbmask" subparam="true">
 	   <shortdescription>primary beam mask</shortdescription>
-<description>Sub-parameter for usemask='auto-thresh','auto-thresh2',or 'auto-multithresh': primary beam mask
+<description>Sub-parameter for usemask='auto-multithresh': primary beam mask
 
           	       Examples : pbmask=0.0 (default, no pb mask)
           	                  pbmask=0.2 (construct a mask at the 0.2 pb gain level)
@@ -1948,6 +1990,7 @@ HPX HEALPix grid.  -->
 </description>
 	    <value type="double">0.0</value>
     </param>
+    <!--- auto-thresh and auto-thresh sub param 
     <param type="any" name="maskthreshold" subparam="true">
 	   <shortdescription>threshold for automasking (string with unit, e.g. "1.0mJy", sigma,  or fraction of peak ,e.g. 0.1)</shortdescription>
 <description>Sub-parameter for "auto-thresh" and "auto-thresh2": threshold for automasking
@@ -1962,6 +2005,8 @@ HPX HEALPix grid.  -->
 </description>
 	    <value type="string"></value>
     </param>
+     -->
+    <!-- auto-thresh and auto-thresh sub param 
     <param type="any" name="maskresolution" subparam="true">
 	   <shortdescription>resolution for automasking (string, e.g. "10arcsec", or a float value as multiplicative factor of the beam)</shortdescription>
 <description>Sub-parameter for "auto-thresh" and "auto-thresh2": resolution for automasking
@@ -1972,6 +2017,8 @@ HPX HEALPix grid.  -->
 </description>
 	    <value type="string"></value>
     </param>
+    -->
+    <!-- auto-thresh and auto-thresh sub param 
     <param type="int" name="nmask" subparam="true">
 	   <shortdescription>the maximum number of masks to be added by automasking</shortdescription>
 <description>Sub-parameter for "auto-thresh" and "auto-thresh2": Maximum number of mask regions to be added by automasking at the beginning each minor cycles run
@@ -1980,7 +2027,7 @@ HPX HEALPix grid.  -->
 </description>
 	    <value type="int">0</value>
     </param>
-
+    -->
     <!-- Amanda's code -->
     <param type="double" name="sidelobethreshold" subparam="true">
            <shortdescription>sidelobethreshold *  the max sidelobe level * peak residual</shortdescription>
@@ -2408,20 +2455,17 @@ HPX HEALPix grid.  -->
 	 <default param="interpolation"><value>"linear"</value></default>
 	 <default param="chanchunks"><value>1</value></default>
        </equals>
-       <!-- desable for now...
-       <equals type="string" value="cubesrc">
+       <equals type="string" value="cubesource">
 	 <default param="nchan"><value>-1</value></default>
 	 <default param="start"><value>""</value></default>
 	 <default param="width"><value>""</value></default>
-	 <default param="outframe"><value>""</value></default>
+	 <default param="outframe"><value>"REST"</value></default>
 	 <default param="veltype"><value>"radio"</value></default>
 	 <default param="restfreq"><value>[]</value></default>
-	 <default param="sysvel"><value>""</value></default>
-	 <default param="sysvelframe"><value>""</value></default>
 	 <default param="interpolation"><value>"linear"</value></default>
 	 <default param="chanchunks"><value>1</value></default>
        </equals>
-       -->
+       
        <equals type="string" value="cubedata">
 	 <default param="nchan"><value>-1</value></default>
 	 <default param="start"><value>""</value></default>
@@ -2457,18 +2501,26 @@ HPX HEALPix grid.  -->
        <equals type="string" value="mosaic">
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
+	 <default param="usepointing"><value>False</value></default>
+	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>True</value></default>
+	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="mosaicft">
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
+	 <default param="usepointing"><value>False</value></default>
+	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>True</value></default>
+	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="ftmosaic">
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
+	 <default param="usepointing"><value>False</value></default>
+	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
        </equals>
        <equals type="string" value="imagemosaic">
@@ -2594,19 +2646,23 @@ HPX HEALPix grid.  -->
          <default param="pbmask"><value type="double">0.2</value></default>
        </equals>
        <!-- auto masks -->
+       <!--
        <equals type="string" value="auto-thresh">
          <default param="pbmask"><value>0.0</value></default>
          <default param="maskthreshold"><value>""</value></default>
          <default param="maskresolution"><value>""</value></default>
          <default param="nmask"><value>0</value></default>
        </equals>
+       -->
        <!-- auto mask by direct threshold -->
+       <!--
        <equals type="string" value="auto-thresh2">
          <default param="pbmask"><value>0.0</value></default>
          <default param="maskthreshold"><value>""</value></default>
          <default param="maskresolution"><value>""</value></default>
          <default param="nmask"><value>0</value></default>
        </equals>
+       -->
        <!-- auto mask by multiple threshold (orignal algorithm by A.Kepley) -->
        <equals type="string" value="auto-multithresh">
          <default param="pbmask"><value>0.2</value></default>

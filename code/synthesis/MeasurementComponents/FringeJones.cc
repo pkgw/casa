@@ -71,7 +71,7 @@
 
 // DEVDEBUG gates the development debugging information to standard
 // error; it should be set to 0 for production.
-#define DEVDEBUG 0
+#define DEVDEBUG false
 
 using namespace casa::vi;
 using namespace casacore;
@@ -195,6 +195,8 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant, Array<Double>& delayWindow
     xcount_(),
     sumw_(),
     sumww_(),
+    activeAntennas_(),
+    allActiveAntennas_(),
     delayWindow_(delayWindow),
     rateWindow_(rateWindow) {
     // This check should be commented out in production:
@@ -250,9 +252,13 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant, Array<Double>& delayWindow
     // Don't try to check there are multiple times here; let DelayRateFFT check that.
     IPosition paddedDataSize(4, nCorr_, nElem_, nPadT_, nPadChan_);
     Vpad_.resize(paddedDataSize);
+    Int totalRows = 0;
+    Int goodRows = 0;
 
+    
     for (Int ibuf=0; ibuf != sdbs.nSDB(); ibuf++) {
         SolveDataBuffer& s(sdbs(ibuf));
+        totalRows += s.nRows();
         if (!s.Ok())
             continue;
 
@@ -318,19 +324,34 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant, Array<Double>& delayWindow
             if (!allTrue(flagged)) {
                 for (Int icorr=0; icorr<nCorr_; ++icorr) {
                     IPosition p(2, icorr, iant);
+                    Bool actually = false;
                     activeAntennas_[icorr].insert(iant);
                     for (Int ichan=0; ichan != (Int) spwchans; ichan++) {
                         IPosition pchan(2, icorr, ichan);
                         if (!flagged(pchan)) {
-                            Float w = weights(pchan);
+                            Float wv = weights(pchan);
+                            if (wv < 0) {
+                                cerr << "spwchans " << spwchans << endl;
+                                cerr << "Negative weight << (" << wv << ") on row "
+                                     << irow << " baseline (" << a1 << ", " << a2 << ") "
+                                     << " channel " << ichan << endl;
+                                cerr << "pchan " << pchan << endl;
+                                cerr << "Weights " << weights << endl;
+                            }
                             xcount_(p)++;
-                            sumw_(p) += w;
-                            sumww_(p) += w*w;
+                            sumw_(p) += wv;
+                            sumww_(p) += wv*wv;
+                            actually = true;
                         }
+                    }
+                    if (actually) {
+                        activeAntennas_[icorr].insert(iant);
+                        goodRows++;
                     }
                 }
             }                
             if (DEVDEBUG && 0) {
+                cerr << "flagged " << flagged << endl;
                 cerr << "flagSlice " << flagSlice << endl
                      << "fl.shape() " << fl.shape() << endl
                      << "Vpad_.shape() " << Vpad_.shape() << endl
@@ -340,18 +361,24 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant, Array<Double>& delayWindow
         }
     }
     if (DEVDEBUG) {
+        cerr << "In DelayRateFFT::DelayRateFFT " << endl;
+        printActive();
+        cerr << "sumw_ " << sumw_ << endl;
         cerr << "Constructed a DelayRateFFT object." << endl;
+        cerr << "totalRows " << totalRows << endl;
+        cerr << "goodRows " << goodRows << endl;
     }
+    
 }
 
 DelayRateFFT::DelayRateFFT(Array<Complex>& data, Int nPadFactor, Float f0, Float df, Float dt, SDBList& s,
                            Array<Double>& delayWindow, Array<Double>& rateWindow) :
-    gm_(s),
     refant_(0),
+    gm_(s),
     nPadFactor_(nPadFactor),
+    dt_(dt),
     f0_(f0),
     df_(df),
-    dt_(dt),
     Vpad_(),
     sumw_(),
     sumww_(),
@@ -482,6 +509,7 @@ DelayRateFFT::searchPeak() {
             // -nPadChan/2 to -1, so far as our delay is concerned.
             Int i0 = bw*d0;
             Int i1 = bw*d1;
+            if (i1==i0) i1++;
             // Now for the gory details for turning rate window into index range
             Double width = nPadT_*dt_*1e9*f0_;
             Double r0 = sgn*rateWindow_(IPosition(1,0));
@@ -492,13 +520,14 @@ DelayRateFFT::searchPeak() {
             
             Int j0 = width*r0;
             Int j1 = width*r1;
+            if (j1==j0) j1++;
             if (DEVDEBUG) {
-                cerr << "Checking the windows for delay and rate search.";
+                cerr << "Checking the windows for delay and rate search." << endl;
                 cerr << "bw " << bw << endl;
-                cerr << "d0 " << d0 << " i0 " << i0 << endl;
-                cerr << "d1 " << d1 << " i1 " << i1 << endl; 
-                cerr << "r0 " << r0 << " j0 " << j0 << endl;
-                cerr << "r1 " << r1 << " j1 " << j1 << endl; 
+                cerr << "d0 " << d0 << " d1 " << d1 << endl;
+                cerr << "i0 " << i0 << " i1 " << i1 << endl; 
+                cerr << "r0 " << r0 << " r1 " << r1 << endl;
+                cerr << "j0 " << j0 << " j1 " << j1 << endl; 
             }
             Matrix<Float> amp(amplitude(aS));
             Int ipkch(0);
@@ -509,6 +538,7 @@ DelayRateFFT::searchPeak() {
                 Int itime = (itime0 < 0) ? itime0 + nPadT_ : itime0;
                 for (Int ich0=i0; ich0 != i1; ich0++) {
                     Int ich = (ich0 < 0) ? ich0 + nPadChan_ : ich0;
+                    // cerr << "Gridpoint " << itime << ", " << ich << "->" << amp(itime, ich) << endl;
                     if (amp(itime, ich) > amax) {
                         ipkch = ich;
                         ipkt  = itime;
@@ -525,6 +555,7 @@ DelayRateFFT::searchPeak() {
             Float alo_t = amp(ipkt > 0 ? ipkt-1 : nPadT_ -1,     ipkch);
             Float ahi_t = amp(ipkt < (nPadT_ -1) ? ipkt+1 : 0,   ipkch);
             if (DEVDEBUG) {
+                cerr << "For element " << ielem << endl;
                 cerr << "In channel dimension ipkch " << ipkch << " alo " << alo_ch
                      << " amax " << amax << " ahi " << ahi_ch << endl;
                 cerr << "In time dimension ipkt " << ipkt << " alo " << alo_t
@@ -549,13 +580,13 @@ DelayRateFFT::searchPeak() {
                 param_(icorr*3 + 2, ielem) = Float(sgn*rate1); 
                 if (DEVDEBUG) {
                     cerr << "maybeFpkch.second=" << maybeFpkch.second
-                         << ", df_ " << df_ 
-                         << " fpkch " << (ipkch + maybeFpkch.second) << endl;
+                         << ", df_= " << df_ 
+                         << " fpkch=" << (ipkch + maybeFpkch.second) << endl;
                     cerr << " maybeFpkt.second=" << maybeFpkt.second
-                         << " rate0 " << rate
-                         << " 1e9 * f0_ " << 1e9 * f0_ 
-                         << ", dt_ " << dt_
-                         << " fpkt " << (ipkt + maybeFpkt.second) << endl;
+                         << " rate0=" << rate
+                         << " 1e9 * f0_=" << 1e9 * f0_ 
+                         << ", dt_=" << dt_
+                         << " fpkt=" << (ipkt + maybeFpkt.second) << endl;
                         
                 }
                 if (DEVDEBUG) {
@@ -1401,7 +1432,7 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
             Double h = gsl_matrix_get(inv_hess, i, i);
             Double snr0 = sqrt(sigma2*h*0.5);
             snr0 = min(snr0, 9999.999);
-            Double snr = (snr0 > 1e-20) ? snr = 1.0/snr0 : snr0;
+            Double snr = (snr0 > 1e-20) ? 1.0/snr0 : snr0;
             // cerr << "Antenna " << i/3 << " h " << h << " SNR0 " << snr0 << " SNR  = " << snr << endl;
             gsl_vector_set(snr_vector, i, snr);
         }
@@ -1650,7 +1681,8 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         
         gsl_vector_sub(gp_orig, w->x);
         gsl_vector *diff = gp_orig;
-        double diffsize = gsl_blas_dnrm2(diff);
+        // double diffsize =
+        gsl_blas_dnrm2(diff);
     
         gsl_vector *res = gsl_multilarge_nlinear_position(w);
         
@@ -1662,7 +1694,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         gsl_vector_set_zero(snr_vector);
         expb_hess(gp, &bundle, hess, chi1*chi1, snr_vector, logSink);
         
-        Double log_det = 0;
+        // Double log_det = 0;
         // cerr << "Hessian diagonal: [" ;
         // for (size_t i=0; i<p; i+=1)
         // {
@@ -1678,16 +1710,17 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
             Int iparam = bundle.get_param_corr_index(iant);
             if (iparam<0) continue;
             if (0) {
-                bool flag = false;
-                if (fabs(gsl_vector_get(diff, iparam + 0) > FLT_EPSILON)) {
-                    flag = true;
-                }
-                if (fabs(gsl_vector_get(diff, iparam + 1) > FLT_EPSILON)) {
-                    flag = true;
-                }
-                if (fabs(gsl_vector_get(diff, iparam + 2) > 1e-30)) {
-                    flag = true;
-                }
+                // flag unused
+                // bool flag = false;
+                // if (fabs(gsl_vector_get(diff, iparam + 0) > FLT_EPSILON)) {
+                //     flag = true;
+                // }
+                // if (fabs(gsl_vector_get(diff, iparam + 1) > FLT_EPSILON)) {
+                //     flag = true;
+                // }
+                // if (fabs(gsl_vector_get(diff, iparam + 2) > 1e-30)) {
+                //     flag = true;
+                // }
                 if (DEVDEBUG) {
                     logSink << "Old values for ant " << iant << " correlation " << icor 
                             << ": Angle " << casa_param(3*icor + 0, iant)
@@ -2188,7 +2221,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             if (iant != refant() && (activeAntennas.find(iant) != activeAntennas.end())) {
                 Float s = sSNR(3*icor + 0, iant);
 		// Start the log message; finished below
-		logSink() << "Antenna " << iant << " correlation has (FFT) SNR of " << s;
+		logSink() << "Antenna " << iant << " correlation " << icor << " has (FFT) SNR of " << s;
                 if (s < threshold) {
                     belowThreshold.insert(iant);
                     logSink() << " below threshold (" << threshold << ")";
@@ -2233,13 +2266,15 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
 
     for (Int iant=0; iant != nAnt(); iant++) {
         for (size_t icor=0; icor != nCorr; icor++) {
-            Double df_bootleg = drf.get_df_all();
+            // Double df_bootleg =
+            drf.get_df_all();
             Double phi0 = sRP(3*icor + 0, iant);
             Double delay = sRP(3*icor + 1, iant);
             Double rate = sRP(3*icor + 2, iant);
             // Double delta1 = df0*delay;
             // Double delta1 = 0.5*df_bootleg*delay/1e9;
-            auto it = aggregateTime.find(iant);
+            // auto it =
+            aggregateTime.find(iant);
             // We assume the reference frequency for fringe fitting
             // (which is NOT the one stored in the SPECTRAL_WINDOW
             // table) is the left-hand edge of the frequency grid.
@@ -2258,7 +2293,6 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             if (DEVDEBUG) {
                 cerr << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << " dt " << dt << endl
                      << "dt " << dt << endl
-		  //<< "Ref freq. "<< ref_freq << " Adding corrections for frequency (" << 360*delta1 << ")" 
                      << "centroidFreq "<< centroidFreq << " Adding corrections for frequency (" << 360*delta1 << ")" 
                      << " and time (" << 360*delta2 << ") degrees." << endl;
             }

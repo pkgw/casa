@@ -175,9 +175,9 @@ protected:
 
 	void _setType(const Types type);
 
-	void _setFunction(const SHARED_PTR<casacore::Function<casacore::Double, casacore::Double> >& f);
+	void _setFunction(const std::shared_ptr<casacore::Function<casacore::Double, casacore::Double> >& f);
 
-	virtual SHARED_PTR<casacore::Function<casacore::Double, casacore::Double> > _getFunction() const {
+	virtual std::shared_ptr<casacore::Function<casacore::Double, casacore::Double> > _getFunction() const {
 		return _function;
 	}
 
@@ -195,7 +195,7 @@ private:
 	// Solved is the default.
 	casacore::Vector<casacore::Bool> _fixed;
 
-	SHARED_PTR<casacore::Function<casacore::Double, casacore::Double> > _function;
+	std::shared_ptr<casacore::Function<casacore::Double, casacore::Double> > _function;
 
 };
 

@@ -157,6 +157,7 @@ class VisBuffer {
     friend class VisBufferAsyncWrapper; // for async i/o
     friend class ViReadImplAsync; // for async I/O
     friend class SIMapperCollection; //for SIimager as we need access to casacore::MS object
+    friend class VisModelData;  // need access to ms to recover the model rec
 
 public:
     // Create empty VisBuffer you can assign to or attach.

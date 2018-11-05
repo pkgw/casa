@@ -34,7 +34,7 @@ def plotms(vis=None,
            showmajorgrid=None, majorwidth=None, majorstyle=None,  majorcolor=None,    
            showminorgrid=None, minorwidth=None, minorstyle=None,  minorcolor=None, 
            showlegend=None, legendposition=None,   
-           plotfile=None, expformat=None, exprange=None,
+           plotfile=None, expformat=None, verbose=True, exprange=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
            callib=None, headeritems=None, showatm=None, showtsky=None
@@ -166,8 +166,6 @@ def plotms(vis=None,
         extfield -- extend flags based on field?  only valid if time extension
                     is turned on.
                     default: False.
-        showgui -- Whether or not to display the plotting GUI
-                  default: True; example showgui=False
 
     coloraxis -- which axis to use for colorizing
                      default: ''  (ignored - same as colorizing off)              
@@ -186,6 +184,8 @@ def plotms(vis=None,
                     Interior legends can be located in the upper right, lower right, upper left, or lower left.
                     Exterior legends can be located on the right, left, top, or bottom.
                     default: 'upperright'
+    showgui -- Whether or not to display the plotting GUI
+                    default: True; example showgui=False
     clearplots -- clear existing plots so that the new ones coming in can replace them.                 
     callib -- calibration library string, list of strings, or filename for on-the-fly calibration
     headeritems -- string of comma-separated page header items keywords
@@ -278,10 +278,15 @@ def plotms(vis=None,
     synonyms['antpos']='Antenna Positions'
     synonyms['radialvelocity']= synonyms['Radial Velocity'] = 'Radial Velocity [km/s]'
     synonyms['rho']=synonyms['Distance']='Distance (rho) [km]'
+    # data columns: unspecified residuals default to vector
+    synonyms['residual']=synonyms['corrected-model']='corrected-model_vector'
+    synonyms['data-model']='data-model_vector'
+    synonyms['corrected/model']='corrected/model_vector'
+    synonyms['data/model']='data/model_vector'
         
     try:
         # Do preliminary checks on argument values
-        # Set axis synonyms to existing_terms
+        # Set synonyms to existing_terms
         if(synonyms.has_key(xaxis)):
             xaxis = synonyms[xaxis]
         if isinstance(yaxis, str):
@@ -295,9 +300,16 @@ def plotms(vis=None,
         if isinstance(coloraxis, str):
             if synonyms.has_key(coloraxis):
                 coloraxis = synonyms[coloraxis]
-        # synonyms for data columns (only one, so just hardcode it)
-        if (xdatacolumn=='cor' or xdatacolumn=='corr'):  xdatacolumn='corrected'
-        if (ydatacolumn=='cor' or ydatacolumn=='corr'):  ydatacolumn='corrected'
+
+        if(synonyms.has_key(xdatacolumn)):
+            xdatacolumn = synonyms[xdatacolumn]
+        if isinstance(ydatacolumn, str):
+            if synonyms.has_key(ydatacolumn):
+                yaxis = synonyms[ydatacolumn]
+        elif isinstance(ydatacolumn, list):
+            for index,col in enumerate(ydatacolumn):
+                if synonyms.has_key(col):
+                    ydatacolumn[index] = synonyms[col]
 
         # check vis exists
         vis = vis.strip()
@@ -551,7 +563,13 @@ def plotms(vis=None,
             return False
         if not yselfscale and ysharedaxis:
             casalog.post( "Plots cannot share a y-axis unless they use the same y-axis scale.", "ERROR")
-            return False    
+            return False
+        if xsharedaxis and gridrows < 2:
+            casalog.post( "Plots cannot share an x-axis when gridrows=1.", "WARN")
+            xsharedaxis=False
+        if ysharedaxis and gridcols < 2:
+            casalog.post( "Plots cannot share a y-axis when gridcols=1.", "WARN")
+            ysharedaxis=False
         pm.setPlotMSIterate(iteraxis,rowindex,colindex,
                             xselfscale,yselfscale,
                             xsharedaxis,ysharedaxis,False,plotindex);
@@ -789,7 +807,7 @@ def plotms(vis=None,
                     while (pm.isDrawing()):
                         time.sleep(1.0)
                 casalog.post("Exporting the plot.",'NORMAL')
-                plotUpdated = pm.save( plotfile, expformat, highres, dpi, width, height)
+                plotUpdated = pm.save( plotfile, expformat, verbose, highres, dpi, width, height)
 
     except Exception, instance:
         plotUpdated = False

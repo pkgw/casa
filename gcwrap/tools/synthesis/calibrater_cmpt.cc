@@ -353,6 +353,7 @@ calibrater::setsolve(const std::string& type,
 		     const std::string& refantmode,
 		     const int minblperant,
 		     const bool solnorm,
+		     const std::string& normtype,
 		     const float minsnr,
 		     const std::string& combine,
 		     const int fillgaps,
@@ -394,10 +395,9 @@ calibrater::setsolve(const std::string& type,
     itsCalibrater->setsolve(type,toCasaString(t),table,append,preavg,mode,
 			    minblperant,
 			    toCasaString(refant),refantmode,
-			    solnorm,minsnr,combine,fillgaps,
+			    solnorm,normtype, minsnr,combine,fillgaps,
 			    cfcache, painc, fitorder, fraction, numedge, radius, smooth,
                             zerorates, globalsolve, weightfactor, delaywindow, ratewindow);
-    
   } catch(AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
     RETHROW(x);
