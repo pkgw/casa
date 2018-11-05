@@ -194,8 +194,26 @@ public:
 
 private:
 
-	std::unique_ptr<MsFactory> msf_p;
+    std::unique_ptr<MsFactory> msf_p;
     casacore::Int nRowsToProcess_p;
+};
+
+class SubtablePropagation : public TestWidget {
+
+public:
+
+    SubtablePropagation (): TestWidget ("SubtablePropagation") {}
+
+    virtual std::tuple <casacore::MeasurementSet *, casacore::Int, casacore::Bool> createMs ();
+
+    virtual casacore::String name () const { return "SubtablePropagation";}
+
+    void checkSubtables();
+private:
+
+    std::unique_ptr<MsFactory> msf_p;
+    unsigned int nAntennas_p;
+    std::list<std::tuple<std::string, int, double, double, std::string>> spwDef_p;
 };
 
 class BasicMutation : public BasicChannelSelection

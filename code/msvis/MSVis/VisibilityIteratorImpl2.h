@@ -677,6 +677,61 @@ public:
 	virtual void
 	writeBackChanges(VisBuffer2 *);
 
+    //**********************************************************************
+    // Methods to access the subtables.
+    //**********************************************************************
+
+    // Access to antenna subtable
+    const casacore::ROMSAntennaColumns& antennaSubtablecols() const override;
+
+    // Access to dataDescription subtable
+    const casacore::ROMSDataDescColumns& dataDescriptionSubtablecols() const override;
+
+    // Access to feed subtable
+    const casacore::ROMSFeedColumns& feedSubtablecols() const override;
+
+    // Access to field subtable
+    const casacore::ROMSFieldColumns& fieldSubtablecols() const override;
+
+    // Access to flagCmd subtable
+    const casacore::ROMSFlagCmdColumns& flagCmdSubtablecols() const override;
+
+    // Access to history subtable
+    const casacore::ROMSHistoryColumns& historySubtablecols() const override;
+
+    // Access to observation subtable
+    const casacore::ROMSObservationColumns& observationSubtablecols() const override;
+
+    // Access to pointing subtable
+    const casacore::ROMSPointingColumns& pointingSubtablecols() const override;
+
+    // Access to polarization subtable
+    const casacore::ROMSPolarizationColumns& polarizationSubtablecols() const override;
+
+    // Access to processor subtable
+    const casacore::ROMSProcessorColumns& processorSubtablecols() const override;
+
+    // Access to spectralWindow subtable
+    const casacore::ROMSSpWindowColumns& spectralWindowSubtablecols() const override;
+
+    // Access to state subtable
+    const casacore::ROMSStateColumns& stateSubtablecols() const override;
+
+    // Access to doppler subtable
+    const casacore::ROMSDopplerColumns& dopplerSubtablecols() const override;
+
+    // Access to freqOffset subtable
+    const casacore::ROMSFreqOffsetColumns& freqOffsetSubtablecols() const override;
+
+    // Access to source subtable
+    const casacore::ROMSSourceColumns& sourceSubtablecols() const override;
+
+    // Access to sysCal subtable
+    const casacore::ROMSSysCalColumns& sysCalSubtablecols() const override;
+
+    // Access to weather subtable
+    const casacore::ROMSWeatherColumns& weatherSubtablecols() const override;
+
 protected:
 
 
