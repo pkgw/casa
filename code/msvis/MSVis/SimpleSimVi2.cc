@@ -403,7 +403,11 @@ SimpleSimVi2::SimpleSimVi2 (const SimpleSimVi2Parameters& pars)
   VisBufferOptions vbopt=VbWritable;
   vb_.reset(createAttachedVisBuffer(vbopt));
 
+  generateSubtables();
+}
 
+void SimpleSimVi2::generateSubtables()
+{
   // Generating Antenna Subtable
   TableDesc antennaTD = MSAntenna::requiredTableDesc();
   SetupNewTable antennaSetup("antennaSubtable", antennaTD, Table::New);

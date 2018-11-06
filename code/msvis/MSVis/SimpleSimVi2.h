@@ -435,6 +435,9 @@ private:
   // Corrupt by (ad hoc) parang factors
   void corruptByParang(casacore::Cube<casacore::Complex>& vis) const;
 
+  // Generate the antenna, spw and DD subtables
+  void generateSubtables();
+
   // casacore::Input parameters
   const SimpleSimVi2Parameters pars_;
   /*
