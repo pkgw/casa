@@ -32,12 +32,10 @@
 #include <casacore/casa/Arrays/Vector.h>
 #include <casacore/casa/Containers/Record.h>
 
-// Measurement Set enumerations
-#include <mstransform/MSTransform/MSTransformManager.h>
-
 // VI/VB framework
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
+#include <msvis/MSVis/test/MsFactory.h>
 
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -76,6 +74,71 @@ protected:
     casacore::Record testConfiguration_p;
 };
 
+class MsFactoryTVITester : public ::testing::Test
+{
+public:
+  
+    /*
+     * Constructor: create the temporary dir and the MsFactory used later on
+     * to create the MS.
+     * @param testSubdir The subdirectory to create under the temporary dir
+     * @param msName     The name of the MS to create (under testSubdir)
+     */
+    MsFactoryTVITester(const std::string& testSubdir ="MsFactoryTVITester",
+                       const std::string& msName = "MsFactory");
+
+    //Google test fixture constructor
+    void SetUp();
+
+    //Google test fixture destructor
+    void TearDown();
+
+    /*
+     * Create the synthetic MS  
+     */
+    void createMS();
+
+    /*
+     * Create the TVI stack to access the MS. 
+     */
+    void instantiateVI(std::vector<ViiLayerFactory*>& factories);
+
+    /*
+     * Iterate the whole MS calling a user provided function.
+     * The only useful case is having a lambda as a visitor function.
+     * It can access the visibility buffer from variable vb_p
+     */
+    void visitIterator(std::function<void(void)> visitor);
+
+    /* 
+     * Return the MsFactory for full customization if needed 
+     */
+    casa::vi::test::MsFactory& getMsFactory();
+  
+    //Destructor
+    ~MsFactoryTVITester();
+
+protected:
+    
+    //The temporary dir where the synthetic MS is created  
+    char tmpdir_p[_POSIX_PATH_MAX];
+
+    //The helper class to create synthetic MS
+    std::unique_ptr<casa::vi::test::MsFactory> msf_p;
+
+    //The synthetic MS.
+    std::unique_ptr<casacore::MeasurementSet> ms_p;
+
+    //The VisibilityIterator2 used to iterate trough the data
+    std::unique_ptr<VisibilityIterator2> vi_p;
+
+    //The name of the ms created by MsFactory
+    std::string msName_p;
+
+    //The attached VisBuffer
+    VisBuffer2 * vb_p;
+};
+
 
 //////////////////////////////////////////////////////////////////////////
 // Convenience methods
@@ -83,34 +146,31 @@ protected:
 template <class T> void compareVector(const casacore::Char* column,
                                       const casacore::Vector<T> &inp,
                                       const casacore::Vector<T> &ref,
-                                      const casacore::Vector<casacore::uInt> &rowIds,
                                       casacore::Float tolerance = FLT_EPSILON);
 
 template <class T> void compareMatrix(const casacore::Char* column,
                                       const casacore::Matrix<T> &inp,
                                       const casacore::Matrix<T> &ref,
-                                      const casacore::Vector<casacore::uInt> &rowIds,
                                       casacore::Float tolerance = FLT_EPSILON);
 
 template <class T> void compareCube(const casacore::Char* column,
                                     const casacore::Cube<T> &inp,
                                     const casacore::Cube<T> &ref,
-                                    const casacore::Vector<casacore::uInt> &rowIds,
                                     casacore::Float tolerance = FLT_EPSILON);
 
 void compareVisibilityIterators(VisibilityIterator2 &testTVI,
                                 VisibilityIterator2 &refTVI,
                                 VisBufferComponents2 &columns,
                                 casacore::Float tolerance = FLT_EPSILON,
-                                dataColMap *datacolmap = NULL);
+                                std::map<casacore::MS::PredefinedColumns,casacore::MS::PredefinedColumns> *datacolmap = NULL);
 
 void copyTestFile(casacore::String &path,casacore::String &filename,casacore::String &outfilename);
 
 const casacore::Cube<casacore::Complex> & getViscube(VisBuffer2 *vb,
 									casacore::MS::PredefinedColumns datacol,
-									dataColMap *datacolmap);
+									std::map<casacore::MS::PredefinedColumns,casacore::MS::PredefinedColumns> *datacolmap);
 
-void flagEachOtherChannel(VisibilityIterator2 &vi);
+void flagEachOtherChannel(VisibilityIterator2 &vi, bool undoChanbin, int chanbin = 1);
 
 } //# NAMESPACE VI - END
 

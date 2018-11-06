@@ -37,20 +37,16 @@ MsFactory::addAntennas (Int nAntennas)
     Vector<Double> x (nAntennas), y (nAntennas), z (nAntennas),
                    diameter (nAntennas), offset (nAntennas);
 
-    x [0] = 0;
-    y [0] = 0;
-    z [0] = 0;
-
     Vector<String> mount (nAntennas), name (nAntennas), pad (nAntennas);
 
-    for (Int i = 1; i < nAntennas; i++){
+    for (Int i = 0; i < nAntennas; i++){
 
         Double angle = ((i - 1) % 3) * (2 * 3.14159 / 3.0);
         Double radius = (i - 1) / 3.0 * 100;
 
         x [i] = radius * cos (angle);
         y [i] = radius * sin (angle);
-        z [0] = 0;
+        z [i] = 0;
 
         name [i] = String::format ("a%02d", i);
         pad [i] = String::format ("p%02d", i);
