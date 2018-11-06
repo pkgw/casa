@@ -1728,7 +1728,7 @@ SubtablePropagation::createMs ()
         std::unique_ptr<MsFactory>(
             new MsFactory(String::format("%s/SubtablePropagation.ms", tmpdir))));
     msf_p->setIncludeAutocorrelations(true);
-    for (auto spw : spwDef_p)
+    for (auto& spw : spwDef_p)
         msf_p->addSpectralWindow(std::get<0>(spw), std::get<1>(spw), std::get<2>(spw),
                                  std::get<3>(spw), std::get<4>(spw));
 
@@ -1755,7 +1755,7 @@ void SubtablePropagation::checkSubtables ()
     EXPECT_EQ(spwDef_p.size(), vi->spectralWindowSubtablecols().nrow());
     int irow = 0;
     //Check the number of channels for each spw is correct
-    for (auto spw : spwDef_p)
+    for (auto& spw : spwDef_p)
     {
         EXPECT_EQ(std::get<1>(spw),vi->spectralWindowSubtablecols().numChan().get(irow));
         ++irow;
@@ -1763,7 +1763,7 @@ void SubtablePropagation::checkSubtables ()
 
     //Check the number of rows in pol subtable is correct
     std::set<string> polarizations; //Store here the unique polarizations sets
-    for (auto spw : spwDef_p)
+    for (auto& spw : spwDef_p)
         polarizations.insert(std::get<4>(spw));
     EXPECT_EQ(polarizations.size(), vi->polarizationSubtablecols().nrow());
 
