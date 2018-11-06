@@ -4088,6 +4088,111 @@ VisibilityIteratorImpl2::fillFromVirtualModel(Cube <Complex> & value) const
 	return false; // Did not fill
 }
 
+//**********************************************************************
+// Methods to access the subtables.
+//**********************************************************************
+
+// Access to antenna subtable
+const casacore::ROMSAntennaColumns& VisibilityIteratorImpl2::antennaSubtablecols() const
+{
+    return msIter_p->msColumns().antenna();
+}
+
+// Access to dataDescription subtable
+const casacore::ROMSDataDescColumns& VisibilityIteratorImpl2::dataDescriptionSubtablecols() const
+{
+    return msIter_p->msColumns().dataDescription();
+}
+
+// Access to feed subtable
+const casacore::ROMSFeedColumns& VisibilityIteratorImpl2::feedSubtablecols() const
+{
+    return msIter_p->msColumns().feed();
+}
+
+// Access to field subtable
+const casacore::ROMSFieldColumns& VisibilityIteratorImpl2::fieldSubtablecols() const
+{
+    return msIter_p->msColumns().field();
+}
+
+// Access to flagCmd subtable
+const casacore::ROMSFlagCmdColumns& VisibilityIteratorImpl2::flagCmdSubtablecols() const
+{
+    return msIter_p->msColumns().flagCmd();
+}
+
+// Access to history subtable
+const casacore::ROMSHistoryColumns& VisibilityIteratorImpl2::historySubtablecols() const
+{
+    return msIter_p->msColumns().history();
+}
+
+// Access to observation subtable
+const casacore::ROMSObservationColumns& VisibilityIteratorImpl2::observationSubtablecols() const
+{
+    return msIter_p->msColumns().observation();
+}
+
+// Access to pointing subtable
+const casacore::ROMSPointingColumns& VisibilityIteratorImpl2::pointingSubtablecols() const
+{
+    return msIter_p->msColumns().pointing();
+}
+
+// Access to polarization subtable
+const casacore::ROMSPolarizationColumns& VisibilityIteratorImpl2::polarizationSubtablecols() const
+{
+    return msIter_p->msColumns().polarization();
+}
+
+// Access to processor subtable
+const casacore::ROMSProcessorColumns& VisibilityIteratorImpl2::processorSubtablecols() const
+{
+    return msIter_p->msColumns().processor();
+}
+
+// Access to spectralWindow subtable
+const casacore::ROMSSpWindowColumns& VisibilityIteratorImpl2::spectralWindowSubtablecols() const
+{
+    return msIter_p->msColumns().spectralWindow();
+}
+
+// Access to state subtable
+const casacore::ROMSStateColumns& VisibilityIteratorImpl2::stateSubtablecols() const
+{
+    return msIter_p->msColumns().state();
+}
+
+// Access to doppler subtable
+const casacore::ROMSDopplerColumns& VisibilityIteratorImpl2::dopplerSubtablecols() const
+{
+    return msIter_p->msColumns().doppler();
+}
+
+// Access to freqOffset subtable
+const casacore::ROMSFreqOffsetColumns& VisibilityIteratorImpl2::freqOffsetSubtablecols() const
+{
+    return msIter_p->msColumns().freqOffset();
+}
+
+// Access to source subtable
+const casacore::ROMSSourceColumns& VisibilityIteratorImpl2::sourceSubtablecols() const
+{
+    return msIter_p->msColumns().source();
+}
+
+// Access to sysCal subtable
+const casacore::ROMSSysCalColumns& VisibilityIteratorImpl2::sysCalSubtablecols() const
+{
+    return msIter_p->msColumns().sysCal();
+}
+
+// Access to weather subtable
+const casacore::ROMSWeatherColumns& VisibilityIteratorImpl2::weatherSubtablecols() const
+{
+    return msIter_p->msColumns().weather();
+}
 
 } // end namespace vi
 

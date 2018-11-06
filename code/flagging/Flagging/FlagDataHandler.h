@@ -832,6 +832,7 @@ public:
 	virtual casacore::String getTableName() {return casacore::String("none");}
 	virtual bool parseExpression(casacore::MSSelection &/*parser*/) {return true;}
 	virtual bool checkIfColumnExists(casacore::String /*column*/) {return true;}
+	virtual bool checkIfSourceModelColumnExists() {return false;}
 	virtual bool summarySignal() {return true;}
 
 	// Set the iteration approach
