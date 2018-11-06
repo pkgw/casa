@@ -446,21 +446,21 @@ class PySynthesisImager:
             if self.stopMinor[str(immod)]<3 :
 
                 # temporarily disable the check (=> always save the intermediate images
-                #if os.environ.has_key('SAVE_ALL_RESIMS') and os.environ['SAVE_ALL_RESIMS']=="true":
-                resname = self.allimpars[str(immod)]['imagename']+'.residual'
-                tempresname = self.allimpars[str(immod)]['imagename']+'.inputres'+str(self.ncycle)
-                if os.path.isdir(resname):
-                    shutil.copytree(resname, tempresname)
+                if os.environ.has_key('SAVE_ALL_RESIMS') and os.environ['SAVE_ALL_RESIMS']=="true":
+                    resname = self.allimpars[str(immod)]['imagename']+'.residual'
+                    tempresname = self.allimpars[str(immod)]['imagename']+'.inputres'+str(self.ncycle)
+                    if os.path.isdir(resname):
+                        shutil.copytree(resname, tempresname)
 
                 exrec = self.SDtools[immod].executeminorcycle( iterbotrecord = iterbotrec )
 
                 #print '.... iterdone for ', immod, ' : ' , exrec['iterdone']
                 self.IBtool.mergeexecrecord( exrec )
-                #if os.environ.has_key('SAVE_ALL_AUTOMASKS') and os.environ['SAVE_ALL_AUTOMASKS']=="true":
-                maskname = self.allimpars[str(immod)]['imagename']+'.mask'
-                tempmaskname = self.allimpars[str(immod)]['imagename']+'.autothresh'+str(self.ncycle)
-                if os.path.isdir(maskname):
-                    shutil.copytree(maskname, tempmaskname)
+                if os.environ.has_key('SAVE_ALL_AUTOMASKS') and os.environ['SAVE_ALL_AUTOMASKS']=="true":
+                    maskname = self.allimpars[str(immod)]['imagename']+'.mask'
+                    tempmaskname = self.allimpars[str(immod)]['imagename']+'.autothresh'+str(self.ncycle)
+                    if os.path.isdir(maskname):
+                        shutil.copytree(maskname, tempmaskname)
                 
                 # Some what duplicated as above but keep a copy of the previous mask
                 # for interactive automask to revert to it if the current mask
