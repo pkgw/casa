@@ -951,7 +951,7 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 	Int nIter=0;
 	Vector<Int> iterValues;
 	String xconnector(xconnect);
-	if (xconnect != "none") {
+	if (xconnect == "line" || xconnect == "step") {
 		if (cacheType()==MS) {
 			logWarn("load_cache", "Connecting points in plotms is implemented for calibration tables only.");
 			xconnector = "none";

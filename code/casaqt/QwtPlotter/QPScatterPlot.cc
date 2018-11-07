@@ -513,7 +513,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                            linePen = m_maskedLine.asQPen();
                         thisbin = m_coloredData->binAt(i);
                         sameBin = (thisbin==lastbin);
-						unsigned int colorBin = thisbin % numBins;
+                        unsigned int colorBin = thisbin % numBins;
                         QBrush coloredBrush = m_coloredBrushes[colorBin];
                         linePen.setBrush(coloredBrush);
                         QColor brushColor = coloredBrush.color();
@@ -631,7 +631,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
             }
         }
     }
-        
+ 
     // Draw normal/masked symbols
     bool drawSymbol = m_symbol.symbol() != PlotSymbol::NOSYMBOL,
          drawMaskedSymbol = !m_maskedData.null() &&
@@ -688,7 +688,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             if(!sameBrush) p->setBrush(brush);
                         }
                         if(diffColor) {
-							unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
+                            unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
                             QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
@@ -720,7 +720,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             if(!sameBrush) p->setBrush(mbrush);
                         }
                         if(diffColor) {
-							unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
+                            unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
                             QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
@@ -817,7 +817,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                                        yMap.transform(tempy)));
                 if(!brect.intersects(rect)) continue;
                 if(diffColor) {
-					unsigned int colorBin = m_coloredData->binAt(i) % numBins;
+                    unsigned int colorBin = m_coloredData->binAt(i) % numBins;
                     p->setBrush(m_coloredBrushes[colorBin]);
                 }
                 m_symbol.draw(p, rect);
