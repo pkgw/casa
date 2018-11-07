@@ -1409,7 +1409,7 @@ protected:
 	casacore::MeasurementSet *outputMs_p;
 	casacore::ROMSColumns *selectedInputMsCols_p;
 	casacore::MSColumns *outputMsCols_p;
-	casacore::MSFieldColumns *inputMSFieldCols_p;
+	std::shared_ptr<casacore::MSFieldColumns> inputMSFieldCols_p;
 
 	// VI/VB related members
 	casacore::Block<casacore::Int> sortColumns_p;
