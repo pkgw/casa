@@ -210,6 +210,8 @@ void MSUVBin::createOutputMS(const Int nrrow){
 	}
 	//cerr << "MINMAX array ID " << min(arrayID) << "  " << max(arrayID) << endl;
 	msc.arrayId().putColumn(arrayID);
+        // Note: we suspect this flush with sync=true (fsync!) can be removed (it is
+        // commented out in other functions in this same file. See CAS-11946.
 	outMsPtr_p->flush(true);
 
 	existOut_p=false;
