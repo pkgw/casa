@@ -34,6 +34,9 @@
 #include <msvis/MSVis/ViFrequencySelection.h>
 
 #include <mstransform/TVI/ChannelAverageTVI.h>
+#include <synthesis/TransformMachines2/VisModelData.h>
+
+
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -961,6 +964,21 @@ FlagMSHandler::processorTable()
 
 	return true;
 
+}
+
+/*
+ *  Check if  a VIRTUAL MODEL column exists
+ */
+bool
+FlagMSHandler::checkIfSourceModelColumnExists()
+{
+	Vector<Int> fieldids;
+
+	if (casa::refim::VisModelData::hasAnyModel(*selectedMeasurementSet_p, fieldids)){
+		return true;
+	}
+
+	return false;
 }
 
 } //# NAMESPACE CASA - END
