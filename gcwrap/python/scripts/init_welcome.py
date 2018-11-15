@@ -2,13 +2,12 @@ import os
 import sys
 import traceback
 import platform
+import datetime
 
 from init_welcome_helpers import redirect_argv, immediate_exit_with_handlers
 
 if (casa['state']['telemetry-enabled'] == True):
-    casalog.poststat("Start CASA")
-    casalog.poststat("Platform: " + platform.platform())
-    casalog.poststat("CASA Version " + casa['build']['version'])
+    casa['state']['telemetry-starttime'] = str(datetime.datetime.now())
 
 if casa['flags'].execute:
     import os.path

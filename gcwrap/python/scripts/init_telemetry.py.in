@@ -8,10 +8,11 @@ import os
 from casac import casac
 import __casac__
 import atexit
+import datetime
 
 def logShutdown():
     if (casa['state']['telemetry-enabled'] == True):
-        casalog.poststat("Stop CASA")
+        casalog.poststat("Stopping CASA at: " + str(datetime.datetime.now()) + " Version " + casa['build']['version'] + " Platform: " + platform.platform() +  " Start time: " + casa['state']['telemetry-starttime'])
 
 casa['state']['telemetry-enabled'] = ${TELEMETRY_DEFAULT}
 
