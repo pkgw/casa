@@ -30,7 +30,6 @@ import casac
 import string
 import time
 import inspect
-import gc
 import numpy
 from casa_stack_manip import stack_frame_find
 from odict import odict
@@ -258,7 +257,6 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
    <xsl:call-template name="checkoutput"/>
 </xsl:for-each>
 <xsl:text disable-output-escaping="yes">
-        gc.collect()
         return result
 #
 #

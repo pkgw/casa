@@ -81,6 +81,9 @@ public:
 	// Get the casacore::MS PROCESSOR sub-table
 	bool processorTable();
 
+	// Check if SOURCE_MODEL column exists (Virtual MODEL column)
+	bool checkIfSourceModelColumnExists();
+
 	// Get a casacore::Float visCube and return a casacore::Complex one
 	casacore::Cube<casacore::Complex>& weightVisCube();
 
