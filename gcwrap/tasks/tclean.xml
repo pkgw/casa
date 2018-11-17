@@ -954,7 +954,31 @@ HPX HEALPix grid.  -->
 
     <param type="bool" name="psterm" subparam="true">
            <shortdescription>Use prolate spheroidal during gridding</shortdescription>
-<description>Use prolate spheroidal during gridding</description>
+	   <description>Include the Prolate Spheroidal (PS) funtion as the anti-aliasing 
+                        operator in the gridding convolution functions used for gridding.
+
+                        Setting this parameter to true is necessary when aterm is set to 
+                        false.  It can be set to false when aterm is set to true, though 
+                        with this setting effects of aliasing may be there in the image, 
+                        particularly near the edges.
+
+                        When set to true, the .pb images will contain the fourier transform
+                        of the of the PS funtion. The table below enumarates the functional
+                        effects of the psterm, aterm and wprojplanes settings.
+
+                        Operation       aterm   psterm  wprojplanes  Contents of the .pb image
+                        ----------------------------------------------------------------------
+                        AW-Projection    True    True      >1                FT(PS) x PB
+                                                 False                       PB
+
+                        A-Projection     True    True       1                FT(PS) x PB
+                                                 False                       PB
+
+                        W-Projection     False   True      >1                FT(PS)
+
+                        Standard         False   True       1                FT(PS)
+
+</description>
 	    <value type="bool">False</value>
     </param>
 
@@ -971,21 +995,19 @@ HPX HEALPix grid.  -->
            <shortdescription>Use conjugate frequency for wideband A-terms</shortdescription>
 <description>Use conjugate frequency for wideband A-terms
 
-                       While gridding data from one frequency channel, choose a
-                       convolution function from a 'conjugate' frequency such that
-                       the resulting baseline primary beam is approximately constant
-                       across frequency. For a system in which the primary beam scales
-                       with frequency, this step will eliminate instrumental spectral
-                       structure from the measured data and leave only the sky spectrum
-                       for the minor cycle to model and reconstruct [Bhatnagar et.al,2013].
+                       While gridding data from one frequency channel, choose a convolution 
+                       function from a 'conjugate' frequency such that the resulting baseline 
+                       primary beam is approximately constant across frequency. For a system in 
+                       which the primary beam scales with frequency, this step will eliminate 
+                       instrumental spectral structure from the measured data and leave only the 
+                       sky spectrum for the minor cycle to model and reconstruct [Bhatnagar et al., ApJ, 2013].
 
-                       As a rough guideline for when this is relevant, a source at the half
-                       power point of the PB at the center frequency will see an artificial
-                       spectral index of -1.4 due to the frequency dependence of the PB
-                       [Sault and Wieringa, 1994].  If left uncorrected during gridding, this
-                       spectral structure must be modeled in the minor cycle (using the
-                       mtmfs algorithm) to avoid dynamic range limits (of a few hundred
-                       for a 2:1 bandwidth).
+                       As a rough guideline for when this is relevant, a source at the half power 
+                       point of the PB at the center frequency will see an artificial spectral 
+                       index of -1.4 due to the frequency dependence of the PB [Sault and Wieringa, 1994].  
+                       If left uncorrected during gridding, this spectral structure must be modeled 
+                       in the minor cycle (using the mtmfs algorithm) to avoid dynamic range limits 
+                       (of a few hundred for a 2:1 bandwidth).
 
 </description>
 	    <value type="bool">True</value>
