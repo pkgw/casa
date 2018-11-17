@@ -964,7 +964,8 @@ HPX HEALPix grid.  -->
 
                         When set to true, the .pb images will contain the fourier transform
                         of the of the PS funtion. The table below enumarates the functional
-                        effects of the psterm, aterm and wprojplanes settings.
+                        effects of the psterm, aterm and wprojplanes settings. PB referes to 
+                        the Primary Beam and FT() refers to the Fourier transform operation.
 
                         Operation       aterm   psterm  wprojplanes  Contents of the .pb image
                         ----------------------------------------------------------------------
