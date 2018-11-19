@@ -2576,7 +2576,7 @@ std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
  - Capable of selecting curve fucntion for simulated pointing trajectry
   ----------------------------------------------------------------------*/
  
-TEST_F(TestDirection, InterpolationMulti )
+TEST_F(TestDirection, InterpolationFull )
 {
     // Combiniation List of Pointing Interval and Main Interval //
 
@@ -2674,7 +2674,7 @@ TEST_F(TestDirection, InterpolationSingle )
      - Ordinary (standard sequence) 
   --------------------------------------------------*/
 
-TEST_F(TestDirection, getDirectionWithUVW )
+TEST_F(TestDirection, getDirectionExtended )
 {
 
     TestDescription( "getDirection (J2000) with selected data. uvw available" );
