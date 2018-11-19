@@ -91,15 +91,44 @@ namespace casa {
  
 // MS name and expected Exception //
 
-struct _MSDef
+typedef struct _MSDef
 {
     bool   ExThrow;  // True = cause Exeption
     String name;     // MS name, with relative path from CASAPATH
-};
+} MSDef;
 
-// MS name-list //
+// Antenna Data (for Wtiting individual record) 
 
-std::vector<struct _MSDef> TestMSList 
+typedef  struct AntTblBuf_ {
+
+    String name;
+    String station;
+    String type;
+    String mount;
+
+    Vector<Double> position;
+    Vector<Double> offset;
+
+    Double  dish_diameter;
+    Int     orbit_id;
+    Double  mean_orbit[6];
+
+} ANTENNADataBuff ;
+
+//+
+//  Frame definitioan for  setFrame()
+//   - Strings and a bool var. wheather it is available in casacore.
+//   - Some of them causes Exeption Message from inside.
+//-
+typedef struct _FrameName {
+    bool   available;
+    String name;
+} FrameTypeList;
+
+//+
+// MeasurementSet Name List
+//-
+std::vector<MSDef> TestMSList 
 {
     // Exeption(bool)  , Filename //
  
@@ -134,6 +163,9 @@ std::vector<struct _MSDef> TestMSList
     // Any additional definition can be written here as you want. // 
 
 };
+
+// Default MS name .. //
+static const String DefaultLocalMsName = "./sdimaging-t.ms";
 
 // Get File Name by Number //
 const String  getMsNameFromList(uInt No )
@@ -263,15 +295,13 @@ private:
 //   Test cases/items.
 //***************************************************************************
 
-static const String DefaultLocalMsName = "./sdimaging-t.ms";
-
 void CopyDefaultMStoWork()
 {
     //  Environment //
 
         RunEnv env;
 
-    // Src/Dsr Path (string) 
+    // Src/Dst Path (string) 
 
         const String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
         const String dst = DefaultLocalMsName;
@@ -330,56 +360,87 @@ void DeleteWorkingMS()
 //  -  Interval(POINTING, MAIN)  (tunable in initialize() ).
 //********************************************************
 
-class EvalInterp
+class EvaluateInterporation
 {
 public:
 
-    EvalInterp() { Initialize(); }
+    EvaluateInterporation() { printf("EvaluateInterporation constructor \n" ); /* Minimum SetUp only */  }
 
-    // Tune Interval Time //
+    // Interval Time //
 
-        void TuneIntervalTime( Double pointing_interval, Double main_interval );
+        Double  getPointingTableInterval() { return pointingIntervalSec;}
+        Double  getMainTableInterval()     { return mainIntervalSec;}
+
+    // Curve Function select //
+
+        void setCurveFunctionNo(uInt num) { printf("EvaluateInterporation:: selected Curve Function = %u \n", num ); 
+                                            curveFunctionNo = defaultCurveFunctionNo = num; }
 
     // Init and Define Parameters 
 
         void Initialize();
+        void Initialize( Double, Double);
+        void setMainRowCount( uint n ) { requiredMainTestingRow =  defultMainTestingRow       = n; }  
 
     // Offset between POINTNG and MAIN //
 
-        Double getSlideOffset() { return slideOffset ; } 
+        /* function reserved */
  
     // Pseudo Trace(Direction) for the Test
 
-        casacore::Vector<Double>  PseudoDirInfo(Double tn, uInt type);
+        casacore::Vector<Double>  pseudoDirInfoPointing(Double tn);
+        casacore::Vector<Double>  pseudoDirInfoMain    (Double tn);
 
-    // Select Test-Function //
-    
-       void SelectTestFunction( uInt num ) { SelectTestingFunctionNo = num; };
+    // available POINTING TABLE count //
+
+       uInt getAvailablePointingTestingRow() { return availablePointingTestingRow; }
 
     //+
     // Numerical Error Statictic 
     //-
   
-        Double getInterpolationErrorLimit() { return interpolationErrorLimit;  } ; 
-
-    // Pre-located row , use tables with extended. See MS (sdimaging.ms) by tool //
-
-        const uInt defInerpolationTestPointingTableRow   = 3843;
-        const uInt defInerpolationTestMainTableRow       = 3843;
-
+        Double getInterpolationErrorLimit() { return interpolationErrorLimit;  } ;
 
         uInt getAddInerpolationTestPointingTableRow() {return addInerpolationTestPointingTableRow; };
         uInt getAddInerpolationTestMainTableRow()     {return addInerpolationTestMainTableRow; };
 	
+        bool checkExtendAvailable() 
+        {
+            if(availablePointingTestingRow < defInerpolationTestPointingTableRow) return true;
+            else return false; 
+        }
+
 private:
 
-       // Row information //
-     
-        uInt requiredPointingTestingRow;
-        uInt requiredMainTestingRow;
+       // initialize  Commmon //
 
-        uInt addInerpolationTestPointingTableRow ;
-        uInt addInerpolationTestMainTableRow ;
+       void init();
+
+        casacore::Vector<Double>  pseudoDirInfo(Double tn);
+
+        //+
+        //  Relative Time (r_time) and Total Time
+        //   for Curve Function
+        //-
+
+        Double  Interval  = 0.0; // Initilal ..
+        uInt    nRow      = 0;
+        Double  r_time     = 0.0;
+
+       // Pre-located row , use tables with extended. See MS (sdimaging.ms) by tool //
+
+        const uInt defInerpolationTestPointingTableRow   = 3843;
+        const uInt defInerpolationTestMainTableRow       = 3843;
+
+        // Row Count to execute //
+        uInt requiredMainTestingRow     = 0;    //   MUST BE SET 
+        uInt defultMainTestingRow       = 5000; //   copied to required when Initialize() 
+
+        uInt requiredPointingTestingRow = 0;    //   internally calculated
+        uInt availablePointingTestingRow = 0;    //   internally calculated   
+
+        uInt addInerpolationTestPointingTableRow ;   // calculated when start
+        uInt addInerpolationTestMainTableRow ;       // calculated when start
 
        // Error Limit (threshold) in GoogleTest Macro //
 
@@ -394,18 +455,17 @@ private:
         //   10: Harmonics Sinusoid. (f0 + 5th.)
         //-
 
-        uInt SelectTestingFunctionNo =0;
+        uInt curveFunctionNo;                  // Testing Function Mo/
+        uInt defaultCurveFunctionNo = 0;       // Testing Function default //
 
     // Interval Second.
 
-         Double pointingIntervalSec ;            // Interval Time to set in POINTING
-         Double mainIntervalSec     ;
+         Double pointingIntervalSec =0.0;            // Interval Time to set in POINTING 
+         Double mainIntervalSec     =0.0;            // Interval Time to set in MAIN 
 
-         Double TotalTime; 
- 
     // Parameters  (Time)
     
-        Double slideOffset   ;      // Sliding Time (sec) THIS CAUSES  fixed value i
+        Double secondOffset   ;      // Sliding Time (sec) THIS CAUSES  fixed value i
                                     //    on the edges of the table.(see doGetDirection() )
         Double dayOffset     ;      // Day offset   (Day)  ** NOT USED *** 
 
@@ -415,41 +475,29 @@ private:
 // Initialize
 //-
 
-void EvalInterp::Initialize( )
+void EvaluateInterporation::init()
 {
-        Description("EveInterp::initialize()::Setting Up parameters ","" ); 
+        // Bugcheck //
+        assert(requiredMainTestingRow!=0);
 
-        //+
-        // Pointing Interval
-        //- 
+        printf( "EvaluateInterporation::init()::  Pointing Interval = %f\n", pointingIntervalSec);
+        printf( "EvaluateInterporation::init()::  Main     Interval = %f\n", mainIntervalSec);
+        printf( "EvaluateInterporation::init()::  Main Testing Row  = %d\n", requiredMainTestingRow );
 
-/*Tunable*/ pointingIntervalSec         =  0.048;               // Interval Time to set in POINTING
-/*Tunable*/ mainIntervalSec             =  1.008;              
-/*Tunable*/ requiredMainTestingRow      =   5000;    // Given (MUST BE greater than 4000//
-
-        //  Error Limit 
-     
-/*Tunable*/  interpolationErrorLimit  = 5.0E-08;
-
-        //+
-        //  Offset Time between in MAIN and in POITING 
-        //    Positive value forward the time (MAIN).
-        //-  
-
-/*Tunable*/  slideOffset = 0.0; 
- 
         //+
         //  Define Row Count in POINTING and Main
         //   - the reuired minimum numbers are up to Interval ration.
         //-
 
-            TotalTime =  requiredMainTestingRow * mainIntervalSec ;
+            Double TotalTime =  requiredMainTestingRow * mainIntervalSec ;
 
-            requiredPointingTestingRow  = TotalTime / pointingIntervalSec;
-
-            if (requiredPointingTestingRow < defInerpolationTestPointingTableRow)
-                    requiredPointingTestingRow = defInerpolationTestPointingTableRow;
-
+            availablePointingTestingRow = requiredPointingTestingRow  = TotalTime / pointingIntervalSec;
+ 
+           // if POINTING table already have sufficient length 
+            if (requiredPointingTestingRow < defInerpolationTestPointingTableRow){
+                    availablePointingTestingRow = requiredPointingTestingRow;
+                    requiredPointingTestingRow  = defInerpolationTestPointingTableRow;
+            }
 
         //+
         // Optimize Row Count
@@ -474,19 +522,49 @@ void EvalInterp::Initialize( )
             addInerpolationTestMainTableRow  =0 ;
         }
 
-       printf( "File Size: required =%d, adding size = %d \n", requiredMainTestingRow ,addInerpolationTestPointingTableRow);
-       printf( "File Size: required =%d, adding size = %d \n", requiredMainTestingRow ,addInerpolationTestMainTableRow);
+        printf( "EvaluateInterporation::init()::File Size: Pointing, required =%d, adding size = %d \n", 
+                requiredPointingTestingRow ,addInerpolationTestPointingTableRow);
+        printf( "EvaluateInterporation::init()::File Size: MAIN    , required =%d, adding size = %d \n", 
+                requiredMainTestingRow ,addInerpolationTestMainTableRow);
 
 }
 
-void EvalInterp::TuneIntervalTime( Double pointing_interval, Double main_interval )
+void EvaluateInterporation::Initialize(Double p_interval, Double m_interval )
 {
-        pointingIntervalSec =  pointing_interval;               // Interval Time to set in POINTING
-        mainIntervalSec     =  main_interval;
+        Description("EveInterp::initialize()::Setting Up INTERVALs ","" );
 
-        Initialize() ;
+        pointingIntervalSec         =  p_interval;
+        mainIntervalSec             =  m_interval;
+
+        /*Tunable*/ 
+        requiredMainTestingRow =  defultMainTestingRow;
+
+        /*Tunable*/ 
+        curveFunctionNo     =  defaultCurveFunctionNo;
+
+        /*Tunable*/
+        interpolationErrorLimit  = 5.0E-06;
+
+        //+
+        //  Offset Time between in MAIN and in POITING 
+        //    Positive value forward the time (MAIN).
+        //-  
+
+        /*Tunable*/ // second and day offset on POINTING,  UNDER CONSTRUCTION // 
+ 
+        // common init //
+        init();
 }
 
+void EvaluateInterporation::Initialize( )
+{
+
+        Double p_int = 0.048;
+        Double m_int = 1.008;
+
+        setMainRowCount(5000);
+        Initialize(p_int, m_int);  // Give Pointing and Main Intervals. //
+}
 
 //*****************************************************
 // Generate Pseudo POINTING Trajectory
@@ -520,7 +598,7 @@ void Function_NormalizedLinear( Double r_time, Double &X, Double &Y )
 void Function_sinusoid_slow( Double r_time, Double& X, Double& Y)
 {
  
-    X = 2.0 * cos( 2.0*M_PI  * r_time );
+    X = 1.0 * cos( 2.0*M_PI  * r_time );
     Y = 1.0 * sin( 2.0*M_PI  * r_time );
 
     return;
@@ -552,57 +630,57 @@ void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y)
 
     return;
 }
+
+
+void Function_Err(Double r_time, Double& X, Double& Y)
+{
+    X = r_time;
+    Y = r_time;
+
+    throw;
+}
  
 //+
 //  Generate Pseuo Direction / Time Infomation
 //  both for Pointing and Main.
 //-
 
-casacore::Vector<Double> EvalInterp::PseudoDirInfo(Double delta, uInt type )
+typedef void (*FUNCTYPE)(Double, Double&, Double&);
+
+FUNCTYPE fpCurvefunc[]  = 
+{
+    Function_SimpleLinear,
+    Function_NormalizedLinear,
+    Function_sinusoid_slow,
+    Function_sinusoid_quick,
+    Function_harmonics_sinusoid,
+
+    Function_Err
+
+};
+
+casacore::Vector<Double> EvaluateInterporation::pseudoDirInfo(Double delta)
 {
         casacore::Vector<Double> point;
         point.resize(5);
 
         //+
-        //  Relative Time (r_time) and Total Time
+        //  relative time limit (r_time)
+        //   (on private)
         //-
 
-        Double  Interval  = 0.0; // Initilal ..
-        uInt    nRow      = 0;
-        Double  r_time     = 0.0;
-
-        if(type==1) // POINTING.. //
-        {
-            Interval = pointingIntervalSec;
-            nRow   =   requiredPointingTestingRow;
-            r_time =   delta/nRow;
+        if (r_time > 1.0) {
+            printf( "r_time::Exceeded 1.0: %f \n",r_time );
         }
-        else
-        if(type==2) // MAIN ..//
-        {
-            Interval = mainIntervalSec;
-            nRow=  requiredMainTestingRow;
  
-            if(pointingIntervalSec <= mainIntervalSec )
-            {
-                r_time =   delta / nRow ;
-            }
-            else
-            {
-                r_time =   delta / defInerpolationTestMainTableRow * mainIntervalSec /pointingIntervalSec  ;
-            }
-        }
-        else
-        {   throw ; } 
-
-        Double  time   = delta * Interval;
 
         //+
         //  Determin TIME 
         //    dd : in day.
         //-
 
-        Double dd   =  (22 *3600.0 
+        Double time  = delta * Interval;
+        Double dd    =  (22 *3600.0 
                          +  5*60 +  41.5 
                          + time  
                          + dayOffset )
@@ -622,47 +700,9 @@ casacore::Vector<Double> EvalInterp::PseudoDirInfo(Double delta, uInt type )
         //  (In near future, change to Templated Function in C++ )
         //-
 
-        switch(SelectTestingFunctionNo)
-        {
-            case 0:    /// Simple Linear ///
-
-                 Function_SimpleLinear( r_time, X, Y );
-                 break;
-
-            case 1:    /// 1.st order ///
-
-                 Function_NormalizedLinear( r_time, X, Y );
-                 break;
-
-            case 2:
-            case 3:
-
-                 X = 0.0;
-                 Y = 0.0;
-                 break;
-
-            case 8:    /// Sinusoid (slow)/// 
- 
-                 Function_sinusoid_slow(r_time, X, Y );
-                 break;
-
-            case 9:    /// Sinusoid (quick) /// 
-
-                 Function_sinusoid_quick(r_time, X, Y );
-                 break;
-
-            case 10:   /// Harmonics Sinusoid ///
-          
-                 Function_harmonics_sinusoid(r_time, X, Y);
-                 break;
-
-            default:
-                printf("ERROR\n");               
-                throw; 
-                break;
-        }
-
-        if(false)    printf("%f,%f,  %f,%f \n",time, r_time, X, Y);
+        (*fpCurvefunc[curveFunctionNo])( r_time, X, Y );
+        
+        if(false)    printf("PSD_DEBUG time=%f, r_time=%f, XY( %f,%f) \n", time, r_time, X, Y);
 
         // Probe the range //
 
@@ -693,28 +733,59 @@ casacore::Vector<Double> EvalInterp::PseudoDirInfo(Double delta, uInt type )
 
 }
 
+casacore::Vector<Double> EvaluateInterporation::pseudoDirInfoPointing(Double delta)
+{
+        Interval =   pointingIntervalSec;
+        nRow     =   availablePointingTestingRow;
+        r_time   =   delta/nRow;
+             
+        return(pseudoDirInfo(delta));
+}
+
+casacore::Vector<Double> EvaluateInterporation::pseudoDirInfoMain(Double delta)
+{
+        Interval = mainIntervalSec;
+              
+        if(pointingIntervalSec <= mainIntervalSec ) // Ordinary case
+        {
+            nRow=  requiredMainTestingRow;
+            r_time =   delta / nRow ;
+        }   
+        else   // This case may happen that not all the rows in Pointng are used.
+        {
+            nRow = max ( requiredMainTestingRow ,  defInerpolationTestMainTableRow );
+            r_time =   delta / nRow   ;
+        }
+   
+        return(pseudoDirInfo(delta));
+}
+
+//+ 
+//  Interpolation Error statistics 
+//-
+class ErrorMax 
+{
+public:
+    ErrorMax() {  MaxErr.resize(2); MaxErr[0]=0.0; MaxErr[1]=0.0;}
+    void put( Vector<Double> newval )
+    {
+        Double v0 = abs(newval[0]);
+        Double v1 = abs(newval[1]);
+        MaxErr[0] = max(v0, MaxErr[0]); 
+        MaxErr[1] = max(v1, MaxErr[1]);
+    }
+    std::vector<Double> get() { return MaxErr; }
+private:
+
+    std::vector<Double> MaxErr;
+
+};
+
 //+
 // Editting local MS for detail Test
 // (Tables) ANTENNA and POINTING . 
 //-
 
-// Antenna Data (for Wtiting individual record) 
-
-typedef  struct AntTblBuf_ {
-
-    String name;
-    String station;
-    String type;
-    String mount;
-
-    Vector<Double> position;
-    Vector<Double> offset;
-
-    Double  dish_diameter;
-    Int     orbit_id;
-    Double  mean_orbit[6];
-
-} ANTENNADataBuff ;
 
 //*******************************************************
 // MeasurementSet Edit Class (MsEdit)
@@ -726,45 +797,40 @@ class MsEdit
 {
 public:
 
-    EvalInterp  evgen;
+    EvaluateInterporation  evgen;
 
     MsEdit()        { };
 
 
     // Add or Remove Row  (Antenna) //
 
-        uInt AntennaTable_AppendRow();
-        void AntennaTable_RemoveRow(uInt NRow );
+        uInt appendRowOnAntennaTable();
+        void removeRowFromAntennaTablew(uInt NRow );
 
     // Add Row for Interpolation TEST //
 
-        uInt PointingTable_AppendRow(uInt AddCount );
-        uInt MainTable_AppendRow(uInt AddCount );
+        uInt appendRowOnPointingTable(uInt AddCount );
+        uInt appendRowOnMainTable(uInt AddCount );
     
-    // List Table Contents. //
-
-        void AntennaTable_List(String MsName =DefaultLocalMsName);
-        void PointingTable_List(String MsName =DefaultLocalMsName, bool showAll=false );
-
     // Write Data on Antenna Table // 
      
-        void AntennaTable_WriteData(String MsName =DefaultLocalMsName, uInt Row =0 );
+        void writeDataToAntennaTable(String MsName =DefaultLocalMsName, uInt Row =0 );
 
     // Write new Columns and init data // 
 
-        void PointingTable_WriteData(String MsName =DefaultLocalMsName );
+        void writeDataToPointingTable(String MsName =DefaultLocalMsName );
 
     // Write (generated) Test Data on Pointing Table //
 
-        void WriteTestDataOnPointingTable(Double dt, String MsName =DefaultLocalMsName );
+        void writeInterpolationTestDataOnPointingTable(Double dt, String MsName =DefaultLocalMsName );
 
     // Write (generated) Test Data in MAIN Table //
 
-        void WriteTestDataOnMainTable(Double dt, String MsName =DefaultLocalMsName);
+        void writeInterpolationTestDataOnMainTable(Double dt, String MsName =DefaultLocalMsName);
 
     // Add or Remove Column (Pointing) ////
 
-        void ReproduceNewColumnsFromDirection();
+        void duplicateNewColumnsFromDirection();
 
     //+
     // Default File Name
@@ -773,7 +839,7 @@ public:
         const String MsName = DefaultLocalMsName;  // default (C++11) //
 
     //+
-    // Buff between table and local var.
+    // Buff between table and local buff to write.
     //-
 
         ANTENNADataBuff  AntennaData;   // for Read 
@@ -787,7 +853,7 @@ public:
 //  returns latest nrow.
 //-
 
-uInt  MsEdit::AntennaTable_AppendRow()
+uInt  MsEdit::appendRowOnAntennaTable()
 {
     // Measurement Set (use default name) //
 
@@ -810,7 +876,7 @@ uInt  MsEdit::AntennaTable_AppendRow()
 // Remove specified row from Antanna Table
 //-
 
-void MsEdit::AntennaTable_RemoveRow(uInt nrow )
+void MsEdit::removeRowFromAntennaTablew(uInt nrow )
 {
     // Measurment Set (use default name ) 
 
@@ -827,99 +893,10 @@ void MsEdit::AntennaTable_RemoveRow(uInt nrow )
 }
 
 //+
-// List all the data from Antanna Table
-//  of specified MS.
-//- 
-
-void MsEdit::AntennaTable_List(String MsName )
-{
-
-    // Open MS by Update mode //
-
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-
-    // Tables Name //
-
-        String AntennaTableName = ms0.antennaTableName(); 
-        printf("MsEdit:Antanna  Table name \n" );
-        printf(" [%s] \n",AntennaTableName.c_str());
-
-    // Prepeare Handle //
-
-        MSAntenna   hAntennaTable  = ms0.antenna();
-
-    // Get current row count //
-
-        uInt nrow_a = hAntennaTable.nrow();
-
-        printf( "MsEdit:Antenna Table nrow  =%d \n",nrow_a);
-
-    //+
-    // Get Column handle from Table  (Antenna)
-    //  NEW FEASURE by C++11: Use samrt pointer.
-    //-
-
-        std::unique_ptr<casacore::MSAntennaColumns> 
-                columnAntenna( new casacore::MSAntennaColumns( hAntennaTable ));
-
-    //+
-    // LIST
-    //-
-
-        // Special Column //
-        
-        ROScalarColumn<String> antennaName      = columnAntenna->name();
-        ROScalarColumn<String> antennaStation   = columnAntenna->station();
-        ROScalarColumn<String> antennaType      = columnAntenna->type();
-        ROScalarColumn<String> antennaMount     = columnAntenna->mount();
-        ROArrayColumn<Double>  antennaPosition  = columnAntenna->position();
-        ROArrayColumn<Double>  antennaOffset    = columnAntenna->offset();
-
-        ROScalarColumn<Double>  antennaDishDiameter    = columnAntenna->dishDiameter();
-
-        printf( "=====================================================\n");
-        for (uInt row=0; row<columnAntenna->nrow(); row++)
-        {
-
-            AntennaData.name            =  antennaName.         get(row);
-            AntennaData.station         =  antennaStation.      get(row);
-            AntennaData.type            =  antennaType.         get(row);
-            AntennaData.mount           =  antennaMount.        get(row);
-            AntennaData.position        =  antennaPosition.     get(row);
-            AntennaData.offset          =  antennaOffset.       get(row);
-
-            AntennaData.dish_diameter   =  antennaDishDiameter. get(row);
-
-            printf( "Antenna[%2d]: name     [%s]\n",row,  AntennaData.name.    c_str() );
-            printf( "Antenna[%2d]: station  [%s]\n",row,  AntennaData.station. c_str() );
-            printf( "Antenna[%2d]: type     [%s]\n",row,  AntennaData.type.    c_str() );
-            printf( "Antenna[%2d]: mount    [%s]\n",row,  AntennaData.mount.   c_str() );
-
-            printf( "Antenna[%2d]: position [%f,%f,%f] \n",row,  
-                                 AntennaData.position[0],
-                                 AntennaData.position[1], 
-                                 AntennaData.position[2]  );
-
-            printf( "Antenna[%2d]: offset   [%f,%f,%f] \n",row,
-                                 AntennaData.offset[0],
-                                 AntennaData.offset[1],
-                                 AntennaData.offset[2]  );
-
-
- 
-            printf( "Antenna[%2d]: dish diameter  [%f]\n",row,  AntennaData.dish_diameter );
-
-            printf( "------------------\n");
-
-        } // end for
-
-}
-
-//+
 //  Write Data to Antenna Table 
 //-
 
-void MsEdit::AntennaTable_WriteData(String MsName, uInt Row )
+void MsEdit::writeDataToAntennaTable(String MsName, uInt Row )
 {
     // Open MS by Update mode //
 
@@ -1010,7 +987,7 @@ void MsEdit::AntennaTable_WriteData(String MsName, uInt Row )
 // Add rows by specified count on Pointing Table Table
 //-
 
-uInt  MsEdit::PointingTable_AppendRow(uInt AddCount )
+uInt  MsEdit::appendRowOnPointingTable(uInt AddCount )
 {
     // Measurement Set (use default name) //
 
@@ -1032,105 +1009,9 @@ uInt  MsEdit::PointingTable_AppendRow(uInt AddCount )
 }
 
 //+
-// List ALL THE DATA  from Pointing Table
-//  of specified MS.
-//- 
-
-void MsEdit::PointingTable_List(String MsName, bool showAll)
-{
-    // Open MS by Update mode //
-
-//        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-        MeasurementSet ms0( MsName.c_str());
-
-    // Tables Name //
-
-        String PointingTableName = ms0.pointingTableName();
-        printf("MsEdit:Pointing Table name [%s] \n",PointingTableName.c_str());
-
-    // Prepeare Handle //
-
-        MSPointing  hPointingTable = ms0.pointing();
-
-    // Get current row count //
-
-        uInt nrow_p = hPointingTable.nrow();
-
-        printf( "MsEdit:Pointing Table nrow =%d \n",nrow_p);
-
-    //
-    // Get Column handle from Table  (Pointing)
-    //  
-
-        std::unique_ptr<casacore::ROMSPointingColumns> 
-                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
-
-    //+
-    // Listing  (Pointing) 
-    //-
-
-        ROScalarColumn<Int>    pointingAntennaId      = columnPointing ->antennaId();
-        ROScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
-        ROScalarColumn<String> pointingName           = columnPointing ->name();
-        ROScalarColumn<Int>    pointingNumPoly        = columnPointing ->numPoly();
-        ROScalarColumn<Double> pointingTimeOrigin     = columnPointing ->timeOrigin();
-
-        ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
-        ROArrayColumn<Double>  pointingPointingOffset = columnPointing ->pointingOffset();
-        ROArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
-        ROArrayColumn<Double>  pointingEncoder        = columnPointing ->encoder();
-
-        printf("Showing Antena List.\n" );
-        for (uInt row=0; row<nrow_p; row++)
-        {
-            if(showAll)
-            {
-                printf( "Pointing: Antenna ID  [%d] = %d \n", row, pointingAntennaId.    get(row)  );
-                printf( "Pointing: Time        [%d] = %f \n", row, pointingTime.         get(row)  );
-                printf( "Pointing: Interval    [%d] = %f \n", row, pointingInterval.     get(row)  );
-                printf( "Pointing: Name        [%d] = \"%s\" \n", row, pointingName.       get(row).c_str()  );
-                printf( "Pointing: Num Poly    [%d] = %d \n", row, pointingNumPoly.      get(row)  );
-                printf( "Pointing: Time Origin [%d] = %f \n", row, pointingTimeOrigin.   get(row)  );
-
-            }
-
-            Vector<Double> valDirection  =   pointingDirection. get(row);
-            Vector<Double> valTarget     =   pointingTarget. get(row);
-#if 0
-            Vector<Double> valPointingOffset     =   pointingPointingOffset. get(row);
-            Vector<Double> valSourceOffset       =   pointingSourceOffset.   get(row);
-            Vector<Double> valEncoder            =   pointingEncoder.        get(row);
-#endif 
-            printf( "Pointing: Direction        [%d] = (%f,%f)  \n", row, valDirection[0],      valDirection[1] );
-            printf( "Pointing: Target           [%d] = (%f,%f)  \n", row, valTarget[0],         valTarget[1] );
-#if 0
-            printf( "Pointing: Pointing Offset  [%d] = (%f,%f)  \n", row, valPointingOffset[0], valPointingOffset[1] );
-            printf( "Pointing: Source   Offset  [%d] = (%f,%f)  \n", row, valSourceOffset[0],   valSourceOffset[1] );
-            printf( "Pointing: encoder          [%d] = (%f,%f)  \n", row, valEncoder[0],        valEncoder[1] );
-#endif 
-
-#if 0
-            Vector<Double> valPointingOffset     =   pointingPointingOffset. get(row);
-            Vector<Double> valSourceOffset       =   pointingSourceOffset  . get(row); 
-         
-            printf( "Pointing: Pointing Offset [%d] = (%f,%f)  \n", row, valPointingOffset[0],    valPointingOffset[1] );
-            printf( "Pointing: Source   Offset [%d] = (%f,%f)  \n", row, valSourceOffset[0],      valSourceOffset[1] );
-#endif 
-            printf ("-----------------\n"); 
-
-        }
-
-}
-
-
-
-//+
 // Write Columns on Pointing Table  
 //-
-
-void MsEdit::PointingTable_WriteData(String MsName )
+void MsEdit::writeDataToPointingTable(String MsName )
 {
 
     // Open MS by Update mode //
@@ -1222,18 +1103,14 @@ void MsEdit::PointingTable_WriteData(String MsName )
 //      only OFFSET tables are applied. 
 //-
 
-void MsEdit::ReproduceNewColumnsFromDirection()
+void MsEdit::duplicateNewColumnsFromDirection()
 {
-
- 
     // Open MS by Update mode //
 
         String MsName = DefaultLocalMsName;
-        
         Description( "MsEdit:Cpoied from Direction and Adding 3 Columns on Pointing Table ", MsName.c_str() );
 
         String name =  MsName;
-
         MeasurementSet ms0( name.c_str(),casacore::Table::TableOption:: Update );
 
     // Tables Name //
@@ -1260,18 +1137,18 @@ void MsEdit::ReproduceNewColumnsFromDirection()
        ArrayColumn< Double > colSourceOffset    =  columnPointing->sourceOffset ();
        ArrayColumn< Double > colEncoder         =  columnPointing->encoder ();
 
-
     //+
     // Attempt to create new Column.
     //-
 
-    // Table Desc linked from MS //
+      // Table Desc linked from MS //
 
-       TableDesc  tblDsc = hPointingTable.tableDesc();
+        TableDesc  tblDsc = hPointingTable.tableDesc();
 
-    //+
-    // Show current Columns. 
-    //-
+      //+
+      // Show current Columns. 
+      //-
+
         Description("=== Current Columns ======","");
 
         Vector<String> col_name = tblDsc.columnNames();
@@ -1281,7 +1158,7 @@ void MsEdit::ReproduceNewColumnsFromDirection()
                 printf( "%s \n", col_name[i].c_str() );
         }
 
-    // Copy Column Descriptor //
+      // Copy Column Descriptor //
 
         ColumnDesc  OrgColumnDesc = tblDsc.columnDesc ( "DIRECTION" ) ;    
 
@@ -1289,7 +1166,7 @@ void MsEdit::ReproduceNewColumnsFromDirection()
         ColumnDesc  RevColumnDesc2 = ColumnDesc(OrgColumnDesc);
         ColumnDesc  RevColumnDesc3 = ColumnDesc(OrgColumnDesc);
 
-    // Coumns Name def //
+      // Coumns Name def //
     
         String colname1 = "POINTING_OFFSET";
         String colname2 = "SOURCE_OFFSET";
@@ -1311,7 +1188,6 @@ void MsEdit::ReproduceNewColumnsFromDirection()
             hPointingTable.addColumn(RevColumnDesc2);
             hPointingTable.addColumn(RevColumnDesc3); 
         }
-
 #if 0
       // Remove Colume (by Name )
 
@@ -1336,13 +1212,9 @@ void MsEdit::ReproduceNewColumnsFromDirection()
          Array<Double> scOff  = colSourceOffset    .get(0);
          Array<Double> enc    = colEncoder        .get(0);
 #endif 
-
       printf(" Intended Change completed.\n" );
 
 }
-
-
-
 
 //*****************************************************************
 // Wtite Test Data on Direction Column in Pointing Table
@@ -1351,7 +1223,7 @@ void MsEdit::ReproduceNewColumnsFromDirection()
 //  - see also TEST Fixture  
 //****************************************************************
 
-void  MsEdit::WriteTestDataOnPointingTable(Double dt, String MsName)
+void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName)
 {
     Description( "MsEdit:Writing Test Data on Direcotion Column in Pointing Table", 
                   MsName.c_str()  );
@@ -1403,8 +1275,20 @@ void  MsEdit::WriteTestDataOnPointingTable(Double dt, String MsName)
 
     //+
     //  Loop for each Row,
+    //  (NOTE) In particular case , LoopCnt requires ONE more.
+    //          In ordinary case +1 causes Exceeding row count.
     //-
+
+#if 0
         uInt LoopCnt = nrow_p;
+#else
+        uInt LoopCnt = evgen.getAvailablePointingTestingRow();
+#endif 
+        if(evgen.checkExtendAvailable() )
+        { 
+            printf( "- Extend access to Pointing table = Available.\n" );
+            LoopCnt++;
+        }
 
         for (uInt row=0; row < LoopCnt; row++)
         {
@@ -1425,7 +1309,7 @@ void  MsEdit::WriteTestDataOnPointingTable(Double dt, String MsName)
 
                 Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
                 Vector<Double>  psd_data  
-                    = evgen.PseudoDirInfo(delta , 1 ); // generated pseudo data. (Pointing) //
+                    = evgen.pseudoDirInfoPointing(delta); // generated pseudo data. (Pointing) //
 
                 direction[0][0] = psd_data[0];
                 direction[0][1] = psd_data[1];
@@ -1445,7 +1329,7 @@ void  MsEdit::WriteTestDataOnPointingTable(Double dt, String MsName)
            // New Time   (intentionally activates interporation)
            //  basically FIXED values.
            //-
-
+            
                 pointingTime.           put(row, psd_data[2] ); // Time
                 pointingInterval.       put(row, psd_data[3] ); // Interval
 
@@ -1473,18 +1357,19 @@ void  MsEdit::WriteTestDataOnPointingTable(Double dt, String MsName)
 // on Main Table Table
 //-
 
-uInt  MsEdit::MainTable_AppendRow(uInt AddCount )
+uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 {
     // Measurement Set (use default name) //
 
         MeasurementSet ms0( MsName.c_str(), casacore::Table::TableOption:: Update );
 
     // Add Row //
+
         printf( "MsEdit:INTERPOLATION::Attempt to append [%d] new rows on Pointing Table. \n",AddCount );
-         
+
         ms0.addRow(AddCount);
-        
         uInt nrow = ms0.nrow();
+
         printf( "MsEdit:INTERPOLATION::   New nrow count is %d \n", nrow ); 
 
        ms0.flush();
@@ -1499,9 +1384,9 @@ uInt  MsEdit::MainTable_AppendRow(uInt AddCount )
 //  -  time diffrence = delta * interval 
 //-
 
-void  MsEdit::WriteTestDataOnMainTable(Double delta_shift, String MsName)
+void  MsEdit::writeInterpolationTestDataOnMainTable(Double delta_shift, String MsName)
 {
-    Description( "MsEdit:INTERPOLATION::WriteTestDataOnMainTable ,1) Writing Time in MAIN Table", 
+    Description( "MsEdit:INTERPOLATION::writeInterpolationTestDataOnMainTable ,1) Writing Time in MAIN Table", 
                   MsName.c_str()  );
     printf( "ddddddddddddddddddddddddddddddddddddd\n");
     printf( "   delta_shift =, %f \n", delta_shift );
@@ -1514,7 +1399,6 @@ void  MsEdit::WriteTestDataOnMainTable(Double delta_shift, String MsName)
     // Get current row count //
 
         uInt nrow_ms = ms0.nrow();
-
         printf( "MsEdit:INTERPOLATION::Main Table nrow =%d \n",nrow_ms);
 
     //+
@@ -1537,7 +1421,7 @@ void  MsEdit::WriteTestDataOnMainTable(Double delta_shift, String MsName)
             // Pseudo Data (TEST DATA );
 
                Vector<Double>  psd_data 
-                   = evgen.PseudoDirInfo( (Double)row , 2 ); // generated pseudo data. (Main table) //
+                   = evgen.pseudoDirInfoMain( (Double)row); // generated pseudo data. (Main table) //
 
             // Time Info. (current) ** NOT USED ** //
 #if 0
@@ -1556,7 +1440,7 @@ void  MsEdit::WriteTestDataOnMainTable(Double delta_shift, String MsName)
              // Show Time //
 
                 if (false){
-                        printf( "Main Tbl, %d Time and Interval, %f ,%f \n",
+                        printf( "Main Tbl, %d SetTime=%f,  Interval=%f, \n",
                             row, SetTime, interval );
                 }
 
@@ -1567,9 +1451,8 @@ void  MsEdit::WriteTestDataOnMainTable(Double delta_shift, String MsName)
         
         ms0.flush();
 
-        Description( "MsEdit:INTERPOLATION::WriteTestDataOnMainTable ,2) Writing END",
-                      MsName.c_str()  );
-
+        Description( "MsEdit:INTERPOLATION::writeInterpolationTestDataOnMainTable ,2) Writing END",
+                      MsName.c_str());
 }
 
 // 
@@ -1591,18 +1474,11 @@ protected:
 
     ~BaseClass() { }
 
-    virtual void SetUp()
-    {
-    }
-
-    virtual void TearDown()
-    {
-    }
-
+    virtual void SetUp() { }
+    virtual void TearDown() { }
 
 private:
  
-
 };
 
 //+
@@ -1616,14 +1492,8 @@ public:
 
 protected:
 
-        TestMeasurementSet()
-        {
-        }
-
-        ~TestMeasurementSet()
-        {
-        }
-
+        TestMeasurementSet() { }
+        ~TestMeasurementSet() { }
 
         virtual void SetUp()
         {
@@ -1635,8 +1505,8 @@ protected:
             BaseClass::TearDown();
         }
 
+        // Test Fixture Sub //
         void test_constructor(uInt num );
-
 };
 
 /*---------------------------------------
@@ -1651,7 +1521,6 @@ void TestMeasurementSet::test_constructor(uInt num )
     // CONSTRUCTOR  //
 
         MeasurementSet ms0( name  );      
-
         PointingDirectionCalculator calc(ms0);
 
     // Initial brief Inspection //
@@ -1660,7 +1529,6 @@ void TestMeasurementSet::test_constructor(uInt num )
         printf("  detected nrow : %d \n", calc.getNrowForSelectedMS() );
       
         EXPECT_NE((uInt)0, calc.getNrowForSelectedMS() );
-    
 }
 
 /*--------------------------------------------
@@ -1691,11 +1559,9 @@ TEST_F(TestMeasurementSet, variousConstructor )
         {
           EXPECT_NO_THROW( test_constructor( k ) );
         }
-
     }
-
-
 }
+
 /*-----------------------------------------------------
   Inspect RowId consistency
 
@@ -1706,7 +1572,6 @@ TEST_F(TestMeasurementSet, variousConstructor )
  Step 4: Insect that 1) All the ID appear, 
           2) No duplication
  -----------------------------------------------------*/
-
 
 TEST_F(TestMeasurementSet, RowId_inMS )
 {
@@ -1722,45 +1587,29 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 
      MeasurementSet ms0( name  );       
      PointingDirectionCalculator calc(ms0);
-
      uInt nrow0 = calc.getNrowForSelectedMS(); 
 
    // Prepare  Arraay ..//
 
-    Vector<int> RowIdList(nrow0,0);
+    Vector<int> rowIdCheckList(nrow0,0);
 
-    for(uInt sw=1; sw <=6; sw++)
+    std::vector<String> selectList = {
+      "DV01&&DV01",
+      "DV02&&DV02",
+      "PM03&&PM03",
+      "DV01&&DV02",
+      "DV01&&PM03",
+      "DV02&&PM03",
+    };
+
+    for(uInt sw=0; sw <selectList.size() ; sw++)
     {
          //+
          // setlectData() key 
          //  by Antenna Pair
          //-
 
-         String AntSel ="";
-         if (sw==1)
-         { 
-             AntSel = "DV01&&DV01";
-         }
-         if (sw==2)
-         { 
-             AntSel = "DV02&&DV02";
-         }
-         if (sw==3)
-         { 
-             AntSel = "PM03&&PM03";
-         }
-         if (sw==4)
-         { 
-             AntSel = "DV01&&DV02";
-         }
-         if (sw==5)
-         { 
-             AntSel = "DV01&&PM03";
-         }
-         if (sw==6)
-         { 
-             AntSel = "DV02&&PM03";
-         }
+         String ant_sel = selectList[sw];
 
          Description("Testing RowId functions." , "case="+std::to_string(sw) );
 
@@ -1769,42 +1618,38 @@ TEST_F(TestMeasurementSet, RowId_inMS )
           Vector<uInt> vRowIdOrgMS = calc.getRowIdForOriginalMS();
 
          printf( " calling selectData() \n");     
-         if( sw !=0 ) 
-	 {
-             calc.selectData( AntSel,
-                              "","","","","","","","","" );
-         }
+         calc.selectData( ant_sel,  "","","","","","","","","" );
 
         // Nrow from Selected //
 
-        uInt nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow);
+          uInt nrow = calc.getNrowForSelectedMS();
+          printf("Selected nrow =%d\n",nrow);
 
         // Vecrtor<uInt> getRowID() 
         
           Description("(1) Vector<uInt> getRowId() ", name );
           Vector<uInt> vRowId = calc.getRowId();
 
-
         // getRowId( int ) //
  
           Description("(2) uInt getRowId() ", name );
 
         // Show and Verify //
-        //  
+          
           printf( "Num Row (Org) = %d \n" , nrow0 );
           printf( "Num Row (Sel) = %d \n" , nrow );
-          printf( "    key=[%s]\n", AntSel.c_str() ); 
+          printf( "    key=[%s]\n", ant_sel.c_str() ); 
 
           for (uInt k=0; k < nrow; k++)
           {
               uInt RowId = calc.getRowId(k);
-              printf( "RowID = [%d] \n", RowId ); 
+              printf( "RowID ,%d, checked \n", RowId ); 
               
               // Check List //
-             RowIdList[RowId] ++;
+             rowIdCheckList[RowId] ++;
           }
-    }
+
+    } // end for 
     
     //*
     // RowId List 
@@ -1814,8 +1659,7 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 
     for (uInt i=0; i < nrow0; i++)
     {
-        // printf( " RowIdList[%d]  = %d \n" ,i, RowIdList[i] );
-        EXPECT_EQ( RowIdList[i],1 );    
+        EXPECT_EQ( rowIdCheckList[i],1 );    
     }
 }
 
@@ -1826,9 +1670,7 @@ class TestDirection : public BaseClass
 {
 
 public:
-
-        uInt InterpolationDivCount = 10;
-
+        uInt const InterpolationDivCount = 10;
 protected:
 
         // MeasurementSet Editting
@@ -1836,19 +1678,15 @@ protected:
             casa::MsEdit  msedit;
 
         // Add 3 OFFSET Colums (basically reserved) //
-        void addColumnsOnPointing();
+          void addColumnsOnPointing();
 
         // Add avalable data on OFFSET columns  //
-        void addColumnDataOnPointing();
-
-        // Add Testing Data(generated) to direction on POINTING //
-//        void addTestDataForGetDirection(Double dt);
+          void addColumnDataOnPointing();
 
         // subfunction of TEST_F(TestDirection....)
 
         std::vector<Double>  subTestDirection(Double dt);
-
-        vector<Double> TestSub(Double p, Double m);
+        vector<Double>       TestSub(Double p, Double m);
 
 
         TestDirection()
@@ -1894,12 +1732,12 @@ protected:
 
 void TestDirection::addColumnsOnPointing()
 {
-    msedit.ReproduceNewColumnsFromDirection();
+    msedit.duplicateNewColumnsFromDirection();
 }
 
 void TestDirection::addColumnDataOnPointing()
 {
-    msedit.PointingTable_WriteData( DefaultLocalMsName );
+    msedit.writeDataToPointingTable( DefaultLocalMsName );
 }
 
 /*---------------------------------------
@@ -1932,15 +1770,17 @@ TEST_F(TestDirection, setDirectionColumn  )
     TestDescription( "setDirectionColumn (String Fram)" );
     const String MsName = DefaultLocalMsName;
 
+#if 0
+    // Obsoleted soon, use DumpPointing... 
+
     if(false){
         printf( "Listing all POINTING TABLE  \n");
         msedit.PointingTable_List( MsName, false );
     }
- 
+#endif 
     // Create Object //
     
         MeasurementSet ms( MsName.c_str() );
-    
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -2011,16 +1851,17 @@ TEST_F(TestDirection, MovingSourceCorrection  )
     const String MsName = DefaultLocalMsName;     
 
     // List all info on Pointing Table. //
-
+    //   _List series. was Removed. 
+    //   Replaace to Dump series.
+#if 0
     if(true) {
           printf( "Listing all POINTING TABLE  \n");
           msedit.PointingTable_List( MsName, false );
     }
-
+#endif 
     // Create Object //
     
         MeasurementSet ms( MsName.c_str() );
-    
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -2130,15 +1971,9 @@ TEST_F(TestDirection, VerifyCAS11818 )
         String name =   MsName;
         printf( " Used MS is [%s] \n", name.c_str() );
    
-    // List all the point ..//
-#if 0
-        printf( "Listing all POINTING TABLE  \n");
-        msedit.PointingTable_List( MsName, false );
-#endif 
     // Create Object //
     
         MeasurementSet ms( name.c_str() );
-    
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -2207,14 +2042,16 @@ TEST_F(TestDirection, setMovingSource  )
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
     const String MsName = DefaultLocalMsName;    //  
 
-    // List all the point ..//
-     
+     // List all info on Pointing Table. //
+     //   _List series. was Removed. 
+     //   Replaace to Dump series.
+#if 0     
         if(false)
         {
             printf( "Listing all POINTING TABLE  \n");
             msedit.PointingTable_List( MsName, false );
         }
-
+#endif 
     // Create Object //
     
         MeasurementSet ms( MsName.c_str() );
@@ -2615,7 +2452,7 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
 
     if(true)
     {
-        uInt LoopCnt = n_row-1;
+        uInt LoopCnt = n_row-2;
 
         printf("Row, cal_x, cal_y, gen_x. gen_y, err_x, err_y \n");
 
@@ -2630,12 +2467,11 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
     
             // Generated (Estimated) //
 
-                Double offset = msedit.evgen.getSlideOffset();
 
                 casacore::Vector<Double>  gen_out 
-                      = msedit.evgen.PseudoDirInfo(  (Double)row  
-                                                      + dt                 // Interpolation offset  (sec)
-                                                      + offset , 2 );      // Slide offset between Main and POINITNG //
+                      = msedit.evgen.pseudoDirInfoMain(  (Double)row   
+                                                          + dt         );    // dt:Interpolation offset  (sec)
+                                                     
  
             //+
             // Error calculation (TENTATIVE, -> class lib) 
@@ -2663,9 +2499,9 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
             // Output List //
 
                 printf( "Evaluation,");
-                printf( "%6d, %12.9f,%12.9f,", row,  calculated_1, calculated_2 );
-                printf( "%12.9f,%12.9f,",      generated_1,  generated_2 );
-                printf( "%12.2e,%12.2e \n",      Err_1,     Err_2);
+                printf( "%6d, %13.10f,%13.10f,", row,  calculated_1, calculated_2 );
+                printf( "%13.10f,%13.10f,",      generated_1,  generated_2 );
+                printf( "%12.4e,%12.4e \n",      Err_1,     Err_2);
         }    
     }
    
@@ -2676,36 +2512,35 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
    return vv; 
 }
 
+//+
+// TestSub
+//  - Pointing table interval and Main table interval are specified
+//  - execute numerical error test by activating Interpolation
+//    by using slided time in Main Table.
+//-
 std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
 {
     printf("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII\n");
     printf("      INTERPOLATION:: testing [%f,%f ] \n", p_int,m_int );
     printf("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII\n");
 
-    // Set Up Intervals //
-
-     msedit.evgen.TuneIntervalTime( p_int, m_int );
-    
     // Max Error ///
 
     std::vector<Double> reterr;
-    std::vector<Double> maxerr(2);
-    maxerr[0] = 0.0;
-    maxerr[1] = 0.0;
+    ErrorMax            maxerr;
+    
 
     // Add INTERPOLATION TEST DATA 
   
-    msedit.WriteTestDataOnPointingTable( 0.0 );  // Pointing //
+    msedit.writeInterpolationTestDataOnPointingTable( 0.0 );  // Pointing //
 
     // Test Loop  
-    //   - nDiv should be tunable 
-    //-
+    //   - nDiv is given, internd to spacify number of separating count 
+    //     between one exact point and the next,  
 
     uInt nDiv = InterpolationDivCount; 
-
     for (uInt loop=0; loop <= nDiv; loop ++ )
     {
-        
          //+
          // SetUp Testing  MeasurmentSet
          //-
@@ -2713,8 +2548,7 @@ std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
            Description("INTERPOLATION:: Making MeasurementSet",
                         "INTERPOLATION::k="+to_string( (Double)loop/(Double)nDiv  ));
 
-           msedit.WriteTestDataOnMainTable( (Double)loop/(Double)nDiv  );
-           
+           msedit.writeInterpolationTestDataOnMainTable( (Double)loop/(Double)nDiv  );
 
         // excuttion ..// 
         
@@ -2725,117 +2559,110 @@ std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
           printf( " Max Error =, %e, %e \n", reterr[0], reterr[1] );
           printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
 
-         // Update //
-         if ( maxerr[0] < reterr[0] ) maxerr[0] = reterr[0];
-         if ( maxerr[1] < reterr[1] ) maxerr[1] = reterr[1]; 
+          maxerr.put(reterr);
     }
-    printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
-    printf( " Total Max Error =, %e, %e \n", maxerr[0], maxerr[1] );
-    printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
+    std::vector<Double> e_max = maxerr.get();
 
     printf("----------------------------------------\n");
     printf("INTERPOLATION:: testing [%f,%f] END     \n", p_int, m_int );
     printf("----------------------------------------\n");
 
-    return maxerr; 
+    return e_max; 
 }
-/*-------------------------------------------
-   Interporatio Test in getDirection()
-  -------------------------------------------*/
+/*-----------------------------------------------------------------------
+   Interporatio Test in getDirection()   Multiple-Combiniation
+
+ - Use Combiniation of Pointing table Interval and Main table Interval
+ - Capable of selecting curve fucntion for simulated pointing trajectry
+  ----------------------------------------------------------------------*/
  
-TEST_F(TestDirection, InterpolationFull )
+TEST_F(TestDirection, InterpolationMulti )
 {
+    // Combiniation List of Pointing Interval and Main Interval //
 
-    TestDescription( "Interpolation test in getDirection() " );
+    vector<Double> Pointing_IntervalList = { 0.05,  0.1,  0.5,  1.0};
+    vector<Double> Main_IntervalList     = { 1.0,   0.01};
 
-    // Increase Row on MS for large-file.
-
-      msedit.PointingTable_AppendRow (msedit.evgen.  getAddInerpolationTestPointingTableRow() );
-
-      msedit.MainTable_AppendRow     ( msedit.evgen. getAddInerpolationTestMainTableRow() );
-
-      addColumnDataOnPointing();   // FILL DATA 
-
-    //+
-    //  Select Function
-    //    See EvalInterp class
-    //-
-
-      msedit.evgen.  SelectTestFunction( 0 );
-
-    //+
-    // Interval Combiniation
-    //   Pointing TBL and MAIN TBL
-    //-
-
-#if 0
-    vector<Double> P_IntervalList = { 0.01, 0.05, 1.0 };
-    vector<Double> M_IntervalList = { 0.001, 0.1, 1.0, 2.0 };
-#else
-    vector<Double> P_IntervalList = { 0.01, 0.05, 1.0, 2.0 };
-    vector<Double> M_IntervalList = { 0.001, 1.0 };
-#endif 
-
-    //+
-    // All the combiniation will be test //
-    //-
-
-    std::vector<Double> g_err = {0,0};
+    ErrorMax  maxerr;
     std::vector<Double> r_err = {0.0}; 
 
-   for( uInt p=0;  p < P_IntervalList.size(); p++)
+   for( uint m=0; m < Main_IntervalList.size(); m++)
     {
-        for( uint m=0; m < M_IntervalList.size(); m++)
+        for( uint p=0; p < Pointing_IntervalList.size(); p++)
         {
-             Double p_i = P_IntervalList[p];
-             Double p_m = M_IntervalList[m];
+             Double p_i = Pointing_IntervalList[p];
+             Double m_i = Main_IntervalList[m];
+  
+             SetUp();
+             msedit.evgen  .    setCurveFunctionNo(1);   // set Curve Fuction
+             msedit.evgen.      setMainRowCount(5000);
+             msedit.evgen.      Initialize(p_i, m_i) ;
 
-              r_err = TestDirection::TestSub( p_i, p_m );
+            // Increase Row on MS for large-file.
 
-              // Update //
+              msedit.appendRowOnPointingTable (msedit.evgen.  getAddInerpolationTestPointingTableRow() );
+              msedit.appendRowOnMainTable     (msedit.evgen. getAddInerpolationTestMainTableRow() );
 
-              if ( g_err[0] < r_err[0] ) g_err[0] = r_err[0];
-              if ( g_err[1] < r_err[1] ) g_err[1] = r_err[1];
+              addColumnDataOnPointing();   // FILL DATA 
+
+            // Execute and get error info //
+
+              r_err = TestDirection::TestSub( p_i, m_i );
+              maxerr.put(r_err);
         }
     }
 
+    std::vector<Double>  e = maxerr.get();
     printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
-    printf ( "   THE WORST Error = %e, %e \n", g_err[0], g_err[1]);
+    printf ( "   THE WORST Error = %e, %e \n", e[0], e[1] );
     printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
 }
 
+/*-----------------------------------------------------------------------
+  Interporatio Test in getDirection()   SINGLE mode.
+
+- Set up one set of Pointing table Interval and Main table Interval
+- Table sizes to be created is automatically tuned.
+- Capable of selecting curve fucntion for simulated pointing trajectry
+ ----------------------------------------------------------------------*/
 
 TEST_F(TestDirection, InterpolationSingle )
 {
 
     TestDescription( "Interpolation test in getDirection() SINGLE-mode" );
 
-    // Increase Row on MS for large-file.
+    //+
+    //  Select Function
+    //    - See EvaluateInterporation class
+    //
+    //  Set Testing Count
+    //    - define test count. some rows are automatically added
+    //-
 
-      msedit.PointingTable_AppendRow (msedit.evgen.  getAddInerpolationTestPointingTableRow() );
+      msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
+      msedit.evgen.    setMainRowCount   (7200);  // aprox. 2H 
+      msedit.evgen.      Initialize( 0.048,     // Pointing Interval
+                                    1.008 ) ;  // Main Interval 
 
-      msedit.MainTable_AppendRow     ( msedit.evgen. getAddInerpolationTestMainTableRow() );
+    // Increase Row on MS for large-file.:
 
+      msedit.appendRowOnPointingTable (msedit.evgen.  getAddInerpolationTestPointingTableRow() );
+      msedit.appendRowOnMainTable     ( msedit.evgen. getAddInerpolationTestMainTableRow() );
       addColumnDataOnPointing();   // FILL DATA 
 
     //+
-    //  Select Function
-    //    See EvalInterp class
-    //-
-
-      msedit.evgen.  SelectTestFunction( 10 );
-
-    //+
-    // Interval Combiniation
     //   Pointing TBL and MAIN TBL
     //-
  
-      Double pointing_interval = 0.048;
-      Double main_interval     = 1.008;
 
       std::vector<Double> r_err = {0.0};
 
-      r_err = TestDirection::TestSub(pointing_interval, main_interval);
+      // get currect interval time.. //
+      Double p_interval = msedit.evgen.getPointingTableInterval();
+      Double m_interval = msedit.evgen.getMainTableInterval();
+
+      // Execute and get numerical error info 
+      r_err = TestDirection::TestSub(p_interval, m_interval);
 
       printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
       printf( " Total Max Error = %e, %e \n", r_err[0], r_err[1] );
@@ -2847,7 +2674,7 @@ TEST_F(TestDirection, InterpolationSingle )
      - Ordinary (standard sequence) 
   --------------------------------------------------*/
 
-TEST_F(TestDirection, getDirectionExtended )
+TEST_F(TestDirection, getDirectionWithUVW )
 {
 
     TestDescription( "getDirection (J2000) with selected data. uvw available" );
@@ -2855,11 +2682,7 @@ TEST_F(TestDirection, getDirectionExtended )
     // Use DefaultMS as a simple sequence.
     // Use the below to show uv valuses from MS.
 
-#if 0
-    const String MsName = DefaultLocalMsName;    
-#else
     const String MsName = env.getCasaMasterPath() + "listobs/uid___X02_X3d737_X1_01_small.ms";
-#endif 
 
     // Create Object //
     
@@ -3295,7 +3118,6 @@ TEST_F(TestSelectData, Time )
     // Create Object //
     
         MeasurementSet ms( name.c_str() );
-    
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -3328,7 +3150,6 @@ TEST_F(TestSelectData, Time )
         EXPECT_ANY_THROW( test_selectdata(calc) );
         nrow = calc.getNrowForSelectedMS();
         EXPECT_EQ ((uInt)0, nrow);
-
 
       TimeSel = "<2014/12/4/00:39:25";  //  Time Condition  
         FunctionalDescription( "Field: a specifc Time, Limited Number  match are expected",TimeSel);
@@ -3369,7 +3190,6 @@ TEST_F(TestSelectData, Feed )
     // Create Object //
     
         MeasurementSet ms( name.c_str() );
-    
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -3422,7 +3242,6 @@ TEST_F(TestSelectData, Intent )
     // Create Object //
     
         MeasurementSet ms( name.c_str() );
-    
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -3662,16 +3481,6 @@ TEST_F(TestSelectData, MSselect )
         EXPECT_EQ ((uInt)0, nrow);
 }
 
-/*------------------------------------------------------------------
-  Frame definitioan for  setFrame()
-   - Strings and a bool var. wheather it is available in casacore.
-   - Some of them causes Exeption Message from inside.
---------------------------------------------------------------------*/
-
-struct _FrameName {
-    bool   available;
-    String name;
-};
 
 class TestSetFrame : public BaseClass
 {
@@ -3680,7 +3489,7 @@ public:
 
 protected:
 
-const std::vector<struct _FrameName> DefinedFrametypes
+const std::vector<FrameTypeList> DefinedFrametypes
     = {
         {true,  "J2000"},  
         {true,  "JMEAN"}, 
@@ -3726,14 +3535,9 @@ const std::vector<struct _FrameName> DefinedFrametypes
 
     };
 
-        TestSetFrame ()
-        {
-        }
+        TestSetFrame () { }
 
-        ~TestSetFrame ()
-        {
-        }
-
+        ~TestSetFrame () { }
 
         virtual void SetUp()
         {
@@ -3744,10 +3548,10 @@ const std::vector<struct _FrameName> DefinedFrametypes
        {
             BaseClass::TearDown();
        }
-        
+      
+        // Test Fixture Sub //
+
         void check_direction_info(PointingDirectionCalculator& calc, uInt n_frame );
-
-
 };
 
 /*-----------------------------------------------
@@ -3823,7 +3627,6 @@ TEST_F(TestSetFrame, setFrame )
     // Create Object //
     
         MeasurementSet ms( name.c_str() );
-    
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -3844,10 +3647,7 @@ TEST_F(TestSetFrame, setFrame )
         }
 }
 
-
-
 }  // END namespace
-
 
 /************************************************
    Unit Test Main (google test)
