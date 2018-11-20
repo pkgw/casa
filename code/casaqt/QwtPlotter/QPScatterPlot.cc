@@ -770,7 +770,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             if(!sameBrush) p->setBrush(brush);
                         }
                         if(diffColor) {
-                            QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(i)];
+                            unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
+                            QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
@@ -791,7 +792,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             if(!sameBrush) p->setBrush(mbrush);
                         }
                         if(diffColor) {
-                            QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(i)];
+                            unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
+                            QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
