@@ -51,6 +51,7 @@ import os
 import unittest
 import hashlib
 import subprocess
+import shutil
 try:
     import casatools
     from casatasks import partition, split, listobs, casalog
@@ -73,9 +74,12 @@ else:
     # Generate the test data
 
 if CASA6:
-    mesSet = casatools.ctsys.resolve('regression/unittest/listobs/uid___X02_X3d737_X1_01_small.ms')
+    mesSet = casatools.ctsys.resolve('visibilities/alma/uid___X02_X3d737_X1_01_small.ms')
 else:
-    mesSet = datapath + 'uid___X02_X3d737_X1_01_small.ms'
+    if os.path.exists(os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/uid___X02_X3d737_X1_01_small.ms'):
+        messet = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/uid___X02_X3d737_X1_01_small.ms'
+    else:
+        mesSet = datapath + 'uid___X02_X3d737_X1_01_small.ms'
 
 partition(vis=mesSet, outputvis='genmms.mms', createmms=True)
 multiMesSet = 'genmms.mms'
@@ -379,12 +383,13 @@ class listobs_test_base(unittest.TestCase):
         self.assertTrue('ObservationID' in open('listobs.txt').read(), msg='There is no Observation information')
 
     def verbosecheck(self, dataset):
-        listobs(vis=dataset, listfile='listobsNonVerbose.txt', verbose=False)
-        listobs(vis=dataset, listfile='listobsVerbose', verbose=True)
-        nonVerbose = os.path.getsize('listobsNonVerbose.txt')
-        Verbose = os.path.getsize('listobsVerbose')
-
-        self.assertGreater(Verbose, nonVerbose, msg='Verbose is smaller than non-Verbose')
+        casalog.setlogfile('testlog.log')
+        listobs(vis=dataset, verbose=False)
+        nonverb = ['name', 'station']
+        self.assertTrue(all(x in open('testlog.log').read() for x in nonverb), msg='non-verbose not showing proper info')
+        listobs(vis=dataset, verbose=True)
+        items = ['Name', 'Station', r'Diam.', r'Long.', r'Lat.', 'Offset', 'ITRF', 'Scan', 'FieldName', 'SpwIds']
+        self.assertTrue(all(x in open('testlog.log').read() for x in items))
 
     def overwritecheck(self, dataset):
         listfile = "listobs.txt"

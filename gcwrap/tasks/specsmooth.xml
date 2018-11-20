@@ -19,32 +19,32 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     	<value></value>
         <example>imagename='ngc5921_task.image'</example>
     </param>
-    <param type="string" direction="in" name="outfile">
+    <param type="string" name="outfile">
         <description>Output image name.</description>
         <value/>
         <example>outfile='mysmoothed.im'</example>
     </param>
-    <param type="string" direction="in" name="box" subparam="true">
+    <param type="string" name="box">
         <description>Rectangular region to select in direction plane. Default is to use the entire direction plane.</description>
         <value/>
         <example>box="4,4,10,10"</example>
     </param>
-    <param type="string" direction="in" name="chans" subparam="true">
+    <param type="string" name="chans">
         <description>Channels to use. Channels must be contiguous. Default is to use all channels.</description>
         <value/>
     </param>
-    <param type="string" direction="in" name="stokes" subparam="true">
+    <param type="string" name="stokes">
         <description>Stokes planes to use. Planes specified must be contiguous. Default is to use all Stokes planes.</description>
         <value/>
         <example>stokes="I"</example>
     </param>
-    <param type="any" direction="in" name="region">
+    <param type="any" name="region">
         <any type="variant"/>
         <description>Region selection. Default is to use the full image.</description>
         <value type="string"/>
         <example>region="myregion.rgn"</example>
     </param>
-    <param type="string" direction="in" name="mask">
+    <param type="string" name="mask">
         <description>Mask to use. Default is none..</description>
         <value></value>
     </param>
@@ -56,45 +56,27 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <description>Stretch the mask if necessary and possible? Default False</description>
         <value>False</value>
     </param>
-    
-    <param type="int" direction="in" name="axis">
+    <param type="int" name="axis">
         <description>The profile axis. Default: use the spectral axis if one exists, axis 0 otherwise (&lt;0).</description>
         <value>-1</value>
         <example>axis=3</example>
     </param>
-    <param type="string" direction="in" name="function">
+    <param type="string" name="function">
         <description>Convolution function. hanning and boxcar are supported functions. Minimum match is supported.</description>
         <value>boxcar</value>
         <example>function="boxcar"</example>
     </param>
-    <param type="int" direction="in" name="width" subparam="True">
+    <param type="int" name="width" subparam="True">
         <description>Width of boxcar, in pixels.</description>
         <value>2</value>
         <example>width=2</example>
     </param>
-    <param type="string" direction="in" name="dmethod">
+    <param type="string" name="dmethod">
         <description>Decimation method. "" means no decimation, "copy" and "mean" are also supported (minimum match).</description>
         <value>copy</value>
         <example>dmethod="mean"</example>
     </param>
     <constraints>
-        <when param="region">
-            <equals type="string" value="">
-                <default param="box">
-                    <value>""</value>
-                </default>
-            </equals>
-            <equals type="string" value="">
-                <default param="chans">
-                    <value>""</value>
-                </default>
-            </equals>
-            <equals type="string" value="">
-                <default param="stokes">
-                    <value>""</value>
-                </default>
-            </equals>
-        </when>
         <when param="outfile">
             <notequals type="string" value="">
                 <default param="overwrite">
@@ -109,7 +91,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                 </default>
             </notequals>
         </when>
-    
         <when param="function">
             <notequals type="string" value="hanning">
                 <default param="width">

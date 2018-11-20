@@ -43,7 +43,7 @@ def hanningsmooth(vis=None,
         return False
 
     # Input vis is an MMS
-    if pdh.isParallelMS(vis) and keepmms:
+    if pdh.isMMSAndNotServer(vis) and keepmms:
         
         if not pdh.validateInputParams():        
             raise Exception, 'Unable to continue with MMS processing'

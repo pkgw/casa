@@ -46,7 +46,7 @@ def split(vis,
         return False
 
     # Input vis is an MMS
-    if pdh.isParallelMS(vis) and keepmms:
+    if pdh.isMMSAndNotServer(vis) and keepmms:
         
         retval = pdh.validateInputParams()
         if not retval['status']:
