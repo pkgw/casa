@@ -1462,15 +1462,134 @@ aggregateTimeCentroid(SDBList& sdbs, Int refAnt, std::map<Int, Double>& aggregat
 }
 
 
+void
+print_gsl_vector(gsl_vector *v)
+{
+    const size_t n = v->size;
+    for (int i=0; i!=n; i++) {
+        cerr << gsl_vector_get(v, i) << " ";
+        if (i>0 && (i % 4)==0) cerr << endl;
+    }
+    cerr << endl;
+}
 
 void
-least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& casa_flags, Matrix<Float>& casa_snr,
-                     Int refant, const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
+print_max_gsl3(gsl_vector *v)
+{
+    double phi_max = 0.0;
+    double del_max = 0.0;
+    double rat_max = 0.0;
+        
+    const size_t n = v->size;
+    for (int i=0; i!=n/3; i++) {
+        if (fabs(gsl_vector_get(v, 3*i+0)) > fabs(phi_max)) phi_max = gsl_vector_get(v, 3*i+0);
+        if (fabs(gsl_vector_get(v, 3*i+1)) > fabs(del_max)) del_max = gsl_vector_get(v, 3*i+1);
+        if (fabs(gsl_vector_get(v, 3*i+2)) > fabs(rat_max)) rat_max = gsl_vector_get(v, 3*i+2);
+    }
+    cerr << "phi_max " << phi_max << " del_max " << del_max << " rat_max " << rat_max << endl;
+}
+
+
+
+/*
+gsl-2.4/multilarge_nlinear/fdf.c defines gsl_multilarge_nlinear_driver,
+which I have butchered for my purposes here into
+not_gsl_multilarge_nlinear_driver(). We still iterate the nonlinear
+least squares solver until completion, but we adopt a convergence
+criterion copied from AIPS.
+
+Inputs: maxiter  - maximum iterations to allow
+        w        - workspace
+
+Additionally I've removed the info parameter, and I may yet regret it.
+
+Originally:
+        info     - (output) info flag on why iteration terminated
+                   1 = stopped due to small step size ||dx|
+                   2 = stopped due to small gradient
+                   3 = stopped due to small change in f
+                   GSL_ETOLX = ||dx|| has converged to within machine
+                               precision (and xtol is too small)
+                   GSL_ETOLG = ||g||_inf is smaller than machine
+                               precision (gtol is too small)
+                   GSL_ETOLF = change in ||f|| is smaller than machine
+                               precision (ftol is too small)
+
+Return:
+GSL_SUCCESS if converged
+GSL_MAXITER if maxiter exceeded without converging
+GSL_ENOPROG if no accepted step found on first iteration
+*/
+
+int
+least_squares_inner_driver (const size_t maxiter,
+                                   gsl_multilarge_nlinear_workspace * w)
+{
+  int status;
+  size_t iter = 0;
+  /* call user callback function prior to any iterations
+   * with initial system state */
+  Double s;
+  Double last_s = 1.0e30;
+  Bool converged = false;
+  do  {
+      status = gsl_multilarge_nlinear_iterate (w);
+      /*
+       * If the solver reports no progress on the first iteration,
+       * then it didn't find a single step to reduce the
+       * cost function and more iterations won't help so return.
+       *
+       * If we get a no progress flag on subsequent iterations,
+       * it means we did find a good step in a previous iteration,
+       * so continue iterating since the solver has now reset
+       * mu to its initial value.
+       */
+      if (status == GSL_ENOPROG && iter == 0) {
+          return GSL_EMAXITER;
+      }
+
+      Double fnorm = gsl_blas_dnrm2(w->f);      
+      s = 0.5 * fnorm * fnorm;
+      if ((iter > 0) && DEVDEBUG) {
+          // cerr << "Parameters: " << endl;
+          // print_gsl_vector(w->x);
+          cerr << "Iter: " << iter << " ";
+          print_max_gsl3(w->dx);
+          cerr << "1 - s/last_s=" << 1 - s/last_s << endl;
+      }
+      ++iter;
+      if ((1 - s/last_s < 5e-6) && (iter > 1)) converged = true;
+      last_s = s;
+      /* old test for convergence:
+         status = not_gsl_multilarge_nlinear_test(xtol, gtol, ftol, info, w); */
+  } while (!converged && iter < maxiter);
+  /*
+   * the following error codes mean that the solution has converged
+   * to within machine precision, so record the error code in info
+   * and return success
+   */
+  if (status == GSL_ETOLF || status == GSL_ETOLX || status == GSL_ETOLG)
+  {
+      status = GSL_SUCCESS;
+  }
+  /* check if max iterations reached */
+  if (iter >= maxiter && status != GSL_SUCCESS)
+      status = GSL_EMAXITER;
+  return status;
+} /* gsl_multilarge_nlinear_driver() */
+
+
+
+
+void
+least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& casa_flags, Matrix<Float>& casa_snr, Int refant,
+                     const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
     // The variable casa_param is the Casa calibration framework's RParam matrix; we transcribe our results into it only at the end.
     // n below is number of variables,
     // p is number of parameters
 
     AuxParamBundle bundle(sdbs, refant, activeAntennas);
+    
     for (size_t icor=0; icor != bundle.get_num_corrs(); icor++) {
         bundle.set_active_corr(icor);
         if (bundle.get_num_antennas() == 0) {
@@ -1542,14 +1661,12 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         gsl_vector *res_f = gsl_multilarge_nlinear_residual(w);
 
         int info;
-        int status = gsl_multilarge_nlinear_driver(max_iter, param_tol, gtol, ftol,
-                                                   NULL, NULL, &info, w);
+        int status = least_squares_inner_driver(max_iter, w);
         double chi1 = gsl_blas_dnrm2(res_f);
         
         gsl_vector_sub(gp_orig, w->x);
         gsl_vector *diff = gp_orig;
-        // double diffsize =
-        gsl_blas_dnrm2(diff);
+        double diffsize = gsl_blas_dnrm2(diff);
     
         gsl_vector *res = gsl_multilarge_nlinear_position(w);
         
