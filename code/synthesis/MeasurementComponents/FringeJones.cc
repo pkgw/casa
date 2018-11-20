@@ -307,15 +307,15 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant, Array<Double>& delayWindow
                      << "sl1 " << sl1 << endl
                      << "flagSlice " << flagSlice << endl;
             }
-            Array<Complex> rhs = v(sl2).nonDegenerate();
-            Array<Float> weights = w(sl2).nonDegenerate();
+            Array<Complex> rhs = v(sl2).nonDegenerate(1);
+            Array<Float> weights = w(sl2).nonDegenerate(1);
                 
             unitize(rhs);
-            Vpad_(sl1).nonDegenerate() = rhs * weights;
+            Vpad_(sl1).nonDegenerate(1) = rhs * weights;
 
-            Array<Bool> flagged(fl(flagSlice).nonDegenerate());
+            Array<Bool> flagged(fl(flagSlice).nonDegenerate(1));
             // Zero flagged entries.
-            Vpad_(sl1).nonDegenerate()(flagged) = Complex(0.0);
+            Vpad_(sl1).nonDegenerate(1)(flagged) = Complex(0.0);
 
             if (!allTrue(flagged)) {
                 for (Int icorr=0; icorr<nCorr_; ++icorr) {
