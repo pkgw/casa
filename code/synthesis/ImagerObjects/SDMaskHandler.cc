@@ -2315,7 +2315,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //}
       
       // include location (=median)  for both fastnoise=true and false
-      Double absmax = max(maxs(chindx), mins(chindx));
+      Double absmax = max(abs(maxs(chindx)), abs(mins(chindx)));
       //sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
       //sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)absmax; 
       //noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
@@ -2326,16 +2326,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
       lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
       negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
-      // evaluate max of the two thresholds, flip the sign then add the offset (median)
-      negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold) + (Float)mdns(chindx); 
-      // modify threshold values to include the offset 
+      // add the offset
       sidelobeThreshold += (Float)mdns(chindx); 
       noiseThreshold += (Float)mdns(chindx);
       lowNoiseThreshold += (Float)mdns(chindx); 
       negativeThreshold += (Float)mdns(chindx);
-      
       maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
       lowMaskThreshold(ich) = max(sidelobeThreshold, lowNoiseThreshold);
+      negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold);
       ThresholdType(ich) = (maskThreshold(ich) == sidelobeThreshold? "sidelobe": "noise");
 
       os << LogIO::DEBUG1 <<" sidelobeTreshold="<<sidelobeThreshold<<" noiseThreshold="<<noiseThreshold<<" lowNoiseThreshold="<<lowNoiseThreshold<<LogIO::POST;
