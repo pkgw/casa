@@ -1394,7 +1394,6 @@ install( FILES
          install/casa2tsum3.xsl
          install/casa2latex.xsl
          install/casa2pycli.xsl
-         install/casa2pypg.xsl
          install/casa2tlatex.xsl
          install/casa2tsum.xsl
          install/casatlist.xsl
