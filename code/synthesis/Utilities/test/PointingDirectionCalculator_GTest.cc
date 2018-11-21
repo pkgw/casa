@@ -3653,6 +3653,7 @@ TEST_F(TestSetFrame, setFrame )
    Unit Test Main (google test)
     - Based on instructed Template for GTest.
     - Such minimum statements are recommended.
+(Note) Interpolation Test completed 
  *************************************************/
 
 int main (int nArgs, char * args [])
