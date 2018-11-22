@@ -67,7 +67,7 @@ using namespace std;
 //   debuglog << "Any message" << any_value << debugpost;
 //
   
-// #define DIRECTIONCALC_DEBUG
+//   #define DIRECTIONCALC_DEBUG
 
 namespace {
 struct NullLogger {
@@ -410,7 +410,7 @@ void PointingDirectionCalculator::splineInit(uInt antID, uInt startPos, uInt end
 
     // Dump //
 
-    if(true)
+    if(false)
     {
         printf("Spline::Dump Coeffient(size=%d)\n",size );
         for(int i=0; i< size-1; i++)
@@ -425,7 +425,7 @@ void PointingDirectionCalculator::splineInit(uInt antID, uInt startPos, uInt end
             Double y_c2 = splineCoeff_[antID][i][1][2];
             Double y_c3 = splineCoeff_[antID][i][1][3];
 
-            if(false)
+            if(true)
             {
                 printf("Spline::COEFF,%4d,",i );
                 printf( "X, %10.5e, %10.5e, %10.5e, %10.5e,|,",
@@ -648,34 +648,30 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
 
         // REVISE HERE //
           Vector<Double> scanRate;
-          Vector<Double> interpolated;
+          Vector<Double> interpolated(2);
 
-        if(false)
+        if(true)
         { 
             //+
             // NEW Spline Interpolation
             //-
 
             uInt antID = 0;
-            uInt row   = 0;                  
-            Double dt  = 0.5;
-           
-            Vector<Double> outDir = splineCalulate(row, dt, antID );
-            
+            uInt row   = irow;                  
+            Double dd  =  (currentTime - t0) / dt;
+ 
+             
+            Vector<Double> ttDir = splineCalulate(row, dd, antID );
+            interpolated[0] = ttDir[0];
+            interpolated[1] = ttDir[1];
 
+            if(false) {
+                printf( "Nishie:: irow=%d,  dd=%f,", irow, dd );
+                printf ("Dir=, %f, %f \n", ttDir[0],ttDir[1]);
+            }
         }
         else
         {
-            // 混ぜても安全、人畜無害 安全確認//
-#if 0
-            printf("Spline:: calling splineCalculate() , index=%d \n", index);
-            Vector<Double> ttDir ;  // DEBUG ;; 
-              ttDir = splineCalulate(0 , 0, 0 );  // DEBUG ;; 
-              ttDir = splineCalulate(10 , 0, 0 );  // DEBUG ;; 
-              ttDir = splineCalulate(100 , 0, 0 );  // DEBUG ;; 
-              ttDir = splineCalulate(500 , 0, 0 );  // DEBUG ;; 
-              ttDir = splineCalulate(4997 , 0, 0 );  // DEBUG ;; 
-#endif  
             //+
             // Original Linear Interpolation
             //-

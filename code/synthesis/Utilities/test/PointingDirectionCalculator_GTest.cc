@@ -375,6 +375,11 @@ public:
 
         void setCurveFunctionNo(uInt num) { printf("EvaluateInterporation:: selected Curve Function = %u \n", num ); 
                                             curveFunctionNo = defaultCurveFunctionNo = num; }
+    // Calculation Error Limit //
+    
+         void setInterpolationErrorLimit(Double val)
+                                          { printf("EvaluateInterporation:: set interpolation err. limit = %e \n", val );
+                                            interpolationErrorLimit = defaultInterpolationErrorLimit = val; }
 
     // Init and Define Parameters 
 
@@ -436,15 +441,16 @@ private:
         uInt requiredMainTestingRow     = 0;    //   MUST BE SET 
         uInt defultMainTestingRow       = 5000; //   copied to required when Initialize() 
 
-        uInt requiredPointingTestingRow = 0;    //   internally calculated
-        uInt availablePointingTestingRow = 0;    //   internally calculated   
+        Double  requiredPointingTestingRow = 0;    //   internally calculated
+        Double  availablePointingTestingRow = 0;    //   internally calculated   
 
-        uInt addInerpolationTestPointingTableRow ;   // calculated when start
-        uInt addInerpolationTestMainTableRow ;       // calculated when start
+        Double addInerpolationTestPointingTableRow ;   // calculated when start
+        Double addInerpolationTestMainTableRow ;       // calculated when start
 
        // Error Limit (threshold) in GoogleTest Macro //
 
         Double interpolationErrorLimit ;
+        Double defaultInterpolationErrorLimit = 2.0e-03 ;
 
         //+
         // Testing Function Select [TENTATIVE]
@@ -499,6 +505,12 @@ void EvaluateInterporation::init()
                     requiredPointingTestingRow  = defInerpolationTestPointingTableRow;
             }
 
+         //+
+         // Interpolation Error Limit 
+         //-
+
+         interpolationErrorLimit =  defaultInterpolationErrorLimit ;
+
         //+
         // Optimize Row Count
         //   - when required row is insufficient, set adding count and expand MS later. 
@@ -522,9 +534,9 @@ void EvaluateInterporation::init()
             addInerpolationTestMainTableRow  =0 ;
         }
 
-        printf( "EvaluateInterporation::init()::File Size: Pointing, required =%d, adding size = %d \n", 
+        printf( "EvaluateInterporation::init()::File Size: Pointing, required =%f, adding size = %f \n", 
                 requiredPointingTestingRow ,addInerpolationTestPointingTableRow);
-        printf( "EvaluateInterporation::init()::File Size: MAIN    , required =%d, adding size = %d \n", 
+        printf( "EvaluateInterporation::init()::File Size: MAIN    , required =%u, adding size = %f \n", 
                 requiredMainTestingRow ,addInerpolationTestMainTableRow);
 
 }
@@ -543,7 +555,7 @@ void EvaluateInterporation::Initialize(Double p_interval, Double m_interval )
         curveFunctionNo     =  defaultCurveFunctionNo;
 
         /*Tunable*/
-        interpolationErrorLimit  = 5.0E-06;
+        interpolationErrorLimit  = defaultInterpolationErrorLimit;
 
         //+
         //  Offset Time between in MAIN and in POITING 
@@ -671,6 +683,7 @@ casacore::Vector<Double> EvaluateInterporation::pseudoDirInfo(Double delta)
 
         if (r_time > 1.0) {
             printf( "r_time::Exceeded 1.0: %f \n",r_time );
+            assert(r_time > 1.0);
         }
  
 
@@ -737,7 +750,7 @@ casacore::Vector<Double> EvaluateInterporation::pseudoDirInfoPointing(Double del
 {
         Interval =   pointingIntervalSec;
         nRow     =   availablePointingTestingRow;
-        r_time   =   delta/nRow;
+        r_time   =   delta/availablePointingTestingRow;
              
         return(pseudoDirInfo(delta));
 }
@@ -1287,7 +1300,7 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
         if(evgen.checkExtendAvailable() )
         { 
             printf( "- Extend access to Pointing table = Available.\n" );
-            LoopCnt++;
+            LoopCnt += 5;
         }
 
         for (uInt row=0; row < LoopCnt; row++)
@@ -2639,10 +2652,12 @@ TEST_F(TestDirection, InterpolationSingle )
     //    - define test count. some rows are automatically added
     //-
 
-      msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
-      msedit.evgen.    setMainRowCount   (500);  // aprox. 1-2H 
+      msedit.evgen.    setCurveFunctionNo(2);   // set Curve Fuction
+      msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
       msedit.evgen.      Initialize( 0.5,     // Pointing Interval
-                                     1.0 ) ;  // Main Interval 
+                                     1.0 ) ;  // Main Interval
+ 
+      msedit.evgen.    setInterpolationErrorLimit( 2.0 );
 
     // Increase Row on MS for large-file.:
 
