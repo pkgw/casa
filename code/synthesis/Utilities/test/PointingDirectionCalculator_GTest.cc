@@ -2640,9 +2640,9 @@ TEST_F(TestDirection, InterpolationSingle )
     //-
 
       msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
-      msedit.evgen.    setMainRowCount   (7200);  // aprox. 2H 
-      msedit.evgen.      Initialize( 0.048,     // Pointing Interval
-                                    1.008 ) ;  // Main Interval 
+      msedit.evgen.    setMainRowCount   (500);  // aprox. 1-2H 
+      msedit.evgen.      Initialize( 0.5,     // Pointing Interval
+                                     1.0 ) ;  // Main Interval 
 
     // Increase Row on MS for large-file.:
 

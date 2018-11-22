@@ -47,6 +47,8 @@
 #include <measures/TableMeasures/ArrayMeasColumn.h>
 #include <tables/Tables/ScalarColumn.h>
 
+#include <synthesis/Utilities/SDPosInterpolator.h>
+
 namespace casa {
 
 ///
@@ -305,8 +307,22 @@ private:
     // privatize  default constructor
 
     PointingDirectionCalculator();
-}
-;
+
+    // new: Spline
+
+    SDPosInterpolator  sdp_();
+
+    void                                 splineInit    (casacore::uInt antennaID, 
+                                                        casacore::uInt startPos, 
+                                                        casacore:: uInt endPos);
+    casacore::Vector<casacore::Double>   splineCalulate(casacore::uInt row, 
+                                                        casacore::Double dt, 
+                                                        casacore::uInt AntennaID =0);
+
+    casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > splineCoeff_;
+
+};
+
 
 } //# NAMESPACE CASA - END
 
