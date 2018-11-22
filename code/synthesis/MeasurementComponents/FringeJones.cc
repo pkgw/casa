@@ -1582,14 +1582,13 @@ least_squares_inner_driver (const size_t maxiter,
 
 
 void
-least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& casa_flags, Matrix<Float>& casa_snr, Int refant,
-                     const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
+least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& casa_flags, Matrix<Float>& casa_snr,
+                     Int refant, const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
     // The variable casa_param is the Casa calibration framework's RParam matrix; we transcribe our results into it only at the end.
     // n below is number of variables,
     // p is number of parameters
 
     AuxParamBundle bundle(sdbs, refant, activeAntennas);
-    
     for (size_t icor=0; icor != bundle.get_num_corrs(); icor++) {
         bundle.set_active_corr(icor);
         if (bundle.get_num_antennas() == 0) {
