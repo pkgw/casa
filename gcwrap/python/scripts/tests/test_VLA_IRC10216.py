@@ -43,7 +43,7 @@ def msHandler(file):
     return table_instance
 
 def suite():
-    return [Test010_VLAIRC10216,Test020_VLAIRC10216]
+    return [Test010_VLAIRC10216 ,Test020_VLAIRC10216]
 
 
 class Test010_VLAIRC10216(unittest.TestCase):
@@ -53,7 +53,11 @@ class Test010_VLAIRC10216(unittest.TestCase):
         else:
             casaguidedata_path = "/casaguidedata/"
 
-        os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "day2_TDEM0003_10s_norx",os.getcwd()+"/day2_TDEM0003_10s_norx")
+        import tarfile
+        tar = tarfile.open(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "raw/day2_TDEM0003_10s_norx.tar.gz")
+        tar.extractall()
+        tar.close()
+
 
         #Fitting an average spectrum
         file = open("specfit.crtf", "w")
@@ -68,19 +72,7 @@ class Test010_VLAIRC10216(unittest.TestCase):
 
         time.sleep(5) # Allow extract time to download script
 
-        ### TODO TEMP for testing. Change statwt to oldstatwt
 
-        #lines = open('VLAhighfrequencySpectralLinetutorial-IRC_2B10216.py')
-        #file = open("newfile.txt", "w")
-        #for line in lines:
-        #    if line.startswith("statwt"):
-        #        line = "old"+ line
-        #    file.write(line)
-        #file.close()
-
-        #os.remove('VLAhighfrequencySpectralLinetutorial-IRC_2B10216.py')
-        #os.rename("newfile.txt",'VLAhighfrequencySpectralLinetutorial-IRC_2B10216.py')
-        ### END TODO TEMP
     def tearDown(self):
         pass
     def test_00_runGuide(self):
@@ -97,7 +89,7 @@ class Test020_VLAIRC10216(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        os.unlink("day2_TDEM0003_10s_norx")
+        os.system("rm -rf day2_TDEM0003_10s_norx")
         rmtables("IRC10216*")
         rmtables("*.cal")
         rmtables("*.bcal")
