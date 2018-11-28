@@ -3692,6 +3692,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                err+= "verbose must be a bool";
             }
           }
+        if( inrec.isDefined("fastnoise"))
+          {
+            if (inrec.dataType("fastnoise")==TpBool ) {
+               err+= readVal(inrec, String("fastnoise"), fastnoise);
+            }
+            else {
+               err+= "fastnoise must be a bool";
+            }
+          }
         if( inrec.isDefined("nsigma") )
           {
             if(inrec.dataType("nsigma")==TpFloat || inrec.dataType("nsigma")==TpDouble ) {
@@ -3873,6 +3882,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     decpar.define("dogrowprune",doGrowPrune);
     decpar.define("minpercentchange",minPercentChange);
     decpar.define("verbose", verbose);
+    decpar.define("fastnoise", fastnoise);
     decpar.define("interactive",interactive);
     decpar.define("nsigma",nsigma);
 

@@ -2789,7 +2789,7 @@ Bool SIImageStore::isModelEmpty()
     minMax( minVal, maxVal, posmin, posmax, lattice );
   }
 
-Array<Double> SIImageStore::calcRobustRMS(const Float pbmasklevel)
+Array<Double> SIImageStore::calcRobustRMS(Array<Double>& mdns, const Float pbmasklevel, const Bool fastcalc)
 {    
   LogIO os( LogOrigin("SIImageStore","calcRobustRMS",WHERE) );
   Record*  regionPtr=0;
@@ -2803,9 +2803,17 @@ Array<Double> SIImageStore::calcRobustRMS(const Float pbmasklevel)
   }
   
    
-  Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
-  // Turned off the new noise calc (CAS-11705) 
-  //Record thestats = SDMaskHandler::calcRobustImageStatistics(*residual(), *mask(), pbmask,  LELmask, regionPtr, True);
+  Record thestats;
+  if (fastcalc) { // older calculation 
+    thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+  }
+  else { // older way to calculate 
+    // use the new statistic calculation algorithm
+    Vector<Bool> dummyvec;
+    // TT: 2018.08.01 using revised version (the older version of this is renameed to calcRobustImageStatisticsOld)
+    thestats = SDMaskHandler::calcRobustImageStatistics(*residual(), *mask(), pbmask,  LELmask, regionPtr, True, dummyvec);
+  }
+    
 
   /***
   ImageStatsCalculator imcalc( residual(), regionPtr, LELmask, False); 
@@ -2819,8 +2827,8 @@ Array<Double> SIImageStore::calcRobustRMS(const Float pbmasklevel)
   //cout<<"thestats="<<thestats<<endl;
   ***/
 
-  //Array<Double> maxs, rmss, mads, mdns;
-  Array<Double>rmss, mads, mdns;
+  //Array<Double>rmss, mads, mdns;
+  Array<Double>rmss, mads;
   //thestats.get(RecordFieldId("max"), maxs);
   thestats.get(RecordFieldId("rms"), rmss);
   thestats.get(RecordFieldId("medabsdevmed"), mads);
