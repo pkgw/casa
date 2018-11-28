@@ -117,7 +117,12 @@ Previous calibrations should be applied on the fly.
 		<description>Constrain FFT rate search to a window; a two-element list, units of seconds per second</description>
 		<value></value>
 	</param>
-   
+
+   <param type="int" name="maxits">
+		<description>Maximum number of iterations for least-squares solver</description>
+		<value>100</value>
+	</param>
+
 	<param type="bool" name="append">
 		<description>Append solutions to the (existing) table</description>
 		<value>False</value>

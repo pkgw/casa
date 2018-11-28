@@ -790,6 +790,7 @@ Bool Calibrater::setsolve (const String& type,
                            const Bool zerorates,
                            const Bool globalsolve,
                            const Int weightfactor,
+                           const Int maxits,
                            const Vector<Double>& delaywindow, 
                            const Vector<Double>& ratewindow
     )
@@ -823,6 +824,7 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("weightfactor", TpInt);
   solveparDesc.addField ("delaywindow", TpArrayDouble);
   solveparDesc.addField ("ratewindow", TpArrayDouble);
+  solveparDesc.addField ("maxits", TpInt);
 
   // single dish specific fields
   solveparDesc.addField ("fraction", TpFloat);
@@ -853,7 +855,7 @@ Bool Calibrater::setsolve (const String& type,
   solvepar.define ("weightfactor", weightfactor);
   solvepar.define ("delaywindow", delaywindow);
   solvepar.define ("ratewindow", ratewindow);
-  
+  solvepar.define ("maxits", maxits);
   
   String uptype=type;
   uptype.upcase();

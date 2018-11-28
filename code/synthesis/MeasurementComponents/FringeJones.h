@@ -249,6 +249,7 @@ public:
   virtual casacore::Bool& zeroRates() { return zeroRates_; }
   virtual casacore::Bool& globalSolve() { return globalSolve_; } 
   virtual casacore::Int& weightFactor() { return weightFactor_; }
+  virtual casacore::Int& maxits() { return maxits_; }
   virtual casacore::Array<casacore::Double>& delayWindow() { return delayWindow_; }
   virtual casacore::Array<casacore::Double>& rateWindow() { return rateWindow_; }
   
@@ -289,6 +290,7 @@ private:
   casacore::Array<casacore::Double> delayWindow_;
   casacore::Array<casacore::Double> rateWindow_;
   casacore::Int weightFactor_;
+  casacore::Int maxits_;
 };
 
 
