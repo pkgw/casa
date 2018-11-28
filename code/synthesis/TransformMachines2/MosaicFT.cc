@@ -285,9 +285,11 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
     pbConvFunc_p->setSkyJones(sj_p);
   ////TEST for HetArray only for now
   if(pbConvFunc_p->name()=="HetArrayConvFunc"){
-    if(convSampling <10) 
-      convSampling=10;
-    AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
+    if(usePointingTable_p)
+      convSampling=1;
+    else
+      convSampling=2;
+    AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", convSampling);
   }
   if((pbConvFunc_p->getVBUtil()).null()){
     if(vbutil_p.null()){
@@ -1065,6 +1067,12 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
       if(vb.antenna1()(rownr)==vb.antenna2()(rownr)) rowFlags(rownr)=1;
     }
   }
+  //We should flag all convolution row with support 0
+  for  (Int rownr=startRow; rownr<=endRow; rownr++) {
+    if(convSupportPlanes_p[convRowMap_p[rownr]]<0){
+      rowFlags[rownr]=1;
+    }
+  }
   
   
 
@@ -1142,8 +1150,8 @@ Int  ixsub, iysub, icounter;
   //nth=1;
   ////////***************
   if (nth >3){
-    ixsub=16;
-    iysub=16; 
+    ixsub=8;
+    iysub=8; 
   }
   else if(nth >1){
      ixsub=2;
@@ -1423,6 +1431,12 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
   if(!usezero_p) {
     for (Int rownr=startRow; rownr<=endRow; rownr++) {
       if(vb.antenna1()(rownr)==vb.antenna2()(rownr)) rowFlags(rownr)=1;
+    }
+  }
+  //We should flag all convolution row with support 0
+  for  (Int rownr=startRow; rownr<=endRow; rownr++) {
+    if(convSupportPlanes_p[convRowMap_p[rownr]]<0){
+      rowFlags[rownr]=1;
     }
   }
   Int nvp=data.shape()[0];

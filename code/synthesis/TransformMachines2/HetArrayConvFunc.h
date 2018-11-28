@@ -125,8 +125,8 @@ namespace casa {
       void supportAndNormalize(casacore::Int plane, casacore::Int convSampling);
       void supportAndNormalizeLatt(casacore::Int plane, casacore::Int convSampling, casacore::TempLattice<casacore::Complex>& convFuncLat,
 				   casacore::TempLattice<casacore::Complex>& weightConvFuncLat);
-      void supportAndNormalize(casacore::Array<casacore::Complex>& convFunc,
-			       casacore::Array<casacore::Complex>& weightConvFunc, casacore::Vector<casacore::Int>& supp);
+      casacore::Bool supportAndNormalize(casacore::Array<casacore::Complex>& convFunc,
+					 casacore::Array<casacore::Complex>& weightConvFunc, casacore::Vector<casacore::Int>& supp, const casacore::Double factor=1.0);
       void init(const PBMathInterface::PBClass typeToUse);
       void makerowmap(const vi::VisBuffer2& vb, casacore::Vector<casacore::Int>& rowMap);
       casacore::Float interpLanczos( const casacore::Double& x , const casacore::Double& y, const casacore::Double& nx, const casacore::Double& ny,   const casacore::Float* data, const casacore::Float a=3);
@@ -137,12 +137,13 @@ namespace casa {
 			const casacore::Int origSize, const casacore::Double pixshift_x,
 			const casacore::Double pixshift_y);
       //apply a phase gradient corresponding to (xshift, yshift) in pixels in the image domain
-      void applyPhaseGradient(casacore::Array<casacore::Complex>& arr, const casacore::Double& xshift, const casacore::Double& yshift, const casacore::Int xsize, const casacore::Int ysize);
+      void applyPhaseGradient(casacore::Array<casacore::Complex>& arr, const casacore::Double& xshift, const casacore::Double& yshift, const casacore::Int xsize, const casacore::Int ysize, const casacore::Int convsamp=1);
       casacore::Float sinc(const casacore::Float x) ;
       casacore::Array<casacore::Complex> resample(const casacore::Array<casacore::Complex>& inarray, const casacore::Double factor);
       casacore::Matrix<casacore::Complex> resample2(const casacore::Matrix<casacore::Complex>& inarray, const casacore::Double factor);
+      void multiplySelfConjugate(casacore::ImageInterface<casacore::Complex>& im, const casacore::Double freq);
       void initSincCache();
-      
+      void roundShiftInPointing(casacore::Double& xshift, casacore::Double& yshift, const casacore::Int origSupport, const casacore::MDirection& dir1, const casacore::MDirection& dir2, const casacore::DirectionCoordinate dc);
       PBMathInterface::PBClass pbClass_p;
       //casacore::SimpleOrderedMap <casacore::String, casacore::Int> convFunctionMap_p;
       casacore::Vector<casacore::Int64> convFunctionMap_p;
@@ -176,6 +177,7 @@ namespace casa {
       casacore::Vector<casacore::Int> origConvSize_p;
       std::array<casacore::Float,8000> sincCache_p;
       casacore::Float *sincCachePtr_p;
+      double timer1_p, timer2_p, timer3_p;
     };
 }; //end of namespace refim
 } // end namespace casa

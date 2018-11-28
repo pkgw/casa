@@ -3,6 +3,8 @@ import shutil
 import os
 import numpy as np
 import pylab as pl
+import dateutil
+from datetime import datetime
 from casac import casac
 me=casac.measures()
 tb=casac.table()
@@ -23,8 +25,8 @@ def fixpointing_vlass(vis, col='DIRECTION'):
     eref=tb.getcolkeyword('TIME','MEASINFO')['Ref']
     colkeyw=tb.getcolkeyword(col,'MEASINFO')
     pref=tb.getcolkeyword(col,'MEASINFO')['Ref']
-    colkeyw['Ref']=dref
-    tb.putcolkeyword(col, 'MEASINFO', colkeyw)
+#    colkeyw['Ref']=dref
+#    tb.putcolkeyword(col, 'MEASINFO', colkeyw)
     me.doframe(me.observatory('VLA'))
     for ant in ants:
         st=tb.query('ANTENNA_ID=='+str(ant))
@@ -34,6 +36,7 @@ def fixpointing_vlass(vis, col='DIRECTION'):
         sh=dirv_orig.shape
         dirv=dirv_orig.reshape((sh[0],sh[len(sh)-1]))
         rap=np.zeros(len(ptimes))
+        t_rap=np.zeros(len(ptimes))
         decp=np.zeros(len(ptimes))
         epm=me.epoch(eref,str(ptimes[0])+'s')
         rdp=me.direction(pref,str(dirv[0,0])+'rad',str(dirv[1,0])+'rad')
@@ -45,19 +48,35 @@ def fixpointing_vlass(vis, col='DIRECTION'):
             aep=me.measure(rdp,dref)  
             rap[i]=qa.convert(aep['m0'], 'rad')['value']
             decp[i]=qa.convert(aep['m1'], 'rad')['value']
+            if(ant==0):
+                t_rap[i]=pl.date2num(dateutil.parser.parse(qa.time(qa.quantity(rap[i], 'rad'), form='hms', prec=10)[0]))
+            
         if(ant==0):
             pl.figure(1)
             pl.clf()
-            pl.plot(rap, decp,'o')
-            pl.title('BEFORE')
+            pl.plot_date(t_rap, decp,'o')
+            pl.title('BEFORE RA v/s DEC IN J2000')
+            pl.ylabel('DEC in rad') 
         filterjump(rap,decp)
         filterjump2(rap,decp, ptimes)
         filterjump2(rap,decp, ptimes)
         if(ant==0):
             pl.figure(2)
             pl.clf()
-            pl.plot(rap, decp,'o')
-            pl.title('AFTER')
+            pl.plot_date(t_rap, decp,'o')
+            pl.title('AFTER RA v/s DEC IN J2000')
+            pl.ylabel('DEC in rad') 
+        ###lets reconvert rap,decp back to original frame
+        aep=me.direction(dref, str(rap[0])+'rad', str(decp[0])+'rad')
+        for i in range(len(ptimes)):
+            epm=me.epoch('utc', qa.quantity(ptimes[i], 's'))
+            me.doframe(epm)
+            aep['m0']['value']=rap[i]
+            aep['m1']['value']=decp[i]
+            rdp=me.measure(aep,pref)             
+            rap[i]=qa.convert(rdp['m0'], 'rad')['value']
+            decp[i]=qa.convert(rdp['m1'], 'rad')['value']
+        ###
         if(len(dirv_orig.shape)==3):
             dirv_orig[0,0,:]=rap
             dirv_orig[1,0,:]=decp

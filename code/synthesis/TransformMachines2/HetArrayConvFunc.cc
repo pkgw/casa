@@ -120,6 +120,11 @@ void HetArrayConvFunc::init(const PBMathInterface::PBClass typeTouse) {
     pbClass_p=typeTouse;
     ///Generate the sincCache now as inside the multithread  part it may have race issues
     initSincCache();
+    timer1_p=0.0;
+    timer2_p=0.0;
+    timer3_p=0.0;
+    
+      
 }
 
 
@@ -399,6 +404,7 @@ void  HetArrayConvFunc::reset() {
         return;
     }
      actualConvIndex_p=convIndex(vb);
+     //Double wtime0=omp_get_wtime();
      if(doneMainConv_p.shape()[0] < (actualConvIndex_p+1)) {
         //cerr << "resizing DONEMAIN " <<   doneMainConv_p.shape()[0] << endl;
         doneMainConv_p.resize(actualConvIndex_p+1, true);
@@ -417,6 +423,7 @@ void  HetArrayConvFunc::reset() {
 	convSizes_p[actualConvIndex_p]=nullptr;
 	origConvSize_p.resize(actualConvIndex_p+1, True);
      }
+     
        // Get the coordinate system
     CoordinateSystem coords(iimage.coordinates());
     Int directionIndex=coords.findCoordinate(Coordinate::DIRECTION);
@@ -426,13 +433,17 @@ void  HetArrayConvFunc::reset() {
     Int ny=ny_p;
     Int support=max(nx_p, ny_p)/10;
     Int convSampling=1;
+    //timer1_p+=omp_get_wtime()-wtime0;
+    //wtime0=omp_get_wtime();
     if(!doneMainConv_p[actualConvIndex_p]) {
         for (uInt ii=0; ii < ndish; ++ii) {
             support=max((antMath_p[ii])->support(coords), support);
         }
 	
         support=Int(min(Float(support), max(Float(nx_p), Float(ny_p)))*2.0)/2;
-        convSize_p=support*convSampling;
+	///Multiply by 2 just to make sure in-baseline pointing can drift ...
+	////If it is more than 2 HPFW that data is useless anyways.
+        convSize_p=usePointingTable_p ? 2*support*convSampling : support*convSampling ;
         // Make this a nice composite number, to speed up FFTs
         CompositeNumber cn(uInt(convSize_p*2.0));
         convSize_p  = cn.nextLargerEven(Int(convSize_p));
@@ -513,7 +524,8 @@ void  HetArrayConvFunc::reset() {
 	    SubImage<Complex> subim2(pbScreen, slin, true);
 	    if((nchan_p==1) && getConjConvFunc){
 	      subim2.copyData(subim);
-	      (antMath_p[k])->applyVP(subim2, subim2, fieldDir);
+	      multiplySelfConjugate(subim2, beamFreqs[kk]);
+	      //(antMath_p[k])->applyVP(subim2, subim2, fieldDir);
 	    }
 	    else{
 	      subim2.set(Complex(1.0,0.0));
@@ -575,6 +587,8 @@ void  HetArrayConvFunc::reset() {
 	  //  (*pbFunctions_p[actualConvIndex_p])=resample(pbFuncTemp.getSlice(blc, shp),Double(convSamp)/Double(convSampling));
 	  doneMainConv_p[actualConvIndex_p]=True;  
     }
+    //timer2_p+=omp_get_wtime()-wtime0;
+    //wtime0=omp_get_wtime();
     //Double wtime1=omp_get_wtime();
     // cerr << std::setprecision(10) << "init time "<< wtime1-wtime0 << endl;  
     diffPointingCorrection(vb, origConvSize_p[actualConvIndex_p], convFuncRowMap, convSamp, beamFreqs, (nchan_p == 1) && getConjConvFunc);
@@ -582,19 +596,24 @@ void  HetArrayConvFunc::reset() {
        convSupport_p.resize();
        convSupport_p=*convSupportBlock_p[actualConvIndex_p];
        Int conjsupp=conjSupport(beamFreqs) ;
-       //cerr << "conjsupp " << conjsupp << "bef " << max(*convSupportBlock_p[actualConvIndex_p]) << " convsize " <<max(*convSizes_p[actualConvIndex_p]) << endl;
-       *convSupportBlock_p[actualConvIndex_p]=max(conjsupp, max( *convSupportBlock_p[actualConvIndex_p]));   
+       if(conjsupp > max(convSupport_p))
+	 conjsupp=Int(1.5*Float(conjsupp));
+       //cerr << "conjsupp " << conjsupp << " bef " << max(*convSupportBlock_p[actualConvIndex_p]) << " convsize " <<max(*convSizes_p[actualConvIndex_p]) << endl;
+       ///Need to keep those that are zeros
+       (*convSupportBlock_p[actualConvIndex_p])((*convSupportBlock_p[actualConvIndex_p]) != 0)=max(conjsupp, max( *convSupportBlock_p[actualConvIndex_p]));   
       
      }
     
 
      
      // cerr << "diffcorr time " << omp_get_wtime()-wtime1 << endl;
-     convFunc.assign(*convFunctions_p[actualConvIndex_p]);
-     weightConvFunc.assign(*convWeights_p[actualConvIndex_p]);
+     convFunc.reference(*convFunctions_p[actualConvIndex_p]);
+     weightConvFunc.reference(*convWeights_p[actualConvIndex_p]);
      convsize=(*convSizes_p[actualConvIndex_p]);
      convSupport= *convSupportBlock_p[actualConvIndex_p];
-     
+     //timer3_p+=omp_get_wtime()-wtime0;
+     //cerr << "timers " << timer1_p << "    " << timer2_p <<"  " << timer3_p << " supp and size "<< max(convSupport) << "  " << max(convsize) << " field ID "<< vb.fieldId()(0) << " spw " << vb.spectralWindows()(0)<< endl;
+  
  ////////////////TESTOOO
      //CoordinateSystem TMP = coords;
      //CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,convFunc.shape()(4))); 
@@ -609,12 +628,15 @@ void  HetArrayConvFunc::reset() {
   void HetArrayConvFunc::diffPointingCorrection(const vi::VisBuffer2& vb, const Int origSupportSize, Vector<Int>& convFuncRowMap, const Int convSamp, const Vector<Double>& freqs, const Bool doConj){
     if(vbutil_p.null())
       vbutil_p=new VisBufferUtil(vb);
+   
     DirectionCoordinate dc=dc_p;
     IPosition shp=vpFunctions_p[actualConvIndex_p]->shape();
     //For now everyrow will get its own convfunction and weightfunction
     shp(4)=vb.nRows();
-    convFunctions_p[actualConvIndex_p]=new Array<Complex>(shp);
-    convWeights_p[actualConvIndex_p]=new Array<Complex>(shp);
+   
+    //convFunctions_p[actualConvIndex_p]=new Array<Complex>(shp);
+    //convWeights_p[actualConvIndex_p]=new Array<Complex>(shp);
+    
     dc.setWorldAxisUnits(Vector<String>(2, "rad"));
     IPosition begin(5, 0, 0, 0, 0, 0);
     IPosition end(5, shp[0]-1, shp[1]-1, shp[2]-1, shp[3]-1, 0);
@@ -626,24 +648,49 @@ void  HetArrayConvFunc::reset() {
     IPosition prevBeg, prevEnd;
     MDirection dir1=vbutil_p->getPhaseCenter(vb);
     MDirection  dir2=dir1;
+    Double wtime0;
     for (Int k=0; k< vb.nRows() ; ++k){
-      // Double wtime0=omp_get_wtime();
+     
       begin[4]=k;
       end[4]=k;
       Int index1=antIndexToDiamIndex_p(vb.antenna1()(k));
       Int index2=antIndexToDiamIndex_p(vb.antenna2()(k));
+      Double pixshift_x=0.0;
+      Double pixshift_y=0.0;
       if(usePointingTable_p){
-	dir1=vbutil_p->getPointingDir(vb, vb.antenna1()(k), k);
-	dir2=vbutil_p->getPointingDir(vb, vb.antenna2()(k), k);
+	wtime0=omp_get_wtime();
+	dir1=vbutil_p->getPointingDir(vb, vb.antenna1()(k), k, dc_p.directionType());
+	dir2=vbutil_p->getPointingDir(vb, vb.antenna2()(k), k, dc_p.directionType());
+	timer1_p+=omp_get_wtime()-wtime0;
+	wtime0=omp_get_wtime();
+	roundShiftInPointing(pixshift_x, pixshift_y, origSupportSize, dir1, dir2, dc);
+	//cerr << MDirection::showType(dc_p.directionType()) << " dirs " << dir1.toString() <<  " -- " <<  dir1.toString() << endl;
+	timer2_p+=omp_get_wtime()-wtime0;
+	
       }
+      wtime0=omp_get_wtime();
       //cerr << "first bit " << omp_get_wtime()-wtime0 << endl;
-      Vector<Double>diff=dir2.getAngle("rad").getValue("rad")-dir1.getAngle("rad").getValue("rad");
-      Double pixshift_x=diff(0)/dc.increment()(0);
-      Double pixshift_y=diff(1)/dc.increment()(1);
+      
+      
+      if(Int(abs(pixshift_x)) > origSupportSize/2 || Int(abs(pixshift_y)) > origSupportSize/2){
+
+	//cerr << "antIDs (" << vb.antenna1()(k) << ", " << vb.antenna2()(k) << ") pixshifts "<< pixshift_x << "  ,  " << pixshift_y << " DIRS " << dir1.toString() << "  --->   "  << dir2.toString() << " fieldID " << vb.fieldId()(k)<< endl;
+	///TESTOO
+	/*{
+	  Vector<Double> pxx(2);
+	  dc_p.toPixel(pxx, dir1);
+	  cerr << "dir1 pixel " << pxx;
+	  dc_p.toPixel(pxx, dir2);
+	  cerr << " dir2  " << pxx << endl;
+	  }*/
+	//////
+	(*convSupportBlock_p[actualConvIndex_p])[k]=0;
+	////Skip the remainder
+	continue;
+      }
       std::tuple<Int, Int,Int,Int,Int> bl(index1, index2, actualConvIndex_p, Int(pixshift_x), Int(pixshift_y));
       Int index=-1;
       //cerr << "bl index " << std::get<0>(bl) <<  ","<< std::get<1>(bl) <<  ","<< std::get<2>(bl) << "," <<  std::get<3>(bl) << "," << std::get<4>(bl)   << endl;
-      
       if(baselinePointingDiffIndex_p.find(bl) == baselinePointingDiffIndex_p.end()){
 	///fill diff pointing pb and pb2 for this pair of beams
 	
@@ -656,44 +703,160 @@ void  HetArrayConvFunc::reset() {
 	baslWeightFunctions_p[index]=new Array<Complex>();
 	baslSupport_p[index]=new Vector<Int>();
 	rephaseBeams(*baslPBFunctions_p[index], *baslWeightFunctions_p[index],vb, k, origSupportSize, pixshift_x, pixshift_y);
-
-	//cerr << index << " maxes " << max(*baslPBFunctions_p[index]) << "      "  << max(*baslWeightFunctions_p[index]) << endl;
+	timer3_p+=omp_get_wtime() - wtime0;
 	//support
-	
-	supportAndNormalize(*baslPBFunctions_p[index], *baslWeightFunctions_p[index], *baslSupport_p[index]);
+	///////////////////////////
+	convSupport_p.resize(1);
+	convSupport_p=10000;
+	Double fac=doConj ?  1.6*Double(conjSupport(freqs))/10000.0 : 1.0;
+	///////////////
+	if(fac <1.0)
+	  fac=1.0;		   
+	if(!supportAndNormalize(*baslPBFunctions_p[index], *baslWeightFunctions_p[index], *baslSupport_p[index], fac)){
+	  (*convSupportBlock_p[actualConvIndex_p])[k]=0;
+	  //cerr << "Failed suppport bl index " << std::get<0>(bl) <<  ","<< std::get<1>(bl) <<  ","<< std::get<2>(bl) << "," <<  std::get<3>(bl) << "," << std::get<4>(bl)   << endl;
+	  //cerr << index << " maxes " << max(*baslPBFunctions_p[index]) << "      "  << max(*baslWeightFunctions_p[index]) << endl;
+	  continue;
+	}
 	//	cerr << index << " afternorm " << sum(*baslPBFunctions_p[index]) << "      "  << max(*baslWeightFunctions_p[index]) << " support " << (*baslSupport_p[index]) << endl;
+	baslPBFunctions_p[index]->assign(resample(*(baslPBFunctions_p[index]), Double(convSamp)));
+	baslWeightFunctions_p[index]->assign(resample(*(baslWeightFunctions_p[index]), Double(convSamp)));
+	
+
       }
       else{
-	index=baselinePointingDiffIndex_p[bl];	
+	index=baselinePointingDiffIndex_p[bl];
+	if(max(*baslSupport_p[index])==0){
+	   (*convSupportBlock_p[actualConvIndex_p])[k]=0;
+	   continue;
+	}
       }
-      //cerr << "secon bit " << omp_get_wtime()-wtime0 << endl;
+     
+      
       Vector<Double>dirpix(2);
       dc_p.toPixel(dirpix, dir1);
       //dc_p.toPixel(prevDirPix, prevDir);
       dirpix[0]=dirpix[0]-nx_p/2;
       dirpix[1]=dirpix[1]-ny_p/2;
       //cerr << "index " << index << "actualConv " << actualConvIndex_p << " pix shift " << dirpix << endl;
+      IPosition blc;
+      IPosition trc;
       if(k < 1 || !(allEQ(prevDirPix, dirpix) && prevIndex==index)){
-	//Double wtime0=omp_get_wtime();
+	
 	Array<Complex> tmpArr;
-	tmpArr.assign(*baslPBFunctions_p[index]);
-	//cerr <<k << " shape " << tmpArr.shape() << endl;
-	if(tmpArr.shape()[0] != shp[0]){
-	  if(tmpArr.shape()[0]> shp[0])
-	    throw(AipsError("Tell the programmer something unexpected happened"));
-	  shp[0]=tmpArr.shape()[0]*convSamp;
-	  shp[1]=tmpArr.shape()[1]*convSamp;
-	  (convFunctions_p[actualConvIndex_p])->resize(shp);
-	  (convWeights_p[actualConvIndex_p])->resize(shp);
+	Array<Complex> tmpArr2;
+	if(k >=1 && ((baslPBFunctions_p[index]->shape()[0]) !=  shp[0])){
+	  if((baslPBFunctions_p[index]->shape()[0])> shp[0]){
+	    /////This means that the first baseline VPs were wider apart than the latter ones.
+	    ///Let's redo the size of the beams and beam^2s 
+	    Int diff=(baslPBFunctions_p[index]->shape()[0])-shp[0];
+	    blc=IPosition(5,  diff/2, diff/2, 0,0,0);
+	    trc=IPosition(5, (baslPBFunctions_p[index]->shape()[0])-diff/2-1, (baslPBFunctions_p[index]->shape()[1])-diff/2-1, shp[2]-1, shp[3]-1, shp[4]-1);
+	    ////Let us resize and copy back the smaller arrays
+	    tmpArr.assign(*convFunctions_p[actualConvIndex_p]);
+	    shp[0]=baslPBFunctions_p[index]->shape()[0];
+	    shp[1]=baslPBFunctions_p[index]->shape()[1];
+	    //cerr << "resizing the whole enchilada " << endl;
+	    convFunctions_p[actualConvIndex_p]->resize(shp, False, ArrayInitPolicies::INIT);
+	    //cerr << "SHAPES0 " <<  (*convFunctions_p[actualConvIndex_p])(blc, trc).shape() << "   " << tmpArr.shape() << endl;
+	    (*convFunctions_p[actualConvIndex_p])(blc, trc)=tmpArr;
+	    tmpArr.assign(*convWeights_p[actualConvIndex_p]);
+	    convWeights_p[actualConvIndex_p]->resize(shp, False, ArrayInitPolicies::INIT);
+	    (*convWeights_p[actualConvIndex_p])(blc, trc)=tmpArr;
+	    ///readjust end
+	    end[0]=shp[0]-1;
+	    end[1]=shp[1]-1;
+	    ////
+	    tmpArr.assign((*baslPBFunctions_p[index]));
+	    ///did the abs
+	    tmpArr2.assign(*baslWeightFunctions_p[index]);
+	    ////If the difference is so large as compared from 1st baseline.
+	    ///should flag the first baseline i suspect
+	    (*convSupportBlock_p[actualConvIndex_p])[k]=max(*baslSupport_p[index]);
+	    
+	    //cerr << "reshaped " << tmpArr.shape() << endl;
+	  }
+	  else{
+	    trc=IPosition(5, shp[0], shp[1], shp[2], shp[3],1);
+	    tmpArr.resize(trc);
+	    tmpArr2.resize(trc);
+	    tmpArr.set(0.0);
+	    tmpArr2.set(0.0);
+	    Int diff=shp[0]-(baslPBFunctions_p[index]->shape()[0]);
+	    blc=IPosition(5,  diff/2, diff/2, 0,0,0);
+	    ///Do the inner part
+	    trc=IPosition(5, shp[0]-diff/2-1, shp[1]-diff/2-1, shp[2]-1, shp[3]-1, 0);
+	    //cerr << tmpArr.shape() << " SHAPES " << tmpArr(blc,trc).shape() << "  ==   " << baslPBFunctions_p[index]->shape() <<  " blc trc "<< blc << "    " << trc  << endl;
+	    tmpArr(blc,trc)=*baslPBFunctions_p[index];
+	    tmpArr2(blc,trc)=*baslWeightFunctions_p[index];
+	    //cerr << "reshaped2 " << tmpArr.shape() << endl;
+	    (*convSupportBlock_p[actualConvIndex_p])[k]=max(*baslSupport_p[index]);
+
+
+	    
+	  }
+	}
+	else{
+	  tmpArr.assign(*baslPBFunctions_p[index]);
+	  tmpArr2.assign(*baslWeightFunctions_p[index]);
+	  (*convSupportBlock_p[actualConvIndex_p])[k]=max(*baslSupport_p[index]);
+	    //blc=IPosition(5,0,0,0,0,0);
+	    //trc=tmpArr.shape()-1;
+	}
+	  //////TESTOO
+	  /*if((*baslSupport_p[index]) > shp[0]/2){
+	    cerr <<"TROUBLE " << "bl index " << std::get<0>(bl) <<  ","<< std::get<1>(bl) <<  ","<< std::get<2>(bl) << "," <<  std::get<3>(bl) << "," << std::get<4>(bl)   << endl;
+	    cerr << "SHAPES " << shp <<  "    " << tmpArr.shape() << "   " << baslPBFunctions_p[index]->shape() << " blc trc " << blc << "     " << trc << endl;
+
+	    }*/
+	  /////////////
+	//cerr << "k=" << k << " index " << index << " shapes " << tmpArr.shape() << "     " << shp << endl;
+	//cerr << "bl index " << std::get<0>(bl) <<  ","<< std::get<1>(bl) <<  ","<< std::get<2>(bl) << "," <<  std::get<3>(bl) << "," << std::get<4>(bl)   << endl;
+	if(k==0 ||  convFunctions_p[actualConvIndex_p].null()){
+	  
+	  shp[0]=tmpArr.shape()[0];
+	  shp[1]=tmpArr.shape()[1];
+	  if(convFunctions_p[actualConvIndex_p].null()){
+	    ///Interestingly this malloc here takes a lot of time
+	    // try to avoid when it can be.
+	    convFunctions_p[actualConvIndex_p]=new Array<Complex>(shp);
+	    convWeights_p[actualConvIndex_p]=new Array<Complex>(shp);
+	  }
+	  else if(convFunctions_p[actualConvIndex_p]->shape() != shp){
+	    convFunctions_p[actualConvIndex_p]->resize(shp);
+	    convWeights_p[actualConvIndex_p]->resize(shp);
+	  }
 	  end[0]=shp[0]-1;
 	  end[1]=shp[1]-1;
 	}
+	//cerr <<k << " shape " << tmpArr.shape() << endl;
+	//if((convFunctions_p[actualConvIndex_p])->shape()[0] != tmpArr.shape()[0]){
+	 
+	if(tmpArr.shape()[0] != shp[0]){
+	  //cerr << "k=" << k << " shapes " << tmpArr.shape() << "     " << shp << endl;
+	  
+	  throw(AipsError("Tell the programmer something unexpected happened"));
+
+	}
+	  //shp[0]=tmpArr.shape()[0];
+	  //shp[1]=tmpArr.shape()[1];
+	 
+	  //(convFunctions_p[actualConvIndex_p])->resize(shp);
+	  //(convWeights_p[actualConvIndex_p])->resize(shp);
+	  //convFunctions_p[actualConvIndex_p]=new Array<Complex>(shp);
+	  //convWeights_p[actualConvIndex_p]=new Array<Complex>(shp);
+	
+	  //}
+	  //end[0]=shp[0]-1;
+	  //end[1]=shp[1]-1;
+
 	////Have to do this properly per plane ...just testing now
 	if(doConj){
 	  //Array<Complex> backup;
 	  //backup=*(convFunctions_p[actualConvIndex_p]);
 	  IPosition blcfreq(tmpArr.shape().nelements(),0);
 	  IPosition trcfreq=tmpArr.shape() - 1;
+	  //cerr << "conj shapes " << tmpArr.shape() << endl;
 	  for (uInt f=0; f < freqs.nelements(); ++f){
 	    blcfreq[3]=f;
 	    trcfreq[3]=f;
@@ -701,18 +864,23 @@ void  HetArrayConvFunc::reset() {
 	    Array<Complex> outSlice(arrSlice.shape());
 	    fillConjConvFunc(outSlice, arrSlice, freqs[f]);
 	    arrSlice=outSlice;
-	  //*(convFunctions_p[actualConvIndex_p])=backup;
 	  }
 	}
-	applyPhaseGradient(tmpArr, dirpix[0], dirpix[1], nx_p, ny_p);
 	
-	(*(convFunctions_p[actualConvIndex_p]))(begin,end)=resample(tmpArr, Double(convSamp));
-	tmpArr.assign(*baslWeightFunctions_p[index]);
-	applyPhaseGradient( tmpArr, dirpix[0], dirpix[1], nx_p, ny_p);	
-	(*(convWeights_p[actualConvIndex_p]))(begin,end)=resample(tmpArr, Double(convSamp));
+	//cerr << "third bit " << omp_get_wtime()-wtime0 << endl;
+	applyPhaseGradient(tmpArr, dirpix[0], dirpix[1], nx_p, ny_p, convSamp);
+	
+	//(*(convFunctions_p[actualConvIndex_p]))(begin,end)=resample(tmpArr, Double(convSamp));
+	(*(convFunctions_p[actualConvIndex_p]))(begin,end)=tmpArr;
+	//tmpArr.assign((*baslWeightFunctions_p[index])(blc,trc));
+	applyPhaseGradient( tmpArr2, dirpix[0], dirpix[1], nx_p, ny_p, convSamp);	
+	//(*(convWeights_p[actualConvIndex_p]))(begin,end)=resample(tmpArr, Double(convSamp));
+	(*(convWeights_p[actualConvIndex_p]))(begin,end)=tmpArr2;
       //Use only the max for this baseline for now.
-	(*convSupportBlock_p[actualConvIndex_p])[k]=max(*baslSupport_p[index]);
-	//cerr << "phasegrad time " << omp_get_wtime()-wtime0 << endl;
+	//DONE above for different conditions
+	//(*convSupportBlock_p[actualConvIndex_p])[k]=max(*baslSupport_p[index]);
+
+
       }
       else{
 	////previous values are the same
@@ -734,6 +902,29 @@ void  HetArrayConvFunc::reset() {
     convSizes_p[actualConvIndex_p]->set(shp[0]);
   }
 
+  void HetArrayConvFunc::roundShiftInPointing(Double& xshift, Double& yshift, const Int origSupport, const MDirection& dir1, const MDirection& dir2, const DirectionCoordinate dc){
+
+    Vector<Double>diff(2);
+    Vector<Double>dirpix(2);
+    dc.toPixel(dirpix, dir1);
+    dc.toPixel(diff, dir2);
+    diff-=dirpix;
+    xshift=diff(0);
+    yshift=diff(1);
+    ////TESTOOO
+    //if(abs(xshift)> 500){
+    //  cerr << "DIRS " << dir2.toString() << "  -- " << dir1.toString() << endl;  
+    //  cerr << "diff " <<  dir2.getAngle("rad").getValue("rad")-dir1.getAngle("rad").getValue("rad") << " diff0 " << diff << endl;
+      
+    //}
+    /////////////
+   
+    Double ratio=std::round(Double(origSupport)/Double(vpFunctions_p[actualConvIndex_p]->shape()(0)));
+    xshift=std::round(xshift/ratio)*ratio;
+    yshift=std::round(yshift/ratio)*ratio;
+
+  }
+  
   void HetArrayConvFunc::rephaseBeams(Array<Complex>& basPB,
 				      Array<Complex>& basPB2, const vi::VisBuffer2& vb,
 				      const Int row, const Int origSize, const Double pixshift_x,
@@ -806,19 +997,22 @@ void  HetArrayConvFunc::reset() {
        basPB2.reference(pb1);
        //cerr << "after reff " << max(basPB) << "   " << max(basPB2) << endl;
     }
-  void HetArrayConvFunc::applyPhaseGradient(Array<Complex>& arr, const Double& xshift, const Double& yshift, const Int xsize, const Int ysize){
+  void HetArrayConvFunc::applyPhaseGradient(Array<Complex>& arr, const Double& xshift, const Double& yshift, const Int xsize, const Int ysize, const Int convSamp){
   
     
     IPosition shp=arr.shape();
     Int nx=shp(0);
     Int ny=shp(1);
-    Double pshift_x=xshift*(-2.0*C::pi/Double(xsize)) ;
-    Double pshift_y=yshift*(-2.0*C::pi/Double(ysize));
+    Double pshift_x=xshift*(-2.0*C::pi/Double(xsize*convSamp)) ;
+    Double pshift_y=yshift*(-2.0*C::pi/Double(ysize*convSamp));
     ooLong nplanes=ooLong(shp(4))*ooLong(shp(3))*ooLong(shp(2));
     //cerr << nx << "   " << ny << " nplanes " << nplanes << " phaseshift "<< pshift_x << "    " << pshift_y << endl;
     Bool st;
     Complex* pta=arr.getStorage(st);
-   
+#ifdef _OPENMP
+	omp_set_nested(0);
+#endif
+#pragma omp parallel for default(none) firstprivate(  pta, pshift_x,  pshift_y, nx, ny, nplanes)
     for(Int j=0; j < ny; ++j){
       Double cy, sy;
       SINCOS(Double(j-ny/2)*pshift_y, sy, cy);
@@ -881,9 +1075,10 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 					const MVDirection& extraShift, const Bool useExtraShift)
 {
 
-
-  findConvFunction2(iimage, vb, convSamp, visFreq, convFunc, weightConvFunc, convsize, convSupport, convFuncPolMap, convFuncChanMap, convFuncRowMap, getConjConvFunc, extraShift, useExtraShift);
+  if(usePointingTable_p){
+    findConvFunction2(iimage, vb, convSamp, visFreq, convFunc, weightConvFunc, convsize, convSupport, convFuncPolMap, convFuncChanMap, convFuncRowMap, getConjConvFunc, extraShift, useExtraShift);
   return;
+  }
   //////////////////////////////////////////////////////////////////
     storeImageParams(iimage,vb);
     convFuncChanMap.resize(vb.nChannels());
@@ -1269,7 +1464,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 	if((nchan_p == 1) && getConjConvFunc) {
 	  Int conjsupp=conjSupport(beamFreqs) ;
 	  if(conjsupp > max(convSupport_p)){
-	    convSupport_p=conjsupp;
+	    convSupport_p=Int(1.5*Float(conjsupp));
 	  }
 
 	}
@@ -1390,7 +1585,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
     Complex *convstor=convFunc_p.getStorage(delc);
     Complex *weightstor=weightConvFunc_p.getStorage(delw);
     Int elconvsize=convSize_p;
-    cerr << "dirX Y "<< dirX << "   " << dirY << "  convsize " << convSize_p << endl; 
+    //cerr << "dirX Y "<< dirX << "   " << dirY << "  convsize " << convSize_p << endl; 
        #pragma omp parallel default(none) firstprivate(convstor, weightstor, dirX, dirY, elconvsize, ndishpair, nBeamChans, nBeamPols)
     {
        #pragma omp for
@@ -1418,7 +1613,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
     weightConvFunc.reference(weightConvFunc_p);
     convsize=*convSizes_p[actualConvIndex_p];
     convSupport=convSupport_p;
-    cerr << "convsize " << convsize << " convsupp " << convSupport << endl; 
+    //cerr << "convsize " << convsize << " convsupp " << convSupport << endl; 
      ////////////////TESTOOO
      //CoordinateSystem TMP = coords;
      //CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,convFunc.shape()(4))); 
@@ -1426,7 +1621,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
      //SCREEN.put(convFunc_p  );
     //	   PagedImage<Complex> SCREEN3(TiledShape(convWeights_p[actualConvIndex_p]->shape()), TMP, "FTWEIGHTVI2"+String::toString(actualConvIndex_p));
     //	  SCREEN3.put(*convWeights_p[actualConvIndex_p]  );
-     
+    //cerr  << " supp and size "<< max(convSupport) << "  " << max(convsize) << endl;
 
 }
 
@@ -1457,13 +1652,16 @@ void HetArrayConvFunc::applyGradientToYLine(const Int iy, Complex*& convFunction
 Int  HetArrayConvFunc::conjSupport(const casacore::Vector<casacore::Double>& freqs){
   Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
   Double maxRatio=-1.0;
+  //cerr << "freqs.nelem " << freqs.nelements() << "   " <<convSupport_p.nelements() << endl;
   for (Int k=0; k < freqs.shape()[0]; ++k) {
     //Double conjFreq=(centerFreq-freqs[k])+centerFreq;
     Double conjFreq=SynthesisUtils::conjFreq(freqs[k], centerFreq);
-    if(maxRatio < conjFreq/freqs[k] )
+    //cerr << k << "  " << conjFreq/freqs[k]*convSupport_p[k] << "   " ;
+    if(maxRatio < conjFreq/freqs[k] )      
       maxRatio=conjFreq/freqs[k];
   }
-  return  Int(max(convSupport_p)*sqrt(maxRatio)/2.0)*2;
+  //return  Int(max(convSupport_p)*sqrt(maxRatio)/2.0)*2;
+  return  Int(max(convSupport_p)*(maxRatio)/2.0)*2;
 }
 void HetArrayConvFunc::fillConjConvFunc(const Vector<Double>& freqs) {
     //cerr << "Actualconv index " << actualConvIndex_p << endl;
@@ -1512,6 +1710,7 @@ void HetArrayConvFunc::fillConjConvFunc(const Vector<Double>& freqs) {
 	  beg(1)=(shp(1)-conjFreqSlice.shape()(1))/2;
 	  end(0)+=beg(0);
 	  end(1)+=beg(1);
+	  out.set(0);
 	  out(beg, end)=conjFreqSlice;
         }
 	//cerr << "SUMS " << sum(real(in)) << "   new " << sum(real(out))/ratio1/ratio2 << endl; //" weight " << sum(real(weightSlice))/ratio1/ratio2<< endl;
@@ -1712,13 +1911,14 @@ void HetArrayConvFunc::supportAndNormalize(Int plane, Int convSampling) {
 }
 
 
-  void HetArrayConvFunc::supportAndNormalize(Array<Complex>& ftPB, Array<Complex>& ftWt, Vector<Int>& support){
+  Bool HetArrayConvFunc::supportAndNormalize(Array<Complex>& ftPB, Array<Complex>& ftWt, Vector<Int>& support, const Double supportFactor){
     Int convSize=ftPB.shape()(0);
     Int npol=ftPB.shape()(2);
     Int nchan=ftPB.shape()(3);
     Int nbas=ftPB.shape()(4);
     support.resize(nbas);
     support=0;
+    Bool retval=True;
     Float cutlevel=2.5e-2;
     //numeric needs a larger ft
     for (uInt k=0; k < antMath_p.nelements() ; ++k){
@@ -1766,24 +1966,34 @@ void HetArrayConvFunc::supportAndNormalize(Int plane, Int convSampling) {
 	  wtplane=wtplane*Complex(1.0/pbSum1, 0.0);
 	}
 	else {
-	  throw(AipsError("Convolution function integral is not positive"));	  
+	  //cerr << "PBSUM " << pbSum << " blc, trc " << blc <<  "   " << trc << endl;
+	  //throw(AipsError("Convolution function integral is not positive"));
+	  support(plane)=0;
+	  retval=False;
 	}
 	//cerr << "pbplane sum " << sum(pbplane(blc,trc)) << "   "  << real(sum(pbplane(blc,trc))) << "   " <<(sum(pbIt.array()))<< endl;
+      }
+      else{
+	support(plane)=0;
+	retval=False;
       }
       
       pbIt.next();
       wtIt.next();
     }
 
-    Int newConvSize=2*max(support+2);
+    if(max(support)==0)
+      return False;
+    Int  newConvSize=std::round(min(Double(2*max(support+2))*supportFactor, Double(convSize))/2.0)*2;
     IPosition blc(5, convSize/2-newConvSize/2, convSize/2-newConvSize/2, 0, 0, 0);
     IPosition trc(5, convSize/2+newConvSize/2-1, convSize/2+newConvSize/2-1, npol-1, nchan-1, nbas-1);
+    //cerr << "SUPP blc trc " << blc << "  " << trc << " szie " << ftPB.shape() << endl;
     Array<Complex> tempArr;
     tempArr.assign(ftPB(blc, trc));
     ftPB.assign(tempArr);
     tempArr.assign(ftWt(blc, trc));
     ftWt.assign(tempArr);
-    
+    return retval;
   }
   
 void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, TempLattice<Complex>& convFuncLat,
@@ -2032,8 +2242,48 @@ void HetArrayConvFunc::makerowmap(const vi::VisBuffer2& vb,
 
 }
 
+
+  void HetArrayConvFunc::multiplySelfConjugate(ImageInterface<Complex>& im, const Double freq){
+    Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
+    Double conjFreq=SynthesisUtils::conjFreq(freq, centerFreq);
+    Double factor=freq/conjFreq;
+    Array<Complex> arr;
+    arr=im.get();
+    IPosition shp=arr.shape();
+    Array<Complex>arr2=resample(arr, factor);
+    if(factor > 1) {
+            IPosition end=shp-1;
+            IPosition beg(5,0,0,0,0,0);
+            beg(0)=(arr2.shape()(0)-shp(0))/2;
+            beg(1)=(arr2.shape()(1)-shp(1))/2;
+	    end(0)=beg(0)+shp(0)-1;
+	    end(1)=beg(1)+shp(1)-1;
+	    if(shp.nelements() >3)
+	      end[3]=0;
+            arr *= arr2(beg, end);
+        }
+        else {
+	  IPosition end=arr2.shape()-1;
+	  if(shp.nelements() >3)
+	    end[3]=0;
+	  IPosition beg(shp.nelements(),0);
+	  beg(0)=(shp(0)-arr2.shape()(0))/2;
+	  beg(1)=(shp(1)-arr2.shape()(1))/2;
+	  end(0)+=beg(0);
+	  end(1)+=beg(1);
+	  Array<Complex> out(shp);
+	  out.set(0);
+	  out(beg, end)=arr2;
+	  arr*=out;
+        }
+    im.put(arr);
+
+  }
+
 Array<Complex> HetArrayConvFunc::resample(const Array<Complex>& inarray, const Double factor) {
 
+  if(factor==1.0)
+    return inarray;
     Double nx=Double(inarray.shape()(0));
     Double ny=Double(inarray.shape()(1));
     IPosition shp=inarray.shape();
