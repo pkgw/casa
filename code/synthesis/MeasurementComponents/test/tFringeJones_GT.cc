@@ -261,7 +261,7 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   solvePar.define("refant",refant);
   solvePar.define("globalsolve", true);
   solvePar.define("weightfactor", 2);
-  solvePar.define("maxits", 100);
+  solvePar.define("niter", 20);
   solvePar.define("zerorates", true);
   Array<Double> delayWindow(IPosition(1, 2));
   Array<Double> rateWindow(IPosition(1, 2));
