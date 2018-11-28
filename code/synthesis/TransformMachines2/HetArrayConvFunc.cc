@@ -524,8 +524,8 @@ void  HetArrayConvFunc::reset() {
 	    SubImage<Complex> subim2(pbScreen, slin, true);
 	    if((nchan_p==1) && getConjConvFunc){
 	      subim2.copyData(subim);
-	      multiplySelfConjugate(subim2, beamFreqs[kk]);
-	      //(antMath_p[k])->applyVP(subim2, subim2, fieldDir);
+	      //multiplySelfConjugate(subim2, beamFreqs[kk]);
+	      (antMath_p[k])->applyVP(subim2, subim2, fieldDir);
 	    }
 	    else{
 	      subim2.set(Complex(1.0,0.0));
