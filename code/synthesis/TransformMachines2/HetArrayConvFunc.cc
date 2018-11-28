@@ -648,7 +648,7 @@ void  HetArrayConvFunc::reset() {
     IPosition prevBeg, prevEnd;
     MDirection dir1=vbutil_p->getPhaseCenter(vb);
     MDirection  dir2=dir1;
-    Double wtime0;
+    //Double wtime0;
     for (Int k=0; k< vb.nRows() ; ++k){
      
       begin[4]=k;
@@ -658,17 +658,17 @@ void  HetArrayConvFunc::reset() {
       Double pixshift_x=0.0;
       Double pixshift_y=0.0;
       if(usePointingTable_p){
-	wtime0=omp_get_wtime();
+	//wtime0=omp_get_wtime();
 	dir1=vbutil_p->getPointingDir(vb, vb.antenna1()(k), k, dc_p.directionType());
 	dir2=vbutil_p->getPointingDir(vb, vb.antenna2()(k), k, dc_p.directionType());
-	timer1_p+=omp_get_wtime()-wtime0;
-	wtime0=omp_get_wtime();
+	//timer1_p+=omp_get_wtime()-wtime0;
+	//wtime0=omp_get_wtime();
 	roundShiftInPointing(pixshift_x, pixshift_y, origSupportSize, dir1, dir2, dc);
 	//cerr << MDirection::showType(dc_p.directionType()) << " dirs " << dir1.toString() <<  " -- " <<  dir1.toString() << endl;
-	timer2_p+=omp_get_wtime()-wtime0;
+	//timer2_p+=omp_get_wtime()-wtime0;
 	
       }
-      wtime0=omp_get_wtime();
+      //wtime0=omp_get_wtime();
       //cerr << "first bit " << omp_get_wtime()-wtime0 << endl;
       
       
@@ -703,7 +703,7 @@ void  HetArrayConvFunc::reset() {
 	baslWeightFunctions_p[index]=new Array<Complex>();
 	baslSupport_p[index]=new Vector<Int>();
 	rephaseBeams(*baslPBFunctions_p[index], *baslWeightFunctions_p[index],vb, k, origSupportSize, pixshift_x, pixshift_y);
-	timer3_p+=omp_get_wtime() - wtime0;
+	//timer3_p+=omp_get_wtime() - wtime0;
 	//support
 	///////////////////////////
 	convSupport_p.resize(1);
