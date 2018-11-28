@@ -16,7 +16,7 @@ using namespace alma;
 
 using namespace std;
 
-#include "ASDMAll.h"
+#include <alma/ASDM/ASDMAll.h>
 
 using namespace asdm;
 
@@ -28,28 +28,27 @@ using namespace asdm;
 #include <casa/Arrays/ArrayUtil.h>
 #include <casa/Arrays/ArrayLogical.h>
 
-#include "CAxisName.h"
+#include <alma/Enumerations/CAxisName.h>
 using namespace AxisNameMod;
-#include "CProcessorType.h"
+#include <alma/Enumerations/CProcessorType.h>
 using namespace ProcessorTypeMod;
 
-#include "SDMDataObject.h"
-#include "SDMDataObjectReader.h"
-#include "SDMDataObjectStreamReader.h"
+#include <alma/ASDMBinaries/SDMDataObject.h>
+#include <alma/ASDMBinaries/SDMDataObjectReader.h>
+#include <alma/ASDMBinaries/SDMDataObjectStreamReader.h>
 
 using namespace asdmbinaries;
 using namespace casacore;
 
-#include "asdm2MSGeneric.h"
-
-#include "ScansParser.h"
+#include <alma/apps/asdm2MS/asdm2MSGeneric.h>
+#include <alma/apps/asdm2MS/ScansParser.h>
 
 bool verbose = false; // By default, let's stay quiet.
 bool ddebug = false;
 
-#include "CScanIntent.h"
+#include <alma/Enumerations/CScanIntent.h>
 using namespace ScanIntentMod;
-#include "CSubscanIntent.h"
+#include <alma/Enumerations/CSubscanIntent.h>
 using namespace SubscanIntentMod;
 
 /*
@@ -539,7 +538,7 @@ void traverseBAB(bool					sameAntenna,
   for (SDMDataObject::Baseband bab: basebands) {
     const vector<SDMDataObject::SpectralWindow>& spws = bab.spectralWindows();
     bool firstSPW = true;
-    vector<StokesParameter>::const_iterator ppIter, ppBegin, ppEnd;
+    vector<StokesParameterMod::StokesParameter>::const_iterator ppIter, ppBegin, ppEnd;
     unsigned int numPolProducts;
     pair<const FLAGSTYPE*, const FLAGSTYPE*> range;
 
@@ -945,17 +944,17 @@ vector<unsigned int> getIntegrationSlices(int nIntegrations, uint64_t bdfSize, u
   return result;
 }
 
-unsigned int flagsSizeIncludingSPWAndPOL(unsigned int numAntenna, CorrelationMode correlationMode, const SDMDataObject::DataStruct & dataStruct) {
+unsigned int flagsSizeIncludingSPWAndPOL(unsigned int numAntenna, CorrelationModeMod::CorrelationMode correlationMode, const SDMDataObject::DataStruct & dataStruct) {
   unsigned int autoresult = 0, crossresult = 0;
 
   const vector<SDMDataObject::Baseband>& basebands = dataStruct.basebands();
   for (SDMDataObject::Baseband baseband : basebands)
     for (SDMDataObject::SpectralWindow spw : baseband.spectralWindows()) {
-      if (correlationMode != CorrelationMode::CROSS_ONLY) {
+      if (correlationMode != CorrelationModeMod::CROSS_ONLY) {
         autoresult += spw.sdPolProducts().end() - spw.sdPolProducts().begin();
       }
 
-      if (correlationMode != CorrelationMode::AUTO_ONLY) {
+      if (correlationMode != CorrelationModeMod::AUTO_ONLY) {
         crossresult += spw.crossPolProducts().end() - spw.crossPolProducts().begin();
       }
     }

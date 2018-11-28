@@ -41,52 +41,36 @@
 
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
-#include "CAtmPhaseCorrection.h"
-	
-
-	
-#include "CBasebandName.h"
-	
-
-	
-#include "CReceiverBand.h"
-	
 
 	
 
 	
-
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
-
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
-
-	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -102,25 +86,41 @@
 	
 
 	
-
-	
-#include "CReceiverSideband.h"
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CReceiverSideband.h>
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -151,7 +151,7 @@ class CalDelayRow;
  		
  * <TD> antennaName </TD>
  		 
- * <TD> string</TD>
+ * <TD> std::string</TD>
  * <TD> &nbsp; </TD>
  * <TD> &nbsp;the name of the antenna. </TD>
  * </TR>
@@ -221,7 +221,7 @@ class CalDelayRow;
 	
  * <TR>
  * <TD> refAntennaName </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the reference antenna. </TD>
  * </TR>
@@ -235,35 +235,35 @@ class CalDelayRow;
 	
  * <TR>
  * <TD> delayError </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the uncertainties on the measured delay offsets (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> delayOffset </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the measured delay offsets (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> polarizationTypes </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;identifies the polarizations of the receptors (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> reducedChiSquared </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;measure of the quality of the fit (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> appliedDelay </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the delay that was applied (one value per receptor). </TD>
  * </TR>
@@ -295,21 +295,21 @@ class CalDelayRow;
 	
  * <TR>
  * <TD> refFreq</TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numSideband  </TD>
  * <TD>&nbsp; the reference frequencies (one value per sideband). </TD>
  * </TR>
 	
  * <TR>
  * <TD> refFreqPhase</TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  numSideband  </TD>
  * <TD>&nbsp; the phases at reference frequencies (one value per sideband). </TD>
  * </TR>
 	
  * <TR>
  * <TD> sidebands</TD> 
- * <TD> vector<ReceiverSidebandMod::ReceiverSideband > </TD>
+ * <TD> std::vector<ReceiverSidebandMod::ReceiverSideband > </TD>
  * <TD>  numSideband  </TD>
  * <TD>&nbsp; identifies the receiver's sidebands (one value per sideband). </TD>
  * </TR>
@@ -481,7 +481,7 @@ public:
  	 * @param appliedDelay
 	
      */
-	CalDelayRow *newRow(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, string refAntennaName, int numReceptor, vector<double > delayError, vector<double > delayOffset, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > reducedChiSquared, vector<double > appliedDelay);
+	CalDelayRow *newRow(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::string refAntennaName, int numReceptor, std::vector<double > delayError, std::vector<double > delayOffset, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > reducedChiSquared, std::vector<double > appliedDelay);
 	
 
 
@@ -564,7 +564,7 @@ public:
 	
  	 *
 	 */
- 	CalDelayRow* getRowByKey(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId);
+ 	CalDelayRow* getRowByKey(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -607,7 +607,7 @@ public:
  	 * @param appliedDelay
  	 		 
  	 */
-	CalDelayRow* lookup(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, string refAntennaName, int numReceptor, vector<double > delayError, vector<double > delayOffset, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > reducedChiSquared, vector<double > appliedDelay); 
+	CalDelayRow* lookup(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::string refAntennaName, int numReceptor, std::vector<double > delayError, std::vector<double > delayOffset, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > reducedChiSquared, std::vector<double > appliedDelay); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

@@ -30,21 +30,21 @@
 #include <alma/Options/AlmaArg.h>
 using namespace alma;
 
-#include <ASDMAll.h>
-#include <Misc.h>
+#include <alma/ASDM/ASDMAll.h>
+#include <alma/ASDM/Misc.h>
 
-#include "SDMBinData.h"
+#include <alma/ASDMBinaries/SDMBinData.h>
 using namespace sdmbin;
 
 #include <exception>
 using namespace asdm;
-#include "IllegalAccessException.h"
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include "UvwCoords.h"
-#include "ASDM2MSFiller.h"
+#include <alma/apps/asdm2MS/UvwCoords.h>
+#include <alma/apps/asdm2MS/ASDM2MSFiller.h>
 
-#include "measures/Measures/Stokes.h"
-#include "measures/Measures/MFrequency.h"
+#include <measures/Measures/Stokes.h>
+#include <measures/Measures/MFrequency.h>
 using namespace casacore;
 #include <tables/Tables/Table.h>
 #include <tables/Tables/PlainTable.h>
@@ -54,35 +54,36 @@ using namespace casacore;
 #include <casa/OS/Path.h>
 #include <casa/Quanta/Quantum.h>
 #include <casa/BasicMath/Math.h>
-#include "CBasebandName.h"
-#include "CCalibrationDevice.h"
+#include <alma/Enumerations/CBasebandName.h>
+#include <alma/Enumerations/CCalibrationDevice.h>
 using namespace CalibrationDeviceMod;
-#include "CFrequencyReferenceCode.h"
-#include "CPolarizationType.h"
-#include "CProcessorSubType.h"
-#include "CProcessorType.h"
-#include "CScanIntent.h"
-#include "CSubscanIntent.h"
+#include <alma/Enumerations/CFrequencyReferenceCode.h>
+#include <alma/Enumerations/CPolarizationType.h>
+#include <alma/Enumerations/CProcessorSubType.h>
+#include <alma/Enumerations/CProcessorType.h>
+#include <alma/Enumerations/CScanIntent.h>
+#include <alma/Enumerations/CSubscanIntent.h>
 using namespace SubscanIntentMod;
-#include "CStokesParameter.h"
+#include <alma/Enumerations/CStokesParameter.h>
 
-#include "Name2Table.h"
-#include "ASDMVerbatimFiller.h"
+#include <alma/apps/asdm2MS/Name2Table.h>
+#include <alma/apps/asdm2MS/ASDMVerbatimFiller.h>
 
-#include "SDMDataObjectReader.h"
-#include "SDMDataObject.h"
+using namespace asdmbinaries;
+#include <alma/ASDMBinaries/SDMDataObjectReader.h>
+#include <alma/ASDMBinaries/SDMDataObject.h>
 
-#include "TableStreamReader.h"
-#include "asdm2MSGeneric.h"
+#include <alma/ASDM/TableStreamReader.h>
+#include <alma/apps/asdm2MS/asdm2MSGeneric.h>
 
-#include "asdmstman/AsdmStMan.h"
-#include "BDF2AsdmStManIndex.h"
+#include <asdmstman/AsdmStMan.h>
+#include <alma/apps/asdm2MS/BDF2AsdmStManIndex.h>
 
-#include "ScansParser.h"
+#include <alma/apps/asdm2MS/ScansParser.h>
 
-#include "ASDM2MSException.h"
+#include <alma/apps/asdm2MS/ASDM2MSException.h>
 
-#include	"time.h"			/* <time.h> */
+#include	<time.h>
 #if	defined(__sysv__)
 #include	<sys/time.h>
 #elif	defined(__bsd__)
@@ -263,38 +264,38 @@ StokesMapper::~StokesMapper() {
 
 Stokes::StokesTypes StokesMapper::value(StokesParameterMod::StokesParameter s) {
   switch (s) {
-  case I : return Stokes::I; 
-  case Q : return Stokes::Q; 
-  case U : return Stokes::U; 
-  case V : return Stokes::V; 
-  case RR : return Stokes::RR; 
-  case RL : return Stokes::RL; 
-  case LR : return Stokes::LR; 
-  case LL : return Stokes::LL; 
-  case XX : return Stokes::XX; 
-  case XY : return Stokes::XY; 
-  case YX : return Stokes::YX; 
-  case YY : return Stokes::YY; 
-  case RX : return Stokes::RX; 
-  case RY : return Stokes::RY; 
-  case LX : return Stokes::LX; 
-  case LY : return Stokes::LY; 
-  case XR : return Stokes::XR; 
-  case XL : return Stokes::XL; 
-  case YR : return Stokes::YR; 
-  case YL : return Stokes::YL; 
-  case PP : return Stokes::PP; 
-  case PQ : return Stokes::PQ; 
-  case QP : return Stokes::QP; 
-  case QQ : return Stokes::QQ; 
-  case RCIRCULAR : return Stokes::RCircular; 
-  case LCIRCULAR : return Stokes::LCircular; 
-  case LINEAR : return Stokes::Linear; 
-  case PTOTAL : return Stokes::Ptotal; 
-  case PLINEAR : return Stokes::Plinear; 
-  case PFTOTAL : return Stokes::PFtotal; 
-  case PFLINEAR : return Stokes::PFlinear; 
-  case PANGLE : return Stokes::Pangle;  
+  case StokesParameterMod::I : return Stokes::I; 
+  case StokesParameterMod::Q : return Stokes::Q; 
+  case StokesParameterMod::U : return Stokes::U; 
+  case StokesParameterMod::V : return Stokes::V; 
+  case StokesParameterMod::RR : return Stokes::RR; 
+  case StokesParameterMod::RL : return Stokes::RL; 
+  case StokesParameterMod::LR : return Stokes::LR; 
+  case StokesParameterMod::LL : return Stokes::LL; 
+  case StokesParameterMod::XX : return Stokes::XX; 
+  case StokesParameterMod::XY : return Stokes::XY; 
+  case StokesParameterMod::YX : return Stokes::YX; 
+  case StokesParameterMod::YY : return Stokes::YY; 
+  case StokesParameterMod::RX : return Stokes::RX; 
+  case StokesParameterMod::RY : return Stokes::RY; 
+  case StokesParameterMod::LX : return Stokes::LX; 
+  case StokesParameterMod::LY : return Stokes::LY; 
+  case StokesParameterMod::XR : return Stokes::XR; 
+  case StokesParameterMod::XL : return Stokes::XL; 
+  case StokesParameterMod::YR : return Stokes::YR; 
+  case StokesParameterMod::YL : return Stokes::YL; 
+  case StokesParameterMod::PP : return Stokes::PP; 
+  case StokesParameterMod::PQ : return Stokes::PQ; 
+  case StokesParameterMod::QP : return Stokes::QP; 
+  case StokesParameterMod::QQ : return Stokes::QQ; 
+  case StokesParameterMod::RCIRCULAR : return Stokes::RCircular; 
+  case StokesParameterMod::LCIRCULAR : return Stokes::LCircular; 
+  case StokesParameterMod::LINEAR : return Stokes::Linear; 
+  case StokesParameterMod::PTOTAL : return Stokes::Ptotal; 
+  case StokesParameterMod::PLINEAR : return Stokes::Plinear; 
+  case StokesParameterMod::PFTOTAL : return Stokes::PFtotal; 
+  case StokesParameterMod::PFLINEAR : return Stokes::PFlinear; 
+  case StokesParameterMod::PANGLE : return Stokes::Pangle;  
   }
   return Stokes::Undefined;
 }
@@ -817,41 +818,41 @@ void checkVectorSize(const string& vectorAttrName,
   }
 }
 
-EnumSet<AtmPhaseCorrection> apcLiterals(const ASDM& ds) {
-  EnumSet<AtmPhaseCorrection> result;
+EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection> apcLiterals(const ASDM& ds) {
+    EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection> result;
 
   vector<MainRow *> mRs = ds.getMain().get();
   
   for (unsigned int i = 0; i < mRs.size(); i++) {
     ConfigDescriptionRow * configDescriptionRow = mRs.at(i)->getConfigDescriptionUsingConfigDescriptionId();
-    vector<AtmPhaseCorrection> apc = configDescriptionRow -> getAtmPhaseCorrection();
+    vector<AtmPhaseCorrectionMod::AtmPhaseCorrection> apc = configDescriptionRow -> getAtmPhaseCorrection();
     for (unsigned int i = 0; i < apc.size(); i++)
       result.set(apc.at(i));
   }
   return result;
 }
 
-bool hasCorrectedData(const EnumSet<AtmPhaseCorrection>& es) {
-  return es[AP_CORRECTED];
+bool hasCorrectedData(const EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection>& es) {
+    return es[AtmPhaseCorrectionMod::AP_CORRECTED];
 }
 
-bool hasUncorrectedData(const EnumSet<AtmPhaseCorrection>& es) {
-  return es[AP_UNCORRECTED];
+bool hasUncorrectedData(const EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection>& es) {
+    return es[AtmPhaseCorrectionMod::AP_UNCORRECTED];
 }
 		    
 //
 // A number of EnumSet to encode the different selection criteria.
 //
-EnumSet<CorrelationMode>         es_cm;
-EnumSet<SpectralResolutionType>  es_srt;
-EnumSet<TimeSampling>            es_ts;
-Enum<CorrelationMode>            e_query_cm; 
-EnumSet<AtmPhaseCorrection>      es_query_apc;    
+EnumSet<CorrelationModeMod::CorrelationMode>         es_cm;
+EnumSet<SpectralResolutionTypeMod::SpectralResolutionType>  es_srt;
+EnumSet<TimeSamplingMod::TimeSampling>            es_ts;
+Enum<CorrelationModeMod::CorrelationMode>            e_query_cm; 
+EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection>      es_query_apc;    
 
 // An EnumSet to store the different values of AtmPhaseCorrection present
 // in the binary data (apc in datastruct).
 //
-EnumSet<AtmPhaseCorrection>      es_apc;
+EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection>      es_apc;
 
 //
 // By default the resulting MS will not contain compressed columns
@@ -1024,9 +1025,9 @@ vector<unsigned int> getIntegrationSlices(int nIntegrations, uint64_t bdfSize, u
   return result;
 }
 
-vector<map<AtmPhaseCorrection,ASDM2MSFiller*> >  msFillers_v;
+vector<map<AtmPhaseCorrectionMod::AtmPhaseCorrection,ASDM2MSFiller*> >  msFillers_v;
 
-map<AtmPhaseCorrection, ASDM2MSFiller*> msFillers; // There will be one filler per value of the axis APC.
+map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*> msFillers; // There will be one filler per value of the axis APC.
 
 vector<int>	dataDescriptionIdx2Idx;
 int		ddIdx;
@@ -1214,8 +1215,8 @@ double evalPoly (unsigned int		numCoeff,
   return result;
 }
 
-void deleteEphemeris(map<AtmPhaseCorrection, Table*>& apc2EphemTable_m) {
-  for ( map<AtmPhaseCorrection, Table*>::iterator iter = apc2EphemTable_m.begin(); iter!=apc2EphemTable_m.end(); ++iter)
+void deleteEphemeris(map<AtmPhaseCorrectionMod::AtmPhaseCorrection, Table*>& apc2EphemTable_m) {
+    for ( map<AtmPhaseCorrectionMod::AtmPhaseCorrection, Table*>::iterator iter = apc2EphemTable_m.begin(); iter!=apc2EphemTable_m.end(); ++iter)
     if (apc2EphemTable_m[iter->first] != NULL) delete apc2EphemTable_m[iter->first];
 }
 
@@ -1387,8 +1388,8 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
       tableName = std::regex_replace(tableName, e, "_");
       
 
-      map<AtmPhaseCorrection, Table*> apc2EphemTable_m;
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      map<AtmPhaseCorrectionMod::AtmPhaseCorrection, Table*> apc2EphemTable_m;
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	string tablePath = (string) iter->second->ms()->tableName() + string("/FIELD/") + tableName;  
@@ -1958,7 +1959,7 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
 		    IPosition(1, numRows-1),
 		    Slicer::endIsLast);
 
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	Table * table_p = apc2EphemTable_m[iter->first];
@@ -2154,7 +2155,7 @@ void fillField(ASDM* ds_p, bool considerEphemeris) {
       else
 	time = 0.0;
 
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	iter->second->addField( fieldName,
@@ -2170,7 +2171,7 @@ void fillField(ASDM* ds_p, bool considerEphemeris) {
     }
     
     if (considerEphemeris && (idxEphemerisId_v.size() > 0)) 
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+        for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	iter->second->updateEphemerisIdInField(idxEphemerisId_v);
@@ -2423,7 +2424,7 @@ void fillSpectralWindow(ASDM* ds_p, map<unsigned int, double>& effectiveBwPerSpw
 	for (unsigned int iAssocSw = 0; iAssocSw < numAssocValues; iAssocSw++)
 	  assocSpectralWindowId_[iAssocSw] =  swIdx2Idx[assocSpectralWindowId_[iAssocSw]];
 
-	vector<SpectralResolutionType> assocNature = r->getAssocNature();
+	vector<SpectralResolutionTypeMod::SpectralResolutionType> assocNature = r->getAssocNature();
 
 	if (assocNature.size() != assocSpectralWindowId_.size()) {
 	  infostream.str("");
@@ -2434,7 +2435,7 @@ void fillSpectralWindow(ASDM* ds_p, map<unsigned int, double>& effectiveBwPerSpw
 		     << "'). Ignoring the difference and sending the full assocNature vector to the filler.";
 	  info(infostream.str());
 	}
-	assocNature_ = SConverter::toVectorS<SpectralResolutionType, CSpectralResolutionType>(r->getAssocNature());
+	assocNature_ = SConverter::toVectorS<SpectralResolutionTypeMod::SpectralResolutionType, CSpectralResolutionType>(r->getAssocNature());
       }
       
       int numChan           = r->getNumChan();
@@ -2448,7 +2449,7 @@ void fillSpectralWindow(ASDM* ds_p, map<unsigned int, double>& effectiveBwPerSpw
       int freqGroup         = r->isFreqGroupExists()?r->getFreqGroup():0;
       string freqGroupName  = r->isFreqGroupNameExists()?r->getFreqGroupName().c_str():"";
 
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	iter->second->addSpectralWindow(numChan,
@@ -2506,7 +2507,7 @@ void fillState(MainRow* r_p) {
 
   ASDM&			ds	   = r_p -> getTable() . getContainer();
   ScanRow*		scanR_p	   = ds.getScan().getRowByKey(r_p -> getExecBlockId(),	r_p -> getScanNumber());
-  vector<ScanIntent>	scanIntent = scanR_p -> getScanIntent();
+  vector<ScanIntentMod::ScanIntent>	scanIntent = scanR_p -> getScanIntent();
   SubscanRow*		sscanR_p   = ds.getSubscan().getRowByKey(r_p -> getExecBlockId(),
 								 r_p -> getScanNumber(),
 								 r_p -> getSubscanNumber());
@@ -2533,7 +2534,7 @@ void fillState(MainRow* r_p) {
   for (unsigned int iState = 0; iState < sRs.size(); iState++) {							     	    
     bool pushed = false;
     
-    for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+    for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	 iter != msFillers.end();
 	 ++iter) {
       int retId = iter->second->addUniqueState(sRs[iState]->getSig(),
@@ -2626,7 +2627,7 @@ void fillMainLazily(const string& dsName,
 		    ASDM* ds_p,
 		    std::map<int, std::set<int> >& selected_eb_scan_m,
 		    std::map<unsigned int , double>& effectiveBwPerDD_m,
-		    Enum<CorrelationMode> e_query_cm,
+		    Enum<CorrelationModeMod::CorrelationMode> e_query_cm,
 		    bool checkdupints) {
 
   LOGENTER("fillMainLazily");
@@ -2646,8 +2647,8 @@ void fillMainLazily(const string& dsName,
   vector<int32_t>	mRIndexCorrected_v;
   vector<string>	bdfNamesCorrected_v;
 
-  bool	produceUncorrected = msFillers.find(AP_UNCORRECTED) != msFillers.end();
-  bool	produceCorrected   = msFillers.find(AP_CORRECTED) != msFillers.end();
+  bool	produceUncorrected = msFillers.find(AtmPhaseCorrectionMod::AP_UNCORRECTED) != msFillers.end();
+  bool	produceCorrected   = msFillers.find(AtmPhaseCorrectionMod::AP_CORRECTED) != msFillers.end();
 
   const vector<MainRow *>& temp = mainT.get();
 
@@ -2662,12 +2663,12 @@ void fillMainLazily(const string& dsName,
       // Are these data radiometric , if yes consider them both for corrected and uncorrected ms?
       // ProcessorType processorType = procT.getRowByKey(cfgDscT.getRowByKey((*iter_v)->getConfigDescriptionId())->getProcessorId())->getProcessorType();
       ConfigDescriptionRow *configDescRow = cfgDscT.getRowByKey((*iter_v)->getConfigDescriptionId());
-      ProcessorType processorType = procT.getRowByKey(configDescRow->getProcessorId())->getProcessorType();
+      ProcessorTypeMod::ProcessorType processorType = procT.getRowByKey(configDescRow->getProcessorId())->getProcessorType();
       CorrelationModeMod::CorrelationMode corrMode = configDescRow->getCorrelationMode();
 
       // some of these can be skipped immediately
-      if ( (e_query_cm == AUTO_ONLY && corrMode == CROSS_ONLY) ||
-	   (e_query_cm == CROSS_ONLY && corrMode == AUTO_ONLY) ) {
+      if ( (e_query_cm == CorrelationModeMod::AUTO_ONLY && corrMode == CorrelationModeMod::CROSS_ONLY) ||
+	   (e_query_cm == CorrelationModeMod::CROSS_ONLY && corrMode == CorrelationModeMod::AUTO_ONLY) ) {
 	infostream.str("");
 	infostream << "Skipping file " << abspath << " due to correlation mode selection.";
 	info(infostream.str());
@@ -2678,15 +2679,15 @@ void fillMainLazily(const string& dsName,
       mRCU_s.bdfName = abspath;
       mRCU_s.index = iter_v - temp.begin();
 
-      if (processorType == RADIOMETER) {
+      if (processorType == ProcessorTypeMod::RADIOMETER) {
 	// one considers that radiometric are uncorrected and corrected data.
 	mRCU_s.uncorrected = true; mRCU_s.corrected = true; 
       }
-      else if (processorType == CORRELATOR) {
+      else if (processorType == ProcessorTypeMod::CORRELATOR) {
 	// We are in front of CORRELATOR data. what's their status regarding AP correction ?
-	vector<AtmPhaseCorrection> apc_v =  cfgDscT.getRowByKey((*iter_v)->getConfigDescriptionId())->getAtmPhaseCorrection();
-	mRCU_s.uncorrected = find(apc_v.begin(), apc_v.end(), AP_UNCORRECTED) != apc_v.end();
-	mRCU_s.corrected   = find(apc_v.begin(), apc_v.end(), AP_CORRECTED) != apc_v.end(); 
+          vector<AtmPhaseCorrectionMod::AtmPhaseCorrection> apc_v =  cfgDscT.getRowByKey((*iter_v)->getConfigDescriptionId())->getAtmPhaseCorrection();
+	mRCU_s.uncorrected = find(apc_v.begin(), apc_v.end(), AtmPhaseCorrectionMod::AP_UNCORRECTED) != apc_v.end();
+	mRCU_s.corrected   = find(apc_v.begin(), apc_v.end(), AtmPhaseCorrectionMod::AP_CORRECTED) != apc_v.end(); 
       }
       
       if ( mRCU_s.uncorrected && produceUncorrected) { 
@@ -2717,7 +2718,7 @@ void fillMainLazily(const string& dsName,
   BDF2AsdmStManIndex bdf2AsdmStManIndexC;
 
   if ( bdfNamesUncorrected_v.size() and produceUncorrected ) {
-    const casacore::MeasurementSet* ms_p = msFillers.find(AP_UNCORRECTED)->second->ms();
+    const casacore::MeasurementSet* ms_p = msFillers.find(AtmPhaseCorrectionMod::AP_UNCORRECTED)->second->ms();
     oss.str("");
     if (ms_p->tableDesc().isColumn("DATA")) {
       oss << RODataManAccessor(*ms_p, "DATA", true).dataManagerSeqNr();
@@ -2728,7 +2729,7 @@ void fillMainLazily(const string& dsName,
   }
   
   if ( bdfNamesCorrected_v.size() and produceCorrected ) {
-    const casacore::MeasurementSet* ms_p = msFillers.find(AP_CORRECTED)->second->ms();
+    const casacore::MeasurementSet* ms_p = msFillers.find(AtmPhaseCorrectionMod::AP_CORRECTED)->second->ms();
     oss.str("");
     if (ms_p->tableDesc().isColumn("DATA")) {
       oss << RODataManAccessor(*ms_p, "DATA", true).dataManagerSeqNr();
@@ -2775,8 +2776,8 @@ void fillMainLazily(const string& dsName,
       LOG("Processing " + iter->bdfName);
       unsigned int numberOfAntennas = sdosr.numAntenna();
       unsigned int numberOfBaselines = numberOfAntennas * (numberOfAntennas - 1) / 2 ;
-      ProcessorType processorType = sdosr.processorType();
-      CorrelationMode correlationMode = sdosr.correlationMode();
+      ProcessorTypeMod::ProcessorType processorType = sdosr.processorType();
+      CorrelationModeMod::CorrelationMode correlationMode = sdosr.correlationMode();
       const SDMDataObject::DataStruct& dataStruct = sdosr.dataStruct();
 
       infostream.str("");
@@ -2788,8 +2789,8 @@ void fillMainLazily(const string& dsName,
       info(infostream.str());
 
       // skip rows that don't match the selected mode
-      if ( (correlationMode == CROSS_ONLY && e_query_cm == AUTO_ONLY) || 
-	   (correlationMode == AUTO_ONLY && e_query_cm == CROSS_ONLY) ) {
+      if ( (correlationMode == CorrelationModeMod::CROSS_ONLY && e_query_cm == CorrelationModeMod::AUTO_ONLY) || 
+	   (correlationMode == CorrelationModeMod::AUTO_ONLY && e_query_cm == CorrelationModeMod::CROSS_ONLY) ) {
 	infostream.str("");
 	infostream << "The main row # " << iter->index << " is ignored because the correlationMode is excluded by the selected mode to fill.";
 	info(infostream.str());
@@ -2849,12 +2850,12 @@ void fillMainLazily(const string& dsName,
       for (const SDMDataObject::Baseband& bb: dataStruct.basebands()) {
 	for (const SDMDataObject::SpectralWindow& spw: bb.spectralWindows()) {
 	  numberOfChannels_v.push_back(spw.numSpectralPoint());
-	  if (correlationMode != AUTO_ONLY)
+	  if (correlationMode != CorrelationModeMod::AUTO_ONLY)
 	    numberOfCrossPolarizations_v.push_back(spw.crossPolProducts().size());
 	  else
 	    numberOfCrossPolarizations_v.push_back(0);
 
-	  if (correlationMode != CROSS_ONLY)
+	  if (correlationMode != CorrelationModeMod::CROSS_ONLY)
 	    numberOfSDPolarizations_v.push_back(spw.sdPolProducts().size());
 	  else
 	    numberOfSDPolarizations_v.push_back(0);
@@ -2878,7 +2879,7 @@ void fillMainLazily(const string& dsName,
       vector<double> autoScaleFactors;
       
       // The cross data scale factors exist.
-      if (correlationMode != AUTO_ONLY) { 
+      if (correlationMode != CorrelationModeMod::AUTO_ONLY) { 
 	for (const SDMDataObject::Baseband& bb: dataStruct.basebands()) {
 	  for (const SDMDataObject::SpectralWindow& spw: bb.spectralWindows()) {
 	    crossScaleFactors.push_back(spw.scaleFactor());
@@ -2893,7 +2894,7 @@ void fillMainLazily(const string& dsName,
       }
       
       // The auto data scale factors are fake.
-      if (correlationMode != CROSS_ONLY) {
+      if (correlationMode != CorrelationModeMod::CROSS_ONLY) {
 	for (unsigned int i = 0; i < numberOfSpectralWindows; i++)
 	  autoScaleFactors.push_back(1.0);
 	if (debug) {
@@ -2976,7 +2977,7 @@ void fillMainLazily(const string& dsName,
       //
       // Now delegate to bdf2AsdmStManIndex the creation of the AsmdIndex 'es.
       // 
-      if (processorType == RADIOMETER && sdosr.hasPackedData()) {
+      if (processorType == ProcessorTypeMod::RADIOMETER && sdosr.hasPackedData()) {
 
 	//
 	// Declare some containers required to populate the columns of the MS MAIN table in a non lazy way.
@@ -3092,7 +3093,7 @@ void fillMainLazily(const string& dsName,
 	//
 	// It's now time to populate the columns of the MAIN table but the DATA's one.
 	for (unsigned int iDD = 0; iDD < dataDescriptionIds.size(); iDD++) {
-	  for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator msfIter = msFillers.begin();
+            for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator msfIter = msFillers.begin();
 	       msfIter != msFillers.end();
 	       ++msfIter) {
 	    if (time_vv[iDD].size() > 0) {
@@ -3121,7 +3122,7 @@ void fillMainLazily(const string& dsName,
 	}
       }
 
-      else if (!sdosr.hasPackedData() && (processorType == CORRELATOR || processorType == RADIOMETER)) {
+      else if (!sdosr.hasPackedData() && (processorType == ProcessorTypeMod::CORRELATOR || processorType == ProcessorTypeMod::RADIOMETER)) {
 
 	// duplicate time skipping is not supported here
 
@@ -3167,10 +3168,10 @@ void fillMainLazily(const string& dsName,
 	vector<vector<double> >  auto_sigma_vv(dataDescriptionIds.size());            // Column SIGMA
 	
 	// Ignore cross data if AUTO_ONLY is selected.
-	bool hasCrossData = ((correlationMode == CROSS_AND_AUTO || correlationMode == CROSS_ONLY) && e_query_cm != AUTO_ONLY);
+	bool hasCrossData = ((correlationMode == CorrelationModeMod::CROSS_AND_AUTO || correlationMode == CorrelationModeMod::CROSS_ONLY) && e_query_cm != CorrelationModeMod::AUTO_ONLY);
 
 	// Ignore auto data if CROSS_ONLY has been selected.
-	bool hasAutoData = ((correlationMode == CROSS_AND_AUTO || correlationMode == AUTO_ONLY) && e_query_cm != CROSS_ONLY);
+	bool hasAutoData = ((correlationMode == CorrelationModeMod::CROSS_AND_AUTO || correlationMode == CorrelationModeMod::AUTO_ONLY) && e_query_cm != CorrelationModeMod::CROSS_ONLY);
 
 	//
 	// Traverse all the integrations.
@@ -3192,7 +3193,7 @@ void fillMainLazily(const string& dsName,
 	  vector<double> time_v(dataDescriptionIds.size() * (numberOfBaselines + numberOfAntennas),
 				time);
 
-	  if ( correlationMode != AUTO_ONLY ) {
+	  if ( correlationMode != CorrelationModeMod::AUTO_ONLY ) {
 	    uvwCoords.uvw_bl(mR_p,
 			     time_v, 
 			     correlationMode,
@@ -3205,7 +3206,7 @@ void fillMainLazily(const string& dsName,
 	  // first element of vv_uvw
 	  // 
 	  unsigned int uvwIndexBase = 0;
-	  if (correlationMode == CROSS_AND_AUTO) {
+	  if (correlationMode == CorrelationModeMod::CROSS_AND_AUTO) {
 	    uvwIndexBase += numberOfAntennas * dataDescriptionIds.size();
 	  }
 
@@ -3381,11 +3382,11 @@ void fillMainLazily(const string& dsName,
 	//
 	for (unsigned int iDD = 0; iDD < dataDescriptionIds.size(); iDD++) {
 	  if (hasAutoData)
-	    for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator msfIter = msFillers.begin();
+              for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator msfIter = msFillers.begin();
 		 msfIter != msFillers.end();
 		 ++msfIter)
-	      if ((msfIter->first == AP_UNCORRECTED and iter->uncorrected and produceUncorrected) ||
-		  (msfIter->first == AP_CORRECTED and iter->corrected and produceCorrected)) {
+	      if ((msfIter->first == AtmPhaseCorrectionMod::AP_UNCORRECTED and iter->uncorrected and produceUncorrected) ||
+		  (msfIter->first == AtmPhaseCorrectionMod::AP_CORRECTED and iter->corrected and produceCorrected)) {
 		msfIter->second->addData(true,             // Yes ! these are complex data.
 					 auto_time_vv[iDD],
 					 auto_antenna1_vv[iDD],
@@ -3408,11 +3409,11 @@ void fillMainLazily(const string& dsName,
 					 auto_sigma_vv[iDD]);
 	      }
 	  if (hasCrossData) 
-	    for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator msfIter = msFillers.begin();
+              for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator msfIter = msFillers.begin();
 		 msfIter != msFillers.end();
 		 ++msfIter)
-	      if ((msfIter->first == AP_UNCORRECTED and iter->uncorrected and produceUncorrected) ||
-		  (msfIter->first == AP_CORRECTED and iter->corrected and produceCorrected)) {
+	      if ((msfIter->first == AtmPhaseCorrectionMod::AP_UNCORRECTED and iter->uncorrected and produceUncorrected) ||
+		  (msfIter->first == AtmPhaseCorrectionMod::AP_CORRECTED and iter->corrected and produceCorrected)) {
 		msfIter->second->addData(true,             // Yes ! these are complex data.
 					 cross_time_vv[iDD],
 					 cross_antenna1_vv[iDD],
@@ -3443,24 +3444,24 @@ void fillMainLazily(const string& dsName,
 
       if (iter->uncorrected and produceUncorrected) {
 	infostream.str("");
-	infostream << "ASDM Main row #" << iter->index << " produced a total of " << msFillers[AP_UNCORRECTED]->ms()->nrow() - lastMSNUrows << " MS Main rows with uncorrected data." << endl;
+	infostream << "ASDM Main row #" << iter->index << " produced a total of " << msFillers[AtmPhaseCorrectionMod::AP_UNCORRECTED]->ms()->nrow() - lastMSNUrows << " MS Main rows with uncorrected data." << endl;
 	info(infostream.str());
-	lastMSNUrows = msFillers[AP_UNCORRECTED]->ms()->nrow();	
+	lastMSNUrows = msFillers[AtmPhaseCorrectionMod::AP_UNCORRECTED]->ms()->nrow();	
       }
 
       if (iter->corrected and produceCorrected) {
 	infostream.str("");
-	infostream << "ASDM Main row #" << iter->index << " produced a total of " << msFillers[AP_CORRECTED]->ms()->nrow() - lastMSNCrows << " MS Main rows with corrected data." << endl;
+	infostream << "ASDM Main row #" << iter->index << " produced a total of " << msFillers[AtmPhaseCorrectionMod::AP_CORRECTED]->ms()->nrow() - lastMSNCrows << " MS Main rows with corrected data." << endl;
 	info(infostream.str());
-	lastMSNCrows = msFillers[AP_CORRECTED]->ms()->nrow();	
+	lastMSNCrows = msFillers[AtmPhaseCorrectionMod::AP_CORRECTED]->ms()->nrow();	
       }
     }
     infostream.str("");
     if (produceUncorrected) 
-      infostream << "The MS main table for wvr uncorrected data contains " << msFillers[AP_UNCORRECTED]->ms()->nrow() << " rows." << endl;
+      infostream << "The MS main table for wvr uncorrected data contains " << msFillers[AtmPhaseCorrectionMod::AP_UNCORRECTED]->ms()->nrow() << " rows." << endl;
 
     if (produceCorrected) 
-      infostream << "The MS main table for wvr corrected data contains " << msFillers[AP_CORRECTED]->ms()->nrow() << " rows." << endl;
+      infostream << "The MS main table for wvr corrected data contains " << msFillers[AtmPhaseCorrectionMod::AP_CORRECTED]->ms()->nrow() << " rows." << endl;
 
 
     info(infostream.str());
@@ -3730,8 +3731,8 @@ void fillMain(
 
     // Have we asked to write an MS with corrected data + radiometric data ?
     
-    // Are we with radiometric data ? Then we assume that the data are labelled AP_UNCORRECTED.
-    if (sdmBinData.processorType(r_p) == RADIOMETER) {
+    // Are we with radiometric data ? Then we assume that the data are labelled AtmPhaseCorrectionMod::AP_UNCORRECTED.
+    if (sdmBinData.processorType(r_p) == ProcessorTypeMod::RADIOMETER) {
       if ((iter=vmsData_p->v_m_data.at(msRowReIndex_v[iData]).find(AtmPhaseCorrectionMod::AP_UNCORRECTED)) != vmsData_p->v_m_data.at(msRowReIndex_v[iData]).end()){
 	
 	correctedTime_v.push_back(vmsData_p->v_time.at(msRowReIndex_v[iData]));
@@ -3759,7 +3760,7 @@ void fillMain(
     }
     else {  // We assume that we are in front of CORRELATOR data, but do we have corrected data on that specific subscan ?
       if (subscanHasCorrectedData) {
-	// Then we know that we have  AP_CORRECTED data.
+	// Then we know that we have  AtmPhaseCorrectionMod::AP_CORRECTED data.
 	if  (vmsData_p->v_antennaId1.at(msRowReIndex_v[iData]) == vmsData_p->v_antennaId2.at(msRowReIndex_v[iData]) ) {
 	  /*
 	  ** do not forget to prepend the autodata copied from the uncorrected data, because the lower layers of the software do not put the (uncorrected) autodata in the
@@ -3820,7 +3821,7 @@ void fillMain(
     }
   }
  
-  if (uncorrectedData_v.size() > 0 && (msFillers.find(AP_UNCORRECTED) != msFillers.end())) {
+  if (uncorrectedData_v.size() > 0 && (msFillers.find(AtmPhaseCorrectionMod::AP_UNCORRECTED) != msFillers.end())) {
     if (! mute) { // Here we make the assumption that we have always uncorrected data. This realistic even if not totally rigorous.
 
       if (!skipFirstTime) {
@@ -3844,7 +3845,7 @@ void fillMain(
       // state must have already been filled so that the stateIdx2IDx map is available to extract the state ID for this main row pointer (r_p).
       vector<int> msStateId_v(uncorrectedTime_v.size(), stateIdx2Idx[r_p]);
 
-      msFillers[AP_UNCORRECTED]->addData(complexData,
+      msFillers[AtmPhaseCorrectionMod::AP_UNCORRECTED]->addData(complexData,
 					 uncorrectedTime_v	, // this is already time midpoint
 					 uncorrectedAntennaId1_v,
 					 uncorrectedAntennaId2_v,
@@ -3870,12 +3871,12 @@ void fillMain(
   }
 
 
-  if (correctedData_v.size() > 0 && (msFillers.find(AP_CORRECTED) != msFillers.end())) {
+  if (correctedData_v.size() > 0 && (msFillers.find(AtmPhaseCorrectionMod::AP_CORRECTED) != msFillers.end())) {
     if (! mute) {
       // Here we make the assumption that the State is the same for all the antennas and let's use the first State found in the vector stateId contained in the ASDM Main Row
       // state must have already been filled so that the stateIdx2IDx map is available to extract the state ID for this main row pointer (r_p).
       vector<int>  correctedMsStateId_v(correctedTime_v.size(), stateIdx2Idx[r_p]);
-      msFillers[AP_CORRECTED]->addData(complexData,
+      msFillers[AtmPhaseCorrectionMod::AP_CORRECTED]->addData(complexData,
 				       correctedTime_v, // this is already time midpoint
 				       correctedAntennaId1_v, 
 				       correctedAntennaId2_v,
@@ -4033,14 +4034,14 @@ void fillMain_mt(MainRow*	r_p,
   //for (unsigned int iData = 0; iData < vmsData_p->v_m_data.size(); iData++) {
   if (vmsData_p->v_m_data.size() < filteredDDbasedRows.size()) cerr<<"ERROR selected rows > tot data rows"<<endl;
   int iData;
-  //cerr<<"writing to "<<msFillers_v[spwId][AP_UNCORRECTED]->msPath()<<endl;
+  //cerr<<"writing to "<<msFillers_v[spwId][AtmPhaseCorrectionMod::AP_UNCORRECTED]->msPath()<<endl;
   for (unsigned int i = 0; i < filteredDDbasedRows.size(); i++) {
 
     iData = filteredDDbasedRows.at(i); 
     //cerr<<"iData="<<iData<<endl;
     //cerr<<"msFillers_v.size="<<msFillers_v.size()<<endl;
 
-    if ((msFillers_v[spwId].find(AP_UNCORRECTED) != msFillers_v[spwId].end()) &&
+    if ((msFillers_v[spwId].find(AtmPhaseCorrectionMod::AP_UNCORRECTED) != msFillers_v[spwId].end()) &&
 	(iter=vmsData_p->v_m_data.at(iData).find(AtmPhaseCorrectionMod::AP_UNCORRECTED)) != vmsData_p->v_m_data.at(iData).end()){
       uncorrectedTime.push_back(vmsData_p->v_time.at(iData));
       uncorrectedAntennaId1.push_back(vmsData_p->v_antennaId1.at(iData));
@@ -4064,7 +4065,7 @@ void fillMain_mt(MainRow*	r_p,
       uncorrectedFlag.push_back(vmsData_p->v_flag.at(iData));
     }
 	    
-    if ((msFillers_v[spwId].find(AP_CORRECTED) != msFillers_v[spwId].end()) &&
+    if ((msFillers_v[spwId].find(AtmPhaseCorrectionMod::AP_CORRECTED) != msFillers_v[spwId].end()) &&
 	(iter=vmsData_p->v_m_data.at(iData).find(AtmPhaseCorrectionMod::AP_CORRECTED)) != vmsData_p->v_m_data.at(iData).end()){
       correctedTime.push_back(vmsData_p->v_time.at(iData));
       correctedAntennaId1.push_back(vmsData_p->v_antennaId1.at(iData));
@@ -4090,10 +4091,10 @@ void fillMain_mt(MainRow*	r_p,
   }
 
   //printf("Ready to addData\n");	  
-  if (uncorrectedData.size() > 0 && (msFillers_v[spwId].find(AP_UNCORRECTED) != msFillers_v[spwId].end())) {
+  if (uncorrectedData.size() > 0 && (msFillers_v[spwId].find(AtmPhaseCorrectionMod::AP_UNCORRECTED) != msFillers_v[spwId].end())) {
     if (! mute) {
       //cerr<<" actually filling the data (uncorrected) for spwId"<<spwId<<endl;
-      msFillers_v[spwId][AP_UNCORRECTED]->addData(complexData,
+      msFillers_v[spwId][AtmPhaseCorrectionMod::AP_UNCORRECTED]->addData(complexData,
 						  uncorrectedTime, // this is already time midpoint
 						  uncorrectedAntennaId1,
 						  uncorrectedAntennaId2,
@@ -4118,9 +4119,9 @@ void fillMain_mt(MainRow*	r_p,
     }
   }
 
-  if (correctedData.size() > 0 && (msFillers_v[spwId].find(AP_CORRECTED) != msFillers_v[spwId].end())) {
+  if (correctedData.size() > 0 && (msFillers_v[spwId].find(AtmPhaseCorrectionMod::AP_CORRECTED) != msFillers_v[spwId].end())) {
     if (! mute) {
-      msFillers_v[spwId][AP_CORRECTED]->addData(complexData,
+      msFillers_v[spwId][AtmPhaseCorrectionMod::AP_CORRECTED]->addData(complexData,
 						correctedTime, // this is already time midpoint
 						correctedAntennaId1, 
 						correctedAntennaId2,
@@ -4146,7 +4147,7 @@ void fillMain_mt(MainRow*	r_p,
 }
 #endif
  
- void fillSysPower_aux (const vector<SysPowerRow *>& sysPowers, map<AtmPhaseCorrection, ASDM2MSFiller*>& msFillers_m) {
+void fillSysPower_aux (const vector<SysPowerRow *>& sysPowers, map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>& msFillers_m) {
    LOGENTER("fillSysPower_aux");
 
   vector<int>		antennaId;
@@ -4206,7 +4207,7 @@ void fillMain_mt(MainRow*	r_p,
 
   LOG("fillSysPower_aux : about to append a slice to the MS SYSPOWER table.");
  
-  for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator msIter = msFillers_m.begin();
+  for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator msIter = msFillers_m.begin();
        msIter != msFillers_m.end();
        ++msIter) {
     msIter->second->addSysPowerSlice(antennaId.size(),
@@ -4233,7 +4234,7 @@ void fillMain_mt(MainRow*	r_p,
  * @param msFillers_m a map of ASDM2MSFillers depending on AtmosphericPhaseCorrection.
  *
  */
-void fillSysPower(const string asdmDirectory, ASDM* ds_p, bool ignoreTime, const vector<ScanRow *>& selectedScanRow_v, map<AtmPhaseCorrection, ASDM2MSFiller*>& msFillers_m) {
+void fillSysPower(const string asdmDirectory, ASDM* ds_p, bool ignoreTime, const vector<ScanRow *>& selectedScanRow_v, map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>& msFillers_m) {
   LOGENTER("fillSysPower");
 
   const SysPowerTable& sysPowerT = ds_p->getSysPower();
@@ -4328,9 +4329,9 @@ void fillSysPower(const string asdmDirectory, ASDM* ds_p, bool ignoreTime, const
 
 // ------ data partition function
 void partitionMS(vector<int> SwIds, 
-                 //vector< map<AtmPhaseCorrection,ASDM2MSFiller* > >&  msFillers_vec,
-                 //map<AtmPhaseCorrection,string>  msFillers,
-                 map<AtmPhaseCorrection,string> msNames,
+                 //vector< map<AtmPhaseCorrectionMod::AtmPhaseCorrection,ASDM2MSFiller* > >&  msFillers_vec,
+                 //map<AtmPhaseCorrectionMod::AtmPhaseCorrection,string>  msFillers,
+                 map<AtmPhaseCorrectionMod::AtmPhaseCorrection,string> msNames,
                  bool complexData,
                  bool withCompression,
                  string telName,
@@ -4343,7 +4344,7 @@ void partitionMS(vector<int> SwIds,
     oss<< SwIds.at(i);
     string msname_suffix = ".SpW"+oss.str( );
     //cerr<<"msname_prefix="<<msname_suffix<<endl;
-    for (map<AtmPhaseCorrection, string>::iterator iter = msNames.begin(); iter != msNames.end(); ++iter) {
+    for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, string>::iterator iter = msNames.begin(); iter != msNames.end(); ++iter) {
       msFillers[iter->first] = new ASDM2MSFiller(msNames[iter->first]+msname_suffix,
 						 0.0,
 						 false,
@@ -4357,7 +4358,7 @@ void partitionMS(vector<int> SwIds,
 						 );
       info("About to create a filler for the measurement set '" + msNames[iter->first] + msname_suffix + "'");
     }
-    //vector<std::pair<const AtmPhaseCorrection,ASDM2MSFiller*> > msFillers_vec(msFillers.begin(),msFillers.end());
+    //vector<std::pair<const AtmPhaseCorrectionMod::AtmPhaseCorrection,ASDM2MSFiller*> > msFillers_vec(msFillers.begin(),msFillers.end());
     msFillers_v.push_back(msFillers);
     //store ms names locally
   }
@@ -4794,11 +4795,11 @@ int main(int argc, char *argv[]) {
     // this always has a value because of defaults
     string ocm_opt = string(options[OCM].last()->arg);
     if ( ocm_opt.compare("co") == 0 )
-      e_query_cm = CROSS_ONLY;
+        e_query_cm = CorrelationModeMod::CROSS_ONLY;
     else if ( ocm_opt.compare("ao") == 0 )
-      e_query_cm = AUTO_ONLY;
+        e_query_cm = CorrelationModeMod::AUTO_ONLY;
     else if ( ocm_opt.compare("ca") == 0 )
-      e_query_cm = CROSS_AND_AUTO;
+        e_query_cm = CorrelationModeMod::CROSS_AND_AUTO;
     else {
       errstream.str("");
       errstream << "Token '" << ocm_opt << "' invalid for ocm option." << endl;
@@ -5046,7 +5047,7 @@ int main(int argc, char *argv[]) {
   sdmBinData.select( es_cm, es_srt, es_ts);   
   
   // From now we decide to extract the data with all atmospheric phase corrections. The selection will be done on output. Michel Caillat Thur 18 Sept 2014 - CAS-6935
-  EnumSet<AtmPhaseCorrection> allAPCs;
+  EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection> allAPCs;
   allAPCs.fromString("AP_CORRECTED AP_UNCORRECTED");
   sdmBinData.selectDataSubset(e_query_cm, allAPCs);
   
@@ -5178,12 +5179,12 @@ int main(int argc, char *argv[]) {
   // only AP_UNCORRECTED -> MS name has no particular suffix,
   // AP_CORRECTED and AP_UNCORRECTED -> 2 MSs whith names defined by the two above rules.
   //
-  map<AtmPhaseCorrection, string> msNames;
-  if (hasCorrectedData(es_apc) && es_query_apc[AP_CORRECTED]) {
-    msNames[AP_CORRECTED] = msNamePrefix + "-wvr-corrected";
+  map<AtmPhaseCorrectionMod::AtmPhaseCorrection, string> msNames;
+  if (hasCorrectedData(es_apc) && es_query_apc[AtmPhaseCorrectionMod::AP_CORRECTED]) {
+    msNames[AtmPhaseCorrectionMod::AP_CORRECTED] = msNamePrefix + "-wvr-corrected";
   }
-  if (hasUncorrectedData(es_apc) && es_query_apc[AP_UNCORRECTED]) {
-    msNames[AP_UNCORRECTED] = msNamePrefix;
+  if (hasUncorrectedData(es_apc) && es_query_apc[AtmPhaseCorrectionMod::AP_UNCORRECTED]) {
+    msNames[AtmPhaseCorrectionMod::AP_UNCORRECTED] = msNamePrefix;
   }
       
   if (msNames.size() == 0) {
@@ -5203,7 +5204,7 @@ int main(int argc, char *argv[]) {
     // the MS name.
     // And eventually always suffix with ".ms".
     //
-    for (map<AtmPhaseCorrection, string>::iterator iter=msNames.begin(); iter != msNames.end(); ++iter) {
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, string>::iterator iter=msNames.begin(); iter != msNames.end(); ++iter) {
       if (withCompression)
 	iter->second = iter->second + ".compressed";
       iter->second +=  msNameExtension;
@@ -5257,7 +5258,7 @@ int main(int argc, char *argv[]) {
   if (!false) {
     try {
       if (lazy)  casa::AsdmStMan::registerClass();
-      for (map<AtmPhaseCorrection, string>::iterator iter = msNames.begin(); iter != msNames.end(); ++iter) {
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, string>::iterator iter = msNames.begin(); iter != msNames.end(); ++iter) {
 	info("About to create a filler for the measurement set '" + msNames[iter->first] + "'");
 	msFillers[iter->first] = new ASDM2MSFiller(msNames[iter->first],
 						   0.0,
@@ -5420,7 +5421,7 @@ int main(int argc, char *argv[]) {
       double yOffset = offset.at(1).get();
       double zOffset = offset.at(2).get();
 
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	/*
@@ -5546,7 +5547,7 @@ int main(int argc, char *argv[]) {
       }
 
 
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	pIdx = iter->second->addUniquePolarization(numCorr,
@@ -5597,7 +5598,7 @@ int main(int argc, char *argv[]) {
 	(errstream << "Problem while reading the DataDescription table, the row with key = Tag(" << i << ") does not exist.Aborting." << endl);
 	error(errstream.str());
       }
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	ddIdx = iter->second->addUniqueDataDescription(swIdx2Idx[r->getSpectralWindowId().getTagValue()],
@@ -5664,7 +5665,7 @@ int main(int argc, char *argv[]) {
       string project(r->getProjectUID().getEntityId().toString());
       double releaseDate = r->isReleaseDateExists() ? r->getReleaseDate().getMJD():0.0;
 
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	iter->second->addObservation(telescopeName,
@@ -5760,7 +5761,7 @@ int main(int argc, char *argv[]) {
       }
       vector<double> receptor_angle_ = DConverter::toVectorD<Angle>(r->getReceptorAngle());
       
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	iter->second->addFeed((int) r->getAntennaId().getTagValue(),
@@ -5839,7 +5840,7 @@ int main(int argc, char *argv[]) {
       string reason = r->getReason();
       string command = r->getCommand();
    
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	iter->second->addFlagCmd(time,
@@ -5897,7 +5898,7 @@ int main(int argc, char *argv[]) {
       string cliCommand  = r->getCliCommand();
       string appParams   = r->getAppParms();
  
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	iter->second->addHistory(time,
@@ -6163,7 +6164,7 @@ int main(int argc, char *argv[]) {
 	}
     
 
-	for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+	for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	     iter != msFillers.end();
 	     ++iter) {
 	  iter->second->addPointingSlice(numMSPointingRows,
@@ -6221,7 +6222,7 @@ int main(int argc, char *argv[]) {
       string processorType    = CProcessorType::name(r->getProcessorType());
       string processorSubType = CProcessorSubType::name(r->getProcessorSubType());
       
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	iter->second->addProcessor(processorType,
@@ -6373,7 +6374,7 @@ int main(int argc, char *argv[]) {
 	sysVel = DConverter::toVectorD<Speed>(r->getSysVel());
       }
    
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	iter->second->addSource(sourceId,
@@ -6492,7 +6493,7 @@ int main(int argc, char *argv[]) {
       if (tant_tsys_spectrum_pair.first)
 	tant_tsys_spectrum_pair.second = FConverter::toVectorF(r->getTantTsysSpectrum(), true);
 
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	iter->second->addSysCal((int) r->getAntennaId().getTagValue(),
@@ -6763,7 +6764,7 @@ int main(int argc, char *argv[]) {
 	//}
       
 	
-	for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator msIter = msFillers.begin();
+	for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator msIter = msFillers.begin();
 	     msIter != msFillers.end();
 	     ++msIter) {
 	  msIter->second->addCalDevice((*iter)->getAntennaId().getTagValue(),
@@ -6850,7 +6851,7 @@ int main(int argc, char *argv[]) {
       int		wxStationId        = r->getStationId().getTagValue();
       vector<double>	wxStationPosition  = DConverter::toVectorD(r->getStationUsingStationId()->getPosition());
     
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
 	iter->second->addWeather(-1,
@@ -6903,7 +6904,7 @@ int main(int argc, char *argv[]) {
     // Consider only the Main rows whose execBlockId and scanNumber attributes correspond to the selection.
     // (execBlockId, scanNumber, wvr-corrected-data option)
     //
-    vector<AtmPhaseCorrection>		queriedAPC_v						  = es_apc.toEnumType();
+    vector<AtmPhaseCorrectionMod::AtmPhaseCorrection>		queriedAPC_v						  = es_apc.toEnumType();
     const vector<MainRow *>&		temp							  = mainT.get();
     for ( vector<MainRow *>::const_iterator iter_v = temp.begin(); iter_v			 != temp.end(); iter_v++) {
       map<int, set<int> >::iterator	iter_m							  = selected_eb_scan_m.find((*iter_v)->getExecBlockId().getTagValue());
@@ -6927,7 +6928,7 @@ int main(int argc, char *argv[]) {
     UvwCoords uvwCoords(ds);
       
     ostringstream oss;
-    EnumSet<AtmPhaseCorrection> es_query_ap_uncorrected;
+    EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection> es_query_ap_uncorrected;
     es_query_ap_uncorrected.fromString("AP_UNCORRECTED");
     
     // used in checking for duplicate integrations in the WVR (Radiometer) case
@@ -6945,7 +6946,7 @@ int main(int argc, char *argv[]) {
 	Tag pId = cR->getProcessorId();
 
 
-	ProcessorType processorType = ds->getProcessor().getRowByKey(pId)->getProcessorType();
+        ProcessorTypeMod::ProcessorType processorType = ds->getProcessor().getRowByKey(pId)->getProcessorType();
 	infostream.str("");
 	infostream << "ASDM Main row #" << mainRowIndex[i] << " contains data produced by a '" << CProcessorType::name(processorType) << "'." ;
 	info(infostream.str());
@@ -6981,7 +6982,7 @@ int main(int argc, char *argv[]) {
 	  continue;	  
 	}
 
-	if (processorType == RADIOMETER) {
+	if (processorType == ProcessorTypeMod::RADIOMETER) {
 	  if (!sdmBinData.acceptMainRow(v[i])) {
 	    infostream.str("");
 	    infostream <<"No data retrieved in the Main row #" << mainRowIndex[i] << " (" << sdmBinData.reasonToReject(v[i]) <<")" << endl;
@@ -7152,10 +7153,10 @@ int main(int argc, char *argv[]) {
     info(infostream.str());
     
     if (mainT.size()) {
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+        for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
-	string kindOfData = (iter->first == AP_UNCORRECTED) ? "wvr uncorrected" : "wvr corrected";
+	string kindOfData = (iter->first == AtmPhaseCorrectionMod::AP_UNCORRECTED) ? "wvr uncorrected" : "wvr corrected";
 	infostream.str("");
 	infostream << "converted in " << iter->second->ms()->nrow() << " main(s) rows in the measurement set containing the " << kindOfData << " data.";
 	info(infostream.str());
@@ -7172,7 +7173,7 @@ int main(int argc, char *argv[]) {
       vector<string> tablenames;
       while (iss>>word)
 	tablenames.push_back(word);
-      for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin(); iter != msFillers.end(); ++iter){   
+      for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin(); iter != msFillers.end(); ++iter){   
 	ASDMVerbatimFiller avf(const_cast<casacore::MS*>(iter->second->ms()), Name2Table::find(tablenames, verbose));
 	avf.fill(*ds);
       }
@@ -7184,13 +7185,13 @@ int main(int argc, char *argv[]) {
     }
   }
   
-  for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+  for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
        iter != msFillers.end();
        ++iter)
     iter->second->end();
   
   
-  for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
+  for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
        iter != msFillers.end();
        ++iter)
     delete iter->second;

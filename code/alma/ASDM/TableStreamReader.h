@@ -1,12 +1,12 @@
 #ifndef TABLE_STREAM_READER_H
 #define TABLE_STREAM_READER_H
-#include "Misc.h"
+#include <alma/ASDM/Misc.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-#include "ASDM.h"
-#include "Entity.h"
-#include "EndianStream.h"
-#include "ConversionException.h"
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/Entity.h>
+#include <alma/ASDM/EndianStream.h>
+#include <alma/ASDM/ConversionException.h>
 #include <sstream>
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -33,7 +33,7 @@
  * File CSourceModel.cpp
  */
 #include <sstream>
-#include <CSourceModel.h>
+#include <alma/Enumerations/CSourceModel.h>
 #include <string>
 using namespace std;
 

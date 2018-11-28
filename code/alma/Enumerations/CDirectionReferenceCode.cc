@@ -33,7 +33,7 @@
  * File CDirectionReferenceCode.cpp
  */
 #include <sstream>
-#include <CDirectionReferenceCode.h>
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 #include <string>
 using namespace std;
 

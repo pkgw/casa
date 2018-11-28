@@ -1,24 +1,21 @@
 #ifndef _ASDMVERBATIMFILLER_H_
 #define _ASDMVERBATIMFILLER_H_
-#include "ASDMTableBase.h"
-#include "ASDMTables.h"
+#include <alma/apps/asdm2MS/ASDMTableBase.h>
+#include <alma/apps/asdm2MS/ASDMTables.h>
 
 #include <set>
-#include "ASDM.h"
-
-using namespace std;
-using namespace asdm;
+#include <alma/ASDM/ASDM.h>
 
 class ASDMVerbatimFiller {
 
  public:
   virtual ~ASDMVerbatimFiller();
-  //  ASDMVerbatimFiller(casacore::MS* ms_p, const set<const ASDM_TABLE_BASE*>& table); 
-  ASDMVerbatimFiller(casacore::MS* ms_p, const set<ASDM_TABLE_BASE*>& table); 
-  void fill(const ASDM& asdm);
+  //  ASDMVerbatimFiller(casacore::MS* ms_p, const std::set<const ASDM_TABLE_BASE*>& table); 
+  ASDMVerbatimFiller(casacore::MS* ms_p, const std::set<ASDM_TABLE_BASE*>& table); 
+  void fill(const asdm::ASDM& asdm);
   
  private:
-  set<ASDM_TABLE_BASE*> table_;
+  std::set<ASDM_TABLE_BASE*> table_;
   ASDMVerbatimFiller();
 
 };

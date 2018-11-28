@@ -25,11 +25,9 @@
  */
 # ifndef Character_CLASS
 # define Character_CLASS
-#include <NumberFormatException.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <string>
-
-using std::string;
 
 namespace asdm {
 /**
@@ -46,14 +44,14 @@ public:
 	 * @param s a string
 	 * @return an unsigned char
 	 */
-	static unsigned char parseCharacter(const string &s);
+	static unsigned char parseCharacter(const std::string &s);
 
 	/**
 	 * Returns a string constructed from a the char passed as parameter.
 	 * @param c a char
 	 * @return a string
 	 */
-	static string toString(unsigned char c);
+	static std::string toString(unsigned char c);
 
 };
 

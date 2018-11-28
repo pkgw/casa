@@ -32,11 +32,9 @@
 #include <string>
 #include <sstream>
 #include <vector>
-using namespace std;
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLTag;
 #endif
 
 #ifndef WITHOUT_BOOST
@@ -45,19 +43,13 @@ using asdmIDLTypes::IDLTag;
 #include <regex>
 #endif
 
-#include <StringTokenizer.h>
-#include <InvalidArgumentException.h>
-#include <TagFormatException.h>
-#include "TagType.h"
-#include "IntegerWrapper.h"
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/InvalidArgumentException.h>
+#include <alma/ASDM/TagFormatException.h>
+#include <alma/ASDM/TagType.h>
+#include <alma/ASDM/IntegerWrapper.h>
 
-
-using asdm::StringTokenizer;
-using asdm::InvalidArgumentException;
-
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/EndianStream.h>
 
 namespace asdm {
 
@@ -117,7 +109,7 @@ public:
 	 * @param t The IDLTag object.
 	 * @throws TagFormatException
 	 */
-	Tag(IDLTag &t);
+	Tag(asdmIDLTypes::IDLTag &t);
 #endif
 
 	/**
@@ -125,19 +117,19 @@ public:
 	 * @param os a reference to the ostream to be written on.
 	 * @param x a const reference to a Tag.
 	 */
-	friend std::ostream & operator << (ostream& os, const Tag & x);
+	friend std::ostream & operator << (std::ostream& os, const Tag & x);
 
 	/**
 	 * Overloading of >> to read a Tag from an istream.
 	 */
-	friend std::istream & operator >> ( istream & is, Tag & x);
+	friend std::istream & operator >> (std::istream & is, Tag & x);
 	
 	/**
 	 * Create a Tag whose initial value is the specified string.
 	 * 
 	 * @throws TagFormatException
 	 */
-	static Tag parseTag (string s);
+	static Tag parseTag (std::string s);
 	
 	/**
 	 * Return the Tag as a String.
@@ -145,7 +137,7 @@ public:
 	 *  followed by the String representation of the value. Examples : "Antenna_12", "SpectralWindow_0".
 	 * @return The Tag as a String.
 	 */
-	 string toString() const;
+    std::string toString() const;
 	 
    /**
 	 * Write the binary representation of this to a EndianOSStream. 
@@ -157,7 +149,7 @@ public:
 	 * @param tag  the vector of Tag to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Tag>& tag, EndianOSStream& eoss) ;	 
+	static void toBin(const std::vector<Tag>& tag, EndianOSStream& eoss) ;	 
 	
    /**
 	 * Read the binary representation of a Tag  from a EndianIStream.
@@ -175,7 +167,7 @@ public:
 	 * @return a vector of Tag
 	 * @throws TagFormatException 
 	 */
-	static vector<Tag> from1DBin(EndianIStream & eis);
+	static std::vector<Tag> from1DBin(EndianIStream & eis);
 	
 	/**
 	 * The Tag destructor.
@@ -206,7 +198,7 @@ public:
 	 * 
 	 * @return an IDLTag.
 	 */
-	IDLTag toIDLTag() const;
+    asdmIDLTypes::IDLTag toIDLTag() const;
 #endif
 
 	/**
@@ -214,7 +206,7 @@ public:
 	 * @return This Tag.
 	 * @deprecated
 	 */
-	string getTag() const;
+    std::string getTag() const;
 
 	/**
 	 * Assignment operator.
@@ -261,7 +253,7 @@ public:
 	bool isNull() const;
 
 protected:
-	string tag;
+    std::string tag;
 	TagType* type;
 
  private:

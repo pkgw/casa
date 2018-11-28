@@ -30,18 +30,18 @@
  *
  * File FieldTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <FieldTable.h>
-#include <FieldRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/FieldTable.h>
+#include <alma/ASDM/FieldRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::FieldTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -264,7 +264,7 @@ namespace asdm {
  	 * @param referenceDir 
 	
      */
-	FieldRow* FieldTable::newRow(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir){
+	FieldRow* FieldTable::newRow(std::string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir){
 		FieldRow *row = new FieldRow(*this);
 			
 		row->setFieldName(fieldName);
@@ -468,7 +468,7 @@ FieldRow* FieldTable::newRow(FieldRow* row) {
  * @param referenceDir.
  	 		 
  */
-FieldRow* FieldTable::lookup(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir) {
+FieldRow* FieldTable::lookup(std::string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir) {
 		FieldRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -529,7 +529,7 @@ FieldRow* FieldTable::lookup(string fieldName, int numPoly, vector<vector<Angle 
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<FieldTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:field=\"http://Alma/XASDM/FieldTable\" xsi:schemaLocation=\"http://Alma/XASDM/FieldTable http://almaobservatory.org/XML/XASDM/3/FieldTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<FieldTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:field=\"http://Alma/XASDM/FieldTable\" xsi:schemaLocation=\"http://Alma/XASDM/FieldTable http://almaobservatory.org/XML/XASDM/4/FieldTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -659,7 +659,7 @@ FieldRow* FieldTable::lookup(string fieldName, int numPoly, vector<vector<Angle 
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<FieldTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:field=\"http://Alma/XASDM/FieldTable\" xsi:schemaLocation=\"http://Alma/XASDM/FieldTable http://almaobservatory.org/XML/XASDM/3/FieldTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<FieldTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:field=\"http://Alma/XASDM/FieldTable\" xsi:schemaLocation=\"http://Alma/XASDM/FieldTable http://almaobservatory.org/XML/XASDM/4/FieldTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='FieldTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";

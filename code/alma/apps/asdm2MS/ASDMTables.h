@@ -1,7 +1,7 @@
 
 #ifndef _ASDMTABLES_H_
 #define _ASDMTABLES_H_
-#include "ASDMTableBase.h"
+#include <alma/apps/asdm2MS/ASDMTableBase.h>
 /*
  * ALMA - Atacama Large Millimeter Array
  * (c) European Southern Observatory, 2002
@@ -45,7 +45,7 @@ class ASDM_MAIN : public ASDM_TABLE_SINGLETON<ASDM_MAIN>, public ASDM_TABLE_BASE
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_ALMARADIOMETER : public ASDM_TABLE_SINGLETON<ASDM_ALMARADIOMETER>, public ASDM_TABLE_BASE {
@@ -58,7 +58,7 @@ class ASDM_ALMARADIOMETER : public ASDM_TABLE_SINGLETON<ASDM_ALMARADIOMETER>, pu
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_ANNOTATION : public ASDM_TABLE_SINGLETON<ASDM_ANNOTATION>, public ASDM_TABLE_BASE {
@@ -71,7 +71,7 @@ class ASDM_ANNOTATION : public ASDM_TABLE_SINGLETON<ASDM_ANNOTATION>, public ASD
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_ANTENNA : public ASDM_TABLE_SINGLETON<ASDM_ANTENNA>, public ASDM_TABLE_BASE {
@@ -84,7 +84,7 @@ class ASDM_ANTENNA : public ASDM_TABLE_SINGLETON<ASDM_ANTENNA>, public ASDM_TABL
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALAMPLI : public ASDM_TABLE_SINGLETON<ASDM_CALAMPLI>, public ASDM_TABLE_BASE {
@@ -97,7 +97,7 @@ class ASDM_CALAMPLI : public ASDM_TABLE_SINGLETON<ASDM_CALAMPLI>, public ASDM_TA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALANTENNASOLUTIONS : public ASDM_TABLE_SINGLETON<ASDM_CALANTENNASOLUTIONS>, public ASDM_TABLE_BASE {
@@ -110,7 +110,7 @@ class ASDM_CALANTENNASOLUTIONS : public ASDM_TABLE_SINGLETON<ASDM_CALANTENNASOLU
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALAPPPHASE : public ASDM_TABLE_SINGLETON<ASDM_CALAPPPHASE>, public ASDM_TABLE_BASE {
@@ -123,7 +123,7 @@ class ASDM_CALAPPPHASE : public ASDM_TABLE_SINGLETON<ASDM_CALAPPPHASE>, public A
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALATMOSPHERE : public ASDM_TABLE_SINGLETON<ASDM_CALATMOSPHERE>, public ASDM_TABLE_BASE {
@@ -136,7 +136,7 @@ class ASDM_CALATMOSPHERE : public ASDM_TABLE_SINGLETON<ASDM_CALATMOSPHERE>, publ
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALBANDPASS : public ASDM_TABLE_SINGLETON<ASDM_CALBANDPASS>, public ASDM_TABLE_BASE {
@@ -149,7 +149,7 @@ class ASDM_CALBANDPASS : public ASDM_TABLE_SINGLETON<ASDM_CALBANDPASS>, public A
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALCURVE : public ASDM_TABLE_SINGLETON<ASDM_CALCURVE>, public ASDM_TABLE_BASE {
@@ -162,7 +162,7 @@ class ASDM_CALCURVE : public ASDM_TABLE_SINGLETON<ASDM_CALCURVE>, public ASDM_TA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALDATA : public ASDM_TABLE_SINGLETON<ASDM_CALDATA>, public ASDM_TABLE_BASE {
@@ -175,7 +175,7 @@ class ASDM_CALDATA : public ASDM_TABLE_SINGLETON<ASDM_CALDATA>, public ASDM_TABL
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALDELAY : public ASDM_TABLE_SINGLETON<ASDM_CALDELAY>, public ASDM_TABLE_BASE {
@@ -188,7 +188,7 @@ class ASDM_CALDELAY : public ASDM_TABLE_SINGLETON<ASDM_CALDELAY>, public ASDM_TA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALDEVICE : public ASDM_TABLE_SINGLETON<ASDM_CALDEVICE>, public ASDM_TABLE_BASE {
@@ -201,7 +201,7 @@ class ASDM_CALDEVICE : public ASDM_TABLE_SINGLETON<ASDM_CALDEVICE>, public ASDM_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALFLUX : public ASDM_TABLE_SINGLETON<ASDM_CALFLUX>, public ASDM_TABLE_BASE {
@@ -214,7 +214,7 @@ class ASDM_CALFLUX : public ASDM_TABLE_SINGLETON<ASDM_CALFLUX>, public ASDM_TABL
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALFOCUS : public ASDM_TABLE_SINGLETON<ASDM_CALFOCUS>, public ASDM_TABLE_BASE {
@@ -227,7 +227,7 @@ class ASDM_CALFOCUS : public ASDM_TABLE_SINGLETON<ASDM_CALFOCUS>, public ASDM_TA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALFOCUSMODEL : public ASDM_TABLE_SINGLETON<ASDM_CALFOCUSMODEL>, public ASDM_TABLE_BASE {
@@ -240,7 +240,7 @@ class ASDM_CALFOCUSMODEL : public ASDM_TABLE_SINGLETON<ASDM_CALFOCUSMODEL>, publ
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALGAIN : public ASDM_TABLE_SINGLETON<ASDM_CALGAIN>, public ASDM_TABLE_BASE {
@@ -253,7 +253,7 @@ class ASDM_CALGAIN : public ASDM_TABLE_SINGLETON<ASDM_CALGAIN>, public ASDM_TABL
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALHOLOGRAPHY : public ASDM_TABLE_SINGLETON<ASDM_CALHOLOGRAPHY>, public ASDM_TABLE_BASE {
@@ -266,7 +266,7 @@ class ASDM_CALHOLOGRAPHY : public ASDM_TABLE_SINGLETON<ASDM_CALHOLOGRAPHY>, publ
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALPHASE : public ASDM_TABLE_SINGLETON<ASDM_CALPHASE>, public ASDM_TABLE_BASE {
@@ -279,7 +279,7 @@ class ASDM_CALPHASE : public ASDM_TABLE_SINGLETON<ASDM_CALPHASE>, public ASDM_TA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALPOINTING : public ASDM_TABLE_SINGLETON<ASDM_CALPOINTING>, public ASDM_TABLE_BASE {
@@ -292,7 +292,7 @@ class ASDM_CALPOINTING : public ASDM_TABLE_SINGLETON<ASDM_CALPOINTING>, public A
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALPOINTINGMODEL : public ASDM_TABLE_SINGLETON<ASDM_CALPOINTINGMODEL>, public ASDM_TABLE_BASE {
@@ -305,7 +305,7 @@ class ASDM_CALPOINTINGMODEL : public ASDM_TABLE_SINGLETON<ASDM_CALPOINTINGMODEL>
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALPOSITION : public ASDM_TABLE_SINGLETON<ASDM_CALPOSITION>, public ASDM_TABLE_BASE {
@@ -318,7 +318,7 @@ class ASDM_CALPOSITION : public ASDM_TABLE_SINGLETON<ASDM_CALPOSITION>, public A
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALPRIMARYBEAM : public ASDM_TABLE_SINGLETON<ASDM_CALPRIMARYBEAM>, public ASDM_TABLE_BASE {
@@ -331,7 +331,7 @@ class ASDM_CALPRIMARYBEAM : public ASDM_TABLE_SINGLETON<ASDM_CALPRIMARYBEAM>, pu
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALREDUCTION : public ASDM_TABLE_SINGLETON<ASDM_CALREDUCTION>, public ASDM_TABLE_BASE {
@@ -344,7 +344,7 @@ class ASDM_CALREDUCTION : public ASDM_TABLE_SINGLETON<ASDM_CALREDUCTION>, public
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALSEEING : public ASDM_TABLE_SINGLETON<ASDM_CALSEEING>, public ASDM_TABLE_BASE {
@@ -357,7 +357,7 @@ class ASDM_CALSEEING : public ASDM_TABLE_SINGLETON<ASDM_CALSEEING>, public ASDM_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CALWVR : public ASDM_TABLE_SINGLETON<ASDM_CALWVR>, public ASDM_TABLE_BASE {
@@ -370,7 +370,7 @@ class ASDM_CALWVR : public ASDM_TABLE_SINGLETON<ASDM_CALWVR>, public ASDM_TABLE_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CONFIGDESCRIPTION : public ASDM_TABLE_SINGLETON<ASDM_CONFIGDESCRIPTION>, public ASDM_TABLE_BASE {
@@ -383,7 +383,7 @@ class ASDM_CONFIGDESCRIPTION : public ASDM_TABLE_SINGLETON<ASDM_CONFIGDESCRIPTIO
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_CORRELATORMODE : public ASDM_TABLE_SINGLETON<ASDM_CORRELATORMODE>, public ASDM_TABLE_BASE {
@@ -396,7 +396,7 @@ class ASDM_CORRELATORMODE : public ASDM_TABLE_SINGLETON<ASDM_CORRELATORMODE>, pu
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_DATADESCRIPTION : public ASDM_TABLE_SINGLETON<ASDM_DATADESCRIPTION>, public ASDM_TABLE_BASE {
@@ -409,7 +409,7 @@ class ASDM_DATADESCRIPTION : public ASDM_TABLE_SINGLETON<ASDM_DATADESCRIPTION>, 
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_DELAYMODEL : public ASDM_TABLE_SINGLETON<ASDM_DELAYMODEL>, public ASDM_TABLE_BASE {
@@ -422,7 +422,7 @@ class ASDM_DELAYMODEL : public ASDM_TABLE_SINGLETON<ASDM_DELAYMODEL>, public ASD
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_DELAYMODELFIXEDPARAMETERS : public ASDM_TABLE_SINGLETON<ASDM_DELAYMODELFIXEDPARAMETERS>, public ASDM_TABLE_BASE {
@@ -435,7 +435,7 @@ class ASDM_DELAYMODELFIXEDPARAMETERS : public ASDM_TABLE_SINGLETON<ASDM_DELAYMOD
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_DELAYMODELVARIABLEPARAMETERS : public ASDM_TABLE_SINGLETON<ASDM_DELAYMODELVARIABLEPARAMETERS>, public ASDM_TABLE_BASE {
@@ -448,7 +448,7 @@ class ASDM_DELAYMODELVARIABLEPARAMETERS : public ASDM_TABLE_SINGLETON<ASDM_DELAY
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_DOPPLER : public ASDM_TABLE_SINGLETON<ASDM_DOPPLER>, public ASDM_TABLE_BASE {
@@ -461,7 +461,7 @@ class ASDM_DOPPLER : public ASDM_TABLE_SINGLETON<ASDM_DOPPLER>, public ASDM_TABL
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_EPHEMERIS : public ASDM_TABLE_SINGLETON<ASDM_EPHEMERIS>, public ASDM_TABLE_BASE {
@@ -474,7 +474,7 @@ class ASDM_EPHEMERIS : public ASDM_TABLE_SINGLETON<ASDM_EPHEMERIS>, public ASDM_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_EXECBLOCK : public ASDM_TABLE_SINGLETON<ASDM_EXECBLOCK>, public ASDM_TABLE_BASE {
@@ -487,7 +487,7 @@ class ASDM_EXECBLOCK : public ASDM_TABLE_SINGLETON<ASDM_EXECBLOCK>, public ASDM_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_FEED : public ASDM_TABLE_SINGLETON<ASDM_FEED>, public ASDM_TABLE_BASE {
@@ -500,7 +500,7 @@ class ASDM_FEED : public ASDM_TABLE_SINGLETON<ASDM_FEED>, public ASDM_TABLE_BASE
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_FIELD : public ASDM_TABLE_SINGLETON<ASDM_FIELD>, public ASDM_TABLE_BASE {
@@ -513,7 +513,7 @@ class ASDM_FIELD : public ASDM_TABLE_SINGLETON<ASDM_FIELD>, public ASDM_TABLE_BA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_FLAG : public ASDM_TABLE_SINGLETON<ASDM_FLAG>, public ASDM_TABLE_BASE {
@@ -526,7 +526,7 @@ class ASDM_FLAG : public ASDM_TABLE_SINGLETON<ASDM_FLAG>, public ASDM_TABLE_BASE
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_FLAGCMD : public ASDM_TABLE_SINGLETON<ASDM_FLAGCMD>, public ASDM_TABLE_BASE {
@@ -539,7 +539,7 @@ class ASDM_FLAGCMD : public ASDM_TABLE_SINGLETON<ASDM_FLAGCMD>, public ASDM_TABL
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_FOCUS : public ASDM_TABLE_SINGLETON<ASDM_FOCUS>, public ASDM_TABLE_BASE {
@@ -552,7 +552,7 @@ class ASDM_FOCUS : public ASDM_TABLE_SINGLETON<ASDM_FOCUS>, public ASDM_TABLE_BA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_FOCUSMODEL : public ASDM_TABLE_SINGLETON<ASDM_FOCUSMODEL>, public ASDM_TABLE_BASE {
@@ -565,7 +565,7 @@ class ASDM_FOCUSMODEL : public ASDM_TABLE_SINGLETON<ASDM_FOCUSMODEL>, public ASD
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_FREQOFFSET : public ASDM_TABLE_SINGLETON<ASDM_FREQOFFSET>, public ASDM_TABLE_BASE {
@@ -578,7 +578,7 @@ class ASDM_FREQOFFSET : public ASDM_TABLE_SINGLETON<ASDM_FREQOFFSET>, public ASD
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_GAINTRACKING : public ASDM_TABLE_SINGLETON<ASDM_GAINTRACKING>, public ASDM_TABLE_BASE {
@@ -591,7 +591,7 @@ class ASDM_GAINTRACKING : public ASDM_TABLE_SINGLETON<ASDM_GAINTRACKING>, public
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_HISTORY : public ASDM_TABLE_SINGLETON<ASDM_HISTORY>, public ASDM_TABLE_BASE {
@@ -604,7 +604,7 @@ class ASDM_HISTORY : public ASDM_TABLE_SINGLETON<ASDM_HISTORY>, public ASDM_TABL
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_HOLOGRAPHY : public ASDM_TABLE_SINGLETON<ASDM_HOLOGRAPHY>, public ASDM_TABLE_BASE {
@@ -617,7 +617,7 @@ class ASDM_HOLOGRAPHY : public ASDM_TABLE_SINGLETON<ASDM_HOLOGRAPHY>, public ASD
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_OBSERVATION : public ASDM_TABLE_SINGLETON<ASDM_OBSERVATION>, public ASDM_TABLE_BASE {
@@ -630,7 +630,7 @@ class ASDM_OBSERVATION : public ASDM_TABLE_SINGLETON<ASDM_OBSERVATION>, public A
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_POINTING : public ASDM_TABLE_SINGLETON<ASDM_POINTING>, public ASDM_TABLE_BASE {
@@ -643,7 +643,7 @@ class ASDM_POINTING : public ASDM_TABLE_SINGLETON<ASDM_POINTING>, public ASDM_TA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_POINTINGMODEL : public ASDM_TABLE_SINGLETON<ASDM_POINTINGMODEL>, public ASDM_TABLE_BASE {
@@ -656,7 +656,7 @@ class ASDM_POINTINGMODEL : public ASDM_TABLE_SINGLETON<ASDM_POINTINGMODEL>, publ
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_POLARIZATION : public ASDM_TABLE_SINGLETON<ASDM_POLARIZATION>, public ASDM_TABLE_BASE {
@@ -669,7 +669,7 @@ class ASDM_POLARIZATION : public ASDM_TABLE_SINGLETON<ASDM_POLARIZATION>, public
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_PROCESSOR : public ASDM_TABLE_SINGLETON<ASDM_PROCESSOR>, public ASDM_TABLE_BASE {
@@ -682,7 +682,7 @@ class ASDM_PROCESSOR : public ASDM_TABLE_SINGLETON<ASDM_PROCESSOR>, public ASDM_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_PULSAR : public ASDM_TABLE_SINGLETON<ASDM_PULSAR>, public ASDM_TABLE_BASE {
@@ -695,7 +695,7 @@ class ASDM_PULSAR : public ASDM_TABLE_SINGLETON<ASDM_PULSAR>, public ASDM_TABLE_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_RECEIVER : public ASDM_TABLE_SINGLETON<ASDM_RECEIVER>, public ASDM_TABLE_BASE {
@@ -708,7 +708,7 @@ class ASDM_RECEIVER : public ASDM_TABLE_SINGLETON<ASDM_RECEIVER>, public ASDM_TA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_SBSUMMARY : public ASDM_TABLE_SINGLETON<ASDM_SBSUMMARY>, public ASDM_TABLE_BASE {
@@ -721,7 +721,7 @@ class ASDM_SBSUMMARY : public ASDM_TABLE_SINGLETON<ASDM_SBSUMMARY>, public ASDM_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_SCALE : public ASDM_TABLE_SINGLETON<ASDM_SCALE>, public ASDM_TABLE_BASE {
@@ -734,7 +734,7 @@ class ASDM_SCALE : public ASDM_TABLE_SINGLETON<ASDM_SCALE>, public ASDM_TABLE_BA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_SCAN : public ASDM_TABLE_SINGLETON<ASDM_SCAN>, public ASDM_TABLE_BASE {
@@ -747,7 +747,7 @@ class ASDM_SCAN : public ASDM_TABLE_SINGLETON<ASDM_SCAN>, public ASDM_TABLE_BASE
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_SEEING : public ASDM_TABLE_SINGLETON<ASDM_SEEING>, public ASDM_TABLE_BASE {
@@ -760,7 +760,7 @@ class ASDM_SEEING : public ASDM_TABLE_SINGLETON<ASDM_SEEING>, public ASDM_TABLE_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_SOURCE : public ASDM_TABLE_SINGLETON<ASDM_SOURCE>, public ASDM_TABLE_BASE {
@@ -773,7 +773,7 @@ class ASDM_SOURCE : public ASDM_TABLE_SINGLETON<ASDM_SOURCE>, public ASDM_TABLE_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_SPECTRALWINDOW : public ASDM_TABLE_SINGLETON<ASDM_SPECTRALWINDOW>, public ASDM_TABLE_BASE {
@@ -786,7 +786,7 @@ class ASDM_SPECTRALWINDOW : public ASDM_TABLE_SINGLETON<ASDM_SPECTRALWINDOW>, pu
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_SQUARELAWDETECTOR : public ASDM_TABLE_SINGLETON<ASDM_SQUARELAWDETECTOR>, public ASDM_TABLE_BASE {
@@ -799,7 +799,7 @@ class ASDM_SQUARELAWDETECTOR : public ASDM_TABLE_SINGLETON<ASDM_SQUARELAWDETECTO
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_STATE : public ASDM_TABLE_SINGLETON<ASDM_STATE>, public ASDM_TABLE_BASE {
@@ -812,7 +812,7 @@ class ASDM_STATE : public ASDM_TABLE_SINGLETON<ASDM_STATE>, public ASDM_TABLE_BA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_STATION : public ASDM_TABLE_SINGLETON<ASDM_STATION>, public ASDM_TABLE_BASE {
@@ -825,7 +825,7 @@ class ASDM_STATION : public ASDM_TABLE_SINGLETON<ASDM_STATION>, public ASDM_TABL
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_SUBSCAN : public ASDM_TABLE_SINGLETON<ASDM_SUBSCAN>, public ASDM_TABLE_BASE {
@@ -838,7 +838,7 @@ class ASDM_SUBSCAN : public ASDM_TABLE_SINGLETON<ASDM_SUBSCAN>, public ASDM_TABL
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_SWITCHCYCLE : public ASDM_TABLE_SINGLETON<ASDM_SWITCHCYCLE>, public ASDM_TABLE_BASE {
@@ -851,7 +851,7 @@ class ASDM_SWITCHCYCLE : public ASDM_TABLE_SINGLETON<ASDM_SWITCHCYCLE>, public A
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_SYSCAL : public ASDM_TABLE_SINGLETON<ASDM_SYSCAL>, public ASDM_TABLE_BASE {
@@ -864,7 +864,7 @@ class ASDM_SYSCAL : public ASDM_TABLE_SINGLETON<ASDM_SYSCAL>, public ASDM_TABLE_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_SYSPOWER : public ASDM_TABLE_SINGLETON<ASDM_SYSPOWER>, public ASDM_TABLE_BASE {
@@ -877,7 +877,7 @@ class ASDM_SYSPOWER : public ASDM_TABLE_SINGLETON<ASDM_SYSPOWER>, public ASDM_TA
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_TOTALPOWER : public ASDM_TABLE_SINGLETON<ASDM_TOTALPOWER>, public ASDM_TABLE_BASE {
@@ -890,7 +890,7 @@ class ASDM_TOTALPOWER : public ASDM_TABLE_SINGLETON<ASDM_TOTALPOWER>, public ASD
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_WVMCAL : public ASDM_TABLE_SINGLETON<ASDM_WVMCAL>, public ASDM_TABLE_BASE {
@@ -903,7 +903,7 @@ class ASDM_WVMCAL : public ASDM_TABLE_SINGLETON<ASDM_WVMCAL>, public ASDM_TABLE_
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 class ASDM_WEATHER : public ASDM_TABLE_SINGLETON<ASDM_WEATHER>, public ASDM_TABLE_BASE {
@@ -916,7 +916,7 @@ class ASDM_WEATHER : public ASDM_TABLE_SINGLETON<ASDM_WEATHER>, public ASDM_TABL
 
  public:
   const casacore::TableDesc& tableDesc() const;
-  void fill(const ASDM& asdm);
+  void fill(const asdm::ASDM& asdm);
 };
 	
 

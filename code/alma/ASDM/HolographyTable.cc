@@ -30,18 +30,18 @@
  *
  * File HolographyTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <HolographyTable.h>
-#include <HolographyRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/HolographyTable.h>
+#include <alma/ASDM/HolographyRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::HolographyTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -244,7 +244,7 @@ namespace asdm {
  	 * @param type 
 	
      */
-	HolographyRow* HolographyTable::newRow(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type){
+	HolographyRow* HolographyTable::newRow(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type){
 		HolographyRow *row = new HolographyRow(*this);
 			
 		row->setDistance(distance);
@@ -440,7 +440,7 @@ HolographyRow* HolographyTable::newRow(HolographyRow* row) {
  * @param type.
  	 		 
  */
-HolographyRow* HolographyTable::lookup(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type) {
+HolographyRow* HolographyTable::lookup(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type) {
 		HolographyRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -501,7 +501,7 @@ HolographyRow* HolographyTable::lookup(Length distance, Length focus, int numCor
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<HolographyTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:hologr=\"http://Alma/XASDM/HolographyTable\" xsi:schemaLocation=\"http://Alma/XASDM/HolographyTable http://almaobservatory.org/XML/XASDM/3/HolographyTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<HolographyTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:hologr=\"http://Alma/XASDM/HolographyTable\" xsi:schemaLocation=\"http://Alma/XASDM/HolographyTable http://almaobservatory.org/XML/XASDM/4/HolographyTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -631,7 +631,7 @@ HolographyRow* HolographyTable::lookup(Length distance, Length focus, int numCor
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<HolographyTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:hologr=\"http://Alma/XASDM/HolographyTable\" xsi:schemaLocation=\"http://Alma/XASDM/HolographyTable http://almaobservatory.org/XML/XASDM/3/HolographyTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<HolographyTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:hologr=\"http://Alma/XASDM/HolographyTable\" xsi:schemaLocation=\"http://Alma/XASDM/HolographyTable http://almaobservatory.org/XML/XASDM/4/HolographyTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='HolographyTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";

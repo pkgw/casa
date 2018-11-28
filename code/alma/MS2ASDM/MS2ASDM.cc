@@ -592,7 +592,7 @@ namespace casa {
       }
       numAntennas = ant.size();
       
-      CorrelationMode correlationMode;
+      CorrelationModeMod::CorrelationMode correlationMode;
       if(numAutoCorrs==0){
 	correlationMode = CorrelationModeMod::CROSS_ONLY;
       }
@@ -605,7 +605,7 @@ namespace casa {
       // if datacolumn is FLOAT_DATA make correlation mode == AUTO as well!
       
       
-      vector< AtmPhaseCorrection >  apc;
+      vector< AtmPhaseCorrectionMod::AtmPhaseCorrection >  apc;
       if(dataIsAPCorrected()){
 	apc.push_back(AtmPhaseCorrectionMod::AP_CORRECTED); 
       }
@@ -625,9 +625,9 @@ namespace casa {
       asdm::PolarizationRow* PR = (ASDM_p->getPolarization()).getRowByKey(asdmPolarizationId_p(PolId));
       uInt numStokes = PR->getNumCorr();
       Array<Int> corrT = polarization().corrType()(PolId);
-      vector<StokesParameter> crossPolProducts = PR->getCorrType();
+      vector<StokesParameterMod::StokesParameter> crossPolProducts = PR->getCorrType();
 
-      vector<StokesParameter> sdPolProduct;
+      vector<StokesParameterMod::StokesParameter> sdPolProduct;
       float scaleFactor = 1.;
       uInt spwId = dataDescription().spectralWindowId()(theDDId);
       unsigned int numSpectralPoint = spectralWindow().numChan()(spwId);
@@ -645,7 +645,7 @@ namespace casa {
       } 
 
       unsigned int numBin = 1; // number of switch cycles
-      NetSideband sideband = CNetSideband::from_int(spectralWindow().netSideband()(spwId));
+      NetSidebandMod::NetSideband sideband = CNetSideband::from_int(spectralWindow().netSideband()(spwId));
       
       SDMDataObject::SpectralWindow spw(crossPolProducts,
 					sdPolProduct,
@@ -665,7 +665,7 @@ namespace casa {
       // construct binary parts for dataStruct
       unsigned int bpFlagsSize = numSpectralPoint * numStokes * (numBaselines+numAutoCorrs);
 
-      vector<AxisName> bpFlagsAxes;
+      vector<AxisNameMod::AxisName> bpFlagsAxes;
       bpFlagsAxes.push_back(AxisNameMod::TIM); // order: inner part of loop should be last!!!!!!
       bpFlagsAxes.push_back(AxisNameMod::SPP); 
       bpFlagsAxes.push_back(AxisNameMod::POL);
@@ -676,20 +676,20 @@ namespace casa {
       
       unsigned int bpTimesSize = 0; // only needed for data blanking
       //unsigned int bpTimesSize = numTimestampsCorr+numTimestampsAuto; 
-      vector<AxisName> bpTimesAxes;
+      vector<AxisNameMod::AxisName> bpTimesAxes;
 //      bpTimesAxes.push_back(AxisNameMod::TIM);
       SDMDataObject::BinaryPart bpActualTimes(bpTimesSize, bpTimesAxes);
       //      cout << "TimesSize " << bpTimesSize << endl;
       
       unsigned int bpDurSize = 0; // only needed for data blanking
       //	unsigned int bpDurSize = numTimestampsCorr+numTimestampsAuto;
-      vector<AxisName> bpDurAxes;
+      vector<AxisNameMod::AxisName> bpDurAxes;
 //      bpDurAxes.push_back(AxisNameMod::TIM);
       SDMDataObject::BinaryPart bpActualDurations(bpDurSize, bpDurAxes);
       //      cout << "DurSize " << bpDurSize << endl;
       
       unsigned int bpLagsSize = 0; // not filled for the moment (only useful if LAG_DATA column present) -> Francois 
-      vector<AxisName> bpLagsAxes;
+      vector<AxisNameMod::AxisName> bpLagsAxes;
       bpLagsAxes.push_back(AxisNameMod::SPP); // ******
       SDMDataObject::ZeroLagsBinaryPart bpZeroLags(bpLagsSize, bpLagsAxes, CorrelatorTypeMod::FXF); // ALMA default
       if(telName_p != "ALMA" && telName_p != "OSF"){
@@ -703,7 +703,7 @@ namespace casa {
       //      cout << "LagsSize " << bpLagsSize << endl;
       
       unsigned int bpCrossSize = numSpectralPoint * numStokes * numBaselines * 2; // real + imag
-      vector<AxisName> bpCrossAxes;
+      vector<AxisNameMod::AxisName> bpCrossAxes;
       //      bpCrossAxes.push_back(AxisNameMod::TIM);
       bpCrossAxes.push_back(AxisNameMod::BAL);
       bpCrossAxes.push_back(AxisNameMod::SPP); 
@@ -712,7 +712,7 @@ namespace casa {
       //      cout << "CrossSize " << bpCrossSize << endl;
       
       unsigned int bpAutoSize = numSpectralPoint * numStokes * numAutoCorrs;
-      vector<AxisName> bpAutoAxes;
+      vector<AxisNameMod::AxisName> bpAutoAxes;
       //      bpAutoAxes.push_back(AxisNameMod::TIM);
       bpAutoAxes.push_back(AxisNameMod::ANT);
       bpAutoAxes.push_back(AxisNameMod::SPP); 

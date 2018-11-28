@@ -30,8 +30,8 @@
  *
  * File Name2Table.cpp
  */
-#include "ASDMTables.h"
-#include "Name2Table.h"
+#include <alma/apps/asdm2MS/ASDMTables.h>
+#include <alma/apps/asdm2MS/Name2Table.h>
 
 #include <string>
 #include <regex>
@@ -206,9 +206,9 @@ const set<ASDM_TABLE_BASE*>& Name2Table::find (const vector<string>& name, bool 
     ostringstream oss;
     while (getline(ss,token,'*')) {
       if (!first) {
-	oss << "(.)*";
+        oss << "(.)*";
       } else {
-	first = false;
+        first = false;
       }
       oss << token;
     }
@@ -225,7 +225,7 @@ const set<ASDM_TABLE_BASE*>& Name2Table::find (const vector<string>& name, bool 
       std::cmatch what; 
       if(std::regex_match(iter->first.c_str(), what, expression)) {
       	string uppername = iter->first;
-	std::transform(uppername.begin(),uppername.end(), uppername.begin(), [](unsigned char c) { return std::toupper(c);});
+        std::transform(uppername.begin(),uppername.end(), uppername.begin(), [](unsigned char c) { return std::toupper(c);});
       	if (verbose) {
       		infostream.str("");
       		infostream << "An ASDM_" << uppername << " table will be added to the MS" << endl;

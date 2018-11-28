@@ -28,7 +28,6 @@
 #define InvalidArgumentException_CLASS
 
 #include <string>
-using std::string;
 
 namespace asdm {
 
@@ -47,7 +46,7 @@ public:
   /**
    * A CTOR with a message.
    */
-  InvalidArgumentException(const string &s);
+  InvalidArgumentException(const std::string &s);
 
   /**
    * The DTOR.
@@ -57,11 +56,11 @@ public:
   /**
    * @return a text describing the exception.
    */
-  string getMessage() const;
+  std::string getMessage() const;
 
 protected:
   
-  string message;	
+  std::string message;	
 
 };
  

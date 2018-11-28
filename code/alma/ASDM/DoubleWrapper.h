@@ -25,11 +25,9 @@
  */
 # ifndef Double_CLASS
 # define Double_CLASS
-#include <NumberFormatException.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <string>
-
-using std::string;
 
 namespace asdm {
 /**
@@ -45,14 +43,14 @@ public:
 	 * @return a double.
 	 * @throws NumberFormatException.
 	 */
-	static double parseDouble(const string &s) throw (NumberFormatException);
+	static double parseDouble(const std::string &s) throw (NumberFormatException);
 
 	/**
 	 * Encode a double value into its string representation.
 	 * @param d the double value to be encoded.
 	 * @return the string representing the double value passed as parameter.
 	 */
-	static string toString(double d);
+	static std::string toString(double d);
 
     /**
 	 * The maximum value for a double.

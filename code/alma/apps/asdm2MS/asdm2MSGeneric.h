@@ -54,14 +54,14 @@ std::string displaySet(const std::set<T> &aSet) {
  * @return a set equal to the intersection of s1 and s2.
  */
 template<typename T> 
-set<T> SetAndSet(const set<T>& s1, const set<T>& s2) {
-  set<T> result;
-  typename set<T>::iterator iter1_s, iter2_s;
-  for (iter1_s = s1.begin(); iter1_s != s1.end(); iter1_s++) {
-    if ((iter2_s = s2.find(*iter1_s)) != s2.end())
-      result.insert(*iter1_s);
-  }
-  return result;
+std::set<T> SetAndSet(const std::set<T>& s1, const std::set<T>& s2) {
+    std::set<T> result;
+    typename std::set<T>::iterator iter1_s, iter2_s;
+    for (iter1_s = s1.begin(); iter1_s != s1.end(); iter1_s++) {
+        if ((iter2_s = s2.find(*iter1_s)) != s2.end())
+            result.insert(*iter1_s);
+    }
+    return result;
 }
 
 
@@ -94,7 +94,7 @@ private:
       
       rowStartTime = row->getTimeInterval().getStart().get();
       rowEndTime = rowStartTime + row->getTimeInterval().getDuration().get();
-      if (max(currentScanStartTime, rowStartTime) < min(currentScanEndTime, rowEndTime))
+      if (std::max(currentScanStartTime, rowStartTime) < std::min(currentScanEndTime, rowEndTime))
 	return true;
     }
     return result;
@@ -212,10 +212,10 @@ std::string getexepath() {
 #include <casa/Logging/LogSink.h>
 
 
-#include "ConversionException.h"
-#include "CAtmPhaseCorrection.h"
-#include "ASDM.h"
-#include "ASDM2MSFiller.h"
+#include <alma/ASDM/ConversionException.h>
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/apps/asdm2MS/ASDM2MSFiller.h>
 
 #define CONTEXT_P ((ParserContext<T, R, RFilter> *)myContext_p)
 #define V2CTX_P(v_p) ((ParserContext<T, R, RFilter> *) v_p)

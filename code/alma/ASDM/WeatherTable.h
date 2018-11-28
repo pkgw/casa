@@ -41,43 +41,39 @@
 
 
 	
-#include <Speed.h>
+#include <alma/ASDM/Speed.h>
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Humidity.h>
+#include <alma/ASDM/Humidity.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <Pressure.h>
+#include <alma/ASDM/Pressure.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -105,20 +101,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -226,14 +226,14 @@ class WeatherRow;
 	
  * <TR>
  * <TD> layerHeight</TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numLayer  </TD>
  * <TD>&nbsp; the height of each layer for the temperature profile. </TD>
  * </TR>
 	
  * <TR>
  * <TD> temperatureProfile</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numLayer  </TD>
  * <TD>&nbsp; the temperature on the atmosphere at each height. </TD>
  * </TR>
@@ -254,7 +254,7 @@ class WeatherRow;
 	
  * <TR>
  * <TD> wvrTemp</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numWVR  </TD>
  * <TD>&nbsp; the observed temperature in each WVR channel. </TD>
  * </TR>

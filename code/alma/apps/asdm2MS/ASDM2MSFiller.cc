@@ -2,11 +2,10 @@
 // #include <omp.h>
 // #endif 
 
-#include	"stdio.h"			/* <stdio.h> */
-#include	"stddef.h"			/* <stddef.h> */
+#include	<stdio.h>
+#include	<stddef.h>
 #include        <math.h>
-#include	"time.h"			/* <time.h> */
-/*#include	"gipsyc.h" */			/* GIPSY definitions */
+#include	<time.h>
 
 #if	defined(__sysv__)
 
@@ -60,8 +59,8 @@ void	timer( double *cpu_time ,		/* cpu timer */
   }
 }
 
-#include "ASDM2MSFiller.h"
-#include "msvis/MSVis/SubMS.h"
+#include <alma/apps/asdm2MS/ASDM2MSFiller.h>
+#include <msvis/MSVis/SubMS.h>
 
 using namespace casacore;
 using namespace casa;

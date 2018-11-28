@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <FlagRow.h>
-#include <FlagTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/FlagRow.h>
+#include <alma/ASDM/FlagTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::SpectralWindowTable;
 using asdm::SpectralWindowRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	FlagRow::~FlagRow() {
@@ -694,7 +691,9 @@ namespace asdm {
 		
 			
 		channel .clear();
-		vector<int> v_aux_channel;
+        
+        vector<int> v_aux_channel;
+        
 		for (unsigned int i = 0; i < x.channel.length(); ++i) {
 			v_aux_channel.clear();
 			for (unsigned int j = 0; j < x.channel[0].length(); ++j) {
@@ -1450,7 +1449,9 @@ void FlagRow::channelFromBin(EndianIStream& eis) {
 		
 		unsigned int channelDim1 = eis.readInt();
 		unsigned int channelDim2 = eis.readInt();
+        
 		vector <int> channelAux1;
+        
 		for (unsigned int i = 0; i < channelDim1; i++) {
 			channelAux1.clear();
 			for (unsigned int j = 0; j < channelDim2 ; j++)			
@@ -1537,7 +1538,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void FlagRow::flagIdFromText(const string & s) {
 		 
+          
 		flagId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1545,7 +1548,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void FlagRow::startTimeFromText(const string & s) {
 		 
+          
 		startTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1553,7 +1558,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void FlagRow::endTimeFromText(const string & s) {
 		 
+          
 		endTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1561,7 +1568,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void FlagRow::reasonFromText(const string & s) {
 		 
+          
 		reason = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1569,7 +1578,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FlagRow::numAntennaFromText(const string & s) {
 		 
+          
 		numAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1577,7 +1588,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void FlagRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -1587,7 +1600,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	void FlagRow::numPolarizationTypeFromText(const string & s) {
 		numPolarizationTypeExists = true;
 		 
+          
 		numPolarizationType = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1596,7 +1611,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	void FlagRow::numSpectralWindowFromText(const string & s) {
 		numSpectralWindowExists = true;
 		 
+          
 		numSpectralWindow = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1605,7 +1622,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	void FlagRow::numPairedAntennaFromText(const string & s) {
 		numPairedAntennaExists = true;
 		 
+          
 		numPairedAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1614,7 +1633,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	void FlagRow::numChanFromText(const string & s) {
 		numChanExists = true;
 		 
+          
 		numChan = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1623,7 +1644,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	void FlagRow::polarizationTypeFromText(const string & s) {
 		polarizationTypeExists = true;
 		 
-		polarizationType = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationType = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -1632,7 +1655,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	void FlagRow::channelFromText(const string & s) {
 		channelExists = true;
 		 
+          
 		channel = ASDMValuesParser::parse2D<int>(s);
+          
 		
 	}
 	
@@ -1641,7 +1666,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	void FlagRow::pairedAntennaIdFromText(const string & s) {
 		pairedAntennaIdExists = true;
 		 
+          
 		pairedAntennaId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -1650,7 +1677,9 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	void FlagRow::spectralWindowIdFromText(const string & s) {
 		spectralWindowIdExists = true;
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -1772,21 +1801,21 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get reason.
- 	 * @return reason as string
+ 	 * @return reason as std::string
  	 */
- 	string FlagRow::getReason() const {
+ 	std::string FlagRow::getReason() const {
 	
   		return reason;
  	}
 
  	/**
- 	 * Set reason with the specified string.
- 	 * @param reason The string value to which reason is to be set.
+ 	 * Set reason with the specified std::string.
+ 	 * @param reason The std::string value to which reason is to be set.
  	 
  	
  		
  	 */
- 	void FlagRow::setReason (string reason)  {
+ 	void FlagRow::setReason (std::string reason)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2032,10 +2061,10 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationType, which is optional.
- 	 * @return polarizationType as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationType as std::vector<PolarizationTypeMod::PolarizationType >
  	 * @throw IllegalAccessException If polarizationType does not exist.
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > FlagRow::getPolarizationType() const  {
+ 	std::vector<PolarizationTypeMod::PolarizationType > FlagRow::getPolarizationType() const  {
 		if (!polarizationTypeExists) {
 			throw IllegalAccessException("polarizationType", "Flag");
 		}
@@ -2044,12 +2073,12 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set polarizationType with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationType The vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
+ 	 * Set polarizationType with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationType The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
  	 
  	
  	 */
- 	void FlagRow::setPolarizationType (vector<PolarizationTypeMod::PolarizationType > polarizationType) {
+ 	void FlagRow::setPolarizationType (std::vector<PolarizationTypeMod::PolarizationType > polarizationType) {
 	
  		this->polarizationType = polarizationType;
 	
@@ -2079,10 +2108,10 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get channel, which is optional.
- 	 * @return channel as vector<vector<int > >
+ 	 * @return channel as std::vector<std::vector<int > >
  	 * @throw IllegalAccessException If channel does not exist.
  	 */
- 	vector<vector<int > > FlagRow::getChannel() const  {
+ 	std::vector<std::vector<int > > FlagRow::getChannel() const  {
 		if (!channelExists) {
 			throw IllegalAccessException("channel", "Flag");
 		}
@@ -2091,12 +2120,12 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set channel with the specified vector<vector<int > >.
- 	 * @param channel The vector<vector<int > > value to which channel is to be set.
+ 	 * Set channel with the specified std::vector<std::vector<int > >.
+ 	 * @param channel The std::vector<std::vector<int > > value to which channel is to be set.
  	 
  	
  	 */
- 	void FlagRow::setChannel (vector<vector<int > > channel) {
+ 	void FlagRow::setChannel (std::vector<std::vector<int > > channel) {
 	
  		this->channel = channel;
 	
@@ -2123,21 +2152,21 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaId.
- 	 * @return antennaId as vector<Tag> 
+ 	 * @return antennaId as std::vector<Tag> 
  	 */
- 	vector<Tag>  FlagRow::getAntennaId() const {
+ 	std::vector<Tag>  FlagRow::getAntennaId() const {
 	
   		return antennaId;
  	}
 
  	/**
- 	 * Set antennaId with the specified vector<Tag> .
- 	 * @param antennaId The vector<Tag>  value to which antennaId is to be set.
+ 	 * Set antennaId with the specified std::vector<Tag> .
+ 	 * @param antennaId The std::vector<Tag>  value to which antennaId is to be set.
  	 
  	
  		
  	 */
- 	void FlagRow::setAntennaId (vector<Tag>  antennaId)  {
+ 	void FlagRow::setAntennaId (std::vector<Tag>  antennaId)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2163,10 +2192,10 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get pairedAntennaId, which is optional.
- 	 * @return pairedAntennaId as vector<Tag> 
+ 	 * @return pairedAntennaId as std::vector<Tag> 
  	 * @throw IllegalAccessException If pairedAntennaId does not exist.
  	 */
- 	vector<Tag>  FlagRow::getPairedAntennaId() const  {
+ 	std::vector<Tag>  FlagRow::getPairedAntennaId() const  {
 		if (!pairedAntennaIdExists) {
 			throw IllegalAccessException("pairedAntennaId", "Flag");
 		}
@@ -2175,12 +2204,12 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set pairedAntennaId with the specified vector<Tag> .
- 	 * @param pairedAntennaId The vector<Tag>  value to which pairedAntennaId is to be set.
+ 	 * Set pairedAntennaId with the specified std::vector<Tag> .
+ 	 * @param pairedAntennaId The std::vector<Tag>  value to which pairedAntennaId is to be set.
  	 
  	
  	 */
- 	void FlagRow::setPairedAntennaId (vector<Tag>  pairedAntennaId) {
+ 	void FlagRow::setPairedAntennaId (std::vector<Tag>  pairedAntennaId) {
 	
  		this->pairedAntennaId = pairedAntennaId;
 	
@@ -2210,10 +2239,10 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get spectralWindowId, which is optional.
- 	 * @return spectralWindowId as vector<Tag> 
+ 	 * @return spectralWindowId as std::vector<Tag> 
  	 * @throw IllegalAccessException If spectralWindowId does not exist.
  	 */
- 	vector<Tag>  FlagRow::getSpectralWindowId() const  {
+ 	std::vector<Tag>  FlagRow::getSpectralWindowId() const  {
 		if (!spectralWindowIdExists) {
 			throw IllegalAccessException("spectralWindowId", "Flag");
 		}
@@ -2222,12 +2251,12 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set spectralWindowId with the specified vector<Tag> .
- 	 * @param spectralWindowId The vector<Tag>  value to which spectralWindowId is to be set.
+ 	 * Set spectralWindowId with the specified std::vector<Tag> .
+ 	 * @param spectralWindowId The std::vector<Tag>  value to which spectralWindowId is to be set.
  	 
  	
  	 */
- 	void FlagRow::setSpectralWindowId (vector<Tag>  spectralWindowId) {
+ 	void FlagRow::setSpectralWindowId (std::vector<Tag>  spectralWindowId) {
 	
  		this->spectralWindowId = spectralWindowId;
 	
@@ -2264,7 +2293,7 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
   		}
   		if ((i < 0) || (i > ((int) this->antennaId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute antennaId in table FlagTable");
-  		vector<Tag> ::iterator iter = this->antennaId.begin();
+  		std::vector<Tag> ::iterator iter = this->antennaId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -2288,7 +2317,7 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to antennaId.
  * @param id an array of Tag to be appended to antennaId
  */
- void FlagRow::addAntennaId(const vector<Tag> & id) {
+ void FlagRow::addAntennaId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		antennaId.push_back(id.at(i));
  }
@@ -2336,7 +2365,7 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
   	void FlagRow::setPairedAntennaId (int i, Tag pairedAntennaId) {
   		if ((i < 0) || (i > ((int) this->pairedAntennaId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute pairedAntennaId in table FlagTable");
-  		vector<Tag> ::iterator iter = this->pairedAntennaId.begin();
+  		std::vector<Tag> ::iterator iter = this->pairedAntennaId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -2360,7 +2389,7 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to pairedAntennaId.
  * @param id an array of Tag to be appended to pairedAntennaId
  */
- void FlagRow::addPairedAntennaId(const vector<Tag> & id) {
+ void FlagRow::addPairedAntennaId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		pairedAntennaId.push_back(id.at(i));
  }
@@ -2408,7 +2437,7 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
   	void FlagRow::setSpectralWindowId (int i, Tag spectralWindowId) {
   		if ((i < 0) || (i > ((int) this->spectralWindowId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute spectralWindowId in table FlagTable");
-  		vector<Tag> ::iterator iter = this->spectralWindowId.begin();
+  		std::vector<Tag> ::iterator iter = this->spectralWindowId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -2432,7 +2461,7 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to spectralWindowId.
  * @param id an array of Tag to be appended to spectralWindowId
  */
- void FlagRow::addSpectralWindowId(const vector<Tag> & id) {
+ void FlagRow::addSpectralWindowId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		spectralWindowId.push_back(id.at(i));
  }
@@ -2785,7 +2814,7 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool FlagRow::compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId) {
+	bool FlagRow::compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, std::string reason, int numAntenna, std::vector<Tag>  antennaId) {
 		bool result;
 		result = true;
 		
@@ -2829,7 +2858,7 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool FlagRow::compareRequiredValue(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId) {
+	bool FlagRow::compareRequiredValue(ArrayTime startTime, ArrayTime endTime, std::string reason, int numAntenna, std::vector<Tag>  antennaId) {
 		bool result;
 		result = true;
 		

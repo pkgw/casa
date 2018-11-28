@@ -1,5 +1,5 @@
 
-#include "ASDMTables.h"
+#include <alma/apps/asdm2MS/ASDMTables.h>
 /*
  * ALMA - Atacama Large Millimeter Array
  * (c) European Southern Observatory, 2002
@@ -34,6 +34,7 @@
 #include <stdint.h>
 
 using namespace casacore;
+using namespace asdm;
 
 	 
 ASDM_MAIN::ASDM_MAIN() {
@@ -77,8 +78,8 @@ const TableDesc& ASDM_MAIN::tableDesc() const {
   return tableDesc_;
 }
 
-#include "MainTable.h"
-#include "MainRow.h"
+#include <alma/ASDM/MainTable.h>
+#include <alma/ASDM/MainRow.h>
 
 		
 			
@@ -218,8 +219,8 @@ const TableDesc& ASDM_ALMARADIOMETER::tableDesc() const {
   return tableDesc_;
 }
 
-#include "AlmaRadiometerTable.h"
-#include "AlmaRadiometerRow.h"
+#include <alma/ASDM/AlmaRadiometerTable.h>
+#include <alma/ASDM/AlmaRadiometerRow.h>
 
 		
 			
@@ -298,6 +299,8 @@ ASDM_ANNOTATION::ASDM_ANNOTATION() {
   		
   tableDesc_.addColumn(ArrayColumnDesc<int>("vvllValue", "blabla"));
   		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("sValue", "blabla"));
+  		
   tableDesc_.addColumn(ArrayColumnDesc<String>("antennaId", "blabla"));
   		  		
 }
@@ -309,8 +312,8 @@ const TableDesc& ASDM_ANNOTATION::tableDesc() const {
   return tableDesc_;
 }
 
-#include "AnnotationTable.h"
-#include "AnnotationRow.h"
+#include <alma/ASDM/AnnotationTable.h>
+#include <alma/ASDM/AnnotationRow.h>
 
 		
 			
@@ -325,6 +328,8 @@ const TableDesc& ASDM_ANNOTATION::tableDesc() const {
 		
 			
 using namespace BasebandNameMod;
+			
+		
 			
 		
 			
@@ -378,6 +383,8 @@ void ASDM_ANNOTATION::fill(const ASDM& asdm) {
     ArrayColumn<int> vllValue(*table_p_, "vllValue");             
   		
     ArrayColumn<int> vvllValue(*table_p_, "vvllValue");             
+  		
+    ScalarColumn<String> sValue(*table_p_, "sValue");             
   		
     ArrayColumn<String> antennaId(*table_p_, "antennaId");             
   		  	
@@ -453,6 +460,11 @@ void ASDM_ANNOTATION::fill(const ASDM& asdm) {
 	
 
 	
+	if (rows.at(i)->isSValueExists())
+		sValue.put(rowIndex, rows.at(i)->getSValue());
+	
+
+	
 	if (rows.at(i)->isAntennaIdExists())
 		antennaId.put(rowIndex, _2CASAString1D<Tag,String>(rows.at(i)->getAntennaId()));
 	
@@ -497,8 +509,8 @@ const TableDesc& ASDM_ANTENNA::tableDesc() const {
   return tableDesc_;
 }
 
-#include "AntennaTable.h"
-#include "AntennaRow.h"
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
 		
 			
@@ -643,8 +655,8 @@ const TableDesc& ASDM_CALAMPLI::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalAmpliTable.h"
-#include "CalAmpliRow.h"
+#include <alma/ASDM/CalAmpliTable.h>
+#include <alma/ASDM/CalAmpliRow.h>
 
 		
 			
@@ -835,8 +847,8 @@ const TableDesc& ASDM_CALANTENNASOLUTIONS::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalAntennaSolutionsTable.h"
-#include "CalAntennaSolutionsRow.h"
+#include <alma/ASDM/CalAntennaSolutionsTable.h>
+#include <alma/ASDM/CalAntennaSolutionsRow.h>
 
 		
 			
@@ -1084,8 +1096,8 @@ const TableDesc& ASDM_CALAPPPHASE::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalAppPhaseTable.h"
-#include "CalAppPhaseRow.h"
+#include <alma/ASDM/CalAppPhaseTable.h>
+#include <alma/ASDM/CalAppPhaseRow.h>
 
 		
 			
@@ -1418,8 +1430,8 @@ const TableDesc& ASDM_CALATMOSPHERE::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalAtmosphereTable.h"
-#include "CalAtmosphereRow.h"
+#include <alma/ASDM/CalAtmosphereTable.h>
+#include <alma/ASDM/CalAtmosphereRow.h>
 
 		
 			
@@ -1807,8 +1819,8 @@ const TableDesc& ASDM_CALBANDPASS::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalBandpassTable.h"
-#include "CalBandpassRow.h"
+#include <alma/ASDM/CalBandpassTable.h>
+#include <alma/ASDM/CalBandpassRow.h>
 
 		
 			
@@ -2113,8 +2125,8 @@ const TableDesc& ASDM_CALCURVE::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalCurveTable.h"
-#include "CalCurveRow.h"
+#include <alma/ASDM/CalCurveTable.h>
+#include <alma/ASDM/CalCurveRow.h>
 
 		
 			
@@ -2328,8 +2340,8 @@ const TableDesc& ASDM_CALDATA::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalDataTable.h"
-#include "CalDataRow.h"
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
 		
 			
@@ -2533,8 +2545,8 @@ const TableDesc& ASDM_CALDELAY::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalDelayTable.h"
-#include "CalDelayRow.h"
+#include <alma/ASDM/CalDelayTable.h>
+#include <alma/ASDM/CalDelayRow.h>
 
 		
 			
@@ -2772,8 +2784,8 @@ const TableDesc& ASDM_CALDEVICE::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalDeviceTable.h"
-#include "CalDeviceRow.h"
+#include <alma/ASDM/CalDeviceTable.h>
+#include <alma/ASDM/CalDeviceRow.h>
 
 		
 			
@@ -2938,8 +2950,8 @@ const TableDesc& ASDM_CALFLUX::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalFluxTable.h"
-#include "CalFluxRow.h"
+#include <alma/ASDM/CalFluxTable.h>
+#include <alma/ASDM/CalFluxRow.h>
 
 		
 			
@@ -3219,8 +3231,8 @@ const TableDesc& ASDM_CALFOCUS::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalFocusTable.h"
-#include "CalFocusRow.h"
+#include <alma/ASDM/CalFocusTable.h>
+#include <alma/ASDM/CalFocusRow.h>
 
 		
 			
@@ -3601,8 +3613,8 @@ const TableDesc& ASDM_CALFOCUSMODEL::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalFocusModelTable.h"
-#include "CalFocusModelRow.h"
+#include <alma/ASDM/CalFocusModelTable.h>
+#include <alma/ASDM/CalFocusModelRow.h>
 
 		
 			
@@ -3806,8 +3818,8 @@ const TableDesc& ASDM_CALGAIN::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalGainTable.h"
-#include "CalGainRow.h"
+#include <alma/ASDM/CalGainTable.h>
+#include <alma/ASDM/CalGainRow.h>
 
 		
 			
@@ -3981,8 +3993,8 @@ const TableDesc& ASDM_CALHOLOGRAPHY::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalHolographyTable.h"
-#include "CalHolographyRow.h"
+#include <alma/ASDM/CalHolographyTable.h>
+#include <alma/ASDM/CalHolographyRow.h>
 
 		
 			
@@ -4296,8 +4308,8 @@ const TableDesc& ASDM_CALPHASE::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalPhaseTable.h"
-#include "CalPhaseRow.h"
+#include <alma/ASDM/CalPhaseTable.h>
+#include <alma/ASDM/CalPhaseRow.h>
 
 		
 			
@@ -4617,8 +4629,8 @@ const TableDesc& ASDM_CALPOINTING::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalPointingTable.h"
-#include "CalPointingRow.h"
+#include <alma/ASDM/CalPointingTable.h>
+#include <alma/ASDM/CalPointingRow.h>
 
 		
 			
@@ -4979,8 +4991,8 @@ const TableDesc& ASDM_CALPOINTINGMODEL::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalPointingModelTable.h"
-#include "CalPointingModelRow.h"
+#include <alma/ASDM/CalPointingModelTable.h>
+#include <alma/ASDM/CalPointingModelRow.h>
 
 		
 			
@@ -5224,8 +5236,8 @@ const TableDesc& ASDM_CALPOSITION::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalPositionTable.h"
-#include "CalPositionRow.h"
+#include <alma/ASDM/CalPositionTable.h>
+#include <alma/ASDM/CalPositionRow.h>
 
 		
 			
@@ -5473,8 +5485,8 @@ const TableDesc& ASDM_CALPRIMARYBEAM::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalPrimaryBeamTable.h"
-#include "CalPrimaryBeamRow.h"
+#include <alma/ASDM/CalPrimaryBeamTable.h>
+#include <alma/ASDM/CalPrimaryBeamRow.h>
 
 		
 			
@@ -5696,8 +5708,8 @@ const TableDesc& ASDM_CALREDUCTION::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalReductionTable.h"
-#include "CalReductionRow.h"
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 
 		
 			
@@ -5853,8 +5865,8 @@ const TableDesc& ASDM_CALSEEING::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalSeeingTable.h"
-#include "CalSeeingRow.h"
+#include <alma/ASDM/CalSeeingTable.h>
+#include <alma/ASDM/CalSeeingRow.h>
 
 		
 			
@@ -6047,8 +6059,8 @@ const TableDesc& ASDM_CALWVR::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CalWVRTable.h"
-#include "CalWVRRow.h"
+#include <alma/ASDM/CalWVRTable.h>
+#include <alma/ASDM/CalWVRRow.h>
 
 		
 			
@@ -6262,8 +6274,8 @@ const TableDesc& ASDM_CONFIGDESCRIPTION::tableDesc() const {
   return tableDesc_;
 }
 
-#include "ConfigDescriptionTable.h"
-#include "ConfigDescriptionRow.h"
+#include <alma/ASDM/ConfigDescriptionTable.h>
+#include <alma/ASDM/ConfigDescriptionRow.h>
 
 		
 			
@@ -6465,8 +6477,8 @@ const TableDesc& ASDM_CORRELATORMODE::tableDesc() const {
   return tableDesc_;
 }
 
-#include "CorrelatorModeTable.h"
-#include "CorrelatorModeRow.h"
+#include <alma/ASDM/CorrelatorModeTable.h>
+#include <alma/ASDM/CorrelatorModeRow.h>
 
 		
 			
@@ -6600,8 +6612,8 @@ const TableDesc& ASDM_DATADESCRIPTION::tableDesc() const {
   return tableDesc_;
 }
 
-#include "DataDescriptionTable.h"
-#include "DataDescriptionRow.h"
+#include <alma/ASDM/DataDescriptionTable.h>
+#include <alma/ASDM/DataDescriptionRow.h>
 
 		
 			
@@ -6726,8 +6738,8 @@ const TableDesc& ASDM_DELAYMODEL::tableDesc() const {
   return tableDesc_;
 }
 
-#include "DelayModelTable.h"
-#include "DelayModelRow.h"
+#include <alma/ASDM/DelayModelTable.h>
+#include <alma/ASDM/DelayModelRow.h>
 
 		
 			
@@ -7069,8 +7081,8 @@ const TableDesc& ASDM_DELAYMODELFIXEDPARAMETERS::tableDesc() const {
   return tableDesc_;
 }
 
-#include "DelayModelFixedParametersTable.h"
-#include "DelayModelFixedParametersRow.h"
+#include <alma/ASDM/DelayModelFixedParametersTable.h>
+#include <alma/ASDM/DelayModelFixedParametersRow.h>
 
 		
 			
@@ -7309,8 +7321,8 @@ const TableDesc& ASDM_DELAYMODELVARIABLEPARAMETERS::tableDesc() const {
   return tableDesc_;
 }
 
-#include "DelayModelVariableParametersTable.h"
-#include "DelayModelVariableParametersRow.h"
+#include <alma/ASDM/DelayModelVariableParametersTable.h>
+#include <alma/ASDM/DelayModelVariableParametersRow.h>
 
 		
 			
@@ -7472,8 +7484,8 @@ const TableDesc& ASDM_DOPPLER::tableDesc() const {
   return tableDesc_;
 }
 
-#include "DopplerTable.h"
-#include "DopplerRow.h"
+#include <alma/ASDM/DopplerTable.h>
+#include <alma/ASDM/DopplerRow.h>
 
 		
 			
@@ -7565,8 +7577,8 @@ const TableDesc& ASDM_EPHEMERIS::tableDesc() const {
   return tableDesc_;
 }
 
-#include "EphemerisTable.h"
-#include "EphemerisRow.h"
+#include <alma/ASDM/EphemerisTable.h>
+#include <alma/ASDM/EphemerisRow.h>
 
 		
 			
@@ -7758,8 +7770,8 @@ const TableDesc& ASDM_EXECBLOCK::tableDesc() const {
   return tableDesc_;
 }
 
-#include "ExecBlockTable.h"
-#include "ExecBlockRow.h"
+#include <alma/ASDM/ExecBlockTable.h>
+#include <alma/ASDM/ExecBlockRow.h>
 
 		
 			
@@ -8063,8 +8075,8 @@ const TableDesc& ASDM_FEED::tableDesc() const {
   return tableDesc_;
 }
 
-#include "FeedTable.h"
-#include "FeedRow.h"
+#include <alma/ASDM/FeedTable.h>
+#include <alma/ASDM/FeedRow.h>
 
 		
 			
@@ -8266,8 +8278,8 @@ const TableDesc& ASDM_FIELD::tableDesc() const {
   return tableDesc_;
 }
 
-#include "FieldTable.h"
-#include "FieldRow.h"
+#include <alma/ASDM/FieldTable.h>
+#include <alma/ASDM/FieldRow.h>
 
 		
 			
@@ -8447,8 +8459,8 @@ const TableDesc& ASDM_FLAG::tableDesc() const {
   return tableDesc_;
 }
 
-#include "FlagTable.h"
-#include "FlagRow.h"
+#include <alma/ASDM/FlagTable.h>
+#include <alma/ASDM/FlagRow.h>
 
 		
 			
@@ -8614,8 +8626,8 @@ const TableDesc& ASDM_FLAGCMD::tableDesc() const {
   return tableDesc_;
 }
 
-#include "FlagCmdTable.h"
-#include "FlagCmdRow.h"
+#include <alma/ASDM/FlagCmdTable.h>
+#include <alma/ASDM/FlagCmdRow.h>
 
 		
 			
@@ -8723,8 +8735,8 @@ const TableDesc& ASDM_FOCUS::tableDesc() const {
   return tableDesc_;
 }
 
-#include "FocusTable.h"
-#include "FocusRow.h"
+#include <alma/ASDM/FocusTable.h>
+#include <alma/ASDM/FocusRow.h>
 
 		
 			
@@ -8842,8 +8854,8 @@ const TableDesc& ASDM_FOCUSMODEL::tableDesc() const {
   return tableDesc_;
 }
 
-#include "FocusModelTable.h"
-#include "FocusModelRow.h"
+#include <alma/ASDM/FocusModelTable.h>
+#include <alma/ASDM/FocusModelRow.h>
 
 		
 			
@@ -8969,8 +8981,8 @@ const TableDesc& ASDM_FREQOFFSET::tableDesc() const {
   return tableDesc_;
 }
 
-#include "FreqOffsetTable.h"
-#include "FreqOffsetRow.h"
+#include <alma/ASDM/FreqOffsetTable.h>
+#include <alma/ASDM/FreqOffsetRow.h>
 
 		
 			
@@ -9062,8 +9074,8 @@ const TableDesc& ASDM_GAINTRACKING::tableDesc() const {
   return tableDesc_;
 }
 
-#include "GainTrackingTable.h"
-#include "GainTrackingRow.h"
+#include <alma/ASDM/GainTrackingTable.h>
+#include <alma/ASDM/GainTrackingRow.h>
 
 		
 			
@@ -9205,8 +9217,8 @@ const TableDesc& ASDM_HISTORY::tableDesc() const {
   return tableDesc_;
 }
 
-#include "HistoryTable.h"
-#include "HistoryRow.h"
+#include <alma/ASDM/HistoryTable.h>
+#include <alma/ASDM/HistoryRow.h>
 
 		
 			
@@ -9322,8 +9334,8 @@ const TableDesc& ASDM_HOLOGRAPHY::tableDesc() const {
   return tableDesc_;
 }
 
-#include "HolographyTable.h"
-#include "HolographyRow.h"
+#include <alma/ASDM/HolographyTable.h>
+#include <alma/ASDM/HolographyRow.h>
 
 		
 			
@@ -9403,8 +9415,8 @@ const TableDesc& ASDM_OBSERVATION::tableDesc() const {
   return tableDesc_;
 }
 
-#include "ObservationTable.h"
-#include "ObservationRow.h"
+#include <alma/ASDM/ObservationTable.h>
+#include <alma/ASDM/ObservationRow.h>
 
 		
 			
@@ -9484,8 +9496,8 @@ const TableDesc& ASDM_POINTING::tableDesc() const {
   return tableDesc_;
 }
 
-#include "PointingTable.h"
-#include "PointingRow.h"
+#include <alma/ASDM/PointingTable.h>
+#include <alma/ASDM/PointingRow.h>
 
 		
 			
@@ -9689,8 +9701,8 @@ const TableDesc& ASDM_POINTINGMODEL::tableDesc() const {
   return tableDesc_;
 }
 
-#include "PointingModelTable.h"
-#include "PointingModelRow.h"
+#include <alma/ASDM/PointingModelTable.h>
+#include <alma/ASDM/PointingModelRow.h>
 
 		
 			
@@ -9815,8 +9827,8 @@ const TableDesc& ASDM_POLARIZATION::tableDesc() const {
   return tableDesc_;
 }
 
-#include "PolarizationTable.h"
-#include "PolarizationRow.h"
+#include <alma/ASDM/PolarizationTable.h>
+#include <alma/ASDM/PolarizationRow.h>
 
 		
 			
@@ -9896,8 +9908,8 @@ const TableDesc& ASDM_PROCESSOR::tableDesc() const {
   return tableDesc_;
 }
 
-#include "ProcessorTable.h"
-#include "ProcessorRow.h"
+#include <alma/ASDM/ProcessorTable.h>
+#include <alma/ASDM/ProcessorRow.h>
 
 		
 			
@@ -9993,8 +10005,8 @@ const TableDesc& ASDM_PULSAR::tableDesc() const {
   return tableDesc_;
 }
 
-#include "PulsarTable.h"
-#include "PulsarRow.h"
+#include <alma/ASDM/PulsarTable.h>
+#include <alma/ASDM/PulsarRow.h>
 
 		
 			
@@ -10151,8 +10163,8 @@ const TableDesc& ASDM_RECEIVER::tableDesc() const {
   return tableDesc_;
 }
 
-#include "ReceiverTable.h"
-#include "ReceiverRow.h"
+#include <alma/ASDM/ReceiverTable.h>
+#include <alma/ASDM/ReceiverRow.h>
 
 		
 			
@@ -10300,8 +10312,8 @@ const TableDesc& ASDM_SBSUMMARY::tableDesc() const {
   return tableDesc_;
 }
 
-#include "SBSummaryTable.h"
-#include "SBSummaryRow.h"
+#include <alma/ASDM/SBSummaryTable.h>
+#include <alma/ASDM/SBSummaryRow.h>
 
 		
 			
@@ -10500,8 +10512,8 @@ const TableDesc& ASDM_SCALE::tableDesc() const {
   return tableDesc_;
 }
 
-#include "ScaleTable.h"
-#include "ScaleRow.h"
+#include <alma/ASDM/ScaleTable.h>
+#include <alma/ASDM/ScaleRow.h>
 
 		
 			
@@ -10615,8 +10627,8 @@ const TableDesc& ASDM_SCAN::tableDesc() const {
   return tableDesc_;
 }
 
-#include "ScanTable.h"
-#include "ScanRow.h"
+#include <alma/ASDM/ScanTable.h>
+#include <alma/ASDM/ScanRow.h>
 
 		
 			
@@ -10798,8 +10810,8 @@ const TableDesc& ASDM_SEEING::tableDesc() const {
   return tableDesc_;
 }
 
-#include "SeeingTable.h"
-#include "SeeingRow.h"
+#include <alma/ASDM/SeeingTable.h>
+#include <alma/ASDM/SeeingRow.h>
 
 		
 			
@@ -10937,6 +10949,14 @@ ASDM_SOURCE::ASDM_SOURCE() {
   tableDesc_.addColumn(ArrayColumnDesc<double>("sizeErr", "blabla"));
   		
   tableDesc_.addColumn(ScalarColumnDesc<String>("velRefCode", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<double>("dopplerVelocity", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("dopplerReferenceSystem", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("dopplerCalcType", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<double>("parallax", "blabla"));
   		  		
 }
 
@@ -10947,8 +10967,8 @@ const TableDesc& ASDM_SOURCE::tableDesc() const {
   return tableDesc_;
 }
 
-#include "SourceTable.h"
-#include "SourceRow.h"
+#include <alma/ASDM/SourceTable.h>
+#include <alma/ASDM/SourceRow.h>
 
 		
 			
@@ -11023,6 +11043,18 @@ using namespace StokesParameterMod;
 using namespace RadialVelocityReferenceCodeMod;
 			
 		
+			
+		
+			
+using namespace RadialVelocityReferenceCodeMod;
+			
+		
+			
+using namespace DopplerReferenceCodeMod;
+			
+		
+			
+		
 	
 void ASDM_SOURCE::fill(const ASDM& asdm) {
 	vector<SourceRow*> rows = asdm.getSource().get();
@@ -11094,6 +11126,14 @@ void ASDM_SOURCE::fill(const ASDM& asdm) {
     ArrayColumn<double> sizeErr(*table_p_, "sizeErr");             
   		
     ScalarColumn<String> velRefCode(*table_p_, "velRefCode");             
+  		
+    ArrayColumn<double> dopplerVelocity(*table_p_, "dopplerVelocity");             
+  		
+    ScalarColumn<String> dopplerReferenceSystem(*table_p_, "dopplerReferenceSystem");             
+  		
+    ScalarColumn<String> dopplerCalcType(*table_p_, "dopplerCalcType");             
+  		
+    ArrayColumn<double> parallax(*table_p_, "parallax");             
   		  	
 
 	for (unsigned int i = 0; i < rows.size(); i++) {
@@ -11253,6 +11293,26 @@ void ASDM_SOURCE::fill(const ASDM& asdm) {
 		velRefCode.put(rowIndex, CRadialVelocityReferenceCode::name(rows.at(i)->getVelRefCode()));
 	
 
+	
+	if (rows.at(i)->isDopplerVelocityExists())
+		dopplerVelocity.put(rowIndex, ext2CASA1D<Speed,double>(rows.at(i)->getDopplerVelocity()));
+	
+
+	
+	if (rows.at(i)->isDopplerReferenceSystemExists())
+		dopplerReferenceSystem.put(rowIndex, CRadialVelocityReferenceCode::name(rows.at(i)->getDopplerReferenceSystem()));
+	
+
+	
+	if (rows.at(i)->isDopplerCalcTypeExists())
+		dopplerCalcType.put(rowIndex, CDopplerReferenceCode::name(rows.at(i)->getDopplerCalcType()));
+	
+
+	
+	if (rows.at(i)->isParallaxExists())
+		parallax.put(rowIndex, ext2CASA2D<Angle,double>(rows.at(i)->getParallax()));
+	
+
 		rowIndex++;		
 	}
 	table_p_->flush();
@@ -11279,6 +11339,8 @@ ASDM_SPECTRALWINDOW::ASDM_SPECTRALWINDOW() {
   		
   tableDesc_.addColumn(ScalarColumnDesc<String>("windowFunction", "blabla"));
   		
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<int>("numBin", "blabla"));
   		
   tableDesc_.addColumn(ScalarColumnDesc<double>("chanFreqStart", "blabla"));
   		
@@ -11335,8 +11397,8 @@ const TableDesc& ASDM_SPECTRALWINDOW::tableDesc() const {
   return tableDesc_;
 }
 
-#include "SpectralWindowTable.h"
-#include "SpectralWindowRow.h"
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
 		
 			
@@ -11347,6 +11409,8 @@ using namespace BasebandNameMod;
 		
 			
 using namespace NetSidebandMod;
+			
+		
 			
 		
 			
@@ -11433,6 +11497,8 @@ void ASDM_SPECTRALWINDOW::fill(const ASDM& asdm) {
     ScalarColumn<String> windowFunction(*table_p_, "windowFunction");             
   		
   		
+    ScalarColumn<int> numBin(*table_p_, "numBin");             
+  		
     ScalarColumn<double> chanFreqStart(*table_p_, "chanFreqStart");             
   		
     ScalarColumn<double> chanFreqStep(*table_p_, "chanFreqStep");             
@@ -11516,6 +11582,11 @@ void ASDM_SPECTRALWINDOW::fill(const ASDM& asdm) {
 	
 
 		
+	
+	if (rows.at(i)->isNumBinExists())
+		numBin.put(rowIndex, rows.at(i)->getNumBin());
+	
+
 	
 	if (rows.at(i)->isChanFreqStartExists())
 		chanFreqStart.put(rowIndex, rows.at(i)->getChanFreqStart().get());
@@ -11657,8 +11728,8 @@ const TableDesc& ASDM_SQUARELAWDETECTOR::tableDesc() const {
   return tableDesc_;
 }
 
-#include "SquareLawDetectorTable.h"
-#include "SquareLawDetectorRow.h"
+#include <alma/ASDM/SquareLawDetectorTable.h>
+#include <alma/ASDM/SquareLawDetectorRow.h>
 
 		
 			
@@ -11732,8 +11803,8 @@ const TableDesc& ASDM_STATE::tableDesc() const {
   return tableDesc_;
 }
 
-#include "StateTable.h"
-#include "StateRow.h"
+#include <alma/ASDM/StateTable.h>
+#include <alma/ASDM/StateRow.h>
 
 		
 			
@@ -11830,8 +11901,8 @@ const TableDesc& ASDM_STATION::tableDesc() const {
   return tableDesc_;
 }
 
-#include "StationTable.h"
-#include "StationRow.h"
+#include <alma/ASDM/StationTable.h>
+#include <alma/ASDM/StationRow.h>
 
 		
 			
@@ -11932,8 +12003,8 @@ const TableDesc& ASDM_SUBSCAN::tableDesc() const {
   return tableDesc_;
 }
 
-#include "SubscanTable.h"
-#include "SubscanRow.h"
+#include <alma/ASDM/SubscanTable.h>
+#include <alma/ASDM/SubscanRow.h>
 
 		
 			
@@ -12079,8 +12150,8 @@ const TableDesc& ASDM_SWITCHCYCLE::tableDesc() const {
   return tableDesc_;
 }
 
-#include "SwitchCycleTable.h"
-#include "SwitchCycleRow.h"
+#include <alma/ASDM/SwitchCycleTable.h>
+#include <alma/ASDM/SwitchCycleRow.h>
 
 		
 			
@@ -12224,8 +12295,8 @@ const TableDesc& ASDM_SYSCAL::tableDesc() const {
   return tableDesc_;
 }
 
-#include "SysCalTable.h"
-#include "SysCalRow.h"
+#include <alma/ASDM/SysCalTable.h>
+#include <alma/ASDM/SysCalRow.h>
 
 		
 			
@@ -12445,8 +12516,8 @@ const TableDesc& ASDM_SYSPOWER::tableDesc() const {
   return tableDesc_;
 }
 
-#include "SysPowerTable.h"
-#include "SysPowerRow.h"
+#include <alma/ASDM/SysPowerTable.h>
+#include <alma/ASDM/SysPowerRow.h>
 
 		
 			
@@ -12575,8 +12646,8 @@ const TableDesc& ASDM_TOTALPOWER::tableDesc() const {
   return tableDesc_;
 }
 
-#include "TotalPowerTable.h"
-#include "TotalPowerRow.h"
+#include <alma/ASDM/TotalPowerTable.h>
+#include <alma/ASDM/TotalPowerRow.h>
 
 		
 			
@@ -12755,8 +12826,8 @@ const TableDesc& ASDM_WVMCAL::tableDesc() const {
   return tableDesc_;
 }
 
-#include "WVMCalTable.h"
-#include "WVMCalRow.h"
+#include <alma/ASDM/WVMCalTable.h>
+#include <alma/ASDM/WVMCalRow.h>
 
 		
 			
@@ -12908,8 +12979,8 @@ const TableDesc& ASDM_WEATHER::tableDesc() const {
   return tableDesc_;
 }
 
-#include "WeatherTable.h"
-#include "WeatherRow.h"
+#include <alma/ASDM/WeatherTable.h>
+#include <alma/ASDM/WeatherRow.h>
 
 		
 			

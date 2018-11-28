@@ -24,11 +24,11 @@
  * File Interval.cpp
  */
 
-#include <Interval.h>
-#include <LongWrapper.h>
-#include <NumberFormatException.h>
-using asdm::Long;
-using asdm::NumberFormatException;
+#include <alma/ASDM/Interval.h>
+#include <alma/ASDM/LongWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
+
+using namespace std;
 
 namespace asdm {
 

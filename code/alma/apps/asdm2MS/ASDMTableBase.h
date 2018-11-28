@@ -20,10 +20,9 @@
 #include <casa/Exceptions/Error.h>
 #include <casa/Utilities/Assert.h>
 
-#include "ASDM.h"
-#include "ArrayTime.h"
-#include "ArrayTimeInterval.h"
-using namespace asdm;
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/ArrayTime.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 
 template<typename T>
 class ASDM_TABLE_SINGLETON {
@@ -57,7 +56,7 @@ class ASDM_TABLE_BASE {
   const string& name() const;
   virtual const casacore::TableDesc& tableDesc() const = 0;
   void buildAndAttachTable(casacore::MS* attachMS);
-  virtual void fill(const ASDM& asdm) = 0;
+  virtual void fill(const asdm::ASDM& asdm) = 0;
 
   template<typename T, typename U>  casacore::Vector<U> basic2CASA1D(const vector<T>& v) {
     casacore::Vector<U> result;
@@ -240,7 +239,7 @@ class ASDM_TABLE_BASE {
     return result;
   }
 
-  template<typename U>  casacore::Vector<U> at2CASA1D(const vector<ArrayTime>& v) {
+  template<typename U>  casacore::Vector<U> at2CASA1D(const vector<asdm::ArrayTime>& v) {
     casacore::Vector<U> result;
     if (v.size()==0) return result;
 
@@ -250,7 +249,7 @@ class ASDM_TABLE_BASE {
     return result;
   }
 
-  template<typename U> casacore::Matrix<U> at2CASA2D(const vector<vector<ArrayTime> >& v) {
+  template<typename U> casacore::Matrix<U> at2CASA2D(const vector<vector<asdm::ArrayTime> >& v) {
     casacore::Matrix<U> result;
     if (v.size()==0 || v.at(0).size()) return result;
 
@@ -261,7 +260,7 @@ class ASDM_TABLE_BASE {
     return result;
   }
 
-  template<typename U>  casacore::Cube<U> at2CASA3D(const vector<vector< vector<ArrayTime> > >& v) {
+  template<typename U>  casacore::Cube<U> at2CASA3D(const vector<vector< vector<asdm::ArrayTime> > >& v) {
     casacore::Cube<U> result;
     if (v.size() == 0 || v.at(0).size() == 0 || v.at(0).at(0).size() == 0) return result;
 
@@ -273,34 +272,34 @@ class ASDM_TABLE_BASE {
     return result;
   }
 
-  template<typename U> casacore::Vector<U> ati2CASA1D(const ArrayTimeInterval& ati) {
+  template<typename U> casacore::Vector<U> ati2CASA1D(const asdm::ArrayTimeInterval& ati) {
     casacore::Vector<U> result(2);
-    result(0) = ((double) ati.getStart().get()) / ArrayTime::unitsInASecond;
-    result(1) = ((double) ati.getDuration().get()) / ArrayTime::unitsInASecond;
+    result(0) = ((double) ati.getStart().get()) / asdm::ArrayTime::unitsInASecond;
+    result(1) = ((double) ati.getDuration().get()) / asdm::ArrayTime::unitsInASecond;
     return result;
   }
 
-  template<typename U> casacore::Matrix<U> ati2CASA2D(const vector<ArrayTimeInterval>& v) {
+  template<typename U> casacore::Matrix<U> ati2CASA2D(const vector<asdm::ArrayTimeInterval>& v) {
     casacore::Matrix<U> result;
     if (v.size() == 0) return result;
 
     result.resize(v.size(), 2);
-    for (vector<ArrayTimeInterval>::size_type i = 0; i < v.size(); i++) {
-      result(i, 0) = ((double) v[i].getStart().get()) / ArrayTime::unitsInASecond;
-      result(i, 1) = ((double) v[i].getDuration().get()) / ArrayTime::unitsInASecond;
+    for (vector<asdm::ArrayTimeInterval>::size_type i = 0; i < v.size(); i++) {
+      result(i, 0) = ((double) v[i].getStart().get()) / asdm::ArrayTime::unitsInASecond;
+      result(i, 1) = ((double) v[i].getDuration().get()) / asdm::ArrayTime::unitsInASecond;
     }
     return result;
   }
 
-  template<typename U> casacore::Cube<U> ati2CASA3D(const vector<vector<ArrayTimeInterval> >& v) {
+  template<typename U> casacore::Cube<U> ati2CASA3D(const vector<vector<asdm::ArrayTimeInterval> >& v) {
     casacore::Cube<U> result;
     if (v.size() == 0 || v.at(0).size() == 0) return result;
 
     result.resize(v.size(), v.at(0).size(), 2);
-    for (vector<vector<ArrayTimeInterval> >::size_type i = 0; i < v.size(); i++) {
-      for (vector<ArrayTimeInterval>::size_type j = 0; j < v.at(0).size(); j++) {
-	result(i, j, 0) = ((double) v[i][j].getStart().get()) / ArrayTime::unitsInASecond;
-	result(i, j, 1) = ((double) v[i][j].getDuration().get()) / ArrayTime::unitsInASecond;
+    for (vector<vector<asdm::ArrayTimeInterval> >::size_type i = 0; i < v.size(); i++) {
+      for (vector<asdm::ArrayTimeInterval>::size_type j = 0; j < v.at(0).size(); j++) {
+	result(i, j, 0) = ((double) v[i][j].getStart().get()) / asdm::ArrayTime::unitsInASecond;
+	result(i, j, 1) = ((double) v[i][j].getDuration().get()) / asdm::ArrayTime::unitsInASecond;
       }
     }
     return result;

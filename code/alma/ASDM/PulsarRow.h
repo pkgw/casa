@@ -48,19 +48,19 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	 
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
@@ -92,12 +92,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Pulsar.h
     \brief Generated from model's revision "-1", branch ""
@@ -111,7 +111,7 @@ namespace asdm {
 
 class PulsarRow;
 typedef void (PulsarRow::*PulsarAttributeFromBin) (EndianIStream& eis);
-typedef void (PulsarRow::*PulsarAttributeFromText) (const string& s);
+typedef void (PulsarRow::*PulsarAttributeFromText) (const std::string& s);
 
 /**
  * The PulsarRow class is a row of a PulsarTable.
@@ -339,21 +339,21 @@ public:
 	
  	/**
  	 * Get phasePoly, which is optional.
- 	 * @return phasePoly as vector<double >
+ 	 * @return phasePoly as std::vector<double >
  	 * @throws IllegalAccessException If phasePoly does not exist.
  	 */
- 	vector<double > getPhasePoly() const;
+ 	std::vector<double > getPhasePoly() const;
 	
  
  	
  	
  	/**
- 	 * Set phasePoly with the specified vector<double >.
- 	 * @param phasePoly The vector<double > value to which phasePoly is to be set.
+ 	 * Set phasePoly with the specified std::vector<double >.
+ 	 * @param phasePoly The std::vector<double > value to which phasePoly is to be set.
  	 
  		
  	 */
- 	void setPhasePoly (vector<double > phasePoly);
+ 	void setPhasePoly (std::vector<double > phasePoly);
 		
 	
 	
@@ -421,21 +421,21 @@ public:
 	
  	/**
  	 * Get startPhaseBin, which is optional.
- 	 * @return startPhaseBin as vector<float >
+ 	 * @return startPhaseBin as std::vector<float >
  	 * @throws IllegalAccessException If startPhaseBin does not exist.
  	 */
- 	vector<float > getStartPhaseBin() const;
+ 	std::vector<float > getStartPhaseBin() const;
 	
  
  	
  	
  	/**
- 	 * Set startPhaseBin with the specified vector<float >.
- 	 * @param startPhaseBin The vector<float > value to which startPhaseBin is to be set.
+ 	 * Set startPhaseBin with the specified std::vector<float >.
+ 	 * @param startPhaseBin The std::vector<float > value to which startPhaseBin is to be set.
  	 
  		
  	 */
- 	void setStartPhaseBin (vector<float > startPhaseBin);
+ 	void setStartPhaseBin (std::vector<float > startPhaseBin);
 		
 	
 	
@@ -462,21 +462,21 @@ public:
 	
  	/**
  	 * Get endPhaseBin, which is optional.
- 	 * @return endPhaseBin as vector<float >
+ 	 * @return endPhaseBin as std::vector<float >
  	 * @throws IllegalAccessException If endPhaseBin does not exist.
  	 */
- 	vector<float > getEndPhaseBin() const;
+ 	std::vector<float > getEndPhaseBin() const;
 	
  
  	
  	
  	/**
- 	 * Set endPhaseBin with the specified vector<float >.
- 	 * @param endPhaseBin The vector<float > value to which endPhaseBin is to be set.
+ 	 * Set endPhaseBin with the specified std::vector<float >.
+ 	 * @param endPhaseBin The std::vector<float > value to which endPhaseBin is to be set.
  	 
  		
  	 */
- 	void setEndPhaseBin (vector<float > endPhaseBin);
+ 	void setEndPhaseBin (std::vector<float > endPhaseBin);
 		
 	
 	
@@ -838,7 +838,7 @@ private:
 	bool phasePolyExists;
 	
 
-	vector<double > phasePoly;
+	std::vector<double > phasePoly;
 
 	
 	
@@ -864,7 +864,7 @@ private:
 	bool startPhaseBinExists;
 	
 
-	vector<float > startPhaseBin;
+	std::vector<float > startPhaseBin;
 
 	
 	
@@ -877,7 +877,7 @@ private:
 	bool endPhaseBinExists;
 	
 
-	vector<float > endPhaseBin;
+	std::vector<float > endPhaseBin;
 
 	
 	
@@ -944,41 +944,41 @@ void refFrequencyFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, PulsarAttributeFromText> fromTextMethods;
 	
-void pulsarIdFromText (const string & s);
+void pulsarIdFromText (const std::string & s);
 	
 	
-void refTimeFromText (const string & s);
+void refTimeFromText (const std::string & s);
 	
 	
-void refPulseFreqFromText (const string & s);
+void refPulseFreqFromText (const std::string & s);
 	
 	
-void refPhaseFromText (const string & s);
+void refPhaseFromText (const std::string & s);
 	
 	
-void numBinFromText (const string & s);
+void numBinFromText (const std::string & s);
 	
 
 	
-void numPolyFromText (const string & s);
+void numPolyFromText (const std::string & s);
 	
 	
-void phasePolyFromText (const string & s);
+void phasePolyFromText (const std::string & s);
 	
 	
-void timeSpanFromText (const string & s);
+void timeSpanFromText (const std::string & s);
 	
 	
-void startPhaseBinFromText (const string & s);
+void startPhaseBinFromText (const std::string & s);
 	
 	
-void endPhaseBinFromText (const string & s);
+void endPhaseBinFromText (const std::string & s);
 	
 	
-void dispersionMeasureFromText (const string & s);
+void dispersionMeasureFromText (const std::string & s);
 	
 	
-void refFrequencyFromText (const string & s);
+void refFrequencyFromText (const std::string & s);
 	
 	
 	

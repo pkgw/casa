@@ -48,23 +48,23 @@
 
 
 	 
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -75,11 +75,7 @@
 	
 
 	
-#include "CWVRMethod.h"
-	
-
-	
-
+#include <alma/Enumerations/CWVRMethod.h>
 	
 
 	
@@ -104,14 +100,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalWVR.h
     \brief Generated from model's revision "-1", branch ""
@@ -131,7 +131,7 @@ class CalReductionRow;
 
 class CalWVRRow;
 typedef void (CalWVRRow::*CalWVRAttributeFromBin) (EndianIStream& eis);
-typedef void (CalWVRRow::*CalWVRAttributeFromText) (const string& s);
+typedef void (CalWVRRow::*CalWVRAttributeFromText) (const std::string& s);
 
 /**
  * The CalWVRRow class is a row of a CalWVRTable.
@@ -262,23 +262,23 @@ public:
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string getAntennaName() const;
+ 	std::string getAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  		
  			
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 		
  	 */
- 	void setAntennaName (string antennaName);
+ 	void setAntennaName (std::string antennaName);
   		
 	
 	
@@ -324,21 +324,21 @@ public:
 	
  	/**
  	 * Get inputAntennaNames.
- 	 * @return inputAntennaNames as vector<string >
+ 	 * @return inputAntennaNames as std::vector<std::string >
  	 */
- 	vector<string > getInputAntennaNames() const;
+ 	std::vector<std::string > getInputAntennaNames() const;
 	
  
  	
  	
  	/**
- 	 * Set inputAntennaNames with the specified vector<string >.
- 	 * @param inputAntennaNames The vector<string > value to which inputAntennaNames is to be set.
+ 	 * Set inputAntennaNames with the specified std::vector<std::string >.
+ 	 * @param inputAntennaNames The std::vector<std::string > value to which inputAntennaNames is to be set.
  	 
  		
  			
  	 */
- 	void setInputAntennaNames (vector<string > inputAntennaNames);
+ 	void setInputAntennaNames (std::vector<std::string > inputAntennaNames);
   		
 	
 	
@@ -384,21 +384,21 @@ public:
 	
  	/**
  	 * Get chanFreq.
- 	 * @return chanFreq as vector<Frequency >
+ 	 * @return chanFreq as std::vector<Frequency >
  	 */
- 	vector<Frequency > getChanFreq() const;
+ 	std::vector<Frequency > getChanFreq() const;
 	
  
  	
  	
  	/**
- 	 * Set chanFreq with the specified vector<Frequency >.
- 	 * @param chanFreq The vector<Frequency > value to which chanFreq is to be set.
+ 	 * Set chanFreq with the specified std::vector<Frequency >.
+ 	 * @param chanFreq The std::vector<Frequency > value to which chanFreq is to be set.
  	 
  		
  			
  	 */
- 	void setChanFreq (vector<Frequency > chanFreq);
+ 	void setChanFreq (std::vector<Frequency > chanFreq);
   		
 	
 	
@@ -414,21 +414,21 @@ public:
 	
  	/**
  	 * Get chanWidth.
- 	 * @return chanWidth as vector<Frequency >
+ 	 * @return chanWidth as std::vector<Frequency >
  	 */
- 	vector<Frequency > getChanWidth() const;
+ 	std::vector<Frequency > getChanWidth() const;
 	
  
  	
  	
  	/**
- 	 * Set chanWidth with the specified vector<Frequency >.
- 	 * @param chanWidth The vector<Frequency > value to which chanWidth is to be set.
+ 	 * Set chanWidth with the specified std::vector<Frequency >.
+ 	 * @param chanWidth The std::vector<Frequency > value to which chanWidth is to be set.
  	 
  		
  			
  	 */
- 	void setChanWidth (vector<Frequency > chanWidth);
+ 	void setChanWidth (std::vector<Frequency > chanWidth);
   		
 	
 	
@@ -444,21 +444,21 @@ public:
 	
  	/**
  	 * Get refTemp.
- 	 * @return refTemp as vector<vector<Temperature > >
+ 	 * @return refTemp as std::vector<std::vector<Temperature > >
  	 */
- 	vector<vector<Temperature > > getRefTemp() const;
+ 	std::vector<std::vector<Temperature > > getRefTemp() const;
 	
  
  	
  	
  	/**
- 	 * Set refTemp with the specified vector<vector<Temperature > >.
- 	 * @param refTemp The vector<vector<Temperature > > value to which refTemp is to be set.
+ 	 * Set refTemp with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param refTemp The std::vector<std::vector<Temperature > > value to which refTemp is to be set.
  	 
  		
  			
  	 */
- 	void setRefTemp (vector<vector<Temperature > > refTemp);
+ 	void setRefTemp (std::vector<std::vector<Temperature > > refTemp);
   		
 	
 	
@@ -504,21 +504,21 @@ public:
 	
  	/**
  	 * Get pathCoeff.
- 	 * @return pathCoeff as vector<vector<vector<float > > >
+ 	 * @return pathCoeff as std::vector<std::vector<std::vector<float > > >
  	 */
- 	vector<vector<vector<float > > > getPathCoeff() const;
+ 	std::vector<std::vector<std::vector<float > > > getPathCoeff() const;
 	
  
  	
  	
  	/**
- 	 * Set pathCoeff with the specified vector<vector<vector<float > > >.
- 	 * @param pathCoeff The vector<vector<vector<float > > > value to which pathCoeff is to be set.
+ 	 * Set pathCoeff with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param pathCoeff The std::vector<std::vector<std::vector<float > > > value to which pathCoeff is to be set.
  	 
  		
  			
  	 */
- 	void setPathCoeff (vector<vector<vector<float > > > pathCoeff);
+ 	void setPathCoeff (std::vector<std::vector<std::vector<float > > > pathCoeff);
   		
 	
 	
@@ -534,21 +534,21 @@ public:
 	
  	/**
  	 * Get polyFreqLimits.
- 	 * @return polyFreqLimits as vector<Frequency >
+ 	 * @return polyFreqLimits as std::vector<Frequency >
  	 */
- 	vector<Frequency > getPolyFreqLimits() const;
+ 	std::vector<Frequency > getPolyFreqLimits() const;
 	
  
  	
  	
  	/**
- 	 * Set polyFreqLimits with the specified vector<Frequency >.
- 	 * @param polyFreqLimits The vector<Frequency > value to which polyFreqLimits is to be set.
+ 	 * Set polyFreqLimits with the specified std::vector<Frequency >.
+ 	 * @param polyFreqLimits The std::vector<Frequency > value to which polyFreqLimits is to be set.
  	 
  		
  			
  	 */
- 	void setPolyFreqLimits (vector<Frequency > polyFreqLimits);
+ 	void setPolyFreqLimits (std::vector<Frequency > polyFreqLimits);
   		
 	
 	
@@ -564,21 +564,21 @@ public:
 	
  	/**
  	 * Get wetPath.
- 	 * @return wetPath as vector<float >
+ 	 * @return wetPath as std::vector<float >
  	 */
- 	vector<float > getWetPath() const;
+ 	std::vector<float > getWetPath() const;
 	
  
  	
  	
  	/**
- 	 * Set wetPath with the specified vector<float >.
- 	 * @param wetPath The vector<float > value to which wetPath is to be set.
+ 	 * Set wetPath with the specified std::vector<float >.
+ 	 * @param wetPath The std::vector<float > value to which wetPath is to be set.
  	 
  		
  			
  	 */
- 	void setWetPath (vector<float > wetPath);
+ 	void setWetPath (std::vector<float > wetPath);
   		
 	
 	
@@ -594,21 +594,21 @@ public:
 	
  	/**
  	 * Get dryPath.
- 	 * @return dryPath as vector<float >
+ 	 * @return dryPath as std::vector<float >
  	 */
- 	vector<float > getDryPath() const;
+ 	std::vector<float > getDryPath() const;
 	
  
  	
  	
  	/**
- 	 * Set dryPath with the specified vector<float >.
- 	 * @param dryPath The vector<float > value to which dryPath is to be set.
+ 	 * Set dryPath with the specified std::vector<float >.
+ 	 * @param dryPath The std::vector<float > value to which dryPath is to be set.
  	 
  		
  			
  	 */
- 	void setDryPath (vector<float > dryPath);
+ 	void setDryPath (std::vector<float > dryPath);
   		
 	
 	
@@ -791,7 +791,7 @@ public:
 	 * @param water
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, vector<string > inputAntennaNames, int numChan, vector<Frequency > chanFreq, vector<Frequency > chanWidth, vector<vector<Temperature > > refTemp, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<Frequency > polyFreqLimits, vector<float > wetPath, vector<float > dryPath, Length water);
+	bool compareNoAutoInc(std::string antennaName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, std::vector<std::string > inputAntennaNames, int numChan, std::vector<Frequency > chanFreq, std::vector<Frequency > chanWidth, std::vector<std::vector<Temperature > > refTemp, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<Frequency > polyFreqLimits, std::vector<float > wetPath, std::vector<float > dryPath, Length water);
 	
 	
 
@@ -831,7 +831,7 @@ public:
 	 * @param water
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, vector<string > inputAntennaNames, int numChan, vector<Frequency > chanFreq, vector<Frequency > chanWidth, vector<vector<Temperature > > refTemp, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<Frequency > polyFreqLimits, vector<float > wetPath, vector<float > dryPath, Length water); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, std::vector<std::string > inputAntennaNames, int numChan, std::vector<Frequency > chanFreq, std::vector<Frequency > chanWidth, std::vector<std::vector<Temperature > > refTemp, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<Frequency > polyFreqLimits, std::vector<float > wetPath, std::vector<float > dryPath, Length water); 
 		 
 	
 	/**
@@ -1014,7 +1014,7 @@ private:
 	
 	
 
-	string antennaName;
+	std::string antennaName;
 
 	
 	
@@ -1036,7 +1036,7 @@ private:
 	
 	
 
-	vector<string > inputAntennaNames;
+	std::vector<std::string > inputAntennaNames;
 
 	
 	
@@ -1058,7 +1058,7 @@ private:
 	
 	
 
-	vector<Frequency > chanFreq;
+	std::vector<Frequency > chanFreq;
 
 	
 	
@@ -1069,7 +1069,7 @@ private:
 	
 	
 
-	vector<Frequency > chanWidth;
+	std::vector<Frequency > chanWidth;
 
 	
 	
@@ -1080,7 +1080,7 @@ private:
 	
 	
 
-	vector<vector<Temperature > > refTemp;
+	std::vector<std::vector<Temperature > > refTemp;
 
 	
 	
@@ -1102,7 +1102,7 @@ private:
 	
 	
 
-	vector<vector<vector<float > > > pathCoeff;
+	std::vector<std::vector<std::vector<float > > > pathCoeff;
 
 	
 	
@@ -1113,7 +1113,7 @@ private:
 	
 	
 
-	vector<Frequency > polyFreqLimits;
+	std::vector<Frequency > polyFreqLimits;
 
 	
 	
@@ -1124,7 +1124,7 @@ private:
 	
 	
 
-	vector<float > wetPath;
+	std::vector<float > wetPath;
 
 	
 	
@@ -1135,7 +1135,7 @@ private:
 	
 	
 
-	vector<float > dryPath;
+	std::vector<float > dryPath;
 
 	
 	
@@ -1229,58 +1229,58 @@ void waterFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalWVRAttributeFromText> fromTextMethods;
 	
-void antennaNameFromText (const string & s);
+void antennaNameFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void wvrMethodFromText (const string & s);
+void wvrMethodFromText (const std::string & s);
 	
 	
-void numInputAntennasFromText (const string & s);
+void numInputAntennasFromText (const std::string & s);
 	
 	
-void inputAntennaNamesFromText (const string & s);
+void inputAntennaNamesFromText (const std::string & s);
 	
 	
-void numChanFromText (const string & s);
+void numChanFromText (const std::string & s);
 	
 	
-void chanFreqFromText (const string & s);
+void chanFreqFromText (const std::string & s);
 	
 	
-void chanWidthFromText (const string & s);
+void chanWidthFromText (const std::string & s);
 	
 	
-void refTempFromText (const string & s);
+void refTempFromText (const std::string & s);
 	
 	
-void numPolyFromText (const string & s);
+void numPolyFromText (const std::string & s);
 	
 	
-void pathCoeffFromText (const string & s);
+void pathCoeffFromText (const std::string & s);
 	
 	
-void polyFreqLimitsFromText (const string & s);
+void polyFreqLimitsFromText (const std::string & s);
 	
 	
-void wetPathFromText (const string & s);
+void wetPathFromText (const std::string & s);
 	
 	
-void dryPathFromText (const string & s);
+void dryPathFromText (const std::string & s);
 	
 	
-void waterFromText (const string & s);
+void waterFromText (const std::string & s);
 	
 
 		
