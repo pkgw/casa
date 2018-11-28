@@ -1742,7 +1742,8 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
                 casa_param(3*icor + 0, iant) = gsl_vector_get(res, iparam+0);
                 casa_param(3*icor + 1, iant) = gsl_vector_get(res, iparam+1);
                 casa_param(3*icor + 2, iant) = gsl_vector_get(res, iparam+2);
-                for (size_t i=0; i!=3; i++) {
+                // Sssshhh! We leave the first SNR as the FFT one.
+                for (size_t i=1; i!=3; i++) {
                     casa_snr(3*icor + i, iant) = gsl_vector_get(snr_vector, iparam+0);
                 }
             } else { // gsl solver failed; flag data
