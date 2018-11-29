@@ -684,7 +684,7 @@ Vector<Double> ChannelAverageTVI::getFrequencies (	Double time,
 																spectralWindowId,msId);
 
 	// Produce output (transformed) frequencies
-	Vector<Double> outputFrecuencies(spwOutChanNumMap_p[spectralWindowId],0);
+	Vector<Double> outputFrecuencies(spwOutChanNumMap_p.at(spectralWindowId),0);
 
 	// Gather input data
 	DataCubeMap inputData;
