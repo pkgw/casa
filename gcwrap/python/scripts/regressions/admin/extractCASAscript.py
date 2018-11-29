@@ -24,18 +24,29 @@ The script runs in one of three modes:
    benchmarks of performance, e.g., as a function of machine.
 '''
 
+from __future__ import print_function
+
 # =====================
 # IMPORTS
 # =====================
 
 import urllib
-import urllib2
 import sys
 import codecs
 import re
 import string
 import os, os.path
-from optparse import OptionParser
+from optparse import OptionParser, SUPPRESS_HELP
+
+# =====================
+# PY3 compatiable
+# =====================
+py3 = False
+if sys.version_info[0] > 2:
+    py3 = True
+    import urllib.request
+else:
+    import urllib2
 
 # =====================
 # DEFINITIONS
@@ -46,11 +57,7 @@ from optparse import OptionParser
 #endBlock = "</pre></div></div>"
 
 
-beginBlock = "class=\"p\""
-beginBlock1 = "class=\"n\""
-beginBlock2 = "class=\"k\""
-beginBlock3 = "class=\"s1\""
-beginBlock4 = "class=\"s2\""
+beginBlocks = ["class=\"p\"","class=\"n\"","class=\"k\"","class=\"s1\"","class=\"s2\""]
 
 endBlock = "</span>"
 
@@ -61,27 +68,39 @@ interactive=re.compile("[\s;]*(plotxy|plotcal|plotms|viewer|plotants|imview)")
 # CASA task list (used for benchmarking markup, else ignored)
 # Check and update this list using function listCASATasks(), below.
 # for CASA 4.5...
-casa_tasks = ['accum', 'applycal', 'asdmsummary', 'bandpass',
-'blcal', 'boxit', 'browsetable', 'calstat', 'caltabconvert', 'clean',
-'clearcal', 'clearplot', 'clearstat', 'concat', 'conjugatevis', 'csvclean',
-'cvel', 'deconvolve', 'delmod', 'exportasdm', 'exportfits', 'exportuvfits',
-'feather', 'find', 'fixplanets', 'fixvis', 'flagcmd', 'flagdata', 'flagmanager',
-'fluxscale', 'ft', 'gaincal', 'gencal', 'hanningsmooth',
-'help par.parametername', 'help taskname', 'imcollapse', 'imcontsub', 'imfit',
-'imhead', 'immath', 'immoments', 'impbcor', 'importasdm', 'importevla',
-'importfits', 'importfitsidi', 'importgmrt', 'importuvfits', 'importvla',
-'impv', 'imreframe', 'imregrid', 'imsmooth', 'imstat', 'imsubimage', 'imtrans',
-'imval', 'imview', 'listcal', 'listfits', 'listhistory', 'listobs',
-'listpartition', 'listsdm', 'listvis', 'makemask', 'mosaic', 'msmoments',
-'mstransform', 'msview', 'partition', 'plotants', 'plotbandpass', 'plotcal',
-'plotms', 'plotuv', 'plotweather', 'plotxy', 'polcal', 'predictcomp', 'rmfit',
-'rmtables', 'sdbaseline', 'sdcal', 'sdfit', 'sdfixscan', 'sdgaincal', 
-'sdimaging', 'sdsmooth', 'setjy', 'simalma', 'simanalyze', 'simobserve', 
-'slsearch', 'smoothcal', 'specfit', 'splattotable', 'split', 'spxfit', 
-'startup', 'oldstatwt', 'taskhelp', 'tasklist', 'tclean', 'testconcat', 'toolhelp', 
-'uvcontsub', 'uvcontsub3', 'uvmodelfit', 'uvsub', 'viewer', 'virtualconcat', 
-'vishead', 'visstat', 'widebandpbcor', 'widefield', 'wvrgcal']
 
+casa_tasks = [
+    'accum', 'applycal', 'asdmsummary', 'bandpass',
+    'blcal', 'boxit', 'browsetable', 'calstat', 'caltabconvert', 'clean',
+    'clearcal', 'clearplot', 'clearstat', 'concat', 'conjugatevis', 'csvclean',
+    'cvel', 'deconvolve', 'delmod', 'exportasdm', 'exportfits', 'exportuvfits',
+    'feather', 'find', 'fixplanets', 'fixvis', 'flagcmd', 'flagdata', 'flagmanager',
+    'fluxscale', 'ft', 'gaincal', 'gencal', 'hanningsmooth',
+    'help par.parametername', 'help taskname', 'imcollapse', 'imcontsub', 'imfit',
+    'imhead', 'immath', 'immoments', 'impbcor', 'importasdm', 'importevla',
+    'importfits', 'importfitsidi', 'importgmrt', 'importuvfits', 'importvla',
+    'impv', 'imreframe', 'imregrid', 'imsmooth', 'imstat', 'imsubimage', 'imtrans',
+    'imval', 'imview', 'listcal', 'listfits', 'listhistory', 'listobs',
+    'listpartition', 'listsdm', 'listvis', 'makemask', 'mosaic', 'msmoments',
+    'mstransform', 'msview', 'partition', 'plotants', 'plotbandpass', 'plotcal',
+    'plotms', 'plotuv', 'plotweather', 'plotxy', 'polcal', 'predictcomp', 'rmfit',
+    'rmtables', 'sdbaseline', 'sdcal', 'sdfit', 'sdfixscan', 'sdgaincal', 
+    'sdimaging', 'sdsmooth', 'setjy', 'simalma', 'simanalyze', 'simobserve', 
+    'slsearch', 'smoothcal', 'specfit', 'splattotable', 'split', 'spxfit', 
+    'startup', 'oldstatwt', 'taskhelp', 'tasklist', 'taskname', 'tclean', 'testconcat', 'toolhelp', 
+    'uvcontsub', 'uvcontsub3', 'uvmodelfit', 'uvsub', 'viewer', 'virtualconcat', 
+    'vishead', 'visstat', 'widebandpbcor', 'widefield', 'wvrgcal'
+    ]
+
+casa6_tools = [ 
+    'agentflagger','atcafiller','atmosphere','calanalysis','calibrater',
+    'componentlist','coordsys','functional','image','imagemetadata',
+    'imagepol','imager','iterbotsink','logsink','measures',
+    'miriadfiller','ms','msmetadata','mstransformer','quanta',
+    'regionmanager','sakura','sdm','simulator','singledishms',
+    'spectralline','synthesisdeconvolver','synthesisimager','synthesisimstore',
+    'synthesisnormalizer','synthesisutils','table','vlafiller','vpmanager'
+    ]
 
 # define formatting junk that needs to be filtered
 # JFG comments that regular expressions might clean this up
@@ -122,8 +141,15 @@ tasks_to_suppress = ["plotms", "plotants"]
 # =====================
 # FUNCTIONS
 # =====================
+def comment_out_casa_builtins(line):
+    patterns = [ r''' *(inp)''',r''' *(go)''',r''' *(help)''']
+    for pattern in patterns:
+        if re.search( pattern, line ):
+            new_line = ' ' * indentation(line) + line
+            line = "#" + new_line
+    return line
 
-def countParen(line):    
+def countParen(line):
     """
     Returns the net open and closed parentheses.
     """
@@ -149,6 +175,15 @@ def extract_task(line):
     if temp == -1:
         return None
     return stripped[0:temp]
+
+# Uncomment if we swtich from import casatasks; casatasks.<taskname> to from casatasks import <taskname>
+#def is_task_call_casa6(line,array):
+#    """
+#    Tests if the line is a task call and adds to list.
+#    """
+#    if extract_task(line) in casa_tasks:
+#        array.append(extract_task(line))
+#    return array
 
 def is_task_call(line):
     """
@@ -253,53 +288,35 @@ def suppress_gui( line ):
         # Suppress GUIs for other tasks here...
     return line
 
+
 def turnTaskOff( taskname, line ):
     """ Turn off task calls. """
     if is_task_call(line):
         if extract_task(line) == taskname:
-            line = ' '*indentation(line) + "print 'Turned " + taskname + " off'"
+            line = ' '*indentation(line) + "print('Turned " + taskname + " off')"
     return(line)
 
 def turnPlotmsOff( line ):
     """ Turn off plotms calls. """
-    if is_task_call(line):
-        if extract_task(line) == "plotms":
-            line = ' '*indentation(line) + "print 'Turned PLOTMS off'"
-
-    line = exclude_raw_input(line)
-    line = include_raw_input( "plotcal",line )
+    line = turnTaskOff("plotms", line)
+    #line = include_raw_input( "plotcal",line )
     return(line)
 
-# TO DO: This function testing; I don't think it's working yet.
-def turnAUPlotbandpassOff( line ):
-    """ Turn aU.plotbandpass off. """
-    pattern = r'''\s*aU.plotbandpass\(.*\)'''
-    matchObj = re.match( pattern, line )
-    if matchObj:
-        line =  ' ' * indentation(line) + "print 'Turned aU.plotbandpass off'"
-    return( line )
-
-def turnPlotbandpassOff( line ):
-    """ Turn off plotbandpass calls. """
-    if is_task_call(line):
-        if extract_task(line) == "plotbandpass":
-            line = ' '*indentation(line) + "print 'Turned plotbandpass off'"
-    return(line)
 
 def turnDiagPlotsOff( line ):
-    """ Turn diagnostic plots off (plotms, plotcal, aU.plotbandpass, plotants, plotxy, plotbandpass) """
-    line = turnTaskOff( "plotms", line )
-    line = turnTaskOff( "plotcal", line )
-    line = turnTaskOff( "plotants", line )
-    line = turnTaskOff( "plotxy", line )
-    line = turnTaskOff( "plotbandpass", line )
-    line = turnTaskOff( "viewer", line )
-    line = turnTaskOff( "imview", line )
-    line = turnTaskOff( "au.plotWVRSolutions",line)
-    line = suppress_gui( line )
-    line = exclude_raw_input( line )
-    # Test this function before using.
-    # line = turnPlotbandpassOff( line )
+    """ Turn diagnostic plots off (plotms, plotcal, aU.plotbandpass, plotants, plotxy, plotbandpass, plotweather) """
+    line = turnTaskOff("plotms", line)
+    line = turnTaskOff("plotcal", line)
+    line = turnTaskOff("plotants", line)
+    line = turnTaskOff("plotxy", line)
+    line = turnTaskOff("plotbandpass", line)
+    line = turnTaskOff("plotweather", line)
+    line = turnTaskOff("viewer", line)
+    line = turnTaskOff("imview", line)
+    line = turnTaskOff("au.plotWVRSolutions",line)
+    line = suppress_gui(line)
+    line = exclude_raw_input(line)
+
     return line
 
 # function to clean up html strings (convert html markup to executable python)
@@ -385,7 +402,7 @@ def pythonize_shell_commands( line ):
     directly from the casapy prompt. These commands cannot be called from inside
     a Python script. To run these commands in a script, place them in an 
     os.system call.
-    
+
     * line = a python statement
     """
     commands = [ 'ls', 'pwd', 'less', 'pwd', 'cd', 'cat' ]
@@ -423,12 +440,11 @@ def make_system_call_noninteractive( line ):
 
 def include_raw_input( task,line ):
     """
-    
     * line = a python statement
     """
     if is_task_call(line):
         if extract_task(line) == task:
-            line = ''*indentation(line) + line + '\n' 
+            line = ''*indentation(line) + line + '\n'
         line += ' '*indentation(line) + 'user_check=raw_input("press enter to continue script")\n'
     return line
 
@@ -443,6 +459,18 @@ def exclude_raw_input( line ):
         newline = ' ' * indentation(line) + '#' + line
         newline += '\n' + ' '*indentation(line) + 'pass\n'
         line = newline
+    return line
+
+def correct_casa_builtins_go( line ):  
+    """
+    Correct inp built-in from non-interactive scripts.
+    * line = a python statement
+    """
+    pattern = r''' *(go )'''
+    if re.search( pattern, line ):
+        new_line = re.sub( pattern, 'go', line )
+        new_line = ' ' * indentation(line) + new_line + ')'
+        line = new_line
     return line
 
 def correct_casa_builtins_inp( line ):  
@@ -467,6 +495,19 @@ def correct_casa_builtins_help( line ):
         new_line = re.sub( pattern, 'help(', line )
         new_line = ' ' * indentation(line) + new_line + ')'
         new_line = "#" + new_line
+        line = new_line
+    return line
+
+def correct_execfile( line ):  
+    """
+    Correct execfile
+    * line = a python statement
+    """
+    pattern = r''' *(execfile)'''
+
+    if re.search( pattern, line ):
+        new_line = re.sub( pattern, 'exec(open', line )
+        new_line = ' ' * indentation(line) + new_line + '.read())'
         line = new_line
     return line
 
@@ -512,10 +553,10 @@ def listCASATasks():
     all_tasks.sort()
     all_tasks_set = set(all_tasks)
     casa_tasks_set = set(casa_tasks)
-    print "Tasks in casapy but not in this module: " + \
-          str(all_tasks_set.difference(casa_tasks_set))
-    print "Tasks in this module but not in casapy: " + \
-          str(casa_tasks_set.difference(all_tasks_set))
+    print("Tasks in casapy but not in this module: " + \
+          str(all_tasks_set.difference(casa_tasks_set)))
+    print("Tasks in this module but not in casapy: " + \
+          str(casa_tasks_set.difference(all_tasks_set)))
     return all_tasks
 
 def checkModules():
@@ -524,25 +565,37 @@ def checkModules():
     try:
         import casa_call
     except ImportError:
-        print "casa_call.py must exist in the casapy module search path!"
+        print("casa_call.py must exist in the casapy module search path!")
         raise
+
+
+def casa6_line(line):
+    if extract_task(line) in casa_tasks:
+        line = "casatasks.{}".format(line)
+    return line
 
 # =====================
 # MAIN PROGRAM
 # =====================
 
-def main( URL, options ):
+def main(URL, benchmark=False , diagplotoff=False , plotmsoff=False, noninteractive=False, casa6=False, py2to3=False):
+
     """ Create a Python script from a CASA Guide or existing Python script.
     
     * URL = URL to a CASA Guide web page (HTML) or a Python script.  
-    * options = options object created by optparse.  If options.benchmark
-      is true, output a Python benchmarking script.
-    If URL to a CASA Guide, extract the Python from the guide and create
-    an executable Python script. If options.benchmark is true, produce a 
-    benchmark test from the CASA Guide or existing Python script. 
-    If URL to a Python script, convert the script to a benchmarking script.
+    * benchmark: produce a benchmark test from the CASA Guide or existing Python script
+        If URL to a CASA Guide, extract the Python from the guide and create
+        an executable Python script. If options.benchmark is true, . 
+        If URL to a Python script, convert the script to a benchmarking script.
+    * diagplotoff: Turn off diagnostic plots
+    * plotmsoff: Turn off task plotms
+    * noninteractive: Turn off interactive features
+    * (BETA) casa6: set extracted script to CASA6 format
+    * (BETA) py2to3: Add python 3 print and execfile features
+
     """
     # Determine if the input file is a Python script
+
     pyInput = False
     if ( URL[-3:].upper() == '.PY' ):
         pyInput = True
@@ -551,26 +604,39 @@ def main( URL, options ):
     responseLines = []
     outFile = ''
     if ( URL[:4].upper() == 'HTTP' ):
-        print "Acquiring " + URL
+        print("Acquiring " + URL)
         if os.uname()[0] == 'Darwin': #http://stackoverflow.com/questions/27835619/ssl-certificate-verify-failed-error
             import ssl
-            req = urllib2.Request(URL)
-            gcontext = ssl.SSLContext(ssl.PROTOCOL_TLS) # Fix for python versions > 2.7.13 to match new certificates 
-            response = urllib2.urlopen(req,context=gcontext)
-            responseLines = response.read().split("\n")
-    
+            if py3:
+                req = urllib.request.Request(URL)
+                gcontext = ssl.SSLContext(ssl.PROTOCOL_TLS) # Fix for python versions > 3.0
+                response = urllib.request.urlopen(req,context=gcontext)
+                responseLines = response.read().decode('utf-8').split("\n")
+            else:
+                req = urllib2.Request(URL)
+                gcontext = ssl.SSLContext(ssl.PROTOCOL_TLS) # Fix for python versions > 2.7.13 to match new certificates 
+                response = urllib2.urlopen(req,context=gcontext)
+                responseLines = response.read().split("\n")
         else:
-            req = urllib2.Request(URL)
-            response = urllib2.urlopen(req)
-            responseLines = response.read().split("\n")
+            if py3:
+                req = urllib.request.Request(URL)
+                response = urllib.request.urlopen(req)
+                responseLines = response.read().decode('utf-8').split("\n")
+
+            else:
+                req = urllib2.Request(URL)
+                response = urllib2.urlopen(req)
+                responseLines = response.read().split("\n")
         # Clean up the output file name
         outFile = URL.split('/')[-1]
-        if not pyInput: outFile += '.py'
+        if not pyInput: 
+            outFile += '.py'
         outFile = outFile.replace("index.php?title=","")
         outFile = outFile.replace(":","")
         outFile = outFile.replace("_","") 
+        outFile = outFile.replace("%","_") 
     else:
-        print "Copying " + URL + " to CWD."
+        print("Copying " + URL + " to CWD.")
         os.system('cp '+URL+' ./')
         outFile = os.path.basename(URL)
         localFile = open( outFile , 'r' )
@@ -584,29 +650,19 @@ def main( URL, options ):
         lineList = responseLines
 
 
+
     else:
         # Loop over the lines read from the web page
         for line in responseLines:
-
             # If we are not currently reading code, see if this line
             # begins a python code block.
             if (readingCode == False):
-                # This needs to written in better python syntax. This is temp
-
-                if (beginBlock in line) or (beginBlock1 in line) or (beginBlock2 in line) or (beginBlock3 in line) or (beginBlock4 in line): # TODO: Convert to More Pythonic Syntax 
-                        readingCode = True
-                        outline = loseTheJunk(line)
-                        lineList += [outline]
-                        if endBlock in line:
-                                readingCode = False
-
-            #else:
-                #continue
-                #outline = loseTheJunk(line)
-                #lineList += [outline]
-                #if endBlock in line:
-                #    readingCode = False
-
+                if any([beginBlocks[0] in line, beginBlocks[1] in line, beginBlocks[2] in line, beginBlocks[3] in line, beginBlocks[4] in line]):
+                    readingCode = True
+                    outline = loseTheJunk(line)
+                    lineList += [outline]
+                    if endBlock in line:
+                        readingCode = False
 
     # The python code is now loaded into a list of lines.  Now compress the
     # lines into individual commands, allowing for commands to span multiple
@@ -621,103 +677,157 @@ def main( URL, options ):
             iline += 1
             line += lineList[iline]
             pcount = countParen(line)
-        line = string.expandtabs(line)
+        if py3:
+            line = line.expandtabs()
+        else:
+            line = string.expandtabs(line)
         compressedList += [line]
         iline += 1
 
-    print str(len(lineList))+" total lines become"
-    print str(len(compressedList))+" compressed lines"
+    print(str(len(lineList))+" total lines become")
+    print(str(len(compressedList))+" compressed lines")
 
     # All modes
     for i,line in enumerate(compressedList):
-        compressedList[i] = pythonize_shell_commands( compressedList[i] )
+        compressedList[i] = pythonize_shell_commands(compressedList[i])
 
     # Prepare for benchmark and noninteractive modes
-    if options.benchmark or options.noninteractive:
+    if noninteractive:
         for i,line in enumerate(compressedList):
-            compressedList[i] = make_noninteractive( compressedList[i] )
+            compressedList[i] = make_noninteractive(compressedList[i])
 
     # Write script for benchmark mode
-    if options.benchmark:
+    if benchmark:
         task_list = []
         task_nums = []
-        print "Writing file for execution in benchmarking mode."
+        print("Writing file for execution in benchmarking mode.")
         tasknum = 0
         f = codecs.open(outFile, 'w','utf-8')
         checkModules()
-        header = benchmark_header( scriptName = outFile )
+        header = benchmark_header(scriptName=outFile)
         for line in header:
-            print >>f, line
+            if py3:
+                print(line, file=f)
+            else:
+                print >>f, line
         for line in compressedList:
             if suppress_for_benchmark(line):
-                print >>f, ' ' * indentation(line) + 'pass #' + \
-                    line.replace('\n','')
-            else: 
+                if py3:
+                    print(' ' * indentation(line) + 'pass #' + \
+                        line.replace('\n', ''), file=f)
+                else:
+                    print >>f, ' ' * indentation(line) + 'pass #' + \
+                        line.replace('\n','')
+            else:
                 line = suppress_gui(line)
-                if is_task_call(line):                
+                if is_task_call(line):
                     this_task = extract_task(line)
-                    print "I found a task call for ", this_task                
+                    print("I found a task call for ", this_task)
                     tasknum += 1
-                    line = add_benchmarking(line,tasknum)      
+                    line = add_benchmarking(line,tasknum)
                     task_list.append(this_task)
                     task_nums.append(tasknum)
-                print >>f, line.decode('utf-8')
-        print >>f, 'casa_call.summarize_bench( out_file, out_file+".summary" )'
-        f.close()        
+                if py3:
+                    print(line.decode('utf-8'), file=f)
+                else:
+                    print >>f, line.decode('utf-8')
+        if py3:
+            print('casa_call.summarize_bench( out_file, out_file+".summary" )', file=f)
+        else:
+            print >>f, 'casa_call.summarize_bench( out_file, out_file+".summary" )'
+        f.close()
 
         # Write task list to expectation file
         exp_file = outFile+'.expected'
-        print "I am writing the expected flow to a file called "+exp_file
-        f = codecs.open(exp_file, 'w','utf-8')
+        print("I am writing the expected flow to a file called "+exp_file)
+        f = codecs.open(exp_file, 'w', 'utf-8')
         for i in range(len(task_list)):
-            print >>f, task_list[i], task_nums[i]
+            if py3:
+                print(task_list[i], task_nums[i], file=f)
+            else:
+                print >>f, task_list[i], task_nums[i]
         f.close()
     else:
         # Write script for interactive and noninteractive modes
         f = codecs.open(outFile, 'w','utf-8')
+        #if not py2to3:
+        #    print("from __future__ import print_function", file=f)
+        if casa6:
+            # Uncomment if we swtich from import casatasks; casatasks.<taskname> to from casatasks import <taskname>
+            #task_list = []
+            #for line in compressedList:
+            #    task_list = is_task_call_casa6(line,task_list)
+            #task_list = set(task_list)
+            #tasks = ', '.join(map(str, task_list))
+            print("import os, sys, numpy", file=f)
+            print("import casatools", file=f)
+            print("import casatasks", file=f)
+            #print("from casatasks import ", tasks ,file=f)
+
         for line in compressedList:
-            if options.diagplotoff:
-                #print "Turning off diagnostic plots..."
+
+            line = turnTaskOff('taskname', line)
+            if diagplotoff:
+                #print("Turning off diagnostic plots...")
                 line = turnDiagPlotsOff(line)
-            elif options.plotmsoff:
+
+            if plotmsoff:
                 #print "Turning off plotms..."
                 line = turnPlotmsOff(line)
 
-            elif options.noninteractive:
+            if noninteractive:
                 #print "Turning on Non Interactive features..."
                 line = exclude_raw_input(line)
+                line = suppress_gui(line)
                 # NOTE compressedList iterates through make_noninteractive
-                if extract_task(line) == 'plotms': 
-                        line = addNonInteractivePause(line)
+                if extract_task(line) == 'plotms':
+                    line = addNonInteractivePause(line)
+
             else: #interactive
-                #line = exclude_raw_input(line)
-                #mtch = interactive.match(line)
-                #if (mtch and not ("showgui=F" in line)): 
-                #    line = addInteractivePause(line)
+
                 line = line
-                line = correct_casa_builtins_inp( line )
-                line = correct_casa_builtins_help( line )
-            #print line
-            print >>f, line.decode('utf-8')
+                line = correct_casa_builtins_inp(line)
+                line = correct_casa_builtins_help(line)
+
+            if py2to3:
+                line = correct_execfile(line)
+
+
+            if casa6:
+                line = correct_casa_builtins_go(line)
+                line = comment_out_casa_builtins(line)
+                line = casa6_line(line)
+
+            if py3:
+                print(line, file=f)
+            else:
+                print(line.decode('utf-8'), file=f)
+
         f.close()
-    
-    print "New file " + outFile + " written to current directory."
-    print "In casapy, run the file using ",
-    print 'execfile("' + outFile + '")'
-    
+
+    print("New file " + outFile + " written to current directory.")
+    print("In casapy, run the file using ")
+    if sys.version_info[0] > 2 or py2to3:
+        print('exec(open("' + outFile + '").read())')
+    else:
+        print('execfile("' + outFile + '")')
+
 if __name__ == "__main__":
     usage = \
 """ %prog [options] URL
 *URL* should point to a CASA Guide webpage or to a Python script. *URL* can also be
 a local file system path."""
-    parser = OptionParser( usage=usage )
-    parser.add_option( '-b', '--benchmark', action="store_true", default=False,help="produce benchmark test script" )
-    parser.add_option( '-n', '--noninteractive', action="store_true",  default=False,   help="make script non-interactive (non-benchmark mode only)")
-    parser.add_option( '-p', '--plotmsoff', action="store_true", help="turn off all plotms commands")
-    parser.add_option( '-d', '--diagplotoff', action="store_true",help="turn off diagnostic plots (imview, plotms, plotcal, aU.plotbandpass, plotants, plotxy)" )
+    parser = OptionParser(usage=usage)
+    parser.add_option('-a', '--casa6', action="store_true", default=False, help=SUPPRESS_HELP ) #help="produce CASA6 compatiable script"
+    parser.add_option('-t', '--py2to3', action="store_true", default=False, help=SUPPRESS_HELP ) #help="produce python 3 compatiable script"
+    parser.add_option('-b', '--benchmark', action="store_true", default=False, help="produce benchmark test script")
+    parser.add_option('-n', '--noninteractive', action="store_true", default=False, help="make script non-interactive (non-benchmark mode only)")
+    parser.add_option('-p', '--plotmsoff', action="store_true", help="turn off all plotms commands")
+    parser.add_option('-d', '--diagplotoff', action="store_true", help="turn off diagnostic plots (imview, plotms, plotcal, aU.plotbandpass, plotants, plotxy)")
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
         #raise ValueError("")
         sys.exit(1)
-    main(args[0], options)
+    main(args[0], benchmark=options.benchmark, diagplotoff=options.diagplotoff, plotmsoff=options.plotmsoff, noninteractive=options.noninteractive, casa6=options.casa6, py2to3=options.py2to3)
+    #main(args[0], options)
