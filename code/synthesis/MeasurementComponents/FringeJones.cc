@@ -1475,7 +1475,7 @@ findRefAntWithData(SDBList& sdbs, Vector<Int>& refAntList, Int prtlev) {
                 cout << "[FringeJones.cc::findRefAntWithData] No data for refant " << *a << endl;
         }
     }
-    return refAntList(0);
+    return refAnt;
 }
 
 
@@ -2224,6 +2224,8 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     refant() = findRefAntWithData(sdbs, refantlist(), prtlev());
     if (refant()<0)
         throw(AipsError("No valid reference antenna supplied."));
+    else
+        logSink() << "Using reference antenna " << refant() << LogIO::POST;
 
     aggregateTimeCentroid(sdbs, refant(), aggregateTime);
 
