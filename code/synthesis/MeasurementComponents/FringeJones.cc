@@ -1453,6 +1453,7 @@ findRefAntWithData(SDBList& sdbs, Vector<Int>& refAntList, Int prtlev) {
         }
     }
     if (prtlev > 2) {
+        cout << "[FringeJones.cc::findRefAntWithData] refantlist " << refAntList << endl;
         cout << "[FringeJones.cc::findRefAntWithData] activeAntennas: ";
         std::copy(
             activeAntennas.begin(),
