@@ -992,7 +992,7 @@ HPX HEALPix grid.  -->
 	    <value type="bool">True</value>
     </param>
 
-    <param type="bool" name="conjbeams" subparam="true">
+    <param type="bool" name="conjbeams" subparam="false">
            <shortdescription>Use conjugate frequency for wideband A-terms</shortdescription>
 <description>Use conjugate frequency for wideband A-terms
 
@@ -2542,7 +2542,7 @@ HPX HEALPix grid.  -->
 	 <default param="usepointing"><value>False</value></default>
 	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>True</value></default>
+	 <default param="conjbeams"><value>False</value></default>
 	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="mosaicft">
@@ -2551,7 +2551,7 @@ HPX HEALPix grid.  -->
 	 <default param="usepointing"><value>False</value></default>
 	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>True</value></default>
+	 <default param="conjbeams"><value>False</value></default>
 	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="ftmosaic">
