@@ -1481,7 +1481,7 @@ void
 print_gsl_vector(gsl_vector *v)
 {
     const size_t n = v->size;
-    for (int i=0; i!=n; i++) {
+    for (size_t i=0; i!=n; i++) {
         cerr << gsl_vector_get(v, i) << " ";
         if (i>0 && (i % 4)==0) cerr << endl;
     }
@@ -1496,7 +1496,7 @@ print_max_gsl3(gsl_vector *v)
     double rat_max = 0.0;
         
     const size_t n = v->size;
-    for (int i=0; i!=n/3; i++) {
+    for (size_t i=0; i!=n/3; i++) {
         if (fabs(gsl_vector_get(v, 3*i+0)) > fabs(phi_max)) phi_max = gsl_vector_get(v, 3*i+0);
         if (fabs(gsl_vector_get(v, 3*i+1)) > fabs(del_max)) del_max = gsl_vector_get(v, 3*i+1);
         if (fabs(gsl_vector_get(v, 3*i+2)) > fabs(rat_max)) rat_max = gsl_vector_get(v, 3*i+2);
@@ -1624,14 +1624,8 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         if (DEVDEBUG) {
             cerr << "p " << p << " n " << n << endl;
         }
-        // Parameters for the least-squares solver.
-        // param_tol sets roughly the number of decimal places accuracy you want in the answer;
-        // I feel that 3 is probably plenty for fringe fitting.
-        const double param_tol = 1.0e-3;
-        const double gtol = pow(GSL_DBL_EPSILON, 1.0/3.0);
-        const double ftol = 1.0e-20;   
-        const size_t max_iter = maxits ;
-
+        const size_t max_iter = maxits;
+        
         const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
         gsl_multilarge_nlinear_parameters params = gsl_multilarge_nlinear_default_parameters();
         params.scale = gsl_multilarge_nlinear_scale_more;
