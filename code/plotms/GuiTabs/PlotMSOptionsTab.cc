@@ -51,10 +51,17 @@ PlotMSOptionsTab::PlotMSOptionsTab(PlotMSPlotter* parent) : PlotMSTab(parent),
     parametersHaveChanged(itsParameters_, PlotMSWatchedParameters::NO_UPDATES);
     
     // Connect widgets
+	// Grid
+    connect(rowSpin, SIGNAL(valueChanged(int)), SLOT(gridChanged()));
+    connect(colSpin, SIGNAL(valueChanged(int)), SLOT(gridChanged()));
+    connect(updateButton, SIGNAL(clicked()), SLOT(updateGrid()));
+	// Tool button style
     connect(buttonStyle, SIGNAL(currentIndexChanged(int)),
             SLOT(toolButtonStyleChanged(int)));
+	// clear regions/annotations when axes change
     connect(clearSelection, SIGNAL(toggled(bool)),
             SLOT(clearSelectionChanged(bool)));
+	// cached images
     connect(cacheSize, SIGNAL(toggled(bool)), SLOT(cachedImageSizeChanged()));
     connect(cacheSizeWidth, SIGNAL(valueChanged(int)),
             SLOT(cachedImageSizeChanged()));
@@ -62,10 +69,9 @@ PlotMSOptionsTab::PlotMSOptionsTab(PlotMSPlotter* parent) : PlotMSTab(parent),
             SLOT(cachedImageSizeChanged()));
     connect(cacheSizeResolution, SIGNAL(clicked()),
             SLOT(cachedImageSizeScreenResolution()));
+	// file history
     connect(histLimitSpinner, SIGNAL(valueChanged(int)),
             SLOT(historyLimitChanged()));
-    connect(rowSpin, SIGNAL(valueChanged(int)), SLOT(gridChanged()));
-    connect(colSpin, SIGNAL(valueChanged(int)), SLOT(gridChanged()));
 }
 
 PlotMSOptionsTab::~PlotMSOptionsTab() { }
@@ -92,8 +98,10 @@ void PlotMSOptionsTab::parametersHaveChanged(const PlotMSWatchedParameters& p,
         cacheSizeHeight->setValue(size.second);
         
         histLimitSpinner->setValue(itsParameters_.chooserHistoryLimit());
+
         rowSpin->setValue( itsParameters_.getRowCount());
         colSpin->setValue( itsParameters_.getColCount());
+		gridChanged();
 
         itsChangeFlag_ = oldChange;
     }
@@ -181,39 +189,36 @@ void PlotMSOptionsTab::historyLimitChanged() {
 }
 
 void PlotMSOptionsTab::gridChanged(){
-	if(!itsChangeFlag_){
-		return;
-	}
+	bool rowsChanged( rowSpin->value() != itsParameters_.getRowCount() );
+	highlightWidgetText(rowsLabel, rowsChanged);
+	bool colsChanged( colSpin->value() != itsParameters_.getColCount() );
+	highlightWidgetText(columnsLabel, colsChanged);
+}
 
-	int oldRowCount = itsParameters_.getRowCount();
-	int oldColCount = itsParameters_.getColCount();
+
+void PlotMSOptionsTab::updateGrid() {
+    if(!itsChangeFlag_) return;
+
+	itsChangeFlag_ = false;
+	itsPlotter_->setShowProgress( false );
+	itsParameters_.holdNotification(this);
+
 	int rowCount = rowSpin->value();
 	int colCount = colSpin->value();
-
-	bool changed = false;
-	if ( oldRowCount != rowCount || oldColCount != colCount ){
-		changed = true;
+	itsParameters_.setRowCount(rowCount);
+	itsParameters_.setColCount(colCount);
+	itsPlotter_->gridSizeChanged(rowCount, colCount);
+	// Required so that if the user has unplotted changes, for example
+	// selection, the new grid will pick up the changes.
+	bool plotted = itsPlotter_->plot();
+	if ( !plotted ){
+		//There was no data change so trigger the grid change through
+		// a release notification.
+		itsParameters_.releaseNotification();
 	}
-
-	if ( changed ){
-		itsChangeFlag_ = false;
-		itsPlotter_->setShowProgress( false );
-		itsParameters_.holdNotification(this);
-
-
-		itsParameters_.setRowCount(rowCount);
-		itsParameters_.setColCount(colCount);
-		itsPlotter_->gridSizeChanged(rowCount, colCount);
-		//Required so that if the user has unplotted changes, for example, selection
-		//the new grid will pick up the changes.
-		bool plotted = itsPlotter_->plot();
-		if ( !plotted ){
-			//There was no data change so trigger the grid change through
-			// a release notification.
-			itsParameters_.releaseNotification();
-		}
-		itsChangeFlag_ = true;
-	}
+	itsChangeFlag_ = true;
+	// grid handled, undo highlight text:
+	gridChanged();
 }
 
 }

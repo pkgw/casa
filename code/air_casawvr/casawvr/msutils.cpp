@@ -131,9 +131,13 @@ namespace LibAIR2 {
 	i!=mi.end();
 	++i)
     {
-      if(i->second.find("ON_SOURCE") != i->second.npos &&
-	 i->second.find("CALIBRATE_ATMOSPHERE") == i->second.npos)
-	res.insert(i->first);
+      if((i->second.find("ON_SOURCE") != i->second.npos
+	  || i->second.find("REFERENCE") != i->second.npos
+	  || i->second.find("SIGNAL") != i->second.npos)
+	 && (i->second.find("CALIBRATE_ATMOSPHERE") == i->second.npos))
+	{
+	  res.insert(i->first);
+	}
     }
     return res;
   }
