@@ -437,7 +437,8 @@ void MosaicFT::prepGridForDegrid(){
 
 void MosaicFT::finalizeToVis()
 {
-  //cerr << "Time degrid " << timedegrid_p << endl;
+  logIO() << LogOrigin("MosaicFT", "finalizeToVis")  << LogIO::NORMAL;
+  logIO()<< LogIO::NORMAL2 << "Time degrid " << timedegrid_p << LogIO::POST;
   timedegrid_p=0.0;
   
   if(!arrayLattice.null()) arrayLattice=0;
@@ -585,9 +586,9 @@ void MosaicFT::reset(){
 
 void MosaicFT::finalizeToSky()
 {
-
-  //cerr<< "time massage data " << timemass_p << endl;
-  //cerr << "time gridding " << timegrid_p << endl;
+  logIO() << LogOrigin("MosaicFT", "finalizeToSky")  << LogIO::NORMAL;
+  logIO() << LogIO::NORMAL2 << "time to massage data " << timemass_p << LogIO::POST;
+  logIO() << LogIO::NORMAL2<< "time gridding " << timegrid_p << LogIO::POST;
    timemass_p=0.0;
    timegrid_p=0.0;
   // Now we flush the cache and report statistics
@@ -1142,8 +1143,8 @@ Int  ixsub, iysub, icounter;
   //nth=1;
   ////////***************
   if (nth >3){
-    ixsub=16;
-    iysub=16; 
+    ixsub=8;
+    iysub=8; 
   }
   else if(nth >1){
      ixsub=2;
@@ -1494,7 +1495,7 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
  }//end pragma parallel
  Int rbeg=startRow+1;
  Int rend=endRow+1;
- Int npart=nth*2;
+ Int npart=nth;
  
  Bool gridcopy;
  const Complex *gridstor=griddedData.getStorage(gridcopy);
