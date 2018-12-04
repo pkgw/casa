@@ -4326,6 +4326,316 @@ void fillSysPower(const string asdmDirectory, ASDM* ds_p, bool ignoreTime, const
   LOGEXIT("fillSysPower");
 }
 
+void fillPointingRows(const vector<PointingRow *> &vpr, bool withPointingCorrection, map<AtmPhaseCorrection, ASDM2MSFiller *> &msFillers_m, map<Tag, double> &lastTime_m) {
+    LOGENTER("fillPointingRows");
+
+    int nPointing = vpr.size();
+
+    // Check some assertions.
+    //
+    // All rows of ASDM-Pointing must have their attribute usePolynomials equal to false
+    // and their numTerm attribute equal to 1. Use the opportunity of this check
+    // to compute the number of rows to be created in the MS-Pointing by summing
+    // all the numSample attributes values. Watch for duplicate times due and avoid.
+    //
+    int numMSPointingRows = 0;
+
+    // set this to true for any rows where the first element should be skipped because the time is a duplicate
+    vector<bool> vSkipFirst(vpr.size(),false);
+
+    for (unsigned int i = 0; i < vpr.size(); i++) {
+        if (vpr[i]->getUsePolynomials()) {
+            errstream.str("");
+            errstream << "Found usePolynomials equal to true at row #" << i <<". Can't go further.";
+            error(errstream.str());
+        }
+        
+        // look for duplicate rows - time at the start of row is near the time at the end of the previous row for that antennaId
+        int numSample = vpr[i]->getNumSample();
+        Tag antId = vpr[i]->getAntennaId();
+        double tfirst = 0.0;
+        double tlast = 0.0;
+        if (vpr[i]->isSampledTimeIntervalExists()) {
+            tfirst = ((double) (vpr[i]->getSampledTimeInterval().at(0).getStart().get())) / ArrayTime::unitsInASecond;
+            tlast = ((double) (vpr[i]->getSampledTimeInterval().at(numSample-1).getStart().get())) / ArrayTime::unitsInASecond;
+        } else {
+            double tstart = ((double) vpr[i]->getTimeInterval().getStart().get()) / ArrayTime::unitsInASecond;
+            double tint = ((double) vpr[i]->getTimeInterval().getDuration().get()) / ArrayTime::unitsInASecond / numSample;
+            tfirst = tstart + tint/2.0;
+            tlast = tfirst + tint*(numSample-1);
+        }
+        if (casacore::near(tfirst,lastTime_m[antId])) {
+            infostream.str("");
+            infostream << "First time in Pointing row " << i << " for antenna " << antId << " is near the previous last time for that antenna, skipping that first time in the output MS POINTING table" << endl;
+            info(infostream.str());
+            numSample--;
+            lastTime_m[antId] = tlast;
+            vSkipFirst[i] = true;
+        }
+        lastTime_m[antId] = tlast;
+        numMSPointingRows += numSample;
+    }
+
+    //
+    // Ok now we have verified the assertions and we know the number of rows
+    // to be created into the MS-Pointing, we can proceed.
+
+    PointingRow* r = 0;
+
+    vector<int>	antenna_id_(numMSPointingRows, 0);
+    vector<double>	time_(numMSPointingRows, 0.0);
+    vector<double>	interval_(numMSPointingRows, 0.0);
+    vector<double>	direction_(2 * numMSPointingRows, 0.0);
+    vector<double>	target_(2 * numMSPointingRows, 0.0);
+    vector<double>	pointing_offset_(2 * numMSPointingRows, 0.0);
+    vector<double>	encoder_(2 * numMSPointingRows, 0.0);
+    vector<bool>	tracking_(numMSPointingRows, false);
+
+    //
+    // Let's check if the optional attribute overTheTop is present somewhere in the table.
+    //
+    unsigned int numOverTheTop = count_if(vpr.begin(), vpr.end(), overTheTopExists);
+    bool overTheTopExists4All = vpr.size() == numOverTheTop;
+
+    vector<bool> v_overTheTop_ ;
+
+    vector<s_overTheTop> v_s_overTheTop_;
+    
+    if (overTheTopExists4All) 
+        v_overTheTop_.resize(numMSPointingRows);
+    else if (numOverTheTop > 0) 
+        v_overTheTop_.resize(numOverTheTop);
+
+    int iMSPointingRow = 0;
+    for (int i = 0; i < nPointing; i++) {     // Each row in the ASDM-Pointing ...
+        r = vpr.at(i);
+
+        // Let's prepare some values.
+        int antennaId = r->getAntennaId().getTagValue();
+      
+        double time = 0.0, interval = 0.0;
+        if (!r->isSampledTimeIntervalExists()) { // If no sampledTimeInterval then
+            // then compute the first value of MS TIME and INTERVAL.
+            interval   = ((double) r->getTimeInterval().getDuration().get()) / ArrayTime::unitsInASecond / r->getNumSample();
+            // if (isEVLA) {
+            //   time = ((double) r->getTimeInterval().getStart().get()) / ArrayTime::unitsInASecond;
+            // }
+            // else {
+            time = ((double) r->getTimeInterval().getStart().get()) / ArrayTime::unitsInASecond + interval / 2.0;
+            //}
+        }
+
+        //
+        // The size of each vector below 
+        // should be checked against numSample !!!
+        //
+        int numSample = r->getNumSample();
+        const vector<vector<Angle> > encoder = r->getEncoder();
+        checkVectorSize<vector<Angle> >("encoder", encoder, "numSample", (unsigned int) numSample, "Pointing", (unsigned int)i);
+        
+        const vector<vector<Angle> > pointingDirection = r->getPointingDirection();
+        checkVectorSize<vector<Angle> >("pointingDirection", pointingDirection, "numSample", (unsigned int) numSample, "Pointing", (unsigned int) i);
+        
+        const vector<vector<Angle> > target = r->getTarget();
+        checkVectorSize<vector<Angle> >("target", target, "numSample", (unsigned int) numSample, "Pointing", (unsigned int) i);
+
+        const vector<vector<Angle> > offset = r->getOffset();
+        checkVectorSize<vector<Angle> >("offset", offset, "numSample", (unsigned int) numSample, "Pointing", (unsigned int) i);
+
+        bool   pointingTracking = r->getPointingTracking();
+ 
+        //
+        // Prepare some data structures and values required to compute the
+        // (MS) direction.
+        vector<double> cartesian1(3, 0.0);
+        vector<double> cartesian2(3, 0.0);
+        vector<double> spherical1(2, 0.0);
+        vector<double> spherical2(2, 0.0);
+        vector<vector<double> > matrix3x3;
+        for (unsigned int ii = 0; ii < 3; ii++) {
+            matrix3x3.push_back(cartesian1); // cartesian1 is used here just as a way to get a 1D vector of size 3.
+        }
+        double PSI = M_PI_2;
+        double THETA;
+        double PHI;
+      
+        vector<ArrayTimeInterval> timeInterval ;
+        if (r->isSampledTimeIntervalExists()) timeInterval = r->getSampledTimeInterval();
+
+        // and now insert the values into the MS POINTING table
+        // watch for the skipped initial sample
+        int numSampleUsed = numSample;
+        if (vSkipFirst.at(i)) numSampleUsed--;
+        
+        // Use 'fill' from algorithm for the cases where values remain constant.
+        // ANTENNA_ID
+        fill(antenna_id_.begin()+iMSPointingRow, antenna_id_.begin()+iMSPointingRow+numSampleUsed, antennaId);
+
+        // TRACKING 
+        fill(tracking_.begin()+iMSPointingRow, tracking_.begin()+iMSPointingRow+numSampleUsed, pointingTracking);
+
+        // OVER_THE_TOP 
+        if (overTheTopExists4All)
+            // it's present everywhere
+            fill(v_overTheTop_.begin()+iMSPointingRow, v_overTheTop_.begin()+iMSPointingRow+numSampleUsed,
+                 r->getOverTheTop());
+        else if (r->isOverTheTopExists()) {
+            // it's present only in some rows.
+            s_overTheTop saux ;
+            saux.start = iMSPointingRow; saux.len = numSampleUsed; saux.value = r->getOverTheTop();
+            v_s_overTheTop_.push_back(saux);
+        }
+       
+        // Use an explicit loop for the other values.
+        for (int j = 0 ; j < numSample; j++) { // ... must be expanded in numSample MS-Pointing rows.
+            if (j == 0 && vSkipFirst.at(i)) continue;   // the first element is to be skipped
+                
+            // TIME and INTERVAL
+            if (r->isSampledTimeIntervalExists()) { //if sampledTimeInterval is present use its values.	           
+                // Here the size of timeInterval will have to be checked against numSample !!
+                interval_[iMSPointingRow] = ((double) timeInterval.at(j).getDuration().get()) / ArrayTime::unitsInASecond ;
+                time_[iMSPointingRow] = ((double) timeInterval.at(j).getStart().get()) / ArrayTime::unitsInASecond
+                    + interval_[iMSPointingRow]/2;	  
+            }
+            else {                                     // otherwise compute TIMEs and INTERVALs from the first values.
+                interval_[iMSPointingRow]            = interval;
+                time_[iMSPointingRow]                = time + j*interval;
+            }
+
+            // DIRECTION
+            THETA			      = target.at(j).at(1).get();
+            PHI				      = -M_PI_2 - target.at(j).at(0).get();
+            spherical1[0]		      = offset.at(j).at(0).get();
+            spherical1[1]		      = offset.at(j).at(1).get();
+            rect(spherical1, cartesian1);
+            eulmat(PSI, THETA, PHI, matrix3x3);
+            matvec(matrix3x3, cartesian1, cartesian2);
+            spher(cartesian2, spherical2);
+            direction_[2*iMSPointingRow]      = spherical2[0] ;
+            direction_[2*iMSPointingRow+1]    = spherical2[1] ;
+            if (withPointingCorrection) { // Cf CSV-2878 and ICT-1532
+                direction_[2*iMSPointingRow]   += encoder.at(j).at(0).get() - pointingDirection.at(j).at(0).get();
+                direction_[2*iMSPointingRow+1] += encoder.at(j).at(1).get() - pointingDirection.at(j).at(1).get() ;
+            }
+
+            // TARGET
+            target_[2*iMSPointingRow]     = target.at(j).at(0).get();
+            target_[2*iMSPointingRow+1]   = target.at(j).at(1).get();
+                
+            // POINTING_OFFSET
+            pointing_offset_[2*iMSPointingRow]   = offset.at(j).at(0).get();
+            pointing_offset_[2*iMSPointingRow+1] = offset.at(j).at(1).get();
+
+            // ENCODER
+            encoder_[2*iMSPointingRow]           = encoder.at(j).at(0).get();
+            encoder_[2*iMSPointingRow+1]         = encoder.at(j).at(1).get();
+
+            // increment the row number in MS Pointing.
+            iMSPointingRow++;	
+        }
+    }
+    
+    
+    for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers_m.begin();
+         iter != msFillers_m.end();
+         ++iter) {
+        iter->second->addPointingSlice(numMSPointingRows,
+                                       antenna_id_,
+                                       time_,
+                                       interval_,
+                                       direction_,
+                                       target_,
+                                       pointing_offset_,
+                                       encoder_,
+                                       tracking_,
+                                       overTheTopExists4All,
+                                       v_overTheTop_,
+                                       v_s_overTheTop_);
+    }
+    LOGEXIT("fillPointingRows");
+}
+
+/**
+ * This function fills the MS POINTING table from an ASDM Pointing table. For a binary pointing table it streams the table to try and minimize memory use. 
+ * 
+ * @param ds : the ASDM dataset that the Pointing is found in.
+ * @param ignoreTime a boolean value to indicate if the selected scans are taken into account or if all of the table is going to be processed.
+ * @param withPointingCorrection add (ASDM::Pointing::encoder - ASDM::POINTING::pointingDirection) to the value going to MS::POINTING::DIRECTION
+ * @param selectedScanRow_v is a vector of pointers on ScanRow used to determine which rows of Pointing are going to be processed.
+ * @param msFillers_m a map of ASDM2MSFiller depending on AtmosphericPhaseCorrection
+ * 
+ */
+void fillPointing(const string asdmDirectory, ASDM* ds_p, bool ignoreTime, bool withPointingCorrection, const vector<ScanRow *> &selectedScanRow_v, map<AtmPhaseCorrection, ASDM2MSFiller *> &msFillers_m) {
+    LOGENTER("fillPointing");
+    
+    const PointingTable& pointingT = ds_p->getPointing();
+    infostream.str("");
+    infostream << "The dataset has " << pointingT.size() << " pointing(s)...";
+    info(infostream.str());
+
+    if (pointingT.size() > 0) {
+
+	// initialize the lastTime to 0.0 for all antennaIds
+	map<Tag, double> lastTime;
+	const AntennaTable& antennaT = ds_p->getAntenna();
+	const vector<AntennaRow *>& vAntRow = antennaT.get();
+	for (unsigned int i=0; i < vAntRow.size(); i++) {
+            lastTime[vAntRow[i]->getAntennaId()] = 0.0;
+	}
+        // Prepare a row filter based on the time intervals of the selected scans.
+        rowsInAScanbyTimeIntervalFunctor<PointingRow> selector(selectedScanRow_v);
+
+        if (file_exists(uniqSlashes(asdmDirectory + "/Pointing.bin"))) {
+            LOG("fillPointing : working with Pointing.bin by successive slices.");
+
+            TableStreamReader<PointingTable, PointingRow> tsrPointing;
+            tsrPointing.open(asdmDirectory);
+
+            // we can process the Pointing table by slice when it's stored in a binary file so let's do it.
+            while (tsrPointing.hasRows()) {
+                // arbitrarily uses the same limit here that's used in SysPower
+                const vector<PointingRow *>& pointingRowsSlice = tsrPointing.untilNBytes(50000000);
+                infostream.str("");
+                infostream << "(considering the next " << pointingRowsSlice.size() << " rows of the Pointing table. ";
+                LOG ("fillPointing : determining which rows are in the selected scans.");
+                const vector<PointingRow *>& pointingRows = selector(pointingRowsSlice, ignoreTime);
+                if (!ignoreTime)
+                    infostream << pointingRows.size() << " of them are in the selected exec blocks / scans";
+
+                infostream << ")";
+                info(infostream.str());
+
+                infostream.str("");
+                errstream.str("");
+
+                if (pointingRows.size() > 0) 
+                    fillPointingRows(pointingRows, withPointingCorrection, msFillers_m, lastTime);
+            }
+            tsrPointing.close();
+        } else {
+            // process the full Pointing table, presumably this is in Pointing.xml
+            LOG("fillPointing : determining which rows are in the selected scans.");
+            const vector<PointingRow *> &pointingRows = selector(pointingT.get(), ignoreTime);
+            if (!ignoreTime)  {
+                infostream.str("");
+                infostream << pointingRows.size() << " of them in the selected exec blocks / scans ... ";
+                info(infostream.str());
+            }
+            fillPointingRows(pointingRows, withPointingCorrection, msFillers_m, lastTime);
+        }
+    }
+    
+    unsigned int numMSPointings = msFillers_m.begin()->second->ms()->pointing().nrow();
+    if (numMSPointings) {
+        infostream.str("");
+        infostream << "converted in " << numMSPointings << " pointing(s) in the measurement set." ;
+        info(infostream.str()); 
+    }
+    LOGEXIT("fillPointing");
+}
+
+    
+
 // ------ data partition function
 void partitionMS(vector<int> SwIds, 
                  //vector< map<AtmPhaseCorrection,ASDM2MSFiller* > >&  msFillers_vec,
@@ -5935,257 +6245,7 @@ int main(int argc, char *argv[]) {
 
   if (processPointing) 
     try {
-      const PointingTable& pointingT = ds->getPointing();
-      infostream.str("");
-      infostream << "The dataset has " << pointingT.size() << " pointing(s)...";
-      rowsInAScanbyTimeIntervalFunctor<PointingRow> selector(selectedScanRow_v);
-
-      const vector<PointingRow *>& v = selector(pointingT.get(), ignoreTime);
-      if (!ignoreTime) 
-	infostream << v.size() << " of them in the selected exec blocks / scans ... ";
-
-      info(infostream.str());
-      int nPointing = v.size();
-
-      if (nPointing > 0) {
-
-	// Check some assertions.
-	//
-	// All rows of ASDM-Pointing must have their attribute usePolynomials equal to false
-	// and their numTerm attribute equal to 1. Use the opportunity of this check
-	// to compute the number of rows to be created in the MS-Pointing by summing
-	// all the numSample attributes values. Watch for duplicate times due and avoid.
-	//
-	int numMSPointingRows = 0;
-
-	// initialize the lastTime to 0.0 for all antennaIds
-	map<Tag, double> lastTime;
-	const AntennaTable& antennaT = ds->getAntenna();
-	const vector<AntennaRow *>& vAntRow = antennaT.get();
-	for (unsigned int i=0; i < vAntRow.size(); i++) {
-	  lastTime[vAntRow[i]->getAntennaId()] = 0.0;
-	}
-
-	// set this to true for any rows where the first element should be skipped because the time is a duplicate
-	vector<bool> vSkipFirst(v.size(),false);
-
-	for (unsigned int i = 0; i < v.size(); i++) {
-	  if (v[i]->getUsePolynomials()) {
-	    errstream.str("");
-	    errstream << "Found usePolynomials equal to true at row #" << i <<". Can't go further.";
-	    error(errstream.str());
-	  }
-
-	  // look for duplicate rows - time at the start of row is near the time at the end of the previous row for that antennaId
-	  int numSample = v[i]->getNumSample();
-	  Tag antId = v[i]->getAntennaId();
-	  double tfirst = 0.0;
-	  double tlast = 0.0;
-	  if (v[i]->isSampledTimeIntervalExists()) {
-	    tfirst = ((double) (v[i]->getSampledTimeInterval().at(0).getStart().get())) / ArrayTime::unitsInASecond;
-	    tlast = ((double) (v[i]->getSampledTimeInterval().at(numSample-1).getStart().get())) / ArrayTime::unitsInASecond;
-	  } else {
-	    double tstart = ((double) v[i]->getTimeInterval().getStart().get()) / ArrayTime::unitsInASecond;
-	    double tint = ((double) v[i]->getTimeInterval().getDuration().get()) / ArrayTime::unitsInASecond / numSample;
-	    tfirst = tstart + tint/2.0;
-	    tlast = tfirst + tint*(numSample-1);
-	  }
-	  if (casacore::near(tfirst,lastTime[antId])) {
-	      infostream.str("");
-	      infostream << "First time in Pointing row " << i << " for antenna " << antId << " is near the previous last time for that antenna, skipping that first time in the output MS POINTING table" << endl;
-	      info(infostream.str());
-	      numSample--;
-	      lastTime[antId] = tlast;
-	      vSkipFirst[i] = true;
-	  }
-	  lastTime[antId] = tlast;
-	  numMSPointingRows += numSample;
-	}
-
-	//
-	// Ok now we have verified the assertions and we know the number of rows
-	// to be created into the MS-Pointing, we can proceed.
-
-	PointingRow* r = 0;
-
-	vector<int>	antenna_id_(numMSPointingRows, 0);
-	vector<double>	time_(numMSPointingRows, 0.0);
-	vector<double>	interval_(numMSPointingRows, 0.0);
-	vector<double>	direction_(2 * numMSPointingRows, 0.0);
-	vector<double>	target_(2 * numMSPointingRows, 0.0);
-	vector<double>	pointing_offset_(2 * numMSPointingRows, 0.0);
-	vector<double>	encoder_(2 * numMSPointingRows, 0.0);
-	vector<bool>	tracking_(numMSPointingRows, false);
-
-	//
-	// Let's check if the optional attribute overTheTop is present somewhere in the table.
-	//
-	unsigned int numOverTheTop = count_if(v.begin(), v.end(), overTheTopExists);
-	bool overTheTopExists4All = v.size() == numOverTheTop;
-
-	vector<bool> v_overTheTop_ ;
-
-	vector<s_overTheTop> v_s_overTheTop_;
-    
-	if (overTheTopExists4All) 
-	  v_overTheTop_.resize(numMSPointingRows);
-	else if (numOverTheTop > 0) 
-	  v_overTheTop_.resize(numOverTheTop);
-
-	int iMSPointingRow = 0;
-	for (int i = 0; i < nPointing; i++) {     // Each row in the ASDM-Pointing ...
-	  r = v.at(i);
-
-	  // Let's prepare some values.
-	  int antennaId = r->getAntennaId().getTagValue();
-      
-	  double time = 0.0, interval = 0.0;
-	  if (!r->isSampledTimeIntervalExists()) { // If no sampledTimeInterval then
-	    // then compute the first value of MS TIME and INTERVAL.
-	    interval   = ((double) r->getTimeInterval().getDuration().get()) / ArrayTime::unitsInASecond / r->getNumSample();
-	    // if (isEVLA) {
-	    //   time = ((double) r->getTimeInterval().getStart().get()) / ArrayTime::unitsInASecond;
-	    // }
-	    // else {
-	    time = ((double) r->getTimeInterval().getStart().get()) / ArrayTime::unitsInASecond + interval / 2.0;
-	    //}
-	  }
-
-	  //
-	  // The size of each vector below 
-	  // should be checked against numSample !!!
-	  //
-	  int numSample = r->getNumSample();
-	  const vector<vector<Angle> > encoder = r->getEncoder();
-	  checkVectorSize<vector<Angle> >("encoder", encoder, "numSample", (unsigned int) numSample, "Pointing", (unsigned int)i);
-
-	  const vector<vector<Angle> > pointingDirection = r->getPointingDirection();
-	  checkVectorSize<vector<Angle> >("pointingDirection", pointingDirection, "numSample", (unsigned int) numSample, "Pointing", (unsigned int) i);
-
-	  const vector<vector<Angle> > target = r->getTarget();
-	  checkVectorSize<vector<Angle> >("target", target, "numSample", (unsigned int) numSample, "Pointing", (unsigned int) i);
-
-	  const vector<vector<Angle> > offset = r->getOffset();
-	  checkVectorSize<vector<Angle> >("offset", offset, "numSample", (unsigned int) numSample, "Pointing", (unsigned int) i);
-
-	  bool   pointingTracking = r->getPointingTracking();
- 
-	  //
-	  // Prepare some data structures and values required to compute the
-	  // (MS) direction.
-	  vector<double> cartesian1(3, 0.0);
-	  vector<double> cartesian2(3, 0.0);
-	  vector<double> spherical1(2, 0.0);
-	  vector<double> spherical2(2, 0.0);
-	  vector<vector<double> > matrix3x3;
-	  for (unsigned int ii = 0; ii < 3; ii++) {
-	    matrix3x3.push_back(cartesian1); // cartesian1 is used here just as a way to get a 1D vector of size 3.
-	  }
-	  double PSI = M_PI_2;
-	  double THETA;
-	  double PHI;
-      
-	  vector<ArrayTimeInterval> timeInterval ;
-	  if (r->isSampledTimeIntervalExists()) timeInterval = r->getSampledTimeInterval();
-
-	  // and now insert the values into the MS POINTING table
-	  // watch for the skipped initial sample
-	  int numSampleUsed = numSample;
-	  if (vSkipFirst.at(i)) numSampleUsed--;
-
-	  // Use 'fill' from algorithm for the cases where values remain constant.
-	  // ANTENNA_ID
-	  fill(antenna_id_.begin()+iMSPointingRow, antenna_id_.begin()+iMSPointingRow+numSampleUsed, antennaId);
-
-	  // TRACKING 
-	  fill(tracking_.begin()+iMSPointingRow, tracking_.begin()+iMSPointingRow+numSampleUsed, pointingTracking);
-
-	  // OVER_THE_TOP 
-	  if (overTheTopExists4All)
-	    // it's present everywhere
-	    fill(v_overTheTop_.begin()+iMSPointingRow, v_overTheTop_.begin()+iMSPointingRow+numSampleUsed,
-		 r->getOverTheTop());
-	  else if (r->isOverTheTopExists()) {
-	    // it's present only in some rows.
-	    s_overTheTop saux ;
-	    saux.start = iMSPointingRow; saux.len = numSampleUsed; saux.value = r->getOverTheTop();
-	    v_s_overTheTop_.push_back(saux);
-	  }
-       
-	  // Use an explicit loop for the other values.
-	  for (int j = 0 ; j < numSample; j++) { // ... must be expanded in numSample MS-Pointing rows.
-	    if (j == 0 && vSkipFirst.at(i)) continue;   // the first element is to be skipped
-
-	    // TIME and INTERVAL
-	    if (r->isSampledTimeIntervalExists()) { //if sampledTimeInterval is present use its values.	           
-	      // Here the size of timeInterval will have to be checked against numSample !!
-	      interval_[iMSPointingRow] = ((double) timeInterval.at(j).getDuration().get()) / ArrayTime::unitsInASecond ;
-	      time_[iMSPointingRow] = ((double) timeInterval.at(j).getStart().get()) / ArrayTime::unitsInASecond
-		+ interval_[iMSPointingRow]/2;	  
-	    }
-	    else {                                     // otherwise compute TIMEs and INTERVALs from the first values.
-	      interval_[iMSPointingRow]            = interval;
-	      time_[iMSPointingRow]                = time + j*interval;
-	    }
-
-	    // DIRECTION
-	    THETA			      = target.at(j).at(1).get();
-	    PHI				      = -M_PI_2 - target.at(j).at(0).get();
-	    spherical1[0]		      = offset.at(j).at(0).get();
-	    spherical1[1]		      = offset.at(j).at(1).get();
-	    rect(spherical1, cartesian1);
-	    eulmat(PSI, THETA, PHI, matrix3x3);
-	    matvec(matrix3x3, cartesian1, cartesian2);
-	    spher(cartesian2, spherical2);
-	    direction_[2*iMSPointingRow]      = spherical2[0] ;
-	    direction_[2*iMSPointingRow+1]    = spherical2[1] ;
-	    if (withPointingCorrection) { // Cf CSV-2878 and ICT-1532
-	      direction_[2*iMSPointingRow]   += encoder.at(j).at(0).get() - pointingDirection.at(j).at(0).get();
-	      direction_[2*iMSPointingRow+1] += encoder.at(j).at(1).get() - pointingDirection.at(j).at(1).get() ;
-	    }
-
-	    // TARGET
-	    target_[2*iMSPointingRow]     = target.at(j).at(0).get();
-	    target_[2*iMSPointingRow+1]   = target.at(j).at(1).get();
-
-	    // POINTING_OFFSET
-	    pointing_offset_[2*iMSPointingRow]   = offset.at(j).at(0).get();
-	    pointing_offset_[2*iMSPointingRow+1] = offset.at(j).at(1).get();
-
-	    // ENCODER
-	    encoder_[2*iMSPointingRow]           = encoder.at(j).at(0).get();
-	    encoder_[2*iMSPointingRow+1]         = encoder.at(j).at(1).get();
-
-	
-	    // increment the row number in MS Pointing.
-	    iMSPointingRow++;	
-	  }
-	}
-    
-
-	for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
-	     iter != msFillers.end();
-	     ++iter) {
-	  iter->second->addPointingSlice(numMSPointingRows,
-					 antenna_id_,
-					 time_,
-					 interval_,
-					 direction_,
-					 target_,
-					 pointing_offset_,
-					 encoder_,
-					 tracking_,
-					 overTheTopExists4All,
-					 v_overTheTop_,
-					 v_s_overTheTop_);
-	}
-    
-	if (nPointing) {
-	  infostream.str("");
-	  infostream << "converted in " << msFillers.begin()->second->ms()->pointing().nrow() << " pointing(s) in the measurement set." ;
-	  info(infostream.str()); 
-	}
-      }
+        fillPointing(dsName, ds, ignoreTime, withPointingCorrection, selectedScanRow_v, msFillers);
     }
     catch (ConversionException e) {
       errstream.str("");
