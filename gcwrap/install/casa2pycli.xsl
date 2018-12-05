@@ -238,7 +238,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 
           if do_full_logging and casa['state']['telemetry-enabled']:
               task_endtime = str(datetime.datetime.now())
-              casalog.poststat( 'Task' + tname + ' complete. Start time: ' + task_starttime + ' End time: ' + task_endtime )
+              casalog.poststat( 'Task ' + tname + ' complete. Start time: ' + task_starttime + ' End time: ' + task_endtime )
           casalog.post('##### End Task: ' + tname + '  ' + spaces + ' #####'+
                        '\n##########################################')
 </xsl:for-each>
