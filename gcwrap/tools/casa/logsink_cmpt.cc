@@ -292,7 +292,7 @@ bool logsink::poststat(const std::string& message,
                     std:string origOrigin = itsorigin->toString();
                     std::remove_copy(origOrigin.begin(), origOrigin.end(), std::back_inserter(telemetryOrigin), ':');
                 }
-                tlog << formattedtime << " :: " << telemetryLoggerPid<< " :: "<< telemetryOrigin << " :: " << message << "\n";
+                tlog << formattedtime << " :: " << telemetryLoggerPid<< " ::"<< telemetryOrigin << " :: " << message << "\n";
                 tlog.close();
             } catch (const std::exception& e) { // caught by reference to base
                 std::cout << "Writing stats failed: '" << e.what() << "'\n";
