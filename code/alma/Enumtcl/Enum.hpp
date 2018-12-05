@@ -7,8 +7,8 @@
 #include <sstream>
 #include <limits>
 
-#include "enum_set.hpp"
-#include "enum_map.hpp"
+#include <alma/Enumtcl/enum_set.hpp>
+#include <alma/Enumtcl/enum_map.hpp>
 
 template< typename enum_type, 
 	  typename val_type,

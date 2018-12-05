@@ -20,7 +20,7 @@
 
 #if     !defined(_POLARIZATIONTYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<PolarizationTypeMod::PolarizationType> : public enum_set_traiter<PolarizationTypeMod::PolarizationType,5,PolarizationTypeMod::BOTH> {};

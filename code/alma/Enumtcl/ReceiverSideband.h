@@ -20,7 +20,7 @@
 
 #if     !defined(_RECEIVERSIDEBAND_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<ReceiverSidebandMod::ReceiverSideband> : public enum_set_traiter<ReceiverSidebandMod::ReceiverSideband,4,ReceiverSidebandMod::TSB> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_AXISNAME_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<AxisNameMod::AxisName> : public enum_set_traiter<AxisNameMod::AxisName,13,AxisNameMod::HOL> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_CALDATAORIGIN_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<CalDataOriginMod::CalDataOrigin> : public enum_set_traiter<CalDataOriginMod::CalDataOrigin,9,CalDataOriginMod::NONE> {};

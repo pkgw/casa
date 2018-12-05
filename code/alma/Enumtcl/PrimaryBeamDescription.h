@@ -20,7 +20,7 @@
 
 #if     !defined(_PRIMARYBEAMDESCRIPTION_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<PrimaryBeamDescriptionMod::PrimaryBeamDescription> : public enum_set_traiter<PrimaryBeamDescriptionMod::PrimaryBeamDescription,2,PrimaryBeamDescriptionMod::APERTURE_FIELD_DISTRIBUTION> {};

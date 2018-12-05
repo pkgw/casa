@@ -20,7 +20,7 @@
 
 #if     !defined(_BASEBANDNAME_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<BasebandNameMod::BasebandName> : public enum_set_traiter<BasebandNameMod::BasebandName,16,BasebandNameMod::BD_8BIT> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_TIMESCALE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<TimeScaleMod::TimeScale> : public enum_set_traiter<TimeScaleMod::TimeScale,2,TimeScaleMod::TAI> {};

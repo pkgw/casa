@@ -20,7 +20,7 @@
 
 #if     !defined(_CALCURVETYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<CalCurveTypeMod::CalCurveType> : public enum_set_traiter<CalCurveTypeMod::CalCurveType,3,CalCurveTypeMod::UNDEFINED> {};

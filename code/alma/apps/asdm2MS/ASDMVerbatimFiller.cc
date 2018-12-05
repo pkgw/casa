@@ -6,11 +6,9 @@ ASDMVerbatimFiller::ASDMVerbatimFiller() {;}
 ASDMVerbatimFiller::ASDMVerbatimFiller(casacore::MS* ms_p, const std::set<ASDM_TABLE_BASE*>& table) {
   table_ = table;
   for(std::set<ASDM_TABLE_BASE*>::iterator iter = table_.begin();
-      iter != table_.end();
-      ++iter)
+      iter != table_.end(); ++iter)
     (*iter)->buildAndAttachTable(ms_p);  
 }
-
 
 ASDMVerbatimFiller::~ASDMVerbatimFiller() {;}
 

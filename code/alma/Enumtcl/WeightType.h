@@ -20,7 +20,7 @@
 
 #if     !defined(_WEIGHTTYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<WeightTypeMod::WeightType> : public enum_set_traiter<WeightTypeMod::WeightType,3,WeightTypeMod::COUNT_WEIGHT> {};

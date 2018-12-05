@@ -20,7 +20,7 @@
 
 #if     !defined(_POSITIONMETHOD_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<PositionMethodMod::PositionMethod> : public enum_set_traiter<PositionMethodMod::PositionMethod,2,PositionMethodMod::PHASE_FITTING> {};

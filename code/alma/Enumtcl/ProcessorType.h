@@ -20,7 +20,7 @@
 
 #if     !defined(_PROCESSORTYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<ProcessorTypeMod::ProcessorType> : public enum_set_traiter<ProcessorTypeMod::ProcessorType,3,ProcessorTypeMod::SPECTROMETER> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_ANTENNATYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<AntennaTypeMod::AntennaType> : public enum_set_traiter<AntennaTypeMod::AntennaType,3,AntennaTypeMod::TRACKING_STN> {};

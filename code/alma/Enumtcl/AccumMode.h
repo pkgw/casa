@@ -20,7 +20,7 @@
 
 #if     !defined(_ACCUMMODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<AccumModeMod::AccumMode> : public enum_set_traiter<AccumModeMod::AccumMode,3,AccumModeMod::UNDEFINED> {};

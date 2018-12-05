@@ -20,7 +20,7 @@
 
 #if     !defined(_CORRELATORTYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<CorrelatorTypeMod::CorrelatorType> : public enum_set_traiter<CorrelatorTypeMod::CorrelatorType,3,CorrelatorTypeMod::FXF> {};

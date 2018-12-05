@@ -20,7 +20,7 @@
 
 #if     !defined(_SYSCALMETHOD_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<SyscalMethodMod::SyscalMethod> : public enum_set_traiter<SyscalMethodMod::SyscalMethod,3,SyscalMethodMod::SIDEBAND_RATIO> {};

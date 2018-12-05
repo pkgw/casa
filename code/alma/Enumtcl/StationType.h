@@ -20,7 +20,7 @@
 
 #if     !defined(_STATIONTYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<StationTypeMod::StationType> : public enum_set_traiter<StationTypeMod::StationType,3,StationTypeMod::WEATHER_STATION> {};

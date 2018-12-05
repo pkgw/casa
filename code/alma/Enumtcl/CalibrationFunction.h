@@ -20,7 +20,7 @@
 
 #if     !defined(_CALIBRATIONFUNCTION_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<CalibrationFunctionMod::CalibrationFunction> : public enum_set_traiter<CalibrationFunctionMod::CalibrationFunction,3,CalibrationFunctionMod::UNSPECIFIED> {};

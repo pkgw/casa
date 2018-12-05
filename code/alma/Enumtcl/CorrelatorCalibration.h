@@ -20,7 +20,7 @@
 
 #if     !defined(_CORRELATORCALIBRATION_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<CorrelatorCalibrationMod::CorrelatorCalibration> : public enum_set_traiter<CorrelatorCalibrationMod::CorrelatorCalibration,3,CorrelatorCalibrationMod::REAL_OBSERVATION> {};

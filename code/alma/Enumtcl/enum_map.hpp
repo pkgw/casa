@@ -3,7 +3,7 @@
 #include <map>
 #include <limits>
 
-#include "enum_par.hpp"
+#include <alma/Enumtcl/enum_par.hpp>
 
 template<typename enum_type, typename val_type>
 class enum_map_traits : public std::map<enum_type,EnumPar<val_type> > {

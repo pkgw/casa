@@ -29,28 +29,23 @@ class ASDM_TABLE_SINGLETON {
  protected:
   ASDM_TABLE_SINGLETON() {;}
   ~ASDM_TABLE_SINGLETON() {;}
-
  public:
   static T *instance() {
     if ( NULL == instance_)
       instance_ = new T;
     return (static_cast<T*>(instance_));
   }
-
   private:
     static T *instance_;
 };
 
-template<typename T>
-T *ASDM_TABLE_SINGLETON<T>::instance_ = NULL;
-
+template<typename T> T *ASDM_TABLE_SINGLETON<T>::instance_ = NULL;
 class ASDM_TABLE_BASE {
  protected:
   ASDM_TABLE_BASE();
   virtual~ASDM_TABLE_BASE();
   string name_;
   casacore::Table* table_p_;
-
  public:
   casacore::Table* table_p();
   const string& name() const;
@@ -87,7 +82,6 @@ class ASDM_TABLE_BASE {
     if (v.size() == 0 || v.at(0).size() == 0 || v.at(0).at(0).size() == 0)
       return result;
 
-
     result.resize(v.size(), v.at(0).size(), v.at(0).at(0).size());
     for (unsigned int i = 0; i < v.size(); i++)
       for (unsigned int j = 0; j < v.at(0).size(); j++)
@@ -119,12 +113,10 @@ class ASDM_TABLE_BASE {
     return result;
   }
 
-
   template<typename T, typename U>  casacore::Cube<U> ext2CASA3D(const vector<vector <vector <T> > >& v) {
     casacore::Cube<U> result;
     if (v.size() == 0 || v.at(0).size() == 0 || v.at(0).at(0).size() == 0)
       return result;
-
 
     result.resize(v.size(), v.at(0).size(), v.at(0).at(0).size());
     for (unsigned int i = 0; i < v.size(); i++)
@@ -157,12 +149,10 @@ class ASDM_TABLE_BASE {
     return result;
   }
 
-
   template<typename T, typename U>  casacore::Cube<U> _2CASAString3D(const vector<vector <vector <T> > >& v) {
     casacore::Cube<U> result;
     if (v.size() == 0 || v.at(0).size() == 0 || v.at(0).at(0).size() == 0)
       return result;
-
 
     result.resize(v.size(), v.at(0).size(), v.at(0).at(0).size());
     for (unsigned int i = 0; i < v.size(); i++)
@@ -171,7 +161,6 @@ class ASDM_TABLE_BASE {
 	  result(i,j,k) = v.at(i).at(j).at(k).toString();
     return result;
   }
-
 
   template<typename enumT, typename CenumT>  casacore::Vector<casacore::String> enum2CASA1D (const vector<enumT>& v) {
     casacore::Vector<casacore::String> result;

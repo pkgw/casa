@@ -7,13 +7,11 @@
 #include <alma/ASDM/ASDM.h>
 
 class ASDMVerbatimFiller {
-
  public:
   virtual ~ASDMVerbatimFiller();
   //  ASDMVerbatimFiller(casacore::MS* ms_p, const std::set<const ASDM_TABLE_BASE*>& table); 
   ASDMVerbatimFiller(casacore::MS* ms_p, const std::set<ASDM_TABLE_BASE*>& table); 
-  void fill(const asdm::ASDM& asdm);
-  
+  void fill(const asdm::ASDM& asdm);  
  private:
   std::set<ASDM_TABLE_BASE*> table_;
   ASDMVerbatimFiller();

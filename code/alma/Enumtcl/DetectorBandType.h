@@ -20,7 +20,7 @@
 
 #if     !defined(_DETECTORBANDTYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<DetectorBandTypeMod::DetectorBandType> : public enum_set_traiter<DetectorBandTypeMod::DetectorBandType,4,DetectorBandTypeMod::SUBBAND> {};

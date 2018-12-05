@@ -20,7 +20,7 @@
 
 #if     !defined(_SYNTHPROF_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<SynthProfMod::SynthProf> : public enum_set_traiter<SynthProfMod::SynthProf,3,SynthProfMod::ACA_CDP> {};

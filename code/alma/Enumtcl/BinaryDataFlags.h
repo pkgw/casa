@@ -20,7 +20,7 @@
 
 #if     !defined(_BINARYDATAFLAGS_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<BinaryDataFlagsMod::BinaryDataFlags> : public enum_set_traiter<BinaryDataFlagsMod::BinaryDataFlags,32,BinaryDataFlagsMod::ALL_PURPOSE_ERROR> {};

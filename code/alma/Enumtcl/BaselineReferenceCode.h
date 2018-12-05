@@ -20,7 +20,7 @@
 
 #if     !defined(_BASELINEREFERENCECODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<BaselineReferenceCodeMod::BaselineReferenceCode> : public enum_set_traiter<BaselineReferenceCodeMod::BaselineReferenceCode,28,BaselineReferenceCodeMod::ITRF> {};

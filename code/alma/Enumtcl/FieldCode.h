@@ -20,7 +20,7 @@
 
 #if     !defined(_FIELDCODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<FieldCodeMod::FieldCode> : public enum_set_traiter<FieldCodeMod::FieldCode,1,FieldCodeMod::NONE> {};

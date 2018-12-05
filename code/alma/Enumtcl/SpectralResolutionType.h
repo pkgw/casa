@@ -20,7 +20,7 @@
 
 #if     !defined(_SPECTRALRESOLUTIONTYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<SpectralResolutionTypeMod::SpectralResolutionType> : public enum_set_traiter<SpectralResolutionTypeMod::SpectralResolutionType,3,SpectralResolutionTypeMod::FULL_RESOLUTION> {};

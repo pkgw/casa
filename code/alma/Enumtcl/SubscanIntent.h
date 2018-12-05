@@ -20,7 +20,7 @@
 
 #if     !defined(_SUBSCANINTENT_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<SubscanIntentMod::SubscanIntent> : public enum_set_traiter<SubscanIntentMod::SubscanIntent,11,SubscanIntentMod::UNSPECIFIED> {};

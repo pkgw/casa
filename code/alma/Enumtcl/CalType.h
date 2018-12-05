@@ -20,7 +20,7 @@
 
 #if     !defined(_CALTYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<CalTypeMod::CalType> : public enum_set_traiter<CalTypeMod::CalType,18,CalTypeMod::CAL_APPPHASE> {};

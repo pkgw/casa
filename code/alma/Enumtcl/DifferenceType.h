@@ -20,7 +20,7 @@
 
 #if     !defined(_DIFFERENCETYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<DifferenceTypeMod::DifferenceType> : public enum_set_traiter<DifferenceTypeMod::DifferenceType,4,DifferenceTypeMod::FINAL> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_DATACONTENT_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<DataContentMod::DataContent> : public enum_set_traiter<DataContentMod::DataContent,7,DataContentMod::FLAGS> {};

@@ -82,16 +82,17 @@
 
 
 namespace casacore{
-
-class MPosition;
-class MeasFrame;
-class MeasurementSet;
-class MSMainColumns;
+    class MPosition;
+    class MeasFrame;
+    class MeasurementSet;
+    class MSMainColumns;
 }
 
 //# Forward Declarations
 
-class TimeRange;
+namespace casa {
+    class TimeRange;
+}
 
 //
 // A structure to define a range of rows in the Pointing table where the attribute overTheTop is defined and with which value.
@@ -267,8 +268,6 @@ class ASDM2MSFiller
 		vector<unsigned int>      &flag_,
 		vector<double>            &weight_,
 		vector<double>            &sigma_);
-  
-
 	       
   int  addDataDescription(int spectral_window_id_,
 			  int polarizarion_id_);
@@ -511,5 +510,6 @@ class ASDM2MSFiller
 
   void end();
 };
+
 #endif
   

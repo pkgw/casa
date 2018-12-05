@@ -20,7 +20,7 @@
 
 #if     !defined(_SOURCEMODEL_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<SourceModelMod::SourceModel> : public enum_set_traiter<SourceModelMod::SourceModel,3,SourceModelMod::DISK> {};

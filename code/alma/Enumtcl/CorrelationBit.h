@@ -20,7 +20,7 @@
 
 #if     !defined(_CORRELATIONBIT_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<CorrelationBitMod::CorrelationBit> : public enum_set_traiter<CorrelationBitMod::CorrelationBit,3,CorrelationBitMod::BITS_4x4> {};

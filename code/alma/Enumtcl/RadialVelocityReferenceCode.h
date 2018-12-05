@@ -20,7 +20,7 @@
 
 #if     !defined(_RADIALVELOCITYREFERENCECODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode> : public enum_set_traiter<RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode,6,RadialVelocityReferenceCodeMod::TOPO> {};

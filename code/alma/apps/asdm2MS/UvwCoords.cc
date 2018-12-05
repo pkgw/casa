@@ -7,8 +7,7 @@ using namespace asdm;
 using namespace std;
 using namespace casacore;
 
-UvwCoords::UvwCoords( ASDM* const datasetPtr )
-{
+UvwCoords::UvwCoords( ASDM* const datasetPtr ) {
   // All the antenna positions for antennas in the antenna table:
   // ------------------------------------------------------------ 
   AntennaTable&        antennas = datasetPtr->getAntenna(); 

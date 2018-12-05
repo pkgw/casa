@@ -20,7 +20,7 @@
 
 #if     !defined(_DOPPLERREFERENCECODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<DopplerReferenceCodeMod::DopplerReferenceCode> : public enum_set_traiter<DopplerReferenceCodeMod::DopplerReferenceCode,7,DopplerReferenceCodeMod::RELATIVISTIC> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_CORRELATIONMODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<CorrelationModeMod::CorrelationMode> : public enum_set_traiter<CorrelationModeMod::CorrelationMode,3,CorrelationModeMod::CROSS_AND_AUTO> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_INVALIDATINGCONDITION_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<InvalidatingConditionMod::InvalidatingCondition> : public enum_set_traiter<InvalidatingConditionMod::InvalidatingCondition,5,InvalidatingConditionMod::RECEIVER_POWER_DOWN> {};

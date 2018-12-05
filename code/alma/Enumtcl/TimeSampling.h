@@ -20,7 +20,7 @@
 
 #if     !defined(_TIMESAMPLING_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<TimeSamplingMod::TimeSampling> : public enum_set_traiter<TimeSamplingMod::TimeSampling,2,TimeSamplingMod::INTEGRATION> {};

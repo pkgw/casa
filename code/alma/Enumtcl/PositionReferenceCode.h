@@ -20,7 +20,7 @@
 
 #if     !defined(_POSITIONREFERENCECODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<PositionReferenceCodeMod::PositionReferenceCode> : public enum_set_traiter<PositionReferenceCodeMod::PositionReferenceCode,6,PositionReferenceCodeMod::REFLECTOR> {};

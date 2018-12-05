@@ -20,7 +20,7 @@
 
 #if     !defined(_ASSOCIATEDFIELDNATURE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<AssociatedFieldNatureMod::AssociatedFieldNature> : public enum_set_traiter<AssociatedFieldNatureMod::AssociatedFieldNature,3,AssociatedFieldNatureMod::PHASE_REFERENCE> {};

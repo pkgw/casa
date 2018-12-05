@@ -20,7 +20,7 @@
 
 #if     !defined(_STOKESPARAMETER_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<StokesParameterMod::StokesParameter> : public enum_set_traiter<StokesParameterMod::StokesParameter,32,StokesParameterMod::PANGLE> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_SIDEBANDPROCESSINGMODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<SidebandProcessingModeMod::SidebandProcessingMode> : public enum_set_traiter<SidebandProcessingModeMod::SidebandProcessingMode,5,SidebandProcessingModeMod::FREQUENCY_OFFSET_REJECTION> {};

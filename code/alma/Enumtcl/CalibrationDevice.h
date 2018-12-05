@@ -20,7 +20,7 @@
 
 #if     !defined(_CALIBRATIONDEVICE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<CalibrationDeviceMod::CalibrationDevice> : public enum_set_traiter<CalibrationDeviceMod::CalibrationDevice,7,CalibrationDeviceMod::NONE> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_FILTERMODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<FilterModeMod::FilterMode> : public enum_set_traiter<FilterModeMod::FilterMode,4,FilterModeMod::UNDEFINED> {};

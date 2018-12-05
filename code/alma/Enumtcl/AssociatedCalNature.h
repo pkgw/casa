@@ -20,7 +20,7 @@
 
 #if     !defined(_ASSOCIATEDCALNATURE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<AssociatedCalNatureMod::AssociatedCalNature> : public enum_set_traiter<AssociatedCalNatureMod::AssociatedCalNature,1,AssociatedCalNatureMod::ASSOCIATED_EXECBLOCK> {};

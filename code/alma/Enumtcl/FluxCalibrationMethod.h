@@ -20,7 +20,7 @@
 
 #if     !defined(_FLUXCALIBRATIONMETHOD_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<FluxCalibrationMethodMod::FluxCalibrationMethod> : public enum_set_traiter<FluxCalibrationMethodMod::FluxCalibrationMethod,3,FluxCalibrationMethodMod::EFFICIENCY> {};

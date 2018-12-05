@@ -20,7 +20,7 @@
 
 #if     !defined(_WVRMETHOD_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<WVRMethodMod::WVRMethod> : public enum_set_traiter<WVRMethodMod::WVRMethod,2,WVRMethodMod::EMPIRICAL> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_DATASCALE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<DataScaleMod::DataScale> : public enum_set_traiter<DataScaleMod::DataScale,4,DataScaleMod::CORRELATION_COEFFICIENT> {};

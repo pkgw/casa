@@ -20,7 +20,7 @@
 
 #if     !defined(_SCANINTENT_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<ScanIntentMod::ScanIntent> : public enum_set_traiter<ScanIntentMod::ScanIntent,30,ScanIntentMod::CALIBRATE_DIFFGAIN> {};

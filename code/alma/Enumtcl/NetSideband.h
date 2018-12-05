@@ -20,7 +20,7 @@
 
 #if     !defined(_NETSIDEBAND_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<NetSidebandMod::NetSideband> : public enum_set_traiter<NetSidebandMod::NetSideband,4,NetSidebandMod::DSB> {};

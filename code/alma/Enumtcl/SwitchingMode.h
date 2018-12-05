@@ -20,7 +20,7 @@
 
 #if     !defined(_SWITCHINGMODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<SwitchingModeMod::SwitchingMode> : public enum_set_traiter<SwitchingModeMod::SwitchingMode,7,SwitchingModeMod::CHOPPER_WHEEL> {};

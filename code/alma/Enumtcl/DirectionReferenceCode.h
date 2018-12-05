@@ -20,7 +20,7 @@
 
 #if     !defined(_DIRECTIONREFERENCECODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<DirectionReferenceCodeMod::DirectionReferenceCode> : public enum_set_traiter<DirectionReferenceCodeMod::DirectionReferenceCode,32,DirectionReferenceCodeMod::MOON> {};

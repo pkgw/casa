@@ -20,7 +20,7 @@
 
 #if     !defined(_SBTYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<SBTypeMod::SBType> : public enum_set_traiter<SBTypeMod::SBType,3,SBTypeMod::EXPERT> {};

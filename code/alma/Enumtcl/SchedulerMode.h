@@ -20,7 +20,7 @@
 
 #if     !defined(_SCHEDULERMODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<SchedulerModeMod::SchedulerMode> : public enum_set_traiter<SchedulerModeMod::SchedulerMode,4,SchedulerModeMod::QUEUED> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_ATMPHASECORRECTION_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<AtmPhaseCorrectionMod::AtmPhaseCorrection> : public enum_set_traiter<AtmPhaseCorrectionMod::AtmPhaseCorrection,2,AtmPhaseCorrectionMod::AP_CORRECTED> {};

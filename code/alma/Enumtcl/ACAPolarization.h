@@ -20,7 +20,7 @@
 
 #if     !defined(_ACAPOLARIZATION_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<ACAPolarizationMod::ACAPolarization> : public enum_set_traiter<ACAPolarizationMod::ACAPolarization,4,ACAPolarizationMod::ACA_YY_50> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_CORRELATORNAME_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<CorrelatorNameMod::CorrelatorName> : public enum_set_traiter<CorrelatorNameMod::CorrelatorName,10,CorrelatorNameMod::NRAO_WIDAR> {};

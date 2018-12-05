@@ -20,7 +20,7 @@
 
 #if     !defined(_ANTENNAMOTIONPATTERN_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<AntennaMotionPatternMod::AntennaMotionPattern> : public enum_set_traiter<AntennaMotionPatternMod::AntennaMotionPattern,11,AntennaMotionPatternMod::LISSAJOUS> {};

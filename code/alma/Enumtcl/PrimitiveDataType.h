@@ -20,7 +20,7 @@
 
 #if     !defined(_PRIMITIVEDATATYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<PrimitiveDataTypeMod::PrimitiveDataType> : public enum_set_traiter<PrimitiveDataTypeMod::PrimitiveDataType,5,PrimitiveDataTypeMod::FLOAT64_TYPE> {};

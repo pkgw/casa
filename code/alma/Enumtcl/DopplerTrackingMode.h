@@ -20,7 +20,7 @@
 
 #if     !defined(_DOPPLERTRACKINGMODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<DopplerTrackingModeMod::DopplerTrackingMode> : public enum_set_traiter<DopplerTrackingModeMod::DopplerTrackingMode,4,DopplerTrackingModeMod::SB_BASED> {};

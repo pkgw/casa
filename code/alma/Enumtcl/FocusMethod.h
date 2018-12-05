@@ -20,7 +20,7 @@
 
 #if     !defined(_FOCUSMETHOD_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<FocusMethodMod::FocusMethod> : public enum_set_traiter<FocusMethodMod::FocusMethod,3,FocusMethodMod::HOLOGRAPHY> {};

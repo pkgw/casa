@@ -20,7 +20,7 @@
 
 #if     !defined(_HOLOGRAPHYCHANNELTYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<HolographyChannelTypeMod::HolographyChannelType> : public enum_set_traiter<HolographyChannelTypeMod::HolographyChannelType,6,HolographyChannelTypeMod::S2> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_PROCESSORSUBTYPE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<ProcessorSubTypeMod::ProcessorSubType> : public enum_set_traiter<ProcessorSubTypeMod::ProcessorSubType,4,ProcessorSubTypeMod::ALMA_RADIOMETER> {};

@@ -20,7 +20,7 @@
 
 #if     !defined(_ANTENNAMAKE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<AntennaMakeMod::AntennaMake> : public enum_set_traiter<AntennaMakeMod::AntennaMake,9,AntennaMakeMod::UNDEFINED> {};

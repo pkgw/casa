@@ -20,7 +20,7 @@
 
 #if     !defined(_POINTINGMETHOD_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<PointingMethodMod::PointingMethod> : public enum_set_traiter<PointingMethodMod::PointingMethod,6,PointingMethodMod::HOLOGRAPHY> {};

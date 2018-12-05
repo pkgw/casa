@@ -20,7 +20,7 @@
 
 #if     !defined(_FREQUENCYREFERENCECODE_HH)
 
-#include "Enum.hpp"
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<FrequencyReferenceCodeMod::FrequencyReferenceCode> : public enum_set_traiter<FrequencyReferenceCodeMod::FrequencyReferenceCode,8,FrequencyReferenceCodeMod::TOPO> {};
