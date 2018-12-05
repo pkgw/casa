@@ -223,7 +223,7 @@ PlotStandardMouseToolGroupPtr   PlotFactory::standardMouseTools(
     sel->setRectLine(line("black", PlotLine::SOLID, 1.0));
     sel->setRectFill(areaFill("black", PlotAreaFill::MESH3));
     return PlotStandardMouseToolGroupPtr(new PlotStandardMouseToolGroup(
-            sel, zoomTool(), panTool(), flagAllTool(), trackerTool(), activeTool),
+            sel, zoomTool(), panTool(), flagAllTool(), unflagAllTool(), trackerTool(), activeTool),
             smartDelete);
 }
 
@@ -244,7 +244,7 @@ PlotStandardMouseToolGroupPtr   PlotFactory::standardMouseTools(
     sel->setRectFill(areaFill("black", PlotAreaFill::MESH3));
     return PlotStandardMouseToolGroupPtr(new PlotStandardMouseToolGroup(
             sel, zoomTool(xAxis, yAxis, sys), panTool(xAxis, yAxis, sys),
-            flagAllTool(xAxis, yAxis, sys),
+            flagAllTool(xAxis, yAxis, sys), unflagAllTool(xAxis, yAxis, sys),
             trackerTool(xAxis, yAxis, sys), activeTool), smartDelete);
 }
 
@@ -259,6 +259,9 @@ PlotPanToolPtr PlotFactory::panTool(bool smartDelete) const {
 
 PlotFlagAllToolPtr PlotFactory::flagAllTool(bool smartDelete) const {
     return PlotFlagAllToolPtr(new PlotFlagAllTool(), smartDelete); }
+
+PlotUnflagAllToolPtr PlotFactory::unflagAllTool(bool smartDelete) const {
+    return PlotUnflagAllToolPtr(new PlotUnflagAllTool(), smartDelete); }
 
 PlotTrackerToolPtr PlotFactory::trackerTool(bool smartDelete) const {
     return PlotTrackerToolPtr(new PlotTrackerTool(), smartDelete); }
@@ -284,6 +287,12 @@ PlotPanToolPtr PlotFactory::panTool(PlotAxis xAxis, PlotAxis yAxis,
 PlotFlagAllToolPtr PlotFactory::flagAllTool(PlotAxis xAxis, PlotAxis yAxis,
         PlotCoordinate::System system, bool smartDelete) const {
     return PlotFlagAllToolPtr(new PlotFlagAllTool(xAxis, yAxis, system),
+        smartDelete);
+}
+
+PlotUnflagAllToolPtr PlotFactory::unflagAllTool(PlotAxis xAxis, PlotAxis yAxis,
+        PlotCoordinate::System system, bool smartDelete) const {
+    return PlotUnflagAllToolPtr(new PlotUnflagAllTool(xAxis, yAxis, system),
         smartDelete);
 }
 

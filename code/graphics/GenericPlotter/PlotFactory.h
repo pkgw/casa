@@ -433,6 +433,7 @@ public:
     virtual PlotZoomToolPtr zoomTool(bool smartDelete = true) const;
     virtual PlotPanToolPtr panTool(bool smartDelete = true) const;
     virtual PlotFlagAllToolPtr flagAllTool(bool smartDelete = true) const;
+    virtual PlotUnflagAllToolPtr unflagAllTool(bool smartDelete = true) const;
     virtual PlotTrackerToolPtr trackerTool(bool smartDelete = true) const;
     virtual PlotSelectToolPtr selectTool(PlotAxis xAxis, PlotAxis yAxis,
             PlotCoordinate::System system, bool smartDelete = true) const;
@@ -441,6 +442,8 @@ public:
     virtual PlotPanToolPtr panTool(PlotAxis xAxis, PlotAxis yAxis,
             PlotCoordinate::System system, bool smartDelete = true) const;
     virtual PlotFlagAllToolPtr flagAllTool(PlotAxis xAxis, PlotAxis yAxis,
+            PlotCoordinate::System system, bool smartDelete = true) const;
+    virtual PlotUnflagAllToolPtr unflagAllTool(PlotAxis xAxis, PlotAxis yAxis,
             PlotCoordinate::System system, bool smartDelete = true) const;
     virtual PlotTrackerToolPtr trackerTool(PlotAxis xAxis, PlotAxis yAxis,
             PlotCoordinate::System system, bool smartDelete = true) const;
