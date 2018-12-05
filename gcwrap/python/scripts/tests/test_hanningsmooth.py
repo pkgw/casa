@@ -58,7 +58,7 @@ class test_base(unittest.TestCase):
         
         # Create an MMS for the tests
         self.testmms = prefix + ".test.mms"
-        default(mstransform)
+        default(partition)
         
         if os.path.exists(self.testmms):
             os.system("rm -rf " + self.testmms)

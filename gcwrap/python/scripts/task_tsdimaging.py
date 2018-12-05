@@ -658,6 +658,31 @@ def do_weight_mask(imagename, weightimage, minweight):
     casalog.post("The weight image '%s' is returned by this task, if the user wishes to assess the results in detail." \
                  % (weightimage), "INFO")
         
+def get_ms_column_unit(tb, colname):
+    col_unit = ''
+    if colname in tb.colnames():
+        cdkw = tb.getcoldesc(colname)['keywords']
+        if cdkw.has_key('QuantumUnits'):
+            u = cdkw['QuantumUnits']
+            if isinstance(u, str):
+                col_unit = u.strip()
+            elif isinstance(u, list):
+                col_unit = u[0].strip()
+    return col_unit
+
+def get_brightness_unit_from_ms(msname):
+    image_unit = ''
+    with open_table(msname) as tb:
+        image_unit = get_ms_column_unit(tb, 'DATA')
+        if image_unit == '': image_unit = get_ms_column_unit(tb, 'FLOAT_DATA')
+    if image_unit.upper() == 'K':
+        image_unit = 'K'
+    else:
+        image_unit = 'Jy/beam'
+
+    return image_unit
+
+
 
 def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, mode, nchan, start, width, veltype, outframe,
                gridfunction, convsupport, truncate, gwidth, jwidth, imsize, cell, phasecenter, projection, ephemsrcname,
@@ -867,6 +892,8 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
                   _restfreq, gridfunction, convsupport, truncate, gwidth, jwidth)
     
     # set brightness unit (CAS-11503)
+    if len(image_unit) == 0:
+        image_unit = get_brightness_unit_from_ms(rep_ms)
     if len(image_unit) > 0:
         with open_ia(imagename) as ia:
             casalog.post("Setting brightness unit '%s' to image." % image_unit)

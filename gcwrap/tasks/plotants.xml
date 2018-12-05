@@ -40,6 +40,10 @@
 			<description>Title for the plot</description>
 			<value></value>
 		</param>
+		<param type="bool" name="showgui">
+			<description>Show plot on gui.</description>
+			<value>True</value>
+		</param>
 	</input>
 <returns type="void"/>
 
@@ -75,6 +79,8 @@
 
        title -- Title written along top of plot
             Default: '', example: "ALMA Antenna Positions"
+       showgui -- Whether or not to display the plotting GUI
+            Default: True; example showgui=False
 
        You can zoom in by pressing the magnifier button (bottom,
        third from right) and making a rectangular region with

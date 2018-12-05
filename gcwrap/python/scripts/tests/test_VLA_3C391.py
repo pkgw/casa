@@ -53,7 +53,10 @@ class Test010_VLAContinuum3C391(unittest.TestCase):
         else:
             casaguidedata_path = "/casaguidedata/"
 
-        os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "3c391_ctm_mosaic_10s_spw0.ms",os.getcwd()+"/3c391_ctm_mosaic_10s_spw0.ms")
+        import tarfile
+        tar = tarfile.open(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "raw/3c391_ctm_mosaic_10s_spw0.ms.tgz")
+        tar.extractall()
+        tar.close()
 
         if os.uname()[0] == 'Darwin':
             os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/VLA_Continuum_Tutorial_3C391'")
@@ -354,7 +357,7 @@ class Test021_VLAContinuum3C391(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        os.unlink("3c391_ctm_mosaic_10s_spw0.ms")
+
         rmtables("3c391_ctm_*")
         os.system("rm -rf *.last")
         os.system("rm -rf *.flagversions")

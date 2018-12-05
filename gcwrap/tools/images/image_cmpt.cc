@@ -6856,16 +6856,27 @@ std::shared_ptr<Record> image::_getRegion(
         CoordinateSystem csys;
         if (otherImageName.empty()) {
             ThrowIf(
-                ! _imageF && ! _imageC,
+                ! (_imageF || _imageC || _imageD || _imageDC),
                 "No attached image. Cannot use a string value for region"
             );
             if (_imageF) {
                 shape = _imageF->shape();
                 csys = _imageF->coordinates();
             }
-            else {
+            else if (_imageC) {
                 shape = _imageC->shape();
                 csys = _imageC->coordinates();
+            }
+            else if (_imageD) {
+                shape = _imageD->shape();
+                csys = _imageD->coordinates();
+            }
+            else if (_imageDC) {
+                shape = _imageDC->shape();
+                csys = _imageDC->coordinates();
+            }
+            else {
+                ThrowCc("Logic Error");
             }
         }
         else {

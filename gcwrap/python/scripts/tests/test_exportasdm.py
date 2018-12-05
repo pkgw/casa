@@ -124,6 +124,7 @@ class exportasdm_test(unittest.TestCase):
         myvis = self.vis_b
         os.system('rm -rf myinput.ms')
         os.system('cp -R ' + myvis + ' myinput.ms')
+        # this fails because there are no arguments, that's expected
         self.rval = exportasdm()
         self.assertFalse(self.rval)
 
@@ -301,7 +302,7 @@ class exportasdm_test(unittest.TestCase):
 
         self.assertNotEqual(self.rval,False)
         omsname = "test"+str(12)+self.out
-        os.system('rm -rf '+omsname+'; mv  asdm '+omsname)
+        os.system('rm -rf '+omsname+'; mv  asdmasdm '+omsname)
 
 
 
