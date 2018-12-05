@@ -235,6 +235,8 @@ enum ToolCode {
     SUBTRACT_TOOL,   
     ZOOM_TOOL, 
     PAN_TOOL, 
+    FLAGALL_TOOL,
+    UNFLAGALL_TOOL,
     NONE_TOOL
 };
     
@@ -607,6 +609,30 @@ INHERITANCE_POINTER(PlotTrackerTool, PlotTrackerToolPtr, PlotMouseTool,
                     PlotMouseToolPtr, PlotTool, PlotToolPtr)
 
 
+// A PlotFlagAllTool is a concrete subclass of PlotMouseTool that handles
+// one-click data flag functionality.
+// PlotFlagAllTool is responsible for:
+// 1) the behavior described above
+class PlotFlagAllTool : public virtual PlotMouseTool {
+public:
+    // Constructor which takes the tool's coordinate system.
+    PlotFlagAllTool(PlotCoordinate::System system = PlotCoordinate::WORLD);
+
+    // Constructor which takes the tool's axes and coordinate system.
+    PlotFlagAllTool(PlotAxis xAxis, PlotAxis yAxis,
+                   PlotCoordinate::System system = PlotCoordinate::WORLD);
+
+    // Destructor.
+    virtual ~PlotFlagAllTool();
+
+    // Implements PlotMouseTool::handleMouseEvent().
+    virtual void handleMouseEvent(const PlotEvent& event);
+
+};
+INHERITANCE_POINTER(PlotFlagAllTool, PlotFlagAllToolPtr, PlotMouseTool,
+                    PlotMouseToolPtr, PlotTool, PlotToolPtr)
+
+
 ///////////////////////////////
 // TOOL NOTIFICATION CLASSES //
 ///////////////////////////////
@@ -813,6 +839,7 @@ public:
     PlotStandardMouseToolGroup(PlotSelectToolPtr selectTool,
                                PlotZoomToolPtr zoomTool,
                                PlotPanToolPtr panTool,
+                               PlotFlagAllToolPtr flagAllTool,
                                PlotTrackerToolPtr trackerTool,
                                ToolCode activeTool = NONE_TOOL);
     
@@ -843,6 +870,7 @@ public:
     PlotSelectToolPtr selectTool();
     PlotZoomToolPtr zoomTool();
     PlotPanToolPtr panTool();
+    PlotFlagAllToolPtr flagAllTool();
     PlotTrackerToolPtr trackerTool();
     // </group>
     

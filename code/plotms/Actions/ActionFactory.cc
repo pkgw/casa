@@ -54,6 +54,8 @@
 #include <plotms/Actions/ActionTrackerDisplay.h>
 #include <plotms/Actions/ActionTrackerHover.h>
 #include <plotms/Actions/ActionZoom.h>
+#include <plotms/Actions/ActionFlagAll.h>
+#include <plotms/Actions/ActionUnflagAll.h>
 #include <QDebug>
 
 using namespace casacore;
@@ -106,6 +108,12 @@ CountedPtr<PlotMSAction> ActionFactory::getAction( PlotMSAction::Type actionType
 	case PlotMSAction::TOOL_PAN:
 		action = new ActionPan( client );
 		break;
+	case PlotMSAction::TOOL_FLAG_ALL:
+	  action = new ActionFlagAll( client );
+	  break;
+	case PlotMSAction::TOOL_UNFLAG_ALL:
+	  action = new ActionUnflagAll( client );
+	  break;
 	case PlotMSAction::TOOL_ANNOTATE_TEXT:
 		action = new ActionAnnotateText( client );
 		break;

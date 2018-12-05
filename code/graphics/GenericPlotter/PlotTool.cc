@@ -28,6 +28,7 @@
 #include <graphics/GenericPlotter/PlotFactory.h>
 /////!!!!!  + + ++ + + + + + + + + + #include <qwt_plot_picker.h>  -- needed for draw rubber band box in different color
 
+#include <iostream>
 #include <iomanip>
 
 using namespace std;
@@ -911,6 +912,31 @@ const String PlotTrackerTool::DEFAULT_FORMAT = "("+FORMAT_DIVIDER+FORMAT_X+
         FORMAT_DIVIDER + ", " + FORMAT_DIVIDER+FORMAT_Y+FORMAT_DIVIDER + ")";
 
 
+/////////////////////////////////
+// PLOTFLAGALLTOOL DEFINITIONS //
+/////////////////////////////////
+
+PlotFlagAllTool::PlotFlagAllTool(PlotCoordinate::System sys) :
+        PlotMouseTool(sys)
+{ }
+
+PlotFlagAllTool::PlotFlagAllTool(PlotAxis xAxis, PlotAxis yAxis,
+        PlotCoordinate::System sys) : PlotMouseTool(xAxis, yAxis, sys)
+{ }
+
+PlotFlagAllTool::~PlotFlagAllTool() { }
+
+void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
+    std::cout << "PlotFlagAllTool::handleMouseEvent" << std::endl;
+    m_lastEventHandled = false;
+    if(m_canvas == NULL) return;
+
+    const PlotClickEvent *c = dynamic_cast<const PlotClickEvent*>(&event);
+    if(c != NULL) {
+      std::cout << "PlotFlagAllTool::handleMouseEvent mouse clicked" << std::endl;
+    }
+}
+
 ////////////////////////////////////
 // PLOTMOUSETOOLGROUP DEFINITIONS //
 ////////////////////////////////////
@@ -1154,6 +1180,7 @@ PlotStandardMouseToolGroup::PlotStandardMouseToolGroup(ToolCode activeTool,
     addTool(new PlotSelectTool(system));
     addTool(new PlotZoomTool(system));
     addTool(new PlotPanTool(system));
+    addTool(new PlotFlagAllTool(system));
     setActiveTool(activeTool);
     m_tracker = new PlotTrackerTool(system);
     m_tracker->setBlocking(false);
@@ -1170,6 +1197,7 @@ PlotStandardMouseToolGroup::PlotStandardMouseToolGroup(PlotAxis xAxis,
     addTool(new PlotSelectTool(xAxis, yAxis, system));
     addTool(new PlotZoomTool(xAxis, yAxis, system));
     addTool(new PlotPanTool(xAxis, yAxis, system));
+    addTool(new PlotFlagAllTool(xAxis, yAxis, system));
     setActiveTool(activeTool);
     m_tracker = new PlotTrackerTool(xAxis, yAxis, system);
     m_tracker->setBlocking(false);
@@ -1184,12 +1212,14 @@ PlotStandardMouseToolGroup::PlotStandardMouseToolGroup(
         PlotSelectToolPtr selectTool, 
         PlotZoomToolPtr zoomTool,
         PlotPanToolPtr panTool, 
+        PlotFlagAllToolPtr flagAllTool,
         PlotTrackerToolPtr trackerTool,
         ToolCode activeTool)    {
             
     addTool(!selectTool.null() ? selectTool : new PlotSelectTool());
     addTool(!zoomTool.null()   ? zoomTool   : new PlotZoomTool());
     addTool(!panTool.null()    ? panTool    : new PlotPanTool());
+    addTool(!flagAllTool.null() ? flagAllTool : new PlotFlagAllTool());
     setActiveTool(activeTool);
     m_tracker = !trackerTool.null() ? trackerTool : new PlotTrackerTool();
     m_tracker->setBlocking(false);
@@ -1212,8 +1242,10 @@ void PlotStandardMouseToolGroup::setActiveTool(ToolCode toolcode) {
         if (((dynamic_cast<PlotSelectTool*>(&*m_tools[i]) != NULL && toolcode==SELECT_TOOL)) 
          || ((dynamic_cast<PlotSelectTool*>(&*m_tools[i]) != NULL && toolcode==SUBTRACT_TOOL))
          || ((dynamic_cast<PlotZoomTool*>(&*m_tools[i]) != NULL && toolcode==ZOOM_TOOL))
-         || ((dynamic_cast<PlotPanTool*>(&*m_tools[i]) != NULL) && toolcode==PAN_TOOL))    
+         || ((dynamic_cast<PlotPanTool*>(&*m_tools[i]) != NULL) && toolcode==PAN_TOOL)
+         || ((dynamic_cast<PlotFlagAllTool*>(&*m_tools[i]) != NULL) && toolcode == FLAGALL_TOOL))
         {
+          std::cout << "toolcode = " << (Int)toolcode << std::endl;
             PlotMouseToolGroup::setActiveTool(i, toolcode);
             return;
         }
@@ -1300,6 +1332,17 @@ PlotPanToolPtr PlotStandardMouseToolGroup::panTool() {
 
     // shouldn't happen!
     PlotPanToolPtr t = new PlotPanTool();
+    m_tools.push_back(t);
+    return t;
+}
+
+PlotFlagAllToolPtr PlotStandardMouseToolGroup::flagAllTool() {
+    for(unsigned int i = 0; i < m_tools.size(); i++)
+        if(dynamic_cast<PlotFlagAllTool*>(&*m_tools[i]) != NULL)
+            return PlotFlagAllToolPtr(m_tools[i]);
+
+    // shouldn't happen!
+    PlotFlagAllToolPtr t = new PlotFlagAllTool();
     m_tools.push_back(t);
     return t;
 }

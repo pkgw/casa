@@ -119,6 +119,9 @@
    <addaction name="separator"/>
    <addaction name="actionFlag"/>
    <addaction name="actionUnflag"/>
+   <addaction name="separator"/>
+   <addaction name="actionFlagAll"/>
+   <addaction name="actionUnflagAll"/>
   </widget>
   <widget class="QToolBar" name="iterationToolBar">
    <property name="windowTitle">
@@ -181,6 +184,30 @@
    </property>
    <property name="text">
     <string>Unflag</string>
+   </property>
+  </action>
+   <action name="actionFlagAll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="PlotMSPlotter.qrc">
+     <normaloff>:/actions/images/flag.png</normaloff>:/actions/images/flag.png</iconset>
+   </property>
+   <property name="text">
+    <string>Flag All</string>
+   </property>
+  </action>
+  <action name="actionUnflagAll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="PlotMSPlotter.qrc">
+     <normaloff>:/actions/images/unflag.png</normaloff>:/actions/images/unflag.png</iconset>
+   </property>
+   <property name="text">
+    <string>Unflag All</string>
    </property>
   </action>
   <action name="actionLocate">

@@ -105,6 +105,7 @@ casa_add_library( plotms
   Actions/ActionExport.cc
   Actions/ActionExportDialog.cc
   Actions/ActionFactory.cc
+  Actions/ActionFlagAll.cc
   Actions/ActionHoldReleaseDrawing.cc
   Actions/ActionInformation.cc
   Actions/ActionIterFirst.cc
@@ -130,6 +131,7 @@ casa_add_library( plotms
   Actions/ActionTracker.cc
   Actions/ActionTrackerDisplay.cc
   Actions/ActionTrackerHover.cc
+  Actions/ActionUnflagAll.cc
   Actions/ActionZoom.cc
   Actions/PlotMSAction.cc
   Threads/BackgroundThread.cc
