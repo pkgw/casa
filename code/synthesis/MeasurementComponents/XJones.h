@@ -1,4 +1,4 @@
-//# DJones.h: Declaration of standard Polarization Calibration types
+//# XJones.h: Cross-hand phase calibration
 //# Copyright (C) 1996,1997,2000,2001,2002,2003,2011
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -25,8 +25,8 @@
 //#
 //#
 
-#ifndef SYNTHESIS_DJONES_H
-#define SYNTHESIS_DJONES_H
+#ifndef SYNTHESIS_XJONES_H
+#define SYNTHESIS_XJONES_H
 
 #include <casa/aips.h>
 #include <casa/Containers/Record.h>
@@ -41,250 +41,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // Forward declarations
 class VisEquation;
-
-// **********************************************************
-//  DJones
-//
-
-class DJones : public SolvableVisJones {
-public:
-
-  // Constructor
-  DJones(VisSet& vs);
-  DJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DJones(const MSMetaInfoForCal& msmc);
-  DJones(const casacore::Int& nAnt);
-
-  virtual ~DJones();
-
-  // Local setapply
-  using SolvableVisJones::setApply;
-  virtual void setApply(const casacore::Record& apply);
-
-  // D-specific solve setup
-  using SolvableVisJones::setSolve;
-  void setSolve(const casacore::Record& solvepar);
-
-  // Return the type enum
-  virtual Type type() { return VisCal::D; };
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "Dgen Jones"; };
-  virtual casacore::String longTypeName() { return "Dgen Jones (instrumental polarization"; };
-
-  // Type of Jones matrix according to nPar()
-  //   Do GENERAL matrix algebra
-  virtual Jones::JonesType jonesType() { return Jones::General; };
-
-  // We can solve for polarization with D
-  virtual casacore::Int solvePol() { return solvePol_; };
-
-  // Specialization that conditions raw data & model for OTF pol solving
-  virtual void setUpForPolSolve(vi::VisBuffer2& vb);
-
-  // Hazard a guess at parameters
-  virtual void guessPar(VisBuffer& vb);
-  virtual void guessPar(SDBList& sdbs);
-
-  // Update the parameters from solving
-  //  (in linear approx, we always set the source update to zero, for now!)
-  virtual void updatePar(const casacore::Vector<casacore::Complex> dCalPar,
-			 const casacore::Vector<casacore::Complex> dSrcPar);
-
-  // SNR is 1/err for D-terms (?)
-  virtual void formSolveSNR();
-
-  // D-specific post-solve stuff
-  virtual void globalPostSolveTinker();
-
-  // D-specific reReference
-  // TBD: non-triv impl
-  virtual void reReference() { cout << "reReference!" << endl;};
-
-  virtual void applyRefAnt();
-
-  // Method to list the D results
-  virtual void logResults();
-
-  virtual void createCorruptor(const VisIter& vi, 
-			       const casacore::Record& simpar, 
-			       const casacore::Int nSim);
-protected:
-
-  // D has two casacore::Complex parameters
-  virtual casacore::Int nPar() { return 2; };
-
-  // Jones matrix elements are trivial?
-  //  true if GenLinear, false if General
-  virtual casacore::Bool trivialJonesElem() { return (jonesType()==Jones::GenLinear); };  
-  // dD/dp are trivial
-  virtual casacore::Bool trivialDJ() { return true; };
-
-  // Non-trivial Jones matrix calculation
-  virtual void calcOneJones(casacore::Vector<casacore::Complex>& mat, casacore::Vector<casacore::Bool>& mOk,
-			    const casacore::Vector<casacore::Complex>& par, const casacore::Vector<casacore::Bool>& pOk);
-
-  // Initialize trivial dJs
-  virtual void initTrivDJ();
-
-private:
-
-  casacore::Int solvePol_;
-  DJonesCorruptor *dcorruptor_p;
-  
-
-  
-};
-
-// **********************************************************
-//  DfJones (freq-dep D)  (general)
-//
-
-class DfJones : public DJones {
-public:
-
-  // Constructor
-  DfJones(VisSet& vs);
-  DfJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DfJones(const MSMetaInfoForCal& msmc);
-  DfJones(const casacore::Int& nAnt);
-
-  virtual ~DfJones();
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "Dfgen Jones"; };
-  virtual casacore::String longTypeName() { return "Dfgen Jones (frequency-dependent instrumental polarization"; };
-
-  // This is the freq-dep version of D 
-  //   (this is the ONLY fundamental difference from D)
-  virtual casacore::Bool freqDepPar() { return true; };
-  
-};
-
-
-
-// **********************************************************
-//  DlinJones   (linearized DJones)
-//
-
-class DlinJones : public DJones {
-public:
-
-  // Constructor
-  DlinJones(VisSet& vs);
-  DlinJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DlinJones(const MSMetaInfoForCal& msmc);
-  DlinJones(const casacore::Int& nAnt);
-
-  virtual ~DlinJones();
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "D Jones"; };
-  virtual casacore::String longTypeName() { return "D Jones (instrumental polarization"; };
-
-  // Type of Jones matrix according to nPar()
-  //  Do linearized matrix algebra
-  virtual Jones::JonesType jonesType() { return Jones::GenLinear; };
-
-};
-
-// **********************************************************
-//  DflinJones (freq-dep, linearized DJones)
-//
-
-class DflinJones : public DlinJones {
-public:
-
-  // Constructor
-  DflinJones(VisSet& vs);
-  DflinJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DflinJones(const MSMetaInfoForCal& msmc);
-  DflinJones(const casacore::Int& nAnt);
-
-  virtual ~DflinJones();
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "Df Jones"; };
-  virtual casacore::String longTypeName() { return "Df Jones (frequency-dependent instrumental polarization"; };
-
-  // This is the freq-dep version of D 
-  //   (this is the ONLY fundamental difference from D)
-  virtual casacore::Bool freqDepPar() { return true; };
-
-};
-
-// **********************************************************
-//  DllsJones   (LLS DJones solve, General apply)
-//
-
-
-class DllsJones : public DJones {
-public:
-
-  // Constructor
-  DllsJones(VisSet& vs);
-  DllsJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DllsJones(const MSMetaInfoForCal& msmc);
-  DllsJones(const casacore::Int& nAnt);
-
-
-  virtual ~DllsJones();
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "DLLS Jones"; };
-  virtual casacore::String longTypeName() { return "DLLS Jones (instrumental polarization)"; };
-
-  // Type of Jones matrix 
-  virtual Jones::JonesType jonesType() { return Jones::General; };
-
-  // Dlin now uses generic gather, but solves for itself per solution
-  virtual casacore::Bool useGenericGatherForSolve() { return true; };
-  virtual casacore::Bool useGenericSolveOne() { return false; }
-
-  // Local implementation of selfSolveOne (generalized signature)
-  //   call solveOneVB with the first (and only?) VB
-  virtual void selfSolveOne(VisBuffGroupAcc& vbga) { this->solveOneVB(vbga(0)); };
-  virtual void selfSolveOne(SDBList& sdbs) { this->solveOne(sdbs); };
-
-
-protected:
-
-  // LSQ Solver for 1 VB
-  virtual void solveOneVB(const VisBuffer& vb);
-  virtual void solveOneSDB(SolveDataBuffer& sdb);
-
-  // LSQ Solver for an SDBList (which may contain multiple SDBs over time/spw)
-  virtual void solveOne(SDBList& sdbs);
-
-
-};
-
-// **********************************************************
-//  DfllsJones (freq-dep, LLS DJones solve, General apply)
-//
-
-class DfllsJones : public DllsJones {
-public:
-
-  // Constructor
-  DfllsJones(VisSet& vs);
-  DfllsJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DfllsJones(const MSMetaInfoForCal& msmc);
-  DfllsJones(const casacore::Int& nAnt);
-
-  virtual ~DfllsJones();
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "DfLLS Jones"; };
-  virtual casacore::String longTypeName() { return "DfLLS Jones (frequency-dependent instrumental polarization"; };
-
-  // This is the freq-dep version of D 
-  //   (this is the ONLY fundamental difference from D)
-  virtual casacore::Bool freqDepPar() { return true; };
-
-};
-
-/*
 
 // **********************************************************
 //  X: position angle calibration (for circulars!)
@@ -541,7 +297,7 @@ public:
 
 };
 
-*/
+
 
 
 } //# NAMESPACE CASA - END

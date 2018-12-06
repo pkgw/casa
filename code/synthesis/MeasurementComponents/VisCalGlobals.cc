@@ -29,6 +29,7 @@
 #include <synthesis/MeasurementComponents/MSMetaInfoForCal.h>
 #include <synthesis/MeasurementComponents/StandardVisCal.h>
 #include <synthesis/MeasurementComponents/DJones.h>
+#include <synthesis/MeasurementComponents/XJones.h>
 #include <synthesis/MeasurementComponents/GSpline.h>
 #include <synthesis/MeasurementComponents/BPoly.h>
 #include <synthesis/MeasurementComponents/EJones.h>
