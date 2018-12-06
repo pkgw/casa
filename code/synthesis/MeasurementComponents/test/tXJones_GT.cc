@@ -294,6 +294,117 @@ TEST_F(GlinXphJonesTest, GlinXphfJonesTest){
   
   ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-7)); 
 
+}
 
+
+
+
+class XparangJonesTest : public VisCalTestBase {
+
+public:
+
+  Cube<Complex> x;
+
+  XparangJonesTest() :
+    VisCalTestBase(1,10,1,4,4,64,1,true,"lin"),
+    x(1,nChan,nAnt,Complex(0.0))
+  {
+    for (Int ich=0;ich<nChan;++ich) {
+      Float a((C::pi/4)*cos(ich*C::pi/90.0));
+      x(Slice(),Slice(ich,1,1),Slice())=Complex(cos(a),sin(a));
+    }
+
+    //summary("XparangJonesTest");
+    //cout << "x = " << phase(x)*180/C::pi << endl;
+  }
+
+
+};
+  
+
+TEST_F(XparangJonesTest, XfparangJonesTest){
+
+  // Apply-able parang
+  PJones Papp(msmc);
+  Papp.setApply();
+
+  // Apply-able Xf
+  XfJones Xapp(msmc);
+  Xapp.setApply();
+
+  for (Int ispw=0;ispw<nSpw;++ispw) { 
+    Xapp.setMeta(0,1,0.0,
+		 ispw,ssvp.freqs(ispw),
+		 nChan);
+    Xapp.sizeApplyParCurrSpw(nChan);
+    
+    Xapp.setApplyParCurrSpw(x,true,false);  // correct below will corrupt
+  }
+
+  XfparangJones XYsol(msmc);
+  Record solvePar;
+  solvePar.define("table",String("test.Xf"));
+  solvePar.define("solint",String("inf"));
+  solvePar.define("combine",String(""));
+  Vector<Int> refant(1,0); solvePar.define("refant",refant);
+  XYsol.setSolve(solvePar);
+
+  SDBList sdbs;
+  for (vi2.originChunks();vi2.moreChunks();vi2.nextChunk()) {
+    for (vi2.origin();vi2.more();vi2.next()) {
+
+      Int ispw=vb2->spectralWindows()(0);
+      Int obsid(vb2->observationId()(0));
+      Int scan(vb2->scan()(0));
+      Double timestamp(vb2->time()(0));
+      Int fldid(vb2->fieldId()(0));
+      Vector<Double> freqs(vb2->getFrequencies(0));
+      Vector<Int> a1(vb2->antenna1());
+      Vector<Int> a2(vb2->antenna2());
+
+      vb2->resetWeightsUsingSigma();
+
+      Cube<Complex> vC(vb2->visCube());
+      vb2->setVisCubeCorrected(vC);
+      vb2->setFlagCube(vb2->flagCube());
+
+      Xapp.setMeta(obsid,scan,timestamp,
+		   ispw,freqs,
+		   fldid);
+      Xapp.correct2(*vb2,false,false,false);  // (trial?,doWtSp?,dosync?)
+
+
+      //cout << "vCC=" << Vector<Complex>(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+      //cout << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+
+
+      sdbs.add(*vb2);
+      //cout << "sdb.feedPa() = " << sdbs(sdbs.nSDB()-1).feedPa() << endl;
+    }
+  }
+
+  // Setup meta & sizes for the solve
+  XYsol.setMeta(sdbs.aggregateObsId(),
+		sdbs.aggregateScan(),
+		sdbs.aggregateTime(),
+		sdbs.aggregateSpw(),
+		sdbs.freqs(),
+		sdbs.aggregateFld());
+  XYsol.sizeSolveParCurrSpw(sdbs.nChannels()); 
+
+  // Call the specialized solver
+  XYsol.selfSolveOne(sdbs);
+
+  //cout << "srcPolPar() = " << real(XYsol.srcPolPar()) << endl;
+  ASSERT_NEAR(0.04,real(XYsol.srcPolPar()(0)),1e-3);
+  ASSERT_NEAR(0.03,real(XYsol.srcPolPar()(1)),1e-3);
+  
+  Cube<Complex> soln(XYsol.solveAllCPar()(Slice(0),Slice(),Slice()));
+  //cout << "soln = " << phase(soln.xyPlane(0))*180/C::pi << endl;
+
+  Cube<Float> soldiff=amplitude(soln-x);
+  //cout << "Diff = " << soldiff  << endl;
+  
+  ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-7)); 
 
 }
