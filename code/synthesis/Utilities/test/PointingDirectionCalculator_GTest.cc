@@ -471,10 +471,7 @@ private:
 
     // Parameters  (Time)
     
-        Double secondOffset   ;      // Sliding Time (sec) THIS CAUSES  fixed value i
-                                    //    on the edges of the table.(see doGetDirection() )
-        Double dayOffset     ;      // Day offset   (Day)  ** NOT USED *** 
-
+        // 2 parameters were deleted , due to no need . ..
 };
 
 //+
@@ -696,8 +693,7 @@ casacore::Vector<Double> EvaluateInterporation::pseudoDirInfo(Double delta)
         Double dd    =  (22 *3600.0 
                          +  5*60 +  41.5 
                          + time  
-                         + dayOffset )
-                       /(3600*24) ;
+                       ) / (3600*24) ;
      
         casacore::MVTime  basetime (2003,11,12 ,dd);     
  
@@ -3669,6 +3665,9 @@ TEST_F(TestSetFrame, setFrame )
     - Based on instructed Template for GTest.
     - Such minimum statements are recommended.
 (Note) Interpolation Test completed 
+(History) 
+-  12/7 Merged master (to get new CMakeList)
+-  12/7 Added initialize (CAS-12114,old 11427-2)
  *************************************************/
 
 int main (int nArgs, char * args [])

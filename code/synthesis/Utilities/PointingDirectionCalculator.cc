@@ -650,7 +650,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
           Vector<Double> scanRate;
           Vector<Double> interpolated(2);
 
-        if(true)
+        if(false)
         { 
             //+
             // NEW Spline Interpolation
