@@ -11,7 +11,7 @@ if (casa['state']['telemetry-enabled'] == True):
     casalog.origin("CASAStart")
     casalog.poststat("Starting CASA at: " + casa['state']['telemetry-starttime'] + " Version " + casa['build']['version'] + " Platform: " + platform.platform())
     # Set back to "casa" so that the current logging is not altered
-    casalog.origin("casa")
+    casalog.origin("")
 
 if casa['flags'].execute:
     import os.path
