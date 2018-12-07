@@ -917,23 +917,105 @@ const String PlotTrackerTool::DEFAULT_FORMAT = "("+FORMAT_DIVIDER+FORMAT_X+
 /////////////////////////////////
 
 PlotFlagAllTool::PlotFlagAllTool(PlotCoordinate::System sys) :
-        PlotMouseTool(sys)
+        PlotMouseTool(sys),
+        m_draw(true),
+        m_marked(PlotFlagAllTool::PPFLAG_NONE),
+        m_defaultBackground(NULL)
 { }
 
 PlotFlagAllTool::PlotFlagAllTool(PlotAxis xAxis, PlotAxis yAxis,
-        PlotCoordinate::System sys) : PlotMouseTool(xAxis, yAxis, sys)
+        PlotCoordinate::System sys) : PlotMouseTool(xAxis, yAxis, sys),
+            m_draw(true),
+            m_marked(PlotFlagAllTool::PPFLAG_NONE),
+            m_defaultBackground(NULL)
 { }
 
 PlotFlagAllTool::~PlotFlagAllTool() { }
 
+void PlotFlagAllTool::setUpdateBackground(bool on) {
+  m_draw = on;
+}
+
+bool PlotFlagAllTool::isUpdateBackgroundActive() {
+  return m_draw;
+}
+
+bool PlotFlagAllTool::isMarkedForFlag() {
+  return m_marked == PlotFlagAllTool::PPFLAG_FLAG;
+}
+
+bool PlotFlagAllTool::isMarkedForUnflag() {
+  return m_marked == PlotFlagAllTool::PPFLAG_UNFLAG;
+}
+
 void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
-    std::cout << "PlotFlagAllTool::handleMouseEvent" << std::endl;
+//    std::cout << "PlotFlagAllTool::handleMouseEvent" << std::endl;
     m_lastEventHandled = false;
     if(m_canvas == NULL) return;
 
     const PlotClickEvent *c = dynamic_cast<const PlotClickEvent*>(&event);
     if(c != NULL) {
       std::cout << "PlotFlagAllTool::handleMouseEvent mouse clicked" << std::endl;
+      auto const canvas = c->canvas();
+      std::cout << "canvas title = '" << canvas->title() << "'" << std::endl;
+
+      // mark canvas and change background
+      switch (m_marked) {
+      case PlotFlagAllTool::PPFLAG_FLAG:
+        if (m_draw) {
+          m_canvas->setBackground(m_defaultBackground);
+        }
+        m_marked = PlotFlagAllTool::PPFLAG_UNFLAG;
+        break;
+      case PlotFlagAllTool::PPFLAG_UNFLAG:
+        if (m_draw) {
+          // get default background setting
+          if (m_defaultBackground.null()) {
+            m_defaultBackground = m_canvas->background();
+          }
+          m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
+        }
+        m_marked = PlotFlagAllTool::PPFLAG_FLAG;
+        break;
+      default:
+        // assuming that the original state is *UNFLAGGED*
+        // TODO: check if the data in canvas is all flagged and
+        //       change the behavior depending on whether there
+        //       are any valid data or not.
+        // same as PPFLAG_UNFLAG case at this moment
+        if (m_draw) {
+          // get default background setting
+          if (m_defaultBackground.null()) {
+            m_defaultBackground = m_canvas->background();
+          }
+          m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
+        }
+        m_marked = PlotFlagAllTool::PPFLAG_FLAG;
+        break;
+      }
+//      if (m_marked == PlotFlagAllTool::PPFLAG_NONE) {
+//
+//      } else if (m_marked == PlotFlagAllTool::PPFLAG_FLAG) {
+//        if (m_draw) {
+//          m_canvas->setBackground(m_defaultBackground);
+//        }
+//        m_marked = PlotFlagAllTool::PPFLAG_UNFLAG;
+//      } else {
+//        if (m_draw) {
+//          // get default background setting
+//          if (m_defaultBackground.null()) {
+//            m_defaultBackground = m_canvas->background();
+////            std::cout << "default background is (color "
+////                << m_defaultBackground->color()->asName() << ", fill "
+////                << m_defaultBackground->pattern() << ")" << std::endl;
+//          }
+//          m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
+//        }
+//        m_marked = PlotFlagAllTool::PPFLAG_FLAG;
+//      }
+      m_canvas->refresh();
+
+      m_lastEventHandled = true;
     }
 }
 
@@ -952,7 +1034,7 @@ PlotUnflagAllTool::PlotUnflagAllTool(PlotAxis xAxis, PlotAxis yAxis,
 PlotUnflagAllTool::~PlotUnflagAllTool() { }
 
 void PlotUnflagAllTool::handleMouseEvent(const PlotEvent& event) {
-    std::cout << "PlotUnflagAllTool::handleMouseEvent" << std::endl;
+//    std::cout << "PlotUnflagAllTool::handleMouseEvent" << std::endl;
     m_lastEventHandled = false;
     if(m_canvas == NULL) return;
 
@@ -1328,6 +1410,16 @@ vector<PlotRegion> PlotStandardMouseToolGroup::getSelectedRects(){
 	PlotSelectToolPtr selectPtr = selectTool();
 	vector<PlotRegion> regions = selectPtr->getSelectedRects();
 	return regions;
+}
+
+bool PlotStandardMouseToolGroup::isMarkedForFlag() {
+  PlotFlagAllToolPtr ptr = flagAllTool();
+  return ptr->isMarkedForFlag();
+}
+
+bool PlotStandardMouseToolGroup::isMarkedForUnflag() {
+  PlotFlagAllToolPtr ptr = flagAllTool();
+  return ptr->isMarkedForUnflag();
 }
 
 

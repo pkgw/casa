@@ -800,6 +800,9 @@ public:
     std::vector<PlotRegion> getSelectedRects();
     void clearSelectedRects();
 
+    bool isMarkedForFlag();
+    bool isMarkedForUnflag();
+
     // Converts the given region into a region with the given system.
     // DEFAULT IMPLEMENTATION.
     virtual PlotRegion convertRegion(const PlotRegion& region,

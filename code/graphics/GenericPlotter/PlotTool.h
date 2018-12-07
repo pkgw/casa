@@ -615,6 +615,13 @@ INHERITANCE_POINTER(PlotTrackerTool, PlotTrackerToolPtr, PlotMouseTool,
 // 1) the behavior described above
 class PlotFlagAllTool : public virtual PlotMouseTool {
 public:
+    // enum for canvas state
+    enum PPFlagType {
+      PPFLAG_FLAG,
+      PPFLAG_UNFLAG,
+      PPFLAG_NONE
+    };
+
     // Constructor which takes the tool's coordinate system.
     PlotFlagAllTool(PlotCoordinate::System system = PlotCoordinate::WORLD);
 
@@ -627,6 +634,26 @@ public:
 
     // Implements PlotMouseTool::handleMouseEvent().
     virtual void handleMouseEvent(const PlotEvent& event);
+
+    // Sets the attributes for updating background
+    virtual void setUpdateBackground(bool on = true);
+
+    // Inquiry if update of background is active
+    virtual bool isUpdateBackgroundActive();
+
+    // Inquiry if it is marked
+    bool isMarkedForFlag();
+    bool isMarkedForUnflag();
+
+protected:
+    // boolean flag for whether update of background is active
+    bool m_draw;
+
+    // boolean flag for whether canvas is marked for flag
+    PlotFlagAllTool::PPFlagType m_marked;
+
+    // keep default background setting
+    PlotAreaFillPtr m_defaultBackground;
 
 };
 INHERITANCE_POINTER(PlotFlagAllTool, PlotFlagAllToolPtr, PlotMouseTool,
@@ -888,6 +915,9 @@ public:
     int getSelectedRectCount();
     vector<PlotRegion> getSelectedRects();
     void clearSelectedRects();
+
+    bool isMarkedForFlag();
+    bool isMarkedForUnflag();
 
     // Provides access to the individual tools.  Note: this should be avoided
     // if possible.

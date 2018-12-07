@@ -157,6 +157,14 @@ void PlotCanvas::clearSelectedRects(){
 	}
 }
 
+bool PlotCanvas::isMarkedForFlag() {
+  return (!m_standardTools.null()) ? m_standardTools->isMarkedForFlag() : false;
+}
+
+bool PlotCanvas::isMarkedForUnflag() {
+  return (!m_standardTools.null()) ? m_standardTools->isMarkedForUnflag() : false;
+}
+
 bool PlotCanvas::hasThreadedDrawing() const {
     PlotFactory* f = implementationFactory();
     bool ret = f != NULL && f->canvasHasThreadedDrawing();
