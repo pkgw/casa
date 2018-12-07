@@ -94,6 +94,9 @@ namespace casatools {   /** namespace for CASAtools classes within "CASA code" *
         std::list<ServiceId> service_list;
         std::mutex uri_mutex;
         std::string uri_;
+#ifdef USE_GRPC
+        void *grpc_state;
+#endif
     };
 
 }
