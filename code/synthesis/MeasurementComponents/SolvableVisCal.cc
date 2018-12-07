@@ -7351,6 +7351,16 @@ void SolvableVisJones::fluxscale(const String& outfile,
 	      oFitMsg += " (degenerate)";
           }
         }
+        Int sh1, sh2;
+        covar.shape(sh1,sh2);
+        if (sh1 > 1) {
+          oFitMsg += " covariance matrix for the fit: ";
+          for (Int i=0;i<sh1; i++) {
+            for (Int j=0;j<sh2; j++) {
+              oFitMsg += " covar("+String::toString(i)+","+String::toString(j)+")="+String::toString<Double>(covar(i,j));
+            }
+         }
+        }
         if ( oListFile != "" ) {
           ofstream oStream;
 	  oStream.open( oListFile.chars(), ios::out|ios::app );
