@@ -471,9 +471,7 @@ private:
 
     // Parameters  (Time)
     
-        Double secondOffset   ;      // Sliding Time (sec) THIS CAUSES  fixed value i
-                                    //    on the edges of the table.(see doGetDirection() )
-        Double dayOffset     ;      // Day offset   (Day)  ** NOT USED *** 
+        Double dayOffset=0     ;      // Day offset   (Day)  ** NOT USED *** includes [CAS-12114] 
 
 };
 
