@@ -800,8 +800,11 @@ public:
     std::vector<PlotRegion> getSelectedRects();
     void clearSelectedRects();
 
+    // methods related to per-panel flag mode
+    void clearMark();
     bool isMarkedForFlag();
     bool isMarkedForUnflag();
+    bool isBackgroundColorChanged();
 
     // Converts the given region into a region with the given system.
     // DEFAULT IMPLEMENTATION.

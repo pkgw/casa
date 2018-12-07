@@ -51,6 +51,10 @@ bool ActionFlagAll::doTool(PlotMSApp* plotms) {
     // Get flagging parameters.
     //PlotMSFlagging flagging = client->getFlagging();
 
+    // default background color
+    // TODO: find a way to obtain default (or current) background color
+    PlotAreaFillPtr defaultBackground = NULL;
+
     PlotMSPlot* plot;
     for(unsigned int i = 0; i < plots.size(); i++) {
       plot = plots[i];
@@ -67,7 +71,9 @@ bool ActionFlagAll::doTool(PlotMSApp* plotms) {
 
       vector<PlotCanvasPtr> canv = plot->canvases();
       for(unsigned int j = 0; j < canv.size(); j++) {
+
         // Only apply to visible canvases.
+        // TODO: need to examine
         bool visible = false;
         for(unsigned int k= 0; !visible && k < visibleCanv.size(); k++)
           if(canv[j] == visibleCanv[k]) visible = true;
@@ -77,15 +83,61 @@ bool ActionFlagAll::doTool(PlotMSApp* plotms) {
         }
 
         bool isCanvasMarkedForFlag = canv[j]->isMarkedForFlag();
+        bool isCanvasMarkedForUnFlag = canv[j]->isMarkedForUnflag();
+
 
         if (isCanvasMarkedForFlag) {
           std::cout << "canvas " << j << " is marked for flag." << std::endl;
+        } else if (isCanvasMarkedForUnFlag) {
+          std::cout << "canvas " << j << " is marked for unflag." << std::endl;
+        } else {
+          // get default background
+          // TODO: exclude all-flagged panels from the beginning
+          if (defaultBackground.null()) {
+            defaultBackground = canv[j]->background();
+          }
+        }
+      }
+    }
+
+    for(unsigned int i = 0; i < plots.size(); i++) {
+      plot = plots[i];
+      if(plot == NULL) continue;
+
+      // Get parameters.
+      PlotMSPlotParameters& params = plot->parameters();
+      PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>();
+
+      // Detect if we are showing flagged/unflagged points (for locate)
+      PMS_PP_Display* d = params.typedGroup<PMS_PP_Display>();
+      Bool showUnflagged=(d->unflaggedSymbol()->symbol()!=PlotSymbol::NOSYMBOL);
+      Bool showFlagged=(d->flaggedSymbol()->symbol()!=PlotSymbol::NOSYMBOL);
+
+      vector<PlotCanvasPtr> canv = plot->canvases();
+      for(unsigned int j = 0; j < canv.size(); j++) {
+        // reset background color
+        auto const currentBackground = canv[j]->background();
+        std::cout << "BG color " << currentBackground->color() << std::endl;
+        if (canv[j]->isBackgroundColorChanged()) {
+          std::cout << "BG color changed" << std::endl;
+          if (!defaultBackground.null()) {
+            canv[j]->setBackground(defaultBackground);
+          }
         }
 
-        bool isCanvasMarkedForUnFlag = canv[j]->isMarkedForUnflag();
+        // clear all marks
+        canv[j]->clearMark();
 
-        if (isCanvasMarkedForUnFlag) {
-          std::cout << "canvas " << j << " is marked for unflag." << std::endl;
+        // Only apply to visible canvases.
+        bool visible = false;
+        for(unsigned int k= 0; !visible && k < visibleCanv.size(); k++)
+          if(canv[j] == visibleCanv[k]) visible = true;
+        if(!visible) {
+          std::cout << "canvas " << j << " is not visible. continue." << std::endl;
+          continue;
+        }
+        if (visible) {
+          canv[j]->refresh();
         }
       }
     }

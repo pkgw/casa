@@ -919,6 +919,7 @@ const String PlotTrackerTool::DEFAULT_FORMAT = "("+FORMAT_DIVIDER+FORMAT_X+
 PlotFlagAllTool::PlotFlagAllTool(PlotCoordinate::System sys) :
         PlotMouseTool(sys),
         m_draw(true),
+        m_bgcolor_changed(false),
         m_marked(PlotFlagAllTool::PPFLAG_NONE),
         m_defaultBackground(NULL)
 { }
@@ -926,6 +927,7 @@ PlotFlagAllTool::PlotFlagAllTool(PlotCoordinate::System sys) :
 PlotFlagAllTool::PlotFlagAllTool(PlotAxis xAxis, PlotAxis yAxis,
         PlotCoordinate::System sys) : PlotMouseTool(xAxis, yAxis, sys),
             m_draw(true),
+            m_bgcolor_changed(false),
             m_marked(PlotFlagAllTool::PPFLAG_NONE),
             m_defaultBackground(NULL)
 { }
@@ -940,12 +942,20 @@ bool PlotFlagAllTool::isUpdateBackgroundActive() {
   return m_draw;
 }
 
-bool PlotFlagAllTool::isMarkedForFlag() {
+void PlotFlagAllTool::clearMark() {
+  m_marked = PlotFlagAllTool::PPFLAG_NONE;
+}
+
+bool PlotFlagAllTool::isMarkedForFlag() const {
   return m_marked == PlotFlagAllTool::PPFLAG_FLAG;
 }
 
-bool PlotFlagAllTool::isMarkedForUnflag() {
+bool PlotFlagAllTool::isMarkedForUnflag() const {
   return m_marked == PlotFlagAllTool::PPFLAG_UNFLAG;
+}
+
+bool PlotFlagAllTool::isBackgroundColorChanged() const {
+  return m_bgcolor_changed;
 }
 
 void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
@@ -964,6 +974,7 @@ void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
       case PlotFlagAllTool::PPFLAG_FLAG:
         if (m_draw) {
           m_canvas->setBackground(m_defaultBackground);
+          m_bgcolor_changed = false;
         }
         m_marked = PlotFlagAllTool::PPFLAG_UNFLAG;
         break;
@@ -974,6 +985,7 @@ void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
             m_defaultBackground = m_canvas->background();
           }
           m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
+          m_bgcolor_changed = true;
         }
         m_marked = PlotFlagAllTool::PPFLAG_FLAG;
         break;
@@ -987,32 +999,15 @@ void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
           // get default background setting
           if (m_defaultBackground.null()) {
             m_defaultBackground = m_canvas->background();
+            std::cout << "default background color is " << m_defaultBackground->color()->asName()
+                << ", pattern is " << m_defaultBackground->pattern() << std::endl;
           }
           m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
+          m_bgcolor_changed = true;
         }
         m_marked = PlotFlagAllTool::PPFLAG_FLAG;
         break;
       }
-//      if (m_marked == PlotFlagAllTool::PPFLAG_NONE) {
-//
-//      } else if (m_marked == PlotFlagAllTool::PPFLAG_FLAG) {
-//        if (m_draw) {
-//          m_canvas->setBackground(m_defaultBackground);
-//        }
-//        m_marked = PlotFlagAllTool::PPFLAG_UNFLAG;
-//      } else {
-//        if (m_draw) {
-//          // get default background setting
-//          if (m_defaultBackground.null()) {
-//            m_defaultBackground = m_canvas->background();
-////            std::cout << "default background is (color "
-////                << m_defaultBackground->color()->asName() << ", fill "
-////                << m_defaultBackground->pattern() << ")" << std::endl;
-//          }
-//          m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
-//        }
-//        m_marked = PlotFlagAllTool::PPFLAG_FLAG;
-//      }
       m_canvas->refresh();
 
       m_lastEventHandled = true;
@@ -1412,14 +1407,24 @@ vector<PlotRegion> PlotStandardMouseToolGroup::getSelectedRects(){
 	return regions;
 }
 
+void PlotStandardMouseToolGroup::clearMark() {
+  auto ptr = flagAllTool();
+  ptr->clearMark();
+}
+
 bool PlotStandardMouseToolGroup::isMarkedForFlag() {
-  PlotFlagAllToolPtr ptr = flagAllTool();
+  auto ptr = flagAllTool();
   return ptr->isMarkedForFlag();
 }
 
 bool PlotStandardMouseToolGroup::isMarkedForUnflag() {
-  PlotFlagAllToolPtr ptr = flagAllTool();
+  auto ptr = flagAllTool();
   return ptr->isMarkedForUnflag();
+}
+
+bool PlotStandardMouseToolGroup::isBackgroundColorChanged() {
+  auto ptr = flagAllTool();
+  return ptr->isBackgroundColorChanged();
 }
 
 

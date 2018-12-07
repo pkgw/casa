@@ -641,13 +641,22 @@ public:
     // Inquiry if update of background is active
     virtual bool isUpdateBackgroundActive();
 
+    // Manipulate mark
+    void clearMark();
+
     // Inquiry if it is marked
-    bool isMarkedForFlag();
-    bool isMarkedForUnflag();
+    bool isMarkedForFlag() const;
+    bool isMarkedForUnflag() const;
+
+    // Inquiry if bgcolor is changed
+    bool isBackgroundColorChanged() const;
 
 protected:
     // boolean flag for whether update of background is active
     bool m_draw;
+
+    // boolean flag for background color
+    bool m_bgcolor_changed;
 
     // boolean flag for whether canvas is marked for flag
     PlotFlagAllTool::PPFlagType m_marked;
@@ -916,8 +925,11 @@ public:
     vector<PlotRegion> getSelectedRects();
     void clearSelectedRects();
 
+    // methods related to per-panel flag mode
+    void clearMark();
     bool isMarkedForFlag();
     bool isMarkedForUnflag();
+    bool isBackgroundColorChanged();
 
     // Provides access to the individual tools.  Note: this should be avoided
     // if possible.
