@@ -26,6 +26,9 @@
 #include <iostream>
 
 #include "ActionFlagAll.h"
+#include <plotms/Plots/PlotMSPlot.h>
+#include <plotms/Plots/PlotMSPlotParameterGroups.h>
+#include <plotms/Client/Client.h>
 
 using namespace casacore;
 namespace casa {
@@ -34,6 +37,61 @@ ActionFlagAll::ActionFlagAll( Client* client )
 	: ActionTool( client ){
   std::cout << "ActionFlagAll instance is created" << std::endl;
 	itsType_ = TOOL_FLAG_ALL;
+}
+
+bool ActionFlagAll::doTool(PlotMSApp* plotms) {
+  std::cout << "ActionFlagAll::doTool" << std::endl;
+  std::cout << "toolEnabled = " << toolEnabled << std::endl;
+
+  if (!toolEnabled) {
+    // Locate/Flag/Unflag on all visible canvases.
+    const vector<PlotMSPlot*>& plots = plotms->getPlotManager().plots();
+    vector<PlotCanvasPtr> visibleCanv = client->currentCanvases();
+
+    // Get flagging parameters.
+    //PlotMSFlagging flagging = client->getFlagging();
+
+    PlotMSPlot* plot;
+    for(unsigned int i = 0; i < plots.size(); i++) {
+      plot = plots[i];
+      if(plot == NULL) continue;
+
+      // Get parameters.
+      PlotMSPlotParameters& params = plot->parameters();
+      PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>();
+
+      // Detect if we are showing flagged/unflagged points (for locate)
+      PMS_PP_Display* d = params.typedGroup<PMS_PP_Display>();
+      Bool showUnflagged=(d->unflaggedSymbol()->symbol()!=PlotSymbol::NOSYMBOL);
+      Bool showFlagged=(d->flaggedSymbol()->symbol()!=PlotSymbol::NOSYMBOL);
+
+      vector<PlotCanvasPtr> canv = plot->canvases();
+      for(unsigned int j = 0; j < canv.size(); j++) {
+        // Only apply to visible canvases.
+        bool visible = false;
+        for(unsigned int k= 0; !visible && k < visibleCanv.size(); k++)
+          if(canv[j] == visibleCanv[k]) visible = true;
+        if(!visible) {
+          std::cout << "canvas " << j << " is not visible. continue." << std::endl;
+          continue;
+        }
+
+        bool isCanvasMarkedForFlag = canv[j]->isMarkedForFlag();
+
+        if (isCanvasMarkedForFlag) {
+          std::cout << "canvas " << j << " is marked for flag." << std::endl;
+        }
+
+        bool isCanvasMarkedForUnFlag = canv[j]->isMarkedForUnflag();
+
+        if (isCanvasMarkedForUnFlag) {
+          std::cout << "canvas " << j << " is marked for unflag." << std::endl;
+        }
+      }
+    }
+  }
+
+  return true;
 }
 
 ToolCode ActionFlagAll::getToolCode() const {

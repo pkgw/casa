@@ -36,7 +36,7 @@ public:
 
 	virtual ~ActionFlagAll();
 protected:
-
+  virtual bool doTool(PlotMSApp* plotms);
 	virtual ToolCode getToolCode() const;
 };
 
