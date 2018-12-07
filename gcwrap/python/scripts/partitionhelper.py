@@ -913,7 +913,7 @@ def setAxisType(mmsname, axis=''):
     return True
     
     
-def getPartitonMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'],plotMode=0):
+def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'],plotMode=0):
     """Generates a partition scan/spw map to obtain optimal load balancing with the following criteria:
     
        1st - Maximize the scan/spw/field distribution across sub-MSs
@@ -1039,7 +1039,7 @@ def getPartitonMap(msfilename, nsubms, selection={}, axis=['field','spw','scan']
     # Check that the number of available scan/ddi pairs is not greater than the number of subMSs
     if nsubms > nScanDDIPairs:
         casalog.post("Number of subMSs (%i) is greater than available scan,ddi pairs (%i), setting nsubms to %i" 
-                     % (nsubms,nScanDDIPairs,nScanDDIPairs),"WARN","getPartitonMap")
+                     % (nsubms,nScanDDIPairs,nScanDDIPairs),"WARN","getPartitionMap")
         nsubms = nScanDDIPairs            
     
     ddiArray = np.array(ddiList)
