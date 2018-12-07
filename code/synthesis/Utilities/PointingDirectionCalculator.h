@@ -255,6 +255,10 @@ public:
 
     casacore::uInt getRowId(casacore::uInt irow);
 
+    // set Spline mode 
+
+    void setSplineInterpolation(bool mode) {fgSpline = mode;};
+
 private:
 
     void init();
@@ -310,6 +314,7 @@ private:
 
     // new: Spline
 
+    bool fgSpline = false;
     SDPosInterpolator  sdp_();
 
     void                                 splineInit    (casacore::uInt antennaID, 

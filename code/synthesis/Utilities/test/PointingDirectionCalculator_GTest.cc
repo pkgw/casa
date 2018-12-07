@@ -2384,6 +2384,9 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
         MeasurementSet ms( MsName.c_str() );
 
         PointingDirectionCalculator calc(ms);   
+
+    // Interpolation mode [TENTATIVE]  //
+        calc.setSplineInterpolation( true );
  
     // Initial brief Inspection //
     
@@ -2595,6 +2598,10 @@ TEST_F(TestDirection, InterpolationFull )
     ErrorMax  maxerr;
     std::vector<Double> r_err = {0.0}; 
 
+   // Error Limit 
+    msedit.evgen.    setInterpolationErrorLimit( 1e-05 );
+
+   // Combiniation Loop 
    for( uint m=0; m < Main_IntervalList.size(); m++)
     {
         for( uint p=0; p < Pointing_IntervalList.size(); p++)
@@ -2603,7 +2610,7 @@ TEST_F(TestDirection, InterpolationFull )
              Double m_i = Main_IntervalList[m];
   
              SetUp();
-             msedit.evgen  .    setCurveFunctionNo(1);   // set Curve Fuction
+             msedit.evgen  .    setCurveFunctionNo(0);   // set Curve Fuction
              msedit.evgen.      setMainRowCount(5000);
              msedit.evgen.      Initialize(p_i, m_i) ;
 
@@ -2648,12 +2655,12 @@ TEST_F(TestDirection, InterpolationSingle )
     //    - define test count. some rows are automatically added
     //-
 
-      msedit.evgen.    setCurveFunctionNo(2);   // set Curve Fuction
+      msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
       msedit.evgen.      Initialize( 0.5,     // Pointing Interval
                                      1.0 ) ;  // Main Interval
  
-      msedit.evgen.    setInterpolationErrorLimit( 2.0 );
+      msedit.evgen.    setInterpolationErrorLimit( 0.1);
 
     // Increase Row on MS for large-file.:
 

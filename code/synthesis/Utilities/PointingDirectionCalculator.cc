@@ -170,7 +170,6 @@ PointingDirectionCalculator::PointingDirectionCalculator(
     // set default direction column name
     setDirectionColumn("DIRECTION");
 }
-
 void PointingDirectionCalculator::init() {
     // attach column
     timeColumn_.attach(*selectedMS_, "TIME");
@@ -378,6 +377,8 @@ void PointingDirectionCalculator::splineInit(uInt antID, uInt startPos, uInt end
       tmp_dir.         resize(numAntID);
       tmp_dir [antID]. resize(size);
 
+printf( "given size = %u\n" ,size );
+
     // for each row // 
     for (uInt row = startPos; row < endPos; ++row) 
     {
@@ -393,7 +394,8 @@ void PointingDirectionCalculator::splineInit(uInt antID, uInt startPos, uInt end
         tmp_time[antID][row] = time;
         tmp_dir [antID][row] = dirVal;
 
-        if(false) {
+        // data on Pointing Table ..
+        if(true) {
             printf("Spline::[%4d] Time and dir %f,( %f,%f )\n",row, time,dirVal[0],dirVal[1] );
         }
     }
@@ -438,21 +440,36 @@ void PointingDirectionCalculator::splineInit(uInt antID, uInt startPos, uInt end
     }
 }
 
-Vector<Double> PointingDirectionCalculator::splineCalulate(uInt row, Double dt,uInt antID )
+Vector<Double> PointingDirectionCalculator::splineCalulate(uInt index, Double dt,uInt antID )
 {
+    uInt arraySize = splineCoeff_[antID].size();
+
     Vector<Double> outval(6);  // Local work for return //
 
     // Coeffcient //
 
-    Double a0 = splineCoeff_[antID][row][0][0];
-    Double a1 = splineCoeff_[antID][row][0][1];
-    Double a2 = splineCoeff_[antID][row][0][2];
-    Double a3 = splineCoeff_[antID][row][0][3];
+    Double a0=0.0;
+    Double a1=0.0;
+    Double a2=0.0;
+    Double a3=0.0;
 
-    Double b0 = splineCoeff_[antID][row][1][0];
-    Double b1 = splineCoeff_[antID][row][1][1];
-    Double b2 = splineCoeff_[antID][row][1][2];
-    Double b3 = splineCoeff_[antID][row][1][3];
+    Double b0=0.0;
+    Double b1=0.0;
+    Double b2=0.0;
+    Double b3=0.0;
+
+    if(  index < arraySize)
+    {
+        a0 = splineCoeff_[antID][index][0][0];
+        a1 = splineCoeff_[antID][index][0][1];
+        a2 = splineCoeff_[antID][index][0][2];
+        a3 = splineCoeff_[antID][index][0][3];
+
+        b0 = splineCoeff_[antID][index][1][0];
+        b1 = splineCoeff_[antID][index][1][1];
+        b2 = splineCoeff_[antID][index][1][2];
+        b3 = splineCoeff_[antID][index][1][3];
+    }
 
 //+
 // Spline
@@ -464,14 +481,28 @@ Vector<Double> PointingDirectionCalculator::splineCalulate(uInt row, Double dt,u
 // Linear
 //-
 
-    Double a4 = splineCoeff_[0][row+1][0][0];
-    Double dX = a4-a0;
-    Double b4 = splineCoeff_[0][row+1][1][0];
-    Double dY = b4-b0;
+    Double a4;
+    Double dX;
+    Double b4;
+    Double dY;
+    Double  X1, Y1;
 
-    Double X1 = a0 + dX *dt;
-    Double Y1 = b0 + dY *dt;
- 
+    if( (index+1) < arraySize )
+    {
+       a4 = splineCoeff_[0][index+1][0][0];
+       dX = a4-a0;
+       b4 = splineCoeff_[0][index+1][1][0];
+       dY = b4-b0;
+
+       X1 = a0 + dX *dt;
+       Y1 = b0 + dY *dt;
+    }
+    else
+    {
+        X1 = a0;   // UNDER CONSIDERATION //
+        Y1 = b0;   // mathmatically consistent //  
+    }
+
 // Return //
 
     // Spline interpolated//
@@ -529,11 +560,14 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
         //  - Currently, ASSUME SINGLE ANTENNA, and directly use Pointing Table
         //  - the first arg "antID" is currelty a reserved parameter.   
         //-
-#if 1
-          splineInit(0, 0, nrowPointing);
-#else
-          splineInit(i, start, end);
-#endif 
+
+        if(fgSpline)
+        {
+            splineInit(0, 0, nrowPointing);
+
+//            splineInit(i, start, end);
+
+        }
 
         for (uInt j = start; j < end; ++j) {
             debuglog << "start index " << j << debugpost;
@@ -650,23 +684,26 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
           Vector<Double> scanRate;
           Vector<Double> interpolated(2);
 
-        if(false)
+        if(fgSpline)
         { 
             //+
             // NEW Spline Interpolation
             //-
 
             uInt antID = 0;
-            uInt row   = irow;                  
             Double dd  =  (currentTime - t0) / dt;
+
+            // determin section //
+            uInt uIndex;
+            if( index >= 2 )  uIndex = index-2;
+            else            uIndex = 0;
  
-             
-            Vector<Double> ttDir = splineCalulate(row, dd, antID );
+            Vector<Double> ttDir = splineCalulate(uIndex, dd, antID );
             interpolated[0] = ttDir[0];
             interpolated[1] = ttDir[1];
 
             if(false) {
-                printf( "Nishie:: irow=%d,  dd=%f,", irow, dd );
+                printf( "Nishie:: index=%d,  dd=%f,", index, dd );
                 printf ("Dir=, %f, %f \n", ttDir[0],ttDir[1]);
             }
         }
