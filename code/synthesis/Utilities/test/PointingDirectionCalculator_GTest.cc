@@ -2470,20 +2470,16 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
 
         for (uInt row=0; row < LoopCnt; row++)  // ACTUNG !!! start from 1 or o ??  /// 
         {
- 
             // Direction //
 
               Double calculated_1 = DirList1(row,0);
               Double calculated_2 = DirList1(row,1);
 
-    
             // Generated (Estimated) //
-
 
                 casacore::Vector<Double>  gen_out 
                       = msedit.evgen.pseudoDirInfoMain(  (Double)row   
                                                           + dt         );    // dt:Interpolation offset  (sec)
-                                                     
  
             //+
             // Error calculation (TENTATIVE, -> class lib) 
@@ -2551,7 +2547,9 @@ std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
     //     between one exact point and the next,  
 
     uInt nDiv = InterpolationDivCount; 
-    for (uInt loop=0; loop <= nDiv; loop ++ )
+
+//  for (uInt loop=0; loop <= nDiv; loop ++ )  // SN1210:  should be  0 <=  dd  < interval 
+    for (uInt loop=0; loop < nDiv; loop ++ )
     {
          //+
          // SetUp Testing  MeasurmentSet

@@ -412,7 +412,7 @@ printf( "given size = %u\n" ,size );
 
     // Dump //
 
-    if(false)
+    if(true)
     {
         printf("Spline::Dump Coeffient(size=%d)\n",size );
         for(int i=0; i< size-1; i++)
@@ -563,15 +563,20 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
 
         if(fgSpline)
         {
+#if 1
             splineInit(0, 0, nrowPointing);
-
-//            splineInit(i, start, end);
+#else
+            splineInit(i, start, end);   // This is maybe Right //
+#endif 
 
         }
 
         for (uInt j = start; j < end; ++j) {
             debuglog << "start index " << j << debugpost;
+
+            // doGetDirection call //
             Vector<Double> direction = doGetDirection(j);
+
             debuglog << "index for lat: " << (j * increment)
                     << " (cf. outDirectionFlattened.nelements()="
                     << outDirectionFlattened.nelements() << ")" << debugpost;
@@ -628,15 +633,15 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
         direction = accessor_(*pointingColumns_, index);
     } else if (index <= 0) {
         debuglog << "take 0th row" << debugpost;
-
-        printf("Nishie:Warning, Took the first row.\n");
-
+#if 1
+        printf("Spline::Warning, Took the first row.\n");
+#endif 
         direction = accessor_(*pointingColumns_, 0);
     } else if (index > (Int) (nrowPointing - 1)) {
         debuglog << "take final row" << debugpost;
-       
-        printf("Nishie:Warning, Took the last row.\n");
-
+#if 1
+        printf("Spline:Warning, Took the last row.\n");
+#endif 
         direction = accessor_(*pointingColumns_, nrowPointing - 1);
 //            } else if (currentInterval > pointingIntervalColumn(index)) {
 //                // Sampling rate of pointing < data dump rate
@@ -680,34 +685,47 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
         Vector<Double> dirVal1 = dir1.getAngle("rad").getValue();
         Vector<Double> dirVal2 = dir2.getAngle("rad").getValue();
 
-        // REVISE HERE //
+        // SPLINE:: Preserve original calculation //
           Vector<Double> scanRate;
           Vector<Double> interpolated(2);
 
-        if(fgSpline)
+        if(fgSpline) // New CAS-9418 //
         { 
             //+
             // NEW Spline Interpolation
+            //   using original var. see above for t0,t1,dt and nrowPointing.
             //-
 
-            uInt antID = 0;
+            uInt antID = 0; // TENTATIVE //
             Double dd  =  (currentTime - t0) / dt;
+            assert( dd < 1.0 );	// must be less than 1.0 //
 
-            // determin section //
+            // determin section 
+            //  please refer  exact retuen specification of binarySearch() 
+            
             uInt uIndex;
-            if( index >= 2 )  uIndex = index-2;
-            else            uIndex = 0;
+            if( index >=1 )  uIndex = index-1;
+            else if (index > (Int)(nrowPointing-1) )   uIndex = nrowPointing-1;
+            else { printf( "BUGCHECK\n");  throw; } 
  
             Vector<Double> ttDir = splineCalulate(uIndex, dd, antID );
-            interpolated[0] = ttDir[0];
+
+            interpolated[0] = ttDir[0]; // 3rd. order Spline
             interpolated[1] = ttDir[1];
+
+            // Debug //
+            if(false)
+            { 
+                interpolated[0] = ttDir[2]; // Linear 
+                interpolated[1] = ttDir[3];
+            }
 
             if(false) {
                 printf( "Nishie:: index=%d,  dd=%f,", index, dd );
                 printf ("Dir=, %f, %f \n", ttDir[0],ttDir[1]);
             }
         }
-        else
+        else // Original //
         {
             //+
             // Original Linear Interpolation
