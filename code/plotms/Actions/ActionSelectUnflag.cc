@@ -43,9 +43,8 @@ string ActionSelectUnflag::getOperationLabel() const {
 
 PlotLogMessage* ActionSelectUnflag::doFlagOperation( PlotMSPlot* plot,
 		int canvasIndex, vector<PlotRegion>& regions,
-		bool /*showUnflagged*/, bool /*showFlagged*/){
-	PlotMSFlagging flagging = client->getFlagging();
-	PlotLogMessage* m = plot->flagRange(canvasIndex,flagging, Vector<PlotRegion>(regions), false);
+		bool showUnflagged, bool showFlagged){
+  auto m = FlagActionUtil::unflagRange(client, plot, canvasIndex, regions, showUnflagged, showFlagged);
 	return m;
 }
 
