@@ -27,10 +27,11 @@
 #define ACTIONFLAGALL_H_
 
 #include <plotms/Actions/ActionTool.h>
+#include <plotms/Actions/FlagActionUtil.h>
 
 namespace casa {
 
-class ActionFlagAll  : public ActionTool {
+class ActionFlagAll  : public ActionTool, public FlagActionUtil {
 public:
 	ActionFlagAll( Client* client );
 

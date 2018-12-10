@@ -133,6 +133,7 @@ casa_add_library( plotms
   Actions/ActionTrackerHover.cc
   Actions/ActionUnflagAll.cc
   Actions/ActionZoom.cc
+  Actions/FlagActionUtil.cc
   Actions/PlotMSAction.cc
   Threads/BackgroundThread.cc
   Threads/CacheThread.cc

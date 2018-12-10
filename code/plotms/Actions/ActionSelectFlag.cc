@@ -27,6 +27,7 @@
 #include <plotms/PlotMS/PlotMS.h>
 #include <plotms/Plots/PlotMSPlot.h>
 #include <plotms/Client/Client.h>
+#include <plotms/Actions/FlagActionUtil.h>
 using namespace casacore;
 namespace casa {
 

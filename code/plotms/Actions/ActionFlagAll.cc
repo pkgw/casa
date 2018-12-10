@@ -29,14 +29,38 @@
 #include <plotms/Plots/PlotMSPlot.h>
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
 #include <plotms/Client/Client.h>
+#include <plotms/Actions/FlagActionUtil.h>
 
 using namespace casacore;
 namespace casa {
 
 ActionFlagAll::ActionFlagAll( Client* client )
-	: ActionTool( client ){
+	: ActionTool( client ),
+	  FlagActionUtil() {
   std::cout << "ActionFlagAll instance is created" << std::endl;
 	itsType_ = TOOL_FLAG_ALL;
+
+	auto plots = client->getCurrentPlots();
+  auto visibleCanv = client->currentCanvases();
+	for (auto plot = plots.begin(); plot != plots.end(); ++plot) {
+	  if ((*plot) == NULL) continue;
+
+	  auto canvases = (*plot)->canvases();
+	  for (auto canv = canvases.begin(); canv != canvases.end(); ++canv) {
+
+      // Only apply to visible canvases.
+      // TODO: need to examine
+      bool visible = false;
+      for(unsigned int k= 0; !visible && k < visibleCanv.size(); k++)
+        if(*canv == visibleCanv[k]) visible = true;
+      if(!visible) {
+        std::cout << "canvas " << (*canv)->title() << " is not visible. continue." << std::endl;
+        continue;
+      }
+
+      std::cout << "canvas title is " << (*canv)->title() << std::endl;
+	  }
+	}
 }
 
 bool ActionFlagAll::doTool(PlotMSApp* plotms) {
@@ -86,10 +110,26 @@ bool ActionFlagAll::doTool(PlotMSApp* plotms) {
         bool isCanvasMarkedForUnFlag = canv[j]->isMarkedForUnflag();
 
 
+        vector<PlotRegion> regions(1);
+        regions[0] = canv[j]->axesRanges(PlotAxis::X_BOTTOM, PlotAxis::Y_LEFT);
         if (isCanvasMarkedForFlag) {
+          std::cout << "regions[0]: " << regions[0].bottom() << ", " << regions[0].left()
+              << ", " << regions[0].top() << ", " << regions[0].right() << std::endl;
+          // flag plotted data
           std::cout << "canvas " << j << " is marked for flag." << std::endl;
+          FlagActionUtil::flagRange(client, plot, j, regions, showUnflagged, showFlagged);
+          // If this plot was flagged/unflagged, add it to the redraw
+          // list.
+          addRedrawPlot( plot );
         } else if (isCanvasMarkedForUnFlag) {
+          std::cout << "regions[0]: " << regions[0].bottom() << ", " << regions[0].left()
+              << ", " << regions[0].top() << ", " << regions[0].right() << std::endl;
+          // unflag plotted data
           std::cout << "canvas " << j << " is marked for unflag." << std::endl;
+          FlagActionUtil::unflagRange(client, plot, j, regions, showUnflagged, showFlagged);
+          // If this plot was flagged/unflagged, add it to the redraw
+          // list.
+          addRedrawPlot( plot );
         } else {
           // get default background
           // TODO: exclude all-flagged panels from the beginning
@@ -141,6 +181,7 @@ bool ActionFlagAll::doTool(PlotMSApp* plotms) {
         }
       }
     }
+    redrawPlots(client, plot, visibleCanv);
   }
 
   return true;

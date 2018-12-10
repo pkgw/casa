@@ -23,34 +23,50 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
-#include "ActionSelectUnflag.h"
+#include "FlagActionUtil.h"
 #include <plotms/PlotMS/PlotMS.h>
 #include <plotms/Plots/PlotMSPlot.h>
+#include <plotms/Plots/PlotMSPlotParameterGroups.h>
 #include <plotms/Client/Client.h>
-#include <plotms/Actions/FlagActionUtil.h>
+
 using namespace casacore;
 namespace casa {
 
-ActionSelectUnflag::ActionSelectUnflag( Client* client )
-:ActionSelect( client ){
-	itsType_=SEL_UNFLAG;
-
+FlagActionUtil::FlagActionUtil()
+  : flaggedPlots(){
 }
 
-string ActionSelectUnflag::getOperationLabel() const {
-	return "unflagging";
+FlagActionUtil::~FlagActionUtil() {
 }
 
-PlotLogMessage* ActionSelectUnflag::doFlagOperation( PlotMSPlot* plot,
-		int canvasIndex, vector<PlotRegion>& regions,
-		bool /*showUnflagged*/, bool /*showFlagged*/){
-	PlotMSFlagging flagging = client->getFlagging();
-	PlotLogMessage* m = plot->flagRange(canvasIndex,flagging, Vector<PlotRegion>(regions), false);
-	return m;
+void FlagActionUtil::addRedrawPlot( PlotMSPlot* plot ){
+	flaggedPlots.push_back( plot );
 }
 
-ActionSelectUnflag::~ActionSelectUnflag() {
+void FlagActionUtil::redrawPlots(Client *client, PlotMSPlot* plot, vector<PlotCanvasPtr>& visibleCanv  ){
+	// For a flag/unflag, need to tell the plots to redraw themselves,
+	// and clear selected regions.
+	bool hold = client->allDrawingHeld();
+	if(!hold) client->holdDrawing();
+
+	for(unsigned int i = 0; i < flaggedPlots.size(); i++) {
+		flaggedPlots[i]->plotDataChanged();
+
+		vector<PlotCanvasPtr> canv = plot->canvases();
+		for(unsigned int j = 0; j < canv.size(); j++) {
+			// Only apply to visible canvases.
+			bool visible = false;
+			for(unsigned int k = 0;
+					!visible && k < visibleCanv.size(); k++)
+				if(canv[j] == visibleCanv[k]) visible = true;
+			if(!visible) continue;
+
+			canv[j]->clearSelectedRects();
+		}
+	}
+
+	if(!hold) client->releaseDrawing();
+	flaggedPlots.clear();
 }
 
-using namespace casacore;
 } /* namespace casa */
