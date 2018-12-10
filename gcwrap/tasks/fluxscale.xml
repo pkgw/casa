@@ -149,6 +149,8 @@
        in the returned Python dictionary (the solutions are in 'spidx' 
        in the following order: a_o [log(S) at the zero point], a_1 [spectral index], 
        and a_2 [curvature]. And their errors are in 'spidxerr').  
+       Also, reported is the covariance matrix for the fit.
+
        The MODEL_DATA column is currently _not_ revised to reflect the flux 
        densities derived by fluxscale.  Use setjy to set the MODEL_DATA 
        column, if necessary.
