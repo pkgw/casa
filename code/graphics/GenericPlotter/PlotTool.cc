@@ -958,6 +958,11 @@ bool PlotFlagAllTool::isBackgroundColorChanged() const {
   return m_bgcolor_changed;
 }
 
+void PlotFlagAllTool::setAllFlagged() {
+  m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
+  m_bgcolor_changed = true;
+}
+
 void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
 //    std::cout << "PlotFlagAllTool::handleMouseEvent" << std::endl;
     m_lastEventHandled = false;
@@ -995,17 +1000,25 @@ void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
         //       change the behavior depending on whether there
         //       are any valid data or not.
         // same as PPFLAG_UNFLAG case at this moment
-        if (m_draw) {
-          // get default background setting
-          if (m_defaultBackground.null()) {
-            m_defaultBackground = m_canvas->background();
-            std::cout << "default background color is " << m_defaultBackground->color()->asName()
-                << ", pattern is " << m_defaultBackground->pattern() << std::endl;
+        if (m_bgcolor_changed) {
+          if (m_draw) {
+            m_canvas->setBackground(m_defaultBackground);
+            m_bgcolor_changed = false;
           }
-          m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
-          m_bgcolor_changed = true;
+          m_marked = PlotFlagAllTool::PPFLAG_UNFLAG;
+        } else {
+          if (m_draw) {
+            // get default background setting
+            if (m_defaultBackground.null()) {
+              m_defaultBackground = m_canvas->background();
+              std::cout << "default background color is " << m_defaultBackground->color()->asName()
+                  << ", pattern is " << m_defaultBackground->pattern() << std::endl;
+            }
+            m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
+            m_bgcolor_changed = true;
+          }
+          m_marked = PlotFlagAllTool::PPFLAG_FLAG;
         }
-        m_marked = PlotFlagAllTool::PPFLAG_FLAG;
         break;
       }
       m_canvas->refresh();
@@ -1427,6 +1440,10 @@ bool PlotStandardMouseToolGroup::isBackgroundColorChanged() {
   return ptr->isBackgroundColorChanged();
 }
 
+void PlotStandardMouseToolGroup::setAllFlagged() {
+  auto ptr = flagAllTool();
+  ptr->setAllFlagged();
+}
 
 PlotSelectToolPtr PlotStandardMouseToolGroup::selectTool()   {
     for(unsigned int i = 0; i < m_tools.size(); i++)

@@ -24,6 +24,8 @@
 //#
 
 #include <iostream>
+#include <iterator>
+#include <algorithm>
 
 #include "ActionFlagAll.h"
 #include <plotms/Plots/PlotMSPlot.h>
@@ -42,23 +44,86 @@ ActionFlagAll::ActionFlagAll( Client* client )
 
 	auto plots = client->getCurrentPlots();
   auto visibleCanv = client->currentCanvases();
-	for (auto plot = plots.begin(); plot != plots.end(); ++plot) {
-	  if ((*plot) == NULL) continue;
+	for (size_t i = 0; i < plots.size(); ++i) {
+	  auto plot = plots[i];
+	  if (plot == NULL) continue;
 
-	  auto canvases = (*plot)->canvases();
-	  for (auto canv = canvases.begin(); canv != canvases.end(); ++canv) {
+	  std::cout << "plot " << i << std::endl;
+
+	  // save current iteration
+	  auto const currentIter = plot->iter();
+
+//	  // reset iteration
+//	  plot->firstIter();
+//	  auto canvasesTmp = plot->canvases();
+
+	  // access to each plot
+	  std::vector<MaskedScatterPlotPtr> scatterPlots = plot->plots();
+	  std::cout << "Number of scatter plots: " << scatterPlots.size() << std::endl;
+	  std::vector<unsigned int> numUnmasked;
+	  std::transform(scatterPlots.begin(), scatterPlots.end(), std::back_inserter(numUnmasked),
+	      [](MaskedScatterPlotPtr x) { return x->maskedData()->sizeUnmasked(); });
+
+//	  size_t scatterPlotId = 0;
+//	  for (int iter = 0; iter < plot->nIter(); ++iter) {
+//	    auto canvases = plot->canvases();
+//	    std::cout << "Number of canvases: " << canvases.size() << std::endl;
+//	    for (auto canv = canvases.begin(); canv != canvases.end(); ++canv) {
+//	      if (scatterPlotId >= numUnmasked.size()) {
+//	        std::cout << "ERROR" << std::endl;
+//	        break;
+//	      }
+//	      auto n = numUnmasked[scatterPlotId];
+//	      std::cout << "There are " << n << " unmasked points in this canvas" << std::endl;
+//
+//	      scatterPlotId++;
+//	    }
+//	    plot->nextIter();
+//	  }
+
+
+	  //unsigned long numUnmasked = 0;
+//	  for (auto sp = scatterPlots.begin(); sp != scatterPlots.end(); ++sp) {
+//	    auto maskedData = (*sp)->maskedData();
+//	    auto const sizeUnmasked = maskedData->sizeUnmasked();
+//	    std::cout << "There are " << sizeUnmasked << " unmasked data points in the plot" << std::endl;
+//	    if (sizeUnmasked == 0) {
+//	      std::cout << "Canvas background must be changed" << std::endl;
+//
+//	    }
+//	  }
+//
+//	  if (numUnmasked == 0) {
+//	    std::cout << "Canvas background must be changed" << std::endl;
+//	  }
+
+
+	  auto canvases = plot->canvases();
+	  auto numCanvases = canvases.size();
+	  std::cout << "Number of canvases: " << numCanvases << " current iteration is " << currentIter << std::endl;
+	  //size_t indexOffset = numCanvases * currentIter;
+	  size_t indexOffset = currentIter;
+
+	  for (size_t i = 0; i < numCanvases; ++i) {
+	    auto canv = canvases[i];
+	    auto scatterPlotId = i + indexOffset;
+	    if (numUnmasked[scatterPlotId] == 0) {
+	      std::cout << "No unmasked data in canvas " << i << ". Canvas background must be changed." << std::endl;
+	      canv->setAllFlagged();
+	      canv->refresh();
+	    }
 
       // Only apply to visible canvases.
       // TODO: need to examine
       bool visible = false;
       for(unsigned int k= 0; !visible && k < visibleCanv.size(); k++)
-        if(*canv == visibleCanv[k]) visible = true;
+        if(canv == visibleCanv[k]) visible = true;
       if(!visible) {
-        std::cout << "canvas " << (*canv)->title() << " is not visible. continue." << std::endl;
+        std::cout << "canvas " << canv->title() << " is not visible. continue." << std::endl;
         continue;
       }
 
-      std::cout << "canvas title is " << (*canv)->title() << std::endl;
+      std::cout << "canvas title is " << canv->title() << std::endl;
 	  }
 	}
 }

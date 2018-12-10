@@ -175,6 +175,12 @@ bool PlotCanvas::isBackgroundColorChanged() {
   return (!m_standardTools.null()) ? m_standardTools->isBackgroundColorChanged() : false;
 }
 
+void PlotCanvas::setAllFlagged() {
+  if (!m_standardTools.null()) {
+    m_standardTools->setAllFlagged();
+  }
+}
+
 bool PlotCanvas::hasThreadedDrawing() const {
     PlotFactory* f = implementationFactory();
     bool ret = f != NULL && f->canvasHasThreadedDrawing();

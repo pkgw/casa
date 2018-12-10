@@ -651,6 +651,9 @@ public:
     // Inquiry if bgcolor is changed
     bool isBackgroundColorChanged() const;
 
+    //
+    void setAllFlagged();
+
 protected:
     // boolean flag for whether update of background is active
     bool m_draw;
@@ -930,6 +933,7 @@ public:
     bool isMarkedForFlag();
     bool isMarkedForUnflag();
     bool isBackgroundColorChanged();
+    void setAllFlagged();
 
     // Provides access to the individual tools.  Note: this should be avoided
     // if possible.

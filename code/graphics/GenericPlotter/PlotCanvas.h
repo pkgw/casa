@@ -805,6 +805,7 @@ public:
     bool isMarkedForFlag();
     bool isMarkedForUnflag();
     bool isBackgroundColorChanged();
+    void setAllFlagged();
 
     // Converts the given region into a region with the given system.
     // DEFAULT IMPLEMENTATION.
