@@ -480,16 +480,6 @@ class fluxscale_fit_test(unittest.TestCase):
         #self.assertTrue(th.compTables(outtable, reference, ['WEIGHT']))
 
         # compare some determined values returned in the dict (tested on RHEL6)
-        #refdict={'freq': np.array([  1.41825202e+09]),
-        #         '2': {'fitRefFreq': 0.0,
-        #               'spidxerr': np.array([ 0.,  0.,  0.]),
-        #               'spidx': np.array([ 0.,  0.,  0.]),
-        #               '0': {'fluxdErr': np.array([ 0.00189683,  0.,  0.,  0.]),
-        #                     'numSol': np.array([ 54.,   0.,   0.,   0.]),
-        #                     'fluxd': np.array([ 3.20832802,  0.,  0.,  0.])},
-        #         'fitFluxd': 0.0, 'fieldName': '0841+708', 'fitFluxdErr': 0.0},
-        #         'spwName': np.array(['127*24.4 kHz channels @ 1.42 GHz (BARY)'],dtype='|S40'),
-        #         'spwID': np.array([0], dtype=np.int32)}
         refdict={'0': {'0': {'fluxd': np.array([ 10.40151801,   0.        ,   0.        ,   0.        ]),
                              'fluxdErr': np.array([ 0.01823489,  0.        ,  0.        ,  0.        ]),
                              'numSol': np.array([ 16.,   0.,   0.,   0.])},
