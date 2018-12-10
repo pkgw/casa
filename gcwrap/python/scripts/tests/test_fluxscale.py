@@ -445,8 +445,8 @@ class fluxscale_fit_test(unittest.TestCase):
             shutil.copytree(fpath, self.msfile, symlinks=True)
             fpath = os.path.join(datapath,self.gtable)
             shutil.copytree(fpath, self.gtable, symlinks=True)
-            #fpath = os.path.join(datapath,self.reffile)
-            #shutil.copytree(fpath, self.reffile, symlinks=True)
+            fpath = os.path.join(datapath,self.reffile)
+            shutil.copytree(fpath, self.reffile, symlinks=True)
         else:
             self.fail('Data does not exist -> '+fpath)
 
