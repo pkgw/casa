@@ -686,11 +686,9 @@ Vector<Double> ChannelAverageTVI::getFrequencies (	Double time,
 													Int msId) const
 {
 
-        // Pass-thru for single-channel case or chanbin=1 case
-        if (getVii()->visibilityShape()[1]==1 ||
-	    spwChanbinMap_p[spectralWindowId]==1) {
-	  return getVii()->getFrequencies(time,frameOfReference,spectralWindowId,msId);
-	}
+    // Pass-thru for single-channel case or chanbin=1 case
+    if (getVii()->visibilityShape()[1]==1 || spwChanbinMap_p.at(spectralWindowId)==1)
+        return getVii()->getFrequencies(time,frameOfReference,spectralWindowId,msId);
 
 	// Get frequencies from input VI
 	Vector<Double> inputFrequencies = getVii()->getFrequencies(time,frameOfReference,
