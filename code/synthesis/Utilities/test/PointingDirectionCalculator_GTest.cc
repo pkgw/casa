@@ -191,6 +191,14 @@ size_t getMSCountFromList()
     return TestMSList.size();
 }
 
+
+//+
+// DEBUG Tentative 
+//-
+
+bool use_spline = false;
+
+
 //******************************************************
 //  Log Title Output Functions for readable text 
 //  of this UT.
@@ -640,6 +648,19 @@ void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y)
     return;
 }
 
+void Function_gauss( Double r_time, Double& X, Double& Y)
+{
+
+    Double t   = r_time - 0.5;
+    Double A = 50;
+
+    Double gauss  = exp (-A*t*t);
+
+    X = gauss;
+    Y = gauss;
+
+    return;
+}
 
 void Function_Err(Double r_time, Double& X, Double& Y)
 {
@@ -658,12 +679,12 @@ typedef void (*FUNCTYPE)(Double, Double&, Double&);
 
 FUNCTYPE fpCurvefunc[]  = 
 {
-    Function_SimpleLinear,
-    Function_NormalizedLinear,
-    Function_sinusoid_slow,
-    Function_sinusoid_quick,
-    Function_harmonics_sinusoid,
-
+    Function_SimpleLinear,        // 0
+    Function_NormalizedLinear,    // 1
+    Function_sinusoid_slow,       // 2
+    Function_sinusoid_quick,      // 3
+    Function_harmonics_sinusoid,  // 4
+    Function_gauss,               // 5   (new 12/11)
     Function_Err
 
 };
@@ -2386,7 +2407,7 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
         PointingDirectionCalculator calc(ms);   
 
     // Interpolation mode [TENTATIVE]  //
-        calc.setSplineInterpolation( true );
+        calc.setSplineInterpolation( use_spline );
  
     // Initial brief Inspection //
     
@@ -2590,14 +2611,19 @@ TEST_F(TestDirection, InterpolationFull )
 {
     // Combiniation List of Pointing Interval and Main Interval //
 
-    vector<Double> Pointing_IntervalList = { 0.05,  0.1,  0.5,  1.0};
-    vector<Double> Main_IntervalList     = { 1.0,   0.01};
+    vector<bool>   InterpolationMode     = { false, true };
+    vector<Double> Main_IntervalList     = { 1.0 };
+    vector<Double> Pointing_IntervalList = { 1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.05 };
 
     ErrorMax  maxerr;
     std::vector<Double> r_err = {0.0}; 
 
+  for(uInt s=0;s<2;s++)
+  {
+    use_spline = InterpolationMode[s];
+
    // Error Limit 
-    msedit.evgen.    setInterpolationErrorLimit( 1e-05 );
+    msedit.evgen.    setInterpolationErrorLimit( 1e-04 );
 
    // Combiniation Loop 
    for( uint m=0; m < Main_IntervalList.size(); m++)
@@ -2630,6 +2656,8 @@ TEST_F(TestDirection, InterpolationFull )
     printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
     printf ( "   THE WORST Error = %e, %e \n", e[0], e[1] );
     printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
+
+  }
 }
 
 /*-----------------------------------------------------------------------
@@ -2653,9 +2681,11 @@ TEST_F(TestDirection, InterpolationSingle )
     //    - define test count. some rows are automatically added
     //-
 
-      msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
+      use_spline = true;
+
+      msedit.evgen.    setCurveFunctionNo(2);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
-      msedit.evgen.      Initialize( 0.5,     // Pointing Interval
+      msedit.evgen.      Initialize( 0.05,     // Pointing Interval
                                      1.0 ) ;  // Main Interval
  
       msedit.evgen.    setInterpolationErrorLimit( 0.1);

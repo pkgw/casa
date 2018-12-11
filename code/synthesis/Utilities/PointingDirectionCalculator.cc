@@ -395,7 +395,7 @@ printf( "given size = %u\n" ,size );
         tmp_dir [antID][row] = dirVal;
 
         // data on Pointing Table ..
-        if(true) {
+        if(false) {
             printf("Spline::[%4d] Time and dir %f,( %f,%f )\n",row, time,dirVal[0],dirVal[1] );
         }
     }
@@ -412,7 +412,7 @@ printf( "given size = %u\n" ,size );
 
     // Dump //
 
-    if(true)
+    if(false)
     {
         printf("Spline::Dump Coeffient(size=%d)\n",size );
         for(int i=0; i< size-1; i++)
@@ -444,7 +444,7 @@ Vector<Double> PointingDirectionCalculator::splineCalulate(uInt index, Double dt
 {
     uInt arraySize = splineCoeff_[antID].size();
 
-    Vector<Double> outval(6);  // Local work for return //
+    Vector<Double> outval(2);  // Local work for return //
 
     // Coeffcient //
 
@@ -477,43 +477,11 @@ Vector<Double> PointingDirectionCalculator::splineCalulate(uInt index, Double dt
     double Xs =  (((0* dt + a3)*dt + a2)*dt + a1)*dt + a0;
     double Ys =  (((0* dt + b3)*dt + b2)*dt + b1)*dt + b0;
 
-//+
-// Linear
-//-
-
-    Double a4;
-    Double dX;
-    Double b4;
-    Double dY;
-    Double  X1, Y1;
-
-    if( (index+1) < arraySize )
-    {
-       a4 = splineCoeff_[0][index+1][0][0];
-       dX = a4-a0;
-       b4 = splineCoeff_[0][index+1][1][0];
-       dY = b4-b0;
-
-       X1 = a0 + dX *dt;
-       Y1 = b0 + dY *dt;
-    }
-    else
-    {
-        X1 = a0;   // UNDER CONSIDERATION //
-        Y1 = b0;   // mathmatically consistent //  
-    }
-
 // Return //
 
     // Spline interpolated//
       outval[0] = Xs;
       outval[1] = Ys;
-    // Linear interpolated//
-      outval[2] = X1;
-      outval[3] = Y1;
-    /* Error  */
-      outval[4] = X1 -Xs;
-      outval[5] = Y1 -Ys;
  
     return outval;
 
@@ -697,10 +665,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
             //-
 
             uInt antID = 0; // TENTATIVE //
-            Double dd  =  (currentTime - t0) / dt;
-            assert( dd < 1.0 );	// must be less than 1.0 //
-
-            dd = dd * (0.5/1.0);
+            Double dtime =  (currentTime - t0) ;
 
             // determin section 
             //  please refer  exact retuen specification of binarySearch() 
@@ -710,20 +675,13 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
             else if (index > (Int)(nrowPointing-1) )   uIndex = nrowPointing-1;
             else { printf( "BUGCHECK\n");  throw; } 
  
-            Vector<Double> ttDir = splineCalulate(uIndex, dd, antID );
+            Vector<Double> ttDir = splineCalulate(uIndex, dtime, antID );
 
             interpolated[0] = ttDir[0]; // 3rd. order Spline
             interpolated[1] = ttDir[1];
 
-            // Debug //
-            if(false)
-            { 
-                interpolated[0] = ttDir[2]; // Linear 
-                interpolated[1] = ttDir[3];
-            }
-
             if(false) {
-                printf( "Nishie:: index=%d,  dd=%f,", index, dd );
+                printf( "Nishie:: index=%d,  dtime=%f,", index, dtime );
                 printf ("Dir=, %f, %f \n", ttDir[0],ttDir[1]);
             }
         }
