@@ -123,70 +123,70 @@ Bool ChannelAverageTVI::parseConfiguration(const Record &configuration)
 // -----------------------------------------------------------------------
 void ChannelAverageTVI::initialize()
 {
-	// Populate nchan input-output maps
-	Int spw;
-	uInt spw_idx = 0;
-	map<Int,vector<Int> >::iterator iter;
-	for(iter=spwInpChanIdxMap_p.begin();iter!=spwInpChanIdxMap_p.end();iter++)
-	{
-		spw = iter->first;
+    // Populate nchan input-output maps
+    Int spw;
+    uInt spw_idx = 0;
+    map<Int,vector<Int> >::iterator iter;
+    for(iter=spwInpChanIdxMap_p.begin();iter!=spwInpChanIdxMap_p.end();iter++)
+    {
+        spw = iter->first;
 
-		// No averaging when user specifies 0
-		if (chanbin_p(spw_idx)==0) {
-		  logger_p << LogIO::DEBUG1 << LogOrigin("ChannelAverageTVI", __FUNCTION__)
-			   << "Specified chanbin for spw " << spw
-			   << " of 0 means no averaging."
-			   << LogIO::POST;
-		  
-		  spwChanbinMap_p[spw] = 1;
-		}
-		// Make sure that chanbin is greater than 1
-		else if ((uInt)chanbin_p(spw_idx) <= 1)
-		{
-			logger_p << LogIO::DEBUG1 << LogOrigin("ChannelAverageTVI", __FUNCTION__)
-					<< "Specified chanbin for spw " << spw
-					<< " less than 1 falls back to the default number of"
-					<< " existing/selected channels: " << iter->second.size()
-					<< LogIO::POST;
+        // No averaging when user specifies 0
+        if (chanbin_p(spw_idx)==0) {
+            logger_p << LogIO::DEBUG1 << LogOrigin("ChannelAverageTVI", __FUNCTION__)
+			           << "Specified chanbin for spw " << spw
+			           << " of 0 means no averaging."
+			           << LogIO::POST;
 
-			spwChanbinMap_p[spw] = iter->second.size();
-		}
-		// Make sure that chanbin does not exceed number of selected channels
-		else if ((uInt)chanbin_p(spw_idx) > iter->second.size())
-		{
-			logger_p << LogIO::DEBUG1 << LogOrigin("ChannelAverageTVI", __FUNCTION__)
-					<< "Number of selected channels " << iter->second.size()
-					<< " for SPW " << spw
-				        << " is smaller than specified chanbin " << (uInt)chanbin_p(spw_idx) << endl
-					<< "Setting chanbin to " << iter->second.size()
-					<< " for SPW " << spw
-					<< LogIO::POST;
-			spwChanbinMap_p[spw] = iter->second.size();
-		}
-		else
-		{
-			spwChanbinMap_p[spw] = chanbin_p(spw_idx);
-		}
+            spwChanbinMap_p[spw] = 1;
+        }
+        // Make sure that chanbin is greater than 1
+        else if ((uInt)chanbin_p(spw_idx) <= 1)
+        {
+            logger_p << LogIO::DEBUG1 << LogOrigin("ChannelAverageTVI", __FUNCTION__)
+					        << "Specified chanbin for spw " << spw
+					        << " less than 1 falls back to the default number of"
+					        << " existing/selected channels: " << iter->second.size()
+					        << LogIO::POST;
 
-		// Fill the channel indexes for the new output channels per spw
-		size_t nChannelsOut = spwInpChanIdxMap_p[spw].size() / spwChanbinMap_p[spw];
+            spwChanbinMap_p[spw] = iter->second.size();
+        }
+        // Make sure that chanbin does not exceed number of selected channels
+        else if ((uInt)chanbin_p(spw_idx) > iter->second.size())
+        {
+            logger_p << LogIO::DEBUG1 << LogOrigin("ChannelAverageTVI", __FUNCTION__)
+					        << "Number of selected channels " << iter->second.size()
+					        << " for SPW " << spw
+					        << " is smaller than specified chanbin " << (uInt)chanbin_p(spw_idx) << endl
+					        << "Setting chanbin to " << iter->second.size()
+					        << " for SPW " << spw
+					        << LogIO::POST;
+            spwChanbinMap_p[spw] = iter->second.size();
+        }
+        else
+        {
+            spwChanbinMap_p[spw] = chanbin_p(spw_idx);
+        }
+
+        // Fill the channel indexes for the new output channels per spw
+        size_t nChannelsOut = spwInpChanIdxMap_p[spw].size() / spwChanbinMap_p[spw];
         if (spwInpChanIdxMap_p[spw].size() % spwChanbinMap_p[spw] > 0)
             nChannelsOut += 1;
-		spwOutChanIdxMap_p[spw].resize(nChannelsOut);
-		// Fill the container with sequentially increasing values
-		std::iota(spwOutChanIdxMap_p[spw].begin(), spwOutChanIdxMap_p[spw].end(), 0);
+        spwOutChanIdxMap_p[spw].resize(nChannelsOut);
+        // Fill the container with sequentially increasing values
+        std::iota(spwOutChanIdxMap_p[spw].begin(), spwOutChanIdxMap_p[spw].end(), 0);
 
-		// As of CAS-10294, the original SPWs are kept (with shifted IDs).
-		// See resetSubtables() method
+        // As of CAS-10294, the original SPWs are kept (with shifted IDs).
+        // See resetSubtables() method
         spwOutChanIdxMap_p[spw+spwInpChanIdxMap_p.size()] = spwInpChanIdxMap_p[spw];
 
-		spw_idx++;
-	}
+        spw_idx++;
+    }
 
-	//Create TVI specific subtables
-	resetSubtables();
+    //Create TVI specific subtables
+    resetSubtables();
 
-	return;
+    return;
 }
 
 #define DOJUSTO false
@@ -686,11 +686,9 @@ Vector<Double> ChannelAverageTVI::getFrequencies (	Double time,
 													Int msId) const
 {
 
-        // Pass-thru for single-channel case or chanbin=1 case
-        if (getVii()->visibilityShape()[1]==1 ||
-	    spwChanbinMap_p[spectralWindowId]==1) {
-	  return getVii()->getFrequencies(time,frameOfReference,spectralWindowId,msId);
-	}
+    // Pass-thru for single-channel case or chanbin=1 case
+    if (getVii()->visibilityShape()[1]==1 || spwChanbinMap_p.at(spectralWindowId)==1)
+        return getVii()->getFrequencies(time,frameOfReference,spectralWindowId,msId);
 
 	// Get frequencies from input VI
 	Vector<Double> inputFrequencies = getVii()->getFrequencies(time,frameOfReference,
