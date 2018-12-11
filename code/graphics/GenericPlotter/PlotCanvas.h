@@ -187,6 +187,7 @@ public:
     
     // Returns a copy of the canvas background.
     virtual PlotAreaFillPtr background() const = 0;
+    virtual PlotAreaFillPtr defaultBackground() const;
     
     // Sets the background of the canvas to the given.
     virtual void setBackground(const PlotAreaFill& areaFill) = 0;

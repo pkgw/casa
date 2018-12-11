@@ -209,6 +209,10 @@ void PlotCanvas::setTitleFont(const PlotFontPtr font) {
 }
 
 
+PlotAreaFillPtr PlotCanvas::defaultBackground() const {
+  return PlotAreaFillPtr(nullptr);
+}
+
 void PlotCanvas::setBackground(const PlotAreaFillPtr areaFill)   {
     if(!areaFill.null()) setBackground(*areaFill); 
 }
