@@ -700,6 +700,8 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
             Double dd  =  (currentTime - t0) / dt;
             assert( dd < 1.0 );	// must be less than 1.0 //
 
+            dd = dd * (0.5/1.0);
+
             // determin section 
             //  please refer  exact retuen specification of binarySearch() 
             
