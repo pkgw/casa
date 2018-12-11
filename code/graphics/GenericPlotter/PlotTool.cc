@@ -1027,31 +1027,6 @@ void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
     }
 }
 
-/////////////////////////////////
-// PLOTUNFLAGALLTOOL DEFINITIONS //
-/////////////////////////////////
-
-PlotUnflagAllTool::PlotUnflagAllTool(PlotCoordinate::System sys) :
-        PlotMouseTool(sys)
-{ }
-
-PlotUnflagAllTool::PlotUnflagAllTool(PlotAxis xAxis, PlotAxis yAxis,
-        PlotCoordinate::System sys) : PlotMouseTool(xAxis, yAxis, sys)
-{ }
-
-PlotUnflagAllTool::~PlotUnflagAllTool() { }
-
-void PlotUnflagAllTool::handleMouseEvent(const PlotEvent& event) {
-//    std::cout << "PlotUnflagAllTool::handleMouseEvent" << std::endl;
-    m_lastEventHandled = false;
-    if(m_canvas == NULL) return;
-
-    const PlotClickEvent *c = dynamic_cast<const PlotClickEvent*>(&event);
-    if(c != NULL) {
-      std::cout << "PlotUnflagAllTool::handleMouseEvent mouse clicked" << std::endl;
-    }
-}
-
 ////////////////////////////////////
 // PLOTMOUSETOOLGROUP DEFINITIONS //
 ////////////////////////////////////
@@ -1296,7 +1271,6 @@ PlotStandardMouseToolGroup::PlotStandardMouseToolGroup(ToolCode activeTool,
     addTool(new PlotZoomTool(system));
     addTool(new PlotPanTool(system));
     addTool(new PlotFlagAllTool(system));
-    addTool(new PlotUnflagAllTool(system));
     setActiveTool(activeTool);
     m_tracker = new PlotTrackerTool(system);
     m_tracker->setBlocking(false);
@@ -1314,7 +1288,6 @@ PlotStandardMouseToolGroup::PlotStandardMouseToolGroup(PlotAxis xAxis,
     addTool(new PlotZoomTool(xAxis, yAxis, system));
     addTool(new PlotPanTool(xAxis, yAxis, system));
     addTool(new PlotFlagAllTool(xAxis, yAxis, system));
-    addTool(new PlotUnflagAllTool(xAxis, yAxis, system));
     setActiveTool(activeTool);
     m_tracker = new PlotTrackerTool(xAxis, yAxis, system);
     m_tracker->setBlocking(false);
@@ -1330,7 +1303,6 @@ PlotStandardMouseToolGroup::PlotStandardMouseToolGroup(
         PlotZoomToolPtr zoomTool,
         PlotPanToolPtr panTool, 
         PlotFlagAllToolPtr flagAllTool,
-        PlotUnflagAllToolPtr unflagAllTool,
         PlotTrackerToolPtr trackerTool,
         ToolCode activeTool)    {
             
@@ -1338,7 +1310,6 @@ PlotStandardMouseToolGroup::PlotStandardMouseToolGroup(
     addTool(!zoomTool.null()   ? zoomTool   : new PlotZoomTool());
     addTool(!panTool.null()    ? panTool    : new PlotPanTool());
     addTool(!flagAllTool.null() ? flagAllTool : new PlotFlagAllTool());
-    addTool(!unflagAllTool.null() ? unflagAllTool : new PlotUnflagAllTool());
     setActiveTool(activeTool);
     m_tracker = !trackerTool.null() ? trackerTool : new PlotTrackerTool();
     m_tracker->setBlocking(false);
@@ -1362,8 +1333,7 @@ void PlotStandardMouseToolGroup::setActiveTool(ToolCode toolcode) {
          || ((dynamic_cast<PlotSelectTool*>(&*m_tools[i]) != NULL && toolcode==SUBTRACT_TOOL))
          || ((dynamic_cast<PlotZoomTool*>(&*m_tools[i]) != NULL && toolcode==ZOOM_TOOL))
          || ((dynamic_cast<PlotPanTool*>(&*m_tools[i]) != NULL) && toolcode==PAN_TOOL)
-         || ((dynamic_cast<PlotFlagAllTool*>(&*m_tools[i]) != NULL) && toolcode == FLAGALL_TOOL)
-         || ((dynamic_cast<PlotUnflagAllTool*>(&*m_tools[i]) != NULL) && toolcode == UNFLAGALL_TOOL))
+         || ((dynamic_cast<PlotFlagAllTool*>(&*m_tools[i]) != NULL) && toolcode == FLAGALL_TOOL))
         {
           std::cout << "toolcode = " << (Int)toolcode << std::endl;
             PlotMouseToolGroup::setActiveTool(i, toolcode);
@@ -1490,19 +1460,6 @@ PlotFlagAllToolPtr PlotStandardMouseToolGroup::flagAllTool() {
     m_tools.push_back(t);
     return t;
 }
-
-
-PlotUnflagAllToolPtr PlotStandardMouseToolGroup::unflagAllTool() {
-    for(unsigned int i = 0; i < m_tools.size(); i++)
-        if(dynamic_cast<PlotUnflagAllTool*>(&*m_tools[i]) != NULL)
-            return PlotUnflagAllToolPtr(m_tools[i]);
-
-    // shouldn't happen!
-    PlotUnflagAllToolPtr t = new PlotUnflagAllTool();
-    m_tools.push_back(t);
-    return t;
-}
-
 
 
 PlotTrackerToolPtr PlotStandardMouseToolGroup::trackerTool() {

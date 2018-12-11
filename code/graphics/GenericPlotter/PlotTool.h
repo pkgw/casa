@@ -236,7 +236,6 @@ enum ToolCode {
     ZOOM_TOOL, 
     PAN_TOOL, 
     FLAGALL_TOOL,
-    UNFLAGALL_TOOL,
     NONE_TOOL
 };
     
@@ -672,30 +671,6 @@ INHERITANCE_POINTER(PlotFlagAllTool, PlotFlagAllToolPtr, PlotMouseTool,
                     PlotMouseToolPtr, PlotTool, PlotToolPtr)
 
 
-// A PlotUnflagAllTool is a concrete subclass of PlotMouseTool that handles
-// one-click data unflag functionality.
-// PlotUnflagAllTool is responsible for:
-// 1) the behavior described above
-class PlotUnflagAllTool : public virtual PlotMouseTool {
-public:
-    // Constructor which takes the tool's coordinate system.
-    PlotUnflagAllTool(PlotCoordinate::System system = PlotCoordinate::WORLD);
-
-    // Constructor which takes the tool's axes and coordinate system.
-    PlotUnflagAllTool(PlotAxis xAxis, PlotAxis yAxis,
-                   PlotCoordinate::System system = PlotCoordinate::WORLD);
-
-    // Destructor.
-    virtual ~PlotUnflagAllTool();
-
-    // Implements PlotMouseTool::handleMouseEvent().
-    virtual void handleMouseEvent(const PlotEvent& event);
-
-};
-INHERITANCE_POINTER(PlotUnflagAllTool, PlotUnflagAllToolPtr, PlotMouseTool,
-                    PlotMouseToolPtr, PlotTool, PlotToolPtr)
-
-
 ///////////////////////////////
 // TOOL NOTIFICATION CLASSES //
 ///////////////////////////////
@@ -903,7 +878,6 @@ public:
                                PlotZoomToolPtr zoomTool,
                                PlotPanToolPtr panTool,
                                PlotFlagAllToolPtr flagAllTool,
-                               PlotUnflagAllToolPtr unflagAllTool,
                                PlotTrackerToolPtr trackerTool,
                                ToolCode activeTool = NONE_TOOL);
     
@@ -942,7 +916,6 @@ public:
     PlotZoomToolPtr zoomTool();
     PlotPanToolPtr panTool();
     PlotFlagAllToolPtr flagAllTool();
-    PlotUnflagAllToolPtr unflagAllTool();
     PlotTrackerToolPtr trackerTool();
     // </group>
     

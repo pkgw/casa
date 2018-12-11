@@ -138,9 +138,6 @@ public:
 			// Turns on/off the per-panel flagging tool.
 			TOOL_FLAG_ALL,
 
-			// Turns on/off the per-panel unflagging tool.
-			TOOL_UNFLAG_ALL,
-
 			// Turns on/off the tracker tool hover function.  Operates on all
 			// canvases of all plots AT THE TIME of the call to doAction().
 			// Required parameters: P_ON_OFF.
