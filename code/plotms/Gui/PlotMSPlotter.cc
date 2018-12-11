@@ -714,7 +714,6 @@ void PlotMSPlotter::action(QAction* act) {
 }
 
 bool PlotMSPlotter::_triggerAction(PlotMSAction::Type type) {
-  std::cout << "action type = " << (Int)type << std::endl;
 	CountedPtr<PlotMSAction> action = ActionFactory::getAction( type, this);
 	bool result = action->doAction(itsParent_);
 	if ( !result ){
