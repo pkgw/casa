@@ -90,8 +90,8 @@ protected:
     casacore::Bool parseConfiguration(const casacore::Record &configuration);
     void initialize();
 
-	casacore::Vector<casacore::Int> chanbin_p;
-	mutable map<casacore::Int,casacore::uInt > spwChanbinMap_p; // Must be accessed from const methods
+    casacore::Vector<casacore::Int> chanbin_p;
+    map<casacore::Int,casacore::uInt > spwChanbinMap_p;
 
 #ifdef _OPENMP
   mutable casacore::Double Tfl_,Tws_,Tcd_,Tmd_,Tss_,Tchave_;
