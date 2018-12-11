@@ -964,61 +964,47 @@ void PlotFlagAllTool::setAllFlagged() {
   m_bgcolor_changed = true;
 }
 
+void PlotFlagAllTool::markAsFlag() {
+  if (m_draw) {
+    m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
+    m_bgcolor_changed = true;
+  }
+  m_marked = PlotFlagAllTool::PPFLAG_FLAG;
+}
+
+void PlotFlagAllTool::markAsUnflag() {
+  if (m_draw) {
+    m_canvas->setBackground(m_defaultBackground);
+    m_bgcolor_changed = false;
+  }
+  m_marked = PlotFlagAllTool::PPFLAG_UNFLAG;
+}
+
 void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
-//    std::cout << "PlotFlagAllTool::handleMouseEvent" << std::endl;
     m_lastEventHandled = false;
     if(m_canvas == NULL) return;
 
     const PlotClickEvent *c = dynamic_cast<const PlotClickEvent*>(&event);
     if(c != NULL) {
-      std::cout << "PlotFlagAllTool::handleMouseEvent mouse clicked" << std::endl;
+      // get default background setting
       auto const canvas = c->canvas();
-      std::cout << "canvas title = '" << canvas->title() << "'" << std::endl;
+      if (m_defaultBackground.null()) {
+        m_defaultBackground = canvas->defaultBackground();
+      }
 
       // mark canvas and change background
       switch (m_marked) {
       case PlotFlagAllTool::PPFLAG_FLAG:
-        if (m_draw) {
-          m_canvas->setBackground(m_defaultBackground);
-          m_bgcolor_changed = false;
-        }
-        m_marked = PlotFlagAllTool::PPFLAG_UNFLAG;
+        markAsUnflag();
         break;
       case PlotFlagAllTool::PPFLAG_UNFLAG:
-        if (m_draw) {
-          // get default background setting
-          if (m_defaultBackground.null()) {
-            m_defaultBackground = m_canvas->background();
-          }
-          m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
-          m_bgcolor_changed = true;
-        }
-        m_marked = PlotFlagAllTool::PPFLAG_FLAG;
+        markAsFlag();
         break;
       default:
-        // assuming that the original state is *UNFLAGGED*
-        // TODO: check if the data in canvas is all flagged and
-        //       change the behavior depending on whether there
-        //       are any valid data or not.
-        // same as PPFLAG_UNFLAG case at this moment
         if (m_bgcolor_changed) {
-          if (m_draw) {
-            m_canvas->setBackground(m_defaultBackground);
-            m_bgcolor_changed = false;
-          }
-          m_marked = PlotFlagAllTool::PPFLAG_UNFLAG;
+          markAsUnflag();
         } else {
-          if (m_draw) {
-            // get default background setting
-            if (m_defaultBackground.null()) {
-              m_defaultBackground = m_canvas->background();
-              std::cout << "default background color is " << m_defaultBackground->color()->asName()
-                  << ", pattern is " << m_defaultBackground->pattern() << std::endl;
-            }
-            m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
-            m_bgcolor_changed = true;
-          }
-          m_marked = PlotFlagAllTool::PPFLAG_FLAG;
+          markAsFlag();
         }
         break;
       }
@@ -1336,7 +1322,6 @@ void PlotStandardMouseToolGroup::setActiveTool(ToolCode toolcode) {
          || ((dynamic_cast<PlotPanTool*>(&*m_tools[i]) != NULL) && toolcode==PAN_TOOL)
          || ((dynamic_cast<PlotFlagAllTool*>(&*m_tools[i]) != NULL) && toolcode == FLAGALL_TOOL))
         {
-          std::cout << "toolcode = " << (Int)toolcode << std::endl;
             PlotMouseToolGroup::setActiveTool(i, toolcode);
             return;
         }

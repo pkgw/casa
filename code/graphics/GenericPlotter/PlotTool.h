@@ -666,6 +666,11 @@ protected:
     // keep default background setting
     PlotAreaFillPtr m_defaultBackground;
 
+private:
+    // internal methods for shared operations
+    void markAsFlag();
+    void markAsUnflag();
+
 };
 INHERITANCE_POINTER(PlotFlagAllTool, PlotFlagAllToolPtr, PlotMouseTool,
                     PlotMouseToolPtr, PlotTool, PlotToolPtr)
