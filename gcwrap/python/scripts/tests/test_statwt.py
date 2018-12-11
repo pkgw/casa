@@ -84,16 +84,18 @@ class statwt_test(unittest.TestCase):
         dst = "ngc5921.split.ms"
         rtol = 1e-7
         for combine in ["", "corr"]:
-            for fitspw in ["0:0~9;21~63", ""]:
+            c = 0
+            for fitspw in ["0:0~9;21~63", "", "0:10~20"]:
                 for i in [0,1]:
                     shutil.copytree(src, dst) 
                     myms = mstool()
+                    excludechans = c == 2
                     if i == 0:
                         myms.open(dst, nomodify=False)
-                        myms.statwt(combine=combine, fitspw=fitspw)
+                        myms.statwt(combine=combine, fitspw=fitspw, excludechans=excludechans)
                         myms.done()
                     else:
-                        statwt(dst, combine=combine, fitspw=fitspw)
+                        statwt(dst, combine=combine, fitspw=fitspw, excludechans=excludechans)
                     [wt, wtsp, flag, frow, data] = _get_dst_cols(dst)
                     actflag = flag.copy()
                     if fitspw != "":
@@ -161,7 +163,8 @@ class statwt_test(unittest.TestCase):
                             else:
                                 self.assertFalse(frow[row], "FLAG_ROW is not false")
                     shutil.rmtree(dst) 
-               
+                c += 1               
+
     def test_timebin(self):
         """ Test time binning"""
         dst = "ngc5921.split.timebin.ms"
