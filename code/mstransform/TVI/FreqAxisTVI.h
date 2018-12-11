@@ -237,8 +237,8 @@ template<class T> class FreqAxisTransformEngine2
 public:
 
     FreqAxisTransformEngine2(DataCubeMap *inputData,DataCubeMap *outputData) :
-        debug_p(false), inputData_p(inputData), outputData_p(outputData),
-        rowIndex_p(0), corrIndex_p(0)
+        debug_p(false), rowIndex_p(0), corrIndex_p(0),
+        inputData_p(inputData), outputData_p(outputData)
     {
     }
 
