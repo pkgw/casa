@@ -82,6 +82,8 @@ public:
 
     const casacore::ROMSSpWindowColumns& spectralWindowSubtablecols() const override;
 
+    casacore::Int nSpectralWindows () const override;
+
 protected:
 
     void resetSubtables();
