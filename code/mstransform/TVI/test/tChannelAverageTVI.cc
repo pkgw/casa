@@ -457,16 +457,14 @@ void ChannelAverageTVISpwChannTest::createTVIs()
     msf_p->setTimeInfo (0, timeSpan, timeInterval);
     msf_p->addAntennas(6);
     //Adding two spectral windows with different number of channels
-    int nChannels = 100;
-    double frequency = 1e11;
-    double frequencyDelta = 1e9;
+    nChannelsOrig_p = {100, 50};
+    initFreqOrig_p = {1e11, 2e11};
+    deltaFreqOrig_p = {1e9, 1.2e9};
     std::string stokes("XX YY");
-    msf_p->addSpectralWindow("SPW0", nChannels, 
-                             frequency, frequencyDelta, stokes);
-    nChannels = 50;
-    frequency = 2e11;
-    msf_p->addSpectralWindow("SPW1", nChannels, 
-                             frequency, frequencyDelta, stokes);
+    msf_p->addSpectralWindow("SPW0", nChannelsOrig_p[0],
+                             initFreqOrig_p[0], deltaFreqOrig_p[0], stokes);
+    msf_p->addSpectralWindow("SPW1", nChannelsOrig_p[1],
+                             initFreqOrig_p[1], deltaFreqOrig_p[1], stokes);
     msf_p->addFeeds (10); //Need antenna and spw to be set up first
 
     //Creates the synthetic MS 
@@ -478,7 +476,7 @@ void ChannelAverageTVISpwChannTest::createTVIs()
     if(useMSSelection_p)
     {
         MSSelection thisSelection;
-        std::string spwSelection("0:1~40");
+        std::string spwSelection("0:41~80");
         thisSelection.setSpwExpr(spwSelection);
         TableExprNode exprNode = thisSelection.toTableExprNode(ms_p.get());
         msSelected.reset(new MeasurementSet((*ms_p.get())(exprNode)));
