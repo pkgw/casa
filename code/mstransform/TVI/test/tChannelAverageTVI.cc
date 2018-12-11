@@ -368,7 +368,8 @@ TEST(ChannelAverageTVIExecuteSimulatedTest, UniformMS)
                                 casacore::Complex visValue(1.0, 2.0);
                                 SCOPED_TRACE(string("Channel averaging data with nField=") + 
                                              to_string(nField) + " nScan=" + to_string(nScan) +
-                                             " nAnt " + to_string(nAnt) + " nCorr=" + to_string(nCorr) +
+                                             " nSpw " + to_string(nSpw) + " nAnt " + to_string(nAnt) +
+                                             " nCorr=" + to_string(nCorr) +
                                              " nTimePerField " + to_string(nTimePerField) + 
                                              " nChan=" + to_string(nChan));
                                 //Generating a uniform simulated Vi2 
