@@ -944,6 +944,7 @@ bool PlotFlagAllTool::isUpdateBackgroundActive() {
 
 void PlotFlagAllTool::clearMark() {
   m_marked = PlotFlagAllTool::PPFLAG_NONE;
+  m_bgcolor_changed = false;
 }
 
 bool PlotFlagAllTool::isMarkedForFlag() const {
