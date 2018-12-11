@@ -87,6 +87,8 @@ protected:
     std::vector<double> deltaFreqOrig_p;
 
     int chanBinFirst_p;
+
+    Vector<int> chanBinSecond_p;
 };
 
 #endif /* ChannelAverageTVITest_H_ */
