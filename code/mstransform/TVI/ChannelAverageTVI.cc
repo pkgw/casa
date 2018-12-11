@@ -166,9 +166,17 @@ void ChannelAverageTVI::initialize()
 			spwChanbinMap_p[spw] = chanbin_p(spw_idx);
 		}
 
-		// Calculate number of output channels per spw
-		spwOutChanNumMap_p[spw] = spwInpChanIdxMap_p[spw].size() / spwChanbinMap_p[spw];
-		if (spwInpChanIdxMap_p[spw].size() % spwChanbinMap_p[spw] > 0) spwOutChanNumMap_p[spw] += 1;
+		// Fill the channel indexes for the new output channels per spw
+		size_t nChannelsOut = spwInpChanIdxMap_p[spw].size() / spwChanbinMap_p[spw];
+        if (spwInpChanIdxMap_p[spw].size() % spwChanbinMap_p[spw] > 0)
+            nChannelsOut += 1;
+		spwOutChanIdxMap_p[spw].resize(nChannelsOut);
+		// Fill the container with sequentially increasing values
+		std::iota(spwOutChanIdxMap_p[spw].begin(), spwOutChanIdxMap_p[spw].end(), 0);
+
+		// As of CAS-10294, the original SPWs are kept (with shifted IDs).
+		// See resetSubtables() method
+        spwOutChanIdxMap_p[spw+spwInpChanIdxMap_p.size()] = spwInpChanIdxMap_p[spw];
 
 		spw_idx++;
 	}
@@ -1264,5 +1272,3 @@ template<class T> void ChannelAccumulationKernel<T>::kernel(	DataCubeMap *inputD
 } //# NAMESPACE VI - END
 
 } //# NAMESPACE CASA - END
-
-

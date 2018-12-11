@@ -50,6 +50,21 @@ namespace vi { //# NAMESPACE VI - BEGIN
 template<class T> class FreqAxisTransformEngine; // Forward declaration
 template<class T> class FreqAxisTransformEngine2; // Forward declaration
 
+// <summary>
+// FreqAxisTVI can be used as a base class for TVIs that operate on the frequency axis
+// </summary>
+//
+// <synopsis>
+// This class can be used as a convenience base class for TVIs that
+// operate on the frequency axis.
+// It provides a generic method to modify generic data cubes with a
+// transformation provided by the derived class.
+//
+// The derived class has to initialize the following variable
+// spwOutChanIdxMap_p: Map with the list of channels for each output SPW
+//
+// </synopsis>
+//
 class FreqAxisTVI : public TransformingVi2
 {
 
@@ -183,8 +198,13 @@ protected:
 	void formChanMap();
 
 	mutable casacore::LogIO logger_p;
-	map<casacore::Int,casacore::uInt > spwOutChanNumMap_p;
-	map<casacore::Int,vector<casacore::Int> > spwInpChanIdxMap_p;
+
+	// Map with the list of channel indices for each input SPW
+    map<casacore::Int,vector<casacore::Int> > spwInpChanIdxMap_p;
+
+    // Map with the list of channel indices for each output SPW.
+    // Note that this member needs to be initialized by each derived class
+    map<casacore::Int,vector<casacore::Int> > spwOutChanIdxMap_p;
 };
 
 //////////////////////////////////////////////////////////////////////////
