@@ -273,7 +273,7 @@
 
        Returned dictionary: 
                 when it is run as fluxres = fluxscale(vis='my.ms',...), the determined flux
-                densities and spectral index information  are returned as a Python dictionary with
+                densities and spectral index information are returned as a Python dictionary with
                 a format, {fieldIdstr: {spwIdstr: {'fluxd':array([I,Q,U,V]), 
                                                   'fluxdErr': corresponding errors,
                                                    'numSol': corresponding no. of solutions,
