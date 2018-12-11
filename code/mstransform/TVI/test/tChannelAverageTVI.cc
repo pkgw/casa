@@ -431,7 +431,8 @@ TEST(ChannelAverageTVIExecuteSimulatedTest, UniformMS)
 
 ChannelAverageTVISpwChannTest::ChannelAverageTVISpwChannTest() :
     MsFactoryTVITester("ChannelAverageTVIMSSelTest","MSFactoryCreated"),
-    useMSSelection_p(false), addPassThroughTVI_p(false), addExtraAvgTVI_p(false)
+    useMSSelection_p(false), addPassThroughTVI_p(false), addExtraAvgTVI_p(false),
+    chanBinFirst_p(5)
 {
 }
 
@@ -450,6 +451,10 @@ void ChannelAverageTVISpwChannTest::addExtraAvgTVI(bool use)
     addExtraAvgTVI_p = use;
 }
 
+void ChannelAverageTVISpwChannTest::setChanBinFirstTVI(int chanBinFirst)
+{
+    chanBinFirst_p = chanBinFirst;
+}
 void ChannelAverageTVISpwChannTest::createTVIs()
 {
     //Setting the parameters to generate a synthetic MS 
@@ -501,7 +506,8 @@ void ChannelAverageTVISpwChannTest::createTVIs()
     //Create a ChannelAverageTVI Factory
     std::unique_ptr<ChannelAverageTVILayerFactory> chanAvgFac;
     casacore::Record configuration;
-    configuration.define ("chanbin", 5);
+    chanBinFirst_p = 5;
+    configuration.define ("chanbin", chanBinFirst_p);
     chanAvgFac.reset(new ChannelAverageTVILayerFactory(configuration));
 
     //Create a layered factory with all the layers of factories
@@ -626,6 +632,26 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckOutputSpwSubtable)
     assocSpwId[0] = 3; //SPW1 refers to SPW3 (old SPW1)
     ASSERT_EQ(spwcols.assocSpwId()(1).tovector(), assocSpwId);
     ASSERT_EQ(spwcols.assocNature()(1).tovector(), assocNature);
+}
+
+TEST_F(ChannelAverageTVISpwChannTest, LastChannelNotDivisibleCheckOutputSpwSubtable)
+{
+    //This setting will do channel average with a number of input channels
+    //which are not divisible by the chanbin
+    setChanBinFirstTVI(7);
+    createTVIs();
+
+    //Check that the number of channels is correct.
+    //The +1 is to account for the last residual channel
+    auto & spwcols = vi_p->spectralWindowSubtablecols();
+    int nChannelNewSpw0 = nChannelsOrig_p[0] / chanBinFirst_p + 1;
+    int nChannelNewSpw1 = nChannelsOrig_p[1] / chanBinFirst_p + 1;
+    ASSERT_EQ(spwcols.nrow(), (unsigned int)4);
+    ASSERT_EQ(spwcols.numChan()(0), nChannelNewSpw0); //SPW0, old SPW0 already averaged
+    ASSERT_EQ(spwcols.numChan()(1), nChannelNewSpw1); //SPW1, old SPW1 already averaged
+
+    //Check that the last frequency width is less than the rest
+    ASSERT_LT(spwcols.chanWidth()(0)(nChannelNewSpw0-1), spwcols.chanWidth()(0)(nChannelNewSpw0-2));
 }
 
 TEST_F(ChannelAverageTVISpwChannTest, CheckMSSelOutputSpwChannels)

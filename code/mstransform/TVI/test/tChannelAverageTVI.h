@@ -70,6 +70,8 @@ public:
 
     void addExtraAvgTVI(bool use);
 
+    void setChanBinFirstTVI(int chanBinFirst);
+
 protected:
 
     bool useMSSelection_p;
