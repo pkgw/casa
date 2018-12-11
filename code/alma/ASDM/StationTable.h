@@ -295,7 +295,7 @@ public:
  	 * @param type
 	
      */
-	StationRow *newRow(string name, vector<Length > position, StationTypeMod::StationType type);
+	StationRow *newRow(string name, std::vector<Length > position, StationTypeMod::StationType type);
 	
 
 
@@ -384,7 +384,7 @@ public:
  	 * @param type
  	 		 
  	 */
-	StationRow* lookup(string name, vector<Length > position, StationTypeMod::StationType type); 
+	StationRow* lookup(string name, std::vector<Length > position, StationTypeMod::StationType type); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

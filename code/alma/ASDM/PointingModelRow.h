@@ -194,7 +194,7 @@ public:
  	 * Get coeffName.
  	 * @return coeffName as vector<string >
  	 */
- 	vector<string > getCoeffName() const;
+ 	std::vector<string > getCoeffName() const;
 	
  
  	
@@ -206,7 +206,7 @@ public:
  		
  			
  	 */
- 	void setCoeffName (vector<string > coeffName);
+ 	void setCoeffName (std::vector<string > coeffName);
   		
 	
 	
@@ -224,7 +224,7 @@ public:
  	 * Get coeffVal.
  	 * @return coeffVal as vector<float >
  	 */
- 	vector<float > getCoeffVal() const;
+ 	std::vector<float > getCoeffVal() const;
 	
  
  	
@@ -236,7 +236,7 @@ public:
  		
  			
  	 */
- 	void setCoeffVal (vector<float > coeffVal);
+ 	void setCoeffVal (std::vector<float > coeffVal);
   		
 	
 	
@@ -351,7 +351,7 @@ public:
  	 * @return coeffFormula as vector<string >
  	 * @throws IllegalAccessException If coeffFormula does not exist.
  	 */
- 	vector<string > getCoeffFormula() const;
+ 	std::vector<string > getCoeffFormula() const;
 	
  
  	
@@ -362,7 +362,7 @@ public:
  	 
  		
  	 */
- 	void setCoeffFormula (vector<string > coeffFormula);
+ 	void setCoeffFormula (std::vector<string > coeffFormula);
 		
 	
 	
@@ -500,7 +500,7 @@ public:
 	 * @param assocPointingModelId
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, int numCoeff, vector<string > coeffName, vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId);
+	bool compareNoAutoInc(Tag antennaId, int numCoeff, std::vector<string > coeffName, std::vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId);
 	
 	
 
@@ -524,7 +524,7 @@ public:
 	 * @param assocPointingModelId
 	    
 	 */ 
-	bool compareRequiredValue(int numCoeff, vector<string > coeffName, vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId); 
+	bool compareRequiredValue(int numCoeff, std::vector<string > coeffName, std::vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId); 
 		 
 	
 	/**
@@ -700,7 +700,7 @@ private:
 	
 	
 
-	vector<string > coeffName;
+	std::vector<string > coeffName;
 
 	
 	
@@ -711,7 +711,7 @@ private:
 	
 	
 
-	vector<float > coeffVal;
+	std::vector<float > coeffVal;
 
 	
 	
@@ -757,7 +757,7 @@ private:
 	bool coeffFormulaExists;
 	
 
-	vector<string > coeffFormula;
+	std::vector<string > coeffFormula;
 
 	
 	

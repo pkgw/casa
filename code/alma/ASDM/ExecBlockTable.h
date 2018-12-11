@@ -545,7 +545,7 @@ public:
  	 * @param sBSummaryId
 	
      */
-	ExecBlockRow *newRow(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, vector<Tag>  antennaId, Tag sBSummaryId);
+	ExecBlockRow *newRow(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, std::vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, std::vector<Tag>  antennaId, Tag sBSummaryId);
 	
 
 
@@ -668,7 +668,7 @@ public:
  	 * @param sBSummaryId
  	 		 
  	 */
-	ExecBlockRow* lookup(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, vector<Tag>  antennaId, Tag sBSummaryId); 
+	ExecBlockRow* lookup(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, std::vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, std::vector<Tag>  antennaId, Tag sBSummaryId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

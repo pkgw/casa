@@ -309,7 +309,7 @@ public:
  	 * @return tcalSpectrum as vector<vector<Temperature > >
  	 * @throws IllegalAccessException If tcalSpectrum does not exist.
  	 */
- 	vector<vector<Temperature > > getTcalSpectrum() const;
+ 	std::vector<std::vector<Temperature > > getTcalSpectrum() const;
 	
  
  	
@@ -320,7 +320,7 @@ public:
  	 
  		
  	 */
- 	void setTcalSpectrum (vector<vector<Temperature > > tcalSpectrum);
+ 	void setTcalSpectrum (std::vector<std::vector<Temperature > > tcalSpectrum);
 		
 	
 	
@@ -391,7 +391,7 @@ public:
  	 * @return trxSpectrum as vector<vector<Temperature > >
  	 * @throws IllegalAccessException If trxSpectrum does not exist.
  	 */
- 	vector<vector<Temperature > > getTrxSpectrum() const;
+ 	std::vector<std::vector<Temperature > > getTrxSpectrum() const;
 	
  
  	
@@ -402,7 +402,7 @@ public:
  	 
  		
  	 */
- 	void setTrxSpectrum (vector<vector<Temperature > > trxSpectrum);
+ 	void setTrxSpectrum (std::vector<std::vector<Temperature > > trxSpectrum);
 		
 	
 	
@@ -473,7 +473,7 @@ public:
  	 * @return tskySpectrum as vector<vector<Temperature > >
  	 * @throws IllegalAccessException If tskySpectrum does not exist.
  	 */
- 	vector<vector<Temperature > > getTskySpectrum() const;
+ 	std::vector<std::vector<Temperature > > getTskySpectrum() const;
 	
  
  	
@@ -484,7 +484,7 @@ public:
  	 
  		
  	 */
- 	void setTskySpectrum (vector<vector<Temperature > > tskySpectrum);
+ 	void setTskySpectrum (std::vector<std::vector<Temperature > > tskySpectrum);
 		
 	
 	
@@ -555,7 +555,7 @@ public:
  	 * @return tsysSpectrum as vector<vector<Temperature > >
  	 * @throws IllegalAccessException If tsysSpectrum does not exist.
  	 */
- 	vector<vector<Temperature > > getTsysSpectrum() const;
+ 	std::vector<std::vector<Temperature > > getTsysSpectrum() const;
 	
  
  	
@@ -566,7 +566,7 @@ public:
  	 
  		
  	 */
- 	void setTsysSpectrum (vector<vector<Temperature > > tsysSpectrum);
+ 	void setTsysSpectrum (std::vector<std::vector<Temperature > > tsysSpectrum);
 		
 	
 	
@@ -637,7 +637,7 @@ public:
  	 * @return tantSpectrum as vector<vector<float > >
  	 * @throws IllegalAccessException If tantSpectrum does not exist.
  	 */
- 	vector<vector<float > > getTantSpectrum() const;
+ 	std::vector<std::vector<float > > getTantSpectrum() const;
 	
  
  	
@@ -648,7 +648,7 @@ public:
  	 
  		
  	 */
- 	void setTantSpectrum (vector<vector<float > > tantSpectrum);
+ 	void setTantSpectrum (std::vector<std::vector<float > > tantSpectrum);
 		
 	
 	
@@ -719,7 +719,7 @@ public:
  	 * @return tantTsysSpectrum as vector<vector<float > >
  	 * @throws IllegalAccessException If tantTsysSpectrum does not exist.
  	 */
- 	vector<vector<float > > getTantTsysSpectrum() const;
+ 	std::vector<std::vector<float > > getTantTsysSpectrum() const;
 	
  
  	
@@ -730,7 +730,7 @@ public:
  	 
  		
  	 */
- 	void setTantTsysSpectrum (vector<vector<float > > tantTsysSpectrum);
+ 	void setTantTsysSpectrum (std::vector<std::vector<float > > tantTsysSpectrum);
 		
 	
 	
@@ -801,7 +801,7 @@ public:
  	 * @return phaseDiffSpectrum as vector<vector<float > >
  	 * @throws IllegalAccessException If phaseDiffSpectrum does not exist.
  	 */
- 	vector<vector<float > > getPhaseDiffSpectrum() const;
+ 	std::vector<std::vector<float > > getPhaseDiffSpectrum() const;
 	
  
  	
@@ -812,7 +812,7 @@ public:
  	 
  		
  	 */
- 	void setPhaseDiffSpectrum (vector<vector<float > > phaseDiffSpectrum);
+ 	void setPhaseDiffSpectrum (std::vector<std::vector<float > > phaseDiffSpectrum);
 		
 	
 	
@@ -1209,7 +1209,7 @@ private:
 	bool tcalSpectrumExists;
 	
 
-	vector<vector<Temperature > > tcalSpectrum;
+	std::vector<std::vector<Temperature > > tcalSpectrum;
 
 	
 	
@@ -1235,7 +1235,7 @@ private:
 	bool trxSpectrumExists;
 	
 
-	vector<vector<Temperature > > trxSpectrum;
+	std::vector<std::vector<Temperature > > trxSpectrum;
 
 	
 	
@@ -1261,7 +1261,7 @@ private:
 	bool tskySpectrumExists;
 	
 
-	vector<vector<Temperature > > tskySpectrum;
+	std::vector<std::vector<Temperature > > tskySpectrum;
 
 	
 	
@@ -1287,7 +1287,7 @@ private:
 	bool tsysSpectrumExists;
 	
 
-	vector<vector<Temperature > > tsysSpectrum;
+	std::vector<std::vector<Temperature > > tsysSpectrum;
 
 	
 	
@@ -1313,7 +1313,7 @@ private:
 	bool tantSpectrumExists;
 	
 
-	vector<vector<float > > tantSpectrum;
+	std::vector<std::vector<float > > tantSpectrum;
 
 	
 	
@@ -1339,7 +1339,7 @@ private:
 	bool tantTsysSpectrumExists;
 	
 
-	vector<vector<float > > tantTsysSpectrum;
+	std::vector<std::vector<float > > tantTsysSpectrum;
 
 	
 	
@@ -1365,7 +1365,7 @@ private:
 	bool phaseDiffSpectrumExists;
 	
 
-	vector<vector<float > > phaseDiffSpectrum;
+	std::vector<std::vector<float > > phaseDiffSpectrum;
 
 	
 	

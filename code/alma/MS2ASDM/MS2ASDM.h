@@ -154,7 +154,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return timeQuant()(mainTabRow).getValue("s") + intervalQuant()(mainTabRow).getValue("s")/2.; }
 
   // convert casacore::MDirection to a vector of Angles
-  vector< asdm::Angle > ASDMAngleV(const casacore::MDirection mDir);
+  std::vector< asdm::Angle > ASDMAngleV(const casacore::MDirection mDir);
 
   // convert casacore::MDirection type to ASDM DirectionReferenceCode
   DirectionReferenceCodeMod::DirectionReferenceCode ASDMDirRefCode(const casacore::MDirection::Types type);
@@ -262,7 +262,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					   const casacore::uInt startRow, const casacore::uInt endRow,
 					   const asdm::Tag eBlockId,
 					   int& datasize, asdm::EntityRef& dataOid, 
-					   vector< asdm::Tag >& stateId);
+					   std::vector< asdm::Tag >& stateId);
 
   casacore::Bool writePointingModel(); // write dummy pointing models
 

@@ -578,7 +578,7 @@ public:
  	 * @param sourceName
 	
      */
-	SourceRow *newRow(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName);
+	SourceRow *newRow(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, string sourceName);
 	
 
 
@@ -687,7 +687,7 @@ public:
  	 * @param sourceName
  	 		 
  	 */
-	SourceRow* lookup(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName); 
+	SourceRow* lookup(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, string sourceName); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

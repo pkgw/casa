@@ -322,7 +322,7 @@ public:
  	 * Get polarizationTypes.
  	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
@@ -334,7 +334,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -412,7 +412,7 @@ public:
  	 * Get frequencyRange.
  	 * @return frequencyRange as vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
@@ -424,7 +424,7 @@ public:
  		
  			
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
   		
 	
 	
@@ -442,7 +442,7 @@ public:
  	 * Get apertureEfficiency.
  	 * @return apertureEfficiency as vector<float >
  	 */
- 	vector<float > getApertureEfficiency() const;
+ 	std::vector<float > getApertureEfficiency() const;
 	
  
  	
@@ -454,7 +454,7 @@ public:
  		
  			
  	 */
- 	void setApertureEfficiency (vector<float > apertureEfficiency);
+ 	void setApertureEfficiency (std::vector<float > apertureEfficiency);
   		
 	
 	
@@ -472,7 +472,7 @@ public:
  	 * Get apertureEfficiencyError.
  	 * @return apertureEfficiencyError as vector<float >
  	 */
- 	vector<float > getApertureEfficiencyError() const;
+ 	std::vector<float > getApertureEfficiencyError() const;
 	
  
  	
@@ -484,7 +484,7 @@ public:
  		
  			
  	 */
- 	void setApertureEfficiencyError (vector<float > apertureEfficiencyError);
+ 	void setApertureEfficiencyError (std::vector<float > apertureEfficiencyError);
   		
 	
 	
@@ -668,7 +668,7 @@ public:
 	 * @param apertureEfficiencyError
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, vector<float > apertureEfficiency, vector<float > apertureEfficiencyError);
+	bool compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, std::vector<float > apertureEfficiency, std::vector<float > apertureEfficiencyError);
 	
 	
 
@@ -692,7 +692,7 @@ public:
 	 * @param apertureEfficiencyError
 	    
 	 */ 
-	bool compareRequiredValue(int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, vector<float > apertureEfficiency, vector<float > apertureEfficiencyError); 
+	bool compareRequiredValue(int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, std::vector<float > apertureEfficiency, std::vector<float > apertureEfficiencyError); 
 		 
 	
 	/**
@@ -893,7 +893,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -926,7 +926,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -937,7 +937,7 @@ private:
 	
 	
 
-	vector<float > apertureEfficiency;
+	std::vector<float > apertureEfficiency;
 
 	
 	
@@ -948,7 +948,7 @@ private:
 	
 	
 
-	vector<float > apertureEfficiencyError;
+	std::vector<float > apertureEfficiencyError;
 
 	
 	

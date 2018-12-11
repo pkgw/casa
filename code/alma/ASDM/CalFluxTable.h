@@ -458,7 +458,7 @@ public:
  	 * @param stokes
 	
      */
-	CalFluxRow *newRow(string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, vector<vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, vector<vector<double > > flux, vector<vector<double > > fluxError, vector<StokesParameterMod::StokesParameter > stokes);
+	CalFluxRow *newRow(string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, std::vector<std::vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, std::vector<std::vector<double > > flux, std::vector<std::vector<double > > fluxError, std::vector<StokesParameterMod::StokesParameter > stokes);
 	
 
 
@@ -572,7 +572,7 @@ public:
  	 * @param stokes
  	 		 
  	 */
-	CalFluxRow* lookup(string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, vector<vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, vector<vector<double > > flux, vector<vector<double > > fluxError, vector<StokesParameterMod::StokesParameter > stokes); 
+	CalFluxRow* lookup(string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, std::vector<std::vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, std::vector<std::vector<double > > flux, std::vector<std::vector<double > > fluxError, std::vector<StokesParameterMod::StokesParameter > stokes); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

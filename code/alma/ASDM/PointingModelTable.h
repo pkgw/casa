@@ -342,7 +342,7 @@ public:
  	 * @param assocPointingModelId
 	
      */
-	PointingModelRow *newRow(Tag antennaId, int numCoeff, vector<string > coeffName, vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId);
+	PointingModelRow *newRow(Tag antennaId, int numCoeff, std::vector<string > coeffName, std::vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId);
 	
 
 
@@ -452,7 +452,7 @@ public:
  	 * @param assocPointingModelId
  	 		 
  	 */
-	PointingModelRow* lookup(Tag antennaId, int numCoeff, vector<string > coeffName, vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId); 
+	PointingModelRow* lookup(Tag antennaId, int numCoeff, std::vector<string > coeffName, std::vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

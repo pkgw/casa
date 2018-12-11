@@ -504,7 +504,7 @@ public:
  	 * Get antennaNames.
  	 * @return antennaNames as vector<string >
  	 */
- 	vector<string > getAntennaNames() const;
+ 	std::vector<string > getAntennaNames() const;
 	
  
  	
@@ -516,7 +516,7 @@ public:
  		
  			
  	 */
- 	void setAntennaNames (vector<string > antennaNames);
+ 	void setAntennaNames (std::vector<string > antennaNames);
   		
 	
 	
@@ -564,7 +564,7 @@ public:
  	 * Get freqLimits.
  	 * @return freqLimits as vector<Frequency >
  	 */
- 	vector<Frequency > getFreqLimits() const;
+ 	std::vector<Frequency > getFreqLimits() const;
 	
  
  	
@@ -576,7 +576,7 @@ public:
  		
  			
  	 */
- 	void setFreqLimits (vector<Frequency > freqLimits);
+ 	void setFreqLimits (std::vector<Frequency > freqLimits);
   		
 	
 	
@@ -594,7 +594,7 @@ public:
  	 * Get polarizationTypes.
  	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
@@ -606,7 +606,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -624,7 +624,7 @@ public:
  	 * Get curve.
  	 * @return curve as vector<vector<vector<float > > >
  	 */
- 	vector<vector<vector<float > > > getCurve() const;
+ 	std::vector<std::vector<vector<float > > > getCurve() const;
 	
  
  	
@@ -636,7 +636,7 @@ public:
  		
  			
  	 */
- 	void setCurve (vector<vector<vector<float > > > curve);
+ 	void setCurve (std::vector<std::vector<vector<float > > > curve);
   		
 	
 	
@@ -654,7 +654,7 @@ public:
  	 * Get reducedChiSquared.
  	 * @return reducedChiSquared as vector<double >
  	 */
- 	vector<double > getReducedChiSquared() const;
+ 	std::vector<double > getReducedChiSquared() const;
 	
  
  	
@@ -666,7 +666,7 @@ public:
  		
  			
  	 */
- 	void setReducedChiSquared (vector<double > reducedChiSquared);
+ 	void setReducedChiSquared (std::vector<double > reducedChiSquared);
   		
 	
 	
@@ -773,7 +773,7 @@ public:
  	 * @return rms as vector<vector<float > >
  	 * @throws IllegalAccessException If rms does not exist.
  	 */
- 	vector<vector<float > > getRms() const;
+ 	std::vector<std::vector<float > > getRms() const;
 	
  
  	
@@ -784,7 +784,7 @@ public:
  	 
  		
  	 */
- 	void setRms (vector<vector<float > > rms);
+ 	void setRms (std::vector<std::vector<float > > rms);
 		
 	
 	
@@ -814,7 +814,7 @@ public:
  	 * @return frequencyRange as vector<Frequency >
  	 * @throws IllegalAccessException If frequencyRange does not exist.
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
@@ -825,7 +825,7 @@ public:
  	 
  		
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
 		
 	
 	
@@ -896,7 +896,7 @@ public:
  	 * @return chanFreqStart as vector<Frequency >
  	 * @throws IllegalAccessException If chanFreqStart does not exist.
  	 */
- 	vector<Frequency > getChanFreqStart() const;
+ 	std::vector<Frequency > getChanFreqStart() const;
 	
  
  	
@@ -907,7 +907,7 @@ public:
  	 
  		
  	 */
- 	void setChanFreqStart (vector<Frequency > chanFreqStart);
+ 	void setChanFreqStart (std::vector<Frequency > chanFreqStart);
 		
 	
 	
@@ -937,7 +937,7 @@ public:
  	 * @return chanFreqStep as vector<Frequency >
  	 * @throws IllegalAccessException If chanFreqStep does not exist.
  	 */
- 	vector<Frequency > getChanFreqStep() const;
+ 	std::vector<Frequency > getChanFreqStep() const;
 	
  
  	
@@ -948,7 +948,7 @@ public:
  	 
  		
  	 */
- 	void setChanFreqStep (vector<Frequency > chanFreqStep);
+ 	void setChanFreqStep (std::vector<Frequency > chanFreqStep);
 		
 	
 	
@@ -978,7 +978,7 @@ public:
  	 * @return numSpectralWindowChan as vector<int >
  	 * @throws IllegalAccessException If numSpectralWindowChan does not exist.
  	 */
- 	vector<int > getNumSpectralWindowChan() const;
+ 	std::vector<int > getNumSpectralWindowChan() const;
 	
  
  	
@@ -989,7 +989,7 @@ public:
  	 
  		
  	 */
- 	void setNumSpectralWindowChan (vector<int > numSpectralWindowChan);
+ 	void setNumSpectralWindowChan (std::vector<int > numSpectralWindowChan);
 		
 	
 	
@@ -1019,7 +1019,7 @@ public:
  	 * @return spectrum as vector<vector<vector<float > > >
  	 * @throws IllegalAccessException If spectrum does not exist.
  	 */
- 	vector<vector<vector<float > > > getSpectrum() const;
+ 	std::vector<std::vector<vector<float > > > getSpectrum() const;
 	
  
  	
@@ -1030,7 +1030,7 @@ public:
  	 
  		
  	 */
- 	void setSpectrum (vector<vector<vector<float > > > spectrum);
+ 	void setSpectrum (std::vector<std::vector<vector<float > > > spectrum);
 		
 	
 	
@@ -1188,7 +1188,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareNoAutoInc(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<Frequency > freqLimits, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared);
+	bool compareNoAutoInc(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, std::vector<string > antennaNames, string refAntennaName, std::vector<Frequency > freqLimits, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<vector<float > > > curve, std::vector<double > reducedChiSquared);
 	
 	
 
@@ -1220,7 +1220,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<Frequency > freqLimits, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, std::vector<string > antennaNames, string refAntennaName, std::vector<Frequency > freqLimits, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<vector<float > > > curve, std::vector<double > reducedChiSquared); 
 		 
 	
 	/**
@@ -1489,7 +1489,7 @@ private:
 	
 	
 
-	vector<string > antennaNames;
+	std::vector<string > antennaNames;
 
 	
 	
@@ -1511,7 +1511,7 @@ private:
 	
 	
 
-	vector<Frequency > freqLimits;
+	std::vector<Frequency > freqLimits;
 
 	
 	
@@ -1522,7 +1522,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1533,7 +1533,7 @@ private:
 	
 	
 
-	vector<vector<vector<float > > > curve;
+	std::vector<std::vector<vector<float > > > curve;
 
 	
 	
@@ -1544,7 +1544,7 @@ private:
 	
 	
 
-	vector<double > reducedChiSquared;
+	std::vector<double > reducedChiSquared;
 
 	
 	
@@ -1583,7 +1583,7 @@ private:
 	bool rmsExists;
 	
 
-	vector<vector<float > > rms;
+	std::vector<std::vector<float > > rms;
 
 	
 	
@@ -1596,7 +1596,7 @@ private:
 	bool frequencyRangeExists;
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -1622,7 +1622,7 @@ private:
 	bool chanFreqStartExists;
 	
 
-	vector<Frequency > chanFreqStart;
+	std::vector<Frequency > chanFreqStart;
 
 	
 	
@@ -1635,7 +1635,7 @@ private:
 	bool chanFreqStepExists;
 	
 
-	vector<Frequency > chanFreqStep;
+	std::vector<Frequency > chanFreqStep;
 
 	
 	
@@ -1648,7 +1648,7 @@ private:
 	bool numSpectralWindowChanExists;
 	
 
-	vector<int > numSpectralWindowChan;
+	std::vector<int > numSpectralWindowChan;
 
 	
 	
@@ -1661,7 +1661,7 @@ private:
 	bool spectrumExists;
 	
 
-	vector<vector<vector<float > > > spectrum;
+	std::vector<std::vector<vector<float > > > spectrum;
 
 	
 	

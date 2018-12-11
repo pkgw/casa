@@ -82,7 +82,7 @@ struct AsdmIndex
   casacore::uInt  stepBl; // The number of values between two consecutive baselines for the same data description.
   casacore::uInt  iSpw;   // The data description index in the sequence of basebands/spectral windows in the BDF.
   casacore::Int64 row;    // The index (0-based) in the casacore::MS Main table of the first of the rows associated to this index.
-  vector<double> scaleFactors;    //# crossdata scale factor per spw
+  std::vector<double> scaleFactors;    //# crossdata scale factor per spw
   casacore::Int64 fileOffset;     // The offset from the beginning of the file to the beginning of the block of data
                         // to be read.
   casacore::uInt  blockOffset;    // The offset from the beginning of the block of data read in the BDF

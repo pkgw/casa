@@ -363,7 +363,7 @@ public:
  	 * Get polarOffsets.
  	 * @return polarOffsets as vector<double >
  	 */
- 	vector<double > getPolarOffsets() const;
+ 	std::vector<double > getPolarOffsets() const;
 	
  
  	
@@ -375,7 +375,7 @@ public:
  		
  			
  	 */
- 	void setPolarOffsets (vector<double > polarOffsets);
+ 	void setPolarOffsets (std::vector<double > polarOffsets);
   		
 	
 	
@@ -655,7 +655,7 @@ public:
 	 * @param delayModelFixedParametersId
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId);
+	bool compareNoAutoInc(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, std::vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId);
 	
 	
 
@@ -683,7 +683,7 @@ public:
 	 * @param delayModelFixedParametersId
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId); 
+	bool compareRequiredValue(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, std::vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId); 
 		 
 	
 	/**
@@ -918,7 +918,7 @@ private:
 	
 	
 
-	vector<double > polarOffsets;
+	std::vector<double > polarOffsets;
 
 	
 	

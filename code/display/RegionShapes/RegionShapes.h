@@ -77,22 +77,22 @@ namespace casa {
 		                           casacore::String toSystem = "") const;
 
 		// Implements RegionShape::coordParameterValues.
-		virtual vector<double> coordParameterValues() const;
+		virtual std::vector<double> coordParameterValues() const;
 
 		// Implements RegionShape::coordParameterValues.
-		virtual vector<double> coordParameterValues(casacore::String toSystem) const;
+		virtual std::vector<double> coordParameterValues(casacore::String toSystem) const;
 
 		// Implements RegionShape::coordParameterNames.
-		virtual vector<casacore::String> coordParameterNames() const;
+		virtual std::vector<casacore::String> coordParameterNames() const;
 
 		// Implements RegionShape::coordParameterPositions.
-		virtual vector<CoordinateParameterType> coordParameterTypes() const;
+		virtual std::vector<CoordinateParameterType> coordParameterTypes() const;
 
 		// Implements RegionShape::setCoordParameters.
-		virtual void setCoordParameters(const vector<double>& vals);
+		virtual void setCoordParameters(const std::vector<double>& vals);
 
 		// Implements RegionShape::setCoordParameters.
-		virtual void setCoordParameters(const vector<double>& vals, casacore::String system);
+		virtual void setCoordParameters(const std::vector<double>& vals, casacore::String system);
 
 		// Implements RegionShape::move.
 		virtual void move(double dx, double dy, casacore::String system = "");
@@ -103,14 +103,14 @@ namespace casa {
 		// Implements RegionShape option methods.  Note: ellipses do not have
 		// additonal options.
 		// <group>
-		virtual vector<casacore::String> optionNames() const {
-			return vector<casacore::String>();
+		virtual std::vector<casacore::String> optionNames() const {
+			return std::vector<casacore::String>();
 		}
-		virtual vector<OptionType> optionTypes() const {
-			return vector<OptionType>();
+		virtual std::vector<OptionType> optionTypes() const {
+			return std::vector<OptionType>();
 		}
-		virtual vector<RSOption> optionValues() const {
-			return vector<RSOption>();
+		virtual std::vector<RSOption> optionValues() const {
+			return std::vector<RSOption>();
 		}
 		virtual void setOptionValues(const vector<RSOption>& /*options*/) { }
 		// </group>
@@ -167,22 +167,22 @@ namespace casa {
 		                          casacore::String toSystem = "") const;
 
 		// Overrides RSEllipse::coordParameterValues.
-		vector<double> coordParameterValues() const;
+		std::vector<double> coordParameterValues() const;
 
 		// Overrides RSEllipse::coordParameterValues.
-		vector<double> coordParameterValues(casacore::String toSystem) const;
+		std::vector<double> coordParameterValues(casacore::String toSystem) const;
 
 		// Overrides RSEllipse::coordParameterNames.
-		vector<casacore::String> coordParameterNames() const;
+		std::vector<casacore::String> coordParameterNames() const;
 
 		// Overrides RSEllipse::coordParameterPositions.
-		vector<CoordinateParameterType> coordParameterTypes() const;
+		std::vector<CoordinateParameterType> coordParameterTypes() const;
 
 		// Overrides RSEllipse::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals);
+		void setCoordParameters(const std::vector<double>& vals);
 
 		// Overrides RSEllipse::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals, casacore::String valSystem);
+		void setCoordParameters(const std::vector<double>& vals, casacore::String valSystem);
 
 	protected:
 		// Overrides RSEllipse::getShapeSpecificProperties.
@@ -250,22 +250,22 @@ namespace casa {
 		                             casacore::String toSystem = "") const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues() const;
+		std::vector<double> coordParameterValues() const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues(casacore::String toSystem) const;
+		std::vector<double> coordParameterValues(casacore::String toSystem) const;
 
 		// Implements RegionShape::coordParameterNames.
-		vector<casacore::String> coordParameterNames() const;
+		std::vector<casacore::String> coordParameterNames() const;
 
 		// Implements RegionShape::coordParameterPositions.
-		vector<CoordinateParameterType> coordParameterTypes() const;
+		std::vector<CoordinateParameterType> coordParameterTypes() const;
 
 		// Implements RegionShape::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals);
+		void setCoordParameters(const std::vector<double>& vals);
 
 		// Implements RegionShape::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals, casacore::String valSystem);
+		void setCoordParameters(const std::vector<double>& vals, casacore::String valSystem);
 
 		// Implements RegionShape::move.
 		void move(double dx, double dy, casacore::String system = "");
@@ -276,14 +276,14 @@ namespace casa {
 		// Implements RegionShape option methods.  Note: rectangles do not have
 		// additonal options.
 		// <group>
-		vector<casacore::String> optionNames() const {
-			return vector<casacore::String>();
+		std::vector<casacore::String> optionNames() const {
+			return std::vector<casacore::String>();
 		}
-		vector<OptionType> optionTypes() const {
-			return vector<OptionType>();
+		std::vector<OptionType> optionTypes() const {
+			return std::vector<OptionType>();
 		}
-		vector<RSOption> optionValues() const {
-			return vector<RSOption>();
+		std::vector<RSOption> optionValues() const {
+			return std::vector<RSOption>();
 		}
 		void setOptionValues(const vector<RSOption>& /*options*/) { }
 		// </group>
@@ -383,26 +383,26 @@ namespace casa {
 		// Gets actual polygon coordinates.
 		// If toSystem is empty, no conversion is done; otherwise see the
 		// constraints listed in RegionShape::coordParameterValues(casacore::String).
-		void getPolygonCoordinates(vector<double>& x, vector<double>& y,
+		void getPolygonCoordinates(std::vector<double>& x, std::vector<double>& y,
 		                           casacore::String toSystem = "") const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues() const;
+		std::vector<double> coordParameterValues() const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues(casacore::String toSystem) const;
+		std::vector<double> coordParameterValues(casacore::String toSystem) const;
 
 		// Implements RegionShape::coordParameterNames.
-		vector<casacore::String> coordParameterNames() const;
+		std::vector<casacore::String> coordParameterNames() const;
 
 		// Implements RegionShape::coordParameterPositions.
-		vector<CoordinateParameterType> coordParameterTypes() const;
+		std::vector<CoordinateParameterType> coordParameterTypes() const;
 
 		// Implements RegionShape::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals);
+		void setCoordParameters(const std::vector<double>& vals);
 
 		// Implements RegionShape::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals, casacore::String valSystem);
+		void setCoordParameters(const std::vector<double>& vals, casacore::String valSystem);
 
 		// Implements RegionShape::move.
 		void move(double dx, double dy, casacore::String system = "");
@@ -411,16 +411,16 @@ namespace casa {
 		RSHandle getHandle() const;
 
 		// Implements RegionShape::optionNames.
-		vector<casacore::String> optionNames() const;
+		std::vector<casacore::String> optionNames() const;
 
 		// Implements RegionShape::optionTypes.
-		vector<OptionType> optionTypes() const;
+		std::vector<OptionType> optionTypes() const;
 
 		// Implements RegionShape::optionValues.
-		vector<RSOption> optionValues() const;
+		std::vector<RSOption> optionValues() const;
 
 		// Implements RegionShape::setOptions.
-		void setOptionValues(const vector<RSOption>& options);
+		void setOptionValues(const std::vector<RSOption>& options);
 
 	protected:
 		casacore::Vector<casacore::Double> m_x, m_y;             // coordinates, world or pixel
@@ -459,8 +459,8 @@ namespace casa {
 
 		// Returns all possible arrow types.
 		// <group>
-		static vector<ArrowType> allArrowTypes() {
-			static vector<ArrowType> v(4);
+		static std::vector<ArrowType> allArrowTypes() {
+			static std::vector<ArrowType> v(4);
 			v[0] = FilledTriangle;
 			v[1] = Triangle;
 			v[2] = V;
@@ -468,9 +468,9 @@ namespace casa {
 			return v;
 		}
 
-		static vector<casacore::String> allArrowTypesStrings() {
-			vector<ArrowType> types = allArrowTypes();
-			vector<casacore::String> v(types.size());
+		static std::vector<casacore::String> allArrowTypesStrings() {
+			std::vector<ArrowType> types = allArrowTypes();
+			std::vector<casacore::String> v(types.size());
 			for(unsigned int i = 0; i < v.size(); i++) v[i] = arrowType(types[i]);
 			return v;
 		}
@@ -557,22 +557,22 @@ namespace casa {
 		                        int& arrowLength, casacore::String toSystem = "") const;
 
 		// Implements RegionShape::coordParameterVales.
-		virtual vector<double> coordParameterValues() const;
+		virtual std::vector<double> coordParameterValues() const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues(casacore::String toSystem) const;
+		std::vector<double> coordParameterValues(casacore::String toSystem) const;
 
 		// Implements RegionShape::coordParameterNames.
-		virtual vector<casacore::String> coordParameterNames() const;
+		virtual std::vector<casacore::String> coordParameterNames() const;
 
 		// Implements RegionShape::coordParameterPositions.
-		virtual vector<CoordinateParameterType> coordParameterTypes() const;
+		virtual std::vector<CoordinateParameterType> coordParameterTypes() const;
 
 		// Implements RegionShape::setCoordParameters.
-		virtual void setCoordParameters(const vector<double>& vals);
+		virtual void setCoordParameters(const std::vector<double>& vals);
 
 		// Implements RegionShape::setCoordParameters.
-		virtual void setCoordParameters(const vector<double>& vals, casacore::String System);
+		virtual void setCoordParameters(const std::vector<double>& vals, casacore::String System);
 
 		// Implements RegionShape::move.
 		virtual void move(double dx, double dy, casacore::String system = "");
@@ -581,19 +581,19 @@ namespace casa {
 		virtual RSHandle getHandle() const;
 
 		// Implements RegionShape::optionNames.
-		virtual vector<casacore::String> optionNames() const;
+		virtual std::vector<casacore::String> optionNames() const;
 
 		// Implements RegionShape::optionTypes.
-		virtual vector<OptionType> optionTypes() const;
+		virtual std::vector<OptionType> optionTypes() const;
 
 		// Implements RegionShape::optionChoices.
-		virtual vector<vector<casacore::String> > optionChoices() const;
+		virtual std::vector<std::vector<casacore::String> > optionChoices() const;
 
 		// Implements RegionShape::optionValues.
-		virtual vector<RSOption> optionValues() const;
+		virtual std::vector<RSOption> optionValues() const;
 
 		// Implements RegionShape::setOptions.
-		virtual void setOptionValues(const vector<RSOption>& options);
+		virtual void setOptionValues(const std::vector<RSOption>& options);
 
 	protected:
 		vector<double> m_spec;        // order: [x1 y1 x2 y2], either world or pixel
@@ -671,37 +671,37 @@ namespace casa {
 		                          casacore::String toSystem = "") const;
 
 		// Overrides RSLine::coordParameterValues.
-		vector<double> coordParameterValues() const;
+		std::vector<double> coordParameterValues() const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues(casacore::String toSystem) const;
+		std::vector<double> coordParameterValues(casacore::String toSystem) const;
 
 		// Overrides RSLine::coordParameterNames.
-		vector<casacore::String> coordParameterNames() const;
+		std::vector<casacore::String> coordParameterNames() const;
 
 		// Overrides RSLine::coordParameterPositions.
-		vector<CoordinateParameterType> coordParameterTypes() const;
+		std::vector<CoordinateParameterType> coordParameterTypes() const;
 
 		// Overrides RSLine::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals);
+		void setCoordParameters(const std::vector<double>& vals);
 
 		// Overrides RSLine::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals, casacore::String valSystem);
+		void setCoordParameters(const std::vector<double>& vals, casacore::String valSystem);
 
 		// Overrides RSLine::optionNames.
-		vector<casacore::String> optionNames() const;
+		std::vector<casacore::String> optionNames() const;
 
 		// Overrides RSLine::optionTypes.
-		vector<OptionType> optionTypes() const;
+		std::vector<OptionType> optionTypes() const;
 
 		// Overrides RSLine::optionChoices.
-		vector<vector<casacore::String> > optionChoices() const;
+		std::vector<std::vector<casacore::String> > optionChoices() const;
 
 		// Overrides RSLine::optionValues.
-		vector<RSOption> optionValues() const;
+		std::vector<RSOption> optionValues() const;
 
 		// Overrides RSLine::setOptions.
-		void setOptionValues(const vector<RSOption>& options);
+		void setOptionValues(const std::vector<RSOption>& options);
 
 	protected:
 		double m_length; // length, world or pixel
@@ -730,7 +730,7 @@ namespace casa {
 		// World Constructor for a compound marker type.  x and y must all be
 		// 1) using the same world system as defined by worldSystem, and
 		// 2) in the unit RegionShape::UNIT.  pixelHeight is in screen pixels.
-		RSMarker(double x, double y, const vector<Display::Marker>& markers,
+		RSMarker(double x, double y, const std::vector<Display::Marker>& markers,
 		         int pixelHeight, casacore::MDirection::Types worldSystem);
 
 		// Pixel Constructor for a single marker type.  pixelHeight is in screen
@@ -739,7 +739,7 @@ namespace casa {
 
 		// Pixel Constructor for a compound marker type.  pixelHeight is in screen
 		// pixels.
-		RSMarker(double x, double y, const vector<Display::Marker>& markers,
+		RSMarker(double x, double y, const std::vector<Display::Marker>& markers,
 		         int pixelHeight);
 
 		// casacore::Record Constructor.
@@ -750,9 +750,9 @@ namespace casa {
 
 		// Gets/sets the markers used for this shape.
 		// <group>
-		vector<Display::Marker> markers() const;
+		std::vector<Display::Marker> markers() const;
 		void setMarker(Display::Marker marker);
-		void setMarkers(const vector<Display::Marker>& markers);
+		void setMarkers(const std::vector<Display::Marker>& markers);
 		// </group>
 
 
@@ -775,22 +775,22 @@ namespace casa {
 		                          casacore::String toSystem = "") const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues() const;
+		std::vector<double> coordParameterValues() const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues(casacore::String toSystem) const;
+		std::vector<double> coordParameterValues(casacore::String toSystem) const;
 
 		// Implements RegionShape::coordParameterNames.
-		vector<casacore::String> coordParameterNames() const;
+		std::vector<casacore::String> coordParameterNames() const;
 
 		// Implements RegionShape::coordParameterPositions.
-		vector<CoordinateParameterType> coordParameterTypes() const;
+		std::vector<CoordinateParameterType> coordParameterTypes() const;
 
 		// Implements RegionShape::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals);
+		void setCoordParameters(const std::vector<double>& vals);
 
 		// Implements RegionShape::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals, casacore::String valSystem);
+		void setCoordParameters(const std::vector<double>& vals, casacore::String valSystem);
 
 		// Implements RegionShape::move.
 		void move(double dx, double dy, casacore::String system = "");
@@ -799,19 +799,19 @@ namespace casa {
 		RSHandle getHandle() const;
 
 		// Implements RegionShape::optionNames.
-		vector<casacore::String> optionNames() const;
+		std::vector<casacore::String> optionNames() const;
 
 		// Implements RegionShape::optionTypes.
-		vector<OptionType> optionTypes() const;
+		std::vector<OptionType> optionTypes() const;
 
 		// Overrides RegionShape::optionChoices.
-		vector<vector<casacore::String> > optionChoices() const;
+		std::vector<std::vector<casacore::String> > optionChoices() const;
 
 		// Implements RegionShape::optionValues.
-		vector<RSOption> optionValues() const;
+		std::vector<RSOption> optionValues() const;
 
 		// Implements RegionShape::setOptions.
-		void setOptionValues(const vector<RSOption>& options);
+		void setOptionValues(const std::vector<RSOption>& options);
 
 	protected:
 		double m_x, m_y;                   // location, world or pixel
@@ -896,8 +896,8 @@ namespace casa {
 			return true;
 		}
 
-		static vector<Display::Marker> allMarkers() {
-			static vector<Display::Marker> v(15);
+		static std::vector<Display::Marker> allMarkers() {
+			static std::vector<Display::Marker> v(15);
 			v[0] = Display::Cross;
 			v[1] = Display::X;
 			v[2] = Display::Diamond;
@@ -953,22 +953,22 @@ namespace casa {
 		                        casacore::String toSystem = "") const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues() const;
+		std::vector<double> coordParameterValues() const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues(casacore::String toSystem) const;
+		std::vector<double> coordParameterValues(casacore::String toSystem) const;
 
 		// Implements RegionShape::coordParameterNames.
-		vector<casacore::String> coordParameterNames() const;
+		std::vector<casacore::String> coordParameterNames() const;
 
 		// Implements RegionShape::coordParameterPositions.
-		vector<CoordinateParameterType> coordParameterTypes() const;
+		std::vector<CoordinateParameterType> coordParameterTypes() const;
 
 		// Implements RegionShape::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals);
+		void setCoordParameters(const std::vector<double>& vals);
 
 		// Implements RegionShape::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals, casacore::String valSystem);
+		void setCoordParameters(const std::vector<double>& vals, casacore::String valSystem);
 
 		// Implements RegionShape::move.
 		void move(double dx, double dy, casacore::String system = "");
@@ -979,14 +979,14 @@ namespace casa {
 		// Implements RegionShape option methods.  Note: text do not have
 		// additonal options.
 		// <group>
-		vector<casacore::String> optionNames() const {
-			return vector<casacore::String>();
+		std::vector<casacore::String> optionNames() const {
+			return std::vector<casacore::String>();
 		}
-		vector<OptionType> optionTypes() const {
-			return vector<OptionType>();
+		std::vector<OptionType> optionTypes() const {
+			return std::vector<OptionType>();
 		}
-		vector<RSOption> optionValues() const {
-			return vector<RSOption>();
+		std::vector<RSOption> optionValues() const {
+			return std::vector<RSOption>();
 		}
 		void setOptionValues(const vector<RSOption>& /*options*/) { }
 		// </group>
@@ -1070,7 +1070,7 @@ namespace casa {
 		// the parent RSComposite.
 		// <group>
 		void addShape(RegionShape* shape);
-		void addShapes(const vector<RegionShape*> shapes);
+		void addShapes(const std::vector<RegionShape*> shapes);
 		// </group>
 
 		// Returns true if the children are dependent, false otherwise.
@@ -1084,8 +1084,8 @@ namespace casa {
 
 		// Returns the composite's children.
 		// <group>
-		vector<RegionShape*> children();
-		vector<const RegionShape*> children() const;
+		std::vector<RegionShape*> children();
+		std::vector<const RegionShape*> children() const;
 		// </group>
 
 
@@ -1121,22 +1121,22 @@ namespace casa {
 		                             casacore::String toSystem = "") const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues() const;
+		std::vector<double> coordParameterValues() const;
 
 		// Implements RegionShape::coordParameterValues.
-		vector<double> coordParameterValues(casacore::String toSystem) const;
+		std::vector<double> coordParameterValues(casacore::String toSystem) const;
 
 		// Implements RegionShape::coordParameterNames.
-		vector<casacore::String> coordParameterNames() const;
+		std::vector<casacore::String> coordParameterNames() const;
 
 		// Implements RegionShape::coordParameterPositions.
-		vector<CoordinateParameterType> coordParameterTypes() const;
+		std::vector<CoordinateParameterType> coordParameterTypes() const;
 
 		// Implements RegionShape::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals);
+		void setCoordParameters(const std::vector<double>& vals);
 
 		// Implements RegionShape::setCoordParameters.
-		void setCoordParameters(const vector<double>& vals, casacore::String valSystem);
+		void setCoordParameters(const std::vector<double>& vals, casacore::String valSystem);
 
 		// Implements RegionShape::move.
 		void move(double dx, double dy, casacore::String system = "");
@@ -1145,16 +1145,16 @@ namespace casa {
 		RSHandle getHandle() const;
 
 		// Implements RegionShape::optionNames.
-		vector<casacore::String> optionNames() const;
+		std::vector<casacore::String> optionNames() const;
 
 		// Implements RegionShape::optionTypes.
-		vector<OptionType> optionTypes() const;
+		std::vector<OptionType> optionTypes() const;
 
 		// Implements RegionShape::optionValues.
-		vector<RSOption> optionValues() const;
+		std::vector<RSOption> optionValues() const;
 
 		// Implements RegionShape::setOptions.
-		void setOptionValues(const vector<RSOption>& options);
+		void setOptionValues(const std::vector<RSOption>& options);
 
 	protected:
 		casacore::String m_custName;             // optional custom name

@@ -215,7 +215,7 @@ public:
  	 * Get calLoadNames.
  	 * @return calLoadNames as vector<CalibrationDeviceMod::CalibrationDevice >
  	 */
- 	vector<CalibrationDeviceMod::CalibrationDevice > getCalLoadNames() const;
+ 	std::vector<CalibrationDeviceMod::CalibrationDevice > getCalLoadNames() const;
 	
  
  	
@@ -227,7 +227,7 @@ public:
  		
  			
  	 */
- 	void setCalLoadNames (vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
+ 	void setCalLoadNames (std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
   		
 	
 	
@@ -293,7 +293,7 @@ public:
  	 * @return calEff as vector<vector<float > >
  	 * @throws IllegalAccessException If calEff does not exist.
  	 */
- 	vector<vector<float > > getCalEff() const;
+ 	std::vector<std::vector<float > > getCalEff() const;
 	
  
  	
@@ -304,7 +304,7 @@ public:
  	 
  		
  	 */
- 	void setCalEff (vector<vector<float > > calEff);
+ 	void setCalEff (std::vector<std::vector<float > > calEff);
 		
 	
 	
@@ -334,7 +334,7 @@ public:
  	 * @return noiseCal as vector<double >
  	 * @throws IllegalAccessException If noiseCal does not exist.
  	 */
- 	vector<double > getNoiseCal() const;
+ 	std::vector<double > getNoiseCal() const;
 	
  
  	
@@ -345,7 +345,7 @@ public:
  	 
  		
  	 */
- 	void setNoiseCal (vector<double > noiseCal);
+ 	void setNoiseCal (std::vector<double > noiseCal);
 		
 	
 	
@@ -375,7 +375,7 @@ public:
  	 * @return coupledNoiseCal as vector<vector<float > >
  	 * @throws IllegalAccessException If coupledNoiseCal does not exist.
  	 */
- 	vector<vector<float > > getCoupledNoiseCal() const;
+ 	std::vector<std::vector<float > > getCoupledNoiseCal() const;
 	
  
  	
@@ -386,7 +386,7 @@ public:
  	 
  		
  	 */
- 	void setCoupledNoiseCal (vector<vector<float > > coupledNoiseCal);
+ 	void setCoupledNoiseCal (std::vector<std::vector<float > > coupledNoiseCal);
 		
 	
 	
@@ -416,7 +416,7 @@ public:
  	 * @return temperatureLoad as vector<Temperature >
  	 * @throws IllegalAccessException If temperatureLoad does not exist.
  	 */
- 	vector<Temperature > getTemperatureLoad() const;
+ 	std::vector<Temperature > getTemperatureLoad() const;
 	
  
  	
@@ -427,7 +427,7 @@ public:
  	 
  		
  	 */
- 	void setTemperatureLoad (vector<Temperature > temperatureLoad);
+ 	void setTemperatureLoad (std::vector<Temperature > temperatureLoad);
 		
 	
 	
@@ -610,7 +610,7 @@ public:
 	 * @param calLoadNames
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
+	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
 	
 	
 
@@ -624,7 +624,7 @@ public:
 	 * @param calLoadNames
 	    
 	 */ 
-	bool compareRequiredValue(int numCalload, vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames); 
+	bool compareRequiredValue(int numCalload, std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames); 
 		 
 	
 	/**
@@ -789,7 +789,7 @@ private:
 	
 	
 
-	vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames;
+	std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames;
 
 	
 	
@@ -815,7 +815,7 @@ private:
 	bool calEffExists;
 	
 
-	vector<vector<float > > calEff;
+	std::vector<std::vector<float > > calEff;
 
 	
 	
@@ -828,7 +828,7 @@ private:
 	bool noiseCalExists;
 	
 
-	vector<double > noiseCal;
+	std::vector<double > noiseCal;
 
 	
 	
@@ -841,7 +841,7 @@ private:
 	bool coupledNoiseCalExists;
 	
 
-	vector<vector<float > > coupledNoiseCal;
+	std::vector<std::vector<float > > coupledNoiseCal;
 
 	
 	
@@ -854,7 +854,7 @@ private:
 	bool temperatureLoadExists;
 	
 
-	vector<Temperature > temperatureLoad;
+	std::vector<Temperature > temperatureLoad;
 
 	
 	

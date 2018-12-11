@@ -227,7 +227,7 @@ namespace casa {
 
         private:
             casacore::CoordinateSystem cs_;
-			typedef vector<std::pair<casacore::Vector<int>,casacore::Vector<int> > > transposition_log_t;
+			typedef std::vector<std::pair<casacore::Vector<int>,casacore::Vector<int> > > transposition_log_t;
 			transposition_log_t transposition_log;
     };
 

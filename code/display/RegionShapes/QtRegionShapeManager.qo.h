@@ -84,7 +84,7 @@ namespace casa {
 
 		// Returns the shapes in the manager.  If include composites is false,
 		// composites are not included.  Composite children are not included.
-		vector<RegionShape*> shapes(bool includeComposites = true) const;
+		std::vector<RegionShape*> shapes(bool includeComposites = true) const;
 
 		// Returns the QtSingleRegionShape wrapper for the given shape, or NULL
 		// for invalid.
@@ -109,7 +109,7 @@ namespace casa {
 		// Adds the given shapes to the manager.  Holds the drawing until all
 		// shapes have been added.  The given shapes become owned by the manager
 		// which is responsible for their deletion.
-		void addShapes(const vector<RegionShape*>& shapes);
+		void addShapes(const std::vector<RegionShape*>& shapes);
 
 		// Removes and (optionally) deletes the given shape from the manager.
 		void removeShape(RegionShape* shape, bool deleteShape = true);
@@ -135,8 +135,8 @@ namespace casa {
 
 		// Adds the given shapes with the given composite parents (or NULL if the
 		// shapes do not not parents) to the manager.
-		void addShapes(const vector<RegionShape*>& shapes,
-		               const vector<RegionShape*>& compositeParents);
+		void addShapes(const std::vector<RegionShape*>& shapes,
+		               const std::vector<RegionShape*>& compositeParents);
 
 
 		// XML attributes.

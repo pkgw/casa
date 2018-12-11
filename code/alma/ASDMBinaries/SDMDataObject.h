@@ -365,8 +365,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       friend class HeaderParser;
 
     private:
-      vector<StokesParameter> crossPolProducts_;
-      vector<StokesParameter> sdPolProducts_;
+      std::vector<StokesParameter> crossPolProducts_;
+      std::vector<StokesParameter> sdPolProducts_;
       float scaleFactor_;
       unsigned int numSpectralPoint_;
       unsigned int numBin_;
@@ -399,7 +399,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       /**
        * A constructor of SpectralWindow to use when there are only interferometric data (correlationMode == CROSS_ONLY).
        */
-      SpectralWindow(const vector<StokesParameter>& crossPolProducts,
+      SpectralWindow(const std::vector<StokesParameter>& crossPolProducts,
 		     float scaleFactor,
 		     unsigned int numSpectralPoint,
 		     unsigned int numBin,
@@ -408,7 +408,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       /**
        * A constructor of SpectralWindow to use when there are only single dish data (correlationMode == AUTO_ONLY).
        */
-      SpectralWindow(const vector<StokesParameter>& sdPolProducts,
+      SpectralWindow(const std::vector<StokesParameter>& sdPolProducts,
 		     unsigned int numSpectralPoint,
 		     unsigned numBin,
 		     NetSideband sideband);
@@ -416,8 +416,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       /**
        * A constructor of SpectralWindow to use when there are both single dish and  interferometric data (correlationMode == CROSS_AND_AUTO).
        */
-      SpectralWindow(const vector<StokesParameter>& crossPolProducts,
-		     const vector<StokesParameter>& sdPolProduct,
+      SpectralWindow(const std::vector<StokesParameter>& crossPolProducts,
+		     const std::vector<StokesParameter>& sdPolProduct,
 		     float scaleFactor,
 		     unsigned int numSpectralPoint,
 		     unsigned int numBin,
@@ -429,7 +429,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        *
        * @throw SDMDataObjectException when correlationMode() == AUTO_ONLY.
        */
-      const vector<StokesParameter>& crossPolProducts() const;
+      const std::vector<StokesParameter>& crossPolProducts() const;
       //void crossPolProducts(const vector<StokesParameter>& value);
 
       /**
@@ -438,7 +438,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        *
        * @throw SDMDataObjectException when correlationMode() == CROSS_ONLY.
        */
-      const vector<StokesParameter>& sdPolProducts() const;
+      const std::vector<StokesParameter>& sdPolProducts() const;
       //void sdPolProducts(const vector<StokesParameter>& value);
 
       /**
@@ -496,7 +496,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
 
     private:
       BasebandName name_;
-      vector<SpectralWindow> spectralWindows_;
+      std::vector<SpectralWindow> spectralWindows_;
 
       const SDMDataObject* owner_;
 
@@ -518,7 +518,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       /**
        * The constructor of Baseband.
        */
-      Baseband(BasebandName name, const vector<SpectralWindow>& spectralWindows);
+      Baseband(BasebandName name, const std::vector<SpectralWindow>& spectralWindows);
 
       /**
        * Returns the name of the baseband.
@@ -531,8 +531,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * Returns the spectral windows of this baseband.
        * @return a reference to a vector of SpectralWindow.
        */
-      const vector<SpectralWindow>& spectralWindows() const;
-      void spectralWindows(const vector<SpectralWindow>& value);
+      const std::vector<SpectralWindow>& spectralWindows() const;
+      void spectralWindows(const std::vector<SpectralWindow>& value);
     }; // Baseband::
 
 
@@ -563,7 +563,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
 
     protected:
       unsigned int size_;
-      vector<AxisName> axes_;
+      std::vector<AxisName> axes_;
 
       const SDMDataObject* owner_;
     
@@ -584,7 +584,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * The full constructor.
        */
       BinaryPart( unsigned int size,
-		  const vector<AxisName>& axes);
+		  const std::vector<AxisName>& axes);
       
       /**
        * Returns the size of a binary attachment as a <b>number of values</b> (e.g. a number of long long for the actualDurations, or 
@@ -599,7 +599,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * rapidly varying.
        * @return a vector of AxisName.
        */
-      virtual const vector<AxisName>& axes() const ; 
+      virtual const std::vector<AxisName>& axes() const ; 
       //      virtual void axes (const vector<AxisName>& axes); 
     }; // BinaryPart::
 
@@ -634,7 +634,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * The full constructor.
        */
       AutoDataBinaryPart(unsigned int size,
-			 const vector<AxisName>& axes,
+			 const std::vector<AxisName>& axes,
 			 bool normalized);
       
       /**
@@ -677,7 +677,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * The full constructor.
        */
       ZeroLagsBinaryPart(unsigned int size,
-			 const vector<AxisName>& axes,
+			 const std::vector<AxisName>& axes,
 			 CorrelatorType correlatorType);
 
       /**
@@ -735,8 +735,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * AutoDataBinaryPart object.
        *
        */
-      DataStruct(const vector<AtmPhaseCorrection>& apc,
-		 const vector<Baseband>& basebands,
+      DataStruct(const std::vector<AtmPhaseCorrection>& apc,
+		 const std::vector<Baseband>& basebands,
 		 const BinaryPart& flags,
 		 const BinaryPart& actualTimes,
 		 const BinaryPart& actualDurations,
@@ -749,14 +749,14 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * Returns the radiometric atmospheric phase correction codes.
        * @return a vector of AtmPhaseCorrectionMod::AtmPhaseCorrection.
        */       
-      const vector<AtmPhaseCorrection>& apc() const;
+      const std::vector<AtmPhaseCorrection>& apc() const;
       //      void apc(const vector<AtmPhaseCorrection>& value);
 
       /**
        * Returns the vector of basebands.
        * @return a reference to a vector of Baseband.
        */
-      const vector<Baseband>& basebands() const;
+      const std::vector<Baseband>& basebands() const;
       //      void basebands(const vector<Baseband>& value);
       
       /**
@@ -868,8 +868,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       
 
     private:
-      vector<AtmPhaseCorrection> apc_;
-      vector<Baseband> basebands_;
+      std::vector<AtmPhaseCorrection> apc_;
+      std::vector<Baseband> basebands_;
       BinaryPart flags_;
       BinaryPart actualTimes_;
       BinaryPart actualDurations_;
@@ -990,7 +990,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      *
      * @return a vector of string.
      */
-    vector<string> projectPaths() const;
+    std::vector<string> projectPaths() const;
 
     /**
      * Returns the number of antenna.
@@ -1079,15 +1079,15 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * conversely if it returns false then the vector may have more than one element and the data are distributed over the elements on 
      * the basis of one integration per element.
      */
-    const vector<SDMDataSubset>& sdmDataSubsets() const;
+    const std::vector<SDMDataSubset>& sdmDataSubsets() const;
 
     /**
      * Returns the binary data as a sequence of integrations.
      * This method must be used only when the SDMDataObject contains correlator data (i.e. isCorrelation() == true)
      * @return a reference to a vector of SDMDataSubset.
      */
-    const vector<SDMDataSubset>& corrDataSubsets() const;
-    void corrDataSubsets(const vector<SDMDataSubset>& value);
+    const std::vector<SDMDataSubset>& corrDataSubsets() const;
+    void corrDataSubsets(const std::vector<SDMDataSubset>& value);
 
     /**
      * Returns a reference to a SDMDataSubset given its projectPath.
@@ -1167,10 +1167,10 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
 
   private:
 
-    static vector<string> correlationModeRefs;
-    static vector<string> axes;
-    static vector<string> types;
-    static vector<string> apcs;
+    static std::vector<string> correlationModeRefs;
+    static std::vector<string> axes;
+    static std::vector<string> types;
+    static std::vector<string> apcs;
 
     const static bool _init;
     static bool init();
@@ -1213,7 +1213,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
 
     map<string, unsigned int> str2index_;
     
-    vector<SDMDataSubset> dataSubsets_;
+    std::vector<SDMDataSubset> dataSubsets_;
 
     bool aborted_;
 
@@ -1255,7 +1255,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     void toXML(const BinaryPart& binaryPart, const string& elementName,  ostringstream& oss) const;
     void toXML(const AutoDataBinaryPart& autoDataBinaryPart, const string& elementName,  ostringstream& oss) const;
     void toXML(const ZeroLagsBinaryPart& zeroLagsBinaryPart, const string& elementName,  ostringstream& oss) const;
-    void spectralWindowsToXML(const vector<Baseband>& basebands, unsigned int ibb,  ostringstream& oss) const;
+    void spectralWindowsToXML(const std::vector<Baseband>& basebands, unsigned int ibb,  ostringstream& oss) const;
     void basebandsToXML(ostringstream& oss) const; 
     void dataStructToXML(ostringstream& oss) ;
 
@@ -1297,7 +1297,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     SDMDataSubset(SDMDataObject* owner,
 		  unsigned long long time,
 		  unsigned long long interval,
-		  const vector<float>& autoData);
+		  const std::vector<float>& autoData);
 
     /*
      * A copy constructor.
@@ -1576,7 +1576,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     static string quote(long long l);
     static string quote(float f);
     static string quote(const set<string>& s);
-    static string quote(const vector<string>& s);
+    static string quote(const std::vector<string>& s);
     template<class Enum, class EnumHelper> static string quote(Enum l) {
       ostringstream oss;
       oss << "\"";
@@ -1585,7 +1585,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       return oss.str();
     }
 
-    template<class Enum, class EnumHelper> static string quote(const vector<Enum>& v_l) {
+    template<class Enum, class EnumHelper> static string quote(const std::vector<Enum>& v_l) {
       ostringstream oss;
       oss << "\"";
 
@@ -1604,7 +1604,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       return oss.str();
     }
 
-    template<class Enum, class EnumHelper> static string toString(const vector<Enum>& v_l) {
+    template<class Enum, class EnumHelper> static string toString(const std::vector<Enum>& v_l) {
       ostringstream oss;
 
       if (v_l.size() > 0)
@@ -1618,8 +1618,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     /**
      * A generic utility to return a vector of <Enum> out of a string of <Enum> literals separated by space characters.
      */
-    template<class Enum, class EnumHelper> static vector<Enum> enumvec(const string& strliterals) {
-      vector<Enum> result;
+    template<class Enum, class EnumHelper> static std::vector<Enum> enumvec(const string& strliterals) {
+      std::vector<Enum> result;
       
       string strliteral;
       istringstream iss(strliterals);

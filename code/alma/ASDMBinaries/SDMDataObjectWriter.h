@@ -376,17 +376,17 @@ namespace asdmbinaries {
 		uint32_t subscanNum,
 		uint32_t numOfIntegrations,
 		uint32_t numAntenna,
-		const vector<SDMDataObject::Baseband>& basebands,
+		const std::vector<SDMDataObject::Baseband>& basebands,
 		uint64_t time,
 		uint64_t interval,
-		const vector<AxisName>& flagsAxes,
-		const vector<FLAGSTYPE>& flags,
-		const vector<AxisName>& actualTimesAxes,
-		const vector<ACTUALTIMESTYPE>& actualTimes,
-		const vector<AxisName>& actualDurationsAxes,
-		const vector<ACTUALDURATIONSTYPE>& actualDurations,
-		const vector<AxisName>& autoDataAxes,
-		const vector<AUTODATATYPE>& autoData);
+		const std::vector<AxisName>& flagsAxes,
+		const std::vector<FLAGSTYPE>& flags,
+		const std::vector<AxisName>& actualTimesAxes,
+		const std::vector<ACTUALTIMESTYPE>& actualTimes,
+		const std::vector<AxisName>& actualDurationsAxes,
+		const std::vector<ACTUALDURATIONSTYPE>& actualDurations,
+		const std::vector<AxisName>& autoDataAxes,
+		const std::vector<AUTODATATYPE>& autoData);
 
     /**
      * Writes the full content of Total Power data in their respective attachments (global XML header, local XML header and binary attachments)
@@ -417,11 +417,11 @@ namespace asdmbinaries {
 		uint32_t subscanNum,
 		uint32_t numOfIntegrations,
 		uint32_t numAntenna,
-		const vector<SDMDataObject::Baseband>& basebands,
+		const std::vector<SDMDataObject::Baseband>& basebands,
 		uint64_t time,
 		uint64_t interval,
-		const vector<AxisName>& autoDataAxes,
-		const vector<AUTODATATYPE>& autoData);
+		const std::vector<AxisName>& autoDataAxes,
+		const std::vector<AUTODATATYPE>& autoData);
 
     /**
      * Writes the XML global header on the MIME message stream, when binary data are Total Power data and will be written
@@ -464,10 +464,10 @@ namespace asdmbinaries {
     void tpAddIntegration(uint32_t integrationNum,
 			  uint64_t time,
 			  uint64_t interval,
-			  const vector<FLAGSTYPE>& flags,
-			  const vector<ACTUALTIMESTYPE>& actualTimes,
-			  const vector<ACTUALDURATIONSTYPE>& actualDurations,
-			  const vector<AUTODATATYPE>& autoData);
+			  const std::vector<FLAGSTYPE>& flags,
+			  const std::vector<ACTUALTIMESTYPE>& actualTimes,
+			  const std::vector<ACTUALDURATIONSTYPE>& actualDurations,
+			  const std::vector<AUTODATATYPE>& autoData);
 
     /**
      * Writes water vapour radiometer (WVR) data in a  MIME message conform 
@@ -522,8 +522,8 @@ namespace asdmbinaries {
 		  NetSideband  netSideband,
 		  uint64_t time,
 		  uint64_t interval,
-		  const vector<AUTODATATYPE>& wvrData,
-		  const vector<FLAGSTYPE>& flags);
+		  const std::vector<AUTODATATYPE>& wvrData,
+		  const std::vector<FLAGSTYPE>& flags);
   
   
     /**
@@ -577,12 +577,12 @@ namespace asdmbinaries {
     void addIntegration(uint32_t integrationNum,
 			uint64_t time,
 			uint64_t interval,
-			const vector<FLAGSTYPE>& flags,
-			const vector<ACTUALTIMESTYPE>& actualTimes,
-			const vector<ACTUALDURATIONSTYPE>& actualDurations,
-			const vector<ZEROLAGSTYPE>& zeroLags,
-			const vector<INTCROSSDATATYPE>& crossData,
-			const vector<AUTODATATYPE>& autoData);
+			const std::vector<FLAGSTYPE>& flags,
+			const std::vector<ACTUALTIMESTYPE>& actualTimes,
+			const std::vector<ACTUALDURATIONSTYPE>& actualDurations,
+			const std::vector<ZEROLAGSTYPE>& zeroLags,
+			const std::vector<INTCROSSDATATYPE>& crossData,
+			const std::vector<AUTODATATYPE>& autoData);
     
 
     /**
@@ -610,12 +610,12 @@ namespace asdmbinaries {
     void addIntegration(uint32_t integrationNum,
 			uint64_t time,
 			uint64_t interval,
-			const vector<FLAGSTYPE>& flags,
-			const vector<ACTUALTIMESTYPE>& actualTimes,
-			const vector<ACTUALDURATIONSTYPE>& actualDurations,
-			const vector<ZEROLAGSTYPE>& zeroLags,
-			const vector<SHORTCROSSDATATYPE>& crossData,
-			const vector<AUTODATATYPE>& autoData);
+			const std::vector<FLAGSTYPE>& flags,
+			const std::vector<ACTUALTIMESTYPE>& actualTimes,
+			const std::vector<ACTUALDURATIONSTYPE>& actualDurations,
+			const std::vector<ZEROLAGSTYPE>& zeroLags,
+			const std::vector<SHORTCROSSDATATYPE>& crossData,
+			const std::vector<AUTODATATYPE>& autoData);
 
     /**
      * Writes an integration (local header + binary attachment) on the MIME message stream.
@@ -642,12 +642,12 @@ namespace asdmbinaries {
     void addIntegration(uint32_t integrationNum,
 			uint64_t time,
 			uint64_t interval,
-			const vector<FLAGSTYPE>& flags,
-			const vector<ACTUALTIMESTYPE>& actualTimes,
-			const vector<ACTUALDURATIONSTYPE>& actualDurations,
-			const vector<ZEROLAGSTYPE>& zeroLags,
-			const vector<FLOATCROSSDATATYPE>& crossData,
-			const vector<AUTODATATYPE>& autoData);
+			const std::vector<FLAGSTYPE>& flags,
+			const std::vector<ACTUALTIMESTYPE>& actualTimes,
+			const std::vector<ACTUALDURATIONSTYPE>& actualDurations,
+			const std::vector<ZEROLAGSTYPE>& zeroLags,
+			const std::vector<FLOATCROSSDATATYPE>& crossData,
+			const std::vector<AUTODATATYPE>& autoData);
 
 
     /**
@@ -677,12 +677,12 @@ namespace asdmbinaries {
 			   uint32_t subintegrationNum,
 			   uint64_t time,
 			   uint64_t interval,
-			   const vector<FLAGSTYPE>& flags,
-			   const vector<ACTUALTIMESTYPE>& actualTimes,
-			   const vector<ACTUALDURATIONSTYPE>& actualDurations,
-			   const vector<ZEROLAGSTYPE>& zeroLags,
-			   const vector<INTCROSSDATATYPE>& crossData,
-			   const vector<AUTODATATYPE>& autoData);
+			   const std::vector<FLAGSTYPE>& flags,
+			   const std::vector<ACTUALTIMESTYPE>& actualTimes,
+			   const std::vector<ACTUALDURATIONSTYPE>& actualDurations,
+			   const std::vector<ZEROLAGSTYPE>& zeroLags,
+			   const std::vector<INTCROSSDATATYPE>& crossData,
+			   const std::vector<AUTODATATYPE>& autoData);
     
 
     /**
@@ -712,12 +712,12 @@ namespace asdmbinaries {
 			   uint32_t subintegrationNum,
 			   uint64_t time,
 			   uint64_t interval,
-			   const vector<FLAGSTYPE>& flags,
-			   const vector<ACTUALTIMESTYPE>& actualTimes,
-			   const vector<ACTUALDURATIONSTYPE>& actualDurations,
-			   const vector<ZEROLAGSTYPE>& zeroLags,
-			   const vector<SHORTCROSSDATATYPE>& crossData,
-			   const vector<AUTODATATYPE>& autoData);
+			   const std::vector<FLAGSTYPE>& flags,
+			   const std::vector<ACTUALTIMESTYPE>& actualTimes,
+			   const std::vector<ACTUALDURATIONSTYPE>& actualDurations,
+			   const std::vector<ZEROLAGSTYPE>& zeroLags,
+			   const std::vector<SHORTCROSSDATATYPE>& crossData,
+			   const std::vector<AUTODATATYPE>& autoData);
 
     /**
      * Writes an subintegration (local header + binary attachment) on the MIME message stream.
@@ -746,12 +746,12 @@ namespace asdmbinaries {
 			   uint32_t subintegrationNum,
 			   uint64_t time,
 			   uint64_t interval,
-			   const vector<FLAGSTYPE>& flags,
-			   const vector<ACTUALTIMESTYPE>& actualTimes,
-			   const vector<ACTUALDURATIONSTYPE>& actualDurations,
-			   const vector<ZEROLAGSTYPE>& zeroLags,
-			   const vector<FLOATCROSSDATATYPE>& crossData,
-			   const vector<AUTODATATYPE>& autoData);
+			   const std::vector<FLAGSTYPE>& flags,
+			   const std::vector<ACTUALTIMESTYPE>& actualTimes,
+			   const std::vector<ACTUALDURATIONSTYPE>& actualDurations,
+			   const std::vector<ZEROLAGSTYPE>& zeroLags,
+			   const std::vector<FLOATCROSSDATATYPE>& crossData,
+			   const std::vector<AUTODATATYPE>& autoData);
 
     /**
      * Returns the number of bytes written so far.
@@ -775,7 +775,7 @@ namespace asdmbinaries {
     void outputln (const float* data, uint32_t numData);
     void outputln (const long long* data, uint32_t numData);
 
-    template <class T> void output(const vector<T>& data) {
+    template <class T> void output(const std::vector<T>& data) {
       numBytes_ += data.size()*sizeof(T);
       switch (otype_) {
 
@@ -793,7 +793,7 @@ namespace asdmbinaries {
       }       
     }
 
-    template <class T> void outputln (const vector<T>& data) {
+    template <class T> void outputln (const std::vector<T>& data) {
       output<T>(data);
       outputln();
     }
@@ -833,16 +833,16 @@ namespace asdmbinaries {
     static bool initClass();
 
     // The axes names definitions for WVR data and their related flags.
-    static vector<AxisName> WVRDATAAXES, WVRDATAFLAGSAXES;
+    static std::vector<AxisName> WVRDATAAXES, WVRDATAFLAGSAXES;
 
     // A utility to fill a vector of <Enum> from a an array of c-strings.
-    template <class Enum, class EnumHelper> static vector<Enum> enumvec(const string& strliterals) {
-      vector<Enum> result;
+    template <class Enum, class EnumHelper> static std::vector<Enum> enumvec(const string& strliterals) {
+      std::vector<Enum> result;
       
       string strliteral;
       stringstream ss(strliterals);
       
-      vector<string> tokens;   
+      std::vector<string> tokens;   
       while (ss >> strliteral)
 	result.push_back(EnumHelper::literal(strliteral));
       
@@ -860,14 +860,14 @@ namespace asdmbinaries {
 		 uint32_t subintegrationNum,
 		 uint64_t time,
 		 uint64_t interval,
-		 const vector<FLAGSTYPE>& flags,
-		 const vector<ACTUALTIMESTYPE>& actualTimes,
-		 const vector<ACTUALDURATIONSTYPE>& actualDurations,
-		 const vector<ZEROLAGSTYPE>& zeroLags,
-		 const vector<INTCROSSDATATYPE>& intCrossData,
-		 const vector<SHORTCROSSDATATYPE>& shortCrossData,
-		 const vector<FLOATCROSSDATATYPE>& floatCrossData,
-		 const vector<AUTODATATYPE>& autoData);
+		 const std::vector<FLAGSTYPE>& flags,
+		 const std::vector<ACTUALTIMESTYPE>& actualTimes,
+		 const std::vector<ACTUALDURATIONSTYPE>& actualDurations,
+		 const std::vector<ZEROLAGSTYPE>& zeroLags,
+		 const std::vector<INTCROSSDATATYPE>& intCrossData,
+		 const std::vector<SHORTCROSSDATATYPE>& shortCrossData,
+		 const std::vector<FLOATCROSSDATATYPE>& floatCrossData,
+		 const std::vector<AUTODATATYPE>& autoData);
 
     // Are we done with this ?
     bool done_;

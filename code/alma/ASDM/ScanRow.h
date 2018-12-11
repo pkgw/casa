@@ -315,7 +315,7 @@ public:
  	 * Get scanIntent.
  	 * @return scanIntent as vector<ScanIntentMod::ScanIntent >
  	 */
- 	vector<ScanIntentMod::ScanIntent > getScanIntent() const;
+ 	std::vector<ScanIntentMod::ScanIntent > getScanIntent() const;
 	
  
  	
@@ -327,7 +327,7 @@ public:
  		
  			
  	 */
- 	void setScanIntent (vector<ScanIntentMod::ScanIntent > scanIntent);
+ 	void setScanIntent (std::vector<ScanIntentMod::ScanIntent > scanIntent);
   		
 	
 	
@@ -345,7 +345,7 @@ public:
  	 * Get calDataType.
  	 * @return calDataType as vector<CalDataOriginMod::CalDataOrigin >
  	 */
- 	vector<CalDataOriginMod::CalDataOrigin > getCalDataType() const;
+ 	std::vector<CalDataOriginMod::CalDataOrigin > getCalDataType() const;
 	
  
  	
@@ -357,7 +357,7 @@ public:
  		
  			
  	 */
- 	void setCalDataType (vector<CalDataOriginMod::CalDataOrigin > calDataType);
+ 	void setCalDataType (std::vector<CalDataOriginMod::CalDataOrigin > calDataType);
   		
 	
 	
@@ -375,7 +375,7 @@ public:
  	 * Get calibrationOnLine.
  	 * @return calibrationOnLine as vector<bool >
  	 */
- 	vector<bool > getCalibrationOnLine() const;
+ 	std::vector<bool > getCalibrationOnLine() const;
 	
  
  	
@@ -387,7 +387,7 @@ public:
  		
  			
  	 */
- 	void setCalibrationOnLine (vector<bool > calibrationOnLine);
+ 	void setCalibrationOnLine (std::vector<bool > calibrationOnLine);
   		
 	
 	
@@ -412,7 +412,7 @@ public:
  	 * @return calibrationFunction as vector<CalibrationFunctionMod::CalibrationFunction >
  	 * @throws IllegalAccessException If calibrationFunction does not exist.
  	 */
- 	vector<CalibrationFunctionMod::CalibrationFunction > getCalibrationFunction() const;
+ 	std::vector<CalibrationFunctionMod::CalibrationFunction > getCalibrationFunction() const;
 	
  
  	
@@ -423,7 +423,7 @@ public:
  	 
  		
  	 */
- 	void setCalibrationFunction (vector<CalibrationFunctionMod::CalibrationFunction > calibrationFunction);
+ 	void setCalibrationFunction (std::vector<CalibrationFunctionMod::CalibrationFunction > calibrationFunction);
 		
 	
 	
@@ -453,7 +453,7 @@ public:
  	 * @return calibrationSet as vector<CalibrationSetMod::CalibrationSet >
  	 * @throws IllegalAccessException If calibrationSet does not exist.
  	 */
- 	vector<CalibrationSetMod::CalibrationSet > getCalibrationSet() const;
+ 	std::vector<CalibrationSetMod::CalibrationSet > getCalibrationSet() const;
 	
  
  	
@@ -464,7 +464,7 @@ public:
  	 
  		
  	 */
- 	void setCalibrationSet (vector<CalibrationSetMod::CalibrationSet > calibrationSet);
+ 	void setCalibrationSet (std::vector<CalibrationSetMod::CalibrationSet > calibrationSet);
 		
 	
 	
@@ -494,7 +494,7 @@ public:
  	 * @return calPattern as vector<AntennaMotionPatternMod::AntennaMotionPattern >
  	 * @throws IllegalAccessException If calPattern does not exist.
  	 */
- 	vector<AntennaMotionPatternMod::AntennaMotionPattern > getCalPattern() const;
+ 	std::vector<AntennaMotionPatternMod::AntennaMotionPattern > getCalPattern() const;
 	
  
  	
@@ -505,7 +505,7 @@ public:
  	 
  		
  	 */
- 	void setCalPattern (vector<AntennaMotionPatternMod::AntennaMotionPattern > calPattern);
+ 	void setCalPattern (std::vector<AntennaMotionPatternMod::AntennaMotionPattern > calPattern);
 		
 	
 	
@@ -576,7 +576,7 @@ public:
  	 * @return fieldName as vector<string >
  	 * @throws IllegalAccessException If fieldName does not exist.
  	 */
- 	vector<string > getFieldName() const;
+ 	std::vector<string > getFieldName() const;
 	
  
  	
@@ -587,7 +587,7 @@ public:
  	 
  		
  	 */
- 	void setFieldName (vector<string > fieldName);
+ 	void setFieldName (std::vector<string > fieldName);
 		
 	
 	
@@ -721,7 +721,7 @@ public:
 	 * @param calibrationOnLine
 	    
 	 */ 
-	bool compareNoAutoInc(Tag execBlockId, int scanNumber, ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, vector<ScanIntentMod::ScanIntent > scanIntent, vector<CalDataOriginMod::CalDataOrigin > calDataType, vector<bool > calibrationOnLine);
+	bool compareNoAutoInc(Tag execBlockId, int scanNumber, ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, std::vector<ScanIntentMod::ScanIntent > scanIntent, std::vector<CalDataOriginMod::CalDataOrigin > calDataType, std::vector<bool > calibrationOnLine);
 	
 	
 
@@ -745,7 +745,7 @@ public:
 	 * @param calibrationOnLine
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, vector<ScanIntentMod::ScanIntent > scanIntent, vector<CalDataOriginMod::CalDataOrigin > calDataType, vector<bool > calibrationOnLine); 
+	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, std::vector<ScanIntentMod::ScanIntent > scanIntent, std::vector<CalDataOriginMod::CalDataOrigin > calDataType, std::vector<bool > calibrationOnLine); 
 		 
 	
 	/**
@@ -947,7 +947,7 @@ private:
 	
 	
 
-	vector<ScanIntentMod::ScanIntent > scanIntent;
+	std::vector<ScanIntentMod::ScanIntent > scanIntent;
 
 	
 	
@@ -958,7 +958,7 @@ private:
 	
 	
 
-	vector<CalDataOriginMod::CalDataOrigin > calDataType;
+	std::vector<CalDataOriginMod::CalDataOrigin > calDataType;
 
 	
 	
@@ -969,7 +969,7 @@ private:
 	
 	
 
-	vector<bool > calibrationOnLine;
+	std::vector<bool > calibrationOnLine;
 
 	
 	
@@ -982,7 +982,7 @@ private:
 	bool calibrationFunctionExists;
 	
 
-	vector<CalibrationFunctionMod::CalibrationFunction > calibrationFunction;
+	std::vector<CalibrationFunctionMod::CalibrationFunction > calibrationFunction;
 
 	
 	
@@ -995,7 +995,7 @@ private:
 	bool calibrationSetExists;
 	
 
-	vector<CalibrationSetMod::CalibrationSet > calibrationSet;
+	std::vector<CalibrationSetMod::CalibrationSet > calibrationSet;
 
 	
 	
@@ -1008,7 +1008,7 @@ private:
 	bool calPatternExists;
 	
 
-	vector<AntennaMotionPatternMod::AntennaMotionPattern > calPattern;
+	std::vector<AntennaMotionPatternMod::AntennaMotionPattern > calPattern;
 
 	
 	
@@ -1034,7 +1034,7 @@ private:
 	bool fieldNameExists;
 	
 
-	vector<string > fieldName;
+	std::vector<string > fieldName;
 
 	
 	

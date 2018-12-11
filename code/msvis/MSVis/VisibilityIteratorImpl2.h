@@ -887,7 +887,7 @@ protected:
 	void
 	setMsCacheSizes(
 		const casacore::MeasurementSet & ms,
-		vector<casacore::MSMainEnums::PredefinedColumns> columnIds);
+		std::vector<casacore::MSMainEnums::PredefinedColumns> columnIds);
 
 	void
 	setMsColumnCacheSizes(const casacore::MeasurementSet&, const string &);
@@ -1072,13 +1072,13 @@ protected:
 		empty() const;
 
 		// yields ownership
-		pair<casacore::Bool, FrequencySelections *>
+		std::pair<casacore::Bool, FrequencySelections *>
 		popFrequencySelections();
 
-		pair<casacore::Bool, casacore::Double>
+		std::pair<casacore::Bool, casacore::Double>
 		popInterval();
 
-		pair<casacore::Bool, casacore::Int>
+		std::pair<casacore::Bool, casacore::Int>
 		popNRowBlocking();
 
 		// takes ownership

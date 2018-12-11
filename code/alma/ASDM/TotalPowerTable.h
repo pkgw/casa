@@ -416,7 +416,7 @@ public:
  	 * @param execBlockId
 	
      */
-	TotalPowerRow *newRow(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, vector<vector<Length > > uvw, vector<vector<Interval > > exposure, vector<vector<ArrayTime > > timeCentroid, vector<vector<vector<float > > > floatData, vector<int > flagAnt, vector<vector<int > > flagPol, Interval interval, vector<Tag>  stateId, Tag execBlockId);
+	TotalPowerRow *newRow(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId);
 	
 
 
@@ -553,7 +553,7 @@ public:
  	 * @param execBlockId
  	 		 
  	 */
-	TotalPowerRow* lookup(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, vector<vector<Length > > uvw, vector<vector<Interval > > exposure, vector<vector<ArrayTime > > timeCentroid, vector<vector<vector<float > > > floatData, vector<int > flagAnt, vector<vector<int > > flagPol, Interval interval, vector<Tag>  stateId, Tag execBlockId); 
+	TotalPowerRow* lookup(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

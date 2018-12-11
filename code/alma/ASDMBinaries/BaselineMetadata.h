@@ -79,7 +79,7 @@ namespace sdmbin {
      * @note Use the method numAutoPolProduct() to get the antenna-based number of products
      * if correlationMode=1. 
      */
-    vector<int>          numPolProduct();
+    std::vector<int>          numPolProduct();
 
     /** Accessor to the number of bins (steps or phases in scwitching cycles) for a given baseband
      * @param basebandNum The basbabnd number (one-based) 
@@ -91,7 +91,7 @@ namespace sdmbin {
     /** Accessor to the number of bins (steps or phases in scwitching cycles) for each baseband
      * @return A vector of number of bins, one number per baseband.
      */  
-    vector<int>          numBin();
+    std::vector<int>          numBin();
 
     /** Accessor to the correlation mode
      * @return The correlation mode:
@@ -113,7 +113,7 @@ namespace sdmbin {
     /** Accessor to the (derived) number of polarization products for the zero baselines for all the basebands
      * @return The number of products for each of the basebands in the configuration
      */  
-    vector<int>          numAutoPolProduct();
+    std::vector<int>          numAutoPolProduct();
 
 
     /** Method to get the list of the antenna indices restricted to those
@@ -121,7 +121,7 @@ namespace sdmbin {
      * @param valLimit critical flagging limit
      * @return The list of antenna indices fulfilling the criterion 
      */
-    virtual vector<int>  antennaIndexUsed(unsigned long int valLimit)=0;
+    virtual std::vector<int>  antennaIndexUsed(unsigned long int valLimit)=0;
 
     /** Baseline number (one-based) given a pair of antenna indices
      * @param anti index (zero-based) for antenna i
@@ -194,7 +194,7 @@ namespace sdmbin {
      * @param nant            Number of antennas (\f$ N_{ant} \f$)
      * @param correlationMode The correlation mode (must be 0 or 1 or 2).
      */
-    void mkBaselineMetadata( vector<int> v_npp, vector<int> v_nbin, int nbb, int nant, int correlationMode);
+    void mkBaselineMetadata( std::vector<int> v_npp, std::vector<int> v_nbin, int nbb, int nant, int correlationMode);
 
 
     vector<int> v_numPolProduct_;     //!< Number of cross polarization products for every baseband
