@@ -28,7 +28,6 @@
 #include <graphics/GenericPlotter/PlotFactory.h>
 /////!!!!!  + + ++ + + + + + + + + + #include <qwt_plot_picker.h>  -- needed for draw rubber band box in different color
 
-#include <iostream>
 #include <iomanip>
 
 using namespace std;

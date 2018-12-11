@@ -44,7 +44,7 @@ PlotLogMessage* ActionSelectFlag::doFlagOperation( PlotMSPlot* plot,
 		int canvasIndex, vector<PlotRegion>& regions,
 		bool showUnflagged, bool showFlagged){
 	// Get flagging parameters.
-  auto m = FlagActionUtil::flagRange(client, plot, canvasIndex, regions, showUnflagged, showFlagged);
+    auto m = FlagActionUtil::flagRange(client, plot, canvasIndex, regions, showUnflagged, showFlagged);
 	return m;
 
 }

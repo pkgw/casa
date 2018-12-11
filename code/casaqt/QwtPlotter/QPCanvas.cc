@@ -298,7 +298,6 @@ QPCanvas::QPCanvas(QPPlotter* parent) : m_parent(parent), m_canvas(this),
 #endif
 
     defaultBackground_ = background();
-    cout << "background color " << defaultBackground_->color()->asName() << endl;
 }
 
 void QPCanvas::enableAxis( QwtPlot::Axis axis, bool enable ){
