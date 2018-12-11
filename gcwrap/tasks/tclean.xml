@@ -1697,6 +1697,8 @@ HPX HEALPix grid.  -->
                        the N-sigma threshold and cyclethreshold, is used to trigger a major cycle
                        (see also the descreption under 'threshold').
                        Set nsigma=0.0 to preserve the previous tclean behavior without this feature.
+                       The top level parameter, fastnoise is relevant for the rms noise calculation which is used 
+                       to determine the threshold. 
 
 </description>
       <value type="double">0.0</value>
@@ -1858,6 +1860,7 @@ HPX HEALPix grid.  -->
                        auto-multithresh : auto-masking by multiple thresholds for deconvolution
                           subparameters : sidelobethreshold, noisethreshold, lownoisethreshold, negativethrehsold,  smoothfactor,
                                           minbeamfrac, cutthreshold, pbmask, growiterations, dogrowprune, minpercentchange, verbose
+                          Additional top level parameter relevant to auto-multithresh: fastnoise
 
                           if pbmask is >0.0, the region outside the specified pb gain level is excluded from
                           image statistics in determination of the threshold.
@@ -2037,25 +2040,25 @@ HPX HEALPix grid.  -->
 </description>
     </param>
     <param type="double" name="noisethreshold" subparam="true">
-    <shortdescription>noisethreshold * rms in residual image</shortdescription>
+    <shortdescription>noisethreshold * rms in residual image + location(median) </shortdescription>
            <value type="double">5.0</value>
-<description>Sub-parameter for "auto-multithresh":  mask threshold based on the noise level: noisethreshold * rms
+<description>Sub-parameter for "auto-multithresh":  mask threshold based on the noise level: noisethreshold * rms + location (=median)
 
               The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="lownoisethreshold" subparam="true">
-    <shortdescription>lownoisethreshold * rms in residual image</shortdescription>
+    <shortdescription>lownoisethreshold * rms in residual image + location(median) </shortdescription>
            <value type="double">1.5</value>
-<description>Sub-parameter for "auto-multithresh":  mask threshold to grow previously masked regions via binary dilation:   lownoisethreshold * rms in residual image
+<description>Sub-parameter for "auto-multithresh":  mask threshold to grow previously masked regions via binary dilation:   lownoisethreshold * rms in residual image + location (=median)
 
               The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="negativethreshold" subparam="true">
-           <shortdescription>negativethreshold * rms in residual image</shortdescription>
+           <shortdescription>negativethreshold * rms in residual image + location(median) </shortdescription>
            <value type="double">0.0</value>
-<description>Sub-parameter for "auto-multithresh": mask threshold  for negative features: -1.0* negativethreshold * rms
+<description>Sub-parameter for "auto-multithresh": mask threshold  for negative features: -1.0* negativethreshold * rms + location(=median)
 
               The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
@@ -2119,6 +2122,26 @@ HPX HEALPix grid.  -->
                         N_neg_pix: number of pixels for negative mask regions
 
                         Note that for a large cube, extra logging may slow down the process.
+</description>
+    </param>
+    <param type="bool" name="fastnoise">
+           <shortdescription>True: use the faster (old) noise calculation. False: use the new improved noise calculations</shortdescription>
+           <value type="bool">True</value>
+<description> Only relevant when automask (user='multi-autothresh') and/or n-sigma stopping threshold (nsigma>0.0) are/is used. If it is set to True,  a simpler but faster noise calucation is used. 
+                        In this case, the threshold values are determined based on classic statistics (using all
+                        unmasked pixels for the calculations).
+                          
+                        If it is set to False,  the new noise calculation
+                        method is used based on pre-existing mask.   
+ 
+                        Case 1: no exiting mask
+                        Calculate image statistics using Chauvenet algorithm 
+                        
+                        Case 2: there is an existing mask
+                        Calculate image statistics by classical method on the region
+                        outside the mask and inside the primary beam mask.
+
+                        In all cases above RMS noise is calculated from MAD. 
 </description>
     </param>
 <!--============================================== -->
@@ -2677,7 +2700,11 @@ HPX HEALPix grid.  -->
          <default param="dogrowprune"><value type="bool">True</value></default>
          <default param="minpercentchange"><value>-1.0</value></default>
          <default param="verbose"><value type="bool">False</value></default>
+         <!--<default param="fastnoise"><value type="bool">False</value></default>-->
        </equals>
+       <!--<noteqauls type="string" value="auto-multithresh">
+          <default param="fastnoise"><value type="bool">True</value></default>
+       </noteqauls>-->
    </when>
 
 <!--

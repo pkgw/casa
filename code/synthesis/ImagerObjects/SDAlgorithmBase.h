@@ -65,7 +65,9 @@ public:
   // Non virtual. Wrapper function implemented only in the base class. 
   void deconvolve( SIMinorCycleController& loopController,  
 		   std::shared_ptr<SIImageStore> &imagestore,
-		   casacore::Int deconvolverid);
+		   casacore::Int deconvolverid, 
+                   casacore::Bool isautomasking=false, 
+                   casacore::Bool fastnoise=true);
 
   void setRestoringBeam( casacore::GaussianBeam restbeam, casacore::String usebeam );
   //  void setMaskOptions( casacore::String maskstring );
