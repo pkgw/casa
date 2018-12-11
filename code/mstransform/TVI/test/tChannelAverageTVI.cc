@@ -567,6 +567,67 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckOutputSpwChannels)
     ASSERT_EQ(nRowsSpw1, expectedRowsSpw1);
 }
 
+TEST_F(ChannelAverageTVISpwChannTest, CheckOutputSpwSubtable)
+{
+    createTVIs();
+
+    //Check that now the number of SPWs has been duplicated:
+    //the old ones are appended at the end of the SPW table and the new ones
+    //prepended.
+    //After averaging with chanbin=5 the first spectral window has 20
+    //channels and the second spectral window has 10 channel
+    auto & spwcols = vi_p->spectralWindowSubtablecols();
+
+    //Some expected values based on settings from ChannelAverageTVISpwChannTest::createTVIs()
+    int nChannelNewSpw0 = nChannelsOrig_p[0] / chanBinFirst_p;
+    int nChannelNewSpw1 = nChannelsOrig_p[1] / chanBinFirst_p;
+    double initFreqNewSpw0 = initFreqOrig_p[0] + (chanBinFirst_p - 1) * deltaFreqOrig_p[0] / 2.;
+    double deltaFreqNewSpw0 = deltaFreqOrig_p[0] * chanBinFirst_p;
+    double initFreqNewSpw1 = initFreqOrig_p[1] + (chanBinFirst_p - 1) * deltaFreqOrig_p[1] / 2.;
+    double deltaFreqNewSpw1 = deltaFreqOrig_p[1] * chanBinFirst_p;
+
+    ASSERT_EQ(spwcols.nrow(), (unsigned int)4);
+    ASSERT_EQ(spwcols.numChan()(0), nChannelNewSpw0); //SPW0, old SPW0 already averaged
+    ASSERT_EQ(spwcols.numChan()(1), nChannelNewSpw1); //SPW1, old SPW1 already averaged
+    ASSERT_EQ(spwcols.numChan()(2), nChannelsOrig_p[0]); //SPW2, copy of old SPW0
+    ASSERT_EQ(spwcols.numChan()(3), nChannelsOrig_p[1]); //SPW3, copy of old SPW1
+
+    std::vector<double> freqNewSpw0(nChannelNewSpw0);
+    for(int i = 0 ; i<nChannelNewSpw0 ; i++)
+        freqNewSpw0[i] = initFreqNewSpw0 + i * deltaFreqNewSpw0;
+    ASSERT_EQ(spwcols.chanFreq()(0).tovector(), freqNewSpw0); // New frequencies
+    std::vector<double> freqNewSpw1(nChannelNewSpw1);
+    for(int i = 0 ; i<nChannelNewSpw1 ; i++)
+        freqNewSpw1[i] = initFreqNewSpw1 + i * deltaFreqNewSpw1;
+    ASSERT_EQ(spwcols.chanFreq()(1).tovector(), freqNewSpw1); // New frequencies
+
+    std::vector<double> freqWidthNewSpw0(nChannelNewSpw0);
+    std::fill(freqWidthNewSpw0.begin(), freqWidthNewSpw0.end(), deltaFreqNewSpw0);
+    ASSERT_EQ(spwcols.chanWidth()(0).tovector(), freqWidthNewSpw0); // New frequencies widths
+    std::vector<double> freqWidthNewSpw1(nChannelNewSpw1);
+    std::fill(freqWidthNewSpw1.begin(), freqWidthNewSpw1.end(), deltaFreqNewSpw1);
+    ASSERT_EQ(spwcols.chanWidth()(1).tovector(), freqWidthNewSpw1); // New frequencies widths
+
+    //Effective bandwith and resolution are the same as channel widths
+    //in this case
+    ASSERT_EQ(spwcols.effectiveBW()(0).tovector(), freqWidthNewSpw0);
+    ASSERT_EQ(spwcols.effectiveBW()(1).tovector(), freqWidthNewSpw1);
+
+    ASSERT_EQ(spwcols.resolution()(0).tovector(), freqWidthNewSpw0);
+    ASSERT_EQ(spwcols.resolution()(1).tovector(), freqWidthNewSpw1);
+
+    //Check that the new SPWs refer to the old one:
+    std::vector<int> assocSpwId(1);
+    std::vector<String> assocNature(1);
+    assocSpwId[0] = 2; //SPW0 refers to SPW2 (old SPW0)
+    assocNature[0] = "CH_AVG";
+    ASSERT_EQ(spwcols.assocSpwId()(0).tovector(), assocSpwId);
+    ASSERT_EQ(spwcols.assocNature()(0).tovector(), assocNature);
+    assocSpwId[0] = 3; //SPW1 refers to SPW3 (old SPW1)
+    ASSERT_EQ(spwcols.assocSpwId()(1).tovector(), assocSpwId);
+    ASSERT_EQ(spwcols.assocNature()(1).tovector(), assocNature);
+}
+
 TEST_F(ChannelAverageTVISpwChannTest, CheckMSSelOutputSpwChannels)
 {
     useMSSelection(true);
