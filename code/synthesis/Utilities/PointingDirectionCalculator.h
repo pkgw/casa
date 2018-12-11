@@ -135,6 +135,13 @@ public:
         ROW_MAJOR
     };
 
+    // Interpolation Mode definition //
+    enum InterpolationMode {
+        DEFAULT,
+        LINEAR,
+        SPLINE
+    };
+
     // Constructor
     PointingDirectionCalculator(casacore::MeasurementSet const &ms);
 
@@ -255,9 +262,10 @@ public:
 
     casacore::uInt getRowId(casacore::uInt irow);
 
-    // set Spline mode 
+    // Interpolation (Linear/Spline) 
 
-    void setSplineInterpolation(bool mode) {fgSpline = mode;};
+    void setInterpolationMode(PointingDirectionCalculator::InterpolationMode const mode=SPLINE) 
+         {interpolationMode = mode;};
 
 private:
 
@@ -314,7 +322,7 @@ private:
 
     // new: Spline
 
-    bool fgSpline = false;
+    PointingDirectionCalculator::InterpolationMode  interpolationMode = PointingDirectionCalculator::SPLINE;
     SDPosInterpolator  sdp_();
 
     void                                 splineInit    (casacore::uInt antennaID, 

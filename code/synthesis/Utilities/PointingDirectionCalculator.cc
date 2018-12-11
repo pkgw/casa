@@ -357,7 +357,8 @@ void PointingDirectionCalculator::unsetMovingSource() {
 }
 
 //+
-// NEW for SPLINE Interpolation
+// (Internal)
+// Spline Init
 //-
 void PointingDirectionCalculator::splineInit(uInt antID, uInt startPos, uInt endPos )
 {
@@ -529,7 +530,7 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
         //  - the first arg "antID" is currelty a reserved parameter.   
         //-
 
-        if(fgSpline)
+        if(interpolationMode==PointingDirectionCalculator::SPLINE)
         {
 #if 1
             splineInit(0, 0, nrowPointing);
@@ -657,7 +658,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
           Vector<Double> scanRate;
           Vector<Double> interpolated(2);
 
-        if(fgSpline) // New CAS-9418 //
+        if(interpolationMode==PointingDirectionCalculator::SPLINE) // New CAS-9418 //
         { 
             //+
             // NEW Spline Interpolation

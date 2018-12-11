@@ -193,10 +193,10 @@ size_t getMSCountFromList()
 
 
 //+
-// DEBUG Tentative 
+// DEBUG : interporation mode control. 
 //-
 
-bool use_spline = false;
+PointingDirectionCalculator::InterpolationMode  dbg_interpolation_mode = PointingDirectionCalculator::DEFAULT;
 
 
 //******************************************************
@@ -2406,14 +2406,13 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
 
         PointingDirectionCalculator calc(ms);   
 
-    // Interpolation mode [TENTATIVE]  //
-        calc.setSplineInterpolation( use_spline );
+    // Interpolation mode [New API]  //
+        calc.setInterpolationMode( dbg_interpolation_mode );
  
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
        ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
 
     //+
     // selectData
@@ -2611,16 +2610,18 @@ TEST_F(TestDirection, InterpolationFull )
 {
     // Combiniation List of Pointing Interval and Main Interval //
 
-    vector<bool>   InterpolationMode     = { false, true };
+    vector<PointingDirectionCalculator::InterpolationMode>   Interporation_ModeSet    
+           = { PointingDirectionCalculator::LINEAR, PointingDirectionCalculator::SPLINE };
+
     vector<Double> Main_IntervalList     = { 1.0 };
     vector<Double> Pointing_IntervalList = { 1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.05 };
 
     ErrorMax  maxerr;
     std::vector<Double> r_err = {0.0}; 
 
-  for(uInt s=0;s<2;s++)
+  for(uInt s=0; s<Interporation_ModeSet.size();s++)
   {
-    use_spline = InterpolationMode[s];
+    dbg_interpolation_mode = Interporation_ModeSet[s];
 
    // Error Limit 
     msedit.evgen.    setInterpolationErrorLimit( 1e-04 );
@@ -2681,7 +2682,7 @@ TEST_F(TestDirection, InterpolationSingle )
     //    - define test count. some rows are automatically added
     //-
 
-      use_spline = true;
+      dbg_interpolation_mode = PointingDirectionCalculator::SPLINE;
 
       msedit.evgen.    setCurveFunctionNo(2);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
