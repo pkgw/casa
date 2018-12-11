@@ -527,9 +527,12 @@ void ChannelAverageTVISpwChannTest::createTVIs()
     if(addExtraAvgTVI_p)
     {
         casacore::Record configuration2;
-        Array<int> chanArr(IPosition(1,2));
+        //After the first channel average the number of SPWs has been duplicated
+        Array<int> chanArr(IPosition(1,4));
         chanArr[0] = 2;
         chanArr[1] = 5;
+        chanArr[2] = 0;
+        chanArr[3] = 0;
         configuration2.define ("chanbin", chanArr);
         chanAvgFac2.reset(new ChannelAverageTVILayerFactory(configuration2));
         factories.push_back(chanAvgFac2.get());
@@ -558,7 +561,8 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckOutputSpwChannels)
                                      nRowsSpw1+=shape[2];
                                      ASSERT_EQ(vb_p->nChannels(), 10);
                                  }
-                                 ASSERT_EQ(vi_p->nSpectralWindows(), 2);
+                                 //The TVI duplicates the existing SPWs (CAS-10294)
+                                 ASSERT_EQ(vi_p->nSpectralWindows(), 4);
                                  nRows+=vb_p->visCube().shape()[2];});
 
     //All the original rows
@@ -677,8 +681,8 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckMSSelOutputSpwChannels)
                                      nRowsSpw0+=shape[2];
                                      ASSERT_EQ(vb_p->nChannels(), 8);
                                  }
-                                 //Note that as per CAS-10294 this should be 3
-                                 ASSERT_EQ(vi_p->nSpectralWindows(), 2);
+                                 //The TVI duplicates the existing SPWs (CAS-10294)
+                                 ASSERT_EQ(vi_p->nSpectralWindows(), 4);
                                  nRows+=vb_p->visCube().shape()[2];});
 
     //After selection we have only half of the original rows
@@ -695,36 +699,37 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckMSSelOutputSpwChannels)
 
 TEST_F(ChannelAverageTVISpwChannTest, CheckMSSelOutputTwoAvgSpwChannels)
 {
-    //useMSSelection(true);
+    useMSSelection(true);
     addPassThroughTVI(true);
     addExtraAvgTVI(true);
     createTVIs();
     size_t nRows = 0;
     size_t nRowsSpw0 = 0;
     size_t nRowsSpw1 = 0;
-    //Check that after averaging with chanbin=5 and further averaging with
-    //chanbin=(2,5), the first spectral window has 10
-    //channels and the second spectral window has 2 channels
+    // Check that after averaging with chanbin=5 and further averaging with
+    // chanbin=(2,5), the first spectral window, which had
+    // originally 40 selected SPW has now 4 channels and the second
+    // spectral window (which had 50 channnels) has now 2
     visitIterator([&]() -> void {auto shape = vb_p->visCube().shape(); 
                                  if(allEQ(vb_p->spectralWindows(), 0)) //SPW0 
                                  {
                                      nRowsSpw0+=shape[2];
-                                     ASSERT_EQ(vb_p->nChannels(), 10);
+                                     ASSERT_EQ(vb_p->nChannels(), 4);
                                  }
                                  else if(allEQ(vb_p->spectralWindows(), 1)) //SPW1
                                  {
                                      nRowsSpw1+=shape[2];
                                      ASSERT_EQ(vb_p->nChannels(), 2);
                                  }
-                                 //Note that as per CAS-10294 this should be 3
-                                 ASSERT_EQ(vi_p->nSpectralWindows(), 2);
+                                 //The TVI duplicates the existing SPWs (CAS-10294)
+                                 ASSERT_EQ(vi_p->nSpectralWindows(), 8);
                                  nRows+=vb_p->visCube().shape()[2];});
 
-    //All the original rows
-    size_t expectedRows = 300;
-    //The synthetic MS has half of the rows in each SPW
-    size_t expectedRowsSpw0 = expectedRows / 2;
-    size_t expectedRowsSpw1 = expectedRows / 2;
+    //After selection we have only half of the original rows
+    //and all of them belong to SPW0.
+    size_t expectedRows = 150;
+    size_t expectedRowsSpw0 = expectedRows;
+    size_t expectedRowsSpw1 = 0;
 
     //Check that we get the number of expected rows for each spw
     ASSERT_EQ(nRows, expectedRows);
