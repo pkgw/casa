@@ -185,13 +185,13 @@
     <string>Unflag</string>
    </property>
   </action>
-   <action name="actionFlagAll">
+  <action name="actionFlagAll">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="PlotMSPlotter.qrc">
-     <normaloff>:/actions/images/flag.png</normaloff>:/actions/images/flag.png</iconset>
+     <normaloff>:/actions/images/panelflag.png</normaloff>:/actions/images/panelflag.png</iconset>
    </property>
    <property name="text">
     <string>Flag All</string>
