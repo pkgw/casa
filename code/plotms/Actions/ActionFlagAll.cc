@@ -39,7 +39,6 @@ namespace casa {
 ActionFlagAll::ActionFlagAll( Client* client )
 	: ActionTool( client ),
 	  FlagActionUtil() {
-  std::cout << "ActionFlagAll instance is created" << std::endl;
 	itsType_ = TOOL_FLAG_ALL;
 
 	auto plots = client->getCurrentPlots();
@@ -48,67 +47,27 @@ ActionFlagAll::ActionFlagAll( Client* client )
 	  auto plot = plots[i];
 	  if (plot == NULL) continue;
 
-	  std::cout << "plot " << i << std::endl;
-
 	  // save current iteration
 	  auto const currentIter = plot->iter();
 
-//	  // reset iteration
-//	  plot->firstIter();
-//	  auto canvasesTmp = plot->canvases();
-
-	  // access to each plot
+	  // examine number of unflagged points in each plots
 	  std::vector<MaskedScatterPlotPtr> scatterPlots = plot->plots();
-	  std::cout << "Number of scatter plots: " << scatterPlots.size() << std::endl;
+	  //std::cout << "Number of scatter plots: " << scatterPlots.size() << std::endl;
 	  std::vector<unsigned int> numUnmasked;
 	  std::transform(scatterPlots.begin(), scatterPlots.end(), std::back_inserter(numUnmasked),
 	      [](MaskedScatterPlotPtr x) { return x->maskedData()->sizeUnmasked(); });
 
-//	  size_t scatterPlotId = 0;
-//	  for (int iter = 0; iter < plot->nIter(); ++iter) {
-//	    auto canvases = plot->canvases();
-//	    std::cout << "Number of canvases: " << canvases.size() << std::endl;
-//	    for (auto canv = canvases.begin(); canv != canvases.end(); ++canv) {
-//	      if (scatterPlotId >= numUnmasked.size()) {
-//	        std::cout << "ERROR" << std::endl;
-//	        break;
-//	      }
-//	      auto n = numUnmasked[scatterPlotId];
-//	      std::cout << "There are " << n << " unmasked points in this canvas" << std::endl;
-//
-//	      scatterPlotId++;
-//	    }
-//	    plot->nextIter();
-//	  }
-
-
-	  //unsigned long numUnmasked = 0;
-//	  for (auto sp = scatterPlots.begin(); sp != scatterPlots.end(); ++sp) {
-//	    auto maskedData = (*sp)->maskedData();
-//	    auto const sizeUnmasked = maskedData->sizeUnmasked();
-//	    std::cout << "There are " << sizeUnmasked << " unmasked data points in the plot" << std::endl;
-//	    if (sizeUnmasked == 0) {
-//	      std::cout << "Canvas background must be changed" << std::endl;
-//
-//	    }
-//	  }
-//
-//	  if (numUnmasked == 0) {
-//	    std::cout << "Canvas background must be changed" << std::endl;
-//	  }
-
-
 	  auto canvases = plot->canvases();
 	  auto numCanvases = canvases.size();
-	  std::cout << "Number of canvases: " << numCanvases << " current iteration is " << currentIter << std::endl;
-	  //size_t indexOffset = numCanvases * currentIter;
+	  //std::cout << "Number of canvases: " << numCanvases << " current iteration is " << currentIter << std::endl;
 	  size_t indexOffset = currentIter;
 
 	  for (size_t i = 0; i < numCanvases; ++i) {
 	    auto canv = canvases[i];
 	    auto scatterPlotId = i + indexOffset;
+
 	    if (numUnmasked[scatterPlotId] == 0) {
-	      std::cout << "No unmasked data in canvas " << i << ". Canvas background must be changed." << std::endl;
+	      //std::cout << "No unmasked data in canvas " << i << ". Canvas background must be changed." << std::endl;
 	      canv->setAllFlagged();
 	      canv->refresh();
 	    }
@@ -119,39 +78,30 @@ ActionFlagAll::ActionFlagAll( Client* client )
       for(unsigned int k= 0; !visible && k < visibleCanv.size(); k++)
         if(canv == visibleCanv[k]) visible = true;
       if(!visible) {
-        std::cout << "canvas " << canv->title() << " is not visible. continue." << std::endl;
+//        std::cout << "canvas " << canv->title() << " is not visible. continue." << std::endl;
         continue;
       }
 
-      std::cout << "canvas title is " << canv->title() << std::endl;
 	  }
 	}
 }
 
 bool ActionFlagAll::doTool(PlotMSApp* plotms) {
-  std::cout << "ActionFlagAll::doTool" << std::endl;
-  std::cout << "toolEnabled = " << toolEnabled << std::endl;
 
   if (!toolEnabled) {
     // Locate/Flag/Unflag on all visible canvases.
     const vector<PlotMSPlot*>& plots = plotms->getPlotManager().plots();
     vector<PlotCanvasPtr> visibleCanv = client->currentCanvases();
 
-    // Get flagging parameters.
-    //PlotMSFlagging flagging = client->getFlagging();
+    PlotMSPlot* plot = nullptr;
 
-    // default background color
-    // TODO: find a way to obtain default (or current) background color
-    PlotAreaFillPtr defaultBackground = NULL;
-
-    PlotMSPlot* plot;
+    // flagging/unflagging operation
     for(unsigned int i = 0; i < plots.size(); i++) {
       plot = plots[i];
       if(plot == NULL) continue;
 
       // Get parameters.
       PlotMSPlotParameters& params = plot->parameters();
-      PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>();
 
       // Detect if we are showing flagged/unflagged points (for locate)
       PMS_PP_Display* d = params.typedGroup<PMS_PP_Display>();
@@ -162,12 +112,11 @@ bool ActionFlagAll::doTool(PlotMSApp* plotms) {
       for(unsigned int j = 0; j < canv.size(); j++) {
 
         // Only apply to visible canvases.
-        // TODO: need to examine
         bool visible = false;
         for(unsigned int k= 0; !visible && k < visibleCanv.size(); k++)
           if(canv[j] == visibleCanv[k]) visible = true;
         if(!visible) {
-          std::cout << "canvas " << j << " is not visible. continue." << std::endl;
+//          std::cout << "canvas " << j << " is not visible. continue." << std::endl;
           continue;
         }
 
@@ -178,56 +127,38 @@ bool ActionFlagAll::doTool(PlotMSApp* plotms) {
         vector<PlotRegion> regions(1);
         regions[0] = canv[j]->axesRanges(PlotAxis::X_BOTTOM, PlotAxis::Y_LEFT);
         if (isCanvasMarkedForFlag) {
-          std::cout << "regions[0]: " << regions[0].bottom() << ", " << regions[0].left()
-              << ", " << regions[0].top() << ", " << regions[0].right() << std::endl;
           // flag plotted data
-          std::cout << "canvas " << j << " is marked for flag." << std::endl;
+          //std::cout << "canvas " << j << " is marked for flag." << std::endl;
+          //std::cout << "regions[0]: " << regions[0].bottom() << ", " << regions[0].left()
+          //    << ", " << regions[0].top() << ", " << regions[0].right() << std::endl;
           FlagActionUtil::flagRange(client, plot, j, regions, showUnflagged, showFlagged);
-          // If this plot was flagged/unflagged, add it to the redraw
-          // list.
+
+          // If this plot was flagged/unflagged, add it to the redraw list.
           addRedrawPlot( plot );
         } else if (isCanvasMarkedForUnFlag) {
-          std::cout << "regions[0]: " << regions[0].bottom() << ", " << regions[0].left()
-              << ", " << regions[0].top() << ", " << regions[0].right() << std::endl;
           // unflag plotted data
-          std::cout << "canvas " << j << " is marked for unflag." << std::endl;
+          //std::cout << "canvas " << j << " is marked for unflag." << std::endl;
+          //std::cout << "regions[0]: " << regions[0].bottom() << ", " << regions[0].left()
+          //    << ", " << regions[0].top() << ", " << regions[0].right() << std::endl;
           FlagActionUtil::unflagRange(client, plot, j, regions, showUnflagged, showFlagged);
-          // If this plot was flagged/unflagged, add it to the redraw
-          // list.
+
+          // If this plot was flagged/unflagged, add it to the redraw list.
           addRedrawPlot( plot );
-        } else {
-          // get default background
-          // TODO: exclude all-flagged panels from the beginning
-          if (defaultBackground.null()) {
-            defaultBackground = canv[j]->background();
-          }
         }
       }
     }
 
+    // reset the background color for each visible canvases
     for(unsigned int i = 0; i < plots.size(); i++) {
       plot = plots[i];
       if(plot == NULL) continue;
-
-      // Get parameters.
-      PlotMSPlotParameters& params = plot->parameters();
-      PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>();
-
-      // Detect if we are showing flagged/unflagged points (for locate)
-      PMS_PP_Display* d = params.typedGroup<PMS_PP_Display>();
-      Bool showUnflagged=(d->unflaggedSymbol()->symbol()!=PlotSymbol::NOSYMBOL);
-      Bool showFlagged=(d->flaggedSymbol()->symbol()!=PlotSymbol::NOSYMBOL);
 
       vector<PlotCanvasPtr> canv = plot->canvases();
       for(unsigned int j = 0; j < canv.size(); j++) {
         // reset background color
         auto const currentBackground = canv[j]->background();
-        std::cout << "BG color " << currentBackground->color() << std::endl;
         if (canv[j]->isBackgroundColorChanged()) {
-          std::cout << "BG color changed" << std::endl;
-          if (!defaultBackground.null()) {
-            canv[j]->setBackground(defaultBackground);
-          }
+          canv[j]->setBackground(canv[j]->defaultBackground());
         }
 
         // clear all marks
@@ -238,7 +169,7 @@ bool ActionFlagAll::doTool(PlotMSApp* plotms) {
         for(unsigned int k= 0; !visible && k < visibleCanv.size(); k++)
           if(canv[j] == visibleCanv[k]) visible = true;
         if(!visible) {
-          std::cout << "canvas " << j << " is not visible. continue." << std::endl;
+//          std::cout << "canvas " << j << " is not visible. continue." << std::endl;
           continue;
         }
         if (visible) {
@@ -253,7 +184,6 @@ bool ActionFlagAll::doTool(PlotMSApp* plotms) {
 }
 
 ToolCode ActionFlagAll::getToolCode() const {
-  std::cout << "return FLAGALL_TOOL" << std::endl;
 	return FLAGALL_TOOL;
 }
 
