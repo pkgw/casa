@@ -256,7 +256,7 @@ if (UseCrashReporter)
     ################################
 
     set (Breakpad_Root ${CMAKE_BINARY_DIR}/breakpad) # Root of breakpad within the build tree.
-    set (Breakpad_ArchiveFile "breakpad-from-google-${Breakpad_Timestamp}-patch2.tgz")
+    set (Breakpad_ArchiveFile "breakpad-from-google-${Breakpad_Timestamp}-patch3.tgz")
     set (Breakpad_ArchiveUrl
 	"${Breakpad_Url_At_Casa}/${Breakpad_ArchiveFile}")
 

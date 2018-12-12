@@ -197,9 +197,23 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
           <default param="separationaxis"><value type="string">auto</value></default>
           <default param="numsubms"><value type="string">auto</value></default>
           <default param="flagbackup"><value type="bool">True</value></default>
+
+          <default param="disableparallel"><value type="bool">False</value></default>
+          <default param="ddistart"><value type="int">-1</value></default>
+          <default param="taql"><value type="string"></value></default>
         </equals>
-        <equals type="bool" value="False"/>
-	  </when>
+
+        <equals type="bool" value="False">
+          <default param="separationaxis"><value type="string">auto</value></default>
+          <default param="numsubms"><value type="string">auto</value></default>
+          <default param="flagbackup"><value type="bool">True</value></default>
+
+          <default param="disableparallel"><value type="bool">False</value></default>
+          <default param="ddistart"><value type="int">-1</value></default>
+          <default param="taql"><value type="string"></value></default>
+        </equals>
+      </when>
+
     </constraints>
 
 </input>
