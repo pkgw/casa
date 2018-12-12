@@ -954,6 +954,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                TempImage<Float>& posmask,
                                const Int iterdone,
                                Vector<Bool>& chanflag,
+                               Record& robuststatsrec,
                                const String& alg, 
                                const String& threshold, 
                                const Float& fracofpeak, 
@@ -1159,6 +1160,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     LatticeExpr<Bool> pbmask(tempres->pixelMask());
 
     Record thenewstats; 
+    if (!(iterdone==0 && robuststatsrec.nfields()) ) { // this is an indirect way to check if initial stats by nsigma threshold is already run.
     if (fastnoise) { // use a faster but less robust noise determination
       thenewstats = thestats;
       os<< LogIO::DEBUG1 << " *** Using classic image statistics ***"<<LogIO::POST;
@@ -1184,6 +1186,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
          os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
       }
     }
+    os<<" set the stats to what is calculated here" <<LogIO::POST;
+    robuststatsrec=thenewstats;
+    } 
+    else {
+      thenewstats=robuststatsrec; // use existing
+    }
+    os<<" current robuststatsrec nfields="<<robuststatsrec.nfields()<<LogIO::POST;
     
 
     os<<LogIO::NORMAL <<"SidelobeLevel = "<<imstore->getPSFSidelobeLevel()<<LogIO::POST;
@@ -2158,7 +2167,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Array<Double> rmss, maxs, mins, mads, mdns;
     //Float resPeak, resRms;
     Array<Double> resRmss;
-    Double minrmsval, maxrmsval, minmaxval, maxmaxval, minmadval, maxmadval;
+    //Double minrmsval, maxrmsval, minmaxval, maxmaxval, minmadval, maxmadval;
     IPosition minrmspos, maxrmspos, minmaxpos, maxmaxpos, minmadpos, maxmadpos;
     Int nxpix, nypix;
 
@@ -2250,21 +2259,27 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Determine threshold from input image stats
     stats.get(RecordFieldId("max"), maxs);
     stats.get(RecordFieldId("min"), mins);
-    robuststats.get(RecordFieldId("rms"), rmss);
-    robuststats.get(RecordFieldId("medabsdevmed"), mads);
+    // robuststats may contains only robustrms and medians if it is filled by calcRobustRMS
+    if (robuststats.isDefined("rms")) {
+      robuststats.get(RecordFieldId("rms"), rmss);
+      robuststats.get(RecordFieldId("medabsdevmed"), mads);
+      resRmss = mads * 1.4826;
+      os<<LogIO::DEBUG1<<" rms from MAD (mads*1.4826)= "<<resRmss<<LogIO::POST;
+    }
+    else if (robuststats.isDefined("robustrms") ) {
+      robuststats.get(RecordFieldId("robustrms"),resRmss); // already converted from MAD to rms  
+      os<<LogIO::DEBUG1<<" robustrms from MAD (mads*1.4826)= "<<resRmss<<LogIO::POST;
+    }
     robuststats.get(RecordFieldId("median"), mdns);
     
     // only useful if single threshold value are used for all spectral planes... 
-    minMax(minmaxval,maxmaxval,minmaxpos, maxmaxpos, maxs);
-    minMax(minrmsval,maxrmsval,minrmspos, maxrmspos, rmss); 
-    minMax(minmadval,maxmadval,minmadpos, maxmadpos, mads); 
+    //minMax(minmaxval,maxmaxval,minmaxpos, maxmaxpos, maxs);
+    //minMax(minrmsval,maxrmsval,minrmspos, maxrmspos, rmss); 
+    //minMax(minmadval,maxmadval,minmadpos, maxmadpos, mads); 
     // use max of the list of peak values (for multiple channel plane)
     //resPeak = maxmaxval;
     // use MAD and convert to rms 
     //resRms = maxmadval * 1.4826; 
-    resRmss = mads * 1.4826;
-    //os<<LogIO::NORMAL<<" rms from MAD (mads*1.4826)= "<<resRmss<<LogIO::POST;
-    os<<LogIO::DEBUG1<<" rms from MAD (mads*1.4826)= "<<resRmss<<LogIO::POST;
     
 
     //define mask threshold 
@@ -2273,10 +2288,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Float noiseThreshold;
     Float lowNoiseThreshold;
     Float negativeThreshold;
-    // deal with stokes I only for now
-    uInt ndim = mads.ndim();
+    // deal with stokes I only for now 
+    //uInt ndim = mads.ndim();
+    // use mds since mads may not be available
+    uInt ndim = mdns.ndim();
     Int specAxis = CoordinateUtil::findSpectralAxis(res.coordinates());
-    IPosition statshp = mads.shape();
+    //IPosition statshp = mads.shape();
+    IPosition statshp = mdns.shape();
     IPosition chindx = statshp;
     Int nchan = res.shape()(specAxis);
     Vector<Float> maskThreshold(nchan);
@@ -2285,7 +2303,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<String> ThresholdType(nchan);
     Vector<Bool> pruned(nchan);
 
-    for (uInt ich=0; ich < mads.nelements(); ich++) {
+    //for (uInt ich=0; ich < mads.nelements(); ich++) {
+    for (uInt ich=0; ich < mdns.nelements(); ich++) {
       if (ndim==1) {
         chindx(0) = ich;
       }
@@ -2417,6 +2436,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     os << LogIO::NORMAL << "Start smoothing: the initial threshold mask" << LogIO::POST;
     timer.mark();
     SPIIF outmask = convolveMask(tempmask, modbeam );
+    os << "check pt 1"<<LogIO::POST;
     if (debug) {
         String tmpfname3="tmp-postSmoothMask-"+String::toString(iterdone)+".im";
         PagedImage<Float> savedSmoothedMask(res.shape(),res.coordinates(),tmpfname3);
@@ -2427,9 +2447,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //clean up (appy cutThreshold to convolved mask image)
     String lelmask("");
     //use standard stats
+    os << "check pt 2"<<LogIO::POST;
     Record  smmaskstats = calcImageStatistics(*outmask, lelmask, 0, false);
+    os << "check pt 3"<<LogIO::POST;
+    os << "check pt smmaskstats.nfields="<<smmaskstats.nfields()<<LogIO::POST;
     Array<Double> smmaskmaxs;
-    smmaskstats.get(RecordFieldId("max"),smmaskmaxs);
+    //if (smmaskstats.isDefined("max")) {
+    //  os<<" max in smmaskstats is defined"<<LogIO::POST;
+    //} 
+    //else {
+    //  os<<" max in smmaskstats is NOT defined"<<LogIO::POST;
+    //}
+    if (smmaskstats.isDefined("max")) {
+      smmaskstats.get(RecordFieldId("max"),smmaskmaxs);
+    }
+    else {
+	throw(AipsError("max is not found in image statisitics record, smmaskstats")); 
+    }  
+    os << "check pt 3.1"<<LogIO::POST;
     Vector<Float> cutThresholdValue(nchan);
     for (uInt ich=0; ich < (uInt)nchan; ich++) {
       if (ndim==1) {
@@ -2442,6 +2477,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //os<<LogIO::DEBUG1<<" cutThreshVal("<<ich<<")="<<cutThresholdValue(ich)<<LogIO::POST;
       
     }
+    os << "check pt 4"<<LogIO::POST;
     TempImage<Float> thenewmask(res.shape(),res.coordinates(), memoryToUse());
     thenewmask.set(0);
     //thenewmask.copyData(*outmask);
@@ -3823,6 +3859,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        TempImage<Float>& posmask,
                                        const Int iterdone,
                                        Vector<Bool>& chanflag,
+                                       Record& robuststatsrec,
                                        const String& alg, 
                                        const String& threshold, 
                                        const Float& fracofpeak, 
@@ -3850,7 +3887,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     os <<LogIO::DEBUG1<<"Calling autoMaskWithinPB .."<<LogIO::POST;
     // changed to do automask ater pb mask is generated so automask do stats within pb mask
-    autoMask( imstore, posmask, iterdone, chanflag, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
+    autoMask( imstore, posmask, iterdone, chanflag, robuststatsrec, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
               sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, 
               minbeamfrac, growiterations, dogrowprune, minpercentchange, verbose, fastnoise, isthresholdreached, pblimit);
 

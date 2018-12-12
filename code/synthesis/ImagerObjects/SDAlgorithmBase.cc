@@ -75,7 +75,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SDAlgorithmBase::deconvolve( SIMinorCycleController &loopcontrols, 
 				    std::shared_ptr<SIImageStore> &imagestore,
 				    Int deconvolverid,
-                                    Bool isautomasking, Bool fastnoise)
+                                    Bool isautomasking, Bool fastnoise, Record robuststats)
   {
     LogIO os( LogOrigin("SDAlgorithmBase","deconvolve",WHERE) );
 
@@ -154,7 +154,29 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               // returns as an Array but itsImages is already single plane so 
               // the return rms contains only a single element
               Array<Double> medians;
-              robustrms = itsImages->calcRobustRMS(medians, itsPBMask, fastnoise);
+              os<<"robuststats rec size="<<robuststats.nfields()<<LogIO::POST;
+              Bool statsexists = false;
+              if (robuststats.nfields()) {
+                // use existing stats
+                if (robuststats.isDefined("robustrms")) {
+                  robuststats.get(RecordFieldId("robustrms"), robustrms);
+                  robuststats.get(RecordFieldId("median"), medians);
+                  statsexists=True;
+                }
+                else if(robuststats.isDefined("medabsdevmed")) {
+                  Array<Double> mads;
+                  robuststats.get(RecordFieldId("medabsdevmed"), mads);
+                  robuststats.get(RecordFieldId("median"), medians);
+                  robustrms = mads * 1.4826; // convert to rms
+                  statsexists=True;
+                }
+              }
+              if (statsexists) {
+                os<<" Using the existing robust image statatistics!"<<LogIO::POST;
+              } 
+              else {
+                robustrms = itsImages->calcRobustRMS(medians, itsPBMask, fastnoise);
+              }
               if (isautomasking) { // new threshold defination 
                 nsigmathresh = (Float)medians(IPosition(1,0)) + nsigma * (Float)robustrms(IPosition(1,0));
               }
