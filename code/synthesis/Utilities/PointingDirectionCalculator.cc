@@ -380,6 +380,7 @@ void PointingDirectionCalculator::splineInit(uInt antID, uInt startPos, uInt end
 printf( "given size = %u\n" ,size );
 
     // for each row // 
+    double time_prv = 0.0;
     for (uInt row = startPos; row < endPos; ++row) 
     {
         // resize //
@@ -395,8 +396,12 @@ printf( "given size = %u\n" ,size );
         tmp_dir [antID][row] = dirVal;
 
         // data on Pointing Table ..
-        if(false) {
-            printf("Spline::[%4d] Time and dir %f,( %f,%f )\n",row, time,dirVal[0],dirVal[1] );
+        if(true) {
+            double dt = time - time_prv;
+            time_prv = time;
+
+            printf("Spline::[%4d] Time,  %f,Dir, %f,%f  ,",row, time,dirVal[0],dirVal[1] );
+            printf(" dt(double) =, %12.8e \n", dt );
         }
     }
 
@@ -412,8 +417,9 @@ printf( "given size = %u\n" ,size );
 
     // Dump //
 
-    if(false)
+    if(true)
     {
+        FILE* fp = fopen( "coeff.csv","w" );
         printf("Spline::Dump Coeffient(size=%d)\n",size );
         for(int i=0; i< size-1; i++)
         {
@@ -427,16 +433,26 @@ printf( "given size = %u\n" ,size );
             Double y_c2 = splineCoeff_[antID][i][1][2];
             Double y_c3 = splineCoeff_[antID][i][1][3];
 
-            if(true)
+            if(true) //STDOUT
             {
                 printf("Spline::COEFF,%4d,",i );
-                printf( "X, %10.5e, %10.5e, %10.5e, %10.5e,|,",
+                printf( "X, %-12.5e, %-12.5e, %-12.5e, %-12.5e,|,",
                         x_c0, x_c1, x_c2, x_c3 );
 
-                printf( "Y, %10.5e, %10.5e, %10.5e, %10.5e \n",
+                printf( "Y, %-12.5e, %-12.5e, %-12.5e, %-12.5e \n",
+                      y_c0, y_c1, y_c2, y_c3 );
+            }
+            if(true) // File (csv) 
+            {   
+                fprintf(fp,"Spline::COEFF,%4d,",i );
+                fprintf(fp, "X, %-12.5e, %-12.5e, %-12.5e, %-12.5e,|,",
+                        x_c0, x_c1, x_c2, x_c3 );
+                
+                fprintf(fp, "Y, %-12.5e, %-12.5e, %-12.5e, %-12.5e \n",
                       y_c0, y_c1, y_c2, y_c3 );
             }
         }
+        fclose(fp);
     }
 }
 

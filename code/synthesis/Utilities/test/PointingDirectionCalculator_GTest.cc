@@ -2683,9 +2683,9 @@ TEST_F(TestDirection, InterpolationSingle )
 
       use_spline = true;
 
-      msedit.evgen.    setCurveFunctionNo(2);   // set Curve Fuction
+      msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
-      msedit.evgen.      Initialize( 0.05,     // Pointing Interval
+      msedit.evgen.      Initialize( 1.0,     // Pointing Interval
                                      1.0 ) ;  // Main Interval
  
       msedit.evgen.    setInterpolationErrorLimit( 0.1);
