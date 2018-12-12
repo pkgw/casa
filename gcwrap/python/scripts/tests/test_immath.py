@@ -1741,6 +1741,51 @@ class immath_test3(unittest.TestCase):
         rtol = 1e-5
         self.assertTrue(numpy.all(numpy.isclose(expec, got, rtol)), "Failed poli sigma test")
 
+    def test_tlpol(self):
+        """CAS-12116 test various polarization modes"""
+        imagename = "mypol.im"
+        myia = iatool()
+        myia.fromshape(imagename, [4, 4, 4])
+        bb = myia.getchunk()
+        bb[:,:,0] = 0
+        bb[:,:,1] = 6
+        bb[:,:,2] = 4
+        bb[:,:,3] = 2
+        myia.putchunk(bb)
+        myia.done()
+        expec = {}
+        expec['poli'] = numpy.sqrt(56.0) 
+        expec['tpoli'] = expec['poli'] 
+        expec['lpoli'] = numpy.sqrt(52.0) 
+        for mode in ['poli', 'lpoli', 'tpoli']:
+            outfile = 'out' + mode + '.im'
+            immath(imagename=imagename, outfile=outfile, mode=mode)
+            myia.open(outfile)
+            bb = myia.getchunk()
+            myia.done()
+            self.assertTrue(
+                numpy.allclose(bb, expec[mode], 1e-7), "Fail mode " + mode
+            )
+        subi = 'noV.im'
+        myia.open(imagename)
+        zz = myia.subimage(subi, region=_rg.box([0,0,0],[3,3,2]))
+        myia.done()
+        zz.done()
+        expec['poli'] = expec['lpoli'] 
+        expec['lpoli'] = numpy.sqrt(52.0) 
+        for mode in ['poli', 'lpoli', 'tpoli']:
+            outfile = 'no_Vout' + mode + '.im'
+            if mode == 'tpoli':
+                self.assertRaises(immath(imagename=subi, outfile=outfile, mode=mode))
+                continue
+            immath(imagename=subi, outfile=outfile, mode=mode)
+            myia.open(outfile)
+            bb = myia.getchunk()
+            myia.done()
+            self.assertTrue(
+                numpy.allclose(bb, expec[mode], 1e-7), "Fail mode " + mode
+            )
+
 def suite():
     return [immath_test1, immath_test2, immath_test3]
     
