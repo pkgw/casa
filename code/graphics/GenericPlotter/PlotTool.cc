@@ -987,6 +987,12 @@ void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
     if(c != NULL) {
       // get default background setting
       auto const canvas = c->canvas();
+
+      // do nothing if canvas is empty
+      if (canvas->title().empty()) {
+        return;
+      }
+
       if (m_defaultBackground.null()) {
         m_defaultBackground = canvas->defaultBackground();
       }

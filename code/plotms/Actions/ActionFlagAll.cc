@@ -26,6 +26,7 @@
 #include <iostream>
 #include <iterator>
 #include <algorithm>
+#include <utility>
 
 #include "ActionFlagAll.h"
 #include <plotms/Plots/PlotMSPlot.h>
@@ -53,9 +54,10 @@ ActionFlagAll::ActionFlagAll( Client* client )
 	  // examine number of unflagged points in each plots
 	  std::vector<MaskedScatterPlotPtr> scatterPlots = plot->plots();
 	  //std::cout << "Number of scatter plots: " << scatterPlots.size() << std::endl;
-	  std::vector<unsigned int> numUnmasked;
-	  std::transform(scatterPlots.begin(), scatterPlots.end(), std::back_inserter(numUnmasked),
-	      [](MaskedScatterPlotPtr x) { return x->maskedData()->sizeUnmasked(); });
+	  std::vector<std::pair<unsigned int, unsigned int> > numData;
+	  std::transform(scatterPlots.begin(), scatterPlots.end(), std::back_inserter(numData),
+	      [](MaskedScatterPlotPtr x) { auto m = x->maskedData();
+	      return std::make_pair(m->size(), m->sizeUnmasked()); });
 
 	  auto canvases = plot->canvases();
 	  auto numCanvases = canvases.size();
@@ -66,7 +68,8 @@ ActionFlagAll::ActionFlagAll( Client* client )
 	    auto canv = canvases[i];
 	    auto scatterPlotId = i + indexOffset;
 
-	    if (numUnmasked[scatterPlotId] == 0) {
+	    auto n = numData[scatterPlotId];
+	    if (!canv->title().empty() && n.first != 0 && n.second == 0) {
 	      //std::cout << "No unmasked data in canvas " << i << ". Canvas background must be changed." << std::endl;
 	      canv->setAllFlagged();
 	      canv->refresh();
