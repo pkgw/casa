@@ -182,6 +182,8 @@ void PointingDirectionCalculator::init() {
     debuglog << "done" << debugpost;
 
     resetAntennaPosition(antennaColumn_(0));
+
+    printf("init() return.\n");
 }
 
 void PointingDirectionCalculator::selectData(String const &antenna,
@@ -305,6 +307,7 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 }
 
 void PointingDirectionCalculator::setFrame(String const frameType) {
+    printf("setFrame() in.\n");
     Bool status = MDirection::getType(directionType_, frameType);
     if (!status) {
         LogIO os(LogOrigin("PointingDirectionCalculator", "setFrame", WHERE));
@@ -314,11 +317,20 @@ void PointingDirectionCalculator::setFrame(String const frameType) {
         directionType_ = MDirection::J2000;
     }
 
+    printf("setFrame():: Direction::getType() end. \n");
+
     // create conversion engine
+
+    printf("setFrame():: accessor() calls.. \n");
     MDirection nominalInputMeasure = accessor_(*pointingColumns_, 0);
+
+    printf("setFrame():: MDirection::Ref outReference() object.  \n");
     MDirection::Ref outReference(directionType_, referenceFrame_);
+
+    printf("setFrame() Direction::Convert() calls. \n");
     directionConvert_ = new MDirection::Convert(nominalInputMeasure,
             outReference);
+
     const MEpoch *e = dynamic_cast<const MEpoch *>(referenceFrame_.epoch());
     const MPosition *p =
             dynamic_cast<const MPosition *>(referenceFrame_.position());
@@ -326,6 +338,7 @@ void PointingDirectionCalculator::setFrame(String const frameType) {
             << e->get("s").getValue() << " " << e->getRefString() << " Position "
             << p->get("m").getValue() << " " << p->getRefString()
             << debugpost;
+    printf("setFrame() return.\n");
 }
 
 void PointingDirectionCalculator::setDirectionListMatrixShape(
@@ -527,7 +540,12 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
         uInt start = antennaBoundary_[i];
         uInt end = antennaBoundary_[i + 1];
         uInt currentAntenna = antennaColumn_(start);
+
+        printf( "getDirection::resetAntennaPosition(id=%d) calls. in %d Antennas.  \n",
+                 currentAntenna,numAntennaBoundary_ );
+
         resetAntennaPosition(currentAntenna);
+
         debuglog << "antenna " << currentAntenna << " start " << start
                 << " end " << end << debugpost;
         uInt const nrowPointing = pointingTimeUTC_.nelements();
@@ -547,7 +565,8 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
 
         if(fgSpline)
         {
-#if 1
+            printf( "splineInit calls. Ant=%d, start=%d, end =%d \n",i, start,end);
+#if 0
             splineInit(0, 0, nrowPointing);
 #else
             splineInit(i, start, end);   // This is maybe Right //
@@ -773,15 +792,23 @@ uInt PointingDirectionCalculator::getRowId(uInt i) {
 }
 
 void PointingDirectionCalculator::inspectAntenna() {
+    printf( "inspectAntenna() in \n");
     // selectedMS_ must be sorted by ["ANTENNA1", "TIME"]
     antennaBoundary_.resize(selectedMS_->antenna().nrow() + 1);
     antennaBoundary_ = -1;
     Int count = 0;
     antennaBoundary_[count] = 0;
     ++count;
+
     Vector<Int> antennaList = antennaColumn_.getColumn();
     uInt nrow = antennaList.nelements();
     Int lastAnt = antennaList[0];
+
+        for(uInt i=0; i<antennaList.size();i++)
+        {
+            printf( "Antenna List[%d]=%d \n", i, antennaList[i]);
+        }
+
     for (uInt i = 0; i < nrow; ++i) {
         if (antennaList[i] != lastAnt) {
             antennaBoundary_[count] = i;
@@ -794,6 +821,10 @@ void PointingDirectionCalculator::inspectAntenna() {
     numAntennaBoundary_ = count;
     debuglog << "antennaBoundary_=" << antennaBoundary_ << debugpost;
     debuglog << "numAntennaBoundary_=" << numAntennaBoundary_ << debugpost;
+   // CAS-8418:Nishie //
+   // information AntennaBouundary
+
+
 }
 
 void PointingDirectionCalculator::initPointingTable(Int const antennaId) {
@@ -850,6 +881,9 @@ void PointingDirectionCalculator::initPointingTable(Int const antennaId) {
 }
 
 void PointingDirectionCalculator::resetAntennaPosition(Int const antennaId) {
+
+    printf("resetAntennaPosition in\n");
+
     MSAntenna antennaTable = selectedMS_->antenna();
     uInt nrow = antennaTable.nrow();
     if (antennaId < 0 || (Int) nrow <= antennaId) {
@@ -866,10 +900,12 @@ void PointingDirectionCalculator::resetAntennaPosition(Int const antennaId) {
                 << setprecision(16) << antennaPosition_.get("m").getValue() << debugpost;
         referenceFrame_.resetPosition(antennaPosition_);
 
+        printf("initPointingTalbe(id=%d) calls. \n",antennaId);
         initPointingTable(antennaId);
 
         lastAntennaIndex_ = antennaId;
     }
+     printf("resetAntennaPosition return.\n");
 }
 
 void PointingDirectionCalculator::resetTime(Double const timestamp) {

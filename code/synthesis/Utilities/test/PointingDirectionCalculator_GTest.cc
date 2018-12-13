@@ -355,7 +355,7 @@ void DeleteWorkingMS()
     // Delete File (Recursively done) 
     // NOTE: for debug use, please change true-> falase )
 
-    if (true)
+    if (false)
     {
          dir_ctrl. removeRecursive(false /*keepDir=False */ );
     }
@@ -414,9 +414,15 @@ public:
   
         Double getInterpolationErrorLimit() { return interpolationErrorLimit;  } ;
 
+    // Row count 
+
         uInt getAddInerpolationTestPointingTableRow() {return addInerpolationTestPointingTableRow; };
         uInt getAddInerpolationTestMainTableRow()     {return addInerpolationTestMainTableRow; };
 	
+    // Antenna Count //
+
+        uInt getNumberOfAntenna() { return numberOfAntenna; };
+
         bool checkExtendAvailable() 
         {
             if(availablePointingTestingRow < defInerpolationTestPointingTableRow) return true;
@@ -480,6 +486,10 @@ private:
     // Parameters  (Time)
     
         // 2 parameters were deleted , due to no need . ..
+   
+    // Number of Antenna 
+
+         const uInt numberOfAntenna =3;
 };
 
 //+
@@ -523,7 +533,8 @@ void EvaluateInterporation::init()
 
         if ( requiredPointingTestingRow > defInerpolationTestPointingTableRow )
         {
-            addInerpolationTestPointingTableRow = requiredPointingTestingRow -defInerpolationTestPointingTableRow;
+            addInerpolationTestPointingTableRow = requiredPointingTestingRow * numberOfAntenna 
+                                                   - defInerpolationTestPointingTableRow;
         }
         else
         {
@@ -834,7 +845,7 @@ public:
 
     // Add or Remove Row  (Antenna) //
 
-        uInt appendRowOnAntennaTable();
+        uInt appendRowOnAntennaTable(uInt n);
         void removeRowFromAntennaTablew(uInt NRow );
 
     // Add Row for Interpolation TEST //
@@ -844,7 +855,7 @@ public:
     
     // Write Data on Antenna Table // 
      
-        void writeDataToAntennaTable(String MsName =DefaultLocalMsName, uInt Row =0 );
+        void writeDataToAntennaTable( uInt Row =0 );
 
     // Write new Columns and init data // 
 
@@ -883,7 +894,7 @@ public:
 //  returns latest nrow.
 //-
 
-uInt  MsEdit::appendRowOnAntennaTable()
+uInt  MsEdit::appendRowOnAntennaTable(uInt n)
 {
     // Measurement Set (use default name) //
 
@@ -895,7 +906,7 @@ uInt  MsEdit::appendRowOnAntennaTable()
 
     // Add Row //
 
-        hAntennaTable.addRow();
+        hAntennaTable.addRow(n);
         uInt nrow = hAntennaTable.nrow();
 
         return nrow;
@@ -926,10 +937,11 @@ void MsEdit::removeRowFromAntennaTablew(uInt nrow )
 //  Write Data to Antenna Table 
 //-
 
-void MsEdit::writeDataToAntennaTable(String MsName, uInt Row )
+void MsEdit::writeDataToAntennaTable( uInt Row )
 {
     // Open MS by Update mode //
 
+        String MsName =DefaultLocalMsName;
         MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
 
     // Tables Name //
@@ -1286,12 +1298,14 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
                 columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
 
     //+
+    //   Antenna ID
+    //-
+        ROScalarColumn<Int>    pointingAntennaId      = columnPointing ->antennaId();
+    //+
     // Time Info
     //-
-
         ROScalarColumn<Double> pointingTime           = columnPointing ->time();
         ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
- 
     //+
     // Listing Columns(Direction related) on Pointing 
     //-
@@ -1319,63 +1333,60 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
             printf( "- Extend access to Pointing table = Available.\n" );
             LoopCnt += 5;
         }
-
-        for (uInt row=0; row < LoopCnt; row++)
+   
+        for (uInt ant_id=0; ant_id < evgen.getNumberOfAntenna() ; ant_id++ )
         {
-            //+
-            // Experiment   the following cannot be compiled.
-            //  Set AZEL on this Colun 
-            //-
- 
-#if 0
-                MDirection mdir = columnPointing ->directionMeas (0, 0 );
-                String name =                mdir.getRefString();
-                printf(" MDIR name = %s \n", name.c_str() );
-#endif
- 
-            // DIRECTION  //
-
-                Double delta = (Double)row + dt ;
-
-                Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
-                Vector<Double>  psd_data  
-                    = evgen.pseudoDirInfoPointing(delta); // generated pseudo data. (Pointing) //
-
-                direction[0][0] = psd_data[0];
-                direction[0][1] = psd_data[1];
-
-            // write access //
-
-                pointingDirection.   put(row, direction );
-                pointingTarget.      put(row, direction );
-
-            // Time Info. (current) ** NOT USED *** //
-#if 0 
-                Double curTime      = pointingTime.     get(row);
-                Double curInterval  = pointingInterval. get(row);
-#endif
-
-           //+ 
-           // New Time   (intentionally activates interporation)
-           //  basically FIXED values.
-           //-
-            
-                pointingTime.           put(row, psd_data[2] ); // Time
-                pointingInterval.       put(row, psd_data[3] ); // Interval
-
-
-            //+
-            // Show (option)
-            //-
-
-            if(false)
+            printf( "- creating  Antenna %d data. Loop=%d \n", ant_id, LoopCnt );
+            for (uInt row=0; row < LoopCnt; row++)
             {
-                printf( "%d, Time-Interval-dirX- dirY,", row);
-                printf( "%f, %f , ", psd_data[2], psd_data[3] );
-                printf( "%f, %f \n", psd_data[0], psd_data[1] );
-            }
+                uInt  rowA = row + (ant_id * LoopCnt);
 
-        }
+                //+
+                // Experiment   the following cannot be compiled.
+                //  Set AZEL on this Colun 
+                //-
+ 
+ 
+                // DIRECTION  //
+
+                    Double delta = (Double)row + dt ;    // delta must be [0,1]
+
+                    Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
+                    Vector<Double>  psd_data  
+                        = evgen.pseudoDirInfoPointing(delta); // generated pseudo data. (Pointing) //
+
+                    direction[0][0] = psd_data[0];
+                    direction[0][1] = psd_data[1];
+
+                // write access //
+                // (CAS-8418: Multiple Antenna supported) use rowA instead of row//
+
+                    pointingDirection.   put(rowA, direction );
+                    pointingTarget.      put(rowA, direction );
+
+               //+ 
+               // New Time   (intentionally activates interporation)
+               //  basically FIXED values.
+               //-
+            
+                    pointingTime.           put(rowA, psd_data[2] ); // Time
+                    pointingInterval.       put(rowA, psd_data[3] ); // Interval
+
+                    pointingAntennaId.      put(rowA, ant_id ) ;      // AntennaID 
+
+                //+
+                // Show (option)
+                //-
+
+                if(false)
+                {
+                    printf( "%d, Time-Interval-dirX- dirY,", row);
+                    printf( "%f, %f , ", psd_data[2], psd_data[3] );
+                    printf( "%f, %f \n", psd_data[0], psd_data[1] );
+                }
+
+            }//end row
+        }// end antid
 
         // Flush //
         
@@ -2391,7 +2402,7 @@ void DumpPointingTable(String MsName)
 
 std::vector<Double>  TestDirection::subTestDirection(Double dt )
 {
-    TestDescription( "Interpolation Test in getDirection ()" ); 
+    TestDescription( "subTestDirection(dt)" ); 
     printf( " dt = %f (sec)\n",dt ); 
 
     const String MsName = DefaultLocalMsName;
@@ -2401,7 +2412,6 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
         if(false)  DumpPointingTable(MsName);
 
     // Create Object //
-   
         MeasurementSet ms( MsName.c_str() );
 
         PointingDirectionCalculator calc(ms);   
@@ -2560,7 +2570,7 @@ std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
     
 
     // Add INTERPOLATION TEST DATA 
-  
+    printf ("calling TestwriteInterpolationTestDataOnPointingTable\n"); 
     msedit.writeInterpolationTestDataOnPointingTable( 0.0 );  // Pointing //
 
     // Test Loop  
@@ -2689,6 +2699,13 @@ TEST_F(TestDirection, InterpolationSingle )
                                      1.0 ) ;  // Main Interval
  
       msedit.evgen.    setInterpolationErrorLimit( 0.1);
+
+    // Prepate Antenna //
+
+      msedit.appendRowOnAntennaTable(2);   // 1 + 2 more
+
+      msedit.writeDataToAntennaTable(1);
+      msedit.writeDataToAntennaTable(2);
 
     // Increase Row on MS for large-file.:
 
