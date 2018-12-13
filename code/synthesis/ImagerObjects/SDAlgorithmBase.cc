@@ -154,7 +154,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               // returns as an Array but itsImages is already single plane so 
               // the return rms contains only a single element
               Array<Double> medians;
-              os<<"robuststats rec size="<<robuststats.nfields()<<LogIO::POST;
+              //os<<"robuststats rec size="<<robuststats.nfields()<<LogIO::POST;
               Bool statsexists = false;
               if (robuststats.nfields()) {
                 // use existing stats
@@ -172,7 +172,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 }
               }
               if (statsexists) {
-                os<<" Using the existing robust image statatistics!"<<LogIO::POST;
+                os<<LogIO::DEBUG1<<"Using the existing robust image statatistics!"<<LogIO::POST;
               } 
               else {
                 robustrms = itsImages->calcRobustRMS(medians, itsPBMask, fastnoise);

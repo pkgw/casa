@@ -2436,7 +2436,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     os << LogIO::NORMAL << "Start smoothing: the initial threshold mask" << LogIO::POST;
     timer.mark();
     SPIIF outmask = convolveMask(tempmask, modbeam );
-    os << "check pt 1"<<LogIO::POST;
     if (debug) {
         String tmpfname3="tmp-postSmoothMask-"+String::toString(iterdone)+".im";
         PagedImage<Float> savedSmoothedMask(res.shape(),res.coordinates(),tmpfname3);
@@ -2447,24 +2446,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //clean up (appy cutThreshold to convolved mask image)
     String lelmask("");
     //use standard stats
-    os << "check pt 2"<<LogIO::POST;
     Record  smmaskstats = calcImageStatistics(*outmask, lelmask, 0, false);
-    os << "check pt 3"<<LogIO::POST;
-    os << "check pt smmaskstats.nfields="<<smmaskstats.nfields()<<LogIO::POST;
     Array<Double> smmaskmaxs;
-    //if (smmaskstats.isDefined("max")) {
-    //  os<<" max in smmaskstats is defined"<<LogIO::POST;
-    //} 
-    //else {
-    //  os<<" max in smmaskstats is NOT defined"<<LogIO::POST;
-    //}
     if (smmaskstats.isDefined("max")) {
       smmaskstats.get(RecordFieldId("max"),smmaskmaxs);
     }
     else {
 	throw(AipsError("max is not found in image statisitics record, smmaskstats")); 
     }  
-    os << "check pt 3.1"<<LogIO::POST;
     Vector<Float> cutThresholdValue(nchan);
     for (uInt ich=0; ich < (uInt)nchan; ich++) {
       if (ndim==1) {
@@ -2477,7 +2466,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //os<<LogIO::DEBUG1<<" cutThreshVal("<<ich<<")="<<cutThresholdValue(ich)<<LogIO::POST;
       
     }
-    os << "check pt 4"<<LogIO::POST;
     TempImage<Float> thenewmask(res.shape(),res.coordinates(), memoryToUse());
     thenewmask.set(0);
     //thenewmask.copyData(*outmask);

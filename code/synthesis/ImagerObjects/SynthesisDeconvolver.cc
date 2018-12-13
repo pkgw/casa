@@ -265,12 +265,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         // 
         if ((useautomask && itsRobustStats.nfields()) || 
             (!useautomask && iterdone==0 && itsRobustStats.nfields()) ) {
-           os <<"automask on: check the current stats"<<LogIO::POST;
-           os<< "itsRobustStats nfield="<< itsRobustStats.nfields() << LogIO::POST;;
+           os <<LogIO::DEBUG1<<"automask on: check the current stats"<<LogIO::POST;
+           //os<< "itsRobustStats nfield="<< itsRobustStats.nfields() << LogIO::POST;;
            if (itsRobustStats.isDefined("medabsdevmed")) {
              Array<Double> mads;
              itsRobustStats.get(RecordFieldId("medabsdevmed"), mads);
-             os<<"robust rms from automask ==="<< mads*1.4826 <<LogIO::POST;
+             os<<LogIO::DEBUG1<<"Using robust rms from automask ="<< mads*1.4826 <<LogIO::POST;
              robustrms = mads*1.4826;
            }
            else if(itsRobustStats.isDefined("robustrms")) {
@@ -285,10 +285,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           robustrms = itsImages->calcRobustRMS(medians, itsPBMask, itsFastNoise);
           os<< LogIO::NORMAL << "time for calcRobustRMS:  real "<< timer.real() << "s ( user " << timer.user() 
              <<"s, system "<< timer.system() << "s)" << LogIO::POST;
-          os<<" initminor robustrms="<<robustrms<<LogIO::POST;
           //reset itsRobustStats
           try {
-            os<<"current content of itsRobustStats nfields=="<<itsRobustStats.nfields()<<LogIO::POST;
+            //os<<"current content of itsRobustStats nfields=="<<itsRobustStats.nfields()<<LogIO::POST;
             itsRobustStats.define(RecordFieldId("robustrms"), robustrms);
             itsRobustStats.define(RecordFieldId("median"), medians);
           }   
