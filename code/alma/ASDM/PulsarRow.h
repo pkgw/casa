@@ -342,7 +342,7 @@ public:
  	 * @return phasePoly as vector<double >
  	 * @throws IllegalAccessException If phasePoly does not exist.
  	 */
- 	vector<double > getPhasePoly() const;
+ 	std::vector<double > getPhasePoly() const;
 	
  
  	
@@ -353,7 +353,7 @@ public:
  	 
  		
  	 */
- 	void setPhasePoly (vector<double > phasePoly);
+ 	void setPhasePoly (std::vector<double > phasePoly);
 		
 	
 	
@@ -424,7 +424,7 @@ public:
  	 * @return startPhaseBin as vector<float >
  	 * @throws IllegalAccessException If startPhaseBin does not exist.
  	 */
- 	vector<float > getStartPhaseBin() const;
+ 	std::vector<float > getStartPhaseBin() const;
 	
  
  	
@@ -435,7 +435,7 @@ public:
  	 
  		
  	 */
- 	void setStartPhaseBin (vector<float > startPhaseBin);
+ 	void setStartPhaseBin (std::vector<float > startPhaseBin);
 		
 	
 	
@@ -465,7 +465,7 @@ public:
  	 * @return endPhaseBin as vector<float >
  	 * @throws IllegalAccessException If endPhaseBin does not exist.
  	 */
- 	vector<float > getEndPhaseBin() const;
+ 	std::vector<float > getEndPhaseBin() const;
 	
  
  	
@@ -476,7 +476,7 @@ public:
  	 
  		
  	 */
- 	void setEndPhaseBin (vector<float > endPhaseBin);
+ 	void setEndPhaseBin (std::vector<float > endPhaseBin);
 		
 	
 	
@@ -838,7 +838,7 @@ private:
 	bool phasePolyExists;
 	
 
-	vector<double > phasePoly;
+	std::vector<double > phasePoly;
 
 	
 	
@@ -864,7 +864,7 @@ private:
 	bool startPhaseBinExists;
 	
 
-	vector<float > startPhaseBin;
+	std::vector<float > startPhaseBin;
 
 	
 	
@@ -877,7 +877,7 @@ private:
 	bool endPhaseBinExists;
 	
 
-	vector<float > endPhaseBin;
+	std::vector<float > endPhaseBin;
 
 	
 	

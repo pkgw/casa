@@ -362,7 +362,7 @@ public:
  	 * Get scanSet.
  	 * @return scanSet as vector<int >
  	 */
- 	vector<int > getScanSet() const;
+ 	std::vector<int > getScanSet() const;
 	
  
  	
@@ -374,7 +374,7 @@ public:
  		
  			
  	 */
- 	void setScanSet (vector<int > scanSet);
+ 	void setScanSet (std::vector<int > scanSet);
   		
 	
 	
@@ -481,7 +481,7 @@ public:
  	 * @return fieldName as vector<string >
  	 * @throws IllegalAccessException If fieldName does not exist.
  	 */
- 	vector<string > getFieldName() const;
+ 	std::vector<string > getFieldName() const;
 	
  
  	
@@ -492,7 +492,7 @@ public:
  	 
  		
  	 */
- 	void setFieldName (vector<string > fieldName);
+ 	void setFieldName (std::vector<string > fieldName);
 		
 	
 	
@@ -522,7 +522,7 @@ public:
  	 * @return sourceName as vector<string >
  	 * @throws IllegalAccessException If sourceName does not exist.
  	 */
- 	vector<string > getSourceName() const;
+ 	std::vector<string > getSourceName() const;
 	
  
  	
@@ -533,7 +533,7 @@ public:
  	 
  		
  	 */
- 	void setSourceName (vector<string > sourceName);
+ 	void setSourceName (std::vector<string > sourceName);
 		
 	
 	
@@ -563,7 +563,7 @@ public:
  	 * @return sourceCode as vector<string >
  	 * @throws IllegalAccessException If sourceCode does not exist.
  	 */
- 	vector<string > getSourceCode() const;
+ 	std::vector<string > getSourceCode() const;
 	
  
  	
@@ -574,7 +574,7 @@ public:
  	 
  		
  	 */
- 	void setSourceCode (vector<string > sourceCode);
+ 	void setSourceCode (std::vector<string > sourceCode);
 		
 	
 	
@@ -604,7 +604,7 @@ public:
  	 * @return scanIntent as vector<ScanIntentMod::ScanIntent >
  	 * @throws IllegalAccessException If scanIntent does not exist.
  	 */
- 	vector<ScanIntentMod::ScanIntent > getScanIntent() const;
+ 	std::vector<ScanIntentMod::ScanIntent > getScanIntent() const;
 	
  
  	
@@ -615,7 +615,7 @@ public:
  	 
  		
  	 */
- 	void setScanIntent (vector<ScanIntentMod::ScanIntent > scanIntent);
+ 	void setScanIntent (std::vector<ScanIntentMod::ScanIntent > scanIntent);
 		
 	
 	
@@ -657,7 +657,7 @@ public:
 	 * @param scanSet
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, vector<int > scanSet);
+	bool compareNoAutoInc(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, std::vector<int > scanSet);
 	
 	
 
@@ -681,7 +681,7 @@ public:
 	 * @param scanSet
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, vector<int > scanSet); 
+	bool compareRequiredValue(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, std::vector<int > scanSet); 
 		 
 	
 	/**
@@ -916,7 +916,7 @@ private:
 	
 	
 
-	vector<int > scanSet;
+	std::vector<int > scanSet;
 
 	
 	
@@ -955,7 +955,7 @@ private:
 	bool fieldNameExists;
 	
 
-	vector<string > fieldName;
+	std::vector<string > fieldName;
 
 	
 	
@@ -968,7 +968,7 @@ private:
 	bool sourceNameExists;
 	
 
-	vector<string > sourceName;
+	std::vector<string > sourceName;
 
 	
 	
@@ -981,7 +981,7 @@ private:
 	bool sourceCodeExists;
 	
 
-	vector<string > sourceCode;
+	std::vector<string > sourceCode;
 
 	
 	
@@ -994,7 +994,7 @@ private:
 	bool scanIntentExists;
 	
 
-	vector<ScanIntentMod::ScanIntent > scanIntent;
+	std::vector<ScanIntentMod::ScanIntent > scanIntent;
 
 	
 	

@@ -364,7 +364,7 @@ public:
  	 * @param inputAntennaId
 	
      */
-	WVMCalRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<vector<Temperature > > refTemp, vector<Tag>  inputAntennaId);
+	WVMCalRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId);
 	
 
 
@@ -493,7 +493,7 @@ public:
  	 * @param inputAntennaId
  	 		 
  	 */
-	WVMCalRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<vector<Temperature > > refTemp, vector<Tag>  inputAntennaId); 
+	WVMCalRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

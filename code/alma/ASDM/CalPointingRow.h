@@ -428,7 +428,7 @@ public:
  	 * Get direction.
  	 * @return direction as vector<Angle >
  	 */
- 	vector<Angle > getDirection() const;
+ 	std::vector<Angle > getDirection() const;
 	
  
  	
@@ -440,7 +440,7 @@ public:
  		
  			
  	 */
- 	void setDirection (vector<Angle > direction);
+ 	void setDirection (std::vector<Angle > direction);
   		
 	
 	
@@ -458,7 +458,7 @@ public:
  	 * Get frequencyRange.
  	 * @return frequencyRange as vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
@@ -470,7 +470,7 @@ public:
  		
  			
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
   		
 	
 	
@@ -578,7 +578,7 @@ public:
  	 * Get polarizationTypes.
  	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
@@ -590,7 +590,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -608,7 +608,7 @@ public:
  	 * Get collOffsetRelative.
  	 * @return collOffsetRelative as vector<vector<Angle > >
  	 */
- 	vector<vector<Angle > > getCollOffsetRelative() const;
+ 	std::vector<std::vector<Angle > > getCollOffsetRelative() const;
 	
  
  	
@@ -620,7 +620,7 @@ public:
  		
  			
  	 */
- 	void setCollOffsetRelative (vector<vector<Angle > > collOffsetRelative);
+ 	void setCollOffsetRelative (std::vector<std::vector<Angle > > collOffsetRelative);
   		
 	
 	
@@ -638,7 +638,7 @@ public:
  	 * Get collOffsetAbsolute.
  	 * @return collOffsetAbsolute as vector<vector<Angle > >
  	 */
- 	vector<vector<Angle > > getCollOffsetAbsolute() const;
+ 	std::vector<std::vector<Angle > > getCollOffsetAbsolute() const;
 	
  
  	
@@ -650,7 +650,7 @@ public:
  		
  			
  	 */
- 	void setCollOffsetAbsolute (vector<vector<Angle > > collOffsetAbsolute);
+ 	void setCollOffsetAbsolute (std::vector<std::vector<Angle > > collOffsetAbsolute);
   		
 	
 	
@@ -668,7 +668,7 @@ public:
  	 * Get collError.
  	 * @return collError as vector<vector<Angle > >
  	 */
- 	vector<vector<Angle > > getCollError() const;
+ 	std::vector<std::vector<Angle > > getCollError() const;
 	
  
  	
@@ -680,7 +680,7 @@ public:
  		
  			
  	 */
- 	void setCollError (vector<vector<Angle > > collError);
+ 	void setCollError (std::vector<std::vector<Angle > > collError);
   		
 	
 	
@@ -698,7 +698,7 @@ public:
  	 * Get collOffsetTied.
  	 * @return collOffsetTied as vector<vector<bool > >
  	 */
- 	vector<vector<bool > > getCollOffsetTied() const;
+ 	std::vector<std::vector<bool > > getCollOffsetTied() const;
 	
  
  	
@@ -710,7 +710,7 @@ public:
  		
  			
  	 */
- 	void setCollOffsetTied (vector<vector<bool > > collOffsetTied);
+ 	void setCollOffsetTied (std::vector<std::vector<bool > > collOffsetTied);
   		
 	
 	
@@ -728,7 +728,7 @@ public:
  	 * Get reducedChiSquared.
  	 * @return reducedChiSquared as vector<double >
  	 */
- 	vector<double > getReducedChiSquared() const;
+ 	std::vector<double > getReducedChiSquared() const;
 	
  
  	
@@ -740,7 +740,7 @@ public:
  		
  			
  	 */
- 	void setReducedChiSquared (vector<double > reducedChiSquared);
+ 	void setReducedChiSquared (std::vector<double > reducedChiSquared);
   		
 	
 	
@@ -806,7 +806,7 @@ public:
  	 * @return beamPA as vector<Angle >
  	 * @throws IllegalAccessException If beamPA does not exist.
  	 */
- 	vector<Angle > getBeamPA() const;
+ 	std::vector<Angle > getBeamPA() const;
 	
  
  	
@@ -817,7 +817,7 @@ public:
  	 
  		
  	 */
- 	void setBeamPA (vector<Angle > beamPA);
+ 	void setBeamPA (std::vector<Angle > beamPA);
 		
 	
 	
@@ -847,7 +847,7 @@ public:
  	 * @return beamPAError as vector<Angle >
  	 * @throws IllegalAccessException If beamPAError does not exist.
  	 */
- 	vector<Angle > getBeamPAError() const;
+ 	std::vector<Angle > getBeamPAError() const;
 	
  
  	
@@ -858,7 +858,7 @@ public:
  	 
  		
  	 */
- 	void setBeamPAError (vector<Angle > beamPAError);
+ 	void setBeamPAError (std::vector<Angle > beamPAError);
 		
 	
 	
@@ -929,7 +929,7 @@ public:
  	 * @return beamWidth as vector<vector<Angle > >
  	 * @throws IllegalAccessException If beamWidth does not exist.
  	 */
- 	vector<vector<Angle > > getBeamWidth() const;
+ 	std::vector<std::vector<Angle > > getBeamWidth() const;
 	
  
  	
@@ -940,7 +940,7 @@ public:
  	 
  		
  	 */
- 	void setBeamWidth (vector<vector<Angle > > beamWidth);
+ 	void setBeamWidth (std::vector<std::vector<Angle > > beamWidth);
 		
 	
 	
@@ -970,7 +970,7 @@ public:
  	 * @return beamWidthError as vector<vector<Angle > >
  	 * @throws IllegalAccessException If beamWidthError does not exist.
  	 */
- 	vector<vector<Angle > > getBeamWidthError() const;
+ 	std::vector<std::vector<Angle > > getBeamWidthError() const;
 	
  
  	
@@ -981,7 +981,7 @@ public:
  	 
  		
  	 */
- 	void setBeamWidthError (vector<vector<Angle > > beamWidthError);
+ 	void setBeamWidthError (std::vector<std::vector<Angle > > beamWidthError);
 		
 	
 	
@@ -1011,7 +1011,7 @@ public:
  	 * @return beamWidthWasFixed as vector<bool >
  	 * @throws IllegalAccessException If beamWidthWasFixed does not exist.
  	 */
- 	vector<bool > getBeamWidthWasFixed() const;
+ 	std::vector<bool > getBeamWidthWasFixed() const;
 	
  
  	
@@ -1022,7 +1022,7 @@ public:
  	 
  		
  	 */
- 	void setBeamWidthWasFixed (vector<bool > beamWidthWasFixed);
+ 	void setBeamWidthWasFixed (std::vector<bool > beamWidthWasFixed);
 		
 	
 	
@@ -1052,7 +1052,7 @@ public:
  	 * @return offIntensity as vector<Temperature >
  	 * @throws IllegalAccessException If offIntensity does not exist.
  	 */
- 	vector<Temperature > getOffIntensity() const;
+ 	std::vector<Temperature > getOffIntensity() const;
 	
  
  	
@@ -1063,7 +1063,7 @@ public:
  	 
  		
  	 */
- 	void setOffIntensity (vector<Temperature > offIntensity);
+ 	void setOffIntensity (std::vector<Temperature > offIntensity);
 		
 	
 	
@@ -1093,7 +1093,7 @@ public:
  	 * @return offIntensityError as vector<Temperature >
  	 * @throws IllegalAccessException If offIntensityError does not exist.
  	 */
- 	vector<Temperature > getOffIntensityError() const;
+ 	std::vector<Temperature > getOffIntensityError() const;
 	
  
  	
@@ -1104,7 +1104,7 @@ public:
  	 
  		
  	 */
- 	void setOffIntensityError (vector<Temperature > offIntensityError);
+ 	void setOffIntensityError (std::vector<Temperature > offIntensityError);
 		
 	
 	
@@ -1175,7 +1175,7 @@ public:
  	 * @return peakIntensity as vector<Temperature >
  	 * @throws IllegalAccessException If peakIntensity does not exist.
  	 */
- 	vector<Temperature > getPeakIntensity() const;
+ 	std::vector<Temperature > getPeakIntensity() const;
 	
  
  	
@@ -1186,7 +1186,7 @@ public:
  	 
  		
  	 */
- 	void setPeakIntensity (vector<Temperature > peakIntensity);
+ 	void setPeakIntensity (std::vector<Temperature > peakIntensity);
 		
 	
 	
@@ -1216,7 +1216,7 @@ public:
  	 * @return peakIntensityError as vector<Temperature >
  	 * @throws IllegalAccessException If peakIntensityError does not exist.
  	 */
- 	vector<Temperature > getPeakIntensityError() const;
+ 	std::vector<Temperature > getPeakIntensityError() const;
 	
  
  	
@@ -1227,7 +1227,7 @@ public:
  	 
  		
  	 */
- 	void setPeakIntensityError (vector<Temperature > peakIntensityError);
+ 	void setPeakIntensityError (std::vector<Temperature > peakIntensityError);
 		
 	
 	
@@ -1430,7 +1430,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, vector<Angle > direction, vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Angle > > collOffsetRelative, vector<vector<Angle > > collOffsetAbsolute, vector<vector<Angle > > collError, vector<vector<bool > > collOffsetTied, vector<double > reducedChiSquared);
+	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Angle > > collOffsetRelative, std::vector<std::vector<Angle > > collOffsetAbsolute, std::vector<std::vector<Angle > > collError, std::vector<std::vector<bool > > collOffsetTied, std::vector<double > reducedChiSquared);
 	
 	
 
@@ -1472,7 +1472,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, vector<Angle > direction, vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Angle > > collOffsetRelative, vector<vector<Angle > > collOffsetAbsolute, vector<vector<Angle > > collError, vector<vector<bool > > collOffsetTied, vector<double > reducedChiSquared); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Angle > > collOffsetRelative, std::vector<std::vector<Angle > > collOffsetAbsolute, std::vector<std::vector<Angle > > collError, std::vector<std::vector<bool > > collOffsetTied, std::vector<double > reducedChiSquared); 
 		 
 	
 	/**
@@ -1714,7 +1714,7 @@ private:
 	
 	
 
-	vector<Angle > direction;
+	std::vector<Angle > direction;
 
 	
 	
@@ -1725,7 +1725,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -1769,7 +1769,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1780,7 +1780,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > collOffsetRelative;
+	std::vector<std::vector<Angle > > collOffsetRelative;
 
 	
 	
@@ -1791,7 +1791,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > collOffsetAbsolute;
+	std::vector<std::vector<Angle > > collOffsetAbsolute;
 
 	
 	
@@ -1802,7 +1802,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > collError;
+	std::vector<std::vector<Angle > > collError;
 
 	
 	
@@ -1813,7 +1813,7 @@ private:
 	
 	
 
-	vector<vector<bool > > collOffsetTied;
+	std::vector<std::vector<bool > > collOffsetTied;
 
 	
 	
@@ -1824,7 +1824,7 @@ private:
 	
 	
 
-	vector<double > reducedChiSquared;
+	std::vector<double > reducedChiSquared;
 
 	
 	
@@ -1850,7 +1850,7 @@ private:
 	bool beamPAExists;
 	
 
-	vector<Angle > beamPA;
+	std::vector<Angle > beamPA;
 
 	
 	
@@ -1863,7 +1863,7 @@ private:
 	bool beamPAErrorExists;
 	
 
-	vector<Angle > beamPAError;
+	std::vector<Angle > beamPAError;
 
 	
 	
@@ -1889,7 +1889,7 @@ private:
 	bool beamWidthExists;
 	
 
-	vector<vector<Angle > > beamWidth;
+	std::vector<std::vector<Angle > > beamWidth;
 
 	
 	
@@ -1902,7 +1902,7 @@ private:
 	bool beamWidthErrorExists;
 	
 
-	vector<vector<Angle > > beamWidthError;
+	std::vector<std::vector<Angle > > beamWidthError;
 
 	
 	
@@ -1915,7 +1915,7 @@ private:
 	bool beamWidthWasFixedExists;
 	
 
-	vector<bool > beamWidthWasFixed;
+	std::vector<bool > beamWidthWasFixed;
 
 	
 	
@@ -1928,7 +1928,7 @@ private:
 	bool offIntensityExists;
 	
 
-	vector<Temperature > offIntensity;
+	std::vector<Temperature > offIntensity;
 
 	
 	
@@ -1941,7 +1941,7 @@ private:
 	bool offIntensityErrorExists;
 	
 
-	vector<Temperature > offIntensityError;
+	std::vector<Temperature > offIntensityError;
 
 	
 	
@@ -1967,7 +1967,7 @@ private:
 	bool peakIntensityExists;
 	
 
-	vector<Temperature > peakIntensity;
+	std::vector<Temperature > peakIntensity;
 
 	
 	
@@ -1980,7 +1980,7 @@ private:
 	bool peakIntensityErrorExists;
 	
 
-	vector<Temperature > peakIntensityError;
+	std::vector<Temperature > peakIntensityError;
 
 	
 	

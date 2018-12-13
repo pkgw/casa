@@ -259,7 +259,7 @@ public:
  	 * Get phaseDelay.
  	 * @return phaseDelay as vector<double >
  	 */
- 	vector<double > getPhaseDelay() const;
+ 	std::vector<double > getPhaseDelay() const;
 	
  
  	
@@ -271,7 +271,7 @@ public:
  		
  			
  	 */
- 	void setPhaseDelay (vector<double > phaseDelay);
+ 	void setPhaseDelay (std::vector<double > phaseDelay);
   		
 	
 	
@@ -289,7 +289,7 @@ public:
  	 * Get phaseDelayRate.
  	 * @return phaseDelayRate as vector<double >
  	 */
- 	vector<double > getPhaseDelayRate() const;
+ 	std::vector<double > getPhaseDelayRate() const;
 	
  
  	
@@ -301,7 +301,7 @@ public:
  		
  			
  	 */
- 	void setPhaseDelayRate (vector<double > phaseDelayRate);
+ 	void setPhaseDelayRate (std::vector<double > phaseDelayRate);
   		
 	
 	
@@ -319,7 +319,7 @@ public:
  	 * Get groupDelay.
  	 * @return groupDelay as vector<double >
  	 */
- 	vector<double > getGroupDelay() const;
+ 	std::vector<double > getGroupDelay() const;
 	
  
  	
@@ -331,7 +331,7 @@ public:
  		
  			
  	 */
- 	void setGroupDelay (vector<double > groupDelay);
+ 	void setGroupDelay (std::vector<double > groupDelay);
   		
 	
 	
@@ -349,7 +349,7 @@ public:
  	 * Get groupDelayRate.
  	 * @return groupDelayRate as vector<double >
  	 */
- 	vector<double > getGroupDelayRate() const;
+ 	std::vector<double > getGroupDelayRate() const;
 	
  
  	
@@ -361,7 +361,7 @@ public:
  		
  			
  	 */
- 	void setGroupDelayRate (vector<double > groupDelayRate);
+ 	void setGroupDelayRate (std::vector<double > groupDelayRate);
   		
 	
 	
@@ -632,7 +632,7 @@ public:
  	 * @return LOOffset as vector<Frequency >
  	 * @throws IllegalAccessException If LOOffset does not exist.
  	 */
- 	vector<Frequency > getLOOffset() const;
+ 	std::vector<Frequency > getLOOffset() const;
 	
  
  	
@@ -643,7 +643,7 @@ public:
  	 
  		
  	 */
- 	void setLOOffset (vector<Frequency > LOOffset);
+ 	void setLOOffset (std::vector<Frequency > LOOffset);
 		
 	
 	
@@ -673,7 +673,7 @@ public:
  	 * @return LOOffsetRate as vector<Frequency >
  	 * @throws IllegalAccessException If LOOffsetRate does not exist.
  	 */
- 	vector<Frequency > getLOOffsetRate() const;
+ 	std::vector<Frequency > getLOOffsetRate() const;
 	
  
  	
@@ -684,7 +684,7 @@ public:
  	 
  		
  	 */
- 	void setLOOffsetRate (vector<Frequency > LOOffsetRate);
+ 	void setLOOffsetRate (std::vector<Frequency > LOOffsetRate);
 		
 	
 	
@@ -1001,7 +1001,7 @@ public:
  	 * @return polarizationType as vector<PolarizationTypeMod::PolarizationType >
  	 * @throws IllegalAccessException If polarizationType does not exist.
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
 	
  
  	
@@ -1012,7 +1012,7 @@ public:
  	 
  		
  	 */
- 	void setPolarizationType (vector<PolarizationTypeMod::PolarizationType > polarizationType);
+ 	void setPolarizationType (std::vector<PolarizationTypeMod::PolarizationType > polarizationType);
 		
 	
 	
@@ -1042,7 +1042,7 @@ public:
  	 * @return electronicDelay as vector<double >
  	 * @throws IllegalAccessException If electronicDelay does not exist.
  	 */
- 	vector<double > getElectronicDelay() const;
+ 	std::vector<double > getElectronicDelay() const;
 	
  
  	
@@ -1053,7 +1053,7 @@ public:
  	 
  		
  	 */
- 	void setElectronicDelay (vector<double > electronicDelay);
+ 	void setElectronicDelay (std::vector<double > electronicDelay);
 		
 	
 	
@@ -1083,7 +1083,7 @@ public:
  	 * @return electronicDelayRate as vector<double >
  	 * @throws IllegalAccessException If electronicDelayRate does not exist.
  	 */
- 	vector<double > getElectronicDelayRate() const;
+ 	std::vector<double > getElectronicDelayRate() const;
 	
  
  	
@@ -1094,7 +1094,7 @@ public:
  	 
  		
  	 */
- 	void setElectronicDelayRate (vector<double > electronicDelayRate);
+ 	void setElectronicDelayRate (std::vector<double > electronicDelayRate);
 		
 	
 	
@@ -1124,7 +1124,7 @@ public:
  	 * @return receiverDelay as vector<double >
  	 * @throws IllegalAccessException If receiverDelay does not exist.
  	 */
- 	vector<double > getReceiverDelay() const;
+ 	std::vector<double > getReceiverDelay() const;
 	
  
  	
@@ -1135,7 +1135,7 @@ public:
  	 
  		
  	 */
- 	void setReceiverDelay (vector<double > receiverDelay);
+ 	void setReceiverDelay (std::vector<double > receiverDelay);
 		
 	
 	
@@ -1165,7 +1165,7 @@ public:
  	 * @return IFDelay as vector<double >
  	 * @throws IllegalAccessException If IFDelay does not exist.
  	 */
- 	vector<double > getIFDelay() const;
+ 	std::vector<double > getIFDelay() const;
 	
  
  	
@@ -1176,7 +1176,7 @@ public:
  	 
  		
  	 */
- 	void setIFDelay (vector<double > IFDelay);
+ 	void setIFDelay (std::vector<double > IFDelay);
 		
 	
 	
@@ -1206,7 +1206,7 @@ public:
  	 * @return LODelay as vector<double >
  	 * @throws IllegalAccessException If LODelay does not exist.
  	 */
- 	vector<double > getLODelay() const;
+ 	std::vector<double > getLODelay() const;
 	
  
  	
@@ -1217,7 +1217,7 @@ public:
  	 
  		
  	 */
- 	void setLODelay (vector<double > LODelay);
+ 	void setLODelay (std::vector<double > LODelay);
 		
 	
 	
@@ -1443,7 +1443,7 @@ public:
 	 * @param fieldId
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, vector<double > phaseDelay, vector<double > phaseDelayRate, vector<double > groupDelay, vector<double > groupDelayRate, Tag fieldId);
+	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, std::vector<double > phaseDelay, std::vector<double > phaseDelayRate, std::vector<double > groupDelay, std::vector<double > groupDelayRate, Tag fieldId);
 	
 	
 
@@ -1465,7 +1465,7 @@ public:
 	 * @param fieldId
 	    
 	 */ 
-	bool compareRequiredValue(int numPoly, vector<double > phaseDelay, vector<double > phaseDelayRate, vector<double > groupDelay, vector<double > groupDelayRate, Tag fieldId); 
+	bool compareRequiredValue(int numPoly, std::vector<double > phaseDelay, std::vector<double > phaseDelayRate, std::vector<double > groupDelay, std::vector<double > groupDelayRate, Tag fieldId); 
 		 
 	
 	/**
@@ -1650,7 +1650,7 @@ private:
 	
 	
 
-	vector<double > phaseDelay;
+	std::vector<double > phaseDelay;
 
 	
 	
@@ -1661,7 +1661,7 @@ private:
 	
 	
 
-	vector<double > phaseDelayRate;
+	std::vector<double > phaseDelayRate;
 
 	
 	
@@ -1672,7 +1672,7 @@ private:
 	
 	
 
-	vector<double > groupDelay;
+	std::vector<double > groupDelay;
 
 	
 	
@@ -1683,7 +1683,7 @@ private:
 	
 	
 
-	vector<double > groupDelayRate;
+	std::vector<double > groupDelayRate;
 
 	
 	
@@ -1774,7 +1774,7 @@ private:
 	bool LOOffsetExists;
 	
 
-	vector<Frequency > LOOffset;
+	std::vector<Frequency > LOOffset;
 
 	
 	
@@ -1787,7 +1787,7 @@ private:
 	bool LOOffsetRateExists;
 	
 
-	vector<Frequency > LOOffsetRate;
+	std::vector<Frequency > LOOffsetRate;
 
 	
 	
@@ -1891,7 +1891,7 @@ private:
 	bool polarizationTypeExists;
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationType;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationType;
 
 	
 	
@@ -1904,7 +1904,7 @@ private:
 	bool electronicDelayExists;
 	
 
-	vector<double > electronicDelay;
+	std::vector<double > electronicDelay;
 
 	
 	
@@ -1917,7 +1917,7 @@ private:
 	bool electronicDelayRateExists;
 	
 
-	vector<double > electronicDelayRate;
+	std::vector<double > electronicDelayRate;
 
 	
 	
@@ -1930,7 +1930,7 @@ private:
 	bool receiverDelayExists;
 	
 
-	vector<double > receiverDelay;
+	std::vector<double > receiverDelay;
 
 	
 	
@@ -1943,7 +1943,7 @@ private:
 	bool IFDelayExists;
 	
 
-	vector<double > IFDelay;
+	std::vector<double > IFDelay;
 
 	
 	
@@ -1956,7 +1956,7 @@ private:
 	bool LODelayExists;
 	
 
-	vector<double > LODelay;
+	std::vector<double > LODelay;
 
 	
 	

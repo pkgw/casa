@@ -470,7 +470,7 @@ public:
  	 * Get forwardEffSpectrum.
  	 * @return forwardEffSpectrum as vector<vector<float > >
  	 */
- 	vector<vector<float > > getForwardEffSpectrum() const;
+ 	std::vector<std::vector<float > > getForwardEffSpectrum() const;
 	
  
  	
@@ -482,7 +482,7 @@ public:
  		
  			
  	 */
- 	void setForwardEffSpectrum (vector<vector<float > > forwardEffSpectrum);
+ 	void setForwardEffSpectrum (std::vector<std::vector<float > > forwardEffSpectrum);
   		
 	
 	
@@ -500,7 +500,7 @@ public:
  	 * Get frequencyRange.
  	 * @return frequencyRange as vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
@@ -512,7 +512,7 @@ public:
  		
  			
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
   		
 	
 	
@@ -590,7 +590,7 @@ public:
  	 * Get frequencySpectrum.
  	 * @return frequencySpectrum as vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencySpectrum() const;
+ 	std::vector<Frequency > getFrequencySpectrum() const;
 	
  
  	
@@ -602,7 +602,7 @@ public:
  		
  			
  	 */
- 	void setFrequencySpectrum (vector<Frequency > frequencySpectrum);
+ 	void setFrequencySpectrum (std::vector<Frequency > frequencySpectrum);
   		
 	
 	
@@ -650,7 +650,7 @@ public:
  	 * Get polarizationTypes.
  	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
@@ -662,7 +662,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -680,7 +680,7 @@ public:
  	 * Get powerSkySpectrum.
  	 * @return powerSkySpectrum as vector<vector<float > >
  	 */
- 	vector<vector<float > > getPowerSkySpectrum() const;
+ 	std::vector<std::vector<float > > getPowerSkySpectrum() const;
 	
  
  	
@@ -692,7 +692,7 @@ public:
  		
  			
  	 */
- 	void setPowerSkySpectrum (vector<vector<float > > powerSkySpectrum);
+ 	void setPowerSkySpectrum (std::vector<std::vector<float > > powerSkySpectrum);
   		
 	
 	
@@ -710,7 +710,7 @@ public:
  	 * Get powerLoadSpectrum.
  	 * @return powerLoadSpectrum as vector<vector<vector<float > > >
  	 */
- 	vector<vector<vector<float > > > getPowerLoadSpectrum() const;
+ 	std::vector<std::vector<vector<float > > > getPowerLoadSpectrum() const;
 	
  
  	
@@ -722,7 +722,7 @@ public:
  		
  			
  	 */
- 	void setPowerLoadSpectrum (vector<vector<vector<float > > > powerLoadSpectrum);
+ 	void setPowerLoadSpectrum (std::vector<std::vector<vector<float > > > powerLoadSpectrum);
   		
 	
 	
@@ -770,7 +770,7 @@ public:
  	 * Get tAtmSpectrum.
  	 * @return tAtmSpectrum as vector<vector<Temperature > >
  	 */
- 	vector<vector<Temperature > > getTAtmSpectrum() const;
+ 	std::vector<std::vector<Temperature > > getTAtmSpectrum() const;
 	
  
  	
@@ -782,7 +782,7 @@ public:
  		
  			
  	 */
- 	void setTAtmSpectrum (vector<vector<Temperature > > tAtmSpectrum);
+ 	void setTAtmSpectrum (std::vector<std::vector<Temperature > > tAtmSpectrum);
   		
 	
 	
@@ -800,7 +800,7 @@ public:
  	 * Get tRecSpectrum.
  	 * @return tRecSpectrum as vector<vector<Temperature > >
  	 */
- 	vector<vector<Temperature > > getTRecSpectrum() const;
+ 	std::vector<std::vector<Temperature > > getTRecSpectrum() const;
 	
  
  	
@@ -812,7 +812,7 @@ public:
  		
  			
  	 */
- 	void setTRecSpectrum (vector<vector<Temperature > > tRecSpectrum);
+ 	void setTRecSpectrum (std::vector<std::vector<Temperature > > tRecSpectrum);
   		
 	
 	
@@ -830,7 +830,7 @@ public:
  	 * Get tSysSpectrum.
  	 * @return tSysSpectrum as vector<vector<Temperature > >
  	 */
- 	vector<vector<Temperature > > getTSysSpectrum() const;
+ 	std::vector<std::vector<Temperature > > getTSysSpectrum() const;
 	
  
  	
@@ -842,7 +842,7 @@ public:
  		
  			
  	 */
- 	void setTSysSpectrum (vector<vector<Temperature > > tSysSpectrum);
+ 	void setTSysSpectrum (std::vector<std::vector<Temperature > > tSysSpectrum);
   		
 	
 	
@@ -860,7 +860,7 @@ public:
  	 * Get tauSpectrum.
  	 * @return tauSpectrum as vector<vector<float > >
  	 */
- 	vector<vector<float > > getTauSpectrum() const;
+ 	std::vector<std::vector<float > > getTauSpectrum() const;
 	
  
  	
@@ -872,7 +872,7 @@ public:
  		
  			
  	 */
- 	void setTauSpectrum (vector<vector<float > > tauSpectrum);
+ 	void setTauSpectrum (std::vector<std::vector<float > > tauSpectrum);
   		
 	
 	
@@ -890,7 +890,7 @@ public:
  	 * Get tAtm.
  	 * @return tAtm as vector<Temperature >
  	 */
- 	vector<Temperature > getTAtm() const;
+ 	std::vector<Temperature > getTAtm() const;
 	
  
  	
@@ -902,7 +902,7 @@ public:
  		
  			
  	 */
- 	void setTAtm (vector<Temperature > tAtm);
+ 	void setTAtm (std::vector<Temperature > tAtm);
   		
 	
 	
@@ -920,7 +920,7 @@ public:
  	 * Get tRec.
  	 * @return tRec as vector<Temperature >
  	 */
- 	vector<Temperature > getTRec() const;
+ 	std::vector<Temperature > getTRec() const;
 	
  
  	
@@ -932,7 +932,7 @@ public:
  		
  			
  	 */
- 	void setTRec (vector<Temperature > tRec);
+ 	void setTRec (std::vector<Temperature > tRec);
   		
 	
 	
@@ -950,7 +950,7 @@ public:
  	 * Get tSys.
  	 * @return tSys as vector<Temperature >
  	 */
- 	vector<Temperature > getTSys() const;
+ 	std::vector<Temperature > getTSys() const;
 	
  
  	
@@ -962,7 +962,7 @@ public:
  		
  			
  	 */
- 	void setTSys (vector<Temperature > tSys);
+ 	void setTSys (std::vector<Temperature > tSys);
   		
 	
 	
@@ -980,7 +980,7 @@ public:
  	 * Get tau.
  	 * @return tau as vector<float >
  	 */
- 	vector<float > getTau() const;
+ 	std::vector<float > getTau() const;
 	
  
  	
@@ -992,7 +992,7 @@ public:
  		
  			
  	 */
- 	void setTau (vector<float > tau);
+ 	void setTau (std::vector<float > tau);
   		
 	
 	
@@ -1010,7 +1010,7 @@ public:
  	 * Get water.
  	 * @return water as vector<Length >
  	 */
- 	vector<Length > getWater() const;
+ 	std::vector<Length > getWater() const;
 	
  
  	
@@ -1022,7 +1022,7 @@ public:
  		
  			
  	 */
- 	void setWater (vector<Length > water);
+ 	void setWater (std::vector<Length > water);
   		
 	
 	
@@ -1040,7 +1040,7 @@ public:
  	 * Get waterError.
  	 * @return waterError as vector<Length >
  	 */
- 	vector<Length > getWaterError() const;
+ 	std::vector<Length > getWaterError() const;
 	
  
  	
@@ -1052,7 +1052,7 @@ public:
  		
  			
  	 */
- 	void setWaterError (vector<Length > waterError);
+ 	void setWaterError (std::vector<Length > waterError);
   		
 	
 	
@@ -1077,7 +1077,7 @@ public:
  	 * @return alphaSpectrum as vector<vector<float > >
  	 * @throws IllegalAccessException If alphaSpectrum does not exist.
  	 */
- 	vector<vector<float > > getAlphaSpectrum() const;
+ 	std::vector<std::vector<float > > getAlphaSpectrum() const;
 	
  
  	
@@ -1088,7 +1088,7 @@ public:
  	 
  		
  	 */
- 	void setAlphaSpectrum (vector<vector<float > > alphaSpectrum);
+ 	void setAlphaSpectrum (std::vector<std::vector<float > > alphaSpectrum);
 		
 	
 	
@@ -1118,7 +1118,7 @@ public:
  	 * @return forwardEfficiency as vector<float >
  	 * @throws IllegalAccessException If forwardEfficiency does not exist.
  	 */
- 	vector<float > getForwardEfficiency() const;
+ 	std::vector<float > getForwardEfficiency() const;
 	
  
  	
@@ -1129,7 +1129,7 @@ public:
  	 
  		
  	 */
- 	void setForwardEfficiency (vector<float > forwardEfficiency);
+ 	void setForwardEfficiency (std::vector<float > forwardEfficiency);
 		
 	
 	
@@ -1159,7 +1159,7 @@ public:
  	 * @return forwardEfficiencyError as vector<double >
  	 * @throws IllegalAccessException If forwardEfficiencyError does not exist.
  	 */
- 	vector<double > getForwardEfficiencyError() const;
+ 	std::vector<double > getForwardEfficiencyError() const;
 	
  
  	
@@ -1170,7 +1170,7 @@ public:
  	 
  		
  	 */
- 	void setForwardEfficiencyError (vector<double > forwardEfficiencyError);
+ 	void setForwardEfficiencyError (std::vector<double > forwardEfficiencyError);
 		
 	
 	
@@ -1200,7 +1200,7 @@ public:
  	 * @return sbGain as vector<float >
  	 * @throws IllegalAccessException If sbGain does not exist.
  	 */
- 	vector<float > getSbGain() const;
+ 	std::vector<float > getSbGain() const;
 	
  
  	
@@ -1211,7 +1211,7 @@ public:
  	 
  		
  	 */
- 	void setSbGain (vector<float > sbGain);
+ 	void setSbGain (std::vector<float > sbGain);
 		
 	
 	
@@ -1241,7 +1241,7 @@ public:
  	 * @return sbGainError as vector<float >
  	 * @throws IllegalAccessException If sbGainError does not exist.
  	 */
- 	vector<float > getSbGainError() const;
+ 	std::vector<float > getSbGainError() const;
 	
  
  	
@@ -1252,7 +1252,7 @@ public:
  	 
  		
  	 */
- 	void setSbGainError (vector<float > sbGainError);
+ 	void setSbGainError (std::vector<float > sbGainError);
 		
 	
 	
@@ -1282,7 +1282,7 @@ public:
  	 * @return sbGainSpectrum as vector<vector<float > >
  	 * @throws IllegalAccessException If sbGainSpectrum does not exist.
  	 */
- 	vector<vector<float > > getSbGainSpectrum() const;
+ 	std::vector<std::vector<float > > getSbGainSpectrum() const;
 	
  
  	
@@ -1293,7 +1293,7 @@ public:
  	 
  		
  	 */
- 	void setSbGainSpectrum (vector<vector<float > > sbGainSpectrum);
+ 	void setSbGainSpectrum (std::vector<std::vector<float > > sbGainSpectrum);
 		
 	
 	
@@ -1475,7 +1475,7 @@ public:
 	 * @param waterError
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, vector<vector<float > > forwardEffSpectrum, vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, vector<Frequency > frequencySpectrum, Temperature groundTemperature, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > powerSkySpectrum, vector<vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, vector<vector<Temperature > > tAtmSpectrum, vector<vector<Temperature > > tRecSpectrum, vector<vector<Temperature > > tSysSpectrum, vector<vector<float > > tauSpectrum, vector<Temperature > tAtm, vector<Temperature > tRec, vector<Temperature > tSys, vector<float > tau, vector<Length > water, vector<Length > waterError);
+	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError);
 	
 	
 
@@ -1535,7 +1535,7 @@ public:
 	 * @param waterError
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, vector<vector<float > > forwardEffSpectrum, vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, vector<Frequency > frequencySpectrum, Temperature groundTemperature, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > powerSkySpectrum, vector<vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, vector<vector<Temperature > > tAtmSpectrum, vector<vector<Temperature > > tRecSpectrum, vector<vector<Temperature > > tSysSpectrum, vector<vector<float > > tauSpectrum, vector<Temperature > tAtm, vector<Temperature > tRec, vector<Temperature > tSys, vector<float > tau, vector<Length > water, vector<Length > waterError); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError); 
 		 
 	
 	/**
@@ -1791,7 +1791,7 @@ private:
 	
 	
 
-	vector<vector<float > > forwardEffSpectrum;
+	std::vector<std::vector<float > > forwardEffSpectrum;
 
 	
 	
@@ -1802,7 +1802,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -1835,7 +1835,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencySpectrum;
+	std::vector<Frequency > frequencySpectrum;
 
 	
 	
@@ -1857,7 +1857,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1868,7 +1868,7 @@ private:
 	
 	
 
-	vector<vector<float > > powerSkySpectrum;
+	std::vector<std::vector<float > > powerSkySpectrum;
 
 	
 	
@@ -1879,7 +1879,7 @@ private:
 	
 	
 
-	vector<vector<vector<float > > > powerLoadSpectrum;
+	std::vector<std::vector<vector<float > > > powerLoadSpectrum;
 
 	
 	
@@ -1901,7 +1901,7 @@ private:
 	
 	
 
-	vector<vector<Temperature > > tAtmSpectrum;
+	std::vector<std::vector<Temperature > > tAtmSpectrum;
 
 	
 	
@@ -1912,7 +1912,7 @@ private:
 	
 	
 
-	vector<vector<Temperature > > tRecSpectrum;
+	std::vector<std::vector<Temperature > > tRecSpectrum;
 
 	
 	
@@ -1923,7 +1923,7 @@ private:
 	
 	
 
-	vector<vector<Temperature > > tSysSpectrum;
+	std::vector<std::vector<Temperature > > tSysSpectrum;
 
 	
 	
@@ -1934,7 +1934,7 @@ private:
 	
 	
 
-	vector<vector<float > > tauSpectrum;
+	std::vector<std::vector<float > > tauSpectrum;
 
 	
 	
@@ -1945,7 +1945,7 @@ private:
 	
 	
 
-	vector<Temperature > tAtm;
+	std::vector<Temperature > tAtm;
 
 	
 	
@@ -1956,7 +1956,7 @@ private:
 	
 	
 
-	vector<Temperature > tRec;
+	std::vector<Temperature > tRec;
 
 	
 	
@@ -1967,7 +1967,7 @@ private:
 	
 	
 
-	vector<Temperature > tSys;
+	std::vector<Temperature > tSys;
 
 	
 	
@@ -1978,7 +1978,7 @@ private:
 	
 	
 
-	vector<float > tau;
+	std::vector<float > tau;
 
 	
 	
@@ -1989,7 +1989,7 @@ private:
 	
 	
 
-	vector<Length > water;
+	std::vector<Length > water;
 
 	
 	
@@ -2000,7 +2000,7 @@ private:
 	
 	
 
-	vector<Length > waterError;
+	std::vector<Length > waterError;
 
 	
 	
@@ -2013,7 +2013,7 @@ private:
 	bool alphaSpectrumExists;
 	
 
-	vector<vector<float > > alphaSpectrum;
+	std::vector<std::vector<float > > alphaSpectrum;
 
 	
 	
@@ -2026,7 +2026,7 @@ private:
 	bool forwardEfficiencyExists;
 	
 
-	vector<float > forwardEfficiency;
+	std::vector<float > forwardEfficiency;
 
 	
 	
@@ -2039,7 +2039,7 @@ private:
 	bool forwardEfficiencyErrorExists;
 	
 
-	vector<double > forwardEfficiencyError;
+	std::vector<double > forwardEfficiencyError;
 
 	
 	
@@ -2052,7 +2052,7 @@ private:
 	bool sbGainExists;
 	
 
-	vector<float > sbGain;
+	std::vector<float > sbGain;
 
 	
 	
@@ -2065,7 +2065,7 @@ private:
 	bool sbGainErrorExists;
 	
 
-	vector<float > sbGainError;
+	std::vector<float > sbGainError;
 
 	
 	
@@ -2078,7 +2078,7 @@ private:
 	bool sbGainSpectrumExists;
 	
 
-	vector<vector<float > > sbGainSpectrum;
+	std::vector<std::vector<float > > sbGainSpectrum;
 
 	
 	

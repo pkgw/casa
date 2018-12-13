@@ -215,7 +215,7 @@ public:
  	 * Get attenuator.
  	 * @return attenuator as vector<float >
  	 */
- 	vector<float > getAttenuator() const;
+ 	std::vector<float > getAttenuator() const;
 	
  
  	
@@ -227,7 +227,7 @@ public:
  		
  			
  	 */
- 	void setAttenuator (vector<float > attenuator);
+ 	void setAttenuator (std::vector<float > attenuator);
   		
 	
 	
@@ -245,7 +245,7 @@ public:
  	 * Get polarizationType.
  	 * @return polarizationType as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
 	
  
  	
@@ -257,7 +257,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationType (vector<PolarizationTypeMod::PolarizationType > polarizationType);
+ 	void setPolarizationType (std::vector<PolarizationTypeMod::PolarizationType > polarizationType);
   		
 	
 	
@@ -364,7 +364,7 @@ public:
  	 * @return attFreq as vector<double >
  	 * @throws IllegalAccessException If attFreq does not exist.
  	 */
- 	vector<double > getAttFreq() const;
+ 	std::vector<double > getAttFreq() const;
 	
  
  	
@@ -375,7 +375,7 @@ public:
  	 
  		
  	 */
- 	void setAttFreq (vector<double > attFreq);
+ 	void setAttFreq (std::vector<double > attFreq);
 		
 	
 	
@@ -405,7 +405,7 @@ public:
  	 * @return attSpectrum as vector<Complex >
  	 * @throws IllegalAccessException If attSpectrum does not exist.
  	 */
- 	vector<Complex > getAttSpectrum() const;
+ 	std::vector<Complex > getAttSpectrum() const;
 	
  
  	
@@ -416,7 +416,7 @@ public:
  	 
  		
  	 */
- 	void setAttSpectrum (vector<Complex > attSpectrum);
+ 	void setAttSpectrum (std::vector<Complex > attSpectrum);
 		
 	
 	
@@ -601,7 +601,7 @@ public:
 	 * @param polarizationType
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, vector<float > attenuator, vector<PolarizationTypeMod::PolarizationType > polarizationType);
+	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, std::vector<float > attenuator, std::vector<PolarizationTypeMod::PolarizationType > polarizationType);
 	
 	
 
@@ -617,7 +617,7 @@ public:
 	 * @param polarizationType
 	    
 	 */ 
-	bool compareRequiredValue(int numReceptor, vector<float > attenuator, vector<PolarizationTypeMod::PolarizationType > polarizationType); 
+	bool compareRequiredValue(int numReceptor, std::vector<float > attenuator, std::vector<PolarizationTypeMod::PolarizationType > polarizationType); 
 		 
 	
 	/**
@@ -782,7 +782,7 @@ private:
 	
 	
 
-	vector<float > attenuator;
+	std::vector<float > attenuator;
 
 	
 	
@@ -793,7 +793,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationType;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationType;
 
 	
 	
@@ -832,7 +832,7 @@ private:
 	bool attFreqExists;
 	
 
-	vector<double > attFreq;
+	std::vector<double > attFreq;
 
 	
 	
@@ -845,7 +845,7 @@ private:
 	bool attSpectrumExists;
 	
 
-	vector<Complex > attSpectrum;
+	std::vector<Complex > attSpectrum;
 
 	
 	

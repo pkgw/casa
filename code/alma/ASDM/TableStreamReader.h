@@ -444,15 +444,15 @@ std::string accumulateUntilBoundary(const std::string& boundary, int maxLines) {
 }
 
 std::string requireBoundaryInCT(const std::string& ctValue) {
-  vector<std::string> cvValueItems;
+  std::vector<std::string> cvValueItems;
  
 #ifndef WITHOUT_BOOST
   boost::algorithm::split (cvValueItems, ctValue, boost::algorithm::is_any_of(";"));
 #else
   asdm::strsplit(ctValue,';',cvValueItems);
 #endif
-  vector<std::string> cvValueItemsNameValue;
-  for ( vector<std::string>::const_iterator iter = cvValueItems.begin(); iter != cvValueItems.end() ; iter++ ) {
+  std::vector<std::string> cvValueItemsNameValue;
+  for ( std::vector<std::string>::const_iterator iter = cvValueItems.begin(); iter != cvValueItems.end() ; iter++ ) {
     cvValueItemsNameValue.clear();
 #ifndef WITHOUT_BOOST
     boost::algorithm::split(cvValueItemsNameValue, *iter, boost::algorithm::is_any_of("="));

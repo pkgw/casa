@@ -210,8 +210,8 @@ private:
 
 	  bool getImageCoordinate(const string& imagename, casacore::CoordinateSystem &csys, casacore::IPosition &npix);
 	  bool compareImageAxes(const string& imagename, const casacore::CoordinateSystem &refcsys, const casacore::IPosition &refnpix);
-	  bool getSpectraToSolve(const vector<casa::SPIIF> &images, const casacore::Slicer &slicer,
-			  casacore::Matrix<float>& specMat, casacore::Matrix<bool>& maskMat, vector<casacore::uInt>& imgIdvec);
+	  bool getSpectraToSolve(const std::vector<casa::SPIIF> &images, const casacore::Slicer &slicer,
+			  casacore::Matrix<float>& specMat, casacore::Matrix<bool>& maskMat, std::vector<casacore::uInt>& imgIdvec);
 	  double refFreqPix_, refFreqHz_;
 
 };

@@ -138,21 +138,21 @@ public:
 	 * @param angle the vector of Length to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Length>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Length>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Length to a EndianOSStream.
 	 * @param angle the vector of vector of Length to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Length> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Length> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Length to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Length to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Length> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<vector<Length> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Length from a EndianIStream
 	 * and use the read value to set an  Length.
@@ -167,7 +167,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Length
 	 */	 
-	 static vector<Length> from1DBin(EndianIStream & eis);
+	 static std::vector<Length> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Length from an EndianIStream
@@ -175,7 +175,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Length
 	 */	 
-	 static vector<vector<Length> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Length> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Length from an EndianIStream
@@ -183,7 +183,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Length
 	 */	 
-	 static vector<vector<vector<Length> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<vector<Length> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Length = Length.

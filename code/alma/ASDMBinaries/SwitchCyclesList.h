@@ -22,26 +22,26 @@ namespace sdmbin {
      * corresponds to the number of dataDescriptions used for the setup of the
      * configuration.
      */
-    vector<Tag>  getSwitchCyclesList(); 
+    std::vector<Tag>  getSwitchCyclesList(); 
 
     /** Accessor on the array of SwitchCycle identifiers given a named baseband. 
      * @return A vector of SwitchCycle identifiers of asdm type Tag. Its size 
      * corresponds to the number of spectral windows in that baseband which has
      * been used for the configuration setup.
      */
-    vector<Tag>  getSwitchCyclesList(BasebandName basebandName); 
+    std::vector<Tag>  getSwitchCyclesList(BasebandName basebandName); 
 
     /** Accessor on the number of steps for the SwitchCycles for every of the 
      *  dataDesription in the list in configDescription.
      * @param basebandName baseband name
      */
-    vector<int>  getNumBin();
+    std::vector<int>  getNumBin();
 
     /** Accessor on the number of steps for the SwitchCycles given a named
      * basebaband.
      * @param basebandName baseband name
      */
-    vector<int>  getNumBin(BasebandName basebandName);
+    std::vector<int>  getNumBin(BasebandName basebandName);
 
     /** Copy constructor
      */
@@ -65,7 +65,7 @@ namespace sdmbin {
      * @param v_switchCycleId An array of switchCycleId identifiers, one per DataDescription.
      * @post The number of steps in switch cycles for every spectral window is known 
      */
-    SwitchCyclesList(ASDM* const datasetPtr, vector<Tag> v_switchCycleId);
+    SwitchCyclesList(ASDM* const datasetPtr, std::vector<Tag> v_switchCycleId);
 
     /** Class to define the root of the tree hierarchy 
      * @pre   The asdm dataset to work with is known.
@@ -73,7 +73,7 @@ namespace sdmbin {
      * @param vv_switchCycleId An array of switchCycleId identifiers, one vector per baseband.
      * @post The number of steps in switch cycles known for every baseband 
      */
-    SwitchCyclesList(ASDM* const datasetPtr, vector<vector<Tag> > vv_switchCycleId);
+    SwitchCyclesList(ASDM* const datasetPtr, std::vector<std::vector<Tag> > vv_switchCycleId);
 
     /** Class to define the root of the tree hierarchy
      * @pre   The asdm dataset to work with is known.
@@ -83,7 +83,7 @@ namespace sdmbin {
      * \note Use the alternate constructor, SwitchCyclesList(ASDM* datasetPtr, vector<vector<Tag> > vv_switchCycleId),
      *       in the more conventional case ,the SwitchCycle identifiers being expressed using the asdm type Tag.
      */
-    SwitchCyclesList(ASDM* const datasetPtr, vector<vector<int> > vv_switchCycleId);
+    SwitchCyclesList(ASDM* const datasetPtr, std::vector<std::vector<int> > vv_switchCycleId);
 
     /** SwitchCyclesList defines the abstract base type of a hierarchy
      * \note there are various possible levels of constraints for the number of bins. For example, from the highest

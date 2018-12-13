@@ -406,7 +406,7 @@ public:
  	 * Get numSubintegration.
  	 * @return numSubintegration as vector<int >
  	 */
- 	vector<int > getNumSubintegration() const;
+ 	std::vector<int > getNumSubintegration() const;
 	
  
  	
@@ -418,7 +418,7 @@ public:
  		
  			
  	 */
- 	void setNumSubintegration (vector<int > numSubintegration);
+ 	void setNumSubintegration (std::vector<int > numSubintegration);
   		
 	
 	
@@ -547,7 +547,7 @@ public:
 	 * @param numSubintegration
 	    
 	 */ 
-	bool compareNoAutoInc(Tag execBlockId, int scanNumber, int subscanNumber, ArrayTime startTime, ArrayTime endTime, string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, vector<int > numSubintegration);
+	bool compareNoAutoInc(Tag execBlockId, int scanNumber, int subscanNumber, ArrayTime startTime, ArrayTime endTime, string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, std::vector<int > numSubintegration);
 	
 	
 
@@ -569,7 +569,7 @@ public:
 	 * @param numSubintegration
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, vector<int > numSubintegration); 
+	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, std::vector<int > numSubintegration); 
 		 
 	
 	/**
@@ -802,7 +802,7 @@ private:
 	
 	
 
-	vector<int > numSubintegration;
+	std::vector<int > numSubintegration;
 
 	
 	

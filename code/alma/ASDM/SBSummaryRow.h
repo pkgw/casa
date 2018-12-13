@@ -436,7 +436,7 @@ public:
  	 * Get observingMode.
  	 * @return observingMode as vector<string >
  	 */
- 	vector<string > getObservingMode() const;
+ 	std::vector<string > getObservingMode() const;
 	
  
  	
@@ -448,7 +448,7 @@ public:
  		
  			
  	 */
- 	void setObservingMode (vector<string > observingMode);
+ 	void setObservingMode (std::vector<string > observingMode);
   		
 	
 	
@@ -526,7 +526,7 @@ public:
  	 * Get scienceGoal.
  	 * @return scienceGoal as vector<string >
  	 */
- 	vector<string > getScienceGoal() const;
+ 	std::vector<string > getScienceGoal() const;
 	
  
  	
@@ -538,7 +538,7 @@ public:
  		
  			
  	 */
- 	void setScienceGoal (vector<string > scienceGoal);
+ 	void setScienceGoal (std::vector<string > scienceGoal);
   		
 	
 	
@@ -586,7 +586,7 @@ public:
  	 * Get weatherConstraint.
  	 * @return weatherConstraint as vector<string >
  	 */
- 	vector<string > getWeatherConstraint() const;
+ 	std::vector<string > getWeatherConstraint() const;
 	
  
  	
@@ -598,7 +598,7 @@ public:
  		
  			
  	 */
- 	void setWeatherConstraint (vector<string > weatherConstraint);
+ 	void setWeatherConstraint (std::vector<string > weatherConstraint);
   		
 	
 	
@@ -623,7 +623,7 @@ public:
  	 * @return centerDirection as vector<Angle >
  	 * @throws IllegalAccessException If centerDirection does not exist.
  	 */
- 	vector<Angle > getCenterDirection() const;
+ 	std::vector<Angle > getCenterDirection() const;
 	
  
  	
@@ -634,7 +634,7 @@ public:
  	 
  		
  	 */
- 	void setCenterDirection (vector<Angle > centerDirection);
+ 	void setCenterDirection (std::vector<Angle > centerDirection);
 		
 	
 	
@@ -772,7 +772,7 @@ public:
 	 * @param weatherConstraint
 	    
 	 */ 
-	bool compareNoAutoInc(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint);
+	bool compareNoAutoInc(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<string > observingMode, int numberRepeats, int numScienceGoal, std::vector<string > scienceGoal, int numWeatherConstraint, std::vector<string > weatherConstraint);
 	
 	
 
@@ -810,7 +810,7 @@ public:
 	 * @param weatherConstraint
 	    
 	 */ 
-	bool compareRequiredValue(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint); 
+	bool compareRequiredValue(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<string > observingMode, int numberRepeats, int numScienceGoal, std::vector<string > scienceGoal, int numWeatherConstraint, std::vector<string > weatherConstraint); 
 		 
 	
 	/**
@@ -1071,7 +1071,7 @@ private:
 	
 	
 
-	vector<string > observingMode;
+	std::vector<string > observingMode;
 
 	
 	
@@ -1104,7 +1104,7 @@ private:
 	
 	
 
-	vector<string > scienceGoal;
+	std::vector<string > scienceGoal;
 
 	
 	
@@ -1126,7 +1126,7 @@ private:
 	
 	
 
-	vector<string > weatherConstraint;
+	std::vector<string > weatherConstraint;
 
 	
 	
@@ -1139,7 +1139,7 @@ private:
 	bool centerDirectionExists;
 	
 
-	vector<Angle > centerDirection;
+	std::vector<Angle > centerDirection;
 
 	
 	

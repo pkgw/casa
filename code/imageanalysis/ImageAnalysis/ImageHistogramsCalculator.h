@@ -90,7 +90,7 @@ public:
 	casacore::String getClass() const { return CLASS_NAME; }
 
 	// set cursor axes
-	void setAxes(const vector<casacore::uInt>& axes) { _axes = axes; };
+	void setAxes(const std::vector<casacore::uInt>& axes) { _axes = axes; };
 
 	// should the histogram be cumulative
 	void setCumulative(casacore::Bool b) { _cumulative = b; }
@@ -102,7 +102,7 @@ public:
 	void setDoLog10(casacore::Bool b) { _doLog10 = b; }
 
 	// set include range
-	void setIncludeRange(const vector<double>& r) { _includeRange = r; }
+	void setIncludeRange(const std::vector<double>& r) { _includeRange = r; }
 
 	// If true list stats to logger
 	void setListStats(casacore::Bool b) { _listStats = b; }
@@ -116,8 +116,8 @@ protected:
    		return CasacRegionManager::USE_ALL_STOKES;
    	}
 
-    vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-    	return vector<casacore::Coordinate::Type>();
+    std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+    	return std::vector<casacore::Coordinate::Type>();
     }
 
     inline casacore::Bool _supportsMultipleRegions() const {return true;}
@@ -127,9 +127,9 @@ private:
     casacore::Bool _cumulative = false;
     casacore::Bool _listStats = false;
     casacore::Bool _doLog10 = false;
-    vector<casacore::uInt> _axes;
+    std::vector<casacore::uInt> _axes;
     casacore::uInt _nbins = 25;
-    vector<double> _includeRange;
+    std::vector<double> _includeRange;
 
 };
 

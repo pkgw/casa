@@ -138,21 +138,21 @@ public:
 	 * @param angle the vector of Flux to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Flux>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Flux>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Flux to a EndianOSStream.
 	 * @param angle the vector of vector of Flux to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Flux> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Flux> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Flux to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Flux to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Flux> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<vector<Flux> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Flux from a EndianIStream
 	 * and use the read value to set an  Flux.
@@ -167,7 +167,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Flux
 	 */	 
-	 static vector<Flux> from1DBin(EndianIStream & eis);
+	 static std::vector<Flux> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Flux from an EndianIStream
@@ -175,7 +175,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Flux
 	 */	 
-	 static vector<vector<Flux> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Flux> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Flux from an EndianIStream
@@ -183,7 +183,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Flux
 	 */	 
-	 static vector<vector<vector<Flux> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<vector<Flux> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Flux = Flux.

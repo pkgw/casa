@@ -328,7 +328,7 @@ public:
  	 * Get frequencyRange.
  	 * @return frequencyRange as vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
@@ -340,7 +340,7 @@ public:
  		
  			
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
   		
 	
 	
@@ -448,7 +448,7 @@ public:
  	 * Get antennaNames.
  	 * @return antennaNames as vector<string >
  	 */
- 	vector<string > getAntennaNames() const;
+ 	std::vector<string > getAntennaNames() const;
 	
  
  	
@@ -460,7 +460,7 @@ public:
  		
  			
  	 */
- 	void setAntennaNames (vector<string > antennaNames);
+ 	void setAntennaNames (std::vector<string > antennaNames);
   		
 	
 	
@@ -508,7 +508,7 @@ public:
  	 * Get polarizationTypes.
  	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
@@ -520,7 +520,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -538,7 +538,7 @@ public:
  	 * Get curve.
  	 * @return curve as vector<vector<vector<float > > >
  	 */
- 	vector<vector<vector<float > > > getCurve() const;
+ 	std::vector<std::vector<vector<float > > > getCurve() const;
 	
  
  	
@@ -550,7 +550,7 @@ public:
  		
  			
  	 */
- 	void setCurve (vector<vector<vector<float > > > curve);
+ 	void setCurve (std::vector<std::vector<vector<float > > > curve);
   		
 	
 	
@@ -568,7 +568,7 @@ public:
  	 * Get reducedChiSquared.
  	 * @return reducedChiSquared as vector<double >
  	 */
- 	vector<double > getReducedChiSquared() const;
+ 	std::vector<double > getReducedChiSquared() const;
 	
  
  	
@@ -580,7 +580,7 @@ public:
  		
  			
  	 */
- 	void setReducedChiSquared (vector<double > reducedChiSquared);
+ 	void setReducedChiSquared (std::vector<double > reducedChiSquared);
   		
 	
 	
@@ -646,7 +646,7 @@ public:
  	 * @return rms as vector<vector<float > >
  	 * @throws IllegalAccessException If rms does not exist.
  	 */
- 	vector<vector<float > > getRms() const;
+ 	std::vector<std::vector<float > > getRms() const;
 	
  
  	
@@ -657,7 +657,7 @@ public:
  	 
  		
  	 */
- 	void setRms (vector<vector<float > > rms);
+ 	void setRms (std::vector<std::vector<float > > rms);
 		
 	
 	
@@ -811,7 +811,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared);
+	bool compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, std::vector<string > antennaNames, string refAntennaName, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<vector<float > > > curve, std::vector<double > reducedChiSquared);
 	
 	
 
@@ -843,7 +843,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, std::vector<string > antennaNames, string refAntennaName, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<vector<float > > > curve, std::vector<double > reducedChiSquared); 
 		 
 	
 	/**
@@ -1048,7 +1048,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -1092,7 +1092,7 @@ private:
 	
 	
 
-	vector<string > antennaNames;
+	std::vector<string > antennaNames;
 
 	
 	
@@ -1114,7 +1114,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1125,7 +1125,7 @@ private:
 	
 	
 
-	vector<vector<vector<float > > > curve;
+	std::vector<std::vector<vector<float > > > curve;
 
 	
 	
@@ -1136,7 +1136,7 @@ private:
 	
 	
 
-	vector<double > reducedChiSquared;
+	std::vector<double > reducedChiSquared;
 
 	
 	
@@ -1162,7 +1162,7 @@ private:
 	bool rmsExists;
 	
 
-	vector<vector<float > > rms;
+	std::vector<std::vector<float > > rms;
 
 	
 	

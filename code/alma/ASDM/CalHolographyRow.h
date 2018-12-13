@@ -356,7 +356,7 @@ public:
  	 * Get focusPosition.
  	 * @return focusPosition as vector<Length >
  	 */
- 	vector<Length > getFocusPosition() const;
+ 	std::vector<Length > getFocusPosition() const;
 	
  
  	
@@ -368,7 +368,7 @@ public:
  		
  			
  	 */
- 	void setFocusPosition (vector<Length > focusPosition);
+ 	void setFocusPosition (std::vector<Length > focusPosition);
   		
 	
 	
@@ -386,7 +386,7 @@ public:
  	 * Get frequencyRange.
  	 * @return frequencyRange as vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
@@ -398,7 +398,7 @@ public:
  		
  			
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
   		
 	
 	
@@ -476,7 +476,7 @@ public:
  	 * Get polarizationTypes.
  	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
@@ -488,7 +488,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -686,7 +686,7 @@ public:
  	 * Get direction.
  	 * @return direction as vector<Angle >
  	 */
- 	vector<Angle > getDirection() const;
+ 	std::vector<Angle > getDirection() const;
 	
  
  	
@@ -698,7 +698,7 @@ public:
  		
  			
  	 */
- 	void setDirection (vector<Angle > direction);
+ 	void setDirection (std::vector<Angle > direction);
   		
 	
 	
@@ -764,7 +764,7 @@ public:
  	 * @return screwName as vector<string >
  	 * @throws IllegalAccessException If screwName does not exist.
  	 */
- 	vector<string > getScrewName() const;
+ 	std::vector<string > getScrewName() const;
 	
  
  	
@@ -775,7 +775,7 @@ public:
  	 
  		
  	 */
- 	void setScrewName (vector<string > screwName);
+ 	void setScrewName (std::vector<string > screwName);
 		
 	
 	
@@ -805,7 +805,7 @@ public:
  	 * @return screwMotion as vector<Length >
  	 * @throws IllegalAccessException If screwMotion does not exist.
  	 */
- 	vector<Length > getScrewMotion() const;
+ 	std::vector<Length > getScrewMotion() const;
 	
  
  	
@@ -816,7 +816,7 @@ public:
  	 
  		
  	 */
- 	void setScrewMotion (vector<Length > screwMotion);
+ 	void setScrewMotion (std::vector<Length > screwMotion);
 		
 	
 	
@@ -846,7 +846,7 @@ public:
  	 * @return screwMotionError as vector<Length >
  	 * @throws IllegalAccessException If screwMotionError does not exist.
  	 */
- 	vector<Length > getScrewMotionError() const;
+ 	std::vector<Length > getScrewMotionError() const;
 	
  
  	
@@ -857,7 +857,7 @@ public:
  	 
  		
  	 */
- 	void setScrewMotionError (vector<Length > screwMotionError);
+ 	void setScrewMotionError (std::vector<Length > screwMotionError);
 		
 	
 	
@@ -928,7 +928,7 @@ public:
  	 * @return gravOptRange as vector<Angle >
  	 * @throws IllegalAccessException If gravOptRange does not exist.
  	 */
- 	vector<Angle > getGravOptRange() const;
+ 	std::vector<Angle > getGravOptRange() const;
 	
  
  	
@@ -939,7 +939,7 @@ public:
  	 
  		
  	 */
- 	void setGravOptRange (vector<Angle > gravOptRange);
+ 	void setGravOptRange (std::vector<Angle > gravOptRange);
 		
 	
 	
@@ -1010,7 +1010,7 @@ public:
  	 * @return tempOptRange as vector<Temperature >
  	 * @throws IllegalAccessException If tempOptRange does not exist.
  	 */
- 	vector<Temperature > getTempOptRange() const;
+ 	std::vector<Temperature > getTempOptRange() const;
 	
  
  	
@@ -1021,7 +1021,7 @@ public:
  	 
  		
  	 */
- 	void setTempOptRange (vector<Temperature > tempOptRange);
+ 	void setTempOptRange (std::vector<Temperature > tempOptRange);
 		
 	
 	
@@ -1181,7 +1181,7 @@ public:
 	 * @param direction
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, Tag calDataId, Tag calReductionId, AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, vector<Length > focusPosition, vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, vector<Angle > direction);
+	bool compareNoAutoInc(string antennaName, Tag calDataId, Tag calReductionId, AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, std::vector<Length > focusPosition, std::vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, std::vector<Angle > direction);
 	
 	
 
@@ -1223,7 +1223,7 @@ public:
 	 * @param direction
 	    
 	 */ 
-	bool compareRequiredValue(AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, vector<Length > focusPosition, vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, vector<Angle > direction); 
+	bool compareRequiredValue(AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, std::vector<Length > focusPosition, std::vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, std::vector<Angle > direction); 
 		 
 	
 	/**
@@ -1437,7 +1437,7 @@ private:
 	
 	
 
-	vector<Length > focusPosition;
+	std::vector<Length > focusPosition;
 
 	
 	
@@ -1448,7 +1448,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -1481,7 +1481,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1558,7 +1558,7 @@ private:
 	
 	
 
-	vector<Angle > direction;
+	std::vector<Angle > direction;
 
 	
 	
@@ -1584,7 +1584,7 @@ private:
 	bool screwNameExists;
 	
 
-	vector<string > screwName;
+	std::vector<string > screwName;
 
 	
 	
@@ -1597,7 +1597,7 @@ private:
 	bool screwMotionExists;
 	
 
-	vector<Length > screwMotion;
+	std::vector<Length > screwMotion;
 
 	
 	
@@ -1610,7 +1610,7 @@ private:
 	bool screwMotionErrorExists;
 	
 
-	vector<Length > screwMotionError;
+	std::vector<Length > screwMotionError;
 
 	
 	
@@ -1636,7 +1636,7 @@ private:
 	bool gravOptRangeExists;
 	
 
-	vector<Angle > gravOptRange;
+	std::vector<Angle > gravOptRange;
 
 	
 	
@@ -1662,7 +1662,7 @@ private:
 	bool tempOptRangeExists;
 	
 
-	vector<Temperature > tempOptRange;
+	std::vector<Temperature > tempOptRange;
 
 	
 	

@@ -61,7 +61,7 @@ namespace casa {
 		void deleteImageRegion( int id );
 		void imageRegionSelected( int id );
 		pair<double,double> getInterval() const;
-		vector<float> getXValues() const;
+		std::vector<float> getXValues() const;
 		~PixelRangeDialog();
 
 	protected:

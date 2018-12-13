@@ -146,7 +146,7 @@ namespace asdmbinaries {
     
     SDMDataObject::Baseband  parseBaseband(xmlNode* a_node, SDMDataObject& sdmDataObject);
     
-    void  parseSpectralWindow(xmlNode* a_node, SDMDataObject& sdmDataObject, vector<SDMDataObject::SpectralWindow>& spectralWindow);
+    void  parseSpectralWindow(xmlNode* a_node, SDMDataObject& sdmDataObject, std::vector<SDMDataObject::SpectralWindow>& spectralWindow);
     
     SDMDataObject::BinaryPart parseBinaryPart(xmlNode* a_node, const string& attachmentName);
     SDMDataObject::AutoDataBinaryPart parseAutoDataBinaryPart(xmlNode* a_node, const string& attachmentName);
@@ -331,12 +331,12 @@ namespace asdmbinaries {
     
     static void isElement(xmlNode* a_node, const string& elementName);
     static bool testElement(xmlNode* a_node, const string& elementName);
-    static void inElements(xmlNode* a_node, const vector<string>& elementNames);
+    static void inElements(xmlNode* a_node, const std::vector<string>& elementNames);
 
     static xmlAttr* hasAttr(xmlNode* a_node, const string& attrName);
 
     static void tokenize(const string& str,
-			 vector<string>& tokens,
+			 std::vector<string>& tokens,
 			 const string& delimiters = " ");
 
     static void tokenize(const string& str,
@@ -388,17 +388,17 @@ namespace asdmbinaries {
     }
 
 
-    static vector<string> parseStringsAttr(xmlNode* a_node, const string& attrName);
+    static std::vector<string> parseStringsAttr(xmlNode* a_node, const string& attrName);
     static set<string> parseStringSetAttr(xmlNode* a_node, const string& attrName);
 
-    template<class Enum, class EnumHelper> static vector<Enum> parseStringsAttr(xmlNode* a_node, const string& attrName) {
+    template<class Enum, class EnumHelper> static std::vector<Enum> parseStringsAttr(xmlNode* a_node, const string& attrName) {
       xmlAttr* attr = 0;
       
       if ((attr = hasAttr(a_node, attrName))) {
-	vector<string> v_s;
+	std::vector<string> v_s;
 	tokenize((const char*)attr->children->content, v_s);
 
-	vector<Enum> result; 
+	std::vector<Enum> result; 
 	unsigned int i = 0;
 	try {
 	  for (i = 0; i < v_s.size(); i++)
@@ -413,9 +413,9 @@ namespace asdmbinaries {
 	throw SDMDataObjectParserException("could not find attribute '" + attrName + "' in " + string((const char*)a_node->name));
     }
 
-    static vector<unsigned int> parseProjectPath(xmlNode* a_node, unsigned int len);
+    static std::vector<unsigned int> parseProjectPath(xmlNode* a_node, unsigned int len);
 
-    static vector<unsigned int> parseProjectPath(xmlNode* a_node);
+    static std::vector<unsigned int> parseProjectPath(xmlNode* a_node);
 
     private:    
 

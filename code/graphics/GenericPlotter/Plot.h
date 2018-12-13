@@ -575,10 +575,10 @@ public:
     virtual void setDataOrigin(PlotRasterData::Origin o) = 0;
     
     // Returns the contour line levels, if any.
-    virtual vector<double> contourLines() const = 0;
+    virtual std::vector<double> contourLines() const = 0;
     
     // Sets the contour line levels.
-    virtual void setContourLines(const vector<double>& lines) = 0;
+    virtual void setContourLines(const std::vector<double>& lines) = 0;
 };
 
 

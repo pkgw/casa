@@ -304,7 +304,7 @@ public:
  	 * Get antennaPosition.
  	 * @return antennaPosition as vector<Length >
  	 */
- 	vector<Length > getAntennaPosition() const;
+ 	std::vector<Length > getAntennaPosition() const;
 	
  
  	
@@ -316,7 +316,7 @@ public:
  		
  			
  	 */
- 	void setAntennaPosition (vector<Length > antennaPosition);
+ 	void setAntennaPosition (std::vector<Length > antennaPosition);
   		
 	
 	
@@ -364,7 +364,7 @@ public:
  	 * Get stationPosition.
  	 * @return stationPosition as vector<Length >
  	 */
- 	vector<Length > getStationPosition() const;
+ 	std::vector<Length > getStationPosition() const;
 	
  
  	
@@ -376,7 +376,7 @@ public:
  		
  			
  	 */
- 	void setStationPosition (vector<Length > stationPosition);
+ 	void setStationPosition (std::vector<Length > stationPosition);
   		
 	
 	
@@ -484,7 +484,7 @@ public:
  	 * Get refAntennaNames.
  	 * @return refAntennaNames as vector<string >
  	 */
- 	vector<string > getRefAntennaNames() const;
+ 	std::vector<string > getRefAntennaNames() const;
 	
  
  	
@@ -496,7 +496,7 @@ public:
  		
  			
  	 */
- 	void setRefAntennaNames (vector<string > refAntennaNames);
+ 	void setRefAntennaNames (std::vector<string > refAntennaNames);
   		
 	
 	
@@ -604,7 +604,7 @@ public:
  	 * Get positionOffset.
  	 * @return positionOffset as vector<Length >
  	 */
- 	vector<Length > getPositionOffset() const;
+ 	std::vector<Length > getPositionOffset() const;
 	
  
  	
@@ -616,7 +616,7 @@ public:
  		
  			
  	 */
- 	void setPositionOffset (vector<Length > positionOffset);
+ 	void setPositionOffset (std::vector<Length > positionOffset);
   		
 	
 	
@@ -634,7 +634,7 @@ public:
  	 * Get positionErr.
  	 * @return positionErr as vector<Length >
  	 */
- 	vector<Length > getPositionErr() const;
+ 	std::vector<Length > getPositionErr() const;
 	
  
  	
@@ -646,7 +646,7 @@ public:
  		
  			
  	 */
- 	void setPositionErr (vector<Length > positionErr);
+ 	void setPositionErr (std::vector<Length > positionErr);
   		
 	
 	
@@ -913,7 +913,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Length > antennaPosition, string stationName, vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, vector<string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, vector<Length > positionOffset, vector<Length > positionErr, double reducedChiSquared);
+	bool compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Length > antennaPosition, string stationName, std::vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, std::vector<string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, std::vector<Length > positionOffset, std::vector<Length > positionErr, double reducedChiSquared);
 	
 	
 
@@ -953,7 +953,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, vector<Length > antennaPosition, string stationName, vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, vector<string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, vector<Length > positionOffset, vector<Length > positionErr, double reducedChiSquared); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Length > antennaPosition, string stationName, std::vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, std::vector<string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, std::vector<Length > positionOffset, std::vector<Length > positionErr, double reducedChiSquared); 
 		 
 	
 	/**
@@ -1150,7 +1150,7 @@ private:
 	
 	
 
-	vector<Length > antennaPosition;
+	std::vector<Length > antennaPosition;
 
 	
 	
@@ -1172,7 +1172,7 @@ private:
 	
 	
 
-	vector<Length > stationPosition;
+	std::vector<Length > stationPosition;
 
 	
 	
@@ -1216,7 +1216,7 @@ private:
 	
 	
 
-	vector<string > refAntennaNames;
+	std::vector<string > refAntennaNames;
 
 	
 	
@@ -1260,7 +1260,7 @@ private:
 	
 	
 
-	vector<Length > positionOffset;
+	std::vector<Length > positionOffset;
 
 	
 	
@@ -1271,7 +1271,7 @@ private:
 	
 	
 
-	vector<Length > positionErr;
+	std::vector<Length > positionErr;
 
 	
 	
