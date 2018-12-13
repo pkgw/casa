@@ -40,8 +40,8 @@ using namespace sdmbin;
 using namespace asdm;
 #include <alma/ASDM/IllegalAccessException.h>
 
-#include <alma/apps/asdm2MS/UvwCoords.h>
-#include <alma/apps/asdm2MS/ASDM2MSFiller.h>
+#include "UvwCoords.h"
+#include "ASDM2MSFiller.h"
 
 #include <measures/Measures/Stokes.h>
 #include <measures/Measures/MFrequency.h>
@@ -68,22 +68,22 @@ using namespace CalibrationDeviceMod;
 using namespace SubscanIntentMod;
 #include <alma/Enumerations/CStokesParameter.h>
 
-#include <alma/apps/asdm2MS/Name2Table.h>
-#include <alma/apps/asdm2MS/ASDMVerbatimFiller.h>
+#include "Name2Table.h"
+#include "ASDMVerbatimFiller.h"
 
 using namespace asdmbinaries;
 #include <alma/ASDMBinaries/SDMDataObjectReader.h>
 #include <alma/ASDMBinaries/SDMDataObject.h>
 
 #include <alma/ASDM/TableStreamReader.h>
-#include <alma/apps/asdm2MS/asdm2MSGeneric.h>
+#include "asdm2MSGeneric.h"
 
 #include <asdmstman/AsdmStMan.h>
-#include <alma/apps/asdm2MS/BDF2AsdmStManIndex.h>
+#include "BDF2AsdmStManIndex.h"
 
-#include <alma/apps/asdm2MS/ScansParser.h>
+#include "ScansParser.h"
 
-#include <alma/apps/asdm2MS/ASDM2MSException.h>
+#include "ASDM2MSException.h"
 
 #include	<time.h>
 #if	defined(__sysv__)

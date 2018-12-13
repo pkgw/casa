@@ -72,7 +72,6 @@
 #include <measures/TableMeasures/TableMeasRefDesc.h>
 #include <measures/TableMeasures/TableMeasDesc.h>
 #include <measures/Measures/MeasConvert.h>
-#include <measures/Measures/Stokes.h>
 #include <casa/BasicSL/Constants.h>
 #include <casa/OS/File.h>
 #include <casa/OS/Path.h>
@@ -136,8 +135,7 @@ class ddMgr {
 
  
 // Class ASDM2MSFiller
-class ASDM2MSFiller
-{
+class ASDM2MSFiller {
  private:
   double         itsCreationTime;
   const string   itsName;
@@ -512,4 +510,3 @@ class ASDM2MSFiller
 };
 
 #endif
-  

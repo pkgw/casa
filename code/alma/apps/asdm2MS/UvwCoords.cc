@@ -1,4 +1,4 @@
-#include <alma/apps/asdm2MS/UvwCoords.h>
+#include "UvwCoords.h"
 #include <alma/ASDMBinaries/Error.h>
 
 #include <measures/Measures/MFrequency.h>

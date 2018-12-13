@@ -13,7 +13,6 @@
 #include <stdcasa/optionparser.h>
 #include <alma/Options/AlmaArg.h>
 using namespace alma;
-
 using namespace std;
 
 #include <alma/ASDM/ASDMAll.h>
@@ -40,8 +39,8 @@ using namespace ProcessorTypeMod;
 using namespace asdmbinaries;
 using namespace casacore;
 
-#include <alma/apps/asdm2MS/asdm2MSGeneric.h>
-#include <alma/apps/asdm2MS/ScansParser.h>
+#include "asdm2MSGeneric.h"
+#include "ScansParser.h"
 
 bool verbose = false; // By default, let's stay quiet.
 bool ddebug = false;
