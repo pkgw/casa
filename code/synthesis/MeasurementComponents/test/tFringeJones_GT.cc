@@ -253,7 +253,6 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   solvePar.define("combine",String(""));
   solvePar.define("globalsolve", true);
   solvePar.define("weightfactor", 2);
-  solvePar.define("maxits", 100);
   solvePar.define("zerorates", true);
   Vector<Int> refant(1,0); solvePar.define("refant",refant);
   Array<Double> delayWindow(IPosition(1, 2));
