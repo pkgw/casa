@@ -97,7 +97,7 @@ namespace casa {
 		void setOptions(const QWidget* widget);
 
 		// Implements RegionFileWriter::write.
-		bool write(const vector<RegionShape*>& shapes) const;
+		bool write(const std::vector<RegionShape*>& shapes) const;
 
 		bool writeHeader( QTextStream & ) const;
 		bool writeFooter( QTextStream & ) const;
@@ -131,8 +131,8 @@ namespace casa {
 
 
 		// Returns list of all properties to be used in the globals.
-		static vector<casacore::String> globalProperties() {
-			static vector<casacore::String> v(14);
+		static std::vector<casacore::String> globalProperties() {
+			static std::vector<casacore::String> v(14);
 
 			v[0]  = DS9Region::PROP_COLOR;
 			v[1]  = DS9Region::PROP_DASH;
@@ -166,7 +166,7 @@ namespace casa {
 		// If marker is NULL or the markers is empty then an empty vector is
 		// returned.  Note that the caller is responsible for deleting the new
 		// markers.
-		static vector<RSMarker*> convertMarker(const RSMarker* marker,
+		static std::vector<RSMarker*> convertMarker(const RSMarker* marker,
 		                                       bool& conversionWasNeeded);
 
 		// Converts the given value to a QString version using the given units.

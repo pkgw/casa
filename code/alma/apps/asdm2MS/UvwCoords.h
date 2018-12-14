@@ -148,9 +148,9 @@ public:
         available using the method timeSequence() of the DAMs (SDMBinData). 
         - for dataOrder (reverse and autoTrailing) it is available using a static method of the DAMs (SDMBinData).
     */
-    void uvw_bl( asdm::MainRow* mainRow, std::vector<pair<unsigned int,double> > v_tci, 
+    void uvw_bl( asdm::MainRow* mainRow, std::vector<std::pair<unsigned int,double> > v_tci, 
                  Enum<CorrelationModeMod::CorrelationMode> correlationMode,
-                 pair<bool,bool> dataOrder, std::vector<casacore::Vector<casacore::Double> >& v_uvw);
+                 std::pair<bool,bool> dataOrder, std::vector<casacore::Vector<casacore::Double> >& v_uvw);
 
 
     /** Determine the baseline-based uvw for a sequence of epochs
@@ -176,7 +176,7 @@ public:
     */
     void uvw_bl( asdm::MainRow* mainRow, std::vector<double> v_timeCentroid, 
                  Enum<CorrelationModeMod::CorrelationMode> correlationMode,
-                 pair<bool,bool> dataOrder,
+                 std::pair<bool,bool> dataOrder,
                  std::vector<casacore::Vector<casacore::Double> >& v_uvw,
                  casacore::MSFieldColumns* msfc_p=0 );
 
@@ -216,9 +216,9 @@ private:
         }
     };
 
-    map<asdm::Tag,ArrayParam>            m_array_;
-    map<asdm::Tag,casacore::MPosition>             m_antPos_;
-    map<asdm::Tag,casacore::Vector<casacore::Double> > m_antUVW_;
+    std::map<asdm::Tag,ArrayParam>            m_array_;
+    std::map<asdm::Tag,casacore::MPosition>             m_antPos_;
+    std::map<asdm::Tag,casacore::Vector<casacore::Double> > m_antUVW_;
 
     // the 3 fundamental attributes of the state machine
     double                         timeCentroid_;

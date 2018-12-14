@@ -39,8 +39,8 @@ using namespace ProcessorTypeMod;
 using namespace asdmbinaries;
 using namespace casacore;
 
-#include "asdm2MSGeneric.h"
-#include "ScansParser.h"
+#include <alma/apps/asdm2MS/asdm2MSGeneric.h>
+#include <alma/apps/asdm2MS/ScansParser.h>
 
 bool verbose = false; // By default, let's stay quiet.
 bool ddebug = false;

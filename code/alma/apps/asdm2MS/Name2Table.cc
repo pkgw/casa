@@ -30,8 +30,8 @@
  *
  * File Name2Table.cpp
  */
-#include "ASDMTables.h"
-#include "Name2Table.h"
+#include <alma/apps/asdm2MS/ASDMTables.h>
+#include <alma/apps/asdm2MS/Name2Table.h>
 
 #include <string>
 #include <regex>

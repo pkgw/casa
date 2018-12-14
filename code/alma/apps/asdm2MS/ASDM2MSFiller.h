@@ -170,8 +170,8 @@ class ASDM2MSFiller {
 
   const char** getPolCombinations(int numCorr);
     
-  static map<string, casacore::MDirection::Types> string2MDirection;
-  static map<string, casacore::MDirection::Types> string2MDirectionInit();
+  static std::map<string, casacore::MDirection::Types> string2MDirection;
+  static std::map<string, casacore::MDirection::Types> string2MDirectionInit();
    
  public:  
   ASDM2MSFiller (const string&	name_,
@@ -202,70 +202,72 @@ class ASDM2MSFiller {
 
 
   void addData (bool                      complexData,
-		vector<double>            &time_,
-		vector<int>               &antennaId1_,
-		vector<int>               &antennaId2_,
-		vector<int>               &feedId1_,
-		vector<int>               &feedId2_,
-		vector<int>               &dataDescId_,
+		std::vector<double>            &time_,
+		std::vector<int>               &antennaId1_,
+		std::vector<int>               &antennaId2_,
+		std::vector<int>               &feedId1_,
+		std::vector<int>               &feedId2_,
+		std::vector<int>               &dataDescId_,
 		int                       processorId_,
 		int                       fieldId_,
-		vector<double>            &interval_,
-		vector<double>            &exposure_,
-		vector<double>            &timeCentroid_,
+		std::vector<double>            &interval_,
+		std::vector<double>            &exposure_,
+		std::vector<double>            &timeCentroid_,
 		int                       scanNumber_,
 		int                       arrayId_,
 		int                       observationId_,
-		vector<int>               &stateId_,
-		vector<pair<int, int> >   &nChanNPol_,
-		vector<double>            &uvw_,
-		vector<double>            &weight_,
-		vector<double>            &sigma_);
+		std::vector<int>               &stateId_,
+		std::vector<std::pair<int, int> >   &nChanNPol_,
+		std::vector<double>            &uvw_,
+		std::vector<double>            &weight_,
+		std::vector<double>            &sigma_);
 
   void addData (bool                      complexData,
-		vector<double>            &time_,
-		vector<int>               &antennaId1_,
-		vector<int>               &antennaId2_,
-		vector<int>               &feedId1_,
-		vector<int>               &feedId2_,
-		vector<int>               &dataDescId_,
+		std::vector<double>            &time_,
+		std::vector<int>               &antennaId1_,
+		std::vector<int>               &antennaId2_,
+		std::vector<int>               &feedId1_,
+		std::vector<int>               &feedId2_,
+		std::vector<int>               &dataDescId_,
 		int                       processorId_,
-		vector<int>               &fieldId_,
-		vector<double>            &interval_,
-		vector<double>            &exposure_,
-		vector<double>            &timeCentroid_,
+		std::vector<int>               &fieldId_,
+		std::vector<double>            &interval_,
+		std::vector<double>            &exposure_,
+		std::vector<double>            &timeCentroid_,
 		int                       scanNumber_,
 		int                       arrayId_,
 		int                       observationId_,
-		vector<int>               &stateId_,
-		vector<double>            &uvw_,
-		vector<vector<unsigned int> >      &dataShape_,
-		vector<float *>           &uncorrectedData_,
-		vector<float *>           &correctedData_,
-		vector<unsigned int>      &flag_);
+		std::vector<int>               &stateId_,
+		std::vector<double>            &uvw_,
+		std::vector<std::vector<unsigned int> >      &dataShape_,
+		std::vector<float *>           &uncorrectedData_,
+		std::vector<float *>           &correctedData_,
+		std::vector<unsigned int>      &flag_);
 
   void addData (bool                      complexData,
-		vector<double>            &time_,
-		vector<int>               &antennaId1_,
-		vector<int>               &antennaId2_,
-		vector<int>               &feedId1_,
-		vector<int>               &feedId2_,
-		vector<int>               &dataDescId_,
+		std::vector<double>            &time_,
+		std::vector<int>               &antennaId1_,
+		std::vector<int>               &antennaId2_,
+		std::vector<int>               &feedId1_,
+		std::vector<int>               &feedId2_,
+		std::vector<int>               &dataDescId_,
 		int                       processorId_,
-		vector<int>               &fieldId_,
-		vector<double>            &interval_,
-		vector<double>            &exposure_,
-		vector<double>            &timeCentroid_,
+		std::vector<int>               &fieldId_,
+		std::vector<double>            &interval_,
+		std::vector<double>            &exposure_,
+		std::vector<double>            &timeCentroid_,
 		int                       scanNumber_,
 		int                       arrayId_,
 		int                       observationId_,
-		vector<int>               &stateId_,
-		vector<double>            &uvw_,
-		vector<vector<unsigned int> >      &dataShape_,
-		vector<float *>           &data_,
-		vector<unsigned int>      &flag_,
-		vector<double>            &weight_,
-		vector<double>            &sigma_);
+		std::vector<int>               &stateId_,
+		std::vector<double>            &uvw_,
+		std::vector<std::vector<unsigned int> >      &dataShape_,
+		std::vector<float *>           &data_,
+		std::vector<unsigned int>      &flag_,
+		std::vector<double>            &weight_,
+		std::vector<double>            &sigma_);
+  
+
 	       
   int  addDataDescription(int spectral_window_id_,
 			  int polarizarion_id_);
@@ -284,23 +286,23 @@ class ASDM2MSFiller {
 	       double   interval_,
 	       int      num_receptors_,
 	       int      beam_id_,
-	       vector<double> &   beam_offset_,
-	       vector<std::string> & pol_type_,
-	       vector<std::complex<float> > & polarization_response_,
-	       vector<double>&   position_,  // Must be a 3 elements vector !!!
-	       vector<double>&   receptor_angle_);
+	       std::vector<double> &   beam_offset_,
+	       std::vector<std::string> & pol_type_,
+	       std::vector<std::complex<float> > & polarization_response_,
+	       std::vector<double>&   position_,  // Must be a 3 elements vector !!!
+	       std::vector<double>&   receptor_angle_);
   
   void addField( const string&			name_,
 		 const string&			code_,
 		 double				time_,
 		 unsigned int                   num_poly_,
-		 vector<vector<double> >&	delay_dir_,
-		 vector<vector<double> >&	phase_dir_,
-		 vector<vector<double> >&	reference_dir_,
+		 std::vector<std::vector<double> >&	delay_dir_,
+		 std::vector<std::vector<double> >&	phase_dir_,
+		 std::vector<std::vector<double> >&	reference_dir_,
 		 const string&			direction_code_,
 		 int				source_id_);
 
-  void updateEphemerisIdInField(vector<pair<int, int> >& idxEphemerisId_v);
+  void updateEphemerisIdInField(std::vector<std::pair<int, int> >& idxEphemerisId_v);
 
   void addFlagCmd(double	time_,
 		  double	interval_,
@@ -325,33 +327,33 @@ class ASDM2MSFiller {
 		      double			startTime_,
 		      double			endTime_,
 		      const string&		observer_,
-		      const vector<string>&	log_,
+		      const std::vector<string>&	log_,
 		      const string&		schedule_type_,
-		      const vector<string>&	schedule_,
+		      const std::vector<string>&	schedule_,
 		      const string&		project_,
 		      double			release_date_);
 
   void addPointingSlice(unsigned int                  n_row_,
-			vector<int>&                  antenna_id_,
-			vector<double>&               time_,
-			vector<double>&               interval_,
-			vector<double>&               direction_,
-			vector<double>&               target_,
-			vector<double>&               pointing_offset_,
-			vector<double>&               encoder_,
-			vector<bool>&                 tracking_,
+			std::vector<int>&                  antenna_id_,
+			std::vector<double>&               time_,
+			std::vector<double>&               interval_,
+			std::vector<double>&               direction_,
+			std::vector<double>&               target_,
+			std::vector<double>&               pointing_offset_,
+			std::vector<double>&               encoder_,
+			std::vector<bool>&                 tracking_,
 			bool                          overTheTopExists4All_,
-			vector<bool>&                 v_overTheTop_,
-			vector<s_overTheTop>&         v_s_overTheTop_);
+			std::vector<bool>&                 v_overTheTop_,
+			std::vector<s_overTheTop>&         v_s_overTheTop_);
 
   int  addPolarization(int num_corr_,
-		       vector<int>& corr_type_,
-		       vector<int>& corr_product_);
+		       std::vector<int>& corr_type_,
+		       std::vector<int>& corr_product_);
 
   int addUniquePolarization(int num_corr_,
-			    //			    const vector<casacore::Stokes::StokesTypes>& corr_type_,
-			    const vector<int>& corr_type_,
-			    const vector<int>& corr_product_);
+			    //			    const std::vector<casacore::Stokes::StokesTypes>& corr_type_,
+			    const std::vector<int>& corr_type_,
+			    const std::vector<int>& corr_product_);
 
   void addProcessor(string& type_,
 		    string& sub_type_,
@@ -366,22 +368,22 @@ class ASDM2MSFiller {
 		 string&         name_,
 		 int             calibration_group_,
 		 string&         code_,
-		 vector<double>& direction_,
+		 std::vector<double>& direction_,
 		 string&         direction_code_,
-		 vector<double>& position_,
-		 vector<double>& proper_motion_,
-		 vector<string>& transition_,
-		 vector<double>& rest_frequency_,
-		 vector<double>& sysvel_);
+		 std::vector<double>& position_,
+		 std::vector<double>& proper_motion_,
+		 std::vector<string>& transition_,
+		 std::vector<double>& rest_frequency_,
+		 std::vector<double>& sysvel_);
 		 
   int  addSpectralWindow(int			num_chan_,
 			 const string&          name_,
 			 double			ref_frequency_,
-			 const vector<double>&	chan_freq_,
-			 const vector<double>&	chan_width_,
+			 const std::vector<double>&	chan_freq_,
+			 const std::vector<double>&	chan_width_,
 			 int			meas_freq_ref_,
-			 const vector<double>&	effective_bw_,
-			 const vector<double>&	resolution_,
+			 const std::vector<double>&	effective_bw_,
+			 const std::vector<double>&	resolution_,
 			 double			total_bandwidth_,
 			 int			net_sideband_,
 			 int			bbc_no_,
@@ -389,8 +391,8 @@ class ASDM2MSFiller {
 			 int			freq_group_,
 			 const string&		freq_group_name_,
 			 int			num_assoc_,
-			 const vector<int>&	assoc_sp_id_,
-			 const vector<string>&	assoc_nature_);
+			 const std::vector<int>&	assoc_sp_id_,
+			 const std::vector<string>&	assoc_nature_);
 
   int  addUniqueState(bool sig_,
 		      bool ref_,
@@ -415,30 +417,30 @@ class ASDM2MSFiller {
 		 double interval_,
 		 int    numReceptor_,
 		 int    numChan_,
-		 pair<bool, vector<float> >& tcal_spectrum_pair,
-		 pair<bool, bool>&           tcal_flag_pair,
-		 pair<bool, vector<float> >& trx_spectrum_pair,
-		 pair<bool, bool>&           trx_flag_pair,
-		 pair<bool, vector<float> >& tsky_spectrum_pair,
-		 pair<bool, bool>&           tsky_flag_pair,
-		 pair<bool, vector<float> >& tsys_spectrum_pair,
-		 pair<bool, bool>&           tsys_flag_pair,
-		 pair<bool, vector<float> >& tant_spectrum_pair,
-		 pair<bool, bool>&           tant_flag_pair,
-		 pair<bool, vector<float> >& tant_tsys_spectrum_pair,
-		 pair<bool, bool>&           tant_tsys_flag_pair);
+		 std::pair<bool, std::vector<float> >& tcal_spectrum_pair,
+		 std::pair<bool, bool>&           tcal_flag_pair,
+		 std::pair<bool, std::vector<float> >& trx_spectrum_pair,
+		 std::pair<bool, bool>&           trx_flag_pair,
+		 std::pair<bool, std::vector<float> >& tsky_spectrum_pair,
+		 std::pair<bool, bool>&           tsky_flag_pair,
+		 std::pair<bool, std::vector<float> >& tsys_spectrum_pair,
+		 std::pair<bool, bool>&           tsys_flag_pair,
+		 std::pair<bool, std::vector<float> >& tant_spectrum_pair,
+		 std::pair<bool, bool>&           tant_flag_pair,
+		 std::pair<bool, std::vector<float> >& tant_tsys_spectrum_pair,
+		 std::pair<bool, bool>&           tant_tsys_flag_pair);
 
  void addWeather(int				antenna_id_,
 		  double			time_,
 		  double			interval_,
-		  const pair<bool, float>&	pressure_opt_,
-		  const pair<bool, float>&	relHumidity_opt_,
-		  const pair<bool, float>&	temperature_opt_,
-		  const pair<bool, float>&	windDirection_opt_,
-		  const pair<bool, float>&	windSpeed_opt_,
-		  const pair<bool, float>&	dewPoint_opt_,
+		  const std::pair<bool, float>&	pressure_opt_,
+		  const std::pair<bool, float>&	relHumidity_opt_,
+		  const std::pair<bool, float>&	temperature_opt_,
+		  const std::pair<bool, float>&	windDirection_opt_,
+		  const std::pair<bool, float>&	windSpeed_opt_,
+		  const std::pair<bool, float>&	dewPoint_opt_,
 		  int				wx_station_id_,
-		  vector<double>&		wx_station_position_);
+		  std::vector<double>&		wx_station_position_);
 
   /**
    * Add one row in the casacore::MS CALDEVICE table.
@@ -457,11 +459,11 @@ class ASDM2MSFiller {
 		    double			time,
 		    double			interval,
 		    unsigned int		numCalLoad,
-		    vector<string>		calloadNames,
+		    std::vector<string>		calloadNames,
 		    unsigned int		numReceptor,
-		    vector<vector<float> >&	calEff,
-		    vector<vector<float> >&	noiseCal,
-		    vector<double >&		temperatureLoad);
+		    std::vector<std::vector<float> >&	calEff,
+		    std::vector<std::vector<float> >&	noiseCal,
+		    std::vector<double >&		temperatureLoad);
 
   /**
    * Adds one row in the casacore::MS SYSPOWER table.
@@ -491,20 +493,20 @@ class ASDM2MSFiller {
 		   double		time,
 		   double		interval,
 		   unsigned int         numReceptor,
-		   vector<float>&	switchedPowerDifference,
-		   vector<float>&	switchedPowerSum,
-		   vector<float>&	requantizerGain); 
+		   std::vector<float>&	switchedPowerDifference,
+		   std::vector<float>&	switchedPowerSum,
+		   std::vector<float>&	requantizerGain); 
 
   void addSysPowerSlice(unsigned int	nRow,
-			vector<int>&    antennaId,
-			vector<int>&	spectralWindowId,
-			vector<int>&	feedId,
-			vector<double>&	time,
-			vector<double>&	interval,
+			std::vector<int>&    antennaId,
+			std::vector<int>&	spectralWindowId,
+			std::vector<int>&	feedId,
+			std::vector<double>&	time,
+			std::vector<double>&	interval,
 			unsigned int    numReceptor,
-			vector<float>&	switchedPowerDifference,
-			vector<float>&	switchedPowerSum,
-			vector<float>&	requantizerGain);
+			std::vector<float>&	switchedPowerDifference,
+			std::vector<float>&	switchedPowerSum,
+			std::vector<float>&	requantizerGain);
 
   void end();
 };

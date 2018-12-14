@@ -35,6 +35,8 @@ endif()
 
 add_definitions ("-DUseCasacoreNamespace")
 add_definitions ("-DWITHOUT_BOOST")
+add_definitions(-DUSE_THREADS)                 # new casacore requirement:
+                                               # https://github.com/casacore/casacore/commit/2184df898452e1de695a04eb2e785419f707434c
 
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
 

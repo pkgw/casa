@@ -30,7 +30,7 @@
  *
  * File ASDMTables.cpp
  */
-#include "ASDMTables.h"
+#include <alma/apps/asdm2MS/ASDMTables.h>
 #include <stdint.h>
 
 using namespace casacore;

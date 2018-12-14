@@ -1,4 +1,4 @@
-#include "ASDMTableBase.h"
+#include <alma/apps/asdm2MS/ASDMTableBase.h>
 
 using namespace casacore;
 

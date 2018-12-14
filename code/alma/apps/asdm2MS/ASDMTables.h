@@ -32,7 +32,7 @@
  */
 #ifndef _ASDMTABLES_H_
 #define _ASDMTABLES_H_
-#include "ASDMTableBase.h"
+#include <alma/apps/asdm2MS/ASDMTableBase.h>
 
 namespace asdm {
 	

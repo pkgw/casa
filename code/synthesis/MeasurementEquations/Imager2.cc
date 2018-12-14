@@ -275,7 +275,8 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
   deltas(0)=-mcellx_p.get("rad").getValue();
   deltas(1)=mcelly_p.get("rad").getValue();
   
-  ROMSColumns msc(*ms_p);
+  //ROMSColumns msc(*ms_p);
+  ROMSColumns msc(*mssel_p); // CAS-11503
   MFrequency::Types obsFreqRef=MFrequency::DEFAULT;
   ROScalarColumn<Int> measFreqRef(ms_p->spectralWindow(),
 				  MSSpectralWindow::columnName(MSSpectralWindow::MEAS_FREQ_REF));

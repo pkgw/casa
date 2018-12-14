@@ -7,7 +7,7 @@
 #include        <math.h>
 #include	<time.h>
 
-#include "ASDM2MSFiller.h"
+#include <alma/apps/asdm2MS/ASDM2MSFiller.h>
 #include <msvis/MSVis/SubMS.h>
 
 using namespace casacore;

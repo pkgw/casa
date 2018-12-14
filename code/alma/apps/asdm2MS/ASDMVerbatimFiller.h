@@ -1,7 +1,7 @@
 #ifndef _ASDMVERBATIMFILLER_H_
 #define _ASDMVERBATIMFILLER_H_
-#include "ASDMTableBase.h"
-#include "ASDMTables.h"
+#include <alma/apps/asdm2MS/ASDMTableBase.h>
+#include <alma/apps/asdm2MS/ASDMTables.h>
 
 #include <set>
 #include <alma/ASDM/ASDM.h>

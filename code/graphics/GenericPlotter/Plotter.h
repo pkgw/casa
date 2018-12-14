@@ -202,7 +202,7 @@ public:
     virtual int addPanel(PlotPanelPtr panel) = 0;
     
     // Returns all plot panels currently shown.
-    virtual vector<PlotPanelPtr> allPanels() = 0;
+    virtual std::vector<PlotPanelPtr> allPanels() = 0;
     
     // Returns the number of plot panels currently on the plotter.
     virtual unsigned int numPanels() = 0;
@@ -263,7 +263,7 @@ public:
     virtual void registerResizeHandler(PlotResizeEventHandlerPtr handler) = 0;
     
     // Returns a list of all registered resize event handlers for this plotter.
-    virtual vector<PlotResizeEventHandlerPtr> allResizeHandlers() const = 0;
+    virtual std::vector<PlotResizeEventHandlerPtr> allResizeHandlers() const = 0;
     
     // Unregisters the given resize event handler with this plotter.
     virtual void unregisterResizeHandler(PlotResizeEventHandlerPtr handler) =0;

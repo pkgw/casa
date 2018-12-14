@@ -32,7 +32,7 @@
  *
  * File Name2Table.h
  */
-#include "ASDMTableBase.h"
+#include <alma/apps/asdm2MS/ASDMTableBase.h>
 
 #include <map>
 #include <set>

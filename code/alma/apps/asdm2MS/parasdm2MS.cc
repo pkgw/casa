@@ -38,8 +38,8 @@ using namespace sdmbin;
 using namespace asdm;
 #include <alma/ASDM/IllegalAccessException.h>
 
-#include "UvwCoords.h"
-#include "ASDM2MSFiller.h"
+#include <alma/apps/asdm2MS/UvwCoords.h>
+#include <alma/apps/asdm2MS/ASDM2MSFiller.h>
 
 #include <measures/Measures/Stokes.h>
 #include <measures/Measures/MFrequency.h>
@@ -73,18 +73,18 @@ using namespace SubscanIntentMod;
 using namespace SpectralResolutionTypeMod;
 #include <alma/Enumerations/CStokesParameter.h>
 
-#include "Name2Table.h"
-#include "ASDMVerbatimFiller.h"
+#include <alma/apps/asdm2MS/Name2Table.h>
+#include <alma/apps/asdm2MS/ASDMVerbatimFiller.h>
 
 #include <alma/ASDM/TableStreamReader.h>
-#include "asdm2MSGeneric.h"
+#include <alma/apps/asdm2MS/asdm2MSGeneric.h>
 
-#include "AnyValueMap.hpp"
+#include <alma/apps/asdm2MS/AnyValueMap.hpp>
 
 #include <asdmstman/AsdmStMan.h>
-#include "BDF2AsdmStManIndex.h"
+#include <alma/apps/asdm2MS/BDF2AsdmStManIndex.h>
 
-#include "ScansParser.h"
+#include <alma/apps/asdm2MS/ScansParser.h>
 
 #include	<time.h>			/* <time.h> */
 #if	defined(__sysv__)

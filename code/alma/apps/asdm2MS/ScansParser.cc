@@ -1,5 +1,5 @@
 
-#include "ScansParser.h"
+#include <alma/apps/asdm2MS/ScansParser.h>
 
 using namespace std;
 

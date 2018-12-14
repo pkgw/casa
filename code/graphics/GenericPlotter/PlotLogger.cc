@@ -202,7 +202,7 @@ PlotLogLocate::PlotLogLocate(const String& origin1, const String& origin2,
         if(np > 0 && n > 0) ss << "Plot " << i << ": ";
         if(n > 0) ss << "[";
         
-        for(unsigned int j = 0; j < n; i++) {
+        for(unsigned int j = 0; j < n; ++j) {
             from = (*m_indices)[i][j].first;
             to = (*m_indices)[i][j].second;
             ss << from;
@@ -504,8 +504,8 @@ LogFilterInterface* PlotLogger::DISABLED_GLOBAL_FILTER = NULL;
 
 // Non-Static //
 
-PlotLogger::PlotLogger(Plotter* plotter, int filterEventFlags,
-        LogMessage::Priority filterMinPriority) : m_plotter(plotter),
+PlotLogger::PlotLogger(Plotter*, int filterEventFlags,
+        LogMessage::Priority filterMinPriority) : 
         m_logger(&LogSink::globalSink(), false),
         m_filter(filterEventFlags, filterMinPriority) {
     m_logger->filter(m_filter);

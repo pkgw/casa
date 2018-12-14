@@ -50,7 +50,7 @@ public:
 	static bool exportPlotter(QPPlotter* plotter, const PlotExportFormat& format);
 
 	// Exports a collection of canvases to the given format.
-	static bool exportCanvases(vector<QPExportCanvas*>& canvases,
+	static bool exportCanvases(std::vector<QPExportCanvas*>& canvases,
 			const PlotExportFormat& format, PlotCanvas* grabCanvas,
 			QPPlotter* grabPlotter);
 
@@ -59,40 +59,40 @@ public:
 private:
 	QPExporter();
 	static bool exportPostscript( const PlotExportFormat& format,
-			vector<QPExportCanvas*> &qcanvases,
+			std::vector<QPExportCanvas*> &qcanvases,
 			QPExportCanvas* grabCanvas, QPPlotter* grabPlotter);
 
 	static QImage produceHighResImage(
 			const PlotExportFormat& format,
-			vector<QPExportCanvas*> &qcanvases,
+			std::vector<QPExportCanvas*> &qcanvases,
 			int width, int height,
 			int rowIndex, int columnIndex,
 			bool &wasCanceled);
 
 	static QImage produceScreenImage(
 			const PlotExportFormat& format,
-			vector<QPExportCanvas*> &qcanvases,
+			std::vector<QPExportCanvas*> &qcanvases,
 			int width, int height,
 			int rowCount, int colCount,
 			bool &wasCanceled);
 
 	static bool  exportToImageFile(
 			const PlotExportFormat& format,
-			vector<QPExportCanvas*> &qcanvases,
+			std::vector<QPExportCanvas*> &qcanvases,
 			QPExportCanvas* grabCanvas,
 			QPPlotter* grabPlotter);
 
-	static int findAxisHeight( vector<QPExportCanvas*> &qcanvases );
-	static int findAxisWidth( vector<QPExportCanvas*> &qcanvases );
-	static int getCanvasCount( vector<QPExportCanvas*> &qcanvases );
-    static void getAxesCount(vector<QPExportCanvas*> &qcanvases,
+	static int findAxisHeight( std::vector<QPExportCanvas*> &qcanvases );
+	static int findAxisWidth( std::vector<QPExportCanvas*> &qcanvases );
+	static int getCanvasCount( std::vector<QPExportCanvas*> &qcanvases );
+    static void getAxesCount(std::vector<QPExportCanvas*> &qcanvases,
             casacore::Int& externalX, casacore::Int& externalY);
 	static void findGridProperties( QPExportCanvas* grabCanvas, QPPlotter* grabPlotter,
 			casacore::Int& width, casacore::Int& height, casacore::Int& gridRows, casacore::Int& gridCols);
     static void findXAxisLocations(casacore::Int numX, casacore::Bool vertical, casacore::Bool& top, casacore::Bool& bottom);
     static void findYAxisLocations(casacore::Int numY, casacore::Bool vertical, casacore::Bool& left, casacore::Bool& right);
     static void findYAxisSecondRow(casacore::Int numY, casacore::Bool isLeftAxis, casacore::Bool& left, casacore::Bool& right);
-    static void findYAxisSecondRow(casacore::Int numY, casacore::Int nCols, vector<QPExportCanvas*> &qcanvases,
+    static void findYAxisSecondRow(casacore::Int numY, casacore::Int nCols, std::vector<QPExportCanvas*> &qcanvases,
             casacore::Bool& left, casacore::Bool& right);
 
 	static const casacore::String CLASS_NAME;
