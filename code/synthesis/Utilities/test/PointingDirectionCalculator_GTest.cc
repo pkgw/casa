@@ -408,13 +408,17 @@ public:
 
        uInt getAvailablePointingTestingRow() { return availablePointingTestingRow; }
 
+    // required MAIN TABLE count 
+
+       uInt getRequiredMainTestingRow()      { return requiredMainTestingRow; }
+
     //+
     // Numerical Error Statictic 
     //-
-  
+ 
         Double getInterpolationErrorLimit() { return interpolationErrorLimit;  } ;
 
-    // Row count 
+    // Row count (to add) 
 
         uInt getAddInerpolationTestPointingTableRow() {return addInerpolationTestPointingTableRow; };
         uInt getAddInerpolationTestMainTableRow()     {return addInerpolationTestMainTableRow; };
@@ -529,6 +533,7 @@ void EvaluateInterporation::init()
         //+
         // Optimize Row Count
         //   - when required row is insufficient, set adding count and expand MS later. 
+        //   - when multiple-antenna is used number of tables are increased as below.(CAS-8418)
         //-
 
         if ( requiredPointingTestingRow > defInerpolationTestPointingTableRow )
@@ -543,7 +548,8 @@ void EvaluateInterporation::init()
 
         if ( requiredMainTestingRow > defInerpolationTestMainTableRow )
         {
-            addInerpolationTestMainTableRow = requiredMainTestingRow - defInerpolationTestMainTableRow;
+            addInerpolationTestMainTableRow = requiredMainTestingRow * numberOfAntenna
+                                                - defInerpolationTestMainTableRow;
         }
         else
         {
@@ -1447,45 +1453,56 @@ void  MsEdit::writeInterpolationTestDataOnMainTable(Double delta_shift, String M
     //   Time Info
     //-
 
-        ROScalarColumn<Double> mainTime           ;
-        ROScalarColumn<Double> mainInterval       ;
+        ROScalarColumn<Int>    antenna_col       ;
+
+        ROScalarColumn<Double> mainTime_col           ;
+        ROScalarColumn<Double> mainInterval_col       ;
  
     // Attach ..//
 
-        mainTime      .attach( ms0 , "TIME");
-        mainInterval  .attach( ms0 , "INTERVAL");
+        antenna_col       .attach( ms0  , "ANTENNA1");
+
+        mainTime_col      .attach( ms0 , "TIME");
+        mainInterval_col  .attach( ms0 , "INTERVAL");
 
     // WRite .. //
 
-        for (uInt row=0; row<nrow_ms; row++)
+        uInt LoopCnt = evgen.getRequiredMainTestingRow();
+
+        for (uInt ant_id=0; ant_id < evgen.getNumberOfAntenna() ; ant_id++ )
         {
-            // Pseudo Data (TEST DATA );
+            for (uInt row=0; row < LoopCnt; row++)
+            {
+                uInt  rowA = row + (ant_id * LoopCnt);
 
-               Vector<Double>  psd_data 
-                   = evgen.pseudoDirInfoMain( (Double)row); // generated pseudo data. (Main table) //
+                // Pseudo Data (TEST DATA );
 
-            // Time Info. (current) ** NOT USED ** //
-#if 0
-                Double curTime      = mainTime.     get(row);
-                Double curInterval  = mainInterval. get(row);
+                   Vector<Double>  psd_data 
+                       = evgen.pseudoDirInfoMain( (Double)row); // generated pseudo data. (Main table) //
+
+                // Time Info. (current) ** NOT USED ** //
+#if 0   
+                    Double curTime      = mainTime.     get(row);
+                    Double curInterval  = mainInterval. get(row);
 #endif 
-            // Time Set  //
-                Double interval = psd_data[3];
-                Double time     = psd_data[2];
+                // Time Set  //
+                    Double interval = psd_data[3];
+                    Double time     = psd_data[2];
                 
-                Double SetTime = time + (delta_shift * interval) ; 
+                    Double SetTime = time + (delta_shift * interval) ; 
 
-                mainTime.           put(row, SetTime     );      // Time     (( REvised 10.26))
-                mainInterval.       put(row, interval );         // Interval (( Revised 10.26))
+                    antenna_col.            put(rowA, ant_id   );      // AntennaID (CAS-8418)
+                    mainTime_col.           put(rowA, SetTime  );      // Time     (( REvised 10.26))
+                    mainInterval_col.       put(rowA, interval );      // Interval (( Revised 10.26))
 
-             // Show Time //
+                // Antenna //
+                // Show Time //
 
-                if (false){
-                        printf( "Main Tbl, %d SetTime=%f,  Interval=%f, \n",
+                    if (false){
+                            printf( "Main Tbl, %d SetTime=%f,  Interval=%f, \n",
                             row, SetTime, interval );
                 }
-
-
+            }
         }
 
         // Flush //

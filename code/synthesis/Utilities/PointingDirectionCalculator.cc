@@ -791,6 +791,7 @@ uInt PointingDirectionCalculator::getRowId(uInt i) {
     return selectedMS_->rowNumbers()[i];
 }
 
+
 void PointingDirectionCalculator::inspectAntenna() {
     printf( "inspectAntenna() in \n");
     // selectedMS_ must be sorted by ["ANTENNA1", "TIME"]
@@ -804,11 +805,16 @@ void PointingDirectionCalculator::inspectAntenna() {
     uInt nrow = antennaList.nelements();
     Int lastAnt = antennaList[0];
 
+        printf( "lastAnt = %d \n" ,lastAnt );
+        printf( "antennaList.size() = %zu \n" ,antennaList.size() );
         for(uInt i=0; i<antennaList.size();i++)
         {
-            printf( "Antenna List[%d]=%d \n", i, antennaList[i]);
+            printf( "Antenna List[%u]=%u \n", i, antennaList[i]);
         }
 
+
+    // Check ID  in AntennaList  //
+    printf("for  nrow=0 to %d \n",nrow );
     for (uInt i = 0; i < nrow; ++i) {
         if (antennaList[i] != lastAnt) {
             antennaBoundary_[count] = i;
@@ -821,10 +827,15 @@ void PointingDirectionCalculator::inspectAntenna() {
     numAntennaBoundary_ = count;
     debuglog << "antennaBoundary_=" << antennaBoundary_ << debugpost;
     debuglog << "numAntennaBoundary_=" << numAntennaBoundary_ << debugpost;
+
    // CAS-8418:Nishie //
    // information AntennaBouundary
+    printf( "Antenna Boundary Info, size = %zu\n",antennaBoundary_.size() );
+    for (uInt b=0; b< antennaBoundary_.size(); b++)
+    {
+        printf( "antennaBoundary_[%d] = %d \n", b, antennaBoundary_[b] );
 
-
+    } 
 }
 
 void PointingDirectionCalculator::initPointingTable(Int const antennaId) {
