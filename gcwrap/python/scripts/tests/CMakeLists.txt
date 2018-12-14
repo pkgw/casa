@@ -205,6 +205,10 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   ###
 
   test_req_task_listobs.py
+  test_req_task_listhistory.py
+  test_req_task_importuvfits.py
+  test_req_task_calstat.py
+  test_req_task_rmtables.py
 
   ###
   test_setjy.py
