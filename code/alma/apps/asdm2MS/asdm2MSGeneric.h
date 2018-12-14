@@ -230,7 +230,7 @@ template<class T, class R, class RFilter>
     std::vector<std::shared_ptr<R> >  rows;
     RFilter*                    rFilter_p;
     bool                        ignoreTime;
-    void (*tableFiller_f_p) (const std::vector<R*>&, map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>&);
+    void (*tableFiller_f_p) (const std::vector<R*>&, std::map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>&);
     std::map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>* msFillers_m_p;
     const xmlChar*		topLevelElement_p;
     const xmlChar*		entityElement_p;
@@ -247,7 +247,7 @@ template<class T, class R, class RFilter>
 template <class	T, class R, class RFilter> 
   class TableSAXReader {
 
-  typedef void (*TableFiller)(const std::vector<R*>&, map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>&);
+    typedef void (*TableFiller)(const std::vector<R*>&, std::map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>&);
 
  public:
   /**
