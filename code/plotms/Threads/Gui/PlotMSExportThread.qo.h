@@ -75,14 +75,14 @@ private:
     PlotMSExportThread operator=( const PlotMSExportThread& other );
 
     // Plot.
-    vector<PlotMSPlot*> itsPlots_;
+    std::vector<PlotMSPlot*> itsPlots_;
     
     // Format.
     //PlotExportFormat itsFormat_;
     casacore::String exportLocation;
     
     // Export operations.
-    vector<vector<PlotOperationPtr> >itsOperations_;
+    std::vector<std::vector<PlotOperationPtr> >itsOperations_;
     
     // Mutex.
     QMutex itsMutex_;

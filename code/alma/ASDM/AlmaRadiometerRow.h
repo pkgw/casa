@@ -197,7 +197,7 @@ public:
  	 * @return spectralWindowId as vector<Tag> 
  	 * @throws IllegalAccessException If spectralWindowId does not exist.
  	 */
- 	vector<Tag>  getSpectralWindowId() const;
+ 	std::vector<Tag>  getSpectralWindowId() const;
 	
  
  	
@@ -208,7 +208,7 @@ public:
  	 
  		
  	 */
- 	void setSpectralWindowId (vector<Tag>  spectralWindowId);
+ 	void setSpectralWindowId (std::vector<Tag>  spectralWindowId);
 		
 	
 	
@@ -248,7 +248,7 @@ public:
  * Append a vector of Tag to spectralWindowId.
  * @param id an array of Tag to be appended to spectralWindowId
  */
- void addSpectralWindowId(const vector<Tag> & id); 
+ void addSpectralWindowId(const std::vector<Tag> & id); 
  
 
  /**
@@ -271,7 +271,7 @@ public:
   * Returns the vector of SpectralWindowRow* linked to this row via the Tags stored in spectralWindowId
   * @return an array of pointers on SpectralWindowRow.
   */
- vector<SpectralWindowRow *> getSpectralWindowsUsingSpectralWindowId(); 
+ std::vector<SpectralWindowRow *> getSpectralWindowsUsingSpectralWindowId(); 
   
 
 	
@@ -456,7 +456,7 @@ private:
 	bool spectralWindowIdExists;
 	
 
-	vector<Tag>  spectralWindowId;
+	std::vector<Tag>  spectralWindowId;
 
 	
 	

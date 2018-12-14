@@ -96,7 +96,7 @@ public:
    /**
     * Write the binary representation of a vector of EntityRef to an EndianOSStream.
     */
-	static void toBin(const vector<EntityRef>& entityRef,  EndianOSStream& eoss);
+	static void toBin(const std::vector<EntityRef>& entityRef,  EndianOSStream& eoss);
 	 
    /**
 	 * Read the binary representation of an EntityRef from a EndianIStream
@@ -111,7 +111,7 @@ public:
 	 * @param dis the EndianIStream to be read
 	 * @return a vector of EntityRef
 	 */
-	static vector<EntityRef> from1DBin(EndianIStream & eis);
+	static std::vector<EntityRef> from1DBin(EndianIStream & eis);
 
 	EntityId getEntityId() const;
 	PartId getPartId() const;

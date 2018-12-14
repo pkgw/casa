@@ -341,7 +341,7 @@ public:
  	 * @param assocFocusModelId
 	
      */
-	FocusModelRow *newRow(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffVal, string assocNature, int assocFocusModelId);
+	FocusModelRow *newRow(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, std::vector<string > coeffName, std::vector<string > coeffFormula, std::vector<float > coeffVal, string assocNature, int assocFocusModelId);
 	
 
 
@@ -453,7 +453,7 @@ public:
  	 * @param assocFocusModelId
  	 		 
  	 */
-	FocusModelRow* lookup(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffVal, string assocNature, int assocFocusModelId); 
+	FocusModelRow* lookup(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, std::vector<string > coeffName, std::vector<string > coeffFormula, std::vector<float > coeffVal, string assocNature, int assocFocusModelId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

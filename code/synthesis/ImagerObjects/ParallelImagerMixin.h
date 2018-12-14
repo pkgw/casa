@@ -140,7 +140,7 @@ public:
 			pars.fromRecord(r);
 			return pars;
 		};
-		vector<SynthesisParamsSelect> selection_params =
+		std::vector<SynthesisParamsSelect> selection_params =
 			transformed_by_field<SynthesisParamsSelect>(
 				my_params.selection, to_synthesis_params_select, "ms");
 
@@ -149,7 +149,7 @@ public:
 			pars.fromRecord(r);
 			return pars;
 		};
-		vector<SynthesisParamsImage> image_params =
+		std::vector<SynthesisParamsImage> image_params =
 			transformed_by_field<SynthesisParamsImage>(
 				my_params.image, to_synthesis_params_image);
 
@@ -158,7 +158,7 @@ public:
 			pars.fromRecord(r);
 			return pars;
 		};
-		vector<SynthesisParamsGrid> grid_params =
+		std::vector<SynthesisParamsGrid> grid_params =
 			transformed_by_field<SynthesisParamsGrid>(
 				my_params.grid, to_synthesis_params_grid);
 
@@ -167,7 +167,7 @@ public:
 			pars.fromRecord(r);
 			return pars;
 		};
-		vector<SynthesisParamsDeconv> deconvolution_params =
+		std::vector<SynthesisParamsDeconv> deconvolution_params =
 			transformed_by_field<SynthesisParamsDeconv>(
 				my_params.deconvolution, to_synthesis_params_deconv);
 
@@ -175,7 +175,7 @@ public:
 			casacore::Record result = r;
 			return result;
 		};
-		vector<casacore::Record> normalization_params =
+		std::vector<casacore::Record> normalization_params =
 			transformed_by_field<casacore::Record>(my_params.normalization, to_vector_params);
 
 		// Configure components
@@ -271,10 +271,10 @@ protected:
 
 	// Convenience function for transforming input parameter casacore::Record fields.
 	template<class T1>
-	static vector<T1> transformed_by_field(casacore::Record &rec,
+	static std::vector<T1> transformed_by_field(casacore::Record &rec,
 	                                       T1 (*fn)(const casacore::Record &),
 	                                       const string &prefix = "") {
-		vector<T1> result;
+		std::vector<T1> result;
 		auto add_to_result = [&](const casacore::Record &rec) {
 			result.push_back(fn(rec));
 		};

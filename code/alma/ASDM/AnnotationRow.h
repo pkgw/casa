@@ -319,7 +319,7 @@ public:
  	 * @return basebandName as vector<BasebandNameMod::BasebandName >
  	 * @throws IllegalAccessException If basebandName does not exist.
  	 */
- 	vector<BasebandNameMod::BasebandName > getBasebandName() const;
+ 	std::vector<BasebandNameMod::BasebandName > getBasebandName() const;
 	
  
  	
@@ -330,7 +330,7 @@ public:
  	 
  		
  	 */
- 	void setBasebandName (vector<BasebandNameMod::BasebandName > basebandName);
+ 	void setBasebandName (std::vector<BasebandNameMod::BasebandName > basebandName);
 		
 	
 	
@@ -483,7 +483,7 @@ public:
  	 * @return vdValue as vector<double >
  	 * @throws IllegalAccessException If vdValue does not exist.
  	 */
- 	vector<double > getVdValue() const;
+ 	std::vector<double > getVdValue() const;
 	
  
  	
@@ -494,7 +494,7 @@ public:
  	 
  		
  	 */
- 	void setVdValue (vector<double > vdValue);
+ 	void setVdValue (std::vector<double > vdValue);
 		
 	
 	
@@ -524,7 +524,7 @@ public:
  	 * @return vvdValues as vector<vector<double > >
  	 * @throws IllegalAccessException If vvdValues does not exist.
  	 */
- 	vector<vector<double > > getVvdValues() const;
+ 	std::vector<std::vector<double > > getVvdValues() const;
 	
  
  	
@@ -535,7 +535,7 @@ public:
  	 
  		
  	 */
- 	void setVvdValues (vector<vector<double > > vvdValues);
+ 	void setVvdValues (std::vector<std::vector<double > > vvdValues);
 		
 	
 	
@@ -606,7 +606,7 @@ public:
  	 * @return vllValue as vector<int64_t >
  	 * @throws IllegalAccessException If vllValue does not exist.
  	 */
- 	vector<int64_t > getVllValue() const;
+ 	std::vector<int64_t > getVllValue() const;
 	
  
  	
@@ -617,7 +617,7 @@ public:
  	 
  		
  	 */
- 	void setVllValue (vector<int64_t > vllValue);
+ 	void setVllValue (std::vector<int64_t > vllValue);
 		
 	
 	
@@ -647,7 +647,7 @@ public:
  	 * @return vvllValue as vector<vector<int64_t > >
  	 * @throws IllegalAccessException If vvllValue does not exist.
  	 */
- 	vector<vector<int64_t > > getVvllValue() const;
+ 	std::vector<std::vector<int64_t > > getVvllValue() const;
 	
  
  	
@@ -658,7 +658,7 @@ public:
  	 
  		
  	 */
- 	void setVvllValue (vector<vector<int64_t > > vvllValue);
+ 	void setVvllValue (std::vector<std::vector<int64_t > > vvllValue);
 		
 	
 	
@@ -692,7 +692,7 @@ public:
  	 * @return antennaId as vector<Tag> 
  	 * @throws IllegalAccessException If antennaId does not exist.
  	 */
- 	vector<Tag>  getAntennaId() const;
+ 	std::vector<Tag>  getAntennaId() const;
 	
  
  	
@@ -703,7 +703,7 @@ public:
  	 
  		
  	 */
- 	void setAntennaId (vector<Tag>  antennaId);
+ 	void setAntennaId (std::vector<Tag>  antennaId);
 		
 	
 	
@@ -743,7 +743,7 @@ public:
  * Append a vector of Tag to antennaId.
  * @param id an array of Tag to be appended to antennaId
  */
- void addAntennaId(const vector<Tag> & id); 
+ void addAntennaId(const std::vector<Tag> & id); 
  
 
  /**
@@ -766,7 +766,7 @@ public:
   * Returns the vector of AntennaRow* linked to this row via the Tags stored in antennaId
   * @return an array of pointers on AntennaRow.
   */
- vector<AntennaRow *> getAntennasUsingAntennaId(); 
+ std::vector<AntennaRow *> getAntennasUsingAntennaId(); 
   
 
 	
@@ -1019,7 +1019,7 @@ private:
 	bool basebandNameExists;
 	
 
-	vector<BasebandNameMod::BasebandName > basebandName;
+	std::vector<BasebandNameMod::BasebandName > basebandName;
 
 	
 	
@@ -1071,7 +1071,7 @@ private:
 	bool vdValueExists;
 	
 
-	vector<double > vdValue;
+	std::vector<double > vdValue;
 
 	
 	
@@ -1084,7 +1084,7 @@ private:
 	bool vvdValuesExists;
 	
 
-	vector<vector<double > > vvdValues;
+	std::vector<std::vector<double > > vvdValues;
 
 	
 	
@@ -1110,7 +1110,7 @@ private:
 	bool vllValueExists;
 	
 
-	vector<int64_t > vllValue;
+	std::vector<int64_t > vllValue;
 
 	
 	
@@ -1123,7 +1123,7 @@ private:
 	bool vvllValueExists;
 	
 
-	vector<vector<int64_t > > vvllValue;
+	std::vector<std::vector<int64_t > > vvllValue;
 
 	
 	
@@ -1140,7 +1140,7 @@ private:
 	bool antennaIdExists;
 	
 
-	vector<Tag>  antennaId;
+	std::vector<Tag>  antennaId;
 
 	
 	

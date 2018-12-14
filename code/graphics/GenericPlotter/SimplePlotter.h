@@ -241,7 +241,7 @@ public:
     RasterPlotPtr contourPlot(casacore::Matrix<casacore::uInt>& data, double fromX, double toX,
                               double fromY, double toY, casacore::Vector<casacore::uInt>& contours,
                               bool overplot = false);
-    RasterPlotPtr contourPlot(PlotRasterDataPtr data, vector<double>& contours,
+    RasterPlotPtr contourPlot(PlotRasterDataPtr data, std::vector<double>& contours,
                               bool overplot = false);
 
     RasterPlotPtr spectrogram(casacore::Matrix<double>& data, bool overplt = false);
@@ -278,7 +278,7 @@ public:
     RasterPlotPtr spectrogram(casacore::Matrix<casacore::uInt>& data, double fromX,double toX,
                               double fromY, double toY, casacore::Vector<casacore::uInt>& contours,
                               bool overplot = false);
-    RasterPlotPtr spectrogram(PlotRasterDataPtr data, vector<double>& contours,
+    RasterPlotPtr spectrogram(PlotRasterDataPtr data, std::vector<double>& contours,
                               bool overplot = false);
     // </group>
     
@@ -341,7 +341,7 @@ public:
     // Returns all selected regions in the canvas' selected region list.  This
     // list will contain all user-selected regions since either its
     // construction or the last call to clearSelectedRegions().
-    vector<PlotRegion> allSelectedRegions();
+    std::vector<PlotRegion> allSelectedRegions();
     
     // Clears the canvas' list of selected regions.
     void clearSelectedRegions();
@@ -396,7 +396,7 @@ private:
     PlotStandardMouseToolGroupPtr m_mouseTools;
     
     // Points accumulated using plotPoint calls.
-    vector<PlotPointPtr> m_accumulatedPoints;
+    std::vector<PlotPointPtr> m_accumulatedPoints;
     
     // Line for future plots.
     PlotLinePtr m_line;

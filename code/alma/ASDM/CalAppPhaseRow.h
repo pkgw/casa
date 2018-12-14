@@ -426,7 +426,7 @@ public:
  	 * Get phasedAntennas.
  	 * @return phasedAntennas as vector<string >
  	 */
- 	vector<string > getPhasedAntennas() const;
+ 	std::vector<string > getPhasedAntennas() const;
 	
  
  	
@@ -438,7 +438,7 @@ public:
  		
  			
  	 */
- 	void setPhasedAntennas (vector<string > phasedAntennas);
+ 	void setPhasedAntennas (std::vector<string > phasedAntennas);
   		
 	
 	
@@ -636,7 +636,7 @@ public:
  	 * Get phaseValues.
  	 * @return phaseValues as vector<float >
  	 */
- 	vector<float > getPhaseValues() const;
+ 	std::vector<float > getPhaseValues() const;
 	
  
  	
@@ -648,7 +648,7 @@ public:
  		
  			
  	 */
- 	void setPhaseValues (vector<float > phaseValues);
+ 	void setPhaseValues (std::vector<float > phaseValues);
   		
 	
 	
@@ -726,7 +726,7 @@ public:
  	 * Get compareArray.
  	 * @return compareArray as vector<string >
  	 */
- 	vector<string > getCompareArray() const;
+ 	std::vector<string > getCompareArray() const;
 	
  
  	
@@ -738,7 +738,7 @@ public:
  		
  			
  	 */
- 	void setCompareArray (vector<string > compareArray);
+ 	void setCompareArray (std::vector<string > compareArray);
   		
 	
 	
@@ -756,7 +756,7 @@ public:
  	 * Get efficiencyIndices.
  	 * @return efficiencyIndices as vector<int >
  	 */
- 	vector<int > getEfficiencyIndices() const;
+ 	std::vector<int > getEfficiencyIndices() const;
 	
  
  	
@@ -768,7 +768,7 @@ public:
  		
  			
  	 */
- 	void setEfficiencyIndices (vector<int > efficiencyIndices);
+ 	void setEfficiencyIndices (std::vector<int > efficiencyIndices);
   		
 	
 	
@@ -786,7 +786,7 @@ public:
  	 * Get efficiencies.
  	 * @return efficiencies as vector<vector<float > >
  	 */
- 	vector<vector<float > > getEfficiencies() const;
+ 	std::vector<std::vector<float > > getEfficiencies() const;
 	
  
  	
@@ -798,7 +798,7 @@ public:
  		
  			
  	 */
- 	void setEfficiencies (vector<vector<float > > efficiencies);
+ 	void setEfficiencies (std::vector<std::vector<float > > efficiencies);
   		
 	
 	
@@ -816,7 +816,7 @@ public:
  	 * Get quality.
  	 * @return quality as vector<float >
  	 */
- 	vector<float > getQuality() const;
+ 	std::vector<float > getQuality() const;
 	
  
  	
@@ -828,7 +828,7 @@ public:
  		
  			
  	 */
- 	void setQuality (vector<float > quality);
+ 	void setQuality (std::vector<float > quality);
   		
 	
 	
@@ -965,7 +965,7 @@ public:
  	 * @return phaseSupports as vector<float >
  	 * @throws IllegalAccessException If phaseSupports does not exist.
  	 */
- 	vector<float > getPhaseSupports() const;
+ 	std::vector<float > getPhaseSupports() const;
 	
  
  	
@@ -976,7 +976,7 @@ public:
  	 
  		
  	 */
- 	void setPhaseSupports (vector<float > phaseSupports);
+ 	void setPhaseSupports (std::vector<float > phaseSupports);
 		
 	
 	
@@ -1148,7 +1148,7 @@ public:
 	 * @param phasedSumAntenna
 	    
 	 */ 
-	bool compareNoAutoInc(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna);
+	bool compareNoAutoInc(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, std::vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, string phasedSumAntenna);
 	
 	
 
@@ -1200,7 +1200,7 @@ public:
 	 * @param phasedSumAntenna
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, std::vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, string phasedSumAntenna); 
 		 
 	
 	/**
@@ -1448,7 +1448,7 @@ private:
 	
 	
 
-	vector<string > phasedAntennas;
+	std::vector<string > phasedAntennas;
 
 	
 	
@@ -1525,7 +1525,7 @@ private:
 	
 	
 
-	vector<float > phaseValues;
+	std::vector<float > phaseValues;
 
 	
 	
@@ -1558,7 +1558,7 @@ private:
 	
 	
 
-	vector<string > compareArray;
+	std::vector<string > compareArray;
 
 	
 	
@@ -1569,7 +1569,7 @@ private:
 	
 	
 
-	vector<int > efficiencyIndices;
+	std::vector<int > efficiencyIndices;
 
 	
 	
@@ -1580,7 +1580,7 @@ private:
 	
 	
 
-	vector<vector<float > > efficiencies;
+	std::vector<std::vector<float > > efficiencies;
 
 	
 	
@@ -1591,7 +1591,7 @@ private:
 	
 	
 
-	vector<float > quality;
+	std::vector<float > quality;
 
 	
 	
@@ -1641,7 +1641,7 @@ private:
 	bool phaseSupportsExists;
 	
 
-	vector<float > phaseSupports;
+	std::vector<float > phaseSupports;
 
 	
 	

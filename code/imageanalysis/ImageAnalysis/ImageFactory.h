@@ -160,7 +160,7 @@ public:
     	const casacore::String& outfile, const casacore::Array<T>& pixels,
     	const casacore::Record& csys, casacore::Bool linear=false,
     	casacore::Bool overwrite=false, casacore::Bool verbose=true,
-    	const vector<
+    	const std::vector<
     	    std::pair<casacore::LogOrigin, casacore::String>
         > *const &msgs=nullptr
     );

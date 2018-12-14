@@ -466,7 +466,7 @@ public:
  	 * @return polarizationType as vector<PolarizationTypeMod::PolarizationType >
  	 * @throws IllegalAccessException If polarizationType does not exist.
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
 	
  
  	
@@ -477,7 +477,7 @@ public:
  	 
  		
  	 */
- 	void setPolarizationType (vector<PolarizationTypeMod::PolarizationType > polarizationType);
+ 	void setPolarizationType (std::vector<PolarizationTypeMod::PolarizationType > polarizationType);
 		
 	
 	
@@ -507,7 +507,7 @@ public:
  	 * @return channel as vector<vector<int > >
  	 * @throws IllegalAccessException If channel does not exist.
  	 */
- 	vector<vector<int > > getChannel() const;
+ 	std::vector<std::vector<int > > getChannel() const;
 	
  
  	
@@ -518,7 +518,7 @@ public:
  	 
  		
  	 */
- 	void setChannel (vector<vector<int > > channel);
+ 	void setChannel (std::vector<std::vector<int > > channel);
 		
 	
 	
@@ -545,7 +545,7 @@ public:
  	 * Get antennaId.
  	 * @return antennaId as vector<Tag> 
  	 */
- 	vector<Tag>  getAntennaId() const;
+ 	std::vector<Tag>  getAntennaId() const;
 	
  
  	
@@ -557,7 +557,7 @@ public:
  		
  			
  	 */
- 	void setAntennaId (vector<Tag>  antennaId);
+ 	void setAntennaId (std::vector<Tag>  antennaId);
   		
 	
 	
@@ -582,7 +582,7 @@ public:
  	 * @return pairedAntennaId as vector<Tag> 
  	 * @throws IllegalAccessException If pairedAntennaId does not exist.
  	 */
- 	vector<Tag>  getPairedAntennaId() const;
+ 	std::vector<Tag>  getPairedAntennaId() const;
 	
  
  	
@@ -593,7 +593,7 @@ public:
  	 
  		
  	 */
- 	void setPairedAntennaId (vector<Tag>  pairedAntennaId);
+ 	void setPairedAntennaId (std::vector<Tag>  pairedAntennaId);
 		
 	
 	
@@ -623,7 +623,7 @@ public:
  	 * @return spectralWindowId as vector<Tag> 
  	 * @throws IllegalAccessException If spectralWindowId does not exist.
  	 */
- 	vector<Tag>  getSpectralWindowId() const;
+ 	std::vector<Tag>  getSpectralWindowId() const;
 	
  
  	
@@ -634,7 +634,7 @@ public:
  	 
  		
  	 */
- 	void setSpectralWindowId (vector<Tag>  spectralWindowId);
+ 	void setSpectralWindowId (std::vector<Tag>  spectralWindowId);
 		
 	
 	
@@ -675,7 +675,7 @@ public:
  * Append a vector of Tag to antennaId.
  * @param id an array of Tag to be appended to antennaId
  */
- void addAntennaId(const vector<Tag> & id); 
+ void addAntennaId(const std::vector<Tag> & id); 
  
 
  /**
@@ -698,7 +698,7 @@ public:
   * Returns the vector of AntennaRow* linked to this row via the Tags stored in antennaId
   * @return an array of pointers on AntennaRow.
   */
- vector<AntennaRow *> getAntennasUsingAntennaId(); 
+ std::vector<AntennaRow *> getAntennasUsingAntennaId(); 
   
 
 	
@@ -727,7 +727,7 @@ public:
  * Append a vector of Tag to pairedAntennaId.
  * @param id an array of Tag to be appended to pairedAntennaId
  */
- void addPairedAntennaId(const vector<Tag> & id); 
+ void addPairedAntennaId(const std::vector<Tag> & id); 
  
 
  /**
@@ -750,7 +750,7 @@ public:
   * Returns the vector of AntennaRow* linked to this row via the Tags stored in pairedAntennaId
   * @return an array of pointers on AntennaRow.
   */
- vector<AntennaRow *> getAntennasUsingPairedAntennaId(); 
+ std::vector<AntennaRow *> getAntennasUsingPairedAntennaId(); 
   
 
 	
@@ -779,7 +779,7 @@ public:
  * Append a vector of Tag to spectralWindowId.
  * @param id an array of Tag to be appended to spectralWindowId
  */
- void addSpectralWindowId(const vector<Tag> & id); 
+ void addSpectralWindowId(const std::vector<Tag> & id); 
  
 
  /**
@@ -802,7 +802,7 @@ public:
   * Returns the vector of SpectralWindowRow* linked to this row via the Tags stored in spectralWindowId
   * @return an array of pointers on SpectralWindowRow.
   */
- vector<SpectralWindowRow *> getSpectralWindowsUsingSpectralWindowId(); 
+ std::vector<SpectralWindowRow *> getSpectralWindowsUsingSpectralWindowId(); 
   
 
 	
@@ -825,7 +825,7 @@ public:
 	 * @param antennaId
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId);
+	bool compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, std::vector<Tag>  antennaId);
 	
 	
 
@@ -845,7 +845,7 @@ public:
 	 * @param antennaId
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId); 
+	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, std::vector<Tag>  antennaId); 
 		 
 	
 	/**
@@ -1112,7 +1112,7 @@ private:
 	bool polarizationTypeExists;
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationType;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationType;
 
 	
 	
@@ -1125,7 +1125,7 @@ private:
 	bool channelExists;
 	
 
-	vector<vector<int > > channel;
+	std::vector<std::vector<int > > channel;
 
 	
 	
@@ -1140,7 +1140,7 @@ private:
 	
 	
 
-	vector<Tag>  antennaId;
+	std::vector<Tag>  antennaId;
 
 	
 	
@@ -1153,7 +1153,7 @@ private:
 	bool pairedAntennaIdExists;
 	
 
-	vector<Tag>  pairedAntennaId;
+	std::vector<Tag>  pairedAntennaId;
 
 	
 	
@@ -1166,7 +1166,7 @@ private:
 	bool spectralWindowIdExists;
 	
 
-	vector<Tag>  spectralWindowId;
+	std::vector<Tag>  spectralWindowId;
 
 	
 	

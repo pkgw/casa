@@ -277,7 +277,7 @@ public:
  	 * @param corrProduct
 	
      */
-	PolarizationRow *newRow(int numCorr, vector<StokesParameterMod::StokesParameter > corrType, vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct);
+	PolarizationRow *newRow(int numCorr, std::vector<StokesParameterMod::StokesParameter > corrType, std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct);
 	
 
 
@@ -366,7 +366,7 @@ public:
  	 * @param corrProduct
  	 		 
  	 */
-	PolarizationRow* lookup(int numCorr, vector<StokesParameterMod::StokesParameter > corrType, vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct); 
+	PolarizationRow* lookup(int numCorr, std::vector<StokesParameterMod::StokesParameter > corrType, std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

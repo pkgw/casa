@@ -231,21 +231,21 @@ public:
 	 * @param arrayTime the vector of ArrayTime to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<ArrayTime>& arrayTime,  EndianOSStream& eoss);
+	static void toBin(const std::vector<ArrayTime>& arrayTime,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of ArrayTime to a EndianOSStream.
 	 * @param arrayTime the vector of vector of ArrayTime to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<ArrayTime> >& arrayTime,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<ArrayTime> >& arrayTime,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of ArrayTime to a EndianOSStream.
 	 * @param arrayTime the vector of vector of vector of ArrayTime to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<ArrayTime> > >& arrayTime,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<vector<ArrayTime> > >& arrayTime,  EndianOSStream& eoss);
 
 	/**
 	 * Read the binary representation of an ArrayTime from a EndianIStream
@@ -261,7 +261,7 @@ public:
 	 * @param dis the EndianIStream to be read
 	 * @return a vector of ArrayTime
 	 */	 
-	 static vector<ArrayTime> from1DBin(EndianIStream & eis);
+	 static std::vector<ArrayTime> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of ArrayTime from an EndianIStream
@@ -269,7 +269,7 @@ public:
 	 * @param eiis the EndianIStream to be read
 	 * @return a vector of vector of ArrayTime
 	 */	 
-	 static vector<vector<ArrayTime> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<ArrayTime> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of ArrayTime from an EndianIStream
@@ -277,7 +277,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of ArrayTime
 	 */	 
-	 static vector<vector<vector<ArrayTime> > > from3DBin(EndianIStream & eis);	
+	 static std::vector<std::vector<vector<ArrayTime> > > from3DBin(EndianIStream & eis);	
 	 	
 	int *getDateTime() const; 
 	double getTimeOfDay() const; 

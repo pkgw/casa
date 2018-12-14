@@ -152,7 +152,7 @@ class SDMBinData{
       minimize the number of measure conversions when computing the UVWs with the UvwCoords 
       state machine.
   */
-  vector<pair<unsigned int,double> > timeSequence()const;
+  std::vector<pair<unsigned int,double> > timeSequence()const;
 
   /** Predicate to tell if the dataDescriptionId has priority over time in the out
       sequence of MSData objects.
@@ -221,28 +221,28 @@ class SDMBinData{
   */
   bool isComplexData();
 
-  vector<SDMData*> getData();
+  std::vector<SDMData*> getData();
 
   /**
      @todo 
      - apply the polynomials for the field directions
      - apply syscal for the cross data
    */
-  vector<MSData*>  getData( Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc); 
+  std::vector<MSData*>  getData( Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc); 
 
   MSData*          getData( unsigned int na, unsigned int nfe, unsigned int ndd, unsigned int nbin) throw (Error); 
 
   MSData*          getCalibratedData( unsigned int na, unsigned int nfe, unsigned int ndd, unsigned int nbin,
-				      pair<bool,vector<vector<float> > > p_tsys) throw (Error); 
+				      pair<bool,std::vector<std::vector<float> > > p_tsys) throw (Error); 
 
   MSData*          getData( unsigned int na1, unsigned int nfe1, unsigned int na2, unsigned int nfe2, 
-			    unsigned int ndd, unsigned int nbin, vector<unsigned int> v_napc,
+			    unsigned int ndd, unsigned int nbin, std::vector<unsigned int> v_napc,
 			    float scleFactor);
 
   MSData*          getCalibratedData( unsigned int na1, unsigned int nfe1, unsigned int na2, unsigned int nfe2, 
-				      unsigned int ndd, unsigned int nbin, vector<unsigned int> v_napc,
+				      unsigned int ndd, unsigned int nbin, std::vector<unsigned int> v_napc,
 				      float scleFactor,
-				      pair<bool,vector<vector<float> > > p_tsys);
+				      pair<bool,std::vector<std::vector<float> > > p_tsys);
 
   MSData*          getData( Tag antId, int feedId,
 			    Tag dataDescId, 
@@ -252,7 +252,7 @@ class SDMBinData{
   MSData*          getData( Tag antId1, int feedId1,
 			    Tag antId2, int feedId2,
 			    Tag dataDescId, 
-			    vector<AtmPhaseCorrection> v_apc, 
+			    std::vector<AtmPhaseCorrection> v_apc, 
 			    unsigned int  binNum); 
 
   const VMSData* getDataCols();
@@ -279,7 +279,7 @@ class SDMBinData{
   void getNextMSMainCols(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int n, boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp);
 #endif
 
-  vector<MSData*> getMSDataFromBDFData(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int n);
+  std::vector<MSData*> getMSDataFromBDFData(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int n);
 
   /**
    * Populates the vector v_dataDump after having read at most n DataSubsets in the BDF.
@@ -347,8 +347,8 @@ class SDMBinData{
     @param timeOfDump The epoch to be considered to determine this MS STATE view
   */
   MSState          getMSState( unsigned int subscanNum,
-			       vector<Tag>  v_stateId, 
-			       vector<Tag>  v_antennaId, vector<int> v_feedId, vector<Tag> v_ddId,
+			       std::vector<Tag>  v_stateId, 
+			       std::vector<Tag>  v_antennaId, std::vector<int> v_feedId, std::vector<Tag> v_ddId,
 			       unsigned int na, unsigned int nfe, unsigned int nspw, ArrayTime timeOfDump);
 
  private:
@@ -372,7 +372,7 @@ class SDMBinData{
   SDMDataObjectReader                  blob_r_;  // current read-only BLOB
   SDMDataObjectStreamReader           sdmdosr ;  // current SDMDataObjectStreamReader
   bool                         bdfMemoryMapped;  // will the BDF mapped in memory (true) or read sequentially (false) ?
-  vector<DataDump*>                v_dataDump_;
+  std::vector<DataDump*>                v_dataDump_;
 
   const  float*                  floatDataPtr_;  // mutable attribute; autocorrelation data of a single dump
   const  short*                  shortDataPtr_;  // mutable attribute; visiblity data of a single dump
@@ -386,7 +386,7 @@ class SDMBinData{
   static BaselinesSet*           baselinesSet_;  // mutable attribute
   static vector<MSData*>          v_msDataPtr_;  // mutable attribute
   static VMSData*                  vmsDataPtr_;
-  static vector<SDMData*>        v_sdmDataPtr_;
+  static std::vector<SDMData*>        v_sdmDataPtr_;
   map<Tag,BaselinesSet*>  m_cdId_baselinesSet_;
   set<Tag>                             s_cdId_; // the keys present in  m_cdId_baselinesSet_ (used for optimization)
   bool                            complexData_;

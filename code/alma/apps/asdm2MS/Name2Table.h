@@ -48,6 +48,6 @@ class Name2Table {
   static set<ASDM_TABLE_BASE*> table_;
 
  public:
-  static const set<ASDM_TABLE_BASE*>& find(const vector<string>& name,bool verbose=false);
+  static const set<ASDM_TABLE_BASE*>& find(const std::vector<string>& name,bool verbose=false);
 };
 #endif // _NAME2TABLE_H_

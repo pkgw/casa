@@ -621,7 +621,7 @@ class test_mms_parallel(test_base):
         ret = th.verifyMS(self.outputms, 2, 1, 0)
         self.assertTrue(ret[0],ret[1])
 
-#@unittest.skip('Skip until support for this data is included in getPartitonMap() is fixed')
+#@unittest.skip('Skip until support for this data is included in getPartitionMap() is fixed')
 class test_mms_spw_poln(test_base):
     '''tests for spw with different correlation shapes'''
 

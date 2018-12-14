@@ -375,7 +375,7 @@ public:
  	 * @param antennaId
 	
      */
-	FlagRow *newRow(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId);
+	FlagRow *newRow(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, std::vector<Tag>  antennaId);
 	
 
 
@@ -468,7 +468,7 @@ public:
  	 * @param antennaId
  	 		 
  	 */
-	FlagRow* lookup(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId); 
+	FlagRow* lookup(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, std::vector<Tag>  antennaId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

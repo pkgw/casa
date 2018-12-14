@@ -546,7 +546,7 @@ public:
  	 * @return layerHeight as vector<Length >
  	 * @throws IllegalAccessException If layerHeight does not exist.
  	 */
- 	vector<Length > getLayerHeight() const;
+ 	std::vector<Length > getLayerHeight() const;
 	
  
  	
@@ -557,7 +557,7 @@ public:
  	 
  		
  	 */
- 	void setLayerHeight (vector<Length > layerHeight);
+ 	void setLayerHeight (std::vector<Length > layerHeight);
 		
 	
 	
@@ -587,7 +587,7 @@ public:
  	 * @return temperatureProfile as vector<Temperature >
  	 * @throws IllegalAccessException If temperatureProfile does not exist.
  	 */
- 	vector<Temperature > getTemperatureProfile() const;
+ 	std::vector<Temperature > getTemperatureProfile() const;
 	
  
  	
@@ -598,7 +598,7 @@ public:
  	 
  		
  	 */
- 	void setTemperatureProfile (vector<Temperature > temperatureProfile);
+ 	void setTemperatureProfile (std::vector<Temperature > temperatureProfile);
 		
 	
 	
@@ -710,7 +710,7 @@ public:
  	 * @return wvrTemp as vector<Temperature >
  	 * @throws IllegalAccessException If wvrTemp does not exist.
  	 */
- 	vector<Temperature > getWvrTemp() const;
+ 	std::vector<Temperature > getWvrTemp() const;
 	
  
  	
@@ -721,7 +721,7 @@ public:
  	 
  		
  	 */
- 	void setWvrTemp (vector<Temperature > wvrTemp);
+ 	void setWvrTemp (std::vector<Temperature > wvrTemp);
 		
 	
 	
@@ -1109,7 +1109,7 @@ private:
 	bool layerHeightExists;
 	
 
-	vector<Length > layerHeight;
+	std::vector<Length > layerHeight;
 
 	
 	
@@ -1122,7 +1122,7 @@ private:
 	bool temperatureProfileExists;
 	
 
-	vector<Temperature > temperatureProfile;
+	std::vector<Temperature > temperatureProfile;
 
 	
 	
@@ -1161,7 +1161,7 @@ private:
 	bool wvrTempExists;
 	
 
-	vector<Temperature > wvrTemp;
+	std::vector<Temperature > wvrTemp;
 
 	
 	

@@ -420,7 +420,7 @@ public:
  	 * Get coeffName.
  	 * @return coeffName as vector<string >
  	 */
- 	vector<string > getCoeffName() const;
+ 	std::vector<string > getCoeffName() const;
 	
  
  	
@@ -432,7 +432,7 @@ public:
  		
  			
  	 */
- 	void setCoeffName (vector<string > coeffName);
+ 	void setCoeffName (std::vector<string > coeffName);
   		
 	
 	
@@ -450,7 +450,7 @@ public:
  	 * Get coeffVal.
  	 * @return coeffVal as vector<float >
  	 */
- 	vector<float > getCoeffVal() const;
+ 	std::vector<float > getCoeffVal() const;
 	
  
  	
@@ -462,7 +462,7 @@ public:
  		
  			
  	 */
- 	void setCoeffVal (vector<float > coeffVal);
+ 	void setCoeffVal (std::vector<float > coeffVal);
   		
 	
 	
@@ -480,7 +480,7 @@ public:
  	 * Get coeffError.
  	 * @return coeffError as vector<float >
  	 */
- 	vector<float > getCoeffError() const;
+ 	std::vector<float > getCoeffError() const;
 	
  
  	
@@ -492,7 +492,7 @@ public:
  		
  			
  	 */
- 	void setCoeffError (vector<float > coeffError);
+ 	void setCoeffError (std::vector<float > coeffError);
   		
 	
 	
@@ -510,7 +510,7 @@ public:
  	 * Get coeffFixed.
  	 * @return coeffFixed as vector<bool >
  	 */
- 	vector<bool > getCoeffFixed() const;
+ 	std::vector<bool > getCoeffFixed() const;
 	
  
  	
@@ -522,7 +522,7 @@ public:
  		
  			
  	 */
- 	void setCoeffFixed (vector<bool > coeffFixed);
+ 	void setCoeffFixed (std::vector<bool > coeffFixed);
   		
 	
 	
@@ -708,7 +708,7 @@ public:
  	 * @return coeffFormula as vector<string >
  	 * @throws IllegalAccessException If coeffFormula does not exist.
  	 */
- 	vector<string > getCoeffFormula() const;
+ 	std::vector<string > getCoeffFormula() const;
 	
  
  	
@@ -719,7 +719,7 @@ public:
  	 
  		
  	 */
- 	void setCoeffFormula (vector<string > coeffFormula);
+ 	void setCoeffFormula (std::vector<string > coeffFormula);
 		
 	
 	
@@ -877,7 +877,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, vector<string > coeffName, vector<float > coeffVal, vector<float > coeffError, vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared);
+	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, std::vector<string > coeffName, std::vector<float > coeffVal, std::vector<float > coeffError, std::vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared);
 	
 	
 
@@ -915,7 +915,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, vector<string > coeffName, vector<float > coeffVal, vector<float > coeffError, vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, std::vector<string > coeffName, std::vector<float > coeffVal, std::vector<float > coeffError, std::vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared); 
 		 
 	
 	/**
@@ -1155,7 +1155,7 @@ private:
 	
 	
 
-	vector<string > coeffName;
+	std::vector<string > coeffName;
 
 	
 	
@@ -1166,7 +1166,7 @@ private:
 	
 	
 
-	vector<float > coeffVal;
+	std::vector<float > coeffVal;
 
 	
 	
@@ -1177,7 +1177,7 @@ private:
 	
 	
 
-	vector<float > coeffError;
+	std::vector<float > coeffError;
 
 	
 	
@@ -1188,7 +1188,7 @@ private:
 	
 	
 
-	vector<bool > coeffFixed;
+	std::vector<bool > coeffFixed;
 
 	
 	
@@ -1258,7 +1258,7 @@ private:
 	bool coeffFormulaExists;
 	
 
-	vector<string > coeffFormula;
+	std::vector<string > coeffFormula;
 
 	
 	

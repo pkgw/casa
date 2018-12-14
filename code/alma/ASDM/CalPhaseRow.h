@@ -416,7 +416,7 @@ public:
  	 * Get ampli.
  	 * @return ampli as vector<vector<float > >
  	 */
- 	vector<vector<float > > getAmpli() const;
+ 	std::vector<std::vector<float > > getAmpli() const;
 	
  
  	
@@ -428,7 +428,7 @@ public:
  		
  			
  	 */
- 	void setAmpli (vector<vector<float > > ampli);
+ 	void setAmpli (std::vector<std::vector<float > > ampli);
   		
 	
 	
@@ -446,7 +446,7 @@ public:
  	 * Get antennaNames.
  	 * @return antennaNames as vector<vector<string > >
  	 */
- 	vector<vector<string > > getAntennaNames() const;
+ 	std::vector<std::vector<string > > getAntennaNames() const;
 	
  
  	
@@ -458,7 +458,7 @@ public:
  		
  			
  	 */
- 	void setAntennaNames (vector<vector<string > > antennaNames);
+ 	void setAntennaNames (std::vector<std::vector<string > > antennaNames);
   		
 	
 	
@@ -476,7 +476,7 @@ public:
  	 * Get baselineLengths.
  	 * @return baselineLengths as vector<Length >
  	 */
- 	vector<Length > getBaselineLengths() const;
+ 	std::vector<Length > getBaselineLengths() const;
 	
  
  	
@@ -488,7 +488,7 @@ public:
  		
  			
  	 */
- 	void setBaselineLengths (vector<Length > baselineLengths);
+ 	void setBaselineLengths (std::vector<Length > baselineLengths);
   		
 	
 	
@@ -506,7 +506,7 @@ public:
  	 * Get decorrelationFactor.
  	 * @return decorrelationFactor as vector<vector<float > >
  	 */
- 	vector<vector<float > > getDecorrelationFactor() const;
+ 	std::vector<std::vector<float > > getDecorrelationFactor() const;
 	
  
  	
@@ -518,7 +518,7 @@ public:
  		
  			
  	 */
- 	void setDecorrelationFactor (vector<vector<float > > decorrelationFactor);
+ 	void setDecorrelationFactor (std::vector<std::vector<float > > decorrelationFactor);
   		
 	
 	
@@ -536,7 +536,7 @@ public:
  	 * Get direction.
  	 * @return direction as vector<Angle >
  	 */
- 	vector<Angle > getDirection() const;
+ 	std::vector<Angle > getDirection() const;
 	
  
  	
@@ -548,7 +548,7 @@ public:
  		
  			
  	 */
- 	void setDirection (vector<Angle > direction);
+ 	void setDirection (std::vector<Angle > direction);
   		
 	
 	
@@ -566,7 +566,7 @@ public:
  	 * Get frequencyRange.
  	 * @return frequencyRange as vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
@@ -578,7 +578,7 @@ public:
  		
  			
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
   		
 	
 	
@@ -626,7 +626,7 @@ public:
  	 * Get phase.
  	 * @return phase as vector<vector<float > >
  	 */
- 	vector<vector<float > > getPhase() const;
+ 	std::vector<std::vector<float > > getPhase() const;
 	
  
  	
@@ -638,7 +638,7 @@ public:
  		
  			
  	 */
- 	void setPhase (vector<vector<float > > phase);
+ 	void setPhase (std::vector<std::vector<float > > phase);
   		
 	
 	
@@ -656,7 +656,7 @@ public:
  	 * Get polarizationTypes.
  	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
@@ -668,7 +668,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -686,7 +686,7 @@ public:
  	 * Get phaseRMS.
  	 * @return phaseRMS as vector<vector<float > >
  	 */
- 	vector<vector<float > > getPhaseRMS() const;
+ 	std::vector<std::vector<float > > getPhaseRMS() const;
 	
  
  	
@@ -698,7 +698,7 @@ public:
  		
  			
  	 */
- 	void setPhaseRMS (vector<vector<float > > phaseRMS);
+ 	void setPhaseRMS (std::vector<std::vector<float > > phaseRMS);
   		
 	
 	
@@ -716,7 +716,7 @@ public:
  	 * Get statPhaseRMS.
  	 * @return statPhaseRMS as vector<vector<float > >
  	 */
- 	vector<vector<float > > getStatPhaseRMS() const;
+ 	std::vector<std::vector<float > > getStatPhaseRMS() const;
 	
  
  	
@@ -728,7 +728,7 @@ public:
  		
  			
  	 */
- 	void setStatPhaseRMS (vector<vector<float > > statPhaseRMS);
+ 	void setStatPhaseRMS (std::vector<std::vector<float > > statPhaseRMS);
   		
 	
 	
@@ -753,7 +753,7 @@ public:
  	 * @return correctionValidity as vector<bool >
  	 * @throws IllegalAccessException If correctionValidity does not exist.
  	 */
- 	vector<bool > getCorrectionValidity() const;
+ 	std::vector<bool > getCorrectionValidity() const;
 	
  
  	
@@ -764,7 +764,7 @@ public:
  	 
  		
  	 */
- 	void setCorrectionValidity (vector<bool > correctionValidity);
+ 	void setCorrectionValidity (std::vector<bool > correctionValidity);
 		
 	
 	
@@ -835,7 +835,7 @@ public:
  	 * @return singleAntennaName as vector<string >
  	 * @throws IllegalAccessException If singleAntennaName does not exist.
  	 */
- 	vector<string > getSingleAntennaName() const;
+ 	std::vector<string > getSingleAntennaName() const;
 	
  
  	
@@ -846,7 +846,7 @@ public:
  	 
  		
  	 */
- 	void setSingleAntennaName (vector<string > singleAntennaName);
+ 	void setSingleAntennaName (std::vector<string > singleAntennaName);
 		
 	
 	
@@ -917,7 +917,7 @@ public:
  	 * @return phaseAnt as vector<vector<float > >
  	 * @throws IllegalAccessException If phaseAnt does not exist.
  	 */
- 	vector<vector<float > > getPhaseAnt() const;
+ 	std::vector<std::vector<float > > getPhaseAnt() const;
 	
  
  	
@@ -928,7 +928,7 @@ public:
  	 
  		
  	 */
- 	void setPhaseAnt (vector<vector<float > > phaseAnt);
+ 	void setPhaseAnt (std::vector<std::vector<float > > phaseAnt);
 		
 	
 	
@@ -958,7 +958,7 @@ public:
  	 * @return phaseAntRMS as vector<vector<float > >
  	 * @throws IllegalAccessException If phaseAntRMS does not exist.
  	 */
- 	vector<vector<float > > getPhaseAntRMS() const;
+ 	std::vector<std::vector<float > > getPhaseAntRMS() const;
 	
  
  	
@@ -969,7 +969,7 @@ public:
  	 
  		
  	 */
- 	void setPhaseAntRMS (vector<vector<float > > phaseAntRMS);
+ 	void setPhaseAntRMS (std::vector<std::vector<float > > phaseAntRMS);
 		
 	
 	
@@ -1131,7 +1131,7 @@ public:
 	 * @param statPhaseRMS
 	    
 	 */ 
-	bool compareNoAutoInc(BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, vector<vector<float > > ampli, vector<vector<string > > antennaNames, vector<Length > baselineLengths, vector<vector<float > > decorrelationFactor, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<vector<float > > phase, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > phaseRMS, vector<vector<float > > statPhaseRMS);
+	bool compareNoAutoInc(BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, std::vector<std::vector<float > > ampli, std::vector<std::vector<string > > antennaNames, std::vector<Length > baselineLengths, std::vector<std::vector<float > > decorrelationFactor, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<std::vector<float > > phase, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > phaseRMS, std::vector<std::vector<float > > statPhaseRMS);
 	
 	
 
@@ -1171,7 +1171,7 @@ public:
 	 * @param statPhaseRMS
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, vector<vector<float > > ampli, vector<vector<string > > antennaNames, vector<Length > baselineLengths, vector<vector<float > > decorrelationFactor, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<vector<float > > phase, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > phaseRMS, vector<vector<float > > statPhaseRMS); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, std::vector<std::vector<float > > ampli, std::vector<std::vector<string > > antennaNames, std::vector<Length > baselineLengths, std::vector<std::vector<float > > decorrelationFactor, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<std::vector<float > > phase, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > phaseRMS, std::vector<std::vector<float > > statPhaseRMS); 
 		 
 	
 	/**
@@ -1406,7 +1406,7 @@ private:
 	
 	
 
-	vector<vector<float > > ampli;
+	std::vector<std::vector<float > > ampli;
 
 	
 	
@@ -1417,7 +1417,7 @@ private:
 	
 	
 
-	vector<vector<string > > antennaNames;
+	std::vector<std::vector<string > > antennaNames;
 
 	
 	
@@ -1428,7 +1428,7 @@ private:
 	
 	
 
-	vector<Length > baselineLengths;
+	std::vector<Length > baselineLengths;
 
 	
 	
@@ -1439,7 +1439,7 @@ private:
 	
 	
 
-	vector<vector<float > > decorrelationFactor;
+	std::vector<std::vector<float > > decorrelationFactor;
 
 	
 	
@@ -1450,7 +1450,7 @@ private:
 	
 	
 
-	vector<Angle > direction;
+	std::vector<Angle > direction;
 
 	
 	
@@ -1461,7 +1461,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -1483,7 +1483,7 @@ private:
 	
 	
 
-	vector<vector<float > > phase;
+	std::vector<std::vector<float > > phase;
 
 	
 	
@@ -1494,7 +1494,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1505,7 +1505,7 @@ private:
 	
 	
 
-	vector<vector<float > > phaseRMS;
+	std::vector<std::vector<float > > phaseRMS;
 
 	
 	
@@ -1516,7 +1516,7 @@ private:
 	
 	
 
-	vector<vector<float > > statPhaseRMS;
+	std::vector<std::vector<float > > statPhaseRMS;
 
 	
 	
@@ -1529,7 +1529,7 @@ private:
 	bool correctionValidityExists;
 	
 
-	vector<bool > correctionValidity;
+	std::vector<bool > correctionValidity;
 
 	
 	
@@ -1555,7 +1555,7 @@ private:
 	bool singleAntennaNameExists;
 	
 
-	vector<string > singleAntennaName;
+	std::vector<string > singleAntennaName;
 
 	
 	
@@ -1581,7 +1581,7 @@ private:
 	bool phaseAntExists;
 	
 
-	vector<vector<float > > phaseAnt;
+	std::vector<std::vector<float > > phaseAnt;
 
 	
 	
@@ -1594,7 +1594,7 @@ private:
 	bool phaseAntRMSExists;
 	
 
-	vector<vector<float > > phaseAntRMS;
+	std::vector<std::vector<float > > phaseAntRMS;
 
 	
 	

@@ -325,10 +325,10 @@ public:
 			const PMS::DataColumn & yData, unsigned int index = 0);
 	//<group>
 
-	const vector<PMS::Axis> &xAxes() const {
+	const std::vector<PMS::Axis> &xAxes() const {
 		return itsXAxes_;
 	}
-	void setXAxes (const vector<PMS::Axis> &value) {
+	void setXAxes (const std::vector<PMS::Axis> &value) {
 		if (itsXAxes_ != value) {
 			itsXAxes_ = value;
 			updated();
@@ -336,7 +336,7 @@ public:
 	}
 	PMS::Axis xAxis (unsigned int index = 0) const {
 		if (index >= itsXAxes_.size())
-			const_cast< vector<PMS::Axis>& >(itsXAxes_).resize (index + 1);
+			const_cast< std::vector<PMS::Axis>& >(itsXAxes_).resize (index + 1);
 		return itsXAxes_[index];
 	}
 	void setXAxis (const PMS::Axis & value, unsigned int index = 0) {
@@ -349,10 +349,10 @@ public:
 	}
 
 
-	const vector<PMS::Axis>&yAxes() const {
+	const std::vector<PMS::Axis>&yAxes() const {
 		return itsYAxes_;
 	}
-	void setYAxes (const vector<PMS::Axis> &value) {
+	void setYAxes (const std::vector<PMS::Axis> &value) {
 		if (itsYAxes_ != value) {
 			itsYAxes_ = value;
 			updated();
@@ -360,7 +360,7 @@ public:
 	}
 	PMS::Axis yAxis (unsigned int index = 0) const {
 		if (index >= itsYAxes_.size())
-			const_cast< vector<PMS::Axis> &>(itsYAxes_).resize (index + 1);
+			const_cast< std::vector<PMS::Axis> &>(itsYAxes_).resize (index + 1);
 		return itsYAxes_[index];
 	}
 	void setYAxis (const PMS::Axis & value, unsigned int index = 0) {
@@ -374,7 +374,7 @@ public:
 
 
 
-	const vector<PMS::DataColumn> &xDataColumns() const {
+	const std::vector<PMS::DataColumn> &xDataColumns() const {
 		return itsXData_;
 	}
 	void setXDataColumns (const vector < PMS::DataColumn > &value) {
@@ -452,10 +452,10 @@ private:
 	PMS_PP_Cache& assign(const PMS_PP_Cache* o);
 
 	/* Parameters' values */
-	vector<PMS::Axis> itsXAxes_;
-	vector<PMS::Axis> itsYAxes_;
-	vector<PMS::DataColumn> itsXData_;
-	vector<PMS::DataColumn> itsYData_;
+	std::vector<PMS::Axis> itsXAxes_;
+	std::vector<PMS::Axis> itsYAxes_;
+	std::vector<PMS::DataColumn> itsXData_;
+	std::vector<PMS::DataColumn> itsYData_;
 	bool itsShowAtm_;
 	bool itsShowTsky_;
 
@@ -575,7 +575,7 @@ public:
 	}
 
 
-	const vector<PlotAxis> &yAxes() const {
+	const std::vector<PlotAxis> &yAxes() const {
 		return itsYAxes_;
 	}
 	void setYAxes (const vector < PlotAxis > &value) {
@@ -610,7 +610,7 @@ public:
 
 
 
-	const vector<bool> &xRangesSet() const {
+	const std::vector<bool> &xRangesSet() const {
 		return itsXRangesSet_;
 	}
 	void setXRanges (const vector < bool > &value) {
@@ -715,12 +715,12 @@ private:
 	PMS_PP_Axes& assign(const PMS_PP_Axes* o);
 
 	/* Parameters' values */
-	vector<PlotAxis> itsXAxes_;
-	vector<PlotAxis> itsYAxes_;
-	vector<bool> itsXRangesSet_;
-	vector<bool> itsYRangesSet_;
-	vector<prange_t> itsXRanges_;
-	vector<prange_t> itsYRanges_;
+	std::vector<PlotAxis> itsXAxes_;
+	std::vector<PlotAxis> itsYAxes_;
+	std::vector<bool> itsXRangesSet_;
+	std::vector<bool> itsYRangesSet_;
+	std::vector<prange_t> itsXRanges_;
+	std::vector<prange_t> itsYRanges_;
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_XAXES;
@@ -1196,23 +1196,23 @@ private:
 	PMS_PP_Canvas& assign(const PMS_PP_Canvas* o );
 
 	/* Parameters' values */
-	vector<PlotMSLabelFormat> itsXLabels_;
-	vector<bool> itsXFontsSet_;
-	vector<casacore::Int> itsXAxisFonts_;
-	vector<PlotMSLabelFormat> itsYLabels_;
-	vector<bool> itsYFontsSet_;
-	vector<casacore::Int> itsYAxisFonts_;
-	vector<bool> itsXAxesShown_;
-	vector<bool> itsYAxesShown_;
-	vector<bool> itsLegendsShown_;
-	vector<PlotCanvas::LegendPosition > itsLegendsPos_;
-	vector<PlotMSLabelFormat> itsTitles_;
-	vector<bool> itsTitleFontsSet_;
-	vector<casacore::Int> itsTitleFonts_;
-	vector<bool> itsGridMajsShown_;
-	vector<bool> itsGridMinsShown_;
-	vector<PlotLinePtr> itsGridMajLines_;
-	vector<PlotLinePtr> itsGridMinLines_;
+	std::vector<PlotMSLabelFormat> itsXLabels_;
+	std::vector<bool> itsXFontsSet_;
+	std::vector<casacore::Int> itsXAxisFonts_;
+	std::vector<PlotMSLabelFormat> itsYLabels_;
+	std::vector<bool> itsYFontsSet_;
+	std::vector<casacore::Int> itsYAxisFonts_;
+	std::vector<bool> itsXAxesShown_;
+	std::vector<bool> itsYAxesShown_;
+	std::vector<bool> itsLegendsShown_;
+	std::vector<PlotCanvas::LegendPosition > itsLegendsPos_;
+	std::vector<PlotMSLabelFormat> itsTitles_;
+	std::vector<bool> itsTitleFontsSet_;
+	std::vector<casacore::Int> itsTitleFonts_;
+	std::vector<bool> itsGridMajsShown_;
+	std::vector<bool> itsGridMinsShown_;
+	std::vector<PlotLinePtr> itsGridMajLines_;
+	std::vector<PlotLinePtr> itsGridMinLines_;
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_XLABELS;
@@ -1311,7 +1311,7 @@ public:
 	PlotSymbolPtr unflaggedSymbol (unsigned int index = 0) const {
 		if (index >= itsUnflaggedSymbols_.size()){
 			int newSize = index+1;
-			vector<PlotSymbolPtr> & unflaggedSymbols = const_cast < vector <PlotSymbolPtr > &>(itsUnflaggedSymbols_);
+			std::vector<PlotSymbolPtr> & unflaggedSymbols = const_cast < vector <PlotSymbolPtr > &>(itsUnflaggedSymbols_);
 			unflaggedSymbols.resize ( newSize);
 			for ( int j = 0; j < newSize; j++ ){
 				if ( unflaggedSymbols[j].null() ){
@@ -1335,7 +1335,7 @@ public:
 	PlotSymbolPtr flaggedSymbol (unsigned int index = 0) const {
 		if (index >= itsFlaggedSymbols_.size()){
 			int newSize = index + 1;
-			vector<PlotSymbolPtr> & flaggedSymbols = const_cast < vector <PlotSymbolPtr > &>(itsFlaggedSymbols_);
+			std::vector<PlotSymbolPtr> & flaggedSymbols = const_cast < vector <PlotSymbolPtr > &>(itsFlaggedSymbols_);
 			flaggedSymbols.resize( newSize );
 			for ( int j = 0; j < newSize; j++ ){
 				if ( flaggedSymbols[j].null()){
@@ -1418,11 +1418,11 @@ private:
 
 
 	/* Parameters' values */
-	vector<PlotSymbolPtr> itsUnflaggedSymbols_;
-	vector<PlotSymbolPtr> itsFlaggedSymbols_;
-	vector<PlotMSLabelFormat> itsTitleFormats_;
-	vector<bool> itsColorizeFlags_;
-	vector<PMS::Axis> itsColorizeAxes_;
+	std::vector<PlotSymbolPtr> itsUnflaggedSymbols_;
+	std::vector<PlotSymbolPtr> itsFlaggedSymbols_;
+	std::vector<PlotMSLabelFormat> itsTitleFormats_;
+	std::vector<bool> itsColorizeFlags_;
+	std::vector<PMS::Axis> itsColorizeAxes_;
 
 
 	/* Key strings for casacore::Record */

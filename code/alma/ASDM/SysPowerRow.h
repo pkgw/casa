@@ -210,7 +210,7 @@ public:
  	 * @return switchedPowerDifference as vector<float >
  	 * @throws IllegalAccessException If switchedPowerDifference does not exist.
  	 */
- 	vector<float > getSwitchedPowerDifference() const;
+ 	std::vector<float > getSwitchedPowerDifference() const;
 	
  
  	
@@ -221,7 +221,7 @@ public:
  	 
  		
  	 */
- 	void setSwitchedPowerDifference (vector<float > switchedPowerDifference);
+ 	void setSwitchedPowerDifference (std::vector<float > switchedPowerDifference);
 		
 	
 	
@@ -251,7 +251,7 @@ public:
  	 * @return switchedPowerSum as vector<float >
  	 * @throws IllegalAccessException If switchedPowerSum does not exist.
  	 */
- 	vector<float > getSwitchedPowerSum() const;
+ 	std::vector<float > getSwitchedPowerSum() const;
 	
  
  	
@@ -262,7 +262,7 @@ public:
  	 
  		
  	 */
- 	void setSwitchedPowerSum (vector<float > switchedPowerSum);
+ 	void setSwitchedPowerSum (std::vector<float > switchedPowerSum);
 		
 	
 	
@@ -292,7 +292,7 @@ public:
  	 * @return requantizerGain as vector<float >
  	 * @throws IllegalAccessException If requantizerGain does not exist.
  	 */
- 	vector<float > getRequantizerGain() const;
+ 	std::vector<float > getRequantizerGain() const;
 	
  
  	
@@ -303,7 +303,7 @@ public:
  	 
  		
  	 */
- 	void setRequantizerGain (vector<float > requantizerGain);
+ 	void setRequantizerGain (std::vector<float > requantizerGain);
 		
 	
 	
@@ -660,7 +660,7 @@ private:
 	bool switchedPowerDifferenceExists;
 	
 
-	vector<float > switchedPowerDifference;
+	std::vector<float > switchedPowerDifference;
 
 	
 	
@@ -673,7 +673,7 @@ private:
 	bool switchedPowerSumExists;
 	
 
-	vector<float > switchedPowerSum;
+	std::vector<float > switchedPowerSum;
 
 	
 	
@@ -686,7 +686,7 @@ private:
 	bool requantizerGainExists;
 	
 
-	vector<float > requantizerGain;
+	std::vector<float > requantizerGain;
 
 	
 	
