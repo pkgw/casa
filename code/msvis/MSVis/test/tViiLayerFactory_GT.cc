@@ -591,7 +591,7 @@ protected:
  * The function checkSubtables can actually check that the subtables
  * have been changed as expected.
  */
-class SubtableChangerTest : public ::testing::Test
+class SubtableChangerTest : public MsFactoryTVITester
 {
 public:
 
@@ -599,25 +599,9 @@ public:
      * Constructor: create the temporary dir and the MsFactory used later on
      * to create the MS.
      */
-    SubtableChangerTest()
+    SubtableChangerTest() : 
+        MsFactoryTVITester("tViiLayerFactory","SubtableChangerTest")
     {
-        //Use the system temp dir, if not defined or too long resort to /tmp
-        char * sys_tmpdir = getenv("TMPDIR");
-        if(sys_tmpdir != NULL &&
-                strlen(sys_tmpdir) < _POSIX_PATH_MAX - 1 - tmpsubdir_p.size())
-            strncpy(tmpdir_p, sys_tmpdir, strlen(sys_tmpdir)+1);
-        else
-            strncpy(tmpdir_p, "/tmp", 5);
-        stpcpy (tmpdir_p+strlen(tmpdir_p), tmpsubdir_p.c_str());
-        mkdtemp(tmpdir_p);
-
-        // Set the number of antennas and SPWs for the MS generated on disk
-        nAntennas = 10;
-        nSPWs = 10;
-
-        msf_p.reset(new MsFactory(String::format("%s/SubtableChangerTest.ms", tmpdir_p)));
-        msf_p->addAntennas(nAntennas);
-        msf_p->addSpectralWindows(nSPWs);
     }
 
     /*
@@ -625,40 +609,31 @@ public:
      */
     void createTVIs()
     {
-        //Create MS using the simulator MsFactory
-        pair<MeasurementSet *, Int> p = msf_p->createMs();
-        ms_p.reset(p.first); //MsFactory has given up ownership
+        // Set the number of antennas and SPWs for the MS generated on disk
+        nAntennas = 10;
+        nSPWs = 10;
 
-        //Create a disk layer type VI Factory
+        msf_p->addAntennas(nAntennas);
+        msf_p->addSpectralWindows(nSPWs);
+
+        // Create synthethic MS using the msf_p factory
+        createMS();
+
+        // Create a disk layer type VI Factory
         IteratingParameters ipar;
         VisIterImpl2LayerFactory diskItFac(ms_p.get(),ipar,false);
 
-        //Create a SubtableChangerTVI Factory
+        // Create a SubtableChangerTVI Factory
         SubtableChangerTVILayerFactory subtableChangerFac;
 
-        //Create a layered factory with all the layers of factories
+        // Create a layered factory with all the layers of factories
         size_t nFac = 2;
-        Vector<ViiLayerFactory*> facts(nFac);
+        std::vector<ViiLayerFactory*> facts(nFac);
         facts[0]=&diskItFac;
         facts[1]= &subtableChangerFac;
 
-        //Finally create the top VI
-        vi_p.reset(new VisibilityIterator2(facts));
-
-        vb_p = vi_p->getVisBuffer();
-    }
-
-    /*
-     * Iterate the whole MS calling a user provided function.
-     * The only useful case is having a lambda as a visitor function.
-     */
-    void visitIterator(std::function<void(void)> visitor)
-    {
-        for (vi_p->originChunks (); vi_p->moreChunks(); vi_p->nextChunk()){
-            for (vi_p->origin(); vi_p->more (); vi_p->next()){
-                visitor();
-            }
-        }
+        // Finally create the top VI
+        instantiateVI(facts);
     }
 
     void checkSubtables()
@@ -673,29 +648,6 @@ public:
         EXPECT_EQ(nSPWs * 2, vi_p->dataDescriptionSubtablecols().nrow());
     }
 
-    //Destructor
-    ~SubtableChangerTest()
-    {
-        //The MS destructor will update the file system, so deleting it before removing the directory
-        msf_p.reset();
-        ms_p.reset();
-        vi_p.reset();
-        //This will recursively remove everything in the directory
-        nftw(tmpdir_p, removeFile, 64, FTW_DEPTH | FTW_PHYS);
-    }
-
-    // The temporary dir where the synthetic MS is created
-    char tmpdir_p[_POSIX_PATH_MAX];
-    // The subdirectory to create in the temporary dir
-    std::string tmpsubdir_p{"/test_tViiLayerFactory_XXXXXX"};
-    // The helper class to create synthetic MS
-    std::unique_ptr<casa::vi::test::MsFactory> msf_p;
-    // The synthetic MS.
-    std::unique_ptr<MeasurementSet> ms_p;
-    // The VisibilityIterator2 used to iterate trough the data
-    std::unique_ptr<VisibilityIterator2> vi_p;
-    // The attached VisBuffer
-    VisBuffer2 * vb_p;
     // The number of antennas originally created
     size_t nAntennas;
     // The number of SPWs originally created
@@ -709,6 +661,7 @@ public:
  */
 TEST_F(SubtableChangerTest, CheckSubtables)
 {
+
   createTVIs();
 
   checkSubtables();
