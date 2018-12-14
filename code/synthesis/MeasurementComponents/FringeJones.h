@@ -252,10 +252,10 @@ public:
   virtual casacore::Int& maxits() { return maxits_; }
   virtual casacore::Array<casacore::Double>& delayWindow() { return delayWindow_; }
   virtual casacore::Array<casacore::Double>& rateWindow() { return rateWindow_; }
-  
   // Apply reference antenna
   virtual void applyRefAnt();
-
+  virtual casacore::Int& refant() { return refant_; }
+  
 protected:
 
   // phase, delay, rate
@@ -285,6 +285,7 @@ private:
   virtual CTTIFactoryPtr cttifactoryptr() { return &CTRateAwareTimeInterp1::factory; };
   void calculateSNR(casacore::Int, DelayRateFFT);
 
+  casacore::Int refant_; // Override
   casacore::Bool zeroRates_;
   casacore::Bool globalSolve_;
   casacore::Array<casacore::Double> delayWindow_;
