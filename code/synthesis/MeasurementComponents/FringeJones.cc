@@ -2091,9 +2091,6 @@ void FringeJones::setSolve(const Record& solve) {
     //    throw(AipsError("No calibration table specified"));
     // cerr << "setSolve here, ct_: "<< ct_ << endl;
 
-   // Trap unspecified refant:
-    if (refant()<0)
-        throw(AipsError("Please specify a good reference antenna (refant) explicitly."));
     if (solve.isDefined("zerorates")) {
         zeroRates() = solve.asBool("zerorates");
     }
@@ -2240,8 +2237,9 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     std::map<Int, Double> aggregateTime;
     // Set the refant to the first choice that has data!
     refant() = findRefAntWithData(sdbs, refantlist(), prtlev());
+       // Trap unspecified refant:
     if (refant()<0)
-        throw(AipsError("No valid reference antenna supplied."));
+        throw(AipsError("Please specify a good reference antenna (refant) explicitly."));
     else
         logSink() << "Using reference antenna " << refant() << LogIO::POST;
 
