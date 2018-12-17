@@ -7985,7 +7985,6 @@ Bool SubMS::copyCols(Table& out, const Table& in, const Bool flush)
 	//       }
         //     }
         //   }
-	//   newFlag_Cmd.flush();
       }
     }
     return true;
