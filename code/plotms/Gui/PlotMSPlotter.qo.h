@@ -65,15 +65,15 @@ public:
     //Methods from the client interface
     virtual bool isActionEnabled( PlotMSAction::Type type ) const;
 
-    virtual vector<PlotMSPlot*> getCurrentPlots() const;
+    virtual std::vector<PlotMSPlot*> getCurrentPlots() const;
     virtual bool plot();
-    virtual vector<vector<PMS::Axis> > getSelectedLoadAxes() const;
-    virtual vector<vector<PMS::Axis> > getSelectedReleaseAxes() const;
+    virtual std::vector<std::vector<PMS::Axis> > getSelectedLoadAxes() const;
+    virtual std::vector<std::vector<PMS::Axis> > getSelectedReleaseAxes() const;
     virtual PlotMSFlagging getFlagging() const;
     virtual bool isInteractive() const;
 	virtual void canvasAdded( PlotCanvasPtr& canvas );
 	virtual void setAnnotationModeActive( PlotMSAction::Type type, bool active );
-	virtual vector<casacore::String> getFiles() const;
+	virtual std::vector<casacore::String> getFiles() const;
 
 
 	// Static //
@@ -265,7 +265,7 @@ private:
     PlotMSThread* itsCurrentThread_;
     
     // Waiting threads.
-    vector<PlotMSThread*> itsWaitingThreads_;
+    std::vector<PlotMSThread*> itsWaitingThreads_;
     
     // casacore::Map between PlotMSApp actions and QActions.
     QMap<PlotMSAction::Type, QAction*> itsActionMap_;

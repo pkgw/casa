@@ -204,7 +204,7 @@ protected:
 
     // Map with the list of channel indices for each output SPW.
     // Note that this member needs to be initialized by each derived class
-    map<casacore::Int,vector<casacore::Int> > spwOutChanIdxMap_p;
+    std::map<casacore::Int,vector<casacore::Int> > spwOutChanIdxMap_p;
 };
 
 //////////////////////////////////////////////////////////////////////////

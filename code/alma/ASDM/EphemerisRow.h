@@ -210,7 +210,7 @@ public:
  	 * Get observerLocation.
  	 * @return observerLocation as vector<double >
  	 */
- 	vector<double > getObserverLocation() const;
+ 	std::vector<double > getObserverLocation() const;
 	
  
  	
@@ -222,7 +222,7 @@ public:
  		
  			
  	 */
- 	void setObserverLocation (vector<double > observerLocation);
+ 	void setObserverLocation (std::vector<double > observerLocation);
   		
 	
 	
@@ -300,7 +300,7 @@ public:
  	 * Get dir.
  	 * @return dir as vector<vector<double > >
  	 */
- 	vector<vector<double > > getDir() const;
+ 	std::vector<std::vector<double > > getDir() const;
 	
  
  	
@@ -312,7 +312,7 @@ public:
  		
  			
  	 */
- 	void setDir (vector<vector<double > > dir);
+ 	void setDir (std::vector<std::vector<double > > dir);
   		
 	
 	
@@ -360,7 +360,7 @@ public:
  	 * Get distance.
  	 * @return distance as vector<double >
  	 */
- 	vector<double > getDistance() const;
+ 	std::vector<double > getDistance() const;
 	
  
  	
@@ -372,7 +372,7 @@ public:
  		
  			
  	 */
- 	void setDistance (vector<double > distance);
+ 	void setDistance (std::vector<double > distance);
   		
 	
 	
@@ -498,7 +498,7 @@ public:
  	 * @return radVel as vector<double >
  	 * @throws IllegalAccessException If radVel does not exist.
  	 */
- 	vector<double > getRadVel() const;
+ 	std::vector<double > getRadVel() const;
 	
  
  	
@@ -509,7 +509,7 @@ public:
  	 
  		
  	 */
- 	void setRadVel (vector<double > radVel);
+ 	void setRadVel (std::vector<double > radVel);
 		
 	
 	
@@ -557,7 +557,7 @@ public:
 	 * @param origin
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTimeInterval timeInterval, int ephemerisId, vector<double > observerLocation, double equinoxEquator, int numPolyDir, vector<vector<double > > dir, int numPolyDist, vector<double > distance, ArrayTime timeOrigin, string origin);
+	bool compareNoAutoInc(ArrayTimeInterval timeInterval, int ephemerisId, std::vector<double > observerLocation, double equinoxEquator, int numPolyDir, std::vector<std::vector<double > > dir, int numPolyDist, std::vector<double > distance, ArrayTime timeOrigin, string origin);
 	
 	
 
@@ -583,7 +583,7 @@ public:
 	 * @param origin
 	    
 	 */ 
-	bool compareRequiredValue(vector<double > observerLocation, double equinoxEquator, int numPolyDir, vector<vector<double > > dir, int numPolyDist, vector<double > distance, ArrayTime timeOrigin, string origin); 
+	bool compareRequiredValue(std::vector<double > observerLocation, double equinoxEquator, int numPolyDir, std::vector<std::vector<double > > dir, int numPolyDist, std::vector<double > distance, ArrayTime timeOrigin, string origin); 
 		 
 	
 	/**
@@ -749,7 +749,7 @@ private:
 	
 	
 
-	vector<double > observerLocation;
+	std::vector<double > observerLocation;
 
 	
 	
@@ -782,7 +782,7 @@ private:
 	
 	
 
-	vector<vector<double > > dir;
+	std::vector<std::vector<double > > dir;
 
 	
 	
@@ -804,7 +804,7 @@ private:
 	
 	
 
-	vector<double > distance;
+	std::vector<double > distance;
 
 	
 	
@@ -852,7 +852,7 @@ private:
 	bool radVelExists;
 	
 
-	vector<double > radVel;
+	std::vector<double > radVel;
 
 	
 	

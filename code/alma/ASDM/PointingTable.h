@@ -432,7 +432,7 @@ public:
  	 * @param pointingModelId
 	
      */
-	PointingRow *newRow(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, vector<vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, vector<vector<Angle > > pointingDirection, vector<vector<Angle > > target, vector<vector<Angle > > offset, int pointingModelId);
+	PointingRow *newRow(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, std::vector<std::vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, std::vector<std::vector<Angle > > pointingDirection, std::vector<std::vector<Angle > > target, std::vector<std::vector<Angle > > offset, int pointingModelId);
 	
 
 
@@ -561,7 +561,7 @@ public:
  	 * @param pointingModelId
  	 		 
  	 */
-	PointingRow* lookup(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, vector<vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, vector<vector<Angle > > pointingDirection, vector<vector<Angle > > target, vector<vector<Angle > > offset, int pointingModelId); 
+	PointingRow* lookup(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, std::vector<std::vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, std::vector<std::vector<Angle > > pointingDirection, std::vector<std::vector<Angle > > target, std::vector<std::vector<Angle > > offset, int pointingModelId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

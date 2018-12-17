@@ -446,7 +446,7 @@ public:
  	 * @param weatherConstraint
 	
      */
-	SBSummaryRow *newRow(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint);
+	SBSummaryRow *newRow(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<string > observingMode, int numberRepeats, int numScienceGoal, std::vector<string > scienceGoal, int numWeatherConstraint, std::vector<string > weatherConstraint);
 	
 
 
@@ -557,7 +557,7 @@ public:
  	 * @param weatherConstraint
  	 		 
  	 */
-	SBSummaryRow* lookup(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint); 
+	SBSummaryRow* lookup(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<string > observingMode, int numberRepeats, int numScienceGoal, std::vector<string > scienceGoal, int numWeatherConstraint, std::vector<string > weatherConstraint); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

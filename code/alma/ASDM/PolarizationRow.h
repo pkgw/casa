@@ -180,7 +180,7 @@ public:
  	 * Get corrType.
  	 * @return corrType as vector<StokesParameterMod::StokesParameter >
  	 */
- 	vector<StokesParameterMod::StokesParameter > getCorrType() const;
+ 	std::vector<StokesParameterMod::StokesParameter > getCorrType() const;
 	
  
  	
@@ -192,7 +192,7 @@ public:
  		
  			
  	 */
- 	void setCorrType (vector<StokesParameterMod::StokesParameter > corrType);
+ 	void setCorrType (std::vector<StokesParameterMod::StokesParameter > corrType);
   		
 	
 	
@@ -210,7 +210,7 @@ public:
  	 * Get corrProduct.
  	 * @return corrProduct as vector<vector<PolarizationTypeMod::PolarizationType > >
  	 */
- 	vector<vector<PolarizationTypeMod::PolarizationType > > getCorrProduct() const;
+ 	std::vector<std::vector<PolarizationTypeMod::PolarizationType > > getCorrProduct() const;
 	
  
  	
@@ -222,7 +222,7 @@ public:
  		
  			
  	 */
- 	void setCorrProduct (vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct);
+ 	void setCorrProduct (std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct);
   		
 	
 	
@@ -251,7 +251,7 @@ public:
 	 * @param corrProduct
 	    
 	 */ 
-	bool compareNoAutoInc(int numCorr, vector<StokesParameterMod::StokesParameter > corrType, vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct);
+	bool compareNoAutoInc(int numCorr, std::vector<StokesParameterMod::StokesParameter > corrType, std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct);
 	
 	
 
@@ -267,7 +267,7 @@ public:
 	 * @param corrProduct
 	    
 	 */ 
-	bool compareRequiredValue(int numCorr, vector<StokesParameterMod::StokesParameter > corrType, vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct); 
+	bool compareRequiredValue(int numCorr, std::vector<StokesParameterMod::StokesParameter > corrType, std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct); 
 		 
 	
 	/**
@@ -437,7 +437,7 @@ private:
 	
 	
 
-	vector<StokesParameterMod::StokesParameter > corrType;
+	std::vector<StokesParameterMod::StokesParameter > corrType;
 
 	
 	
@@ -448,7 +448,7 @@ private:
 	
 	
 
-	vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct;
+	std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct;
 
 	
 	

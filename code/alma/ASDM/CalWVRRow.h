@@ -326,7 +326,7 @@ public:
  	 * Get inputAntennaNames.
  	 * @return inputAntennaNames as vector<string >
  	 */
- 	vector<string > getInputAntennaNames() const;
+ 	std::vector<string > getInputAntennaNames() const;
 	
  
  	
@@ -338,7 +338,7 @@ public:
  		
  			
  	 */
- 	void setInputAntennaNames (vector<string > inputAntennaNames);
+ 	void setInputAntennaNames (std::vector<string > inputAntennaNames);
   		
 	
 	
@@ -386,7 +386,7 @@ public:
  	 * Get chanFreq.
  	 * @return chanFreq as vector<Frequency >
  	 */
- 	vector<Frequency > getChanFreq() const;
+ 	std::vector<Frequency > getChanFreq() const;
 	
  
  	
@@ -398,7 +398,7 @@ public:
  		
  			
  	 */
- 	void setChanFreq (vector<Frequency > chanFreq);
+ 	void setChanFreq (std::vector<Frequency > chanFreq);
   		
 	
 	
@@ -416,7 +416,7 @@ public:
  	 * Get chanWidth.
  	 * @return chanWidth as vector<Frequency >
  	 */
- 	vector<Frequency > getChanWidth() const;
+ 	std::vector<Frequency > getChanWidth() const;
 	
  
  	
@@ -428,7 +428,7 @@ public:
  		
  			
  	 */
- 	void setChanWidth (vector<Frequency > chanWidth);
+ 	void setChanWidth (std::vector<Frequency > chanWidth);
   		
 	
 	
@@ -446,7 +446,7 @@ public:
  	 * Get refTemp.
  	 * @return refTemp as vector<vector<Temperature > >
  	 */
- 	vector<vector<Temperature > > getRefTemp() const;
+ 	std::vector<std::vector<Temperature > > getRefTemp() const;
 	
  
  	
@@ -458,7 +458,7 @@ public:
  		
  			
  	 */
- 	void setRefTemp (vector<vector<Temperature > > refTemp);
+ 	void setRefTemp (std::vector<std::vector<Temperature > > refTemp);
   		
 	
 	
@@ -506,7 +506,7 @@ public:
  	 * Get pathCoeff.
  	 * @return pathCoeff as vector<vector<vector<float > > >
  	 */
- 	vector<vector<vector<float > > > getPathCoeff() const;
+ 	std::vector<std::vector<vector<float > > > getPathCoeff() const;
 	
  
  	
@@ -518,7 +518,7 @@ public:
  		
  			
  	 */
- 	void setPathCoeff (vector<vector<vector<float > > > pathCoeff);
+ 	void setPathCoeff (std::vector<std::vector<vector<float > > > pathCoeff);
   		
 	
 	
@@ -536,7 +536,7 @@ public:
  	 * Get polyFreqLimits.
  	 * @return polyFreqLimits as vector<Frequency >
  	 */
- 	vector<Frequency > getPolyFreqLimits() const;
+ 	std::vector<Frequency > getPolyFreqLimits() const;
 	
  
  	
@@ -548,7 +548,7 @@ public:
  		
  			
  	 */
- 	void setPolyFreqLimits (vector<Frequency > polyFreqLimits);
+ 	void setPolyFreqLimits (std::vector<Frequency > polyFreqLimits);
   		
 	
 	
@@ -566,7 +566,7 @@ public:
  	 * Get wetPath.
  	 * @return wetPath as vector<float >
  	 */
- 	vector<float > getWetPath() const;
+ 	std::vector<float > getWetPath() const;
 	
  
  	
@@ -578,7 +578,7 @@ public:
  		
  			
  	 */
- 	void setWetPath (vector<float > wetPath);
+ 	void setWetPath (std::vector<float > wetPath);
   		
 	
 	
@@ -596,7 +596,7 @@ public:
  	 * Get dryPath.
  	 * @return dryPath as vector<float >
  	 */
- 	vector<float > getDryPath() const;
+ 	std::vector<float > getDryPath() const;
 	
  
  	
@@ -608,7 +608,7 @@ public:
  		
  			
  	 */
- 	void setDryPath (vector<float > dryPath);
+ 	void setDryPath (std::vector<float > dryPath);
   		
 	
 	
@@ -791,7 +791,7 @@ public:
 	 * @param water
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, vector<string > inputAntennaNames, int numChan, vector<Frequency > chanFreq, vector<Frequency > chanWidth, vector<vector<Temperature > > refTemp, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<Frequency > polyFreqLimits, vector<float > wetPath, vector<float > dryPath, Length water);
+	bool compareNoAutoInc(string antennaName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, std::vector<string > inputAntennaNames, int numChan, std::vector<Frequency > chanFreq, std::vector<Frequency > chanWidth, std::vector<std::vector<Temperature > > refTemp, int numPoly, std::vector<std::vector<vector<float > > > pathCoeff, std::vector<Frequency > polyFreqLimits, std::vector<float > wetPath, std::vector<float > dryPath, Length water);
 	
 	
 
@@ -831,7 +831,7 @@ public:
 	 * @param water
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, vector<string > inputAntennaNames, int numChan, vector<Frequency > chanFreq, vector<Frequency > chanWidth, vector<vector<Temperature > > refTemp, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<Frequency > polyFreqLimits, vector<float > wetPath, vector<float > dryPath, Length water); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, std::vector<string > inputAntennaNames, int numChan, std::vector<Frequency > chanFreq, std::vector<Frequency > chanWidth, std::vector<std::vector<Temperature > > refTemp, int numPoly, std::vector<std::vector<vector<float > > > pathCoeff, std::vector<Frequency > polyFreqLimits, std::vector<float > wetPath, std::vector<float > dryPath, Length water); 
 		 
 	
 	/**
@@ -1036,7 +1036,7 @@ private:
 	
 	
 
-	vector<string > inputAntennaNames;
+	std::vector<string > inputAntennaNames;
 
 	
 	
@@ -1058,7 +1058,7 @@ private:
 	
 	
 
-	vector<Frequency > chanFreq;
+	std::vector<Frequency > chanFreq;
 
 	
 	
@@ -1069,7 +1069,7 @@ private:
 	
 	
 
-	vector<Frequency > chanWidth;
+	std::vector<Frequency > chanWidth;
 
 	
 	
@@ -1080,7 +1080,7 @@ private:
 	
 	
 
-	vector<vector<Temperature > > refTemp;
+	std::vector<std::vector<Temperature > > refTemp;
 
 	
 	
@@ -1102,7 +1102,7 @@ private:
 	
 	
 
-	vector<vector<vector<float > > > pathCoeff;
+	std::vector<std::vector<vector<float > > > pathCoeff;
 
 	
 	
@@ -1113,7 +1113,7 @@ private:
 	
 	
 
-	vector<Frequency > polyFreqLimits;
+	std::vector<Frequency > polyFreqLimits;
 
 	
 	
@@ -1124,7 +1124,7 @@ private:
 	
 	
 
-	vector<float > wetPath;
+	std::vector<float > wetPath;
 
 	
 	
@@ -1135,7 +1135,7 @@ private:
 	
 	
 
-	vector<float > dryPath;
+	std::vector<float > dryPath;
 
 	
 	

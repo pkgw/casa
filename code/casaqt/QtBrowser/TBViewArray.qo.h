@@ -87,12 +87,12 @@ public:
 
     // Returns the data at the given coordinates, or NULL if the coordinates
     // are invalid.    
-    TBData* dataAt(vector<int> d);
+    TBData* dataAt(std::vector<int> d);
 
     // Sets the data at the given coordinates to the given value WITHOUT
     // updating the table backend.  If format is true, then any current
     // format is applied to the new value.    
-    void setDataAt(vector<int> d, TBData& newVal, bool format = true);
+    void setDataAt(std::vector<int> d, TBData& newVal, bool format = true);
 
     // Applies the given format to the array cells.
     void applyFormat(TBFormat* f);
@@ -122,7 +122,7 @@ private:
     TBSlicer* slicer;
     
     // Current slice for arrays with dimensionality greater than two.
-    vector<int> currentSlice;
+    std::vector<int> currentSlice;
     
     // Indicates whether this array is allowed to be edited.  casacore::Data arrays
     // should be true while keyword arrays should be false.
@@ -136,7 +136,7 @@ private:
     
     // casacore::List of cells that are on the same row or column as the currently
     // selected cell.
-    vector<QTableWidgetItem*> selectedCells;
+    std::vector<QTableWidgetItem*> selectedCells;
     
     // Current format.
     TBFormat* format;
@@ -157,7 +157,7 @@ private:
 
     // Returns the array-relevant coordinates corresponding to the given
     // indices. 
-    vector<int> currentCell(int row, int col);
+    std::vector<int> currentCell(int row, int col);
     
     // Relabels the table headers to be 0- rather than 1-based.
     void relabelHeaders();
@@ -170,7 +170,7 @@ private slots:
 
     // Slot for when the slicer changes (for arrays with dimensionality
     // greater than two).
-    void sliceChanged(vector<int> newSlice);
+    void sliceChanged(std::vector<int> newSlice);
 
     // Slot for when an array cell is clicked.  Updates cells in the same
     // row or column with a "selected" background.
@@ -233,13 +233,13 @@ private:
     TBTableTabs* ttabs;
     
     // casacore::List of opened arrays.
-    vector<TBViewArray*> arrays;
+    std::vector<TBViewArray*> arrays;
     
     // casacore::List of wrapper widgets.
-    vector<QCloseableWidget*> widgets;
+    std::vector<QCloseableWidget*> widgets;
     
     // casacore::Array indices.
-    vector<int> indices;
+    std::vector<int> indices;
     
     // Splitter to hold the opened arrays.
     QSplitter splitter;

@@ -390,7 +390,7 @@ public:
  	 * @param origin
 	
      */
-	EphemerisRow *newRow(ArrayTimeInterval timeInterval, int ephemerisId, vector<double > observerLocation, double equinoxEquator, int numPolyDir, vector<vector<double > > dir, int numPolyDist, vector<double > distance, ArrayTime timeOrigin, string origin);
+	EphemerisRow *newRow(ArrayTimeInterval timeInterval, int ephemerisId, std::vector<double > observerLocation, double equinoxEquator, int numPolyDir, std::vector<std::vector<double > > dir, int numPolyDist, std::vector<double > distance, ArrayTime timeOrigin, string origin);
 	
 
 
@@ -515,7 +515,7 @@ public:
  	 * @param origin
  	 		 
  	 */
-	EphemerisRow* lookup(ArrayTimeInterval timeInterval, int ephemerisId, vector<double > observerLocation, double equinoxEquator, int numPolyDir, vector<vector<double > > dir, int numPolyDist, vector<double > distance, ArrayTime timeOrigin, string origin); 
+	EphemerisRow* lookup(ArrayTimeInterval timeInterval, int ephemerisId, std::vector<double > observerLocation, double equinoxEquator, int numPolyDir, std::vector<std::vector<double > > dir, int numPolyDist, std::vector<double > distance, ArrayTime timeOrigin, string origin); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

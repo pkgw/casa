@@ -305,7 +305,7 @@ public:
  	 * @param exponent
 	
      */
-	SeeingRow *newRow(ArrayTimeInterval timeInterval, int numBaseLength, vector<Length > baseLength, vector<Angle > phaseRms, float seeing, float exponent);
+	SeeingRow *newRow(ArrayTimeInterval timeInterval, int numBaseLength, std::vector<Length > baseLength, std::vector<Angle > phaseRms, float seeing, float exponent);
 	
 
 
@@ -420,7 +420,7 @@ public:
  	 * @param exponent
  	 		 
  	 */
-	SeeingRow* lookup(ArrayTimeInterval timeInterval, int numBaseLength, vector<Length > baseLength, vector<Angle > phaseRms, float seeing, float exponent); 
+	SeeingRow* lookup(ArrayTimeInterval timeInterval, int numBaseLength, std::vector<Length > baseLength, std::vector<Angle > phaseRms, float seeing, float exponent); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

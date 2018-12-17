@@ -264,7 +264,7 @@ public:
  	 * Get frequencyRange.
  	 * @return frequencyRange as vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
@@ -276,7 +276,7 @@ public:
  		
  			
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
   		
 	
 	
@@ -354,7 +354,7 @@ public:
  	 * Get baselineLengths.
  	 * @return baselineLengths as vector<Length >
  	 */
- 	vector<Length > getBaselineLengths() const;
+ 	std::vector<Length > getBaselineLengths() const;
 	
  
  	
@@ -366,7 +366,7 @@ public:
  		
  			
  	 */
- 	void setBaselineLengths (vector<Length > baselineLengths);
+ 	void setBaselineLengths (std::vector<Length > baselineLengths);
   		
 	
 	
@@ -384,7 +384,7 @@ public:
  	 * Get phaseRMS.
  	 * @return phaseRMS as vector<Angle >
  	 */
- 	vector<Angle > getPhaseRMS() const;
+ 	std::vector<Angle > getPhaseRMS() const;
 	
  
  	
@@ -396,7 +396,7 @@ public:
  		
  			
  	 */
- 	void setPhaseRMS (vector<Angle > phaseRMS);
+ 	void setPhaseRMS (std::vector<Angle > phaseRMS);
   		
 	
 	
@@ -720,7 +720,7 @@ public:
 	 * @param seeingError
 	    
 	 */ 
-	bool compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, vector<Length > baselineLengths, vector<Angle > phaseRMS, Angle seeing, Angle seeingError);
+	bool compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, std::vector<Length > baselineLengths, std::vector<Angle > phaseRMS, Angle seeing, Angle seeingError);
 	
 	
 
@@ -748,7 +748,7 @@ public:
 	 * @param seeingError
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, vector<Length > baselineLengths, vector<Angle > phaseRMS, Angle seeing, Angle seeingError); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, std::vector<Length > baselineLengths, std::vector<Angle > phaseRMS, Angle seeing, Angle seeingError); 
 		 
 	
 	/**
@@ -928,7 +928,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -961,7 +961,7 @@ private:
 	
 	
 
-	vector<Length > baselineLengths;
+	std::vector<Length > baselineLengths;
 
 	
 	
@@ -972,7 +972,7 @@ private:
 	
 	
 
-	vector<Angle > phaseRMS;
+	std::vector<Angle > phaseRMS;
 
 	
 	

@@ -164,21 +164,21 @@ namespace asdm {
      * @param arrayTimeInterval the vector of ArrayTime to be written
      * @param eoss the EndianOSStream to be written to
      */
-    static void toBin(const vector<ArrayTimeInterval>& arrayTimeInterval,  EndianOSStream& eoss);
+    static void toBin(const std::vector<ArrayTimeInterval>& arrayTimeInterval,  EndianOSStream& eoss);
 	
     /**
      * Write the binary representation of a vector of vector of ArrayTimeInterval to a EndianOSStream.
      * @param arrayTimeInterval the vector of vector of ArrayTimeInterval to be written
      * @param eoss the EndianOSStream to be written to
      */	
-    static void toBin(const vector<vector<ArrayTimeInterval> >& arrayTimeInterval,  EndianOSStream& eoss);
+    static void toBin(const std::vector<std::vector<ArrayTimeInterval> >& arrayTimeInterval,  EndianOSStream& eoss);
 	
     /**
      * Write the binary representation of a vector of vector of vector of ArrayTimeInterval to a EndianOSStream.
      * @param arrayTimeInterval the vector of vector of vector of ArrayTimeInterval to be written
      * @param eoss the EndianOSStream to be written to
      */
-    static void toBin(const vector<vector<vector<ArrayTimeInterval> > >& arrayTimeInterval,  EndianOSStream& eoss);
+    static void toBin(const std::vector<std::vector<vector<ArrayTimeInterval> > >& arrayTimeInterval,  EndianOSStream& eoss);
 
     /**
      * Read the binary representation of an ArrayTimeInterval from a EndianIStream
@@ -194,7 +194,7 @@ namespace asdm {
      * @param dis the EndianIStream to be read
      * @return a vector of ArrayTimeInterval
      */	 
-    static vector<ArrayTimeInterval> from1DBin(EndianIStream & eis);
+    static std::vector<ArrayTimeInterval> from1DBin(EndianIStream & eis);
 	 
     /**
      * Read the binary representation of  a vector of vector of ArrayTimeInterval from an EndianIStream
@@ -202,7 +202,7 @@ namespace asdm {
      * @param eiis the EndianIStream to be read
      * @return a vector of vector of ArrayTimeInterval
      */	 
-    static vector<vector<ArrayTimeInterval> > from2DBin(EndianIStream & eis);
+    static std::vector<std::vector<ArrayTimeInterval> > from2DBin(EndianIStream & eis);
 	 
     /**
      * Read the binary representation of  a vector of vector of vector of ArrayTimeInterval from an EndianIStream
@@ -210,7 +210,7 @@ namespace asdm {
      * @param eis the EndianIStream to be read
      * @return a vector of vector of vector of ArrayTimeInterval
      */	 
-    static vector<vector<vector<ArrayTimeInterval> > > from3DBin(EndianIStream & eis);
+    static std::vector<std::vector<vector<ArrayTimeInterval> > > from3DBin(EndianIStream & eis);
 
     /**
      * Returns a string representation of this.

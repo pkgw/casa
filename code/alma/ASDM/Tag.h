@@ -157,7 +157,7 @@ public:
 	 * @param tag  the vector of Tag to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Tag>& tag, EndianOSStream& eoss) ;	 
+	static void toBin(const std::vector<Tag>& tag, EndianOSStream& eoss) ;	 
 	
    /**
 	 * Read the binary representation of a Tag  from a EndianIStream.
@@ -175,7 +175,7 @@ public:
 	 * @return a vector of Tag
 	 * @throws TagFormatException 
 	 */
-	static vector<Tag> from1DBin(EndianIStream & eis);
+	static std::vector<Tag> from1DBin(EndianIStream & eis);
 	
 	/**
 	 * The Tag destructor.

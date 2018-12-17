@@ -448,7 +448,7 @@ public:
  	 * @param reducedChiSquared
 	
      */
-	CalCurveRow *newRow(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared);
+	CalCurveRow *newRow(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, std::vector<string > antennaNames, string refAntennaName, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<vector<float > > > curve, std::vector<double > reducedChiSquared);
 	
 
 
@@ -574,7 +574,7 @@ public:
  	 * @param reducedChiSquared
  	 		 
  	 */
-	CalCurveRow* lookup(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared); 
+	CalCurveRow* lookup(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, std::vector<string > antennaNames, string refAntennaName, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<vector<float > > > curve, std::vector<double > reducedChiSquared); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

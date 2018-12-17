@@ -109,8 +109,8 @@ protected:
 		return CasacRegionManager::USE_ALL_STOKES;
 	}
 
-	inline vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-		return vector<casacore::Coordinate::Type>(0);
+	inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+		return std::vector<casacore::Coordinate::Type>(0);
 	}
 
 	casacore::Bool _getSpecAsVelocity() const { return _specAsVelocity; }
@@ -125,7 +125,7 @@ protected:
 
 	casacore::IPosition _getKludgedShape() const { return _kludgedShape; }
 
-	vector<casacore::String> _getOutputStokes() const { return _outputStokes; }
+	std::vector<casacore::String> _getOutputStokes() const { return _outputStokes; }
 
 	casacore::uInt _getNReplicatedChans() const { return _nReplicatedChans; }
 
@@ -137,7 +137,7 @@ private:
 	casacore::Bool _specAsVelocity, _doRefChange, _replicate, _forceRegrid;
 	casacore::Int _decimate;
 	casacore::Interpolate2D::Method _method;
-	vector<casacore::String> _outputStokes;
+	std::vector<casacore::String> _outputStokes;
 	casacore::uInt _nReplicatedChans;
 
 	void _finishConstruction();

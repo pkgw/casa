@@ -93,7 +93,7 @@ Record StatWt::writeWeights() {
     _statwtColConfig->getColWriteFlags(
         mustWriteWt, mustWriteWtSp, mustWriteSig, mustWriteSigSp
     );
-    shared_ptr<vi::VisibilityIterator2> vi;
+    std::shared_ptr<vi::VisibilityIterator2> vi;
     std::shared_ptr<vi::StatWtTVILayerFactory> factory;
     _constructVi(vi, factory);
     vi::VisBuffer2 *vb = vi->getVisBuffer();
@@ -184,7 +184,7 @@ void StatWt::_constructVi(
     vi::SortColumns sc(sort, False);
     vi::IteratingParameters ipar(_timeBinWidth, sc);
     vi::VisIterImpl2LayerFactory data(_ms, ipar, True);
-    unique_ptr<Record> config(dynamic_cast<Record*>(_tviConfig.clone()));
+    std::unique_ptr<Record> config(dynamic_cast<Record*>(_tviConfig.clone()));
     factory.reset(new vi::StatWtTVILayerFactory(*config));
     Vector<vi::ViiLayerFactory*> facts(2);
     facts[0] = &data;

@@ -239,7 +239,7 @@ public:
  	 * Get delayDir.
  	 * @return delayDir as vector<vector<Angle > >
  	 */
- 	vector<vector<Angle > > getDelayDir() const;
+ 	std::vector<std::vector<Angle > > getDelayDir() const;
 	
  
  	
@@ -251,7 +251,7 @@ public:
  		
  			
  	 */
- 	void setDelayDir (vector<vector<Angle > > delayDir);
+ 	void setDelayDir (std::vector<std::vector<Angle > > delayDir);
   		
 	
 	
@@ -269,7 +269,7 @@ public:
  	 * Get phaseDir.
  	 * @return phaseDir as vector<vector<Angle > >
  	 */
- 	vector<vector<Angle > > getPhaseDir() const;
+ 	std::vector<std::vector<Angle > > getPhaseDir() const;
 	
  
  	
@@ -281,7 +281,7 @@ public:
  		
  			
  	 */
- 	void setPhaseDir (vector<vector<Angle > > phaseDir);
+ 	void setPhaseDir (std::vector<std::vector<Angle > > phaseDir);
   		
 	
 	
@@ -299,7 +299,7 @@ public:
  	 * Get referenceDir.
  	 * @return referenceDir as vector<vector<Angle > >
  	 */
- 	vector<vector<Angle > > getReferenceDir() const;
+ 	std::vector<std::vector<Angle > > getReferenceDir() const;
 	
  
  	
@@ -311,7 +311,7 @@ public:
  		
  			
  	 */
- 	void setReferenceDir (vector<vector<Angle > > referenceDir);
+ 	void setReferenceDir (std::vector<std::vector<Angle > > referenceDir);
   		
 	
 	
@@ -723,7 +723,7 @@ public:
 	 * @param referenceDir
 	    
 	 */ 
-	bool compareNoAutoInc(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir);
+	bool compareNoAutoInc(string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir);
 	
 	
 
@@ -743,7 +743,7 @@ public:
 	 * @param referenceDir
 	    
 	 */ 
-	bool compareRequiredValue(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir); 
+	bool compareRequiredValue(string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir); 
 		 
 	
 	/**
@@ -934,7 +934,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > delayDir;
+	std::vector<std::vector<Angle > > delayDir;
 
 	
 	
@@ -945,7 +945,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > phaseDir;
+	std::vector<std::vector<Angle > > phaseDir;
 
 	
 	
@@ -956,7 +956,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > referenceDir;
+	std::vector<std::vector<Angle > > referenceDir;
 
 	
 	

@@ -93,7 +93,7 @@ protected:
     void initialize();
 
     casacore::Vector<casacore::Int> chanbin_p;
-    map<casacore::Int,casacore::uInt > spwChanbinMap_p;
+    std::map<casacore::Int,casacore::uInt > spwChanbinMap_p;
 
 #ifdef _OPENMP
   mutable casacore::Double Tfl_,Tws_,Tcd_,Tmd_,Tss_,Tchave_;

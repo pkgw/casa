@@ -174,34 +174,34 @@ namespace sdmbin {
     /** Accessor to the number of polarization cross product for non-zero baselines
 	in every spectral window for every baseband
     */
-    vector<vector<uint32_t> > numCrossPolProducts();
+    std::vector<std::vector<uint32_t> > numCrossPolProducts();
 
     /** Accessor to the number of polarization cross product for zero-baselines
 	in every spectral window for every baseband
     */
-    vector<vector<uint32_t> > numAutoPolProducts();
+    std::vector<std::vector<uint32_t> > numAutoPolProducts();
 
     /** Accessor to the number of spectral points in every spectral window
 	for every baseband
     */
-    vector<vector<uint32_t> > numSpectralPoints();
+    std::vector<std::vector<uint32_t> > numSpectralPoints();
 
 
     /** Accessor to the number of bins in every spectral window
 	for every baseband
     */
-    vector<vector<uint32_t> > numBins();
+    std::vector<std::vector<uint32_t> > numBins();
 
     /** Accessor to the NetSideband qualifiers in every spectral window
 	for every baseband
     */
-    vector<vector<Enum<NetSideband> > > sidebands();
+    std::vector<std::vector<Enum<NetSideband> > > sidebands();
 
     /** Accessor to the size of the APC axis */
     uint32_t                  numApc();
 
     /** Accessor to the number of spectral windows in the different basebands */
-    vector<uint32_t>          numSpectralWindows();
+    std::vector<uint32_t>          numSpectralWindows();
 
     /** Accessor to the number of basebands */
     uint32_t                  numBaseband();
@@ -226,7 +226,7 @@ namespace sdmbin {
 	@return the axis sizes of the leaf, the size of the vector 
 	corresponding to the dimensionality of the leaf. 
     */
-    vector<uint32_t> leafAxisSizes();
+    std::vector<uint32_t> leafAxisSizes();
 
     /** Axis sizes of the leave of a data structure which may not
         be necessarily multi-dimensional. A multi-dimensional leaf 
@@ -240,7 +240,7 @@ namespace sdmbin {
 	@return the axis sizes of the leaf, the size of the vector 
 	corresponding to the dimensionality of the leaf.
     */
-    vector<uint32_t> leafAxisSizes(uint32_t basebandIndex, uint32_t spectralWindowIndex);
+    std::vector<uint32_t> leafAxisSizes(uint32_t basebandIndex, uint32_t spectralWindowIndex);
 
     /** Axis sizes of the leave of a data structure which may not
         be necessarily multi-dimensional. A multi-dimensional leaf 
@@ -256,7 +256,7 @@ namespace sdmbin {
 	@return the axis sizes of the leaf, the size of the vector 
 	corresponding to the dimensionality of the leaf.
     */
-    vector<uint32_t> leafAxisSizes(uint32_t dataDescriptionIndex);
+    std::vector<uint32_t> leafAxisSizes(uint32_t dataDescriptionIndex);
 
 
     /** A method to know if the whole data structure can be considered as a
@@ -277,7 +277,7 @@ namespace sdmbin {
               structure else it is the number of axes (including
               those with a size of 1)
     */
-    vector<uint32_t> eAxisSizes() const;
+    std::vector<uint32_t> eAxisSizes() const;
 
     /** A method to retrieve the size of the axes for a
         multi-dimensional structure. This is the compact
@@ -285,7 +285,7 @@ namespace sdmbin {
         to set the dimension of the structure. This vector 
 	has a size of 0 in case of a tree structure.
     */
-    vector<uint32_t> axisSizes() const;
+    std::vector<uint32_t> axisSizes() const;
 
     /** Accessor to the dimensionality of the structure.
 	If this is a tree-structure this is the number of
@@ -297,13 +297,13 @@ namespace sdmbin {
 	The return size of the vector is equal to the dimension
         of the structure
     */
-    vector<uint32_t> minAxSize() const;
+    std::vector<uint32_t> minAxSize() const;
 
     /** Maximum size for every axis (level) in the structure.
 	The return size of the vector is equal to the dimension
         of the structure
     */
-    vector<uint32_t> maxAxSize() const;
+    std::vector<uint32_t> maxAxSize() const;
 
     /** Number of data value (leaves) that can host the structure
      */
@@ -334,8 +334,8 @@ namespace sdmbin {
     uint32_t                        numAnt_;
     CorrelationMode                     correlationMode_;
     string                              axisSequence_;
-    vector<uint32_t>                v_minSize_;
-    vector<uint32_t>                v_maxSize_;
+    std::vector<uint32_t>                v_minSize_;
+    std::vector<uint32_t>                v_maxSize_;
     
   private:
     string                              setStructureProperties();
@@ -568,7 +568,7 @@ namespace sdmbin {
     void importCrossData ( uint32_t declaredSize, EnumSet<AxisName> es_an, 
 			   uint32_t numData, const float * crossDataPtr);
 
-    void         setScaleFactor(vector<vector<float> > vv_scaleFactor);
+    void         setScaleFactor(std::vector<std::vector<float> > vv_scaleFactor);
     uint32_t setIntegration(uint32_t integNum);
     uint32_t setSubintegration(uint32_t integNum, uint32_t subintegNum);
     uint32_t setContextUsingProjectPath(string projectPathUri);
@@ -634,7 +634,7 @@ namespace sdmbin {
               - ...
 
     */
-    uint32_t floatData(vector<vector<float>& >);
+    uint32_t floatData(std::vector<std::vector<float>& >);
 
 
     /** Accessor to the data from a 3 levels tree-hierarchy with 
@@ -653,7 +653,7 @@ namespace sdmbin {
               - ...
 
     */
-    uint32_t floatData(vector<vector<float*> >&);
+    uint32_t floatData(std::vector<std::vector<float*> >&);
 
 
     /** Accessor to the data from a 3 levels tree-hierarchy.
@@ -661,7 +661,7 @@ namespace sdmbin {
               of a tree structure, this method can also be used
               for 3D multi-dimensional data structures!
     */
-    uint32_t floatData(vector<vector<vector<float> > >&);
+    uint32_t floatData(std::vector<std::vector<vector<float> > >&);
 
 
     /** Accessor to the data from a 3 levels tree-hierarchy with 
@@ -681,7 +681,7 @@ namespace sdmbin {
               - ...
 
     */
-    uint32_t floatData(vector<vector<vector<float*> > >&);
+    uint32_t floatData(std::vector<std::vector<vector<float*> > >&);
 
 
     /** Accessor to the data from a 4 levels tree-hierarchy.
@@ -699,7 +699,7 @@ namespace sdmbin {
               - ...
 
     */
-    uint32_t floatData(vector<vector<vector<vector<float> > > >&);
+    uint32_t floatData(std::vector<std::vector<vector<std::vector<float> > > >&);
 
 
 
@@ -708,7 +708,7 @@ namespace sdmbin {
               of a tree structure, this method can also be used
               for 4D multi-dimensional data structures!
     */
-    uint32_t floatData(vector<vector<vector<vector<float*> > > >&);
+    uint32_t floatData(std::vector<std::vector<vector<std::vector<float*> > > >&);
 
     /** Accessor to the data from a 5 levels tree-hierarchy.
 	@return the data tree by reference
@@ -717,7 +717,7 @@ namespace sdmbin {
               Hence the size of this returned vector corresponds
               to the number of antennas.
     */
-    uint32_t floatData(vector<vector<vector<vector<vector<float> > > > >&);
+    uint32_t floatData(std::vector<std::vector<vector<std::vector<vector<float> > > > >&);
 
     // /nant/nbb/nspw/nbin/napc/nsp/npol
     // |    |   |    |    |    |   | 

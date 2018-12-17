@@ -307,7 +307,7 @@ public:
  	 * Get direction.
  	 * @return direction as vector<Angle >
  	 */
- 	vector<Angle > getDirection() const;
+ 	std::vector<Angle > getDirection() const;
 	
  
  	
@@ -319,7 +319,7 @@ public:
  		
  			
  	 */
- 	void setDirection (vector<Angle > direction);
+ 	void setDirection (std::vector<Angle > direction);
   		
 	
 	
@@ -337,7 +337,7 @@ public:
  	 * Get properMotion.
  	 * @return properMotion as vector<AngularRate >
  	 */
- 	vector<AngularRate > getProperMotion() const;
+ 	std::vector<AngularRate > getProperMotion() const;
 	
  
  	
@@ -349,7 +349,7 @@ public:
  		
  			
  	 */
- 	void setProperMotion (vector<AngularRate > properMotion);
+ 	void setProperMotion (std::vector<AngularRate > properMotion);
   		
 	
 	
@@ -609,7 +609,7 @@ public:
  	 * @return position as vector<Length >
  	 * @throws IllegalAccessException If position does not exist.
  	 */
- 	vector<Length > getPosition() const;
+ 	std::vector<Length > getPosition() const;
 	
  
  	
@@ -620,7 +620,7 @@ public:
  	 
  		
  	 */
- 	void setPosition (vector<Length > position);
+ 	void setPosition (std::vector<Length > position);
 		
 	
 	
@@ -691,7 +691,7 @@ public:
  	 * @return transition as vector<string >
  	 * @throws IllegalAccessException If transition does not exist.
  	 */
- 	vector<string > getTransition() const;
+ 	std::vector<string > getTransition() const;
 	
  
  	
@@ -702,7 +702,7 @@ public:
  	 
  		
  	 */
- 	void setTransition (vector<string > transition);
+ 	void setTransition (std::vector<string > transition);
 		
 	
 	
@@ -732,7 +732,7 @@ public:
  	 * @return restFrequency as vector<Frequency >
  	 * @throws IllegalAccessException If restFrequency does not exist.
  	 */
- 	vector<Frequency > getRestFrequency() const;
+ 	std::vector<Frequency > getRestFrequency() const;
 	
  
  	
@@ -743,7 +743,7 @@ public:
  	 
  		
  	 */
- 	void setRestFrequency (vector<Frequency > restFrequency);
+ 	void setRestFrequency (std::vector<Frequency > restFrequency);
 		
 	
 	
@@ -773,7 +773,7 @@ public:
  	 * @return sysVel as vector<Speed >
  	 * @throws IllegalAccessException If sysVel does not exist.
  	 */
- 	vector<Speed > getSysVel() const;
+ 	std::vector<Speed > getSysVel() const;
 	
  
  	
@@ -784,7 +784,7 @@ public:
  	 
  		
  	 */
- 	void setSysVel (vector<Speed > sysVel);
+ 	void setSysVel (std::vector<Speed > sysVel);
 		
 	
 	
@@ -814,7 +814,7 @@ public:
  	 * @return rangeVel as vector<Speed >
  	 * @throws IllegalAccessException If rangeVel does not exist.
  	 */
- 	vector<Speed > getRangeVel() const;
+ 	std::vector<Speed > getRangeVel() const;
 	
  
  	
@@ -825,7 +825,7 @@ public:
  	 
  		
  	 */
- 	void setRangeVel (vector<Speed > rangeVel);
+ 	void setRangeVel (std::vector<Speed > rangeVel);
 		
 	
 	
@@ -1019,7 +1019,7 @@ public:
  	 * @return frequency as vector<Frequency >
  	 * @throws IllegalAccessException If frequency does not exist.
  	 */
- 	vector<Frequency > getFrequency() const;
+ 	std::vector<Frequency > getFrequency() const;
 	
  
  	
@@ -1030,7 +1030,7 @@ public:
  	 
  		
  	 */
- 	void setFrequency (vector<Frequency > frequency);
+ 	void setFrequency (std::vector<Frequency > frequency);
 		
 	
 	
@@ -1060,7 +1060,7 @@ public:
  	 * @return frequencyInterval as vector<Frequency >
  	 * @throws IllegalAccessException If frequencyInterval does not exist.
  	 */
- 	vector<Frequency > getFrequencyInterval() const;
+ 	std::vector<Frequency > getFrequencyInterval() const;
 	
  
  	
@@ -1071,7 +1071,7 @@ public:
  	 
  		
  	 */
- 	void setFrequencyInterval (vector<Frequency > frequencyInterval);
+ 	void setFrequencyInterval (std::vector<Frequency > frequencyInterval);
 		
 	
 	
@@ -1101,7 +1101,7 @@ public:
  	 * @return stokesParameter as vector<StokesParameterMod::StokesParameter >
  	 * @throws IllegalAccessException If stokesParameter does not exist.
  	 */
- 	vector<StokesParameterMod::StokesParameter > getStokesParameter() const;
+ 	std::vector<StokesParameterMod::StokesParameter > getStokesParameter() const;
 	
  
  	
@@ -1112,7 +1112,7 @@ public:
  	 
  		
  	 */
- 	void setStokesParameter (vector<StokesParameterMod::StokesParameter > stokesParameter);
+ 	void setStokesParameter (std::vector<StokesParameterMod::StokesParameter > stokesParameter);
 		
 	
 	
@@ -1142,7 +1142,7 @@ public:
  	 * @return flux as vector<vector<Flux > >
  	 * @throws IllegalAccessException If flux does not exist.
  	 */
- 	vector<vector<Flux > > getFlux() const;
+ 	std::vector<std::vector<Flux > > getFlux() const;
 	
  
  	
@@ -1153,7 +1153,7 @@ public:
  	 
  		
  	 */
- 	void setFlux (vector<vector<Flux > > flux);
+ 	void setFlux (std::vector<std::vector<Flux > > flux);
 		
 	
 	
@@ -1183,7 +1183,7 @@ public:
  	 * @return fluxErr as vector<vector<Flux > >
  	 * @throws IllegalAccessException If fluxErr does not exist.
  	 */
- 	vector<vector<Flux > > getFluxErr() const;
+ 	std::vector<std::vector<Flux > > getFluxErr() const;
 	
  
  	
@@ -1194,7 +1194,7 @@ public:
  	 
  		
  	 */
- 	void setFluxErr (vector<vector<Flux > > fluxErr);
+ 	void setFluxErr (std::vector<std::vector<Flux > > fluxErr);
 		
 	
 	
@@ -1224,7 +1224,7 @@ public:
  	 * @return positionAngle as vector<Angle >
  	 * @throws IllegalAccessException If positionAngle does not exist.
  	 */
- 	vector<Angle > getPositionAngle() const;
+ 	std::vector<Angle > getPositionAngle() const;
 	
  
  	
@@ -1235,7 +1235,7 @@ public:
  	 
  		
  	 */
- 	void setPositionAngle (vector<Angle > positionAngle);
+ 	void setPositionAngle (std::vector<Angle > positionAngle);
 		
 	
 	
@@ -1265,7 +1265,7 @@ public:
  	 * @return positionAngleErr as vector<Angle >
  	 * @throws IllegalAccessException If positionAngleErr does not exist.
  	 */
- 	vector<Angle > getPositionAngleErr() const;
+ 	std::vector<Angle > getPositionAngleErr() const;
 	
  
  	
@@ -1276,7 +1276,7 @@ public:
  	 
  		
  	 */
- 	void setPositionAngleErr (vector<Angle > positionAngleErr);
+ 	void setPositionAngleErr (std::vector<Angle > positionAngleErr);
 		
 	
 	
@@ -1306,7 +1306,7 @@ public:
  	 * @return size as vector<vector<Angle > >
  	 * @throws IllegalAccessException If size does not exist.
  	 */
- 	vector<vector<Angle > > getSize() const;
+ 	std::vector<std::vector<Angle > > getSize() const;
 	
  
  	
@@ -1317,7 +1317,7 @@ public:
  	 
  		
  	 */
- 	void setSize (vector<vector<Angle > > size);
+ 	void setSize (std::vector<std::vector<Angle > > size);
 		
 	
 	
@@ -1347,7 +1347,7 @@ public:
  	 * @return sizeErr as vector<vector<Angle > >
  	 * @throws IllegalAccessException If sizeErr does not exist.
  	 */
- 	vector<vector<Angle > > getSizeErr() const;
+ 	std::vector<std::vector<Angle > > getSizeErr() const;
 	
  
  	
@@ -1358,7 +1358,7 @@ public:
  	 
  		
  	 */
- 	void setSizeErr (vector<vector<Angle > > sizeErr);
+ 	void setSizeErr (std::vector<std::vector<Angle > > sizeErr);
 		
 	
 	
@@ -1486,7 +1486,7 @@ public:
 	 * @param sourceName
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName);
+	bool compareNoAutoInc(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, string sourceName);
 	
 	
 
@@ -1504,7 +1504,7 @@ public:
 	 * @param sourceName
 	    
 	 */ 
-	bool compareRequiredValue(string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName); 
+	bool compareRequiredValue(string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, string sourceName); 
 		 
 	
 	/**
@@ -1713,7 +1713,7 @@ private:
 	
 	
 
-	vector<Angle > direction;
+	std::vector<Angle > direction;
 
 	
 	
@@ -1724,7 +1724,7 @@ private:
 	
 	
 
-	vector<AngularRate > properMotion;
+	std::vector<AngularRate > properMotion;
 
 	
 	
@@ -1813,7 +1813,7 @@ private:
 	bool positionExists;
 	
 
-	vector<Length > position;
+	std::vector<Length > position;
 
 	
 	
@@ -1839,7 +1839,7 @@ private:
 	bool transitionExists;
 	
 
-	vector<string > transition;
+	std::vector<string > transition;
 
 	
 	
@@ -1852,7 +1852,7 @@ private:
 	bool restFrequencyExists;
 	
 
-	vector<Frequency > restFrequency;
+	std::vector<Frequency > restFrequency;
 
 	
 	
@@ -1865,7 +1865,7 @@ private:
 	bool sysVelExists;
 	
 
-	vector<Speed > sysVel;
+	std::vector<Speed > sysVel;
 
 	
 	
@@ -1878,7 +1878,7 @@ private:
 	bool rangeVelExists;
 	
 
-	vector<Speed > rangeVel;
+	std::vector<Speed > rangeVel;
 
 	
 	
@@ -1943,7 +1943,7 @@ private:
 	bool frequencyExists;
 	
 
-	vector<Frequency > frequency;
+	std::vector<Frequency > frequency;
 
 	
 	
@@ -1956,7 +1956,7 @@ private:
 	bool frequencyIntervalExists;
 	
 
-	vector<Frequency > frequencyInterval;
+	std::vector<Frequency > frequencyInterval;
 
 	
 	
@@ -1969,7 +1969,7 @@ private:
 	bool stokesParameterExists;
 	
 
-	vector<StokesParameterMod::StokesParameter > stokesParameter;
+	std::vector<StokesParameterMod::StokesParameter > stokesParameter;
 
 	
 	
@@ -1982,7 +1982,7 @@ private:
 	bool fluxExists;
 	
 
-	vector<vector<Flux > > flux;
+	std::vector<std::vector<Flux > > flux;
 
 	
 	
@@ -1995,7 +1995,7 @@ private:
 	bool fluxErrExists;
 	
 
-	vector<vector<Flux > > fluxErr;
+	std::vector<std::vector<Flux > > fluxErr;
 
 	
 	
@@ -2008,7 +2008,7 @@ private:
 	bool positionAngleExists;
 	
 
-	vector<Angle > positionAngle;
+	std::vector<Angle > positionAngle;
 
 	
 	
@@ -2021,7 +2021,7 @@ private:
 	bool positionAngleErrExists;
 	
 
-	vector<Angle > positionAngleErr;
+	std::vector<Angle > positionAngleErr;
 
 	
 	
@@ -2034,7 +2034,7 @@ private:
 	bool sizeExists;
 	
 
-	vector<vector<Angle > > size;
+	std::vector<std::vector<Angle > > size;
 
 	
 	
@@ -2047,7 +2047,7 @@ private:
 	bool sizeErrExists;
 	
 
-	vector<vector<Angle > > sizeErr;
+	std::vector<std::vector<Angle > > sizeErr;
 
 	
 	

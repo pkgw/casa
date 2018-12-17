@@ -200,7 +200,7 @@ public:
  	 * Get baseLength.
  	 * @return baseLength as vector<Length >
  	 */
- 	vector<Length > getBaseLength() const;
+ 	std::vector<Length > getBaseLength() const;
 	
  
  	
@@ -212,7 +212,7 @@ public:
  		
  			
  	 */
- 	void setBaseLength (vector<Length > baseLength);
+ 	void setBaseLength (std::vector<Length > baseLength);
   		
 	
 	
@@ -230,7 +230,7 @@ public:
  	 * Get phaseRms.
  	 * @return phaseRms as vector<Angle >
  	 */
- 	vector<Angle > getPhaseRms() const;
+ 	std::vector<Angle > getPhaseRms() const;
 	
  
  	
@@ -242,7 +242,7 @@ public:
  		
  			
  	 */
- 	void setPhaseRms (vector<Angle > phaseRms);
+ 	void setPhaseRms (std::vector<Angle > phaseRms);
   		
 	
 	
@@ -337,7 +337,7 @@ public:
 	 * @param exponent
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTimeInterval timeInterval, int numBaseLength, vector<Length > baseLength, vector<Angle > phaseRms, float seeing, float exponent);
+	bool compareNoAutoInc(ArrayTimeInterval timeInterval, int numBaseLength, std::vector<Length > baseLength, std::vector<Angle > phaseRms, float seeing, float exponent);
 	
 	
 
@@ -357,7 +357,7 @@ public:
 	 * @param exponent
 	    
 	 */ 
-	bool compareRequiredValue(int numBaseLength, vector<Length > baseLength, vector<Angle > phaseRms, float seeing, float exponent); 
+	bool compareRequiredValue(int numBaseLength, std::vector<Length > baseLength, std::vector<Angle > phaseRms, float seeing, float exponent); 
 		 
 	
 	/**
@@ -517,7 +517,7 @@ private:
 	
 	
 
-	vector<Length > baseLength;
+	std::vector<Length > baseLength;
 
 	
 	
@@ -528,7 +528,7 @@ private:
 	
 	
 
-	vector<Angle > phaseRms;
+	std::vector<Angle > phaseRms;
 
 	
 	
