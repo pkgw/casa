@@ -7247,6 +7247,8 @@ void SolvableVisJones::fluxscale(const String& outfile,
     Vector<Double> fitFluxD(nFld,0.0);
     Vector<Double> fitFluxDErr(nFld,0.0);
     Vector<Double> fitRefFreq(nFld,0.0); 
+    //PtrBlock<Matrix<Double> *> covarList(nFld);
+    Vector<Matrix<Double> > covarList(nFld);
     //Vector<Double> refFreq(nFld,0.0);
    
     for (Int iTran=0; iTran<nTran; iTran++) {
@@ -7254,6 +7256,7 @@ void SolvableVisJones::fluxscale(const String& outfile,
       Int nValidFlux=ntrue(scaleOK.column(tranidx));
 
       String oFitMsg;
+      logSink()<<LogIO::DEBUG1<<"nValidFLux="<<nValidFlux<<LogIO::POST;
       if (nValidFlux>1) { 
 
 	// Make fd and freq lists
@@ -7273,45 +7276,30 @@ void SolvableVisJones::fluxscale(const String& outfile,
         // fit the per-spw fluxes to get spectral index
         LinearFit<Double> fitter;
         uInt myfitorder; 
-        if (nValidFlux > 2) {
-          //if (fitorder > 2) {
-          //   logSink() << LogIO::WARN << "Currently only support fitorder < 3, using fitorder=2 instead" 
-          //             << LogIO::POST;
-          //   myfitorder = 2;
+        if (fitorder < 0) {
+          logSink() << LogIO::WARN
+                    << "fitorder=" << fitorder 
+                    << " not supported. Using fitorder=1" 
+                    << LogIO::POST;    
+          myfitorder = 1;
+         }
+         else if (nValidFlux==2) {
+          logSink() << LogIO::WARN
+                   << "Not enough number of valid flux density data for the requested fitorder:"<<fitorder
+                   << ". Use fitorder=1." <<LogIO::POST;
+         } 
+         else {
+          myfitorder = (uInt)fitorder;
+          
+          //if (fitorder < nValidFlux) {
+          //  myfitorder = (uInt)fitorder;
           //}
           //else {
-          //   if (fitorder < 0) {
-          //     logSink() << LogIO::WARN
-          //               << "fitorder=" << fitorder 
-          //               << " not supported. Using fitorder=1" 
-          //               << LogIO::POST;    
-          //     myfitorder = 1;
-          //   }
-          //   else {
-          //     myfitorder = (uInt)fitorder;
-          //   }
-          
-          if (fitorder < 0) {
-            logSink() << LogIO::WARN
-                      << "fitorder=" << fitorder 
-                      << " not supported. Using fitorder=1" 
-                      << LogIO::POST;    
-            myfitorder = 1;
-          }
-          else {
-            if (fitorder < nValidFlux) {
-              myfitorder = (uInt)fitorder;
-            }
-            else {
-              myfitorder = (uInt)(nValidFlux-1);
-              logSink() << LogIO::WARN
-                        << "Not enough number of valid flux density data for the request fitorder:"<<fitorder
-                        <<". Using a lower fitorder="<<myfitorder<<LogIO::POST;
-            }
-          }
-        }
-        else {
-          myfitorder = 1;
+          //if (fitorder > nValidFlux) {
+          //  myfitorder = (uInt)(nValidFlux-1);
+          //  logSink() << LogIO::WARN
+          //            << "Not enough number of valid flux density data for the requested fitorder:"<<fitorder
+          //            <<". Using a lower fitorder="<<myfitorder<<LogIO::POST;
         }
         // set fitting for spectral index, alpha and beta(curvature)
         // with S = S_o*f/f0^(alpha+beta*log(f/fo))
@@ -7329,7 +7317,7 @@ void SolvableVisJones::fluxscale(const String& outfile,
 	// The error in the log of fds is fderrs/fds
         Vector<Double> soln=fitter.fit(log_relsolFreq, log_fd, fderrs/fds);
         Vector<Double> errs=fitter.errors();
-        covar=fitter.compuCovariance();
+        Matrix<Double> covar=fitter.compuCovariance();
 
         for (uInt i=0; i<soln.nelements(); i++) {
            spidx(tranidx,i) = soln(i);
@@ -7339,6 +7327,8 @@ void SolvableVisJones::fluxscale(const String& outfile,
 //	correct for the proper propagation of error
         fitFluxDErr(tranidx) = (errs(0)>0.0 ? log(10)*pow(10.0,(soln(0)))*errs(0) : 0.0);
 	fitRefFreq(tranidx) = pow(10.0,meanLogFreq);
+        //covarList[tranidx] = &covar;
+        covarList(tranidx) = covar;
         oFitMsg =" Fitted spectrum for ";
 	oFitMsg += fldNames(tranidx);
         oFitMsg += " with fitorder="+String::toString<Int>(myfitorder)+": ";
@@ -7356,12 +7346,23 @@ void SolvableVisJones::fluxscale(const String& outfile,
           String coefname=" a_"+String::toString<Int>(j);
           if (j==1) coefname += " (spectral index) "; 
           oFitMsg += coefname+"="+String::toString<Double>(soln(j)); 
-	  if (nValidFlux > (Int)(j+1)) {
-	      oFitMsg += " +/- "+String::toString<Double>(errs(j)); 
-          }
-	  else {
-	      oFitMsg += " (degenerate)";
-          }
+	  oFitMsg += " +/- "+String::toString<Double>(errs(j)); 
+	  //if (nValidFlux > (Int)(j+1)) {
+	  //    oFitMsg += " +/- "+String::toString<Double>(errs(j)); 
+          //}
+	  //else {
+	  //    oFitMsg += " (degenerate)";
+          //}
+        }
+        Int sh1, sh2;
+        covar.shape(sh1,sh2);
+        if (sh1 > 1) {
+          oFitMsg += " covariance matrix for the fit: ";
+          for (Int i=0;i<sh1; i++) {
+            for (Int j=0;j<sh2; j++) {
+              oFitMsg += " covar("+String::toString(i)+","+String::toString(j)+")="+String::toString<Double>(covar(i,j));
+            }
+         }
         }
         if ( oListFile != "" ) {
           ofstream oStream;
@@ -7371,17 +7372,18 @@ void SolvableVisJones::fluxscale(const String& outfile,
         }
         logSink() << oFitMsg << LogIO::POST;
       }// nValidFlux
-    }//iTran
-    Int sh1, sh2;
-    covar.shape(sh1,sh2);
+      /**
+      Int sh1, sh2;
+      covar->shape(sh1,sh2);
 
-    for (Int i=0;i<sh1; i++) {
-      for (Int j=0;j<sh2; j++) {
-        logSink() << LogIO::DEBUG1 
-        <<"covar("<<i<<","<<j<<")="<<covar(i,j)
-        << LogIO::POST;
+      for (Int i=0;i<sh1; i++) {
+        for (Int j=0;j<sh2; j++) {
+          logSink() << LogIO::DEBUG1 
+            <<"covar("<<i<<","<<j<<")="<<*covar(i,j) << LogIO::POST;
+        }
       }
-    }
+      **/
+    }//iTran
 
     //store determined quantities for returned output
     oFluxScaleStruct.fd = fd.copy();
@@ -7393,6 +7395,8 @@ void SolvableVisJones::fluxscale(const String& outfile,
     oFluxScaleStruct.fitfd = fitFluxD.copy();
     oFluxScaleStruct.fitfderr = fitFluxDErr.copy();
     oFluxScaleStruct.fitreffreq = fitRefFreq.copy();
+    //oFluxScaleStruct.covarmat = covarList;
+    oFluxScaleStruct.covarmat = covarList.copy();
     // quit if no scale factors found
     if (ntrue(scaleOK) == 0) throw(AipsError("No scale factors determined!"));
 
