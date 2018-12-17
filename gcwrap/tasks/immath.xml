@@ -376,7 +376,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     conceivably instances where the temporary images may not be automatically deleted. It is generally
     safe to delete them by hand, assuming no immath instance is currently in progress.
 
-    The hope and plan is that the necessity of these images will decrease in the future (ie the computations
+    The hope and plan is that the necessity of these images will decrease in the future (i.e. the computations
     will require only RAM and not temporary persistent storage of intermediate results).
 
  
