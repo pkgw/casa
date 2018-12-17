@@ -24,14 +24,17 @@
 #define FlagCalTableHandler_H_
 
 #include <flagging/Flagging/FlagDataHandler.h>
+
 #include <ms/MSSel/MSSelectionTools.h>
-#include <synthesis/CalTables/NewCalTable.h>
-#include <synthesis/CalTables/CTInterface.h>
-#include <synthesis/CalTables/CTIter.h>
-#include <synthesis/CalTables/CalBuffer.h>
-#include <measures/Measures/Stokes.h>
+#include <msvis/MSVis/StokesVector.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+// forward decl of CalTable related classes
+class NewCalTable;
+class CTInterface;
+class CTIter;
+class CalBuffer;
 
 namespace vi {
 
@@ -380,9 +383,9 @@ public:
 
         casacore::Vector<bool>& flagRowRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
         casacore::Cube<bool>& flagCubeRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
-        casacore::Cube<complex<float> >& visCubeRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
-        casacore::Cube<complex<float> >& visCubeCorrectedRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
-        casacore::Cube<complex<float> >& visCubeModelRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
+        casacore::Cube<std::complex<float> >& visCubeRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
+        casacore::Cube<std::complex<float> >& visCubeCorrectedRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
+        casacore::Cube<std::complex<float> >& visCubeModelRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
         casacore::Cube<float >& weightSpectrumRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
         casacore::IPosition getShape () const { return casacore::IPosition ();}
 

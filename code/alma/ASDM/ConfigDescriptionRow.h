@@ -340,7 +340,7 @@ public:
  	 * Get atmPhaseCorrection.
  	 * @return atmPhaseCorrection as vector<AtmPhaseCorrectionMod::AtmPhaseCorrection >
  	 */
- 	vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > getAtmPhaseCorrection() const;
+ 	std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > getAtmPhaseCorrection() const;
 	
  
  	
@@ -352,7 +352,7 @@ public:
  		
  			
  	 */
- 	void setAtmPhaseCorrection (vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection);
+ 	void setAtmPhaseCorrection (std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection);
   		
 	
 	
@@ -407,7 +407,7 @@ public:
  	 * @return phasedArrayList as vector<int >
  	 * @throws IllegalAccessException If phasedArrayList does not exist.
  	 */
- 	vector<int > getPhasedArrayList() const;
+ 	std::vector<int > getPhasedArrayList() const;
 	
  
  	
@@ -418,7 +418,7 @@ public:
  	 
  		
  	 */
- 	void setPhasedArrayList (vector<int > phasedArrayList);
+ 	void setPhasedArrayList (std::vector<int > phasedArrayList);
 		
 	
 	
@@ -519,7 +519,7 @@ public:
  	 * @return assocNature as vector<SpectralResolutionTypeMod::SpectralResolutionType >
  	 * @throws IllegalAccessException If assocNature does not exist.
  	 */
- 	vector<SpectralResolutionTypeMod::SpectralResolutionType > getAssocNature() const;
+ 	std::vector<SpectralResolutionTypeMod::SpectralResolutionType > getAssocNature() const;
 	
  
  	
@@ -530,7 +530,7 @@ public:
  	 
  		
  	 */
- 	void setAssocNature (vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature);
+ 	void setAssocNature (std::vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature);
 		
 	
 	
@@ -557,7 +557,7 @@ public:
  	 * Get antennaId.
  	 * @return antennaId as vector<Tag> 
  	 */
- 	vector<Tag>  getAntennaId() const;
+ 	std::vector<Tag>  getAntennaId() const;
 	
  
  	
@@ -569,7 +569,7 @@ public:
  		
  			
  	 */
- 	void setAntennaId (vector<Tag>  antennaId);
+ 	void setAntennaId (std::vector<Tag>  antennaId);
   		
 	
 	
@@ -594,7 +594,7 @@ public:
  	 * @return assocConfigDescriptionId as vector<Tag> 
  	 * @throws IllegalAccessException If assocConfigDescriptionId does not exist.
  	 */
- 	vector<Tag>  getAssocConfigDescriptionId() const;
+ 	std::vector<Tag>  getAssocConfigDescriptionId() const;
 	
  
  	
@@ -605,7 +605,7 @@ public:
  	 
  		
  	 */
- 	void setAssocConfigDescriptionId (vector<Tag>  assocConfigDescriptionId);
+ 	void setAssocConfigDescriptionId (std::vector<Tag>  assocConfigDescriptionId);
 		
 	
 	
@@ -628,7 +628,7 @@ public:
  	 * Get dataDescriptionId.
  	 * @return dataDescriptionId as vector<Tag> 
  	 */
- 	vector<Tag>  getDataDescriptionId() const;
+ 	std::vector<Tag>  getDataDescriptionId() const;
 	
  
  	
@@ -640,7 +640,7 @@ public:
  		
  			
  	 */
- 	void setDataDescriptionId (vector<Tag>  dataDescriptionId);
+ 	void setDataDescriptionId (std::vector<Tag>  dataDescriptionId);
   		
 	
 	
@@ -658,7 +658,7 @@ public:
  	 * Get feedId.
  	 * @return feedId as vector<int> 
  	 */
- 	vector<int>  getFeedId() const;
+ 	std::vector<int>  getFeedId() const;
 	
  
  	
@@ -670,7 +670,7 @@ public:
  		
  			
  	 */
- 	void setFeedId (vector<int>  feedId);
+ 	void setFeedId (std::vector<int>  feedId);
   		
 	
 	
@@ -718,7 +718,7 @@ public:
  	 * Get switchCycleId.
  	 * @return switchCycleId as vector<Tag> 
  	 */
- 	vector<Tag>  getSwitchCycleId() const;
+ 	std::vector<Tag>  getSwitchCycleId() const;
 	
  
  	
@@ -730,7 +730,7 @@ public:
  		
  			
  	 */
- 	void setSwitchCycleId (vector<Tag>  switchCycleId);
+ 	void setSwitchCycleId (std::vector<Tag>  switchCycleId);
   		
 	
 	
@@ -765,7 +765,7 @@ public:
  * Append a vector of Tag to assocConfigDescriptionId.
  * @param id an array of Tag to be appended to assocConfigDescriptionId
  */
- void addAssocConfigDescriptionId(const vector<Tag> & id); 
+ void addAssocConfigDescriptionId(const std::vector<Tag> & id); 
  
 
  /**
@@ -788,7 +788,7 @@ public:
   * Returns the vector of ConfigDescriptionRow* linked to this row via the Tags stored in assocConfigDescriptionId
   * @return an array of pointers on ConfigDescriptionRow.
   */
- vector<ConfigDescriptionRow *> getConfigDescriptionsUsingAssocConfigDescriptionId(); 
+ std::vector<ConfigDescriptionRow *> getConfigDescriptionsUsingAssocConfigDescriptionId(); 
   
 
 	
@@ -818,7 +818,7 @@ public:
  * Append a vector of Tag to antennaId.
  * @param id an array of Tag to be appended to antennaId
  */
- void addAntennaId(const vector<Tag> & id); 
+ void addAntennaId(const std::vector<Tag> & id); 
  
 
  /**
@@ -841,7 +841,7 @@ public:
   * Returns the vector of AntennaRow* linked to this row via the Tags stored in antennaId
   * @return an array of pointers on AntennaRow.
   */
- vector<AntennaRow *> getAntennasUsingAntennaId(); 
+ std::vector<AntennaRow *> getAntennasUsingAntennaId(); 
   
 
 	
@@ -874,7 +874,7 @@ public:
 	 * Append an array of ids to feedId
 	 * @param id a vector of int containing the values to append to feedId.
 	 */ 
-	void addFeedId(vector<int> id); 
+	void addFeedId(std::vector<int> id); 
 
 
 	/**
@@ -920,7 +920,7 @@ public:
  * Append a vector of Tag to switchCycleId.
  * @param id an array of Tag to be appended to switchCycleId
  */
- void addSwitchCycleId(const vector<Tag> & id); 
+ void addSwitchCycleId(const std::vector<Tag> & id); 
  
 
  /**
@@ -943,7 +943,7 @@ public:
   * Returns the vector of SwitchCycleRow* linked to this row via the Tags stored in switchCycleId
   * @return an array of pointers on SwitchCycleRow.
   */
- vector<SwitchCycleRow *> getSwitchCyclesUsingSwitchCycleId(); 
+ std::vector<SwitchCycleRow *> getSwitchCyclesUsingSwitchCycleId(); 
   
 
 	
@@ -973,7 +973,7 @@ public:
  * Append a vector of Tag to dataDescriptionId.
  * @param id an array of Tag to be appended to dataDescriptionId
  */
- void addDataDescriptionId(const vector<Tag> & id); 
+ void addDataDescriptionId(const std::vector<Tag> & id); 
  
 
  /**
@@ -996,7 +996,7 @@ public:
   * Returns the vector of DataDescriptionRow* linked to this row via the Tags stored in dataDescriptionId
   * @return an array of pointers on DataDescriptionRow.
   */
- vector<DataDescriptionRow *> getDataDescriptionsUsingDataDescriptionId(); 
+ std::vector<DataDescriptionRow *> getDataDescriptionsUsingDataDescriptionId(); 
   
 
 	
@@ -1050,7 +1050,7 @@ public:
 	 * @param processorId
 	    
 	 */ 
-	bool compareNoAutoInc(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, vector<Tag>  antennaId, vector<int>  feedId, vector<Tag>  switchCycleId, vector<Tag>  dataDescriptionId, Tag processorId);
+	bool compareNoAutoInc(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, std::vector<Tag>  antennaId, std::vector<int>  feedId, std::vector<Tag>  switchCycleId, std::vector<Tag>  dataDescriptionId, Tag processorId);
 	
 	
 
@@ -1086,7 +1086,7 @@ public:
 	 * @param processorId
 	    
 	 */ 
-	bool compareRequiredValue(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, vector<Tag>  antennaId, vector<int>  feedId, vector<Tag>  switchCycleId, vector<Tag>  dataDescriptionId, Tag processorId); 
+	bool compareRequiredValue(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, std::vector<Tag>  antennaId, std::vector<int>  feedId, std::vector<Tag>  switchCycleId, std::vector<Tag>  dataDescriptionId, Tag processorId); 
 		 
 	
 	/**
@@ -1314,7 +1314,7 @@ private:
 	
 	
 
-	vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection;
+	std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection;
 
 	
 	
@@ -1338,7 +1338,7 @@ private:
 	bool phasedArrayListExists;
 	
 
-	vector<int > phasedArrayList;
+	std::vector<int > phasedArrayList;
 
 	
 	
@@ -1375,7 +1375,7 @@ private:
 	bool assocNatureExists;
 	
 
-	vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature;
+	std::vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature;
 
 	
 	
@@ -1390,7 +1390,7 @@ private:
 	
 	
 
-	vector<Tag>  antennaId;
+	std::vector<Tag>  antennaId;
 
 	
 	
@@ -1403,7 +1403,7 @@ private:
 	bool assocConfigDescriptionIdExists;
 	
 
-	vector<Tag>  assocConfigDescriptionId;
+	std::vector<Tag>  assocConfigDescriptionId;
 
 	
 	
@@ -1414,7 +1414,7 @@ private:
 	
 	
 
-	vector<Tag>  dataDescriptionId;
+	std::vector<Tag>  dataDescriptionId;
 
 	
 	
@@ -1425,7 +1425,7 @@ private:
 	
 	
 
-	vector<int>  feedId;
+	std::vector<int>  feedId;
 
 	
 	
@@ -1447,7 +1447,7 @@ private:
 	
 	
 
-	vector<Tag>  switchCycleId;
+	std::vector<Tag>  switchCycleId;
 
 	
 	

@@ -232,7 +232,7 @@ public:
  	 * Get encoder.
  	 * @return encoder as vector<vector<Angle > >
  	 */
- 	vector<vector<Angle > > getEncoder() const;
+ 	std::vector<std::vector<Angle > > getEncoder() const;
 	
  
  	
@@ -244,7 +244,7 @@ public:
  		
  			
  	 */
- 	void setEncoder (vector<vector<Angle > > encoder);
+ 	void setEncoder (std::vector<std::vector<Angle > > encoder);
   		
 	
 	
@@ -382,7 +382,7 @@ public:
  	 * Get pointingDirection.
  	 * @return pointingDirection as vector<vector<Angle > >
  	 */
- 	vector<vector<Angle > > getPointingDirection() const;
+ 	std::vector<std::vector<Angle > > getPointingDirection() const;
 	
  
  	
@@ -394,7 +394,7 @@ public:
  		
  			
  	 */
- 	void setPointingDirection (vector<vector<Angle > > pointingDirection);
+ 	void setPointingDirection (std::vector<std::vector<Angle > > pointingDirection);
   		
 	
 	
@@ -412,7 +412,7 @@ public:
  	 * Get target.
  	 * @return target as vector<vector<Angle > >
  	 */
- 	vector<vector<Angle > > getTarget() const;
+ 	std::vector<std::vector<Angle > > getTarget() const;
 	
  
  	
@@ -424,7 +424,7 @@ public:
  		
  			
  	 */
- 	void setTarget (vector<vector<Angle > > target);
+ 	void setTarget (std::vector<std::vector<Angle > > target);
   		
 	
 	
@@ -442,7 +442,7 @@ public:
  	 * Get offset.
  	 * @return offset as vector<vector<Angle > >
  	 */
- 	vector<vector<Angle > > getOffset() const;
+ 	std::vector<std::vector<Angle > > getOffset() const;
 	
  
  	
@@ -454,7 +454,7 @@ public:
  		
  			
  	 */
- 	void setOffset (vector<vector<Angle > > offset);
+ 	void setOffset (std::vector<std::vector<Angle > > offset);
   		
 	
 	
@@ -520,7 +520,7 @@ public:
  	 * @return sourceOffset as vector<vector<Angle > >
  	 * @throws IllegalAccessException If sourceOffset does not exist.
  	 */
- 	vector<vector<Angle > > getSourceOffset() const;
+ 	std::vector<std::vector<Angle > > getSourceOffset() const;
 	
  
  	
@@ -531,7 +531,7 @@ public:
  	 
  		
  	 */
- 	void setSourceOffset (vector<vector<Angle > > sourceOffset);
+ 	void setSourceOffset (std::vector<std::vector<Angle > > sourceOffset);
 		
 	
 	
@@ -643,7 +643,7 @@ public:
  	 * @return sampledTimeInterval as vector<ArrayTimeInterval >
  	 * @throws IllegalAccessException If sampledTimeInterval does not exist.
  	 */
- 	vector<ArrayTimeInterval > getSampledTimeInterval() const;
+ 	std::vector<ArrayTimeInterval > getSampledTimeInterval() const;
 	
  
  	
@@ -654,7 +654,7 @@ public:
  	 
  		
  	 */
- 	void setSampledTimeInterval (vector<ArrayTimeInterval > sampledTimeInterval);
+ 	void setSampledTimeInterval (std::vector<ArrayTimeInterval > sampledTimeInterval);
 		
 	
 	
@@ -684,7 +684,7 @@ public:
  	 * @return atmosphericCorrection as vector<vector<Angle > >
  	 * @throws IllegalAccessException If atmosphericCorrection does not exist.
  	 */
- 	vector<vector<Angle > > getAtmosphericCorrection() const;
+ 	std::vector<std::vector<Angle > > getAtmosphericCorrection() const;
 	
  
  	
@@ -695,7 +695,7 @@ public:
  	 
  		
  	 */
- 	void setAtmosphericCorrection (vector<vector<Angle > > atmosphericCorrection);
+ 	void setAtmosphericCorrection (std::vector<std::vector<Angle > > atmosphericCorrection);
 		
 	
 	
@@ -841,7 +841,7 @@ public:
 	 * @param pointingModelId
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, vector<vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, vector<vector<Angle > > pointingDirection, vector<vector<Angle > > target, vector<vector<Angle > > offset, int pointingModelId);
+	bool compareNoAutoInc(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, std::vector<std::vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, std::vector<std::vector<Angle > > pointingDirection, std::vector<std::vector<Angle > > target, std::vector<std::vector<Angle > > offset, int pointingModelId);
 	
 	
 
@@ -871,7 +871,7 @@ public:
 	 * @param pointingModelId
 	    
 	 */ 
-	bool compareRequiredValue(int numSample, vector<vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, vector<vector<Angle > > pointingDirection, vector<vector<Angle > > target, vector<vector<Angle > > offset, int pointingModelId); 
+	bool compareRequiredValue(int numSample, std::vector<std::vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, std::vector<std::vector<Angle > > pointingDirection, std::vector<std::vector<Angle > > target, std::vector<std::vector<Angle > > offset, int pointingModelId); 
 		 
 	
 	/**
@@ -1043,7 +1043,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > encoder;
+	std::vector<std::vector<Angle > > encoder;
 
 	
 	
@@ -1098,7 +1098,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > pointingDirection;
+	std::vector<std::vector<Angle > > pointingDirection;
 
 	
 	
@@ -1109,7 +1109,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > target;
+	std::vector<std::vector<Angle > > target;
 
 	
 	
@@ -1120,7 +1120,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > offset;
+	std::vector<std::vector<Angle > > offset;
 
 	
 	
@@ -1146,7 +1146,7 @@ private:
 	bool sourceOffsetExists;
 	
 
-	vector<vector<Angle > > sourceOffset;
+	std::vector<std::vector<Angle > > sourceOffset;
 
 	
 	
@@ -1185,7 +1185,7 @@ private:
 	bool sampledTimeIntervalExists;
 	
 
-	vector<ArrayTimeInterval > sampledTimeInterval;
+	std::vector<ArrayTimeInterval > sampledTimeInterval;
 
 	
 	
@@ -1198,7 +1198,7 @@ private:
 	bool atmosphericCorrectionExists;
 	
 
-	vector<vector<Angle > > atmosphericCorrection;
+	std::vector<std::vector<Angle > > atmosphericCorrection;
 
 	
 	

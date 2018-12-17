@@ -35,10 +35,10 @@ namespace sdmbin {
      * @note v_feedIdArray may be typed vector<vector<int> > in the future to better describe the case of
      *       of focal plane arrays when used with interferometers
      */     
-    BaselinesSet( vector<Tag>  v_antennaIdArray, 
-		  vector<int>  v_feedIdArray,
-		  vector<int>  v_phasedArrayList,
-		  vector<bool> v_antennaUsedArray, 
+    BaselinesSet( std::vector<Tag>  v_antennaIdArray, 
+		  std::vector<int>  v_feedIdArray,
+		  std::vector<int>  v_phasedArrayList,
+		  std::vector<bool> v_antennaUsedArray, 
 		  DataDescriptionsSet& dataDescriptionsSet
 		  );
 

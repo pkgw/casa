@@ -99,21 +99,21 @@ public:
 	 * @param cmplx the vector of Complex to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Complex>& cmplx,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Complex>& cmplx,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Complex to a EndianOSStream.
 	 * @param cmplx the vector of vector of Complex to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Complex> >& cmplx,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Complex> >& cmplx,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Complex to a EndianOSStream.
 	 * @param cmplx the vector of vector of vector of Complex to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Complex> > >& cmplx,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<vector<Complex> > >& cmplx,  EndianOSStream& eoss);
 
 	/**
 	 * Read the binary representation of an Complex from a EndianIStream
@@ -129,7 +129,7 @@ public:
 	 * @param dis the EndianIStream to be read
 	 * @return a vector of Complex
 	 */	 
-	 static vector<Complex> from1DBin(EndianIStream & eis);
+	 static std::vector<Complex> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Complex from an EndianIStream
@@ -137,7 +137,7 @@ public:
 	 * @param eiis the EndianIStream to be read
 	 * @return a vector of vector of Complex
 	 */	 
-	 static vector<vector<Complex> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Complex> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Complex from an EndianIStream
@@ -145,7 +145,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Complex
 	 */	 
-	 static vector<vector<vector<Complex> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<vector<Complex> > > from3DBin(EndianIStream & eis);	 
 
 };
 

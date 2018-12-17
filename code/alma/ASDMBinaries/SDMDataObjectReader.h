@@ -209,7 +209,7 @@ namespace asdmbinaries {
     static map<string, BINATTACHCODES> name2code;
 
     string extractXMLHeader(const string& boundary);
-    void tokenize(const string& str, vector<string>& tokens, const string& delimiters);
+    void tokenize(const string& str, std::vector<string>& tokens, const string& delimiters);
     void getFields(const string& header, map<string, string>& fields);
     string getContentID();
     string getContentLocation();

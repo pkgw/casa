@@ -445,6 +445,7 @@ class PySynthesisImager:
         for immod in range(0,self.NF):  
             if self.stopMinor[str(immod)]<3 :
 
+                # temporarily disable the check (=> always save the intermediate images
                 if os.environ.has_key('SAVE_ALL_RESIMS') and os.environ['SAVE_ALL_RESIMS']=="true":
                     resname = self.allimpars[str(immod)]['imagename']+'.residual'
                     tempresname = self.allimpars[str(immod)]['imagename']+'.inputres'+str(self.ncycle)

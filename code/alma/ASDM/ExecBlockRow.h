@@ -485,7 +485,7 @@ public:
  	 * Get observingLog.
  	 * @return observingLog as vector<string >
  	 */
- 	vector<string > getObservingLog() const;
+ 	std::vector<string > getObservingLog() const;
 	
  
  	
@@ -497,7 +497,7 @@ public:
  		
  			
  	 */
- 	void setObservingLog (vector<string > observingLog);
+ 	void setObservingLog (std::vector<string > observingLog);
   		
 	
 	
@@ -1046,7 +1046,7 @@ public:
  	 * Get antennaId.
  	 * @return antennaId as vector<Tag> 
  	 */
- 	vector<Tag>  getAntennaId() const;
+ 	std::vector<Tag>  getAntennaId() const;
 	
  
  	
@@ -1058,7 +1058,7 @@ public:
  		
  			
  	 */
- 	void setAntennaId (vector<Tag>  antennaId);
+ 	void setAntennaId (std::vector<Tag>  antennaId);
   		
 	
 	
@@ -1165,7 +1165,7 @@ public:
  * Append a vector of Tag to antennaId.
  * @param id an array of Tag to be appended to antennaId
  */
- void addAntennaId(const vector<Tag> & id); 
+ void addAntennaId(const std::vector<Tag> & id); 
  
 
  /**
@@ -1188,7 +1188,7 @@ public:
   * Returns the vector of AntennaRow* linked to this row via the Tags stored in antennaId
   * @return an array of pointers on AntennaRow.
   */
- vector<AntennaRow *> getAntennasUsingAntennaId(); 
+ std::vector<AntennaRow *> getAntennasUsingAntennaId(); 
   
 
 	
@@ -1273,7 +1273,7 @@ public:
 	 * @param sBSummaryId
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, vector<Tag>  antennaId, Tag sBSummaryId);
+	bool compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, std::vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, std::vector<Tag>  antennaId, Tag sBSummaryId);
 	
 	
 
@@ -1323,7 +1323,7 @@ public:
 	 * @param sBSummaryId
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, vector<Tag>  antennaId, Tag sBSummaryId); 
+	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, std::vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, std::vector<Tag>  antennaId, Tag sBSummaryId); 
 		 
 	
 	/**
@@ -1606,7 +1606,7 @@ private:
 	
 	
 
-	vector<string > observingLog;
+	std::vector<string > observingLog;
 
 	
 	
@@ -1800,7 +1800,7 @@ private:
 	
 	
 
-	vector<Tag>  antennaId;
+	std::vector<Tag>  antennaId;
 
 	
 	

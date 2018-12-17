@@ -69,7 +69,7 @@ public:
 	~ImageConcatenator();
 
 	// Perform the concatenation.
-	SPIIT concatenate(const vector<casacore::String>& imageNames);
+	SPIIT concatenate(const std::vector<casacore::String>& imageNames);
 
 	// Set the axis along which to do the concatenation. A negative value
 	// of <src>axis</src> means use the spectral axis. An exception is thrown
@@ -89,8 +89,8 @@ protected:
 		return CasacRegionManager::USE_ALL_STOKES;
 	}
 
-	inline vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-		return vector<casacore::Coordinate::Type>(0);
+	inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+		return std::vector<casacore::Coordinate::Type>(0);
  	}
 
 private:

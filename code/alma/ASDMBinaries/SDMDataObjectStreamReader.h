@@ -291,7 +291,7 @@ namespace asdmbinaries {
      *
      * @return const vector<SDMDataSubset>& 
      */
-    const vector<SDMDataSubset>& nextSubsets(unsigned int nSubsets);
+    const std::vector<SDMDataSubset>& nextSubsets(unsigned int nSubsets);
 
     /*
      * Returns all binary data found in the BDF file from the current location.
@@ -302,7 +302,7 @@ namespace asdmbinaries {
      *
      * @return const vector<SDMDataSubset>& 
      */
-    const vector<SDMDataSubset>& allRemainingSubsets();
+    const std::vector<SDMDataSubset>& allRemainingSubsets();
 
     enum BINATTACHCODES {ACTUALDURATIONS=0, ACTUALTIMES=1, AUTODATA=2, FLAGS=3, CROSSDATA=4, ZEROLAGS=5};
     bitset<6> attachmentFlags;
@@ -336,8 +336,8 @@ namespace asdmbinaries {
     SDMDataObjectParser   parser;
     SDMDataObject         sdmDataObject;
     SDMDataSubset         sdmDataSubset;
-    vector<SDMDataSubset> remainingSubsets;
-    vector<SDMDataSubset> someSubsets;
+    std::vector<SDMDataSubset> remainingSubsets;
+    std::vector<SDMDataSubset> someSubsets;
 
     // Private methods
     void                        checkState(Transitions t, const string& methodName) const; 

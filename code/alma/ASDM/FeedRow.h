@@ -255,7 +255,7 @@ public:
  	 * Get beamOffset.
  	 * @return beamOffset as vector<vector<double > >
  	 */
- 	vector<vector<double > > getBeamOffset() const;
+ 	std::vector<std::vector<double > > getBeamOffset() const;
 	
  
  	
@@ -267,7 +267,7 @@ public:
  		
  			
  	 */
- 	void setBeamOffset (vector<vector<double > > beamOffset);
+ 	void setBeamOffset (std::vector<std::vector<double > > beamOffset);
   		
 	
 	
@@ -285,7 +285,7 @@ public:
  	 * Get focusReference.
  	 * @return focusReference as vector<vector<Length > >
  	 */
- 	vector<vector<Length > > getFocusReference() const;
+ 	std::vector<std::vector<Length > > getFocusReference() const;
 	
  
  	
@@ -297,7 +297,7 @@ public:
  		
  			
  	 */
- 	void setFocusReference (vector<vector<Length > > focusReference);
+ 	void setFocusReference (std::vector<std::vector<Length > > focusReference);
   		
 	
 	
@@ -315,7 +315,7 @@ public:
  	 * Get polarizationTypes.
  	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
@@ -327,7 +327,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -345,7 +345,7 @@ public:
  	 * Get polResponse.
  	 * @return polResponse as vector<vector<Complex > >
  	 */
- 	vector<vector<Complex > > getPolResponse() const;
+ 	std::vector<std::vector<Complex > > getPolResponse() const;
 	
  
  	
@@ -357,7 +357,7 @@ public:
  		
  			
  	 */
- 	void setPolResponse (vector<vector<Complex > > polResponse);
+ 	void setPolResponse (std::vector<std::vector<Complex > > polResponse);
   		
 	
 	
@@ -375,7 +375,7 @@ public:
  	 * Get receptorAngle.
  	 * @return receptorAngle as vector<Angle >
  	 */
- 	vector<Angle > getReceptorAngle() const;
+ 	std::vector<Angle > getReceptorAngle() const;
 	
  
  	
@@ -387,7 +387,7 @@ public:
  		
  			
  	 */
- 	void setReceptorAngle (vector<Angle > receptorAngle);
+ 	void setReceptorAngle (std::vector<Angle > receptorAngle);
   		
 	
 	
@@ -453,7 +453,7 @@ public:
  	 * @return illumOffset as vector<Length >
  	 * @throws IllegalAccessException If illumOffset does not exist.
  	 */
- 	vector<Length > getIllumOffset() const;
+ 	std::vector<Length > getIllumOffset() const;
 	
  
  	
@@ -464,7 +464,7 @@ public:
  	 
  		
  	 */
- 	void setIllumOffset (vector<Length > illumOffset);
+ 	void setIllumOffset (std::vector<Length > illumOffset);
 		
 	
 	
@@ -494,7 +494,7 @@ public:
  	 * @return position as vector<Length >
  	 * @throws IllegalAccessException If position does not exist.
  	 */
- 	vector<Length > getPosition() const;
+ 	std::vector<Length > getPosition() const;
 	
  
  	
@@ -505,7 +505,7 @@ public:
  	 
  		
  	 */
- 	void setPosition (vector<Length > position);
+ 	void setPosition (std::vector<Length > position);
 		
 	
 	
@@ -617,7 +617,7 @@ public:
  	 * @return skyCouplingSpectrum as vector<float >
  	 * @throws IllegalAccessException If skyCouplingSpectrum does not exist.
  	 */
- 	vector<float > getSkyCouplingSpectrum() const;
+ 	std::vector<float > getSkyCouplingSpectrum() const;
 	
  
  	
@@ -628,7 +628,7 @@ public:
  	 
  		
  	 */
- 	void setSkyCouplingSpectrum (vector<float > skyCouplingSpectrum);
+ 	void setSkyCouplingSpectrum (std::vector<float > skyCouplingSpectrum);
 		
 	
 	
@@ -687,7 +687,7 @@ public:
  	 * Get receiverId.
  	 * @return receiverId as vector<int> 
  	 */
- 	vector<int>  getReceiverId() const;
+ 	std::vector<int>  getReceiverId() const;
 	
  
  	
@@ -699,7 +699,7 @@ public:
  		
  			
  	 */
- 	void setReceiverId (vector<int>  receiverId);
+ 	void setReceiverId (std::vector<int>  receiverId);
   		
 	
 	
@@ -800,7 +800,7 @@ public:
 	 * Append an array of ids to receiverId
 	 * @param id a vector of int containing the values to append to receiverId.
 	 */ 
-	void addReceiverId(vector<int> id); 
+	void addReceiverId(std::vector<int> id); 
 
 
 	/**
@@ -849,7 +849,7 @@ public:
 	 * @param receiverId
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, vector<vector<double > > beamOffset, vector<vector<Length > > focusReference, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Complex > > polResponse, vector<Angle > receptorAngle, vector<int>  receiverId);
+	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, std::vector<std::vector<double > > beamOffset, std::vector<std::vector<Length > > focusReference, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Complex > > polResponse, std::vector<Angle > receptorAngle, std::vector<int>  receiverId);
 	
 	
 
@@ -873,7 +873,7 @@ public:
 	 * @param receiverId
 	    
 	 */ 
-	bool compareRequiredValue(int numReceptor, vector<vector<double > > beamOffset, vector<vector<Length > > focusReference, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Complex > > polResponse, vector<Angle > receptorAngle, vector<int>  receiverId); 
+	bool compareRequiredValue(int numReceptor, std::vector<std::vector<double > > beamOffset, std::vector<std::vector<Length > > focusReference, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Complex > > polResponse, std::vector<Angle > receptorAngle, std::vector<int>  receiverId); 
 		 
 	
 	/**
@@ -1067,7 +1067,7 @@ private:
 	
 	
 
-	vector<vector<double > > beamOffset;
+	std::vector<std::vector<double > > beamOffset;
 
 	
 	
@@ -1078,7 +1078,7 @@ private:
 	
 	
 
-	vector<vector<Length > > focusReference;
+	std::vector<std::vector<Length > > focusReference;
 
 	
 	
@@ -1089,7 +1089,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1100,7 +1100,7 @@ private:
 	
 	
 
-	vector<vector<Complex > > polResponse;
+	std::vector<std::vector<Complex > > polResponse;
 
 	
 	
@@ -1111,7 +1111,7 @@ private:
 	
 	
 
-	vector<Angle > receptorAngle;
+	std::vector<Angle > receptorAngle;
 
 	
 	
@@ -1137,7 +1137,7 @@ private:
 	bool illumOffsetExists;
 	
 
-	vector<Length > illumOffset;
+	std::vector<Length > illumOffset;
 
 	
 	
@@ -1150,7 +1150,7 @@ private:
 	bool positionExists;
 	
 
-	vector<Length > position;
+	std::vector<Length > position;
 
 	
 	
@@ -1189,7 +1189,7 @@ private:
 	bool skyCouplingSpectrumExists;
 	
 
-	vector<float > skyCouplingSpectrum;
+	std::vector<float > skyCouplingSpectrum;
 
 	
 	
@@ -1215,7 +1215,7 @@ private:
 	
 	
 
-	vector<int>  receiverId;
+	std::vector<int>  receiverId;
 
 	
 	

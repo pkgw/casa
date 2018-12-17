@@ -65,7 +65,7 @@ public:
     void clear();
 
     std::vector<casacore::String> get(casacore::Bool list) const;
-    vector<string> getAsStdStrings(casacore::Bool list) const;
+    std::vector<string> getAsStdStrings(casacore::Bool list) const;
 
     // <group>
     //Append the specified image's history to this image's history

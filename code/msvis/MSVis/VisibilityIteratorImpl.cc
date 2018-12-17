@@ -3387,6 +3387,7 @@ void
 VisibilityIteratorWriteImpl::putModel(const RecordInterface& rec, Bool iscomponentlist, Bool incremental)
 {
 
+  /*
   Vector<Int> fields = getReadImpl()->msColumns().fieldId().getColumn();
   const Int option = Sort::HeapSort | Sort::NoDuplicates;
   const Sort::Order order = Sort::Ascending;
@@ -3396,18 +3397,29 @@ VisibilityIteratorWriteImpl::putModel(const RecordInterface& rec, Bool iscompone
   // Make sure  we have the right size
 
   fields.resize(nfields, true);
+  */
+  Matrix<Int>  combiIndex;
+  MSUtil::getIndexCombination(getReadImpl()->msColumns(), combiIndex);
   Int msid = getReadImpl()->msId();
 
   Vector<Int> spws =  getReadImpl()->msChannels_p.spw_p[msid];
   Vector<Int> starts = getReadImpl()->msChannels_p.start_p[msid];
   Vector<Int> nchan = getReadImpl()->msChannels_p.width_p[msid];
   Vector<Int> incr = getReadImpl()->msChannels_p.inc_p[msid];
+  Matrix<Int> chansel(spws.nelements(),4);
+  chansel.column(0)=spws;
+  chansel.column(1)=starts;
+  chansel.column(2)=nchan;
+  chansel.column(3)=incr;
 
   CountedPtr<VisModelDataI> visModelData = VisModelDataI::create();
 
-  visModelData->putModelI (getReadImpl()->ms (), rec, fields, spws, starts, nchan, incr,
-                           iscomponentlist, incremental);
+  //visModelData->putModelI (getReadImpl()->ms (), rec, fields, spws, starts, nchan, incr,
+  //                           iscomponentlist, incremental);
 
+  //version 2.0 to keep track of scan and state_id selection 
+  visModelData->putModelI (getReadImpl()->ms (), rec, combiIndex, chansel, iscomponentlist, incremental);
+  
 }
 
 

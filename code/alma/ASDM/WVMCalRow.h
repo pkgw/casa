@@ -219,7 +219,7 @@ public:
  	 * Get polyFreqLimits.
  	 * @return polyFreqLimits as vector<Frequency >
  	 */
- 	vector<Frequency > getPolyFreqLimits() const;
+ 	std::vector<Frequency > getPolyFreqLimits() const;
 	
  
  	
@@ -231,7 +231,7 @@ public:
  		
  			
  	 */
- 	void setPolyFreqLimits (vector<Frequency > polyFreqLimits);
+ 	void setPolyFreqLimits (std::vector<Frequency > polyFreqLimits);
   		
 	
 	
@@ -339,7 +339,7 @@ public:
  	 * Get pathCoeff.
  	 * @return pathCoeff as vector<vector<vector<float > > >
  	 */
- 	vector<vector<vector<float > > > getPathCoeff() const;
+ 	std::vector<std::vector<vector<float > > > getPathCoeff() const;
 	
  
  	
@@ -351,7 +351,7 @@ public:
  		
  			
  	 */
- 	void setPathCoeff (vector<vector<vector<float > > > pathCoeff);
+ 	void setPathCoeff (std::vector<std::vector<vector<float > > > pathCoeff);
   		
 	
 	
@@ -369,7 +369,7 @@ public:
  	 * Get refTemp.
  	 * @return refTemp as vector<vector<Temperature > >
  	 */
- 	vector<vector<Temperature > > getRefTemp() const;
+ 	std::vector<std::vector<Temperature > > getRefTemp() const;
 	
  
  	
@@ -381,7 +381,7 @@ public:
  		
  			
  	 */
- 	void setRefTemp (vector<vector<Temperature > > refTemp);
+ 	void setRefTemp (std::vector<std::vector<Temperature > > refTemp);
   		
 	
 	
@@ -435,7 +435,7 @@ public:
  	 * Get inputAntennaId.
  	 * @return inputAntennaId as vector<Tag> 
  	 */
- 	vector<Tag>  getInputAntennaId() const;
+ 	std::vector<Tag>  getInputAntennaId() const;
 	
  
  	
@@ -447,7 +447,7 @@ public:
  		
  			
  	 */
- 	void setInputAntennaId (vector<Tag>  inputAntennaId);
+ 	void setInputAntennaId (std::vector<Tag>  inputAntennaId);
   		
 	
 	
@@ -545,7 +545,7 @@ public:
  * Append a vector of Tag to inputAntennaId.
  * @param id an array of Tag to be appended to inputAntennaId
  */
- void addInputAntennaId(const vector<Tag> & id); 
+ void addInputAntennaId(const std::vector<Tag> & id); 
  
 
  /**
@@ -568,7 +568,7 @@ public:
   * Returns the vector of AntennaRow* linked to this row via the Tags stored in inputAntennaId
   * @return an array of pointers on AntennaRow.
   */
- vector<AntennaRow *> getAntennasUsingInputAntennaId(); 
+ std::vector<AntennaRow *> getAntennasUsingInputAntennaId(); 
   
 
 	
@@ -603,7 +603,7 @@ public:
 	 * @param inputAntennaId
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<vector<Temperature > > refTemp, vector<Tag>  inputAntennaId);
+	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId);
 	
 	
 
@@ -629,7 +629,7 @@ public:
 	 * @param inputAntennaId
 	    
 	 */ 
-	bool compareRequiredValue(WVRMethodMod::WVRMethod wvrMethod, vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<vector<Temperature > > refTemp, vector<Tag>  inputAntennaId); 
+	bool compareRequiredValue(WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId); 
 		 
 	
 	/**
@@ -794,7 +794,7 @@ private:
 	
 	
 
-	vector<Frequency > polyFreqLimits;
+	std::vector<Frequency > polyFreqLimits;
 
 	
 	
@@ -838,7 +838,7 @@ private:
 	
 	
 
-	vector<vector<vector<float > > > pathCoeff;
+	std::vector<std::vector<vector<float > > > pathCoeff;
 
 	
 	
@@ -849,7 +849,7 @@ private:
 	
 	
 
-	vector<vector<Temperature > > refTemp;
+	std::vector<std::vector<Temperature > > refTemp;
 
 	
 	
@@ -875,7 +875,7 @@ private:
 	
 	
 
-	vector<Tag>  inputAntennaId;
+	std::vector<Tag>  inputAntennaId;
 
 	
 	

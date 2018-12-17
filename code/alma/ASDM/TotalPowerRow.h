@@ -288,7 +288,7 @@ public:
  	 * Get uvw.
  	 * @return uvw as vector<vector<Length > >
  	 */
- 	vector<vector<Length > > getUvw() const;
+ 	std::vector<std::vector<Length > > getUvw() const;
 	
  
  	
@@ -300,7 +300,7 @@ public:
  		
  			
  	 */
- 	void setUvw (vector<vector<Length > > uvw);
+ 	void setUvw (std::vector<std::vector<Length > > uvw);
   		
 	
 	
@@ -318,7 +318,7 @@ public:
  	 * Get exposure.
  	 * @return exposure as vector<vector<Interval > >
  	 */
- 	vector<vector<Interval > > getExposure() const;
+ 	std::vector<std::vector<Interval > > getExposure() const;
 	
  
  	
@@ -330,7 +330,7 @@ public:
  		
  			
  	 */
- 	void setExposure (vector<vector<Interval > > exposure);
+ 	void setExposure (std::vector<std::vector<Interval > > exposure);
   		
 	
 	
@@ -348,7 +348,7 @@ public:
  	 * Get timeCentroid.
  	 * @return timeCentroid as vector<vector<ArrayTime > >
  	 */
- 	vector<vector<ArrayTime > > getTimeCentroid() const;
+ 	std::vector<std::vector<ArrayTime > > getTimeCentroid() const;
 	
  
  	
@@ -360,7 +360,7 @@ public:
  		
  			
  	 */
- 	void setTimeCentroid (vector<vector<ArrayTime > > timeCentroid);
+ 	void setTimeCentroid (std::vector<std::vector<ArrayTime > > timeCentroid);
   		
 	
 	
@@ -378,7 +378,7 @@ public:
  	 * Get floatData.
  	 * @return floatData as vector<vector<vector<float > > >
  	 */
- 	vector<vector<vector<float > > > getFloatData() const;
+ 	std::vector<std::vector<vector<float > > > getFloatData() const;
 	
  
  	
@@ -390,7 +390,7 @@ public:
  		
  			
  	 */
- 	void setFloatData (vector<vector<vector<float > > > floatData);
+ 	void setFloatData (std::vector<std::vector<vector<float > > > floatData);
   		
 	
 	
@@ -408,7 +408,7 @@ public:
  	 * Get flagAnt.
  	 * @return flagAnt as vector<int >
  	 */
- 	vector<int > getFlagAnt() const;
+ 	std::vector<int > getFlagAnt() const;
 	
  
  	
@@ -420,7 +420,7 @@ public:
  		
  			
  	 */
- 	void setFlagAnt (vector<int > flagAnt);
+ 	void setFlagAnt (std::vector<int > flagAnt);
   		
 	
 	
@@ -438,7 +438,7 @@ public:
  	 * Get flagPol.
  	 * @return flagPol as vector<vector<int > >
  	 */
- 	vector<vector<int > > getFlagPol() const;
+ 	std::vector<std::vector<int > > getFlagPol() const;
 	
  
  	
@@ -450,7 +450,7 @@ public:
  		
  			
  	 */
- 	void setFlagPol (vector<vector<int > > flagPol);
+ 	void setFlagPol (std::vector<std::vector<int > > flagPol);
   		
 	
 	
@@ -637,7 +637,7 @@ public:
  	 * Get stateId.
  	 * @return stateId as vector<Tag> 
  	 */
- 	vector<Tag>  getStateId() const;
+ 	std::vector<Tag>  getStateId() const;
 	
  
  	
@@ -649,7 +649,7 @@ public:
  		
  			
  	 */
- 	void setStateId (vector<Tag>  stateId);
+ 	void setStateId (std::vector<Tag>  stateId);
   		
 	
 	
@@ -685,7 +685,7 @@ public:
  * Append a vector of Tag to stateId.
  * @param id an array of Tag to be appended to stateId
  */
- void addStateId(const vector<Tag> & id); 
+ void addStateId(const std::vector<Tag> & id); 
  
 
  /**
@@ -708,7 +708,7 @@ public:
   * Returns the vector of StateRow* linked to this row via the Tags stored in stateId
   * @return an array of pointers on StateRow.
   */
- vector<StateRow *> getStatesUsingStateId(); 
+ std::vector<StateRow *> getStatesUsingStateId(); 
   
 
 	
@@ -796,7 +796,7 @@ public:
 	 * @param execBlockId
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, vector<vector<Length > > uvw, vector<vector<Interval > > exposure, vector<vector<ArrayTime > > timeCentroid, vector<vector<vector<float > > > floatData, vector<int > flagAnt, vector<vector<int > > flagPol, Interval interval, vector<Tag>  stateId, Tag execBlockId);
+	bool compareNoAutoInc(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId);
 	
 	
 
@@ -830,7 +830,7 @@ public:
 	 * @param execBlockId
 	    
 	 */ 
-	bool compareRequiredValue(int scanNumber, int subscanNumber, int integrationNumber, vector<vector<Length > > uvw, vector<vector<Interval > > exposure, vector<vector<ArrayTime > > timeCentroid, vector<vector<vector<float > > > floatData, vector<int > flagAnt, vector<vector<int > > flagPol, Interval interval, vector<Tag>  stateId, Tag execBlockId); 
+	bool compareRequiredValue(int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId); 
 		 
 	
 	/**
@@ -1022,7 +1022,7 @@ private:
 	
 	
 
-	vector<vector<Length > > uvw;
+	std::vector<std::vector<Length > > uvw;
 
 	
 	
@@ -1033,7 +1033,7 @@ private:
 	
 	
 
-	vector<vector<Interval > > exposure;
+	std::vector<std::vector<Interval > > exposure;
 
 	
 	
@@ -1044,7 +1044,7 @@ private:
 	
 	
 
-	vector<vector<ArrayTime > > timeCentroid;
+	std::vector<std::vector<ArrayTime > > timeCentroid;
 
 	
 	
@@ -1055,7 +1055,7 @@ private:
 	
 	
 
-	vector<vector<vector<float > > > floatData;
+	std::vector<std::vector<vector<float > > > floatData;
 
 	
 	
@@ -1066,7 +1066,7 @@ private:
 	
 	
 
-	vector<int > flagAnt;
+	std::vector<int > flagAnt;
 
 	
 	
@@ -1077,7 +1077,7 @@ private:
 	
 	
 
-	vector<vector<int > > flagPol;
+	std::vector<std::vector<int > > flagPol;
 
 	
 	
@@ -1149,7 +1149,7 @@ private:
 	
 	
 
-	vector<Tag>  stateId;
+	std::vector<Tag>  stateId;
 
 	
 	

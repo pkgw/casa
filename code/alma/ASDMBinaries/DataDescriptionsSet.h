@@ -57,9 +57,9 @@ namespace sdmbin {
      * @note Use the alternate constructor if the data description identifiers are 
      *       typed int.
      */
-    DataDescriptionsSet( ASDM* const datasetPtr, vector<Tag> v_switchCycleId,
-			 vector<Tag> v_dataDescriptionId, 
-			 CorrelationMode corrMode,  vector<AtmPhaseCorrection> atmPhaseCodes);
+    DataDescriptionsSet( ASDM* const datasetPtr, std::vector<Tag> v_switchCycleId,
+			 std::vector<Tag> v_dataDescriptionId, 
+			 CorrelationMode corrMode,  std::vector<AtmPhaseCorrection> atmPhaseCodes);
 
     /** Define the first level in the tree hierarchy.
      * @pre the pointer to the SDM dataset is already known
@@ -80,9 +80,9 @@ namespace sdmbin {
      * DataDescriptionsSet( SwitchCyclesList& , vector<Tag> , int ,  int , int);
      * if the data description identifiers are with the asdm type Tag.
      */
-    DataDescriptionsSet( vector<int> v_switchCycleId,
-			 vector<int> v_dataDescriptionId,
-			 CorrelationMode corrMode,  vector<AtmPhaseCorrection> atmPhaseCodes);
+    DataDescriptionsSet( std::vector<int> v_switchCycleId,
+			 std::vector<int> v_dataDescriptionId,
+			 CorrelationMode corrMode,  std::vector<AtmPhaseCorrection> atmPhaseCodes);
 
     /** Copy constructor */
     DataDescriptionsSet(const DataDescriptionsSet &);
@@ -456,13 +456,13 @@ namespace sdmbin {
      * @return The array of dataDescriptionId identifier for the auto-correlations (zero-baselines)
      * \exception Would correlationMode=0 the returned vector would have a size of 0
      */
-    vector<Tag>       getAutoDataDescriptionId();
+    std::vector<Tag>       getAutoDataDescriptionId();
 
     /** Get the array of dataDescriptionId identifiers for the cross-correlations
      * @return The array of dataDescriptionId identifier for the cross-correlations
      * \exception would correlationMode=1 the returned vector would have a size of 0
      */
-    vector<Tag>       getCrossDataDescriptionId();
+    std::vector<Tag>       getCrossDataDescriptionId();
 
 
   protected:

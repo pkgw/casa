@@ -328,7 +328,7 @@ public:
  	 * @param focusModelId
 	
      */
-	FocusRow *newRow(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, vector<Length > focusOffset, vector<Angle > focusRotationOffset, int focusModelId);
+	FocusRow *newRow(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, std::vector<Length > focusOffset, std::vector<Angle > focusRotationOffset, int focusModelId);
 	
 
 
@@ -445,7 +445,7 @@ public:
  	 * @param focusModelId
  	 		 
  	 */
-	FocusRow* lookup(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, vector<Length > focusOffset, vector<Angle > focusRotationOffset, int focusModelId); 
+	FocusRow* lookup(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, std::vector<Length > focusOffset, std::vector<Angle > focusRotationOffset, int focusModelId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

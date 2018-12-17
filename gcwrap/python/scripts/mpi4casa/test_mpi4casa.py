@@ -7,6 +7,7 @@ import traceback
 import unittest
 import testhelper
 import filecmp
+import shutil
 from taskinit import mstool,tbtool,cbtool,casalog,casac,casa
 from tasks import setjy,flagdata,applycal,uvcontsub
 from mpi4casa.MPIEnvironment import MPIEnvironment
@@ -1995,6 +1996,52 @@ class test_mpi4casa_runtime_settings(unittest.TestCase):
                          "getNumCPUs(use_aipsrc=True) wrong after setNumCPUs(3,self.server_list)")                                      
         
 
+class test_push_commands_parallel_task(unittest.TestCase):
+    """
+    Tests to catch the following failure observed in the past:
+    When the pipeline pushes a command using the MPIClient interface to a server
+    and the command is a task that is MMS-parallel, the task will fail to execute
+    in the MPI server because it will try to distribute work to the servers, as if
+    it was the MPI client!
+    This can affect the so-called "Tier0" parallelization approach in the pipeline.
+    See CAS-9871, CAS-11316.
+
+    This is a minimal start, just to have basic coverage for this issue. It could
+    benefit from a few additional (short, fast) tests.
+    """
+
+    def setUp(self):
+        self.vis = "ngc5921.applycal.mms"
+        setUpFile(self.vis, 'vis')
+
+        self.client = MPICommandClient()
+        self.client.set_log_mode('redirect')
+        self.client.start_services()
+
+    def tearDown(self):
+        self.client = None
+        shutil.rmtree(self.vis)
+
+    def test_push_simple_flagdata(self):
+        # the servers need to know where the tests are running (and the test files are
+        # located)
+        cmd_cd = "os.chdir('{0}')".format(os.getcwd())
+        resp = self.client.push_command_request(cmd_cd, True, None)
+        resp = resp[0]
+
+        self.assertEqual(resp['successful'], True)
+
+        cmd = "flagdata(vis='{0}', mode='summary')".format(self.vis)
+        resp = self.client.push_command_request(cmd, True, None)
+        resp = resp[0]
+
+        self.assertEqual(resp['status'], 'response received')
+        self.assertEqual(resp['successful'], True)
+        flag_dict = resp['ret']
+        self.assertEqual(flag_dict['type'], 'summary')
+        self.assertEqual(flag_dict['flagged'], 203994)
+
+
 def suite():
     return [test_MPICommandClient,
             test_MPIInterface,
@@ -2006,4 +2053,6 @@ def suite():
             test_mpi4casa_NullSelection,
             test_mpi4casa_plotms,
             test_mpi4casa_log_level,
-            test_mpi4casa_runtime_settings]
+            test_mpi4casa_runtime_settings,
+            test_push_commands_parallel_task
+    ]

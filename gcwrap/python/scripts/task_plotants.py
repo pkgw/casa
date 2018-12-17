@@ -3,11 +3,12 @@ import numpy as np
 import pylab as pl
 from textwrap import wrap
 from taskinit import msmdtool, gentools, qatool, casalog, mstool
+from casa_system import casa
 
 def plotants(vis=None, figfile=None, 
         antindex=None, logpos=None, 
         exclude=None, checkbaselines=None,
-        title=None):
+        title=None, showgui=None):
 	"""Plot the antenna distribution in the local reference frame:
 		The location of the antennas in the MS will be plotted with
 		X-toward local east; Y-toward local north.  The name of each
@@ -48,8 +49,16 @@ def plotants(vis=None, figfile=None,
 		dialog will allow you to choose the directory, filename,
 		and format of the export.
 	"""
-
+	showplot = showgui and not casa['flags'].nogui and not casa['flags'].agg and \
+		not casa['flags'].pipeline  # pipeline sets backend to 'agg'
+	if not showplot:
+		pl.close()
+		pl.ioff()
+	else:
+		pl.show()
+		pl.ion()
 	pl.clf()
+
 	try:
 		# remove trailing / for title basename
 		if vis[-1]=='/':
@@ -70,10 +79,6 @@ def plotants(vis=None, figfile=None,
 			casalog.post("No antennas selected.  Exiting plotants.", "ERROR")
 			return
 
-		if logpos:
-			plotAntennasLog(telescope, names, ids, xpos, ypos, antindex, stations)
-		else:
-			plotAntennas(telescope, names, ids, xpos, ypos, antindex, stations)
 		if not title:
 			msname = os.path.basename(vis)
 			title = "Antenna Positions for "
@@ -81,8 +86,14 @@ def plotants(vis=None, figfile=None,
 				title += '\n'
 			title += msname
 		pl.title(title, {'fontsize':12})
+
+		if logpos:
+			plotAntennasLog(telescope, names, ids, xpos, ypos, antindex, stations)
+		else:
+			plotAntennas(telescope, names, ids, xpos, ypos, antindex, stations, showplot)
 		if figfile:
 			pl.savefig(figfile)
+
 	except Exception as instance:
 		casalog.post("Error: " + str(instance), "ERROR")
 
@@ -304,7 +315,7 @@ def plotAntennasLog(telescope, names, ids, xpos, ypos, antindex, stations):
 	# Make room for 2-line title
 	pl.subplots_adjust(top=0.88)
 
-def plotAntennas(telescope, names, ids, xpos, ypos, antindex, stations):
+def plotAntennas(telescope, names, ids, xpos, ypos, antindex, stations, showplot):
 	fig = pl.figure(1)
 	ax = fig.add_subplot(111)
 
@@ -338,7 +349,8 @@ def plotAntennas(telescope, names, ids, xpos, ypos, antindex, stations):
 				y -= 10
 			ax.text(x, y, ' '+name, size=8, va=valign, ha=halign, rotation=angle,
 				weight='semibold')
-			fig.show()
+			if showplot:
+				fig.show()
 
 	pl.xlabel(labelx)
 	pl.ylabel(labely)

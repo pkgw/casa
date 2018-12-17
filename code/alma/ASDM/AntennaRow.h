@@ -292,7 +292,7 @@ public:
  	 * Get position.
  	 * @return position as vector<Length >
  	 */
- 	vector<Length > getPosition() const;
+ 	std::vector<Length > getPosition() const;
 	
  
  	
@@ -304,7 +304,7 @@ public:
  		
  			
  	 */
- 	void setPosition (vector<Length > position);
+ 	void setPosition (std::vector<Length > position);
   		
 	
 	
@@ -322,7 +322,7 @@ public:
  	 * Get offset.
  	 * @return offset as vector<Length >
  	 */
- 	vector<Length > getOffset() const;
+ 	std::vector<Length > getOffset() const;
 	
  
  	
@@ -334,7 +334,7 @@ public:
  		
  			
  	 */
- 	void setOffset (vector<Length > offset);
+ 	void setOffset (std::vector<Length > offset);
   		
 	
 	
@@ -520,7 +520,7 @@ public:
 	 * @param stationId
 	    
 	 */ 
-	bool compareNoAutoInc(string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, vector<Length > position, vector<Length > offset, ArrayTime time, Tag stationId);
+	bool compareNoAutoInc(string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, std::vector<Length > position, std::vector<Length > offset, ArrayTime time, Tag stationId);
 	
 	
 
@@ -546,7 +546,7 @@ public:
 	 * @param stationId
 	    
 	 */ 
-	bool compareRequiredValue(string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, vector<Length > position, vector<Length > offset, ArrayTime time, Tag stationId); 
+	bool compareRequiredValue(string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, std::vector<Length > position, std::vector<Length > offset, ArrayTime time, Tag stationId); 
 		 
 	
 	/**
@@ -755,7 +755,7 @@ private:
 	
 	
 
-	vector<Length > position;
+	std::vector<Length > position;
 
 	
 	
@@ -766,7 +766,7 @@ private:
 	
 	
 
-	vector<Length > offset;
+	std::vector<Length > offset;
 
 	
 	

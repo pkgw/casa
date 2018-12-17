@@ -196,7 +196,7 @@ public:
  	 * Get appliedCalibrations.
  	 * @return appliedCalibrations as vector<string >
  	 */
- 	vector<string > getAppliedCalibrations() const;
+ 	std::vector<string > getAppliedCalibrations() const;
 	
  
  	
@@ -208,7 +208,7 @@ public:
  		
  			
  	 */
- 	void setAppliedCalibrations (vector<string > appliedCalibrations);
+ 	void setAppliedCalibrations (std::vector<string > appliedCalibrations);
   		
 	
 	
@@ -256,7 +256,7 @@ public:
  	 * Get paramSet.
  	 * @return paramSet as vector<string >
  	 */
- 	vector<string > getParamSet() const;
+ 	std::vector<string > getParamSet() const;
 	
  
  	
@@ -268,7 +268,7 @@ public:
  		
  			
  	 */
- 	void setParamSet (vector<string > paramSet);
+ 	void setParamSet (std::vector<string > paramSet);
   		
 	
 	
@@ -316,7 +316,7 @@ public:
  	 * Get invalidConditions.
  	 * @return invalidConditions as vector<InvalidatingConditionMod::InvalidatingCondition >
  	 */
- 	vector<InvalidatingConditionMod::InvalidatingCondition > getInvalidConditions() const;
+ 	std::vector<InvalidatingConditionMod::InvalidatingCondition > getInvalidConditions() const;
 	
  
  	
@@ -328,7 +328,7 @@ public:
  		
  			
  	 */
- 	void setInvalidConditions (vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions);
+ 	void setInvalidConditions (std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions);
   		
 	
 	
@@ -491,7 +491,7 @@ public:
 	 * @param softwareVersion
 	    
 	 */ 
-	bool compareNoAutoInc(int numApplied, vector<string > appliedCalibrations, int numParam, vector<string > paramSet, int numInvalidConditions, vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion);
+	bool compareNoAutoInc(int numApplied, std::vector<string > appliedCalibrations, int numParam, std::vector<string > paramSet, int numInvalidConditions, std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion);
 	
 	
 
@@ -521,7 +521,7 @@ public:
 	 * @param softwareVersion
 	    
 	 */ 
-	bool compareRequiredValue(int numApplied, vector<string > appliedCalibrations, int numParam, vector<string > paramSet, int numInvalidConditions, vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion); 
+	bool compareRequiredValue(int numApplied, std::vector<string > appliedCalibrations, int numParam, std::vector<string > paramSet, int numInvalidConditions, std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion); 
 		 
 	
 	/**
@@ -698,7 +698,7 @@ private:
 	
 	
 
-	vector<string > appliedCalibrations;
+	std::vector<string > appliedCalibrations;
 
 	
 	
@@ -720,7 +720,7 @@ private:
 	
 	
 
-	vector<string > paramSet;
+	std::vector<string > paramSet;
 
 	
 	
@@ -742,7 +742,7 @@ private:
 	
 	
 
-	vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions;
+	std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions;
 
 	
 	

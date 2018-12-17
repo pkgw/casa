@@ -534,7 +534,7 @@ public:
  	 * Get stateId.
  	 * @return stateId as vector<Tag> 
  	 */
- 	vector<Tag>  getStateId() const;
+ 	std::vector<Tag>  getStateId() const;
 	
  
  	
@@ -546,7 +546,7 @@ public:
  		
  			
  	 */
- 	void setStateId (vector<Tag>  stateId);
+ 	void setStateId (std::vector<Tag>  stateId);
   		
 	
 	
@@ -612,7 +612,7 @@ public:
  * Append a vector of Tag to stateId.
  * @param id an array of Tag to be appended to stateId
  */
- void addStateId(const vector<Tag> & id); 
+ void addStateId(const std::vector<Tag> & id); 
  
 
  /**
@@ -635,7 +635,7 @@ public:
   * Returns the vector of StateRow* linked to this row via the Tags stored in stateId
   * @return an array of pointers on StateRow.
   */
- vector<StateRow *> getStatesUsingStateId(); 
+ std::vector<StateRow *> getStatesUsingStateId(); 
   
 
 	
@@ -689,7 +689,7 @@ public:
 	 * @param execBlockId
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTime time, Tag configDescriptionId, Tag fieldId, int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, vector<Tag>  stateId, Tag execBlockId);
+	bool compareNoAutoInc(ArrayTime time, Tag configDescriptionId, Tag fieldId, int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, std::vector<Tag>  stateId, Tag execBlockId);
 	
 	
 
@@ -719,7 +719,7 @@ public:
 	 * @param execBlockId
 	    
 	 */ 
-	bool compareRequiredValue(int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, vector<Tag>  stateId, Tag execBlockId); 
+	bool compareRequiredValue(int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, std::vector<Tag>  stateId, Tag execBlockId); 
 		 
 	
 	/**
@@ -1000,7 +1000,7 @@ private:
 	
 	
 
-	vector<Tag>  stateId;
+	std::vector<Tag>  stateId;
 
 	
 	

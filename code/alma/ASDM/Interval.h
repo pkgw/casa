@@ -121,14 +121,14 @@ namespace asdm {
      * @param interval
      * @param eoss
      */
-    static void toBin(vector<Interval> interval, EndianOSStream& eoss) ;
+    static void toBin(std::vector<Interval> interval, EndianOSStream& eoss) ;
 	
     /**
      * Write the binary representation of a vector of vector  of Interval into a EndianOSStream.
      * @param interval
      * @param eoss
      */
-    static void toBin(vector<vector<Interval> > interval, EndianOSStream& eoss) ;
+    static void toBin(std::vector<std::vector<Interval> > interval, EndianOSStream& eoss) ;
 	
     /**
      * Read the binary representation of an Interval from an EndianIStream
@@ -144,7 +144,7 @@ namespace asdm {
      * @param eis the EndianIStream to be read
      * @return a vector of Interval
      */
-    static vector<Interval> from1DBin(EndianIStream& eis);
+    static std::vector<Interval> from1DBin(EndianIStream& eis);
 	
     /**
      * Read the binary representation of a vector of vector of Interval from a EndianIStream
@@ -152,7 +152,7 @@ namespace asdm {
      * @param eis the EndianIStream  to be read
      * @return a vector of vector of Interval
      */
-    static vector<vector<Interval> >from2DBin(EndianIStream& eis);	
+    static std::vector<std::vector<Interval> >from2DBin(EndianIStream& eis);	
 	
     operator string () const;
     int64_t get() const;

@@ -53,7 +53,6 @@ macro( casa_add_tasks module _target )
     list( APPEND _all_tasks ${_base} )
 
     set( _cli ${CMAKE_CURRENT_BINARY_DIR}/${_base}_cli.py )
-    set( _pg  ${CMAKE_CURRENT_BINARY_DIR}/${_base}_pg.py )
     set( _py  ${CMAKE_CURRENT_BINARY_DIR}/${_base}.py )
 
     # Create _cli.py
@@ -61,13 +60,6 @@ macro( casa_add_tasks module _target )
     add_custom_command(
       OUTPUT ${_cli}
       COMMAND ${SAXON} -o ${_cli} ${_xml} ${_xsl} 
-      DEPENDS ${_xml} ${_xsl} )
-
-    # Create _pg.py
-    set( _xsl ${CMAKE_SOURCE_DIR}/install/casa2pypg.xsl )
-    add_custom_command(
-      OUTPUT ${_pg}
-      COMMAND ${SAXON} -o ${_pg} ${_xml} ${_xsl} 
       DEPENDS ${_xml} ${_xsl} )
 
     # Create .py
@@ -90,7 +82,7 @@ macro( casa_add_tasks module _target )
     set( _out_taskinfo ${_out_taskinfo} ${_out} )
 
     # Keep track of generated files
-    set( _out_py ${_out_py} ${_py} ${_cli} ${_pg} )
+    set( _out_py ${_out_py} ${_py} ${_cli} )
 
     # Create task documentation
     casa_add_doc( ${_xml} ${CASA_DOC_DIR} task )

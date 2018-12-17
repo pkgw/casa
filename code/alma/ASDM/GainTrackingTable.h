@@ -357,7 +357,7 @@ public:
  	 * @param polarizationType
 	
      */
-	GainTrackingRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, vector<float > attenuator, vector<PolarizationTypeMod::PolarizationType > polarizationType);
+	GainTrackingRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, std::vector<float > attenuator, std::vector<PolarizationTypeMod::PolarizationType > polarizationType);
 	
 
 
@@ -480,7 +480,7 @@ public:
  	 * @param polarizationType
  	 		 
  	 */
-	GainTrackingRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, vector<float > attenuator, vector<PolarizationTypeMod::PolarizationType > polarizationType); 
+	GainTrackingRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, std::vector<float > attenuator, std::vector<PolarizationTypeMod::PolarizationType > polarizationType); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

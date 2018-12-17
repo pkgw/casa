@@ -77,11 +77,11 @@ public:
                the UVW are not determined twice.
   */
   void uvw_bl( Tag configDescriptionId, 
-	       const vector<vector<Angle> >& phaseDir,
+	       const std::vector<std::vector<Angle> >& phaseDir,
 	       double timeCentroid,
 	       Enum<CorrelationMode> correlationMode,
 	       bool reverse, bool autoTrailing,
-	       vector<casacore::Vector<casacore::Double> >& v_uvw,
+	       std::vector<casacore::Vector<casacore::Double> >& v_uvw,
 	       casacore::MSFieldColumns* msfc_p=0);
 
   /** Determine the baseline-based uvw in case timeCentroid may change vs  baseline, spw or bin within a dump
@@ -108,11 +108,11 @@ public:
       - This method will destroy the previous content of v_uvw.
   */
   void uvw_bl( Tag configDescriptionId, 
-	       const vector<vector<Angle> >& phaseDir,
-	       const vector<double>& v_timeCentroid,
+	       const std::vector<std::vector<Angle> >& phaseDir,
+	       const std::vector<double>& v_timeCentroid,
 	       Enum<CorrelationMode> correlationMode,
 	       bool reverse, bool autoTrailing, 
-	       vector<casacore::Vector<casacore::Double> >& v_uvw,
+	       std::vector<casacore::Vector<casacore::Double> >& v_uvw,
 	       casacore::MSFieldColumns* msfc_p=0);
 
   /** Determine the baseline-based uvw for a sequence of epochs
@@ -152,9 +152,9 @@ public:
         available using the method timeSequence() of the DAMs (SDMBinData). 
       - for dataOrder (reverse and autoTrailing) it is available using a static method of the DAMs (SDMBinData).
   */
-  void uvw_bl( asdm::MainRow* mainRow, vector<pair<unsigned int,double> > v_tci, 
+  void uvw_bl( asdm::MainRow* mainRow, std::vector<pair<unsigned int,double> > v_tci, 
 	       Enum<CorrelationMode> correlationMode,
-	       pair<bool,bool> dataOrder, vector<casacore::Vector<casacore::Double> >& v_uvw);
+	       pair<bool,bool> dataOrder, std::vector<casacore::Vector<casacore::Double> >& v_uvw);
 
 
   /** Determine the baseline-based uvw for a sequence of epochs
@@ -178,10 +178,10 @@ public:
       - v_timeCentroid is a product of the DAMs. Its size is the number of casacore::MS rows per SDM row in the Main tables
       - for dataOrder (reverse and autoTrailing) it is available using a static method of the DAMs (SDMBinData).
   */
-  void uvw_bl( asdm::MainRow* mainRow, vector<double> v_timeCentroid, 
+  void uvw_bl( asdm::MainRow* mainRow, std::vector<double> v_timeCentroid, 
 	       Enum<CorrelationMode> correlationMode,
 	       pair<bool,bool> dataOrder,
-	       vector<casacore::Vector<casacore::Double> >& v_uvw,
+	       std::vector<casacore::Vector<casacore::Double> >& v_uvw,
 	       casacore::MSFieldColumns* msfc_p=0 );
 
 private:
@@ -226,7 +226,7 @@ private:
 
   // the 3 fundamental attributes of the state machine
   double                         timeCentroid_;
-  vector<vector<Angle> >         phaseDir_; 
+  std::vector<std::vector<Angle> >         phaseDir_; 
   Tag                            subarrayId_;
 
   casacore::Vector<casacore::Double>           sduvw_;
@@ -248,7 +248,7 @@ private:
       In right-handed frame. X towards the intersection of the equator and the Greenwich 
       meridian, Z towards the pole.
   */
-  vector<double> antPos(const vector<double>& stationPos, const vector<double>& antOffset);
+  std::vector<double> antPos(const std::vector<double>& stationPos, const std::vector<double>& antOffset);
 
   /** Determine antenna-based uvw for every member of the sequence of antennas defining a (sub)array
       @param  timeCentroid An epoch, the 'when' characterization.
@@ -263,7 +263,7 @@ private:
       - phaseDir is in J2000, the unit of the coordinates in radian
       @todo remove this note and all these warnings (to be coordinated with the release of SDM vers. 2)
   */ 
-  void uvw_an(double timeCentroid, const vector<vector<Angle> >& phaseDir, const vector<Tag>& v_antId);
+  void uvw_an(double timeCentroid, const std::vector<std::vector<Angle> >& phaseDir, const std::vector<Tag>& v_antId);
 
 
   /** Determine the baseline-based uvw for a sequence of antenna defining a (sub)array
@@ -283,6 +283,6 @@ private:
         corresponding to reverse=false.
       @warning This function will destroy the previous content of v_uvw.
   */
-  void uvw_bl( const vector<Tag>& v_antennaId, unsigned int nrep, bool reverse, vector<casacore::Vector<casacore::Double> >& v_uvw);
+  void uvw_bl( const std::vector<Tag>& v_antennaId, unsigned int nrep, bool reverse, std::vector<casacore::Vector<casacore::Double> >& v_uvw);
 
 };

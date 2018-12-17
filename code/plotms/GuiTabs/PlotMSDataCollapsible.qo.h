@@ -88,8 +88,8 @@ public:
     //Returns whether or not the plot is displayed by this Collapsible.
     bool managesPlot(PlotMSPlot* plot ) const;
 
-    vector<PMS::Axis> getSelectedLoadAxes() const;
-    vector<PMS::Axis> getSelectedReleaseAxes() const;
+    std::vector<PMS::Axis> getSelectedLoadAxes() const;
+    std::vector<PMS::Axis> getSelectedReleaseAxes() const;
 
     //Returns whether this plot will be plotted, i.e.,
     //its gridRow and gridCol are nonnegative AND there is an empty location

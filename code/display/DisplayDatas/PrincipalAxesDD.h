@@ -216,7 +216,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 
 		// Get the current display axis numbers
-		virtual vector<int> displayAxes() const {
+		virtual std::vector<int> displayAxes() const {
 			return itsDisplayAxes;
 		}
 
@@ -375,7 +375,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		casacore::Int itsZAxisNum;
 
 		// the x (0), y (1) and z/movie (2) axis numbers
-		vector<int> itsDisplayAxes;
+        std::vector<int> itsDisplayAxes;
 
 		// Store options:
 		// Axis selection ---

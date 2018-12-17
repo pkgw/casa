@@ -22,6 +22,11 @@
 
 #include <flagging/Flagging/FlagCalTableHandler.h>
 
+#include <synthesis/CalTables/NewCalTable.h>
+#include <synthesis/CalTables/CTInterface.h>
+#include <synthesis/CalTables/CTIter.h>
+#include <synthesis/CalTables/CalBuffer.h>
+
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
