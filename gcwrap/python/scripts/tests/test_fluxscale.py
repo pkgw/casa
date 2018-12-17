@@ -246,7 +246,6 @@ class fluxscale2_test(unittest.TestCase):
         shutil.rmtree(self.msfile, ignore_errors=True)
         os.system('rm -rf ngc4826*.gcal')
         os.system('rm -rf ngc4826*.fcal')
-        pass
         
     def test_spws(self):
         '''Fluxscale 2: Create a fluxscale table for an MS with many spws'''
@@ -454,10 +453,9 @@ class fluxscale_fit_test(unittest.TestCase):
         default('fluxscale')
 
     def tearDown(self):
-        #shutil.rmtree(self.msfile, ignore_errors=True)
-        #os.system('rm -rf twhya*.gcal')
-        #os.system('rm -rf twhya*.fcal')
-        pass
+        shutil.rmtree(self.msfile, ignore_errors=True)
+        os.system('rm -rf twhya*.gcal')
+        os.system('rm -rf twhya*.fcal')
 
     def test_spectralfit1(self):
         '''Fluxscale spectral fit test1'''
@@ -556,7 +554,7 @@ class fluxscale_fit_test(unittest.TestCase):
 
 
     def test_spectralfit2(self):
-        '''Fluxscale spectral fit test2: fit order higer than 2 (fitorder=4) '''
+        '''Fluxscale spectral fit test2: fit order higher than 2 (fitorder=4) '''
         # Input
         gtable = self.gtable
 
