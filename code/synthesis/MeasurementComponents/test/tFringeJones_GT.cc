@@ -246,16 +246,20 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
     FJapp.setApplyParCurrSpw(fpar,true,false);  // don't invert
   }
   FringeJones FJsol(VisCalTestBase::msmc);
-  // FJsol.setPrtlev(7);
+  FJsol.setPrtlev(7);
   Record solvePar;
   solvePar.define("table",String("test.Fringe"));  // not used
   solvePar.define("solint",String("inf"));
   solvePar.define("combine",String(""));
+  Array<Int> refant(IPosition(1,2));
+  refant(IPosition(1, 0)) = 0;
+  refant(IPosition(1, 1)) = 1;
+  cerr << "Refant " << refant << endl;
+  solvePar.define("refant",refant);
   solvePar.define("globalsolve", true);
   solvePar.define("weightfactor", 2);
   solvePar.define("maxits", 100);
   solvePar.define("zerorates", true);
-  Vector<Int> refant(1,0); solvePar.define("refant",refant);
   Array<Double> delayWindow(IPosition(1, 2));
   Array<Double> rateWindow(IPosition(1, 2));
   delayWindow(IPosition(1, 0)) = -100.0;
