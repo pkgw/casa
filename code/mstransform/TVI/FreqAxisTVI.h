@@ -200,11 +200,11 @@ protected:
     mutable casacore::LogIO logger_p;
 
     // Map with the list of channel indices for each input SPW
-    std::map<casacore::Int,vector<casacore::Int> > spwInpChanIdxMap_p;
+    std::map<casacore::Int,std::vector<casacore::Int> > spwInpChanIdxMap_p;
 
     // Map with the list of channel indices for each output SPW.
     // Note that this member needs to be initialized by each derived class
-    std::map<casacore::Int,vector<casacore::Int> > spwOutChanIdxMap_p;
+    std::map<casacore::Int,std::vector<casacore::Int> > spwOutChanIdxMap_p;
 };
 
 //////////////////////////////////////////////////////////////////////////
