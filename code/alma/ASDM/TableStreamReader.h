@@ -71,7 +71,7 @@ namespace asdm {
       // And start parsing the content.
 
       boundary_1 = requireMIMEHeader();
-      //cout << "boundary_1 = " << boundary_1 << endl;
+      // cout << "boundary_1 = " << boundary_1 << endl;
 
       requireBoundary(boundary_1, 0);
       
@@ -152,10 +152,20 @@ namespace asdm {
       asdm::Entity containerEntity = Entity::fromBin((EndianIStream &)eifs);
 
       // Let's read numRows but ignore it and rely on the value specified in the ASDM.xml file.    
-      int numRows = ((EndianIStream &)eifs).readInt();
+      ((EndianIStream &)eifs).readInt();
       
       // Memorize the starting point of rows.
       whereRowsStart = tableFile.tellg();
+
+      // find where the rows end, seek to near the end
+      tableFile.seekg(fileSizeInBytes-100);
+      std::string lastPart = accumulateUntilBoundary(boundary_1, 5);
+
+      // the full size of the boundary and anything after it
+      endBoundarySizeInBytes = 100 - lastPart.size();
+      
+      // reset back to start of rows
+      tableFile.seekg(whereRowsStart);
 
       // Update the state
       currentState = S_OPENED;
@@ -205,7 +215,7 @@ namespace asdm {
 
       T& tableRef = (T&) asdm.getTable(T::name());
       do {
-	rows.push_back(R::fromBin((EndianIStream&) eifs, tableRef , attributesSeq));
+          rows.push_back(R::fromBin((EndianIStream&) eifs, tableRef , attributesSeq));
       }
       while (((tableFile.tellg() - whereAmI) < nBytes) && hasRows());
       return rows;
@@ -216,7 +226,7 @@ namespace asdm {
      */
     bool hasRows() {
       checkState(T_CHECK, "TableStreamReader::hasRows");
-      return tableFile.tellg() < (fileSizeInBytes - 19);
+      return tableFile.tellg() < (fileSizeInBytes - endBoundarySizeInBytes);
     }
 
     /**
@@ -238,6 +248,7 @@ namespace asdm {
     std::string	                boundary_1;
 
     off_t                       fileSizeInBytes;
+    off_t                       endBoundarySizeInBytes;
     asdm::EndianIFStream	eifs;
     std::vector<std::string>	attributesSeq;
     asdm::ASDM                  asdm;
@@ -433,15 +444,15 @@ std::string accumulateUntilBoundary(const std::string& boundary, int maxLines) {
 }
 
 std::string requireBoundaryInCT(const std::string& ctValue) {
-  vector<std::string> cvValueItems;
+  std::vector<std::string> cvValueItems;
  
 #ifndef WITHOUT_BOOST
   boost::algorithm::split (cvValueItems, ctValue, boost::algorithm::is_any_of(";"));
 #else
   asdm::strsplit(ctValue,';',cvValueItems);
 #endif
-  vector<std::string> cvValueItemsNameValue;
-  for ( vector<std::string>::const_iterator iter = cvValueItems.begin(); iter != cvValueItems.end() ; iter++ ) {
+  std::vector<std::string> cvValueItemsNameValue;
+  for ( std::vector<std::string>::const_iterator iter = cvValueItems.begin(); iter != cvValueItems.end() ; iter++ ) {
     cvValueItemsNameValue.clear();
 #ifndef WITHOUT_BOOST
     boost::algorithm::split(cvValueItemsNameValue, *iter, boost::algorithm::is_any_of("="));

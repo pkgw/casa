@@ -244,7 +244,7 @@ public:
  	 * Get type.
  	 * @return type as vector<HolographyChannelTypeMod::HolographyChannelType >
  	 */
- 	vector<HolographyChannelTypeMod::HolographyChannelType > getType() const;
+ 	std::vector<HolographyChannelTypeMod::HolographyChannelType > getType() const;
 	
  
  	
@@ -256,7 +256,7 @@ public:
  		
  			
  	 */
- 	void setType (vector<HolographyChannelTypeMod::HolographyChannelType > type);
+ 	void setType (std::vector<HolographyChannelTypeMod::HolographyChannelType > type);
   		
 	
 	
@@ -287,7 +287,7 @@ public:
 	 * @param type
 	    
 	 */ 
-	bool compareNoAutoInc(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type);
+	bool compareNoAutoInc(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type);
 	
 	
 
@@ -305,7 +305,7 @@ public:
 	 * @param type
 	    
 	 */ 
-	bool compareRequiredValue(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type); 
+	bool compareRequiredValue(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type); 
 		 
 	
 	/**
@@ -498,7 +498,7 @@ private:
 	
 	
 
-	vector<HolographyChannelTypeMod::HolographyChannelType > type;
+	std::vector<HolographyChannelTypeMod::HolographyChannelType > type;
 
 	
 	

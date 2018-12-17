@@ -290,7 +290,7 @@ public:
  	 * @param type
 	
      */
-	HolographyRow *newRow(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type);
+	HolographyRow *newRow(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type);
 	
 
 
@@ -381,7 +381,7 @@ public:
  	 * @param type
  	 		 
  	 */
-	HolographyRow* lookup(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type); 
+	HolographyRow* lookup(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

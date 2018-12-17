@@ -53,7 +53,10 @@ class Test010_VLAMG0414(unittest.TestCase):
         else:
             casaguidedata_path = "/casaguidedata/"
 
-        os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "MG0414_d1_data.ms",os.getcwd()+"/MG0414_d1_data.ms")
+        import tarfile
+        tar = tarfile.open(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "raw/MG0414_d1_data.ms.tgz")
+        tar.extractall()
+        tar.close()
 
 
         if os.uname()[0] == 'Darwin':
@@ -87,8 +90,14 @@ class Test020_VLAMG0414(unittest.TestCase):
 
     def setUp(self):
         pass
-    def tearDown(self):
-        pass
+
+    @classmethod
+    def tearDownClass(cls):
+        rmtables("MG0414_d1*")
+        os.system("rm -rf *.last")
+        os.system("rm -rf *.flagversions")
+        os.system("rm -rf *.cal")
+        os.system("rm -rf *.gcal")
 
     def test_1_MG0414_d1_calibrated_ms(self):
         '''Test 1: Check MG0414_d1_calibrated.ms'''

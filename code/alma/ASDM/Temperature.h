@@ -138,21 +138,21 @@ public:
 	 * @param angle the vector of Temperature to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Temperature>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Temperature>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Temperature to a EndianOSStream.
 	 * @param angle the vector of vector of Temperature to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Temperature> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Temperature> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Temperature to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Temperature to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Temperature> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<vector<Temperature> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Temperature from a EndianIStream
 	 * and use the read value to set an  Temperature.
@@ -167,7 +167,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Temperature
 	 */	 
-	 static vector<Temperature> from1DBin(EndianIStream & eis);
+	 static std::vector<Temperature> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Temperature from an EndianIStream
@@ -175,7 +175,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Temperature
 	 */	 
-	 static vector<vector<Temperature> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Temperature> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Temperature from an EndianIStream
@@ -183,7 +183,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Temperature
 	 */	 
-	 static vector<vector<vector<Temperature> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<vector<Temperature> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Temperature = Temperature.

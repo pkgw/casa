@@ -671,7 +671,7 @@ void StatWtTVI::_updateWtSpFlags(
 std::pair<Cube<Float>, Cube<Bool>> StatWtTVI::_getLowerLayerWtSpFlags(
     size_t& nOrigFlagged
 ) const {
-    auto mypair = make_pair(Cube<Float>(), Cube<Bool>());
+    auto mypair = std::make_pair(Cube<Float>(), Cube<Bool>());
     if (*_mustComputeWtSp) {
         getVii()->weightSpectrum(mypair.first);
     }

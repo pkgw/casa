@@ -544,7 +544,7 @@ public:
  	 * @param phasedSumAntenna
 	
      */
-	CalAppPhaseRow *newRow(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna);
+	CalAppPhaseRow *newRow(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, std::vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, string phasedSumAntenna);
 	
 
 
@@ -686,7 +686,7 @@ public:
  	 * @param phasedSumAntenna
  	 		 
  	 */
-	CalAppPhaseRow* lookup(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna); 
+	CalAppPhaseRow* lookup(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, std::vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, string phasedSumAntenna); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

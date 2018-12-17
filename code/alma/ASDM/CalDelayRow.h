@@ -432,7 +432,7 @@ public:
  	 * Get delayError.
  	 * @return delayError as vector<double >
  	 */
- 	vector<double > getDelayError() const;
+ 	std::vector<double > getDelayError() const;
 	
  
  	
@@ -444,7 +444,7 @@ public:
  		
  			
  	 */
- 	void setDelayError (vector<double > delayError);
+ 	void setDelayError (std::vector<double > delayError);
   		
 	
 	
@@ -462,7 +462,7 @@ public:
  	 * Get delayOffset.
  	 * @return delayOffset as vector<double >
  	 */
- 	vector<double > getDelayOffset() const;
+ 	std::vector<double > getDelayOffset() const;
 	
  
  	
@@ -474,7 +474,7 @@ public:
  		
  			
  	 */
- 	void setDelayOffset (vector<double > delayOffset);
+ 	void setDelayOffset (std::vector<double > delayOffset);
   		
 	
 	
@@ -492,7 +492,7 @@ public:
  	 * Get polarizationTypes.
  	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
@@ -504,7 +504,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -522,7 +522,7 @@ public:
  	 * Get reducedChiSquared.
  	 * @return reducedChiSquared as vector<double >
  	 */
- 	vector<double > getReducedChiSquared() const;
+ 	std::vector<double > getReducedChiSquared() const;
 	
  
  	
@@ -534,7 +534,7 @@ public:
  		
  			
  	 */
- 	void setReducedChiSquared (vector<double > reducedChiSquared);
+ 	void setReducedChiSquared (std::vector<double > reducedChiSquared);
   		
 	
 	
@@ -552,7 +552,7 @@ public:
  	 * Get appliedDelay.
  	 * @return appliedDelay as vector<double >
  	 */
- 	vector<double > getAppliedDelay() const;
+ 	std::vector<double > getAppliedDelay() const;
 	
  
  	
@@ -564,7 +564,7 @@ public:
  		
  			
  	 */
- 	void setAppliedDelay (vector<double > appliedDelay);
+ 	void setAppliedDelay (std::vector<double > appliedDelay);
   		
 	
 	
@@ -712,7 +712,7 @@ public:
  	 * @return refFreq as vector<Frequency >
  	 * @throws IllegalAccessException If refFreq does not exist.
  	 */
- 	vector<Frequency > getRefFreq() const;
+ 	std::vector<Frequency > getRefFreq() const;
 	
  
  	
@@ -723,7 +723,7 @@ public:
  	 
  		
  	 */
- 	void setRefFreq (vector<Frequency > refFreq);
+ 	void setRefFreq (std::vector<Frequency > refFreq);
 		
 	
 	
@@ -753,7 +753,7 @@ public:
  	 * @return refFreqPhase as vector<Angle >
  	 * @throws IllegalAccessException If refFreqPhase does not exist.
  	 */
- 	vector<Angle > getRefFreqPhase() const;
+ 	std::vector<Angle > getRefFreqPhase() const;
 	
  
  	
@@ -764,7 +764,7 @@ public:
  	 
  		
  	 */
- 	void setRefFreqPhase (vector<Angle > refFreqPhase);
+ 	void setRefFreqPhase (std::vector<Angle > refFreqPhase);
 		
 	
 	
@@ -794,7 +794,7 @@ public:
  	 * @return sidebands as vector<ReceiverSidebandMod::ReceiverSideband >
  	 * @throws IllegalAccessException If sidebands does not exist.
  	 */
- 	vector<ReceiverSidebandMod::ReceiverSideband > getSidebands() const;
+ 	std::vector<ReceiverSidebandMod::ReceiverSideband > getSidebands() const;
 	
  
  	
@@ -805,7 +805,7 @@ public:
  	 
  		
  	 */
- 	void setSidebands (vector<ReceiverSidebandMod::ReceiverSideband > sidebands);
+ 	void setSidebands (std::vector<ReceiverSidebandMod::ReceiverSideband > sidebands);
 		
 	
 	
@@ -957,7 +957,7 @@ public:
 	 * @param appliedDelay
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, string refAntennaName, int numReceptor, vector<double > delayError, vector<double > delayOffset, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > reducedChiSquared, vector<double > appliedDelay);
+	bool compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, string refAntennaName, int numReceptor, std::vector<double > delayError, std::vector<double > delayOffset, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > reducedChiSquared, std::vector<double > appliedDelay);
 	
 	
 
@@ -985,7 +985,7 @@ public:
 	 * @param appliedDelay
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, string refAntennaName, int numReceptor, vector<double > delayError, vector<double > delayOffset, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > reducedChiSquared, vector<double > appliedDelay); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, string refAntennaName, int numReceptor, std::vector<double > delayError, std::vector<double > delayOffset, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > reducedChiSquared, std::vector<double > appliedDelay); 
 		 
 	
 	/**
@@ -1226,7 +1226,7 @@ private:
 	
 	
 
-	vector<double > delayError;
+	std::vector<double > delayError;
 
 	
 	
@@ -1237,7 +1237,7 @@ private:
 	
 	
 
-	vector<double > delayOffset;
+	std::vector<double > delayOffset;
 
 	
 	
@@ -1248,7 +1248,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1259,7 +1259,7 @@ private:
 	
 	
 
-	vector<double > reducedChiSquared;
+	std::vector<double > reducedChiSquared;
 
 	
 	
@@ -1270,7 +1270,7 @@ private:
 	
 	
 
-	vector<double > appliedDelay;
+	std::vector<double > appliedDelay;
 
 	
 	
@@ -1322,7 +1322,7 @@ private:
 	bool refFreqExists;
 	
 
-	vector<Frequency > refFreq;
+	std::vector<Frequency > refFreq;
 
 	
 	
@@ -1335,7 +1335,7 @@ private:
 	bool refFreqPhaseExists;
 	
 
-	vector<Angle > refFreqPhase;
+	std::vector<Angle > refFreqPhase;
 
 	
 	
@@ -1348,7 +1348,7 @@ private:
 	bool sidebandsExists;
 	
 
-	vector<ReceiverSidebandMod::ReceiverSideband > sidebands;
+	std::vector<ReceiverSidebandMod::ReceiverSideband > sidebands;
 
 	
 	

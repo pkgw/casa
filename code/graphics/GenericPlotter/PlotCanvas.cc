@@ -691,7 +691,6 @@ PlotCanvas::locate(const PlotRegion& r) const {
     double xLeft = region.upperLeft().x(), xRight = region.lowerRight().x(),
            yTop = region.upperLeft().y(), yBottom = region.lowerRight().y();
     double x, y;
-    pair<unsigned int, unsigned int> p;
     vector<pair<unsigned int, unsigned int> >* v2;
     unsigned int rangeLow = 0;
     bool inRange;

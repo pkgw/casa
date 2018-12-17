@@ -202,7 +202,7 @@ public:
  	 * Get weightArray.
  	 * @return weightArray as vector<float >
  	 */
- 	vector<float > getWeightArray() const;
+ 	std::vector<float > getWeightArray() const;
 	
  
  	
@@ -214,7 +214,7 @@ public:
  		
  			
  	 */
- 	void setWeightArray (vector<float > weightArray);
+ 	void setWeightArray (std::vector<float > weightArray);
   		
 	
 	
@@ -232,7 +232,7 @@ public:
  	 * Get dirOffsetArray.
  	 * @return dirOffsetArray as vector<vector<Angle > >
  	 */
- 	vector<vector<Angle > > getDirOffsetArray() const;
+ 	std::vector<std::vector<Angle > > getDirOffsetArray() const;
 	
  
  	
@@ -244,7 +244,7 @@ public:
  		
  			
  	 */
- 	void setDirOffsetArray (vector<vector<Angle > > dirOffsetArray);
+ 	void setDirOffsetArray (std::vector<std::vector<Angle > > dirOffsetArray);
   		
 	
 	
@@ -262,7 +262,7 @@ public:
  	 * Get freqOffsetArray.
  	 * @return freqOffsetArray as vector<Frequency >
  	 */
- 	vector<Frequency > getFreqOffsetArray() const;
+ 	std::vector<Frequency > getFreqOffsetArray() const;
 	
  
  	
@@ -274,7 +274,7 @@ public:
  		
  			
  	 */
- 	void setFreqOffsetArray (vector<Frequency > freqOffsetArray);
+ 	void setFreqOffsetArray (std::vector<Frequency > freqOffsetArray);
   		
 	
 	
@@ -292,7 +292,7 @@ public:
  	 * Get stepDurationArray.
  	 * @return stepDurationArray as vector<Interval >
  	 */
- 	vector<Interval > getStepDurationArray() const;
+ 	std::vector<Interval > getStepDurationArray() const;
 	
  
  	
@@ -304,7 +304,7 @@ public:
  		
  			
  	 */
- 	void setStepDurationArray (vector<Interval > stepDurationArray);
+ 	void setStepDurationArray (std::vector<Interval > stepDurationArray);
   		
 	
 	
@@ -419,7 +419,7 @@ public:
 	 * @param stepDurationArray
 	    
 	 */ 
-	bool compareNoAutoInc(int numStep, vector<float > weightArray, vector<vector<Angle > > dirOffsetArray, vector<Frequency > freqOffsetArray, vector<Interval > stepDurationArray);
+	bool compareNoAutoInc(int numStep, std::vector<float > weightArray, std::vector<std::vector<Angle > > dirOffsetArray, std::vector<Frequency > freqOffsetArray, std::vector<Interval > stepDurationArray);
 	
 	
 
@@ -439,7 +439,7 @@ public:
 	 * @param stepDurationArray
 	    
 	 */ 
-	bool compareRequiredValue(int numStep, vector<float > weightArray, vector<vector<Angle > > dirOffsetArray, vector<Frequency > freqOffsetArray, vector<Interval > stepDurationArray); 
+	bool compareRequiredValue(int numStep, std::vector<float > weightArray, std::vector<std::vector<Angle > > dirOffsetArray, std::vector<Frequency > freqOffsetArray, std::vector<Interval > stepDurationArray); 
 		 
 	
 	/**
@@ -613,7 +613,7 @@ private:
 	
 	
 
-	vector<float > weightArray;
+	std::vector<float > weightArray;
 
 	
 	
@@ -624,7 +624,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > dirOffsetArray;
+	std::vector<std::vector<Angle > > dirOffsetArray;
 
 	
 	
@@ -635,7 +635,7 @@ private:
 	
 	
 
-	vector<Frequency > freqOffsetArray;
+	std::vector<Frequency > freqOffsetArray;
 
 	
 	
@@ -646,7 +646,7 @@ private:
 	
 	
 
-	vector<Interval > stepDurationArray;
+	std::vector<Interval > stepDurationArray;
 
 	
 	

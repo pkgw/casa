@@ -138,21 +138,21 @@ public:
 	 * @param angle the vector of Angle to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Angle>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Angle>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Angle to a EndianOSStream.
 	 * @param angle the vector of vector of Angle to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Angle> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Angle> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Angle to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Angle to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Angle> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<vector<Angle> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Angle from a EndianIStream
 	 * and use the read value to set an  Angle.
@@ -167,7 +167,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Angle
 	 */	 
-	 static vector<Angle> from1DBin(EndianIStream & eis);
+	 static std::vector<Angle> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Angle from an EndianIStream
@@ -175,7 +175,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Angle
 	 */	 
-	 static vector<vector<Angle> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Angle> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Angle from an EndianIStream
@@ -183,7 +183,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Angle
 	 */	 
-	 static vector<vector<vector<Angle> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<vector<Angle> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Angle = Angle.

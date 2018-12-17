@@ -293,7 +293,7 @@ public:
  	 * Get freqLO.
  	 * @return freqLO as vector<Frequency >
  	 */
- 	vector<Frequency > getFreqLO() const;
+ 	std::vector<Frequency > getFreqLO() const;
 	
  
  	
@@ -305,7 +305,7 @@ public:
  		
  			
  	 */
- 	void setFreqLO (vector<Frequency > freqLO);
+ 	void setFreqLO (std::vector<Frequency > freqLO);
   		
 	
 	
@@ -353,7 +353,7 @@ public:
  	 * Get sidebandLO.
  	 * @return sidebandLO as vector<NetSidebandMod::NetSideband >
  	 */
- 	vector<NetSidebandMod::NetSideband > getSidebandLO() const;
+ 	std::vector<NetSidebandMod::NetSideband > getSidebandLO() const;
 	
  
  	
@@ -365,7 +365,7 @@ public:
  		
  			
  	 */
- 	void setSidebandLO (vector<NetSidebandMod::NetSideband > sidebandLO);
+ 	void setSidebandLO (std::vector<NetSidebandMod::NetSideband > sidebandLO);
   		
 	
 	
@@ -451,7 +451,7 @@ public:
 	 * @param sidebandLO
 	    
 	 */ 
-	bool compareNoAutoInc(Tag spectralWindowId, ArrayTimeInterval timeInterval, string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, vector<NetSidebandMod::NetSideband > sidebandLO);
+	bool compareNoAutoInc(Tag spectralWindowId, ArrayTimeInterval timeInterval, string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, std::vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, std::vector<NetSidebandMod::NetSideband > sidebandLO);
 	
 	
 
@@ -473,7 +473,7 @@ public:
 	 * @param sidebandLO
 	    
 	 */ 
-	bool compareRequiredValue(string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, vector<NetSidebandMod::NetSideband > sidebandLO); 
+	bool compareRequiredValue(string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, std::vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, std::vector<NetSidebandMod::NetSideband > sidebandLO); 
 		 
 	
 	/**
@@ -681,7 +681,7 @@ private:
 	
 	
 
-	vector<Frequency > freqLO;
+	std::vector<Frequency > freqLO;
 
 	
 	
@@ -703,7 +703,7 @@ private:
 	
 	
 
-	vector<NetSidebandMod::NetSideband > sidebandLO;
+	std::vector<NetSidebandMod::NetSideband > sidebandLO;
 
 	
 	

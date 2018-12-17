@@ -138,21 +138,21 @@ public:
 	 * @param angle the vector of Frequency to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Frequency>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Frequency>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Frequency to a EndianOSStream.
 	 * @param angle the vector of vector of Frequency to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Frequency> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Frequency> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Frequency to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Frequency to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Frequency> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<vector<Frequency> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Frequency from a EndianIStream
 	 * and use the read value to set an  Frequency.
@@ -167,7 +167,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Frequency
 	 */	 
-	 static vector<Frequency> from1DBin(EndianIStream & eis);
+	 static std::vector<Frequency> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Frequency from an EndianIStream
@@ -175,7 +175,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Frequency
 	 */	 
-	 static vector<vector<Frequency> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Frequency> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Frequency from an EndianIStream
@@ -183,7 +183,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Frequency
 	 */	 
-	 static vector<vector<vector<Frequency> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<vector<Frequency> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Frequency = Frequency.

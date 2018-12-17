@@ -430,7 +430,7 @@ public:
  	 * Get direction.
  	 * @return direction as vector<Angle >
  	 */
- 	vector<Angle > getDirection() const;
+ 	std::vector<Angle > getDirection() const;
 	
  
  	
@@ -442,7 +442,7 @@ public:
  		
  			
  	 */
- 	void setDirection (vector<Angle > direction);
+ 	void setDirection (std::vector<Angle > direction);
   		
 	
 	
@@ -460,7 +460,7 @@ public:
  	 * Get frequencyRange.
  	 * @return frequencyRange as vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
@@ -472,7 +472,7 @@ public:
  		
  			
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
   		
 	
 	
@@ -520,7 +520,7 @@ public:
  	 * Get polarizationTypes.
  	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
@@ -532,7 +532,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -580,7 +580,7 @@ public:
  	 * Get phaseAnt.
  	 * @return phaseAnt as vector<float >
  	 */
- 	vector<float > getPhaseAnt() const;
+ 	std::vector<float > getPhaseAnt() const;
 	
  
  	
@@ -592,7 +592,7 @@ public:
  		
  			
  	 */
- 	void setPhaseAnt (vector<float > phaseAnt);
+ 	void setPhaseAnt (std::vector<float > phaseAnt);
   		
 	
 	
@@ -610,7 +610,7 @@ public:
  	 * Get phaseAntRMS.
  	 * @return phaseAntRMS as vector<float >
  	 */
- 	vector<float > getPhaseAntRMS() const;
+ 	std::vector<float > getPhaseAntRMS() const;
 	
  
  	
@@ -622,7 +622,7 @@ public:
  		
  			
  	 */
- 	void setPhaseAntRMS (vector<float > phaseAntRMS);
+ 	void setPhaseAntRMS (std::vector<float > phaseAntRMS);
   		
 	
 	
@@ -640,7 +640,7 @@ public:
  	 * Get amplitudeAnt.
  	 * @return amplitudeAnt as vector<float >
  	 */
- 	vector<float > getAmplitudeAnt() const;
+ 	std::vector<float > getAmplitudeAnt() const;
 	
  
  	
@@ -652,7 +652,7 @@ public:
  		
  			
  	 */
- 	void setAmplitudeAnt (vector<float > amplitudeAnt);
+ 	void setAmplitudeAnt (std::vector<float > amplitudeAnt);
   		
 	
 	
@@ -670,7 +670,7 @@ public:
  	 * Get amplitudeAntRMS.
  	 * @return amplitudeAntRMS as vector<float >
  	 */
- 	vector<float > getAmplitudeAntRMS() const;
+ 	std::vector<float > getAmplitudeAntRMS() const;
 	
  
  	
@@ -682,7 +682,7 @@ public:
  		
  			
  	 */
- 	void setAmplitudeAntRMS (vector<float > amplitudeAntRMS);
+ 	void setAmplitudeAntRMS (std::vector<float > amplitudeAntRMS);
   		
 	
 	
@@ -837,7 +837,7 @@ public:
 	 * @param amplitudeAntRMS
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, string refAntennaName, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, vector<float > phaseAnt, vector<float > phaseAntRMS, vector<float > amplitudeAnt, vector<float > amplitudeAntRMS);
+	bool compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS);
 	
 	
 
@@ -873,7 +873,7 @@ public:
 	 * @param amplitudeAntRMS
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, string refAntennaName, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, vector<float > phaseAnt, vector<float > phaseAntRMS, vector<float > amplitudeAnt, vector<float > amplitudeAntRMS); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS); 
 		 
 	
 	/**
@@ -1112,7 +1112,7 @@ private:
 	
 	
 
-	vector<Angle > direction;
+	std::vector<Angle > direction;
 
 	
 	
@@ -1123,7 +1123,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -1145,7 +1145,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1167,7 +1167,7 @@ private:
 	
 	
 
-	vector<float > phaseAnt;
+	std::vector<float > phaseAnt;
 
 	
 	
@@ -1178,7 +1178,7 @@ private:
 	
 	
 
-	vector<float > phaseAntRMS;
+	std::vector<float > phaseAntRMS;
 
 	
 	
@@ -1189,7 +1189,7 @@ private:
 	
 	
 
-	vector<float > amplitudeAnt;
+	std::vector<float > amplitudeAnt;
 
 	
 	
@@ -1200,7 +1200,7 @@ private:
 	
 	
 
-	vector<float > amplitudeAntRMS;
+	std::vector<float > amplitudeAntRMS;
 
 	
 	

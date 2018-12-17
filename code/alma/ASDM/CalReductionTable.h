@@ -356,7 +356,7 @@ public:
  	 * @param softwareVersion
 	
      */
-	CalReductionRow *newRow(int numApplied, vector<string > appliedCalibrations, int numParam, vector<string > paramSet, int numInvalidConditions, vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion);
+	CalReductionRow *newRow(int numApplied, std::vector<string > appliedCalibrations, int numParam, std::vector<string > paramSet, int numInvalidConditions, std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion);
 	
 
 
@@ -459,7 +459,7 @@ public:
  	 * @param softwareVersion
  	 		 
  	 */
-	CalReductionRow* lookup(int numApplied, vector<string > appliedCalibrations, int numParam, vector<string > paramSet, int numInvalidConditions, vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion); 
+	CalReductionRow* lookup(int numApplied, std::vector<string > appliedCalibrations, int numParam, std::vector<string > paramSet, int numInvalidConditions, std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

@@ -188,7 +188,7 @@ public:
  	 * Get position.
  	 * @return position as vector<Length >
  	 */
- 	vector<Length > getPosition() const;
+ 	std::vector<Length > getPosition() const;
 	
  
  	
@@ -200,7 +200,7 @@ public:
  		
  			
  	 */
- 	void setPosition (vector<Length > position);
+ 	void setPosition (std::vector<Length > position);
   		
 	
 	
@@ -300,7 +300,7 @@ public:
 	 * @param type
 	    
 	 */ 
-	bool compareNoAutoInc(string name, vector<Length > position, StationTypeMod::StationType type);
+	bool compareNoAutoInc(string name, std::vector<Length > position, StationTypeMod::StationType type);
 	
 	
 
@@ -316,7 +316,7 @@ public:
 	 * @param type
 	    
 	 */ 
-	bool compareRequiredValue(string name, vector<Length > position, StationTypeMod::StationType type); 
+	bool compareRequiredValue(string name, std::vector<Length > position, StationTypeMod::StationType type); 
 		 
 	
 	/**
@@ -487,7 +487,7 @@ private:
 	
 	
 
-	vector<Length > position;
+	std::vector<Length > position;
 
 	
 	

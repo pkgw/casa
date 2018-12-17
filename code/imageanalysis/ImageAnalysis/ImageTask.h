@@ -81,17 +81,17 @@ public:
     // The second is the associated message. If this method is called more than once
     // on the same object, messages from subsequent calls are appended to the
     // end of messages set in prior calls.
-    void addHistory(const vector<std::pair<casacore::String, casacore::String> >& msgs) const;
+    void addHistory(const std::vector<std::pair<casacore::String, casacore::String> >& msgs) const;
 
     void addHistory(const casacore::LogOrigin& origin, const casacore::String& msg) const;
 
-    void addHistory(const casacore::LogOrigin& origin, const vector<casacore::String>& msgs) const;
+    void addHistory(const casacore::LogOrigin& origin, const std::vector<casacore::String>& msgs) const;
 
     // This adds standard history messages regarding the task that was run and
     // input parameters used. The vectors must have the same length
     void addHistory(
         const casacore::LogOrigin& origin, const casacore::String& taskname,
-        const vector<casacore::String>& paramNames, const vector<casac::variant>& paramValues
+        const std::vector<casacore::String>& paramNames, const std::vector<casac::variant>& paramValues
     ) const;
     // </group>
 
@@ -101,7 +101,7 @@ public:
 
     // get the history associated with the task. Does not include the
     // history of the input image.
-    vector<std::pair<casacore::String, casacore::String> > getHistory() {return _newHistory;}
+    std::vector<std::pair<casacore::String, casacore::String> > getHistory() {return _newHistory;}
 
     void setDropDegen(casacore::Bool d) { _dropDegen = d; }
 
@@ -260,7 +260,7 @@ private:
     std::unique_ptr<casacore::FiledesIO> _logFileIO;
     Verbosity _verbosity = NORMAL;
     std::shared_ptr<LogFile> _logfile;
-    mutable vector<std::pair<casacore::String, casacore::String> > _newHistory;
+    mutable std::vector<std::pair<casacore::String, casacore::String> > _newHistory;
 
     mutable C11Timer _timer;
 };

@@ -332,7 +332,7 @@ public:
  	 * Get frequencyRanges.
  	 * @return frequencyRanges as vector<vector<Frequency > >
  	 */
- 	vector<vector<Frequency > > getFrequencyRanges() const;
+ 	std::vector<std::vector<Frequency > > getFrequencyRanges() const;
 	
  
  	
@@ -344,7 +344,7 @@ public:
  		
  			
  	 */
- 	void setFrequencyRanges (vector<vector<Frequency > > frequencyRanges);
+ 	void setFrequencyRanges (std::vector<std::vector<Frequency > > frequencyRanges);
   		
 	
 	
@@ -392,7 +392,7 @@ public:
  	 * Get flux.
  	 * @return flux as vector<vector<double > >
  	 */
- 	vector<vector<double > > getFlux() const;
+ 	std::vector<std::vector<double > > getFlux() const;
 	
  
  	
@@ -404,7 +404,7 @@ public:
  		
  			
  	 */
- 	void setFlux (vector<vector<double > > flux);
+ 	void setFlux (std::vector<std::vector<double > > flux);
   		
 	
 	
@@ -422,7 +422,7 @@ public:
  	 * Get fluxError.
  	 * @return fluxError as vector<vector<double > >
  	 */
- 	vector<vector<double > > getFluxError() const;
+ 	std::vector<std::vector<double > > getFluxError() const;
 	
  
  	
@@ -434,7 +434,7 @@ public:
  		
  			
  	 */
- 	void setFluxError (vector<vector<double > > fluxError);
+ 	void setFluxError (std::vector<std::vector<double > > fluxError);
   		
 	
 	
@@ -452,7 +452,7 @@ public:
  	 * Get stokes.
  	 * @return stokes as vector<StokesParameterMod::StokesParameter >
  	 */
- 	vector<StokesParameterMod::StokesParameter > getStokes() const;
+ 	std::vector<StokesParameterMod::StokesParameter > getStokes() const;
 	
  
  	
@@ -464,7 +464,7 @@ public:
  		
  			
  	 */
- 	void setStokes (vector<StokesParameterMod::StokesParameter > stokes);
+ 	void setStokes (std::vector<StokesParameterMod::StokesParameter > stokes);
   		
 	
 	
@@ -489,7 +489,7 @@ public:
  	 * @return direction as vector<Angle >
  	 * @throws IllegalAccessException If direction does not exist.
  	 */
- 	vector<Angle > getDirection() const;
+ 	std::vector<Angle > getDirection() const;
 	
  
  	
@@ -500,7 +500,7 @@ public:
  	 
  		
  	 */
- 	void setDirection (vector<Angle > direction);
+ 	void setDirection (std::vector<Angle > direction);
 		
 	
 	
@@ -612,7 +612,7 @@ public:
  	 * @return PA as vector<vector<Angle > >
  	 * @throws IllegalAccessException If PA does not exist.
  	 */
- 	vector<vector<Angle > > getPA() const;
+ 	std::vector<std::vector<Angle > > getPA() const;
 	
  
  	
@@ -623,7 +623,7 @@ public:
  	 
  		
  	 */
- 	void setPA (vector<vector<Angle > > PA);
+ 	void setPA (std::vector<std::vector<Angle > > PA);
 		
 	
 	
@@ -653,7 +653,7 @@ public:
  	 * @return PAError as vector<vector<Angle > >
  	 * @throws IllegalAccessException If PAError does not exist.
  	 */
- 	vector<vector<Angle > > getPAError() const;
+ 	std::vector<std::vector<Angle > > getPAError() const;
 	
  
  	
@@ -664,7 +664,7 @@ public:
  	 
  		
  	 */
- 	void setPAError (vector<vector<Angle > > PAError);
+ 	void setPAError (std::vector<std::vector<Angle > > PAError);
 		
 	
 	
@@ -694,7 +694,7 @@ public:
  	 * @return size as vector<vector<vector<Angle > > >
  	 * @throws IllegalAccessException If size does not exist.
  	 */
- 	vector<vector<vector<Angle > > > getSize() const;
+ 	std::vector<std::vector<vector<Angle > > > getSize() const;
 	
  
  	
@@ -705,7 +705,7 @@ public:
  	 
  		
  	 */
- 	void setSize (vector<vector<vector<Angle > > > size);
+ 	void setSize (std::vector<std::vector<vector<Angle > > > size);
 		
 	
 	
@@ -735,7 +735,7 @@ public:
  	 * @return sizeError as vector<vector<vector<Angle > > >
  	 * @throws IllegalAccessException If sizeError does not exist.
  	 */
- 	vector<vector<vector<Angle > > > getSizeError() const;
+ 	std::vector<std::vector<vector<Angle > > > getSizeError() const;
 	
  
  	
@@ -746,7 +746,7 @@ public:
  	 
  		
  	 */
- 	void setSizeError (vector<vector<vector<Angle > > > sizeError);
+ 	void setSizeError (std::vector<std::vector<vector<Angle > > > sizeError);
 		
 	
 	
@@ -933,7 +933,7 @@ public:
 	 * @param stokes
 	    
 	 */ 
-	bool compareNoAutoInc(string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, vector<vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, vector<vector<double > > flux, vector<vector<double > > fluxError, vector<StokesParameterMod::StokesParameter > stokes);
+	bool compareNoAutoInc(string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, std::vector<std::vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, std::vector<std::vector<double > > flux, std::vector<std::vector<double > > fluxError, std::vector<StokesParameterMod::StokesParameter > stokes);
 	
 	
 
@@ -961,7 +961,7 @@ public:
 	 * @param stokes
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, vector<vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, vector<vector<double > > flux, vector<vector<double > > fluxError, vector<StokesParameterMod::StokesParameter > stokes); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, std::vector<std::vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, std::vector<std::vector<double > > flux, std::vector<std::vector<double > > fluxError, std::vector<StokesParameterMod::StokesParameter > stokes); 
 		 
 	
 	/**
@@ -1168,7 +1168,7 @@ private:
 	
 	
 
-	vector<vector<Frequency > > frequencyRanges;
+	std::vector<std::vector<Frequency > > frequencyRanges;
 
 	
 	
@@ -1190,7 +1190,7 @@ private:
 	
 	
 
-	vector<vector<double > > flux;
+	std::vector<std::vector<double > > flux;
 
 	
 	
@@ -1201,7 +1201,7 @@ private:
 	
 	
 
-	vector<vector<double > > fluxError;
+	std::vector<std::vector<double > > fluxError;
 
 	
 	
@@ -1212,7 +1212,7 @@ private:
 	
 	
 
-	vector<StokesParameterMod::StokesParameter > stokes;
+	std::vector<StokesParameterMod::StokesParameter > stokes;
 
 	
 	
@@ -1225,7 +1225,7 @@ private:
 	bool directionExists;
 	
 
-	vector<Angle > direction;
+	std::vector<Angle > direction;
 
 	
 	
@@ -1264,7 +1264,7 @@ private:
 	bool PAExists;
 	
 
-	vector<vector<Angle > > PA;
+	std::vector<std::vector<Angle > > PA;
 
 	
 	
@@ -1277,7 +1277,7 @@ private:
 	bool PAErrorExists;
 	
 
-	vector<vector<Angle > > PAError;
+	std::vector<std::vector<Angle > > PAError;
 
 	
 	
@@ -1290,7 +1290,7 @@ private:
 	bool sizeExists;
 	
 
-	vector<vector<vector<Angle > > > size;
+	std::vector<std::vector<vector<Angle > > > size;
 
 	
 	
@@ -1303,7 +1303,7 @@ private:
 	bool sizeErrorExists;
 	
 
-	vector<vector<vector<Angle > > > sizeError;
+	std::vector<std::vector<vector<Angle > > > sizeError;
 
 	
 	

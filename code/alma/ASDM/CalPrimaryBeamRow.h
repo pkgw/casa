@@ -368,7 +368,7 @@ public:
  	 * Get frequencyRange.
  	 * @return frequencyRange as vector<vector<Frequency > >
  	 */
- 	vector<vector<Frequency > > getFrequencyRange() const;
+ 	std::vector<std::vector<Frequency > > getFrequencyRange() const;
 	
  
  	
@@ -380,7 +380,7 @@ public:
  		
  			
  	 */
- 	void setFrequencyRange (vector<vector<Frequency > > frequencyRange);
+ 	void setFrequencyRange (std::vector<std::vector<Frequency > > frequencyRange);
   		
 	
 	
@@ -428,7 +428,7 @@ public:
  	 * Get polarizationTypes.
  	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
@@ -440,7 +440,7 @@ public:
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -458,7 +458,7 @@ public:
  	 * Get mainBeamEfficiency.
  	 * @return mainBeamEfficiency as vector<double >
  	 */
- 	vector<double > getMainBeamEfficiency() const;
+ 	std::vector<double > getMainBeamEfficiency() const;
 	
  
  	
@@ -470,7 +470,7 @@ public:
  		
  			
  	 */
- 	void setMainBeamEfficiency (vector<double > mainBeamEfficiency);
+ 	void setMainBeamEfficiency (std::vector<double > mainBeamEfficiency);
   		
 	
 	
@@ -548,7 +548,7 @@ public:
  	 * Get direction.
  	 * @return direction as vector<Angle >
  	 */
- 	vector<Angle > getDirection() const;
+ 	std::vector<Angle > getDirection() const;
 	
  
  	
@@ -560,7 +560,7 @@ public:
  		
  			
  	 */
- 	void setDirection (vector<Angle > direction);
+ 	void setDirection (std::vector<Angle > direction);
   		
 	
 	
@@ -578,7 +578,7 @@ public:
  	 * Get minValidDirection.
  	 * @return minValidDirection as vector<Angle >
  	 */
- 	vector<Angle > getMinValidDirection() const;
+ 	std::vector<Angle > getMinValidDirection() const;
 	
  
  	
@@ -590,7 +590,7 @@ public:
  		
  			
  	 */
- 	void setMinValidDirection (vector<Angle > minValidDirection);
+ 	void setMinValidDirection (std::vector<Angle > minValidDirection);
   		
 	
 	
@@ -608,7 +608,7 @@ public:
  	 * Get maxValidDirection.
  	 * @return maxValidDirection as vector<Angle >
  	 */
- 	vector<Angle > getMaxValidDirection() const;
+ 	std::vector<Angle > getMaxValidDirection() const;
 	
  
  	
@@ -620,7 +620,7 @@ public:
  		
  			
  	 */
- 	void setMaxValidDirection (vector<Angle > maxValidDirection);
+ 	void setMaxValidDirection (std::vector<Angle > maxValidDirection);
   		
 	
 	
@@ -668,7 +668,7 @@ public:
  	 * Get imageChannelNumber.
  	 * @return imageChannelNumber as vector<int >
  	 */
- 	vector<int > getImageChannelNumber() const;
+ 	std::vector<int > getImageChannelNumber() const;
 	
  
  	
@@ -680,7 +680,7 @@ public:
  		
  			
  	 */
- 	void setImageChannelNumber (vector<int > imageChannelNumber);
+ 	void setImageChannelNumber (std::vector<int > imageChannelNumber);
   		
 	
 	
@@ -698,7 +698,7 @@ public:
  	 * Get imageNominalFrequency.
  	 * @return imageNominalFrequency as vector<Frequency >
  	 */
- 	vector<Frequency > getImageNominalFrequency() const;
+ 	std::vector<Frequency > getImageNominalFrequency() const;
 	
  
  	
@@ -710,7 +710,7 @@ public:
  		
  			
  	 */
- 	void setImageNominalFrequency (vector<Frequency > imageNominalFrequency);
+ 	void setImageNominalFrequency (std::vector<Frequency > imageNominalFrequency);
   		
 	
 	
@@ -867,7 +867,7 @@ public:
 	 * @param imageNominalFrequency
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, vector<vector<Frequency > > frequencyRange, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, vector<Angle > direction, vector<Angle > minValidDirection, vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, vector<int > imageChannelNumber, vector<Frequency > imageNominalFrequency);
+	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, std::vector<std::vector<Frequency > > frequencyRange, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, std::vector<Angle > direction, std::vector<Angle > minValidDirection, std::vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, std::vector<int > imageChannelNumber, std::vector<Frequency > imageNominalFrequency);
 	
 	
 
@@ -909,7 +909,7 @@ public:
 	 * @param imageNominalFrequency
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, vector<vector<Frequency > > frequencyRange, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, vector<Angle > direction, vector<Angle > minValidDirection, vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, vector<int > imageChannelNumber, vector<Frequency > imageNominalFrequency); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, std::vector<std::vector<Frequency > > frequencyRange, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, std::vector<Angle > direction, std::vector<Angle > minValidDirection, std::vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, std::vector<int > imageChannelNumber, std::vector<Frequency > imageNominalFrequency); 
 		 
 	
 	/**
@@ -1127,7 +1127,7 @@ private:
 	
 	
 
-	vector<vector<Frequency > > frequencyRange;
+	std::vector<std::vector<Frequency > > frequencyRange;
 
 	
 	
@@ -1149,7 +1149,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1160,7 +1160,7 @@ private:
 	
 	
 
-	vector<double > mainBeamEfficiency;
+	std::vector<double > mainBeamEfficiency;
 
 	
 	
@@ -1193,7 +1193,7 @@ private:
 	
 	
 
-	vector<Angle > direction;
+	std::vector<Angle > direction;
 
 	
 	
@@ -1204,7 +1204,7 @@ private:
 	
 	
 
-	vector<Angle > minValidDirection;
+	std::vector<Angle > minValidDirection;
 
 	
 	
@@ -1215,7 +1215,7 @@ private:
 	
 	
 
-	vector<Angle > maxValidDirection;
+	std::vector<Angle > maxValidDirection;
 
 	
 	
@@ -1237,7 +1237,7 @@ private:
 	
 	
 
-	vector<int > imageChannelNumber;
+	std::vector<int > imageChannelNumber;
 
 	
 	
@@ -1248,7 +1248,7 @@ private:
 	
 	
 
-	vector<Frequency > imageNominalFrequency;
+	std::vector<Frequency > imageNominalFrequency;
 
 	
 	

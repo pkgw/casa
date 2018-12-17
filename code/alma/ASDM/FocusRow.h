@@ -210,7 +210,7 @@ public:
  	 * Get focusOffset.
  	 * @return focusOffset as vector<Length >
  	 */
- 	vector<Length > getFocusOffset() const;
+ 	std::vector<Length > getFocusOffset() const;
 	
  
  	
@@ -222,7 +222,7 @@ public:
  		
  			
  	 */
- 	void setFocusOffset (vector<Length > focusOffset);
+ 	void setFocusOffset (std::vector<Length > focusOffset);
   		
 	
 	
@@ -240,7 +240,7 @@ public:
  	 * Get focusRotationOffset.
  	 * @return focusRotationOffset as vector<Angle >
  	 */
- 	vector<Angle > getFocusRotationOffset() const;
+ 	std::vector<Angle > getFocusRotationOffset() const;
 	
  
  	
@@ -252,7 +252,7 @@ public:
  		
  			
  	 */
- 	void setFocusRotationOffset (vector<Angle > focusRotationOffset);
+ 	void setFocusRotationOffset (std::vector<Angle > focusRotationOffset);
   		
 	
 	
@@ -277,7 +277,7 @@ public:
  	 * @return measuredFocusPosition as vector<Length >
  	 * @throws IllegalAccessException If measuredFocusPosition does not exist.
  	 */
- 	vector<Length > getMeasuredFocusPosition() const;
+ 	std::vector<Length > getMeasuredFocusPosition() const;
 	
  
  	
@@ -288,7 +288,7 @@ public:
  	 
  		
  	 */
- 	void setMeasuredFocusPosition (vector<Length > measuredFocusPosition);
+ 	void setMeasuredFocusPosition (std::vector<Length > measuredFocusPosition);
 		
 	
 	
@@ -318,7 +318,7 @@ public:
  	 * @return measuredFocusRotation as vector<Angle >
  	 * @throws IllegalAccessException If measuredFocusRotation does not exist.
  	 */
- 	vector<Angle > getMeasuredFocusRotation() const;
+ 	std::vector<Angle > getMeasuredFocusRotation() const;
 	
  
  	
@@ -329,7 +329,7 @@ public:
  	 
  		
  	 */
- 	void setMeasuredFocusRotation (vector<Angle > measuredFocusRotation);
+ 	void setMeasuredFocusRotation (std::vector<Angle > measuredFocusRotation);
 		
 	
 	
@@ -463,7 +463,7 @@ public:
 	 * @param focusModelId
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, vector<Length > focusOffset, vector<Angle > focusRotationOffset, int focusModelId);
+	bool compareNoAutoInc(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, std::vector<Length > focusOffset, std::vector<Angle > focusRotationOffset, int focusModelId);
 	
 	
 
@@ -481,7 +481,7 @@ public:
 	 * @param focusModelId
 	    
 	 */ 
-	bool compareRequiredValue(bool focusTracking, vector<Length > focusOffset, vector<Angle > focusRotationOffset, int focusModelId); 
+	bool compareRequiredValue(bool focusTracking, std::vector<Length > focusOffset, std::vector<Angle > focusRotationOffset, int focusModelId); 
 		 
 	
 	/**
@@ -643,7 +643,7 @@ private:
 	
 	
 
-	vector<Length > focusOffset;
+	std::vector<Length > focusOffset;
 
 	
 	
@@ -654,7 +654,7 @@ private:
 	
 	
 
-	vector<Angle > focusRotationOffset;
+	std::vector<Angle > focusRotationOffset;
 
 	
 	
@@ -667,7 +667,7 @@ private:
 	bool measuredFocusPositionExists;
 	
 
-	vector<Length > measuredFocusPosition;
+	std::vector<Length > measuredFocusPosition;
 
 	
 	
@@ -680,7 +680,7 @@ private:
 	bool measuredFocusRotationExists;
 	
 
-	vector<Angle > measuredFocusRotation;
+	std::vector<Angle > measuredFocusRotation;
 
 	
 	

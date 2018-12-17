@@ -138,21 +138,21 @@ public:
 	 * @param angle the vector of AngularRate to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<AngularRate>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<AngularRate>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of AngularRate to a EndianOSStream.
 	 * @param angle the vector of vector of AngularRate to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<AngularRate> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<AngularRate> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of AngularRate to a EndianOSStream.
 	 * @param angle the vector of vector of vector of AngularRate to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<AngularRate> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<vector<AngularRate> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an AngularRate from a EndianIStream
 	 * and use the read value to set an  AngularRate.
@@ -167,7 +167,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of AngularRate
 	 */	 
-	 static vector<AngularRate> from1DBin(EndianIStream & eis);
+	 static std::vector<AngularRate> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of AngularRate from an EndianIStream
@@ -175,7 +175,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of AngularRate
 	 */	 
-	 static vector<vector<AngularRate> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<AngularRate> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of AngularRate from an EndianIStream
@@ -183,7 +183,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of AngularRate
 	 */	 
-	 static vector<vector<vector<AngularRate> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<vector<AngularRate> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator AngularRate = AngularRate.

@@ -198,7 +198,7 @@ public:
  	 * Get basebandNames.
  	 * @return basebandNames as vector<BasebandNameMod::BasebandName >
  	 */
- 	vector<BasebandNameMod::BasebandName > getBasebandNames() const;
+ 	std::vector<BasebandNameMod::BasebandName > getBasebandNames() const;
 	
  
  	
@@ -210,7 +210,7 @@ public:
  		
  			
  	 */
- 	void setBasebandNames (vector<BasebandNameMod::BasebandName > basebandNames);
+ 	void setBasebandNames (std::vector<BasebandNameMod::BasebandName > basebandNames);
   		
 	
 	
@@ -228,7 +228,7 @@ public:
  	 * Get basebandConfig.
  	 * @return basebandConfig as vector<int >
  	 */
- 	vector<int > getBasebandConfig() const;
+ 	std::vector<int > getBasebandConfig() const;
 	
  
  	
@@ -240,7 +240,7 @@ public:
  		
  			
  	 */
- 	void setBasebandConfig (vector<int > basebandConfig);
+ 	void setBasebandConfig (std::vector<int > basebandConfig);
   		
 	
 	
@@ -348,7 +348,7 @@ public:
  	 * Get axesOrderArray.
  	 * @return axesOrderArray as vector<AxisNameMod::AxisName >
  	 */
- 	vector<AxisNameMod::AxisName > getAxesOrderArray() const;
+ 	std::vector<AxisNameMod::AxisName > getAxesOrderArray() const;
 	
  
  	
@@ -360,7 +360,7 @@ public:
  		
  			
  	 */
- 	void setAxesOrderArray (vector<AxisNameMod::AxisName > axesOrderArray);
+ 	void setAxesOrderArray (std::vector<AxisNameMod::AxisName > axesOrderArray);
   		
 	
 	
@@ -378,7 +378,7 @@ public:
  	 * Get filterMode.
  	 * @return filterMode as vector<FilterModeMod::FilterMode >
  	 */
- 	vector<FilterModeMod::FilterMode > getFilterMode() const;
+ 	std::vector<FilterModeMod::FilterMode > getFilterMode() const;
 	
  
  	
@@ -390,7 +390,7 @@ public:
  		
  			
  	 */
- 	void setFilterMode (vector<FilterModeMod::FilterMode > filterMode);
+ 	void setFilterMode (std::vector<FilterModeMod::FilterMode > filterMode);
   		
 	
 	
@@ -461,7 +461,7 @@ public:
 	 * @param correlatorName
 	    
 	 */ 
-	bool compareNoAutoInc(int numBaseband, vector<BasebandNameMod::BasebandName > basebandNames, vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, vector<AxisNameMod::AxisName > axesOrderArray, vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName);
+	bool compareNoAutoInc(int numBaseband, std::vector<BasebandNameMod::BasebandName > basebandNames, std::vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, std::vector<AxisNameMod::AxisName > axesOrderArray, std::vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName);
 	
 	
 
@@ -489,7 +489,7 @@ public:
 	 * @param correlatorName
 	    
 	 */ 
-	bool compareRequiredValue(int numBaseband, vector<BasebandNameMod::BasebandName > basebandNames, vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, vector<AxisNameMod::AxisName > axesOrderArray, vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName); 
+	bool compareRequiredValue(int numBaseband, std::vector<BasebandNameMod::BasebandName > basebandNames, std::vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, std::vector<AxisNameMod::AxisName > axesOrderArray, std::vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName); 
 		 
 	
 	/**
@@ -665,7 +665,7 @@ private:
 	
 	
 
-	vector<BasebandNameMod::BasebandName > basebandNames;
+	std::vector<BasebandNameMod::BasebandName > basebandNames;
 
 	
 	
@@ -676,7 +676,7 @@ private:
 	
 	
 
-	vector<int > basebandConfig;
+	std::vector<int > basebandConfig;
 
 	
 	
@@ -720,7 +720,7 @@ private:
 	
 	
 
-	vector<AxisNameMod::AxisName > axesOrderArray;
+	std::vector<AxisNameMod::AxisName > axesOrderArray;
 
 	
 	
@@ -731,7 +731,7 @@ private:
 	
 	
 
-	vector<FilterModeMod::FilterMode > filterMode;
+	std::vector<FilterModeMod::FilterMode > filterMode;
 
 	
 	

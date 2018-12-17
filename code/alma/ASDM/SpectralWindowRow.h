@@ -520,7 +520,7 @@ public:
  	 * @return chanFreqArray as vector<Frequency >
  	 * @throws IllegalAccessException If chanFreqArray does not exist.
  	 */
- 	vector<Frequency > getChanFreqArray() const;
+ 	std::vector<Frequency > getChanFreqArray() const;
 	
  
  	
@@ -531,7 +531,7 @@ public:
  	 
  		
  	 */
- 	void setChanFreqArray (vector<Frequency > chanFreqArray);
+ 	void setChanFreqArray (std::vector<Frequency > chanFreqArray);
 		
 	
 	
@@ -602,7 +602,7 @@ public:
  	 * @return chanWidthArray as vector<Frequency >
  	 * @throws IllegalAccessException If chanWidthArray does not exist.
  	 */
- 	vector<Frequency > getChanWidthArray() const;
+ 	std::vector<Frequency > getChanWidthArray() const;
 	
  
  	
@@ -613,7 +613,7 @@ public:
  	 
  		
  	 */
- 	void setChanWidthArray (vector<Frequency > chanWidthArray);
+ 	void setChanWidthArray (std::vector<Frequency > chanWidthArray);
 		
 	
 	
@@ -725,7 +725,7 @@ public:
  	 * @return effectiveBwArray as vector<Frequency >
  	 * @throws IllegalAccessException If effectiveBwArray does not exist.
  	 */
- 	vector<Frequency > getEffectiveBwArray() const;
+ 	std::vector<Frequency > getEffectiveBwArray() const;
 	
  
  	
@@ -736,7 +736,7 @@ public:
  	 
  		
  	 */
- 	void setEffectiveBwArray (vector<Frequency > effectiveBwArray);
+ 	void setEffectiveBwArray (std::vector<Frequency > effectiveBwArray);
 		
 	
 	
@@ -848,7 +848,7 @@ public:
  	 * @return lineArray as vector<bool >
  	 * @throws IllegalAccessException If lineArray does not exist.
  	 */
- 	vector<bool > getLineArray() const;
+ 	std::vector<bool > getLineArray() const;
 	
  
  	
@@ -859,7 +859,7 @@ public:
  	 
  		
  	 */
- 	void setLineArray (vector<bool > lineArray);
+ 	void setLineArray (std::vector<bool > lineArray);
 		
 	
 	
@@ -1135,7 +1135,7 @@ public:
  	 * @return resolutionArray as vector<Frequency >
  	 * @throws IllegalAccessException If resolutionArray does not exist.
  	 */
- 	vector<Frequency > getResolutionArray() const;
+ 	std::vector<Frequency > getResolutionArray() const;
 	
  
  	
@@ -1146,7 +1146,7 @@ public:
  	 
  		
  	 */
- 	void setResolutionArray (vector<Frequency > resolutionArray);
+ 	void setResolutionArray (std::vector<Frequency > resolutionArray);
 		
 	
 	
@@ -1217,7 +1217,7 @@ public:
  	 * @return assocNature as vector<SpectralResolutionTypeMod::SpectralResolutionType >
  	 * @throws IllegalAccessException If assocNature does not exist.
  	 */
- 	vector<SpectralResolutionTypeMod::SpectralResolutionType > getAssocNature() const;
+ 	std::vector<SpectralResolutionTypeMod::SpectralResolutionType > getAssocNature() const;
 	
  
  	
@@ -1228,7 +1228,7 @@ public:
  	 
  		
  	 */
- 	void setAssocNature (vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature);
+ 	void setAssocNature (std::vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature);
 		
 	
 	
@@ -1262,7 +1262,7 @@ public:
  	 * @return assocSpectralWindowId as vector<Tag> 
  	 * @throws IllegalAccessException If assocSpectralWindowId does not exist.
  	 */
- 	vector<Tag>  getAssocSpectralWindowId() const;
+ 	std::vector<Tag>  getAssocSpectralWindowId() const;
 	
  
  	
@@ -1273,7 +1273,7 @@ public:
  	 
  		
  	 */
- 	void setAssocSpectralWindowId (vector<Tag>  assocSpectralWindowId);
+ 	void setAssocSpectralWindowId (std::vector<Tag>  assocSpectralWindowId);
 		
 	
 	
@@ -1395,7 +1395,7 @@ public:
  * Append a vector of Tag to assocSpectralWindowId.
  * @param id an array of Tag to be appended to assocSpectralWindowId
  */
- void addAssocSpectralWindowId(const vector<Tag> & id); 
+ void addAssocSpectralWindowId(const std::vector<Tag> & id); 
  
 
  /**
@@ -1418,7 +1418,7 @@ public:
   * Returns the vector of SpectralWindowRow* linked to this row via the Tags stored in assocSpectralWindowId
   * @return an array of pointers on SpectralWindowRow.
   */
- vector<SpectralWindowRow *> getSpectralWindowsUsingAssocSpectralWindowId(); 
+ std::vector<SpectralWindowRow *> getSpectralWindowsUsingAssocSpectralWindowId(); 
   
 
 	
@@ -1794,7 +1794,7 @@ private:
 	bool chanFreqArrayExists;
 	
 
-	vector<Frequency > chanFreqArray;
+	std::vector<Frequency > chanFreqArray;
 
 	
 	
@@ -1820,7 +1820,7 @@ private:
 	bool chanWidthArrayExists;
 	
 
-	vector<Frequency > chanWidthArray;
+	std::vector<Frequency > chanWidthArray;
 
 	
 	
@@ -1859,7 +1859,7 @@ private:
 	bool effectiveBwArrayExists;
 	
 
-	vector<Frequency > effectiveBwArray;
+	std::vector<Frequency > effectiveBwArray;
 
 	
 	
@@ -1898,7 +1898,7 @@ private:
 	bool lineArrayExists;
 	
 
-	vector<bool > lineArray;
+	std::vector<bool > lineArray;
 
 	
 	
@@ -1989,7 +1989,7 @@ private:
 	bool resolutionArrayExists;
 	
 
-	vector<Frequency > resolutionArray;
+	std::vector<Frequency > resolutionArray;
 
 	
 	
@@ -2015,7 +2015,7 @@ private:
 	bool assocNatureExists;
 	
 
-	vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature;
+	std::vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature;
 
 	
 	
@@ -2032,7 +2032,7 @@ private:
 	bool assocSpectralWindowIdExists;
 	
 
-	vector<Tag>  assocSpectralWindowId;
+	std::vector<Tag>  assocSpectralWindowId;
 
 	
 	

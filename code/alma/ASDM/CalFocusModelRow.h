@@ -416,7 +416,7 @@ public:
  	 * Get coeffName.
  	 * @return coeffName as vector<string >
  	 */
- 	vector<string > getCoeffName() const;
+ 	std::vector<string > getCoeffName() const;
 	
  
  	
@@ -428,7 +428,7 @@ public:
  		
  			
  	 */
- 	void setCoeffName (vector<string > coeffName);
+ 	void setCoeffName (std::vector<string > coeffName);
   		
 	
 	
@@ -446,7 +446,7 @@ public:
  	 * Get coeffFormula.
  	 * @return coeffFormula as vector<string >
  	 */
- 	vector<string > getCoeffFormula() const;
+ 	std::vector<string > getCoeffFormula() const;
 	
  
  	
@@ -458,7 +458,7 @@ public:
  		
  			
  	 */
- 	void setCoeffFormula (vector<string > coeffFormula);
+ 	void setCoeffFormula (std::vector<string > coeffFormula);
   		
 	
 	
@@ -476,7 +476,7 @@ public:
  	 * Get coeffValue.
  	 * @return coeffValue as vector<float >
  	 */
- 	vector<float > getCoeffValue() const;
+ 	std::vector<float > getCoeffValue() const;
 	
  
  	
@@ -488,7 +488,7 @@ public:
  		
  			
  	 */
- 	void setCoeffValue (vector<float > coeffValue);
+ 	void setCoeffValue (std::vector<float > coeffValue);
   		
 	
 	
@@ -506,7 +506,7 @@ public:
  	 * Get coeffError.
  	 * @return coeffError as vector<float >
  	 */
- 	vector<float > getCoeffError() const;
+ 	std::vector<float > getCoeffError() const;
 	
  
  	
@@ -518,7 +518,7 @@ public:
  		
  			
  	 */
- 	void setCoeffError (vector<float > coeffError);
+ 	void setCoeffError (std::vector<float > coeffError);
   		
 	
 	
@@ -536,7 +536,7 @@ public:
  	 * Get coeffFixed.
  	 * @return coeffFixed as vector<bool >
  	 */
- 	vector<bool > getCoeffFixed() const;
+ 	std::vector<bool > getCoeffFixed() const;
 	
  
  	
@@ -548,7 +548,7 @@ public:
  		
  			
  	 */
- 	void setCoeffFixed (vector<bool > coeffFixed);
+ 	void setCoeffFixed (std::vector<bool > coeffFixed);
   		
 	
 	
@@ -596,7 +596,7 @@ public:
  	 * Get focusRMS.
  	 * @return focusRMS as vector<Length >
  	 */
- 	vector<Length > getFocusRMS() const;
+ 	std::vector<Length > getFocusRMS() const;
 	
  
  	
@@ -608,7 +608,7 @@ public:
  		
  			
  	 */
- 	void setFocusRMS (vector<Length > focusRMS);
+ 	void setFocusRMS (std::vector<Length > focusRMS);
   		
 	
 	
@@ -791,7 +791,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffValue, vector<float > coeffError, vector<bool > coeffFixed, string focusModel, vector<Length > focusRMS, double reducedChiSquared);
+	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, std::vector<string > coeffName, std::vector<string > coeffFormula, std::vector<float > coeffValue, std::vector<float > coeffError, std::vector<bool > coeffFixed, string focusModel, std::vector<Length > focusRMS, double reducedChiSquared);
 	
 	
 
@@ -827,7 +827,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffValue, vector<float > coeffError, vector<bool > coeffFixed, string focusModel, vector<Length > focusRMS, double reducedChiSquared); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, std::vector<string > coeffName, std::vector<string > coeffFormula, std::vector<float > coeffValue, std::vector<float > coeffError, std::vector<bool > coeffFixed, string focusModel, std::vector<Length > focusRMS, double reducedChiSquared); 
 		 
 	
 	/**
@@ -1065,7 +1065,7 @@ private:
 	
 	
 
-	vector<string > coeffName;
+	std::vector<string > coeffName;
 
 	
 	
@@ -1076,7 +1076,7 @@ private:
 	
 	
 
-	vector<string > coeffFormula;
+	std::vector<string > coeffFormula;
 
 	
 	
@@ -1087,7 +1087,7 @@ private:
 	
 	
 
-	vector<float > coeffValue;
+	std::vector<float > coeffValue;
 
 	
 	
@@ -1098,7 +1098,7 @@ private:
 	
 	
 
-	vector<float > coeffError;
+	std::vector<float > coeffError;
 
 	
 	
@@ -1109,7 +1109,7 @@ private:
 	
 	
 
-	vector<bool > coeffFixed;
+	std::vector<bool > coeffFixed;
 
 	
 	
@@ -1131,7 +1131,7 @@ private:
 	
 	
 
-	vector<Length > focusRMS;
+	std::vector<Length > focusRMS;
 
 	
 	
