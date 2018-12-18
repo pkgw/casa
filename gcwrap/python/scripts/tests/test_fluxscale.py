@@ -554,7 +554,7 @@ class fluxscale_fit_test(unittest.TestCase):
 
 
     def test_spectralfit2(self):
-        '''Fluxscale spectral fit test2: fit order higher than 2 (fitorder=4) '''
+        '''Fluxscale spectral fit test2: fit order higher than 2 (fitorder=3) '''
         # Input
         gtable = self.gtable
 
@@ -567,82 +567,100 @@ class fluxscale_fit_test(unittest.TestCase):
         tolspidx=1.e-4
 
         thisdict = fluxscale(vis=self.msfile, caltable=gtable, fluxtable=outtable, reference='1',
-                             refspwmap=[0,1,3,3], fitorder=4, listfile='twhya.fittest2.out.txt')
+                             refspwmap=[0,1,3,3], fitorder=3, listfile='twhya.fittest2.out.txt')
 
+        #print ("thisdict=",thisdict)
         self.assertTrue(os.path.exists(outtable))
 
         refdict={'0': {'0': {'fluxd': np.array([ 10.40151801,   0.        ,   0.        ,   0.        ]),
                              'fluxdErr': np.array([ 0.01823489,  0.        ,  0.        ,  0.        ]),
                              'numSol': np.array([ 16.,   0.,   0.,   0.])},
                        '1': {'fluxd': np.array([ 10.49918965,   0.        ,   0.        ,   0.        ]),
-                             'fluxdErr': np.array([ 0.02617547,  0.        ,  0.        ,  0.        ]),
-                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
-                       '2': {'fluxd': np.array([ 10.40252265,   0.        ,   0.        ,   0.        ]),
-                             'fluxdErr': np.array([ 0.04820387,  0.        ,  0.        ,  0.        ]),
-                             'numSol': np.array([ 14.,   0.,   0.,   0.])},
-                       '3': {'fluxd': np.array([ 10.06407263,   0.        ,   0.        ,   0.        ]),
-                             'fluxdErr': np.array([ 0.02031524,  0.        ,  0.        ,  0.        ]),
-                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
-                       'covarMat': np.array([[  1.41296477e+09,   7.13885541e+09,  -4.92930139e+13, 7.04033445e+02,   3.98766925e+17],
-                                          [  7.13885541e+09,   3.60683136e+10,  -2.49047751e+14, -7.12223570e+03,   2.01472781e+18],
-                                          [ -4.92930139e+13,  -2.49047751e+14,   1.71964742e+18, -2.41048566e+07,  -1.39114746e+22],
-                                          [  7.04033445e+02,  -7.12223570e+03,  -2.41048566e+07, 1.51164651e+08,   1.94816880e+11],
-                                          [  3.98766925e+17,   2.01472781e+18,  -1.39114746e+22, 1.94816880e+11,   1.12540004e+26]]),
-                      'fieldName': '3c279',
-                      'fitFluxd': 6.21969437535104,
-                      'fitFluxdErr': 5.808386026517706,
-                      'fitRefFreq': 350998123030.1949,
-                      'spidx': np.array([  7.93769045e-01,  -2.45320453e+00,   7.81783295e+03, 2.94974267e+04,  -6.39585370e+07]),
-                      'spidxerr': np.array([  4.05574591e-01,   2.04912282e+00,   1.41489684e+04, 1.32657007e-01,   1.14461263e+08])},
-                 '3': {'0': {'fluxd': np.array([ 1.02073715,  0.        ,  0.        ,  0.        ]),
-                             'fluxdErr': np.array([ 0.01662615,  0.        ,  0.        ,  0.        ]),
-                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
-                       '1': {'fluxd': np.array([ 0.82954399,  0.        ,  0.        ,  0.        ]),
-                             'fluxdErr': np.array([ 0.01892758,  0.        ,  0.        ,  0.        ]),
-                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
-                       '2': {'fluxd': np.array([ 1.00187618,  0.        ,  0.        ,  0.        ]),
-                             'fluxdErr': np.array([ 0.02459043,  0.        ,  0.        ,  0.        ]),
-                             'numSol': np.array([ 14.,   0.,   0.,   0.])},
-                       '3': {'fluxd': np.array([ 1.30754902,  0.        ,  0.        ,  0.        ]),
-                             'fluxdErr': np.array([ 0.01957324,  0.        ,  0.        ,  0.        ]),
-                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
-                       'covarMat': np.array([[  2.48681800e+11,   1.25643855e+12,  -8.67557045e+15, 1.24215688e+05,   7.01829788e+19],
-                                          [  1.25643855e+12,   6.34802320e+12,  -4.38324042e+16, 9.40878144e+04,   3.54592094e+20],
-                                          [ -8.67557045e+15,  -4.38324042e+16,   3.02657946e+20, -4.35024665e+09,  -2.44841954e+24],
-                                          [  1.24215688e+05,   9.40878144e+04,  -4.35024665e+09, 8.29083220e+09,   3.54184351e+13],
-                                          [  7.01829788e+19,   3.54592094e+20,  -2.44841954e+24, 3.54184351e+13,   1.98070406e+28]]),
-                       'fieldName': 'J1147-382=QSO',
-                       'fitFluxd': 1.1902245002322454,
-                       'fitFluxdErr': 0.0,
-                       'fitRefFreq': 350998123030.1949,
-                       'spidx': np.array([  7.56288858e-02,   1.87938786e+01,  -1.82454656e+03, -3.85837665e+05,   1.05487269e+07]),
-                       'spidxerr': np.array([ 0.,  0.,  0.,  0.,  0.])},
-                '4': {'0': {'fluxd': np.array([ 0.95582976,  0.        ,  0.        ,  0.        ]),
-                            'fluxdErr': np.array([ 0.00889469,  0.        ,  0.        ,  0.        ]),
-                            'numSol': np.array([ 16.,   0.,   0.,   0.])},
-                      '1': {'fluxd': np.array([ 0.74538553,  0.        ,  0.        ,  0.        ]),
-                            'fluxdErr': np.array([ 0.01522706,  0.        ,  0.        ,  0.        ]),
-                            'numSol': np.array([ 16.,   0.,   0.,   0.])},
-                      '2': {'fluxd': np.array([ 0.96176398,  0.        ,  0.        ,  0.        ]),
-                            'fluxdErr': np.array([ 0.01663815,  0.        ,  0.        ,  0.        ]),
-                            'numSol': np.array([ 14.,   0.,   0.,   0.])},
-                      '3': {'fluxd': np.array([ 1.23699681,  0.        ,  0.        ,  0.        ]),
-                            'fluxdErr': np.array([ 0.01410021,  0.        ,  0.        ,  0.        ]),
-                            'numSol': np.array([ 16.,   0.,   0.,   0.])},
-                      'covarMat': np.array([[  1.65787866e+11,   8.37625701e+11,  -5.78371363e+15, 8.27084165e+04,   4.67886525e+19],
-                                         [  8.37625701e+11,   4.23201547e+12,  -2.92216028e+16, 1.32866263e+05,   2.36394730e+20],
-                                         [ -5.78371363e+15,  -2.92216028e+16,   2.01771964e+20, -2.89510690e+09,  -1.63227969e+24],
-                                         [  8.27084165e+04,   1.32866263e+05,  -2.89510690e+09, 4.73281247e+09,   2.35757165e+13],
-                                         [  4.67886525e+19,   2.36394730e+20,  -1.63227969e+24, 2.35757165e+13,   1.32046938e+28]]),
-                      'fieldName': 'J1037-295=QSO',
-                      'fitFluxd': 1.0220908522959689,
-                      'fitFluxdErr': 0.27981261248797934,
-                      'fitRefFreq': 350998123030.1949,
-                      'spidx': np.array([  9.48950137e-03,   1.93341777e+01,  -1.65476854e+01, -4.16536298e+05,  -7.81332239e+06]),
-                      'spidxerr': np.array([  1.18894591e-01,   6.00702374e-01,   4.14778403e+03, 2.00884012e-02,   3.35544320e+07])},
-                 'freq': np.array([  3.56732311e+11,   3.57968689e+11,   3.45799939e+11, 3.43721561e+11]),
-                 'spwID': np.array([0, 1, 2, 3], dtype=np.int32),
-                 'spwName': np.array(['', '', '', ''], dtype='|S1')}
+                            'fluxdErr': np.array([ 0.02617547,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  '2': {'fluxd': np.array([ 10.40252265,   0.        ,   0.        ,   0.        ]),
+   'fluxdErr': np.array([ 0.04820387,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 14.,   0.,   0.,   0.])},
+  '3': {'fluxd': np.array([ 10.06407263,   0.        ,   0.        ,   0.        ]),
+   'fluxdErr': np.array([ 0.02031524,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  'covarMat': np.array([[  3.78403026e-05,  -1.61652643e-03,  -5.35626987e-01,
+            1.37319915e+01],
+         [ -1.61652643e-03,   7.76311181e-01,   1.10257926e+01,
+           -1.06099110e+04],
+         [ -5.35626987e-01,   1.10257926e+01,   8.07609530e+03,
+           -2.28413163e+04],
+         [  1.37319915e+01,  -1.06099110e+04,  -2.28413163e+04,
+            1.51164651e+08]]),
+  'fieldName': '3c279',
+  'fitFluxd': 10.480827241419448,
+  'fitFluxdErr': 1.6017459072681995e-06,
+  'fitRefFreq': 350998123030.1949,
+  'spidx': np.array([  1.02039556e+00,  -1.30819796e+00,  -8.83118624e+01,
+           2.94974267e+04]),
+  'spidxerr': np.array([  6.63716129e-08,   9.50655121e-06,   9.69629431e-04,
+           1.32657007e-01])},
+ '3': {'0': {'fluxd': np.array([ 1.02073715,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01662615,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  '1': {'fluxd': np.array([ 0.82954399,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01892758,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  '2': {'fluxd': np.array([ 1.00187618,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.02459043,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 14.,   0.,   0.,   0.])},
+  '3': {'fluxd': np.array([ 1.30754902,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01957324,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  'covarMat': np.array([[  1.89036508e-03,   5.96328648e-02,  -2.93771953e+01,
+           -1.28368993e+03],
+         [  5.96328648e-02,   3.68718044e+01,  -1.43211511e+03,
+           -5.39984551e+05],
+         [ -2.93771953e+01,  -1.43211511e+03,   4.84875038e+05,
+            2.79535145e+07],
+         [ -1.28368993e+03,  -5.39984551e+05,   2.79535145e+07,
+            8.29083220e+09]]),
+  'fieldName': 'J1147-382=QSO',
+  'fitFluxd': 1.092071851590615,
+  'fitFluxdErr': 0.0,
+  'fitRefFreq': 350998123030.1949,
+  'spidx': np.array([  3.82512132e-02,   1.86050319e+01,  -5.20580484e+02,
+          -3.85837665e+05]),
+  'spidxerr': np.array([ 0.,  0.,  0.,  0.])},
+ '4': {'0': {'fluxd': np.array([ 0.95582976,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.00889469,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  '1': {'fluxd': np.array([ 0.74538553,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01522706,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  '2': {'fluxd': np.array([ 0.96176398,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01663815,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 14.,   0.,   0.,   0.])},
+  '3': {'fluxd': np.array([ 1.23699681,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01410021,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  'covarMat': np.array([[  1.00988335e-03,   3.44485351e-02,  -1.67699397e+01,
+           -8.28243223e+02],
+         [  3.44485351e-02,   1.86351306e+01,  -9.12971574e+02,
+           -2.89193895e+05],
+         [ -1.67699397e+01,  -9.12971574e+02,   2.95846078e+05,
+            1.91722178e+07],
+         [ -8.28243223e+02,  -2.89193895e+05,   1.91722178e+07,
+            4.73281247e+09]]),
+  'fieldName': 'J1037-295=QSO',
+  'fitFluxd': 1.0893682650886731,
+  'fitFluxdErr': 3.291749183819577e-08,
+  'fitRefFreq': 350998123030.1949,
+  'spidx': np.array([  3.71747195e-02,   1.94740543e+01,  -9.82380570e+02,
+          -4.16536298e+05]),
+  'spidxerr': np.array([  1.31230967e-08,   1.78265353e-06,   2.24612350e-04,
+           2.84092894e-02])},
+ 'freq': np.array([  3.56732311e+11,   3.57968689e+11,   3.45799939e+11,
+          3.43721561e+11]),
+ 'spwID': np.array([0, 1, 2, 3], dtype=np.int32),
+ 'spwName': np.array(['', '', '', ''], 
+       dtype='|S1')}
+
 
 
         # File to compare with (this should be the same as test1)
@@ -652,9 +670,11 @@ class fluxscale_fit_test(unittest.TestCase):
         self.assertTrue(diff_fluxd<tol)
        
         diff_spidx0=abs(refdict['4']['spidx'][0]-thisdict['4']['spidx'][0])/refdict['4']['spidx'][0]
+        print ("diff for a_0 for field 4: diff_spidx0=",diff_spidx0)
         self.assertTrue(diff_spidx0<tolspidx)
-        diff_spidx4=abs(refdict['4']['spidx'][4]-thisdict['4']['spidx'][4])/refdict['4']['spidx'][4]
-        self.assertTrue(diff_spidx4<tolspidx)
+        diff_spidx3=abs(refdict['4']['spidx'][3]-thisdict['4']['spidx'][3])/refdict['4']['spidx'][3]
+        self.assertTrue(diff_spidx3<tolspidx)
+        print ("diff for a_3 for field 4: diff_spidx3=",diff_spidx3)
 
 def suite():
     return [fluxscale1_test, fluxscale2_test, fluxscale3_test, fluxscale_fit_test]
