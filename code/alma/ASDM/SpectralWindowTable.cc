@@ -138,8 +138,6 @@ namespace asdm {
 		
 			, "assocNature"
 		
-			, "numBin"
-		
 			, "assocSpectralWindowId"
 		
 			, "imageSpectralWindowId"
@@ -753,7 +751,6 @@ SpectralWindowRow* SpectralWindowTable::lookup(BasebandNameMod::BasebandName bas
 		oss << "<resolutionArray/>\n"; 
 		oss << "<numAssocValues/>\n"; 
 		oss << "<assocNature/>\n"; 
-		oss << "<numBin/>\n"; 
 		oss << "<assocSpectralWindowId/>\n"; 
 		oss << "<imageSpectralWindowId/>\n"; 
 		oss << "<dopplerId/>\n"; 
@@ -930,8 +927,6 @@ SpectralWindowRow* SpectralWindowTable::lookup(BasebandNameMod::BasebandName bas
     attributesSeq.push_back("numAssocValues") ; 
     	 
     attributesSeq.push_back("assocNature") ; 
-    	 
-    attributesSeq.push_back("numBin") ; 
     	 
     attributesSeq.push_back("assocSpectralWindowId") ; 
     	 

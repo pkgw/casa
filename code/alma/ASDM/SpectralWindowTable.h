@@ -123,8 +123,6 @@
 #include <alma/Enumerations/CSpectralResolutionType.h>
 	
 
-	
-
 
 
 #include <alma/ASDM/ConversionException.h>
@@ -376,13 +374,6 @@ class SpectralWindowRow;
  * <TD> std::vector<SpectralResolutionTypeMod::SpectralResolutionType > </TD>
  * <TD>  numAssocValues  </TD>
  * <TD>&nbsp; the natures of the associations with the rows refered to by assocSpectralWindowId. </TD>
- * </TR>
-	
- * <TR>
- * <TD> numBin(numBin)</TD> 
- * <TD> int </TD>
- * <TD>  &nbsp; </TD>
- * <TD>&nbsp; the number of channels used in any post-FFT averaging. </TD>
  * </TR>
 	
  * <TR>
