@@ -156,6 +156,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               Array<Double> medians;
               //os<<"robuststats rec size="<<robuststats.nfields()<<LogIO::POST;
               Bool statsexists = false;
+              IPosition statsindex;
               if (robuststats.nfields()) {
                 // use existing stats
                 if (robuststats.isDefined("robustrms")) {
@@ -170,18 +171,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                   robustrms = mads * 1.4826; // convert to rms
                   statsexists=True;
                 }
+                statsindex=IPosition(1,chanid); // this only support for npol =1, need to fix this
               }
               if (statsexists) {
                 os<<LogIO::DEBUG1<<"Using the existing robust image statatistics!"<<LogIO::POST;
               } 
               else {
                 robustrms = itsImages->calcRobustRMS(medians, itsPBMask, fastnoise);
+                statsindex=IPosition(1,0);
               }
               if (isautomasking) { // new threshold defination 
-                nsigmathresh = (Float)medians(IPosition(1,0)) + nsigma * (Float)robustrms(IPosition(1,0));
+                //nsigmathresh = (Float)medians(IPosition(1,0)) + nsigma * (Float)robustrms(IPosition(1,0));
+                nsigmathresh = (Float)medians(statsindex) + nsigma * (Float)robustrms(statsindex);
               }
               else {
-                nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
+                nsigmathresh = nsigma * (Float)robustrms(statsindex);
               }
               thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
             }
