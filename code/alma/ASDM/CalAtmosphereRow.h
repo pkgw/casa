@@ -48,46 +48,44 @@
 
 
 	 
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Pressure.h>
+#include <alma/ASDM/Pressure.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Humidity.h>
+#include <alma/ASDM/Humidity.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
 
 	
-#include "CReceiverBand.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
 
 	
-#include "CBasebandName.h"
-	
-
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
@@ -111,7 +109,9 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -119,11 +119,7 @@
 	
 
 	
-#include "CSyscalMethod.h"
-	
-
-	
-
+#include <alma/Enumerations/CSyscalMethod.h>
 	
 
 	
@@ -154,14 +150,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalAtmosphere.h
     \brief Generated from model's revision "-1", branch ""
@@ -181,7 +181,7 @@ class CalDataRow;
 
 class CalAtmosphereRow;
 typedef void (CalAtmosphereRow::*CalAtmosphereAttributeFromBin) (EndianIStream& eis);
-typedef void (CalAtmosphereRow::*CalAtmosphereAttributeFromText) (const string& s);
+typedef void (CalAtmosphereRow::*CalAtmosphereAttributeFromText) (const std::string& s);
 
 /**
  * The CalAtmosphereRow class is a row of a CalAtmosphereTable.
@@ -254,23 +254,23 @@ public:
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string getAntennaName() const;
+ 	std::string getAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  		
  			
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 		
  	 */
- 	void setAntennaName (string antennaName);
+ 	void setAntennaName (std::string antennaName);
   		
 	
 	
@@ -468,7 +468,7 @@ public:
 	
  	/**
  	 * Get forwardEffSpectrum.
- 	 * @return forwardEffSpectrum as vector<vector<float > >
+ 	 * @return forwardEffSpectrum as std::vector<std::vector<float > >
  	 */
  	std::vector<std::vector<float > > getForwardEffSpectrum() const;
 	
@@ -476,8 +476,8 @@ public:
  	
  	
  	/**
- 	 * Set forwardEffSpectrum with the specified vector<vector<float > >.
- 	 * @param forwardEffSpectrum The vector<vector<float > > value to which forwardEffSpectrum is to be set.
+ 	 * Set forwardEffSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param forwardEffSpectrum The std::vector<std::vector<float > > value to which forwardEffSpectrum is to be set.
  	 
  		
  			
@@ -498,7 +498,7 @@ public:
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
  	std::vector<Frequency > getFrequencyRange() const;
 	
@@ -506,8 +506,8 @@ public:
  	
  	
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  		
  			
@@ -588,7 +588,7 @@ public:
 	
  	/**
  	 * Get frequencySpectrum.
- 	 * @return frequencySpectrum as vector<Frequency >
+ 	 * @return frequencySpectrum as std::vector<Frequency >
  	 */
  	std::vector<Frequency > getFrequencySpectrum() const;
 	
@@ -596,8 +596,8 @@ public:
  	
  	
  	/**
- 	 * Set frequencySpectrum with the specified vector<Frequency >.
- 	 * @param frequencySpectrum The vector<Frequency > value to which frequencySpectrum is to be set.
+ 	 * Set frequencySpectrum with the specified std::vector<Frequency >.
+ 	 * @param frequencySpectrum The std::vector<Frequency > value to which frequencySpectrum is to be set.
  	 
  		
  			
@@ -648,7 +648,7 @@ public:
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
  	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
@@ -656,8 +656,8 @@ public:
  	
  	
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  		
  			
@@ -678,7 +678,7 @@ public:
 	
  	/**
  	 * Get powerSkySpectrum.
- 	 * @return powerSkySpectrum as vector<vector<float > >
+ 	 * @return powerSkySpectrum as std::vector<std::vector<float > >
  	 */
  	std::vector<std::vector<float > > getPowerSkySpectrum() const;
 	
@@ -686,8 +686,8 @@ public:
  	
  	
  	/**
- 	 * Set powerSkySpectrum with the specified vector<vector<float > >.
- 	 * @param powerSkySpectrum The vector<vector<float > > value to which powerSkySpectrum is to be set.
+ 	 * Set powerSkySpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param powerSkySpectrum The std::vector<std::vector<float > > value to which powerSkySpectrum is to be set.
  	 
  		
  			
@@ -708,21 +708,21 @@ public:
 	
  	/**
  	 * Get powerLoadSpectrum.
- 	 * @return powerLoadSpectrum as vector<vector<vector<float > > >
+ 	 * @return powerLoadSpectrum as std::vector<std::vector<std::vector<float > > >
  	 */
- 	std::vector<std::vector<vector<float > > > getPowerLoadSpectrum() const;
+ 	std::vector<std::vector<std::vector<float > > > getPowerLoadSpectrum() const;
 	
  
  	
  	
  	/**
- 	 * Set powerLoadSpectrum with the specified vector<vector<vector<float > > >.
- 	 * @param powerLoadSpectrum The vector<vector<vector<float > > > value to which powerLoadSpectrum is to be set.
+ 	 * Set powerLoadSpectrum with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param powerLoadSpectrum The std::vector<std::vector<std::vector<float > > > value to which powerLoadSpectrum is to be set.
  	 
  		
  			
  	 */
- 	void setPowerLoadSpectrum (std::vector<std::vector<vector<float > > > powerLoadSpectrum);
+ 	void setPowerLoadSpectrum (std::vector<std::vector<std::vector<float > > > powerLoadSpectrum);
   		
 	
 	
@@ -768,7 +768,7 @@ public:
 	
  	/**
  	 * Get tAtmSpectrum.
- 	 * @return tAtmSpectrum as vector<vector<Temperature > >
+ 	 * @return tAtmSpectrum as std::vector<std::vector<Temperature > >
  	 */
  	std::vector<std::vector<Temperature > > getTAtmSpectrum() const;
 	
@@ -776,8 +776,8 @@ public:
  	
  	
  	/**
- 	 * Set tAtmSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tAtmSpectrum The vector<vector<Temperature > > value to which tAtmSpectrum is to be set.
+ 	 * Set tAtmSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tAtmSpectrum The std::vector<std::vector<Temperature > > value to which tAtmSpectrum is to be set.
  	 
  		
  			
@@ -798,7 +798,7 @@ public:
 	
  	/**
  	 * Get tRecSpectrum.
- 	 * @return tRecSpectrum as vector<vector<Temperature > >
+ 	 * @return tRecSpectrum as std::vector<std::vector<Temperature > >
  	 */
  	std::vector<std::vector<Temperature > > getTRecSpectrum() const;
 	
@@ -806,8 +806,8 @@ public:
  	
  	
  	/**
- 	 * Set tRecSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tRecSpectrum The vector<vector<Temperature > > value to which tRecSpectrum is to be set.
+ 	 * Set tRecSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tRecSpectrum The std::vector<std::vector<Temperature > > value to which tRecSpectrum is to be set.
  	 
  		
  			
@@ -828,7 +828,7 @@ public:
 	
  	/**
  	 * Get tSysSpectrum.
- 	 * @return tSysSpectrum as vector<vector<Temperature > >
+ 	 * @return tSysSpectrum as std::vector<std::vector<Temperature > >
  	 */
  	std::vector<std::vector<Temperature > > getTSysSpectrum() const;
 	
@@ -836,8 +836,8 @@ public:
  	
  	
  	/**
- 	 * Set tSysSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tSysSpectrum The vector<vector<Temperature > > value to which tSysSpectrum is to be set.
+ 	 * Set tSysSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tSysSpectrum The std::vector<std::vector<Temperature > > value to which tSysSpectrum is to be set.
  	 
  		
  			
@@ -858,7 +858,7 @@ public:
 	
  	/**
  	 * Get tauSpectrum.
- 	 * @return tauSpectrum as vector<vector<float > >
+ 	 * @return tauSpectrum as std::vector<std::vector<float > >
  	 */
  	std::vector<std::vector<float > > getTauSpectrum() const;
 	
@@ -866,8 +866,8 @@ public:
  	
  	
  	/**
- 	 * Set tauSpectrum with the specified vector<vector<float > >.
- 	 * @param tauSpectrum The vector<vector<float > > value to which tauSpectrum is to be set.
+ 	 * Set tauSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param tauSpectrum The std::vector<std::vector<float > > value to which tauSpectrum is to be set.
  	 
  		
  			
@@ -888,7 +888,7 @@ public:
 	
  	/**
  	 * Get tAtm.
- 	 * @return tAtm as vector<Temperature >
+ 	 * @return tAtm as std::vector<Temperature >
  	 */
  	std::vector<Temperature > getTAtm() const;
 	
@@ -896,8 +896,8 @@ public:
  	
  	
  	/**
- 	 * Set tAtm with the specified vector<Temperature >.
- 	 * @param tAtm The vector<Temperature > value to which tAtm is to be set.
+ 	 * Set tAtm with the specified std::vector<Temperature >.
+ 	 * @param tAtm The std::vector<Temperature > value to which tAtm is to be set.
  	 
  		
  			
@@ -918,7 +918,7 @@ public:
 	
  	/**
  	 * Get tRec.
- 	 * @return tRec as vector<Temperature >
+ 	 * @return tRec as std::vector<Temperature >
  	 */
  	std::vector<Temperature > getTRec() const;
 	
@@ -926,8 +926,8 @@ public:
  	
  	
  	/**
- 	 * Set tRec with the specified vector<Temperature >.
- 	 * @param tRec The vector<Temperature > value to which tRec is to be set.
+ 	 * Set tRec with the specified std::vector<Temperature >.
+ 	 * @param tRec The std::vector<Temperature > value to which tRec is to be set.
  	 
  		
  			
@@ -948,7 +948,7 @@ public:
 	
  	/**
  	 * Get tSys.
- 	 * @return tSys as vector<Temperature >
+ 	 * @return tSys as std::vector<Temperature >
  	 */
  	std::vector<Temperature > getTSys() const;
 	
@@ -956,8 +956,8 @@ public:
  	
  	
  	/**
- 	 * Set tSys with the specified vector<Temperature >.
- 	 * @param tSys The vector<Temperature > value to which tSys is to be set.
+ 	 * Set tSys with the specified std::vector<Temperature >.
+ 	 * @param tSys The std::vector<Temperature > value to which tSys is to be set.
  	 
  		
  			
@@ -978,7 +978,7 @@ public:
 	
  	/**
  	 * Get tau.
- 	 * @return tau as vector<float >
+ 	 * @return tau as std::vector<float >
  	 */
  	std::vector<float > getTau() const;
 	
@@ -986,8 +986,8 @@ public:
  	
  	
  	/**
- 	 * Set tau with the specified vector<float >.
- 	 * @param tau The vector<float > value to which tau is to be set.
+ 	 * Set tau with the specified std::vector<float >.
+ 	 * @param tau The std::vector<float > value to which tau is to be set.
  	 
  		
  			
@@ -1008,7 +1008,7 @@ public:
 	
  	/**
  	 * Get water.
- 	 * @return water as vector<Length >
+ 	 * @return water as std::vector<Length >
  	 */
  	std::vector<Length > getWater() const;
 	
@@ -1016,8 +1016,8 @@ public:
  	
  	
  	/**
- 	 * Set water with the specified vector<Length >.
- 	 * @param water The vector<Length > value to which water is to be set.
+ 	 * Set water with the specified std::vector<Length >.
+ 	 * @param water The std::vector<Length > value to which water is to be set.
  	 
  		
  			
@@ -1038,7 +1038,7 @@ public:
 	
  	/**
  	 * Get waterError.
- 	 * @return waterError as vector<Length >
+ 	 * @return waterError as std::vector<Length >
  	 */
  	std::vector<Length > getWaterError() const;
 	
@@ -1046,8 +1046,8 @@ public:
  	
  	
  	/**
- 	 * Set waterError with the specified vector<Length >.
- 	 * @param waterError The vector<Length > value to which waterError is to be set.
+ 	 * Set waterError with the specified std::vector<Length >.
+ 	 * @param waterError The std::vector<Length > value to which waterError is to be set.
  	 
  		
  			
@@ -1074,7 +1074,7 @@ public:
 	
  	/**
  	 * Get alphaSpectrum, which is optional.
- 	 * @return alphaSpectrum as vector<vector<float > >
+ 	 * @return alphaSpectrum as std::vector<std::vector<float > >
  	 * @throws IllegalAccessException If alphaSpectrum does not exist.
  	 */
  	std::vector<std::vector<float > > getAlphaSpectrum() const;
@@ -1083,8 +1083,8 @@ public:
  	
  	
  	/**
- 	 * Set alphaSpectrum with the specified vector<vector<float > >.
- 	 * @param alphaSpectrum The vector<vector<float > > value to which alphaSpectrum is to be set.
+ 	 * Set alphaSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param alphaSpectrum The std::vector<std::vector<float > > value to which alphaSpectrum is to be set.
  	 
  		
  	 */
@@ -1115,7 +1115,7 @@ public:
 	
  	/**
  	 * Get forwardEfficiency, which is optional.
- 	 * @return forwardEfficiency as vector<float >
+ 	 * @return forwardEfficiency as std::vector<float >
  	 * @throws IllegalAccessException If forwardEfficiency does not exist.
  	 */
  	std::vector<float > getForwardEfficiency() const;
@@ -1124,8 +1124,8 @@ public:
  	
  	
  	/**
- 	 * Set forwardEfficiency with the specified vector<float >.
- 	 * @param forwardEfficiency The vector<float > value to which forwardEfficiency is to be set.
+ 	 * Set forwardEfficiency with the specified std::vector<float >.
+ 	 * @param forwardEfficiency The std::vector<float > value to which forwardEfficiency is to be set.
  	 
  		
  	 */
@@ -1156,7 +1156,7 @@ public:
 	
  	/**
  	 * Get forwardEfficiencyError, which is optional.
- 	 * @return forwardEfficiencyError as vector<double >
+ 	 * @return forwardEfficiencyError as std::vector<double >
  	 * @throws IllegalAccessException If forwardEfficiencyError does not exist.
  	 */
  	std::vector<double > getForwardEfficiencyError() const;
@@ -1165,8 +1165,8 @@ public:
  	
  	
  	/**
- 	 * Set forwardEfficiencyError with the specified vector<double >.
- 	 * @param forwardEfficiencyError The vector<double > value to which forwardEfficiencyError is to be set.
+ 	 * Set forwardEfficiencyError with the specified std::vector<double >.
+ 	 * @param forwardEfficiencyError The std::vector<double > value to which forwardEfficiencyError is to be set.
  	 
  		
  	 */
@@ -1197,7 +1197,7 @@ public:
 	
  	/**
  	 * Get sbGain, which is optional.
- 	 * @return sbGain as vector<float >
+ 	 * @return sbGain as std::vector<float >
  	 * @throws IllegalAccessException If sbGain does not exist.
  	 */
  	std::vector<float > getSbGain() const;
@@ -1206,8 +1206,8 @@ public:
  	
  	
  	/**
- 	 * Set sbGain with the specified vector<float >.
- 	 * @param sbGain The vector<float > value to which sbGain is to be set.
+ 	 * Set sbGain with the specified std::vector<float >.
+ 	 * @param sbGain The std::vector<float > value to which sbGain is to be set.
  	 
  		
  	 */
@@ -1238,7 +1238,7 @@ public:
 	
  	/**
  	 * Get sbGainError, which is optional.
- 	 * @return sbGainError as vector<float >
+ 	 * @return sbGainError as std::vector<float >
  	 * @throws IllegalAccessException If sbGainError does not exist.
  	 */
  	std::vector<float > getSbGainError() const;
@@ -1247,8 +1247,8 @@ public:
  	
  	
  	/**
- 	 * Set sbGainError with the specified vector<float >.
- 	 * @param sbGainError The vector<float > value to which sbGainError is to be set.
+ 	 * Set sbGainError with the specified std::vector<float >.
+ 	 * @param sbGainError The std::vector<float > value to which sbGainError is to be set.
  	 
  		
  	 */
@@ -1279,7 +1279,7 @@ public:
 	
  	/**
  	 * Get sbGainSpectrum, which is optional.
- 	 * @return sbGainSpectrum as vector<vector<float > >
+ 	 * @return sbGainSpectrum as std::vector<std::vector<float > >
  	 * @throws IllegalAccessException If sbGainSpectrum does not exist.
  	 */
  	std::vector<std::vector<float > > getSbGainSpectrum() const;
@@ -1288,8 +1288,8 @@ public:
  	
  	
  	/**
- 	 * Set sbGainSpectrum with the specified vector<vector<float > >.
- 	 * @param sbGainSpectrum The vector<vector<float > > value to which sbGainSpectrum is to be set.
+ 	 * Set sbGainSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param sbGainSpectrum The std::vector<std::vector<float > > value to which sbGainSpectrum is to be set.
  	 
  		
  	 */
@@ -1475,7 +1475,7 @@ public:
 	 * @param waterError
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError);
+	bool compareNoAutoInc(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<std::vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError);
 	
 	
 
@@ -1535,7 +1535,7 @@ public:
 	 * @param waterError
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<std::vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError); 
 		 
 	
 	/**
@@ -1714,7 +1714,7 @@ private:
 	
 	
 
-	string antennaName;
+	std::string antennaName;
 
 	
 	
@@ -1879,7 +1879,7 @@ private:
 	
 	
 
-	std::vector<std::vector<vector<float > > > powerLoadSpectrum;
+	std::vector<std::vector<std::vector<float > > > powerLoadSpectrum;
 
 	
 	
@@ -2179,113 +2179,113 @@ void sbGainSpectrumFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalAtmosphereAttributeFromText> fromTextMethods;
 	
-void antennaNameFromText (const string & s);
+void antennaNameFromText (const std::string & s);
 	
 	
-void receiverBandFromText (const string & s);
+void receiverBandFromText (const std::string & s);
 	
 	
-void basebandNameFromText (const string & s);
+void basebandNameFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void numFreqFromText (const string & s);
+void numFreqFromText (const std::string & s);
 	
 	
-void numLoadFromText (const string & s);
+void numLoadFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void forwardEffSpectrumFromText (const string & s);
+void forwardEffSpectrumFromText (const std::string & s);
 	
 	
-void frequencyRangeFromText (const string & s);
+void frequencyRangeFromText (const std::string & s);
 	
 	
-void groundPressureFromText (const string & s);
+void groundPressureFromText (const std::string & s);
 	
 	
-void groundRelHumidityFromText (const string & s);
+void groundRelHumidityFromText (const std::string & s);
 	
 	
-void frequencySpectrumFromText (const string & s);
+void frequencySpectrumFromText (const std::string & s);
 	
 	
-void groundTemperatureFromText (const string & s);
+void groundTemperatureFromText (const std::string & s);
 	
 	
-void polarizationTypesFromText (const string & s);
+void polarizationTypesFromText (const std::string & s);
 	
 	
-void powerSkySpectrumFromText (const string & s);
+void powerSkySpectrumFromText (const std::string & s);
 	
 	
-void powerLoadSpectrumFromText (const string & s);
+void powerLoadSpectrumFromText (const std::string & s);
 	
 	
-void syscalTypeFromText (const string & s);
+void syscalTypeFromText (const std::string & s);
 	
 	
-void tAtmSpectrumFromText (const string & s);
+void tAtmSpectrumFromText (const std::string & s);
 	
 	
-void tRecSpectrumFromText (const string & s);
+void tRecSpectrumFromText (const std::string & s);
 	
 	
-void tSysSpectrumFromText (const string & s);
+void tSysSpectrumFromText (const std::string & s);
 	
 	
-void tauSpectrumFromText (const string & s);
+void tauSpectrumFromText (const std::string & s);
 	
 	
-void tAtmFromText (const string & s);
+void tAtmFromText (const std::string & s);
 	
 	
-void tRecFromText (const string & s);
+void tRecFromText (const std::string & s);
 	
 	
-void tSysFromText (const string & s);
+void tSysFromText (const std::string & s);
 	
 	
-void tauFromText (const string & s);
+void tauFromText (const std::string & s);
 	
 	
-void waterFromText (const string & s);
+void waterFromText (const std::string & s);
 	
 	
-void waterErrorFromText (const string & s);
+void waterErrorFromText (const std::string & s);
 	
 
 	
-void alphaSpectrumFromText (const string & s);
+void alphaSpectrumFromText (const std::string & s);
 	
 	
-void forwardEfficiencyFromText (const string & s);
+void forwardEfficiencyFromText (const std::string & s);
 	
 	
-void forwardEfficiencyErrorFromText (const string & s);
+void forwardEfficiencyErrorFromText (const std::string & s);
 	
 	
-void sbGainFromText (const string & s);
+void sbGainFromText (const std::string & s);
 	
 	
-void sbGainErrorFromText (const string & s);
+void sbGainErrorFromText (const std::string & s);
 	
 	
-void sbGainSpectrumFromText (const string & s);
+void sbGainSpectrumFromText (const std::string & s);
 	
 	
 	

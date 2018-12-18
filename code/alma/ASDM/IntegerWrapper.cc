@@ -24,8 +24,8 @@
  * File Integer.cpp
  */
 
-#include <IntegerWrapper.h>
-#include <NumberFormatException.h>
+#include <alma/ASDM/IntegerWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <sstream>
 

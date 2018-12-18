@@ -37,6 +37,7 @@
 #include <alma/ASDM/Frequency.h>
 #include <alma/ASDM/Angle.h>
 #include <alma/ASDM/AngularRate.h>
+#include <alma/ASDM/ArrayTime.h>
 #include <alma/ASDM/Length.h>
 #include <alma/ASDM/Temperature.h>
 #include <alma/ASDM/ArrayTimeInterval.h>
@@ -132,15 +133,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   AntennaTypeMod::AntennaType ASDMAntennaType( const casacore::String& type ); 
 
   // convert time in seconds to an array time
-  ArrayTime ASDMArrayTime( const casacore::Double seconds ){ 
-    return ArrayTime((int64_t) (floor(seconds*ArrayTime::unitsInASecond))); }
+  asdm::ArrayTime ASDMArrayTime( const casacore::Double seconds ){ 
+      return asdm::ArrayTime((int64_t) (floor(seconds*asdm::ArrayTime::unitsInASecond))); }
 
   // convert array time to time in seconds
-  casacore::Double MSTimeSecs( const ArrayTime atime ){ 
-    return (casacore::Double) atime.get() / (casacore::Double)ArrayTime::unitsInASecond; }
+  casacore::Double MSTimeSecs( const asdm::ArrayTime atime ){ 
+      return (casacore::Double) atime.get() / (casacore::Double) asdm::ArrayTime::unitsInASecond; }
 
   asdm::Interval ASDMInterval( const casacore::Double seconds ){ 
-    return asdm::Interval((int64_t) (floor(seconds*ArrayTime::unitsInASecond))); }
+      return asdm::Interval((int64_t) (floor(seconds*asdm::ArrayTime::unitsInASecond))); }
 
   // convert casacore::MS style time interval to ASDM ArrayTimeInterval
   asdm::ArrayTimeInterval ASDMTimeInterval( const casacore::Quantity midpoint, const casacore::Quantity interval);
@@ -322,7 +323,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   casacore::SimpleOrderedMap <casacore::Int, int> asdmSourceId_p; // neither is the source id
   casacore::SimpleOrderedMap <asdm::Tag, int> asdmPointingModelId_p; // maps ASDM Antenna Id to dummy pointing model
 
-  vector< vector< casacore::Bool > > skipCorr_p; // skipCorr_p[j][PolId] indicates that correlation 
+  std::vector< std::vector< casacore::Bool > > skipCorr_p; // skipCorr_p[j][PolId] indicates that correlation 
                                        // product j for POLARIZATION_ID PolId should not 
                                        // be written in the ASDM
 

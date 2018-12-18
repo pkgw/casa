@@ -41,45 +41,23 @@
 
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <AngularRate.h>
+#include <alma/ASDM/AngularRate.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
-
-	
-
-	
-
-	
-#include "CDifferenceType.h"
-	
-
-	
-
-	
-
-	
-
-	
-#include "CDifferenceType.h"
-	
 
 	
 
@@ -89,20 +67,42 @@
 
 	
 
+	
+#include <alma/Enumerations/CDifferenceType.h>
+	
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CDifferenceType.h>
+	
+
+	
+
+	
+
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -186,7 +186,7 @@ class DelayModelVariableParametersRow;
 	
  * <TR>
  * <TD> polarOffsets </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the \f$ X, Y \f$ polar offsets in \f$ arcsec \f$. </TD>
  * </TR>

@@ -48,19 +48,19 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -69,11 +69,7 @@
 	
 
 	
-#include "CWVRMethod.h"
-	
-
-	
-
+#include <alma/Enumerations/CWVRMethod.h>
 	
 
 	
@@ -84,14 +80,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file WVMCal.h
     \brief Generated from model's revision "-1", branch ""
@@ -114,7 +114,7 @@ class AntennaRow;
 
 class WVMCalRow;
 typedef void (WVMCalRow::*WVMCalAttributeFromBin) (EndianIStream& eis);
-typedef void (WVMCalRow::*WVMCalAttributeFromText) (const string& s);
+typedef void (WVMCalRow::*WVMCalAttributeFromText) (const std::string& s);
 
 /**
  * The WVMCalRow class is a row of a WVMCalTable.
@@ -217,7 +217,7 @@ public:
 	
  	/**
  	 * Get polyFreqLimits.
- 	 * @return polyFreqLimits as vector<Frequency >
+ 	 * @return polyFreqLimits as std::vector<Frequency >
  	 */
  	std::vector<Frequency > getPolyFreqLimits() const;
 	
@@ -225,8 +225,8 @@ public:
  	
  	
  	/**
- 	 * Set polyFreqLimits with the specified vector<Frequency >.
- 	 * @param polyFreqLimits The vector<Frequency > value to which polyFreqLimits is to be set.
+ 	 * Set polyFreqLimits with the specified std::vector<Frequency >.
+ 	 * @param polyFreqLimits The std::vector<Frequency > value to which polyFreqLimits is to be set.
  	 
  		
  			
@@ -337,21 +337,21 @@ public:
 	
  	/**
  	 * Get pathCoeff.
- 	 * @return pathCoeff as vector<vector<vector<float > > >
+ 	 * @return pathCoeff as std::vector<std::vector<std::vector<float > > >
  	 */
- 	std::vector<std::vector<vector<float > > > getPathCoeff() const;
+ 	std::vector<std::vector<std::vector<float > > > getPathCoeff() const;
 	
  
  	
  	
  	/**
- 	 * Set pathCoeff with the specified vector<vector<vector<float > > >.
- 	 * @param pathCoeff The vector<vector<vector<float > > > value to which pathCoeff is to be set.
+ 	 * Set pathCoeff with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param pathCoeff The std::vector<std::vector<std::vector<float > > > value to which pathCoeff is to be set.
  	 
  		
  			
  	 */
- 	void setPathCoeff (std::vector<std::vector<vector<float > > > pathCoeff);
+ 	void setPathCoeff (std::vector<std::vector<std::vector<float > > > pathCoeff);
   		
 	
 	
@@ -367,7 +367,7 @@ public:
 	
  	/**
  	 * Get refTemp.
- 	 * @return refTemp as vector<vector<Temperature > >
+ 	 * @return refTemp as std::vector<std::vector<Temperature > >
  	 */
  	std::vector<std::vector<Temperature > > getRefTemp() const;
 	
@@ -375,8 +375,8 @@ public:
  	
  	
  	/**
- 	 * Set refTemp with the specified vector<vector<Temperature > >.
- 	 * @param refTemp The vector<vector<Temperature > > value to which refTemp is to be set.
+ 	 * Set refTemp with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param refTemp The std::vector<std::vector<Temperature > > value to which refTemp is to be set.
  	 
  		
  			
@@ -433,7 +433,7 @@ public:
 	
  	/**
  	 * Get inputAntennaId.
- 	 * @return inputAntennaId as vector<Tag> 
+ 	 * @return inputAntennaId as std::vector<Tag> 
  	 */
  	std::vector<Tag>  getInputAntennaId() const;
 	
@@ -441,8 +441,8 @@ public:
  	
  	
  	/**
- 	 * Set inputAntennaId with the specified vector<Tag> .
- 	 * @param inputAntennaId The vector<Tag>  value to which inputAntennaId is to be set.
+ 	 * Set inputAntennaId with the specified std::vector<Tag> .
+ 	 * @param inputAntennaId The std::vector<Tag>  value to which inputAntennaId is to be set.
  	 
  		
  			
@@ -603,7 +603,7 @@ public:
 	 * @param inputAntennaId
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId);
+	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId);
 	
 	
 
@@ -629,7 +629,7 @@ public:
 	 * @param inputAntennaId
 	    
 	 */ 
-	bool compareRequiredValue(WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId); 
+	bool compareRequiredValue(WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId); 
 		 
 	
 	/**
@@ -838,7 +838,7 @@ private:
 	
 	
 
-	std::vector<std::vector<vector<float > > > pathCoeff;
+	std::vector<std::vector<std::vector<float > > > pathCoeff;
 
 	
 	
@@ -942,37 +942,37 @@ void inputAntennaIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, WVMCalAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void wvrMethodFromText (const string & s);
+void wvrMethodFromText (const std::string & s);
 	
 	
-void polyFreqLimitsFromText (const string & s);
+void polyFreqLimitsFromText (const std::string & s);
 	
 	
-void numInputAntennaFromText (const string & s);
+void numInputAntennaFromText (const std::string & s);
 	
 	
-void numChanFromText (const string & s);
+void numChanFromText (const std::string & s);
 	
 	
-void numPolyFromText (const string & s);
+void numPolyFromText (const std::string & s);
 	
 	
-void pathCoeffFromText (const string & s);
+void pathCoeffFromText (const std::string & s);
 	
 	
-void refTempFromText (const string & s);
+void refTempFromText (const std::string & s);
 	
 	
-void inputAntennaIdFromText (const string & s);
+void inputAntennaIdFromText (const std::string & s);
 	
 
 		

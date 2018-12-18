@@ -26,7 +26,7 @@
  */
 #ifndef ASDMAll_h
 #define ASDMAll_h
-#include <ASDMTypes.h>
-#include <ASDMExceptions.h>
-#include <ASDMEntities.h>
+#include <alma/ASDM/ASDMTypes.h>
+#include <alma/ASDM/ASDMExceptions.h>
+#include <alma/ASDM/ASDMEntities.h>
 #endif /* ASDMAll_h */

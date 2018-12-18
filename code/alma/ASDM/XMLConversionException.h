@@ -28,7 +28,6 @@
 #define XMLConversionException_CLASS
 
 #include <string>
-using std::string;
 
 namespace enumerations {
 
@@ -46,23 +45,23 @@ public:
 	 * The constructor takes a string as a parameter, describing the cause of the exception.
 	 * @param m The message associated to the exception.
 	 */
-	XMLConversionException(string m);
+	XMLConversionException(std::string m);
 
 	 /**
 	     * Return the name of the exception followed by its cause.
 	     */
-	string getMessage() const;
+	std::string getMessage() const;
 
 protected:
 
-	string message;
+	std::string message;
 };
 
-inline XMLConversionException::XMLConversionException (string m) : 
+inline XMLConversionException::XMLConversionException (std::string m) : 
 	message(m) {
 }
 
-inline string XMLConversionException::getMessage() const {
+inline std::string XMLConversionException::getMessage() const {
 	return "XMLConversionException : cannot convert from XML. " + message;
 }
 

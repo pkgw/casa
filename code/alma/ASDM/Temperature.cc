@@ -24,11 +24,11 @@
  * File Temperature.cpp
  */
 
-#include <Temperature.h>
-#include <DoubleWrapper.h>
-#include <NumberFormatException.h>
-using asdm::Double;
-using asdm::NumberFormatException;
+#include <alma/ASDM/Temperature.h>
+#include <alma/ASDM/DoubleWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
+
+using namespace std;
 
 namespace asdm {
 

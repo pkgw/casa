@@ -28,7 +28,6 @@
 #define UniquenessViolationException_CLASS
 
 #include <string>
-using std::string;
 
 namespace asdm {
   /**
@@ -54,7 +53,7 @@ namespace asdm {
      * 
      * @param t string. Name the table where the exception occurred.  
      */
-    UniquenessViolationException(string t);
+    UniquenessViolationException(std::string t);
 
 
     /**
@@ -65,11 +64,11 @@ namespace asdm {
     /**
      * @return a text describing the exception.
      */
-    string getMessage() const;
+    std::string getMessage() const;
     
   protected:
     
-    string message;	
+    std::string message;	
     
   };  
 } // End namespace asdm

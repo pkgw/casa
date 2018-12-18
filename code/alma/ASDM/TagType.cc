@@ -30,7 +30,9 @@
  *
  * File TagType.cpp
  */
- #include "TagType.h"
+ #include <alma/ASDM/TagType.h>
+
+using namespace std;
 
 namespace asdm {
 

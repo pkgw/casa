@@ -33,7 +33,7 @@
  * File CSynthProf.cpp
  */
 #include <sstream>
-#include <CSynthProf.h>
+#include <alma/Enumerations/CSynthProf.h>
 #include <string>
 using namespace std;
 

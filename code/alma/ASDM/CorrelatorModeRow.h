@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -59,13 +59,13 @@
 	
 
 	
-#include "CBasebandName.h"
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
 
 	
-#include "CAccumMode.h"
+#include <alma/Enumerations/CAccumMode.h>
 	
 
 	
@@ -73,25 +73,25 @@
 	
 
 	
-#include "CAxisName.h"
+#include <alma/Enumerations/CAxisName.h>
 	
 
 	
-#include "CFilterMode.h"
+#include <alma/Enumerations/CFilterMode.h>
 	
 
 	
-#include "CCorrelatorName.h"
+#include <alma/Enumerations/CCorrelatorName.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CorrelatorMode.h
     \brief Generated from model's revision "-1", branch ""
@@ -105,7 +105,7 @@ namespace asdm {
 
 class CorrelatorModeRow;
 typedef void (CorrelatorModeRow::*CorrelatorModeAttributeFromBin) (EndianIStream& eis);
-typedef void (CorrelatorModeRow::*CorrelatorModeAttributeFromText) (const string& s);
+typedef void (CorrelatorModeRow::*CorrelatorModeAttributeFromText) (const std::string& s);
 
 /**
  * The CorrelatorModeRow class is a row of a CorrelatorModeTable.
@@ -196,7 +196,7 @@ public:
 	
  	/**
  	 * Get basebandNames.
- 	 * @return basebandNames as vector<BasebandNameMod::BasebandName >
+ 	 * @return basebandNames as std::vector<BasebandNameMod::BasebandName >
  	 */
  	std::vector<BasebandNameMod::BasebandName > getBasebandNames() const;
 	
@@ -204,8 +204,8 @@ public:
  	
  	
  	/**
- 	 * Set basebandNames with the specified vector<BasebandNameMod::BasebandName >.
- 	 * @param basebandNames The vector<BasebandNameMod::BasebandName > value to which basebandNames is to be set.
+ 	 * Set basebandNames with the specified std::vector<BasebandNameMod::BasebandName >.
+ 	 * @param basebandNames The std::vector<BasebandNameMod::BasebandName > value to which basebandNames is to be set.
  	 
  		
  			
@@ -226,7 +226,7 @@ public:
 	
  	/**
  	 * Get basebandConfig.
- 	 * @return basebandConfig as vector<int >
+ 	 * @return basebandConfig as std::vector<int >
  	 */
  	std::vector<int > getBasebandConfig() const;
 	
@@ -234,8 +234,8 @@ public:
  	
  	
  	/**
- 	 * Set basebandConfig with the specified vector<int >.
- 	 * @param basebandConfig The vector<int > value to which basebandConfig is to be set.
+ 	 * Set basebandConfig with the specified std::vector<int >.
+ 	 * @param basebandConfig The std::vector<int > value to which basebandConfig is to be set.
  	 
  		
  			
@@ -346,7 +346,7 @@ public:
 	
  	/**
  	 * Get axesOrderArray.
- 	 * @return axesOrderArray as vector<AxisNameMod::AxisName >
+ 	 * @return axesOrderArray as std::vector<AxisNameMod::AxisName >
  	 */
  	std::vector<AxisNameMod::AxisName > getAxesOrderArray() const;
 	
@@ -354,8 +354,8 @@ public:
  	
  	
  	/**
- 	 * Set axesOrderArray with the specified vector<AxisNameMod::AxisName >.
- 	 * @param axesOrderArray The vector<AxisNameMod::AxisName > value to which axesOrderArray is to be set.
+ 	 * Set axesOrderArray with the specified std::vector<AxisNameMod::AxisName >.
+ 	 * @param axesOrderArray The std::vector<AxisNameMod::AxisName > value to which axesOrderArray is to be set.
  	 
  		
  			
@@ -376,7 +376,7 @@ public:
 	
  	/**
  	 * Get filterMode.
- 	 * @return filterMode as vector<FilterModeMod::FilterMode >
+ 	 * @return filterMode as std::vector<FilterModeMod::FilterMode >
  	 */
  	std::vector<FilterModeMod::FilterMode > getFilterMode() const;
 	
@@ -384,8 +384,8 @@ public:
  	
  	
  	/**
- 	 * Set filterMode with the specified vector<FilterModeMod::FilterMode >.
- 	 * @param filterMode The vector<FilterModeMod::FilterMode > value to which filterMode is to be set.
+ 	 * Set filterMode with the specified std::vector<FilterModeMod::FilterMode >.
+ 	 * @param filterMode The std::vector<FilterModeMod::FilterMode > value to which filterMode is to be set.
  	 
  		
  			
@@ -781,34 +781,34 @@ void correlatorNameFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CorrelatorModeAttributeFromText> fromTextMethods;
 	
-void correlatorModeIdFromText (const string & s);
+void correlatorModeIdFromText (const std::string & s);
 	
 	
-void numBasebandFromText (const string & s);
+void numBasebandFromText (const std::string & s);
 	
 	
-void basebandNamesFromText (const string & s);
+void basebandNamesFromText (const std::string & s);
 	
 	
-void basebandConfigFromText (const string & s);
+void basebandConfigFromText (const std::string & s);
 	
 	
-void accumModeFromText (const string & s);
+void accumModeFromText (const std::string & s);
 	
 	
-void binModeFromText (const string & s);
+void binModeFromText (const std::string & s);
 	
 	
-void numAxesFromText (const string & s);
+void numAxesFromText (const std::string & s);
 	
 	
-void axesOrderArrayFromText (const string & s);
+void axesOrderArrayFromText (const std::string & s);
 	
 	
-void filterModeFromText (const string & s);
+void filterModeFromText (const std::string & s);
 	
 	
-void correlatorNameFromText (const string & s);
+void correlatorNameFromText (const std::string & s);
 	
 
 		
