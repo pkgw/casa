@@ -41,7 +41,7 @@ class __doc(object):
             webbrowser.open_new_tab(self.start_url)
         elif topic+'.xml' in self.tasklist:
             webbrowser.open_new_tab(self.task_prefix+topic+"/parameters")
-        elif topic+'.xml' in (toollist):
+        elif topic+'.xml' in self.toollist:
             webbrowser.open_new_tab(self.tool_prefix+topic+"/methods")
         else:
             webbrowser.open_new_tab(self.toc_url)
