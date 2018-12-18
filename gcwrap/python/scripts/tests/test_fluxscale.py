@@ -563,6 +563,8 @@ class fluxscale_fit_test(unittest.TestCase):
 
         # torelance for value test
         tol = 1.e-5
+        # fit results (spidx)
+        tolspidx=1.e-4
 
         thisdict = fluxscale(vis=self.msfile, caltable=gtable, fluxtable=outtable, reference='1',
                              refspwmap=[0,1,3,3], fitorder=4, listfile='twhya.fittest2.out.txt')
@@ -649,10 +651,10 @@ class fluxscale_fit_test(unittest.TestCase):
         diff_fluxd=abs(refdict['0']['0']['fluxd'][0]-thisdict['0']['0']['fluxd'][0])/refdict['0']['0']['fluxd'][0]
         self.assertTrue(diff_fluxd<tol)
        
-        diff_covar=abs(refdict['3']['spidx'][0]-thisdict['3']['spidx'][0])/refdict['3']['spidx'][0]
-        self.assertTrue(diff_covar<tol)
-        diff_covar=abs(refdict['3']['spidx'][4]-thisdict['3']['spidx'][4])/refdict['3']['spidx'][4]
-        self.assertTrue(diff_covar<tol)
+        diff_spidx0=abs(refdict['4']['spidx'][0]-thisdict['4']['spidx'][0])/refdict['4']['spidx'][0]
+        self.assertTrue(diff_spidx0<tolspidx)
+        diff_spidx4=abs(refdict['4']['spidx'][4]-thisdict['4']['spidx'][4])/refdict['4']['spidx'][4]
+        self.assertTrue(diff_spidx4<tolspidx)
 
 def suite():
     return [fluxscale1_test, fluxscale2_test, fluxscale3_test, fluxscale_fit_test]
