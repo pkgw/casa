@@ -253,6 +253,8 @@ public:
     // exception will be thrown.
     //-
 
+    void           initializeSplineInterpolation();
+
     casacore::uInt getRowId(casacore::uInt irow);
 
     // set Spline mode 
@@ -312,19 +314,34 @@ private:
 
     PointingDirectionCalculator();
 
-    // new: Spline
+    //+
+    // new: Spline (CAS-8418)
+    //-
 
-    bool fgSpline = false;
-    SDPosInterpolator  sdp_();
+      // Copied AntennaBoundary (new 12/14 to support multiple Antenna set.) 
 
-    void                                 splineInit    (casacore::uInt antennaID, 
-                                                        casacore::uInt startPos, 
-                                                        casacore:: uInt endPos);
-    casacore::Vector<casacore::Double>   splineCalulate(casacore::uInt row, 
-                                                        casacore::Double dt, 
-                                                        casacore::uInt AntennaID =0);
+        casacore::Vector<casacore::uInt>            orgAntennaBoundary_;
+        casacore::uInt                              orgNumAntennaBoundary_;
 
-    casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > splineCoeff_;
+      // Coefficitent Table Create Control
+
+        bool doneAntenaBoundaryCopy;
+
+      // Spline control
+        bool fgSpline = false;
+        SDPosInterpolator  sdp_();
+
+      // Spline Functions
+
+        void                                 splineInit    (casacore::uInt antennaID,	// AntennaID
+                                                            casacore::uInt numAntenna,  // number of Antenna
+                                                            casacore::uInt startPos,    // start pos.
+                                                            casacore::uInt endPos);     // end Pos.
+        casacore::Vector<casacore::Double>   splineCalulate(casacore::uInt row, 
+                                                            casacore::Double dt, 
+                                                            casacore::uInt AntennaID =0);
+
+        casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > splineCoeff_;
 
 };
 

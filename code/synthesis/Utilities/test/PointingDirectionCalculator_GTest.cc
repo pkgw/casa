@@ -1342,7 +1342,7 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
    
         for (uInt ant_id=0; ant_id < evgen.getNumberOfAntenna() ; ant_id++ )
         {
-            printf( "- creating  Antenna %d data. Loop=%d \n", ant_id, LoopCnt );
+            printf( "- [CAS-8418]creating  Antenna %d data. Loop=%d \n", ant_id, LoopCnt );
             for (uInt row=0; row < LoopCnt; row++)
             {
                 uInt  rowA = row + (ant_id * LoopCnt);
@@ -2638,14 +2638,14 @@ TEST_F(TestDirection, InterpolationFull )
 {
     // Combiniation List of Pointing Interval and Main Interval //
 
-    vector<bool>   InterpolationMode     = { false, true };
-    vector<Double> Main_IntervalList     = { 1.0 };
+    vector<bool>   InterpolationMode     = { false };
+    vector<Double> Main_IntervalList     = { 1.0, 0.1 };
     vector<Double> Pointing_IntervalList = { 1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.05 };
 
     ErrorMax  maxerr;
     std::vector<Double> r_err = {0.0}; 
 
-  for(uInt s=0;s<2;s++)
+  for(uInt s=0; s<InterpolationMode.size(); s++)
   {
     use_spline = InterpolationMode[s];
 
@@ -2665,6 +2665,13 @@ TEST_F(TestDirection, InterpolationFull )
              msedit.evgen.      setMainRowCount(5000);
              msedit.evgen.      Initialize(p_i, m_i) ;
 
+           // Prepate Antenna (Ready to add, waiting for other test ) //
+#if 0           
+           msedit.appendRowOnAntennaTable(2);   // 1 + 2 more
+ 
+           msedit.writeDataToAntennaTable(1);
+           msedit.writeDataToAntennaTable(2);
+#endif 
             // Increase Row on MS for large-file.
 
               msedit.appendRowOnPointingTable (msedit.evgen.  getAddInerpolationTestPointingTableRow() );
@@ -2712,7 +2719,7 @@ TEST_F(TestDirection, InterpolationSingle )
 
       msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
-      msedit.evgen.      Initialize( 1.0,     // Pointing Interval
+      msedit.evgen.      Initialize( 0.5,     // Pointing Interval
                                      1.0 ) ;  // Main Interval
  
       msedit.evgen.    setInterpolationErrorLimit( 0.1);

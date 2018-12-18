@@ -67,7 +67,7 @@ using namespace std;
 //   debuglog << "Any message" << any_value << debugpost;
 //
   
-//   #define DIRECTIONCALC_DEBUG
+     #define DIRECTIONCALC_DEBUG
 
 namespace {
 struct NullLogger {
@@ -154,13 +154,18 @@ PointingDirectionCalculator::PointingDirectionCalculator(
         NULL), movingSourceCorrection_(NULL), antennaBoundary_(), numAntennaBoundary_(
                 0), pointingTimeUTC_(), lastTimeStamp_(-1.0), lastAntennaIndex_(
                 -1), pointingTableIndexCache_(0), shape_(
-                PointingDirectionCalculator::COLUMN_MAJOR) {
+                PointingDirectionCalculator::COLUMN_MAJOR), 
+/*CAS-8418*/    orgAntennaBoundary_(0),orgNumAntennaBoundary_(0), doneAntenaBoundaryCopy(false)
+{
     accessor_ = directionAccessor;
 
     Block<String> sortColumns(2);
     sortColumns[0] = "ANTENNA1";
     sortColumns[1] = "TIME";
     selectedMS_ = new MeasurementSet(originalMS_->sort(sortColumns));
+
+// CAS-8418: In ideal, Just here, Creating Interpolation should be performed
+//   At the momnet, making table is done inside init(), Some side effect may exist. 
 
     init();
 
@@ -317,20 +322,18 @@ void PointingDirectionCalculator::setFrame(String const frameType) {
         directionType_ = MDirection::J2000;
     }
 
-    printf("setFrame():: Direction::getType() end. \n");
-
     // create conversion engine
 
-    printf("setFrame():: accessor() calls.. \n");
+    // Accessor 
     MDirection nominalInputMeasure = accessor_(*pointingColumns_, 0);
 
-    printf("setFrame():: MDirection::Ref outReference() object.  \n");
+    // RefFrame
     MDirection::Ref outReference(directionType_, referenceFrame_);
 
-    printf("setFrame() Direction::Convert() calls. \n");
+    // Conversion 
     directionConvert_ = new MDirection::Convert(nominalInputMeasure,
             outReference);
-
+    // Epoch 
     const MEpoch *e = dynamic_cast<const MEpoch *>(referenceFrame_.epoch());
     const MPosition *p =
             dynamic_cast<const MPosition *>(referenceFrame_.position());
@@ -338,7 +341,6 @@ void PointingDirectionCalculator::setFrame(String const frameType) {
             << e->get("s").getValue() << " " << e->getRefString() << " Position "
             << p->get("m").getValue() << " " << p->getRefString()
             << debugpost;
-    printf("setFrame() return.\n");
 }
 
 void PointingDirectionCalculator::setDirectionListMatrixShape(
@@ -372,18 +374,20 @@ void PointingDirectionCalculator::unsetMovingSource() {
 //+
 // NEW for SPLINE Interpolation
 //-
-void PointingDirectionCalculator::splineInit(uInt antID, uInt startPos, uInt endPos )
+
+// private kind of wrapper (API and SDpos) //
+void PointingDirectionCalculator::splineInit(uInt antID, uint numAnt, uInt startPos, uInt endPos )
 {
     // Prepare Time and direction//
 
-      printf("Spline::splineInit:: Prepare Time and Direction (local).\n");
-      printf("Spline::splineInit:: start=%d, end=%d \n", startPos, endPos);
+      printf("Spline::splineInit:: *** Prepare Time and Direction [ANT=%d / %d]***.\n", antID, numAnt);
+      printf("Spline::splineInit:: Ant=%d, start=%d, end=%d \n", antID,startPos, endPos);
 
       Vector<Vector<Double> >          tmp_time;
       Vector<Vector<Vector<Double> > > tmp_dir;
 
     // Resize //
-      int numAntID = 1;    // Assume .... //
+      int numAntID = numAnt;    
       int size = endPos - startPos;
       tmp_time.        resize(numAntID);
       tmp_time[antID]. resize(size);       
@@ -469,6 +473,16 @@ printf( "given size = %u\n" ,size );
     }
 }
 
+//+
+//  Coefficient Build API ( related with CAS-8418)
+//  RESERVED
+//- 
+
+void  PointingDirectionCalculator::initializeSplineInterpolation()
+{
+
+}
+
 Vector<Double> PointingDirectionCalculator::splineCalulate(uInt index, Double dt,uInt antID )
 {
     uInt arraySize = splineCoeff_[antID].size();
@@ -541,6 +555,29 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
         uInt end = antennaBoundary_[i + 1];
         uInt currentAntenna = antennaColumn_(start);
 
+        //+
+        // Spline Interpolation 
+        //  - Scan Pointing Table and make Coeff table
+        //  - The arg "start , end" is for row postion for multiple antenna
+        //    which is located in AntenaID , sorted in order.
+        //
+        //  - Currently, ASSUME SINGLE ANTENNA, and directly use Pointing Table
+        //  - the first arg "antID" is currelty a reserved parameter.   
+        //-
+#if 0
+        if(fgSpline)
+        {
+            // start , end => get from orgAntennaBoundary[] //
+
+            uInt startA = orgAntennaBoundary_[i];
+            uInt endA   = orgAntennaBoundary_[i + 1];
+
+            uInt numAnt = orgNumAntennaBoundary_ - 1;
+
+            splineInit(i, numAnt, startA, endA);   // This is maybe Right //
+
+        }
+#endif 
         printf( "getDirection::resetAntennaPosition(id=%d) calls. in %d Antennas.  \n",
                  currentAntenna,numAntennaBoundary_ );
 
@@ -552,27 +589,6 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
         debuglog << "nrowPointing = " << nrowPointing << debugpost;
         debuglog << "pointingTimeUTC = " << min(pointingTimeUTC_) << "~"
         << max(pointingTimeUTC_) << debugpost;
-
-        //+
-        // Spline Interpolation 
-        //  - Scan Pointing Table and make Coeff table
-        //  - The arg "start , end" is for row postion for multiple antenna
-        //    which is located in AntenaID , sorted in order.
-        //
-        //  - Currently, ASSUME SINGLE ANTENNA, and directly use Pointing Table
-        //  - the first arg "antID" is currelty a reserved parameter.   
-        //-
-
-        if(fgSpline)
-        {
-            printf( "splineInit calls. Ant=%d, start=%d, end =%d \n",i, start,end);
-#if 0
-            splineInit(0, 0, nrowPointing);
-#else
-            splineInit(i, start, end);   // This is maybe Right //
-#endif 
-
-        }
 
         for (uInt j = start; j < end; ++j) {
             debuglog << "start index " << j << debugpost;
@@ -692,7 +708,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
           Vector<Double> scanRate;
           Vector<Double> interpolated(2);
 
-        if(fgSpline) // New CAS-9418 //
+        if(fgSpline) // New CAS-8418 //
         { 
             //+
             // NEW Spline Interpolation
@@ -793,7 +809,7 @@ uInt PointingDirectionCalculator::getRowId(uInt i) {
 
 
 void PointingDirectionCalculator::inspectAntenna() {
-    printf( "inspectAntenna() in \n");
+/*SN*/    printf( "inspectAntenna() in \n");
     // selectedMS_ must be sorted by ["ANTENNA1", "TIME"]
     antennaBoundary_.resize(selectedMS_->antenna().nrow() + 1);
     antennaBoundary_ = -1;
@@ -803,19 +819,22 @@ void PointingDirectionCalculator::inspectAntenna() {
 
     Vector<Int> antennaList = antennaColumn_.getColumn();
     uInt nrow = antennaList.nelements();
+
+    // Following statement assumes internal(implicite) state. (CAS-8418)  //
     Int lastAnt = antennaList[0];
 
-        printf( "lastAnt = %d \n" ,lastAnt );
-        printf( "antennaList.size() = %zu \n" ,antennaList.size() );
-        for(uInt i=0; i<antennaList.size();i++)
-        {
-            printf( "Antenna List[%u]=%u \n", i, antennaList[i]);
-        }
-
+    // Debug //
+ /*SN*/  printf( "inspectAntenna()::antenaList is ready. size=%zu \n",antennaList.size() );
+ /*SN*/  printf( "inspectAntenna()::lastAnt = %d \n" ,lastAnt );
+ /*SN*/  printf( "inspectAntenna()::antennaList.size() = %zu \n" ,antennaList.size() );
 
     // Check ID  in AntennaList  //
-    printf("for  nrow=0 to %d \n",nrow );
+    printf("inspectAntenna()::scaning antennaList. \n" );
     for (uInt i = 0; i < nrow; ++i) {
+
+        printf(" inspectAntenna():: antennaList[%d]=%d, lastant=%d, count=%d \n",
+               i, antennaList[i] , lastAnt, count);
+
         if (antennaList[i] != lastAnt) {
             antennaBoundary_[count] = i;
             ++count;
@@ -828,14 +847,47 @@ void PointingDirectionCalculator::inspectAntenna() {
     debuglog << "antennaBoundary_=" << antennaBoundary_ << debugpost;
     debuglog << "numAntennaBoundary_=" << numAntennaBoundary_ << debugpost;
 
-   // CAS-8418:Nishie //
-   // information AntennaBouundary
-    printf( "Antenna Boundary Info, size = %zu\n",antennaBoundary_.size() );
-    for (uInt b=0; b< antennaBoundary_.size(); b++)
-    {
-        printf( "antennaBoundary_[%d] = %d \n", b, antennaBoundary_[b] );
+    //+
+    // CAS-8418:Nishie
+    // Prepare a copy of AntennaBouundary set.
+    //-
 
-    } 
+    //+
+    // Creating Interpolation Table 
+    // (In General Interpolation SetUp/Initialize )
+    //-
+    if(doneAntenaBoundaryCopy==false)
+    {
+        printf( "inspectantenna():: START COPY AtennaBoundary and splineInit() ... \n");
+
+        // 1) Copy orginal AntenaBoundary Information 
+
+        orgAntennaBoundary_    = antennaBoundary_;
+        orgNumAntennaBoundary_ = numAntennaBoundary_;
+        doneAntenaBoundaryCopy = true;
+
+        printf( "Copied Antenna Boundary Info, orgNumAntennaBoundary_  = %u \n", orgNumAntennaBoundary_  );
+        for (uInt b=0; b< orgAntennaBoundary_.size(); b++)
+        {
+            printf( "copied antennaBoundary_[%d] = %d \n", b, antennaBoundary_[b] );
+        }   
+
+        // 2) Initialize Interpolation
+
+        if(fgSpline)
+        {
+            uInt numAnt = orgNumAntennaBoundary_ - 1;
+            for(uInt ant=0; ant<numAnt; ant++)
+            {
+                uInt startA = orgAntennaBoundary_[ant];
+                uInt endA   = orgAntennaBoundary_[ant + 1];
+ 
+                splineInit(ant, numAnt, startA, endA);   // This is maybe Right //
+            }
+        }
+        // update flag 
+        doneAntenaBoundaryCopy = true;
+    }
 }
 
 void PointingDirectionCalculator::initPointingTable(Int const antennaId) {
