@@ -113,7 +113,7 @@ public:
     virtual void registerHandler(PlotButtonEventHandlerPtr handler) = 0;
     
     // Returns all event handlers currently registered on this button.
-    virtual vector<PlotButtonEventHandlerPtr> allHandlers() const = 0;
+    virtual std::vector<PlotButtonEventHandlerPtr> allHandlers() const = 0;
     
     // Unregisters the given event handler.
     virtual void unregisterHandler(PlotButtonEventHandlerPtr handler) = 0;
@@ -147,7 +147,7 @@ public:
     virtual void registerHandler(PlotCheckboxEventHandlerPtr handler) = 0;
     
     // Returns all event handlers currently registered on this button.
-    virtual vector<PlotCheckboxEventHandlerPtr> allHandlers() const = 0;
+    virtual std::vector<PlotCheckboxEventHandlerPtr> allHandlers() const = 0;
     
     // Unregisters the given event handler.
     virtual void unregisterHandler(PlotCheckboxEventHandlerPtr handler) = 0;
@@ -163,7 +163,7 @@ public:
     virtual ~PlotPanel() { }
     
     // Returns all PlotWidgets currently on the panel.
-    virtual vector<PlotWidgetPtr> widgets() const = 0;
+    virtual std::vector<PlotWidgetPtr> widgets() const = 0;
     
     // Adds the given widget to this panel.
     virtual int addWidget(PlotWidgetPtr widget) = 0;

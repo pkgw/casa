@@ -101,13 +101,11 @@ MSTransformDataHandler::MSTransformDataHandler(const MeasurementSet& ms,
 // -----------------------------------------------------------------------
 MSTransformDataHandler::~MSTransformDataHandler()
 {
-	if(!msOut_p.isNull()) msOut_p.flush();
-
 	if (msc_p) delete msc_p;
-	msc_p = NULL;
+	msc_p = nullptr;
 
 	if (mscIn_p) delete mscIn_p;
-	mscIn_p = NULL;
+	mscIn_p = nullptr;
 
 	msOut_p=MeasurementSet();
 
@@ -2516,7 +2514,6 @@ Bool MSTransformDataHandler::copyPointing()
 						}
 					}
 				}
-				newPoint.flush();
 			}
 		}
 	}
@@ -2659,7 +2656,6 @@ Bool MSTransformDataHandler::copyAntenna()
 		{
 			if (antNewIndex_p[k] > -1) TableCopy::copyRows(newAnt, oldAnt, antNewIndex_p[k], k, 1, false);
 		}
-		newAnt.flush();
 		retval = true;
 	}
 
@@ -2707,7 +2703,6 @@ Bool MSTransformDataHandler::copyFeed()
 				++totalSelFeeds;
 			}
 		}
-		newFeed.flush();
 
 		// Remap antenna and spw #s.
 		ScalarColumn<Int>& antCol = outcols.antennaId();
@@ -2991,7 +2986,6 @@ Bool MSTransformDataHandler::copySyscal()
 						++totalSelSyscals;
 					}
 				}
-				newSysc.flush();
 
 				// Remap antenna and spw #s.
 				ScalarColumn<Int>& antCol = outcols.antennaId();
@@ -3154,7 +3148,6 @@ Bool MSTransformDataHandler::filterOptSubtable(const String& subtabname)
 					}
 				}
 
-				outtab.flush();
 				if (haveRemappingProblem)
 				{
 					os 	<< LogIO::WARN << "At least one row of "
@@ -3259,8 +3252,6 @@ Bool MSTransformDataHandler::copyGenericSubtables()
 			}
 		}
 	}
-
-	msOut_p.flush();
 
 	return true;
 }
@@ -3373,8 +3364,6 @@ Bool MSTransformDataHandler::mergeSpwSubTables(Vector<String> filenames)
 				}
 			}
 
-			spwTable_0.flush(true,true);
-
 			// Merge the other sub-tables using SPW map generated here
 			mergeDDISubTables(filenames);
 			mergeFeedSubTables(filenames, mapSubmsSpwid);
@@ -3455,8 +3444,6 @@ Bool MSTransformDataHandler::mergeDDISubTables(Vector<String> filenames)
             		}
         		}
         	}
-
-        	ddiTable_0.flush(true,true);
     	}
 		else
 		{
@@ -3554,8 +3541,6 @@ Bool MSTransformDataHandler::mergeFeedSubTables(Vector<String> filenames, Vector
             }
         }
 
-        // Flush changes
-        feedTable_0.flush(true,true);
 //    	}
 /*
 		else
@@ -3671,8 +3656,6 @@ Bool MSTransformDataHandler::mergeSourceSubTables(Vector<String> filenames, Vect
 				}
 			}
 
-			// Flush changes
-			sourceTable_0.flush(true,true);
 		}
 		else
 		{
@@ -3853,8 +3836,6 @@ Bool MSTransformDataHandler::mergeSyscalSubTables(Vector<String> filenames, Vect
             }
         }
 
-        // Flush changes
-        syscalTable_0.flush(true,true);
 /*
 		}
 		else
@@ -3939,8 +3920,6 @@ Bool MSTransformDataHandler::mergeFreqOffsetTables(Vector<String> filenames, Vec
 				}
 			}
 
-			// Flush changes
-			freqoffsetTable_0.flush(true,true);
 		}
 		else
 		{
@@ -4140,8 +4119,6 @@ Bool MSTransformDataHandler::mergeCalDeviceSubtables(Vector<String> filenames, V
 				}
 			}
 
-			// Flush changes
-			subtable_0.flush(true,true);
 		}
 		else
 		{
@@ -4308,8 +4285,6 @@ Bool MSTransformDataHandler::mergeSysPowerSubtables(Vector<String> filenames, Ve
 				}
 			}
 
-			// Flush changes
-			subtable_0.flush(true,true);
 		}
 		else
 		{

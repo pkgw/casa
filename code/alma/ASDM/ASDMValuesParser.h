@@ -36,7 +36,7 @@
 #include <boost/tokenizer.hpp>
 #else
 //#include <regex>
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 #endif
 
 
@@ -340,7 +340,7 @@ namespace asdm {
       throw ASDMValuesParserException(oss.str());
     }
      
-    string remains; getline(iss,remains); 
+    std::string remains; getline(iss,remains); 
 #ifndef WITHOUT_BOOST
     std::vector<std::string> result = parseQuoted(boost::trim_left_copy(remains));
 #else
@@ -382,7 +382,7 @@ namespace asdm {
       throw ASDMValuesParserException(oss.str());
     }
 
-    string remains; getline(iss,remains); 
+    std::string remains; getline(iss,remains); 
 #ifndef WITHOUT_BOOST
     std::vector<std::string> v_s = parseQuoted(boost::trim_left_copy(remains));
 #else
@@ -439,7 +439,7 @@ namespace asdm {
       throw ASDMValuesParserException(oss.str());
     }
 
-    string remains; getline(iss,remains); 
+    std::string remains; getline(iss,remains); 
 #ifndef WITHOUT_BOOST
     std::vector<std::string> v_s = parseQuoted(boost::trim_left_copy(remains));
 #else
@@ -465,9 +465,9 @@ namespace asdm {
   
   inline std::vector<std::string> ASDMValuesParser::parseQuoted(const std::string& s) {
 #ifndef WITHOUT_BOOST
-    string separator1("\\");// let quoted arguments escape themselves
-    string separator2(" "); // split on spaces
-    string separator3("\"");// let it have quoted arguments
+    std::string separator1("\\");// let quoted arguments escape themselves
+    std::string separator2(" "); // split on spaces
+    std::string separator3("\"");// let it have quoted arguments
     
     boost::escaped_list_separator<char> els(separator1,separator2,separator3);
     boost::tokenizer<boost::escaped_list_separator<char> > tok(s, els);
@@ -481,13 +481,13 @@ namespace asdm {
       return result;
     }
 
-    string token;
-    string nullString;
+    std::string token;
+    std::string nullString;
 
     bool quoted, escaped;
     quoted = escaped = false;
 
-    for (string::const_iterator it=s.begin(); it!=s.end(); ++it) {
+    for (std::string::const_iterator it=s.begin(); it!=s.end(); ++it) {
       if (escaped) {
 	token += *it;
 	escaped = false;

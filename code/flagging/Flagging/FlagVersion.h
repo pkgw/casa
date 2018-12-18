@@ -37,22 +37,13 @@
 
 //# Includes
 
-#include <casa/aips.h>
-#include <casa/iostream.h>
 #include <casa/OS/Timer.h>
 #include <casa/OS/File.h>
-
-#include <casa/Arrays/Vector.h>
-#include <casa/Arrays/Array.h>
-#include <casa/Arrays/Matrix.h>
-#include <casa/Arrays/Slicer.h>
 
 #include <tables/Tables/Table.h>
 #include <tables/Tables/ArrayColumn.h>
 #include <tables/Tables/ScalarColumn.h>
 #include <tables/Tables/TableColumn.h>
-
-#include <flagging/Flagging/SLog.h>
 
 //# FlagVersion Change Log
 //# =======================
@@ -62,6 +53,8 @@
 //# Oct 29 2007      Shannon J.         Switched how msg logging was done.
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+class SLog;
 
 // <summary>
 // Class to generate and manage flag versions for Tables containing flag columns. 

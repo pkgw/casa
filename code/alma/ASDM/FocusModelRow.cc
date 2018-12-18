@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <FocusModelRow.h>
-#include <FocusModelTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/FocusModelRow.h>
+#include <alma/ASDM/FocusModelTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <FocusModelTable.h>
-#include <FocusModelRow.h>
+#include <alma/ASDM/FocusModelTable.h>
+#include <alma/ASDM/FocusModelRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::FocusModelTable;
 using asdm::FocusModelRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	FocusModelRow::~FocusModelRow() {
@@ -1053,7 +1050,9 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void FocusModelRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1061,7 +1060,9 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FocusModelRow::focusModelIdFromText(const string & s) {
 		 
+          
 		focusModelId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1069,7 +1070,9 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void FocusModelRow::polarizationTypeFromText(const string & s) {
 		 
-		polarizationType = ASDMValuesParser::parse<PolarizationType>(s);
+          
+		polarizationType = ASDMValuesParser::parse<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -1077,7 +1080,9 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void FocusModelRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -1085,7 +1090,9 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FocusModelRow::numCoeffFromText(const string & s) {
 		 
+          
 		numCoeff = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1093,7 +1100,9 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void FocusModelRow::coeffNameFromText(const string & s) {
 		 
+          
 		coeffName = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1101,7 +1110,9 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void FocusModelRow::coeffFormulaFromText(const string & s) {
 		 
+          
 		coeffFormula = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1109,7 +1120,9 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void FocusModelRow::coeffValFromText(const string & s) {
 		 
+          
 		coeffVal = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1117,7 +1130,9 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void FocusModelRow::assocNatureFromText(const string & s) {
 		 
+          
 		assocNature = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1125,7 +1140,9 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FocusModelRow::assocFocusModelIdFromText(const string & s) {
 		 
+          
 		assocFocusModelId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1280,21 +1297,21 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffName.
- 	 * @return coeffName as vector<string >
+ 	 * @return coeffName as std::vector<std::string >
  	 */
- 	vector<string > FocusModelRow::getCoeffName() const {
+ 	std::vector<std::string > FocusModelRow::getCoeffName() const {
 	
   		return coeffName;
  	}
 
  	/**
- 	 * Set coeffName with the specified vector<string >.
- 	 * @param coeffName The vector<string > value to which coeffName is to be set.
+ 	 * Set coeffName with the specified std::vector<std::string >.
+ 	 * @param coeffName The std::vector<std::string > value to which coeffName is to be set.
  	 
  	
  		
  	 */
- 	void FocusModelRow::setCoeffName (vector<string > coeffName)  {
+ 	void FocusModelRow::setCoeffName (std::vector<std::string > coeffName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1312,21 +1329,21 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffFormula.
- 	 * @return coeffFormula as vector<string >
+ 	 * @return coeffFormula as std::vector<std::string >
  	 */
- 	vector<string > FocusModelRow::getCoeffFormula() const {
+ 	std::vector<std::string > FocusModelRow::getCoeffFormula() const {
 	
   		return coeffFormula;
  	}
 
  	/**
- 	 * Set coeffFormula with the specified vector<string >.
- 	 * @param coeffFormula The vector<string > value to which coeffFormula is to be set.
+ 	 * Set coeffFormula with the specified std::vector<std::string >.
+ 	 * @param coeffFormula The std::vector<std::string > value to which coeffFormula is to be set.
  	 
  	
  		
  	 */
- 	void FocusModelRow::setCoeffFormula (vector<string > coeffFormula)  {
+ 	void FocusModelRow::setCoeffFormula (std::vector<std::string > coeffFormula)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1344,21 +1361,21 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffVal.
- 	 * @return coeffVal as vector<float >
+ 	 * @return coeffVal as std::vector<float >
  	 */
- 	vector<float > FocusModelRow::getCoeffVal() const {
+ 	std::vector<float > FocusModelRow::getCoeffVal() const {
 	
   		return coeffVal;
  	}
 
  	/**
- 	 * Set coeffVal with the specified vector<float >.
- 	 * @param coeffVal The vector<float > value to which coeffVal is to be set.
+ 	 * Set coeffVal with the specified std::vector<float >.
+ 	 * @param coeffVal The std::vector<float > value to which coeffVal is to be set.
  	 
  	
  		
  	 */
- 	void FocusModelRow::setCoeffVal (vector<float > coeffVal)  {
+ 	void FocusModelRow::setCoeffVal (std::vector<float > coeffVal)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1376,21 +1393,21 @@ void FocusModelRow::assocFocusModelIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get assocNature.
- 	 * @return assocNature as string
+ 	 * @return assocNature as std::string
  	 */
- 	string FocusModelRow::getAssocNature() const {
+ 	std::string FocusModelRow::getAssocNature() const {
 	
   		return assocNature;
  	}
 
  	/**
- 	 * Set assocNature with the specified string.
- 	 * @param assocNature The string value to which assocNature is to be set.
+ 	 * Set assocNature with the specified std::string.
+ 	 * @param assocNature The std::string value to which assocNature is to be set.
  	 
  	
  		
  	 */
- 	void FocusModelRow::setAssocNature (string assocNature)  {
+ 	void FocusModelRow::setAssocNature (std::string assocNature)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1715,7 +1732,7 @@ receiverBand = CReceiverBand::from_int(0);
 	}
 
 	
-	bool FocusModelRow::compareNoAutoInc(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffVal, string assocNature, int assocFocusModelId) {
+	bool FocusModelRow::compareNoAutoInc(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffVal, std::string assocNature, int assocFocusModelId) {
 		bool result;
 		result = true;
 		
@@ -1787,7 +1804,7 @@ receiverBand = CReceiverBand::from_int(0);
 	
 	
 	
-	bool FocusModelRow::compareRequiredValue(PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffVal, string assocNature, int assocFocusModelId) {
+	bool FocusModelRow::compareRequiredValue(PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffVal, std::string assocNature, int assocFocusModelId) {
 		bool result;
 		result = true;
 		

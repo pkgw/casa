@@ -108,31 +108,31 @@ public:
     // region record (Note only one of <src>specification</src> or <src>regionRec</src>
     // may be specified). <src>imShape</src> is not used if <src>specification</src>
     // is in the "new" format (ie contains "range").
-    vector<casacore::uInt> setSpectralRanges(
+    std::vector<casacore::uInt> setSpectralRanges(
         casacore::uInt& nSelectedChannels,
         const casacore::Record *const regionRec, const casacore::IPosition& imShape=casacore::IPosition(0)
     ) const;
 
-    vector<casacore::uInt> setSpectralRanges(
+    std::vector<casacore::uInt> setSpectralRanges(
         casacore::String specification, casacore::uInt& nSelectedChannels,
         const casacore::IPosition& imShape=casacore::IPosition(0)
     ) const;
 
 private:
 
-    casacore::String _pairsToString(const vector<casacore::uInt>& pairs) const;
+    casacore::String _pairsToString(const std::vector<casacore::uInt>& pairs) const;
 
-    vector<casacore::uInt> _setPolarizationRanges(
+    std::vector<casacore::uInt> _setPolarizationRanges(
         casacore::String& specification, const casacore::String& firstStokes, const casacore::uInt nStokes,
         const StokesControl stokesControl
     ) const;
 
-    vector<casacore::Double> _setBoxCorners(const casacore::String& box) const;
+    std::vector<casacore::Double> _setBoxCorners(const casacore::String& box) const;
 
     casacore::ImageRegion _fromBCS(
             casacore::String& diagnostics,
-            const vector<casacore::Double>& boxCorners, const vector<casacore::uInt>& chanEndPts,
-            const vector<casacore::uInt>& polEndPts, const casacore::IPosition imShape
+            const std::vector<casacore::Double>& boxCorners, const std::vector<casacore::uInt>& chanEndPts,
+            const std::vector<casacore::uInt>& polEndPts, const casacore::IPosition imShape
     ) const;
 
     static void _setRegion(
@@ -154,12 +154,12 @@ private:
         casacore::Bool verbose
     );
 
-    vector<casacore::uInt> _spectralRangeFromRangeFormat(
+    std::vector<casacore::uInt> _spectralRangeFromRangeFormat(
         casacore::uInt& nSelectedChannels, const casacore::String& specification,
         const casacore::IPosition& imShape 
     ) const;
 
-    vector<casacore::uInt> _spectralRangeFromRegionRecord(
+    std::vector<casacore::uInt> _spectralRangeFromRegionRecord(
         casacore::uInt& nSelectedChannels, const casacore::Record *const regionRec,
         const casacore::IPosition& imShape
     ) const;
@@ -169,7 +169,7 @@ private:
     // support it. If not, false is returned in that case.
     casacore::Bool _supports2DBox(casacore::Bool except) const;
 
-    vector<casacore::uInt> _initSpectralRanges(casacore::uInt& nSelectedChannels, const casacore::IPosition& imShape) const;
+    std::vector<casacore::uInt> _initSpectralRanges(casacore::uInt& nSelectedChannels, const casacore::IPosition& imShape) const;
 };
 
 } // casa namespace

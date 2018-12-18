@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <DelayModelRow.h>
-#include <DelayModelTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/DelayModelRow.h>
+#include <alma/ASDM/DelayModelTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-#include <FieldTable.h>
-#include <FieldRow.h>
+#include <alma/ASDM/FieldTable.h>
+#include <alma/ASDM/FieldRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::FieldTable;
 using asdm::FieldRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	DelayModelRow::~DelayModelRow() {
@@ -3321,7 +3318,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void DelayModelRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3329,7 +3328,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void DelayModelRow::spectralWindowIdFromText(const string & s) {
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3337,7 +3338,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void DelayModelRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -3345,7 +3348,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void DelayModelRow::numPolyFromText(const string & s) {
 		 
+          
 		numPoly = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3353,7 +3358,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void DelayModelRow::phaseDelayFromText(const string & s) {
 		 
+          
 		phaseDelay = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -3361,7 +3368,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void DelayModelRow::phaseDelayRateFromText(const string & s) {
 		 
+          
 		phaseDelayRate = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -3369,7 +3378,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void DelayModelRow::groupDelayFromText(const string & s) {
 		 
+          
 		groupDelay = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -3377,7 +3388,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void DelayModelRow::groupDelayRateFromText(const string & s) {
 		 
+          
 		groupDelayRate = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -3385,7 +3398,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void DelayModelRow::fieldIdFromText(const string & s) {
 		 
+          
 		fieldId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3395,7 +3410,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::timeOriginFromText(const string & s) {
 		timeOriginExists = true;
 		 
+          
 		timeOrigin = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -3404,7 +3421,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::atmosphericGroupDelayFromText(const string & s) {
 		atmosphericGroupDelayExists = true;
 		 
+          
 		atmosphericGroupDelay = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3413,7 +3432,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::atmosphericGroupDelayRateFromText(const string & s) {
 		atmosphericGroupDelayRateExists = true;
 		 
+          
 		atmosphericGroupDelayRate = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3422,7 +3443,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::geometricDelayFromText(const string & s) {
 		geometricDelayExists = true;
 		 
+          
 		geometricDelay = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3431,7 +3454,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::geometricDelayRateFromText(const string & s) {
 		geometricDelayRateExists = true;
 		 
+          
 		geometricDelayRate = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3440,7 +3465,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::numLOFromText(const string & s) {
 		numLOExists = true;
 		 
+          
 		numLO = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3449,7 +3476,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::LOOffsetFromText(const string & s) {
 		LOOffsetExists = true;
 		 
+          
 		LOOffset = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3458,7 +3487,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::LOOffsetRateFromText(const string & s) {
 		LOOffsetRateExists = true;
 		 
+          
 		LOOffsetRate = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3467,7 +3498,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::dispersiveDelayFromText(const string & s) {
 		dispersiveDelayExists = true;
 		 
+          
 		dispersiveDelay = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3476,7 +3509,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::dispersiveDelayRateFromText(const string & s) {
 		dispersiveDelayRateExists = true;
 		 
+          
 		dispersiveDelayRate = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3485,7 +3520,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::atmosphericDryDelayFromText(const string & s) {
 		atmosphericDryDelayExists = true;
 		 
+          
 		atmosphericDryDelay = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3494,7 +3531,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::atmosphericWetDelayFromText(const string & s) {
 		atmosphericWetDelayExists = true;
 		 
+          
 		atmosphericWetDelay = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3503,7 +3542,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::padDelayFromText(const string & s) {
 		padDelayExists = true;
 		 
+          
 		padDelay = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3512,7 +3553,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::antennaDelayFromText(const string & s) {
 		antennaDelayExists = true;
 		 
+          
 		antennaDelay = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3521,7 +3564,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::numReceptorFromText(const string & s) {
 		numReceptorExists = true;
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3530,7 +3575,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::polarizationTypeFromText(const string & s) {
 		polarizationTypeExists = true;
 		 
-		polarizationType = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationType = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -3539,7 +3586,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::electronicDelayFromText(const string & s) {
 		electronicDelayExists = true;
 		 
+          
 		electronicDelay = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -3548,7 +3597,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::electronicDelayRateFromText(const string & s) {
 		electronicDelayRateExists = true;
 		 
+          
 		electronicDelayRate = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -3557,7 +3608,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::receiverDelayFromText(const string & s) {
 		receiverDelayExists = true;
 		 
+          
 		receiverDelay = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -3566,7 +3619,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::IFDelayFromText(const string & s) {
 		IFDelayExists = true;
 		 
+          
 		IFDelay = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -3575,7 +3630,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::LODelayFromText(const string & s) {
 		LODelayExists = true;
 		 
+          
 		LODelay = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -3584,7 +3641,9 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	void DelayModelRow::crossPolarizationDelayFromText(const string & s) {
 		crossPolarizationDelayExists = true;
 		 
+          
 		crossPolarizationDelay = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3674,21 +3733,21 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseDelay.
- 	 * @return phaseDelay as vector<double >
+ 	 * @return phaseDelay as std::vector<double >
  	 */
- 	vector<double > DelayModelRow::getPhaseDelay() const {
+ 	std::vector<double > DelayModelRow::getPhaseDelay() const {
 	
   		return phaseDelay;
  	}
 
  	/**
- 	 * Set phaseDelay with the specified vector<double >.
- 	 * @param phaseDelay The vector<double > value to which phaseDelay is to be set.
+ 	 * Set phaseDelay with the specified std::vector<double >.
+ 	 * @param phaseDelay The std::vector<double > value to which phaseDelay is to be set.
  	 
  	
  		
  	 */
- 	void DelayModelRow::setPhaseDelay (vector<double > phaseDelay)  {
+ 	void DelayModelRow::setPhaseDelay (std::vector<double > phaseDelay)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3706,21 +3765,21 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseDelayRate.
- 	 * @return phaseDelayRate as vector<double >
+ 	 * @return phaseDelayRate as std::vector<double >
  	 */
- 	vector<double > DelayModelRow::getPhaseDelayRate() const {
+ 	std::vector<double > DelayModelRow::getPhaseDelayRate() const {
 	
   		return phaseDelayRate;
  	}
 
  	/**
- 	 * Set phaseDelayRate with the specified vector<double >.
- 	 * @param phaseDelayRate The vector<double > value to which phaseDelayRate is to be set.
+ 	 * Set phaseDelayRate with the specified std::vector<double >.
+ 	 * @param phaseDelayRate The std::vector<double > value to which phaseDelayRate is to be set.
  	 
  	
  		
  	 */
- 	void DelayModelRow::setPhaseDelayRate (vector<double > phaseDelayRate)  {
+ 	void DelayModelRow::setPhaseDelayRate (std::vector<double > phaseDelayRate)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3738,21 +3797,21 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get groupDelay.
- 	 * @return groupDelay as vector<double >
+ 	 * @return groupDelay as std::vector<double >
  	 */
- 	vector<double > DelayModelRow::getGroupDelay() const {
+ 	std::vector<double > DelayModelRow::getGroupDelay() const {
 	
   		return groupDelay;
  	}
 
  	/**
- 	 * Set groupDelay with the specified vector<double >.
- 	 * @param groupDelay The vector<double > value to which groupDelay is to be set.
+ 	 * Set groupDelay with the specified std::vector<double >.
+ 	 * @param groupDelay The std::vector<double > value to which groupDelay is to be set.
  	 
  	
  		
  	 */
- 	void DelayModelRow::setGroupDelay (vector<double > groupDelay)  {
+ 	void DelayModelRow::setGroupDelay (std::vector<double > groupDelay)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3770,21 +3829,21 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get groupDelayRate.
- 	 * @return groupDelayRate as vector<double >
+ 	 * @return groupDelayRate as std::vector<double >
  	 */
- 	vector<double > DelayModelRow::getGroupDelayRate() const {
+ 	std::vector<double > DelayModelRow::getGroupDelayRate() const {
 	
   		return groupDelayRate;
  	}
 
  	/**
- 	 * Set groupDelayRate with the specified vector<double >.
- 	 * @param groupDelayRate The vector<double > value to which groupDelayRate is to be set.
+ 	 * Set groupDelayRate with the specified std::vector<double >.
+ 	 * @param groupDelayRate The std::vector<double > value to which groupDelayRate is to be set.
  	 
  	
  		
  	 */
- 	void DelayModelRow::setGroupDelayRate (vector<double > groupDelayRate)  {
+ 	void DelayModelRow::setGroupDelayRate (std::vector<double > groupDelayRate)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4092,10 +4151,10 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get LOOffset, which is optional.
- 	 * @return LOOffset as vector<Frequency >
+ 	 * @return LOOffset as std::vector<Frequency >
  	 * @throw IllegalAccessException If LOOffset does not exist.
  	 */
- 	vector<Frequency > DelayModelRow::getLOOffset() const  {
+ 	std::vector<Frequency > DelayModelRow::getLOOffset() const  {
 		if (!LOOffsetExists) {
 			throw IllegalAccessException("LOOffset", "DelayModel");
 		}
@@ -4104,12 +4163,12 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set LOOffset with the specified vector<Frequency >.
- 	 * @param LOOffset The vector<Frequency > value to which LOOffset is to be set.
+ 	 * Set LOOffset with the specified std::vector<Frequency >.
+ 	 * @param LOOffset The std::vector<Frequency > value to which LOOffset is to be set.
  	 
  	
  	 */
- 	void DelayModelRow::setLOOffset (vector<Frequency > LOOffset) {
+ 	void DelayModelRow::setLOOffset (std::vector<Frequency > LOOffset) {
 	
  		this->LOOffset = LOOffset;
 	
@@ -4139,10 +4198,10 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get LOOffsetRate, which is optional.
- 	 * @return LOOffsetRate as vector<Frequency >
+ 	 * @return LOOffsetRate as std::vector<Frequency >
  	 * @throw IllegalAccessException If LOOffsetRate does not exist.
  	 */
- 	vector<Frequency > DelayModelRow::getLOOffsetRate() const  {
+ 	std::vector<Frequency > DelayModelRow::getLOOffsetRate() const  {
 		if (!LOOffsetRateExists) {
 			throw IllegalAccessException("LOOffsetRate", "DelayModel");
 		}
@@ -4151,12 +4210,12 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set LOOffsetRate with the specified vector<Frequency >.
- 	 * @param LOOffsetRate The vector<Frequency > value to which LOOffsetRate is to be set.
+ 	 * Set LOOffsetRate with the specified std::vector<Frequency >.
+ 	 * @param LOOffsetRate The std::vector<Frequency > value to which LOOffsetRate is to be set.
  	 
  	
  	 */
- 	void DelayModelRow::setLOOffsetRate (vector<Frequency > LOOffsetRate) {
+ 	void DelayModelRow::setLOOffsetRate (std::vector<Frequency > LOOffsetRate) {
 	
  		this->LOOffsetRate = LOOffsetRate;
 	
@@ -4515,10 +4574,10 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationType, which is optional.
- 	 * @return polarizationType as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationType as std::vector<PolarizationTypeMod::PolarizationType >
  	 * @throw IllegalAccessException If polarizationType does not exist.
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > DelayModelRow::getPolarizationType() const  {
+ 	std::vector<PolarizationTypeMod::PolarizationType > DelayModelRow::getPolarizationType() const  {
 		if (!polarizationTypeExists) {
 			throw IllegalAccessException("polarizationType", "DelayModel");
 		}
@@ -4527,12 +4586,12 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set polarizationType with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationType The vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
+ 	 * Set polarizationType with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationType The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
  	 
  	
  	 */
- 	void DelayModelRow::setPolarizationType (vector<PolarizationTypeMod::PolarizationType > polarizationType) {
+ 	void DelayModelRow::setPolarizationType (std::vector<PolarizationTypeMod::PolarizationType > polarizationType) {
 	
  		this->polarizationType = polarizationType;
 	
@@ -4562,10 +4621,10 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get electronicDelay, which is optional.
- 	 * @return electronicDelay as vector<double >
+ 	 * @return electronicDelay as std::vector<double >
  	 * @throw IllegalAccessException If electronicDelay does not exist.
  	 */
- 	vector<double > DelayModelRow::getElectronicDelay() const  {
+ 	std::vector<double > DelayModelRow::getElectronicDelay() const  {
 		if (!electronicDelayExists) {
 			throw IllegalAccessException("electronicDelay", "DelayModel");
 		}
@@ -4574,12 +4633,12 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set electronicDelay with the specified vector<double >.
- 	 * @param electronicDelay The vector<double > value to which electronicDelay is to be set.
+ 	 * Set electronicDelay with the specified std::vector<double >.
+ 	 * @param electronicDelay The std::vector<double > value to which electronicDelay is to be set.
  	 
  	
  	 */
- 	void DelayModelRow::setElectronicDelay (vector<double > electronicDelay) {
+ 	void DelayModelRow::setElectronicDelay (std::vector<double > electronicDelay) {
 	
  		this->electronicDelay = electronicDelay;
 	
@@ -4609,10 +4668,10 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get electronicDelayRate, which is optional.
- 	 * @return electronicDelayRate as vector<double >
+ 	 * @return electronicDelayRate as std::vector<double >
  	 * @throw IllegalAccessException If electronicDelayRate does not exist.
  	 */
- 	vector<double > DelayModelRow::getElectronicDelayRate() const  {
+ 	std::vector<double > DelayModelRow::getElectronicDelayRate() const  {
 		if (!electronicDelayRateExists) {
 			throw IllegalAccessException("electronicDelayRate", "DelayModel");
 		}
@@ -4621,12 +4680,12 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set electronicDelayRate with the specified vector<double >.
- 	 * @param electronicDelayRate The vector<double > value to which electronicDelayRate is to be set.
+ 	 * Set electronicDelayRate with the specified std::vector<double >.
+ 	 * @param electronicDelayRate The std::vector<double > value to which electronicDelayRate is to be set.
  	 
  	
  	 */
- 	void DelayModelRow::setElectronicDelayRate (vector<double > electronicDelayRate) {
+ 	void DelayModelRow::setElectronicDelayRate (std::vector<double > electronicDelayRate) {
 	
  		this->electronicDelayRate = electronicDelayRate;
 	
@@ -4656,10 +4715,10 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get receiverDelay, which is optional.
- 	 * @return receiverDelay as vector<double >
+ 	 * @return receiverDelay as std::vector<double >
  	 * @throw IllegalAccessException If receiverDelay does not exist.
  	 */
- 	vector<double > DelayModelRow::getReceiverDelay() const  {
+ 	std::vector<double > DelayModelRow::getReceiverDelay() const  {
 		if (!receiverDelayExists) {
 			throw IllegalAccessException("receiverDelay", "DelayModel");
 		}
@@ -4668,12 +4727,12 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set receiverDelay with the specified vector<double >.
- 	 * @param receiverDelay The vector<double > value to which receiverDelay is to be set.
+ 	 * Set receiverDelay with the specified std::vector<double >.
+ 	 * @param receiverDelay The std::vector<double > value to which receiverDelay is to be set.
  	 
  	
  	 */
- 	void DelayModelRow::setReceiverDelay (vector<double > receiverDelay) {
+ 	void DelayModelRow::setReceiverDelay (std::vector<double > receiverDelay) {
 	
  		this->receiverDelay = receiverDelay;
 	
@@ -4703,10 +4762,10 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get IFDelay, which is optional.
- 	 * @return IFDelay as vector<double >
+ 	 * @return IFDelay as std::vector<double >
  	 * @throw IllegalAccessException If IFDelay does not exist.
  	 */
- 	vector<double > DelayModelRow::getIFDelay() const  {
+ 	std::vector<double > DelayModelRow::getIFDelay() const  {
 		if (!IFDelayExists) {
 			throw IllegalAccessException("IFDelay", "DelayModel");
 		}
@@ -4715,12 +4774,12 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set IFDelay with the specified vector<double >.
- 	 * @param IFDelay The vector<double > value to which IFDelay is to be set.
+ 	 * Set IFDelay with the specified std::vector<double >.
+ 	 * @param IFDelay The std::vector<double > value to which IFDelay is to be set.
  	 
  	
  	 */
- 	void DelayModelRow::setIFDelay (vector<double > IFDelay) {
+ 	void DelayModelRow::setIFDelay (std::vector<double > IFDelay) {
 	
  		this->IFDelay = IFDelay;
 	
@@ -4750,10 +4809,10 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get LODelay, which is optional.
- 	 * @return LODelay as vector<double >
+ 	 * @return LODelay as std::vector<double >
  	 * @throw IllegalAccessException If LODelay does not exist.
  	 */
- 	vector<double > DelayModelRow::getLODelay() const  {
+ 	std::vector<double > DelayModelRow::getLODelay() const  {
 		if (!LODelayExists) {
 			throw IllegalAccessException("LODelay", "DelayModel");
 		}
@@ -4762,12 +4821,12 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set LODelay with the specified vector<double >.
- 	 * @param LODelay The vector<double > value to which LODelay is to be set.
+ 	 * Set LODelay with the specified std::vector<double >.
+ 	 * @param LODelay The std::vector<double > value to which LODelay is to be set.
  	 
  	
  	 */
- 	void DelayModelRow::setLODelay (vector<double > LODelay) {
+ 	void DelayModelRow::setLODelay (std::vector<double > LODelay) {
 	
  		this->LODelay = LODelay;
 	
@@ -5682,7 +5741,7 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool DelayModelRow::compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, vector<double > phaseDelay, vector<double > phaseDelayRate, vector<double > groupDelay, vector<double > groupDelayRate, Tag fieldId) {
+	bool DelayModelRow::compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, std::vector<double > phaseDelay, std::vector<double > phaseDelayRate, std::vector<double > groupDelay, std::vector<double > groupDelayRate, Tag fieldId) {
 		bool result;
 		result = true;
 		
@@ -5754,7 +5813,7 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool DelayModelRow::compareRequiredValue(int numPoly, vector<double > phaseDelay, vector<double > phaseDelayRate, vector<double > groupDelay, vector<double > groupDelayRate, Tag fieldId) {
+	bool DelayModelRow::compareRequiredValue(int numPoly, std::vector<double > phaseDelay, std::vector<double > phaseDelayRate, std::vector<double > groupDelay, std::vector<double > groupDelayRate, Tag fieldId) {
 		bool result;
 		result = true;
 		

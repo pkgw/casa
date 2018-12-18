@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <SpectralWindowRow.h>
-#include <SpectralWindowTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-#include <DopplerTable.h>
-#include <DopplerRow.h>
+#include <alma/ASDM/DopplerTable.h>
+#include <alma/ASDM/DopplerRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::DopplerTable;
 using asdm::DopplerRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	SpectralWindowRow::~SpectralWindowRow() {
@@ -149,6 +146,20 @@ namespace asdm {
 			
 				
 		x->numChan = numChan;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
+		x->numBinExists = numBinExists;
+		
+		
+			
+				
+		x->numBin = numBin;
  				
  			
 		
@@ -620,6 +631,20 @@ namespace asdm {
 	
   		
 		
+		x.numBinExists = numBinExists;
+		
+		
+			
+				
+		x.numBin = numBin;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
 		
 			
 		x.refFreq = refFreq.toIDLFrequency();
@@ -1077,6 +1102,21 @@ namespace asdm {
 		setNumChan(x.numChan);
   			
  		
+		
+	
+
+	
+		
+		numBinExists = x.numBinExists;
+		if (x.numBinExists) {
+		
+		
+			
+		setNumBin(x.numBin);
+  			
+ 		
+		
+		}
 		
 	
 
@@ -1572,6 +1612,18 @@ namespace asdm {
 
   	
  		
+		if (numBinExists) {
+		
+		
+		Parser::toXML(numBin, "numBin", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
 		
 		Parser::toXML(refFreq, "refFreq", buf);
 		
@@ -1951,6 +2003,16 @@ namespace asdm {
 	  	setNumChan(Parser::getInteger("numChan","SpectralWindow",rowDoc));
 			
 		
+	
+
+	
+  		
+        if (row.isStr("<numBin>")) {
+			
+	  		setNumBin(Parser::getInteger("numBin","SpectralWindow",rowDoc));
+			
+		}
+ 		
 	
 
 	
@@ -2344,6 +2406,20 @@ namespace asdm {
 
 	
 	
+	eoss.writeBoolean(numBinExists);
+	if (numBinExists) {
+	
+	
+	
+		
+						
+			eoss.writeInt(numBin);
+				
+		
+	
+
+	}
+
 	eoss.writeBoolean(chanFreqStartExists);
 	if (chanFreqStartExists) {
 	
@@ -2766,6 +2842,23 @@ void SpectralWindowRow::windowFunctionFromBin(EndianIStream& eis) {
 	
 }
 
+void SpectralWindowRow::numBinFromBin(EndianIStream& eis) {
+		
+	numBinExists = eis.readBoolean();
+	if (numBinExists) {
+		
+	
+	
+		
+			
+		numBin =  eis.readInt();
+			
+		
+	
+
+	}
+	
+}
 void SpectralWindowRow::chanFreqStartFromBin(EndianIStream& eis) {
 		
 	chanFreqStartExists = eis.readBoolean();
@@ -3219,7 +3312,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void SpectralWindowRow::spectralWindowIdFromText(const string & s) {
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3227,7 +3322,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	// Convert a string into an BasebandName 
 	void SpectralWindowRow::basebandNameFromText(const string & s) {
 		 
-		basebandName = ASDMValuesParser::parse<BasebandName>(s);
+          
+		basebandName = ASDMValuesParser::parse<BasebandNameMod::BasebandName>(s);
+          
 		
 	}
 	
@@ -3235,7 +3332,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	// Convert a string into an NetSideband 
 	void SpectralWindowRow::netSidebandFromText(const string & s) {
 		 
-		netSideband = ASDMValuesParser::parse<NetSideband>(s);
+          
+		netSideband = ASDMValuesParser::parse<NetSidebandMod::NetSideband>(s);
+          
 		
 	}
 	
@@ -3243,7 +3342,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SpectralWindowRow::numChanFromText(const string & s) {
 		 
+          
 		numChan = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3251,7 +3352,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void SpectralWindowRow::refFreqFromText(const string & s) {
 		 
+          
 		refFreq = ASDMValuesParser::parse<Frequency>(s);
+          
 		
 	}
 	
@@ -3259,7 +3362,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	// Convert a string into an SidebandProcessingMode 
 	void SpectralWindowRow::sidebandProcessingModeFromText(const string & s) {
 		 
-		sidebandProcessingMode = ASDMValuesParser::parse<SidebandProcessingMode>(s);
+          
+		sidebandProcessingMode = ASDMValuesParser::parse<SidebandProcessingModeMod::SidebandProcessingMode>(s);
+          
 		
 	}
 	
@@ -3267,7 +3372,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void SpectralWindowRow::totBandwidthFromText(const string & s) {
 		 
+          
 		totBandwidth = ASDMValuesParser::parse<Frequency>(s);
+          
 		
 	}
 	
@@ -3275,17 +3382,32 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	// Convert a string into an WindowFunction 
 	void SpectralWindowRow::windowFunctionFromText(const string & s) {
 		 
-		windowFunction = ASDMValuesParser::parse<WindowFunction>(s);
+          
+		windowFunction = ASDMValuesParser::parse<WindowFunctionMod::WindowFunction>(s);
+          
 		
 	}
 	
 
 	
+	// Convert a string into an int 
+	void SpectralWindowRow::numBinFromText(const string & s) {
+		numBinExists = true;
+		 
+          
+		numBin = ASDMValuesParser::parse<int>(s);
+          
+		
+	}
+	
+	
 	// Convert a string into an Frequency 
 	void SpectralWindowRow::chanFreqStartFromText(const string & s) {
 		chanFreqStartExists = true;
 		 
+          
 		chanFreqStart = ASDMValuesParser::parse<Frequency>(s);
+          
 		
 	}
 	
@@ -3294,7 +3416,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::chanFreqStepFromText(const string & s) {
 		chanFreqStepExists = true;
 		 
+          
 		chanFreqStep = ASDMValuesParser::parse<Frequency>(s);
+          
 		
 	}
 	
@@ -3303,7 +3427,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::chanFreqArrayFromText(const string & s) {
 		chanFreqArrayExists = true;
 		 
+          
 		chanFreqArray = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3312,7 +3438,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::chanWidthFromText(const string & s) {
 		chanWidthExists = true;
 		 
+          
 		chanWidth = ASDMValuesParser::parse<Frequency>(s);
+          
 		
 	}
 	
@@ -3321,7 +3449,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::chanWidthArrayFromText(const string & s) {
 		chanWidthArrayExists = true;
 		 
+          
 		chanWidthArray = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3330,7 +3460,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::correlationBitFromText(const string & s) {
 		correlationBitExists = true;
 		 
-		correlationBit = ASDMValuesParser::parse<CorrelationBit>(s);
+          
+		correlationBit = ASDMValuesParser::parse<CorrelationBitMod::CorrelationBit>(s);
+          
 		
 	}
 	
@@ -3339,7 +3471,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::effectiveBwFromText(const string & s) {
 		effectiveBwExists = true;
 		 
+          
 		effectiveBw = ASDMValuesParser::parse<Frequency>(s);
+          
 		
 	}
 	
@@ -3348,7 +3482,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::effectiveBwArrayFromText(const string & s) {
 		effectiveBwArrayExists = true;
 		 
+          
 		effectiveBwArray = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3357,7 +3493,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::freqGroupFromText(const string & s) {
 		freqGroupExists = true;
 		 
+          
 		freqGroup = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3366,7 +3504,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::freqGroupNameFromText(const string & s) {
 		freqGroupNameExists = true;
 		 
+          
 		freqGroupName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -3375,7 +3515,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::lineArrayFromText(const string & s) {
 		lineArrayExists = true;
 		 
+          
 		lineArray = ASDMValuesParser::parse1D<bool>(s);
+          
 		
 	}
 	
@@ -3384,7 +3526,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::measFreqRefFromText(const string & s) {
 		measFreqRefExists = true;
 		 
-		measFreqRef = ASDMValuesParser::parse<FrequencyReferenceCode>(s);
+          
+		measFreqRef = ASDMValuesParser::parse<FrequencyReferenceCodeMod::FrequencyReferenceCode>(s);
+          
 		
 	}
 	
@@ -3393,7 +3537,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::nameFromText(const string & s) {
 		nameExists = true;
 		 
+          
 		name = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -3402,7 +3548,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::oversamplingFromText(const string & s) {
 		oversamplingExists = true;
 		 
+          
 		oversampling = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -3411,7 +3559,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::quantizationFromText(const string & s) {
 		quantizationExists = true;
 		 
+          
 		quantization = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -3420,7 +3570,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::refChanFromText(const string & s) {
 		refChanExists = true;
 		 
+          
 		refChan = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -3429,7 +3581,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::resolutionFromText(const string & s) {
 		resolutionExists = true;
 		 
+          
 		resolution = ASDMValuesParser::parse<Frequency>(s);
+          
 		
 	}
 	
@@ -3438,7 +3592,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::resolutionArrayFromText(const string & s) {
 		resolutionArrayExists = true;
 		 
+          
 		resolutionArray = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3447,7 +3603,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::numAssocValuesFromText(const string & s) {
 		numAssocValuesExists = true;
 		 
+          
 		numAssocValues = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3456,7 +3614,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::assocNatureFromText(const string & s) {
 		assocNatureExists = true;
 		 
-		assocNature = ASDMValuesParser::parse1D<SpectralResolutionType>(s);
+          
+		assocNature = ASDMValuesParser::parse1D<SpectralResolutionTypeMod::SpectralResolutionType>(s);
+          
 		
 	}
 	
@@ -3474,7 +3634,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::assocSpectralWindowIdFromText(const string & s) {
 		assocSpectralWindowIdExists = true;
 		 
+          
 		assocSpectralWindowId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -3483,7 +3645,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::imageSpectralWindowIdFromText(const string & s) {
 		imageSpectralWindowIdExists = true;
 		 
+          
 		imageSpectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3492,7 +3656,9 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	void SpectralWindowRow::dopplerIdFromText(const string & s) {
 		dopplerIdExists = true;
 		 
+          
 		dopplerId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3639,6 +3805,53 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
  	}
 	
+	
+
+	
+	/**
+	 * The attribute numBin is optional. Return true if this attribute exists.
+	 * @return true if and only if the numBin attribute exists. 
+	 */
+	bool SpectralWindowRow::isNumBinExists() const {
+		return numBinExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get numBin, which is optional.
+ 	 * @return numBin as int
+ 	 * @throw IllegalAccessException If numBin does not exist.
+ 	 */
+ 	int SpectralWindowRow::getNumBin() const  {
+		if (!numBinExists) {
+			throw IllegalAccessException("numBin", "SpectralWindow");
+		}
+	
+  		return numBin;
+ 	}
+
+ 	/**
+ 	 * Set numBin with the specified int.
+ 	 * @param numBin The int value to which numBin is to be set.
+ 	 
+ 	
+ 	 */
+ 	void SpectralWindowRow::setNumBin (int numBin) {
+	
+ 		this->numBin = numBin;
+	
+		numBinExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark numBin, which is an optional field, as non-existent.
+	 */
+	void SpectralWindowRow::clearNumBin () {
+		numBinExists = false;
+	}
 	
 
 	
@@ -3876,10 +4089,10 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get chanFreqArray, which is optional.
- 	 * @return chanFreqArray as vector<Frequency >
+ 	 * @return chanFreqArray as std::vector<Frequency >
  	 * @throw IllegalAccessException If chanFreqArray does not exist.
  	 */
- 	vector<Frequency > SpectralWindowRow::getChanFreqArray() const  {
+ 	std::vector<Frequency > SpectralWindowRow::getChanFreqArray() const  {
 		if (!chanFreqArrayExists) {
 			throw IllegalAccessException("chanFreqArray", "SpectralWindow");
 		}
@@ -3888,12 +4101,12 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set chanFreqArray with the specified vector<Frequency >.
- 	 * @param chanFreqArray The vector<Frequency > value to which chanFreqArray is to be set.
+ 	 * Set chanFreqArray with the specified std::vector<Frequency >.
+ 	 * @param chanFreqArray The std::vector<Frequency > value to which chanFreqArray is to be set.
  	 
  	
  	 */
- 	void SpectralWindowRow::setChanFreqArray (vector<Frequency > chanFreqArray) {
+ 	void SpectralWindowRow::setChanFreqArray (std::vector<Frequency > chanFreqArray) {
 	
  		this->chanFreqArray = chanFreqArray;
 	
@@ -3970,10 +4183,10 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get chanWidthArray, which is optional.
- 	 * @return chanWidthArray as vector<Frequency >
+ 	 * @return chanWidthArray as std::vector<Frequency >
  	 * @throw IllegalAccessException If chanWidthArray does not exist.
  	 */
- 	vector<Frequency > SpectralWindowRow::getChanWidthArray() const  {
+ 	std::vector<Frequency > SpectralWindowRow::getChanWidthArray() const  {
 		if (!chanWidthArrayExists) {
 			throw IllegalAccessException("chanWidthArray", "SpectralWindow");
 		}
@@ -3982,12 +4195,12 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set chanWidthArray with the specified vector<Frequency >.
- 	 * @param chanWidthArray The vector<Frequency > value to which chanWidthArray is to be set.
+ 	 * Set chanWidthArray with the specified std::vector<Frequency >.
+ 	 * @param chanWidthArray The std::vector<Frequency > value to which chanWidthArray is to be set.
  	 
  	
  	 */
- 	void SpectralWindowRow::setChanWidthArray (vector<Frequency > chanWidthArray) {
+ 	void SpectralWindowRow::setChanWidthArray (std::vector<Frequency > chanWidthArray) {
 	
  		this->chanWidthArray = chanWidthArray;
 	
@@ -4111,10 +4324,10 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get effectiveBwArray, which is optional.
- 	 * @return effectiveBwArray as vector<Frequency >
+ 	 * @return effectiveBwArray as std::vector<Frequency >
  	 * @throw IllegalAccessException If effectiveBwArray does not exist.
  	 */
- 	vector<Frequency > SpectralWindowRow::getEffectiveBwArray() const  {
+ 	std::vector<Frequency > SpectralWindowRow::getEffectiveBwArray() const  {
 		if (!effectiveBwArrayExists) {
 			throw IllegalAccessException("effectiveBwArray", "SpectralWindow");
 		}
@@ -4123,12 +4336,12 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set effectiveBwArray with the specified vector<Frequency >.
- 	 * @param effectiveBwArray The vector<Frequency > value to which effectiveBwArray is to be set.
+ 	 * Set effectiveBwArray with the specified std::vector<Frequency >.
+ 	 * @param effectiveBwArray The std::vector<Frequency > value to which effectiveBwArray is to be set.
  	 
  	
  	 */
- 	void SpectralWindowRow::setEffectiveBwArray (vector<Frequency > effectiveBwArray) {
+ 	void SpectralWindowRow::setEffectiveBwArray (std::vector<Frequency > effectiveBwArray) {
 	
  		this->effectiveBwArray = effectiveBwArray;
 	
@@ -4205,10 +4418,10 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get freqGroupName, which is optional.
- 	 * @return freqGroupName as string
+ 	 * @return freqGroupName as std::string
  	 * @throw IllegalAccessException If freqGroupName does not exist.
  	 */
- 	string SpectralWindowRow::getFreqGroupName() const  {
+ 	std::string SpectralWindowRow::getFreqGroupName() const  {
 		if (!freqGroupNameExists) {
 			throw IllegalAccessException("freqGroupName", "SpectralWindow");
 		}
@@ -4217,12 +4430,12 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set freqGroupName with the specified string.
- 	 * @param freqGroupName The string value to which freqGroupName is to be set.
+ 	 * Set freqGroupName with the specified std::string.
+ 	 * @param freqGroupName The std::string value to which freqGroupName is to be set.
  	 
  	
  	 */
- 	void SpectralWindowRow::setFreqGroupName (string freqGroupName) {
+ 	void SpectralWindowRow::setFreqGroupName (std::string freqGroupName) {
 	
  		this->freqGroupName = freqGroupName;
 	
@@ -4252,10 +4465,10 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get lineArray, which is optional.
- 	 * @return lineArray as vector<bool >
+ 	 * @return lineArray as std::vector<bool >
  	 * @throw IllegalAccessException If lineArray does not exist.
  	 */
- 	vector<bool > SpectralWindowRow::getLineArray() const  {
+ 	std::vector<bool > SpectralWindowRow::getLineArray() const  {
 		if (!lineArrayExists) {
 			throw IllegalAccessException("lineArray", "SpectralWindow");
 		}
@@ -4264,12 +4477,12 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set lineArray with the specified vector<bool >.
- 	 * @param lineArray The vector<bool > value to which lineArray is to be set.
+ 	 * Set lineArray with the specified std::vector<bool >.
+ 	 * @param lineArray The std::vector<bool > value to which lineArray is to be set.
  	 
  	
  	 */
- 	void SpectralWindowRow::setLineArray (vector<bool > lineArray) {
+ 	void SpectralWindowRow::setLineArray (std::vector<bool > lineArray) {
 	
  		this->lineArray = lineArray;
 	
@@ -4346,10 +4559,10 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get name, which is optional.
- 	 * @return name as string
+ 	 * @return name as std::string
  	 * @throw IllegalAccessException If name does not exist.
  	 */
- 	string SpectralWindowRow::getName() const  {
+ 	std::string SpectralWindowRow::getName() const  {
 		if (!nameExists) {
 			throw IllegalAccessException("name", "SpectralWindow");
 		}
@@ -4358,12 +4571,12 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set name with the specified string.
- 	 * @param name The string value to which name is to be set.
+ 	 * Set name with the specified std::string.
+ 	 * @param name The std::string value to which name is to be set.
  	 
  	
  	 */
- 	void SpectralWindowRow::setName (string name) {
+ 	void SpectralWindowRow::setName (std::string name) {
 	
  		this->name = name;
 	
@@ -4581,10 +4794,10 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get resolutionArray, which is optional.
- 	 * @return resolutionArray as vector<Frequency >
+ 	 * @return resolutionArray as std::vector<Frequency >
  	 * @throw IllegalAccessException If resolutionArray does not exist.
  	 */
- 	vector<Frequency > SpectralWindowRow::getResolutionArray() const  {
+ 	std::vector<Frequency > SpectralWindowRow::getResolutionArray() const  {
 		if (!resolutionArrayExists) {
 			throw IllegalAccessException("resolutionArray", "SpectralWindow");
 		}
@@ -4593,12 +4806,12 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set resolutionArray with the specified vector<Frequency >.
- 	 * @param resolutionArray The vector<Frequency > value to which resolutionArray is to be set.
+ 	 * Set resolutionArray with the specified std::vector<Frequency >.
+ 	 * @param resolutionArray The std::vector<Frequency > value to which resolutionArray is to be set.
  	 
  	
  	 */
- 	void SpectralWindowRow::setResolutionArray (vector<Frequency > resolutionArray) {
+ 	void SpectralWindowRow::setResolutionArray (std::vector<Frequency > resolutionArray) {
 	
  		this->resolutionArray = resolutionArray;
 	
@@ -4675,10 +4888,10 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get assocNature, which is optional.
- 	 * @return assocNature as vector<SpectralResolutionTypeMod::SpectralResolutionType >
+ 	 * @return assocNature as std::vector<SpectralResolutionTypeMod::SpectralResolutionType >
  	 * @throw IllegalAccessException If assocNature does not exist.
  	 */
- 	vector<SpectralResolutionTypeMod::SpectralResolutionType > SpectralWindowRow::getAssocNature() const  {
+ 	std::vector<SpectralResolutionTypeMod::SpectralResolutionType > SpectralWindowRow::getAssocNature() const  {
 		if (!assocNatureExists) {
 			throw IllegalAccessException("assocNature", "SpectralWindow");
 		}
@@ -4687,12 +4900,12 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set assocNature with the specified vector<SpectralResolutionTypeMod::SpectralResolutionType >.
- 	 * @param assocNature The vector<SpectralResolutionTypeMod::SpectralResolutionType > value to which assocNature is to be set.
+ 	 * Set assocNature with the specified std::vector<SpectralResolutionTypeMod::SpectralResolutionType >.
+ 	 * @param assocNature The std::vector<SpectralResolutionTypeMod::SpectralResolutionType > value to which assocNature is to be set.
  	 
  	
  	 */
- 	void SpectralWindowRow::setAssocNature (vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature) {
+ 	void SpectralWindowRow::setAssocNature (std::vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature) {
 	
  		this->assocNature = assocNature;
 	
@@ -4774,10 +4987,10 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get assocSpectralWindowId, which is optional.
- 	 * @return assocSpectralWindowId as vector<Tag> 
+ 	 * @return assocSpectralWindowId as std::vector<Tag> 
  	 * @throw IllegalAccessException If assocSpectralWindowId does not exist.
  	 */
- 	vector<Tag>  SpectralWindowRow::getAssocSpectralWindowId() const  {
+ 	std::vector<Tag>  SpectralWindowRow::getAssocSpectralWindowId() const  {
 		if (!assocSpectralWindowIdExists) {
 			throw IllegalAccessException("assocSpectralWindowId", "SpectralWindow");
 		}
@@ -4786,12 +4999,12 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set assocSpectralWindowId with the specified vector<Tag> .
- 	 * @param assocSpectralWindowId The vector<Tag>  value to which assocSpectralWindowId is to be set.
+ 	 * Set assocSpectralWindowId with the specified std::vector<Tag> .
+ 	 * @param assocSpectralWindowId The std::vector<Tag>  value to which assocSpectralWindowId is to be set.
  	 
  	
  	 */
- 	void SpectralWindowRow::setAssocSpectralWindowId (vector<Tag>  assocSpectralWindowId) {
+ 	void SpectralWindowRow::setAssocSpectralWindowId (std::vector<Tag>  assocSpectralWindowId) {
 	
  		this->assocSpectralWindowId = assocSpectralWindowId;
 	
@@ -4918,7 +5131,7 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
   	void SpectralWindowRow::setAssocSpectralWindowId (int i, Tag assocSpectralWindowId) {
   		if ((i < 0) || (i > ((int) this->assocSpectralWindowId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute assocSpectralWindowId in table SpectralWindowTable");
-  		vector<Tag> ::iterator iter = this->assocSpectralWindowId.begin();
+  		std::vector<Tag> ::iterator iter = this->assocSpectralWindowId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -4942,7 +5155,7 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to assocSpectralWindowId.
  * @param id an array of Tag to be appended to assocSpectralWindowId
  */
- void SpectralWindowRow::addAssocSpectralWindowId(const vector<Tag> & id) {
+ void SpectralWindowRow::addAssocSpectralWindowId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		assocSpectralWindowId.push_back(id.at(i));
  }
@@ -5045,6 +5258,10 @@ void SpectralWindowRow::dopplerIdFromBin(EndianIStream& eis) {
 
 	
 
+	
+
+	
+		numBinExists = false;
 	
 
 	
@@ -5172,6 +5389,8 @@ netSideband = CNetSideband::from_int(0);
 	
 
 	
+
+	
 // This attribute is scalar and has an enumeration type. Let's initialize it to some valid value (the 1st of the enumeration).		
 sidebandProcessingMode = CSidebandProcessingMode::from_int(0);
 	
@@ -5243,6 +5462,7 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 	 fromBinMethods["windowFunction"] = &SpectralWindowRow::windowFunctionFromBin; 
 		
 	
+	 fromBinMethods["numBin"] = &SpectralWindowRow::numBinFromBin; 
 	 fromBinMethods["chanFreqStart"] = &SpectralWindowRow::chanFreqStartFromBin; 
 	 fromBinMethods["chanFreqStep"] = &SpectralWindowRow::chanFreqStepFromBin; 
 	 fromBinMethods["chanFreqArray"] = &SpectralWindowRow::chanFreqArrayFromBin; 
@@ -5304,6 +5524,10 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 		 
 	
 
+	 
+				
+	fromTextMethods["numBin"] = &SpectralWindowRow::numBinFromText;
+		 	
 	 
 				
 	fromTextMethods["chanFreqStart"] = &SpectralWindowRow::chanFreqStartFromText;
@@ -5415,6 +5639,10 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 
 	
 
+	
+
+	
+		numBinExists = false;
 	
 
 	
@@ -5547,6 +5775,13 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 		
 		
 		
+		
+		if (row.numBinExists) {
+			numBin = row.numBin;		
+			numBinExists = true;
+		}
+		else
+			numBinExists = false;
 		
 		if (row.chanFreqStartExists) {
 			chanFreqStart = row.chanFreqStart;		
@@ -5728,6 +5963,7 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 		 fromBinMethods["windowFunction"] = &SpectralWindowRow::windowFunctionFromBin; 
 			
 	
+		 fromBinMethods["numBin"] = &SpectralWindowRow::numBinFromBin; 
 		 fromBinMethods["chanFreqStart"] = &SpectralWindowRow::chanFreqStartFromBin; 
 		 fromBinMethods["chanFreqStep"] = &SpectralWindowRow::chanFreqStepFromBin; 
 		 fromBinMethods["chanFreqArray"] = &SpectralWindowRow::chanFreqArrayFromBin; 
@@ -5895,6 +6131,7 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 		result["windowFunction"] = &SpectralWindowRow::windowFunctionFromBin;
 		
 		
+		result["numBin"] = &SpectralWindowRow::numBinFromBin;
 		result["chanFreqStart"] = &SpectralWindowRow::chanFreqStartFromBin;
 		result["chanFreqStep"] = &SpectralWindowRow::chanFreqStepFromBin;
 		result["chanFreqArray"] = &SpectralWindowRow::chanFreqArrayFromBin;

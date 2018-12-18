@@ -23,12 +23,12 @@
  *
  * File TagFormatException.cpp
  */
-#include "TagFormatException.h"
+#include <alma/ASDM/TagFormatException.h>
 namespace asdm {
   TagFormatException::TagFormatException() : message("Tag format exception") {;}
-  TagFormatException::TagFormatException(string msg): message(msg) {;}
+  TagFormatException::TagFormatException(std::string msg): message(msg) {;}
   TagFormatException::~TagFormatException() {;}
-  string TagFormatException::getMessage() const {
+  std::string TagFormatException::getMessage() const {
     return "TagFormatException : " + message;
   }  
 } // end namespace asdm.

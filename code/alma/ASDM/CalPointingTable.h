@@ -41,46 +41,32 @@
 
 
 	
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
-#include "CReceiverBand.h"
-	
 
 	
 
 	
-
-	
-
-	
-#include "CAntennaMake.h"
-	
-
-	
-#include "CAtmPhaseCorrection.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -88,21 +74,31 @@
 	
 
 	
-#include "CPointingModelMode.h"
+
+	
+#include <alma/Enumerations/CAntennaMake.h>
 	
 
 	
-#include "CPointingMethod.h"
-	
-
-	
-
-	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
 
+	
+
+	
+#include <alma/Enumerations/CPointingModelMode.h>
+	
+
+	
+#include <alma/Enumerations/CPointingMethod.h>
+	
+
+	
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -137,20 +133,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -181,7 +181,7 @@ class CalPointingRow;
  		
  * <TD> antennaName </TD>
  		 
- * <TD> string</TD>
+ * <TD> std::string</TD>
  * <TD> &nbsp; </TD>
  * <TD> &nbsp;Antenna Name </TD>
  * </TR>
@@ -254,14 +254,14 @@ class CalPointingRow;
 	
  * <TR>
  * <TD> direction </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the antenna pointing direction. </TD>
  * </TR>
 	
  * <TR>
  * <TD> frequencyRange </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the frequency range over which the result is valid. </TD>
  * </TR>
@@ -289,42 +289,42 @@ class CalPointingRow;
 	
  * <TR>
  * <TD> polarizationTypes </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;identifies the polarizations types (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> collOffsetRelative </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numReceptor, 2 </TD> 
  * <TD> &nbsp;the collimation offsets (relative) (one pair of angles  per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> collOffsetAbsolute </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numReceptor, 2 </TD> 
  * <TD> &nbsp;the collimation offsets (absolute) (one pair of angles per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> collError </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numReceptor, 2 </TD> 
  * <TD> &nbsp;the uncertainties on collimation (one pair of angles per receptor) </TD>
  * </TR>
 	
  * <TR>
  * <TD> collOffsetTied </TD> 
- * <TD> vector<vector<bool > > </TD>
+ * <TD> std::vector<std::vector<bool > > </TD>
  * <TD>  numReceptor, 2 </TD> 
  * <TD> &nbsp;indicates if a collimation offset was tied (true) or not tied (false) to another polar (one pair of boolean values per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> reducedChiSquared </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;a measure of the quality of the least square fit. </TD>
  * </TR>
@@ -342,14 +342,14 @@ class CalPointingRow;
 	
  * <TR>
  * <TD> beamPA</TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the fitted beam position angles (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> beamPAError</TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertaintes on the fitted beam position angles (one value per receptor). </TD>
  * </TR>
@@ -363,35 +363,35 @@ class CalPointingRow;
 	
  * <TR>
  * <TD> beamWidth</TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numReceptor, 2  </TD>
  * <TD>&nbsp; the fitted beam widths (one pair of angles per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> beamWidthError</TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numReceptor, 2  </TD>
  * <TD>&nbsp; the uncertainties on the fitted beam widths (one pair of angles per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> beamWidthWasFixed</TD> 
- * <TD> vector<bool > </TD>
+ * <TD> std::vector<bool > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; indicates if the beam width was fixed (true) or not fixed (true) (one pair of booleans). </TD>
  * </TR>
 	
  * <TR>
  * <TD> offIntensity</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the off intensity levels (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> offIntensityError</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertainties on the off intensity levels (one value per receptor). </TD>
  * </TR>
@@ -405,14 +405,14 @@ class CalPointingRow;
 	
  * <TR>
  * <TD> peakIntensity</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the maximum intensities (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> peakIntensityError</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertainties on the maximum intensities (one value per receptor). </TD>
  * </TR>
@@ -601,7 +601,7 @@ public:
  	 * @param reducedChiSquared
 	
      */
-	CalPointingRow *newRow(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, vector<Angle > direction, vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Angle > > collOffsetRelative, vector<vector<Angle > > collOffsetAbsolute, vector<vector<Angle > > collError, vector<vector<bool > > collOffsetTied, vector<double > reducedChiSquared);
+	CalPointingRow *newRow(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Angle > > collOffsetRelative, std::vector<std::vector<Angle > > collOffsetAbsolute, std::vector<std::vector<Angle > > collError, std::vector<std::vector<bool > > collOffsetTied, std::vector<double > reducedChiSquared);
 	
 
 
@@ -680,7 +680,7 @@ public:
 	
  	 *
 	 */
- 	CalPointingRow* getRowByKey(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId);
+ 	CalPointingRow* getRowByKey(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -733,7 +733,7 @@ public:
  	 * @param reducedChiSquared
  	 		 
  	 */
-	CalPointingRow* lookup(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, vector<Angle > direction, vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Angle > > collOffsetRelative, vector<vector<Angle > > collOffsetAbsolute, vector<vector<Angle > > collError, vector<vector<bool > > collOffsetTied, vector<double > reducedChiSquared); 
+	CalPointingRow* lookup(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Angle > > collOffsetRelative, std::vector<std::vector<Angle > > collOffsetAbsolute, std::vector<std::vector<Angle > > collError, std::vector<std::vector<bool > > collOffsetTied, std::vector<double > reducedChiSquared); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

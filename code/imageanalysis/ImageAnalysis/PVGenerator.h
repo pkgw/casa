@@ -151,8 +151,8 @@ protected:
         return CasacRegionManager::USE_ALL_STOKES;
     }
 
-    inline vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-        vector<casacore::Coordinate::Type> v;
+    inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+        std::vector<casacore::Coordinate::Type> v;
         v.push_back(casacore::Coordinate::SPECTRAL);
         v.push_back(casacore::Coordinate::DIRECTION);
         return v;
@@ -161,7 +161,7 @@ protected:
     virtual casacore::Bool _mustHaveSquareDirectionPixels() const {return true;}
 
 private:
-    std::unique_ptr<vector<casacore::Double> > _start, _end;
+    std::unique_ptr<std::vector<casacore::Double> > _start, _end;
     casacore::uInt _width;
     casacore::String _unit;
     static const casacore::String _class;
@@ -178,7 +178,7 @@ private:
     ) const;
 
     SPCIIF _doRotate(
-        SPIIF subImage, const vector<Double>& start, const vector<Double>& end,
+        SPIIF subImage, const std::vector<Double>& start, const std::vector<Double>& end,
         Int xAxis, Int yAxis, Double halfwidth, Double paInRad
     ) const;
 
@@ -187,7 +187,7 @@ private:
     void _checkWidth(const casacore::Int64 xShape, const casacore::Int64 yShape) const;
 
     void _checkWidthSanity(
-        Double paInRad, Double halfwidth, const vector<Double>& start,
+        Double paInRad, Double halfwidth, const std::vector<Double>& start,
         const std::vector<Double>& end, SPCIIF subImage, Int xAxis, Int yAxis
     ) const;
 

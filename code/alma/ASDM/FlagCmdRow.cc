@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <FlagCmdRow.h>
-#include <FlagCmdTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/FlagCmdRow.h>
+#include <alma/ASDM/FlagCmdTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::FlagCmdRow;
 using asdm::FlagCmdTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	FlagCmdRow::~FlagCmdRow() {
@@ -695,7 +692,9 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void FlagCmdRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -703,7 +702,9 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void FlagCmdRow::typeFromText(const string & s) {
 		 
+          
 		type = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -711,7 +712,9 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void FlagCmdRow::reasonFromText(const string & s) {
 		 
+          
 		reason = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -719,7 +722,9 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FlagCmdRow::levelFromText(const string & s) {
 		 
+          
 		level = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -727,7 +732,9 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FlagCmdRow::severityFromText(const string & s) {
 		 
+          
 		severity = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -735,7 +742,9 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void FlagCmdRow::appliedFromText(const string & s) {
 		 
+          
 		applied = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -743,7 +752,9 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void FlagCmdRow::commandFromText(const string & s) {
 		 
+          
 		command = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -802,21 +813,21 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get type.
- 	 * @return type as string
+ 	 * @return type as std::string
  	 */
- 	string FlagCmdRow::getType() const {
+ 	std::string FlagCmdRow::getType() const {
 	
   		return type;
  	}
 
  	/**
- 	 * Set type with the specified string.
- 	 * @param type The string value to which type is to be set.
+ 	 * Set type with the specified std::string.
+ 	 * @param type The std::string value to which type is to be set.
  	 
  	
  		
  	 */
- 	void FlagCmdRow::setType (string type)  {
+ 	void FlagCmdRow::setType (std::string type)  {
   	
   	
   		if (hasBeenAdded) {
@@ -834,21 +845,21 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get reason.
- 	 * @return reason as string
+ 	 * @return reason as std::string
  	 */
- 	string FlagCmdRow::getReason() const {
+ 	std::string FlagCmdRow::getReason() const {
 	
   		return reason;
  	}
 
  	/**
- 	 * Set reason with the specified string.
- 	 * @param reason The string value to which reason is to be set.
+ 	 * Set reason with the specified std::string.
+ 	 * @param reason The std::string value to which reason is to be set.
  	 
  	
  		
  	 */
- 	void FlagCmdRow::setReason (string reason)  {
+ 	void FlagCmdRow::setReason (std::string reason)  {
   	
   	
   		if (hasBeenAdded) {
@@ -962,21 +973,21 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get command.
- 	 * @return command as string
+ 	 * @return command as std::string
  	 */
- 	string FlagCmdRow::getCommand() const {
+ 	std::string FlagCmdRow::getCommand() const {
 	
   		return command;
  	}
 
  	/**
- 	 * Set command with the specified string.
- 	 * @param command The string value to which command is to be set.
+ 	 * Set command with the specified std::string.
+ 	 * @param command The std::string value to which command is to be set.
  	 
  	
  		
  	 */
- 	void FlagCmdRow::setCommand (string command)  {
+ 	void FlagCmdRow::setCommand (std::string command)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1151,7 +1162,7 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool FlagCmdRow::compareNoAutoInc(ArrayTimeInterval timeInterval, string type, string reason, int level, int severity, bool applied, string command) {
+	bool FlagCmdRow::compareNoAutoInc(ArrayTimeInterval timeInterval, std::string type, std::string reason, int level, int severity, bool applied, std::string command) {
 		bool result;
 		result = true;
 		
@@ -1209,7 +1220,7 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool FlagCmdRow::compareRequiredValue(string type, string reason, int level, int severity, bool applied, string command) {
+	bool FlagCmdRow::compareRequiredValue(std::string type, std::string reason, int level, int severity, bool applied, std::string command) {
 		bool result;
 		result = true;
 		

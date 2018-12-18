@@ -105,8 +105,8 @@ public:
              double pressureStepFactor,
              const Length &topAtmProfile,
              unsigned int atmType,
-	     const vector<Length> &v_layerBoundaries,
-	     const vector<Temperature> &v_layerTemperature); 
+	     const std::vector<Length> &v_layerBoundaries,
+	     const std::vector<Temperature> &v_layerTemperature); 
 
 
   
@@ -145,24 +145,24 @@ public:
    vapor density in each layer in kg/m**3). QUESTION: SHOULD O3, CO, N2O, NO2, SO2 PROFILES BE FILLED UP
    INTERNALLY FROM A STANDARD ATMOSPHERE OR LEFT ITS ABUNDANCES EQUAL TO ZERO ? */
   AtmProfile(const Length &altitude,
-	     const vector<Length> &v_layerThickness,
-             const vector<Pressure> &v_layerPressure,
-             const vector<Temperature> &v_layerTemperature,
-             const vector<MassDensity> &v_layerWaterVapor);
-  AtmProfile(const vector<Length> &v_layerBoundaries,
-             const vector<Pressure> &v_layerPressure,
-             const vector<Temperature> &v_layerTemperature,
-             const vector<MassDensity> &v_layerWaterVapor);
+	     const std::vector<Length> &v_layerThickness,
+             const std::vector<Pressure> &v_layerPressure,
+             const std::vector<Temperature> &v_layerTemperature,
+             const std::vector<MassDensity> &v_layerWaterVapor);
+  AtmProfile(const std::vector<Length> &v_layerBoundaries,
+             const std::vector<Pressure> &v_layerPressure,
+             const std::vector<Temperature> &v_layerTemperature,
+             const std::vector<MassDensity> &v_layerWaterVapor);
 
   AtmProfile(const Length &altitude,
-	     const vector<Length> &v_layerThickness,
-             const vector<Pressure> &v_layerPressure,
-             const vector<Temperature> &v_layerTemperature,
-             const vector<NumberDensity> &v_layerWaterVapor);
-  AtmProfile(const vector<Length> &v_layerBoundaries,
-             const vector<Pressure> &v_layerPressure,
-             const vector<Temperature> &v_layerTemperature,
-             const vector<NumberDensity> &v_layerWaterVapor);
+	     const std::vector<Length> &v_layerThickness,
+             const std::vector<Pressure> &v_layerPressure,
+             const std::vector<Temperature> &v_layerTemperature,
+             const std::vector<NumberDensity> &v_layerWaterVapor);
+  AtmProfile(const std::vector<Length> &v_layerBoundaries,
+             const std::vector<Pressure> &v_layerPressure,
+             const std::vector<Temperature> &v_layerTemperature,
+             const std::vector<NumberDensity> &v_layerWaterVapor);
 
   /** The user provides his own atmospheric profile (in this case five vectors for layer thickness in m,
    average pressure in each layer in mb, average temperature in each layer in K, average water vapor
@@ -171,17 +171,17 @@ public:
    INTERNALLY FROM A STANDARD ATMOSPHERE OR LEFT ITS ABUNDANCES EQUAL TO ZERO ? */
 
   AtmProfile(const Length &altitude,
-	     const vector<Length> &v_layerThickness,
-             const vector<Pressure> &v_layerPressure,
-             const vector<Temperature> &v_layerTemperature,
-             const vector<MassDensity> &v_layerWaterVapor,
-             const vector<NumberDensity> &v_layerO3);
+	     const std::vector<Length> &v_layerThickness,
+             const std::vector<Pressure> &v_layerPressure,
+             const std::vector<Temperature> &v_layerTemperature,
+             const std::vector<MassDensity> &v_layerWaterVapor,
+             const std::vector<NumberDensity> &v_layerO3);
   AtmProfile(const Length &altitude,
-	     const vector<Length> &v_layerThickness,
-             const vector<Pressure> &v_layerPressure,
-             const vector<Temperature> &v_layerTemperature,
-             const vector<NumberDensity> &v_layerWaterVapor,
-             const vector<NumberDensity> &v_layerO3);
+	     const std::vector<Length> &v_layerThickness,
+             const std::vector<Pressure> &v_layerPressure,
+             const std::vector<Temperature> &v_layerTemperature,
+             const std::vector<NumberDensity> &v_layerWaterVapor,
+             const std::vector<NumberDensity> &v_layerO3);
 
   /** The user provides his own atmospheric profile (in this case seven vectors for layer thickness in m,
    average pressure in each layer in mb, average temperature in each layer in K, average water vapor
@@ -189,26 +189,26 @@ public:
    average CO number density in each layer in molecules/m**3, average N2O, NO2, SO2 number density in each
    layer in molecules/m**3) */
   AtmProfile(const Length &altitude,
-	     const vector<Length> &v_layerThickness,
-             const vector<Pressure> &v_layerPressure,
-             const vector<Temperature> &v_layerTemperature,
-             const vector<MassDensity> &v_layerWaterVapor,
-             const vector<NumberDensity> &v_layerO3,
-             const vector<NumberDensity> &v_layerCO,
-             const vector<NumberDensity> &v_layerN2O,
-             const vector<NumberDensity> &v_layerNO2,
-             const vector<NumberDensity> &v_layerSO2);
+	     const std::vector<Length> &v_layerThickness,
+             const std::vector<Pressure> &v_layerPressure,
+             const std::vector<Temperature> &v_layerTemperature,
+             const std::vector<MassDensity> &v_layerWaterVapor,
+             const std::vector<NumberDensity> &v_layerO3,
+             const std::vector<NumberDensity> &v_layerCO,
+             const std::vector<NumberDensity> &v_layerN2O,
+             const std::vector<NumberDensity> &v_layerNO2,
+             const std::vector<NumberDensity> &v_layerSO2);
 
   AtmProfile(const Length &altitude,
-	     const vector<Length> &v_layerThickness,
-             const vector<Pressure> &v_layerPressure,
-             const vector<Temperature> &v_layerTemperature,
-             const vector<NumberDensity> &v_layerWaterVapor,
-             const vector<NumberDensity> &v_layerO3,
-             const vector<NumberDensity> &v_layerCO,
-             const vector<NumberDensity> &v_layerN2O,
-             const vector<NumberDensity> &v_layerNO2,
-             const vector<NumberDensity> &v_layerSO2);
+	     const std::vector<Length> &v_layerThickness,
+             const std::vector<Pressure> &v_layerPressure,
+             const std::vector<Temperature> &v_layerTemperature,
+             const std::vector<NumberDensity> &v_layerWaterVapor,
+             const std::vector<NumberDensity> &v_layerO3,
+             const std::vector<NumberDensity> &v_layerCO,
+             const std::vector<NumberDensity> &v_layerN2O,
+             const std::vector<NumberDensity> &v_layerNO2,
+             const std::vector<NumberDensity> &v_layerSO2);
 
   AtmProfile(const AtmProfile &a); // copy constructor
 
@@ -288,7 +288,7 @@ public:
   unsigned int getNumLayer() const { return numLayer_; }
 
   /** Method to access the Temperature Profile  */
-  vector<Temperature> getTemperatureProfile() const;
+  std::vector<Temperature> getTemperatureProfile() const;
 
   /**
    * Method to access the average Temperature in layer i (thickness of layers in ThicknessProfile)
@@ -313,7 +313,7 @@ public:
 
   /** Method to retrieve the layer thickness from site altitude upwards.
    *  Use Altitude to + ThicknessProfile to know the vertical grid. */
-  vector<Length> getThicknessProfile() const;
+  std::vector<Length> getThicknessProfile() const;
 
   /**
    * Method to access the layer thickness of layer i
@@ -371,7 +371,7 @@ public:
   //void setLayerWaterVapor(const NumberDensity &layerWaterVapor, unsigned int i) { setLayerWaterVapor(i, layerWaterVapor); }
 
   /** Method to get the Pressure Profile */
-  vector<Pressure> getPressureProfile() const;
+  std::vector<Pressure> getPressureProfile() const;
 
   /** Method to access the average Pressure in layer i
    * @exception AtmException if the layer is not valid.
@@ -537,7 +537,7 @@ protected:
 private:
   MassDensity rwat(const Temperature &t, const Humidity &rh, const Pressure &p) const;
   Humidity rwat_inv(const Temperature &tt, const MassDensity &dd, const Pressure &pp) const;
-  vector<NumberDensity> st76(const Length &ha, unsigned int tip) const;
+  std::vector<NumberDensity> st76(const Length &ha, unsigned int tip) const;
   double poli2(double ha,
                double x1,
                double x2,

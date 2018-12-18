@@ -1587,6 +1587,7 @@ using namespace casa::vi;
     ///No need to store this...recalculate thread partion because environment 
     ///may have changed.
     doneThreadPartition_p=-1;
+    vbutil_p=nullptr;
     return true;
   };
   

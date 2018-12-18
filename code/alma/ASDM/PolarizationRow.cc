@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <PolarizationRow.h>
-#include <PolarizationTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/PolarizationRow.h>
+#include <alma/ASDM/PolarizationTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::PolarizationRow;
 using asdm::PolarizationTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	PolarizationRow::~PolarizationRow() {
@@ -282,7 +279,9 @@ namespace asdm {
 		
 			
 		corrProduct .clear();
-		vector<PolarizationType> v_aux_corrProduct;
+        
+		vector<PolarizationTypeMod::PolarizationType> v_aux_corrProduct;
+        
 		for (unsigned int i = 0; i < x.corrProduct.length(); ++i) {
 			v_aux_corrProduct.clear();
 			for (unsigned int j = 0; j < x.corrProduct[0].length(); ++j) {
@@ -522,7 +521,9 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 		
 		unsigned int corrProductDim1 = eis.readInt();
 		unsigned int corrProductDim2 = eis.readInt();
-		vector <PolarizationType> corrProductAux1;
+        
+		vector <PolarizationTypeMod::PolarizationType> corrProductAux1;
+        
 		for (unsigned int i = 0; i < corrProductDim1; i++) {
 			corrProductAux1.clear();
 			for (unsigned int j = 0; j < corrProductDim2 ; j++)			
@@ -570,7 +571,9 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void PolarizationRow::polarizationIdFromText(const string & s) {
 		 
+          
 		polarizationId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -578,7 +581,9 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void PolarizationRow::numCorrFromText(const string & s) {
 		 
+          
 		numCorr = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -586,7 +591,9 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 	// Convert a string into an StokesParameter 
 	void PolarizationRow::corrTypeFromText(const string & s) {
 		 
-		corrType = ASDMValuesParser::parse1D<StokesParameter>(s);
+          
+		corrType = ASDMValuesParser::parse1D<StokesParameterMod::StokesParameter>(s);
+          
 		
 	}
 	
@@ -594,7 +601,9 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void PolarizationRow::corrProductFromText(const string & s) {
 		 
-		corrProduct = ASDMValuesParser::parse2D<PolarizationType>(s);
+          
+		corrProduct = ASDMValuesParser::parse2D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -685,21 +694,21 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get corrType.
- 	 * @return corrType as vector<StokesParameterMod::StokesParameter >
+ 	 * @return corrType as std::vector<StokesParameterMod::StokesParameter >
  	 */
- 	vector<StokesParameterMod::StokesParameter > PolarizationRow::getCorrType() const {
+ 	std::vector<StokesParameterMod::StokesParameter > PolarizationRow::getCorrType() const {
 	
   		return corrType;
  	}
 
  	/**
- 	 * Set corrType with the specified vector<StokesParameterMod::StokesParameter >.
- 	 * @param corrType The vector<StokesParameterMod::StokesParameter > value to which corrType is to be set.
+ 	 * Set corrType with the specified std::vector<StokesParameterMod::StokesParameter >.
+ 	 * @param corrType The std::vector<StokesParameterMod::StokesParameter > value to which corrType is to be set.
  	 
  	
  		
  	 */
- 	void PolarizationRow::setCorrType (vector<StokesParameterMod::StokesParameter > corrType)  {
+ 	void PolarizationRow::setCorrType (std::vector<StokesParameterMod::StokesParameter > corrType)  {
   	
   	
   		if (hasBeenAdded) {
@@ -717,21 +726,21 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get corrProduct.
- 	 * @return corrProduct as vector<vector<PolarizationTypeMod::PolarizationType > >
+ 	 * @return corrProduct as std::vector<std::vector<PolarizationTypeMod::PolarizationType > >
  	 */
- 	vector<vector<PolarizationTypeMod::PolarizationType > > PolarizationRow::getCorrProduct() const {
+ 	std::vector<std::vector<PolarizationTypeMod::PolarizationType > > PolarizationRow::getCorrProduct() const {
 	
   		return corrProduct;
  	}
 
  	/**
- 	 * Set corrProduct with the specified vector<vector<PolarizationTypeMod::PolarizationType > >.
- 	 * @param corrProduct The vector<vector<PolarizationTypeMod::PolarizationType > > value to which corrProduct is to be set.
+ 	 * Set corrProduct with the specified std::vector<std::vector<PolarizationTypeMod::PolarizationType > >.
+ 	 * @param corrProduct The std::vector<std::vector<PolarizationTypeMod::PolarizationType > > value to which corrProduct is to be set.
  	 
  	
  		
  	 */
- 	void PolarizationRow::setCorrProduct (vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct)  {
+ 	void PolarizationRow::setCorrProduct (std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct)  {
   	
   	
   		if (hasBeenAdded) {
@@ -864,7 +873,7 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool PolarizationRow::compareNoAutoInc(int numCorr, vector<StokesParameterMod::StokesParameter > corrType, vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct) {
+	bool PolarizationRow::compareNoAutoInc(int numCorr, std::vector<StokesParameterMod::StokesParameter > corrType, std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct) {
 		bool result;
 		result = true;
 		
@@ -894,7 +903,7 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool PolarizationRow::compareRequiredValue(int numCorr, vector<StokesParameterMod::StokesParameter > corrType, vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct) {
+	bool PolarizationRow::compareRequiredValue(int numCorr, std::vector<StokesParameterMod::StokesParameter > corrType, std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct) {
 		bool result;
 		result = true;
 		

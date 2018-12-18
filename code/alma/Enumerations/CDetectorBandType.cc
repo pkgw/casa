@@ -33,7 +33,7 @@
  * File CDetectorBandType.cpp
  */
 #include <sstream>
-#include <CDetectorBandType.h>
+#include <alma/Enumerations/CDetectorBandType.h>
 #include <string>
 using namespace std;
 

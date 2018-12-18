@@ -23,7 +23,9 @@
  *
  * File ConversionException.cpp
  */
-#include "ConversionException.h"
+#include <alma/ASDM/ConversionException.h>
+
+using namespace std;
 
 namespace asdm {
 
