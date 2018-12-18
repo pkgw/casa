@@ -251,9 +251,10 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   solvePar.define("table",String("test.Fringe"));  // not used
   solvePar.define("solint",String("inf"));
   solvePar.define("combine",String(""));
-  Array<Int> refant(IPosition(1,2));
-  refant(IPosition(1, 0)) = 0;
-  refant(IPosition(1, 1)) = 1;
+  Array<Int> refant(IPosition(1,3));
+  refant(IPosition(1, 0)) = 12;
+  refant(IPosition(1, 1)) = 0;
+  refant(IPosition(1, 2)) = 1;
   cerr << "Refant " << refant << endl;
   solvePar.define("refant",refant);
   solvePar.define("globalsolve", true);
@@ -337,6 +338,7 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   ASSERT_TRUE(allNearAbs(p(2, 1), rate1, 1e-5));
   ASSERT_TRUE(allNearAbs(p(5, 1), rate2, 1e-5));
 
+  ASSERT_TRUE(FJsol.refant()==0);
   // cerr << "Parameters out: " << p << endl;
   
 }
