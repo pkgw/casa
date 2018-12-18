@@ -2032,21 +2032,23 @@ Bool MSTransformDataHandler::fillSPWTable()
 	Bool haveSpwASI = columnOk(inSpWCols.assocSpwId());
 	Bool haveSpwBN = columnOk(inSpWCols.bbcNo());
 	Bool haveSpwBS = columnOk(inSpWCols.bbcSideband());
-    Bool haveSpwDI = columnOk(inSpWCols.dopplerId());
-    Bool haveSpwSWF = columnOk(inSpWCols.sdmWindowFunction());
-    Bool haveSpwSNB = columnOk(inSpWCols.sdmNumBin());
+	    Bool haveSpwDI = columnOk(inSpWCols.dopplerId());
+	    Bool haveSpwSWF = mssel_p.spectralWindow().tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+                              mssel_p.spectralWindow().tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION");
+	    Bool haveSpwSNB = mssel_p.spectralWindow().tableDesc().isColumn("SDM_NUM_BIN") &&
+                              mssel_p.spectralWindow().tableDesc().columnDescSet().isDefined("SDM_NUM_BIN");
 
-	uInt nuniqSpws = spw_uniq_p.size();
+		uInt nuniqSpws = spw_uniq_p.size();
 
-	// This sets the number of input channels for each spw. But
-	// it considers that a SPW ID contains only one set of channels.
-	// I hope this is true!!
-	// Write to SPECTRAL_WINDOW table
-	inNumChan_p.resize(spw_p.nelements());
-	for (uInt k = 0; k < spw_p.nelements(); ++k)
-	{
-		inNumChan_p[k] = inSpWCols.numChan()(spw_p[k]);
-	}
+		// This sets the number of input channels for each spw. But
+		// it considers that a SPW ID contains only one set of channels.
+		// I hope this is true!!
+		// Write to SPECTRAL_WINDOW table
+		inNumChan_p.resize(spw_p.nelements());
+		for (uInt k = 0; k < spw_p.nelements(); ++k)
+		{
+			inNumChan_p[k] = inSpWCols.numChan()(spw_p[k]);
+		}
 
 	if (reindex_p)
 	{
@@ -2232,9 +2234,18 @@ Bool MSTransformDataHandler::fillSPWTable()
 		if (haveSpwBN) msSpW.bbcNo().put(outSPWId, inSpWCols.bbcNo()(spw_p[k]));
 		if (haveSpwBS) msSpW.bbcSideband().put(outSPWId, inSpWCols.bbcSideband()(spw_p[k]));
         if (haveSpwDI) msSpW.dopplerId().put(outSPWId, inSpWCols.dopplerId()(spw_p[k]));
-        if (haveSpwSWF) msSpW.sdmWindowFunction().put(outSPWId, inSpWCols.sdmWindowFunction()(spw_p[k]));
-        if (haveSpwSNB) msSpW.sdmNumBin().put(outSPWId, inSpWCols.sdmNumBin()(spw_p[k]));
-
+        if (haveSpwSWF) 
+        {
+            ROScalarColumn<String> inSwfCol(mssel_p.spectralWindow(), "SDM_WINDOW_FUNCTION");
+            ScalarColumn<String> outSwfCol(mssel_p.spectralWindow(), "SDM_WINDOW_FUNCTION");
+            outSwfCol.put(outSPWId, inSwfCol(spw_p[k]));
+        }
+        if (haveSpwSNB) 
+        {
+            ROScalarColumn<Int> inSnbCol(mssel_p.spectralWindow(), "SDM_NUM_BIN");
+            ScalarColumn<Int> outSnbCol(mssel_p.spectralWindow(), "SDM_NUM_BIN");
+            outSnbCol.put(outSPWId, inSnbCol(spw_p[k]));
+        }
 
 		if (haveSpwASI)
 		{
@@ -3341,11 +3352,21 @@ Bool MSTransformDataHandler::mergeSpwSubTables(Vector<String> filenames)
 						if (columnOk(spwCols_i.receiverId()))
 							spwCols_0.receiverId().put(rowIndex,spwCols_i.receiverId()(subms_row_index));
 
-                        if (columnOk(spwCols_i.sdmWindowFunction()))
-                            spwCols_0.sdmWindowFunction().put(rowIndex,spwCols_i.sdmWindowFunction()(subms_row_index));
+                        if (spwTable_i.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+                            spwTable_i.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION"))
+                        {
+                            ROScalarColumn<String> swfCol_i(spwTable_i, "SDM_WINDOW_FUNCTION");
+                            ScalarColumn<String> swfCol_0(spwTable_0, "SDM_WINDOW_FUNCTION");
+                            swfCol_0.put(rowIndex, swfCol_i(subms_row_index));
+                        }
 
-                        if (columnOk(spwCols_i.sdmNumBin()))
-                            spwCols_0.sdmNumBin().put(rowIndex,spwCols_i.sdmNumBin()(subms_row_index));
+                        if (spwTable_i.tableDesc().isColumn("SDM_NUM_BIN") &&
+                            spwTable_i.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
+                        {
+                            ROScalarColumn<Int> snbCol_i(spwTable_i, "SDM_NUM_BIN");
+                            ScalarColumn<Int> snbCol_0(spwTable_0, "SDM_NUM_BIN");
+                            snbCol_0.put(rowIndex, snbCol_i(subms_row_index));
+                        }
 
 						rowIndex += 1;
 					}

@@ -3039,14 +3039,18 @@ void MSTransformManager::separateSpwSubtable()
                         spwCols.receiverId().put(rowIndex,spwCols.receiverId()(0));
                     }
 
-                    if (MSTransformDataHandler::columnOk(spwCols.sdmWindowFunction()))
+                    if (spwTable.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+                        spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION"))
                     {
-                        spwCols.sdmWindowFunction().put(rowIndex,spwCols.sdmWindowFunction()(0));
+                        ScalarColumn<String> swfCol(spwTable, "SDM_WINDOW_FUNCTION");
+                        swfCol.put(rowIndex, swfCol(0));
                     }
 
-                    if (MSTransformDataHandler::columnOk(spwCols.sdmNumBin()))
+                    if (spwTable.tableDesc().isColumn("SDM_NUM_BIN") &&
+                        spwTable.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
                     {
-                        spwCols.sdmNumBin().put(rowIndex,spwCols.sdmNumBin()(0));
+                        ScalarColumn<Int> snbCol(spwTable, "SDM_NUM_BIN");
+                        snbCol.put(rowIndex, snbCol(0));
                     }
 
 				}
@@ -4954,14 +4958,16 @@ void MSTransformManager::checkCorrelatorPreaveraging()
   {
     auto spwTable = inputMs_p->spectralWindow();
     ROMSSpWindowColumns spwColumns(spwTable);
-    if(MSTransformDataHandler::columnOk(spwColumns.sdmWindowFunction()) &&
-       MSTransformDataHandler::columnOk(spwColumns.sdmNumBin()))
+    if (spwTable.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+        spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION") &&
+        spwTable.tableDesc().isColumn("SDM_NUM_BIN") &&
+        spwTable.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
     {
       auto nrows = spwColumns.nrow();
       auto effBWCol = spwColumns.effectiveBW();
       auto chanWidthCol = spwColumns.chanWidth();
-      auto windowFunctionCol = spwColumns.sdmWindowFunction();
-      auto numBinCol = spwColumns.sdmNumBin();
+      ScalarColumn<String> windowFunctionCol(spwTable, "SDM_WINDOW_FUNCTION");
+      ScalarColumn<Int> numBinCol(spwTable, "SDM_NUM_BIN");
       for (size_t spwIdx = 0; spwIdx < nrows; spwIdx++)
       {
         auto numBin =  numBinCol(spwIdx);
