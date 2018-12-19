@@ -41,19 +41,15 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -70,25 +66,29 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -144,7 +144,7 @@ class FlagRow;
 	
  * <TR>
  * <TD> reason </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;Extensible list of flagging conditions. </TD>
  * </TR>
@@ -158,7 +158,7 @@ class FlagRow;
 	
  * <TR>
  * <TD> antennaId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numAntenna </TD> 
  * <TD> &nbsp;An array of Tag which refers to a collection of rows in the Antenna table. The flag applies to the antennas described in these rows. It is an error to have different elements with a same value in this array. </TD>
  * </TR>
@@ -197,14 +197,14 @@ class FlagRow;
 	
  * <TR>
  * <TD> polarizationType</TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numPolarizationType  </TD>
  * <TD>&nbsp; An array of values of type PolarizationType. It specifies the polarization types where the flagging applies. It is an error to have different elements with a same value in this array.  </TD>
  * </TR>
 	
  * <TR>
  * <TD> channel</TD> 
- * <TD> vector<vector<int > > </TD>
+ * <TD> std::vector<std::vector<int > > </TD>
  * <TD>  numChan, 3  </TD>
  * <TD>&nbsp; An array of triplets where the first element is the number spectralWindowId. The second and third values are the startChannel and endChannel, 
 respectively, which specify
@@ -216,14 +216,14 @@ same value in this array.
 	
  * <TR>
  * <TD> pairedAntennaId</TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numPairedAntenna  </TD>
  * <TD>&nbsp; An array of Tag which refers to rows in the Antenna table. These rows contain the description of the antennas which are paired to form the flagged baselines. It is an error to have distinct elements with a same value in this array. </TD>
  * </TR>
 	
  * <TR>
  * <TD> spectralWindowId</TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numSpectralWindow  </TD>
  * <TD>&nbsp; An array of Tag  which refers to a collection of rows in the SpectralWindow table. The flag applies to the spectral windows described in these rows. It is an error to have different elements with a same value in this array.   </TD>
  * </TR>
@@ -375,7 +375,7 @@ public:
  	 * @param antennaId
 	
      */
-	FlagRow *newRow(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId);
+	FlagRow *newRow(ArrayTime startTime, ArrayTime endTime, std::string reason, int numAntenna, std::vector<Tag>  antennaId);
 	
 
 
@@ -468,7 +468,7 @@ public:
  	 * @param antennaId
  	 		 
  	 */
-	FlagRow* lookup(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId); 
+	FlagRow* lookup(ArrayTime startTime, ArrayTime endTime, std::string reason, int numAntenna, std::vector<Tag>  antennaId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

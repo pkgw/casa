@@ -91,7 +91,7 @@ public:
     );
 
     // create a ComponentListImage
-    static SHARED_PTR<ComponentListImage> createComponentListImage(
+    static std::shared_ptr<ComponentListImage> createComponentListImage(
         const casacore::String& outfile, const casacore::Record& cl,
         const casacore::Vector<casacore::Int>& shape,
         const casacore::Record& csys, casacore::Bool overwrite,
@@ -160,7 +160,7 @@ public:
     	const casacore::String& outfile, const casacore::Array<T>& pixels,
     	const casacore::Record& csys, casacore::Bool linear=false,
     	casacore::Bool overwrite=false, casacore::Bool verbose=true,
-    	const vector<
+    	const std::vector<
     	    std::pair<casacore::LogOrigin, casacore::String>
         > *const &msgs=nullptr
     );
@@ -185,8 +185,8 @@ public:
     // Create a float-valued image from a complex-valued image. All metadata is
     // copied and pixel values are initialized according to <src>func</src>.
     template<class T>
-    static SHARED_PTR<casacore::TempImage<T>> floatFromComplex(
-        SHARED_PTR<
+    static std::shared_ptr<casacore::TempImage<T>> floatFromComplex(
+        std::shared_ptr<
             const casacore::ImageInterface<std::complex<T>>
         > complexImage, ComplexToFloatFunction func
     );
@@ -195,7 +195,7 @@ public:
     // is copied from the real image and pixel values are initialized to
     // realPart + i*complexPart
     template<class T>
-    static SHARED_PTR<casacore::TempImage<std::complex<T>>> makeComplexImage(
+    static std::shared_ptr<casacore::TempImage<std::complex<T>>> makeComplexImage(
     	SPCIIT realPart, SPCIIT imagPart
     );
 
@@ -203,7 +203,7 @@ public:
     // is copied from the real image and pixel values are initialized to
     // realPart + i*complexPart
     template<class T>
-    static SHARED_PTR<casacore::ImageInterface<std::complex<T>>> makeComplex(
+    static std::shared_ptr<casacore::ImageInterface<std::complex<T>>> makeComplex(
     	SPCIIT realPart, SPCIIT imagPart, const casacore::String& outfile,
 		const casacore::Record& region, casacore::Bool overwrite = false
     );

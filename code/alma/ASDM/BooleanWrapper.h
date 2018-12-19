@@ -25,11 +25,9 @@
  */
 # ifndef Boolean_CLASS
 # define Boolean_CLASS
-#include <NumberFormatException.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <string>
-
-using std::string;
 
 namespace asdm {
 /**
@@ -47,7 +45,7 @@ public:
 	 * @param s a string.
 	 * @return a bool value.
 	 */
-	static bool parseBoolean(const string &s);
+	static bool parseBoolean(const std::string &s);
 
 	/**
 	 * Static method returning a string equals to "true" (resp "false")
@@ -55,7 +53,7 @@ public:
 	 *  @param b a boolean. 
 	 * 	@return a string.
 	 */ 
-	static string toString(bool b);
+	static std::string toString(bool b);
 
 };
 

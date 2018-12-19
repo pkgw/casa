@@ -137,8 +137,8 @@ protected:
            return CasacRegionManager::USE_ALL_STOKES;
        }
 
-    vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-        return vector<casacore::Coordinate::Type>();
+    std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+        return std::vector<casacore::Coordinate::Type>();
     }
 
     inline casacore::Bool _supportsMultipleRegions() const {return true;}
@@ -175,8 +175,8 @@ private:
     void _doMultipleBeams(
         ImageInfo& iiOut, Double& kernelVolume, SPIIT imageOut,
         String& brightnessUnitOut, GaussianBeam& beamOut, Double factor1,
-        const ImageInterface<T>& imageIn, const vector<Quantity>& originalParms,
-        vector<Quantity>& kernelParms, Array<Double>& kernel,
+        const ImageInterface<T>& imageIn, const std::vector<Quantity>& originalParms,
+        std::vector<Quantity>& kernelParms, Array<Double>& kernel,
         VectorKernel::KernelTypes kernelType, Bool logFactors, Double pixelArea
     ) const;
 
@@ -184,10 +184,10 @@ private:
     // point to avoid unnecessary templating issues if the image has is
     // complex valued
     void _doSingleBeam(
-        ImageInfo& iiOut, Double& kernelVolume, vector<Quantity>& kernelParms,
+        ImageInfo& iiOut, Double& kernelVolume, std::vector<Quantity>& kernelParms,
         Array<Double>& kernel, String& brightnessUnitOut, GaussianBeam& beamOut,
         SPIIT imageOut, const ImageInterface<T>& imageIn,
-        const vector<Quantity>& originalParms,
+        const std::vector<Quantity>& originalParms,
         VectorKernel::KernelTypes kernelType, Bool logFactors, Double factor1,
         Double pixelArea
     ) const;

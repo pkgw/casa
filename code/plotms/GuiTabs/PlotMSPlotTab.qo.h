@@ -145,12 +145,12 @@ public:
     
     
     // Returns the axes that the user has selected to load into the cache.
-    vector<PMS::Axis> selectedLoadAxes() const {
+    std::vector<PMS::Axis> selectedLoadAxes() const {
         return selectedLoadOrReleaseAxes(true);
     }
     
     // Returns the axes that the user has selected to release from the cache.
-    vector<PMS::Axis> selectedReleaseAxes() const {
+    std::vector<PMS::Axis> selectedReleaseAxes() const {
         return selectedLoadOrReleaseAxes(false);
     }
 
@@ -271,7 +271,7 @@ private:
     
     // Returns the axes the user has selected to load or release, depending on
     // the load flag. 
-    vector<PMS::Axis> selectedLoadOrReleaseAxes(bool load) const;
+    std::vector<PMS::Axis> selectedLoadOrReleaseAxes(bool load) const;
     
 private slots:
 

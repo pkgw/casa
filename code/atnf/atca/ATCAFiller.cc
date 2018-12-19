@@ -28,6 +28,7 @@
 #include <atnf/atca/ATCAFiller.h>
 #include <atnf/atca/ATAtmosphere.h>
 #include <casa/Arrays/Cube.h>
+#include <casa/Utilities/GenSort.h>
 #include <scimath/Mathematics/FFTServer.h>
 #include <casa/OS/DirectoryIterator.h>
 #include <casa/OS/RegularFile.h>
@@ -52,7 +53,11 @@ birdie_p(false),
 reweight_p(false),
 noxycorr_p(false),
 obsType_p(0),
+hires_p(false),
 init_p(false),
+lastUT_p(0),
+bandWidth1_p(0),
+numChan1_p(0),
 shadow_p(0),
 autoFlag_p(true),
 flagScanType_p(false),
@@ -71,6 +76,7 @@ Bool ATCAFiller::open(const String& msName, const Vector<String>& rpfitsFiles,
   LogOrigin orig("ATCAFiller", "open()", WHERE);
   os_p = LogIO(orig);  
   rpfitsFiles_p = Directory::shellExpand(rpfitsFiles, false);
+  GenSort<String>::sort(rpfitsFiles_p);
   if (rpfitsFiles_p.nelements() > 0) {
      os_p << LogIO::NORMAL << "Expanded file names are : " << endl;
      for (uInt i=0; i<rpfitsFiles_p.nelements(); i++) {

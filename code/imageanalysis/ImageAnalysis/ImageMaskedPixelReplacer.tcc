@@ -58,7 +58,7 @@ void ImageMaskedPixelReplacer<T>::replace(
 	);
 
 	// Modify in place by writing to the image passed to the constructor.
-	SHARED_PTR<casacore::SubImage<T> > subImage = SubImageFactory<T>::createSubImageRW(
+	std::shared_ptr<casacore::SubImage<T> > subImage = SubImageFactory<T>::createSubImageRW(
 		*_image, *this->_getRegion(), this->_getMask(),
 		(verbose ? this->_getLog().get() : 0),
 		casacore::AxesSpecifier(), this->_getStretch(), true

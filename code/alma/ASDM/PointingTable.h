@@ -41,27 +41,23 @@
 
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -84,7 +80,11 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
+
+	
+
+	
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
@@ -95,18 +95,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -164,7 +164,7 @@ class PointingRow;
 	
  * <TR>
  * <TD> encoder </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numSample, 2 </TD> 
  * <TD> &nbsp;Encoder values </TD>
  * </TR>
@@ -199,21 +199,21 @@ class PointingRow;
 	
  * <TR>
  * <TD> pointingDirection </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numTerm, 2 </TD> 
  * <TD> &nbsp;the commanded pointing direction. </TD>
  * </TR>
 	
  * <TR>
  * <TD> target </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numTerm, 2 </TD> 
  * <TD> &nbsp;the direction of the target. </TD>
  * </TR>
 	
  * <TR>
  * <TD> offset </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numTerm, 2 </TD> 
  * <TD> &nbsp;Horizon mapping offsets </TD>
  * </TR>
@@ -238,7 +238,7 @@ class PointingRow;
 	
  * <TR>
  * <TD> sourceOffset</TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numTerm, 2  </TD>
  * <TD>&nbsp; sources offsets (one pair per term of the polynomial). </TD>
  * </TR>
@@ -259,14 +259,14 @@ class PointingRow;
 	
  * <TR>
  * <TD> sampledTimeInterval</TD> 
- * <TD> vector<ArrayTimeInterval > </TD>
+ * <TD> std::vector<ArrayTimeInterval > </TD>
  * <TD>  numSample  </TD>
  * <TD>&nbsp; an array of ArrayTimeInterval which must be given explicitly as soon as the data are irregularily sampled.  </TD>
  * </TR>
 	
  * <TR>
  * <TD> atmosphericCorrection</TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numTerm, 2  </TD>
  * <TD>&nbsp; This is the correction applied to the commanded position to take into account refraction and any other atmospheric effects. This term will always be zero if there is no atmosphere. For ALMA this is the atmospheric refraction correction and will result in a correction in just the elevation axis. </TD>
  * </TR>
@@ -432,7 +432,7 @@ public:
  	 * @param pointingModelId
 	
      */
-	PointingRow *newRow(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, vector<vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, vector<vector<Angle > > pointingDirection, vector<vector<Angle > > target, vector<vector<Angle > > offset, int pointingModelId);
+	PointingRow *newRow(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, std::vector<std::vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, std::vector<std::vector<Angle > > pointingDirection, std::vector<std::vector<Angle > > target, std::vector<std::vector<Angle > > offset, int pointingModelId);
 	
 
 
@@ -561,7 +561,7 @@ public:
  	 * @param pointingModelId
  	 		 
  	 */
-	PointingRow* lookup(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, vector<vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, vector<vector<Angle > > pointingDirection, vector<vector<Angle > > target, vector<vector<Angle > > offset, int pointingModelId); 
+	PointingRow* lookup(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, std::vector<std::vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, std::vector<std::vector<Angle > > pointingDirection, std::vector<std::vector<Angle > > target, std::vector<std::vector<Angle > > offset, int pointingModelId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

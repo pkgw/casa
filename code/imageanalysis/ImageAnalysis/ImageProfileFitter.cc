@@ -239,7 +239,7 @@ Record ImageProfileFitter::fit(Bool doDetailedResults) {
             if (! _sigmaName.empty()) {
                 originalSigma.reset(_sigma->cloneII());
             }
-            SHARED_PTR<const SubImage<Float> > sigmaSubImage = SubImageFactory<Float>::createSubImageRO(
+            std::shared_ptr<const SubImage<Float> > sigmaSubImage = SubImageFactory<Float>::createSubImageRO(
                 *_sigma, *_getRegion(), _getMask(), 0, AxesSpecifier(), _getStretch()
             );
             _sigma.reset(
@@ -286,7 +286,7 @@ Record ImageProfileFitter::fit(Bool doDetailedResults) {
                     ImageCollapserData::MEAN, "", True
                 );
                 SPIIF collapsed = collapsedSigma.collapse();
-                SHARED_PTR<TempImage<Float> >ctmp = DYNAMIC_POINTER_CAST<TempImage<Float> >(collapsed);
+                std::shared_ptr<TempImage<Float> >ctmp = std::dynamic_pointer_cast<TempImage<Float> >(collapsed);
                 ThrowIf(! ctmp, "Dynamic cast failed");
                 _sigma = ctmp;
             }
@@ -438,13 +438,13 @@ void ImageProfileFitter::setSigma(const ImageInterface<Float>* const &sigma) {
         && sigma->shape() == _getImage()->shape()
     ) {
         SPIIF clone(sigma->cloneII());
-        _sigma = DYNAMIC_POINTER_CAST<TempImage<Float> >(clone);
+        _sigma = std::dynamic_pointer_cast<TempImage<Float> >(clone);
         if (! _sigma) {
             SPIIF x = SubImageFactory<Float>::createImage(
                 *sigma, "", Record(), "", False, False ,True, False
             );
             if (x) {
-                _sigma = DYNAMIC_POINTER_CAST<TempImage<Float> >(x);
+                _sigma = std::dynamic_pointer_cast<TempImage<Float> >(x);
                 ThrowIf(
                     ! _sigma,
                     "Unable to create temporary weights image"
@@ -711,7 +711,7 @@ void ImageProfileFitter::_fitProfiles(Bool showProgress) {
         _fitters.resize(fitterShape);
     }
     _nProfiles = fitterShape.product();
-    SHARED_PTR<ProgressMeter> pProgressMeter;
+    std::shared_ptr<ProgressMeter> pProgressMeter;
     if (showProgress) {
         ostringstream oss;
         oss << "Fit profiles on axis " << _fitAxis+1;
@@ -773,7 +773,7 @@ void ImageProfileFitter::_fitProfiles(Bool showProgress) {
 
 void ImageProfileFitter::_loopOverFits(
     SPCIIF fitData, Bool showProgress,
-    SHARED_PTR<ProgressMeter> progressMeter, Bool checkMinPts,
+    std::shared_ptr<ProgressMeter> progressMeter, Bool checkMinPts,
     const Array<Bool>& fitMask, ImageFit1D<Float>::AbcissaType abcissaType,
     const IPosition& fitterShape, const IPosition& sliceShape,
     const std::set<uInt> goodPlanes
@@ -1129,7 +1129,7 @@ Bool ImageProfileFitter::_isPCFSolutionOK(
     return True;
 }
 
-const Array<SHARED_PTR<ProfileFitResults> >& ImageProfileFitter::getFitters() const{
+const Array<std::shared_ptr<ProfileFitResults> >& ImageProfileFitter::getFitters() const{
     return _fitters;
 }
 

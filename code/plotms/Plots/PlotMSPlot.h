@@ -111,10 +111,10 @@ public:
     casacore::String spectype() const { return "Unknown";};
     
     // Returns the plots assigned to this plot.
-    vector<MaskedScatterPlotPtr> plots() const;
+    std::vector<MaskedScatterPlotPtr> plots() const;
     
     // Returns the canvases that have been assigned to this plot.
-    vector<PlotCanvasPtr> canvases() const;
+    std::vector<PlotCanvasPtr> canvases() const;
     
     // Attaches/Detaches internal plot objects to their assigned canvases.
     // <group>
@@ -141,7 +141,7 @@ public:
     
     // Returns the visible canvases (accessible via
     // PlotMSPlotter::currentCanvases()) associated with this plot.
-    vector<PlotCanvasPtr> visibleCanvases() const;
+    std::vector<PlotCanvasPtr> visibleCanvases() const;
    
     // Returns all selected regions on all canvases associated with this plot.
     virtual PlotMSRegions selectedRegions() const;
@@ -198,8 +198,8 @@ public:
     // This method should be called when the given canvas (which was owned by
     // this plot) was disowned.
     void canvasWasDisowned(PlotCanvasPtr canvas);
-    vector<PMS::Axis> getCachedAxes();
-    vector<PMS::DataColumn> getCachedData();
+    std::vector<PMS::Axis> getCachedAxes();
+    std::vector<PMS::DataColumn> getCachedData();
 
     casacore::Record locateInfo(int plotIterIndex, const casacore::Vector<PlotRegion>& regions,
         bool showUnflagged, bool showFlagged, bool selectAll ) const ;
@@ -263,7 +263,7 @@ protected:
     // Helper method for selectedRegions() and visibleSelectedRegions() that
     // returns the selected regions for plots in the given canvases.
     PlotMSRegions selectedRegions(
-            const vector<PlotCanvasPtr>& canvases) const;
+            const std::vector<PlotCanvasPtr>& canvases) const;
     
     void constructorSetup();
     void updatePages();
@@ -351,11 +351,11 @@ private:
 
     //Note:  First index for a plot is the dataCount,
     //second index is the number of iteration.
-    vector<vector<MaskedScatterPlotPtr> > itsPlots_;
+    std::vector<std::vector<MaskedScatterPlotPtr> > itsPlots_;
 
     //Note:  First index for a canvas is the number of rows,
     //second index is the column withen a grid.
-    vector<vector<PlotCanvasPtr> > itsCanvases_;
+    std::vector<std::vector<PlotCanvasPtr> > itsCanvases_;
 
     vector<vector</*QPScatterPlot**/ColoredPlotPtr> > itsColoredPlots_;
     TCLParams itsTCLParams_;

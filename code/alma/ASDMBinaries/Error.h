@@ -1,6 +1,5 @@
 #if     !defined(_ERROR_H)
 
-using namespace std;
 #include <string>
 #include <stdarg.h>
 
@@ -12,33 +11,33 @@ class Error
 
   Error();
   Error(ErrorLevel errlev);
-  Error(ErrorLevel errlev, string message);
+  Error(ErrorLevel errlev, std::string message);
   Error(ErrorLevel errlev, char* fmt, ... );
   Error(int errlev);
-  Error(int errlev, string message);
+  Error(int errlev, std::string message);
   Error(int errlev, char* fmt, ... );
   ~Error();
 
-  void   notify(ErrorLevel errlev, string message);
-  void   notify(string message);
+  void   notify(ErrorLevel errlev, std::string message);
+  void   notify(std::string message);
 
   static void       setAcceptableLevel(ErrorLevel errlev);
   static ErrorLevel getAcceptableLevel();
-  static string     getAcceptableLevelToString();
+  static std::string     getAcceptableLevelToString();
 
   static ErrorLevel getLevel();
-  static string     getLevelToString();
-  static string     getErrorMessage();
+  static std::string     getLevelToString();
+  static std::string     getErrorMessage();
 
   static void       clearMessage();
   static void       clearErrLev();
 
  private:
   static ErrorLevel acceptableErrorLevel;
-  static string     errorMessage_;
+  static std::string     errorMessage_;
   static ErrorLevel errlev_;
-  string            errorLog;
-  void              printMessage( string message);
+  std::string            errorLog;
+  void              printMessage(std::string message);
 };
 
 #define _ERROR_H

@@ -71,6 +71,7 @@
 #include <synthesis/TransformMachines/PBMath1DNumeric.h>
 #include <synthesis/TransformMachines/PBMath2DImage.h>
 #include <synthesis/TransformMachines/PBMath.h>
+#include <synthesis/TransformMachines/PBMathInterface.h>
 #include <synthesis/TransformMachines/HetArrayConvFunc.h>
 #include <synthesis/MeasurementEquations/VPManager.h>
 
@@ -1032,16 +1033,22 @@ typedef unsigned long long ooLong;
 	Float minAbsConvFunc=min(amplitude(convPlane));
 	Bool found=false;
 	Int trial=0;
+	Float cutlevel=2.5e-2;
+	//numeric needs a larger ft
+	for (uInt k=0; k < antMath_p.nelements() ; ++k){
+	  if((antMath_p[k]->whichPBClass()) == PBMathInterface::NUMERIC)
+	    cutlevel=1e-3;
+	}
 	for (trial=convSize/2-2;trial>0;trial--) {
 	  //largest of either
-	  if((abs(convPlane(convSize/2-trial-1,convSize/2-1)) >  (1e-3*maxAbsConvFunc)) || (abs(convPlane(convSize/2-1,convSize/2-trial-1)) >  (1e-3*maxAbsConvFunc))) {
+	  if((abs(convPlane(convSize/2-trial-1,convSize/2-1)) >  (cutlevel*maxAbsConvFunc)) || (abs(convPlane(convSize/2-1,convSize/2-trial-1)) >  (cutlevel*maxAbsConvFunc))) {
 	    found=true;
 	    trial=Int(sqrt(2.0*Float(trial*trial)));
 	    break;
 	  }
 	}
 	if(!found){
-	  if((maxAbsConvFunc-minAbsConvFunc) > (1.0e-3*maxAbsConvFunc)) 
+	  if((maxAbsConvFunc-minAbsConvFunc) > (cutlevel*maxAbsConvFunc)) 
 	  found=true;
 	  // if it drops by more than 2 magnitudes per pixel
 	  trial=( (10*convSampling) < convSize) ? 5*convSampling : (convSize/2 - 4*convSampling);

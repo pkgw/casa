@@ -160,28 +160,31 @@ QwtDoubleRect QPScatterPlot::boundingRect() const {
 
 #if QWT_VERSION >= 0x060000
 QwtGraphic QPScatterPlot::legendIcon(int /*index*/, const QSizeF& size) const {
-    const QPSymbol* plotsymbol;
+    const QPSymbol* plotsymbol(nullptr);
     if (symbolsShown()) {
         plotsymbol = &m_symbol;
     } else if (maskedSymbolsShown()) {
         plotsymbol = &m_maskedSymbol;
     }
     QwtSymbol* iconsymbol = new QwtSymbol(QwtSymbol::HLine);
-    iconsymbol->setPen(plotsymbol->drawPen().color());
     QwtGraphic icon = iconsymbol->graphic();
-    icon.setDefaultSize(QSizeF(size.width()*2.0, size.height()*2.0));
-    QPainter painter(&icon);
-    const QRectF rect (0.0, 0.0, size.width()*2.0, size.height()*2.0);
-    iconsymbol->drawSymbol(&painter, rect);
+    if (plotsymbol != nullptr) {
+        iconsymbol->setPen(plotsymbol->drawPen().color());
+        icon = iconsymbol->graphic();
+        icon.setDefaultSize(QSizeF(size.width()*2.0, size.height()*2.0));
+        QPainter painter(&icon);
+        const QRectF rect (0.0, 0.0, size.width()*2.0, size.height()*2.0);
+        iconsymbol->drawSymbol(&painter, rect);
+    }
     return icon;
 }
 #else
 QWidget* QPScatterPlot::legendItem() const {
-	QPen legendPen = m_line.asQPen();
-	if ( !linesShown() ){
-		QColor penColor = m_symbol.drawPen().color();
-		legendPen = QPen(penColor );
-	}
+    QPen legendPen = m_line.asQPen();
+    if ( !linesShown() ){
+        QColor penColor = m_symbol.drawPen().color();
+        legendPen = QPen(penColor );
+    }
     QwtLegendItem* i= new QwtLegendItem(m_symbol, legendPen, qwtTitle());
     i->setIdentifierMode(QwtLegendItem::ShowLine | QwtLegendItem::ShowSymbol |
                          QwtLegendItem::ShowText);
@@ -513,7 +516,6 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
          diffColor = !m_coloredData.null() && m_coloredData->isBinned();    
     if(drawSymbol || drawMaskedSymbol) {
         double tempx, tempy;
-        
         if(!m_maskedData.null()) {
             unsigned int ptsToDraw = ( m_maskedData->plotConjugates() ? 2 : 1 );
             bool mask;
@@ -525,31 +527,38 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
             bool samePen = pen == mpen, sameBrush = brush == mbrush;
             
             // set the painter's pen/brush only once if possible
-            if(!drawMaskedSymbol || samePen) p->setPen(pen);
-            else if(!drawSymbol) p->setPen(mpen);
-            if(!drawMaskedSymbol || sameBrush) p->setBrush(brush);
-            else if(!drawSymbol) p->setBrush(mbrush);
+            if(!drawMaskedSymbol || samePen)  // use unmasked pen
+                p->setPen(pen);
+            else if(!drawSymbol)  // only masked symbols; use masked pen
+                p->setPen(mpen);
+            if(!drawMaskedSymbol || sameBrush)  // use unmasked brush
+                p->setBrush(brush);
+            else if(!drawSymbol)  // only masked symbols; use masked brush
+                p->setBrush(mbrush);
             
             QSize size = ((QwtSymbol&)m_symbol).size();
             QRect rect(0, 0, size.width(), size.height());
             size = ((QwtSymbol&)m_maskedSymbol).size();
             QRect mRect(0, 0, size.width(), size.height());
 
+#if QWT_VERSION >= 0x060000
+            bool symIsPixel(m_symbol.symbol()==PlotSymbol::PIXEL),
+            msymIsPixel(m_maskedSymbol.symbol()==PlotSymbol::PIXEL);
+            std::vector<QPointF> upoints, mpoints;
+            QPoint qpt;
             for(unsigned int i = drawIndex; i < n; i++) {
                 m_maskedData->xyAndMaskAt(i, tempx, tempy, mask);
-				// don't plot nan and inf !
+                // don't plot nan and inf !
                 if (!casacore::isNaN(tempx) && !casacore::isNaN(tempy) &&
-					!casacore::isInf(tempx) && !casacore::isInf(tempy)) {
+                    !casacore::isInf(tempx) && !casacore::isInf(tempy)) {
                   if(drawSymbol && !mask) {
                     for (unsigned int pt=0; pt<ptsToDraw; ++pt) {
                         if (pt==0) {
-                            rect.moveCenter(QPoint(xMap.transform(tempx),
-                                           yMap.transform(tempy)));
-                        } else {
-                            rect.moveCenter(QPoint(xMap.transform(-tempx),
-                                           yMap.transform(-tempy)));
+                            qpt = QPoint(xMap.transform(tempx),yMap.transform(tempy));
+                        } else { // conjugate for uv plot
+                            qpt = QPoint(xMap.transform(-tempx),yMap.transform(-tempy));
                         }
-
+                        rect.moveCenter(qpt);
                         if(!brect.intersects(rect)) continue;
                         if(drawMaskedSymbol) {
                             if(!samePen) p->setPen(pen);
@@ -560,26 +569,27 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
-#if QWT_VERSION >= 0x060000
                             QPSymbol* coloredSym = coloredSymbol(brushColor);
                             coloredSym->draw(p, rect);
                             delete coloredSym;
-                        } else
-                            m_symbol.draw(p, rect);
-#else
+                        } else {
+                            QPointF qptf = QPointF(qpt);
+                            upoints.push_back(qptf);
+                            if (upoints.size()==15000) {
+                                if (symIsPixel) p->drawPoints(&upoints[0], upoints.size());
+                                else m_symbol.drawSymbols(p, &upoints[0], upoints.size());
+                                upoints.clear();
+                            }
                         }
-                        m_symbol.draw(p, rect);
-#endif
                     }
                   } else if(drawMaskedSymbol && mask) {
                     for (unsigned int pt=0; pt<ptsToDraw; ++pt) {
                         if (pt==0) {
-                            mRect.moveCenter(QPoint(xMap.transform(tempx),
-                                            yMap.transform(tempy)));
+                            qpt = QPoint(xMap.transform(tempx), yMap.transform(tempy));
                         } else {
-                            mRect.moveCenter(QPoint(xMap.transform(-tempx),
-                                            yMap.transform(-tempy)));
+                            qpt = QPoint(xMap.transform(-tempx), yMap.transform(-tempy));
                         }
+                        mRect.moveCenter(qpt);
                         if(!brect.intersects(mRect)) continue;
                         if(drawMaskedSymbol) {
                             if(!samePen) p->setPen(mpen);
@@ -590,20 +600,83 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
-#if QWT_VERSION >= 0x060000
                             QPSymbol* coloredSym = coloredSymbol(brushColor);
                             coloredSym->draw(p, mRect);
-                        } else
-                            m_maskedSymbol.draw(p, mRect);
-#else
+                        } else {
+                            QPointF qptf = QPointF(qpt);
+                            mpoints.push_back(qptf);
+                            if (mpoints.size()==15000) {
+                                if (msymIsPixel) p->drawPoints(&mpoints[0], mpoints.size());
+                                else m_maskedSymbol.drawSymbols(p, &mpoints[0], mpoints.size());
+                                mpoints.clear();
+                            }
                         }
-                        m_maskedSymbol.draw(p, mRect);
-#endif
                     }
                   }
                 }
             }
-
+            // draw the rest
+            if (!diffColor && drawSymbol) {
+                if (symIsPixel) p->drawPoints(&upoints[0], upoints.size());
+                else m_symbol.drawSymbols(p, &upoints[0], upoints.size());
+            }
+            if (!diffColor && drawMaskedSymbol) {
+                if (msymIsPixel) p->drawPoints(&mpoints[0], mpoints.size());
+                else m_maskedSymbol.drawSymbols(p, &mpoints[0], mpoints.size());
+            }
+#else
+            QPoint qpt;
+            for(unsigned int i = drawIndex; i < n; i++) {
+                m_maskedData->xyAndMaskAt(i, tempx, tempy, mask);
+                // don't plot nan and inf !
+                if (!casacore::isNaN(tempx) && !casacore::isNaN(tempy) &&
+                    !casacore::isInf(tempx) && !casacore::isInf(tempy)) {
+                  if(drawSymbol && !mask) {
+                    for (unsigned int pt=0; pt<ptsToDraw; ++pt) {
+                        if (pt==0) {
+                            qpt = QPoint(xMap.transform(tempx),yMap.transform(tempy));
+                        } else { // conjugate for uv plot
+                            qpt = QPoint(xMap.transform(-tempx),yMap.transform(-tempy));
+                        }
+                        rect.moveCenter(qpt);
+                        if(!brect.intersects(rect)) continue;
+                        if(drawMaskedSymbol) {
+                            if(!samePen) p->setPen(pen);
+                            if(!sameBrush) p->setBrush(brush);
+                        }
+                        if(diffColor) {
+                            QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(i)];
+                            QColor brushColor = coloredBrush.color();
+                            p->setBrush(coloredBrush);
+                            p->setPen(brushColor);
+                        }
+                        m_symbol.draw(p, rect);
+                    }
+                  } else if(drawMaskedSymbol && mask) {
+                    for (unsigned int pt=0; pt<ptsToDraw; ++pt) {
+                        if (pt==0) {
+                            qpt = QPoint(xMap.transform(tempx), yMap.transform(tempy));
+                        } else {
+                            qpt = QPoint(xMap.transform(-tempx), yMap.transform(-tempy));
+                        }
+                        mRect.moveCenter(qpt);
+                        if(!brect.intersects(mRect)) continue;
+                        if(drawMaskedSymbol) {
+                            if(!samePen) p->setPen(mpen);
+                            if(!sameBrush) p->setBrush(mbrush);
+                        }
+                        if(diffColor) {
+                            QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(i)];
+                            QColor brushColor = coloredBrush.color();
+                            p->setBrush(coloredBrush);
+                            p->setPen(brushColor);
+                        }
+                        m_maskedSymbol.draw(p, mRect);
+                    }
+                  }
+                }
+            }
+#endif
         } else {
             // draw all symbols normally
             const QBrush& brush = m_symbol.drawBrush();

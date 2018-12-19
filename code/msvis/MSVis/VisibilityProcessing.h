@@ -247,8 +247,8 @@ public:
 
     VisibilityProcessor ();
     VisibilityProcessor (const casacore::String & name,
-                         const vector<casacore::String> & inputNames,
-                         const vector<casacore::String> & outputNames = vector<casacore::String>(),
+                         const std::vector<casacore::String> & inputNames,
+                         const std::vector<casacore::String> & outputNames = std::vector<casacore::String>(),
                          casacore::Bool makeIoPorts = false);
     virtual ~VisibilityProcessor () {}
 
@@ -333,7 +333,7 @@ protected:
 
     // Defines the set of possible input ports for this VP
 
-    VpPorts definePorts (const vector<casacore::String> & portNames, VpPort::Type type, const casacore::String & typeName);
+    VpPorts definePorts (const std::vector<casacore::String> & portNames, VpPort::Type type, const casacore::String & typeName);
 
     // Requests processing of the provided (possibly empty) input data.  This is called on each
     // subchunk (then inputData will be nonempty) and at the end of a chunk and the end of the
@@ -348,7 +348,7 @@ protected:
     // method; some ports may also be excluded from this list by name.
 
     VpPorts portsUnconnected (const VpPorts & ports, casacore::Bool (VpPort::* isConnected) () const,
-                              const vector<casacore::String> & except = vector<casacore::String> ()) const;
+                              const std::vector<casacore::String> & except = std::vector<casacore::String> ()) const;
 
     // Called when data processing is about to beging; this allows the VP to perform any
     // initialization that it desires now that it is completely connected into the graph.
@@ -357,9 +357,9 @@ protected:
 
     // Methods to ease the validation process.
 
-    void throwIfAnyInputsUnconnected (const vector<casacore::String> & exceptThese = vector<casacore::String> ()) const;
+    void throwIfAnyInputsUnconnected (const std::vector<casacore::String> & exceptThese = std::vector<casacore::String> ()) const;
     void throwIfAnyInputsUnconnectedExcept (const casacore::String & exceptThisOne) const;
-    void throwIfAnyOutputsUnconnected (const vector<casacore::String> & exceptThese = vector<casacore::String> ()) const;
+    void throwIfAnyOutputsUnconnected (const std::vector<casacore::String> & exceptThese = std::vector<casacore::String> ()) const;
     void throwIfAnyOutputsUnconnectedExcept (const casacore::String & exceptThisOne) const;
     void throwIfAnyPortsUnconnected () const;
 
@@ -435,7 +435,7 @@ public:
 
     SplitterVp (const casacore::String & name,
                 const casacore::String & inputName,
-                const vector<casacore::String> & outputNames);
+                const std::vector<casacore::String> & outputNames);
 
     ~SplitterVp () {}
 
@@ -497,8 +497,8 @@ public:
     // outputs of the VPs that are contained in the container.
 
     VpContainer (const casacore::String & name,
-                 const vector<casacore::String> & inputs = vector<casacore::String> (1, "In"),
-                 const vector<casacore::String> & outputs = vector<casacore::String> ());
+                 const std::vector<casacore::String> & inputs = std::vector<casacore::String> (1, "In"),
+                 const std::vector<casacore::String> & outputs = std::vector<casacore::String> ());
 
     virtual ~VpContainer () {}
 
@@ -529,7 +529,7 @@ public:
 
 protected:
 
-    typedef vector<VisibilityProcessor *> VPs; // VPs are used (not owned)
+    typedef std::vector<VisibilityProcessor *> VPs; // VPs are used (not owned)
     typedef VPs::const_iterator const_iterator;
     typedef VPs::iterator iterator;
 
@@ -573,7 +573,7 @@ private:
     bool followsSet (const VisibilityProcessor * a, const VpSet & vpSet) const;
     void orderContents ();
     void remapPorts (VpData & data, const VisibilityProcessor *);
-    pair<VpPort,VpPort> validateConnectionPorts (VisibilityProcessor * sourceVp,
+    std::pair<VpPort,VpPort> validateConnectionPorts (VisibilityProcessor * sourceVp,
                                                  const casacore::String &  sourcePortName,
                                                  VisibilityProcessor * sinkVp,
                                                  const casacore::String &  sinkPortName);

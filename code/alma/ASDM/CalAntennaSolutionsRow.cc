@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalAntennaSolutionsRow.h>
-#include <CalAntennaSolutionsTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalAntennaSolutionsRow.h>
+#include <alma/ASDM/CalAntennaSolutionsTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalAntennaSolutionsRow::~CalAntennaSolutionsRow() {
@@ -1752,7 +1749,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalAntennaSolutionsRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1760,7 +1759,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an AtmPhaseCorrection 
 	void CalAntennaSolutionsRow::atmPhaseCorrectionFromText(const string & s) {
 		 
-		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrection>(s);
+          
+		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrectionMod::AtmPhaseCorrection>(s);
+          
 		
 	}
 	
@@ -1768,7 +1769,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalAntennaSolutionsRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -1776,7 +1779,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an BasebandName 
 	void CalAntennaSolutionsRow::basebandNameFromText(const string & s) {
 		 
-		basebandName = ASDMValuesParser::parse<BasebandName>(s);
+          
+		basebandName = ASDMValuesParser::parse<BasebandNameMod::BasebandName>(s);
+          
 		
 	}
 	
@@ -1784,7 +1789,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalAntennaSolutionsRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1792,7 +1799,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalAntennaSolutionsRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1800,7 +1809,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalAntennaSolutionsRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1808,7 +1819,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalAntennaSolutionsRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1816,7 +1829,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAntennaSolutionsRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1824,7 +1839,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalAntennaSolutionsRow::refAntennaNameFromText(const string & s) {
 		 
+          
 		refAntennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1832,7 +1849,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalAntennaSolutionsRow::directionFromText(const string & s) {
 		 
+          
 		direction = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -1840,7 +1859,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalAntennaSolutionsRow::frequencyRangeFromText(const string & s) {
 		 
+          
 		frequencyRange = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -1848,7 +1869,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Interval 
 	void CalAntennaSolutionsRow::integrationTimeFromText(const string & s) {
 		 
+          
 		integrationTime = ASDMValuesParser::parse<Interval>(s);
+          
 		
 	}
 	
@@ -1856,7 +1879,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalAntennaSolutionsRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -1864,7 +1889,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void CalAntennaSolutionsRow::correctionValidityFromText(const string & s) {
 		 
+          
 		correctionValidity = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -1872,7 +1899,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAntennaSolutionsRow::phaseAntFromText(const string & s) {
 		 
+          
 		phaseAnt = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1880,7 +1909,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAntennaSolutionsRow::phaseAntRMSFromText(const string & s) {
 		 
+          
 		phaseAntRMS = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1888,7 +1919,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAntennaSolutionsRow::amplitudeAntFromText(const string & s) {
 		 
+          
 		amplitudeAnt = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1896,7 +1929,9 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAntennaSolutionsRow::amplitudeAntRMSFromText(const string & s) {
 		 
+          
 		amplitudeAntRMS = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1919,23 +1954,23 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalAntennaSolutionsRow::getAntennaName() const {
+ 	std::string CalAntennaSolutionsRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalAntennaSolutionsRow::setAntennaName (string antennaName)  {
+ 	void CalAntennaSolutionsRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2159,21 +2194,21 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get refAntennaName.
- 	 * @return refAntennaName as string
+ 	 * @return refAntennaName as std::string
  	 */
- 	string CalAntennaSolutionsRow::getRefAntennaName() const {
+ 	std::string CalAntennaSolutionsRow::getRefAntennaName() const {
 	
   		return refAntennaName;
  	}
 
  	/**
- 	 * Set refAntennaName with the specified string.
- 	 * @param refAntennaName The string value to which refAntennaName is to be set.
+ 	 * Set refAntennaName with the specified std::string.
+ 	 * @param refAntennaName The std::string value to which refAntennaName is to be set.
  	 
  	
  		
  	 */
- 	void CalAntennaSolutionsRow::setRefAntennaName (string refAntennaName)  {
+ 	void CalAntennaSolutionsRow::setRefAntennaName (std::string refAntennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2191,21 +2226,21 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get direction.
- 	 * @return direction as vector<Angle >
+ 	 * @return direction as std::vector<Angle >
  	 */
- 	vector<Angle > CalAntennaSolutionsRow::getDirection() const {
+ 	std::vector<Angle > CalAntennaSolutionsRow::getDirection() const {
 	
   		return direction;
  	}
 
  	/**
- 	 * Set direction with the specified vector<Angle >.
- 	 * @param direction The vector<Angle > value to which direction is to be set.
+ 	 * Set direction with the specified std::vector<Angle >.
+ 	 * @param direction The std::vector<Angle > value to which direction is to be set.
  	 
  	
  		
  	 */
- 	void CalAntennaSolutionsRow::setDirection (vector<Angle > direction)  {
+ 	void CalAntennaSolutionsRow::setDirection (std::vector<Angle > direction)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2223,21 +2258,21 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalAntennaSolutionsRow::getFrequencyRange() const {
+ 	std::vector<Frequency > CalAntennaSolutionsRow::getFrequencyRange() const {
 	
   		return frequencyRange;
  	}
 
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  	
  		
  	 */
- 	void CalAntennaSolutionsRow::setFrequencyRange (vector<Frequency > frequencyRange)  {
+ 	void CalAntennaSolutionsRow::setFrequencyRange (std::vector<Frequency > frequencyRange)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2287,21 +2322,21 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > CalAntennaSolutionsRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > CalAntennaSolutionsRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void CalAntennaSolutionsRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void CalAntennaSolutionsRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2351,21 +2386,21 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseAnt.
- 	 * @return phaseAnt as vector<float >
+ 	 * @return phaseAnt as std::vector<float >
  	 */
- 	vector<float > CalAntennaSolutionsRow::getPhaseAnt() const {
+ 	std::vector<float > CalAntennaSolutionsRow::getPhaseAnt() const {
 	
   		return phaseAnt;
  	}
 
  	/**
- 	 * Set phaseAnt with the specified vector<float >.
- 	 * @param phaseAnt The vector<float > value to which phaseAnt is to be set.
+ 	 * Set phaseAnt with the specified std::vector<float >.
+ 	 * @param phaseAnt The std::vector<float > value to which phaseAnt is to be set.
  	 
  	
  		
  	 */
- 	void CalAntennaSolutionsRow::setPhaseAnt (vector<float > phaseAnt)  {
+ 	void CalAntennaSolutionsRow::setPhaseAnt (std::vector<float > phaseAnt)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2383,21 +2418,21 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseAntRMS.
- 	 * @return phaseAntRMS as vector<float >
+ 	 * @return phaseAntRMS as std::vector<float >
  	 */
- 	vector<float > CalAntennaSolutionsRow::getPhaseAntRMS() const {
+ 	std::vector<float > CalAntennaSolutionsRow::getPhaseAntRMS() const {
 	
   		return phaseAntRMS;
  	}
 
  	/**
- 	 * Set phaseAntRMS with the specified vector<float >.
- 	 * @param phaseAntRMS The vector<float > value to which phaseAntRMS is to be set.
+ 	 * Set phaseAntRMS with the specified std::vector<float >.
+ 	 * @param phaseAntRMS The std::vector<float > value to which phaseAntRMS is to be set.
  	 
  	
  		
  	 */
- 	void CalAntennaSolutionsRow::setPhaseAntRMS (vector<float > phaseAntRMS)  {
+ 	void CalAntennaSolutionsRow::setPhaseAntRMS (std::vector<float > phaseAntRMS)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2415,21 +2450,21 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get amplitudeAnt.
- 	 * @return amplitudeAnt as vector<float >
+ 	 * @return amplitudeAnt as std::vector<float >
  	 */
- 	vector<float > CalAntennaSolutionsRow::getAmplitudeAnt() const {
+ 	std::vector<float > CalAntennaSolutionsRow::getAmplitudeAnt() const {
 	
   		return amplitudeAnt;
  	}
 
  	/**
- 	 * Set amplitudeAnt with the specified vector<float >.
- 	 * @param amplitudeAnt The vector<float > value to which amplitudeAnt is to be set.
+ 	 * Set amplitudeAnt with the specified std::vector<float >.
+ 	 * @param amplitudeAnt The std::vector<float > value to which amplitudeAnt is to be set.
  	 
  	
  		
  	 */
- 	void CalAntennaSolutionsRow::setAmplitudeAnt (vector<float > amplitudeAnt)  {
+ 	void CalAntennaSolutionsRow::setAmplitudeAnt (std::vector<float > amplitudeAnt)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2447,21 +2482,21 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get amplitudeAntRMS.
- 	 * @return amplitudeAntRMS as vector<float >
+ 	 * @return amplitudeAntRMS as std::vector<float >
  	 */
- 	vector<float > CalAntennaSolutionsRow::getAmplitudeAntRMS() const {
+ 	std::vector<float > CalAntennaSolutionsRow::getAmplitudeAntRMS() const {
 	
   		return amplitudeAntRMS;
  	}
 
  	/**
- 	 * Set amplitudeAntRMS with the specified vector<float >.
- 	 * @param amplitudeAntRMS The vector<float > value to which amplitudeAntRMS is to be set.
+ 	 * Set amplitudeAntRMS with the specified std::vector<float >.
+ 	 * @param amplitudeAntRMS The std::vector<float > value to which amplitudeAntRMS is to be set.
  	 
  	
  		
  	 */
- 	void CalAntennaSolutionsRow::setAmplitudeAntRMS (vector<float > amplitudeAntRMS)  {
+ 	void CalAntennaSolutionsRow::setAmplitudeAntRMS (std::vector<float > amplitudeAntRMS)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2919,7 +2954,7 @@ receiverBand = CReceiverBand::from_int(0);
 	}
 
 	
-	bool CalAntennaSolutionsRow::compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, string refAntennaName, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, vector<float > phaseAnt, vector<float > phaseAntRMS, vector<float > amplitudeAnt, vector<float > amplitudeAntRMS) {
+	bool CalAntennaSolutionsRow::compareNoAutoInc(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS) {
 		bool result;
 		result = true;
 		
@@ -3061,7 +3096,7 @@ receiverBand = CReceiverBand::from_int(0);
 	
 	
 	
-	bool CalAntennaSolutionsRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, string refAntennaName, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, vector<float > phaseAnt, vector<float > phaseAntRMS, vector<float > amplitudeAnt, vector<float > amplitudeAntRMS) {
+	bool CalAntennaSolutionsRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS) {
 		bool result;
 		result = true;
 		

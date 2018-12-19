@@ -33,7 +33,7 @@
  * File CPointingModelMode.cpp
  */
 #include <sstream>
-#include <CPointingModelMode.h>
+#include <alma/Enumerations/CPointingModelMode.h>
 #include <string>
 using namespace std;
 

@@ -64,15 +64,17 @@ public:
 
   // Non virtual. Wrapper function implemented only in the base class. 
   void deconvolve( SIMinorCycleController& loopController,  
-		   SHARED_PTR<SIImageStore> &imagestore,
-		   casacore::Int deconvolverid);
+		   std::shared_ptr<SIImageStore> &imagestore,
+		   casacore::Int deconvolverid, 
+                   casacore::Bool isautomasking=false, 
+                   casacore::Bool fastnoise=true);
 
   void setRestoringBeam( casacore::GaussianBeam restbeam, casacore::String usebeam );
   //  void setMaskOptions( casacore::String maskstring );
 
   // Base Class contains standard restoration. Overload for more complex behaviour.
-  virtual void restore( SHARED_PTR<SIImageStore> imagestore );
-  virtual void pbcor( SHARED_PTR<SIImageStore> imagestore );
+  virtual void restore( std::shared_ptr<SIImageStore> imagestore );
+  virtual void pbcor( std::shared_ptr<SIImageStore> imagestore );
 
   virtual casacore::String getAlgorithmName(){return itsAlgorithmName;};
 
@@ -100,7 +102,7 @@ protected:
   // Algorithm name
   casacore::String itsAlgorithmName;
 
-  SHARED_PTR<SIImageStore> itsImages; //sOriginalImages;
+  std::shared_ptr<SIImageStore> itsImages; //sOriginalImages;
 
   //    casacore::Vector<casacore::Slicer> itsDecSlices;
   //   casacore::SubImage<casacore::Float> itsResidual, itsPsf, itsModel, itsImage;

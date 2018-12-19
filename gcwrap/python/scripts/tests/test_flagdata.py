@@ -62,6 +62,143 @@ if os.environ.has_key('BYPASS_PARALLEL_PROCESSING'):
 # Local copy of the agentflagger tool
 aflocal = aftool()
 
+
+class test_dict_consolidation(unittest.TestCase):
+    '''This could find a better place of its own, somewhere for unit tests of the parallel
+    helper functions, as it can be tested independently from the tasks. For now it's
+    a start as a bunch of checks specific to flagdata dictionaries and rflag in particular'''
+    def test_flagdata_dict_consolidation(self):
+        '''flagdata:: test return dictionary consolidation functions from parallel_task_helper'''
+        import numpy as np
+        from numpy import array
+
+        def assert_dict_allclose(dicta, dictb):
+            """
+            Recursively assert: are dicta and dictb "allclose", in the sense that
+            numpy array values will be approx-compared using np.assert_allclose()?
+            Values of different types will be compared using unittest.assertEqual()
+
+            np.assert_equal handles dictionaries but only supports exact comparisons.
+            All other np. approx comparison functions don't seem to support arbitrary
+            dictionaries
+            """
+            if not dicta:
+                self.assertEqual(dicta, dictb)
+                return
+
+            for key, vala in dicta.items():
+                valb = dictb[key]
+                if type(vala) == dict:
+                    assert_dict_allclose(vala, valb)
+                elif type(vala) == np.ndarray:
+                    np.testing.assert_allclose(vala, valb, rtol=1e-3)
+                else:
+                    self.assertEqual(vala, valb)
+
+        # flagdata-returned dicts and their consolidated dicts
+        ret_bogus = {'i_am_bogus': 3}
+        cons_bogus = None
+
+        # free version of rflag return dict for Four_ants_3C286_mms.ms
+        ret_rflag_4ants_single = {'nreport': 1, 'report0':
+                                  {'freqdev': array([[1, 0, 3.1-02], [1, 1, 2.8-02],
+                                                     [1, 2, 2.3-02], [1, 3, 2.1-02],
+                                                     [1, 4, 2.5-02], [1, 5, 1.6-02],
+                                                     [2, 10, 3.6-02], [2, 11, 2.6-02],
+                                                     [2, 12, 1.6-02], [2, 13, 1.7-02],
+                                                     [3, 14, 1.2-02], [3, 15, 9.4-03]]),
+                                   'name': 'Rflag',
+                                   'timedev': array([[1, 0.0, 7.0-03], [1, 1, 5.9-03],
+                                                   [1, 2, 5.7-03], [1, 3, 5.3-03],
+                                                   [1, 4, 7.7-03], [1, 5, 5.2-03],
+                                                   [2, 10, 2.7-02], [2, 11, 8.9-03],
+                                                   [2, 12, 6.2-03], [2, 13, 4.9-03],
+                                                   [3, 14, 3.6-03], [3, 15, 3.5-03]]),
+                                   'type': 'rflag'}, 'type': 'list'}
+        ret_rflag_4ants_1rep = { '/path/to/dummy.ms/SUBMSS/dummy.ms.0000.ms':
+                            ret_rflag_4ants_single}
+        cons_rflag_4ants_1rep = ret_rflag_4ants_single
+
+        names_6rep = ['/path/to/dummy.ms/SUBMSS/dummy.ms.000{0}.ms'.format(idx) for idx in
+                      range(6)]
+        ret_rflag_4ants_6rep = dict(zip(names_6rep, 6*[ret_rflag_4ants_single]))
+        cons_rflag_4ants_6rep = ret_rflag_4ants_single
+
+        # free version of rflag return dict for ALMA uid___A002_X30a93d_X43e_small.ms
+        ret_x43e = {'/path/to/x43e.ms/SUBMSS/x43e.ms.0000.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[0, 1, 0.00330866]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[0, 1, 1.96219644e-04]])}, 'nreport': 1},
+                    '/path/to/x43e.ms/SUBMSS/x43e.ms.0003.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[2, 3, 0]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[2, 3, 0.01768084]])},
+                     'nreport': 1},
+                    '/path/to/x43e.ms/SUBMSS/x43e.ms.0001.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[2, 2, 0.0054054], [3, 3, 0]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[2, 2, 0.02742571], [3, 3, 0.01728651]])},
+                     'nreport': 1},
+                    '/path/to/x43e.ms/SUBMSS/x43e.ms.0002.ms':
+                    {'type': 'list', 'report0':
+                     {'freqdev': array([[3, 2, 0.00540063]]),
+                      'type': 'rflag', 'name': 'Rflag',
+                      'timedev': array([[3, 2,  0.02657252]])},
+                     'nreport': 1}}
+        cons_x43e = {'type': 'list', 'report0':
+                     {'type': 'rflag', 'freqdev':
+                      array([[0, 1, 0.00330866], [2, 2, 0.0054054],
+                             [2, 3, 0], [3, 2, 0.00540063], [3, 3, 0]]),
+                      'name': 'Rflag', 'timedev':
+                      array([[0, 1, 1.96219644e-04], [2, 2, 2.74257102e-02],
+                             [2, 3, 1.76808392e-02], [3, 2, 2.65725189e-02],
+                             [3, 3, 1.72865119e-02]])},
+                     'nreport': 1}
+
+        # free version of rflag return dict for ngc5921.ms
+        ret_ngc5921 = {'/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0002.ms':
+                       {'type': 'list', 'report0': {
+                           'freqdev': array([[0, 0, 0.15954576], [1, 0, 0.11957453]]),
+                           'type': 'rflag', 'name': 'Rflag',
+                           'timedev': array([[0, 0, 0.03786448], [1, 0, 0.03808762]])},
+                        'nreport': 1},
+                       '/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0000.ms':
+                       {'type': 'list', 'report0': {'freqdev': array([[2, 0, 0.10978827]]),
+                                                    'type': 'rflag', 'name': 'Rflag',
+                                                    'timedev': array([[2, 0, 0.0282818]])},
+                        'nreport': 1},
+                       '/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0003.ms':
+                       {'type': 'list', 'report0': {'freqdev': array([[1, 0, 0.11688346]]),
+                                                    'type': 'rflag', 'name': 'Rflag',
+                                                    'timedev': array([[1, 0, 0.03754368]])},
+                        'nreport': 1},
+                       '/path/to/ngc5921.ms/SUBMSS/ngc5921.ms.0001.ms':
+                       {'type': 'list', 'report0': {'freqdev': array([[1, 0, 0.1189428],
+                                                                      [2, 0, 0.10868936]]),
+                                                    'type': 'rflag', 'name': 'Rflag',
+                                                    'timedev': array([[1, 0, 4.12124127e-04],
+                                                                      [2, 0, 2.73353433e-02]])},
+                        'nreport': 1}}
+        cons_ngc5921 =  {'type': 'list', 'report0':
+                         {'type': 'rflag', 'name': 'Rflag','freqdev':
+                          array([[0, 0, 0.15954576], [1, 0, 0.1189428], [2, 0, 0.10923881]]),
+                           'timedev':
+                          array([[0, 0, 0.03786448], [1, 0, 0.03754368], [2, 0, 0.02780857]])},
+                         'nreport': 1}
+
+        multi_dicts = [ret_bogus, ret_rflag_4ants_1rep, ret_rflag_4ants_6rep,
+                      ret_x43e, ret_ngc5921]
+        expected_cons = [cons_bogus, cons_rflag_4ants_1rep, cons_rflag_4ants_6rep,
+                         cons_x43e, cons_ngc5921]
+
+        for multi, exp_cons in zip(multi_dicts, expected_cons):
+            cons = ParallelTaskHelper.consolidateResults(multi, 'flagdata')
+            assert_dict_allclose(cons, exp_cons)
+
+
 # Base class which defines setUp functions
 # for importing different data sets
 class test_base(unittest.TestCase):
@@ -504,35 +641,40 @@ class test_rflag(test_base):
 
     def test_rflag_calculate_file_apply_scales(self):
         '''flagdata:: mode = rflag : use output/input time/freq threshold files via two methods, and with different scales'''
-
-        if testmms:
-            print "WARN: Skip this test in parallel, until CAS-10202 is implemented"
-            return
             
         def check_threshold_files_saved(timedev_filename, freqdev_filename):
             import ast
-            timedev_str = open(timedev_filename, 'r').read()
-            saved_timedev = ast.literal_eval(timedev_str)
-            self.assertTrue('timedev' in saved_timedev and 'name' in saved_timedev)
-            self.assertEqual(len(saved_timedev['timedev']), 2)
-            self.assertEqual(saved_timedev['timedev'][0][0], 1)
-            self.assertEqual(saved_timedev['timedev'][0][1], 9)
-            self.assertTrue(abs(saved_timedev['timedev'][0][2] - 0.00777182) < 1e-5)
-            self.assertEqual(saved_timedev['timedev'][1][0], 1)
-            self.assertEqual(saved_timedev['timedev'][1][1], 10)
-            self.assertTrue(abs(saved_timedev['timedev'][1][2] - 0.03256665) < 1e-5)
+            import numpy as np
+            import os.path
+
+            self.assertTrue(os.path.isfile(freqdev_filename))
+            self.assertTrue(os.path.isfile(timedev_filename))
 
             freqdev_str = open(freqdev_filename, 'r').read()
             saved_freqdev = ast.literal_eval(freqdev_str)
             self.assertTrue('freqdev' in saved_freqdev and 'name' in saved_freqdev)
             self.assertEqual(saved_freqdev['name'], 'Rflag')
             self.assertEqual(len(saved_freqdev['freqdev']), 2)
-            self.assertEqual(saved_freqdev['freqdev'][0][0], 1)
-            self.assertEqual(saved_freqdev['freqdev'][0][1], 9)
-            self.assertTrue(float(saved_freqdev['freqdev'][0][2] - 0.01583025) < 1e-5)
-            self.assertEqual(saved_freqdev['freqdev'][1][0], 1)
-            self.assertEqual(saved_freqdev['freqdev'][1][1], 10)
-            self.assertTrue(abs(saved_freqdev['freqdev'][1][2] - 0.04113872) < 1e-5)
+            # wider tolerance for parallel/MMS CAS-10202
+            if not testmms:
+                rtol = 1e-5
+            else:
+                rtol = 5e-2
+            np.testing.assert_allclose(
+                saved_freqdev['freqdev'], [[1, 9, 0.01583025], [1, 10, 0.04113872]],
+                rtol=rtol)
+
+            timedev_str = open(timedev_filename, 'r').read()
+            saved_timedev = ast.literal_eval(timedev_str)
+            self.assertTrue('timedev' in saved_timedev and 'name' in saved_timedev)
+            self.assertEqual(len(saved_timedev['timedev']), 2)
+            if not testmms:
+                rtol = 1e-5
+            else:
+                rtol = 2e-1
+            np.testing.assert_allclose(
+                saved_timedev['timedev'], [[1, 9, 0.00777182], [1, 10, 0.03256665]],
+                rtol=rtol)
 
         # (1) Test input/output files, through the task, mode='rflag'
         # Files tdevfile.txt and fdevfile.txt are created in this step
@@ -540,6 +682,7 @@ class test_rflag(test_base):
         flagdata(vis=self.vis, mode='rflag', spw='9,10',
                  timedev='tdevfile.txt', freqdev='fdevfile.txt',
                  action='calculate', extendflags=False)
+
         self.assertTrue(os.path.exists('tdevfile.txt'))
         self.assertTrue(os.path.exists('fdevfile.txt'))
         check_threshold_files_saved('tdevfile.txt', 'fdevfile.txt')
@@ -569,8 +712,14 @@ class test_rflag(test_base):
         res2 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
         # A normal 'apply' (res1) and a mode='list' run apply (res2) should match:
-        self.assertEqual(res1['flagged'], 39504.0)
-        self.assertEqual(res1['flagged'], res2['flagged'])
+
+        # 'not testmms' for CAS-10202 differences
+        if not testmms:
+            flagged_cnt = 39504
+        else:
+            flagged_cnt = 42740
+        self.assertEqual(res1['flagged'], flagged_cnt)
+        self.assertLessEqual(res1['flagged'] - res2['flagged'], 20)
 
         # (3) Now try different scales with the same input time/freqdevscale files
         self.unflag_ms()
@@ -579,7 +728,7 @@ class test_rflag(test_base):
                  timedevscale=5.0, freqdevscale=5.0,
                  action='apply', extendflags=False);
         res_scale5 = flagdata(vis=self.vis, mode='summary', spw='9,10')
-        self.assertEqual(res_scale5['flagged'], 39504.0)
+        self.assertEqual(res_scale5['flagged'], flagged_cnt)
 
         self.unflag_ms()
         flagdata(vis=self.vis, mode='rflag', spw='9,10',
@@ -587,7 +736,11 @@ class test_rflag(test_base):
                               timedevscale=4.1, freqdevscale=4.1,
                               action='apply', extendflags=False);
         res_scale4 = flagdata(vis=self.vis, mode='summary', spw='9,10')
-        self.assertEqual(res_scale4['flagged'], 51057.0)
+        if not testmms:
+            flagged_cnt = 51057
+        else:
+            flagged_cnt = 55159
+        self.assertEqual(res_scale4['flagged'], flagged_cnt)
 
         self.cleanup_threshold_txt_files()
 
@@ -595,12 +748,10 @@ class test_rflag(test_base):
         '''flagdata:: mode = rflag : output/input via returned dictionary and cmd'''
         # (1) Test input/output files, through the task, mode='rflag'
         # Files tdevfile.txt and fdevfile.txt are created in this step
-        if testmms:
-            print "WARN: Skip this test in parallel, until CAS-10202 is implemented"
-            return
+        import numpy as np
 
         rdict = flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='', 
-                      freqdev='', action='calculate', extendflags=False)
+                          freqdev='', action='calculate', extendflags=False)
         
         flagdata(vis=self.vis, mode='rflag', spw='9,10',
                  timedev=rdict['report0']['timedev'],
@@ -622,8 +773,24 @@ class test_rflag(test_base):
         flagdata(vis=self.vis, mode='list', inpfile='outcmd.txt', flagbackup=False)
         res2 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
-        self.assertEqual(res1['flagged'], res2['flagged'])
-        self.assertEqual(res1['flagged'], 98403)
+        # Differences with parallel/MMS because of CAS-10202
+        if not testmms:
+            self.assertEqual(res1['flagged'], res2['flagged'])
+            self.assertEqual(res1['flagged'], 98403)
+            rtol_time = 1e-4
+            rtol_freq = 1e-4
+        else:
+            self.assertEqual(res1['flagged'], 104710)
+            self.assertEqual(res2['flagged'], 105560)
+            rtol_freq = 5e-2
+            rtol_time = 1.2e-1
+
+        np.testing.assert_allclose(rdict['report0']['freqdev'], [[1, 9, 0.01583],
+                                                                 [1, 10, 0.041139]],
+                                   rtol=rtol_freq)
+        np.testing.assert_allclose(rdict['report0']['timedev'], [[1, 9, 7.771820e-03],
+                                                                 [1, 10, 3.256665e-02]],
+                                   rtol=rtol_time)
 
     def test_rflag_correlation_selection(self):
         '''flagdata:: mode = rflag : correlation selection'''
@@ -642,9 +809,6 @@ class test_rflag(test_base):
 
     def test_rflag_return_dict1(self):
         '''flagdata:: Use provided value for time stats, but automatically computed value for freq. stats - returning dictionary'''
-        if testmms:
-            print "WARN: Skip this test in parallel, until CAS-10202 is implemented"
-            return
         
         rflag_dict = flagdata(vis=self.vis, mode='rflag', field = '1', spw='10', timedev=0.1, \
                  timedevscale=5.0, freqdevscale=5.0, action='calculate', flagbackup=False)
@@ -658,7 +822,10 @@ class test_rflag(test_base):
         self.assertEqual(fdev.shape, (1,3))
         self.assertEqual(fdev[0, 0], 1)
         self.assertEqual(fdev[0, 1], 10.0)
-        self.assertTrue(abs(fdev[0, 2] - 0.041138) < 1e-5)
+        # TODO: The tolerance used to be 1e-5 when this test was disabled for MMS. It might
+        # be possible to use a finer tolerance again if a sound solution for CAS-10202 is
+        # found (and this small test dataset is well behaved).
+        np.testing.assert_allclose(fdev[0,2], 0.0410, rtol=5e-3)
 
         self.assertTrue(isinstance(tdev, np.ndarray))
         self.assertEqual(tdev.ndim, 2)
@@ -737,7 +904,7 @@ class test_rflag(test_base):
         self.assertEqual(res['report1']['flagged'], 42728)
         self.assertEqual(res['report1']['antenna']['ea19']['flagged'], 18411)
         self.assertEqual(res['report1']['spw']['7']['flagged'], 0,)
-        
+
     def test_rflag_residual_data(self):
         '''flagdata: rflag using MODEL and virtual MODEL columns'''
         from tasks import delmod
@@ -761,15 +928,15 @@ class test_rflag(test_base):
 
         # Create virtual MODEL_COLUMN
         setjy(vis=self.vis, field='3C286_A',usescratch=False)
- 
+        
         # rflag
         flagdata(vis=self.vis, mode='rflag', spw='9,10',datacolumn='RESIDUAL_DATA',flagbackup=False)
-        # 444576.0 flags on virtual MODEL col
+        # 444576.0 flags on virtual MODEL col        
         flags_vmod = flagdata(vis=self.vis, mode='summary',spw='9,10')
-
+        
         # Flags should be the same
         self.assertTrue(flags_mod['flagged'],flags_vmod['flagged'])
-
+         
         # This test is mischievous, manipulates the model column. Don't leave a messed up MS.
         os.system('rm -rf {0}'.format(self.vis))
        
@@ -2222,6 +2389,64 @@ class test_clip(test_base):
         self.assertEqual(res['spw']['9']['flagged'], 0)
         self.assertEqual(res['flagged'], 274944*2)
 
+    def test_clip_no_model_col(self):
+        "flagdata: Should fail when MODEL or virtual MODEL columns do not exist"
+        # Use an MS without MODEL_DATA column
+        self.setUp_ngc5921(True)
+        
+        # RESIDUAL = CORRECTED - MODEL.
+        # It should fail and not flag anything
+        datacols = ["RESIDUAL","RESIDUAL_DATA"]
+        for col in datacols:
+            flagdata(vis=self.vis, mode='clip',datacolumn=col,clipminmax=[2.3,3.1],clipoutside=False, action='apply')
+            print 'flagadta is expected to fail with datacolumn='+col
+            self.assertEqual(flagdata(vis=self.vis, mode='summary')['flagged'],0.0)
+
+    def test_clip_with_model_col(self):
+        "flagdata: Should flag DATA-MODEL when RESIDUAL-DATA is asked"
+        self.setUp_ngc5921(True)
+        os.system('cp -r '+self.vis + ' ngc5921_virtual_model_col.ms')
+
+        # Create MODEL column
+        setjy(vis=self.vis, field='1331+305*',modimage='',standard='Perley-Taylor 99',scalebychan=False, usescratch=True)
+
+        # Create virtual MODEL column
+        setjy(vis='ngc5921_virtual_model_col.ms', field='1331+305*',modimage='',standard='Perley-Taylor 99',scalebychan=False, usescratch=False)
+        
+        # Flag RESIDUAL_DATA = DATA - MODEL
+        flagdata(vis=self.vis, mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],clipoutside=False, action='apply')
+        self.assertEqual(flagdata(vis=self.vis, mode='summary')['flagged'],412.0)
+                                      
+        # Flag RESIDUAL_DATA = DATA - virtual MODEL
+        flagdata(vis='ngc5921_virtual_model_col.ms', mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],
+                 clipoutside=False, action='apply')
+        self.assertEqual(flagdata(vis='ngc5921_virtual_model_col.ms', mode='summary')['flagged'],412.0)
+
+
+    def test_clip_virtual_model_col_use_delmod(self):
+        "flagdata: Should flag DATA-MODEL when RESIDUAL-DATA is asked"
+        self.setUp_ngc5921(True)
+        from tasks import delmod
+        os.system('cp -r '+self.vis + ' ngc5921_virtual_model_col.ms')
+
+        # Create virtual MODEL column
+        setjy(vis='ngc5921_virtual_model_col.ms', field='1331+305*',modimage='',standard='Perley-Taylor 99',scalebychan=False, 
+              usescratch=False)
+                                              
+        # Flag RESIDUAL_DATA = DATA - virtual MODEL
+        flagdata(vis='ngc5921_virtual_model_col.ms', mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],
+                 clipoutside=False, action='apply')
+        self.assertEqual(flagdata(vis='ngc5921_virtual_model_col.ms', mode='summary')['flagged'],412.0)
+        
+        # Unflag and delete model columns
+        flagdata(vis='ngc5921_virtual_model_col.ms', mode='unflag',flagbackup=False)
+        delmod(vis='ngc5921_virtual_model_col.ms',otf=True,scr=True)
+        
+        # Flag RESIDUAL_DATA should fail because virtual MODEL column doesn't exist
+        flagdata(vis='ngc5921_virtual_model_col.ms', mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],
+                 clipoutside=False, action='apply')
+        self.assertEqual(flagdata(vis='ngc5921_virtual_model_col.ms', mode='summary')['flagged'],0)
+        
 
 class test_antint(test_base):
     """flagdata:: Test of mode = 'antint'"""
@@ -3758,9 +3983,6 @@ class test_preaveraging_rflag_residual(test_base):
     def test_rflag_timeavg_on_residual(self):
         '''flagdata: rflag with timeavg on residual (corrected - model), and compare
         vs mstransform + rflag without timeavg'''
-        if testmms:
-            print "WARN: Skip this test in parallel, until CAS-10202 is implemented"
-            return
 
         # Initial integration time of 'Four_ants_3C286.ms' is 1s
         timebin = '8s'
@@ -3869,7 +4091,6 @@ class test_virtual_col(test_base):
     def tearDown(self):    
         os.system('rm -rf ngc5921*')        
 
-    @unittest.skip('Skip until CAS-10383 is fixed')
     def test_no_model_col(self):
         '''flagdata: catch failure when MODEL or virtual MODEL do not exist'''
         # Verify that a MODEL or virtual MODEL column do not exist in MS
@@ -3947,7 +4168,8 @@ class cleanup(test_base):
 
 
 def suite():
-    return [test_antint,
+    return [test_dict_consolidation,
+            test_antint,
             test_rflag,
             test_tfcrop,
             test_shadow,

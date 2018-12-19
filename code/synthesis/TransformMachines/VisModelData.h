@@ -179,6 +179,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     putModel (thems, rec, validfields, spws, starts, nchan, incr, iscomponentlist, incremental);
   }
   static void putModel(const casacore::MeasurementSet& thems, const casacore::RecordInterface& rec, const casacore::Vector<casacore::Int>& validfields, const casacore::Vector<casacore::Int>& spws, const casacore::Vector<casacore::Int>& starts, const casacore::Vector<casacore::Int>& nchan,  const casacore::Vector<casacore::Int>& incr, casacore::Bool iscomponentlist=true, casacore::Bool incremental=false);
+  //Verion 2.0 of putModel to support Intent
+  // index Comb is a Matrix of n rows 4 columns 
+  //Each row is a unique combination of field_id, spw_id, scan_number, state_id for which this
+  //record is valid
+  //chansel is Matrix of nspw rows and 4 columns (spw_id, start, nchan, incr)
+  static void putModel(const casacore::MeasurementSet& thems,const casacore::RecordInterface& rec, const casacore::Matrix<casacore::Int>& indexComb, const casacore::Matrix<casacore::Int>& chansel,
+					  casacore::Bool iscomponentlist=true, casacore::Bool incremental=false);
+  void putModelI(const casacore::MeasurementSet& thems,const casacore::RecordInterface& rec, const casacore::Matrix<casacore::Int>& indexComb, const casacore::Matrix<casacore::Int>& chansel,
+					  casacore::Bool iscomponentlist=true, casacore::Bool incremental=false){
+ 	putModel(thems, rec, indexComb, chansel, iscomponentlist, incremental);  
+  };
+
 
   //helper function to clear the keywordSet of the ms of the model  for the fields 
   //in that ms
@@ -214,11 +226,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //returns a -2 if it has been tested before but does have it.
   //returns a 1 if it has a model stored 
   casacore::Int hasModel(casacore::Int msid, casacore::Int field, casacore::Int spw); 
- private:
+  casacore::Bool isVersion2() {return (version_p==2);};
+  ///init has to be called once at least to make sure isVersion2 to be correct
+  void init(const VisBuffer& vb);
+  void init(const vi::VisBuffer2& ){throw(casacore::AipsError("Called the wrong version of VisModelData"));};
+  private:
   void initializeToVis();
   casacore::Vector<casacore::CountedPtr<ComponentList> >getCL(const casacore::Int msId, const casacore::Int fieldId, casacore::Int spw);
   casacore::Vector<casacore::CountedPtr<FTMachine> >getFT(const casacore::Int msId, const casacore::Int fieldId, casacore::Int spw);
   static casacore::Bool addToRec(casacore::TableRecord& therec, const casacore::Vector<casacore::Int>& spws);
+  static casacore::Bool addToRec(casacore::TableRecord& therec, const casacore::Matrix<casacore::Int>& combindex);
   static casacore::Bool removeSpwFromMachineRec(casacore::RecordInterface& ftclrec, const casacore::Vector<casacore::Int>& spws);
   static casacore::Bool removeFTFromRec(casacore::TableRecord& therec, const casacore::String& keyval, const casacore::Bool relabel=true);
   static casacore::Bool removeSpw(casacore::TableRecord& therec, const casacore::Vector<casacore::Int>& spws, const casacore::Vector<casacore::Int>& fields=casacore::Vector<casacore::Int>(0));
@@ -232,12 +249,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   static casacore::Int  firstSourceRowRecord(const casacore::Int field, const casacore::MeasurementSet& theMS, 
 				   casacore::TableRecord& rec);
   static void modifyDiskImagePath(casacore::Record& rec, const VisBuffer& vb);
+  void getMatchingMachines(casacore::Vector<casacore::CountedPtr<FTMachine> >& ft, casacore::Vector<casacore::CountedPtr<ComponentList> >& cl, const VisBuffer& vb);
+  void updateHolders(const VisBuffer& vb, const std::vector<casacore::Int>& index);
+  //get all the combinations of field, spw, scan, state in this visbuffer
+  void getUniqueIndicesComb(const VisBuffer& vb, casacore::Vector< casacore::Vector<casacore::Int> >& retval);
   casacore::Block<casacore::Vector<casacore::CountedPtr<ComponentList> > > clholder_p;
   casacore::Block<casacore::Vector<casacore::CountedPtr<FTMachine> > > ftholder_p;
   casacore::Block<casacore::Vector<casacore::Double> > flatholder_p;
   casacore::CountedPtr<ComponentFTMachine> cft_p;
   casacore::Cube<casacore::Int> ftindex_p;
   casacore::Cube<casacore::Int> clindex_p;
+  //These 2 maps will hold the index of ftholder_p or clholder_p from key (field_id, spw_id, scan, state, msid)
+  std::map<std::vector<casacore::Int>, casacore::Int > ftindex2_p;
+  std::map<std::vector<casacore::Int>, casacore::Int > clindex2_p;
+  casacore::Int version_p;
   static casacore::Bool initialize;
 };
 

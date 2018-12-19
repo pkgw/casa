@@ -72,20 +72,20 @@ bool             casaMEpoch(const ::casac::variant& theVar,
 
  // allow variant types DOUBLE, DOUBLEVEC, INT, INVEC. An empty string or a BOOLVEC
  // will return a 0 element vector. Any other type will cause an exception to be thrown.
- vector<double> toVectorDouble(const ::casac::variant& v, const casacore::String& varName);
+ std::vector<double> toVectorDouble(const ::casac::variant& v, const casacore::String& varName);
 
 // Allow variant types STRING or STRINGVEC. BOOLVEC will return a 0 element vector.
  // all other types will cause an excpetion to be thrown.
- vector<string> toVectorString(const ::casac::variant& v, const casacore::String& varName);
+ std::vector<string> toVectorString(const ::casac::variant& v, const casacore::String& varName);
 
  // Allow variant types INT or INTVEC. An empty string or a BOOLVEC
  // will return a 0 element vector. Any other type will cause an exception to be thrown.
- vector<int> toVectorInt(const ::casac::variant& v, const casacore::String& varName);
+ std::vector<int> toVectorInt(const ::casac::variant& v, const casacore::String& varName);
 
  	 // Allow variant types BOOL or BOOLVEC. An empty string
  	 // will return a 0 element vector. Any other type will cause an exception to be thrown.
- 	 vector<bool> toVectorBool(const ::casac::variant& v, const casacore::String& varName);
+ std::vector<bool> toVectorBool(const ::casac::variant& v, const casacore::String& varName);
 
- 	 casacore::Vector<casacore::String> toCasaVectorString(const vector<string>& vs);
+ 	 casacore::Vector<casacore::String> toCasaVectorString(const std::vector<string>& vs);
 
 }

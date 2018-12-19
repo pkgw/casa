@@ -31,7 +31,7 @@ namespace casa
 //
 // -----------------------------------------------------------------------
 MSTransformIterator::MSTransformIterator(	vi::ViImplementation2 * inputVii,
-											SHARED_PTR<MSTransformManager> manager):
+											std::shared_ptr<MSTransformManager> manager):
 											TransformingVi2 (inputVii)
 {
 

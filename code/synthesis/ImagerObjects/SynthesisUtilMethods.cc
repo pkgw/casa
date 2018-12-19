@@ -58,7 +58,6 @@
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
 #include <synthesis/TransformMachines/Utils.h>
 
-#include <msvis/MSVis/SubMS.h>
 #include <mstransform/MSTransform/MSTransformRegridder.h>
 #include <msvis/MSVis/MSUtil.h>
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
@@ -2253,9 +2252,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
     else 
       {
-        //SubMS thems(msobj);
-        //if(!thems.combineSpws(spwids,true,dataChanFreq,dataChanWidth))
-	
 	if(!MSTransformRegridder::combineSpwsCore(os,msobj, spwids,dataChanFreq,dataChanWidth,
 											  averageWhichChan,averageWhichSPW,averageChanFrac))
           {
@@ -2902,7 +2898,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       ostr << " phaseCenter='" << phaseCenter;
       os << String(ostr)<<"' ";
 
-      //Bool rst=SubMS::calcChanFreqs(os,
       Double dummy; // dummy variable  - weightScale is not used here
       Bool rst=MSTransformRegridder::calcChanFreqs(os,
                            chanFreq, 
@@ -3187,7 +3182,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	// Spectral interpolation
 	err += readVal( inrec, String("interpolation"), interpolation );// not used in SI yet...
-
+	//mosaic use pointing
+	err += readVal( inrec, String("usepointing"), usePointing );
 	// Track moving source ?
 	err += readVal( inrec, String("distance"), distance );
 	err += readVal( inrec, String("tracksource"), trackSource );
@@ -3306,6 +3302,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Spectral Axis interpolation
     interpolation=String("nearest");
 
+    //mosaic use pointing
+    usePointing=false;
     // Moving phase center ?
     distance=Quantity(0,"m");
     trackSource=false;
@@ -3355,6 +3353,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     gridpar.define("interpolation",interpolation);
 
+    gridpar.define("usepointing", usePointing);
+    
     gridpar.define("distance", QuantityToString(distance));
     gridpar.define("tracksource", trackSource);
     gridpar.define("trackdir", MDirectionToString( trackDir ));
@@ -3687,6 +3687,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                err+= "verbose must be a bool";
             }
           }
+        if( inrec.isDefined("fastnoise"))
+          {
+            if (inrec.dataType("fastnoise")==TpBool ) {
+               err+= readVal(inrec, String("fastnoise"), fastnoise);
+            }
+            else {
+               err+= "fastnoise must be a bool";
+            }
+          }
         if( inrec.isDefined("nsigma") )
           {
             if(inrec.dataType("nsigma")==TpFloat || inrec.dataType("nsigma")==TpDouble ) {
@@ -3868,6 +3877,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     decpar.define("dogrowprune",doGrowPrune);
     decpar.define("minpercentchange",minPercentChange);
     decpar.define("verbose", verbose);
+    decpar.define("fastnoise", fastnoise);
     decpar.define("interactive",interactive);
     decpar.define("nsigma",nsigma);
 

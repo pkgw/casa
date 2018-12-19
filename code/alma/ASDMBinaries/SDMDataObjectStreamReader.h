@@ -19,22 +19,20 @@
 #include <boost/regex.hpp>
 #endif
 
-#include "SDMDataObjectParser.h"
-#include "SDMDataObject.h"
-#include "CPrimitiveDataType.h"
-
-using namespace std;
+#include <alma/ASDMBinaries/SDMDataObjectParser.h>
+#include <alma/ASDMBinaries/SDMDataObject.h>
+#include <alma/Enumerations/CPrimitiveDataType.h>
 
 namespace asdmbinaries {
   class SDMDataObjectStreamReaderException {
   public:
     SDMDataObjectStreamReaderException();
-    SDMDataObjectStreamReaderException(const string& message);
+    SDMDataObjectStreamReaderException(const std::string& message);
   
-    const string& getMessage();
+    const std::string& getMessage();
   
   private:
-    string message;
+    std::string message;
   };
  
   class SDMDataObjectStreamReader {
@@ -47,7 +45,7 @@ namespace asdmbinaries {
      *
      * @throws SDMDataObjectStreamReaderException, SDMDataObjectException, SDMDataObjectParserException.
      */
-    void	open(const string& path);
+    void	open(const std::string& path);
 
     /**
      * Returns the current position in the BDF file.
@@ -89,7 +87,7 @@ namespace asdmbinaries {
      * Returns the title of the SDMDataObject.
      * @return a string.
      */
-    string title() const;
+    std::string title() const;
 
     /**
      * Returns the byte order of the SDMDataObject.
@@ -114,13 +112,13 @@ namespace asdmbinaries {
      * Returns the dataOID.
      * @return a string.
      */
-    string dataOID() const;
+    std::string dataOID() const;
 
     /**
      * Returns the UID of the ExecBlock.
      * @return a string.
      */
-    string execBlockUID() const;
+    std::string execBlockUID() const;
 
     /**
      * Returns the number of the ExecBlock.
@@ -144,7 +142,7 @@ namespace asdmbinaries {
      * Returns the project path.
      * The project path is a string of the form "/<s>execBlockNum</s>/<s>scanNum</s>/<s>subscanNum</s>"
      */
-    string projectPath() const;
+    std::string projectPath() const;
 
     /**
      * Returns the number of antenna.
@@ -156,7 +154,7 @@ namespace asdmbinaries {
      * Returns the correlation mode.
      * @return a value from enumeration CorrelationMode.
      */
-    CorrelationMode correlationMode() const;
+    CorrelationModeMod::CorrelationMode correlationMode() const;
 
 
     /**
@@ -173,7 +171,7 @@ namespace asdmbinaries {
      * Returns the processor type.
      * @return a value from the enumeration ProcessorType.
      */
-    ProcessorType processorType() const;
+    ProcessorTypeMod::ProcessorType processorType() const;
 
 
     /**
@@ -182,7 +180,7 @@ namespace asdmbinaries {
      * @return a value from the enumeration CorrelatorType if processorType == CORRELATOR else an SDMDataObjectException is thrown.
      * @throw SDMDataException
      */
-    CorrelatorType correlatorType() const;
+    CorrelatorTypeMod::CorrelatorType correlatorType() const;
 
     /**
      * Returns true if the binary data are all packed in one subset or distributed in a sequence 
@@ -255,13 +253,13 @@ namespace asdmbinaries {
      *
      * @throw SDMDataObjectException
      */
-    string abortReason() const;
+    std::string abortReason() const;
 
     /**
      * Returns a string representation of the global header of this SDMDataObject.
      * @return a string.
      */
-    string toString() const;
+    std::string toString() const;
 
     /**
      * Returns true as long as the mark announcing the end of the sequence of (sub)integrations
@@ -291,7 +289,7 @@ namespace asdmbinaries {
      *
      * @return const vector<SDMDataSubset>& 
      */
-    const vector<SDMDataSubset>& nextSubsets(unsigned int nSubsets);
+    const std::vector<SDMDataSubset>& nextSubsets(unsigned int nSubsets);
 
     /*
      * Returns all binary data found in the BDF file from the current location.
@@ -302,10 +300,10 @@ namespace asdmbinaries {
      *
      * @return const vector<SDMDataSubset>& 
      */
-    const vector<SDMDataSubset>& allRemainingSubsets();
+    const std::vector<SDMDataSubset>& allRemainingSubsets();
 
     enum BINATTACHCODES {ACTUALDURATIONS=0, ACTUALTIMES=1, AUTODATA=2, FLAGS=3, CROSSDATA=4, ZEROLAGS=5};
-    bitset<6> attachmentFlags;
+    std::bitset<6> attachmentFlags;
 
   private:
     // Enumerations to manage the state of an instance of SDMDataObjectStreamReader.
@@ -316,16 +314,16 @@ namespace asdmbinaries {
     // Private variables
     unsigned long long integrationStartsAt;
     unsigned int       integrationIndex;
-    string	path;
-    ifstream	f;
+    std::string	path;
+    std::ifstream	f;
     States      currentState;
-    string	currentLine;
-    string	boundary_1;
-    string      boundary_2;
+    std::string	currentLine;
+    std::string	boundary_1;
+    std::string      boundary_2;
     bool        opened;
 
-    map<string, int64_t>	binaryPartSize;
-    set<string>			s_partNames;
+    std::map<std::string, int64_t>	binaryPartSize;
+    std::set<std::string>			s_partNames;
     char*			actualTimesBuffer;
     char*			actualDurationsBuffer;
     char*			autoDataBuffer;
@@ -336,22 +334,22 @@ namespace asdmbinaries {
     SDMDataObjectParser   parser;
     SDMDataObject         sdmDataObject;
     SDMDataSubset         sdmDataSubset;
-    vector<SDMDataSubset> remainingSubsets;
-    vector<SDMDataSubset> someSubsets;
+    std::vector<SDMDataSubset> remainingSubsets;
+    std::vector<SDMDataSubset> someSubsets;
 
     // Private methods
-    void                        checkState(Transitions t, const string& methodName) const; 
-    string			nextLine();
-    pair<string, string>	headerField2Pair(const string& hf);
-    pair<string, string>	requireHeaderField(const string& hf);
-    string			requireMIMEHeader();
-    string			requireBoundaryInCT(const string& ctValue);
-    void                        skipAsLongAsLineStartsWith(const string& start);
+    void                        checkState(Transitions t, const std::string& methodName) const; 
+    std::string			nextLine();
+    std::pair<std::string, std::string>	headerField2Pair(const std::string& hf);
+    std::pair<std::string, std::string>	requireHeaderField(const std::string& hf);
+    std::string			requireMIMEHeader();
+    std::string			requireBoundaryInCT(const std::string& ctValue);
+    void                        skipAsLongAsLineStartsWith(const std::string& start);
     void			skipUntilEmptyLine(int maxSkips);  
-    string			accumulateUntilBoundary(const string& boundary, int maxLines);
-    void			requireBoundary(const string&, int maxLines);
+    std::string			accumulateUntilBoundary(const std::string& boundary, int maxLines);
+    void			requireBoundary(const std::string&, int maxLines);
     void			lookForBinaryPartSize(xmlNode*  aNode);
-    string			requireCrossDataType(xmlNode* parent);
+    std::string			requireCrossDataType(xmlNode* parent);
 
     void        printElementNames(xmlNode * a_node);
     void        requireSDMDataHeaderMIMEPart();

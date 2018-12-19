@@ -4,6 +4,7 @@ import stat
 import time
 from math import sqrt
 from taskinit import *
+from mstools import write_history
 from parallel.parallel_task_helper import ParallelTaskHelper
 
 _cb = cbtool( )
@@ -403,15 +404,15 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 			casalog.post('Sorting main table by TIME ...', 'INFO')
 			m.timesort()
 
-		m.writehistory(message='taskname=concat',origin='concat')
-		m.writehistory(message='vis          = "'+str(vis)+'"',origin='concat')
-		m.writehistory(message='concatvis    = "'+str(concatvis)+'"',origin='concat')
-		m.writehistory(message='freqtol      = "'+str(freqtol)+'"',origin='concat')
-		m.writehistory(message='dirtol       = "'+str(dirtol)+'"',origin='concat')
-		m.writehistory(message='respectname  = "'+str(respectname)+'"',origin='concat')
-		m.writehistory(message='copypointing = "'+str(copypointing)+'"',origin='concat')
-		m.writehistory(message='visweightscale = "'+str(visweightscale)+'"',origin='concat')
-		m.writehistory(message='forcesingleephemfield = "'+str(forcesingleephemfield)+'"',origin='concat')
+		# Write history to output MS, not the input ms.
+		try:
+			param_names = concat.func_code.co_varnames[:concat.func_code.co_argcount]
+			param_vals = [eval(p) for p in param_names]
+			write_history(mstool(), concatvis, 'concat', param_names,
+						  param_vals, casalog)
+		except Exception, instance:
+			casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
+						 'WARN')
 
 		m.close()
 		

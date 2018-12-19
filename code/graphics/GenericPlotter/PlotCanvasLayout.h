@@ -86,7 +86,7 @@ public:
     virtual PlotCanvasPtr canvas() const = 0;
     
     // Returns all canvases in this layout.
-    virtual vector<PlotCanvasPtr> allCanvases() const = 0;
+    virtual std::vector<PlotCanvasPtr> allCanvases() const = 0;
     
     // Indicates whether the layout is valid.
     virtual bool isValid() const = 0;
@@ -137,7 +137,7 @@ public:
     PlotCanvasPtr canvasAt(const PlotLayoutCoordinate& coord) const;
     
     // Implements PlotCanvasLayout::allCanvases().
-    vector<PlotCanvasPtr> allCanvases() const;
+    std::vector<PlotCanvasPtr> allCanvases() const;
     
     // Implements PlotCanvasLayout::isValid().
     bool isValid() const;
@@ -199,7 +199,7 @@ public:
     PlotCanvasPtr canvas() const;
     
     // Implements PlotCanvasLayout::allCanvases().
-    vector<PlotCanvasPtr> allCanvases() const;
+    std::vector<PlotCanvasPtr> allCanvases() const;
     
     // Implements PlotCanvasLayout::isValid().
     bool isValid() const;
@@ -213,7 +213,7 @@ public:
 protected:
     unsigned int m_rows;                     // rows
     unsigned int m_cols;                     // columns
-    vector<vector<PlotCanvasPtr> > m_panels; // canvases
+    std::vector<std::vector<PlotCanvasPtr> > m_panels; // canvases
     unsigned int m_spacing;                  // spacing
 };
 

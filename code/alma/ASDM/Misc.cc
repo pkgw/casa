@@ -25,12 +25,11 @@
  * File Misc.cpp
  */
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
  
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
-#include <unistd.h>
 
 #include <algorithm> //required for std::swap
 #include <iostream>
@@ -51,14 +50,12 @@
 #include <libxslt/xsltInternals.h>
 #include <libxslt/transform.h>
 #include <libxslt/xsltutils.h>
-#include <casacore/casa/System/AppState.h>
 
 using namespace std;
 
 extern int xmlLoadExtDtdDefaultValue;
 
-#include <casa/OS/Path.h>
-#include "ASDMValuesParser.h"
+#include <alma/ASDM/ASDMValuesParser.h>
 
 namespace asdm {
   bool directoryExists(const char* dir) {
@@ -201,7 +198,6 @@ namespace asdm {
 
     rootSubdir["INTROOT"]  = "config/";
     rootSubdir["ACSROOT"]  = "config/";
-    rootSubdir["CASAPATH"] = "data/alma/asdm/";
 
     return true;
   }
@@ -434,105 +430,8 @@ namespace asdm {
     return result;
   }
 
-  string ASDMUtils::pathToxslTransform( const string& xsltFilename) {
-    const char * envVars[] = {"INTROOT", "ACSROOT"};
-    char * rootDir_p;
-    for (unsigned int i = 0; i < sizeof(envVars) / sizeof(char *) ; i++) 
-      if ((rootDir_p = getenv(envVars[i])) != 0) {
-	string rootPath(rootDir_p);
-	vector<string> rootPathElements;
-#ifndef WITHOUT_BOOST
-	boost::algorithm::split(rootPathElements, rootPath, boost::algorithm::is_any_of(" "));
-	for ( vector<string>::iterator iter = rootPathElements.begin(); iter != rootPathElements.end(); iter++) {
-	  string xsltPath = *iter;
-	  if (!boost::algorithm::ends_with(xsltPath, "/")) xsltPath+="/";
-	  xsltPath+=rootSubdir[string(envVars[i])]+ xsltFilename;
-	  if (getenv("ASDM_DEBUG"))
-	    cout << "pathToxslTransform tries to locate '" << xsltPath << "'." << endl;
-	  if (boost::filesystem::exists(boost::filesystem::path(xsltPath)))
-	    return xsltPath;
-	}
-#else
-	strsplit(rootPath,' ',rootPathElements);
-	for ( vector<string>::iterator iter = rootPathElements.begin(); iter != rootPathElements.end(); iter++) {
-	  string xsltPath = *iter;
-	  if (xsltPath.back()!='/') xsltPath+="/";
-	  xsltPath+=rootSubdir[string(envVars[i])]+ xsltFilename;
-	  if (getenv("ASDM_DEBUG"))
-	    cout << "pathToxslTransform tries to locate '" << xsltPath << "'." << endl;
-	  if (file_exists(xsltPath))
-	    return xsltPath;
-	}
-#endif
-      }
-
-    // Ok it seems that we are not in an ALMA/ACS environment, then look for $CASAPATH/data.
-    if ((rootDir_p = getenv("CASAPATH")) != 0) {
-      string rootPath(rootDir_p);
-      vector<string> rootPathElements;
-#ifndef WITHOUT_BOOST
-      boost::algorithm::split(rootPathElements, rootPath, boost::algorithm::is_any_of(" "));
-      string xsltPath = rootPathElements[0];
-      if (!boost::algorithm::ends_with(xsltPath, "/")) xsltPath+="/";
-      xsltPath+="data/alma/asdm/";
-      xsltPath+=xsltFilename;
-      if (getenv("ASDM_DEBUG"))
-	cout << "pathToxslTransform tries to locate '" << xsltPath << "'." << endl;
-
-      if (boost::filesystem::exists(boost::filesystem::path(xsltPath)))
-	return xsltPath;
-#else
-      strsplit(rootPath, ' ', rootPathElements);
-      string xsltPath = rootPathElements[0];
-      if (xsltPath.back()!='/') xsltPath+="/";
-      xsltPath+="data/alma/asdm/";
-      xsltPath+=xsltFilename;
-      if (getenv("ASDM_DEBUG"))
-	cout << "pathToxslTransform tries to locate '" << xsltPath << "'." << endl;
-
-      if (file_exists(xsltPath))
-	return xsltPath;
-#endif
-    }
-
-    if (getenv("ASDM_DEBUG"))
-      cout  << "pathToxslTransform returns an empty xsltPath " << endl;
-
-    // Here rootDir_p == NULL , let's return an empty string.
-    return "" ;  // An empty string will be interpreted as no file found.
-  }
-  
-  static string xslt_subdir = "alma/asdm";
-
-  string ASDMUtils::pathToV2V3ALMAxslTransform() {
-      struct stat path_stat;
-      string xslt_path = xslt_subdir + "/" + filenameOfV2V3xslTransform[ASDMUtils::ALMA];
-      const std::list<std::string> &state_path = casacore::AppStateSource::fetch( ).dataPath( );
-      if ( state_path.size( ) > 0 ) {
-          for ( std::list<std::string>::const_iterator it=state_path.begin(); it != state_path.end(); ++it ) {
-              string xslpath = casacore::Path( *it + "/" + xslt_path ).absoluteName( );
-              stat( xslpath.c_str( ), &path_stat );
-              if ( S_ISREG(path_stat.st_mode) )
-                  return xslpath;
-          }
-      }
-      return pathToxslTransform(filenameOfV2V3xslTransform[ASDMUtils::ALMA]);
-  }
-  string ASDMUtils::pathToV2V3EVLAxslTransform() {
-      struct stat path_stat;
-      string xslt_path = xslt_subdir + "/" + filenameOfV2V3xslTransform[ASDMUtils::EVLA];
-      const std::list<std::string> &state_path = casacore::AppStateSource::fetch( ).dataPath( );
-      if ( state_path.size( ) > 0 ) {
-          for ( std::list<std::string>::const_iterator it=state_path.begin(); it != state_path.end(); ++it ) {
-              string xslpath = casacore::Path( *it + "/" + xslt_path ).absoluteName( );
-              stat( xslpath.c_str( ), &path_stat );
-              if ( S_ISREG(path_stat.st_mode) )
-                  return xslpath;
-          }
-      }
-      return pathToxslTransform(filenameOfV2V3xslTransform[ASDMUtils::EVLA]);
-  }
-
+  string ASDMUtils::pathToV2V3ALMAxslTransform() {return pathToxslTransform(filenameOfV2V3xslTransform[ASDMUtils::ALMA]);}
+  string ASDMUtils::pathToV2V3EVLAxslTransform() {return pathToxslTransform(filenameOfV2V3xslTransform[ASDMUtils::EVLA]);}
   string ASDMUtils::nameOfV2V3xslTransform(ASDMUtils::Origin origin) {
     return filenameOfV2V3xslTransform[origin];
   }

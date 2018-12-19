@@ -569,8 +569,8 @@ RegionTextParser::ParamSet RegionTextParser::getParamSet(
     Bool& spectralParmsUpdated, LogIO& log,
     const String& text, const String& preamble,
     const CoordinateSystem& csys,
-    SHARED_PTR<std::pair<MFrequency, MFrequency> > overridingFreqRange,
-    SHARED_PTR<Vector<Stokes::StokesTypes> > overridingCorrRange
+    std::shared_ptr<std::pair<MFrequency, MFrequency> > overridingFreqRange,
+    std::shared_ptr<Vector<Stokes::StokesTypes> > overridingCorrRange
 ) {
     ParamSet parms;
     spectralParmsUpdated = false;
