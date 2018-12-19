@@ -2235,13 +2235,13 @@ Bool MSTransformDataHandler::fillSPWTable()
         if (haveSpwSWF) 
         {
             ROScalarColumn<String> inSwfCol(mssel_p.spectralWindow(), "SDM_WINDOW_FUNCTION");
-            ScalarColumn<String> outSwfCol(mssel_p.spectralWindow(), "SDM_WINDOW_FUNCTION");
+            ScalarColumn<String> outSwfCol(msOut_p.spectralWindow(), "SDM_WINDOW_FUNCTION");
             outSwfCol.put(outSPWId, inSwfCol(spw_p[k]));
         }
         if (haveSpwSNB) 
         {
             ROScalarColumn<Int> inSnbCol(mssel_p.spectralWindow(), "SDM_NUM_BIN");
-            ScalarColumn<Int> outSnbCol(mssel_p.spectralWindow(), "SDM_NUM_BIN");
+            ScalarColumn<Int> outSnbCol(msOut_p.spectralWindow(), "SDM_NUM_BIN");
             outSnbCol.put(outSPWId, inSnbCol(spw_p[k]));
         }
 
