@@ -41,48 +41,44 @@
 
 
 	
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Pressure.h>
+#include <alma/ASDM/Pressure.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Humidity.h>
+#include <alma/ASDM/Humidity.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
 
 	
-#include "CReceiverBand.h"
-	
-
-	
-
-	
-#include "CBasebandName.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
 
+	
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
@@ -104,7 +100,11 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -112,11 +112,7 @@
 	
 
 	
-#include "CSyscalMethod.h"
-	
-
-	
-
+#include <alma/Enumerations/CSyscalMethod.h>
 	
 
 	
@@ -147,20 +143,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -191,7 +191,7 @@ class CalAtmosphereRow;
  		
  * <TD> antennaName </TD>
  		 
- * <TD> string</TD>
+ * <TD> std::string</TD>
  * <TD> &nbsp; </TD>
  * <TD> &nbsp;the name of the antenna. </TD>
  * </TR>
@@ -273,14 +273,14 @@ class CalAtmosphereRow;
 	
  * <TR>
  * <TD> forwardEffSpectrum </TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numFreq </TD> 
  * <TD> &nbsp;the spectra of forward efficiencies (one value per receptor, per frequency). </TD>
  * </TR>
 	
  * <TR>
  * <TD> frequencyRange </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the frequency range. </TD>
  * </TR>
@@ -301,7 +301,7 @@ class CalAtmosphereRow;
 	
  * <TR>
  * <TD> frequencySpectrum </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numFreq </TD> 
  * <TD> &nbsp;the frequencies. </TD>
  * </TR>
@@ -315,21 +315,21 @@ class CalAtmosphereRow;
 	
  * <TR>
  * <TD> polarizationTypes </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the polarizations of the receptors (an array with one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> powerSkySpectrum </TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numFreq </TD> 
  * <TD> &nbsp;the powers on the sky (one value per receptor per frequency). </TD>
  * </TR>
 	
  * <TR>
  * <TD> powerLoadSpectrum </TD> 
- * <TD> vector<vector<vector<float > > > </TD>
+ * <TD> std::vector<std::vector<std::vector<float > > > </TD>
  * <TD>  numLoad, numReceptor, numFreq </TD> 
  * <TD> &nbsp;the powers on the loads (one value per load per receptor per frequency). </TD>
  * </TR>
@@ -343,70 +343,70 @@ class CalAtmosphereRow;
 	
  * <TR>
  * <TD> tAtmSpectrum </TD> 
- * <TD> vector<vector<Temperature > > </TD>
+ * <TD> std::vector<std::vector<Temperature > > </TD>
  * <TD>  numReceptor, numFreq </TD> 
  * <TD> &nbsp;the spectra of atmosphere physical  temperatures (one value per receptor per frequency). </TD>
  * </TR>
 	
  * <TR>
  * <TD> tRecSpectrum </TD> 
- * <TD> vector<vector<Temperature > > </TD>
+ * <TD> std::vector<std::vector<Temperature > > </TD>
  * <TD>  numReceptor, numFreq </TD> 
  * <TD> &nbsp;the spectra of the receptors temperatures (one value  per receptor per frequency). </TD>
  * </TR>
 	
  * <TR>
  * <TD> tSysSpectrum </TD> 
- * <TD> vector<vector<Temperature > > </TD>
+ * <TD> std::vector<std::vector<Temperature > > </TD>
  * <TD>  numReceptor, numFreq </TD> 
  * <TD> &nbsp;the spectra of system temperatures (one value  per receptor per frequency). </TD>
  * </TR>
 	
  * <TR>
  * <TD> tauSpectrum </TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numFreq </TD> 
  * <TD> &nbsp;the spectra of atmosheric optical depths (one value  per receptor per frequency). </TD>
  * </TR>
 	
  * <TR>
  * <TD> tAtm </TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the atmosphere physical temperatures (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> tRec </TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the receptors temperatures (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> tSys </TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the system temperatures (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> tau </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the atmospheric optical depths (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> water </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the water vapor path lengths (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> waterError </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the uncertainties of water vapor contents (one value per receptor). </TD>
  * </TR>
@@ -417,42 +417,42 @@ class CalAtmosphereRow;
 	
  * <TR>
  * <TD> alphaSpectrum</TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numFreq  </TD>
  * <TD>&nbsp; the alpha coefficients, two loads only (one value per receptor per frequency). </TD>
  * </TR>
 	
  * <TR>
  * <TD> forwardEfficiency</TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the forward efficiencies (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> forwardEfficiencyError</TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertainties on forwardEfficiency (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> sbGain</TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the relative gains of LO1 sideband (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> sbGainError</TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertainties on the relative gains of LO1 sideband (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> sbGainSpectrum</TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numFreq  </TD>
  * <TD>&nbsp; the spectra of relative sideband gains (one value  per receptor per frequency). </TD>
  * </TR>
@@ -654,7 +654,7 @@ public:
  	 * @param waterError
 	
      */
-	CalAtmosphereRow *newRow(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, vector<vector<float > > forwardEffSpectrum, vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, vector<Frequency > frequencySpectrum, Temperature groundTemperature, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > powerSkySpectrum, vector<vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, vector<vector<Temperature > > tAtmSpectrum, vector<vector<Temperature > > tRecSpectrum, vector<vector<Temperature > > tSysSpectrum, vector<vector<float > > tauSpectrum, vector<Temperature > tAtm, vector<Temperature > tRec, vector<Temperature > tSys, vector<float > tau, vector<Length > water, vector<Length > waterError);
+	CalAtmosphereRow *newRow(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<std::vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError);
 	
 
 
@@ -735,7 +735,7 @@ public:
 	
  	 *
 	 */
- 	CalAtmosphereRow* getRowByKey(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId);
+ 	CalAtmosphereRow* getRowByKey(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -808,7 +808,7 @@ public:
  	 * @param waterError
  	 		 
  	 */
-	CalAtmosphereRow* lookup(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, vector<vector<float > > forwardEffSpectrum, vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, vector<Frequency > frequencySpectrum, Temperature groundTemperature, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > powerSkySpectrum, vector<vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, vector<vector<Temperature > > tAtmSpectrum, vector<vector<Temperature > > tRecSpectrum, vector<vector<Temperature > > tSysSpectrum, vector<vector<float > > tauSpectrum, vector<Temperature > tAtm, vector<Temperature > tRec, vector<Temperature > tSys, vector<float > tau, vector<Length > water, vector<Length > waterError); 
+	CalAtmosphereRow* lookup(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<std::vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

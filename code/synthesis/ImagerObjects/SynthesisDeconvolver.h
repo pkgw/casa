@@ -176,6 +176,7 @@ protected:
   casacore::Bool itsDoGrowPrune;
   casacore::Float  itsMinPercentChange;
   casacore::Bool itsVerbose;  
+  casacore::Bool itsFastNoise;  
   casacore::Vector<casacore::Bool> itsChanFlag;
   casacore::Bool initializeChanMaskFlag; 
   casacore::TempImage<casacore::Float> itsPosMask;

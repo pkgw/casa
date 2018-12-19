@@ -29,23 +29,17 @@
 #include <vector>
 #include <iostream>
 #include <string>
-using namespace std;
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLLength;
 #endif
-#include <StringTokenizer.h>
-#include <NumberFormatException.h>
-using asdm::StringTokenizer;
-using asdm::NumberFormatException;
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/NumberFormatException.h>
+#include <alma/ASDM/EndianStream.h>
 namespace asdm {
 class Length;
 Length operator * ( double , const Length & );
-ostream & operator << ( ostream &, const Length & );
-istream & operator >> ( istream &, Length &);
+std::ostream & operator << ( std::ostream &, const Length & );
+std::istream & operator >> ( std::istream &, Length &);
 /**
  * The Length class implements a quantity of length in meters..
  * 
@@ -69,11 +63,11 @@ class Length {
    * @param os a reference to the ostream to be written on.
    * @param x a const reference to a Length.
    */
-  friend ostream & operator << ( ostream & os, const Length & x);
+  friend std::ostream & operator << ( std::ostream & os, const Length & x);
   /**
    * Overloading of >> to read an Length from an istream.
    */
-  friend istream & operator >> ( istream & is, Length & x);
+  friend std::istream & operator >> ( std::istream & is, Length & x);
 public:
 	/**
 	 * The nullary constructor (default).
@@ -90,7 +84,7 @@ public:
 	 *
 	 * @param s a string.
 	 */
-	Length(const string &s);
+	Length(const std::string &s);
 #ifndef WITHOUT_ACS
 	/**
 	 *
@@ -98,7 +92,7 @@ public:
 	 * 
 	 * @param idlLength a cons ref to an IDLLength.
 	 */
-	Length(const IDLLength & idlLength);
+	Length(const asdmIDLTypes::IDLLength & idlLength);
 #endif
 	/**
 	 * A constructor from a value in double precision.
@@ -113,14 +107,14 @@ public:
 	 * A static method equivalent to the constructor from a string.
 	 * @param s a string?.
 	 */
-	static double fromString(const string& s);
+	static double fromString(const std::string& s);
 	/**
 	 * Conversion into string.
 	 * The resulting string contains the representation of the value of this Length.
 	 *
 	 * @return string
 	 */
-	static string toString(double);
+	static std::string toString(double);
 	/**
 	 * Parse the next (string) token of a StringTokenizer into an angle.
 	 * @param st a reference to a StringTokenizer.
@@ -138,21 +132,21 @@ public:
 	 * @param angle the vector of Length to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Length>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Length>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Length to a EndianOSStream.
 	 * @param angle the vector of vector of Length to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Length> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Length> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Length to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Length to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Length> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<std::vector<Length> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Length from a EndianIStream
 	 * and use the read value to set an  Length.
@@ -167,7 +161,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Length
 	 */	 
-	 static vector<Length> from1DBin(EndianIStream & eis);
+	 static std::vector<Length> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Length from an EndianIStream
@@ -175,7 +169,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Length
 	 */	 
-	 static vector<vector<Length> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Length> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Length from an EndianIStream
@@ -183,7 +177,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Length
 	 */	 
-	 static vector<vector<vector<Length> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<std::vector<Length> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Length = Length.
@@ -288,16 +282,16 @@ public:
 	 * Converts into a string.
 	 * @return a string containing the representation of a the value in double precision.
 	 */
-	string toString() const;
+	std::string toString() const;
 	/** 
 	 * Idem toString.
 	 */
-	string toStringI() const;
+	std::string toStringI() const;
 	/**
 	 * Conversion operator.
 	 * Converts into a string.
 	 */
-	operator string () const;
+	operator std::string () const;
 	/**
 	 * Return the double precision value of the Length.
 	 * @return double
@@ -308,13 +302,13 @@ public:
 	 * Return the IDLLength representation of the Length.
 	 * @return IDLLength 
 	 */
-	IDLLength toIDLLength() const;
+    asdmIDLTypes::IDLLength toIDLLength() const;
 #endif
 	/**
 	 * Returns the abbreviated name of the unit implicitely associated to any Length.
 	 * @return string
 	 */
-	static string unit();
+	static std::string unit();
 private:
 	double value;
 };
@@ -324,10 +318,10 @@ inline Length::Length() : value(0.0) {
 inline Length::Length(const Length &t) : value(t.value) {
 }
 #ifndef WITHOUT_ACS
-inline Length::Length(const IDLLength &l) : value(l.value) {
+inline Length::Length(const asdmIDLTypes::IDLLength &l) : value(l.value) {
 }
 #endif
-inline Length::Length(const string &s) : value(fromString(s)) {
+inline Length::Length(const std::string &s) : value(fromString(s)) {
 }
 inline Length::Length(double v) : value(v) {
 }
@@ -415,21 +409,21 @@ inline Length Length::operator + () const {
 	return tmp;
 }
 // Conversion functions
-inline Length::operator string () const {
+inline Length::operator std::string () const {
 	return toString();
 }
-inline string Length::toString() const {
+inline std::string Length::toString() const {
 	return toString(value);
 }
-inline string Length::toStringI() const {
+inline std::string Length::toStringI() const {
 	return toString(value);
 }
 inline double Length::get() const {
 	return value;
 }
 #ifndef WITHOUT_ACS
-inline IDLLength Length::toIDLLength() const {
-	IDLLength tmp;
+inline asdmIDLTypes::IDLLength Length::toIDLLength() const {
+    asdmIDLTypes::IDLLength tmp;
 	tmp.value = value;
 	return tmp;
 }
@@ -440,16 +434,16 @@ inline Length operator * ( double n, const Length &x) {
 	tmp.value = x.value * n;
 	return tmp;
 }
-inline ostream & operator << ( ostream &o, const Length &x ) {
+inline std::ostream & operator << ( std::ostream &o, const Length &x ) {
 	o << x.value;
 	return o;
 }
-inline istream & operator >> ( istream &i, Length &x ) {
+inline std::istream & operator >> ( std::istream &i, Length &x ) {
 	i >> x.value;
 	return i;
 }
-inline string Length::unit() {
-	return string ("m");
+inline std::string Length::unit() {
+	return std::string ("m");
 }
 } // End namespace asdm
 #endif /* Length_CLASS */

@@ -593,7 +593,7 @@ public:
     casacore::Bool isLookaheadTerminationRequested () const;
     void notifyAllInterfaceChanged () const;
     void requestViReset ();
-    pair<casacore::Bool, RoviaModifiers> resetVi ();
+    std::pair<casacore::Bool, RoviaModifiers> resetVi ();
     void terminate ();
     void terminateLookahead ();
     void terminateSweep ();

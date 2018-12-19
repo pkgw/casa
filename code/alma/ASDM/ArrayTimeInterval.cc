@@ -1,4 +1,7 @@
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
+
+using namespace std;
+
 namespace asdm {
   
   bool ArrayTimeInterval::readStartTimeDurationInBin_ = false;
@@ -9,14 +12,14 @@ namespace asdm {
    * Create a ArrayTimeInterval from an IDLArrayTimeInterval object.
    * @param t The IDL ArrayTimeInterval object.
    */
-  ArrayTimeInterval::ArrayTimeInterval (IDLArrayTimeInterval t) {
+  ArrayTimeInterval::ArrayTimeInterval (asdmIDLTypes::IDLArrayTimeInterval t) {
     start = ArrayTime(t.start);
     duration = Interval(t.duration); 
   }
   
   // inline to IDL conversion.
   const asdmIDLTypes::IDLArrayTimeInterval ArrayTimeInterval::toIDLArrayTimeInterval()const {
-    IDLArrayTimeInterval x;
+    asdmIDLTypes::IDLArrayTimeInterval x;
     x.start = start.get();
     x.duration = duration.get();
     return x;

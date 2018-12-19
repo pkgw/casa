@@ -56,9 +56,9 @@ private:
 
 	// Declaration of static members for common pre-processing
 	casacore::uShort agentNumber_p;
-	static vector< vector<casacore::Double> > antennaPointingMap_p;
+	static std::vector< std::vector<casacore::Double> > antennaPointingMap_p;
 	static casa::async::Mutex staticMembersMutex_p;
-	static vector<bool> startedProcessing_p;
+	static std::vector<bool> startedProcessing_p;
 	static bool preProcessingDone_p;
 	static casacore::uShort nAgents_p;
 };

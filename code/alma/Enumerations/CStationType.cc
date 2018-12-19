@@ -33,7 +33,7 @@
  * File CStationType.cpp
  */
 #include <sstream>
-#include <CStationType.h>
+#include <alma/Enumerations/CStationType.h>
 #include <string>
 using namespace std;
 

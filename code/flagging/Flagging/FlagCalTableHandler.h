@@ -383,9 +383,9 @@ public:
 
         casacore::Vector<bool>& flagRowRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
         casacore::Cube<bool>& flagCubeRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
-        casacore::Cube<complex<float> >& visCubeRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
-        casacore::Cube<complex<float> >& visCubeCorrectedRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
-        casacore::Cube<complex<float> >& visCubeModelRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
+        casacore::Cube<std::complex<float> >& visCubeRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
+        casacore::Cube<std::complex<float> >& visCubeCorrectedRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
+        casacore::Cube<std::complex<float> >& visCubeModelRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
         casacore::Cube<float >& weightSpectrumRef() {throw casacore::AipsError ("Not implemented " , __FILE__, __LINE__);}
         casacore::IPosition getShape () const { return casacore::IPosition ();}
 

@@ -31,11 +31,10 @@
 #include <regex>
 #endif
 
-#include <EntityId.h>
-#include <OutOfBoundsException.h>
-#include <InvalidArgumentException.h>
-using asdm::OutOfBoundsException;
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/EntityId.h>
+#include <alma/ASDM/OutOfBoundsException.h>
+#include <alma/ASDM/InvalidArgumentException.h>
+using namespace std;
 
 namespace asdm {
 
@@ -124,7 +123,7 @@ namespace asdm {
   }
 
 #ifndef WITHOUT_ACS
-  EntityId::EntityId(IDLEntityId &x) throw (InvalidArgumentException) {
+  EntityId::EntityId(asdmIDLTypes::IDLEntityId &x) throw (InvalidArgumentException) {
     string tmp(x.value);
     string msg = validate(tmp);
     if (msg.length() != 0)

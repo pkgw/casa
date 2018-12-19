@@ -129,7 +129,7 @@ public:
             const PlotCoordinate& radii, bool smartDelete = true) const;
     
     // Implements PlotFactory::shapePolygon().
-    PlotShapePolygonPtr shapePolygon(const vector<PlotCoordinate>& c,
+    PlotShapePolygonPtr shapePolygon(const std::vector<PlotCoordinate>& c,
             bool smartDelete = true) const;
     
     // Implements PlotFactory::shapeLine().
@@ -143,7 +143,7 @@ public:
             PlotShapeArrow::V_ARROW, bool smartDelete = true) const;
     
     // Implements PlotFactory::shapePath().
-    PlotShapePathPtr shapePath(const vector<PlotCoordinate>& coords,
+    PlotShapePathPtr shapePath(const std::vector<PlotCoordinate>& coords,
             bool smartDelete = true) const;
     
     // Implements PlotFactory::shapeArc().
@@ -163,7 +163,7 @@ public:
     // </group>
     
     // Implements PlotFactory::allNamedColors().
-    vector<casacore::String> allNamedColors() const;
+    std::vector<casacore::String> allNamedColors() const;
     
     // Implements PlotFactory::font().
     // <group>

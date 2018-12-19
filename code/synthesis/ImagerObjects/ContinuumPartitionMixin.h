@@ -113,7 +113,7 @@ protected:
 		if (worker_rank == 0 && num_workers > 1) {
 			auto accumulate_part_names =
 				[&] (std::array<casacore::Record *,2> im_norm_par) {
-				vector<casacore::String> part_names;
+				std::vector<casacore::String> part_names;
 				std::string image_path =
 				cwd + "/" + im_norm_par[0]->asString("imagename").c_str();
 				for (auto s : all_worker_suffixes) {

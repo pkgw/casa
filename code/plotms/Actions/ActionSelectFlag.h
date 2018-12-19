@@ -38,7 +38,7 @@ public:
 protected:
 	virtual string getOperationLabel() const;
 	virtual PlotLogMessage* doFlagOperation( PlotMSPlot* plot, int canvasIndex,
-			vector<PlotRegion>& regions, bool showUnflagged, bool showFlagged);
+			std::vector<PlotRegion>& regions, bool showUnflagged, bool showFlagged);
 };
 
 } /* namespace casa */
