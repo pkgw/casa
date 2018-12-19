@@ -56,7 +56,7 @@ namespace casa {
 class AnnotationBase {
 public:
 
-	using RGB = vector<float>;
+	using RGB = std::vector<float>;
     
 	// The pairs have longitude as the first member and latitude as the second
 	using Direction = casacore::Vector<std::pair<casacore::Quantity,casacore::Quantity> >;
@@ -139,7 +139,7 @@ public:
 	static const casacore::Bool DEFAULT_USETEX;
 	static const RGB DEFAULT_LABELCOLOR;
 	static const casacore::String DEFAULT_LABELPOS;
-	static const vector<casacore::Int> DEFAULT_LABELOFF;
+	static const std::vector<casacore::Int> DEFAULT_LABELOFF;
 
 	static const casacore::Regex rgbHexRegex;
 
@@ -249,9 +249,9 @@ public:
 	void setLabelPosition(const casacore::String& position);
 
 	// <src>offset</src> must have two elements
-	void setLabelOffset(const vector<casacore::Int>& offset);
+	void setLabelOffset(const std::vector<casacore::Int>& offset);
 
-	vector<casacore::Int> getLabelOffset() const;
+    std::vector<casacore::Int> getLabelOffset() const;
 
 	virtual std::ostream& print(std::ostream &os) const = 0;
 
@@ -417,7 +417,7 @@ private:
 	std::map<Keyword, casacore::Bool> _globals;
 	std::map<Keyword, casacore::String> _params;
 	casacore::Bool _printGlobals;
-	vector<casacore::Int> _labelOff;
+    std::vector<casacore::Int> _labelOff;
 
 	static casacore::Bool _doneUnitInit, _doneColorInit;
 	static std::map<casacore::String, LineStyle> _lineStyleMap;

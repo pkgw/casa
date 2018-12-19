@@ -30,18 +30,18 @@
  *
  * File DelayModelFixedParametersTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <DelayModelFixedParametersTable.h>
-#include <DelayModelFixedParametersRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/DelayModelFixedParametersTable.h>
+#include <alma/ASDM/DelayModelFixedParametersRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::DelayModelFixedParametersTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -270,7 +270,7 @@ namespace asdm {
  	 * @param execBlockId 
 	
      */
-	DelayModelFixedParametersRow* DelayModelFixedParametersTable::newRow(string delayModelVersion, Tag execBlockId){
+	DelayModelFixedParametersRow* DelayModelFixedParametersTable::newRow(std::string delayModelVersion, Tag execBlockId){
 		DelayModelFixedParametersRow *row = new DelayModelFixedParametersRow(*this);
 			
 		row->setDelayModelVersion(delayModelVersion);
@@ -450,7 +450,7 @@ DelayModelFixedParametersRow* DelayModelFixedParametersTable::newRow(DelayModelF
  * @param execBlockId.
  	 		 
  */
-DelayModelFixedParametersRow* DelayModelFixedParametersTable::lookup(string delayModelVersion, Tag execBlockId) {
+DelayModelFixedParametersRow* DelayModelFixedParametersTable::lookup(std::string delayModelVersion, Tag execBlockId) {
 		DelayModelFixedParametersRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -511,7 +511,7 @@ DelayModelFixedParametersRow* DelayModelFixedParametersTable::lookup(string dela
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<DelayModelFixedParametersTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dmfp=\"http://Alma/XASDM/DelayModelFixedParametersTable\" xsi:schemaLocation=\"http://Alma/XASDM/DelayModelFixedParametersTable http://almaobservatory.org/XML/XASDM/3/DelayModelFixedParametersTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<DelayModelFixedParametersTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dmfp=\"http://Alma/XASDM/DelayModelFixedParametersTable\" xsi:schemaLocation=\"http://Alma/XASDM/DelayModelFixedParametersTable http://almaobservatory.org/XML/XASDM/4/DelayModelFixedParametersTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -641,7 +641,7 @@ DelayModelFixedParametersRow* DelayModelFixedParametersTable::lookup(string dela
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<DelayModelFixedParametersTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dmfp=\"http://Alma/XASDM/DelayModelFixedParametersTable\" xsi:schemaLocation=\"http://Alma/XASDM/DelayModelFixedParametersTable http://almaobservatory.org/XML/XASDM/3/DelayModelFixedParametersTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<DelayModelFixedParametersTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dmfp=\"http://Alma/XASDM/DelayModelFixedParametersTable\" xsi:schemaLocation=\"http://Alma/XASDM/DelayModelFixedParametersTable http://almaobservatory.org/XML/XASDM/4/DelayModelFixedParametersTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='DelayModelFixedParametersTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";

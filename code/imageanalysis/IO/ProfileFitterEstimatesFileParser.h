@@ -93,7 +93,7 @@ class ProfileFitterEstimatesFileParser {
 		SpectralList getEstimates() const;
 
 		// Get the fixed parameter masks specified in the file.
-		vector<casacore::String> getFixed() const;
+		std::vector<casacore::String> getFixed() const;
 
 		// Get the contents of the file
 		casacore::String getContents() const;
@@ -101,9 +101,9 @@ class ProfileFitterEstimatesFileParser {
 	private:
 		const static casacore::String _class;
 		SpectralList _spectralList;
-		vector<casacore::String> _fixedValues;
+		std::vector<casacore::String> _fixedValues;
 		casacore::LogIO _log;
-		vector<casacore::Double> _peakValues, _centerValues, _fwhmValues;
+		std::vector<casacore::Double> _peakValues, _centerValues, _fwhmValues;
 		casacore::String _contents;
 
 		// parse the file

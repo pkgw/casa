@@ -46,7 +46,7 @@ public:
 	void setExportFormat(PlotExportFormat exportFormat );
 
 	//Store the plot to export
-	void setPlots( vector<PlotMSPlot*> plots );
+	void setPlots( std::vector<PlotMSPlot*> plots );
 
 	virtual ~ExportThread();
 protected:
@@ -54,7 +54,7 @@ protected:
 	virtual void cancelWork();
 private:
 	PlotExportFormat format;
-	vector<PlotMSPlot*> exportPlots;
+    std::vector<PlotMSPlot*> exportPlots;
 	ExportThread( const ExportThread& other );
 	ExportThread operator=( const ExportThread& other );
 };

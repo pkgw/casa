@@ -29,23 +29,17 @@
 #include <vector>
 #include <iostream>
 #include <string>
-using namespace std;
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLHumidity;
 #endif
-#include <StringTokenizer.h>
-#include <NumberFormatException.h>
-using asdm::StringTokenizer;
-using asdm::NumberFormatException;
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/NumberFormatException.h>
+#include <alma/ASDM/EndianStream.h>
 namespace asdm {
 class Humidity;
 Humidity operator * ( double , const Humidity & );
-ostream & operator << ( ostream &, const Humidity & );
-istream & operator >> ( istream &, Humidity &);
+std::ostream & operator << ( std::ostream &, const Humidity & );
+std::istream & operator >> ( std::istream &, Humidity &);
 /**
  * The Humidity class implements a quantity of humidity in percent..
  * 
@@ -69,11 +63,11 @@ class Humidity {
    * @param os a reference to the ostream to be written on.
    * @param x a const reference to a Humidity.
    */
-  friend ostream & operator << ( ostream & os, const Humidity & x);
+  friend std::ostream & operator << ( std::ostream & os, const Humidity & x);
   /**
    * Overloading of >> to read an Humidity from an istream.
    */
-  friend istream & operator >> ( istream & is, Humidity & x);
+  friend std::istream & operator >> ( std::istream & is, Humidity & x);
 public:
 	/**
 	 * The nullary constructor (default).
@@ -90,7 +84,7 @@ public:
 	 *
 	 * @param s a string.
 	 */
-	Humidity(const string &s);
+	Humidity(const std::string &s);
 #ifndef WITHOUT_ACS
 	/**
 	 *
@@ -98,7 +92,7 @@ public:
 	 * 
 	 * @param idlHumidity a cons ref to an IDLHumidity.
 	 */
-	Humidity(const IDLHumidity & idlHumidity);
+	Humidity(const asdmIDLTypes::IDLHumidity & idlHumidity);
 #endif
 	/**
 	 * A constructor from a value in double precision.
@@ -113,14 +107,14 @@ public:
 	 * A static method equivalent to the constructor from a string.
 	 * @param s a string?.
 	 */
-	static double fromString(const string& s);
+	static double fromString(const std::string& s);
 	/**
 	 * Conversion into string.
 	 * The resulting string contains the representation of the value of this Humidity.
 	 *
 	 * @return string
 	 */
-	static string toString(double);
+	static std::string toString(double);
 	/**
 	 * Parse the next (string) token of a StringTokenizer into an angle.
 	 * @param st a reference to a StringTokenizer.
@@ -138,21 +132,21 @@ public:
 	 * @param angle the vector of Humidity to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Humidity>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Humidity>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Humidity to a EndianOSStream.
 	 * @param angle the vector of vector of Humidity to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Humidity> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Humidity> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Humidity to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Humidity to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Humidity> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<std::vector<Humidity> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Humidity from a EndianIStream
 	 * and use the read value to set an  Humidity.
@@ -167,7 +161,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Humidity
 	 */	 
-	 static vector<Humidity> from1DBin(EndianIStream & eis);
+	 static std::vector<Humidity> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Humidity from an EndianIStream
@@ -175,7 +169,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Humidity
 	 */	 
-	 static vector<vector<Humidity> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Humidity> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Humidity from an EndianIStream
@@ -183,7 +177,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Humidity
 	 */	 
-	 static vector<vector<vector<Humidity> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<std::vector<Humidity> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Humidity = Humidity.
@@ -288,16 +282,16 @@ public:
 	 * Converts into a string.
 	 * @return a string containing the representation of a the value in double precision.
 	 */
-	string toString() const;
+	std::string toString() const;
 	/** 
 	 * Idem toString.
 	 */
-	string toStringI() const;
+	std::string toStringI() const;
 	/**
 	 * Conversion operator.
 	 * Converts into a string.
 	 */
-	operator string () const;
+	operator std::string () const;
 	/**
 	 * Return the double precision value of the Humidity.
 	 * @return double
@@ -308,13 +302,13 @@ public:
 	 * Return the IDLHumidity representation of the Humidity.
 	 * @return IDLHumidity 
 	 */
-	IDLHumidity toIDLHumidity() const;
+    asdmIDLTypes::IDLHumidity toIDLHumidity() const;
 #endif
 	/**
 	 * Returns the abbreviated name of the unit implicitely associated to any Humidity.
 	 * @return string
 	 */
-	static string unit();
+	static std::string unit();
 private:
 	double value;
 };
@@ -324,10 +318,10 @@ inline Humidity::Humidity() : value(0.0) {
 inline Humidity::Humidity(const Humidity &t) : value(t.value) {
 }
 #ifndef WITHOUT_ACS
-inline Humidity::Humidity(const IDLHumidity &l) : value(l.value) {
+inline Humidity::Humidity(const asdmIDLTypes::IDLHumidity &l) : value(l.value) {
 }
 #endif
-inline Humidity::Humidity(const string &s) : value(fromString(s)) {
+inline Humidity::Humidity(const std::string &s) : value(fromString(s)) {
 }
 inline Humidity::Humidity(double v) : value(v) {
 }
@@ -415,21 +409,21 @@ inline Humidity Humidity::operator + () const {
 	return tmp;
 }
 // Conversion functions
-inline Humidity::operator string () const {
+inline Humidity::operator std::string () const {
 	return toString();
 }
-inline string Humidity::toString() const {
+inline std::string Humidity::toString() const {
 	return toString(value);
 }
-inline string Humidity::toStringI() const {
+inline std::string Humidity::toStringI() const {
 	return toString(value);
 }
 inline double Humidity::get() const {
 	return value;
 }
 #ifndef WITHOUT_ACS
-inline IDLHumidity Humidity::toIDLHumidity() const {
-	IDLHumidity tmp;
+inline asdmIDLTypes::IDLHumidity Humidity::toIDLHumidity() const {
+    asdmIDLTypes::IDLHumidity tmp;
 	tmp.value = value;
 	return tmp;
 }
@@ -440,16 +434,16 @@ inline Humidity operator * ( double n, const Humidity &x) {
 	tmp.value = x.value * n;
 	return tmp;
 }
-inline ostream & operator << ( ostream &o, const Humidity &x ) {
+inline std::ostream & operator << ( std::ostream &o, const Humidity &x ) {
 	o << x.value;
 	return o;
 }
-inline istream & operator >> ( istream &i, Humidity &x ) {
+inline std::istream & operator >> ( std::istream &i, Humidity &x ) {
 	i >> x.value;
 	return i;
 }
-inline string Humidity::unit() {
-	return string ("%");
+inline std::string Humidity::unit() {
+	return std::string ("%");
 }
 } // End namespace asdm
 #endif /* Humidity_CLASS */

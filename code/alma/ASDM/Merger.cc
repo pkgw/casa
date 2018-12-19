@@ -30,7 +30,7 @@
  *
  * File Merger.h
  */
-#include <Merger.h>
+#include <alma/ASDM/Merger.h>
 
 using namespace std;
 

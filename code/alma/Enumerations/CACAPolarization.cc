@@ -33,7 +33,7 @@
  * File CACAPolarization.cpp
  */
 #include <sstream>
-#include <CACAPolarization.h>
+#include <alma/Enumerations/CACAPolarization.h>
 #include <string>
 using namespace std;
 

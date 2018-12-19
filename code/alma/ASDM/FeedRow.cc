@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <FeedRow.h>
-#include <FeedTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/FeedRow.h>
+#include <alma/ASDM/FeedTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-#include <ReceiverTable.h>
-#include <ReceiverRow.h>
+#include <alma/ASDM/ReceiverTable.h>
+#include <alma/ASDM/ReceiverRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::ReceiverTable;
 using asdm::ReceiverRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	FeedRow::~FeedRow() {
@@ -711,7 +708,9 @@ namespace asdm {
 		
 			
 		beamOffset .clear();
-		vector<double> v_aux_beamOffset;
+        
+        vector<double> v_aux_beamOffset;
+        
 		for (unsigned int i = 0; i < x.beamOffset.length(); ++i) {
 			v_aux_beamOffset.clear();
 			for (unsigned int j = 0; j < x.beamOffset[0].length(); ++j) {
@@ -731,7 +730,9 @@ namespace asdm {
 		
 			
 		focusReference .clear();
-		vector<Length> v_aux_focusReference;
+        
+        vector<Length> v_aux_focusReference;
+        
 		for (unsigned int i = 0; i < x.focusReference.length(); ++i) {
 			v_aux_focusReference.clear();
 			for (unsigned int j = 0; j < x.focusReference[0].length(); ++j) {
@@ -766,7 +767,9 @@ namespace asdm {
 		
 			
 		polResponse .clear();
-		vector<Complex> v_aux_polResponse;
+        
+        vector<Complex> v_aux_polResponse;
+        
 		for (unsigned int i = 0; i < x.polResponse.length(); ++i) {
 			v_aux_polResponse.clear();
 			for (unsigned int j = 0; j < x.polResponse[0].length(); ++j) {
@@ -1591,7 +1594,9 @@ void FeedRow::beamOffsetFromBin(EndianIStream& eis) {
 		
 		unsigned int beamOffsetDim1 = eis.readInt();
 		unsigned int beamOffsetDim2 = eis.readInt();
+        
 		vector <double> beamOffsetAux1;
+        
 		for (unsigned int i = 0; i < beamOffsetDim1; i++) {
 			beamOffsetAux1.clear();
 			for (unsigned int j = 0; j < beamOffsetDim2 ; j++)			
@@ -1835,7 +1840,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void FeedRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1843,7 +1850,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void FeedRow::spectralWindowIdFromText(const string & s) {
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1851,7 +1860,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void FeedRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -1859,7 +1870,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FeedRow::feedIdFromText(const string & s) {
 		 
+          
 		feedId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1867,7 +1880,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FeedRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1875,7 +1890,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void FeedRow::beamOffsetFromText(const string & s) {
 		 
+          
 		beamOffset = ASDMValuesParser::parse2D<double>(s);
+          
 		
 	}
 	
@@ -1883,7 +1900,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void FeedRow::focusReferenceFromText(const string & s) {
 		 
+          
 		focusReference = ASDMValuesParser::parse2D<Length>(s);
+          
 		
 	}
 	
@@ -1891,7 +1910,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void FeedRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -1899,7 +1920,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Complex 
 	void FeedRow::polResponseFromText(const string & s) {
 		 
+          
 		polResponse = ASDMValuesParser::parse2D<Complex>(s);
+          
 		
 	}
 	
@@ -1907,7 +1930,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void FeedRow::receptorAngleFromText(const string & s) {
 		 
+          
 		receptorAngle = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -1915,7 +1940,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FeedRow::receiverIdFromText(const string & s) {
 		 
+          
 		receiverId = ASDMValuesParser::parse1D<int>(s);
+          
 		
 	}
 	
@@ -1925,7 +1952,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	void FeedRow::feedNumFromText(const string & s) {
 		feedNumExists = true;
 		 
+          
 		feedNum = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1934,7 +1963,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	void FeedRow::illumOffsetFromText(const string & s) {
 		illumOffsetExists = true;
 		 
+          
 		illumOffset = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -1943,7 +1974,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	void FeedRow::positionFromText(const string & s) {
 		positionExists = true;
 		 
+          
 		position = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -1952,7 +1985,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	void FeedRow::skyCouplingFromText(const string & s) {
 		skyCouplingExists = true;
 		 
+          
 		skyCoupling = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -1961,7 +1996,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	void FeedRow::numChanFromText(const string & s) {
 		numChanExists = true;
 		 
+          
 		numChan = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1970,7 +2007,9 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	void FeedRow::skyCouplingSpectrumFromText(const string & s) {
 		skyCouplingSpectrumExists = true;
 		 
+          
 		skyCouplingSpectrum = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -2096,21 +2135,21 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get beamOffset.
- 	 * @return beamOffset as vector<vector<double > >
+ 	 * @return beamOffset as std::vector<std::vector<double > >
  	 */
- 	vector<vector<double > > FeedRow::getBeamOffset() const {
+ 	std::vector<std::vector<double > > FeedRow::getBeamOffset() const {
 	
   		return beamOffset;
  	}
 
  	/**
- 	 * Set beamOffset with the specified vector<vector<double > >.
- 	 * @param beamOffset The vector<vector<double > > value to which beamOffset is to be set.
+ 	 * Set beamOffset with the specified std::vector<std::vector<double > >.
+ 	 * @param beamOffset The std::vector<std::vector<double > > value to which beamOffset is to be set.
  	 
  	
  		
  	 */
- 	void FeedRow::setBeamOffset (vector<vector<double > > beamOffset)  {
+ 	void FeedRow::setBeamOffset (std::vector<std::vector<double > > beamOffset)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2128,21 +2167,21 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get focusReference.
- 	 * @return focusReference as vector<vector<Length > >
+ 	 * @return focusReference as std::vector<std::vector<Length > >
  	 */
- 	vector<vector<Length > > FeedRow::getFocusReference() const {
+ 	std::vector<std::vector<Length > > FeedRow::getFocusReference() const {
 	
   		return focusReference;
  	}
 
  	/**
- 	 * Set focusReference with the specified vector<vector<Length > >.
- 	 * @param focusReference The vector<vector<Length > > value to which focusReference is to be set.
+ 	 * Set focusReference with the specified std::vector<std::vector<Length > >.
+ 	 * @param focusReference The std::vector<std::vector<Length > > value to which focusReference is to be set.
  	 
  	
  		
  	 */
- 	void FeedRow::setFocusReference (vector<vector<Length > > focusReference)  {
+ 	void FeedRow::setFocusReference (std::vector<std::vector<Length > > focusReference)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2160,21 +2199,21 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > FeedRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > FeedRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void FeedRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void FeedRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2192,21 +2231,21 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polResponse.
- 	 * @return polResponse as vector<vector<Complex > >
+ 	 * @return polResponse as std::vector<std::vector<Complex > >
  	 */
- 	vector<vector<Complex > > FeedRow::getPolResponse() const {
+ 	std::vector<std::vector<Complex > > FeedRow::getPolResponse() const {
 	
   		return polResponse;
  	}
 
  	/**
- 	 * Set polResponse with the specified vector<vector<Complex > >.
- 	 * @param polResponse The vector<vector<Complex > > value to which polResponse is to be set.
+ 	 * Set polResponse with the specified std::vector<std::vector<Complex > >.
+ 	 * @param polResponse The std::vector<std::vector<Complex > > value to which polResponse is to be set.
  	 
  	
  		
  	 */
- 	void FeedRow::setPolResponse (vector<vector<Complex > > polResponse)  {
+ 	void FeedRow::setPolResponse (std::vector<std::vector<Complex > > polResponse)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2224,21 +2263,21 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get receptorAngle.
- 	 * @return receptorAngle as vector<Angle >
+ 	 * @return receptorAngle as std::vector<Angle >
  	 */
- 	vector<Angle > FeedRow::getReceptorAngle() const {
+ 	std::vector<Angle > FeedRow::getReceptorAngle() const {
 	
   		return receptorAngle;
  	}
 
  	/**
- 	 * Set receptorAngle with the specified vector<Angle >.
- 	 * @param receptorAngle The vector<Angle > value to which receptorAngle is to be set.
+ 	 * Set receptorAngle with the specified std::vector<Angle >.
+ 	 * @param receptorAngle The std::vector<Angle > value to which receptorAngle is to be set.
  	 
  	
  		
  	 */
- 	void FeedRow::setReceptorAngle (vector<Angle > receptorAngle)  {
+ 	void FeedRow::setReceptorAngle (std::vector<Angle > receptorAngle)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2311,10 +2350,10 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get illumOffset, which is optional.
- 	 * @return illumOffset as vector<Length >
+ 	 * @return illumOffset as std::vector<Length >
  	 * @throw IllegalAccessException If illumOffset does not exist.
  	 */
- 	vector<Length > FeedRow::getIllumOffset() const  {
+ 	std::vector<Length > FeedRow::getIllumOffset() const  {
 		if (!illumOffsetExists) {
 			throw IllegalAccessException("illumOffset", "Feed");
 		}
@@ -2323,12 +2362,12 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set illumOffset with the specified vector<Length >.
- 	 * @param illumOffset The vector<Length > value to which illumOffset is to be set.
+ 	 * Set illumOffset with the specified std::vector<Length >.
+ 	 * @param illumOffset The std::vector<Length > value to which illumOffset is to be set.
  	 
  	
  	 */
- 	void FeedRow::setIllumOffset (vector<Length > illumOffset) {
+ 	void FeedRow::setIllumOffset (std::vector<Length > illumOffset) {
 	
  		this->illumOffset = illumOffset;
 	
@@ -2358,10 +2397,10 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get position, which is optional.
- 	 * @return position as vector<Length >
+ 	 * @return position as std::vector<Length >
  	 * @throw IllegalAccessException If position does not exist.
  	 */
- 	vector<Length > FeedRow::getPosition() const  {
+ 	std::vector<Length > FeedRow::getPosition() const  {
 		if (!positionExists) {
 			throw IllegalAccessException("position", "Feed");
 		}
@@ -2370,12 +2409,12 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set position with the specified vector<Length >.
- 	 * @param position The vector<Length > value to which position is to be set.
+ 	 * Set position with the specified std::vector<Length >.
+ 	 * @param position The std::vector<Length > value to which position is to be set.
  	 
  	
  	 */
- 	void FeedRow::setPosition (vector<Length > position) {
+ 	void FeedRow::setPosition (std::vector<Length > position) {
 	
  		this->position = position;
 	
@@ -2499,10 +2538,10 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get skyCouplingSpectrum, which is optional.
- 	 * @return skyCouplingSpectrum as vector<float >
+ 	 * @return skyCouplingSpectrum as std::vector<float >
  	 * @throw IllegalAccessException If skyCouplingSpectrum does not exist.
  	 */
- 	vector<float > FeedRow::getSkyCouplingSpectrum() const  {
+ 	std::vector<float > FeedRow::getSkyCouplingSpectrum() const  {
 		if (!skyCouplingSpectrumExists) {
 			throw IllegalAccessException("skyCouplingSpectrum", "Feed");
 		}
@@ -2511,12 +2550,12 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set skyCouplingSpectrum with the specified vector<float >.
- 	 * @param skyCouplingSpectrum The vector<float > value to which skyCouplingSpectrum is to be set.
+ 	 * Set skyCouplingSpectrum with the specified std::vector<float >.
+ 	 * @param skyCouplingSpectrum The std::vector<float > value to which skyCouplingSpectrum is to be set.
  	 
  	
  	 */
- 	void FeedRow::setSkyCouplingSpectrum (vector<float > skyCouplingSpectrum) {
+ 	void FeedRow::setSkyCouplingSpectrum (std::vector<float > skyCouplingSpectrum) {
 	
  		this->skyCouplingSpectrum = skyCouplingSpectrum;
 	
@@ -2579,21 +2618,21 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get receiverId.
- 	 * @return receiverId as vector<int> 
+ 	 * @return receiverId as std::vector<int> 
  	 */
- 	vector<int>  FeedRow::getReceiverId() const {
+ 	std::vector<int>  FeedRow::getReceiverId() const {
 	
   		return receiverId;
  	}
 
  	/**
- 	 * Set receiverId with the specified vector<int> .
- 	 * @param receiverId The vector<int>  value to which receiverId is to be set.
+ 	 * Set receiverId with the specified std::vector<int> .
+ 	 * @param receiverId The std::vector<int>  value to which receiverId is to be set.
  	 
  	
  		
  	 */
- 	void FeedRow::setReceiverId (vector<int>  receiverId)  {
+ 	void FeedRow::setReceiverId (std::vector<int>  receiverId)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2700,7 +2739,7 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
   		}
   		if ((i < 0) || (i > ((int) this->receiverId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute receiverId in table FeedTable");
-  		vector<int> ::iterator iter = this->receiverId.begin();
+  		std::vector<int> ::iterator iter = this->receiverId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -3097,7 +3136,7 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool FeedRow::compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, vector<vector<double > > beamOffset, vector<vector<Length > > focusReference, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Complex > > polResponse, vector<Angle > receptorAngle, vector<int>  receiverId) {
+	bool FeedRow::compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, std::vector<std::vector<double > > beamOffset, std::vector<std::vector<Length > > focusReference, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Complex > > polResponse, std::vector<Angle > receptorAngle, std::vector<int>  receiverId) {
 		bool result;
 		result = true;
 		
@@ -3176,7 +3215,7 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool FeedRow::compareRequiredValue(int numReceptor, vector<vector<double > > beamOffset, vector<vector<Length > > focusReference, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Complex > > polResponse, vector<Angle > receptorAngle, vector<int>  receiverId) {
+	bool FeedRow::compareRequiredValue(int numReceptor, std::vector<std::vector<double > > beamOffset, std::vector<std::vector<Length > > focusReference, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Complex > > polResponse, std::vector<Angle > receptorAngle, std::vector<int>  receiverId) {
 		bool result;
 		result = true;
 		

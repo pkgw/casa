@@ -938,6 +938,7 @@ casac::record* calibrater::fluxscale(
 	oSubRecord.define( "fitFluxd", oFluxD.fitfd(t));
 	oSubRecord.define( "fitFluxdErr", oFluxD.fitfderr(t));
 	oSubRecord.define( "fitRefFreq", oFluxD.fitreffreq(t));
+	oSubRecord.define( "covarMat", oFluxD.covarmat[t]);
 	
 	oRecord.defineRecord( String::toString<Int>(t), oSubRecord );
       }

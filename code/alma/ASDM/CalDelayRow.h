@@ -48,19 +48,19 @@
 
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -69,31 +69,15 @@
 	
 
 	
-#include "CAtmPhaseCorrection.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
-#include "CBasebandName.h"
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
-#include "CReceiverBand.h"
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -109,19 +93,35 @@
 	
 
 	
-
-	
-#include "CReceiverSideband.h"
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CReceiverSideband.h>
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalDelay.h
     \brief Generated from model's revision "-1", branch ""
@@ -141,7 +141,7 @@ class CalReductionRow;
 
 class CalDelayRow;
 typedef void (CalDelayRow::*CalDelayAttributeFromBin) (EndianIStream& eis);
-typedef void (CalDelayRow::*CalDelayAttributeFromText) (const string& s);
+typedef void (CalDelayRow::*CalDelayAttributeFromText) (const std::string& s);
 
 /**
  * The CalDelayRow class is a row of a CalDelayTable.
@@ -182,23 +182,23 @@ public:
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string getAntennaName() const;
+ 	std::string getAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  		
  			
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 		
  	 */
- 	void setAntennaName (string antennaName);
+ 	void setAntennaName (std::string antennaName);
   		
 	
 	
@@ -370,21 +370,21 @@ public:
 	
  	/**
  	 * Get refAntennaName.
- 	 * @return refAntennaName as string
+ 	 * @return refAntennaName as std::string
  	 */
- 	string getRefAntennaName() const;
+ 	std::string getRefAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set refAntennaName with the specified string.
- 	 * @param refAntennaName The string value to which refAntennaName is to be set.
+ 	 * Set refAntennaName with the specified std::string.
+ 	 * @param refAntennaName The std::string value to which refAntennaName is to be set.
  	 
  		
  			
  	 */
- 	void setRefAntennaName (string refAntennaName);
+ 	void setRefAntennaName (std::string refAntennaName);
   		
 	
 	
@@ -430,21 +430,21 @@ public:
 	
  	/**
  	 * Get delayError.
- 	 * @return delayError as vector<double >
+ 	 * @return delayError as std::vector<double >
  	 */
- 	vector<double > getDelayError() const;
+ 	std::vector<double > getDelayError() const;
 	
  
  	
  	
  	/**
- 	 * Set delayError with the specified vector<double >.
- 	 * @param delayError The vector<double > value to which delayError is to be set.
+ 	 * Set delayError with the specified std::vector<double >.
+ 	 * @param delayError The std::vector<double > value to which delayError is to be set.
  	 
  		
  			
  	 */
- 	void setDelayError (vector<double > delayError);
+ 	void setDelayError (std::vector<double > delayError);
   		
 	
 	
@@ -460,21 +460,21 @@ public:
 	
  	/**
  	 * Get delayOffset.
- 	 * @return delayOffset as vector<double >
+ 	 * @return delayOffset as std::vector<double >
  	 */
- 	vector<double > getDelayOffset() const;
+ 	std::vector<double > getDelayOffset() const;
 	
  
  	
  	
  	/**
- 	 * Set delayOffset with the specified vector<double >.
- 	 * @param delayOffset The vector<double > value to which delayOffset is to be set.
+ 	 * Set delayOffset with the specified std::vector<double >.
+ 	 * @param delayOffset The std::vector<double > value to which delayOffset is to be set.
  	 
  		
  			
  	 */
- 	void setDelayOffset (vector<double > delayOffset);
+ 	void setDelayOffset (std::vector<double > delayOffset);
   		
 	
 	
@@ -490,21 +490,21 @@ public:
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
  	
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -520,21 +520,21 @@ public:
 	
  	/**
  	 * Get reducedChiSquared.
- 	 * @return reducedChiSquared as vector<double >
+ 	 * @return reducedChiSquared as std::vector<double >
  	 */
- 	vector<double > getReducedChiSquared() const;
+ 	std::vector<double > getReducedChiSquared() const;
 	
  
  	
  	
  	/**
- 	 * Set reducedChiSquared with the specified vector<double >.
- 	 * @param reducedChiSquared The vector<double > value to which reducedChiSquared is to be set.
+ 	 * Set reducedChiSquared with the specified std::vector<double >.
+ 	 * @param reducedChiSquared The std::vector<double > value to which reducedChiSquared is to be set.
  	 
  		
  			
  	 */
- 	void setReducedChiSquared (vector<double > reducedChiSquared);
+ 	void setReducedChiSquared (std::vector<double > reducedChiSquared);
   		
 	
 	
@@ -550,21 +550,21 @@ public:
 	
  	/**
  	 * Get appliedDelay.
- 	 * @return appliedDelay as vector<double >
+ 	 * @return appliedDelay as std::vector<double >
  	 */
- 	vector<double > getAppliedDelay() const;
+ 	std::vector<double > getAppliedDelay() const;
 	
  
  	
  	
  	/**
- 	 * Set appliedDelay with the specified vector<double >.
- 	 * @param appliedDelay The vector<double > value to which appliedDelay is to be set.
+ 	 * Set appliedDelay with the specified std::vector<double >.
+ 	 * @param appliedDelay The std::vector<double > value to which appliedDelay is to be set.
  	 
  		
  			
  	 */
- 	void setAppliedDelay (vector<double > appliedDelay);
+ 	void setAppliedDelay (std::vector<double > appliedDelay);
   		
 	
 	
@@ -709,21 +709,21 @@ public:
 	
  	/**
  	 * Get refFreq, which is optional.
- 	 * @return refFreq as vector<Frequency >
+ 	 * @return refFreq as std::vector<Frequency >
  	 * @throws IllegalAccessException If refFreq does not exist.
  	 */
- 	vector<Frequency > getRefFreq() const;
+ 	std::vector<Frequency > getRefFreq() const;
 	
  
  	
  	
  	/**
- 	 * Set refFreq with the specified vector<Frequency >.
- 	 * @param refFreq The vector<Frequency > value to which refFreq is to be set.
+ 	 * Set refFreq with the specified std::vector<Frequency >.
+ 	 * @param refFreq The std::vector<Frequency > value to which refFreq is to be set.
  	 
  		
  	 */
- 	void setRefFreq (vector<Frequency > refFreq);
+ 	void setRefFreq (std::vector<Frequency > refFreq);
 		
 	
 	
@@ -750,21 +750,21 @@ public:
 	
  	/**
  	 * Get refFreqPhase, which is optional.
- 	 * @return refFreqPhase as vector<Angle >
+ 	 * @return refFreqPhase as std::vector<Angle >
  	 * @throws IllegalAccessException If refFreqPhase does not exist.
  	 */
- 	vector<Angle > getRefFreqPhase() const;
+ 	std::vector<Angle > getRefFreqPhase() const;
 	
  
  	
  	
  	/**
- 	 * Set refFreqPhase with the specified vector<Angle >.
- 	 * @param refFreqPhase The vector<Angle > value to which refFreqPhase is to be set.
+ 	 * Set refFreqPhase with the specified std::vector<Angle >.
+ 	 * @param refFreqPhase The std::vector<Angle > value to which refFreqPhase is to be set.
  	 
  		
  	 */
- 	void setRefFreqPhase (vector<Angle > refFreqPhase);
+ 	void setRefFreqPhase (std::vector<Angle > refFreqPhase);
 		
 	
 	
@@ -791,21 +791,21 @@ public:
 	
  	/**
  	 * Get sidebands, which is optional.
- 	 * @return sidebands as vector<ReceiverSidebandMod::ReceiverSideband >
+ 	 * @return sidebands as std::vector<ReceiverSidebandMod::ReceiverSideband >
  	 * @throws IllegalAccessException If sidebands does not exist.
  	 */
- 	vector<ReceiverSidebandMod::ReceiverSideband > getSidebands() const;
+ 	std::vector<ReceiverSidebandMod::ReceiverSideband > getSidebands() const;
 	
  
  	
  	
  	/**
- 	 * Set sidebands with the specified vector<ReceiverSidebandMod::ReceiverSideband >.
- 	 * @param sidebands The vector<ReceiverSidebandMod::ReceiverSideband > value to which sidebands is to be set.
+ 	 * Set sidebands with the specified std::vector<ReceiverSidebandMod::ReceiverSideband >.
+ 	 * @param sidebands The std::vector<ReceiverSidebandMod::ReceiverSideband > value to which sidebands is to be set.
  	 
  		
  	 */
- 	void setSidebands (vector<ReceiverSidebandMod::ReceiverSideband > sidebands);
+ 	void setSidebands (std::vector<ReceiverSidebandMod::ReceiverSideband > sidebands);
 		
 	
 	
@@ -957,7 +957,7 @@ public:
 	 * @param appliedDelay
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, string refAntennaName, int numReceptor, vector<double > delayError, vector<double > delayOffset, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > reducedChiSquared, vector<double > appliedDelay);
+	bool compareNoAutoInc(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::string refAntennaName, int numReceptor, std::vector<double > delayError, std::vector<double > delayOffset, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > reducedChiSquared, std::vector<double > appliedDelay);
 	
 	
 
@@ -985,7 +985,7 @@ public:
 	 * @param appliedDelay
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, string refAntennaName, int numReceptor, vector<double > delayError, vector<double > delayOffset, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > reducedChiSquared, vector<double > appliedDelay); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, std::string refAntennaName, int numReceptor, std::vector<double > delayError, std::vector<double > delayOffset, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > reducedChiSquared, std::vector<double > appliedDelay); 
 		 
 	
 	/**
@@ -1138,7 +1138,7 @@ private:
 	
 	
 
-	string antennaName;
+	std::string antennaName;
 
 	
 	
@@ -1204,7 +1204,7 @@ private:
 	
 	
 
-	string refAntennaName;
+	std::string refAntennaName;
 
 	
 	
@@ -1226,7 +1226,7 @@ private:
 	
 	
 
-	vector<double > delayError;
+	std::vector<double > delayError;
 
 	
 	
@@ -1237,7 +1237,7 @@ private:
 	
 	
 
-	vector<double > delayOffset;
+	std::vector<double > delayOffset;
 
 	
 	
@@ -1248,7 +1248,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1259,7 +1259,7 @@ private:
 	
 	
 
-	vector<double > reducedChiSquared;
+	std::vector<double > reducedChiSquared;
 
 	
 	
@@ -1270,7 +1270,7 @@ private:
 	
 	
 
-	vector<double > appliedDelay;
+	std::vector<double > appliedDelay;
 
 	
 	
@@ -1322,7 +1322,7 @@ private:
 	bool refFreqExists;
 	
 
-	vector<Frequency > refFreq;
+	std::vector<Frequency > refFreq;
 
 	
 	
@@ -1335,7 +1335,7 @@ private:
 	bool refFreqPhaseExists;
 	
 
-	vector<Angle > refFreqPhase;
+	std::vector<Angle > refFreqPhase;
 
 	
 	
@@ -1348,7 +1348,7 @@ private:
 	bool sidebandsExists;
 	
 
-	vector<ReceiverSidebandMod::ReceiverSideband > sidebands;
+	std::vector<ReceiverSidebandMod::ReceiverSideband > sidebands;
 
 	
 	
@@ -1434,68 +1434,68 @@ void sidebandsFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalDelayAttributeFromText> fromTextMethods;
 	
-void antennaNameFromText (const string & s);
+void antennaNameFromText (const std::string & s);
 	
 	
-void atmPhaseCorrectionFromText (const string & s);
+void atmPhaseCorrectionFromText (const std::string & s);
 	
 	
-void basebandNameFromText (const string & s);
+void basebandNameFromText (const std::string & s);
 	
 	
-void receiverBandFromText (const string & s);
+void receiverBandFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void refAntennaNameFromText (const string & s);
+void refAntennaNameFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void delayErrorFromText (const string & s);
+void delayErrorFromText (const std::string & s);
 	
 	
-void delayOffsetFromText (const string & s);
+void delayOffsetFromText (const std::string & s);
 	
 	
-void polarizationTypesFromText (const string & s);
+void polarizationTypesFromText (const std::string & s);
 	
 	
-void reducedChiSquaredFromText (const string & s);
+void reducedChiSquaredFromText (const std::string & s);
 	
 	
-void appliedDelayFromText (const string & s);
+void appliedDelayFromText (const std::string & s);
 	
 
 	
-void crossDelayOffsetFromText (const string & s);
+void crossDelayOffsetFromText (const std::string & s);
 	
 	
-void crossDelayOffsetErrorFromText (const string & s);
+void crossDelayOffsetErrorFromText (const std::string & s);
 	
 	
-void numSidebandFromText (const string & s);
+void numSidebandFromText (const std::string & s);
 	
 	
-void refFreqFromText (const string & s);
+void refFreqFromText (const std::string & s);
 	
 	
-void refFreqPhaseFromText (const string & s);
+void refFreqPhaseFromText (const std::string & s);
 	
 	
-void sidebandsFromText (const string & s);
+void sidebandsFromText (const std::string & s);
 	
 	
 	

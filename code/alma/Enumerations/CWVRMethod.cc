@@ -33,7 +33,7 @@
  * File CWVRMethod.cpp
  */
 #include <sstream>
-#include <CWVRMethod.h>
+#include <alma/Enumerations/CWVRMethod.h>
 #include <string>
 using namespace std;
 

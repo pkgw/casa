@@ -82,7 +82,7 @@ public:
 	// If there is no spectral axis, a zero length vector is returned. Otherwise,
 	// a vector of two values is returned. The zeroth value will always be less
 	// than or equal to the first.
-	vector<casacore::Double> getSpectralPixelRange() const;
+    std::vector<casacore::Double> getSpectralPixelRange() const;
 
 
 	casacore::Bool setFrequencyLimits(
@@ -164,7 +164,7 @@ private:
 	casacore::Bool _isDifference, _constructing;
 	casacore::ImageRegion _imageRegion, _directionRegion;
 	casacore::IPosition _imShape;
-	vector<casacore::Double> _spectralPixelRange;
+    std::vector<casacore::Double> _spectralPixelRange;
 
 	static const casacore::String _class;
 

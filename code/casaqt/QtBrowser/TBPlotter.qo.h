@@ -109,7 +109,7 @@ public:
     
     // Row numbers that correspond to the given data.  In the future may want
     // to replace with a less memory-heavy implementation.
-    vector<int> rows;
+    std::vector<int> rows;
     
     // Title for the plot; usually xAxisName vs. yAxisName
     casacore::String title;

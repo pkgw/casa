@@ -95,6 +95,7 @@ ASDM/CalSeeingRow.cc
 ASDM/CalSeeingTable.cc
 ASDM/CalWVRRow.cc
 ASDM/CalWVRTable.cc
+ASDM/CASAxslPath.cc
 ASDM/CharacterWrapper.cc
 ASDM/ComplexWrapper.cc
 ASDM/ConfigDescriptionRow.cc
