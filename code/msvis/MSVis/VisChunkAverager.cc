@@ -621,7 +621,6 @@ Bool VisChunkAverager::makeHashMap(ROVisibilityIterator& vi)
     return false;
 
   sphash_to_inprows_p.clear();
-  mapuIvIType::iterator poshint = sphash_to_inprows_p.begin(); 
 
   uInt nChunklets = vi.nSubInterval();  // The # of vb's in vi's current chunk.
   uInt chunkletNum = 0;
