@@ -67,7 +67,7 @@ using namespace std;
 //   debuglog << "Any message" << any_value << debugpost;
 //
   
-     #define DIRECTIONCALC_DEBUG
+//   #define DIRECTIONCALC_DEBUG
 
 namespace {
 struct NullLogger {
@@ -155,7 +155,7 @@ PointingDirectionCalculator::PointingDirectionCalculator(
                 0), pointingTimeUTC_(), lastTimeStamp_(-1.0), lastAntennaIndex_(
                 -1), pointingTableIndexCache_(0), shape_(
                 PointingDirectionCalculator::COLUMN_MAJOR), 
-/*CAS-8418*/    orgAntennaBoundary_(0),orgNumAntennaBoundary_(0), doneAntenaBoundaryCopy(false)
+/*CAS-8418*/    allAntennaBoundary_(0),allNumAntennaBoundary_(0), doneAntenaBoundaryCreate(false)
 {
     accessor_ = directionAccessor;
 
@@ -176,6 +176,7 @@ PointingDirectionCalculator::PointingDirectionCalculator(
     setDirectionColumn("DIRECTION");
 }
 void PointingDirectionCalculator::init() {
+    printf("PointingDirectionCalculator::init() called.\n");
     // attach column
     timeColumn_.attach(*selectedMS_, "TIME");
     intervalColumn_.attach(*selectedMS_, "INTERVAL");
@@ -196,6 +197,9 @@ void PointingDirectionCalculator::selectData(String const &antenna,
         String const &scan, String const &feed, String const &intent,
         String const &observation, String const &uvrange,
         String const &msselect) {
+/*SN*/
+/*SN*/ printf("selectData(...) called. \n");
+/*SN*/
     // table selection
     MSSelection thisSelection;
     thisSelection.setAntennaExpr(antenna);
@@ -375,93 +379,90 @@ void PointingDirectionCalculator::unsetMovingSource() {
 // NEW for SPLINE Interpolation
 //-
 
-// private kind of wrapper (API and SDpos) //
-void PointingDirectionCalculator::splineInit(uInt antID, uint numAnt, uInt startPos, uInt endPos )
+void PointingDirectionCalculator::splineInit()
 {
-    // Prepare Time and direction//
 
-      printf("Spline::splineInit:: *** Prepare Time and Direction [ANT=%d / %d]***.\n", antID, numAnt);
-      printf("Spline::splineInit:: Ant=%d, start=%d, end=%d \n", antID,startPos, endPos);
+    //+
+    // get Antenna count from  allAntennaBoundary 
+    //-
+
+        uInt numAnt = allNumAntennaBoundary_ -1;
+
+    // Prepare Time and direction//
 
       Vector<Vector<Double> >          tmp_time;
       Vector<Vector<Vector<Double> > > tmp_dir;
 
-    // Resize //
-      int numAntID = numAnt;    
-      int size = endPos - startPos;
-      tmp_time.        resize(numAntID);
-      tmp_time[antID]. resize(size);       
-      tmp_dir.         resize(numAntID);
-      tmp_dir [antID]. resize(size);
+    // Resize (top level) //
+    
+      tmp_time.        resize(numAnt);
+      tmp_dir.         resize(numAnt);
 
-printf( "given size = %u\n" ,size );
-
-    // for each row // 
-    double time_prv = 0.0;
-    for (uInt row = startPos; row < endPos; ++row) 
+    for(uInt ant=0; ant <numAnt; ant++)
     {
-        // resize //
-        tmp_dir[antID][row].resize(2);
+        printf("splineInit()::ant=%d\n",ant);
 
-        // values //
-        Double time           = pointingTimeUTC_[row];
-        MDirection     dir    = accessor_(*pointingColumns_, row);
-        Vector<Double> dirVal = dir.getAngle("rad").getValue();
+        uInt startPos = allAntennaBoundary_[ant];
+        uInt endPos   = allAntennaBoundary_[ant+1];
+        int size = endPos - startPos;
 
-        // set on Vector //
-        tmp_time[antID][row] = time;
-        tmp_dir [antID][row] = dirVal;
+        // define size of each antenna  
+          tmp_dir [ant]. resize(size);
+          tmp_time[ant]. resize(size);
 
-        // data on Pointing Table ..
-        if(true) {
-            double dt = time - time_prv;
-            time_prv = time;
+        // for each row // 
+        for (uInt row = startPos; row < endPos; row++) 
+        {
+            uInt index = row - startPos;
 
-            printf("Spline::[%4d] Time,  %f,Dir, %f,%f  ,",row, time,dirVal[0],dirVal[1] );
-            printf(" dt(double) =, %12.8e \n", dt );
+            // resizei (for Dir) //
+            tmp_dir[ant][index].resize(2);
+
+            // values //
+            Double time           = pointingTimeUTC_[index];
+            MDirection     dir    = accessor_(*pointingColumns_, index);
+            Vector<Double> dirVal = dir.getAngle("rad").getValue();
+
+            // set on Vector //
+            tmp_time[ant][index] = time;
+            tmp_dir [ant][index] = dirVal;
+
         }
     }
 
+    //+
+    // SDPosInterpolator Objct 
+    //   - calulate Coefficient Table - 
+    //-
 
-    // SDP objct //
-
-      printf("Spline:: SDPos constructor.\n");
       SDPosInterpolator  sdp_ (tmp_time, tmp_dir);
-
+   
     // Obtain Coeff , save//
 
       splineCoeff_ = sdp_.getSplineCoeff();
 
     // Dump //
 
-    if(true)
+    FILE* fp = fopen( "stderr","w" );
+    for(uInt ant=0; ant < splineCoeff_.size(); ant++ )
     {
-        FILE* fp = fopen( "coeff.csv","w" );
-        printf("Spline::Dump Coeffient(size=%d)\n",size );
-        for(int i=0; i< size-1; i++)
+        uInt size2 = splineCoeff_[ant].size();
+
+        for(uInt i=0; i< size2; i++)
         {
-            Double x_c0 = splineCoeff_[antID][i][0][0];
-            Double x_c1 = splineCoeff_[antID][i][0][1];
-            Double x_c2 = splineCoeff_[antID][i][0][2];
-            Double x_c3 = splineCoeff_[antID][i][0][3];
+            Double x_c0 = splineCoeff_[ant][i][0][0];
+            Double x_c1 = splineCoeff_[ant][i][0][1];
+            Double x_c2 = splineCoeff_[ant][i][0][2];
+            Double x_c3 = splineCoeff_[ant][i][0][3];
 
-            Double y_c0 = splineCoeff_[antID][i][1][0];
-            Double y_c1 = splineCoeff_[antID][i][1][1];
-            Double y_c2 = splineCoeff_[antID][i][1][2];
-            Double y_c3 = splineCoeff_[antID][i][1][3];
+            Double y_c0 = splineCoeff_[ant][i][1][0];
+            Double y_c1 = splineCoeff_[ant][i][1][1];
+            Double y_c2 = splineCoeff_[ant][i][1][2];
+            Double y_c3 = splineCoeff_[ant][i][1][3];
 
-            if(true) //STDOUT
-            {
-                printf("Spline::COEFF,%4d,",i );
-                printf( "X, %-12.5e, %-12.5e, %-12.5e, %-12.5e,|,",
-                        x_c0, x_c1, x_c2, x_c3 );
-
-                printf( "Y, %-12.5e, %-12.5e, %-12.5e, %-12.5e \n",
-                      y_c0, y_c1, y_c2, y_c3 );
-            }
             if(true) // File (csv) 
             {   
-                fprintf(fp,"Spline::COEFF,%4d,",i );
+                fprintf(fp,"Spline::COEFF[%d],%4d,", ant, i );
                 fprintf(fp, "X, %-12.5e, %-12.5e, %-12.5e, %-12.5e,|,",
                         x_c0, x_c1, x_c2, x_c3 );
                 
@@ -469,8 +470,8 @@ printf( "given size = %u\n" ,size );
                       y_c0, y_c1, y_c2, y_c3 );
             }
         }
-        fclose(fp);
     }
+    fclose(fp);
 }
 
 //+
@@ -480,7 +481,15 @@ printf( "given size = %u\n" ,size );
 
 void  PointingDirectionCalculator::initializeSplineInterpolation()
 {
+     printf("iniializeSplineInterpolation() called. \n");
+    //+
+    // Initialize Spline Interpolation 
+    //-
 
+    if( fgSpline == true )
+    {
+        splineInit();   // This is maybe Right //
+    }
 }
 
 Vector<Double> PointingDirectionCalculator::splineCalulate(uInt index, Double dt,uInt antID )
@@ -555,29 +564,6 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
         uInt end = antennaBoundary_[i + 1];
         uInt currentAntenna = antennaColumn_(start);
 
-        //+
-        // Spline Interpolation 
-        //  - Scan Pointing Table and make Coeff table
-        //  - The arg "start , end" is for row postion for multiple antenna
-        //    which is located in AntenaID , sorted in order.
-        //
-        //  - Currently, ASSUME SINGLE ANTENNA, and directly use Pointing Table
-        //  - the first arg "antID" is currelty a reserved parameter.   
-        //-
-#if 0
-        if(fgSpline)
-        {
-            // start , end => get from orgAntennaBoundary[] //
-
-            uInt startA = orgAntennaBoundary_[i];
-            uInt endA   = orgAntennaBoundary_[i + 1];
-
-            uInt numAnt = orgNumAntennaBoundary_ - 1;
-
-            splineInit(i, numAnt, startA, endA);   // This is maybe Right //
-
-        }
-#endif 
         printf( "getDirection::resetAntennaPosition(id=%d) calls. in %d Antennas.  \n",
                  currentAntenna,numAntennaBoundary_ );
 
@@ -809,7 +795,7 @@ uInt PointingDirectionCalculator::getRowId(uInt i) {
 
 
 void PointingDirectionCalculator::inspectAntenna() {
-/*SN*/    printf( "inspectAntenna() in \n");
+/*SN*/    printf( "PointingDirectionCalculator::inspectAntenna() in \n");
     // selectedMS_ must be sorted by ["ANTENNA1", "TIME"]
     antennaBoundary_.resize(selectedMS_->antenna().nrow() + 1);
     antennaBoundary_ = -1;
@@ -831,10 +817,10 @@ void PointingDirectionCalculator::inspectAntenna() {
     // Check ID  in AntennaList  //
     printf("inspectAntenna()::scaning antennaList. \n" );
     for (uInt i = 0; i < nrow; ++i) {
-
-        printf(" inspectAntenna():: antennaList[%d]=%d, lastant=%d, count=%d \n",
-               i, antennaList[i] , lastAnt, count);
-
+#if 0
+           printf(" inspectAntenna():: antennaList[%d]=%d, lastant=%d, count=%d \n",
+                   i, antennaList[i] , lastAnt, count);
+#endif 
         if (antennaList[i] != lastAnt) {
             antennaBoundary_[count] = i;
             ++count;
@@ -852,41 +838,68 @@ void PointingDirectionCalculator::inspectAntenna() {
     // Prepare a copy of AntennaBouundary set.
     //-
 
-    //+
-    // Creating Interpolation Table 
-    // (In General Interpolation SetUp/Initialize )
-    //-
-    if(doneAntenaBoundaryCopy==false)
+    if(doneAntenaBoundaryCreate==false)
     {
-        printf( "inspectantenna():: START COPY AtennaBoundary and splineInit() ... \n");
+        //+
+        // CAS-8418 (19-DEC-2018) 
+        //     AntennaBounday for  Interporation was islated. 
+        //     No longer the original AntennaBounday_ ... are used.
+        //     
+        //-
 
-        // 1) Copy orginal AntenaBoundary Information 
+         printf("inspectAntenna()::START scanning  antennaListP. \n" ); 
 
-        orgAntennaBoundary_    = antennaBoundary_;
-        orgNumAntennaBoundary_ = numAntennaBoundary_;
-        doneAntenaBoundaryCopy = true;
+        // (1) Do the same, but see PointingTable.antenna 
 
-        printf( "Copied Antenna Boundary Info, orgNumAntennaBoundary_  = %u \n", orgNumAntennaBoundary_  );
-        for (uInt b=0; b< orgAntennaBoundary_.size(); b++)
+        allAntennaBoundary_.resize(selectedMS_->antenna().nrow() + 1);
+        allAntennaBoundary_ = -1;
+
+        Int countP = 0;
+        allAntennaBoundary_[countP] = 0;
+        ++countP;
+
+        // Look at Pointing Table, here using original CASACORE call. //
+
+        MSPointing hPointing  = selectedMS_->pointing();
+        std::unique_ptr<casacore::ROMSPointingColumns>
+                columnPointing( new casacore::ROMSPointingColumns( hPointing ));
+
+        ROScalarColumn<casacore::Int>  antennaColumnP = columnPointing->antennaId();  
+        Vector<Int> antennaListP =  antennaColumnP.getColumn();
+
+        uInt nrowP = antennaListP.nelements();
+
+        Int lastAntP = antennaListP[0];
+
+        // Antenna List Scan as done in original code //
+
+        for (uInt i = 0; i < nrowP; ++i) 
         {
-            printf( "copied antennaBoundary_[%d] = %d \n", b, antennaBoundary_[b] );
-        }   
-
-        // 2) Initialize Interpolation
-
-        if(fgSpline)
-        {
-            uInt numAnt = orgNumAntennaBoundary_ - 1;
-            for(uInt ant=0; ant<numAnt; ant++)
+            if (antennaListP[i] != lastAntP) 
             {
-                uInt startA = orgAntennaBoundary_[ant];
-                uInt endA   = orgAntennaBoundary_[ant + 1];
- 
-                splineInit(ant, numAnt, startA, endA);   // This is maybe Right //
+                allAntennaBoundary_[countP] = i;
+                ++countP;
+                lastAntP = antennaListP[i];
             }
         }
-        // update flag 
-        doneAntenaBoundaryCopy = true;
+        allAntennaBoundary_[countP] = nrowP;
+        ++countP;
+        allNumAntennaBoundary_ = countP;
+
+        doneAntenaBoundaryCreate = true;
+
+        // Show Boundary List .. //
+        
+        printf( "Created Antenna Boundary Info, allNumAntennaBoundary_  = %u \n", allNumAntennaBoundary_  );
+        for (uInt b=0; b< allAntennaBoundary_.size(); b++)
+        {
+            printf( "Created antennaBoundary_[%d] = %d \n", b, allAntennaBoundary_[b] );
+        }   
+ 
+        // update flag //
+        doneAntenaBoundaryCreate = true;
+        printf( "inspectantenna():: END COPY AtennaBoundary and splineInit() ... \n");
+
     }
 }
 

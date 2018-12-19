@@ -318,14 +318,14 @@ private:
     // new: Spline (CAS-8418)
     //-
 
-      // Copied AntennaBoundary (new 12/14 to support multiple Antenna set.) 
+      // Copied AntennaBoundary (new since 12/14 to support multiple Antenna set.) 
 
-        casacore::Vector<casacore::uInt>            orgAntennaBoundary_;
-        casacore::uInt                              orgNumAntennaBoundary_;
+        casacore::Vector<casacore::uInt>            allAntennaBoundary_;
+        casacore::uInt                              allNumAntennaBoundary_;
 
       // Coefficitent Table Create Control
 
-        bool doneAntenaBoundaryCopy;
+        bool doneAntenaBoundaryCreate;
 
       // Spline control
         bool fgSpline = false;
@@ -333,10 +333,8 @@ private:
 
       // Spline Functions
 
-        void                                 splineInit    (casacore::uInt antennaID,	// AntennaID
-                                                            casacore::uInt numAntenna,  // number of Antenna
-                                                            casacore::uInt startPos,    // start pos.
-                                                            casacore::uInt endPos);     // end Pos.
+        void                                 splineInit    ();   
+
         casacore::Vector<casacore::Double>   splineCalulate(casacore::uInt row, 
                                                             casacore::Double dt, 
                                                             casacore::uInt AntennaID =0);

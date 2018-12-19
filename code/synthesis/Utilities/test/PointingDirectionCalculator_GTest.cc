@@ -2429,13 +2429,15 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
         if(false)  DumpPointingTable(MsName);
 
     // Create Object //
-        MeasurementSet ms( MsName.c_str() );
 
+        MeasurementSet ms( MsName.c_str() );
         PointingDirectionCalculator calc(ms);   
 
-    // Interpolation mode [TENTATIVE]  //
+    // Interpolation mode [form is TENTATIVE] // 
+
         calc.setSplineInterpolation( use_spline );
- 
+        calc.initializeSplineInterpolation();
+
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
@@ -2638,8 +2640,8 @@ TEST_F(TestDirection, InterpolationFull )
 {
     // Combiniation List of Pointing Interval and Main Interval //
 
-    vector<bool>   InterpolationMode     = { false };
-    vector<Double> Main_IntervalList     = { 1.0, 0.1 };
+    vector<bool>   InterpolationMode     = { false, true };
+    vector<Double> Main_IntervalList     = { 1.0 };
     vector<Double> Pointing_IntervalList = { 1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.05 };
 
     ErrorMax  maxerr;
@@ -2666,7 +2668,7 @@ TEST_F(TestDirection, InterpolationFull )
              msedit.evgen.      Initialize(p_i, m_i) ;
 
            // Prepate Antenna (Ready to add, waiting for other test ) //
-#if 0           
+#if 1 
            msedit.appendRowOnAntennaTable(2);   // 1 + 2 more
  
            msedit.writeDataToAntennaTable(1);
@@ -2705,7 +2707,7 @@ TEST_F(TestDirection, InterpolationFull )
 TEST_F(TestDirection, InterpolationSingle )
 {
 
-    TestDescription( "Interpolation test in getDirection() SINGLE-mode" );
+    TestDescription( "Interpolation test in getDirection() SINGLE-parameter mode" );
 
     //+
     //  Select Function
@@ -2722,7 +2724,7 @@ TEST_F(TestDirection, InterpolationSingle )
       msedit.evgen.      Initialize( 0.5,     // Pointing Interval
                                      1.0 ) ;  // Main Interval
  
-      msedit.evgen.    setInterpolationErrorLimit( 0.1);
+      msedit.evgen.    setInterpolationErrorLimit( 1.0 );
 
     // Prepate Antenna //
 
