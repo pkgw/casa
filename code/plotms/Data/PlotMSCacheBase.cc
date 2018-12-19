@@ -527,9 +527,12 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	for (Int i= 0;i<PMS::NONE;++i)
 		if (loadedAxes_[PMS::Axis(i)]) pendingLoadAxes_[PMS::Axis(i)]=true;
 
-	// Check given axes.  Should only be added to load list if: 1) not
-	// already in load list, 2) not loaded, or 3) loaded but with different
-	// data column (if applicable).
+	// Check given axes. Should only be added to load list if:
+	// 1) not already in load list
+	// 2) not loaded or
+	// 3) loaded but with different parameters
+	//    3.1) same data axis but for a different data column
+	//    3.2) same RA/DEC axis but for different DirectionAxisParams
 	bool found; PMS::Axis axis; PMS::DataColumn dc;
 
 	for(unsigned int i = 0; i < axes.size(); i++) {
@@ -576,7 +579,7 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 			loadXYInterp_.push_back(interp);
 		}
 
-		// 3)  data axis is loaded; check if data column loaded
+		// 3.1) data axis is loaded; check if data column loaded
 		else if(PMS::axisIsData(axis)) {
 			// Reload if averaging, else see if datacol is already loaded
 			//std::set<PMS::DataColumn> datacols = loadedAxesData_[axis];
@@ -598,6 +601,16 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 					loadXYFrame_.push_back(frame);
 					loadXYInterp_.push_back(interp);
 				}
+			}
+		}
+		// 3.2 RA/DEC axis is loaded: check parameters
+		else if (PMS::axisIsRaDec(axis)) {
+			DirectionAxisParams axisParams(frame,interp);
+			if (not areRaDecAxesLoaded(axisParams)) {
+				loadAxes.push_back(axis);
+				loadData.push_back(dc);
+				loadXYFrame_.push_back(frame);
+				loadXYInterp_.push_back(interp);
 			}
 		}
 	}

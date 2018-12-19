@@ -101,7 +101,6 @@ private:
 
     // Widget for the range.
     PlotRangeWidget* itsRangeWidget_;
-
     
 private slots:
     // Slot for when the axis value changed.

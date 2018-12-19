@@ -841,13 +841,7 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 			piTvi = dynamic_cast<PI_TVI *>(transformIt->getInputViIterator());
 		if (piTvi == nullptr)
 			throw(AipsError("MSCache::loadChunks(): error while preparing for pointings interpolation"));
-		// Debug / check sort columns
 		piTvi_ = piTvi;
-		const auto & sortColumns = viImpl->getSortColumns();
-		for (const auto & colIdInt : sortColumns.getColumnIds()){
-			auto colEnum = static_cast<MSMainEnums::PredefinedColumns>(colIdInt);
-			logLoad(String("Sort Column: ") + MS::columnName(colEnum));
-		}
 	}
 
 	for(vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
@@ -1905,17 +1899,12 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 	}
 	case PMS::RA:
 	case PMS::DEC: {
-		// Vector<MDirection> azelVec = vb->azel(vb->time()(0));
-		// const auto & dir1Vec = vb->direction1();
 		auto vbRows = static_cast<size_t>(vb->nRows());
-		Vector<MDirection> dir1Vec(vbRows); // = vb->direction1();
-		//dir1Vec = piTvi_->d
+		Vector<MDirection> dir1Vec(vbRows);
 		const auto & vbAnt1 = vb->antenna1();
 		auto vbTime = vb->time()[0];
-		auto & interpolator = piTvi_->getInterpolator();
 		for (decltype(vbRows) k=0; k<vbRows; k++){
 			auto antId = vbAnt1[k];
-			//auto  = interpolator.pointingDir(antId,vbTime);
 			dir1Vec[k] = (piTvi_->getPointingAngle(antId,vbTime)).second;
 		}
 
@@ -1925,8 +1914,6 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		for (decltype(nAnts) iant = 0; iant < nAnts; ++iant) {
 			raDecMat.column(iant) = dir1Vec(iant).getAngle("deg").getValue();
 		}
-		//*ra_[vbnum] = raDecMat.row(0);
-		//*dec_[vbnum] = raDecMat.row(1);
 		*((*loadRa_)[vbnum]) = raDecMat.row(0);
 		*((*loadDec_)[vbnum]) = raDecMat.row(1);
 		break;

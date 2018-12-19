@@ -25,11 +25,13 @@
 //#
 //# $Id: $
 #include <plotms/Gui/PlotMSAxisWidget.qo.h>
+#include <plotms/Gui/PlotMSAxisWidget.ui.h>
 
 
 #include <plotms/Gui/PlotRangeWidget.qo.h>
 #include <plotms/GuiTabs/PlotMSTab.qo.h>
 #include <QDebug>
+#include <QLayout>
 
 using namespace casacore;
 namespace casa {
@@ -44,7 +46,8 @@ PlotMSAxisWidget::PlotMSAxisWidget(PMS::Axis defaultAxis, int attachAxes,
 		QWidget* parent) : QtEditingWidget(parent) {
 	setupUi(this);
 
-	// Setup axes choices.
+
+	// Setup axes choices
 	const vector<String>& axes = PMS::axesStrings();
 	String def = PMS::axis(defaultAxis);
 	// Hiding the last two axes (overlays) from the user....
@@ -86,7 +89,20 @@ PlotMSAxisWidget::PlotMSAxisWidget(PMS::Axis defaultAxis, int attachAxes,
 
 	// Setup range widget.
 	itsRangeWidget_ = new PlotRangeWidget(true);
-	QtUtilities::putInFrame(rangeFrame, itsRangeWidget_);
+	itsRangeWidget_->setFixedHeight(itsRangeWidget_->height());
+
+	if (rangeWidgetFrame->layout() != nullptr)
+		delete rangeWidgetFrame->layout();
+	{
+		auto* l = new QVBoxLayout();
+		l->setContentsMargins(0, 0, 0, 0);
+		l->setSpacing(0);
+		l->addWidget(itsRangeWidget_,Qt::AlignTop);
+		l->setAlignment(Qt::AlignTop);
+		rangeWidgetFrame->setLayout(l);
+		rangeFrame->layout()->setAlignment(rangeWidgetFrame,Qt::AlignTop);
+		rangeFrame->setFixedHeight(itsRangeWidget_->height());
+	}
 
 	setAutoFillBackground( true );
 	QPalette pal = palette();
@@ -272,21 +288,18 @@ void PlotMSAxisWidget::setInCache(bool isInCache) {
 
 // Private Slots //
 void PlotMSAxisWidget::axisChanged(const QString& value) {
-  PMS::Axis currAxis=PMS::axis(value.toStdString());
+	PMS::Axis currAxis=PMS::axis(value.toStdString());
 
-  // Show Data Column chooser, if necessary
-  bool dataAxis = PMS::axisIsData(currAxis);
-  AxisWidget::dataLabel->setVisible( dataAxis );
-  dataChooser->setVisible( dataAxis );
+	// Show Data Column chooser, if necessary
+	bool dataAxis = PMS::axisIsData(currAxis);
+	AxisWidget::dataLabel->setVisible( dataAxis );
+	dataChooser->setVisible( dataAxis );
 
-  // Show Direction parameters, if necessary
-  bool needDirParams = PMS::axisIsRaDec(currAxis);
-  AxisWidget::dirParamsFrame->setVisible(needDirParams);
+	// Show Direction parameters, if necessary
+	bool needDirParams = PMS::axisIsRaDec(currAxis);
+	AxisWidget::dirParamsFrame->setVisible(needDirParams);
 
-  // Revise the range widget to zero
-  //itsRangeWidget_->setRange(PMS::axisType(currAxis) == PMS::TTIME, 
-  //			    false,0,0);
-  emit axisIdentifierChanged(this);
+	emit axisIdentifierChanged(this);
 }
 
 void PlotMSAxisWidget::axisDataChanged(){
