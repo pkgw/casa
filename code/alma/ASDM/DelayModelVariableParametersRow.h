@@ -48,19 +48,19 @@
 
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <AngularRate.h>
+#include <alma/ASDM/AngularRate.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -75,7 +75,7 @@
 	
 
 	
-#include "CDifferenceType.h"
+#include <alma/Enumerations/CDifferenceType.h>
 	
 
 	
@@ -85,7 +85,7 @@
 	
 
 	
-#include "CDifferenceType.h"
+#include <alma/Enumerations/CDifferenceType.h>
 	
 
 	
@@ -98,12 +98,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file DelayModelVariableParameters.h
     \brief Generated from model's revision "-1", branch ""
@@ -120,7 +120,7 @@ class DelayModelFixedParametersRow;
 
 class DelayModelVariableParametersRow;
 typedef void (DelayModelVariableParametersRow::*DelayModelVariableParametersAttributeFromBin) (EndianIStream& eis);
-typedef void (DelayModelVariableParametersRow::*DelayModelVariableParametersAttributeFromText) (const string& s);
+typedef void (DelayModelVariableParametersRow::*DelayModelVariableParametersAttributeFromText) (const std::string& s);
 
 /**
  * The DelayModelVariableParametersRow class is a row of a DelayModelVariableParametersTable.
@@ -361,7 +361,7 @@ public:
 	
  	/**
  	 * Get polarOffsets.
- 	 * @return polarOffsets as vector<double >
+ 	 * @return polarOffsets as std::vector<double >
  	 */
  	std::vector<double > getPolarOffsets() const;
 	
@@ -369,8 +369,8 @@ public:
  	
  	
  	/**
- 	 * Set polarOffsets with the specified vector<double >.
- 	 * @param polarOffsets The vector<double > value to which polarOffsets is to be set.
+ 	 * Set polarOffsets with the specified std::vector<double >.
+ 	 * @param polarOffsets The std::vector<double > value to which polarOffsets is to be set.
  	 
  		
  			
@@ -1042,47 +1042,47 @@ void nutationInObliquityRateFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, DelayModelVariableParametersAttributeFromText> fromTextMethods;
 	
-void delayModelVariableParametersIdFromText (const string & s);
+void delayModelVariableParametersIdFromText (const std::string & s);
 	
 	
-void timeFromText (const string & s);
+void timeFromText (const std::string & s);
 	
 	
-void ut1_utcFromText (const string & s);
+void ut1_utcFromText (const std::string & s);
 	
 	
-void iat_utcFromText (const string & s);
+void iat_utcFromText (const std::string & s);
 	
 	
-void timeTypeFromText (const string & s);
+void timeTypeFromText (const std::string & s);
 	
 	
-void gstAtUt0FromText (const string & s);
+void gstAtUt0FromText (const std::string & s);
 	
 	
-void earthRotationRateFromText (const string & s);
+void earthRotationRateFromText (const std::string & s);
 	
 	
-void polarOffsetsFromText (const string & s);
+void polarOffsetsFromText (const std::string & s);
 	
 	
-void polarOffsetsTypeFromText (const string & s);
+void polarOffsetsTypeFromText (const std::string & s);
 	
 	
-void delayModelFixedParametersIdFromText (const string & s);
+void delayModelFixedParametersIdFromText (const std::string & s);
 	
 
 	
-void nutationInLongitudeFromText (const string & s);
+void nutationInLongitudeFromText (const std::string & s);
 	
 	
-void nutationInLongitudeRateFromText (const string & s);
+void nutationInLongitudeRateFromText (const std::string & s);
 	
 	
-void nutationInObliquityFromText (const string & s);
+void nutationInObliquityFromText (const std::string & s);
 	
 	
-void nutationInObliquityRateFromText (const string & s);
+void nutationInObliquityRateFromText (const std::string & s);
 	
 	
 	

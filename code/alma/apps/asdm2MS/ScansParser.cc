@@ -1,12 +1,12 @@
 
-#include "ScansParser.h"
+#include <alma/apps/asdm2MS/ScansParser.h>
 
 using namespace std;
 
 #include <vector>
 #include <cstdlib>
 
-#include "Misc.h"  // asdm::trim_copy comes from here
+#include <alma/ASDM/Misc.h>  // asdm::trim_copy comes from here
 
 int strToInt(const string& valStr, int &status) {
   // strip any leading and trailing whitespace.

@@ -48,15 +48,15 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -65,25 +65,21 @@
 	
 
 	
-#include "CAtmPhaseCorrection.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
-#include "CReceiverBand.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
-#include "CBasebandName.h"
-	
-
-	
-
-	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
 
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -94,14 +90,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalAmpli.h
     \brief Generated from model's revision "-1", branch ""
@@ -121,7 +121,7 @@ class CalReductionRow;
 
 class CalAmpliRow;
 typedef void (CalAmpliRow::*CalAmpliAttributeFromBin) (EndianIStream& eis);
-typedef void (CalAmpliRow::*CalAmpliAttributeFromText) (const string& s);
+typedef void (CalAmpliRow::*CalAmpliAttributeFromText) (const std::string& s);
 
 /**
  * The CalAmpliRow class is a row of a CalAmpliTable.
@@ -162,23 +162,23 @@ public:
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string getAntennaName() const;
+ 	std::string getAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  		
  			
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 		
  	 */
- 	void setAntennaName (string antennaName);
+ 	void setAntennaName (std::string antennaName);
   		
 	
 	
@@ -320,7 +320,7 @@ public:
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
  	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
@@ -328,8 +328,8 @@ public:
  	
  	
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  		
  			
@@ -410,7 +410,7 @@ public:
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
  	std::vector<Frequency > getFrequencyRange() const;
 	
@@ -418,8 +418,8 @@ public:
  	
  	
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  		
  			
@@ -440,7 +440,7 @@ public:
 	
  	/**
  	 * Get apertureEfficiency.
- 	 * @return apertureEfficiency as vector<float >
+ 	 * @return apertureEfficiency as std::vector<float >
  	 */
  	std::vector<float > getApertureEfficiency() const;
 	
@@ -448,8 +448,8 @@ public:
  	
  	
  	/**
- 	 * Set apertureEfficiency with the specified vector<float >.
- 	 * @param apertureEfficiency The vector<float > value to which apertureEfficiency is to be set.
+ 	 * Set apertureEfficiency with the specified std::vector<float >.
+ 	 * @param apertureEfficiency The std::vector<float > value to which apertureEfficiency is to be set.
  	 
  		
  			
@@ -470,7 +470,7 @@ public:
 	
  	/**
  	 * Get apertureEfficiencyError.
- 	 * @return apertureEfficiencyError as vector<float >
+ 	 * @return apertureEfficiencyError as std::vector<float >
  	 */
  	std::vector<float > getApertureEfficiencyError() const;
 	
@@ -478,8 +478,8 @@ public:
  	
  	
  	/**
- 	 * Set apertureEfficiencyError with the specified vector<float >.
- 	 * @param apertureEfficiencyError The vector<float > value to which apertureEfficiencyError is to be set.
+ 	 * Set apertureEfficiencyError with the specified std::vector<float >.
+ 	 * @param apertureEfficiencyError The std::vector<float > value to which apertureEfficiencyError is to be set.
  	 
  		
  			
@@ -668,7 +668,7 @@ public:
 	 * @param apertureEfficiencyError
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, std::vector<float > apertureEfficiency, std::vector<float > apertureEfficiencyError);
+	bool compareNoAutoInc(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, std::vector<float > apertureEfficiency, std::vector<float > apertureEfficiencyError);
 	
 	
 
@@ -838,7 +838,7 @@ private:
 	
 	
 
-	string antennaName;
+	std::string antennaName;
 
 	
 	
@@ -1040,47 +1040,47 @@ void correctionValidityFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalAmpliAttributeFromText> fromTextMethods;
 	
-void antennaNameFromText (const string & s);
+void antennaNameFromText (const std::string & s);
 	
 	
-void atmPhaseCorrectionFromText (const string & s);
+void atmPhaseCorrectionFromText (const std::string & s);
 	
 	
-void receiverBandFromText (const string & s);
+void receiverBandFromText (const std::string & s);
 	
 	
-void basebandNameFromText (const string & s);
+void basebandNameFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void polarizationTypesFromText (const string & s);
+void polarizationTypesFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void frequencyRangeFromText (const string & s);
+void frequencyRangeFromText (const std::string & s);
 	
 	
-void apertureEfficiencyFromText (const string & s);
+void apertureEfficiencyFromText (const std::string & s);
 	
 	
-void apertureEfficiencyErrorFromText (const string & s);
+void apertureEfficiencyErrorFromText (const std::string & s);
 	
 
 	
-void correctionValidityFromText (const string & s);
+void correctionValidityFromText (const std::string & s);
 	
 	
 	

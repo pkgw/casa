@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <StationRow.h>
-#include <StationTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/StationRow.h>
+#include <alma/ASDM/StationTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::StationRow;
 using asdm::StationTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	StationRow::~StationRow() {
@@ -586,7 +583,9 @@ void StationRow::timeFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void StationRow::stationIdFromText(const string & s) {
 		 
+          
 		stationId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -594,7 +593,9 @@ void StationRow::timeFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void StationRow::nameFromText(const string & s) {
 		 
+          
 		name = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -602,7 +603,9 @@ void StationRow::timeFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void StationRow::positionFromText(const string & s) {
 		 
+          
 		position = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -610,7 +613,9 @@ void StationRow::timeFromBin(EndianIStream& eis) {
 	// Convert a string into an StationType 
 	void StationRow::typeFromText(const string & s) {
 		 
-		type = ASDMValuesParser::parse<StationType>(s);
+          
+		type = ASDMValuesParser::parse<StationTypeMod::StationType>(s);
+          
 		
 	}
 	
@@ -620,7 +625,9 @@ void StationRow::timeFromBin(EndianIStream& eis) {
 	void StationRow::timeFromText(const string & s) {
 		timeExists = true;
 		 
+          
 		time = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -678,21 +685,21 @@ void StationRow::timeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get name.
- 	 * @return name as string
+ 	 * @return name as std::string
  	 */
- 	string StationRow::getName() const {
+ 	std::string StationRow::getName() const {
 	
   		return name;
  	}
 
  	/**
- 	 * Set name with the specified string.
- 	 * @param name The string value to which name is to be set.
+ 	 * Set name with the specified std::string.
+ 	 * @param name The std::string value to which name is to be set.
  	 
  	
  		
  	 */
- 	void StationRow::setName (string name)  {
+ 	void StationRow::setName (std::string name)  {
   	
   	
   		if (hasBeenAdded) {
@@ -710,21 +717,21 @@ void StationRow::timeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get position.
- 	 * @return position as vector<Length >
+ 	 * @return position as std::vector<Length >
  	 */
- 	vector<Length > StationRow::getPosition() const {
+ 	std::vector<Length > StationRow::getPosition() const {
 	
   		return position;
  	}
 
  	/**
- 	 * Set position with the specified vector<Length >.
- 	 * @param position The vector<Length > value to which position is to be set.
+ 	 * Set position with the specified std::vector<Length >.
+ 	 * @param position The std::vector<Length > value to which position is to be set.
  	 
  	
  		
  	 */
- 	void StationRow::setPosition (vector<Length > position)  {
+ 	void StationRow::setPosition (std::vector<Length > position)  {
   	
   	
   		if (hasBeenAdded) {
@@ -962,7 +969,7 @@ type = CStationType::from_int(0);
 	}
 
 	
-	bool StationRow::compareNoAutoInc(string name, vector<Length > position, StationTypeMod::StationType type) {
+	bool StationRow::compareNoAutoInc(std::string name, std::vector<Length > position, StationTypeMod::StationType type) {
 		bool result;
 		result = true;
 		
@@ -992,7 +999,7 @@ type = CStationType::from_int(0);
 	
 	
 	
-	bool StationRow::compareRequiredValue(string name, vector<Length > position, StationTypeMod::StationType type) {
+	bool StationRow::compareRequiredValue(std::string name, std::vector<Length > position, StationTypeMod::StationType type) {
 		bool result;
 		result = true;
 		

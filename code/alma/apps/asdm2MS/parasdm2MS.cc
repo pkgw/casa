@@ -28,21 +28,21 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-#include <ASDMAll.h>
-#include <Misc.h>
+#include <alma/ASDM/ASDMAll.h>
+#include <alma/ASDM/Misc.h>
 
-#include "SDMBinData.h"
+#include <alma/ASDMBinaries/SDMBinData.h>
 using namespace sdmbin;
 
 #include <exception>
 using namespace asdm;
-#include "IllegalAccessException.h"
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include "UvwCoords.h"
-#include "ASDM2MSFiller.h"
+#include <alma/apps/asdm2MS/UvwCoords.h>
+#include <alma/apps/asdm2MS/ASDM2MSFiller.h>
 
-#include "measures/Measures/Stokes.h"
-#include "measures/Measures/MFrequency.h"
+#include <measures/Measures/Stokes.h>
+#include <measures/Measures/MFrequency.h>
 using namespace casacore;
 
 #include <tables/Tables/Table.h>
@@ -57,36 +57,36 @@ using namespace casacore;
 #include <casa/OS/SymLink.h>
 
 
-#include "CBasebandName.h"
-#include "CCalibrationDevice.h"
+#include <alma/Enumerations/CBasebandName.h>
+#include <alma/Enumerations/CCalibrationDevice.h>
 using namespace CalibrationDeviceMod;
-#include "CFrequencyReferenceCode.h"
-#include "CPolarizationType.h"
-#include "CPrimitiveDataType.h"
-#include "CProcessorSubType.h"
-#include "CProcessorType.h"
+#include <alma/Enumerations/CFrequencyReferenceCode.h>
+#include <alma/Enumerations/CPolarizationType.h>
+#include <alma/Enumerations/CPrimitiveDataType.h>
+#include <alma/Enumerations/CProcessorSubType.h>
+#include <alma/Enumerations/CProcessorType.h>
 using namespace ProcessorTypeMod;
-#include "CScanIntent.h"
-#include "CSubscanIntent.h"
+#include <alma/Enumerations/CScanIntent.h>
+#include <alma/Enumerations/CSubscanIntent.h>
 using namespace SubscanIntentMod;
-#include "CSpectralResolutionType.h"
+#include <alma/Enumerations/CSpectralResolutionType.h>
 using namespace SpectralResolutionTypeMod;
-#include "CStokesParameter.h"
+#include <alma/Enumerations/CStokesParameter.h>
 
-#include "Name2Table.h"
-#include "ASDMVerbatimFiller.h"
+#include <alma/apps/asdm2MS/Name2Table.h>
+#include <alma/apps/asdm2MS/ASDMVerbatimFiller.h>
 
-#include "TableStreamReader.h"
-#include "asdm2MSGeneric.h"
+#include <alma/ASDM/TableStreamReader.h>
+#include <alma/apps/asdm2MS/asdm2MSGeneric.h>
 
-#include "AnyValueMap.hpp"
+#include <alma/apps/asdm2MS/AnyValueMap.hpp>
 
-#include "asdmstman/AsdmStMan.h"
-#include "BDF2AsdmStManIndex.h"
+#include <asdmstman/AsdmStMan.h>
+#include <alma/apps/asdm2MS/BDF2AsdmStManIndex.h>
 
-#include "ScansParser.h"
+#include <alma/apps/asdm2MS/ScansParser.h>
 
-#include	"time.h"			/* <time.h> */
+#include	<time.h>			/* <time.h> */
 #if	defined(__sysv__)
 #include	<sys/time.h>
 #elif	defined(__bsd__)

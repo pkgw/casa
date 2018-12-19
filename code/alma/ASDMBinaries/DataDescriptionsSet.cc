@@ -1,13 +1,19 @@
 #include <set>
 #include <stdio.h>
 #include <iostream>
-using namespace std;
 #include <stdlib.h> // for atoi()
-#include "Error.h"
-#include "DataDescriptionsSet.h"
+#include <alma/ASDMBinaries/Error.h>
+#include <alma/ASDMBinaries/DataDescriptionsSet.h>
 
-#include <StokesParameter.h>
-#include <PolarizationType.h>
+#include <alma/Enumtcl/StokesParameter.h>
+#include <alma/Enumtcl/PolarizationType.h>
+
+using namespace asdm;
+using namespace std;
+
+using namespace AtmPhaseCorrectionMod;
+using namespace BasebandNameMod;
+using namespace CorrelationModeMod;
 
 namespace sdmbin {
 

@@ -33,7 +33,7 @@
  * File CTimeScale.cpp
  */
 #include <sstream>
-#include <CTimeScale.h>
+#include <alma/Enumerations/CTimeScale.h>
 #include <string>
 using namespace std;
 

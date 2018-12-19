@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalWVRRow.h>
-#include <CalWVRTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalWVRRow.h>
+#include <alma/ASDM/CalWVRTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalWVRRow::~CalWVRRow() {
@@ -760,7 +757,9 @@ namespace asdm {
 		
 			
 		refTemp .clear();
-		vector<Temperature> v_aux_refTemp;
+        
+        vector<Temperature> v_aux_refTemp;
+        
 		for (unsigned int i = 0; i < x.refTemp.length(); ++i) {
 			v_aux_refTemp.clear();
 			for (unsigned int j = 0; j < x.refTemp[0].length(); ++j) {
@@ -1727,7 +1726,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalWVRRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1735,7 +1736,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalWVRRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1743,7 +1746,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalWVRRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1751,7 +1756,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalWVRRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1759,7 +1766,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalWVRRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1767,7 +1776,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an WVRMethod 
 	void CalWVRRow::wvrMethodFromText(const string & s) {
 		 
-		wvrMethod = ASDMValuesParser::parse<WVRMethod>(s);
+          
+		wvrMethod = ASDMValuesParser::parse<WVRMethodMod::WVRMethod>(s);
+          
 		
 	}
 	
@@ -1775,7 +1786,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalWVRRow::numInputAntennasFromText(const string & s) {
 		 
+          
 		numInputAntennas = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1783,7 +1796,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalWVRRow::inputAntennaNamesFromText(const string & s) {
 		 
+          
 		inputAntennaNames = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1791,7 +1806,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalWVRRow::numChanFromText(const string & s) {
 		 
+          
 		numChan = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1799,7 +1816,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalWVRRow::chanFreqFromText(const string & s) {
 		 
+          
 		chanFreq = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -1807,7 +1826,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalWVRRow::chanWidthFromText(const string & s) {
 		 
+          
 		chanWidth = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -1815,7 +1836,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void CalWVRRow::refTempFromText(const string & s) {
 		 
+          
 		refTemp = ASDMValuesParser::parse2D<Temperature>(s);
+          
 		
 	}
 	
@@ -1823,7 +1846,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalWVRRow::numPolyFromText(const string & s) {
 		 
+          
 		numPoly = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1831,7 +1856,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalWVRRow::pathCoeffFromText(const string & s) {
 		 
+          
 		pathCoeff = ASDMValuesParser::parse3D<float>(s);
+          
 		
 	}
 	
@@ -1839,7 +1866,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalWVRRow::polyFreqLimitsFromText(const string & s) {
 		 
+          
 		polyFreqLimits = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -1847,7 +1876,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalWVRRow::wetPathFromText(const string & s) {
 		 
+          
 		wetPath = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1855,7 +1886,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalWVRRow::dryPathFromText(const string & s) {
 		 
+          
 		dryPath = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1863,7 +1896,9 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalWVRRow::waterFromText(const string & s) {
 		 
+          
 		water = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -1982,23 +2017,23 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalWVRRow::getAntennaName() const {
+ 	std::string CalWVRRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalWVRRow::setAntennaName (string antennaName)  {
+ 	void CalWVRRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2050,21 +2085,21 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get inputAntennaNames.
- 	 * @return inputAntennaNames as vector<string >
+ 	 * @return inputAntennaNames as std::vector<std::string >
  	 */
- 	vector<string > CalWVRRow::getInputAntennaNames() const {
+ 	std::vector<std::string > CalWVRRow::getInputAntennaNames() const {
 	
   		return inputAntennaNames;
  	}
 
  	/**
- 	 * Set inputAntennaNames with the specified vector<string >.
- 	 * @param inputAntennaNames The vector<string > value to which inputAntennaNames is to be set.
+ 	 * Set inputAntennaNames with the specified std::vector<std::string >.
+ 	 * @param inputAntennaNames The std::vector<std::string > value to which inputAntennaNames is to be set.
  	 
  	
  		
  	 */
- 	void CalWVRRow::setInputAntennaNames (vector<string > inputAntennaNames)  {
+ 	void CalWVRRow::setInputAntennaNames (std::vector<std::string > inputAntennaNames)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2114,21 +2149,21 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get chanFreq.
- 	 * @return chanFreq as vector<Frequency >
+ 	 * @return chanFreq as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalWVRRow::getChanFreq() const {
+ 	std::vector<Frequency > CalWVRRow::getChanFreq() const {
 	
   		return chanFreq;
  	}
 
  	/**
- 	 * Set chanFreq with the specified vector<Frequency >.
- 	 * @param chanFreq The vector<Frequency > value to which chanFreq is to be set.
+ 	 * Set chanFreq with the specified std::vector<Frequency >.
+ 	 * @param chanFreq The std::vector<Frequency > value to which chanFreq is to be set.
  	 
  	
  		
  	 */
- 	void CalWVRRow::setChanFreq (vector<Frequency > chanFreq)  {
+ 	void CalWVRRow::setChanFreq (std::vector<Frequency > chanFreq)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2146,21 +2181,21 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get chanWidth.
- 	 * @return chanWidth as vector<Frequency >
+ 	 * @return chanWidth as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalWVRRow::getChanWidth() const {
+ 	std::vector<Frequency > CalWVRRow::getChanWidth() const {
 	
   		return chanWidth;
  	}
 
  	/**
- 	 * Set chanWidth with the specified vector<Frequency >.
- 	 * @param chanWidth The vector<Frequency > value to which chanWidth is to be set.
+ 	 * Set chanWidth with the specified std::vector<Frequency >.
+ 	 * @param chanWidth The std::vector<Frequency > value to which chanWidth is to be set.
  	 
  	
  		
  	 */
- 	void CalWVRRow::setChanWidth (vector<Frequency > chanWidth)  {
+ 	void CalWVRRow::setChanWidth (std::vector<Frequency > chanWidth)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2178,21 +2213,21 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get refTemp.
- 	 * @return refTemp as vector<vector<Temperature > >
+ 	 * @return refTemp as std::vector<std::vector<Temperature > >
  	 */
- 	vector<vector<Temperature > > CalWVRRow::getRefTemp() const {
+ 	std::vector<std::vector<Temperature > > CalWVRRow::getRefTemp() const {
 	
   		return refTemp;
  	}
 
  	/**
- 	 * Set refTemp with the specified vector<vector<Temperature > >.
- 	 * @param refTemp The vector<vector<Temperature > > value to which refTemp is to be set.
+ 	 * Set refTemp with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param refTemp The std::vector<std::vector<Temperature > > value to which refTemp is to be set.
  	 
  	
  		
  	 */
- 	void CalWVRRow::setRefTemp (vector<vector<Temperature > > refTemp)  {
+ 	void CalWVRRow::setRefTemp (std::vector<std::vector<Temperature > > refTemp)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2242,21 +2277,21 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get pathCoeff.
- 	 * @return pathCoeff as vector<vector<vector<float > > >
+ 	 * @return pathCoeff as std::vector<std::vector<std::vector<float > > >
  	 */
- 	vector<vector<vector<float > > > CalWVRRow::getPathCoeff() const {
+ 	std::vector<std::vector<std::vector<float > > > CalWVRRow::getPathCoeff() const {
 	
   		return pathCoeff;
  	}
 
  	/**
- 	 * Set pathCoeff with the specified vector<vector<vector<float > > >.
- 	 * @param pathCoeff The vector<vector<vector<float > > > value to which pathCoeff is to be set.
+ 	 * Set pathCoeff with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param pathCoeff The std::vector<std::vector<std::vector<float > > > value to which pathCoeff is to be set.
  	 
  	
  		
  	 */
- 	void CalWVRRow::setPathCoeff (vector<vector<vector<float > > > pathCoeff)  {
+ 	void CalWVRRow::setPathCoeff (std::vector<std::vector<std::vector<float > > > pathCoeff)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2274,21 +2309,21 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polyFreqLimits.
- 	 * @return polyFreqLimits as vector<Frequency >
+ 	 * @return polyFreqLimits as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalWVRRow::getPolyFreqLimits() const {
+ 	std::vector<Frequency > CalWVRRow::getPolyFreqLimits() const {
 	
   		return polyFreqLimits;
  	}
 
  	/**
- 	 * Set polyFreqLimits with the specified vector<Frequency >.
- 	 * @param polyFreqLimits The vector<Frequency > value to which polyFreqLimits is to be set.
+ 	 * Set polyFreqLimits with the specified std::vector<Frequency >.
+ 	 * @param polyFreqLimits The std::vector<Frequency > value to which polyFreqLimits is to be set.
  	 
  	
  		
  	 */
- 	void CalWVRRow::setPolyFreqLimits (vector<Frequency > polyFreqLimits)  {
+ 	void CalWVRRow::setPolyFreqLimits (std::vector<Frequency > polyFreqLimits)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2306,21 +2341,21 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get wetPath.
- 	 * @return wetPath as vector<float >
+ 	 * @return wetPath as std::vector<float >
  	 */
- 	vector<float > CalWVRRow::getWetPath() const {
+ 	std::vector<float > CalWVRRow::getWetPath() const {
 	
   		return wetPath;
  	}
 
  	/**
- 	 * Set wetPath with the specified vector<float >.
- 	 * @param wetPath The vector<float > value to which wetPath is to be set.
+ 	 * Set wetPath with the specified std::vector<float >.
+ 	 * @param wetPath The std::vector<float > value to which wetPath is to be set.
  	 
  	
  		
  	 */
- 	void CalWVRRow::setWetPath (vector<float > wetPath)  {
+ 	void CalWVRRow::setWetPath (std::vector<float > wetPath)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2338,21 +2373,21 @@ void CalWVRRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get dryPath.
- 	 * @return dryPath as vector<float >
+ 	 * @return dryPath as std::vector<float >
  	 */
- 	vector<float > CalWVRRow::getDryPath() const {
+ 	std::vector<float > CalWVRRow::getDryPath() const {
 	
   		return dryPath;
  	}
 
  	/**
- 	 * Set dryPath with the specified vector<float >.
- 	 * @param dryPath The vector<float > value to which dryPath is to be set.
+ 	 * Set dryPath with the specified std::vector<float >.
+ 	 * @param dryPath The std::vector<float > value to which dryPath is to be set.
  	 
  	
  		
  	 */
- 	void CalWVRRow::setDryPath (vector<float > dryPath)  {
+ 	void CalWVRRow::setDryPath (std::vector<float > dryPath)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2822,7 +2857,7 @@ wvrMethod = CWVRMethod::from_int(0);
 	}
 
 	
-	bool CalWVRRow::compareNoAutoInc(string antennaName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, vector<string > inputAntennaNames, int numChan, vector<Frequency > chanFreq, vector<Frequency > chanWidth, vector<vector<Temperature > > refTemp, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<Frequency > polyFreqLimits, vector<float > wetPath, vector<float > dryPath, Length water) {
+	bool CalWVRRow::compareNoAutoInc(std::string antennaName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, std::vector<std::string > inputAntennaNames, int numChan, std::vector<Frequency > chanFreq, std::vector<Frequency > chanWidth, std::vector<std::vector<Temperature > > refTemp, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<Frequency > polyFreqLimits, std::vector<float > wetPath, std::vector<float > dryPath, Length water) {
 		bool result;
 		result = true;
 		
@@ -2957,7 +2992,7 @@ wvrMethod = CWVRMethod::from_int(0);
 	
 	
 	
-	bool CalWVRRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, vector<string > inputAntennaNames, int numChan, vector<Frequency > chanFreq, vector<Frequency > chanWidth, vector<vector<Temperature > > refTemp, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<Frequency > polyFreqLimits, vector<float > wetPath, vector<float > dryPath, Length water) {
+	bool CalWVRRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, std::vector<std::string > inputAntennaNames, int numChan, std::vector<Frequency > chanFreq, std::vector<Frequency > chanWidth, std::vector<std::vector<Temperature > > refTemp, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<Frequency > polyFreqLimits, std::vector<float > wetPath, std::vector<float > dryPath, Length water) {
 		bool result;
 		result = true;
 		

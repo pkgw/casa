@@ -156,18 +156,23 @@ test_visstat                    jkern@nrao.edu
 test_vpmanager                  dpetry@eso.org
 test_wvrgcal                    dpetry@eso.org
 test_req_task_listobs           nschweig@nrao.edu
+test_req_task_listobs        nschweig@nrao.edu
+test_req_task_listhistory    nschweig@nrao.edu
+test_req_task_importuvfits   nschweig@nrao.edu
+test_req_task_calstat        nschweig@nrao.edu
+test_req_task_rmtables       nschweig@nrao.edu
 
 # Casaguide List
-#test_FirstLook_Imaging.py               awells@nrao.edu
-#test_FirstLook_LineImageAnalysis.py     awells@nrao.edu
-#test_FirstLook_LineImaging.py           awells@nrao.edu
-#test_FirstLook_SelfCalibration.py       awells@nrao.edu
-#test_ATCA_NGC612_advanced.py            awells@nrao.edu
-#test_ATCA_NGC612.py                     awells@nrao.edu
-#test_VLA_CorrectingBandpass.py          awells@nrao.edu
-#test_VLA_Flagging.py                    awells@nrao.edu
-#test_VLA_Imaging.py                     awells@nrao.edu
-#test_VLA_3C391.py                       awells@nrao.edu
-#test_VLA_IRC10216.py                    awells@nrao.edu
-#test_VLA_MG0414.py                      awells@nrao.edu
+#test_FirstLook_Imaging               awells@nrao.edu
+#test_FirstLook_LineImageAnalysis     awells@nrao.edu
+#test_FirstLook_LineImaging           awells@nrao.edu
+#test_FirstLook_SelfCalibration       awells@nrao.edu
+#test_ATCA_NGC612_advanced            awells@nrao.edu
+#test_ATCA_NGC612                     awells@nrao.edu
+#test_VLA_CorrectingBandpass          awells@nrao.edu
+#test_VLA_Flagging                    awells@nrao.edu
+#test_VLA_Imaging                     awells@nrao.edu
+#test_VLA_3C391                       awells@nrao.edu
+#test_VLA_IRC10216                    awells@nrao.edu
+#test_VLA_MG0414                      awells@nrao.edu
 

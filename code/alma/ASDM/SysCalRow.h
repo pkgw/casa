@@ -48,15 +48,15 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -98,12 +98,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file SysCal.h
     \brief Generated from model's revision "-1", branch ""
@@ -126,7 +126,7 @@ class SpectralWindowRow;
 
 class SysCalRow;
 typedef void (SysCalRow::*SysCalAttributeFromBin) (EndianIStream& eis);
-typedef void (SysCalRow::*SysCalAttributeFromText) (const string& s);
+typedef void (SysCalRow::*SysCalAttributeFromText) (const std::string& s);
 
 /**
  * The SysCalRow class is a row of a SysCalTable.
@@ -306,7 +306,7 @@ public:
 	
  	/**
  	 * Get tcalSpectrum, which is optional.
- 	 * @return tcalSpectrum as vector<vector<Temperature > >
+ 	 * @return tcalSpectrum as std::vector<std::vector<Temperature > >
  	 * @throws IllegalAccessException If tcalSpectrum does not exist.
  	 */
  	std::vector<std::vector<Temperature > > getTcalSpectrum() const;
@@ -315,8 +315,8 @@ public:
  	
  	
  	/**
- 	 * Set tcalSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tcalSpectrum The vector<vector<Temperature > > value to which tcalSpectrum is to be set.
+ 	 * Set tcalSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tcalSpectrum The std::vector<std::vector<Temperature > > value to which tcalSpectrum is to be set.
  	 
  		
  	 */
@@ -388,7 +388,7 @@ public:
 	
  	/**
  	 * Get trxSpectrum, which is optional.
- 	 * @return trxSpectrum as vector<vector<Temperature > >
+ 	 * @return trxSpectrum as std::vector<std::vector<Temperature > >
  	 * @throws IllegalAccessException If trxSpectrum does not exist.
  	 */
  	std::vector<std::vector<Temperature > > getTrxSpectrum() const;
@@ -397,8 +397,8 @@ public:
  	
  	
  	/**
- 	 * Set trxSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param trxSpectrum The vector<vector<Temperature > > value to which trxSpectrum is to be set.
+ 	 * Set trxSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param trxSpectrum The std::vector<std::vector<Temperature > > value to which trxSpectrum is to be set.
  	 
  		
  	 */
@@ -470,7 +470,7 @@ public:
 	
  	/**
  	 * Get tskySpectrum, which is optional.
- 	 * @return tskySpectrum as vector<vector<Temperature > >
+ 	 * @return tskySpectrum as std::vector<std::vector<Temperature > >
  	 * @throws IllegalAccessException If tskySpectrum does not exist.
  	 */
  	std::vector<std::vector<Temperature > > getTskySpectrum() const;
@@ -479,8 +479,8 @@ public:
  	
  	
  	/**
- 	 * Set tskySpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tskySpectrum The vector<vector<Temperature > > value to which tskySpectrum is to be set.
+ 	 * Set tskySpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tskySpectrum The std::vector<std::vector<Temperature > > value to which tskySpectrum is to be set.
  	 
  		
  	 */
@@ -552,7 +552,7 @@ public:
 	
  	/**
  	 * Get tsysSpectrum, which is optional.
- 	 * @return tsysSpectrum as vector<vector<Temperature > >
+ 	 * @return tsysSpectrum as std::vector<std::vector<Temperature > >
  	 * @throws IllegalAccessException If tsysSpectrum does not exist.
  	 */
  	std::vector<std::vector<Temperature > > getTsysSpectrum() const;
@@ -561,8 +561,8 @@ public:
  	
  	
  	/**
- 	 * Set tsysSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tsysSpectrum The vector<vector<Temperature > > value to which tsysSpectrum is to be set.
+ 	 * Set tsysSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tsysSpectrum The std::vector<std::vector<Temperature > > value to which tsysSpectrum is to be set.
  	 
  		
  	 */
@@ -634,7 +634,7 @@ public:
 	
  	/**
  	 * Get tantSpectrum, which is optional.
- 	 * @return tantSpectrum as vector<vector<float > >
+ 	 * @return tantSpectrum as std::vector<std::vector<float > >
  	 * @throws IllegalAccessException If tantSpectrum does not exist.
  	 */
  	std::vector<std::vector<float > > getTantSpectrum() const;
@@ -643,8 +643,8 @@ public:
  	
  	
  	/**
- 	 * Set tantSpectrum with the specified vector<vector<float > >.
- 	 * @param tantSpectrum The vector<vector<float > > value to which tantSpectrum is to be set.
+ 	 * Set tantSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param tantSpectrum The std::vector<std::vector<float > > value to which tantSpectrum is to be set.
  	 
  		
  	 */
@@ -716,7 +716,7 @@ public:
 	
  	/**
  	 * Get tantTsysSpectrum, which is optional.
- 	 * @return tantTsysSpectrum as vector<vector<float > >
+ 	 * @return tantTsysSpectrum as std::vector<std::vector<float > >
  	 * @throws IllegalAccessException If tantTsysSpectrum does not exist.
  	 */
  	std::vector<std::vector<float > > getTantTsysSpectrum() const;
@@ -725,8 +725,8 @@ public:
  	
  	
  	/**
- 	 * Set tantTsysSpectrum with the specified vector<vector<float > >.
- 	 * @param tantTsysSpectrum The vector<vector<float > > value to which tantTsysSpectrum is to be set.
+ 	 * Set tantTsysSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param tantTsysSpectrum The std::vector<std::vector<float > > value to which tantTsysSpectrum is to be set.
  	 
  		
  	 */
@@ -798,7 +798,7 @@ public:
 	
  	/**
  	 * Get phaseDiffSpectrum, which is optional.
- 	 * @return phaseDiffSpectrum as vector<vector<float > >
+ 	 * @return phaseDiffSpectrum as std::vector<std::vector<float > >
  	 * @throws IllegalAccessException If phaseDiffSpectrum does not exist.
  	 */
  	std::vector<std::vector<float > > getPhaseDiffSpectrum() const;
@@ -807,8 +807,8 @@ public:
  	
  	
  	/**
- 	 * Set phaseDiffSpectrum with the specified vector<vector<float > >.
- 	 * @param phaseDiffSpectrum The vector<vector<float > > value to which phaseDiffSpectrum is to be set.
+ 	 * Set phaseDiffSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param phaseDiffSpectrum The std::vector<std::vector<float > > value to which phaseDiffSpectrum is to be set.
  	 
  		
  	 */
@@ -954,7 +954,7 @@ public:
 	 * 
 	 * @return a vector of FeedRow *
 	 */
-	vector <FeedRow *> getFeeds();
+	std::vector <FeedRow *> getFeeds();
 	
 	
 
@@ -1467,65 +1467,65 @@ void phaseDiffSpectrumFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, SysCalAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void feedIdFromText (const string & s);
+void feedIdFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void numChanFromText (const string & s);
+void numChanFromText (const std::string & s);
 	
 
 	
-void tcalFlagFromText (const string & s);
+void tcalFlagFromText (const std::string & s);
 	
 	
-void tcalSpectrumFromText (const string & s);
+void tcalSpectrumFromText (const std::string & s);
 	
 	
-void trxFlagFromText (const string & s);
+void trxFlagFromText (const std::string & s);
 	
 	
-void trxSpectrumFromText (const string & s);
+void trxSpectrumFromText (const std::string & s);
 	
 	
-void tskyFlagFromText (const string & s);
+void tskyFlagFromText (const std::string & s);
 	
 	
-void tskySpectrumFromText (const string & s);
+void tskySpectrumFromText (const std::string & s);
 	
 	
-void tsysFlagFromText (const string & s);
+void tsysFlagFromText (const std::string & s);
 	
 	
-void tsysSpectrumFromText (const string & s);
+void tsysSpectrumFromText (const std::string & s);
 	
 	
-void tantFlagFromText (const string & s);
+void tantFlagFromText (const std::string & s);
 	
 	
-void tantSpectrumFromText (const string & s);
+void tantSpectrumFromText (const std::string & s);
 	
 	
-void tantTsysFlagFromText (const string & s);
+void tantTsysFlagFromText (const std::string & s);
 	
 	
-void tantTsysSpectrumFromText (const string & s);
+void tantTsysSpectrumFromText (const std::string & s);
 	
 	
-void phaseDiffFlagFromText (const string & s);
+void phaseDiffFlagFromText (const std::string & s);
 	
 	
-void phaseDiffSpectrumFromText (const string & s);
+void phaseDiffSpectrumFromText (const std::string & s);
 	
 	
 	

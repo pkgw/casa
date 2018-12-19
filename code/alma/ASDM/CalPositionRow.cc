@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalPositionRow.h>
-#include <CalPositionTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalPositionRow.h>
+#include <alma/ASDM/CalPositionTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalPositionRow::~CalPositionRow() {
@@ -1829,7 +1826,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalPositionRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1837,7 +1836,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an AtmPhaseCorrection 
 	void CalPositionRow::atmPhaseCorrectionFromText(const string & s) {
 		 
-		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrection>(s);
+          
+		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrectionMod::AtmPhaseCorrection>(s);
+          
 		
 	}
 	
@@ -1845,7 +1846,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalPositionRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1853,7 +1856,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalPositionRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1861,7 +1866,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalPositionRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1869,7 +1876,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalPositionRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1877,7 +1886,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalPositionRow::antennaPositionFromText(const string & s) {
 		 
+          
 		antennaPosition = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -1885,7 +1896,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalPositionRow::stationNameFromText(const string & s) {
 		 
+          
 		stationName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1893,7 +1906,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalPositionRow::stationPositionFromText(const string & s) {
 		 
+          
 		stationPosition = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -1901,7 +1916,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an PositionMethod 
 	void CalPositionRow::positionMethodFromText(const string & s) {
 		 
-		positionMethod = ASDMValuesParser::parse<PositionMethod>(s);
+          
+		positionMethod = ASDMValuesParser::parse<PositionMethodMod::PositionMethod>(s);
+          
 		
 	}
 	
@@ -1909,7 +1926,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalPositionRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -1917,7 +1936,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalPositionRow::numAntennaFromText(const string & s) {
 		 
+          
 		numAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1925,7 +1946,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalPositionRow::refAntennaNamesFromText(const string & s) {
 		 
+          
 		refAntennaNames = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1933,7 +1956,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalPositionRow::axesOffsetFromText(const string & s) {
 		 
+          
 		axesOffset = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -1941,7 +1966,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalPositionRow::axesOffsetErrFromText(const string & s) {
 		 
+          
 		axesOffsetErr = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -1949,7 +1976,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void CalPositionRow::axesOffsetFixedFromText(const string & s) {
 		 
+          
 		axesOffsetFixed = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -1957,7 +1986,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalPositionRow::positionOffsetFromText(const string & s) {
 		 
+          
 		positionOffset = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -1965,7 +1996,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalPositionRow::positionErrFromText(const string & s) {
 		 
+          
 		positionErr = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -1973,7 +2006,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalPositionRow::reducedChiSquaredFromText(const string & s) {
 		 
+          
 		reducedChiSquared = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -1983,7 +2018,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	void CalPositionRow::delayRmsFromText(const string & s) {
 		delayRmsExists = true;
 		 
+          
 		delayRms = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -1992,7 +2029,9 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	void CalPositionRow::phaseRmsFromText(const string & s) {
 		phaseRmsExists = true;
 		 
+          
 		phaseRms = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -2014,23 +2053,23 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalPositionRow::getAntennaName() const {
+ 	std::string CalPositionRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalPositionRow::setAntennaName (string antennaName)  {
+ 	void CalPositionRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2150,21 +2189,21 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaPosition.
- 	 * @return antennaPosition as vector<Length >
+ 	 * @return antennaPosition as std::vector<Length >
  	 */
- 	vector<Length > CalPositionRow::getAntennaPosition() const {
+ 	std::vector<Length > CalPositionRow::getAntennaPosition() const {
 	
   		return antennaPosition;
  	}
 
  	/**
- 	 * Set antennaPosition with the specified vector<Length >.
- 	 * @param antennaPosition The vector<Length > value to which antennaPosition is to be set.
+ 	 * Set antennaPosition with the specified std::vector<Length >.
+ 	 * @param antennaPosition The std::vector<Length > value to which antennaPosition is to be set.
  	 
  	
  		
  	 */
- 	void CalPositionRow::setAntennaPosition (vector<Length > antennaPosition)  {
+ 	void CalPositionRow::setAntennaPosition (std::vector<Length > antennaPosition)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2182,21 +2221,21 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get stationName.
- 	 * @return stationName as string
+ 	 * @return stationName as std::string
  	 */
- 	string CalPositionRow::getStationName() const {
+ 	std::string CalPositionRow::getStationName() const {
 	
   		return stationName;
  	}
 
  	/**
- 	 * Set stationName with the specified string.
- 	 * @param stationName The string value to which stationName is to be set.
+ 	 * Set stationName with the specified std::string.
+ 	 * @param stationName The std::string value to which stationName is to be set.
  	 
  	
  		
  	 */
- 	void CalPositionRow::setStationName (string stationName)  {
+ 	void CalPositionRow::setStationName (std::string stationName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2214,21 +2253,21 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get stationPosition.
- 	 * @return stationPosition as vector<Length >
+ 	 * @return stationPosition as std::vector<Length >
  	 */
- 	vector<Length > CalPositionRow::getStationPosition() const {
+ 	std::vector<Length > CalPositionRow::getStationPosition() const {
 	
   		return stationPosition;
  	}
 
  	/**
- 	 * Set stationPosition with the specified vector<Length >.
- 	 * @param stationPosition The vector<Length > value to which stationPosition is to be set.
+ 	 * Set stationPosition with the specified std::vector<Length >.
+ 	 * @param stationPosition The std::vector<Length > value to which stationPosition is to be set.
  	 
  	
  		
  	 */
- 	void CalPositionRow::setStationPosition (vector<Length > stationPosition)  {
+ 	void CalPositionRow::setStationPosition (std::vector<Length > stationPosition)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2342,21 +2381,21 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get refAntennaNames.
- 	 * @return refAntennaNames as vector<string >
+ 	 * @return refAntennaNames as std::vector<std::string >
  	 */
- 	vector<string > CalPositionRow::getRefAntennaNames() const {
+ 	std::vector<std::string > CalPositionRow::getRefAntennaNames() const {
 	
   		return refAntennaNames;
  	}
 
  	/**
- 	 * Set refAntennaNames with the specified vector<string >.
- 	 * @param refAntennaNames The vector<string > value to which refAntennaNames is to be set.
+ 	 * Set refAntennaNames with the specified std::vector<std::string >.
+ 	 * @param refAntennaNames The std::vector<std::string > value to which refAntennaNames is to be set.
  	 
  	
  		
  	 */
- 	void CalPositionRow::setRefAntennaNames (vector<string > refAntennaNames)  {
+ 	void CalPositionRow::setRefAntennaNames (std::vector<std::string > refAntennaNames)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2470,21 +2509,21 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get positionOffset.
- 	 * @return positionOffset as vector<Length >
+ 	 * @return positionOffset as std::vector<Length >
  	 */
- 	vector<Length > CalPositionRow::getPositionOffset() const {
+ 	std::vector<Length > CalPositionRow::getPositionOffset() const {
 	
   		return positionOffset;
  	}
 
  	/**
- 	 * Set positionOffset with the specified vector<Length >.
- 	 * @param positionOffset The vector<Length > value to which positionOffset is to be set.
+ 	 * Set positionOffset with the specified std::vector<Length >.
+ 	 * @param positionOffset The std::vector<Length > value to which positionOffset is to be set.
  	 
  	
  		
  	 */
- 	void CalPositionRow::setPositionOffset (vector<Length > positionOffset)  {
+ 	void CalPositionRow::setPositionOffset (std::vector<Length > positionOffset)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2502,21 +2541,21 @@ void CalPositionRow::phaseRmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get positionErr.
- 	 * @return positionErr as vector<Length >
+ 	 * @return positionErr as std::vector<Length >
  	 */
- 	vector<Length > CalPositionRow::getPositionErr() const {
+ 	std::vector<Length > CalPositionRow::getPositionErr() const {
 	
   		return positionErr;
  	}
 
  	/**
- 	 * Set positionErr with the specified vector<Length >.
- 	 * @param positionErr The vector<Length > value to which positionErr is to be set.
+ 	 * Set positionErr with the specified std::vector<Length >.
+ 	 * @param positionErr The std::vector<Length > value to which positionErr is to be set.
  	 
  	
  		
  	 */
- 	void CalPositionRow::setPositionErr (vector<Length > positionErr)  {
+ 	void CalPositionRow::setPositionErr (std::vector<Length > positionErr)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3146,7 +3185,7 @@ receiverBand = CReceiverBand::from_int(0);
 	}
 
 	
-	bool CalPositionRow::compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Length > antennaPosition, string stationName, vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, vector<string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, vector<Length > positionOffset, vector<Length > positionErr, double reducedChiSquared) {
+	bool CalPositionRow::compareNoAutoInc(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Length > antennaPosition, std::string stationName, std::vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, std::vector<std::string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, std::vector<Length > positionOffset, std::vector<Length > positionErr, double reducedChiSquared) {
 		bool result;
 		result = true;
 		
@@ -3288,7 +3327,7 @@ receiverBand = CReceiverBand::from_int(0);
 	
 	
 	
-	bool CalPositionRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, vector<Length > antennaPosition, string stationName, vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, vector<string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, vector<Length > positionOffset, vector<Length > positionErr, double reducedChiSquared) {
+	bool CalPositionRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Length > antennaPosition, std::string stationName, std::vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, std::vector<std::string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, std::vector<Length > positionOffset, std::vector<Length > positionErr, double reducedChiSquared) {
 		bool result;
 		result = true;
 		

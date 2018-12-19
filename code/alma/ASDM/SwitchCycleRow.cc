@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <SwitchCycleRow.h>
-#include <SwitchCycleTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SwitchCycleRow.h>
+#include <alma/ASDM/SwitchCycleTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::SwitchCycleRow;
 using asdm::SwitchCycleTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	SwitchCycleRow::~SwitchCycleRow() {
@@ -390,7 +387,9 @@ namespace asdm {
 		
 			
 		dirOffsetArray .clear();
-		vector<Angle> v_aux_dirOffsetArray;
+        
+        vector<Angle> v_aux_dirOffsetArray;
+        
 		for (unsigned int i = 0; i < x.dirOffsetArray.length(); ++i) {
 			v_aux_dirOffsetArray.clear();
 			for (unsigned int j = 0; j < x.dirOffsetArray[0].length(); ++j) {
@@ -899,7 +898,9 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void SwitchCycleRow::switchCycleIdFromText(const string & s) {
 		 
+          
 		switchCycleId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -907,7 +908,9 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SwitchCycleRow::numStepFromText(const string & s) {
 		 
+          
 		numStep = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -915,7 +918,9 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void SwitchCycleRow::weightArrayFromText(const string & s) {
 		 
+          
 		weightArray = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -923,7 +928,9 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void SwitchCycleRow::dirOffsetArrayFromText(const string & s) {
 		 
+          
 		dirOffsetArray = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -931,7 +938,9 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void SwitchCycleRow::freqOffsetArrayFromText(const string & s) {
 		 
+          
 		freqOffsetArray = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -939,7 +948,9 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an Interval 
 	void SwitchCycleRow::stepDurationArrayFromText(const string & s) {
 		 
+          
 		stepDurationArray = ASDMValuesParser::parse1D<Interval>(s);
+          
 		
 	}
 	
@@ -949,7 +960,9 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	void SwitchCycleRow::directionCodeFromText(const string & s) {
 		directionCodeExists = true;
 		 
-		directionCode = ASDMValuesParser::parse<DirectionReferenceCode>(s);
+          
+		directionCode = ASDMValuesParser::parse<DirectionReferenceCodeMod::DirectionReferenceCode>(s);
+          
 		
 	}
 	
@@ -958,7 +971,9 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	void SwitchCycleRow::directionEquinoxFromText(const string & s) {
 		directionEquinoxExists = true;
 		 
+          
 		directionEquinox = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1048,21 +1063,21 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get weightArray.
- 	 * @return weightArray as vector<float >
+ 	 * @return weightArray as std::vector<float >
  	 */
- 	vector<float > SwitchCycleRow::getWeightArray() const {
+ 	std::vector<float > SwitchCycleRow::getWeightArray() const {
 	
   		return weightArray;
  	}
 
  	/**
- 	 * Set weightArray with the specified vector<float >.
- 	 * @param weightArray The vector<float > value to which weightArray is to be set.
+ 	 * Set weightArray with the specified std::vector<float >.
+ 	 * @param weightArray The std::vector<float > value to which weightArray is to be set.
  	 
  	
  		
  	 */
- 	void SwitchCycleRow::setWeightArray (vector<float > weightArray)  {
+ 	void SwitchCycleRow::setWeightArray (std::vector<float > weightArray)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1080,21 +1095,21 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get dirOffsetArray.
- 	 * @return dirOffsetArray as vector<vector<Angle > >
+ 	 * @return dirOffsetArray as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > SwitchCycleRow::getDirOffsetArray() const {
+ 	std::vector<std::vector<Angle > > SwitchCycleRow::getDirOffsetArray() const {
 	
   		return dirOffsetArray;
  	}
 
  	/**
- 	 * Set dirOffsetArray with the specified vector<vector<Angle > >.
- 	 * @param dirOffsetArray The vector<vector<Angle > > value to which dirOffsetArray is to be set.
+ 	 * Set dirOffsetArray with the specified std::vector<std::vector<Angle > >.
+ 	 * @param dirOffsetArray The std::vector<std::vector<Angle > > value to which dirOffsetArray is to be set.
  	 
  	
  		
  	 */
- 	void SwitchCycleRow::setDirOffsetArray (vector<vector<Angle > > dirOffsetArray)  {
+ 	void SwitchCycleRow::setDirOffsetArray (std::vector<std::vector<Angle > > dirOffsetArray)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1112,21 +1127,21 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get freqOffsetArray.
- 	 * @return freqOffsetArray as vector<Frequency >
+ 	 * @return freqOffsetArray as std::vector<Frequency >
  	 */
- 	vector<Frequency > SwitchCycleRow::getFreqOffsetArray() const {
+ 	std::vector<Frequency > SwitchCycleRow::getFreqOffsetArray() const {
 	
   		return freqOffsetArray;
  	}
 
  	/**
- 	 * Set freqOffsetArray with the specified vector<Frequency >.
- 	 * @param freqOffsetArray The vector<Frequency > value to which freqOffsetArray is to be set.
+ 	 * Set freqOffsetArray with the specified std::vector<Frequency >.
+ 	 * @param freqOffsetArray The std::vector<Frequency > value to which freqOffsetArray is to be set.
  	 
  	
  		
  	 */
- 	void SwitchCycleRow::setFreqOffsetArray (vector<Frequency > freqOffsetArray)  {
+ 	void SwitchCycleRow::setFreqOffsetArray (std::vector<Frequency > freqOffsetArray)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1144,21 +1159,21 @@ void SwitchCycleRow::directionEquinoxFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get stepDurationArray.
- 	 * @return stepDurationArray as vector<Interval >
+ 	 * @return stepDurationArray as std::vector<Interval >
  	 */
- 	vector<Interval > SwitchCycleRow::getStepDurationArray() const {
+ 	std::vector<Interval > SwitchCycleRow::getStepDurationArray() const {
 	
   		return stepDurationArray;
  	}
 
  	/**
- 	 * Set stepDurationArray with the specified vector<Interval >.
- 	 * @param stepDurationArray The vector<Interval > value to which stepDurationArray is to be set.
+ 	 * Set stepDurationArray with the specified std::vector<Interval >.
+ 	 * @param stepDurationArray The std::vector<Interval > value to which stepDurationArray is to be set.
  	 
  	
  		
  	 */
- 	void SwitchCycleRow::setStepDurationArray (vector<Interval > stepDurationArray)  {
+ 	void SwitchCycleRow::setStepDurationArray (std::vector<Interval > stepDurationArray)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1462,7 +1477,7 @@ directionCode = CDirectionReferenceCode::from_int(0);
 	}
 
 	
-	bool SwitchCycleRow::compareNoAutoInc(int numStep, vector<float > weightArray, vector<vector<Angle > > dirOffsetArray, vector<Frequency > freqOffsetArray, vector<Interval > stepDurationArray) {
+	bool SwitchCycleRow::compareNoAutoInc(int numStep, std::vector<float > weightArray, std::vector<std::vector<Angle > > dirOffsetArray, std::vector<Frequency > freqOffsetArray, std::vector<Interval > stepDurationArray) {
 		bool result;
 		result = true;
 		
@@ -1506,7 +1521,7 @@ directionCode = CDirectionReferenceCode::from_int(0);
 	
 	
 	
-	bool SwitchCycleRow::compareRequiredValue(int numStep, vector<float > weightArray, vector<vector<Angle > > dirOffsetArray, vector<Frequency > freqOffsetArray, vector<Interval > stepDurationArray) {
+	bool SwitchCycleRow::compareRequiredValue(int numStep, std::vector<float > weightArray, std::vector<std::vector<Angle > > dirOffsetArray, std::vector<Frequency > freqOffsetArray, std::vector<Interval > stepDurationArray) {
 		bool result;
 		result = true;
 		

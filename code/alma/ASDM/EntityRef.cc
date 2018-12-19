@@ -24,13 +24,12 @@
  * File EntityRef.cpp
  */
 
-#include <EntityRef.h>
-#include <OutOfBoundsException.h>
-#include <InvalidArgumentException.h>
-#include <InvalidDataException.h>
-using asdm::OutOfBoundsException;
-using asdm::InvalidArgumentException;
-using asdm::InvalidDataException;
+#include <alma/ASDM/EntityRef.h>
+#include <alma/ASDM/OutOfBoundsException.h>
+#include <alma/ASDM/InvalidArgumentException.h>
+#include <alma/ASDM/InvalidDataException.h>
+
+using namespace std;
 
 namespace asdm {
 
@@ -54,7 +53,7 @@ namespace asdm {
 	}
 
 #ifndef WITHOUT_ACS
-	EntityRef::EntityRef(IDLEntityRef &x) : entityId(string(x.entityId)),
+	EntityRef::EntityRef(asdmIDLTypes::IDLEntityRef &x) : entityId(string(x.entityId)),
 			partId(string(x.partId)) {
 		entityTypeName = string(x.entityTypeName);
 		instanceVersion = string(x.instanceVersion);
@@ -139,8 +138,8 @@ namespace asdm {
 	}
 
 #ifndef WITHOUT_ACS
-	IDLEntityRef EntityRef::toIDLEntityRef() const {
-		IDLEntityRef e;
+	asdmIDLTypes::IDLEntityRef EntityRef::toIDLEntityRef() const {
+		asdmIDLTypes::IDLEntityRef e;
 		e.entityId = CORBA::string_dup(entityId.getId().c_str());
 		e.partId = CORBA::string_dup(partId.toString().c_str());
 		e.entityTypeName = CORBA::string_dup(entityTypeName.c_str());

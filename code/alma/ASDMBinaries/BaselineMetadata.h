@@ -1,5 +1,5 @@
 #if     !defined(_BASELINEMETADATA_H)
-#include "Error.h"
+#include <alma/ASDMBinaries/Error.h>
 
 namespace sdmbin {
 
@@ -150,7 +150,7 @@ namespace sdmbin {
      *  @return A set of indices, one per bin, defining locations in the container of 
      *          baseline-based metadata for this set of nodes.
      */
-    vector<int>                   at(         int npp, int nbb, int i, int j);  // numPolProduct elements
+    std::vector<int>                   at(         int npp, int nbb, int i, int j);  // numPolProduct elements
 
     /** Set of indices, one per non-zero basleine, in a container of baseline-based metadata given a set of nodes 
      *  specified by a subset of indices of the parameter space
@@ -160,7 +160,7 @@ namespace sdmbin {
      *  @return A set of indices, one per non-zero baseline, defining locations in the container of 
      *          baseline-based metadata for this set of nodes.
      */
-    vector<int>                   at(int npp, int nbin, int nbb              );  // numNonZeroBaseline elements         
+    std::vector<int>                   at(int npp, int nbin, int nbb              );  // numNonZeroBaseline elements         
 
     /** Set of indices in a container of baseline-based metadata given a set of nodes node specified by a subset 
      *  of indices of the parameter space
@@ -168,7 +168,7 @@ namespace sdmbin {
      *  @param nbb  baseband index
      *  @return a two levels tree of indices (a set of subsets of indices)
      */
-    vector<vector<int> >          at(         int nbin, int nbb              );  // numNonZeroBaseline vectors of numPolProduct elem.
+    std::vector<std::vector<int> >          at(         int nbin, int nbb              );  // numNonZeroBaseline vectors of numPolProduct elem.
 
     /** Set of indices in a container of baseline-based metadata given a set of nodes node specified by a subset 
      *  of indices of the parameter space
@@ -176,7 +176,7 @@ namespace sdmbin {
      *  @param i      antenna index i to select all baselines involving this antenna of index i
      *  @return a three levels tree (polarization product, baseband, baseline) of indices
      */
-    vector<vector<vector<int> > > at(bool cross, int i                       );  // numBaseline vectors of numBasebands vectors of numPP elem. 
+    std::vector<std::vector<std::vector<int> > > at(bool cross, int i                       );  // numBaseline vectors of numBasebands vectors of numPP elem. 
 
     static int           FLAGLIMIT;
 
@@ -197,8 +197,8 @@ namespace sdmbin {
     void mkBaselineMetadata( std::vector<int> v_npp, std::vector<int> v_nbin, int nbb, int nant, int correlationMode);
 
 
-    vector<int> v_numPolProduct_;     //!< Number of cross polarization products for every baseband
-    vector<int> v_numBin_;            //!< Number of phases in SwitchCycles for every baseband
+    std::vector<int> v_numPolProduct_;     //!< Number of cross polarization products for every baseband
+    std::vector<int> v_numBin_;            //!< Number of phases in SwitchCycles for every baseband
     int         numBaseband_;         //!< Number of basebands
     int         numAnt_;              //!< Number of antennas
     int         numBaseline_;         //!< Number of baselines
@@ -206,7 +206,7 @@ namespace sdmbin {
     int         autoSize_;            //!< Number of metadata values for all the zero baselines (second part in size formula)
     int         crossSize_;           //!< Number of metadata values for all the  non-zero baselines (first part in size formula)
     int         correlationMode_;     //!< Correlation mode
-    vector<int> v_numAutoPolProduct_; //!< Number of auto polarization products for every baseband
+    std::vector<int> v_numAutoPolProduct_; //!< Number of auto polarization products for every baseband
 
     /** Utility to access the validity of an input basebandNum
      * @param basebandNum Baseband number
