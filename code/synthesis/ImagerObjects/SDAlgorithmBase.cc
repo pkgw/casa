@@ -140,14 +140,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
             //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
-            Float nsigmathresh; 
-            if ( robustrms.nelements() == 0 ) {
-              // no statistics returned, perhaps the channel is flagged...
-              nsigmathresh = 0.0; 
-            }
-            else {
-              nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
-            }
+            Float nsigmathresh = 0.0; 
+            //if ( robustrms.nelements() == 0 ) {
+            //  // no statistics returned, perhaps the channel is flagged...
+            //  nsigmathresh = 0.0; 
+            //}
+            //else {
+            //  nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
+            //}
  
             Float thresholdtouse;
             if (nsigma>0.0) {
@@ -163,12 +163,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                   robuststats.get(RecordFieldId("robustrms"), robustrms);
                   robuststats.get(RecordFieldId("median"), medians);
                   statsexists=True;
+                  os<<LogIO::DEBUG1<<"using robustrms="<<robustrms<<LogIO::POST;
+                 
                 }
                 else if(robuststats.isDefined("medabsdevmed")) {
+                //if(robuststats.isDefined("medabsdevmed")) {
                   Array<Double> mads;
                   robuststats.get(RecordFieldId("medabsdevmed"), mads);
                   robuststats.get(RecordFieldId("median"), medians);
                   robustrms = mads * 1.4826; // convert to rms
+                  os<<LogIO::DEBUG1<<"using stored mad, robustrms="<<robustrms<<LogIO::POST;
                   statsexists=True;
                 }
                 statsindex=IPosition(1,chanid); // this only support for npol =1, need to fix this
@@ -182,6 +186,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               }
               if (isautomasking) { // new threshold defination 
                 //nsigmathresh = (Float)medians(IPosition(1,0)) + nsigma * (Float)robustrms(IPosition(1,0));
+                //os<<" robustrms for statsindex="<<statsindex<<" =>"<<(Float)robustrms(statsindex)<<" nsgima*robustrms="<<nsigma * (Float)robustrms(statsindex)<< LogIO::POST;
                 nsigmathresh = (Float)medians(statsindex) + nsigma * (Float)robustrms(statsindex);
               }
               else {

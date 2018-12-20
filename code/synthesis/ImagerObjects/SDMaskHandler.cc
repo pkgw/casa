@@ -1161,33 +1161,33 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Record thenewstats; 
     if (!(iterdone==0 && robuststatsrec.nfields()) ) { // this is an indirect way to check if initial stats by nsigma threshold is already run.
-    if (fastnoise) { // use a faster but less robust noise determination
-      thenewstats = thestats;
-      os<< LogIO::DEBUG1 << " *** Using classic image statistics ***"<<LogIO::POST;
-      os<< LogIO::DEBUG1 << "All rms's on the input image -- rms.nelements()="<<rmss.nelements()<<" rms="<<rmss<<LogIO::POST;
-      //os<< LogIO::DEBUG1 << "All max's on the input image -- max.nelements()="<<maxs.nelements()<<" max="<<maxs<<LogIO::POST;
-      if (alg.contains("multithresh")) {
-        thestats.get(RecordFieldId("medabsdevmed"), mads);
-        os<< LogIO::DEBUG1 << "All MAD's on the input image -- mad.nelements()="<<mads.nelements()<<" mad="<<mads<<LogIO::POST;
+      if (fastnoise) { // use a faster but less robust noise determination
+        thenewstats = thestats;
+        os<< LogIO::DEBUG1 << " *** Using classic image statistics ***"<<LogIO::POST;
+        os<< LogIO::DEBUG1 << "All rms's on the input image -- rms.nelements()="<<rmss.nelements()<<" rms="<<rmss<<LogIO::POST;
+        //os<< LogIO::DEBUG1 << "All max's on the input image -- max.nelements()="<<maxs.nelements()<<" max="<<maxs<<LogIO::POST;
+        if (alg.contains("multithresh")) {
+          thestats.get(RecordFieldId("medabsdevmed"), mads);
+          os<< LogIO::DEBUG1 << "All MAD's on the input image -- mad.nelements()="<<mads.nelements()<<" mad="<<mads<<LogIO::POST;
+        }
       }
-    }
-    else {
-    // Revised version of calcRobustImageStatistics  (previous one- rename to calcRobustImageStatisticsOld)
-    //Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust, chanflag);
-      thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust, chanflag);
-      Array<Double> newmaxs, newmins, newrmss, newmads;
-      thenewstats.get(RecordFieldId("max"), newmaxs);
-      thenewstats.get(RecordFieldId("rms"), newrmss);
-      os<< LogIO::DEBUG1 << "*** Using the new image statistics *** "<<LogIO::POST;
-      os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
-      //os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
-      if (alg.contains("multithresh")) {
-         thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
-         os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
+      else {
+      // Revised version of calcRobustImageStatistics  (previous one- rename to calcRobustImageStatisticsOld)
+        //Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust, chanflag);
+        thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust, chanflag);
+        Array<Double> newmaxs, newmins, newrmss, newmads;
+        thenewstats.get(RecordFieldId("max"), newmaxs);
+        thenewstats.get(RecordFieldId("rms"), newrmss);
+        os<< LogIO::DEBUG1 << "*** Using the new image statistics *** "<<LogIO::POST;
+        os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
+        //os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
+        if (alg.contains("multithresh")) {
+          thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
+          os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
+        }
       }
-    }
-    os<<" set the stats to what is calculated here" <<LogIO::POST;
-    robuststatsrec=thenewstats;
+      os<<LogIO::DEBUG1<<" set the stats to what is calculated here" <<LogIO::POST;
+      robuststatsrec=thenewstats;
     } 
     else {
       thenewstats=robuststatsrec; // use existing
