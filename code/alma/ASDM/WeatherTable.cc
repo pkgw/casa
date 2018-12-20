@@ -30,18 +30,18 @@
  *
  * File WeatherTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <WeatherTable.h>
-#include <WeatherRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/WeatherTable.h>
+#include <alma/ASDM/WeatherRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::WeatherTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -542,7 +542,7 @@ WeatherRow* WeatherTable::newRow(WeatherRow* row) {
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<WeatherTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:weathr=\"http://Alma/XASDM/WeatherTable\" xsi:schemaLocation=\"http://Alma/XASDM/WeatherTable http://almaobservatory.org/XML/XASDM/3/WeatherTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<WeatherTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:weathr=\"http://Alma/XASDM/WeatherTable\" xsi:schemaLocation=\"http://Alma/XASDM/WeatherTable http://almaobservatory.org/XML/XASDM/4/WeatherTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -672,7 +672,7 @@ WeatherRow* WeatherTable::newRow(WeatherRow* row) {
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<WeatherTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:weathr=\"http://Alma/XASDM/WeatherTable\" xsi:schemaLocation=\"http://Alma/XASDM/WeatherTable http://almaobservatory.org/XML/XASDM/3/WeatherTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<WeatherTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:weathr=\"http://Alma/XASDM/WeatherTable\" xsi:schemaLocation=\"http://Alma/XASDM/WeatherTable http://almaobservatory.org/XML/XASDM/4/WeatherTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='WeatherTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";

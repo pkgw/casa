@@ -32,17 +32,14 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <DelayModelVariableParametersRow.h>
-#include <DelayModelVariableParametersTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/DelayModelVariableParametersRow.h>
+#include <alma/ASDM/DelayModelVariableParametersTable.h>
 
-#include <DelayModelFixedParametersTable.h>
-#include <DelayModelFixedParametersRow.h>
+#include <alma/ASDM/DelayModelFixedParametersTable.h>
+#include <alma/ASDM/DelayModelFixedParametersRow.h>
 	
 
 using asdm::ASDM;
@@ -53,14 +50,14 @@ using asdm::DelayModelFixedParametersTable;
 using asdm::DelayModelFixedParametersRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	DelayModelVariableParametersRow::~DelayModelVariableParametersRow() {
@@ -1293,7 +1290,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	// Convert a string into an Tag 
 	void DelayModelVariableParametersRow::delayModelVariableParametersIdFromText(const string & s) {
 		 
+          
 		delayModelVariableParametersId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1301,7 +1300,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	// Convert a string into an ArrayTime 
 	void DelayModelVariableParametersRow::timeFromText(const string & s) {
 		 
+          
 		time = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1309,7 +1310,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	// Convert a string into an double 
 	void DelayModelVariableParametersRow::ut1_utcFromText(const string & s) {
 		 
+          
 		ut1_utc = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -1317,7 +1320,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	// Convert a string into an double 
 	void DelayModelVariableParametersRow::iat_utcFromText(const string & s) {
 		 
+          
 		iat_utc = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -1325,7 +1330,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	// Convert a string into an DifferenceType 
 	void DelayModelVariableParametersRow::timeTypeFromText(const string & s) {
 		 
-		timeType = ASDMValuesParser::parse<DifferenceType>(s);
+          
+		timeType = ASDMValuesParser::parse<DifferenceTypeMod::DifferenceType>(s);
+          
 		
 	}
 	
@@ -1333,7 +1340,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	// Convert a string into an Angle 
 	void DelayModelVariableParametersRow::gstAtUt0FromText(const string & s) {
 		 
+          
 		gstAtUt0 = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -1341,7 +1350,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	// Convert a string into an AngularRate 
 	void DelayModelVariableParametersRow::earthRotationRateFromText(const string & s) {
 		 
+          
 		earthRotationRate = ASDMValuesParser::parse<AngularRate>(s);
+          
 		
 	}
 	
@@ -1349,7 +1360,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	// Convert a string into an double 
 	void DelayModelVariableParametersRow::polarOffsetsFromText(const string & s) {
 		 
+          
 		polarOffsets = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -1357,7 +1370,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	// Convert a string into an DifferenceType 
 	void DelayModelVariableParametersRow::polarOffsetsTypeFromText(const string & s) {
 		 
-		polarOffsetsType = ASDMValuesParser::parse<DifferenceType>(s);
+          
+		polarOffsetsType = ASDMValuesParser::parse<DifferenceTypeMod::DifferenceType>(s);
+          
 		
 	}
 	
@@ -1365,7 +1380,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	// Convert a string into an Tag 
 	void DelayModelVariableParametersRow::delayModelFixedParametersIdFromText(const string & s) {
 		 
+          
 		delayModelFixedParametersId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1375,7 +1392,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	void DelayModelVariableParametersRow::nutationInLongitudeFromText(const string & s) {
 		nutationInLongitudeExists = true;
 		 
+          
 		nutationInLongitude = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -1384,7 +1403,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	void DelayModelVariableParametersRow::nutationInLongitudeRateFromText(const string & s) {
 		nutationInLongitudeRateExists = true;
 		 
+          
 		nutationInLongitudeRate = ASDMValuesParser::parse<AngularRate>(s);
+          
 		
 	}
 	
@@ -1393,7 +1414,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	void DelayModelVariableParametersRow::nutationInObliquityFromText(const string & s) {
 		nutationInObliquityExists = true;
 		 
+          
 		nutationInObliquity = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -1402,7 +1425,9 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	void DelayModelVariableParametersRow::nutationInObliquityRateFromText(const string & s) {
 		nutationInObliquityRateExists = true;
 		 
+          
 		nutationInObliquityRate = ASDMValuesParser::parse<AngularRate>(s);
+          
 		
 	}
 	
@@ -1652,21 +1677,21 @@ void DelayModelVariableParametersRow::nutationInObliquityRateFromBin(EndianIStre
 	
  	/**
  	 * Get polarOffsets.
- 	 * @return polarOffsets as vector<double >
+ 	 * @return polarOffsets as std::vector<double >
  	 */
- 	vector<double > DelayModelVariableParametersRow::getPolarOffsets() const {
+ 	std::vector<double > DelayModelVariableParametersRow::getPolarOffsets() const {
 	
   		return polarOffsets;
  	}
 
  	/**
- 	 * Set polarOffsets with the specified vector<double >.
- 	 * @param polarOffsets The vector<double > value to which polarOffsets is to be set.
+ 	 * Set polarOffsets with the specified std::vector<double >.
+ 	 * @param polarOffsets The std::vector<double > value to which polarOffsets is to be set.
  	 
  	
  		
  	 */
- 	void DelayModelVariableParametersRow::setPolarOffsets (vector<double > polarOffsets)  {
+ 	void DelayModelVariableParametersRow::setPolarOffsets (std::vector<double > polarOffsets)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2250,7 +2275,7 @@ polarOffsetsType = CDifferenceType::from_int(0);
 	}
 
 	
-	bool DelayModelVariableParametersRow::compareNoAutoInc(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId) {
+	bool DelayModelVariableParametersRow::compareNoAutoInc(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, std::vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId) {
 		bool result;
 		result = true;
 		
@@ -2322,7 +2347,7 @@ polarOffsetsType = CDifferenceType::from_int(0);
 	
 	
 	
-	bool DelayModelVariableParametersRow::compareRequiredValue(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId) {
+	bool DelayModelVariableParametersRow::compareRequiredValue(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, std::vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId) {
 		bool result;
 		result = true;
 		

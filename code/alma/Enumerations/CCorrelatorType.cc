@@ -33,7 +33,7 @@
  * File CCorrelatorType.cpp
  */
 #include <sstream>
-#include <CCorrelatorType.h>
+#include <alma/Enumerations/CCorrelatorType.h>
 #include <string>
 using namespace std;
 

@@ -41,23 +41,19 @@
 
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -67,20 +63,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -129,14 +129,14 @@ class SeeingRow;
 	
  * <TR>
  * <TD> baseLength </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numBaseLength </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> phaseRms </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  numBaseLength </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
@@ -305,7 +305,7 @@ public:
  	 * @param exponent
 	
      */
-	SeeingRow *newRow(ArrayTimeInterval timeInterval, int numBaseLength, vector<Length > baseLength, vector<Angle > phaseRms, float seeing, float exponent);
+	SeeingRow *newRow(ArrayTimeInterval timeInterval, int numBaseLength, std::vector<Length > baseLength, std::vector<Angle > phaseRms, float seeing, float exponent);
 	
 
 
@@ -420,7 +420,7 @@ public:
  	 * @param exponent
  	 		 
  	 */
-	SeeingRow* lookup(ArrayTimeInterval timeInterval, int numBaseLength, vector<Length > baseLength, vector<Angle > phaseRms, float seeing, float exponent); 
+	SeeingRow* lookup(ArrayTimeInterval timeInterval, int numBaseLength, std::vector<Length > baseLength, std::vector<Angle > phaseRms, float seeing, float exponent); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

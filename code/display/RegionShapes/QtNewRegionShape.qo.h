@@ -53,9 +53,9 @@ namespace casa {
 		// Static Members //
 
 		// Returns creation widgets.
-		static vector<std::pair<casacore::String, RegionShape*> >
+		static std::vector<std::pair<casacore::String, RegionShape*> >
 		creationShapes(bool includeComposite = true) {
-			vector<std::pair<casacore::String, RegionShape*> > v(includeComposite ? 9 : 8);
+			std::vector<std::pair<casacore::String, RegionShape*> > v(includeComposite ? 9 : 8);
 			for(unsigned int i = 0; i < v.size(); i++)
 				v[i] = std::pair<casacore::String,RegionShape*>(creationName(i),creationShape(i));
 			return v;
@@ -191,7 +191,7 @@ namespace casa {
 		// <group>
 		QtRegionShapeManager* m_manager;
 		RSComposite* m_composite;
-		vector<RegionShape*> m_children;
+		std::vector<RegionShape*> m_children;
 		QStackedLayout* m_layout;
 		// </group>
 
@@ -212,7 +212,7 @@ namespace casa {
 		// Second screen: existing shapes
 		// <group>
 		QListWidget* m_existingList, *m_moveList;
-		vector<RegionShape*> m_existingShapes, m_moveShapes;
+		std::vector<RegionShape*> m_existingShapes, m_moveShapes;
 		// </group>
 
 

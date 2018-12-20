@@ -489,11 +489,16 @@ private:
 
     // Parameters  (Time)
     
-        // 2 parameters were deleted , due to no need . ..
+
+    // 2 parameters were deleted , due to no need . ..
    
     // Number of Antenna 
 
-         const uInt numberOfAntenna =3;
+        Double dayOffset=0       ;      // Day offset   (Day)  ** NOT USED *** 
+
+    // Antena to USE (CAS-8418)
+
+        const uInt numberOfAntenna =3;
 };
 
 //+

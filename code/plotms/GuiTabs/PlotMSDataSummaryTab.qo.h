@@ -67,8 +67,8 @@ public:
     void setGridSize( int rowCount, int colCount );
 
     // Returns the axes that the user has selected to load/release into the cache.
-     vector<vector<PMS::Axis> > selectedLoadAxes() const;
-     vector<vector<PMS::Axis> > selectedReleaseAxes() const;
+    std::vector<std::vector<PMS::Axis> > selectedLoadAxes() const;
+    std::vector<std::vector<PMS::Axis> > selectedReleaseAxes() const;
 
      //Tell all of the supported plots to update their displays.
     bool plot();
@@ -77,13 +77,13 @@ public:
     void insertData( int index );
 
     //Return the currently supported plots.
-    vector<PlotMSPlot*> getCurrentPlots();
+    std::vector<PlotMSPlot*> getCurrentPlots();
 
     void emptyLayout();
 
 
     //Get the files that the user loaded.
-    vector<casacore::String> getFiles() const;
+    std::vector<casacore::String> getFiles() const;
     void completePlotting( bool success, PlotMSPlot* plot );
 signals:
 	void changed( int index );

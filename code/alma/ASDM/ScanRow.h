@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -69,41 +69,41 @@
 	
 
 	
-#include "CScanIntent.h"
+#include <alma/Enumerations/CScanIntent.h>
 	
 
 	
-#include "CCalDataOrigin.h"
-	
-
-	
-
-	
-#include "CCalibrationFunction.h"
-	
-
-	
-#include "CCalibrationSet.h"
-	
-
-	
-#include "CAntennaMotionPattern.h"
+#include <alma/Enumerations/CCalDataOrigin.h>
 	
 
 	
 
 	
+#include <alma/Enumerations/CCalibrationFunction.h>
+	
+
+	
+#include <alma/Enumerations/CCalibrationSet.h>
+	
+
+	
+#include <alma/Enumerations/CAntennaMotionPattern.h>
+	
+
+	
+
+	
 
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Scan.h
     \brief Generated from model's revision "-1", branch ""
@@ -120,7 +120,7 @@ class ExecBlockRow;
 
 class ScanRow;
 typedef void (ScanRow::*ScanAttributeFromBin) (EndianIStream& eis);
-typedef void (ScanRow::*ScanAttributeFromText) (const string& s);
+typedef void (ScanRow::*ScanAttributeFromText) (const std::string& s);
 
 /**
  * The ScanRow class is a row of a ScanTable.
@@ -313,21 +313,21 @@ public:
 	
  	/**
  	 * Get scanIntent.
- 	 * @return scanIntent as vector<ScanIntentMod::ScanIntent >
+ 	 * @return scanIntent as std::vector<ScanIntentMod::ScanIntent >
  	 */
- 	vector<ScanIntentMod::ScanIntent > getScanIntent() const;
+ 	std::vector<ScanIntentMod::ScanIntent > getScanIntent() const;
 	
  
  	
  	
  	/**
- 	 * Set scanIntent with the specified vector<ScanIntentMod::ScanIntent >.
- 	 * @param scanIntent The vector<ScanIntentMod::ScanIntent > value to which scanIntent is to be set.
+ 	 * Set scanIntent with the specified std::vector<ScanIntentMod::ScanIntent >.
+ 	 * @param scanIntent The std::vector<ScanIntentMod::ScanIntent > value to which scanIntent is to be set.
  	 
  		
  			
  	 */
- 	void setScanIntent (vector<ScanIntentMod::ScanIntent > scanIntent);
+ 	void setScanIntent (std::vector<ScanIntentMod::ScanIntent > scanIntent);
   		
 	
 	
@@ -343,21 +343,21 @@ public:
 	
  	/**
  	 * Get calDataType.
- 	 * @return calDataType as vector<CalDataOriginMod::CalDataOrigin >
+ 	 * @return calDataType as std::vector<CalDataOriginMod::CalDataOrigin >
  	 */
- 	vector<CalDataOriginMod::CalDataOrigin > getCalDataType() const;
+ 	std::vector<CalDataOriginMod::CalDataOrigin > getCalDataType() const;
 	
  
  	
  	
  	/**
- 	 * Set calDataType with the specified vector<CalDataOriginMod::CalDataOrigin >.
- 	 * @param calDataType The vector<CalDataOriginMod::CalDataOrigin > value to which calDataType is to be set.
+ 	 * Set calDataType with the specified std::vector<CalDataOriginMod::CalDataOrigin >.
+ 	 * @param calDataType The std::vector<CalDataOriginMod::CalDataOrigin > value to which calDataType is to be set.
  	 
  		
  			
  	 */
- 	void setCalDataType (vector<CalDataOriginMod::CalDataOrigin > calDataType);
+ 	void setCalDataType (std::vector<CalDataOriginMod::CalDataOrigin > calDataType);
   		
 	
 	
@@ -373,21 +373,21 @@ public:
 	
  	/**
  	 * Get calibrationOnLine.
- 	 * @return calibrationOnLine as vector<bool >
+ 	 * @return calibrationOnLine as std::vector<bool >
  	 */
- 	vector<bool > getCalibrationOnLine() const;
+ 	std::vector<bool > getCalibrationOnLine() const;
 	
  
  	
  	
  	/**
- 	 * Set calibrationOnLine with the specified vector<bool >.
- 	 * @param calibrationOnLine The vector<bool > value to which calibrationOnLine is to be set.
+ 	 * Set calibrationOnLine with the specified std::vector<bool >.
+ 	 * @param calibrationOnLine The std::vector<bool > value to which calibrationOnLine is to be set.
  	 
  		
  			
  	 */
- 	void setCalibrationOnLine (vector<bool > calibrationOnLine);
+ 	void setCalibrationOnLine (std::vector<bool > calibrationOnLine);
   		
 	
 	
@@ -409,21 +409,21 @@ public:
 	
  	/**
  	 * Get calibrationFunction, which is optional.
- 	 * @return calibrationFunction as vector<CalibrationFunctionMod::CalibrationFunction >
+ 	 * @return calibrationFunction as std::vector<CalibrationFunctionMod::CalibrationFunction >
  	 * @throws IllegalAccessException If calibrationFunction does not exist.
  	 */
- 	vector<CalibrationFunctionMod::CalibrationFunction > getCalibrationFunction() const;
+ 	std::vector<CalibrationFunctionMod::CalibrationFunction > getCalibrationFunction() const;
 	
  
  	
  	
  	/**
- 	 * Set calibrationFunction with the specified vector<CalibrationFunctionMod::CalibrationFunction >.
- 	 * @param calibrationFunction The vector<CalibrationFunctionMod::CalibrationFunction > value to which calibrationFunction is to be set.
+ 	 * Set calibrationFunction with the specified std::vector<CalibrationFunctionMod::CalibrationFunction >.
+ 	 * @param calibrationFunction The std::vector<CalibrationFunctionMod::CalibrationFunction > value to which calibrationFunction is to be set.
  	 
  		
  	 */
- 	void setCalibrationFunction (vector<CalibrationFunctionMod::CalibrationFunction > calibrationFunction);
+ 	void setCalibrationFunction (std::vector<CalibrationFunctionMod::CalibrationFunction > calibrationFunction);
 		
 	
 	
@@ -450,21 +450,21 @@ public:
 	
  	/**
  	 * Get calibrationSet, which is optional.
- 	 * @return calibrationSet as vector<CalibrationSetMod::CalibrationSet >
+ 	 * @return calibrationSet as std::vector<CalibrationSetMod::CalibrationSet >
  	 * @throws IllegalAccessException If calibrationSet does not exist.
  	 */
- 	vector<CalibrationSetMod::CalibrationSet > getCalibrationSet() const;
+ 	std::vector<CalibrationSetMod::CalibrationSet > getCalibrationSet() const;
 	
  
  	
  	
  	/**
- 	 * Set calibrationSet with the specified vector<CalibrationSetMod::CalibrationSet >.
- 	 * @param calibrationSet The vector<CalibrationSetMod::CalibrationSet > value to which calibrationSet is to be set.
+ 	 * Set calibrationSet with the specified std::vector<CalibrationSetMod::CalibrationSet >.
+ 	 * @param calibrationSet The std::vector<CalibrationSetMod::CalibrationSet > value to which calibrationSet is to be set.
  	 
  		
  	 */
- 	void setCalibrationSet (vector<CalibrationSetMod::CalibrationSet > calibrationSet);
+ 	void setCalibrationSet (std::vector<CalibrationSetMod::CalibrationSet > calibrationSet);
 		
 	
 	
@@ -491,21 +491,21 @@ public:
 	
  	/**
  	 * Get calPattern, which is optional.
- 	 * @return calPattern as vector<AntennaMotionPatternMod::AntennaMotionPattern >
+ 	 * @return calPattern as std::vector<AntennaMotionPatternMod::AntennaMotionPattern >
  	 * @throws IllegalAccessException If calPattern does not exist.
  	 */
- 	vector<AntennaMotionPatternMod::AntennaMotionPattern > getCalPattern() const;
+ 	std::vector<AntennaMotionPatternMod::AntennaMotionPattern > getCalPattern() const;
 	
  
  	
  	
  	/**
- 	 * Set calPattern with the specified vector<AntennaMotionPatternMod::AntennaMotionPattern >.
- 	 * @param calPattern The vector<AntennaMotionPatternMod::AntennaMotionPattern > value to which calPattern is to be set.
+ 	 * Set calPattern with the specified std::vector<AntennaMotionPatternMod::AntennaMotionPattern >.
+ 	 * @param calPattern The std::vector<AntennaMotionPatternMod::AntennaMotionPattern > value to which calPattern is to be set.
  	 
  		
  	 */
- 	void setCalPattern (vector<AntennaMotionPatternMod::AntennaMotionPattern > calPattern);
+ 	void setCalPattern (std::vector<AntennaMotionPatternMod::AntennaMotionPattern > calPattern);
 		
 	
 	
@@ -573,21 +573,21 @@ public:
 	
  	/**
  	 * Get fieldName, which is optional.
- 	 * @return fieldName as vector<string >
+ 	 * @return fieldName as std::vector<std::string >
  	 * @throws IllegalAccessException If fieldName does not exist.
  	 */
- 	vector<string > getFieldName() const;
+ 	std::vector<std::string > getFieldName() const;
 	
  
  	
  	
  	/**
- 	 * Set fieldName with the specified vector<string >.
- 	 * @param fieldName The vector<string > value to which fieldName is to be set.
+ 	 * Set fieldName with the specified std::vector<std::string >.
+ 	 * @param fieldName The std::vector<std::string > value to which fieldName is to be set.
  	 
  		
  	 */
- 	void setFieldName (vector<string > fieldName);
+ 	void setFieldName (std::vector<std::string > fieldName);
 		
 	
 	
@@ -614,21 +614,21 @@ public:
 	
  	/**
  	 * Get sourceName, which is optional.
- 	 * @return sourceName as string
+ 	 * @return sourceName as std::string
  	 * @throws IllegalAccessException If sourceName does not exist.
  	 */
- 	string getSourceName() const;
+ 	std::string getSourceName() const;
 	
  
  	
  	
  	/**
- 	 * Set sourceName with the specified string.
- 	 * @param sourceName The string value to which sourceName is to be set.
+ 	 * Set sourceName with the specified std::string.
+ 	 * @param sourceName The std::string value to which sourceName is to be set.
  	 
  		
  	 */
- 	void setSourceName (string sourceName);
+ 	void setSourceName (std::string sourceName);
 		
 	
 	
@@ -721,7 +721,7 @@ public:
 	 * @param calibrationOnLine
 	    
 	 */ 
-	bool compareNoAutoInc(Tag execBlockId, int scanNumber, ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, vector<ScanIntentMod::ScanIntent > scanIntent, vector<CalDataOriginMod::CalDataOrigin > calDataType, vector<bool > calibrationOnLine);
+	bool compareNoAutoInc(Tag execBlockId, int scanNumber, ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, std::vector<ScanIntentMod::ScanIntent > scanIntent, std::vector<CalDataOriginMod::CalDataOrigin > calDataType, std::vector<bool > calibrationOnLine);
 	
 	
 
@@ -745,7 +745,7 @@ public:
 	 * @param calibrationOnLine
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, vector<ScanIntentMod::ScanIntent > scanIntent, vector<CalDataOriginMod::CalDataOrigin > calDataType, vector<bool > calibrationOnLine); 
+	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, std::vector<ScanIntentMod::ScanIntent > scanIntent, std::vector<CalDataOriginMod::CalDataOrigin > calDataType, std::vector<bool > calibrationOnLine); 
 		 
 	
 	/**
@@ -947,7 +947,7 @@ private:
 	
 	
 
-	vector<ScanIntentMod::ScanIntent > scanIntent;
+	std::vector<ScanIntentMod::ScanIntent > scanIntent;
 
 	
 	
@@ -958,7 +958,7 @@ private:
 	
 	
 
-	vector<CalDataOriginMod::CalDataOrigin > calDataType;
+	std::vector<CalDataOriginMod::CalDataOrigin > calDataType;
 
 	
 	
@@ -969,7 +969,7 @@ private:
 	
 	
 
-	vector<bool > calibrationOnLine;
+	std::vector<bool > calibrationOnLine;
 
 	
 	
@@ -982,7 +982,7 @@ private:
 	bool calibrationFunctionExists;
 	
 
-	vector<CalibrationFunctionMod::CalibrationFunction > calibrationFunction;
+	std::vector<CalibrationFunctionMod::CalibrationFunction > calibrationFunction;
 
 	
 	
@@ -995,7 +995,7 @@ private:
 	bool calibrationSetExists;
 	
 
-	vector<CalibrationSetMod::CalibrationSet > calibrationSet;
+	std::vector<CalibrationSetMod::CalibrationSet > calibrationSet;
 
 	
 	
@@ -1008,7 +1008,7 @@ private:
 	bool calPatternExists;
 	
 
-	vector<AntennaMotionPatternMod::AntennaMotionPattern > calPattern;
+	std::vector<AntennaMotionPatternMod::AntennaMotionPattern > calPattern;
 
 	
 	
@@ -1034,7 +1034,7 @@ private:
 	bool fieldNameExists;
 	
 
-	vector<string > fieldName;
+	std::vector<std::string > fieldName;
 
 	
 	
@@ -1047,7 +1047,7 @@ private:
 	bool sourceNameExists;
 	
 
-	string sourceName;
+	std::string sourceName;
 
 	
 	
@@ -1109,50 +1109,50 @@ void sourceNameFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, ScanAttributeFromText> fromTextMethods;
 	
-void execBlockIdFromText (const string & s);
+void execBlockIdFromText (const std::string & s);
 	
 	
-void scanNumberFromText (const string & s);
+void scanNumberFromText (const std::string & s);
 	
 	
-void startTimeFromText (const string & s);
+void startTimeFromText (const std::string & s);
 	
 	
-void endTimeFromText (const string & s);
+void endTimeFromText (const std::string & s);
 	
 	
-void numIntentFromText (const string & s);
+void numIntentFromText (const std::string & s);
 	
 	
-void numSubscanFromText (const string & s);
+void numSubscanFromText (const std::string & s);
 	
 	
-void scanIntentFromText (const string & s);
+void scanIntentFromText (const std::string & s);
 	
 	
-void calDataTypeFromText (const string & s);
+void calDataTypeFromText (const std::string & s);
 	
 	
-void calibrationOnLineFromText (const string & s);
+void calibrationOnLineFromText (const std::string & s);
 	
 
 	
-void calibrationFunctionFromText (const string & s);
+void calibrationFunctionFromText (const std::string & s);
 	
 	
-void calibrationSetFromText (const string & s);
+void calibrationSetFromText (const std::string & s);
 	
 	
-void calPatternFromText (const string & s);
+void calPatternFromText (const std::string & s);
 	
 	
-void numFieldFromText (const string & s);
+void numFieldFromText (const std::string & s);
 	
 	
-void fieldNameFromText (const string & s);
+void fieldNameFromText (const std::string & s);
 	
 	
-void sourceNameFromText (const string & s);
+void sourceNameFromText (const std::string & s);
 	
 	
 	

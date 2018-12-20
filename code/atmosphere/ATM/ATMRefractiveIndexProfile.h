@@ -138,7 +138,7 @@ public:
   /** Setter of new spectral windows (adds frequencies to the SpectralGrid and calculates the corresponding absorption coefficients) */
   inline void addNewSpectralWindow(unsigned int numChan,
                                    double refFreq,
-                                   const vector<double> &chanFreq,
+                                   const std::vector<double> &chanFreq,
                                    const string &freqUnits)
   {
     SpectralGrid::add(numChan, refFreq, chanFreq, freqUnits);
@@ -162,7 +162,7 @@ public:
                       sbType);
     mkRefractiveIndexProfile();
   }
-  inline void addNewSpectralWindow(const vector<Frequency> &chanFreq)
+  inline void addNewSpectralWindow(const std::vector<Frequency> &chanFreq)
   {
     SpectralGrid::add(chanFreq);
     mkRefractiveIndexProfile();

@@ -78,7 +78,7 @@ public:
     // and exactly one field can be turned on at a given time.  NOTE: this is
     // different from mutually exclusive groups in PlotMSAveraging, because
     // here it is NOT allowed to have all fields in a group turned off.
-    static const vector<Field>& fieldMutuallyExclusiveGroup(Field f);
+    static const std::vector<Field>& fieldMutuallyExclusiveGroup(Field f);
 
     // Returns true if the given field is in a mutually exclusive group, false
     // otherwise.  See fieldMutuallyExclusiveGroup().
@@ -197,13 +197,13 @@ public:
 private:
     
     // Flagging field flags.
-    map<Field, bool> itsFlags_;
+    std::map<Field, bool> itsFlags_;
     
     // Flagging field double values.
-    map<Field, double> itsValues_;
+    std::map<Field, double> itsValues_;
     
     // Flagging field selection values.
-    map<Field, PlotMSSelection> itsSelectionValues_;
+    std::map<Field, PlotMSSelection> itsSelectionValues_;
 
     
     // Sets the default values.

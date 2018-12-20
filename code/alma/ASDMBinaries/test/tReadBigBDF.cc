@@ -2,11 +2,11 @@
 #include <vector>
 using namespace std;
 
-#include "ASDM.h"
-#include "MainTable.h"
-#include "MainRow.h"
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/MainTable.h>
+#include <alma/ASDM/MainRow.h>
 
-#include "SDMBinData.h"
+#include <alma/ASDMBinaries/SDMBinData.h>
 using namespace sdmbin;
 
 #define CHECKROWUNIQUENESS  false

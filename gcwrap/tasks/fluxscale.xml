@@ -149,6 +149,8 @@
        in the returned Python dictionary (the solutions are in 'spidx' 
        in the following order: a_o [log(S) at the zero point], a_1 [spectral index], 
        and a_2 [curvature]. And their errors are in 'spidxerr').  
+       Also, reported is the covariance matrix for the fit.
+
        The MODEL_DATA column is currently _not_ revised to reflect the flux 
        densities derived by fluxscale.  Use setjy to set the MODEL_DATA 
        column, if necessary.
@@ -271,7 +273,7 @@
 
        Returned dictionary: 
                 when it is run as fluxres = fluxscale(vis='my.ms',...), the determined flux
-                densities and spectral index information  are returned as a Python dictionary with
+                densities and spectral index information are returned as a Python dictionary with
                 a format, {fieldIdstr: {spwIdstr: {'fluxd':array([I,Q,U,V]), 
                                                   'fluxdErr': corresponding errors,
                                                    'numSol': corresponding no. of solutions,
@@ -279,6 +281,7 @@
                                         'fitFluxd': fitted flux density at the reference frequency,
                                         'fitFluxdErr': fitted flux density error,
                                         'fitRefFreq': reference frequency,
+                                        'covarMat' : covariance matrix for the fit,
                                         'spidx': a_0, a_1, a_2
                                         'spidxerr': errors in a_0,a_1, a_2} 
                            'freq': (center) spw frequencies 

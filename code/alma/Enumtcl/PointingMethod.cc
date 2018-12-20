@@ -1,10 +1,10 @@
-#include "PointingMethod.h"
+#include <alma/Enumtcl/PointingMethod.h>
 
-string enum_map_traits<PointingMethodMod::PointingMethod,void>::typeName_="PointingMethod";
-string enum_map_traits<PointingMethodMod::PointingMethod,void>::enumerationDesc_="";
-string enum_map_traits<PointingMethodMod::PointingMethod,void>::order_="";
-string enum_map_traits<PointingMethodMod::PointingMethod,void>::xsdBaseType_="void";
-map<PointingMethodMod::PointingMethod,EnumPar<void> > enum_map_traits<PointingMethodMod::PointingMethod,void>::m_;
+std::string enum_map_traits<PointingMethodMod::PointingMethod,void>::typeName_="PointingMethod";
+std::string enum_map_traits<PointingMethodMod::PointingMethod,void>::enumerationDesc_="";
+std::string enum_map_traits<PointingMethodMod::PointingMethod,void>::order_="";
+std::string enum_map_traits<PointingMethodMod::PointingMethod,void>::xsdBaseType_="void";
+std::map<PointingMethodMod::PointingMethod,EnumPar<void> > enum_map_traits<PointingMethodMod::PointingMethod,void>::m_;
 bool   enum_map_traits<PointingMethodMod::PointingMethod,void>::init_=init();
 
 
