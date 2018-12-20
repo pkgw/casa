@@ -355,7 +355,7 @@ void DeleteWorkingMS()
     // Delete File (Recursively done) 
     // NOTE: for debug use, please change true-> falase )
 
-    if (false)
+    if (true)
     {
          dir_ctrl. removeRecursive(false /*keepDir=False */ );
     }
@@ -1741,10 +1741,10 @@ protected:
         // Add avalable data on OFFSET columns  //
           void addColumnDataOnPointing();
 
-        // subfunction of TEST_F(TestDirection....)
+        // Sub-function of TEST_F(TestDirection....)
 
-        std::vector<Double>  subTestDirection(Double dt);
-        vector<Double>       TestSub(Double p, Double m);
+        std::vector<Double>  testDirectionForDeltaTime(Double dt);
+        vector<Double>       testDirectionByInterval(Double p, Double m);
 
 
         TestDirection()
@@ -1766,9 +1766,7 @@ protected:
             //-
             
             CopyDefaultMStoWork();
-
             addColumnsOnPointing();
-
             addColumnDataOnPointing();   // FILL DATA
 
         }
@@ -2417,9 +2415,9 @@ void DumpPointingTable(String MsName)
      [0 <= dt <= 1]   dt=0; X[n],  dt=1, X[n+1]
   ---------------------------------------------*/
 
-std::vector<Double>  TestDirection::subTestDirection(Double dt )
+std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
 {
-    TestDescription( "subTestDirection(dt)" ); 
+    TestDescription( "testDirectionForDeltaTime(dt)" ); 
     printf( " dt = %f (sec)\n",dt ); 
 
     const String MsName = DefaultLocalMsName;
@@ -2504,35 +2502,32 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
     // Dump Matrix
     //-
 
-    Description("Inspecting  Direction Inerpolation ","" ); 
+    Description("Inspecting  Direction Inerpolation starts.","" ); 
 
     Double maxErr_1 = 0.0;
     Double maxErr_2 = 0.0;             
     Double absErr_1 = 0.0;
     Double absErr_2 = 0.0;
 
-
     if(true)
     {
-        uInt LoopCnt = n_row-2;
-
         printf("Row, cal_x, cal_y, gen_x. gen_y, err_x, err_y \n");
 
-        for (uInt row=0; row < LoopCnt; row++)  // ACTUNG !!! start from 1 or o ??  /// 
+        uInt LoopCnt = n_row-2;
+        for (uInt row=0; row < LoopCnt; row++)   
         {
-            // Direction //
+            // Direction(1) by getDirection //
 
               Double calculated_1 = DirList1(row,0);
               Double calculated_2 = DirList1(row,1);
 
-            // Generated (Estimated) //
+            // Direction(2) by generated/estimated //
 
-                casacore::Vector<Double>  gen_out 
+              casacore::Vector<Double>  gen_out 
                       = msedit.evgen.pseudoDirInfoMain(  (Double)row   
                                                           + dt         );    // dt:Interpolation offset  (sec)
- 
             //+
-            // Error calculation (TENTATIVE, -> class lib) 
+            // Error calculation 
             //-
 
                 Double generated_1 = gen_out[0]; 
@@ -2554,12 +2549,15 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
 		EXPECT_LE( absErr_1, msedit.evgen.getInterpolationErrorLimit()  ); 
                 EXPECT_LE( absErr_2, msedit.evgen.getInterpolationErrorLimit()  ); 
 
-            // Output List //
+            // Output List (in One line)//
 
-                printf( "Evaluation,");
-                printf( "%6d, %13.10f,%13.10f,", row,  calculated_1, calculated_2 );
-                printf( "%13.10f,%13.10f,",      generated_1,  generated_2 );
-                printf( "%12.4e,%12.4e \n",      Err_1,     Err_2);
+                if(true) 
+                {
+                    printf( "Evaluation,");
+                    printf( "%6d, %13.10f,%13.10f,", row,  calculated_1, calculated_2 );
+                    printf( "%13.10f,%13.10f,",      generated_1,  generated_2 );
+                    printf( "%12.4e,%12.4e \n",      Err_1,     Err_2);
+                }
         }    
     }
    
@@ -2576,7 +2574,7 @@ std::vector<Double>  TestDirection::subTestDirection(Double dt )
 //  - execute numerical error test by activating Interpolation
 //    by using slided time in Main Table.
 //-
-std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
+std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double m_int)
 {
     printf("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII\n");
     printf("      INTERPOLATION:: testing [%f,%f ] \n", p_int,m_int );
@@ -2584,13 +2582,13 @@ std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
 
     // Max Error ///
 
-    std::vector<Double> reterr;
-    ErrorMax            maxerr;
+      std::vector<Double> reterr;
+      ErrorMax            maxerr;
     
-
     // Add INTERPOLATION TEST DATA 
-    printf ("calling TestwriteInterpolationTestDataOnPointingTable\n"); 
-    msedit.writeInterpolationTestDataOnPointingTable( 0.0 );  // Pointing //
+
+      printf ("calling TestwriteInterpolationTestDataOnPointingTable\n"); 
+      msedit.writeInterpolationTestDataOnPointingTable( 0.0 );  // Pointing //
 
     // Test Loop  
     //   - nDiv is given, internd to spacify number of separating count 
@@ -2598,7 +2596,6 @@ std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
 
     uInt nDiv = InterpolationDivCount; 
 
-//  for (uInt loop=0; loop <= nDiv; loop ++ )  // SN1210:  should be  0 <=  dd  < interval 
     for (uInt loop=0; loop < nDiv; loop ++ )
     {
          //+
@@ -2613,7 +2610,7 @@ std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
         // excuttion ..// 
         
           Description("Execution starts. ","" );
-          reterr = subTestDirection( (Double)loop/(Double)nDiv );
+          reterr = testDirectionForDeltaTime( (Double)loop/(Double)nDiv );
 
           printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
           printf( " Max Error =, %e, %e \n", reterr[0], reterr[1] );
@@ -2642,7 +2639,7 @@ TEST_F(TestDirection, InterpolationFull )
 
     vector<bool>   InterpolationMode     = { false, true };
     vector<Double> Main_IntervalList     = { 1.0 };
-    vector<Double> Pointing_IntervalList = { 1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.05 };
+    vector<Double> Pointing_IntervalList = { 1.0, 0.5, 0.2, 0.1, 0.05  };
 
     ErrorMax  maxerr;
     std::vector<Double> r_err = {0.0}; 
@@ -2667,24 +2664,25 @@ TEST_F(TestDirection, InterpolationFull )
              msedit.evgen.      setMainRowCount(5000);
              msedit.evgen.      Initialize(p_i, m_i) ;
 
-           // Prepate Antenna (Ready to add, waiting for other test ) //
-#if 1 
-           msedit.appendRowOnAntennaTable(2);   // 1 + 2 more
- 
-           msedit.writeDataToAntennaTable(1);
-           msedit.writeDataToAntennaTable(2);
-#endif 
-            // Increase Row on MS for large-file.
+           // Prepate Antenna (For Multiple-set)  //
+
+             msedit.appendRowOnAntennaTable(2);   // 1 + 2 more
+             msedit.writeDataToAntennaTable(1);
+             msedit.writeDataToAntennaTable(2);
+
+           // Increase Row on MS for large-file.
 
               msedit.appendRowOnPointingTable (msedit.evgen.  getAddInerpolationTestPointingTableRow() );
               msedit.appendRowOnMainTable     (msedit.evgen. getAddInerpolationTestMainTableRow() );
 
               addColumnDataOnPointing();   // FILL DATA 
 
-            // Execute and get error info //
-
-              r_err = TestDirection::TestSub( p_i, m_i );
+           //
+           // Execute Main-Body , get error info //
+           //
+              r_err = TestDirection::testDirectionByInterval( p_i, m_i );
               maxerr.put(r_err);
+
         }
     }
 
@@ -2717,47 +2715,47 @@ TEST_F(TestDirection, InterpolationSingle )
     //    - define test count. some rows are automatically added
     //-
 
-      use_spline = true;
+      use_spline = false;
 
       msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
-      msedit.evgen.      Initialize( 0.5,     // Pointing Interval
-                                     1.0 ) ;  // Main Interval
+      msedit.evgen.      Initialize( 0.001,     // Pointing Interval
+                                     0.048 ) ;  // Main Interval
  
-      msedit.evgen.    setInterpolationErrorLimit( 1.0 );
+      msedit.evgen.    setInterpolationErrorLimit( 1.0E-06 );
 
-    // Prepate Antenna //
+    // Prepate Antenna (for Multple-set) //
 
       msedit.appendRowOnAntennaTable(2);   // 1 + 2 more
-
       msedit.writeDataToAntennaTable(1);
       msedit.writeDataToAntennaTable(2);
 
-    // Increase Row on MS for large-file.:
+    // Increase(Append)  Row on MS for large-file.:
 
-      msedit.appendRowOnPointingTable (msedit.evgen.  getAddInerpolationTestPointingTableRow() );
-      msedit.appendRowOnMainTable     ( msedit.evgen. getAddInerpolationTestMainTableRow() );
-      addColumnDataOnPointing();   // FILL DATA 
+      msedit.appendRowOnPointingTable ( msedit.evgen.  getAddInerpolationTestPointingTableRow() );
+      msedit.appendRowOnMainTable     ( msedit.evgen.  getAddInerpolationTestMainTableRow() );
+      addColumnDataOnPointing();    
 
     //+
     //   Pointing TBL and MAIN TBL
     //-
  
-
       std::vector<Double> r_err = {0.0};
 
-      // get currect interval time.. //
+    // get currect interval time.. //
+    
       Double p_interval = msedit.evgen.getPointingTableInterval();
       Double m_interval = msedit.evgen.getMainTableInterval();
 
-      // Execute and get numerical error info 
-      r_err = TestDirection::TestSub(p_interval, m_interval);
+    // Execute and get numerical error info 
 
-      printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
-      printf( " Total Max Error = %e, %e \n", r_err[0], r_err[1] );
-      printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
+       r_err = TestDirection::testDirectionByInterval(p_interval, m_interval);
 
+       printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
+       printf( " Total Max Error = %e, %e \n", r_err[0], r_err[1] );
+       printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
 }
+
 /*---------------------------------------------------
     getDirection  with uvw data dump,
      - Ordinary (standard sequence) 

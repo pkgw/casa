@@ -482,13 +482,81 @@ void PointingDirectionCalculator::splineInit()
 void  PointingDirectionCalculator::initializeSplineInterpolation()
 {
      printf("iniializeSplineInterpolation() called. \n");
+
+    if(doneAntenaBoundaryCreate==false)
+    {
+        //+
+        // CAS-8418 (19-DEC-2018) 
+        //     AntennaBounday for  Interporation was transferd from inspectAntenna() 
+        //     No longer the original AntennaBounday_ ... are used.
+        // 
+        // Here, new AntenaBoundary is created, however directly accessing 
+        // Pointing Table. Existing AntenaBoundary info is still untracable.
+        // detail behavior is partl vague.   (20-Dec-2018)    
+        //-
+
+         printf("initializeSplineInterpolation()::START scanning  antennaList on Pointing. \n" ); 
+
+        // (1) Do the same, but see PointingTable.antenna 
+
+        allAntennaBoundary_.resize(selectedMS_->antenna().nrow() + 1);
+        allAntennaBoundary_ = -1;
+
+        Int countP = 0;
+        allAntennaBoundary_[countP] = 0;
+        ++countP;
+
+        // Look at Pointing Table, here using original CASACORE call. //
+
+        MSPointing hPointing  = selectedMS_->pointing();
+        std::unique_ptr<casacore::ROMSPointingColumns>
+                columnPointing( new casacore::ROMSPointingColumns( hPointing ));
+
+        ROScalarColumn<casacore::Int>  antennaColumnP = columnPointing->antennaId();  
+        Vector<Int> antennaListP =  antennaColumnP.getColumn();
+
+        uInt nrowP = antennaListP.nelements();
+
+        Int lastAntP = antennaListP[0];
+
+        // Antenna List Scan as done in original code //
+
+        for (uInt i = 0; i < nrowP; ++i) 
+        {
+            if (antennaListP[i] != lastAntP) 
+            {
+                allAntennaBoundary_[countP] = i;
+                ++countP;
+                lastAntP = antennaListP[i];
+            }
+        }
+        allAntennaBoundary_[countP] = nrowP;
+        ++countP;
+        allNumAntennaBoundary_ = countP;
+
+        doneAntenaBoundaryCreate = true;
+
+        // Show Boundary List .. //
+        
+        printf( "Created Antenna Boundary Info, allNumAntennaBoundary_  = %u \n", allNumAntennaBoundary_  );
+        for (uInt b=0; b< allAntennaBoundary_.size(); b++)
+        {
+            printf( "Created antennaBoundary_[%d] = %d \n", b, allAntennaBoundary_[b] );
+        }   
+ 
+        // update flag //
+        doneAntenaBoundaryCreate = true;
+        printf( "inspectantenna():: END COPY AtennaBoundary and splineInit() ... \n");
+
+    }
+
     //+
-    // Initialize Spline Interpolation 
+    // Spline Initialize (Main Body)
     //-
 
     if( fgSpline == true )
     {
-        splineInit();   // This is maybe Right //
+        splineInit();   // In this module, all access to MS is performed.  //
     }
 }
 
@@ -795,7 +863,7 @@ uInt PointingDirectionCalculator::getRowId(uInt i) {
 
 
 void PointingDirectionCalculator::inspectAntenna() {
-/*SN*/    printf( "PointingDirectionCalculator::inspectAntenna() in \n");
+/*SN*/    printf( "PointingDirectionCalculator::inspectAntenna() called. \n");
     // selectedMS_ must be sorted by ["ANTENNA1", "TIME"]
     antennaBoundary_.resize(selectedMS_->antenna().nrow() + 1);
     antennaBoundary_ = -1;
@@ -833,74 +901,8 @@ void PointingDirectionCalculator::inspectAntenna() {
     debuglog << "antennaBoundary_=" << antennaBoundary_ << debugpost;
     debuglog << "numAntennaBoundary_=" << numAntennaBoundary_ << debugpost;
 
-    //+
-    // CAS-8418:Nishie
-    // Prepare a copy of AntennaBouundary set.
-    //-
+    // Here, once AntenaBoundary preparation was here. currently transfered //
 
-    if(doneAntenaBoundaryCreate==false)
-    {
-        //+
-        // CAS-8418 (19-DEC-2018) 
-        //     AntennaBounday for  Interporation was islated. 
-        //     No longer the original AntennaBounday_ ... are used.
-        //     
-        //-
-
-         printf("inspectAntenna()::START scanning  antennaListP. \n" ); 
-
-        // (1) Do the same, but see PointingTable.antenna 
-
-        allAntennaBoundary_.resize(selectedMS_->antenna().nrow() + 1);
-        allAntennaBoundary_ = -1;
-
-        Int countP = 0;
-        allAntennaBoundary_[countP] = 0;
-        ++countP;
-
-        // Look at Pointing Table, here using original CASACORE call. //
-
-        MSPointing hPointing  = selectedMS_->pointing();
-        std::unique_ptr<casacore::ROMSPointingColumns>
-                columnPointing( new casacore::ROMSPointingColumns( hPointing ));
-
-        ROScalarColumn<casacore::Int>  antennaColumnP = columnPointing->antennaId();  
-        Vector<Int> antennaListP =  antennaColumnP.getColumn();
-
-        uInt nrowP = antennaListP.nelements();
-
-        Int lastAntP = antennaListP[0];
-
-        // Antenna List Scan as done in original code //
-
-        for (uInt i = 0; i < nrowP; ++i) 
-        {
-            if (antennaListP[i] != lastAntP) 
-            {
-                allAntennaBoundary_[countP] = i;
-                ++countP;
-                lastAntP = antennaListP[i];
-            }
-        }
-        allAntennaBoundary_[countP] = nrowP;
-        ++countP;
-        allNumAntennaBoundary_ = countP;
-
-        doneAntenaBoundaryCreate = true;
-
-        // Show Boundary List .. //
-        
-        printf( "Created Antenna Boundary Info, allNumAntennaBoundary_  = %u \n", allNumAntennaBoundary_  );
-        for (uInt b=0; b< allAntennaBoundary_.size(); b++)
-        {
-            printf( "Created antennaBoundary_[%d] = %d \n", b, allAntennaBoundary_[b] );
-        }   
- 
-        // update flag //
-        doneAntenaBoundaryCreate = true;
-        printf( "inspectantenna():: END COPY AtennaBoundary and splineInit() ... \n");
-
-    }
 }
 
 void PointingDirectionCalculator::initPointingTable(Int const antennaId) {
