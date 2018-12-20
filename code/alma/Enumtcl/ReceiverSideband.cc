@@ -1,10 +1,10 @@
-#include "ReceiverSideband.h"
+#include <alma/Enumtcl/ReceiverSideband.h>
 
-string enum_map_traits<ReceiverSidebandMod::ReceiverSideband,void>::typeName_="ReceiverSideband";
-string enum_map_traits<ReceiverSidebandMod::ReceiverSideband,void>::enumerationDesc_="";
-string enum_map_traits<ReceiverSidebandMod::ReceiverSideband,void>::order_="";
-string enum_map_traits<ReceiverSidebandMod::ReceiverSideband,void>::xsdBaseType_="void";
-map<ReceiverSidebandMod::ReceiverSideband,EnumPar<void> > enum_map_traits<ReceiverSidebandMod::ReceiverSideband,void>::m_;
+std::string enum_map_traits<ReceiverSidebandMod::ReceiverSideband,void>::typeName_="ReceiverSideband";
+std::string enum_map_traits<ReceiverSidebandMod::ReceiverSideband,void>::enumerationDesc_="";
+std::string enum_map_traits<ReceiverSidebandMod::ReceiverSideband,void>::order_="";
+std::string enum_map_traits<ReceiverSidebandMod::ReceiverSideband,void>::xsdBaseType_="void";
+std::map<ReceiverSidebandMod::ReceiverSideband,EnumPar<void> > enum_map_traits<ReceiverSidebandMod::ReceiverSideband,void>::m_;
 bool   enum_map_traits<ReceiverSidebandMod::ReceiverSideband,void>::init_=init();
 
 

@@ -48,19 +48,19 @@
 
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -79,7 +79,7 @@
 	
 
 	
-#include "CFluxCalibrationMethod.h"
+#include <alma/Enumerations/CFluxCalibrationMethod.h>
 	
 
 	
@@ -87,19 +87,13 @@
 	
 
 	
-#include "CStokesParameter.h"
+#include <alma/Enumerations/CStokesParameter.h>
 	
 
 	
 
 	
-#include "CDirectionReferenceCode.h"
-	
-
-	
-
-	
-
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
@@ -107,17 +101,23 @@
 	
 
 	
-#include "CSourceModel.h"
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CSourceModel.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalFlux.h
     \brief Generated from model's revision "-1", branch ""
@@ -137,7 +137,7 @@ class CalReductionRow;
 
 class CalFluxRow;
 typedef void (CalFluxRow::*CalFluxAttributeFromBin) (EndianIStream& eis);
-typedef void (CalFluxRow::*CalFluxAttributeFromText) (const string& s);
+typedef void (CalFluxRow::*CalFluxAttributeFromText) (const std::string& s);
 
 /**
  * The CalFluxRow class is a row of a CalFluxTable.
@@ -178,23 +178,23 @@ public:
 	
  	/**
  	 * Get sourceName.
- 	 * @return sourceName as string
+ 	 * @return sourceName as std::string
  	 */
- 	string getSourceName() const;
+ 	std::string getSourceName() const;
 	
  
  	
  	
  	/**
- 	 * Set sourceName with the specified string.
- 	 * @param sourceName The string value to which sourceName is to be set.
+ 	 * Set sourceName with the specified std::string.
+ 	 * @param sourceName The std::string value to which sourceName is to be set.
  	 
  		
  			
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 		
  	 */
- 	void setSourceName (string sourceName);
+ 	void setSourceName (std::string sourceName);
   		
 	
 	
@@ -330,21 +330,21 @@ public:
 	
  	/**
  	 * Get frequencyRanges.
- 	 * @return frequencyRanges as vector<vector<Frequency > >
+ 	 * @return frequencyRanges as std::vector<std::vector<Frequency > >
  	 */
- 	vector<vector<Frequency > > getFrequencyRanges() const;
+ 	std::vector<std::vector<Frequency > > getFrequencyRanges() const;
 	
  
  	
  	
  	/**
- 	 * Set frequencyRanges with the specified vector<vector<Frequency > >.
- 	 * @param frequencyRanges The vector<vector<Frequency > > value to which frequencyRanges is to be set.
+ 	 * Set frequencyRanges with the specified std::vector<std::vector<Frequency > >.
+ 	 * @param frequencyRanges The std::vector<std::vector<Frequency > > value to which frequencyRanges is to be set.
  	 
  		
  			
  	 */
- 	void setFrequencyRanges (vector<vector<Frequency > > frequencyRanges);
+ 	void setFrequencyRanges (std::vector<std::vector<Frequency > > frequencyRanges);
   		
 	
 	
@@ -390,21 +390,21 @@ public:
 	
  	/**
  	 * Get flux.
- 	 * @return flux as vector<vector<double > >
+ 	 * @return flux as std::vector<std::vector<double > >
  	 */
- 	vector<vector<double > > getFlux() const;
+ 	std::vector<std::vector<double > > getFlux() const;
 	
  
  	
  	
  	/**
- 	 * Set flux with the specified vector<vector<double > >.
- 	 * @param flux The vector<vector<double > > value to which flux is to be set.
+ 	 * Set flux with the specified std::vector<std::vector<double > >.
+ 	 * @param flux The std::vector<std::vector<double > > value to which flux is to be set.
  	 
  		
  			
  	 */
- 	void setFlux (vector<vector<double > > flux);
+ 	void setFlux (std::vector<std::vector<double > > flux);
   		
 	
 	
@@ -420,21 +420,21 @@ public:
 	
  	/**
  	 * Get fluxError.
- 	 * @return fluxError as vector<vector<double > >
+ 	 * @return fluxError as std::vector<std::vector<double > >
  	 */
- 	vector<vector<double > > getFluxError() const;
+ 	std::vector<std::vector<double > > getFluxError() const;
 	
  
  	
  	
  	/**
- 	 * Set fluxError with the specified vector<vector<double > >.
- 	 * @param fluxError The vector<vector<double > > value to which fluxError is to be set.
+ 	 * Set fluxError with the specified std::vector<std::vector<double > >.
+ 	 * @param fluxError The std::vector<std::vector<double > > value to which fluxError is to be set.
  	 
  		
  			
  	 */
- 	void setFluxError (vector<vector<double > > fluxError);
+ 	void setFluxError (std::vector<std::vector<double > > fluxError);
   		
 	
 	
@@ -450,21 +450,21 @@ public:
 	
  	/**
  	 * Get stokes.
- 	 * @return stokes as vector<StokesParameterMod::StokesParameter >
+ 	 * @return stokes as std::vector<StokesParameterMod::StokesParameter >
  	 */
- 	vector<StokesParameterMod::StokesParameter > getStokes() const;
+ 	std::vector<StokesParameterMod::StokesParameter > getStokes() const;
 	
  
  	
  	
  	/**
- 	 * Set stokes with the specified vector<StokesParameterMod::StokesParameter >.
- 	 * @param stokes The vector<StokesParameterMod::StokesParameter > value to which stokes is to be set.
+ 	 * Set stokes with the specified std::vector<StokesParameterMod::StokesParameter >.
+ 	 * @param stokes The std::vector<StokesParameterMod::StokesParameter > value to which stokes is to be set.
  	 
  		
  			
  	 */
- 	void setStokes (vector<StokesParameterMod::StokesParameter > stokes);
+ 	void setStokes (std::vector<StokesParameterMod::StokesParameter > stokes);
   		
 	
 	
@@ -486,21 +486,21 @@ public:
 	
  	/**
  	 * Get direction, which is optional.
- 	 * @return direction as vector<Angle >
+ 	 * @return direction as std::vector<Angle >
  	 * @throws IllegalAccessException If direction does not exist.
  	 */
- 	vector<Angle > getDirection() const;
+ 	std::vector<Angle > getDirection() const;
 	
  
  	
  	
  	/**
- 	 * Set direction with the specified vector<Angle >.
- 	 * @param direction The vector<Angle > value to which direction is to be set.
+ 	 * Set direction with the specified std::vector<Angle >.
+ 	 * @param direction The std::vector<Angle > value to which direction is to be set.
  	 
  		
  	 */
- 	void setDirection (vector<Angle > direction);
+ 	void setDirection (std::vector<Angle > direction);
 		
 	
 	
@@ -609,21 +609,21 @@ public:
 	
  	/**
  	 * Get PA, which is optional.
- 	 * @return PA as vector<vector<Angle > >
+ 	 * @return PA as std::vector<std::vector<Angle > >
  	 * @throws IllegalAccessException If PA does not exist.
  	 */
- 	vector<vector<Angle > > getPA() const;
+ 	std::vector<std::vector<Angle > > getPA() const;
 	
  
  	
  	
  	/**
- 	 * Set PA with the specified vector<vector<Angle > >.
- 	 * @param PA The vector<vector<Angle > > value to which PA is to be set.
+ 	 * Set PA with the specified std::vector<std::vector<Angle > >.
+ 	 * @param PA The std::vector<std::vector<Angle > > value to which PA is to be set.
  	 
  		
  	 */
- 	void setPA (vector<vector<Angle > > PA);
+ 	void setPA (std::vector<std::vector<Angle > > PA);
 		
 	
 	
@@ -650,21 +650,21 @@ public:
 	
  	/**
  	 * Get PAError, which is optional.
- 	 * @return PAError as vector<vector<Angle > >
+ 	 * @return PAError as std::vector<std::vector<Angle > >
  	 * @throws IllegalAccessException If PAError does not exist.
  	 */
- 	vector<vector<Angle > > getPAError() const;
+ 	std::vector<std::vector<Angle > > getPAError() const;
 	
  
  	
  	
  	/**
- 	 * Set PAError with the specified vector<vector<Angle > >.
- 	 * @param PAError The vector<vector<Angle > > value to which PAError is to be set.
+ 	 * Set PAError with the specified std::vector<std::vector<Angle > >.
+ 	 * @param PAError The std::vector<std::vector<Angle > > value to which PAError is to be set.
  	 
  		
  	 */
- 	void setPAError (vector<vector<Angle > > PAError);
+ 	void setPAError (std::vector<std::vector<Angle > > PAError);
 		
 	
 	
@@ -691,21 +691,21 @@ public:
 	
  	/**
  	 * Get size, which is optional.
- 	 * @return size as vector<vector<vector<Angle > > >
+ 	 * @return size as std::vector<std::vector<std::vector<Angle > > >
  	 * @throws IllegalAccessException If size does not exist.
  	 */
- 	vector<vector<vector<Angle > > > getSize() const;
+ 	std::vector<std::vector<std::vector<Angle > > > getSize() const;
 	
  
  	
  	
  	/**
- 	 * Set size with the specified vector<vector<vector<Angle > > >.
- 	 * @param size The vector<vector<vector<Angle > > > value to which size is to be set.
+ 	 * Set size with the specified std::vector<std::vector<std::vector<Angle > > >.
+ 	 * @param size The std::vector<std::vector<std::vector<Angle > > > value to which size is to be set.
  	 
  		
  	 */
- 	void setSize (vector<vector<vector<Angle > > > size);
+ 	void setSize (std::vector<std::vector<std::vector<Angle > > > size);
 		
 	
 	
@@ -732,21 +732,21 @@ public:
 	
  	/**
  	 * Get sizeError, which is optional.
- 	 * @return sizeError as vector<vector<vector<Angle > > >
+ 	 * @return sizeError as std::vector<std::vector<std::vector<Angle > > >
  	 * @throws IllegalAccessException If sizeError does not exist.
  	 */
- 	vector<vector<vector<Angle > > > getSizeError() const;
+ 	std::vector<std::vector<std::vector<Angle > > > getSizeError() const;
 	
  
  	
  	
  	/**
- 	 * Set sizeError with the specified vector<vector<vector<Angle > > >.
- 	 * @param sizeError The vector<vector<vector<Angle > > > value to which sizeError is to be set.
+ 	 * Set sizeError with the specified std::vector<std::vector<std::vector<Angle > > >.
+ 	 * @param sizeError The std::vector<std::vector<std::vector<Angle > > > value to which sizeError is to be set.
  	 
  		
  	 */
- 	void setSizeError (vector<vector<vector<Angle > > > sizeError);
+ 	void setSizeError (std::vector<std::vector<std::vector<Angle > > > sizeError);
 		
 	
 	
@@ -933,7 +933,7 @@ public:
 	 * @param stokes
 	    
 	 */ 
-	bool compareNoAutoInc(string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, vector<vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, vector<vector<double > > flux, vector<vector<double > > fluxError, vector<StokesParameterMod::StokesParameter > stokes);
+	bool compareNoAutoInc(std::string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, std::vector<std::vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, std::vector<std::vector<double > > flux, std::vector<std::vector<double > > fluxError, std::vector<StokesParameterMod::StokesParameter > stokes);
 	
 	
 
@@ -961,7 +961,7 @@ public:
 	 * @param stokes
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, vector<vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, vector<vector<double > > flux, vector<vector<double > > fluxError, vector<StokesParameterMod::StokesParameter > stokes); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, std::vector<std::vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, std::vector<std::vector<double > > flux, std::vector<std::vector<double > > fluxError, std::vector<StokesParameterMod::StokesParameter > stokes); 
 		 
 	
 	/**
@@ -1113,7 +1113,7 @@ private:
 	
 	
 
-	string sourceName;
+	std::string sourceName;
 
 	
 	
@@ -1168,7 +1168,7 @@ private:
 	
 	
 
-	vector<vector<Frequency > > frequencyRanges;
+	std::vector<std::vector<Frequency > > frequencyRanges;
 
 	
 	
@@ -1190,7 +1190,7 @@ private:
 	
 	
 
-	vector<vector<double > > flux;
+	std::vector<std::vector<double > > flux;
 
 	
 	
@@ -1201,7 +1201,7 @@ private:
 	
 	
 
-	vector<vector<double > > fluxError;
+	std::vector<std::vector<double > > fluxError;
 
 	
 	
@@ -1212,7 +1212,7 @@ private:
 	
 	
 
-	vector<StokesParameterMod::StokesParameter > stokes;
+	std::vector<StokesParameterMod::StokesParameter > stokes;
 
 	
 	
@@ -1225,7 +1225,7 @@ private:
 	bool directionExists;
 	
 
-	vector<Angle > direction;
+	std::vector<Angle > direction;
 
 	
 	
@@ -1264,7 +1264,7 @@ private:
 	bool PAExists;
 	
 
-	vector<vector<Angle > > PA;
+	std::vector<std::vector<Angle > > PA;
 
 	
 	
@@ -1277,7 +1277,7 @@ private:
 	bool PAErrorExists;
 	
 
-	vector<vector<Angle > > PAError;
+	std::vector<std::vector<Angle > > PAError;
 
 	
 	
@@ -1290,7 +1290,7 @@ private:
 	bool sizeExists;
 	
 
-	vector<vector<vector<Angle > > > size;
+	std::vector<std::vector<std::vector<Angle > > > size;
 
 	
 	
@@ -1303,7 +1303,7 @@ private:
 	bool sizeErrorExists;
 	
 
-	vector<vector<vector<Angle > > > sizeError;
+	std::vector<std::vector<std::vector<Angle > > > sizeError;
 
 	
 	
@@ -1401,65 +1401,65 @@ void sourceModelFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalFluxAttributeFromText> fromTextMethods;
 	
-void sourceNameFromText (const string & s);
+void sourceNameFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void numFrequencyRangesFromText (const string & s);
+void numFrequencyRangesFromText (const std::string & s);
 	
 	
-void numStokesFromText (const string & s);
+void numStokesFromText (const std::string & s);
 	
 	
-void frequencyRangesFromText (const string & s);
+void frequencyRangesFromText (const std::string & s);
 	
 	
-void fluxMethodFromText (const string & s);
+void fluxMethodFromText (const std::string & s);
 	
 	
-void fluxFromText (const string & s);
+void fluxFromText (const std::string & s);
 	
 	
-void fluxErrorFromText (const string & s);
+void fluxErrorFromText (const std::string & s);
 	
 	
-void stokesFromText (const string & s);
+void stokesFromText (const std::string & s);
 	
 
 	
-void directionFromText (const string & s);
+void directionFromText (const std::string & s);
 	
 	
-void directionCodeFromText (const string & s);
+void directionCodeFromText (const std::string & s);
 	
 	
-void directionEquinoxFromText (const string & s);
+void directionEquinoxFromText (const std::string & s);
 	
 	
-void PAFromText (const string & s);
+void PAFromText (const std::string & s);
 	
 	
-void PAErrorFromText (const string & s);
+void PAErrorFromText (const std::string & s);
 	
 	
-void sizeFromText (const string & s);
+void sizeFromText (const std::string & s);
 	
 	
-void sizeErrorFromText (const string & s);
+void sizeErrorFromText (const std::string & s);
 	
 	
-void sourceModelFromText (const string & s);
+void sourceModelFromText (const std::string & s);
 	
 	
 	

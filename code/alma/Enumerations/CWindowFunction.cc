@@ -33,7 +33,7 @@
  * File CWindowFunction.cpp
  */
 #include <sstream>
-#include <CWindowFunction.h>
+#include <alma/Enumerations/CWindowFunction.h>
 #include <string>
 using namespace std;
 

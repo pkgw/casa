@@ -46,6 +46,7 @@ string appName;
 bool verbose = true;
 using namespace casacore;
 using namespace casa;
+using namespace std;
 
 void info(const string& message) {  
   if(!verbose){

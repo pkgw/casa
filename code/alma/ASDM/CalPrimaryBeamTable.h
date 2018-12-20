@@ -41,40 +41,32 @@
 
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <EntityRef.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 
 
-
-	
-
-	
-#include "CReceiverBand.h"
-	
 
 	
 
 	
-
-	
-#include "CAntennaMake.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -82,13 +74,17 @@
 	
 
 	
-
-	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CAntennaMake.h>
 	
 
 	
 
+	
+
+	
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -100,7 +96,11 @@
 	
 
 	
-#include "CPrimaryBeamDescription.h"
+
+	
+
+	
+#include <alma/Enumerations/CPrimaryBeamDescription.h>
 	
 
 	
@@ -109,18 +109,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -151,7 +151,7 @@ class CalPrimaryBeamRow;
  		
  * <TD> antennaName </TD>
  		 
- * <TD> string</TD>
+ * <TD> std::string</TD>
  * <TD> &nbsp; </TD>
  * <TD> &nbsp;the name of the antenna. </TD>
  * </TR>
@@ -217,7 +217,7 @@ class CalPrimaryBeamRow;
 	
  * <TR>
  * <TD> frequencyRange </TD> 
- * <TD> vector<vector<Frequency > > </TD>
+ * <TD> std::vector<std::vector<Frequency > > </TD>
  * <TD>  numSubband, 2 </TD> 
  * <TD> &nbsp;the range of frequencies over which the result is valid. </TD>
  * </TR>
@@ -231,14 +231,14 @@ class CalPrimaryBeamRow;
 	
  * <TR>
  * <TD> polarizationTypes </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;identifies the polarizations types of the receptors (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> mainBeamEfficiency </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the main beam efficiency as derived from the beam map. </TD>
  * </TR>
@@ -259,21 +259,21 @@ class CalPrimaryBeamRow;
 	
  * <TR>
  * <TD> direction </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the center direction. </TD>
  * </TR>
 	
  * <TR>
  * <TD> minValidDirection </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the minimum center direction of validity. </TD>
  * </TR>
 	
  * <TR>
  * <TD> maxValidDirection </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the maximum center direction of validity. </TD>
  * </TR>
@@ -287,14 +287,14 @@ class CalPrimaryBeamRow;
 	
  * <TR>
  * <TD> imageChannelNumber </TD> 
- * <TD> vector<int > </TD>
+ * <TD> std::vector<int > </TD>
  * <TD>  numSubband </TD> 
  * <TD> &nbsp;channel number in image for each subband. </TD>
  * </TR>
 	
  * <TR>
  * <TD> imageNominalFrequency </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numSubband </TD> 
  * <TD> &nbsp;nominal frequency for subband. </TD>
  * </TR>
@@ -477,7 +477,7 @@ public:
  	 * @param imageNominalFrequency
 	
      */
-	CalPrimaryBeamRow *newRow(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, vector<vector<Frequency > > frequencyRange, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, vector<Angle > direction, vector<Angle > minValidDirection, vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, vector<int > imageChannelNumber, vector<Frequency > imageNominalFrequency);
+	CalPrimaryBeamRow *newRow(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, std::vector<std::vector<Frequency > > frequencyRange, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, std::vector<Angle > direction, std::vector<Angle > minValidDirection, std::vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, std::vector<int > imageChannelNumber, std::vector<Frequency > imageNominalFrequency);
 	
 
 
@@ -556,7 +556,7 @@ public:
 	
  	 *
 	 */
- 	CalPrimaryBeamRow* getRowByKey(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId);
+ 	CalPrimaryBeamRow* getRowByKey(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -609,7 +609,7 @@ public:
  	 * @param imageNominalFrequency
  	 		 
  	 */
-	CalPrimaryBeamRow* lookup(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, vector<vector<Frequency > > frequencyRange, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, vector<Angle > direction, vector<Angle > minValidDirection, vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, vector<int > imageChannelNumber, vector<Frequency > imageNominalFrequency); 
+	CalPrimaryBeamRow* lookup(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, std::vector<std::vector<Frequency > > frequencyRange, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, std::vector<Angle > direction, std::vector<Angle > minValidDirection, std::vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, std::vector<int > imageChannelNumber, std::vector<Frequency > imageNominalFrequency); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

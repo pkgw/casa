@@ -1,4 +1,4 @@
-#include "SDMDataObjectReader.h"
+#include <alma/ASDMBinaries/SDMDataObjectReader.h>
 
 #include <iostream>
 #include <iomanip>
@@ -11,7 +11,7 @@
 #include <exception>
 #include <sstream>
 
-#include "CommonDefines.h"
+#include <alma/ASDMBinaries/CommonDefines.h>
 
 #if defined( __APPLE__ )
    #include <AvailabilityMacros.h>
@@ -22,6 +22,12 @@
    #endif
 #endif
 
+using namespace CorrelationModeMod;
+using namespace CorrelatorTypeMod;
+using namespace PrimitiveDataTypeMod;
+using namespace ProcessorTypeMod;
+
+using namespace std;
 
 namespace asdmbinaries {
 

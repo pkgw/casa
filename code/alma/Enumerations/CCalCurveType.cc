@@ -33,7 +33,7 @@
  * File CCalCurveType.cpp
  */
 #include <sstream>
-#include <CCalCurveType.h>
+#include <alma/Enumerations/CCalCurveType.h>
 #include <string>
 using namespace std;
 

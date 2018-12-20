@@ -334,7 +334,7 @@ namespace casa {
 
 		// Returns the value(s).  Size will be 1 for normal coordinates, 3 for
 		// HMS/DMS.  No conversion is used.
-		vector<double> values() const;
+		std::vector<double> values() const;
 
 		// Returns 1 for normal coordinates or 3 for HMS/DMS.
 		unsigned int size() const;
@@ -411,8 +411,8 @@ namespace casa {
 		//    DS9RegionFileReader::readProperties()
 
 		// Returns all valid properties.
-		static vector<casacore::String> properties() {
-			static vector<casacore::String> v(26);
+		static std::vector<casacore::String> properties() {
+			static std::vector<casacore::String> v(26);
 			v[0] = PROP_INCLUDE;
 			v[1] = PROP_TEXT;
 			v[2] = PROP_COLOR;
@@ -444,7 +444,7 @@ namespace casa {
 
 		// Returns true if the given casacore::String is a valid property, false otherwise.
 		static bool isProperty(const casacore::String& prp) {
-			static vector<casacore::String> v = properties();
+			static std::vector<casacore::String> v = properties();
 			for(unsigned int i = 0; i < v.size(); i++) if(v[i] == prp) return true;
 			return false;
 		}
@@ -658,14 +658,14 @@ namespace casa {
 		// RSFileReader methods //
 
 		// Implements RSFileReader::read.
-		bool read(vector<RegionShape*>& shapes);
+		bool read(std::vector<RegionShape*>& shapes);
 
 	private:
 		// Whether a coordinate system has been set in the file, and what it is.
 		pair<DS9::CoordinateSystem, bool> m_nextSystem;
 
 		// Read regions.
-		vector<DS9Region> m_regions;
+		std::vector<DS9Region> m_regions;
 
 		// Current read global properties.
 		casacore::Record m_globals;

@@ -28,7 +28,6 @@
 #define OutOfBoundsException_CLASS
 
 #include <string>
-using std::string;
 
 namespace asdm {
 
@@ -47,7 +46,7 @@ namespace asdm {
     /**
      * a CTOR with a message.
      */
-    OutOfBoundsException(const string &s);
+    OutOfBoundsException(const std::string &s);
     
     /**
      * The DTOR.
@@ -57,11 +56,11 @@ namespace asdm {
     /**
      * @return a text describing the exception.
      */
-    string getMessage() const;
+    std::string getMessage() const;
     
   private:
     
-    string message;	
+    std::string message;	
     
   };
 } // End namespace asdm

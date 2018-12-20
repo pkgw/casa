@@ -16,10 +16,9 @@ namespace casa {
 // The UvwCoords ctor has lines for the antennas, antenna offsets, and station
 // positions.  This ctor assumes they're present in msc_p if present at all.
   MSUVWGenerator::MSUVWGenerator(MSColumns &msc_ref, const MBaseline::Types bltype,
-				 const Muvw::Types uvwtype) :
+				 const Muvw::Types) :
   msc_p(msc_ref),				    	
   bl_csys_p(MBaseline::Ref(bltype)), // MBaseline::J2000, ITRF, etc.
-  uvw_csys_p(uvwtype),               // uvw_csys_p(Muvw::J2000, ITRF, etc.)
   antColumns_p(msc_p.antenna()),
   antPositions_p(antColumns_p.positionMeas()),
   antOffset_p(antColumns_p.offsetMeas()),

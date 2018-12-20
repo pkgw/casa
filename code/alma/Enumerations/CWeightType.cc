@@ -33,7 +33,7 @@
  * File CWeightType.cpp
  */
 #include <sstream>
-#include <CWeightType.h>
+#include <alma/Enumerations/CWeightType.h>
 #include <string>
 using namespace std;
 

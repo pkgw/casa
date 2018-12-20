@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -57,29 +57,29 @@
 	
 
 	
-#include "CTimeScale.h"
+#include <alma/Enumerations/CTimeScale.h>
 	
 
 	
-#include "CDataScale.h"
+#include <alma/Enumerations/CDataScale.h>
 	
 
 	
-#include "CDataScale.h"
+#include <alma/Enumerations/CDataScale.h>
 	
 
 	
-#include "CWeightType.h"
+#include <alma/Enumerations/CWeightType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Scale.h
     \brief Generated from model's revision "-1", branch ""
@@ -93,7 +93,7 @@ namespace asdm {
 
 class ScaleRow;
 typedef void (ScaleRow::*ScaleAttributeFromBin) (EndianIStream& eis);
-typedef void (ScaleRow::*ScaleAttributeFromText) (const string& s);
+typedef void (ScaleRow::*ScaleAttributeFromText) (const std::string& s);
 
 /**
  * The ScaleRow class is a row of a ScaleTable.
@@ -534,19 +534,19 @@ void weightTypeFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, ScaleAttributeFromText> fromTextMethods;
 	
-void scaleIdFromText (const string & s);
+void scaleIdFromText (const std::string & s);
 	
 	
-void timeScaleFromText (const string & s);
+void timeScaleFromText (const std::string & s);
 	
 	
-void crossDataScaleFromText (const string & s);
+void crossDataScaleFromText (const std::string & s);
 	
 	
-void autoDataScaleFromText (const string & s);
+void autoDataScaleFromText (const std::string & s);
 	
 	
-void weightTypeFromText (const string & s);
+void weightTypeFromText (const std::string & s);
 	
 
 		

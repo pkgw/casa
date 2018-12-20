@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -71,7 +71,7 @@
 	
 
 	
-#include "CInvalidatingCondition.h"
+#include <alma/Enumerations/CInvalidatingCondition.h>
 	
 
 	
@@ -84,12 +84,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalReduction.h
     \brief Generated from model's revision "-1", branch ""
@@ -103,7 +103,7 @@ namespace asdm {
 
 class CalReductionRow;
 typedef void (CalReductionRow::*CalReductionAttributeFromBin) (EndianIStream& eis);
-typedef void (CalReductionRow::*CalReductionAttributeFromText) (const string& s);
+typedef void (CalReductionRow::*CalReductionAttributeFromText) (const std::string& s);
 
 /**
  * The CalReductionRow class is a row of a CalReductionTable.
@@ -194,21 +194,21 @@ public:
 	
  	/**
  	 * Get appliedCalibrations.
- 	 * @return appliedCalibrations as vector<string >
+ 	 * @return appliedCalibrations as std::vector<std::string >
  	 */
- 	vector<string > getAppliedCalibrations() const;
+ 	std::vector<std::string > getAppliedCalibrations() const;
 	
  
  	
  	
  	/**
- 	 * Set appliedCalibrations with the specified vector<string >.
- 	 * @param appliedCalibrations The vector<string > value to which appliedCalibrations is to be set.
+ 	 * Set appliedCalibrations with the specified std::vector<std::string >.
+ 	 * @param appliedCalibrations The std::vector<std::string > value to which appliedCalibrations is to be set.
  	 
  		
  			
  	 */
- 	void setAppliedCalibrations (vector<string > appliedCalibrations);
+ 	void setAppliedCalibrations (std::vector<std::string > appliedCalibrations);
   		
 	
 	
@@ -254,21 +254,21 @@ public:
 	
  	/**
  	 * Get paramSet.
- 	 * @return paramSet as vector<string >
+ 	 * @return paramSet as std::vector<std::string >
  	 */
- 	vector<string > getParamSet() const;
+ 	std::vector<std::string > getParamSet() const;
 	
  
  	
  	
  	/**
- 	 * Set paramSet with the specified vector<string >.
- 	 * @param paramSet The vector<string > value to which paramSet is to be set.
+ 	 * Set paramSet with the specified std::vector<std::string >.
+ 	 * @param paramSet The std::vector<std::string > value to which paramSet is to be set.
  	 
  		
  			
  	 */
- 	void setParamSet (vector<string > paramSet);
+ 	void setParamSet (std::vector<std::string > paramSet);
   		
 	
 	
@@ -314,21 +314,21 @@ public:
 	
  	/**
  	 * Get invalidConditions.
- 	 * @return invalidConditions as vector<InvalidatingConditionMod::InvalidatingCondition >
+ 	 * @return invalidConditions as std::vector<InvalidatingConditionMod::InvalidatingCondition >
  	 */
- 	vector<InvalidatingConditionMod::InvalidatingCondition > getInvalidConditions() const;
+ 	std::vector<InvalidatingConditionMod::InvalidatingCondition > getInvalidConditions() const;
 	
  
  	
  	
  	/**
- 	 * Set invalidConditions with the specified vector<InvalidatingConditionMod::InvalidatingCondition >.
- 	 * @param invalidConditions The vector<InvalidatingConditionMod::InvalidatingCondition > value to which invalidConditions is to be set.
+ 	 * Set invalidConditions with the specified std::vector<InvalidatingConditionMod::InvalidatingCondition >.
+ 	 * @param invalidConditions The std::vector<InvalidatingConditionMod::InvalidatingCondition > value to which invalidConditions is to be set.
  	 
  		
  			
  	 */
- 	void setInvalidConditions (vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions);
+ 	void setInvalidConditions (std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions);
   		
 	
 	
@@ -374,21 +374,21 @@ public:
 	
  	/**
  	 * Get messages.
- 	 * @return messages as string
+ 	 * @return messages as std::string
  	 */
- 	string getMessages() const;
+ 	std::string getMessages() const;
 	
  
  	
  	
  	/**
- 	 * Set messages with the specified string.
- 	 * @param messages The string value to which messages is to be set.
+ 	 * Set messages with the specified std::string.
+ 	 * @param messages The std::string value to which messages is to be set.
  	 
  		
  			
  	 */
- 	void setMessages (string messages);
+ 	void setMessages (std::string messages);
   		
 	
 	
@@ -404,21 +404,21 @@ public:
 	
  	/**
  	 * Get software.
- 	 * @return software as string
+ 	 * @return software as std::string
  	 */
- 	string getSoftware() const;
+ 	std::string getSoftware() const;
 	
  
  	
  	
  	/**
- 	 * Set software with the specified string.
- 	 * @param software The string value to which software is to be set.
+ 	 * Set software with the specified std::string.
+ 	 * @param software The std::string value to which software is to be set.
  	 
  		
  			
  	 */
- 	void setSoftware (string software);
+ 	void setSoftware (std::string software);
   		
 	
 	
@@ -434,21 +434,21 @@ public:
 	
  	/**
  	 * Get softwareVersion.
- 	 * @return softwareVersion as string
+ 	 * @return softwareVersion as std::string
  	 */
- 	string getSoftwareVersion() const;
+ 	std::string getSoftwareVersion() const;
 	
  
  	
  	
  	/**
- 	 * Set softwareVersion with the specified string.
- 	 * @param softwareVersion The string value to which softwareVersion is to be set.
+ 	 * Set softwareVersion with the specified std::string.
+ 	 * @param softwareVersion The std::string value to which softwareVersion is to be set.
  	 
  		
  			
  	 */
- 	void setSoftwareVersion (string softwareVersion);
+ 	void setSoftwareVersion (std::string softwareVersion);
   		
 	
 	
@@ -491,7 +491,7 @@ public:
 	 * @param softwareVersion
 	    
 	 */ 
-	bool compareNoAutoInc(int numApplied, vector<string > appliedCalibrations, int numParam, vector<string > paramSet, int numInvalidConditions, vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion);
+	bool compareNoAutoInc(int numApplied, std::vector<std::string > appliedCalibrations, int numParam, std::vector<std::string > paramSet, int numInvalidConditions, std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, std::string messages, std::string software, std::string softwareVersion);
 	
 	
 
@@ -521,7 +521,7 @@ public:
 	 * @param softwareVersion
 	    
 	 */ 
-	bool compareRequiredValue(int numApplied, vector<string > appliedCalibrations, int numParam, vector<string > paramSet, int numInvalidConditions, vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion); 
+	bool compareRequiredValue(int numApplied, std::vector<std::string > appliedCalibrations, int numParam, std::vector<std::string > paramSet, int numInvalidConditions, std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, std::string messages, std::string software, std::string softwareVersion); 
 		 
 	
 	/**
@@ -698,7 +698,7 @@ private:
 	
 	
 
-	vector<string > appliedCalibrations;
+	std::vector<std::string > appliedCalibrations;
 
 	
 	
@@ -720,7 +720,7 @@ private:
 	
 	
 
-	vector<string > paramSet;
+	std::vector<std::string > paramSet;
 
 	
 	
@@ -742,7 +742,7 @@ private:
 	
 	
 
-	vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions;
+	std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions;
 
 	
 	
@@ -764,7 +764,7 @@ private:
 	
 	
 
-	string messages;
+	std::string messages;
 
 	
 	
@@ -775,7 +775,7 @@ private:
 	
 	
 
-	string software;
+	std::string software;
 
 	
 	
@@ -786,7 +786,7 @@ private:
 	
 	
 
-	string softwareVersion;
+	std::string softwareVersion;
 
 	
 	
@@ -826,37 +826,37 @@ void softwareVersionFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalReductionAttributeFromText> fromTextMethods;
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void numAppliedFromText (const string & s);
+void numAppliedFromText (const std::string & s);
 	
 	
-void appliedCalibrationsFromText (const string & s);
+void appliedCalibrationsFromText (const std::string & s);
 	
 	
-void numParamFromText (const string & s);
+void numParamFromText (const std::string & s);
 	
 	
-void paramSetFromText (const string & s);
+void paramSetFromText (const std::string & s);
 	
 	
-void numInvalidConditionsFromText (const string & s);
+void numInvalidConditionsFromText (const std::string & s);
 	
 	
-void invalidConditionsFromText (const string & s);
+void invalidConditionsFromText (const std::string & s);
 	
 	
-void timeReducedFromText (const string & s);
+void timeReducedFromText (const std::string & s);
 	
 	
-void messagesFromText (const string & s);
+void messagesFromText (const std::string & s);
 	
 	
-void softwareFromText (const string & s);
+void softwareFromText (const std::string & s);
 	
 	
-void softwareVersionFromText (const string & s);
+void softwareVersionFromText (const std::string & s);
 	
 
 		
