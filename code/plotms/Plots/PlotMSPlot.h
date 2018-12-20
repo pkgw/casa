@@ -26,6 +26,7 @@
 //# $Id: $
 #ifndef PLOTMSPLOT_H_
 #define PLOTMSPLOT_H_
+#include <vector>
 
 #include <graphics/GenericPlotter/PlotFactory.h>
 #include <plotms/Data/PlotMSCacheBase.h>
@@ -357,7 +358,7 @@ private:
     //second index is the column withen a grid.
     std::vector<std::vector<PlotCanvasPtr> > itsCanvases_;
 
-    vector<vector</*QPScatterPlot**/ColoredPlotPtr> > itsColoredPlots_;
+    std::vector<std::vector</*QPScatterPlot**/ColoredPlotPtr> > itsColoredPlots_;
     TCLParams itsTCLParams_;
     int gridRow;
     int gridCol;

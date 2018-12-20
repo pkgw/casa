@@ -27,6 +27,7 @@
 #ifndef PLOTMSINDEXER_H_
 #define PLOTMSINDEXER_H_
 #include <map>
+#include <sstream>
 
 #include <casa/aips.h>
 #include <casa/Arrays.h>
@@ -140,7 +141,7 @@ public:
 
 
   // Report meta info for current value of currChunk_/irel_
-  void reportMeta(casacore::Double x, casacore::Double y, casacore::Bool masked, stringstream& ss);
+  void reportMeta(casacore::Double x, casacore::Double y, casacore::Bool masked, std::stringstream& ss);
 
   // Set flags in the cache
   void flagInCache(const PlotMSFlagging& flagging,casacore::Bool flag);
@@ -313,7 +314,7 @@ public:
 	static const casacore::String CLASS_NAME;
 
 	using RaDecData = casacore::PtrBlock<casacore::Vector<casacore::Double>*>;
-	using RaDecMap = map<DirectionAxisParams,RaDecData>;
+	using RaDecMap = std::map<DirectionAxisParams,RaDecData>;
 
 	static const RaDecData EMPTY_DATA;
 
