@@ -108,7 +108,8 @@ void ConstantSpectrum::setParameters(const Vector<Double>& newSpectralParms) {
   DebugAssert(newSpectralParms.nelements() == nParameters(), AipsError);
   DebugAssert(ok(), AipsError);
   // Suppress compiler warning about unused variable
-  if (&newSpectralParms == 0) {}; 
+  // perhaps should just get rid of the DebugAssert statements
+  if (newSpectralParms.empty()) {}; 
 }
 
 Vector<Double> ConstantSpectrum::parameters() const {
@@ -119,7 +120,7 @@ Vector<Double> ConstantSpectrum::parameters() const {
 void ConstantSpectrum::setErrors(const Vector<Double>& newSpectralErrs) {
   DebugAssert(ok(), AipsError);
   // Suppress compiler warning about unused variable
-  if (&newSpectralErrs == 0) {}; 
+  if (newSpectralErrs.empty()) {}; 
 }
 
 Vector<Double> ConstantSpectrum::errors() const {
