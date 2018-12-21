@@ -179,7 +179,7 @@ void PointShape::setParameters(const Vector<Double>& newParms) {
   DebugAssert(newParms.nelements() == nParameters(), AipsError);
   DebugAssert(ok(), AipsError);
   // Suppress compiler warning about unused variable
-  if (&newParms == 0) {}; 
+  if (newParms.empty()) {}; 
 }
 
 Vector<Double> PointShape::parameters() const {
@@ -191,7 +191,7 @@ void PointShape::setErrors(const Vector<Double>& newErrors) {
   DebugAssert(newErrors.nelements() == nParameters(), AipsError);
   DebugAssert(ok(), AipsError);
   // Suppress compiler warning about unused variable
-  if (&newErrors == 0) {}; 
+  if (newErrors.empty()) {}; 
 }
 
 Vector<Double> PointShape::errors() const {
@@ -206,7 +206,8 @@ Vector<Double> PointShape::optParameters() const {
 
 void PointShape::setOptParameters(const Vector<Double>& newOptParms) {
   DebugAssert(ok(), AipsError);
-  if (&newOptParms == 0 ) {};
+  // squash compiler warning, maybe just get rid of DebugAssert statements
+  if (newOptParms.empty()) {};
 }
 
 Bool PointShape::fromRecord(String& errorMessage,
