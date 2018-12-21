@@ -2,12 +2,16 @@
 #include <iostream>
 #include <stdlib.h> // for atoi()
 #include <stdint.h>
-using namespace std;
 
-#include "Integration.h"
-#include "Error.h"
+#include <alma/ASDMBinaries/Integration.h>
+#include <alma/ASDMBinaries/Error.h>
 
 using namespace sdmbin;
+using namespace std;
+
+using namespace AxisNameMod;
+using namespace CorrelationModeMod;
+using namespace NetSidebandMod;
 
 namespace sdmbin{
 // ============================================================================================

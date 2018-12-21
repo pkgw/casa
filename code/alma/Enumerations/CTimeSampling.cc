@@ -33,7 +33,7 @@
  * File CTimeSampling.cpp
  */
 #include <sstream>
-#include <CTimeSampling.h>
+#include <alma/Enumerations/CTimeSampling.h>
 #include <string>
 using namespace std;
 

@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -78,12 +78,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalGain.h
     \brief Generated from model's revision "-1", branch ""
@@ -103,7 +103,7 @@ class CalDataRow;
 
 class CalGainRow;
 typedef void (CalGainRow::*CalGainAttributeFromBin) (EndianIStream& eis);
-typedef void (CalGainRow::*CalGainAttributeFromText) (const string& s);
+typedef void (CalGainRow::*CalGainAttributeFromText) (const std::string& s);
 
 /**
  * The CalGainRow class is a row of a CalGainTable.
@@ -872,37 +872,37 @@ void totalFitWeightFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalGainAttributeFromText> fromTextMethods;
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void gainFromText (const string & s);
+void gainFromText (const std::string & s);
 	
 	
-void gainValidFromText (const string & s);
+void gainValidFromText (const std::string & s);
 	
 	
-void fitFromText (const string & s);
+void fitFromText (const std::string & s);
 	
 	
-void fitWeightFromText (const string & s);
+void fitWeightFromText (const std::string & s);
 	
 	
-void totalGainValidFromText (const string & s);
+void totalGainValidFromText (const std::string & s);
 	
 	
-void totalFitFromText (const string & s);
+void totalFitFromText (const std::string & s);
 	
 	
-void totalFitWeightFromText (const string & s);
+void totalFitWeightFromText (const std::string & s);
 	
 
 		

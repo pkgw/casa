@@ -119,7 +119,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		static QString name_;
 		QString dbus_name_;
 		bool is_server_;
-		typedef vector<QtDisplayPanelGui*> panel_list_t;
+		typedef std::vector<QtDisplayPanelGui*> panel_list_t;
 		panel_list_t panels;
 
 	};

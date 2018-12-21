@@ -562,7 +562,7 @@ namespace casa {
 		int gaussEstimateCount;
 
 		Annotation* selectedAnnotation;
-		vector<Annotation*> annotations;
+        std::vector<Annotation*> annotations;
 
 		//Returns true if the user is in the process of drawing an
 		//annotation.

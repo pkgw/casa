@@ -115,12 +115,12 @@ protected:
            return CasacRegionManager::USE_ALL_STOKES;
        }
 
-    vector<OutputDestinationChecker::OutputStruct> _getOutputStruct() {
-        return vector<OutputDestinationChecker::OutputStruct>(0);
+    std::vector<OutputDestinationChecker::OutputStruct> _getOutputStruct() {
+        return std::vector<OutputDestinationChecker::OutputStruct>(0);
     }
 
     std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-        return vector<casacore::Coordinate::Type>(0);
+        return std::vector<casacore::Coordinate::Type>(0);
     }
 
     casacore::Bool _hasLogfileSupport() const { return true; }

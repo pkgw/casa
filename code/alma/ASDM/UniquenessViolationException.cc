@@ -23,16 +23,16 @@
  *
  * File UniquenessViolationException.h
  */
-#include "UniquenessViolationException.h"
+#include <alma/ASDM/UniquenessViolationException.h>
 
 namespace asdm {
   UniquenessViolationException::UniquenessViolationException(): message("Uniqueness violation exception") {;}
-  UniquenessViolationException::UniquenessViolationException (string t) : 
+  UniquenessViolationException::UniquenessViolationException (std::string t) : 
     message("The uniqueness constraint on all attributes except the autoincrementable one is violated in table "+t) {
   }
   
   UniquenessViolationException::~UniquenessViolationException() {;}
-  string UniquenessViolationException::getMessage() const {
+  std::string UniquenessViolationException::getMessage() const {
     return message;
   }
 } // end namespace asdm.

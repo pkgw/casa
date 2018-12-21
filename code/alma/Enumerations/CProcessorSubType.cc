@@ -33,7 +33,7 @@
  * File CProcessorSubType.cpp
  */
 #include <sstream>
-#include <CProcessorSubType.h>
+#include <alma/Enumerations/CProcessorSubType.h>
 #include <string>
 using namespace std;
 

@@ -28,14 +28,10 @@
 #define PartId_CLASS
 
 #include <string>
-using std::string;
 
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
 
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/EndianStream.h>
 
 namespace asdm {
 
@@ -48,18 +44,18 @@ namespace asdm {
 class PartId {
 
 public:
-	static string validate(string x);
+	static std::string validate(std::string x);
 
 	PartId();
 	PartId(const PartId &);
-	PartId(const string &id) throw (InvalidArgumentException);
+	PartId(const std::string &id) throw (InvalidArgumentException);
 	virtual ~PartId();
 
 	bool equals(const PartId &) const;
 
-	string toString() const;
+	std::string toString() const;
 	
-	void setId(const string &s) throw (InvalidArgumentException);
+	void setId(const std::string &s) throw (InvalidArgumentException);
 
 	/**
 	 * Write the binary representation of this to a EndianOSStream.
@@ -75,7 +71,7 @@ public:
 	 */
 	static PartId fromBin(EndianIStream& eis);
 private:
-	string id;
+	std::string id;
 
 };
 
@@ -91,7 +87,7 @@ inline bool PartId::equals(const PartId &x) const {
 	return id == x.id;
 }
 
-inline string PartId::toString() const {
+inline std::string PartId::toString() const {
 	return id;
 }
 

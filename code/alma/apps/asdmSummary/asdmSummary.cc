@@ -1,52 +1,52 @@
-#include "ASDM.h"
+#include <alma/ASDM/ASDM.h>
 using namespace asdm;
 
-#include "AntennaRow.h"
-#include "AntennaTable.h"
-#include "ConfigDescriptionRow.h"
-#include "ConfigDescriptionTable.h"
-#include "DataDescriptionRow.h"
-#include "DataDescriptionTable.h"
-#include "ExecBlockRow.h"
-#include "ExecBlockTable.h"
-#include "MainRow.h"
-#include "MainTable.h"
-#include "PolarizationRow.h"
-#include "PolarizationTable.h"
-#include "ScanRow.h"
-#include "ScanTable.h"
-#include "SpectralWindowRow.h"
-#include "SpectralWindowTable.h"
-#include "StationRow.h"
-#include "StationTable.h"
-#include "SubscanRow.h"
-#include "SubscanTable.h"
+#include <alma/ASDM/AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/ConfigDescriptionRow.h>
+#include <alma/ASDM/ConfigDescriptionTable.h>
+#include <alma/ASDM/DataDescriptionRow.h>
+#include <alma/ASDM/DataDescriptionTable.h>
+#include <alma/ASDM/ExecBlockRow.h>
+#include <alma/ASDM/ExecBlockTable.h>
+#include <alma/ASDM/MainRow.h>
+#include <alma/ASDM/MainTable.h>
+#include <alma/ASDM/PolarizationRow.h>
+#include <alma/ASDM/PolarizationTable.h>
+#include <alma/ASDM/ScanRow.h>
+#include <alma/ASDM/ScanTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/StationRow.h>
+#include <alma/ASDM/StationTable.h>
+#include <alma/ASDM/SubscanRow.h>
+#include <alma/ASDM/SubscanTable.h>
 
-#include "CAntennaMake.h"
+#include <alma/Enumerations/CAntennaMake.h>
 using namespace AntennaMakeMod;
 
-#include "CAtmPhaseCorrection.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 using namespace AtmPhaseCorrectionMod;
 
-#include "CCorrelationMode.h"
+#include <alma/Enumerations/CCorrelationMode.h>
 using namespace CorrelationModeMod;
 
-#include "CStokesParameter.h"
+#include <alma/Enumerations/CStokesParameter.h>
 using namespace StokesParameterMod;
 
-#include "CFrequencyReferenceCode.h"
+#include <alma/Enumerations/CFrequencyReferenceCode.h>
 using namespace FrequencyReferenceCodeMod;
 
-#include "CScanIntent.h"
+#include <alma/Enumerations/CScanIntent.h>
 using namespace ScanIntentMod;
 
-#include "CSpectralResolutionType.h"
+#include <alma/Enumerations/CSpectralResolutionType.h>
 using namespace SpectralResolutionTypeMod;
 
-#include "CSubscanIntent.h"
+#include <alma/Enumerations/CSubscanIntent.h>
 using namespace SubscanIntentMod;
 
-#include "CTimeSampling.h"
+#include <alma/Enumerations/CTimeSampling.h>
 using namespace TimeSamplingMod;
 
 #include <casa/Logging/StreamLogSink.h>

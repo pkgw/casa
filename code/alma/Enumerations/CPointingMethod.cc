@@ -33,7 +33,7 @@
  * File CPointingMethod.cpp
  */
 #include <sstream>
-#include <CPointingMethod.h>
+#include <alma/Enumerations/CPointingMethod.h>
 #include <string>
 using namespace std;
 

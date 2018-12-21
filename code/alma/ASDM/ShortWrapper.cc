@@ -24,8 +24,8 @@
  * File Short.cpp
  */
 
-#include <ShortWrapper.h>
-#include <NumberFormatException.h>
+#include <alma/ASDM/ShortWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <sstream>
 

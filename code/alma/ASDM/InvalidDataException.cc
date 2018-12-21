@@ -23,12 +23,12 @@
  *
  * File InvalidDataException.h
  */
-#include "InvalidDataException.h"
+#include <alma/ASDM/InvalidDataException.h>
 
 namespace asdm {
   InvalidDataException::InvalidDataException() :
     InvalidArgumentException("Invalid argument exception") {;}
   
-  InvalidDataException::InvalidDataException (const string &s) : 
+  InvalidDataException::InvalidDataException (const std::string &s) : 
     InvalidArgumentException("Invalid data: [" + s + "]") {;}
 } // end namespace asdm.

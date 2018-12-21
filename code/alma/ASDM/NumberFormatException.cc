@@ -23,11 +23,11 @@
  *
  * File NumberFormatException.h
  */
-#include "NumberFormatException.h"
+#include <alma/ASDM/NumberFormatException.h>
 
 namespace asdm {
   
-  NumberFormatException::NumberFormatException (const string &s) : 
+  NumberFormatException::NumberFormatException (const std::string &s) : 
     InvalidArgumentException("No valid numeric data in string: [" + s + "]") {
   }
   
