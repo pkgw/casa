@@ -652,6 +652,15 @@ void Function_sinusoid_quick( Double r_time, Double& X, Double& Y)
     return;
 }   
 
+void Function_sinusoid_hasty( Double r_time, Double& X, Double& Y)
+{
+    double FREQ= 100.0; 
+    X = 2.0 * cos( FREQ*  2.0*M_PI  * r_time );
+    Y = 1.0 * sin( FREQ*  2.0*M_PI  * r_time );
+
+    return;
+}
+
 void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y)
 {        
     const Double Amp1 = 0.5;
@@ -2436,11 +2445,6 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
         MeasurementSet ms( MsName.c_str() );
         PointingDirectionCalculator calc(ms);   
 
-    // Interpolation mode [form is TENTATIVE] // 
-
-        calc.setSplineInterpolation( use_spline );
-        calc.initializeSplineInterpolation();
-
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
@@ -2489,6 +2493,12 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
             Description("Dump Pointing (before getDirection) ","" );
             DumpPointingTable( MsName );
         }
+
+    //+
+    //  InterPolation mode (Foece Unuse)
+    //-
+ 
+        calc.setSplineInterpolation(use_spline);
 
     //+
     //  getDirection()
@@ -2556,7 +2566,7 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
 
             // Output List (in One line)//
 
-                if(true) 
+                if(false) 
                 {
                     printf( "Evaluation,");
                     printf( "%6d, %13.10f,%13.10f,", row,  calculated_1, calculated_2 );
@@ -2724,8 +2734,8 @@ TEST_F(TestDirection, InterpolationSingle )
 
       msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
-      msedit.evgen.      Initialize( 0.001,     // Pointing Interval
-                                     0.048 ) ;  // Main Interval
+      msedit.evgen.      Initialize( 2.99827,     // Pointing Interval
+                                     2.99827 ) ;  // Main Interval
  
       msedit.evgen.    setInterpolationErrorLimit( 1.0E-06 );
 

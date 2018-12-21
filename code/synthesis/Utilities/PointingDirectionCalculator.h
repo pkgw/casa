@@ -328,7 +328,8 @@ private:
         bool doneAntenaBoundaryCreate;
 
       // Spline control
-        bool fgSpline = false;
+
+        bool fgSpline = true; // DEFAULT ..
         SDPosInterpolator  sdp_();
 
       // Spline Functions
