@@ -155,7 +155,7 @@ PointingDirectionCalculator::PointingDirectionCalculator(
                 0), pointingTimeUTC_(), lastTimeStamp_(-1.0), lastAntennaIndex_(
                 -1), pointingTableIndexCache_(0), shape_(
                 PointingDirectionCalculator::COLUMN_MAJOR), 
-/*CAS-8418*/    allAntennaBoundary_(0),allNumAntennaBoundary_(0), doneAntenaBoundaryCreate(false)
+/*CAS-8418*/    allAntennaBoundary_(0),allNumAntennaBoundary_(0)
 {
     accessor_ = directionAccessor;
 
@@ -163,15 +163,13 @@ PointingDirectionCalculator::PointingDirectionCalculator(
     sortColumns[0] = "ANTENNA1";
     sortColumns[1] = "TIME";
     selectedMS_ = new MeasurementSet(originalMS_->sort(sortColumns));
-
+//+
 // CAS-8418: In ideal, Just here, Creating Interpolation should be performed
-//   At the momnet, making table is done inside init(), Some side effect may exist. 
-
-//    initializeSplineInterpolation();
+//   Making Table MUST BE done only ONE-TIME. 
+//-
+    initializeSplineInterpolation();
 
     init();
-
-    initializeSplineInterpolation();
 
     // set default output direction reference frame
     setFrame("J2000");
@@ -386,13 +384,12 @@ void PointingDirectionCalculator::splineInit()
         uInt numAnt = allNumAntennaBoundary_ -1;
 
     // prepere MS handle
+    //  to access time and direction
 
-#if 0  //// UNDER CONSTRUCTION//  
         MSPointing hPointing  = selectedMS_->pointing();
         std::unique_ptr<casacore::ROMSPointingColumns>
                 columnPointing( new casacore::ROMSPointingColumns( hPointing ));
-#endif 
-    
+        
     // Prepare Time and direction//
 
       Vector<Vector<Double> >          tmp_time;
@@ -424,8 +421,13 @@ void PointingDirectionCalculator::splineInit()
             tmp_dir[ant][index].resize(2);
 
             // values //
+#if 0
             Double time           = pointingTimeUTC_[index];
             MDirection     dir    = accessor_(*pointingColumns_, index);
+#else 
+            Double        time    = (columnPointing->time()).get(index);
+            MDirection     dir    = accessor_(*columnPointing, index);
+#endif 
             Vector<Double> dirVal = dir.getAngle("rad").getValue();
 
             // set on Vector //
@@ -507,7 +509,7 @@ void  PointingDirectionCalculator::initializeSplineInterpolation()
 {
      printf("iniializeSplineInterpolation() called. \n");
 
-    if(doneAntenaBoundaryCreate==false)
+    if(true)  // ALWAYS TRUE, if false -> spline coeff is NOT READY./
     {
         //+
         // CAS-8418 (19-DEC-2018) 
@@ -564,7 +566,11 @@ void  PointingDirectionCalculator::initializeSplineInterpolation()
             }
             else if (antennaListP[i] < lastAntP )
             {
-                printf( "XXXXX Irregular Antenna Boundary Structure xxxxxxx \n" );
+                printf( "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \n" );
+                printf( "xx This antennaID alignment is not supported. xxxxxx \n" );
+                printf( "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \n" );
+                fgSpline = false; // FORCE DISABLE//
+
                 return; // ABORT and Ignore //
             }
         }

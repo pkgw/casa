@@ -2771,6 +2771,25 @@ TEST_F(TestDirection, InterpolationSingle )
        printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
 }
 
+TEST_F(TestDirection, CompareInterpolation )
+{
+  TestDescription( "Interpolation Result Comparing.(Linear vs Spline)" );
+
+    vector<bool>         Mode     = { false, true };
+
+     std::vector<Double>   r_err1 ;
+     std::vector<Double>   r_err2 ;
+    
+    for(uInt ip=0; ip<Mode.size(); ip++) 
+    {
+
+      // Set Interporation Mode //
+      use_spline = Mode[ip];
+
+
+    }
+
+}
 /*---------------------------------------------------
     getDirection  with uvw data dump,
      - Ordinary (standard sequence) 
