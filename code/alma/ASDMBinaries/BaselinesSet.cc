@@ -1,10 +1,17 @@
 #include <vector>
 #include <iostream>
-using namespace std;
-#include "Error.h"
-#include "BaselinesSet.h"
 
+#include <alma/ASDMBinaries/Error.h>
+#include <alma/ASDMBinaries/BaselinesSet.h>
+
+using namespace asdm;
 using namespace sdmbin;
+using namespace std;
+
+using namespace AxisNameMod;
+using namespace BasebandNameMod;
+using namespace CorrelationModeMod;
+using namespace DataContentMod;
 
 // constructors
 BaselinesSet::BaselinesSet(){

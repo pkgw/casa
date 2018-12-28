@@ -40,7 +40,7 @@ public:
     virtual VisBufferAsync & assign (const VisBuffer & vb, casacore::Bool copy);
     virtual casacore::Vector<casacore::MDirection> azel(casacore::Double time) const;
     virtual casacore::MDirection azel0(casacore::Double time) const;
-    virtual VisBuffer * clone ();
+    virtual VisBuffer * clone () const;
     //virtual casacore::Int dataDescriptionId() const;
     virtual void detachFromVisIter ();
     virtual casacore::Vector<casacore::Float> feed_pa(casacore::Double time) const;

@@ -48,11 +48,11 @@
 
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -61,25 +61,11 @@
 	
 
 	
-#include "CBasebandName.h"
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
-#include "CNetSideband.h"
-	
-
-	
-
-	
-
-	
-#include "CSidebandProcessingMode.h"
-	
-
-	
-
-	
-#include "CWindowFunction.h"
+#include <alma/Enumerations/CNetSideband.h>
 	
 
 	
@@ -89,11 +75,13 @@
 	
 
 	
-
+#include <alma/Enumerations/CSidebandProcessingMode.h>
 	
 
 	
-#include "CCorrelationBit.h"
+
+	
+#include <alma/Enumerations/CWindowFunction.h>
 	
 
 	
@@ -107,7 +95,21 @@
 	
 
 	
-#include "CFrequencyReferenceCode.h"
+#include <alma/Enumerations/CCorrelationBit.h>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CFrequencyReferenceCode.h>
 	
 
 	
@@ -125,17 +127,17 @@
 	
 
 	
-#include "CSpectralResolutionType.h"
+#include <alma/Enumerations/CSpectralResolutionType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file SpectralWindow.h
     \brief Generated from model's revision "-1", branch ""
@@ -158,7 +160,7 @@ class DopplerRow;
 
 class SpectralWindowRow;
 typedef void (SpectralWindowRow::*SpectralWindowAttributeFromBin) (EndianIStream& eis);
-typedef void (SpectralWindowRow::*SpectralWindowAttributeFromText) (const string& s);
+typedef void (SpectralWindowRow::*SpectralWindowAttributeFromText) (const std::string& s);
 
 /**
  * The SpectralWindowRow class is a row of a SpectralWindowTable.
@@ -297,6 +299,47 @@ public:
   		
 	
 	
+	
+
+
+	
+	// ===> Attribute numBin, which is optional
+	
+	
+	
+	/**
+	 * The attribute numBin is optional. Return true if this attribute exists.
+	 * @return true if and only if the numBin attribute exists. 
+	 */
+	bool isNumBinExists() const;
+	
+
+	
+ 	/**
+ 	 * Get numBin, which is optional.
+ 	 * @return numBin as int
+ 	 * @throws IllegalAccessException If numBin does not exist.
+ 	 */
+ 	int getNumBin() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set numBin with the specified int.
+ 	 * @param numBin The int value to which numBin is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setNumBin (int numBin);
+		
+	
+	
+	
+	/**
+	 * Mark numBin, which is an optional field, as non-existent.
+	 */
+	void clearNumBin ();
 	
 
 
@@ -517,7 +560,7 @@ public:
 	
  	/**
  	 * Get chanFreqArray, which is optional.
- 	 * @return chanFreqArray as vector<Frequency >
+ 	 * @return chanFreqArray as std::vector<Frequency >
  	 * @throws IllegalAccessException If chanFreqArray does not exist.
  	 */
  	std::vector<Frequency > getChanFreqArray() const;
@@ -526,8 +569,8 @@ public:
  	
  	
  	/**
- 	 * Set chanFreqArray with the specified vector<Frequency >.
- 	 * @param chanFreqArray The vector<Frequency > value to which chanFreqArray is to be set.
+ 	 * Set chanFreqArray with the specified std::vector<Frequency >.
+ 	 * @param chanFreqArray The std::vector<Frequency > value to which chanFreqArray is to be set.
  	 
  		
  	 */
@@ -599,7 +642,7 @@ public:
 	
  	/**
  	 * Get chanWidthArray, which is optional.
- 	 * @return chanWidthArray as vector<Frequency >
+ 	 * @return chanWidthArray as std::vector<Frequency >
  	 * @throws IllegalAccessException If chanWidthArray does not exist.
  	 */
  	std::vector<Frequency > getChanWidthArray() const;
@@ -608,8 +651,8 @@ public:
  	
  	
  	/**
- 	 * Set chanWidthArray with the specified vector<Frequency >.
- 	 * @param chanWidthArray The vector<Frequency > value to which chanWidthArray is to be set.
+ 	 * Set chanWidthArray with the specified std::vector<Frequency >.
+ 	 * @param chanWidthArray The std::vector<Frequency > value to which chanWidthArray is to be set.
  	 
  		
  	 */
@@ -722,7 +765,7 @@ public:
 	
  	/**
  	 * Get effectiveBwArray, which is optional.
- 	 * @return effectiveBwArray as vector<Frequency >
+ 	 * @return effectiveBwArray as std::vector<Frequency >
  	 * @throws IllegalAccessException If effectiveBwArray does not exist.
  	 */
  	std::vector<Frequency > getEffectiveBwArray() const;
@@ -731,8 +774,8 @@ public:
  	
  	
  	/**
- 	 * Set effectiveBwArray with the specified vector<Frequency >.
- 	 * @param effectiveBwArray The vector<Frequency > value to which effectiveBwArray is to be set.
+ 	 * Set effectiveBwArray with the specified std::vector<Frequency >.
+ 	 * @param effectiveBwArray The std::vector<Frequency > value to which effectiveBwArray is to be set.
  	 
  		
  	 */
@@ -804,21 +847,21 @@ public:
 	
  	/**
  	 * Get freqGroupName, which is optional.
- 	 * @return freqGroupName as string
+ 	 * @return freqGroupName as std::string
  	 * @throws IllegalAccessException If freqGroupName does not exist.
  	 */
- 	string getFreqGroupName() const;
+ 	std::string getFreqGroupName() const;
 	
  
  	
  	
  	/**
- 	 * Set freqGroupName with the specified string.
- 	 * @param freqGroupName The string value to which freqGroupName is to be set.
+ 	 * Set freqGroupName with the specified std::string.
+ 	 * @param freqGroupName The std::string value to which freqGroupName is to be set.
  	 
  		
  	 */
- 	void setFreqGroupName (string freqGroupName);
+ 	void setFreqGroupName (std::string freqGroupName);
 		
 	
 	
@@ -845,7 +888,7 @@ public:
 	
  	/**
  	 * Get lineArray, which is optional.
- 	 * @return lineArray as vector<bool >
+ 	 * @return lineArray as std::vector<bool >
  	 * @throws IllegalAccessException If lineArray does not exist.
  	 */
  	std::vector<bool > getLineArray() const;
@@ -854,8 +897,8 @@ public:
  	
  	
  	/**
- 	 * Set lineArray with the specified vector<bool >.
- 	 * @param lineArray The vector<bool > value to which lineArray is to be set.
+ 	 * Set lineArray with the specified std::vector<bool >.
+ 	 * @param lineArray The std::vector<bool > value to which lineArray is to be set.
  	 
  		
  	 */
@@ -927,21 +970,21 @@ public:
 	
  	/**
  	 * Get name, which is optional.
- 	 * @return name as string
+ 	 * @return name as std::string
  	 * @throws IllegalAccessException If name does not exist.
  	 */
- 	string getName() const;
+ 	std::string getName() const;
 	
  
  	
  	
  	/**
- 	 * Set name with the specified string.
- 	 * @param name The string value to which name is to be set.
+ 	 * Set name with the specified std::string.
+ 	 * @param name The std::string value to which name is to be set.
  	 
  		
  	 */
- 	void setName (string name);
+ 	void setName (std::string name);
 		
 	
 	
@@ -1132,7 +1175,7 @@ public:
 	
  	/**
  	 * Get resolutionArray, which is optional.
- 	 * @return resolutionArray as vector<Frequency >
+ 	 * @return resolutionArray as std::vector<Frequency >
  	 * @throws IllegalAccessException If resolutionArray does not exist.
  	 */
  	std::vector<Frequency > getResolutionArray() const;
@@ -1141,8 +1184,8 @@ public:
  	
  	
  	/**
- 	 * Set resolutionArray with the specified vector<Frequency >.
- 	 * @param resolutionArray The vector<Frequency > value to which resolutionArray is to be set.
+ 	 * Set resolutionArray with the specified std::vector<Frequency >.
+ 	 * @param resolutionArray The std::vector<Frequency > value to which resolutionArray is to be set.
  	 
  		
  	 */
@@ -1214,7 +1257,7 @@ public:
 	
  	/**
  	 * Get assocNature, which is optional.
- 	 * @return assocNature as vector<SpectralResolutionTypeMod::SpectralResolutionType >
+ 	 * @return assocNature as std::vector<SpectralResolutionTypeMod::SpectralResolutionType >
  	 * @throws IllegalAccessException If assocNature does not exist.
  	 */
  	std::vector<SpectralResolutionTypeMod::SpectralResolutionType > getAssocNature() const;
@@ -1223,8 +1266,8 @@ public:
  	
  	
  	/**
- 	 * Set assocNature with the specified vector<SpectralResolutionTypeMod::SpectralResolutionType >.
- 	 * @param assocNature The vector<SpectralResolutionTypeMod::SpectralResolutionType > value to which assocNature is to be set.
+ 	 * Set assocNature with the specified std::vector<SpectralResolutionTypeMod::SpectralResolutionType >.
+ 	 * @param assocNature The std::vector<SpectralResolutionTypeMod::SpectralResolutionType > value to which assocNature is to be set.
  	 
  		
  	 */
@@ -1259,7 +1302,7 @@ public:
 	
  	/**
  	 * Get assocSpectralWindowId, which is optional.
- 	 * @return assocSpectralWindowId as vector<Tag> 
+ 	 * @return assocSpectralWindowId as std::vector<Tag> 
  	 * @throws IllegalAccessException If assocSpectralWindowId does not exist.
  	 */
  	std::vector<Tag>  getAssocSpectralWindowId() const;
@@ -1268,8 +1311,8 @@ public:
  	
  	
  	/**
- 	 * Set assocSpectralWindowId with the specified vector<Tag> .
- 	 * @param assocSpectralWindowId The vector<Tag>  value to which assocSpectralWindowId is to be set.
+ 	 * Set assocSpectralWindowId with the specified std::vector<Tag> .
+ 	 * @param assocSpectralWindowId The std::vector<Tag>  value to which assocSpectralWindowId is to be set.
  	 
  		
  	 */
@@ -1451,7 +1494,7 @@ public:
 	 * 
 	 * @return a vector of DopplerRow *
 	 */
-	vector <DopplerRow *> getDopplers();
+	std::vector <DopplerRow *> getDopplers();
 	
 	
 
@@ -1571,6 +1614,7 @@ void sidebandProcessingModeFromBin( EndianIStream& eis);
 void totBandwidthFromBin( EndianIStream& eis);
 void windowFunctionFromBin( EndianIStream& eis);
 
+void numBinFromBin( EndianIStream& eis);
 void chanFreqStartFromBin( EndianIStream& eis);
 void chanFreqStepFromBin( EndianIStream& eis);
 void chanFreqArrayFromBin( EndianIStream& eis);
@@ -1712,6 +1756,19 @@ private:
 	
 
 	int numChan;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute numBin, which is optional
+	
+	
+	bool numBinExists;
+	
+
+	int numBin;
 
 	
 	
@@ -1885,7 +1942,7 @@ private:
 	bool freqGroupNameExists;
 	
 
-	string freqGroupName;
+	std::string freqGroupName;
 
 	
 	
@@ -1924,7 +1981,7 @@ private:
 	bool nameExists;
 	
 
-	string name;
+	std::string name;
 
 	
 	
@@ -2102,6 +2159,7 @@ void sidebandProcessingModeFromBin( EndianIStream& eis);
 void totBandwidthFromBin( EndianIStream& eis);
 void windowFunctionFromBin( EndianIStream& eis);
 
+void numBinFromBin( EndianIStream& eis);
 void chanFreqStartFromBin( EndianIStream& eis);
 void chanFreqStepFromBin( EndianIStream& eis);
 void chanFreqArrayFromBin( EndianIStream& eis);
@@ -2133,98 +2191,101 @@ void dopplerIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, SpectralWindowAttributeFromText> fromTextMethods;
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
-void basebandNameFromText (const string & s);
+void basebandNameFromText (const std::string & s);
 	
 	
-void netSidebandFromText (const string & s);
+void netSidebandFromText (const std::string & s);
 	
 	
-void numChanFromText (const string & s);
+void numChanFromText (const std::string & s);
 	
 	
-void refFreqFromText (const string & s);
+void refFreqFromText (const std::string & s);
 	
 	
-void sidebandProcessingModeFromText (const string & s);
+void sidebandProcessingModeFromText (const std::string & s);
 	
 	
-void totBandwidthFromText (const string & s);
+void totBandwidthFromText (const std::string & s);
 	
 	
-void windowFunctionFromText (const string & s);
+void windowFunctionFromText (const std::string & s);
 	
 
 	
-void chanFreqStartFromText (const string & s);
+void numBinFromText (const std::string & s);
 	
 	
-void chanFreqStepFromText (const string & s);
+void chanFreqStartFromText (const std::string & s);
 	
 	
-void chanFreqArrayFromText (const string & s);
+void chanFreqStepFromText (const std::string & s);
 	
 	
-void chanWidthFromText (const string & s);
+void chanFreqArrayFromText (const std::string & s);
 	
 	
-void chanWidthArrayFromText (const string & s);
+void chanWidthFromText (const std::string & s);
 	
 	
-void correlationBitFromText (const string & s);
+void chanWidthArrayFromText (const std::string & s);
 	
 	
-void effectiveBwFromText (const string & s);
+void correlationBitFromText (const std::string & s);
 	
 	
-void effectiveBwArrayFromText (const string & s);
+void effectiveBwFromText (const std::string & s);
 	
 	
-void freqGroupFromText (const string & s);
+void effectiveBwArrayFromText (const std::string & s);
 	
 	
-void freqGroupNameFromText (const string & s);
+void freqGroupFromText (const std::string & s);
 	
 	
-void lineArrayFromText (const string & s);
+void freqGroupNameFromText (const std::string & s);
 	
 	
-void measFreqRefFromText (const string & s);
+void lineArrayFromText (const std::string & s);
 	
 	
-void nameFromText (const string & s);
+void measFreqRefFromText (const std::string & s);
 	
 	
-void oversamplingFromText (const string & s);
+void nameFromText (const std::string & s);
 	
 	
-void quantizationFromText (const string & s);
+void oversamplingFromText (const std::string & s);
 	
 	
-void refChanFromText (const string & s);
+void quantizationFromText (const std::string & s);
 	
 	
-void resolutionFromText (const string & s);
+void refChanFromText (const std::string & s);
 	
 	
-void resolutionArrayFromText (const string & s);
+void resolutionFromText (const std::string & s);
 	
 	
-void numAssocValuesFromText (const string & s);
+void resolutionArrayFromText (const std::string & s);
 	
 	
-void assocNatureFromText (const string & s);
+void numAssocValuesFromText (const std::string & s);
 	
 	
-void assocSpectralWindowIdFromText (const string & s);
+void assocNatureFromText (const std::string & s);
 	
 	
-void imageSpectralWindowIdFromText (const string & s);
+void assocSpectralWindowIdFromText (const std::string & s);
 	
 	
-void dopplerIdFromText (const string & s);
+void imageSpectralWindowIdFromText (const std::string & s);
+	
+	
+void dopplerIdFromText (const std::string & s);
 	
 	
 	

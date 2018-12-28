@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -70,12 +70,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file SysPower.h
     \brief Generated from model's revision "-1", branch ""
@@ -98,7 +98,7 @@ class FeedRow;
 
 class SysPowerRow;
 typedef void (SysPowerRow::*SysPowerAttributeFromBin) (EndianIStream& eis);
-typedef void (SysPowerRow::*SysPowerAttributeFromText) (const string& s);
+typedef void (SysPowerRow::*SysPowerAttributeFromText) (const std::string& s);
 
 /**
  * The SysPowerRow class is a row of a SysPowerTable.
@@ -207,7 +207,7 @@ public:
 	
  	/**
  	 * Get switchedPowerDifference, which is optional.
- 	 * @return switchedPowerDifference as vector<float >
+ 	 * @return switchedPowerDifference as std::vector<float >
  	 * @throws IllegalAccessException If switchedPowerDifference does not exist.
  	 */
  	std::vector<float > getSwitchedPowerDifference() const;
@@ -216,8 +216,8 @@ public:
  	
  	
  	/**
- 	 * Set switchedPowerDifference with the specified vector<float >.
- 	 * @param switchedPowerDifference The vector<float > value to which switchedPowerDifference is to be set.
+ 	 * Set switchedPowerDifference with the specified std::vector<float >.
+ 	 * @param switchedPowerDifference The std::vector<float > value to which switchedPowerDifference is to be set.
  	 
  		
  	 */
@@ -248,7 +248,7 @@ public:
 	
  	/**
  	 * Get switchedPowerSum, which is optional.
- 	 * @return switchedPowerSum as vector<float >
+ 	 * @return switchedPowerSum as std::vector<float >
  	 * @throws IllegalAccessException If switchedPowerSum does not exist.
  	 */
  	std::vector<float > getSwitchedPowerSum() const;
@@ -257,8 +257,8 @@ public:
  	
  	
  	/**
- 	 * Set switchedPowerSum with the specified vector<float >.
- 	 * @param switchedPowerSum The vector<float > value to which switchedPowerSum is to be set.
+ 	 * Set switchedPowerSum with the specified std::vector<float >.
+ 	 * @param switchedPowerSum The std::vector<float > value to which switchedPowerSum is to be set.
  	 
  		
  	 */
@@ -289,7 +289,7 @@ public:
 	
  	/**
  	 * Get requantizerGain, which is optional.
- 	 * @return requantizerGain as vector<float >
+ 	 * @return requantizerGain as std::vector<float >
  	 * @throws IllegalAccessException If requantizerGain does not exist.
  	 */
  	std::vector<float > getRequantizerGain() const;
@@ -298,8 +298,8 @@ public:
  	
  	
  	/**
- 	 * Set requantizerGain with the specified vector<float >.
- 	 * @param requantizerGain The vector<float > value to which requantizerGain is to be set.
+ 	 * Set requantizerGain with the specified std::vector<float >.
+ 	 * @param requantizerGain The std::vector<float > value to which requantizerGain is to be set.
  	 
  		
  	 */
@@ -460,7 +460,7 @@ public:
 	 * 
 	 * @return a vector of FeedRow *
 	 */
-	vector <FeedRow *> getFeeds();
+	std::vector <FeedRow *> getFeeds();
 	
 	
 
@@ -776,29 +776,29 @@ void requantizerGainFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, SysPowerAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
-void feedIdFromText (const string & s);
+void feedIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 
 	
-void switchedPowerDifferenceFromText (const string & s);
+void switchedPowerDifferenceFromText (const std::string & s);
 	
 	
-void switchedPowerSumFromText (const string & s);
+void switchedPowerSumFromText (const std::string & s);
 	
 	
-void requantizerGainFromText (const string & s);
+void requantizerGainFromText (const std::string & s);
 	
 	
 	

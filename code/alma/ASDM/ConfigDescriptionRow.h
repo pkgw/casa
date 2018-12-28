@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -61,7 +61,7 @@
 	
 
 	
-#include "CCorrelationMode.h"
+#include <alma/Enumerations/CCorrelationMode.h>
 	
 
 	
@@ -69,33 +69,33 @@
 	
 
 	
-#include "CAtmPhaseCorrection.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
-#include "CProcessorType.h"
-	
-
-	
-
-	
-#include "CSpectralResolutionType.h"
+#include <alma/Enumerations/CProcessorType.h>
 	
 
 	
 
 	
-#include "CSpectralResolutionType.h"
+#include <alma/Enumerations/CSpectralResolutionType.h>
+	
+
+	
+
+	
+#include <alma/Enumerations/CSpectralResolutionType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file ConfigDescription.h
     \brief Generated from model's revision "-1", branch ""
@@ -127,7 +127,7 @@ class ProcessorRow;
 
 class ConfigDescriptionRow;
 typedef void (ConfigDescriptionRow::*ConfigDescriptionAttributeFromBin) (EndianIStream& eis);
-typedef void (ConfigDescriptionRow::*ConfigDescriptionAttributeFromText) (const string& s);
+typedef void (ConfigDescriptionRow::*ConfigDescriptionAttributeFromText) (const std::string& s);
 
 /**
  * The ConfigDescriptionRow class is a row of a ConfigDescriptionTable.
@@ -338,7 +338,7 @@ public:
 	
  	/**
  	 * Get atmPhaseCorrection.
- 	 * @return atmPhaseCorrection as vector<AtmPhaseCorrectionMod::AtmPhaseCorrection >
+ 	 * @return atmPhaseCorrection as std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection >
  	 */
  	std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > getAtmPhaseCorrection() const;
 	
@@ -346,8 +346,8 @@ public:
  	
  	
  	/**
- 	 * Set atmPhaseCorrection with the specified vector<AtmPhaseCorrectionMod::AtmPhaseCorrection >.
- 	 * @param atmPhaseCorrection The vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > value to which atmPhaseCorrection is to be set.
+ 	 * Set atmPhaseCorrection with the specified std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection >.
+ 	 * @param atmPhaseCorrection The std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > value to which atmPhaseCorrection is to be set.
  	 
  		
  			
@@ -404,7 +404,7 @@ public:
 	
  	/**
  	 * Get phasedArrayList, which is optional.
- 	 * @return phasedArrayList as vector<int >
+ 	 * @return phasedArrayList as std::vector<int >
  	 * @throws IllegalAccessException If phasedArrayList does not exist.
  	 */
  	std::vector<int > getPhasedArrayList() const;
@@ -413,8 +413,8 @@ public:
  	
  	
  	/**
- 	 * Set phasedArrayList with the specified vector<int >.
- 	 * @param phasedArrayList The vector<int > value to which phasedArrayList is to be set.
+ 	 * Set phasedArrayList with the specified std::vector<int >.
+ 	 * @param phasedArrayList The std::vector<int > value to which phasedArrayList is to be set.
  	 
  		
  	 */
@@ -516,7 +516,7 @@ public:
 	
  	/**
  	 * Get assocNature, which is optional.
- 	 * @return assocNature as vector<SpectralResolutionTypeMod::SpectralResolutionType >
+ 	 * @return assocNature as std::vector<SpectralResolutionTypeMod::SpectralResolutionType >
  	 * @throws IllegalAccessException If assocNature does not exist.
  	 */
  	std::vector<SpectralResolutionTypeMod::SpectralResolutionType > getAssocNature() const;
@@ -525,8 +525,8 @@ public:
  	
  	
  	/**
- 	 * Set assocNature with the specified vector<SpectralResolutionTypeMod::SpectralResolutionType >.
- 	 * @param assocNature The vector<SpectralResolutionTypeMod::SpectralResolutionType > value to which assocNature is to be set.
+ 	 * Set assocNature with the specified std::vector<SpectralResolutionTypeMod::SpectralResolutionType >.
+ 	 * @param assocNature The std::vector<SpectralResolutionTypeMod::SpectralResolutionType > value to which assocNature is to be set.
  	 
  		
  	 */
@@ -555,7 +555,7 @@ public:
 	
  	/**
  	 * Get antennaId.
- 	 * @return antennaId as vector<Tag> 
+ 	 * @return antennaId as std::vector<Tag> 
  	 */
  	std::vector<Tag>  getAntennaId() const;
 	
@@ -563,8 +563,8 @@ public:
  	
  	
  	/**
- 	 * Set antennaId with the specified vector<Tag> .
- 	 * @param antennaId The vector<Tag>  value to which antennaId is to be set.
+ 	 * Set antennaId with the specified std::vector<Tag> .
+ 	 * @param antennaId The std::vector<Tag>  value to which antennaId is to be set.
  	 
  		
  			
@@ -591,7 +591,7 @@ public:
 	
  	/**
  	 * Get assocConfigDescriptionId, which is optional.
- 	 * @return assocConfigDescriptionId as vector<Tag> 
+ 	 * @return assocConfigDescriptionId as std::vector<Tag> 
  	 * @throws IllegalAccessException If assocConfigDescriptionId does not exist.
  	 */
  	std::vector<Tag>  getAssocConfigDescriptionId() const;
@@ -600,8 +600,8 @@ public:
  	
  	
  	/**
- 	 * Set assocConfigDescriptionId with the specified vector<Tag> .
- 	 * @param assocConfigDescriptionId The vector<Tag>  value to which assocConfigDescriptionId is to be set.
+ 	 * Set assocConfigDescriptionId with the specified std::vector<Tag> .
+ 	 * @param assocConfigDescriptionId The std::vector<Tag>  value to which assocConfigDescriptionId is to be set.
  	 
  		
  	 */
@@ -626,7 +626,7 @@ public:
 	
  	/**
  	 * Get dataDescriptionId.
- 	 * @return dataDescriptionId as vector<Tag> 
+ 	 * @return dataDescriptionId as std::vector<Tag> 
  	 */
  	std::vector<Tag>  getDataDescriptionId() const;
 	
@@ -634,8 +634,8 @@ public:
  	
  	
  	/**
- 	 * Set dataDescriptionId with the specified vector<Tag> .
- 	 * @param dataDescriptionId The vector<Tag>  value to which dataDescriptionId is to be set.
+ 	 * Set dataDescriptionId with the specified std::vector<Tag> .
+ 	 * @param dataDescriptionId The std::vector<Tag>  value to which dataDescriptionId is to be set.
  	 
  		
  			
@@ -656,7 +656,7 @@ public:
 	
  	/**
  	 * Get feedId.
- 	 * @return feedId as vector<int> 
+ 	 * @return feedId as std::vector<int> 
  	 */
  	std::vector<int>  getFeedId() const;
 	
@@ -664,8 +664,8 @@ public:
  	
  	
  	/**
- 	 * Set feedId with the specified vector<int> .
- 	 * @param feedId The vector<int>  value to which feedId is to be set.
+ 	 * Set feedId with the specified std::vector<int> .
+ 	 * @param feedId The std::vector<int>  value to which feedId is to be set.
  	 
  		
  			
@@ -716,7 +716,7 @@ public:
 	
  	/**
  	 * Get switchCycleId.
- 	 * @return switchCycleId as vector<Tag> 
+ 	 * @return switchCycleId as std::vector<Tag> 
  	 */
  	std::vector<Tag>  getSwitchCycleId() const;
 	
@@ -724,8 +724,8 @@ public:
  	
  	
  	/**
- 	 * Set switchCycleId with the specified vector<Tag> .
- 	 * @param switchCycleId The vector<Tag>  value to which switchCycleId is to be set.
+ 	 * Set switchCycleId with the specified std::vector<Tag> .
+ 	 * @param switchCycleId The std::vector<Tag>  value to which switchCycleId is to be set.
  	 
  		
  			
@@ -881,7 +881,7 @@ public:
 	 * Get the collection of rows in the Feed table having feedId == feedId[i]
 	 * @return a vector of FeedRow *. 
 	 */	 
-	const vector <FeedRow *> getFeeds(int i);
+	const std::vector <FeedRow *> getFeeds(int i);
 
 
 	/** 
@@ -889,7 +889,7 @@ public:
 	 * for any i in [O..feedId.size()-1].
 	 * @return a vector of FeedRow *.
 	 */
-	const vector <FeedRow *> getFeeds();
+	const std::vector <FeedRow *> getFeeds();
 	
 
 
@@ -1527,59 +1527,59 @@ void assocConfigDescriptionIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, ConfigDescriptionAttributeFromText> fromTextMethods;
 	
-void configDescriptionIdFromText (const string & s);
+void configDescriptionIdFromText (const std::string & s);
 	
 	
-void numAntennaFromText (const string & s);
+void numAntennaFromText (const std::string & s);
 	
 	
-void numDataDescriptionFromText (const string & s);
+void numDataDescriptionFromText (const std::string & s);
 	
 	
-void numFeedFromText (const string & s);
+void numFeedFromText (const std::string & s);
 	
 	
-void correlationModeFromText (const string & s);
+void correlationModeFromText (const std::string & s);
 	
 	
-void numAtmPhaseCorrectionFromText (const string & s);
+void numAtmPhaseCorrectionFromText (const std::string & s);
 	
 	
-void atmPhaseCorrectionFromText (const string & s);
+void atmPhaseCorrectionFromText (const std::string & s);
 	
 	
-void processorTypeFromText (const string & s);
+void processorTypeFromText (const std::string & s);
 	
 	
-void spectralTypeFromText (const string & s);
+void spectralTypeFromText (const std::string & s);
 	
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void feedIdFromText (const string & s);
+void feedIdFromText (const std::string & s);
 	
 	
-void switchCycleIdFromText (const string & s);
+void switchCycleIdFromText (const std::string & s);
 	
 	
-void dataDescriptionIdFromText (const string & s);
+void dataDescriptionIdFromText (const std::string & s);
 	
 	
-void processorIdFromText (const string & s);
+void processorIdFromText (const std::string & s);
 	
 
 	
-void phasedArrayListFromText (const string & s);
+void phasedArrayListFromText (const std::string & s);
 	
 	
-void numAssocValuesFromText (const string & s);
+void numAssocValuesFromText (const std::string & s);
 	
 	
-void assocNatureFromText (const string & s);
+void assocNatureFromText (const std::string & s);
 	
 	
-void assocConfigDescriptionIdFromText (const string & s);
+void assocConfigDescriptionIdFromText (const std::string & s);
 	
 	
 	

@@ -48,19 +48,19 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	 
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
@@ -92,12 +92,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file TotalPower.h
     \brief Generated from model's revision "-1", branch ""
@@ -123,7 +123,7 @@ class ExecBlockRow;
 
 class TotalPowerRow;
 typedef void (TotalPowerRow::*TotalPowerAttributeFromBin) (EndianIStream& eis);
-typedef void (TotalPowerRow::*TotalPowerAttributeFromText) (const string& s);
+typedef void (TotalPowerRow::*TotalPowerAttributeFromText) (const std::string& s);
 
 /**
  * The TotalPowerRow class is a row of a TotalPowerTable.
@@ -286,7 +286,7 @@ public:
 	
  	/**
  	 * Get uvw.
- 	 * @return uvw as vector<vector<Length > >
+ 	 * @return uvw as std::vector<std::vector<Length > >
  	 */
  	std::vector<std::vector<Length > > getUvw() const;
 	
@@ -294,8 +294,8 @@ public:
  	
  	
  	/**
- 	 * Set uvw with the specified vector<vector<Length > >.
- 	 * @param uvw The vector<vector<Length > > value to which uvw is to be set.
+ 	 * Set uvw with the specified std::vector<std::vector<Length > >.
+ 	 * @param uvw The std::vector<std::vector<Length > > value to which uvw is to be set.
  	 
  		
  			
@@ -316,7 +316,7 @@ public:
 	
  	/**
  	 * Get exposure.
- 	 * @return exposure as vector<vector<Interval > >
+ 	 * @return exposure as std::vector<std::vector<Interval > >
  	 */
  	std::vector<std::vector<Interval > > getExposure() const;
 	
@@ -324,8 +324,8 @@ public:
  	
  	
  	/**
- 	 * Set exposure with the specified vector<vector<Interval > >.
- 	 * @param exposure The vector<vector<Interval > > value to which exposure is to be set.
+ 	 * Set exposure with the specified std::vector<std::vector<Interval > >.
+ 	 * @param exposure The std::vector<std::vector<Interval > > value to which exposure is to be set.
  	 
  		
  			
@@ -346,7 +346,7 @@ public:
 	
  	/**
  	 * Get timeCentroid.
- 	 * @return timeCentroid as vector<vector<ArrayTime > >
+ 	 * @return timeCentroid as std::vector<std::vector<ArrayTime > >
  	 */
  	std::vector<std::vector<ArrayTime > > getTimeCentroid() const;
 	
@@ -354,8 +354,8 @@ public:
  	
  	
  	/**
- 	 * Set timeCentroid with the specified vector<vector<ArrayTime > >.
- 	 * @param timeCentroid The vector<vector<ArrayTime > > value to which timeCentroid is to be set.
+ 	 * Set timeCentroid with the specified std::vector<std::vector<ArrayTime > >.
+ 	 * @param timeCentroid The std::vector<std::vector<ArrayTime > > value to which timeCentroid is to be set.
  	 
  		
  			
@@ -376,21 +376,21 @@ public:
 	
  	/**
  	 * Get floatData.
- 	 * @return floatData as vector<vector<vector<float > > >
+ 	 * @return floatData as std::vector<std::vector<std::vector<float > > >
  	 */
- 	std::vector<std::vector<vector<float > > > getFloatData() const;
+ 	std::vector<std::vector<std::vector<float > > > getFloatData() const;
 	
  
  	
  	
  	/**
- 	 * Set floatData with the specified vector<vector<vector<float > > >.
- 	 * @param floatData The vector<vector<vector<float > > > value to which floatData is to be set.
+ 	 * Set floatData with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param floatData The std::vector<std::vector<std::vector<float > > > value to which floatData is to be set.
  	 
  		
  			
  	 */
- 	void setFloatData (std::vector<std::vector<vector<float > > > floatData);
+ 	void setFloatData (std::vector<std::vector<std::vector<float > > > floatData);
   		
 	
 	
@@ -406,7 +406,7 @@ public:
 	
  	/**
  	 * Get flagAnt.
- 	 * @return flagAnt as vector<int >
+ 	 * @return flagAnt as std::vector<int >
  	 */
  	std::vector<int > getFlagAnt() const;
 	
@@ -414,8 +414,8 @@ public:
  	
  	
  	/**
- 	 * Set flagAnt with the specified vector<int >.
- 	 * @param flagAnt The vector<int > value to which flagAnt is to be set.
+ 	 * Set flagAnt with the specified std::vector<int >.
+ 	 * @param flagAnt The std::vector<int > value to which flagAnt is to be set.
  	 
  		
  			
@@ -436,7 +436,7 @@ public:
 	
  	/**
  	 * Get flagPol.
- 	 * @return flagPol as vector<vector<int > >
+ 	 * @return flagPol as std::vector<std::vector<int > >
  	 */
  	std::vector<std::vector<int > > getFlagPol() const;
 	
@@ -444,8 +444,8 @@ public:
  	
  	
  	/**
- 	 * Set flagPol with the specified vector<vector<int > >.
- 	 * @param flagPol The vector<vector<int > > value to which flagPol is to be set.
+ 	 * Set flagPol with the specified std::vector<std::vector<int > >.
+ 	 * @param flagPol The std::vector<std::vector<int > > value to which flagPol is to be set.
  	 
  		
  			
@@ -635,7 +635,7 @@ public:
 	
  	/**
  	 * Get stateId.
- 	 * @return stateId as vector<Tag> 
+ 	 * @return stateId as std::vector<Tag> 
  	 */
  	std::vector<Tag>  getStateId() const;
 	
@@ -643,8 +643,8 @@ public:
  	
  	
  	/**
- 	 * Set stateId with the specified vector<Tag> .
- 	 * @param stateId The vector<Tag>  value to which stateId is to be set.
+ 	 * Set stateId with the specified std::vector<Tag> .
+ 	 * @param stateId The std::vector<Tag>  value to which stateId is to be set.
  	 
  		
  			
@@ -796,7 +796,7 @@ public:
 	 * @param execBlockId
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId);
+	bool compareNoAutoInc(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<std::vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId);
 	
 	
 
@@ -830,7 +830,7 @@ public:
 	 * @param execBlockId
 	    
 	 */ 
-	bool compareRequiredValue(int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId); 
+	bool compareRequiredValue(int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<std::vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId); 
 		 
 	
 	/**
@@ -1055,7 +1055,7 @@ private:
 	
 	
 
-	std::vector<std::vector<vector<float > > > floatData;
+	std::vector<std::vector<std::vector<float > > > floatData;
 
 	
 	
@@ -1217,53 +1217,53 @@ void subintegrationNumberFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, TotalPowerAttributeFromText> fromTextMethods;
 	
-void timeFromText (const string & s);
+void timeFromText (const std::string & s);
 	
 	
-void configDescriptionIdFromText (const string & s);
+void configDescriptionIdFromText (const std::string & s);
 	
 	
-void fieldIdFromText (const string & s);
+void fieldIdFromText (const std::string & s);
 	
 	
-void scanNumberFromText (const string & s);
+void scanNumberFromText (const std::string & s);
 	
 	
-void subscanNumberFromText (const string & s);
+void subscanNumberFromText (const std::string & s);
 	
 	
-void integrationNumberFromText (const string & s);
+void integrationNumberFromText (const std::string & s);
 	
 	
-void uvwFromText (const string & s);
+void uvwFromText (const std::string & s);
 	
 	
-void exposureFromText (const string & s);
+void exposureFromText (const std::string & s);
 	
 	
-void timeCentroidFromText (const string & s);
+void timeCentroidFromText (const std::string & s);
 	
 	
-void floatDataFromText (const string & s);
+void floatDataFromText (const std::string & s);
 	
 	
-void flagAntFromText (const string & s);
+void flagAntFromText (const std::string & s);
 	
 	
-void flagPolFromText (const string & s);
+void flagPolFromText (const std::string & s);
 	
 	
-void intervalFromText (const string & s);
+void intervalFromText (const std::string & s);
 	
 	
-void stateIdFromText (const string & s);
+void stateIdFromText (const std::string & s);
 	
 	
-void execBlockIdFromText (const string & s);
+void execBlockIdFromText (const std::string & s);
 	
 
 	
-void subintegrationNumberFromText (const string & s);
+void subintegrationNumberFromText (const std::string & s);
 	
 	
 	

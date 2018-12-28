@@ -50,19 +50,19 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	 
-#include <EntityRef.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 	 
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
@@ -73,7 +73,7 @@
 	
 
 	
-#include "CTimeSampling.h"
+#include <alma/Enumerations/CTimeSampling.h>
 	
 
 	
@@ -90,12 +90,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Main.h
     \brief Generated from model's revision "-1", branch ""
@@ -121,7 +121,7 @@ class ExecBlockRow;
 
 class MainRow;
 typedef void (MainRow::*MainAttributeFromBin) (EndianIStream& eis);
-typedef void (MainRow::*MainAttributeFromText) (const string& s);
+typedef void (MainRow::*MainAttributeFromText) (const std::string& s);
 
 /**
  * The MainRow class is a row of a MainTable.
@@ -532,7 +532,7 @@ public:
 	
  	/**
  	 * Get stateId.
- 	 * @return stateId as vector<Tag> 
+ 	 * @return stateId as std::vector<Tag> 
  	 */
  	std::vector<Tag>  getStateId() const;
 	
@@ -540,8 +540,8 @@ public:
  	
  	
  	/**
- 	 * Set stateId with the specified vector<Tag> .
- 	 * @param stateId The vector<Tag>  value to which stateId is to be set.
+ 	 * Set stateId with the specified std::vector<Tag> .
+ 	 * @param stateId The std::vector<Tag>  value to which stateId is to be set.
  	 
  		
  			
@@ -1065,41 +1065,41 @@ void execBlockIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, MainAttributeFromText> fromTextMethods;
 	
-void timeFromText (const string & s);
+void timeFromText (const std::string & s);
 	
 	
-void configDescriptionIdFromText (const string & s);
+void configDescriptionIdFromText (const std::string & s);
 	
 	
-void fieldIdFromText (const string & s);
+void fieldIdFromText (const std::string & s);
 	
 	
-void numAntennaFromText (const string & s);
+void numAntennaFromText (const std::string & s);
 	
 	
-void timeSamplingFromText (const string & s);
+void timeSamplingFromText (const std::string & s);
 	
 	
-void intervalFromText (const string & s);
+void intervalFromText (const std::string & s);
 	
 	
-void numIntegrationFromText (const string & s);
+void numIntegrationFromText (const std::string & s);
 	
 	
-void scanNumberFromText (const string & s);
+void scanNumberFromText (const std::string & s);
 	
 	
-void subscanNumberFromText (const string & s);
+void subscanNumberFromText (const std::string & s);
 	
 	
-void dataSizeFromText (const string & s);
+void dataSizeFromText (const std::string & s);
 	
 	
 	
-void stateIdFromText (const string & s);
+void stateIdFromText (const std::string & s);
 	
 	
-void execBlockIdFromText (const string & s);
+void execBlockIdFromText (const std::string & s);
 	
 
 		
