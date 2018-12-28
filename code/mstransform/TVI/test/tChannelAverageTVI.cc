@@ -642,6 +642,90 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckOutputSpwSubtable)
     ASSERT_EQ(spwcols.assocNature()(1).tovector(), assocNature);
 }
 
+TEST_F(ChannelAverageTVISpwChannTest, CheckSecondPartialAvgSpwChannelsAndSpwSubtable)
+{
+    addExtraAvgTVI(true);
+    std::vector<int> chanbinSecondTVI{0,5,0,0};
+    setChanBinSecondTVI(chanbinSecondTVI);
+    createTVIs();
+    size_t nRows = 0;
+    size_t nRowsSpw0 = 0;
+    size_t nRowsSpw1 = 0;
+    // Check that after averaging with chanbin=5 and further averaging with
+    // chanbin=(0,5,0,0), the first spectral window (which had 100 channels)
+    // has now 20 channels and the second
+    // spectral window (which had 50 channnels) has now 2
+    visitIterator([&]() -> void {auto shape = vb_p->visCube().shape(); 
+                                 if(allEQ(vb_p->spectralWindows(), 0)) //SPW0 
+                                 {
+                                     nRowsSpw0+=shape[2];
+                                     ASSERT_EQ(vb_p->nChannels(), 20);
+                                 }
+                                 else if(allEQ(vb_p->spectralWindows(), 1)) //SPW1
+                                 {
+                                     nRowsSpw1+=shape[2];
+                                     ASSERT_EQ(vb_p->nChannels(), 2);
+                                 }
+                                 //Both TVIs duplicate the existing SPWs (CAS-10294)
+                                 ASSERT_EQ(vi_p->nSpectralWindows(), 8);
+                                 nRows+=vb_p->visCube().shape()[2];});
+
+    //All the original rows
+    size_t expectedRows = 300;
+    //The synthetic MS has half of the rows in each SPW
+    size_t expectedRowsSpw0 = expectedRows / 2;
+    size_t expectedRowsSpw1 = expectedRows / 2;
+
+    //Check that we get the number of expected rows for each spw
+    ASSERT_EQ(nRows, expectedRows);
+    ASSERT_EQ(nRowsSpw0, expectedRowsSpw0);
+    ASSERT_EQ(nRowsSpw1, expectedRowsSpw1);
+
+    //Check that now the number of SPWs has been duplicated twice (two TVIs):
+    //the old ones are appended at the end of the SPW table and the new ones
+    //prepended.
+    //After averaging with chanbin=5 the first spectral window has 20
+    //channels and the second spectral window has 10 channel
+    auto & spwcols = vi_p->spectralWindowSubtablecols();
+    ASSERT_EQ(spwcols.nrow(), (unsigned int)8);
+
+    //The number of channels expected in all the SPWs:
+    int nChannelSpw0 = nChannelsOrig_p[0] / chanBinFirst_p; //Original SPW0 after second TVI (note that chanbin=0 for this SPW)
+    int nChannelSpw1 = nChannelsOrig_p[1] / chanBinFirst_p / chanBinSecond_p[1]; // Original SPW1 after second TVI
+    int nChannelSpw2 = nChannelsOrig_p[0]; //Copy of original SPW0 after second TVI (note that chanbin=0 for this SPW)
+    int nChannelSpw3 = nChannelsOrig_p[1]; //Copy of original SPW1 after second TVI (note that chanbin=0 for this SPW)
+    int nChannelSpw4 = nChannelsOrig_p[0] / chanBinFirst_p; //Original SPW0 after first TVI
+    int nChannelSpw5 = nChannelsOrig_p[1] / chanBinFirst_p; //Original SPW0 after firstTVI
+    int nChannelSpw6 = nChannelsOrig_p[0]; //Copy of original SPW0
+    int nChannelSpw7 = nChannelsOrig_p[1]; //Copy of original SPW1
+
+    ASSERT_EQ(spwcols.numChan()(0), nChannelSpw0);
+    ASSERT_EQ(spwcols.numChan()(1), nChannelSpw1);
+    ASSERT_EQ(spwcols.numChan()(2), nChannelSpw2);
+    ASSERT_EQ(spwcols.numChan()(3), nChannelSpw3);
+    ASSERT_EQ(spwcols.numChan()(4), nChannelSpw4);
+    ASSERT_EQ(spwcols.numChan()(5), nChannelSpw5);
+    ASSERT_EQ(spwcols.numChan()(6), nChannelSpw6);
+    ASSERT_EQ(spwcols.numChan()(7), nChannelSpw7);
+
+    //Check that the new SPWs refer to the old one:
+    std::vector<int> assocSpwId(1);
+    assocSpwId[0] = 4; //SPW0 refers to SPW4 (SPW0 after first TVI)
+    ASSERT_EQ(spwcols.assocSpwId()(0).tovector(), assocSpwId);
+    assocSpwId[0] = 5; //SPW1 refers to SPW5 (SPW1 after first TVI)
+    ASSERT_EQ(spwcols.assocSpwId()(1).tovector(), assocSpwId);
+    assocSpwId[0] = 6; //SPW2 refers to SPW6 (original SPW0)
+    ASSERT_EQ(spwcols.assocSpwId()(2).tovector(), assocSpwId);
+    assocSpwId[0] = 7; //SPW3 refers to SPW7 (original SPW1)
+    ASSERT_EQ(spwcols.assocSpwId()(3).tovector(), assocSpwId);
+    assocSpwId[0] = 6; //SPW4 refers to SPW6 (original SPW0)
+    ASSERT_EQ(spwcols.assocSpwId()(4).tovector(), assocSpwId);
+    assocSpwId[0] = 7; //SPW5 refers to SPW7 (original SPW1)
+    ASSERT_EQ(spwcols.assocSpwId()(5).tovector(), assocSpwId);
+    ASSERT_EQ(spwcols.assocSpwId()(6).tovector(), std::vector<int>()); //Original assoc was empty
+    ASSERT_EQ(spwcols.assocSpwId()(7).tovector(), std::vector<int>()); //Original assoc was empty
+}
+
 TEST_F(ChannelAverageTVISpwChannTest, LastChannelNotDivisibleCheckOutputSpwSubtable)
 {
     //This setting will do channel average with a number of input channels
@@ -721,7 +805,7 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckMSSelOutputTwoAvgSpwChannels)
                                      nRowsSpw1+=shape[2];
                                      ASSERT_EQ(vb_p->nChannels(), 2);
                                  }
-                                 //The TVI duplicates the existing SPWs (CAS-10294)
+                                 //Both TVIs duplicate the existing SPWs (CAS-10294)
                                  ASSERT_EQ(vi_p->nSpectralWindows(), 8);
                                  nRows+=vb_p->visCube().shape()[2];});
 
