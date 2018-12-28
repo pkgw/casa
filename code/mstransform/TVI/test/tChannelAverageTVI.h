@@ -72,6 +72,8 @@ public:
 
     void setChanBinFirstTVI(int chanBinFirst);
 
+    void setChanBinSecondTVI(std::vector<int>& chanBinSecond);
+
 protected:
 
     bool useMSSelection_p;
@@ -88,7 +90,7 @@ protected:
 
     int chanBinFirst_p;
 
-    Vector<int> chanBinSecond_p;
+    std::vector<int> chanBinSecond_p;
 };
 
 #endif /* ChannelAverageTVITest_H_ */

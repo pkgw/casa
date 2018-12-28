@@ -432,7 +432,7 @@ TEST(ChannelAverageTVIExecuteSimulatedTest, UniformMS)
 ChannelAverageTVISpwChannTest::ChannelAverageTVISpwChannTest() :
     MsFactoryTVITester("ChannelAverageTVIMSSelTest","MSFactoryCreated"),
     useMSSelection_p(false), addPassThroughTVI_p(false), addExtraAvgTVI_p(false),
-    chanBinFirst_p(5)
+    chanBinFirst_p(5), chanBinSecond_p{2,5,0,0}
 {
 }
 
@@ -455,6 +455,11 @@ void ChannelAverageTVISpwChannTest::setChanBinFirstTVI(int chanBinFirst)
 {
     chanBinFirst_p = chanBinFirst;
 }
+void ChannelAverageTVISpwChannTest::setChanBinSecondTVI(std::vector<int>& chanBinSecond)
+{
+    chanBinSecond_p = chanBinSecond;
+}
+
 void ChannelAverageTVISpwChannTest::createTVIs()
 {
     //Setting the parameters to generate a synthetic MS 
@@ -528,11 +533,10 @@ void ChannelAverageTVISpwChannTest::createTVIs()
         casacore::Record configuration2;
         //After the first channel average the number of SPWs has been duplicated
         Array<int> chanArr(IPosition(1,4));
-        chanArr[0] = 2;
-        chanArr[1] = 5;
-        chanArr[2] = 0;
-        chanArr[3] = 0;
-        chanBinSecond_p = chanArr;
+        chanArr[0] = chanBinSecond_p[0];
+        chanArr[1] = chanBinSecond_p[1];
+        chanArr[2] = chanBinSecond_p[2];
+        chanArr[3] = chanBinSecond_p[3];
         configuration2.define ("chanbin", chanArr);
         chanAvgFac2.reset(new ChannelAverageTVILayerFactory(configuration2));
         factories.push_back(chanAvgFac2.get());
@@ -743,8 +747,8 @@ TEST_F(ChannelAverageTVISpwChannTest, MSSelOutputTwoAvgSpwChannelsCheckOutputSpw
     //Check that the number of channels in the first two SPWs is correct.
     //Note that 40 is the number of selected channels from the MS.
     auto & spwcols = vi_p->spectralWindowSubtablecols();
-    int nChannelNewSpw0 = 40 / chanBinFirst_p / chanBinSecond_p(0);
-    int nChannelNewSpw1 = nChannelsOrig_p[1] / chanBinFirst_p / chanBinSecond_p(1);
+    int nChannelNewSpw0 = 40 / chanBinFirst_p / chanBinSecond_p[0];
+    int nChannelNewSpw1 = nChannelsOrig_p[1] / chanBinFirst_p / chanBinSecond_p[1];
     ASSERT_EQ(spwcols.nrow(), (unsigned int)8);
     ASSERT_EQ(spwcols.numChan()(0), nChannelNewSpw0);
     ASSERT_EQ(spwcols.numChan()(1), nChannelNewSpw1);
