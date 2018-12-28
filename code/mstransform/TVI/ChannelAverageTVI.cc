@@ -820,8 +820,14 @@ void ChannelAverageTVI::resetSubtables()
             // potential channel selection in lower TVI layers.
             // spwInpChanIdxMap_p has been initially created
             // by FreqAxisTVI::formChanMap using inputVii_p->getChannels().
-            size_t firstInpChannel = spwInpChanIdxMap_p[outSPW][outChannel * spwChanbinMap_p.at(outSPW)];
-            size_t lastInpChannel = spwInpChanIdxMap_p[outSPW][outChannel * spwChanbinMap_p.at(outSPW) + spwChanbinMap_p.at(outSPW) - 1];
+            size_t firstInpChannelIdx = outChannel * spwChanbinMap_p.at(outSPW);
+            size_t lastInpChannelIdx = firstInpChannelIdx + spwChanbinMap_p.at(outSPW) - 1;
+            // Check if the last output channel was created with less input channels,
+            // which happens if nchannels is not divisible by chanbin
+            if(lastInpChannelIdx >= spwInpChanIdxMap_p[outSPW].size())
+                lastInpChannelIdx = spwInpChanIdxMap_p[outSPW].size() - 1;
+            size_t firstInpChannel = spwInpChanIdxMap_p[outSPW][firstInpChannelIdx];
+            size_t lastInpChannel = spwInpChanIdxMap_p[outSPW][lastInpChannelIdx];
             if (lastInpChannel >= inputFrequencies.size())
                 lastInpChannel = inputFrequencies.size() - 1;
             outputFrequencies[outChannel] = (inputFrequencies[firstInpChannel] +

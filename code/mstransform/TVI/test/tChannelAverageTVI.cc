@@ -302,8 +302,8 @@ TEST(ChannelAverageTVIConfTest, NoChanbinParam)
 
 TEST(ChannelAverageTVIConfTest, WrongChanbinType)
 {
-    //Checks that an exception is thrown if chanbin parameter 
-    //has an invalid type. Only Int and Array<Int> are allowed
+    // Checks that an exception is thrown if chanbin parameter
+    // has an invalid type. Only Int and Array<Int> are allowed
     Record configuration;
     configuration.define ("chanbin", true); //Checking boolean
     ChannelAverageTVIFactory testFactory(configuration, nullptr);
@@ -316,8 +316,8 @@ TEST(ChannelAverageTVIConfTest, WrongChanbinType)
 
 TEST(ChannelAverageTVIConfTest, WrongChanbinValue)
 {
-    //Checks that an exception is thrown if chanbin parameter 
-    //has an invalid value (the string cannot be converted to Array<Int>)
+    // Checks that an exception is thrown if chanbin parameter
+    // has an invalid value (the string cannot be converted to Array<Int>)
     Record configuration;
     configuration.define ("chanbin", "invalid");
     ChannelAverageTVIFactory testFactory(configuration, nullptr);
@@ -326,7 +326,7 @@ TEST(ChannelAverageTVIConfTest, WrongChanbinValue)
 
 TEST(ChannelAverageTVIConfTest, NullInput)
 {
-    //Check that an exception is thrown if the input ViImplementation is null
+    // Check that an exception is thrown if the input ViImplementation is null
     Record configuration;
     configuration.define ("chanbin", 2);
     ChannelAverageTVIFactory testFactory(configuration, nullptr);
@@ -337,8 +337,8 @@ TEST(ChannelAverageTVIConfTest, WrongChanbinForMultipleSpw)
 {
     Record configuration;
     configuration.define ("chanbin", "2,2,2");
-    //Generates a simulated Vi with  nField = 1 , nScan = 1, nSpw = 2, nAnt = 4,
-    //nCorr = 4, nTimePerField = (1), nChan = (10, 10)
+    // Generates a simulated Vi with  nField = 1 , nScan = 1, nSpw = 2, nAnt = 4,
+    // nCorr = 4, nTimePerField = (1), nChan = (10, 10)
     SimpleSimVi2Parameters simParam(1, 1, 2, 4, 4 , 
                                     Vector<Int>(1,1), Vector<Int>(2,10));
     SimpleSimVi2Factory simFactory(simParam);
@@ -462,12 +462,12 @@ void ChannelAverageTVISpwChannTest::setChanBinSecondTVI(std::vector<int>& chanBi
 
 void ChannelAverageTVISpwChannTest::createTVIs()
 {
-    //Setting the parameters to generate a synthetic MS 
+    // Setting the parameters to generate a synthetic MS
     double timeInterval = 10;
     double timeSpan = 100;
     msf_p->setTimeInfo (0, timeSpan, timeInterval);
     msf_p->addAntennas(6);
-    //Adding two spectral windows with different number of channels
+    // Adding two spectral windows with different number of channels
     nChannelsOrig_p = {100, 50};
     initFreqOrig_p = {1e11, 2e11};
     deltaFreqOrig_p = {1e9, 1.2e9};
@@ -478,10 +478,10 @@ void ChannelAverageTVISpwChannTest::createTVIs()
                              initFreqOrig_p[1], deltaFreqOrig_p[1], stokes);
     msf_p->addFeeds (10); //Need antenna and spw to be set up first
 
-    //Creates the synthetic MS 
+    // Creates the synthetic MS
     createMS();
 
-    //If there is selection, create a new MS as a selection on the original one
+    // If there is selection, create a new MS as a selection on the original one
     std::unique_ptr<casacore::MeasurementSet> msSelected;
     std::shared_ptr<vi::FrequencySelectionUsingChannels> freqSel;
     if(useMSSelection_p)
@@ -495,7 +495,7 @@ void ChannelAverageTVISpwChannTest::createTVIs()
         freqSel->add(thisSelection, ms_p.get());
     }
 
-    //Create a VI Factory that access directly the MS (or the selected MS)
+    // Create a VI Factory that access directly the MS (or the selected MS)
     IteratingParameters ipar;
     std::unique_ptr<VisIterImpl2LayerFactory> diskItFac;
     if(useMSSelection_p)
@@ -508,15 +508,15 @@ void ChannelAverageTVISpwChannTest::createTVIs()
     else
         diskItFac.reset(new VisIterImpl2LayerFactory(ms_p.get(),ipar, false));
 
-    //Create a ChannelAverageTVI Factory
+    // Create a ChannelAverageTVI Factory
     std::unique_ptr<ChannelAverageTVILayerFactory> chanAvgFac;
     casacore::Record configuration;
     configuration.define ("chanbin", chanBinFirst_p);
     chanAvgFac.reset(new ChannelAverageTVILayerFactory(configuration));
 
-    //Create a layered factory with all the layers of factories
-    //If requested a PassThroughTVI is added to test that ChannelAverage
-    //forwards properly all the information to layers above
+    // Create a layered factory with all the layers of factories
+    // If requested a PassThroughTVI is added to test that ChannelAverage
+    // forwards properly all the information to layers above
     std::vector<ViiLayerFactory*> factories;
     factories.push_back(diskItFac.get());
     factories.push_back(chanAvgFac.get());
@@ -526,7 +526,7 @@ void ChannelAverageTVISpwChannTest::createTVIs()
         passThroughFactory.reset(new PassThroughTVILayerFactory());
         factories.push_back(passThroughFactory.get());
     }
-    //Add a second averaging layer if requested
+    // Add a second averaging layer if requested
     std::unique_ptr<ChannelAverageTVILayerFactory> chanAvgFac2;
     if(addExtraAvgTVI_p)
     {
@@ -539,7 +539,7 @@ void ChannelAverageTVISpwChannTest::createTVIs()
         factories.push_back(chanAvgFac2.get());
     }
     
-    //Finally create the VI resulting from all the layered TVIs
+    // Finally create the VI resulting from all the layered TVIs
     instantiateVI(factories);
 }
 
@@ -549,8 +549,8 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckOutputSpwChannels)
     size_t nRows = 0;
     size_t nRowsSpw0 = 0;
     size_t nRowsSpw1 = 0;
-    //Check that after averaging with chanbin=5 the first spectral window has 20
-    //channels and the second spectral window has 10 channel
+    // Check that after averaging with chanbin=5 the first spectral window has 20
+    // channels and the second spectral window has 10 channel
     visitIterator([&]() -> void {auto shape = vb_p->visCube().shape(); 
                                  if(allEQ(vb_p->spectralWindows(), 0)) //SPW0 
                                  {
@@ -566,13 +566,13 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckOutputSpwChannels)
                                  ASSERT_EQ(vi_p->nSpectralWindows(), 4);
                                  nRows+=vb_p->visCube().shape()[2];});
 
-    //All the original rows
+    // All the original rows
     size_t expectedRows = 300;
-    //The synthetic MS has half of the rows in each SPW
+    // The synthetic MS has half of the rows in each SPW
     size_t expectedRowsSpw0 = expectedRows / 2; 
     size_t expectedRowsSpw1 = expectedRows / 2;
 
-    //Check that we get the number of expected rows for each spw
+    // Check that we get the number of expected rows for each spw
     ASSERT_EQ(nRows, expectedRows);
     ASSERT_EQ(nRowsSpw0, expectedRowsSpw0);
     ASSERT_EQ(nRowsSpw1, expectedRowsSpw1);
@@ -582,14 +582,14 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckOutputSpwSubtable)
 {
     createTVIs();
 
-    //Check that now the number of SPWs has been duplicated:
-    //the old ones are appended at the end of the SPW table and the new ones
-    //prepended.
-    //After averaging with chanbin=5 the first spectral window has 20
-    //channels and the second spectral window has 10 channel
+    // Check that now the number of SPWs has been duplicated:
+    // the old ones are appended at the end of the SPW table and the new ones
+    // prepended.
+    // After averaging with chanbin=5 the first spectral window has 20
+    // channels and the second spectral window has 10 channel
     auto & spwcols = vi_p->spectralWindowSubtablecols();
 
-    //Some expected values based on settings from ChannelAverageTVISpwChannTest::createTVIs()
+    // Some expected values based on settings from ChannelAverageTVISpwChannTest::createTVIs()
     int nChannelNewSpw0 = nChannelsOrig_p[0] / chanBinFirst_p;
     int nChannelNewSpw1 = nChannelsOrig_p[1] / chanBinFirst_p;
     double initFreqNewSpw0 = initFreqOrig_p[0] + (chanBinFirst_p - 1) * deltaFreqOrig_p[0] / 2.;
@@ -619,15 +619,15 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckOutputSpwSubtable)
     std::fill(freqWidthNewSpw1.begin(), freqWidthNewSpw1.end(), deltaFreqNewSpw1);
     ASSERT_EQ(spwcols.chanWidth()(1).tovector(), freqWidthNewSpw1); // New frequencies widths
 
-    //Effective bandwith and resolution are the same as channel widths
-    //in this case
+    // Effective bandwith and resolution are the same as channel widths
+    // in this case
     ASSERT_EQ(spwcols.effectiveBW()(0).tovector(), freqWidthNewSpw0);
     ASSERT_EQ(spwcols.effectiveBW()(1).tovector(), freqWidthNewSpw1);
 
     ASSERT_EQ(spwcols.resolution()(0).tovector(), freqWidthNewSpw0);
     ASSERT_EQ(spwcols.resolution()(1).tovector(), freqWidthNewSpw1);
 
-    //Check that the new SPWs refer to the old one:
+    // Check that the new SPWs refer to the old one:
     std::vector<int> assocSpwId(1);
     std::vector<String> assocNature(1);
     assocSpwId[0] = 2; //SPW0 refers to SPW2 (old SPW0)
@@ -652,8 +652,8 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckSecondPartialAvgSpwChannelsAndSpwSubt
     // chanbin=(0,5,0,0), the first spectral window (which had 100 channels)
     // has now 20 channels and the second
     // spectral window (which had 50 channnels) has now 2
-    visitIterator([&]() -> void {auto shape = vb_p->visCube().shape(); 
-                                 if(allEQ(vb_p->spectralWindows(), 0)) //SPW0 
+    visitIterator([&]() -> void {auto shape = vb_p->visCube().shape();
+                                 if(allEQ(vb_p->spectralWindows(), 0)) //SPW0
                                  {
                                      nRowsSpw0+=shape[2];
                                      ASSERT_EQ(vb_p->nChannels(), 20);
@@ -667,24 +667,24 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckSecondPartialAvgSpwChannelsAndSpwSubt
                                  ASSERT_EQ(vi_p->nSpectralWindows(), 8);
                                  nRows+=vb_p->visCube().shape()[2];});
 
-    //All the original rows
+    // All the original rows
     size_t expectedRows = 300;
-    //The synthetic MS has half of the rows in each SPW
+    // The synthetic MS has half of the rows in each SPW
     size_t expectedRowsSpw0 = expectedRows / 2;
     size_t expectedRowsSpw1 = expectedRows / 2;
 
-    //Check that we get the number of expected rows for each spw
+    // Check that we get the number of expected rows for each spw
     ASSERT_EQ(nRows, expectedRows);
     ASSERT_EQ(nRowsSpw0, expectedRowsSpw0);
     ASSERT_EQ(nRowsSpw1, expectedRowsSpw1);
 
-    //Check that now the number of SPWs has been duplicated twice (two TVIs):
-    //the old ones are appended at the end of the SPW table and the new ones
-    //prepended.
+    // Check that now the number of SPWs has been duplicated twice (two TVIs):
+    // the old ones are appended at the end of the SPW table and the new ones
+    // prepended.
     auto & spwcols = vi_p->spectralWindowSubtablecols();
     ASSERT_EQ(spwcols.nrow(), (unsigned int)8);
 
-    //The number of channels expected in all the SPWs:
+    // The number of channels expected in all the SPWs:
     int nChannelSpw0 = nChannelsOrig_p[0] / chanBinFirst_p; //Original SPW0 after second TVI (note that chanbin=0 for this SPW)
     int nChannelSpw1 = nChannelsOrig_p[1] / chanBinFirst_p / chanBinSecond_p[1]; // Original SPW1 after second TVI
     int nChannelSpw2 = nChannelsOrig_p[0]; //Copy of original SPW0 after second TVI (note that chanbin=0 for this SPW)
@@ -703,7 +703,7 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckSecondPartialAvgSpwChannelsAndSpwSubt
     ASSERT_EQ(spwcols.numChan()(6), nChannelSpw6);
     ASSERT_EQ(spwcols.numChan()(7), nChannelSpw7);
 
-    //Check that the new SPWs refer to the old one:
+    // Check that the new SPWs refer to the old one:
     std::vector<int> assocSpwId(1);
     assocSpwId[0] = 4; //SPW0 refers to SPW4 (SPW0 after first TVI)
     ASSERT_EQ(spwcols.assocSpwId()(0).tovector(), assocSpwId);
@@ -748,26 +748,26 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckSecondFullAvgSpwChannelsAndSpwSubtabl
                                  ASSERT_EQ(vi_p->nSpectralWindows(), 8);
                                  nRows+=vb_p->visCube().shape()[2];});
 
-    //All the original rows
+    // All the original rows
     size_t expectedRows = 300;
-    //The synthetic MS has half of the rows in each SPW
+    // The synthetic MS has half of the rows in each SPW
     size_t expectedRowsSpw0 = expectedRows / 2;
     size_t expectedRowsSpw1 = expectedRows / 2;
 
-    //Check that we get the number of expected rows for each spw
+    // Check that we get the number of expected rows for each spw
     ASSERT_EQ(nRows, expectedRows);
     ASSERT_EQ(nRowsSpw0, expectedRowsSpw0);
     ASSERT_EQ(nRowsSpw1, expectedRowsSpw1);
 
-    //Check that now the number of SPWs has been duplicated twice (two TVIs):
-    //the old ones are appended at the end of the SPW table and the new ones
-    //prepended.
-    //After averaging with chanbin=5 the first spectral window has 20
-    //channels and the second spectral window has 10 channel
+    // Check that now the number of SPWs has been duplicated twice (two TVIs):
+    // the old ones are appended at the end of the SPW table and the new ones
+    // prepended.
+    // After averaging with chanbin=5 the first spectral window has 20
+    // channels and the second spectral window has 10 channel
     auto & spwcols = vi_p->spectralWindowSubtablecols();
     ASSERT_EQ(spwcols.nrow(), (unsigned int)8);
 
-    //The number of channels expected in all the SPWs:
+    // The number of channels expected in all the SPWs:
     int nChannelSpw0 = 1; //Original SPW0 after second TVI (note that chanbin=1 for this SPW)
     int nChannelSpw1 = 1; // Original SPW1 after second TVI (note that chanbin=1 for this SPW)
     int nChannelSpw2 = nChannelsOrig_p[0]; //Copy of original SPW0 after second TVI (note that chanbin=0 for this SPW)
@@ -786,7 +786,7 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckSecondFullAvgSpwChannelsAndSpwSubtabl
     ASSERT_EQ(spwcols.numChan()(6), nChannelSpw6);
     ASSERT_EQ(spwcols.numChan()(7), nChannelSpw7);
 
-    //Check that the new SPWs refer to the old one:
+    // Check that the new SPWs refer to the old one:
     std::vector<int> assocSpwId(1);
     assocSpwId[0] = 4; //SPW0 refers to SPW4 (SPW0 after first TVI)
     ASSERT_EQ(spwcols.assocSpwId()(0).tovector(), assocSpwId);
@@ -804,25 +804,104 @@ TEST_F(ChannelAverageTVISpwChannTest, CheckSecondFullAvgSpwChannelsAndSpwSubtabl
     ASSERT_EQ(spwcols.assocSpwId()(7).tovector(), std::vector<int>()); //Original assoc was empty
 }
 
-TEST_F(ChannelAverageTVISpwChannTest, LastChannelNotDivisibleCheckOutputSpwSubtable)
+TEST_F(ChannelAverageTVISpwChannTest, LastChannelNotDivisibleCheckSpwChannelsAndOutputSpwSubtable)
 {
-    //This setting will do channel average with a number of input channels
-    //which are not divisible by the chanbin
-    setChanBinFirstTVI(7);
+    // This setting will do channel average with a number of input channels
+    // which are not divisible by the chanbin
+    setChanBinFirstTVI(3);
     createTVIs();
 
-    //Check that the number of channels is correct.
-    //The +1 is to account for the last residual channel
-    auto & spwcols = vi_p->spectralWindowSubtablecols();
-    int nChannelNewSpw0 = nChannelsOrig_p[0] / chanBinFirst_p + 1;
-    int nChannelNewSpw1 = nChannelsOrig_p[1] / chanBinFirst_p + 1;
-    ASSERT_EQ(spwcols.nrow(), (unsigned int)4);
-    ASSERT_EQ(spwcols.numChan()(0), nChannelNewSpw0); //SPW0, old SPW0 already averaged
-    ASSERT_EQ(spwcols.numChan()(1), nChannelNewSpw1); //SPW1, old SPW1 already averaged
+    size_t nRows = 0;
+    size_t nRowsSpw0 = 0;
+    size_t nRowsSpw1 = 0;
+    // Check that after averaging with chanbin=3,
+    // the first spectral window (which had 100 channels)
+    // has now 34 channels (33 with a 3-channel average and 1 with just one channel)
+    // and the second spectral window (which had 50 channnels) has now
+    // 17 channels (16 with a 3-channel average and the last one with two channels)
+    visitIterator([&]() -> void {auto shape = vb_p->visCube().shape();
+                                 if(allEQ(vb_p->spectralWindows(), 0)) //SPW0
+                                 {
+                                     nRowsSpw0+=shape[2];
+                                     ASSERT_EQ(vb_p->nChannels(), 34);
+                                 }
+                                 else if(allEQ(vb_p->spectralWindows(), 1)) //SPW1
+                                 {
+                                     nRowsSpw1+=shape[2];
+                                     ASSERT_EQ(vb_p->nChannels(), 17);
+                                 }
+                                 //The TVI duplicates the existing SPWs (CAS-10294)
+                                 ASSERT_EQ(vi_p->nSpectralWindows(), 4);
+                                 nRows+=vb_p->visCube().shape()[2];});
 
-    //Check that the last frequency width is less than the rest
-    Vector<double> chanWidths = spwcols.chanWidth()(0);
-    ASSERT_LT(chanWidths(nChannelNewSpw0-1), chanWidths(nChannelNewSpw0-2));
+    // All the original rows
+    size_t expectedRows = 300;
+    // The synthetic MS has half of the rows in each SPW
+    size_t expectedRowsSpw0 = expectedRows / 2;
+    size_t expectedRowsSpw1 = expectedRows / 2;
+
+    // Check that we get the number of expected rows for each spw
+    ASSERT_EQ(nRows, expectedRows);
+    ASSERT_EQ(nRowsSpw0, expectedRowsSpw0);
+    ASSERT_EQ(nRowsSpw1, expectedRowsSpw1);
+
+    // Check that now the number of SPWs has been duplicated
+    // the old ones are appended at the end of the SPW table and the new ones
+    // prepended.
+    auto & spwcols = vi_p->spectralWindowSubtablecols();
+    ASSERT_EQ(spwcols.nrow(), (unsigned int)4);
+
+    // The number of channels expected in all the SPWs.
+    // The ceil function ensures that the remainder not divisible channels create an extra SPW
+    int nChannelSpw0 = std::ceil(nChannelsOrig_p[0] / (float)chanBinFirst_p); //Original SPW0 after first TVI
+    int nChannelSpw1 = std::ceil(nChannelsOrig_p[1] / (float)chanBinFirst_p); //Original SPW0 after firstTVI
+    int nChannelSpw2 = nChannelsOrig_p[0]; //Copy of original SPW0
+    int nChannelSpw3 = nChannelsOrig_p[1]; //Copy of original SPW1
+
+    ASSERT_EQ(spwcols.numChan()(0), nChannelSpw0);
+    ASSERT_EQ(spwcols.numChan()(1), nChannelSpw1);
+    ASSERT_EQ(spwcols.numChan()(2), nChannelSpw2);
+    ASSERT_EQ(spwcols.numChan()(3), nChannelSpw3);
+
+    // Check that the frequencies are the expected ones
+    double initFreqNewSpw0 = initFreqOrig_p[0] + (chanBinFirst_p - 1) * deltaFreqOrig_p[0] / 2.;
+    double deltaFreqNewSpw0 = deltaFreqOrig_p[0] * chanBinFirst_p;
+    double initFreqNewSpw1 = initFreqOrig_p[1] + (chanBinFirst_p - 1) * deltaFreqOrig_p[1] / 2.;
+    double deltaFreqNewSpw1 = deltaFreqOrig_p[1] * chanBinFirst_p;
+
+    std::vector<double> freqNewSpw0(nChannelSpw0);
+    for(int i = 0 ; i<nChannelSpw0 ; i++)
+        freqNewSpw0[i] = initFreqNewSpw0 + i * deltaFreqNewSpw0;
+    // The last frequency is lower than what it should correspond
+    // (initFreqNewSpw0 + (nChannelSpw0 - 1) * deltaFreqNewSpw0)
+    // because it has been averaged with less channels. The difference between the two
+    // is the difference in the partial sum of i from 0 to n, where n is the number of
+    // averaged channels. This is origDeltaFreq / 2. * (chanbin - chanbin_this channel)
+    freqNewSpw0[nChannelSpw0-1] = initFreqNewSpw0 + (nChannelSpw0 - 1) * deltaFreqNewSpw0 -
+        deltaFreqNewSpw0 / chanBinFirst_p / 2. * (chanBinFirst_p - nChannelsOrig_p[0] % chanBinFirst_p);
+    ASSERT_EQ(spwcols.chanFreq()(0).tovector(), freqNewSpw0); // New frequencies
+    std::vector<double> freqNewSpw1(nChannelSpw1);
+    for(int i = 0 ; i<nChannelSpw1 ; i++)
+        freqNewSpw1[i] = initFreqNewSpw1 + i * deltaFreqNewSpw1;
+    // As before the last frequency has to be adjusted.
+    freqNewSpw1[nChannelSpw1-1] = initFreqNewSpw1 + (nChannelSpw1 - 1) * deltaFreqNewSpw1 -
+        deltaFreqNewSpw1 / chanBinFirst_p / 2. * (chanBinFirst_p - nChannelsOrig_p[1] % chanBinFirst_p);
+    ASSERT_EQ(spwcols.chanFreq()(1).tovector(), freqNewSpw1); // New frequencies
+
+    std::vector<double> freqWidthNewSpw0(nChannelSpw0);
+    std::fill(freqWidthNewSpw0.begin(), freqWidthNewSpw0.end(), deltaFreqNewSpw0);
+    // The last channel has a fraction of the other channels' width
+    freqWidthNewSpw0[nChannelSpw0-1] = (nChannelsOrig_p[0] % chanBinFirst_p) * deltaFreqNewSpw0 / chanBinFirst_p;
+    ASSERT_EQ(spwcols.chanWidth()(0).tovector(), freqWidthNewSpw0); // New frequencies widths
+    // Check that the last frequency width is less than the rest
+    ASSERT_LT(freqWidthNewSpw0[nChannelSpw0-1], freqWidthNewSpw0[nChannelSpw0-2]);
+    std::vector<double> freqWidthNewSpw1(nChannelSpw1);
+    std::fill(freqWidthNewSpw1.begin(), freqWidthNewSpw1.end(), deltaFreqNewSpw1);
+    // The last channel has a fraction of the other channels' width
+    freqWidthNewSpw1[nChannelSpw1-1] = (nChannelsOrig_p[1] % chanBinFirst_p) * deltaFreqNewSpw1  / chanBinFirst_p;
+    ASSERT_EQ(spwcols.chanWidth()(1).tovector(), freqWidthNewSpw1); // New frequencies widths
+    // Check that the last frequency width is less than the rest
+    ASSERT_LT(freqWidthNewSpw1[nChannelSpw1-1], freqWidthNewSpw0[nChannelSpw1-2]);
 }
 
 TEST_F(ChannelAverageTVISpwChannTest, CheckMSSelOutputSpwChannels)
