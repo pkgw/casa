@@ -67,7 +67,7 @@ using namespace std;
 //   debuglog << "Any message" << any_value << debugpost;
 //
   
-     #define DIRECTIONCALC_DEBUG
+//   #define DIRECTIONCALC_DEBUG
 
 namespace {
 struct NullLogger {
@@ -383,13 +383,11 @@ void PointingDirectionCalculator::splineInit()
 
         uInt numAnt = allNumAntennaBoundary_ -1;
 
-    // prepere MS handle
-    //  to access time and direction
+    // prepere MS handle from selectedMS_
 
-        MSPointing hPointing  = selectedMS_->pointing();
         std::unique_ptr<casacore::ROMSPointingColumns>
-                columnPointing( new casacore::ROMSPointingColumns( hPointing ));
-        
+                columnPointing( new casacore::ROMSPointingColumns( hPointing_ ));
+
     // Prepare Time and direction//
 
       Vector<Vector<Double> >          tmp_time;
@@ -420,14 +418,11 @@ void PointingDirectionCalculator::splineInit()
             // resizei (for Dir) //
             tmp_dir[ant][index].resize(2);
 
-            // values //
-#if 0
-            Double time           = pointingTimeUTC_[index];
-            MDirection     dir    = accessor_(*pointingColumns_, index);
-#else 
+            // values (28-DEC-2018 Columns handle refers sorted Table) //
+
             Double        time    = (columnPointing->time()).get(index);
             MDirection     dir    = accessor_(*columnPointing, index);
-#endif 
+
             Vector<Double> dirVal = dir.getAngle("rad").getValue();
 
             // set on Vector //
@@ -532,11 +527,25 @@ void  PointingDirectionCalculator::initializeSplineInterpolation()
         allAntennaBoundary_[countP] = 0;
         ++countP;
 
-        // Look at Pointing Table, here using original CASACORE call. //
+        // (NEW) 28-DEC-2018
+        // Pointing Table Handle and the Columns Handle//
+        //   with sorting by AntennaID and Time 
 
-        MSPointing hPointing  = selectedMS_->pointing();
+        MSPointing hPointing_org  = selectedMS_->pointing();
+
+        Block<String> sortColumns(2);
+        sortColumns[0]="ANTENNA_ID";
+        sortColumns[1]="TIME";
+
+        MSPointing hPointingTmp(hPointing_org.sort(sortColumns));
+        hPointing_ = hPointingTmp;
+
+        // Column Handle (sorted) 
+
         std::unique_ptr<casacore::ROMSPointingColumns>
-                columnPointing( new casacore::ROMSPointingColumns( hPointing ));
+                columnPointing( new casacore::ROMSPointingColumns( hPointing_ ));
+
+        // Antenna List 
 
         ROScalarColumn<casacore::Int>  antennaColumnP = columnPointing->antennaId();  
         Vector<Int> antennaListP =  antennaColumnP.getColumn();
@@ -546,12 +555,9 @@ void  PointingDirectionCalculator::initializeSplineInterpolation()
         Int lastAntP = antennaListP[0];
 
         //+
-        //(PROGRAM ROBUSTNESS)
-        //
-        // Antenna List Scan as done in original code //
-        //  - This section must be Robust.
-        //  - In case irregular table structure is detected ,exit and...
-        //     disable SPLINE and optionally inform this event. 
+        //(RENEW)
+        // Making AntennaBoudary (using Sorted Pointing Table)
+        //  In case irregular allignment is found, ABORT.      
         //- 
      
         for (uInt i = 0; i < nrowP; ++i) 
@@ -571,7 +577,7 @@ void  PointingDirectionCalculator::initializeSplineInterpolation()
                 printf( "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \n" );
                 fgSpline = false; // FORCE DISABLE//
 
-                return; // ABORT and Ignore //
+                throw; // ABORT and Ignore //
             }
         }
 
@@ -816,7 +822,6 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
             else if (index > (Int)(nrowPointing-1) )   uIndex = nrowPointing-1;
             else { printf( "BUGCHECK\n");  throw; } 
 
-            printf("calling splineCalulate(uIndex, dtime, antID )\n"); 
             Vector<Double> ttDir = splineCalulate(uIndex, dtime, antID );
 
             interpolated[0] = ttDir[0]; // 3rd. order Spline

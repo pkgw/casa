@@ -318,6 +318,10 @@ private:
     // new: Spline (CAS-8418)
     //-
 
+      // Sorted Pointing Table (new 28-DEC-2018)
+
+        casacore::MSPointing 	hPointing_;
+
       // Copied AntennaBoundary (new since 12/14 to support multiple Antenna set.) 
 
         casacore::Vector<casacore::uInt>            allAntennaBoundary_;

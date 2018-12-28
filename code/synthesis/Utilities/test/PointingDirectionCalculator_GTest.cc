@@ -2787,100 +2787,103 @@ TEST_F(TestDirection, CompareInterpolation )
                           , "sdimaging/Uranus1.cal.Ant0.spw34.ms"
                           , "sdimaging/Uranus2.cal.Ant0.spw34.ms"
                           , "listobs/uid___X02_X3d737_X1_01_small.ms" };
-    // Direction 
-      Matrix<Double>  DirList1; // for Linear
-      Matrix<Double>  DirList2; // for Spline
 
-    uInt fno = 1;
+    for(uInt fno=0; fno<MsList.size(); fno++)
     {
-      // selected MS name //
-      String name = env.getCasaMasterPath()+MsList[fno]; 
-      printf( "MS[%s] is used. \n",name.c_str() );
+        // Direction 
+        Matrix<Double>  DirList1; // for Linear
+        Matrix<Double>  DirList2; // for Spline
 
-      // Create Object //
-      MeasurementSet ms0( name.c_str() );
-      PointingDirectionCalculator calc(ms0);
+        // selected MS name //
+        String name = env.getCasaMasterPath()+MsList[fno]; 
+        printf( "MS[%s] is used. \n",name.c_str() );
 
-      //+
-      // setDirectionColumn() 
-      //-
+        // Create Object //
+        MeasurementSet ms0( name.c_str() );
+        PointingDirectionCalculator calc(ms0);
+
+        //+
+        // setDirectionColumn() 
+        //-
 
         String ColName = "DIRECTION";
         Description( "getDirectionColumn()", ColName  );
         calc.setDirectionColumn( ColName ) ;
 
-      //+
-      //  MatrixShape (COLUMN_MAJOR) 
-      //-
+        //+
+        //  MatrixShape (COLUMN_MAJOR) 
+        //-
 
         Description("calling setDirectionListMatrixShape()" ,"Column Major" );
         calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ;
 
-      //+
-      // setFrame()
-      //-
-
-        String FrameName= "AZELGEO";
-        calc.setFrame( FrameName );
-
-      if(true)
-      {
-     
-        // Set Interporation Mode //
-         
-        calc.setSplineInterpolation(false);
-        
         //+
-        //  getDirection()
+        // setFrame()
         //-
+
+        if(true)
+        {
+            String FrameName= "AZELGEO";
+            calc.setFrame( FrameName );
+        }
+
+        if(true)
+        {
+     
+            // Set Interporation Mode //
+         
+            calc.setSplineInterpolation(false);
+        
+            //+
+            //  getDirection()
+            //-
           
-        Description("calling getDirection()" ,"#1" );
+            Description("calling getDirection()" ,"#1" );
          
-        DirList1  = calc.getDirection();
-        size_t   n_col    = DirList1.ncolumn();
-        size_t   n_row    = DirList1.nrow();
+            DirList1  = calc.getDirection();
+            size_t   n_col    = DirList1.ncolumn();
+            size_t   n_row    = DirList1.nrow();
          
-        printf( "getDirection()::Number of Row = %zu \n", n_row );
-        printf( "getDirection()::Number of Col = %zu \n", n_col );
+            printf( "getDirection()::Number of Row = %zu \n", n_row );
+            printf( "getDirection()::Number of Col = %zu \n", n_col );
     
-      }
+        }
 
-      if(true)
-      {
+        if(true)
+        {
 
-        // Set Interporation Mode //
+            // Set Interporation Mode //
 
-        calc.setSplineInterpolation(true);
+            calc.setSplineInterpolation(true);
 
-       //+
-       //  getDirection()
-       //-
+            //+
+            //  getDirection()
+            //-
 
-         Description("calling getDirection()" ,"#2" );
+            Description("calling getDirection()" ,"#2" );
  
-         DirList2  = calc.getDirection();
-         size_t   n_col    = DirList2.ncolumn();
-         size_t   n_row    = DirList2.nrow();
+            DirList2  = calc.getDirection();
+            size_t   n_col    = DirList2.ncolumn();
+            size_t   n_row    = DirList2.nrow();
  
-         printf( "getDirection()::Number of Row = %zu \n", n_row );
-         printf( "getDirection()::Number of Col = %zu \n", n_col );
+            printf( "getDirection()::Number of Row = %zu \n", n_row );
+            printf( "getDirection()::Number of Col = %zu \n", n_col );
+        }
 
-      }
+        uInt size = DirList1.nrow();
+        for( uint row=0; row<size; row++)
+        {
+            Double er1 = DirList2(row,0) - DirList1(row,0);
+            Double er2 = DirList2(row,1) - DirList1(row,1);
 
-      uInt size = DirList1.nrow();
-      for( uint row=0; row<size; row++)
-      {
-        Double er1 = DirList2(row,0) - DirList1(row,0);
-        Double er2 = DirList2(row,1) - DirList1(row,1);
-
-        printf("row[%4d] ", row );
-        printf("Dir1=, %f,%f  ,", DirList1(row,0),DirList1(row,1) ); 
-        printf("Dir2=, %f,%f  ,", DirList2(row,0),DirList2(row,1) );
-        printf("Err =, %f,%f \n", er1, er2 );
-      }
+            printf("row[%4d] ", row );
+            printf("Dir1=, %f,%f  ,", DirList1(row,0),DirList1(row,1) ); 
+            printf("Dir2=, %f,%f  ,", DirList2(row,0),DirList2(row,1) );
+            printf("Err =, %f,%f \n", er1, er2 );
+        }
     }
-
 }
+
 /*---------------------------------------------------
     getDirection  with uvw data dump,
      - Ordinary (standard sequence) 
