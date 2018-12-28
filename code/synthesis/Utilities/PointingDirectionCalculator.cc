@@ -67,7 +67,7 @@ using namespace std;
 //   debuglog << "Any message" << any_value << debugpost;
 //
   
-//   #define DIRECTIONCALC_DEBUG
+     #define DIRECTIONCALC_DEBUG
 
 namespace {
 struct NullLogger {
@@ -815,7 +815,8 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
             if( index >=1 )  uIndex = index-1;
             else if (index > (Int)(nrowPointing-1) )   uIndex = nrowPointing-1;
             else { printf( "BUGCHECK\n");  throw; } 
- 
+
+            printf("calling splineCalulate(uIndex, dtime, antID )\n"); 
             Vector<Double> ttDir = splineCalulate(uIndex, dtime, antID );
 
             interpolated[0] = ttDir[0]; // 3rd. order Spline

@@ -329,7 +329,7 @@ private:
 
       // Spline control
 
-        bool fgSpline = true; // DEFAULT ..
+        bool fgSpline = false; // DEFAULT ..
         SDPosInterpolator  sdp_();
 
       // Spline Functions
