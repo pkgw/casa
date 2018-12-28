@@ -532,11 +532,8 @@ void ChannelAverageTVISpwChannTest::createTVIs()
     {
         casacore::Record configuration2;
         //After the first channel average the number of SPWs has been duplicated
-        Array<int> chanArr(IPosition(1,4));
-        chanArr[0] = chanBinSecond_p[0];
-        chanArr[1] = chanBinSecond_p[1];
-        chanArr[2] = chanBinSecond_p[2];
-        chanArr[3] = chanBinSecond_p[3];
+        Array<int> chanArr(IPosition(1,chanBinSecond_p.size()));
+        std::copy(chanBinSecond_p.begin(), chanBinSecond_p.end(), chanArr.begin());
         configuration2.define ("chanbin", chanArr);
         chanAvgFac2.reset(new ChannelAverageTVILayerFactory(configuration2));
         factories.push_back(chanAvgFac2.get());
