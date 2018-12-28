@@ -856,6 +856,14 @@ void ChannelAverageTVI::resetSubtables()
         newSPWSubtablecols_p->assocSpwId().put(outSPW, assocSPWId);
         newSPWSubtablecols_p->assocNature().put(outSPW, assocSPWNature);
     }
+    // Adjust existing assocSpwId for the originally copied SPWs.
+    // The SPWId they were pointing to have been shifted downwards
+    // in the table and now have an Id "nrowSPW" higher
+    for(size_t outSPW = nrowSPW ; outSPW < 2* nrowSPW; outSPW++)
+    {
+        Array<Int> adjustedAssocSpwId = newSPWSubtablecols_p->assocSpwId()(outSPW) + (Int)nrowSPW;
+        newSPWSubtablecols_p->assocSpwId().put(outSPW, adjustedAssocSpwId);
+    }
 }
 
 // -----------------------------------------------------------------------
