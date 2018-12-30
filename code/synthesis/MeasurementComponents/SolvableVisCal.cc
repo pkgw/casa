@@ -7283,7 +7283,7 @@ void SolvableVisJones::fluxscale(const String& outfile,
                     << LogIO::POST;    
           myfitorder = 1;
          }
-         else if (nValidFlux==2) {
+         else if (nValidFlux==2 && fitorder>1) {
           logSink() << LogIO::WARN
                    << "Not enough number of valid flux density data for the requested fitorder:"<<fitorder
                    << ". Use fitorder=1." <<LogIO::POST;
