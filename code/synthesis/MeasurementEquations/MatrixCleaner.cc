@@ -359,10 +359,9 @@ Int MatrixCleaner::clean(Matrix<Float>& model,
 
   AlwaysAssert(itsScalesValid, AipsError);
   ////no need to use all cores if possible
-  Int nth=nScalesToClean;
 #ifdef _OPENMP
   
-    nth=min(nth, omp_get_max_threads());
+    Int nth=min(nth, omp_get_max_threads());
  
  #endif 
   // Find the peaks of the convolved Psfs

@@ -1353,7 +1353,6 @@ namespace casa{
     l1[0] = l1[1] = 0.0;
     l1[2] = a->legapex;
     phi = atan2(r0[1], r0[0]);
-    phi=phi;
     for(n = 0; n < 4; n++)
       {
 	theta = thetalut[n];
@@ -1413,7 +1412,6 @@ namespace casa{
     l1[0] = l1[1] = 0.0;
     l1[2] = a->legapex;
     phi = atan2(r0[1], r0[0]);
-    phi=phi;
     for(n = 0; n < 4; n++)
       {
 	theta = thetalut[n];
@@ -1467,12 +1465,12 @@ namespace casa{
   
   Int BeamCalc::calculateAperture(ApertureCalcParams *ap)
   {
-    Complex fp, Exr, Eyr, Exl, Eyl;
+    //Complex fp;
     Complex Er[3], El[3];
     Complex Pr[2], Pl[2]; 
     Complex q[2];
     //Double dx, dy, Rhole, Rant, x0, y0, R2, H2, eps;
-    Complex rr, rl, lr, ll, tmp;
+    //Complex rr, rl, lr, ll, tmp;
     Double L0, phase;
     Double sp, cp;
     Double B[3][3];
@@ -1730,12 +1728,12 @@ namespace casa{
   //
   Int BeamCalc::calculateAperture(ApertureCalcParams *ap, const Int& whichPoln)
   {
-    Complex fp, Exr, Eyr, Exl, Eyl;
+    //Complex fp, Exr, Eyr, Exl, Eyl;
     Complex Er[3], El[3];
     Complex Pr[2], Pl[2]; 
     Complex q[2];
     //Double dx, dy, Rhole, Rant;//x0, y0, R2, H2, eps;
-    Complex rr, rl, lr, ll, tmp;
+    //Complex rr, rl, lr, ll, tmp;
     Double L0, phase;
     Double sp, cp;
     Double B[3][3];
@@ -2093,9 +2091,10 @@ namespace casa{
     // cerr << "max threads " << omp_get_max_threads() 
     // 	 << " threads available " << omp_get_num_threads() 
     // 	 << endl;
-    Int Nth=1, localWhichPoln=whichPoln;
+    // Int Nth=1, 
+    Int localWhichPoln=whichPoln;
 #ifdef _OPENMP
-    Nth=max(omp_get_max_threads()-2,1);
+    Int Nth=max(omp_get_max_threads()-2,1);
 #endif
     // Timer tim;
     // tim.mark();

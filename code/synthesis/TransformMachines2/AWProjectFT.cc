@@ -1700,7 +1700,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Int NAnt;
     if (doPointing) NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
-    NAnt=NAnt;  // Dummy statement to supress complier warnings and will be used when pointing offsets are used.
     //
     // If row is -1 then we pass through all rows
     //
@@ -1827,7 +1826,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Nant_p     = vb.subtableColumns().antenna().nrow();
     Int NAnt=0;
     if (doPointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
-    NAnt=NAnt;  // Dummy statement to supress complier warnings and will be used when pointing offsets are used.
     
     // Get the uvws in a form that Fortran can use
     Matrix<Double> uvw(negateUV(vb));

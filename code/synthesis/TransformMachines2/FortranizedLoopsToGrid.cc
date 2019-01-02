@@ -30,7 +30,7 @@
 {
   timer_p.mark();
   //  T *gridPtr;
-  Complex *cfPtr, *phaseGradPtr,typeComplex;
+  Complex *cfPtr, *phaseGradPtr;
   Int *supportPtr, *cfShapePtr,
     *locPtr, *igrdposPtr, *ilocPtr, *tilocPtr,
     *convOriginPtr;

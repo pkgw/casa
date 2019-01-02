@@ -115,12 +115,12 @@ private:
     casacore::Int nt_;
     casacore::Int nPadT_;
     casacore::Int nChan_;
-    casacore::Int nSPWChan_;
+    //casacore::Int nSPWChan_;
     casacore::Int nPadChan_;
     casacore::Int nElem_;
     casacore::Double dt_, f0_, df_, df_all_;
-    casacore::Double t0_, t1_;
-    casacore::Double padBW_;
+    //casacore::Double t0_, t1_;
+    //casacore::Double padBW_;
     casacore::Array<casacore::Complex> Vpad_;
     casacore::Array<casacore::Int> xcount_;
     casacore::Array<casacore::Float> sumw_;
