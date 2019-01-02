@@ -1818,8 +1818,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     findConvFunction(*image, vb);
     
     Nant_p     = vb.msColumns().antenna().nrow();
-    Int NAnt=0;
-    if (doPointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
+    // NAnt set but not used
+    //Int NAnt=0;
+    //if (doPointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
     
     // Get the uvws in a form that Fortran can use
     Matrix<Double> uvw(3, vb.uvw().nelements());

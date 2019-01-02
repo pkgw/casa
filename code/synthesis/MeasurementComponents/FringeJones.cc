@@ -1483,7 +1483,7 @@ print_max_gsl3(gsl_vector *v)
     double rat_max = 0.0;
         
     const size_t n = v->size;
-    for (int i=0; i!=n/3; i++) {
+    for (size_t i=0; i!=n/3; i++) {
         if (fabs(gsl_vector_get(v, 3*i+0)) > fabs(phi_max)) phi_max = gsl_vector_get(v, 3*i+0);
         if (fabs(gsl_vector_get(v, 3*i+1)) > fabs(del_max)) del_max = gsl_vector_get(v, 3*i+1);
         if (fabs(gsl_vector_get(v, 3*i+2)) > fabs(rat_max)) rat_max = gsl_vector_get(v, 3*i+2);

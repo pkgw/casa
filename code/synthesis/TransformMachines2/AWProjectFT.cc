@@ -1697,9 +1697,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Cube<Int> flags;
     Matrix<Float> elWeight;
     interpolateFrequencyTogrid(vb, *imagingweight,data, flags, elWeight, type);
-
-    Int NAnt;
-    if (doPointing) NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
+    // nAnt set but not used
+    // Int NAnt;
+    // if (doPointing) NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
     //
     // If row is -1 then we pass through all rows
     //
@@ -1824,8 +1824,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     findConvFunction(*image, vb);
     
     Nant_p     = vb.subtableColumns().antenna().nrow();
-    Int NAnt=0;
-    if (doPointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
+    // NAnt set but not used
+    // Int NAnt=0;
+    // if (doPointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
     
     // Get the uvws in a form that Fortran can use
     Matrix<Double> uvw(negateUV(vb));
