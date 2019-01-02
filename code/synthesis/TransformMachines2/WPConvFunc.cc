@@ -295,6 +295,7 @@ void WPConvFunc::findConvFunction(const ImageInterface<Complex>& image,
      Int wstart=planesPerChunk*chunkId;
      Int wend=wstart+chunksize(chunkId)-1;
 #ifdef _OPENMP
+     Int cpWConvSize=wConvSize;
      omp_set_nested(0);
 #endif
 #pragma omp parallel for default(none) firstprivate(cpWConvSize, cpConvSize, convFuncPtr, s0, s1, wsaveptr, lsav, cor, inner, cpWscale,  wstart, wend) 
