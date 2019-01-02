@@ -1469,7 +1469,8 @@ namespace casa{
   
   Int BeamCalc::calculateAperture(ApertureCalcParams *ap)
   {
-    //Complex fp;
+    // not used
+    // Complex fp, Exr, Eyr, Exl, Eyl;
     Complex Er[3], El[3];
     Complex Pr[2], Pl[2]; 
     Complex q[2];
@@ -2095,10 +2096,9 @@ namespace casa{
     // cerr << "max threads " << omp_get_max_threads() 
     // 	 << " threads available " << omp_get_num_threads() 
     // 	 << endl;
-    // Int Nth=1, 
-    Int localWhichPoln=whichPoln;
+    Int Nth=1, localWhichPoln=whichPoln;
 #ifdef _OPENMP
-    Int Nth=max(omp_get_max_threads()-2,1);
+    Nth=max(omp_get_max_threads()-2,1);
 #endif
     // Timer tim;
     // tim.mark();
