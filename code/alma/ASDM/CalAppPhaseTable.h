@@ -41,22 +41,18 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
 
 	
-#include "CBasebandName.h"
-	
-
-	
-
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
@@ -105,20 +101,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -208,14 +208,14 @@ class CalAppPhaseRow;
 	
  * <TR>
  * <TD> adjustToken </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;A parameter supplied via the \c ParameterTuning interface to indicate the form of adjustment(s) made at adjustTime. Note that TELCAL merely passes this datum and adjustTime through to this table. </TD>
  * </TR>
 	
  * <TR>
  * <TD> phasingMode </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;The mode in which the phasing system is being operated. </TD>
  * </TR>
@@ -229,7 +229,7 @@ class CalAppPhaseRow;
 	
  * <TR>
  * <TD> phasedAntennas </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numPhasedAntennas </TD> 
  * <TD> &nbsp;the names of the phased antennas. </TD>
  * </TR>
@@ -250,7 +250,7 @@ class CalAppPhaseRow;
 	
  * <TR>
  * <TD> phasePacking </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;how to unpack \c phaseValues. </TD>
  * </TR>
@@ -278,7 +278,7 @@ class CalAppPhaseRow;
 	
  * <TR>
  * <TD> phaseValues </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numPhaseValues </TD> 
  * <TD> &nbsp;the array of phase data values. </TD>
  * </TR>
@@ -299,35 +299,35 @@ class CalAppPhaseRow;
 	
  * <TR>
  * <TD> compareArray </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numCompare </TD> 
  * <TD> &nbsp;the names of the comparison antennas. </TD>
  * </TR>
 	
  * <TR>
  * <TD> efficiencyIndices </TD> 
- * <TD> vector<int > </TD>
+ * <TD> std::vector<int > </TD>
  * <TD>  numEfficiencies </TD> 
  * <TD> &nbsp;indices of the antenna(s) in \c compareArray used to calculate \c efficiencies; they must be distinct integers in the interval \f$[0, N_c]\f$. </TD>
  * </TR>
 	
  * <TR>
  * <TD> efficiencies </TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numEfficiencies, numChannels </TD> 
  * <TD> &nbsp;an array of efficiencies of phased sum. </TD>
  * </TR>
 	
  * <TR>
  * <TD> quality </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numPhasedAntennas+numCompare </TD> 
  * <TD> &nbsp;quality of phased antennas. </TD>
  * </TR>
 	
  * <TR>
  * <TD> phasedSumAntenna </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the phased sum antenna. </TD>
  * </TR>
@@ -338,7 +338,7 @@ class CalAppPhaseRow;
 	
  * <TR>
  * <TD> typeSupports</TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; encoding of supporting data values. </TD>
  * </TR>
@@ -352,7 +352,7 @@ class CalAppPhaseRow;
 	
  * <TR>
  * <TD> phaseSupports</TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numSupports  </TD>
  * <TD>&nbsp; an array of supporting data values. </TD>
  * </TR>
@@ -544,7 +544,7 @@ public:
  	 * @param phasedSumAntenna
 	
      */
-	CalAppPhaseRow *newRow(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna);
+	CalAppPhaseRow *newRow(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, std::string adjustToken, std::string phasingMode, int numPhasedAntennas, std::vector<std::string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, std::string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<std::string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, std::string phasedSumAntenna);
 	
 
 
@@ -686,7 +686,7 @@ public:
  	 * @param phasedSumAntenna
  	 		 
  	 */
-	CalAppPhaseRow* lookup(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna); 
+	CalAppPhaseRow* lookup(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, std::string adjustToken, std::string phasingMode, int numPhasedAntennas, std::vector<std::string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, std::string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<std::string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, std::string phasedSumAntenna); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

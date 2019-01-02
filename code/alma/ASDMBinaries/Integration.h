@@ -1,11 +1,9 @@
 #if     !defined(_INTEGRATION_H)
 
 #include <vector>
-#include <CorrelationMode.h>
-#include <AxisName.h>
-#include <NetSideband.h>
-
-using namespace std;
+#include <alma/Enumtcl/CorrelationMode.h>
+#include <alma/Enumtcl/AxisName.h>
+#include <alma/Enumtcl/NetSideband.h>
 
 namespace sdmbin {
 
@@ -57,10 +55,10 @@ namespace sdmbin {
     */
     DataStructure(  uint32_t      numPolProduct,     //!< Number of polarization products
 		    uint32_t      numBin,            //!< Number of step in a switching cycle
-		    Enum<NetSideband> e_sideband,        //!< Sideband qualifier (not set or NOSB | LSB | USB | DSB )
+		    Enum<NetSidebandMod::NetSideband> e_sideband,        //!< Sideband qualifier (not set or NOSB | LSB | USB | DSB )
 		    uint32_t      numBaseband,       //!< Number of basebands
 		    uint32_t      numAnt,            //!< Number of antennas
-		    CorrelationMode   correlationMode);  //!< Correlation mode (CROSS_ONLY | AUTO_ONLY | CROSS_AND_AUTO )
+		    CorrelationModeMod::CorrelationMode   correlationMode);  //!< Correlation mode (CROSS_ONLY | AUTO_ONLY | CROSS_AND_AUTO )
 
     /** An other constructor  for a multi-dimensional structure use-case.
 	Determine the property of the structure.
@@ -86,10 +84,10 @@ namespace sdmbin {
     DataStructure(  uint32_t      numPolProduct,
 		    uint32_t      numSpectralPoint,
 		    uint32_t      numBin,
-		    Enum<NetSideband> e_sideband,
+		    Enum<NetSidebandMod::NetSideband> e_sideband,
 		    uint32_t      numBaseband,
 		    uint32_t      numAnt,
-		    CorrelationMode   correlationMode);
+		    CorrelationModeMod::CorrelationMode   correlationMode);
 
     /** Constructor in the general case, the data structure being eventualy
 	a tree-hierarchy. Determine the property of the structure.
@@ -117,16 +115,16 @@ namespace sdmbin {
 	     - AUTO_ONLY       only zero baselines (single-dish)
 	     - CROSS_AND_AUTO  both zero and non-zero.
     */
-    DataStructure( vector<vector<uint32_t> >       vv_numCrossPolProduct,// /bb/spw
-		   vector<vector<uint32_t> >       vv_numAutoPolProduct, // /bb/spw
-		   vector<vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
-		   vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-		   vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
+    DataStructure( std::vector<std::vector<uint32_t> >       vv_numCrossPolProduct,// /bb/spw
+		   std::vector<std::vector<uint32_t> >       vv_numAutoPolProduct, // /bb/spw
+		   std::vector<std::vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
+		   std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+		   std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
 		   uint32_t                        numApc,
-		   vector<uint32_t>                v_numSpectralWindow,  // /bb
+		   std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 		   uint32_t                        numBaseband,
 		   uint32_t                        numAnt,
-		   CorrelationMode                     correlationMode);
+		   CorrelationModeMod::CorrelationMode                     correlationMode);
 
     /** Constructor for the single-dish case, the data structure being eventually
 	a tree-hierarchy. Determine the property of the structure.
@@ -154,15 +152,15 @@ namespace sdmbin {
 	     - AUTO_ONLY       only zero baselines (single-dish)
 	     - CROSS_AND_AUTO  both zero and non-zero.
     */
-    DataStructure( vector<vector<uint32_t> >       vv_numAutoPolProduct, // /bb/spw
-		   vector<vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
-		   vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-		   vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
+    DataStructure( std::vector<std::vector<uint32_t> >       vv_numAutoPolProduct, // /bb/spw
+		   std::vector<std::vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
+		   std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+		   std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
 		   uint32_t                        numApc,
-		   vector<uint32_t>                v_numSpectralWindow,  // /bb
+		   std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 		   uint32_t                        numBaseband,
 		   uint32_t                        numAnt,
-		   CorrelationMode                     correlationMode);
+		   CorrelationModeMod::CorrelationMode                     correlationMode);
 
     /** Copy constructor */
     DataStructure( const DataStructure &);
@@ -174,34 +172,34 @@ namespace sdmbin {
     /** Accessor to the number of polarization cross product for non-zero baselines
 	in every spectral window for every baseband
     */
-    vector<vector<uint32_t> > numCrossPolProducts();
+    std::vector<std::vector<uint32_t> > numCrossPolProducts();
 
     /** Accessor to the number of polarization cross product for zero-baselines
 	in every spectral window for every baseband
     */
-    vector<vector<uint32_t> > numAutoPolProducts();
+    std::vector<std::vector<uint32_t> > numAutoPolProducts();
 
     /** Accessor to the number of spectral points in every spectral window
 	for every baseband
     */
-    vector<vector<uint32_t> > numSpectralPoints();
+    std::vector<std::vector<uint32_t> > numSpectralPoints();
 
 
     /** Accessor to the number of bins in every spectral window
 	for every baseband
     */
-    vector<vector<uint32_t> > numBins();
+    std::vector<std::vector<uint32_t> > numBins();
 
     /** Accessor to the NetSideband qualifiers in every spectral window
 	for every baseband
     */
-    vector<vector<Enum<NetSideband> > > sidebands();
+    std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > sidebands();
 
     /** Accessor to the size of the APC axis */
     uint32_t                  numApc();
 
     /** Accessor to the number of spectral windows in the different basebands */
-    vector<uint32_t>          numSpectralWindows();
+    std::vector<uint32_t>          numSpectralWindows();
 
     /** Accessor to the number of basebands */
     uint32_t                  numBaseband();
@@ -214,7 +212,7 @@ namespace sdmbin {
      - 1 implies only single-dish
      - 2 implies both interferometric and single-dish
     */
-    CorrelationMode                 correlationMode();
+    CorrelationModeMod::CorrelationMode                 correlationMode();
 
     /** Method to get the axis sizes of the leaves when represented
 	as multi-dimensional structures. A multi-dimensional leaf is a
@@ -226,7 +224,7 @@ namespace sdmbin {
 	@return the axis sizes of the leaf, the size of the vector 
 	corresponding to the dimensionality of the leaf. 
     */
-    vector<uint32_t> leafAxisSizes();
+    std::vector<uint32_t> leafAxisSizes();
 
     /** Axis sizes of the leave of a data structure which may not
         be necessarily multi-dimensional. A multi-dimensional leaf 
@@ -240,7 +238,7 @@ namespace sdmbin {
 	@return the axis sizes of the leaf, the size of the vector 
 	corresponding to the dimensionality of the leaf.
     */
-    vector<uint32_t> leafAxisSizes(uint32_t basebandIndex, uint32_t spectralWindowIndex);
+    std::vector<uint32_t> leafAxisSizes(uint32_t basebandIndex, uint32_t spectralWindowIndex);
 
     /** Axis sizes of the leave of a data structure which may not
         be necessarily multi-dimensional. A multi-dimensional leaf 
@@ -256,7 +254,7 @@ namespace sdmbin {
 	@return the axis sizes of the leaf, the size of the vector 
 	corresponding to the dimensionality of the leaf.
     */
-    vector<uint32_t> leafAxisSizes(uint32_t dataDescriptionIndex);
+    std::vector<uint32_t> leafAxisSizes(uint32_t dataDescriptionIndex);
 
 
     /** A method to know if the whole data structure can be considered as a
@@ -277,7 +275,7 @@ namespace sdmbin {
               structure else it is the number of axes (including
               those with a size of 1)
     */
-    vector<uint32_t> eAxisSizes() const;
+    std::vector<uint32_t> eAxisSizes() const;
 
     /** A method to retrieve the size of the axes for a
         multi-dimensional structure. This is the compact
@@ -285,7 +283,7 @@ namespace sdmbin {
         to set the dimension of the structure. This vector 
 	has a size of 0 in case of a tree structure.
     */
-    vector<uint32_t> axisSizes() const;
+    std::vector<uint32_t> axisSizes() const;
 
     /** Accessor to the dimensionality of the structure.
 	If this is a tree-structure this is the number of
@@ -297,13 +295,13 @@ namespace sdmbin {
 	The return size of the vector is equal to the dimension
         of the structure
     */
-    vector<uint32_t> minAxSize() const;
+    std::vector<uint32_t> minAxSize() const;
 
     /** Maximum size for every axis (level) in the structure.
 	The return size of the vector is equal to the dimension
         of the structure
     */
-    vector<uint32_t> maxAxSize() const;
+    std::vector<uint32_t> maxAxSize() const;
 
     /** Number of data value (leaves) that can host the structure
      */
@@ -316,29 +314,29 @@ namespace sdmbin {
     /** Axis sequense: For example 128 means a structure with
                        3 axes, pol,sp,na
     */
-    string               axisSequence() const;
+    std::string               axisSequence() const;
 
     /** Utility which sumarizes the properties of the data structure.
      */
     void                 summary() const;
 
   protected:
-    vector<vector<uint32_t> >       vv_numCrossPolProduct_;// /bb/spw
-    vector<vector<uint32_t> >       vv_numAutoPolProduct_; // /bb/spw
-    vector<vector<uint32_t> >       vv_numSpectralPoint_;  // /bb/spw
-    vector<vector<uint32_t> >       vv_numBin_;            // /bb/spw
-    vector<vector<Enum<NetSideband> > > vv_e_sideband_;        // /bb/spw
+    std::vector<std::vector<uint32_t> >       vv_numCrossPolProduct_;// /bb/spw
+    std::vector<std::vector<uint32_t> >       vv_numAutoPolProduct_; // /bb/spw
+    std::vector<std::vector<uint32_t> >       vv_numSpectralPoint_;  // /bb/spw
+    std::vector<std::vector<uint32_t> >       vv_numBin_;            // /bb/spw
+    std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband_;        // /bb/spw
     uint32_t                        numApc_;
-    vector<uint32_t>                v_numSpectralWindow_;  // /bb
+    std::vector<uint32_t>                v_numSpectralWindow_;  // /bb
     uint32_t                        numBaseband_;
     uint32_t                        numAnt_;
-    CorrelationMode                     correlationMode_;
-    string                              axisSequence_;
-    vector<uint32_t>                v_minSize_;
-    vector<uint32_t>                v_maxSize_;
+    CorrelationModeMod::CorrelationMode                     correlationMode_;
+    std::string                              axisSequence_;
+    std::vector<uint32_t>                v_minSize_;
+    std::vector<uint32_t>                v_maxSize_;
     
   private:
-    string                              setStructureProperties();
+    std::string                              setStructureProperties();
   };
 
   /** The class DataDump extends the class DataStructure by adding time information
@@ -394,10 +392,10 @@ namespace sdmbin {
     */
     DataDump( uint32_t      numPolProduct,
 	      uint32_t      numBin,
-	      Enum<NetSideband> e_sideband,
+	      Enum<NetSidebandMod::NetSideband> e_sideband,
 	      uint32_t      numBaseband,
 	      uint32_t      numAnt,
-	      CorrelationMode   correlationMode,
+	      CorrelationModeMod::CorrelationMode   correlationMode,
 	      uint64_t         time,
 	      uint64_t         timeCentroid,  
 	      uint64_t         interval, 
@@ -432,10 +430,10 @@ namespace sdmbin {
     DataDump( uint32_t      numSdPolProduct,
 	      uint32_t      numSpectralPoint,
 	      uint32_t      numBin,
-	      Enum<NetSideband> e_sideband,
+	      Enum<NetSidebandMod::NetSideband> e_sideband,
 	      uint32_t      numBaseband,
 	      uint32_t      numAnt,
-	      CorrelationMode   correlationMode,
+	      CorrelationModeMod::CorrelationMode   correlationMode,
 	      uint64_t         time, 
 	      uint64_t         timeCentroid, 
 	      uint64_t         interval,
@@ -446,15 +444,15 @@ namespace sdmbin {
     /** A constructor to be used in more general case of total power data
 	all the data being valid.
     */
-    DataDump( vector<vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
-	      vector<vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
-	      vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-	      vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
+    DataDump( std::vector<std::vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
+	      std::vector<std::vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
+	      std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+	      std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
 	      uint32_t                        numApc,
-	      vector<uint32_t>                v_numSpectralWindow,  // /bb
+	      std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 	      uint32_t                        numBaseband,
 	      uint32_t                        numAnt,
-	      CorrelationMode                     correlationMode,
+	      CorrelationModeMod::CorrelationMode                     correlationMode,
 	      uint64_t                           time, 
 	      uint64_t                           timeCentroid, 
 	      uint64_t                           interval, 
@@ -464,15 +462,15 @@ namespace sdmbin {
     /** A constructor to be used in a more general case of total power data
 	when some data have been flagged
     */
-    DataDump( vector<vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
-	      vector<vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
-	      vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-	      vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
+    DataDump( std::vector<std::vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
+	      std::vector<std::vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
+	      std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+	      std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
 	      uint32_t                        numApc,
-	      vector<uint32_t>                v_numSpectralWindow,  // /bb
+	      std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 	      uint32_t                        numBaseband,
 	      uint32_t                        numAnt,
-	      CorrelationMode                     correlationMode,
+	      CorrelationModeMod::CorrelationMode                     correlationMode,
 	      uint64_t                           time,
 	      uint64_t                           timeCentroid,  
 	      uint64_t                           interval, 
@@ -482,16 +480,16 @@ namespace sdmbin {
 
     /** A constructor with no importation nor attachment of binary meta.
     */
-    DataDump( vector<vector<uint32_t> >       vv_numCrossPolProduct,// /bb/spw
-	      vector<vector<uint32_t> >       vv_numAutoPolProduct, // /bb/spw
-	      vector<vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
-	      vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-	      vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
+    DataDump( std::vector<std::vector<uint32_t> >       vv_numCrossPolProduct,// /bb/spw
+	      std::vector<std::vector<uint32_t> >       vv_numAutoPolProduct, // /bb/spw
+	      std::vector<std::vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
+	      std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+	      std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
 	      uint32_t                        numApc,
-	      vector<uint32_t>                v_numSpectralWindow,  // /bb
+	      std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 	      uint32_t                        numBaseband,
 	      uint32_t                        numAnt,
-	      CorrelationMode                     correlationMode,
+	      CorrelationModeMod::CorrelationMode                     correlationMode,
 	      uint64_t                           time,
 	      uint64_t                           timeCentroid,  
 	      uint64_t                           interval, 
@@ -524,54 +522,54 @@ namespace sdmbin {
     /** Assignement operatator */
     DataDump & operator = (const DataDump& a);
 
-    void attachFlags( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void attachFlags( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 		      uint32_t numData, const uint32_t* flagsPtr);
-    void importFlags( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void importFlags( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 		      uint32_t numData, const uint32_t* flagsPtr);
 
-    void attachActualTimes( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void attachActualTimes( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			    uint32_t numData, const int64_t * actualTimesPtr);
 
-    void importActualTimes( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void importActualTimes( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			    uint32_t numData, const  int64_t * actualTimesPtr);
 
-    void attachActualDurations( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void attachActualDurations( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 				uint32_t numData, const int64_t * durationsPtr);
 
-    void importActualDurations( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void importActualDurations( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 				uint32_t numData, const int64_t * durationsPtr);
 
 
-    void attachZeroLags ( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void attachZeroLags ( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			  uint32_t numData, const float* zeroLagsPtr);
 
-    void importZeroLags ( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void importZeroLags ( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			  uint32_t numData, const float* zeroLagsPtr);
 
 
-    void attachAutoData ( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void attachAutoData ( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			  uint32_t numData, const float * autoDataPtr);
 
-    void importAutoData ( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void importAutoData ( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			  uint32_t numData, const float * autoDataPtr);
 
-    void attachCrossData ( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void attachCrossData ( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			   uint32_t numData, const short int* crossDataPtr);
-    void importCrossData ( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void importCrossData ( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			   uint32_t numData, const short int* crossDataPtr);
-    void attachCrossData ( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void attachCrossData ( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			   uint32_t numData, const int * crossDataPtr);
-    void importCrossData ( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void importCrossData ( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			   uint32_t numData, const int * crossDataPtr);
-    void attachCrossData ( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void attachCrossData ( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			   uint32_t numData, const float * crossDataPtr);
-    void importCrossData ( uint32_t declaredSize, EnumSet<AxisName> es_an, 
+    void importCrossData ( uint32_t declaredSize, EnumSet<AxisNameMod::AxisName> es_an, 
 			   uint32_t numData, const float * crossDataPtr);
 
-    void         setScaleFactor(vector<vector<float> > vv_scaleFactor);
+    void         setScaleFactor(std::vector<std::vector<float> > vv_scaleFactor);
     uint32_t setIntegration(uint32_t integNum);
     uint32_t setSubintegration(uint32_t integNum, uint32_t subintegNum);
-    uint32_t setContextUsingProjectPath(string projectPathUri);
+    uint32_t setContextUsingProjectPath(std::string projectPathUri);
 
     // Accessor
     uint32_t integrationNum();
@@ -634,7 +632,7 @@ namespace sdmbin {
               - ...
 
     */
-    uint32_t floatData(vector<vector<float>& >);
+    uint32_t floatData(std::vector<std::vector<float>& >);
 
 
     /** Accessor to the data from a 3 levels tree-hierarchy with 
@@ -653,7 +651,7 @@ namespace sdmbin {
               - ...
 
     */
-    uint32_t floatData(vector<vector<float*> >&);
+    uint32_t floatData(std::vector<std::vector<float*> >&);
 
 
     /** Accessor to the data from a 3 levels tree-hierarchy.
@@ -661,7 +659,7 @@ namespace sdmbin {
               of a tree structure, this method can also be used
               for 3D multi-dimensional data structures!
     */
-    uint32_t floatData(vector<vector<vector<float> > >&);
+    uint32_t floatData(std::vector<std::vector<std::vector<float> > >&);
 
 
     /** Accessor to the data from a 3 levels tree-hierarchy with 
@@ -681,7 +679,7 @@ namespace sdmbin {
               - ...
 
     */
-    uint32_t floatData(vector<vector<vector<float*> > >&);
+    uint32_t floatData(std::vector<std::vector<std::vector<float*> > >&);
 
 
     /** Accessor to the data from a 4 levels tree-hierarchy.
@@ -699,7 +697,7 @@ namespace sdmbin {
               - ...
 
     */
-    uint32_t floatData(vector<vector<vector<vector<float> > > >&);
+    uint32_t floatData(std::vector<std::vector<std::vector<std::vector<float> > > >&);
 
 
 
@@ -708,7 +706,7 @@ namespace sdmbin {
               of a tree structure, this method can also be used
               for 4D multi-dimensional data structures!
     */
-    uint32_t floatData(vector<vector<vector<vector<float*> > > >&);
+    uint32_t floatData(std::vector<std::vector<std::vector<std::vector<float*> > > >&);
 
     /** Accessor to the data from a 5 levels tree-hierarchy.
 	@return the data tree by reference
@@ -717,7 +715,7 @@ namespace sdmbin {
               Hence the size of this returned vector corresponds
               to the number of antennas.
     */
-    uint32_t floatData(vector<vector<vector<vector<vector<float> > > > >&);
+    uint32_t floatData(std::vector<std::vector<std::vector<std::vector<std::vector<float> > > > >&);
 
     // /nant/nbb/nspw/nbin/napc/nsp/npol
     // |    |   |    |    |    |   | 
@@ -880,13 +878,13 @@ namespace sdmbin {
     uint64_t                 interval_;
     uint64_t                 exposure_;
 
-    EnumSet<AxisName>         es_flagsAxes_;
-    EnumSet<AxisName>         es_actualTimesAxes_;
-    EnumSet<AxisName>         es_actualDurationsAxes_;
-    EnumSet<AxisName>         es_weightsAxes_;
-    EnumSet<AxisName>         es_zeroLagsAxes_;
-    EnumSet<AxisName>         es_autoDataAxes_;
-    EnumSet<AxisName>         es_crossDataAxes_;
+    EnumSet<AxisNameMod::AxisName>         es_flagsAxes_;
+    EnumSet<AxisNameMod::AxisName>         es_actualTimesAxes_;
+    EnumSet<AxisNameMod::AxisName>         es_actualDurationsAxes_;
+    EnumSet<AxisNameMod::AxisName>         es_weightsAxes_;
+    EnumSet<AxisNameMod::AxisName>         es_zeroLagsAxes_;
+    EnumSet<AxisNameMod::AxisName>         es_autoDataAxes_;
+    EnumSet<AxisNameMod::AxisName>         es_crossDataAxes_;
 
     uint32_t              numFlags_;
     uint32_t              numActualTimes_;
@@ -896,8 +894,8 @@ namespace sdmbin {
     uint32_t              numAutoData_;
     uint32_t              numCrossData_;
 
-    vector<vector<float> >    vv_scaleFactor_;     // /bb/spw
-    vector<float>             v_scaleFactor_;      // /ndd      linearized version of vv_scaleFactor_ for fast access
+    std::vector<std::vector<float> >    vv_scaleFactor_;     // /bb/spw
+    std::vector<float>             v_scaleFactor_;      // /ndd      linearized version of vv_scaleFactor_ for fast access
 
     const uint32_t*     cuintFlagsPtr_;
     const int64_t*      clonlonActualTimesPtr_;
@@ -920,16 +918,16 @@ namespace sdmbin {
     float*      floatCrossDataPtr_;
 
     /** A constructor used by the operators + and - */
-    DataDump( vector<vector<uint32_t> >       vv_numCrossPolProduct,// /bb/spw
-	      vector<vector<uint32_t> >       vv_numAutoPolProduct, // /bb/spw
-	      vector<vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
-	      vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-	      vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
+    DataDump( std::vector<std::vector<uint32_t> >       vv_numCrossPolProduct,// /bb/spw
+	      std::vector<std::vector<uint32_t> >       vv_numAutoPolProduct, // /bb/spw
+	      std::vector<std::vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
+	      std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+	      std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
 	      uint32_t                        numApc,
-	      vector<uint32_t>                v_numSpectralWindow,  // /bb
+	      std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 	      uint32_t                        numBaseband,
 	      uint32_t                        numAnt,
-	      CorrelationMode                     correlationMode,
+	      CorrelationModeMod::CorrelationMode                     correlationMode,
 	      uint64_t                           time,
 	      uint64_t                           timeCentroid,  
 	      uint64_t                           interval, 
@@ -955,15 +953,15 @@ namespace sdmbin {
   {
   public:
     Integration();
-    Integration( vector<vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
-		 vector<vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
-		 vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-		 vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
+    Integration( std::vector<std::vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
+		 std::vector<std::vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
+		 std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+		 std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
 		 uint32_t                        numApc,
-		 vector<uint32_t>                v_numSpectralWindow,  // /bb
+		 std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 		 uint32_t                        numBaseband,
 		 uint32_t                        numAnt,
-		 CorrelationMode                     correlationMode,
+		 CorrelationModeMod::CorrelationMode                     correlationMode,
 		 uint64_t                           time,
 		 uint64_t                           timeCentroid,  
 		 uint64_t                           interval, 
@@ -972,15 +970,15 @@ namespace sdmbin {
 		 uint32_t                        integNum);
 
 
-    Integration( vector<vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
-		 vector<vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
-		 vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-		 vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
+    Integration( std::vector<std::vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
+		 std::vector<std::vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
+		 std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+		 std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
 		 uint32_t                        numApc,
-		 vector<uint32_t>                v_numSpectralWindow,  // /bb
+		 std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 		 uint32_t                        numBaseband,
 		 uint32_t                        numAnt,
-		 CorrelationMode                     correlationMode,
+		 CorrelationModeMod::CorrelationMode                     correlationMode,
 		 uint64_t                           time, 
 		 uint64_t                           timeCentroid, 
 		 uint64_t                           interval,
@@ -992,12 +990,12 @@ namespace sdmbin {
     Integration( uint32_t      numPolProduct,
 		 uint32_t      numSpectralPoint,
 		 uint32_t      numBin,
-		 Enum<NetSideband> e_sideband,
+		 Enum<NetSidebandMod::NetSideband> e_sideband,
 		 uint32_t      numApc,
 		 uint32_t      numSpectralWindow,
 		 uint32_t      numBaseband,
 		 uint32_t      numAnt, 
-		 CorrelationMode   correlationMode,
+		 CorrelationModeMod::CorrelationMode   correlationMode,
 		 uint64_t         time, 
 		 uint64_t         timeCentroid,
 		 uint64_t         interval,
@@ -1007,12 +1005,12 @@ namespace sdmbin {
     Integration( uint32_t      numPolProduct,
 		 uint32_t      numSpectralPoint,
 		 uint32_t      numBin,
-		 Enum<NetSideband> e_sideband,
+		 Enum<NetSidebandMod::NetSideband> e_sideband,
 		 uint32_t      numApc,
 		 uint32_t      numSpectralWindow,
 		 uint32_t      numBaseband,
 		 uint32_t      numAnt,
-		 CorrelationMode   correlationMode,
+		 CorrelationModeMod::CorrelationMode   correlationMode,
 		 uint64_t         time, 
 		 uint64_t         timeCentroid, 
 		 uint64_t         interval,
@@ -1057,13 +1055,13 @@ namespace sdmbin {
 	radiometric corrections.
 	Case when no data flagged.
     */
-    Subintegration( vector<vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
-		    vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-		    vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
-		    vector<uint32_t>                v_numSpectralWindow,  // /bb
+    Subintegration( std::vector<std::vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
+		    std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+		    std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
+		    std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 		    uint32_t                        numBaseband,
 		    uint32_t                        numAnt,
-		    CorrelationMode                     correlationMode, 
+		    CorrelationModeMod::CorrelationMode                     correlationMode, 
 		    uint64_t                           time,
 		    uint64_t                           timeCentroid, 
 		    uint64_t                           interval,
@@ -1078,13 +1076,13 @@ namespace sdmbin {
 	radiometric corrections.
 	Case when some data may have been flagged.
     */
-    Subintegration( vector<vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
-		    vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-		    vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
-		    vector<uint32_t>                v_numSpectralWindow,  // /bb
+    Subintegration( std::vector<std::vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
+		    std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+		    std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
+		    std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 		    uint32_t                        numBaseband,
 		    uint32_t                        numAnt,
-		    CorrelationMode                     correlationMode, 
+		    CorrelationModeMod::CorrelationMode                     correlationMode, 
 		    uint64_t                           time, 
 		    uint64_t                           timeCentroid, 
 		    uint64_t                           interval,
@@ -1101,14 +1099,14 @@ namespace sdmbin {
 	This constructor is intended in case the data would have been processed by 
 	the WV radiometric corrections.
     */
-    Subintegration( vector<vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
-		    vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-		    vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
+    Subintegration( std::vector<std::vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
+		    std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+		    std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
 		    uint32_t                        numApc,
-		    vector<uint32_t>                v_numSpectralWindow,  // /bb
+		    std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 		    uint32_t                        numBaseband,
 		    uint32_t                        numAnt,
-		    CorrelationMode                     correlationMode, 
+		    CorrelationModeMod::CorrelationMode                     correlationMode, 
 		    uint64_t                           time,
 		    uint64_t                           timeCentroid, 
 		    uint64_t                           interval,
@@ -1122,15 +1120,15 @@ namespace sdmbin {
 	a defined subintegration number.
 	To be used when ther is no data flagged
     */
-    Subintegration( vector<vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
-		    vector<vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
-		    vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-		    vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
+    Subintegration( std::vector<std::vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
+		    std::vector<std::vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
+		    std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+		    std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
 		    uint32_t                        numApc,
-		    vector<uint32_t>                v_numSpectralWindow,  // /bb
+		    std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 		    uint32_t    numBaseband,
 		    uint32_t    numAnt, 
-		    CorrelationMode correlationMode,
+		    CorrelationModeMod::CorrelationMode correlationMode,
 		    uint64_t       time, 
 		    uint64_t       timeCentroid, 
 		    uint64_t       interval,
@@ -1144,15 +1142,15 @@ namespace sdmbin {
 	a defined subintegration number.
 	To be used if there are some flagged data
     */
-    Subintegration( vector<vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
-		    vector<vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
-		    vector<vector<uint32_t> >       vv_numBin,            // /bb/spw
-		    vector<vector<Enum<NetSideband> > > vv_e_sideband,        // /bb/spw
+    Subintegration( std::vector<std::vector<uint32_t> >       vv_numPolProduct,     // /bb/spw
+		    std::vector<std::vector<uint32_t> >       vv_numSpectralPoint,  // /bb/spw
+		    std::vector<std::vector<uint32_t> >       vv_numBin,            // /bb/spw
+		    std::vector<std::vector<Enum<NetSidebandMod::NetSideband> > > vv_e_sideband,        // /bb/spw
 		    uint32_t                        numApc,
-		    vector<uint32_t>                v_numSpectralWindow,  // /bb
+		    std::vector<uint32_t>                v_numSpectralWindow,  // /bb
 		    uint32_t    numBaseband,
 		    uint32_t    numAnt,
-		    CorrelationMode correlationMode,
+		    CorrelationModeMod::CorrelationMode correlationMode,
 		    uint64_t       time, 
 		    uint64_t       timeCentroid, 
 		    uint64_t       interval,

@@ -51,57 +51,57 @@ public:
   WaterVaporRadiometer() {}
 
   /** Class constructor with identifiers of radiometric channels. Sky Coupling = 1.0, Sideband Gain: 50% (no spilloverTemperature given) */
-  WaterVaporRadiometer(const vector<unsigned int> &IdChannels);
+  WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels);
 
   /** Class constructor with identifiers of radiometric channels. Sideband Gain: 50% (no spilloverTemperature given) */
-  WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                       const vector<double> &skyCoupling);
+  WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                       const std::vector<double> &skyCoupling);
 
-  inline WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
+  inline WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
                               double skyCoupling)
   {
-    WaterVaporRadiometer(IdChannels, vector<double> (IdChannels.size(),
+    WaterVaporRadiometer(IdChannels, std::vector<double> (IdChannels.size(),
                                                      skyCoupling));
   }
 
   /** Class constructor with identifiers of radiometric channels. Sky Coupling = 1.0 (no spilloverTemperature given) */
-  WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                       const vector<Percent> &signalGain);
+  WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                       const std::vector<Percent> &signalGain);
 
   /* WaterVaporRadiometer(vector<unsigned int> IdChannels, Percent signalGain); */
 
   /** Full class constructor (no spilloverTemperature given) */
-  WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                       const vector<double> &skyCoupling,
-                       const vector<Percent> &signalGain);
+  WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                       const std::vector<double> &skyCoupling,
+                       const std::vector<Percent> &signalGain);
 
   /** Class constructor with identifiers of radiometric channels. Sky Coupling = 1.0, Sideband Gain: 50% (spilloverTemperature given) */
-  WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
+  WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
                        const Temperature &spilloverTemperature);
 
   /** Class constructor with identifiers of radiometric channels. Sideband Gain: 50% (spilloverTemperature given) */
-  WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                       const vector<double> &skyCoupling,
+  WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                       const std::vector<double> &skyCoupling,
                        const Temperature &spilloverTemperature);
 
   /** Class constructor with identifiers of radiometric channels. Sky Coupling = 1.0 (spilloverTemperature given) */
-  WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                       const vector<Percent> &signalGain,
+  WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                       const std::vector<Percent> &signalGain,
                        const Temperature &spilloverTemperature);
 
   /** Full class constructor (spilloverTemperature given) */
-  WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                       const vector<double> &skyCoupling,
-                       const vector<Percent> &signalGain,
+  WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                       const std::vector<double> &skyCoupling,
+                       const std::vector<Percent> &signalGain,
                        const Temperature &spilloverTemperature);
 
   virtual ~WaterVaporRadiometer();
 
   /** Accessor to identifiers of radiometric channels (vector of int) */
-  inline vector<unsigned int> getIdChannels() const { return IdChannels_; }
+  inline std::vector<unsigned int> getIdChannels() const { return IdChannels_; }
 
   /** Accessor to Sky coupling of the different radiometric channels (vector of double) */
-  inline vector<double> getSkyCoupling() const { return skyCoupling_; }
+  inline std::vector<double> getSkyCoupling() const { return skyCoupling_; }
 
   /** Multiplier of the Sky coupling vector  */
   inline void multiplySkyCoupling(double factor)
@@ -120,7 +120,7 @@ public:
   inline void setSkyCoupling(double factor)
   {
     /* for(unsigned int i=0; i<skyCoupling_.size(); i++){ skyCoupling_[i] = factor;} */
-    for(vector<double>::iterator it(skyCoupling_.begin()),
+    for(std::vector<double>::iterator it(skyCoupling_.begin()),
         itmax(skyCoupling_.end()); it != itmax; ++it) {
       (*it) = factor;
     }
@@ -134,16 +134,16 @@ public:
   }
 
   /** Accessor to signalGain of the different radiometric channels (vector of percent) */
-  inline vector<Percent> getsignalGain() const { return signalGain_; }
+  inline std::vector<Percent> getsignalGain() const { return signalGain_; }
   /** Accessor to SpilloverTemperature */
   inline Temperature getSpilloverTemperature() const { return spilloverTemperature_; }
   /** Setter of SpilloverTemperature */
   inline void setSpilloverTemperature(Temperature spilloverTemperature) { spilloverTemperature_ = spilloverTemperature; }
 
 protected:
-  vector<unsigned int> IdChannels_;
-  vector<double> skyCoupling_;
-  vector<Percent> signalGain_;
+  std::vector<unsigned int> IdChannels_;
+  std::vector<double> skyCoupling_;
+  std::vector<Percent> signalGain_;
   Temperature spilloverTemperature_;
 
 private:

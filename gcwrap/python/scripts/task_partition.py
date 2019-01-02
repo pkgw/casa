@@ -127,7 +127,7 @@ def partition(vis,
             param_names = partition.func_code.co_varnames[:partition.func_code.co_argcount]
             param_vals = [eval(p) for p in param_names]
             casalog.post('Updating the history in the output', 'DEBUG1')
-            write_history(mslocal, outputvis, 'partition', param_names,
+            write_history(mstool(), outputvis, 'partition', param_names,
                           param_vals, casalog)
         except Exception, instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance),

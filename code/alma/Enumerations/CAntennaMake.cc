@@ -33,7 +33,7 @@
  * File CAntennaMake.cpp
  */
 #include <sstream>
-#include <CAntennaMake.h>
+#include <alma/Enumerations/CAntennaMake.h>
 #include <string>
 using namespace std;
 

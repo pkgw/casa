@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <SBSummaryRow.h>
-#include <SBSummaryTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SBSummaryRow.h>
+#include <alma/ASDM/SBSummaryTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::SBSummaryRow;
 using asdm::SBSummaryTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	SBSummaryRow::~SBSummaryRow() {
@@ -1629,7 +1626,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void SBSummaryRow::sBSummaryIdFromText(const string & s) {
 		 
+          
 		sBSummaryId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1640,7 +1639,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void SBSummaryRow::frequencyFromText(const string & s) {
 		 
+          
 		frequency = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -1648,7 +1649,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void SBSummaryRow::frequencyBandFromText(const string & s) {
 		 
-		frequencyBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		frequencyBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -1656,7 +1659,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an SBType 
 	void SBSummaryRow::sbTypeFromText(const string & s) {
 		 
-		sbType = ASDMValuesParser::parse<SBType>(s);
+          
+		sbType = ASDMValuesParser::parse<SBTypeMod::SBType>(s);
+          
 		
 	}
 	
@@ -1664,7 +1669,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an Interval 
 	void SBSummaryRow::sbDurationFromText(const string & s) {
 		 
+          
 		sbDuration = ASDMValuesParser::parse<Interval>(s);
+          
 		
 	}
 	
@@ -1672,7 +1679,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SBSummaryRow::numObservingModeFromText(const string & s) {
 		 
+          
 		numObservingMode = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1680,7 +1689,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void SBSummaryRow::observingModeFromText(const string & s) {
 		 
+          
 		observingMode = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1688,7 +1699,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SBSummaryRow::numberRepeatsFromText(const string & s) {
 		 
+          
 		numberRepeats = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1696,7 +1709,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SBSummaryRow::numScienceGoalFromText(const string & s) {
 		 
+          
 		numScienceGoal = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1704,7 +1719,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void SBSummaryRow::scienceGoalFromText(const string & s) {
 		 
+          
 		scienceGoal = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1712,7 +1729,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SBSummaryRow::numWeatherConstraintFromText(const string & s) {
 		 
+          
 		numWeatherConstraint = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1720,7 +1739,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void SBSummaryRow::weatherConstraintFromText(const string & s) {
 		 
+          
 		weatherConstraint = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1730,7 +1751,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	void SBSummaryRow::centerDirectionFromText(const string & s) {
 		centerDirectionExists = true;
 		 
+          
 		centerDirection = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -1739,7 +1762,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	void SBSummaryRow::centerDirectionCodeFromText(const string & s) {
 		centerDirectionCodeExists = true;
 		 
-		centerDirectionCode = ASDMValuesParser::parse<DirectionReferenceCode>(s);
+          
+		centerDirectionCode = ASDMValuesParser::parse<DirectionReferenceCodeMod::DirectionReferenceCode>(s);
+          
 		
 	}
 	
@@ -1748,7 +1773,9 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	void SBSummaryRow::centerDirectionEquinoxFromText(const string & s) {
 		centerDirectionEquinoxExists = true;
 		 
+          
 		centerDirectionEquinox = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2062,21 +2089,21 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get observingMode.
- 	 * @return observingMode as vector<string >
+ 	 * @return observingMode as std::vector<std::string >
  	 */
- 	vector<string > SBSummaryRow::getObservingMode() const {
+ 	std::vector<std::string > SBSummaryRow::getObservingMode() const {
 	
   		return observingMode;
  	}
 
  	/**
- 	 * Set observingMode with the specified vector<string >.
- 	 * @param observingMode The vector<string > value to which observingMode is to be set.
+ 	 * Set observingMode with the specified std::vector<std::string >.
+ 	 * @param observingMode The std::vector<std::string > value to which observingMode is to be set.
  	 
  	
  		
  	 */
- 	void SBSummaryRow::setObservingMode (vector<string > observingMode)  {
+ 	void SBSummaryRow::setObservingMode (std::vector<std::string > observingMode)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2158,21 +2185,21 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get scienceGoal.
- 	 * @return scienceGoal as vector<string >
+ 	 * @return scienceGoal as std::vector<std::string >
  	 */
- 	vector<string > SBSummaryRow::getScienceGoal() const {
+ 	std::vector<std::string > SBSummaryRow::getScienceGoal() const {
 	
   		return scienceGoal;
  	}
 
  	/**
- 	 * Set scienceGoal with the specified vector<string >.
- 	 * @param scienceGoal The vector<string > value to which scienceGoal is to be set.
+ 	 * Set scienceGoal with the specified std::vector<std::string >.
+ 	 * @param scienceGoal The std::vector<std::string > value to which scienceGoal is to be set.
  	 
  	
  		
  	 */
- 	void SBSummaryRow::setScienceGoal (vector<string > scienceGoal)  {
+ 	void SBSummaryRow::setScienceGoal (std::vector<std::string > scienceGoal)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2222,21 +2249,21 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get weatherConstraint.
- 	 * @return weatherConstraint as vector<string >
+ 	 * @return weatherConstraint as std::vector<std::string >
  	 */
- 	vector<string > SBSummaryRow::getWeatherConstraint() const {
+ 	std::vector<std::string > SBSummaryRow::getWeatherConstraint() const {
 	
   		return weatherConstraint;
  	}
 
  	/**
- 	 * Set weatherConstraint with the specified vector<string >.
- 	 * @param weatherConstraint The vector<string > value to which weatherConstraint is to be set.
+ 	 * Set weatherConstraint with the specified std::vector<std::string >.
+ 	 * @param weatherConstraint The std::vector<std::string > value to which weatherConstraint is to be set.
  	 
  	
  		
  	 */
- 	void SBSummaryRow::setWeatherConstraint (vector<string > weatherConstraint)  {
+ 	void SBSummaryRow::setWeatherConstraint (std::vector<std::string > weatherConstraint)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2262,10 +2289,10 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get centerDirection, which is optional.
- 	 * @return centerDirection as vector<Angle >
+ 	 * @return centerDirection as std::vector<Angle >
  	 * @throw IllegalAccessException If centerDirection does not exist.
  	 */
- 	vector<Angle > SBSummaryRow::getCenterDirection() const  {
+ 	std::vector<Angle > SBSummaryRow::getCenterDirection() const  {
 		if (!centerDirectionExists) {
 			throw IllegalAccessException("centerDirection", "SBSummary");
 		}
@@ -2274,12 +2301,12 @@ void SBSummaryRow::centerDirectionEquinoxFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set centerDirection with the specified vector<Angle >.
- 	 * @param centerDirection The vector<Angle > value to which centerDirection is to be set.
+ 	 * Set centerDirection with the specified std::vector<Angle >.
+ 	 * @param centerDirection The std::vector<Angle > value to which centerDirection is to be set.
  	 
  	
  	 */
- 	void SBSummaryRow::setCenterDirection (vector<Angle > centerDirection) {
+ 	void SBSummaryRow::setCenterDirection (std::vector<Angle > centerDirection) {
 	
  		this->centerDirection = centerDirection;
 	
@@ -2736,7 +2763,7 @@ centerDirectionCode = CDirectionReferenceCode::from_int(0);
 	}
 
 	
-	bool SBSummaryRow::compareNoAutoInc(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint) {
+	bool SBSummaryRow::compareNoAutoInc(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<std::string > observingMode, int numberRepeats, int numScienceGoal, std::vector<std::string > scienceGoal, int numWeatherConstraint, std::vector<std::string > weatherConstraint) {
 		bool result;
 		result = true;
 		
@@ -2843,7 +2870,7 @@ centerDirectionCode = CDirectionReferenceCode::from_int(0);
 	
 	
 	
-	bool SBSummaryRow::compareRequiredValue(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint) {
+	bool SBSummaryRow::compareRequiredValue(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<std::string > observingMode, int numberRepeats, int numScienceGoal, std::vector<std::string > scienceGoal, int numWeatherConstraint, std::vector<std::string > weatherConstraint) {
 		bool result;
 		result = true;
 		

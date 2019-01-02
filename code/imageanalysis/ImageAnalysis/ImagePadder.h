@@ -100,8 +100,8 @@ protected:
 		return CasacRegionManager::USE_ALL_STOKES;
 	}
 
-	inline vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-		vector<casacore::Coordinate::Type> v;
+	inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+		std::vector<casacore::Coordinate::Type> v;
 		v.push_back(casacore::Coordinate::DIRECTION);
 		return v;
  	}

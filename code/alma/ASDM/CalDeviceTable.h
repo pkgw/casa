@@ -41,30 +41,26 @@
 
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
 
-	
-
-	
-
-	
-#include "CCalibrationDevice.h"
 	
 
 	
 
+	
+#include <alma/Enumerations/CCalibrationDevice.h>
 	
 
 	
@@ -73,20 +69,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -162,7 +162,7 @@ class CalDeviceRow;
 	
  * <TR>
  * <TD> calLoadNames </TD> 
- * <TD> vector<CalibrationDeviceMod::CalibrationDevice > </TD>
+ * <TD> std::vector<CalibrationDeviceMod::CalibrationDevice > </TD>
  * <TD>  numCalload </TD> 
  * <TD> &nbsp;identifies the calibration loads (an array with one value per load). </TD>
  * </TR>
@@ -180,28 +180,28 @@ class CalDeviceRow;
 	
  * <TR>
  * <TD> calEff</TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numCalload  </TD>
  * <TD>&nbsp; the calibration efficiencies (one value per receptor per load). </TD>
  * </TR>
 	
  * <TR>
  * <TD> noiseCal</TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numCalload  </TD>
  * <TD>&nbsp; the equivalent temperatures of the of the noise sources used (one value per load). </TD>
  * </TR>
 	
  * <TR>
  * <TD> coupledNoiseCal</TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numCalload  </TD>
  * <TD>&nbsp;  </TD>
  * </TR>
 	
  * <TR>
  * <TD> temperatureLoad</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numCalload  </TD>
  * <TD>&nbsp; the physical temperatures of the loads for a black body calibration source (one value per load). </TD>
  * </TR>
@@ -355,7 +355,7 @@ public:
  	 * @param calLoadNames
 	
      */
-	CalDeviceRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
+	CalDeviceRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
 	
 
 
@@ -476,7 +476,7 @@ public:
  	 * @param calLoadNames
  	 		 
  	 */
-	CalDeviceRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames); 
+	CalDeviceRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

@@ -46,7 +46,7 @@ namespace casa {
 		 * the number of results returned if the countTotal exceeds the
 		 * limit on the number of search results obtained at one time.
 		 */
-		virtual void displaySearchResults( const vector<SplatResult>& results,
+		virtual void displaySearchResults( const std::vector<SplatResult>& results,
 		                                   int offset, int countTotal) = 0;
 		virtual ~SearchMoleculesResultDisplayer();
 	};

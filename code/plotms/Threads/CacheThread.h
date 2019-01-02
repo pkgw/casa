@@ -45,9 +45,9 @@ public:
 	void setPlot( PlotMSPlot* plot );
 	virtual PlotMSPlot* getPlot();
 	void setCacheBase( PlotMSCacheBase* cacheBase );
-	void setAxes( vector<PMS::Axis> axes );
+	void setAxes( std::vector<PMS::Axis> axes );
 	void setAxesData( int size  );
-	void setAxesData( vector<PMS::DataColumn> cachedData );
+	void setAxesData( std::vector<PMS::DataColumn> cachedData );
 	void setName( casacore::String msName );
 	void setSelection( PlotMSSelection selection );
 	void setAveraging( PlotMSAveraging averaging );
@@ -67,11 +67,10 @@ private:
 
 	bool itsLoad;
 	bool itsSetupPlot;
-	bool itsTimeConnect;
 	PlotMSCacheBase* itsCache;
-	vector<PMS::Axis> workAxes;
-	vector<PMS::DataColumn> itsAxesData;
-	casacore::String itsMSName, itsXConnect;
+    std::vector<PMS::Axis> workAxes;
+    std::vector<PMS::DataColumn> itsAxesData;
+	casacore::String itsMSName;
 	PlotMSSelection itsSelection;
 	PlotMSAveraging itsAveraging;
 	PlotMSTransformations itsTransformations;

@@ -41,46 +41,42 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
 
 
 	
-#include "CBasebandName.h"
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
-#include "CReceiverBand.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
-#include "CAtmPhaseCorrection.h"
-	
-
-	
-
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
@@ -104,7 +100,11 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -125,18 +125,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -242,42 +242,42 @@ class CalPhaseRow;
 	
  * <TR>
  * <TD> ampli </TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numBaseline </TD> 
  * <TD> &nbsp;the amplitudes (one value per receptor per baseline). </TD>
  * </TR>
 	
  * <TR>
  * <TD> antennaNames </TD> 
- * <TD> vector<vector<string > > </TD>
+ * <TD> std::vector<std::vector<std::string > > </TD>
  * <TD>  numBaseline, 2 </TD> 
  * <TD> &nbsp;the names of the antennas (one pair of strings per baseline). </TD>
  * </TR>
 	
  * <TR>
  * <TD> baselineLengths </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numBaseline </TD> 
  * <TD> &nbsp;the physical lengths of the baselines (one value per baseline). </TD>
  * </TR>
 	
  * <TR>
  * <TD> decorrelationFactor </TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numBaseline </TD> 
  * <TD> &nbsp;the decorrelation factors (one value per receptor per baseline). </TD>
  * </TR>
 	
  * <TR>
  * <TD> direction </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the direction of the source. </TD>
  * </TR>
 	
  * <TR>
  * <TD> frequencyRange </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the frequency range over which the result is valid. </TD>
  * </TR>
@@ -291,28 +291,28 @@ class CalPhaseRow;
 	
  * <TR>
  * <TD> phase </TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numBaseline </TD> 
  * <TD> &nbsp;the phases of the averaged interferometer signal (one value per receptor per baseline). </TD>
  * </TR>
 	
  * <TR>
  * <TD> polarizationTypes </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;identifies the polarization types of the receptors (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> phaseRMS </TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numBaseline </TD> 
  * <TD> &nbsp;the RMS of phase fluctuations relative to the average signal (one value per receptor per baseline). </TD>
  * </TR>
 	
  * <TR>
  * <TD> statPhaseRMS </TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numBaseline </TD> 
  * <TD> &nbsp;the RMS of phase deviations expected from the thermal fluctuations (one value per receptor per baseline). </TD>
  * </TR>
@@ -323,7 +323,7 @@ class CalPhaseRow;
 	
  * <TR>
  * <TD> correctionValidity</TD> 
- * <TD> vector<bool > </TD>
+ * <TD> std::vector<bool > </TD>
  * <TD>  numBaseline  </TD>
  * <TD>&nbsp; the deduced validity of atmospheric path length correction (from water vapor radiometers). </TD>
  * </TR>
@@ -332,34 +332,35 @@ class CalPhaseRow;
  * <TD> numAntenna(numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
- * <TD>&nbsp; the number of antennas. Defines the size singleAntennaName, phaseAnt, phaseAntRMS. One must pay attention to the fact that numBaseline and numAntenna must verify the the relation  : numBaseline == numAntenna * ( numAntenna - 1 )  / 2
+ * <TD>&nbsp; the number of antennas. Defines the size \texttt{singleAntennaName}, \texttt{phaseAnt}, \texttt{phaseAntRMS}. One must pay attention to the fact that \numBaseline  and  \numAntenna  must verify the the relation  : \numBaseline == \numAntenna * (  \numAntenna - 1 )  / 2
+
  </TD>
  * </TR>
 	
  * <TR>
  * <TD> singleAntennaName</TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numAntenna  </TD>
  * <TD>&nbsp; the ordered list of antenna names. The size of the array must be equal to the number of antennas. </TD>
  * </TR>
 	
  * <TR>
  * <TD> refAntennaName</TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp;  the name of the antenna used as a reference to get the antenna-based phases. </TD>
  * </TR>
 	
  * <TR>
  * <TD> phaseAnt</TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numAntenna  </TD>
  * <TD>&nbsp; the antenna based phase solution averaged over the scan (one value per receptor per antenna). See singleAntennaName for the association of the values of this array with the antennas. </TD>
  * </TR>
 	
  * <TR>
  * <TD> phaseAntRMS</TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numAntenna  </TD>
  * <TD>&nbsp; the RMS of the phase fluctuations relative to the antenna based average phase (one value per receptor per antenna). See singleAntennaName for the association of the values of this array with the antennas. </TD>
  * </TR>
@@ -541,7 +542,7 @@ public:
  	 * @param statPhaseRMS
 	
      */
-	CalPhaseRow *newRow(BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, vector<vector<float > > ampli, vector<vector<string > > antennaNames, vector<Length > baselineLengths, vector<vector<float > > decorrelationFactor, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<vector<float > > phase, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > phaseRMS, vector<vector<float > > statPhaseRMS);
+	CalPhaseRow *newRow(BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, std::vector<std::vector<float > > ampli, std::vector<std::vector<std::string > > antennaNames, std::vector<Length > baselineLengths, std::vector<std::vector<float > > decorrelationFactor, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<std::vector<float > > phase, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > phaseRMS, std::vector<std::vector<float > > statPhaseRMS);
 	
 
 
@@ -675,7 +676,7 @@ public:
  	 * @param statPhaseRMS
  	 		 
  	 */
-	CalPhaseRow* lookup(BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, vector<vector<float > > ampli, vector<vector<string > > antennaNames, vector<Length > baselineLengths, vector<vector<float > > decorrelationFactor, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<vector<float > > phase, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > phaseRMS, vector<vector<float > > statPhaseRMS); 
+	CalPhaseRow* lookup(BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, std::vector<std::vector<float > > ampli, std::vector<std::vector<std::string > > antennaNames, std::vector<Length > baselineLengths, std::vector<std::vector<float > > decorrelationFactor, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<std::vector<float > > phase, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > phaseRMS, std::vector<std::vector<float > > statPhaseRMS); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

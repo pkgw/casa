@@ -461,8 +461,8 @@ protected:
   PlotMSCacheBase(const PlotMSCacheBase&);
 
   // Resize storage for the number of chunks
-  void setCache(casacore::Int newnChunk, const vector<PMS::Axis>& loadAxes,
-    const vector<PMS::DataColumn>& loadData);
+  void setCache(casacore::Int newnChunk, const std::vector<PMS::Axis>& loadAxes,
+    const std::vector<PMS::DataColumn>& loadData);
   template<typename T> void addArrays(
     casacore::PtrBlock<casacore::Array<T>*>& input);
   template<typename T> void addMatrices(

@@ -33,7 +33,7 @@
  * File CReceiverBand.cpp
  */
 #include <sstream>
-#include <CReceiverBand.h>
+#include <alma/Enumerations/CReceiverBand.h>
 #include <string>
 using namespace std;
 

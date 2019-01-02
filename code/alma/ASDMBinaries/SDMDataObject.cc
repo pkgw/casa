@@ -1,5 +1,5 @@
-#include "SDMDataObject.h"
-#include "SDMDataObjectParser.h"
+#include <alma/ASDMBinaries/SDMDataObject.h>
+#include <alma/ASDMBinaries/SDMDataObjectParser.h>
 #include <algorithm>
 #include <iostream>
 #include <iterator>
@@ -11,7 +11,18 @@
 #include <boost/algorithm/string/find.hpp>
 #endif
 
-using namespace asdmbinaries;
+using namespace AtmPhaseCorrectionMod;
+using namespace AxisNameMod;
+using namespace BasebandNameMod;
+using namespace CorrelationModeMod;
+using namespace CorrelatorTypeMod;
+using namespace NetSidebandMod;
+using namespace PrimitiveDataTypeMod;
+using namespace ProcessorTypeMod;
+using namespace SpectralResolutionTypeMod;
+using namespace StokesParameterMod;
+
+using namespace std;
 
 namespace asdmbinaries {
 

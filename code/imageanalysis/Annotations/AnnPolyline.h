@@ -83,10 +83,10 @@ public:
 	casacore::Vector<casacore::MDirection> getCorners() const;
 
 	// get the world coordinates of the polygon vertices
-	void worldVertices(vector<casacore::Quantity>& x, vector<casacore::Quantity>& y) const;
+	void worldVertices(std::vector<casacore::Quantity>& x, std::vector<casacore::Quantity>& y) const;
 
 	// get the pixel coordinates of the polygon vertices
-	void pixelVertices(vector<casacore::Double>& x, vector<casacore::Double>& y) const;
+	void pixelVertices(std::vector<casacore::Double>& x, std::vector<casacore::Double>& y) const;
 
 
 	virtual std::ostream& print(std::ostream &os) const;

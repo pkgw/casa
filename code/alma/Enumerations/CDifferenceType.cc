@@ -33,7 +33,7 @@
  * File CDifferenceType.cpp
  */
 #include <sstream>
-#include <CDifferenceType.h>
+#include <alma/Enumerations/CDifferenceType.h>
 #include <string>
 using namespace std;
 

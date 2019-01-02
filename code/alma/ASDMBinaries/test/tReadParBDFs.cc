@@ -13,20 +13,20 @@
 #include <alma/Options/AlmaArg.h>
 using namespace alma;
 
-#include <ASDMAll.h>
-#include <Misc.h>
+#include <alma/ASDM/ASDMAll.h>
+#include <alma/ASDM/Misc.h>
 
-#include "SDMBinData.h"
+#include <alma/ASDMBinaries/SDMBinData.h>
 using namespace sdmbin;
 
 #include <exception>
 using namespace asdm;
-#include "IllegalAccessException.h"
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include "SDMDataObjectReader.h"
-#include "SDMDataObject.h"
+#include <alma/ASDMBinaries/SDMDataObjectReader.h>
+#include <alma/ASDMBinaries/SDMDataObject.h>
 
-#include "asdmstman/AsdmStMan.h"
+#include <asdmstman/AsdmStMan.h>
 
 #include <casa/OS/Path.h>
 

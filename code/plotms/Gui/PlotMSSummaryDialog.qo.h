@@ -48,7 +48,7 @@ public:
     //Is the summary verbose?
     bool isVerbose() const;
     casacore::String getFileName() const;
-    void filesChanged(const vector<casacore::String>& fileNamees);
+    void filesChanged(const std::vector<casacore::String>& fileNamees);
     //Return the summary type.
     PMS::SummaryType getSummaryType() const;
     PMS::CTSummaryType getCTSummaryType() const;

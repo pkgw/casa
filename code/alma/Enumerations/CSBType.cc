@@ -33,7 +33,7 @@
  * File CSBType.cpp
  */
 #include <sstream>
-#include <CSBType.h>
+#include <alma/Enumerations/CSBType.h>
 #include <string>
 using namespace std;
 
