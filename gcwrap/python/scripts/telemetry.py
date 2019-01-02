@@ -51,7 +51,7 @@ class telemetry:
 
         # Setup Telemetry log size monitoring
         # Size limit for the telemetry logs
-        tLogSizeLimit = 10000
+        tLogSizeLimit = 20000
         # File size check interval
         tLogSizeInterval = 60
         try:
