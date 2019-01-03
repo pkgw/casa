@@ -44,9 +44,14 @@ if CASA6:
     fakepath = casatools.ctsys.resolve('visibilities/')
     #filepath = casatools.ctsys.resolve('testlog.log')
 else:
-    dataroot = os.environ.get('CASAPATH').split()[0] + '/'
-    datapath = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/alma/Itziar.ms'
-    fakepath = dataroot + 'data/casa-data-req/visibilities/'
+    if os.path.exists(os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req'):
+        dataroot = os.environ.get('CASAPATH').split()[0] + '/'
+        datapath = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/alma/Itziar.ms'
+        fakepath = dataroot + 'data/casa-data-req/visibilities/'
+    else:
+        dataroot = os.environ.get('CASAPATH').split()[0] + '/'
+        datapath = os.environ.get('CASAPATH').split()[0] + '/casa-data-req/visibilities/alma/Itziar.ms'
+        fakepath = dataroot + 'casa-data-req/visibilities/'
     #filepath = 'testlog.log'
     
 class listhistory_test(unittest.TestCase):
