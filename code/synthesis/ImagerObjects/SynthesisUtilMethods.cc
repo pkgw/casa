@@ -410,7 +410,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	
 
 	MVTime mvInt=mainCols.intervalQuant()(0);
-	Time intT(mvInt.getTime());
+	//Time intT(mvInt.getTime());
 	//	Tint = intT.modifiedJulianDay();
 
 	Int partNo=0;
@@ -3712,7 +3712,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      
 	      if( inrec.dataType("restoringbeam")==TpString )     
 		{
-		  err += readVal( inrec, String("restoringbeam"), usebeam); 
+		  err += readVal( inrec, String("restoringbeam"), usebeam);
+          // FIXME ! usebeam.length() == 0 is a poorly formed conditional, it
+          // probably needs simplification or parenthesis, the compiler is
+          // compaining about it
 		  if( (! usebeam.matches("common")) && ! usebeam.length()==0 )
 		    {
 		      Quantity bsize;

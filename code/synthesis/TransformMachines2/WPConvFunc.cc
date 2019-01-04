@@ -291,6 +291,7 @@ void WPConvFunc::findConvFunction(const ImageInterface<Complex>& image,
       //////openmp like to share reference param ...but i don't like to share
      Int cpConvSize=maxConvSize;
      //cerr << "orig convsize " << convSize << endl;
+     // cpWConvSize produces not used compiler warning because omp not used I guess
      Int cpWConvSize=wConvSize;
      Double cpWscale=wScale;
      Int wstart=planesPerChunk*chunkId;

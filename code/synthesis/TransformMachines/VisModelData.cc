@@ -62,7 +62,7 @@ namespace {
   casa::VisModelDataI * createVisModelData (){
     return new casa::VisModelData ();
   }
-
+  // FIXME initializeVisModelDataFactory defined but not used triggers compiler warning
   bool initializeVisModelDataFactory = casa::VisModelDataI::setFactory (createVisModelData);
 
 }

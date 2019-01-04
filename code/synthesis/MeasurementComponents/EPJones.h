@@ -173,7 +173,7 @@ private:
   casacore::Cube<casacore::Float>  pointPar_;
   nPBWProjectFT *pbwp_p;
   //  PBMosaicFT *pbwp_p;
-  casacore::MeasurementSet *ms_p;
+  //casacore::MeasurementSet *ms_p;
   VisSet *vs_p;
   //  casacore::Array<casacore::Float> azOff, elOff;
   casacore::TempImage<casacore::Complex> targetVisModel_;

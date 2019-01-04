@@ -91,9 +91,9 @@ GJonesSpline::GJonesSpline (VisSet& vs) :
   solveAmp_p(false),
   solvePhase_p(true),
   splinetime_p(7200.0),
-  cacheTimeValid_p(0),
+  //cacheTimeValid_p(0),
   calBuffer_p(NULL),
-  rawPhaseRemoval_p(false),
+  //rawPhaseRemoval_p(false),
   timeValueMap_p(0),
   solTimeStamp_p(0.0)
 {
@@ -125,9 +125,9 @@ GJonesSpline::GJonesSpline (const MSMetaInfoForCal& msmc) :
   solveAmp_p(false),
   solvePhase_p(true),
   splinetime_p(7200.0),
-  cacheTimeValid_p(0),
+  // cacheTimeValid_p(0),
   calBuffer_p(NULL),
-  rawPhaseRemoval_p(false),
+  // rawPhaseRemoval_p(false),
   timeValueMap_p(0),
   solTimeStamp_p(0.0)
 {
