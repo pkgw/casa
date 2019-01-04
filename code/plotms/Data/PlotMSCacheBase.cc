@@ -1222,23 +1222,23 @@ void PlotMSCacheBase::setCache(Int newnChunk,
         // Resize, copying existing contents
         switch(loadAxes[i]) {
             case PMS::SCAN: {
-                scan_.resize(nChunk_,true);
+                scan_.resize(nChunk_);
                 }
                 break;
             case PMS::FIELD: {
-                field_.resize(nChunk_,true);
+                field_.resize(nChunk_);
                 }
                 break;
             case PMS::TIME: {
-                time_.resize(nChunk_,true);
+                time_.resize(nChunk_);
                 }
                 break;
             case PMS::TIME_INTERVAL: {
-                timeIntr_.resize(nChunk_,true);
+                timeIntr_.resize(nChunk_);
                 }
                 break;
             case PMS::SPW: {
-                spw_.resize(nChunk_,true);
+                spw_.resize(nChunk_);
                 }
                 break;
             case PMS::CHANNEL: {
@@ -1530,15 +1530,15 @@ void PlotMSCacheBase::setCache(Int newnChunk,
                 break;
             case PMS::AZ0:
             case PMS::EL0: {
-                az0_.resize(nChunk_,true);
-                el0_.resize(nChunk_,true);
+                az0_.resize(nChunk_);
+                el0_.resize(nChunk_);
                 break;
             }
             case PMS::HA0:
-                ha0_.resize(nChunk_,true);
+                ha0_.resize(nChunk_);
                 break;
             case PMS::PA0:
-                pa0_.resize(nChunk_,true);
+                pa0_.resize(nChunk_);
                 break;
             case PMS::ANTENNA:
                 addVectors(antenna_);
@@ -1574,11 +1574,11 @@ void PlotMSCacheBase::setCache(Int newnChunk,
                 addArrays(antpos_);
                 break;
             case PMS::RADIAL_VELOCITY: {
-                radialVelocity_.resize(nChunk_,true);
+                radialVelocity_.resize(nChunk_);
                 }
                 break;
             case PMS::RHO: {
-                rho_.resize(nChunk_,true);
+                rho_.resize(nChunk_);
                 }
                 break;
             case PMS::ATM:
@@ -1595,40 +1595,29 @@ void PlotMSCacheBase::setCache(Int newnChunk,
 
 template<typename T>
 void PlotMSCacheBase::addArrays(PtrBlock<Array<T>*>& input) {
-    Int oldsize = input.size();
-    if (nChunk_ > oldsize) {
-        input.resize(nChunk_, false, true);
+	input.resize(nChunk_, true, false);
+    for (Int ic=0; ic<nChunk_; ++ic) {
         // Construct (empty) pointed-to Vectors
-        for (Int ic=oldsize; ic<nChunk_; ++ic) 
-            input[ic] = new Array<T>();
-    } else {
-        input.resize(nChunk_, true, false);
+        input[ic] = new Array<T>();
     }
 }
 
 template<typename T>
 void PlotMSCacheBase::addMatrices(PtrBlock<Matrix<T>*>& input) {
-    Int oldsize = input.size();
-    if (nChunk_ > oldsize) {
-        input.resize(nChunk_, false, true);
+    input.resize(nChunk_, true, false);
+    for (Int ic=0; ic<nChunk_; ++ic) {
         // Construct (empty) pointed-to Vectors
-        for (Int ic=oldsize; ic<nChunk_; ++ic) 
-            input[ic] = new Matrix<T>();
-    } else {
-        input.resize(nChunk_, true, false);
+        input[ic] = new Matrix<T>();
     }
 }
 
 template<typename T>
 void PlotMSCacheBase::addVectors(PtrBlock<Vector<T>*>& input) {
+    input.resize(nChunk_, true, false);
     Int oldsize = input.size();
-    if (nChunk_ > oldsize) {
-        input.resize(nChunk_, false, true);
+    for (Int ic=0; ic<nChunk_; ++ic) {
         // Construct (empty) pointed-to Vectors
-        for (Int ic=oldsize; ic<nChunk_; ++ic) 
-            input[ic] = new Vector<T>();
-    } else {
-        input.resize(nChunk_, true, false);
+        input[ic] = new Vector<T>();
     }
 }
 
