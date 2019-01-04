@@ -1100,26 +1100,11 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 	 SynthesisUtilMethods::getResource("Start Major Cycle for mapper"+String::toString(gmap));
 	 CountedPtr<vi::FrequencySelections> copyFsels=fselections_p->clone();
 	 vi::VisBuffer2* vb=vi_p->getVisBuffer();
-	 vi_p->originChunks();
-	 vi_p->origin();
-	 if(!dopsf){
-	   cerr << "Chunk " << gmap << " before tuning " <<  " fieldID " << vb->fieldId()(0) << " chans " << vb->getChannelNumber(0,0)<<  "," << vb->getChannelNumber(0,1) << "," << vb->getChannelNumber(0,2)  << endl;
-	 }
+	 /// Careful where tunechunk 
 	 tuneChunk(gmap);
 
-	  /////Work around because the first vb in the loop
-	 ///below is at some other setting
-	 //Don't know why an extra set of originchunks fixes it.
-	 ///// it seems to get reset after the first advance in the loop below...
-	 ///Comment the following  originchunks() to see the difference!
-	 Bool bypass=False;
-	 AipsrcValue<Bool>::find (bypass, "tclean.bypassworkaround", False);
-	 if(!bypass)
-	 {
-	   vi_p->originChunks();
-	 }
-	
-	 /////End of work around
+	 vi_p->originChunks();
+	 vi_p->origin();
 
 	 Double numcoh=0;
 	 for (uInt k=0; k< mss_p.nelements(); ++k)
@@ -1156,7 +1141,6 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 		{
 		  
 		  if(!dopsf) {
-		    cerr << "Iteration " << iterNum << " fieldID " << vb->fieldId()(0) << " chans " << vb->getChannelNumber(0,0)<< "," << vb->getChannelNumber(0,1) << "," << vb->getChannelNumber(0,2)   << endl;
 		    if(resetModel==False) 
 		      { 
 			Cube<Complex> mod(vb->nCorrelations(), vb->nChannels(), vb->nRows(), Complex(0.0));
