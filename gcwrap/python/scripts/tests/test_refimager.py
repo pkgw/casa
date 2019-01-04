@@ -1623,7 +1623,7 @@ class test_cube(testref_base):
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step1.png',title="model after partial mtmfs on some channels")
 
           delmod(self.msfile);self.th.delmodels(msname=self.msfile,modcol='reset0')
-          ret = tclean(vis=self.msfile,imagename=self.img+'1',imsize=100,cell='8.0arcsec',startmodel=[self.img+'.model.tt0',self.img+'.model.tt1'], spw='0',niter=0,savemodel='modelcolumn',deconvolver='mtmfs')
+          ret = tclean(vis=self.msfile,imagename=self.img+'1',imsize=100,cell='8.0arcsec',startmodel=[imagename+'.model.tt0',imagename+'.model.tt1'], spw='0',niter=0,savemodel='modelcolumn',deconvolver='mtmfs')
 #          self.assertTrue( self.th.checkmodelchan(self.msfile,10) > 0.0 and self.th.checkmodelchan(self.msfile,3) > 0.0 
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step2.png',title="model after mtmfs predict on full spw" )
 
@@ -1840,6 +1840,27 @@ class test_mask(testref_base):
           """ [mask] test_mask__autobox_multithresh :  multi-threshold Autobox (default)"""
           self.prepData('refim_twochan.ms')
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-multithresh')
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+          self.checkfinal(report)
+
+     def test_mask_autobox_multithresh_newnoise(self):
+          """ [mask] test_mask__autobox_multithresh :  multi-threshold Autobox invoking the new noise calc."""
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-multithresh', fastnoise=False)
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+          self.checkfinal(report)
+
+     def test_mask_autobox_multithresh_with_nsigma(self):
+          """ [mask] test_mask__autobox_multithresh :  multi-threshold Autobox invoking the new noise calc."""
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-multithresh', nsigma=3.0)
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+          self.checkfinal(report)
+
+     def test_mask_autobox_multithresh_with_nsigma_newnoise(self):
+          """ [mask] test_mask__autobox_multithresh :  multi-threshold Autobox invoking the new noise calc."""
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-multithresh', nsigma=3.0, fastnoise=False)
           report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
           self.checkfinal(report)
 

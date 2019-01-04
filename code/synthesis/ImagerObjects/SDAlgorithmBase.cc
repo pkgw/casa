@@ -74,7 +74,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SDAlgorithmBase::deconvolve( SIMinorCycleController &loopcontrols, 
 				    std::shared_ptr<SIImageStore> &imagestore,
-				    Int deconvolverid)
+				    Int deconvolverid,
+                                    Bool isautomasking, Bool fastnoise)
   {
     LogIO os( LogOrigin("SDAlgorithmBase","deconvolve",WHERE) );
 
@@ -137,9 +138,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    startpeakresidual = peakresidual;
 	    startmodelflux = modelflux;
 
-            // returns as an Array but itsImages is already single plane so 
-            // the return rms contains only a single element
-            robustrms = itsImages->calcRobustRMS(itsPBMask);
             //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
             Float nsigmathresh; 
@@ -153,6 +151,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
  
             Float thresholdtouse;
             if (nsigma>0.0) {
+              // returns as an Array but itsImages is already single plane so 
+              // the return rms contains only a single element
+              Array<Double> medians;
+              robustrms = itsImages->calcRobustRMS(medians, itsPBMask, fastnoise);
+              if (isautomasking) { // new threshold defination 
+                nsigmathresh = (Float)medians(IPosition(1,0)) + nsigma * (Float)robustrms(IPosition(1,0));
+              }
+              else {
+                nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
+              }
               thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
             }
             else {
@@ -276,7 +284,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    
 	    loopcontrols.resetCycleIter(); 
 
-	    if( peakresidual > maxResidualAcrossPlanes )
+	    if( peakresidual > maxResidualAcrossPlanes && stopCode!=0 )
 	      {maxResidualAcrossPlanes=peakresidual; maxResChan=chanid; maxResPol=polid;}
 
 	    totalFluxAcrossPlanes += modelflux;

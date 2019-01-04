@@ -45,7 +45,7 @@ protected:
 private:
 	bool exportText( PlotMSApp* plotms );
 	PlotExportFormat adjustFormat(  PlotExportFormat::Type t);
-	vector<PlotMSPlot*> plots;
+    std::vector<PlotMSPlot*> plots;
 	PlotExportFormat format;
 
 	bool interactive;

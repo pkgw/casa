@@ -1,13 +1,13 @@
 #if     !defined(_BASELINESSET_H)
  
-#include "ASDMEntities.h"
-#include "Error.h"
-#include "BaselineMetadata.h"
-#include "SwitchCyclesList.h"
-#include "DataDescriptionsSet.h"
+#include <alma/ASDM/ASDMEntities.h>
+#include <alma/ASDMBinaries/Error.h>
+#include <alma/ASDMBinaries/BaselineMetadata.h>
+#include <alma/ASDMBinaries/SwitchCyclesList.h>
+#include <alma/ASDMBinaries/DataDescriptionsSet.h>
 
-#include <AxisName.h>
-#include <DataContent.h>
+#include <alma/Enumtcl/AxisName.h>
+#include <alma/Enumtcl/DataContent.h>
 
 
 namespace sdmbin {
@@ -35,10 +35,10 @@ namespace sdmbin {
      * @note v_feedIdArray may be typed vector<vector<int> > in the future to better describe the case of
      *       of focal plane arrays when used with interferometers
      */     
-    BaselinesSet( vector<Tag>  v_antennaIdArray, 
-		  vector<int>  v_feedIdArray,
-		  vector<int>  v_phasedArrayList,
-		  vector<bool> v_antennaUsedArray, 
+    BaselinesSet( std::vector<asdm::Tag>  v_antennaIdArray, 
+		  std::vector<int>  v_feedIdArray,
+		  std::vector<int>  v_phasedArrayList,
+		  std::vector<bool> v_antennaUsedArray, 
 		  DataDescriptionsSet& dataDescriptionsSet
 		  );
 
@@ -122,7 +122,7 @@ namespace sdmbin {
      * @exception Error if there is no antenna effectively 
      * producing data with this antennaId.
      */
-    unsigned int baselineIndex( Tag antennaId)  ;
+    unsigned int baselineIndex( asdm::Tag antennaId)  ;
 
     /** Baseline number for a given pair of antenna identifiers
      * @param  antennaId1 Antenna identifier of one of the antenna in a pair of a non-zero baseline
@@ -143,7 +143,7 @@ namespace sdmbin {
      *      convention that baselines are defined on the basis of a pair onf indices (see the note in the documentation
      *      for the transferId(int, int, int, int, int) method.
      */ 
-    unsigned int baselineIndex( Tag antennaId1, Tag antennaId2) ;
+    unsigned int baselineIndex( asdm::Tag antennaId1, asdm::Tag antennaId2) ;
 
     /** Baseline number for a given pair of antenna indices in the list of antennas effectively producing data
      * @param  na1 index (zero-based) of antenna 1
@@ -192,14 +192,14 @@ namespace sdmbin {
      * - No antenna with this antenna identifier. In this case, in lax mode, this method return -1.
      * - No feed with this feed identifier given the antenna identifier. In this case, in lax mode, this method return -2.
      */
-    unsigned int feedIndex(Tag antennaId, int feedId) ;
+    unsigned int feedIndex(asdm::Tag antennaId, int feedId) ;
 
     /** Antenna identifier from its index in the sequence of antenna restricted to those effectively producing data
      * @param na The antenna index in the list of \f$ N'_{ant}\f$ antennas effectively producing data
      * @exception na exceeds \f$ N'_{ant}-1\f$
      * @return The antenna identifier
      */
-    Tag         getEffAntennaId(unsigned int na) ;
+    asdm::Tag         getEffAntennaId(unsigned int na) ;
 
     /** Number of antenna involved in the data if none would have been dropped
      * @return this number \f$ N_{ant} \f$ which is also the number of antenna scheduled for the observations
@@ -257,18 +257,18 @@ namespace sdmbin {
      *        to false and the data involving the antennas with problem will be considered
      *        as blanked on the basis of the FLAGS information.
      */
-    unsigned int getNumPDTvalue(Enum<DataContent> e_dc, EnumSet<AxisName> es_an, bool effective);
+    unsigned int getNumPDTvalue(Enum<DataContentMod::DataContent> e_dc, EnumSet<AxisNameMod::AxisName> es_an, bool effective);
 
   private:
-    vector<Tag>  v_AntennaIdArray_;   //!< Input array set of antenna identifiers (size numAntennas_)
-    vector<int>  v_FeedIdArray_;      //!< Input array list of feed identifiers (size numFeed*numAntennas_)
-    vector<int>  v_PhasedArrayList_;  //!< Input phasedArray list (not yet implemented) 
+    std::vector<asdm::Tag>  v_AntennaIdArray_;   //!< Input array set of antenna identifiers (size numAntennas_)
+    std::vector<int>  v_FeedIdArray_;      //!< Input array list of feed identifiers (size numFeed*numAntennas_)
+    std::vector<int>  v_PhasedArrayList_;  //!< Input phasedArray list (not yet implemented) 
     unsigned int numFeeds_;           //!< Input number of feeds
     unsigned int numAntennas_;        //!< Input number of antennas
     unsigned int numEffAntennas_;     //!< Effective number of antennas with data
     unsigned int numBaselines_;       //!< number of antenna pairs
     unsigned int numEffBaselines_;    //!< Effective number of antenna pairs
-    vector<Tag>  v_effAntennaIdArray_;//!< Effective array of antenna identifiers
+    std::vector<asdm::Tag>  v_effAntennaIdArray_;//!< Effective array of antenna identifiers
 
   };
 
@@ -291,8 +291,8 @@ namespace sdmbin {
   }
 
   inline unsigned int BaselinesSet::baselineIndex( unsigned int na1, unsigned int na2) {
-    unsigned int iIdx = min (na1, na2);
-    unsigned int jIdx = max (na1, na2);
+    unsigned int iIdx = std::min (na1, na2);
+    unsigned int jIdx = std::max (na1, na2);
     return jIdx * (jIdx - 1) / 2 + iIdx;
   }
 }

@@ -4,30 +4,30 @@
 #include <sstream>
 #include <string>
 
-#include <ASDMEntities.h>  
-#include <Tag.h>
-#include <ArrayTime.h>
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ASDMEntities.h>  
+#include <alma/ASDM/Tag.h>
+#include <alma/ASDM/ArrayTime.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 
 // Enumerations used to select data:
-#include <AtmPhaseCorrection.h>
-#include <CorrelationMode.h>
-#include <ProcessorType.h>
-#include <ScanIntent.h>
-#include <SpectralResolutionType.h>
-#include <TimeSampling.h>
+#include <alma/Enumtcl/AtmPhaseCorrection.h>
+#include <alma/Enumtcl/CorrelationMode.h>
+#include <alma/Enumtcl/ProcessorType.h>
+#include <alma/Enumtcl/ScanIntent.h>
+#include <alma/Enumtcl/SpectralResolutionType.h>
+#include <alma/Enumtcl/TimeSampling.h>
 
-#include <CorrelatorType.h>
+#include <alma/Enumtcl/CorrelatorType.h>
 
 // Views:
-#include "SDMDataViews.h"
+#include <alma/ASDMBinaries/SDMDataViews.h>
 
-#include "BaselinesSet.h"
-#include "Integration.h"
+#include <alma/ASDMBinaries/BaselinesSet.h>
+#include <alma/ASDMBinaries/Integration.h>
 
 
-#include "SDMDataObjectReader.h"
-#include "SDMDataObjectStreamReader.h"
+#include <alma/ASDMBinaries/SDMDataObjectReader.h>
+#include <alma/ASDMBinaries/SDMDataObjectStreamReader.h>
 
 // shared_ptr not needed by CASA, do not compile this for the WITHOUT_BOOST option
 // It may be needed by ALMA code, so do not elimiate it yet.
@@ -35,14 +35,8 @@
 #include <boost/shared_ptr.hpp>
 #endif
 
-using namespace asdmbinaries;
-
 // #include "Singleton.hpp"
 // #include "ExecBlockDir.hpp"
-
-
-using namespace std;
-using namespace asdm;
 
 namespace sdmbin{
 
@@ -65,7 +59,7 @@ class SDMBinData{
       scaning the SDM main table rows if the intent is to build a MeasurementSet 
       MAIN table.
   */ 
-  SDMBinData( ASDM* const datasetPtr, string execBlockDir);
+  SDMBinData( asdm::ASDM* const datasetPtr, std::string execBlockDir);
 
   ~SDMBinData();
 
@@ -76,7 +70,7 @@ class SDMBinData{
       @note If the method isComplex() is used subsequently this selection can not be modified 
       after that.
   */
-  void select( EnumSet<ScanIntent> es_si);
+  void select( EnumSet<ScanIntentMod::ScanIntent> es_si);
 
   /** Method to select the main table rows to retrieve data for a subset of
       processor types.
@@ -85,7 +79,7 @@ class SDMBinData{
       @note If the method isComplex() is used subsequently this selection can not be modified 
       after that.
   */
-  void select( EnumSet<ProcessorType> es_pt);
+  void select( EnumSet<ProcessorTypeMod::ProcessorType> es_pt);
 
   /** Method to select the main table rows to retrieve data for a subset of
       correlation modes.
@@ -94,7 +88,7 @@ class SDMBinData{
       @note If the method isComplex() is used subsequently this selection can not be modified 
       after that.
   */
-  void select( EnumSet<CorrelationMode> es_cm);
+  void select( EnumSet<CorrelationModeMod::CorrelationMode> es_cm);
   
   /** Method to select the main table rows to retrieve data for a subset of
       spectral resolution types.
@@ -103,7 +97,7 @@ class SDMBinData{
       @note If the method isComplex() is used subsequently this selection can not be modified 
       after that.
   */
-  void select( EnumSet<SpectralResolutionType> es_srt);
+  void select( EnumSet<SpectralResolutionTypeMod::SpectralResolutionType> es_srt);
 
   /** Method to select the main table rows to retrieve data for a subset of
       time samplings.
@@ -112,7 +106,7 @@ class SDMBinData{
       @note If the method isComplex() is used subsequently this selection can not be modified 
       after that.
   */
-  void select( EnumSet<TimeSampling> es_ts);
+  void select( EnumSet<TimeSamplingMod::TimeSampling> es_ts);
 
 
   /** An alternate method to select the main table rows to retrieve data for a subset of
@@ -124,9 +118,9 @@ class SDMBinData{
       @note If the method isComplex() is used subsequently this selection can not be modified 
       after that.
   */
-  void select( EnumSet<CorrelationMode>        es_cm,
-	       EnumSet<SpectralResolutionType> es_srt, 
-	       EnumSet<TimeSampling>           es_ts);  
+  void select( EnumSet<CorrelationModeMod::CorrelationMode>        es_cm,
+	       EnumSet<SpectralResolutionTypeMod::SpectralResolutionType> es_srt, 
+	       EnumSet<TimeSamplingMod::TimeSampling>           es_ts);  
 
 
   /** Method to constrain the getData methods to return a (sub)set of the data which are in the BLOBs
@@ -137,8 +131,8 @@ class SDMBinData{
       then both type of data will be returned.
       @note Note that the MS filler accepts at most one AtmPhaseCorrection enumerator.
   */ 
-  void selectDataSubset( Enum<CorrelationMode>       e_qcm,
-			 EnumSet<AtmPhaseCorrection> es_qapc );
+  void selectDataSubset( Enum<CorrelationModeMod::CorrelationMode>       e_qcm,
+			 EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection> es_qapc );
 
   /** Method to set priority for DataDescription in the output order
       @post Output sequence forced to be DataDescriptionId/TimeInterval/Ant1/Ant2
@@ -152,7 +146,7 @@ class SDMBinData{
       minimize the number of measure conversions when computing the UVWs with the UvwCoords 
       state machine.
   */
-  vector<pair<unsigned int,double> > timeSequence()const;
+  std::vector<std::pair<unsigned int,double> > timeSequence()const;
 
   /** Predicate to tell if the dataDescriptionId has priority over time in the out
       sequence of MSData objects.
@@ -177,7 +171,7 @@ class SDMBinData{
    * @param mainRowPtr a pointer to a row of the Main table of an ASDM dataset.
    * @return a ProcessorType value.
    */
-  ProcessorType processorType(MainRow* const mainRowPtr) const; 
+  ProcessorTypeMod::ProcessorType processorType(asdm::MainRow* const mainRowPtr) const; 
 
   /** Accessor to the SDM Main table rows
       @param mainRowPtr Pointer to a row of the Main table
@@ -186,7 +180,7 @@ class SDMBinData{
       method, else the state is adequate to respond to a new call of this
       acceptMainRow for an other SDM Main table row.
   */
-  bool acceptMainRow( MainRow* const mainRowPtr);
+  bool acceptMainRow( asdm::MainRow* const mainRowPtr);
 
   /** Accessor to one SDM Main table row.
    * @param mainrowPtr is a pointer to one row of the SDM Main table,
@@ -194,14 +188,14 @@ class SDMBinData{
    * @post a true value returned means that the instance of SDMBinData is in 
    * a state such a call to the getData method can be done, else only another call to openRow (supposedly for another Main row) can be done.
    */
-  bool openMainRow(MainRow* const mainRowPtr);
+  bool openMainRow(asdm::MainRow* const mainRowPtr);
 
   /** Filter: rejection of a Main table row if it does not satisfy the criterion
       of selection. 
       @param mainRowPtr Pointer to a row of the Main table
       @return the reason if this row has been rejected, else an empty string
   */ 
-  string reasonToReject(MainRow* const mainRowPtr);
+  std::string reasonToReject(asdm::MainRow* const mainRowPtr);
 
 
   /** Method to know if the data to be retrieved will be of type complex or not.
@@ -221,43 +215,43 @@ class SDMBinData{
   */
   bool isComplexData();
 
-  vector<SDMData*> getData();
+  std::vector<SDMData*> getData();
 
   /**
      @todo 
      - apply the polynomials for the field directions
      - apply syscal for the cross data
    */
-  vector<MSData*>  getData( Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc); 
+  std::vector<MSData*>  getData( Enum<CorrelationModeMod::CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection> es_qapc); 
 
   MSData*          getData( unsigned int na, unsigned int nfe, unsigned int ndd, unsigned int nbin) throw (Error); 
 
   MSData*          getCalibratedData( unsigned int na, unsigned int nfe, unsigned int ndd, unsigned int nbin,
-				      pair<bool,vector<vector<float> > > p_tsys) throw (Error); 
+				      std::pair<bool,std::vector<std::vector<float> > > p_tsys) throw (Error); 
 
   MSData*          getData( unsigned int na1, unsigned int nfe1, unsigned int na2, unsigned int nfe2, 
-			    unsigned int ndd, unsigned int nbin, vector<unsigned int> v_napc,
+			    unsigned int ndd, unsigned int nbin, std::vector<unsigned int> v_napc,
 			    float scleFactor);
 
   MSData*          getCalibratedData( unsigned int na1, unsigned int nfe1, unsigned int na2, unsigned int nfe2, 
-				      unsigned int ndd, unsigned int nbin, vector<unsigned int> v_napc,
+				      unsigned int ndd, unsigned int nbin, std::vector<unsigned int> v_napc,
 				      float scleFactor,
-				      pair<bool,vector<vector<float> > > p_tsys);
+				      std::pair<bool,std::vector<std::vector<float> > > p_tsys);
 
-  MSData*          getData( Tag antId, int feedId,
-			    Tag dataDescId, 
-			    AtmPhaseCorrection apc, 
+  MSData*          getData( asdm::Tag antId, int feedId,
+			    asdm::Tag dataDescId, 
+			    AtmPhaseCorrectionMod::AtmPhaseCorrection apc, 
 			    unsigned int  binNum); 
 
-  MSData*          getData( Tag antId1, int feedId1,
-			    Tag antId2, int feedId2,
-			    Tag dataDescId, 
-			    vector<AtmPhaseCorrection> v_apc, 
+  MSData*          getData( asdm::Tag antId1, int feedId1,
+			    asdm::Tag antId2, int feedId2,
+			    asdm::Tag dataDescId, 
+			    std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection> v_apc, 
 			    unsigned int  binNum); 
 
   const VMSData* getDataCols();
 
-  const VMSData* getDataCols( Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc );
+  const VMSData* getDataCols( Enum<CorrelationModeMod::CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection> es_qapc );
 
   /**
    * Returns a pointer to a VMSData structure containing the values require to populate the MS Main table columns
@@ -270,16 +264,16 @@ class SDMBinData{
    * @return a pointer to a VMSData containing the values to populate MS rows.
    */
   const VMSData* getNextMSMainCols(unsigned int n);
-  const VMSData* getNextMSMainCols(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int n);
+  const VMSData* getNextMSMainCols(Enum<CorrelationModeMod::CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection> es_qapc, unsigned int n);
 
   // shared_ptr not needed by CASA, do not compile this for the WITHOUT_BOOST option
   // It may be needed by ALMA code, so do not elimiate it yet.
 #ifndef WITHOUT_BOOST
   void getNextMSMainCols(unsigned int n, boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp);
-  void getNextMSMainCols(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int n, boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp);
+  void getNextMSMainCols(Enum<CorrelationModeMod::CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection> es_qapc, unsigned int n, boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp);
 #endif
 
-  vector<MSData*> getMSDataFromBDFData(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int n);
+  std::vector<MSData*> getMSDataFromBDFData(Enum<CorrelationModeMod::CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection> es_qapc, unsigned int n);
 
   /**
    * Populates the vector v_dataDump after having read at most n DataSubsets in the BDF.
@@ -303,20 +297,20 @@ class SDMBinData{
   static bool autoTrailing();
 
   /** The two parameters defining the order in the output sequences, baslineReverse and autoTrailing */
-  static pair<bool,bool> dataOrder();
+  static std::pair<bool,bool> dataOrder();
 
  protected:
 
   /** Do the actual binary data binding
       @param dataOID The data object identifier
    */
-  int  attachDataObject(string dataOID);
+  int  attachDataObject(std::string dataOID);
 
   /** Do the actual binary data binding.
       The BDF is traversed as a stream.
       @param dataOID The data object identifier
    */
-  int  attachStreamDataObject(const string& dataOID);
+  int  attachStreamDataObject(const std::string& dataOID);
 
   /** Initialize the sequential reading of the SDMDataSubsets (i.e. [sub]integrations) contained in the BDF referred 
    * to by dataOID.
@@ -328,7 +322,7 @@ class SDMBinData{
    * @param dataOID the BDF identifier.
    * @return an int value. 0 means a problem, 1 means Ok.
    */
-  int openStreamDataObject(const string& dataOID);
+  int openStreamDataObject(const std::string& dataOID);
 
   /** Unset the current data binding
    */
@@ -347,32 +341,32 @@ class SDMBinData{
     @param timeOfDump The epoch to be considered to determine this MS STATE view
   */
   MSState          getMSState( unsigned int subscanNum,
-			       vector<Tag>  v_stateId, 
-			       vector<Tag>  v_antennaId, vector<int> v_feedId, vector<Tag> v_ddId,
-			       unsigned int na, unsigned int nfe, unsigned int nspw, ArrayTime timeOfDump);
+			       std::vector<asdm::Tag>  v_stateId, 
+			       std::vector<asdm::Tag>  v_antennaId, std::vector<int> v_feedId, std::vector<asdm::Tag> v_ddId,
+			       unsigned int na, unsigned int nfe, unsigned int nspw, asdm::ArrayTime timeOfDump);
 
  private:
-  static ASDM*                     datasetPtr_;
-  static string                  execBlockDir_;
+  static asdm::ASDM*                     datasetPtr_;
+  static std::string                  execBlockDir_;
   static bool                       canSelect_;
   static bool                    forceComplex_;  // true ==> autoData will be transformed into complex data
-  EnumSet<ScanIntent>                   es_si_;  // set of scan intents selected
-  EnumSet<ProcessorType>                es_pt_;  // set of processor type selected
-  EnumSet<CorrelationMode>              es_cm_;  // set of correlation mode selected
-  EnumSet<SpectralResolutionType>      es_srt_;  // set of spectral resolution types selected
-  EnumSet<TimeSampling>                 es_ts_;  // set of time sampling selected
+  EnumSet<ScanIntentMod::ScanIntent>                   es_si_;  // set of scan intents selected
+  EnumSet<ProcessorTypeMod::ProcessorType>                es_pt_;  // set of processor type selected
+  EnumSet<CorrelationModeMod::CorrelationMode>              es_cm_;  // set of correlation mode selected
+  EnumSet<SpectralResolutionTypeMod::SpectralResolutionType>      es_srt_;  // set of spectral resolution types selected
+  EnumSet<TimeSamplingMod::TimeSampling>                 es_ts_;  // set of time sampling selected
 
-  Enum<CorrelationMode>                 e_qcm_;  // query to select a subset of data in a BLOB
-  EnumSet<AtmPhaseCorrection>         es_qapc_;  // query to select a subset of data in a BLOB
+  Enum<CorrelationModeMod::CorrelationMode>                 e_qcm_;  // query to select a subset of data in a BLOB
+  EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection>         es_qapc_;  // query to select a subset of data in a BLOB
 
   bool                                ddfirst_;  // true ==> output sequences of time for every dataDescription
 
-  MainRow*                         mainRowPtr_;
-  string                              dataOID_;
-  SDMDataObjectReader                  blob_r_;  // current read-only BLOB
-  SDMDataObjectStreamReader           sdmdosr ;  // current SDMDataObjectStreamReader
+  asdm::MainRow*                         mainRowPtr_;
+  std::string                              dataOID_;
+  asdmbinaries::SDMDataObjectReader                  blob_r_;  // current read-only BLOB
+  asdmbinaries::SDMDataObjectStreamReader           sdmdosr ;  // current SDMDataObjectStreamReader
   bool                         bdfMemoryMapped;  // will the BDF mapped in memory (true) or read sequentially (false) ?
-  vector<DataDump*>                v_dataDump_;
+  std::vector<DataDump*>                v_dataDump_;
 
   const  float*                  floatDataPtr_;  // mutable attribute; autocorrelation data of a single dump
   const  short*                  shortDataPtr_;  // mutable attribute; visiblity data of a single dump
@@ -384,11 +378,11 @@ class SDMBinData{
   static MSData*                    msDataPtr_;  // mutable attribute; one MS-MAIN row given
   static SDMData*                  sdmDataPtr_;  // mutable attribute; one SDM-Main (v2) row 
   static BaselinesSet*           baselinesSet_;  // mutable attribute
-  static vector<MSData*>          v_msDataPtr_;  // mutable attribute
+  static std::vector<MSData*>          v_msDataPtr_;  // mutable attribute
   static VMSData*                  vmsDataPtr_;
-  static vector<SDMData*>        v_sdmDataPtr_;
-  map<Tag,BaselinesSet*>  m_cdId_baselinesSet_;
-  set<Tag>                             s_cdId_; // the keys present in  m_cdId_baselinesSet_ (used for optimization)
+  static std::vector<SDMData*>        v_sdmDataPtr_;
+  std::map<asdm::Tag,BaselinesSet*>  m_cdId_baselinesSet_;
+  std::set<asdm::Tag>                             s_cdId_; // the keys present in  m_cdId_baselinesSet_ (used for optimization)
   bool                            complexData_;
   static bool                  coutDeleteInfo_; // utility for debugging
   static bool                 baselineReverse_; // order in which the data are in the returning VMSData structure.
@@ -397,7 +391,7 @@ class SDMBinData{
 
   const float*               floatDataDumpPtr_;
 
-  vector<pair<unsigned int,double> >    v_tci_; // Indexed time centroid sequence
+  std::vector<std::pair<unsigned int,double> >    v_tci_; // Indexed time centroid sequence
 
   void   deleteMsData(MSData* msDataPtr);
 

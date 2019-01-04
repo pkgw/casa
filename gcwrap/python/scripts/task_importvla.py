@@ -1,5 +1,6 @@
 import os
 from taskinit import *
+from mstools import write_history
 from casa_stack_manip import stack_frame_find
 def importvla(archivefiles,vis,
 	      bandname,frequencytol,

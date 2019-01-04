@@ -30,18 +30,18 @@
  *
  * File CalAtmosphereTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <CalAtmosphereTable.h>
-#include <CalAtmosphereRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalAtmosphereTable.h>
+#include <alma/ASDM/CalAtmosphereRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::CalAtmosphereTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -366,7 +366,7 @@ namespace asdm {
  	 * @param waterError 
 	
      */
-	CalAtmosphereRow* CalAtmosphereTable::newRow(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, vector<vector<float > > forwardEffSpectrum, vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, vector<Frequency > frequencySpectrum, Temperature groundTemperature, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > powerSkySpectrum, vector<vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, vector<vector<Temperature > > tAtmSpectrum, vector<vector<Temperature > > tRecSpectrum, vector<vector<Temperature > > tSysSpectrum, vector<vector<float > > tauSpectrum, vector<Temperature > tAtm, vector<Temperature > tRec, vector<Temperature > tSys, vector<float > tau, vector<Length > water, vector<Length > waterError){
+	CalAtmosphereRow* CalAtmosphereTable::newRow(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<std::vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError){
 		CalAtmosphereRow *row = new CalAtmosphereRow(*this);
 			
 		row->setAntennaName(antennaName);
@@ -573,7 +573,7 @@ CalAtmosphereRow* CalAtmosphereTable::newRow(CalAtmosphereRow* row) {
  ** no row exists for that key.
  **
  */
- 	CalAtmosphereRow* CalAtmosphereTable::getRowByKey(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId)  {
+ 	CalAtmosphereRow* CalAtmosphereTable::getRowByKey(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId)  {
  	checkPresenceInMemory();
 	CalAtmosphereRow* aRow = 0;
 	for (unsigned int i = 0; i < privateRows.size(); i++) {
@@ -673,7 +673,7 @@ CalAtmosphereRow* CalAtmosphereTable::newRow(CalAtmosphereRow* row) {
  * @param waterError.
  	 		 
  */
-CalAtmosphereRow* CalAtmosphereTable::lookup(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, vector<vector<float > > forwardEffSpectrum, vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, vector<Frequency > frequencySpectrum, Temperature groundTemperature, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > powerSkySpectrum, vector<vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, vector<vector<Temperature > > tAtmSpectrum, vector<vector<Temperature > > tRecSpectrum, vector<vector<Temperature > > tSysSpectrum, vector<vector<float > > tauSpectrum, vector<Temperature > tAtm, vector<Temperature > tRec, vector<Temperature > tSys, vector<float > tau, vector<Length > water, vector<Length > waterError) {
+CalAtmosphereRow* CalAtmosphereTable::lookup(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<std::vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError) {
 		CalAtmosphereRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -734,7 +734,7 @@ CalAtmosphereRow* CalAtmosphereTable::lookup(string antennaName, ReceiverBandMod
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<CalAtmosphereTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clatm=\"http://Alma/XASDM/CalAtmosphereTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalAtmosphereTable http://almaobservatory.org/XML/XASDM/3/CalAtmosphereTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<CalAtmosphereTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clatm=\"http://Alma/XASDM/CalAtmosphereTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalAtmosphereTable http://almaobservatory.org/XML/XASDM/4/CalAtmosphereTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -864,7 +864,7 @@ CalAtmosphereRow* CalAtmosphereTable::lookup(string antennaName, ReceiverBandMod
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<CalAtmosphereTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clatm=\"http://Alma/XASDM/CalAtmosphereTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalAtmosphereTable http://almaobservatory.org/XML/XASDM/3/CalAtmosphereTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<CalAtmosphereTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clatm=\"http://Alma/XASDM/CalAtmosphereTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalAtmosphereTable http://almaobservatory.org/XML/XASDM/4/CalAtmosphereTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='CalAtmosphereTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";

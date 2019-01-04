@@ -48,15 +48,15 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	 
-#include <EntityRef.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 
@@ -71,21 +71,11 @@
 	
 
 	
-#include "CCalDataOrigin.h"
+#include <alma/Enumerations/CCalDataOrigin.h>
 	
 
 	
-#include "CCalType.h"
-	
-
-	
-
-	
-
-	
-
-	
-#include "CAssociatedCalNature.h"
+#include <alma/Enumerations/CCalType.h>
 	
 
 	
@@ -95,17 +85,27 @@
 	
 
 	
-#include "CScanIntent.h"
+#include <alma/Enumerations/CAssociatedCalNature.h>
+	
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CScanIntent.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalData.h
     \brief Generated from model's revision "-1", branch ""
@@ -119,7 +119,7 @@ namespace asdm {
 
 class CalDataRow;
 typedef void (CalDataRow::*CalDataAttributeFromBin) (EndianIStream& eis);
-typedef void (CalDataRow::*CalDataAttributeFromText) (const string& s);
+typedef void (CalDataRow::*CalDataAttributeFromText) (const std::string& s);
 
 /**
  * The CalDataRow class is a row of a CalDataTable.
@@ -360,21 +360,21 @@ public:
 	
  	/**
  	 * Get scanSet.
- 	 * @return scanSet as vector<int >
+ 	 * @return scanSet as std::vector<int >
  	 */
- 	vector<int > getScanSet() const;
+ 	std::vector<int > getScanSet() const;
 	
  
  	
  	
  	/**
- 	 * Set scanSet with the specified vector<int >.
- 	 * @param scanSet The vector<int > value to which scanSet is to be set.
+ 	 * Set scanSet with the specified std::vector<int >.
+ 	 * @param scanSet The std::vector<int > value to which scanSet is to be set.
  	 
  		
  			
  	 */
- 	void setScanSet (vector<int > scanSet);
+ 	void setScanSet (std::vector<int > scanSet);
   		
 	
 	
@@ -478,21 +478,21 @@ public:
 	
  	/**
  	 * Get fieldName, which is optional.
- 	 * @return fieldName as vector<string >
+ 	 * @return fieldName as std::vector<std::string >
  	 * @throws IllegalAccessException If fieldName does not exist.
  	 */
- 	vector<string > getFieldName() const;
+ 	std::vector<std::string > getFieldName() const;
 	
  
  	
  	
  	/**
- 	 * Set fieldName with the specified vector<string >.
- 	 * @param fieldName The vector<string > value to which fieldName is to be set.
+ 	 * Set fieldName with the specified std::vector<std::string >.
+ 	 * @param fieldName The std::vector<std::string > value to which fieldName is to be set.
  	 
  		
  	 */
- 	void setFieldName (vector<string > fieldName);
+ 	void setFieldName (std::vector<std::string > fieldName);
 		
 	
 	
@@ -519,21 +519,21 @@ public:
 	
  	/**
  	 * Get sourceName, which is optional.
- 	 * @return sourceName as vector<string >
+ 	 * @return sourceName as std::vector<std::string >
  	 * @throws IllegalAccessException If sourceName does not exist.
  	 */
- 	vector<string > getSourceName() const;
+ 	std::vector<std::string > getSourceName() const;
 	
  
  	
  	
  	/**
- 	 * Set sourceName with the specified vector<string >.
- 	 * @param sourceName The vector<string > value to which sourceName is to be set.
+ 	 * Set sourceName with the specified std::vector<std::string >.
+ 	 * @param sourceName The std::vector<std::string > value to which sourceName is to be set.
  	 
  		
  	 */
- 	void setSourceName (vector<string > sourceName);
+ 	void setSourceName (std::vector<std::string > sourceName);
 		
 	
 	
@@ -560,21 +560,21 @@ public:
 	
  	/**
  	 * Get sourceCode, which is optional.
- 	 * @return sourceCode as vector<string >
+ 	 * @return sourceCode as std::vector<std::string >
  	 * @throws IllegalAccessException If sourceCode does not exist.
  	 */
- 	vector<string > getSourceCode() const;
+ 	std::vector<std::string > getSourceCode() const;
 	
  
  	
  	
  	/**
- 	 * Set sourceCode with the specified vector<string >.
- 	 * @param sourceCode The vector<string > value to which sourceCode is to be set.
+ 	 * Set sourceCode with the specified std::vector<std::string >.
+ 	 * @param sourceCode The std::vector<std::string > value to which sourceCode is to be set.
  	 
  		
  	 */
- 	void setSourceCode (vector<string > sourceCode);
+ 	void setSourceCode (std::vector<std::string > sourceCode);
 		
 	
 	
@@ -601,21 +601,21 @@ public:
 	
  	/**
  	 * Get scanIntent, which is optional.
- 	 * @return scanIntent as vector<ScanIntentMod::ScanIntent >
+ 	 * @return scanIntent as std::vector<ScanIntentMod::ScanIntent >
  	 * @throws IllegalAccessException If scanIntent does not exist.
  	 */
- 	vector<ScanIntentMod::ScanIntent > getScanIntent() const;
+ 	std::vector<ScanIntentMod::ScanIntent > getScanIntent() const;
 	
  
  	
  	
  	/**
- 	 * Set scanIntent with the specified vector<ScanIntentMod::ScanIntent >.
- 	 * @param scanIntent The vector<ScanIntentMod::ScanIntent > value to which scanIntent is to be set.
+ 	 * Set scanIntent with the specified std::vector<ScanIntentMod::ScanIntent >.
+ 	 * @param scanIntent The std::vector<ScanIntentMod::ScanIntent > value to which scanIntent is to be set.
  	 
  		
  	 */
- 	void setScanIntent (vector<ScanIntentMod::ScanIntent > scanIntent);
+ 	void setScanIntent (std::vector<ScanIntentMod::ScanIntent > scanIntent);
 		
 	
 	
@@ -657,7 +657,7 @@ public:
 	 * @param scanSet
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, vector<int > scanSet);
+	bool compareNoAutoInc(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, std::vector<int > scanSet);
 	
 	
 
@@ -681,7 +681,7 @@ public:
 	 * @param scanSet
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, vector<int > scanSet); 
+	bool compareRequiredValue(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, std::vector<int > scanSet); 
 		 
 	
 	/**
@@ -916,7 +916,7 @@ private:
 	
 	
 
-	vector<int > scanSet;
+	std::vector<int > scanSet;
 
 	
 	
@@ -955,7 +955,7 @@ private:
 	bool fieldNameExists;
 	
 
-	vector<string > fieldName;
+	std::vector<std::string > fieldName;
 
 	
 	
@@ -968,7 +968,7 @@ private:
 	bool sourceNameExists;
 	
 
-	vector<string > sourceName;
+	std::vector<std::string > sourceName;
 
 	
 	
@@ -981,7 +981,7 @@ private:
 	bool sourceCodeExists;
 	
 
-	vector<string > sourceCode;
+	std::vector<std::string > sourceCode;
 
 	
 	
@@ -994,7 +994,7 @@ private:
 	bool scanIntentExists;
 	
 
-	vector<ScanIntentMod::ScanIntent > scanIntent;
+	std::vector<ScanIntentMod::ScanIntent > scanIntent;
 
 	
 	
@@ -1037,45 +1037,45 @@ void scanIntentFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalDataAttributeFromText> fromTextMethods;
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void startTimeObservedFromText (const string & s);
+void startTimeObservedFromText (const std::string & s);
 	
 	
-void endTimeObservedFromText (const string & s);
+void endTimeObservedFromText (const std::string & s);
 	
 	
 	
-void calDataTypeFromText (const string & s);
+void calDataTypeFromText (const std::string & s);
 	
 	
-void calTypeFromText (const string & s);
+void calTypeFromText (const std::string & s);
 	
 	
-void numScanFromText (const string & s);
+void numScanFromText (const std::string & s);
 	
 	
-void scanSetFromText (const string & s);
+void scanSetFromText (const std::string & s);
 	
 
 	
-void assocCalDataIdFromText (const string & s);
+void assocCalDataIdFromText (const std::string & s);
 	
 	
-void assocCalNatureFromText (const string & s);
+void assocCalNatureFromText (const std::string & s);
 	
 	
-void fieldNameFromText (const string & s);
+void fieldNameFromText (const std::string & s);
 	
 	
-void sourceNameFromText (const string & s);
+void sourceNameFromText (const std::string & s);
 	
 	
-void sourceCodeFromText (const string & s);
+void sourceCodeFromText (const std::string & s);
 	
 	
-void scanIntentFromText (const string & s);
+void scanIntentFromText (const std::string & s);
 	
 	
 	

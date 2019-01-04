@@ -24,11 +24,11 @@
  * File AngularRate.cpp
  */
 
-#include <AngularRate.h>
-#include <DoubleWrapper.h>
-#include <NumberFormatException.h>
-using asdm::Double;
-using asdm::NumberFormatException;
+#include <alma/ASDM/AngularRate.h>
+#include <alma/ASDM/DoubleWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
+
+using namespace std;
 
 namespace asdm {
 

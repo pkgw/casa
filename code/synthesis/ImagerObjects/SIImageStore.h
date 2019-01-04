@@ -198,7 +198,8 @@ class SIImageStore
 		  casacore::Float& minVal, casacore::Float& maxVal,
 		  casacore::Float& minValMask, casacore::Float& maxValMask);
   virtual void printImageStats();
-  virtual casacore::Array<casacore::Double> calcRobustRMS(casacore::Float pbmasklevel=0.0);
+  virtual casacore::Array<casacore::Double> calcRobustRMS(casacore::Array<casacore::Double>& mdns, 
+                                                        const casacore::Float pbmasklevel=0.0, const casacore::Bool fastcalc=true); 
   casacore::Float getMaskSum();
 
   //
@@ -244,7 +245,7 @@ protected:
   std::shared_ptr<casacore::ImageInterface<casacore::Float> > openImage(const casacore::String imagenamefull, 
 					       const casacore::Bool overwrite, 
 					       const casacore::Bool dosumwt=casacore::False,
-					       const casacore::Int nfacetsperside=1);
+								   const casacore::Int nfacetsperside=1, const  casacore::Bool checkCoord=casacore::True);
 
   void buildImage(std::shared_ptr<casacore::ImageInterface<casacore::Float> > &imptr, casacore::IPosition shape, casacore::CoordinateSystem csys, const casacore::String name);
   void buildImage(std::shared_ptr<casacore::ImageInterface<casacore::Float> > &imptr,const casacore::String name);

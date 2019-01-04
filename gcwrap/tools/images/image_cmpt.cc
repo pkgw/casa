@@ -645,15 +645,17 @@ image* image::collapse(
     try {
         _notSupported(__func__);
         IPosition myAxes;
-        if (axes.type() == variant::INT) {
+        auto axesType = axes.type();
+        ThrowIf(axesType == variant::BOOLVEC, "axes must be specified");
+        if (axesType == variant::INT) {
             myAxes = IPosition(1, axes.toInt());
         }
-        else if (axes.type() == variant::INTVEC) {
+        else if (axesType == variant::INTVEC) {
             myAxes = IPosition(axes.getIntVec());
         }
         else if (
-            axes.type() == variant::STRINGVEC
-            || axes.type() == variant::STRING
+            axesType == variant::STRINGVEC
+            || axesType == variant::STRING
         ) {
             Vector<String> axVec = (axes.type() == variant::STRING)
                 ? Vector<String> (1, axes.getString())
@@ -6855,16 +6857,27 @@ std::shared_ptr<Record> image::_getRegion(
         CoordinateSystem csys;
         if (otherImageName.empty()) {
             ThrowIf(
-                ! _imageF && ! _imageC,
+                ! (_imageF || _imageC || _imageD || _imageDC),
                 "No attached image. Cannot use a string value for region"
             );
             if (_imageF) {
                 shape = _imageF->shape();
                 csys = _imageF->coordinates();
             }
-            else {
+            else if (_imageC) {
                 shape = _imageC->shape();
                 csys = _imageC->coordinates();
+            }
+            else if (_imageD) {
+                shape = _imageD->shape();
+                csys = _imageD->coordinates();
+            }
+            else if (_imageDC) {
+                shape = _imageDC->shape();
+                csys = _imageDC->coordinates();
+            }
+            else {
+                ThrowCc("Logic Error");
             }
         }
         else {

@@ -6,20 +6,32 @@
 #include <iostream>
 #include <string>
 
-#include "SDMBinData.h"
-using namespace sdmbin;
+#include <alma/ASDMBinaries/SDMBinData.h>
+#include <alma/ASDMBinaries/Error.h>
+#include <alma/ASDMBinaries/DataDescriptionsSet.h>
 
+#include <alma/Enumtcl/AxisName.h>
+#include <alma/Enumtcl/DataContent.h>
+#include <alma/Enumtcl/NetSideband.h>
+#include <alma/Enumtcl/PrimitiveDataType.h>
+#include <alma/Enumtcl/CalibrationDevice.h>
 
-#include "Error.h"
+using namespace asdm;
+using namespace asdmbinaries;
+using namespace std;
 
-#include "DataDescriptionsSet.h"
-
-
-#include <AxisName.h>
-#include <DataContent.h>
-#include <NetSideband.h>
-#include <PrimitiveDataType.h>
-#include <CalibrationDevice.h>
+using namespace AtmPhaseCorrectionMod;
+using namespace AxisNameMod;
+using namespace CalibrationDeviceMod;
+using namespace CorrelationModeMod;
+using namespace CorrelatorTypeMod;
+using namespace DataContentMod;
+using namespace NetSidebandMod;
+using namespace PrimitiveDataTypeMod;
+using namespace ProcessorTypeMod;
+using namespace ScanIntentMod;
+using namespace SpectralResolutionTypeMod;
+using namespace TimeSamplingMod;
 
 namespace sdmbin {
 

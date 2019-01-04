@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -54,7 +54,7 @@
 	
 
 	
-#include "CCorrelationMode.h"
+#include <alma/Enumerations/CCorrelationMode.h>
 	
 
 	
@@ -62,39 +62,39 @@
 	
 
 	
-#include "CAtmPhaseCorrection.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
-#include "CProcessorType.h"
-	
-
-	
-
-	
-#include "CSpectralResolutionType.h"
+#include <alma/Enumerations/CProcessorType.h>
 	
 
 	
 
 	
-#include "CSpectralResolutionType.h"
+#include <alma/Enumerations/CSpectralResolutionType.h>
+	
+
+	
+
+	
+#include <alma/Enumerations/CSpectralResolutionType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -171,7 +171,7 @@ class ConfigDescriptionRow;
 	
  * <TR>
  * <TD> atmPhaseCorrection </TD> 
- * <TD> vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > </TD>
+ * <TD> std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > </TD>
  * <TD>  numAtmPhaseCorrection </TD> 
  * <TD> &nbsp;describe how the atmospheric phase corrections have been applied (one value per correction). </TD>
  * </TR>
@@ -192,28 +192,28 @@ class ConfigDescriptionRow;
 	
  * <TR>
  * <TD> antennaId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numAntenna </TD> 
  * <TD> &nbsp;identifies numAntenna rows in AntennaTable. </TD>
  * </TR>
 	
  * <TR>
  * <TD> feedId </TD> 
- * <TD> vector<int>  </TD>
+ * <TD> std::vector<int>  </TD>
  * <TD>  numAntenna*numFeed </TD> 
  * <TD> &nbsp;refers to many collections of rows in the Feed Table. </TD>
  * </TR>
 	
  * <TR>
  * <TD> switchCycleId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numDataDescription </TD> 
  * <TD> &nbsp;refers to a unique row in the SwitchCycle Table. </TD>
  * </TR>
 	
  * <TR>
  * <TD> dataDescriptionId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numDataDescription </TD> 
  * <TD> &nbsp;refers to one or more rows in DataDescriptionTable. </TD>
  * </TR>
@@ -231,7 +231,7 @@ class ConfigDescriptionRow;
 	
  * <TR>
  * <TD> phasedArrayList</TD> 
- * <TD> vector<int > </TD>
+ * <TD> std::vector<int > </TD>
  * <TD>  numAntenna  </TD>
  * <TD>&nbsp; phased array identifiers. </TD>
  * </TR>
@@ -245,14 +245,14 @@ class ConfigDescriptionRow;
 	
  * <TR>
  * <TD> assocNature</TD> 
- * <TD> vector<SpectralResolutionTypeMod::SpectralResolutionType > </TD>
+ * <TD> std::vector<SpectralResolutionTypeMod::SpectralResolutionType > </TD>
  * <TD>  numAssocValues  </TD>
  * <TD>&nbsp; the natures of the associations with other config descriptions (one value per association). </TD>
  * </TR>
 	
  * <TR>
  * <TD> assocConfigDescriptionId</TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numAssocValues  </TD>
  * <TD>&nbsp; refers to one or more rows in ConfigDescriptionTable. </TD>
  * </TR>
@@ -420,7 +420,7 @@ public:
  	 * @param processorId
 	
      */
-	ConfigDescriptionRow *newRow(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, vector<Tag>  antennaId, vector<int>  feedId, vector<Tag>  switchCycleId, vector<Tag>  dataDescriptionId, Tag processorId);
+	ConfigDescriptionRow *newRow(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, std::vector<Tag>  antennaId, std::vector<int>  feedId, std::vector<Tag>  switchCycleId, std::vector<Tag>  dataDescriptionId, Tag processorId);
 	
 
 
@@ -529,7 +529,7 @@ public:
  	 * @param processorId
  	 		 
  	 */
-	ConfigDescriptionRow* lookup(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, vector<Tag>  antennaId, vector<int>  feedId, vector<Tag>  switchCycleId, vector<Tag>  dataDescriptionId, Tag processorId); 
+	ConfigDescriptionRow* lookup(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, std::vector<Tag>  antennaId, std::vector<int>  feedId, std::vector<Tag>  switchCycleId, std::vector<Tag>  dataDescriptionId, Tag processorId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

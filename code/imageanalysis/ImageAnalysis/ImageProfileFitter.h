@@ -232,8 +232,8 @@ protected:
    		return CasacRegionManager::USE_FIRST_STOKES;
    	}
 
-    inline vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-    	return vector<casacore::Coordinate::Type>(0);
+    inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+    	return std::vector<casacore::Coordinate::Type>(0);
     }
 
     casacore::Bool _hasLogfileSupport() const { return true; }
@@ -316,7 +316,7 @@ private:
     casacore::Bool _setFitterElements(
     	ImageFit1D<casacore::Float>& fitter, SpectralList& newEstimates,
     	const casacore::PtrHolder<const PolynomialSpectralElement>& polyEl,
-    	const vector<casacore::IPosition>& goodPos,
+    	const std::vector<casacore::IPosition>& goodPos,
     	const casacore::IPosition& fitterShape, const casacore::IPosition& curPos,
     	casacore::uInt nOrigComps
     ) const;

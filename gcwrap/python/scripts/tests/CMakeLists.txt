@@ -174,6 +174,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_predictcomp.py
   test_refimager.py
   test_refimager_parallel.py
+  test_rerefant.py
   test_report.py
   test_rg_selectedchannels.py
   test_rg_frombcs.py
@@ -198,9 +199,17 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_VLA_CorrectingBandpass.py
   test_VLA_Flagging.py
   test_VLA_Imaging.py
+  test_VLA_3C391.py
+  test_VLA_IRC10216.py
+  test_VLA_MG0414.py
+
   ###
 
   test_req_task_listobs.py
+  test_req_task_listhistory.py
+  test_req_task_importuvfits.py
+  test_req_task_calstat.py
+  test_req_task_rmtables.py
 
   ###
   test_setjy.py

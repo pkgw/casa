@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include <iostream>
 
+#include <alma/ASDMBinaries/SwitchCyclesList.h>
 
+using namespace asdm;
 using namespace std;
-#include "SwitchCyclesList.h"
+
+using namespace BasebandNameMod;
 
 namespace sdmbin {
 

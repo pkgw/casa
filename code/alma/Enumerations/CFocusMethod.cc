@@ -33,7 +33,7 @@
  * File CFocusMethod.cpp
  */
 #include <sstream>
-#include <CFocusMethod.h>
+#include <alma/Enumerations/CFocusMethod.h>
 #include <string>
 using namespace std;
 

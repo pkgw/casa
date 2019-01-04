@@ -67,11 +67,11 @@ public:
     PlotMSPage& operator[](casacore::uInt index) { return itsPages_[index]; }
 
     // Iterators
-    typedef vector<PlotMSPage>::iterator iterator;
+    typedef std::vector<PlotMSPage>::iterator iterator;
     iterator begin() { return itsPages_.begin(); }
     iterator end() { return itsPages_.end(); }
 
-    typedef vector<PlotMSPage>::const_iterator const_iterator;
+    typedef std::vector<PlotMSPage>::const_iterator const_iterator;
     const_iterator begin() const { return itsPages_.begin(); }
     const_iterator end() const { return itsPages_.end(); }
 
@@ -138,7 +138,7 @@ private:
     PlotMSPlotManager* itsManager_;
 
     // Pages.
-    vector<PlotMSPage> itsPages_;
+    std::vector<PlotMSPage> itsPages_;
 
     // Current page number.
     unsigned int itsCurrentPageNum_;

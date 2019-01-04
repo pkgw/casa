@@ -33,7 +33,7 @@
  * File CPrimaryBeamDescription.cpp
  */
 #include <sstream>
-#include <CPrimaryBeamDescription.h>
+#include <alma/Enumerations/CPrimaryBeamDescription.h>
 #include <string>
 using namespace std;
 

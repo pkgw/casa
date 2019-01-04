@@ -41,46 +41,46 @@
 
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
-	
-
-
-
-
-	
-
-	
-
-	
-
-	
-#include "CStationType.h"
-	
-
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CStationType.h>
+	
+
+	
+
+
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -122,14 +122,14 @@ class StationRow;
 	
  * <TR>
  * <TD> name </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the station. </TD>
  * </TR>
 	
  * <TR>
  * <TD> position </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;the position of the station. </TD>
  * </TR>
@@ -295,7 +295,7 @@ public:
  	 * @param type
 	
      */
-	StationRow *newRow(string name, vector<Length > position, StationTypeMod::StationType type);
+	StationRow *newRow(std::string name, std::vector<Length > position, StationTypeMod::StationType type);
 	
 
 
@@ -384,7 +384,7 @@ public:
  	 * @param type
  	 		 
  	 */
-	StationRow* lookup(string name, vector<Length > position, StationTypeMod::StationType type); 
+	StationRow* lookup(std::string name, std::vector<Length > position, StationTypeMod::StationType type); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

@@ -28,7 +28,6 @@
 #define ConversionException_CLASS
 
 #include <string>
-using std::string;
 
 namespace asdm {
   
@@ -53,7 +52,7 @@ namespace asdm {
     * @param m The conversion error.
     * @param t The table being converted.
     */
-    ConversionException(string m, string t);
+    ConversionException(std::string m, std::string t);
 
     /**
      * The DTOR
@@ -63,12 +62,12 @@ namespace asdm {
     /**
      * @return a text describing the exception.
      */
-    string getMessage() const;
+    std::string getMessage() const;
     
   protected:
     
-    string message;
-    string tableName;	
+    std::string message;
+    std::string tableName;	
     
   };
   

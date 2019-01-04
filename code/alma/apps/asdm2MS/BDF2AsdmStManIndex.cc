@@ -2,8 +2,8 @@
 #include <casa/Arrays/ArrayIO.h>
 #include <casa/Containers/BlockIO.h>
 
-#include "BDF2AsdmStManIndex.h"
-#include "ASDM2MSException.h"
+#include <alma/apps/asdm2MS/BDF2AsdmStManIndex.h>
+#include <alma/apps/asdm2MS/ASDM2MSException.h>
 
 using namespace casacore;
 using namespace casa;

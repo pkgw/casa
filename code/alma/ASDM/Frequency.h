@@ -29,23 +29,17 @@
 #include <vector>
 #include <iostream>
 #include <string>
-using namespace std;
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLFrequency;
 #endif
-#include <StringTokenizer.h>
-#include <NumberFormatException.h>
-using asdm::StringTokenizer;
-using asdm::NumberFormatException;
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/NumberFormatException.h>
+#include <alma/ASDM/EndianStream.h>
 namespace asdm {
 class Frequency;
 Frequency operator * ( double , const Frequency & );
-ostream & operator << ( ostream &, const Frequency & );
-istream & operator >> ( istream &, Frequency &);
+std::ostream & operator << ( std::ostream &, const Frequency & );
+std::istream & operator >> ( std::istream &, Frequency &);
 /**
  * The Frequency class implements a quantity of frequency in hertz..
  * 
@@ -69,11 +63,11 @@ class Frequency {
    * @param os a reference to the ostream to be written on.
    * @param x a const reference to a Frequency.
    */
-  friend ostream & operator << ( ostream & os, const Frequency & x);
+  friend std::ostream & operator << ( std::ostream & os, const Frequency & x);
   /**
    * Overloading of >> to read an Frequency from an istream.
    */
-  friend istream & operator >> ( istream & is, Frequency & x);
+  friend std::istream & operator >> ( std::istream & is, Frequency & x);
 public:
 	/**
 	 * The nullary constructor (default).
@@ -90,7 +84,7 @@ public:
 	 *
 	 * @param s a string.
 	 */
-	Frequency(const string &s);
+	Frequency(const std::string &s);
 #ifndef WITHOUT_ACS
 	/**
 	 *
@@ -98,7 +92,7 @@ public:
 	 * 
 	 * @param idlFrequency a cons ref to an IDLFrequency.
 	 */
-	Frequency(const IDLFrequency & idlFrequency);
+	Frequency(const asdmIDLTypes::IDLFrequency & idlFrequency);
 #endif
 	/**
 	 * A constructor from a value in double precision.
@@ -113,14 +107,14 @@ public:
 	 * A static method equivalent to the constructor from a string.
 	 * @param s a string?.
 	 */
-	static double fromString(const string& s);
+	static double fromString(const std::string& s);
 	/**
 	 * Conversion into string.
 	 * The resulting string contains the representation of the value of this Frequency.
 	 *
 	 * @return string
 	 */
-	static string toString(double);
+	static std::string toString(double);
 	/**
 	 * Parse the next (string) token of a StringTokenizer into an angle.
 	 * @param st a reference to a StringTokenizer.
@@ -138,21 +132,21 @@ public:
 	 * @param angle the vector of Frequency to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Frequency>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Frequency>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Frequency to a EndianOSStream.
 	 * @param angle the vector of vector of Frequency to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Frequency> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Frequency> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Frequency to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Frequency to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Frequency> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<std::vector<Frequency> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Frequency from a EndianIStream
 	 * and use the read value to set an  Frequency.
@@ -167,7 +161,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Frequency
 	 */	 
-	 static vector<Frequency> from1DBin(EndianIStream & eis);
+	 static std::vector<Frequency> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Frequency from an EndianIStream
@@ -175,7 +169,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Frequency
 	 */	 
-	 static vector<vector<Frequency> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Frequency> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Frequency from an EndianIStream
@@ -183,7 +177,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Frequency
 	 */	 
-	 static vector<vector<vector<Frequency> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<std::vector<Frequency> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Frequency = Frequency.
@@ -288,16 +282,16 @@ public:
 	 * Converts into a string.
 	 * @return a string containing the representation of a the value in double precision.
 	 */
-	string toString() const;
+	std::string toString() const;
 	/** 
 	 * Idem toString.
 	 */
-	string toStringI() const;
+	std::string toStringI() const;
 	/**
 	 * Conversion operator.
 	 * Converts into a string.
 	 */
-	operator string () const;
+	operator std::string () const;
 	/**
 	 * Return the double precision value of the Frequency.
 	 * @return double
@@ -308,13 +302,13 @@ public:
 	 * Return the IDLFrequency representation of the Frequency.
 	 * @return IDLFrequency 
 	 */
-	IDLFrequency toIDLFrequency() const;
+    asdmIDLTypes::IDLFrequency toIDLFrequency() const;
 #endif
 	/**
 	 * Returns the abbreviated name of the unit implicitely associated to any Frequency.
 	 * @return string
 	 */
-	static string unit();
+	static std::string unit();
 private:
 	double value;
 };
@@ -324,10 +318,10 @@ inline Frequency::Frequency() : value(0.0) {
 inline Frequency::Frequency(const Frequency &t) : value(t.value) {
 }
 #ifndef WITHOUT_ACS
-inline Frequency::Frequency(const IDLFrequency &l) : value(l.value) {
+inline Frequency::Frequency(const asdmIDLTypes::IDLFrequency &l) : value(l.value) {
 }
 #endif
-inline Frequency::Frequency(const string &s) : value(fromString(s)) {
+inline Frequency::Frequency(const std::string &s) : value(fromString(s)) {
 }
 inline Frequency::Frequency(double v) : value(v) {
 }
@@ -415,21 +409,21 @@ inline Frequency Frequency::operator + () const {
 	return tmp;
 }
 // Conversion functions
-inline Frequency::operator string () const {
+inline Frequency::operator std::string () const {
 	return toString();
 }
-inline string Frequency::toString() const {
+inline std::string Frequency::toString() const {
 	return toString(value);
 }
-inline string Frequency::toStringI() const {
+inline std::string Frequency::toStringI() const {
 	return toString(value);
 }
 inline double Frequency::get() const {
 	return value;
 }
 #ifndef WITHOUT_ACS
-inline IDLFrequency Frequency::toIDLFrequency() const {
-	IDLFrequency tmp;
+inline asdmIDLTypes::IDLFrequency Frequency::toIDLFrequency() const {
+    asdmIDLTypes::IDLFrequency tmp;
 	tmp.value = value;
 	return tmp;
 }
@@ -440,16 +434,16 @@ inline Frequency operator * ( double n, const Frequency &x) {
 	tmp.value = x.value * n;
 	return tmp;
 }
-inline ostream & operator << ( ostream &o, const Frequency &x ) {
+inline std::ostream & operator << ( std::ostream &o, const Frequency &x ) {
 	o << x.value;
 	return o;
 }
-inline istream & operator >> ( istream &i, Frequency &x ) {
+inline std::istream & operator >> ( std::istream &i, Frequency &x ) {
 	i >> x.value;
 	return i;
 }
-inline string Frequency::unit() {
-	return string ("Hz");
+inline std::string Frequency::unit() {
+	return std::string ("Hz");
 }
 } // End namespace asdm
 #endif /* Frequency_CLASS */
