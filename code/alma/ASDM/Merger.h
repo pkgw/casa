@@ -34,218 +34,217 @@
 #define Merger_CLASS
 #include <map>
 
-#include "ASDM.h"
+#include <alma/ASDM/ASDM.h>
 
-#include "SBSummaryTable.h"
-#include "SBSummaryRow.h"
+#include <alma/ASDM/SBSummaryTable.h>
+#include <alma/ASDM/SBSummaryRow.h>
 
-#include "ConfigDescriptionTable.h"
-#include "ConfigDescriptionRow.h"
+#include <alma/ASDM/ConfigDescriptionTable.h>
+#include <alma/ASDM/ConfigDescriptionRow.h>
 
-#include "FieldTable.h"
-#include "FieldRow.h"
+#include <alma/ASDM/FieldTable.h>
+#include <alma/ASDM/FieldRow.h>
 
-#include "StateTable.h"
-#include "StateRow.h"
+#include <alma/ASDM/StateTable.h>
+#include <alma/ASDM/StateRow.h>
 
-#include "AntennaTable.h"
-#include "AntennaRow.h"
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include "DataDescriptionTable.h"
-#include "DataDescriptionRow.h"
+#include <alma/ASDM/DataDescriptionTable.h>
+#include <alma/ASDM/DataDescriptionRow.h>
 
-#include "SwitchCycleTable.h"
-#include "SwitchCycleRow.h"
+#include <alma/ASDM/SwitchCycleTable.h>
+#include <alma/ASDM/SwitchCycleRow.h>
 
-#include "SourceTable.h"
-#include "SourceRow.h"
+#include <alma/ASDM/SourceTable.h>
+#include <alma/ASDM/SourceRow.h>
 
-#include "FeedTable.h"
-#include "FeedRow.h"
+#include <alma/ASDM/FeedTable.h>
+#include <alma/ASDM/FeedRow.h>
 
-#include "SpectralWindowTable.h"
-#include "SpectralWindowRow.h"
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-#include "FreqOffsetTable.h"
-#include "FreqOffsetRow.h"
+#include <alma/ASDM/FreqOffsetTable.h>
+#include <alma/ASDM/FreqOffsetRow.h>
 
-#include "PolarizationTable.h"
-#include "PolarizationRow.h"
+#include <alma/ASDM/PolarizationTable.h>
+#include <alma/ASDM/PolarizationRow.h>
 
-#include "ReceiverTable.h"
-#include "ReceiverRow.h"
+#include <alma/ASDM/ReceiverTable.h>
+#include <alma/ASDM/ReceiverRow.h>
 
-#include "DopplerTable.h"
-#include "DopplerRow.h"
+#include <alma/ASDM/DopplerTable.h>
+#include <alma/ASDM/DopplerRow.h>
 
-#include "ProcessorTable.h"
-#include "ProcessorRow.h"
+#include <alma/ASDM/ProcessorTable.h>
+#include <alma/ASDM/ProcessorRow.h>
 
-#include "CorrelatorModeTable.h"
-#include "CorrelatorModeRow.h"
+#include <alma/ASDM/CorrelatorModeTable.h>
+#include <alma/ASDM/CorrelatorModeRow.h>
 
-#include "CalDeviceTable.h"
-#include "CalDeviceRow.h"
+#include <alma/ASDM/CalDeviceTable.h>
+#include <alma/ASDM/CalDeviceRow.h>
 
-#include "FlagCmdTable.h"
-#include "FlagCmdRow.h"
+#include <alma/ASDM/FlagCmdTable.h>
+#include <alma/ASDM/FlagCmdRow.h>
 
-#include "FocusTable.h"
-#include "FocusRow.h"
+#include <alma/ASDM/FocusTable.h>
+#include <alma/ASDM/FocusRow.h>
 
-#include "HistoryTable.h"
-#include "HistoryRow.h"
+#include <alma/ASDM/HistoryTable.h>
+#include <alma/ASDM/HistoryRow.h>
 
-#include "ObservationTable.h"
-#include "ObservationRow.h"
+#include <alma/ASDM/ObservationTable.h>
+#include <alma/ASDM/ObservationRow.h>
 
-#include "PointingTable.h"
-#include "PointingRow.h"
+#include <alma/ASDM/PointingTable.h>
+#include <alma/ASDM/PointingRow.h>
 
-#include "SeeingTable.h"
-#include "SeeingRow.h"
+#include <alma/ASDM/SeeingTable.h>
+#include <alma/ASDM/SeeingRow.h>
 
-#include "SysCalTable.h"
-#include "SysCalRow.h"
+#include <alma/ASDM/SysCalTable.h>
+#include <alma/ASDM/SysCalRow.h>
 
-#include "TotalPowerTable.h"
-#include "TotalPowerRow.h"
+#include <alma/ASDM/TotalPowerTable.h>
+#include <alma/ASDM/TotalPowerRow.h>
 
-#include "WeatherTable.h"
-#include "WeatherRow.h"
+#include <alma/ASDM/WeatherTable.h>
+#include <alma/ASDM/WeatherRow.h>
 
-#include "WVMCalTable.h"
-#include "WVMCalRow.h"
+#include <alma/ASDM/WVMCalTable.h>
+#include <alma/ASDM/WVMCalRow.h>
 
-#include "EphemerisTable.h"
-#include "EphemerisRow.h"
+#include <alma/ASDM/EphemerisTable.h>
+#include <alma/ASDM/EphemerisRow.h>
 
-#include "ExecBlockTable.h"
-#include "ExecBlockRow.h"
+#include <alma/ASDM/ExecBlockTable.h>
+#include <alma/ASDM/ExecBlockRow.h>
 
-#include "ScanTable.h"
-#include "ScanRow.h"
+#include <alma/ASDM/ScanTable.h>
+#include <alma/ASDM/ScanRow.h>
 
-#include "SubscanTable.h"
-#include "SubscanRow.h"
+#include <alma/ASDM/SubscanTable.h>
+#include <alma/ASDM/SubscanRow.h>
 
-#include "MainTable.h"
-#include "MainRow.h"
+#include <alma/ASDM/MainTable.h>
+#include <alma/ASDM/MainRow.h>
 
-#include "FocusModelTable.h"
-#include "FocusModelRow.h"
+#include <alma/ASDM/FocusModelTable.h>
+#include <alma/ASDM/FocusModelRow.h>
 
-#include "GainTrackingTable.h"
-#include "GainTrackingRow.h"
+#include <alma/ASDM/GainTrackingTable.h>
+#include <alma/ASDM/GainTrackingRow.h>
 
-#include "PointingModelTable.h"
-#include "PointingModelRow.h"
+#include <alma/ASDM/PointingModelTable.h>
+#include <alma/ASDM/PointingModelRow.h>
 
-#include "CalAmpliTable.h"
-#include "CalAmpliRow.h"
+#include <alma/ASDM/CalAmpliTable.h>
+#include <alma/ASDM/CalAmpliRow.h>
 
-#include "CalDataTable.h"
-#include "CalDataRow.h"
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include "CalReductionTable.h"
-#include "CalReductionRow.h"
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 
-#include "CalPhaseTable.h"
-#include "CalPhaseRow.h"
+#include <alma/ASDM/CalPhaseTable.h>
+#include <alma/ASDM/CalPhaseRow.h>
 
-#include "CalSeeingTable.h"
-#include "CalSeeingRow.h"
+#include <alma/ASDM/CalSeeingTable.h>
+#include <alma/ASDM/CalSeeingRow.h>
 
-#include "CalPositionTable.h"
-#include "CalPositionRow.h"
+#include <alma/ASDM/CalPositionTable.h>
+#include <alma/ASDM/CalPositionRow.h>
 
-#include "CalPointingTable.h"
-#include "CalPointingRow.h"
+#include <alma/ASDM/CalPointingTable.h>
+#include <alma/ASDM/CalPointingRow.h>
 
-#include "CalPointingModelTable.h"
-#include "CalPointingModelRow.h"
+#include <alma/ASDM/CalPointingModelTable.h>
+#include <alma/ASDM/CalPointingModelRow.h>
 
-#include "CalHolographyTable.h"
-#include "CalHolographyRow.h"
+#include <alma/ASDM/CalHolographyTable.h>
+#include <alma/ASDM/CalHolographyRow.h>
 
-#include "CalAtmosphereTable.h"
-#include "CalAtmosphereRow.h"
+#include <alma/ASDM/CalAtmosphereTable.h>
+#include <alma/ASDM/CalAtmosphereRow.h>
 
-#include "CalCurveTable.h"
-#include "CalCurveRow.h"
+#include <alma/ASDM/CalCurveTable.h>
+#include <alma/ASDM/CalCurveRow.h>
 
-#include "StationTable.h"
-#include "StationRow.h"
+#include <alma/ASDM/StationTable.h>
+#include <alma/ASDM/StationRow.h>
 
-#include "AlmaRadiometerTable.h"
-#include "AlmaRadiometerRow.h"
+#include <alma/ASDM/AlmaRadiometerTable.h>
+#include <alma/ASDM/AlmaRadiometerRow.h>
 
-#include "SquareLawDetectorTable.h"
-#include "SquareLawDetectorRow.h"
+#include <alma/ASDM/SquareLawDetectorTable.h>
+#include <alma/ASDM/SquareLawDetectorRow.h>
 
-#include "CalFocusTable.h"
-#include "CalFocusRow.h"
+#include <alma/ASDM/CalFocusTable.h>
+#include <alma/ASDM/CalFocusRow.h>
 
-#include "CalDelayTable.h"
-#include "CalDelayRow.h"
+#include <alma/ASDM/CalDelayTable.h>
+#include <alma/ASDM/CalDelayRow.h>
 
-#include "HolographyTable.h"
-#include "HolographyRow.h"
+#include <alma/ASDM/HolographyTable.h>
+#include <alma/ASDM/HolographyRow.h>
 
-#include "CalBandpassTable.h"
-#include "CalBandpassRow.h"
+#include <alma/ASDM/CalBandpassTable.h>
+#include <alma/ASDM/CalBandpassRow.h>
 
-#include "CalFluxTable.h"
-#include "CalFluxRow.h"
+#include <alma/ASDM/CalFluxTable.h>
+#include <alma/ASDM/CalFluxRow.h>
 
-#include "CalFocusModelTable.h"
-#include "CalFocusModelRow.h"
+#include <alma/ASDM/CalFocusModelTable.h>
+#include <alma/ASDM/CalFocusModelRow.h>
 
-#include "CalGainTable.h"
-#include "CalGainRow.h"
+#include <alma/ASDM/CalGainTable.h>
+#include <alma/ASDM/CalGainRow.h>
 
-#include "CalPrimaryBeamTable.h"
-#include "CalPrimaryBeamRow.h"
+#include <alma/ASDM/CalPrimaryBeamTable.h>
+#include <alma/ASDM/CalPrimaryBeamRow.h>
 
-#include "CalWVRTable.h"
-#include "CalWVRRow.h"
+#include <alma/ASDM/CalWVRTable.h>
+#include <alma/ASDM/CalWVRRow.h>
 
-#include "AnnotationTable.h"
-#include "AnnotationRow.h"
+#include <alma/ASDM/AnnotationTable.h>
+#include <alma/ASDM/AnnotationRow.h>
 
-#include "DelayModelTable.h"
-#include "DelayModelRow.h"
+#include <alma/ASDM/DelayModelTable.h>
+#include <alma/ASDM/DelayModelRow.h>
 
-#include "FlagTable.h"
-#include "FlagRow.h"
+#include <alma/ASDM/FlagTable.h>
+#include <alma/ASDM/FlagRow.h>
 
-#include "ScaleTable.h"
-#include "ScaleRow.h"
+#include <alma/ASDM/ScaleTable.h>
+#include <alma/ASDM/ScaleRow.h>
 
-#include "SysPowerTable.h"
-#include "SysPowerRow.h"
+#include <alma/ASDM/SysPowerTable.h>
+#include <alma/ASDM/SysPowerRow.h>
 
-#include "CalAppPhaseTable.h"
-#include "CalAppPhaseRow.h"
+#include <alma/ASDM/CalAppPhaseTable.h>
+#include <alma/ASDM/CalAppPhaseRow.h>
 
-#include "DelayModelFixedParametersTable.h"
-#include "DelayModelFixedParametersRow.h"
+#include <alma/ASDM/DelayModelFixedParametersTable.h>
+#include <alma/ASDM/DelayModelFixedParametersRow.h>
 
-#include "DelayModelVariableParametersTable.h"
-#include "DelayModelVariableParametersRow.h"
+#include <alma/ASDM/DelayModelVariableParametersTable.h>
+#include <alma/ASDM/DelayModelVariableParametersRow.h>
 
-#include "CalAntennaSolutionsTable.h"
-#include "CalAntennaSolutionsRow.h"
+#include <alma/ASDM/CalAntennaSolutionsTable.h>
+#include <alma/ASDM/CalAntennaSolutionsRow.h>
 
-#include "PulsarTable.h"
-#include "PulsarRow.h"
+#include <alma/ASDM/PulsarTable.h>
+#include <alma/ASDM/PulsarRow.h>
 
 
 
-/*\file "Merger.h"
+/*\file <alma/ASDM/Merger.h>
     \brief Generated from model's revision "-1", branch ""
 */
-using namespace std;
 
 namespace asdm {
 	class Merger {
@@ -258,11 +257,11 @@ namespace asdm {
 		private:
 			ASDM* ds1;
 			ASDM* ds2;
-			map<string, Tag> tagTag;
+			std::map<std::string, Tag> tagTag;
 			Tag getTag(const Tag& t, void (Merger::*mergeTables)());
 			
-			map<string, int> idId;
-			int getId(const string& tableName, int id, void (Merger::*mergeTables)()); 
+			std::map<std::string, int> idId;
+			int getId(const std::string& tableName, int id, void (Merger::*mergeTables)()); 
 			
 
 			bool hasMergedSBSummary;	

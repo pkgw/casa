@@ -1,6 +1,6 @@
 #ifndef BDF2ASDMSTMANINDEX
 #define BDF2ASDMSTMANINDEX
-#include "CPrimitiveDataType.h"
+#include <alma/Enumerations/CPrimitiveDataType.h>
 #include <casa/Containers/Block.h>
 #include <asdmstman/AsdmIndex.h>
 #include <casa/Arrays/Array.h>

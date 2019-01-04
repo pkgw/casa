@@ -30,18 +30,18 @@
  *
  * File FeedTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <FeedTable.h>
-#include <FeedRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/FeedTable.h>
+#include <alma/ASDM/FeedRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::FeedTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -286,7 +286,7 @@ namespace asdm {
  	 * @param receiverId 
 	
      */
-	FeedRow* FeedTable::newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, vector<vector<double > > beamOffset, vector<vector<Length > > focusReference, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Complex > > polResponse, vector<Angle > receptorAngle, vector<int>  receiverId){
+	FeedRow* FeedTable::newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, std::vector<std::vector<double > > beamOffset, std::vector<std::vector<Length > > focusReference, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Complex > > polResponse, std::vector<Angle > receptorAngle, std::vector<int>  receiverId){
 		FeedRow *row = new FeedRow(*this);
 			
 		row->setAntennaId(antennaId);
@@ -656,7 +656,7 @@ FeedRow* FeedTable::newRow(FeedRow* row) {
  * @param <<ExtrinsicAttribute>> receiverId.
  	 		 
  */
-FeedRow* FeedTable::lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, vector<vector<double > > beamOffset, vector<vector<Length > > focusReference, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Complex > > polResponse, vector<Angle > receptorAngle, vector<int>  receiverId) {	
+FeedRow* FeedTable::lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, std::vector<std::vector<double > > beamOffset, std::vector<std::vector<Length > > focusReference, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Complex > > polResponse, std::vector<Angle > receptorAngle, std::vector<int>  receiverId) {	
 		using asdm::ArrayTimeInterval;
 		map<string, ID_TIME_ROWS >::iterator mapIter;
 		string k = Key(antennaId, spectralWindowId);
@@ -725,7 +725,7 @@ FeedRow* FeedTable::lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterva
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<FeedTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:feed=\"http://Alma/XASDM/FeedTable\" xsi:schemaLocation=\"http://Alma/XASDM/FeedTable http://almaobservatory.org/XML/XASDM/3/FeedTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<FeedTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:feed=\"http://Alma/XASDM/FeedTable\" xsi:schemaLocation=\"http://Alma/XASDM/FeedTable http://almaobservatory.org/XML/XASDM/4/FeedTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -855,7 +855,7 @@ FeedRow* FeedTable::lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterva
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<FeedTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:feed=\"http://Alma/XASDM/FeedTable\" xsi:schemaLocation=\"http://Alma/XASDM/FeedTable http://almaobservatory.org/XML/XASDM/3/FeedTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<FeedTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:feed=\"http://Alma/XASDM/FeedTable\" xsi:schemaLocation=\"http://Alma/XASDM/FeedTable http://almaobservatory.org/XML/XASDM/4/FeedTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='FeedTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";

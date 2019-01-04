@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <ScaleRow.h>
-#include <ScaleTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/ScaleRow.h>
+#include <alma/ASDM/ScaleTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::ScaleRow;
 using asdm::ScaleTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	ScaleRow::~ScaleRow() {
@@ -565,7 +562,9 @@ void ScaleRow::weightTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ScaleRow::scaleIdFromText(const string & s) {
 		 
+          
 		scaleId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -573,7 +572,9 @@ void ScaleRow::weightTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an TimeScale 
 	void ScaleRow::timeScaleFromText(const string & s) {
 		 
-		timeScale = ASDMValuesParser::parse<TimeScale>(s);
+          
+		timeScale = ASDMValuesParser::parse<TimeScaleMod::TimeScale>(s);
+          
 		
 	}
 	
@@ -581,7 +582,9 @@ void ScaleRow::weightTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an DataScale 
 	void ScaleRow::crossDataScaleFromText(const string & s) {
 		 
-		crossDataScale = ASDMValuesParser::parse<DataScale>(s);
+          
+		crossDataScale = ASDMValuesParser::parse<DataScaleMod::DataScale>(s);
+          
 		
 	}
 	
@@ -589,7 +592,9 @@ void ScaleRow::weightTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an DataScale 
 	void ScaleRow::autoDataScaleFromText(const string & s) {
 		 
-		autoDataScale = ASDMValuesParser::parse<DataScale>(s);
+          
+		autoDataScale = ASDMValuesParser::parse<DataScaleMod::DataScale>(s);
+          
 		
 	}
 	
@@ -597,7 +602,9 @@ void ScaleRow::weightTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an WeightType 
 	void ScaleRow::weightTypeFromText(const string & s) {
 		 
-		weightType = ASDMValuesParser::parse<WeightType>(s);
+          
+		weightType = ASDMValuesParser::parse<WeightTypeMod::WeightType>(s);
+          
 		
 	}
 	

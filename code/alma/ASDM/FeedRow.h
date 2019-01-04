@@ -48,31 +48,27 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <ComplexWrapper.h>
+#include <alma/ASDM/ComplexWrapper.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -81,11 +77,11 @@
 	
 
 	
-#include "CPolarizationType.h"
-	
 
 	
 
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -100,14 +96,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Feed.h
     \brief Generated from model's revision "-1", branch ""
@@ -130,7 +130,7 @@ class ReceiverRow;
 
 class FeedRow;
 typedef void (FeedRow::*FeedAttributeFromBin) (EndianIStream& eis);
-typedef void (FeedRow::*FeedAttributeFromText) (const string& s);
+typedef void (FeedRow::*FeedAttributeFromText) (const std::string& s);
 
 /**
  * The FeedRow class is a row of a FeedTable.
@@ -253,7 +253,7 @@ public:
 	
  	/**
  	 * Get beamOffset.
- 	 * @return beamOffset as vector<vector<double > >
+ 	 * @return beamOffset as std::vector<std::vector<double > >
  	 */
  	std::vector<std::vector<double > > getBeamOffset() const;
 	
@@ -261,8 +261,8 @@ public:
  	
  	
  	/**
- 	 * Set beamOffset with the specified vector<vector<double > >.
- 	 * @param beamOffset The vector<vector<double > > value to which beamOffset is to be set.
+ 	 * Set beamOffset with the specified std::vector<std::vector<double > >.
+ 	 * @param beamOffset The std::vector<std::vector<double > > value to which beamOffset is to be set.
  	 
  		
  			
@@ -283,7 +283,7 @@ public:
 	
  	/**
  	 * Get focusReference.
- 	 * @return focusReference as vector<vector<Length > >
+ 	 * @return focusReference as std::vector<std::vector<Length > >
  	 */
  	std::vector<std::vector<Length > > getFocusReference() const;
 	
@@ -291,8 +291,8 @@ public:
  	
  	
  	/**
- 	 * Set focusReference with the specified vector<vector<Length > >.
- 	 * @param focusReference The vector<vector<Length > > value to which focusReference is to be set.
+ 	 * Set focusReference with the specified std::vector<std::vector<Length > >.
+ 	 * @param focusReference The std::vector<std::vector<Length > > value to which focusReference is to be set.
  	 
  		
  			
@@ -313,7 +313,7 @@ public:
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
  	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
@@ -321,8 +321,8 @@ public:
  	
  	
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  		
  			
@@ -343,7 +343,7 @@ public:
 	
  	/**
  	 * Get polResponse.
- 	 * @return polResponse as vector<vector<Complex > >
+ 	 * @return polResponse as std::vector<std::vector<Complex > >
  	 */
  	std::vector<std::vector<Complex > > getPolResponse() const;
 	
@@ -351,8 +351,8 @@ public:
  	
  	
  	/**
- 	 * Set polResponse with the specified vector<vector<Complex > >.
- 	 * @param polResponse The vector<vector<Complex > > value to which polResponse is to be set.
+ 	 * Set polResponse with the specified std::vector<std::vector<Complex > >.
+ 	 * @param polResponse The std::vector<std::vector<Complex > > value to which polResponse is to be set.
  	 
  		
  			
@@ -373,7 +373,7 @@ public:
 	
  	/**
  	 * Get receptorAngle.
- 	 * @return receptorAngle as vector<Angle >
+ 	 * @return receptorAngle as std::vector<Angle >
  	 */
  	std::vector<Angle > getReceptorAngle() const;
 	
@@ -381,8 +381,8 @@ public:
  	
  	
  	/**
- 	 * Set receptorAngle with the specified vector<Angle >.
- 	 * @param receptorAngle The vector<Angle > value to which receptorAngle is to be set.
+ 	 * Set receptorAngle with the specified std::vector<Angle >.
+ 	 * @param receptorAngle The std::vector<Angle > value to which receptorAngle is to be set.
  	 
  		
  			
@@ -450,7 +450,7 @@ public:
 	
  	/**
  	 * Get illumOffset, which is optional.
- 	 * @return illumOffset as vector<Length >
+ 	 * @return illumOffset as std::vector<Length >
  	 * @throws IllegalAccessException If illumOffset does not exist.
  	 */
  	std::vector<Length > getIllumOffset() const;
@@ -459,8 +459,8 @@ public:
  	
  	
  	/**
- 	 * Set illumOffset with the specified vector<Length >.
- 	 * @param illumOffset The vector<Length > value to which illumOffset is to be set.
+ 	 * Set illumOffset with the specified std::vector<Length >.
+ 	 * @param illumOffset The std::vector<Length > value to which illumOffset is to be set.
  	 
  		
  	 */
@@ -491,7 +491,7 @@ public:
 	
  	/**
  	 * Get position, which is optional.
- 	 * @return position as vector<Length >
+ 	 * @return position as std::vector<Length >
  	 * @throws IllegalAccessException If position does not exist.
  	 */
  	std::vector<Length > getPosition() const;
@@ -500,8 +500,8 @@ public:
  	
  	
  	/**
- 	 * Set position with the specified vector<Length >.
- 	 * @param position The vector<Length > value to which position is to be set.
+ 	 * Set position with the specified std::vector<Length >.
+ 	 * @param position The std::vector<Length > value to which position is to be set.
  	 
  		
  	 */
@@ -614,7 +614,7 @@ public:
 	
  	/**
  	 * Get skyCouplingSpectrum, which is optional.
- 	 * @return skyCouplingSpectrum as vector<float >
+ 	 * @return skyCouplingSpectrum as std::vector<float >
  	 * @throws IllegalAccessException If skyCouplingSpectrum does not exist.
  	 */
  	std::vector<float > getSkyCouplingSpectrum() const;
@@ -623,8 +623,8 @@ public:
  	
  	
  	/**
- 	 * Set skyCouplingSpectrum with the specified vector<float >.
- 	 * @param skyCouplingSpectrum The vector<float > value to which skyCouplingSpectrum is to be set.
+ 	 * Set skyCouplingSpectrum with the specified std::vector<float >.
+ 	 * @param skyCouplingSpectrum The std::vector<float > value to which skyCouplingSpectrum is to be set.
  	 
  		
  	 */
@@ -685,7 +685,7 @@ public:
 	
  	/**
  	 * Get receiverId.
- 	 * @return receiverId as vector<int> 
+ 	 * @return receiverId as std::vector<int> 
  	 */
  	std::vector<int>  getReceiverId() const;
 	
@@ -693,8 +693,8 @@ public:
  	
  	
  	/**
- 	 * Set receiverId with the specified vector<int> .
- 	 * @param receiverId The vector<int>  value to which receiverId is to be set.
+ 	 * Set receiverId with the specified std::vector<int> .
+ 	 * @param receiverId The std::vector<int>  value to which receiverId is to be set.
  	 
  		
  			
@@ -807,7 +807,7 @@ public:
 	 * Get the collection of rows in the Receiver table having receiverId == receiverId[i]
 	 * @return a vector of ReceiverRow *. 
 	 */	 
-	const vector <ReceiverRow *> getReceivers(int i);
+	const std::vector <ReceiverRow *> getReceivers(int i);
 
 
 	/** 
@@ -815,7 +815,7 @@ public:
 	 * for any i in [O..receiverId.size()-1].
 	 * @return a vector of ReceiverRow *.
 	 */
-	const vector <ReceiverRow *> getReceivers();
+	const std::vector <ReceiverRow *> getReceivers();
 	
 
 
@@ -1288,56 +1288,56 @@ void skyCouplingSpectrumFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, FeedAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void feedIdFromText (const string & s);
+void feedIdFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void beamOffsetFromText (const string & s);
+void beamOffsetFromText (const std::string & s);
 	
 	
-void focusReferenceFromText (const string & s);
+void focusReferenceFromText (const std::string & s);
 	
 	
-void polarizationTypesFromText (const string & s);
+void polarizationTypesFromText (const std::string & s);
 	
 	
-void polResponseFromText (const string & s);
+void polResponseFromText (const std::string & s);
 	
 	
-void receptorAngleFromText (const string & s);
+void receptorAngleFromText (const std::string & s);
 	
 	
-void receiverIdFromText (const string & s);
+void receiverIdFromText (const std::string & s);
 	
 
 	
-void feedNumFromText (const string & s);
+void feedNumFromText (const std::string & s);
 	
 	
-void illumOffsetFromText (const string & s);
+void illumOffsetFromText (const std::string & s);
 	
 	
-void positionFromText (const string & s);
+void positionFromText (const std::string & s);
 	
 	
-void skyCouplingFromText (const string & s);
+void skyCouplingFromText (const std::string & s);
 	
 	
-void numChanFromText (const string & s);
+void numChanFromText (const std::string & s);
 	
 	
-void skyCouplingSpectrumFromText (const string & s);
+void skyCouplingSpectrumFromText (const std::string & s);
 	
 	
 	

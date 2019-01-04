@@ -48,19 +48,19 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -80,12 +80,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Focus.h
     \brief Generated from model's revision "-1", branch ""
@@ -105,7 +105,7 @@ class FocusModelRow;
 
 class FocusRow;
 typedef void (FocusRow::*FocusAttributeFromBin) (EndianIStream& eis);
-typedef void (FocusRow::*FocusAttributeFromText) (const string& s);
+typedef void (FocusRow::*FocusAttributeFromText) (const std::string& s);
 
 /**
  * The FocusRow class is a row of a FocusTable.
@@ -208,7 +208,7 @@ public:
 	
  	/**
  	 * Get focusOffset.
- 	 * @return focusOffset as vector<Length >
+ 	 * @return focusOffset as std::vector<Length >
  	 */
  	std::vector<Length > getFocusOffset() const;
 	
@@ -216,8 +216,8 @@ public:
  	
  	
  	/**
- 	 * Set focusOffset with the specified vector<Length >.
- 	 * @param focusOffset The vector<Length > value to which focusOffset is to be set.
+ 	 * Set focusOffset with the specified std::vector<Length >.
+ 	 * @param focusOffset The std::vector<Length > value to which focusOffset is to be set.
  	 
  		
  			
@@ -238,7 +238,7 @@ public:
 	
  	/**
  	 * Get focusRotationOffset.
- 	 * @return focusRotationOffset as vector<Angle >
+ 	 * @return focusRotationOffset as std::vector<Angle >
  	 */
  	std::vector<Angle > getFocusRotationOffset() const;
 	
@@ -246,8 +246,8 @@ public:
  	
  	
  	/**
- 	 * Set focusRotationOffset with the specified vector<Angle >.
- 	 * @param focusRotationOffset The vector<Angle > value to which focusRotationOffset is to be set.
+ 	 * Set focusRotationOffset with the specified std::vector<Angle >.
+ 	 * @param focusRotationOffset The std::vector<Angle > value to which focusRotationOffset is to be set.
  	 
  		
  			
@@ -274,7 +274,7 @@ public:
 	
  	/**
  	 * Get measuredFocusPosition, which is optional.
- 	 * @return measuredFocusPosition as vector<Length >
+ 	 * @return measuredFocusPosition as std::vector<Length >
  	 * @throws IllegalAccessException If measuredFocusPosition does not exist.
  	 */
  	std::vector<Length > getMeasuredFocusPosition() const;
@@ -283,8 +283,8 @@ public:
  	
  	
  	/**
- 	 * Set measuredFocusPosition with the specified vector<Length >.
- 	 * @param measuredFocusPosition The vector<Length > value to which measuredFocusPosition is to be set.
+ 	 * Set measuredFocusPosition with the specified std::vector<Length >.
+ 	 * @param measuredFocusPosition The std::vector<Length > value to which measuredFocusPosition is to be set.
  	 
  		
  	 */
@@ -315,7 +315,7 @@ public:
 	
  	/**
  	 * Get measuredFocusRotation, which is optional.
- 	 * @return measuredFocusRotation as vector<Angle >
+ 	 * @return measuredFocusRotation as std::vector<Angle >
  	 * @throws IllegalAccessException If measuredFocusRotation does not exist.
  	 */
  	std::vector<Angle > getMeasuredFocusRotation() const;
@@ -324,8 +324,8 @@ public:
  	
  	
  	/**
- 	 * Set measuredFocusRotation with the specified vector<Angle >.
- 	 * @param measuredFocusRotation The vector<Angle > value to which measuredFocusRotation is to be set.
+ 	 * Set measuredFocusRotation with the specified std::vector<Angle >.
+ 	 * @param measuredFocusRotation The std::vector<Angle > value to which measuredFocusRotation is to be set.
  	 
  		
  	 */
@@ -437,7 +437,7 @@ public:
 	 * 
 	 * @return a vector of FocusModelRow *
 	 */
-	vector <FocusModelRow *> getFocusModels();
+	std::vector <FocusModelRow *> getFocusModels();
 	
 	
 
@@ -752,29 +752,29 @@ void measuredFocusRotationFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, FocusAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void focusTrackingFromText (const string & s);
+void focusTrackingFromText (const std::string & s);
 	
 	
-void focusOffsetFromText (const string & s);
+void focusOffsetFromText (const std::string & s);
 	
 	
-void focusRotationOffsetFromText (const string & s);
+void focusRotationOffsetFromText (const std::string & s);
 	
 	
-void focusModelIdFromText (const string & s);
+void focusModelIdFromText (const std::string & s);
 	
 
 	
-void measuredFocusPositionFromText (const string & s);
+void measuredFocusPositionFromText (const std::string & s);
 	
 	
-void measuredFocusRotationFromText (const string & s);
+void measuredFocusRotationFromText (const std::string & s);
 	
 	
 	

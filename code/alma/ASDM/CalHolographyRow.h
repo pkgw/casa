@@ -48,31 +48,31 @@
 
 
 	 
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	 
-#include <EntityRef.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 
@@ -81,9 +81,7 @@
 	
 
 	
-#include "CAntennaMake.h"
-	
-
+#include <alma/Enumerations/CAntennaMake.h>
 	
 
 	
@@ -99,17 +97,15 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
 
 	
-#include "CReceiverBand.h"
-	
-
-	
-
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -134,14 +130,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalHolography.h
     \brief Generated from model's revision "-1", branch ""
@@ -161,7 +161,7 @@ class CalDataRow;
 
 class CalHolographyRow;
 typedef void (CalHolographyRow::*CalHolographyAttributeFromBin) (EndianIStream& eis);
-typedef void (CalHolographyRow::*CalHolographyAttributeFromText) (const string& s);
+typedef void (CalHolographyRow::*CalHolographyAttributeFromText) (const std::string& s);
 
 /**
  * The CalHolographyRow class is a row of a CalHolographyTable.
@@ -202,23 +202,23 @@ public:
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string getAntennaName() const;
+ 	std::string getAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  		
  			
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 		
  	 */
- 	void setAntennaName (string antennaName);
+ 	void setAntennaName (std::string antennaName);
   		
 	
 	
@@ -354,7 +354,7 @@ public:
 	
  	/**
  	 * Get focusPosition.
- 	 * @return focusPosition as vector<Length >
+ 	 * @return focusPosition as std::vector<Length >
  	 */
  	std::vector<Length > getFocusPosition() const;
 	
@@ -362,8 +362,8 @@ public:
  	
  	
  	/**
- 	 * Set focusPosition with the specified vector<Length >.
- 	 * @param focusPosition The vector<Length > value to which focusPosition is to be set.
+ 	 * Set focusPosition with the specified std::vector<Length >.
+ 	 * @param focusPosition The std::vector<Length > value to which focusPosition is to be set.
  	 
  		
  			
@@ -384,7 +384,7 @@ public:
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
  	std::vector<Frequency > getFrequencyRange() const;
 	
@@ -392,8 +392,8 @@ public:
  	
  	
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  		
  			
@@ -474,7 +474,7 @@ public:
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
  	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
@@ -482,8 +482,8 @@ public:
  	
  	
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  		
  			
@@ -684,7 +684,7 @@ public:
 	
  	/**
  	 * Get direction.
- 	 * @return direction as vector<Angle >
+ 	 * @return direction as std::vector<Angle >
  	 */
  	std::vector<Angle > getDirection() const;
 	
@@ -692,8 +692,8 @@ public:
  	
  	
  	/**
- 	 * Set direction with the specified vector<Angle >.
- 	 * @param direction The vector<Angle > value to which direction is to be set.
+ 	 * Set direction with the specified std::vector<Angle >.
+ 	 * @param direction The std::vector<Angle > value to which direction is to be set.
  	 
  		
  			
@@ -761,21 +761,21 @@ public:
 	
  	/**
  	 * Get screwName, which is optional.
- 	 * @return screwName as vector<string >
+ 	 * @return screwName as std::vector<std::string >
  	 * @throws IllegalAccessException If screwName does not exist.
  	 */
- 	std::vector<string > getScrewName() const;
+ 	std::vector<std::string > getScrewName() const;
 	
  
  	
  	
  	/**
- 	 * Set screwName with the specified vector<string >.
- 	 * @param screwName The vector<string > value to which screwName is to be set.
+ 	 * Set screwName with the specified std::vector<std::string >.
+ 	 * @param screwName The std::vector<std::string > value to which screwName is to be set.
  	 
  		
  	 */
- 	void setScrewName (std::vector<string > screwName);
+ 	void setScrewName (std::vector<std::string > screwName);
 		
 	
 	
@@ -802,7 +802,7 @@ public:
 	
  	/**
  	 * Get screwMotion, which is optional.
- 	 * @return screwMotion as vector<Length >
+ 	 * @return screwMotion as std::vector<Length >
  	 * @throws IllegalAccessException If screwMotion does not exist.
  	 */
  	std::vector<Length > getScrewMotion() const;
@@ -811,8 +811,8 @@ public:
  	
  	
  	/**
- 	 * Set screwMotion with the specified vector<Length >.
- 	 * @param screwMotion The vector<Length > value to which screwMotion is to be set.
+ 	 * Set screwMotion with the specified std::vector<Length >.
+ 	 * @param screwMotion The std::vector<Length > value to which screwMotion is to be set.
  	 
  		
  	 */
@@ -843,7 +843,7 @@ public:
 	
  	/**
  	 * Get screwMotionError, which is optional.
- 	 * @return screwMotionError as vector<Length >
+ 	 * @return screwMotionError as std::vector<Length >
  	 * @throws IllegalAccessException If screwMotionError does not exist.
  	 */
  	std::vector<Length > getScrewMotionError() const;
@@ -852,8 +852,8 @@ public:
  	
  	
  	/**
- 	 * Set screwMotionError with the specified vector<Length >.
- 	 * @param screwMotionError The vector<Length > value to which screwMotionError is to be set.
+ 	 * Set screwMotionError with the specified std::vector<Length >.
+ 	 * @param screwMotionError The std::vector<Length > value to which screwMotionError is to be set.
  	 
  		
  	 */
@@ -925,7 +925,7 @@ public:
 	
  	/**
  	 * Get gravOptRange, which is optional.
- 	 * @return gravOptRange as vector<Angle >
+ 	 * @return gravOptRange as std::vector<Angle >
  	 * @throws IllegalAccessException If gravOptRange does not exist.
  	 */
  	std::vector<Angle > getGravOptRange() const;
@@ -934,8 +934,8 @@ public:
  	
  	
  	/**
- 	 * Set gravOptRange with the specified vector<Angle >.
- 	 * @param gravOptRange The vector<Angle > value to which gravOptRange is to be set.
+ 	 * Set gravOptRange with the specified std::vector<Angle >.
+ 	 * @param gravOptRange The std::vector<Angle > value to which gravOptRange is to be set.
  	 
  		
  	 */
@@ -1007,7 +1007,7 @@ public:
 	
  	/**
  	 * Get tempOptRange, which is optional.
- 	 * @return tempOptRange as vector<Temperature >
+ 	 * @return tempOptRange as std::vector<Temperature >
  	 * @throws IllegalAccessException If tempOptRange does not exist.
  	 */
  	std::vector<Temperature > getTempOptRange() const;
@@ -1016,8 +1016,8 @@ public:
  	
  	
  	/**
- 	 * Set tempOptRange with the specified vector<Temperature >.
- 	 * @param tempOptRange The vector<Temperature > value to which tempOptRange is to be set.
+ 	 * Set tempOptRange with the specified std::vector<Temperature >.
+ 	 * @param tempOptRange The std::vector<Temperature > value to which tempOptRange is to be set.
  	 
  		
  	 */
@@ -1181,7 +1181,7 @@ public:
 	 * @param direction
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, Tag calDataId, Tag calReductionId, AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, std::vector<Length > focusPosition, std::vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, std::vector<Angle > direction);
+	bool compareNoAutoInc(std::string antennaName, Tag calDataId, Tag calReductionId, AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, std::vector<Length > focusPosition, std::vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, std::vector<Angle > direction);
 	
 	
 
@@ -1382,7 +1382,7 @@ private:
 	
 	
 
-	string antennaName;
+	std::string antennaName;
 
 	
 	
@@ -1584,7 +1584,7 @@ private:
 	bool screwNameExists;
 	
 
-	std::vector<string > screwName;
+	std::vector<std::string > screwName;
 
 	
 	
@@ -1754,82 +1754,82 @@ void tempOptRangeFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalHolographyAttributeFromText> fromTextMethods;
 	
-void antennaNameFromText (const string & s);
+void antennaNameFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void antennaMakeFromText (const string & s);
+void antennaMakeFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void ambientTemperatureFromText (const string & s);
+void ambientTemperatureFromText (const std::string & s);
 	
 	
-void focusPositionFromText (const string & s);
+void focusPositionFromText (const std::string & s);
 	
 	
-void frequencyRangeFromText (const string & s);
+void frequencyRangeFromText (const std::string & s);
 	
 	
-void illuminationTaperFromText (const string & s);
+void illuminationTaperFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void polarizationTypesFromText (const string & s);
+void polarizationTypesFromText (const std::string & s);
 	
 	
-void numPanelModesFromText (const string & s);
+void numPanelModesFromText (const std::string & s);
 	
 	
-void receiverBandFromText (const string & s);
-	
-	
-	
-void rawRMSFromText (const string & s);
-	
-	
-void weightedRMSFromText (const string & s);
+void receiverBandFromText (const std::string & s);
 	
 	
 	
-void directionFromText (const string & s);
+void rawRMSFromText (const std::string & s);
+	
+	
+void weightedRMSFromText (const std::string & s);
+	
+	
+	
+void directionFromText (const std::string & s);
 	
 
 	
-void numScrewFromText (const string & s);
+void numScrewFromText (const std::string & s);
 	
 	
-void screwNameFromText (const string & s);
+void screwNameFromText (const std::string & s);
 	
 	
-void screwMotionFromText (const string & s);
+void screwMotionFromText (const std::string & s);
 	
 	
-void screwMotionErrorFromText (const string & s);
+void screwMotionErrorFromText (const std::string & s);
 	
 	
-void gravCorrectionFromText (const string & s);
+void gravCorrectionFromText (const std::string & s);
 	
 	
-void gravOptRangeFromText (const string & s);
+void gravOptRangeFromText (const std::string & s);
 	
 	
-void tempCorrectionFromText (const string & s);
+void tempCorrectionFromText (const std::string & s);
 	
 	
-void tempOptRangeFromText (const string & s);
+void tempOptRangeFromText (const std::string & s);
 	
 	
 	

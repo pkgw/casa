@@ -48,19 +48,19 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -91,7 +91,7 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
@@ -102,12 +102,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Pointing.h
     \brief Generated from model's revision "-1", branch ""
@@ -127,7 +127,7 @@ class AntennaRow;
 
 class PointingRow;
 typedef void (PointingRow::*PointingAttributeFromBin) (EndianIStream& eis);
-typedef void (PointingRow::*PointingAttributeFromText) (const string& s);
+typedef void (PointingRow::*PointingAttributeFromText) (const std::string& s);
 
 /**
  * The PointingRow class is a row of a PointingTable.
@@ -230,7 +230,7 @@ public:
 	
  	/**
  	 * Get encoder.
- 	 * @return encoder as vector<vector<Angle > >
+ 	 * @return encoder as std::vector<std::vector<Angle > >
  	 */
  	std::vector<std::vector<Angle > > getEncoder() const;
 	
@@ -238,8 +238,8 @@ public:
  	
  	
  	/**
- 	 * Set encoder with the specified vector<vector<Angle > >.
- 	 * @param encoder The vector<vector<Angle > > value to which encoder is to be set.
+ 	 * Set encoder with the specified std::vector<std::vector<Angle > >.
+ 	 * @param encoder The std::vector<std::vector<Angle > > value to which encoder is to be set.
  	 
  		
  			
@@ -380,7 +380,7 @@ public:
 	
  	/**
  	 * Get pointingDirection.
- 	 * @return pointingDirection as vector<vector<Angle > >
+ 	 * @return pointingDirection as std::vector<std::vector<Angle > >
  	 */
  	std::vector<std::vector<Angle > > getPointingDirection() const;
 	
@@ -388,8 +388,8 @@ public:
  	
  	
  	/**
- 	 * Set pointingDirection with the specified vector<vector<Angle > >.
- 	 * @param pointingDirection The vector<vector<Angle > > value to which pointingDirection is to be set.
+ 	 * Set pointingDirection with the specified std::vector<std::vector<Angle > >.
+ 	 * @param pointingDirection The std::vector<std::vector<Angle > > value to which pointingDirection is to be set.
  	 
  		
  			
@@ -410,7 +410,7 @@ public:
 	
  	/**
  	 * Get target.
- 	 * @return target as vector<vector<Angle > >
+ 	 * @return target as std::vector<std::vector<Angle > >
  	 */
  	std::vector<std::vector<Angle > > getTarget() const;
 	
@@ -418,8 +418,8 @@ public:
  	
  	
  	/**
- 	 * Set target with the specified vector<vector<Angle > >.
- 	 * @param target The vector<vector<Angle > > value to which target is to be set.
+ 	 * Set target with the specified std::vector<std::vector<Angle > >.
+ 	 * @param target The std::vector<std::vector<Angle > > value to which target is to be set.
  	 
  		
  			
@@ -440,7 +440,7 @@ public:
 	
  	/**
  	 * Get offset.
- 	 * @return offset as vector<vector<Angle > >
+ 	 * @return offset as std::vector<std::vector<Angle > >
  	 */
  	std::vector<std::vector<Angle > > getOffset() const;
 	
@@ -448,8 +448,8 @@ public:
  	
  	
  	/**
- 	 * Set offset with the specified vector<vector<Angle > >.
- 	 * @param offset The vector<vector<Angle > > value to which offset is to be set.
+ 	 * Set offset with the specified std::vector<std::vector<Angle > >.
+ 	 * @param offset The std::vector<std::vector<Angle > > value to which offset is to be set.
  	 
  		
  			
@@ -517,7 +517,7 @@ public:
 	
  	/**
  	 * Get sourceOffset, which is optional.
- 	 * @return sourceOffset as vector<vector<Angle > >
+ 	 * @return sourceOffset as std::vector<std::vector<Angle > >
  	 * @throws IllegalAccessException If sourceOffset does not exist.
  	 */
  	std::vector<std::vector<Angle > > getSourceOffset() const;
@@ -526,8 +526,8 @@ public:
  	
  	
  	/**
- 	 * Set sourceOffset with the specified vector<vector<Angle > >.
- 	 * @param sourceOffset The vector<vector<Angle > > value to which sourceOffset is to be set.
+ 	 * Set sourceOffset with the specified std::vector<std::vector<Angle > >.
+ 	 * @param sourceOffset The std::vector<std::vector<Angle > > value to which sourceOffset is to be set.
  	 
  		
  	 */
@@ -640,7 +640,7 @@ public:
 	
  	/**
  	 * Get sampledTimeInterval, which is optional.
- 	 * @return sampledTimeInterval as vector<ArrayTimeInterval >
+ 	 * @return sampledTimeInterval as std::vector<ArrayTimeInterval >
  	 * @throws IllegalAccessException If sampledTimeInterval does not exist.
  	 */
  	std::vector<ArrayTimeInterval > getSampledTimeInterval() const;
@@ -649,8 +649,8 @@ public:
  	
  	
  	/**
- 	 * Set sampledTimeInterval with the specified vector<ArrayTimeInterval >.
- 	 * @param sampledTimeInterval The vector<ArrayTimeInterval > value to which sampledTimeInterval is to be set.
+ 	 * Set sampledTimeInterval with the specified std::vector<ArrayTimeInterval >.
+ 	 * @param sampledTimeInterval The std::vector<ArrayTimeInterval > value to which sampledTimeInterval is to be set.
  	 
  		
  	 */
@@ -681,7 +681,7 @@ public:
 	
  	/**
  	 * Get atmosphericCorrection, which is optional.
- 	 * @return atmosphericCorrection as vector<vector<Angle > >
+ 	 * @return atmosphericCorrection as std::vector<std::vector<Angle > >
  	 * @throws IllegalAccessException If atmosphericCorrection does not exist.
  	 */
  	std::vector<std::vector<Angle > > getAtmosphericCorrection() const;
@@ -690,8 +690,8 @@ public:
  	
  	
  	/**
- 	 * Set atmosphericCorrection with the specified vector<vector<Angle > >.
- 	 * @param atmosphericCorrection The vector<vector<Angle > > value to which atmosphericCorrection is to be set.
+ 	 * Set atmosphericCorrection with the specified std::vector<std::vector<Angle > >.
+ 	 * @param atmosphericCorrection The std::vector<std::vector<Angle > > value to which atmosphericCorrection is to be set.
  	 
  		
  	 */
@@ -788,7 +788,7 @@ public:
 	 * 
 	 * @return a vector of PointingModelRow *
 	 */
-	vector <PointingModelRow *> getPointingModels();
+	std::vector <PointingModelRow *> getPointingModels();
 	
 	
 
@@ -1280,59 +1280,59 @@ void atmosphericCorrectionFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, PointingAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void numSampleFromText (const string & s);
+void numSampleFromText (const std::string & s);
 	
 	
-void encoderFromText (const string & s);
+void encoderFromText (const std::string & s);
 	
 	
-void pointingTrackingFromText (const string & s);
+void pointingTrackingFromText (const std::string & s);
 	
 	
-void usePolynomialsFromText (const string & s);
+void usePolynomialsFromText (const std::string & s);
 	
 	
-void timeOriginFromText (const string & s);
+void timeOriginFromText (const std::string & s);
 	
 	
-void numTermFromText (const string & s);
+void numTermFromText (const std::string & s);
 	
 	
-void pointingDirectionFromText (const string & s);
+void pointingDirectionFromText (const std::string & s);
 	
 	
-void targetFromText (const string & s);
+void targetFromText (const std::string & s);
 	
 	
-void offsetFromText (const string & s);
+void offsetFromText (const std::string & s);
 	
 	
-void pointingModelIdFromText (const string & s);
+void pointingModelIdFromText (const std::string & s);
 	
 
 	
-void overTheTopFromText (const string & s);
+void overTheTopFromText (const std::string & s);
 	
 	
-void sourceOffsetFromText (const string & s);
+void sourceOffsetFromText (const std::string & s);
 	
 	
-void sourceOffsetReferenceCodeFromText (const string & s);
+void sourceOffsetReferenceCodeFromText (const std::string & s);
 	
 	
-void sourceOffsetEquinoxFromText (const string & s);
+void sourceOffsetEquinoxFromText (const std::string & s);
 	
 	
-void sampledTimeIntervalFromText (const string & s);
+void sampledTimeIntervalFromText (const std::string & s);
 	
 	
-void atmosphericCorrectionFromText (const string & s);
+void atmosphericCorrectionFromText (const std::string & s);
 	
 	
 	

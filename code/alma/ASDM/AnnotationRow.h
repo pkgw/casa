@@ -50,15 +50,15 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	 
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
@@ -75,7 +75,7 @@
 	
 
 	
-#include "CBasebandName.h"
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
@@ -94,14 +94,16 @@
 
 	
 
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Annotation.h
     \brief Generated from model's revision "-1", branch ""
@@ -118,7 +120,7 @@ class AntennaRow;
 
 class AnnotationRow;
 typedef void (AnnotationRow::*AnnotationAttributeFromBin) (EndianIStream& eis);
-typedef void (AnnotationRow::*AnnotationAttributeFromText) (const string& s);
+typedef void (AnnotationRow::*AnnotationAttributeFromText) (const std::string& s);
 
 /**
  * The AnnotationRow class is a row of a AnnotationTable.
@@ -209,21 +211,21 @@ public:
 	
  	/**
  	 * Get issue.
- 	 * @return issue as string
+ 	 * @return issue as std::string
  	 */
- 	string getIssue() const;
+ 	std::string getIssue() const;
 	
  
  	
  	
  	/**
- 	 * Set issue with the specified string.
- 	 * @param issue The string value to which issue is to be set.
+ 	 * Set issue with the specified std::string.
+ 	 * @param issue The std::string value to which issue is to be set.
  	 
  		
  			
  	 */
- 	void setIssue (string issue);
+ 	void setIssue (std::string issue);
   		
 	
 	
@@ -239,21 +241,21 @@ public:
 	
  	/**
  	 * Get details.
- 	 * @return details as string
+ 	 * @return details as std::string
  	 */
- 	string getDetails() const;
+ 	std::string getDetails() const;
 	
  
  	
  	
  	/**
- 	 * Set details with the specified string.
- 	 * @param details The string value to which details is to be set.
+ 	 * Set details with the specified std::string.
+ 	 * @param details The std::string value to which details is to be set.
  	 
  		
  			
  	 */
- 	void setDetails (string details);
+ 	void setDetails (std::string details);
   		
 	
 	
@@ -316,7 +318,7 @@ public:
 	
  	/**
  	 * Get basebandName, which is optional.
- 	 * @return basebandName as vector<BasebandNameMod::BasebandName >
+ 	 * @return basebandName as std::vector<BasebandNameMod::BasebandName >
  	 * @throws IllegalAccessException If basebandName does not exist.
  	 */
  	std::vector<BasebandNameMod::BasebandName > getBasebandName() const;
@@ -325,8 +327,8 @@ public:
  	
  	
  	/**
- 	 * Set basebandName with the specified vector<BasebandNameMod::BasebandName >.
- 	 * @param basebandName The vector<BasebandNameMod::BasebandName > value to which basebandName is to be set.
+ 	 * Set basebandName with the specified std::vector<BasebandNameMod::BasebandName >.
+ 	 * @param basebandName The std::vector<BasebandNameMod::BasebandName > value to which basebandName is to be set.
  	 
  		
  	 */
@@ -480,7 +482,7 @@ public:
 	
  	/**
  	 * Get vdValue, which is optional.
- 	 * @return vdValue as vector<double >
+ 	 * @return vdValue as std::vector<double >
  	 * @throws IllegalAccessException If vdValue does not exist.
  	 */
  	std::vector<double > getVdValue() const;
@@ -489,8 +491,8 @@ public:
  	
  	
  	/**
- 	 * Set vdValue with the specified vector<double >.
- 	 * @param vdValue The vector<double > value to which vdValue is to be set.
+ 	 * Set vdValue with the specified std::vector<double >.
+ 	 * @param vdValue The std::vector<double > value to which vdValue is to be set.
  	 
  		
  	 */
@@ -521,7 +523,7 @@ public:
 	
  	/**
  	 * Get vvdValues, which is optional.
- 	 * @return vvdValues as vector<vector<double > >
+ 	 * @return vvdValues as std::vector<std::vector<double > >
  	 * @throws IllegalAccessException If vvdValues does not exist.
  	 */
  	std::vector<std::vector<double > > getVvdValues() const;
@@ -530,8 +532,8 @@ public:
  	
  	
  	/**
- 	 * Set vvdValues with the specified vector<vector<double > >.
- 	 * @param vvdValues The vector<vector<double > > value to which vvdValues is to be set.
+ 	 * Set vvdValues with the specified std::vector<std::vector<double > >.
+ 	 * @param vvdValues The std::vector<std::vector<double > > value to which vvdValues is to be set.
  	 
  		
  	 */
@@ -603,7 +605,7 @@ public:
 	
  	/**
  	 * Get vllValue, which is optional.
- 	 * @return vllValue as vector<int64_t >
+ 	 * @return vllValue as std::vector<int64_t >
  	 * @throws IllegalAccessException If vllValue does not exist.
  	 */
  	std::vector<int64_t > getVllValue() const;
@@ -612,8 +614,8 @@ public:
  	
  	
  	/**
- 	 * Set vllValue with the specified vector<int64_t >.
- 	 * @param vllValue The vector<int64_t > value to which vllValue is to be set.
+ 	 * Set vllValue with the specified std::vector<int64_t >.
+ 	 * @param vllValue The std::vector<int64_t > value to which vllValue is to be set.
  	 
  		
  	 */
@@ -644,7 +646,7 @@ public:
 	
  	/**
  	 * Get vvllValue, which is optional.
- 	 * @return vvllValue as vector<vector<int64_t > >
+ 	 * @return vvllValue as std::vector<std::vector<int64_t > >
  	 * @throws IllegalAccessException If vvllValue does not exist.
  	 */
  	std::vector<std::vector<int64_t > > getVvllValue() const;
@@ -653,8 +655,8 @@ public:
  	
  	
  	/**
- 	 * Set vvllValue with the specified vector<vector<int64_t > >.
- 	 * @param vvllValue The vector<vector<int64_t > > value to which vvllValue is to be set.
+ 	 * Set vvllValue with the specified std::vector<std::vector<int64_t > >.
+ 	 * @param vvllValue The std::vector<std::vector<int64_t > > value to which vvllValue is to be set.
  	 
  		
  	 */
@@ -667,6 +669,47 @@ public:
 	 * Mark vvllValue, which is an optional field, as non-existent.
 	 */
 	void clearVvllValue ();
+	
+
+
+	
+	// ===> Attribute sValue, which is optional
+	
+	
+	
+	/**
+	 * The attribute sValue is optional. Return true if this attribute exists.
+	 * @return true if and only if the sValue attribute exists. 
+	 */
+	bool isSValueExists() const;
+	
+
+	
+ 	/**
+ 	 * Get sValue, which is optional.
+ 	 * @return sValue as std::string
+ 	 * @throws IllegalAccessException If sValue does not exist.
+ 	 */
+ 	std::string getSValue() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set sValue with the specified std::string.
+ 	 * @param sValue The std::string value to which sValue is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setSValue (std::string sValue);
+		
+	
+	
+	
+	/**
+	 * Mark sValue, which is an optional field, as non-existent.
+	 */
+	void clearSValue ();
 	
 
 
@@ -689,7 +732,7 @@ public:
 	
  	/**
  	 * Get antennaId, which is optional.
- 	 * @return antennaId as vector<Tag> 
+ 	 * @return antennaId as std::vector<Tag> 
  	 * @throws IllegalAccessException If antennaId does not exist.
  	 */
  	std::vector<Tag>  getAntennaId() const;
@@ -698,8 +741,8 @@ public:
  	
  	
  	/**
- 	 * Set antennaId with the specified vector<Tag> .
- 	 * @param antennaId The vector<Tag>  value to which antennaId is to be set.
+ 	 * Set antennaId with the specified std::vector<Tag> .
+ 	 * @param antennaId The std::vector<Tag>  value to which antennaId is to be set.
  	 
  		
  	 */
@@ -785,7 +828,7 @@ public:
 	 * @param details
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTime time, string issue, string details);
+	bool compareNoAutoInc(ArrayTime time, std::string issue, std::string details);
 	
 	
 
@@ -801,7 +844,7 @@ public:
 	 * @param details
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime time, string issue, string details); 
+	bool compareRequiredValue(ArrayTime time, std::string issue, std::string details); 
 		 
 	
 	/**
@@ -875,6 +918,7 @@ void vvdValuesFromBin( EndianIStream& eis);
 void llValueFromBin( EndianIStream& eis);
 void vllValueFromBin( EndianIStream& eis);
 void vvllValueFromBin( EndianIStream& eis);
+void sValueFromBin( EndianIStream& eis);
 void antennaIdFromBin( EndianIStream& eis);
 
 
@@ -982,7 +1026,7 @@ private:
 	
 	
 
-	string issue;
+	std::string issue;
 
 	
 	
@@ -993,7 +1037,7 @@ private:
 	
 	
 
-	string details;
+	std::string details;
 
 	
 	
@@ -1129,6 +1173,19 @@ private:
 	
  	
 
+	
+	// ===> Attribute sValue, which is optional
+	
+	
+	bool sValueExists;
+	
+
+	std::string sValue;
+
+	
+	
+ 	
+
 	////////////////////////////////
 	// Extrinsic Table Attributes //
 	////////////////////////////////
@@ -1177,6 +1234,7 @@ void vvdValuesFromBin( EndianIStream& eis);
 void llValueFromBin( EndianIStream& eis);
 void vllValueFromBin( EndianIStream& eis);
 void vvllValueFromBin( EndianIStream& eis);
+void sValueFromBin( EndianIStream& eis);
 void antennaIdFromBin( EndianIStream& eis);
 
 */
@@ -1186,50 +1244,53 @@ void antennaIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, AnnotationAttributeFromText> fromTextMethods;
 	
-void annotationIdFromText (const string & s);
+void annotationIdFromText (const std::string & s);
 	
 	
-void timeFromText (const string & s);
+void timeFromText (const std::string & s);
 	
 	
-void issueFromText (const string & s);
+void issueFromText (const std::string & s);
 	
 	
-void detailsFromText (const string & s);
+void detailsFromText (const std::string & s);
 	
 
 	
-void numAntennaFromText (const string & s);
+void numAntennaFromText (const std::string & s);
 	
 	
-void basebandNameFromText (const string & s);
+void basebandNameFromText (const std::string & s);
 	
 	
-void numBasebandFromText (const string & s);
+void numBasebandFromText (const std::string & s);
 	
 	
-void intervalFromText (const string & s);
+void intervalFromText (const std::string & s);
 	
 	
-void dValueFromText (const string & s);
+void dValueFromText (const std::string & s);
 	
 	
-void vdValueFromText (const string & s);
+void vdValueFromText (const std::string & s);
 	
 	
-void vvdValuesFromText (const string & s);
+void vvdValuesFromText (const std::string & s);
 	
 	
-void llValueFromText (const string & s);
+void llValueFromText (const std::string & s);
 	
 	
-void vllValueFromText (const string & s);
+void vllValueFromText (const std::string & s);
 	
 	
-void vvllValueFromText (const string & s);
+void vvllValueFromText (const std::string & s);
 	
 	
-void antennaIdFromText (const string & s);
+void sValueFromText (const std::string & s);
+	
+	
+void antennaIdFromText (const std::string & s);
 	
 	
 	

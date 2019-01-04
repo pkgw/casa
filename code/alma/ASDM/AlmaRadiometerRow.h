@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -60,12 +60,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file AlmaRadiometer.h
     \brief Generated from model's revision "-1", branch ""
@@ -82,7 +82,7 @@ class SpectralWindowRow;
 
 class AlmaRadiometerRow;
 typedef void (AlmaRadiometerRow::*AlmaRadiometerAttributeFromBin) (EndianIStream& eis);
-typedef void (AlmaRadiometerRow::*AlmaRadiometerAttributeFromText) (const string& s);
+typedef void (AlmaRadiometerRow::*AlmaRadiometerAttributeFromText) (const std::string& s);
 
 /**
  * The AlmaRadiometerRow class is a row of a AlmaRadiometerTable.
@@ -194,7 +194,7 @@ public:
 	
  	/**
  	 * Get spectralWindowId, which is optional.
- 	 * @return spectralWindowId as vector<Tag> 
+ 	 * @return spectralWindowId as std::vector<Tag> 
  	 * @throws IllegalAccessException If spectralWindowId does not exist.
  	 */
  	std::vector<Tag>  getSpectralWindowId() const;
@@ -203,8 +203,8 @@ public:
  	
  	
  	/**
- 	 * Set spectralWindowId with the specified vector<Tag> .
- 	 * @param spectralWindowId The vector<Tag>  value to which spectralWindowId is to be set.
+ 	 * Set spectralWindowId with the specified std::vector<Tag> .
+ 	 * @param spectralWindowId The std::vector<Tag>  value to which spectralWindowId is to be set.
  	 
  		
  	 */
@@ -490,14 +490,14 @@ void spectralWindowIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, AlmaRadiometerAttributeFromText> fromTextMethods;
 	
-void almaRadiometerIdFromText (const string & s);
+void almaRadiometerIdFromText (const std::string & s);
 	
 
 	
-void numAntennaFromText (const string & s);
+void numAntennaFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
 	
