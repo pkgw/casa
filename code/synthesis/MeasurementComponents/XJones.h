@@ -289,8 +289,8 @@ public:
   virtual ~XfparangJones();
   // Return type name as string
   // Return type name as string
-  virtual casacore::String typeName()     { return "GlinXphf Jones"; };
-  virtual casacore::String longTypeName() { return "GlinXphf Jones (X-Y phase)"; };
+  virtual casacore::String typeName()     { return "Xfparang Jones"; };
+  virtual casacore::String longTypeName() { return "Xfparang Jones (X-Y phase)"; };
 
   // This is the freq-dep version of XparangJones
   //   (this is the ONLY fundamental difference from XparangJones)

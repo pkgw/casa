@@ -1403,7 +1403,7 @@ void XparangJones::solveOneVB(const VisBuffer& vb) {
 
 }
 
-// Solve for the X-Y phase from the cross-hand's slope in R/I
+// Solve for the cross-hand phase from the cross-hand's slope in R/I
 void XparangJones::solveOne(SDBList& sdbs) {
 
   // ensure
@@ -1436,6 +1436,11 @@ void XparangJones::solveOne(SDBList& sdbs) {
   Complex v(0.0);
   Float wt0(0.0);
   
+  cout << "polBasis=" << sdbs.polBasis() << endl;
+
+
+  if (sdbs.polBasis()==String("LIN")) {
+
   for (Int isdb=0;isdb<nSDB;++isdb) {
     SolveDataBuffer& sdb(sdbs(isdb));
 
@@ -1521,7 +1526,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
 	if (dang > (C::pi/2.)) {
 	  Cph(ich)*=-1.0;   // fix this one
 	  currAmb*=-1.0;    // reverse currAmb, so curr amb is carried forward
-	  //	  cout << "  Found XY phase ambiguity jump at chan=" << ich << " in spw=" << currSpw();
+	  cout << "  Found XY phase ambiguity jump at chan=" << ich << " in spw=" << currSpw() << endl;
 	}
       }
 
@@ -1539,12 +1544,91 @@ void XparangJones::solveOne(SDBList& sdbs) {
     }
   }
 
+  // Calculate correlation with model data (real part only!), insist it is positive
+  {
+
+
+    Vector<Double> wtf(nSDB,0.0); //,sigf(nSDB,0.0),xf(nSDB,0.0),yf(nSDB,0.0);
+    //Vector<Bool> maskf(nSDB,false);
+    Float wt0;
+    Complex v,m;
+    Double Cp(0.0), Cn(0.0);
+    Double wtsum(0.0);
+
+    for (Int isdb=0;isdb<nSDB;++isdb) {
+      SolveDataBuffer& sdb(sdbs(isdb));
+
+      for (Int irow=0;irow<sdb.nRows();++irow) {
+	if (!sdb.flagRow()(irow) &&
+	    sdb.antenna1()(irow)!=sdb.antenna2()(irow)) {
+	  
+	  Float fpa(sdb.feedPa()(0));  // assumes same for all antennas!
+	  
+	  for (Int ich=0;ich<nChan;++ich) {
+	    
+	    if (!sdb.flagCube()(1,ich,irow)) {
+	      // Correct x-hands for xy-phase and add together
+	      wt0=sdb.weightSpectrum()(1,ich,irow);
+	      v=sdb.visCubeCorrected()(1,ich,irow)/Cph(ich);
+	      m=sdb.visCubeModel()(1,ich,irow);
+	      Cp+=(wt0*real(v)*real(m));
+	      Cn+=(wt0*real(v)*real(m)*(-1.0));
+	      wtsum+=Double(wt0);
+	    }
+	    if (!sdb.flagCube()(2,ich,irow)) {
+	      // Correct x-hands for xy-phase and add together
+	      wt0=sdb.weightSpectrum()(2,ich,irow);
+	      v=sdb.visCubeCorrected()(2,ich,irow)/conj(Cph(ich));
+	      m=sdb.visCubeModel()(2,ich,irow);
+	      Cp+=(wt0*real(v)*real(m));
+	      Cn+=(wt0*real(v)*real(m)*(-1.0));
+	      wtsum+=Double(wt0);
+	    }
+	  }
+	}
+      }
+    }
+
+
+    cout << "Cp,Cn = " << Cp << " " << Cn << endl;
+
+    if ( Cn > Cp ) {
+      cout << "180 deg ambiguity found and corrected!" << endl;
+      Complex swap(-1.0,0.0);
+      Cph*=swap;
+      
+      MaskedArray<Complex> sCP(solveCPar()(solveParOK()));
+      sCP*=swap;
+
+    }
+
+
+  }
+
+  if (ntrue(solveParOK())>0) {
+    Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*180.0/C::pi;
+
+    logSink() << "Fld = " << msmc().fieldName(currField())
+	      << ", Spw = " << thisSpw
+	      << " (ich=" << nChan/2 << "/" << nChan << "): " << endl
+	      << " Cross-hand phase = " << arg(Cph[nChan/2])*180.0/C::pi << " deg."
+	      << " (Mean = " << ang << ")"
+	      << LogIO::POST;
+  }
+  else
+    logSink() << "Fld = " << msmc().fieldName(currField())
+	      << ", Spw = " << thisSpw
+	      << " (ich=" << nChan/2 << "/" << nChan << "): " << endl
+	      << " Cross-hand phase was not determined (insufficient data)."
+	      << LogIO::POST;
+
   if (report)
     cout << endl 
 	 << "Spw = " << thisSpw
 	 << " (ich=" << nChan/2 << "/" << nChan << "): " << endl
 	 << " X-Y phase = " << arg(Cph[nChan/2])*180.0/C::pi << " deg." << endl;
       
+
 
   // Now fit for the source polarization
   {
@@ -1624,6 +1708,20 @@ void XparangJones::solveOne(SDBList& sdbs) {
 	 << soln(2) << endl;
 
   }	
+
+  }
+  else if (sdbs.polBasis()==String("CIRC")) {
+
+    cout << "CIRCULAR BASIS!!!" << endl;
+
+
+  }
+  else {
+
+    throw(AipsError("Cannot solve for cross-hand phase, don't know basis"));
+  }
+
+  cout << "End" << endl;
 
 }
 
