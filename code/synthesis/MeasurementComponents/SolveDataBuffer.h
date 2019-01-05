@@ -106,6 +106,8 @@ public:
   // Delete the workspaces
   void cleanUp();
 
+  // Return pol basis
+  casacore::String polBasis() const;
 
   // VB2-like data access methods (mostly const)
   casacore::Int nRows() const { return vb_->nRows(); };
@@ -233,6 +235,9 @@ public:
   int aggregateFld() const;
   double aggregateTime() const;
   double aggregateTimeCentroid() const;
+
+  // Return pol basis
+  casacore::String polBasis() const;
 
   // How man correlations
   //   Currently, this insists on uniformity over all SDBs

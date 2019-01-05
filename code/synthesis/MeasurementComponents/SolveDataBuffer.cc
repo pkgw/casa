@@ -377,6 +377,7 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
 				    VisBufferComponent2::NCorrelations,
 				    VisBufferComponent2::NChannels,
 				    VisBufferComponent2::NRows,
+				    VisBufferComponent2::CorrType,
 				    VisBufferComponent2::FlagRow,
 				    VisBufferComponent2::FlagCube,
 	  VisBufferComponent2::WeightSpectrum,
@@ -424,6 +425,19 @@ void SolveDataBuffer::cleanUp()
   residuals_p.resize();
   residFlagCube_p.resize();
   diffResiduals_p.resize();
+
+}
+
+String SolveDataBuffer::polBasis() const
+{
+
+  if (vb_->correlationTypes()(0)==5)
+    return String("CIRC");
+  if (vb_->correlationTypes()(0)==9)
+    return String("LIN");
+
+  // Neither CIRC nor LIN, so effectively UNKNOWN
+  return String("UNKNOWN");
 
 }
 
@@ -619,6 +633,17 @@ casacore::Double SDBList::centroidFreq() const {
     }
   }
   return fsum/Double(nf);
+}
+
+String SDBList::polBasis() const
+{
+  String polBas(SDB_[0]->polBasis());
+
+  // Trap non-uniformity, for now
+  for (Int isdb=1;isdb<nSDB_;++isdb)
+    AlwaysAssert((SDB_[isdb]->polBasis()==polBas),AipsError);
+ 
+  return polBas;
 }
 
 
