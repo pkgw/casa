@@ -294,7 +294,7 @@ private:
   // Name of data manager.
   casacore::String itsDataManName;
   // The column objects.
-  vector<AsdmColumn*>    itsColumns;
+  std::vector<AsdmColumn*>    itsColumns;
   casacore::Block<casacore::String>          itsBDFNames;
   casacore::FiledesIO*             itsBDF;
   int                    itsFD;
@@ -307,12 +307,12 @@ private:
   casacore::Int64  itsStartRow;     //# First row of data block
   casacore::Int64  itsEndRow;       //# First row of next data block
   casacore::uInt   itsIndexEntry;   //# Index entry number of current data block
-  vector<char>      itsData;
-  vector<AsdmIndex> itsIndex;
-  vector<casacore::Int64>     itsIndexRows;
+  std::vector<char>      itsData;
+  std::vector<AsdmIndex> itsIndex;
+  std::vector<casacore::Int64>     itsIndexRows;
 
   casacore::uInt              itsNBl;
-  vector<casacore::uInt>      itsTransposeBLNum_v;
+  std::vector<casacore::uInt>      itsTransposeBLNum_v;
 };
 
 

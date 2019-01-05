@@ -371,3 +371,19 @@ TEST_F( SimpleSimVi2Test , SimpleSimVi2_NonTrivial1 ) {
 }
 
 
+TEST_F( SimpleSimVi2Test , SimpleSimVi2_SubtTables ) {
+  SimpleSimVi2Factory s1f(s1);
+  std::unique_ptr<VisibilityIterator2> vi (new VisibilityIterator2(s1f));
+
+  auto& antennaSubtablecols = vi->antennaSubtablecols();
+  EXPECT_EQ(uInt(NANT), antennaSubtablecols.nrow());
+
+  auto& spwSubtablecols = vi->spectralWindowSubtablecols();
+  EXPECT_EQ(uInt(NSPW), spwSubtablecols.nrow());
+
+  auto& ddSubtablecols = vi->dataDescriptionSubtablecols();
+  EXPECT_EQ(uInt(NSPW), ddSubtablecols.nrow());
+
+  auto& polSubtablecols = vi->polarizationSubtablecols();
+  EXPECT_EQ(uInt(1), polSubtablecols.nrow());
+}

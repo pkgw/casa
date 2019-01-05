@@ -33,7 +33,7 @@
  * File CAssociatedCalNature.cpp
  */
 #include <sstream>
-#include <CAssociatedCalNature.h>
+#include <alma/Enumerations/CAssociatedCalNature.h>
 #include <string>
 using namespace std;
 

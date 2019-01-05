@@ -46,7 +46,7 @@ public:
     );
 
     void rotate(
-        const Quantity& angle, const vector<String>& prependMsgs
+        const Quantity& angle, const std::vector<String>& prependMsgs
     );
 
 	void set(

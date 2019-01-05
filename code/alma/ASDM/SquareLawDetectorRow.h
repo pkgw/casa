@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -59,17 +59,17 @@
 	
 
 	
-#include "CDetectorBandType.h"
+#include <alma/Enumerations/CDetectorBandType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file SquareLawDetector.h
     \brief Generated from model's revision "-1", branch ""
@@ -83,7 +83,7 @@ namespace asdm {
 
 class SquareLawDetectorRow;
 typedef void (SquareLawDetectorRow::*SquareLawDetectorAttributeFromBin) (EndianIStream& eis);
-typedef void (SquareLawDetectorRow::*SquareLawDetectorAttributeFromText) (const string& s);
+typedef void (SquareLawDetectorRow::*SquareLawDetectorAttributeFromText) (const std::string& s);
 
 /**
  * The SquareLawDetectorRow class is a row of a SquareLawDetectorTable.
@@ -430,13 +430,13 @@ void bandTypeFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, SquareLawDetectorAttributeFromText> fromTextMethods;
 	
-void squareLawDetectorIdFromText (const string & s);
+void squareLawDetectorIdFromText (const std::string & s);
 	
 	
-void numBandFromText (const string & s);
+void numBandFromText (const std::string & s);
 	
 	
-void bandTypeFromText (const string & s);
+void bandTypeFromText (const std::string & s);
 	
 
 		

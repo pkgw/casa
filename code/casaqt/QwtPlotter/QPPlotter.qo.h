@@ -131,7 +131,7 @@ public:
     // Implements Plotter::close().
     void close();
     
-    vector<QPExportCanvas*> getGridComponents();
+    std::vector<QPExportCanvas*> getGridComponents();
     
     // Implements Plotter::canvasLayout().
     PlotCanvasLayoutPtr canvasLayout();
@@ -165,7 +165,7 @@ public:
     int addPanel(PlotPanelPtr panel);
     
     // Implements Plotter::allPanels().
-    vector<PlotPanelPtr> allPanels();
+    std::vector<PlotPanelPtr> allPanels();
     
     // Implements Plotter::numPanels().
     unsigned int numPanels();
@@ -207,7 +207,7 @@ public:
     void registerResizeHandler(PlotResizeEventHandlerPtr handler);
     
     // Implements Plotter::allResizeHandlers().
-    vector<PlotResizeEventHandlerPtr> allResizeHandlers() const;
+    std::vector<PlotResizeEventHandlerPtr> allResizeHandlers() const;
     
     // Implements Plotter::unregisterResizeHandlers().
     void unregisterResizeHandler(PlotResizeEventHandlerPtr handler);
@@ -267,13 +267,13 @@ private:
     PlotCanvasLayoutPtr m_layout;
     
     // Standard tools for canvases.
-    vector<PlotStandardMouseToolGroupPtr> m_canvasTools;
+    std::vector<PlotStandardMouseToolGroupPtr> m_canvasTools;
     
     // Registered handlers.
-    vector<PlotResizeEventHandlerPtr> m_resizeHandlers;
+    std::vector<PlotResizeEventHandlerPtr> m_resizeHandlers;
     
     // Panels.
-    vector<PlotPanelPtr> m_panels;
+    std::vector<PlotPanelPtr> m_panels;
     
     // Flag for whether a resize event should be emitted.
     bool m_emitResize;

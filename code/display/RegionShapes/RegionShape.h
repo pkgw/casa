@@ -290,8 +290,8 @@ namespace casa {
 		};
 
 		// Returns all available line styles.
-		static vector<LineStyle> allLineStyles() {
-			static vector<LineStyle> v(3);
+		static std::vector<LineStyle> allLineStyles() {
+			static std::vector<LineStyle> v(3);
 			v[0] = SOLID;
 			v[1] = DASHED;
 			v[2] = DOTTED;
@@ -498,7 +498,7 @@ namespace casa {
 		// number and order depend on the shape type.  For world systems
 		// (RegionShape::isWorld()), these coordinates have unit RegionShape::UNIT
 		// in the system RegionShape::worldSystem().
-		virtual vector<double> coordParameterValues() const = 0;
+		virtual std::vector<double> coordParameterValues() const = 0;
 
 		// Returns the current values for the coordinate parameters in the given
 		// world system, by using the last WorldCanvasHolder for conversions if
@@ -508,21 +508,21 @@ namespace casa {
 		// 2) a value that can be converted to a casacore::MDirection::Types via
 		//    casacore::MDirection::getType().
 		// Returned coordinates have unit RegionShape::UNIT for world systems.
-		virtual vector<double> coordParameterValues(casacore::String toSystem) const = 0;
+		virtual std::vector<double> coordParameterValues(casacore::String toSystem) const = 0;
 
 		// Returns the name for the coordinate parameters, in the same order
 		// as coordParameterValues().
-		virtual vector<casacore::String> coordParameterNames() const = 0;
+		virtual std::vector<casacore::String> coordParameterNames() const = 0;
 
 		// Returns a vector indicating the types of the coordinate parameters,
 		// in the same order as coordParameterValues().
-		virtual vector<CoordinateParameterType> coordParameterTypes() const = 0;
+		virtual std::vector<CoordinateParameterType> coordParameterTypes() const = 0;
 
 		// Sets the coordinate parameter values to the given, in the same order
 		// as coordParameterValues().  For world systems (RegionShape::isWorld()),
 		// the values must be in unit RegionShape::UNIT and system
 		// RegionShape::worldSystem().
-		virtual void setCoordParameters(const vector<double>& vals) = 0;
+		virtual void setCoordParameters(const std::vector<double>& vals) = 0;
 
 		// Sets the coordinate parameter values to the given, in the same order
 		// as coordParameterValues().  valSystem indicates which system the given
@@ -531,7 +531,7 @@ namespace casa {
 		// 2) a value that can be converted to a casacore::MDirection::Types via
 		//    casacore::MDirection::getType().
 		// Values must be in unit RegionShape::UNIT for world systems.
-		virtual void setCoordParameters(const vector<double>& vals,
+		virtual void setCoordParameters(const std::vector<double>& vals,
 		                                casacore::String valSystem) = 0;
 
 		// Moves this shape the given delta x and delta y in the given system
@@ -545,22 +545,22 @@ namespace casa {
 		virtual RSHandle getHandle() const = 0;
 
 		// Returns the names for options.
-		virtual vector<casacore::String> optionNames() const = 0;
+		virtual std::vector<casacore::String> optionNames() const = 0;
 
 		// Returns the types for options.
-		virtual vector<OptionType> optionTypes() const = 0;
+		virtual std::vector<OptionType> optionTypes() const = 0;
 
 		// For options that are string choices, return the available choices.
 		// May return an empty vector if there are no string choices.
-		virtual vector<vector<casacore::String> > optionChoices() const {
-			return vector<vector<casacore::String> >();
+		virtual std::vector<std::vector<casacore::String> > optionChoices() const {
+			return std::vector<std::vector<casacore::String> >();
 		}
 
 		// Returns the current values for options.
-		virtual vector<RSOption> optionValues() const = 0;
+		virtual std::vector<RSOption> optionValues() const = 0;
 
 		// Sets the options to the given.
-		virtual void setOptionValues(const vector<RSOption>& options) = 0;
+		virtual void setOptionValues(const std::vector<RSOption>& options) = 0;
 
 	protected:
 		// Common RegionShape Members //
@@ -679,16 +679,16 @@ namespace casa {
 		                   casacore::Quantum<casacore::Vector<double> >& worldY,
 		                   WorldCanvasHolder& wch, casacore::String* error = NULL) const {
 			return RSUtils::linearToWorld(linearX, linearY, worldX, worldY, wch,
-			                              m_worldSystem, vector<int>(),
-			                              vector<int>(), false, error);
+			                              m_worldSystem, std::vector<int>(),
+			                              std::vector<int>(), false, error);
 		}
 
 		bool linearToWorld(const casacore::Vector<double>& linearX,
 		                   const casacore::Vector<double>& linearY,
 		                   casacore::Quantum<casacore::Vector<double> >& worldX,
 		                   casacore::Quantum<casacore::Vector<double> >& worldY,
-		                   WorldCanvasHolder& wch, const vector<int>& xSign,
-		                   const vector<int>& ySign, casacore::String* error = NULL) const {
+		                   WorldCanvasHolder& wch, const std::vector<int>& xSign,
+		                   const std::vector<int>& ySign, casacore::String* error = NULL) const {
 			return RSUtils::linearToWorld(linearX, linearY, worldX, worldY, wch,
 			                              m_worldSystem, xSign, ySign, true, error);
 		}
@@ -701,16 +701,16 @@ namespace casa {
 			casacore::Vector<double> linX(screenX.size()), linY(screenY.size());
 			return RSUtils::screenToLinear(screenX, screenY, linX,linY,wch,error)&&
 			       RSUtils::linearToWorld(linX, linY, worldX, worldY, wch,
-			                              m_worldSystem, vector<int>(),
-			                              vector<int>(), false, error);
+			                              m_worldSystem, std::vector<int>(),
+			                              std::vector<int>(), false, error);
 		}
 
 		bool screenToWorld(const casacore::Vector<double>& screenX,
 		                   const casacore::Vector<double>& screenY,
 		                   casacore::Quantum<casacore::Vector<double> >& worldX,
 		                   casacore::Quantum<casacore::Vector<double> >& worldY,
-		                   WorldCanvasHolder& wch, const vector<int>& xSign,
-		                   const vector<int>& ySign, casacore::String* error = NULL) const {
+		                   WorldCanvasHolder& wch, const std::vector<int>& xSign,
+		                   const std::vector<int>& ySign, casacore::String* error = NULL) const {
 			casacore::Vector<double> linX(screenX.size()), linY(screenY.size());
 			return RSUtils::screenToLinear(screenX, screenY, linX,linY,wch,error)&&
 			       RSUtils::linearToWorld(linX, linY, worldX, worldY, wch,

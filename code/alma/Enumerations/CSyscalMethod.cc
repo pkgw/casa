@@ -33,7 +33,7 @@
  * File CSyscalMethod.cpp
  */
 #include <sstream>
-#include <CSyscalMethod.h>
+#include <alma/Enumerations/CSyscalMethod.h>
 #include <string>
 using namespace std;
 

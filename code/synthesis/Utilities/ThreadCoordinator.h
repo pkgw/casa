@@ -111,7 +111,7 @@ private:
   volatile casacore::Int nThreadsDispatched_p;
   volatile casacore::Bool readyForWork_p;
   async::Condition * stateChanged_p;
-  const VisBuffer * vb_p;
+  //const VisBuffer * vb_p;
   volatile bool workCompleted_p;
   volatile bool workToBeDone_p;
 

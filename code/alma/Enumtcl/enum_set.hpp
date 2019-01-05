@@ -3,8 +3,6 @@
 #include <bitset>
 #include <vector>
 
-using namespace std;
-
 template<typename type>
 struct enum_set_traits
 {

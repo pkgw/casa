@@ -33,7 +33,7 @@
  * File CAntennaType.cpp
  */
 #include <sstream>
-#include <CAntennaType.h>
+#include <alma/Enumerations/CAntennaType.h>
 #include <string>
 using namespace std;
 
