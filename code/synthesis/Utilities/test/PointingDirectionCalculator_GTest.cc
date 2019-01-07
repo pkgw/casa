@@ -714,8 +714,9 @@ FUNCTYPE fpCurvefunc[]  =
     Function_NormalizedLinear,    // 1
     Function_sinusoid_slow,       // 2
     Function_sinusoid_quick,      // 3
-    Function_harmonics_sinusoid,  // 4
-    Function_gauss,               // 5   (new 12/11)
+    Function_sinusoid_hasty,      // 4
+    Function_harmonics_sinusoid,  // 5
+    Function_gauss,               // 6   (new 12/11)
     Function_Err
 
 };
@@ -2730,14 +2731,14 @@ TEST_F(TestDirection, InterpolationSingle )
     //    - define test count. some rows are automatically added
     //-
 
-      use_spline = false;
+      use_spline = true;
 
-      msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
+      msedit.evgen.    setCurveFunctionNo(5);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
       msedit.evgen.      Initialize( 2.99827,     // Pointing Interval
                                      2.99827 ) ;  // Main Interval
  
-      msedit.evgen.    setInterpolationErrorLimit( 1.0E-06 );
+      msedit.evgen.    setInterpolationErrorLimit( 5.0E-03 );
 
     // Prepate Antenna (for Multple-set) //
 

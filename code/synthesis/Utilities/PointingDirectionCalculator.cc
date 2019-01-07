@@ -711,7 +711,30 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
     debuglog << "done getDirection" << debugpost;
     return Matrix < Double > (outShape, outDirectionFlattened.data());
 }
-Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
+//////////////////////////////
+// Reforming goGetdiretion
+// 
+// - Switch to old doGetdirection() for tracable test
+//   and to new doGetdirection() that includes Spline.
+// - Accuracy(=Uncertainity) Test must be possible.
+// - At the moment, this is trial.
+//
+//////////////////////////////
+
+// (1)WRAPPER //
+Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow)
+{
+    if (false)
+        return ( /* used Original */doGetDirectionOld(irow) );  // UNDER CONST //
+
+    if (fgSpline== false)
+        return (doGetDirectionOld(irow));
+    else
+        return (doGetDirectionNew(irow));
+} 
+
+// (2) Intermediate Edition (Linear/Spline)//
+Vector<Double> PointingDirectionCalculator::doGetDirectionOld(uInt irow) {
     debuglog << "doGetDirection(" << irow << ")" << debugpost;
     Double currentTime =
             timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
@@ -866,7 +889,120 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
 
     return outVal;
 }
+//-------------------------------
+// (3) New Edition (Spline ONLY)
+// ------------------------------
+Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
+    debuglog << "doGetDirection(" << irow << ")" << debugpost;
+    Double currentTime =
+            timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
+    resetTime(currentTime);
 
+    // search and interpolate if necessary
+    Bool exactMatch;
+    uInt const nrowPointing = pointingTimeUTC_.nelements();
+    // pointingTableIndexCache_ is not so effective in terms of performance
+    // simple binary search may be enough,
+    Int index = binarySearch(exactMatch, pointingTimeUTC_, currentTime,
+            nrowPointing, 0);
+    debuglog << "binarySearch result " << index << debugpost;
+    debuglog << "Time " << setprecision(16) << currentTime << " idx=" << index
+            << debugpost;
+
+    // Check section by Binary match wth Pointing Table //
+    MDirection direction;
+    assert(accessor_ != NULL);
+    if (exactMatch) {
+        debuglog << "exact match" << debugpost;
+        direction = accessor_(*pointingColumns_, index);
+    } else if (index <= 0) {
+        debuglog << "take 0th row" << debugpost;
+        direction = accessor_(*pointingColumns_, 0);
+    } else if (index > (Int) (nrowPointing - 1)) {
+        debuglog << "take final row" << debugpost;
+        direction = accessor_(*pointingColumns_, nrowPointing - 1);
+    } else {
+        debuglog << "linear interpolation " << debugpost;
+
+         Vector<Double> interpolated(2);
+
+        //+
+        // Already existing part (dead copied)
+        // - checcking Reference type.
+        // - If needed , make conversion. 
+        //-
+
+        Double t0 = pointingTimeUTC_[index - 1];
+        Double t1 = pointingTimeUTC_[index];
+
+        debuglog << "Interpolate between " << setprecision(16) << index - 1
+                << " (" << t0 << ") and " << index << " (" << t1 << ")"
+                << debugpost;
+        MDirection dir1 = accessor_(*pointingColumns_, index - 1);
+        MDirection dir2 = accessor_(*pointingColumns_, index);
+
+        String dirRef1 = dir1.getRefString();
+        String dirRef2 = dir2.getRefString();
+ 
+        MDirection::Types refType1, refType2;
+        MDirection::getType(refType1, dirRef1);
+        MDirection::getType(refType2, dirRef2);
+
+        debuglog << "dirRef1 = " << dirRef1 << " ("
+                << MDirection::showType(refType1) << ")" << debugpost;
+
+        if (dirRef1 != dirRef2) {
+            MeasFrame referenceFrameLocal((pointingColumns_->timeMeas())(index),
+                    *(referenceFrame_.position()));
+            dir2 = MDirection::Convert(dir2,
+                    MDirection::Ref(refType1, referenceFrameLocal))();
+        }
+
+        //+
+        // NEW Spline Interpolation
+        //   using original var. see above for t0,t1,dt and nrowPointing.
+        //-
+
+        uInt antID = 0; // TENTATIVE //
+        Double dtime =  (currentTime - t0) ;
+
+        // determin section 
+        //  please refer  exact retuen specification of binarySearch() 
+            
+        uInt uIndex;
+        if( index >=1 )  uIndex = index-1;
+        else if (index > (Int)(nrowPointing-1) )   uIndex = nrowPointing-1;
+        else { printf( "BUGCHECK\n");  throw; } 
+
+        Vector<Double> ttDir = splineCalulate(uIndex, dtime, antID );
+
+        interpolated[0] = ttDir[0]; // 3rd. order Spline
+        interpolated[1] = ttDir[1];
+
+        // Convert the interpolated diretion from MDirection to Vector //
+          direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
+        
+    }
+    debuglog << "direction = "
+            << direction.getAngle("rad").getValue() << " (unit rad reference frame "
+            << direction.getRefString()
+            << ")" << debugpost;
+    Vector<Double> outVal(2);
+    if (direction.getRefString() == MDirection::showType(directionType_)) {
+        outVal = direction.getAngle("rad").getValue();
+    } else {
+        MDirection converted = (*directionConvert_)(direction);
+        outVal = converted.getAngle("rad").getValue();
+        debuglog << "converted = " << outVal << "(unit rad reference frame "
+                << converted.getRefString() << ")" << debugpost;
+    }
+
+    // moving source correction
+    assert(movingSourceCorrection_ != NULL);
+    movingSourceCorrection_(movingSourceConvert_, directionConvert_, outVal);
+
+    return outVal;
+}
 Vector<Double> PointingDirectionCalculator::getDirection(uInt i) {
     if (i >= selectedMS_->nrow()) {
         stringstream ss;

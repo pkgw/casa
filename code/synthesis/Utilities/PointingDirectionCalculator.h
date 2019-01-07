@@ -318,6 +318,11 @@ private:
     // new: Spline (CAS-8418)
     //-
 
+      // Altering Old and New function //
+
+        casacore::Vector<casacore::Double> doGetDirectionOld(casacore::uInt irow); // Lenear only //
+        casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // Spline only //
+
       // Sorted Pointing Table (new 28-DEC-2018)
 
         casacore::MSPointing 	hPointing_;
