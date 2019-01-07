@@ -49,6 +49,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 SolveDataBuffer::SolveDataBuffer() : 
   vb_(0),
   freqs_(0),
+  corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
   infocusFlagCube_p(),
@@ -63,6 +64,7 @@ SolveDataBuffer::SolveDataBuffer() :
 SolveDataBuffer::SolveDataBuffer(const vi::VisBuffer2& vb) :
   vb_(0),
   freqs_(0),
+  corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
   infocusFlagCube_p(),
@@ -83,6 +85,7 @@ SolveDataBuffer::SolveDataBuffer(const vi::VisBuffer2& vb) :
 SolveDataBuffer::SolveDataBuffer(const SolveDataBuffer& sdb) :
   vb_(),
   freqs_(0),
+  corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
   infocusFlagCube_p(),
@@ -96,8 +99,9 @@ SolveDataBuffer::SolveDataBuffer(const SolveDataBuffer& sdb) :
   // Copy from the other's VB2
   initFromVB(*(sdb.vb_));
 
-  // copy over freqs_, feedPa
+  // copy over freqs_, corrs_,feedPa
   freqs_.assign(sdb.freqs_);
+  corrs_.assign(sdb.corrs_);
   feedPa_.assign(sdb.feedPa_);
 
 }
@@ -377,7 +381,6 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
 				    VisBufferComponent2::NCorrelations,
 				    VisBufferComponent2::NChannels,
 				    VisBufferComponent2::NRows,
-				    VisBufferComponent2::CorrType,
 				    VisBufferComponent2::FlagRow,
 				    VisBufferComponent2::FlagCube,
 	  VisBufferComponent2::WeightSpectrum,
@@ -393,18 +396,30 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
 
   // Store the frequeny info
   //  TBD: also need bandwidth info....
-  if (vb.isAttached())
+  if (vb.isAttached()) {
     freqs_.assign(vb.getFrequencies(0));
+    corrs_.assign(vb.correlationTypes());
+  }
   else {
-    // Probably only needed in testing....  (gmoellen, 2016Aug04)
+    // Probably only needed in testing....  (gmoellen, 2016Aug04, 2019Jan07)
     cout << "The supplied VisBuffer2 is not attached to a ViImplementation2," << endl
 	 << " which is necessary to generate accurate frequency info." << endl
 	 << " This is probably just a test with a naked VisBuffer2." << endl
-	 << " Spoofing freq axis with 1 MHz channels at 100 GHz." << endl;
+	 << " Spoofing freq axis with 1 MHz channels at 100 GHz." << endl
+	 << " Spoofing corr axis with [5,6,7,8] (circulars)" << endl;
     freqs_.resize(vb.nChannels());
     indgen(freqs_);
     freqs_*=1e6;
     freqs_+=100.0005e9; // _edge_ of first channel at 100 GHz.
+
+    Int nC=vb.nCorrelations();
+    corrs_.resize(nC);
+    corrs_[0]=5;
+    if (nC>1) corrs_[nC-1]=8;
+    if (nC==4) {
+      corrs_[1]=6;
+      corrs_[2]=7;
+    }
   }
 
   // Store the feedPa info
@@ -431,13 +446,20 @@ void SolveDataBuffer::cleanUp()
 String SolveDataBuffer::polBasis() const
 {
 
-  if (vb_->correlationTypes()(0)==5)
-    return String("CIRC");
-  if (vb_->correlationTypes()(0)==9)
-    return String("LIN");
+  // UNKNOWN, nominally
+  String polBas("UNKNOWN");
 
-  // Neither CIRC nor LIN, so effectively UNKNOWN
-  return String("UNKNOWN");
+  Int nC(corrs_.nelements());
+  if (nC<1)
+    // Can't tell, so return UNKNOWN
+    return polBas;
+
+  if (corrs_(0)==5)
+    polBas=String("CIRC");
+  if (corrs_(0)==9)
+    polBas=String("LIN");
+
+  return polBas;
 
 }
 

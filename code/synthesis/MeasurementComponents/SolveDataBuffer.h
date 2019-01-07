@@ -184,6 +184,11 @@ private:
   //  Currently, assumed uniform over rows
   casacore::Vector<double> freqs_;
 
+  // The correlation types
+  //  Currently, assumed uniform over rows
+  //  (private; used only by polBasis, currently)
+  casacore::Vector<int> corrs_;
+
   // The feedPa
   //  Currently, assumed uniform (per antenna) over rows
   casacore::Vector<float> feedPa_;
