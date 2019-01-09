@@ -27,6 +27,7 @@
 #include <iterator>
 #include <algorithm>
 #include <utility>
+#include <limits>
 
 #include "ActionFlagAll.h"
 #include <plotms/Plots/PlotMSPlot.h>
@@ -128,7 +129,11 @@ bool ActionFlagAll::doTool(PlotMSApp* plotms) {
 
 
         vector<PlotRegion> regions(1);
-        regions[0] = canv[j]->axesRanges(PlotAxis::X_BOTTOM, PlotAxis::Y_LEFT);
+        constexpr double kDoubleMin = std::numeric_limits<double>::min();
+        constexpr double kDoubleMax = std::numeric_limits<double>::max();
+        PlotCoordinate const upperLeft(kDoubleMin, kDoubleMax);
+        PlotCoordinate const lowerRight(kDoubleMax, kDoubleMin);
+        regions[0] = PlotRegion(upperLeft, lowerRight);
         if (isCanvasMarkedForFlag) {
           // flag plotted data
           //std::cout << "canvas " << j << " is marked for flag." << std::endl;
