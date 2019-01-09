@@ -874,9 +874,11 @@ void GJones::guessPar(SDBList& sdbs) {
     rowok(irow)= (!sdb.flagRow()(irow) &&
 		  a1!=a2);
 
+#if 0
     // All relevant correlations must be good
     for (Int icorr=0;icorr<nCorr;++icorr)
       rowok(irow)=(rowok(irow) && !sdb.flagCube()(corridx[icorr],guesschan,irow));
+#endif
 
     if (rowok(irow)) {
       antok(a1)++;
