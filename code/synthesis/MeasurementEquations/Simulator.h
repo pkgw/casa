@@ -414,10 +414,10 @@ private:
   casacore::Int cache_p, tile_p;
   casacore::MPosition mLocation_p;
   casacore::Float padding_p;
-  casacore::Bool MSMayBeOK;
+  //casacore::Bool MSMayBeOK;
   casacore::Int facets_p;
   casacore::Int wprojPlanes_p;
-  casacore::Long maxData_p;
+  //casacore::Long maxData_p;
 
 
   // info for coordinates and station locations

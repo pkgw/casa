@@ -69,9 +69,7 @@ ImageCollapserData::AggregateType ImageCollapserData::aggregateType(
 	String agg = aggString;
 	agg.downcase();
 	auto funcNamePtr = funcNameMap();
-	std::map<uInt, String>::const_iterator iter;
 	auto minMatch = minMatchMap();
-	std::map<uInt, String>::const_iterator end = minMatch->end();
 	for (const auto& p: *minMatch) {
 	    auto key = p.first;
 	    auto minMatch = p.second;

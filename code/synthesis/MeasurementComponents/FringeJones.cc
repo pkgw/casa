@@ -311,15 +311,15 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant, Array<Double>& delayWindow
                      << "sl1 " << sl1 << endl
                      << "flagSlice " << flagSlice << endl;
             }
-            Array<Complex> rhs = v(sl2).nonDegenerate();
-            Array<Float> weights = w(sl2).nonDegenerate();
+            Array<Complex> rhs = v(sl2).nonDegenerate(1);
+            Array<Float> weights = w(sl2).nonDegenerate(1);
                 
             unitize(rhs);
-            Vpad_(sl1).nonDegenerate() = rhs * weights;
+            Vpad_(sl1).nonDegenerate(1) = rhs * weights;
 
-            Array<Bool> flagged(fl(flagSlice).nonDegenerate());
+            Array<Bool> flagged(fl(flagSlice).nonDegenerate(1));
             // Zero flagged entries.
-            Vpad_(sl1).nonDegenerate()(flagged) = Complex(0.0);
+            Vpad_(sl1).nonDegenerate(1)(flagged) = Complex(0.0);
 
             if (!allTrue(flagged)) {
                 for (Int icorr=0; icorr<nCorr_; ++icorr) {
@@ -1682,7 +1682,6 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
             cerr << "p " << p << " n " << n << endl;
         }
         const size_t max_iter = maxits;
-        
         const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
         gsl_multilarge_nlinear_parameters params = gsl_multilarge_nlinear_default_parameters();
         params.scale = gsl_multilarge_nlinear_scale_more;
@@ -1731,9 +1730,10 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         double chi1 = gsl_blas_dnrm2(res_f);
         
         gsl_vector_sub(gp_orig, w->x);
-        gsl_vector *diff = gp_orig;
-        // double diffsize =
-        gsl_blas_dnrm2(diff);
+        // diff is not used
+        //gsl_vector *diff = gp_orig;
+        // diffsize is not used
+        //double diffsize = gsl_blas_dnrm2(diff);
     
         gsl_vector *res = gsl_multilarge_nlinear_position(w);
         
