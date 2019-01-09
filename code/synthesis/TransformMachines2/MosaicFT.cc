@@ -92,13 +92,13 @@ using namespace casa::refim;
 
   MosaicFT::MosaicFT(SkyJones* sj, MPosition mloc, String stokes,
 		   Long icachesize, Int itilesize, 
-		     Bool usezero, Bool useDoublePrec, Bool useConjConvFunc)
+		     Bool usezero, Bool useDoublePrec, Bool useConjConvFunc, Bool usePointing)
   : FTMachine(), sj_p(sj),
     imageCache(0),  cachesize(icachesize), tilesize(itilesize), gridder(0),
     isTiled(false),
     maxAbsData(0.0), centerLoc(IPosition(4,0)), offsetLoc(IPosition(4,0)),
     mspc(0), msac(0), pointingToImage(0), usezero_p(usezero), convSampling(1),
-    skyCoverage_p( ), machineName_p("MosaicFT"), stokes_p(stokes), useConjConvFunc_p(useConjConvFunc), timemass_p(0.0), timegrid_p(0.0), timedegrid_p(0.0)
+    skyCoverage_p( ), machineName_p("MosaicFT"), stokes_p(stokes), useConjConvFunc_p(useConjConvFunc), usePointingTable_p(usePointing),timemass_p(0.0), timegrid_p(0.0), timedegrid_p(0.0)
 {
   convSize=0;
   lastIndex_p=0;
@@ -171,6 +171,7 @@ MosaicFT& MosaicFT::operator=(const MosaicFT& other)
 	  
     }
     useConjConvFunc_p=other.useConjConvFunc_p;
+    usePointingTable_p=other.usePointingTable_p;
     timemass_p=other.timemass_p;
     timegrid_p=other.timegrid_p;
     timedegrid_p=other.timedegrid_p;
@@ -288,6 +289,12 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
       convSampling=10;
     AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
   }
+  if((pbConvFunc_p->getVBUtil()).null()){
+    if(vbutil_p.null()){
+	vbutil_p=new VisBufferUtil(vb);
+    }
+    pbConvFunc_p->setVBUtil(vbutil_p);
+  }
   pbConvFunc_p->findConvFunction(iimage, vb, convSampling, interpVisFreq_p, convFunc, weightConvFunc_p, convSizePlanes_p, convSupportPlanes_p,
 				 convPolMap_p, convChanMap_p, convRowMap_p, (useConjConvFunc_p && !toVis_p), MVDirection(-(movingDirShift_p.getAngle())), fixMovingSource_p);
 
@@ -320,6 +327,7 @@ void MosaicFT::initializeToVis(ImageInterface<Complex>& iimage,
   // translate visibility indices into image indices
   initMaps(vb);
   pbConvFunc_p->setVBUtil(vbutil_p);
+  pbConvFunc_p->setUsePointing(usePointingTable_p);
  //make sure we rotate the first field too
   lastFieldId_p=-1;
   phaseShifter_p=new UVWMachine(*uvwMachine_p);
@@ -476,6 +484,7 @@ void MosaicFT::initializeToSky(ImageInterface<Complex>& iimage,
   // translate visibility indices into image indices
   initMaps(vb);
   pbConvFunc_p->setVBUtil(vbutil_p);
+  pbConvFunc_p->setUsePointing(usePointingTable_p);
   //make sure we rotate the first field too
   lastFieldId_p=-1;
   phaseShifter_p=new UVWMachine(*uvwMachine_p);
@@ -1064,7 +1073,6 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   Int doWeightGridding=1;
   if(doneWeightImage_p)
     doWeightGridding=-1;
-  doWeightGridding = doWeightGridding;//Dummy statement to supress silly complier warnings
   Bool del;
   //    IPosition s(flags.shape());
   const IPosition& fs=flags.shape();
@@ -1377,6 +1385,11 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
 
  
 
+  matchChannel(vb);
+ 
+  //No point in reading data if its not matching in frequency
+  if(max(chanMap)==-1)
+    return;
 
   // Get the uvws in a form that Fortran can use
   Matrix<Double> uvw(negateUV(vb));
@@ -1389,12 +1402,7 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
   
   
   
-  matchChannel(vb);
- 
-  //No point in reading data if its not matching in frequency
-  if(max(chanMap)==-1)
-    return;
-
+  
   Cube<Complex> data;
   Cube<Int> flags;
   getInterpolateArrays(vb, data, flags);
@@ -1908,6 +1916,7 @@ Bool MosaicFT::toRecord(String&  error,
   outRec.define("convRowMap",  convRowMap_p);
   outRec.define("stokes", stokes_p);
   outRec.define("useconjconvfunc", useConjConvFunc_p);
+  outRec.define("usepointingtable", usePointingTable_p);
   if(!pbConvFunc_p.null()){
     Record subRec;
     //cerr << "Doing pbconvrec " << endl;
@@ -1926,7 +1935,7 @@ Bool MosaicFT::fromRecord(String& error,
   pointingToImage=0;
   doneWeightImage_p=false;
   convWeightImage_p=nullptr;
-  machineName_p="MosaicFT";
+  
   if(!FTMachine::fromRecord(error, inRec))
     return false;
   sj_p=0;
@@ -1941,6 +1950,7 @@ Bool MosaicFT::fromRecord(String& error,
       sj_p=new VPSkyJones(tel,pbtype); 
   }
 
+  inRec.get("name", machineName_p);
   inRec.get("uvscale", uvScale);
   inRec.get("uvoffset", uvOffset);
   cachesize=inRec.asInt64("cachesize");
@@ -1966,6 +1976,7 @@ Bool MosaicFT::fromRecord(String& error,
   inRec.get("convRowMap",  convRowMap_p);
   inRec.get("stokes", stokes_p);
   inRec.get("useconjconvfunc", useConjConvFunc_p);
+  inRec.get("usepointingtable", usePointingTable_p);
   if(inRec.isDefined("pbconvfunc")){
     Record subRec=inRec.asRecord("pbconvfunc");
     String elname=subRec.asString("name");

@@ -33,7 +33,7 @@
  * File CPositionReferenceCode.cpp
  */
 #include <sstream>
-#include <CPositionReferenceCode.h>
+#include <alma/Enumerations/CPositionReferenceCode.h>
 #include <string>
 using namespace std;
 

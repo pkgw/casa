@@ -144,7 +144,7 @@ public:
   // <group>
   MosaicFT(SkyJones* sj, casacore::MPosition mloc, casacore::String stokes,
 	    casacore::Long cachesize, casacore::Int tilesize=16, 
-	   casacore::Bool usezero=true, casacore::Bool useDoublePrec=false, casacore::Bool useConjConvFunc=false);
+	   casacore::Bool usezero=true, casacore::Bool useDoublePrec=false, casacore::Bool useConjConvFunc=false, casacore::Bool usePointingTable=false);
   // </group>
 
   // Construct from a casacore::Record containing the MosaicFT state
@@ -209,9 +209,9 @@ public:
   virtual void getFluxImage(casacore::ImageInterface<casacore::Float>& image);
 
   // Save and restore the MosaicFT to and from a record
-  casacore::Bool toRecord(casacore::String& error, casacore::RecordInterface& outRec, 
+  virtual casacore::Bool toRecord(casacore::String& error, casacore::RecordInterface& outRec, 
 		casacore::Bool withImage=false, const casacore::String diskimage="");
-  casacore::Bool fromRecord(casacore::String& error, const casacore::RecordInterface& inRec);
+  virtual casacore::Bool fromRecord(casacore::String& error, const casacore::RecordInterface& inRec);
   
   // Can this FTMachine be represented by Fourier convolutions?
   casacore::Bool isFourier() {return true;}
@@ -343,6 +343,7 @@ protected:
   casacore::Bool doneWeightImage_p;
   casacore::String stokes_p;
   casacore::Bool useConjConvFunc_p;
+  casacore::Bool usePointingTable_p;
   casacore::Double timemass_p, timegrid_p, timedegrid_p;
 
 };

@@ -1,7 +1,19 @@
-#include "SDMDataObjectWriter.h"
+#include <alma/ASDMBinaries/SDMDataObjectWriter.h>
 #include <algorithm>
 
-#include "CommonDefines.h"
+#include <alma/ASDMBinaries/CommonDefines.h>
+
+using namespace AxisNameMod;
+using namespace BasebandNameMod;
+using namespace CorrelationModeMod;
+using namespace CorrelatorTypeMod;
+using namespace NetSidebandMod;
+using namespace PrimitiveDataTypeMod;
+using namespace ProcessorTypeMod;
+using namespace SpectralResolutionTypeMod;
+using namespace StokesParameterMod;
+
+using namespace std;
 
 namespace asdmbinaries {
 

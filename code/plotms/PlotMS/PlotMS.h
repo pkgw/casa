@@ -182,7 +182,7 @@ public:
 	void setAxisLocation( PlotAxis locationX, PlotAxis locationY );
 	PlotAxis getAxisLocationX() const;
 	PlotAxis getAxisLocationY() const;
-	vector<casacore::String> getFiles() const;
+    std::vector<casacore::String> getFiles() const;
 
 
 private:

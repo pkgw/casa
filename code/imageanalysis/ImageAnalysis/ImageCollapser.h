@@ -95,7 +95,7 @@ private:
 
     void _doFluxUnits(
         casacore::TempImage<T>& tmpIm,
-        const SHARED_PTR<const casacore::SubImage<T>> subImage
+        const std::shared_ptr<const casacore::SubImage<T>> subImage
     ) const;
 
     void _invert();

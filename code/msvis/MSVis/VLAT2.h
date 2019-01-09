@@ -248,7 +248,7 @@ protected:
 
         //void setPrecedences (const FillerDependencies & dependencies);
     };
-    typedef vector<VlatFunctor *> Fillers;
+    typedef std::vector<VlatFunctor *> Fillers;
 
     void applyModifiers (ROVisibilityIterator * rovi, VisibilityIterator * vi);
     void alignWriteIterator (SubChunkPair subchunk);

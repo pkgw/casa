@@ -51,11 +51,14 @@ public:
   // <group>
   MosaicFTNew(SkyJones* sj, casacore::MPosition mloc, casacore::String stokes,
 	    casacore::Long cachesize, casacore::Int tilesize=16, 
-	      casacore::Bool usezero=true, casacore::Bool useDoublePrec=false, casacore::Bool useConjFreqBeam=false):
-    MosaicFT(sj,mloc,stokes,cachesize,tilesize,usezero,useDoublePrec, useConjFreqBeam){}
+	      casacore::Bool usezero=true, casacore::Bool useDoublePrec=false, casacore::Bool useConjFreqBeam=false, casacore::Bool usePointing=false):
+  MosaicFT(sj,mloc,stokes,cachesize,tilesize,usezero,useDoublePrec, useConjFreqBeam, usePointing){}
+
+    // Construct from a casacore::Record containing the MosaicFT state
+    MosaicFTNew(const casacore::RecordInterface& stateRec);
 
     refim::FTMachine* cloneFTM();
-
+    
 
   // </group>
 
@@ -65,9 +68,9 @@ public:
  
   // Get the final weights image
   void getWeightImage(casacore::ImageInterface<casacore::Float>&, casacore::Matrix<casacore::Float>&);
-
+  
   virtual casacore::String name() const {return "MosaicFTNew";};
-
+  
 protected:        
 
 };

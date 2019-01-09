@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalDeviceRow.h>
-#include <CalDeviceTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalDeviceRow.h>
+#include <alma/ASDM/CalDeviceTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-#include <FeedTable.h>
-#include <FeedRow.h>
+#include <alma/ASDM/FeedTable.h>
+#include <alma/ASDM/FeedRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::FeedTable;
 using asdm::FeedRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalDeviceRow::~CalDeviceRow() {
@@ -556,7 +553,9 @@ namespace asdm {
 		
 			
 		calEff .clear();
-		vector<float> v_aux_calEff;
+        
+        vector<float> v_aux_calEff;
+        
 		for (unsigned int i = 0; i < x.calEff.length(); ++i) {
 			v_aux_calEff.clear();
 			for (unsigned int j = 0; j < x.calEff[0].length(); ++j) {
@@ -601,7 +600,9 @@ namespace asdm {
 		
 			
 		coupledNoiseCal .clear();
-		vector<float> v_aux_coupledNoiseCal;
+        
+        vector<float> v_aux_coupledNoiseCal;
+        
 		for (unsigned int i = 0; i < x.coupledNoiseCal.length(); ++i) {
 			v_aux_coupledNoiseCal.clear();
 			for (unsigned int j = 0; j < x.coupledNoiseCal[0].length(); ++j) {
@@ -1213,7 +1214,9 @@ void CalDeviceRow::calEffFromBin(EndianIStream& eis) {
 		
 		unsigned int calEffDim1 = eis.readInt();
 		unsigned int calEffDim2 = eis.readInt();
+        
 		vector <float> calEffAux1;
+        
 		for (unsigned int i = 0; i < calEffDim1; i++) {
 			calEffAux1.clear();
 			for (unsigned int j = 0; j < calEffDim2 ; j++)			
@@ -1270,7 +1273,9 @@ void CalDeviceRow::coupledNoiseCalFromBin(EndianIStream& eis) {
 		
 		unsigned int coupledNoiseCalDim1 = eis.readInt();
 		unsigned int coupledNoiseCalDim2 = eis.readInt();
+        
 		vector <float> coupledNoiseCalAux1;
+        
 		for (unsigned int i = 0; i < coupledNoiseCalDim1; i++) {
 			coupledNoiseCalAux1.clear();
 			for (unsigned int j = 0; j < coupledNoiseCalDim2 ; j++)			
@@ -1338,7 +1343,9 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalDeviceRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1346,7 +1353,9 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalDeviceRow::spectralWindowIdFromText(const string & s) {
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1354,7 +1363,9 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void CalDeviceRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -1362,7 +1373,9 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalDeviceRow::feedIdFromText(const string & s) {
 		 
+          
 		feedId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1370,7 +1383,9 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalDeviceRow::numCalloadFromText(const string & s) {
 		 
+          
 		numCalload = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1378,7 +1393,9 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	// Convert a string into an CalibrationDevice 
 	void CalDeviceRow::calLoadNamesFromText(const string & s) {
 		 
-		calLoadNames = ASDMValuesParser::parse1D<CalibrationDevice>(s);
+          
+		calLoadNames = ASDMValuesParser::parse1D<CalibrationDeviceMod::CalibrationDevice>(s);
+          
 		
 	}
 	
@@ -1388,7 +1405,9 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	void CalDeviceRow::numReceptorFromText(const string & s) {
 		numReceptorExists = true;
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1397,7 +1416,9 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	void CalDeviceRow::calEffFromText(const string & s) {
 		calEffExists = true;
 		 
+          
 		calEff = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -1406,7 +1427,9 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	void CalDeviceRow::noiseCalFromText(const string & s) {
 		noiseCalExists = true;
 		 
+          
 		noiseCal = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -1415,7 +1438,9 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	void CalDeviceRow::coupledNoiseCalFromText(const string & s) {
 		coupledNoiseCalExists = true;
 		 
+          
 		coupledNoiseCal = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -1424,7 +1449,9 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	void CalDeviceRow::temperatureLoadFromText(const string & s) {
 		temperatureLoadExists = true;
 		 
+          
 		temperatureLoad = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -1514,21 +1541,21 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get calLoadNames.
- 	 * @return calLoadNames as vector<CalibrationDeviceMod::CalibrationDevice >
+ 	 * @return calLoadNames as std::vector<CalibrationDeviceMod::CalibrationDevice >
  	 */
- 	vector<CalibrationDeviceMod::CalibrationDevice > CalDeviceRow::getCalLoadNames() const {
+ 	std::vector<CalibrationDeviceMod::CalibrationDevice > CalDeviceRow::getCalLoadNames() const {
 	
   		return calLoadNames;
  	}
 
  	/**
- 	 * Set calLoadNames with the specified vector<CalibrationDeviceMod::CalibrationDevice >.
- 	 * @param calLoadNames The vector<CalibrationDeviceMod::CalibrationDevice > value to which calLoadNames is to be set.
+ 	 * Set calLoadNames with the specified std::vector<CalibrationDeviceMod::CalibrationDevice >.
+ 	 * @param calLoadNames The std::vector<CalibrationDeviceMod::CalibrationDevice > value to which calLoadNames is to be set.
  	 
  	
  		
  	 */
- 	void CalDeviceRow::setCalLoadNames (vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames)  {
+ 	void CalDeviceRow::setCalLoadNames (std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1601,10 +1628,10 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get calEff, which is optional.
- 	 * @return calEff as vector<vector<float > >
+ 	 * @return calEff as std::vector<std::vector<float > >
  	 * @throw IllegalAccessException If calEff does not exist.
  	 */
- 	vector<vector<float > > CalDeviceRow::getCalEff() const  {
+ 	std::vector<std::vector<float > > CalDeviceRow::getCalEff() const  {
 		if (!calEffExists) {
 			throw IllegalAccessException("calEff", "CalDevice");
 		}
@@ -1613,12 +1640,12 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set calEff with the specified vector<vector<float > >.
- 	 * @param calEff The vector<vector<float > > value to which calEff is to be set.
+ 	 * Set calEff with the specified std::vector<std::vector<float > >.
+ 	 * @param calEff The std::vector<std::vector<float > > value to which calEff is to be set.
  	 
  	
  	 */
- 	void CalDeviceRow::setCalEff (vector<vector<float > > calEff) {
+ 	void CalDeviceRow::setCalEff (std::vector<std::vector<float > > calEff) {
 	
  		this->calEff = calEff;
 	
@@ -1648,10 +1675,10 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get noiseCal, which is optional.
- 	 * @return noiseCal as vector<double >
+ 	 * @return noiseCal as std::vector<double >
  	 * @throw IllegalAccessException If noiseCal does not exist.
  	 */
- 	vector<double > CalDeviceRow::getNoiseCal() const  {
+ 	std::vector<double > CalDeviceRow::getNoiseCal() const  {
 		if (!noiseCalExists) {
 			throw IllegalAccessException("noiseCal", "CalDevice");
 		}
@@ -1660,12 +1687,12 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set noiseCal with the specified vector<double >.
- 	 * @param noiseCal The vector<double > value to which noiseCal is to be set.
+ 	 * Set noiseCal with the specified std::vector<double >.
+ 	 * @param noiseCal The std::vector<double > value to which noiseCal is to be set.
  	 
  	
  	 */
- 	void CalDeviceRow::setNoiseCal (vector<double > noiseCal) {
+ 	void CalDeviceRow::setNoiseCal (std::vector<double > noiseCal) {
 	
  		this->noiseCal = noiseCal;
 	
@@ -1695,10 +1722,10 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coupledNoiseCal, which is optional.
- 	 * @return coupledNoiseCal as vector<vector<float > >
+ 	 * @return coupledNoiseCal as std::vector<std::vector<float > >
  	 * @throw IllegalAccessException If coupledNoiseCal does not exist.
  	 */
- 	vector<vector<float > > CalDeviceRow::getCoupledNoiseCal() const  {
+ 	std::vector<std::vector<float > > CalDeviceRow::getCoupledNoiseCal() const  {
 		if (!coupledNoiseCalExists) {
 			throw IllegalAccessException("coupledNoiseCal", "CalDevice");
 		}
@@ -1707,12 +1734,12 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set coupledNoiseCal with the specified vector<vector<float > >.
- 	 * @param coupledNoiseCal The vector<vector<float > > value to which coupledNoiseCal is to be set.
+ 	 * Set coupledNoiseCal with the specified std::vector<std::vector<float > >.
+ 	 * @param coupledNoiseCal The std::vector<std::vector<float > > value to which coupledNoiseCal is to be set.
  	 
  	
  	 */
- 	void CalDeviceRow::setCoupledNoiseCal (vector<vector<float > > coupledNoiseCal) {
+ 	void CalDeviceRow::setCoupledNoiseCal (std::vector<std::vector<float > > coupledNoiseCal) {
 	
  		this->coupledNoiseCal = coupledNoiseCal;
 	
@@ -1742,10 +1769,10 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get temperatureLoad, which is optional.
- 	 * @return temperatureLoad as vector<Temperature >
+ 	 * @return temperatureLoad as std::vector<Temperature >
  	 * @throw IllegalAccessException If temperatureLoad does not exist.
  	 */
- 	vector<Temperature > CalDeviceRow::getTemperatureLoad() const  {
+ 	std::vector<Temperature > CalDeviceRow::getTemperatureLoad() const  {
 		if (!temperatureLoadExists) {
 			throw IllegalAccessException("temperatureLoad", "CalDevice");
 		}
@@ -1754,12 +1781,12 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set temperatureLoad with the specified vector<Temperature >.
- 	 * @param temperatureLoad The vector<Temperature > value to which temperatureLoad is to be set.
+ 	 * Set temperatureLoad with the specified std::vector<Temperature >.
+ 	 * @param temperatureLoad The std::vector<Temperature > value to which temperatureLoad is to be set.
  	 
  	
  	 */
- 	void CalDeviceRow::setTemperatureLoad (vector<Temperature > temperatureLoad) {
+ 	void CalDeviceRow::setTemperatureLoad (std::vector<Temperature > temperatureLoad) {
 	
  		this->temperatureLoad = temperatureLoad;
 	
@@ -2198,7 +2225,7 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool CalDeviceRow::compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames) {
+	bool CalDeviceRow::compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames) {
 		bool result;
 		result = true;
 		
@@ -2249,7 +2276,7 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool CalDeviceRow::compareRequiredValue(int numCalload, vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames) {
+	bool CalDeviceRow::compareRequiredValue(int numCalload, std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames) {
 		bool result;
 		result = true;
 		

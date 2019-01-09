@@ -307,7 +307,7 @@ public:
    // this will be the actual name of the output file.  If you don't set this
    // variable, the default state of the class is to set the output name root to
    // the name of the input file.
-   vector<SHARED_PTR<casacore::MaskedLattice<T> > >  createMoments(
+   std::vector<std::shared_ptr<casacore::MaskedLattice<T> > >  createMoments(
        casacore::Bool doTemp, const casacore::String& outFileName,
        casacore::Bool removeAxes=true
    );

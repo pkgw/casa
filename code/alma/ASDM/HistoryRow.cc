@@ -32,17 +32,14 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <HistoryRow.h>
-#include <HistoryTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/HistoryRow.h>
+#include <alma/ASDM/HistoryTable.h>
 
-#include <ExecBlockTable.h>
-#include <ExecBlockRow.h>
+#include <alma/ASDM/ExecBlockTable.h>
+#include <alma/ASDM/ExecBlockRow.h>
 	
 
 using asdm::ASDM;
@@ -53,14 +50,14 @@ using asdm::ExecBlockTable;
 using asdm::ExecBlockRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	HistoryRow::~HistoryRow() {
@@ -857,7 +854,9 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void HistoryRow::execBlockIdFromText(const string & s) {
 		 
+          
 		execBlockId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -865,7 +864,9 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void HistoryRow::timeFromText(const string & s) {
 		 
+          
 		time = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -873,7 +874,9 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void HistoryRow::messageFromText(const string & s) {
 		 
+          
 		message = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -881,7 +884,9 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void HistoryRow::priorityFromText(const string & s) {
 		 
+          
 		priority = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -889,7 +894,9 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void HistoryRow::originFromText(const string & s) {
 		 
+          
 		origin = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -897,7 +904,9 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void HistoryRow::objectIdFromText(const string & s) {
 		 
+          
 		objectId = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -905,7 +914,9 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void HistoryRow::applicationFromText(const string & s) {
 		 
+          
 		application = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -913,7 +924,9 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void HistoryRow::cliCommandFromText(const string & s) {
 		 
+          
 		cliCommand = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -921,7 +934,9 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void HistoryRow::appParmsFromText(const string & s) {
 		 
+          
 		appParms = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -980,21 +995,21 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get message.
- 	 * @return message as string
+ 	 * @return message as std::string
  	 */
- 	string HistoryRow::getMessage() const {
+ 	std::string HistoryRow::getMessage() const {
 	
   		return message;
  	}
 
  	/**
- 	 * Set message with the specified string.
- 	 * @param message The string value to which message is to be set.
+ 	 * Set message with the specified std::string.
+ 	 * @param message The std::string value to which message is to be set.
  	 
  	
  		
  	 */
- 	void HistoryRow::setMessage (string message)  {
+ 	void HistoryRow::setMessage (std::string message)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1012,21 +1027,21 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get priority.
- 	 * @return priority as string
+ 	 * @return priority as std::string
  	 */
- 	string HistoryRow::getPriority() const {
+ 	std::string HistoryRow::getPriority() const {
 	
   		return priority;
  	}
 
  	/**
- 	 * Set priority with the specified string.
- 	 * @param priority The string value to which priority is to be set.
+ 	 * Set priority with the specified std::string.
+ 	 * @param priority The std::string value to which priority is to be set.
  	 
  	
  		
  	 */
- 	void HistoryRow::setPriority (string priority)  {
+ 	void HistoryRow::setPriority (std::string priority)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1044,21 +1059,21 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get origin.
- 	 * @return origin as string
+ 	 * @return origin as std::string
  	 */
- 	string HistoryRow::getOrigin() const {
+ 	std::string HistoryRow::getOrigin() const {
 	
   		return origin;
  	}
 
  	/**
- 	 * Set origin with the specified string.
- 	 * @param origin The string value to which origin is to be set.
+ 	 * Set origin with the specified std::string.
+ 	 * @param origin The std::string value to which origin is to be set.
  	 
  	
  		
  	 */
- 	void HistoryRow::setOrigin (string origin)  {
+ 	void HistoryRow::setOrigin (std::string origin)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1076,21 +1091,21 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get objectId.
- 	 * @return objectId as string
+ 	 * @return objectId as std::string
  	 */
- 	string HistoryRow::getObjectId() const {
+ 	std::string HistoryRow::getObjectId() const {
 	
   		return objectId;
  	}
 
  	/**
- 	 * Set objectId with the specified string.
- 	 * @param objectId The string value to which objectId is to be set.
+ 	 * Set objectId with the specified std::string.
+ 	 * @param objectId The std::string value to which objectId is to be set.
  	 
  	
  		
  	 */
- 	void HistoryRow::setObjectId (string objectId)  {
+ 	void HistoryRow::setObjectId (std::string objectId)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1108,21 +1123,21 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get application.
- 	 * @return application as string
+ 	 * @return application as std::string
  	 */
- 	string HistoryRow::getApplication() const {
+ 	std::string HistoryRow::getApplication() const {
 	
   		return application;
  	}
 
  	/**
- 	 * Set application with the specified string.
- 	 * @param application The string value to which application is to be set.
+ 	 * Set application with the specified std::string.
+ 	 * @param application The std::string value to which application is to be set.
  	 
  	
  		
  	 */
- 	void HistoryRow::setApplication (string application)  {
+ 	void HistoryRow::setApplication (std::string application)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1140,21 +1155,21 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get cliCommand.
- 	 * @return cliCommand as string
+ 	 * @return cliCommand as std::string
  	 */
- 	string HistoryRow::getCliCommand() const {
+ 	std::string HistoryRow::getCliCommand() const {
 	
   		return cliCommand;
  	}
 
  	/**
- 	 * Set cliCommand with the specified string.
- 	 * @param cliCommand The string value to which cliCommand is to be set.
+ 	 * Set cliCommand with the specified std::string.
+ 	 * @param cliCommand The std::string value to which cliCommand is to be set.
  	 
  	
  		
  	 */
- 	void HistoryRow::setCliCommand (string cliCommand)  {
+ 	void HistoryRow::setCliCommand (std::string cliCommand)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1172,21 +1187,21 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get appParms.
- 	 * @return appParms as string
+ 	 * @return appParms as std::string
  	 */
- 	string HistoryRow::getAppParms() const {
+ 	std::string HistoryRow::getAppParms() const {
 	
   		return appParms;
  	}
 
  	/**
- 	 * Set appParms with the specified string.
- 	 * @param appParms The string value to which appParms is to be set.
+ 	 * Set appParms with the specified std::string.
+ 	 * @param appParms The std::string value to which appParms is to be set.
  	 
  	
  		
  	 */
- 	void HistoryRow::setAppParms (string appParms)  {
+ 	void HistoryRow::setAppParms (std::string appParms)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1442,7 +1457,7 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool HistoryRow::compareNoAutoInc(Tag execBlockId, ArrayTime time, string message, string priority, string origin, string objectId, string application, string cliCommand, string appParms) {
+	bool HistoryRow::compareNoAutoInc(Tag execBlockId, ArrayTime time, std::string message, std::string priority, std::string origin, std::string objectId, std::string application, std::string cliCommand, std::string appParms) {
 		bool result;
 		result = true;
 		
@@ -1514,7 +1529,7 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool HistoryRow::compareRequiredValue(string message, string priority, string origin, string objectId, string application, string cliCommand, string appParms) {
+	bool HistoryRow::compareRequiredValue(std::string message, std::string priority, std::string origin, std::string objectId, std::string application, std::string cliCommand, std::string appParms) {
 		bool result;
 		result = true;
 		

@@ -281,10 +281,13 @@ public:
   }
 
   // print it out
+    // unused
+  /*
   friend std::ostream& operator<<(std::ostream& os, const SkyCal<DataType, CalDataType>& mat)
   {
     return os;
   }
+  */
 
 protected:
 

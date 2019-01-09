@@ -33,7 +33,7 @@
  * File CDopplerReferenceCode.cpp
  */
 #include <sstream>
-#include <CDopplerReferenceCode.h>
+#include <alma/Enumerations/CDopplerReferenceCode.h>
 #include <string>
 using namespace std;
 

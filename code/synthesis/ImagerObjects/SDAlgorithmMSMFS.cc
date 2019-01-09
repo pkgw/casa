@@ -202,7 +202,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   
-   void SDAlgorithmMSMFS::restore(SHARED_PTR<SIImageStore> imagestore )
+   void SDAlgorithmMSMFS::restore(std::shared_ptr<SIImageStore> imagestore )
   {
 
     LogIO os( LogOrigin("SDAlgorithmMSMFS","restore",WHERE) );

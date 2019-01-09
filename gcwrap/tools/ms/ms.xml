@@ -2363,6 +2363,57 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
  </method>
 
 <!-- ====================================================== -->
+
+ <method type="function" name="writehistory_batch">
+  <shortdescription>Add one or more rows of arbitrary information to the measurement set history table</shortdescription>
+
+  <keyword>writehistory_batch</keyword>
+  <input>
+     <param type="stringArray" direction="in" name="messages">
+     <description>Message to be recorded in message field.</description>
+     <value></value>
+     </param>
+
+     <param type="string" direction="in" name="parms">
+     <description>String to be written to input parameter field.</description>
+     <value></value>
+     </param>
+
+     <param type="string" direction="in" name="origin">
+     <description>String to be written to origin field.
+     </description>
+     <value>MSHistoryHandler::addMessage()</value>
+     </param>
+
+     <param type="string" direction="in" name="msname">
+     <description>Name of selected measurement set.</description>
+     <value></value>
+     </param>
+
+     <param type="string" direction="in" name="app">
+     <description>String to be written to application field. </description>
+     <value>ms</value>
+     </param>
+  </input>
+  <returns type="bool"/>
+  <description>
+    This function works as writehistory but adds a list of messages to
+    the history table, instead of a single message. Each message is written
+    into in a new row. It is recommended for efficiency, as adding rows one
+    at a time can be rather slow, causing for example a delay of the order
+    of 10-30 seconds when writing the history at the end of a normal flagdata
+    command (with 70+ parameter rows).
+  </description>
+  <example>
+      ms.open('3C273XC1.MS')
+      ms.writehistory_batch(['message 1', 'message 2', 'message 3'])
+      ms.listhistory()
+
+    One or more rows are appended to the measurement set history table.
+  </example>
+ </method>
+
+<!-- ====================================================== -->
  
  <method type="function" name="statistics">
   <shortdescription>
@@ -3424,7 +3475,7 @@ in spectral window 1.
      <param type="any" name="timebin">
      <description>Length for binning in time to determine statistics. Can either be integer to be multiplied by the representative integration time, a quantity (string) in time units.</description>
      <any type="variant" limittypes="string int"/>
-     <value type="int">1</value>
+     <value type="string">0.001s</value>
      <example>4</example>
      <example>"300s"</example>
      </param>
@@ -3485,8 +3536,8 @@ in spectral window 1.
      <example>10</example>
      </param>
 
-     <param type="string" name="excludechans">
-     <description>Channels to exclude from the computation of weights. Specified as an MS select channel selection string.</description>
+     <param type="string" name="fitspw">
+     <description>Channels to include in the computation of weights. Specified as an MS select channel selection string.</description>
      <value/>
      <example>"0:5~30"</example>
      </param>
@@ -3716,12 +3767,14 @@ in spectral window 1.
     specified, the array must contain exactly two nonnegative numeric
     values. Note that data with weights of zero are always flagged.
             
-    EXCLUDING CHANNELS
+    INCLUDING CHANNELS
             
-    Channels can be excluded from the computation of the weights by
-    specifying the excludechans parameter. This parameter accepts a
+    Channels can be included in the computation of the weights by
+    specifying the fitspw parameter. This parameter accepts a
     valid MS channel selection string. Data associated with the
-    selected channels will not be used in computing the weights.
+    selected channels will be used in computing the weights; all other
+    channels will be excluded from the computation of weights. By
+    default (empty string), all channels are included.
             
     PREVIEW MODE
             

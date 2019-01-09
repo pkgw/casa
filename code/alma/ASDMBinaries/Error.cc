@@ -3,7 +3,7 @@ using namespace std;
 #include <iostream>
 #include <cstdio>
 
-#include "Error.h"
+#include <alma/ASDMBinaries/Error.h>
 
 Error::Error(){}
 

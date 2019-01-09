@@ -248,7 +248,9 @@ public:
   // check consistency of image parameters when csys record exists and update 
   // accordingly based on csys record 
   casacore::Record updateParams(const casacore::Record &impar);
-
+  //get the moving source direction in frame requested
+  casacore::MDirection getMovingSourceDir(const casacore::MeasurementSet& ms, const casacore::MEpoch& refEp, const casacore::MPosition& refpos, const casacore::MDirection::Types outframe);
+  
   // Sky coordinates
   casacore::String imageName, stokes;
   casacore::Vector<casacore::String> startModel;
@@ -258,7 +260,8 @@ public:
   casacore::Bool useNCP;
   casacore::MDirection phaseCenter;
   casacore::Int phaseCenterFieldId;
-
+  casacore::MPosition obslocation;
+  
   // Stokes info
   casacore::Bool pseudoi;
 
@@ -270,6 +273,8 @@ public:
   casacore::MRadialVelocity mVelStart, mVelStep;
   casacore::Vector<casacore::Quantity> restFreq;
   casacore::String start, step, frame, veltype, mode, reffreq, sysvel, sysvelframe;
+  casacore::Quantity sysvelvalue;
+  
   // private variable to store ref frame defined in casacore::Quantity or casacore::Measure 
   // in start or step parameters and veltype from measure (e.g. casacore::MDoppler)
   casacore::String qmframe, mveltype;
@@ -286,6 +291,13 @@ public:
   casacore::Bool overwrite;
 
   casacore::String deconvolver;
+  //moving source
+  // Moving phase center ? 
+  casacore::Quantity distance;
+  casacore::MDirection trackDir;
+  casacore::Bool trackSource;
+  casacore::String movingSource;
+  
 
 };
 
@@ -319,10 +331,14 @@ public:
   // Spectral axis interpolation
   casacore::String interpolation;
 
+  //mosaic use pointing table
+  casacore::Bool usePointing;
+  
   // Moving phase center ? 
   casacore::Quantity distance;
   casacore::MDirection trackDir;
-  casacore::Bool trackSource; 
+  casacore::Bool trackSource;
+  casacore::String movingSource;
   
   // For wb-aprojection ftm.
   casacore::Bool aTermOn, psTermOn,mTermOn,wbAWP,doPointing, doPBCorr, conjBeams;
@@ -383,6 +399,7 @@ public:
   casacore::Bool doGrowPrune;
   casacore::Float minPercentChange;
   casacore::Bool verbose;
+  casacore::Bool fastnoise;
   casacore::Float nsigma;
   int nMask;
   bool autoAdjust;

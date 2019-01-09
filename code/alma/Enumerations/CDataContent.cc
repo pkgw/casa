@@ -33,7 +33,7 @@
  * File CDataContent.cpp
  */
 #include <sstream>
-#include <CDataContent.h>
+#include <alma/Enumerations/CDataContent.h>
 #include <string>
 using namespace std;
 

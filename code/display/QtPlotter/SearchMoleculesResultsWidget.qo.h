@@ -46,7 +46,7 @@ namespace casa {
 		               QList<QString>& resolvedQNSs, QString frequencyUnit) const;
 		int getLineCount() const;
 		int getSelectedLineCount() const;
-		void displaySearchResults( const vector<SplatResult>& results, int offset, int totalCount );
+		void displaySearchResults( const std::vector<SplatResult>& results, int offset, int totalCount );
 
 	private:
 

@@ -66,10 +66,10 @@ public:
 	virtual casacore::ImageRegion asImageRegion() const;
 
 	// this version is deprecated, use the version that returns
-	// SHARED_PTR instead
+	// std::shared_ptr instead
 	virtual casacore::CountedPtr<const casacore::WCRegion> getRegion() const;
 
-	virtual SHARED_PTR<const casacore::WCRegion> getRegion2() const;
+	virtual std::shared_ptr<const casacore::WCRegion> getRegion2() const;
 
 	// returns true unless overridden.
 	virtual casacore::Bool isRegion() const;
@@ -82,7 +82,7 @@ public:
 	// If there is no spectral axis, a zero length vector is returned. Otherwise,
 	// a vector of two values is returned. The zeroth value will always be less
 	// than or equal to the first.
-	vector<casacore::Double> getSpectralPixelRange() const;
+    std::vector<casacore::Double> getSpectralPixelRange() const;
 
 
 	casacore::Bool setFrequencyLimits(
@@ -164,7 +164,7 @@ private:
 	casacore::Bool _isDifference, _constructing;
 	casacore::ImageRegion _imageRegion, _directionRegion;
 	casacore::IPosition _imShape;
-	vector<casacore::Double> _spectralPixelRange;
+    std::vector<casacore::Double> _spectralPixelRange;
 
 	static const casacore::String _class;
 

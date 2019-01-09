@@ -223,7 +223,7 @@ public:
 
     // Constructor.
     PlotMSAction( Client * client, PMSPTMethod postThreadMethod = NULL,
-    		vector<PlotMSPlot*> postThreadObject = vector<PlotMSPlot*>());
+    		std::vector<PlotMSPlot*> postThreadObject = std::vector<PlotMSPlot*>());
 
     // Destructor.
     virtual ~PlotMSAction();
@@ -254,7 +254,7 @@ protected:
 	 casacore::String itsDoActionResult_;
 	 ThreadController* threadController;
 
-	 vector<PlotMSPlot*> postThreadObject;
+     std::vector<PlotMSPlot*> postThreadObject;
 	 PMSPTMethod* postThreadMethod;
 private:
 	// Returns true if the action is valid or not.  Invalid actions should not

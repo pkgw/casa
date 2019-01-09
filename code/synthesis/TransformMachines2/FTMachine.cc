@@ -216,6 +216,8 @@ using namespace casa::vi;
       ysect_p=other.ysect_p;
       nxsect_p=other.nxsect_p;
       nysect_p=other.nysect_p;
+      obsvelconv_p=other.obsvelconv_p;
+      mtype_p=other.mtype_p;
     };
     return *this;
   };
@@ -265,19 +267,26 @@ using namespace casa::vi;
       logIO() << LogOrigin("FTMachine", "initMaps") << LogIO::NORMAL;
 
       AlwaysAssert(image, AipsError);
-
+      
       // Set the frame for the UVWMachine
       if(vb.isAttached()){
 	//mFrame_p=MeasFrame(MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()), mLocation_p);
+	if(vbutil_p.null())
+	  vbutil_p=new VisBufferUtil(vb);	
 	romscol_p=new ROMSColumns(vb.ms());
+	Unit epochUnit=(romscol_p->time()).keywordSet().asArrayString("QuantumUnits")(IPosition(1,0));
 	if(!mFrame_p.epoch()) 
-	  mFrame_p.set(MEpoch(Quantity(vb.time()(0), "s"),  (romscol_p->timeMeas())(0).getRef()));
+	  mFrame_p.set(MEpoch(Quantity(vb.time()(0), epochUnit),  (romscol_p->timeMeas())(0).getRef()));
 	else
-	  mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"), (romscol_p->timeMeas())(0).getRef()));
+	  mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), epochUnit), (romscol_p->timeMeas())(0).getRef()));
 	if(!mFrame_p.position())
 	  mFrame_p.set(mLocation_p);
 	else
-	  mFrame_p.resetPosition(mLocation_p);		    			    
+	  mFrame_p.resetPosition(mLocation_p);
+	if(!mFrame_p.direction())
+	  mFrame_p.set(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
+	else
+	  mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
       }
       else{
 	throw(AipsError("Cannot define some frame as no Visiter/MS is attached"));
@@ -292,22 +301,35 @@ using namespace casa::vi;
       AlwaysAssert(directionIndex>=0, AipsError);
       DirectionCoordinate
         directionCoord=coords.directionCoordinate(directionIndex);
-      if(vbutil_p.null())
-	vbutil_p=new VisBufferUtil(vb);
+      Int spectralIndex=coords.findCoordinate(Coordinate::SPECTRAL);
+      AlwaysAssert(spectralIndex>-1, AipsError);
+      spectralCoord_p=coords.spectralCoordinate(spectralIndex);
+      
       // get the first position of moving source
       if(fixMovingSource_p){
-
+	//cerr << "obsinfo time " << coords.obsInfo().obsDate() << "    epoch used in frame " <<  MEpoch((mFrame_p.epoch())) << endl;
         //First convert to HA-DEC or AZEL for parallax correction
         MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
         MDirection tmphadec;
 	if(upcase(movingDir_p.getRefString()).contains("APP")){
 	  tmphadec=MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
+	  MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
+	  if(mFrame_p.comet())
+	    mFrame_p.resetComet(mcomet);
+	  else
+	     mFrame_p.set(mcomet);
+	  
 	}
 	else{
 	  tmphadec=MDirection::Convert(movingDir_p, outref1)();
 	}
         MDirection::Ref outref(directionCoord.directionType(), mFrame_p);
         firstMovingDir_p=MDirection::Convert(tmphadec, outref)();
+	if(spectralCoord_p.frequencySystem(False)==MFrequency::REST){
+	  ///We want the data frequency to be shifted to the SOURCE frame
+	  ///which is labelled REST as we have never defined the SOURCE frame didn't we
+	  initSourceFreqConv();
+	}
 	///TESTOO 
 	///waiting for CAS-11060
 	//firstMovingDir_p=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), outref)();
@@ -375,10 +397,7 @@ using namespace casa::vi;
       lastMSId_p=vb.msId();
       phaseShifter_p=new UVWMachine(*uvwMachine_p);
       // Set up maps
-      Int spectralIndex=coords.findCoordinate(Coordinate::SPECTRAL);
-      AlwaysAssert(spectralIndex>-1, AipsError);
       
-      spectralCoord_p=coords.spectralCoordinate(spectralIndex);
 
      
       //Store the image/grid channels freq values
@@ -514,6 +533,103 @@ using namespace casa::vi;
     if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
   }
   
+
+  void FTMachine::initSourceFreqConv(){
+    MRadialVelocity::Types refvel=MRadialVelocity::GEO;
+    if(mFrame_p.comet()){
+      //Has a ephem table 
+      if(((mFrame_p.comet())->getTopo().getLength("km").getValue()) > 1.0e-3){
+	refvel=MRadialVelocity::TOPO;
+      }
+     
+      
+    }
+    else{
+      //using a canned DE-200 or 405 source
+      MDirection::Types planetType=MDirection::castType(movingDir_p.getRef().getType());
+    mtype_p=MeasTable::BARYEARTH;
+    if(planetType >=MDirection::MERCURY && planetType <MDirection::COMET){
+      //Damn these enums are not in the same order
+      switch(planetType){
+      case MDirection::MERCURY :
+	mtype_p=MeasTable::MERCURY;
+	break;
+      case MDirection::VENUS :
+	mtype_p=MeasTable::VENUS;
+	break;	
+      case MDirection::MARS :
+	mtype_p=MeasTable::MARS;
+	break;
+      case MDirection::JUPITER :
+	mtype_p=MeasTable::JUPITER;
+	break;
+      case MDirection::SATURN :
+	mtype_p=MeasTable::SATURN;
+	break;
+      case MDirection::URANUS :
+	mtype_p=MeasTable::URANUS;
+	break;
+      case MDirection::NEPTUNE :
+	mtype_p=MeasTable::NEPTUNE;
+	break;
+      case MDirection::PLUTO :
+	mtype_p=MeasTable::PLUTO;
+	break;
+      case MDirection::MOON :
+	mtype_p=MeasTable::MOON;
+	break;
+      case MDirection::SUN :
+	mtype_p=MeasTable::SUN;
+	break;
+      default:
+	throw(AipsError("Cannot translate to known major solar system object"));
+      }
+
+    }
+      
+    }
+     obsvelconv_p=MRadialVelocity::Convert (MRadialVelocity(MVRadialVelocity(0.0),
+							 MRadialVelocity::Ref(MRadialVelocity::TOPO, mFrame_p)),
+							 MRadialVelocity::Ref(refvel));
+
+  }
+
+  void FTMachine::shiftFreqToSource(Vector<Double>& freqs){
+    MDoppler dopshift;
+    MEpoch ep(mFrame_p.epoch());
+    if(mFrame_p.comet()){
+      ////Will use UT for now for ephem tables as it is not clear that they are being
+      ///filled with TDB as intended in MeasComet.h
+      MEpoch::Convert toUT(ep, MEpoch::UT);
+      MVRadialVelocity cometvel;
+      (*mFrame_p.comet()).getRadVel(cometvel, toUT(ep).get("d").getValue());
+      //cerr << std::setprecision(10) << "UT " << toUT(ep).get("d").getValue() << " cometvel " << cometvel.get("km/s").getValue("km/s") << endl;
+      
+      //cerr  << "pos " << MPosition(mFrame_p.position()) << " obsevatory vel " << obsvelconv_p().get("km/s").getValue("km/s") << endl;
+      dopshift=MDoppler(Quantity(-cometvel.get("km/s").getValue("km/s")+obsvelconv_p().get("km/s").getValue("km/s") , "km/s"), MDoppler::RELATIVISTIC);
+      
+    }
+    else{
+       Vector<Double> planetparam;
+       Vector<Double> earthparam;
+       MEpoch::Convert toTDB(ep, MEpoch::TDB);
+       earthparam=MeasTable::Planetary(MeasTable::EARTH, toTDB(ep).get("d").getValue());
+       planetparam=MeasTable::Planetary(mtype_p, toTDB(ep).get("d").getValue());
+       //GEOcentric param
+       planetparam=planetparam-earthparam;
+       Vector<Double> unitdirvec(3);
+       Double dist=sqrt(planetparam(0)*planetparam(0)+planetparam(1)*planetparam(1)+planetparam(2)*planetparam(2));
+       unitdirvec(0)=planetparam(0)/dist;
+       unitdirvec(1)=planetparam(1)/dist;
+       unitdirvec(2)=planetparam(2)/dist;
+       Quantity planetradvel(planetparam(3)*unitdirvec(0)+planetparam(4)*unitdirvec(1)+planetparam(5)*unitdirvec(2), "AU/d");
+	dopshift=MDoppler(Quantity(-planetradvel.getValue("km/s")+obsvelconv_p().get("km/s").getValue("km/s") , "km/s"), MDoppler::RELATIVISTIC);
+       
+    }
+
+    Vector<Double> newfreqs=dopshift.shiftFrequency(freqs);
+    freqs=newfreqs;
+  }
   
   Bool FTMachine::interpolateFrequencyTogrid(const vi::VisBuffer2& vb,
   					     const Matrix<Float>& wt,
@@ -646,8 +762,6 @@ using namespace casa::vi;
         chanMap.resize(interpVisFreq_p.nelements());
         indgen(chanMap);
       }
-
-	  
       if(type != FTMachine::PSF){ // Interpolating the data
    	//Need to get  new interpolate functions that interpolate explicitly on the 2nd axis
   	//2 swap of axes needed
@@ -1473,6 +1587,7 @@ using namespace casa::vi;
     ///No need to store this...recalculate thread partion because environment 
     ///may have changed.
     doneThreadPartition_p=-1;
+    vbutil_p=nullptr;
     return true;
   };
   
@@ -1622,11 +1737,26 @@ using namespace casa::vi;
 
       //cerr << "doConve " << spw << "   " << doConversion_p[spw] << " freqframeval " << freqFrameValid_p << endl;
 //cerr <<"valid frame " << freqFrameValid_p << " polmap "<< polMap << endl;
-     if(freqFrameValid_p)
+    //cerr << "spectral coord system " << spectralCoord_p.frequencySystem(False) << endl;
+     if(freqFrameValid_p &&spectralCoord_p.frequencySystem(False)!=MFrequency::REST )
     	 lsrFreq=vb.getFrequencies(0,MFrequency::LSRK);
      else
     	 lsrFreq=vb.getFrequencies(0);
 
+     if(spectralCoord_p.frequencySystem(False)==MFrequency::REST && fixMovingSource_p){
+       if(lastMSId_p != vb.msId()){
+	 romscol_p=new ROMSColumns(vb.ms());
+       //if ms changed ...reset ephem table
+	 if(upcase(movingDir_p.getRefString()).contains("APP")){
+	   MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
+	   mFrame_p.resetComet(mcomet);
+	 }
+       }
+	
+       mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s")));
+       mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
+       shiftFreqToSource(lsrFreq);
+     }
      //cerr << "lsrFreq " << lsrFreq.shape() << " nvischan " << nvischan << endl;
      //     if(doConversion_p.nelements() < uInt(spw+1))
      //	 doConversion_p.resize(spw+1, true);

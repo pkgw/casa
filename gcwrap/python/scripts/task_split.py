@@ -4,7 +4,8 @@ import string
 import time
 import shutil
 import numpy as np
-from taskinit import *
+from taskinit import casalog, mttool, qatool, mstool, tbtool
+from mstools import write_history
 from update_spw import update_spwchan
 import flaghelper as fh
 from parallel.parallel_data_helper import ParallelDataHelper
@@ -45,7 +46,7 @@ def split(vis,
         return False
 
     # Input vis is an MMS
-    if pdh.isParallelMS(vis) and keepmms:
+    if pdh.isMMSAndNotServer(vis) and keepmms:
         
         retval = pdh.validateInputParams()
         if not retval['status']:
@@ -63,8 +64,10 @@ def split(vis,
         return True
         
 
-    # Create local copy of the MSTransform tool
+    # Create local copies of some tools
     mtlocal = mttool()
+    qalocal = qatool()
+    mslocal = mstool()
 
     try:
                     
@@ -134,7 +137,7 @@ def split(vis,
         
         # Time averaging
         timeaverage = False
-        tb = qa.convert(qa.quantity(timebin), 's')['value']
+        tb = qalocal.convert(qalocal.quantity(timebin), 's')['value']
         if tb > 0:
             timeaverage = True
             
@@ -162,8 +165,6 @@ def split(vis,
         casalog.post('%s'%instance,'ERROR')
         return False
 
-    # Local copy of ms tool
-    mslocal = mstool()
 
     # Update the FLAG_CMD sub-table to reflect any spw/channels selection
     # If the spw selection is by name or FLAG_CMD contains spw with names, skip the updating    

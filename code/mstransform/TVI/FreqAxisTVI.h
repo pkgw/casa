@@ -185,8 +185,8 @@ protected:
 
 	casacore::String spwSelection_p;
 	mutable casacore::LogIO logger_p;
-	mutable map<casacore::Int,casacore::uInt > spwOutChanNumMap_p; // Must be accessed from const methods
-	mutable map<casacore::Int,vector<casacore::Int> > spwInpChanIdxMap_p; // Must be accessed from const methods
+	mutable std::map<casacore::Int,casacore::uInt > spwOutChanNumMap_p; // Must be accessed from const methods
+	mutable std::map<casacore::Int,std::vector<casacore::Int> > spwInpChanIdxMap_p; // Must be accessed from const methods
 };
 
 //////////////////////////////////////////////////////////////////////////

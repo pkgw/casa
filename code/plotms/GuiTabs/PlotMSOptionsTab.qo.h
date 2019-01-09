@@ -95,6 +95,7 @@ private slots:
 
     //When the grid size changes.
     void gridChanged();
+	void updateGrid();
 };
 
 }

@@ -1164,6 +1164,7 @@ class test_cube(testref_base):
           # serial: result in chan 0&1 psf blanked  
           # parallel: spw channel selection will be ignored and tuneselectdata will 
           # select overlapping data and image selections (this seems to me more correct? behavior)
+          # as of 2019.01.08, this is no longer true, psf blanked for chan 0 and 1 for parallel
           testid=7
           print " : " , self.testList[testid]['desc']
           self.prepData('refim_point.ms')
@@ -1171,16 +1172,16 @@ class test_cube(testref_base):
 
           self.assertTrue(os.path.exists(self.img+self.testList[testid]['imagename']+'.psf') and os.path.exists(self.img+self.testList[testid]['imagename']+'.residual') )
           # parallel 
-          if self.parallel:
-              report=self.th.checkall(imexist=[self.img+self.testList[testid]['imagename']+'.image'],
-              imval=[(self.img+self.testList[testid]['imagename']+'.image',1.36,
-              [50,50,0,0]),(self.img+self.testList[testid]['imagename']+'.image',1.2000,
-              [50,50,0,3])])
-          else: # serial
-              report=self.th.checkall(imexist=[self.img+self.testList[testid]['imagename']+'.image'],
-              imval=[(self.img+self.testList[testid]['imagename']+'.image',0.0,
-              [50,50,0,0]),(self.img+self.testList[testid]['imagename']+'.image',1.2000,
-              [50,50,0,3])])
+          ##if self.parallel:
+          #    report=self.th.checkall(imexist=[self.img+self.testList[testid]['imagename']+'.image'],
+          #    imval=[(self.img+self.testList[testid]['imagename']+'.image',1.36,
+          #    [50,50,0,0]),(self.img+self.testList[testid]['imagename']+'.image',1.2000,
+          #    [50,50,0,3])])
+          #else: # serial
+          report=self.th.checkall(imexist=[self.img+self.testList[testid]['imagename']+'.image'],
+          imval=[(self.img+self.testList[testid]['imagename']+'.image',0.0,
+          [50,50,0,0]),(self.img+self.testList[testid]['imagename']+'.image',1.2000,
+          [50,50,0,3])])
           report2 = self.th.checkspecframe(self.img+self.testList[testid]['imagename']+'.image','TOPO',1.1e9)
           self.checkfinal(report+report2)
 
@@ -1672,8 +1673,10 @@ class test_cube(testref_base):
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step1.png',title="model after partial mtmfs on some channels")
 
           delmod(self.msfile);self.th.delmodels(msname=self.msfile,modcol='reset0')
-          ret = tclean(vis=self.msfile,imagename=self.img+'1',imsize=100,cell='8.0arcsec',startmodel=[imagename+'.model.tt0',imagename+'.model.tt1'], 
-                       spw='0',niter=0,savemodel='modelcolumn',deconvolver='mtmfs',parallel=self.parallel)
+# enable parallel here ??? (for now no parallel option as in master)
+#          ret = tclean(vis=self.msfile,imagename=self.img+'1',imsize=100,cell='8.0arcsec',startmodel=[imagename+'.model.tt0',imagename+'.model.tt1'], 
+#                       spw='0',niter=0,savemodel='modelcolumn',deconvolver='mtmfs',parallel=self.parallel)
+          ret = tclean(vis=self.msfile,imagename=self.img+'1',imsize=100,cell='8.0arcsec',startmodel=[imagename+'.model.tt0',imagename+'.model.tt1'], spw='0',niter=0,savemodel='modelcolumn',deconvolver='mtmfs')
 #          self.assertTrue( self.th.checkmodelchan(self.msfile,10) > 0.0 and self.th.checkmodelchan(self.msfile,3) > 0.0 
           plotms(vis=self.msfile,xaxis='frequency',yaxis='amp',ydatacolumn='model',customsymbol=True,symbolshape='circle',symbolsize=5,showgui=False,plotfile=self.img+'.plot.step2.png',title="model after mtmfs predict on full spw" )
 
@@ -1939,6 +1942,27 @@ class test_mask(testref_base):
           """ [mask] test_mask__autobox_multithresh :  multi-threshold Autobox (default)"""
           self.prepData('refim_twochan.ms')
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-multithresh',parallel=self.parallel)
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+          self.checkfinal(report)
+
+     def test_mask_autobox_multithresh_newnoise(self):
+          """ [mask] test_mask__autobox_multithresh :  multi-threshold Autobox invoking the new noise calc."""
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-multithresh', fastnoise=False)
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+          self.checkfinal(report)
+
+     def test_mask_autobox_multithresh_with_nsigma(self):
+          """ [mask] test_mask__autobox_multithresh :  multi-threshold Autobox invoking the new noise calc."""
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-multithresh', nsigma=3.0)
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+          self.checkfinal(report)
+
+     def test_mask_autobox_multithresh_with_nsigma_newnoise(self):
+          """ [mask] test_mask__autobox_multithresh :  multi-threshold Autobox invoking the new noise calc."""
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-multithresh', nsigma=3.0, fastnoise=False)
           report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
           self.checkfinal(report)
 
@@ -2364,7 +2388,8 @@ class test_widefield(testref_base):
           self.prepData("refim_mawproject.ms")
           ret = tclean(vis=self.msfile,spw='*',field='*',imagename=self.img,imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",
                        niter=60,gridder='mosaicft',deconvolver='mtmfs', conjbeams=False,parallel=self.parallel)
-          report=self.th.checkall(imexist=[self.img+'.image.tt0', self.img+'.psf.tt0', self.img+'.weight.tt0'],imval=[(self.img+'.image.tt0',0.9413,[256,256,0,0]),(self.img+'.weight.tt0',0.50546,[256,256,0,0]),(self.img+'.alpha', 0.078076,[256,256,0,0]) ] )
+          report=self.th.checkall(imexist=[self.img+'.image.tt0', self.img+'.psf.tt0', self.img+'.weight.tt0'],imval=[(self.img+'.image.tt0',0.9413,[256,256,0,0]),(self.img+'.weight.tt0',0.50546,[256,256,0,0]),(self.img+'.alpha', 0.07376,[256,256,0,0]) ] )
+          ## ref value for the center of alpha image: 0.078076
           ## alpha should represent that of the mosaic PB (twice)... and should then converge to zero
           self.checkfinal(report)
           

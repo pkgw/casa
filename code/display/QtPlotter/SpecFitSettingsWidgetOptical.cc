@@ -172,7 +172,7 @@ namespace casa {
 				Double beamAngle;
 				Double beamArea;
 				taskMonitor->getBeamInfo( fileName, beamAngle, beamArea );
-				SHARED_PTR<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( fileName );
+				std::shared_ptr<const ImageInterface<Float> > imagePtr = taskMonitor->getImage( fileName );
 				Bool validSpec;
 				SpectralCoordinate coord = taskMonitor->getSpectralCoordinate( imagePtr, validSpec );
 				if ( validSpec ){

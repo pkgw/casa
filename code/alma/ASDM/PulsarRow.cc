@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <PulsarRow.h>
-#include <PulsarTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/PulsarRow.h>
+#include <alma/ASDM/PulsarTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::PulsarRow;
 using asdm::PulsarTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	PulsarRow::~PulsarRow() {
@@ -1286,7 +1283,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void PulsarRow::pulsarIdFromText(const string & s) {
 		 
+          
 		pulsarId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1294,7 +1293,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void PulsarRow::refTimeFromText(const string & s) {
 		 
+          
 		refTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1302,7 +1303,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void PulsarRow::refPulseFreqFromText(const string & s) {
 		 
+          
 		refPulseFreq = ASDMValuesParser::parse<Frequency>(s);
+          
 		
 	}
 	
@@ -1310,7 +1313,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void PulsarRow::refPhaseFromText(const string & s) {
 		 
+          
 		refPhase = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -1318,7 +1323,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void PulsarRow::numBinFromText(const string & s) {
 		 
+          
 		numBin = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1328,7 +1335,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	void PulsarRow::numPolyFromText(const string & s) {
 		numPolyExists = true;
 		 
+          
 		numPoly = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1337,7 +1346,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	void PulsarRow::phasePolyFromText(const string & s) {
 		phasePolyExists = true;
 		 
+          
 		phasePoly = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -1346,7 +1357,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	void PulsarRow::timeSpanFromText(const string & s) {
 		timeSpanExists = true;
 		 
+          
 		timeSpan = ASDMValuesParser::parse<Interval>(s);
+          
 		
 	}
 	
@@ -1355,7 +1368,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	void PulsarRow::startPhaseBinFromText(const string & s) {
 		startPhaseBinExists = true;
 		 
+          
 		startPhaseBin = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1364,7 +1379,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	void PulsarRow::endPhaseBinFromText(const string & s) {
 		endPhaseBinExists = true;
 		 
+          
 		endPhaseBin = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1373,7 +1390,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	void PulsarRow::dispersionMeasureFromText(const string & s) {
 		dispersionMeasureExists = true;
 		 
+          
 		dispersionMeasure = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -1382,7 +1401,9 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	void PulsarRow::refFrequencyFromText(const string & s) {
 		refFrequencyExists = true;
 		 
+          
 		refFrequency = ASDMValuesParser::parse<Frequency>(s);
+          
 		
 	}
 	
@@ -1623,10 +1644,10 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phasePoly, which is optional.
- 	 * @return phasePoly as vector<double >
+ 	 * @return phasePoly as std::vector<double >
  	 * @throw IllegalAccessException If phasePoly does not exist.
  	 */
- 	vector<double > PulsarRow::getPhasePoly() const  {
+ 	std::vector<double > PulsarRow::getPhasePoly() const  {
 		if (!phasePolyExists) {
 			throw IllegalAccessException("phasePoly", "Pulsar");
 		}
@@ -1635,12 +1656,12 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set phasePoly with the specified vector<double >.
- 	 * @param phasePoly The vector<double > value to which phasePoly is to be set.
+ 	 * Set phasePoly with the specified std::vector<double >.
+ 	 * @param phasePoly The std::vector<double > value to which phasePoly is to be set.
  	 
  	
  	 */
- 	void PulsarRow::setPhasePoly (vector<double > phasePoly) {
+ 	void PulsarRow::setPhasePoly (std::vector<double > phasePoly) {
 	
  		this->phasePoly = phasePoly;
 	
@@ -1717,10 +1738,10 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get startPhaseBin, which is optional.
- 	 * @return startPhaseBin as vector<float >
+ 	 * @return startPhaseBin as std::vector<float >
  	 * @throw IllegalAccessException If startPhaseBin does not exist.
  	 */
- 	vector<float > PulsarRow::getStartPhaseBin() const  {
+ 	std::vector<float > PulsarRow::getStartPhaseBin() const  {
 		if (!startPhaseBinExists) {
 			throw IllegalAccessException("startPhaseBin", "Pulsar");
 		}
@@ -1729,12 +1750,12 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set startPhaseBin with the specified vector<float >.
- 	 * @param startPhaseBin The vector<float > value to which startPhaseBin is to be set.
+ 	 * Set startPhaseBin with the specified std::vector<float >.
+ 	 * @param startPhaseBin The std::vector<float > value to which startPhaseBin is to be set.
  	 
  	
  	 */
- 	void PulsarRow::setStartPhaseBin (vector<float > startPhaseBin) {
+ 	void PulsarRow::setStartPhaseBin (std::vector<float > startPhaseBin) {
 	
  		this->startPhaseBin = startPhaseBin;
 	
@@ -1764,10 +1785,10 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get endPhaseBin, which is optional.
- 	 * @return endPhaseBin as vector<float >
+ 	 * @return endPhaseBin as std::vector<float >
  	 * @throw IllegalAccessException If endPhaseBin does not exist.
  	 */
- 	vector<float > PulsarRow::getEndPhaseBin() const  {
+ 	std::vector<float > PulsarRow::getEndPhaseBin() const  {
 		if (!endPhaseBinExists) {
 			throw IllegalAccessException("endPhaseBin", "Pulsar");
 		}
@@ -1776,12 +1797,12 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set endPhaseBin with the specified vector<float >.
- 	 * @param endPhaseBin The vector<float > value to which endPhaseBin is to be set.
+ 	 * Set endPhaseBin with the specified std::vector<float >.
+ 	 * @param endPhaseBin The std::vector<float > value to which endPhaseBin is to be set.
  	 
  	
  	 */
- 	void PulsarRow::setEndPhaseBin (vector<float > endPhaseBin) {
+ 	void PulsarRow::setEndPhaseBin (std::vector<float > endPhaseBin) {
 	
  		this->endPhaseBin = endPhaseBin;
 	

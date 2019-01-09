@@ -105,22 +105,22 @@ public:
 
 	// perform the correction. If <src>wantReturn</src> is true, return a pointer to the
 	// collapsed image.
-	SPIIF correct(const casacore::Bool wantReturn) const;
+	SPIIF correct(casacore::Bool wantReturn);
 
 	casacore::String getClass() const;
 
 protected:
 
-	vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const;
+	std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const;
 
 	CasacRegionManager::StokesControl _getStokesControl() const;
 
 private:
-	SPIIF _pbImage;
+	SPIIF _pbImage{};
 
-	casacore::Float _cutoff;
-	Mode _mode;
-	casacore::Bool _useCutoff;
+	casacore::Float _cutoff{0};
+	Mode _mode{DIVIDE};
+	casacore::Bool _useCutoff{casacore::True}, _concatHistories{casacore::True};
 	const static casacore::String _class;
 
 	void _checkPBSanity();

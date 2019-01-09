@@ -41,27 +41,23 @@
 
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -102,7 +98,11 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -119,18 +119,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -197,28 +197,28 @@ class DelayModelRow;
 	
  * <TR>
  * <TD> phaseDelay </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numPoly </TD> 
  * <TD> &nbsp;the phase delay polynomial (rad). </TD>
  * </TR>
 	
  * <TR>
  * <TD> phaseDelayRate </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numPoly </TD> 
  * <TD> &nbsp;Phase delay rate polynomial (rad/s). </TD>
  * </TR>
 	
  * <TR>
  * <TD> groupDelay </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numPoly </TD> 
  * <TD> &nbsp;Group delay polynomial (s). </TD>
  * </TR>
 	
  * <TR>
  * <TD> groupDelayRate </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numPoly </TD> 
  * <TD> &nbsp;Group delay rate polynomial (s/s) </TD>
  * </TR>
@@ -278,14 +278,14 @@ class DelayModelRow;
 	
  * <TR>
  * <TD> LOOffset</TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numLO  </TD>
  * <TD>&nbsp; Local oscillator offset. </TD>
  * </TR>
 	
  * <TR>
  * <TD> LOOffsetRate</TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numLO  </TD>
  * <TD>&nbsp; Local oscillator offset rate. </TD>
  * </TR>
@@ -341,42 +341,42 @@ class DelayModelRow;
 	
  * <TR>
  * <TD> polarizationType</TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; describes the polarizations of the receptors (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> electronicDelay</TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the electronic delay. </TD>
  * </TR>
 	
  * <TR>
  * <TD> electronicDelayRate</TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the electronic delay rate. </TD>
  * </TR>
 	
  * <TR>
  * <TD> receiverDelay</TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the receiver delay. </TD>
  * </TR>
 	
  * <TR>
  * <TD> IFDelay</TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the intermediate frequency delay. </TD>
  * </TR>
 	
  * <TR>
  * <TD> LODelay</TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the local oscillator delay. </TD>
  * </TR>
@@ -543,7 +543,7 @@ public:
  	 * @param fieldId
 	
      */
-	DelayModelRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, vector<double > phaseDelay, vector<double > phaseDelayRate, vector<double > groupDelay, vector<double > groupDelayRate, Tag fieldId);
+	DelayModelRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, std::vector<double > phaseDelay, std::vector<double > phaseDelayRate, std::vector<double > groupDelay, std::vector<double > groupDelayRate, Tag fieldId);
 	
 
 
@@ -668,7 +668,7 @@ public:
  	 * @param fieldId
  	 		 
  	 */
-	DelayModelRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, vector<double > phaseDelay, vector<double > phaseDelayRate, vector<double > groupDelay, vector<double > groupDelayRate, Tag fieldId); 
+	DelayModelRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, std::vector<double > phaseDelay, std::vector<double > phaseDelayRate, std::vector<double > groupDelay, std::vector<double > groupDelayRate, Tag fieldId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

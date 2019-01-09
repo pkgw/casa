@@ -3,6 +3,7 @@ import shutil
 import stat
 import time
 from taskinit import *
+from mstools import write_history
 import partitionhelper as ph
 from parallel.parallel_task_helper import ParallelTaskHelper
 
@@ -282,16 +283,18 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
                       weightscale=wscale)
         #end for
         os.remove(auxfile)
-
-        m.writehistory(message='taskname=virtualconcat',origin='virtualconcat')
-        m.writehistory(message='vis          = "'+str(vis)+'"',origin='virtualconcat')
-        m.writehistory(message='concatvis    = "'+str(concatvis)+'"',origin='virtualconcat')
-        m.writehistory(message='freqtol      = "'+str(freqtol)+'"',origin='virtualconcat')
-        m.writehistory(message='dirtol       = "'+str(dirtol)+'"',origin='virtualconcat')
-        m.writehistory(message='respectname  = "'+str(respectname)+'"',origin='virtualconcat')
-        m.writehistory(message='visweightscale = "'+str(visweightscale)+'"',origin='virtualconcat')
-
         m.close()
+
+        # Write history to MS
+        try:
+            param_names = virtualconcat.func_code.co_varnames[:virtualconcat.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]
+            write_history(mstool(), theconcatvis, 'virtualconcat', param_names,
+                          param_vals, casalog)
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
+                     'WARN')
+
 
         # concatenate the POINTING tables
         masterptable = mmsmembers[0]+'/POINTING'

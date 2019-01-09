@@ -29,27 +29,21 @@
 
 #include <iostream>
 #include <string>
-using namespace std;
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLEntityId;
 #endif
 
-#include <StringTokenizer.h>
-#include <InvalidArgumentException.h>
-using asdm::StringTokenizer;
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/InvalidArgumentException.h>
 
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/EndianStream.h>
 
 namespace asdm {
 
 class EntityId;
-ostream & operator << ( ostream &, const EntityId & );
-istream & operator >> ( istream &, EntityId&);
+std::ostream & operator << ( std::ostream &, const EntityId & );
+std::istream & operator >> ( std::istream &, EntityId&);
 
 /**
  * description
@@ -60,19 +54,19 @@ istream & operator >> ( istream &, EntityId&);
  * 
  */
 class EntityId {
-    friend ostream & operator << ( ostream &, const EntityId & );
-	friend istream & operator >> ( istream &, EntityId&);
+    friend std::ostream & operator << ( std::ostream &, const EntityId & );
+	friend std::istream & operator >> ( std::istream &, EntityId&);
 
 public:
 	static EntityId getEntityId(StringTokenizer &t) 
 		throw (InvalidArgumentException) ;
-	static string validate(string x);
+	static std::string validate(std::string x);
 
 	EntityId();
 	EntityId(const EntityId &);
-	EntityId(const string &id) throw (InvalidArgumentException);
+	EntityId(const std::string &id) throw (InvalidArgumentException);
 #ifndef WITHOUT_ACS
-	EntityId(IDLEntityId &) throw (InvalidArgumentException);
+	EntityId(asdmIDLTypes::IDLEntityId &) throw (InvalidArgumentException);
 #endif
 	virtual ~EntityId();
 
@@ -82,9 +76,9 @@ public:
 	bool operator == (const EntityId&) const;
 	bool operator != (const EntityId&) const;	
 
-	string toString() const;
+	std::string toString() const;
 #ifndef WITHOUT_ACS
-	IDLEntityId toIDLEntityId() const;
+    asdmIDLTypes::IDLEntityId toIDLEntityId() const;
 #endif
 
 	/**
@@ -103,11 +97,11 @@ public:
 	
 	bool isNull() const;
 
-	string getId() const;
-	void setId(string e);
+	std::string getId() const;
+	void setId(std::string e);
 
 private:
-	string id;
+	std::string id;
 
 };
 
@@ -140,34 +134,34 @@ inline bool EntityId::operator != (const EntityId &x) const {
 	return id != x.id;	
 }
 
-inline string EntityId::toString() const {
+inline std::string EntityId::toString() const {
 	return id;
 }
 
 #ifndef WITHOUT_ACS
-inline IDLEntityId EntityId::toIDLEntityId() const {
-	IDLEntityId x;
+inline asdmIDLTypes::IDLEntityId EntityId::toIDLEntityId() const {
+    asdmIDLTypes::IDLEntityId x;
 	x.value = CORBA::string_dup(id.c_str());
 	return x;
 }
 #endif
 
-inline string EntityId::getId() const {
+inline std::string EntityId::getId() const {
 	return id;
 }
 
-inline void EntityId::setId(string s) {
+inline void EntityId::setId(std::string s) {
 	id = s;
 }
 
 // Friend functions
 
-inline ostream & operator << ( ostream &o, const EntityId &x ) {
+inline std::ostream & operator << ( std::ostream &o, const EntityId &x ) {
 	o << x.id;
 	return o;
 }
 
-inline istream & operator >> ( istream &i, EntityId &x ) {
+inline std::istream & operator >> ( std::istream &i, EntityId &x ) {
 	i >> x.id;
 	return i;
 }

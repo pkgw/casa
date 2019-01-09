@@ -308,6 +308,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <value type="string"></value>
     </param>
 
+
     <param type="string" name="stokes" > <!-- subparam="true"> -->
      <shortdescription>Stokes Planes to make</shortdescription>
 <description>Stokes Planes to make
@@ -427,8 +428,8 @@ HPX HEALPix grid.  -->
 <!--============================================== -->
 
     <param type="any" name="specmode" required="true">
-     <shortdescription>Spectral definition mode (mfs,cube,cubedata)</shortdescription>
-<description>Spectral definition mode (mfs,cube,cubedata)
+     <shortdescription>Spectral definition mode (mfs,cube,cubedata, cubesource)</shortdescription>
+<description>Spectral definition mode (mfs,cube,cubedata, cubesource)
 
                        mode='mfs' : Continuum imaging with only one output image channel.
                                              (mode='cont' can also be used here)
@@ -467,7 +468,16 @@ HPX HEALPix grid.  -->
                                                         a spectral line observed over an extended time range
                                                         may be smeared out in frequency. There is strictly
                                                         no valid spectral frame with which to label the output
-                                                        images, but they will list the frame defined in the MS.
+							images, but they will list the frame defined in the MS.
+
+							mode='cubesource': Spectral line imaging while
+							tracking moving source (near field or solar system
+							objects). The velocity of the source is accounted
+							and the frequency reported is in the source frame.
+							As there is not SOURCE frame defined,
+							the frame reported will be REST (as it may not be
+							in the rest frame emission region may be
+							moving w.r.t the systemic velocity frame)
 
 
 </description>
@@ -477,6 +487,7 @@ HPX HEALPix grid.  -->
 	      <value>cont</value>
 	      <value>cube</value>
 	      <value>cubedata</value>
+	      <value>cubesource</value>
 	    </allowed>
     </param>
 
@@ -819,6 +830,19 @@ HPX HEALPix grid.  -->
       <value type="int">1</value>
     </param>
 
+<param type="any" name="psfphasecenter"  subparam="true"> 
+     <shortdescription>Phase center of the image</shortdescription>
+<description>For mosaic use psf centered of this optional direction
+               example: psfphasecenter=6
+                        psfphasecenter='J2000 19h30m00 -40d00m00'
+                        psfphasecenter='J2000 292.5deg  -40.0deg'
+                        psfphasecenter='J2000 5.105rad  -0.698rad'
+                        psfphasecenter='ICRS 13:05:27.2780 -049.28.04.458' 
+</description>
+      <any type="variant" limittypes="int string"/>
+      <value type="string"></value>
+    </param>
+
     <param type="int" name="chanchunks" subparam="true">
      <shortdescription>Number of channel chunks</shortdescription>
 <description>Number of channel chunks to grid separately
@@ -903,7 +927,19 @@ HPX HEALPix grid.  -->
 </description>
       <value type="string"></value>
     </param>
-
+    
+  <param type="bool" name="usepointing" subparam="true">
+           <shortdescription>Use Pointing table if available for mosaic pointing</shortdescription>
+<description>Use the pointing table to determine where the beam are for mosaic gridder; if False then phasecenters of the fields selected are used to determine direction of each mosaic pointing.
+</description>
+	    <value type="bool">False</value>
+    </param>
+    <param type="bool" name="mosweight" subparam="true">
+           <shortdescription>Indepently weight each field in a mosaic</shortdescription>
+<description>When doing Brigg's style weighting (including uniform) to perform the weight density calculation for each field indepedently if True. If False the weight density is calculated from the average uv distribution of all the fields.
+</description>
+	    <value type="bool">True</value>
+    </param>
     <param type="bool" name="aterm" subparam="true">
            <shortdescription>Use aperture illumination functions during gridding</shortdescription>
 <description>Use aperture illumination functions during gridding
@@ -1661,6 +1697,8 @@ HPX HEALPix grid.  -->
                        the N-sigma threshold and cyclethreshold, is used to trigger a major cycle
                        (see also the descreption under 'threshold').
                        Set nsigma=0.0 to preserve the previous tclean behavior without this feature.
+                       The top level parameter, fastnoise is relevant for the rms noise calculation which is used 
+                       to determine the threshold. 
 
 </description>
       <value type="double">0.0</value>
@@ -1822,6 +1860,7 @@ HPX HEALPix grid.  -->
                        auto-multithresh : auto-masking by multiple thresholds for deconvolution
                           subparameters : sidelobethreshold, noisethreshold, lownoisethreshold, negativethrehsold,  smoothfactor,
                                           minbeamfrac, cutthreshold, pbmask, growiterations, dogrowprune, minpercentchange, verbose
+                          Additional top level parameter relevant to auto-multithresh: fastnoise
 
                           if pbmask is >0.0, the region outside the specified pb gain level is excluded from
                           image statistics in determination of the threshold.
@@ -2001,25 +2040,25 @@ HPX HEALPix grid.  -->
 </description>
     </param>
     <param type="double" name="noisethreshold" subparam="true">
-    <shortdescription>noisethreshold * rms in residual image</shortdescription>
+    <shortdescription>noisethreshold * rms in residual image + location(median) </shortdescription>
            <value type="double">5.0</value>
-<description>Sub-parameter for "auto-multithresh":  mask threshold based on the noise level: noisethreshold * rms
+<description>Sub-parameter for "auto-multithresh":  mask threshold based on the noise level: noisethreshold * rms + location (=median)
 
               The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="lownoisethreshold" subparam="true">
-    <shortdescription>lownoisethreshold * rms in residual image</shortdescription>
+    <shortdescription>lownoisethreshold * rms in residual image + location(median) </shortdescription>
            <value type="double">1.5</value>
-<description>Sub-parameter for "auto-multithresh":  mask threshold to grow previously masked regions via binary dilation:   lownoisethreshold * rms in residual image
+<description>Sub-parameter for "auto-multithresh":  mask threshold to grow previously masked regions via binary dilation:   lownoisethreshold * rms in residual image + location (=median)
 
               The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="negativethreshold" subparam="true">
-           <shortdescription>negativethreshold * rms in residual image</shortdescription>
+           <shortdescription>negativethreshold * rms in residual image + location(median) </shortdescription>
            <value type="double">0.0</value>
-<description>Sub-parameter for "auto-multithresh": mask threshold  for negative features: -1.0* negativethreshold * rms
+<description>Sub-parameter for "auto-multithresh": mask threshold  for negative features: -1.0* negativethreshold * rms + location(=median)
 
               The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
@@ -2083,6 +2122,26 @@ HPX HEALPix grid.  -->
                         N_neg_pix: number of pixels for negative mask regions
 
                         Note that for a large cube, extra logging may slow down the process.
+</description>
+    </param>
+    <param type="bool" name="fastnoise">
+           <shortdescription>True: use the faster (old) noise calculation. False: use the new improved noise calculations</shortdescription>
+           <value type="bool">True</value>
+<description> Only relevant when automask (user='multi-autothresh') and/or n-sigma stopping threshold (nsigma>0.0) are/is used. If it is set to True,  a simpler but faster noise calucation is used. 
+                        In this case, the threshold values are determined based on classic statistics (using all
+                        unmasked pixels for the calculations).
+                          
+                        If it is set to False,  the new noise calculation
+                        method is used based on pre-existing mask.   
+ 
+                        Case 1: no exiting mask
+                        Calculate image statistics using Chauvenet algorithm 
+                        
+                        Case 2: there is an existing mask
+                        Calculate image statistics by classical method on the region
+                        outside the mask and inside the primary beam mask.
+
+                        In all cases above RMS noise is calculated from MAD. 
 </description>
     </param>
 <!--============================================== -->
@@ -2419,20 +2478,17 @@ HPX HEALPix grid.  -->
 	 <default param="interpolation"><value>"linear"</value></default>
 	 <default param="chanchunks"><value>1</value></default>
        </equals>
-       <!-- desable for now...
-       <equals type="string" value="cubesrc">
+       <equals type="string" value="cubesource">
 	 <default param="nchan"><value>-1</value></default>
 	 <default param="start"><value>""</value></default>
 	 <default param="width"><value>""</value></default>
-	 <default param="outframe"><value>""</value></default>
+	 <default param="outframe"><value>"REST"</value></default>
 	 <default param="veltype"><value>"radio"</value></default>
 	 <default param="restfreq"><value>[]</value></default>
-	 <default param="sysvel"><value>""</value></default>
-	 <default param="sysvelframe"><value>""</value></default>
 	 <default param="interpolation"><value>"linear"</value></default>
 	 <default param="chanchunks"><value>1</value></default>
        </equals>
-       -->
+       
        <equals type="string" value="cubedata">
 	 <default param="nchan"><value>-1</value></default>
 	 <default param="start"><value>""</value></default>
@@ -2468,18 +2524,26 @@ HPX HEALPix grid.  -->
        <equals type="string" value="mosaic">
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
+	 <default param="usepointing"><value>False</value></default>
+	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>True</value></default>
+	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="mosaicft">
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
+	 <default param="usepointing"><value>False</value></default>
+	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>True</value></default>
+	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="ftmosaic">
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
+	 <default param="usepointing"><value>False</value></default>
+	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
        </equals>
        <equals type="string" value="imagemosaic">
@@ -2636,7 +2700,11 @@ HPX HEALPix grid.  -->
          <default param="dogrowprune"><value type="bool">True</value></default>
          <default param="minpercentchange"><value>-1.0</value></default>
          <default param="verbose"><value type="bool">False</value></default>
+         <!--<default param="fastnoise"><value type="bool">False</value></default>-->
        </equals>
+       <!--<noteqauls type="string" value="auto-multithresh">
+          <default param="fastnoise"><value type="bool">True</value></default>
+       </noteqauls>-->
    </when>
 
 <!--
