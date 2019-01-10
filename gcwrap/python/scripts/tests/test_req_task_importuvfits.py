@@ -72,12 +72,13 @@ else:
     if os.path.exists(os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/uvfits/3C219D_CAL.UVFITS'):
         vlapath = dataroot + 'data/casa-data-req/uvfits/3C219D_CAL.UVFITS'
         carmapath = dataroot + 'data/casa-data-req/uvfits/mirsplit.UVFITS'
-    """
+        exportuvfits(vis=dataroot + 'data/casa-data-req/visibilities/evla/refim_Cband.G37line.ms', fitsfile='EVLAUV.UVFITS')
+        
     else:
-        vlapath = dataroot + 'data/regression/3C219D/3C219D_CAL.UVFITS'
-        carmapath = dataroot + 'bin/mirsplit.UVFITS'
-    """
-    exportuvfits(vis=dataroot + 'data/casa-data-req/visibilities/evla/refim_Cband.G37line.ms', fitsfile='EVLAUV.UVFITS')
+        vlapath = dataroot + 'casa-data-req/uvfits/3C219D_CAL.UVFITS'
+        carmapath = dataroot + 'casa-data-req/uvfits/mirsplit.UVFITS'
+        exportuvfits(vis=dataroot + 'casa-data-req/visibilities/evla/refim_Cband.G37line.ms', fitsfile='EVLAUV.UVFITS')
+
     evlapath = 'EVLAUV.UVFITS'
 
 logpath = casalog.logfile()
