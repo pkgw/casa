@@ -41,6 +41,7 @@
 #include <casa/Containers/RecordInterface.h>
 #include <casa/Containers/Block.h>
 #include <images/Images/TempImage.h>
+#include <images/Images/PagedImage.h>
 #include <coordinates/Coordinates/SpectralCoordinate.h>
 #include <scimath/Mathematics/InterpolateArray1D.h>
 #include <synthesis/TransformMachines/CFCache.h>
@@ -55,6 +56,7 @@
 
 #include <synthesis/ImagerObjects/SIImageStore.h>
 #include <synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
+#include <iomanip>
 
 namespace casacore{
 

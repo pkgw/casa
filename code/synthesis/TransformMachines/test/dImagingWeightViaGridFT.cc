@@ -43,12 +43,17 @@
 #include <casa/namespace.h>
 #include <casa/OS/Directory.h>
 #include <casa/Utilities/Regex.h>
-int
-main(int argc, char **argv){
+#include <iomanip>
+
+using namespace casa;
+using namespace casacore;
+using namespace std;
+
+int main(int argc, char **argv){
 
 
   if (argc<2) {
-    cout <<"Usage: tVisModelData ms-table-name  model-image-name"<<endl;
+    cout <<"Usage: dImagingWeightViaGridFT ms-table-name "<<endl;
     exit(1);
   }
   try{
@@ -62,6 +67,8 @@ main(int argc, char **argv){
     cerr << "is expr null " << exprNode.isNull() << endl;
     MeasurementSet mssel(myms(exprNode));
     
+    Int nx=3000;
+    Quantity cellx(30, "arcsec");
 
 
     
@@ -77,66 +84,18 @@ main(int argc, char **argv){
     String rImageName="TempReal.image";
     {
       Imager im(mssel, false, false);
-      im.defineImage(500, 500, Quantity(1.0, "arcsec"), Quantity(1.0, "arcsec"),
+      im.defineImage(nx, nx, cellx, cellx,
 		     "I", myDir, 0, "mfs", 1, 0, 1, MFrequency(), MRadialVelocity(), Quantity(0.0, "km/s"), Vector<Int>(1,0));
       im.makeimage("psf", rImageName, cImageName);
 
     }
 
-    /*
-
-    MDirection myDir=vi.msColumns().field().phaseDirMeas(0);
-    ComponentList cl;
-    SkyComponent otherPoint(ComponentType::POINT);
-    otherPoint.flux() = Flux<Double>(0.00001, 0.0, 0.0, 0.00000);
-    otherPoint.shape().setRefDirection(myDir);
-    cl.add(otherPoint);
-    Record container;
-    String err;
-    cl.toRecord(err, container);
-    Record clrec;
-    clrec.define("type", "componentlist");
-    clrec.define("fields", field);
-    clrec.define("spws", Vector<Int>(1, 0));
-    clrec.defineRecord("container", container);
-    Record outRec;
-    outRec.define("numcl", 1);
-    outRec.defineRecord("cl_0", clrec);
-    VisModelData vm;
-    //vm.addModel(outRec, Vector<Int>(1, 0), vb);
-    Vector<Int>spws(4);
-    indgen(spws);
-    vm.putModel(myms, container, field, spws, Vector<Int>(1,0), Vector<Int>(1,63), Vector<Int>(1,1), true, false);
-    vm.clearModel(myms, "1", "2");
-    if(argc>2){
-      PagedImage<Float> modim(argv[2]);
-      TempImage<Complex> cmod(modim.shape(), modim.coordinates());
-      StokesImageUtil::From(cmod, modim);
-      MPosition loc;
-      MeasTable::Observatory(loc, vi.msColumns().observation().telescopeName()(0));
-      GridFT ftm(1000000, 16, "SF", loc, 1.0, false, false);
-      ftm.initializeToVis(cmod, vb);
-      Record elrec;
-      String err;
-      ftm.toRecord(err, elrec, true);
-      Record ftrec;
-      ftrec.define("type", "ftmachine");
-      ftrec.define("fields", Vector<Int>(1, 0));
-      ftrec.define("spws", Vector<Int>(1, 0));
-      ftrec.defineRecord("container", elrec);
-      Record outRec1;
-      outRec1.define("numft", 1);
-      outRec1.defineRecord("ft_0", ftrec);
-      cerr << "Error string for Record " << err << endl;
-     
-		 
-    } 
-
-    */
     
+		 
+ 
    
     // tm.mark();
-    VisImagingWeight vWght(vi, "norm", Quantity(0.0, "Jy"), -1.0,  500, 500,  Quantity(1.0, "arcsec"), Quantity(1.0, "arcsec"),0, 0);
+    /*    VisImagingWeight vWght(vi, "norm", Quantity(0.0, "Jy"), -1.0,  nx, nx,  cellx, cellx,0, 0);
     vi.origin();
     Float sumval=0;
     Float elmax, elmin;
@@ -158,14 +117,15 @@ main(int argc, char **argv){
     vWght.getWeightDensity(density);
     cerr << "sum of grid "<< sum(density[0]) << " shape " << density[0].shape() << endl;
     cerr << "sum of weight "<< sumval << endl;
+    */
     VisImagingWeight vWghtNat("natural");
     vi.useImagingWeight(vWghtNat);
-    GridFT ft(Long(1000000), Int(200), "BOX",1.0, true, false);
+    GridFT ft(Long(1000000), Int(200), "BOX",1.0, false, true);
     PagedImage<Complex> theImage("TempComplex.image");
-
+    cerr << "SHAPE " << theImage.shape() << endl;
     ////////////////
-    PagedImage<Float> laloo(theImage.shape(), theImage.coordinates(),"density1.image");
-    laloo.put(density[0].reform((theImage.shape())));
+    //PagedImage<Float> laloo(theImage.shape(), theImage.coordinates(),"density1.image");
+    //laloo.put(density[0].reform((theImage.shape())));
     ///////
 
     Matrix<Float> dummy;
@@ -181,15 +141,16 @@ main(int argc, char **argv){
      Array<Float> griddedWght;
      // get the gridded weights
      ft.getGrid(griddedWght);
-     cerr << "sum of grid "<< sum(griddedWght) << " shape " << griddedWght.shape() << endl;
+     cerr << std::setprecision(12) << "sum of grid "<< sum(griddedWght) << " shape " << griddedWght.shape() << endl;
+     /*
      ////////////////
     PagedImage<Float> laloo2(theImage.shape(), theImage.coordinates(),"density2.image");
     laloo2.put(griddedWght.reform((theImage.shape())));
     ///////
      Block<Matrix<Float> > grids(1);
-     grids[0].assign(griddedWght.reform(IPosition(2, 500, 500)));
+     grids[0].assign(griddedWght.reform(IPosition(2, nx, nx)));
      //Setup new VisImaging weight with weight density 
-     VisImagingWeight vWght2(vi, "norm", Quantity(0.0, "Jy"), -1.0,  500, 500,  Quantity(1.0, "arcsec"), Quantity(1.0, "arcsec"),0, 0);
+     VisImagingWeight vWght2(vi, "norm", Quantity(0.0, "Jy"), -1.0,  nx, nx,  cellx, cellx,0, 0);
      //VisImagingWeight vWght2(vi, grids, "abs", Quantity(0.0, "Jy"), -1,  Quantity(1.0, "arcsec"), Quantity(1.0, "arcsec"));
      float sumval2=0.0;
      vWght2.setWeightDensity(grids);
@@ -205,25 +166,13 @@ main(int argc, char **argv){
       }
     }
     cerr << "sum of weight "<< sumval2 << endl;
-   
+     */
 
     } catch (AipsError x) {
     cout << "Caught exception " << endl;
     cout << x.getMesg() << endl;
     return(1);
   }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   cout << "Done" << endl;

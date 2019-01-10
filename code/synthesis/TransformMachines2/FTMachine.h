@@ -57,7 +57,7 @@
 #include <synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
 
 #include <synthesis/TransformMachines2/SkyJones.h>
-
+#include <iomanip>
 namespace casacore{
 
   class UVWMachine;
