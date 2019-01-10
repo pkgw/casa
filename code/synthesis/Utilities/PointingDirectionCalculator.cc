@@ -400,7 +400,7 @@ void PointingDirectionCalculator::splineInit()
 
     for(uInt ant=0; ant <numAnt; ant++)
     {
-/*SN*/  printf("splineInit()::ant=%d\n",ant);
+//      printf("splineInit()::ant=%d\n",ant);
 
         uInt startPos = allAntennaBoundary_[ant];
         uInt endPos   = allAntennaBoundary_[ant+1];
@@ -502,7 +502,7 @@ void PointingDirectionCalculator::splineInit()
 
 void  PointingDirectionCalculator::initializeSplineInterpolation()
 {
-     printf("iniializeSplineInterpolation() called. \n");
+//   printf("iniializeSplineInterpolation() called. \n");
 
     if(true)  // ALWAYS TRUE, if false -> spline coeff is NOT READY./
     {
@@ -516,7 +516,7 @@ void  PointingDirectionCalculator::initializeSplineInterpolation()
         // detail behavior is partl vague.   (20-Dec-2018)    
         //-
 
-         printf("initializeSplineInterpolation()::START making  antennaList on Pointing. \n" ); 
+//       printf("initializeSplineInterpolation()::START making  antennaList on Pointing. \n" ); 
 
         // (1) Do the same, but see PointingTable.antenna 
 
@@ -575,7 +575,7 @@ void  PointingDirectionCalculator::initializeSplineInterpolation()
                 printf( "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \n" );
                 printf( "xx This antennaID alignment is not supported. xxxxxx \n" );
                 printf( "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \n" );
-                fgSpline = false; // FORCE DISABLE//
+                fgSplineInterpolation = false; // FORCE DISABLE//
 
                 throw; // ABORT and Ignore //
             }
@@ -587,16 +587,18 @@ void  PointingDirectionCalculator::initializeSplineInterpolation()
 
 
         // Show Boundary List .. //
-        
-        printf( "Created Antenna Boundary Info, allNumAntennaBoundary_  = %u \n", allNumAntennaBoundary_  );
-        for (uInt b=0; b< allAntennaBoundary_.size(); b++)
+        if(false)
         {
-            printf( "Created antennaBoundary_[%d] = %d \n", b, allAntennaBoundary_[b] );
-        }   
- 
+            printf( "Created Antenna Boundary Info, allNumAntennaBoundary_  = %u \n", allNumAntennaBoundary_  );
+            for (uInt b=0; b< allAntennaBoundary_.size(); b++)
+            {
+                printf( "Created antennaBoundary_[%d] = %d \n", b, allAntennaBoundary_[b] );
+            }   
+        }
+
         // update flag //
         doneAntenaBoundaryCreate = true;
-        printf( "inspectantenna():: END making AtennaBoundary and splineInit() ... \n");
+//      printf( "inspectantenna():: END making AtennaBoundary and splineInit() ... \n");
 
         //+
         // Spline Make Table 
@@ -680,8 +682,8 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
         uInt end = antennaBoundary_[i + 1];
         uInt currentAntenna = antennaColumn_(start);
 
-        printf( "getDirection::resetAntennaPosition(id=%d) calls. in %d Antennas.  \n",
-                 currentAntenna,numAntennaBoundary_ );
+//      printf( "getDirection::resetAntennaPosition(id=%d) calls. in %d Antennas.  \n",
+//               currentAntenna,numAntennaBoundary_ );
 
         resetAntennaPosition(currentAntenna);
 
@@ -721,20 +723,21 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
 //
 //////////////////////////////
 
-// (1)WRAPPER //
+// (0)WRAPPER //
 Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow)
 {
-    if (false)
-        return ( /* used Original */doGetDirectionOld(irow) );  // UNDER CONST //
+    if (fgOldInterpolation)
+        return (doGetDirectionOrg(irow));  
 
-    if (fgSpline== false)
-        return (doGetDirectionOld(irow));
-    else
+    if (fgSplineInterpolation)
         return (doGetDirectionNew(irow));
+    else
+        return (doGetDirectionRev(irow));
 } 
-
-// (2) Intermediate Edition (Linear/Spline)//
-Vector<Double> PointingDirectionCalculator::doGetDirectionOld(uInt irow) {
+//+
+// (1)ORIGINAL //
+//-
+Vector<Double> PointingDirectionCalculator::doGetDirectionOrg(uInt irow) {
     debuglog << "doGetDirection(" << irow << ")" << debugpost;
     Double currentTime =
             timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
@@ -794,6 +797,91 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionOld(uInt irow) {
 //                    direction = accessor_(*pointingColumns_, index);
 //                }
     } else {
+
+        debuglog << "linear interpolation " << debugpost;
+        // Sampling rate of pointing > data dump rate (fast scan)
+        // linear interpolation
+        Double t0 = pointingTimeUTC_[index - 1];
+        Double t1 = pointingTimeUTC_[index];
+        Double dt = t1 - t0;
+        debuglog << "Interpolate between " << setprecision(16) << index - 1
+                << " (" << t0 << ") and " << index << " (" << t1 << ")"
+                << debugpost;
+        MDirection dir1 = accessor_(*pointingColumns_, index - 1);
+        MDirection dir2 = accessor_(*pointingColumns_, index);
+        String dirRef1 = dir1.getRefString();
+        String dirRef2 = dir2.getRefString();
+        MDirection::Types refType1, refType2;
+        MDirection::getType(refType1, dirRef1);
+        MDirection::getType(refType2, dirRef2);
+        debuglog << "dirRef1 = " << dirRef1 << " ("
+                << MDirection::showType(refType1) << ")" << debugpost;
+        if (dirRef1 != dirRef2) {
+            MeasFrame referenceFrameLocal((pointingColumns_->timeMeas())(index),
+                    *(referenceFrame_.position()));
+            dir2 = MDirection::Convert(dir2,
+                    MDirection::Ref(refType1, referenceFrameLocal))();
+        }
+        Vector<Double> dirVal1 = dir1.getAngle("rad").getValue();
+        Vector<Double> dirVal2 = dir2.getAngle("rad").getValue();
+        Vector<Double> scanRate = dirVal2 - dirVal1;
+        Vector<Double> interpolated = dirVal1
+                + scanRate * (currentTime - t0) / dt;
+        direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),
+                refType1);
+    }
+    debuglog << "direction = "
+            << direction.getAngle("rad").getValue() << " (unit rad reference frame "
+            << direction.getRefString()
+            << ")" << debugpost;
+    Vector<Double> outVal(2);
+    if (direction.getRefString() == MDirection::showType(directionType_)) {
+        outVal = direction.getAngle("rad").getValue();
+    } else {
+        MDirection converted = (*directionConvert_)(direction);
+        outVal = converted.getAngle("rad").getValue();
+        debuglog << "converted = " << outVal << "(unit rad reference frame "
+                << converted.getRefString() << ")" << debugpost;
+    }
+
+    // moving source correction
+    assert(movingSourceCorrection_ != NULL);
+    movingSourceCorrection_(movingSourceConvert_, directionConvert_, outVal);
+
+    return outVal;
+}
+
+//+
+// (2) Revised (spline/linear) 
+//-
+Vector<Double> PointingDirectionCalculator::doGetDirectionRev(uInt irow) {
+    debuglog << "doGetDirection(" << irow << ")" << debugpost;
+    Double currentTime =
+            timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
+    resetTime(currentTime);
+
+    // search and interpolate if necessary
+    Bool exactMatch;
+    uInt const nrowPointing = pointingTimeUTC_.nelements();
+    // pointingTableIndexCache_ is not so effective in terms of performance
+    // simple binary search may be enough,
+    Int index = binarySearch(exactMatch, pointingTimeUTC_, currentTime,
+            nrowPointing, 0);
+    debuglog << "binarySearch result " << index << debugpost;
+    debuglog << "Time " << setprecision(16) << currentTime << " idx=" << index
+            << debugpost;
+    MDirection direction;
+    assert(accessor_ != NULL);
+    if (exactMatch) {
+        debuglog << "exact match" << debugpost;
+        direction = accessor_(*pointingColumns_, index);
+    } else if (index <= 0) {
+        debuglog << "take 0th row" << debugpost;
+        direction = accessor_(*pointingColumns_, 0);
+    } else if (index > (Int) (nrowPointing - 1)) {
+        debuglog << "take final row" << debugpost;
+        direction = accessor_(*pointingColumns_, nrowPointing - 1);
+    } else {
         debuglog << "linear interpolation " << debugpost;
         // Sampling rate of pointing > data dump rate (fast scan)
         // linear interpolation
@@ -827,7 +915,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionOld(uInt irow) {
           Vector<Double> scanRate;
           Vector<Double> interpolated(2);
 
-        if(fgSpline) // New CAS-8418 //
+        if(fgSplineInterpolation) // New CAS-8418 //
         { 
             //+
             // NEW Spline Interpolation
@@ -1136,7 +1224,6 @@ void PointingDirectionCalculator::resetAntennaPosition(Int const antennaId) {
                 << setprecision(16) << antennaPosition_.get("m").getValue() << debugpost;
         referenceFrame_.resetPosition(antennaPosition_);
 
-        printf("initPointingTalbe(id=%d) calls. \n",antennaId);
         initPointingTable(antennaId);
 
         lastAntennaIndex_ = antennaId;

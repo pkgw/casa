@@ -259,7 +259,8 @@ public:
 
     // set Spline mode 
 
-    void setSplineInterpolation(bool mode) {fgSpline = mode;};
+    void setSplineInterpolation(bool mode) {fgOldInterpolation = false; fgSplineInterpolation = mode;};
+    void setOldInterpolation(bool mode)    {fgOldInterpolation = mode;};
 
 private:
 
@@ -320,14 +321,15 @@ private:
 
       // Altering Old and New function //
 
-        casacore::Vector<casacore::Double> doGetDirectionOld(casacore::uInt irow); // Lenear only //
-        casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // Spline only //
+        casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Original:Lenear only 
+        casacore::Vector<casacore::Double> doGetDirectionRev(casacore::uInt irow); // Revised (Lenear/Spline) 
+        casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New (Spline only)
 
       // Sorted Pointing Table (new 28-DEC-2018)
 
         casacore::MSPointing 	hPointing_;
 
-      // Copied AntennaBoundary (new since 12/14 to support multiple Antenna set.) 
+      //  AntennaBoundary on Pointing Tablle (new since 12/14 to support multiple Antenna set.) 
 
         casacore::Vector<casacore::uInt>            allAntennaBoundary_;
         casacore::uInt                              allNumAntennaBoundary_;
@@ -336,12 +338,16 @@ private:
 
         bool doneAntenaBoundaryCreate;
 
-      // Spline control
+      // Interpolation Mode  control
+      
+        bool fgOldInterpolation    = false;      // Use Old Function itf TRUE
+        bool fgSplineInterpolation = true;       // Use Spline if TRUE
 
-        bool fgSpline = false; // DEFAULT ..
+      // SDP object 
+
         SDPosInterpolator  sdp_();
 
-      // Spline Functions
+      // Internal Spline Functions
 
         void                                 splineInit    ();   
 
@@ -350,6 +356,16 @@ private:
                                                             casacore::uInt AntennaID =0);
 
         casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > splineCoeff_;
+
+};
+
+//+
+// Antenna Boundary Service
+//-
+class AntennaBoundary{
+public:
+
+private:
 
 };
 

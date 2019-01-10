@@ -197,7 +197,7 @@ size_t getMSCountFromList()
 //-
 
 bool use_spline = false;
-
+bool use_old    = false;
 
 //******************************************************
 //  Log Title Output Functions for readable text 
@@ -2499,7 +2499,9 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
     //  InterPolation mode (Foece Unuse)
     //-
  
+        calc.setOldInterpolation(use_old);
         calc.setSplineInterpolation(use_spline);
+
 
     //+
     //  getDirection()
@@ -2663,6 +2665,7 @@ TEST_F(TestDirection, InterpolationFull )
   for(uInt s=0; s<InterpolationMode.size(); s++)
   {
     use_spline = InterpolationMode[s];
+    use_old    = ! use_spline;
 
    // Error Limit 
     msedit.evgen.    setInterpolationErrorLimit( 1e-04 );
@@ -2731,7 +2734,8 @@ TEST_F(TestDirection, InterpolationSingle )
     //    - define test count. some rows are automatically added
     //-
 
-      use_spline = true;
+      use_old    = true;
+      use_spline = false;
 
       msedit.evgen.    setCurveFunctionNo(5);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
@@ -2784,10 +2788,10 @@ TEST_F(TestDirection, CompareInterpolation )
     // Use DefaultMS as a simple sequence.
     // Use the below to show uv valuses from MS.
 
-    std::vector<String> MsList = {"sdimaging/sdimaging.ms"
-                          , "sdimaging/Uranus1.cal.Ant0.spw34.ms"
-                          , "sdimaging/Uranus2.cal.Ant0.spw34.ms"
-                          , "listobs/uid___X02_X3d737_X1_01_small.ms" };
+    std::vector<String> MsList = {
+      "sdimaging/Uranus1.cal.Ant0.spw34.ms",
+      "sdimaging/Uranus2.cal.Ant0.spw34.ms"
+    };
 
     for(uInt fno=0; fno<MsList.size(); fno++)
     {
@@ -2833,6 +2837,7 @@ TEST_F(TestDirection, CompareInterpolation )
      
             // Set Interporation Mode //
          
+            calc.setOldInterpolation(true);
             calc.setSplineInterpolation(false);
         
             //+
@@ -2878,9 +2883,9 @@ TEST_F(TestDirection, CompareInterpolation )
             Double er2 = DirList2(row,1) - DirList1(row,1);
 
             printf("row[%4d] ", row );
-            printf("Dir1=, %f,%f  ,", DirList1(row,0),DirList1(row,1) ); 
-            printf("Dir2=, %f,%f  ,", DirList2(row,0),DirList2(row,1) );
-            printf("Err =, %f,%f \n", er1, er2 );
+            printf("Dir1=, %e,%e  ,", DirList1(row,0),DirList1(row,1) ); 
+            printf("Dir2=, %e,%e  ,", DirList2(row,0),DirList2(row,1) );
+            printf("Err =, %e,%e \n", er1, er2 );
         }
     }
 }
