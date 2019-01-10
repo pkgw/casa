@@ -186,7 +186,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Vector<casacore::Int> fieldIds_p;
     casacore::TempImage<casacore::Complex> griddedWeights, griddedConjWeights;
     CFStore rotatedCFWts_p;
-    casacore::Float pbNorm;
     casacore::CountedPtr<VisibilityResamplerBase> visResamplerWt_p;
     // //
     // // These ugly methods (ugly due to their flirtation with FORTRAN) should go!

@@ -1468,7 +1468,7 @@ void
 print_gsl_vector(gsl_vector *v)
 {
     const size_t n = v->size;
-    for (int i=0; i!=n; i++) {
+    for (size_t i=0; i!=n; i++) {
         cerr << gsl_vector_get(v, i) << " ";
         if (i>0 && (i % 4)==0) cerr << endl;
     }
@@ -1483,7 +1483,7 @@ print_max_gsl3(gsl_vector *v)
     double rat_max = 0.0;
         
     const size_t n = v->size;
-    for (int i=0; i!=n/3; i++) {
+    for (size_t i=0; i!=n/3; i++) {
         if (fabs(gsl_vector_get(v, 3*i+0)) > fabs(phi_max)) phi_max = gsl_vector_get(v, 3*i+0);
         if (fabs(gsl_vector_get(v, 3*i+1)) > fabs(del_max)) del_max = gsl_vector_get(v, 3*i+1);
         if (fabs(gsl_vector_get(v, 3*i+2)) > fabs(rat_max)) rat_max = gsl_vector_get(v, 3*i+2);
@@ -1613,9 +1613,12 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         // Parameters for the least-squares solver.
         // param_tol sets roughly the number of decimal places accuracy you want in the answer;
         // I feel that 3 is probably plenty for fringe fitting.
-        const double param_tol = 1.0e-3;
-        const double gtol = pow(GSL_DBL_EPSILON, 1.0/3.0);
-        const double ftol = 1.0e-20;   
+        // param_tol is not used
+        //const double param_tol = 1.0e-3;
+        // gtol is not used
+        // const double gtol = pow(GSL_DBL_EPSILON, 1.0/3.0);
+        // ftol is not used
+        // const double ftol = 1.0e-20;   
         const size_t max_iter = 100;
 
         const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
@@ -1666,8 +1669,10 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         double chi1 = gsl_blas_dnrm2(res_f);
         
         gsl_vector_sub(gp_orig, w->x);
-        gsl_vector *diff = gp_orig;
-        double diffsize = gsl_blas_dnrm2(diff);
+        // diff is not used
+        //gsl_vector *diff = gp_orig;
+        // diffsize is not used
+        //double diffsize = gsl_blas_dnrm2(diff);
     
         gsl_vector *res = gsl_multilarge_nlinear_position(w);
         
