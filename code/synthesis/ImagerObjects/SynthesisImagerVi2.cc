@@ -1099,6 +1099,9 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 
 	 SynthesisUtilMethods::getResource("Start Major Cycle for mapper"+String::toString(gmap));
 	 CountedPtr<vi::FrequencySelections> copyFsels=fselections_p->clone();
+	 ///CAS-12132  create a new visiter for each chunk
+	 createVisSet(writeAccess_p);
+	 ////////////////////////
 	 vi::VisBuffer2* vb=vi_p->getVisBuffer();
 	 /// Careful where tunechunk 
 	 tuneChunk(gmap);
@@ -1182,7 +1185,10 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 	SynthesisUtilMethods::getResource("End Major Cycle for mapper"+String::toString(gmap));
 	fselections_p=copyFsels;
        }// end of mapper loop
-    vi_p->setFrequencySelection(*fselections_p);
+    ///CAS-12132  create a new visiter for each chunk
+    createVisSet(writeAccess_p);
+    ////////////////////////
+    //////vi_p->setFrequencySelection(*fselections_p);
 
     itsMappers.checkOverlappingModels("restore");
 
