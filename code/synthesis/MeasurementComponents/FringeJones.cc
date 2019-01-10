@@ -65,8 +65,6 @@
 #include <gsl/gsl_spblas.h>
 #include <gsl/gsl_multilarge_nlinear.h>
 #include <gsl/gsl_linalg.h>
-#include <gsl/gsl_multifit_nlin.h>
-
 #include <iomanip>                // needed for setprecision
 
 // DEVDEBUG gates the development debugging information to standard
@@ -690,17 +688,15 @@ private:
     std::map< Int, std::set< Int > > activeAntennas;
     std::map< Int, Int > antennaIndexMap;
     Int activeCorr;
-    Int weightfactor;
 public:
-    AuxParamBundle(SDBList& sdbs_, size_t refant, const std::map< Int, std::set<Int> >& activeAntennas_, Int weightfactor_) :
+    AuxParamBundle(SDBList& sdbs_, size_t refant, const std::map< Int, std::set<Int> >& activeAntennas_) :
         sdbs(sdbs_),
         nCalls(0),
         refant(refant),
         nCorrelations(sdbs.nCorrelations() > 1 ? 2 : 1),
         corrStep(sdbs.nCorrelations() > 2 ? 3 : 1),
         activeAntennas(activeAntennas_),
-        activeCorr(-1),
-        weightfactor(weightfactor_)
+        activeCorr(-1)
         // corrStep(3)
         {
             Int last_index = sdbs.nSDB() - 1 ;
@@ -712,20 +708,6 @@ public:
 
     Double get_t0() {
         return t0;
-    }
-    Double
-    get_weightExponent() {
-        Double weightExponent;
-        if (weightfactor == 0) {
-            weightExponent = 0;
-        } else if (weightfactor == 1) {
-            weightExponent = 0.25;
-        } else if (weightfactor == 2) {
-            weightExponent = 0.5;
-        } else {
-            throw(AipsError("Invalid weightfactor - must be 0, 1 or 2."));
-        }
-        return weightExponent;
     }
     Double
     get_ref_time() {
@@ -826,8 +808,7 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
     AuxParamBundle *bundle = (AuxParamBundle *)d;
     SDBList& sdbs = bundle->sdbs;
     Double refTime = bundle->get_t0();
-    Double weightExponent = bundle->get_weightExponent();
-    
+
     gsl_vector_set_zero(f);
     //    Vector<Double> freqs = sdbs.freqs();
 
@@ -894,7 +875,15 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
                 if (fl(dcorr, ichan, irow)) continue;
                 Complex vis = v(dcorr, ichan, irow);
                 Double w0 = weights(dcorr, ichan, irow);
-                Double w = pow(w0, weightExponent);
+                // FIXME: what should we use to scale the weights?
+                // Double weightScale = norm(vis);
+                // Double weightScale = abs(vis);
+                // Double weightScale = 1;
+                // Double weightScale = 1/sqrt(w0); // Actually AIPS 0, not AIPS 1!
+                // Double weightScale = pow(w0, -0.75); // AIPS 2
+                //  Double weightScale = 1/w0; // AIPS 3
+                // Double weightScale = norm(vis); // Casa 1, I guess
+                Double w = sqrt(w0);
                 sumwt += w*w;
                 if (fabs(w) < FLT_EPSILON) continue;
                 // We have to turn the delay back into seconds from nanoseconds.
@@ -940,8 +929,6 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
     AuxParamBundle *bundle = (AuxParamBundle *)bundle_;
 
     SDBList& sdbs = bundle->sdbs;
-    Double weightExponent = bundle->get_weightExponent();
-    
     //Vector<Double> freqs = sdbs.freqs();
 
     const Double reffreq0=sdbs(0).freqs()(0);  // First freq in first SDB
@@ -1022,7 +1009,7 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
             for (size_t ichan = 0; ichan != vis.ncolumn(); ichan++) {
                 if (fl(dcorr, ichan, irow)) continue;
                 Double w0 = weights(dcorr, ichan, irow);
-                Double w = pow(w0, weightExponent);
+                Double w = sqrt(w0);
                 if (fabs(w) < FLT_EPSILON) continue;
                 found_data = true;
                 // Add a 1e-9 factor because tau parameter is in nanoseconds.
@@ -1189,7 +1176,7 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
             params.begin(),
             params.end(),
             std::ostream_iterator<Int>(std::cerr, " ")
-            );
+);
         cerr << endl;
         print_baselines(baselines);
         cerr << "count " << count << endl;
@@ -1445,63 +1432,6 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
     return 1;
 }
 
-
-Int
-findRefAntWithData(SDBList& sdbs, Vector<Int>& refAntList, Int prtlev) {
-    std::set<Int> activeAntennas;
-    for (Int ibuf=0; ibuf != sdbs.nSDB(); ibuf++) {
-        SolveDataBuffer& s(sdbs(ibuf));
-        if (!s.Ok())
-            continue;
-        Cube<Bool> fl = s.flagCube();
-        for (Int irow=0; irow!=s.nRows(); irow++) {
-            if (s.flagRow()(irow))
-                continue;
-            Int a1(s.antenna1()(irow));
-            Int a2(s.antenna2()(irow));
-            if (a1==a2) continue;
-            // Not using irow
-            Matrix<Bool> flr = fl.xyPlane(irow);
-            if (!allTrue(flr)) {
-                if (prtlev > 2) {
-                    if (activeAntennas.find(a1) == activeAntennas.end()) {
-                        cout << "Adding " << a1 << " with " << a2 << endl;
-                    } 
-                    if (activeAntennas.find(a2) == activeAntennas.end()) {
-                        cout << "Adding " << a2 << " with " << a1 << endl;
-                    }
-                }
-                activeAntennas.insert(a1);
-                activeAntennas.insert(a2);
-            }
-        }
-    }
-    if (prtlev > 2) {
-        cout << "[FringeJones.cc::findRefAntWithData] refantlist " << refAntList << endl;
-        cout << "[FringeJones.cc::findRefAntWithData] activeAntennas: ";
-        std::copy(
-            activeAntennas.begin(),
-            activeAntennas.end(),
-            std::ostream_iterator<Int>(std::cout, " ")
-            );
-        cout << endl;
-    }
-    Int refAnt = -1;
-    for (Vector<Int>::ConstIteratorSTL a = refAntList.begin(); a != refAntList.end(); a++) {
-        if (activeAntennas.find(*a) != activeAntennas.end()) {
-            if (prtlev > 2)
-                cout << "[FringeJones.cc::findRefAntWithData] We are choosing refant " << *a << endl;
-            refAnt = *a;
-            break;
-        } else {
-            if (prtlev > 2)
-                cout << "[FringeJones.cc::findRefAntWithData] No data for refant " << *a << endl;
-        }
-    }
-    return refAnt;
-}
-
-
 // Stolen from SolveDataBuffer
 void
 aggregateTimeCentroid(SDBList& sdbs, Int refAnt, std::map<Int, Double>& aggregateTime) {
@@ -1654,14 +1584,13 @@ least_squares_inner_driver (const size_t maxiter,
 
 
 void
-least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& casa_flags, Matrix<Float>& casa_snr, Int refant,
-                     const std::map< Int, std::set<Int> >& activeAntennas, Int weightFactor, Int maxits, LogIO& logSink) {
+least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& casa_flags, Matrix<Float>& casa_snr,
+                     Int refant, const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
     // The variable casa_param is the Casa calibration framework's RParam matrix; we transcribe our results into it only at the end.
     // n below is number of variables,
     // p is number of parameters
 
-    AuxParamBundle bundle(sdbs, refant, activeAntennas, weightFactor);
-    
+    AuxParamBundle bundle(sdbs, refant, activeAntennas);
     for (size_t icor=0; icor != bundle.get_num_corrs(); icor++) {
         bundle.set_active_corr(icor);
         if (bundle.get_num_antennas() == 0) {
@@ -1681,7 +1610,17 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         if (DEVDEBUG) {
             cerr << "p " << p << " n " << n << endl;
         }
-        const size_t max_iter = maxits;
+        // Parameters for the least-squares solver.
+        // param_tol sets roughly the number of decimal places accuracy you want in the answer;
+        // I feel that 3 is probably plenty for fringe fitting.
+        // param_tol is not used
+        //const double param_tol = 1.0e-3;
+        // gtol is not used
+        // const double gtol = pow(GSL_DBL_EPSILON, 1.0/3.0);
+        // ftol is not used
+        // const double ftol = 1.0e-20;   
+        const size_t max_iter = 100;
+
         const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
         gsl_multilarge_nlinear_parameters params = gsl_multilarge_nlinear_default_parameters();
         params.scale = gsl_multilarge_nlinear_scale_more;
@@ -1793,8 +1732,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
                 casa_param(3*icor + 0, iant) = gsl_vector_get(res, iparam+0);
                 casa_param(3*icor + 1, iant) = gsl_vector_get(res, iparam+1);
                 casa_param(3*icor + 2, iant) = gsl_vector_get(res, iparam+2);
-                // Shhh! We leave the first SNR as the FFT one.
-                for (size_t i=1; i!=3; i++) {
+                for (size_t i=0; i!=3; i++) {
                     casa_snr(3*icor + i, iant) = gsl_vector_get(snr_vector, iparam+0);
                 }
             } else { // gsl solver failed; flag data
@@ -1829,8 +1767,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
     }    
 }
 
-
-
+    
 
 
 // **********************************************************
@@ -2079,18 +2016,15 @@ void FringeJones::setCallib(const Record& callib,
 void FringeJones::setSolve(const Record& solve) {
 
     // Call parent to do conventional things
-    if (prtlev() > 2) {
-        cout << "Before GJones::setSolve" << endl
-             << "FringeJones::setSolve()" <<endl
-             << "FringeJones::refant() = "<< refant() <<endl
-             << "FringeJones::refantlist() = "<< refantlist() <<endl;
-    }
     GJones::setSolve(solve);
 
     // if (!ct_)
     //    throw(AipsError("No calibration table specified"));
     // cerr << "setSolve here, ct_: "<< ct_ << endl;
 
+   // Trap unspecified refant:
+    if (refant()<0)
+        throw(AipsError("Please specify a good reference antenna (refant) explicitly."));
     if (solve.isDefined("zerorates")) {
         zeroRates() = solve.asBool("zerorates");
     }
@@ -2107,12 +2041,6 @@ void FringeJones::setSolve(const Record& solve) {
         rateWindow() = solve.asArrayDouble("ratewindow");
     } else {
         cerr << "No rate window!" << endl;
-    }
-    if (solve.isDefined("weightfactor")) {
-        weightFactor() = solve.asInt("weightfactor");
-    }
-    if (solve.isDefined("maxits")) {
-        maxits() = solve.asInt("maxits");
     }
 }
 
@@ -2202,6 +2130,10 @@ FringeJones::calculateSNR(Int nCorr, DelayRateFFT drf) {
                 sSNR(3*icor + 0, iant) = snrval;
                 sSNR(3*icor + 1, iant) = snrval;
                 sSNR(3*icor + 2, iant) = snrval;
+            } else {
+                sPok(3*icor + 0, iant) = false;
+                sPok(3*icor + 1, iant) = false;
+                sPok(3*icor + 2, iant) = false;
             }
         }
     }
@@ -2214,7 +2146,7 @@ FringeJones::calculateSNR(Int nCorr, DelayRateFFT drf) {
 void
 FringeJones::selfSolveOne(SDBList& sdbs) {
     solveRPar()=0.0;
-    solveParOK()=true; // We should do nothing by default, not flag.
+    solveParOK()=false; 
     solveParErr()=1.0; // Does nothing?
     // Maybe we put refFreq, refTime stuff in here?
     Vector<Double> myRefFreqs;
@@ -2235,14 +2167,6 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
               << MVTime(refTime()/C::day).string(MVTime::YMD,7)  << LogIO::POST;
 
     std::map<Int, Double> aggregateTime;
-    // Set the refant to the first choice that has data!
-    refant() = findRefAntWithData(sdbs, refantlist(), prtlev());
-       // Trap unspecified refant:
-    if (refant()<0)
-        throw(AipsError("Please specify a good reference antenna (refant) explicitly."));
-    else
-        logSink() << "Using reference antenna " << refant() << LogIO::POST;
-
     aggregateTimeCentroid(sdbs, refant(), aggregateTime);
 
     if (DEVDEBUG) {
@@ -2314,7 +2238,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         // FringeJones so we pass everything in, including the logSink
         // reference.  Note also that sRP is passed by reference and
         // altered in place.
-        least_squares_driver(sdbs, sRP, sPok, sSNR, refant(), drf.getActiveAntennas(), weightFactor(), maxits(), logSink());
+        least_squares_driver(sdbs, sRP, sPok, sSNR, refant(), drf.getActiveAntennas(), logSink());
     }
     else {
         logSink() << "Skipping least squares optimisation." << LogIO::POST;

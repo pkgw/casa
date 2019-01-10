@@ -246,21 +246,14 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
     FJapp.setApplyParCurrSpw(fpar,true,false);  // don't invert
   }
   FringeJones FJsol(VisCalTestBase::msmc);
-  FJsol.setPrtlev(7);
+  // FJsol.setPrtlev(7);
   Record solvePar;
   solvePar.define("table",String("test.Fringe"));  // not used
   solvePar.define("solint",String("inf"));
   solvePar.define("combine",String(""));
-  Array<Int> refant(IPosition(1,3));
-  refant(IPosition(1, 0)) = 12;
-  refant(IPosition(1, 1)) = 0;
-  refant(IPosition(1, 2)) = 1;
-  cerr << "Refant " << refant << endl;
-  solvePar.define("refant",refant);
   solvePar.define("globalsolve", true);
-  solvePar.define("weightfactor", 2);
-  solvePar.define("maxits", 100);
   solvePar.define("zerorates", true);
+  Vector<Int> refant(1,0); solvePar.define("refant",refant);
   Array<Double> delayWindow(IPosition(1, 2));
   Array<Double> rateWindow(IPosition(1, 2));
   delayWindow(IPosition(1, 0)) = -100.0;
@@ -271,7 +264,6 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   solvePar.define("ratewindow", rateWindow);
 
   FJsol.setSolve(solvePar);
-
 
   SDBList sdbs;
   Double reftime;
@@ -307,8 +299,6 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
     }
   }
 
-
-  
   // Setup meta & sizes for the solve
   FJsol.setMeta(sdbs.aggregateObsId(),
 		sdbs.aggregateScan(),
@@ -338,7 +328,6 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   ASSERT_TRUE(allNearAbs(p(2, 1), rate1, 1e-5));
   ASSERT_TRUE(allNearAbs(p(5, 1), rate2, 1e-5));
 
-  ASSERT_TRUE(FJsol.refant()==0);
   // cerr << "Parameters out: " << p << endl;
   
 }
