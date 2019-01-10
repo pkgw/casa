@@ -197,7 +197,6 @@ size_t getMSCountFromList()
 //-
 
 bool use_spline = false;
-bool use_old    = false;
 
 //******************************************************
 //  Log Title Output Functions for readable text 
@@ -2499,9 +2498,7 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
     //  InterPolation mode (Foece Unuse)
     //-
  
-        calc.setOldInterpolation(use_old);
         calc.setSplineInterpolation(use_spline);
-
 
     //+
     //  getDirection()
@@ -2665,7 +2662,6 @@ TEST_F(TestDirection, InterpolationFull )
   for(uInt s=0; s<InterpolationMode.size(); s++)
   {
     use_spline = InterpolationMode[s];
-    use_old    = ! use_spline;
 
    // Error Limit 
     msedit.evgen.    setInterpolationErrorLimit( 1e-04 );
@@ -2734,10 +2730,9 @@ TEST_F(TestDirection, InterpolationSingle )
     //    - define test count. some rows are automatically added
     //-
 
-      use_old    = true;
       use_spline = false;
 
-      msedit.evgen.    setCurveFunctionNo(5);   // set Curve Fuction
+      msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
       msedit.evgen.      Initialize( 2.99827,     // Pointing Interval
                                      2.99827 ) ;  // Main Interval
@@ -2837,7 +2832,6 @@ TEST_F(TestDirection, CompareInterpolation )
      
             // Set Interporation Mode //
          
-            calc.setOldInterpolation(true);
             calc.setSplineInterpolation(false);
         
             //+

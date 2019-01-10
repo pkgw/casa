@@ -167,7 +167,7 @@ PointingDirectionCalculator::PointingDirectionCalculator(
 // CAS-8418: In ideal, Just here, Creating Interpolation should be performed
 //   Making Table MUST BE done only ONE-TIME. 
 //-
-    initializeSplineInterpolation();
+    initializeSplineInterpolation(ms);
 
     init();
 
@@ -370,6 +370,70 @@ void PointingDirectionCalculator::unsetMovingSource() {
   }
 }
 
+
+//+
+//  CAS-8418
+//  AntennaBoundary sub class
+//-
+
+AntennaBoundary::AntennaBoundary(casacore::MeasurementSet &ms) 
+{
+
+        // (1) Do the same, but see PointingTable.antenna 
+
+        antennaBoundary_.resize(ms.antenna().nrow() + 1);
+        antennaBoundary_ = -1;
+
+        Int count = 0;
+        antennaBoundary_[count] = 0;
+        ++count;
+
+        // Pointing Table Handle and the Columns Handle//
+        //   with sorting by AntennaID and Time 
+
+        MSPointing hPointing_org  = ms.pointing();
+
+        Block<String> sortColumns(2);
+        sortColumns[0]="ANTENNA_ID";
+        sortColumns[1]="TIME";
+
+        MSPointing hPointingTmp(hPointing_org.sort(sortColumns));
+        casacore::MSPointing    hPointing = hPointingTmp;
+
+        // Column Handle (sorted) 
+
+        std::unique_ptr<casacore::ROMSPointingColumns>
+                columnPointing( new casacore::ROMSPointingColumns( hPointing ));
+
+        // Antenna List 
+
+        ROScalarColumn<casacore::Int>  antennaColumn = columnPointing->antennaId();
+        Vector<Int> antennaList =  antennaColumn.getColumn();
+
+        uInt nrow = antennaList.nelements();
+        Int lastAnt = antennaList[0];
+
+        for (uInt i = 0; i < nrow; ++i) 
+        {    
+            if (antennaList[i] > lastAnt) 
+            {    
+                antennaBoundary_[count] = i; 
+                count++;
+                lastAnt = antennaList[i];
+            }    
+            else if (antennaList[i] < lastAnt )
+            {    
+                printf( "xx FAITAL ERROR : Bad Sort in MS. xxxxxx \n" );
+                throw; // ABORT and Ignore //
+            }    
+        }    
+
+        antennaBoundary_[count] = nrow;
+        ++count;
+        numAntennaBoundary_ = count;
+}
+
+
 //+
 // NEW for SPLINE Interpolation
 //-
@@ -494,18 +558,18 @@ void PointingDirectionCalculator::splineInit()
     }
  
 }
-
 //+
 //  Coefficient Build API ( related with CAS-8418)
 //  RESERVED
 //- 
 
-void  PointingDirectionCalculator::initializeSplineInterpolation()
+void  PointingDirectionCalculator::initializeSplineInterpolation(MeasurementSet const &ms)
 {
 //   printf("iniializeSplineInterpolation() called. \n");
 
     if(true)  // ALWAYS TRUE, if false -> spline coeff is NOT READY./
     {
+#if 1
         //+
         // CAS-8418 (19-DEC-2018) 
         //     AntennaBounday for  Interporation was transferd from inspectAntenna() 
@@ -584,8 +648,7 @@ void  PointingDirectionCalculator::initializeSplineInterpolation()
         allAntennaBoundary_[countP] = nrowP;
         ++countP;
         allNumAntennaBoundary_ = countP;
-
-
+ 
         // Show Boundary List .. //
         if(false)
         {
@@ -595,11 +658,10 @@ void  PointingDirectionCalculator::initializeSplineInterpolation()
                 printf( "Created antennaBoundary_[%d] = %d \n", b, allAntennaBoundary_[b] );
             }   
         }
+#else
 
-        // update flag //
-        doneAntenaBoundaryCreate = true;
-//      printf( "inspectantenna():: END making AtennaBoundary and splineInit() ... \n");
 
+#endif 
         //+
         // Spline Make Table 
         //  - Only once !
@@ -726,13 +788,10 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
 // (0)WRAPPER //
 Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow)
 {
-    if (fgOldInterpolation)
-        return (doGetDirectionOrg(irow));  
-
     if (fgSplineInterpolation)
         return (doGetDirectionNew(irow));
     else
-        return (doGetDirectionRev(irow));
+        return (doGetDirectionOrg(irow));
 } 
 //+
 // (1)ORIGINAL //
@@ -854,129 +913,9 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionOrg(uInt irow) {
 //+
 // (2) Revised (spline/linear) 
 //-
-Vector<Double> PointingDirectionCalculator::doGetDirectionRev(uInt irow) {
-    debuglog << "doGetDirection(" << irow << ")" << debugpost;
-    Double currentTime =
-            timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
-    resetTime(currentTime);
 
-    // search and interpolate if necessary
-    Bool exactMatch;
-    uInt const nrowPointing = pointingTimeUTC_.nelements();
-    // pointingTableIndexCache_ is not so effective in terms of performance
-    // simple binary search may be enough,
-    Int index = binarySearch(exactMatch, pointingTimeUTC_, currentTime,
-            nrowPointing, 0);
-    debuglog << "binarySearch result " << index << debugpost;
-    debuglog << "Time " << setprecision(16) << currentTime << " idx=" << index
-            << debugpost;
-    MDirection direction;
-    assert(accessor_ != NULL);
-    if (exactMatch) {
-        debuglog << "exact match" << debugpost;
-        direction = accessor_(*pointingColumns_, index);
-    } else if (index <= 0) {
-        debuglog << "take 0th row" << debugpost;
-        direction = accessor_(*pointingColumns_, 0);
-    } else if (index > (Int) (nrowPointing - 1)) {
-        debuglog << "take final row" << debugpost;
-        direction = accessor_(*pointingColumns_, nrowPointing - 1);
-    } else {
-        debuglog << "linear interpolation " << debugpost;
-        // Sampling rate of pointing > data dump rate (fast scan)
-        // linear interpolation
-        Double t0 = pointingTimeUTC_[index - 1];
-        Double t1 = pointingTimeUTC_[index];
-        Double dt = t1 - t0;
-        debuglog << "Interpolate between " << setprecision(16) << index - 1
-                << " (" << t0 << ") and " << index << " (" << t1 << ")"
-                << debugpost;
-        MDirection dir1 = accessor_(*pointingColumns_, index - 1);
-        MDirection dir2 = accessor_(*pointingColumns_, index);
-        String dirRef1 = dir1.getRefString();
-        String dirRef2 = dir2.getRefString();
-        MDirection::Types refType1, refType2;
-        MDirection::getType(refType1, dirRef1);
-        MDirection::getType(refType2, dirRef2);
-        debuglog << "dirRef1 = " << dirRef1 << " ("
-                << MDirection::showType(refType1) << ")" << debugpost;
-        if (dirRef1 != dirRef2) {
-            MeasFrame referenceFrameLocal((pointingColumns_->timeMeas())(index),
-                    *(referenceFrame_.position()));
-            dir2 = MDirection::Convert(dir2,
-                    MDirection::Ref(refType1, referenceFrameLocal))();
-        }
+   /* removed */
 
-        // Get Original Direction //
-        Vector<Double> dirVal1 = dir1.getAngle("rad").getValue();
-        Vector<Double> dirVal2 = dir2.getAngle("rad").getValue();
-
-        // SPLINE:: Preserve original calculation //
-          Vector<Double> scanRate;
-          Vector<Double> interpolated(2);
-
-        if(fgSplineInterpolation) // New CAS-8418 //
-        { 
-            //+
-            // NEW Spline Interpolation
-            //   using original var. see above for t0,t1,dt and nrowPointing.
-            //-
-
-            uInt antID = 0; // TENTATIVE //
-            Double dtime =  (currentTime - t0) ;
-
-            // determin section 
-            //  please refer  exact retuen specification of binarySearch() 
-            
-            uInt uIndex;
-            if( index >=1 )  uIndex = index-1;
-            else if (index > (Int)(nrowPointing-1) )   uIndex = nrowPointing-1;
-            else { printf( "BUGCHECK\n");  throw; } 
-
-            Vector<Double> ttDir = splineCalulate(uIndex, dtime, antID );
-
-            interpolated[0] = ttDir[0]; // 3rd. order Spline
-            interpolated[1] = ttDir[1];
-
-            if(false) {
-                printf( "Nishie:: index=%d,  dtime=%f,", index, dtime );
-                printf ("Dir=, %f, %f \n", ttDir[0],ttDir[1]);
-            }
-        }
-        else // Original //
-        {
-            //+
-            // Original Linear Interpolation
-            //-
-
-              scanRate = dirVal2 - dirVal1;
-              interpolated = dirVal1 + scanRate * (currentTime - t0) / dt;
-        }
-
-        // Convert the interpolated diretion from MDirection to Vector //
-          direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
-        
-    }
-    debuglog << "direction = "
-            << direction.getAngle("rad").getValue() << " (unit rad reference frame "
-            << direction.getRefString()
-            << ")" << debugpost;
-    Vector<Double> outVal(2);
-    if (direction.getRefString() == MDirection::showType(directionType_)) {
-        outVal = direction.getAngle("rad").getValue();
-    } else {
-        MDirection converted = (*directionConvert_)(direction);
-        outVal = converted.getAngle("rad").getValue();
-        debuglog << "converted = " << outVal << "(unit rad reference frame "
-                << converted.getRefString() << ")" << debugpost;
-    }
-
-    // moving source correction
-    assert(movingSourceCorrection_ != NULL);
-    movingSourceCorrection_(movingSourceConvert_, directionConvert_, outVal);
-
-    return outVal;
-}
 //-------------------------------
 // (3) New Edition (Spline ONLY)
 // ------------------------------

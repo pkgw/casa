@@ -253,14 +253,14 @@ public:
     // exception will be thrown.
     //-
 
-    void           initializeSplineInterpolation();
-
     casacore::uInt getRowId(casacore::uInt irow);
 
-    // set Spline mode 
+    //+
+    // CAS-8418  Spline mode 
+    //-
+    void initializeSplineInterpolation(casacore::MeasurementSet const &ms);
 
-    void setSplineInterpolation(bool mode) {fgOldInterpolation = false; fgSplineInterpolation = mode;};
-    void setOldInterpolation(bool mode)    {fgOldInterpolation = mode;};
+    void setSplineInterpolation(bool mode) {fgSplineInterpolation = mode;};
 
 private:
 
@@ -322,7 +322,6 @@ private:
       // Altering Old and New function //
 
         casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Original:Lenear only 
-        casacore::Vector<casacore::Double> doGetDirectionRev(casacore::uInt irow); // Revised (Lenear/Spline) 
         casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New (Spline only)
 
       // Sorted Pointing Table (new 28-DEC-2018)
@@ -340,8 +339,7 @@ private:
 
       // Interpolation Mode  control
       
-        bool fgOldInterpolation    = false;      // Use Old Function itf TRUE
-        bool fgSplineInterpolation = true;       // Use Spline if TRUE
+        bool fgSplineInterpolation = false;       // Use Spline if TRUE
 
       // SDP object 
 
@@ -364,8 +362,19 @@ private:
 //-
 class AntennaBoundary{
 public:
+        AntennaBoundary(casacore::MeasurementSet &ms) ;
+        ~AntennaBoundary() { };
+
+        void showList();
+
+        casacore::uInt  numAntenna();
+        casacore::uInt  getAntennaBoundary( casacore::uInt n ){return antennaBoundary_[n];}
+        casacore::uInt  getNumAntennaBoundary( ){return numAntennaBoundary_;}
 
 private:
+       //  AntennaBoundary on Pointing Tablle 
+       casacore::Vector<casacore::uInt>            antennaBoundary_;
+       casacore::uInt                              numAntennaBoundary_;
 
 };
 
