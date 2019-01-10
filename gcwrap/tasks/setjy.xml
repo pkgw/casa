@@ -248,7 +248,7 @@
                   </equals>
                   <equals type="string" value="Butler-JPL-Horizons 2010"/>
                   <equals type="string" value="manual">
-                      <default param="fluxdensity"><value type="vector">
+                      <default param="fluxdensity"><value type="intArray">
                            <value>1</value><value>0</value><value>0</value><value>0</value>
                            </value></default>
                       <default param="spix"><value type="doubleArray"></value></default>
