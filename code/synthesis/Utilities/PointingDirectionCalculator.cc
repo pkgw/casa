@@ -507,10 +507,10 @@ void PointingDirectionCalculator::splineInit()
 
     for(uInt ant=0; ant <numAnt; ant++)
     {
-        if(tmp_time[ant].size() <= 4) return;
-        if(tmp_dir [ant].size() <= 4) return;
+        if(tmp_time[ant].size() <= 4){ printf("## Insufficient Row.  ##\n");return;}
+        if(tmp_dir [ant].size() <= 4){ printf("## Insufficient Row.  ##\n");return;}
     }
-    
+ 
     //+
     // SDPosInterpolator Objct 
     //   - calulate Coefficient Table - 
@@ -650,7 +650,7 @@ void  PointingDirectionCalculator::initializeSplineInterpolation(MeasurementSet 
         allNumAntennaBoundary_ = countP;
  
         // Show Boundary List .. //
-        if(false)
+        if(true)
         {
             printf( "Created Antenna Boundary Info, allNumAntennaBoundary_  = %u \n", allNumAntennaBoundary_  );
             for (uInt b=0; b< allAntennaBoundary_.size(); b++)
