@@ -134,7 +134,7 @@ macro (configure_breakpad Breakpad_Root)
     endif ()
 
     if (APPLE)
-	    message ("Building on and Mac, not trying to copy the breakpad client")
+	    message ("Building on a Mac, not trying to copy the breakpad client")
 	    message ("Extracting full paths for Mac libraries")
 	    message ("Project binary directory: ${PROJECT_BINARY_DIR}")
         execute_process (COMMAND perl fixbreakpadframeworkrefs.pl ${PROJECT_BINARY_DIR}
