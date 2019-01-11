@@ -80,7 +80,7 @@ public:
     
     virtual ~ImageMetaDataBase() {}
 
-    casacore::CoordinateSystem coordsys(const vector<casacore::Int>& axes) const;
+    casacore::CoordinateSystem coordsys(const std::vector<casacore::Int>& axes) const;
 
     casacore::DataType dataType() const;
 
@@ -162,7 +162,7 @@ protected:
 
     virtual casacore::String _getImType() const = 0;
 
-    virtual vector<casacore::Quantity> _getIncrements() const = 0;
+    virtual std::vector<casacore::Quantity> _getIncrements() const = 0;
 
     virtual casacore::Vector<casacore::String> _getMasks() const = 0;
 

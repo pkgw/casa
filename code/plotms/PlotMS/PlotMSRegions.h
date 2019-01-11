@@ -127,7 +127,7 @@ public:
     // Adds the given regions for the given (x, y) axis pair.  Will not remove
     // any existing regions for that pair.  Only adds unique regions.
     // <group>
-    void addRegions(PMS::Axis x, PMS::Axis y, const vector<PlotMSRegion>& r) {
+    void addRegions(PMS::Axis x, PMS::Axis y, const std::vector<PlotMSRegion>& r) {
         addRegions(x, y, casacore::Vector<PlotMSRegion>(r)); }
     void addRegions(PMS::Axis x, PMS::Axis y, const casacore::Vector<PlotMSRegion>& r);
     // </group>
@@ -139,7 +139,7 @@ public:
     // Sets the regions for the given (x, y) axis pair to the given.  Removes
     // any existing regions for that pair.  Only adds unique regions.
     // <group>
-    void setRegions(PMS::Axis x, PMS::Axis y, const vector<PlotMSRegion>& r) {
+    void setRegions(PMS::Axis x, PMS::Axis y, const std::vector<PlotMSRegion>& r) {
         setRegions(x, y, casacore::Vector<PlotMSRegion>(r)); }
     void setRegions(PMS::Axis x, PMS::Axis y, const casacore::Vector<PlotMSRegion>& r);
     // </group>

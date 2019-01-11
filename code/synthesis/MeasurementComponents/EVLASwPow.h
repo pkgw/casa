@@ -115,7 +115,7 @@ private:
   // Digital factors for the EVLA
   casacore::Float correff_;      // net corr efficiency (lossy)
   casacore::Float frgrotscale_;  // fringe rotation scale (lossless)
-  casacore::Float nyquist_;      // 2*dt*dv
+  //casacore::Float nyquist_;      // 2*dt*dv
 
   // Effective per-chan BW, per spw for weight calculation
   casacore::Vector<casacore::Double> effChBW_;

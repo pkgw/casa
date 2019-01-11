@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -50,7 +50,7 @@
 	
 
 	
-#include "CCalibrationDevice.h"
+#include <alma/Enumerations/CCalibrationDevice.h>
 	
 
 	
@@ -63,18 +63,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 

@@ -58,7 +58,6 @@
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
 #include <synthesis/TransformMachines/Utils.h>
 
-#include <msvis/MSVis/SubMS.h>
 #include <mstransform/MSTransform/MSTransformRegridder.h>
 #include <msvis/MSVis/MSUtil.h>
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
@@ -411,7 +410,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	
 
 	MVTime mvInt=mainCols.intervalQuant()(0);
-	Time intT(mvInt.getTime());
+	//Time intT(mvInt.getTime());
 	//	Tint = intT.modifiedJulianDay();
 
 	Int partNo=0;
@@ -2253,9 +2252,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
     else 
       {
-        //SubMS thems(msobj);
-        //if(!thems.combineSpws(spwids,true,dataChanFreq,dataChanWidth))
-	
 	if(!MSTransformRegridder::combineSpwsCore(os,msobj, spwids,dataChanFreq,dataChanWidth,
 											  averageWhichChan,averageWhichSPW,averageChanFrac))
           {
@@ -2902,7 +2898,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       ostr << " phaseCenter='" << phaseCenter;
       os << String(ostr)<<"' ";
 
-      //Bool rst=SubMS::calcChanFreqs(os,
       Double dummy; // dummy variable  - weightScale is not used here
       Bool rst=MSTransformRegridder::calcChanFreqs(os,
                            chanFreq, 
@@ -3717,7 +3712,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      
 	      if( inrec.dataType("restoringbeam")==TpString )     
 		{
-		  err += readVal( inrec, String("restoringbeam"), usebeam); 
+		  err += readVal( inrec, String("restoringbeam"), usebeam);
+          // FIXME ! usebeam.length() == 0 is a poorly formed conditional, it
+          // probably needs simplification or parenthesis, the compiler is
+          // compaining about it
 		  if( (! usebeam.matches("common")) && ! usebeam.length()==0 )
 		    {
 		      Quantity bsize;

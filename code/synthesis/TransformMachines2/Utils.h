@@ -117,7 +117,7 @@ namespace casa
       casacore::Double nearestValue(const casacore::Vector<casacore::Double>& list, const casacore::Double& val, casacore::Int& index);
       
       template <class T>
-      T stdNearestValue(const vector<T>& list, const T& val, casacore::Int& index);
+      T stdNearestValue(const std::vector<T>& list, const T& val, casacore::Int& index);
       
       casacore::CoordinateSystem makeUVCoords(casacore::CoordinateSystem& imageCoordSys,
 				    casacore::IPosition& shape);

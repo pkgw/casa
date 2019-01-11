@@ -39,10 +39,10 @@ namespace casa {
 // separately, their intended use is for them to be used sequentially.
 // Parameters:
 // * NAME: name of the enum,
-// * ALLMETHOD: name of the method that returns a vector of all defined members
+// * ALLMETHOD: name of the method that returns a std::vector of all defined members
 //              of the enum (also nALLMETHOD which returns the number of
 //              defined members in the enum),
-// * ALLSTRMETHOD: name of the method that returns a vector of the string
+// * ALLSTRMETHOD: name of the method that returns a std::vector of the string
 //                 representation of all defined members of the enum,
 // * CONVMETHOD: name of the method that converts between the enum and its
 //               casacore::String representation,
@@ -56,12 +56,12 @@ namespace casa {
         __VA_ARGS__                                                           \
     };                                                                        \
                                                                               \
-    static const vector< NAME >& ALLMETHOD () {                               \
+    static const std::vector< NAME >& ALLMETHOD () {                               \
         static const NAME arr[] = {                                           \
             __VA_ARGS__                                                       \
         };                                                                    \
         static const int count = sizeof(arr) / sizeof(arr[0]);                \
-        static const vector< NAME > v(arr, &arr[count]);                      \
+        static const std::vector< NAME > v(arr, &arr[count]);                      \
         return v;                                                             \
     }                                                                         \
                                                                               \
@@ -71,12 +71,12 @@ namespace casa {
     }
 
 #define PMS_ENUM2(NAME,ALLMETHOD,ALLSTRMETHOD,CONVMETHOD,...)                 \
-    static const vector<casacore::String>& ALLSTRMETHOD () {                            \
+    static const std::vector<casacore::String>& ALLSTRMETHOD () {                            \
         static const casacore::String arr[] = {                                         \
             __VA_ARGS__                                                       \
         };                                                                    \
         static const int count = sizeof(arr) / sizeof(arr[0]);                \
-        static const vector<casacore::String> v(arr, &arr[count]);                      \
+        static const std::vector<casacore::String> v(arr, &arr[count]);                      \
         return v;                                                             \
     }                                                                         \
                                                                               \
@@ -84,8 +84,8 @@ namespace casa {
         return ALLSTRMETHOD ()[v]; }                                          \
                                                                               \
     static const NAME & CONVMETHOD (const casacore::String& v, bool* ok = NULL) {       \
-        const vector<casacore::String>& strs = ALLSTRMETHOD ();                         \
-        const vector< NAME >& enms = ALLMETHOD ();                            \
+        const std::vector<casacore::String>& strs = ALLSTRMETHOD ();                         \
+        const std::vector< NAME >& enms = ALLMETHOD ();                            \
         for(unsigned int i = 0; i < strs.size(); i++) {                       \
             if(PMS::strEq(v, strs[i], true)) {                                \
                 if(ok != NULL) *ok = true;                                    \
@@ -239,18 +239,18 @@ public:
     static bool recEq(const casacore::Record& rec1,
                       const casacore::Record& rec2);
     
-    // Converts the given templated vector to/from an int Vector.
+    // Converts the given templated std::vector to/from an int std::vector.
     // <group>
     template <class T>
-    static casacore::Vector<int> toIntVector(const vector<T>& v) {
+    static casacore::Vector<int> toIntVector(const std::vector<T>& v) {
         casacore::Vector<int> v2(v.size());
         for(unsigned int i = 0; i < v.size(); i++) v2[i] = (int)v[i];
         return v2;
     }
     
     template <class T>
-    static vector<T> fromIntVector(const casacore::Vector<int>& v) {
-        vector<T> v2(v.size());
+    static std::vector<T> fromIntVector(const casacore::Vector<int>& v) {
+        std::vector<T> v2(v.size());
         for(unsigned int i = 0; i < v.size(); i++) v2[i] = (T)v[i];
         return v2;
     }
@@ -293,7 +293,7 @@ public:
     // Colorizing Values //
               
     // Returns the list of unique colors used to colorize plots.
-    static const vector<casacore::String>& COLORS_LIST();
+    static const std::vector<casacore::String>& COLORS_LIST();
     
     
     // Default Parameter Values //

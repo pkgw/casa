@@ -41,19 +41,15 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -62,47 +58,51 @@
 	
 
 	
-#include "CScanIntent.h"
-	
-
-	
-#include "CCalDataOrigin.h"
-	
 
 	
 
 	
-#include "CCalibrationFunction.h"
+#include <alma/Enumerations/CScanIntent.h>
 	
 
 	
-#include "CCalibrationSet.h"
-	
-
-	
-#include "CAntennaMotionPattern.h"
+#include <alma/Enumerations/CCalDataOrigin.h>
 	
 
 	
 
 	
+#include <alma/Enumerations/CCalibrationFunction.h>
+	
+
+	
+#include <alma/Enumerations/CCalibrationSet.h>
+	
+
+	
+#include <alma/Enumerations/CAntennaMotionPattern.h>
+	
+
+	
+
+	
 
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -181,21 +181,21 @@ class ScanRow;
 	
  * <TR>
  * <TD> scanIntent </TD> 
- * <TD> vector<ScanIntentMod::ScanIntent > </TD>
+ * <TD> std::vector<ScanIntentMod::ScanIntent > </TD>
  * <TD>  numIntent </TD> 
  * <TD> &nbsp;identifies the intents of this scan. </TD>
  * </TR>
 	
  * <TR>
  * <TD> calDataType </TD> 
- * <TD> vector<CalDataOriginMod::CalDataOrigin > </TD>
+ * <TD> std::vector<CalDataOriginMod::CalDataOrigin > </TD>
  * <TD>  numIntent </TD> 
  * <TD> &nbsp;identifies the calibration data types (one value per intent). </TD>
  * </TR>
 	
  * <TR>
  * <TD> calibrationOnLine </TD> 
- * <TD> vector<bool > </TD>
+ * <TD> std::vector<bool > </TD>
  * <TD>  numIntent </TD> 
  * <TD> &nbsp;the online calibration was required (true) or not (false) (one value per intent). </TD>
  * </TR>
@@ -206,21 +206,21 @@ class ScanRow;
 	
  * <TR>
  * <TD> calibrationFunction</TD> 
- * <TD> vector<CalibrationFunctionMod::CalibrationFunction > </TD>
+ * <TD> std::vector<CalibrationFunctionMod::CalibrationFunction > </TD>
  * <TD>  numIntent  </TD>
  * <TD>&nbsp; identifies the calibration functions (one value per intent). </TD>
  * </TR>
 	
  * <TR>
  * <TD> calibrationSet</TD> 
- * <TD> vector<CalibrationSetMod::CalibrationSet > </TD>
+ * <TD> std::vector<CalibrationSetMod::CalibrationSet > </TD>
  * <TD>  numIntent  </TD>
  * <TD>&nbsp; attaches this scan to a calibration set (one value per intent). </TD>
  * </TR>
 	
  * <TR>
  * <TD> calPattern</TD> 
- * <TD> vector<AntennaMotionPatternMod::AntennaMotionPattern > </TD>
+ * <TD> std::vector<AntennaMotionPatternMod::AntennaMotionPattern > </TD>
  * <TD>  numIntent  </TD>
  * <TD>&nbsp; identifies the antenna motion patterns used for the calibration. </TD>
  * </TR>
@@ -234,14 +234,14 @@ class ScanRow;
 	
  * <TR>
  * <TD> fieldName</TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numField  </TD>
  * <TD>&nbsp; the names of the observed fields (one value per field). </TD>
  * </TR>
 	
  * <TR>
  * <TD> sourceName</TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the name of the observed source. </TD>
  * </TR>
@@ -401,7 +401,7 @@ public:
  	 * @param calibrationOnLine
 	
      */
-	ScanRow *newRow(Tag execBlockId, int scanNumber, ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, vector<ScanIntentMod::ScanIntent > scanIntent, vector<CalDataOriginMod::CalDataOrigin > calDataType, vector<bool > calibrationOnLine);
+	ScanRow *newRow(Tag execBlockId, int scanNumber, ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, std::vector<ScanIntentMod::ScanIntent > scanIntent, std::vector<CalDataOriginMod::CalDataOrigin > calDataType, std::vector<bool > calibrationOnLine);
 	
 
 
@@ -507,7 +507,7 @@ public:
  	 * @param calibrationOnLine
  	 		 
  	 */
-	ScanRow* lookup(Tag execBlockId, int scanNumber, ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, vector<ScanIntentMod::ScanIntent > scanIntent, vector<CalDataOriginMod::CalDataOrigin > calDataType, vector<bool > calibrationOnLine); 
+	ScanRow* lookup(Tag execBlockId, int scanNumber, ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, std::vector<ScanIntentMod::ScanIntent > scanIntent, std::vector<CalDataOriginMod::CalDataOrigin > calDataType, std::vector<bool > calibrationOnLine); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

@@ -48,15 +48,15 @@
 
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -69,19 +69,19 @@
 	
 
 	
-#include "CStationType.h"
+#include <alma/Enumerations/CStationType.h>
 	
 
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Station.h
     \brief Generated from model's revision "-1", branch ""
@@ -95,7 +95,7 @@ namespace asdm {
 
 class StationRow;
 typedef void (StationRow::*StationAttributeFromBin) (EndianIStream& eis);
-typedef void (StationRow::*StationAttributeFromText) (const string& s);
+typedef void (StationRow::*StationAttributeFromText) (const std::string& s);
 
 /**
  * The StationRow class is a row of a StationTable.
@@ -156,21 +156,21 @@ public:
 	
  	/**
  	 * Get name.
- 	 * @return name as string
+ 	 * @return name as std::string
  	 */
- 	string getName() const;
+ 	std::string getName() const;
 	
  
  	
  	
  	/**
- 	 * Set name with the specified string.
- 	 * @param name The string value to which name is to be set.
+ 	 * Set name with the specified std::string.
+ 	 * @param name The std::string value to which name is to be set.
  	 
  		
  			
  	 */
- 	void setName (string name);
+ 	void setName (std::string name);
   		
 	
 	
@@ -186,21 +186,21 @@ public:
 	
  	/**
  	 * Get position.
- 	 * @return position as vector<Length >
+ 	 * @return position as std::vector<Length >
  	 */
- 	vector<Length > getPosition() const;
+ 	std::vector<Length > getPosition() const;
 	
  
  	
  	
  	/**
- 	 * Set position with the specified vector<Length >.
- 	 * @param position The vector<Length > value to which position is to be set.
+ 	 * Set position with the specified std::vector<Length >.
+ 	 * @param position The std::vector<Length > value to which position is to be set.
  	 
  		
  			
  	 */
- 	void setPosition (vector<Length > position);
+ 	void setPosition (std::vector<Length > position);
   		
 	
 	
@@ -300,7 +300,7 @@ public:
 	 * @param type
 	    
 	 */ 
-	bool compareNoAutoInc(string name, vector<Length > position, StationTypeMod::StationType type);
+	bool compareNoAutoInc(std::string name, std::vector<Length > position, StationTypeMod::StationType type);
 	
 	
 
@@ -316,7 +316,7 @@ public:
 	 * @param type
 	    
 	 */ 
-	bool compareRequiredValue(string name, vector<Length > position, StationTypeMod::StationType type); 
+	bool compareRequiredValue(std::string name, std::vector<Length > position, StationTypeMod::StationType type); 
 		 
 	
 	/**
@@ -476,7 +476,7 @@ private:
 	
 	
 
-	string name;
+	std::string name;
 
 	
 	
@@ -487,7 +487,7 @@ private:
 	
 	
 
-	vector<Length > position;
+	std::vector<Length > position;
 
 	
 	
@@ -545,20 +545,20 @@ void timeFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, StationAttributeFromText> fromTextMethods;
 	
-void stationIdFromText (const string & s);
+void stationIdFromText (const std::string & s);
 	
 	
-void nameFromText (const string & s);
+void nameFromText (const std::string & s);
 	
 	
-void positionFromText (const string & s);
+void positionFromText (const std::string & s);
 	
 	
-void typeFromText (const string & s);
+void typeFromText (const std::string & s);
 	
 
 	
-void timeFromText (const string & s);
+void timeFromText (const std::string & s);
 	
 	
 	

@@ -730,7 +730,6 @@ public:
 			// The first indices of frequency are the channel numbers.
 
 			int channel = 0;
-			iterator dst = begin();
 			Array<Double>::const_iterator frequency = frequencies.begin();
 			Array<Double>::const_iterator width = widths.begin();
 			int nChannels = frequencies.size();

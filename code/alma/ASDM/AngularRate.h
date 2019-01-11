@@ -29,23 +29,17 @@
 #include <vector>
 #include <iostream>
 #include <string>
-using namespace std;
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLAngularRate;
 #endif
-#include <StringTokenizer.h>
-#include <NumberFormatException.h>
-using asdm::StringTokenizer;
-using asdm::NumberFormatException;
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/NumberFormatException.h>
+#include <alma/ASDM/EndianStream.h>
 namespace asdm {
 class AngularRate;
 AngularRate operator * ( double , const AngularRate & );
-ostream & operator << ( ostream &, const AngularRate & );
-istream & operator >> ( istream &, AngularRate &);
+std::ostream & operator << ( std::ostream &, const AngularRate & );
+std::istream & operator >> ( std::istream &, AngularRate &);
 /**
  * The AngularRate class implements a quantity of AngularRate in radians per second..
  * 
@@ -69,11 +63,11 @@ class AngularRate {
    * @param os a reference to the ostream to be written on.
    * @param x a const reference to a AngularRate.
    */
-  friend ostream & operator << ( ostream & os, const AngularRate & x);
+  friend std::ostream & operator << ( std::ostream & os, const AngularRate & x);
   /**
    * Overloading of >> to read an AngularRate from an istream.
    */
-  friend istream & operator >> ( istream & is, AngularRate & x);
+  friend std::istream & operator >> ( std::istream & is, AngularRate & x);
 public:
 	/**
 	 * The nullary constructor (default).
@@ -90,7 +84,7 @@ public:
 	 *
 	 * @param s a string.
 	 */
-	AngularRate(const string &s);
+	AngularRate(const std::string &s);
 #ifndef WITHOUT_ACS
 	/**
 	 *
@@ -98,7 +92,7 @@ public:
 	 * 
 	 * @param idlAngularRate a cons ref to an IDLAngularRate.
 	 */
-	AngularRate(const IDLAngularRate & idlAngularRate);
+	AngularRate(const asdmIDLTypes::IDLAngularRate & idlAngularRate);
 #endif
 	/**
 	 * A constructor from a value in double precision.
@@ -113,14 +107,14 @@ public:
 	 * A static method equivalent to the constructor from a string.
 	 * @param s a string?.
 	 */
-	static double fromString(const string& s);
+	static double fromString(const std::string& s);
 	/**
 	 * Conversion into string.
 	 * The resulting string contains the representation of the value of this AngularRate.
 	 *
 	 * @return string
 	 */
-	static string toString(double);
+	static std::string toString(double);
 	/**
 	 * Parse the next (string) token of a StringTokenizer into an angle.
 	 * @param st a reference to a StringTokenizer.
@@ -138,21 +132,21 @@ public:
 	 * @param angle the vector of AngularRate to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<AngularRate>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<AngularRate>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of AngularRate to a EndianOSStream.
 	 * @param angle the vector of vector of AngularRate to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<AngularRate> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<AngularRate> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of AngularRate to a EndianOSStream.
 	 * @param angle the vector of vector of vector of AngularRate to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<AngularRate> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<std::vector<AngularRate> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an AngularRate from a EndianIStream
 	 * and use the read value to set an  AngularRate.
@@ -167,7 +161,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of AngularRate
 	 */	 
-	 static vector<AngularRate> from1DBin(EndianIStream & eis);
+	 static std::vector<AngularRate> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of AngularRate from an EndianIStream
@@ -175,7 +169,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of AngularRate
 	 */	 
-	 static vector<vector<AngularRate> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<AngularRate> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of AngularRate from an EndianIStream
@@ -183,7 +177,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of AngularRate
 	 */	 
-	 static vector<vector<vector<AngularRate> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<std::vector<AngularRate> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator AngularRate = AngularRate.
@@ -288,16 +282,16 @@ public:
 	 * Converts into a string.
 	 * @return a string containing the representation of a the value in double precision.
 	 */
-	string toString() const;
+	std::string toString() const;
 	/** 
 	 * Idem toString.
 	 */
-	string toStringI() const;
+	std::string toStringI() const;
 	/**
 	 * Conversion operator.
 	 * Converts into a string.
 	 */
-	operator string () const;
+	operator std::string () const;
 	/**
 	 * Return the double precision value of the AngularRate.
 	 * @return double
@@ -308,13 +302,13 @@ public:
 	 * Return the IDLAngularRate representation of the AngularRate.
 	 * @return IDLAngularRate 
 	 */
-	IDLAngularRate toIDLAngularRate() const;
+    asdmIDLTypes::IDLAngularRate toIDLAngularRate() const;
 #endif
 	/**
 	 * Returns the abbreviated name of the unit implicitely associated to any AngularRate.
 	 * @return string
 	 */
-	static string unit();
+	static std::string unit();
 private:
 	double value;
 };
@@ -324,10 +318,10 @@ inline AngularRate::AngularRate() : value(0.0) {
 inline AngularRate::AngularRate(const AngularRate &t) : value(t.value) {
 }
 #ifndef WITHOUT_ACS
-inline AngularRate::AngularRate(const IDLAngularRate &l) : value(l.value) {
+inline AngularRate::AngularRate(const asdmIDLTypes::IDLAngularRate &l) : value(l.value) {
 }
 #endif
-inline AngularRate::AngularRate(const string &s) : value(fromString(s)) {
+inline AngularRate::AngularRate(const std::string &s) : value(fromString(s)) {
 }
 inline AngularRate::AngularRate(double v) : value(v) {
 }
@@ -415,21 +409,21 @@ inline AngularRate AngularRate::operator + () const {
 	return tmp;
 }
 // Conversion functions
-inline AngularRate::operator string () const {
+inline AngularRate::operator std::string () const {
 	return toString();
 }
-inline string AngularRate::toString() const {
+inline std::string AngularRate::toString() const {
 	return toString(value);
 }
-inline string AngularRate::toStringI() const {
+inline std::string AngularRate::toStringI() const {
 	return toString(value);
 }
 inline double AngularRate::get() const {
 	return value;
 }
 #ifndef WITHOUT_ACS
-inline IDLAngularRate AngularRate::toIDLAngularRate() const {
-	IDLAngularRate tmp;
+inline asdmIDLTypes::IDLAngularRate AngularRate::toIDLAngularRate() const {
+    asdmIDLTypes::IDLAngularRate tmp;
 	tmp.value = value;
 	return tmp;
 }
@@ -440,16 +434,16 @@ inline AngularRate operator * ( double n, const AngularRate &x) {
 	tmp.value = x.value * n;
 	return tmp;
 }
-inline ostream & operator << ( ostream &o, const AngularRate &x ) {
+inline std::ostream & operator << ( std::ostream &o, const AngularRate &x ) {
 	o << x.value;
 	return o;
 }
-inline istream & operator >> ( istream &i, AngularRate &x ) {
+inline std::istream & operator >> ( std::istream &i, AngularRate &x ) {
 	i >> x.value;
 	return i;
 }
-inline string AngularRate::unit() {
-	return string ("rad/s");
+inline std::string AngularRate::unit() {
+	return std::string ("rad/s");
 }
 } // End namespace asdm
 #endif /* AngularRate_CLASS */

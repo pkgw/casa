@@ -41,52 +41,24 @@
 
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
 
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-#include "CFluxCalibrationMethod.h"
-	
-
-	
-
-	
-
-	
-#include "CStokesParameter.h"
-	
-
-	
-
-	
-#include "CDirectionReferenceCode.h"
 	
 
 	
@@ -100,23 +72,51 @@
 	
 
 	
-#include "CSourceModel.h"
+#include <alma/Enumerations/CFluxCalibrationMethod.h>
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CStokesParameter.h>
+	
+
+	
+
+	
+#include <alma/Enumerations/CDirectionReferenceCode.h>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CSourceModel.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -147,7 +147,7 @@ class CalFluxRow;
  		
  * <TD> sourceName </TD>
  		 
- * <TD> string</TD>
+ * <TD> std::string</TD>
  * <TD> &nbsp; </TD>
  * <TD> &nbsp;the name of the source. </TD>
  * </TR>
@@ -204,7 +204,7 @@ class CalFluxRow;
 	
  * <TR>
  * <TD> frequencyRanges </TD> 
- * <TD> vector<vector<Frequency > > </TD>
+ * <TD> std::vector<std::vector<Frequency > > </TD>
  * <TD>  numFrequencyRanges, 2 </TD> 
  * <TD> &nbsp;the frequency ranges (one pair of values per range). </TD>
  * </TR>
@@ -218,21 +218,21 @@ class CalFluxRow;
 	
  * <TR>
  * <TD> flux </TD> 
- * <TD> vector<vector<double > > </TD>
+ * <TD> std::vector<std::vector<double > > </TD>
  * <TD>  numStokes, numFrequencyRanges </TD> 
  * <TD> &nbsp;the flux densities (one value par Stokes parameter per frequency range) expressed in Jansky (Jy). </TD>
  * </TR>
 	
  * <TR>
  * <TD> fluxError </TD> 
- * <TD> vector<vector<double > > </TD>
+ * <TD> std::vector<std::vector<double > > </TD>
  * <TD>  numStokes, numFrequencyRanges </TD> 
  * <TD> &nbsp;the uncertainties on the flux densities (one value per Stokes parameter per frequency range). </TD>
  * </TR>
 	
  * <TR>
  * <TD> stokes </TD> 
- * <TD> vector<StokesParameterMod::StokesParameter > </TD>
+ * <TD> std::vector<StokesParameterMod::StokesParameter > </TD>
  * <TD>  numStokes </TD> 
  * <TD> &nbsp;the Stokes parameter. </TD>
  * </TR>
@@ -243,7 +243,7 @@ class CalFluxRow;
 	
  * <TR>
  * <TD> direction</TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the direction of the source. </TD>
  * </TR>
@@ -264,28 +264,28 @@ class CalFluxRow;
 	
  * <TR>
  * <TD> PA</TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numStokes, numFrequencyRanges  </TD>
  * <TD>&nbsp; the position's angles for the source model (one value per Stokes parameter per frequency range). </TD>
  * </TR>
 	
  * <TR>
  * <TD> PAError</TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numStokes, numFrequencyRanges  </TD>
  * <TD>&nbsp; the uncertainties on the position's angles (one value per Stokes parameter per frequency range). </TD>
  * </TR>
 	
  * <TR>
  * <TD> size</TD> 
- * <TD> vector<vector<vector<Angle > > > </TD>
+ * <TD> std::vector<std::vector<std::vector<Angle > > > </TD>
  * <TD>  numStokes, numFrequencyRanges, 2  </TD>
  * <TD>&nbsp; the sizes of the source (one pair of angles per Stokes parameter per frequency range). </TD>
  * </TR>
 	
  * <TR>
  * <TD> sizeError</TD> 
- * <TD> vector<vector<vector<Angle > > > </TD>
+ * <TD> std::vector<std::vector<std::vector<Angle > > > </TD>
  * <TD>  numStokes, numFrequencyRanges, 2  </TD>
  * <TD>&nbsp; the uncertainties of the sizes of the source (one pair of angles per Stokes parameter per frequency range). </TD>
  * </TR>
@@ -458,7 +458,7 @@ public:
  	 * @param stokes
 	
      */
-	CalFluxRow *newRow(string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, vector<vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, vector<vector<double > > flux, vector<vector<double > > fluxError, vector<StokesParameterMod::StokesParameter > stokes);
+	CalFluxRow *newRow(std::string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, std::vector<std::vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, std::vector<std::vector<double > > flux, std::vector<std::vector<double > > fluxError, std::vector<StokesParameterMod::StokesParameter > stokes);
 	
 
 
@@ -535,7 +535,7 @@ public:
 	
  	 *
 	 */
- 	CalFluxRow* getRowByKey(string sourceName, Tag calDataId, Tag calReductionId);
+ 	CalFluxRow* getRowByKey(std::string sourceName, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -572,7 +572,7 @@ public:
  	 * @param stokes
  	 		 
  	 */
-	CalFluxRow* lookup(string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, vector<vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, vector<vector<double > > flux, vector<vector<double > > fluxError, vector<StokesParameterMod::StokesParameter > stokes); 
+	CalFluxRow* lookup(std::string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, std::vector<std::vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, std::vector<std::vector<double > > flux, std::vector<std::vector<double > > fluxError, std::vector<StokesParameterMod::StokesParameter > stokes); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

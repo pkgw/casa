@@ -41,19 +41,15 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -67,20 +63,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -131,49 +131,49 @@ class HistoryRow;
 	
  * <TR>
  * <TD> message </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> priority </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> origin </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> objectId </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> application </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> cliCommand </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> appParms </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
@@ -334,7 +334,7 @@ public:
  	 * @param appParms
 	
      */
-	HistoryRow *newRow(Tag execBlockId, ArrayTime time, string message, string priority, string origin, string objectId, string application, string cliCommand, string appParms);
+	HistoryRow *newRow(Tag execBlockId, ArrayTime time, std::string message, std::string priority, std::string origin, std::string objectId, std::string application, std::string cliCommand, std::string appParms);
 	
 
 
@@ -457,7 +457,7 @@ public:
  	 * @param appParms
  	 		 
  	 */
-	HistoryRow* lookup(Tag execBlockId, ArrayTime time, string message, string priority, string origin, string objectId, string application, string cliCommand, string appParms); 
+	HistoryRow* lookup(Tag execBlockId, ArrayTime time, std::string message, std::string priority, std::string origin, std::string objectId, std::string application, std::string cliCommand, std::string appParms); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

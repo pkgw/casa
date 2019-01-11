@@ -30,18 +30,18 @@
  *
  * File SpectralWindowTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::SpectralWindowTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -95,6 +95,8 @@ namespace asdm {
 		
 			, "windowFunction"
 				
+		
+			, "numBin"
 		
 			, "chanFreqStart"
 		
@@ -156,7 +158,7 @@ namespace asdm {
     
     	 "spectralWindowId" , "basebandName" , "netSideband" , "numChan" , "refFreq" , "sidebandProcessingMode" , "totBandwidth" , "windowFunction" 
     	,
-    	 "chanFreqStart" , "chanFreqStep" , "chanFreqArray" , "chanWidth" , "chanWidthArray" , "correlationBit" , "effectiveBw" , "effectiveBwArray" , "freqGroup" , "freqGroupName" , "lineArray" , "measFreqRef" , "name" , "oversampling" , "quantization" , "refChan" , "resolution" , "resolutionArray" , "numAssocValues" , "assocNature" , "assocSpectralWindowId" , "imageSpectralWindowId" , "dopplerId" 
+    	 "numBin" , "chanFreqStart" , "chanFreqStep" , "chanFreqArray" , "chanWidth" , "chanWidthArray" , "correlationBit" , "effectiveBw" , "effectiveBwArray" , "freqGroup" , "freqGroupName" , "lineArray" , "measFreqRef" , "name" , "oversampling" , "quantization" , "refChan" , "resolution" , "resolutionArray" , "numAssocValues" , "assocNature" , "assocSpectralWindowId" , "imageSpectralWindowId" , "dopplerId" 
     
 	};
 	        			
@@ -583,7 +585,7 @@ SpectralWindowRow* SpectralWindowTable::lookup(BasebandNameMod::BasebandName bas
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<SpectralWindowTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:spctrw=\"http://Alma/XASDM/SpectralWindowTable\" xsi:schemaLocation=\"http://Alma/XASDM/SpectralWindowTable http://almaobservatory.org/XML/XASDM/3/SpectralWindowTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<SpectralWindowTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:spctrw=\"http://Alma/XASDM/SpectralWindowTable\" xsi:schemaLocation=\"http://Alma/XASDM/SpectralWindowTable http://almaobservatory.org/XML/XASDM/4/SpectralWindowTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -713,7 +715,7 @@ SpectralWindowRow* SpectralWindowTable::lookup(BasebandNameMod::BasebandName bas
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<SpectralWindowTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:spctrw=\"http://Alma/XASDM/SpectralWindowTable\" xsi:schemaLocation=\"http://Alma/XASDM/SpectralWindowTable http://almaobservatory.org/XML/XASDM/3/SpectralWindowTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<SpectralWindowTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:spctrw=\"http://Alma/XASDM/SpectralWindowTable\" xsi:schemaLocation=\"http://Alma/XASDM/SpectralWindowTable http://almaobservatory.org/XML/XASDM/4/SpectralWindowTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='SpectralWindowTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -728,6 +730,7 @@ SpectralWindowRow* SpectralWindowTable::lookup(BasebandNameMod::BasebandName bas
 		oss << "<totBandwidth/>\n"; 
 		oss << "<windowFunction/>\n"; 
 
+		oss << "<numBin/>\n"; 
 		oss << "<chanFreqStart/>\n"; 
 		oss << "<chanFreqStep/>\n"; 
 		oss << "<chanFreqArray/>\n"; 
@@ -882,6 +885,8 @@ SpectralWindowRow* SpectralWindowTable::lookup(BasebandNameMod::BasebandName bas
     	 
     attributesSeq.push_back("windowFunction") ; 
     	
+    	 
+    attributesSeq.push_back("numBin") ; 
     	 
     attributesSeq.push_back("chanFreqStart") ; 
     	 

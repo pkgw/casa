@@ -29,8 +29,10 @@
 #include <msvis/MSVis/VisBuffer.h>
 #include <msvis/MSVis/VisBuffAccumulator.h>
 #include <ms/MeasurementSets/MSColumns.h>
+#include <synthesis/CalTables/CTIter.h>
 #include <synthesis/MeasurementEquations/VisEquation.h>  // *
 #include <synthesis/MeasurementComponents/SolveDataBuffer.h>
+#include <synthesis/MeasurementComponents/MSMetaInfoForCal.h>
 #include <lattices/Lattices/ArrayLattice.h>
 #include <lattices/LatticeMath/LatticeFFT.h>
 #include <scimath/Mathematics/FFTServer.h>
@@ -307,15 +309,15 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant, Array<Double>& delayWindow
                      << "sl1 " << sl1 << endl
                      << "flagSlice " << flagSlice << endl;
             }
-            Array<Complex> rhs = v(sl2).nonDegenerate();
-            Array<Float> weights = w(sl2).nonDegenerate();
+            Array<Complex> rhs = v(sl2).nonDegenerate(1);
+            Array<Float> weights = w(sl2).nonDegenerate(1);
                 
             unitize(rhs);
-            Vpad_(sl1).nonDegenerate() = rhs * weights;
+            Vpad_(sl1).nonDegenerate(1) = rhs * weights;
 
-            Array<Bool> flagged(fl(flagSlice).nonDegenerate());
+            Array<Bool> flagged(fl(flagSlice).nonDegenerate(1));
             // Zero flagged entries.
-            Vpad_(sl1).nonDegenerate()(flagged) = Complex(0.0);
+            Vpad_(sl1).nonDegenerate(1)(flagged) = Complex(0.0);
 
             if (!allTrue(flagged)) {
                 for (Int icorr=0; icorr<nCorr_; ++icorr) {
@@ -1462,6 +1464,124 @@ aggregateTimeCentroid(SDBList& sdbs, Int refAnt, std::map<Int, Double>& aggregat
 }
 
 
+void
+print_gsl_vector(gsl_vector *v)
+{
+    const size_t n = v->size;
+    for (size_t i=0; i!=n; i++) {
+        cerr << gsl_vector_get(v, i) << " ";
+        if (i>0 && (i % 4)==0) cerr << endl;
+    }
+    cerr << endl;
+}
+
+void
+print_max_gsl3(gsl_vector *v)
+{
+    double phi_max = 0.0;
+    double del_max = 0.0;
+    double rat_max = 0.0;
+        
+    const size_t n = v->size;
+    for (size_t i=0; i!=n/3; i++) {
+        if (fabs(gsl_vector_get(v, 3*i+0)) > fabs(phi_max)) phi_max = gsl_vector_get(v, 3*i+0);
+        if (fabs(gsl_vector_get(v, 3*i+1)) > fabs(del_max)) del_max = gsl_vector_get(v, 3*i+1);
+        if (fabs(gsl_vector_get(v, 3*i+2)) > fabs(rat_max)) rat_max = gsl_vector_get(v, 3*i+2);
+    }
+    cerr << "phi_max " << phi_max << " del_max " << del_max << " rat_max " << rat_max << endl;
+}
+
+
+
+/*
+gsl-2.4/multilarge_nlinear/fdf.c defines gsl_multilarge_nlinear_driver,
+which I have butchered for my purposes here into
+not_gsl_multilarge_nlinear_driver(). We still iterate the nonlinear
+least squares solver until completion, but we adopt a convergence
+criterion copied from AIPS.
+
+Inputs: maxiter  - maximum iterations to allow
+        w        - workspace
+
+Additionally I've removed the info parameter, and I may yet regret it.
+
+Originally:
+        info     - (output) info flag on why iteration terminated
+                   1 = stopped due to small step size ||dx|
+                   2 = stopped due to small gradient
+                   3 = stopped due to small change in f
+                   GSL_ETOLX = ||dx|| has converged to within machine
+                               precision (and xtol is too small)
+                   GSL_ETOLG = ||g||_inf is smaller than machine
+                               precision (gtol is too small)
+                   GSL_ETOLF = change in ||f|| is smaller than machine
+                               precision (ftol is too small)
+
+Return:
+GSL_SUCCESS if converged
+GSL_MAXITER if maxiter exceeded without converging
+GSL_ENOPROG if no accepted step found on first iteration
+*/
+
+int
+least_squares_inner_driver (const size_t maxiter,
+                                   gsl_multilarge_nlinear_workspace * w)
+{
+  int status;
+  size_t iter = 0;
+  /* call user callback function prior to any iterations
+   * with initial system state */
+  Double s;
+  Double last_s = 1.0e30;
+  Bool converged = false;
+  do  {
+      status = gsl_multilarge_nlinear_iterate (w);
+      /*
+       * If the solver reports no progress on the first iteration,
+       * then it didn't find a single step to reduce the
+       * cost function and more iterations won't help so return.
+       *
+       * If we get a no progress flag on subsequent iterations,
+       * it means we did find a good step in a previous iteration,
+       * so continue iterating since the solver has now reset
+       * mu to its initial value.
+       */
+      if (status == GSL_ENOPROG && iter == 0) {
+          return GSL_EMAXITER;
+      }
+
+      Double fnorm = gsl_blas_dnrm2(w->f);      
+      s = 0.5 * fnorm * fnorm;
+      if ((iter > 0) && DEVDEBUG) {
+          // cerr << "Parameters: " << endl;
+          // print_gsl_vector(w->x);
+          cerr << "Iter: " << iter << " ";
+          print_max_gsl3(w->dx);
+          cerr << "1 - s/last_s=" << 1 - s/last_s << endl;
+      }
+      ++iter;
+      if ((1 - s/last_s < 5e-6) && (iter > 1)) converged = true;
+      last_s = s;
+      /* old test for convergence:
+         status = not_gsl_multilarge_nlinear_test(xtol, gtol, ftol, info, w); */
+  } while (!converged && iter < maxiter);
+  /*
+   * the following error codes mean that the solution has converged
+   * to within machine precision, so record the error code in info
+   * and return success
+   */
+  if (status == GSL_ETOLF || status == GSL_ETOLX || status == GSL_ETOLG)
+  {
+      status = GSL_SUCCESS;
+  }
+  /* check if max iterations reached */
+  if (iter >= maxiter && status != GSL_SUCCESS)
+      status = GSL_EMAXITER;
+  return status;
+} /* gsl_multilarge_nlinear_driver() */
+
+
+
 
 void
 least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& casa_flags, Matrix<Float>& casa_snr,
@@ -1493,9 +1613,12 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         // Parameters for the least-squares solver.
         // param_tol sets roughly the number of decimal places accuracy you want in the answer;
         // I feel that 3 is probably plenty for fringe fitting.
-        const double param_tol = 1.0e-3;
-        const double gtol = pow(GSL_DBL_EPSILON, 1.0/3.0);
-        const double ftol = 1.0e-20;   
+        // param_tol is not used
+        //const double param_tol = 1.0e-3;
+        // gtol is not used
+        // const double gtol = pow(GSL_DBL_EPSILON, 1.0/3.0);
+        // ftol is not used
+        // const double ftol = 1.0e-20;   
         const size_t max_iter = 100;
 
         const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
@@ -1542,14 +1665,14 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         gsl_vector *res_f = gsl_multilarge_nlinear_residual(w);
 
         int info;
-        int status = gsl_multilarge_nlinear_driver(max_iter, param_tol, gtol, ftol,
-                                                   NULL, NULL, &info, w);
+        int status = least_squares_inner_driver(max_iter, w);
         double chi1 = gsl_blas_dnrm2(res_f);
         
         gsl_vector_sub(gp_orig, w->x);
-        gsl_vector *diff = gp_orig;
-        // double diffsize =
-        gsl_blas_dnrm2(diff);
+        // diff is not used
+        //gsl_vector *diff = gp_orig;
+        // diffsize is not used
+        //double diffsize = gsl_blas_dnrm2(diff);
     
         gsl_vector *res = gsl_multilarge_nlinear_position(w);
         
@@ -2184,6 +2307,318 @@ FringeJones::solveOneVB(const VisBuffer&) {
     throw(AipsError("VisBuffer interface not supported!"));
 }
 
+
+void FringeJones::globalPostSolveTinker() {
+
+  // Re-reference the phase, if requested
+  if (refantlist()(0)>-1) applyRefAnt();
+}
+
+void FringeJones::applyRefAnt() {
+
+  // TBD:
+  // 1. Synchronize refant changes on par axis
+  // 2. Implement minimum mean deviation algorithm
+
+  if (refantlist()(0)<0) 
+    throw(AipsError("No refant specified."));
+
+  Int nUserRefant=refantlist().nelements();
+
+  // Get the preferred refant names from the MS
+  String refantName(msmc().antennaName(refantlist()(0)));
+  if (nUserRefant>1) {
+    refantName+=" (";
+    for (Int i=1;i<nUserRefant;++i) {
+      refantName+=msmc().antennaName(refantlist()(i));
+      if (i<nUserRefant-1) refantName+=",";
+    }
+    refantName+=")";
+  }
+
+  logSink() << "Applying refant: " << refantName
+	    << " refantmode = " << refantmode();
+  if (refantmode()=="flex")
+    logSink() << " (hold alternate refants' phase constant) when refant flagged";
+  if (refantmode()=="strict")
+    logSink() << " (flag all antennas when refant flagged)";
+  logSink() << LogIO::POST;
+
+  // Generate a prioritized refant choice list
+  //  The first entry in this list is the user's primary refant,
+  //   the second entry is the refant used on the previous interval,
+  //   and the rest is a prioritized list of alternate refants,
+  //   starting with the user's secondary (if provided) refants,
+  //   followed by the rest of the array, in distance order.   This
+  //   makes the priorities correct all the time, and prevents
+  //   a semi-stochastic alternation (by preferring the last-used
+  //   alternate, even if nominally higher-priority refants become
+  //   available)
+
+
+  // Extract antenna positions
+  Matrix<Double> xyz;
+  if (msName()!="<noms>") {
+    MeasurementSet ms(msName());
+    ROMSAntennaColumns msant(ms.antenna());
+    msant.position().getColumn(xyz);
+  }
+  else {
+    // TBD RO*
+    CTColumns ctcol(*ct_);
+    CTAntennaColumns& antcol(ctcol.antenna());
+    antcol.position().getColumn(xyz);
+  }
+
+  // Calculate (squared) antenna distances, relative
+  //  to last preferred antenna
+  Vector<Double> dist2(xyz.ncolumn(),0.0);
+  for (Int i=0;i<3;++i) {
+    Vector<Double> row=xyz.row(i);
+    row-=row(refantlist()(nUserRefant-1));
+    dist2+=square(row);
+  }
+  // Move preferred antennas to a large distance
+  for (Int i=0;i<nUserRefant;++i)
+    dist2(refantlist()(i))=DBL_MAX;
+
+  // Generated sorted index
+  Vector<uInt> ord;
+  genSort(ord,dist2);
+
+  // Assemble the whole choices list
+  Int nchoices=nUserRefant+1+ord.nelements();
+  Vector<Int> refantchoices(nchoices,0);
+  Vector<Int> r(refantchoices(IPosition(1,nUserRefant+1),IPosition(1,refantchoices.nelements()-1)));
+  convertArray(r,ord);
+
+  // set first two to primary preferred refant
+  refantchoices(0)=refantchoices(1)=refantlist()(0);
+
+  // set user's secondary refants (if any)
+  if (nUserRefant>1) 
+    refantchoices(IPosition(1,2),IPosition(1,nUserRefant))=
+      refantlist()(IPosition(1,1),IPosition(1,nUserRefant-1));
+
+  //cout << "refantchoices = " << refantchoices << endl;
+
+
+  if (refantmode()=="strict") {
+    nchoices=1;
+    refantchoices.resize(1,True);
+  }
+
+  Vector<Int> nPol(nSpw(),nPar());  // TBD:or 1, if data was single pol
+
+  if (nPar()==6) {
+    // Verify that 2nd poln has unflagged solutions, PER SPW
+    ROCTMainColumns ctmc(*ct_);
+
+    Block<String> cols(1);
+    cols[0]="SPECTRAL_WINDOW_ID";
+    CTIter ctiter(*ct_,cols);
+    Cube<Bool> fl;
+
+    while (!ctiter.pastEnd()) {
+
+      Int ispw=ctiter.thisSpw();
+      fl.assign(ctiter.flag());
+
+      IPosition blc(3,0,0,0), trc(fl.shape());
+      trc-=1; trc(0)=blc(0)=1;
+      
+      //      cout << "ispw = " << ispw << " nfalse(fl(1,:,:)) = " << nfalse(fl(blc,trc)) << endl;
+      
+      // If there are no unflagged solutions in 2nd pol, 
+      //   avoid it in refant calculations
+      if (nfalse(fl(blc,trc))==0)
+	nPol(ispw)=1;
+
+      ctiter.next();      
+    }
+  }
+  //  cout << "nPol = " << nPol << endl;
+
+  Bool usedaltrefant(false);
+  Int currrefant(refantchoices(0)), lastrefant(-1);
+
+  Block<String> cols(2);
+  cols[0]="SPECTRAL_WINDOW_ID";
+  cols[1]="TIME";
+  CTIter ctiter(*ct_,cols);
+
+  // Arrays to hold per-timestamp solutions
+  Cube<Float> solA, solB;
+  Cube<Bool> flA, flB;
+  Vector<Int> ant1A, ant1B, ant2B;
+  Matrix<Complex> refPhsr;  // the reference phasor [npol,nchan] 
+  Int lastspw(-1);
+  Bool first(true);
+  while (!ctiter.pastEnd()) {
+    Int ispw=ctiter.thisSpw();
+    if (ispw!=lastspw) first=true;  // spw changed, start over
+
+    // Read in the current sol, fl, ant1:
+    solB.assign(ctiter.fparam());
+    flB.assign(ctiter.flag());
+    ant1B.assign(ctiter.antenna1());
+    ant2B.assign(ctiter.antenna2()); 
+
+    // First time thru, 'previous' solution same as 'current'
+    if (first) {
+      solA.reference(solB);
+      flA.reference(flB);
+      ant1A.reference(ant1B);
+    }
+    IPosition shB(solB.shape());
+    IPosition shA(solA.shape());
+
+    // Find a good refant at this time
+    //  A good refant is one that is unflagged in all polarizations
+    //     in the current(B) and previous(A) intervals (so they can be connected)
+    Int irefA(0),irefB(0);  // index on 3rd axis of solution arrays
+    Int ichoice(0);  // index in refantchoicelist
+    Bool found(false);
+    IPosition blcA(3,0,0,0),trcA(shA),blcB(3,0,0,0),trcB(shB);
+    trcA-=1; trcA(0)=trcA(2)=0;
+    trcB-=1; trcB(0)=trcB(2)=0;
+    ichoice=0;
+    while (!found && ichoice<nchoices) { 
+      // Find index of current refant choice
+      irefA=irefB=0;
+      while (ant1A(irefA)!=refantchoices(ichoice) && irefA<shA(2)) ++irefA;
+      while (ant1B(irefB)!=refantchoices(ichoice) && irefB<shB(2)) ++irefB;
+
+      if (irefA<shA(2) && irefB<shB(2)) {
+
+	//	cout << " Trial irefA,irefB: " << irefA << "," << irefB 
+	//	     << "   Ants=" << ant1A(irefA) << "," << ant1B(irefB) << endl;
+
+	blcA(2)=trcA(2)=irefA;
+	blcB(2)=trcB(2)=irefB;
+	found=true;  // maybe
+	for (Int ipol=0;ipol<nPol(ispw);++ipol) {
+	  blcA(0)=trcA(0)=blcB(0)=trcB(0)=ipol;
+	  found &= (nfalse(flA(blcA,trcA))>0);  // previous interval
+	  found &= (nfalse(flB(blcB,trcB))>0);  // current interval
+	} 
+      }
+      else
+	// irefA or irefB out-of-range
+	found=false;  // Just to be sure
+
+      if (!found) ++ichoice;  // try next choice next round
+
+    }
+
+    if (found) {
+      // at this point, irefA/irefB point to a good refant
+      
+      // Keep track
+      usedaltrefant|=(ichoice>0);
+      currrefant=refantchoices(ichoice);
+      refantchoices(1)=currrefant;  // 2nd priorty next time
+
+      //      cout << " currrefant = " << currrefant << " (" << ichoice << ")" << endl;
+
+      //      cout << " Final irefA,irefB: " << irefA << "," << irefB 
+      //	   << "   Ants=" << ant1A(irefA) << "," << ant1B(irefB) << endl;
+
+
+      // Only report if using an alternate refant
+      if (currrefant!=lastrefant && ichoice>0) {
+	logSink() 
+	  << "At " 
+	  << MVTime(ctiter.thisTime()/C::day).string(MVTime::YMD,7) 
+	  << " ("
+	  << "Spw=" << ctiter.thisSpw()
+	  << ", Fld=" << ctiter.thisField()
+	  << ")"
+	  << ", using refant " << msmc().antennaName(currrefant)
+	  << " (id=" << currrefant 
+	  << ")" << " (alternate)"
+	  << LogIO::POST;
+      }  
+
+      // Form reference phasor [nPar,nChan]
+      Matrix<Float> rA,rB;
+      Matrix<Bool> rflA,rflB;
+      rB.assign(solB.xyPlane(irefB));
+      rflB.assign(flB.xyPlane(irefB));
+      
+      if (!first) {
+	// Get and condition previous phasor for the current refant
+	rA.assign(solA.xyPlane(irefA));
+	rflA.assign(flA.xyPlane(irefA));
+	rB-=rA;
+
+	// Accumulate flags
+	rflB&=rflA;
+      }
+      
+      //      cout << " rB = " << rB << endl;
+      //      cout << boolalpha << " rflB = " << rflB << endl;
+      // TBD: fillChanGaps?
+      
+      // Now apply reference phasor to all antennas
+      Matrix<Float> thissol;
+      for (Int iant=0;iant<shB(2);++iant) {
+	thissol.reference(solB.xyPlane(iant));
+	thissol-=rB;
+      }
+      
+      // Set refant, so we can put it back
+      ant2B=currrefant;
+      
+      // put back referenced solutions
+      ctiter.setfparam(solB);
+      ctiter.setantenna2(ant2B);
+
+      // Next time thru, solB is previous
+      solA.reference(solB);
+      flA.reference(flB);
+      ant1A.reference(ant1B);
+      solB.resize();  // (break references)
+      flB.resize();
+      ant1B.resize();
+	
+      lastrefant=currrefant;
+      first=false;  // avoid first-pass stuff from now on
+      
+    } // found
+    else {
+      logSink() 
+	<< "At " 
+	<< MVTime(ctiter.thisTime()/C::day).string(MVTime::YMD,7) 
+	<< " ("
+	<< "Spw=" << ctiter.thisSpw()
+	<< ", Fld=" << ctiter.thisField()
+	<< ")"
+	<< ", refant (id=" << currrefant 
+	<< ") was flagged; flagging all antennas strictly." 
+	<< LogIO::POST;
+      // Flag all solutions in this interval
+      flB.set(True);
+      ctiter.setflag(flB);
+    }
+
+    // advance to the next interval
+    lastspw=ispw;
+    ctiter.next();
+  }
+
+  if (usedaltrefant)
+    logSink() << LogIO::NORMAL
+	      << " NB: An alternate refant was used at least once to maintain" << endl
+	      << "  phase continuity where the user's preferred refant drops out." << endl
+	      << "  Alternate refants are held constant in phase (_not_ zeroed)" << endl
+	      << "  during these periods, and the preferred refant may return at" << endl
+	      << "  a non-zero phase.  This is generally harmless."
+	      << LogIO::POST;
+
+  return;
+
+}
 
 } //# NAMESPACE CASA - END
 
