@@ -139,8 +139,8 @@ macro (configure_breakpad Breakpad_Root)
 	    message ("Project binary directory: ${PROJECT_BINARY_DIR}")
         execute_process (COMMAND perl fixbreakpadframeworkrefs.pl ${PROJECT_BINARY_DIR}
 	    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/install"
-	    OUTPUT_VARIABLE error_message
-	    ERROR_VARIABLE error_message
+	    #OUTPUT_VARIABLE error_message
+	    #ERROR_VARIABLE error_message
 	    RESULT_VARIABLE status)
         if (NOT ${status} EQUAL 0)
 	        message (SEND_ERROR "*** Failed to fix Breakpad Framework paths: ${command}: ${error_message}")
