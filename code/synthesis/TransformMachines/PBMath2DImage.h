@@ -206,7 +206,7 @@ private:
 			  const casacore::Float*& imJones,
 			  const casacore::Complex*& in,
 			  casacore::Complex*& outstor,
-			  const casacore::Vector<casacore::Int>& polmap,
+			  const casacore::Int*& polmap,
 			  casacore::Bool /*inverse*/,
 			  casacore::Bool /*conjugate*/,
 			  casacore::Int ipower,  // ie, 1=VP, 2=PB

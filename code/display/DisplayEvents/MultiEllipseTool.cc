@@ -30,7 +30,7 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-	SHARED_PTR<viewer::Rectangle> MultiEllipseTool::allocate_region( WorldCanvas *wc, double x1, double y1, double x2, double y2, VOID * ) const {
+	std::shared_ptr<viewer::Rectangle> MultiEllipseTool::allocate_region( WorldCanvas *wc, double x1, double y1, double x2, double y2, VOID * ) const {
 		return rfactory->ellipse( wc, x1, y1, x2, y2 );
 	}
 

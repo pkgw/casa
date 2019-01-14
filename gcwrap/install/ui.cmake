@@ -53,7 +53,6 @@ macro( casa_add_tasks module _target )
     list( APPEND _all_tasks ${_base} )
 
     set( _cli ${CMAKE_CURRENT_BINARY_DIR}/${_base}_cli.py )
-    set( _pg  ${CMAKE_CURRENT_BINARY_DIR}/${_base}_pg.py )
     set( _py  ${CMAKE_CURRENT_BINARY_DIR}/${_base}.py )
 
     # Create _cli.py
@@ -61,13 +60,6 @@ macro( casa_add_tasks module _target )
     add_custom_command(
       OUTPUT ${_cli}
       COMMAND ${SAXON} -o ${_cli} ${_xml} ${_xsl} 
-      DEPENDS ${_xml} ${_xsl} )
-
-    # Create _pg.py
-    set( _xsl ${CMAKE_SOURCE_DIR}/install/casa2pypg.xsl )
-    add_custom_command(
-      OUTPUT ${_pg}
-      COMMAND ${SAXON} -o ${_pg} ${_xml} ${_xsl} 
       DEPENDS ${_xml} ${_xsl} )
 
     # Create .py
@@ -90,7 +82,7 @@ macro( casa_add_tasks module _target )
     set( _out_taskinfo ${_out_taskinfo} ${_out} )
 
     # Keep track of generated files
-    set( _out_py ${_out_py} ${_py} ${_cli} ${_pg} )
+    set( _out_py ${_out_py} ${_py} ${_cli} )
 
     # Create task documentation
     casa_add_doc( ${_xml} ${CASA_DOC_DIR} task )
@@ -272,7 +264,11 @@ macro( casa_add_tools out_swig out_sources out_py )
         SET_SOURCE_FILES_PROPERTIES(${_swigi} PROPERTIES SWIG_FLAGS "-I${CMAKE_SOURCE_DIR};-threads")
     ENDIF()
     #SWIG_ADD_MODULE(${_base} python ${_swig} ${_path}/${_base}_cmpt.cc)
-    SWIG_ADD_MODULE(${_base} python ${_swigi} ${_swigstatics})
+    if (${CMAKE_VERSION} VERSION_LESS "3.8.0")
+       SWIG_ADD_MODULE(${_base} python ${_swigi} ${_swigstatics})
+    else()
+       SWIG_ADD_LIBRARY(${_base} LANGUAGE python SOURCES ${_swigi} ${_swigstatics})
+    endif()
     SWIG_LINK_LIBRARIES( ${_base} ${CASACODE_LIBRARIES} ${INTEL_LIBS}
 	                          ${PYTHON_LIBRARIES}
 				  ${ATM_LIBRARIES}

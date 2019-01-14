@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalHolographyRow.h>
-#include <CalHolographyTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalHolographyRow.h>
+#include <alma/ASDM/CalHolographyTable.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalDataTable;
 using asdm::CalDataRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalHolographyRow::~CalHolographyRow() {
@@ -2457,7 +2454,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalHolographyRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2465,7 +2464,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalHolographyRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2473,7 +2474,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalHolographyRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2481,7 +2484,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an AntennaMake 
 	void CalHolographyRow::antennaMakeFromText(const string & s) {
 		 
-		antennaMake = ASDMValuesParser::parse<AntennaMake>(s);
+          
+		antennaMake = ASDMValuesParser::parse<AntennaMakeMod::AntennaMake>(s);
+          
 		
 	}
 	
@@ -2489,7 +2494,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalHolographyRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2497,7 +2504,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalHolographyRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2505,7 +2514,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void CalHolographyRow::ambientTemperatureFromText(const string & s) {
 		 
+          
 		ambientTemperature = ASDMValuesParser::parse<Temperature>(s);
+          
 		
 	}
 	
@@ -2513,7 +2524,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalHolographyRow::focusPositionFromText(const string & s) {
 		 
+          
 		focusPosition = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -2521,7 +2534,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalHolographyRow::frequencyRangeFromText(const string & s) {
 		 
+          
 		frequencyRange = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -2529,7 +2544,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalHolographyRow::illuminationTaperFromText(const string & s) {
 		 
+          
 		illuminationTaper = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2537,7 +2554,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalHolographyRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2545,7 +2564,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalHolographyRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -2553,7 +2574,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalHolographyRow::numPanelModesFromText(const string & s) {
 		 
+          
 		numPanelModes = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2561,7 +2584,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalHolographyRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -2570,7 +2595,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalHolographyRow::rawRMSFromText(const string & s) {
 		 
+          
 		rawRMS = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -2578,7 +2605,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalHolographyRow::weightedRMSFromText(const string & s) {
 		 
+          
 		weightedRMS = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -2587,7 +2616,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalHolographyRow::directionFromText(const string & s) {
 		 
+          
 		direction = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -2597,7 +2628,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	void CalHolographyRow::numScrewFromText(const string & s) {
 		numScrewExists = true;
 		 
+          
 		numScrew = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2606,7 +2639,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	void CalHolographyRow::screwNameFromText(const string & s) {
 		screwNameExists = true;
 		 
+          
 		screwName = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -2615,7 +2650,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	void CalHolographyRow::screwMotionFromText(const string & s) {
 		screwMotionExists = true;
 		 
+          
 		screwMotion = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -2624,7 +2661,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	void CalHolographyRow::screwMotionErrorFromText(const string & s) {
 		screwMotionErrorExists = true;
 		 
+          
 		screwMotionError = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -2633,7 +2672,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	void CalHolographyRow::gravCorrectionFromText(const string & s) {
 		gravCorrectionExists = true;
 		 
+          
 		gravCorrection = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -2642,7 +2683,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	void CalHolographyRow::gravOptRangeFromText(const string & s) {
 		gravOptRangeExists = true;
 		 
+          
 		gravOptRange = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -2651,7 +2694,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	void CalHolographyRow::tempCorrectionFromText(const string & s) {
 		tempCorrectionExists = true;
 		 
+          
 		tempCorrection = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -2660,7 +2705,9 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	void CalHolographyRow::tempOptRangeFromText(const string & s) {
 		tempOptRangeExists = true;
 		 
+          
 		tempOptRange = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -2682,23 +2729,23 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalHolographyRow::getAntennaName() const {
+ 	std::string CalHolographyRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalHolographyRow::setAntennaName (string antennaName)  {
+ 	void CalHolographyRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2846,21 +2893,21 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get focusPosition.
- 	 * @return focusPosition as vector<Length >
+ 	 * @return focusPosition as std::vector<Length >
  	 */
- 	vector<Length > CalHolographyRow::getFocusPosition() const {
+ 	std::vector<Length > CalHolographyRow::getFocusPosition() const {
 	
   		return focusPosition;
  	}
 
  	/**
- 	 * Set focusPosition with the specified vector<Length >.
- 	 * @param focusPosition The vector<Length > value to which focusPosition is to be set.
+ 	 * Set focusPosition with the specified std::vector<Length >.
+ 	 * @param focusPosition The std::vector<Length > value to which focusPosition is to be set.
  	 
  	
  		
  	 */
- 	void CalHolographyRow::setFocusPosition (vector<Length > focusPosition)  {
+ 	void CalHolographyRow::setFocusPosition (std::vector<Length > focusPosition)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2878,21 +2925,21 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalHolographyRow::getFrequencyRange() const {
+ 	std::vector<Frequency > CalHolographyRow::getFrequencyRange() const {
 	
   		return frequencyRange;
  	}
 
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  	
  		
  	 */
- 	void CalHolographyRow::setFrequencyRange (vector<Frequency > frequencyRange)  {
+ 	void CalHolographyRow::setFrequencyRange (std::vector<Frequency > frequencyRange)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2974,21 +3021,21 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > CalHolographyRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > CalHolographyRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void CalHolographyRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void CalHolographyRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3198,21 +3245,21 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get direction.
- 	 * @return direction as vector<Angle >
+ 	 * @return direction as std::vector<Angle >
  	 */
- 	vector<Angle > CalHolographyRow::getDirection() const {
+ 	std::vector<Angle > CalHolographyRow::getDirection() const {
 	
   		return direction;
  	}
 
  	/**
- 	 * Set direction with the specified vector<Angle >.
- 	 * @param direction The vector<Angle > value to which direction is to be set.
+ 	 * Set direction with the specified std::vector<Angle >.
+ 	 * @param direction The std::vector<Angle > value to which direction is to be set.
  	 
  	
  		
  	 */
- 	void CalHolographyRow::setDirection (vector<Angle > direction)  {
+ 	void CalHolographyRow::setDirection (std::vector<Angle > direction)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3285,10 +3332,10 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get screwName, which is optional.
- 	 * @return screwName as vector<string >
+ 	 * @return screwName as std::vector<std::string >
  	 * @throw IllegalAccessException If screwName does not exist.
  	 */
- 	vector<string > CalHolographyRow::getScrewName() const  {
+ 	std::vector<std::string > CalHolographyRow::getScrewName() const  {
 		if (!screwNameExists) {
 			throw IllegalAccessException("screwName", "CalHolography");
 		}
@@ -3297,12 +3344,12 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set screwName with the specified vector<string >.
- 	 * @param screwName The vector<string > value to which screwName is to be set.
+ 	 * Set screwName with the specified std::vector<std::string >.
+ 	 * @param screwName The std::vector<std::string > value to which screwName is to be set.
  	 
  	
  	 */
- 	void CalHolographyRow::setScrewName (vector<string > screwName) {
+ 	void CalHolographyRow::setScrewName (std::vector<std::string > screwName) {
 	
  		this->screwName = screwName;
 	
@@ -3332,10 +3379,10 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get screwMotion, which is optional.
- 	 * @return screwMotion as vector<Length >
+ 	 * @return screwMotion as std::vector<Length >
  	 * @throw IllegalAccessException If screwMotion does not exist.
  	 */
- 	vector<Length > CalHolographyRow::getScrewMotion() const  {
+ 	std::vector<Length > CalHolographyRow::getScrewMotion() const  {
 		if (!screwMotionExists) {
 			throw IllegalAccessException("screwMotion", "CalHolography");
 		}
@@ -3344,12 +3391,12 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set screwMotion with the specified vector<Length >.
- 	 * @param screwMotion The vector<Length > value to which screwMotion is to be set.
+ 	 * Set screwMotion with the specified std::vector<Length >.
+ 	 * @param screwMotion The std::vector<Length > value to which screwMotion is to be set.
  	 
  	
  	 */
- 	void CalHolographyRow::setScrewMotion (vector<Length > screwMotion) {
+ 	void CalHolographyRow::setScrewMotion (std::vector<Length > screwMotion) {
 	
  		this->screwMotion = screwMotion;
 	
@@ -3379,10 +3426,10 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get screwMotionError, which is optional.
- 	 * @return screwMotionError as vector<Length >
+ 	 * @return screwMotionError as std::vector<Length >
  	 * @throw IllegalAccessException If screwMotionError does not exist.
  	 */
- 	vector<Length > CalHolographyRow::getScrewMotionError() const  {
+ 	std::vector<Length > CalHolographyRow::getScrewMotionError() const  {
 		if (!screwMotionErrorExists) {
 			throw IllegalAccessException("screwMotionError", "CalHolography");
 		}
@@ -3391,12 +3438,12 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set screwMotionError with the specified vector<Length >.
- 	 * @param screwMotionError The vector<Length > value to which screwMotionError is to be set.
+ 	 * Set screwMotionError with the specified std::vector<Length >.
+ 	 * @param screwMotionError The std::vector<Length > value to which screwMotionError is to be set.
  	 
  	
  	 */
- 	void CalHolographyRow::setScrewMotionError (vector<Length > screwMotionError) {
+ 	void CalHolographyRow::setScrewMotionError (std::vector<Length > screwMotionError) {
 	
  		this->screwMotionError = screwMotionError;
 	
@@ -3473,10 +3520,10 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get gravOptRange, which is optional.
- 	 * @return gravOptRange as vector<Angle >
+ 	 * @return gravOptRange as std::vector<Angle >
  	 * @throw IllegalAccessException If gravOptRange does not exist.
  	 */
- 	vector<Angle > CalHolographyRow::getGravOptRange() const  {
+ 	std::vector<Angle > CalHolographyRow::getGravOptRange() const  {
 		if (!gravOptRangeExists) {
 			throw IllegalAccessException("gravOptRange", "CalHolography");
 		}
@@ -3485,12 +3532,12 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set gravOptRange with the specified vector<Angle >.
- 	 * @param gravOptRange The vector<Angle > value to which gravOptRange is to be set.
+ 	 * Set gravOptRange with the specified std::vector<Angle >.
+ 	 * @param gravOptRange The std::vector<Angle > value to which gravOptRange is to be set.
  	 
  	
  	 */
- 	void CalHolographyRow::setGravOptRange (vector<Angle > gravOptRange) {
+ 	void CalHolographyRow::setGravOptRange (std::vector<Angle > gravOptRange) {
 	
  		this->gravOptRange = gravOptRange;
 	
@@ -3567,10 +3614,10 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tempOptRange, which is optional.
- 	 * @return tempOptRange as vector<Temperature >
+ 	 * @return tempOptRange as std::vector<Temperature >
  	 * @throw IllegalAccessException If tempOptRange does not exist.
  	 */
- 	vector<Temperature > CalHolographyRow::getTempOptRange() const  {
+ 	std::vector<Temperature > CalHolographyRow::getTempOptRange() const  {
 		if (!tempOptRangeExists) {
 			throw IllegalAccessException("tempOptRange", "CalHolography");
 		}
@@ -3579,12 +3626,12 @@ void CalHolographyRow::tempOptRangeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set tempOptRange with the specified vector<Temperature >.
- 	 * @param tempOptRange The vector<Temperature > value to which tempOptRange is to be set.
+ 	 * Set tempOptRange with the specified std::vector<Temperature >.
+ 	 * @param tempOptRange The std::vector<Temperature > value to which tempOptRange is to be set.
  	 
  	
  	 */
- 	void CalHolographyRow::setTempOptRange (vector<Temperature > tempOptRange) {
+ 	void CalHolographyRow::setTempOptRange (std::vector<Temperature > tempOptRange) {
 	
  		this->tempOptRange = tempOptRange;
 	
@@ -4223,7 +4270,7 @@ receiverBand = CReceiverBand::from_int(0);
 	}
 
 	
-	bool CalHolographyRow::compareNoAutoInc(string antennaName, Tag calDataId, Tag calReductionId, AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, vector<Length > focusPosition, vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, vector<Angle > direction) {
+	bool CalHolographyRow::compareNoAutoInc(std::string antennaName, Tag calDataId, Tag calReductionId, AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, std::vector<Length > focusPosition, std::vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, std::vector<Angle > direction) {
 		bool result;
 		result = true;
 		
@@ -4365,7 +4412,7 @@ receiverBand = CReceiverBand::from_int(0);
 	
 	
 	
-	bool CalHolographyRow::compareRequiredValue(AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, vector<Length > focusPosition, vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, vector<Angle > direction) {
+	bool CalHolographyRow::compareRequiredValue(AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, std::vector<Length > focusPosition, std::vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, std::vector<Angle > direction) {
 		bool result;
 		result = true;
 		

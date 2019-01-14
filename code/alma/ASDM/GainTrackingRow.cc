@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <GainTrackingRow.h>
-#include <GainTrackingTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/GainTrackingRow.h>
+#include <alma/ASDM/GainTrackingTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-#include <FeedTable.h>
-#include <FeedRow.h>
+#include <alma/ASDM/FeedTable.h>
+#include <alma/ASDM/FeedRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::FeedTable;
 using asdm::FeedRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	GainTrackingRow::~GainTrackingRow() {
@@ -1234,7 +1231,9 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void GainTrackingRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1242,7 +1241,9 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void GainTrackingRow::spectralWindowIdFromText(const string & s) {
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1250,7 +1251,9 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void GainTrackingRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -1258,7 +1261,9 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void GainTrackingRow::feedIdFromText(const string & s) {
 		 
+          
 		feedId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1266,7 +1271,9 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void GainTrackingRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1274,7 +1281,9 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void GainTrackingRow::attenuatorFromText(const string & s) {
 		 
+          
 		attenuator = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1282,7 +1291,9 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void GainTrackingRow::polarizationTypeFromText(const string & s) {
 		 
-		polarizationType = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationType = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -1292,7 +1303,9 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	void GainTrackingRow::samplingLevelFromText(const string & s) {
 		samplingLevelExists = true;
 		 
+          
 		samplingLevel = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -1301,7 +1314,9 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	void GainTrackingRow::numAttFreqFromText(const string & s) {
 		numAttFreqExists = true;
 		 
+          
 		numAttFreq = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1310,7 +1325,9 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	void GainTrackingRow::attFreqFromText(const string & s) {
 		attFreqExists = true;
 		 
+          
 		attFreq = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -1319,7 +1336,9 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	void GainTrackingRow::attSpectrumFromText(const string & s) {
 		attSpectrumExists = true;
 		 
+          
 		attSpectrum = ASDMValuesParser::parse1D<Complex>(s);
+          
 		
 	}
 	
@@ -1409,21 +1428,21 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get attenuator.
- 	 * @return attenuator as vector<float >
+ 	 * @return attenuator as std::vector<float >
  	 */
- 	vector<float > GainTrackingRow::getAttenuator() const {
+ 	std::vector<float > GainTrackingRow::getAttenuator() const {
 	
   		return attenuator;
  	}
 
  	/**
- 	 * Set attenuator with the specified vector<float >.
- 	 * @param attenuator The vector<float > value to which attenuator is to be set.
+ 	 * Set attenuator with the specified std::vector<float >.
+ 	 * @param attenuator The std::vector<float > value to which attenuator is to be set.
  	 
  	
  		
  	 */
- 	void GainTrackingRow::setAttenuator (vector<float > attenuator)  {
+ 	void GainTrackingRow::setAttenuator (std::vector<float > attenuator)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1441,21 +1460,21 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationType.
- 	 * @return polarizationType as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationType as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > GainTrackingRow::getPolarizationType() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > GainTrackingRow::getPolarizationType() const {
 	
   		return polarizationType;
  	}
 
  	/**
- 	 * Set polarizationType with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationType The vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
+ 	 * Set polarizationType with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationType The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
  	 
  	
  		
  	 */
- 	void GainTrackingRow::setPolarizationType (vector<PolarizationTypeMod::PolarizationType > polarizationType)  {
+ 	void GainTrackingRow::setPolarizationType (std::vector<PolarizationTypeMod::PolarizationType > polarizationType)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1575,10 +1594,10 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get attFreq, which is optional.
- 	 * @return attFreq as vector<double >
+ 	 * @return attFreq as std::vector<double >
  	 * @throw IllegalAccessException If attFreq does not exist.
  	 */
- 	vector<double > GainTrackingRow::getAttFreq() const  {
+ 	std::vector<double > GainTrackingRow::getAttFreq() const  {
 		if (!attFreqExists) {
 			throw IllegalAccessException("attFreq", "GainTracking");
 		}
@@ -1587,12 +1606,12 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set attFreq with the specified vector<double >.
- 	 * @param attFreq The vector<double > value to which attFreq is to be set.
+ 	 * Set attFreq with the specified std::vector<double >.
+ 	 * @param attFreq The std::vector<double > value to which attFreq is to be set.
  	 
  	
  	 */
- 	void GainTrackingRow::setAttFreq (vector<double > attFreq) {
+ 	void GainTrackingRow::setAttFreq (std::vector<double > attFreq) {
 	
  		this->attFreq = attFreq;
 	
@@ -1622,10 +1641,10 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get attSpectrum, which is optional.
- 	 * @return attSpectrum as vector<Complex >
+ 	 * @return attSpectrum as std::vector<Complex >
  	 * @throw IllegalAccessException If attSpectrum does not exist.
  	 */
- 	vector<Complex > GainTrackingRow::getAttSpectrum() const  {
+ 	std::vector<Complex > GainTrackingRow::getAttSpectrum() const  {
 		if (!attSpectrumExists) {
 			throw IllegalAccessException("attSpectrum", "GainTracking");
 		}
@@ -1634,12 +1653,12 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set attSpectrum with the specified vector<Complex >.
- 	 * @param attSpectrum The vector<Complex > value to which attSpectrum is to be set.
+ 	 * Set attSpectrum with the specified std::vector<Complex >.
+ 	 * @param attSpectrum The std::vector<Complex > value to which attSpectrum is to be set.
  	 
  	
  	 */
- 	void GainTrackingRow::setAttSpectrum (vector<Complex > attSpectrum) {
+ 	void GainTrackingRow::setAttSpectrum (std::vector<Complex > attSpectrum) {
 	
  		this->attSpectrum = attSpectrum;
 	
@@ -2069,7 +2088,7 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool GainTrackingRow::compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, vector<float > attenuator, vector<PolarizationTypeMod::PolarizationType > polarizationType) {
+	bool GainTrackingRow::compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, std::vector<float > attenuator, std::vector<PolarizationTypeMod::PolarizationType > polarizationType) {
 		bool result;
 		result = true;
 		
@@ -2127,7 +2146,7 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool GainTrackingRow::compareRequiredValue(int numReceptor, vector<float > attenuator, vector<PolarizationTypeMod::PolarizationType > polarizationType) {
+	bool GainTrackingRow::compareRequiredValue(int numReceptor, std::vector<float > attenuator, std::vector<PolarizationTypeMod::PolarizationType > polarizationType) {
 		bool result;
 		result = true;
 		

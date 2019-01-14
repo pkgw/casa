@@ -358,7 +358,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Bool doSumWtNorm=true;
     if (sumWt.shape().nelements()==0) doSumWtNorm=false;
-    doSumWtNorm = doSumWtNorm; // Dummy statement to get rid of compiler warnings
     if ((sumWt.shape().nelements() < 2) || 
 	(sumWt.shape()(0) != wtImage.shape()(2)) || 
 	(sumWt.shape()(1) != wtImage.shape()(3)))

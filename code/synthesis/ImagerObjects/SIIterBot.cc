@@ -21,8 +21,10 @@
 //# $Id: $
 
 #include <synthesis/ImagerObjects/SIIterBot.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/session/DBusSession.h>
 #include <casadbus/utilities/Conversion.h>
+#endif
 
 /* Include file for the lock guard */
 #include <mutex>
@@ -61,7 +63,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	////////////////////////////////////
   
 	// All SIIterBot_states must have 'type' and 'name' defined.
-	SIIterBot_state::SIIterBot_state( SHARED_PTR<SIIterBot_callback> cb ) :
+	SIIterBot_state::SIIterBot_state( std::shared_ptr<SIIterBot_callback> cb ) :
 						itsDescription("no description is currently available..."),
 						itsMinPsfFraction(0.05),
 						itsMaxPsfFraction(0.8),
@@ -179,6 +181,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 os <<LogIO::DEBUG1<<"itsIterDone="<<itsIterDone<<" itsNiter="<<itsNiter<<LogIO::POST;
 
 		/// This may interfere with some other criterion... check.
+                Float tol = 0.01; // threshold test torelance (CAS-11278)
 		if ( itsMajorDone==0 && itsIterDone==0 )
                   {
                      if (itsMaskSum==0.0) { stopCode=7; } // if zero mask is detected it should exit right away
@@ -186,19 +189,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                    }
 		else if ( itsIterDone >= itsNiter || 
 		     itsPeakResidual <= itsThreshold ||
-                     itsPeakResidual <= itsNsigmaThreshold ||
+                     abs(itsPeakResidual - itsThreshold)/itsThreshold < tol ||   
 		     itsStopFlag )
 		  {
 		    //		    os << "Reached global stopping criteria : ";
 
 		    if( itsIterDone >= itsNiter ) { stopCode=1; }
 		    //os << "Numer of iterations. "; // (" << itsIterDone << ") >= limit (" << itsNiter << ")" ;
-		    if( usePeakRes <= itsThreshold ) {stopCode=2;}
-		    //if ( usePeakRes <= itsThreshold ) {
-                      // (itsThreshold >= itsNsigmaThreshold) {stopCode=2;}
-                      //if (itsThreshold >= itsNsigmaThreshold) {stopCode=2;}
-                      //else { if(itsNsigmaThreshold!=0.0) stopCode=8;} // for nsigma=0.0 this mode is turned off.
-                    //}
+		    if( usePeakRes <= itsThreshold || (usePeakRes-itsThreshold)/itsThreshold < tol) {stopCode=2; }
                     else if ( usePeakRes <= itsNsigmaThreshold ) {
                       if (itsNsigmaThreshold!=0.0) { stopCode=8; } // for nsigma=0.0 this mode is turned off
                     }
@@ -472,10 +470,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		//    summaryUpdate();
 	}
 
+#if defined(WITHOUT_DBUS)
+	casac::variant SIIterBot_state::getSummary( ) {
+		std::cout << __FUNCTION__ << " executing" << std::endl;
+		return casac::variant( );
+	}
+#else
 	DBus::Variant SIIterBot_state::getSummary( ) {
 		std::cout << __FUNCTION__ << " executing" << std::endl;
 		return DBus::Variant( );
 	}
+#endif
 
 	int SIIterBot_state::getNumberOfControllers( ) {
 		std::lock_guard<std::recursive_mutex> guard(recordMutex);    
@@ -835,7 +840,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	}
 
-	SIIterBot_adaptor::SIIterBot_adaptor( SHARED_PTR<SIIterBot_state> s, const std::string &bus_name, const std::string &object_path) :
+	SIIterBot_adaptor::SIIterBot_adaptor( std::shared_ptr<SIIterBot_state> s, const std::string &bus_name, const std::string &object_path) :
 #ifdef INTERACTIVE_ITERATION
 				dbus::address(bus_name),
 				DBus::ObjectAdaptor( DBusSession::instance().connection( ), object_path ),

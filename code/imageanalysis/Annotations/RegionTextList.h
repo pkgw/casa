@@ -140,15 +140,15 @@ public:
 
 private:
     casacore::Vector<AsciiAnnotationFileLine> _lines;
-    vector<SHARED_PTR<const casacore::WCRegion> > _regions;
+    std::vector<std::shared_ptr<const casacore::WCRegion> > _regions;
     casacore::CoordinateSystem _csys;
     casacore::IPosition _shape;
     casacore::Bool _canGetRegion;
     // if false, then the corresponding region is complementary to
     // the result of the previous region operations in the sequence
-    vector<casacore::Bool> _union;
-    mutable vector<SHARED_PTR<const casacore::WCDifference> > _myDiff;
-    mutable SHARED_PTR<const casacore::WCRegion> _composite;
+    std::vector<casacore::Bool> _union;
+    mutable std::vector<std::shared_ptr<const casacore::WCDifference> > _myDiff;
+    mutable std::shared_ptr<const casacore::WCRegion> _composite;
 };
 
 inline std::ostream &operator<<(std::ostream& os, const RegionTextList& list) {

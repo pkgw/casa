@@ -112,7 +112,8 @@ public:
 
   //Get the freqRange from in Frame to range it represents in outFrame for 
   //all the fields and time selected in the vi
-  static void getFreqRangeFromRange(casacore::Double& outfreqMin, casacore::Double& outfreqMax,  const casacore::MFrequency::Types inFreqFrame, const casacore::Double infreqMin, const casacore::Double infreqMax, vi::VisibilityIterator2& vi, casacore::MFrequency::Types outFreqFrame);
+  //Returns False if failed to do any conversion.
+  static casacore::Bool getFreqRangeFromRange(casacore::Double& outfreqMin, casacore::Double& outfreqMax,  const casacore::MFrequency::Types inFreqFrame, const casacore::Double infreqMin, const casacore::Double infreqMax, vi::VisibilityIterator2& vi, casacore::MFrequency::Types outFreqFrame);
 
   // Converts the frequency in this VisBuffer to velocity in the frame/def requested
   void toVelocity(casacore::Vector<casacore::Double>& outVel, 
@@ -161,13 +162,14 @@ public:
    /// get the pointing direction for a given integration and antenna id
    /// will cache it for large pointing table specially so that it can be reused pronto
    casacore::MDirection getPointingDir(const VisBuffer& vb, const casacore::Int antid, const casacore::Int row);
-   casacore::MDirection getPointingDir(const vi::VisBuffer2& vb, const casacore::Int antid, const casacore::Int row);
+   casacore::MDirection getPointingDir(const vi::VisBuffer2& vb, const casacore::Int antid, const casacore::Int row, const casacore::Bool usePointing=true);
    //get the phaseCenter for a given time   ..cached so that it does not need to do small read every time of access
    // time -ve means   use the first time in the vb
     casacore::MDirection getPhaseCenter(const vi::VisBuffer2& vb, const casacore::Double time=-1.0);
     ///Get the ephemeris direction of a source fieldid of vb at time given 
     //or the first time in the visBuffer 
     static casacore::MDirection getEphemDir(const vi::VisBuffer2& vb, const casacore::Double time=-1.0);
+	
  private:
   void swapyz(casacore::Cube<casacore::Bool>& out, const casacore::Cube<casacore::Bool>& in);
   void swapyz(casacore::Cube<casacore::Complex>& out, const casacore::Cube<casacore::Complex>& in);

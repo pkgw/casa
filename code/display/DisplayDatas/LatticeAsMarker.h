@@ -152,10 +152,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// and indicate the fixed axis values for axes in the data that are
 		// not specified as xAxis, yAxis or mAxis.
 		// <group>
-		LatticeAsMarker(SHARED_PTR<casacore::ImageInterface<T> > image, const casacore::uInt xAxis,
+		LatticeAsMarker(std::shared_ptr<casacore::ImageInterface<T> > image, const casacore::uInt xAxis,
 		                const casacore::uInt yAxis, const casacore::uInt mAxis,
 		                const casacore::IPosition fixedPos);
-		LatticeAsMarker(SHARED_PTR<casacore::ImageInterface<T> > image, const casacore::uInt xAxis,
+		LatticeAsMarker(std::shared_ptr<casacore::ImageInterface<T> > image, const casacore::uInt xAxis,
 		                const casacore::uInt yAxis);
 		// </group>
 

@@ -30,6 +30,8 @@
 #define MSVIS_MSUTIL_H
 #include <casa/aips.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
+#include <ms/MeasurementSets/MSColumns.h>
+#include <measures/Measures/MDirection.h>
 namespace casa { //# NAMESPACE CASA - BEGIN
 
   class MSUtil{
@@ -96,10 +98,28 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			      const casacore::MeasurementSet& ms, 
 			      const casacore::MFrequency::Types freqframe,
 					      const casacore::Vector<casacore::Int>& fieldId, const casacore::Bool edge=true, const casacore::Bool useFieldsInMS=false );
+     //This version gets the range of frequency in SOURCE frame for an ephem source
+     //either trackDIr should be a known planet or ephemPath should not be an
+     //empty string. Also return a systemic velocity w.r.t TOPO  at the closest time in
+     // the ms of the reference epoch provided
+     static  casacore::Bool getFreqRangeAndRefFreqShift( casacore::Double& freqStart,
+							 casacore::Double& freqEnd,
+							 casacore::Quantity& sysvel,
+							 const casacore::MEpoch& refEp,
+							 const casacore::Vector<casacore::Int>& spw,
+							 const casacore::Vector<casacore::Int>& start,
+							 const casacore::Vector<casacore::Int>& nchan,
+							 const casacore::MeasurementSet& ms, 
+						      
+						       const casacore::String& ephemPath=casacore::String(""),
+						       const casacore::MDirection& trackDir=casacore::MDirection(casacore::MDirection::APP),
+						       const casacore::Bool fromEdge=true);
+     
     //Return all the selected SPW types selected in the selected casacore::MS if the input ms
     //is a reference MS. Else it will return all the types in the  SPW table
     static casacore::Vector<casacore::String> getSpectralFrames(casacore::Vector<casacore::MFrequency::Types>& types, const casacore::MeasurementSet& ms);
 
+    static void getIndexCombination(const casacore::ROMSColumns& mscol, casacore::Matrix<casacore::Int>& retval);
   private:
     static void rejectConsecutive(const casacore::Vector<casacore::Double>& t, casacore::Vector<casacore::Double>& retval, casacore::Vector<casacore::Int>& indx);
 

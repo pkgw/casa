@@ -28,10 +28,7 @@
 #define NoSuchRow_CLASS
 
 #include <string>
-using std::string;
-
-#include <IntegerWrapper.h>
-using asdm::Integer;
+#include <alma/ASDM/IntegerWrapper.h>
 
 namespace asdm {
 
@@ -51,14 +48,14 @@ namespace asdm {
      * @param rowNumber The row number that cannot be found.
      * @param tableName The table being searched.
      */
-    NoSuchRow(int rowNumber, string tableName);
+    NoSuchRow(int rowNumber, std::string tableName);
 
     /**
      * Create an exception when an expected row cannot be found.
      * @param key The key of the row that cannot be found.
      * @param tableName The table being searched.
      */
-    NoSuchRow(string key, string tableName);
+    NoSuchRow(std::string key, std::string tableName);
 
     /**
      * Create an exception when an expected link cannot be found.
@@ -66,7 +63,7 @@ namespace asdm {
      * @param toTableName The table to which the link is directed.
      * @param fromTableName The table from which the link is directed.
      */
-    NoSuchRow(int N, string toTableName, string fromTableName);
+    NoSuchRow(int N, std::string toTableName, std::string fromTableName);
 
     /**
      * Create an exception when an expected link cannot be found.
@@ -74,7 +71,7 @@ namespace asdm {
      * @param toTableName The table to which the link is directed.
      * @param fromTableName The table from which the link is directed.
      */
-    NoSuchRow(string key, string toTableName, string fromTableName);
+    NoSuchRow(std::string key, std::string toTableName, std::string fromTableName);
 
     /**
      * Create an exception when an optional link does not exist.
@@ -82,7 +79,7 @@ namespace asdm {
      * @param fromTableName The table from which the link is directed.
      * @param option Is not really used.
      */
-    NoSuchRow(string toTableName, string fromTableName, bool option);
+    NoSuchRow(std::string toTableName, std::string fromTableName, bool option);
 	
 
     /**
@@ -93,14 +90,14 @@ namespace asdm {
     /**
      * @return a text describing the exception.
      */
-    string getMessage() const;
+    std::string getMessage() const;
 	
   protected:
 
-    string message;
+    std::string message;
 
   private:
-    static const string ITSNAME;
+    static const std::string ITSNAME;
 
   };
 } // End namespace asdm

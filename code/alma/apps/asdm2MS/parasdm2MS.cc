@@ -1,3 +1,8 @@
+// NOTE: this code is not currently being used or developed. It _may_ have been checked to see if
+// it still compiles but it should not be trusted as being up to date or remotely correct. It is
+// being kept around as an an example of a previous attempt to do something like this.
+// Use with extreme caution.
+
 // #ifdef _OPENMP
 // #include <omp.h>
 // #endif 
@@ -17,83 +22,71 @@
 #include <sstream>
 #include <stdlib.h>
 #include <string>
+#include <regex>
 #include <vector>
-
-#include <boost/algorithm/string.hpp>
 
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-#include <boost/algorithm/string.hpp>
-using namespace boost;
+#include <alma/ASDM/ASDMAll.h>
+#include <alma/ASDM/Misc.h>
 
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/convenience.hpp>
-using namespace boost::filesystem;
-
-#include <boost/regex.hpp> 
-
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/casts.hpp>
-using namespace boost::lambda;
-
-#include <ASDMAll.h>
-
-#include "SDMBinData.h"
+#include <alma/ASDMBinaries/SDMBinData.h>
 using namespace sdmbin;
 
 #include <exception>
 using namespace asdm;
-#include "IllegalAccessException.h"
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include "UvwCoords.h"
-#include "ASDM2MSFiller.h"
+#include <alma/apps/asdm2MS/UvwCoords.h>
+#include <alma/apps/asdm2MS/ASDM2MSFiller.h>
 
-#include "measures/Measures/Stokes.h"
-#include "measures/Measures/MFrequency.h"
+#include <measures/Measures/Stokes.h>
+#include <measures/Measures/MFrequency.h>
 using namespace casacore;
-using namespace casa;
+
 #include <tables/Tables/Table.h>
 #include <tables/Tables/PlainTable.h>
 #include <tables/Tables/TableCopy.h>
 #include <casa/Arrays/MatrixMath.h>
+#include <casa/OS/Path.h>
+#include <casa/OS/Directory.h>
+#include <casa/OS/DirectoryIterator.h>
+#include <casa/OS/File.h>
+#include <casa/OS/RegularFile.h>
+#include <casa/OS/SymLink.h>
 
 
-
-#include "CBasebandName.h"
-#include "CCalibrationDevice.h"
+#include <alma/Enumerations/CBasebandName.h>
+#include <alma/Enumerations/CCalibrationDevice.h>
 using namespace CalibrationDeviceMod;
-#include "CFrequencyReferenceCode.h"
-#include "CPolarizationType.h"
-#include "CPrimitiveDataType.h"
-#include "CProcessorSubType.h"
-#include "CProcessorType.h"
+#include <alma/Enumerations/CFrequencyReferenceCode.h>
+#include <alma/Enumerations/CPolarizationType.h>
+#include <alma/Enumerations/CPrimitiveDataType.h>
+#include <alma/Enumerations/CProcessorSubType.h>
+#include <alma/Enumerations/CProcessorType.h>
 using namespace ProcessorTypeMod;
-#include "CScanIntent.h"
-#include "CSubscanIntent.h"
+#include <alma/Enumerations/CScanIntent.h>
+#include <alma/Enumerations/CSubscanIntent.h>
 using namespace SubscanIntentMod;
-#include "CSpectralResolutionType.h"
+#include <alma/Enumerations/CSpectralResolutionType.h>
 using namespace SpectralResolutionTypeMod;
-#include "CStokesParameter.h"
+#include <alma/Enumerations/CStokesParameter.h>
 
-#include "Name2Table.h"
-#include "ASDMVerbatimFiller.h"
+#include <alma/apps/asdm2MS/Name2Table.h>
+#include <alma/apps/asdm2MS/ASDMVerbatimFiller.h>
 
-#include "SDMDataObjectStreamReader.h"
-#include "SDMDataObjectReader.h"
-#include "SDMDataObject.h"
-using namespace asdmbinaries;
+#include <alma/ASDM/TableStreamReader.h>
+#include <alma/apps/asdm2MS/asdm2MSGeneric.h>
 
-#include "TableStreamReader.h"
-#include "asdm2MSGeneric.h"
+#include <alma/apps/asdm2MS/AnyValueMap.hpp>
 
-#include "AnyValueMap.hpp"
+#include <asdmstman/AsdmStMan.h>
+#include <alma/apps/asdm2MS/BDF2AsdmStManIndex.h>
 
-#include "asdmstman/AsdmStMan.h"
-#include "BDF2AsdmStManIndex.h"
+#include <alma/apps/asdm2MS/ScansParser.h>
 
-#include	"time.h"			/* <time.h> */
+#include	<time.h>			/* <time.h> */
 #if	defined(__sysv__)
 #include	<sys/time.h>
 #elif	defined(__bsd__)
@@ -724,7 +717,7 @@ void spher(const vector<double>& x, vector<double>& s) {
  */
 void topo2geomat(double lambda, double phi, vector<vector<double> >& mat) {
  
-  double cpsi, spsi, clam, slam, cphi, sphi;
+  double clam, slam, cphi, sphi;
 
   clam = cos(lambda);
   slam = sin(lambda);
@@ -882,75 +875,6 @@ bool                             withCompression = false;
 // A function to determine if overTheTop is present in a given row of the Pointing table.
 //
 bool overTheTopExists(PointingRow* row) { return row->isOverTheTopExists(); }
-
-//
-// A collection of declarations and functions used for the parsing of the 'scans' option.
-//
-#include <boost/spirit/include/classic.hpp>
-#include <boost/spirit/include/classic_assign_actor.hpp>
-#include <boost/spirit/include/classic_push_back_actor.hpp>
-using namespace boost::spirit::classic;
-
-vector<int> eb_v;
-int allEbs = -1;
-int ebNumber = allEbs;
-int readEb = allEbs;
-
-set<int> scan_s;
-int scanNumber0, scanNumber1;
-
-map<int, set<int> > eb_scan_m;
-
-/*
-** Inserts all the integer values in the range [scanNumber0, scanNumber1] in the set referred 
-** to by the global variable scan_s.
-** The two parameters begin and end are not used and here only to comply with the Spirit parser's convention.
-**
-*/
-void fillScanSet(const char* begin, const char* end) {
-  for (int i = scanNumber0; i < (scanNumber1+1); i++)
-    scan_s.insert(i);
-}
-
-/*
-** Inserts all the elements of the set referred to by the global variable scan_s into
-** the set associated with the (int) key equal to the last value of the global vector eb_v
-** in the global map eb_scan_m.
-** The two parameters begin and end are not used and here only to comply with the Spirit parser's convention.
-*/  
-void mergeScanSet(const char* begin, const char* end) {
-  int key = eb_v.back();
-  eb_scan_m[key].insert(scan_s.begin(), scan_s.end());
-}
-
-/*
-** Empties the global set scan_s.
-** The two parameters begin and end are not used and here only to comply with the Spirit parser's convention.
-*/
-void clearScanSet(const char* begin, const char* end) {
-  scan_s.clear();
-}
-
-/*
-** Defines the grammar and the behaviour of a Spirit parser
-** able to process a scan selection.
-*/
-struct eb_scan_selection : public grammar<eb_scan_selection> {
-  template<typename ScannerT> struct definition {
-    definition (eb_scan_selection const& self) {
-      eb_scan_list   = eb_scan >> *(';' >> eb_scan);
-      eb_scan	     = (eb[push_back_a(eb_v, ebNumber)][assign_a(ebNumber, allEbs)] >> scan_list)[&mergeScanSet][&clearScanSet];
-      eb	     = !(int_p[assign_a(readEb)] >> ':')[assign_a(ebNumber, readEb)];
-      scan_list	     = !((scan_selection >> *(',' >> scan_selection)));
-      scan_selection = (int_p[assign_a(scanNumber0)][assign_a(scanNumber1)] >> !('~' >> int_p[assign_a(scanNumber1)]))
-	[&fillScanSet]
-	[assign_a(scanNumber0, -1)]
-	[assign_a(scanNumber1, -1)];
-    }
-    rule<ScannerT> eb_scan_list, eb_scan, eb, scan_list, scan_selection;
-    rule<ScannerT> const& start() const { return eb_scan_list ; }
-  };
-};
 
 map<int, int> swIdx2Idx ;                       // A map which associates old and new index of Spectral Windows before/after reordering.
 
@@ -1131,39 +1055,39 @@ Table *  buildAndAttachEphemeris(const string & name, vector<double> observerLoc
 
   // The table keywords firstly.
   tableDesc.comment() = "An ephemeris table.";
-  tableDesc.rwKeywordSet().define("MJD0", casa::Double(0.0));
-  tableDesc.rwKeywordSet().define("dMJD", casa::Double(0.0));
+  tableDesc.rwKeywordSet().define("MJD0", casacore::Double(0.0));
+  tableDesc.rwKeywordSet().define("dMJD", casacore::Double(0.0));
   tableDesc.rwKeywordSet().define("NAME", "T.B.D");
-  tableDesc.rwKeywordSet().define("GeoLong", casa::Double(observerLocation[0] / 3.14159265 * 180.0));
-  tableDesc.rwKeywordSet().define("GeoLat", casa::Double(observerLocation[1] / 3.14159265 * 180.0));
-  tableDesc.rwKeywordSet().define("GeoDist", casa::Double(observerLocation[2]));
+  tableDesc.rwKeywordSet().define("GeoLong", casacore::Double(observerLocation[0] / 3.14159265 * 180.0));
+  tableDesc.rwKeywordSet().define("GeoLat", casacore::Double(observerLocation[1] / 3.14159265 * 180.0));
+  tableDesc.rwKeywordSet().define("GeoDist", casacore::Double(observerLocation[2]));
   
   // Then the fields definitions and keywords.
-  ScalarColumnDesc<casa::Double> mjdColumn("MJD");
+  ScalarColumnDesc<casacore::Double> mjdColumn("MJD");
   mjdColumn.rwKeywordSet().define("UNIT", "d");
   tableDesc.addColumn(mjdColumn);
 
-  ScalarColumnDesc<casa::Double> raColumn("RA");
+  ScalarColumnDesc<casacore::Double> raColumn("RA");
   raColumn.rwKeywordSet().define("UNIT", "deg");
   tableDesc.addColumn(raColumn);
 
-  ScalarColumnDesc<casa::Double> decColumn("DEC");
+  ScalarColumnDesc<casacore::Double> decColumn("DEC");
   decColumn.rwKeywordSet().define("UNIT", "deg");
   tableDesc.addColumn(decColumn);
   
-  ScalarColumnDesc<casa::Double> rhoColumn("Rho");
+  ScalarColumnDesc<casacore::Double> rhoColumn("Rho");
   rhoColumn.rwKeywordSet().define("UNIT", "AU");
   tableDesc.addColumn(rhoColumn);
 
-  ScalarColumnDesc<casa::Double> radVelColumn("RadVel");
+  ScalarColumnDesc<casacore::Double> radVelColumn("RadVel");
   radVelColumn.rwKeywordSet().define("UNIT", "AU/d");
   tableDesc.addColumn(radVelColumn);
 
-  ScalarColumnDesc<casa::Double> diskLongColumn("diskLong");
+  ScalarColumnDesc<casacore::Double> diskLongColumn("diskLong");
   diskLongColumn.rwKeywordSet().define("UNIT", "deg");
   tableDesc.addColumn(diskLongColumn);
 
-  ScalarColumnDesc<casa::Double> diskLatColumn("diskLat");
+  ScalarColumnDesc<casacore::Double> diskLatColumn("diskLat");
   diskLatColumn.rwKeywordSet().define("UNIT", "deg");
   tableDesc.addColumn(diskLatColumn);
 
@@ -1301,7 +1225,7 @@ private:
 template<class T, class S>
 vector<T> dd2v(vector<Tag> dataDescriptionId_v, S s) {
   vector<T> result_v;
-  transform(dataDescriptionId_v.begin(), dataDescriptionId_v.end(), back_inserter(result_v), s);
+  std::transform(dataDescriptionId_v.begin(), dataDescriptionId_v.end(), std::back_inserter(result_v), s);
   return result_v;
 }
 
@@ -1319,12 +1243,15 @@ map<Tag, AnyValueMap<string> > msGroup(ASDM * ds_p) {
   vector<string> empty_v;
 
   const vector<MainRow*> & mR_v = ds_p->getMain().get();
-  for (int i = 0; i < mR_v.size(); i++) {
+  for (unsigned int i = 0; i < mR_v.size(); i++) {
     Tag cfgId = mR_v[i]->getConfigDescriptionId();
     cfgR_s.insert(ds_p->getConfigDescription().getRowByKey(cfgId));
     if (bdfNamesPerCfgId_m.find(cfgId) == bdfNamesPerCfgId_m.end() )
       bdfNamesPerCfgId_m[cfgId] = empty_v;
-    bdfNamesPerCfgId_m[cfgId].push_back( replace_all_copy(replace_all_copy(mR_v[i]->getDataUID().getEntityId().toString(), ":", "_"), "/", "_") );    
+    string dataUID = mR_v[i]->getDataUID().getEntityId().toString();
+    replace(dataUID.begin(),dataUID.end(),':','_');
+    replace(dataUID.begin(),dataUID.end(),'/','_');
+    bdfNamesPerCfgId_m[cfgId].push_back(dataUID);    
   }
 
   map<Tag, AnyValueMap<string> > msGroupPerConfigDesc_m;
@@ -1419,7 +1346,8 @@ void fillAntenna(ASDM * ds_p) {
       for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end();
 	   ++iter) {
-	int antenna_id = iter->second->addAntenna(r->getName(),
+	// the return value here is not used
+	/* int antenna_id = */ iter->second->addAntenna(r->getName(),
 						  r->getStationUsingStationId()->getName(),
 						  xPosition,
 						  yPosition,
@@ -1514,7 +1442,7 @@ void fillCalDevice(ASDM* ds_p, bool ignoreTime, vector<ScanRow*>& selectedScanRo
       }
       else {
 	calLoadNames.resize(temp.size());
-	transform(temp.begin(), temp.end(), calLoadNames.begin(), stringValue<CalibrationDevice, CCalibrationDevice>);	  
+	std::transform(temp.begin(), temp.end(), calLoadNames.begin(), stringValue<CalibrationDevice, CCalibrationDevice>);	  
       }
 
       //
@@ -1643,7 +1571,7 @@ void fillCalDevice(ASDM* ds_p, bool ignoreTime, vector<ScanRow*>& selectedScanRo
 	  coupledNoiseCal.resize(numReceptor);
 	  for (unsigned int iReceptor = 0; iReceptor < numReceptor; iReceptor++) {
 	    coupledNoiseCal[iReceptor].resize(numCalload);
-	    transform(noiseCal.begin(), noiseCal.begin()+numCalload, coupledNoiseCal[iReceptor].begin(), d2f);
+	    std::transform(noiseCal.begin(), noiseCal.begin()+numCalload, coupledNoiseCal[iReceptor].begin(), d2f);
 	  } 
 	}
       }
@@ -1664,7 +1592,7 @@ void fillCalDevice(ASDM* ds_p, bool ignoreTime, vector<ScanRow*>& selectedScanRo
 	}
 	else {
 	  temperatureLoad.resize(temp.size());
-	  transform(temp.begin(), temp.end(), temperatureLoad.begin(), basicTypeValue<Temperature, float>);	  
+	  std::transform(temp.begin(), temp.end(), temperatureLoad.begin(), basicTypeValue<Temperature, float>);	  
 	}
       }
       
@@ -1708,7 +1636,7 @@ void fillCalDevice(ASDM* ds_p, bool ignoreTime, vector<ScanRow*>& selectedScanRo
 				     temperatureLoad);
       }      
     }
-    unsigned int numMSCalDevices = (const_cast<casa::MeasurementSet*>(msFillers.begin()->second->ms()))->rwKeywordSet().asTable("CALDEVICE").nrow();
+    unsigned int numMSCalDevices = (const_cast<casacore::MeasurementSet*>(msFillers.begin()->second->ms()))->rwKeywordSet().asTable("CALDEVICE").nrow();
     if (numMSCalDevices > 0) {
       infostream.str("");
       infostream << "converted in " << numMSCalDevices << " caldevice(s) in the measurement set.";
@@ -1864,45 +1792,45 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond) {
       TableDesc tableDesc;
     
       tableDesc.comment() = v[0]->getOrigin();
-      tableDesc.rwKeywordSet().define("MJD0", casa::Double(mjd0));
-      tableDesc.rwKeywordSet().define("dMJD", casa::Double(dmjd));
+      tableDesc.rwKeywordSet().define("MJD0", casacore::Double(mjd0));
+      tableDesc.rwKeywordSet().define("dMJD", casacore::Double(dmjd));
       tableDesc.rwKeywordSet().define("NAME", fieldName);
-      tableDesc.rwKeywordSet().define("GeoLong", casa::Double(geoLong));
-      tableDesc.rwKeywordSet().define("GeoLat", casa::Double(geoLat));
-      tableDesc.rwKeywordSet().define("GeoDist", casa::Double(geoDist));
+      tableDesc.rwKeywordSet().define("GeoLong", casacore::Double(geoLong));
+      tableDesc.rwKeywordSet().define("GeoLat", casacore::Double(geoLat));
+      tableDesc.rwKeywordSet().define("GeoDist", casacore::Double(geoDist));
     
       // Then the fields definitions and keywords.
-      ScalarColumnDesc<casa::Double> mjdColumn("MJD");
+      ScalarColumnDesc<casacore::Double> mjdColumn("MJD");
       mjdColumn.rwKeywordSet().define("UNIT", "d");
       tableDesc.addColumn(mjdColumn);
     
-      ScalarColumnDesc<casa::Double> raColumn("RA");
+      ScalarColumnDesc<casacore::Double> raColumn("RA");
       raColumn.rwKeywordSet().define("UNIT", "deg");
       tableDesc.addColumn(raColumn);
     
-      ScalarColumnDesc<casa::Double> decColumn("DEC");
+      ScalarColumnDesc<casacore::Double> decColumn("DEC");
       decColumn.rwKeywordSet().define("UNIT", "deg");
       tableDesc.addColumn(decColumn);
     
-      ScalarColumnDesc<casa::Double> rhoColumn("Rho");
+      ScalarColumnDesc<casacore::Double> rhoColumn("Rho");
       rhoColumn.rwKeywordSet().define("UNIT", "AU");
       tableDesc.addColumn(rhoColumn);
     
-      ScalarColumnDesc<casa::Double> radVelColumn("RadVel");
+      ScalarColumnDesc<casacore::Double> radVelColumn("RadVel");
       radVelColumn.rwKeywordSet().define("UNIT", "km/s");
       tableDesc.addColumn(radVelColumn);
     
-      ScalarColumnDesc<casa::Double> diskLongColumn("diskLong");
+      ScalarColumnDesc<casacore::Double> diskLongColumn("diskLong");
       diskLongColumn.rwKeywordSet().define("UNIT", "deg");
       tableDesc.addColumn(diskLongColumn);
     
-      ScalarColumnDesc<casa::Double> diskLatColumn("diskLat");
+      ScalarColumnDesc<casacore::Double> diskLatColumn("diskLat");
       diskLatColumn.rwKeywordSet().define("UNIT", "deg");
       tableDesc.addColumn(diskLatColumn);
     
   
       string tableName = "EPHEM"
-	+ boost::lexical_cast<std::string>(ephemerisId)
+	+ TO_STRING(ephemerisId)
 	+ "_"
 	+ fieldName
 	+ "_"
@@ -1920,7 +1848,7 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond) {
     
 	Table* table_p = new Table(tableSetup, TableLock(TableLock::PermanentLockingWait));
 	AlwaysAssert(table_p, AipsError);
-	(const_cast<casa::MeasurementSet*>(iter->second->ms()))->rwKeywordSet().defineTable(tableName, *table_p);
+	(const_cast<casacore::MeasurementSet*>(iter->second->ms()))->rwKeywordSet().defineTable(tableName, *table_p);
 	table_p->flush();
 	apc2EphemTable_m[iter->first] = table_p;
 	LOG("Empty ephemeris table '" + tablePath + "' created");
@@ -2063,7 +1991,7 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond) {
 	else {
 	  raASDM_vv.push_back(empty_v);
 	  decASDM_vv.push_back(empty_v);
-	  for (unsigned int j = 0; j < v[i]->getNumPolyDir(); j++) {
+	  for (int j = 0; j < v[i]->getNumPolyDir(); j++) {
 	    raASDM_vv.back().push_back(temp_vv[j][0]/3.14159265*180.0);
 	    decASDM_vv.back().push_back(temp_vv[j][1]/3.14159265*180.0);
 	  }
@@ -2076,7 +2004,7 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond) {
 	}
 	else {
 	  distanceASDM_vv.push_back(empty_v);
-	  for (unsigned int j = 0; j < v[i]->getNumPolyDist(); j++)
+	  for (int j = 0; j < v[i]->getNumPolyDist(); j++)
 	    distanceASDM_vv.back().push_back(temp_v[j] / 1.4959787066e11); // AU
 	}
 
@@ -2088,7 +2016,7 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond) {
 	  }
 	  else {
 	    radVelASDM_vv.push_back(empty_v);
-	    for (unsigned int j = 0; j < v[i]->getNumPolyRadVel(); j++)
+	    for (int j = 0; j < v[i]->getNumPolyRadVel(); j++)
 	      radVelASDM_vv.back().push_back(temp_v[j]/1000);              // km/s
 	  }	
 	}
@@ -2308,29 +2236,29 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond) {
 	LOG ("Added "+TO_STRING(numRows)+" rows to table "+((string)table_p->tableName()));
       
 	LOG("Filling column MJD");
-	Vector<casa::Double> MJD_V(IPosition(1, numRows), &mjdMS_v[0], SHARE);
-	ScalarColumn<casa::Double> MJD(*table_p, "MJD");
+	Vector<casacore::Double> MJD_V(IPosition(1, numRows), &mjdMS_v[0], SHARE);
+	ScalarColumn<casacore::Double> MJD(*table_p, "MJD");
 	MJD.putColumnRange(slicer, MJD_V);
       
 	LOG("Filling column RA");
-	Vector<casa::Double> RA_V(IPosition(1, numRows), &raMS_v[0], SHARE);
-	ScalarColumn<casa::Double> RA(*table_p,  "RA");
+	Vector<casacore::Double> RA_V(IPosition(1, numRows), &raMS_v[0], SHARE);
+	ScalarColumn<casacore::Double> RA(*table_p,  "RA");
 	RA.putColumnRange(slicer, RA_V);
       
 	LOG("Filling column DEC");
-	Vector<casa::Double> DEC_V(IPosition(1, numRows), &decMS_v[0], SHARE);
-	ScalarColumn<casa::Double> DEC(*table_p, "DEC");
+	Vector<casacore::Double> DEC_V(IPosition(1, numRows), &decMS_v[0], SHARE);
+	ScalarColumn<casacore::Double> DEC(*table_p, "DEC");
 	DEC.putColumnRange(slicer, DEC_V);
       
 	LOG ("Filling column Rho");
-	Vector<casa::Double> Rho_V(IPosition(1, numRows), &distanceMS_v[0], SHARE);
-	ScalarColumn<casa::Double> Rho(*table_p, "Rho");
+	Vector<casacore::Double> Rho_V(IPosition(1, numRows), &distanceMS_v[0], SHARE);
+	ScalarColumn<casacore::Double> Rho(*table_p, "Rho");
 	Rho.putColumnRange(slicer, Rho_V);
       
 	if (radVelExists) {
 	  LOG ("Filling column RadVel");
-	  Vector<casa::Double> RadVel_V(IPosition(1, numRows), &radVelMS_v[0], SHARE);
-	  ScalarColumn<casa::Double> RadVel(*table_p, "RadVel");
+	  Vector<casacore::Double> RadVel_V(IPosition(1, numRows), &radVelMS_v[0], SHARE);
+	  ScalarColumn<casacore::Double> RadVel(*table_p, "RadVel");
 	  RadVel.putColumnRange(slicer, RadVel_V);
 	}
       
@@ -3389,7 +3317,7 @@ void fillSpectralWindow(ASDM* ds_p) {
 
       // To answer JIRA ticket CAS-3265 / Dirk Petry
       if (chanFreq1D[chanFreq1D.size() - 1] < chanFreq1D[0] )
-	transform(chanWidth1D.begin(), chanWidth1D.end(), chanWidth1D.begin(), negateFunctor<double>());
+	std::transform(chanWidth1D.begin(), chanWidth1D.end(), chanWidth1D.begin(), negateFunctor<double>());
       
       /* Processing the effectiveBwXXX
        *
@@ -3826,7 +3754,7 @@ string complexifyCrossData_s (float* data, uint32_t numData, uint32_t numCorr, u
   return oss.str().substr(0, numChar);
 }
 
-void complexifyCrossData_f(float* data, uint32_t numData, uint32_t numCorr, vector<float>& result) {
+void complexifyCrossData_f(float* data, uint32_t numData, uint32_t /* numCorr */, vector<float>& result) {
   LOGENTER("complexifyCrossData_f");
   result.resize(numData);
   copy(data, data+numData, result.begin());
@@ -3834,21 +3762,21 @@ void complexifyCrossData_f(float* data, uint32_t numData, uint32_t numCorr, vect
 }
 
 template <class T>
-void listCrossData(int64_t midpoint, int64_t interval, uint32_t numCrossData, T * data_p, vector<AnyValueMap<string> >& bb_spw_v, AnyValueMap<string>& msGroup_avm, uint32_t dataDescIndex, vector<ofstream *>& binaryDataPath_p_v, bool mute) {
+void listCrossData(int64_t /* midpoint */, int64_t /* interval */, uint32_t numCrossData, T * data_p, vector<AnyValueMap<string> >& bb_spw_v, AnyValueMap<string>& msGroup_avm, uint32_t dataDescIndex, vector<ofstream *>& binaryDataPath_p_v, bool mute) {
   LOGENTER("listCrossData");
   
   LOG("ici_1");
   float			oneOverScaleFactor  = 1.0 / bb_spw_v[dataDescIndex].getValue<float>("scaleFactor");
   vector<float>	cdSlice;
-  transform ( data_p,
-	      data_p+numCrossData,
-	      back_inserter(cdSlice),
-	      oneOverScaleFactor * _1);
-
+  std::transform ( data_p,
+		   data_p+numCrossData,
+		   std::back_inserter(cdSlice),
+		   [oneOverScaleFactor](int i){return i*oneOverScaleFactor;});
+  
   vector<Tag>	antennaId_v	    = msGroup_avm.getValue<vector<Tag> >("antennas");
   unsigned int	blIndex		    = 0;
   unsigned int	numCrossPolProducts = bb_spw_v[dataDescIndex].getValue<vector<StokesParameter> >("crossPolProducts").size();
-  unsigned int  numDD               = msGroup_avm.getValue<vector<Tag> >("ddId").size();
+  // unsigned int  numDD               = msGroup_avm.getValue<vector<Tag> >("ddId").size();
 
   unsigned int		base		    = 0;
   unsigned int		sliceStart	    = 0;
@@ -3892,7 +3820,7 @@ string complexifyAutoData_s (const AUTODATATYPE* data, uint32_t numAutoData, uin
   switch (numCorr) {
   case 1:
   case 2:
-    for_each (data, data+numAutoData, oss << "(" << _1 << ")");
+    for_each (data, data+numAutoData, [&oss](int i){oss << "(" << i << ")";});
     break;
 
   case 3 :
@@ -3965,12 +3893,12 @@ void complexifyAutoData_f (const AUTODATATYPE* data, uint32_t numAutoData, uint3
   LOGEXIT("complexifyCrossData_f");
 }
 
-void listAutoData(int64_t midpoint, int64_t interval, uint32_t numAutoData, const AUTODATATYPE * data_p, vector<AnyValueMap<string> >& bb_spw_v, AnyValueMap<string>& msGroup_avm, uint32_t dataDescIndex, vector<ofstream *>& binaryDataPath_p_v, bool mute) {
+void listAutoData(int64_t /* midpoint */, int64_t /* interval */, uint32_t /* numAutoData */, const AUTODATATYPE * data_p, vector<AnyValueMap<string> >& bb_spw_v, AnyValueMap<string>& msGroup_avm, uint32_t dataDescIndex, vector<ofstream *>& binaryDataPath_p_v, bool mute) {
   LOGENTER("listAutoData");
 
   vector<Tag>	antennaId_v	    = msGroup_avm.getValue<vector<Tag> >("antennas");
   unsigned int	numSdPolProducts    = bb_spw_v[dataDescIndex].getValue<vector<StokesParameter> >("sdPolProducts").size();
-  uint32_t      numDD               = msGroup_avm.getValue<vector<Tag> >("ddId").size();
+  // uint32_t      numDD               = msGroup_avm.getValue<vector<Tag> >("ddId").size();
 
   unsigned int sliceStart = 0;
   unsigned int sliceEnd   = 0; 
@@ -4020,15 +3948,15 @@ void complexifyRadiometricData_f(const AUTODATATYPE* data, uint32_t numRadiometr
   LOGEXIT("complexifyRadiometricData_f");
 }
 
-void listRadiometricData(int64_t midpoint, int64_t interval, uint32_t numTime, uint32_t numRadiometricData, const AUTODATATYPE * data_p, vector<AnyValueMap<string> >& bb_spw_v, AnyValueMap<string>& msGroup_avm, uint32_t dataDescIndex, vector<ofstream *>& binaryDataPath_p_v, bool mute) {
+void listRadiometricData(int64_t /* midpoint */, int64_t /* interval */, uint32_t numTime, uint32_t /* numRadiometricData */, const AUTODATATYPE * data_p, vector<AnyValueMap<string> >& bb_spw_v, AnyValueMap<string>& msGroup_avm, uint32_t dataDescIndex, vector<ofstream *>& binaryDataPath_p_v, bool mute) {
   LOGENTER("listRadiometricData");
 
   vector<Tag>	antennaId_v	 = msGroup_avm.getValue<vector<Tag> >("antennas");
   unsigned int	numSdPolProducts = bb_spw_v[dataDescIndex].getValue<vector<StokesParameter> >("sdPolProducts").size();
-  uint32_t      numDD            = msGroup_avm.getValue<vector<Tag> >("ddId").size();
+  // uint32_t      numDD            = msGroup_avm.getValue<vector<Tag> >("ddId").size();
   
-  float deltaTime = interval / ((float) numTime);
-  float startTime = midpoint - (interval - deltaTime) / 2.0;
+  // float deltaTime = interval / ((float) numTime);
+  // float startTime = midpoint - (interval - deltaTime) / 2.0;
   
   uint32_t	antOffset	    = msGroup_avm.getValue<uint32_t>("antOffset");
   uint32_t      rmdOffset           = msGroup_avm.getValue<vector<uint32_t> >("rmdBBOffset")[dataDescIndex];
@@ -4071,20 +3999,20 @@ void fillMainPar( const string& dsPath, ASDM * ds_p, bool doparallel, bool mute 
 
   map<Tag, AnyValueMap<string> > msGroup_m = msGroup(ds_p);
     
-  boost::regex crossDataAxesRE("BAL( +BAB)?( +APC)?( +SPP)?( +POL)?");
-  boost::regex autoDataAxesRE("ANT( +BAB)?( +SPP)?( +POL)?");
-  boost::regex radiometerAxesRE("TIM ANT( +SPP)?");
+  std::regex crossDataAxesRE("BAL( +BAB)?( +APC)?( +SPP)?( +POL)?");
+  std::regex autoDataAxesRE("ANT( +BAB)?( +SPP)?( +POL)?");
+  std::regex radiometerAxesRE("TIM ANT( +SPP)?");
 
   /*
    * Now process the bdf files grouped by configDescriptionId.
    *
    */
   vector<Tag> keys_v;
-  transform( msGroup_m.begin(),
-	     msGroup_m.end(),
-	     back_inserter(keys_v),
-	     bind (&std::map<Tag, AnyValueMap<string> >::value_type::first, _1)
-	     );
+  std::transform( msGroup_m.begin(),
+		  msGroup_m.end(),
+		  std::back_inserter(keys_v),
+		  std::bind (&std::map<Tag, AnyValueMap<string> >::value_type::first, std::placeholders::_1)
+		  );
 
   // cout << "Size of keys = " << keys_v.size() << endl;
   // copy ( keys_v.begin(), keys_v.end(), std::ostream_iterator<Tag>(std::cout, "\n") );
@@ -4259,7 +4187,7 @@ void fillMainPar( const string& dsPath, ASDM * ds_p, bool doparallel, bool mute 
 	    const AUTODATATYPE *        autoData_p;
 
 #pragma omp parallel for schedule(dynamic) if(doparallel)
-	    for (int32_t dataDescIndex = 0; dataDescIndex < dataDescriptionId_v.size(); dataDescIndex++) {
+	    for (uint32_t dataDescIndex = 0; dataDescIndex < dataDescriptionId_v.size(); dataDescIndex++) {
 	      
 	      //	      if (omp_get_thread_num() == 1) 
 	      //cout << "Number of threads=" + TO_STRING(omp_get_num_threads()) + "\n";
@@ -4369,7 +4297,7 @@ void fillMainPar( const string& dsPath, ASDM * ds_p, bool doparallel, bool mute 
  * !!!!! One must be carefull to the fact that fillState must have been called before fillMain. During the execution of fillState , the global vector<int> msStateID
  * is filled and will be used by fillMain.
  */ 
-void fillMain(int		rowNum,
+void fillMain(int		/* rowNum */,
 	      MainRow*		r_p,
 	      SDMBinData&	sdmBinData,
 	      const VMSData*	vmsData_p,
@@ -4409,7 +4337,7 @@ void fillMain(int		rowNum,
   /* compute the UVW */
   vector<double> uvw(3*vmsData_p->v_time.size());
 	  
-  vector<casa::Vector<casa::Double> > vv_uvw;
+  vector<casacore::Vector<casacore::Double> > vv_uvw;
 #if DDPRIORITY
   uvwCoords.uvw_bl(r_p, sdmBinData.timeSequence(), e_query_cm, 
 		   sdmbin::SDMBinData::dataOrder(),
@@ -4540,6 +4468,9 @@ void fillMain(int		rowNum,
 	  
   if (uncorrectedData.size() > 0 && (msFillers.find(AP_UNCORRECTED) != msFillers.end())) {
     if (! mute) {
+      // when found, missing weight and sigma arguments, added here to set default values to check with compiler
+      vector<double> weight_v(vmsData_p->v_time.size(),1.0);
+      vector<double> sigma_v(vmsData_p->v_time.size(),1.0);
       msFillers[AP_UNCORRECTED]->addData(complexData,
 					 (vector<double>&) vmsData_p->v_time, // this is already time midpoint
 					 (vector<int>&) vmsData_p->v_antennaId1,
@@ -4559,12 +4490,18 @@ void fillMain(int		rowNum,
 					 uvw,
 					 filteredShape, // vmsData_p->vv_dataShape after filtering the case numCorr == 3
 					 uncorrectedData,
-					 (vector<unsigned int>&)vmsData_p->v_flag);
+					 (vector<unsigned int>&)vmsData_p->v_flag,
+					 weight_v,
+					 sigma_v);
     }
   }
 
   if (correctedData.size() > 0 && (msFillers.find(AP_CORRECTED) != msFillers.end())) {
     if (! mute) {
+      // missing correctedWeight and correctedSigma, added default values here to 
+      // check compiler. Not correct
+      vector<double> correctedWeight(correctedTime.size(),1.0);
+      vector<double> correctedSigma(correctedTime.size(),1.0);
       msFillers[AP_CORRECTED]->addData(complexData,
 				       correctedTime, // this is already time midpoint
 				       correctedAntennaId1, 
@@ -4584,7 +4521,9 @@ void fillMain(int		rowNum,
 				       correctedUvw,
 				       filteredShape, // vmsData_p->vv_dataShape after filtering the case numCorr == 3
 				       correctedData,
-				       correctedFlag);
+				       correctedFlag,
+				       correctedWeight,
+				       correctedSigma);
     }
   }
   if (debug) cout << "fillMain : exiting" << endl;
@@ -4604,9 +4543,9 @@ void calcUVW(MainRow* r_p,
              SDMBinData& sdmBinData, 
              const VMSData* vmsData_p, 
              UvwCoords& uvwCoords,
-             casa::Matrix< casa::Double >& mat_uvw) {
+             casacore::Matrix< casacore::Double >& mat_uvw) {
 
-  vector< casa::Vector<casa::Double> > vv_uvw;
+  vector< casacore::Vector<casacore::Double> > vv_uvw;
   mat_uvw.resize(3,vmsData_p->v_time.size());
 
 #if DDPRIORITY
@@ -4702,11 +4641,11 @@ void fillSysPower_aux (const vector<SysPowerRow *>& sysPowers, map<AtmPhaseCorre
    */
   if (debug) cout << "fillSysPower_aux : filling the arrays to populate the columns of the MS SYSPOWER table." << endl;
 
-  transform(sysPowers.begin(), sysPowers.end(), antennaId.begin(), sysPowerAntennaId);
-  transform(sysPowers.begin(), sysPowers.end(), spectralWindowId.begin(), sysPowerSpectralWindowId);
-  transform(sysPowers.begin(), sysPowers.end(), feedId.begin(), sysPowerFeedId);
-  transform(sysPowers.begin(), sysPowers.end(), time.begin(), sysPowerMidTimeInSeconds);
-  transform(sysPowers.begin(), sysPowers.end(), interval.begin(), sysPowerIntervalInSeconds);
+  std::transform(sysPowers.begin(), sysPowers.end(), antennaId.begin(), sysPowerAntennaId);
+  std::transform(sysPowers.begin(), sysPowers.end(), spectralWindowId.begin(), sysPowerSpectralWindowId);
+  std::transform(sysPowers.begin(), sysPowers.end(), feedId.begin(), sysPowerFeedId);
+  std::transform(sysPowers.begin(), sysPowers.end(), time.begin(), sysPowerMidTimeInSeconds);
+  std::transform(sysPowers.begin(), sysPowers.end(), interval.begin(), sysPowerIntervalInSeconds);
   
   /*
    * Prepare the optional attributes.
@@ -4780,7 +4719,7 @@ void fillSysPower(const string asdmDirectory, ASDM* ds_p, bool ignoreTime, const
       //
       // We can assume that there is an SysPower table , but we don't know yet if it's stored in a binary or an XML file.
       // 
-      if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(asdmDirectory + "/SysPower.bin")))) {
+      if (file_exists(uniqSlashes(asdmDirectory + "/SysPower.bin"))) {
 
 	if (debug) cout << "fillSysPower : working with SysPower.bin by successive slices." << endl;
 
@@ -4812,7 +4751,7 @@ void fillSysPower(const string asdmDirectory, ASDM* ds_p, bool ignoreTime, const
 	tsrSysPower.close();
       }
       
-      else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(asdmDirectory + "/SysPower.xml")))) {
+      else if (file_exists(uniqSlashes(asdmDirectory + "/SysPower.xml"))) {
 
 	if (debug) cout << "fillSysPower : working with SysPower.xml read with a TableSAXReader" << endl;
 
@@ -4833,7 +4772,7 @@ void fillSysPower(const string asdmDirectory, ASDM* ds_p, bool ignoreTime, const
       else 
 	throw ConversionException ("fillSysPower: no file found for SysPower", "SysPower");
 
-      unsigned int numMSSysPowers =  (const_cast<casa::MeasurementSet*>(msFillers_m.begin()->second->ms()))->rwKeywordSet().asTable("SYSPOWER").nrow();
+      unsigned int numMSSysPowers =  (const_cast<casacore::MeasurementSet*>(msFillers_m.begin()->second->ms()))->rwKeywordSet().asTable("SYSPOWER").nrow();
       if (numMSSysPowers > 0) {
 	infostream.str("");
 	infostream << "converted in " << numMSSysPowers << " syspower(s) in the measurement set.";
@@ -4991,7 +4930,7 @@ void fillTopMS(ASDM*					ds_p,
     error(errstream.str());
   }
   
-  ASDM2MSFiller* msFiller_p = msFillers.begin()->second;
+  /* ASDM2MSFiller* msFiller_p = msFillers.begin()->second; */
  
   //
   // Firstly convert the basic tables.
@@ -5087,14 +5026,14 @@ void fillTopMS(ASDM*					ds_p,
   
   // Do we also want to store the verbatim copies of some tables of the ASDM dataset ?
   if (asis) {
-    ASDMVerbatimFiller avf(const_cast<casa::MS*>(msFillers.begin()->second->ms()), Name2Table::find(asisTablenames_v, verbose));
+    ASDMVerbatimFiller avf(const_cast<casacore::MS*>(msFillers.begin()->second->ms()), Name2Table::find(asisTablenames_v, verbose));
     avf.fill(*ds_p);
   }
 
   for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
        iter != msFillers.end();
        ++iter)
-    iter->second->end(0.0);
+    iter->second->end();
 
   for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
        iter != msFillers.end();
@@ -5222,7 +5161,7 @@ int main(int argc, char *argv[]) {
   appName = string(argv[0]);
   ofstream ofs;
 
-  LogSinkInterface& lsif = LogSink::globalSink();
+  // LogSinkInterface& lsif = LogSink::globalSink();
 
   uint64_t bdfSliceSizeInMb = 0; // The default size of the BDF slice hold in memory.
 
@@ -5301,7 +5240,7 @@ int main(int argc, char *argv[]) {
 #if 0     
       // Replaced the change at the LogSink level ...
       ofs.open(vm["logfile"].as<string>().c_str(), ios_base::app);
-      LogSinkInterface *theSink = new casa::StreamLogSink(&ofs);
+      LogSinkInterface *theSink = new casacore::StreamLogSink(&ofs);
       LogSink::globalSink(theSink);
 #else
       // ... with a change at the cerr (stderr) level since by default global logs are going to cerr (stderr).
@@ -5424,7 +5363,7 @@ int main(int argc, char *argv[]) {
     if (vm.count("asdm-directory")) {
       string dummy = vm["asdm-directory"].as< string >();
       dsPath = lrtrim(dummy) ;
-      if (boost::algorithm::ends_with(dsPath,"/")) dsPath.erase(dsPath.size()-1);
+      if (dsPath.back()=='/') dsPath.erase(dsPath.size()-1);
     }
     else {
       errstream.str("");
@@ -5435,13 +5374,21 @@ int main(int argc, char *argv[]) {
     if (vm.count("ms-directory-prefix")) {
       string dummyMSName = vm["ms-directory-prefix"].as< string >();
       dummyMSName = lrtrim(dummyMSName);
-      if (boost::algorithm::ends_with(dummyMSName, "/")) dummyMSName.erase(dummyMSName.size()-1);
-      boost::filesystem::path msPath(lrtrim(dummyMSName),&boost::filesystem::no_check);
-      string msDirectory = msPath.branch_path().string();
-      msDirectory = lrtrim(msDirectory);
+      if (dummyMSName.back()=='/') dummyMSName.erase(dummyMSName.size()-1);
+      Path msPath(dummyMSName);
+      string msDirectory = msPath.dirName();
       if (msDirectory.size() == 0) msDirectory = ".";
-      msNamePrefix = msDirectory + "/" + boost::filesystem::basename(msPath);
-      msNameExtension = boost::filesystem::extension(msPath);
+      // extract the prefix and extension. Prefix is everything before any final "."
+      // etension is everything after any final ".", including that final dot.
+      string msPathBasename = msPath.baseName();
+      size_t rdot = msPathBasename.find_last_of('.');
+      if (rdot != std::string::npos) {
+	msNameExtension = msPathBasename.substr(rdot,msPathBasename.size()-rdot);
+	msNamePrefix = msPathBasename.substr(0,rdot);
+      } else {
+	msNameExtension = "";
+	msNamePrefix = msPathBasename;
+      }
     }
     else {
       msNamePrefix = dsPath;
@@ -5606,9 +5553,9 @@ int main(int argc, char *argv[]) {
   string scansOptionInfo;
   if (vm.count("scans")) {
     string scansOptionValue = vm["scans"].as< string >();
-    eb_scan_selection ebs;
 
-    int status = parse(scansOptionValue.c_str(), ebs, space_p).full;
+    map<int, set<int> > eb_scan_m;
+    int status = scansParser(scansOptionValue, eb_scan_m);
 
     if (status == 0) {
       errstream.str("");
@@ -5626,14 +5573,16 @@ int main(int argc, char *argv[]) {
 	else
 	  selected_eb_scan_m[iterr_m->first] = SetAndSet<int>(iter_m->second, iterr_m->second);
 
-    for (map<int, set<int> >::iterator iterr_m = all_eb_scan_m.begin(); iterr_m != all_eb_scan_m.end(); iterr_m++)
-      if ((iter_m=eb_scan_m.find(iterr_m->first)) != eb_scan_m.end())
-	if ((iter_m->second).empty())
+    for (map<int, set<int> >::iterator iterr_m = all_eb_scan_m.begin(); iterr_m != all_eb_scan_m.end(); iterr_m++) {
+      if ((iter_m=eb_scan_m.find(iterr_m->first)) != eb_scan_m.end()) {
+	if ((iter_m->second).empty()) {
 	  selected_eb_scan_m[iterr_m->first].insert((iterr_m->second).begin(), (iterr_m->second).end());
-	else {
+	} else {
 	  set<int> s = SetAndSet<int>(iter_m->second, iterr_m->second);
 	  selected_eb_scan_m[iterr_m->first].insert(s.begin(), s.end());
 	}
+      }
+    }
 
     ostringstream	oss;
     oss << "The following scans will be processed : " << endl;
@@ -5832,14 +5781,14 @@ int main(int argc, char *argv[]) {
 
   // Collect the configuration description ids in a vector.
   vector<Tag> keys_v;
-  transform( msGroup_avm.begin(),
-	     msGroup_avm.end(),
-	     back_inserter(keys_v),
-	     bind (&std::map<Tag, AnyValueMap<string> >::value_type::first, _1)
-	     );
+  std::transform( msGroup_avm.begin(),
+		  msGroup_avm.end(),
+		  std::back_inserter(keys_v),
+		  std::bind (&std::map<Tag, AnyValueMap<string> >::value_type::first, std::placeholders::_1)
+		  );
 
   // Iterate over the vector elements.
-  vector<boost::filesystem::path> subMSpath_v;
+  vector<Path> subMSpath_v;
   for(Tag configDescriptionId: keys_v) {
     ostringstream oss;
     oss << msNames_m.begin()->second << "/";
@@ -5848,40 +5797,50 @@ int main(int argc, char *argv[]) {
 	<< CSpectralResolutionType::toString(msGroup_avm[configDescriptionId].getValue<SpectralResolutionTypeMod::SpectralResolutionType>("spectralResolution"));
     vector<Tag> dataDescriptionId_v = msGroup_avm[configDescriptionId].getValue<vector<Tag> >("ddId");
     for (Tag dataDescriptionId: dataDescriptionId_v ) {
-      subMSpath_v.push_back(boost::filesystem::path(oss.str()+"_"+dataDescriptionId.toString()));
+      subMSpath_v.push_back(Path(oss.str()+"_"+dataDescriptionId.toString()));
     }
   }
   
-  for(boost::filesystem::path path: subMSpath_v) {
-    if (boost::filesystem::exists(boost::filesystem::status(path))) {
-      int nRemoved = boost::filesystem::remove_all(path);
-      cout << "removing directory " << path << " (" << nRemoved << " files deleted.)" << endl;
-    } 
-    else {
-      cout << "directory " << path << " does not exist." << endl;
+  for(Path path: subMSpath_v) {
+    File subMSfile(path);
+    if (subMSfile.isDirectory()) {
+      Directory subMSdir(path);
+      int nRemoved = subMSdir.nEntries()+1; // count itself
+      subMSdir.removeRecursive();
+      cout << "removing directory " << path.originalName() << " (" << nRemoved << " files deleted.)" << endl;
+    } else {
+      cout << "directory " << path.originalName() << " does not exist." << endl;
     }
     
-    if (bool created = boost::filesystem::create_directory(path))
-      cout << "successfully created directory " << path << endl;
-    else
-      cout << "failed to create directory" << path << endl;
+    Directory subMSdir(path);
+    subMSdir.create();
+    cout << "successfully created directory " << path.originalName() << endl;
   }
 
   //
   // Let's create symbolic links to the toplevel MS subtables in each subMS directory.
   //
-  vector<boost::filesystem::path> subTablePath_v;
-  directory_iterator end_iter;
-  for (directory_iterator iter(path(msNames_m.begin()->second)); iter != end_iter; ++iter) {
-    if (boost::filesystem::exists(iter->path() / path("table.dat"))) {
-      subTablePath_v.push_back(*iter);
-      cout << subTablePath_v.back() << endl;
+  vector<Path> subTablePath_v;
+  Directory msDir(msNames_m.begin()->second);
+  DirectoryIterator msDirIter(msDir);
+  while (!msDirIter.pastEnd()) {
+    if (msDirIter.file().isDirectory()) {
+      Path tabPath(msDirIter.file().path());
+      tabPath.append("table.dat");
+      File tabDat(tabPath);
+      if (tabDat.exists()) {
+	subTablePath_v.push_back(msDirIter.file().path());
+	cout << subTablePath_v.back().originalName() << endl;
+      }
+      msDirIter++;
     }
   }
 
-  for(boost::filesystem::path subMSPath: subMSpath_v) { 
-    for(boost::filesystem::path subTablePath: subTablePath_v) {
-      boost::filesystem::create_symlink(subTablePath, subMSPath / subTablePath.leaf());
+  for(Path subMSPath: subMSpath_v) { 
+    for(Path subTablePath: subTablePath_v) {
+      Path newSubTabPath(subMSPath);
+      newSubTabPath.append(subTablePath.baseName());
+      SymLink(newSubTabPath).create(subTablePath);
     }
   }
 
@@ -5891,12 +5850,19 @@ int main(int argc, char *argv[]) {
   
   //
   // Determine the MS main table files.
-  for (directory_iterator iter(path(msNames_m.begin()->second)); iter != end_iter; ++iter) {
-    string filename = iter->path().leaf();
-    if (boost::starts_with(filename, "table"))
-      for(boost::filesystem::path subMSPath: subMSpath_v) {
-	cout << "Trying to copy " << iter->path() << " to " << subMSPath << endl;
-	boost::filesystem::copy_file(iter->path(), subMSPath / iter->path().leaf());
+  DirectoryIterator dirIter(Path(msNames_m.begin()->second));
+  while (!dirIter.pastEnd()) {
+    string filename = dirIter.name();
+    string tabPrefix = "table";
+    if (filename.compare(0, tabPrefix.size(), tabPrefix)) {
+      for(Path subMSPath: subMSpath_v) {
+	cout << "Trying to copy " << dirIter.file().path().originalName() << " to " << subMSPath.originalName() << endl;
+	RegularFile origFile(dirIter.file());
+	Path newCopyPath(subMSPath);
+	newCopyPath.append(filename);
+	origFile.copy(newCopyPath);
       }
+    }
+    dirIter++;
   }
 }

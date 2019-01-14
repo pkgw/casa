@@ -643,6 +643,12 @@ TBD
      <value>false</value>
      </param>
 
+     <param type="string" direction="in" name="normtype">
+     <description>Solution normalization type</description>
+     <value>median</value>
+     <value>mean</value>
+     </param>
+
      <param type="float" direction="in" name="minsnr">
      <description>SNR threshold for accepting solutions</description>
      <value>0.0</value>
@@ -710,10 +716,29 @@ Default is True. </description>
      </param>
 
      <param type="bool" direction="in" name="zerorates">
-     <description>Zero delay-rates in fringe fitting solution
+     <description>[FRINGE-FIT SPECIFIC] Zero delay-rates in fringe fitting solution
      tables. </description>
      <value>false</value>
      </param>
+
+     <param type="bool" direction="in" name="globalsolve">
+     <description>[FRINGE-FIT SPECIFIC] Use global least-squares solver to improve fringe-fitting
+     parameter estimates </description>
+     <value>true</value>
+     </param>
+
+     <param type="doubleArray" direction="in" name="delaywindow">
+     <description>[FRINGE-FIT SPECIFIC] Constrain FFT delay search to a
+     window; a two-element list, units of nanoseconds</description>
+     <value></value>
+     </param>
+
+     <param type="doubleArray" direction="in" name="ratewindow">
+     <description>[FRINGE-FIT SPECIFIC] Constrain FFT rate search to a
+     window; a two-element list, units of seconds per second</description>
+     <value></value>
+     </param>
+
      
 </input>
 <returns type="bool"/>

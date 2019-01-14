@@ -41,34 +41,30 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <EntityRef.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 	
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
 
 
-	
-
-	
-
-	
-#include "CTimeSampling.h"
 	
 
 	
 
+	
+#include <alma/Enumerations/CTimeSampling.h>
 	
 
 	
@@ -79,20 +75,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -209,7 +209,7 @@ class MainRow;
 	
  * <TR>
  * <TD> stateId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numAntenna </TD> 
  * <TD> &nbsp;State identifier. </TD>
  * </TR>
@@ -385,7 +385,7 @@ public:
  	 * @param execBlockId
 	
      */
-	MainRow *newRow(ArrayTime time, Tag configDescriptionId, Tag fieldId, int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, vector<Tag>  stateId, Tag execBlockId);
+	MainRow *newRow(ArrayTime time, Tag configDescriptionId, Tag fieldId, int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, std::vector<Tag>  stateId, Tag execBlockId);
 	
 
 
@@ -518,7 +518,7 @@ public:
  	 * @param execBlockId
  	 		 
  	 */
-	MainRow* lookup(ArrayTime time, Tag configDescriptionId, Tag fieldId, int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, vector<Tag>  stateId, Tag execBlockId); 
+	MainRow* lookup(ArrayTime time, Tag configDescriptionId, Tag fieldId, int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, std::vector<Tag>  stateId, Tag execBlockId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

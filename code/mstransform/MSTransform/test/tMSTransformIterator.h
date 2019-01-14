@@ -23,7 +23,7 @@
 #ifndef MSTransformIteratorTest_H_
 #define MSTransformIteratorTest_H_
 
-#include <mstransform/TVI/test/TestUtilsTVI.h>
+#include <msvis/MSVis/test/TestUtilsTVI.h>
 #include <mstransform/MSTransform/MSTransformIteratorFactory.h>
 
 using namespace std;

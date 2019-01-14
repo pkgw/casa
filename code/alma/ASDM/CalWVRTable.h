@@ -41,38 +41,34 @@
 
 
 	
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
 
-	
-
-	
-
-	
-#include "CWVRMethod.h"
 	
 
 	
 
+	
+#include <alma/Enumerations/CWVRMethod.h>
 	
 
 	
@@ -97,20 +93,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -141,7 +141,7 @@ class CalWVRRow;
  		
  * <TD> antennaName </TD>
  		 
- * <TD> string</TD>
+ * <TD> std::string</TD>
  * <TD> &nbsp; </TD>
  * <TD> &nbsp;the name of the antenna. </TD>
  * </TR>
@@ -198,7 +198,7 @@ class CalWVRRow;
 	
  * <TR>
  * <TD> inputAntennaNames </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numInputAntennas </TD> 
  * <TD> &nbsp;the names of the input antennas (one string per antenna). </TD>
  * </TR>
@@ -212,21 +212,21 @@ class CalWVRRow;
 	
  * <TR>
  * <TD> chanFreq </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numChan </TD> 
  * <TD> &nbsp;the channel frequencies (one value per channel). </TD>
  * </TR>
 	
  * <TR>
  * <TD> chanWidth </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numChan </TD> 
  * <TD> &nbsp;the widths of the channels (one value per channel). </TD>
  * </TR>
 	
  * <TR>
  * <TD> refTemp </TD> 
- * <TD> vector<vector<Temperature > > </TD>
+ * <TD> std::vector<std::vector<Temperature > > </TD>
  * <TD>  numInputAntennas, numChan </TD> 
  * <TD> &nbsp;the reference temperatures (one value per input antenna per channel). </TD>
  * </TR>
@@ -240,28 +240,28 @@ class CalWVRRow;
 	
  * <TR>
  * <TD> pathCoeff </TD> 
- * <TD> vector<vector<vector<float > > > </TD>
+ * <TD> std::vector<std::vector<std::vector<float > > > </TD>
  * <TD>  numInputAntennas, numChan, numPoly </TD> 
  * <TD> &nbsp;the path length coefficients (one value per input antenna per channel per polynomial coefficient). </TD>
  * </TR>
 	
  * <TR>
  * <TD> polyFreqLimits </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the limits of the interval of frequencies for which the path length coefficients are computed. </TD>
  * </TR>
 	
  * <TR>
  * <TD> wetPath </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numPoly </TD> 
  * <TD> &nbsp;The wet path as a function frequency (expressed as a polynomial). </TD>
  * </TR>
 	
  * <TR>
  * <TD> dryPath </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numPoly </TD> 
  * <TD> &nbsp;The dry path as a function frequency (expressed as a polynomial). </TD>
  * </TR>
@@ -447,7 +447,7 @@ public:
  	 * @param water
 	
      */
-	CalWVRRow *newRow(string antennaName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, vector<string > inputAntennaNames, int numChan, vector<Frequency > chanFreq, vector<Frequency > chanWidth, vector<vector<Temperature > > refTemp, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<Frequency > polyFreqLimits, vector<float > wetPath, vector<float > dryPath, Length water);
+	CalWVRRow *newRow(std::string antennaName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, std::vector<std::string > inputAntennaNames, int numChan, std::vector<Frequency > chanFreq, std::vector<Frequency > chanWidth, std::vector<std::vector<Temperature > > refTemp, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<Frequency > polyFreqLimits, std::vector<float > wetPath, std::vector<float > dryPath, Length water);
 	
 
 
@@ -524,7 +524,7 @@ public:
 	
  	 *
 	 */
- 	CalWVRRow* getRowByKey(string antennaName, Tag calDataId, Tag calReductionId);
+ 	CalWVRRow* getRowByKey(std::string antennaName, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -573,7 +573,7 @@ public:
  	 * @param water
  	 		 
  	 */
-	CalWVRRow* lookup(string antennaName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, vector<string > inputAntennaNames, int numChan, vector<Frequency > chanFreq, vector<Frequency > chanWidth, vector<vector<Temperature > > refTemp, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<Frequency > polyFreqLimits, vector<float > wetPath, vector<float > dryPath, Length water); 
+	CalWVRRow* lookup(std::string antennaName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, WVRMethodMod::WVRMethod wvrMethod, int numInputAntennas, std::vector<std::string > inputAntennaNames, int numChan, std::vector<Frequency > chanFreq, std::vector<Frequency > chanWidth, std::vector<std::vector<Temperature > > refTemp, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<Frequency > polyFreqLimits, std::vector<float > wetPath, std::vector<float > dryPath, Length water); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

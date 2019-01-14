@@ -37,12 +37,12 @@ public:
 		const auto it = itemIndex_.find(header_item);
 		if ( it == itemIndex_.end() ) return emptyString();
 		return values_[it->second].value();  }
-	const vector<HeaderItemData>& values() const { return values_ ; }
+	const std::vector<HeaderItemData>& values() const { return values_ ; }
 	String toString() const ;
 
 private:
 	map<HeaderItem,uInt> itemIndex_;
-	vector<HeaderItemData> values_;
+	std::vector<HeaderItemData> values_;
 
 };
 

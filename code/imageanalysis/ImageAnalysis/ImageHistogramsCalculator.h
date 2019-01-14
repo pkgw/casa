@@ -25,8 +25,8 @@
 //#
 //# $Id: Image2DConvolver.h 20229 2008-01-29 15:19:06Z gervandiepen $
 
-#ifndef IMAGES_IMAGEHISTOGRAMSCALCULATOR_H
-#define IMAGES_IMAGEHISTOGRAMSCALCULATOR_H
+#ifndef IMAGEANALYSIS_IMAGEHISTOGRAMSCALCULATOR_H
+#define IMAGEANALYSIS_IMAGEHISTOGRAMSCALCULATOR_H
 
 #include <imageanalysis/ImageAnalysis/ImageTask.h>
 
@@ -65,7 +65,7 @@ namespace casa {
 //   <li> 
 // </todo>
 
-class ImageHistogramsCalculator : public ImageTask<casacore::Float> {
+template <class T> class ImageHistogramsCalculator : public ImageTask<T> {
 public:
 
 	const static casacore::String CLASS_NAME;
@@ -73,7 +73,7 @@ public:
 	ImageHistogramsCalculator() = delete;
 
 	ImageHistogramsCalculator(
-		const SPCIIF image, const casacore::Record *const &regionPtr,
+		const SPCIIT image, const casacore::Record *const &regionPtr,
 	    const casacore::String& mask
 	);
 	
@@ -81,14 +81,16 @@ public:
 
 	~ImageHistogramsCalculator();
 
-	ImageHistogramsCalculator &operator=(const ImageHistogramsCalculator &other) = delete;
+	ImageHistogramsCalculator &operator=(
+	    const ImageHistogramsCalculator &other
+	) = delete;
 
 	casacore::Record compute() const;
 
 	casacore::String getClass() const { return CLASS_NAME; }
 
 	// set cursor axes
-	void setAxes(const vector<casacore::uInt>& axes) { _axes = axes; };
+	void setAxes(const std::vector<casacore::uInt>& axes) { _axes = axes; };
 
 	// should the histogram be cumulative
 	void setCumulative(casacore::Bool b) { _cumulative = b; }
@@ -100,7 +102,7 @@ public:
 	void setDoLog10(casacore::Bool b) { _doLog10 = b; }
 
 	// set include range
-	void setIncludeRange(const vector<double>& r) { _includeRange = r; }
+	void setIncludeRange(const std::vector<double>& r) { _includeRange = r; }
 
 	// If true list stats to logger
 	void setListStats(casacore::Bool b) { _listStats = b; }
@@ -108,15 +110,14 @@ public:
 	// set number of bins
 	void setNBins(casacore::uInt n) { _nbins = n; }
 
-
 protected:
 
    	CasacRegionManager::StokesControl _getStokesControl() const {
    		return CasacRegionManager::USE_ALL_STOKES;
    	}
 
-    vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-    	return vector<casacore::Coordinate::Type>();
+    std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+    	return std::vector<casacore::Coordinate::Type>();
     }
 
     inline casacore::Bool _supportsMultipleRegions() const {return true;}
@@ -126,11 +127,16 @@ private:
     casacore::Bool _cumulative = false;
     casacore::Bool _listStats = false;
     casacore::Bool _doLog10 = false;
-    vector<casacore::uInt> _axes;
+    std::vector<casacore::uInt> _axes;
     casacore::uInt _nbins = 25;
-    vector<double> _includeRange;
+    std::vector<double> _includeRange;
 
 };
 
 }
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <imageanalysis/ImageAnalysis/ImageHistogramsCalculator.tcc>
+#endif
+
 #endif

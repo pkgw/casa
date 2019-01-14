@@ -30,18 +30,18 @@
  *
  * File CalPrimaryBeamTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <CalPrimaryBeamTable.h>
-#include <CalPrimaryBeamRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalPrimaryBeamTable.h>
+#include <alma/ASDM/CalPrimaryBeamRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::CalPrimaryBeamTable;
@@ -56,15 +56,18 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -309,7 +312,7 @@ namespace asdm {
  	 * @param imageNominalFrequency 
 	
      */
-	CalPrimaryBeamRow* CalPrimaryBeamTable::newRow(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, vector<vector<Frequency > > frequencyRange, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, vector<Angle > direction, vector<Angle > minValidDirection, vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, vector<int > imageChannelNumber, vector<Frequency > imageNominalFrequency){
+	CalPrimaryBeamRow* CalPrimaryBeamTable::newRow(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, std::vector<std::vector<Frequency > > frequencyRange, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, std::vector<Angle > direction, std::vector<Angle > minValidDirection, std::vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, std::vector<int > imageChannelNumber, std::vector<Frequency > imageNominalFrequency){
 		CalPrimaryBeamRow *row = new CalPrimaryBeamRow(*this);
 			
 		row->setAntennaName(antennaName);
@@ -490,7 +493,7 @@ CalPrimaryBeamRow* CalPrimaryBeamTable::newRow(CalPrimaryBeamRow* row) {
  ** no row exists for that key.
  **
  */
- 	CalPrimaryBeamRow* CalPrimaryBeamTable::getRowByKey(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId)  {
+ 	CalPrimaryBeamRow* CalPrimaryBeamTable::getRowByKey(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId)  {
  	checkPresenceInMemory();
 	CalPrimaryBeamRow* aRow = 0;
 	for (unsigned int i = 0; i < privateRows.size(); i++) {
@@ -566,7 +569,7 @@ CalPrimaryBeamRow* CalPrimaryBeamTable::newRow(CalPrimaryBeamRow* row) {
  * @param imageNominalFrequency.
  	 		 
  */
-CalPrimaryBeamRow* CalPrimaryBeamTable::lookup(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, vector<vector<Frequency > > frequencyRange, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, vector<Angle > direction, vector<Angle > minValidDirection, vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, vector<int > imageChannelNumber, vector<Frequency > imageNominalFrequency) {
+CalPrimaryBeamRow* CalPrimaryBeamTable::lookup(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, std::vector<std::vector<Frequency > > frequencyRange, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, std::vector<Angle > direction, std::vector<Angle > minValidDirection, std::vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, std::vector<int > imageChannelNumber, std::vector<Frequency > imageNominalFrequency) {
 		CalPrimaryBeamRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -627,7 +630,7 @@ CalPrimaryBeamRow* CalPrimaryBeamTable::lookup(string antennaName, ReceiverBandM
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<CalPrimaryBeamTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clprbm=\"http://Alma/XASDM/CalPrimaryBeamTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalPrimaryBeamTable http://almaobservatory.org/XML/XASDM/3/CalPrimaryBeamTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<CalPrimaryBeamTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clprbm=\"http://Alma/XASDM/CalPrimaryBeamTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalPrimaryBeamTable http://almaobservatory.org/XML/XASDM/4/CalPrimaryBeamTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -738,6 +741,9 @@ CalPrimaryBeamRow* CalPrimaryBeamTable::lookup(string antennaName, ReceiverBandM
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -754,7 +760,7 @@ CalPrimaryBeamRow* CalPrimaryBeamTable::lookup(string antennaName, ReceiverBandM
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<CalPrimaryBeamTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clprbm=\"http://Alma/XASDM/CalPrimaryBeamTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalPrimaryBeamTable http://almaobservatory.org/XML/XASDM/3/CalPrimaryBeamTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<CalPrimaryBeamTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clprbm=\"http://Alma/XASDM/CalPrimaryBeamTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalPrimaryBeamTable http://almaobservatory.org/XML/XASDM/4/CalPrimaryBeamTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='CalPrimaryBeamTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -1038,6 +1044,8 @@ CalPrimaryBeamRow* CalPrimaryBeamTable::lookup(string antennaName, ReceiverBandM
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void CalPrimaryBeamTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1091,11 +1099,19 @@ CalPrimaryBeamRow* CalPrimaryBeamTable::lookup(string antennaName, ReceiverBandM
 	}
 
 	
-	void CalPrimaryBeamTable::setFromFile(const string& directory) {		
+	void CalPrimaryBeamTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/CalPrimaryBeam.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/CalPrimaryBeam.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/CalPrimaryBeam.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/CalPrimaryBeam.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the CalPrimaryBeam table", "CalPrimaryBeam");
 	}			
@@ -1246,7 +1262,9 @@ CalPrimaryBeamRow* CalPrimaryBeamTable::lookup(string antennaName, ReceiverBandM
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

@@ -1642,9 +1642,9 @@ MultipleMss::usesMultipleMss () const {
 std::tuple <MeasurementSet *, Int, Bool>
 Weighting::createMs ()
 {
-	msf_p = std::move(
-		std::unique_ptr<MsFactory>(
-			new MsFactory(String::format("%s/Weighting.ms", tmpdir))));
+    msf_p = std::move(
+        std::unique_ptr<MsFactory>(
+            new MsFactory(String::format("%s/Weighting.ms", tmpdir))));
     msf_p->setIncludeAutocorrelations(true);
     msf_p->addSpectralWindow("spw", 5, 0, 100, "LL RR RL LR");
 
@@ -1717,6 +1717,60 @@ Weighting::nextSubchunk (VisibilityIterator2 & vi, VisBuffer2 * vb)
     // }
 }
 
+std::tuple <MeasurementSet *, Int, Bool>
+SubtablePropagation::createMs ()
+{
+    nAntennas_p = 10;
+    spwDef_p.push_back(std::make_tuple("spw1", 5, 0., 100., "LL RR RL LR"));
+    spwDef_p.push_back(std::make_tuple("spw2", 10, 0., 100., "LL RR"));
+
+    msf_p = std::move(
+        std::unique_ptr<MsFactory>(
+            new MsFactory(String::format("%s/SubtablePropagation.ms", tmpdir))));
+    msf_p->setIncludeAutocorrelations(true);
+    for (auto& spw : spwDef_p)
+        msf_p->addSpectralWindow(std::get<0>(spw), std::get<1>(spw), std::get<2>(spw),
+                                 std::get<3>(spw), std::get<4>(spw));
+
+    msf_p->addAntennas(nAntennas_p);
+
+    pair<MeasurementSet *, Int> p = msf_p->createMs ();
+    return std::make_tuple (p.first, p.second, false);
+}
+
+void SubtablePropagation::checkSubtables ()
+{
+    SCOPED_TRACE("Checking VI subtables");
+    MeasurementSet * ms;
+    int nRows;
+    bool writableVi;
+    std::tie (ms, nRows, writableVi) = createMs ();
+
+    std::unique_ptr<VisibilityIterator2> vi(new VisibilityIterator2(*ms, SortColumns(), writableVi));
+
+    //Check the number of rows in antenna subtable is correct
+    EXPECT_EQ(nAntennas_p, vi->antennaSubtablecols().nrow());
+
+    //Check the number of rows in spw subtable is correct
+    EXPECT_EQ(spwDef_p.size(), vi->spectralWindowSubtablecols().nrow());
+    int irow = 0;
+    //Check the number of channels for each spw is correct
+    for (auto& spw : spwDef_p)
+    {
+        EXPECT_EQ(std::get<1>(spw),vi->spectralWindowSubtablecols().numChan().get(irow));
+        ++irow;
+    }
+
+    //Check the number of rows in pol subtable is correct
+    std::set<string> polarizations; //Store here the unique polarizations sets
+    for (auto& spw : spwDef_p)
+        polarizations.insert(std::get<4>(spw));
+    EXPECT_EQ(polarizations.size(), vi->polarizationSubtablecols().nrow());
+
+    //Check the number of rows in dd subtable is correct
+    EXPECT_EQ(spwDef_p.size(), vi->dataDescriptionSubtablecols().nrow());
+
+}
 
 TEST_F (BasicChannelSelection, DoBasicChannelSelection)
 {
@@ -1752,6 +1806,11 @@ TEST_F (MultipleMss, DoMultipleMss)
 TEST_F (Weighting, DoWeighting)
 {
     sweepMs ();
+}
+
+TEST_F (SubtablePropagation, CheckSubtables)
+{
+    checkSubtables ();
 }
 
 } // end namespace test

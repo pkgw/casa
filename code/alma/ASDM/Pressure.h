@@ -29,23 +29,17 @@
 #include <vector>
 #include <iostream>
 #include <string>
-using namespace std;
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLPressure;
 #endif
-#include <StringTokenizer.h>
-#include <NumberFormatException.h>
-using asdm::StringTokenizer;
-using asdm::NumberFormatException;
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/NumberFormatException.h>
+#include <alma/ASDM/EndianStream.h>
 namespace asdm {
 class Pressure;
 Pressure operator * ( double , const Pressure & );
-ostream & operator << ( ostream &, const Pressure & );
-istream & operator >> ( istream &, Pressure &);
+std::ostream & operator << ( std::ostream &, const Pressure & );
+std::istream & operator >> ( std::istream &, Pressure &);
 /**
  * The Pressure class implements a quantity of pressure in hectopascals..
  * 
@@ -69,11 +63,11 @@ class Pressure {
    * @param os a reference to the ostream to be written on.
    * @param x a const reference to a Pressure.
    */
-  friend ostream & operator << ( ostream & os, const Pressure & x);
+  friend std::ostream & operator << ( std::ostream & os, const Pressure & x);
   /**
    * Overloading of >> to read an Pressure from an istream.
    */
-  friend istream & operator >> ( istream & is, Pressure & x);
+  friend std::istream & operator >> ( std::istream & is, Pressure & x);
 public:
 	/**
 	 * The nullary constructor (default).
@@ -90,7 +84,7 @@ public:
 	 *
 	 * @param s a string.
 	 */
-	Pressure(const string &s);
+	Pressure(const std::string &s);
 #ifndef WITHOUT_ACS
 	/**
 	 *
@@ -98,7 +92,7 @@ public:
 	 * 
 	 * @param idlPressure a cons ref to an IDLPressure.
 	 */
-	Pressure(const IDLPressure & idlPressure);
+	Pressure(const asdmIDLTypes::IDLPressure & idlPressure);
 #endif
 	/**
 	 * A constructor from a value in double precision.
@@ -113,14 +107,14 @@ public:
 	 * A static method equivalent to the constructor from a string.
 	 * @param s a string?.
 	 */
-	static double fromString(const string& s);
+	static double fromString(const std::string& s);
 	/**
 	 * Conversion into string.
 	 * The resulting string contains the representation of the value of this Pressure.
 	 *
 	 * @return string
 	 */
-	static string toString(double);
+	static std::string toString(double);
 	/**
 	 * Parse the next (string) token of a StringTokenizer into an angle.
 	 * @param st a reference to a StringTokenizer.
@@ -138,21 +132,21 @@ public:
 	 * @param angle the vector of Pressure to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Pressure>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Pressure>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Pressure to a EndianOSStream.
 	 * @param angle the vector of vector of Pressure to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Pressure> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Pressure> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Pressure to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Pressure to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Pressure> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<std::vector<Pressure> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Pressure from a EndianIStream
 	 * and use the read value to set an  Pressure.
@@ -167,7 +161,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Pressure
 	 */	 
-	 static vector<Pressure> from1DBin(EndianIStream & eis);
+	 static std::vector<Pressure> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Pressure from an EndianIStream
@@ -175,7 +169,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Pressure
 	 */	 
-	 static vector<vector<Pressure> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Pressure> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Pressure from an EndianIStream
@@ -183,7 +177,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Pressure
 	 */	 
-	 static vector<vector<vector<Pressure> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<std::vector<Pressure> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Pressure = Pressure.
@@ -288,16 +282,16 @@ public:
 	 * Converts into a string.
 	 * @return a string containing the representation of a the value in double precision.
 	 */
-	string toString() const;
+	std::string toString() const;
 	/** 
 	 * Idem toString.
 	 */
-	string toStringI() const;
+	std::string toStringI() const;
 	/**
 	 * Conversion operator.
 	 * Converts into a string.
 	 */
-	operator string () const;
+	operator std::string () const;
 	/**
 	 * Return the double precision value of the Pressure.
 	 * @return double
@@ -308,13 +302,13 @@ public:
 	 * Return the IDLPressure representation of the Pressure.
 	 * @return IDLPressure 
 	 */
-	IDLPressure toIDLPressure() const;
+    asdmIDLTypes::IDLPressure toIDLPressure() const;
 #endif
 	/**
 	 * Returns the abbreviated name of the unit implicitely associated to any Pressure.
 	 * @return string
 	 */
-	static string unit();
+	static std::string unit();
 private:
 	double value;
 };
@@ -324,10 +318,10 @@ inline Pressure::Pressure() : value(0.0) {
 inline Pressure::Pressure(const Pressure &t) : value(t.value) {
 }
 #ifndef WITHOUT_ACS
-inline Pressure::Pressure(const IDLPressure &l) : value(l.value) {
+inline Pressure::Pressure(const asdmIDLTypes::IDLPressure &l) : value(l.value) {
 }
 #endif
-inline Pressure::Pressure(const string &s) : value(fromString(s)) {
+inline Pressure::Pressure(const std::string &s) : value(fromString(s)) {
 }
 inline Pressure::Pressure(double v) : value(v) {
 }
@@ -415,21 +409,21 @@ inline Pressure Pressure::operator + () const {
 	return tmp;
 }
 // Conversion functions
-inline Pressure::operator string () const {
+inline Pressure::operator std::string () const {
 	return toString();
 }
-inline string Pressure::toString() const {
+inline std::string Pressure::toString() const {
 	return toString(value);
 }
-inline string Pressure::toStringI() const {
+inline std::string Pressure::toStringI() const {
 	return toString(value);
 }
 inline double Pressure::get() const {
 	return value;
 }
 #ifndef WITHOUT_ACS
-inline IDLPressure Pressure::toIDLPressure() const {
-	IDLPressure tmp;
+inline asdmIDLTypes::IDLPressure Pressure::toIDLPressure() const {
+    asdmIDLTypes::IDLPressure tmp;
 	tmp.value = value;
 	return tmp;
 }
@@ -440,16 +434,16 @@ inline Pressure operator * ( double n, const Pressure &x) {
 	tmp.value = x.value * n;
 	return tmp;
 }
-inline ostream & operator << ( ostream &o, const Pressure &x ) {
+inline std::ostream & operator << ( std::ostream &o, const Pressure &x ) {
 	o << x.value;
 	return o;
 }
-inline istream & operator >> ( istream &i, Pressure &x ) {
+inline std::istream & operator >> ( std::istream &i, Pressure &x ) {
 	i >> x.value;
 	return i;
 }
-inline string Pressure::unit() {
-	return string ("hPa");
+inline std::string Pressure::unit() {
+	return std::string ("hPa");
 }
 } // End namespace asdm
 #endif /* Pressure_CLASS */

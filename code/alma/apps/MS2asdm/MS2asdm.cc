@@ -28,17 +28,11 @@
 #include <vector>
 #include <assert.h>
 #include <cmath>
+#include <string>
 
-#include <boost/algorithm/string.hpp>
-
-#include <boost/program_options.hpp>
-namespace po = boost::program_options;
-
-#include <boost/algorithm/string.hpp>
-using namespace boost;
-
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/convenience.hpp>
+#include <stdcasa/optionparser.h>
+#include <alma/Options/AlmaArg.h>
+using namespace alma;
 
 #include <alma/ASDM/ASDMAll.h>
 
@@ -52,6 +46,7 @@ string appName;
 bool verbose = true;
 using namespace casacore;
 using namespace casa;
+using namespace std;
 
 void info(const string& message) {  
   if(!verbose){
@@ -77,11 +72,12 @@ string lrtrim(std::string& s,const std::string& drop = " ")
 #include <iostream>
 #include <sstream>
 
-
 /**
  * The main function.
  */
 int main(int argc, char *argv[]) {
+
+  ostringstream errstream;
 
   String asdmfile = "";
   String msfile = "";
@@ -90,103 +86,162 @@ int main(int argc, char *argv[]) {
   String rangeid = "X1"; 
   bool verbose = false;
   bool showversion = false;
+  // these two defaults must also appear in the defaults array below
   double subscanduration = 24.*3600.; // default is one day
   double schedblockduration = 2700.; // default is 45 minutes
   bool apcorrected = true;
-
-  boost::filesystem::path msPath;
 
   appName = string(argv[0]);
   ofstream ofs;
 
   //   Process command line options and parameters.
-  po::variables_map vm;
+
+  enum optionIndex { UNKNOWN, HELP, DATACOLUMN, ARCHIVEID, RANGEID, SUBSCANDUR, 
+		     SCHEDBLOCKDUR, LOGFILE, APUNCORR, VERBOSE, REVISION, MSDIR, ASDMDIR };
  
-  // Declare the supported options.
+  // remove the program name
+  argc--;
+  argv++;
+
+  string usageIntro = 
+    "Converts an ASDM dataset into a CASA measurement set.\n"
+    "Usage : " + appName +" [options] ms-directory asdm-directory\n\n"
+    "Command parameters: \n";
+
+  // Descriptor elements are: OptionIndex, OptionType, shortopt, longopt, check_arg, help
+  option::Descriptor usage[] = {
+    { UNKNOWN, 0, "", "", AlmaArg::Unknown, usageIntro.c_str()},
+    { UNKNOWN, 0, "", "", AlmaArg::Unknown, " \tms-directory : \tms directory"},
+    { UNKNOWN, 0, "", "", AlmaArg::Unknown, " \tasdm-directory : \tasdm directory"},
+    { UNKNOWN, 0, "", "", AlmaArg::Unknown, "\nAllowed options:\n"},
+    { UNKNOWN, 0, "", "", AlmaArg::Unknown, 0}, // helps with formatting
+ 
+    // these are the non-positional options
+    { HELP, 0, "", "help", AlmaArg::None, " --help  \tproduces this help message."},
+    { DATACOLUMN, 0, "d", "datacolumn", AlmaArg::Required, " -d [--datacolumn] arg (=DATA) \tspecifies the datacolumn."},
+    { ARCHIVEID, 0, "a", "archiveid", AlmaArg::Required, " -a [--archiveid] arg (=S0) \tspecifies the archive ID."},
+    { RANGEID, 0, "g", "rangeid", AlmaArg::Required, " -g [--rangeid] arg (=X1) \tspecifies the range ID."},
+    { SUBSCANDUR, 0, "s", "subscanduration", AlmaArg::Float, " -s [--subscanduration] arg (=86400)  \tspecifies the maximum duration of a subscan in the output ASDM (seconds). Default: 86400"},
+    { SCHEDBLOCKDUR, 0, "", "schedblockduration", AlmaArg::Float, " --schedblockduration  arg (=2700) \tspecifies the maximum duration of a scheduling block in the output ASDM (seconds). Default: 2700"},
+    { LOGFILE, 0, "l", "logfile", AlmaArg::Required, " -l [--logfile] arg \tspecifies the log filename. If the option is not used then the logged informations are written to the standard error stream."},
+    { APUNCORR, 0, "u", "apuncorrected", AlmaArg::None, " -u [--apuncorrected] \tthe data given by datacolumn should be regarded as not having an atmospheric phase correction. Default: data is AP corrected."},
+    { VERBOSE, 0, "v", "verbose", AlmaArg::None, " -v [--verbose]  \tlogs numerous informations as the filler is working."},
+    { REVISION, 0, "r", "revision", AlmaArg::None, " -r [--revision]  \tlogs information about the revision of this application."},
+    
+    // hidden options, allowed on the command line but do not show up in help.
+    // the positional options take precendence 
+    { MSDIR, 0, "", "ms-directory", AlmaArg::Required, 0},
+    { ASDMDIR, 0, "", "asdm-directory", AlmaArg::Required, 0},
+    { 0, 0, 0, 0, 0, 0} };
   
-  po::options_description generic("Converts an ASDM dataset into a CASA measurement set.\n"
-				  "Usage : " + appName +" [options] ms-directory asdm-directory\n\n"
-				  "Allowed options:");
-  generic.add_options()
-    ("datacolumn,d", po::value<string>(), "specifies the datacolumn.")
-    ("archiveid,a", po::value<string>(), "specifies the log filename. If the option is not used then the logged informations are written to the standard error stream.")
-    ("rangeid,g", po::value<string>(), "specifies the log filename. If the option is not used then the logged informations are written to the standard error stream.")
-    ("subscanduration,s", po::value<double>(), "specifies the maximum duration of a subscan in the output ASDM (seconds). Default: 86400")
-    ("schedblockduration,s", po::value<double>(), "specifies the maximum duration of a scheduling block in the output ASDM (seconds). Default: 2700")
-    ("logfile,l", po::value<string>(), "specifies the log filename. If the option is not used then the logged informations are written to the standard error stream.")
-    ("apuncorrected,u", "the data given by datacolumn should be regarded as not having an atmospheric phase correction. Default: data is AP corrected.")
-    ("verbose,v", "logs numerous informations as the filler is working.")
-    ("revision,r", "logs information about the revision of this application.");
-  
-  
-  // Hidden options, will be allowed both on command line and
-  // in config file, but will not be shown to the user.
-  po::options_description hidden("Hidden options");
-  hidden.add_options()
-    ("ms-directory", po::value< string >(), "ms directory")
-    ;
-  hidden.add_options()
-    ("asdm-directory", po::value< string >(), "asdm directory")
-    ;
-  
-  po::options_description cmdline_options;
-  cmdline_options.add(generic).add(hidden);
-  
-  po::positional_options_description p;
-  p.add("ms-directory", 1);
-  p.add("asdm-directory", 1);
-  
-  // Parse the command line and retrieve the options and parameters.
-  po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
-  
-  po::notify(vm);
+  // Defaults are set by parsing an argv-like set of options where the values are the defaults
+  const char *defaults[] = { "--subscanduration=86400",
+			     "--schedblockduration=2700",
+			     (const char *)-1};   // unambiguously signal the end
+
+  // count defaults, more robust than setting a value here that must be changed when defaults changes
+  int defaultCount = 0;
+  while (defaults[defaultCount] != (const char *) -1) ++defaultCount;
+
+  // parse defaults, argv
+  // establish sizes
+  option::Stats stats;
+  // true here turns on re-ordering of args so that positional argument are always seen last
+  stats.add(true, usage, defaultCount, defaults);
+  stats.add(true, usage, argc, argv);
+
+  // buffers to hold the parsed options
+  // options has one element per optionIndex, last value is the last time it was set
+  // buffer has one element for each option encountered, in order. Not used here.
+  option::Option options[stats.options_max], buffer[stats.buffer_max];
+  option::Parser parse;
+  // parse the defaults first, then argv. User set options always come last
+  // true here has same meaning as in stats above. This may not be necessary here, I think
+  // the stats usage above has already reorderded argv in place.
+  parse.parse(true, usage, defaultCount, defaults, options, buffer);
+  parse.parse(true, usage, argc, argv, options, buffer);
+    
+  if (parse.error()) {
+    errstream.str("");
+    errstream << "Problem parsing the command line arguments";
+    error(errstream.str());
+  }
   
   // Where do the log messages go ?
-  if (vm.count("logfile")) {
-    //LogSinkInterface *theSink;
-    ofs.open(vm["logfile"].as<string>().c_str(), ios_base::app);
+  if (options[LOGFILE] != NULL && options[LOGFILE].last()->arg != NULL) {
+    ofs.open(options[LOGFILE].last()->arg, ios_base::app);
     LogSinkInterface *theSink = new casacore::StreamLogSink(&ofs);
     LogSink::globalSink(theSink);
   }
+
+  if (options[HELP] || (argc==0)) {
+    errstream.str("");
+    option::printUsage(errstream, usage, 80);
+    error(errstream.str());
+  }
   
-  // AP corrected?
-  apcorrected = !(vm.count("apuncorrected") > 0);
+  // AP corrected will be true unless APUNCORR has been set
+  apcorrected = (options[APUNCORR]==NULL);
   // Verbose or quiet ?
-  verbose = vm.count("verbose") > 0;
+  verbose = (options[VERBOSE]!=NULL);
   // showversion ?
-  showversion = vm.count("revision") > 0;
+  showversion = (options[REVISION]!=NULL);
 
-  if (vm.count("datacolumn")) {
-    datacolumn = String(vm["datacolumn"].as< string >());
+  if (options[DATACOLUMN] != NULL && options[DATACOLUMN].last()->arg != NULL) {
+    datacolumn = String(options[DATACOLUMN].last()->arg);
   }
 
-  if (vm.count("archiveid")) {
-    archiveid = String(vm["archiveid"].as< string >());
+  if (options[ARCHIVEID] != NULL && options[ARCHIVEID].last()->arg != NULL) {
+    archiveid = String(options[ARCHIVEID].last()->arg);
   }
 
-  if (vm.count("rangeid")) {
-    msfile = String(vm["rangeid"].as< string >());
+  if (options[RANGEID] != NULL && options[RANGEID].last()->arg != NULL) {
+    msfile = String(options[RANGEID].last()->arg);
   }
 
-  if (vm.count("subscanduration")) {
-    subscanduration = vm["subscanduration"].as< double >();
+  // this always has a value because of defaults
+  {
+    stringstream str(options[SUBSCANDUR].last()->arg);
+    str >> subscanduration;
+    if (!str) {
+      // unlikely given that any value was already checked by AlmaArg::Float
+      errstream.str("");
+      errstream << "There was an error converting the subscanduration value to a double";
+      error(errstream.str());
+    }
   }
 
-  if (vm.count("schedblockduration")) {
-    schedblockduration = vm["schedblockduration"].as< double >();
+  // this always has a value because of defaults
+  {
+    stringstream str(options[SCHEDBLOCKDUR].last()->arg);
+    str >> schedblockduration;
+    if (!str) {
+      // unlikely given that any value was already checked by AlmaArg::Float
+      errstream.str("");
+      errstream << "There was an error converting the schedblockduration value to a double";
+      error(errstream.str());
+    }
   }
 
-  if (vm.count("ms-directory")) {
-    msfile = String(vm["ms-directory"].as< string >());
-  }
-  else if(!showversion){
+  if (parse.nonOptionsCount() > 0 || options[MSDIR]) {
+    if (parse.nonOptionsCount() > 0) {
+      msfile = String(parse.nonOption(0));
+    } else {
+      // MSDIR must have been set
+      msfile = String(options[MSDIR].last()->arg);
+    }
+  } else if (!showversion) {
     error("Error: Need to provide name of input Measurement Set."); 
   }
 
-  if (vm.count("asdm-directory")) {
-    asdmfile = String(vm["asdm-directory"].as< string >());
-  }
-  else if(!showversion){
+  if (parse.nonOptionsCount() > 1 || options[ASDMDIR]) {
+    if (parse.nonOptionsCount() > 1) {
+      asdmfile = String(parse.nonOption(1));
+    } else {
+      // ASDMDIR must have been set
+      asdmfile = String(options[ASDMDIR].last()->arg);
+    }
+  } else if(!showversion){
     error("Error: Need to provide name of output ASDM."); 
   }
 

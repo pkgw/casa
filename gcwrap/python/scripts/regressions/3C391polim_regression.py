@@ -158,25 +158,46 @@ refstats['uim'] = {'blc': array([0, 0, 1, 0], dtype=int32),
          'trcf': '18:48:36.407, -00.43.43.058, U, 4.599e+09Hz'}
 
 #*.residual
+#refstats['ures'] = {'blc': array([0, 0, 1, 0], dtype=int32),
+#          'blcf': '18:50:12.253, -01.07.40.561, U, 4.599e+09Hz',
+#          'max': array([ 0.0009961]),
+#          'maxpos': array([355,  92,   1,   0], dtype=int32),
+#          'maxposf': '18:49:13.075, -01.03.50.579, U, 4.599e+09Hz',
+#          'mean': array([ -1.25753895e-07]),
+#          'medabsdevmed': array([  5.80839878e-06]),
+#          'median': array([ 0.]),
+#          'min': array([-0.0008242]),
+#          'minpos': array([270, 484,   1,   0], dtype=int32),
+#          'minposf': '18:49:27.244, -00.47.30.579, U, 4.599e+09Hz',
+#          'npts': array([ 331776.]),
+#          'quartile': array([  1.16159445e-05]),
+#          'rms': array([  4.75954876e-05]),
+#          'sigma': array([  4.75953917e-05]),
+#          'sum': array([-0.04172212]),
+#          'sumsq': array([ 0.00075158]),
+#          'trc': array([575, 575,   1,   0], dtype=int32),
+#          'trcf': '18:48:36.407, -00.43.43.058, U, 4.599e+09Hz'}
+
+#*.residual casa-prerelease-5.5.0-39.el7
 refstats['ures'] = {'blc': array([0, 0, 1, 0], dtype=int32),
-          'blcf': '18:50:12.253, -01.07.40.561, U, 4.599e+09Hz',
-          'max': array([ 0.0009961]),
-          'maxpos': array([355,  92,   1,   0], dtype=int32),
-          'maxposf': '18:49:13.075, -01.03.50.579, U, 4.599e+09Hz',
-          'mean': array([ -1.25753895e-07]),
-          'medabsdevmed': array([  5.80839878e-06]),
-          'median': array([ 0.]),
-          'min': array([-0.0008242]),
-          'minpos': array([270, 484,   1,   0], dtype=int32),
-          'minposf': '18:49:27.244, -00.47.30.579, U, 4.599e+09Hz',
-          'npts': array([ 331776.]),
-          'quartile': array([  1.16159445e-05]),
-          'rms': array([  4.75954876e-05]),
-          'sigma': array([  4.75953917e-05]),
-          'sum': array([-0.04172212]),
-          'sumsq': array([ 0.00075158]),
-          'trc': array([575, 575,   1,   0], dtype=int32),
-          'trcf': '18:48:36.407, -00.43.43.058, U, 4.599e+09Hz'}
+        'blcf': '18:50:12.253, -01.07.40.561, U, 4.599e+09Hz',
+        'max': array([ 0.00020219]),
+        'maxpos': array([440, 160,   1,   0], dtype=int32),
+        'maxposf': '18:48:58.907, -01.01.00.574, U, 4.599e+09Hz',
+        'mean': array([  1.55001440e-07]),
+        'medabsdevmed': array([  1.47872765e-05]),
+        'median': array([ 0.]),
+        'min': array([-0.00020338]),
+        'minpos': array([410, 254,   1,   0], dtype=int32),
+        'minposf': '18:49:03.908, -00.57.05.576, U, 4.599e+09Hz',
+        'npts': array([ 331776.]),
+        'quartile': array([  2.95413074e-05]),
+        'rms': array([  3.87756641e-05]),
+        'sigma': array([  3.87754127e-05]),
+        'sum': array([ 0.05142576]),
+        'sumsq': array([ 0.00049884]),
+        'trc': array([575, 575,   1,   0], dtype=int32),
+        'trcf': '18:48:36.407, -00.43.43.058, U, 4.599e+09Hz'}
 
 # regression state intialization
 regstate = True
@@ -274,7 +295,7 @@ else:
     print "***Logging the reulsts***"
     failcnts=0
     for k,v in tests.items():
-      if v=='FAILED': 
+      if 'FAILED' in v: 
         regstate=False
         failcnts+=1
     if regstate:

@@ -253,8 +253,8 @@ void WPConvFunc::findConvFunction(const ImageInterface<Complex>& image,
    
    Int warner=0;
    Vector<Complex> maxes(wConvSize);
-  Bool maxdel;
-  Complex* maxptr=maxes.getStorage(maxdel);
+  // Bool maxdel;
+  // Complex* maxptr=maxes.getStorage(maxdel);
   Matrix<Complex> corr(inner, inner);
   Vector<Complex> correction(inner);
    for (Int iy=-inner/2;iy<inner/2;iy++) {
@@ -291,6 +291,7 @@ void WPConvFunc::findConvFunction(const ImageInterface<Complex>& image,
       //////openmp like to share reference param ...but i don't like to share
      Int cpConvSize=maxConvSize;
      //cerr << "orig convsize " << convSize << endl;
+     // cpWConvSize produces not used compiler warning because omp not used I guess
      Int cpWConvSize=wConvSize;
      Double cpWscale=wScale;
      Int wstart=planesPerChunk*chunkId;

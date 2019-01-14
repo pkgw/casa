@@ -68,8 +68,8 @@ public:
 	void defineStepVertical( int index, QVector<double>& xVals, QVector<double>& yVals,
 			bool useLogY ) const;
 	std::pair<float,float> getMinMaxBinCount() const;
-	vector<float> getXValues() const;
-	vector<float> getYValues() const;
+    std::vector<float> getXValues() const;
+    std::vector<float> getYValues() const;
 	std::pair<float,float> getDataRange() const;
 	void toAscii( QTextStream& out ) const;
 	virtual ~Histogram();
@@ -80,7 +80,7 @@ public:
 	void setIntensityRangeDefault();
 	void setChannelRange( int minChannel, int maxChannel, int spectralIndex=-1 );
 	void setIntensityRange( float minimumIntensity, float maximumIntensity );
-	void setImage( const SHARED_PTR<const casacore::ImageInterface<casacore::Float> > image );
+	void setImage( const std::shared_ptr<const casacore::ImageInterface<casacore::Float> > image );
 	static double computeYValue( double value, bool useLog );
 
 signals:
@@ -89,16 +89,16 @@ signals:
 private:
 	Histogram( const Histogram& other );
 	Histogram operator=( const Histogram& other );
-	ImageHistograms<casacore::Float>* filterByChannels( const SHARED_PTR<const casacore::ImageInterface<casacore::Float> >  image );
+	ImageHistograms<casacore::Float>* filterByChannels( const std::shared_ptr<const casacore::ImageInterface<casacore::Float> >  image );
 	HeightSource* heightSource;
-	vector<casacore::Float> xValues;
-	vector<casacore::Float> yValues;
+    std::vector<casacore::Float> xValues;
+    std::vector<casacore::Float> yValues;
 	ImageHistograms<casacore::Float>* histogramMaker;
 	casacore::ImageRegion* region;
 
 	const int ALL_CHANNELS;
 	const int ALL_INTENSITIES;
-    SHARED_PTR<const casacore::ImageInterface<casacore::Float> >  image;
+    std::shared_ptr<const casacore::ImageInterface<casacore::Float> >  image;
 	int channelMin;
 	int channelMax;
 	int specIndex;

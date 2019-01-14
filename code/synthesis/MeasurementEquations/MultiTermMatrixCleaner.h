@@ -146,8 +146,8 @@ private:
   casacore::Vector<casacore::IPosition> maxScalePos_p; // casacore::Vector of peak positions at each scale size.
 
   casacore::IPosition gip;
-  casacore::Int nx,ny;
-  casacore::Bool donePSF_p,donePSP_p,doneCONV_p;
+  //casacore::Int nx,ny;
+  casacore::Bool /*donePSF_p,*/ donePSP_p, doneCONV_p;
  
   casacore::Matrix<casacore::Complex> dirtyFT_p;
   casacore::Block<casacore::Matrix<casacore::Float> > vecScaleMasks_p;

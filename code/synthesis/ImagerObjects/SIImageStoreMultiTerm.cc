@@ -70,49 +70,36 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
   SIImageStoreMultiTerm::SIImageStoreMultiTerm():SIImageStore()
   {
+    itsNTerms=0;
+
     itsPsfs.resize(0);
     itsModels.resize(0);
     itsResiduals.resize(0);
     itsWeights.resize(0);
     itsImages.resize(0);
     itsSumWts.resize(0);
-    itsPBs.resize(0);
     itsImagePBcors.resize(0);
-    itsMask.reset( );
-    itsGridWt.reset( );
+    itsPBs.resize(0);
     
     itsForwardGrids.resize(0);
     itsBackwardGrids.resize(0);
 
-    itsNTerms=0;
-
-    itsNFacets=1;
-    itsFacetId=0;
-    itsNChanChunks = 1;
-    itsChanId = 0;
-    itsNPolChunks = 1;
-    itsPolId = 0;
-
     itsUseWeight=false;
-
-    itsImageShape=IPosition(4,0,0,0,0);
-    itsImageName=String("");
-    itsCoordSys=CoordinateSystem();
-    itsMiscInfo=Record();
-
-    //    itsValidity = false;
 
     init();
 
     validate();
 
   }
-  
-  SIImageStoreMultiTerm::SIImageStoreMultiTerm(String imagename, 
-					       CoordinateSystem &imcoordsys, 
-					       IPosition imshape, 
+
+  // Used from SynthesisNormalizer::makeImageStore()
+  SIImageStoreMultiTerm::SIImageStoreMultiTerm(const String &imagename,
+					       const CoordinateSystem &imcoordsys,
+					       const IPosition &imshape,
+					       const String &objectname,
+					       const Record &miscinfo,
 					       const Int /*nfacets*/,
-					       const Bool /*overwrite*/, 
+					       const Bool /*overwrite*/,
 					       uInt ntaylorterms,
 					       Bool useweightimage)
   {
@@ -135,15 +122,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsForwardGrids.resize(itsNTerms);
     itsBackwardGrids.resize(2 * itsNTerms - 1);
 
-    //cout << "Input imshape : " << imshape << endl;
-
-    itsImageName = imagename;
-    itsImageShape = imshape;
-    itsCoordSys = imcoordsys;
-
     //    itsNFacets = nfacets;  // So that sumwt shape happens properly, via checkValidity
     //    itsFacetId = -1;
-
     itsNFacets=1;
     itsFacetId=0;
     itsNChanChunks = 1;
@@ -151,10 +131,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsNPolChunks = 1;
     itsPolId = 0;
 
+    itsImageName = imagename;
+    itsCoordSys = imcoordsys;
+    itsImageShape = imshape;
+    itsObjectName = objectname;
+    itsMiscInfo = miscinfo;
 
     itsUseWeight = useweightimage;
-
-    itsMiscInfo=Record();
 
     init();
 
@@ -162,7 +145,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  SIImageStoreMultiTerm::SIImageStoreMultiTerm(String imagename, uInt ntaylorterms,const Bool ignorefacets) 
+  // Used from SynthesisNormalizer::makeImageStore()
+  SIImageStoreMultiTerm::SIImageStoreMultiTerm(const String &imagename, uInt ntaylorterms,
+                                               const Bool ignorefacets)
   {
     LogIO os( LogOrigin("SIImageStoreMultiTerm","Open existing Images",WHERE) );
 
@@ -210,7 +195,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //  All this is just for the shape and coordinate system.
     if( exists || doesImageExist(itsImageName+String(".gridwt")) )
       {
-	SHARED_PTR<ImageInterface<Float> > imptr;
+	std::shared_ptr<ImageInterface<Float> > imptr;
 	if( doesImageExist(itsImageName+String(".psf.tt0")) )
 	  imptr.reset( new PagedImage<Float> (itsImageName+String(".psf.tt0")) );
 	else if( doesImageExist(itsImageName+String(".residual.tt0")) )
@@ -231,11 +216,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {
     if( sumwtexists )
       {
-	SHARED_PTR<ImageInterface<Float> > imptr;
+	std::shared_ptr<ImageInterface<Float> > imptr;
 	imptr.reset( new PagedImage<Float> (itsImageName+String(".sumwt.tt0")) );
 	itsNFacets = imptr->shape()[0];
 	itsFacetId = 0;
 	itsUseWeight = getUseWeightImage( *imptr );
+	/////redo this here as psf may have different coordinates
+	itsCoordSys = imptr->coordinates();
+	itsMiscInfo=imptr->miscInfo();
 	if( itsUseWeight && ! doesImageExist(itsImageName+String(".weight.tt0")) )
 	  {
 	    throw(AipsError("Internal error : MultiTerm Sumwt has a useweightimage=true but the weight image does not exist."));
@@ -256,15 +244,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   /*
   /////////////Constructor with pointers already created else where but taken over here
-  SIImageStoreMultiTerm::SIImageStoreMultiTerm(Block<SHARED_PTR<ImageInterface<Float> > > modelims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >residims,
-					       Block<SHARED_PTR<ImageInterface<Float> > >psfims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >weightims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >restoredims,
-					       Block<SHARED_PTR<ImageInterface<Float> > >sumwtims, 
-					       SHARED_PTR<ImageInterface<Float> > newmask,
-					       SHARED_PTR<ImageInterface<Float> > newalpha,
-					       SHARED_PTR<ImageInterface<Float> > newbeta)
+  SIImageStoreMultiTerm::SIImageStoreMultiTerm(Block<std::shared_ptr<ImageInterface<Float> > > modelims, 
+					       Block<std::shared_ptr<ImageInterface<Float> > >residims,
+					       Block<std::shared_ptr<ImageInterface<Float> > >psfims, 
+					       Block<std::shared_ptr<ImageInterface<Float> > >weightims, 
+					       Block<std::shared_ptr<ImageInterface<Float> > >restoredims,
+					       Block<std::shared_ptr<ImageInterface<Float> > >sumwtims, 
+					       std::shared_ptr<ImageInterface<Float> > newmask,
+					       std::shared_ptr<ImageInterface<Float> > newalpha,
+					       std::shared_ptr<ImageInterface<Float> > newbeta)
   {
     
     itsPsfs=psfims;
@@ -304,28 +292,32 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////Constructor with pointers already created else where but taken over here
-  SIImageStoreMultiTerm::SIImageStoreMultiTerm(Block<SHARED_PTR<ImageInterface<Float> > > modelims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >residims,
-					       Block<SHARED_PTR<ImageInterface<Float> > >psfims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >weightims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >restoredims,
-					       Block<SHARED_PTR<ImageInterface<Float> > >sumwtims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >pbims, 
-					       Block<SHARED_PTR<ImageInterface<Float> > >restoredpbcorims, 
-					       SHARED_PTR<ImageInterface<Float> > newmask,
-					       SHARED_PTR<ImageInterface<Float> > newalpha,
-					       SHARED_PTR<ImageInterface<Float> > newbeta,
-					       SHARED_PTR<ImageInterface<Float> > newalphaerror,
-					       SHARED_PTR<ImageInterface<Float> > newalphapbcor,
-					       SHARED_PTR<ImageInterface<Float> > newbetapbcor,
-					       CoordinateSystem& csys,
-					       IPosition imshape,
-					       String imagename,
+  // used from getSubImageStore(), for example when creating the facets list
+  // this would be safer if it was refactored as a copy constructor of the generic stuff +
+  // initialization of the facet related parameters
+  SIImageStoreMultiTerm::SIImageStoreMultiTerm(const Block<std::shared_ptr<ImageInterface<Float> > > &modelims,
+					       const Block<std::shared_ptr<ImageInterface<Float> > > &residims,
+					       const Block<std::shared_ptr<ImageInterface<Float> > > &psfims,
+					       const Block<std::shared_ptr<ImageInterface<Float> > > &weightims,
+					       const Block<std::shared_ptr<ImageInterface<Float> > > &restoredims,
+					       const Block<std::shared_ptr<ImageInterface<Float> > > &sumwtims,
+					       const Block<std::shared_ptr<ImageInterface<Float> > > &pbims,
+					       const Block<std::shared_ptr<ImageInterface<Float> > > &restoredpbcorims,
+					       const std::shared_ptr<ImageInterface<Float> > &newmask,
+					       const std::shared_ptr<ImageInterface<Float> > &newalpha,
+					       const std::shared_ptr<ImageInterface<Float> > &newbeta,
+					       const std::shared_ptr<ImageInterface<Float> > &newalphaerror,
+					       const std::shared_ptr<ImageInterface<Float> > &newalphapbcor,
+					       const std::shared_ptr<ImageInterface<Float> > &newbetapbcor,
+					       const CoordinateSystem& csys,
+					       const IPosition &imshape,
+					       const String &imagename,
+					       const String &objectname,
+					       const Record &miscinfo,
 					       const Int facet, const Int nfacets,
 					       const Int chan, const Int nchanchunks,
 					       const Int pol, const Int npolchunks)
   {
-    
     itsPsfs=psfims;
     itsModels=modelims;
     itsResiduals=residims;
@@ -352,6 +344,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsForwardGrids.resize( itsNTerms );
     itsBackwardGrids.resize( 2 * itsNTerms - 1 );
 
+    itsObjectName = objectname;
+    itsMiscInfo = miscinfo;
+
     itsNFacets = nfacets;
     itsFacetId = facet;
     itsNChanChunks = nchanchunks;
@@ -373,17 +368,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     // Set these to null, to be set later upon first access.
     // Setting to null will hopefully set all elements of each array, to NULL.
-    itsPsfs=SHARED_PTR<ImageInterface<Float> >();  
-    itsModels=SHARED_PTR<ImageInterface<Float> >();
-    itsResiduals=SHARED_PTR<ImageInterface<Float> >();
-    itsWeights=SHARED_PTR<ImageInterface<Float> >();
-    itsImages=SHARED_PTR<ImageInterface<Float> >();
-    itsSumWts=SHARED_PTR<ImageInterface<Float> >();
-    itsPBs=SHARED_PTR<ImageInterface<Float> >();
+    itsPsfs=std::shared_ptr<ImageInterface<Float> >();  
+    itsModels=std::shared_ptr<ImageInterface<Float> >();
+    itsResiduals=std::shared_ptr<ImageInterface<Float> >();
+    itsWeights=std::shared_ptr<ImageInterface<Float> >();
+    itsImages=std::shared_ptr<ImageInterface<Float> >();
+    itsSumWts=std::shared_ptr<ImageInterface<Float> >();
+    itsPBs=std::shared_ptr<ImageInterface<Float> >();
 
     itsMask.reset( );
 
-     validate();
+    validate();
 
   }
 
@@ -566,7 +561,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 	else
 	  {
-	    SHARED_PTR<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname+String(".model.tt")+String::toString(tix) ) );
+	    std::shared_ptr<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname+String(".model.tt")+String::toString(tix) ) );
 	    // Check shapes, coordsys with those of other images.  If different, try to re-grid here.
 	    
 	    if( newmodel->shape() != model(tix)->shape() )
@@ -592,23 +587,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::psf(uInt term)
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::psf(uInt term)
   {
     AlwaysAssert( itsPsfs.nelements() > term, AipsError );
     accessImage( itsPsfs[term], itsParentPsfs[term], imageExts(PSF)+".tt"+String::toString(term) );
     return itsPsfs[term];
   }
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::residual(uInt term)
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::residual(uInt term)
   {
     accessImage( itsResiduals[term], itsParentResiduals[term], imageExts(RESIDUAL)+".tt"+String::toString(term) );
     return itsResiduals[term];
   }
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::weight(uInt term)
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::weight(uInt term)
   {
     accessImage( itsWeights[term], itsParentWeights[term], imageExts(WEIGHT)+".tt"+String::toString(term) );
     return itsWeights[term];
   }
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::sumwt(uInt term)
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::sumwt(uInt term)
   {
     accessImage( itsSumWts[term], itsParentSumWts[term], imageExts(SUMWT)+".tt"+String::toString(term) );
 
@@ -619,24 +614,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     return itsSumWts[term];
   }
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::model(uInt term)
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::model(uInt term)
   {
 
     accessImage( itsModels[term], itsParentModels[term], imageExts(MODEL)+".tt"+String::toString(term) );
 
-    // Set up header info the first time.
-    ImageInfo info = itsModels[term]->imageInfo();
-    String objectName("");
-    if( itsMiscInfo.isDefined("OBJECT") ){ itsMiscInfo.get("OBJECT", objectName); }
-    info.setObjectName(objectName);
-    itsModels[term]->setImageInfo( info );
-    itsModels[term]->setMiscInfo( itsMiscInfo );
     itsModels[term]->setUnits("Jy/pixel");
-
     return itsModels[term];
   }
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::image(uInt term)
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::image(uInt term)
   {
 
     accessImage( itsImages[term], itsParentImages[term], imageExts(IMAGE)+".tt"+String::toString(term) );
@@ -644,14 +631,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return itsImages[term];
   }
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::pb(uInt term)
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::pb(uInt term)
   {
 
     accessImage( itsPBs[term], itsParentPBs[term], imageExts(PB)+".tt"+String::toString(term) );
     return itsPBs[term];
   }
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::imagepbcor(uInt term)
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::imagepbcor(uInt term)
   {
 
     accessImage( itsImagePBcors[term], itsParentImagePBcors[term], imageExts(IMAGE)+".tt"+String::toString(term)+ ".pbcor" );
@@ -659,7 +646,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return itsImagePBcors[term];
   }
 
-    SHARED_PTR<ImageInterface<Complex> > SIImageStoreMultiTerm::forwardGrid(uInt term){
+    std::shared_ptr<ImageInterface<Complex> > SIImageStoreMultiTerm::forwardGrid(uInt term){
     if( itsForwardGrids[term] )// && (itsForwardGrids[term]->shape() == itsImageShape))
       return itsForwardGrids[term];
     Vector<Int> whichStokes(0);
@@ -671,7 +658,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsForwardGrids[term].reset(new TempImage<Complex>(TiledShape(cimageShape, tileShape()), cimageCoord, memoryBeforeLattice()));
     return itsForwardGrids[term];
   }
-  SHARED_PTR<ImageInterface<Complex> > SIImageStoreMultiTerm::backwardGrid(uInt term){
+  std::shared_ptr<ImageInterface<Complex> > SIImageStoreMultiTerm::backwardGrid(uInt term){
   	  if( itsBackwardGrids[term] && (itsBackwardGrids[term]->shape() == itsImageShape))
   		  return itsBackwardGrids[term];
 	  //	  cout << "MT : Making backward grid of shape : " << itsImageShape << endl;
@@ -685,7 +672,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return itsBackwardGrids[term];
     }
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::alpha()
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::alpha()
   {
     if( itsAlpha && itsAlpha->shape() == itsImageShape ) { return itsAlpha; }
     //    checkRef( itsAlpha , "alpha" );
@@ -694,7 +681,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return itsAlpha;
   }
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::beta()
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::beta()
   {
     if( itsBeta && itsBeta->shape() == itsImageShape ) { return itsBeta; }
     //    checkRef( itsBeta , "beta" );
@@ -703,7 +690,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return itsBeta;
   }
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::alphaerror()
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::alphaerror()
   {
     if( itsAlphaError && itsAlphaError->shape() == itsImageShape ) { return itsAlphaError; }
     //    checkRef( itsAlpha , "alpha" );
@@ -712,7 +699,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return itsAlphaError;
   }
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::alphapbcor()
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::alphapbcor()
   {
     if( itsAlphaPBcor && itsAlphaPBcor->shape() == itsImageShape ) { return itsAlphaPBcor; }
     //    checkRef( itsAlphaPBcor , "alpha" );
@@ -721,7 +708,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return itsAlphaPBcor;
   }
 
-  SHARED_PTR<ImageInterface<Float> > SIImageStoreMultiTerm::betapbcor()
+  std::shared_ptr<ImageInterface<Float> > SIImageStoreMultiTerm::betapbcor()
   {
     if( itsBetaPBcor && itsBetaPBcor->shape() == itsImageShape ) { return itsBetaPBcor; }
     //    checkRef( itsBetaPBcor , "beta" );
@@ -760,10 +747,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }//nterms
   }
   
-  void SIImageStoreMultiTerm::addImages( SHARED_PTR<SIImageStore> imagestoadd,
+  void SIImageStoreMultiTerm::addImages( std::shared_ptr<SIImageStore> imagestoadd,
 					 Bool addpsf, Bool addresidual, Bool addweight, Bool adddensity)
   {
-
     for(uInt tix=0;tix<2*itsNTerms-1;tix++)
       {
 	
@@ -1281,6 +1267,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIImageStoreMultiTerm::printImageStats()
   {
     LogIO os( LogOrigin("SIImageStoreMultiTerm","printImageStats",WHERE) );
+    // FIXME minresmask needs to be initialized here, or else compiler complains
     Float minresmask, maxresmask, minres, maxres;
     //    findMinMax( residual()->get(), mask()->get(), minres, maxres, minresmask, maxresmask );
 
@@ -1308,12 +1295,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     os<<LogIO::POST;
 
   }
-  
-  SHARED_PTR<SIImageStore> SIImageStoreMultiTerm::getSubImageStore(const Int facet, const Int nfacets, 
+
+  std::shared_ptr<SIImageStore> SIImageStoreMultiTerm::getSubImageStore(const Int facet, const Int nfacets, 
 							  const Int chan, const Int nchanchunks, 
 							  const Int pol, const Int npolchunks)
   {
-    return SHARED_PTR<SIImageStore>(new SIImageStoreMultiTerm(itsModels, itsResiduals, itsPsfs, itsWeights, itsImages, itsSumWts, itsPBs, itsImagePBcors, itsMask, itsAlpha, itsBeta, itsAlphaError,itsAlphaPBcor, itsBetaPBcor,  itsCoordSys,itsParentImageShape, itsImageName, facet, nfacets,chan,nchanchunks,pol,npolchunks));
+      std::shared_ptr<SIImageStore> multiTermStore =
+          std::make_shared<SIImageStoreMultiTerm>(itsModels, itsResiduals, itsPsfs, itsWeights, itsImages, itsSumWts, itsPBs, itsImagePBcors, itsMask, itsAlpha, itsBeta, itsAlphaError,itsAlphaPBcor, itsBetaPBcor,  itsCoordSys, itsParentImageShape, itsImageName, itsObjectName, itsMiscInfo, facet, nfacets, chan, nchanchunks, pol, npolchunks);
+      return multiTermStore;
   }
 
 

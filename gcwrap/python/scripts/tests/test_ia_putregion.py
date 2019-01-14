@@ -70,6 +70,7 @@ from tasks import *
 from taskinit import *
 from __main__ import *
 import unittest
+import numpy
 
 class ia_putregion_test(unittest.TestCase):
     
@@ -92,5 +93,39 @@ class ia_putregion_test(unittest.TestCase):
         self.assertTrue("ia.putregion" in msgs[-2])
         self.assertTrue("ia.putregion" in msgs[-1])
         
+    def test_precision(self):
+        """Test images with pixel values of various precisions"""
+        myia = self._myia
+        jj = 1.234567890123456789
+        kk = jj*(1 + 2j)
+        jj = numpy.array([[jj, jj], [jj, jj]], dtype=float)
+        kk = numpy.array([[kk, kk], [kk, kk]], dtype=complex)
+        for mytype in ('f', 'd', 'c', 'cd'):
+            myia.fromshape("", [2,2], type=mytype)
+            self.assertTrue(myia)
+            for v in (0, 1):
+                if v == 0:
+                    gg = jj
+                else:
+                    gg = kk
+                if (
+                    (v == 1 and (mytype == 'f' or mytype == 'd'))
+                    or (v == 0 and (mytype == 'c' or mytype == 'cd'))
+                ):
+                    self.assertRaises(Exception, myia.putregion, gg)
+                else:
+                    myia.putregion(gg)
+                    bb = myia.getchunk()
+                    if mytype == 'f' or mytype == 'c':
+                        self.assertTrue(
+                            numpy.isclose(bb, gg, 1e-8, 1e-8).all()
+                        )
+                        self.assertFalse(
+                            numpy.isclose(bb, gg, 1e-9, 1e-9).all()
+                        )
+                    else:
+                        self.assertTrue((bb == gg).all())
+            myia.done()
+                
 def suite():
     return [ia_putregion_test]

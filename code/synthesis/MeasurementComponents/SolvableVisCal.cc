@@ -80,6 +80,57 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
+
+SolNorm::SolNorm(Bool donorm, String type) :
+  donorm_(donorm),
+  normtype_(normTypeFromString(type))
+{
+  //  report();
+}
+
+SolNorm::SolNorm(const SolNorm& other) : 
+  donorm_(other.donorm_),
+  normtype_(other.normtype_)
+{}
+
+void SolNorm::report() {
+  cout << "Forming SolNorm object:" << endl;
+  cout << " donorm=" << boolalpha << donorm_ << endl
+       << " normtype=" << normtypeString() << endl;
+}
+ 
+String SolNorm::normTypeAsString(Type type) {
+  switch (type) {
+  case MEAN: {
+    return String("MEAN");
+  }
+  case MEDIAN: { 
+    return String("MEDIAN");
+  }
+  default: {
+    return String("UNKNOWN");
+  }
+  }
+  return String("UNKNOWN");
+}
+  
+SolNorm::Type SolNorm::normTypeFromString(String type) {
+
+  String uptype=upcase(type);
+  if (uptype.contains("MEAN")) return SolNorm::MEAN;
+  else if (uptype.contains("MED")) return SolNorm::MEDIAN;
+  else {
+    throw(AipsError("Invalid normalization type specifiec!"));
+  }						
+  // Shouldn't reach here
+  return SolNorm::UNKNOWN;
+
+}
+
+
+
+
+
 // **********************************************************
 //  SolvableVisCal Implementations
 //
@@ -114,6 +165,7 @@ SolvableVisCal::SolvableVisCal(VisSet& vs) :
   fintervalHz_(-1.0),
   fintervalCh_(vs.numberSpw(),0.0),
   chanAveBounds_(vs.numberSpw(),Matrix<Int>()),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -182,6 +234,7 @@ SolvableVisCal::SolvableVisCal(String msname,Int MSnAnt,Int MSnSpw) :
   fintervalHz_(-1.0),
   fintervalCh_(MSnSpw,0.0),
   chanAveBounds_(MSnSpw,Matrix<Int>()),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -252,6 +305,7 @@ SolvableVisCal::SolvableVisCal(const MSMetaInfoForCal& msmc) :
   fintervalHz_(-1.0),
   fintervalCh_(nSpw(),0.0),
   chanAveBounds_(nSpw(),Matrix<Int>()),
+  solnorm_(false,"mean"),
   minSNR_(0.0f),
   combine_(""),
   focusChan_(0),
@@ -314,7 +368,7 @@ SolvableVisCal::SolvableVisCal(const Int& nAnt) :
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
   fsolint_("none"),
-  solnorm_(false),
+  solnorm_(false,"mean"),
   minSNR_(0.0),
   combine_(""),
   focusChan_(0),
@@ -1088,7 +1142,7 @@ void SolvableVisCal::setSolve() {
   urefantlist_(0)=-1;
   apmode()="AP";
   calTableName()="<none>";
-  solnorm()=false;
+  solnorm_=SolNorm(false,String("mean"));
   minSNR()=0.0f;
 
   // This is the solve context
@@ -1224,8 +1278,18 @@ void SolvableVisCal::setSolve(const Record& solve)
   if (solve.isDefined("append"))
     append()=solve.asBool("append");
 
-  if (solve.isDefined("solnorm"))
-    solnorm()=solve.asBool("solnorm");
+  if (solve.isDefined("solnorm")) {
+    Bool solnorm=solve.asBool("solnorm");
+
+    // normtype="mean" if not specified
+    String normtype("mean");
+    if (solve.isDefined("normtype")) 
+      normtype=solve.asString("normtype");
+
+    // Set the SolNorm object
+    solnorm_=SolNorm(solnorm,normtype);
+
+  }
 
   if (solve.isDefined("minsnr"))
     minSNR()=solve.asFloat("minsnr");
@@ -1277,7 +1341,8 @@ String SolvableVisCal::solveinfo() {
     << " refant="     << "'" << refantNames << "'" // (id=" << refant() << ")"
     << " minsnr=" << minSNR()
     << " apmode="  << apmode()
-    << " solnorm=" << solnorm();
+    << " solnorm=" << solnorm()
+    << (solnorm() ? " normtype="+solNorm().normtypeString() : "");
   return String(o);
 
 }
@@ -4011,7 +4076,7 @@ void SolvableVisCal::enforceAPonSoln() {
   // Only if we have a CalTable, and it is not empty
   if (ct_ && ct_->nrow()>0) {
 
-    // TBD: trap attempts to normalize a caltable containing FPARAM (non-Complex)?
+    // TBD: trap attempts to enforceAPonSoln a caltable containing FPARAM (non-Complex)?
 
     logSink() << "Enforcing apmode on solutions." 
 	      << LogIO::POST;
@@ -4069,7 +4134,7 @@ void SolvableVisCal::normalize() {
 
     // TBD: trap attempts to normalize a caltable containing FPARAM (non-Complex)?
 
-    logSink() << "Normalizing solution amplitudes per spw." 
+    logSink() << "Normalizing solution amplitudes per spw with " << solNorm().normtypeString()
 	      << LogIO::POST;
 
     // In this generic version, one normalization factor per spw
@@ -4080,11 +4145,14 @@ void SolvableVisCal::normalize() {
     while (!ctiter.pastEnd()) {
       Cube<Complex> p(ctiter.cparam());
       Cube<Bool> fl(ctiter.flag());
-      if (nfalse(fl)>0)
-	normSolnArray(p,!fl,false);  // don't do phase
+      if (nfalse(fl)>0) {
+	Complex normfactor=normSolnArray(p,!fl,false);  // don't do phase
+	logSink() << " Normalization factor (" << solNorm().normtypeString() << ") for spw " << ctiter.thisSpw() << " = " << abs(normfactor)
+	      << LogIO::POST;
 
-      // record result...
-      ctiter.setcparam(p);
+	// record result...
+	ctiter.setcparam(p);
+      }
       ctiter.next();
     }
 
@@ -4242,14 +4310,14 @@ void SolvableVisCal::stateSVC(const Bool& doVC) {
 
 }
 
-void SolvableVisCal::normSolnArray(Array<Complex>& sol, 
-				   const Array<Bool>& solOK,
-				   const Bool doPhase) {
+Complex SolvableVisCal::normSolnArray(Array<Complex>& sol, 
+				      const Array<Bool>& solOK,
+				      const Bool doPhase) {
 
   // Only do something if 2 or more good solutions
+  Complex factor(1.0);
   if (ntrue(solOK)>1) {
 
-    Complex factor(1.0);
     
     Array<Float> amp(amplitude(sol));
 
@@ -4264,7 +4332,7 @@ void SolvableVisCal::normSolnArray(Array<Complex>& sol,
     }
 
     // Determine amplitude normalization factor
-      factor*=calcPowerNorm(amp,solOK);
+    factor*=calcPowerNorm(amp,solOK);
     
     // Apply the normalization factor, if non-zero
     if (abs(factor) > 0.0)
@@ -4272,6 +4340,9 @@ void SolvableVisCal::normSolnArray(Array<Complex>& sol,
     
   } // ntrue > 0
 
+  // Return the net normlization factor
+  return factor;
+  
 }
 
 
@@ -4718,10 +4789,22 @@ Float SolvableVisMueller::calcPowerNorm(Array<Float>& amp, const Array<Bool>& ok
   a2(!ok)=0.0; // zero flagged samples
 
   Float norm(1.0);
-  Float n=Float(ntrue(ok));
-  if (n>0.0)
-    norm=sum(a2)/n;
-
+  switch (solNorm().normtype()) {
+  case SolNorm::MEAN: {
+    Float n=Float(ntrue(ok));
+    if (n>0.0)
+      norm=sum(a2)/n;
+    break;
+  }
+  case SolNorm::MEDIAN: {
+    MaskedArray<Float> a2masked(a2,ok);
+    norm=median(a2masked,false,true);  // unsorted, do mean when even
+    break;
+  }
+  default:
+    throw(AipsError("Proper normalization type not specified."));
+    break;
+  }
   return norm;
 }
 
@@ -5854,10 +5937,24 @@ Float SolvableVisJones::calcPowerNorm(Array<Float>& amp, const Array<Bool>& ok) 
   Array<Float> a2(square(amp));
   a2(!ok)=0.0; // zero flagged samples
 
+
   Float norm2(1.0);
-  Float n=ntrue(ok);
-  if (n>0.0)
-    norm2=(sum(a2)/n);
+  switch (solNorm().normtype()) {
+  case SolNorm::MEAN: {
+    Float n=Float(ntrue(ok));
+    if (n>0.0)
+      norm2=sum(a2)/n;
+    break;
+  }
+  case SolNorm::MEDIAN: {
+    MaskedArray<Float> a2masked(a2,ok);
+    norm2=median(a2masked,false,true);  // unsorted, do mean when even
+    break;
+  }
+  default:
+    throw(AipsError("Proper normalization type not specified."));
+    break;
+  }
 
   // Return sqrt, because Jones are voltages
   return sqrt(norm2); 
@@ -7142,14 +7239,16 @@ void SolvableVisJones::fluxscale(const String& outfile,
       }		  
     } // iTran
     // max 3 coefficients
-    //Matrix<Double> spidx(nTran,3,0.0);
-    //Matrix<Double> spidxerr(nTran,3,0.0);
-    Matrix<Double> spidx(nFld,3,0.0);
-    Matrix<Double> spidxerr(nFld,3,0.0);
+    //Matrix<Double> spidx(nFld,3,0.0);
+    //Matrix<Double> spidxerr(nFld,3,0.0);
+    Matrix<Double> spidx(nFld,fitorder+1,0.0);
+    Matrix<Double> spidxerr(nFld,fitorder+1,0.0);
     Matrix<Double> covar;
     Vector<Double> fitFluxD(nFld,0.0);
     Vector<Double> fitFluxDErr(nFld,0.0);
     Vector<Double> fitRefFreq(nFld,0.0); 
+    //PtrBlock<Matrix<Double> *> covarList(nFld);
+    Vector<Matrix<Double> > covarList(nFld);
     //Vector<Double> refFreq(nFld,0.0);
    
     for (Int iTran=0; iTran<nTran; iTran++) {
@@ -7157,6 +7256,7 @@ void SolvableVisJones::fluxscale(const String& outfile,
       Int nValidFlux=ntrue(scaleOK.column(tranidx));
 
       String oFitMsg;
+      logSink()<<LogIO::DEBUG1<<"nValidFLux="<<nValidFlux<<LogIO::POST;
       if (nValidFlux>1) { 
 
 	// Make fd and freq lists
@@ -7176,27 +7276,30 @@ void SolvableVisJones::fluxscale(const String& outfile,
         // fit the per-spw fluxes to get spectral index
         LinearFit<Double> fitter;
         uInt myfitorder; 
-        if (nValidFlux > 2) {
-          if (fitorder > 2) {
-             logSink() << LogIO::WARN << "Currently only support fitorder < 3, using fitorder=2 instead" 
-                       << LogIO::POST;
-             myfitorder = 2;
-          }
-          else {
-             if (fitorder < 0) {
-               logSink() << LogIO::WARN
-                         << "fitorder=" << fitorder 
-                         << " not supported. Using fitorder=1" 
-                         << LogIO::POST;    
-               myfitorder = 1;
-             }
-             else {
-               myfitorder = (uInt)fitorder;
-             }
-          }
-        }
-        else {
+        if (fitorder < 0) {
+          logSink() << LogIO::WARN
+                    << "fitorder=" << fitorder 
+                    << " not supported. Using fitorder=1" 
+                    << LogIO::POST;    
           myfitorder = 1;
+         }
+         else if (nValidFlux==2 && fitorder>1) {
+          logSink() << LogIO::WARN
+                   << "Not enough number of valid flux density data for the requested fitorder:"<<fitorder
+                   << ". Use fitorder=1." <<LogIO::POST;
+         } 
+         else {
+          myfitorder = (uInt)fitorder;
+          
+          //if (fitorder < nValidFlux) {
+          //  myfitorder = (uInt)fitorder;
+          //}
+          //else {
+          //if (fitorder > nValidFlux) {
+          //  myfitorder = (uInt)(nValidFlux-1);
+          //  logSink() << LogIO::WARN
+          //            << "Not enough number of valid flux density data for the requested fitorder:"<<fitorder
+          //            <<". Using a lower fitorder="<<myfitorder<<LogIO::POST;
         }
         // set fitting for spectral index, alpha and beta(curvature)
         // with S = S_o*f/f0^(alpha+beta*log(f/fo))
@@ -7214,7 +7317,7 @@ void SolvableVisJones::fluxscale(const String& outfile,
 	// The error in the log of fds is fderrs/fds
         Vector<Double> soln=fitter.fit(log_relsolFreq, log_fd, fderrs/fds);
         Vector<Double> errs=fitter.errors();
-        covar=fitter.compuCovariance();
+        Matrix<Double> covar=fitter.compuCovariance();
 
         for (uInt i=0; i<soln.nelements(); i++) {
            spidx(tranidx,i) = soln(i);
@@ -7224,6 +7327,8 @@ void SolvableVisJones::fluxscale(const String& outfile,
 //	correct for the proper propagation of error
         fitFluxDErr(tranidx) = (errs(0)>0.0 ? log(10)*pow(10.0,(soln(0)))*errs(0) : 0.0);
 	fitRefFreq(tranidx) = pow(10.0,meanLogFreq);
+        //covarList[tranidx] = &covar;
+        covarList(tranidx) = covar;
         oFitMsg =" Fitted spectrum for ";
 	oFitMsg += fldNames(tranidx);
         oFitMsg += " with fitorder="+String::toString<Int>(myfitorder)+": ";
@@ -7235,21 +7340,29 @@ void SolvableVisJones::fluxscale(const String& outfile,
 //	oFitMsg += " (freq="+String::toString<Double>(refFreq(tranidx)/1.0e9)+" GHz)";
 //	oFitMsg += " (freq="+String::toString<Double>(pow(10.0,meanLogFreq)/1.0e9)+" GHz)";
 	oFitMsg += " (freq="+String::toString<Double>(fitRefFreq(tranidx)/1.0e9)+" GHz)";
+        //oFitMsg += " soln.nelements="+String::toString<Int>(soln.nelements()); 
+        oFitMsg += " spidx:";
         for (uInt j=1; j<soln.nelements();j++) {
-          if (j==1) {
-            oFitMsg += " spidx="+String::toString<Double>(soln(1)); 
-	    if (nValidFlux>2)
-	      oFitMsg += " +/- "+String::toString<Double>(errs(1)); 
-	    else
-	      oFitMsg += " (degenerate)";
-          }
-          if (j==2) {
-            oFitMsg += " curv="+String::toString<Double>(soln(2)); 
-	    if (nValidFlux>3)
-	      oFitMsg += " +/- "+String::toString<Double>(errs(2)); 
-	    else
-	      oFitMsg += " (degenerate)";
-          }
+          String coefname=" a_"+String::toString<Int>(j);
+          if (j==1) coefname += " (spectral index) "; 
+          oFitMsg += coefname+"="+String::toString<Double>(soln(j)); 
+	  oFitMsg += " +/- "+String::toString<Double>(errs(j)); 
+	  //if (nValidFlux > (Int)(j+1)) {
+	  //    oFitMsg += " +/- "+String::toString<Double>(errs(j)); 
+          //}
+	  //else {
+	  //    oFitMsg += " (degenerate)";
+          //}
+        }
+        Int sh1, sh2;
+        covar.shape(sh1,sh2);
+        if (sh1 > 1) {
+          oFitMsg += " covariance matrix for the fit: ";
+          for (Int i=0;i<sh1; i++) {
+            for (Int j=0;j<sh2; j++) {
+              oFitMsg += " covar("+String::toString(i)+","+String::toString(j)+")="+String::toString<Double>(covar(i,j));
+            }
+         }
         }
         if ( oListFile != "" ) {
           ofstream oStream;
@@ -7259,17 +7372,18 @@ void SolvableVisJones::fluxscale(const String& outfile,
         }
         logSink() << oFitMsg << LogIO::POST;
       }// nValidFlux
-    }//iTran
-    Int sh1, sh2;
-    covar.shape(sh1,sh2);
+      /**
+      Int sh1, sh2;
+      covar->shape(sh1,sh2);
 
-    for (Int i=0;i<sh1; i++) {
-      for (Int j=0;j<sh2; j++) {
-        logSink() << LogIO::DEBUG1 
-        <<"covar("<<i<<","<<j<<")="<<covar(i,j)
-        << LogIO::POST;
+      for (Int i=0;i<sh1; i++) {
+        for (Int j=0;j<sh2; j++) {
+          logSink() << LogIO::DEBUG1 
+            <<"covar("<<i<<","<<j<<")="<<*covar(i,j) << LogIO::POST;
+        }
       }
-    }
+      **/
+    }//iTran
 
     //store determined quantities for returned output
     oFluxScaleStruct.fd = fd.copy();
@@ -7281,6 +7395,8 @@ void SolvableVisJones::fluxscale(const String& outfile,
     oFluxScaleStruct.fitfd = fitFluxD.copy();
     oFluxScaleStruct.fitfderr = fitFluxDErr.copy();
     oFluxScaleStruct.fitreffreq = fitRefFreq.copy();
+    //oFluxScaleStruct.covarmat = covarList;
+    oFluxScaleStruct.covarmat = covarList.copy();
     // quit if no scale factors found
     if (ntrue(scaleOK) == 0) throw(AipsError("No scale factors determined!"));
 
@@ -7403,7 +7519,7 @@ void SolvableVisJones::fluxscale(const String& outfile,
         delete MGN[iFld];
         delete MGNALL[iFld];
       }
-    }
+    } 
 
     //    cout << "done." << endl;
 

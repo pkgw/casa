@@ -33,7 +33,7 @@
  * File CSwitchingMode.cpp
  */
 #include <sstream>
-#include <CSwitchingMode.h>
+#include <alma/Enumerations/CSwitchingMode.h>
 #include <string>
 using namespace std;
 

@@ -2,9 +2,39 @@
 #include <iterator>
 #include <vector>
 #include <algorithm>
-#include <boost/filesystem.hpp>
+#include <dirent.h>
+
 using namespace std;
-using namespace boost::filesystem;
+
+// replacing boost functions not available in c++11 using stat
+#include <sys/stat.h>
+inline bool file_exists(const string &filename) {
+  struct stat statbuf;
+  return (stat(filename.c_str(),&statbuf)==0);
+}
+
+inline bool is_regular_file(const string &filename) {
+  struct stat statbuf;
+  bool result = (stat(filename.c_str(),&statbuf)==0);
+  if (result) result = S_ISREG(statbuf.st_mode);
+  return result;
+}
+
+inline bool is_directory(const string &filename) {
+  struct stat statbuf;
+  bool result = (stat(filename.c_str(),&statbuf)==0);
+  if (result) result = S_ISDIR(statbuf.st_mode);
+  return result;
+}
+
+inline off_t file_size(const string &filename) {
+  struct stat statbuf;
+  off_t result = 0;
+  if (stat(filename.c_str(),&statbuf)==0) {
+    result = statbuf.st_size;
+  }
+  return result;
+}
 
 int main(int argc, char* argv[])
 {
@@ -14,11 +44,11 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  path p (argv[1]);   // p reads clearer than argv[1] in the following code
+  string p (argv[1]);   // p reads clearer than argv[1] in the following code
 
   try
   {
-    if (exists(p))    // does p actually exist?
+    if (file_exists(p))    // does p actually exist?
     {
       if (is_regular_file(p))        // is p a regular file?
         cout << p << " size is " << file_size(p) << '\n';
@@ -27,13 +57,18 @@ int main(int argc, char* argv[])
       {
         cout << p << " is a directory containing:\n";
 
-        typedef vector<path> vec;             // store paths,
+        typedef vector<string> vec;             // store paths,
         vec v;                                // so we can sort them later
 
-        copy(directory_iterator(p), directory_iterator(), back_inserter(v));
+	DIR *dir;
+	if ((dir = opendir(p.c_str())) != NULL) {
+	  struct dirent *ent;
+	  while ((ent=readdir(dir)) != NULL) {
+	    v.push_back(string(ent->d_name));
+	  }
+	}
 
-        sort(v.begin(), v.end());             // sort, since directory iteration
-                                              // is not ordered on some file systems
+        sort(v.begin(), v.end());             // sort, in case readdir did not proceed in sorted order
 
         for (vec::const_iterator it(v.begin()), it_end(v.end()); it != it_end; ++it)
         {
@@ -47,9 +82,9 @@ int main(int argc, char* argv[])
       cout << p << " does not exist\n";
   }
 
-  catch (const filesystem_error& ex)
+  catch ( exception & ex)
   {
-    cout << ex.what() << '\n';
+    cout << ex.what() << endl;
   }
 
   return 0;

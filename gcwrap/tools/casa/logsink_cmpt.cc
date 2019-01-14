@@ -3,11 +3,11 @@
  * Framework independent implementation file for logsink...
  *
  * Implement the logsink component here.
- * 
- * // TODO: WRITE YOUR DESCRIPTION HERE! 
+ *
+ * // TODO: WRITE YOUR DESCRIPTION HERE!
  *
  * @author
- * @version 
+ * @version
  ***/
 
 #include <iostream>
@@ -27,6 +27,10 @@
 #include <casa/BasicMath/Random.h>
 #include <casa/System/Aipsrc.h>
 #include <casa/OS/HostInfo.h>
+#include <chrono>
+#include <ctime>
+#include <mutex>
+#include <sys/file.h>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -47,9 +51,12 @@ static LogSinkInterface *thelogsink
   = new StreamLogSink(logfile);
   */
 static string theLogName;
+static string telemetryLog;
+static bool telemetryEnabled;
+string telemetryLoggerPid;
 
 //logsink::logsink():thelogsink(0)
-logsink::logsink(const std::string &filename)
+logsink::logsink(const std::string &filename, bool telemetrytoggle, const std::string &inTelemetryfilename)
 {
   if( ! theLogName.size( ) ){
      char *buff = NULL;
@@ -59,6 +66,11 @@ logsink::logsink(const std::string &filename)
          char *mybuff = getcwd(buff, MAXPATHLEN);
          theLogName = string(mybuff) + "/" + filename;
      }
+     telemetryEnabled = telemetrytoggle;
+  }
+
+  if (telemetryEnabled) {
+     setstatslogfile(inTelemetryfilename);
   }
 
   // jagonzal: Set task and processor name
@@ -259,6 +271,45 @@ logsink::postLocally(const std::string& message,
     return thelogsink->postLocally(LogMessage(message,*itsorigin,messagePriority));
 }
 
+std::mutex _stat_mutex;
+bool logsink::poststat(const std::string& message,
+		   const std::string& origin)
+{
+    int fd = open(telemetryLog.c_str(), O_RDWR | O_CREAT, 0666);
+    int telemetryFileLocked = flock(fd, LOCK_EX | LOCK_NB);
+    if (!telemetryFileLocked) {
+        if (telemetryEnabled ) {
+            try {
+                std::lock_guard<std::mutex> lock(_stat_mutex);
+                ofstream tlog;
+                tlog.open (telemetryLog, ios_base::app);
+                auto timestamp = std::chrono::system_clock::now();
+                std::time_t convertedtime = std::chrono::system_clock::to_time_t(timestamp);
+                char formattedtime[20];
+                strftime(formattedtime, 20, "%Y-%m-%d %H:%M:%S", localtime(&convertedtime));
+                std::string telemetryOrigin =" ";
+                if(itsorigin) {
+                    std:string origOrigin = itsorigin->toString();
+                    std::remove_copy(origOrigin.begin(), origOrigin.end(), std::back_inserter(telemetryOrigin), ':');
+                }
+                tlog << formattedtime << " :: " << telemetryLoggerPid<< " ::"<< telemetryOrigin << " :: " << message << "\n";
+                tlog.close();
+            } catch (const std::exception& e) { // caught by reference to base
+                std::cout << "Writing stats failed: '" << e.what() << "'\n";
+            }
+        }
+        //else {
+        //    cout << "Telemetry is disabled. Won't write stats.";
+        //}
+    }
+    else {
+        cout << "Telemetry file is locked by another process. Won't write stats.";
+    }
+    flock(fd, LOCK_UN);
+    close(fd);
+    return true;
+}
+
 std::string
 logsink::localId()
 {
@@ -274,7 +325,7 @@ logsink::id()
 bool logsink::setglobal(const bool isglobal)
 {
    bool rstat(true);
-   
+
    if(isglobal){
       if (globalsink==isglobal && thelogsink)
          return rstat;
@@ -307,6 +358,8 @@ bool logsink::setlogfile(const std::string& filename)
    if(tmpname != "null") {
       casacore::File filein( tmpname ) ;
       logname = filein.path().absoluteName() ;
+      if ( ! thelogsink )
+          thelogsink = &LogSink().globalSink();
       static_cast<TSLogSink*>(thelogsink)->setLogSink(logname);
    }
    else
@@ -315,9 +368,29 @@ bool logsink::setlogfile(const std::string& filename)
    //
    // Also set for any watchers.
    CasapyWatcher::logChanged_(logname);
-      
+
    return rstat;
 }
+
+bool logsink::setstatslogfile(const std::string& filename)
+{
+  //cout << "Setting stats file to " << filename << "\n";
+  char *buff = NULL;
+  if ( filename.at(0) == '/' )
+     telemetryLog = filename;
+  else {
+     char *mybuff = getcwd(buff, MAXPATHLEN);
+     telemetryLog = string(mybuff) + "/" + filename;
+  }
+  telemetryLoggerPid = std::to_string(getpid());
+  return true;
+}
+
+string logsink::getstatslogfile()
+{
+   return telemetryLog ;
+}
+
 
 bool
 logsink::showconsole(const bool onconsole)
@@ -413,4 +486,3 @@ logsink::getNumCPUs(bool use_aipsrc)
 
 
 } // casac namespace
-

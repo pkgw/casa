@@ -128,6 +128,35 @@ class ia_rotate_test(unittest.TestCase):
         rot.done()
         self.assertTrue("ia.rotate" in msgs[-2])
         self.assertTrue("ia.rotate" in msgs[-1])
+        
+    def test_complex(self):
+        """CAS-11623 test rotation of complex-valued images"""
+        myia = iatool()
+        rv = numpy.zeros([200,200],dtype=np.double)
+        z = 1.2345678901234567890123456789
+        i = 0
+        for x in np.nditer(rv, op_flags=['readwrite']):
+            x[...] = i*z
+            i = i + 1
+        iv = rv*rv
+        cv = rv + (iv)*(0 + 1j)
+        pa = "20deg"
+        for mytype in ['f', 'd']:
+            myia.fromarray("", rv, type=mytype)
+            rot = myia.rotate(pa=pa)
+            rpix = rot.getchunk()
+            myia.fromarray("", iv, type=mytype)
+            rot = myia.rotate(pa=pa)
+            ipix = rot.getchunk()
+            myia.fromarray("", cv, type=mytype)
+            rot = myia.rotate(pa=pa)
+            cpix = rot.getchunk()
+            myia.done()
+            rot.done()
+            self.assertTrue(
+                (cpix == rpix + (ipix)*(0 + 1j)).all(),
+                 "Error rotating " + mytype + " precision complex valued image"
+            )
     
 def suite():
     return [ia_rotate_test]
