@@ -511,8 +511,10 @@ utils::toolversion( ) {
 std::string
 utils::toolversion_string( ) {
 #ifdef CASATOOLS
-    return ToolVersionInfo::version( ); }
+    return ToolVersionInfo::version( );
 #else
     return "";
 #endif
+}
+
 } // casac namespace
