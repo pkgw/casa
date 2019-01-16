@@ -72,6 +72,34 @@ class VisEquation;
 class SolveDataBuffer;
 class SDBList;
 
+
+class SolNorm {
+
+public:
+
+  enum Type { MEAN, MEDIAN, UNKNOWN };
+
+  SolNorm(casacore::Bool donorm=false, casacore::String normtype=casacore::String("mean"));
+  SolNorm(const SolNorm& other);
+
+  inline casacore::Bool donorm() const { return donorm_; };
+  inline Type normtype() const { return normtype_; };
+  inline casacore::String normtypeString() const { return normTypeAsString(normtype_); };
+
+  void report();
+
+private:
+
+  // data 
+  casacore::Bool donorm_;
+  Type normtype_;
+
+  static Type normTypeFromString(casacore::String name);
+  static casacore::String normTypeAsString(Type type);
+
+  
+};
+ 
 class SolvableVisCal : virtual public VisCal {
 public:
 
@@ -85,6 +113,9 @@ public:
     casacore::Vector<casacore::Double> fitfd;
     casacore::Vector<casacore::Double> fitfderr;
     casacore::Vector<casacore::Double> fitreffreq;
+    //casacore::Matrix<casacore::Double> covarmat;
+    //casacore::PtrBlock<casacore::Matrix<casacore::Double>* >  covarmat;
+    casacore::Vector<casacore::Matrix<casacore::Double> >  covarmat;
   } fluxScaleStruct;
 
 
@@ -113,7 +144,8 @@ public:
   inline casacore::String&      solint()         { return solint_; };
   inline casacore::String&      fsolint()        { return fsolint_; };
   inline casacore::Double&      preavg()         { return preavg_; };
-  inline casacore::Bool&        solnorm()        { return solnorm_;};
+  inline const SolNorm&         solNorm()        { return solnorm_;};
+  inline casacore::Bool         solnorm()        { return solnorm_.donorm();};
   inline casacore::Float&       minSNR()         { return minSNR_; };
 
   inline casacore::String&      combine()        { return combine_; };
@@ -493,9 +525,9 @@ protected:
   virtual void stateSVC(const casacore::Bool& doVC);
 
   // Normalize a (complex) solution array (generic)
-  void normSolnArray(casacore::Array<casacore::Complex>& sol,
-		     const casacore::Array<casacore::Bool>& solOK,
-		     const casacore::Bool doPhase=false);
+  casacore::Complex normSolnArray(casacore::Array<casacore::Complex>& sol,
+				  const casacore::Array<casacore::Bool>& solOK,
+				  const casacore::Bool doPhase=false);
 
   virtual casacore::Float calcPowerNorm(casacore::Array<casacore::Float>& amp, const casacore::Array<casacore::Bool>& ok)=0;
 
@@ -601,7 +633,7 @@ private:
   casacore::Double preavg_;
 
   // Do solution normalization after a solve
-  casacore::Bool solnorm_;
+  SolNorm solnorm_;
 
   // SNR threshold
   casacore::Float minSNR_;

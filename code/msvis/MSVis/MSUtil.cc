@@ -32,7 +32,8 @@
 #include <ms/MSSel/MSDataDescIndex.h>
 #include <msvis/MSVis/MSUtil.h>
 #include <casa/Arrays/ArrayMath.h>
-
+#include <casa/OS/Path.h>
+#include <iomanip>
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -425,6 +426,218 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     return retval;
   }
+
+
+  Bool MSUtil::getFreqRangeAndRefFreqShift( Double& freqStart,
+					    Double& freqEnd, Quantity& sysvel, const MEpoch& refEp, const Vector<Int>& spw, const Vector<Int>& start,
+				  const Vector<Int>& nchan,
+				  const MeasurementSet& ms, 
+				  const String& ephemPath,   const MDirection& trackDir, 
+				  const Bool fromEdge){
+
+    casacore::MDirection::Types planetType=MDirection::castType(trackDir.getRef().getType());
+    if( (! Table::isReadable(ephemPath)) &&   ( (planetType <= MDirection::N_Types) || (planetType >= MDirection::COMET)))
+      throw(AipsError("getFreqRange in SOURCE frame has to have a valid ephemeris table or major solar system object defined"));
+    Bool isephem=False;
+    MeasComet mcomet;
+    MeasTable::Types mtype=MeasTable::BARYEARTH;
+    if(Table::isReadable(ephemPath)){
+      mcomet=MeasComet(Path(ephemPath).absoluteName());
+      isephem=True;
+    }
+    else{
+      
+      if(planetType >=MDirection::MERCURY && planetType < MDirection::COMET){
+	//Damn these enums are not in the same order
+	switch(planetType){
+	case MDirection::MERCURY :
+	  mtype=MeasTable::MERCURY;
+	  break;
+	case MDirection::VENUS :
+	  mtype=MeasTable::VENUS;
+	  break;	
+	case MDirection::MARS :
+	  mtype=MeasTable::MARS;
+	  break;
+	case MDirection::JUPITER :
+	  mtype=MeasTable::JUPITER;
+	  break;
+	case MDirection::SATURN :
+	  mtype=MeasTable::SATURN;
+	  break;
+	case MDirection::URANUS :
+	  mtype=MeasTable::URANUS;
+	  break;
+	case MDirection::NEPTUNE :
+	  mtype=MeasTable::NEPTUNE;
+	  break;
+	case MDirection::PLUTO :
+	  mtype=MeasTable::PLUTO;
+	  break;
+	case MDirection::MOON :
+	  mtype=MeasTable::MOON;
+	  break;
+	case MDirection::SUN :
+	  mtype=MeasTable::SUN;
+	  break;
+	default:
+	  throw(AipsError("Cannot translate to known major solar system object"));
+	}
+      }
+
+    }
+
+
+    Vector<Double> planetparam;
+    Vector<Double> earthparam;
+    
+
+  
+
+
+    
+    Bool retval=False;
+    freqStart=C::dbl_max;
+    freqEnd=0.0;
+    Vector<Double> t;
+    ROScalarColumn<Double> (ms,MS::columnName(MS::TIME)).getColumn(t);
+    Vector<Int> ddId;
+    Vector<Int> fldId;
+    ROScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
+    ROScalarColumn<Int> (ms,MS::columnName(MS::FIELD_ID)).getColumn(fldId);
+    ROMSFieldColumns fieldCol(ms.field());
+    ROMSDataDescColumns ddCol(ms.dataDescription());
+    ROMSSpWindowColumns spwCol(ms.spectralWindow());
+    ROScalarMeasColumn<MEpoch> timeCol(ms, MS::columnName(MS::TIME));
+    Vector<Double> ddIdD(ddId.shape());
+    convertArray(ddIdD, ddId);
+    ddIdD+= 1.0; //no zero id
+    //we have to do this as one can have multiple dd for the same time. 
+    t*=ddIdD;
+    //t(fldId != fieldId)=-1.0;
+    Vector<Double> elt;
+    Vector<Int> elindx;
+    //rejecting the large blocks of same time for all baselines
+    //this speeds up by a lot GenSort::sort
+    rejectConsecutive(t, elt, elindx);
+    Vector<uInt>  uniqIndx;
+    
+    uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, elt, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
+    
+    MDirection dir;
+    dir=fieldCol.phaseDirMeas(fldId[0]);
+    MSDataDescIndex mddin(ms.dataDescription());
+    MEpoch ep;
+    timeCol.get(0, ep);
+    String observatory;
+    MPosition obsPos;
+    /////observatory position
+    ROMSColumns msc(ms);
+    if (ms.observation().nrow() > 0) {
+      observatory = msc.observation().telescopeName()(msc.observationId()(0));
+    }
+    if (observatory.length() == 0 || 
+	!MeasTable::Observatory(obsPos,observatory)) {
+      // unknown observatory, use first antenna
+      obsPos=msc.antenna().positionMeas()(0);
+    }
+    //////
+    //cerr << "obspos " << obsPos << endl;
+    MeasFrame mframe(ep, obsPos, dir);
+    ////Will use UT for now for ephem tables as it is not clear that they are being
+    ///filled with TDB as intended in MeasComet.h 
+    MEpoch::Convert toUT(ep, MEpoch::UT);
+    MEpoch::Convert toTDB(ep, MEpoch::TDB);
+    MRadialVelocity::Types refvel=MRadialVelocity::GEO;
+    if(isephem){
+      //cerr << "dist " << mcomet.getTopo().getLength("km") << endl;
+      if(mcomet.getTopo().getLength("km").getValue() > 1.0e-3){
+	refvel=MRadialVelocity::TOPO;
+      }
+    }
+    MRadialVelocity::Convert obsvelconv (MRadialVelocity(MVRadialVelocity(0.0),
+					       MRadialVelocity::Ref(MRadialVelocity::TOPO, mframe)),
+					 MRadialVelocity::Ref(refvel));
+    MVRadialVelocity cometvel;
+    
+    for (uInt ispw =0 ; ispw < spw.nelements() ; ++ispw){
+      if(nchan[ispw]>0 && start[ispw] >-1){
+	Double freqStartObs=C::dbl_max;
+	Double freqEndObs=0.0;
+	Vector<Double> chanfreq=spwCol.chanFreq()(spw[ispw]);
+	Vector<Double> chanwid=spwCol.chanWidth()(spw[ispw]);
+	Vector<Int> ddOfSpw=mddin.matchSpwId(spw[ispw]);
+	for (Int ichan=start[ispw]; ichan<start[ispw]+nchan[ispw]; ++ichan){ 
+	  if(fromEdge){
+	    if(freqStartObs > (chanfreq[ichan]-fabs(chanwid[ichan])/2.0)) freqStartObs=chanfreq[ichan]-fabs(chanwid[ichan])/2.0;
+	    if(freqEndObs < (chanfreq[ichan]+fabs(chanwid[ichan])/2.0)) freqEndObs=chanfreq[ichan]+fabs(chanwid[ichan])/2.0;   
+	  }
+	  else{
+	    if(freqStartObs > (chanfreq[ichan])) freqStartObs=chanfreq[ichan];
+	    if(freqEndObs < (chanfreq[ichan])) freqEndObs=chanfreq[ichan];   
+	  }
+	}
+      
+      MFrequency::Types obsMFreqType= (MFrequency::Types) (spwCol.measFreqRef()(spw[ispw]));
+      if(obsMFreqType==MFrequency::REST)
+	throw(AipsError("cannot do Source frame conversion from REST"));
+      MFrequency::Convert toTOPO(obsMFreqType,
+				 MFrequency::Ref(MFrequency::TOPO, mframe));
+      Double diffepoch=1e37;
+      sysvel=Quantity(0.0,"m/s");
+	
+      for (uInt j=0; j< nTimes; ++j){
+	  if(anyEQ(ddOfSpw, ddId[elindx[uniqIndx[j]]])){
+	    timeCol.get(elindx[uniqIndx[j]], ep);
+	    dir=fieldCol.phaseDirMeas(fldId[elindx[uniqIndx[j]]], ep.get("s").getValue());
+	    mframe.resetEpoch(ep);
+	    mframe.resetDirection(dir);
+	    if(obsMFreqType != MFrequency::TOPO){
+	      freqStartObs=toTOPO(Quantity(freqStartObs, "Hz")).get("Hz").getValue();
+	      freqEndObs=toTOPO(Quantity(freqEndObs, "Hz")).get("Hz").getValue();
+	    }
+	    MDoppler mdop;
+	    if(isephem){
+	      mcomet.getRadVel(cometvel, toUT(ep).get("d").getValue());
+	      mdop=MDoppler(Quantity(-cometvel.get("km/s").getValue("km/s")+obsvelconv().get("km/s").getValue("km/s") , "km/s"), MDoppler::RELATIVISTIC);
+	      //	      cerr << std::setprecision(10) <<  toUT(ep).get("d").getValue() << " fieldid " << fldId[elindx[uniqIndx[j]]] << " cometvel " << cometvel.get("km/s").getValue("km/s") << " obsvel " << obsvelconv().get("km/s").getValue("km/s") << endl;
+	    }
+	    else{
+	      earthparam=MeasTable::Planetary(MeasTable::EARTH, toTDB(ep).get("d").getValue());
+	      planetparam=MeasTable::Planetary(mtype, toTDB(ep).get("d").getValue());
+	      //GEOcentric param
+	      planetparam=planetparam-earthparam;
+	      Vector<Double> unitdirvec(3);
+	      Double dist=sqrt(planetparam(0)*planetparam(0)+planetparam(1)*planetparam(1)+planetparam(2)*planetparam(2));
+	      unitdirvec(0)=planetparam(0)/dist;
+	      unitdirvec(1)=planetparam(1)/dist;
+	      unitdirvec(2)=planetparam(2)/dist;
+	      Quantity planetradvel(planetparam(3)*unitdirvec(0)+planetparam(4)*unitdirvec(1)+planetparam(5)*unitdirvec(2), "AU/d");
+	      mdop=MDoppler(Quantity(-planetradvel.getValue("km/s")+obsvelconv().get("km/s").getValue("km/s") , "km/s"), MDoppler::RELATIVISTIC);
+
+	    }
+	    Vector<Double> range(2); range(0)=freqStartObs; range(1)=freqEndObs;
+	    range=mdop.shiftFrequency(range);
+	    if(diffepoch > fabs(ep.get("s").getValue("s")-refEp.get("s").getValue("s"))){
+	      diffepoch= fabs(ep.get("s").getValue("s")-refEp.get("s").getValue("s"));
+	      sysvel=mdop.get("km/s");
+	      //cerr << std::setprecision(10) << "shifts " << range(0)-freqStartObs << "   " <<  range(1)-freqEndObs << endl;
+	    }
+	      
+	    
+	    if(freqStart > range[0])  freqStart=range[0];
+	    if(freqEnd < range[0])  freqEnd=range[0];
+	
+	    if(freqStart > range[1])  freqStart=range[1];
+	    if(freqEnd < range[1])  freqEnd=range[1];
+	    retval=True;
+	  }
+      }
+      }
+
+    }
+    return retval;
+  }
   void MSUtil::rejectConsecutive(const Vector<Double>& t, Vector<Double>& retval, Vector<Int>& indx){
     uInt n=t.nelements();
     if(n >0){
@@ -484,6 +697,48 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 	  return retval;
+
+  }
+  void MSUtil::getIndexCombination(const ROMSColumns& mscol, Matrix<Int>& retval2){
+    Vector<Vector<Int> >retval;
+    Vector<Int> state = mscol.stateId().getColumn();
+    Vector<Int> scan=mscol.scanNumber().getColumn();
+    Vector<Double> t=mscol.time().getColumn();
+    Vector<Int> fldid=mscol.fieldId().getColumn();
+    Vector<Int> ddId=mscol.dataDescId().getColumn();
+    Vector<Int> spwid=mscol.dataDescription().spectralWindowId().getColumn();
+    Vector<uInt>  uniqIndx;
+    {
+      Vector<Double> ddIdD(ddId.shape());
+      convertArray(ddIdD, ddId);
+      ddIdD+= 1.0; //no zero id
+      //we have to do this as one can have multiple dd for the same time. 
+      t*=ddIdD;
+    }
+    uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, t, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
+	   Vector<Int> comb(4);
+	   
+	   for (uInt k=0; k < nTimes; ++k){
+	     comb(0)=fldid[uniqIndx[k]];
+	     comb(1)=spwid[ddId[uniqIndx[k]]];
+	     comb(2)=scan(uniqIndx[k]);
+	     comb(3)=state(uniqIndx[k]);
+	     Bool hasComb=False;
+	     if(retval.nelements() >0){
+	       for (uInt j=0; j < retval.nelements(); ++j){
+		 if(allEQ(retval[j], comb))
+		   hasComb=True;
+	       }
+	       
+	     }
+	     if(!hasComb){
+	       retval.resize(retval.nelements()+1, True);
+	       retval[retval.nelements()-1]=comb;
+	     }
+	   }
+	   retval2.resize(retval.nelements(),4);
+	   for (uInt j=0; j < retval.nelements(); ++j)
+	     retval2.row(j)=retval[j];
 
   }
 

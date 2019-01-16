@@ -51,8 +51,11 @@
 #include <synthesis/ImagerObjects/SynthesisIterBot.h>
 #include <ms/MeasurementSets/MSHistoryHandler.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/session/DBusSession.h>
 #include <casadbus/synthesis/ImagerControl.h>
+#endif
+#include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -72,6 +75,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  //		fflush( stderr );
 	}
 
+#if ! defined(WITHOUT_DBUS)
 	void SynthesisIterBot::openDBus( ) {
 		if ( dbus_thread != NULL ) return;
 		dbus_thread = new std::thread(std::bind(&SynthesisIterBot::dbus_thread_launch_pad,this));
@@ -82,16 +86,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		casa::DBusSession::instance().dispatcher( ).enter( );
 		std::cout << "Service Loop Exited: " << time(0) << std::endl;
 	}
-
+#endif
 	SynthesisIterBot::~SynthesisIterBot() {
 		if ( dbus_thread != NULL ) {
+#if ! defined(WITHOUT_DBUS)
 			casa::DBusSession::instance().dispatcher( ).leave( );
+#endif
 			dbus_thread->join( );
 			delete dbus_thread;
 			dbus_thread = NULL;
 		}
 		LogIO os( LogOrigin("SynthesisIterBot","destructor",WHERE) );
 		os << LogIO::DEBUG1 << "SynthesisIterBot destroyed" << LogIO::POST;
+		SynthesisUtilMethods::getResource("End SynthesisIterBot");
 	}
 
 	void SynthesisIterBot::setIterationDetails(Record iterpars) {

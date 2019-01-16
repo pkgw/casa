@@ -25,26 +25,6 @@
 
 #include <flagging/Flagging/FlagAgentBase.h>
 
-#include <measures/Measures/MeasFrame.h>
-//#include <casa/Quanta/MVAngle.h>
-//#include <casa/Quanta/MVTime.h>
-//#include <measures/Measures/MeasTable.h>
-#include <measures/Measures/MBaseline.h>
-#include <measures/Measures/MCBaseline.h>
-#include <measures/Measures/Muvw.h>
-#include <measures/Measures/MCuvw.h>
-#include <casa/Quanta/MVuvw.h>
-#include <measures/Measures/MEpoch.h>
-#include <measures/Measures/MPosition.h>
-#include <measures/Measures/MCPosition.h>
-#include <measures/Measures/MDirection.h>
-#include <casa/Quanta/MVDirection.h>
-#include <measures/Measures.h>
-#include <casa/Utilities/DataType.h>
-
-#include <casa/Containers/Record.h>
-
-
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 class FlagAgentShadow : public FlagAgentBase {
@@ -90,9 +70,9 @@ private:
 
 	// Declaration of static members for common pre-processing
 	casacore::uShort agentNumber_p;
-	static vector<casacore::Int> shadowedAntennas_p;
+	static std::vector<casacore::Int> shadowedAntennas_p;
 	static casa::async::Mutex staticMembersMutex_p;
-	static vector<bool> startedProcessing_p;
+	static std::vector<bool> startedProcessing_p;
 	static bool preProcessingDone_p;
 	static casacore::uShort nAgents_p;
         

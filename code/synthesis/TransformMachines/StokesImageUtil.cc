@@ -271,6 +271,50 @@ void StokesImageUtil::MakeGaussianPSF(ImageInterface<Float>& psf, Vector<Float>&
   
 }
 
+Float  StokesImageUtil::normalizePSF(casacore::ImageInterface<casacore::Float>& psf){
+  AlwaysAssert(psf.ndim()==4,AipsError);
+  
+  Float retval=-1e10;
+  Vector<Int> map;
+  AlwaysAssert(StokesMap(map, psf.coordinates()), AipsError);
+  Int nx = psf.shape()(map(0));
+  Int ny = psf.shape()(map(1));
+  if(nx < 32 || ny < 32)
+    throw(AipsError("Will not normalize images less than 32 pixels"));
+  Int npol = psf.shape()(map(2));
+  Int nchan = psf.shape()(map(3));
+  IPosition blc(4);
+  IPosition trc(4);
+  IPosition blc8(4,0,0,0,0);
+  IPosition trc8(4,0,0,0,0);
+  blc(map(0))=0; blc(map(1))=0;
+  trc(map(0))=nx-1; trc(map(1))=ny-1;
+  blc8(map(0))=nx/2-nx/16; blc8(map(1))=ny/2-ny/16;
+  trc8(map(0))=nx/2+nx/16; trc8(map(1))=ny/2+ny/16;
+  Slicer inner8(blc8, trc8,  Slicer::endIsLast);
+  for (Int k=0; k < nchan ; ++k){
+    blc(map(3))=k;
+    trc(map(3))=k;
+    for (Int j=0; j < npol; ++j){
+      blc(map(2))=j;
+      trc(map(2))=j;
+      Slicer sl(blc, trc, Slicer::endIsLast);
+      SubImage<Float> psfSub(psf, sl, True);
+      Float maxCenter=max(psfSub.getSlice(inner8));
+      if(maxCenter > retval)
+	retval=maxCenter;
+      if(maxCenter !=0){
+	psfSub.copyData( (LatticeExpr<Float>)(psfSub/maxCenter));
+      }
+      else{
+	psfSub.set(0.0);
+      }
+    }
+  }
+  return retval;
+}
+
+
 // Zero specified elements of a Stokes image
 void StokesImageUtil::Zero(ImageInterface<Float>& image, Vector<Bool>& mask) {
   
@@ -1078,14 +1122,14 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
 	  //outli.rwVectorCursor()(ix)=sv(0); //sv(outMap(0));
           // If outstokescoord = I or Q, use (I:0) : XX+YY for the PSF
           // If outstokescoord = U or V, use (U:2) : XY+YX  for the PSF
-          if( (polFrame==StokesImageUtil::LINEAR) )
+          if( polFrame==StokesImageUtil::LINEAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::Q ) 
 	          outli.rwVectorCursor()(ix)=sv(0);
               if( Stokes::type(outST[0])==Stokes::U || Stokes::type(outST[0])==Stokes::V ) 
 	          outli.rwVectorCursor()(ix)=sv(2);
 	    }
-          if( (polFrame==StokesImageUtil::CIRCULAR) )
+          if( polFrame==StokesImageUtil::CIRCULAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::V ) 
 	          outli.rwVectorCursor()(ix)=sv(0);
@@ -1096,7 +1140,7 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
         else if(nStokesOut==2) {
           // If outstokescoord = IQ, use (I:0) : XX+YY for the PSF in both planes
           // If outstokescoord = UV, use (U:2) : XY+YX  for the PSF in both planes
-         if( (polFrame==StokesImageUtil::LINEAR) )
+         if( polFrame==StokesImageUtil::LINEAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::Q || 
                  Stokes::type(outST[1])==Stokes::I || Stokes::type(outST[1])==Stokes::Q ) 
@@ -1105,7 +1149,7 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
                   Stokes::type(outST[1])==Stokes::U || Stokes::type(outST[1])==Stokes::V ) 
 		{ outli.rwMatrixCursor()(ix,0)=sv(2); outli.rwMatrixCursor()(ix,1)=sv(2); }
 	    }
-          if( (polFrame==StokesImageUtil::CIRCULAR) )
+          if( polFrame==StokesImageUtil::CIRCULAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::V ||
                  Stokes::type(outST[1])==Stokes::I || Stokes::type(outST[1])==Stokes::V ) 
@@ -1138,14 +1182,14 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
 	  //outli.rwVectorCursor()(ix)=sv(0); //sv(outMap(0));
           // If outstokescoord = I or Q, use (I:0)
           // If outstokescoord = U or V, use (U:2)
-          if( (polFrame==StokesImageUtil::LINEAR) )
+          if( polFrame==StokesImageUtil::LINEAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::Q ) 
 	          outli.rwVectorCursor()(ix)=sv(0);
               if( Stokes::type(outST[0])==Stokes::U || Stokes::type(outST[0])==Stokes::V ) 
 	          outli.rwVectorCursor()(ix)=sv(2);
 	    }
-          if( (polFrame==StokesImageUtil::CIRCULAR) )
+          if( polFrame==StokesImageUtil::CIRCULAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::V ) 
 	          outli.rwVectorCursor()(ix)=sv(0);
@@ -1156,7 +1200,7 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
         else if(nStokesOut==2) {
           // If outstokescoord = IQ, use (I:0) : XX+YY for the PSF in both planes
           // If outstokescoord = UV, use (U:2) : XY+YX  for the PSF in both planes
-         if( (polFrame==StokesImageUtil::LINEAR) )
+         if( polFrame==StokesImageUtil::LINEAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::Q || 
                  Stokes::type(outST[1])==Stokes::I || Stokes::type(outST[1])==Stokes::Q ) 
@@ -1165,7 +1209,7 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
                   Stokes::type(outST[1])==Stokes::U || Stokes::type(outST[1])==Stokes::V ) 
 		{ outli.rwMatrixCursor()(ix,0)=sv(2); outli.rwMatrixCursor()(ix,1)=sv(2); }
 	    }
-          if( (polFrame==StokesImageUtil::CIRCULAR) )
+          if( polFrame==StokesImageUtil::CIRCULAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::V ||
                  Stokes::type(outST[1])==Stokes::I || Stokes::type(outST[1])==Stokes::V ) 

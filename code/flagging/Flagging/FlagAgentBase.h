@@ -23,17 +23,17 @@
 #ifndef FlagAgentBase_H_
 #define FlagAgentBase_H_
 
-#include <flagging/Flagging/FlagMSHandler.h>
-#include <flagging/Flagging/FlagCalTableHandler.h>
-#include <flagging/Flagging/FlagReport.h>
-#include <casa/Containers/OrdMapIO.h>
-#include <measures/Measures/Stokes.h>
-#include <msvis/MSVis/AsynchronousTools.h>
+#include <casa/Containers/OrderedMap.h>
+// needed for antennaPairMap, polarizationMap, VisMapper, FlagMapper, etc. which should
+// probably be split from the rather large FlagDataHandler.h
+#include <flagging/Flagging/FlagDataHandler.h>
 
-// To handle variant parameters
-#include <stdcasa/StdCasa/CasacSupport.h>
+#include <msvis/MSVis/AsynchronousTools.h>
+#include <flagging/Flagging/FlagReport.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+class FlagDataHandler;
 
 // <summary>
 // A top level class defining the interface for flagging agents
@@ -250,7 +250,7 @@ protected:
 	std::vector<casacore::uInt> * generateAntennaPairRowsIndex(casacore::Int antenna1, casacore::Int antenna2);
 
 	// Generate index for all rows
-	void indigen(vector<casacore::uInt> &index, casacore::uInt size);
+	void indigen(std::vector<casacore::uInt> &index, casacore::uInt size);
 
 	// For checking ids
 	bool find(casacore::Vector<casacore::Int> &validRange, casacore::Int element);
@@ -298,7 +298,7 @@ protected:
 	virtual void passIntermediate(const vi::VisBuffer2 &visBuffer);
 	virtual void passFinal(const vi::VisBuffer2 &visBuffer);
 
-	// Mapping functions as requested by Urvashi
+	// Mapping functions (abs, real, imag, etc.) as requested by Urvashi
 	void setVisibilitiesMap(std::vector<casacore::uInt> *rows,VisMapper *visMap);
 	void setFlagsMap(std::vector<casacore::uInt> *rows, FlagMapper *flagMap);
 	casacore::Bool checkVisExpression(polarizationMap *polMap);
@@ -310,10 +310,10 @@ protected:
 	virtual bool computeInRowFlags(const vi::VisBuffer2 &visBuffer, VisMapper &visibilities,FlagMapper &flags, casacore::uInt row);
 
 	// Compute flags for a given (time,freq) antenna pair map
-	virtual bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapper &visibilities,FlagMapper &flags,casacore::Int antenna1,casacore::Int antenna2,vector<casacore::uInt> &rows);
+	virtual bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapper &visibilities,FlagMapper &flags,casacore::Int antenna1,casacore::Int antenna2,std::vector<casacore::uInt> &rows);
 
 	// Compute flags for a given (time,freq) antenna pair map w/o using visibilities
-	virtual bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer,FlagMapper &flags,casacore::Int antenna1,casacore::Int antenna2,vector<casacore::uInt> &rows);
+	virtual bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer,FlagMapper &flags,casacore::Int antenna1,casacore::Int antenna2,std::vector<casacore::uInt> &rows);
 
 	// Common used members that must be accessible to derived classes
 	FlagDataHandler *flagDataHandler_p;
@@ -391,6 +391,7 @@ private:
 	volatile casacore::Bool processing_p;
 
 	// casacore::Data source configuration
+	// selection expression to pass to the VisMapper
 	casacore::String expression_p;
 	casacore::uShort dataReference_p;
 
@@ -408,9 +409,9 @@ protected:
 	// Lists of elements to process
 	// jagonzal (CAS-4312): We need channelIndex_p available for the Rflag agent,
 	// in order to take into account channel selection for the frequency mapping
-	vector<casacore::uInt> rowsIndex_p;
-	vector<casacore::uInt> channelIndex_p;
-	vector<casacore::uInt> polarizationIndex_p;
+    std::vector<casacore::uInt> rowsIndex_p;
+    std::vector<casacore::uInt> channelIndex_p;
+    std::vector<casacore::uInt> polarizationIndex_p;
 
 	// Needed to be protected for timeavg in clip
     casacore::String dataColumn_p;
@@ -453,8 +454,8 @@ class FlagAgentList
 	protected:
 
 	private:
-		vector<FlagAgentBase *> container_p;
-		vector<FlagAgentBase *>::iterator iterator_p;
+                std::vector<FlagAgentBase *> container_p;
+                std::vector<FlagAgentBase *>::iterator iterator_p;
 };
 
 } //# NAMESPACE CASA - END

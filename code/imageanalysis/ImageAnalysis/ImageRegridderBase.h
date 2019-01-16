@@ -27,7 +27,6 @@
 #define IMAGEANALYSIS_IMAGEREGRIDDERBASE_H
 
 #include <imageanalysis/ImageAnalysis/ImageTask.h>
-//#include <casa/Arrays/IPosition.h>
 #include <scimath/Mathematics/Interpolate2D.h>
 #include <casa/namespace.h>
 
@@ -36,6 +35,8 @@ namespace casa {
 template <class T> class ImageRegridderBase : public ImageTask<T> {
 	// <summary>
 	// casacore::Data store of ImageRegridder and ComplexImageRegridder
+    // TODO ComplexImageRegridder has been removed so this class can probably
+    // be merged into ImageRegridder
 	// </summary>
 
 	// <reviewed reviewer="" date="" tests="" demos="">
@@ -64,7 +65,10 @@ public:
 	void setSpecAsVelocity(casacore::Bool v) { _specAsVelocity = v; }
 
 	// Set interpolation method.
-	void setMethod(const casacore::String& method) { _method = casacore::Interpolate2D::stringToMethod(method); }
+	void setMethod(const casacore::String& method) {
+	    _method = casacore::Interpolate2D::stringToMethod(method);
+	}
+
 	void setMethod(casacore::Interpolate2D::Method method) { _method = method; }
 
 	void setDoRefChange(casacore::Bool d) { _doRefChange = d; }
@@ -86,9 +90,9 @@ protected:
 
 	ImageRegridderBase(
 		const SPCIIT image, const casacore::Record *const regionRec,
-		const casacore::String& maskInp, const casacore::String& outname, casacore::Bool overwrite,
-		const casacore::CoordinateSystem& csys, const casacore::IPosition& axes,
-		const casacore::IPosition& shape
+		const casacore::String& maskInp, const casacore::String& outname,
+		casacore::Bool overwrite, const casacore::CoordinateSystem& csys,
+		const casacore::IPosition& axes, const casacore::IPosition& shape
 	);
 
 	casacore::Interpolate2D::Method _getMethod() const { return _method; }
@@ -105,21 +109,23 @@ protected:
 		return CasacRegionManager::USE_ALL_STOKES;
 	}
 
-	inline vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-		return vector<casacore::Coordinate::Type>(0);
+	inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+		return std::vector<casacore::Coordinate::Type>(0);
 	}
 
 	casacore::Bool _getSpecAsVelocity() const { return _specAsVelocity; }
 
 	casacore::IPosition _getShape() const {return _shape;}
 
-	const casacore::CoordinateSystem& _getTemplateCoords() const { return _csysTo; }
+	const casacore::CoordinateSystem& _getTemplateCoords() const {
+	    return _csysTo;
+	}
 
 	casacore::IPosition _getAxes() const { return _axes; }
 
 	casacore::IPosition _getKludgedShape() const { return _kludgedShape; }
 
-	vector<casacore::String> _getOutputStokes() const { return _outputStokes; }
+	std::vector<casacore::String> _getOutputStokes() const { return _outputStokes; }
 
 	casacore::uInt _getNReplicatedChans() const { return _nReplicatedChans; }
 
@@ -131,7 +137,7 @@ private:
 	casacore::Bool _specAsVelocity, _doRefChange, _replicate, _forceRegrid;
 	casacore::Int _decimate;
 	casacore::Interpolate2D::Method _method;
-	vector<casacore::String> _outputStokes;
+	std::vector<casacore::String> _outputStokes;
 	casacore::uInt _nReplicatedChans;
 
 	void _finishConstruction();

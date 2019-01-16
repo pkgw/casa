@@ -222,7 +222,7 @@ public:
     
     // Constructor that takes the originating canvas, the key pressed, and any
     // modifiers.
-    PlotKeyEvent(PlotCanvas* canvas, char key, const vector<Modifier>& mods);
+    PlotKeyEvent(PlotCanvas* canvas, char key, const std::vector<Modifier>& mods);
     
     // Destructor.
     ~PlotKeyEvent();
@@ -237,7 +237,7 @@ public:
     char key() const;
     
     // Returns the key modifiers.
-    vector<Modifier> modifiers() const;
+    std::vector<Modifier> modifiers() const;
     
     // Returns a casacore::String representation of this key event.
     casacore::String toString() const;
@@ -270,7 +270,7 @@ public:
 protected:
     PlotCanvas* m_canvas;    // Canvas
     char m_key;              // Character
-    vector<Modifier> m_mods; // Modifiers
+    std::vector<Modifier> m_mods; // Modifiers
 };
 
 

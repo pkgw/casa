@@ -65,6 +65,13 @@ public:
   casacore::Bool setWeightDensity();
   void predictModel();
   virtual void makeSdImage(casacore::Bool dopsf=false);
+  ///This should replace makeSDImage and makePSF etc in the long run
+  ///But for now you can do the following images i.e string recognized by type
+  ///"observed", "model", "corrected", "psf", "residual", "singledish-observed", 
+  ///"singledish", "coverage", "holography", "holography-observed"
+  ///For holography the FTmachine should be SDGrid and the baselines
+  //selected should be those that are pointed up with the antenna which is rastering.
+  virtual void makeImage(casacore::String type, const casacore::String& imagename, const casacore::String& complexImage=casacore::String(""), const Int whichModel=0);
 
   void dryGridding(const casacore::Vector<casacore::String>& cfList);
   void fillCFCache(const casacore::Vector<casacore::String>& cfList,
@@ -127,7 +134,8 @@ public:
            const casacore::Quantity &gwidth=casacore::Quantity(-1),
            const casacore::Quantity &jwidth=casacore::Quantity(-1),
            const casacore::Float minWeight=0.1,
-           const casacore::Bool clipMinMax=false);
+		       const casacore::Bool clipMinMax=false,
+		       const casacore::Bool pseudoI=false);
 
   void createAWPFTMachine(casacore::CountedPtr<refim::FTMachine>& theFT, casacore::CountedPtr<refim::FTMachine>& theIFT, 
 			  const casacore::String& ftmName,
@@ -168,7 +176,8 @@ public:
       const casacore::Bool clipMinMax,
       const casacore::Int cache,
       const casacore::Int tile,
-      const casacore::String &stokes);
+      const casacore::String &stokes,
+      const casacore::Bool pseudoI=false);
  
 // Do the major cycle
   virtual void runMajorCycle(const casacore::Bool dopsf=false, const casacore::Bool savemodel=false);

@@ -286,12 +286,12 @@ public:
     // <group>
     virtual unsigned int numSelectedRects() const;
     virtual void getSelectedRects( 
-                vector<double>& upperLeftXs,
-                vector<double>& upperLeftYs, 
-                vector<double>& lowerRightXs,
-                vector<double>& lowerRightYs,
+                std::vector<double>& upperLeftXs,
+                std::vector<double>& upperLeftYs, 
+                std::vector<double>& lowerRightXs,
+                std::vector<double>& lowerRightYs,
                 PlotCoordinate::System system = PlotCoordinate::WORLD)  const;
-    virtual vector<PlotRegion> getSelectedRects(
+    virtual std::vector<PlotRegion> getSelectedRects(
                 PlotCoordinate::System system = PlotCoordinate::WORLD)  const;
     virtual void clearSelectedRects();
     virtual int getSelectedRectCount();
@@ -312,7 +312,7 @@ public:
 
 protected:
     // Notifiers.
-    vector<PlotSelectToolNotifier*> m_notifiers;
+    std::vector<PlotSelectToolNotifier*> m_notifiers;
     
     // Copy of selection line to set on the canvas, or NULL if none has been
     // set.
@@ -329,7 +329,7 @@ protected:
     PlotAreaFillPtr m_rectFill;
     
     // Selected regions.
-    vector<PlotShapeRectanglePtr> m_rects;
+    std::vector<PlotShapeRectanglePtr> m_rects;
     
 
     
@@ -386,7 +386,7 @@ public:
     // </group>
     
     // Gets the zoom stack.
-    virtual vector<PlotRegion> getZoomStack(PlotCoordinate::System sytem =
+    virtual std::vector<PlotRegion> getZoomStack(PlotCoordinate::System sytem =
                                             PlotCoordinate::WORLD) const;
     
     // Gets the zoom stack index.
@@ -403,7 +403,7 @@ public:
     
 protected:
     // Notifiers.
-    vector<PlotZoomToolNotifier*> m_notifiers;
+    std::vector<PlotZoomToolNotifier*> m_notifiers;
     
     // Copy of canvas selection line, or NULL if none has been set.
     PlotLinePtr m_selLine;
@@ -454,7 +454,7 @@ public:
     virtual void addNotifier(PlotPanToolNotifier* notifier);
     
     // Gets the pan stack.
-    virtual vector<PlotRegion> getPanStack(PlotCoordinate::System system =
+    virtual std::vector<PlotRegion> getPanStack(PlotCoordinate::System system =
                                            PlotCoordinate::WORLD) const;
     
     // Gets the pan stack index.
@@ -471,7 +471,7 @@ public:
     
 protected:
     // Notifiers.
-    vector<PlotPanToolNotifier*> m_notifiers;
+    std::vector<PlotPanToolNotifier*> m_notifiers;
     
     // Whether we're in dragging mode or not.
     bool m_inDraggingMode;
@@ -568,11 +568,11 @@ public:
     virtual void handleMouseEvent(const PlotEvent& event);
     
     int getSelectedRectCount() const;
-    vector<PlotRegion> getSelectedRects() const;
+    std::vector<PlotRegion> getSelectedRects() const;
 
 protected:
     // Notifiers.
-    vector<PlotTrackerToolNotifier*> m_notifiers;
+    std::vector<PlotTrackerToolNotifier*> m_notifiers;
     
     // Annotation that holds current position (even if not drawn on canvas).
     PlotAnnotationPtr m_annotation;
@@ -691,7 +691,7 @@ public:
     unsigned int numTools() const;    
     
     // Returns the tools in the group.
-    vector<PlotMouseToolPtr> tools() const;
+    std::vector<PlotMouseToolPtr> tools() const;
     
     // Adds the given tool to the group and returns its index.  If makeActive
     // is true, the given tool becomes the group's active tool.
@@ -769,7 +769,7 @@ public:
     
 protected:
     // All tools.
-    vector<PlotMouseToolPtr> m_tools;
+    std::vector<PlotMouseToolPtr> m_tools;
     
     // Active tool (or NULL for no active tool).
     PlotMouseToolPtr m_activeTool;
@@ -834,7 +834,7 @@ public:
     // </group>
     
     int getSelectedRectCount();
-    vector<PlotRegion> getSelectedRects();
+    std::vector<PlotRegion> getSelectedRects();
     void clearSelectedRects();
 
     // Provides access to the individual tools.  Note: this should be avoided

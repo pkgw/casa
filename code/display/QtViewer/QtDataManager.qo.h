@@ -299,7 +299,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				return output_name_line_;
 			}
 
-			SHARED_PTR<QDir> dir( ) {
+			std::shared_ptr<QDir> dir( ) {
 				return dir_;
 			}
 			QLineEdit *dirline( ) {
@@ -312,7 +312,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			std::set<int> filtered_types_;
 			QLineEdit *dir_entry_;
 			QTreeWidget *tree_;
-			SHARED_PTR<QDir> dir_;
+			std::shared_ptr<QDir> dir_;
 			notify_func_t notify_func_;
 			QFrame *info_frame_;
 			infofield_list_t *info_fields_;

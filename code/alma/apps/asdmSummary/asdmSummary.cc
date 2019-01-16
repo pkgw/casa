@@ -1,63 +1,64 @@
-#include "ASDM.h"
+#include <alma/ASDM/ASDM.h>
 using namespace asdm;
 
-#include "AntennaRow.h"
-#include "AntennaTable.h"
-#include "ConfigDescriptionRow.h"
-#include "ConfigDescriptionTable.h"
-#include "DataDescriptionRow.h"
-#include "DataDescriptionTable.h"
-#include "ExecBlockRow.h"
-#include "ExecBlockTable.h"
-#include "MainRow.h"
-#include "MainTable.h"
-#include "PolarizationRow.h"
-#include "PolarizationTable.h"
-#include "ScanRow.h"
-#include "ScanTable.h"
-#include "SpectralWindowRow.h"
-#include "SpectralWindowTable.h"
-#include "StationRow.h"
-#include "StationTable.h"
-#include "SubscanRow.h"
-#include "SubscanTable.h"
+#include <alma/ASDM/AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/ConfigDescriptionRow.h>
+#include <alma/ASDM/ConfigDescriptionTable.h>
+#include <alma/ASDM/DataDescriptionRow.h>
+#include <alma/ASDM/DataDescriptionTable.h>
+#include <alma/ASDM/ExecBlockRow.h>
+#include <alma/ASDM/ExecBlockTable.h>
+#include <alma/ASDM/MainRow.h>
+#include <alma/ASDM/MainTable.h>
+#include <alma/ASDM/PolarizationRow.h>
+#include <alma/ASDM/PolarizationTable.h>
+#include <alma/ASDM/ScanRow.h>
+#include <alma/ASDM/ScanTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/StationRow.h>
+#include <alma/ASDM/StationTable.h>
+#include <alma/ASDM/SubscanRow.h>
+#include <alma/ASDM/SubscanTable.h>
 
-
-#include "CAntennaMake.h"
+#include <alma/Enumerations/CAntennaMake.h>
 using namespace AntennaMakeMod;
 
-#include "CAtmPhaseCorrection.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 using namespace AtmPhaseCorrectionMod;
 
-#include "CCorrelationMode.h"
+#include <alma/Enumerations/CCorrelationMode.h>
 using namespace CorrelationModeMod;
 
-#include "CStokesParameter.h"
+#include <alma/Enumerations/CStokesParameter.h>
 using namespace StokesParameterMod;
 
-#include "CFrequencyReferenceCode.h"
+#include <alma/Enumerations/CFrequencyReferenceCode.h>
 using namespace FrequencyReferenceCodeMod;
 
-#include "CScanIntent.h"
+#include <alma/Enumerations/CScanIntent.h>
 using namespace ScanIntentMod;
 
-#include "CSpectralResolutionType.h"
+#include <alma/Enumerations/CSpectralResolutionType.h>
 using namespace SpectralResolutionTypeMod;
 
-#include "CSubscanIntent.h"
+#include <alma/Enumerations/CSubscanIntent.h>
 using namespace SubscanIntentMod;
 
-#include "CTimeSampling.h"
+#include <alma/Enumerations/CTimeSampling.h>
 using namespace TimeSamplingMod;
-
-#include <boost/program_options.hpp>
-namespace po = boost::program_options;
 
 #include <casa/Logging/StreamLogSink.h>
 #include <casa/Logging/LogSink.h>
 using namespace casacore;
 
 using namespace std;
+
+#include <stdcasa/optionparser.h>
+#include <alma/Options/AlmaArg.h>
+using namespace alma;
+
 string appName;
 
 // A facility to get rid of blanks at start and end of a string.
@@ -362,61 +363,98 @@ void summary(const ASDM& ds, const string& dsPath) {
 
 }
 
-int main (int argC, char* argV[]) {
+int main (int argc, char* argv[]) {
   string dsName;
-  string appName = string(argV[0]);
+  string appName = string(argv[0]);
   ofstream ofs;
 
-  //Commented out as lsif is never used. JSK Dec. 2013
-  //LogSinkInterface& lsif = LogSink::globalSink();
-  po::variables_map vm;
+  // process command line otpions and parameters
+  // asdm-directory may be given as a named parameter=value, but that usage is hidden from the user
+  // the positional version of asdm-directory takes precedence over any named parameter use when both are present
+
+  enum optionIndex { UNKNOWN, HELP, LOGFILE, ASDMDIR };
 
   try {
-    po::options_description generic("Displays a summary of the content of an ASDM dataset .\n"
-				    "Usage : " + appName +" asdm-directory \n\n"
-				    "Command parameters: \n"
-				    " asdm-directory : the pathname to the ASDM dataset to be reported on. \n\n"
-				    "Allowed options:");
-    generic.add_options()
-      ("logfile,l", po::value<string>(), "specifies the log filename. If the option is not used then the logged informations are written to the standard error stream.")
-      ("help", "produces help message.");
+    // remove the program name
+    argc--;
+    argv++;
 
-    po::options_description hidden("Hidden options");
-    hidden.add_options()
-      ("asdm-directory", po::value< string >(), "asdm directory")
-      ;
+    string usageIntro = 
+      "Displays a summary of the content of an ASDM dataset .\n"
+      "Usage : " + appName +" + [optiopns] asdm-directory \n\n"
+      "Command parameters: \n";
 
-    po::options_description cmdline_options;
-    cmdline_options.add(generic).add(hidden);
-    
-    po::positional_options_description p;
-    p.add("asdm-directory", 1);
+    // Descriptor elements are : OptionIndex, OptionType, shortopt, longopt, check_arg, help
+    option::Descriptor usage[] = {
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, usageIntro.c_str()},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, " \tasdm-directory : \tthe pathname to the ASDM dataset to be reported on."},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, "\nAllowed options:\n"},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, 0}, // helps with formatting
 
-    po::store(po::command_line_parser(argC, argV).options(cmdline_options).positional(p).run(), vm);
-    po::notify(vm);
-  
-    if (vm.count("help")) {
+      // these are the non-positional options
+      { HELP, 0, "", "help", AlmaArg::None, " --help  \tproduces this help message."},
+      { LOGFILE, 0, "l", "logfile", AlmaArg::Required, 
+	" -l [--logfile] arg \tspecifies the log filename. "
+	"If the option is not used then the logged informations are written to the standard error stream."},
+
+      // hidden non-positional option, the positional one takes precedence when both are set
+      { ASDMDIR, 0, "", "asdm-directory", AlmaArg::Required, 0},
+      { 0, 0, 0, 0, 0, 0} };
+ 
+    // there are no defaults to set here
+
+    // parse argv
+    // establish sizes
+    option::Stats stats;
+    // true here turns on re-ordering of args so that positional arguments are always seen last
+    stats.add(true, usage, argc, argv);
+
+    // buffers to hold the parsed options
+    // options has one element per optionIndex, last value is the last time that option was set
+    // buffer has one element for each option encountered, in order. Not used here.
+    option::Option options[stats.options_max], buffer[stats.buffer_max];
+
+    option::Parser parse;
+    // true has the same meaning as in stats above. This may not be necessary here.
+    parse.parse(true, usage, argc, argv, options, buffer);
+
+    if (parse.error()) {
       errstream.str("");
-      errstream << generic << "\n" ;
+      errstream << "Problem parsing the command line arguments";
       error(errstream.str());
     }
 
-    // Where do the log messages should go ?
-    if (vm.count("logfile")) {
+    // User-specified logfile?
+    cout << "checking on LOGFILE" << endl;
+    if (options[LOGFILE] != NULL && options[LOGFILE].last()->arg != NULL) {
+      cout << " arg = " << options[LOGFILE].last()->arg << endl;
       //LogSinkInterface *theSink;
-      ofs.open(vm["logfile"].as<string>().c_str(), ios_base::app);
+      ofs.open(options[LOGFILE].last()->arg, ios_base::app);
       LogSinkInterface *theSink = new casacore::StreamLogSink(&ofs);
       LogSink::globalSink(theSink);
     }
 
-    if (vm.count("asdm-directory")) {
-      string dummy = vm["asdm-directory"].as< string >();
-      dsName = lrtrim(dummy) ;
-      if (boost::algorithm::ends_with(dsName,"/")) dsName.erase(dsName.size()-1);
+    // Help ? display help's content and don't go further
+    if (options[HELP] || (argc==0)) {
+      errstream.str("");
+      option::printUsage(errstream, usage, 80);
+      error(errstream.str());
+    }
+
+    if (parse.nonOptionsCount() > 0 || options[ASDMDIR]) {
+      string dummy;
+      if (parse.nonOptionsCount() > 0) {
+	dummy = string(parse.nonOption(0));
+      } else {
+	// ASDMDIR must have been set
+	dummy = string(options[ASDMDIR].last()->arg);
+      }
+      dsName = trim_copy(dummy) ;
+      if (dsName.back()=='/') dsName.erase(dsName.size()-1);
     }
     else {
       errstream.str("");
-      errstream << generic ;
+      option::printUsage(errstream, usage);
       error(errstream.str());
     }
   }

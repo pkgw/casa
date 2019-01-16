@@ -26,7 +26,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
     <param type="string" name="region">
         <description>Region selection. Default is to use the full image.</description>
-        <value/>
+        <type>path</type>
+        <type>string</type>
+        <type>record</type>
+        <value type="string"/>
     </param>
     <param type="string" name="box">
         <description>Rectangular region(s) to select in direction plane. Default is to use the entire direction plane.</description>

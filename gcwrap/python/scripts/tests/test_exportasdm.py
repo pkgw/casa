@@ -42,7 +42,8 @@ class exportasdm_test(unittest.TestCase):
             os.system('cp -R '+os.environ['CASAPATH'].split()[0]+'/data/regression/exportasdm/input/M51.ms .')
         if(not os.path.exists(self.vis_h)):
             os.system('ln -sf '+os.environ['CASAPATH'].split()[0]+'/data/regression/unittest/importevla/X_osro_013.55979.93803716435')
-            importevla('X_osro_013.55979.93803716435', vis = 'xosro2ref.ms', online=False, scans='0:2')
+            # the final two arguments are equivalent to the defaults for the original importevla used here
+            importasdm('X_osro_013.55979.93803716435', vis = 'xosro2ref.ms', process_flags=False, scans='0:2', ocorr_mode='co', with_pointing_correction=True)
         if(not os.path.exists(self.vis_i)):
             os.system('ln -sf '+os.environ['CASAPATH'].split()[0]+'/data/regression/asdm-import/input/uid___A002_X72bc38_X000')
             importasdm('uid___A002_X72bc38_X000', vis = 'asdm.ms', scans='0:2')
@@ -123,6 +124,7 @@ class exportasdm_test(unittest.TestCase):
         myvis = self.vis_b
         os.system('rm -rf myinput.ms')
         os.system('cp -R ' + myvis + ' myinput.ms')
+        # this fails because there are no arguments, that's expected
         self.rval = exportasdm()
         self.assertFalse(self.rval)
 
@@ -278,7 +280,8 @@ class exportasdm_test(unittest.TestCase):
         myvis = self.vis_h
         os.system('rm -rf xosro2ref-reimp.ms xosro2asdm')
         self.rval =  exportasdm(vis=myvis, asdm='xosro2asdm', apcorrected=False, verbose=True)
-        importevla(asdm='xosro2asdm', vis='xosro2ref-reimp.ms', online=False, verbose=True)
+        # mirroring the importasdm arguments used to create the MS that was just exported
+        importasdm(asdm='xosro2asdm', vis='xosro2ref-reimp.ms', process_flags=False, verbose=True, ocorr_mode='co', with_pointing_correction=True)
         self.rval = self.rval  and th.compmsmainnumcol(myvis, 'xosro2ref-reimp.ms', 1E-5)
         self.rval = self.rval and th.compmsmainboolcol(myvis, 'xosro2ref-reimp.ms')
 
@@ -299,7 +302,7 @@ class exportasdm_test(unittest.TestCase):
 
         self.assertNotEqual(self.rval,False)
         omsname = "test"+str(12)+self.out
-        os.system('rm -rf '+omsname+'; mv  asdm '+omsname)
+        os.system('rm -rf '+omsname+'; mv  asdmasdm '+omsname)
 
 
 

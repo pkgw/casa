@@ -45,7 +45,7 @@
 
 namespace casa {
 
-template<class T> SHARED_PTR<casacore::SubImage<T> > SubImageFactory<T>::createSubImageRW(
+template<class T> std::shared_ptr<casacore::SubImage<T> > SubImageFactory<T>::createSubImageRW(
     casacore::CountedPtr<casacore::ImageRegion>& outRegion, casacore::CountedPtr<casacore::ImageRegion>& outMask,
     casacore::ImageInterface<T>& inImage, const casacore::Record& region,
     const casacore::String& mask, casacore::LogIO *const &os,
@@ -55,7 +55,7 @@ template<class T> SHARED_PTR<casacore::SubImage<T> > SubImageFactory<T>::createS
     if (! mask.empty()) {
         _getMask(outMask, mask, extendMask, inImage.shape(), inImage.coordinates());
     }
-    SHARED_PTR<casacore::SubImage<T> > subImage;
+    std::shared_ptr<casacore::SubImage<T> > subImage;
     // We can get away with no region processing if the region record
     // is empty and the user is not dropping degenerate axes
     if (region.nfields() == 0 && axesSpecifier.keep()) {
@@ -102,7 +102,7 @@ template<class T> SHARED_PTR<casacore::SubImage<T> > SubImageFactory<T>::createS
     return subImage;
 }
 
-template<class T> SHARED_PTR<casacore::SubImage<T> > SubImageFactory<T>::createSubImageRW(
+template<class T> std::shared_ptr<casacore::SubImage<T> > SubImageFactory<T>::createSubImageRW(
     casacore::ImageInterface<T>& inImage, const casacore::Record& region,
     const casacore::String& mask, casacore::LogIO *const &os,
     const casacore::AxesSpecifier& axesSpecifier,
@@ -117,7 +117,7 @@ template<class T> SHARED_PTR<casacore::SubImage<T> > SubImageFactory<T>::createS
     );
 }
 
-template<class T> SHARED_PTR<const casacore::SubImage<T> > SubImageFactory<T>::createSubImageRO(
+template<class T> std::shared_ptr<const casacore::SubImage<T> > SubImageFactory<T>::createSubImageRO(
     casacore::CountedPtr<casacore::ImageRegion>& outRegion, casacore::CountedPtr<casacore::ImageRegion>& outMask,
     const casacore::ImageInterface<T>& inImage, const casacore::Record& region,
     const casacore::String& mask, casacore::LogIO *const &os,
@@ -127,7 +127,7 @@ template<class T> SHARED_PTR<const casacore::SubImage<T> > SubImageFactory<T>::c
     if (! mask.empty()) {
         _getMask(outMask, mask, extendMask, inImage.shape(), inImage.coordinates());
     }
-    SHARED_PTR<casacore::SubImage<T> > subImage;
+    std::shared_ptr<casacore::SubImage<T> > subImage;
     // We can get away with no region processing if the region record
     // is empty and the user is not dropping degenerate axes
     if (region.nfields() == 0 && axesSpecifier.keep()) {
@@ -175,7 +175,7 @@ template<class T> SHARED_PTR<const casacore::SubImage<T> > SubImageFactory<T>::c
     return subImage;
 }
 
-template<class T> SHARED_PTR<const casacore::SubImage<T> > SubImageFactory<T>::createSubImageRO(
+template<class T> std::shared_ptr<const casacore::SubImage<T> > SubImageFactory<T>::createSubImageRO(
     const casacore::ImageInterface<T>& inImage, const casacore::Record& region,
     const casacore::String& mask, casacore::LogIO *const &os,
     const casacore::AxesSpecifier& axesSpecifier,
@@ -225,7 +225,7 @@ template<class T> SPIIT SubImageFactory<T>::createImage(
             ThrowCc(errmsg);
         }
     }
-    SHARED_PTR<const casacore::SubImage<T> > x = createSubImageRO(
+    std::shared_ptr<const casacore::SubImage<T> > x = createSubImageRO(
         image, region, mask, list ? &log : 0,
         axesSpec, extendMask, true
     );

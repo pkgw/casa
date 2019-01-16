@@ -18,6 +18,8 @@
 //#  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 //#  MA 02111-1307  USA
 
+#include <mstransform/MSTransform/StatWt.h>
+
 #include <casacore/casa/Containers/ValueHolder.h>
 #include <casacore/casa/Quanta/QuantumHolder.h>
 #include <casacore/casa/System/ProgressMeter.h>
@@ -26,19 +28,26 @@
 #include <casacore/tables/Tables/TableProxy.h>
 #include <casacore/tables/DataMan/TiledShapeStMan.h>
 
-#include <mstransform/MSTransform/StatWt.h>
+#include <mstransform/MSTransform/StatWtColConfig.h>
 #include <mstransform/TVI/StatWtTVI.h>
 #include <mstransform/TVI/StatWtTVILayerFactory.h>
 #include <msvis/MSVis/ViImplementation2.h>
 #include <msvis/MSVis/IteratingParameters.h>
-#include <msvis/MSVis/LayeredVi2Factory.h>
 
 using namespace casacore;
 
 namespace casa { 
 
-StatWt::StatWt(MeasurementSet* ms) : _ms(ms), _saf() {
+StatWt::StatWt(
+    MeasurementSet* ms,
+    const StatWtColConfig* const statwtColConfig
+) : _ms(ms),
+    _saf(), _statwtColConfig(statwtColConfig) {
     ThrowIf(! _ms, "Input MS pointer cannot be NULL");
+    ThrowIf(
+        ! _statwtColConfig,
+        "Input column configuration pointer cannot be NULL"
+    );
 }
 
 StatWt::~StatWt() {}
@@ -76,63 +85,80 @@ void StatWt::setTVIConfig(const Record& config) {
     _tviConfig = config;
 }
 
-Record StatWt::writeWeights() const {
-    auto hasWtSp = _ms->isColumn(MSMainEnums::WEIGHT_SPECTRUM);
-    auto mustWriteWtSp = ! _preview
-        && _tviConfig.isDefined(vi::StatWtTVI::CHANBIN);
-    if (mustWriteWtSp) {
-        auto type = _tviConfig.type(_tviConfig.fieldNumber(vi::StatWtTVI::CHANBIN));
-        if (type == TpArrayBool) {
-            // default variant type
-            mustWriteWtSp = False;
-        }
-        else if (type == TpString) {
-            auto val = _tviConfig.asString(vi::StatWtTVI::CHANBIN);
-            val.downcase();
-            if (val == "spw") {
-                mustWriteWtSp = False;
+Record StatWt::writeWeights() {
+    auto mustWriteWt = False;
+    auto mustWriteWtSp = False;
+    auto mustWriteSig = False;
+    auto mustWriteSigSp = False;
+    _statwtColConfig->getColWriteFlags(
+        mustWriteWt, mustWriteWtSp, mustWriteSig, mustWriteSigSp
+    );
+    std::shared_ptr<vi::VisibilityIterator2> vi;
+    std::shared_ptr<vi::StatWtTVILayerFactory> factory;
+    _constructVi(vi, factory);
+    vi::VisBuffer2 *vb = vi->getVisBuffer();
+    ProgressMeter pm(0, _ms->nrow(), "StatWt Progress");
+    uInt64 count = 0;
+    for (vi->originChunks(); vi->moreChunks(); vi->nextChunk()) {
+        for (vi->origin(); vi->more(); vi->next()) {
+            auto nrow = vb->nRows();
+            if (_preview) {
+                // just need to run the flags to accumulate
+                // flagging info
+                vb->flagCube();
             }
-        }
-    }
-    auto mustInitWtSp = False;
-    if (! hasWtSp && mustWriteWtSp) {
-        // we must create WEIGHT_SPECTRUM
-        hasWtSp = True;
-        mustInitWtSp = True;
-        // from Calibrater.cc
-        // Nominal default tile shape
-        IPosition dts(3, 4, 32, 1024);
-        // Discern DATA's default tile shape and use it
-        const auto dminfo = _ms->dataManagerInfo();
-        for (uInt i=0; i<dminfo.nfields(); ++i) {
-            Record col = dminfo.asRecord(i);
-            if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
-                dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
-                break;
+            else {
+                if (mustWriteWtSp) {
+                    auto& x = vb->weightSpectrum();
+                    ThrowIf(
+                        x.empty(),
+                        "WEIGHT_SPECTRUM is only partially initialized. "
+                        "StatWt2 cannot deal with such an MS"
+                    );
+                    vb->setWeightSpectrum(x);
+                }
+                if (mustWriteSigSp) {
+                    auto& x = vb->sigmaSpectrum();
+                    ThrowIf(
+                        x.empty(),
+                        "SIGMA_SPECTRUM is only partially initialized. "
+                        "StatWt2 cannot deal with such an MS"
+                    );
+                    vb->setSigmaSpectrum(x);
+                }
+                if (mustWriteWt) {
+                    vb->setWeight(vb->weight());
+                }
+                if (mustWriteSig) {
+                    vb->setSigma(vb->sigma());
+                }
+                vb->setFlagCube(vb->flagCube());
+                vb->setFlagRow(vb->flagRow());
+                vb->writeChangesBack();
             }
-        }
-        // Add the column
-        String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
-        TableDesc tdWtSp;
-        tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, "weight spectrum", 2));
-        TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
-        _ms->addColumn(tdWtSp, wtSpStMan);
-    }
-    else if (! _preview) {
-        // check to see if extant WEIGHT_SPECTRUM needs to be initialized
-        ArrayColumn<Float> col(*_ms, MS::columnName(MS::WEIGHT_SPECTRUM));
-        try {
-            col.get(0);
-            // its initialized, so even if we are using the full spw for
-            // binning, we still need to update WEIGHT_SPECTRUM
-            mustWriteWtSp = True;
-        }
-        catch (const AipsError& x) {
-            // its not initialized, so we aren't going to write to it unless
-            // chanbin has been specified to be less than the spw width
-            mustInitWtSp = mustWriteWtSp;
+            count += nrow;
+            pm.update(count);
         }
     }
+    if (_preview) {
+        LogIO log(LogOrigin("StatWt", __func__));
+        log << LogIO::NORMAL
+            << "RAN IN PREVIEW MODE. NO WEIGHTS NOR FLAGS WERE CHANGED."
+            << LogIO::POST;
+    }
+    factory->getTVI()->summarizeFlagging();
+    Double mean, variance;
+    factory->getTVI()->summarizeStats(mean, variance);
+    Record ret;
+    ret.define("mean", mean);
+    ret.define("variance", variance);
+    return ret;
+}
+
+void StatWt::_constructVi(
+    std::shared_ptr<vi::VisibilityIterator2>& vi,
+    std::shared_ptr<vi::StatWtTVILayerFactory>& factory
+) const {
     // default sort columns are from MSIter and are ARRAY_ID, FIELD_ID, DATA_DESC_ID, and TIME
     // I'm adding scan and state because, according to the statwt requirements, by default, scan
     // and state changes should mark boundaries in the weights computation
@@ -158,58 +184,12 @@ Record StatWt::writeWeights() const {
     vi::SortColumns sc(sort, False);
     vi::IteratingParameters ipar(_timeBinWidth, sc);
     vi::VisIterImpl2LayerFactory data(_ms, ipar, True);
-    unique_ptr<Record> config(dynamic_cast<Record*>(_tviConfig.clone()));
-    vi::StatWtTVILayerFactory statWtLayerFactory(*config);
+    std::unique_ptr<Record> config(dynamic_cast<Record*>(_tviConfig.clone()));
+    factory.reset(new vi::StatWtTVILayerFactory(*config));
     Vector<vi::ViiLayerFactory*> facts(2);
     facts[0] = &data;
-    facts[1] = &statWtLayerFactory;
-    vi::VisibilityIterator2 vi(facts);
-    vi::VisBuffer2 *vb = vi.getVisBuffer();
-    Vector<Int> vr(1);
-    ProgressMeter pm(0, _ms->nrow(), "StatWt Progress");
-    uInt64 count = 0;
-    for (vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
-        for (vi.origin(); vi.more(); vi.next()) {
-            auto nrow = vb->nRows();
-            if (_preview) {
-                // just need to run the flags to accumulate
-                // flagging info
-                vb->flagCube();
-            }
-            else {
-                if (mustInitWtSp) {
-                    auto nchan = vb->nChannels();
-                    auto ncor = vb->nCorrelations();
-                    Cube<Float> newwtsp(ncor, nchan, nrow, 0);
-                    vb->initWeightSpectrum(newwtsp);
-                    vb->writeChangesBack();
-                }
-                if (mustWriteWtSp) {
-                    vb->setWeightSpectrum(vb->weightSpectrum());
-                }
-                vb->setWeight(vb->weight());
-                vb->setFlagCube(vb->flagCube());
-                vb->setFlagRow(vb->flagRow());
-                vb->writeChangesBack();
-            }
-            count += nrow;
-            pm.update(count);
-        }
-    }
-    if (_preview) {
-        LogIO log(LogOrigin("StatWt", __func__));
-        log << LogIO::NORMAL
-            << "RAN IN PREVIEW MODE. NO WEIGHTS NOR FLAGS WERE CHANGED."
-            << LogIO::POST;
-    }
-    statWtLayerFactory.getTVI()->summarizeFlagging();
-    Double mean, variance;
-    statWtLayerFactory.getTVI()->summarizeStats(mean, variance);
-    Record ret;
-    ret.define("mean", mean);
-    ret.define("variance", variance);
-    return ret;
+    facts[1] = factory.get();
+    vi.reset(new vi::VisibilityIterator2(facts));
 }
 
 }
-

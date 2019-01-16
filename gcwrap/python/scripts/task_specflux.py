@@ -136,11 +136,11 @@ def specflux(
         need_freq = True
         need_vel = True
         myq = qa.quantity("1" + xunit)
-        if qa.convert(qa, "km/s")['unit'] == "km/s":
+        if qa.convert(myq, "km/s")['unit'] == "km/s":
             need_vel = False
             vels = rec['coords']
             vel_unit = xunit
-        elif qa.convert(qa, "MHz")['unit'] == "MHz":
+        elif qa.convert(myq, "MHz")['unit'] == "MHz":
             need_freq = False
             freqs = rec['coords']
             freq_unit = xunit

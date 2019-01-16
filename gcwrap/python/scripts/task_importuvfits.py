@@ -1,5 +1,6 @@
 import os
 from taskinit import *
+from mstools import write_history
 
 def importuvfits(fitsfile, vis, antnamescheme=None):
     """

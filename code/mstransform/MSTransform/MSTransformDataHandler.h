@@ -306,10 +306,10 @@ public:
 	casacore::MSColumns * getOutputMSColumns() {return msc_p;};
 
 	// Accesors for the Re-mapper objects
-	map<casacore::Int, casacore::Int> & getStateRemapper() {return stateRemapper_p;};
+	std::map<casacore::Int, casacore::Int> & getStateRemapper() {return stateRemapper_p;};
 	casacore::Vector<casacore::Int> & getAntennaRemapper() {return antNewIndex_p;};
-	map<casacore::Int, vector<casacore::Int>> & getDroppedChannelsMap() {return spwDropChannelMap_p;};
-	map<casacore::Int,map < casacore::Int, vector<casacore::Int> > > & getSelectedChannelsMap() {return spwSelectedChannelMap_p;};
+	std::map<casacore::Int, std::vector<casacore::Int>> & getDroppedChannelsMap() {return spwDropChannelMap_p;};
+	std::map<casacore::Int,std::map < casacore::Int, std::vector<casacore::Int> > > & getSelectedChannelsMap() {return spwSelectedChannelMap_p;};
 
 	// Accesors for additional parameters
 	void setVirtualModelCol(casacore::Bool virtualModelCol) {virtualModelCol_p = virtualModelCol;};
@@ -335,7 +335,7 @@ protected:
 			intentString_p, // Selects scans by string.  scanString_p was taken.
 			obsString_p, // casacore::String for observationID selection.
 			uvrangeString_p, taqlString_p, feedString_p;
-	casacore::String timeRange_p, arrayExpr_p, corrString_p;
+	casacore::String timeRange_p, arrayExpr_p, corrString_p, spwString_p;
 	casacore::String combine_p; // Should time averaging not split bins by
 	// scan #, observation, and/or state ID?
 	// Must be lowercase at all times.
@@ -361,8 +361,8 @@ protected:
 			inNumChan_p, // The # of input channels for each spw.
 			inNumCorr_p; // The # of input correlations for each DDID.
 
-	map<casacore::Int,vector<casacore::Int> > spwDropChannelMap_p;
-	map<casacore::Int,map < casacore::Int, vector<casacore::Int> > > spwSelectedChannelMap_p;
+	std::map<casacore::Int, std::vector<casacore::Int> > spwDropChannelMap_p;
+	std::map<casacore::Int, std::map < casacore::Int, std::vector<casacore::Int> > > spwSelectedChannelMap_p;
 
 	casacore::Vector<casacore::Int> fieldid_p;
 	casacore::Vector<casacore::Int> spwRelabel_p, fieldRelabel_p, sourceRelabel_p;

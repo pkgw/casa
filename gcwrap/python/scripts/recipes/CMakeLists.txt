@@ -32,8 +32,10 @@ casa_add_python( tools tools_recipes_python lib/python${PYTHONV}/recipes
   drawmaskinimage.py
   field2skycat.py
   find_autocorr.py
+  fixpointing_vlass.py
   gaincal_unflag_nearest.py
   getazel.py
+  imager_resource_predictor.py
   __init__.py
   linfeedpolhelpers.py
   lsms.py

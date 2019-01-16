@@ -47,6 +47,7 @@
 #include <tables/Tables/TableLock.h>
 
 #include<synthesis/ImagerObjects/SIMinorCycleController.h>
+#include <imageanalysis/ImageAnalysis/CasaImageBeamSet.h>
 
 #include <casa/sstream.h>
 
@@ -72,8 +73,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   void SDAlgorithmBase::deconvolve( SIMinorCycleController &loopcontrols, 
-				    SHARED_PTR<SIImageStore> &imagestore,
-				    Int deconvolverid)
+				    std::shared_ptr<SIImageStore> &imagestore,
+				    Int deconvolverid,
+                                    Bool isautomasking, Bool fastnoise)
   {
     LogIO os( LogOrigin("SDAlgorithmBase","deconvolve",WHERE) );
 
@@ -102,6 +104,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        << ", CycleNiter=" << loopcontrols.getCycleNiter() 
        << ", Gain=" << loopcontrols.getLoopGain()
        << LogIO::POST;
+
+    Float itsPBMask = loopcontrols.getPBMask();
 
     Float maxResidualAcrossPlanes=0.0; Int maxResChan=0,maxResPol=0;
     Float totalFluxAcrossPlanes=0.0;
@@ -134,15 +138,28 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    startpeakresidual = peakresidual;
 	    startmodelflux = modelflux;
 
-            // returns as an Array but itsImages is already single plane so 
-            // the return rms contains only a single element
-            robustrms = itsImages->calcRobustRMS();
             //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
-            Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
+            os<<"robustrms nelements="<<robustrms.nelements()<<LogIO::POST;
+            Float nsigmathresh; 
+            if (robustrms.nelements()==0) {
+              nsigmathresh = 0.0; 
+            } else{
+              nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
+            }
               
             Float thresholdtouse;
             if (nsigma>0.0) {
+              // returns as an Array but itsImages is already single plane so 
+              // the return rms contains only a single element
+              Array<Double> medians;
+              robustrms = itsImages->calcRobustRMS(medians, itsPBMask, fastnoise);
+              if (isautomasking) { // new threshold defination 
+                nsigmathresh = (Float)medians(IPosition(1,0)) + nsigma * (Float)robustrms(IPosition(1,0));
+              }
+              else {
+                nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
+              }
               thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
             }
             else {
@@ -266,7 +283,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    
 	    loopcontrols.resetCycleIter(); 
 
-	    if( peakresidual > maxResidualAcrossPlanes )
+	    if( peakresidual > maxResidualAcrossPlanes && stopCode!=0 )
 	      {maxResidualAcrossPlanes=peakresidual; maxResChan=chanid; maxResPol=polid;}
 
 	    totalFluxAcrossPlanes += modelflux;
@@ -295,6 +312,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SDAlgorithmBase::setRestoringBeam( GaussianBeam restbeam, String usebeam )
   {
+    LogIO os( LogOrigin("SDAlgorithmBase","setRestoringBeam",WHERE) );
     itsRestoringBeam = restbeam;
     itsUseBeam = usebeam;
   }
@@ -320,7 +338,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
   */
 
-   void SDAlgorithmBase::restore(SHARED_PTR<SIImageStore> imagestore )
+   void SDAlgorithmBase::restore(std::shared_ptr<SIImageStore> imagestore )
   {
 
     LogIO os( LogOrigin("SDAlgorithmBase","restore",WHERE) );
@@ -334,7 +352,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
  
-  void SDAlgorithmBase::pbcor(SHARED_PTR<SIImageStore> imagestore )
+  void SDAlgorithmBase::pbcor(std::shared_ptr<SIImageStore> imagestore )
   {
 
     LogIO os( LogOrigin("SDAlgorithmBase","pbcor",WHERE) );
@@ -399,7 +417,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   ///    - stokes cube clean
   ///    - partitioned-image clean (facets ?)
   ///    - 3D deconvolver
-  void SDAlgorithmBase::partitionImages( SHARED_PTR<SIImageStore> &imagestore )
+  void SDAlgorithmBase::partitionImages( std::shared_ptr<SIImageStore> &imagestore )
   {
     LogIO os( LogOrigin("SDAlgorithmBase","partitionImages",WHERE) );
 
@@ -444,7 +462,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   */
 
   /*
-  void SDAlgorithmBase::initializeSubImages( SHARED_PTR<SIImageStore> &imagestore, uInt subim)
+  void SDAlgorithmBase::initializeSubImages( std::shared_ptr<SIImageStore> &imagestore, uInt subim)
   {
     itsResidual = SubImage<Float>( *(imagestore->residual()), itsDecSlices[subim], true );
     itsPsf = SubImage<Float>( *(imagestore->psf()), itsDecSlices[subim], true );

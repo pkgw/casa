@@ -22,6 +22,8 @@
 
 #include <flagging/Flagging/FlagAgentSummary.h>
 
+#include <casacore/measures/TableMeasures/ScalarMeasColumn.h>
+
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -418,7 +420,7 @@ FlagAgentSummary::buildFlagCountPlots()
     // (1) Plot of fraction flagged vs frequency (only if spwchan==true)
     if( spwChannelCounts )
     {
-        pair<string, double> freqUnit("GHz",1e+9);
+        std::pair<string, double> freqUnit("GHz",1e+9);
 
         FlagReport subRep1 = FlagReport("plotpoints",summaryName_p,"Percentage Flagged",
                 "Frequency ("+freqUnit.first+")", "% Flagged");

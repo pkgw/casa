@@ -30,18 +30,18 @@
  *
  * File AlmaRadiometerTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <AlmaRadiometerTable.h>
-#include <AlmaRadiometerRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/AlmaRadiometerTable.h>
+#include <alma/ASDM/AlmaRadiometerRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::AlmaRadiometerTable;
@@ -56,15 +56,18 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -417,7 +420,7 @@ AlmaRadiometerRow* AlmaRadiometerTable::newRow(AlmaRadiometerRow* row) {
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<AlmaRadiometerTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ardmtr=\"http://Alma/XASDM/AlmaRadiometerTable\" xsi:schemaLocation=\"http://Alma/XASDM/AlmaRadiometerTable http://almaobservatory.org/XML/XASDM/3/AlmaRadiometerTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<AlmaRadiometerTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ardmtr=\"http://Alma/XASDM/AlmaRadiometerTable\" xsi:schemaLocation=\"http://Alma/XASDM/AlmaRadiometerTable http://almaobservatory.org/XML/XASDM/4/AlmaRadiometerTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -528,6 +531,9 @@ AlmaRadiometerRow* AlmaRadiometerTable::newRow(AlmaRadiometerRow* row) {
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -544,7 +550,7 @@ AlmaRadiometerRow* AlmaRadiometerTable::newRow(AlmaRadiometerRow* row) {
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<AlmaRadiometerTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ardmtr=\"http://Alma/XASDM/AlmaRadiometerTable\" xsi:schemaLocation=\"http://Alma/XASDM/AlmaRadiometerTable http://almaobservatory.org/XML/XASDM/3/AlmaRadiometerTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<AlmaRadiometerTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ardmtr=\"http://Alma/XASDM/AlmaRadiometerTable\" xsi:schemaLocation=\"http://Alma/XASDM/AlmaRadiometerTable http://almaobservatory.org/XML/XASDM/4/AlmaRadiometerTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='AlmaRadiometerTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -777,6 +783,8 @@ AlmaRadiometerRow* AlmaRadiometerTable::newRow(AlmaRadiometerRow* row) {
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void AlmaRadiometerTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -830,11 +838,19 @@ AlmaRadiometerRow* AlmaRadiometerTable::newRow(AlmaRadiometerRow* row) {
 	}
 
 	
-	void AlmaRadiometerTable::setFromFile(const string& directory) {		
+	void AlmaRadiometerTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/AlmaRadiometer.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/AlmaRadiometer.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/AlmaRadiometer.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/AlmaRadiometer.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the AlmaRadiometer table", "AlmaRadiometer");
 	}			
@@ -985,7 +1001,9 @@ AlmaRadiometerRow* AlmaRadiometerTable::newRow(AlmaRadiometerRow* row) {
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

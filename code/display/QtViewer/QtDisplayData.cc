@@ -394,7 +394,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 							std::string outpath = viewer::options.temporaryPath(Path(path_).baseName());
 							panel_->status( "generating temporary image: " + outpath );
 							panel_->logIO( ) << "generating temporary image \'" << outpath << "'" << LogIO::POST;
-							ImageRegridder regridder(im_, String(outpath), regrid_to->imageInterface( ) );
+							ImageRegridder<Float> regridder(im_, String(outpath), regrid_to->imageInterface( ) );
 							regridder.setMethod(method);
 							regridder.setSpecAsVelocity(true);
 							im_ = regridder.regrid();
@@ -488,7 +488,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		dd_->setOptions( record, outRecord );
 	}
 
-	void QtDisplayData::setImage(SHARED_PTR<ImageInterface<Float> > img ) {
+	void QtDisplayData::setImage(std::shared_ptr<ImageInterface<Float> > img ) {
 		im_=img;
 	}
 

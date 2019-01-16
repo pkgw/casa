@@ -150,15 +150,16 @@ class Test010_FirstLookatLineImaging(unittest.TestCase):
             if "rm -rf sis14_twhya_selfcal.ms" in line:
                 continue
 
-            if "niter=5000)" in line:
-                file.write("niter=250)\n")
-                continue
+            pattern = r'''niter\ *=\ *(5000)'''
+            if re.search(pattern,line):
+                line = re.sub( pattern, 'niter=250', line )
+
             file.write(line)
         file.close()
         os.remove('FirstLookatLineImaging.py')
         os.rename("newfile.txt",'FirstLookatLineImaging.py')
 
-        time.sleep(15)
+        time.sleep(5)
 
     def tearDown(self):
         pass

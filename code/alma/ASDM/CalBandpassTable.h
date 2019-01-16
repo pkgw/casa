@@ -41,42 +41,38 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
 
 	
-#include "CBasebandName.h"
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
-#include "CNetSideband.h"
+#include <alma/Enumerations/CNetSideband.h>
 	
 
 	
-#include "CAtmPhaseCorrection.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
-#include "CCalCurveType.h"
+#include <alma/Enumerations/CCalCurveType.h>
 	
 
 	
-#include "CReceiverBand.h"
-	
-
-	
-
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -92,11 +88,11 @@
 	
 
 	
-#include "CPolarizationType.h"
-	
 
 	
 
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -117,20 +113,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -261,42 +261,42 @@ class CalBandpassRow;
 	
  * <TR>
  * <TD> antennaNames </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numAntenna </TD> 
  * <TD> &nbsp;the names of the antennas. </TD>
  * </TR>
 	
  * <TR>
  * <TD> refAntennaName </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the reference antenna. </TD>
  * </TR>
 	
  * <TR>
  * <TD> freqLimits </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the frequency range for the polynomial description of the passband. </TD>
  * </TR>
 	
  * <TR>
  * <TD> polarizationTypes </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the polarizations of the receptors (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> curve </TD> 
- * <TD> vector<vector<vector<float > > > </TD>
+ * <TD> std::vector<std::vector<std::vector<float > > > </TD>
  * <TD>  numAntenna, numReceptor, numPoly </TD> 
  * <TD> &nbsp;the amplitude or phase coefficients, depending on the value of typeCurve (one array of numPoly values per antenna per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> reducedChiSquared </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;measures the quality of the least squares fits (one value per receptor). </TD>
  * </TR>
@@ -321,14 +321,14 @@ class CalBandpassRow;
 	
  * <TR>
  * <TD> rms</TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numBaseline  </TD>
  * <TD>&nbsp; the amplitude or phase residuals ( one array of numBaseline values per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> frequencyRange</TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the frequency range over which the result is valid. </TD>
  * </TR>
@@ -342,28 +342,28 @@ class CalBandpassRow;
 	
  * <TR>
  * <TD> chanFreqStart</TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numSpectralWindow  </TD>
  * <TD>&nbsp; the frequency of the first channel. </TD>
  * </TR>
 	
  * <TR>
  * <TD> chanFreqStep</TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numSpectralWindow  </TD>
  * <TD>&nbsp; the increment between two successive frequencies. </TD>
  * </TR>
 	
  * <TR>
  * <TD> numSpectralWindowChan(numSpectralWindowChan)</TD> 
- * <TD> vector<int > </TD>
+ * <TD> std::vector<int > </TD>
  * <TD>  numSpectralWindow  </TD>
  * <TD>&nbsp; The number of channels for each spectral window. </TD>
  * </TR>
 	
  * <TR>
  * <TD> spectrum</TD> 
- * <TD> vector<vector<vector<float > > > </TD>
+ * <TD> std::vector<std::vector<std::vector<float > > > </TD>
  * <TD>  numAntenna, numReceptor, numFreq  </TD>
  * <TD>&nbsp; The antenna-based spectrum per receptor averaging over the entire scan range. </TD>
  * </TR>
@@ -541,7 +541,7 @@ public:
  	 * @param reducedChiSquared
 	
      */
-	CalBandpassRow *newRow(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<Frequency > freqLimits, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared);
+	CalBandpassRow *newRow(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<Frequency > freqLimits, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared);
 	
 
 
@@ -675,7 +675,7 @@ public:
  	 * @param reducedChiSquared
  	 		 
  	 */
-	CalBandpassRow* lookup(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<Frequency > freqLimits, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared); 
+	CalBandpassRow* lookup(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<Frequency > freqLimits, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

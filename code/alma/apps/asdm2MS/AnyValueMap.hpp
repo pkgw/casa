@@ -5,13 +5,14 @@
  *      Author: alvaro
  */
 
+// Only used by parasdm2MS, could possibly be replaced by a casacore::Record?
+// boost::any is in c++17
+
 #ifndef ANYVALUEMAP_HPP_
 #define ANYVALUEMAP_HPP_
 
 #include <map>
 #include <boost/any.hpp>
-
-using namespace std;
 
 template <class T>
 class AnyValueMap {
@@ -22,10 +23,10 @@ public:
     virtual ~AnyValueMap(){}
 
 private:
-    map<T, boost::any> container_;
+    std::map<T, boost::any> container_;
 
-    typedef typename map<T, boost::any>::iterator map_iterator;
-    typedef typename map<T, boost::any>::const_iterator map_const_iterator;
+    typedef typename std::map<T, boost::any>::iterator map_iterator;
+    typedef typename std::map<T, boost::any>::const_iterator map_const_iterator;
 
 public:
 
@@ -36,7 +37,7 @@ public:
 
     bool remove(const T key)
     {
-        map_iterator it = container_.find(key);
+        std::map_iterator it = container_.find(key);
         if(it != container_.end())
         {
             container_.erase(it);
@@ -48,7 +49,7 @@ public:
     template <class V>
     V getValue(const T key, const V defaultValue) const
     {
-        map_const_iterator it = container_.find(key);
+        std::map_const_iterator it = container_.find(key);
         if(it != container_.end())
         {
             return boost::any_cast<V>(it->second);

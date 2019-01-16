@@ -51,6 +51,7 @@
 #include <scimath/Mathematics/MatrixMathLA.h>
 
 #include <synthesis/TransformMachines2/MultiTermFTNew.h>
+#include <synthesis/TransformMachines2/MosaicFTNew.h>
 #include <synthesis/TransformMachines2/Utils.h>
 
 // This is the list of FTMachine types supported by MultiTermFTNew
@@ -93,8 +94,16 @@ using namespace casa::vi;
     for(uInt termindex=0;termindex<psfnterms_p;termindex++)
       {
 	//        cout << "Creating new FTM of type : " << subftm->name() << endl;
-	if( termindex==0 ){ subftms_p[termindex] = subftm; }
-	else { subftms_p[termindex] = getNewFTM(subftm); }
+	if( termindex==0 ){ 
+	  subftms_p[termindex] = subftm; 
+	}
+	else { 
+	  subftms_p[termindex] = getNewFTM(subftm); 
+	  if((subftms_p[termindex]->name())=="MosaicFTNew"){ 
+	    (static_cast<MosaicFTNew *>(subftms_p[termindex].get()))->setConvFunc(  (static_cast<MosaicFTNew * >(subftm.get()))->getConvFunc());
+
+	    }
+	}
 
 	subftms_p[termindex]->setMiscInfo(termindex); 
       }
@@ -188,8 +197,18 @@ using namespace casa::vi;
   MultiTermFTNew::~MultiTermFTNew()
   {
   }
-  
-  
+  void MultiTermFTNew::setMovingSource(const String& sourcename, const String& ephemtable){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setMovingSource(sourcename, ephemtable);
+  }
+  void MultiTermFTNew::setMovingSource(const MDirection& mdir){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setMovingSource(mdir);
+  }
+  void MultiTermFTNew::setLocation(const MPosition& mloc){
+    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+      (subftms_p[k])->setLocation(mloc);
+  }
   //---------------------------------------------------------------------------------------------------
   //------------ Multi-Term Specific Functions --------------------------------------------------------
   //---------------------------------------------------------------------------------------------------
@@ -235,8 +254,12 @@ using namespace casa::vi;
   }
   
   void MultiTermFTNew::initMaps(const VisBuffer2& vb){
-    for (uInt k=0;  k < subftms_p.nelements(); ++k)
+
+    for (uInt k=0;  k < subftms_p.nelements(); ++k){
+      (subftms_p[k])->setFrameValidity( freqFrameValid_p);
+      (subftms_p[k])->freqInterpMethod_p=this->freqInterpMethod_p;
       (subftms_p[k])->initMaps(vb);
+    }
   }
   // Reset the imaging weights back to their original values
   // to be called just after "put"
@@ -400,7 +423,6 @@ void MultiTermFTNew::initializeToSkyNew(const Bool dopsf,
   {
     
     subftms_p[0]->put(vb,row,dopsf,type);
-    
     if (!dryRun())
       {
 	Int gridnterms=nterms_p;
@@ -409,7 +431,7 @@ void MultiTermFTNew::initializeToSkyNew(const Bool dopsf,
 	    gridnterms=2*nterms_p-1;
 	  }
     
-	//cout << "  Calling put for " << gridnterms << " terms, nelements :  " << subftms_p.nelements() << "  and dopsf " << dopsf << endl;
+	//cerr << "  Calling put for " << gridnterms << " terms, nelements :  " << subftms_p.nelements() << "  and dopsf " << dopsf << " reffreq " << reffreq_p << endl;
     
 	for(Int tix=1;tix<gridnterms;tix++)
 	  {
@@ -469,8 +491,70 @@ void MultiTermFTNew::finalizeToSkyNew(Bool dopsf,
     //    cout << "MTFT :: makeImage for taylor 0 only "<< endl;
     subftms_p[0]->makeImage(type, vi, theImage, weight);
   }
-  
+  void MultiTermFTNew::makeMTImages(refim::FTMachine::Type type,
+				    vi::VisibilityIterator2& vi,
+				    casacore::Vector<casacore::CountedPtr<casacore::ImageInterface<casacore::Complex> > >& theImage,
+				    casacore::Vector<casacore::CountedPtr<casacore::Matrix<casacore::Float> > >& weight){
+    Int ntaylor= (type== refim::FTMachine::PSF) ? psfnterms_p : nterms_p; 
+    
 
+    
+    vi::VisBuffer2* vb=vi.getVisBuffer();
+    
+    // Initialize put (i.e. transform to Sky) for this model
+    vi.origin();
+    for(Int taylor=0;taylor< ntaylor  ; ++taylor) {
+       if(vb->polarizationFrame()==MSIter::Linear) {
+	 StokesImageUtil::changeCStokesRep(*(theImage[taylor]), StokesImageUtil::LINEAR);
+       }
+       else {
+	 StokesImageUtil::changeCStokesRep(*(theImage[taylor]), StokesImageUtil::CIRCULAR);
+       }
+       subftms_p[taylor]->initializeToSky(*(theImage[taylor]), *(weight[taylor]),*vb);
+      
+    }
+    {
+      Vector<Double> refpix = (theImage[0]->coordinates().spectralCoordinate()).referencePixel();
+      (theImage[0]->coordinates().spectralCoordinate()).toWorld( reffreq_p, refpix[0] );
+    }
+    Bool useCorrected= !(ROMSColumns(vi.ms()).correctedData().isNull());
+    if((type==FTMachine::CORRECTED) && (!useCorrected))
+      type=FTMachine::OBSERVED;
+   
+
+    // Loop over the visibilities, putting VisBuffers
+    for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
+      for (vi.origin(); vi.more(); vi.next()) {
+	
+	switch(type) {
+	case FTMachine::RESIDUAL:
+	  vb->setVisCube(vb->visCubeCorrected());
+	  vb->setVisCube(vb->visCube()-vb->visCubeModel());
+	  put(*vb, -1, false);
+	  break;
+	case FTMachine::CORRECTED:
+	  put(*vb, -1, false, FTMachine::CORRECTED);
+	  break;
+	case FTMachine::PSF:
+	  vb->setVisCube(Complex(1.0,0.0));
+	  put(*vb, -1, true, FTMachine::PSF);
+	  break;
+	case FTMachine::OBSERVED:
+	  put(*vb, -1, false, FTMachine::OBSERVED);
+	  break;
+	default:
+	  throw(AipsError("Cannot make multiterm image of type requested"));
+	  break;
+	}
+      }
+    }
+    ///
+    for(Int taylor=0;taylor< ntaylor  ; ++taylor) {
+      subftms_p[taylor]->finalizeToSky();
+      subftms_p[taylor]->getImage(*(weight[taylor]), false);
+     
+    }
+  }
   //---------------------------------------------------------------------------------------------------
   //------------------------ To / From Records ---------------------------------------------------------
   //---------------------------------------------------------------------------------------------------
@@ -504,7 +588,7 @@ void MultiTermFTNew::finalizeToSkyNew(Bool dopsf,
   //---------------------------------------------------------------------------------------------------
   Bool MultiTermFTNew::fromRecord(String& error, const RecordInterface& inRec)
   {
-    cout << "MTFTNew :: fromRecord "<< endl;
+    //cout << "MTFTNew :: fromRecord "<< endl;
     Bool retval = true;
     
     inRec.get("nterms",nterms_p);
@@ -517,11 +601,15 @@ void MultiTermFTNew::finalizeToSkyNew(Bool dopsf,
     inRec.get("numfts",nftms);
     
     subftms_p.resize(nftms);
+    //cerr << "number of ft " << nftms << endl;
     for(Int tix=0;tix<nftms;tix++)
       {
 	Record subFTMRec=inRec.asRecord("subftm_"+String::toString(tix));
 	subftms_p[tix]=VisModelData::NEW_FT(subFTMRec);
-	retval = (retval || subftms_p[tix]->fromRecord(error, subFTMRec));    
+	if(subftms_p[tix].null())
+	  throw(AipsError("Could not recover from record term "+String::toString(tix)+" ftmachine"));
+	retval = (retval || subftms_p[tix]->fromRecord(error, subFTMRec));
+	if(!retval) throw(AipsError("Could not recover term "+String::toString(tix)+" ftmachine; \n Error being "+error));
       }
     
     
@@ -536,7 +624,17 @@ void MultiTermFTNew::finalizeToSkyNew(Bool dopsf,
     tmp.copyData(le);
     return true;
   }
-  
+  //
+  // Set the supplied CFCache for all internal FTMs if they do use CFCache mechanism
+  //
+  void MultiTermFTNew::setCFCache(casacore::CountedPtr<CFCache>& cfc, const casacore::Bool resetCFC)
+  {
+    for (unsigned int i=0;i<subftms_p.nelements();i++)
+      {
+	if (subftms_p[i]->isUsingCFCache())
+	  subftms_p[i]->setCFCache(cfc,resetCFC);
+      }
+  }
   
 
   //---------------------------------------------------------------------------------------------------

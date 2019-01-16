@@ -32,45 +32,26 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <DataDescriptionRow.h>
-#include <DataDescriptionTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/DataDescriptionRow.h>
+#include <alma/ASDM/DataDescriptionTable.h>
 
-#include <PolarizationTable.h>
-#include <PolarizationRow.h>
+#include <alma/ASDM/PolarizationTable.h>
+#include <alma/ASDM/PolarizationRow.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-#include <PulsarTable.h>
-#include <PulsarRow.h>	
+#include <alma/ASDM/PulsarTable.h>
+#include <alma/ASDM/PulsarRow.h>
+#include <alma/ASDM/Parser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
+#include <alma/ASDM/InvalidArgumentException.h>
 
-using asdm::ASDM;
-using asdm::DataDescriptionRow;
-using asdm::DataDescriptionTable;
-
-using asdm::PolarizationTable;
-using asdm::PolarizationRow;
-
-using asdm::SpectralWindowTable;
-using asdm::SpectralWindowRow;
-
-using asdm::PulsarTable;
-using asdm::PulsarRow;
-
-#include <Parser.h>
-using asdm::Parser;
-
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
- 
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+using namespace std;
 
 namespace asdm {
 	DataDescriptionRow::~DataDescriptionRow() {

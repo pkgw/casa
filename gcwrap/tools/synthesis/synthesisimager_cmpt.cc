@@ -221,8 +221,15 @@ bool synthesisimager::defineimage(const casac::record& impars, const casac::reco
     casacore::Record grecpars = *toRecord( gridpars );
     SynthesisParamsGrid gpars;
     gpars.fromRecord( grecpars );
+    ipars.trackSource=False;
     if(movingSource != casacore::String("")){
       itsImager->setMovingSource(movingSource);
+      ipars.trackSource=True;
+      ipars.movingSource=movingSource;
+      casacore::MDirection::Types refType;
+      if((casacore::MDirection::getType(refType, movingSource)) && (refType > casacore::MDirection::N_Types && refType < casacore::MDirection:: N_Planets ))
+	ipars.trackDir=casacore::MDirection(refType);
+      
     }
     itsImager->defineImage( ipars, gpars );
     
@@ -285,7 +292,7 @@ synthesisimager::setimage(const std::string& imagename,
 			     const std::string& cfcache,//  = "",
 			     const bool dopointing,// = false,
 			     const bool dopbcorr,//   = true,
-			     const bool conjbeams,//  = true,
+			     const bool conjbeams,//  = false,
 			     const float computepastep,         //=360.0
 			     const float rotatepastep          //=5.0
 			     )
@@ -578,6 +585,23 @@ bool synthesisimager::makesdimage()
   return rstat;
 }
 
+bool synthesisimager::makeimage(const std::string& type, const std::string& image,
+                       const std::string& compleximage, const int model)
+{
+  Bool rstat(true);
+
+  try {
+    itsImager = makeSI();
+    itsImager->makeImage(String(type), String(image), String(compleximage), 
+			 model );
+
+  } catch  (AipsError x) {
+    RETHROW(x);
+  }
+  return rstat;
+}
+
+
 bool synthesisimager::makesdpsf()
 {
   Bool rstat(false);
@@ -593,7 +617,21 @@ bool synthesisimager::makesdpsf()
   }
   return rstat;
 }
+bool synthesisimager::unlockimages(const int id)
+{
+  Bool rstat(false);
 
+  try {
+
+    //if( ! itsImager ) itsImager = new SynthesisImager();
+    itsImager = makeSI();
+    rstat=(itsImager->imageStore(id))->releaseLocks();
+
+  } catch  (AipsError x) {
+    RETHROW(x);
+  }
+  return rstat;
+}
 synthesisimstore* synthesisimager::getimstore(const int id)
 {
   synthesisimstore *rstat;

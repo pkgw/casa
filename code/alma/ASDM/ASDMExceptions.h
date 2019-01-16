@@ -26,12 +26,12 @@
  */
 #ifndef ASDMExceptions_h
 #define ASDMExceptions_h
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <IllegalAccessException.h>
-#include <InvalidArgumentException.h>
-#include <InvalidDataException.h>
-#include <NoSuchRow.h>
-#include <NumberFormatException.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/IllegalAccessException.h>
+#include <alma/ASDM/InvalidArgumentException.h>
+#include <alma/ASDM/InvalidDataException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/NumberFormatException.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 #endif /* ASDMExceptions_h */

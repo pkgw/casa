@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <AntennaRow.h>
-#include <AntennaTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <StationTable.h>
-#include <StationRow.h>
+#include <alma/ASDM/StationTable.h>
+#include <alma/ASDM/StationRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::StationTable;
 using asdm::StationRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	AntennaRow::~AntennaRow() {
@@ -981,7 +978,9 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void AntennaRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -989,7 +988,9 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void AntennaRow::nameFromText(const string & s) {
 		 
+          
 		name = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -997,7 +998,9 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an AntennaMake 
 	void AntennaRow::antennaMakeFromText(const string & s) {
 		 
-		antennaMake = ASDMValuesParser::parse<AntennaMake>(s);
+          
+		antennaMake = ASDMValuesParser::parse<AntennaMakeMod::AntennaMake>(s);
+          
 		
 	}
 	
@@ -1005,7 +1008,9 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an AntennaType 
 	void AntennaRow::antennaTypeFromText(const string & s) {
 		 
-		antennaType = ASDMValuesParser::parse<AntennaType>(s);
+          
+		antennaType = ASDMValuesParser::parse<AntennaTypeMod::AntennaType>(s);
+          
 		
 	}
 	
@@ -1013,7 +1018,9 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void AntennaRow::dishDiameterFromText(const string & s) {
 		 
+          
 		dishDiameter = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -1021,7 +1028,9 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void AntennaRow::positionFromText(const string & s) {
 		 
+          
 		position = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -1029,7 +1038,9 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void AntennaRow::offsetFromText(const string & s) {
 		 
+          
 		offset = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -1037,7 +1048,9 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void AntennaRow::timeFromText(const string & s) {
 		 
+          
 		time = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1045,7 +1058,9 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void AntennaRow::stationIdFromText(const string & s) {
 		 
+          
 		stationId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1055,7 +1070,9 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	void AntennaRow::assocAntennaIdFromText(const string & s) {
 		assocAntennaIdExists = true;
 		 
+          
 		assocAntennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1113,21 +1130,21 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get name.
- 	 * @return name as string
+ 	 * @return name as std::string
  	 */
- 	string AntennaRow::getName() const {
+ 	std::string AntennaRow::getName() const {
 	
   		return name;
  	}
 
  	/**
- 	 * Set name with the specified string.
- 	 * @param name The string value to which name is to be set.
+ 	 * Set name with the specified std::string.
+ 	 * @param name The std::string value to which name is to be set.
  	 
  	
  		
  	 */
- 	void AntennaRow::setName (string name)  {
+ 	void AntennaRow::setName (std::string name)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1241,21 +1258,21 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get position.
- 	 * @return position as vector<Length >
+ 	 * @return position as std::vector<Length >
  	 */
- 	vector<Length > AntennaRow::getPosition() const {
+ 	std::vector<Length > AntennaRow::getPosition() const {
 	
   		return position;
  	}
 
  	/**
- 	 * Set position with the specified vector<Length >.
- 	 * @param position The vector<Length > value to which position is to be set.
+ 	 * Set position with the specified std::vector<Length >.
+ 	 * @param position The std::vector<Length > value to which position is to be set.
  	 
  	
  		
  	 */
- 	void AntennaRow::setPosition (vector<Length > position)  {
+ 	void AntennaRow::setPosition (std::vector<Length > position)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1273,21 +1290,21 @@ void AntennaRow::assocAntennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get offset.
- 	 * @return offset as vector<Length >
+ 	 * @return offset as std::vector<Length >
  	 */
- 	vector<Length > AntennaRow::getOffset() const {
+ 	std::vector<Length > AntennaRow::getOffset() const {
 	
   		return offset;
  	}
 
  	/**
- 	 * Set offset with the specified vector<Length >.
- 	 * @param offset The vector<Length > value to which offset is to be set.
+ 	 * Set offset with the specified std::vector<Length >.
+ 	 * @param offset The std::vector<Length > value to which offset is to be set.
  	 
  	
  		
  	 */
- 	void AntennaRow::setOffset (vector<Length > offset)  {
+ 	void AntennaRow::setOffset (std::vector<Length > offset)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1691,7 +1708,7 @@ antennaType = CAntennaType::from_int(0);
 	}
 
 	
-	bool AntennaRow::compareNoAutoInc(string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, vector<Length > position, vector<Length > offset, ArrayTime time, Tag stationId) {
+	bool AntennaRow::compareNoAutoInc(std::string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, std::vector<Length > position, std::vector<Length > offset, ArrayTime time, Tag stationId) {
 		bool result;
 		result = true;
 		
@@ -1756,7 +1773,7 @@ antennaType = CAntennaType::from_int(0);
 	
 	
 	
-	bool AntennaRow::compareRequiredValue(string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, vector<Length > position, vector<Length > offset, ArrayTime time, Tag stationId) {
+	bool AntennaRow::compareRequiredValue(std::string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, std::vector<Length > position, std::vector<Length > offset, ArrayTime time, Tag stationId) {
 		bool result;
 		result = true;
 		

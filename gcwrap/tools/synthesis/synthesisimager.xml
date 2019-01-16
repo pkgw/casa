@@ -357,52 +357,55 @@ Define the image coordinate systems and shapes.
      </param>
 
      <param type="bool" name="aterm">
-     <description>Double Precision gridding or not</description>
+     <description>Set the antenna aperture tmer (aterm) on/off</description>
      <value>true</value>
      </param>
 
      <param type="bool" name="psterm">
-     <description>Double Precision gridding or not</description>
+     <description>Set the Prolate Spheroidal term (psterm) on/off</description>
      <value>true</value>
      </param>
 
      <param type="bool" name="mterm">
-     <description>Double Precision gridding or not</description>
+     <description>Set the mosaic term (mterm) on/off</description>
      <value>false</value>
      </param>
 
      <param type="bool" name="wbawp">
-     <description>Double Precision gridding or not</description>
+     <description>Set usage of the wide-band A-Projection algorithm</description>
      <value>true</value>
      </param>
 
      <param type="string" name="cfcache">
-     <description>Name of convolution function</description>
+     <description>Name of convolution function disk cache</description>
      <value></value>
      </param>
 
      <param type="bool" name="dopointing">
-     <description>Double Precision gridding or not</description>
+     <description>Control application of the pointing correction</description>
      <value>false</value>
      </param>
 
      <param type="bool" name="dopbcorr">
-     <description>Double Precision gridding or not</description>
+     <description>Control normalization of the raw image by the model PB</description>
      <value>true</value>
      </param>
 
      <param type="bool" name="conjbeams">
-     <description>Double Precision gridding or not</description>
-     <value>true</value>
+     <description>Set conjbeams on/off </description>
+     <value>false</value>
      </param>
 
      <param type="float" name="computepastep">
-     <description>Double Precision gridding or not</description>
+     <description>Increment in PA after which re-computation of the
+     GCFs is triggered.  360.0 implies compute GCFs for only the first
+     PA value encountered in the MS.</description>
      <value>360.0</value>
      </param>
 
      <param type="float" name="rotatepastep">
-     <description>Double Precision gridding or not</description>
+     <description>Increment in PA after which trigger in-memory
+     rotation of the GCF nearest to the current PA value in the CF cache.</description>
      <value>5.0</value>
      </param>
 
@@ -568,7 +571,7 @@ Define the image coordinate systems and shapes.
 	Use WB A-Projection algorithm (use frequency-conjugate beams)?
       </description>
       <value>
-	true
+	false
       </value>
     </param>
 
@@ -638,7 +641,79 @@ Define the image coordinate systems and shapes.
 <input/>
 <returns type="bool"/>
 </method>
+<!-- ===================================== -->
+   <method type="function" name="makeimage">
+   <shortdescription>calculate images of different type by gridding</shortdescription>
 
+<description>
+This tool function actually does gridding (and Fourier inversion if
+needed) of visibility data to make an image. It allows calculation of
+various types of image:
+\begin{description}
+\item[observed] Make the dirty image from the DATA column ({\em default})
+\item[model] Make the dirty image from the MODEL\_DATA column
+\item[corrected] Make the dirty image from the CORRECTED\_DATA column
+\item[residual] Make the dirty image from the difference of the
+CORRECTED\_DATA and MODEL\_DATA columns
+\item[psf] Make the point spread function
+\item[singledish] Make a single dish image
+\item[coverage] Make a single dish or mosaic coverage image
+\item[holography] Make a complex holography image (experimental)
+
+\end{description}
+</description>
+<input>
+
+     <param type="string" name="type">
+     <description>Type of output image</description>
+     <value>observed</value>
+     <allowed kind="enum">
+      <value>observed</value>
+      <value>model</value>
+      <value>corrected</value>
+      <value>residual</value>
+      <value>psf</value>
+      <value>singledish</value>
+      <value>coverage</value>
+      <value>holography</value>
+     </allowed>
+     </param>
+
+     <param type="string" name="image">
+     <description>Name of output image</description>
+     <value></value>
+     </param>
+
+     <param type="string" name="compleximage">
+     <description>Name of output complex image</description>
+     <value></value>  
+     </param>
+
+     <param type="int" name="model">
+     <description>In case of multifield which image</description>
+     <value>0</value>
+     </param>
+
+     
+     
+</input>
+<returns type="bool"/>
+</method>
+<!-- ===================================== -->
+   <method type="function" name="unlockimages">
+   <shortdescription>release some images attached to this process</shortdescription>
+
+<description>
+  Try to unlock images if the need arise
+</description>
+<input>
+   <param type="int" name="imagefieldid">
+     <description>which image or outlier to unlock</description>
+     <value>0</value>
+   </param>
+   </input>
+<returns type="bool"/>
+</method>
 <!-- ===================================== -->
 
    <method type="function" name="getimstore">

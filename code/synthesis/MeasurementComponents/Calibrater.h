@@ -123,6 +123,7 @@ class Calibrater
 		 const casacore::String& refant="",
 		 const casacore::String& refantmode="flex",
 		 const casacore::Bool solnorm=false,
+		 const casacore::String& normtype="mean",
 		 const casacore::Float minsnr=0.0f,
 		 const casacore::String& combine="",
 		 const casacore::Int fillgaps=0,
@@ -133,7 +134,11 @@ class Calibrater
                  const casacore::Int numedge=-1,
                  const casacore::String& radius="",
                  const casacore::Bool smooth=true,
-                 const casacore::Bool zerorates=false);
+                 const casacore::Bool zerorates=false,
+       const casacore::Bool globalsolve=true,
+       const casacore::Vector<casacore::Double>& delaywindow=casacore::Vector<casacore::Double>(), 
+       const casacore::Vector<casacore::Double>& ratewindow=casacore::Vector<casacore::Double>()
+);
 
   // Arrange to solve for BPOLY (using casacore::MSSelection syntax)
   casacore::Bool setsolvebandpoly(const casacore::String& table,

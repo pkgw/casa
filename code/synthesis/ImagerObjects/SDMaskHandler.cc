@@ -82,6 +82,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsMax = DBL_MAX;
     itsRms = DBL_MAX;
     itsSidelobeLevel = 0.0;
+    //itsPBMaskLevel = 0.0;
   }
   
   SDMaskHandler::~SDMaskHandler()
@@ -92,14 +93,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 #endif
   }
   
-  void SDMaskHandler::resetMask(SHARED_PTR<SIImageStore> imstore)
+  void SDMaskHandler::resetMask(std::shared_ptr<SIImageStore> imstore)
   {
     imstore->mask()->set(1.0);
     imstore->mask()->unlock();
   }
 
 /***
-  void SDMaskHandler::fillMask(SHARED_PTR<SIImageStore> imstore, Vector<String> maskStrings)
+  void SDMaskHandler::fillMask(std::shared_ptr<SIImageStore> imstore, Vector<String> maskStrings)
   {
       String maskString;
       if (maskStrings.nelements()) {
@@ -114,7 +115,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 ***/
 
-  void SDMaskHandler::fillMask(SHARED_PTR<SIImageStore> imstore, Vector<String> maskStrings)
+  void SDMaskHandler::fillMask(std::shared_ptr<SIImageStore> imstore, Vector<String> maskStrings)
   {
     LogIO os( LogOrigin("SDMaskHandler","fillMask",WHERE) );
     String maskString;
@@ -127,30 +128,69 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         copyMask(*(imstore->mask()), tempMaskImage);
         for (uInt imsk = 0; imsk < maskStrings.nelements(); imsk++) {
           maskString = maskStrings[imsk];
+          Bool isCasaImage(false);
           if (maskString!="") {
-            if ( Table::isReadable(maskString) ) {
+            if (!(Table::isReadable(maskString))) {
+              try {
+                if (ImageOpener::imageType(maskString)==ImageOpener::IMAGECONCAT) isCasaImage=true;
+                os <<"IT'S A CONCATImage"<<LogIO::POST;
+              } 
+              catch (...) {
+                os <<"cannot find imageType... "<<LogIO::POST;
+              }
+            }
+            else {
               Table imtab = Table(maskString, Table::Old);
               Vector<String> colnames = imtab.tableDesc().columnNames();
-              if ( colnames[0]=="map" ) {
+              if ( colnames[0]=="map" ) isCasaImage=true;
+            }  
+            if (isCasaImage) {
+                os<<"isCasaImage=true"<<LogIO::POST;
+            //if ( Table::isReadable(maskString) ) {
+            //  Table imtab = Table(maskString, Table::Old);
+            //  Vector<String> colnames = imtab.tableDesc().columnNames();
+            //  if ( colnames[0]=="map" ) {
                 // looks like a CASA image ... probably should check coord exists in the keyword also...
                 //          cout << "copy this input mask...."<<endl;
-                PagedImage<Float> inmask(maskString);
-                IPosition inShape = inmask.shape();
+                // Include checks if the degenerate axes exit or removed.
+                // expandMask will add a degenerate axis to match the output
+                //PagedImage<Float> inmask(maskString); 
+		std::shared_ptr<ImageInterface<Float> > inmaskptr;
+                LatticeBase* latt =ImageOpener::openImage(maskString);
+                inmaskptr.reset(dynamic_cast<ImageInterface<Float>* >(latt));
+                //IPosition inShape = inmask.shape();
+                IPosition inShape = inmaskptr->shape();
                 IPosition outShape = imstore->mask()->shape();
-                Int specAxis = CoordinateUtil::findSpectralAxis(inmask.coordinates());
+                //Int specAxis = CoordinateUtil::findSpectralAxis(inmask.coordinates());
+                Int specAxis = CoordinateUtil::findSpectralAxis(inmaskptr->coordinates());
+                Int inNchan = (specAxis==-1? 1: inShape(specAxis) );
                 Int outSpecAxis = CoordinateUtil::findSpectralAxis(imstore->mask()->coordinates());
-                if (inShape(specAxis) == 1 && outShape(outSpecAxis)>1) {
-                  os << "Expanding mask image: " << maskString << LogIO::POST;
-                  expandMask(inmask, tempMaskImage);
+                Vector <Stokes::StokesTypes> inWhichPols, outWhichPols;
+                //Int stokesAxis = CoordinateUtil::findStokesAxis(inWhichPols, inmask.coordinates());
+                Int stokesAxis = CoordinateUtil::findStokesAxis(inWhichPols, inmaskptr->coordinates());
+                Int inNstokes = (stokesAxis==-1? 1: inShape(stokesAxis) );
+                Int outStokesAxis = CoordinateUtil::findStokesAxis(outWhichPols, imstore->mask()->coordinates());
+                //if (inShape(specAxis) == 1 && outShape(outSpecAxis)>1) {
+                if (inNchan == 1 && outShape(outSpecAxis)>1) {
+                  os << "Extending mask image: " << maskString << LogIO::POST;
+                  //expandMask(inmask, tempMaskImage);
+                  expandMask(*inmaskptr, tempMaskImage);
+                }
+                //else if(inShape(stokesAxis) == 1 && outShape(outStokesAxis) > 1 ) {
+                else if(inNstokes == 1 && outShape(outStokesAxis) > 1 ) {
+                  os << "Extending mask image along Stokes axis: " << maskString << LogIO::POST;
+                  //expandMask(inmask, tempMaskImage);
+                  expandMask(*inmaskptr, tempMaskImage);
                 }
                 else {
                   os << "Copying mask image: " << maskString << LogIO::POST;
-                  copyMask(inmask, tempMaskImage);
-               }
-              }// end of ''map''
-              else {
-                throw(AipsError(maskString+" does not appear to be valid image mask"));
-              }
+                  //copyMask(inmask, tempMaskImage);
+                  copyMask(*inmaskptr, tempMaskImage);
+                }
+              //}// end of ''map''
+              //else {
+              //  throw(AipsError(maskString+" does not appear to be valid image mask"));
+              //}
             }// end of readable table
             else {
               //
@@ -200,7 +240,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   
-  void SDMaskHandler::fillMask(SHARED_PTR<SIImageStore> imstore, String maskString)
+  void SDMaskHandler::fillMask(std::shared_ptr<SIImageStore> imstore, String maskString)
   {
 
     try {
@@ -258,7 +298,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	LCBox::verify(blc, trc, inc, imshp);
 	Slicer imslice(blc, trc, inc, Slicer::endIsLast);
 	
-	SHARED_PTR<ImageInterface<Float> >  referenceImage( new SubImage<Float>(*(imstore->mask()), imslice, true) );
+	std::shared_ptr<ImageInterface<Float> >  referenceImage( new SubImage<Float>(*(imstore->mask()), imslice, true) );
 	referenceImage->set(1.0);
       }
 
@@ -271,7 +311,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
   
   //void SDMaskHandler::makeMask()
-   SHARED_PTR<ImageInterface<Float> > SDMaskHandler::makeMask(const String& maskName, const Quantity threshold,
+   std::shared_ptr<ImageInterface<Float> > SDMaskHandler::makeMask(const String& maskName, const Quantity threshold,
    //void SDMaskHandler::makeMask(const String& maskName, const Quantity threshold,
                                ImageInterface<Float>& tempim)
    //                             ImageInterface<Float>& tempim,
@@ -292,7 +332,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //newMaskImage = PagedImage<Float>(maskFileName, TableLock::AutoNoReadLocking);
     //PagedImage<Float>(maskFileName, TableLock::AutoNoReadLocking);
     StokesImageUtil::MaskFrom(*newMaskImage, tempim, threshold);
-    return SHARED_PTR<ImageInterface<Float> >(newMaskImage);
+    return std::shared_ptr<ImageInterface<Float> >(newMaskImage);
   }
 
   //Bool SDMaskHandler::regionToImageMask(const String& maskName, Record* regionRec, Matrix<Quantity>& blctrcs,
@@ -304,7 +344,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     try {
       //PagedImage<Float> tempmask(TiledShape(maskImage->shape(),
       //                                    maskImage->niceCursorShape()), maskImage->coordinates(), tempfname);
-      SHARED_PTR<ImageInterface<Float> > tempmask;
+      std::shared_ptr<ImageInterface<Float> > tempmask;
       tempmask.reset( new TempImage<Float>(TiledShape(maskImage.shape(),maskImage.niceCursorShape()), maskImage.coordinates(), memoryToUse() ) );
       //tempmask = new PagedImage<Float>(maskImage.shape(), maskImage.coordinates(),"__tmp_rgmask");
       tempmask->copyData(maskImage);
@@ -481,7 +521,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
      }  
   }
 
-  void SDMaskHandler::copyAllMasks(const Vector< SHARED_PTR<ImageInterface<Float> > > inImageMasks, ImageInterface<Float>& outImageMask)
+  void SDMaskHandler::copyAllMasks(const Vector< std::shared_ptr<ImageInterface<Float> > > inImageMasks, ImageInterface<Float>& outImageMask)
   {
      LogIO os( LogOrigin("SDMaskHandler", "copyAllMasks", WHERE) );
 
@@ -537,7 +577,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       SPCIIF templateim(new TempImage<Float>(outshape,outcsys, memoryToUse()));
       Record* dummyrec = 0;
       //ImageRegridder regridder(tempim, outfilename, templateim, axes, dummyrec, "", true, outshape);
-      ImageRegridder regridder(tempim, "", templateim, axes, dummyrec, "", true, outshape);
+      ImageRegridder<Float> regridder(tempim, "", templateim, axes, dummyrec, "", true, outshape);
       regridder.setMethod(Interpolate2D::LINEAR);
       SPIIF retim = regridder.regrid();
       //outImageMask.copyData( (LatticeExpr<Float>) iif(*retim > 0.1, 1.0, 0.0)  );
@@ -546,9 +586,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //outImageMask.copyData( withmask );
       outImageMask.copyData( (LatticeExpr<Float>)((*retim) * iif(retimmask,1.0,0.0))  );
       //LatticeUtilities::copyDataAndMask(os, outImageMask, *retim );
+    //} catch (AipsError &x) {
+//	throw(AipsError("Image regrid error : "+ x.getMesg()));
+ //     }
     } catch (AipsError &x) {
-	throw(AipsError("Image regrid error : "+ x.getMesg()));
-      }
+        os<<LogIO::WARN <<x.getMesg()<<LogIO::POST;
+        os<<LogIO::WARN <<" Cannot regrid the input mask to output mask, it will be empty."<<LogIO::POST;
+        outImageMask.set(0);
+    } 
 
     // no longer needed (output file in regrid is now set to "" so no need of this clean-up)
     //try
@@ -569,58 +614,269 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     LogIO os( LogOrigin("SDMaskHandler", "expandMask", WHERE) );
 
     // expand mask with input range (in spectral axis and stokes?) ... to output range on outimage
-    // current expand a continuum mask to a cube mask in channels only (to all channels) 
+    // currently expand a continuum mask to a cube mask in channels (to all channels) 
+    // or continuum Stokes I mask to multi-Stokes mask
+    // or continuum with multi-Stokes mask to cube with multi-Stokes mask
     IPosition inShape = inImageMask.shape();
     CoordinateSystem inCsys = inImageMask.coordinates();
     Vector<Int> dirAxes = CoordinateUtil::findDirectionAxes(inCsys);
     Int inSpecAxis = CoordinateUtil::findSpectralAxis(inCsys);
-    Int inNchan = inShape(inSpecAxis); 
+    Int inNchan; 
+    if (inSpecAxis==-1) {
+      inNchan=1;
+    }
+    else {
+      inNchan = inShape(inSpecAxis); 
+    }
+      
     Vector<Stokes::StokesTypes> inWhichPols;
     Int inStokesAxis = CoordinateUtil::findStokesAxis(inWhichPols,inCsys);
+    Int inNpol; 
+    if (inStokesAxis==-1) {
+      inNpol=1;
+    }
+    else {
+      inNpol = inShape(inStokesAxis); 
+    }
+    
     //
-    // Single channel(continuum) input mask to output cube mask case:
-    //  - It can be different shape in direction axes and will be regridded.
-    if (inNchan==1) {
-      IPosition outShape = outImageMask.shape();
-      CoordinateSystem outCsys = outImageMask.coordinates();
-      Vector<Int> outDirAxes = CoordinateUtil::findDirectionAxes(outCsys);
-      Int outSpecAxis = CoordinateUtil::findSpectralAxis(outCsys);
-      Int outNchan = outShape(outSpecAxis);
-      Vector<Stokes::StokesTypes> outWhichPols;
-      Int outStokesAxis = CoordinateUtil::findStokesAxis(outWhichPols,outCsys);
+    IPosition outShape = outImageMask.shape();
+    CoordinateSystem outCsys = outImageMask.coordinates();
+    Vector<Int> outDirAxes = CoordinateUtil::findDirectionAxes(outCsys);
+    Int outSpecAxis = CoordinateUtil::findSpectralAxis(outCsys);
+    Int outNchan = outShape(outSpecAxis);
+    Vector<Stokes::StokesTypes> outWhichPols;
+    Int outStokesAxis = CoordinateUtil::findStokesAxis(outWhichPols,outCsys);
+    Int outNpol = outShape(outStokesAxis);
 
-      Int stokesInc = 1;
-      if (inShape(inStokesAxis)==outShape(outStokesAxis)) {
+    IPosition start(4,0,0,0,0);
+    IPosition length(4,outShape(outDirAxes(0)), outShape(outDirAxes(1)),1,1);
+    //Slicer sl(start, length); 
+    
+    Int stokesInc = 1;
+    // for fixing removed degenerate axis
+    Bool addSpecAxis = (inSpecAxis == -1? True: False);
+    // Do expansion for input mask with single channel (continuum)
+    if (inNchan==1 ) {
+      if (inNpol == 1 ) { 
+        stokesInc = 1;
+      }
+      else if (inShape(inStokesAxis)==outShape(outStokesAxis)) {
         stokesInc = inShape(inStokesAxis);
       }
-      IPosition start(4,0,0,0,0);
-      IPosition length(4,outShape(outDirAxes(0)), outShape(outDirAxes(1)),1,1);
-      length(outStokesAxis) = stokesInc;
-      Slicer sl(start, length); 
+      else {
+        throw(AipsError("Cannot extend the input mask of "+String::toString(inNpol)+
+              " Stokes planes to the output mask of "+String::toString(outNpol)+
+              " Stokes planes. Please modify the input mask to make it a Stokes I mask or a mask with the same number of Stokes planes as the output.") );
+      }
 
+      length(outStokesAxis) = stokesInc;
+
+      // I stokes cont -> cube: regrid ra.dec on the input single plane 
+      // I stokes cont -> cont multi-stokes: regrid ra.dec on the input 
+      // I stokes cont ->  cube multi-stokes: regid ra.dec on input 
+
+      Slicer sl(start, length);
       // make a subImage for regridding output       
       SubImage<Float> chanMask(outImageMask, sl, true);
-      
       ImageRegrid<Float> imregrid;
-      try {
-        imregrid.regrid(chanMask, Interpolate2D::LINEAR, dirAxes, inImageMask);
-      } catch (AipsError& x) {
-        cerr<<"Attempt to regrid the input mask image failed: "<<x.getMesg()<<endl;
+      TempImage<Float> tempInImageMask(chanMask.shape(), chanMask.coordinates(),memoryToUse());
+      PtrHolder<ImageInterface<Float> > outmaskim_ptr;
+      if ( chanMask.shape().nelements() >  inImageMask.shape().nelements() ) {
+        String stokesStr;
+        if (inNpol==1) {
+          stokesStr="I";
+        }
+        else {
+          stokesStr="";
+          //for (uInt ipol=0; ipol < inWhichPols.nelements(); ipol++) {
+          //  stokesStr+=Stokes::name(inWhichPols(ipol));
+          //}
+        }  
+        //os<<"Adding degenerate axes: addSpecAxis="<<addSpecAxis<<" stokes="<<stokesStr<<LogIO::POST;
+        casacore::ImageUtilities::addDegenerateAxes(os, outmaskim_ptr, inImageMask,"",False, addSpecAxis, stokesStr, False, False, True); 
+        tempInImageMask.copyData(*outmaskim_ptr);
       }
+      else {
+        tempInImageMask.copyData(inImageMask);
+      }
+
+      try {
+        imregrid.regrid(chanMask, Interpolate2D::LINEAR, dirAxes, tempInImageMask);
+      } catch (AipsError& x) {
+        os<<LogIO::WARN<<"Regridding of the input mask image failed: "<<x.getMesg()<<LogIO::POST;
+      }
+      // extract input mask (first stokes plane) 
       Array<Float> inMaskData;
       IPosition end2(4,outShape(outDirAxes(0)), outShape(outDirAxes(1)), 1, 1);
+      if ( inNpol==outNpol ) {
+        end2(outStokesAxis) = inNpol;
+      } 
       chanMask.doGetSlice(inMaskData, Slicer(start,end2));
-      for (Int ich = 1; ich < outNchan; ich++) {
-        start(outSpecAxis) = ich;
-        IPosition stride(4,1,1,1,1);
-        stride(outSpecAxis) = stokesInc; 
-        outImageMask.putSlice(inMaskData,start,stride); 
+      IPosition stride(4,1,1,1,1);
+      //
+      // continuum output mask case
+      if (outNchan==1) { 
+        //No copying over channels, just do copying over all Stokes if input mask is a single Stokes
+        if (inNpol == 1 && outNpol > 1) {
+          for (Int ipol = 0; ipol < outNpol; ipol++) {
+            start(outStokesAxis) = ipol;
+            os<<"Copying input mask to Stokes plane="<<ipol<<LogIO::POST;
+            outImageMask.putSlice(inMaskData,start,stride);
+          }
+        }
       }
+      else {  // for cube 
+        for (Int ich = 0; ich < outNchan; ich++) {
+          start(outSpecAxis) = ich;
+          IPosition inStart(4,0,0,0,0);
+          if (inNpol == 1 && outNpol > 1) {
+            // extend to other Stokes 
+            for (Int ipol = 0; ipol < outNpol; ipol++) {
+              os<<"Copying input mask to Stokes plane="<<ipol<<LogIO::POST;
+              start(outStokesAxis) = ipol;
+              outImageMask.putSlice(inMaskData,start,stride);
+            }
+          }
+          else {
+            // copy Stokes plane as is (but expand it to all channels)
+            stride(outStokesAxis) = stokesInc; 
+            if (inNpol == outNpol) {
+              for (Int ipol = 0; ipol < outNpol; ipol++) {
+                // need to slice mask from each stokes plane
+                inMaskData.resize();
+                inStart(outStokesAxis) = ipol;
+                start(outStokesAxis) = ipol;
+                end2(outStokesAxis) = 1;
+                stride(outStokesAxis) = 1;
+                chanMask.doGetSlice(inMaskData, Slicer(inStart,end2));
+                outImageMask.putSlice(inMaskData,start,stride); 
+              }
+
+            }
+            else {
+              outImageMask.putSlice(inMaskData,start,stride); 
+            }
+          }
+        } //for loop
+      } // else
+    }
+    // Stokes I (a single Stokes plane mask with cube)
+    else if (inNpol == 1) {
+      if (inNpol != 1 ) {
+        if (inShape(inStokesAxis)==outShape(outStokesAxis)) {
+          stokesInc = inShape(inStokesAxis);
+        }
+        else {
+          throw(AipsError("Cannot extend the input mask of "+String::toString(inNpol)+
+              " Stokes planes to the output mask of "+String::toString(outNpol)+
+              " Stokes planes. Please modify the input mask to make it a Stokes I mask or a mask with the same number of Stokes planes as the output.") );
+        }
+      }
+      length(outStokesAxis) = stokesInc;
+      length(outSpecAxis) = outNchan;
+      Slicer slStokes(start, length);
+      // make a subImage for regridding output (all channels)    
+      SubImage<Float> stokesMask(outImageMask, slStokes, true);
+      ImageRegrid<Float> imregrid2;
+      TempImage<Float> tempInStokesImageMask(stokesMask.shape(), stokesMask.coordinates(),memoryToUse());
+      PtrHolder<ImageInterface<Float> > outstokesmaskim_ptr;
+      Vector<Stokes::StokesTypes> outWhichPols;
+      if ( stokesMask.shape().nelements() >  inImageMask.shape().nelements() ) {
+        casacore::ImageUtilities::addDegenerateAxes(os, outstokesmaskim_ptr, inImageMask,"",False, addSpecAxis, "I", False, False, True); 
+        Vector<Int> outWorldOrder(4);
+        Vector<Int> outPixelOrder(4);
+        outWorldOrder(0)=0;
+        outWorldOrder(1)=1;
+        outWorldOrder(2)=3;
+        outWorldOrder(3)=2;
+        outPixelOrder(0)=0;
+        outPixelOrder(1)=1;
+        outPixelOrder(2)=3;
+        outPixelOrder(3)=2;
+        CoordinateSystem modcsys=tempInStokesImageMask.coordinates();
+        IPosition inMaskShape = inImageMask.shape();
+        Array<Float> inData = outstokesmaskim_ptr->get();
+        IPosition newAxisOrder(4,0,1,3,2);
+        Array<Float> reorderedData = reorderArray(inData, newAxisOrder);
+        IPosition newShape=reorderedData.shape();
+        //os<< "reoderedData shape="<<reorderedData.shape()<<LogIO::POST;
+        TempImage<Float> modTempInStokesMask(TiledShape(newShape), modcsys);
+        modTempInStokesMask.put(reorderedData);
+        
+        if (compareSpectralCoordinate(inImageMask,tempInStokesImageMask) ) {
+          tempInStokesImageMask.copyData(modTempInStokesMask);
+        }
+      }
+      else {
+        if (compareSpectralCoordinate(inImageMask,tempInStokesImageMask) ) {
+          tempInStokesImageMask.copyData(inImageMask);
+        }
+         
+      }
+      try {
+        imregrid2.regrid(stokesMask, Interpolate2D::LINEAR, dirAxes, tempInStokesImageMask);
+      } catch (AipsError& x) {
+        os<<LogIO::WARN<<"Regridding of the input mask image failed: "<<x.getMesg()<<LogIO::POST;
+      }
+      os <<"Slicing data..."<<LogIO::POST;
+      Array<Float> inMaskData2;
+      IPosition end3(4,outShape(outDirAxes(0)), outShape(outDirAxes(1)), 1, 1);
+      end3(outStokesAxis) = inNpol;
+      end3(outSpecAxis) = inNchan;
+      stokesMask.doGetSlice(inMaskData2,slStokes);    
+      IPosition stride(4,1,1,1,1);
+      IPosition inStart2(4,0,0,0,0);
+      for (Int ipol = 0; ipol < outNpol; ipol++) {
+        // need to slice mask from each stokes plane
+        inMaskData2.resize();
+        inStart2(outStokesAxis) = 0;
+        start(outStokesAxis) = ipol;
+        end3(outStokesAxis) = 1;
+        stride(outStokesAxis) = 1;
+        stride(outSpecAxis) = 1; // assume here inNchan == outNchan
+        stokesMask.doGetSlice(inMaskData2, Slicer(inStart2,end3));
+        outImageMask.putSlice(inMaskData2,start); 
+      }
+            
     }
     else {
       throw(AipsError("Input mask,"+inImageMask.name()+" does not conform with the number of channels in output mask"));
     }
   }
+
+  Bool SDMaskHandler::compareSpectralCoordinate(const ImageInterface<Float>& inImage, const ImageInterface<Float>& outImage)
+  { 
+    LogIO os( LogOrigin("SDMaskHandler", "checkSpectralCoord",WHERE) );
+    
+    SpectralCoordinate outSpecCoord = outImage.coordinates().spectralCoordinate();
+    IPosition inshape = inImage.shape();
+    IPosition outshape = outImage.shape();
+    CoordinateSystem incys = inImage.coordinates();
+    CoordinateSystem outcsys = outImage.coordinates();
+    Int inSpecAxis = CoordinateUtil::findSpectralAxis(incys);
+    Int outSpecAxis = CoordinateUtil::findSpectralAxis(outcsys);
+    Bool nchanMatch(true);
+    if (inSpecAxis != -1 and outSpecAxis != -1 ) 
+      nchanMatch = inshape(inSpecAxis) == outshape(outSpecAxis)? true: false;
+    if (!nchanMatch) {
+      if (!outSpecCoord.near(inImage.coordinates().spectralCoordinate())) {
+        throw(AipsError("Cannot extend the input mask. Spectral coordiante and the number of channels of the input mask does not match with those of the output mask. Use a single channel mask or a mask that matches the spectral coordiante of the output. "));
+      } 
+      else {
+        throw(AipsError("Cannot extend the input mask. The number of the channels in Input mask,"+inImage.name()+"does not match with that of the output mask. Use a single channel mask or a mask that matches the spectral coordiante of the output. "));
+      }
+      return false;
+    } 
+    else {
+      if (!outSpecCoord.near(inImage.coordinates().spectralCoordinate())) {
+        throw(AipsError("Cannot extend the input mask. Spectral coordiante of Input mask,"+inImage.name()+"does not match with that of the output mask. Use a single channel mask or a mask that matches the spectral coordiante of the output. "));
+        return false;
+      }
+    } 
+    return true;
+  }
+
 
   // was Imager::clone()...
   //static Bool cloneImShape(const ImageInterface<Float>& inImage, ImageInterface<Float>& outImage)
@@ -643,7 +899,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
 
-  Int SDMaskHandler::makeInteractiveMask(SHARED_PTR<SIImageStore>& imstore,
+  Int SDMaskHandler::makeInteractiveMask(std::shared_ptr<SIImageStore>& imstore,
 					 Int& niter, Int& cycleniter, 
 					 String& threshold, String& cyclethreshold)
   {
@@ -664,7 +920,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return ret;
   }
 
-  void SDMaskHandler::makeAutoMask(SHARED_PTR<SIImageStore> imstore)
+  void SDMaskHandler::makeAutoMask(std::shared_ptr<SIImageStore> imstore)
   {
     LogIO os( LogOrigin("SDMaskHandler","makeAutoMask",WHERE) );
 
@@ -725,7 +981,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  void SDMaskHandler::autoMask(SHARED_PTR<SIImageStore> imstore, 
+  void SDMaskHandler::autoMask(std::shared_ptr<SIImageStore> imstore, 
                                TempImage<Float>& posmask,
                                const Int iterdone,
                                Vector<Bool>& chanflag,
@@ -748,11 +1004,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                const Bool dogrowprune,
                                const Float& minpercentchange,
                                const Bool verbose, 
+                               const Bool fastnoise,
                                const Bool isthresholdreached,
                                Float pblimit)
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMask",WHERE) );
-    
+
     //currently supported alg:
     //  onebox: a box around a max (box size +/-5pix around max position)
     //  thresh: threshold based auto masking (uses threshold or fracofpeak, and resolution)
@@ -769,13 +1026,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       tempres->setImageInfo(imstore->residual()->imageInfo());
       tempres->attachMask(ArrayLattice<Bool> (imstore->residual()->getMask()));
     }
-    //copying is unneccesary for psf
-    /***
-    TempImage<Float>* temppsf = new TempImage<Float>(imstore->psf()->shape(), imstore->psf()->coordinates(), memoryToUse()); 
-    imstore->psf()->get(psfdata);
-    temppsf->put(psfdata);
-    temppsf->setImageInfo(imstore->psf()->imageInfo());
-    ***/
 
     TempImage<Float>* tempmask = new TempImage<Float>(imstore->mask()->shape(), imstore->mask()->coordinates(), memoryToUse());
     // get current mask and apply pbmask
@@ -784,23 +1034,28 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       imstore->mask()->get(maskdata);
       String maskname = imstore->getName()+".mask";
       tempmask->put(maskdata);
+      //For debug
+      //PagedImage<Float> tempmaskInit(tempmask->shape(), tempmask->coordinates(), "tempMaskInit"+String::toString(iterdone));
+      //tempmaskInit.copyData(*tempmask);
+
       // 
     
       if (pblimit>0.0 && imstore->hasPB()) {
-        //cerr<<" applying pb mask ..."<<endl;
+        //Determine if there is mask and set pixel mask to True for the mask to check by ntrue 
         LatticeExpr<Bool> pixmask( iif(*tempmask > 0.0, True, False));
         TempImage<Float>* dummy = new TempImage<Float>(tempres->shape(), tempres->coordinates(), memoryToUse());
         dummy->attachMask(pixmask);
         LatticeExpr<Float> themask;
         if (!ntrue(dummy->getMask())) { // initial zero mask
+          //os<<"INITIAL Zero Mask ...."<<LogIO::POST;
           //themask = LatticeExpr<Float>( iif( (*(imstore->pb())) > pblimit , 1.0 , 0.0 ));
           themask = LatticeExpr<Float>( *tempmask);
         }
         else {
+          //os<<"INITIAL NON-Zero Mask ...."<<LogIO::POST;
           themask = LatticeExpr<Float>( iif( (*(imstore->pb())) > pblimit, *(imstore->mask()), 0.0));
         } 
         // attache pixmask to temp res image to be used in stats etc
-        //cerr<<"attaching pixmask to res.."<<endl;
         tempres->attachMask(LatticeExpr<Bool> ( iif(*(imstore->pb()) > pblimit, True, False)));
         imstore->mask()->copyData( themask );
         imstore->mask()->get(maskdata);
@@ -872,9 +1127,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //resforstats->setImageInfo(imstore->residual()->imageInfo());
     //LatticeExpr<Bool> prevmask( iif(*tempmask > 0.0 , True, False) );
     //resforstats->attachMask(prevmask);
-    //SHARED_PTR<casacore::ImageInterface<float> > tempres_ptr(resforstats);
+    //std::shared_ptr<casacore::ImageInterface<float> > tempres_ptr(resforstats);
     /**
-    SHARED_PTR<casacore::ImageInterface<float> > tempres_ptr(tempres);
+    std::shared_ptr<casacore::ImageInterface<float> > tempres_ptr(tempres);
     //cerr<<" tempres->hasPixelMask? "<<tempres->hasPixelMask()<<endl;
     ImageStatsCalculator imcalc( tempres_ptr, 0, "", False); 
     Vector<Int> axes(2);
@@ -891,8 +1146,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Record*  region_ptr=0;
     String LELmask("");
     // note: tempres is res image with pblimit applied
-    Bool robust(false);
-    Bool doAnnulus(false);
+    Bool robust(false); // robust is false by default (turn it on for 'multithresh') 
+    Bool doAnnulus(false); // turn off stats on an annulus
     if (alg.contains("multithresh") ) {
        robust=true;
        // define an annulus 
@@ -921,17 +1176,46 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           }
           delete testres; testres=0;
        }
-    } 
+    }
+
+    //use new noise calc.
+    //Bool useoldstats(False);
+ 
     Record thestats = calcImageStatistics(*tempres, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
     thestats.get(RecordFieldId("max"), maxs);
     thestats.get(RecordFieldId("rms"), rmss);
-    os<< LogIO::DEBUG1 << "All rms's on the input image -- rms.nelements()="<<rmss.nelements()<<" rms="<<rmss<<LogIO::POST;
-    os<< LogIO::DEBUG1 << "All max's on the input image -- max.nelements()="<<maxs.nelements()<<" max="<<maxs<<LogIO::POST;
-    if (alg.contains("multithresh")) {
-       thestats.get(RecordFieldId("medabsdevmed"), mads);
-       os<< LogIO::DEBUG1 << "All MAD's on the input image -- mad.nelements()="<<mads.nelements()<<" mad="<<mads<<LogIO::POST;
+    //test test test
+    // at this point tempres has pbmask applied
+    LatticeExpr<Bool> pbmask(tempres->pixelMask());
+
+    Record thenewstats; 
+    if (fastnoise) { // use a faster but less robust noise determination
+      thenewstats = thestats;
+      os<< LogIO::DEBUG1 << " *** Using classic image statistics ***"<<LogIO::POST;
+      os<< LogIO::DEBUG1 << "All rms's on the input image -- rms.nelements()="<<rmss.nelements()<<" rms="<<rmss<<LogIO::POST;
+      //os<< LogIO::DEBUG1 << "All max's on the input image -- max.nelements()="<<maxs.nelements()<<" max="<<maxs<<LogIO::POST;
+      if (alg.contains("multithresh")) {
+        thestats.get(RecordFieldId("medabsdevmed"), mads);
+        os<< LogIO::DEBUG1 << "All MAD's on the input image -- mad.nelements()="<<mads.nelements()<<" mad="<<mads<<LogIO::POST;
+      }
     }
+    else {
+    // Revised version of calcRobustImageStatistics  (previous one- rename to calcRobustImageStatisticsOld)
+    //Record thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust, chanflag);
+      thenewstats = calcRobustImageStatistics(*tempres, *tempmask, pbmask, LELmask, region_ptr, robust, chanflag);
+      Array<Double> newmaxs, newmins, newrmss, newmads;
+      thenewstats.get(RecordFieldId("max"), newmaxs);
+      thenewstats.get(RecordFieldId("rms"), newrmss);
+      os<< LogIO::DEBUG1 << "*** Using the new image statistics *** "<<LogIO::POST;
+      os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
+      //os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
+      if (alg.contains("multithresh")) {
+         thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
+         os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
+      }
+    }
+    
 
     os<<LogIO::NORMAL <<"SidelobeLevel = "<<imstore->getPSFSidelobeLevel()<<LogIO::POST;
     itsSidelobeLevel = imstore->getPSFSidelobeLevel();
@@ -948,8 +1232,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       autoMaskByThreshold2(*tempmask, *tempres, *imstore->psf(), qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask);
     }
     else if (alg==String("multithresh")) {
-      autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thestats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold,
-                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune, verbose, isthresholdreached);
+      autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thestats, thenewstats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune, verbose, isthresholdreached);
     }
 
     // this did not work (it won't physically remove the mask from the image 
@@ -986,7 +1269,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
       
     tempres->setImageInfo(res.imageInfo());
-    SHARED_PTR<casacore::ImageInterface<Float> > tempres_ptr(tempres);
+    std::shared_ptr<casacore::ImageInterface<Float> > tempres_ptr(tempres);
     
     // 2nd arg is regionRecord, 3rd is LELmask expression and those will be AND 
     // to define a region to be get statistics
@@ -994,7 +1277,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //String lelstring = pbname+">0.92 && "+pbname+"<0.98";
     //cerr<<"lelstring = "<<lelstring<<endl;
     //cerr<<"LELMask="<<LELmask<<endl;
-    ImageStatsCalculator imcalc( tempres_ptr, regionPtr, LELmask, False); 
+    ImageStatsCalculator<Float> imcalc( tempres_ptr, regionPtr, LELmask, False); 
     Vector<Int> axes(2);
     axes[0] = 0;
     axes[1] = 1;
@@ -1005,6 +1288,576 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //Array<Double> max, min, rms, mad;
     //thestats.get(RecordFieldId("max"), max);
     return thestats;
+  }
+
+  // robust image statistics for better noise estimation
+  Record SDMaskHandler::calcRobustImageStatisticsOld(ImageInterface<Float>& res, ImageInterface<Float>&  prevmask , LatticeExpr<Bool>& pbmask, String& LELmask,  Record* regionPtr, const Bool robust, Vector<Bool>& chanflag )
+  { 
+    LogIO os( LogOrigin("SDMaskHandler","calcRobustImageStatisticsOld",WHERE) );
+
+    //Bool debugStats(true);
+
+    Array<Float> wholemaskdata;
+    IPosition maskshp = prevmask.shape();
+    IPosition maskstart(4,0);
+    IPosition masklength(4,maskshp(0),maskshp(1), 1, 1);
+    Slicer masksl(maskstart, masklength);
+    prevmask.doGetSlice(wholemaskdata,masksl); // single plane
+    Float npixwholemask = sum(wholemaskdata); 
+    Bool fullmask(False);
+    if (npixwholemask == (Float) maskshp(0) * (Float) maskshp(1) ) {
+       fullmask=True;
+       os<<LogIO::DEBUG1 <<"Appears to be fully masked! npix for the whole mask ="<<npixwholemask<<LogIO::POST;
+     }
+    //TempImage<Float>* tempres = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse()); 
+    //Array<Float> resdata;
+    
+    //res.get(resdata);
+    //tempres->put(resdata);
+    // if input image (res) has a pixel mask, make sure to honor it so the region is exclude from statistics
+    //if (res.hasPixelMask()) {
+    //  tempres->attachMask(res.pixelMask());
+    //}
+    if (nfalse(pbmask.getMask())) {
+      os<<LogIO::DEBUG1<<"has pbmask"<<LogIO::POST;
+    }
+   
+    //check Stokes and spectral axes
+    //IPosition shp = tempres->shape();
+    IPosition shp = res.shape();
+    //Int specaxis = CoordinateUtil::findSpectralAxis(tempres->coordinates());
+    Int specaxis = CoordinateUtil::findSpectralAxis(res.coordinates());
+    uInt nchan = shp(specaxis);
+    Vector<Stokes::StokesTypes> whichPols;
+    //Int stokesaxis = CoordinateUtil::findStokesAxis(whichPols, tempres->coordinates());
+    Int stokesaxis = CoordinateUtil::findStokesAxis(whichPols, res.coordinates());
+    uInt nStokes= shp(stokesaxis);
+    uInt iaxis2;
+    uInt iaxis3;
+   
+    //TempImage<Bool> pbmaskim(shp, tempres->coordinates(), memoryToUse());
+    TempImage<Bool> pbmaskim(shp, res.coordinates(), memoryToUse());
+    pbmaskim.copyData(pbmask);
+ 
+    //check dimensions of tempres, prevmask, pbmask 
+    if (prevmask.shape()!=shp) {
+      throw(AipsError("Mismatch in shapes of the previous mask and residual image"));
+    }
+    else if (pbmask.shape()!=shp) {
+      throw(AipsError("Mismatch in shapes of pbmask and residual image"));
+    }
+
+    //for stats storage
+    IPosition statshape(2, shp(2), shp(3));
+    Array<Double> outMins(statshape);
+    Array<Double> outMaxs(statshape);
+    Array<Double> outRmss(statshape);
+    Array<Double> outMads(statshape);
+    Array<Double> outMdns(statshape);
+
+    for (uInt istokes = 0; istokes < nStokes; istokes++) {
+      std::vector<double> mins, maxs, rmss, mads, mdns;
+      for (uInt ichan = 0; ichan < nchan; ichan++ ) {
+        if (stokesaxis==3) {
+          iaxis2 = ichan;
+          iaxis3 = istokes;
+        }
+        else {
+          iaxis2 = istokes;
+          iaxis3 = ichan;
+        } 
+        if (chanflag.nelements()==0 || !chanflag(ichan)) { // get new stats
+        // check if mask is empty (evaulated as the whole input mask )
+        Array<Float> maskdata; 
+        //IPosition maskshape = prevmask.shape();
+        //Int naxis = maskshape.size();
+        //IPosition blc(naxis,0);
+        //IPosition trc=maskshape-1;
+        //Slicer sl(blc,trc,Slicer::endIsLast);
+        IPosition start(4, 0, 0, iaxis2, iaxis3);
+        IPosition length(4, shp(0),shp(1), 1, 1);
+        Slicer sl(start, length);
+        //os<<"slicer for subimage start="<<start<<" length="<<length<<LogIO::POST;
+        // create subimage (slice) of tempres
+        AxesSpecifier aspec(False);
+        SubImage<Float>* subRes = new SubImage<Float>(res, sl, aspec, True);
+        TempImage<Float>* tempSubRes = new TempImage<Float>(subRes->shape(), subRes->coordinates(), memoryToUse());
+        tempSubRes->copyData(*subRes);
+        SubImage<Float>* subprevmask = new SubImage<Float>(prevmask, sl, aspec, True);
+        SubImage<Bool>* subpbmask = new SubImage<Bool>(pbmaskim, sl, aspec, True);
+
+        prevmask.doGetSlice(maskdata,sl); // single plane
+        Float nmaskpix = sum(maskdata);
+        Array<Bool> booldata;
+        pbmask.doGetSlice(booldata,sl); // single plane pbmask
+        //os<<"valid pix ntrue(booldata)="<<ntrue(booldata)<<LogIO::POST;
+
+        if (nmaskpix==0 ) {
+          if (ntrue(booldata)) {
+            os<<LogIO::DEBUG1<<"No existing mask but apply pbmask..."<<LogIO::POST;
+             tempSubRes->attachMask(*subpbmask);
+             //os<<"ntrue tempres pixelmask=="<<ntrue(tempres->getMask())<<LogIO::POST;
+          }
+        }
+        else if (!fullmask) {
+          os<<LogIO::DEBUG1<<"Do the image statitistics in a region outside the mask..."<<LogIO::POST;
+          LatticeExpr<Bool> outsideMaskReg;
+          //if (res.hasPixelMask()) {
+          if (nfalse(booldata)) {
+            //LatticeExpr<Bool> pbmask(iif(res.pixelMask());
+            outsideMaskReg = LatticeExpr<Bool> (iif(*subprevmask == 1.0 || !*subpbmask, False, True));
+            // for debug
+            //if (debugStats) {
+            //  PagedImage<Float> pbmaskSave(res.shape(), res.coordinates(), "pbmasksaved.im");
+            //  LatticeExpr<Float> temppbmasksave(iif(subpbmask, 1.0, 0.0));
+            //  pbmaskSave.copyData(temppbmasksave);
+            //}
+          }
+          else {
+            outsideMaskReg = LatticeExpr<Bool> (iif(*subprevmask == 1.0, False, True));
+            //LatticeExpr<Bool> outsideMaskReg(iif((*subprevmask == 1.0 || !*subpbmask, False, True));
+          }
+          //tempres->attachMask(outsideMaskReg);
+          tempSubRes->attachMask(outsideMaskReg);
+        }
+    
+        //DEBUG
+        //if(debugStats) {
+        //  PagedImage<Float> temptempIm(res.shape(), res.coordinates(), "temptempmask.im");
+        //  temptempIm.copyData(prevmask);
+        //  PagedImage<Float> temptempResIm(res.shape(), res.coordinates(), "temptempres.im");
+        //  temptempResIm.copyData(*tempres);
+        //  temptempResIm.makeMask("maskcopy",True, True);
+        //  if (tempres->hasPixelMask()) {
+        //    temptempResIm.pixelMask().put((tempres->pixelMask()).get());
+        //  }
+        //} //for debug
+
+        std::shared_ptr<casacore::ImageInterface<Float> > tempres_ptr(tempSubRes);
+    
+        // 2nd arg is regionRecord, 3rd is LELmask expression and those will be AND 
+        // to define a region to be get statistics
+        //ImageStatsCalculator imcalc( tempres_ptr, 0, "", False); 
+        ImageStatsCalculator<Float> imcalc( tempres_ptr, regionPtr, LELmask, True); 
+        Vector<Int> axes(2);
+        axes[0] = 0;
+        axes[1] = 1;
+        imcalc.setAxes(axes);
+
+        // for an empty (= no mask) mask, use Chauvenet algorithm with maxiter=5 and zscore=-1
+        if (nmaskpix==0.0 || fullmask ) {
+          os<<"Using Chauvenet algorithm for image statistics"<<LogIO::POST;
+          imcalc.configureChauvenet(Double(-1.0), Int(5));
+        }
+        imcalc.setRobust(robust);
+        Record thestats = imcalc.statistics();
+
+        Array<Double> arrmins, arrmaxs, arrrmss, arrmads, arrmdns;  
+    
+        // repack 
+        thestats.get(RecordFieldId("min"), arrmins);
+        thestats.get(RecordFieldId("max"), arrmaxs);
+        thestats.get(RecordFieldId("rms"), arrrmss);
+        //robust = True only 
+        if (robust) { 
+          thestats.get(RecordFieldId("medabsdevmed"), arrmads);
+          thestats.get(RecordFieldId("median"), arrmdns);
+        }
+        if (arrmaxs.nelements()==0 ){
+          throw(AipsError("No image statisitics is returned. Possible the whole image is masked."));
+        }
+        IPosition zeroindx(arrmins.ndim(), 0);
+
+        mins.push_back(arrmins(zeroindx));
+        maxs.push_back(arrmaxs(zeroindx));
+        rmss.push_back(arrrmss(zeroindx));
+        if (robust) { 
+          mads.push_back(arrmads(zeroindx));
+          mdns.push_back(arrmdns(zeroindx));
+        }
+        //os<<"deleting tempSubRes"<<LogIO::POST;
+        //delete tempSubRes; tempSubRes=0;
+        delete subRes; subRes=0;
+        delete subprevmask; subprevmask=0;
+        delete subpbmask; subpbmask=0;
+
+        }// if-ichanflag end
+        else {
+          mins.push_back(Double(0.0));
+          maxs.push_back(Double(0.0));
+          rmss.push_back(Double(0.0));
+          if (robust) { 
+            mads.push_back(Double(0.0));
+            mdns.push_back(Double(0.0));
+          }
+        } 
+      } // chan-for-loop end
+      //os<<" rms vector for stokes="<<istokes<<" : "<<rmss<<LogIO::POST;
+      //os<<"outMins.shape="<<outMins.shape()<<LogIO::POST;
+        
+      IPosition start(2, istokes, 0);
+      IPosition length(2, 1, nchan); // slicer per Stokes
+      //Slicer sl(blc, trc,Slicer::endIsLast );
+      Slicer slstokes(start, length);
+      //cerr<<"set outMin slstokes="<<slstokes<<" to the mins vector"<<endl;
+      Vector<Double> minvec(mins);
+      Vector<Double> maxvec(maxs);
+      Vector<Double> rmsvec(rmss);
+      //os<<"stl vector rmss"<<rmss<<LogIO::POST;
+      //os<<"rmsvec.shape="<<rmsvec.shape()<<" rmsvec="<<rmsvec<<LogIO::POST;
+      Matrix<Double> minmat(minvec);
+      Matrix<Double> maxmat(maxvec);
+      //Matrix<Double> rmsmat((Vector<Double>) rmss);
+      Matrix<Double> rmsmat(rmsvec);
+      //os<<"Intial shape of rmsmat="<<rmsmat.shape()<<LogIO::POST;
+      //os<<"Intial content of rmsmat="<<rmsmat<<LogIO::POST;
+      // copyValues do not work if there is a degerate axis in front
+      minmat.resize(IPosition(2, nchan, 1),True);
+      maxmat.resize(IPosition(2, nchan, 1),True);
+      rmsmat.resize(IPosition(2, nchan, 1),True);
+      Array<Double> minarr = transpose(minmat);
+      Array<Double> maxarr = transpose(maxmat);
+      Array<Double> rmsarr = transpose(rmsmat);
+      if (robust) {
+        Vector<Double> madvec(mads);
+        Vector<Double> mdnvec(mdns);
+        Matrix<Double> madmat(madvec);
+        Matrix<Double> mdnmat(mdnvec);
+        madmat.resize(IPosition(2, nchan, 1),True);
+        mdnmat.resize(IPosition(2, nchan, 1),True);
+        Array<Double> madarr = transpose(madmat);
+        Array<Double> mdnarr = transpose(mdnmat);
+        outMads(slstokes) = madarr;
+        outMdns(slstokes) = mdnarr;
+        //os<<"madarr="<<madarr<<LogIO::POST;
+        //os<<"mdnarr="<<mdnarr<<LogIO::POST;
+      }
+      //os<<"rmsarr="<<rmsarr<<LogIO::POST;
+      outMins(slstokes) = minarr;
+      outMaxs(slstokes) = maxarr;
+      outRmss(slstokes) = rmsarr;
+      //cerr<<"Done setting outMin sltokes="<<slstokes<<" to the mins vector"<<endl;
+    } // stokes-for-loop end
+
+    Record theOutStatRec;
+    if (shp(2) == 1) { //Single Stokes plane
+      // remove degenerate axis 
+      theOutStatRec.define("min", outMins.nonDegenerate(IPosition(1,1)));
+      theOutStatRec.define("max", outMaxs.nonDegenerate(IPosition(1,1)));
+      theOutStatRec.define("rms", outRmss.nonDegenerate(IPosition(1,1)));
+      if (robust) {
+        theOutStatRec.define("medabsdevmed", outMads.nonDegenerate(IPosition(1,1)));
+        theOutStatRec.define("median", outMdns.nonDegenerate(IPosition(1,1)));
+      }
+    }
+    else if(shp(3) == 1) { //Single channel plane
+      theOutStatRec.define("min", outMins.nonDegenerate(IPosition(1,0)));
+      theOutStatRec.define("max", outMaxs.nonDegenerate(IPosition(1,0)));
+      theOutStatRec.define("rms", outRmss.nonDegenerate(IPosition(1,0)));
+      if (robust) {
+        theOutStatRec.define("medabsdevmed", outMads.nonDegenerate(IPosition(1,0)));
+        theOutStatRec.define("median", outMdns.nonDegenerate(IPosition(1,0)));
+      }
+    }
+    else {
+      theOutStatRec.define("min", outMins);
+      theOutStatRec.define("max", outMaxs);
+      theOutStatRec.define("rms", outRmss);
+      if (robust) {
+        theOutStatRec.define("medabsdevmed", outMads);
+        theOutStatRec.define("median", outMdns);
+      }
+    }
+    return theOutStatRec;
+  }
+
+  // robust image statistics for better noise estimation - revised for making it faster 
+  // Modified version to do stats all at once
+  Record SDMaskHandler::calcRobustImageStatistics(ImageInterface<Float>& res, ImageInterface<Float>&  prevmask , LatticeExpr<Bool>& pbmask, String& LELmask,  Record* regionPtr, const Bool robust, Vector<Bool>& chanflag )
+  { 
+    LogIO os( LogOrigin("SDMaskHandler","calcRobustImageStatistics",WHERE) );
+
+    //Bool debugStats(true);
+
+    Array<Float> wholemaskdata;
+    IPosition maskshp = prevmask.shape();
+    IPosition maskstart(4,0);
+    IPosition masklength(4,maskshp(0),maskshp(1), 1, 1);
+    Slicer masksl(maskstart, masklength);
+    prevmask.doGetSlice(wholemaskdata,masksl); // single plane
+    Float npixwholemask = sum(wholemaskdata); 
+    Bool fullmask(False);
+
+    if (npixwholemask == (Float) maskshp(0) * (Float) maskshp(1) ) {
+       fullmask=True;
+       os<<LogIO::DEBUG1 <<"Appears to be fully masked! npix for the whole mask ="<<npixwholemask<<LogIO::POST;
+    }
+    
+    //res.get(resdata);
+    //tempres->put(resdata);
+    // if input image (res) has a pixel mask, make sure to honor it so the region is exclude from statistics
+    //if (res.hasPixelMask()) {
+    //  tempres->attachMask(res.pixelMask());
+    //}
+    if (nfalse(pbmask.getMask())) {
+      os<<LogIO::DEBUG1<<"has pbmask..."<<LogIO::POST;
+    }
+   
+    // do stats on a whole cube at once for each algrithms
+    //check Stokes and spectral axes
+    IPosition shp = res.shape();
+    Int specaxis = CoordinateUtil::findSpectralAxis(res.coordinates());
+    uInt nchan = shp(specaxis);
+    Vector<Stokes::StokesTypes> whichPols;
+    Int stokesaxis = CoordinateUtil::findStokesAxis(whichPols, res.coordinates());
+    uInt nStokes= shp(stokesaxis);
+    uInt iaxis2;
+    uInt iaxis3;
+   
+    //TempImage<Bool> pbmaskim(shp, tempres->coordinates(), memoryToUse());
+    //TempImage<Bool> pbmaskim(shp, res.coordinates(), memoryToUse());
+    //pbmaskim.copyData(pbmask);
+ 
+    //check dimensions of tempres, prevmask, pbmask 
+    if (prevmask.shape()!=shp) {
+      throw(AipsError("Mismatch in shapes of the previous mask and residual image"));
+    }
+    else if (pbmask.shape()!=shp) {
+      throw(AipsError("Mismatch in shapes of pbmask and residual image"));
+    }
+
+    //for stats storage
+    IPosition statshape(2, shp(2), shp(3));
+    Array<Double> outMins(statshape);
+    Array<Double> outMaxs(statshape);
+    Array<Double> outRmss(statshape);
+    Array<Double> outMads(statshape);
+    Array<Double> outMdns(statshape);
+
+    //do stats for each algortims all at once.
+    // 2nd arg is regionRecord, 3rd is LELmask expression and those will be AND 
+    // to define a region to be get statistics
+    //ImageStatsCalculator imcalc( tempres_ptr, 0, "", False); 
+    // Chauvenet over a full image  
+    // for an empty (= no mask) mask, use Chauvenet algorithm with maxiter=5 and zscore=-1
+    TempImage<Float>* tempRes = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse());
+    tempRes->copyData(res);
+    tempRes->attachMask(pbmask);
+    std::shared_ptr<casacore::ImageInterface<Float> > tempres_ptr(tempRes);
+    ImageStatsCalculator<Float> imcalc( tempres_ptr, regionPtr, LELmask, False); 
+    Vector<Int> axes(2);
+    axes[0] = 0;
+    axes[1] = 1;
+    imcalc.setAxes(axes);
+    os<<LogIO::DEBUG1<<"Using Chauvenet algorithm for image statistics for a whole cube"<<LogIO::POST;
+    imcalc.configureChauvenet(Double(-1.0), Int(5));
+    imcalc.setRobust(robust);
+    Record thestatsNoMask = imcalc.statistics();
+
+    // do stats outside the mask
+    //tempres_ptr.reset();
+    Record thestatsWithMask;
+    if(!fullmask) {
+      TempImage<Float>* tempRes2 = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse());
+      tempRes2->copyData(res);
+      os<<LogIO::DEBUG1<<"Do the image statitistics in a region outside the mask..."<<LogIO::POST;
+      LatticeExpr<Bool> outsideMaskReg;
+      outsideMaskReg = LatticeExpr<Bool> (iif(prevmask == 1.0 || !pbmask, False, True));
+      // need this case? for no existance of pb mask? 
+      //outsideMaskReg = LatticeExpr<Bool> (iif(prevmask == 1.0, False, True));
+      tempRes2->attachMask(outsideMaskReg);
+      std::shared_ptr<casacore::ImageInterface<Float> > tempres_ptr2(tempRes2);
+      ImageStatsCalculator<Float> imcalc2( tempres_ptr2, regionPtr, LELmask, False);
+      imcalc2.setAxes(axes);
+      imcalc2.setRobust(robust);
+      thestatsWithMask = imcalc2.statistics(); 
+    }
+
+    Array<Double> arrminsNoMask, arrmaxsNoMask, arrrmssNoMask, arrmadsNoMask, arrmdnsNoMask;  
+    Array<Double> arrmins, arrmaxs, arrrmss, arrmads, arrmdns;  
+    thestatsNoMask.get(RecordFieldId("min"), arrminsNoMask);
+    thestatsNoMask.get(RecordFieldId("max"), arrmaxsNoMask);
+    thestatsNoMask.get(RecordFieldId("rms"), arrrmssNoMask);
+    IPosition statsind(arrmins.ndim(), 0);
+    //robust = True only 
+    if (robust) { 
+      thestatsNoMask.get(RecordFieldId("medabsdevmed"), arrmadsNoMask);
+      thestatsNoMask.get(RecordFieldId("median"), arrmdnsNoMask);
+    } 
+    if (!fullmask) { // with Mask stats 
+      thestatsWithMask.get(RecordFieldId("min"), arrmins);
+      thestatsWithMask.get(RecordFieldId("max"), arrmaxs);
+      thestatsWithMask.get(RecordFieldId("rms"), arrrmss);
+      if (robust) {
+        thestatsWithMask.get(RecordFieldId("medabsdevmed"), arrmads);
+        thestatsWithMask.get(RecordFieldId("median"), arrmdns);
+      }
+    }
+
+    for (uInt istokes = 0; istokes < nStokes; istokes++) {
+      std::vector<double> mins, maxs, rmss, mads, mdns;
+      for (uInt ichan = 0; ichan < nchan; ichan++ ) {
+        if (stokesaxis==3) {
+          iaxis2 = ichan;
+          iaxis3 = istokes;
+          statsind(0) = iaxis2;
+          if (nStokes>1) {
+            statsind(1) = iaxis3;
+          }
+        }
+        else {
+          iaxis2 = istokes;
+          iaxis3 = ichan;
+          if (nStokes>1) {
+            statsind(0) = iaxis2;
+            statsind(1) = iaxis3;
+          }
+          else { // Stokes axis is degenerate
+            statsind(0) = iaxis3;
+          } 
+        }
+        
+        if (chanflag.nelements()==0 || !chanflag(ichan)) { // get new stats
+        // check if mask is empty (evaulated as the whole input mask )
+        Array<Float> maskdata; 
+        IPosition start(4, 0, 0, iaxis2, iaxis3);
+        IPosition length(4, shp(0),shp(1), 1, 1);
+        Slicer sl(start, length);
+        //os<<"slicer for subimage start="<<start<<" length="<<length<<LogIO::POST;
+        // create subimage (slice) of tempres
+        //AxesSpecifier aspec(False);
+        //SubImage<Float>* subprevmask = new SubImage<Float>(prevmask, sl, aspec, True);
+        
+        // get chan mask data to evaulate no mask 
+        prevmask.doGetSlice(maskdata,sl); // single plane
+        Float nmaskpix = sum(maskdata);
+        Array<Bool> booldata;
+
+    
+        Double min, max, rms, mad, mdn;
+        // for an empty (= no mask) mask, use Chauvenet algorithm with maxiter=5 and zscore=-1
+        if (nmaskpix==0.0 || fullmask ) {
+          os<<"[C"<<ichan<<"] Using Chauvenet algorithm for the image statistics "<<LogIO::POST;
+          min = arrminsNoMask(statsind);
+          max = arrmaxsNoMask(statsind);
+          rms = arrrmssNoMask(statsind);
+          if (robust) { 
+             mad = arrmadsNoMask(statsind);
+             mdn = arrmdnsNoMask(statsind);
+          }
+        }
+        else {
+          //os<<"[C"<<ichan<<"] Using the image statitistics in a region outside the mask"<<LogIO::POST;
+          min = arrmins(statsind);
+          max = arrmaxs(statsind);
+          rms = arrrmss(statsind);
+          if (robust) { 
+             mad = arrmads(statsind);
+             mdn = arrmdns(statsind);
+          }
+        }
+
+    
+        // repack 
+        //if (arrmaxs.nelements()==0 ){
+        //  throw(AipsError("No image statisitics is returned. Possible the whole image is masked."));
+        //}
+
+        mins.push_back(min);
+        maxs.push_back(max);
+        rmss.push_back(rms);
+        if (robust) { 
+          mads.push_back(mad);
+          mdns.push_back(mdn);
+        }
+        }// if-ichanflag end
+        else {
+          mins.push_back(Double(0.0));
+          maxs.push_back(Double(0.0));
+          rmss.push_back(Double(0.0));
+          if (robust) { 
+            mads.push_back(Double(0.0));
+            mdns.push_back(Double(0.0));
+          }
+        } 
+      } // chan-for-loop end
+      //os<<" rms vector for stokes="<<istokes<<" : "<<rmss<<LogIO::POST;
+      //os<<"outMins.shape="<<outMins.shape()<<LogIO::POST;
+        
+      IPosition start(2, istokes, 0);
+      IPosition length(2, 1, nchan); // slicer per Stokes
+      //Slicer sl(blc, trc,Slicer::endIsLast );
+      Slicer slstokes(start, length);
+      //cerr<<"set outMin slstokes="<<slstokes<<" to the mins vector"<<endl;
+      Vector<Double> minvec(mins);
+      Vector<Double> maxvec(maxs);
+      Vector<Double> rmsvec(rmss);
+      //os<<"stl vector rmss"<<rmss<<LogIO::POST;
+      //os<<"rmsvec.shape="<<rmsvec.shape()<<" rmsvec="<<rmsvec<<LogIO::POST;
+      Matrix<Double> minmat(minvec);
+      Matrix<Double> maxmat(maxvec);
+      //Matrix<Double> rmsmat((Vector<Double>) rmss);
+      Matrix<Double> rmsmat(rmsvec);
+      //os<<"Intial shape of rmsmat="<<rmsmat.shape()<<LogIO::POST;
+      //os<<"Intial content of rmsmat="<<rmsmat<<LogIO::POST;
+      // copyValues do not work if there is a degerate axis in front
+      minmat.resize(IPosition(2, nchan, 1),True);
+      maxmat.resize(IPosition(2, nchan, 1),True);
+      rmsmat.resize(IPosition(2, nchan, 1),True);
+      Array<Double> minarr = transpose(minmat);
+      Array<Double> maxarr = transpose(maxmat);
+      Array<Double> rmsarr = transpose(rmsmat);
+      if (robust) {
+        Vector<Double> madvec(mads);
+        Vector<Double> mdnvec(mdns);
+        Matrix<Double> madmat(madvec);
+        Matrix<Double> mdnmat(mdnvec);
+        madmat.resize(IPosition(2, nchan, 1),True);
+        mdnmat.resize(IPosition(2, nchan, 1),True);
+        Array<Double> madarr = transpose(madmat);
+        Array<Double> mdnarr = transpose(mdnmat);
+        outMads(slstokes) = madarr;
+        outMdns(slstokes) = mdnarr;
+        //os<<"madarr="<<madarr<<LogIO::POST;
+        //os<<"mdnarr="<<mdnarr<<LogIO::POST;
+      }
+      outMins(slstokes) = minarr;
+      outMaxs(slstokes) = maxarr;
+      outRmss(slstokes) = rmsarr;
+    } // stokes-for-loop end
+
+    Record theOutStatRec;
+    if (shp(2) == 1) { //Single Stokes plane
+      // remove degenerate axis 
+      //os<<"Stokes axis has a single Stokes"<<LogIO::POST;
+      theOutStatRec.define("min", outMins.nonDegenerate(IPosition(1,1)));
+      theOutStatRec.define("max", outMaxs.nonDegenerate(IPosition(1,1)));
+      theOutStatRec.define("rms", outRmss.nonDegenerate(IPosition(1,1)));
+      if (robust) {
+        theOutStatRec.define("medabsdevmed", outMads.nonDegenerate(IPosition(1,1)));
+        theOutStatRec.define("median", outMdns.nonDegenerate(IPosition(1,1)));
+      }
+    }
+    else if(shp(3) == 1) { //Single channel plane
+      theOutStatRec.define("min", outMins.nonDegenerate(IPosition(1,0)));
+      theOutStatRec.define("max", outMaxs.nonDegenerate(IPosition(1,0)));
+      theOutStatRec.define("rms", outRmss.nonDegenerate(IPosition(1,0)));
+      if (robust) {
+        theOutStatRec.define("medabsdevmed", outMads.nonDegenerate(IPosition(1,0)));
+        theOutStatRec.define("median", outMdns.nonDegenerate(IPosition(1,0)));
+      }
+    }
+    else {
+      theOutStatRec.define("min", outMins);
+      theOutStatRec.define("max", outMaxs);
+      theOutStatRec.define("rms", outRmss);
+      if (robust) {
+        theOutStatRec.define("medabsdevmed", outMads);
+        theOutStatRec.define("median", outMdns);
+      }
+    }
+   
+    return theOutStatRec;
   }
 
   void SDMaskHandler::autoMaskByThreshold(ImageInterface<Float>& mask,
@@ -1138,7 +1991,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       axes(2) = CoordinateUtil::findSpectralAxis(incsys);
       Record* dummyrec = 0;
       SPCIIF inmask_ptr(tempIm_ptr);
-      ImageRegridder regridder(inmask_ptr, "", tempIm2_ptr, axes, dummyrec, "", True, shp);
+      ImageRegridder<Float> regridder(inmask_ptr, "", tempIm2_ptr, axes, dummyrec, "", True, shp);
       regridder.setMethod(Interpolate2D::LINEAR);
       tempIm_ptr = regridder.regrid();
       //for debugging: save the mask at this stage
@@ -1285,7 +2138,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     os << LogIO::NORMAL2 <<" thresh="<<rmsthresh<<LogIO::POST;
 
-    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = pruneRegions(res, rmsthresh, nmask, beampix);
+    std::shared_ptr<ImageInterface<Float> > tempIm_ptr = pruneRegions(res, rmsthresh, nmask, beampix);
     LatticeExpr<Float> themask( iif( *(tempIm_ptr.get()) > rmsthresh, 1.0, 0.0 ));
 
     //for debug
@@ -1315,6 +2168,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const ImageInterface<Float>& res, 
                                           const ImageInterface<Float>& psf, 
                                           const Record& stats, 
+                                          const Record& robuststats, 
                                           const Int iterdone,
                                           Vector<Bool>& chanFlag,
                                           const Float& minPercentChange,
@@ -1329,10 +2183,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const Int growIterations,
                                           const Bool doGrowPrune,
                                           const Bool verbose,
-                                          const Bool isthresholdreached) 
+                                          const Bool isthresholdreached)
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMaskByMultiThreshold",WHERE) );
-    Array<Double> rmss, maxs, mins, mads;
+    Array<Double> rmss, maxs, mins, mads, mdns;
     //Float resPeak, resRms;
     Array<Double> resRmss;
     Double minrmsval, maxrmsval, minmaxval, maxmaxval, minmadval, maxmadval;
@@ -1349,6 +2203,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //for debug set to True to save intermediate mask images on disk
     Bool debug(false); // create additional temp masks for debugging
     Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
+    
+    //set true to use calcImageStatistics2 and thresholds adjusted for the location (median)
+    //Bool newstats(True); // turn on new stats definition of threshold calc.
 
     //Timer
     Timer timer;
@@ -1385,6 +2242,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       else {
         beam = CasaImageBeamSet(psfInfo.getBeamSet()).getCommonBeam(); 
       }
+      // check
+      if(std::isinf( beam.getMajor(Unit("arcsec"))) || std::isinf( beam.getMinor(Unit("arcsec"))) ){
+        throw(AipsError("A bad common beam, which is used to set smoothing and pruning sizes for automask. At least one of the axes of the beam is infinite."));
+      }
       Quantity bmaj = beam.getMajor();
       Quantity bmin = beam.getMinor();
       //for pruning for now
@@ -1420,8 +2281,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Determine threshold from input image stats
     stats.get(RecordFieldId("max"), maxs);
     stats.get(RecordFieldId("min"), mins);
-    stats.get(RecordFieldId("rms"), rmss);
-    stats.get(RecordFieldId("medabsdevmed"), mads);
+    robuststats.get(RecordFieldId("rms"), rmss);
+    robuststats.get(RecordFieldId("medabsdevmed"), mads);
+    robuststats.get(RecordFieldId("median"), mdns);
     
     // only useful if single threshold value are used for all spectral planes... 
     minMax(minmaxval,maxmaxval,minmaxpos, maxmaxpos, maxs);
@@ -1462,23 +2324,52 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         chindx(1) = ich;
       }
       
-      sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
-      // *** Requested but later asked to remove on CAS-9208 ***
-      // add a factor modification in the case of high sidelobe level
-      //Float modfactor = min(sidelobeThresholdFactor*sidelobeLevel, 0.5*(sidelobeLevel+1.0));
-      //if (modfactor != sidelobeThresholdFactor*sidelobeLevel) os<<LogIO::NORMAL<<" sidelobethreshld*sidelobeLevel ="<<sidelobeThresholdFactor*sidelobeLevel<<" appears to be high for automasking, adjusting this factor to "<<modfactor<<LogIO::POST;
-      //sidelobeThreshold = modfactor * (Float)maxs(chindx); 
-      //
-     
+      // turn on a new definition for new stats --- remove old one once tested
+      //if (newstats) {
+      //  os<<LogIO::DEBUG1<<"Using the new statistics ..."<<LogIO::POST;
+      //  sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      //}
+      //else {
+      //  sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      //} 
+
+      // turn on a new definition for new stats --- remove old one once tested
+      //if (newstats) {
+      //  noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
+      //  lowNoiseThreshold = (Float)mdns(chindx) + lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+      //  negativeThreshold = (Float)mdns(chindx) + negativeThresholdFactor * (Float)resRmss(chindx);
+      //}
+      //else { 
+      //  noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
+      //  lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+      //  negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
+      //}
+      
+      // include location (=median)  for both fastnoise=true and false
+      Double absmax = max(abs(maxs(chindx)), abs(mins(chindx)));
+      //sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      //sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)absmax; 
+      //noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
+      //lowNoiseThreshold = (Float)mdns(chindx) + lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+      //negativeThreshold = (Float)mdns(chindx) + negativeThresholdFactor * (Float)resRmss(chindx);
+      // start with no offset 
+      sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)absmax; 
       noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
       lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
       negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
+      negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold) + (Float)mdns(chindx);
+      // add the offset
+      sidelobeThreshold += (Float)mdns(chindx); 
+      noiseThreshold += (Float)mdns(chindx);
+      lowNoiseThreshold += (Float)mdns(chindx); 
+      negativeThreshold += (Float)mdns(chindx);
       maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
       lowMaskThreshold(ich) = max(sidelobeThreshold, lowNoiseThreshold);
+      //negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold);
       ThresholdType(ich) = (maskThreshold(ich) == sidelobeThreshold? "sidelobe": "noise");
-      negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold); 
+
       os << LogIO::DEBUG1 <<" sidelobeTreshold="<<sidelobeThreshold<<" noiseThreshold="<<noiseThreshold<<" lowNoiseThreshold="<<lowNoiseThreshold<<LogIO::POST;
-      os << LogIO::DEBUG1 <<" negativeThreshold="<<negativeThreshold<<LogIO::POST;
+      os << LogIO::DEBUG1 <<" negativeThreshold(abs)="<<negativeThreshold<<", all thresholds include  location ="<<(Float)mdns(chindx)<<LogIO::POST;
       os << LogIO::DEBUG1 <<" Using "<<ThresholdType(ich)<<" threshold for chan "<<String::toString(ich)<<" threshold="<<maskThreshold(ich)<<LogIO::POST;
     }
 
@@ -1511,8 +2402,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
         os << LogIO::NORMAL << "Start pruning: the initial threshold mask" << LogIO::POST;
         timer.mark();
-        //SHARED_PTR<ImageInterface<Float> > tempIm_ptr = pruneRegions2(maskedRes, tempthresh,  -1, pruneSize);
-        SHARED_PTR<ImageInterface<Float> > tempIm_ptr = YAPruneRegions(maskedRes, chanFlag, allPruned, nreg, npruned, pruneSize);
+        //std::shared_ptr<ImageInterface<Float> > tempIm_ptr = pruneRegions2(maskedRes, tempthresh,  -1, pruneSize);
+        std::shared_ptr<ImageInterface<Float> > tempIm_ptr = YAPruneRegions(maskedRes, chanFlag, allPruned, nreg, npruned, pruneSize);
         tempmask.copyData(*(tempIm_ptr.get()));
         Int nAllPruned=ntrue(allPruned);
         if(!iterdone && isEmptyMask(tempmask) && nAllPruned) {
@@ -1566,8 +2457,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //clean up (appy cutThreshold to convolved mask image)
     String lelmask("");
-    //Record smmaskstats = calcImageStatistics(tempmask, tempmask, lelmask, 0, false);
-    Record smmaskstats = calcImageStatistics(*outmask, lelmask, 0, false);
+    //use standard stats
+    Record  smmaskstats = calcImageStatistics(*outmask, lelmask, 0, false);
     Array<Double> smmaskmaxs;
     smmaskstats.get(RecordFieldId("max"),smmaskmaxs);
     Vector<Float> cutThresholdValue(nchan);
@@ -1606,7 +2497,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     //  Mod: 2017.07.26: modified get stats for prev mask, if channel contains no mask in prev mask it will set flag to skip the channel 
     //Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
-    Record maskstats = calcImageStatistics(mask, lelmask, 0, false);
+    Record  maskstats = calcImageStatistics(mask, lelmask, 0, false);
     Array<Double> maskmaxs;
     maskstats.get(RecordFieldId("max"),maskmaxs);
     // per plane stats 
@@ -1656,9 +2547,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        //if (minBeamFrac > 0.0 ) {
        //  //Double thethresh=0.1;
        // os<<LogIO::NORMAL << "Pruning the constraint mask "<<LogIO::POST;
-       // //SHARED_PTR<ImageInterface<Float> > tempPrunedMask_ptr = pruneRegions2(constraintMaskImage, thethresh,  -1, pruneSize);
+       // //std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = pruneRegions2(constraintMaskImage, thethresh,  -1, pruneSize);
        //  Vector<Bool> dummy(0);
-       //  SHARED_PTR<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(constraintMaskImage, dummy, pruneSize);
+       //  std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(constraintMaskImage, dummy, pruneSize);
        //  constraintMaskImage.copyData( *(tempPrunedMask_ptr.get()) );
        //}
        //if(debug2) {
@@ -1704,7 +2595,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        /***
        if (minBeamFrac > 0.0 ) {
          Double thethresh=0.1;
-         SHARED_PTR<ImageInterface<Float> > tempPrunedMask_ptr = pruneRegions2(prevmask, thethresh,  -1, beampix);
+         std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = pruneRegions2(prevmask, thethresh,  -1, beampix);
          prevmask.copyData( *(tempPrunedMask_ptr.get()) );
        }
        ***/
@@ -1713,7 +2604,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
          os << LogIO::NORMAL << "Start pruning: on the grow mask "<< LogIO::POST;
          timer.mark();
          Vector<Bool> dummy(0);
-         SHARED_PTR<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(prevmask, chanFlag, dummy, ngrowreg, ngrowpruned, pruneSize);
+         std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(prevmask, chanFlag, dummy, ngrowreg, ngrowpruned, pruneSize);
          prevmask.copyData( *(tempPrunedMask_ptr.get()) );
          os << LogIO::NORMAL << "End pruning: time to prune the grow mask: real " 
             << timer.real() <<"s (user "<< timer.user() << "s, system "<< timer.system() << "s)" << LogIO::POST;
@@ -1856,8 +2747,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //mask.copyData( (LatticeExpr<Float>)( iif((mask + thenewmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
       // add all masks (previous one, grow mask, current thresh mask)
       // mask = untouched prev mask, prevmask=modified prev mask by the grow func, thenewmask=mask by thresh on current residual 
-
       //mask.copyData( (LatticeExpr<Float>)( iif((mask+prevmask + thenewmask + thenegmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
+      if(debug) {
+         PagedImage<Float> savedUnmod(res.shape(), res.coordinates(), "savedUmmod"+String::toString(iterdone)+".im");
+         savedUnmod.copyData(mask);
+         PagedImage<Float> savedPosmask(res.shape(), res.coordinates(), "savedPosmask"+String::toString(iterdone)+".im");
+         savedPosmask.copyData(posmask);
+         PagedImage<Float> savedNegmask(res.shape(), res.coordinates(), "savedNegmask"+String::toString(iterdone)+".im");
+         savedPosmask.copyData(thenegmask);
+      }   
       mask.copyData( (LatticeExpr<Float>)( iif((mask + posmask + thenegmask ) > 0.0 && pixmask, 1.0, 0.0  ) ) );
 
       mask.clearCache();
@@ -1879,7 +2777,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     skipChannels(fracChange,unmodifiedprevmask, mask, ThresholdType, isthresholdreached, chanFlag, zeroChanMask);
 
     if (verbose) 
-      printAutomaskSummary(resRmss, maxs, mins, maskThreshold, ThresholdType, chanFlag, zeroChanMask, nreg, npruned, ngrowreg, ngrowpruned, negmaskpixs, summaryRec);
+      printAutomaskSummary(resRmss, maxs, mins, mdns,  maskThreshold, ThresholdType, chanFlag, zeroChanMask, nreg, npruned, ngrowreg, ngrowpruned, negmaskpixs, summaryRec);
     
   }//end of autoMaskByMultiThreshold
 
@@ -1999,7 +2897,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     } // for loop end
   }
 
-  SHARED_PTR<ImageInterface<Float> >  SDMaskHandler::makeMaskFromBinnedImage(const ImageInterface<Float>& image, 
+  std::shared_ptr<ImageInterface<Float> >  SDMaskHandler::makeMaskFromBinnedImage(const ImageInterface<Float>& image, 
                                                                              const Int nx, 
                                                                              const Int ny,  
                                                                              const Float& fracofpeak,
@@ -2031,9 +2929,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     IPosition minRmsPos, maxRmsPos, minMaxPos, maxMaxPos, minMinPos, maxMinPos;
     TempImage<Float>* tempImForStat = new TempImage<Float>(tempRebinnedIm.shape(), tempRebinnedIm.coordinates(), memoryToUse() );
     tempImForStat->copyData(tempRebinnedIm);
-    SHARED_PTR<casacore::ImageInterface<float> > temprebin_ptr(tempImForStat);
+    std::shared_ptr<casacore::ImageInterface<float> > temprebin_ptr(tempImForStat);
     //os<<" temprebin_ptr.get()->hasPixelMask()="<<temprebin_ptr.get()->hasPixelMask()<<LogIO::POST;
-    ImageStatsCalculator imcalc( temprebin_ptr, 0, "", False);
+    ImageStatsCalculator<Float> imcalc( temprebin_ptr, 0, "", False);
     Vector<Int> stataxes(2);
     stataxes[0] = 0;
     stataxes[1] = 1;
@@ -2152,7 +3050,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
       // apply threshold to rebinned image to generate a temp image mask
       // first run pruning by limiting n masks (npix=1 as it is already binned)
-      SHARED_PTR<ImageInterface<Float> > dummyim = pruneRegions(tempRebinnedIm, thresh, nmask, 1);
+      std::shared_ptr<ImageInterface<Float> > dummyim = pruneRegions(tempRebinnedIm, thresh, nmask, 1);
 
       os << LogIO::DEBUG1<<" threshold applied ="<<thresh<<LogIO::POST;
       //cerr<<"dummyim shape="<<dummyim.get()->shape()<<endl;
@@ -2163,15 +3061,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //os << LogIO::DEBUG1<<" copying the threshold image....."<<LogIO::POST;
       tempMask->copyData(tempthresh);
     }
-    return SHARED_PTR<ImageInterface<Float> >(tempMask);
+    return std::shared_ptr<ImageInterface<Float> >(tempMask);
   }
 
-  SHARED_PTR<ImageInterface<Float> > SDMaskHandler::convolveMask(const ImageInterface<Float>& inmask, const GaussianBeam& beam)
+  std::shared_ptr<ImageInterface<Float> > SDMaskHandler::convolveMask(const ImageInterface<Float>& inmask, const GaussianBeam& beam)
   {
     LogIO os( LogOrigin("SDMaskHandler","convolveMask",WHERE) );
     TempImage<Float>* tempIm = new TempImage<Float>(inmask.shape(), inmask.coordinates(), memoryToUse() );
     tempIm->copyData(inmask);
-    SHARED_PTR<casacore::ImageInterface<float> > tempIm2_ptr(tempIm);
+    std::shared_ptr<casacore::ImageInterface<float> > tempIm2_ptr(tempIm);
     //DEBUG will be removed 
 
     Vector<Quantity> convbeam(3);
@@ -2190,12 +3088,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return outmask;
   } 
 
-  SHARED_PTR<ImageInterface<Float> > SDMaskHandler::convolveMask(const ImageInterface<Float>& inmask, Int nxpix, Int nypix)
+  std::shared_ptr<ImageInterface<Float> > SDMaskHandler::convolveMask(const ImageInterface<Float>& inmask, Int nxpix, Int nypix)
   {
     LogIO os( LogOrigin("SDMaskHandler","convolveMask",WHERE) );
     TempImage<Float>* tempIm = new TempImage<Float>(inmask.shape(), inmask.coordinates(), memoryToUse() );
     tempIm->copyData(inmask);
-    SHARED_PTR<casacore::ImageInterface<float> > tempIm2_ptr(tempIm);
+    std::shared_ptr<casacore::ImageInterface<float> > tempIm2_ptr(tempIm);
     //DEBUG will be removed 
     os << LogIO::DEBUG1<<"convolve with "<<nxpix<<" pix x "<<nypix<<" pix gaussian"<<LogIO::POST;
 
@@ -2214,7 +3112,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return outmask;
   } 
 
-  SHARED_PTR<casacore::ImageInterface<Float> >  SDMaskHandler::pruneRegions(const ImageInterface<Float>& image, Double& thresh, Int nmask, Int npix)
+  std::shared_ptr<casacore::ImageInterface<Float> >  SDMaskHandler::pruneRegions(const ImageInterface<Float>& image, Double& thresh, Int nmask, Int npix)
   {
     LogIO os( LogOrigin("SDMaskHandler", "pruneRegions",WHERE) );
     Bool debug(False);
@@ -2226,7 +3124,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //No-op
       os<<LogIO::DEBUG1<<"Skip pruning of mask regions"<<LogIO::POST;
       fullIm->copyData(image);
-      return SHARED_PTR<ImageInterface<Float> >(fullIm);
+      return std::shared_ptr<ImageInterface<Float> >(fullIm);
     }  
     os <<LogIO::DEBUG1<< "pruneRegions with nmask="<<nmask<<", size="<<npix<<" is applied"<<LogIO::POST;
     
@@ -2247,12 +3145,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //cerr<<"strReg="<<strReg<<endl;
     //RegionTextList CRTFList(cSys, strReg, shp);
     //Record regRec = CRTFList.regionAsRecord();
-    //SHARED_PTR<casacore::SubImage<Float> > subIm = SubImageFactory<Float>::createSubImageRW(image, regRec, "", &os, aspec, False, False);
+    //std::shared_ptr<casacore::SubImage<Float> > subIm = SubImageFactory<Float>::createSubImageRW(image, regRec, "", &os, aspec, False, False);
 
     //cerr <<" subIm.shape="<<subIm->shape()<<endl;
     IPosition subimShape=subIm->shape();
     uInt ndim = subimShape.nelements();
-    //SHARED_PTR<casacore::ImageInterface<float> > tempIm_ptr(subIm);
+    //std::shared_ptr<casacore::ImageInterface<float> > tempIm_ptr(subIm);
     TempImage<Float>* tempIm = new TempImage<Float> (TiledShape(subIm->shape(), subIm->niceCursorShape()), subIm->coordinates(), memoryToUse() );
     // to search for both positive and negative components
     tempIm->copyData(LatticeExpr<Float> (abs(*subIm)));
@@ -2400,11 +3298,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     delete subIm; subIm=0;
     delete tempIm; tempIm=0;
-    return SHARED_PTR<ImageInterface<Float> >(fullIm);
+    return std::shared_ptr<ImageInterface<Float> >(fullIm);
   }
  
    
-  SHARED_PTR<casacore::ImageInterface<Float> >  SDMaskHandler::pruneRegions2(const ImageInterface<Float>& image, Double& thresh, Int nmask, Double prunesize)
+  std::shared_ptr<casacore::ImageInterface<Float> >  SDMaskHandler::pruneRegions2(const ImageInterface<Float>& image, Double& thresh, Int nmask, Double prunesize)
   {
     LogIO os( LogOrigin("SDMaskHandler", "pruneRegions2",WHERE) );
     Bool debug(False);
@@ -2417,7 +3315,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //No-op
       os<<LogIO::DEBUG1<<"Skip pruning of mask regions"<<LogIO::POST;
       fullIm->copyData(image);
-      return SHARED_PTR<ImageInterface<Float> >(fullIm);
+      return std::shared_ptr<ImageInterface<Float> >(fullIm);
     }
     os <<LogIO::NORMAL<< "pruneRegions with nmask="<<nmask<<", size="<<prunesize<<" is applied"<<LogIO::POST;
 
@@ -2597,11 +3495,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       delete subIm; subIm=0;
       }// if(nRegion) end 
     }
-    return SHARED_PTR<ImageInterface<Float> >(fullIm);
+    return std::shared_ptr<ImageInterface<Float> >(fullIm);
   }
 
   //yet another pruneRegions - using connect component labelling with depth first search alogirthm ..
-  SHARED_PTR<casacore::ImageInterface<Float> >  SDMaskHandler::YAPruneRegions(const ImageInterface<Float>& image, Vector<Bool>& chanflag, Vector<Bool>& allpruned, Vector<uInt>& nreg, Vector<uInt>& npruned, Double prunesize)
+  std::shared_ptr<casacore::ImageInterface<Float> >  SDMaskHandler::YAPruneRegions(const ImageInterface<Float>& image, Vector<Bool>& chanflag, Vector<Bool>& allpruned, Vector<uInt>& nreg, Vector<uInt>& npruned, Double prunesize)
   {
     LogIO os( LogOrigin("SDMaskHandler", "YAPruneRegions",WHERE) );
     Timer timer;
@@ -2620,7 +3518,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //No-op
       os<<LogIO::DEBUG1<<"Skip pruning of mask regions"<<LogIO::POST;
       fullIm->copyData(image);
-      return SHARED_PTR<ImageInterface<Float> >(fullIm);
+      return std::shared_ptr<ImageInterface<Float> >(fullIm);
     }
     os <<LogIO::DEBUG1<< "pruneRegions with size="<<prunesize<<" is applied"<<LogIO::POST;
 
@@ -2724,7 +3622,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         os<<LogIO::DEBUG1<<"Skipping chan "<<ich<<" from pruning"<<LogIO::POST;
       }
     } 
-    return SHARED_PTR<ImageInterface<Float> >(fullIm);
+    return std::shared_ptr<ImageInterface<Float> >(fullIm);
   }
 
 
@@ -2744,13 +3642,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  void SDMaskHandler::makePBMask(SHARED_PTR<SIImageStore> imstore, Float pblimit)
+  void SDMaskHandler::makePBMask(std::shared_ptr<SIImageStore> imstore, Float pblimit, Bool combinemask)
   {
     LogIO os( LogOrigin("SDMaskHandler","makePBMask",WHERE) );
 
     if( imstore->hasPB() ) // Projection algorithms will have this.
       {
-	LatticeExpr<Float> themask( iif( (*(imstore->pb())) > pblimit , 1.0, 0.0 ) );
+        LatticeExpr<Float> themask;
+        if (combinemask && imstore->hasMask()) { 
+	  themask = LatticeExpr<Float> ( iif( (*(imstore->pb())) > pblimit, *(imstore->mask()), 0.0 ) );
+        }
+        else {
+	  themask = LatticeExpr<Float> ( iif( (*(imstore->pb())) > pblimit , 1.0, 0.0 ) );
+        }
 	imstore->mask()->copyData( themask );
       }
     else // Calculate it here...
@@ -2807,9 +3711,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         masksizes[ich]=sum(chanImageArr);
         delete tempChanImage; tempChanImage=0;
       }
-      //else {
+      else {
+        masksizes[ich]=0;
       //  cerr<<"makeMaskByPerChanThresh: skipping chan="<<ich<<endl;
-      //}
+      }
     } // loop over chans
   }
 
@@ -2945,7 +3850,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
  
-  void SDMaskHandler::autoMaskWithinPB(SHARED_PTR<SIImageStore> imstore, 
+  void SDMaskHandler::autoMaskWithinPB(std::shared_ptr<SIImageStore> imstore, 
                                        TempImage<Float>& posmask,
                                        const Int iterdone,
                                        Vector<Bool>& chanflag,
@@ -2967,6 +3872,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        const Bool dogrowprune,
                                        const Float& minpercentchange,
                                        const Bool verbose,
+                                       const Bool fastnoise,
                                        const Bool isthresholdreached,
                                        Float pblimit)
   { 
@@ -2977,7 +3883,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // changed to do automask ater pb mask is generated so automask do stats within pb mask
     autoMask( imstore, posmask, iterdone, chanflag, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
               sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, 
-              minbeamfrac, growiterations, dogrowprune, minpercentchange, verbose, isthresholdreached, pblimit);
+              minbeamfrac, growiterations, dogrowprune, minpercentchange, verbose, fastnoise, isthresholdreached, pblimit);
 
     if( imstore->hasPB() )
       {
@@ -3190,10 +4096,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SDMaskHandler::printAutomaskSummary (const Array<Double>& rmss, 
                                             const Array<Double>& maxs, 
                                             const Array<Double>& mins, 
+                                            const Array<Double>& mdns, 
                                             const Vector<Float>& maskthreshold, 
                                             const Vector<String>& thresholdtype, 
                                             const Vector<Bool>& chanflag, 
-                                            const Vector<Bool>& zeroChanMask,
+                                            const Vector<Bool>& /* zeroChanMask */,
                                             const Vector<uInt>& nreg, 
                                             const Vector<uInt>& npruned,
                                             const Vector<uInt>& ngrowreg,
@@ -3213,7 +4120,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     miscSummaryInfo.get("pruneregionsize", prunesize);
 
     os << LogIO::NORMAL <<"========== automask summary ==========" << LogIO::POST;  
-    os << LogIO::NORMAL <<"chan masking? RMS"<<"         "
+    os << LogIO::NORMAL <<"chan masking? median   RMS"<<"         "
                         <<"peak   thresh_type   thresh_value   "
                         <<"N_reg N_pruned N_grow N_grow_pruned N_neg_pix"<<LogIO::POST;
 
@@ -3232,8 +4139,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Double peak = abs(maxs(chanidx))> abs( mins(chanidx))? maxs(chanidx): mins(chanidx);
       String domasking = chanflag[ich]==0? "T":"F";
       //String domasking = zeroChanMask[ich]==1? "F":"T";
+      String mdnsStr, rmssStr, maskthresholdStr;
       String Nreg, Npruned, Ngrowreg, NgrowPruned, Nnegpix;
       String NAstr("--");
+      
+      //if masking is skipped median, rms, thresholdvalue are
+      //set to ---
+      if (domasking=="F") {
+        mdnsStr=NAstr;
+        rmssStr=NAstr;
+        maskthresholdStr=NAstr;
+      }
+      else {
+        mdnsStr=String::toString(mdns(chanidx));
+        rmssStr=String::toString(rmss(chanidx));
+        maskthresholdStr=String::toString(maskthreshold[ich]);
+      }
+
       if (!nreg.nelements()) {
         Nreg = NAstr;
       }
@@ -3267,10 +4189,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       
       os << LogIO::NORMAL << "[C" << ich << "] " 
                           << domasking << "        " 
-                          << rmss(chanidx) << "  " 
+                          //<< mdns(chanidx) << "  "
+                          //<< rmss(chanidx) << "  " 
+                          << mdnsStr << "  "
+                          << rmssStr << "  " 
                           << peak << "  " 
                           << thresholdtype[ich] << "  " 
-                          << maskthreshold[ich] << "        "
+                          //<< maskthreshold[ich] << "        "
+                          << maskthresholdStr << "        "
                           << Nreg << "  " 
                           << Npruned << "  "
                           << Ngrowreg << "  "
@@ -3279,6 +4205,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                           << LogIO::POST;
     }
     os << LogIO::NORMAL <<"========== END of automask summary ==========" << LogIO::POST;  
+  }
+
+  void SDMaskHandler::setPBMaskLevel (const Float pbmasklevel) {
+    itsPBMaskLevel = pbmasklevel;
+  } 
+  
+  Float SDMaskHandler::getPBMaskLevel() {
+    return itsPBMaskLevel;
   }
      
 } //# NAMESPACE CASA - END

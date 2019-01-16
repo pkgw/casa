@@ -28,7 +28,6 @@
 #define IDLConversionException_CLASS
 
 #include <string>
-using std::string;
 
 namespace enumerations {
 

@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CorrelatorModeRow.h>
-#include <CorrelatorModeTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CorrelatorModeRow.h>
+#include <alma/ASDM/CorrelatorModeTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::CorrelatorModeRow;
 using asdm::CorrelatorModeTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CorrelatorModeRow::~CorrelatorModeRow() {
@@ -1041,7 +1038,9 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CorrelatorModeRow::correlatorModeIdFromText(const string & s) {
 		 
+          
 		correlatorModeId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1049,7 +1048,9 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CorrelatorModeRow::numBasebandFromText(const string & s) {
 		 
+          
 		numBaseband = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1057,7 +1058,9 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	// Convert a string into an BasebandName 
 	void CorrelatorModeRow::basebandNamesFromText(const string & s) {
 		 
-		basebandNames = ASDMValuesParser::parse1D<BasebandName>(s);
+          
+		basebandNames = ASDMValuesParser::parse1D<BasebandNameMod::BasebandName>(s);
+          
 		
 	}
 	
@@ -1065,7 +1068,9 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CorrelatorModeRow::basebandConfigFromText(const string & s) {
 		 
+          
 		basebandConfig = ASDMValuesParser::parse1D<int>(s);
+          
 		
 	}
 	
@@ -1073,7 +1078,9 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	// Convert a string into an AccumMode 
 	void CorrelatorModeRow::accumModeFromText(const string & s) {
 		 
-		accumMode = ASDMValuesParser::parse<AccumMode>(s);
+          
+		accumMode = ASDMValuesParser::parse<AccumModeMod::AccumMode>(s);
+          
 		
 	}
 	
@@ -1081,7 +1088,9 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CorrelatorModeRow::binModeFromText(const string & s) {
 		 
+          
 		binMode = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1089,7 +1098,9 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CorrelatorModeRow::numAxesFromText(const string & s) {
 		 
+          
 		numAxes = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1097,7 +1108,9 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	// Convert a string into an AxisName 
 	void CorrelatorModeRow::axesOrderArrayFromText(const string & s) {
 		 
-		axesOrderArray = ASDMValuesParser::parse1D<AxisName>(s);
+          
+		axesOrderArray = ASDMValuesParser::parse1D<AxisNameMod::AxisName>(s);
+          
 		
 	}
 	
@@ -1105,7 +1118,9 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	// Convert a string into an FilterMode 
 	void CorrelatorModeRow::filterModeFromText(const string & s) {
 		 
-		filterMode = ASDMValuesParser::parse1D<FilterMode>(s);
+          
+		filterMode = ASDMValuesParser::parse1D<FilterModeMod::FilterMode>(s);
+          
 		
 	}
 	
@@ -1113,7 +1128,9 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	// Convert a string into an CorrelatorName 
 	void CorrelatorModeRow::correlatorNameFromText(const string & s) {
 		 
-		correlatorName = ASDMValuesParser::parse<CorrelatorName>(s);
+          
+		correlatorName = ASDMValuesParser::parse<CorrelatorNameMod::CorrelatorName>(s);
+          
 		
 	}
 	
@@ -1204,21 +1221,21 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get basebandNames.
- 	 * @return basebandNames as vector<BasebandNameMod::BasebandName >
+ 	 * @return basebandNames as std::vector<BasebandNameMod::BasebandName >
  	 */
- 	vector<BasebandNameMod::BasebandName > CorrelatorModeRow::getBasebandNames() const {
+ 	std::vector<BasebandNameMod::BasebandName > CorrelatorModeRow::getBasebandNames() const {
 	
   		return basebandNames;
  	}
 
  	/**
- 	 * Set basebandNames with the specified vector<BasebandNameMod::BasebandName >.
- 	 * @param basebandNames The vector<BasebandNameMod::BasebandName > value to which basebandNames is to be set.
+ 	 * Set basebandNames with the specified std::vector<BasebandNameMod::BasebandName >.
+ 	 * @param basebandNames The std::vector<BasebandNameMod::BasebandName > value to which basebandNames is to be set.
  	 
  	
  		
  	 */
- 	void CorrelatorModeRow::setBasebandNames (vector<BasebandNameMod::BasebandName > basebandNames)  {
+ 	void CorrelatorModeRow::setBasebandNames (std::vector<BasebandNameMod::BasebandName > basebandNames)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1236,21 +1253,21 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get basebandConfig.
- 	 * @return basebandConfig as vector<int >
+ 	 * @return basebandConfig as std::vector<int >
  	 */
- 	vector<int > CorrelatorModeRow::getBasebandConfig() const {
+ 	std::vector<int > CorrelatorModeRow::getBasebandConfig() const {
 	
   		return basebandConfig;
  	}
 
  	/**
- 	 * Set basebandConfig with the specified vector<int >.
- 	 * @param basebandConfig The vector<int > value to which basebandConfig is to be set.
+ 	 * Set basebandConfig with the specified std::vector<int >.
+ 	 * @param basebandConfig The std::vector<int > value to which basebandConfig is to be set.
  	 
  	
  		
  	 */
- 	void CorrelatorModeRow::setBasebandConfig (vector<int > basebandConfig)  {
+ 	void CorrelatorModeRow::setBasebandConfig (std::vector<int > basebandConfig)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1364,21 +1381,21 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get axesOrderArray.
- 	 * @return axesOrderArray as vector<AxisNameMod::AxisName >
+ 	 * @return axesOrderArray as std::vector<AxisNameMod::AxisName >
  	 */
- 	vector<AxisNameMod::AxisName > CorrelatorModeRow::getAxesOrderArray() const {
+ 	std::vector<AxisNameMod::AxisName > CorrelatorModeRow::getAxesOrderArray() const {
 	
   		return axesOrderArray;
  	}
 
  	/**
- 	 * Set axesOrderArray with the specified vector<AxisNameMod::AxisName >.
- 	 * @param axesOrderArray The vector<AxisNameMod::AxisName > value to which axesOrderArray is to be set.
+ 	 * Set axesOrderArray with the specified std::vector<AxisNameMod::AxisName >.
+ 	 * @param axesOrderArray The std::vector<AxisNameMod::AxisName > value to which axesOrderArray is to be set.
  	 
  	
  		
  	 */
- 	void CorrelatorModeRow::setAxesOrderArray (vector<AxisNameMod::AxisName > axesOrderArray)  {
+ 	void CorrelatorModeRow::setAxesOrderArray (std::vector<AxisNameMod::AxisName > axesOrderArray)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1396,21 +1413,21 @@ void CorrelatorModeRow::correlatorNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get filterMode.
- 	 * @return filterMode as vector<FilterModeMod::FilterMode >
+ 	 * @return filterMode as std::vector<FilterModeMod::FilterMode >
  	 */
- 	vector<FilterModeMod::FilterMode > CorrelatorModeRow::getFilterMode() const {
+ 	std::vector<FilterModeMod::FilterMode > CorrelatorModeRow::getFilterMode() const {
 	
   		return filterMode;
  	}
 
  	/**
- 	 * Set filterMode with the specified vector<FilterModeMod::FilterMode >.
- 	 * @param filterMode The vector<FilterModeMod::FilterMode > value to which filterMode is to be set.
+ 	 * Set filterMode with the specified std::vector<FilterModeMod::FilterMode >.
+ 	 * @param filterMode The std::vector<FilterModeMod::FilterMode > value to which filterMode is to be set.
  	 
  	
  		
  	 */
- 	void CorrelatorModeRow::setFilterMode (vector<FilterModeMod::FilterMode > filterMode)  {
+ 	void CorrelatorModeRow::setFilterMode (std::vector<FilterModeMod::FilterMode > filterMode)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1665,7 +1682,7 @@ correlatorName = CCorrelatorName::from_int(0);
 	}
 
 	
-	bool CorrelatorModeRow::compareNoAutoInc(int numBaseband, vector<BasebandNameMod::BasebandName > basebandNames, vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, vector<AxisNameMod::AxisName > axesOrderArray, vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName) {
+	bool CorrelatorModeRow::compareNoAutoInc(int numBaseband, std::vector<BasebandNameMod::BasebandName > basebandNames, std::vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, std::vector<AxisNameMod::AxisName > axesOrderArray, std::vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName) {
 		bool result;
 		result = true;
 		
@@ -1737,7 +1754,7 @@ correlatorName = CCorrelatorName::from_int(0);
 	
 	
 	
-	bool CorrelatorModeRow::compareRequiredValue(int numBaseband, vector<BasebandNameMod::BasebandName > basebandNames, vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, vector<AxisNameMod::AxisName > axesOrderArray, vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName) {
+	bool CorrelatorModeRow::compareRequiredValue(int numBaseband, std::vector<BasebandNameMod::BasebandName > basebandNames, std::vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, std::vector<AxisNameMod::AxisName > axesOrderArray, std::vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName) {
 		bool result;
 		result = true;
 		

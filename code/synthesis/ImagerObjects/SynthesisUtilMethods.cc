@@ -1,5 +1,5 @@
 //# SynthesisUtilMethods.cc: 
-//# Copyright (C) 2013-2014
+//# Copyright (C) 2013-2018
 //# Associated Universities, Inc. Washington DC, USA.
 //#
 //# This program is free software; you can redistribute it and/or modify it
@@ -56,9 +56,8 @@
 #include <ms/MeasurementSets/MSDopplerUtil.h>
 #include <tables/Tables/Table.h>
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
-#include <synthesis/TransformMachines/Utils.h>
+#include <synthesis/TransformMachines2/Utils.h>
 
-#include <msvis/MSVis/SubMS.h>
 #include <mstransform/MSTransform/MSTransformRegridder.h>
 #include <msvis/MSVis/MSUtil.h>
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
@@ -74,7 +73,12 @@ using namespace std;
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
- 
+
+  casacore::String SynthesisUtilMethods::g_hostname;
+  casacore::String SynthesisUtilMethods::g_startTimestamp;
+  const casacore::String SynthesisUtilMethods::g_enableOptMemProfile =
+      "synthesis.imager.memprofile.enable";
+
   SynthesisUtilMethods::SynthesisUtilMethods()
   {
     
@@ -178,71 +182,156 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
 
-  Int SynthesisUtilMethods::parseLine(char* line){
-        int i = strlen(line);
-        while (*line < '0' || *line > '9') line++;
-        line[i-3] = '\0';
-        i = atoi(line);
-        return i;
-    }
-    
-  void SynthesisUtilMethods::getResource(String label, String fname)
-  {
-               return;
-
-     LogIO os( LogOrigin("SynthesisUtilMethods","getResource",WHERE) );
-
-
-        FILE* file = fopen("/proc/self/status", "r");
-        int vmSize = -1, vmRSS=-1, pid=-1;
-	int fdSize=-1;
-        char line[128];
-    
-        while (fgets(line, 128, file) != NULL){
-	  if (strncmp(line, "VmSize:", 7) == 0){
-	    vmSize = parseLine(line)/1024.0;
-	  }
-	  if (strncmp(line, "VmRSS:", 6) == 0){
-	    vmRSS = parseLine(line)/1024.0;
-	  }
-	  	  if (strncmp(line, "FDSize:", 7) == 0){
-	    fdSize = parseLine(line);
-	  }
-	  if (strncmp(line, "Pid:", 4) == 0){
-	    pid = parseLine(line);
-	  }
-	}
-        fclose(file);
-
-	struct rusage usage;
-	struct timeval now;
-	getrusage(RUSAGE_SELF, &usage);
-	now = usage.ru_utime;
-
-	ostringstream oss;
-	
-	oss << " PID: " << pid ;
-	oss << " MemRSS: " << vmRSS << " MB.";
-	oss << " VirtMem: " << vmSize << " MB.";
-	oss << " ProcTime: " << now.tv_sec << "." << now.tv_usec;
-	oss << " FDSize: " << fdSize;
-	oss <<  " [" << label << "] ";
-
-
-	os << oss.str() << LogIO::NORMAL3 <<  LogIO::POST;
-	//	cout << oss.str() << endl;
-
-	// Write this to a file too...
-	fname = "memprofile";
-	if( fname.size() > 0 )
-	  {
-	    ofstream myfile;
-	    myfile.open (fname+"."+String::toString(pid), ios::app);
-	    myfile << oss.str() << endl;
-	    myfile.close();
-	  }
+  /**
+   * Get values from lines of a /proc/self/status file. For example:
+   * 'VmRSS:     600 kB'
+   * @param str line from status file
+   * @return integer value (memory amount, etc.)
+   */
+  Int SynthesisUtilMethods::parseProcStatusLine(const std::string &str) {
+    istringstream is(str);
+    std::string token;
+    is >> token;
+    is >> token;
+    Int value = stoi(token);
+    return value;
   }
 
+  /**
+   * Produces a name for a 'memprofile' output file. For example:
+   * casa.synthesis.imager.memprofile.23514.pc22555.hq.eso.org.20171209_120446.txt
+   * (where 23514 is the PID passed as input parameter).
+   *
+   * @param pid PID of the process running the imager
+   *
+   * @return a longish 'memprofile' filename including PID, machine, timestamp, etc.
+   **/
+  String SynthesisUtilMethods::makeResourceFilename(int pid)
+  {
+    if (g_hostname.empty() or g_startTimestamp.empty()) {
+      // TODO: not using HOST_NAME_MAX because of issues with __APPLE__
+      // somehow tests tAWPFTM, tSynthesisImager, and tSynthesisImagerVi2 fail.
+      const int strMax = 255;
+      char hostname[strMax];
+      gethostname(hostname, strMax);
+      g_hostname = hostname;
+
+      auto time = std::time(nullptr);
+      auto gmt = std::gmtime(&time);
+      const char* format = "%Y%m%d_%H%M%S";
+      char timestr[strMax];
+      std::strftime(timestr, strMax, format, gmt);
+      g_startTimestamp = timestr;
+    }
+
+    return String("casa.synthesis.imager.memprofile." + String::toString(pid) +
+		  "." + g_hostname + "." + g_startTimestamp + ".txt");
+  }
+
+  void SynthesisUtilMethods::getResource(String label, String fname)
+  {
+     // TODO: not tested on anything else than LINUX (MACOS for the future)
+#if !defined(AIPS_LINUX)
+      return;
+#endif
+
+     Bool isOn = false;
+     AipsrcValue<Bool>::find(isOn, g_enableOptMemProfile);
+     if (!isOn)
+         return;
+
+     // TODO: reorganize, use struct or something to hold and pass info over. ifdef lnx
+     LogIO casalog( LogOrigin("SynthesisUtilMethods", "getResource", WHERE) );
+
+     // To hold memory stats, in MB
+     int vmRSS = -1, vmHWM = -1, vmSize = -1, vmPeak = -1, vmSwap = -1;
+     pid_t pid = -1;
+     int fdSize = -1;
+
+     // TODO: this won't probably work on anything but linux
+     ifstream procFile("/proc/self/status");
+     if (procFile.is_open()) {
+       std::string line;
+       while (not procFile.eof()) {
+	 getline(procFile, line);
+	 const std::string startVmRSS = "VmRSS:";
+	 const std::string startVmWHM = "VmHWM:";
+	 const std::string startVmSize = "VmSize:";
+	 const std::string startVmPeak = "VmPeak:";
+	 const std::string startVmSwap = "VmSwap:";
+	 const std::string startFDSize = "FDSize:";
+         const double KB_TO_MB = 1024.0;
+	 if (startVmRSS == line.substr(0, startVmRSS.size())) {
+	   vmRSS = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startVmWHM == line.substr(0, startVmWHM.size())) {
+	   vmHWM = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startVmSize == line.substr(0, startVmSize.size())) {
+	   vmSize = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+         } else if (startVmPeak == line.substr(0, startVmPeak.size())) {
+	   vmPeak = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startVmSwap == line.substr(0, startVmSwap.size())) {
+	   vmSwap = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startFDSize == line.substr(0, startFDSize.size())) {
+	   fdSize = parseProcStatusLine(line.c_str());
+	 }
+       }
+       procFile.close();
+     }
+
+     pid = getpid();
+
+     struct rusage usage;
+     struct timeval now;
+     getrusage(RUSAGE_SELF, &usage);
+     now = usage.ru_utime;
+
+     // TODO: check if this works as expected when /proc/self/status is not there
+     // Not clear at all if VmHWM and .ru_maxrss measure the same thing
+     // Some alternative is needed for the other fields as well: VmSize, VMHWM, FDSize.
+     if (vmHWM < 0) {
+       vmHWM = usage.ru_maxrss;
+     }
+
+     ostringstream oss;
+     oss << "PID: " << pid ;
+     oss << " MemRSS (VmRSS): " << vmRSS << " MB.";
+     oss << " VmWHM: " << vmHWM << " MB.";
+     oss << " VirtMem (VmSize): " << vmSize << " MB.";
+     oss << " VmPeak: " << vmPeak << " MB.";
+     oss << " VmSwap: " << vmSwap << " MB.";
+     oss << " ProcTime: " << now.tv_sec << '.' << now.tv_usec;
+     oss << " FDSize: " << fdSize;
+     oss <<  " [" << label << "] ";
+     casalog << oss.str() << LogIO::NORMAL3 <<  LogIO::POST;
+
+     // Write this to a file too...
+     try {
+       if (fname.empty()) {
+         fname = makeResourceFilename(pid);
+       }
+       ofstream ofile(fname, ios::app);
+       if (ofile.is_open()) {
+         if (0 == ofile.tellp()) {
+             casalog << g_enableOptMemProfile << " is enabled, initializing output file for "
+                 "imager profiling information (memory and run time): " << fname <<
+                 LogIO::NORMAL <<  LogIO::POST;
+             ostringstream header;
+             header << "# PID, MemRSS_(VmRSS)_MB, VmWHM_MB, VirtMem_(VmSize)_MB, VmPeak_MB, "
+                 "VmSwap_MB, ProcTime_sec, FDSize, label_checkpoint";
+             ofile << header.str() << '\n';
+         }
+         ostringstream line;
+         line << pid << ',' << vmRSS << ',' << vmHWM << ',' << vmSize << ','
+              << vmPeak << ','<< vmSwap << ',' << now.tv_sec << '.' << now.tv_usec << ','
+              << fdSize << ',' << '[' << label << ']';
+         ofile << line.str() << '\n';
+         ofile.close();
+       }
+     } catch(std::runtime_error &exc) {
+         casalog << "Could not write imager memory+runtime information into output file: "
+                 << fname << LogIO::WARN <<  LogIO::POST;
+     }
+  }
 
 
   // Data partitioning rules for CONTINUUM imaging
@@ -321,7 +410,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	
 
 	MVTime mvInt=mainCols.intervalQuant()(0);
-	Time intT(mvInt.getTime());
+	//Time intT(mvInt.getTime());
 	//	Tint = intT.modifiedJulianDay();
 
 	Int partNo=0;
@@ -1180,7 +1269,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	//// stokes
 	err += readVal( inrec, String("stokes"), stokes);
-	    
+	if(stokes.matches("pseudoI"))
+	  {
+	    stokes="I";
+	    pseudoi=true;
+	  }
+	else {pseudoi=false;}
+
+	/// PseudoI
+
 	////nchan
 	err += readVal( inrec, String("nchan"), nchan);
 
@@ -1732,6 +1829,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     startModel=Vector<String>(0);
     overwrite=false;
 
+    // PseudoI
+    pseudoi=false;
+
     // Spectral coordinates
     nchan=1;
     mode="mfs";
@@ -1754,6 +1854,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     freqFrame=MFrequency::LSRK;
     sysvel="";
     sysvelframe="";
+    sysvelvalue=Quantity(0.0,"m/s");
     nTaylorTerms=1;
     deconvolver="hogbom";
     ///csysRecord=Record();
@@ -1771,7 +1872,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     cells[0] = QuantityToString( cellsize[0] );
     cells[1] = QuantityToString( cellsize[1] );
     impar.define("cell", cells );
-    impar.define("stokes", stokes);
+    if(pseudoi==true){impar.define("stokes","pseudoI");}
+    else{impar.define("stokes", stokes);}
     impar.define("nchan", nchan);
     impar.define("nterms", nTaylorTerms);
     impar.define("deconvolver",deconvolver);
@@ -1864,6 +1966,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       } 
     //    else cout << " NO CSYS INFO to write to output record " << endl;
 
+
     return impar;
   }
 
@@ -1926,7 +2029,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  //AlwaysAssert( flds.nelements()>0 , AipsError );
 	  //fld = flds[0];
 	  Double freqmin=0, freqmax=0;
-	  freqFrameValid=(freqFrame != MFrequency::REST );
+	  freqFrameValid=(freqFrame != MFrequency::REST || mode=="cubesource");
 	  
 	  //MFrequency::Types dataFrame=(MFrequency::Types)vi2.subtableColumns().spectralWindow().measFreqRef()(spwids[0]);
 	  MFrequency::Types dataFrame=(MFrequency::Types)ROMSColumns(*mss[j]).spectralWindow().measFreqRef()(spwids[0]);
@@ -1944,6 +2047,27 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    
 	    freqmin = datafstart;
 	    freqmax = datafend;
+	  }
+	  else if(mode == "cubesource"){
+	    if(!trackSource){
+	      throw(AipsError("Cannot be in cubesource without tracking a moving source"));
+	    }
+	    String ephemtab(movingSource);
+	    if(movingSource=="TRACKFIELD"){
+	      Int fieldID=ROMSColumns(*mss[j]).fieldId()(0);
+	      ephemtab=Path(ROMSColumns(*mss[j]).field().ephemPath(fieldID)).absoluteName();
+	    }
+	    MEpoch refep=ROMSColumns(*mss[j]).timeMeas()(0);
+	    Quantity refsysvel;
+	    MSUtil::getFreqRangeAndRefFreqShift(freqmin,freqmax,refsysvel, refep, spwids,firstChannels, nChannels, *mss[j], ephemtab, trackDir, true);
+	    if(j==0)
+	      sysvelvalue=refsysvel;
+	    /*Double freqMinTopo, freqMaxTopo;
+	    MSUtil::getFreqRangeInSpw( freqMinTopo, freqMaxTopo, spwids, firstChannels,
+				       nChannels,*mss[j], freqFrameValid? MFrequency::TOPO:MFrequency::REST , True);
+	    cerr << std::setprecision(10) << (freqmin-freqMinTopo) << "       "  << (freqmax-freqMaxTopo) << endl;
+	    sysfreqshift=((freqmin-freqMinTopo)+(freqmax-freqMaxTopo))/2.0;
+	    */
 	  }
 	  else {
 	    
@@ -2013,15 +2137,35 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         csys = *csysptr;
 
       }
-    else { 
-    MDirection phaseCenterToUse = phaseCenter;
-
+    else {
+      ROMSColumns msc(msobj);
+      String telescop = msc.observation().telescopeName()(0);
+      MEpoch obsEpoch = msc.timeMeas()(0);
+      MPosition obsPosition;
+    if(!(MeasTable::Observatory(obsPosition, telescop)))
+      {
+        os << LogIO::WARN << "Did not get the position of " << telescop
+           << " from data repository" << LogIO::POST;
+        os << LogIO::WARN
+           << "Please contact CASA to add it to the repository."
+           << LogIO::POST;
+        os << LogIO::WARN << "Using first antenna position as refence " << LogIO::POST;
+	 // unknown observatory, use first antenna
+      obsPosition=msc.antenna().positionMeas()(0);
+      }
+      MDirection phaseCenterToUse = phaseCenter;
+      
     if( phaseCenterFieldId != -1 )
       {
 	ROMSFieldColumns msfield(msobj.field());
         if(phaseCenterFieldId == -2) // the case for  phasecenter=''
-          { 
-	    phaseCenterToUse=msfield.phaseDirMeas( fld ); 
+          {
+	    if(trackSource){
+	      phaseCenterToUse=getMovingSourceDir(msobj, obsEpoch, obsPosition, MDirection::ICRS);
+	    }
+	    else{
+	      phaseCenterToUse=msfield.phaseDirMeas( fld );
+	    }
           }
         else 
           {
@@ -2067,20 +2211,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //defining observatory...needed for position on earth
     // get the first ms for multiple MSes
-    ROMSColumns msc(msobj);
-    String telescop = msc.observation().telescopeName()(0);
-    MEpoch obsEpoch = msc.timeMeas()(0);
-    MPosition obsPosition;
-    if(!(MeasTable::Observatory(obsPosition, telescop)))
-      {
-        os << LogIO::WARN << "Did not get the position of " << telescop
-           << " from data repository" << LogIO::POST;
-        os << LogIO::WARN
-           << "Please contact CASA to add it to the repository."
-           << LogIO::POST;
-        os << LogIO::WARN << "Frequency conversion will not work " << LogIO::POST;
-      }
-
+    
+    
+    obslocation=obsPosition;
     ObsInfo myobsinfo;
     myobsinfo.setTelescope(telescop);
     myobsinfo.setPointingCenter(mvPhaseCenter);
@@ -2119,9 +2252,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
     else 
       {
-        //SubMS thems(msobj);
-        //if(!thems.combineSpws(spwids,true,dataChanFreq,dataChanWidth))
-	
 	if(!MSTransformRegridder::combineSpwsCore(os,msobj, spwids,dataChanFreq,dataChanWidth,
 											  averageWhichChan,averageWhichSPW,averageChanFrac))
           {
@@ -2211,6 +2341,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> chanFreqStep;
     String specmode;
 
+    if(mode=="cubesource"){
+      MDoppler mdop(sysvelvalue, MDoppler::RELATIVISTIC);
+      dataChanFreq=mdop.shiftFrequency(dataChanFreq);
+      dataChanWidth=mdop.shiftFrequency(dataChanWidth);
+    }
+    
     if (!getImFreq(chanFreq, chanFreqStep, refPix, specmode, obsEpoch, 
 		   obsPosition, dataChanFreq, dataChanWidth, dataFrame, qrestfreq, freqmin, freqmax,
 		   phaseCenterToUse))
@@ -2252,6 +2388,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                              MFrequency::REST : MFrequency::Undefined, 
         	                             startf, stepf, refPix, restf);
           }
+	else if(mode=="cubesource") 
+          {
+	    /*stepf=chanFreq.nelements() > 1 ?(freqmax-freqmin)/Double(chanFreq.nelements()-1) : freqmax-freqmin;
+	    startf=freqmin+stepf/2.0;
+	    */
+             mySpectral = SpectralCoordinate(MFrequency::REST, 
+        	                             startf, stepf, refPix, restf);
+          }
         else 
           {
              mySpectral = SpectralCoordinate(freqFrameValid ? freqFrame : MFrequency::REST, 
@@ -2266,6 +2410,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             //mySpectral = SpectralCoordinate(freqFrameValid ? MFrequency::Undefined : MFrequency::REST,
             mySpectral = SpectralCoordinate(freqFrame == MFrequency::REST ? 
                                             MFrequency::REST : MFrequency::Undefined,
+                                            chanFreq, (Double)qrestfreq.getValue("Hz"));
+          }
+	else if (mode=="cubesource") 
+          {
+            mySpectral = SpectralCoordinate(MFrequency::REST,
                                             chanFreq, (Double)qrestfreq.getValue("Hz"));
           }
         else 
@@ -2608,6 +2757,34 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 */
 
+  MDirection SynthesisParamsImage::getMovingSourceDir(const MeasurementSet& ms, const MEpoch& refEp, const MPosition& obsposition, const MDirection::Types outframe){
+    MDirection outdir;
+    String ephemtab(movingSource);
+    if(movingSource=="TRACKFIELD"){
+      Int fieldID=ROMSColumns(ms).fieldId()(0);
+      ephemtab=Path(ROMSColumns(ms).field().ephemPath(fieldID)).absoluteName();
+    }
+    casacore::MDirection::Types planetType=MDirection::castType(trackDir.getRef().getType());
+    if( (! Table::isReadable(ephemtab)) &&   ( (planetType <= MDirection::N_Types) || (planetType >= MDirection::COMET)))
+      throw(AipsError("Does not have a valid ephemeris table or major solar system object defined"));
+    MeasFrame mframe(refEp, obsposition);
+    MDirection::Ref outref1(MDirection::AZEL, mframe);
+    MDirection::Ref outref(outframe, mframe);
+    MDirection tmpazel;
+    if(planetType >=MDirection::MERCURY && planetType <MDirection::COMET){
+      tmpazel=MDirection::Convert(trackDir, outref1)();
+      
+    }
+    else{
+      MeasComet mcomet(Path(ephemtab).absoluteName());
+      mframe.set(mcomet);
+      tmpazel=MDirection::Convert(MDirection(MDirection::COMET), outref1)();
+    }
+    outdir=MDirection::Convert(tmpazel, outref)();
+
+    return outdir;
+  }
+  
   Bool SynthesisParamsImage::getImFreq(Vector<Double>& chanFreq, Vector<Double>& chanFreqStep, 
                                        Double& refPix, String& specmode,
                                        const MEpoch& obsEpoch, const MPosition& obsPosition, 
@@ -2677,8 +2854,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       MRadialVelocity mSysVel; 
       Quantity qVel;
       MRadialVelocity::Types mRef;
-      if(mode!="cubesrc") 
+      if(mode!="cubesource") 
         {
+	  
+	  
           if(freqframe=="SOURCE") 
             {
               os << LogIO::SEVERE << "freqframe=\"SOURCE\" is only allowed for mode=\"cubesrc\""
@@ -2688,6 +2867,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         }
       else // only for cubesrc mode: TODO- check for the ephemeris info.
         {
+	  freqframe=MFrequency::showType(dataFrame);
           if(sysvel!="") {
             stringToQuantity(sysvel,qVel);
             MRadialVelocity::getType(mRef,sysvelframe);
@@ -2718,8 +2898,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       ostr << " phaseCenter='" << phaseCenter;
       os << String(ostr)<<"' ";
 
-
-      //Bool rst=SubMS::calcChanFreqs(os,
       Double dummy; // dummy variable  - weightScale is not used here
       Bool rst=MSTransformRegridder::calcChanFreqs(os,
                            chanFreq, 
@@ -3004,7 +3182,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	// Spectral interpolation
 	err += readVal( inrec, String("interpolation"), interpolation );// not used in SI yet...
-
+	//mosaic use pointing
+	err += readVal( inrec, String("usepointing"), usePointing );
 	// Track moving source ?
 	err += readVal( inrec, String("distance"), distance );
 	err += readVal( inrec, String("tracksource"), trackSource );
@@ -3123,6 +3302,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Spectral Axis interpolation
     interpolation=String("nearest");
 
+    //mosaic use pointing
+    usePointing=false;
     // Moving phase center ?
     distance=Quantity(0,"m");
     trackSource=false;
@@ -3172,6 +3353,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     gridpar.define("interpolation",interpolation);
 
+    gridpar.define("usepointing", usePointing);
+    
     gridpar.define("distance", QuantityToString(distance));
     gridpar.define("tracksource", trackSource);
     gridpar.define("trackdir", MDirectionToString( trackDir ));
@@ -3504,6 +3687,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                err+= "verbose must be a bool";
             }
           }
+        if( inrec.isDefined("fastnoise"))
+          {
+            if (inrec.dataType("fastnoise")==TpBool ) {
+               err+= readVal(inrec, String("fastnoise"), fastnoise);
+            }
+            else {
+               err+= "fastnoise must be a bool";
+            }
+          }
         if( inrec.isDefined("nsigma") )
           {
             if(inrec.dataType("nsigma")==TpFloat || inrec.dataType("nsigma")==TpDouble ) {
@@ -3520,8 +3712,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      
 	      if( inrec.dataType("restoringbeam")==TpString )     
 		{
-		  err += readVal( inrec, String("restoringbeam"), usebeam); 
-		  if( ! usebeam.matches("common") && ! usebeam.length()==0 )  
+		  err += readVal( inrec, String("restoringbeam"), usebeam);
+          // FIXME ! usebeam.length() == 0 is a poorly formed conditional, it
+          // probably needs simplification or parenthesis, the compiler is
+          // compaining about it
+		  if( (! usebeam.matches("common")) && ! usebeam.length()==0 )
 		    {
 		      Quantity bsize;
 		      err += readVal( inrec, String("restoringbeam"), bsize );
@@ -3685,6 +3880,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     decpar.define("dogrowprune",doGrowPrune);
     decpar.define("minpercentchange",minPercentChange);
     decpar.define("verbose", verbose);
+    decpar.define("fastnoise", fastnoise);
     decpar.define("interactive",interactive);
     decpar.define("nsigma",nsigma);
 

@@ -26,6 +26,8 @@
 //#
 //# $Id$
 //
+#include <synthesis/TransformMachines2/Utils.h>
+
 #include <synthesis/TransformMachines2/AWConvFunc.h>
 #include <synthesis/TransformMachines2/AWProjectFT.h>
 #include <synthesis/TransformMachines/SynthesisError.h>
@@ -202,6 +204,10 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     //Double vbPA = getPA(vb);
     Complex cpeak,wtcpeak;
     aTerm.cacheVBInfo(vb);
+    Int totalCFs=muellerElements.shape().product()*freqValues.shape().product()*wValues.shape().product()*2,
+      cfsDone=0;
+  
+    ProgressMeter pm(1.0, Double(totalCFs), "fillCF", "","","",true);
 
     for (uInt imx=0;imx<muellerElements.nelements();imx++) // Loop over all MuellerElements
       for (uInt imy=0;imy<muellerElements(imx).nelements();imy++)
@@ -242,7 +248,11 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		//   psTerm.reinit(dummy, uvScale_l, dummyoffset,pss);
 		// }
 		
-		IPosition pbshp(4,nx,ny,1,1);
+		
+		IPosition pbshp(4,nx, ny,1,1);
+		// Set the shape to 2x2 pixel images for dry gridding
+		if (isDryRun) pbshp[0]=pbshp[1]=2;
+
 		//
 		// Cache the A-Term for this polarization and frequency
 		//
@@ -278,7 +288,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		// }
 
 
-		Bool doSquint=true; Complex tt;
+		Bool doSquint=true; 
 		//		Bool doSquint=false; Complex tt;
 		ftATerm_l.set(Complex(1.0,0.0));   ftATermSq_l.set(Complex(1.0,0.0));
 
@@ -369,7 +379,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			//psTerm.applySky(cfBufMat, false);   // Assign (psScale set in psTerm.init()
 			//psTerm.applySky(cfWtBufMat, false); // Assign
 			psTerm.applySky(cfBufMat, s, cfBufMat.shape()(0)/s(0));   // Assign (psScale set in psTerm.init()
-	    psTerm.applySky(cfWtBufMat, s, cfWtBufMat.shape()(0)/s(0)); // Assign
+			psTerm.applySky(cfWtBufMat, s, cfWtBufMat.shape()(0)/s(0)); // Assign
 
 			cfWtBuf *= cfWtBuf;
 		      }
@@ -517,7 +527,15 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		    ftRef(0)=cfWtBuf.shape()(0)/2.0;
 		    ftRef(1)=cfWtBuf.shape()(1)/2.0;
 		    CoordinateSystem ftCoords=cs_l;
-		    SynthesisUtils::makeFTCoordSys(cs_l, cfWtBuf.shape()(0), ftRef, ftCoords);
+		    if (isDryRun)
+		      {
+			ftRef(0)=nx/2.0;
+			ftRef(1)=ny/2.0;
+			SynthesisUtils::makeFTCoordSys(cs_l, nx,ftRef , ftCoords);
+		      }
+		    else
+		      SynthesisUtils::makeFTCoordSys(cs_l, cfWtBuf.shape()(0), ftRef, ftCoords);
+		    
 		    CountedPtr<CFCell> cfCellPtr;
 		    cfWtb.setParams(inu,iw,imx,imy,//muellerElements(imx)(imy),
 				    freqValues(inu), String(""), wValues(iw), muellerElements(imx)(imy),
@@ -585,7 +603,15 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 
 		    //tim.mark();
 		    ftCoords=cs_l;
-		    SynthesisUtils::makeFTCoordSys(cs_l, cfBuf.shape()(0), ftRef, ftCoords);
+		    if (isDryRun)
+		      {
+			ftRef(0) = nx/2.0;
+			ftRef(1) = ny/2.0;
+			SynthesisUtils::makeFTCoordSys(cs_l, nx, ftRef, ftCoords);
+		      }
+		    else
+		      SynthesisUtils::makeFTCoordSys(cs_l, cfBuf.shape()(0), ftRef, ftCoords);
+		      
 		    cfb.setParams(inu,iw,imx,imy,//muellerElements(imx)(imy),
 				  freqValues(inu), String(""), wValues(iw), muellerElements(imx)(imy),
 				  ftCoords, sampling, xSupport, ySupport,
@@ -607,6 +633,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		    (cfb.getCFCellPtr(freqValues(inu), wValues(iw), 
 				      muellerElements(imx)(imy)))->initCache(isDryRun);
 
+		    pm.update((Double)cfsDone++);
 		    //tim.show("End*2:");
     		  }
 	      }
@@ -795,15 +822,19 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
       {
 	log_l << "Using " << wConvSize << " planes for W-projection" << LogIO::POST;
 	Double maxUVW;
-	maxUVW=0.25/abs(image.coordinates().increment()(0));
+	float WFUDGE=4.0;
+	WFUDGE=refim::SynthesisUtils::getenv("WTerm.WFUDGE",WFUDGE);
+
+	//maxUVW=0.25/abs(image.coordinates().increment()(0));
+	maxUVW=1.0/abs(image.coordinates().increment()(0)*WFUDGE);
 	log_l << "Estimating maximum possible W = " << maxUVW
 	      << " (wavelengths)" << LogIO::POST;
 	
-	Double invLambdaC=vb.getFrequencies(0)(0)/C::c;
-	Int nFreq = (vb.getFrequencies(0).nelements())-1;
-	Double invMinL = vb.getFrequencies(0)(nFreq)/C::c;
-	log_l << "wavelength range = " << 1.0/invLambdaC << " (m) to " 
-	      << 1.0/invMinL << " (m)" << LogIO::POST;
+	// Double invLambdaC=vb.getFrequencies(0)(0)/C::c;
+	// Int nFreq = (vb.getFrequencies(0).nelements())-1;
+	// Double invMinL = vb.getFrequencies(0)(nFreq)/C::c;
+	// log_l << "wavelength range = " << 1.0/invLambdaC << " (m) to " 
+	//       << 1.0/invMinL << " (m)" << LogIO::POST;
 	if (wConvSize > 1)
 	  {
 	    wScale=Float((wConvSize-1)*(wConvSize-1))/maxUVW;
@@ -954,7 +985,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     Matrix<Int> uniqueBaselineTypeList=makeBaselineList(aTerm_p->getAntTypeList());
     //Quantity dPA(360.0,"deg");
     Quantity dPA(dpa,"rad");
-    Int totalCFs=uniqueBaselineTypeList.shape().product()*wConvSize*freqValues.nelements()*polMap.shape().product();
+    Int totalCFs=uniqueBaselineTypeList.shape().product()*wConvSize*freqValues.nelements()*polMap.shape().product()*2;
     ProgressMeter pm(1.0, Double(totalCFs), "makeCF", "","","",true);
     int cfDone=0;
     for(Int ib=0;ib<uniqueBaselineTypeList.shape()(0);ib++)
@@ -999,8 +1030,9 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 	  // psScale when using SynthesisUtils::libreSpheroidal() is
 	  // 2.0/nSupport.  nSupport is in pixels and the 2.0 is due to
 	  // the center being at Nx/2.  Here the nSupport is determined
-	
-	  Double lambdaByD = 1.22*C::c/min(freqValues)/25.0;
+	  innerQuaterFraction=refim::SynthesisUtils::getenv("AWCF.FUDGE",innerQuaterFraction);
+
+	  Double lambdaByD = innerQuaterFraction*1.22*C::c/min(freqValues)/25.0;
 	  Double FoV_x = fabs(nx*skyIncr(0));
 	  Double FoV_y = fabs(nx*skyIncr(1));
 	  Vector<Double> uvScale_l(3);
@@ -1130,6 +1162,8 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 
     //threshold *= aTerm_p->getSupportThreshold();
     threshold *= 1e-3;
+    //threshold *= 7.5e-2;
+
     //    threshold *=  0.1;
     // if (aTerm_p->isNoOp()) 
     //   threshold *= 1e-3; // This is the threshold used in "standard" FTMchines
@@ -1607,7 +1641,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   {
     LogIO log_l(LogOrigin("AWConvFunc2", "fillConvFuncBuffer2[R&D]"));
     Complex cfNorm, cfWtNorm;
-    Complex cpeak,wtcpeak;
+    Complex cpeak;
     {
       Float sampling, samplingWt;
       Int xSupport, ySupport, xSupportWt, ySupportWt;
@@ -1631,7 +1665,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
       CoordinateSystem conjPolCS_l=cs_l;  AWConvFunc::makeConjPolAxis(conjPolCS_l, thisCell->conjPoln_p);
       IPosition pbshp(4,nx,ny,1,1);
       TempImage<Complex> ftATerm_l(pbshp, cs_l), ftATermSq_l(pbshp,conjPolCS_l);
-      Bool doSquint=true; Complex tt;
+      Bool doSquint=true; 
       ftATerm_l.set(Complex(1.0,0.0));   ftATermSq_l.set(Complex(1.0,0.0));
       Double freq_l=miscInfo.freqValue;
       // {
@@ -1970,8 +2004,9 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 
 			   //Float psScale = (2*coords.increment()(0))/(nx*image.coordinates().increment()(0));
 			   Float innerQuaterFraction=1.0;
+			   innerQuaterFraction=refim::SynthesisUtils::getenv("AWCF.FUDGE",innerQuaterFraction);
 			 
-			   Double lambdaByD = 1.22*C::c/skyMinFreq/miscInfo.diameter;
+			   Double lambdaByD = innerQuaterFraction*1.22*C::c/skyMinFreq/miscInfo.diameter;
 			   Double FoV_x = fabs(skyNX*skyIncr(0));
 			   Double FoV_y = fabs(skyNY*skyIncr(1));
 			   Vector<Double> uvScale_l(3);

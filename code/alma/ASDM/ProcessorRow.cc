@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <ProcessorRow.h>
-#include <ProcessorTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/ProcessorRow.h>
+#include <alma/ASDM/ProcessorTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::ProcessorRow;
 using asdm::ProcessorTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	ProcessorRow::~ProcessorRow() {
@@ -480,7 +477,9 @@ void ProcessorRow::processorSubTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ProcessorRow::processorIdFromText(const string & s) {
 		 
+          
 		processorId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -488,7 +487,9 @@ void ProcessorRow::processorSubTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ProcessorRow::modeIdFromText(const string & s) {
 		 
+          
 		modeId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -496,7 +497,9 @@ void ProcessorRow::processorSubTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an ProcessorType 
 	void ProcessorRow::processorTypeFromText(const string & s) {
 		 
-		processorType = ASDMValuesParser::parse<ProcessorType>(s);
+          
+		processorType = ASDMValuesParser::parse<ProcessorTypeMod::ProcessorType>(s);
+          
 		
 	}
 	
@@ -504,7 +507,9 @@ void ProcessorRow::processorSubTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an ProcessorSubType 
 	void ProcessorRow::processorSubTypeFromText(const string & s) {
 		 
-		processorSubType = ASDMValuesParser::parse<ProcessorSubType>(s);
+          
+		processorSubType = ASDMValuesParser::parse<ProcessorSubTypeMod::ProcessorSubType>(s);
+          
 		
 	}
 	

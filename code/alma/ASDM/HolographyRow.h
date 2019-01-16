@@ -48,11 +48,11 @@
 
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -67,17 +67,17 @@
 	
 
 	
-#include "CHolographyChannelType.h"
+#include <alma/Enumerations/CHolographyChannelType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Holography.h
     \brief Generated from model's revision "-1", branch ""
@@ -91,7 +91,7 @@ namespace asdm {
 
 class HolographyRow;
 typedef void (HolographyRow::*HolographyAttributeFromBin) (EndianIStream& eis);
-typedef void (HolographyRow::*HolographyAttributeFromText) (const string& s);
+typedef void (HolographyRow::*HolographyAttributeFromText) (const std::string& s);
 
 /**
  * The HolographyRow class is a row of a HolographyTable.
@@ -242,21 +242,21 @@ public:
 	
  	/**
  	 * Get type.
- 	 * @return type as vector<HolographyChannelTypeMod::HolographyChannelType >
+ 	 * @return type as std::vector<HolographyChannelTypeMod::HolographyChannelType >
  	 */
- 	vector<HolographyChannelTypeMod::HolographyChannelType > getType() const;
+ 	std::vector<HolographyChannelTypeMod::HolographyChannelType > getType() const;
 	
  
  	
  	
  	/**
- 	 * Set type with the specified vector<HolographyChannelTypeMod::HolographyChannelType >.
- 	 * @param type The vector<HolographyChannelTypeMod::HolographyChannelType > value to which type is to be set.
+ 	 * Set type with the specified std::vector<HolographyChannelTypeMod::HolographyChannelType >.
+ 	 * @param type The std::vector<HolographyChannelTypeMod::HolographyChannelType > value to which type is to be set.
  	 
  		
  			
  	 */
- 	void setType (vector<HolographyChannelTypeMod::HolographyChannelType > type);
+ 	void setType (std::vector<HolographyChannelTypeMod::HolographyChannelType > type);
   		
 	
 	
@@ -287,7 +287,7 @@ public:
 	 * @param type
 	    
 	 */ 
-	bool compareNoAutoInc(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type);
+	bool compareNoAutoInc(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type);
 	
 	
 
@@ -305,7 +305,7 @@ public:
 	 * @param type
 	    
 	 */ 
-	bool compareRequiredValue(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type); 
+	bool compareRequiredValue(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type); 
 		 
 	
 	/**
@@ -498,7 +498,7 @@ private:
 	
 	
 
-	vector<HolographyChannelTypeMod::HolographyChannelType > type;
+	std::vector<HolographyChannelTypeMod::HolographyChannelType > type;
 
 	
 	
@@ -532,19 +532,19 @@ void typeFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, HolographyAttributeFromText> fromTextMethods;
 	
-void holographyIdFromText (const string & s);
+void holographyIdFromText (const std::string & s);
 	
 	
-void distanceFromText (const string & s);
+void distanceFromText (const std::string & s);
 	
 	
-void focusFromText (const string & s);
+void focusFromText (const std::string & s);
 	
 	
-void numCorrFromText (const string & s);
+void numCorrFromText (const std::string & s);
 	
 	
-void typeFromText (const string & s);
+void typeFromText (const std::string & s);
 	
 
 		

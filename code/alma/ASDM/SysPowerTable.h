@@ -41,19 +41,15 @@
 
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -61,20 +57,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -159,21 +159,21 @@ where \f$T_{cal}\f$ is the temperature of the noise tube.
 	
  * <TR>
  * <TD> switchedPowerDifference</TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the switched power difference \f$P_{diff}\f$ defined by \f$P_{diff} = G*(P_{on}-P_{off})\f$. </TD>
  * </TR>
 	
  * <TR>
  * <TD> switchedPowerSum</TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the switched power sum \f$P_{sum}\f$ defined by \f$P_{sum}=G(P_{on} + P_{off})\f$. </TD>
  * </TR>
 	
  * <TR>
  * <TD> requantizerGain</TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; refers to the gain inserted after the synchronous power detector. For WIDAR, it is the requantizer gain (\f$G\f$). </TD>
  * </TR>

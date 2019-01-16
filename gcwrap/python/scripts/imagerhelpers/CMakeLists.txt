@@ -1,4 +1,4 @@
-# Copyright (C) 2010
+# Copyright (C) 2010...2017
 # Associated Universities, Inc. Washington DC, USA.
 #
 # This library is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@
 
 
 casa_add_python( tools tools_imagerhelpers lib/python${PYTHONV}/imagerhelpers
+  fixedDict.py 
   imager_base.py	
   imager_parallel_cube.py
   parallel_imager_helper.py 

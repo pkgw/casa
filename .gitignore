@@ -8,7 +8,7 @@
 code/.cproject
 code/.project
 code/.settings
-code/build
+code/build*
 code/casadbus/plotserver/PlotServerProxy.dbusproxy.h
 code/casadbus/session/DBusSession.dbusproxy.h
 code/casadbus/viewer/ViewerProxy.dbusproxy.h
@@ -78,7 +78,7 @@ code/xmlcasa/build.log.0415
 gcwrap/apps/module_paramgui/Debug
 gcwrap/apps/module_paramgui/build
 gcwrap/apps/module_paramgui/setup.py
-gcwrap/build
+gcwrap/build*
 gcwrap/python/implement/QtParamGui/*.moc.cc
 gcwrap/python/implement/QtParamGui/*.qrc.cc
 gcwrap/python/implement/QtParamGui/*.ui.h

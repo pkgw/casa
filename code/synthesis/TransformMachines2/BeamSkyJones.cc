@@ -295,7 +295,7 @@ void BeamSkyJones::update(const vi::VisBuffer2& vb, Int row)
   MDirection pointingDirection2 = vbutil_p->getPointingDir(vb, vb.antenna2()(row), row);
   //cerr << "DIR1 " << pointingDirection1.toString() << "   " <<  pointingDirection2.toString() << endl; 
   // Look up correct telescope
-  const ROMSObservationColumns& msoc=ROMSColumns(vb.ms()).observation();
+  const ROMSObservationColumns& msoc=vb.subtableColumns().observation();
   telescope_p = msoc.telescopeName()(vb.arrayId()(0));
 
   updatePBMathIndices(vb,row); // lastUpdateIndex?_p are now valid
@@ -529,20 +529,12 @@ BeamSkyJones::applyGradient(SkyComponent& result, const vi::VisBuffer2&,
   return result;
 };
 
-void BeamSkyJones::addGradients(const vi::VisBuffer2& vb, Int row,
-			      const Float sumwt, 
-			      const Float chisq,
-			      const Matrix<Complex>& c, 
-			      const Matrix<Float>& f) 
-{
-  // Keep compiler quiet
-  if(&vb) {};
-  if(row) {};
-  if(sumwt) {};
-  if(chisq) {};
-  if(&c) {};
-  if(&f) {};
-};
+void BeamSkyJones::addGradients(const vi::VisBuffer2&, Int,
+			      const Float, 
+			      const Float,
+			      const Matrix<Complex>&, 
+			      const Matrix<Float>&) 
+{};
 
 // Solve
 /*Bool BeamSkyJones::solve (SkyEquation& se)
@@ -724,14 +716,14 @@ MDirection BeamSkyJones::convertDir(const vi::VisBuffer2& vb, const MDirection& 
    MPosition pos;
    String tel("");
    ROMSColumns msc(vb.ms());
-   if (msc.observation().nrow() > 0) {
-     tel = msc.observation().telescopeName()(msc.observationId()(0));
+   if (vb.subtableColumns().observation().nrow() > 0) {
+     tel = vb.subtableColumns().observation().telescopeName()(vb.observationId()(0));
    }
    if (tel.length() == 0 || !tel.contains("VLA") ||
        !MeasTable::Observatory(pos,tel)) {
      // unknown observatory, use first antenna
      Int ant1=vb.antenna1()(0);
-     pos=msc.antenna().positionMeas()(ant1);
+     pos=vb.subtableColumns().antenna().positionMeas()(ant1);
    }
    MEpoch::Types timeMType=MEpoch::castType(msc.timeMeas()(0).getRef().getType());
    Unit timeUnit=Unit(msc.timeMeas().measDesc().getUnits()(0).getName());

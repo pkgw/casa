@@ -32,6 +32,7 @@
 #include <measures/Measures/Measure.h>
 #include <measures/Measures/MDirection.h>
 #include <measures/Measures/MPosition.h>
+#include <measures/Measures/MeasTable.h>
 #include <casa/Arrays/Array.h>
 #include <casa/Arrays/Vector.h>
 #include <casa/Arrays/Matrix.h>
@@ -308,8 +309,8 @@ public:
   virtual casacore::String name() const =0;// { return "None";};
  
   // set and get the location used for frame 
-  void setLocation(const casacore::MPosition& loc);
-  casacore::MPosition& getLocation();
+  virtual void setLocation(const casacore::MPosition& loc);
+  virtual casacore::MPosition& getLocation();
 
   // set a moving source aka planets or comets =>  adjust phase center
   // on the fly for gridding 
@@ -352,17 +353,13 @@ public:
   casacore::CountedPtr<CFCache> getCFCache() {return cfCache_p;};
   casacore::String getCacheDir() { return cfCache_p->getCacheDir(); };
 
-  virtual void setDryRun(casacore::Bool val) 
-  {
-    isDryRun=val;
-    //cerr << "FTM: " << isDryRun << endl;
-  };
+  virtual void setDryRun(casacore::Bool val) {isDryRun=val;};
   virtual casacore::Bool dryRun() {return isDryRun;}
-  virtual casacore::Bool isUsingCFCache() 
-  {
-    // cerr << "@#%$@% = " << cfCache_p.nrefs() << endl;
-    return (cfCache_p.nrefs()!=0);
-  }
+  virtual casacore::Bool isUsingCFCache() {return (cfCache_p.nrefs()!=0);}
+
+  virtual const casacore::CountedPtr<refim::FTMachine>& getFTM2(const casacore::Bool ) 
+  {throw(casacore::AipsError("FTMachine::getFTM2() called directly!"));}
+
   casacore::Bool isDryRun;
   void setPseudoIStokes(casacore::Bool pseudoI){isPseudoI_p=pseudoI;};
 
@@ -409,6 +406,7 @@ protected:
 
   casacore::Int lastFieldId_p;
   casacore::Int lastMSId_p;
+  casacore::CountedPtr<casacore::ROMSColumns> romscol_p;
   //Use douple precision grid in gridding process
   casacore::Bool useDoubleGrid_p;
 
@@ -517,12 +515,17 @@ protected:
   casacore::CountedPtr<VisBufferUtil> vbutil_p;
   casacore::Double phaseCenterTime_p;
   ///Some parameters and helpers for multithreaded gridders
-  casacore::Bool doneThreadPartition_p;
+  casacore::Int doneThreadPartition_p;
   casacore::Vector<casacore::Int> xsect_p, ysect_p, nxsect_p, nysect_p;
   virtual void   findGridSector(const casacore::Int& nxp, const casacore::Int& nyp, const casacore::Int& ixsub, const casacore::Int& iysub, const casacore::Int& minx, const casacore::Int& miny, const casacore::Int& icounter, casacore::Int& x0, casacore::Int& y0, casacore::Int& nxsub, casacore::Int& nysub, const casacore::Bool linear); 
   
   virtual void tweakGridSector(const casacore::Int& nx, const casacore::Int& ny, 
 			       const casacore::Int& ixsub, const casacore::Int& iysub);
+  void initSourceFreqConv();
+  void shiftFreqToSource(casacore::Vector<casacore::Double>& freqs);
+  ///moving source spectral frame stuff
+  casacore::MRadialVelocity::Convert obsvelconv_p;
+  casacore::MeasTable::Types mtype_p;
 
 
  private:

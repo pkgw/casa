@@ -29,6 +29,7 @@
 #define SYNTHESIS_TRANSFORM2_HETARRAYCONVFUNC_H
 
 #include <synthesis/TransformMachines2/SimplePBConvFunc.h>
+#include <array>
 
 namespace casacore{
 
@@ -86,7 +87,18 @@ namespace casa {
 				  const casacore::Bool getConjConvFuncs=false,
 				  const casacore::MVDirection& extraShift=casacore::MVDirection(0.0), const casacore::Bool useExtraShift=casacore::False
  								);
-
+    virtual void findConvFunction2(const casacore::ImageInterface<casacore::Complex>& iimage, 
+				  const vi::VisBuffer2& vb,
+				    const casacore::Int& convSampling,
+				  const casacore::Vector<casacore::Double>& visFreq,
+				    casacore::Array<casacore::Complex>& convFunc,
+				    casacore::Array<casacore::Complex>& weightConvFunc,
+				    casacore::Vector<casacore::Int>& convsize,
+				    casacore::Vector<casacore::Int>& convSupport,
+				    casacore::Vector<casacore::Int>& polMap, casacore::Vector<casacore::Int>& chanMap, casacore::Vector<casacore::Int>& rowMap,
+				  const casacore::Bool getConjConvFuncs=false,
+				  const casacore::MVDirection& extraShift=casacore::MVDirection(0.0), const casacore::Bool useExtraShift=casacore::False
+ 								);
     virtual casacore::ImageInterface<casacore::Float>&  getFluxScaleImage();
     // slice flux scale images 
     virtual void sliceFluxScale(const casacore::Int npol);
@@ -102,6 +114,7 @@ namespace casa {
 			     casacore::Complex*& convWeights, const casacore::Double pixXdir, const casacore::Double pixYdir, 
 			     casacore::Int convSize, const casacore::Int ndishpair, const casacore::Int nchan, const casacore::Int nPol);
    void fillConjConvFunc(const casacore::Vector<casacore::Double>& beamFreqs);
+   void fillConjConvFunc(casacore::Array<casacore::Complex>& out, const casacore::Array<casacore::Complex>& in , const casacore::Double& beamFreq);
    casacore::Int conjSupport(const casacore::Vector<casacore::Double>& beamFreqs);
       casacore::Int factorial(casacore::Int n);
       // the return value are -1 or false for not in cache yet but pointing direction 
@@ -113,18 +126,35 @@ namespace casa {
       void supportAndNormalize(casacore::Int plane, casacore::Int convSampling);
       void supportAndNormalizeLatt(casacore::Int plane, casacore::Int convSampling, casacore::TempLattice<casacore::Complex>& convFuncLat,
 				   casacore::TempLattice<casacore::Complex>& weightConvFuncLat);
+      casacore::Bool supportAndNormalize(casacore::Array<casacore::Complex>& convFunc,
+					 casacore::Array<casacore::Complex>& weightConvFunc, casacore::Vector<casacore::Int>& supp, const casacore::Double factor=1.0);
       void init(const PBMathInterface::PBClass typeToUse);
       void makerowmap(const vi::VisBuffer2& vb, casacore::Vector<casacore::Int>& rowMap);
       casacore::Float interpLanczos( const casacore::Double& x , const casacore::Double& y, const casacore::Double& nx, const casacore::Double& ny,   const casacore::Float* data, const casacore::Float a=3);
+      void diffPointingCorrection(const vi::VisBuffer2& vb, const casacore::Int origSupportSize, casacore::Vector<casacore::Int>& rowmap, const casacore::Int convSamp, const casacore::Vector<casacore::Double>& freqs, const casacore::Bool doConj=false);
+      void rephaseBeams(casacore::Array<casacore::Complex>& pb,
+			casacore::Array<casacore::Complex>& pb2,
+			const vi::VisBuffer2& vb, const casacore::Int row,
+			const casacore::Int origSize, const casacore::Double pixshift_x,
+			const casacore::Double pixshift_y);
+      //apply a phase gradient corresponding to (xshift, yshift) in pixels in the image domain
+      void applyPhaseGradient(casacore::Array<casacore::Complex>& arr, const casacore::Double& xshift, const casacore::Double& yshift, const casacore::Int xsize, const casacore::Int ysize, const casacore::Int convsamp=1);
       casacore::Float sinc(const casacore::Float x) ;
       casacore::Array<casacore::Complex> resample(const casacore::Array<casacore::Complex>& inarray, const casacore::Double factor);
       casacore::Matrix<casacore::Complex> resample2(const casacore::Matrix<casacore::Complex>& inarray, const casacore::Double factor);
+      void multiplySelfConjugate(casacore::ImageInterface<casacore::Complex>& im, const casacore::Double freq);
+      void initSincCache();
+      void roundShiftInPointing(casacore::Double& xshift, casacore::Double& yshift, const casacore::Int origSupport, const casacore::MDirection& dir1, const casacore::MDirection& dir2, const casacore::DirectionCoordinate dc);
       PBMathInterface::PBClass pbClass_p;
       //casacore::SimpleOrderedMap <casacore::String, casacore::Int> convFunctionMap_p;
       casacore::Vector<casacore::Int64> convFunctionMap_p;
       casacore::Int64 nDefined_p;
       casacore::SimpleOrderedMap <casacore::String, casacore::Int> antDiam2IndexMap_p;
       casacore::Vector<casacore::Int> antIndexToDiamIndex_p;
+      ///The key to this map is a   tuple of 5 elements, 
+      /// first 3 elements  are (ANT1_VP_ID,ANT2_VP_ID, MS_SPW_ID)
+      /// last 2 elements  (x_shift, y_shift) in pixels of ANT2 pointing w.r.t ANT1 pointing
+      std::map<std::tuple<casacore::Int, casacore::Int, casacore::Int, casacore::Int, casacore::Int>, casacore::Int> baselinePointingDiffIndex_p;
       casacore::Block<casacore::CountedPtr<PBMathInterface> > antMath_p;
       casacore::Int msId_p;
       casacore::Int actualConvIndex_p;
@@ -135,12 +165,20 @@ namespace casa {
       casacore::Int convSize_p; 
       casacore::String vpTable_p;
       casacore::Vector<casacore::Int> convSupport_p;
-      casacore::Block <casacore::CountedPtr<casacore::Array<casacore::Complex> > > convFunctions_p;
+      casacore::Block <casacore::CountedPtr<casacore::Array<casacore::Complex> > > vpFunctions_p;
+      casacore::Block <casacore::CountedPtr<casacore::Array<casacore::Complex> > > pbFunctions_p;
+      casacore::Block <casacore::CountedPtr<casacore::Array<casacore::Complex> > > baslPBFunctions_p;
+      casacore::Block <casacore::CountedPtr<casacore::Array<casacore::Complex> > > baslWeightFunctions_p;
+      casacore::Block<casacore::CountedPtr<casacore::Vector<casacore::Int> > > baslSupport_p;
+      casacore::Block <casacore::CountedPtr<casacore::Array<casacore::Complex> > > convFunctions_p;      
       casacore::Block < casacore::CountedPtr<casacore::Array<casacore::Complex> > > convFunctionsConjFreq_p;
       casacore::Block <casacore::CountedPtr<casacore::Array<casacore::Complex> > > convWeights_p;
       casacore::Block<casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSizes_p;
       casacore::Block <casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSupportBlock_p;
-
+      casacore::Vector<casacore::Int> origConvSize_p;
+      std::array<casacore::Float,8000> sincCache_p;
+      casacore::Float *sincCachePtr_p;
+      double timer1_p, timer2_p, timer3_p;
     };
 }; //end of namespace refim
 } // end namespace casa

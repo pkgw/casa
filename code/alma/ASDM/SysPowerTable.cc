@@ -30,18 +30,18 @@
  *
  * File SysPowerTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <SysPowerTable.h>
-#include <SysPowerRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SysPowerTable.h>
+#include <alma/ASDM/SysPowerRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::SysPowerTable;
@@ -56,15 +56,18 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -551,7 +554,7 @@ SysPowerRow* SysPowerTable::newRow(SysPowerRow* row) {
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<SysPowerTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:syspwr=\"http://Alma/XASDM/SysPowerTable\" xsi:schemaLocation=\"http://Alma/XASDM/SysPowerTable http://almaobservatory.org/XML/XASDM/3/SysPowerTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<SysPowerTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:syspwr=\"http://Alma/XASDM/SysPowerTable\" xsi:schemaLocation=\"http://Alma/XASDM/SysPowerTable http://almaobservatory.org/XML/XASDM/4/SysPowerTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -662,6 +665,9 @@ SysPowerRow* SysPowerTable::newRow(SysPowerRow* row) {
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -678,7 +684,7 @@ SysPowerRow* SysPowerTable::newRow(SysPowerRow* row) {
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<SysPowerTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:syspwr=\"http://Alma/XASDM/SysPowerTable\" xsi:schemaLocation=\"http://Alma/XASDM/SysPowerTable http://almaobservatory.org/XML/XASDM/3/SysPowerTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<SysPowerTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:syspwr=\"http://Alma/XASDM/SysPowerTable\" xsi:schemaLocation=\"http://Alma/XASDM/SysPowerTable http://almaobservatory.org/XML/XASDM/4/SysPowerTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='SysPowerTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -926,6 +932,8 @@ SysPowerRow* SysPowerTable::newRow(SysPowerRow* row) {
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void SysPowerTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -979,11 +987,19 @@ SysPowerRow* SysPowerTable::newRow(SysPowerRow* row) {
 	}
 
 	
-	void SysPowerTable::setFromFile(const string& directory) {		
+	void SysPowerTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/SysPower.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/SysPower.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/SysPower.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/SysPower.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the SysPower table", "SysPower");
 	}			
@@ -1134,7 +1150,9 @@ SysPowerRow* SysPowerTable::newRow(SysPowerRow* row) {
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

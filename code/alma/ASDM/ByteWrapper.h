@@ -25,11 +25,9 @@
  */
 # ifndef Byte_CLASS
 # define Byte_CLASS
-#include <NumberFormatException.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <string>
-
-using std::string;
 
 namespace asdm {
 /**
@@ -46,14 +44,14 @@ public:
 	 * @return a char 
 	 * @throws NumberFormatException.
 	 */
-	static char parseByte(const string &s) throw (NumberFormatException);
+	static char parseByte(const std::string &s) throw (NumberFormatException);
 
 	/**
 	 * Encode a byte value into its string representation.
 	 * @param c the byte value to be encoded.
 	 * @return the string representing the byte value passed as parameter.
 	 */
-	static string toString(char c);
+	static std::string toString(char c);
 
 	/**
 	 * The minimum value for a Byte.

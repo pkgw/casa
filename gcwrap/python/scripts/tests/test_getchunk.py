@@ -332,23 +332,27 @@ class getchunk_test(unittest.TestCase):
             "Falure on float precision pixels"
         )
         myia.fromshape("", [10, 10, 10], type='d')
+        self.assertTrue(myia.isopen())
         bb = myia.getchunk()
         bb[:] = rval
         myia.putchunk(bb)
         cc = myia.getchunk()
         tol = 1e-20
         myia.done()
+        self.assertFalse(myia.isopen())
         self.assertTrue(
             numpy.isclose(cc, rval, rtol=tol, atol=tol).all(),
             "Falure on double precision pixels"
         )
         cval = complex(rval, rval)
         myia.fromshape("", [10, 10, 10], type='c')
+        self.assertTrue(myia.isopen())
         bb = myia.getchunk()
         bb[:] = cval
         myia.putchunk(bb)
         cc = myia.getchunk()
         myia.done()
+        self.assertFalse(myia.isopen())
         tol = 1e-8
         self.assertTrue(
             numpy.isclose(cc, cval, rtol=tol, atol=tol).all(),

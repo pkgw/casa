@@ -30,18 +30,18 @@
  *
  * File PointingTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <PointingTable.h>
-#include <PointingRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/PointingTable.h>
+#include <alma/ASDM/PointingRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::PointingTable;
@@ -56,15 +56,18 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -299,7 +302,7 @@ namespace asdm {
  	 * @param pointingModelId 
 	
      */
-	PointingRow* PointingTable::newRow(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, vector<vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, vector<vector<Angle > > pointingDirection, vector<vector<Angle > > target, vector<vector<Angle > > offset, int pointingModelId){
+	PointingRow* PointingTable::newRow(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, std::vector<std::vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, std::vector<std::vector<Angle > > pointingDirection, std::vector<std::vector<Angle > > target, std::vector<std::vector<Angle > > offset, int pointingModelId){
 		PointingRow *row = new PointingRow(*this);
 			
 		row->setAntennaId(antennaId);
@@ -597,7 +600,7 @@ PointingRow* PointingTable::newRow(PointingRow* row) {
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<PointingTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:pntng=\"http://Alma/XASDM/PointingTable\" xsi:schemaLocation=\"http://Alma/XASDM/PointingTable http://almaobservatory.org/XML/XASDM/3/PointingTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<PointingTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:pntng=\"http://Alma/XASDM/PointingTable\" xsi:schemaLocation=\"http://Alma/XASDM/PointingTable http://almaobservatory.org/XML/XASDM/4/PointingTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -708,6 +711,9 @@ PointingRow* PointingTable::newRow(PointingRow* row) {
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -724,7 +730,7 @@ PointingRow* PointingTable::newRow(PointingRow* row) {
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<PointingTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:pntng=\"http://Alma/XASDM/PointingTable\" xsi:schemaLocation=\"http://Alma/XASDM/PointingTable http://almaobservatory.org/XML/XASDM/3/PointingTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<PointingTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:pntng=\"http://Alma/XASDM/PointingTable\" xsi:schemaLocation=\"http://Alma/XASDM/PointingTable http://almaobservatory.org/XML/XASDM/4/PointingTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='PointingTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -981,6 +987,8 @@ PointingRow* PointingTable::newRow(PointingRow* row) {
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void PointingTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1034,11 +1042,19 @@ PointingRow* PointingTable::newRow(PointingRow* row) {
 	}
 
 	
-	void PointingTable::setFromFile(const string& directory) {		
+	void PointingTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Pointing.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Pointing.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/Pointing.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/Pointing.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the Pointing table", "Pointing");
 	}			
@@ -1189,7 +1205,9 @@ PointingRow* PointingTable::newRow(PointingRow* row) {
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 
