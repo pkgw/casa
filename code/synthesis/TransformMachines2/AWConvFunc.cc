@@ -257,7 +257,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		// }
 
 
-		Bool doSquint=true; Complex tt;
+		Bool doSquint=true; 
 		//		Bool doSquint=false; Complex tt;
 		ftATerm_l.set(Complex(1.0,0.0));   ftATermSq_l.set(Complex(1.0,0.0));
 
@@ -1563,7 +1563,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   {
     LogIO log_l(LogOrigin("AWConvFunc2", "fillConvFuncBuffer2[R&D]"));
     Complex cfNorm, cfWtNorm;
-    Complex cpeak,wtcpeak;
+    Complex cpeak;
     {
       Float sampling, samplingWt;
       Int xSupport, ySupport, xSupportWt, ySupportWt;
@@ -1587,7 +1587,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
       CoordinateSystem conjPolCS_l=cs_l;  AWConvFunc::makeConjPolAxis(conjPolCS_l, thisCell->conjPoln_p);
       IPosition pbshp(4,nx,ny,1,1);
       TempImage<Complex> ftATerm_l(pbshp, cs_l), ftATermSq_l(pbshp,conjPolCS_l);
-      Bool doSquint=true; Complex tt;
+      Bool doSquint=true; 
       ftATerm_l.set(Complex(1.0,0.0));   ftATermSq_l.set(Complex(1.0,0.0));
       Double freq_l=miscInfo.freqValue;
       // {
