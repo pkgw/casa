@@ -60,6 +60,7 @@ casa_add_library( synthesis
  TransformMachines2/IlluminationConvFunc.cc
  TransformMachines2/CFCache.cc
  TransformMachines2/AWConvFuncEPJones.cc
+ TransformMachines2/PointingOffsets.cc
  TransformMachines2/AWConvFunc.cc
   TransformMachines2/PolOuterProduct.cc
   TransformMachines2/AWVisResampler.cc
@@ -706,6 +707,7 @@ install (FILES
         TransformMachines2/MultiTermFTNew.h
 	TransformMachines2/NoOpATerm.h
 	TransformMachines2/PolOuterProduct.h
+	TransformMachines2/PointingOffsets.h
 	TransformMachines2/PSTerm.h
 	TransformMachines2/SetJyGridFT.h	
 	TransformMachines2/SimpleComponentFTMachine.h
