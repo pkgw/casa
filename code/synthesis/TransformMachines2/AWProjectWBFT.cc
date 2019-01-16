@@ -376,10 +376,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //   storeArrayAsImage(name,griddedWeights.coordinates(),wtImage.get());
     // }
     LatticeFFT::cfft2d(wtImage,false);
-    // {
-    //   String name("ftwtimg.im");
-    //   storeArrayAsImage(name,griddedWeights.coordinates(),wtImage.get());
-    // }
     wtImageFTDone_p=true;
 
     Int sizeX=wtImage.shape()(0), sizeY=wtImage.shape()(1);
@@ -430,6 +426,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	//	weightRatio_p = maxval * Float(sizeX)*Float(sizeY) / sumwt_l;
       }
 
+    // {
+    //   String name("ftwtimg.im");
+    //   ArrayLattice<Complex> tt(wtImage.shape());
+    //   Array<Complex> ttbuf;
+    //   Array<T> wtBUF;
+    //   wtImage.get(wtBUF,false);
+    //   tt.get(ttbuf,false);
+    //   for (int i=0;i<wtImage.shape()(0);i++)
+    // 	for (int j=0;j<wtImage.shape()(1);j++)
+    // 	  for (int k=0;k<wtImage.shape()(2);k++)
+    // 	    for (int l=0;l<wtImage.shape()(3);l++)
+    // 	      ttbuf(IPosition(4,i,j,k,l)) = wtBUF(IPosition(4,i,j,k,l));
+    //   storeArrayAsImage(name,griddedWeights_D.coordinates(),ttbuf);
+    // }
   }
   //
   //---------------------------------------------------------------
@@ -588,16 +598,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Matrix<Complex> tmp(senImIter.rwMatrixCursor().shape());
     tmp = 1.0;
-    for(wtImIter.reset(); !wtImIter.atEnd(); wtImIter++)
+    for(wtImIter.reset(), senImIter.reset(); !wtImIter.atEnd(); wtImIter++, senImIter++)
       {
 	Matrix<T> tmp_ref;tmp_ref.reference(wtImIter.rwMatrixCursor().nonDegenerate());
 	for (int i=0;i<tmp.shape()(0);i++)
 	  for (int j=0;j<tmp.shape()(1);j++)
 	    tmp(i,j)=tmp_ref(i,j); // Use automatic type conversion (DComplex->Complex)
+	senImIter.rwMatrixCursor() = real(tmp);
       }
     
-    for(senImIter.reset(); !senImIter.atEnd(); senImIter++)
-      senImIter.rwMatrixCursor() = real(tmp);
+    // {
+    //   String name("ftwtimg.im");
+    //   storeArrayAsImage(name,griddedWeights_D.coordinates(),sensitivityImage.get());
+    // }
+
+    // for(senImIter.reset(); !senImIter.atEnd(); senImIter++)
+    //   {
+    // 	cerr << "Sen: " << senImIter.position() << endl;
+    // 	senImIter.rwMatrixCursor() = real(tmp);
+    //   }
 
     if (tt_pp == "")
       cfCache_p->flush(sensitivityImage,sensitivityPatternQualifierStr_p);
