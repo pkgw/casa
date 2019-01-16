@@ -129,7 +129,7 @@ bool ActionFlagAll::doTool(PlotMSApp* plotms) {
 
 
         vector<PlotRegion> regions(1);
-        constexpr double kDoubleMin = std::numeric_limits<double>::min();
+        constexpr double kDoubleMin = std::numeric_limits<double>::lowest();
         constexpr double kDoubleMax = std::numeric_limits<double>::max();
         PlotCoordinate const upperLeft(kDoubleMin, kDoubleMax);
         PlotCoordinate const lowerRight(kDoubleMax, kDoubleMin);
