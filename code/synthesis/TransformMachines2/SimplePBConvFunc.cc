@@ -80,7 +80,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
         npol_p(-1), pointToPix_p(), directionIndex_p(-1), thePix_p(0),
         filledFluxScale_p(false),doneMainConv_p(0),
                                       
-	calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p()  {
+				      calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p(), usePointingTable_p(False)  {
     //
 
     pbClass_p=PBMathInterface::COMMONPB;
@@ -90,7 +90,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
   SimplePBConvFunc::SimplePBConvFunc(const PBMathInterface::PBClass typeToUse): 
     nchan_p(-1),npol_p(-1),pointToPix_p(),
     directionIndex_p(-1), thePix_p(0), filledFluxScale_p(false),doneMainConv_p(0), 
-     calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p() {
+    calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p(), usePointingTable_p(False) {
     //
     pbClass_p=typeToUse;
     ft_p=FFT2D(true);
@@ -98,7 +98,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
   SimplePBConvFunc::SimplePBConvFunc(const RecordInterface& rec, const Bool calcfluxneeded)
   : nchan_p(-1),npol_p(-1),pointToPix_p(), directionIndex_p(-1), thePix_p(0), filledFluxScale_p(false),
     doneMainConv_p(0), 
-    calcFluxScale_p(calcfluxneeded), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p()
+    calcFluxScale_p(calcfluxneeded), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p(), usePointingTable_p(False)
   {
     String err;
     fromRecord(err, rec, calcfluxneeded);
@@ -122,14 +122,14 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
       String tel= imInfo.telescope();
       MPosition pos;
       ROMSColumns mscol(vb.ms());
-      if (mscol.observation().nrow() > 0) {
-	tel =mscol.observation().telescopeName()(mscol.observationId()(0));
+      if (vb.subtableColumns().observation().nrow() > 0) {
+	tel =vb.subtableColumns().observation().telescopeName()(mscol.observationId()(0));
       }
       if (tel.length() == 0 || !tel.contains("VLA") ||
 	  !MeasTable::Observatory(pos,tel)) {
 	// unknown observatory, use first antenna
     	  Int ant1=vb.antenna1()(0);
-    	  pos=mscol.antenna().positionMeas()(ant1);
+    	  pos=vb.subtableColumns().antenna().positionMeas()(ant1);
       }
       //cout << "TELESCOPE " << tel << endl;
       //Store this to build epochs via the time access of visbuffer later
@@ -175,7 +175,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     		//use first antenna as direction1_p is used to calculate pointing
     		// as only VLA uses observatory pos for calculations
     	    	  Int ant1=vb.antenna1()(0);
-    	    	  MPosition pos=ROMSColumns(vb.ms()).antenna().positionMeas()(ant1);
+    	    	  MPosition pos=vb.subtableColumns().antenna().positionMeas()(ant1);
     	    	  pointFrame_p.resetPosition(pos);
     	}
       MEpoch timenow(Quantity(vb.time()(0), timeUnit_p), timeMType_p);
@@ -264,13 +264,14 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     }
     Bool hasValidPointing=False;
     if(Table::isReadable(vb.ms().pointingTableName())){
-      hasValidPointing=(vb.ms().pointing().nrow() >0);
+      hasValidPointing=usePointingTable_p &&  (vb.ms().pointing().nrow() >0);
     }
+   
     Int val=ant1PointingCache_p.nelements();
     ant1PointingCache_p.resize(val+1, true);
     if(hasValidPointing){
       //ant1PointingCache_p[val]=vb.direction1()[0];
-      ant1PointingCache_p[val]=vbUtil_p.getPointingDir(vb, vb.antenna1()(0), 0);
+      ant1PointingCache_p[val]=vbUtil_p.getPointingDir(vb, vb.antenna1()(0), 0, usePointingTable_p);
     }
     else
       ant1PointingCache_p[val]=vbutil_p->getPhaseCenter(vb);
@@ -841,7 +842,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
     
 	  
 	Int spw=vb.spectralWindows()(0);
-	bandName_p=ROMSColumns(vb.ms()).spectralWindow().name()(spw);
+	bandName_p=vb.subtableColumns().spectralWindow().name()(spw);
 	chanMap.resize(freq.nelements());
     Vector<Double> localfreq=vb.getFrequencies(0, MFrequency::TOPO);
     Double minfreq=min(freq);
@@ -1006,6 +1007,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
       rec.define("pbclass", Int(pbClass_p));
       rec.define("actualconvindex",  actualConvIndex_p);
       rec.define("donemainconv", doneMainConv_p);
+      rec.define("usepointingtable", usePointingTable_p);
       //The following is not needed ..can be regenerated
       //rec.define("pointingpix", pointingPix_p);
     }
@@ -1051,6 +1053,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
        }
        pbClass_p=static_cast<PBMathInterface::PBClass>(rec.asInt("pbclass"));
        rec.get("actualconvindex",  actualConvIndex_p);
+       rec.get("usepointingtable", usePointingTable_p);
        pointingPix_p.resize();
        //rec.get("pointingpix", pointingPix_p);
        calcFluxScale_p=calcFluxneeded;

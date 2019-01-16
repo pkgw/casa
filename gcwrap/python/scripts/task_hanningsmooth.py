@@ -3,7 +3,8 @@ import shutil
 import string
 import copy
 import math
-from taskinit import *
+from taskinit import mttool, mstool, casalog
+from mstools import write_history
 from parallel.parallel_data_helper import ParallelDataHelper
 import testhelper as th
 
@@ -42,7 +43,7 @@ def hanningsmooth(vis=None,
         return False
 
     # Input vis is an MMS
-    if pdh.isParallelMS(vis) and keepmms:
+    if pdh.isMMSAndNotServer(vis) and keepmms:
         
         if not pdh.validateInputParams():        
             raise Exception, 'Unable to continue with MMS processing'

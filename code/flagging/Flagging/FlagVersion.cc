@@ -29,43 +29,19 @@
 
 //# Includes
 
-#include <cmath>
-#include <casa/Exceptions/Error.h>
-#include <casa/iostream.h>
-#include <casa/fstream.h>
-#include <casa/stdio.h>
-
-#include <casa/Exceptions.h>
-
-#include <tables/TaQL/TableParse.h>
-#include <tables/TaQL/TableGram.h>
-#include <tables/Tables/TableDesc.h>
-#include <tables/Tables/TableLock.h>
-#include <tables/Tables/TableIter.h>
 #include <tables/Tables/ScaColDesc.h>
 #include <tables/Tables/ArrColDesc.h>
-#include <tables/Tables/ScalarColumn.h>
-#include <tables/Tables/ArrayColumn.h>
-#include <tables/Tables/TableDesc.h>
-#include <tables/Tables/TableInfo.h>
 #include <tables/Tables/SetupNewTab.h>
-#include <tables/Tables/Table.h>
-#include <tables/Tables/TableRecord.h>
 #include <tables/DataMan/TiledShapeStMan.h>
 #include <tables/DataMan/DataManError.h>
 
-#include <casa/Arrays/ArrayMath.h>
-#include <casa/Arrays/MatrixMath.h>
-#include <casa/Arrays/ArrayError.h>
-#include <casa/Arrays/Matrix.h>
-
-#include <casa/Utilities/DataType.h>
-#include <casa/Quanta/MVTime.h>
 #include <casa/System/ProgressMeter.h>
 
 #include <casa/OS/RegularFile.h>
 #include <casa/OS/Directory.h>
 #include <casa/OS/SymLink.h>
+
+#include <flagging/Flagging/SLog.h>
 
 #include <flagging/Flagging/FlagVersion.h>
 
@@ -459,12 +435,13 @@ Bool FlagVersion::restoreFlagVersion( String versionname, String merge )
    Bool exists = doesVersionExist(versionname);
    String tabvername = flagtablename_p + versionname;
    
-   /* If doesn't exist, say so and return. */
+   /* If doesn't exist, throw an exception. */
    if(!exists)
    {
-      log->out(String("Flag version ") +  versionname + 
-          " does not exist", fnname, clname, LogMessage::WARN);
-      return false;
+//      log->out(String("Flag version ") +  versionname +
+//          " does not exist", fnname, clname, LogMessage::WARN);
+      throw AipsError("Flag version "+  versionname + " does not exist");
+//      return false;
    }
    
    /* Save current flags from this version to the main table. */

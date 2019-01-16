@@ -27,10 +27,9 @@
 #ifndef InvalidDataException_CLASS
 #define InvalidDataException_CLASS
 
-#include <InvalidArgumentException.h>
+#include <alma/ASDM/InvalidArgumentException.h>
 
 #include <string>
-using std::string;
 
 namespace asdm {
 
@@ -42,7 +41,7 @@ class InvalidDataException : public InvalidArgumentException {
 
 public:
   InvalidDataException();
-  InvalidDataException(const string &s);
+  InvalidDataException(const std::string &s);
   
 };
 

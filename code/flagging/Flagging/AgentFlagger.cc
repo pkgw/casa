@@ -40,6 +40,12 @@
 #include <iostream>
 #include <vector>
 
+#include <flagging/Flagging/FlagCalTableHandler.h>
+#include <flagging/Flagging/FlagMSHandler.h>
+#if ! defined(WITHOUT_DBUS)
+#include <flagging/Flagging/FlagAgentDisplay.h>
+#endif
+
 using namespace casacore;
 namespace casa {
 
@@ -374,11 +380,10 @@ AgentFlagger::parseAgentParameters(Record agent_params)
 		if (agentParams_p.isDefined("datacolumn"))
 			agentParams_p.get("datacolumn", datacolumn);
 
-		os << LogIO::NORMAL << "Validating data column "<<datacolumn<<" based on input type"<< LogIO::POST;
+		os << LogIO::NORMAL3 << "Validating data column "<<datacolumn<<" based on input type"<< LogIO::POST;
 
 		if(!validateDataColumn(datacolumn)){
-	        os << LogIO::WARN << "Data column "<< datacolumn << " does not exist in input data"
-	                << LogIO::POST;
+			os << LogIO::WARN<< "Cannot parse agent parameters "<< LogIO::POST;
 			return false;
 		}
 
@@ -588,6 +593,10 @@ AgentFlagger::initAgents()
 		String mode;
 		agent_rec.get("mode", mode);
 
+        /*
+         * Special considerations for some agents
+         */
+
         // If clip agent is mixed with other agents and time average is true, skip it
         if ((mode.compare("clip") == 0 and list_size > 1) or
         		(mode.compare("rflag") == 0 and list_size > 2) or
@@ -598,9 +607,21 @@ AgentFlagger::initAgents()
         	if (exists >= 0) agent_rec.get("timeavg", tavg);
 
             if (tavg){
-                os << LogIO::WARN << "Cannot have " << mode <<" mode with timeavg/channelavg=true in list mode" << LogIO::POST;
+                os << LogIO::WARN << "Cannot have " << mode <<" mode with timeavg/channelavg=True in list mode" << LogIO::POST;
                 continue;
             }
+        }
+
+        // If quack mode with quackincrement = true, skip it
+        if (mode.compare("quack") == 0 and i > 0 and list_size > 1){
+        	Bool quackincrement = false;
+        	int exists = agent_rec.fieldNumber ("quackincrement");
+        	if (exists >= 0) agent_rec.get("quackincrement", quackincrement);
+
+			if (quackincrement){
+        		os << LogIO::WARN << "Cannot have quackincrement=True in list mode. Agent will be ignored!" << LogIO::POST;
+        		continue;
+        	}
         }
 
 		// Set the new time interval only once
@@ -999,7 +1020,8 @@ AgentFlagger::restoreFlagVersion(Vector<String> versionname, String merge)
 	catch (AipsError x)
 	{
 		os << LogIO::SEVERE << "Could not restore Flag Version : " << x.getMesg() << LogIO::POST;
-		return false;
+		throw AipsError(x);
+//		return false;
 	}
 	return true;
 }
@@ -1087,7 +1109,7 @@ AgentFlagger::validateDataColumn(String datacol)
     Bool ret = false;
     datacol.upcase();
 
-    LogIO os(LogOrigin("AgentFlagger", __FUNCTION__, WHERE));
+    LogIO os(LogOrigin("AgentFlagger", __FUNCTION__));
 
     // The validation depends on the type of input
     if (isMS_p) {
@@ -1097,17 +1119,17 @@ AgentFlagger::validateDataColumn(String datacol)
             datacolumn = "CORRECTED_DATA";
         else if(datacol.compare("MODEL") == 0)
             datacolumn = "MODEL_DATA";
-        else if(datacol.compare("RESIDUAL") == 0)
-            datacolumn = "RESIDUAL";
-        else if(datacol.compare("RESIDUAL_DATA") == 0)
-            datacolumn = "RESIDUAL_DATA";
-        else if(datacol.compare("FLOAT_DATA") == 0)
+         else if(datacol.compare("FLOAT_DATA") == 0)
             datacolumn = "FLOAT_DATA";
         else if(datacol.compare("WEIGHT_SPECTRUM") == 0)
             datacolumn = "WEIGHT_SPECTRUM";
         else if(datacol.compare("WEIGHT") == 0)
             datacolumn = "WEIGHT";
-        else
+        else if(datacol.compare("RESIDUAL") == 0)
+             datacolumn = "CORRECTED_DATA";
+         else if(datacol.compare("RESIDUAL_DATA") == 0)
+             datacolumn = "DATA";
+       else
             datacolumn = "";
     }
     else {
@@ -1116,12 +1138,30 @@ AgentFlagger::validateDataColumn(String datacol)
                 (datacol.compare("SNR") == 0))
             datacolumn = datacol;
     }
-    // Check if requested column exist. Residual is calculated later from CORRECTED-MODEL
-    if (datacolumn.compare("RESIDUAL") == 0 or datacolumn.compare("RESIDUAL_DATA") == 0){
-    	ret = true;
+
+    // Check if main tables exist
+    if (fdh_p->checkIfColumnExists(datacolumn)) {
+            ret = true;
     }
-    else if (fdh_p->checkIfColumnExists(datacolumn))
-        ret = true;
+    else {
+    	os << LogIO::WARN << "Data column "<< datacolumn << " does not exist in input data"  << LogIO::POST;
+    }
+
+    // Check if other columns were requested also
+    // RESIDUAL is calculated later from CORRECTED-MODEL
+    // RESIDUAL_DATA is calculated later from DATA-MODEL
+
+    if (datacol.compare("RESIDUAL") == 0 or datacol.compare("RESIDUAL_DATA")==0){
+    	ret = false;
+    	// check if  MODEL _DATA or virtual MODEL_DATA exist
+    	if (fdh_p->checkIfColumnExists("MODEL_DATA") or fdh_p->checkIfSourceModelColumnExists()){
+    		ret = true;
+    	}
+    	else {
+	        os << LogIO::WARN << "Data column MODEL_DATA or virtual MODEL_DATA  does not exist in input data" << LogIO::POST;
+    	}
+
+    }
 
     return ret;
 }

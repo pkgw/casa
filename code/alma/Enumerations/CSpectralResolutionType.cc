@@ -33,7 +33,7 @@
  * File CSpectralResolutionType.cpp
  */
 #include <sstream>
-#include <CSpectralResolutionType.h>
+#include <alma/Enumerations/CSpectralResolutionType.h>
 #include <string>
 using namespace std;
 

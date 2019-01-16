@@ -110,12 +110,14 @@ class convertToMMS():
             casalog.post('--------------- Successfully created MMS -----------------')
                     
                 
-        # Create links to the other files
-        for file in nonmslist:
-            bfile = os.path.basename(file)
+        # Copy non-MS files to MMS directory
+        for ff in nonmslist:
+            bfile = os.path.basename(ff)
             lfile = os.path.join(self.mmsdir, bfile)
-            casalog.post('Creating symbolic link to '+bfile)
-            os.symlink(file, lfile)
+            casalog.post('Copying non-MS file '+bfile)
+#            os.symlink(file, lfile)
+#            shutil.copytree(ff, lfile, symlinks=False)
+            os.system("cp -RL "+ff+" "+lfile)
             
 
     def getMSlist(self, files):
@@ -150,30 +152,30 @@ class convertToMMS():
         
         return mslist
 
-    def isItMS(self, dir):
+    def isItMS(self, mydir):
         '''Check the type of a directory.
-           dir  --> full path of a directory.
+           mydir  --> full path of a directory.
                 Returns 1 for an MS, 2 for a cal table and 3 for a MMS.
                 If 0 is returned, it means any other type or an error.'''
                 
         ret = 0
         
         # Listing of this directory
-        ldir = os.listdir(dir)
+        ldir = os.listdir(mydir)
         
         if not ldir.__contains__('table.info'): 
             return ret
                 
-        cmd1 = 'grep Type '+dir+'/table.info'
-        type = commands.getoutput(cmd1)
-        cmd2 = 'grep SubType '+dir+'/table.info'
+        cmd1 = 'grep Type '+mydir+'/table.info'
+        mytype = commands.getoutput(cmd1)
+        cmd2 = 'grep SubType '+mydir+'/table.info'
         stype = commands.getoutput(cmd2)
         
         # It is a cal table
-        if type.__contains__('Calibration'):
+        if mytype.__contains__('Calibration'):
             ret = 2
         
-        elif type.__contains__('Measurement'):
+        elif mytype.__contains__('Measurement'):
             # It is a Multi-MS
             if stype.__contains__('CONCATENATED'):
                 # Further check
@@ -210,11 +212,11 @@ class convertToMMS():
                 continue
             
             # Full path for directory
-            dir = os.path.join(topdir,d)
+            mydir = os.path.join(topdir,d)
             
-            # It is a Calibration
-            if self.isItMS(dir) == 2:
-                fileslist.append(dir)
+            # It is not an MS
+            if self.isItMS(mydir) != 1:
+                fileslist.append(mydir)
 
 
         # Get non-directory files        
@@ -224,8 +226,8 @@ class convertToMMS():
                 continue
             
             # Full path for file
-            file = os.path.join(topdir, f)
-            fileslist.append(file)
+            myfile = os.path.join(topdir, f)
+            fileslist.append(myfile)
             
         return fileslist
 
@@ -911,7 +913,7 @@ def setAxisType(mmsname, axis=''):
     return True
     
     
-def getPartitonMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'],plotMode=0):
+def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'],plotMode=0):
     """Generates a partition scan/spw map to obtain optimal load balancing with the following criteria:
     
        1st - Maximize the scan/spw/field distribution across sub-MSs
@@ -1037,7 +1039,7 @@ def getPartitonMap(msfilename, nsubms, selection={}, axis=['field','spw','scan']
     # Check that the number of available scan/ddi pairs is not greater than the number of subMSs
     if nsubms > nScanDDIPairs:
         casalog.post("Number of subMSs (%i) is greater than available scan,ddi pairs (%i), setting nsubms to %i" 
-                     % (nsubms,nScanDDIPairs,nScanDDIPairs),"WARN","getPartitonMap")
+                     % (nsubms,nScanDDIPairs,nScanDDIPairs),"WARN","getPartitionMap")
         nsubms = nScanDDIPairs            
     
     ddiArray = np.array(ddiList)

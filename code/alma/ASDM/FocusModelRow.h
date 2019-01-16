@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -57,15 +57,11 @@
 	
 
 	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
-#include "CReceiverBand.h"
-	
-
-	
-
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -74,14 +70,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file FocusModel.h
     \brief Generated from model's revision "-1", branch ""
@@ -101,7 +101,7 @@ class FocusModelRow;
 
 class FocusModelRow;
 typedef void (FocusModelRow::*FocusModelAttributeFromBin) (EndianIStream& eis);
-typedef void (FocusModelRow::*FocusModelAttributeFromText) (const string& s);
+typedef void (FocusModelRow::*FocusModelAttributeFromText) (const std::string& s);
 
 /**
  * The FocusModelRow class is a row of a FocusModelTable.
@@ -252,21 +252,21 @@ public:
 	
  	/**
  	 * Get coeffName.
- 	 * @return coeffName as vector<string >
+ 	 * @return coeffName as std::vector<std::string >
  	 */
- 	vector<string > getCoeffName() const;
+ 	std::vector<std::string > getCoeffName() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffName with the specified vector<string >.
- 	 * @param coeffName The vector<string > value to which coeffName is to be set.
+ 	 * Set coeffName with the specified std::vector<std::string >.
+ 	 * @param coeffName The std::vector<std::string > value to which coeffName is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffName (vector<string > coeffName);
+ 	void setCoeffName (std::vector<std::string > coeffName);
   		
 	
 	
@@ -282,21 +282,21 @@ public:
 	
  	/**
  	 * Get coeffFormula.
- 	 * @return coeffFormula as vector<string >
+ 	 * @return coeffFormula as std::vector<std::string >
  	 */
- 	vector<string > getCoeffFormula() const;
+ 	std::vector<std::string > getCoeffFormula() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffFormula with the specified vector<string >.
- 	 * @param coeffFormula The vector<string > value to which coeffFormula is to be set.
+ 	 * Set coeffFormula with the specified std::vector<std::string >.
+ 	 * @param coeffFormula The std::vector<std::string > value to which coeffFormula is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffFormula (vector<string > coeffFormula);
+ 	void setCoeffFormula (std::vector<std::string > coeffFormula);
   		
 	
 	
@@ -312,21 +312,21 @@ public:
 	
  	/**
  	 * Get coeffVal.
- 	 * @return coeffVal as vector<float >
+ 	 * @return coeffVal as std::vector<float >
  	 */
- 	vector<float > getCoeffVal() const;
+ 	std::vector<float > getCoeffVal() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffVal with the specified vector<float >.
- 	 * @param coeffVal The vector<float > value to which coeffVal is to be set.
+ 	 * Set coeffVal with the specified std::vector<float >.
+ 	 * @param coeffVal The std::vector<float > value to which coeffVal is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffVal (vector<float > coeffVal);
+ 	void setCoeffVal (std::vector<float > coeffVal);
   		
 	
 	
@@ -342,21 +342,21 @@ public:
 	
  	/**
  	 * Get assocNature.
- 	 * @return assocNature as string
+ 	 * @return assocNature as std::string
  	 */
- 	string getAssocNature() const;
+ 	std::string getAssocNature() const;
 	
  
  	
  	
  	/**
- 	 * Set assocNature with the specified string.
- 	 * @param assocNature The string value to which assocNature is to be set.
+ 	 * Set assocNature with the specified std::string.
+ 	 * @param assocNature The std::string value to which assocNature is to be set.
  	 
  		
  			
  	 */
- 	void setAssocNature (string assocNature);
+ 	void setAssocNature (std::string assocNature);
   		
 	
 	
@@ -459,7 +459,7 @@ public:
 	 * 
 	 * @return a vector of FocusModelRow *
 	 */
-	vector <FocusModelRow *> getFocusModels();
+	std::vector <FocusModelRow *> getFocusModels();
 	
 	
 
@@ -491,7 +491,7 @@ public:
 	 * @param assocFocusModelId
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffVal, string assocNature, int assocFocusModelId);
+	bool compareNoAutoInc(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffVal, std::string assocNature, int assocFocusModelId);
 	
 	
 
@@ -517,7 +517,7 @@ public:
 	 * @param assocFocusModelId
 	    
 	 */ 
-	bool compareRequiredValue(PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffVal, string assocNature, int assocFocusModelId); 
+	bool compareRequiredValue(PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffVal, std::string assocNature, int assocFocusModelId); 
 		 
 	
 	/**
@@ -715,7 +715,7 @@ private:
 	
 	
 
-	vector<string > coeffName;
+	std::vector<std::string > coeffName;
 
 	
 	
@@ -726,7 +726,7 @@ private:
 	
 	
 
-	vector<string > coeffFormula;
+	std::vector<std::string > coeffFormula;
 
 	
 	
@@ -737,7 +737,7 @@ private:
 	
 	
 
-	vector<float > coeffVal;
+	std::vector<float > coeffVal;
 
 	
 	
@@ -748,7 +748,7 @@ private:
 	
 	
 
-	string assocNature;
+	std::string assocNature;
 
 	
 	
@@ -822,34 +822,34 @@ void assocFocusModelIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, FocusModelAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void focusModelIdFromText (const string & s);
+void focusModelIdFromText (const std::string & s);
 	
 	
-void polarizationTypeFromText (const string & s);
+void polarizationTypeFromText (const std::string & s);
 	
 	
-void receiverBandFromText (const string & s);
+void receiverBandFromText (const std::string & s);
 	
 	
-void numCoeffFromText (const string & s);
+void numCoeffFromText (const std::string & s);
 	
 	
-void coeffNameFromText (const string & s);
+void coeffNameFromText (const std::string & s);
 	
 	
-void coeffFormulaFromText (const string & s);
+void coeffFormulaFromText (const std::string & s);
 	
 	
-void coeffValFromText (const string & s);
+void coeffValFromText (const std::string & s);
 	
 	
-void assocNatureFromText (const string & s);
+void assocNatureFromText (const std::string & s);
 	
 	
-void assocFocusModelIdFromText (const string & s);
+void assocFocusModelIdFromText (const std::string & s);
 	
 
 		

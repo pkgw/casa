@@ -198,7 +198,7 @@ public:
     inline void setOutputSigmaImage(const casacore::String& s) { _sigmaName = s; }
     // </group>
 
-    const casacore::Array<SHARED_PTR<ProfileFitResults> >& getFitters() const;
+    const casacore::Array<std::shared_ptr<ProfileFitResults> >& getFitters() const;
 
     //Converts a pixel value into a world value either in velocity, wavelength, or
     //frequency units.  If the tabular index >= 0, it uses the tabular index for conversion
@@ -232,8 +232,8 @@ protected:
    		return CasacRegionManager::USE_FIRST_STOKES;
    	}
 
-    inline vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-    	return vector<casacore::Coordinate::Type>(0);
+    inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+    	return std::vector<casacore::Coordinate::Type>(0);
     }
 
     casacore::Bool _hasLogfileSupport() const { return true; }
@@ -252,15 +252,15 @@ private:
 	casacore::uInt _nGaussSinglets, _nGaussMultiplets, _nLorentzSinglets,
 		_nPLPCoeffs, _nLTPCoeffs, _minGoodPoints, _nProfiles, _nAttempted,
 		_nSucceeded, _nConverged, _nValid;
-	casacore::Array<SHARED_PTR<ProfileFitResults> > _fitters;
+	casacore::Array<std::shared_ptr<ProfileFitResults> > _fitters;
     // subimage contains the region of the original image
 	// on which the fit is performed.
-	SHARED_PTR<const casacore::SubImage<casacore::Float> > _subImage;
+	std::shared_ptr<const casacore::SubImage<casacore::Float> > _subImage;
 	casacore::Record _results;
 	SpectralList _nonPolyEstimates;
 	casacore::PtrHolder<std::pair<casacore::Double, casacore::Double> > _goodAmpRange, _goodCenterRange, _goodFWHMRange;
 	casacore::Matrix<casacore::String> _worldCoords;
-	SHARED_PTR<casacore::TempImage<casacore::Float> > _sigma;
+	std::shared_ptr<casacore::TempImage<casacore::Float> > _sigma;
 	casacore::Double _abscissaDivisor;
 	SPIIF _modelImage, _residImage;
 	// planes along _fitAxis to use in fits, empty => use all planes
@@ -305,7 +305,7 @@ private:
 
     void _loopOverFits(
     	SPCIIF fitData, casacore::Bool showProgress,
-    	SHARED_PTR<casacore::ProgressMeter> progressMeter, casacore::Bool checkMinPts,
+    	std::shared_ptr<casacore::ProgressMeter> progressMeter, casacore::Bool checkMinPts,
     	const casacore::Array<casacore::Bool>& fitMask, ImageFit1D<casacore::Float>::AbcissaType abcissaType,
     	const casacore::IPosition& fitterShape, const casacore::IPosition& sliceShape,
     	const std::set<casacore::uInt> goodPlanes
@@ -316,7 +316,7 @@ private:
     casacore::Bool _setFitterElements(
     	ImageFit1D<casacore::Float>& fitter, SpectralList& newEstimates,
     	const casacore::PtrHolder<const PolynomialSpectralElement>& polyEl,
-    	const vector<casacore::IPosition>& goodPos,
+    	const std::vector<casacore::IPosition>& goodPos,
     	const casacore::IPosition& fitterShape, const casacore::IPosition& curPos,
     	casacore::uInt nOrigComps
     ) const;

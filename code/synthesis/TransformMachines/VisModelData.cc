@@ -44,6 +44,7 @@
 #include <msvis/MSVis/VisBuffer.h>
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisBuffer2Adapter.h>
+#include <msvis/MSVis/VisBufferUtil.h>
 #include <synthesis/TransformMachines/VisModelData.h>
 #include <synthesis/TransformMachines/FTMachine.h>
 #include <synthesis/TransformMachines/SimpleComponentFTMachine.h>
@@ -61,7 +62,7 @@ namespace {
   casa::VisModelDataI * createVisModelData (){
     return new casa::VisModelData ();
   }
-
+  // FIXME initializeVisModelDataFactory defined but not used triggers compiler warning
   bool initializeVisModelDataFactory = casa::VisModelDataI::setFactory (createVisModelData);
 
 }
@@ -71,7 +72,7 @@ using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 
-VisModelData::VisModelData(): clholder_p(0), ftholder_p(0), flatholder_p(0){
+VisModelData::VisModelData(): clholder_p(0), ftholder_p(0), flatholder_p(0), version_p(-1){
   
   cft_p=new SimpleComponentFTMachine();
   }
@@ -372,6 +373,7 @@ void VisModelData::clearModel(const MeasurementSet& thems){
     		 Int numrem=0;
     		 for (Int k=0; k < numft; ++k){
     			 RecordInterface& ftrec=therec.asrwRecord(keyval[j]+String::toString(k));
+		    if(!ftrec.isDefined("version")){
 			 Bool hasField=true;
 			 if(fields.nelements() >0){
 			   hasField=false;
@@ -385,6 +387,36 @@ void VisModelData::clearModel(const MeasurementSet& thems){
     				 toberemoved[numrem]=String(keyval[j]+String::toString(k));
     				 ++numrem;
     			 }
+			}
+			else{
+				//Version 2
+				const Matrix<Int>& ftcombind=ftrec.asArrayInt("indexcombination");
+				Matrix<Int> newComb;
+				for(uInt row=0; row < ftcombind.nrow(); ++row){
+				Vector<Int> rowcomb=ftcombind.row(row);	
+				Bool rowTobeRemoved=False;
+				for (uInt ff=0; ff < fields.nelements() ; ++ff){
+					for (uInt ss=0; ss < spws.nelements(); ++ss){
+						if(rowcomb[0]==fields[ff] && rowcomb[1] == spws[ss] )
+							rowTobeRemoved=True;
+						
+						
+					}
+				}
+				if(!rowTobeRemoved){
+					newComb.resize(newComb.nrow()+1,4, True);
+					newComb.row(newComb.nrow()-1)=rowcomb;
+				}
+				}
+				if(newComb.nrow()==0){
+				   toberemoved[numrem]=String(keyval[j]+String::toString(k));
+				    ++numrem;	
+				}
+				else{
+					ftrec.define("indexcombination", newComb);
+				}
+				
+			}
     		 }
     		 if(numrem > 0){
     			 for (Int k=0; k < numrem; ++k)
@@ -535,6 +567,79 @@ void VisModelData::clearModel(const MeasurementSet& thems){
     return (!allTrue(hasSpw) || ((numft+numcl)>0));
   }
 
+Bool VisModelData::addToRec(TableRecord& therec, const Matrix<Int>& combind){
+if(therec.nfields() >0 && ((!therec.isDefined("version")) || (therec.asInt("version") !=2)))
+		throw(AipsError("cannot combine with older version virtual model column;\n please clear it before proceeding"));
+    Int numft=0;
+    Int numcl=0;
+    Vector<Bool> hasComb(combind.nrow(), false);
+    if(therec.isDefined("numft")){
+      numft=therec.asInt("numft");
+      Vector<Int> ft_toremove(numft, 0);
+      for(Int k=0; k < numft; ++k){
+	const Record& ftrec=therec.asRecord("ft_"+String::toString(k));
+	const Matrix<Int>& ftcombind=ftrec.asArrayInt("indexcombination");
+	for (uInt i=0; i<combind.nrow(); ++i){
+	  for (uInt j=0; j<ftcombind.nrow(); ++j){
+	    if(allEQ(combind.row(i), ftcombind.row(j))){
+			//We could upgrade this to just delete the intent from the ft
+	      hasComb[i]=true;	   
+	      ft_toremove[k]=1;
+	    }
+	  }	
+	}
+      }
+      if(sum(ft_toremove) >0){
+	for(Int k=0; k < numft; ++k){
+	  if(ft_toremove[k]==1)
+	    therec.removeField("ft_"+String::toString(k));
+	}
+	numft=numft-sum(ft_toremove);
+	therec.define("numft", numft);
+	Int id=0;
+	for(uInt k=0; k < therec.nfields(); ++k){
+	  if(therec.name(k).contains("ft_")){
+	    therec.renameField("ft_"+String::toString(id), k);
+	    ++id;
+	  }
+	}
+      }
+    }
+    if(therec.isDefined("numcl")){
+      numcl=therec.asInt("numcl");
+      Vector<Int> cl_toremove(numcl, 0);
+      for(Int k=0; k < numcl; ++k){
+	const Record& clrec=therec.asRecord("cl_"+String::toString(k));
+	const Matrix<Int>& clcombind=clrec.asArrayInt("indexcombination");
+	for (uInt i=0; i<combind.nrow(); ++i){
+	  for (uInt j=0; j<clcombind.nrow(); ++j){
+	    if(allEQ(combind.row(i),clcombind.row(j))){
+	      hasComb[i]=true;	    
+	      cl_toremove[k]=1;
+	    }
+	  }	
+	}
+      }
+      if(sum(cl_toremove) >0){
+	for(Int k=0; k < numcl; ++k){
+	  if(cl_toremove[k]==1)
+	    therec.removeField("cl_"+String::toString(k));
+	}
+	numcl=numcl-sum(cl_toremove);
+	therec.define("numcl", numcl);
+	Int id=0;
+	for(uInt k=0; k < therec.nfields(); ++k){
+	  if(therec.name(k).contains("cl_")){
+	    therec.renameField("cl_"+String::toString(id), k);
+	    ++id;
+	  }
+	}
+      }
+    }
+    return (!allTrue(hasComb) || ((numft+numcl)>0));
+  }
+ 
+  
 Bool VisModelData::isModelDefined(const Int fieldId, const MeasurementSet& thems, String& thekey, Int& sourceRow){
   sourceRow=-1;
   String modelkey=String("definedmodel_field_")+String::toString(fieldId);
@@ -780,7 +885,90 @@ void VisModelData::putModel(const MeasurementSet& thems, const RecordInterface& 
 
 }
 
+void VisModelData::putModel(const MeasurementSet& thems,const RecordInterface& rec, const Matrix<Int>& indexComb, const Matrix<Int>& chanSel,Bool iscomponentlist, Bool incremental){
+	LogIO logio;
 
+  try{
+	    //A field can have multiple FTmachines and ComponentList associated with it 
+    //For example having many flanking images for the model
+    //For componentlist it may have multiple componentlist ...for different spw
+  //Timer tim;
+  //tim.mark();
+    Int counter=0;
+    Record modrec;
+	modrec.define("version", Int(2));
+	Vector<Int> validfieldids;
+	validfieldids=indexComb.column(0);
+	Int nfields=GenSort<Int>::sort (validfieldids, Sort::Ascending, 
+									Sort::QuickSort|Sort::NoDuplicates);
+	validfieldids.resize(nfields, True);
+    modrec.define("indexcombination", indexComb);
+    modrec.define("channelselection", chanSel);
+    modrec.defineRecord("container", rec);
+    String elkey="model";
+    for (uInt k=0; k < validfieldids.nelements();  ++k){
+      elkey=elkey+"_"+String::toString(validfieldids[k]);
+    }
+    TableRecord outRec; 
+    Bool addtorec=false;
+    MeasurementSet& newTab=const_cast<MeasurementSet& >(thems);
+    //cerr << elkey << " incr " << incremental << endl;
+    if(isModelDefined(elkey, newTab)){ 
+      getModelRecord(elkey, outRec, thems);
+      //if incremental no need to check & remove what is in the record
+      if(!incremental)
+	addtorec=addToRec(outRec, indexComb);
+      //cerr << "addToRec " << addtorec << endl;
+    }
+    else{
+      ///////even if it is not defined some other field model might be sitting on that
+      //////model key
+      Int hasSourceRecord=firstSourceRowRecord(validfieldids[0], thems, outRec);
+      if(hasSourceRecord > -1 && outRec.nfields() > 0)
+	addtorec=true;
+      //cerr << "has Source " << hasSourceRecord << " addToRec " << addtorec << endl;
+      ////
+    }
+    if(outRec.nfields() >0 && ((!outRec.isDefined("version")) || (outRec.asInt("version") !=2)))
+		throw(AipsError("cannot combine with older version virtual model column;\n please clear it before proceeding"));
+	outRec.define("version", Int(2));
+    incremental=incremental || addtorec;
+    if(iscomponentlist){
+      modrec.define("type", "componentlist");
+      if(outRec.isDefined("numcl"))
+	counter=incremental ? outRec.asInt("numcl") : 0;
+            
+    }
+    else{
+      modrec.define("type", "ftmachine");
+      if(outRec.isDefined("numft"))
+	counter=incremental ? outRec.asInt("numft") : 0;
+    }
+    iscomponentlist ? outRec.define("numcl", counter+1) : outRec.define("numft", counter+1); 
+  
+    //for (uInt k=0; k < validfieldids.nelements();  ++k){
+    //  newTab.rwKeywordSet().define("definedmodel_field_"+String::toString(validfieldids[k]), elkey);
+    
+    // }
+    iscomponentlist ? outRec.defineRecord("cl_"+String::toString(counter), modrec):
+      outRec.defineRecord("ft_"+String::toString(counter), modrec);
+    //////////////////;
+    //for (uInt k=0; k < newTab.rwKeywordSet().nfields() ; ++k){
+    //  cerr << "keys " << k << "  is  " << newTab.rwKeywordSet().name(k) << " type " << newTab.rwKeywordSet().dataType(k) << endl;
+    //}
+    ////////////////////////
+    //if image for a given key is on disk and not incrementing ...lets remove it
+    if(!incremental) 
+      deleteDiskImage(newTab, elkey);
+    putModelRecord(validfieldids, outRec, newTab);  
+    
+  }
+  catch(...){
+    logio << "Could not save virtual model data for some reason \nYou may need clear the model and redo or  use the scratch column if you need model visibilities" << LogIO::WARN << LogIO::POST ;
+    
+  }
+	
+}
 void VisModelData::addModel(const RecordInterface& rec,  const Vector<Int>& /*msids*/, const vi::VisBuffer2& vb)
 {
 
@@ -980,10 +1168,213 @@ void VisModelData::modifyDiskImagePath(Record& rec, const VisBuffer& vb){
 	   return getModelVis(vba);
 
   }
+  void VisModelData::getMatchingMachines(Vector<CountedPtr<FTMachine> >& ft, Vector<CountedPtr<ComponentList> >& cl, const VisBuffer& vb){
+    if(isVersion2()){
+      Vector<Vector<Int> > combindx;
+      getUniqueIndicesComb(vb, combindx);
+      if(combindx.nelements() != 1)
+	throw(AipsError("Cannot deal with multiple intent per visbuffer "));
+      std::vector<Int> indexInBuf=combindx[0].tovector();
+      indexInBuf.push_back(vb.msId());
+      auto itFTMap = ftindex2_p.find(indexInBuf);
+      if(itFTMap != ftindex2_p.end() ) {
+	if((itFTMap->second) < 0){
+	  ft.resize(0);
+	}
+	else{
+	  ft=ftholder_p[itFTMap->second];
+	}
+      }
+      auto itCLMap = clindex2_p.find(indexInBuf);
+      if(itCLMap != clindex2_p.end() ) {
+	if((itCLMap->second)< 0){
+	  cl.resize(0);
+	}
+	else{
+	  cl=clholder_p[itCLMap->second];
+	}
+      }
+      ///Now let's deal with a key that has not been visited before
+      if((itCLMap == clindex2_p.end()) && (itFTMap == ftindex2_p.end() )){
+	cerr << "no matching holder " <<  Vector<Int>(indexInBuf) << " num of cl " << clholder_p.nelements() << endl;
+	updateHolders(vb, indexInBuf);
+	getMatchingMachines(ft, cl, vb);
+		  
+      }
+    }
+    else{
+      cl=getCL(vb.msId(), vb.fieldId(), vb.spectralWindow());
+      ft=getFT(vb.msId(), vb.fieldId(), vb.spectralWindow());
+
+    }
+    return;
+	  
+  }
+  void VisModelData::updateHolders(const VisBuffer& vb, const std::vector<Int>& indexInBuf){
+	  Int fieldId=vb.fieldId();
+	  const MeasurementSet& thems= (vb.getVisibilityIterator())->ms();
+	  Int snum=-1;
+	  Bool hasmodkey=False;
+	  String modelkey;
+	  hasmodkey=isModelDefined(fieldId, thems, modelkey, snum);
+	  if(!hasmodkey){
+		  clindex2_p[indexInBuf]=-1;
+		  ftindex2_p[indexInBuf]=-1;
+		  return;
+	  }
+	   //if we have already filled for this field
+	 for (auto it=ftindex2_p.begin(); it != ftindex2_p.end(); ++it){
+	    //  cerr << Vector<Int>(it->first) << "   val " << it->second << endl;
+	   if((it->first)[0]==fieldId){
+	     clindex2_p[indexInBuf]=-2;
+	     ftindex2_p[indexInBuf]=-2;
+	     return;
+	   }
+	     
+	 } 
+	  //We do have this key
+	  TableRecord therec;
+	  getModelRecord(modelkey, therec, thems);
+	  if(!therec.isDefined("version") || (therec.asInt("version")!=2)){
+		///Set something versioning so as it can go to do version 1 way 
+		version_p=1;
+		clindex2_p[indexInBuf]=-1;
+		ftindex2_p[indexInBuf]=-1;
+		return;
+	  }
+	  else{
+		version_p=2;
+		Int indexft=-1;
+		if(therec.isDefined("numft")){
+		Int numft=therec.asInt("numft");
+		if(numft >0){
+		for(Int ftk=0; ftk < numft; ++ftk){
+		Record ftrec(therec.asRecord("ft_"+String::toString(ftk)));
+		modifyDiskImagePath(ftrec, vb);
+		const Matrix<Int>& ftcombind=ftrec.asArrayInt("indexcombination");
+	  
+	    indexft=ftholder_p.nelements();
+	    ftholder_p.resize(indexft+1, false, true);
+	    ftholder_p[indexft].resize(1);
+	    ftholder_p[indexft][0]=NEW_FT(ftrec.asRecord("container"));
+	    if(!( ftholder_p[indexft][0]))
+	      throw(AipsError("Unsupported FTMachine found in virtual MODEL_DATA column")); 
+	    ftholder_p[indexft][0]->initMaps(vb);
+	    for(uInt row=0; row < ftcombind.nrow(); ++row){
+			std::vector<int> key=ftcombind.row(row).tovector();
+			key.push_back(int(vb.msId()));
+			if(ftindex2_p.count(key) >0){
+				Int numftforkey=ftholder_p[ftindex2_p[key]].nelements();
+				Int indx=ftindex2_p[key];
+				Bool alreadyAdded=false;
+				for (Int kk=1; kk < numftforkey; ++kk){
+					alreadyAdded= alreadyAdded || (ftholder_p[indexft][0]==ftholder_p[indx][kk]);
+				}
+				if(!alreadyAdded){
+					ftholder_p[indx].resize(numftforkey+1, true);
+					ftholder_p[indx][numftforkey]=ftholder_p[indexft][0];
+				}
+			}
+			else{
+				ftindex2_p[key]=indexft;
+			}
+		}
+		
+		}
+	    }
+		}
+	    if(ftindex2_p.count(indexInBuf)==0)
+			ftindex2_p[indexInBuf]=-2;
+	    
+		Int indexcl=-1;
+		if(therec.isDefined("numcl")){
+		Int numcl=therec.asInt("numcl");
+		if(numcl >0){
+		for(Int clk=0; clk < numcl; ++clk){
+	  
+		Record clrec(therec.asRecord("cl_"+String::toString(clk)));
+		const Matrix<Int>& clcombind=clrec.asArrayInt("indexcombination");
+	  
+	  
+	    indexcl=clholder_p.nelements();
+	    clholder_p.resize(indexcl+1, false, true);
+	    clholder_p[indexcl].resize(1);
+	    clholder_p[indexcl][0]=new ComponentList();
+	    String err;
+	    if(!((clholder_p[indexcl][0])->fromRecord(err, clrec.asRecord("container"))))
+	      throw(AipsError("Component model failed to load for field "+String::toString(clcombind.column(0))));
+		for(uInt row=0; row < clcombind.nrow(); ++row){
+			std::vector<int> key=clcombind.row(row).tovector();
+			key.push_back(int(vb.msId()));
+			if(clindex2_p.count(key) >0){
+				Int numclforkey=clholder_p[clindex2_p[key]].nelements();
+				Int indx=clindex2_p[key];
+				Bool alreadyAdded=false;
+				for (Int kk=1; kk < numclforkey; ++kk){
+					alreadyAdded= alreadyAdded || (clholder_p[indexcl][0]==clholder_p[indx][kk]);
+				}
+				if(!alreadyAdded){
+					clholder_p[indx].resize(numclforkey+1, true);
+					clholder_p[indx][numclforkey]=clholder_p[indexcl][0];
+				}
+			}
+			else{
+				clindex2_p[key]=indexcl;
+			}
+		}
+		
+		}
+	    }
+		}
+		if(clindex2_p.count(indexInBuf)==0)
+			clindex2_p[indexInBuf]=-2;
+	  }
+  }
+
+  void VisModelData::init(const VisBuffer& vb){
+    if(version_p < 1){
+      updateHolders(vb, std::vector<Int>({vb.fieldId(), vb.spectralWindow(), vb.scan()(0), vb.stateId()(0), vb.msId()}));
+
+    }
+
+  }
+  
+  void VisModelData::getUniqueIndicesComb(const VisBuffer& vb, Vector< Vector<Int> >& retval){
+	   const Vector<Int>& state = vb.stateId();
+	   const Vector<Int>& scan=vb.scan();
+	   const Vector<Double>& t=vb.time();
+	   Int fldid=vb.fieldId();
+	   Int spwid=vb.spectralWindow();
+	   Vector<uInt>  uniqIndx;
+	   uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, t, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
+	   Vector<Int> comb(4);
+	   comb(0)=fldid;
+	   comb(1)=spwid;
+	   for (uInt k=0; k < nTimes; ++k){
+		   comb(2)=scan(uniqIndx[k]);
+		   comb(3)=state(uniqIndx[k]);
+		   Bool hasComb=False;
+		   if(retval.nelements() >0){
+			   for (uInt j=0; j < retval.nelements(); ++j){
+				if(allEQ(retval[j], comb))
+					hasComb=True;
+			   }
+				   
+		    }
+		    if(!hasComb){
+			  retval.resize(retval.nelements()+1, True);
+			  retval[retval.nelements()-1]=comb;
+			}
+	   }
+	   
+   }
   Bool VisModelData::getModelVis(VisBuffer& vb){
 
-    Vector<CountedPtr<ComponentList> >cl=getCL(vb.msId(), vb.fieldId(), vb.spectralWindow());
-    Vector<CountedPtr<FTMachine> > ft=getFT(vb.msId(), vb.fieldId(), vb.spectralWindow());
+    //Vector<CountedPtr<ComponentList> >cl=getCL(vb.msId(), vb.fieldId(), vb.spectralWindow());
+    //Vector<CountedPtr<FTMachine> > ft=getFT(vb.msId(), vb.fieldId(), vb.spectralWindow());
+	Vector<CountedPtr<ComponentList> >cl(0);
+	Vector<CountedPtr<FTMachine> > ft(0);
+	getMatchingMachines(ft, cl, vb);
     //Fill the buffer with 0.0; also prevents reading from disk if MODEL_DATA exists
     ///Oh boy this is really dangerous...
     //nCorr etc are public..who know who changed these values before reaching here.

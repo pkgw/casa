@@ -56,7 +56,7 @@ int main() {
 		Vector<Int> axes(2);
 		axes[0] = 0;
 		axes[1] = 1;
-		ImageStatsCalculator calculator(fits, 0, "", false);
+		ImageStatsCalculator<Float> calculator(fits, 0, "", false);
 		calculator.setAxes(axes);
 		Record statsOut = calculator.statistics();
 		Vector<Int> got;

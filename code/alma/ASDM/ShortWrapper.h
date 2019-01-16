@@ -25,11 +25,9 @@
  */
 # ifndef Short_CLASS
 # define Short_CLASS
-#include <NumberFormatException.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <string>
-
-using std::string;
 
 namespace asdm {
 /**
@@ -43,14 +41,14 @@ public:
  	 * A collection of static methods to perform conversions
  	 * between strings and short integer values.
 	 */
-	static short parseShort(const string &s) throw (NumberFormatException);
+	static short parseShort(const std::string &s) throw (NumberFormatException);
 
 	/**
 	 * Encode a short integer value into its string representation.
 	 * @param s the short integer value to be encoded.
 	 * @return the string representing the short integer value passed as parameter.
 	 */
-	static string toString(short s);
+	static std::string toString(short s);
 
      /**
 	  * The minimum value for a short integer.

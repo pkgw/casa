@@ -49,6 +49,7 @@
 #include <images/Images/SubImage.h>
 #include <images/Regions/ImageRegion.h>
 
+#include <imageanalysis/ImageAnalysis/CasaImageBeamSet.h>
 #include <synthesis/ImagerObjects/SynthesisDeconvolver.h>
 
 #include <sys/types.h>
@@ -81,6 +82,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
         LogIO os( LogOrigin("SynthesisDeconvolver","descructor",WHERE) );
 	os << LogIO::DEBUG1 << "SynthesisDeconvolver destroyed" << LogIO::POST;
+	SynthesisUtilMethods::getResource("End SynthesisDeconvolver");
+
   }
 
   void SynthesisDeconvolver::setupDeconvolution(const SynthesisParamsDeconv& decpars)
@@ -141,6 +144,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	// Set restoring beam options
 	itsDeconvolver->setRestoringBeam( decpars.restoringbeam, decpars.usebeam );
+        itsUseBeam = decpars.usebeam;// store this info also here.
 
 	// Set Masking options
 	//	itsDeconvolver->setMaskOptions( decpars.maskType );
@@ -197,6 +201,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         itsDoGrowPrune = decpars.doGrowPrune;
         itsMinPercentChange = decpars.minPercentChange;
         itsVerbose = decpars.verbose;
+        itsFastNoise = decpars.fastnoise;
 	itsIsInteractive = decpars.interactive;
         itsNsigma = decpars.nsigma;
       }
@@ -244,16 +249,36 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       itsLoopController.setMaxPsfSidelobe( itsImages->getPSFSidelobeLevel() );
 
       //re-calculate current nsigma threhold
-      Array<Double> robustrms = itsImages->calcRobustRMS();
-      // Before the first iteration the iteration parameters have not been
-      // set in SIMinorCycleController
-      // Use nsigma pass to SynthesisDeconvolver directly for now...
-      //Float nsigma = itsLoopController.getNsigma();
-      Double maxrobustrms = max(robustrms);
-      //Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
-      Float nsigmathresh = itsNsigma * (Float)maxrobustrms;
-      if (itsNsigma>0.0 ) os << "Current nsigma threshold (maximum along spectral channels) ="<<nsigmathresh<<LogIO::POST;
+      //os<<"Calling calcRobustRMS ....syndeconv."<<LogIO::POST;
+      Float nsigmathresh = 0.0;
+      Bool useautomask = ( itsAutoMaskAlgorithm=="multithresh" ? true : false);
+      if (itsNsigma >0.0) {
+        itsMaskHandler->setPBMaskLevel(itsPBMask);
+        Array<Double> medians;
+        Array<Double> robustrms = itsImages->calcRobustRMS(medians, itsPBMask, itsFastNoise);
+        // Before the first iteration the iteration parameters have not been
+        // set in SIMinorCycleController
+        // Use nsigma pass to SynthesisDeconvolver directly for now...
+        //Float nsigma = itsLoopController.getNsigma();
+        Double minval, maxval;
+        IPosition minpos, maxpos;
+        //Double maxrobustrms = max(robustrms);
+        minMax(minval, maxval, minpos, maxpos, robustrms);
+        
+        //Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0));
+        //nsigmathresh = itsNsigma * (Float)maxrobustrms;
+        String msg="";
+        if (useautomask) {
+          nsigmathresh = (Float)(medians(maxpos)) + itsNsigma * (Float)maxval;
+          msg+=" (nsigma*rms + median)";
+        }
+        else {
+          nsigmathresh = itsNsigma * (Float)maxval;
+        }
+        os << "Current nsigma threshold (maximum along spectral channels ) ="<<nsigmathresh<< msg <<LogIO::POST;
+      }
       itsLoopController.setNsigmaThreshold(nsigmathresh);
+      itsLoopController.setPBMask(itsPBMask);
 
 
       if ( itsAutoMaskAlgorithm=="multithresh" && !initializeChanMaskFlag ) {
@@ -373,8 +398,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     try {
       //      if ( !itsIsInteractive ) setAutoMask();
       itsLoopController.setCycleControls(minorCycleControlRec);
-
-      itsDeconvolver->deconvolve( itsLoopController, itsImages, itsDeconvolverId );
+      bool automaskon (false);
+      if (itsAutoMaskAlgorithm=="multithresh") {
+        automaskon=true;
+      }
+      itsDeconvolver->deconvolve( itsLoopController, itsImages, itsDeconvolverId, automaskon, itsFastNoise );
       returnRecord = itsLoopController.getCycleExecutionRecord();
 
       //scatterModel(); // This is a no-op for the single-node case.
@@ -428,9 +456,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   ////    Internal Functions start here.  These are not visible to the tool layer.
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  SHARED_PTR<SIImageStore> SynthesisDeconvolver::makeImageStore( String imagename )
+  std::shared_ptr<SIImageStore> SynthesisDeconvolver::makeImageStore( String imagename )
   {
-    SHARED_PTR<SIImageStore> imstore;
+    std::shared_ptr<SIImageStore> imstore;
     if( itsDeconvolver->getAlgorithmName() == "mtmfs" )
       {  imstore.reset( new SIImageStoreMultiTerm( imagename, itsDeconvolver->getNTaylorTerms(), true ) ); }
     else
@@ -477,6 +505,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     LogIO os( LogOrigin("SynthesisDeconvolver","setupMask",WHERE) );
     Bool maskchanged=False;
+    //debug
     if( itsIsMaskLoaded==false ) {
       // use mask(s) 
       if(  itsMaskList[0] != "" || itsMaskType == "pb" || itsAutoMaskAlgorithm != "" ) {
@@ -501,7 +530,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
           itsMaskHandler->fillMask( itsImages, itsMaskList);
           if( itsPBMask > 0.0 ) {  
-            itsMaskHandler->makePBMask(itsImages, itsPBMask);
+            itsMaskHandler->makePBMask(itsImages, itsPBMask, True);
           }
         }
         else if( itsMaskType=="pb") {
@@ -513,7 +542,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       } else {
 
-	if( ! itsImages->hasMask() ) // i.e. if there is no existing mask to re-use...
+        // new im statistics creates an empty mask and need to take care of that case 
+        Bool emptyMask(False);
+        if( itsImages->hasMask() ) 
+          {
+            if (itsImages->getMaskSum()==0.0) {
+              emptyMask=True;
+            }
+          }
+	if( ! itsImages->hasMask() || emptyMask ) // i.e. if there is no existing mask to re-use...
 	  {
 	    if( itsIsInteractive ) itsImages->mask()->set(0.0);
 	    else itsImages->mask()->set(1.0);
@@ -563,14 +600,40 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        //os << "itsMinPercentChnage = " << itsMinPercentChange<< LogIO::POST;
 
        if ( itsPBMask > 0.0 ) {
-         itsMaskHandler->autoMaskWithinPB( itsImages, itsPosMask, itsIterDone, itsChanFlag, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold,itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, isThresholdReached, itsPBMask);
+         itsMaskHandler->autoMaskWithinPB( itsImages, itsPosMask, itsIterDone, itsChanFlag, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold,itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, itsFastNoise, isThresholdReached, itsPBMask);
        }
        else {
-         itsMaskHandler->autoMask( itsImages, itsPosMask, itsIterDone, itsChanFlag,itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, isThresholdReached );
+         itsMaskHandler->autoMask( itsImages, itsPosMask, itsIterDone, itsChanFlag,itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, itsFastNoise, isThresholdReached );
        }
      }
   }
- 
+
+  // check if restoring beam is reasonable 
+  void SynthesisDeconvolver::checkRestoringBeam() 
+  {
+    LogIO os( LogOrigin("SynthesisDeconvolver","checkRestoringBeam",WHERE) );
+    //check for a bad restoring beam
+    GaussianBeam beam;
+    
+    if( ! itsImages ) itsImages = makeImageStore( itsImageName );
+    ImageInfo psfInfo = itsImages->psf()->imageInfo();
+    if (psfInfo.hasSingleBeam()) {
+      beam = psfInfo.restoringBeam();  
+    }
+    else if (psfInfo.hasMultipleBeams() && itsUseBeam=="common") {
+      beam = CasaImageBeamSet(psfInfo.getBeamSet()).getCommonBeam(); 
+    }
+    Double beammaj = beam.getMajor(Unit("arcsec"));
+    Double beammin = beam.getMinor(Unit("arcsec"));
+    if (std::isinf(beammaj) || std::isinf(beammin)) {
+      String msg;
+      if (itsUseBeam=="common") {
+        msg+="Bad restoring beam using the common beam (at least one of the beam axes has an infinite size)  ";
+        throw(AipsError(msg));
+      }
+    }
+  }
+    
   // This is for interactive-clean.
   void SynthesisDeconvolver::getCopyOfResidualAndMask( TempImage<Float> &/*residual*/,
                                            TempImage<Float> &/*mask*/ )

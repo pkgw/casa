@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -60,12 +60,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file AlmaRadiometer.h
     \brief Generated from model's revision "-1", branch ""
@@ -82,7 +82,7 @@ class SpectralWindowRow;
 
 class AlmaRadiometerRow;
 typedef void (AlmaRadiometerRow::*AlmaRadiometerAttributeFromBin) (EndianIStream& eis);
-typedef void (AlmaRadiometerRow::*AlmaRadiometerAttributeFromText) (const string& s);
+typedef void (AlmaRadiometerRow::*AlmaRadiometerAttributeFromText) (const std::string& s);
 
 /**
  * The AlmaRadiometerRow class is a row of a AlmaRadiometerTable.
@@ -194,21 +194,21 @@ public:
 	
  	/**
  	 * Get spectralWindowId, which is optional.
- 	 * @return spectralWindowId as vector<Tag> 
+ 	 * @return spectralWindowId as std::vector<Tag> 
  	 * @throws IllegalAccessException If spectralWindowId does not exist.
  	 */
- 	vector<Tag>  getSpectralWindowId() const;
+ 	std::vector<Tag>  getSpectralWindowId() const;
 	
  
  	
  	
  	/**
- 	 * Set spectralWindowId with the specified vector<Tag> .
- 	 * @param spectralWindowId The vector<Tag>  value to which spectralWindowId is to be set.
+ 	 * Set spectralWindowId with the specified std::vector<Tag> .
+ 	 * @param spectralWindowId The std::vector<Tag>  value to which spectralWindowId is to be set.
  	 
  		
  	 */
- 	void setSpectralWindowId (vector<Tag>  spectralWindowId);
+ 	void setSpectralWindowId (std::vector<Tag>  spectralWindowId);
 		
 	
 	
@@ -248,7 +248,7 @@ public:
  * Append a vector of Tag to spectralWindowId.
  * @param id an array of Tag to be appended to spectralWindowId
  */
- void addSpectralWindowId(const vector<Tag> & id); 
+ void addSpectralWindowId(const std::vector<Tag> & id); 
  
 
  /**
@@ -271,7 +271,7 @@ public:
   * Returns the vector of SpectralWindowRow* linked to this row via the Tags stored in spectralWindowId
   * @return an array of pointers on SpectralWindowRow.
   */
- vector<SpectralWindowRow *> getSpectralWindowsUsingSpectralWindowId(); 
+ std::vector<SpectralWindowRow *> getSpectralWindowsUsingSpectralWindowId(); 
   
 
 	
@@ -456,7 +456,7 @@ private:
 	bool spectralWindowIdExists;
 	
 
-	vector<Tag>  spectralWindowId;
+	std::vector<Tag>  spectralWindowId;
 
 	
 	
@@ -490,14 +490,14 @@ void spectralWindowIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, AlmaRadiometerAttributeFromText> fromTextMethods;
 	
-void almaRadiometerIdFromText (const string & s);
+void almaRadiometerIdFromText (const std::string & s);
 	
 
 	
-void numAntennaFromText (const string & s);
+void numAntennaFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
 	

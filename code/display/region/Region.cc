@@ -94,7 +94,7 @@ namespace casa {
 			return ls == region::SolidLine ? AnnotationBase::SOLID : ls == region::DotLine ? AnnotationBase::DOTTED : AnnotationBase::DASHED;
 		}
 
-		SHARED_PTR<Region> Region::creating_region;
+		std::shared_ptr<Region> Region::creating_region;
 
 
 		Region::Region( const std::string &name, WorldCanvas *wc,  QtRegionDock *d,
@@ -690,7 +690,7 @@ namespace casa {
 
 
 		void Region::updateCenterInfo() {
-			std::list<SHARED_PTR<RegionInfo> > *rc = generate_dds_centers( );
+			std::list<std::shared_ptr<RegionInfo> > *rc = generate_dds_centers( );
 			mystate->updateCenters(rc);
 
 			// set the background to standard color which is some kind of grey
@@ -719,7 +719,7 @@ namespace casa {
 
 		void Region::reload_statistics_event( ) {
 			statistics_update_needed = false;
-			std::list<SHARED_PTR<RegionInfo> > *rl = generate_dds_statistics( );
+			std::list<std::shared_ptr<RegionInfo> > *rl = generate_dds_statistics( );
 			// send statistics to region state object...
 			mystate->updateStatistics(rl);
 			delete rl;
@@ -790,9 +790,9 @@ namespace casa {
 		bool Region::doubleClick( double /*x*/, double /*y*/ ) {
 			int output_count = 0;
 			const char buf[ ] = "---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----\n";
-			std::list<SHARED_PTR<RegionInfo> > *info = generate_dds_statistics( );
-			for ( std::list<SHARED_PTR<RegionInfo> >::iterator iter = info->begin( ); iter != info->end( ); ++iter ) {
-				SHARED_PTR<RegionInfo::stats_t> stats = (*iter)->list( );
+			std::list<std::shared_ptr<RegionInfo> > *info = generate_dds_statistics( );
+			for ( std::list<std::shared_ptr<RegionInfo> >::iterator iter = info->begin( ); iter != info->end( ); ++iter ) {
+				std::shared_ptr<RegionInfo::stats_t> stats = (*iter)->list( );
 
 				if ( ! stats ) continue;
 
@@ -2068,7 +2068,7 @@ namespace casa {
 			return MDirection::EXTRA;
 		}
 
-		RegionInfo::center_t *Region::getLayerCenter( PrincipalAxesDD *padd, SHARED_PTR<ImageInterface<Float> > image, ImageRegion& imgReg) {
+		RegionInfo::center_t *Region::getLayerCenter( PrincipalAxesDD *padd, std::shared_ptr<ImageInterface<Float> > image, ImageRegion& imgReg) {
 			if( image==0 || padd == 0 ) return 0;
 
 			try {
@@ -2153,7 +2153,7 @@ namespace casa {
 				}
 
 				Record *rec = new Record(imgReg.toRecord(""));
-				ImageFitter fitter(image, "", rec);
+				ImageFitter<Float> fitter(image, "", rec);
 				Array<Float> medVals;
 
 				// add a sky component to the fit
@@ -2352,7 +2352,7 @@ namespace casa {
 					return layercenter;
 				}
 
-				SHARED_PTR<LogIO> log(new LogIO());
+				std::shared_ptr<LogIO> log(new LogIO());
 				LogOrigin origin("Region", __FUNCTION__);;
 				*log << origin << LogIO::NORMAL << "Centering results:" << LogIO::POST;
 				for (RegionInfo::center_t::iterator it=layercenter->begin() ; it != layercenter->end(); it++ ) {
@@ -2496,7 +2496,7 @@ namespace casa {
 						if (padd==0) {
 							continue;
 						}
-						SHARED_PTR<ImageInterface<float> > image(padd->imageinterface());
+						std::shared_ptr<ImageInterface<float> > image(padd->imageinterface());
 						if ( image.get() != NULL ) {
 							histogram->addImage( image );
 							histogram->setImageRegion( image->name(true).c_str(), region, id_);
@@ -2507,8 +2507,8 @@ namespace casa {
 		}
 
 
-		std::list<SHARED_PTR<RegionInfo> > *Region::generate_dds_statistics(  ) {
-			std::list<SHARED_PTR<RegionInfo> > *region_statistics = new std::list<SHARED_PTR<RegionInfo> >( );
+		std::list<std::shared_ptr<RegionInfo> > *Region::generate_dds_statistics(  ) {
+			std::list<std::shared_ptr<RegionInfo> > *region_statistics = new std::list<std::shared_ptr<RegionInfo> >( );
 			if( wc_==0 ){
 				return region_statistics;
 			}
@@ -2521,7 +2521,7 @@ namespace casa {
 			DisplayData *dd = 0;
 			const std::list<DisplayData*> &dds = wc_->displaylist( );
 			ImageRegion_state imageregion_state = get_image_selected_region( wc_->csMaster( ) );
-			SHARED_PTR<ImageRegion> imageregion = imageregion_state;
+			std::shared_ptr<ImageRegion> imageregion = imageregion_state;
 			char region_component_count[128];
 			sprintf( region_component_count, "%lu", imageregion_state.regionCount( ) );
 
@@ -2537,7 +2537,7 @@ namespace casa {
 
 				try {
 
-					SHARED_PTR<ImageInterface<Float> > image ( padd->imageinterface( ));
+					std::shared_ptr<ImageInterface<Float> > image ( padd->imageinterface( ));
 					if ( ! image ){
 						continue;
 					}
@@ -2551,13 +2551,13 @@ namespace casa {
 					if ( name_ == "polyline" ) {
 						RegionInfo *info = newInfoObject( image.get(), padd );
 						if ( info ){
-							region_statistics->push_back( SHARED_PTR<RegionInfo>(info));
+							region_statistics->push_back( std::shared_ptr<RegionInfo>(info));
 						}
 					} else if ( name_ == "p/v line" ) {
 
 						get_image_region( dd );
 						RegionInfo *info = newInfoObject( image.get(), padd );
-						if ( info ) region_statistics->push_back( SHARED_PTR<RegionInfo>(info) );
+						if ( info ) region_statistics->push_back( std::shared_ptr<RegionInfo>(info) );
 
 					} else {
 
@@ -2568,7 +2568,7 @@ namespace casa {
 						RegionInfo::stats_t *dd_stats = getLayerStats(padd,image.get(),*imageregion);
 						if ( dd_stats ) {
 							dd_stats->push_back(std::pair<String,String>("region count",region_component_count));
-							region_statistics->push_back(SHARED_PTR<RegionInfo>(new ImageRegionInfo( image->name(true), image->name(false), dd_stats)));
+							region_statistics->push_back(std::shared_ptr<RegionInfo>(new ImageRegionInfo( image->name(true), image->name(false), dd_stats)));
 						}
 					}
 				} catch (const casacore::AipsError& err) {

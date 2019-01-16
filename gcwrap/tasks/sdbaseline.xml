@@ -114,7 +114,7 @@ pipeline processing for huge dataset.
 
     <param type="intArray" name="edge" subparam="true">
         <description>channels to drop at beginning and end of spectrum</description>
-        <value type="vector"><value>0</value><value>0</value></value>
+        <value type="intArray"><value>0</value><value>0</value></value>
     </param>
 
     <param type="string" name="blmode" ignorecase="true">
@@ -195,12 +195,12 @@ pipeline processing for huge dataset.
 
     <param type="any" name="addwn" subparam="true">
         <description>additional wave numbers to use</description>
-        <value type="vector"><value>0</value></value>
+        <value type="intArray"><value>0</value></value>
     </param>
 
     <param type="any" name="rejwn" subparam="true">
         <description>wave numbers NOT to use</description>
-        <value type="vector"><value></value></value>
+        <value type="intArray"/>
     </param>
 
     <param type="double" name="clipthresh" subparam="true">
@@ -287,8 +287,8 @@ pipeline processing for huge dataset.
                         <default param="applyfft"><value>True</value></default>
                         <default param="fftmethod"><value type="string">fft</value></default>
                         <default param="fftthresh"><value type="double">3.0</value></default>
-                        <default param="addwn"><value type="vector"><value>0</value></value></default>
-                        <default param="rejwn"><value type="vector"><value></value></value></default>
+                        <default param="addwn"><value type="intArray"><value>0</value></value></default>
+                        <default param="rejwn"><value type="intArray"/></default>
                         <default param="clipthresh"><value>3.0</value></default>
                         <default param="clipniter"><value>0</value></default>
                 </equals> 

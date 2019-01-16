@@ -333,7 +333,7 @@ VisBufferAsync::clear ()
 }
 
 VisBuffer *
-VisBufferAsync::clone ()
+VisBufferAsync::clone () const
 {
     return new VisBufferAsync (* this);
 }

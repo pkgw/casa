@@ -33,7 +33,7 @@
  * File CBaselineReferenceCode.cpp
  */
 #include <sstream>
-#include <CBaselineReferenceCode.h>
+#include <alma/Enumerations/CBaselineReferenceCode.h>
 #include <string>
 using namespace std;
 

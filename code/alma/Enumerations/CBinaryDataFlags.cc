@@ -33,7 +33,7 @@
  * File CBinaryDataFlags.cpp
  */
 #include <sstream>
-#include <CBinaryDataFlags.h>
+#include <alma/Enumerations/CBinaryDataFlags.h>
 #include <string>
 using namespace std;
 

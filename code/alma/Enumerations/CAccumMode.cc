@@ -33,7 +33,7 @@
  * File CAccumMode.cpp
  */
 #include <sstream>
-#include <CAccumMode.h>
+#include <alma/Enumerations/CAccumMode.h>
 #include <string>
 using namespace std;
 

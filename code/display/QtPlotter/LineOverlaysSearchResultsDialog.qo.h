@@ -47,7 +47,7 @@ namespace casa {
 		void getLines( QList<float>& peaks, QList<float>& centers,
 		               QString& molecularName, QList<QString>& chemicalNames,
 		               QList<QString>& resolvedQNs, QString& frequencyUnit ) const;
-		void displaySearchResults( const vector<SplatResult>& results, int offset,
+		void displaySearchResults( const std::vector<SplatResult>& results, int offset,
 		                           int totalCount);
 		int getLineCount() const;
 		~LineOverlaysSearchResultsDialog();

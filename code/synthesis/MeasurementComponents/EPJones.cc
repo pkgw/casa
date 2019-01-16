@@ -61,7 +61,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     VisMueller(vs),
     SolvableVisJones(vs),
     pointPar_(),
-    ms_p(0), vs_p(&vs),
+    /*ms_p(0), */ vs_p(&vs),
     maxTimePerSolution(0), minTimePerSolution(10000000), avgTimePerSolution(0),
     timer(), polMap_p(), tolerance_p(1e-9), gain_p(0.01), niter_p(250)
   {
@@ -71,12 +71,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //   ms_p = new MeasurementSet(msName);
     setParType(VisCalEnum::REAL);
   }
-  EPJones::EPJones(VisSet& vs, MeasurementSet& ms) :
+  EPJones::EPJones(VisSet& vs, MeasurementSet&) :
     VisCal(vs), 
     VisMueller(vs),
     SolvableVisJones(vs),
     pointPar_(),
-    ms_p(&ms), vs_p(&vs),
+    /* ms_p(&ms),*/ vs_p(&vs),
     maxTimePerSolution(0), minTimePerSolution(10000000), avgTimePerSolution(0),
     timer(), polMap_p(), tolerance_p(1e-12), gain_p(0.01), niter_p(500)
   {

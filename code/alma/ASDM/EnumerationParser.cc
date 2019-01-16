@@ -33,14 +33,150 @@
  * File EnumerationParser.cpp
  */
  
- #include "EnumerationParser.h"
+ #include <alma/ASDM/EnumerationParser.h>
  #include <sstream>
  #include <stdlib.h> // for atoi()
  #include <errno.h>  // to detect exception raised by atoi.
  using namespace std;
  
  using namespace asdm;
- 
+
+
+ using namespace ReceiverBandMod;
+
+ using namespace SBTypeMod;
+
+ using namespace DirectionReferenceCodeMod;
+
+ using namespace CorrelationModeMod;
+
+ using namespace AtmPhaseCorrectionMod;
+
+ using namespace ProcessorTypeMod;
+
+ using namespace SpectralResolutionTypeMod;
+
+ using namespace CalibrationDeviceMod;
+
+ using namespace AntennaMakeMod;
+
+ using namespace AntennaTypeMod;
+
+ using namespace SourceModelMod;
+
+ using namespace FrequencyReferenceCodeMod;
+
+ using namespace StokesParameterMod;
+
+ using namespace RadialVelocityReferenceCodeMod;
+
+ using namespace DopplerReferenceCodeMod;
+
+ using namespace PolarizationTypeMod;
+
+ using namespace BasebandNameMod;
+
+ using namespace NetSidebandMod;
+
+ using namespace SidebandProcessingModeMod;
+
+ using namespace WindowFunctionMod;
+
+ using namespace CorrelationBitMod;
+
+ using namespace ReceiverSidebandMod;
+
+ using namespace ProcessorSubTypeMod;
+
+ using namespace AccumModeMod;
+
+ using namespace AxisNameMod;
+
+ using namespace FilterModeMod;
+
+ using namespace CorrelatorNameMod;
+
+ using namespace WVRMethodMod;
+
+ using namespace ScanIntentMod;
+
+ using namespace CalDataOriginMod;
+
+ using namespace CalibrationFunctionMod;
+
+ using namespace CalibrationSetMod;
+
+ using namespace AntennaMotionPatternMod;
+
+ using namespace SubscanIntentMod;
+
+ using namespace SwitchingModeMod;
+
+ using namespace CorrelatorCalibrationMod;
+
+ using namespace TimeSamplingMod;
+
+ using namespace CalTypeMod;
+
+ using namespace AssociatedCalNatureMod;
+
+ using namespace InvalidatingConditionMod;
+
+ using namespace PositionMethodMod;
+
+ using namespace PointingModelModeMod;
+
+ using namespace PointingMethodMod;
+
+ using namespace SyscalMethodMod;
+
+ using namespace CalCurveTypeMod;
+
+ using namespace StationTypeMod;
+
+ using namespace DetectorBandTypeMod;
+
+ using namespace FocusMethodMod;
+
+ using namespace HolographyChannelTypeMod;
+
+ using namespace FluxCalibrationMethodMod;
+
+ using namespace PrimaryBeamDescriptionMod;
+
+ using namespace TimeScaleMod;
+
+ using namespace DataScaleMod;
+
+ using namespace WeightTypeMod;
+
+ using namespace DifferenceTypeMod;
+
+ using namespace CalibrationModeMod;
+
+ using namespace AssociatedFieldNatureMod;
+
+ using namespace DataContentMod;
+
+ using namespace PrimitiveDataTypeMod;
+
+ using namespace SchedulerModeMod;
+
+ using namespace FieldCodeMod;
+
+ using namespace ACAPolarizationMod;
+
+ using namespace PositionReferenceCodeMod;
+
+ using namespace BaselineReferenceCodeMod;
+
+ using namespace CorrelatorTypeMod;
+
+ using namespace DopplerTrackingModeMod;
+
+ using namespace SynthProfMod;
+
+
  namespace asdm {
  
  string EnumerationParser::getField(const string &xml, const string &field) {
@@ -3995,6 +4131,286 @@ vector<vector<vector<RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode
 
 
 		
+string EnumerationParser::toXML(const string& elementName, DopplerReferenceCodeMod::DopplerReferenceCode e) {
+	return "<"+elementName+">"+CDopplerReferenceCode::name(e)+"</"+elementName+">";
+}
+
+string EnumerationParser::toXML(const string& elementName, const vector<DopplerReferenceCodeMod::DopplerReferenceCode>& v_e) {
+	ostringstream oss;
+	oss << "<" << elementName << ">" 
+		<< " 1" 
+		<< " " << v_e.size();
+
+	for (unsigned int i = 0; i < v_e.size(); i++) 
+		oss << " " << CDopplerReferenceCode::name(v_e.at(i));
+	oss << "</" << elementName << ">";
+	return oss.str();
+}
+
+string EnumerationParser::toXML(const string& elementName, const vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> >& vv_e) {
+	ostringstream oss;
+	oss << "<" << elementName << ">"  
+		<< " 2"
+		<< " " <<vv_e.size()
+		<< " " <<vv_e.at(0).size();
+		
+	for (unsigned int i = 0; i < vv_e.size(); i++)
+		for (unsigned int j = 0; j < vv_e.at(i).size(); j++) 
+			oss << " " << CDopplerReferenceCode::name(vv_e.at(i).at(j));
+	oss << "</" << elementName << ">";
+	return oss.str();
+}
+
+string EnumerationParser::toXML(const string& elementName, const vector<vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> > >& vvv_e) {
+	ostringstream oss;
+	oss << "<" << elementName << ">"  
+		<< " 3"
+		<< " " <<vvv_e.size()
+		<< " " <<vvv_e.at(0).size()
+		<< " " <<vvv_e.at(0).at(0).size();
+		
+	for (unsigned int i = 0; i < vvv_e.size(); i++)
+		for (unsigned int j = 0; j < vvv_e.at(i).size(); j++)
+			for (unsigned int k = 0; k < vvv_e.at(i).at(j).size(); k++)
+				oss << " " << CDopplerReferenceCode::name(vvv_e.at(i).at(j).at(k));
+	oss << "</" << elementName << ">";
+	return oss.str();
+}
+
+DopplerReferenceCodeMod::DopplerReferenceCode EnumerationParser::getDopplerReferenceCode(const string &name, const string &tableName, const string &xmlDoc) {
+	string s = getField(xmlDoc,name);
+		if (s.length() == 0)
+			throw ConversionException("Error: Missing field \"" + 
+				name + "\" or invalid syntax",tableName);
+				
+	DopplerReferenceCode result;
+	try {
+		result = CDopplerReferenceCode::newDopplerReferenceCode(s);
+	}
+	catch (...) {
+			throw ConversionException("Error: could not convert '"+s+"' into a DopplerReferenceCode.", tableName);
+	}
+	return result;
+}
+
+vector<DopplerReferenceCodeMod::DopplerReferenceCode> EnumerationParser::getDopplerReferenceCode1D(const string &name, const string &tableName, const string &xmlDoc) {
+	vector<DopplerReferenceCodeMod::DopplerReferenceCode>	result;
+	
+	string s = getField(xmlDoc,name);
+		if (s.length() == 0)
+			throw ConversionException("Error: Missing field \"" + 
+				name + "\" or invalid syntax",tableName);
+	
+	istringstream iss;
+	iss.str(s);
+	vector<string> tokens;
+	
+	// Tokenize.
+	string buf;
+	while (iss >> buf) {
+		tokens.push_back(buf);
+	}
+	
+	// The length must be 2 at the minimum (there may be an empty array)
+	if (tokens.size() < 2) 
+		throw ConversionException("Error: missing values in field \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName);
+
+	
+	
+	// The number of dimension should be 1.
+	if (tokens.at(0) != "1")
+		throw ConversionException("Error: wrong dimensionality in field \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName);
+		
+	// Then parse the size of the unique dimension
+	errno = 0;
+	int size1 = atoi(tokens.at(1).c_str());
+	if (errno != 0) throw ConversionException("Error: Field \"" + 
+					name + "\": Invalid XML syntax ('" + s +"')", tableName);
+	
+	if (size1 < 0)
+		throw ConversionException("Error: wrong size for the unique dimension \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName);
+		
+	if (tokens.size() != (unsigned int) (size1 + 2))
+		throw ConversionException("Error: incorrect number of values in field \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName);
+		
+	int k = 2;
+	try {
+		for (unsigned int i = 0 ; i < (unsigned int) size1; i++) {
+			 result.push_back(CDopplerReferenceCode::newDopplerReferenceCode(tokens.at(k).c_str()));
+			 k++;
+		}
+	} 
+	catch (...) {
+			throw ConversionException("Error: in '" + s + "' could not convert '"+tokens.at(k)+"' into a DopplerReferenceCode.", tableName);
+	}
+
+	return result;
+}
+
+vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> > EnumerationParser::getDopplerReferenceCode2D(const string &name, const string &tableName, const string &xmlDoc) {
+	vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> >	result;
+	
+	string s = getField(xmlDoc,name);
+	if (s.length() == 0)
+		throw ConversionException("Error: Missing field \"" + 
+				name + "\" or invalid syntax",tableName);
+	
+	istringstream iss;
+	iss.str(s);
+	vector<string> tokens;
+
+	// Tokenize.
+	string buf;
+	while (iss >> buf) {
+		tokens.push_back(buf);
+	}
+	
+	// The length must be 3 at the minimum (there may be an empty array)
+	if (tokens.size() < 3) 
+		throw ConversionException("Error: missing values in field \"" + 
+				name + "\" or invalid syntax(" + s +"')",tableName);	
+		
+		
+	// The number of dimension should be 2.
+	if (tokens.at(0) != "2")
+		throw ConversionException("Error: wrong dimensionality in field \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName);
+	
+	// Then parse the size of the two dimensions
+	errno = 0;
+	int size1 = atoi(tokens.at(1).c_str());
+	if (errno != 0) throw ConversionException("Error: Field \"" + 
+					name + "\": Invalid XML syntax ('" + s +"')", tableName);
+	
+	if (size1 <= 0)
+		throw ConversionException("Error: wrong size for the first dimension \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName); 
+	errno = 0;
+	int size2 = atoi(tokens.at(2).c_str());
+	if (errno != 0) throw ConversionException("Error: Field \"" + 
+					name + "\": Invalid XML syntax ('" + s +"')", tableName);	
+	
+	if (size2 < 0)
+		throw ConversionException("Error: wrong size for the second dimension \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName); 
+		
+	if (tokens.size() != (unsigned int) (size1*size2 + 3))
+		throw ConversionException("Error: incorrect number of values in field \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName);
+		
+	int k = 3;
+	try {
+		vector<DopplerReferenceCodeMod::DopplerReferenceCode> v_aux;
+		for (unsigned int i = 0; i < (unsigned int) size1; i++) {
+			v_aux.clear();
+			for (unsigned int j = 0; j < (unsigned int) size2; j++) {
+				v_aux.push_back(CDopplerReferenceCode::newDopplerReferenceCode(tokens.at(k).c_str()));
+				k++;
+			}
+			result.push_back(v_aux);
+		}
+	}
+	catch (...) {
+		throw ConversionException("Error: in '" + s + "' could not convert '"+tokens.at(k)+"' into a DopplerReferenceCode.", tableName);
+	}	
+	return result;	
+}
+
+
+vector<vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> > > EnumerationParser::getDopplerReferenceCode3D(const string &name, const string &tableName, const string &xmlDoc) {
+	vector<vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> >	>result;
+		
+	string s = getField(xmlDoc,name);
+	if (s.length() == 0)
+		throw ConversionException("Error: Missing field \"" + 
+				name + "\" or invalid syntax",tableName);
+	
+	istringstream iss;
+	iss.str(s);
+	vector<string> tokens;
+
+	// Tokenize.
+	string buf;
+	while (iss >> buf) {
+		tokens.push_back(buf);
+	}
+	
+	// The length must be 4 at the minimum (there may be an empty array)
+	if (tokens.size() < 4)
+		throw ConversionException("Error: missing values in field \"" + 
+				name + "\" or invalid syntax(" + s +"')",tableName);	 
+
+		
+	// The number of dimension should be 3.
+	if (tokens.at(0) != "3")
+		throw ConversionException("Error: wrong dimensionality in field \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName);	
+	
+	// Then parse the size of the three dimensions
+	errno = 0;
+	int size1 = atoi(tokens.at(1).c_str());
+	if (errno != 0) throw ConversionException("Error: Field \"" + 
+					name + "\": Invalid XML syntax ('" + s +"')", tableName);	
+	
+	if (size1 <= 0)
+		throw ConversionException("Error: wrong size for the first dimension \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName); 
+
+	errno = 0;		
+	int size2 = atoi(tokens.at(2).c_str());
+	if (errno != 0) throw ConversionException("Error: Field \"" + 
+					name + "\": Invalid XML syntax ('" + s +"')", tableName);	
+	
+	if (size2 <= 0)
+		throw ConversionException("Error: wrong size for the first dimension \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName); 
+
+	errno = 0;
+	int size3 = atoi(tokens.at(3).c_str());
+	if (errno != 0) throw ConversionException("Error: Field \"" + 
+					name + "\": Invalid XML syntax ('" + s +"')", tableName);	
+	
+	
+	if (size3 < 0)
+		throw ConversionException("Error: wrong size for the second dimension \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName); 
+		
+	if (tokens.size() != (unsigned int) (size1*size2*size3 + 4))
+		throw ConversionException("Error: incorrect number of values in field \"" + 
+				name + "\" or invalid syntax('" + s +"')",tableName);
+				
+	int k = 4;
+	try {
+		vector<DopplerReferenceCodeMod::DopplerReferenceCode> v_aux;
+		vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> > vv_aux;	
+		for (unsigned int i = 0; i < (unsigned int) size1; i++) {
+			vv_aux.clear();
+			for (unsigned int j = 0; j < (unsigned int) size2; j++) {
+				v_aux.clear();
+				for (unsigned int l = 0; l < (unsigned int) size3; l++) {
+					v_aux.push_back(CDopplerReferenceCode::newDopplerReferenceCode(tokens.at(k).c_str()));
+					k++;
+				}
+				vv_aux.push_back(v_aux);
+			}
+			result.push_back(vv_aux);
+		}
+	}
+	catch (...) {
+		throw ConversionException("Error:in '" + s + "' could not convert '"+tokens.at(k)+"' into a DopplerReferenceCode.", tableName);
+	}
+	
+	return result;	
+}					
+
+
+
+
+		
 string EnumerationParser::toXML(const string& elementName, PolarizationTypeMod::PolarizationType e) {
 	return "<"+elementName+">"+CPolarizationType::name(e)+"</"+elementName+">";
 }
@@ -5946,286 +6362,6 @@ vector<vector<vector<ReceiverSidebandMod::ReceiverSideband> > > EnumerationParse
 	}
 	catch (...) {
 		throw ConversionException("Error:in '" + s + "' could not convert '"+tokens.at(k)+"' into a ReceiverSideband.", tableName);
-	}
-	
-	return result;	
-}					
-
-
-
-
-		
-string EnumerationParser::toXML(const string& elementName, DopplerReferenceCodeMod::DopplerReferenceCode e) {
-	return "<"+elementName+">"+CDopplerReferenceCode::name(e)+"</"+elementName+">";
-}
-
-string EnumerationParser::toXML(const string& elementName, const vector<DopplerReferenceCodeMod::DopplerReferenceCode>& v_e) {
-	ostringstream oss;
-	oss << "<" << elementName << ">" 
-		<< " 1" 
-		<< " " << v_e.size();
-
-	for (unsigned int i = 0; i < v_e.size(); i++) 
-		oss << " " << CDopplerReferenceCode::name(v_e.at(i));
-	oss << "</" << elementName << ">";
-	return oss.str();
-}
-
-string EnumerationParser::toXML(const string& elementName, const vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> >& vv_e) {
-	ostringstream oss;
-	oss << "<" << elementName << ">"  
-		<< " 2"
-		<< " " <<vv_e.size()
-		<< " " <<vv_e.at(0).size();
-		
-	for (unsigned int i = 0; i < vv_e.size(); i++)
-		for (unsigned int j = 0; j < vv_e.at(i).size(); j++) 
-			oss << " " << CDopplerReferenceCode::name(vv_e.at(i).at(j));
-	oss << "</" << elementName << ">";
-	return oss.str();
-}
-
-string EnumerationParser::toXML(const string& elementName, const vector<vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> > >& vvv_e) {
-	ostringstream oss;
-	oss << "<" << elementName << ">"  
-		<< " 3"
-		<< " " <<vvv_e.size()
-		<< " " <<vvv_e.at(0).size()
-		<< " " <<vvv_e.at(0).at(0).size();
-		
-	for (unsigned int i = 0; i < vvv_e.size(); i++)
-		for (unsigned int j = 0; j < vvv_e.at(i).size(); j++)
-			for (unsigned int k = 0; k < vvv_e.at(i).at(j).size(); k++)
-				oss << " " << CDopplerReferenceCode::name(vvv_e.at(i).at(j).at(k));
-	oss << "</" << elementName << ">";
-	return oss.str();
-}
-
-DopplerReferenceCodeMod::DopplerReferenceCode EnumerationParser::getDopplerReferenceCode(const string &name, const string &tableName, const string &xmlDoc) {
-	string s = getField(xmlDoc,name);
-		if (s.length() == 0)
-			throw ConversionException("Error: Missing field \"" + 
-				name + "\" or invalid syntax",tableName);
-				
-	DopplerReferenceCode result;
-	try {
-		result = CDopplerReferenceCode::newDopplerReferenceCode(s);
-	}
-	catch (...) {
-			throw ConversionException("Error: could not convert '"+s+"' into a DopplerReferenceCode.", tableName);
-	}
-	return result;
-}
-
-vector<DopplerReferenceCodeMod::DopplerReferenceCode> EnumerationParser::getDopplerReferenceCode1D(const string &name, const string &tableName, const string &xmlDoc) {
-	vector<DopplerReferenceCodeMod::DopplerReferenceCode>	result;
-	
-	string s = getField(xmlDoc,name);
-		if (s.length() == 0)
-			throw ConversionException("Error: Missing field \"" + 
-				name + "\" or invalid syntax",tableName);
-	
-	istringstream iss;
-	iss.str(s);
-	vector<string> tokens;
-	
-	// Tokenize.
-	string buf;
-	while (iss >> buf) {
-		tokens.push_back(buf);
-	}
-	
-	// The length must be 2 at the minimum (there may be an empty array)
-	if (tokens.size() < 2) 
-		throw ConversionException("Error: missing values in field \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName);
-
-	
-	
-	// The number of dimension should be 1.
-	if (tokens.at(0) != "1")
-		throw ConversionException("Error: wrong dimensionality in field \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName);
-		
-	// Then parse the size of the unique dimension
-	errno = 0;
-	int size1 = atoi(tokens.at(1).c_str());
-	if (errno != 0) throw ConversionException("Error: Field \"" + 
-					name + "\": Invalid XML syntax ('" + s +"')", tableName);
-	
-	if (size1 < 0)
-		throw ConversionException("Error: wrong size for the unique dimension \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName);
-		
-	if (tokens.size() != (unsigned int) (size1 + 2))
-		throw ConversionException("Error: incorrect number of values in field \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName);
-		
-	int k = 2;
-	try {
-		for (unsigned int i = 0 ; i < (unsigned int) size1; i++) {
-			 result.push_back(CDopplerReferenceCode::newDopplerReferenceCode(tokens.at(k).c_str()));
-			 k++;
-		}
-	} 
-	catch (...) {
-			throw ConversionException("Error: in '" + s + "' could not convert '"+tokens.at(k)+"' into a DopplerReferenceCode.", tableName);
-	}
-
-	return result;
-}
-
-vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> > EnumerationParser::getDopplerReferenceCode2D(const string &name, const string &tableName, const string &xmlDoc) {
-	vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> >	result;
-	
-	string s = getField(xmlDoc,name);
-	if (s.length() == 0)
-		throw ConversionException("Error: Missing field \"" + 
-				name + "\" or invalid syntax",tableName);
-	
-	istringstream iss;
-	iss.str(s);
-	vector<string> tokens;
-
-	// Tokenize.
-	string buf;
-	while (iss >> buf) {
-		tokens.push_back(buf);
-	}
-	
-	// The length must be 3 at the minimum (there may be an empty array)
-	if (tokens.size() < 3) 
-		throw ConversionException("Error: missing values in field \"" + 
-				name + "\" or invalid syntax(" + s +"')",tableName);	
-		
-		
-	// The number of dimension should be 2.
-	if (tokens.at(0) != "2")
-		throw ConversionException("Error: wrong dimensionality in field \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName);
-	
-	// Then parse the size of the two dimensions
-	errno = 0;
-	int size1 = atoi(tokens.at(1).c_str());
-	if (errno != 0) throw ConversionException("Error: Field \"" + 
-					name + "\": Invalid XML syntax ('" + s +"')", tableName);
-	
-	if (size1 <= 0)
-		throw ConversionException("Error: wrong size for the first dimension \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName); 
-	errno = 0;
-	int size2 = atoi(tokens.at(2).c_str());
-	if (errno != 0) throw ConversionException("Error: Field \"" + 
-					name + "\": Invalid XML syntax ('" + s +"')", tableName);	
-	
-	if (size2 < 0)
-		throw ConversionException("Error: wrong size for the second dimension \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName); 
-		
-	if (tokens.size() != (unsigned int) (size1*size2 + 3))
-		throw ConversionException("Error: incorrect number of values in field \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName);
-		
-	int k = 3;
-	try {
-		vector<DopplerReferenceCodeMod::DopplerReferenceCode> v_aux;
-		for (unsigned int i = 0; i < (unsigned int) size1; i++) {
-			v_aux.clear();
-			for (unsigned int j = 0; j < (unsigned int) size2; j++) {
-				v_aux.push_back(CDopplerReferenceCode::newDopplerReferenceCode(tokens.at(k).c_str()));
-				k++;
-			}
-			result.push_back(v_aux);
-		}
-	}
-	catch (...) {
-		throw ConversionException("Error: in '" + s + "' could not convert '"+tokens.at(k)+"' into a DopplerReferenceCode.", tableName);
-	}	
-	return result;	
-}
-
-
-vector<vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> > > EnumerationParser::getDopplerReferenceCode3D(const string &name, const string &tableName, const string &xmlDoc) {
-	vector<vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> >	>result;
-		
-	string s = getField(xmlDoc,name);
-	if (s.length() == 0)
-		throw ConversionException("Error: Missing field \"" + 
-				name + "\" or invalid syntax",tableName);
-	
-	istringstream iss;
-	iss.str(s);
-	vector<string> tokens;
-
-	// Tokenize.
-	string buf;
-	while (iss >> buf) {
-		tokens.push_back(buf);
-	}
-	
-	// The length must be 4 at the minimum (there may be an empty array)
-	if (tokens.size() < 4)
-		throw ConversionException("Error: missing values in field \"" + 
-				name + "\" or invalid syntax(" + s +"')",tableName);	 
-
-		
-	// The number of dimension should be 3.
-	if (tokens.at(0) != "3")
-		throw ConversionException("Error: wrong dimensionality in field \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName);	
-	
-	// Then parse the size of the three dimensions
-	errno = 0;
-	int size1 = atoi(tokens.at(1).c_str());
-	if (errno != 0) throw ConversionException("Error: Field \"" + 
-					name + "\": Invalid XML syntax ('" + s +"')", tableName);	
-	
-	if (size1 <= 0)
-		throw ConversionException("Error: wrong size for the first dimension \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName); 
-
-	errno = 0;		
-	int size2 = atoi(tokens.at(2).c_str());
-	if (errno != 0) throw ConversionException("Error: Field \"" + 
-					name + "\": Invalid XML syntax ('" + s +"')", tableName);	
-	
-	if (size2 <= 0)
-		throw ConversionException("Error: wrong size for the first dimension \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName); 
-
-	errno = 0;
-	int size3 = atoi(tokens.at(3).c_str());
-	if (errno != 0) throw ConversionException("Error: Field \"" + 
-					name + "\": Invalid XML syntax ('" + s +"')", tableName);	
-	
-	
-	if (size3 < 0)
-		throw ConversionException("Error: wrong size for the second dimension \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName); 
-		
-	if (tokens.size() != (unsigned int) (size1*size2*size3 + 4))
-		throw ConversionException("Error: incorrect number of values in field \"" + 
-				name + "\" or invalid syntax('" + s +"')",tableName);
-				
-	int k = 4;
-	try {
-		vector<DopplerReferenceCodeMod::DopplerReferenceCode> v_aux;
-		vector<vector<DopplerReferenceCodeMod::DopplerReferenceCode> > vv_aux;	
-		for (unsigned int i = 0; i < (unsigned int) size1; i++) {
-			vv_aux.clear();
-			for (unsigned int j = 0; j < (unsigned int) size2; j++) {
-				v_aux.clear();
-				for (unsigned int l = 0; l < (unsigned int) size3; l++) {
-					v_aux.push_back(CDopplerReferenceCode::newDopplerReferenceCode(tokens.at(k).c_str()));
-					k++;
-				}
-				vv_aux.push_back(v_aux);
-			}
-			result.push_back(vv_aux);
-		}
-	}
-	catch (...) {
-		throw ConversionException("Error:in '" + s + "' could not convert '"+tokens.at(k)+"' into a DopplerReferenceCode.", tableName);
 	}
 	
 	return result;	

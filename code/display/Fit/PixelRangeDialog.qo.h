@@ -51,7 +51,7 @@ namespace casa {
 
 	public:
 		PixelRangeDialog(QWidget *parent = 0);
-		void setImage( const SHARED_PTR<const casacore::ImageInterface<float> > img );
+		void setImage( const std::shared_ptr<const casacore::ImageInterface<float> > img );
 		void setInterval( double minValue, double maxValue );
 		void setImageMode( bool imageMode );
 		void setLineMode( bool lineMode );
@@ -61,7 +61,7 @@ namespace casa {
 		void deleteImageRegion( int id );
 		void imageRegionSelected( int id );
 		pair<double,double> getInterval() const;
-		vector<float> getXValues() const;
+		std::vector<float> getXValues() const;
 		~PixelRangeDialog();
 
 	protected:

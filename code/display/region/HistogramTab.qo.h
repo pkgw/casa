@@ -50,7 +50,7 @@ namespace casa {
 
 	public:
 		HistogramTab(QWidget *parent = 0);
-		void addImage( SHARED_PTR<casacore::ImageInterface<float> > image );
+		void addImage( std::shared_ptr<casacore::ImageInterface<float> > image );
 		void setImageRegion( const std::string& imageName, casacore::ImageRegion* region, int regionId);
 		void clear();
 		/**

@@ -279,7 +279,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// display cursor information for the specified point (in world coordinates)
 		void updateCursorInfo( WorldCanvas *wc, casacore::Quantity x, casacore::Quantity y );
-		typedef std::pair<QString, SHARED_PTR<casacore::ImageInterface<float> > > OverplotInterface;
+		typedef std::pair<QString, std::shared_ptr<casacore::ImageInterface<float> > > OverplotInterface;
 
 	public slots:
 
@@ -346,7 +346,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		//</group>
 
 		// add a new DD
-		virtual QtDisplayData* addDD(casacore::String path, casacore::String dataType, casacore::String displayType, bool autoRegister=true, bool tmpDtata=false, SHARED_PTR<casacore::ImageInterface<float> > img = SHARED_PTR<casacore::ImageInterface<float> >());
+		virtual QtDisplayData* addDD(casacore::String path, casacore::String dataType, casacore::String displayType, bool autoRegister=true, bool tmpDtata=false, std::shared_ptr<casacore::ImageInterface<float> > img = std::shared_ptr<casacore::ImageInterface<float> >());
 		// go to a specifc channel
 		virtual void doSelectChannel(int channelIndex);
 
@@ -699,7 +699,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		void addResidualFitImage( casacore::String path );
 		virtual void addDDSlot(casacore::String path, casacore::String dataType, casacore::String displayType,
 				bool autoRegister=true, bool tmpData=false,
-				SHARED_PTR<casacore::ImageInterface<float> > img = SHARED_PTR<casacore::ImageInterface<float> >());
+				std::shared_ptr<casacore::ImageInterface<float> > img = std::shared_ptr<casacore::ImageInterface<float> >());
 		void sliceChanged( int regionId, viewer::region::RegionChanges change,
 		                   const QList<double> & worldX, const QList<double> & worldY,
 		                   const QList<int> &pixelX, const QList<int> & pixelY );

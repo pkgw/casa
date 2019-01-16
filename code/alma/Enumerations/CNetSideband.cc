@@ -33,7 +33,7 @@
  * File CNetSideband.cpp
  */
 #include <sstream>
-#include <CNetSideband.h>
+#include <alma/Enumerations/CNetSideband.h>
 #include <string>
 using namespace std;
 

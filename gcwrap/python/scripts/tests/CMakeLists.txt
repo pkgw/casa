@@ -25,7 +25,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_applycal.py
   test_asdmsummary.py
   test_bandpass.py
-  test_boxit.py
   test_caltabconvert.py
   test_calanalysis.py
   test_clean.py
@@ -37,7 +36,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_conjugatevis.py
   test_coordsys.py
   test_createmultims.py
-  test_csvclean.py
   test_cvel.py
   test_cvel2.py
   test_cvelfreqs.py
@@ -80,6 +78,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_ia_fromrecord.py
   test_ia_fromshape.py
   test_ia_getregion.py
+  test_ia_getslice.py
   test_ia_hanning.py
   test_ia_histograms.py
   test_ia_imageconcat.py
@@ -120,7 +119,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_importasdm.py
   test_importasdm_mms.py
   test_importatca.py
-  test_importevla.py
+  test_importcasa.py
   test_importfitsidi.py
   test_importmiriad.py
   test_importnro.py
@@ -175,6 +174,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_predictcomp.py
   test_refimager.py
   test_refimager_parallel.py
+  test_rerefant.py
   test_report.py
   test_rg_selectedchannels.py
   test_rg_frombcs.py
@@ -182,11 +182,11 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_sdfixscan.py
   test_sdgaincal.py
   test_sdimaging.py
-  test_tsdbaseline.py
-  test_tsdcal.py
-  test_tsdfit.py
+  test_sdbaseline.py
+  test_sdcal.py
+  test_sdfit.py
   test_tsdimaging.py
-  test_tsdsmooth.py
+  test_sdsmooth.py
   test_sdsidebandsplit.py
 
   ### CASAGUIDES ###
@@ -199,7 +199,17 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_VLA_CorrectingBandpass.py
   test_VLA_Flagging.py
   test_VLA_Imaging.py
+  test_VLA_3C391.py
+  test_VLA_IRC10216.py
+  test_VLA_MG0414.py
 
+  ###
+
+  test_req_task_listobs.py
+  test_req_task_listhistory.py
+  test_req_task_importuvfits.py
+  test_req_task_calstat.py
+  test_req_task_rmtables.py
 
   ###
   test_setjy.py
@@ -212,8 +222,8 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_split.py
   test_split2.py
   test_spxfit.py
+  test_oldstatwt.py
   test_statwt.py
-  test_statwt2.py
   test_testconcat.py
   test_uvcontsub.py
   test_uvcontsub3.py
@@ -221,7 +231,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_viewer.py
   test_virtualconcat.py
   test_vishead.py
-  test_visstatold.py
   test_visstat.py
   test_vpmanager.py
   test_wvrgcal.py

@@ -53,11 +53,11 @@ namespace casa {
 		// Static Members //
 
 		// Returns creation widgets.
-		static vector<pair<casacore::String, RegionShape*> >
+		static std::vector<std::pair<casacore::String, RegionShape*> >
 		creationShapes(bool includeComposite = true) {
-			vector<pair<casacore::String, RegionShape*> > v(includeComposite ? 9 : 8);
+			std::vector<std::pair<casacore::String, RegionShape*> > v(includeComposite ? 9 : 8);
 			for(unsigned int i = 0; i < v.size(); i++)
-				v[i] = pair<casacore::String,RegionShape*>(creationName(i),creationShape(i));
+				v[i] = std::pair<casacore::String,RegionShape*>(creationName(i),creationShape(i));
 			return v;
 		}
 
@@ -149,7 +149,7 @@ namespace casa {
 		QtEditRegionShape* m_editor; // Region shape editor.
 		QListWidget* m_coordList; // casacore::List widget for displaying entered coordinates
 		QFrame* m_coordFrame;     // Frame that holds list widget and buttons.
-		vector<pair<QString, QString> > m_enteredCoords; // Entered coordinates
+		vector<std::pair<QString, QString> > m_enteredCoords; // Entered coordinates
 		QLineEdit* m_coordXEdit, *m_coordYEdit; // casacore::Coordinate edits.
 
 	private slots:
@@ -191,7 +191,7 @@ namespace casa {
 		// <group>
 		QtRegionShapeManager* m_manager;
 		RSComposite* m_composite;
-		vector<RegionShape*> m_children;
+		std::vector<RegionShape*> m_children;
 		QStackedLayout* m_layout;
 		// </group>
 
@@ -212,7 +212,7 @@ namespace casa {
 		// Second screen: existing shapes
 		// <group>
 		QListWidget* m_existingList, *m_moveList;
-		vector<RegionShape*> m_existingShapes, m_moveShapes;
+		std::vector<RegionShape*> m_existingShapes, m_moveShapes;
 		// </group>
 
 

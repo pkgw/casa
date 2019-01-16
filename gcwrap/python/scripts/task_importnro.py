@@ -4,7 +4,8 @@ import re
 import shutil
 from taskinit import *
 import sdutil
-mysdms, mycb = gentools(['sdms', 'cb'])
+mysdms, mycb, myms = gentools(['sdms', 'cb', 'ms'])
+from mstools import write_history
 
 def importnro(infile=None, outputvis=None, overwrite=None, parallel=None):
     """
@@ -38,6 +39,13 @@ def importnro(infile=None, outputvis=None, overwrite=None, parallel=None):
             if os.path.exists(outputvis_temp):
                 os.rename(outputvis_temp, outputvis)
             raise RuntimeError('import failed.')
+        
+        
+        # Write parameters to HISTORY table of MS
+        param_names = importnro.func_code.co_varnames[:importnro.func_code.co_argcount] 
+        param_vals = [eval(p) for p in param_names]
+        write_history(myms, outputvis, 'importnro', param_names, 
+                          param_vals, casalog) 
         
         return status
     except Exception, instance:

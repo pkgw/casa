@@ -18,12 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#add_definitions( -DWITHOUT_ACS -pg )
 #set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg" )
 #set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg" )
 #set( CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -pg" )
 
-add_definitions( -DWITHOUT_ACS )
+add_definitions( -DWITHOUT_ACS -DWITHOUT_BOOST )
 
 casa_add_library( alma
 ASDM/AlmaRadiometerRow.cc
@@ -96,6 +95,7 @@ ASDM/CalSeeingRow.cc
 ASDM/CalSeeingTable.cc
 ASDM/CalWVRRow.cc
 ASDM/CalWVRTable.cc
+ASDM/CASAxslPath.cc
 ASDM/CharacterWrapper.cc
 ASDM/ComplexWrapper.cc
 ASDM/ConfigDescriptionRow.cc
@@ -706,6 +706,11 @@ install (FILES
 	DESTINATION include/casacode/alma/Enumtcl
 	)
 
+install (FILES
+	Options/AlmaArg.h
+	DESTINATION include/casacode/alma/Options
+	)
+
 casa_add_executable( alma asdm2MS 
   apps/asdm2MS/asdm2MS.cc
   apps/asdm2MS/ASDM2MSFiller.cc
@@ -715,7 +720,20 @@ casa_add_executable( alma asdm2MS
   apps/asdm2MS/ASDMVerbatimFiller.cc
   apps/asdm2MS/Name2Table.cc
   apps/asdm2MS/UvwCoords.cc
+  apps/asdm2MS/ScansParser.cc
   )
+
+# casa_add_executable( alma parasdm2MS 
+#   apps/asdm2MS/parasdm2MS.cc
+#   apps/asdm2MS/ASDM2MSFiller.cc
+#   apps/asdm2MS/BDF2AsdmStManIndex.cc
+#   apps/asdm2MS/ASDMTableBase.cc
+#   apps/asdm2MS/ASDMTables.cc
+#   apps/asdm2MS/ASDMVerbatimFiller.cc
+#   apps/asdm2MS/Name2Table.cc
+#   apps/asdm2MS/UvwCoords.cc
+#   apps/asdm2MS/ScansParser.cc
+#   )
 
 casa_add_executable( alma MS2asdm
   apps/MS2asdm/MS2asdm.cc 
@@ -727,18 +745,8 @@ casa_add_executable( alma asdmSummary
 
  casa_add_executable( alma bdflags2MS
    apps/asdm2MS/bdflags2MS.cc
+   apps/asdm2MS/ScansParser.cc
   )
-
-#casa_add_executable( alma parasdm2MS
-#  apps/asdm2MS/parasdm2MS.cc
-#  apps/asdm2MS/ASDM2MSFiller.cc
-#  apps/asdm2MS/BDF2AsdmStManIndex.cc
-#  apps/asdm2MS/ASDMTableBase.cc
-#  apps/asdm2MS/ASDMTables.cc
-#  apps/asdm2MS/ASDMVerbatimFiller.cc
-#  apps/asdm2MS/Name2Table.cc
-#  apps/asdm2MS/UvwCoords.cc
-#  )
 
 casa_add_assay(alma ASDMBinaries/test/tReadBigBDF.cc)
 casa_add_assay(alma ASDMBinaries/test/tReadAllBDFs.cc)

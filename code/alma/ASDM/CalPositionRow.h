@@ -48,19 +48,19 @@
 
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -69,9 +69,7 @@
 	
 
 	
-#include "CAtmPhaseCorrection.h"
-	
-
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
@@ -83,15 +81,13 @@
 	
 
 	
-#include "CPositionMethod.h"
+
+	
+#include <alma/Enumerations/CPositionMethod.h>
 	
 
 	
-#include "CReceiverBand.h"
-	
-
-	
-
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -110,14 +106,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalPosition.h
     \brief Generated from model's revision "-1", branch ""
@@ -137,7 +137,7 @@ class CalReductionRow;
 
 class CalPositionRow;
 typedef void (CalPositionRow::*CalPositionAttributeFromBin) (EndianIStream& eis);
-typedef void (CalPositionRow::*CalPositionAttributeFromText) (const string& s);
+typedef void (CalPositionRow::*CalPositionAttributeFromText) (const std::string& s);
 
 /**
  * The CalPositionRow class is a row of a CalPositionTable.
@@ -178,23 +178,23 @@ public:
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string getAntennaName() const;
+ 	std::string getAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  		
  			
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 		
  	 */
- 	void setAntennaName (string antennaName);
+ 	void setAntennaName (std::string antennaName);
   		
 	
 	
@@ -302,21 +302,21 @@ public:
 	
  	/**
  	 * Get antennaPosition.
- 	 * @return antennaPosition as vector<Length >
+ 	 * @return antennaPosition as std::vector<Length >
  	 */
- 	vector<Length > getAntennaPosition() const;
+ 	std::vector<Length > getAntennaPosition() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaPosition with the specified vector<Length >.
- 	 * @param antennaPosition The vector<Length > value to which antennaPosition is to be set.
+ 	 * Set antennaPosition with the specified std::vector<Length >.
+ 	 * @param antennaPosition The std::vector<Length > value to which antennaPosition is to be set.
  	 
  		
  			
  	 */
- 	void setAntennaPosition (vector<Length > antennaPosition);
+ 	void setAntennaPosition (std::vector<Length > antennaPosition);
   		
 	
 	
@@ -332,21 +332,21 @@ public:
 	
  	/**
  	 * Get stationName.
- 	 * @return stationName as string
+ 	 * @return stationName as std::string
  	 */
- 	string getStationName() const;
+ 	std::string getStationName() const;
 	
  
  	
  	
  	/**
- 	 * Set stationName with the specified string.
- 	 * @param stationName The string value to which stationName is to be set.
+ 	 * Set stationName with the specified std::string.
+ 	 * @param stationName The std::string value to which stationName is to be set.
  	 
  		
  			
  	 */
- 	void setStationName (string stationName);
+ 	void setStationName (std::string stationName);
   		
 	
 	
@@ -362,21 +362,21 @@ public:
 	
  	/**
  	 * Get stationPosition.
- 	 * @return stationPosition as vector<Length >
+ 	 * @return stationPosition as std::vector<Length >
  	 */
- 	vector<Length > getStationPosition() const;
+ 	std::vector<Length > getStationPosition() const;
 	
  
  	
  	
  	/**
- 	 * Set stationPosition with the specified vector<Length >.
- 	 * @param stationPosition The vector<Length > value to which stationPosition is to be set.
+ 	 * Set stationPosition with the specified std::vector<Length >.
+ 	 * @param stationPosition The std::vector<Length > value to which stationPosition is to be set.
  	 
  		
  			
  	 */
- 	void setStationPosition (vector<Length > stationPosition);
+ 	void setStationPosition (std::vector<Length > stationPosition);
   		
 	
 	
@@ -482,21 +482,21 @@ public:
 	
  	/**
  	 * Get refAntennaNames.
- 	 * @return refAntennaNames as vector<string >
+ 	 * @return refAntennaNames as std::vector<std::string >
  	 */
- 	vector<string > getRefAntennaNames() const;
+ 	std::vector<std::string > getRefAntennaNames() const;
 	
  
  	
  	
  	/**
- 	 * Set refAntennaNames with the specified vector<string >.
- 	 * @param refAntennaNames The vector<string > value to which refAntennaNames is to be set.
+ 	 * Set refAntennaNames with the specified std::vector<std::string >.
+ 	 * @param refAntennaNames The std::vector<std::string > value to which refAntennaNames is to be set.
  	 
  		
  			
  	 */
- 	void setRefAntennaNames (vector<string > refAntennaNames);
+ 	void setRefAntennaNames (std::vector<std::string > refAntennaNames);
   		
 	
 	
@@ -602,21 +602,21 @@ public:
 	
  	/**
  	 * Get positionOffset.
- 	 * @return positionOffset as vector<Length >
+ 	 * @return positionOffset as std::vector<Length >
  	 */
- 	vector<Length > getPositionOffset() const;
+ 	std::vector<Length > getPositionOffset() const;
 	
  
  	
  	
  	/**
- 	 * Set positionOffset with the specified vector<Length >.
- 	 * @param positionOffset The vector<Length > value to which positionOffset is to be set.
+ 	 * Set positionOffset with the specified std::vector<Length >.
+ 	 * @param positionOffset The std::vector<Length > value to which positionOffset is to be set.
  	 
  		
  			
  	 */
- 	void setPositionOffset (vector<Length > positionOffset);
+ 	void setPositionOffset (std::vector<Length > positionOffset);
   		
 	
 	
@@ -632,21 +632,21 @@ public:
 	
  	/**
  	 * Get positionErr.
- 	 * @return positionErr as vector<Length >
+ 	 * @return positionErr as std::vector<Length >
  	 */
- 	vector<Length > getPositionErr() const;
+ 	std::vector<Length > getPositionErr() const;
 	
  
  	
  	
  	/**
- 	 * Set positionErr with the specified vector<Length >.
- 	 * @param positionErr The vector<Length > value to which positionErr is to be set.
+ 	 * Set positionErr with the specified std::vector<Length >.
+ 	 * @param positionErr The std::vector<Length > value to which positionErr is to be set.
  	 
  		
  			
  	 */
- 	void setPositionErr (vector<Length > positionErr);
+ 	void setPositionErr (std::vector<Length > positionErr);
   		
 	
 	
@@ -913,7 +913,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Length > antennaPosition, string stationName, vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, vector<string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, vector<Length > positionOffset, vector<Length > positionErr, double reducedChiSquared);
+	bool compareNoAutoInc(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Length > antennaPosition, std::string stationName, std::vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, std::vector<std::string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, std::vector<Length > positionOffset, std::vector<Length > positionErr, double reducedChiSquared);
 	
 	
 
@@ -953,7 +953,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, vector<Length > antennaPosition, string stationName, vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, vector<string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, vector<Length > positionOffset, vector<Length > positionErr, double reducedChiSquared); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Length > antennaPosition, std::string stationName, std::vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, std::vector<std::string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, std::vector<Length > positionOffset, std::vector<Length > positionErr, double reducedChiSquared); 
 		 
 	
 	/**
@@ -1106,7 +1106,7 @@ private:
 	
 	
 
-	string antennaName;
+	std::string antennaName;
 
 	
 	
@@ -1150,7 +1150,7 @@ private:
 	
 	
 
-	vector<Length > antennaPosition;
+	std::vector<Length > antennaPosition;
 
 	
 	
@@ -1161,7 +1161,7 @@ private:
 	
 	
 
-	string stationName;
+	std::string stationName;
 
 	
 	
@@ -1172,7 +1172,7 @@ private:
 	
 	
 
-	vector<Length > stationPosition;
+	std::vector<Length > stationPosition;
 
 	
 	
@@ -1216,7 +1216,7 @@ private:
 	
 	
 
-	vector<string > refAntennaNames;
+	std::vector<std::string > refAntennaNames;
 
 	
 	
@@ -1260,7 +1260,7 @@ private:
 	
 	
 
-	vector<Length > positionOffset;
+	std::vector<Length > positionOffset;
 
 	
 	
@@ -1271,7 +1271,7 @@ private:
 	
 	
 
-	vector<Length > positionErr;
+	std::vector<Length > positionErr;
 
 	
 	
@@ -1394,68 +1394,68 @@ void phaseRmsFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalPositionAttributeFromText> fromTextMethods;
 	
-void antennaNameFromText (const string & s);
+void antennaNameFromText (const std::string & s);
 	
 	
-void atmPhaseCorrectionFromText (const string & s);
+void atmPhaseCorrectionFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void antennaPositionFromText (const string & s);
+void antennaPositionFromText (const std::string & s);
 	
 	
-void stationNameFromText (const string & s);
+void stationNameFromText (const std::string & s);
 	
 	
-void stationPositionFromText (const string & s);
+void stationPositionFromText (const std::string & s);
 	
 	
-void positionMethodFromText (const string & s);
+void positionMethodFromText (const std::string & s);
 	
 	
-void receiverBandFromText (const string & s);
+void receiverBandFromText (const std::string & s);
 	
 	
-void numAntennaFromText (const string & s);
+void numAntennaFromText (const std::string & s);
 	
 	
-void refAntennaNamesFromText (const string & s);
+void refAntennaNamesFromText (const std::string & s);
 	
 	
-void axesOffsetFromText (const string & s);
+void axesOffsetFromText (const std::string & s);
 	
 	
-void axesOffsetErrFromText (const string & s);
+void axesOffsetErrFromText (const std::string & s);
 	
 	
-void axesOffsetFixedFromText (const string & s);
+void axesOffsetFixedFromText (const std::string & s);
 	
 	
-void positionOffsetFromText (const string & s);
+void positionOffsetFromText (const std::string & s);
 	
 	
-void positionErrFromText (const string & s);
+void positionErrFromText (const std::string & s);
 	
 	
-void reducedChiSquaredFromText (const string & s);
+void reducedChiSquaredFromText (const std::string & s);
 	
 
 	
-void delayRmsFromText (const string & s);
+void delayRmsFromText (const std::string & s);
 	
 	
-void phaseRmsFromText (const string & s);
+void phaseRmsFromText (const std::string & s);
 	
 	
 	

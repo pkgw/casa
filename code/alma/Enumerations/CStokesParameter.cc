@@ -33,7 +33,7 @@
  * File CStokesParameter.cpp
  */
 #include <sstream>
-#include <CStokesParameter.h>
+#include <alma/Enumerations/CStokesParameter.h>
 #include <string>
 using namespace std;
 

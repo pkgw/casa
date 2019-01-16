@@ -29,7 +29,7 @@
 using namespace casacore;
 namespace casa {
 
-map<Char, AnnSymbol::Symbol> AnnSymbol::_symbolMap;
+std::map<Char, AnnSymbol::Symbol> AnnSymbol::_symbolMap;
 
 const String AnnSymbol::_class = "AnnSymbol";
 
@@ -140,7 +140,7 @@ AnnSymbol::Symbol AnnSymbol::charToSymbol(
 
 Char AnnSymbol::symbolToChar(const AnnSymbol::Symbol s) {
 	for (
-		map<Char, Symbol>::const_iterator iter=_symbolMap.begin();
+		std::map<Char, Symbol>::const_iterator iter=_symbolMap.begin();
 		iter != _symbolMap.end(); iter++
 	) {
 		if (s == iter->second) {

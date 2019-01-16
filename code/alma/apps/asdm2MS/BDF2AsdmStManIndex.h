@@ -1,6 +1,6 @@
 #ifndef BDF2ASDMSTMANINDEX
 #define BDF2ASDMSTMANINDEX
-#include "CPrimitiveDataType.h"
+#include <alma/Enumerations/CPrimitiveDataType.h>
 #include <casa/Containers/Block.h>
 #include <asdmstman/AsdmIndex.h>
 #include <casa/Arrays/Array.h>
@@ -18,7 +18,7 @@
 ** A simplistic tracing toolbox.
 */
 extern bool debug; 
-extern vector<char> logIndent;
+extern std::vector<char> logIndent;
 #define LOGENTER(name) if (debug) { std::for_each(logIndent.begin(), logIndent.end(), [](char v) { cout << v; }); logIndent.push_back('\t'); cout << #name ": entering" << endl; }
 #define LOGEXIT(name)  if (debug) { logIndent.pop_back(); std::for_each(logIndent.begin(), logIndent.end(), [](char v) { cout << v; } ); cout << #name ": exiting" << endl; }
 #define LOG(msg) if (debug) { std::for_each(logIndent.begin(), logIndent.end(), [](char v) { cout << v; } ); cout << msg << endl; }
@@ -42,7 +42,7 @@ public:
 		       unsigned int		nPol,
 		       unsigned int		stepBl,
 		       unsigned int		stepSpw,
-		       const vector<double>&	scaleFactors,
+		       const std::vector<double>&	scaleFactors,
 		       uint64_t	         	fileOffset,
 		       uint32_t                 spwOffset);
 
@@ -54,7 +54,7 @@ public:
 		      unsigned int		nPol,
 		      unsigned int		stepBl,
 		      unsigned int		stepSpw,
-		      const vector<double>&	scaleFactors,
+		      const std::vector<double>&	scaleFactors,
 		      uint64_t	         	fileOffset,
 		      uint32_t                  spwOffset);
 
@@ -66,7 +66,7 @@ public:
 			unsigned int		nPol,
 			unsigned int		stepBl,
 			unsigned int		stepSpw,
-			const vector<double>&	scaleFactors,
+			const std::vector<double>&	scaleFactors,
 			uint64_t		fileOffset,
 			uint32_t                spwOffset,
 			PrimitiveDataTypeMod::PrimitiveDataType       dataType);

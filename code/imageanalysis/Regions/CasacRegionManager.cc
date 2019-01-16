@@ -277,7 +277,7 @@ Record CasacRegionManager::fromBCS(
             );
         }
     }
-    else if (regionPtr != 0) {
+    else if (regionPtr) {
         ThrowIf(
             ! (regionName.empty() && chans.empty() && stokes.empty()),
             "regionPtr and regionName, chans, and/or stokes cannot "
@@ -983,8 +983,8 @@ vector<uInt> CasacRegionManager::_spectralRangeFromRangeFormat(
     const CoordinateSystem csys = getcoordsys();
     RegionTextParser::ParamSet parms = RegionTextParser::getParamSet(
         spectralParmsUpdated, *_getLog(),
-        specification, "", csys, SHARED_PTR<std::pair<MFrequency, MFrequency> >(nullptr),
-        SHARED_PTR<Vector<Stokes::StokesTypes> >(nullptr)
+        specification, "", csys, std::shared_ptr<std::pair<MFrequency, MFrequency> >(nullptr),
+        std::shared_ptr<Vector<Stokes::StokesTypes> >(nullptr)
     );
     RegionTextParser::ParamSet::const_iterator end = parms.end();
     for (

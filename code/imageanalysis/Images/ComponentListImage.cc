@@ -34,6 +34,7 @@
 #include <casacore/images/Regions/RegionHandlerTable.h>
 #include <components/ComponentModels/ComponentShape.h>
 #include <components/ComponentModels/SpectralModel.h>
+#include <casa/Quanta/UnitMap.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -305,12 +306,17 @@ bool ComponentListImage::ok() const {
     return n > 1 && n < 5 && x > 1 && x < 5;
 }
 
-LatticeBase* ComponentListImage::openCLImage(const String& name, const MaskSpecifier&) {
+LatticeBase* ComponentListImage::openCLImage(
+    const String& name, const MaskSpecifier&
+) {
     return new ComponentListImage(name);
 }
 
 const Lattice<Bool>& ComponentListImage::pixelMask() const {
-    ThrowIf(! _mask, "ComponentListImage::" + String(__func__) + " - no mask attached");
+    ThrowIf(
+        ! _mask, "ComponentListImage::" + String(__func__)
+        + " - no mask attached"
+    );
     return *_mask;
 }
 
@@ -340,7 +346,8 @@ void ComponentListImage::resize(const TiledShape& newShape) {
 
 void ComponentListImage::set(const casacore::Float&) {
     ThrowCc(
-        "There is no general way to run " + String(__func__) + " on a ComponentList"
+        "There is no general way to run " + String(__func__)
+        + " on a ComponentList"
     );
 }
 
@@ -356,7 +363,8 @@ void ComponentListImage::setCache(casacore::Bool doCache) {
 Bool ComponentListImage::setCoordinateInfo (const CoordinateSystem& csys) {
     auto x = csys.nPixelAxes();
     ThrowIf(
-        x != _shape.size(), "Coordinate system must have the same dimensionality as the shape"
+        x != _shape.size(),
+        "Coordinate system must have the same dimensionality as the shape"
     );
     ThrowIf(
         ! csys.hasDirectionCoordinate(),
@@ -382,8 +390,14 @@ Bool ComponentListImage::setCoordinateInfo (const CoordinateSystem& csys) {
     }
     // implementation copied from PagedImage and tweaked.
     auto& table = _cl._getTable();
-    ThrowIf(! table.isNull() && ! table.isWritable(), "Image is not writable, cannot save coordinate system");
-    ThrowIf(! ImageInterface<Float>::setCoordinateInfo(csys), "Could not set coordinate system");
+    ThrowIf(
+        ! table.isNull() && ! table.isWritable(),
+        "Image is not writable, cannot save coordinate system"
+    );
+    ThrowIf(
+        ! ImageInterface<Float>::setCoordinateInfo(csys),
+        "Could not set coordinate system"
+    );
     if (! table.isNull()) {
         // we've tested for writability above, so if here it's writable
         _reopenRW();
@@ -490,7 +504,8 @@ void ComponentListImage::useMask(MaskSpecifier spec) {
 
 void ComponentListImage::handleMath(const Lattice<Float>&, int) {
     ThrowCc(
-        "There is no general way to run " + String(__func__) + " on a ComponentList"
+        "There is no general way to run " + String(__func__)
+        + " on a ComponentList"
     );
 }
 
@@ -502,7 +517,9 @@ void ComponentListImage::_applyMask(const String& maskName) {
     }
     // Reconstruct the ImageRegion object.
     // Turn the region into lattice coordinates.
-    std::unique_ptr<ImageRegion> regPtr(getImageRegionPtr(maskName, RegionHandler::Masks));
+    std::unique_ptr<ImageRegion> regPtr(
+        getImageRegionPtr(maskName, RegionHandler::Masks)
+    );
     std::shared_ptr<LatticeRegion> latReg(
         new LatticeRegion(regPtr->toLatticeRegion(coordinates(), shape()))
     );
@@ -554,7 +571,9 @@ void ComponentListImage::_cacheCoordinateInfo(const CoordinateSystem& csys) {
         MEpoch epochConv;
         MPosition posConv;
         MDirection dirConv;
-        specCoord.getReferenceConversion(specConv,  epochConv, posConv, dirConv);
+        specCoord.getReferenceConversion(
+            specConv,  epochConv, posConv, dirConv
+        );
         MeasFrame measFrame(epochConv, posConv, dirConv);
         _freqRef = MeasRef<MFrequency>(specConv, measFrame);
     }
@@ -582,7 +601,10 @@ void ComponentListImage::_cacheCoordinateInfo(const CoordinateSystem& csys) {
                 _pixelToIQUV[s] = 3;
             }
             else {
-                ThrowCc("Unsupported stokes value " + mystokes + " at pixel " + String::toString(s));
+                ThrowCc(
+                    "Unsupported stokes value " + mystokes + " at pixel "
+                    + String::toString(s)
+                );
             }
         }
     }
@@ -615,10 +637,7 @@ void ComponentListImage::_computePointSourcePixelValues() {
     std::vector<uInt> foundPtSourceIdx;
     uInt nInside = 0;
     uInt nOutside = 0;
-    _findPointSoures(
-        foundPtSourceIdx, nInside,
-        nOutside, pointSourceIdx
-    );
+    _findPointSoures(foundPtSourceIdx, nInside, nOutside, pointSourceIdx);
     LogIO log(LogOrigin(IMAGE_TYPE, __func__));
     auto npts = pointSourceIdx.size();
     if (nInside > 0) {
@@ -627,9 +646,9 @@ void ComponentListImage::_computePointSourcePixelValues() {
             << "pixel coordinates." << LogIO::POST;
     }
     if (nOutside > 0) {
-        log << LogIO::NORMAL << "Found " << nOutside << " of " << npts << " point "
-            << "sources to be located outside the image, so will ignore those."
-            << LogIO::POST;
+        log << LogIO::NORMAL << "Found " << nOutside << " of " << npts
+            << " point sources to be located outside the image, so will ignore "
+            << "those." << LogIO::POST;
     }
     if (! foundPtSourceIdx.empty()) {
         _modifiedCL.remove(Vector<Int>(foundPtSourceIdx));
@@ -675,11 +694,11 @@ void ComponentListImage::_fillBuffer(
                     IPosition posInArray(ndim);
                     posInArray[_latAxis] = blat;
                     std::pair<uInt, uInt> dirPos;
-                    dirPos.first = ilat;
                     uInt ilong = startLong + blong;
+                    dirPos.first = ilong;
                     uInt d = blat * nLong + blong;
                     posInArray[_longAxis] = blong;
-                    dirPos.second = ilong;
+                    dirPos.second = ilat;
                     uInt ifreq = startFreq + bfreq;
                     if (_hasFreq) {
                         posInArray[_freqAxis] = bfreq;
@@ -809,7 +828,8 @@ void ComponentListImage::_findPointSoures(
                 dirPos.second = pixelPosition[_latAxis];
                 auto myiter = _ptSourcePixelVals->find(dirPos);
                 if (myiter == _ptSourcePixelVals->end()) {
-                    (*_ptSourcePixelVals)[dirPos] = Matrix<Float>(nFreqs, nStokes, 0);
+                    (*_ptSourcePixelVals)[dirPos]
+                        = Matrix<Float>(nFreqs, nStokes, 0);
                 }
                 for (uInt f = 0; f < nFreqs; ++f) {
                     for (uInt s = 0; s < nStokes; ++s) {
@@ -1001,7 +1021,10 @@ void ComponentListImage::_reopenRW() {
 
 void ComponentListImage::_resize(const TiledShape& newShape) {
     auto shape = newShape.shape();
-    ThrowIf(shape.size() < 2 || shape.size() > 4, "ComponentListImages must have 2, 3, or 4 dimensions");
+    ThrowIf(
+        shape.size() < 2 || shape.size() > 4,
+        "ComponentListImages must have 2, 3, or 4 dimensions"
+    );
     ThrowIf(anyLE(shape.asVector(), 0), "All shape elements must be positive");
     if (! _shape.conform(shape)) {
         _shape.resize(shape.size(), False);
@@ -1035,7 +1058,9 @@ void ComponentListImage::_restoreAll(const TableRecord& rec) {
     );
     _resize(IPosition(rec.asArrayInt("shape")));
     // Restore the coordinates.
-    std::unique_ptr<CoordinateSystem> restoredCoords(CoordinateSystem::restore(rec, "coords"));
+    std::unique_ptr<CoordinateSystem> restoredCoords(
+        CoordinateSystem::restore(rec, "coords")
+    );
     ThrowIf(! restoredCoords, "Error restoring coordinate system");
     setCoordinateInfo(*restoredCoords);
     // Restore the image info.

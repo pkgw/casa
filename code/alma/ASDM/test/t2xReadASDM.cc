@@ -3,7 +3,7 @@
 #include <vector>
 #include <exception>
 
-#include "ASDMAll.h"
+#include <alma/ASDM/ASDMAll.h>
 
 #include <casa/Logging/StreamLogSink.h>
 #include <casa/Logging/LogSink.h>

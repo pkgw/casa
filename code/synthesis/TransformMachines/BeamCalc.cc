@@ -41,6 +41,8 @@
 #include <synthesis/TransformMachines/SynthesisError.h>
 #include <synthesis/TransformMachines/BeamCalc.h>
 #include <casa/OS/Timer.h>
+#include <casa/System/AppState.h>
+#include <casa/OS/Directory.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -162,12 +164,35 @@ namespace casa{
       }
 
       if(useInternal){
-	const char *sep=" ";
-	char *aipsPath = strtok(getenv("CASAPATH"),sep);
-	if (aipsPath == NULL)
-	  throw(SynthesisError("CASAPATH not found."));
-	String fullFileName(aipsPath);
-	
+
+        Bool found = False;
+        String fullFileName;
+        const std::list<std::string> &data_path = AppStateSource::fetch( ).dataPath( );
+        
+        // The data path search need to be rewritten to adopt the recommanded setting via python
+        // file for CASA6. 
+        // For now, only the first path that actually exist will be set to the data path (TT 2018.12.10)
+        if (data_path.size() > 0 ) {
+          for ( std::list<std::string>::const_iterator it=data_path.begin(); ! found && it != data_path.end(); ++it ) {
+            Path lpath = Path(*it);
+            String slpath = lpath.absoluteName();
+            Directory ddir(slpath);
+            if  (ddir.exists()) {
+              found = True;
+              fullFileName=slpath;
+              break;
+            }
+          }
+        } 
+        else if(!found) {
+          const char *sep=" ";
+          char *aipsPath = strtok(getenv("CASAPATH"),sep);
+          if (aipsPath == NULL)
+            throw(SynthesisError("CASAPATH not found."));
+          fullFileName=aipsPath;
+          fullFileName+="/data";
+        }
+
 	if(obsName_p=="VLA" && antType_p=="STANDARD"){
 	  os <<  LogIO::NORMAL << "Will use default geometries for VLA STANDARD." << LogIO::POST;
 	  BeamCalc_NumBandCodes_p = VLABeamCalc_NumBandCodes;
@@ -179,7 +204,8 @@ namespace casa{
 	    bandMinFreq_p[i] = VLABandMinFreqDefaults[i]; 
 	    bandMaxFreq_p[i] = VLABandMaxFreqDefaults[i]; 
 	  }
-	  antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  //antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  antRespPath_p = fullFileName + "/nrao/VLA";
 	}
 	else if(obsName_p=="EVLA" && antType_p=="STANDARD"){
 	  os <<  LogIO::NORMAL << "Will use default geometries for EVLA STANDARD." << LogIO::POST;
@@ -192,7 +218,8 @@ namespace casa{
 	    bandMinFreq_p[i] = EVLABandMinFreqDefaults[i]; 
 	    bandMaxFreq_p[i] = EVLABandMaxFreqDefaults[i]; 
 	  }
-	  antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  //antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  antRespPath_p = fullFileName + "/nrao/VLA";
 	}
 	else if(obsName_p=="ALMA" && (antType_p=="DA" || antType_p=="DV" || antType_p=="PM")){
 	  os <<  LogIO::NORMAL << "Will use default geometries for ALMA DA, DV, and PM." << LogIO::POST;
@@ -208,7 +235,8 @@ namespace casa{
 	    bandMinFreq_p[i] = ALMABandMinFreqDefaults[i]; 
 	    bandMaxFreq_p[i] = ALMABandMaxFreqDefaults[i]; 
 	  }
-	  antRespPath_p = fullFileName + "/data/alma/responses";
+	  //antRespPath_p = fullFileName + "/data/alma/responses";
+	  antRespPath_p = fullFileName + "/alma/responses";
 	}
 	else{
 	  String mesg="We don't have any antenna ray tracing parameters available for observatory "
@@ -1293,7 +1321,8 @@ namespace casa{
   {
     Int i, n;
     Double dr2;
-    Double theta, phi;
+    // phi set but not used
+    Double theta /*, phi*/;
     Double r0[3], dr[3], l0[3], l1[3], dl[3], D[3]; 
     Double D2, N[3], ll, rr;
     const Double thetaplus[4] = 
@@ -1324,8 +1353,8 @@ namespace casa{
     l0[2] = a->legfootz;
     l1[0] = l1[1] = 0.0;
     l1[2] = a->legapex;
-    phi = atan2(r0[1], r0[0]);
-    phi=phi;
+    // phi set but not used
+    // phi = atan2(r0[1], r0[0]);
     for(n = 0; n < 4; n++)
       {
 	theta = thetalut[n];
@@ -1353,7 +1382,8 @@ namespace casa{
   {
     Int i, n;
     Double dr2;
-    Double theta, phi;
+    // phi set but not used
+    Double theta /*, phi*/;
     Double r0[3], dr[3], l0[3], l1[3], dl[3], D[3]; 
     Double D2, N[3], ll, rr;
     const Double thetaplus[4] = 
@@ -1384,8 +1414,8 @@ namespace casa{
     l0[2] = a->legfootz;
     l1[0] = l1[1] = 0.0;
     l1[2] = a->legapex;
-    phi = atan2(r0[1], r0[0]);
-    phi=phi;
+    // phi set but not used
+    // phi = atan2(r0[1], r0[0]);
     for(n = 0; n < 4; n++)
       {
 	theta = thetalut[n];
@@ -1439,12 +1469,13 @@ namespace casa{
   
   Int BeamCalc::calculateAperture(ApertureCalcParams *ap)
   {
-    Complex fp, Exr, Eyr, Exl, Eyl;
+    // not used
+    // Complex fp, Exr, Eyr, Exl, Eyl;
     Complex Er[3], El[3];
     Complex Pr[2], Pl[2]; 
     Complex q[2];
     //Double dx, dy, Rhole, Rant, x0, y0, R2, H2, eps;
-    Complex rr, rl, lr, ll, tmp;
+    //Complex rr, rl, lr, ll, tmp;
     Double L0, phase;
     Double sp, cp;
     Double B[3][3];
@@ -1702,12 +1733,12 @@ namespace casa{
   //
   Int BeamCalc::calculateAperture(ApertureCalcParams *ap, const Int& whichPoln)
   {
-    Complex fp, Exr, Eyr, Exl, Eyl;
+    //Complex fp, Exr, Eyr, Exl, Eyl;
     Complex Er[3], El[3];
     Complex Pr[2], Pl[2]; 
     Complex q[2];
     //Double dx, dy, Rhole, Rant;//x0, y0, R2, H2, eps;
-    Complex rr, rl, lr, ll, tmp;
+    //Complex rr, rl, lr, ll, tmp;
     Double L0, phase;
     Double sp, cp;
     Double B[3][3];

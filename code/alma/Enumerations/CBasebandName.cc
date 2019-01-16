@@ -33,7 +33,7 @@
  * File CBasebandName.cpp
  */
 #include <sstream>
-#include <CBasebandName.h>
+#include <alma/Enumerations/CBasebandName.h>
 #include <string>
 using namespace std;
 

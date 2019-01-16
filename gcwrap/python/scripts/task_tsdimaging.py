@@ -175,11 +175,54 @@ class OldImagerBasedTools(object):
         return sorted_vislist, sorted_field, sorted_spw, sorted_antenna, sorted_scan, sorted_intent
 
 def _configure_spectral_axis(mode, nchan, start, width, restfreq):
-    # TODO: implement the function
+    # fix default
+    if mode == 'channel':
+        if start == '': start = 0
+        if width == '': width = 1
+    else:
+        if start == 0: start = ''
+        if width == 1: width = ''
+    # fix unit
+    if mode == 'frequency':
+        myunit = 'Hz'
+    elif mode == 'velocity':
+        myunit = 'km/s'
+    else: # channel
+        myunit = ''
+
+    tmp_start = _format_quantum_unit(start, myunit)
+    if tmp_start == None:
+        raise ValueError, "Invalid unit for %s in mode %s: %s" % ('start', mode, start)
+    start = tmp_start
+    if mode == 'channel':
+        start = int(start)
+    tmp_width = _format_quantum_unit(width, myunit)
+    if tmp_width == None:
+        raise ValueError, "Invalid unit for %s in mode %s: %s" % ('width', mode, width)
+    width = tmp_width
+    if mode == 'channel':
+        width = int(width)
+
+    #TODO: work for nchan
     imnchan = nchan
     imstart = start
     imwidth = width
     return imnchan, imstart, imwidth
+
+def _format_quantum_unit(data, unit):
+    """
+    Returns False if data has an unit which in not a variation of
+    input unit.
+    Otherwise, returns input data as a quantum string. The input
+    unit is added to the return value if no unit is in data.
+    """
+    my_qa = qatool()
+    if data == '' or my_qa.compare(data, unit):
+        return data
+    if my_qa.getunit(data) == '':
+        casalog.post("No unit specified. Using '%s'" % unit)
+        return '%f%s' % (data, unit)
+    return None
 
 def _handle_grid_defaults(value):
     ret = ''
@@ -615,6 +658,31 @@ def do_weight_mask(imagename, weightimage, minweight):
     casalog.post("The weight image '%s' is returned by this task, if the user wishes to assess the results in detail." \
                  % (weightimage), "INFO")
         
+def get_ms_column_unit(tb, colname):
+    col_unit = ''
+    if colname in tb.colnames():
+        cdkw = tb.getcoldesc(colname)['keywords']
+        if cdkw.has_key('QuantumUnits'):
+            u = cdkw['QuantumUnits']
+            if isinstance(u, str):
+                col_unit = u.strip()
+            elif isinstance(u, list):
+                col_unit = u[0].strip()
+    return col_unit
+
+def get_brightness_unit_from_ms(msname):
+    image_unit = ''
+    with open_table(msname) as tb:
+        image_unit = get_ms_column_unit(tb, 'DATA')
+        if image_unit == '': image_unit = get_ms_column_unit(tb, 'FLOAT_DATA')
+    if image_unit.upper() == 'K':
+        image_unit = 'K'
+    else:
+        image_unit = 'Jy/beam'
+
+    return image_unit
+
+
 
 def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, mode, nchan, start, width, veltype, outframe,
                gridfunction, convsupport, truncate, gwidth, jwidth, imsize, cell, phasecenter, projection, ephemsrcname,
@@ -735,7 +803,16 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         )
         
         # TODO: hadnle ephemsrcname
-        # TODO: handle brightnessunit
+        # handle brightnessunit (CAS-11503)
+        image_unit = ''
+        if len(brightnessunit) > 0:
+            if brightnessunit.lower() == 'k':
+                image_unit = 'K'
+            elif brightnessunit.lower() == 'jy/beam':
+                image_unit = 'Jy/beam'
+            else:
+                raise ValueError, "Invalid brightness unit, %s" % brightnessunit
+        
         # TODO: handle overwrite
         # TODO: output image name
             
@@ -814,6 +891,14 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
                   ephemsrcname, pointingcolumn, antenna_name, antenna_diameter,
                   _restfreq, gridfunction, convsupport, truncate, gwidth, jwidth)
     
+    # set brightness unit (CAS-11503)
+    if len(image_unit) == 0:
+        image_unit = get_brightness_unit_from_ms(rep_ms)
+    if len(image_unit) > 0:
+        with open_ia(imagename) as ia:
+            casalog.post("Setting brightness unit '%s' to image." % image_unit)
+            ia.setbrightnessunit(image_unit)
+
     # mask low weight pixels 
     weightimage = outfile + weight_suffix
     do_weight_mask(imagename, weightimage, minweight)

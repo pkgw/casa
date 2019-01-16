@@ -46,7 +46,7 @@ public:
     );
 
     void rotate(
-        const Quantity& angle, const vector<String>& prependMsgs
+        const Quantity& angle, const std::vector<String>& prependMsgs
     );
 
 	void set(
@@ -62,7 +62,7 @@ public:
 
 private:
 	SPIIT _image;
-	SHARED_PTR<casacore::LogIO> _log;
+	std::shared_ptr<casacore::LogIO> _log;
 };
 }
 

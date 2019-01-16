@@ -1,10 +1,10 @@
-#include "AccumMode.h"
+#include <alma/Enumtcl/AccumMode.h>
 
-string enum_map_traits<AccumModeMod::AccumMode,void>::typeName_="AccumMode";
-string enum_map_traits<AccumModeMod::AccumMode,void>::enumerationDesc_="";
-string enum_map_traits<AccumModeMod::AccumMode,void>::order_="";
-string enum_map_traits<AccumModeMod::AccumMode,void>::xsdBaseType_="void";
-map<AccumModeMod::AccumMode,EnumPar<void> > enum_map_traits<AccumModeMod::AccumMode,void>::m_;
+std::string enum_map_traits<AccumModeMod::AccumMode,void>::typeName_="AccumMode";
+std::string enum_map_traits<AccumModeMod::AccumMode,void>::enumerationDesc_="";
+std::string enum_map_traits<AccumModeMod::AccumMode,void>::order_="";
+std::string enum_map_traits<AccumModeMod::AccumMode,void>::xsdBaseType_="void";
+std::map<AccumModeMod::AccumMode,EnumPar<void> > enum_map_traits<AccumModeMod::AccumMode,void>::m_;
 bool   enum_map_traits<AccumModeMod::AccumMode,void>::init_=init();
 
 

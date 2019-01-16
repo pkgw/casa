@@ -606,7 +606,7 @@ class mstool_test_transform(mstool_test_base):
         statwtms = 'ngc5921_statwt.ms'
         shutil.copytree(self.testms, statwtms)
         self.ms.open(statwtms, False)
-        self.assertTrue(self.ms.statwt(fitspw='0:0~32', field=[0], datacolumn='data'))
+        self.assertTrue(self.ms.oldstatwt(fitspw='0:0~32', field=[0], datacolumn='data'))
         rec = self.ms.getdata(['weight','sigma'])
         self.ms.close()
         self.removeMS(statwtms)

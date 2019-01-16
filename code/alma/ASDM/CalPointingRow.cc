@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalPointingRow.h>
-#include <CalPointingTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalPointingRow.h>
+#include <alma/ASDM/CalPointingTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalPointingRow::~CalPointingRow() {
@@ -1300,7 +1297,9 @@ namespace asdm {
 		
 			
 		collOffsetRelative .clear();
-		vector<Angle> v_aux_collOffsetRelative;
+        
+        vector<Angle> v_aux_collOffsetRelative;
+        
 		for (unsigned int i = 0; i < x.collOffsetRelative.length(); ++i) {
 			v_aux_collOffsetRelative.clear();
 			for (unsigned int j = 0; j < x.collOffsetRelative[0].length(); ++j) {
@@ -1320,7 +1319,9 @@ namespace asdm {
 		
 			
 		collOffsetAbsolute .clear();
-		vector<Angle> v_aux_collOffsetAbsolute;
+        
+        vector<Angle> v_aux_collOffsetAbsolute;
+        
 		for (unsigned int i = 0; i < x.collOffsetAbsolute.length(); ++i) {
 			v_aux_collOffsetAbsolute.clear();
 			for (unsigned int j = 0; j < x.collOffsetAbsolute[0].length(); ++j) {
@@ -1340,7 +1341,9 @@ namespace asdm {
 		
 			
 		collError .clear();
-		vector<Angle> v_aux_collError;
+        
+        vector<Angle> v_aux_collError;
+        
 		for (unsigned int i = 0; i < x.collError.length(); ++i) {
 			v_aux_collError.clear();
 			for (unsigned int j = 0; j < x.collError[0].length(); ++j) {
@@ -1360,7 +1363,9 @@ namespace asdm {
 		
 			
 		collOffsetTied .clear();
-		vector<bool> v_aux_collOffsetTied;
+        
+        vector<bool> v_aux_collOffsetTied;
+        
 		for (unsigned int i = 0; i < x.collOffsetTied.length(); ++i) {
 			v_aux_collOffsetTied.clear();
 			for (unsigned int j = 0; j < x.collOffsetTied[0].length(); ++j) {
@@ -1468,7 +1473,9 @@ namespace asdm {
 		
 			
 		beamWidth .clear();
-		vector<Angle> v_aux_beamWidth;
+        
+        vector<Angle> v_aux_beamWidth;
+        
 		for (unsigned int i = 0; i < x.beamWidth.length(); ++i) {
 			v_aux_beamWidth.clear();
 			for (unsigned int j = 0; j < x.beamWidth[0].length(); ++j) {
@@ -1493,7 +1500,9 @@ namespace asdm {
 		
 			
 		beamWidthError .clear();
-		vector<Angle> v_aux_beamWidthError;
+        
+        vector<Angle> v_aux_beamWidthError;
+        
 		for (unsigned int i = 0; i < x.beamWidthError.length(); ++i) {
 			v_aux_beamWidthError.clear();
 			for (unsigned int j = 0; j < x.beamWidthError[0].length(); ++j) {
@@ -2975,7 +2984,9 @@ void CalPointingRow::collOffsetTiedFromBin(EndianIStream& eis) {
 		
 		unsigned int collOffsetTiedDim1 = eis.readInt();
 		unsigned int collOffsetTiedDim2 = eis.readInt();
+        
 		vector <bool> collOffsetTiedAux1;
+        
 		for (unsigned int i = 0; i < collOffsetTiedDim1; i++) {
 			collOffsetTiedAux1.clear();
 			for (unsigned int j = 0; j < collOffsetTiedDim2 ; j++)			
@@ -3288,7 +3299,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalPointingRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -3296,7 +3309,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalPointingRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -3304,7 +3319,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalPointingRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3312,7 +3329,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalPointingRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3320,7 +3339,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalPointingRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -3328,7 +3349,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalPointingRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -3336,7 +3359,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void CalPointingRow::ambientTemperatureFromText(const string & s) {
 		 
+          
 		ambientTemperature = ASDMValuesParser::parse<Temperature>(s);
+          
 		
 	}
 	
@@ -3344,7 +3369,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an AntennaMake 
 	void CalPointingRow::antennaMakeFromText(const string & s) {
 		 
-		antennaMake = ASDMValuesParser::parse<AntennaMake>(s);
+          
+		antennaMake = ASDMValuesParser::parse<AntennaMakeMod::AntennaMake>(s);
+          
 		
 	}
 	
@@ -3352,7 +3379,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an AtmPhaseCorrection 
 	void CalPointingRow::atmPhaseCorrectionFromText(const string & s) {
 		 
-		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrection>(s);
+          
+		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrectionMod::AtmPhaseCorrection>(s);
+          
 		
 	}
 	
@@ -3360,7 +3389,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalPointingRow::directionFromText(const string & s) {
 		 
+          
 		direction = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -3368,7 +3399,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalPointingRow::frequencyRangeFromText(const string & s) {
 		 
+          
 		frequencyRange = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3376,7 +3409,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an PointingModelMode 
 	void CalPointingRow::pointingModelModeFromText(const string & s) {
 		 
-		pointingModelMode = ASDMValuesParser::parse<PointingModelMode>(s);
+          
+		pointingModelMode = ASDMValuesParser::parse<PointingModelModeMod::PointingModelMode>(s);
+          
 		
 	}
 	
@@ -3384,7 +3419,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an PointingMethod 
 	void CalPointingRow::pointingMethodFromText(const string & s) {
 		 
-		pointingMethod = ASDMValuesParser::parse<PointingMethod>(s);
+          
+		pointingMethod = ASDMValuesParser::parse<PointingMethodMod::PointingMethod>(s);
+          
 		
 	}
 	
@@ -3392,7 +3429,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalPointingRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3400,7 +3439,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalPointingRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -3408,7 +3449,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalPointingRow::collOffsetRelativeFromText(const string & s) {
 		 
+          
 		collOffsetRelative = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -3416,7 +3459,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalPointingRow::collOffsetAbsoluteFromText(const string & s) {
 		 
+          
 		collOffsetAbsolute = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -3424,7 +3469,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalPointingRow::collErrorFromText(const string & s) {
 		 
+          
 		collError = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -3432,7 +3479,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void CalPointingRow::collOffsetTiedFromText(const string & s) {
 		 
+          
 		collOffsetTied = ASDMValuesParser::parse2D<bool>(s);
+          
 		
 	}
 	
@@ -3440,7 +3489,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalPointingRow::reducedChiSquaredFromText(const string & s) {
 		 
+          
 		reducedChiSquared = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -3450,7 +3501,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::averagedPolarizationsFromText(const string & s) {
 		averagedPolarizationsExists = true;
 		 
+          
 		averagedPolarizations = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -3459,7 +3512,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::beamPAFromText(const string & s) {
 		beamPAExists = true;
 		 
+          
 		beamPA = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -3468,7 +3523,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::beamPAErrorFromText(const string & s) {
 		beamPAErrorExists = true;
 		 
+          
 		beamPAError = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -3477,7 +3534,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::beamPAWasFixedFromText(const string & s) {
 		beamPAWasFixedExists = true;
 		 
+          
 		beamPAWasFixed = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -3486,7 +3545,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::beamWidthFromText(const string & s) {
 		beamWidthExists = true;
 		 
+          
 		beamWidth = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -3495,7 +3556,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::beamWidthErrorFromText(const string & s) {
 		beamWidthErrorExists = true;
 		 
+          
 		beamWidthError = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -3504,7 +3567,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::beamWidthWasFixedFromText(const string & s) {
 		beamWidthWasFixedExists = true;
 		 
+          
 		beamWidthWasFixed = ASDMValuesParser::parse1D<bool>(s);
+          
 		
 	}
 	
@@ -3513,7 +3578,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::offIntensityFromText(const string & s) {
 		offIntensityExists = true;
 		 
+          
 		offIntensity = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -3522,7 +3589,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::offIntensityErrorFromText(const string & s) {
 		offIntensityErrorExists = true;
 		 
+          
 		offIntensityError = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -3531,7 +3600,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::offIntensityWasFixedFromText(const string & s) {
 		offIntensityWasFixedExists = true;
 		 
+          
 		offIntensityWasFixed = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -3540,7 +3611,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::peakIntensityFromText(const string & s) {
 		peakIntensityExists = true;
 		 
+          
 		peakIntensity = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -3549,7 +3622,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::peakIntensityErrorFromText(const string & s) {
 		peakIntensityErrorExists = true;
 		 
+          
 		peakIntensityError = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -3558,7 +3633,9 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	void CalPointingRow::peakIntensityWasFixedFromText(const string & s) {
 		peakIntensityWasFixedExists = true;
 		 
+          
 		peakIntensityWasFixed = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -3580,23 +3657,23 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalPointingRow::getAntennaName() const {
+ 	std::string CalPointingRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalPointingRow::setAntennaName (string antennaName)  {
+ 	void CalPointingRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3812,21 +3889,21 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get direction.
- 	 * @return direction as vector<Angle >
+ 	 * @return direction as std::vector<Angle >
  	 */
- 	vector<Angle > CalPointingRow::getDirection() const {
+ 	std::vector<Angle > CalPointingRow::getDirection() const {
 	
   		return direction;
  	}
 
  	/**
- 	 * Set direction with the specified vector<Angle >.
- 	 * @param direction The vector<Angle > value to which direction is to be set.
+ 	 * Set direction with the specified std::vector<Angle >.
+ 	 * @param direction The std::vector<Angle > value to which direction is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingRow::setDirection (vector<Angle > direction)  {
+ 	void CalPointingRow::setDirection (std::vector<Angle > direction)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3844,21 +3921,21 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalPointingRow::getFrequencyRange() const {
+ 	std::vector<Frequency > CalPointingRow::getFrequencyRange() const {
 	
   		return frequencyRange;
  	}
 
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingRow::setFrequencyRange (vector<Frequency > frequencyRange)  {
+ 	void CalPointingRow::setFrequencyRange (std::vector<Frequency > frequencyRange)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3972,21 +4049,21 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > CalPointingRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > CalPointingRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void CalPointingRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4004,21 +4081,21 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get collOffsetRelative.
- 	 * @return collOffsetRelative as vector<vector<Angle > >
+ 	 * @return collOffsetRelative as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > CalPointingRow::getCollOffsetRelative() const {
+ 	std::vector<std::vector<Angle > > CalPointingRow::getCollOffsetRelative() const {
 	
   		return collOffsetRelative;
  	}
 
  	/**
- 	 * Set collOffsetRelative with the specified vector<vector<Angle > >.
- 	 * @param collOffsetRelative The vector<vector<Angle > > value to which collOffsetRelative is to be set.
+ 	 * Set collOffsetRelative with the specified std::vector<std::vector<Angle > >.
+ 	 * @param collOffsetRelative The std::vector<std::vector<Angle > > value to which collOffsetRelative is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingRow::setCollOffsetRelative (vector<vector<Angle > > collOffsetRelative)  {
+ 	void CalPointingRow::setCollOffsetRelative (std::vector<std::vector<Angle > > collOffsetRelative)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4036,21 +4113,21 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get collOffsetAbsolute.
- 	 * @return collOffsetAbsolute as vector<vector<Angle > >
+ 	 * @return collOffsetAbsolute as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > CalPointingRow::getCollOffsetAbsolute() const {
+ 	std::vector<std::vector<Angle > > CalPointingRow::getCollOffsetAbsolute() const {
 	
   		return collOffsetAbsolute;
  	}
 
  	/**
- 	 * Set collOffsetAbsolute with the specified vector<vector<Angle > >.
- 	 * @param collOffsetAbsolute The vector<vector<Angle > > value to which collOffsetAbsolute is to be set.
+ 	 * Set collOffsetAbsolute with the specified std::vector<std::vector<Angle > >.
+ 	 * @param collOffsetAbsolute The std::vector<std::vector<Angle > > value to which collOffsetAbsolute is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingRow::setCollOffsetAbsolute (vector<vector<Angle > > collOffsetAbsolute)  {
+ 	void CalPointingRow::setCollOffsetAbsolute (std::vector<std::vector<Angle > > collOffsetAbsolute)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4068,21 +4145,21 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get collError.
- 	 * @return collError as vector<vector<Angle > >
+ 	 * @return collError as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > CalPointingRow::getCollError() const {
+ 	std::vector<std::vector<Angle > > CalPointingRow::getCollError() const {
 	
   		return collError;
  	}
 
  	/**
- 	 * Set collError with the specified vector<vector<Angle > >.
- 	 * @param collError The vector<vector<Angle > > value to which collError is to be set.
+ 	 * Set collError with the specified std::vector<std::vector<Angle > >.
+ 	 * @param collError The std::vector<std::vector<Angle > > value to which collError is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingRow::setCollError (vector<vector<Angle > > collError)  {
+ 	void CalPointingRow::setCollError (std::vector<std::vector<Angle > > collError)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4100,21 +4177,21 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get collOffsetTied.
- 	 * @return collOffsetTied as vector<vector<bool > >
+ 	 * @return collOffsetTied as std::vector<std::vector<bool > >
  	 */
- 	vector<vector<bool > > CalPointingRow::getCollOffsetTied() const {
+ 	std::vector<std::vector<bool > > CalPointingRow::getCollOffsetTied() const {
 	
   		return collOffsetTied;
  	}
 
  	/**
- 	 * Set collOffsetTied with the specified vector<vector<bool > >.
- 	 * @param collOffsetTied The vector<vector<bool > > value to which collOffsetTied is to be set.
+ 	 * Set collOffsetTied with the specified std::vector<std::vector<bool > >.
+ 	 * @param collOffsetTied The std::vector<std::vector<bool > > value to which collOffsetTied is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingRow::setCollOffsetTied (vector<vector<bool > > collOffsetTied)  {
+ 	void CalPointingRow::setCollOffsetTied (std::vector<std::vector<bool > > collOffsetTied)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4132,21 +4209,21 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get reducedChiSquared.
- 	 * @return reducedChiSquared as vector<double >
+ 	 * @return reducedChiSquared as std::vector<double >
  	 */
- 	vector<double > CalPointingRow::getReducedChiSquared() const {
+ 	std::vector<double > CalPointingRow::getReducedChiSquared() const {
 	
   		return reducedChiSquared;
  	}
 
  	/**
- 	 * Set reducedChiSquared with the specified vector<double >.
- 	 * @param reducedChiSquared The vector<double > value to which reducedChiSquared is to be set.
+ 	 * Set reducedChiSquared with the specified std::vector<double >.
+ 	 * @param reducedChiSquared The std::vector<double > value to which reducedChiSquared is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingRow::setReducedChiSquared (vector<double > reducedChiSquared)  {
+ 	void CalPointingRow::setReducedChiSquared (std::vector<double > reducedChiSquared)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4219,10 +4296,10 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get beamPA, which is optional.
- 	 * @return beamPA as vector<Angle >
+ 	 * @return beamPA as std::vector<Angle >
  	 * @throw IllegalAccessException If beamPA does not exist.
  	 */
- 	vector<Angle > CalPointingRow::getBeamPA() const  {
+ 	std::vector<Angle > CalPointingRow::getBeamPA() const  {
 		if (!beamPAExists) {
 			throw IllegalAccessException("beamPA", "CalPointing");
 		}
@@ -4231,12 +4308,12 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set beamPA with the specified vector<Angle >.
- 	 * @param beamPA The vector<Angle > value to which beamPA is to be set.
+ 	 * Set beamPA with the specified std::vector<Angle >.
+ 	 * @param beamPA The std::vector<Angle > value to which beamPA is to be set.
  	 
  	
  	 */
- 	void CalPointingRow::setBeamPA (vector<Angle > beamPA) {
+ 	void CalPointingRow::setBeamPA (std::vector<Angle > beamPA) {
 	
  		this->beamPA = beamPA;
 	
@@ -4266,10 +4343,10 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get beamPAError, which is optional.
- 	 * @return beamPAError as vector<Angle >
+ 	 * @return beamPAError as std::vector<Angle >
  	 * @throw IllegalAccessException If beamPAError does not exist.
  	 */
- 	vector<Angle > CalPointingRow::getBeamPAError() const  {
+ 	std::vector<Angle > CalPointingRow::getBeamPAError() const  {
 		if (!beamPAErrorExists) {
 			throw IllegalAccessException("beamPAError", "CalPointing");
 		}
@@ -4278,12 +4355,12 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set beamPAError with the specified vector<Angle >.
- 	 * @param beamPAError The vector<Angle > value to which beamPAError is to be set.
+ 	 * Set beamPAError with the specified std::vector<Angle >.
+ 	 * @param beamPAError The std::vector<Angle > value to which beamPAError is to be set.
  	 
  	
  	 */
- 	void CalPointingRow::setBeamPAError (vector<Angle > beamPAError) {
+ 	void CalPointingRow::setBeamPAError (std::vector<Angle > beamPAError) {
 	
  		this->beamPAError = beamPAError;
 	
@@ -4360,10 +4437,10 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get beamWidth, which is optional.
- 	 * @return beamWidth as vector<vector<Angle > >
+ 	 * @return beamWidth as std::vector<std::vector<Angle > >
  	 * @throw IllegalAccessException If beamWidth does not exist.
  	 */
- 	vector<vector<Angle > > CalPointingRow::getBeamWidth() const  {
+ 	std::vector<std::vector<Angle > > CalPointingRow::getBeamWidth() const  {
 		if (!beamWidthExists) {
 			throw IllegalAccessException("beamWidth", "CalPointing");
 		}
@@ -4372,12 +4449,12 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set beamWidth with the specified vector<vector<Angle > >.
- 	 * @param beamWidth The vector<vector<Angle > > value to which beamWidth is to be set.
+ 	 * Set beamWidth with the specified std::vector<std::vector<Angle > >.
+ 	 * @param beamWidth The std::vector<std::vector<Angle > > value to which beamWidth is to be set.
  	 
  	
  	 */
- 	void CalPointingRow::setBeamWidth (vector<vector<Angle > > beamWidth) {
+ 	void CalPointingRow::setBeamWidth (std::vector<std::vector<Angle > > beamWidth) {
 	
  		this->beamWidth = beamWidth;
 	
@@ -4407,10 +4484,10 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get beamWidthError, which is optional.
- 	 * @return beamWidthError as vector<vector<Angle > >
+ 	 * @return beamWidthError as std::vector<std::vector<Angle > >
  	 * @throw IllegalAccessException If beamWidthError does not exist.
  	 */
- 	vector<vector<Angle > > CalPointingRow::getBeamWidthError() const  {
+ 	std::vector<std::vector<Angle > > CalPointingRow::getBeamWidthError() const  {
 		if (!beamWidthErrorExists) {
 			throw IllegalAccessException("beamWidthError", "CalPointing");
 		}
@@ -4419,12 +4496,12 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set beamWidthError with the specified vector<vector<Angle > >.
- 	 * @param beamWidthError The vector<vector<Angle > > value to which beamWidthError is to be set.
+ 	 * Set beamWidthError with the specified std::vector<std::vector<Angle > >.
+ 	 * @param beamWidthError The std::vector<std::vector<Angle > > value to which beamWidthError is to be set.
  	 
  	
  	 */
- 	void CalPointingRow::setBeamWidthError (vector<vector<Angle > > beamWidthError) {
+ 	void CalPointingRow::setBeamWidthError (std::vector<std::vector<Angle > > beamWidthError) {
 	
  		this->beamWidthError = beamWidthError;
 	
@@ -4454,10 +4531,10 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get beamWidthWasFixed, which is optional.
- 	 * @return beamWidthWasFixed as vector<bool >
+ 	 * @return beamWidthWasFixed as std::vector<bool >
  	 * @throw IllegalAccessException If beamWidthWasFixed does not exist.
  	 */
- 	vector<bool > CalPointingRow::getBeamWidthWasFixed() const  {
+ 	std::vector<bool > CalPointingRow::getBeamWidthWasFixed() const  {
 		if (!beamWidthWasFixedExists) {
 			throw IllegalAccessException("beamWidthWasFixed", "CalPointing");
 		}
@@ -4466,12 +4543,12 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set beamWidthWasFixed with the specified vector<bool >.
- 	 * @param beamWidthWasFixed The vector<bool > value to which beamWidthWasFixed is to be set.
+ 	 * Set beamWidthWasFixed with the specified std::vector<bool >.
+ 	 * @param beamWidthWasFixed The std::vector<bool > value to which beamWidthWasFixed is to be set.
  	 
  	
  	 */
- 	void CalPointingRow::setBeamWidthWasFixed (vector<bool > beamWidthWasFixed) {
+ 	void CalPointingRow::setBeamWidthWasFixed (std::vector<bool > beamWidthWasFixed) {
 	
  		this->beamWidthWasFixed = beamWidthWasFixed;
 	
@@ -4501,10 +4578,10 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get offIntensity, which is optional.
- 	 * @return offIntensity as vector<Temperature >
+ 	 * @return offIntensity as std::vector<Temperature >
  	 * @throw IllegalAccessException If offIntensity does not exist.
  	 */
- 	vector<Temperature > CalPointingRow::getOffIntensity() const  {
+ 	std::vector<Temperature > CalPointingRow::getOffIntensity() const  {
 		if (!offIntensityExists) {
 			throw IllegalAccessException("offIntensity", "CalPointing");
 		}
@@ -4513,12 +4590,12 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set offIntensity with the specified vector<Temperature >.
- 	 * @param offIntensity The vector<Temperature > value to which offIntensity is to be set.
+ 	 * Set offIntensity with the specified std::vector<Temperature >.
+ 	 * @param offIntensity The std::vector<Temperature > value to which offIntensity is to be set.
  	 
  	
  	 */
- 	void CalPointingRow::setOffIntensity (vector<Temperature > offIntensity) {
+ 	void CalPointingRow::setOffIntensity (std::vector<Temperature > offIntensity) {
 	
  		this->offIntensity = offIntensity;
 	
@@ -4548,10 +4625,10 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get offIntensityError, which is optional.
- 	 * @return offIntensityError as vector<Temperature >
+ 	 * @return offIntensityError as std::vector<Temperature >
  	 * @throw IllegalAccessException If offIntensityError does not exist.
  	 */
- 	vector<Temperature > CalPointingRow::getOffIntensityError() const  {
+ 	std::vector<Temperature > CalPointingRow::getOffIntensityError() const  {
 		if (!offIntensityErrorExists) {
 			throw IllegalAccessException("offIntensityError", "CalPointing");
 		}
@@ -4560,12 +4637,12 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set offIntensityError with the specified vector<Temperature >.
- 	 * @param offIntensityError The vector<Temperature > value to which offIntensityError is to be set.
+ 	 * Set offIntensityError with the specified std::vector<Temperature >.
+ 	 * @param offIntensityError The std::vector<Temperature > value to which offIntensityError is to be set.
  	 
  	
  	 */
- 	void CalPointingRow::setOffIntensityError (vector<Temperature > offIntensityError) {
+ 	void CalPointingRow::setOffIntensityError (std::vector<Temperature > offIntensityError) {
 	
  		this->offIntensityError = offIntensityError;
 	
@@ -4642,10 +4719,10 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get peakIntensity, which is optional.
- 	 * @return peakIntensity as vector<Temperature >
+ 	 * @return peakIntensity as std::vector<Temperature >
  	 * @throw IllegalAccessException If peakIntensity does not exist.
  	 */
- 	vector<Temperature > CalPointingRow::getPeakIntensity() const  {
+ 	std::vector<Temperature > CalPointingRow::getPeakIntensity() const  {
 		if (!peakIntensityExists) {
 			throw IllegalAccessException("peakIntensity", "CalPointing");
 		}
@@ -4654,12 +4731,12 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set peakIntensity with the specified vector<Temperature >.
- 	 * @param peakIntensity The vector<Temperature > value to which peakIntensity is to be set.
+ 	 * Set peakIntensity with the specified std::vector<Temperature >.
+ 	 * @param peakIntensity The std::vector<Temperature > value to which peakIntensity is to be set.
  	 
  	
  	 */
- 	void CalPointingRow::setPeakIntensity (vector<Temperature > peakIntensity) {
+ 	void CalPointingRow::setPeakIntensity (std::vector<Temperature > peakIntensity) {
 	
  		this->peakIntensity = peakIntensity;
 	
@@ -4689,10 +4766,10 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get peakIntensityError, which is optional.
- 	 * @return peakIntensityError as vector<Temperature >
+ 	 * @return peakIntensityError as std::vector<Temperature >
  	 * @throw IllegalAccessException If peakIntensityError does not exist.
  	 */
- 	vector<Temperature > CalPointingRow::getPeakIntensityError() const  {
+ 	std::vector<Temperature > CalPointingRow::getPeakIntensityError() const  {
 		if (!peakIntensityErrorExists) {
 			throw IllegalAccessException("peakIntensityError", "CalPointing");
 		}
@@ -4701,12 +4778,12 @@ void CalPointingRow::peakIntensityWasFixedFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set peakIntensityError with the specified vector<Temperature >.
- 	 * @param peakIntensityError The vector<Temperature > value to which peakIntensityError is to be set.
+ 	 * Set peakIntensityError with the specified std::vector<Temperature >.
+ 	 * @param peakIntensityError The std::vector<Temperature > value to which peakIntensityError is to be set.
  	 
  	
  	 */
- 	void CalPointingRow::setPeakIntensityError (vector<Temperature > peakIntensityError) {
+ 	void CalPointingRow::setPeakIntensityError (std::vector<Temperature > peakIntensityError) {
 	
  		this->peakIntensityError = peakIntensityError;
 	
@@ -5534,7 +5611,7 @@ pointingMethod = CPointingMethod::from_int(0);
 	}
 
 	
-	bool CalPointingRow::compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, vector<Angle > direction, vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Angle > > collOffsetRelative, vector<vector<Angle > > collOffsetAbsolute, vector<vector<Angle > > collError, vector<vector<bool > > collOffsetTied, vector<double > reducedChiSquared) {
+	bool CalPointingRow::compareNoAutoInc(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Angle > > collOffsetRelative, std::vector<std::vector<Angle > > collOffsetAbsolute, std::vector<std::vector<Angle > > collError, std::vector<std::vector<bool > > collOffsetTied, std::vector<double > reducedChiSquared) {
 		bool result;
 		result = true;
 		
@@ -5683,7 +5760,7 @@ pointingMethod = CPointingMethod::from_int(0);
 	
 	
 	
-	bool CalPointingRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, vector<Angle > direction, vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Angle > > collOffsetRelative, vector<vector<Angle > > collOffsetAbsolute, vector<vector<Angle > > collError, vector<vector<bool > > collOffsetTied, vector<double > reducedChiSquared) {
+	bool CalPointingRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AntennaMakeMod::AntennaMake antennaMake, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, PointingModelModeMod::PointingModelMode pointingModelMode, PointingMethodMod::PointingMethod pointingMethod, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Angle > > collOffsetRelative, std::vector<std::vector<Angle > > collOffsetAbsolute, std::vector<std::vector<Angle > > collError, std::vector<std::vector<bool > > collOffsetTied, std::vector<double > reducedChiSquared) {
 		bool result;
 		result = true;
 		

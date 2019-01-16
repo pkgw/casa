@@ -1,4 +1,5 @@
-from taskinit import casalog, casac, qa, tb, write_history
+from taskinit import casalog, casac, qa, tb
+from mstools import write_history
 import os
 import copy
 import flaghelper as fh
