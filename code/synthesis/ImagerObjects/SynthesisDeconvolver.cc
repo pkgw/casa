@@ -259,20 +259,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         itsMaskHandler->setPBMaskLevel(itsPBMask);
         Array<Double> medians, robustrms;
         // 2 cases to use existing stats.
-        // 1. automask has run with fastnoise=True and the image statistics record has filled
-        // (if fastnoise=False, the stats depends on mask so it needs to be recalculated ?) or
+        // 1. automask has run and so the image statistics record has filled
+        // or
         // 2. no automask but for the first cycle but already initial calcRMS has ran to avoid duplicate
-        //  
-        //os<<" useautomask="<<useautomask<<" itsFastNoise="<<itsFastNoise<<" itsRobustStats.nfields()="<<itsRobustStats.nfields()<<LogIO::POST;
-        if ((useautomask && itsFastNoise && itsRobustStats.nfields()) || 
+        // 
+        if ((useautomask && itsRobustStats.nfields()) || 
             (!useautomask && iterdone==0 && itsRobustStats.nfields()) ) {
            os <<LogIO::DEBUG1<<"automask on: check the current stats"<<LogIO::POST;
            //os<< "itsRobustStats nfield="<< itsRobustStats.nfields() << LogIO::POST;;
            if (itsRobustStats.isDefined("medabsdevmed")) {
              Array<Double> mads;
              itsRobustStats.get(RecordFieldId("medabsdevmed"), mads);
-             os<<LogIO::DEBUG1<<"Using mad from automask ="<< mads <<LogIO::POST;
-             os<<LogIO::DEBUG1<<"converted robust rms from automask ="<< mads*1.4826 <<LogIO::POST;
+             os<<LogIO::DEBUG1<<"Using robust rms from automask ="<< mads*1.4826 <<LogIO::POST;
              robustrms = mads*1.4826;
            }
            else if(itsRobustStats.isDefined("robustrms")) {
