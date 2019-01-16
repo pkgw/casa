@@ -13,23 +13,27 @@ def field2skycat(msname='', skycat='',fieldpattern=''):
 
     qa=casac.quanta()
     tb=casac.table()
+    tb.open(msname)
+    mainFields=np.unique(tb.getcol('FIELD_ID'))
+    tb.done()
+    nMainField=len(mainFields)
     tb.open(msname+'/FIELD')
     dir=tb.getcol('PHASE_DIR')
     nam=tb.getcol('NAME')
     nfield=tb.nrows()
     n=0;
     for k in range(nfield):
-        if (re.match(fieldpattern,nam[k]) != None):
+        if ((re.match(fieldpattern,nam[k]) != None) and (k in mainFields) ):
             n=n+1
 
     eltype=[]
     if(tb.getcolkeyword('PHASE_DIR', 'MEASINFO').has_key('VarRefCol')):
         typeid=tb.getcol(tb.getcolkeyword('PHASE_DIR', 'MEASINFO')['VarRefCol'])
         for k in range(nfield):
-            if (re.match(fieldpattern,nam[k]) != None):
+            if ((re.match(fieldpattern,nam[k]) != None) and (k in mainFields)):
                 eltype.append(enumTypes[typeid[k]])
     else:
-        eltype=[tb.getcolkeyword('PHASE_DIR', 'MEASINFO')['Ref']]*nfield
+        eltype=[tb.getcolkeyword('PHASE_DIR', 'MEASINFO')['Ref']]*n
     unitra=tb.getcolkeyword('PHASE_DIR', 'QuantumUnits')[0]
     unitdec=tb.getcolkeyword('PHASE_DIR', 'QuantumUnits')[1]
     tb.done()
@@ -53,7 +57,7 @@ def field2skycat(msname='', skycat='',fieldpattern=''):
     fieldname=[]
     n=0;
     for k in range(nfield):
-        if (re.match(fieldpattern,nam[k]) != None):
+        if ((re.match(fieldpattern,nam[k]) != None) and (k in mainFields)):
             longi[n]=qa.convert(qa.quantity(dir[0,0,k], unitra),'deg')['value']
             lati[n]=qa.convert(qa.quantity(dir[1,0,k], unitdec), 'deg')['value']
             RA.append(qa.time(qa.quantity(dir[0,0,k], unitra), prec=10))

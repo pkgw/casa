@@ -80,29 +80,32 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
         npol_p(-1), pointToPix_p(), directionIndex_p(-1), thePix_p(0),
         filledFluxScale_p(false),doneMainConv_p(0),
                                       
-				      calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p(), usePointingTable_p(False)  {
+				      calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p()  {
     //
 
     pbClass_p=PBMathInterface::COMMONPB;
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
 }
 
   SimplePBConvFunc::SimplePBConvFunc(const PBMathInterface::PBClass typeToUse): 
     nchan_p(-1),npol_p(-1),pointToPix_p(),
     directionIndex_p(-1), thePix_p(0), filledFluxScale_p(false),doneMainConv_p(0), 
-    calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p(), usePointingTable_p(False) {
+    calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p() {
     //
     pbClass_p=typeToUse;
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
   }
   SimplePBConvFunc::SimplePBConvFunc(const RecordInterface& rec, const Bool calcfluxneeded)
   : nchan_p(-1),npol_p(-1),pointToPix_p(), directionIndex_p(-1), thePix_p(0), filledFluxScale_p(false),
     doneMainConv_p(0), 
-    calcFluxScale_p(calcfluxneeded), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p(), usePointingTable_p(False)
+    calcFluxScale_p(calcfluxneeded), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p()
   {
     String err;
     fromRecord(err, rec, calcfluxneeded);
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
   }
   SimplePBConvFunc::~SimplePBConvFunc(){
     //
@@ -271,7 +274,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     ant1PointingCache_p.resize(val+1, true);
     if(hasValidPointing){
       //ant1PointingCache_p[val]=vb.direction1()[0];
-      ant1PointingCache_p[val]=vbUtil_p.getPointingDir(vb, vb.antenna1()(0), 0, usePointingTable_p);
+      ant1PointingCache_p[val]=vbutil_p->getPointingDir(vb, vb.antenna1()(0), 0, dc_p.directionType());
     }
     else
       ant1PointingCache_p[val]=vbutil_p->getPhaseCenter(vb);

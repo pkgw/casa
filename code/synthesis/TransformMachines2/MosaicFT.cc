@@ -285,9 +285,11 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
     pbConvFunc_p->setSkyJones(sj_p);
   ////TEST for HetArray only for now
   if(pbConvFunc_p->name()=="HetArrayConvFunc"){
-    if(convSampling <10) 
-      convSampling=10;
-    AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
+    if(usePointingTable_p)
+      convSampling=1;
+    else
+      convSampling=2;
+    AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", convSampling);
   }
   if((pbConvFunc_p->getVBUtil()).null()){
     if(vbutil_p.null()){
@@ -1065,6 +1067,12 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
       if(vb.antenna1()(rownr)==vb.antenna2()(rownr)) rowFlags(rownr)=1;
     }
   }
+  //We should flag all convolution row with support 0
+  for  (Int rownr=startRow; rownr<=endRow; rownr++) {
+    if(convSupportPlanes_p[convRowMap_p[rownr]]<0){
+      rowFlags[rownr]=1;
+    }
+  }
   
   
 
@@ -1141,8 +1149,8 @@ Int  ixsub, iysub, icounter;
   //nth=1;
   ////////***************
   if (nth >3){
-    ixsub=16;
-    iysub=16; 
+    ixsub=8;
+    iysub=8; 
   }
   else if(nth >1){
      ixsub=2;
@@ -1180,7 +1188,7 @@ Int  ixsub, iysub, icounter;
   Int csize=convSize;
   const Int * flagstor=flags.getStorage(del);
   const Int * rowflagstor=rowFlags.getStorage(del);
-  Int csupp=convSupport;
+  Int csupp=convSupport/2;
   const Int *convrowmapstor=convRowMap_p.getStorage(del);
   const Int *convchanmapstor=convChanMap_p.getStorage(del);
   const Int *convpolmapstor=convPolMap_p.getStorage(del);
@@ -1258,7 +1266,7 @@ Int  ixsub, iysub, icounter;
       //and adding it after dooing the gridding
       DComplex *gridwgtstor=griddedWeight2.getStorage(weightcopy);
       gmoswgtd(&nvp, &nvc,flagstor, rowflagstor, wgtStorage, &nvisrow, 
-	       &nxp, &nyp, &np, &nc, &csupp, &csize, &csamp, 
+	       &nxp, &nyp, &np, &nc, &convSupport, &csize, &csamp, 
 	       cmapstor, pmapstor,
 	       gridwgtstor, wconvstor, convrowmapstor, 
 	       convchanmapstor,  convpolmapstor, 
@@ -1338,7 +1346,7 @@ Int  ixsub, iysub, icounter;
     if(!doneWeightImage_p){
       Complex *gridwgtstor=griddedWeight.getStorage(weightcopy);
       gmoswgts(&nvp, &nvc,flagstor, rowflagstor, wgtStorage, &nvisrow, 
-	       &nxp, &nyp, &np, &nc, &csupp, &csize, &csamp, 
+	       &nxp, &nyp, &np, &nc, &convSupport, &csize, &csamp, 
 	       cmapstor, pmapstor,
 	       gridwgtstor, wconvstor, convrowmapstor, 
 	       convchanmapstor,  convpolmapstor, 
@@ -1424,12 +1432,18 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
       if(vb.antenna1()(rownr)==vb.antenna2()(rownr)) rowFlags(rownr)=1;
     }
   }
+  //We should flag all convolution row with support 0
+  for  (Int rownr=startRow; rownr<=endRow; rownr++) {
+    if(convSupportPlanes_p[convRowMap_p[rownr]]<0){
+      rowFlags[rownr]=1;
+    }
+  }
   Int nvp=data.shape()[0];
   Int nvc=data.shape()[1];
   Int nvisrow=data.shape()[2];
   Int csamp=convSampling;
   Int csize=convSize;
-  Int csupp=convSupport;
+  Int csupp=convSupport/2;
   Int nc=nchan;
   Int np=npol;
   Int nxp=nx;
