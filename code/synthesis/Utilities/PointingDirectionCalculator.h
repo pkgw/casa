@@ -124,6 +124,8 @@ namespace casa {
 // </todo>
 ///
 
+
+class SplineInterpolation;  // Forward Refference //
 class PointingDirectionCalculator {
 public:
     // Enumerations for memory layout of the output pointing direction array.
@@ -262,6 +264,9 @@ public:
 
     void setSplineInterpolation(bool mode) {fgSplineInterpolation = mode;};
 
+    SplineInterpolation     *spline;
+    SDPosInterpolator       *sdp;
+
 private:
 
     void init();
@@ -285,7 +290,6 @@ private:
 
     casacore::MDirection (*accessor_)(	casacore::ROMSPointingColumns &pointingColumns,
             				casacore::uInt rownr);
-
     // conversion stuff
 
     casacore::MPosition 			antennaPosition_;
@@ -333,17 +337,9 @@ private:
         casacore::Vector<casacore::uInt>            allAntennaBoundary_;
         casacore::uInt                              allNumAntennaBoundary_;
 
-      // Coefficitent Table Create Control
-
-        bool doneAntenaBoundaryCreate;
-
-      // Interpolation Mode  control
+      // Interpolation Object
       
-        bool fgSplineInterpolation = false;       // Use Spline if TRUE
-
-      // SDP object 
-
-        SDPosInterpolator  sdp_();
+        bool fgSplineInterpolation = true;       // Use Spline if TRUE
 
       // Internal Spline Functions
 
@@ -358,27 +354,88 @@ private:
 };
 
 //+
-// Antenna Boundary Service
+//  typedef of accessor_
+//   use this form ;; typedef void (*FUNCTYPE)(double, double&, double&);
 //-
-class AntennaBoundary{
+typedef 
+casacore::MDirection (*ACCESSOR)(  casacore::ROMSPointingColumns &pointingColumns,
+                                       casacore::uInt rownr);
+
+//+
+// Interpolation Base class
+//-
+class Interpolation {
 public:
-        AntennaBoundary(casacore::MeasurementSet &ms) ;
+#if 0
+    virtual casacore::Vector<casacore::Double>  calulate() = 0;
+#endif 
+    // Interpolation TYpe
+    enum InterpolationType {
+      LINEAR,
+      SPLINE
+   };
+
+private:
+
+};
+
+//+
+// Spline Interpolation Class
+//-
+
+class SplineInterpolation :public Interpolation  {
+
+public:
+
+        SplineInterpolation(casacore::MeasurementSet const &ms, ACCESSOR acc );
+
+       ~SplineInterpolation() { };
+
+        casacore::Vector<casacore::Double>   calculate(casacore::uInt row,
+                                                       casacore::Double dt,
+                                                       casacore::uInt AntennaID =0);
+        void showCoeff();
+
+private:
+        //  default constructor 
+
+         SplineInterpolation();
+
+        // Coefficiat Table 
+
+        casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > coeff_;
+
+       // Internal Spline Functions
+
+        casacore::Vector<casacore::Double>   splineCalulate(casacore::uInt row,
+                                                            casacore::Double dt,
+                                                            casacore::uInt AntennaID =0);
+};
+
+//+
+// Antenna Boundary Class
+//-
+class AntennaBoundary {
+public:
+         AntennaBoundary(casacore::MeasurementSet const &ms) ;
         ~AntennaBoundary() { };
 
-        void showList();
-
-        casacore::uInt  numAntenna();
         casacore::uInt  getAntennaBoundary( casacore::uInt n ){return antennaBoundary_[n];}
         casacore::uInt  getNumAntennaBoundary( ){return numAntennaBoundary_;}
 
+        casacore::MSPointing  getPointingHandle() { return hPointing; };
+
+        void show() ;
 private:
        //  AntennaBoundary on Pointing Tablle 
        casacore::Vector<casacore::uInt>            antennaBoundary_;
        casacore::uInt                              numAntennaBoundary_;
-
+     
+       // Pointing Table handle
+       casacore::MSPointing hPointing; 
 };
 
 
 } //# NAMESPACE CASA - END
 
-#endif /* _SYNTHESIS_POINTING_DIRECTION_CALCULATOR_H_ */
+#endif /* _SYNTHESIS_POINTINGi_DIRECTION_CALCULATOR_H_ */

@@ -168,7 +168,9 @@ PointingDirectionCalculator::PointingDirectionCalculator(
 //   Making Table MUST BE done only ONE-TIME. 
 //-
     initializeSplineInterpolation(ms);
-
+#if 0   
+    spline = new SplineInterpolation(ms,accessor_); 
+#endif 
     init();
 
     // set default output direction reference frame
@@ -376,7 +378,16 @@ void PointingDirectionCalculator::unsetMovingSource() {
 //  AntennaBoundary sub class
 //-
 
-AntennaBoundary::AntennaBoundary(casacore::MeasurementSet &ms) 
+void AntennaBoundary::show()
+{
+    printf( "new Antenna Boundary Info, numAntennaBoundary_  = %u \n", numAntennaBoundary_  );
+    for (uInt b=0; b< antennaBoundary_.size(); b++)
+    {
+            printf( "new Created antennaBoundary_[%d] = %d \n", b, antennaBoundary_[b] );
+    }
+}
+
+AntennaBoundary::AntennaBoundary(MeasurementSet const &ms) 
 {
 
         // (1) Do the same, but see PointingTable.antenna 
@@ -398,7 +409,8 @@ AntennaBoundary::AntennaBoundary(casacore::MeasurementSet &ms)
         sortColumns[1]="TIME";
 
         MSPointing hPointingTmp(hPointing_org.sort(sortColumns));
-        casacore::MSPointing    hPointing = hPointingTmp;
+
+        hPointing = hPointingTmp;
 
         // Column Handle (sorted) 
 
@@ -431,6 +443,8 @@ AntennaBoundary::AntennaBoundary(casacore::MeasurementSet &ms)
         antennaBoundary_[count] = nrow;
         ++count;
         numAntennaBoundary_ = count;
+
+       if (false) show();  // DEBUG //
 }
 
 
@@ -482,13 +496,18 @@ void PointingDirectionCalculator::splineInit()
             // resizei (for Dir) //
             tmp_dir[ant][index].resize(2);
 
-            // values (28-DEC-2018 Columns handle refers sorted Table) //
+            //+
+            // QUESTION (2019.1.16)
+            //   How to access direction data to be interporated ?
+            //   1) use accessor as already implemented
+            //   2) use casacore API for (DIRECTION, TARGET)
+            //   Why accessor_ is designed in PointingDirCalc ?? 
+            //+ 
 
             Double        time    = (columnPointing->time()).get(index);
             MDirection     dir    = accessor_(*columnPointing, index);
 
             Vector<Double> dirVal = dir.getAngle("rad").getValue();
-
             // set on Vector //
             tmp_time[ant][index] = time;
             tmp_dir [ant][index] = dirVal;
@@ -513,14 +532,13 @@ void PointingDirectionCalculator::splineInit()
  
     //+
     // SDPosInterpolator Objct 
-    //   - calulate Coefficient Table - 
     //-
 
-      SDPosInterpolator  sdp_ (tmp_time, tmp_dir);
+      sdp = new SDPosInterpolator (tmp_time, tmp_dir);
    
     // Obtain Coeff , save//
 
-      splineCoeff_ = sdp_.getSplineCoeff();
+      splineCoeff_ = sdp->getSplineCoeff();
 
     // Dump //
 
@@ -563,13 +581,11 @@ void PointingDirectionCalculator::splineInit()
 //  RESERVED
 //- 
 
+// OLD //
 void  PointingDirectionCalculator::initializeSplineInterpolation(MeasurementSet const &ms)
 {
 //   printf("iniializeSplineInterpolation() called. \n");
 
-    if(true)  // ALWAYS TRUE, if false -> spline coeff is NOT READY./
-    {
-#if 1
         //+
         // CAS-8418 (19-DEC-2018) 
         //     AntennaBounday for  Interporation was transferd from inspectAntenna() 
@@ -658,20 +674,195 @@ void  PointingDirectionCalculator::initializeSplineInterpolation(MeasurementSet 
                 printf( "Created antennaBoundary_[%d] = %d \n", b, allAntennaBoundary_[b] );
             }   
         }
-#else
 
 
-#endif 
         //+
         // Spline Make Table 
         //  - Only once !
         //-
 
         splineInit();   // In this module, all access to MS is performed.  //
+
+}
+///////////////////////////
+// RENEW CLASS STRUCTUR 
+//   2019.1.15 -
+//////////////////////////
+
+SplineInterpolation::SplineInterpolation(MeasurementSet const &ms, ACCESSOR my_accessor ) 
+{
+    // Antenna Bounday //
+
+        AntennaBoundary  antb(ms);
+
+    // get Antenna count from  allAntennaBoundary 
+
+        uInt numAnt = antb.getNumAntennaBoundary() -1;
+
+    // prepere MS handle from selectedMS_
+        MSPointing hPoint = antb.getPointingHandle();
+        std::unique_ptr<casacore::ROMSPointingColumns>
+                columnPointing( new casacore::ROMSPointingColumns( hPoint ));
+
+    // Prepare Time and direction//
+
+      Vector<Vector<Double> >          tmp_time;
+      Vector<Vector<Vector<Double> > > tmp_dir;
+
+    // Resize (top level) //
+    
+      tmp_time.        resize(numAnt);
+      tmp_dir.         resize(numAnt);
+
+    // Column handle (only time,direction are needed, others are reserved) //
+    
+      ROScalarColumn<Double> pointingTime           = columnPointing ->time();
+      ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
+      ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
+      ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
+
+    for(uInt ant=0; ant <numAnt; ant++)
+    {
+
+        uInt startPos = antb.getAntennaBoundary(ant);
+        uInt endPos   = antb.getAntennaBoundary(ant+1);
+        int size = endPos - startPos;
+
+        // define size of each antenna  
+          tmp_dir [ant]. resize(size);
+          tmp_time[ant]. resize(size);
+
+        // for each row // 
+        for (uInt row = startPos; row < endPos; row++) 
+        {
+            uInt index = row - startPos;
+
+            // resizei (for Dir) //
+            tmp_dir[ant][index].resize(2);
+
+            Double        time    = pointingTime.get(index);
+            MDirection     dir    = my_accessor(*columnPointing, index);
+            Vector<Double> dirVal = dir.getAngle("rad").getValue();
+
+            // set on Vector //
+            tmp_time[ant][index] = time;
+            tmp_dir [ant][index] = dirVal;
+
+            if(false)
+            {
+                printf("new SDP arg index=%d ant=%d, time=%f, dir=[%f,%f]\n", 
+                       index, ant, time, dirVal[0],dirVal[1]);
+            }
+        }
     }
+
+
+    //+
+    // Minimum Condition Inspection
+    // [TENTATIVE]
+    //-
+
+    for(uInt ant=0; ant <numAnt; ant++)
+    {
+        if(tmp_time[ant].size() <= 4){ printf("## Insufficient Row.  ##\n");return;}
+        if(tmp_dir [ant].size() <= 4){ printf("## Insufficient Row.  ##\n");return;}
+    }
+ 
+    //+
+    // SDPosInterpolator Objct 
+    //   - calulate Coefficient Table - 
+    //-
+
+      SDPosInterpolator  sdp (tmp_time, tmp_dir);
+   
+    // Obtain Coeff , save//
+
+      coeff_ = sdp.getSplineCoeff();
+      printf( "making Coeff , completed. \n");
+
+
+      showCoeff();
 
 }
 
+void SplineInterpolation::showCoeff()
+{
+    printf( "Coefficient Table, making in CSV file.\n");
+
+    FILE* fp = fopen( "coeff.csv","w" );
+
+    for(uInt ant=0; ant < coeff_.size(); ant++ )
+    {
+        uInt size2 = coeff_[ant].size();
+        printf( "AntID=%u, size=%u \n",ant, size2);
+        for(uInt i=0; i< size2; i++)
+        {
+            Double x_c0 = coeff_[ant][i][0][0];
+            Double x_c1 = coeff_[ant][i][0][1];
+            Double x_c2 = coeff_[ant][i][0][2];
+            Double x_c3 = coeff_[ant][i][0][3];
+
+            Double y_c0 = coeff_[ant][i][1][0];
+            Double y_c1 = coeff_[ant][i][1][1];
+            Double y_c2 = coeff_[ant][i][1][2];
+            Double y_c3 = coeff_[ant][i][1][3];
+
+            fprintf(fp,"Spline::COEFF[%d],%4d,", ant, i );
+            fprintf(fp, "X, %-12.5e, %-12.5e, %-12.5e, %-12.5e,|,",
+                    x_c0, x_c1, x_c2, x_c3 );
+                
+            fprintf(fp, "Y, %-12.5e, %-12.5e, %-12.5e, %-12.5e \n",
+                    y_c0, y_c1, y_c2, y_c3 );
+        }
+    }
+    fclose(fp);
+
+}
+
+// NEW //
+casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
+                                                                  Double dt,
+                                                                  uInt antID )
+{
+    // Error check //
+
+    uInt arraySize = coeff_[antID].size();
+    if(  index >= arraySize)
+    {
+        printf("Bugcheck.Requested Index too large.\n");
+        throw;   
+    }
+   
+    // Coefficient //
+
+    Double a0 = coeff_[antID][index][0][0];
+    Double a1 = coeff_[antID][index][0][1];
+    Double a2 = coeff_[antID][index][0][2];
+    Double a3 = coeff_[antID][index][0][3];
+
+    Double b0 = coeff_[antID][index][1][0];
+    Double b1 = coeff_[antID][index][1][1];
+    Double b2 = coeff_[antID][index][1][2];
+    Double b3 = coeff_[antID][index][1][3];
+
+//+
+// Spline Calc
+//-
+    double Xs =  (((0* dt + a3)*dt + a2)*dt + a1)*dt + a0;
+    double Ys =  (((0* dt + b3)*dt + b2)*dt + b1)*dt + b0;
+
+// Return //
+
+    Vector<Double> outval(2); 
+    // Spline interpolated//
+      outval[0] = Xs;
+      outval[1] = Ys;
+
+    return outval;
+
+}
+
+// OLD //
 Vector<Double> PointingDirectionCalculator::splineCalulate(uInt index, Double dt,uInt antID )
 {
     uInt arraySize = splineCoeff_[antID].size();
@@ -1001,8 +1192,11 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
         else if (index > (Int)(nrowPointing-1) )   uIndex = nrowPointing-1;
         else { printf( "BUGCHECK\n");  throw; } 
 
+#if 1
         Vector<Double> ttDir = splineCalulate(uIndex, dtime, antID );
-
+#else
+        Vector<Double> ttDir = spline_ ->calculate(uIndex, dtime, antID );
+#endif 
         interpolated[0] = ttDir[0]; // 3rd. order Spline
         interpolated[1] = ttDir[1];
 

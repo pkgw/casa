@@ -354,7 +354,7 @@ void DeleteWorkingMS()
     // Delete File (Recursively done) 
     // NOTE: for debug use, please change true-> falase )
 
-    if (false)
+    if (true)
     {
          dir_ctrl. removeRecursive(false /*keepDir=False */ );
     }
