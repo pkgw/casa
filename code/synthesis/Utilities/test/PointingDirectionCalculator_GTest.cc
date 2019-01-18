@@ -2730,7 +2730,7 @@ TEST_F(TestDirection, InterpolationSingle )
     //    - define test count. some rows are automatically added
     //-
 
-      use_spline = false;
+      use_spline = true;
 
       msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 

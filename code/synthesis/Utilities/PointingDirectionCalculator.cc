@@ -167,8 +167,10 @@ PointingDirectionCalculator::PointingDirectionCalculator(
 // CAS-8418: In ideal, Just here, Creating Interpolation should be performed
 //   Making Table MUST BE done only ONE-TIME. 
 //-
+#if 0
     initializeSplineInterpolation(ms);
-#if 0   
+#endif 
+#if 1    
     spline = new SplineInterpolation(ms,accessor_); 
 #endif 
     init();
@@ -448,6 +450,7 @@ AntennaBoundary::AntennaBoundary(MeasurementSet const &ms)
 }
 
 
+#if 0
 //+
 // NEW for SPLINE Interpolation
 //-
@@ -684,6 +687,7 @@ void  PointingDirectionCalculator::initializeSplineInterpolation(MeasurementSet 
         splineInit();   // In this module, all access to MS is performed.  //
 
 }
+#endif 
 ///////////////////////////
 // RENEW CLASS STRUCTUR 
 //   2019.1.15 -
@@ -691,6 +695,7 @@ void  PointingDirectionCalculator::initializeSplineInterpolation(MeasurementSet 
 
 SplineInterpolation::SplineInterpolation(MeasurementSet const &ms, ACCESSOR my_accessor ) 
 {
+
     // Antenna Bounday //
 
         AntennaBoundary  antb(ms);
@@ -862,6 +867,7 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
 
 }
 
+#if 0
 // OLD //
 Vector<Double> PointingDirectionCalculator::splineCalulate(uInt index, Double dt,uInt antID )
 {
@@ -909,6 +915,7 @@ Vector<Double> PointingDirectionCalculator::splineCalulate(uInt index, Double dt
     return outval;
 
 }
+#endif 
 
 Matrix<Double> PointingDirectionCalculator::getDirection() {
     assert(!selectedMS_.null());
@@ -1192,10 +1199,10 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
         else if (index > (Int)(nrowPointing-1) )   uIndex = nrowPointing-1;
         else { printf( "BUGCHECK\n");  throw; } 
 
-#if 1
+#if 0 
         Vector<Double> ttDir = splineCalulate(uIndex, dtime, antID );
 #else
-        Vector<Double> ttDir = spline_ ->calculate(uIndex, dtime, antID );
+        Vector<Double> ttDir = getSplineObj() -> calculate(uIndex, dtime, antID );
 #endif 
         interpolated[0] = ttDir[0]; // 3rd. order Spline
         interpolated[1] = ttDir[1];

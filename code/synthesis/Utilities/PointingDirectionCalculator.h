@@ -264,7 +264,7 @@ public:
 
     void setSplineInterpolation(bool mode) {fgSplineInterpolation = mode;};
 
-    SplineInterpolation     *spline;
+    SplineInterpolation     *getSplineObj() { return spline; }
     SDPosInterpolator       *sdp;
 
 private:
@@ -340,6 +340,10 @@ private:
       // Interpolation Object
       
         bool fgSplineInterpolation = true;       // Use Spline if TRUE
+
+      // Object 
+      
+       SplineInterpolation     *spline;
 
       // Internal Spline Functions
 
