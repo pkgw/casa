@@ -133,7 +133,7 @@ private:
   casacore::CountedPtr<casacore::ImageInterface<casacore::Float> > maskImage_p;
 
   casacore::Int facets_p;
-  casacore::Bool largeMem_p;
+  //casacore::Bool largeMem_p;
 
   // Here we store the facets for the various images: Model, Mask
   // and Residual

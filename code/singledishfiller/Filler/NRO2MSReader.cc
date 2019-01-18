@@ -157,16 +157,16 @@ Int getSubscan(Int srctype) {
 }
 
 constexpr double kDay2Sec = 86400.0;
-constexpr double kSec2Day = 1.0 / kDay2Sec;
+// constexpr double kSec2Day = 1.0 / kDay2Sec;
 
 // CAS-11223
 // Time difference between JST and UTC is 9 hours
 constexpr double kJSTOffsetHour = 9.0;
 constexpr double kJSTOffsetMin = kJSTOffsetHour * 60.0;
 constexpr double kJSTOffsetSec = kJSTOffsetMin * 60.0;
-inline double jst2utcHour(double jst_time) {
-  return jst_time - kJSTOffsetHour;
-}
+//inline double jst2utcHour(double jst_time) {
+//  return jst_time - kJSTOffsetHour;
+//}
 inline double jst2utcSec(double jst_time) {
   return jst_time - kJSTOffsetSec;
 }

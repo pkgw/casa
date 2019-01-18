@@ -75,7 +75,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     MatrixCleaner(),
     ntaylor_p(0),psfntaylor_p(0),nscales_p(0),nx_p(0),ny_p(0),totalIters_p(0),
     maxscaleindex_p(0), globalmaxpos_p(IPosition(0)),
-    donePSF_p(false),donePSP_p(false),doneCONV_p(false),memoryMB_p(0),
+    /*donePSF_p(false),*/donePSP_p(false),doneCONV_p(false),memoryMB_p(0),
     adbg(false)
   { }
 
