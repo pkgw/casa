@@ -263,7 +263,7 @@ public:
 
     void setSplineInterpolation(bool mode) {fgSplineInterpolation = mode;};
 
-    SplineInterpolation     *getSplineObj() { return spline; }
+    SplineInterpolation    *getSplineObj() { return spline; }
 
 private:
 
@@ -352,7 +352,8 @@ public:
 
     // Default Accessor (reserved)
       void       setDefaultAccessor( ACCESSOR acc) {defaultAccessor=acc;}
-    
+      ACCESSOR   getDefaultAccessor() {return defaultAccessor; }
+ 
     // Interpolation TYpe
       enum InterpolationType {
         LINEAR,
@@ -372,14 +373,16 @@ class SplineInterpolation :public Interpolation  {
 public:
 
         SplineInterpolation(casacore::MeasurementSet const &ms, ACCESSOR acc );
+        SplineInterpolation(casacore::MeasurementSet const &ms );
 
        ~SplineInterpolation() { };
 
         casacore::Vector<casacore::Double>   calculate(casacore::uInt row,
                                                        casacore::Double dt,
                                                        casacore::uInt AntennaID =0);
+#if 0
         void showCoeff();
-
+#endif 
 private:
         //  default constructor 
 
@@ -398,6 +401,8 @@ private:
         casacore::Vector<casacore::Double>   splineCalulate(casacore::uInt row,
                                                             casacore::Double dt,
                                                             casacore::uInt AntennaID =0);
+       // debug //
+         void showCoeff();
 };
 
 //+

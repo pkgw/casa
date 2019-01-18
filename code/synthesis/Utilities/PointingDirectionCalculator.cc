@@ -155,7 +155,7 @@ PointingDirectionCalculator::PointingDirectionCalculator(
                 0), pointingTimeUTC_(), lastTimeStamp_(-1.0), lastAntennaIndex_(
                 -1), pointingTableIndexCache_(0), shape_(
                 PointingDirectionCalculator::COLUMN_MAJOR),
-                fgSplineInterpolation(false)
+                fgSplineInterpolation(true)
 {
     accessor_ = directionAccessor;
 
@@ -309,6 +309,10 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
         throw AipsError(ss.str());
     }
 
+    // CAS-8418 (Reserved) chenge accessor in interpolation) //
+#if 0
+    getSplineObj() ->setDefaultAccessor( accessor_ );
+#endif 
     configureMovingSourceCorrection();
 }
 
@@ -455,6 +459,10 @@ SplineInterpolation::SplineInterpolation(MeasurementSet const &ms, ACCESSOR acce
 
     setDefaultAccessor(accessor);
 }
+SplineInterpolation::SplineInterpolation(MeasurementSet const &ms) // NOT TESTED //
+{
+    init(ms, getDefaultAccessor() );
+}
 
 void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR my_accessor)
 {
@@ -462,7 +470,6 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR my_accessor)
 
         AntennaBoundary  antb(ms);
 
-    // get Antenna count from  allAntennaBoundary 
 
         uInt numAnt = antb.getNumAntennaBoundary() -1;
 
@@ -903,7 +910,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
         else if (index > (Int)(nrowPointing-1) )   uIndex = nrowPointing-1;
         else { printf( "BUGCHECK\n");  throw; } 
 
-        Vector<Double> ttDir = getSplineObj() -> calculate(uIndex, dtime, antID );
+        Vector<Double> ttDir = getSplineObj()-> calculate(uIndex, dtime, antID );
 
         interpolated[0] = ttDir[0]; // 3rd. order Spline
         interpolated[1] = ttDir[1];
