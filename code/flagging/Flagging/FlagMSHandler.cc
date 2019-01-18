@@ -437,15 +437,6 @@ FlagMSHandler::generateIterator()
 {
   if (!iteratorGenerated_p)
   {
-    // Do quack pre-sweep
-    if (mapScanStartStop_p)
-    {
-      if (visibilityIterator_p) delete visibilityIterator_p;
-      visibilityIterator_p = new vi::VisibilityIterator2(*selectedMeasurementSet_p,
-                                                         vi::SortColumns (sortOrder_p, true),
-                                                         true,NULL, timeInterval_p);
-      preSweep();
-    }
 
     if (asyncio_enabled_p)
     {
@@ -502,6 +493,9 @@ FlagMSHandler::generateIterator()
       visibilityIterator_p = new vi::VisibilityIterator2(factories);
     }
 
+    // Do quack pre-sweep
+    if (mapScanStartStop_p)
+      preSweep();
 
     // Set the table data manager (ISM and SSM) cache size to the full column size, for
     // the columns ANTENNA1, ANTENNA2, FEED1, FEED2, TIME, INTERVAL, FLAG_ROW, SCAN_NUMBER and UVW
