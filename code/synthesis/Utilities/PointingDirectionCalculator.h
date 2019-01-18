@@ -258,14 +258,12 @@ public:
     casacore::uInt getRowId(casacore::uInt irow);
 
     //+
-    // CAS-8418  Spline mode 
+    // CAS-8418  Spline Interpolation API 
     //-
-    void initializeSplineInterpolation(casacore::MeasurementSet const &ms);
 
     void setSplineInterpolation(bool mode) {fgSplineInterpolation = mode;};
 
     SplineInterpolation     *getSplineObj() { return spline; }
-    SDPosInterpolator       *sdp;
 
 private:
 
@@ -323,19 +321,10 @@ private:
     // new: Spline (CAS-8418)
     //-
 
-      // Altering Old and New function //
+      // TENTATIVE:Altering Old and New function //
 
         casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Original:Lenear only 
         casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New (Spline only)
-
-      // Sorted Pointing Table (new 28-DEC-2018)
-
-        casacore::MSPointing 	hPointing_;
-
-      //  AntennaBoundary on Pointing Tablle (new since 12/14 to support multiple Antenna set.) 
-
-        casacore::Vector<casacore::uInt>            allAntennaBoundary_;
-        casacore::uInt                              allNumAntennaBoundary_;
 
       // Interpolation Object
       
@@ -344,16 +333,6 @@ private:
       // Object 
       
        SplineInterpolation     *spline;
-
-      // Internal Spline Functions
-
-        void                                 splineInit    ();   
-
-        casacore::Vector<casacore::Double>   splineCalulate(casacore::uInt row, 
-                                                            casacore::Double dt, 
-                                                            casacore::uInt AntennaID =0);
-
-        casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > splineCoeff_;
 
 };
 
@@ -370,17 +349,18 @@ casacore::MDirection (*ACCESSOR)(  casacore::ROMSPointingColumns &pointingColumn
 //-
 class Interpolation {
 public:
-#if 0
-    virtual casacore::Vector<casacore::Double>  calulate() = 0;
-#endif 
+
+    // Default Accessor (reserved)
+      void       setDefaultAccessor( ACCESSOR acc) {defaultAccessor=acc;}
+    
     // Interpolation TYpe
-    enum InterpolationType {
-      LINEAR,
-      SPLINE
+      enum InterpolationType {
+        LINEAR,
+        SPLINE
    };
 
 private:
-
+      ACCESSOR   defaultAccessor;
 };
 
 //+
@@ -404,6 +384,10 @@ private:
         //  default constructor 
 
          SplineInterpolation();
+
+        // Internal constructor 
+
+         void init( casacore::MeasurementSet const &ms, ACCESSOR my_accessor);
 
         // Coefficiat Table 
 
