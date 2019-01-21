@@ -155,7 +155,7 @@ PointingDirectionCalculator::PointingDirectionCalculator(
                 0), pointingTimeUTC_(), lastTimeStamp_(-1.0), lastAntennaIndex_(
                 -1), pointingTableIndexCache_(0), shape_(
                 PointingDirectionCalculator::COLUMN_MAJOR),
-                fgSplineInterpolation(true)
+      /*CAS-8418*/ fgSplineInterpolation(true)
 {
     accessor_ = directionAccessor;
 
@@ -165,8 +165,8 @@ PointingDirectionCalculator::PointingDirectionCalculator(
     selectedMS_ = new MeasurementSet(originalMS_->sort(sortColumns));
 
 //+
-//  Create Spline Object in current class.
-//  That's everything to use Spline Interpolation.
+//  CAS-8418
+//   Create Spline Object in current class.
 //-
     spline = new SplineInterpolation(ms,accessor_); 
 
@@ -177,6 +177,10 @@ PointingDirectionCalculator::PointingDirectionCalculator(
 
     // set default direction column name
     setDirectionColumn("DIRECTION");
+}
+PointingDirectionCalculator::~PointingDirectionCalculator()
+{
+    delete spline;
 }
 void PointingDirectionCalculator::init() {
     // attach column
@@ -392,9 +396,8 @@ void AntennaBoundary::show()
 
 AntennaBoundary::AntennaBoundary(MeasurementSet const &ms) 
 {
-
-        // (1) Do the same, but see PointingTable.antenna 
-
+        // Antenna Boundary List
+       
         antennaBoundary_.resize(ms.antenna().nrow() + 1);
         antennaBoundary_ = -1;
 
@@ -411,14 +414,14 @@ AntennaBoundary::AntennaBoundary(MeasurementSet const &ms)
         sortColumns[0]="ANTENNA_ID";
         sortColumns[1]="TIME";
 
+        // Pointing Table (handle)
         MSPointing hPointingTmp(hPointing_org.sort(sortColumns));
-
-        hPointing = hPointingTmp;
+        hPointing_ = hPointingTmp;
 
         // Column Handle (sorted) 
 
         std::unique_ptr<casacore::ROMSPointingColumns>
-                columnPointing( new casacore::ROMSPointingColumns( hPointing ));
+                columnPointing( new casacore::ROMSPointingColumns( hPointing_ ));
 
         // Antenna List 
 
@@ -464,13 +467,11 @@ SplineInterpolation::SplineInterpolation(MeasurementSet const &ms) // NOT TESTED
     init(ms, getDefaultAccessor() );
 }
 
-void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR my_accessor)
+void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_accessor)
 {
     // Antenna Bounday //
 
         AntennaBoundary  antb(ms);
-
-
         uInt numAnt = antb.getNumAntennaBoundary() -1;
 
     // prepere MS handle from selectedMS_
@@ -538,8 +539,13 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR my_accessor)
 
     for(uInt ant=0; ant <numAnt; ant++)
     {
-        if(tmp_time[ant].size() <= 4){ printf("## Insufficient Row.  ##\n");return;}
-        if(tmp_dir [ant].size() <= 4){ printf("## Insufficient Row.  ##\n");return;}
+        if ((tmp_time[ant].size() < 4)||
+            (tmp_dir [ant].size() < 4))
+        {
+           printf( "XXXXXXXXX INSUFFICIENT NUMBER OF POINTING DATA XXXXXXXXXXXXXXXXXXXXXXX \n" );
+//           fgSplineInterpolation = false;
+           return;
+        }
     }
  
     //+
@@ -553,11 +559,11 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR my_accessor)
 
       coeff_ = sdp.getSplineCoeff();
 
-      if(false) showCoeff();
+      if(false) dumpCsvCoeff();
 
 }
 
-void SplineInterpolation::showCoeff()
+void SplineInterpolation::dumpCsvCoeff()
 {
     FILE* fp = fopen( "coeff.csv","w" );
 
@@ -589,6 +595,9 @@ void SplineInterpolation::showCoeff()
 
 }
 
+//+
+// Interpolation Calculation
+//-
 casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
                                                                   Double dt,
                                                                   uInt antID )
@@ -619,6 +628,20 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
 //-
     double Xs =  (((0* dt + a3)*dt + a2)*dt + a1)*dt + a0;
     double Ys =  (((0* dt + b3)*dt + b2)*dt + b1)*dt + b0;
+
+// Test . inttentionally ignore high order ,Linear equivalent. //
+
+    if(true)
+    {
+        Xs = a1 * dt + a0;
+        Ys = b1 * dt + b0;
+
+        if(true)
+        {
+            Xs = a2* (dt*dt) + a1 * dt + a0;
+            Ys = b2* (dt*dt) + b1 * dt + b0;
+        }
+    }
 
 // Return //
 

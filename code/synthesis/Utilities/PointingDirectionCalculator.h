@@ -141,8 +141,7 @@ public:
     PointingDirectionCalculator(casacore::MeasurementSet const &ms);
 
     // Destructor
-    ~PointingDirectionCalculator() {
-    }
+    ~PointingDirectionCalculator();
 
     // Select data in the given MS.
     // Each selection parameters accept MS data selection syntax.
@@ -321,24 +320,21 @@ private:
     // new: Spline (CAS-8418)
     //-
 
-      // TENTATIVE:Altering Old and New function //
+      // Programmer's option;Altering Old and New function //
 
-        casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Original:Lenear only 
-        casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New (Spline only)
+        casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Org::Lenear only 
+        casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New::Spline only
 
-      // Interpolation Object
+     // Spline object and flag
       
         bool fgSplineInterpolation = true;       // Use Spline if TRUE
-
-      // Object 
-      
-       SplineInterpolation     *spline;
+        SplineInterpolation     *spline;
 
 };
 
 //+
 //  typedef of accessor_
-//   use this form ;; typedef void (*FUNCTYPE)(double, double&, double&);
+//   for Different Column access
 //-
 typedef 
 casacore::MDirection (*ACCESSOR)(  casacore::ROMSPointingColumns &pointingColumns,
@@ -371,18 +367,16 @@ private:
 class SplineInterpolation :public Interpolation  {
 
 public:
-
+        // Constructor 
         SplineInterpolation(casacore::MeasurementSet const &ms, ACCESSOR acc );
         SplineInterpolation(casacore::MeasurementSet const &ms );
 
        ~SplineInterpolation() { };
 
+        // Calculate function
         casacore::Vector<casacore::Double>   calculate(casacore::uInt row,
                                                        casacore::Double dt,
                                                        casacore::uInt AntennaID =0);
-#if 0
-        void showCoeff();
-#endif 
 private:
         //  default constructor 
 
@@ -390,7 +384,7 @@ private:
 
         // Internal constructor 
 
-         void init( casacore::MeasurementSet const &ms, ACCESSOR my_accessor);
+         void init( casacore::MeasurementSet const &ms, ACCESSOR const my_accessor);
 
         // Coefficiat Table 
 
@@ -402,7 +396,7 @@ private:
                                                             casacore::Double dt,
                                                             casacore::uInt AntennaID =0);
        // debug //
-         void showCoeff();
+         void dumpCsvCoeff();
 };
 
 //+
@@ -416,7 +410,7 @@ public:
         casacore::uInt  getAntennaBoundary( casacore::uInt n ){return antennaBoundary_[n];}
         casacore::uInt  getNumAntennaBoundary( ){return numAntennaBoundary_;}
 
-        casacore::MSPointing  getPointingHandle() { return hPointing; };
+        casacore::MSPointing  getPointingHandle() { return hPointing_; };
 
         void show() ;
 private:
@@ -425,7 +419,7 @@ private:
        casacore::uInt                              numAntennaBoundary_;
      
        // Pointing Table handle
-       casacore::MSPointing hPointing; 
+       casacore::MSPointing hPointing_; 
 };
 
 
