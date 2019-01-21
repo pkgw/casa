@@ -33,7 +33,7 @@
  * File CFluxCalibrationMethod.cpp
  */
 #include <sstream>
-#include <CFluxCalibrationMethod.h>
+#include <alma/Enumerations/CFluxCalibrationMethod.h>
 #include <string>
 using namespace std;
 

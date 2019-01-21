@@ -1265,6 +1265,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIImageStoreMultiTerm::printImageStats()
   {
     LogIO os( LogOrigin("SIImageStoreMultiTerm","printImageStats",WHERE) );
+    // FIXME minresmask needs to be initialized here, or else compiler complains
     Float minresmask, maxresmask, minres, maxres;
     //    findMinMax( residual()->get(), mask()->get(), minres, maxres, minresmask, maxresmask );
 

@@ -48,15 +48,15 @@
 
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -65,7 +65,7 @@
 	
 
 	
-#include "CReceiverBand.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -73,19 +73,15 @@
 	
 
 	
-#include "CAntennaMake.h"
+#include <alma/Enumerations/CAntennaMake.h>
 	
 
 	
-#include "CPointingModelMode.h"
+#include <alma/Enumerations/CPointingModelMode.h>
 	
 
 	
-#include "CPolarizationType.h"
-	
-
-	
-
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -106,14 +102,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalPointingModel.h
     \brief Generated from model's revision "-1", branch ""
@@ -133,7 +133,7 @@ class CalReductionRow;
 
 class CalPointingModelRow;
 typedef void (CalPointingModelRow::*CalPointingModelAttributeFromBin) (EndianIStream& eis);
-typedef void (CalPointingModelRow::*CalPointingModelAttributeFromText) (const string& s);
+typedef void (CalPointingModelRow::*CalPointingModelAttributeFromText) (const std::string& s);
 
 /**
  * The CalPointingModelRow class is a row of a CalPointingModelTable.
@@ -174,23 +174,23 @@ public:
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string getAntennaName() const;
+ 	std::string getAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  		
  			
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 		
  	 */
- 	void setAntennaName (string antennaName);
+ 	void setAntennaName (std::string antennaName);
   		
 	
 	
@@ -418,21 +418,21 @@ public:
 	
  	/**
  	 * Get coeffName.
- 	 * @return coeffName as vector<string >
+ 	 * @return coeffName as std::vector<std::string >
  	 */
- 	vector<string > getCoeffName() const;
+ 	std::vector<std::string > getCoeffName() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffName with the specified vector<string >.
- 	 * @param coeffName The vector<string > value to which coeffName is to be set.
+ 	 * Set coeffName with the specified std::vector<std::string >.
+ 	 * @param coeffName The std::vector<std::string > value to which coeffName is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffName (vector<string > coeffName);
+ 	void setCoeffName (std::vector<std::string > coeffName);
   		
 	
 	
@@ -448,21 +448,21 @@ public:
 	
  	/**
  	 * Get coeffVal.
- 	 * @return coeffVal as vector<float >
+ 	 * @return coeffVal as std::vector<float >
  	 */
- 	vector<float > getCoeffVal() const;
+ 	std::vector<float > getCoeffVal() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffVal with the specified vector<float >.
- 	 * @param coeffVal The vector<float > value to which coeffVal is to be set.
+ 	 * Set coeffVal with the specified std::vector<float >.
+ 	 * @param coeffVal The std::vector<float > value to which coeffVal is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffVal (vector<float > coeffVal);
+ 	void setCoeffVal (std::vector<float > coeffVal);
   		
 	
 	
@@ -478,21 +478,21 @@ public:
 	
  	/**
  	 * Get coeffError.
- 	 * @return coeffError as vector<float >
+ 	 * @return coeffError as std::vector<float >
  	 */
- 	vector<float > getCoeffError() const;
+ 	std::vector<float > getCoeffError() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffError with the specified vector<float >.
- 	 * @param coeffError The vector<float > value to which coeffError is to be set.
+ 	 * Set coeffError with the specified std::vector<float >.
+ 	 * @param coeffError The std::vector<float > value to which coeffError is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffError (vector<float > coeffError);
+ 	void setCoeffError (std::vector<float > coeffError);
   		
 	
 	
@@ -508,21 +508,21 @@ public:
 	
  	/**
  	 * Get coeffFixed.
- 	 * @return coeffFixed as vector<bool >
+ 	 * @return coeffFixed as std::vector<bool >
  	 */
- 	vector<bool > getCoeffFixed() const;
+ 	std::vector<bool > getCoeffFixed() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffFixed with the specified vector<bool >.
- 	 * @param coeffFixed The vector<bool > value to which coeffFixed is to be set.
+ 	 * Set coeffFixed with the specified std::vector<bool >.
+ 	 * @param coeffFixed The std::vector<bool > value to which coeffFixed is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffFixed (vector<bool > coeffFixed);
+ 	void setCoeffFixed (std::vector<bool > coeffFixed);
   		
 	
 	
@@ -705,21 +705,21 @@ public:
 	
  	/**
  	 * Get coeffFormula, which is optional.
- 	 * @return coeffFormula as vector<string >
+ 	 * @return coeffFormula as std::vector<std::string >
  	 * @throws IllegalAccessException If coeffFormula does not exist.
  	 */
- 	vector<string > getCoeffFormula() const;
+ 	std::vector<std::string > getCoeffFormula() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffFormula with the specified vector<string >.
- 	 * @param coeffFormula The vector<string > value to which coeffFormula is to be set.
+ 	 * Set coeffFormula with the specified std::vector<std::string >.
+ 	 * @param coeffFormula The std::vector<std::string > value to which coeffFormula is to be set.
  	 
  		
  	 */
- 	void setCoeffFormula (vector<string > coeffFormula);
+ 	void setCoeffFormula (std::vector<std::string > coeffFormula);
 		
 	
 	
@@ -877,7 +877,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, vector<string > coeffName, vector<float > coeffVal, vector<float > coeffError, vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared);
+	bool compareNoAutoInc(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, std::vector<std::string > coeffName, std::vector<float > coeffVal, std::vector<float > coeffError, std::vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared);
 	
 	
 
@@ -915,7 +915,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, vector<string > coeffName, vector<float > coeffVal, vector<float > coeffError, vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, std::vector<std::string > coeffName, std::vector<float > coeffVal, std::vector<float > coeffError, std::vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared); 
 		 
 	
 	/**
@@ -1067,7 +1067,7 @@ private:
 	
 	
 
-	string antennaName;
+	std::string antennaName;
 
 	
 	
@@ -1155,7 +1155,7 @@ private:
 	
 	
 
-	vector<string > coeffName;
+	std::vector<std::string > coeffName;
 
 	
 	
@@ -1166,7 +1166,7 @@ private:
 	
 	
 
-	vector<float > coeffVal;
+	std::vector<float > coeffVal;
 
 	
 	
@@ -1177,7 +1177,7 @@ private:
 	
 	
 
-	vector<float > coeffError;
+	std::vector<float > coeffError;
 
 	
 	
@@ -1188,7 +1188,7 @@ private:
 	
 	
 
-	vector<bool > coeffFixed;
+	std::vector<bool > coeffFixed;
 
 	
 	
@@ -1258,7 +1258,7 @@ private:
 	bool coeffFormulaExists;
 	
 
-	vector<string > coeffFormula;
+	std::vector<std::string > coeffFormula;
 
 	
 	
@@ -1343,65 +1343,65 @@ void coeffFormulaFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalPointingModelAttributeFromText> fromTextMethods;
 	
-void antennaNameFromText (const string & s);
+void antennaNameFromText (const std::string & s);
 	
 	
-void receiverBandFromText (const string & s);
+void receiverBandFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void antennaMakeFromText (const string & s);
+void antennaMakeFromText (const std::string & s);
 	
 	
-void pointingModelModeFromText (const string & s);
+void pointingModelModeFromText (const std::string & s);
 	
 	
-void polarizationTypeFromText (const string & s);
+void polarizationTypeFromText (const std::string & s);
 	
 	
-void numCoeffFromText (const string & s);
+void numCoeffFromText (const std::string & s);
 	
 	
-void coeffNameFromText (const string & s);
+void coeffNameFromText (const std::string & s);
 	
 	
-void coeffValFromText (const string & s);
+void coeffValFromText (const std::string & s);
 	
 	
-void coeffErrorFromText (const string & s);
+void coeffErrorFromText (const std::string & s);
 	
 	
-void coeffFixedFromText (const string & s);
+void coeffFixedFromText (const std::string & s);
 	
 	
-void azimuthRMSFromText (const string & s);
+void azimuthRMSFromText (const std::string & s);
 	
 	
-void elevationRmsFromText (const string & s);
+void elevationRmsFromText (const std::string & s);
 	
 	
-void skyRMSFromText (const string & s);
+void skyRMSFromText (const std::string & s);
 	
 	
-void reducedChiSquaredFromText (const string & s);
+void reducedChiSquaredFromText (const std::string & s);
 	
 
 	
-void numObsFromText (const string & s);
+void numObsFromText (const std::string & s);
 	
 	
-void coeffFormulaFromText (const string & s);
+void coeffFormulaFromText (const std::string & s);
 	
 	
 	

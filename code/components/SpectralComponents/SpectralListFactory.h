@@ -55,9 +55,9 @@ public:
 		const casac::variant& gmampcon=casac::initialize_variant(""),
 		const casac::variant& gmcentercon=casac::initialize_variant(""),
 		const casac::variant& gmfwhmcon=casac::initialize_variant(""),
-		const vector<double>& gmampest=vector<double>(0),
-		const vector<double>& gmcenterest=vector<double>(0),
-		const vector<double>& gmfwhmest=vector<double>(0),
+		const std::vector<double>& gmampest=std::vector<double>(0),
+		const std::vector<double>& gmcenterest=std::vector<double>(0),
+		const std::vector<double>& gmfwhmest=std::vector<double>(0),
 		const casac::variant& gmfix=casac::initialize_variant(""),
 		const casac::variant& pfunc=casac::initialize_variant(""),
 		const casac::variant& plpest=casac::initialize_variant(""),
@@ -71,25 +71,25 @@ private:
 	static void _addGaussianMultiplets(
 		SpectralList& spectralList,
 		casacore::LogIO& log,
-		const vector<int>& mygmncomps,
-		vector<double>& mygmampcon,
-		vector<double>& mygmcentercon,
-		vector<double>& mygmfwhmcon,
-		const vector<double>& gmampest,
-		const vector<double>& gmcenterest, const vector<double>& gmfwhmest,
-		const vector<string>& mygmfix
+		const std::vector<int>& mygmncomps,
+		std::vector<double>& mygmampcon,
+		std::vector<double>& mygmcentercon,
+		std::vector<double>& mygmfwhmcon,
+		const std::vector<double>& gmampest,
+		const std::vector<double>& gmcenterest, const std::vector<double>& gmfwhmest,
+		const std::vector<string>& mygmfix
 	);
 
 	static void _addPowerLogPolynomial(
 		SpectralList& spectralList,
-		casacore::LogIO& log,	vector<double>& myplpest,
-		vector<bool>& myplpfix
+		casacore::LogIO& log, std::vector<double>& myplpest,
+		std::vector<bool>& myplpfix
 	);
 
 	static void _addLogTransformedPolynomial(
 		SpectralList& spectralList,
-		vector<double>& myltpest,
-		vector<bool>& myltpfix
+		std::vector<double>& myltpest,
+		std::vector<bool>& myltpfix
 	);
 
 };

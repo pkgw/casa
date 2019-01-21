@@ -7,8 +7,8 @@
 #include <sstream>
 #include <limits>
 
-#include "enum_set.hpp"
-#include "enum_map.hpp"
+#include <alma/Enumtcl/enum_set.hpp>
+#include <alma/Enumtcl/enum_map.hpp>
 
 template< typename enum_type, 
 	  typename val_type,
@@ -104,12 +104,12 @@ public:
     bits.set(to_bit(setting[n]), value);
     return *this;
   }
-  EnumSetVal &set(std::vector<string> names, bool value = true)
+  EnumSetVal &set(std::vector<std::string> names, bool value = true)
   {
     bits.reset();
     typename std::map<enum_type,EnumPar<val_type> >::iterator 
       it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
-    vector<string>::iterator iv, ivb=names.begin(), ive=names.end();
+    std::vector<std::string>::iterator iv, ivb=names.begin(), ive=names.end();
     for(iv=ivb; iv!=ive; ++iv)
       for(it=itb; it!=ite; ++it)if(it->second.str()==*iv)
 	bits.set(to_bit(it->first));
@@ -156,15 +156,15 @@ public:
     for(it=itb; it!=ite; ++it)e.push_back(it->first);
     return e;
   }
-  static std::set<string> enumMemberSet()
+  static std::set<std::string> enumMemberSet()
   {
-    std::set<string> s;
+    std::set<std::string> s;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)s.insert(it->second.str());
     return s;
   }
-  static std::vector<string> enumMemberList(){
-    std::vector<string> v;
+  static std::vector<std::string> enumMemberList(){
+    std::vector<std::string> v;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)v.push_back(it->second.str());
     return v;
@@ -193,19 +193,19 @@ public:
 
   /** Methods using bits and associated with enum_map */
   std::vector<int> id(){
-    vector<int> v_id;
+    std::vector<int> v_id;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)
       if(bits[it->first])v_id.push_back(it->second.id());
     return v_id;
   }
 
-  string str(){
+  std::string str(){
     return toString();
   }
 
-  string toString(){
-    ostringstream os;
+  std::string toString(){
+    std::ostringstream os;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)
       if(bits[it->first])os<<it->second.str()<<" ";
@@ -214,16 +214,16 @@ public:
     else
       return os.str();
   }
-  vector<enum_type> toEnumType(){
-    vector<enum_type> v;
+  std::vector<enum_type> toEnumType(){
+    std::vector<enum_type> v;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)
       if(bits[it->first])v.push_back(it->first);
     return v;
   }
   // Method to define only when traits::maxset > 1
-   EnumSetVal<enum_type,val_type>& fromString(vector<string> s){
-//   EnumSetVal<enum_type,val_type>& fromString(vector<string> s, bool reset){
+   EnumSetVal<enum_type,val_type>& fromString(std::vector<std::string> s){
+//   EnumSetVal<enum_type,val_type>& fromString(std::vector<std::string> s, bool reset){
 //     int id;
 //     int nmax=s.size();
 //     if(reset)bits.reset();
@@ -235,14 +235,14 @@ public:
 // 	bits.set(enum_type(id));
 //     }
 //     return *this;
-    unsigned int nmax=s.size(); cout<<"nmax="<<nmax<<endl; 
+    unsigned int nmax=s.size(); std::cout<<"nmax="<<nmax<<std::endl; 
     bits.reset();
     if(nmax>set_traits::maxset)
       std::cout<<"WARNING: the input number of enumerators, "<<nmax<<",exceeds the maximum number, "
 	       <<set_traits::maxset<<",  allowed for a compound with this EnumSet<"
-	       <<map_traits::typeName_<<"> type."<<endl;
+	       <<map_traits::typeName_<<"> type."<<std::endl;
     bool ok;
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     unsigned int numSet=0;
     for(unsigned int n=0; n<nmax; n++){
       ok=false;
@@ -253,39 +253,39 @@ public:
 	numSet++;
       }else{
 	std::cout<<"WARNING: "<<s[n]<<" is not a valid enumerator name for this enumeration "
-		 <<map_traits::typeName_<<endl;
+		 <<map_traits::typeName_<<std::endl;
       }
       if(numSet==set_traits::maxset)break;
     }
-    cout<<"numSet="<<numSet<<endl;
+    std::cout<<"numSet="<<numSet<<std::endl;
     return *this;
   }
   // Method useful when maxset>1.
-  EnumSetVal<enum_type,val_type>& fromString(string s, bool reset){
+  EnumSetVal<enum_type,val_type>& fromString(std::string s, bool reset){
     if(reset)bits.reset();
     int id = map_traits::fromStringToInt(s);
-    if(id==numeric_limits<int>::max())
+    if(id==std::numeric_limits<int>::max())
       bits.reset();
     else
       bits.set(enum_type(id));
     return *this;
   }
   // Method to define only when traits::maxset > 1
-  EnumSetVal<enum_type,val_type>& fromString(string setting)
+  EnumSetVal<enum_type,val_type>& fromString(std::string setting)
   {
     // TODO traiter le cas de 2 enumerators comme CORRECTED and UNCORRECTED  car ==> blancs avt ou apres 
     unsigned int nmax=set_traits::maxset;
     if(nmax<set_traits::count)bits.reset();
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb;it!=ite;++it)
-      if(setting.find(it->second.str())!=string::npos)bits.set(it->first);
+      if(setting.find(it->second.str())!=std::string::npos)bits.set(it->first);
     return *this;
   }
   // Method to get a vector of the names of the enumerators set on.
-  std::vector<string> names()
+  std::vector<std::string> names()
   {
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
-    std::vector<string> v_s;
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    std::vector<std::string> v_s;
     unsigned int numset=0; 
     for(it=itb;it!=ite;++it){
       if(bits.test(to_bit(it->first))){
@@ -301,7 +301,7 @@ public:
   // Method to get the set of enumerators
   std::set<enum_type> enumSet()
   {
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     std::set<enum_type> s_et;
     for(it=itb;it!=ite;++it)
       if(bits.test(to_bit(it->first)))s_et.insert(it->first);
@@ -431,12 +431,12 @@ public:
     return *this;
   }
 
-  EnumSet &set(std::vector<string> names, bool value = true)
+  EnumSet &set(std::vector<std::string> names, bool value = true)
   {
     bits.reset();
     typename std::map<enum_type,EnumPar<val_type> >::iterator 
       it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
-    vector<string>::iterator iv, ivb=names.begin(), ive=names.end();
+    std::vector<std::string>::iterator iv, ivb=names.begin(), ive=names.end();
     for(iv=ivb; iv!=ive; ++iv)
       for(it=itb; it!=ite; ++it)if(it->second.str()==*iv)
 	bits.set(to_bit(it->first));
@@ -481,15 +481,15 @@ public:
     for(it=itb; it!=ite; ++it)v.push_back(it->first);
     return;
   }
-  static std::set<string> enumMemberSet()
+  static std::set<std::string> enumMemberSet()
   {
-    std::set<string> s;
+    std::set<std::string> s;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)s.insert(it->second.str());
     return s;
   }
-  static std::vector<string> enumMemberList(){
-    std::vector<string> v;
+  static std::vector<std::string> enumMemberList(){
+    std::vector<std::string> v;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)v.push_back(it->second.str());
     return v;
@@ -506,17 +506,17 @@ public:
 
   /** Methods using bits and associated with enum_map */
   std::vector<int> id(){
-    vector<int> v_id;
+    std::vector<int> v_id;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)
       if(bits[it->first])v_id.push_back(it->second.id());
     return v_id;
   }
-  string str(){
+  std::string str(){
     return toString();
   }
-  string toString(){
-    ostringstream os;
+  std::string toString(){
+    std::ostringstream os;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)
       if(bits[it->first])os<<it->second.str()<<" ";
@@ -525,16 +525,16 @@ public:
     else
       return os.str();
   }
-  vector<enum_type> toEnumType(){
-    vector<enum_type> v;
+  std::vector<enum_type> toEnumType(){
+    std::vector<enum_type> v;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)
       if(bits[it->first])v.push_back(it->first);
     return v;
   }
   // Method to define only when traits::maxset > 1
-  EnumSet<enum_type,val_type>& fromString(vector<string> s){
-//   EnumSet<enum_type,val_type>& fromString(vector<string> s, bool reset){
+  EnumSet<enum_type,val_type>& fromString(std::vector<std::string> s){
+//   EnumSet<enum_type,val_type>& fromString(std::vector<std::string> s, bool reset){
 //     int id;
 //     int nmax=s.size();
 //     if(reset)bits.reset();
@@ -546,14 +546,14 @@ public:
 // 	bits.set(enum_type(id));
 //     }
 //     return *this;
-    unsigned int nmax=s.size(); cout<<"nmax="<<nmax<<endl; 
+    unsigned int nmax=s.size(); std::cout<<"nmax="<<nmax<<std::endl; 
     bits.reset();
     if(nmax>set_traits::maxset)
       std::cout<<"WARNING: the input number of enumerators, "<<nmax<<",exceeds the maximum number, "
 	       <<set_traits::maxset<<",  allowed for a compound with this EnumSet<"
-	       <<map_traits::typeName_<<"> type."<<endl;
+	       <<map_traits::typeName_<<"> type."<<std::endl;
     bool ok;
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     int numSet=0;
     for(int n=0; n<nmax; n++){
       ok=false;
@@ -564,37 +564,37 @@ public:
 	numSet++;
       }else{
 	std::cout<<"WARNING: "<<s[n]<<" is not a valid enumerator name for this enumeration "
-		 <<map_traits::typeName_<<endl;
+		 <<map_traits::typeName_<<std::endl;
       }
       if(numSet==set_traits::maxset)break;
     }
-    cout<<"numSet="<<numSet<<endl;
+    std::cout<<"numSet="<<numSet<<std::endl;
     return *this;
   }
   // Method useful when maxset>1.
-  EnumSet<enum_type,val_type>& fromString(string s, bool reset){
+  EnumSet<enum_type,val_type>& fromString(std::string s, bool reset){
     if(reset)bits.reset();
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb;it!=ite;++it)
-      if(s.find(it->second.str())!=string::npos)bits.set(it->first);
+      if(s.find(it->second.str())!=std::string::npos)bits.set(it->first);
     return *this;
   }
   // Method to define only when traits::maxset > 1
-  EnumSet <enum_type,val_type>& fromString(string setting)
+  EnumSet <enum_type,val_type>& fromString(std::string setting)
   {
     // TODO traiter le cas de 2 enumerators comme CORRECTED and UNCORRECTED  car ==> blancs avt ou apres 
     unsigned int nmax=set_traits::maxset;
     if(nmax<set_traits::count)bits.reset();
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb;it!=ite;++it)
-      if(setting.find(it->second.str())!=string::npos)bits.set(it->first);
+      if(setting.find(it->second.str())!=std::string::npos)bits.set(it->first);
     return *this;
   }
   // Method to get a vector of the names of the enumerators set on.
-  std::vector<string> names()
+  std::vector<std::string> names()
   {
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
-    std::vector<string> v_s;
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    std::vector<std::string> v_s;
     unsigned int numset=0;
     for(it=itb;it!=ite;++it){
       if(bits.test(to_bit(it->first))){
@@ -609,16 +609,16 @@ public:
   // Method to get the set of enumerators
   std::set<enum_type> enumSet()
   {
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     std::set<enum_type> s_et;
     for(it=itb;it!=ite;++it)
       if(bits.test(to_bit(it->first)))s_et.insert(it->first);
     return s_et;
   }    
 //   // Method to get the set of enumerator values
-//   std::vector<string> enumVal()
+//   std::vector<std::string> enumVal()
 //   {
-//     std::vector<string> v_s;
+//     std::vector<std::string> v_s;
 //     std::set<enum_type> s_et=enumSet();
 //     typename std::set<enum_type>::iterator its, itsb(s_et.begin()), itse(s_et.end());
 //     typename std::map<enum_type,EnumPar<val_type> >::iterator itf;
@@ -771,15 +771,15 @@ public:
   {
     return bits.none();
   }
-  static std::set<string> enumMemberSet()
+  static std::set<std::string> enumMemberSet()
   {
-    std::set<string> s;
+    std::set<std::string> s;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)s.insert(it->second.str());
     return s;
   }
-  static std::vector<string> enumMemberList(){
-    std::vector<string> v;
+  static std::vector<std::string> enumMemberList(){
+    std::vector<std::string> v;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)v.push_back(it->second.str());
     return v;
@@ -809,7 +809,7 @@ public:
   // Method to get the name of the enumerator set on, if set, else return empty string
   std::string name()
   {
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     std::string s="";
     for(it=itb;it!=ite;++it){
       if(bits.test(to_bit(it->first)))
@@ -826,11 +826,11 @@ public:
       if(bits[it->first])id=it->second.id();
     return id;
   }
-  string str(){
+  std::string str(){
     return toString();
   }
-  string toString(){
-    ostringstream os;
+  std::string toString(){
+    std::ostringstream os;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)
       if(bits[it->first])os<<it->second.str();
@@ -840,21 +840,21 @@ public:
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)
       if(bits[it->first])return it->first;
-    cout<<"ERROR: state with no enumerator set"<<endl;
+    std::cout<<"ERROR: state with no enumerator set"<<std::endl;
   }
 
-  EnumVal<enum_type,val_type>& fromString(string setting)
+  EnumVal<enum_type,val_type>& fromString(std::string setting)
   {
     bits.reset();
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb;it!=ite;++it)
-      if(setting.find(it->second.str())!=string::npos)bits.set(it->first);
+      if(setting.find(it->second.str())!=std::string::npos)bits.set(it->first);
     return *this;
   }
   // Method to get the enumerator value for the bit currently set
   std::vector<val_type> enumVal()
   {
-    vector<val_type> v;
+    std::vector<val_type> v;
     typename std::map<enum_type,EnumPar<val_type> >::iterator 
       it, 
       itb=map_traits::m_.begin(), 
@@ -982,15 +982,15 @@ public:
   {
     return bits.none();
   }
-  static std::set<string> enumMemberSet()
+  static std::set<std::string> enumMemberSet()
   {
-    std::set<string> s;
+    std::set<std::string> s;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)s.insert(it->second.str());
     return s;
   }
-  static std::vector<string> enumMemberList(){
-    std::vector<string> v;
+  static std::vector<std::string> enumMemberList(){
+    std::vector<std::string> v;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)v.push_back(it->second.str());
     return v;
@@ -1003,7 +1003,7 @@ public:
   // Method to get the name of the enumerator set on, if set, else return empty string
   std::string name()
   {
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     std::string s="";
     for(it=itb;it!=ite;++it){
       if(bits.test(to_bit(it->first)))
@@ -1014,7 +1014,7 @@ public:
   }
 
   unsigned int hash() {
-    string s = str();
+    std::string s = str();
     unsigned int hash = 0;
     for(size_t i = 0; i < s.size(); ++i) 
       hash = 65599 * hash + s[i];
@@ -1029,11 +1029,11 @@ public:
       if(bits[it->first])id=it->second.id();
     return id;
   }
-  string str(){
+  std::string str(){
     return toString();
   }
-  string toString(){
-    ostringstream os;
+  std::string toString(){
+    std::ostringstream os;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)
       if(bits[it->first])os<<it->second.str();
@@ -1043,14 +1043,14 @@ public:
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb; it!=ite; ++it)
       if(bits[it->first])return it->first;
-    cout<<"ERROR: state with no enumerator set"<<endl;
+    std::cout<<"ERROR: state with no enumerator set"<<std::endl;
   }
   // Method useful when maxset>1.
-  Enum<enum_type,val_type>& fromString(string s){
+  Enum<enum_type,val_type>& fromString(std::string s){
     bits.reset();
-    typename map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
+    typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
     for(it=itb;it!=ite;++it)
-      if(s.find(it->second.str())!=string::npos)bits.set(it->first);
+      if(s.find(it->second.str())!=std::string::npos)bits.set(it->first);
     return *this;
   }
 

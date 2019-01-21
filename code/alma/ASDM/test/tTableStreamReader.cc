@@ -1,9 +1,9 @@
 #include <iostream>
-#include "TableStreamReader.h"
-#include "PointingTable.h"
-#include "PointingRow.h"
-#include "SysPowerRow.h"
-#include "SysPowerTable.h"
+#include <alma/ASDM/TableStreamReader.h>
+#include <alma/ASDM/PointingTable.h>
+#include <alma/ASDM/PointingRow.h>
+#include <alma/ASDM/SysPowerRow.h>
+#include <alma/ASDM/SysPowerTable.h>
 
 using namespace std;
 using namespace asdm;

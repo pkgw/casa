@@ -41,27 +41,23 @@
 
 
 	
-#include <Speed.h>
+#include <alma/ASDM/Speed.h>
 	
 
 	
-#include <AngularRate.h>
+#include <alma/ASDM/AngularRate.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -97,20 +93,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -152,7 +152,7 @@ class DelayModelFixedParametersRow;
 	
  * <TR>
  * <TD> delayModelVersion </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; should include the name of the software and its version.  Something like  "CALC v11" or "VDT v1.0" or "MODEST v2.1".  </TD>
  * </TR>
@@ -212,7 +212,7 @@ class DelayModelFixedParametersRow;
 	
  * <TR>
  * <TD> ephemerisEpoch</TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; should always be 'J2000'. </TD>
  * </TR>
@@ -283,7 +283,7 @@ class DelayModelFixedParametersRow;
 	
  * <TR>
  * <TD> delayModelFlags</TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the delay model switches. </TD>
  * </TR>
@@ -429,7 +429,7 @@ public:
  	 * @param execBlockId
 	
      */
-	DelayModelFixedParametersRow *newRow(string delayModelVersion, Tag execBlockId);
+	DelayModelFixedParametersRow *newRow(std::string delayModelVersion, Tag execBlockId);
 	
 
 
@@ -516,7 +516,7 @@ public:
  	 * @param execBlockId
  	 		 
  	 */
-	DelayModelFixedParametersRow* lookup(string delayModelVersion, Tag execBlockId); 
+	DelayModelFixedParametersRow* lookup(std::string delayModelVersion, Tag execBlockId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

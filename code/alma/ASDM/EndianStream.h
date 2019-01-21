@@ -7,13 +7,11 @@
 #include <sstream>
 #include <string>
 
-#include "Misc.h"
-
-using  namespace std;
+#include <alma/ASDM/Misc.h>
 
 namespace asdm {
 	
-  class EndianOSStream : public ostringstream {
+  class EndianOSStream : public std::ostringstream {
   protected :
     //ostringstream _oss(stringstream::out | stringstream::binary);
 			
@@ -36,7 +34,7 @@ namespace asdm {
     void writeULongLong(uint64_t li);
     void writeFloat(float f);
     void writeDouble(double d);	
-    void writeString(const string& s);
+    void writeString(const std::string& s);
 
   private:
     const asdm::ByteOrder* byteOrder_;
@@ -57,14 +55,14 @@ namespace asdm {
     virtual uint64_t readULongLong() = 0 ;
     virtual float readFloat() = 0 ;
     virtual double readDouble() = 0 ;
-    virtual string readString() = 0 ;
+    virtual std::string readString() = 0 ;
     virtual ~EndianIStream() { ; }
   };
 
-  class EndianISStream : public istringstream, EndianIStream {			
+  class EndianISStream : public std::istringstream, EndianIStream {			
   public :
-    EndianISStream(const string& s) ;
-    EndianISStream(const string& s, const asdm::ByteOrder* byteOrder);
+    EndianISStream(const std::string& s) ;
+    EndianISStream(const std::string& s, const asdm::ByteOrder* byteOrder);
     ~EndianISStream();
     
     const asdm::ByteOrder* byteOrder() const ;
@@ -79,7 +77,7 @@ namespace asdm {
     uint64_t readULongLong();
     float readFloat();
     double readDouble();
-    string readString();
+    std::string readString();
     
   private :
     const asdm::ByteOrder* byteOrder_;
@@ -88,8 +86,8 @@ namespace asdm {
   class EndianIFStream : EndianIStream  {			
   public :
     EndianIFStream();
-    EndianIFStream(ifstream*  ifs_p) ;
-    EndianIFStream(ifstream* ifs_p, const asdm::ByteOrder* byteOrder);
+    EndianIFStream(std::ifstream*  ifs_p) ;
+    EndianIFStream(std::ifstream* ifs_p, const asdm::ByteOrder* byteOrder);
     ~EndianIFStream();
     
     const asdm::ByteOrder* byteOrder() const ;
@@ -104,10 +102,10 @@ namespace asdm {
     uint64_t readULongLong();
     float readFloat();
     double readDouble();
-    string readString();
+    std::string readString();
     
   private :
-    ifstream* ifs_p;
+    std::ifstream* ifs_p;
     const asdm::ByteOrder* byteOrder_;
   };
 

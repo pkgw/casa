@@ -78,7 +78,7 @@ public:
     
     // Returns all or one of the plots.
     // <group>
-    const vector<PlotMSPlot*>& plots() const;
+    const std::vector<PlotMSPlot*>& plots() const;
     PlotMSPlot* plot(unsigned int index);
     const PlotMSPlot* plot(unsigned int index) const;
     QList<PlotMSPlot*> getCanvasPlots( int row, int col ) const;
@@ -92,7 +92,7 @@ public:
 
     // Returns all or one of the plot parameters.
     // <group>
-    const vector<PlotMSPlotParameters*>& plotParameters() const;
+    const std::vector<PlotMSPlotParameters*>& plotParameters() const;
     PlotMSPlotParameters* plotParameters(unsigned int index);
     // </group>
     
@@ -112,7 +112,7 @@ public:
 
     void unassignPlots();
 
-    vector<casacore::String> getFiles() const;
+    std::vector<casacore::String> getFiles() const;
 
     //Returns the parameters that control the page display (grid rows & cols).
     PlotMSParameters getPageParameters();
@@ -136,13 +136,13 @@ private:
     PlotFactoryPtr itsFactory_;
     
     // Plots.  Will be deleted on destruction.
-    vector<PlotMSPlot*> itsPlots_;
+    std::vector<PlotMSPlot*> itsPlots_;
     
     // Plot parameters.  Will not be deleted on destruction.
-    vector<PlotMSPlotParameters*> itsPlotParameters_;
+    std::vector<PlotMSPlotParameters*> itsPlotParameters_;
     
     // Watchers.
-    vector<PlotMSPlotManagerWatcher*> itsWatchers_;
+    std::vector<PlotMSPlotManagerWatcher*> itsWatchers_;
     
     // Plot pages.
     PlotMSPages itsPages_;

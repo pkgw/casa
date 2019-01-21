@@ -33,7 +33,7 @@
  * File CCalType.cpp
  */
 #include <sstream>
-#include <CCalType.h>
+#include <alma/Enumerations/CCalType.h>
 #include <string>
 using namespace std;
 

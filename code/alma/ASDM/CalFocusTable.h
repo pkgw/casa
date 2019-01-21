@@ -41,51 +41,31 @@
 
 
 	
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
-
-	
-
-	
-#include "CReceiverBand.h"
-	
-
-	
-
-	
-#include "CAtmPhaseCorrection.h"
-	
-
-	
-#include "CFocusMethod.h"
-	
 
 	
 
@@ -94,11 +74,27 @@
 	
 
 	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
 
+	
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
+	
+
+	
+#include <alma/Enumerations/CFocusMethod.h>
+	
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -143,20 +139,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -187,7 +187,7 @@ class CalFocusRow;
  		
  * <TD> antennaName </TD>
  		 
- * <TD> string</TD>
+ * <TD> std::string</TD>
  * <TD> &nbsp; </TD>
  * <TD> &nbsp;the name of the antenna. </TD>
  * </TR>
@@ -260,14 +260,14 @@ class CalFocusRow;
 	
  * <TR>
  * <TD> frequencyRange </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the frequency range over which the result is valid. </TD>
  * </TR>
 	
  * <TR>
  * <TD> pointingDirection </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the antenna pointing direction (horizontal coordinates). </TD>
  * </TR>
@@ -281,49 +281,49 @@ class CalFocusRow;
 	
  * <TR>
  * <TD> polarizationTypes </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;identifies the polarization types (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> wereFixed </TD> 
- * <TD> vector<bool > </TD>
+ * <TD> std::vector<bool > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;coordinates were fixed (true) or not fixed (false) (one value per individual coordinate). </TD>
  * </TR>
 	
  * <TR>
  * <TD> offset </TD> 
- * <TD> vector<vector<Length > > </TD>
+ * <TD> std::vector<std::vector<Length > > </TD>
  * <TD>  numReceptor, 3 </TD> 
  * <TD> &nbsp;the measured focus offsets in X,Y,Z (one triple of values per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> offsetError </TD> 
- * <TD> vector<vector<Length > > </TD>
+ * <TD> std::vector<std::vector<Length > > </TD>
  * <TD>  numReceptor, 3 </TD> 
  * <TD> &nbsp;the statistical uncertainties on measured focus offsets (one triple per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> offsetWasTied </TD> 
- * <TD> vector<vector<bool > > </TD>
+ * <TD> std::vector<std::vector<bool > > </TD>
  * <TD>  numReceptor, 3 </TD> 
  * <TD> &nbsp;focus was tied (true) or not tied (false) (one value per receptor and focus individual coordinate). </TD>
  * </TR>
 	
  * <TR>
  * <TD> reducedChiSquared </TD> 
- * <TD> vector<vector<double > > </TD>
+ * <TD> std::vector<std::vector<double > > </TD>
  * <TD>  numReceptor, 3 </TD> 
  * <TD> &nbsp;a measure of the quality of the fit (one triple per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> position </TD> 
- * <TD> vector<vector<Length > > </TD>
+ * <TD> std::vector<std::vector<Length > > </TD>
  * <TD>  numReceptor, 3 </TD> 
  * <TD> &nbsp;the absolute focus position in X,Y,Z (one triple of values per receptor). </TD>
  * </TR>
@@ -341,35 +341,35 @@ class CalFocusRow;
 	
  * <TR>
  * <TD> focusCurveWidth</TD> 
- * <TD> vector<vector<Length > > </TD>
+ * <TD> std::vector<std::vector<Length > > </TD>
  * <TD>  numReceptor, 3  </TD>
  * <TD>&nbsp; half power width of fitted focus curve (one triple per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> focusCurveWidthError</TD> 
- * <TD> vector<vector<Length > > </TD>
+ * <TD> std::vector<std::vector<Length > > </TD>
  * <TD>  numReceptor, 3  </TD>
  * <TD>&nbsp; Uncertainty of the focus curve width. </TD>
  * </TR>
 	
  * <TR>
  * <TD> focusCurveWasFixed</TD> 
- * <TD> vector<bool > </TD>
+ * <TD> std::vector<bool > </TD>
  * <TD>  3  </TD>
  * <TD>&nbsp; each coordinate of the focus curve width was set (true) or not set (false) to an assumed value. </TD>
  * </TR>
 	
  * <TR>
  * <TD> offIntensity</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the off intensity levels (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> offIntensityError</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertainties on the off intensity levels (one value per receptor). </TD>
  * </TR>
@@ -383,14 +383,14 @@ class CalFocusRow;
 	
  * <TR>
  * <TD> peakIntensity</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the maximum intensities (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> peakIntensityError</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertainties on the maximum intensities (one value per receptor). </TD>
  * </TR>
@@ -404,49 +404,49 @@ class CalFocusRow;
 	
  * <TR>
  * <TD> astigmPlus</TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the astigmatism component with 0 degree symmetry axis. </TD>
  * </TR>
 	
  * <TR>
  * <TD> astigmPlusError</TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the statistical error on astigmPlus </TD>
  * </TR>
 	
  * <TR>
  * <TD> astigmMult</TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the astigmatism component with 45 degrees symmetry axis. </TD>
  * </TR>
 	
  * <TR>
  * <TD> astigmMultError</TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the statistical error on astigmMult </TD>
  * </TR>
 	
  * <TR>
  * <TD> illumOffset</TD> 
- * <TD> vector<vector<Length > > </TD>
+ * <TD> std::vector<std::vector<Length > > </TD>
  * <TD>  numReceptor, 2  </TD>
  * <TD>&nbsp; the illumination offset of the primary reflector expressed as a pair of values. </TD>
  * </TR>
 	
  * <TR>
  * <TD> illumOffsetError</TD> 
- * <TD> vector<vector<Length > > </TD>
+ * <TD> std::vector<std::vector<Length > > </TD>
  * <TD>  numReceptor, 2  </TD>
  * <TD>&nbsp; the statistical error on illumOffset. </TD>
  * </TR>
 	
  * <TR>
  * <TD> fitRMS</TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; The RMS of the half path length after removing the best fit parabola. </TD>
  * </TR>
@@ -626,7 +626,7 @@ public:
  	 * @param position
 	
      */
-	CalFocusRow *newRow(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, vector<Frequency > frequencyRange, vector<Angle > pointingDirection, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<bool > wereFixed, vector<vector<Length > > offset, vector<vector<Length > > offsetError, vector<vector<bool > > offsetWasTied, vector<vector<double > > reducedChiSquared, vector<vector<Length > > position);
+	CalFocusRow *newRow(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, std::vector<Frequency > frequencyRange, std::vector<Angle > pointingDirection, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<bool > wereFixed, std::vector<std::vector<Length > > offset, std::vector<std::vector<Length > > offsetError, std::vector<std::vector<bool > > offsetWasTied, std::vector<std::vector<double > > reducedChiSquared, std::vector<std::vector<Length > > position);
 	
 
 
@@ -705,7 +705,7 @@ public:
 	
  	 *
 	 */
- 	CalFocusRow* getRowByKey(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId);
+ 	CalFocusRow* getRowByKey(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -756,7 +756,7 @@ public:
  	 * @param position
  	 		 
  	 */
-	CalFocusRow* lookup(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, vector<Frequency > frequencyRange, vector<Angle > pointingDirection, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<bool > wereFixed, vector<vector<Length > > offset, vector<vector<Length > > offsetError, vector<vector<bool > > offsetWasTied, vector<vector<double > > reducedChiSquared, vector<vector<Length > > position); 
+	CalFocusRow* lookup(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, std::vector<Frequency > frequencyRange, std::vector<Angle > pointingDirection, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<bool > wereFixed, std::vector<std::vector<Length > > offset, std::vector<std::vector<Length > > offsetError, std::vector<std::vector<bool > > offsetWasTied, std::vector<std::vector<double > > reducedChiSquared, std::vector<std::vector<Length > > position); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

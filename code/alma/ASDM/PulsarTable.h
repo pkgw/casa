@@ -41,27 +41,23 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -83,20 +79,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -177,7 +177,7 @@ class PulsarRow;
 	
  * <TR>
  * <TD> phasePoly</TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numPoly  </TD>
  * <TD>&nbsp; The phase polynomial coefficients (Tempo units) </TD>
  * </TR>
@@ -191,14 +191,14 @@ class PulsarRow;
 	
  * <TR>
  * <TD> startPhaseBin</TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numBin  </TD>
  * <TD>&nbsp; Start phase for each bin (turns) </TD>
  * </TR>
 	
  * <TR>
  * <TD> endPhaseBin</TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numBin  </TD>
  * <TD>&nbsp; End phase for each bin (turns) </TD>
  * </TR>

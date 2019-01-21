@@ -34,6 +34,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                         vis=['ngc5921a.ms','ngc5921b.ms']; multiple MSes
 </description>
       <any type="variant" limittypes="string stringArray"/>
+      <type mustexist="true">path</type><type mustexist="true">pathVec</type>
       <value type="string"></value>
     </param>
 

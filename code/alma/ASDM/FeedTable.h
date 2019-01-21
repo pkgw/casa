@@ -41,31 +41,27 @@
 
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <ComplexWrapper.h>
+#include <alma/ASDM/ComplexWrapper.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -74,11 +70,11 @@
 	
 
 	
-#include "CPolarizationType.h"
-	
 
 	
 
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -93,20 +89,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -182,42 +182,42 @@ class FeedRow;
 	
  * <TR>
  * <TD> beamOffset </TD> 
- * <TD> vector<vector<double > > </TD>
+ * <TD> std::vector<std::vector<double > > </TD>
  * <TD>  numReceptor, 2 </TD> 
  * <TD> &nbsp;the offsets of the beam (one pair per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> focusReference </TD> 
- * <TD> vector<vector<Length > > </TD>
+ * <TD> std::vector<std::vector<Length > > </TD>
  * <TD>  numReceptor, 3 </TD> 
  * <TD> &nbsp;the references for the focus position (one triple per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> polarizationTypes </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;identifies the polarization types (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> polResponse </TD> 
- * <TD> vector<vector<Complex > > </TD>
+ * <TD> std::vector<std::vector<Complex > > </TD>
  * <TD>  numReceptor, numReceptor </TD> 
  * <TD> &nbsp;the polarization response (one value per pair of receptors). </TD>
  * </TR>
 	
  * <TR>
  * <TD> receptorAngle </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the receptors angles (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> receiverId </TD> 
- * <TD> vector<int>  </TD>
+ * <TD> std::vector<int>  </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;refers to one or more collections of rows in ReceiverTable. </TD>
  * </TR>
@@ -235,14 +235,14 @@ class FeedRow;
 	
  * <TR>
  * <TD> illumOffset</TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the illumination offset. </TD>
  * </TR>
 	
  * <TR>
  * <TD> position</TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3  </TD>
  * <TD>&nbsp; the position of the feed. </TD>
  * </TR>
@@ -263,7 +263,7 @@ class FeedRow;
 	
  * <TR>
  * <TD> skyCouplingSpectrum</TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numChan  </TD>
  * <TD>&nbsp; the sky coupling is the coupling efficiency to the sky of the WVR radiometer's. This column differs from the skyCoupling column because it contains one value for each of the individual channels of that spectralWindow. See the documentation of numChan for the size and the presence of this attribute. Note that in general one expects to see whether \b no sky coupling efficiency recorded or \b only \b one of the two forms  scalar (skyCoupling) or array (skyCouplingSpectrum, numChan). </TD>
  * </TR>
@@ -425,7 +425,7 @@ public:
  	 * @param receiverId
 	
      */
-	FeedRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, vector<vector<double > > beamOffset, vector<vector<Length > > focusReference, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Complex > > polResponse, vector<Angle > receptorAngle, vector<int>  receiverId);
+	FeedRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, std::vector<std::vector<double > > beamOffset, std::vector<std::vector<Length > > focusReference, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Complex > > polResponse, std::vector<Angle > receptorAngle, std::vector<int>  receiverId);
 	
 
 
@@ -544,7 +544,7 @@ public:
  	 * @param receiverId
  	 		 
  	 */
-	FeedRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, vector<vector<double > > beamOffset, vector<vector<Length > > focusReference, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<Complex > > polResponse, vector<Angle > receptorAngle, vector<int>  receiverId); 
+	FeedRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numReceptor, std::vector<std::vector<double > > beamOffset, std::vector<std::vector<Length > > focusReference, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<Complex > > polResponse, std::vector<Angle > receptorAngle, std::vector<int>  receiverId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

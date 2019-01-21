@@ -23,19 +23,19 @@
  *
  * File InvalidArgumentException.cpp
  */
-#include "InvalidArgumentException.h"
+#include <alma/ASDM/InvalidArgumentException.h>
 
 namespace asdm {
   InvalidArgumentException::InvalidArgumentException() : 
     message ("Invalid argument exception") {;}
   
-  InvalidArgumentException::InvalidArgumentException (const string &s) : 
+  InvalidArgumentException::InvalidArgumentException (const std::string &s) : 
     message(s) {
   }
   
   InvalidArgumentException::~InvalidArgumentException() {;}
   
-  string InvalidArgumentException::getMessage()  const {
+  std::string InvalidArgumentException::getMessage()  const {
     return message;
   }
 }

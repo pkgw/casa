@@ -47,22 +47,17 @@
 #include <regex>
 #endif
 
-#include "SDMDataObject.h"
+#include <alma/ASDMBinaries/SDMDataObject.h>
 
 
 #ifndef WITHOUT_ACS
 #include "almaEnumerations_IFC.h"
 #endif
-#include "CAtmPhaseCorrection.h"
-using namespace AtmPhaseCorrectionMod;
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 
-#include "CPrimitiveDataType.h"
-using namespace PrimitiveDataTypeMod; 
+#include <alma/Enumerations/CPrimitiveDataType.h>
 
-#include "CCorrelatorType.h"
-using namespace CorrelatorTypeMod;
-
-using namespace std;
+#include <alma/Enumerations/CCorrelatorType.h>
 
 namespace asdmbinaries {
 
@@ -82,7 +77,7 @@ namespace asdmbinaries {
      * A constructor with a message associated with the exception.
      * @param m a string containing the message.
      */
-    SDMDataObjectParserException(string m);
+    SDMDataObjectParserException(std::string m);
     
     /**
      * The destructor.
@@ -93,17 +88,17 @@ namespace asdmbinaries {
      * Returns the message associated to this exception.
      * @return a string.
      */
-    string getMessage() const;
+    std::string getMessage() const;
     
   protected:
-    string message;
+    std::string message;
     
   };
   
   inline SDMDataObjectParserException::SDMDataObjectParserException() : message ("SDMDataObjectParserException") {}
-  inline SDMDataObjectParserException::SDMDataObjectParserException(string m) : message(m) {}
+  inline SDMDataObjectParserException::SDMDataObjectParserException(std::string m) : message(m) {}
   inline SDMDataObjectParserException::~SDMDataObjectParserException() {}
-  inline string SDMDataObjectParserException::getMessage() const {
+  inline std::string SDMDataObjectParserException::getMessage() const {
     return "SDMDataObjectParserException : " + message;
   }
 
@@ -117,8 +112,8 @@ namespace asdmbinaries {
     HeaderParser();
     virtual ~HeaderParser();
     
-    void parseFile(const string& filename, SDMDataObject& sdmDataObject);
-    void parseMemory(const string& buffer, SDMDataObject& sdmDataObject);
+    void parseFile(const std::string& filename, SDMDataObject& sdmDataObject);
+    void parseMemory(const std::string& buffer, SDMDataObject& sdmDataObject);
     
     void reset();
     
@@ -129,7 +124,7 @@ namespace asdmbinaries {
     
     void parseProjectPath(xmlNode* a_node, SDMDataObject& sdmDataObject);
     long long parseStartTime(xmlNode* a_node);
-    string parseDataOID(xmlNode* a_node);
+    std::string parseDataOID(xmlNode* a_node);
     int  parseDimensionality(xmlNode* a_node);
     int  parseNumTime(xmlNode* a_node);
     void parseExecBlock(xmlNode* a_node, SDMDataObject& sdmDataObject);
@@ -146,13 +141,13 @@ namespace asdmbinaries {
     
     SDMDataObject::Baseband  parseBaseband(xmlNode* a_node, SDMDataObject& sdmDataObject);
     
-    void  parseSpectralWindow(xmlNode* a_node, SDMDataObject& sdmDataObject, vector<SDMDataObject::SpectralWindow>& spectralWindow);
+    void  parseSpectralWindow(xmlNode* a_node, SDMDataObject& sdmDataObject, std::vector<SDMDataObject::SpectralWindow>& spectralWindow);
     
-    SDMDataObject::BinaryPart parseBinaryPart(xmlNode* a_node, const string& attachmentName);
-    SDMDataObject::AutoDataBinaryPart parseAutoDataBinaryPart(xmlNode* a_node, const string& attachmentName);
-    SDMDataObject::ZeroLagsBinaryPart parseZeroLagsBinaryPart(xmlNode* a_node, const string& attachmentName);
+    SDMDataObject::BinaryPart parseBinaryPart(xmlNode* a_node, const std::string& attachmentName);
+    SDMDataObject::AutoDataBinaryPart parseAutoDataBinaryPart(xmlNode* a_node, const std::string& attachmentName);
+    SDMDataObject::ZeroLagsBinaryPart parseZeroLagsBinaryPart(xmlNode* a_node, const std::string& attachmentName);
 
-    //      SDMDataObject::TypedBinaryPart  parseTypedBinaryPart(xmlNode* a_node, const string& attachmentName);
+    //      SDMDataObject::TypedBinaryPart  parseTypedBinaryPart(xmlNode* a_node, const std::string& attachmentName);
     
     xmlDoc *doc;
 
@@ -161,58 +156,58 @@ namespace asdmbinaries {
 #else
     static const std::regex  PROJECTPATH3;
 #endif
-    const static string SDMDATAHEADER;
-    const static string SCHEMAVERSION;
-    const static string BYTEORDER;
-    const static string PROJECTPATH;
-    const static string STARTTIME;
-    const static string DATAOID;
-    const static string XLINKHREF;
-    const static string XLINKTITLE;
+    const static std::string SDMDATAHEADER;
+    const static std::string SCHEMAVERSION;
+    const static std::string BYTEORDER;
+    const static std::string PROJECTPATH;
+    const static std::string STARTTIME;
+    const static std::string DATAOID;
+    const static std::string XLINKHREF;
+    const static std::string XLINKTITLE;
     
-    const static string DIMENSIONALITY;
-    const static string NUMTIME;
+    const static std::string DIMENSIONALITY;
+    const static std::string NUMTIME;
     
-    const static string EXECBLOCK;
-    const static string EXECBLOCKNUM;
-    const static string SCANNUM;
-    const static string SUBSCANNUM;
+    const static std::string EXECBLOCK;
+    const static std::string EXECBLOCKNUM;
+    const static std::string SCANNUM;
+    const static std::string SUBSCANNUM;
     
-    const static string NUMANTENNA;
+    const static std::string NUMANTENNA;
     
-    const static string CORRELATIONMODE;
-    const static string SPECTRALRESOLUTION;
-    const static string PROCESSORTYPE;
-    const static string DATASTRUCT;
-    const static string APC;
-    const static string REF;
+    const static std::string CORRELATIONMODE;
+    const static std::string SPECTRALRESOLUTION;
+    const static std::string PROCESSORTYPE;
+    const static std::string DATASTRUCT;
+    const static std::string APC;
+    const static std::string REF;
     
-    const static string BASEBAND;
-    const static string NAME;
+    const static std::string BASEBAND;
+    const static std::string NAME;
     
-    const static string SPECTRALWINDOW;
-    const static string SW;
-    const static string SWBB;
-    const static string CROSSPOLPRODUCTS;
-    const static string SDPOLPRODUCTS;
-    const static string SCALEFACTOR;
-    const static string NUMSPECTRALPOINT;
-    const static string NUMBIN;
-    const static string SIDEBAND;
-    const static string IMAGE;
+    const static std::string SPECTRALWINDOW;
+    const static std::string SW;
+    const static std::string SWBB;
+    const static std::string CROSSPOLPRODUCTS;
+    const static std::string SDPOLPRODUCTS;
+    const static std::string SCALEFACTOR;
+    const static std::string NUMSPECTRALPOINT;
+    const static std::string NUMBIN;
+    const static std::string SIDEBAND;
+    const static std::string IMAGE;
     
-    const static string FLAGS;
-    const static string ACTUALTIMES;
-    const static string ACTUALDURATIONS;
-    const static string ZEROLAGS;
-    const static string CORRELATORTYPE;
-    const static string CROSSDATA;
-    const static string AUTODATA;
-    const static string NORMALIZED;
+    const static std::string FLAGS;
+    const static std::string ACTUALTIMES;
+    const static std::string ACTUALDURATIONS;
+    const static std::string ZEROLAGS;
+    const static std::string CORRELATORTYPE;
+    const static std::string CROSSDATA;
+    const static std::string AUTODATA;
+    const static std::string NORMALIZED;
     
-    const static string SIZE;
-    const static string AXES;
-    const static string TYPE;
+    const static std::string SIZE;
+    const static std::string AXES;
+    const static std::string TYPE;
   }; // class HeaderParser
 
   // class CorrSubsetHeaderParser
@@ -222,8 +217,8 @@ namespace asdmbinaries {
   public:
     CorrSubsetHeaderParser();
     virtual ~CorrSubsetHeaderParser();
-    void parseFile(const string& filename, SDMDataSubset& sdmCorrDataSubset);
-    void parseMemory(const string& buffer, SDMDataSubset& sdmCorrDataSubset);
+    void parseFile(const std::string& filename, SDMDataSubset& sdmCorrDataSubset);
+    void parseMemory(const std::string& buffer, SDMDataSubset& sdmCorrDataSubset);
     void parseCrossDataType(xmlNode* a_node, SDMDataSubset& sdmCorrDataSubset);
     void reset();
     
@@ -246,25 +241,25 @@ namespace asdmbinaries {
     
     xmlDoc* doc;
     
-    const static string SDMDATASUBSETHEADER;
-    const static string PROJECTPATH;
-    const static string SCHEDULEPERIODTIME;
-    const static string TIME;
-    const static string INTERVAL;
-    const static string DATASTRUCT;
-    const static string REF;
-    const static string ABORTOBSERVATION;
-    const static string ABORTTIME;
-    const static string ABORTREASON;
-    const static string XLINKHREF;
-    const static string DATAREF;
-    const static string FLAGSREF;
-    const static string ACTUALTIMESREF;
-    const static string ACTUALDURATIONSREF;
-    const static string ZEROLAGSREF;
-    const static string CROSSDATAREF;
-    const static string TYPE;
-    const static string AUTODATAREF;
+    const static std::string SDMDATASUBSETHEADER;
+    const static std::string PROJECTPATH;
+    const static std::string SCHEDULEPERIODTIME;
+    const static std::string TIME;
+    const static std::string INTERVAL;
+    const static std::string DATASTRUCT;
+    const static std::string REF;
+    const static std::string ABORTOBSERVATION;
+    const static std::string ABORTTIME;
+    const static std::string ABORTREASON;
+    const static std::string XLINKHREF;
+    const static std::string DATAREF;
+    const static std::string FLAGSREF;
+    const static std::string ACTUALTIMESREF;
+    const static std::string ACTUALDURATIONSREF;
+    const static std::string ZEROLAGSREF;
+    const static std::string CROSSDATAREF;
+    const static std::string TYPE;
+    const static std::string AUTODATAREF;
   };  // class CorrSubsetHeaderParser
 
 
@@ -274,8 +269,8 @@ namespace asdmbinaries {
   public:
     TPSubsetHeaderParser();
     virtual ~TPSubsetHeaderParser();
-    void parseFile(const string& filename,SDMDataSubset& sdmTPDataSubset );
-    void parseMemory(const string& buffer,SDMDataSubset& sdmTPDataSubset );
+    void parseFile(const std::string& filename,SDMDataSubset& sdmTPDataSubset );
+    void parseMemory(const std::string& buffer,SDMDataSubset& sdmTPDataSubset );
     void reset();
     
   private:
@@ -291,24 +286,24 @@ namespace asdmbinaries {
     void parseSchedulePeriodTime(xmlNode* a_node, SDMDataSubset& sdmCorrDataSubset);
     long long parseTime(xmlNode* a_node);
     long long parseInterval(xmlNode* a_node);
-    string parseDataStructureDesc(xmlNode* a_node);
+    std::string parseDataStructureDesc(xmlNode* a_node);
     void parseBinaryData(xmlNode* a_node, SDMDataSubset& sdmTPDataSubset);
     
     xmlDoc* doc;
     
-    const static string SDMDATASUBSETHEADER;
-    const static string PROJECTPATH;
-    const static string SCHEDULEPERIODTIME;
-    const static string TIME;
-    const static string INTERVAL;
-    const static string DATASTRUCT;
-    const static string REF;
-    const static string DATAREF;
-    const static string XLINKHREF;
-    const static string FLAGSREF;
-    const static string ACTUALTIMESREF;
-    const static string ACTUALDURATIONSREF;
-    const static string AUTODATAREF;
+    const static std::string SDMDATASUBSETHEADER;
+    const static std::string PROJECTPATH;
+    const static std::string SCHEDULEPERIODTIME;
+    const static std::string TIME;
+    const static std::string INTERVAL;
+    const static std::string DATASTRUCT;
+    const static std::string REF;
+    const static std::string DATAREF;
+    const static std::string XLINKHREF;
+    const static std::string FLAGSREF;
+    const static std::string ACTUALTIMESREF;
+    const static std::string ACTUALDURATIONSREF;
+    const static std::string AUTODATAREF;
   };  // class TPSubsetHeaderParser
   
   
@@ -320,66 +315,66 @@ namespace asdmbinaries {
   public:
     SDMDataObjectParser();
     virtual ~SDMDataObjectParser();
-    void parseFileHeader(const string& filename, SDMDataObject& sdmDataObject);
-    void parseMemoryHeader(const string& buffer, SDMDataObject& sdmDataObject);
+    void parseFileHeader(const std::string& filename, SDMDataObject& sdmDataObject);
+    void parseMemoryHeader(const std::string& buffer, SDMDataObject& sdmDataObject);
 
-    void parseFileCorrSubsetHeader(const string& filename, SDMDataSubset& sdmCorrSubset);
-    void parseMemoryCorrSubsetHeader(const string& buffer, SDMDataSubset& sdmCorrSubset);
+    void parseFileCorrSubsetHeader(const std::string& filename, SDMDataSubset& sdmCorrSubset);
+    void parseMemoryCorrSubsetHeader(const std::string& buffer, SDMDataSubset& sdmCorrSubset);
 
-    void parseFileTPSubsetHeader(const string& filename, SDMDataSubset& sdmCorrDataSubset);
-    void parseMemoryTPSubsetHeader(const string& filename, SDMDataSubset& sdmCorrDataSubset);
+    void parseFileTPSubsetHeader(const std::string& filename, SDMDataSubset& sdmCorrDataSubset);
+    void parseMemoryTPSubsetHeader(const std::string& filename, SDMDataSubset& sdmCorrDataSubset);
     
-    static void isElement(xmlNode* a_node, const string& elementName);
-    static bool testElement(xmlNode* a_node, const string& elementName);
-    static void inElements(xmlNode* a_node, const vector<string>& elementNames);
+    static void isElement(xmlNode* a_node, const std::string& elementName);
+    static bool testElement(xmlNode* a_node, const std::string& elementName);
+    static void inElements(xmlNode* a_node, const std::vector<std::string>& elementNames);
 
-    static xmlAttr* hasAttr(xmlNode* a_node, const string& attrName);
+    static xmlAttr* hasAttr(xmlNode* a_node, const std::string& attrName);
 
-    static void tokenize(const string& str,
-			 vector<string>& tokens,
-			 const string& delimiters = " ");
+    static void tokenize(const std::string& str,
+			 std::vector<std::string>& tokens,
+			 const std::string& delimiters = " ");
 
-    static void tokenize(const string& str,
-			 set<string>& tokens,
-			 const string& delimiters = " ");
-    static string substring(const string &s, int a, int b);
-    static string trim(const string &s);
+    static void tokenize(const std::string& str,
+			 std::set<std::string>& tokens,
+			 const std::string& delimiters = " ");
+    static std::string substring(const std::string &s, int a, int b);
+    static std::string trim(const std::string &s);
 
-    static string parseString(xmlNode* a_node);
+    static std::string parseString(xmlNode* a_node);
     static long long parseLongLong(xmlNode* a_node);
     static int   parseInt(xmlNode* a_node);
     static bool  parseBool(xmlNode* a_node);
     static float parseFloat(xmlNode* a_node);
-    static int   parseIntAttr(xmlNode* a_node, const string& attrName);
-    static bool  parseBoolAttr(xmlNode* a_node, const string& attrName);
-    static float parseFloatAttr(xmlNode* a_node, const string& attrName);
-    static string parseStringAttr(xmlNode* a_node, const string& attrName);
-    static const ByteOrder* parseByteOrderAttr(xmlNode* a_node, const string& attrName);
+    static int   parseIntAttr(xmlNode* a_node, const std::string& attrName);
+    static bool  parseBoolAttr(xmlNode* a_node, const std::string& attrName);
+    static float parseFloatAttr(xmlNode* a_node, const std::string& attrName);
+    static std::string parseStringAttr(xmlNode* a_node, const std::string& attrName);
+    static const ByteOrder* parseByteOrderAttr(xmlNode* a_node, const std::string& attrName);
 
-    template<class Enum, class EnumHelper> static Enum parseStringAttr(xmlNode* a_node, const string& attrName) {
+    template<class Enum, class EnumHelper> static Enum parseStringAttr(xmlNode* a_node, const std::string& attrName) {
       xmlAttr* attr = 0;
       
       if ((attr = hasAttr(a_node, attrName))) {
-	string s = string((const char*)attr->children->content);
+	std::string s = std::string((const char*)attr->children->content);
 	try {
 	  Enum result = EnumHelper::literal(SDMDataObjectParser::trim(s));
 	  return result;
 	}
-	catch(string m) {
+	catch(std::string m) {
 	  throw  SDMDataObjectParserException(m);
 	}
       }
       else 
-	throw SDMDataObjectParserException("could not find attribute '" + attrName + "' in " + string((const char*)a_node->name));    
+	throw SDMDataObjectParserException("could not find attribute '" + attrName + "' in " + std::string((const char*)a_node->name));    
     }
     
     template<class Enum, class EnumHelper> static Enum parseLiteral(xmlNode* a_node) {
       if ((a_node != NULL) && (a_node->next == NULL)) {      
 	try {
-	  Enum result = EnumHelper::literal(SDMDataObjectParser::trim(string((const char*) a_node->content)));
+	  Enum result = EnumHelper::literal(SDMDataObjectParser::trim(std::string((const char*) a_node->content)));
 	  return result;
 	}
-	catch (string m) {
+	catch (std::string m) {
 	  throw SDMDataObjectParserException(m);
 	}
       }
@@ -388,34 +383,34 @@ namespace asdmbinaries {
     }
 
 
-    static vector<string> parseStringsAttr(xmlNode* a_node, const string& attrName);
-    static set<string> parseStringSetAttr(xmlNode* a_node, const string& attrName);
+    static std::vector<std::string> parseStringsAttr(xmlNode* a_node, const std::string& attrName);
+    static std::set<std::string> parseStringSetAttr(xmlNode* a_node, const std::string& attrName);
 
-    template<class Enum, class EnumHelper> static vector<Enum> parseStringsAttr(xmlNode* a_node, const string& attrName) {
+    template<class Enum, class EnumHelper> static std::vector<Enum> parseStringsAttr(xmlNode* a_node, const std::string& attrName) {
       xmlAttr* attr = 0;
       
       if ((attr = hasAttr(a_node, attrName))) {
-	vector<string> v_s;
+	std::vector<std::string> v_s;
 	tokenize((const char*)attr->children->content, v_s);
 
-	vector<Enum> result; 
+	std::vector<Enum> result; 
 	unsigned int i = 0;
 	try {
 	  for (i = 0; i < v_s.size(); i++)
 	    result.push_back(EnumHelper::literal(v_s.at(i)));
 	  return result;
 	}
-	catch (string m) {
+	catch (std::string m) {
 	  throw  SDMDataObjectParserException(m);
 	}
       }
       else 
-	throw SDMDataObjectParserException("could not find attribute '" + attrName + "' in " + string((const char*)a_node->name));
+	throw SDMDataObjectParserException("could not find attribute '" + attrName + "' in " + std::string((const char*)a_node->name));
     }
 
-    static vector<unsigned int> parseProjectPath(xmlNode* a_node, unsigned int len);
+    static std::vector<unsigned int> parseProjectPath(xmlNode* a_node, unsigned int len);
 
-    static vector<unsigned int> parseProjectPath(xmlNode* a_node);
+    static std::vector<unsigned int> parseProjectPath(xmlNode* a_node);
 
     private:    
 

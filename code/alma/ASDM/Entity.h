@@ -29,30 +29,23 @@
 
 #include <iostream>
 #include <string>
-using namespace std;
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLEntity;
 #endif
 
-#include <EntityId.h>
+#include <alma/ASDM/EntityId.h>
 
-#include <StringTokenizer.h>
-#include <InvalidArgumentException.h>
-#include <InvalidDataException.h>
-using asdm::StringTokenizer;
-using asdm::InvalidArgumentException;
-using asdm::InvalidDataException;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/InvalidArgumentException.h>
+#include <alma/ASDM/InvalidDataException.h>
 
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/EndianStream.h>
 
 namespace asdm {
 
 class Entity;
-ostream & operator << ( ostream &, const Entity & );
+std::ostream & operator << ( std::ostream &, const Entity & );
 
 /**
  * The Entity class is an identification of a persistant
@@ -64,18 +57,18 @@ ostream & operator << ( ostream &, const Entity & );
  * @author Allen Farris
  */
 class Entity {
-    friend ostream & operator << ( ostream &, const Entity & );
-    friend istream & operator >> ( istream &, Entity & );
+    friend std::ostream & operator << ( std::ostream &, const Entity & );
+    friend std::istream & operator >> ( std::istream &, Entity & );
 
 public:
 	static Entity getEntity(StringTokenizer &t);
 	Entity();
-	Entity(const string &s);
+	Entity(const std::string &s);
 #ifndef WITHOUT_ACS
-	Entity(IDLEntity &);
+	Entity(asdmIDLTypes::IDLEntity &);
 #endif
-	Entity(string entityId, string entityIdEncrypted, string entityTypeName,
-			string entityVersion, string instanceVersion);
+	Entity(std::string entityId, std::string entityIdEncrypted, std::string entityTypeName,
+			std::string entityVersion, std::string instanceVersion);
 	virtual ~Entity();
 
 	bool operator == (const Entity &) const;
@@ -84,12 +77,12 @@ public:
 
 	bool isNull() const;
 
-	string toString() const;
-	string toXML() const;
+	std::string toString() const;
+	std::string toXML() const;
 #ifndef WITHOUT_ACS
-	IDLEntity toIDLEntity() const;
+    asdmIDLTypes::IDLEntity toIDLEntity() const;
 #endif
-	void setFromXML(string xml);
+	void setFromXML(std::string xml);
 	
 	/**
 	 * Write the binary representation of this to a EndianOSStream.
@@ -106,25 +99,25 @@ public:
 
 	
 	EntityId getEntityId() const;
-	string getEntityIdEncrypted() const;
-	string getEntityTypeName() const;
-	string getEntityVersion() const;
-	string getInstanceVersion() const;
+	std::string getEntityIdEncrypted() const;
+	std::string getEntityTypeName() const;
+	std::string getEntityVersion() const;
+	std::string getInstanceVersion() const;
 	void setEntityId(EntityId e);
-	void setEntityIdEncrypted(string s);
-	void setEntityTypeName(string s);
-	void setEntityVersion(string s);
-	void setInstanceVersion(string s);
+	void setEntityIdEncrypted(std::string s);
+	void setEntityTypeName(std::string s);
+	void setEntityVersion(std::string s);
+	void setInstanceVersion(std::string s);
 
 private:
 	EntityId entityId;
-	string entityIdEncrypted;
-	string entityTypeName;
-	string entityVersion;
-	string instanceVersion;
+	std::string entityIdEncrypted;
+	std::string entityTypeName;
+	std::string entityVersion;
+	std::string instanceVersion;
 
-	string getXMLValue(string xml, string parm) const;
-	string validXML() const;
+	std::string getXMLValue(std::string xml, std::string parm) const;
+	std::string validXML() const;
 
 };
 

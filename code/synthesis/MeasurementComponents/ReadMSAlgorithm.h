@@ -55,12 +55,12 @@ class ReadMSAlgorithm : public Algorithm {
 
  private:
   // Local copies of the data and input parameters
-  casacore::PagedArray<casacore::Float> *model_sl_p;
-  casacore::Int          msid;
+  //casacore::PagedArray<casacore::Float> *model_sl_p;
+  //casacore::Int          msid;
   casacore::String       myName;
   casacore::String       msName;
   casacore::Int         status;
-  casacore::Int cache_p;
+  //casacore::Int cache_p;
 
   // Read the MSset
   void task();

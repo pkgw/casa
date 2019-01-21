@@ -64,7 +64,7 @@ class TestPointingSource : public casa::vi::PointingSource {
 
 public:
 
-    TestPointingSource (const vector<int> & antennas, double timeMin,
+    TestPointingSource (const std::vector<int> & antennas, double timeMin,
                         double timeMax, double timeInterval,
                         int timesPerBlock, double timeIntervalStored = -1);
 
@@ -73,11 +73,11 @@ public:
 
 private:
 
-    vector<int> antennas_p;
+    std::vector<int> antennas_p;
     mutable int antennaIndex_p;
     mutable int blockIndex_p;
     mutable double blockTimeOrigin_p;
-    mutable vector<casa::vi::Pointing> pointings_p;
+    mutable std::vector<casa::vi::Pointing> pointings_p;
     mutable double time_p;
     double timeInterval_p;
     double timeIntervalStored_p;
@@ -86,7 +86,7 @@ private:
     int timesPerBlock_p;
 };
 
-TestPointingSource::TestPointingSource (const vector<int> & antennas, double timeMin,
+TestPointingSource::TestPointingSource (const std::vector<int> & antennas, double timeMin,
                                         double timeMax, double timeInterval,
                                         int timesPerBlock, double timeIntervalStored)
 : antennas_p (antennas),
@@ -188,7 +188,7 @@ TestPointingSource::nRows () const
 }
 
 void
-doTest (const vector<int> & antennas, double timeMin, double timeMax, double timeInterval,
+doTest (const std::vector<int> & antennas, double timeMin, double timeMax, double timeInterval,
         double timesPerBlock, bool wrap = false)
 {
     TestPointingSource pointingSource (antennas, timeMin, timeMax, timeInterval, timesPerBlock);
@@ -227,7 +227,7 @@ doTest (const vector<int> & antennas, double timeMin, double timeMax, double tim
 }
 
 void
-testMiss (const vector<int> & antennas, double timeMin, double timeMax, double timeInterval,
+testMiss (const std::vector<int> & antennas, double timeMin, double timeMax, double timeInterval,
         double timesPerBlock)
 {
     TestPointingSource pointingSource (antennas, timeMin, timeMax, timeInterval, timesPerBlock);
@@ -239,7 +239,7 @@ testMiss (const vector<int> & antennas, double timeMin, double timeMax, double t
 }
 
 void
-testGapMiss (const vector<int> & antennas, double timeMin, double timeMax, double timeInterval,
+testGapMiss (const std::vector<int> & antennas, double timeMin, double timeMax, double timeInterval,
              double timesPerBlock)
 {
     TestPointingSource pointingSource (antennas, timeMin, timeMax, timeInterval, timesPerBlock,
@@ -252,7 +252,7 @@ testGapMiss (const vector<int> & antennas, double timeMin, double timeMax, doubl
 }
 
 void
-testBadMiss (const vector<int> & antennas, double timeMin, double timeMax, double timeInterval,
+testBadMiss (const std::vector<int> & antennas, double timeMin, double timeMax, double timeInterval,
              double timesPerBlock)
 {
     // Request a time before the earliest one in the data source.
@@ -276,29 +276,29 @@ main (int nArgs, char * args [])
 
 TEST (PointingDirectionCache, SmallVeryRegular)
 {
-    doTest (vector<int> ({0, 1, 2}), 100, 200, 10, 1);
+    doTest (std::vector<int> ({0, 1, 2}), 100, 200, 10, 1);
 }
 
 TEST (PointingDirectionCache, SmallWithTimeBlocking)
 {
-    doTest (vector<int> ({0, 1, 2}), 100, 200, 10, 5);
+    doTest (std::vector<int> ({0, 1, 2}), 100, 200, 10, 5);
 }
 
 TEST (PointingDirectionCache, SmallIrregular)
 {
-    doTest (vector<int> ({0, 2, 1}), 100, 200, 10, 1);
-    doTest (vector<int> ({2, 1, 0}), 100, 200, 10, 1);
+    doTest (std::vector<int> ({0, 2, 1}), 100, 200, 10, 1);
+    doTest (std::vector<int> ({2, 1, 0}), 100, 200, 10, 1);
 }
 
 TEST (PointingDirectionCache, SmallIrregularTimeBlocking)
 {
-    doTest (vector<int> ({0, 2, 1}), 100, 200, 10, 5);
-    doTest (vector<int> ({2, 1, 0}), 100, 200, 10, 5);
+    doTest (std::vector<int> ({0, 2, 1}), 100, 200, 10, 5);
+    doTest (std::vector<int> ({2, 1, 0}), 100, 200, 10, 5);
 }
 
 TEST (PointingDirectionCache, SmallWrap)
 {
-    doTest (vector<int> ({0, 1, 2}), 100, 200, 10, 1, true);
+    doTest (std::vector<int> ({0, 1, 2}), 100, 200, 10, 1, true);
 }
 
 // TEST (PointingDirectionCache, TestMiss)
@@ -318,29 +318,29 @@ TEST (PointingDirectionCache, SmallWrap)
 
 TEST (PointingDirectionCache, BigVeryRegular)
 {
-    doTest (vector<int> ({0, 1, 2}), 100, 20000, 10, 1);
+    doTest (std::vector<int> ({0, 1, 2}), 100, 20000, 10, 1);
 }
 
 TEST (PointingDirectionCache, BigWithTimeBlocking)
 {
-    doTest (vector<int> ({0, 1, 2}), 100, 20000, 10, 5);
+    doTest (std::vector<int> ({0, 1, 2}), 100, 20000, 10, 5);
 }
 
 TEST (PointingDirectionCache, BigIrregular)
 {
-    doTest (vector<int> ({0, 2, 1}), 100, 20000, 10, 1);
-    doTest (vector<int> ({2, 1, 0}), 100, 20000, 10, 1);
+    doTest (std::vector<int> ({0, 2, 1}), 100, 20000, 10, 1);
+    doTest (std::vector<int> ({2, 1, 0}), 100, 20000, 10, 1);
 }
 
 TEST (PointingDirectionCache, BigIrregularTimeBlocking)
 {
-    doTest (vector<int> ({0, 2, 1}), 100, 20000, 10, 5);
-    doTest (vector<int> ({2, 1, 0}), 100, 20000, 10, 5);
+    doTest (std::vector<int> ({0, 2, 1}), 100, 20000, 10, 5);
+    doTest (std::vector<int> ({2, 1, 0}), 100, 20000, 10, 5);
 }
 
 TEST (PointingDirectionCache, BigVeryRegularWrap)
 {
-    doTest (vector<int> ({0, 1, 2}), 100, 20000, 10, 1, true);
+    doTest (std::vector<int> ({0, 1, 2}), 100, 20000, 10, 1, true);
 }
 
 // TEST (PointingDirectionCache, TestBigMiss)

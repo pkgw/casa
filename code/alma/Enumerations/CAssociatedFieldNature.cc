@@ -33,7 +33,7 @@
  * File CAssociatedFieldNature.cpp
  */
 #include <sstream>
-#include <CAssociatedFieldNature.h>
+#include <alma/Enumerations/CAssociatedFieldNature.h>
 #include <string>
 using namespace std;
 

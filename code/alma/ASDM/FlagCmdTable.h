@@ -41,7 +41,7 @@
 
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 
@@ -63,18 +63,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -116,14 +116,14 @@ class FlagCmdRow;
 	
  * <TR>
  * <TD> type </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> reason </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
@@ -151,7 +151,7 @@ class FlagCmdRow;
 	
  * <TR>
  * <TD> command </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
@@ -308,7 +308,7 @@ public:
  	 * @param command
 	
      */
-	FlagCmdRow *newRow(ArrayTimeInterval timeInterval, string type, string reason, int level, int severity, bool applied, string command);
+	FlagCmdRow *newRow(ArrayTimeInterval timeInterval, std::string type, std::string reason, int level, int severity, bool applied, std::string command);
 	
 
 
@@ -425,7 +425,7 @@ public:
  	 * @param command
  	 		 
  	 */
-	FlagCmdRow* lookup(ArrayTimeInterval timeInterval, string type, string reason, int level, int severity, bool applied, string command); 
+	FlagCmdRow* lookup(ArrayTimeInterval timeInterval, std::string type, std::string reason, int level, int severity, bool applied, std::string command); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
