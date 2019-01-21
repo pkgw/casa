@@ -600,7 +600,7 @@ public:
      * to create the MS.
      */
     SubtableChangerTest() :
-      MsFactoryTVITester("test_tViiLayerFactory","SubtableChangerTest"),
+      MsFactoryTVITester("tViiLayerFactory","SubtableChangerTest"),
       nAntennas_p(10), nSPWs_p(10)
     {
     }
@@ -618,27 +618,25 @@ public:
      */
     void createTVIs()
     {
-        //Create MS using the simulator MsFactory
-        pair<MeasurementSet *, Int> p = msf_p->createMs();
-        ms_p.reset(p.first); //MsFactory has given up ownership
 
-        //Create a disk layer type VI Factory
+        // Create synthethic MS using the msf_p factory
+        createMS();
+
+        // Create a disk layer type VI Factory
         IteratingParameters ipar;
         VisIterImpl2LayerFactory diskItFac(ms_p.get(),ipar,false);
 
-        //Create a SubtableChangerTVI Factory
+        // Create a SubtableChangerTVI Factory
         SubtableChangerTVILayerFactory subtableChangerFac;
 
-        //Create a layered factory with all the layers of factories
+        // Create a layered factory with all the layers of factories
         size_t nFac = 2;
-        Vector<ViiLayerFactory*> facts(nFac);
+        std::vector<ViiLayerFactory*> facts(nFac);
         facts[0]=&diskItFac;
         facts[1]= &subtableChangerFac;
 
-        //Finally create the top VI
-        vi_p.reset(new VisibilityIterator2(facts));
-
-        vb_p = vi_p->getVisBuffer();
+        // Finally create the top VI
+        instantiateVI(facts);
     }
 
     void checkSubtables()
@@ -674,6 +672,7 @@ private:
  */
 TEST_F(SubtableChangerTest, CheckSubtables)
 {
+
   createTVIs();
 
   checkSubtables();
