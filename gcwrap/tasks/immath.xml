@@ -97,6 +97,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <description>An image name from which metadata should be copied. The input can be either an image listed under imagename or any other image on disk. Leaving this parameter unset may copy header metadata from any of the input images, which one is not guaranteed. </description>
         <value/>
     </param>
+    <param type="string" name="prec">
+        <description>Precision for the output image pixels if mode="evalexpr" or "spix". "float" or "double" (minimum match supported)</description>
+        <value>float</value>
+    </param>
 	<constraints>
         <when param="mode">
             <equals value="evalexpr">
@@ -372,7 +376,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     conceivably instances where the temporary images may not be automatically deleted. It is generally
     safe to delete them by hand, assuming no immath instance is currently in progress.
 
-    The hope and plan is that the necessity of these images will decrease in the future (ie the computations
+    The hope and plan is that the necessity of these images will decrease in the future (i.e. the computations
     will require only RAM and not temporary persistent storage of intermediate results).
 
  

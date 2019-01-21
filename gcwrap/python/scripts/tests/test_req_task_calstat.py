@@ -44,13 +44,13 @@ import shutil
 
 if CASA6:
     datapath = casatools.ctsys.resolve('caltables/ggtau.1mm.amp.gcal')
-    filepath = casatools.ctsys.resolve('testlog.log')
+    #filepath = casatools.ctsys.resolve('testlog.log')
 else:
     if os.path.exists(os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/alma/uid___X02_X3d737_X1_01_small.ms/'):
         datapath = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/caltables/ggtau.1mm.amp.gcal'
     else:
-        datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/calstat/ggtau.1mm.amp.gcal/'
-    filepath = os.environ.get('CASAPATH').split()[0] + '/bin/nosedir/testlog.log'
+        datapath = os.environ.get('CASAPATH').split()[0] + '/casa-data-req/caltables/ggtau.1mm.amp.gcal'
+    #filepath = os.environ.get('CASAPATH').split()[0] + '/bin/nosedir/testlog.log'
         
 logpath = casalog.logfile()
 contained = ['max', 'mean', 'medabsdevmed', 'median', 'min', 'npts', 'quartile', 'rms', 'stddev', 'sum', 'sumsq', 'var']
@@ -62,8 +62,8 @@ class calstat_test(unittest.TestCase):
             default(calstat)
      
     def tearDown(self):
-        if os.path.exists(filepath):
-            os.remove(filepath)
+        if os.path.exists('testlog.log'):
+            os.remove('testlog.log')
      
     def test_logreturn(self):
         '''logreturn test: Test that a logfile is written and populated with the expected information'''

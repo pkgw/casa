@@ -282,15 +282,17 @@ namespace casa{
   {
     Vector<Int> iloc(4,0), tiloc(4);
     Bool Dummy;
-    Complex wt, cfArea=1.0; 
+    // wt no longer appears to be used
+    // Complex wt
+    Complex cfArea=1.0; 
     Complex norm=0.0;
     const Int * __restrict__ iGrdPosPtr = igrdpos.getStorage(Dummy);
     T* __restrict__ gridStore = grid.getStorage(Dummy);
-    Int Nth = 1;
-#ifdef _OPENMP
-    Nth=max(omp_get_max_threads()-2,1);
-#endif
-    Nth = Nth;
+    // Nth no longer appears to be used
+    // Int Nth = 1;
+//#ifdef _OPENMP
+//    Nth=max(omp_get_max_threads()-2,1);
+//#endif
 
     const Int* scaledSupport_ptr=scaledSupport.getStorage(Dummy);
     const Float *scaledSampling_ptr=scaledSampling.getStorage(Dummy);
@@ -706,7 +708,7 @@ namespace casa{
     IPosition grdpos(4);
     
     Vector<Complex> norm(4,0.0);
-    Complex phasor, nvalue, wt;
+    Complex phasor, nvalue;
     Vector<Int> cfShape=vbRow2CFBMap_p(0)->getStorage()(0,0,0)->getStorage()->shape().asVector();
     Vector<Double> pointingOffset((*vbRow2CFBMap_p(0)).getPointingOffset());
     
