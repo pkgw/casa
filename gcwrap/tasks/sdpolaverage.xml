@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" ?>
+<casaxml xmlns="http://casa.nrao.edu/schema/psetTypes.html"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
+file:///opt/casa/code/xmlcasa/xml/casa.xsd">
+
+<task type="function" name="sdpolaverage" category="single dish">
+     <shortdescription>Average SD spectra over polarisation</shortdescription>
+
+<description>
+    
+    The task sdpolaverage exports data averaged over different polarisations.
+    Scope of this task is to obtain Stokes I from orthogonal autocorrelation 
+    pairs (XXYY/LLRR). Available options include:
+
+    * '' (blank string as the default: polarisation averaging turned off)
+    * stokes
+    * geometric
+
+</description>
+
+<input>
+    <param type="string" name="infile" mustexist="true">
+        <description>Name of input Measurement set.</description>
+        <value type="string"></value>
+    </param>
+    
+    <param type="string" name="datacolumn" ignorecase="True">
+        <description>Which data column(s) to process.</description>
+        <value>corrected</value>
+        <allowed kind="enum" ignorecase="True">
+            <value>corrected</value>
+            <value>data</value>
+            <value>model</value>
+            <value>data,model,corrected</value>
+            <value>float_data</value>
+            <value>lag_data</value>
+            <value>float_data,data</value>
+            <value>lag_data,data</value>
+            <value>all</value>
+        </allowed>
+    </param>
+
+    <!-- SELECTION parameters -->    
+    <param type="any" name="antenna">
+        <description>Select data based on antenna/baseline.</description>
+        <any type="variant" limittypes="string stringArray int intArray"/>
+        <value type="string"></value>
+    </param>
+    
+    <param type="any" name="field">
+        <description>Select field using ID(s) or name(s).</description>
+        <any type="variant" limittypes="string stringArray int intArray"/>
+        <value type="string"></value>
+    </param>
+
+    <param type="any" name="spw">
+        <description>Select spectral window/channels.</description>
+        <any type="variant" limittypes="string stringArray int intArray"/>
+        <value type="string"></value>
+    </param>
+    
+    <param type="any" name="timerange" >
+        <description>Select data by time range.</description>
+        <any type="variant" limittypes="string stringArray int intArray"/>
+        <value type="string"></value>
+    </param>
+    
+    <param type="any" name="scan" >
+        <description>Select data by scan numbers.</description>
+        <any type="variant" limittypes="string stringArray int intArray"/>
+        <value type="string"></value>
+    </param>
+
+    <!-- POLARIZATION AVERAGING parameter -->
+    <param type="string" name="polaverage">
+        <description>Average data over polarization ("", "stokes" or "geometric").</description>
+        <allowed kind="enum">
+            <value></value>
+            <value>stokes</value>
+            <value>geometric</value>
+        </allowed>
+        <value></value>
+    </param>
+
+    <param type="string" name="outfile">
+        <description>Name of output Measurement Set.</description>
+        <value></value>
+    </param>
+</input>
+<example>  
+
+    Detailed description of keyword arguments:
+
+    infile -- name of input SD dataset
+
+    datacolumn -- Which data column to use for processing (case-insensitive).
+        options: 'data', 'float_data', or 'corrected_data'
+        default: 'data'
+
+    antenna -- Select data based on antenna/baseline
+        default: '' (all)
+            Non-negative integers are assumed to be antenna indices, and
+            anything else is taken as an antenna name.
+
+    field -- Select field using field id(s) or field name(s).
+             [run listobs to obtain the list iof d's or names]
+        default: ''=all fields If field string is a non-negative
+           integer, it is assumed to be a field index
+           otherwise, it is assumed to be a field name
+           field='0~2'; field ids 0,1,2
+           field='0,4,5~7'; field ids 0,4,5,6,7
+           field='3C286,3C295'; fields named 3C286 and 3C295
+           field = '3,4C*'; field id 3, all names starting with 4C
+
+    spw -- Select spectral window/channels
+        default: ''=all spectral windows and channels
+           spw='0~2,4'; spectral windows 0,1,2,4 (all channels)
+           spw='&lt;2';  spectral windows less than 2 (i.e. 0,1)
+           spw='0:5~61'; spw 0, channels 5 to 61
+           spw='0,10,3:3~45'; spw 0,10 all channels, spw 3 - chans 3 to 45.
+           spw='0~2:2~6'; spw 0,1,2 with channels 2 through 6 in each.
+           spw = '*:3~64'  channels 3 through 64 for all sp id's
+                   spw = ' :3~64' will NOT work.
+
+               NOTE: mstransform does not support multiple channel ranges per
+                     spectral window (';').
+
+    timerange -- Select data based on time range:
+        default: '' (all); examples,
+           timerange = 'YYYY/MM/DD/hh:mm:ss~YYYY/MM/DD/hh:mm:ss'
+           Note: if YYYY/MM/DD is missing date, timerange defaults to the
+           first day in the dataset
+           timerange='09:14:0~09:54:0' picks 40 min on first day
+           timerange='25:00:00~27:30:00' picks 1 hr to 3 hr 30min
+           on next day
+           timerange='09:44:00' data within one integration of time
+           timerange='&gt;10:24:00' data after this time
+
+    scan -- Scan number range
+        default: ''=all
+
+    polaverage -- Average data over polarization.
+        default: '' (no averaging over polarization)
+        options: '', 'stokes', 'geometric'
+            
+    outfile -- name of output SD dataset
+
+
+-------
+POLARIZATION AVERAGE
+-------
+Two modes of polarization averaging are available. The default is 
+'stokes' which is an average based on a formulation of Stokes 
+parameter. In this mode, averaged data is calculated by 
+(XX + YY) / 2 or (RR + LL) / 2. Other option is 'geometric', which 
+is a conventional way of averaging in the field of single-dish 
+data reduction. The averaged data is given by weighted average 
+of XX and YY, or RR and LL. 
+
+</example> 
+</task>
+</casaxml>
