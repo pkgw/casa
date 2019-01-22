@@ -367,7 +367,8 @@ void DeleteWorkingMS()
 //  -  Interval(POINTING, MAIN)  (tunable in initialize() ).
 //********************************************************
 
-class EvaluateInterporation
+class CurveFunction;
+class EvaluateInterporation   
 {
 public:
 
@@ -471,11 +472,8 @@ private:
 
         //+
         // Testing Function Select [TENTATIVE]
-        //   0: Simple Linear
-        //   1: Full-scale linear with PI , PI/2
-        //   8: Sinusoid (slow move)
-        //   9: Sinusoid (fast move)
-        //   10: Harmonics Sinusoid. (f0 + 5th.)
+        //   21-JAN-2018: Migrating to isolate CurveFunction.
+        //   class CurveFunction is under constrution.
         //-
 
         uInt curveFunctionNo;                  // Testing Function Mo/
@@ -486,11 +484,6 @@ private:
          Double pointingIntervalSec =0.0;            // Interval Time to set in POINTING 
          Double mainIntervalSec     =0.0;            // Interval Time to set in MAIN 
 
-    // Parameters  (Time)
-    
-
-    // 2 parameters were deleted , due to no need . ..
-   
     // Number of Antenna 
 
         Double dayOffset=0       ;      // Day offset   (Day)  ** NOT USED *** 
@@ -605,9 +598,11 @@ void EvaluateInterporation::Initialize( )
 }
 
 //*****************************************************
-// Generate Pseudo POINTING Trajectory
-//   returns pointng info. by Vecror.
+// Interpolation Testing Curve lcass
+//  
 //****************************************************
+
+typedef void (*FUNCTYPE)(Double, Double&, Double&);
 
 //+
 // Local function definition
@@ -699,13 +694,57 @@ void Function_Err(Double r_time, Double& X, Double& Y)
 
     throw;
 }
- 
+
+//****
+// UNDER CoNSTRUCTION
+//****
+class CurveFunction
+{
+public:
+    // Curve Type //
+    enum CurveFuncType {
+       SimpleLinear,
+       NormalizedLinear,
+       SinusoidSlow,
+       SinusoidQuick,
+       SinusoidHasty,
+       HarmonicsSinusoid,
+       Gauss,
+       Err 
+    };
+
+    // constructor //
+    CurveFunction(uInt no=0){ curveFunctionNo = no; }
+
+    void calc(Double r_time, Double& X, Double& Y) {
+           (*fpCurvefunc[curveFunctionNo])( r_time, X, Y ); return; }
+
+    void setFunctionType(uInt no ) {
+           if( no < fpCurvefunc.size() )  curveFunctionNo = no;}
+
+private:
+
+    uInt curveFunctionNo =0;
+
+    std::vector<FUNCTYPE>  fpCurvefunc
+    {    
+        Function_SimpleLinear,        // 0 
+        Function_NormalizedLinear,    // 1 
+        Function_sinusoid_slow,       // 2 
+        Function_sinusoid_quick,      // 3 
+        Function_sinusoid_hasty,      // 4 
+        Function_harmonics_sinusoid,  // 5 
+        Function_gauss,               // 6   (new 12/11)
+        Function_Err
+    };   
+
+};
+
 //+
 //  Generate Pseuo Direction / Time Infomation
 //  both for Pointing and Main.
 //-
 
-typedef void (*FUNCTYPE)(Double, Double&, Double&);
 
 FUNCTYPE fpCurvefunc[]  = 
 {
@@ -760,6 +799,8 @@ casacore::Vector<Double> EvaluateInterporation::pseudoDirInfo(Double delta)
         //  Choose Function
         //  (In near future, change to Templated Function in C++ )
         //-
+
+// rsv://        curv_func.calc( r_time, X, Y);
 
         (*fpCurvefunc[curveFunctionNo])( r_time, X, Y );
         
@@ -859,6 +900,8 @@ class MsEdit
 public:
 
     EvaluateInterporation  evgen;
+
+//rsv//    CurveFunction          cvfunc(0);
 
     MsEdit()        { };
 
@@ -1840,14 +1883,6 @@ TEST_F(TestDirection, setDirectionColumn  )
     TestDescription( "setDirectionColumn (String Fram)" );
     const String MsName = DefaultLocalMsName;
 
-#if 0
-    // Obsoleted soon, use DumpPointing... 
-
-    if(false){
-        printf( "Listing all POINTING TABLE  \n");
-        msedit.PointingTable_List( MsName, false );
-    }
-#endif 
     // Create Object //
     
         MeasurementSet ms( MsName.c_str() );
@@ -1920,15 +1955,6 @@ TEST_F(TestDirection, MovingSourceCorrection  )
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
     const String MsName = DefaultLocalMsName;     
 
-    // List all info on Pointing Table. //
-    //   _List series. was Removed. 
-    //   Replaace to Dump series.
-#if 0
-    if(true) {
-          printf( "Listing all POINTING TABLE  \n");
-          msedit.PointingTable_List( MsName, false );
-    }
-#endif 
     // Create Object //
     
         MeasurementSet ms( MsName.c_str() );
@@ -2115,13 +2141,7 @@ TEST_F(TestDirection, setMovingSource  )
      // List all info on Pointing Table. //
      //   _List series. was Removed. 
      //   Replaace to Dump series.
-#if 0     
-        if(false)
-        {
-            printf( "Listing all POINTING TABLE  \n");
-            msedit.PointingTable_List( MsName, false );
-        }
-#endif 
+
     // Create Object //
     
         MeasurementSet ms( MsName.c_str() );
@@ -2365,7 +2385,7 @@ TEST_F(TestDirection, getDirection1 )
    Interpolation Test in getDirection
  ---------------------------------------*/
 
-void DumpPointingTable(String MsName)
+void listPointingTable(String MsName)
 {
     // Open MS by Update mode //
 
@@ -2438,7 +2458,7 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
 
     //  MS (Dump) ** develper option ** //
 
-        if(false)  DumpPointingTable(MsName);
+        if(false)  listPointingTable(MsName);
 
     // Create Object //
 
@@ -2491,7 +2511,7 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
         if(false)
         {
             Description("Dump Pointing (before getDirection) ","" );
-            DumpPointingTable( MsName );
+            listPointingTable( MsName );
         }
 
     //+
@@ -2732,12 +2752,12 @@ TEST_F(TestDirection, InterpolationSingle )
 
       use_spline = true;
 
-      msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
+      msedit.evgen.    setCurveFunctionNo(2);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
       msedit.evgen.      Initialize( 2.99827,     // Pointing Interval
                                      2.99827 ) ;  // Main Interval
  
-      msedit.evgen.    setInterpolationErrorLimit( 5.0E-03 );
+      msedit.evgen.    setInterpolationErrorLimit( 1.0E-04 );
 
     // Prepate Antenna (for Multple-set) //
 
