@@ -373,6 +373,10 @@ public:
 
        ~SplineInterpolation() { };
 
+        // Caluclation Available 
+
+        bool   isCalculateAvailable() { return coeffActive; }
+
         // Calculate function
         casacore::Vector<casacore::Double>   calculate(casacore::uInt row,
                                                        casacore::Double dt,
@@ -387,14 +391,9 @@ private:
          void init( casacore::MeasurementSet const &ms, ACCESSOR const my_accessor);
 
         // Coefficiat Table 
-
+        bool     coeffActive = false;   // True when Coeff is ready to be used.   
         casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > coeff_;
 
-       // Internal Spline Functions
-
-        casacore::Vector<casacore::Double>   splineCalulate(casacore::uInt row,
-                                                            casacore::Double dt,
-                                                            casacore::uInt AntennaID =0);
        // debug //
          void dumpCsvCoeff();
 };

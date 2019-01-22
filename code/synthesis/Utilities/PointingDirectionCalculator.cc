@@ -167,8 +167,11 @@ PointingDirectionCalculator::PointingDirectionCalculator(
 //+
 //  CAS-8418
 //   Create Spline Object in current class.
+//   if coeff table is inactive, disable spline mode.
 //-
+printf( "XXXXXXXXX CONSTRUCTOR  call XXXXXXXXXXXXXXX \n");
     spline = new SplineInterpolation(ms,accessor_); 
+    if( spline->isCalculateAvailable() == false) fgSplineInterpolation = false;
 
     init();
 
@@ -450,7 +453,7 @@ AntennaBoundary::AntennaBoundary(MeasurementSet const &ms)
         ++count;
         numAntennaBoundary_ = count;
 
-       if (false) show();  // DEBUG //
+       if (true) show();  // DEBUG //
 }
 
 //+
@@ -534,16 +537,18 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
 
     //+
     // Minimum Condition Inspection
-    // [TENTATIVE]
+    // (N >=4) 
     //-
 
     for(uInt ant=0; ant <numAnt; ant++)
     {
-        if ((tmp_time[ant].size() < 4)||
-            (tmp_dir [ant].size() < 4))
+        uInt st =tmp_time[ant].size();
+        uInt s1 =tmp_dir [ant].size();
+        if ((st < 4)||(s1 < 4))
         {
-           printf( "XXXXXXXXX INSUFFICIENT NUMBER OF POINTING DATA XXXXXXXXXXXXXXXXXXXXXXX \n" );
-//           fgSplineInterpolation = false;
+           printf( "XXXXXXXXX INSUFFICIENT NUMBER OF POINTING DATA (%u,%u)XXXXXXXXXXXXXXX \n",st, s1);
+     
+           coeffActive = false;
            return;
         }
     }
@@ -559,6 +564,10 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
 
       coeff_ = sdp.getSplineCoeff();
 
+    // Table Active ..
+      coeffActive = true;
+
+    // Programmers inspection 
       if(false) dumpCsvCoeff();
 
 }
@@ -631,12 +640,12 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
 
 // Test . inttentionally ignore high order ,Linear equivalent. //
 
-    if(true)
+    if(false)
     {
         Xs = a1 * dt + a0;
         Ys = b1 * dt + b0;
 
-        if(true)
+        if(false)
         {
             Xs = a2* (dt*dt) + a1 * dt + a0;
             Ys = b2* (dt*dt) + b1 * dt + b0;
@@ -656,7 +665,7 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
 
 Matrix<Double> PointingDirectionCalculator::getDirection() {
     assert(!selectedMS_.null());
-
+printf( "XXXXXXXXX getDirection() call flag = %d XXXXXXXXXXXXXX \n",fgSplineInterpolation);
     uInt const nrow = selectedMS_->nrow();
     debuglog << "selectedMS_->nrow() = " << nrow << debugpost;
     Vector<Double> outDirectionFlattened(2 * nrow);
