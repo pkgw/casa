@@ -48,7 +48,7 @@ def ic2233_reg():
     tclean(vis=MSFILE,selectdata=True,field=FIELD,spw=SPW,timerange=TIMERANGE,uvrange="",antenna="",scan="",observation="",
            intent="",datacolumn="corrected",imagename=MYIMAGE,imsize=IMSIZE,cell=CELLSIZE,phasecenter="",stokes=STOKES,projection="SIN",
            startmodel="",specmode="mfs",reffreq="",nchan=-1,start="",width="",outframe="LSRK",veltype="radio",restfreq=[],interpolation="linear",
-           gridder=FTMACHINE,facets=1,chanchunks=1,wprojplanes=1,vptable="",aterm=True,psterm=PSTERM,wbawp=True,conjbeams=True,
+           gridder=FTMACHINE,facets=1,chanchunks=1,wprojplanes=1,vptable="",aterm=True,psterm=PSTERM,wbawp=True,conjbeams=False,
            cfcache=MYIMAGE+".cf",computepastep=360.0,rotatepastep=5.0,pblimit=0.05,normtype="flatnoise",deconvolver=DECONVOLVER,scales=[],
            nterms=2,smallscalebias=0.6,restoration=True,restoringbeam=[],pbcor=False,outlierfile="",weighting="natural",robust=0.5,npixels=0,
            uvtaper=[],niter=NITER,gain=0.1,threshold=0.0,cycleniter=-1,cyclefactor=1.0,minpsffraction=0.05,maxpsffraction=0.8,interactive=INTERACTIVE,
