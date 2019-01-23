@@ -6055,82 +6055,6 @@ class test_selectiononly_notransformation(test_base):
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing DATA_DESCRIPTION table')
 
-class test_polaverage(test_base):
-    def setUp(self):
-        self.inputms  = "analytic_type1.fit.ms"
-        self.outputms = "polave.ms"
-        datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/tsdfit/"
-        os.system('cp -RL '+datapath + self.inputms +' '+ self.inputms)
-        default(mstransform)
-
-    def tearDown(self):
-        os.system('rm -rf ' + self.inputms)
-        os.system('rm -rf ' + self.outputms)
-
-    def test_default(self):
-        mstransform(vis=self.inputms, outputvis=self.outputms, datacolumn='float_data')
-        with tbmanager(self.inputms) as tb:
-            indata = tb.getcell('FLOAT_DATA', 0)
-        with tbmanager(self.outputms) as tb:
-            outdata = tb.getcell('FLOAT_DATA', 0)
-        
-        self.assertEqual(len(indata), len(outdata), 'Input and output data have different shape.')
-        for i in range(len(indata)):
-            for j in range(len(indata[0])):
-                self.assertEqual(indata[i][j], outdata[i][j], 'Input and output data unidentical.')
-
-    def test_stokes_float_data(self):
-        mstransform(vis=self.inputms, outputvis=self.outputms, polaverage='stokes', datacolumn='float_data')
-        #check data
-        with tbmanager(self.inputms) as tb:
-            indata = tb.getcell('FLOAT_DATA', 0)
-        with tbmanager(self.outputms) as tb:
-            outdata = tb.getcell('FLOAT_DATA', 0)
-        
-        self.assertEqual(len(outdata), 1, 'No averaging over polarization?')
-        tol = 1e-5
-        for i in range(len(indata[0])):
-            mean = 0.5 * (indata[0][i] + indata[1][i])
-            check_eq(outdata[0][i], mean, tol)
-
-        #check polarization id (should be 1)
-        with tbmanager(self.outputms) as tb:
-            outddesc = tb.getcell('DATA_DESC_ID', 0)
-        with tbmanager(self.outputms + '/DATA_DESCRIPTION') as tb:
-            outpolid = tb.getcol('POLARIZATION_ID')
-        with tbmanager(self.outputms + '/POLARIZATION') as tb:
-            outpoltype = tb.getcell('CORR_TYPE', outpolid[outddesc])
-
-        self.assertEqual(len(outpoltype), 1, 'Polarization id is inconsistent with data.')
-        self.assertEqual(outpoltype[0], 1, 'Has wrong polarization id.')
-
-    def test_stokes_corrected_data(self):
-        mstransform(vis=self.inputms, outputvis=self.outputms, polaverage='stokes', datacolumn='corrected')
-        #check data
-        with tbmanager(self.inputms) as tb:
-            indata = tb.getcell('CORRECTED_DATA', 0)
-        with tbmanager(self.outputms) as tb:
-            outdata = tb.getcell('DATA', 0)
-        
-        self.assertEqual(len(outdata), 1, 'No averaging over polarization?')
-        tol = 1e-5
-        for i in range(len(indata[0])):
-            mean = 0.5 * (indata[0][i] + indata[1][i])
-            check_eq(outdata[0][i].real, mean.real, tol)
-            check_eq(outdata[0][i].imag, mean.imag, tol)
-
-        #check polarization id (should be 1)
-        with tbmanager(self.outputms) as tb:
-            outddesc = tb.getcell('DATA_DESC_ID', 0)
-        with tbmanager(self.outputms + '/DATA_DESCRIPTION') as tb:
-            outpolid = tb.getcol('POLARIZATION_ID')
-        with tbmanager(self.outputms + '/POLARIZATION') as tb:
-            outpoltype = tb.getcell('CORR_TYPE', outpolid[outddesc])
-
-        self.assertEqual(len(outpoltype), 1, 'Polarization id is inconsistent with data.')
-        self.assertEqual(outpoltype[0], 1, 'Has wrong polarization id.')
-
-
 # Cleanup class
 class Cleanup(test_base):
 
@@ -6204,5 +6128,4 @@ def suite():
             # jagonzal: According to George M. chan. avg should generated teh average of the flagged data
             #           when all the samples are flagged just like time avg.       
             # test_spectrum_transformations_weight_zero_flag_set,
-            test_polaverage,
             Cleanup]

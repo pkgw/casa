@@ -12,24 +12,25 @@ from update_spw import update_spwchan
 from callibrary import callibrary
 
 """
-The following code has been copied from that of mstransform, then 
-task name and task parameters were modified. 
-To minimise the code modification, the parameters of mstransform 
-which are not used for sdpolaverage are kept as variables and the 
+The following code is based on the mstransform code, with 
+task name and some task parameters modified. 
+To minimise code modification, the parameters used by 
+mstransform but not by sdpolaverage are kept and the 
 default values for mstransform are given to them.
-(for CAS-12083, 2019/1/22 WK)
+(CAS-12083, 2019/1/22 WK)
 """
 
 def sdpolaverage(
-             infile,   # renamed from vis, 
+             infile,
              datacolumn,
              antenna, 
              field,
              spw, 
              timerange, 
-             scan, 
+             scan,
+             intent,
              polaverage,
-             outfile):  # renamed from outputvis
+             outfile):
 
     # followings are parameters of mstransform but not used by sdpolaverage.
     # just putting default values
@@ -40,7 +41,6 @@ def sdpolaverage(
     numsubms = "auto"
     tileshape = [0]
     correlation = ""
-    intent = ""
     array = ""
     uvrange = ""
     observation = ""

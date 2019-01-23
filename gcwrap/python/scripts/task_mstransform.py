@@ -55,7 +55,6 @@ def mstransform(
              timebin,
              timespan,
              maxuvwdistance,
-             polaverage,
              docallib,
              callib,
              douvcontsub,
@@ -271,11 +270,6 @@ def mstransform(
             config['timespan'] = timespan
             config['maxuvwdistance'] = maxuvwdistance
             
-        polaverage_ = polaverage.strip()
-        if polaverage_ != '':
-            config['polaverage'] = True
-            config['polaveragemode'] = polaverage_
-
         if docallib:
             casalog.post('Parse docallib parameters')
             mycallib = callibrary()

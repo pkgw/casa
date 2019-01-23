@@ -353,17 +353,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value type="double">0.0</value>
         </param>
         
-    <!-- POLARIZATION AVERAGING parameter -->
-    <param type="string" name="polaverage">
-        <description>Average data over polarization ("", "stokes" or "geometric").</description>
-        <allowed kind="enum">
-            <value></value>
-            <value>stokes</value>
-            <value>geometric</value>
-        </allowed>
-        <value></value>
-    </param>
-
         <!-- OTF CALIBRATION parameters -->
         
 	    <param type="bool" name="docallib" >
@@ -917,10 +906,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                           that can be included in an average. (int)
             default: 0.0 (given in meters)
 
-        polaverage -- Average data over polarization.
-            default: '' (no averaging over polarization)
-            options: '', 'stokes', 'geometric'
-            
 --- On-the-fly calibration parameters ---            
     docallib -- Enable on-the-fly (OTF) calibration as in task applycal
         default: False
