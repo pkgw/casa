@@ -155,12 +155,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     static ATerm* createTelescopeATerm(const casacore::String& telescopeName, 
 				       const casacore::Bool& isATermOn);
     static casacore::CountedPtr<ConvolutionFunction> makeCFObject(const casacore::String& telescopeName,
-							const casacore::Bool aTermOn,
-							const casacore::Bool psTermOn,
-							const casacore::Bool wTermOn,
-							const casacore::Bool mTermOn,
-							const casacore::Bool wBAWP,
-							const casacore::Bool conjBeams);
+								  const casacore::Bool aTermOn,
+								  const casacore::Bool psTermOn,
+								  const casacore::Bool wTermOn,
+								  const casacore::Bool mTermOn,
+								  const casacore::Bool wBAWP,
+								  const casacore::Bool conjBeams);
     AWProjectFT();
     
     // Constructor: cachesize is the size of the cache in words

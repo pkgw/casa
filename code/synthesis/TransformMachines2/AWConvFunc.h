@@ -147,6 +147,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     static casacore::Bool resizeCF(casacore::Array<casacore::Complex>& func,  casacore::Int& xSupport, casacore::Int& ySupport,
 			 const casacore::Int& supportBuffer, const casacore::Float& sampling, const casacore::Complex& peak);
     static int getOversampling(PSTerm& psTerm, WTerm& wTerm, ATerm& aTerm);
+    int getOversampling(){return getOversampling(*psTerm_p, *wTerm_p, *aTerm_p);}
+
     virtual casacore::CountedPtr<CFTerms> getTerm(const casacore::String& name)
     {if (name=="ATerm") return aTerm_p; else return NULL;}
     

@@ -1716,6 +1716,9 @@ void SynthesisImagerVi2::unlockMSs()
 									   aTermOn,
 									   psTermOn, (wprojPlane > 1),
 									   mTermOn, wbAWP, conjBeams);
+
+    CountedPtr<refim::PointingOffsets> po = new refim::PointingOffsets(awConvFunc->getOversampling());
+    awConvFunc->setPointingOffsets(po);
     //
     // Construct the appropriate re-sampler.
     //
@@ -1744,6 +1747,7 @@ void SynthesisImagerVi2::unlockMSs()
     // Re-sampler objects.  
     //
     Float pbLimit_l=1e-3;
+
     theFT = new refim::AWProjectWBFTNew(wprojPlane, cache/2, 
 			      cfCacheObj, awConvFunc, 
 			      visResampler,
