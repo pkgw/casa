@@ -599,9 +599,18 @@ public:
      * Constructor: create the temporary dir and the MsFactory used later on
      * to create the MS.
      */
-    SubtableChangerTest() : 
-        MsFactoryTVITester("tViiLayerFactory","SubtableChangerTest")
+    SubtableChangerTest() :
+      MsFactoryTVITester("tViiLayerFactory","SubtableChangerTest"),
+      nAntennas_p(10), nSPWs_p(10)
     {
+    }
+
+    void SetUp()
+    {
+        MsFactoryTVITester::SetUp();
+
+        msf_p->addAntennas(nAntennas_p);
+        msf_p->addSpectralWindows(nSPWs_p);
     }
 
     /*
@@ -609,12 +618,6 @@ public:
      */
     void createTVIs()
     {
-        // Set the number of antennas and SPWs for the MS generated on disk
-        nAntennas = 10;
-        nSPWs = 10;
-
-        msf_p->addAntennas(nAntennas);
-        msf_p->addSpectralWindows(nSPWs);
 
         // Create synthethic MS using the msf_p factory
         createMS();
@@ -639,19 +642,27 @@ public:
     void checkSubtables()
     {
         // Check the antenna tables size (the TVI has added one antenna)
-        EXPECT_EQ(nAntennas + 1, vi_p->antennaSubtablecols().nrow());
+        EXPECT_EQ(nAntennas_p + 1, vi_p->antennaSubtablecols().nrow());
 
         // Check the SPW tables size (the TVI has doubled the number)
-        EXPECT_EQ(nSPWs * 2, vi_p->spectralWindowSubtablecols().nrow());
+        EXPECT_EQ(nSPWs_p * 2, vi_p->spectralWindowSubtablecols().nrow());
 
         // Check the DD tables size (the TVI has doubled the number)
-        EXPECT_EQ(nSPWs * 2, vi_p->dataDescriptionSubtablecols().nrow());
+        EXPECT_EQ(nSPWs_p * 2, vi_p->dataDescriptionSubtablecols().nrow());
     }
 
+    //Destructor
+    ~SubtableChangerTest()
+    {
+    }
+
+private:
+
     // The number of antennas originally created
-    size_t nAntennas;
+    size_t nAntennas_p;
+
     // The number of SPWs originally created
-    size_t nSPWs;
+    size_t nSPWs_p;
 };
 
 

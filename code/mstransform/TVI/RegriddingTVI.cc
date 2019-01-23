@@ -422,7 +422,8 @@ void RegriddingTVI::initFrequencyGrid()
     	sigmaFactorMap_p[spwId] = 1 / sqrt(weightScale);
 
     	// Populate nchan input-output maps
-    	spwOutChanNumMap_p[spwId] = outputSpw.NUM_CHAN;
+    	spwOutChanIdxMap_p[spwId].resize(outputSpw.NUM_CHAN);
+        std::iota(spwOutChanIdxMap_p[spwId].begin(), spwOutChanIdxMap_p[spwId].end(), 0);
 	}
 
 	return;

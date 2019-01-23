@@ -1,5 +1,5 @@
-#if ! defined (VisibilityIterator_Test_H_20120912_1001)
-#define VisibilityIterator_Test_H_20120912_1001
+#if ! defined (VisibilityIterator_Gtest_H_20120912_1001)
+#define VisibilityIterator_Gtest_H_20120912_1001
 
 #include <casa/aips.h>
 #include <casa/aipstype.h>
@@ -356,4 +356,4 @@ void printMs (casacore::MeasurementSet * ms);
 } // end namespace vi
 } // end namespace casa
 
-#endif // ! defined (VisibilityIterator_Test_H_20120912_1001
+#endif // ! defined (VisibilityIterator_Gtest_H_20120912_1001
