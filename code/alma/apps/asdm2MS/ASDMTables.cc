@@ -11567,7 +11567,7 @@ namespace asdm {
 
 	
 	    if (rows.at(i)->isParallaxExists())
-		    parallax.put(rowIndex, ext2CASA2D<Angle,double>(rows.at(i)->getParallax()));
+		    parallax.put(rowIndex, ext2CASA1D<Angle,double>(rows.at(i)->getParallax()));
 	
 
 		    rowIndex++;		

@@ -255,7 +255,7 @@ casa_add_google_test (MODULES msvis SOURCES MSVis/test/VisibilityIterator_Gtest.
 casa_add_google_test (NOT_ON_APPLE MODULES msvis SOURCES MSVis/test/MSChecker_Gtest.cc MSVis/test/MSCheckerTest.cc) 
 
 casa_add_google_test (MODULES msvis SOURCES MSVis/test/tSimpleSimVi2_GT.cc) 
-casa_add_google_test (MODULES msvis SOURCES MSVis/test/tViiLayerFactory_GT.cc MSVis/test/MsFactory.cc) 
+casa_add_google_test (MODULES msvis SOURCES MSVis/test/tViiLayerFactory_GT.cc MSVis/test/MsFactory.cc MSVis/test/TestUtilsTVI.cc) 
 
 casa_add_google_test(MODULES msvis SOURCES MSVis/test/Future_Test.cc)
 casa_add_google_test(MODULES msvis SOURCES MSVis/test/Try_Test.cc)
