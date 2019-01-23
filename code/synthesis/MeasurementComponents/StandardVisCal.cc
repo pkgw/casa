@@ -704,6 +704,30 @@ GJones::~GJones() {
   if (prtlev()>2) cout << "G::~G()" << endl;
 }
 
+void GJones::setSolve(const Record& solve) {
+
+  // call parent to get general stuff
+  SolvableVisJones::setSolve(solve);
+
+  // parse solmode and rmsthresh
+  solmode()=String("");
+  if (solve.isDefined("solmode"))
+    solmode()=solve.asString("solmode");
+  solmode().upcase();
+  if (solve.isDefined("rmsthresh")) {
+    Vector<Double> rmsth;
+    rmsth=solve.asArrayDouble("rmsthresh");  // parse from record as Vector<Double>
+    Int nrms=rmsth.nelements();
+    rmsthresh().resize(0);
+    if (nrms>0) {
+      rmsthresh().resize(nrms);
+      convertArray(rmsthresh(), rmsth); // convert into Float array
+    }
+  }
+
+}
+
+
 void GJones::guessPar(VisBuffer& vb) {
 
   if (prtlev()>4) cout << "   G::guessPar(vb)" << endl;
@@ -1113,6 +1137,11 @@ void BJones::setSolve(const Record& solve) {
 
   // call parent to get general stuff
   GJones::setSolve(solve);
+
+  if (solmode()!="") {
+    solmode()="";
+    cout << "solmode options not yet supported for B solutions; ignoring." << endl;
+  }
 
   // get max chan gap from user
   maxchangap_p=0;
