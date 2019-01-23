@@ -25,6 +25,7 @@
 
 // Base class
 #include <mstransform/TVI/FreqAxisTVI.h>
+#include <casacore/ms/MeasurementSets/MSSpWindowColumns.h>
 
 //#define REPORT_TIMING
 
@@ -79,18 +80,27 @@ public:
 
     void writeFlag (const casacore::Cube<casacore::Bool> & flag);
 
+    const casacore::ROMSSpWindowColumns& spectralWindowSubtablecols() const override;
+
+    casacore::Int nSpectralWindows () const override;
+
 protected:
+
+    void resetSubtables();
 
     void propagateChanAvgFlags (const casacore::Cube<casacore::Bool> &avgFlagCube, casacore::Cube<casacore::Bool> &expandedFlagCube);
     casacore::Bool parseConfiguration(const casacore::Record &configuration);
     void initialize();
 
-	casacore::Vector<casacore::Int> chanbin_p;
-	mutable std::map<casacore::Int,casacore::uInt > spwChanbinMap_p; // Must be accessed from const methods
+    casacore::Vector<casacore::Int> chanbin_p;
+    std::map<casacore::Int,casacore::uInt > spwChanbinMap_p;
 
 #ifdef _OPENMP
   mutable casacore::Double Tfl_,Tws_,Tcd_,Tmd_,Tss_,Tchave_;
 #endif
+
+  casacore::MSSpectralWindow newSPWSubtable_p;
+  std::unique_ptr<casacore::MSSpWindowColumns> newSPWSubtablecols_p;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -102,7 +112,8 @@ class ChannelAverageTVIFactory : public ViFactory
 
 public:
 
-	ChannelAverageTVIFactory(casacore::Record &configuration,ViImplementation2 *inputVII);
+	ChannelAverageTVIFactory(casacore::Record &configuration,
+	                         ViImplementation2 *inputVII);
 
 protected:
 

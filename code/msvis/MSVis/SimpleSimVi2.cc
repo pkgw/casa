@@ -414,15 +414,29 @@ void SimpleSimVi2::generateSubtables()
   antennaSubTable_p = Table(antennaSetup, Table::Memory, pars_.nAnt_, true);
   antennaSubTablecols_p.reset(new MSAntennaColumns(antennaSubTable_p));
 
-  // Generating SPW Subtable
+  // Generating SPW Subtable using the info from SimpleSimVi2Parameters
+  // The channel effective BW and resolution are set to the channel width
   TableDesc spwTD = MSSpectralWindow::requiredTableDesc();
   SetupNewTable spwSetup("spwSubtable", spwTD, Table::New);
   spwSubTable_p = Table(spwSetup, Table::Memory, pars_.nSpw_, true);
   spwSubTablecols_p.reset(new MSSpWindowColumns(spwSubTable_p));
-  auto numChanCol = spwSubTablecols_p->numChan();
+  auto& numChanCol = spwSubTablecols_p->numChan();
   numChanCol.putColumn(pars_.nChan_);
-  auto refFreqCol = spwSubTablecols_p->refFrequency();
+  auto& refFreqCol = spwSubTablecols_p->refFrequency();
   refFreqCol.putColumn(pars_.refFreq_);
+  auto& chanFreqCol = spwSubTablecols_p->chanFreq();
+  for(int iSpw = 0; iSpw < pars_.nSpw_; iSpw++)
+      chanFreqCol.put(iSpw, pars_.freqs(iSpw));
+  auto& chanWidthCol = spwSubTablecols_p->chanWidth();
+  for(int iSpw = 0; iSpw < pars_.nSpw_; iSpw++)
+      chanWidthCol.put(iSpw, Vector<double>(pars_.nChan_(iSpw), pars_.df_(iSpw)));
+  auto& effBWCol = spwSubTablecols_p->effectiveBW();
+  for(int iSpw = 0; iSpw < pars_.nSpw_; iSpw++)
+      effBWCol.put(iSpw, Vector<double>(pars_.nChan_(iSpw), pars_.df_(iSpw)));
+  auto& resolutionCol = spwSubTablecols_p->resolution();
+  for(int iSpw = 0; iSpw < pars_.nSpw_; iSpw++)
+      resolutionCol.put(iSpw, Vector<double>(pars_.nChan_(iSpw), pars_.df_(iSpw)));
+
 
   // Generating DD Subtable. There is only one polarizations,
   // therefore number of DDs = number of SPWs.

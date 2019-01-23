@@ -36,7 +36,7 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 RegriddingTVI::RegriddingTVI(	ViImplementation2 * inputVii,
 								const Record &configuration):
-								FreqAxisTVI (inputVii,configuration)
+								FreqAxisTVI (inputVii)
 {
 	// Frequency specification parameters
 	nChan_p = -1;
@@ -422,7 +422,8 @@ void RegriddingTVI::initFrequencyGrid()
     	sigmaFactorMap_p[spwId] = 1 / sqrt(weightScale);
 
     	// Populate nchan input-output maps
-    	spwOutChanNumMap_p[spwId] = outputSpw.NUM_CHAN;
+    	spwOutChanIdxMap_p[spwId].resize(outputSpw.NUM_CHAN);
+        std::iota(spwOutChanIdxMap_p[spwId].begin(), spwOutChanIdxMap_p[spwId].end(), 0);
 	}
 
 	return;
@@ -776,6 +777,23 @@ vi::ViImplementation2 * RegriddingTVIFactory::createVi(VisibilityIterator2 *) co
 vi::ViImplementation2 * RegriddingTVIFactory::createVi() const
 {
 	return new RegriddingTVI(inputVii_p,configuration_p);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// RegriddingTVILayerFactory class
+//////////////////////////////////////////////////////////////////////////
+
+RegriddingTVILayerFactory::RegriddingTVILayerFactory(Record &configuration) :
+  ViiLayerFactory(),
+  configuration_p(configuration)
+{}
+
+ViImplementation2*
+RegriddingTVILayerFactory::createInstance(ViImplementation2* vii0) const
+{
+  // Make the RegriddingTVi2, using supplied ViImplementation2, and return it
+  ViImplementation2 *vii = new RegriddingTVI(vii0,configuration_p);
+  return vii;
 }
 
 //////////////////////////////////////////////////////////////////////////

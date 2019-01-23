@@ -5095,7 +5095,7 @@ std::complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, dou
     unsigned int ini1, ini2;
     unsigned int ifin1, ifin2;
     std::complex<double>  lshape;
-    std::complex<double>  lshapeacum;
+    //std::complex<double>  lshapeacum;
 
 
     if(nu>999.9){

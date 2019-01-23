@@ -29,7 +29,7 @@ public:
     int ret = pthread_mutex_init(&mutex_, NULL);
     THROW_IF(ret != 0, "Mutex::Mutex() failed to initalize mutex");
   }
-  ~Mutex() {
+  ~Mutex() noexcept(false) {
 //    cout << "Mutex::~Mutex()" << endl;
     int ret = pthread_mutex_destroy(&mutex_);
     THROW_IF(ret != 0, "Mutex::~Mutex() failed to destroy mutex");
@@ -66,7 +66,7 @@ public:
         "PCondition::PCondition() failed to initialize pthread_cond_t");
   }
 
-  virtual ~PCondition() {
+  virtual ~PCondition() noexcept(false) {
     int ret = pthread_cond_destroy(&cond_);
     THROW_IF(ret != 0,
         "PCondition::~PCondition() failed to destroy pthread_cond_t");

@@ -37,7 +37,7 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 UVContSubTVI::UVContSubTVI(	ViImplementation2 * inputVii,
 								const Record &configuration):
-								FreqAxisTVI (inputVii,configuration)
+								FreqAxisTVI (inputVii)
 {
 	fitOrder_p = 0;
 	want_cont_p = False;
@@ -192,7 +192,7 @@ void UVContSubTVI::initialize()
 	for(iter=spwInpChanIdxMap_p.begin();iter!=spwInpChanIdxMap_p.end();iter++)
 	{
 		spw = iter->first;
-		spwOutChanNumMap_p[spw] = spwInpChanIdxMap_p[spw].size();
+		spwOutChanIdxMap_p[spw] = spwInpChanIdxMap_p[spw];
 
 		spw_idx++;
 	}

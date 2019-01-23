@@ -22,11 +22,12 @@
 
 #include <mstransform/TVI/ChannelAverageTVI.h>
 #include <casa/Arrays/VectorIter.h>
+#include <tables/Tables/TableCopy.h>
+#include <tables/DataMan/StandardStMan.h>
 
 #ifdef _OPENMP
  #include <omp.h>
 #endif
-
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -42,15 +43,16 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 ChannelAverageTVI::ChannelAverageTVI(	ViImplementation2 * inputVii,
 										const Record &configuration):
-										FreqAxisTVI (inputVii,configuration)
+										FreqAxisTVI (inputVii)
 {
 	// Parse and check configuration parameters
 	// Note: if a constructor finishes by throwing an exception, the memory
 	// associated with the object itself is cleaned up — there is no memory leak.
-	if (not parseConfiguration(configuration))
-	{
-		throw AipsError("Error parsing ChannelAverageTVI configuration");
-	}
+    if (not parseConfiguration(configuration))
+        throw AipsError("Error parsing ChannelAverageTVI configuration");
+
+    if (inputVii == nullptr)
+        throw AipsError("Input Vi is empty");
 
 	initialize();
 
@@ -108,7 +110,8 @@ Bool ChannelAverageTVI::parseConfiguration(const Record &configuration)
 	{
 		ret = false;
 		logger_p << LogIO::SEVERE << LogOrigin("ChannelAverageTVI", __FUNCTION__)
-				<< "Number of elements in chanbin vector does not match number of selected SPWs"
+				<< "Number of elements in chanbin vector ("<<chanbin_p.size()
+				<< ") does not match number of input SPWs ("<<spwInpChanIdxMap_p.size()<<")"
 				<< LogIO::POST;
 	}
 
@@ -134,7 +137,7 @@ void ChannelAverageTVI::initialize()
 			   << "Specified chanbin for spw " << spw
 			   << " of 0 means no averaging."
 			   << LogIO::POST;
-		  
+
 		  spwChanbinMap_p[spw] = 1;
 		}
 		// Make sure that chanbin is greater than 1
@@ -165,12 +168,23 @@ void ChannelAverageTVI::initialize()
 			spwChanbinMap_p[spw] = chanbin_p(spw_idx);
 		}
 
-		// Calculate number of output channels per spw
-		spwOutChanNumMap_p[spw] = spwInpChanIdxMap_p[spw].size() / spwChanbinMap_p[spw];
-		if (spwInpChanIdxMap_p[spw].size() % spwChanbinMap_p[spw] > 0) spwOutChanNumMap_p[spw] += 1;
+		// Fill the channel indexes for the new output channels per spw
+		size_t nChannelsOut = spwInpChanIdxMap_p[spw].size() / spwChanbinMap_p[spw];
+        if (spwInpChanIdxMap_p[spw].size() % spwChanbinMap_p[spw] > 0)
+            nChannelsOut += 1;
+		spwOutChanIdxMap_p[spw].resize(nChannelsOut);
+		// Fill the container with sequentially increasing values
+		std::iota(spwOutChanIdxMap_p[spw].begin(), spwOutChanIdxMap_p[spw].end(), 0);
+
+		// As of CAS-10294, the original SPWs are kept (with shifted IDs).
+		// See resetSubtables() method
+        spwOutChanIdxMap_p[spw+spwInpChanIdxMap_p.size()] = spwInpChanIdxMap_p[spw];
 
 		spw_idx++;
 	}
+
+	//Create TVI specific subtables
+	resetSubtables();
 
 	return;
 }
@@ -193,7 +207,7 @@ void ChannelAverageTVI::flag(Cube<Bool>& flagCube) const
 	Int inputSPW = vb->spectralWindows()(0);
 
 	// Pass-thru for chanbin=1 case:
-	if (spwChanbinMap_p[inputSPW]==1) {
+	if (spwChanbinMap_p.at(inputSPW)==1) {
 	  getVii()->flag(flagCube);
 	  return;
 	}
@@ -220,7 +234,7 @@ void ChannelAverageTVI::flag(Cube<Bool>& flagCube) const
 
 	// Configure Transformation Engine
 	LogicalANDKernel<Bool> kernel;
-	uInt width = spwChanbinMap_p[inputSPW];
+	uInt width = spwChanbinMap_p.at(inputSPW);
 	ChannelAverageTransformEngine<Bool> transformer(&kernel,&inputData,&outputData,width);
 
 	// Transform data
@@ -255,7 +269,7 @@ void ChannelAverageTVI::floatData (Cube<Float> & vis) const
 	Int inputSPW = vb->spectralWindows()(0);
 
 	// Pass-thru for chanbin=1 case:
-	if (spwChanbinMap_p[inputSPW]==1) {
+	if (spwChanbinMap_p.at(inputSPW)==1) {
 	  getVii()->floatData(vis);
 	  return;
 	}
@@ -278,7 +292,7 @@ void ChannelAverageTVI::floatData (Cube<Float> & vis) const
 	outputData.add(MS::DATA,outputVisCubeHolder);
 
 	// Configure Transformation Engine
-	uInt width = spwChanbinMap_p[inputSPW];
+	uInt width = spwChanbinMap_p.at(inputSPW);
 	WeightedChannelAverageKernel<Float> kernel;
 	ChannelAverageTransformEngine<Float> transformer(&kernel,&inputData,&outputData,width);
 
@@ -332,7 +346,7 @@ void ChannelAverageTVI::visibilityObserved (Cube<Complex> & vis) const
 	outputData.add(MS::DATA,outputVisCubeHolder);
 
 	// Configure Transformation Engine
-	uInt width = spwChanbinMap_p[inputSPW];
+	uInt width = spwChanbinMap_p.at(inputSPW);
 	WeightedChannelAverageKernel<Complex> kernel;
 	ChannelAverageTransformEngine<Complex> transformer(&kernel,&inputData,&outputData,width);
 
@@ -364,7 +378,7 @@ void ChannelAverageTVI::visibilityCorrected (Cube<Complex> & vis) const
 	Int inputSPW = vb->spectralWindows()(0);
 
 	// Pass-thru for chanbin=1 case:
-	if (spwChanbinMap_p[inputSPW]==1) {
+	if (spwChanbinMap_p.at(inputSPW)==1) {
 	  getVii()->visibilityCorrected(vis);
 	  return;
 	}
@@ -397,7 +411,7 @@ void ChannelAverageTVI::visibilityCorrected (Cube<Complex> & vis) const
 	outputData.add(MS::DATA,outputVisCubeHolder);
 
 	// Configure Transformation Engine
-	uInt width = spwChanbinMap_p[inputSPW];
+	uInt width = spwChanbinMap_p.at(inputSPW);
 	WeightedChannelAverageKernel<Complex> kernel;
 	ChannelAverageTransformEngine<Complex> transformer(&kernel,&inputData,&outputData,width);
 
@@ -477,7 +491,7 @@ void ChannelAverageTVI::visibilityModel (Cube<Complex> & vis) const
 	Int inputSPW = vb->spectralWindows()(0);
 
 	// Pass-thru for chanbin=1 case:
-	if (spwChanbinMap_p[inputSPW]==1) {
+	if (spwChanbinMap_p.at(inputSPW)==1) {
 	  getVii()->visibilityModel(vis);
 	  return;
 	}
@@ -507,7 +521,7 @@ void ChannelAverageTVI::visibilityModel (Cube<Complex> & vis) const
 	outputData.add(MS::DATA,outputVisCubeHolder);
 
 	// Configure Transformation Engine
-	uInt width = spwChanbinMap_p[inputSPW];
+	uInt width = spwChanbinMap_p.at(inputSPW);
 	FlaggedChannelAverageKernel<Complex> kernel;
 	ChannelAverageTransformEngine<Complex> transformer(&kernel,&inputData,&outputData,width);
 
@@ -543,7 +557,7 @@ void ChannelAverageTVI::weightSpectrum(Cube<Float> &weightSp) const
 	Int inputSPW = vb->spectralWindows()(0);
 
 	// Pass-thru for chanbin=1 case:
-	if (spwChanbinMap_p[inputSPW]==1) {
+	if (spwChanbinMap_p.at(inputSPW)==1) {
 	  getVii()->weightSpectrum(weightSp);;
 	  return;
 	}
@@ -572,7 +586,7 @@ void ChannelAverageTVI::weightSpectrum(Cube<Float> &weightSp) const
 	outputData.add(MS::DATA,outputWeightCubeHolder);
 
 	// Configure Transformation Engine
-	uInt width = spwChanbinMap_p[inputSPW];
+	uInt width = spwChanbinMap_p.at(inputSPW);
 	ChannelAccumulationKernel<Float> kernel;
 	ChannelAverageTransformEngine<Float> transformer(&kernel,&inputData,&outputData,width);
 
@@ -607,7 +621,7 @@ void ChannelAverageTVI::sigmaSpectrum(Cube<Float> &sigmaSp) const
 	Int inputSPW = vb->spectralWindows()(0);
 
 	// Pass-thru for chanbin=1 case:
-	if (spwChanbinMap_p[inputSPW]==1) {
+	if (spwChanbinMap_p.at(inputSPW)==1) {
 	  getVii()->sigmaSpectrum(sigmaSp);;
 	  return;
 	}
@@ -641,7 +655,7 @@ void ChannelAverageTVI::sigmaSpectrum(Cube<Float> &sigmaSp) const
 	outputData.add(MS::DATA,outputWeightCubeHolder);
 
 	// Configure Transformation Engine
-	uInt width = spwChanbinMap_p[inputSPW];
+	uInt width = spwChanbinMap_p.at(inputSPW);
 	ChannelAccumulationKernel<Float> kernel;
 	ChannelAverageTransformEngine<Float> transformer(&kernel,&inputData,&outputData,width);
 
@@ -672,18 +686,16 @@ Vector<Double> ChannelAverageTVI::getFrequencies (	Double time,
 													Int msId) const
 {
 
-        // Pass-thru for single-channel case or chanbin=1 case
-        if (getVii()->visibilityShape()[1]==1 ||
-	    spwChanbinMap_p[spectralWindowId]==1) {
-	  return getVii()->getFrequencies(time,frameOfReference,spectralWindowId,msId);
-	}
+    // Pass-thru for single-channel case or chanbin=1 case
+    if (getVii()->visibilityShape()[1]==1 || spwChanbinMap_p.at(spectralWindowId)==1)
+        return getVii()->getFrequencies(time,frameOfReference,spectralWindowId,msId);
 
 	// Get frequencies from input VI
 	Vector<Double> inputFrequencies = getVii()->getFrequencies(time,frameOfReference,
 																spectralWindowId,msId);
 
 	// Produce output (transformed) frequencies
-	Vector<Double> outputFrecuencies(spwOutChanNumMap_p[spectralWindowId],0);
+	Vector<Double> outputFrecuencies(spwOutChanIdxMap_p.at(spectralWindowId).size(),0);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -697,7 +709,7 @@ Vector<Double> ChannelAverageTVI::getFrequencies (	Double time,
 
 	// Configure Transformation Engine
 	PlainChannelAverageKernel<Double> kernel;
-	uInt width = spwChanbinMap_p[spectralWindowId];
+	uInt width = spwChanbinMap_p.at(spectralWindowId);
 	ChannelAverageTransformEngine<Double> transformer(&kernel,&inputData,&outputData,width);
 
 	// Transform data
@@ -722,6 +734,155 @@ void ChannelAverageTVI::writeFlag (const Cube<Bool> & flag)
 	getVii()->writeFlag(propagatedFlagCube);
 
 	return;
+}
+
+// -----------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------
+void ChannelAverageTVI::resetSubtables()
+{
+    // Note that the structure of the SPW table will contain the new SPWs
+    // at the beggining of the table followed by the old SPWs:
+    //  --------------
+    //  | 0 | NEW_SPW0
+    //  | 1 | NEW_SPW1
+    //  | 2 | NEW_SPW2
+    //  | 3 | OLD_SPW0
+    //  | 4 | OLD_SPW1
+    //  | 5 | OLD_SPW2
+    //  --------------
+    // The NEW_SPW0 is based on OLD_SPW0 but with the new channel definitions
+    // In principle there is no need to modify the DD and Feed subtables.
+    // They will point to the SPW table rows that were pointing, which will
+    // refer to the new SPWs. The old SPWs never get referenced in the DD,
+    // Feed or main table.
+
+
+    // Note that the creation of a new subtables is done using a
+    // copy of the original subtables. However, the TVI has access only to the
+    // subtable column, so in order to get the original table we need to use
+    // the method table() of a given column (e. g. spectralWindowId() )
+    // It would be better if the ROMSDataDescColumns object had
+    // a getter to the MSDataDescription object.
+
+
+    // Create spw subtable
+    auto& inputSPWSubtablecols = getVii()->spectralWindowSubtablecols();
+    auto inputSPWSubtable = inputSPWSubtablecols.name().table();
+    newSPWSubtable_p = inputSPWSubtable.copyToMemoryTable("ChannelAverageSPWSubtable");
+
+    // Create columns assocSpwId and assocNature if they don't exist yet.
+    bool assocSPWIdColExist = newSPWSubtable_p.isColumn(MSSpectralWindow::ASSOC_SPW_ID);
+    bool assocNatureColExist = newSPWSubtable_p.isColumn(MSSpectralWindow::ASSOC_NATURE);
+    if(!assocSPWIdColExist || !assocNatureColExist)
+    {
+        TableDesc extraColsTableDesc;
+        StandardStMan spwStMan;
+
+        if(!assocSPWIdColExist)
+            MSSpectralWindow::addColumnToDesc(extraColsTableDesc,  MSSpectralWindow::ASSOC_SPW_ID);
+        if(!assocNatureColExist)
+            MSSpectralWindow::addColumnToDesc(extraColsTableDesc,  MSSpectralWindow::ASSOC_NATURE);
+        newSPWSubtable_p.addColumn(extraColsTableDesc, spwStMan);
+    }
+
+    newSPWSubtablecols_p.reset(new MSSpWindowColumns(newSPWSubtable_p));
+    if(!assocSPWIdColExist)
+        newSPWSubtablecols_p->assocSpwId().fillColumn(casacore::Array<Int>());
+    if(!assocNatureColExist)
+        newSPWSubtablecols_p->assocNature().fillColumn(casacore::Array<String>());
+
+    // First duplicate verbatim all the rows appending 
+    // the copy of all the currently existing rows at the end
+    auto nrowSPW = newSPWSubtable_p.nrow();
+    TableCopy::copyRows(newSPWSubtable_p, newSPWSubtable_p, 
+                        nrowSPW, 0, nrowSPW);
+
+    // Modify the first half of the tables with the values of the new SPWs
+    for(size_t outSPW = 0 ; outSPW < nrowSPW; outSPW++)
+    {
+        size_t outputNChan = spwOutChanIdxMap_p.at(outSPW).size();
+        Vector<double> inputFrequencies = newSPWSubtablecols_p->chanFreq()(outSPW);
+        Vector<double> outputFrequencies(outputNChan);
+        Vector<double> inputChanWidth = newSPWSubtablecols_p->chanWidth()(outSPW);
+        Vector<double> outputChanWidth(outputNChan);
+        Vector<double> inputResolution = newSPWSubtablecols_p->resolution()(outSPW);
+        Vector<double> outputResolution(outputNChan);
+        Vector<double> inputEffectiveBW = newSPWSubtablecols_p->effectiveBW()(outSPW);
+        Vector<double> outputEffectiveBW(outputNChan, 0.0);
+        Vector<int> assocSPWId(1);
+        Vector<String> assocSPWNature(1);
+        for(size_t outChannel = 0 ; outChannel < outputNChan; outChannel++)
+        {
+            // Get the first and last input channel which are used to obtain
+            // the output channel. Note that we need the spwInpChanIdxMap_p to
+            // get the proper index, since spwInpChanIdxMap_p is aware of the
+            // potential channel selection in lower TVI layers.
+            // spwInpChanIdxMap_p has been initially created
+            // by FreqAxisTVI::formChanMap using inputVii_p->getChannels().
+            size_t firstInpChannelIdx = outChannel * spwChanbinMap_p.at(outSPW);
+            size_t lastInpChannelIdx = firstInpChannelIdx + spwChanbinMap_p.at(outSPW) - 1;
+            // Check if the last output channel was created with less input channels,
+            // which happens if nchannels is not divisible by chanbin
+            if(lastInpChannelIdx >= spwInpChanIdxMap_p[outSPW].size())
+                lastInpChannelIdx = spwInpChanIdxMap_p[outSPW].size() - 1;
+            size_t firstInpChannel = spwInpChanIdxMap_p[outSPW][firstInpChannelIdx];
+            size_t lastInpChannel = spwInpChanIdxMap_p[outSPW][lastInpChannelIdx];
+            if (lastInpChannel >= inputFrequencies.size())
+                lastInpChannel = inputFrequencies.size() - 1;
+            outputFrequencies[outChannel] = (inputFrequencies[firstInpChannel] +
+                                             inputFrequencies[lastInpChannel]) / 2.;
+            outputChanWidth[outChannel] = (inputFrequencies[lastInpChannel] -
+                                           inputFrequencies[firstInpChannel]);
+            // This allows support for SPWs in which the channels have decreasing frequencies
+            if(outputChanWidth[outChannel] >= 0)
+                outputChanWidth[outChannel]+= std::abs(inputChanWidth[lastInpChannel] +
+                                                       inputChanWidth[firstInpChannel]) / 2;
+            else
+                outputChanWidth[outChannel]-= std::abs(inputChanWidth[lastInpChannel] +
+                                                       inputChanWidth[firstInpChannel]) / 2;
+            // Resolutions are always positive
+            outputResolution[outChannel] = std::abs(inputFrequencies[lastInpChannel] -
+                                                    inputFrequencies[firstInpChannel]) +
+                                           0.5 * (inputResolution[firstInpChannel] +
+                                                  inputResolution[lastInpChannel]);
+            //Effective bandwidths are simply the sum of the original channels
+            for(size_t inpChannel = firstInpChannel ; inpChannel <= lastInpChannel; inpChannel++)
+                outputEffectiveBW[outChannel] += inputEffectiveBW[inpChannel];
+        }
+        // We associate this SPW with the one in which it is based.
+        assocSPWId[0] = outSPW + nrowSPW;
+        assocSPWNature[0] = "CH_AVG";
+        newSPWSubtablecols_p->chanFreq().put(outSPW, outputFrequencies);
+        newSPWSubtablecols_p->chanWidth().put(outSPW, outputChanWidth);
+        newSPWSubtablecols_p->resolution().put(outSPW, outputResolution);
+        newSPWSubtablecols_p->effectiveBW().put(outSPW, outputEffectiveBW);
+        newSPWSubtablecols_p->name().put(outSPW, std::string(newSPWSubtablecols_p->name()(outSPW))+std::string("#CH_AVG_")+std::to_string(spwChanbinMap_p.at(outSPW)));
+        newSPWSubtablecols_p->numChan().put(outSPW, outputNChan);
+        newSPWSubtablecols_p->assocSpwId().put(outSPW, assocSPWId);
+        newSPWSubtablecols_p->assocNature().put(outSPW, assocSPWNature);
+    }
+    // Adjust existing assocSpwId for the originally copied SPWs.
+    // The SPWId they were pointing to have been shifted downwards
+    // in the table and now have an Id "nrowSPW" higher
+    for(size_t outSPW = nrowSPW ; outSPW < 2* nrowSPW; outSPW++)
+    {
+        Array<Int> adjustedAssocSpwId = newSPWSubtablecols_p->assocSpwId()(outSPW) + (Int)nrowSPW;
+        newSPWSubtablecols_p->assocSpwId().put(outSPW, adjustedAssocSpwId);
+    }
+}
+
+// -----------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------
+const casacore::ROMSSpWindowColumns& ChannelAverageTVI::spectralWindowSubtablecols() const
+{
+    return *newSPWSubtablecols_p;
+}
+
+casacore::Int ChannelAverageTVI::nSpectralWindows () const
+{
+    return  spwOutChanIdxMap_p.size();
 }
 
 // -----------------------------------------------------------------------
@@ -1125,5 +1286,3 @@ template<class T> void ChannelAccumulationKernel<T>::kernel(	DataCubeMap *inputD
 } //# NAMESPACE VI - END
 
 } //# NAMESPACE CASA - END
-
-

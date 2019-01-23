@@ -89,7 +89,7 @@ Calibrater::Calibrater():
   ms_p(0), 
   mssel_p(0), 
   mss_p(0),
-  frequencySelections_p(0),
+  frequencySelections_p(nullptr),
   msmc_p(0),
   ve_p(0),
   vc_p(),
@@ -109,7 +109,7 @@ Calibrater::Calibrater(String msname):
   ms_p(0), 
   mssel_p(0), 
   mss_p(0),
-  frequencySelections_p(0),
+  frequencySelections_p(nullptr),
   msmc_p(0),
   ve_p(0),
   vc_p(),
@@ -148,7 +148,7 @@ Calibrater::Calibrater(const vi::SimpleSimVi2Parameters& ssvp):
   ms_p(0), 
   mssel_p(0), 
   mss_p(0),
-  frequencySelections_p(0),
+  frequencySelections_p(nullptr),
   msmc_p(0),
   ve_p(0),
   vc_p(),
@@ -2921,11 +2921,7 @@ void Calibrater::selectChannel(const String& spw) {
   if (mss_p && mssel_p) {
 
     // Refresh the frequencySelections object to feed to VI2, if relevant
-    if (frequencySelections_p) {
-      delete frequencySelections_p;
-      frequencySelections_p=NULL;
-    }
-    frequencySelections_p = new vi::FrequencySelections();
+    frequencySelections_p.reset(new vi::FrequencySelections());
 
     vi::FrequencySelectionUsingChannels usingChannels;
     usingChannels.add(*mss_p,mssel_p);
@@ -2989,7 +2985,7 @@ Bool Calibrater::cleanup() {
   // Delete derived dataset stuff
   if(mssel_p) delete mssel_p; mssel_p=0;
   if(mss_p) delete mss_p; mss_p=0;
-  if (frequencySelections_p)  delete frequencySelections_p;  frequencySelections_p=0;
+  frequencySelections_p.reset();
 
   // Delete the current VisEquation
   if(ve_p) delete ve_p; ve_p=0;
@@ -3132,12 +3128,15 @@ casacore::Bool Calibrater::genericGatherAndSolve()
     // Simulated data (used for testing)
     vi2org.addSimIO(ssvp_p);
   else
-    // Real (selected) data in an MS (channel selection handled later...)
+  {
+    // Real (selected) data in an MS (channel selection handled by addDiskIO method)
     //   The iteration time-interval is the solution interval
     vi2org.addDiskIO(mssel_p,svc_p->solTimeInterval(),
 		     svc_p->combobs(),svc_p->combscan(),
 		     svc_p->combfld(),svc_p->combspw(),
-		     true);   // use MSIter2
+		     true,     // use MSIter2
+                     frequencySelections_p);  // Tell VI2 factory about the freq selection!
+  }
 
   // Add ad hoc SD section layer (e.g., OTF select of raster boundaries, etc.)
   // only double circle gain calibration is implemented
@@ -3195,10 +3194,6 @@ casacore::Bool Calibrater::genericGatherAndSolve()
   // Form the VI2 to drive data iteration below
   vi::VisibilityIterator2& vi(vi2org.makeFullVI());
   //cout << "VI Layers: " << vi.ViiType() << endl;
-
-  // Tell VI2 about the freq selection!
-  if (frequencySelections_p) 
-    vi.setFrequencySelection(*frequencySelections_p);
 
   // Access to the net VB2 for forming SolveDataBuffers in the SDBList below
   //  NB: this assumes that the internal address of the VI2's VB2 will never change!
@@ -5487,11 +5482,7 @@ void OldCalibrater::selectChannel(const String& spw) {
   if (mss_p && mssel_p) {
 
     // Refresh the frequencySelections object to feed to VI2, if relevant
-    if (frequencySelections_p) {
-      delete frequencySelections_p;
-      frequencySelections_p=NULL;
-    }
-    frequencySelections_p = new vi::FrequencySelections();
+    frequencySelections_p.reset(new vi::FrequencySelections());
 
     vi::FrequencySelectionUsingChannels usingChannels;
     usingChannels.add(*mss_p,mssel_p);
