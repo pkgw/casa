@@ -33,7 +33,7 @@
  * File CPrimitiveDataType.cpp
  */
 #include <sstream>
-#include <CPrimitiveDataType.h>
+#include <alma/Enumerations/CPrimitiveDataType.h>
 #include <string>
 using namespace std;
 

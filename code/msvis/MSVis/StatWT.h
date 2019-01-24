@@ -84,7 +84,7 @@ public:
          const casacore::String& outspw="*",
          const casacore::Bool dorms=false,
          const casacore::uInt minsamp=2,
-         const vector<casacore::uInt> selcorrs=vector<casacore::uInt>());
+         const std::vector<casacore::uInt> selcorrs=std::vector<casacore::uInt>());
 
   //// Copy construct
   //StatWT(const StatWT& other) {}
@@ -141,7 +141,7 @@ private:
                                 // Otherwise, use the standard sample variance.
   casacore::uInt   minsamp_p;     // Minimum # of unflagged visibilities for calculating
                         // a variance.
-  vector<casacore::uInt> selcorrs_p;
+  std::vector<casacore::uInt> selcorrs_p;
   // Not initialized by c'tor:
   //std::set<casacore::Int> appliedSpWs_p;
   std::map<casacore::Int, casacore::Vector<casacore::Bool>*> fitmask_p;      // spw -> a list of flags by chan

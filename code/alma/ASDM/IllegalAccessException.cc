@@ -23,7 +23,9 @@
  *
  * File IllegalAccessException.cpp
  */
-#include "IllegalAccessException.h"
+#include <alma/ASDM/IllegalAccessException.h>
+
+using namespace std;
 
 namespace asdm {
   IllegalAccessException::IllegalAccessException () : 

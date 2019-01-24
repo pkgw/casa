@@ -302,12 +302,6 @@ public:
     return l.v_p[0]*r.v_p[0]+ l.v_p[1]*r.v_p[1]+
       l.v_p[2]*r.v_p[2]+ l.v_p[3]*r.v_p[3];
   }
-  // Multiplication of StokesVector by a casacore::Complex SquareMatrix
-  friend CStokesVector operator*(const casacore::SquareMatrix<casacore::Complex,4>& m,
-				 const StokesVector& v) {
-//    return m * (casacore::RigidVector<casacore::Float,4>&)v;
-    return m * v;
-  }
   // Write out a StokesVector using the casacore::Vector output method.
   friend std::ostream& operator<<(std::ostream& os, const StokesVector& v) {
     os << v.vector();

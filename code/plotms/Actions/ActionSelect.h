@@ -40,7 +40,7 @@ public:
 protected:
 	virtual bool doActionSpecific(PlotMSApp* plotms);
 	virtual PlotLogMessage* doFlagOperation( PlotMSPlot* plot,
-			int canvasIndex, vector<PlotRegion>& regions, bool showUnflagged, bool showFlagged ) = 0;
+			int canvasIndex, std::vector<PlotRegion>& regions, bool showUnflagged, bool showFlagged ) = 0;
 	virtual string getOperationLabel() const = 0;
 };
 

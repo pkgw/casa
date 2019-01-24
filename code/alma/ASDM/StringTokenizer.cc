@@ -24,7 +24,7 @@
  * File StringTokenizer.cpp
  */
 
-#include <StringTokenizer.h>
+#include <alma/ASDM/StringTokenizer.h>
 
 #include <iostream>
 using namespace std;

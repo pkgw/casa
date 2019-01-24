@@ -48,23 +48,23 @@
 
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	 
-#include <EntityRef.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 	 
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
@@ -81,15 +81,11 @@
 	
 
 	
-#include "CReceiverBand.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
-#include "CSBType.h"
-	
-
-	
-
+#include <alma/Enumerations/CSBType.h>
 	
 
 	
@@ -107,19 +103,23 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
+
+	
+
+	
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file SBSummary.h
     \brief Generated from model's revision "-1", branch ""
@@ -133,7 +133,7 @@ namespace asdm {
 
 class SBSummaryRow;
 typedef void (SBSummaryRow::*SBSummaryAttributeFromBin) (EndianIStream& eis);
-typedef void (SBSummaryRow::*SBSummaryAttributeFromText) (const string& s);
+typedef void (SBSummaryRow::*SBSummaryAttributeFromText) (const std::string& s);
 
 /**
  * The SBSummaryRow class is a row of a SBSummaryTable.
@@ -434,21 +434,21 @@ public:
 	
  	/**
  	 * Get observingMode.
- 	 * @return observingMode as vector<string >
+ 	 * @return observingMode as std::vector<std::string >
  	 */
- 	vector<string > getObservingMode() const;
+ 	std::vector<std::string > getObservingMode() const;
 	
  
  	
  	
  	/**
- 	 * Set observingMode with the specified vector<string >.
- 	 * @param observingMode The vector<string > value to which observingMode is to be set.
+ 	 * Set observingMode with the specified std::vector<std::string >.
+ 	 * @param observingMode The std::vector<std::string > value to which observingMode is to be set.
  	 
  		
  			
  	 */
- 	void setObservingMode (vector<string > observingMode);
+ 	void setObservingMode (std::vector<std::string > observingMode);
   		
 	
 	
@@ -524,21 +524,21 @@ public:
 	
  	/**
  	 * Get scienceGoal.
- 	 * @return scienceGoal as vector<string >
+ 	 * @return scienceGoal as std::vector<std::string >
  	 */
- 	vector<string > getScienceGoal() const;
+ 	std::vector<std::string > getScienceGoal() const;
 	
  
  	
  	
  	/**
- 	 * Set scienceGoal with the specified vector<string >.
- 	 * @param scienceGoal The vector<string > value to which scienceGoal is to be set.
+ 	 * Set scienceGoal with the specified std::vector<std::string >.
+ 	 * @param scienceGoal The std::vector<std::string > value to which scienceGoal is to be set.
  	 
  		
  			
  	 */
- 	void setScienceGoal (vector<string > scienceGoal);
+ 	void setScienceGoal (std::vector<std::string > scienceGoal);
   		
 	
 	
@@ -584,21 +584,21 @@ public:
 	
  	/**
  	 * Get weatherConstraint.
- 	 * @return weatherConstraint as vector<string >
+ 	 * @return weatherConstraint as std::vector<std::string >
  	 */
- 	vector<string > getWeatherConstraint() const;
+ 	std::vector<std::string > getWeatherConstraint() const;
 	
  
  	
  	
  	/**
- 	 * Set weatherConstraint with the specified vector<string >.
- 	 * @param weatherConstraint The vector<string > value to which weatherConstraint is to be set.
+ 	 * Set weatherConstraint with the specified std::vector<std::string >.
+ 	 * @param weatherConstraint The std::vector<std::string > value to which weatherConstraint is to be set.
  	 
  		
  			
  	 */
- 	void setWeatherConstraint (vector<string > weatherConstraint);
+ 	void setWeatherConstraint (std::vector<std::string > weatherConstraint);
   		
 	
 	
@@ -620,21 +620,21 @@ public:
 	
  	/**
  	 * Get centerDirection, which is optional.
- 	 * @return centerDirection as vector<Angle >
+ 	 * @return centerDirection as std::vector<Angle >
  	 * @throws IllegalAccessException If centerDirection does not exist.
  	 */
- 	vector<Angle > getCenterDirection() const;
+ 	std::vector<Angle > getCenterDirection() const;
 	
  
  	
  	
  	/**
- 	 * Set centerDirection with the specified vector<Angle >.
- 	 * @param centerDirection The vector<Angle > value to which centerDirection is to be set.
+ 	 * Set centerDirection with the specified std::vector<Angle >.
+ 	 * @param centerDirection The std::vector<Angle > value to which centerDirection is to be set.
  	 
  		
  	 */
- 	void setCenterDirection (vector<Angle > centerDirection);
+ 	void setCenterDirection (std::vector<Angle > centerDirection);
 		
 	
 	
@@ -772,7 +772,7 @@ public:
 	 * @param weatherConstraint
 	    
 	 */ 
-	bool compareNoAutoInc(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint);
+	bool compareNoAutoInc(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<std::string > observingMode, int numberRepeats, int numScienceGoal, std::vector<std::string > scienceGoal, int numWeatherConstraint, std::vector<std::string > weatherConstraint);
 	
 	
 
@@ -810,7 +810,7 @@ public:
 	 * @param weatherConstraint
 	    
 	 */ 
-	bool compareRequiredValue(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint); 
+	bool compareRequiredValue(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<std::string > observingMode, int numberRepeats, int numScienceGoal, std::vector<std::string > scienceGoal, int numWeatherConstraint, std::vector<std::string > weatherConstraint); 
 		 
 	
 	/**
@@ -1071,7 +1071,7 @@ private:
 	
 	
 
-	vector<string > observingMode;
+	std::vector<std::string > observingMode;
 
 	
 	
@@ -1104,7 +1104,7 @@ private:
 	
 	
 
-	vector<string > scienceGoal;
+	std::vector<std::string > scienceGoal;
 
 	
 	
@@ -1126,7 +1126,7 @@ private:
 	
 	
 
-	vector<string > weatherConstraint;
+	std::vector<std::string > weatherConstraint;
 
 	
 	
@@ -1139,7 +1139,7 @@ private:
 	bool centerDirectionExists;
 	
 
-	vector<Angle > centerDirection;
+	std::vector<Angle > centerDirection;
 
 	
 	
@@ -1212,53 +1212,53 @@ void centerDirectionEquinoxFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, SBSummaryAttributeFromText> fromTextMethods;
 	
-void sBSummaryIdFromText (const string & s);
+void sBSummaryIdFromText (const std::string & s);
 	
 	
 	
 	
 	
-void frequencyFromText (const string & s);
+void frequencyFromText (const std::string & s);
 	
 	
-void frequencyBandFromText (const string & s);
+void frequencyBandFromText (const std::string & s);
 	
 	
-void sbTypeFromText (const string & s);
+void sbTypeFromText (const std::string & s);
 	
 	
-void sbDurationFromText (const string & s);
+void sbDurationFromText (const std::string & s);
 	
 	
-void numObservingModeFromText (const string & s);
+void numObservingModeFromText (const std::string & s);
 	
 	
-void observingModeFromText (const string & s);
+void observingModeFromText (const std::string & s);
 	
 	
-void numberRepeatsFromText (const string & s);
+void numberRepeatsFromText (const std::string & s);
 	
 	
-void numScienceGoalFromText (const string & s);
+void numScienceGoalFromText (const std::string & s);
 	
 	
-void scienceGoalFromText (const string & s);
+void scienceGoalFromText (const std::string & s);
 	
 	
-void numWeatherConstraintFromText (const string & s);
+void numWeatherConstraintFromText (const std::string & s);
 	
 	
-void weatherConstraintFromText (const string & s);
+void weatherConstraintFromText (const std::string & s);
 	
 
 	
-void centerDirectionFromText (const string & s);
+void centerDirectionFromText (const std::string & s);
 	
 	
-void centerDirectionCodeFromText (const string & s);
+void centerDirectionCodeFromText (const std::string & s);
 	
 	
-void centerDirectionEquinoxFromText (const string & s);
+void centerDirectionEquinoxFromText (const std::string & s);
 	
 	
 	

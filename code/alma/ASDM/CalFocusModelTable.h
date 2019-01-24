@@ -41,40 +41,36 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
-#include "CReceiverBand.h"
-	
-
-	
-#include "CPolarizationType.h"
-	
 
 	
 
 	
-
-	
-#include "CAntennaMake.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
+#include <alma/Enumerations/CPolarizationType.h>
+	
 
+	
+
+	
+
+	
+#include <alma/Enumerations/CAntennaMake.h>
 	
 
 	
@@ -93,20 +89,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -137,7 +137,7 @@ class CalFocusModelRow;
  		
  * <TD> antennaName </TD>
  		 
- * <TD> string</TD>
+ * <TD> std::string</TD>
  * <TD> &nbsp; </TD>
  * <TD> &nbsp;the name of the antenna. </TD>
  * </TR>
@@ -219,49 +219,49 @@ class CalFocusModelRow;
 	
  * <TR>
  * <TD> coeffName </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numCoeff </TD> 
  * <TD> &nbsp;the names given to  the coefficients in the model. </TD>
  * </TR>
 	
  * <TR>
  * <TD> coeffFormula </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numCoeff </TD> 
  * <TD> &nbsp;the coefficients formula (one string per coefficient). </TD>
  * </TR>
 	
  * <TR>
  * <TD> coeffValue </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numCoeff </TD> 
  * <TD> &nbsp;the fitted values of the coefficients. </TD>
  * </TR>
 	
  * <TR>
  * <TD> coeffError </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numCoeff </TD> 
  * <TD> &nbsp;the statistical uncertainties on the derived coefficients (one value per coefficient). </TD>
  * </TR>
 	
  * <TR>
  * <TD> coeffFixed </TD> 
- * <TD> vector<bool > </TD>
+ * <TD> std::vector<bool > </TD>
  * <TD>  numCoeff </TD> 
  * <TD> &nbsp;one coefficient was fixed (true) or not fixed (false) (one boolean value per coefficient). </TD>
  * </TR>
 	
  * <TR>
  * <TD> focusModel </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of this focus model. </TD>
  * </TR>
 	
  * <TR>
  * <TD> focusRMS </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;the RMS deviations of residuals of focus coordinates. </TD>
  * </TR>
@@ -447,7 +447,7 @@ public:
  	 * @param reducedChiSquared
 	
      */
-	CalFocusModelRow *newRow(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffValue, vector<float > coeffError, vector<bool > coeffFixed, string focusModel, vector<Length > focusRMS, double reducedChiSquared);
+	CalFocusModelRow *newRow(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffValue, std::vector<float > coeffError, std::vector<bool > coeffFixed, std::string focusModel, std::vector<Length > focusRMS, double reducedChiSquared);
 	
 
 
@@ -528,7 +528,7 @@ public:
 	
  	 *
 	 */
- 	CalFocusModelRow* getRowByKey(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId);
+ 	CalFocusModelRow* getRowByKey(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -577,7 +577,7 @@ public:
  	 * @param reducedChiSquared
  	 		 
  	 */
-	CalFocusModelRow* lookup(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffValue, vector<float > coeffError, vector<bool > coeffFixed, string focusModel, vector<Length > focusRMS, double reducedChiSquared); 
+	CalFocusModelRow* lookup(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffValue, std::vector<float > coeffError, std::vector<bool > coeffFixed, std::string focusModel, std::vector<Length > focusRMS, double reducedChiSquared); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

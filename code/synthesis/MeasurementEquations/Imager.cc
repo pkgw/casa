@@ -562,7 +562,8 @@ Bool Imager::open(MeasurementSet& theMs, Bool /*compress*/, Bool useModelCol)
       return false;
     }
     
-    (!ms_p->tableDesc().isColumn("CORRECTED_DATA")); // if no side effect then delete this statement?
+    // The unused return value creates a compiler warning, there shouldn't be any side-effect of this statement
+    //(!ms_p->tableDesc().isColumn("CORRECTED_DATA")); // if no side effect then delete this statement?
     
     /*if(vs_p) {
       delete vs_p; vs_p=0;

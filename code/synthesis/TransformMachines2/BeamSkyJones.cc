@@ -529,20 +529,12 @@ BeamSkyJones::applyGradient(SkyComponent& result, const vi::VisBuffer2&,
   return result;
 };
 
-void BeamSkyJones::addGradients(const vi::VisBuffer2& vb, Int row,
-			      const Float sumwt, 
-			      const Float chisq,
-			      const Matrix<Complex>& c, 
-			      const Matrix<Float>& f) 
-{
-  // Keep compiler quiet
-  if(&vb) {};
-  if(row) {};
-  if(sumwt) {};
-  if(chisq) {};
-  if(&c) {};
-  if(&f) {};
-};
+void BeamSkyJones::addGradients(const vi::VisBuffer2&, Int,
+			      const Float, 
+			      const Float,
+			      const Matrix<Complex>&, 
+			      const Matrix<Float>&) 
+{};
 
 // Solve
 /*Bool BeamSkyJones::solve (SkyEquation& se)

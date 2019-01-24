@@ -28,20 +28,12 @@
 #define ArrayTimeInterval_CLASS
 
 #include <stdint.h>
-#include <LongWrapper.h>
-#include <ArrayTime.h>
-#include <Interval.h>
+#include <alma/ASDM/LongWrapper.h>
+#include <alma/ASDM/ArrayTime.h>
+#include <alma/ASDM/Interval.h>
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-#endif
-
-using asdm::Long;
-using asdm::Interval;
-using asdm::ArrayTime;
-
-#ifndef WITHOUT_ACS
-using asdmIDLTypes::IDLArrayTimeInterval;
 #endif
 
 namespace asdm {
@@ -53,8 +45,8 @@ namespace asdm {
    * during a certain laps of time and starting at a given date.
    */
   class ArrayTimeInterval {
-    friend ostream & operator << ( ostream &, ArrayTimeInterval& );
-    friend istream & operator >> ( istream &, ArrayTimeInterval& );
+    friend std::ostream & operator << ( std::ostream &, ArrayTimeInterval& );
+    friend std::istream & operator >> ( std::istream &, ArrayTimeInterval& );
   private:
     
     ArrayTime start;
@@ -82,7 +74,7 @@ namespace asdm {
     ArrayTimeInterval(int64_t startInNanoSeconds);
 	
 #ifndef WITHOUT_ACS
-    ArrayTimeInterval (IDLArrayTimeInterval t); 
+    ArrayTimeInterval (asdmIDLTypes::IDLArrayTimeInterval t); 
 #endif	
     // Setters
     void setStart(ArrayTime start);
@@ -164,21 +156,21 @@ namespace asdm {
      * @param arrayTimeInterval the vector of ArrayTime to be written
      * @param eoss the EndianOSStream to be written to
      */
-    static void toBin(const vector<ArrayTimeInterval>& arrayTimeInterval,  EndianOSStream& eoss);
+    static void toBin(const std::vector<ArrayTimeInterval>& arrayTimeInterval,  EndianOSStream& eoss);
 	
     /**
      * Write the binary representation of a vector of vector of ArrayTimeInterval to a EndianOSStream.
      * @param arrayTimeInterval the vector of vector of ArrayTimeInterval to be written
      * @param eoss the EndianOSStream to be written to
      */	
-    static void toBin(const vector<vector<ArrayTimeInterval> >& arrayTimeInterval,  EndianOSStream& eoss);
+    static void toBin(const std::vector<std::vector<ArrayTimeInterval> >& arrayTimeInterval,  EndianOSStream& eoss);
 	
     /**
      * Write the binary representation of a vector of vector of vector of ArrayTimeInterval to a EndianOSStream.
      * @param arrayTimeInterval the vector of vector of vector of ArrayTimeInterval to be written
      * @param eoss the EndianOSStream to be written to
      */
-    static void toBin(const vector<vector<vector<ArrayTimeInterval> > >& arrayTimeInterval,  EndianOSStream& eoss);
+    static void toBin(const std::vector<std::vector<std::vector<ArrayTimeInterval> > >& arrayTimeInterval,  EndianOSStream& eoss);
 
     /**
      * Read the binary representation of an ArrayTimeInterval from a EndianIStream
@@ -194,7 +186,7 @@ namespace asdm {
      * @param dis the EndianIStream to be read
      * @return a vector of ArrayTimeInterval
      */	 
-    static vector<ArrayTimeInterval> from1DBin(EndianIStream & eis);
+    static std::vector<ArrayTimeInterval> from1DBin(EndianIStream & eis);
 	 
     /**
      * Read the binary representation of  a vector of vector of ArrayTimeInterval from an EndianIStream
@@ -202,7 +194,7 @@ namespace asdm {
      * @param eiis the EndianIStream to be read
      * @return a vector of vector of ArrayTimeInterval
      */	 
-    static vector<vector<ArrayTimeInterval> > from2DBin(EndianIStream & eis);
+    static std::vector<std::vector<ArrayTimeInterval> > from2DBin(EndianIStream & eis);
 	 
     /**
      * Read the binary representation of  a vector of vector of vector of ArrayTimeInterval from an EndianIStream
@@ -210,12 +202,12 @@ namespace asdm {
      * @param eis the EndianIStream to be read
      * @return a vector of vector of vector of ArrayTimeInterval
      */	 
-    static vector<vector<vector<ArrayTimeInterval> > > from3DBin(EndianIStream & eis);
+    static std::vector<std::vector<std::vector<ArrayTimeInterval> > > from3DBin(EndianIStream & eis);
 
     /**
      * Returns a string representation of this.
      */
-    string toString() const ;
+    std::string toString() const ;
   };
 
 
@@ -224,7 +216,7 @@ namespace asdm {
   inline ArrayTimeInterval::ArrayTimeInterval(): start((int64_t)0), duration(0) {}
   inline ArrayTimeInterval::ArrayTimeInterval(ArrayTime start_, Interval duration_) {
     start = start_;
-    duration = Interval(min(duration_.get(), Long::MAX_VALUE - start.get()));
+    duration = Interval(std::min(duration_.get(), Long::MAX_VALUE - start.get()));
   }
  
   inline ArrayTimeInterval::ArrayTimeInterval(double startInMJD, double durationInDays) :
@@ -234,7 +226,7 @@ namespace asdm {
   inline ArrayTimeInterval::ArrayTimeInterval(int64_t startInNanoSeconds,
 					      int64_t durationInNanoSeconds){
     start = startInNanoSeconds;
-    duration = min(durationInNanoSeconds, Long::MAX_VALUE - startInNanoSeconds);
+    duration = std::min(durationInNanoSeconds, Long::MAX_VALUE - startInNanoSeconds);
   }				
  
   inline ArrayTimeInterval::ArrayTimeInterval(ArrayTime  start_):
@@ -351,12 +343,12 @@ namespace asdm {
     return (start != ati.start) || (duration != ati.duration);
   }
  
-  inline ostream & operator << ( ostream &o, ArrayTimeInterval &ati ) {
+  inline std::ostream & operator << ( std::ostream &o, ArrayTimeInterval &ati ) {
     o << "(start=" << ati.getStart().get() << ",duration=" << ati.getDuration().get() << ")";
     return o;	
   } 
 
-  inline istream & operator >> ( istream &i, ArrayTimeInterval &ati) {
+  inline std::istream & operator >> ( std::istream &i, ArrayTimeInterval &ati) {
     i >> ati.start;
     i >> ati.duration;
     return i;

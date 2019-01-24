@@ -1122,14 +1122,14 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
 	  //outli.rwVectorCursor()(ix)=sv(0); //sv(outMap(0));
           // If outstokescoord = I or Q, use (I:0) : XX+YY for the PSF
           // If outstokescoord = U or V, use (U:2) : XY+YX  for the PSF
-          if( (polFrame==StokesImageUtil::LINEAR) )
+          if( polFrame==StokesImageUtil::LINEAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::Q ) 
 	          outli.rwVectorCursor()(ix)=sv(0);
               if( Stokes::type(outST[0])==Stokes::U || Stokes::type(outST[0])==Stokes::V ) 
 	          outli.rwVectorCursor()(ix)=sv(2);
 	    }
-          if( (polFrame==StokesImageUtil::CIRCULAR) )
+          if( polFrame==StokesImageUtil::CIRCULAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::V ) 
 	          outli.rwVectorCursor()(ix)=sv(0);
@@ -1140,7 +1140,7 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
         else if(nStokesOut==2) {
           // If outstokescoord = IQ, use (I:0) : XX+YY for the PSF in both planes
           // If outstokescoord = UV, use (U:2) : XY+YX  for the PSF in both planes
-         if( (polFrame==StokesImageUtil::LINEAR) )
+         if( polFrame==StokesImageUtil::LINEAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::Q || 
                  Stokes::type(outST[1])==Stokes::I || Stokes::type(outST[1])==Stokes::Q ) 
@@ -1149,7 +1149,7 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
                   Stokes::type(outST[1])==Stokes::U || Stokes::type(outST[1])==Stokes::V ) 
 		{ outli.rwMatrixCursor()(ix,0)=sv(2); outli.rwMatrixCursor()(ix,1)=sv(2); }
 	    }
-          if( (polFrame==StokesImageUtil::CIRCULAR) )
+          if( polFrame==StokesImageUtil::CIRCULAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::V ||
                  Stokes::type(outST[1])==Stokes::I || Stokes::type(outST[1])==Stokes::V ) 
@@ -1182,14 +1182,14 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
 	  //outli.rwVectorCursor()(ix)=sv(0); //sv(outMap(0));
           // If outstokescoord = I or Q, use (I:0)
           // If outstokescoord = U or V, use (U:2)
-          if( (polFrame==StokesImageUtil::LINEAR) )
+          if( polFrame==StokesImageUtil::LINEAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::Q ) 
 	          outli.rwVectorCursor()(ix)=sv(0);
               if( Stokes::type(outST[0])==Stokes::U || Stokes::type(outST[0])==Stokes::V ) 
 	          outli.rwVectorCursor()(ix)=sv(2);
 	    }
-          if( (polFrame==StokesImageUtil::CIRCULAR) )
+          if( polFrame==StokesImageUtil::CIRCULAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::V ) 
 	          outli.rwVectorCursor()(ix)=sv(0);
@@ -1200,7 +1200,7 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
         else if(nStokesOut==2) {
           // If outstokescoord = IQ, use (I:0) : XX+YY for the PSF in both planes
           // If outstokescoord = UV, use (U:2) : XY+YX  for the PSF in both planes
-         if( (polFrame==StokesImageUtil::LINEAR) )
+         if( polFrame==StokesImageUtil::LINEAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::Q || 
                  Stokes::type(outST[1])==Stokes::I || Stokes::type(outST[1])==Stokes::Q ) 
@@ -1209,7 +1209,7 @@ void StokesImageUtil::ToStokesPSF(ImageInterface<Float>& out, ImageInterface<Com
                   Stokes::type(outST[1])==Stokes::U || Stokes::type(outST[1])==Stokes::V ) 
 		{ outli.rwMatrixCursor()(ix,0)=sv(2); outli.rwMatrixCursor()(ix,1)=sv(2); }
 	    }
-          if( (polFrame==StokesImageUtil::CIRCULAR) )
+          if( polFrame==StokesImageUtil::CIRCULAR )
 	    { 
 	      if(Stokes::type(outST[0])==Stokes::I || Stokes::type(outST[0])==Stokes::V ||
                  Stokes::type(outST[1])==Stokes::I || Stokes::type(outST[1])==Stokes::V ) 

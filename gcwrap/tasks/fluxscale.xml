@@ -141,14 +141,16 @@
        polarizations, divided by the square root of the number of 
        antennas and polarizations available.  If the flux densities 
        for multiple spws exist, fitted spectral index and (for nspw>2)
-       curvature are also reported. The fit is done for 
-       log(flux density) = a_o + a_1*(log(frequency)) + a_2*(log(frequency))**2 
+       curvature, and higher orders are also reported. The fit is done for 
+       log(flux density) = a_o + a_1*(log(frequency)) + a_2*(log(frequency))**2 + ... a_n*(log(frequency))**n,
        where log(frequency) is with respect to the mean of log(frequency). 
        This reference frequency is reported in the logger along with the 
        flux density at that frequency.  The fit results are also reported 
        in the returned Python dictionary (the solutions are in 'spidx' 
        in the following order: a_o [log(S) at the zero point], a_1 [spectral index], 
        and a_2 [curvature]. And their errors are in 'spidxerr').  
+       Also, reported is the covariance matrix for the fit.
+
        The MODEL_DATA column is currently _not_ revised to reflect the flux 
        densities derived by fluxscale.  Use setjy to set the MODEL_DATA 
        column, if necessary.
@@ -259,9 +261,7 @@
                fluxscale table AND an amplitude vs. time table should be supplied in applycal.
 
        fitorder -- Polynomial order of the spectral fitting for valid flux densities 
-               with multiple spws.  Currently only support 1 (spectral index only) or 
-               2 (spectral index and curvature).  It falls back to a lower fitorder if 
-               there are not enough solutions to fit with the requested fitorder.
+               It falls back to a lower fitorder if there are not enough solutions to fit with the requested fitorder.
                default: 1
        display -- Display statistics and/or spectral fitting results. Currently only a histogram
                of the correction factors to derive the final flux density for each spectral window
@@ -271,7 +271,7 @@
 
        Returned dictionary: 
                 when it is run as fluxres = fluxscale(vis='my.ms',...), the determined flux
-                densities and spectral index information  are returned as a Python dictionary with
+                densities and spectral index information are returned as a Python dictionary with
                 a format, {fieldIdstr: {spwIdstr: {'fluxd':array([I,Q,U,V]), 
                                                   'fluxdErr': corresponding errors,
                                                    'numSol': corresponding no. of solutions,
@@ -279,8 +279,9 @@
                                         'fitFluxd': fitted flux density at the reference frequency,
                                         'fitFluxdErr': fitted flux density error,
                                         'fitRefFreq': reference frequency,
-                                        'spidx': a_0, a_1, a_2
-                                        'spidxerr': errors in a_0,a_1, a_2} 
+                                        'covarMat' : covariance matrix for the fit,
+                                        'spidx': a_0, a_1, a_2, a_3, ... a_n,
+                                        'spidxerr': errors in a_0,a_1, a_2, a_3, ... a_n} 
                            'freq': (center) spw frequencies 
                            'spwID': list of spw IDs,
                            'spwName': list of spw names}, where fieldIdstr and spwIdstr

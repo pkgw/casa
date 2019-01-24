@@ -30,143 +30,143 @@
  *
  * File ASDM.cpp
  */
-#include <ASDM.h>
+#include <alma/ASDM/ASDM.h>
 
-#include <MainTable.h>
+#include <alma/ASDM/MainTable.h>
 
-#include <AlmaRadiometerTable.h>
+#include <alma/ASDM/AlmaRadiometerTable.h>
 
-#include <AnnotationTable.h>
+#include <alma/ASDM/AnnotationTable.h>
 
-#include <AntennaTable.h>
+#include <alma/ASDM/AntennaTable.h>
 
-#include <CalAmpliTable.h>
+#include <alma/ASDM/CalAmpliTable.h>
 
-#include <CalAntennaSolutionsTable.h>
+#include <alma/ASDM/CalAntennaSolutionsTable.h>
 
-#include <CalAppPhaseTable.h>
+#include <alma/ASDM/CalAppPhaseTable.h>
 
-#include <CalAtmosphereTable.h>
+#include <alma/ASDM/CalAtmosphereTable.h>
 
-#include <CalBandpassTable.h>
+#include <alma/ASDM/CalBandpassTable.h>
 
-#include <CalCurveTable.h>
+#include <alma/ASDM/CalCurveTable.h>
 
-#include <CalDataTable.h>
+#include <alma/ASDM/CalDataTable.h>
 
-#include <CalDelayTable.h>
+#include <alma/ASDM/CalDelayTable.h>
 
-#include <CalDeviceTable.h>
+#include <alma/ASDM/CalDeviceTable.h>
 
-#include <CalFluxTable.h>
+#include <alma/ASDM/CalFluxTable.h>
 
-#include <CalFocusTable.h>
+#include <alma/ASDM/CalFocusTable.h>
 
-#include <CalFocusModelTable.h>
+#include <alma/ASDM/CalFocusModelTable.h>
 
-#include <CalGainTable.h>
+#include <alma/ASDM/CalGainTable.h>
 
-#include <CalHolographyTable.h>
+#include <alma/ASDM/CalHolographyTable.h>
 
-#include <CalPhaseTable.h>
+#include <alma/ASDM/CalPhaseTable.h>
 
-#include <CalPointingTable.h>
+#include <alma/ASDM/CalPointingTable.h>
 
-#include <CalPointingModelTable.h>
+#include <alma/ASDM/CalPointingModelTable.h>
 
-#include <CalPositionTable.h>
+#include <alma/ASDM/CalPositionTable.h>
 
-#include <CalPrimaryBeamTable.h>
+#include <alma/ASDM/CalPrimaryBeamTable.h>
 
-#include <CalReductionTable.h>
+#include <alma/ASDM/CalReductionTable.h>
 
-#include <CalSeeingTable.h>
+#include <alma/ASDM/CalSeeingTable.h>
 
-#include <CalWVRTable.h>
+#include <alma/ASDM/CalWVRTable.h>
 
-#include <ConfigDescriptionTable.h>
+#include <alma/ASDM/ConfigDescriptionTable.h>
 
-#include <CorrelatorModeTable.h>
+#include <alma/ASDM/CorrelatorModeTable.h>
 
-#include <DataDescriptionTable.h>
+#include <alma/ASDM/DataDescriptionTable.h>
 
-#include <DelayModelTable.h>
+#include <alma/ASDM/DelayModelTable.h>
 
-#include <DelayModelFixedParametersTable.h>
+#include <alma/ASDM/DelayModelFixedParametersTable.h>
 
-#include <DelayModelVariableParametersTable.h>
+#include <alma/ASDM/DelayModelVariableParametersTable.h>
 
-#include <DopplerTable.h>
+#include <alma/ASDM/DopplerTable.h>
 
-#include <EphemerisTable.h>
+#include <alma/ASDM/EphemerisTable.h>
 
-#include <ExecBlockTable.h>
+#include <alma/ASDM/ExecBlockTable.h>
 
-#include <FeedTable.h>
+#include <alma/ASDM/FeedTable.h>
 
-#include <FieldTable.h>
+#include <alma/ASDM/FieldTable.h>
 
-#include <FlagTable.h>
+#include <alma/ASDM/FlagTable.h>
 
-#include <FlagCmdTable.h>
+#include <alma/ASDM/FlagCmdTable.h>
 
-#include <FocusTable.h>
+#include <alma/ASDM/FocusTable.h>
 
-#include <FocusModelTable.h>
+#include <alma/ASDM/FocusModelTable.h>
 
-#include <FreqOffsetTable.h>
+#include <alma/ASDM/FreqOffsetTable.h>
 
-#include <GainTrackingTable.h>
+#include <alma/ASDM/GainTrackingTable.h>
 
-#include <HistoryTable.h>
+#include <alma/ASDM/HistoryTable.h>
 
-#include <HolographyTable.h>
+#include <alma/ASDM/HolographyTable.h>
 
-#include <ObservationTable.h>
+#include <alma/ASDM/ObservationTable.h>
 
-#include <PointingTable.h>
+#include <alma/ASDM/PointingTable.h>
 
-#include <PointingModelTable.h>
+#include <alma/ASDM/PointingModelTable.h>
 
-#include <PolarizationTable.h>
+#include <alma/ASDM/PolarizationTable.h>
 
-#include <ProcessorTable.h>
+#include <alma/ASDM/ProcessorTable.h>
 
-#include <PulsarTable.h>
+#include <alma/ASDM/PulsarTable.h>
 
-#include <ReceiverTable.h>
+#include <alma/ASDM/ReceiverTable.h>
 
-#include <SBSummaryTable.h>
+#include <alma/ASDM/SBSummaryTable.h>
 
-#include <ScaleTable.h>
+#include <alma/ASDM/ScaleTable.h>
 
-#include <ScanTable.h>
+#include <alma/ASDM/ScanTable.h>
 
-#include <SeeingTable.h>
+#include <alma/ASDM/SeeingTable.h>
 
-#include <SourceTable.h>
+#include <alma/ASDM/SourceTable.h>
 
-#include <SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowTable.h>
 
-#include <SquareLawDetectorTable.h>
+#include <alma/ASDM/SquareLawDetectorTable.h>
 
-#include <StateTable.h>
+#include <alma/ASDM/StateTable.h>
 
-#include <StationTable.h>
+#include <alma/ASDM/StationTable.h>
 
-#include <SubscanTable.h>
+#include <alma/ASDM/SubscanTable.h>
 
-#include <SwitchCycleTable.h>
+#include <alma/ASDM/SwitchCycleTable.h>
 
-#include <SysCalTable.h>
+#include <alma/ASDM/SysCalTable.h>
 
-#include <SysPowerTable.h>
+#include <alma/ASDM/SysPowerTable.h>
 
-#include <TotalPowerTable.h>
+#include <alma/ASDM/TotalPowerTable.h>
 
-#include <WVMCalTable.h>
+#include <alma/ASDM/WVMCalTable.h>
 
-#include <WeatherTable.h>
+#include <alma/ASDM/WeatherTable.h>
 
 
 using asdm::ASDM;
@@ -308,14 +308,16 @@ using asdm::WVMCalTable;
 using asdm::WeatherTable;
 
 
-#include <Parser.h>
-#include <ConversionException.h>
+#include <alma/ASDM/Parser.h>
+#include <alma/ASDM/ConversionException.h>
 
 using asdm::ConversionException;
 using asdm::Parser;
 
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <locale>
 #include <time.h>
 
 //#ifdef WITHOUT_ACS
@@ -324,7 +326,7 @@ using asdm::Parser;
 #include <dirent.h>
 //#endif
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 using namespace std;
 
@@ -1200,10 +1202,10 @@ namespace asdm {
 
 
 
-	string ASDM::toXML()   {
+	string ASDM::toXML() const {
 		string out;
 		out.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		out.append("<ASDM xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:cntnr=\"http://Alma/XASDM/ASDM\" xsi:schemaLocation=\"http://Alma/XASDM/ASDM http://almaobservatory.org/XML/XASDM/3/ASDM.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\"> ");
+		out.append("<ASDM xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:cntnr=\"http://Alma/XASDM/ASDM\" xsi:schemaLocation=\"http://Alma/XASDM/ASDM http://almaobservatory.org/XML/XASDM/4/ASDM.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\"> ");
 
 		if (entity.isNull())
 			throw ConversionException("Container entity cannot be null.","Container");
@@ -1608,7 +1610,7 @@ namespace asdm {
 	 * not overwrite any existing file; a ConversionException is also
 	 * thrown in this case.
 	 */
-	void ASDM::toXML(string directory) {
+	void ASDM::toXML(string directory) const {
 	
 		if (!directoryExists(directory.c_str()) &&
 			!createPath(directory.c_str())) {
@@ -4570,15 +4572,31 @@ namespace asdm {
 				throw ConversionException ("Caught an exception whose message is '" + e.getMessage() + "'.", "ASDM");
 			}
 			
-    		if ((version == "UNKNOWN") && (origin == ASDMUtils::UNKNOWN))
-    			throw ConversionException("I cannot read this dataset with version='UNKNOWN' and origin='UNKNOWN'", "ASDM");
+    		        if ((version == "UNKNOWN") && (origin == ASDMUtils::UNKNOWN))
+    			        throw ConversionException("I cannot read this dataset with version='UNKNOWN' and origin='UNKNOWN'", "ASDM");
  		
-    		string xsltPath;
- 			bool proceed = (version.compare("3") && (origin == ASDMUtils::EVLA))  
-    				    || (version.compare("3") && ( origin == ASDMUtils::ALMA)); // If it's an ALMA then we must check its version.
+                        // convert leading part of version to an integer (this will work for things like "4.2.1" if necessary)
+                        std::locale loc;
+                        // require that the first character is a digit
+                        int iVersion = -1;
+
+                        try {
+                            iVersion = std::isdigit(version[0],loc) ? std::stoi(version) : -1;
+                        } catch (const std::invalid_argument &ia) {
+                            throw ConversionException("Invalid argument converting this version into an integer: '" + version + ". Can not continue.", "ASDM");
+                        } catch (const std::out_of_range &oor) {
+                            throw ConversionException("Integer in this version is out of range: '" + version + ". Can not continue.", "ASDM");
+                        }
+
+                        if (iVersion < 2) {
+                                 throw ConversionException("I cannot read this dataset with version='" + version + "'.", "ASDM");
+                        }
+                        // this is the case that we know how to transform, ignore everything else and hope for the best
+                        bool doTransform = (iVersion == 2) && (origin == ASDMUtils::EVLA || origin == ASDMUtils::ALMA);
+    		        string xsltPath;
 			string xmlDoc;
  			try {
- 				if (proceed) {
+ 				if (doTransform) {
     				if (origin == ASDMUtils::EVLA)
 						xsltPath = ASDMUtils::pathToV2V3EVLAxslTransform();
 					else 
@@ -5714,21 +5732,21 @@ namespace asdm {
 	
  	/**
  	 * Get xmlnsPrefix.
- 	 * @return xmlnsPrefix as string
+ 	 * @return xmlnsPrefix as std::string
  	 */
- 	string ASDM::getXmlnsPrefix() const {
+ 	std::string ASDM::getXmlnsPrefix() const {
 	
   		return xmlnsPrefix;
  	}
 
  	/**
- 	 * Set xmlnsPrefix with the specified string.
- 	 * @param xmlnsPrefix The string value to which xmlnsPrefix is to be set.
+ 	 * Set xmlnsPrefix with the specified std::string.
+ 	 * @param xmlnsPrefix The std::string value to which xmlnsPrefix is to be set.
  	 
  	
  		
  	 */
- 	void ASDM::setXmlnsPrefix (string xmlnsPrefix)  {
+ 	void ASDM::setXmlnsPrefix (std::string xmlnsPrefix)  {
   	
   	
   		if (hasBeenAdded) {

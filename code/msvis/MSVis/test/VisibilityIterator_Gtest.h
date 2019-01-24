@@ -1,5 +1,5 @@
-#if ! defined (VisibilityIterator_Test_H_20120912_1001)
-#define VisibilityIterator_Test_H_20120912_1001
+#if ! defined (VisibilityIterator_Gtest_H_20120912_1001)
+#define VisibilityIterator_Gtest_H_20120912_1001
 
 #include <casa/aips.h>
 #include <casa/aipstype.h>
@@ -13,6 +13,7 @@
 
 #include <map>
 #include <set>
+#include <list>
 #include <memory>
 #include <stdlib.h>
 
@@ -194,8 +195,26 @@ public:
 
 private:
 
-	std::unique_ptr<MsFactory> msf_p;
+    std::unique_ptr<MsFactory> msf_p;
     casacore::Int nRowsToProcess_p;
+};
+
+class SubtablePropagation : public TestWidget {
+
+public:
+
+    SubtablePropagation (): TestWidget ("SubtablePropagation") {}
+
+    virtual std::tuple <casacore::MeasurementSet *, casacore::Int, casacore::Bool> createMs ();
+
+    virtual casacore::String name () const { return "SubtablePropagation";}
+
+    void checkSubtables();
+private:
+
+    std::unique_ptr<MsFactory> msf_p;
+    unsigned int nAntennas_p;
+    std::list<std::tuple<std::string, int, double, double, std::string>> spwDef_p;
 };
 
 class BasicMutation : public BasicChannelSelection
@@ -337,4 +356,4 @@ void printMs (casacore::MeasurementSet * ms);
 } // end namespace vi
 } // end namespace casa
 
-#endif // ! defined (VisibilityIterator_Test_H_20120912_1001
+#endif // ! defined (VisibilityIterator_Gtest_H_20120912_1001

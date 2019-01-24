@@ -24,8 +24,8 @@
  * File Byte.cpp
  */
 
-#include <ByteWrapper.h>
-#include <NumberFormatException.h>
+#include <alma/ASDM/ByteWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <sstream>
 

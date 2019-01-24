@@ -33,7 +33,7 @@
  * File CAtmPhaseCorrection.cpp
  */
 #include <sstream>
-#include <CAtmPhaseCorrection.h>
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 #include <string>
 using namespace std;
 

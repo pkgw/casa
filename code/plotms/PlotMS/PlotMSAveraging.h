@@ -64,7 +64,7 @@ public:
     // given field is mutually exclusive.  In a mutually exclusive group, only
     // one field can be turned on at a given time (although they can all be
     // off at the same time).
-    static const vector<Field>& fieldMutuallyExclusiveGroup(Field f);
+    static const std::vector<Field>& fieldMutuallyExclusiveGroup(Field f);
     
     // Returns true if the given field is in a mutually exclusive group, false
     // otherwise.  See fieldMutuallyExclusiveGroup().
