@@ -461,7 +461,7 @@ TEST_F(GJonesSolveTest, Test1) {
       vC(0,0,17)*=2.0;
       vC(0,0,18)*=0.5;
       vC(0,0,35)*=1.9;
-      vC(0,0,44)*=1.05;
+      vC(0,0,44)*=1.03;
 
 
       vb2->setVisCubeCorrected(vC);
@@ -572,8 +572,8 @@ TEST_F(GJonesSolveTest, Test1) {
 
 	//cout << "Gamp_resid = " << Gamp << endl;
 	cout << "max(Gamp_resid) = " << maxAresid  << endl;
-	ASSERT_TRUE(maxAresid(0)<0.1);
-	ASSERT_TRUE(maxAresid(1)<1e-4);
+	EXPECT_TRUE(maxAresid(0)<0.1);
+	EXPECT_TRUE(maxAresid(1)<1e-4);
 
 	// Find peak absolute phase resid (deg)
 	for (Int iant=1;iant<nAnt;++iant) {
@@ -584,12 +584,12 @@ TEST_F(GJonesSolveTest, Test1) {
 
 	//cout << "Gpha_resid = " << Gpha << endl;
 	cout << "max(Gpha_resid) = " << maxPresid  << endl;
-	ASSERT_TRUE(maxPresid(0)<0.02);
-	ASSERT_TRUE(maxPresid(1)<1e-5);
+	EXPECT_TRUE(maxPresid(0)<0.02);
+	EXPECT_TRUE(maxPresid(1)<1e-5);
 
 	// Test max R/L
 	cout << "maxArol = " << maxArol << endl;
-	ASSERT_TRUE(maxArol<0.1f);
+	EXPECT_TRUE(maxArol<0.1f);
 
 
       }
@@ -597,25 +597,25 @@ TEST_F(GJonesSolveTest, Test1) {
 	Matrix<Bool> wFl(sdbs(0).const_workingFlagCube().nonDegenerate());
 
 	//cout << "flags=" << boolalpha << wFl  << endl;
-	ASSERT_TRUE(ntrue(wFl)==12);
+	EXPECT_TRUE(ntrue(wFl)==12);
 
-	ASSERT_TRUE(wFl(0,6));
-	ASSERT_TRUE(wFl(0,11));
-	ASSERT_TRUE(wFl(0,17));
-	ASSERT_TRUE(wFl(0,18));
-	ASSERT_TRUE(wFl(0,35));
-	ASSERT_TRUE(wFl(0,44));
+	EXPECT_TRUE(wFl(0,6));
+	EXPECT_TRUE(wFl(0,11));
+	EXPECT_TRUE(wFl(0,17));
+	EXPECT_TRUE(wFl(0,18));
+	EXPECT_TRUE(wFl(0,35));
+	EXPECT_TRUE(wFl(0,44));
 
 	if (solmodes(ism).contains("L1")) {
 	  Matrix<Float> wWt(sdbs(0).const_workingWtSpec().nonDegenerate());
 	  
 	  //cout << "wts=" << wWt << endl;
-	  ASSERT_EQ(wWt(0,6),0.0f);
-	  ASSERT_EQ(wWt(0,11),0.0f);
-	  ASSERT_EQ(wWt(0,17),0.0f);
-	  ASSERT_EQ(wWt(0,18),0.0f);
-	  ASSERT_EQ(wWt(0,35),0.0f);
-	  ASSERT_EQ(wWt(0,44),0.0f);
+	  EXPECT_EQ(wWt(0,6),0.0f);
+	  EXPECT_EQ(wWt(0,11),0.0f);
+	  EXPECT_EQ(wWt(0,17),0.0f);
+	  EXPECT_EQ(wWt(0,18),0.0f);
+	  EXPECT_EQ(wWt(0,35),0.0f);
+	  EXPECT_EQ(wWt(0,44),0.0f);
 	}
 	
       }
@@ -623,15 +623,15 @@ TEST_F(GJonesSolveTest, Test1) {
       // Test max R/L by mode
       if (solmodes(ism)=="L1") {
 	cout << "maxArol = " << maxArol << endl;
-	ASSERT_TRUE(maxArol<3e-3);
+	EXPECT_TRUE(maxArol<3e-3);
       }
       if (solmodes(ism)=="R") {
 	cout << "maxArol = " << maxArol << endl;
-	ASSERT_TRUE(maxArol<1e-6);
+	EXPECT_TRUE(maxArol<1e-6);
       }
       if (solmodes(ism)=="L1R") {
 	cout << "maxArol = " << maxArol << endl;
-	ASSERT_TRUE(maxArol<2e-7);
+	EXPECT_TRUE(maxArol<2e-7);
       }
 
     }

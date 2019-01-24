@@ -111,8 +111,9 @@ VisCalSolver2::VisCalSolver2(String solmode, Vector<Float>& rmsthresh) :
   if (solmode.contains("R")) doRMSThresh_=true;
 
   if (doRMSThresh_ && nRMSThresh_==0) {
-    RMSThresh_=Vector<Float>(std::vector<Float>({7.0,5.0,4.0,3.5,3.0,2.8,2.6,2.4,2.2}));
-    nRMSThresh_=RMSThresh_.nelements();
+    doRMSThresh_=false;
+    //RMSThresh_=Vector<Float>(std::vector<Float>({7.0,5.0,4.0,3.5,3.0,2.8,2.6,2.4,2.2}));
+    //nRMSThresh_=RMSThresh_.nelements();
   }
 
 }
@@ -637,6 +638,7 @@ void VisCalSolver2::RMSThresh(Int RejIter) {
   if (prtlev()>2) cout << "   VCS2::RMS(SDB version)" << endl;
 
   const Float threshold(RMSThresh_(RejIter));
+  Bool dolog=(RejIter==nRMSThresh_-1);
 
   // TBD: per-ant/bln chiSq?
 
@@ -695,6 +697,8 @@ void VisCalSolver2::RMSThresh(Int RejIter) {
 
   // Now Apply the threshold
 
+  LogIO logsink;
+
   // Loop over SDBs
   for (Int isdb=0;isdb<sdbs().nSDB();++isdb) {
 
@@ -721,9 +725,16 @@ void VisCalSolver2::RMSThresh(Int RejIter) {
 	      if (wt>0.0) {
 		Float Ra(abs(R(icorr,ich,irow)));
 		if (Ra>(threshold*rmsV(icorr))) {
-		  cout << "Flagging at [" << icorr << "," << ich << "," << irow << "] sig=" << Ra/rmsV(icorr) << "  (threshold=" << threshold << ")" << endl;
 		  sdb.workingFlagCube()(icorr,ich,irow)=true;
 		  //sdb.workingWtSpec()(icorr,ich,irow)=0.0;
+		  
+		  if (dolog) // only on last go-round, report what baselines have been flagged
+		    logsink << "Rejected outlier at: " << MVTime(sdb.time()(irow)/C::day).string(MVTime::YMD,7)
+			    << " spw=" << sdb.spectralWindow()(irow) 
+			    << " BL=" << sdb.antenna1()(irow) << "-" << sdb.antenna2()(irow)
+			    << " corr=" << icorr
+			    << ":  residual=" << Ra/rmsV(icorr) << "sigma" << " (threshold=" << threshold << ")" << LogIO::POST;
+
 		}
 	      }	 // wt>0     
 	    } // !flag

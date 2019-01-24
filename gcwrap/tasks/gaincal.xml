@@ -176,7 +176,7 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
 		</allowed>
 	</param>
 
-	<param type="floatArray" name="rmsthresh">
+	<param type="doubleArray" name="rmsthresh">
 		<description>RMS Threshold sequence.</description>
 		<value></value>
 	</param>
