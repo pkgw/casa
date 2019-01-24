@@ -883,10 +883,221 @@ private:
 
 };
 
-//+
-// Editting local MS for detail Test
-// (Tables) ANTENNA and POINTING . 
-//-
+//************************************************
+// [NEW C++]
+// Access Service class 
+//   for  POINTING table 
+//************************************************
+
+class PointingTableAccess
+{
+public:
+      // Constructor //
+      PointingTableAccess(String const &MsName, bool WriteAccess =false ) 
+      {
+          printf("MS File [%s] \n", MsName.c_str());
+ 
+          auto option = casacore::Table::TableOption::Old;
+          if(WriteAccess) option = casacore::Table::TableOption::Update;
+ 
+          MeasurementSet ms_t(MsName, option );
+
+           ms = std::move(ms_t);
+ 
+           init();           
+           prepareColumns();
+
+      }
+      void close() 
+      {
+          ms.flush();
+          ms.resync();
+      }
+      // Row //
+      void appendRow(uInt AddCnt)  { hPointing.addRow(AddCnt);}
+      void removeRow(uInt row)     { hPointing.removeRow(row);}
+
+      // Column check //
+      bool checkColumn(String const &columnName ) 
+      {
+          String columnNameUpcase = columnName;
+          columnNameUpcase.upcase();
+          if (true == (ms.pointing().tableDesc().isColumn(columnNameUpcase))) return true;
+          else return false;
+      } 
+      /// Read (get) /// 
+      /* Vector */ 
+        Array<Double> getDirection     (uInt row) { return pointingDirection      .get(row); }
+        Array<Double> getTarget        (uInt row) { return pointingTarget         .get(row); }
+        Array<Double> getPointingOffset(uInt row) { return pointingPointingOffset .get(row); }
+        Array<Double> getSourceOffset  (uInt row) { return pointingSourceOffset   .get(row); }
+        Array<Double> getEncoder       (uInt row) { return pointingEncoder        .get(row); }
+ 
+      /* Scalor */
+        Double getTime     (uInt row)       { return pointingTime.      get(row); }
+        Double getInterval (uInt row)       { return pointingInterval.  get(row); }
+
+      /// Write(put) ///
+        /* Vector type */
+          void putDirection      (uInt row, Array<Double> dir ) { pointingDirection.      put(row, dir ); }
+          void putTarget         (uInt row, Array<Double> dir ) { pointingTarget.         put(row, dir ); }
+          void putPointingOffset (uInt row, Array<Double> dir ) { pointingPointingOffset. put(row, dir ); }
+          void putSourceOffset   (uInt row, Array<Double> dir ) { pointingSourceOffset.   put(row, dir ); }
+          void putEncoder        (uInt row, Array<Double> dir ) { pointingEncoder.        put(row, dir ); }
+
+        /* Scolar type */
+          void putTime(uInt row, Double dd)      {  pointingTime.      put(row, dd ); }
+          void putInterval(uInt row, Double dd)  {  pointingInterval.  put(row, dd ); }
+
+private:
+
+      // MS assign /
+      void init()
+      {      
+           hPointing = ms.pointing();
+           nrow   = hPointing.nrow();
+
+           columnPointing = new casacore::ROMSPointingColumns( hPointing );
+      }
+
+      // Column Handle 
+      void prepareColumns() 
+      {
+          pointingAntennaId      = columnPointing ->antennaId();
+          pointingTime           = columnPointing ->time();
+          pointingInterval       = columnPointing ->interval();
+          pointingName           = columnPointing ->name();
+          pointingNumPoly        = columnPointing ->numPoly();
+          pointingTimeOrigin     = columnPointing ->timeOrigin();
+   
+          pointingDirection      = columnPointing ->direction();
+          pointingTarget         = columnPointing ->target();
+   
+          pointingPointingOffset = columnPointing ->pointingOffset();
+          pointingSourceOffset   = columnPointing ->sourceOffset();
+          pointingEncoder        = columnPointing ->encoder();
+      }
+
+   // local var. //
+    casacore::MeasurementSet     ms;
+    casacore::MSPointing         hPointing;
+    casacore::uInt               nrow;
+
+    casacore::ROMSPointingColumns  *columnPointing;
+
+    ROScalarColumn<Int>    pointingAntennaId      ;
+    ROScalarColumn<Double> pointingTime           ;
+    ROScalarColumn<Double> pointingInterval       ;
+    ROScalarColumn<String> pointingName           ;
+    ROScalarColumn<Int>    pointingNumPoly        ;
+    ROScalarColumn<Double> pointingTimeOrigin     ;
+
+    ROArrayColumn<Double>  pointingDirection      ;
+    ROArrayColumn<Double>  pointingTarget         ;
+
+    ROArrayColumn<Double>  pointingPointingOffset ;
+    ROArrayColumn<Double>  pointingSourceOffset   ;
+    ROArrayColumn<Double>  pointingEncoder        ;
+
+};
+
+
+//************************************************
+// [NEW C++]
+// Access Service class 
+//   for ANTENNA table 
+//************************************************
+
+class AntennaTableAccess {
+
+public:
+      // Constructor //
+      AntennaTableAccess(String MsName )
+      {
+           ms( MsName.c_str(),casacore::Table::TableOption:: Update );
+
+           init();
+           prepareColumns();
+      }
+      void close() 
+      {
+          ms.flush();
+          ms.resync();
+      }
+      // Row //
+      void appendRow(uInt AddCnt)  { hAntenna.addRow(AddCnt); }
+      void removeRow(uInt row)      { hAntenna.removeRow(row); }
+
+      // block Read  //
+      ANTENNADataBuff  getRowData(uInt row)
+      {
+        ANTENNADataBuff out;     
+   
+        out.name     = antennaName.    get(row);
+        out.station  = antennaStation. get(row);
+        out.type     = antennaType.    get(row);
+        out.mount    = antennaMount.   get(row);
+
+        out.position = antennaPosition.get(row);
+        out.offset   = antennaOffset.   get(row);
+
+        out.dish_diameter = antennaDishDiameter. get(row);
+
+        return out;
+      }
+
+      // block Write //
+      void putRowData(uInt row, ANTENNADataBuff &data)
+      {
+        antennaName.         put(row, data.name);
+        antennaStation.      put(row, data.station);
+        antennaType.         put(row, data.type);
+        antennaMount.        put(row, data.mount);
+
+        antennaPosition.     put(row, data.position);
+        antennaOffset.       put(row, data.offset);
+
+        antennaDishDiameter. put(row, data.dish_diameter);
+      }
+
+private:
+
+     void init()
+     {
+         hAntenna = ms.antenna();
+         nrow     = hAntenna.nrow();
+ 
+         columnAntenna = new casacore::MSAntennaColumns( hAntenna );
+     }
+ 
+     void prepareColumns()
+     {
+         antennaName      = columnAntenna->name();
+         antennaStation   = columnAntenna->station();
+         antennaType      = columnAntenna->type();
+         antennaMount     = columnAntenna->mount();
+         antennaPosition  = columnAntenna->position();
+         antennaOffset    = columnAntenna->offset();   
+         antennaDishDiameter    = columnAntenna->dishDiameter();
+ 
+     }
+
+     casacore::MeasurementSet     ms;
+     casacore::MSAntenna          hAntenna;
+     casacore::uInt               nrow;
+
+     casacore::MSAntennaColumns   *columnAntenna;
+
+     ROScalarColumn<String>  antennaName          ;
+     ROScalarColumn<String>  antennaStation       ;
+     ROScalarColumn<String>  antennaType          ;
+     ROScalarColumn<String>  antennaMount         ;
+     ROArrayColumn<Double>   antennaPosition      ;
+     ROArrayColumn<Double>   antennaOffset        ;
+     ROScalarColumn<Double>  antennaDishDiameter  ;
+
+
+};
 
 
 //*******************************************************
@@ -1327,6 +1538,7 @@ void MsEdit::duplicateNewColumnsFromDirection()
 //  - SetUp() in class TestDirection calls this.
 //  - see also TEST Fixture  
 //****************************************************************
+
 
 void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName)
 {
@@ -3880,6 +4092,85 @@ TEST_F(TestSetFrame, setFrame )
         
             check_direction_info( calc, k ) ;
         }
+}
+
+class MyDebug : public BaseClass
+{
+
+public:
+
+protected:
+
+        MyDebug () { }
+
+        ~MyDebug () { }
+
+        virtual void SetUp()
+        {
+            BaseClass::SetUp();
+            CopyDefaultMStoWork();
+        }
+
+        virtual void TearDown()
+       {
+            BaseClass::TearDown();
+            DeleteWorkingMS();
+       }
+      
+        // Test Fixture Sub //
+
+};
+
+//+
+// DEBUG THIS UNIT TEST 
+//-
+
+// Construcor and Column check//
+TEST_F(MyDebug, Debug1 )
+{
+
+      const String MsName1 = "listobs/uid___X02_X3d737_X1_01_small.ms";
+      const String MsName2 = "sdimaging/sdimaging.ms";
+
+    String name = env.getCasaMasterPath() + MsName1;
+
+    PointingTableAccess   pta1(name);
+
+    printf("check Column[Direction]      =%d \n", pta1.checkColumn("Direction"));
+    printf("check Column[Target]         =%d \n", pta1.checkColumn("TarGet"));
+    printf("check Column[PointingOffset] =%d \n", pta1.checkColumn("Pointing_Offset"));
+    printf("check Column[SourceOffset]   =%d \n", pta1.checkColumn("Source_Offset"));
+    printf("check Column[Encoder]        =%d \n", pta1.checkColumn("ENcoder"));
+
+    name = env.getCasaMasterPath() + MsName2;
+    
+    PointingTableAccess   pta2(name);
+    
+    printf("check Column[Direction]      =%d \n", pta2.checkColumn("Direction"));
+    printf("check Column[Target]         =%d \n", pta2.checkColumn("TarGet"));
+    printf("check Column[PointingOffset] =%d \n", pta2.checkColumn("Pointing_Offset"));
+    printf("check Column[SourceOffset]   =%d \n", pta2.checkColumn("Source_Offset"));
+    printf("check Column[Encoder]        =%d \n", pta2.checkColumn("ENcoder"));
+
+}
+
+// Copied MS for modify access //
+TEST_F(MyDebug, Debug2 )
+{
+    const String MsName = "./sdimaging-t.ms";
+    String name =  MsName;
+
+    PointingTableAccess   pta2(name,true);
+
+    printf("check Column[Direction]      =%d \n", pta2.checkColumn("Direction"));
+    printf("check Column[Target]         =%d \n", pta2.checkColumn("TarGet"));
+    printf("check Column[PointingOffset] =%d \n", pta2.checkColumn("Pointing_Offset"));
+    printf("check Column[SourceOffset]   =%d \n", pta2.checkColumn("Source_Offset"));
+    printf("check Column[Encoder]        =%d \n", pta2.checkColumn("ENcoder"));
+    printf("check Column[HOGEHOGE]       =%d \n", pta2.checkColumn("HogeHOGE"));
+
+//
+//
 }
 
 }  // END namespace

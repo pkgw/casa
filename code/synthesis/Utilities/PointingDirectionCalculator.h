@@ -262,7 +262,7 @@ public:
 
     void setSplineInterpolation(bool mode) {fgSplineInterpolation = mode;};
 
-    SplineInterpolation    *getSplineObj() { return spline; }
+    std::unique_ptr<casa::SplineInterpolation>    &getSplineObj() { return spline; }
 
 private:
 
@@ -328,7 +328,7 @@ private:
      // Spline object and flag
       
         bool fgSplineInterpolation = true;       // Use Spline if TRUE
-        SplineInterpolation     *spline;
+        std::unique_ptr<casa::SplineInterpolation>     spline;  // empty pointer: need to initialize
 
 };
 

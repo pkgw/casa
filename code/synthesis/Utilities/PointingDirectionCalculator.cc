@@ -169,10 +169,13 @@ PointingDirectionCalculator::PointingDirectionCalculator(
 //   Create Spline Object in current class.
 //   if coeff table is inactive, disable spline mode.
 //-
-printf( "XXXXXXXXX CONSTRUCTOR  call XXXXXXXXXXXXXXX \n");
-    spline = new SplineInterpolation(ms,accessor_); 
+
+    // Create Spline Object and Inspect //    
+    unique_ptr<SplineInterpolation>  spTemp( new SplineInterpolation(ms,accessor_));
+    spline = std::move(spTemp);
     if( spline->isCalculateAvailable() == false) fgSplineInterpolation = false;
 
+//--------from here , original code -----
     init();
 
     // set default output direction reference frame
@@ -181,10 +184,12 @@ printf( "XXXXXXXXX CONSTRUCTOR  call XXXXXXXXXXXXXXX \n");
     // set default direction column name
     setDirectionColumn("DIRECTION");
 }
+
 PointingDirectionCalculator::~PointingDirectionCalculator()
 {
-    delete spline;
+  // Nothing at the moment. //
 }
+
 void PointingDirectionCalculator::init() {
     // attach column
     timeColumn_.attach(*selectedMS_, "TIME");
@@ -546,7 +551,7 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
         uInt s1 =tmp_dir [ant].size();
         if ((st < 4)||(s1 < 4))
         {
-           printf( "XXXXXXXXX INSUFFICIENT NUMBER OF POINTING DATA (%u,%u)XXXXXXXXXXXXXXX \n",st, s1);
+           printf( "XXXXX INSUFFICIENT NUMBER OF POINTING DATA (%u,%u) XXXXX\n",st, s1);
      
            coeffActive = false;
            return;
@@ -665,7 +670,6 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
 
 Matrix<Double> PointingDirectionCalculator::getDirection() {
     assert(!selectedMS_.null());
-printf( "XXXXXXXXX getDirection() call flag = %d XXXXXXXXXXXXXX \n",fgSplineInterpolation);
     uInt const nrow = selectedMS_->nrow();
     debuglog << "selectedMS_->nrow() = " << nrow << debugpost;
     Vector<Double> outDirectionFlattened(2 * nrow);
@@ -853,9 +857,8 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionOrg(uInt irow) {
 
 //+
 // (2) Revised (spline/linear) 
+//     * No more exist *
 //-
-
-   /* removed */
 
 //-------------------------------
 // (3) New Edition (Spline ONLY)
@@ -892,8 +895,6 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
     } else {
         debuglog << "linear interpolation " << debugpost;
 
-         Vector<Double> interpolated(2);
-
         //+
         // Already existing part (dead copied)
         // - checcking Reference type.
@@ -902,6 +903,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
 
         Double t0 = pointingTimeUTC_[index - 1];
         Double t1 = pointingTimeUTC_[index];
+        Double dt = t1 - t0;
 
         debuglog << "Interpolate between " << setprecision(16) << index - 1
                 << " (" << t0 << ") and " << index << " (" << t1 << ")"
@@ -931,21 +933,34 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
         //   using original var. see above for t0,t1,dt and nrowPointing.
         //-
 
-        uInt antID = 0; // TENTATIVE //
+        uInt antID = lastAntennaIndex_;   // WARNING: depends on resetAntennaPosition() // 
         Double dtime =  (currentTime - t0) ;
 
-        // determin section 
-        //  please refer  exact retuen specification of binarySearch() 
+        // determin section on 'uIndex'
+        //  please refer exact return code of binarySearch() 
             
         uInt uIndex;
         if( index >=1 )  uIndex = index-1;
         else if (index > (Int)(nrowPointing-1) )   uIndex = nrowPointing-1;
         else { printf( "BUGCHECK\n");  throw; } 
 
-        Vector<Double> ttDir = getSplineObj()-> calculate(uIndex, dtime, antID );
+        //+
+        // Re-route if needed.
+        //  In any case when Spline is incapable of.
+        //-
+        Vector<Double> interpolated(2);
+        if(true)
+        {
+            interpolated = getSplineObj()-> calculate(uIndex, dtime, antID );
+        }
+        else
+        {
+            Vector<Double> dirVal1 = dir1.getAngle("rad").getValue();
+            Vector<Double> dirVal2 = dir2.getAngle("rad").getValue();
+            Vector<Double> scanRate = dirVal2 - dirVal1;
 
-        interpolated[0] = ttDir[0]; // 3rd. order Spline
-        interpolated[1] = ttDir[1];
+            interpolated = dirVal1 + scanRate * (currentTime - t0) / dt;
+        }
 
         // Convert the interpolated diretion from MDirection to Vector //
           direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
