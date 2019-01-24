@@ -634,16 +634,11 @@ namespace asdm {
 		
 			
 		x->parallax.length(parallax.size());
-		for (unsigned int i = 0; i < parallax.size(); i++) {
-			x->parallax[i].length(parallax.at(i).size());			 		
-		}
-		
-		for (unsigned int i = 0; i < parallax.size() ; i++)
-			for (unsigned int j = 0; j < parallax.at(i).size(); j++)
-					
-				x->parallax[i][j]= parallax.at(i).at(j).toIDLAngle();
-									
-		
+		for (unsigned int i = 0; i < parallax.size(); ++i) {
+			
+			x->parallax[i] = parallax.at(i).toIDLAngle();
+			
+	 	}
 			
 		
 	
@@ -1216,16 +1211,11 @@ namespace asdm {
 		
 			
 		x.parallax.length(parallax.size());
-		for (unsigned int i = 0; i < parallax.size(); i++) {
-			x.parallax[i].length(parallax.at(i).size());			 		
-		}
-		
-		for (unsigned int i = 0; i < parallax.size() ; i++)
-			for (unsigned int j = 0; j < parallax.at(i).size(); j++)
-					
-				x.parallax[i][j]= parallax.at(i).at(j).toIDLAngle();
-									
-		
+		for (unsigned int i = 0; i < parallax.size(); ++i) {
+			
+			x.parallax[i] = parallax.at(i).toIDLAngle();
+			
+	 	}
 			
 		
 	
@@ -1864,17 +1854,10 @@ namespace asdm {
 		
 			
 		parallax .clear();
-        
-        vector<Angle> v_aux_parallax;
-        
-		for (unsigned int i = 0; i < x.parallax.length(); ++i) {
-			v_aux_parallax.clear();
-			for (unsigned int j = 0; j < x.parallax[0].length(); ++j) {
-				
-				v_aux_parallax.push_back(Angle (x.parallax[i][j]));
-				
-  			}
-  			parallax.push_back(v_aux_parallax);			
+		for (unsigned int i = 0; i <x.parallax.length(); ++i) {
+			
+			parallax.push_back(Angle (x.parallax[i]));
+			
 		}
 			
   		
@@ -2743,7 +2726,7 @@ namespace asdm {
         if (row.isStr("<parallax>")) {
 			
 								
-	  		setParallax(Parser::get2DAngle("parallax","Source",rowDoc));
+	  		setParallax(Parser::get1DAngle("parallax","Source",rowDoc));
 	  			
 	  		
 		}
@@ -3835,7 +3818,7 @@ void SourceRow::parallaxFromBin(EndianIStream& eis) {
 		
 			
 	
-	parallax = Angle::from2DBin(eis);		
+	parallax = Angle::from1DBin(eis);	
 	
 
 		
@@ -4256,7 +4239,7 @@ void SourceRow::parallaxFromBin(EndianIStream& eis) {
 		parallaxExists = true;
 		 
           
-		parallax = ASDMValuesParser::parse2D<Angle>(s);
+		parallax = ASDMValuesParser::parse1D<Angle>(s);
           
 		
 	}
@@ -5803,10 +5786,10 @@ void SourceRow::parallaxFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get parallax, which is optional.
- 	 * @return parallax as std::vector<std::vector<Angle > >
+ 	 * @return parallax as std::vector<Angle >
  	 * @throw IllegalAccessException If parallax does not exist.
  	 */
- 	std::vector<std::vector<Angle > > SourceRow::getParallax() const  {
+ 	std::vector<Angle > SourceRow::getParallax() const  {
 		if (!parallaxExists) {
 			throw IllegalAccessException("parallax", "Source");
 		}
@@ -5815,12 +5798,12 @@ void SourceRow::parallaxFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set parallax with the specified std::vector<std::vector<Angle > >.
- 	 * @param parallax The std::vector<std::vector<Angle > > value to which parallax is to be set.
+ 	 * Set parallax with the specified std::vector<Angle >.
+ 	 * @param parallax The std::vector<Angle > value to which parallax is to be set.
  	 
  	
  	 */
- 	void SourceRow::setParallax (std::vector<std::vector<Angle > > parallax) {
+ 	void SourceRow::setParallax (std::vector<Angle > parallax) {
 	
  		this->parallax = parallax;
 	

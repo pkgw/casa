@@ -56,7 +56,7 @@ class FreqAxisTVI : public TransformingVi2
 public:
 
 	// Lifecycle
-	FreqAxisTVI(ViImplementation2 * inputVii,const casacore::Record &configuration);
+	FreqAxisTVI(ViImplementation2 * inputVii);
 	~FreqAxisTVI();
 
 	// Navigation methods
@@ -177,13 +177,11 @@ protected:
 		return;
 	}
 
-	casacore::Bool parseConfiguration(const casacore::Record &configuration);
 	void initialize();
 
 	// Form spwInpChanIdxMap_p via calls to underlying Vii
-	void formSelectedChanMap();
+	void formChanMap();
 
-	casacore::String spwSelection_p;
 	mutable casacore::LogIO logger_p;
 	mutable std::map<casacore::Int,casacore::uInt > spwOutChanNumMap_p; // Must be accessed from const methods
 	mutable std::map<casacore::Int,std::vector<casacore::Int> > spwInpChanIdxMap_p; // Must be accessed from const methods
