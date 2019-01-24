@@ -192,7 +192,7 @@ void UVContSubTVI::initialize()
 	for(iter=spwInpChanIdxMap_p.begin();iter!=spwInpChanIdxMap_p.end();iter++)
 	{
 		spw = iter->first;
-		spwOutChanNumMap_p[spw] = spwInpChanIdxMap_p[spw].size();
+		spwOutChanIdxMap_p[spw] = spwInpChanIdxMap_p[spw];
 
 		spw_idx++;
 	}

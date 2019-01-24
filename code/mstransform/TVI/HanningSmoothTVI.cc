@@ -52,6 +52,8 @@ void HanningSmoothTVI::initialize()
 	convCoeff_p(1) = 0.5;
 	convCoeff_p(2) = 0.25;
 
+	// Output SPWs and channels are the same as the input ones
+	spwOutChanIdxMap_p = spwInpChanIdxMap_p;
 	return;
 }
 
