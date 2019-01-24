@@ -175,7 +175,14 @@ Bool FreqAxisTVI::existsColumn (VisBufferComponent2 id) const
 // -----------------------------------------------------------------------
 Vector<Int> FreqAxisTVI::getChannels (Double,Int,Int spectralWindowId,Int) const
 {
-	return spwOutChanIdxMap_p.at(spectralWindowId);
+	Vector<Int> ret(spwOutChanNumMap_p[spectralWindowId]);
+
+	for (uInt chanIdx = 0; chanIdx<spwOutChanNumMap_p[spectralWindowId];chanIdx++)
+	{
+		ret(chanIdx) = chanIdx;
+	}
+
+	return ret;
 }
 
 // -----------------------------------------------------------------------

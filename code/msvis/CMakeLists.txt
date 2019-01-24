@@ -242,6 +242,7 @@ casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tHanningSmooth.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tMSCalEnums.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tUVSub.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tVisIter.cc )
+casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/VisibilityIterator_Test.cc MsFactory.cc )
 
 # Following line commented out until a problem related to the older cmake used on Jenkins (dev machine using 2.8.12.2)
 # Uncomment this when that problem is resolved
@@ -258,3 +259,5 @@ casa_add_google_test (MODULES msvis SOURCES MSVis/test/tViiLayerFactory_GT.cc MS
 
 casa_add_google_test(MODULES msvis SOURCES MSVis/test/Future_Test.cc)
 casa_add_google_test(MODULES msvis SOURCES MSVis/test/Try_Test.cc)
+
+#casa_add_unit_test (msvis MSVis/test/VisibilityIterator_Test.cc MSVis/test/MsFactory.cc) 
