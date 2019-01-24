@@ -413,7 +413,7 @@ TEST_F(GJonesSolveTest, Test1) {
   //solvePar.define("rmsthresh",rmsth);
   Vector<Int> refant(1,0); solvePar.define("refant",refant);
 
-  cout << "solvePar= " << solvePar << endl;
+  //cout << "solvePar= " << solvePar << endl;
 
   Vector<String> solmodes(4,"");
   solmodes(0)="";
@@ -422,11 +422,11 @@ TEST_F(GJonesSolveTest, Test1) {
   solmodes(3)="L1R";
 
 
-  cout << "-----------" << endl;
+  cerr << "-----------" << endl;
 
   for (Int ism=0;ism<4;++ism) {
 
-  cout << "solmode=" << solmodes(ism) << endl;
+    cerr << "solmode=\"" << solmodes(ism) <<"\"" << endl;
 
   solvePar.define("solmode",solmodes(ism));
 
@@ -571,7 +571,7 @@ TEST_F(GJonesSolveTest, Test1) {
 	Vector<Float> maxAresid(partialMaxs(Gamp,IPosition(1,1)));
 
 	//cout << "Gamp_resid = " << Gamp << endl;
-	cout << "max(Gamp_resid) = " << maxAresid  << endl;
+	cerr << "max(Gamp_resid) = " << maxAresid  << " ([0.1,1e-4])" << endl;
 	EXPECT_TRUE(maxAresid(0)<0.1);
 	EXPECT_TRUE(maxAresid(1)<1e-4);
 
@@ -583,12 +583,12 @@ TEST_F(GJonesSolveTest, Test1) {
 	Vector<Float> maxPresid(partialMaxs(Gpha,IPosition(1,1)));
 
 	//cout << "Gpha_resid = " << Gpha << endl;
-	cout << "max(Gpha_resid) = " << maxPresid  << endl;
+	cerr << "max(Gpha_resid) = " << maxPresid  << " ([0.02,1e-5])"  << endl;
 	EXPECT_TRUE(maxPresid(0)<0.02);
 	EXPECT_TRUE(maxPresid(1)<1e-5);
 
 	// Test max R/L
-	cout << "maxArol = " << maxArol << endl;
+	cerr << "maxArol = " << maxArol << " (0.1)" << endl;
 	EXPECT_TRUE(maxArol<0.1f);
 
 
@@ -597,6 +597,7 @@ TEST_F(GJonesSolveTest, Test1) {
 	Matrix<Bool> wFl(sdbs(0).const_workingFlagCube().nonDegenerate());
 
 	//cout << "flags=" << boolalpha << wFl  << endl;
+	cerr << "ntrue(flags)=" << ntrue(wFl) << " (12)" << endl;
 	EXPECT_TRUE(ntrue(wFl)==12);
 
 	EXPECT_TRUE(wFl(0,6));
@@ -622,22 +623,22 @@ TEST_F(GJonesSolveTest, Test1) {
       
       // Test max R/L by mode
       if (solmodes(ism)=="L1") {
-	cout << "maxArol = " << maxArol << endl;
+	cerr << "maxArol = " << maxArol << " (3e-3)" << endl;
 	EXPECT_TRUE(maxArol<3e-3);
       }
       if (solmodes(ism)=="R") {
-	cout << "maxArol = " << maxArol << endl;
+	cerr << "maxArol = " << maxArol << " (1e-6)" << endl;
 	EXPECT_TRUE(maxArol<1e-6);
       }
       if (solmodes(ism)=="L1R") {
-	cout << "maxArol = " << maxArol << endl;
+	cerr << "maxArol = " << maxArol << " (2e-7)" << endl;
 	EXPECT_TRUE(maxArol<2e-7);
       }
 
     }
   }
 
-      cout << "-----------" << endl;
+      cerr << "-----------" << endl;
 
   } // solmodes
 
