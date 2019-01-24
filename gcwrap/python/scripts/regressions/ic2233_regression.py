@@ -48,7 +48,7 @@ def ic2233_reg():
     tclean(vis=MSFILE,selectdata=True,field=FIELD,spw=SPW,timerange=TIMERANGE,uvrange="",antenna="",scan="",observation="",
            intent="",datacolumn="corrected",imagename=MYIMAGE,imsize=IMSIZE,cell=CELLSIZE,phasecenter="",stokes=STOKES,projection="SIN",
            startmodel="",specmode="mfs",reffreq="",nchan=-1,start="",width="",outframe="LSRK",veltype="radio",restfreq=[],interpolation="linear",
-           gridder=FTMACHINE,facets=1,chanchunks=1,wprojplanes=1,vptable="",aterm=True,psterm=PSTERM,wbawp=True,conjbeams=True,
+           gridder=FTMACHINE,facets=1,chanchunks=1,wprojplanes=1,vptable="",aterm=True,psterm=PSTERM,wbawp=True,conjbeams=False,
            cfcache=MYIMAGE+".cf",computepastep=360.0,rotatepastep=5.0,pblimit=0.05,normtype="flatnoise",deconvolver=DECONVOLVER,scales=[],
            nterms=2,smallscalebias=0.6,restoration=True,restoringbeam=[],pbcor=False,outlierfile="",weighting="natural",robust=0.5,npixels=0,
            uvtaper=[],niter=NITER,gain=0.1,threshold=0.0,cycleniter=-1,cyclefactor=1.0,minpsffraction=0.05,maxpsffraction=0.8,interactive=INTERACTIVE,
@@ -102,8 +102,14 @@ def ic2233_reg():
 # Change to this from the above after the change in 3rd party pkgs
 # around Jan. 1st week, 2017.  Also using tclean now for the imaging
 # instead of the old imager (im-tool).
-StokesIPeak          =  0.85711205
-StokesIRMS           =  0.00394761
+#StokesIPeak          =  0.85711205
+#StokesIRMS           =  0.00394761
+
+# Changes to ensure merge of ARD-14 with casa-master
+
+StokesIPeak          =  0.87293589
+StokesIRMS           =  0.00401568
+
 
 StokesIPeakPosWorld = '08:20:22.869, +44.40.38.993'; #J2000
 StokesIPeakPos      = [942,1130,0,0]; #Pixels
@@ -137,8 +143,13 @@ StokesIPeakPos      = [942,1130,0,0]; #Pixels
 
 # Changes after fixing the w-term in prediction.  Stokes-V looks OK,
 # but the peak and therefore the RMS has changed.
-StokesVPeak         = 0.00145028
-StokesVRMS          =  0.0001952
+#StokesVPeak         = 0.00145028
+#StokesVRMS          =  0.0001952
+
+#Changes to ensure that ARD-14 merges with casa-master
+StokesVPeak         =  0.00217099
+StokesVRMS          =  0.00019424
+
 
 StokesVPeakPosWorld = '08:11:29.219, +45.48.26.199'; #J2000
 StokesVPeakPos      = [1184,1346,1,0]; #Pixels
