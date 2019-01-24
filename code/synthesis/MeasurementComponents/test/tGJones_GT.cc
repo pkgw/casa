@@ -631,8 +631,8 @@ TEST_F(GJonesSolveTest, Test1) {
 	EXPECT_TRUE(maxArol<1e-6);
       }
       if (solmodes(ism)=="L1R") {
-	cerr << "maxArol = " << maxArol << " (2e-7)" << endl;
-	EXPECT_TRUE(maxArol<2e-7);
+	cerr << "maxArol = " << maxArol << " (5e-7)" << endl;
+	EXPECT_TRUE(maxArol<5e-7);
       }
 
     }
