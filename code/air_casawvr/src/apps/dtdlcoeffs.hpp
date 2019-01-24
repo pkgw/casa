@@ -24,7 +24,7 @@
 namespace LibAIR2 {
 
   // Forward declarations
-  class ALMAResBase;
+  struct ALMAResBase;
 
   /** \brief Base class representing dTdL coefficients that can be
       applied to observed interferometer data to correct the phase
