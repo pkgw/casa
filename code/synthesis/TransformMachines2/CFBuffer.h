@@ -130,7 +130,7 @@ using namespace casa::vi;
     //------------------------------------------------------------------
     //
     CFBuffer(): wValues_p(), maxXSupport_p(-1), maxYSupport_p(-1), pointingOffset_p(), cfHitsStats(),
-		freqNdxMapsReady_p(false), freqNdxMap_p(), conjFreqNdxMap_p(), cfCacheDirName_p()
+		freqNdxMapsReady_p(false), freqNdxMap_p(), conjFreqNdxMap_p(), cfCacheDirName_p(), maxCFSize_p(-1)
     {};
     
     CFBuffer(casacore::Int maxXSup, casacore::Int maxYSup):
@@ -406,6 +406,8 @@ using namespace casa::vi;
 	      const PolMapType& muellerElements);
     
     casacore::IPosition getShape() {return cfCells_p.shape();}
+
+    int getMaxCFSize();
     //
     //============================= Protected Parts ============================
     //------------------------------------------------------------------
@@ -430,6 +432,8 @@ using namespace casa::vi;
     casacore::Vector<casacore::Vector<casacore::Int> > freqNdxMap_p, conjFreqNdxMap_p;
     void ASSIGNVVofI(casacore::Int** &target,casacore::Vector<casacore::Vector<casacore::Int> >& source, casacore::Bool& doAlloc);
     casacore::String cfCacheDirName_p;
+
+    int maxCFSize_p;
   };
 
   // declare a commonly used template extern

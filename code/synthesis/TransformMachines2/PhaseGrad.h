@@ -51,7 +51,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     {cached_FieldOffset_p[0] = cached_FieldOffset_p[1] = cached_AntennaOffset_p[0] = cached_AntennaOffset_p[1] = 0;}
 
     ~PhaseGrad() {};
-b
+
     PhaseGrad& operator=(const PhaseGrad& other);
     
     inline const casacore::Matrix<casacore::Complex>& getFieldPointingGrad() {return field_phaseGrad_p;}
