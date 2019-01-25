@@ -1170,7 +1170,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(image,vb));
     Float dPA = paChangeDetector.getParAngleTolerance().getValue("rad");
     Quantity dPAQuant = Quantity(paChangeDetector.getParAngleTolerance());
-    cfSource = visResampler_p->makeVBRow2CFMap(*cfs2_p,*convFuncCtor_p, vb,
+    cfSource = visResampler_p->makeVBRow2CFBMap(*cfs2_p,*convFuncCtor_p, vb,
 					       dPAQuant,
 					       chanMap,polMap,pointingOffset);
 
@@ -2449,7 +2449,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
     if (makingPSF){
       cfwts2_p->invokeGC(vbs.spwID_p);
-      visResampler_p->makeVBRow2CFMap(*cfwts2_p,*convFuncCtor_p, vb,
+      visResampler_p->makeVBRow2CFBMap(*cfwts2_p,*convFuncCtor_p, vb,
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);
     }
@@ -2472,7 +2472,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 
 	cfs2_p->invokeGC(vbs.spwID_p);
-      visResampler_p->makeVBRow2CFMap(*cfs2_p,*convFuncCtor_p, vb,
+      visResampler_p->makeVBRow2CFBMap(*cfs2_p,*convFuncCtor_p, vb,
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);
 

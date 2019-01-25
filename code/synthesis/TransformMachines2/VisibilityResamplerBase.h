@@ -136,9 +136,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     
     virtual void releaseBuffers() = 0;
-    VBRow2CFMapType& getVBRow2CFMap() {return vbRow2CFMap_p;};
+//    VBRow2CFMapType& getVBRow2CFMap() {return vbRow2CFMap_p;};
     VBRow2CFBMapType& getVBRow2CFBMap() {return vbRow2CFBMap_p;};
-    virtual casacore::Int makeVBRow2CFMap(CFStore2& cfs,
+    virtual casacore::Int makeVBRow2CFBMap(CFStore2& cfs,
 				ConvolutionFunction& cf,
 				const VisBuffer2& vb, const casacore::Quantity& dPA,
 				const casacore::Vector<casacore::Int>& dataChan2ImChanMap,
@@ -162,7 +162,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Vector<casacore::Int> inc_p;
     casacore::Int* __restrict__ incPtr_p;
     casacore::Vector<casacore::Int> cfMap_p, conjCFMap_p;
-    VBRow2CFMapType vbRow2CFMap_p;
+//    VBRow2CFMapType vbRow2CFMap_p;
     VBRow2CFBMapType vbRow2CFBMap_p;
     double paTolerance_p;
 

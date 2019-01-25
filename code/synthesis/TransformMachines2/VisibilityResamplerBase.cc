@@ -109,7 +109,7 @@ namespace casa{
   //
   //-----------------------------------------------------------------------------------
   //
-  Int VisibilityResamplerBase::makeVBRow2CFMap(CFStore2& cfs,
+  Int VisibilityResamplerBase::makeVBRow2CFBMap(CFStore2& cfs,
 					       ConvolutionFunction& cf,
 					       const VisBuffer2& vbs, 
 					       const Quantity& dPA,
