@@ -82,24 +82,26 @@ namespace casa{
   //
   casacore::Vector<casacore::Double> PointingOffsets::findAntennaPointingOffset(const vi::VisBuffer2& vb)
   {
+    casacore::Vector<casacore::Double> antOffsets;
+
     // if (epJ_p.isNull())
       {
 	cerr << "#######: Using POINTING subtable to get antenna pointing offsets" << endl;
     
 	VisBufferUtil vbUtils;
-	casacore::Vector<casacore::Double> antOffsets;
 
 	int vbrow=0;
 	int nant = vb.subtableColumns().antenna().nrow();
 	antOffsets.resize(nant);
 	for (int antid=0;antid<nant; antid++)
 	  {
-	    MDirection antdir=vbUtils.getPointingDir(vb, antid, vbrow);
-	    MDirection vbdir=vb.direction1()(0);
-	    //vbdir = vbdir - antdir;
-	    //	    antOffsets(antid)=(antdir - vbdir).getAngle().getValue()(0);
+	    MVDirection antdir=vbUtils.getPointingDir(vb, antid, vbrow).getValue();
+	    MVDirection vbdir=vb.direction1()(0).getValue();
+	    antOffsets[antid]=antdir.separation(vbdir);
 	  }
      }
+      
+      return antOffsets;
   }
   //
   //----------------------------------------------------------------------
