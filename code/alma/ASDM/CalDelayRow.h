@@ -1127,7 +1127,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalDelayRow (CalDelayTable &table, CalDelayRow &row);
+	 CalDelayRow (CalDelayTable &table, CalDelayRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

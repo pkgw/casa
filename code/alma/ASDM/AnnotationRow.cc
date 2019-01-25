@@ -3016,10 +3016,10 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 		
 	}
 	
-	AnnotationRow::AnnotationRow (AnnotationTable &t, AnnotationRow &row) : table(t) {
+	AnnotationRow::AnnotationRow (AnnotationTable &t, AnnotationRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3083,99 +3083,99 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			annotationId = row.annotationId;
+			annotationId = row->annotationId;
 		
 		
 		
 		
-			time = row.time;
+			time = row->time;
 		
-			issue = row.issue;
+			issue = row->issue;
 		
-			details = row.details;
-		
-		
+			details = row->details;
 		
 		
-		if (row.numAntennaExists) {
-			numAntenna = row.numAntenna;		
+		
+		
+		if (row->numAntennaExists) {
+			numAntenna = row->numAntenna;		
 			numAntennaExists = true;
 		}
 		else
 			numAntennaExists = false;
 		
-		if (row.basebandNameExists) {
-			basebandName = row.basebandName;		
+		if (row->basebandNameExists) {
+			basebandName = row->basebandName;		
 			basebandNameExists = true;
 		}
 		else
 			basebandNameExists = false;
 		
-		if (row.numBasebandExists) {
-			numBaseband = row.numBaseband;		
+		if (row->numBasebandExists) {
+			numBaseband = row->numBaseband;		
 			numBasebandExists = true;
 		}
 		else
 			numBasebandExists = false;
 		
-		if (row.intervalExists) {
-			interval = row.interval;		
+		if (row->intervalExists) {
+			interval = row->interval;		
 			intervalExists = true;
 		}
 		else
 			intervalExists = false;
 		
-		if (row.dValueExists) {
-			dValue = row.dValue;		
+		if (row->dValueExists) {
+			dValue = row->dValue;		
 			dValueExists = true;
 		}
 		else
 			dValueExists = false;
 		
-		if (row.vdValueExists) {
-			vdValue = row.vdValue;		
+		if (row->vdValueExists) {
+			vdValue = row->vdValue;		
 			vdValueExists = true;
 		}
 		else
 			vdValueExists = false;
 		
-		if (row.vvdValuesExists) {
-			vvdValues = row.vvdValues;		
+		if (row->vvdValuesExists) {
+			vvdValues = row->vvdValues;		
 			vvdValuesExists = true;
 		}
 		else
 			vvdValuesExists = false;
 		
-		if (row.llValueExists) {
-			llValue = row.llValue;		
+		if (row->llValueExists) {
+			llValue = row->llValue;		
 			llValueExists = true;
 		}
 		else
 			llValueExists = false;
 		
-		if (row.vllValueExists) {
-			vllValue = row.vllValue;		
+		if (row->vllValueExists) {
+			vllValue = row->vllValue;		
 			vllValueExists = true;
 		}
 		else
 			vllValueExists = false;
 		
-		if (row.vvllValueExists) {
-			vvllValue = row.vvllValue;		
+		if (row->vvllValueExists) {
+			vvllValue = row->vvllValue;		
 			vvllValueExists = true;
 		}
 		else
 			vvllValueExists = false;
 		
-		if (row.sValueExists) {
-			sValue = row.sValue;		
+		if (row->sValueExists) {
+			sValue = row->sValue;		
 			sValueExists = true;
 		}
 		else
 			sValueExists = false;
 		
-		if (row.antennaIdExists) {
-			antennaId = row.antennaId;		
+		if (row->antennaIdExists) {
+			antennaId = row->antennaId;		
 			antennaIdExists = true;
 		}
 		else

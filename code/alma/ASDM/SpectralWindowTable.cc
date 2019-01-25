@@ -327,7 +327,7 @@ namespace asdm {
 
 
 SpectralWindowRow* SpectralWindowTable::newRow(SpectralWindowRow* row) {
-	return new SpectralWindowRow(*this, *row);
+	return new SpectralWindowRow(*this, row);
 }
 
 	//

@@ -513,7 +513,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 FlagCmdRow (FlagCmdTable &table, FlagCmdRow &row);
+	 FlagCmdRow (FlagCmdTable &table, FlagCmdRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

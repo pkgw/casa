@@ -1368,7 +1368,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalBandpassRow (CalBandpassTable &table, CalBandpassRow &row);
+	 CalBandpassRow (CalBandpassTable &table, CalBandpassRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

@@ -140,13 +140,9 @@ class ASDM2MSFiller {
   double         itsCreationTime;
   const std::string   itsName;
   int            itsNumAntenna;
-  int            itsNumChan;
-  int            itsNumCorr;
   casacore::MeasurementSet *itsMS;
   casacore::MSMainColumns  *itsMSCol;
   casacore::String     itsMSPath;
-  casacore::Bool     itsWithRadioMeters;     /* Are we building an ALMA casacore::MS ?*/
-  casacore::Bool     itsFirstScan;
   casacore::uInt     itsMSMainRow;
   /*casacore::TiledDataStManAccessor itsImWgtAcc;*/
   casacore::Block<casacore::IPosition> itsDataShapes;
@@ -176,7 +172,6 @@ class ASDM2MSFiller {
  public:  
   ASDM2MSFiller (const std::string&	name_,
 		 double		creation_time_,
-		 bool		withRadioMeters,
 		 bool		complexData,
 		 bool		withCompression,
                  const std::string&  telName, 

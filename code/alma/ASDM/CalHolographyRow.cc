@@ -4054,10 +4054,10 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	}
 	
-	CalHolographyRow::CalHolographyRow (CalHolographyTable &t, CalHolographyRow &row) : table(t) {
+	CalHolographyRow::CalHolographyRow (CalHolographyTable &t, CalHolographyRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -4135,101 +4135,101 @@ receiverBand = CReceiverBand::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			antennaMake = row.antennaMake;
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			ambientTemperature = row.ambientTemperature;
-		
-			focusPosition = row.focusPosition;
-		
-			frequencyRange = row.frequencyRange;
-		
-			illuminationTaper = row.illuminationTaper;
-		
-			numReceptor = row.numReceptor;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			numPanelModes = row.numPanelModes;
-		
-			receiverBand = row.receiverBand;
-		
-			beamMapUID = row.beamMapUID;
-		
-			rawRMS = row.rawRMS;
-		
-			weightedRMS = row.weightedRMS;
-		
-			surfaceMapUID = row.surfaceMapUID;
-		
-			direction = row.direction;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.numScrewExists) {
-			numScrew = row.numScrew;		
+			antennaMake = row->antennaMake;
+		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			ambientTemperature = row->ambientTemperature;
+		
+			focusPosition = row->focusPosition;
+		
+			frequencyRange = row->frequencyRange;
+		
+			illuminationTaper = row->illuminationTaper;
+		
+			numReceptor = row->numReceptor;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			numPanelModes = row->numPanelModes;
+		
+			receiverBand = row->receiverBand;
+		
+			beamMapUID = row->beamMapUID;
+		
+			rawRMS = row->rawRMS;
+		
+			weightedRMS = row->weightedRMS;
+		
+			surfaceMapUID = row->surfaceMapUID;
+		
+			direction = row->direction;
+		
+		
+		
+		
+		if (row->numScrewExists) {
+			numScrew = row->numScrew;		
 			numScrewExists = true;
 		}
 		else
 			numScrewExists = false;
 		
-		if (row.screwNameExists) {
-			screwName = row.screwName;		
+		if (row->screwNameExists) {
+			screwName = row->screwName;		
 			screwNameExists = true;
 		}
 		else
 			screwNameExists = false;
 		
-		if (row.screwMotionExists) {
-			screwMotion = row.screwMotion;		
+		if (row->screwMotionExists) {
+			screwMotion = row->screwMotion;		
 			screwMotionExists = true;
 		}
 		else
 			screwMotionExists = false;
 		
-		if (row.screwMotionErrorExists) {
-			screwMotionError = row.screwMotionError;		
+		if (row->screwMotionErrorExists) {
+			screwMotionError = row->screwMotionError;		
 			screwMotionErrorExists = true;
 		}
 		else
 			screwMotionErrorExists = false;
 		
-		if (row.gravCorrectionExists) {
-			gravCorrection = row.gravCorrection;		
+		if (row->gravCorrectionExists) {
+			gravCorrection = row->gravCorrection;		
 			gravCorrectionExists = true;
 		}
 		else
 			gravCorrectionExists = false;
 		
-		if (row.gravOptRangeExists) {
-			gravOptRange = row.gravOptRange;		
+		if (row->gravOptRangeExists) {
+			gravOptRange = row->gravOptRange;		
 			gravOptRangeExists = true;
 		}
 		else
 			gravOptRangeExists = false;
 		
-		if (row.tempCorrectionExists) {
-			tempCorrection = row.tempCorrection;		
+		if (row->tempCorrectionExists) {
+			tempCorrection = row->tempCorrection;		
 			tempCorrectionExists = true;
 		}
 		else
 			tempCorrectionExists = false;
 		
-		if (row.tempOptRangeExists) {
-			tempOptRange = row.tempOptRange;		
+		if (row->tempOptRangeExists) {
+			tempOptRange = row->tempOptRange;		
 			tempOptRangeExists = true;
 		}
 		else

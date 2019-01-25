@@ -347,7 +347,7 @@ namespace asdm {
 
 
 CalWVRRow* CalWVRTable::newRow(CalWVRRow* row) {
-	return new CalWVRRow(*this, *row);
+	return new CalWVRRow(*this, row);
 }
 
 	//

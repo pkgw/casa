@@ -243,9 +243,8 @@ namespace asdmbinaries {
 
   private:
     std::string name_;
-    int endianity_;
 
-    ByteOrder(const std::string & name, int endianity);
+    ByteOrder(const std::string & name);
     virtual ~ByteOrder();
     static const ByteOrder* machineEndianity(); 
   };

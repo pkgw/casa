@@ -375,7 +375,7 @@ namespace asdm {
 
 
 CalPhaseRow* CalPhaseTable::newRow(CalPhaseRow* row) {
-	return new CalPhaseRow(*this, *row);
+	return new CalPhaseRow(*this, row);
 }
 
 	//

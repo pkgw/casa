@@ -4104,10 +4104,10 @@ basebandName = CBasebandName::from_int(0);
 		
 	}
 	
-	CalAppPhaseRow::CalAppPhaseRow (CalAppPhaseTable &t, CalAppPhaseRow &row) : table(t) {
+	CalAppPhaseRow::CalAppPhaseRow (CalAppPhaseTable &t, CalAppPhaseRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -4177,78 +4177,78 @@ basebandName = CBasebandName::from_int(0);
 		else {
 	
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			scanNumber = row.scanNumber;
+			scanNumber = row->scanNumber;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			adjustTime = row.adjustTime;
-		
-			adjustToken = row.adjustToken;
-		
-			phasingMode = row.phasingMode;
-		
-			numPhasedAntennas = row.numPhasedAntennas;
-		
-			phasedAntennas = row.phasedAntennas;
-		
-			refAntennaIndex = row.refAntennaIndex;
-		
-			candRefAntennaIndex = row.candRefAntennaIndex;
-		
-			phasePacking = row.phasePacking;
-		
-			numReceptors = row.numReceptors;
-		
-			numChannels = row.numChannels;
-		
-			numPhaseValues = row.numPhaseValues;
-		
-			phaseValues = row.phaseValues;
-		
-			numCompare = row.numCompare;
-		
-			numEfficiencies = row.numEfficiencies;
-		
-			compareArray = row.compareArray;
-		
-			efficiencyIndices = row.efficiencyIndices;
-		
-			efficiencies = row.efficiencies;
-		
-			quality = row.quality;
-		
-			phasedSumAntenna = row.phasedSumAntenna;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.typeSupportsExists) {
-			typeSupports = row.typeSupports;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			adjustTime = row->adjustTime;
+		
+			adjustToken = row->adjustToken;
+		
+			phasingMode = row->phasingMode;
+		
+			numPhasedAntennas = row->numPhasedAntennas;
+		
+			phasedAntennas = row->phasedAntennas;
+		
+			refAntennaIndex = row->refAntennaIndex;
+		
+			candRefAntennaIndex = row->candRefAntennaIndex;
+		
+			phasePacking = row->phasePacking;
+		
+			numReceptors = row->numReceptors;
+		
+			numChannels = row->numChannels;
+		
+			numPhaseValues = row->numPhaseValues;
+		
+			phaseValues = row->phaseValues;
+		
+			numCompare = row->numCompare;
+		
+			numEfficiencies = row->numEfficiencies;
+		
+			compareArray = row->compareArray;
+		
+			efficiencyIndices = row->efficiencyIndices;
+		
+			efficiencies = row->efficiencies;
+		
+			quality = row->quality;
+		
+			phasedSumAntenna = row->phasedSumAntenna;
+		
+		
+		
+		
+		if (row->typeSupportsExists) {
+			typeSupports = row->typeSupports;		
 			typeSupportsExists = true;
 		}
 		else
 			typeSupportsExists = false;
 		
-		if (row.numSupportsExists) {
-			numSupports = row.numSupports;		
+		if (row->numSupportsExists) {
+			numSupports = row->numSupports;		
 			numSupportsExists = true;
 		}
 		else
 			numSupportsExists = false;
 		
-		if (row.phaseSupportsExists) {
-			phaseSupports = row.phaseSupports;		
+		if (row->phaseSupportsExists) {
+			phaseSupports = row->phaseSupports;		
 			phaseSupportsExists = true;
 		}
 		else

@@ -277,7 +277,7 @@ namespace asdm {
 
 
 SysPowerRow* SysPowerTable::newRow(SysPowerRow* row) {
-	return new SysPowerRow(*this, *row);
+	return new SysPowerRow(*this, row);
 }
 
 	//

@@ -353,7 +353,7 @@ namespace asdm {
 
 
 CalPointingModelRow* CalPointingModelTable::newRow(CalPointingModelRow* row) {
-	return new CalPointingModelRow(*this, *row);
+	return new CalPointingModelRow(*this, row);
 }
 
 	//

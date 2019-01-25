@@ -317,7 +317,7 @@ namespace asdm {
 
 
 CalSeeingRow* CalSeeingTable::newRow(CalSeeingRow* row) {
-	return new CalSeeingRow(*this, *row);
+	return new CalSeeingRow(*this, row);
 }
 
 	//

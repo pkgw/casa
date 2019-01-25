@@ -1700,10 +1700,10 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	}
 	
-	PointingModelRow::PointingModelRow (PointingModelTable &t, PointingModelRow &row) : table(t) {
+	PointingModelRow::PointingModelRow (PointingModelTable &t, PointingModelRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1733,32 +1733,32 @@ receiverBand = CReceiverBand::from_int(0);
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			pointingModelId = row.pointingModelId;
-		
-		
-		
-		
-			numCoeff = row.numCoeff;
-		
-			coeffName = row.coeffName;
-		
-			coeffVal = row.coeffVal;
-		
-			polarizationType = row.polarizationType;
-		
-			receiverBand = row.receiverBand;
-		
-			assocNature = row.assocNature;
-		
-			assocPointingModelId = row.assocPointingModelId;
+			pointingModelId = row->pointingModelId;
 		
 		
 		
 		
-		if (row.coeffFormulaExists) {
-			coeffFormula = row.coeffFormula;		
+			numCoeff = row->numCoeff;
+		
+			coeffName = row->coeffName;
+		
+			coeffVal = row->coeffVal;
+		
+			polarizationType = row->polarizationType;
+		
+			receiverBand = row->receiverBand;
+		
+			assocNature = row->assocNature;
+		
+			assocPointingModelId = row->assocPointingModelId;
+		
+		
+		
+		
+		if (row->coeffFormulaExists) {
+			coeffFormula = row->coeffFormula;		
 			coeffFormulaExists = true;
 		}
 		else

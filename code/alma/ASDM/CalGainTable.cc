@@ -303,7 +303,7 @@ namespace asdm {
 
 
 CalGainRow* CalGainTable::newRow(CalGainRow* row) {
-	return new CalGainRow(*this, *row);
+	return new CalGainRow(*this, row);
 }
 
 	//
