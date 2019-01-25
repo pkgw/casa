@@ -97,6 +97,7 @@ typedef struct _MSDef
     String name;     // MS name, with relative path from CASAPATH
 } MSDef;
 
+#if 0
 // Antenna Data (for Wtiting individual record) 
 
 typedef  struct AntTblBuf_ {
@@ -114,7 +115,7 @@ typedef  struct AntTblBuf_ {
     Double  mean_orbit[6];
 
 } ANTENNADataBuff ;
-
+#endif 
 //+
 //  Frame definitioan for  setFrame()
 //   - Strings and a bool var. wheather it is available in casacore.
@@ -901,11 +902,10 @@ public:
           if(WriteAccess) option = casacore::Table::TableOption::Update;
  
           MeasurementSet ms_t(MsName, option );
-
-           ms = std::move(ms_t);
+          ms = std::move(ms_t);
  
-           init();           
-           prepareColumns();
+          init();           
+          prepareColumns();
 
       }
       void close() 
@@ -914,8 +914,43 @@ public:
           ms.resync();
       }
       // Row //
+      uInt getNrow()   { return (nrow = hPointing.nrow()) ;  };
       void appendRow(uInt AddCnt)  { hPointing.addRow(AddCnt);}
       void removeRow(uInt row)     { hPointing.removeRow(row);}
+
+      // Duplicate Column //
+      void duplicateColumns()
+      {
+          TableDesc  tblDsc = hPointing.tableDesc();
+
+          ColumnDesc  OrgColumnDesc = tblDsc.columnDesc ( "DIRECTION" ) ;    
+          ColumnDesc  RevColumnDesc1 = ColumnDesc(OrgColumnDesc);
+          ColumnDesc  RevColumnDesc2 = ColumnDesc(OrgColumnDesc);
+          ColumnDesc  RevColumnDesc3 = ColumnDesc(OrgColumnDesc);
+
+          String colname1 = "POINTING_OFFSET";
+          String colname2 = "SOURCE_OFFSET";
+          String colname3 = "ENCODER";
+
+          RevColumnDesc1.setName( colname1 );
+          RevColumnDesc2.setName( colname2 );
+          RevColumnDesc3.setName( colname3 );
+
+          printf( "Adding 3 Columns(if not exist)  on Pointing Table \n" );
+
+          if( ! tblDsc.isColumn( colname1 ) ){
+              hPointing.addColumn(RevColumnDesc1);
+              printf("Column[%s]was created.\n",colname1.c_str());
+          }
+          if( ! tblDsc.isColumn( colname2 ) ){
+              hPointing.addColumn(RevColumnDesc2);
+              printf("Column[%s]was created.\n",colname2.c_str());
+          }
+          if( ! tblDsc.isColumn( colname3 ) ){
+              hPointing.addColumn(RevColumnDesc3); 
+              printf("Column[%s]was created.\n",colname3.c_str());
+          }
+      }
 
       // Column check //
       bool checkColumn(String const &columnName ) 
@@ -1007,17 +1042,41 @@ private:
 // Access Service class 
 //   for ANTENNA table 
 //************************************************
+// Antenna Data (for Wtiting individual record) 
+
+typedef  struct AntTblBuf_ {
+    
+    String name;
+    String station;
+    String type;
+    String mount;
+    
+    Vector<Double> position;
+    Vector<Double> offset;
+    
+    Double  dish_diameter;
+    Int     orbit_id;
+    Double  mean_orbit[6];
+
+} ANTENNADataBuff ;
 
 class AntennaTableAccess {
 
 public:
       // Constructor //
-      AntennaTableAccess(String MsName )
+      AntennaTableAccess(String const &MsName, bool WriteAccess =false )
       {
-           ms( MsName.c_str(),casacore::Table::TableOption:: Update );
+          printf("MS File [%s] \n", MsName.c_str());
 
-           init();
-           prepareColumns();
+          auto option = casacore::Table::TableOption::Old;
+          if(WriteAccess) option = casacore::Table::TableOption::Update;
+
+          MeasurementSet ms_t(MsName, option );
+
+          ms = std::move(ms_t);
+
+          init();
+          prepareColumns();
       }
       void close() 
       {
@@ -1025,6 +1084,7 @@ public:
           ms.resync();
       }
       // Row //
+      uInt getNrow()               { return (nrow = hAntenna.nrow()) ;  };
       void appendRow(uInt AddCnt)  { hAntenna.addRow(AddCnt); }
       void removeRow(uInt row)      { hAntenna.removeRow(row); }
 
@@ -1049,15 +1109,22 @@ public:
       // block Write //
       void putRowData(uInt row, ANTENNADataBuff &data)
       {
+
         antennaName.         put(row, data.name);
+
         antennaStation.      put(row, data.station);
         antennaType.         put(row, data.type);
         antennaMount.        put(row, data.mount);
 
-        antennaPosition.     put(row, data.position);
-        antennaOffset.       put(row, data.offset);
+        // Vector data 
+        Array<Double>        data_1(ipoPosition, 0.0 ); data_1 = data.position;
+        antennaPosition.     put(row, data_1);
+
+        Array<Double>        data_2(ipoOffset, 0.0 );data_2 = data.offset;
+        antennaOffset.       put(row, data_2);
 
         antennaDishDiameter. put(row, data.dish_diameter);
+
       }
 
 private:
@@ -1080,6 +1147,11 @@ private:
          antennaOffset    = columnAntenna->offset();   
          antennaDishDiameter    = columnAntenna->dishDiameter();
  
+         ipoPosition = antennaPosition.shape(0);
+         ipoOffset   = antennaOffset.shape(0);
+
+         printf( "shape of Position [%zu] \n",ipoPosition[0]);
+         printf( "shape of Offset   [%zu] \n",ipoOffset[0]);
      }
 
      casacore::MeasurementSet     ms;
@@ -1096,7 +1168,8 @@ private:
      ROArrayColumn<Double>   antennaOffset        ;
      ROScalarColumn<Double>  antennaDishDiameter  ;
 
-
+     IPosition ipoPosition;
+     IPosition ipoOffset;
 };
 
 
@@ -4155,7 +4228,7 @@ TEST_F(MyDebug, Debug1 )
 }
 
 // Copied MS for modify access //
-TEST_F(MyDebug, Debug2 )
+TEST_F(MyDebug, Debug2_checkColumn )
 {
     const String MsName = "./sdimaging-t.ms";
     String name =  MsName;
@@ -4169,9 +4242,150 @@ TEST_F(MyDebug, Debug2 )
     printf("check Column[Encoder]        =%d \n", pta2.checkColumn("ENcoder"));
     printf("check Column[HOGEHOGE]       =%d \n", pta2.checkColumn("HogeHOGE"));
 
-//
-//
+
+// Row operation //
 }
+
+// Pointing Row
+TEST_F(MyDebug, Debug3_Row )
+{
+    const String MsName = "./sdimaging-t.ms";
+    PointingTableAccess   pta(MsName,true);
+
+    printf( "nrow = %u\n", pta.getNrow() );
+    printf( "Adding 3 row \n" );
+
+    pta.appendRow(3);
+
+    printf( "nrow = %u\n", pta.getNrow() );
+
+    printf( "Removing 3 rows \n" );
+    
+    pta.removeRow(3843);
+    pta.removeRow(3843);
+    pta.removeRow(3843);
+   
+    printf( "nrow = %u\n", pta.getNrow() );
+
+}
+
+TEST_F(MyDebug, Debug4_AddColumn)
+{
+    const String MsName = "./sdimaging-t.ms";
+    PointingTableAccess   pta(MsName,true);
+
+    pta.duplicateColumns();
+
+}
+
+// Pointing Dump //
+TEST_F(MyDebug, Debug5_Dump )
+{
+    const String MsName = "./sdimaging-t.ms";
+    PointingTableAccess   pta(MsName,false);
+
+    uint nrow = pta.getNrow();
+    for (uInt row=0; row<nrow; row++)
+    {
+        Double time              = pta.getTime(row);
+        Double interval          = pta.getInterval(row);
+        Vector<Double> direction = pta.getDirection(row);
+        Vector<Double> target    = pta.getTarget(row);
+
+        printf( "%u, Time=,%f,Interval=,%f, Dir=,%f,%f, Target=,%f,%f     \n",
+                 row, time, interval,direction[0], direction[1], target[0], target[1] );
+
+    }
+}
+
+// Antenna: Row //
+TEST_F(MyDebug, Debug10_Row )
+{
+    const String MsName = "./sdimaging-t.ms";
+    AntennaTableAccess   ata(MsName,true);
+
+    printf( "nrow = %u\n", ata.getNrow() );
+
+    printf( "Adding 3 row \n" );
+
+    ata.appendRow(3);
+
+    printf( "nrow = %u\n", ata.getNrow() );
+
+    printf( "Removing 3 rows \n" );
+    
+    ata.removeRow(3);
+    ata.removeRow(2);
+    ata.removeRow(1);
+   
+    printf( "nrow = %u\n", ata.getNrow() );
+}
+
+// Antenna WRite and Dump //
+TEST_F(MyDebug, Debug11_Dump )
+{
+    const String MsName = "./sdimaging-t.ms";
+    AntennaTableAccess   ata(MsName,true);
+
+    uint nrow = ata.getNrow();
+    for (uInt row=0; row<nrow; row++)
+    {
+        ANTENNADataBuff data = ata.getRowData(row);
+        String  name             = data.name;
+        String station           = data.station;
+        Vector<Double>  position = data.position;
+        Vector<Double>  offset   = data.offset;
+
+        printf( "AntID=%u, Name=[%s], Pos=(%f,%f,%f)  \n",
+                 row, name.c_str(), position[0],position[1],position[2]  );
+
+    }
+
+    printf( " Writing 2 rows \n" );
+
+    ANTENNADataBuff write_data;
+      write_data.name            =  "...";
+      write_data.station         =  "MyStation";
+      write_data.type            =  "KUMIKO-based";
+      write_data.mount           =  "MyMount";
+
+    ata.appendRow(2);
+
+    write_data.name = "DA01";
+    write_data.position.resize(3);
+    write_data.offset.resize(3);
+    write_data.position[0] = 1.0;
+    write_data.position[1] = 1.1;
+    write_data.position[2] = 1.2;
+
+      ata.putRowData(1, write_data);
+
+    write_data.name = "DA02";
+
+    write_data.position[0] = 2.0;
+    write_data.position[1] = 2.1;
+    write_data.position[2] = 2.2;
+
+      ata.putRowData(2, write_data);
+
+
+     nrow = ata.getNrow();
+     for (uInt row=0; row<nrow; row++)
+     {
+     
+         ANTENNADataBuff data = ata.getRowData(row);
+         String  name             = data.name;
+         String station           = data.station;
+         Vector<Double>  position = data.position;
+         Vector<Double>  offset   = data.offset;
+
+         printf( "AntID=%u, Name=[%s], Pos=(%f,%f,%f)  \n",
+                  row, name.c_str(), position[0],position[1],position[2]  );
+  
+     } 
+
+}
+
 
 }  // END namespace
 
