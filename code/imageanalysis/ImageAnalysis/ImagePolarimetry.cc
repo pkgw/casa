@@ -72,22 +72,16 @@
 #include <casa/sstream.h>
 
 using namespace casacore;
-namespace casa { //# NAMESPACE CASA - BEGIN
-
-// Public functions
+namespace casa {
 
 ImagePolarimetry::ImagePolarimetry (const ImageInterface<Float>& image)
-: itsFitterPtr(0),
-  itsOldClip(0.0),
-  _beamsEqMat()
+: _image(image.cloneII())
 {
-   itsInImagePtr.reset(image.cloneII());
-//
-   itsStokesPtr.resize(4);
-   itsStokesStatsPtr.resize(4);
-   itsStokesPtr.set(0);
-   itsStokesStatsPtr.set(0);
-   findStokes();
+   _stokes.resize(4);
+   _stokesStats.resize(4);
+   _stokes.set(0);
+   _stokesStats.set(0);
+   _findStokes();
    _createBeamsEqMat();
 }
 
@@ -101,33 +95,33 @@ ImagePolarimetry::ImagePolarimetry(const ImagePolarimetry &other)
 ImagePolarimetry &ImagePolarimetry::operator=(const ImagePolarimetry &other)
 {
    if (this != &other) {
-      itsInImagePtr.reset(other.itsInImagePtr->cloneII());
+      _image.reset(other._image->cloneII());
 //
-      const uInt n = itsStokesPtr.nelements();
+      const uInt n = _stokes.nelements();
       for (uInt i=0; i<n; i++) {
-         if (itsStokesPtr[i]!=0) {
-            delete itsStokesPtr[i];
-            itsStokesPtr[i] = 0;
+         if (_stokes[i]!=0) {
+            delete _stokes[i];
+            _stokes[i] = 0;
          }
-         if (other.itsStokesPtr[i]!=0) {
-            itsStokesPtr[i] = other.itsStokesPtr[i]->cloneII();
+         if (other._stokes[i]!=0) {
+            _stokes[i] = other._stokes[i]->cloneII();
          }
       }
 
 // Just delete fitter. It will make a new one when needed.
 
-      if (itsFitterPtr!= 0) {
-         delete itsFitterPtr;
-         itsFitterPtr = 0;
+      if (_fitter!= 0) {
+         delete _fitter;
+         _fitter = 0;
       }
 
 // Remake Statistics objects as needed
 
-      itsOldClip = 0.0;
+      _oldClip = 0.0;
       for (uInt i=0; i<n; i++) {
-         if (itsStokesStatsPtr[i]!=0) {
-            delete itsStokesStatsPtr[i];
-            itsStokesStatsPtr[i] = 0;
+         if (_stokesStats[i]!=0) {
+            delete _stokesStats[i];
+            _stokesStats[i] = 0;
          }
       }
       _beamsEqMat.assign(other._beamsEqMat);
@@ -138,7 +132,7 @@ ImagePolarimetry &ImagePolarimetry::operator=(const ImagePolarimetry &other)
 
 ImagePolarimetry::~ImagePolarimetry()
 {
-   cleanup();
+   _cleanup();
 }
 
 
@@ -146,31 +140,31 @@ ImagePolarimetry::~ImagePolarimetry()
 
 ImageExpr<Complex> ImagePolarimetry::complexLinearPolarization()
 {
-   hasQU();
+   _hasQU();
    _checkQUBeams(false);
-   LatticeExprNode node(formComplex(*itsStokesPtr[ImagePolarimetry::Q], 
-                        *itsStokesPtr[ImagePolarimetry::U]));
+   LatticeExprNode node(formComplex(*_stokes[ImagePolarimetry::Q],
+                        *_stokes[ImagePolarimetry::U]));
    LatticeExpr<Complex> le(node);
    ImageExpr<Complex> ie(le, String("ComplexLinearPolarization"));
-   fiddleStokesCoordinate(ie, Stokes::Plinear);    // Need a Complex Linear Polarization type
+   _fiddleStokesCoordinate(ie, Stokes::Plinear);    // Need a Complex Linear Polarization type
 //
-   ie.setUnits(itsInImagePtr->units());
+   ie.setUnits(_image->units());
    _setInfo(ie, Q);
    return ie;
 }
 
 void ImagePolarimetry::_setInfo(ImageInterface<Complex>& im, const StokesTypes stokes) const {
-	ImageInfo info = itsInImagePtr->imageInfo();
+	ImageInfo info = _image->imageInfo();
 	if (info.hasMultipleBeams()) {
-		info.setBeams(itsStokesPtr[stokes]->imageInfo().getBeamSet());
+		info.setBeams(_stokes[stokes]->imageInfo().getBeamSet());
 	}
 	im.setImageInfo(info);
 }
 
 void ImagePolarimetry::_setInfo(ImageInterface<Float>& im, const StokesTypes stokes) const {
-	ImageInfo info = itsInImagePtr->imageInfo();
+	ImageInfo info = _image->imageInfo();
 	if (info.hasMultipleBeams()) {
-		info.setBeams(itsStokesPtr[stokes]->imageInfo().getBeamSet());
+		info.setBeams(_stokes[stokes]->imageInfo().getBeamSet());
 	}
 	im.setImageInfo(info);
 }
@@ -179,18 +173,18 @@ void ImagePolarimetry::_setInfo(ImageInterface<Float>& im, const StokesTypes sto
 ImageExpr<Complex> ImagePolarimetry::complexFractionalLinearPolarization()
 {
    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   hasQU();
-   if (itsStokesPtr[ImagePolarimetry::I]==0) {
+   _hasQU();
+   if (_stokes[ImagePolarimetry::I]==0) {
       os << "This image does not have Stokes I so cannot provide fractional linear polarization" << LogIO::EXCEPTION;
    }
 
    _checkIQUBeams(false);
-   LatticeExprNode nodeQU(formComplex(*itsStokesPtr[ImagePolarimetry::Q], 
-                          *itsStokesPtr[ImagePolarimetry::U]));
-   LatticeExprNode nodeI(*itsStokesPtr[ImagePolarimetry::I]);
+   LatticeExprNode nodeQU(formComplex(*_stokes[ImagePolarimetry::Q],
+                          *_stokes[ImagePolarimetry::U]));
+   LatticeExprNode nodeI(*_stokes[ImagePolarimetry::I]);
    LatticeExpr<Complex> le(nodeQU/nodeI);
    ImageExpr<Complex> ie(le, String("ComplexFractionalLinearPolarization"));
-   fiddleStokesCoordinate(ie, Stokes::PFlinear);    // Need a Complex Linear Polarization type
+   _fiddleStokesCoordinate(ie, Stokes::PFlinear);    // Need a Complex Linear Polarization type
    ie.setUnits(Unit(""));
    _setInfo(ie, I);
    return ie;
@@ -199,9 +193,9 @@ ImageExpr<Complex> ImagePolarimetry::complexFractionalLinearPolarization()
 ImageExpr<Float> ImagePolarimetry::fracLinPol(Bool debias, Float clip, Float sigma) 
 {
    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   hasQU();
+   _hasQU();
 
-   if (itsStokesPtr[ImagePolarimetry::I]==0) {
+   if (_stokes[ImagePolarimetry::I]==0) {
       os << "This image does not have Stokes I so cannot provide fractional linear polarization" << LogIO::EXCEPTION;
    }
    Vector<StokesTypes> types(3);
@@ -209,8 +203,8 @@ ImageExpr<Float> ImagePolarimetry::fracLinPol(Bool debias, Float clip, Float sig
    _checkIQUBeams(false);
 // Make nodes
 
-   LatticeExprNode nodePol = makePolIntNode(os, debias, clip, sigma, true, false);
-   LatticeExprNode nodeI(*itsStokesPtr[ImagePolarimetry::I]);
+   LatticeExprNode nodePol = _makePolIntNode(os, debias, clip, sigma, true, false);
+   LatticeExprNode nodeI(*_stokes[ImagePolarimetry::I]);
 
 // Make expression
 
@@ -218,13 +212,10 @@ ImageExpr<Float> ImagePolarimetry::fracLinPol(Bool debias, Float clip, Float sig
    ImageExpr<Float> ie(le, String("FractionalLinearPolarization"));
 //
    ie.setUnits(Unit(""));
-   ImageInfo ii = itsInImagePtr->imageInfo();
+   ImageInfo ii = _image->imageInfo();
    ii.removeRestoringBeam();
    ie.setImageInfo(ii);
-
-// Fiddle Stokes coordinate in ImageExpr
-
-   fiddleStokesCoordinate(ie, Stokes::PFlinear);
+   _fiddleStokesCoordinate(ie, Stokes::PFlinear);
 //
    return ie;
 }
@@ -238,16 +229,16 @@ ImageExpr<Float> ImagePolarimetry::sigmaFracLinPol(Float clip, Float sigma)
 //
 {
    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   hasQU();
-   if (itsStokesPtr[ImagePolarimetry::I]==0) {
+   _hasQU();
+   if (_stokes[ImagePolarimetry::I]==0) {
       os << "This image does not have Stokes I so cannot provide fractional linear polarization" << LogIO::EXCEPTION;
    }
    _checkIQUBeams(false);
 // Make nodes.  Don't bother debiasing.
 
    Bool debias = false;
-   LatticeExprNode nodePol = makePolIntNode(os, debias, clip, sigma, true, false);
-   LatticeExprNode nodeI(*itsStokesPtr[ImagePolarimetry::I]);
+   LatticeExprNode nodePol = _makePolIntNode(os, debias, clip, sigma, true, false);
+   LatticeExprNode nodeI(*_stokes[ImagePolarimetry::I]);
 
 // Make expression.  We assume sigmaI = sigmaQU which is true with
 // no dynamic range limititation.  Perhaps we should work out
@@ -261,14 +252,10 @@ ImageExpr<Float> ImagePolarimetry::sigmaFracLinPol(Float clip, Float sigma)
    ImageExpr<Float> ie(le, String("FractionalLinearPolarizationError"));
 //
    ie.setUnits(Unit(""));
-   ImageInfo ii = itsInImagePtr->imageInfo();
+   ImageInfo ii = _image->imageInfo();
    ii.removeRestoringBeam();
    ie.setImageInfo(ii);
-
-// Fiddle Stokes coordinate in ImageExpr
-
-   fiddleStokesCoordinate(ie, Stokes::PFlinear);
-//
+   _fiddleStokesCoordinate(ie, Stokes::PFlinear);
    return ie;
 }
 
@@ -281,8 +268,8 @@ ImageExpr<Float> ImagePolarimetry::fracTotPol(Bool debias, Float clip, Float sig
 
 // Make nodes
 
-   LatticeExprNode nodePol = makePolIntNode(os, debias, clip, sigma, doLin, doCirc);
-   LatticeExprNode nodeI(*itsStokesPtr[ImagePolarimetry::I]);
+   LatticeExprNode nodePol = _makePolIntNode(os, debias, clip, sigma, doLin, doCirc);
+   LatticeExprNode nodeI(*_stokes[ImagePolarimetry::I]);
 
 // Make expression
 
@@ -290,26 +277,22 @@ ImageExpr<Float> ImagePolarimetry::fracTotPol(Bool debias, Float clip, Float sig
    ImageExpr<Float> ie(le, String("FractionalTotalPolarization"));
 //
    ie.setUnits(Unit(""));
-   ImageInfo ii = itsInImagePtr->imageInfo();
+   ImageInfo ii = _image->imageInfo();
    ii.removeRestoringBeam();
    ie.setImageInfo(ii);
-
-// Fiddle Stokes coordinate in ImageExpr
-
-   fiddleStokesCoordinate(ie, Stokes::PFtotal);
-//
+   _fiddleStokesCoordinate(ie, Stokes::PFtotal);
    return ie;
 }
 
 void ImagePolarimetry::_setDoLinDoCirc(Bool& doLin, Bool& doCirc) const {
 	LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
 	doLin = (
-		itsStokesPtr[ImagePolarimetry::Q]!=0
-		&& itsStokesPtr[ImagePolarimetry::U]!=0
+		_stokes[ImagePolarimetry::Q]!=0
+		&& _stokes[ImagePolarimetry::U]!=0
 	);
-	doCirc = (itsStokesPtr[ImagePolarimetry::V]!=0);
+	doCirc = (_stokes[ImagePolarimetry::V]!=0);
 	AlwaysAssert((doLin||doCirc), AipsError);    // Should never happen
-	if (itsStokesPtr[ImagePolarimetry::I]==0) {
+	if (_stokes[ImagePolarimetry::I]==0) {
 		os << "This image does not have Stokes I so this calculation cannot be carried out"
 			<< LogIO::EXCEPTION;
 	}
@@ -349,8 +332,8 @@ ImageExpr<Float> ImagePolarimetry::sigmaFracTotPol(Float clip, Float sigma)
 // Make nodes.  Don't bother debiasing.
 
    Bool debias = false;
-   LatticeExprNode nodePol = makePolIntNode(os, debias, clip, sigma, doLin, doCirc);
-   LatticeExprNode nodeI(*itsStokesPtr[ImagePolarimetry::I]);
+   LatticeExprNode nodePol = _makePolIntNode(os, debias, clip, sigma, doLin, doCirc);
+   LatticeExprNode nodeI(*_stokes[ImagePolarimetry::I]);
 
 // Make expression.  We assume sigmaI = sigmaQU which is true with
 // no dynamic range limitation.  Perhaps we should work out
@@ -364,14 +347,10 @@ ImageExpr<Float> ImagePolarimetry::sigmaFracTotPol(Float clip, Float sigma)
    ImageExpr<Float> ie(le, String("FractionalLinearPolarizationError"));
 //
    ie.setUnits(Unit(""));
-   ImageInfo ii = itsInImagePtr->imageInfo();
+   ImageInfo ii = _image->imageInfo();
    ii.removeRestoringBeam();
    ie.setImageInfo(ii);
-
-// Fiddle Stokes coordinate in ImageExpr
-
-   fiddleStokesCoordinate(ie, Stokes::PFlinear);
-//
+   _fiddleStokesCoordinate(ie, Stokes::PFlinear);
    return ie;
 }
 
@@ -381,7 +360,7 @@ void ImagePolarimetry::fourierRotationMeasure(ImageInterface<Complex>& cpol,
                                               Bool zeroZeroLag)
 {
    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   hasQU();
+   _hasQU();
    _checkQUBeams(true, false);
 // Check image shape
    CoordinateSystem dCS;
@@ -393,36 +372,36 @@ void ImagePolarimetry::fourierRotationMeasure(ImageInterface<Complex>& cpol,
    }
 // Find spectral coordinate.  
 
-   const CoordinateSystem& cSys = itsInImagePtr->coordinates();
+   const CoordinateSystem& cSys = _image->coordinates();
    Int spectralCoord, fAxis;
-   findFrequencyAxis (spectralCoord, fAxis, cSys, -1);
+   _findFrequencyAxis (spectralCoord, fAxis, cSys, -1);
 
 // Make Complex (Q,U) image
    LatticeExprNode node;
    if (zeroZeroLag) {
-      TempImage<Float> tQ(itsStokesPtr[ImagePolarimetry::Q]->shape(), 
-                          itsStokesPtr[ImagePolarimetry::Q]->coordinates());
-      if (itsStokesPtr[ImagePolarimetry::Q]->isMasked()) {
+      TempImage<Float> tQ(_stokes[ImagePolarimetry::Q]->shape(),
+                          _stokes[ImagePolarimetry::Q]->coordinates());
+      if (_stokes[ImagePolarimetry::Q]->isMasked()) {
         tQ.makeMask(String("mask0"), true, true, false, false);
       }
-      copyDataAndMask (tQ, *itsStokesPtr[ImagePolarimetry::Q]);
-      subtractProfileMean (tQ, fAxis);
+      _copyDataAndMask (tQ, *_stokes[ImagePolarimetry::Q]);
+      _subtractProfileMean (tQ, fAxis);
 //
-      TempImage<Float> tU(itsStokesPtr[ImagePolarimetry::U]->shape(), 
-                          itsStokesPtr[ImagePolarimetry::U]->coordinates());
-      if (itsStokesPtr[ImagePolarimetry::U]->isMasked()) {
+      TempImage<Float> tU(_stokes[ImagePolarimetry::U]->shape(),
+                          _stokes[ImagePolarimetry::U]->coordinates());
+      if (_stokes[ImagePolarimetry::U]->isMasked()) {
         tU.makeMask(String("mask0"), true, true, false, false);
       }
-      copyDataAndMask (tU, *itsStokesPtr[ImagePolarimetry::U]);
-      subtractProfileMean (tU, fAxis);
+      _copyDataAndMask (tU, *_stokes[ImagePolarimetry::U]);
+      _subtractProfileMean (tU, fAxis);
 
 // The TempImages will be cloned be LatticeExprNode so it's ok
 // that they go out of scope
 
       node = LatticeExprNode(formComplex(tQ, tU));
    } else {
-      node = LatticeExprNode(formComplex(*itsStokesPtr[ImagePolarimetry::Q], 
-					 *itsStokesPtr[ImagePolarimetry::U]));
+      node = LatticeExprNode(formComplex(*_stokes[ImagePolarimetry::Q],
+					 *_stokes[ImagePolarimetry::U]));
    }
    LatticeExpr<Complex> le(node);
    ImageExpr<Complex> ie(le, String("ComplexLinearPolarization"));
@@ -440,15 +419,14 @@ void ImagePolarimetry::fourierRotationMeasure(ImageInterface<Complex>& cpol,
    fftserver.getComplex(cpol);
 // Fiddle time coordinate to be a RotationMeasure coordinate
 
-   Quantum<Double> f = findCentralFrequency(cSys.coordinate(spectralCoord), ie.shape()(fAxis));
-   fiddleTimeCoordinate(cpol, f, spectralCoord);
-
-// Set Stokes coordinate to be correct type
-   fiddleStokesCoordinate(cpol, Stokes::Plinear);
+   Quantum<Double> f = _findCentralFrequency(cSys.coordinate(spectralCoord), ie.shape()(fAxis));
+   _fiddleTimeCoordinate(cpol, f, spectralCoord);
+   // Set Stokes coordinate to be correct type
+   _fiddleStokesCoordinate(cpol, Stokes::Plinear);
 
 // Set units and ImageInfo
 
-   cpol.setUnits(itsInImagePtr->units());
+   cpol.setUnits(_image->units());
    _setInfo(cpol, Q);
 }
 
@@ -458,7 +436,7 @@ Float ImagePolarimetry::sigmaLinPolInt(Float clip, Float sigma)
 //
 {
    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   if (itsStokesPtr[ImagePolarimetry::Q]==0 && itsStokesPtr[ImagePolarimetry::U]==0) {
+   if (_stokes[ImagePolarimetry::Q]==0 && _stokes[ImagePolarimetry::U]==0) {
       os << "This image does not have Stokes Q and U so cannot provide linear polarization" << LogIO::EXCEPTION;
    }
    _checkQUBeams(false);
@@ -469,8 +447,8 @@ Float ImagePolarimetry::sigmaLinPolInt(Float clip, Float sigma)
       sigma2 = sigma;
    } else {
 	   os << LogIO::NORMAL << "Determined noise from Q&U images to be ";
-	   Float sq = ImagePolarimetry::sigma(ImagePolarimetry::Q, clip);
-	   Float su = ImagePolarimetry::sigma(ImagePolarimetry::U, clip);
+	   Float sq = _sigma(ImagePolarimetry::Q, clip);
+	   Float su = _sigma(ImagePolarimetry::U, clip);
 	   sigma2 = (sq+su)/2.0;
    }
    return sigma2;
@@ -479,7 +457,7 @@ Float ImagePolarimetry::sigmaLinPolInt(Float clip, Float sigma)
 ImageExpr<Float> ImagePolarimetry::linPolPosAng(Bool radians) const
 {
    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   if (itsStokesPtr[ImagePolarimetry::Q]==0 && itsStokesPtr[ImagePolarimetry::U]==0) {
+   if (_stokes[ImagePolarimetry::Q]==0 && _stokes[ImagePolarimetry::U]==0) {
       os << "This image does not have Stokes Q and U so cannot provide linear polarization" << LogIO::EXCEPTION;
    }
    _checkQUBeams(false);
@@ -488,8 +466,8 @@ ImageExpr<Float> ImagePolarimetry::linPolPosAng(Bool radians) const
 
    Float fac = 1.0;
    if (radians) fac = C::pi / 180.0;
-   LatticeExprNode node(fac*pa(*itsStokesPtr[ImagePolarimetry::U], 
-                               *itsStokesPtr[ImagePolarimetry::Q])); 
+   LatticeExprNode node(fac*pa(*_stokes[ImagePolarimetry::U],
+                               *_stokes[ImagePolarimetry::Q]));
    LatticeExpr<Float> le(node);
    ImageExpr<Float> ie(le, String("LinearlyPolarizedPositionAngle"));
 //
@@ -498,14 +476,10 @@ ImageExpr<Float> ImagePolarimetry::linPolPosAng(Bool radians) const
    } else {
       ie.setUnits(Unit("deg"));
    }
-   ImageInfo ii = itsInImagePtr->imageInfo();
+   ImageInfo ii = _image->imageInfo();
    ii.removeRestoringBeam();
    ie.setImageInfo(ii);
-
-// Fiddle Stokes coordinate
-
-   fiddleStokesCoordinate(ie, Stokes::Pangle);
-
+   _fiddleStokesCoordinate(ie, Stokes::Pangle);
    return ie;
 }
 
@@ -515,7 +489,7 @@ ImageExpr<Float> ImagePolarimetry::sigmaLinPolPosAng(Bool radians, Float clip, F
 //
 {
    LogIO os(LogOrigin("ImagePolarimetry", "sigmaLinPolPosAng(...)", WHERE));
-   if (itsStokesPtr[ImagePolarimetry::Q]==0 && itsStokesPtr[ImagePolarimetry::U]==0) {
+   if (_stokes[ImagePolarimetry::Q]==0 && _stokes[ImagePolarimetry::U]==0) {
       os << "This image does not have Stokes Q and U so cannot provide linear polarization" << LogIO::EXCEPTION;
    }
    _checkQUBeams(false);
@@ -530,7 +504,7 @@ ImageExpr<Float> ImagePolarimetry::sigmaLinPolPosAng(Bool radians, Float clip, F
    Float fac = 0.5 * sigma2;
    if (!radians) fac *= 180 / C::pi;
    LatticeExprNode node(fac / 
-      amp(*itsStokesPtr[ImagePolarimetry::U], *itsStokesPtr[ImagePolarimetry::Q])); 
+      amp(*_stokes[ImagePolarimetry::U], *_stokes[ImagePolarimetry::Q]));
    LatticeExpr<Float> le(node);
    ImageExpr<Float> ie(le, String("LinearlyPolarizedPositionAngleError"));
 //
@@ -539,14 +513,10 @@ ImageExpr<Float> ImagePolarimetry::sigmaLinPolPosAng(Bool radians, Float clip, F
    } else {
       ie.setUnits(Unit("deg"));
    }
-   ImageInfo ii = itsInImagePtr->imageInfo();
+   ImageInfo ii = _image->imageInfo();
    ii.removeRestoringBeam();
    ie.setImageInfo(ii);
-
-// Fiddle Stokes coordinate
-
-   fiddleStokesCoordinate(ie, Stokes::Pangle);
-//
+   _fiddleStokesCoordinate(ie, Stokes::Pangle);
    return ie;
 }
 
@@ -555,26 +525,26 @@ Float ImagePolarimetry::sigma(Float clip)
    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    Float sigma2 = 0.0;
 
-   if (itsStokesPtr[ImagePolarimetry::V]!=0) {
+   if (_stokes[ImagePolarimetry::V]!=0) {
       os << LogIO::NORMAL << "Determined noise from V image to be ";
-      sigma2 = ImagePolarimetry::sigma(ImagePolarimetry::V, clip);
+      sigma2 = _sigma(ImagePolarimetry::V, clip);
    }
    else if (
-		   itsStokesPtr[ImagePolarimetry::Q]!=0
-		   && itsStokesPtr[ImagePolarimetry::U]!=0
+		   _stokes[ImagePolarimetry::Q]!=0
+		   && _stokes[ImagePolarimetry::U]!=0
 		   && _checkQUBeams(false, false)
    ) {
 	   sigma2 = sigmaLinPolInt(clip);
    }
-   else if (itsStokesPtr[ImagePolarimetry::Q]!=0) {
+   else if (_stokes[ImagePolarimetry::Q]!=0) {
       os << LogIO::NORMAL << "Determined noise from Q image to be " << LogIO::POST;
-      sigma2 = ImagePolarimetry::sigma(ImagePolarimetry::Q, clip);
-   } else if (itsStokesPtr[ImagePolarimetry::U]!=0) {
+      sigma2 = _sigma(ImagePolarimetry::Q, clip);
+   } else if (_stokes[ImagePolarimetry::U]!=0) {
       os << LogIO::NORMAL << "Determined noise from U image to be " << LogIO::POST;
-      sigma2 = ImagePolarimetry::sigma(ImagePolarimetry::U, clip);
-   } else if (itsStokesPtr[ImagePolarimetry::I]!=0) {
+      sigma2 = _sigma(ImagePolarimetry::U, clip);
+   } else if (_stokes[ImagePolarimetry::I]!=0) {
       os << LogIO::NORMAL << "Determined noise from I image to be " << LogIO::POST;
-      sigma2 = ImagePolarimetry::sigma(ImagePolarimetry::I, clip);
+      sigma2 = _sigma(ImagePolarimetry::I, clip);
    }
    os << sigma2 << LogIO::POST;
    return sigma2;
@@ -588,7 +558,7 @@ void ImagePolarimetry::rotationMeasure(
     Bool showProgress
 ) {
     LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-    hasQU();
+    _hasQU();
     _checkQUBeams(false);
     // Do we have anything to do ?
     if (!rmOutPtr && !rmOutErrorPtr && !pa0OutPtr && !pa0OutErrorPtr) {
@@ -656,7 +626,7 @@ void ImagePolarimetry::rotationMeasure(
     // Copy units only over.  The output images don't have a beam
     // so unset beam.   MiscInfo and history require writable II.
     // We leave this to the caller  who knows what sort of II these are.
-    ImageInfo ii = itsInImagePtr->imageInfo();
+    ImageInfo ii = _image->imageInfo();
     ii.removeRestoringBeam();
     if (rmOutPtr) {
         rmOutPtr->setImageInfo(ii);
@@ -706,14 +676,14 @@ void ImagePolarimetry::rotationMeasure(
     Vector<Float> wsqsort(sortidx.nelements());
     for (uInt i=0; i<wsqsort.nelements(); i++) wsqsort(i) = wsq(sortidx(i));
     // Make fitter
-    if (itsFitterPtr==0) {
-        itsFitterPtr = new LinearFitSVD<Float>;
+    if (_fitter==0) {
+        _fitter = new LinearFitSVD<Float>;
         // Create and set the polynomial functional
         // p = c(0) + c(1)*x where x = lambda**2
         // PA = PA0 + RM*Lambda**2
         Polynomial<AutoDiff<Float> > poly1(1);
         // Makes a copy of poly1
-        itsFitterPtr->setFunction(poly1);
+        _fitter->setFunction(poly1);
     }
     // Deal with masks.  The outputs are all given a mask if possible as we
     // don't know at this point whether output points will be masked or not
@@ -721,14 +691,14 @@ void ImagePolarimetry::rotationMeasure(
     Bool isMaskedRM = false;
     Lattice<Bool>* outRMMaskPtr = 0;
     if (rmOutPtr) {
-        isMaskedRM = dealWithMask (outRMMaskPtr, rmOutPtr, os, String("RM"));
+        isMaskedRM = _dealWithMask (outRMMaskPtr, rmOutPtr, os, String("RM"));
         whereRM.resize(rmOutPtr->ndim());
         whereRM = 0;
     }
     Bool isMaskedRMErr = false;
     Lattice<Bool>* outRMErrMaskPtr = 0;
     if (rmOutErrorPtr) {
-        isMaskedRMErr = dealWithMask(
+        isMaskedRMErr = _dealWithMask(
             outRMErrMaskPtr, rmOutErrorPtr, os, String("RM error")
         );
         whereRM.resize(rmOutErrorPtr->ndim());
@@ -738,7 +708,7 @@ void ImagePolarimetry::rotationMeasure(
     Bool isMaskedPa0 = false;
     Lattice<Bool>* outPa0MaskPtr = 0;
     if (pa0OutPtr) {
-        isMaskedPa0 = dealWithMask(
+        isMaskedPa0 = _dealWithMask(
             outPa0MaskPtr, pa0OutPtr, os, String("Position Angle")
         );
         wherePA.resize(pa0OutPtr->ndim());
@@ -747,7 +717,7 @@ void ImagePolarimetry::rotationMeasure(
     Bool isMaskedPa0Err = false;
     Lattice<Bool>* outPa0ErrMaskPtr = 0;
     if (pa0OutErrorPtr) {
-        isMaskedPa0Err = dealWithMask(
+        isMaskedPa0Err = _dealWithMask(
             outPa0ErrMaskPtr, pa0OutErrorPtr, os, "Position Angle error"
         );
         wherePA.resize(pa0OutErrorPtr->ndim());
@@ -757,7 +727,7 @@ void ImagePolarimetry::rotationMeasure(
     Bool isMaskedNTurns = false;
     Lattice<Bool>* outNTurnsMaskPtr = 0;
     if (nTurnsOutPtr) {
-        isMaskedNTurns = dealWithMask(
+        isMaskedNTurns = _dealWithMask(
             outNTurnsMaskPtr, nTurnsOutPtr, os, "nTurns"
         );
         whereNTurns.resize(nTurnsOutPtr->ndim());
@@ -767,7 +737,7 @@ void ImagePolarimetry::rotationMeasure(
     Bool isMaskedChiSq = false;
     Lattice<Bool>* outChiSqMaskPtr = 0;
     if (chiSqOutPtr) {
-        isMaskedChiSq = dealWithMask(
+        isMaskedChiSq = _dealWithMask(
             outChiSqMaskPtr, chiSqOutPtr, os, String("chi sqared")
         );
         whereChiSq.resize(chiSqOutPtr->ndim());
@@ -814,19 +784,19 @@ void ImagePolarimetry::rotationMeasure(
     // The stokes axis is important, otherwise the cache is set up
     // (by the TiledStMan) such that it can hold only 1 stokes
     // with the result that iterating is tremendously slow.
-    // We also need to cast the const away from itsInImagePtr.
-    const IPosition mainShape = itsInImagePtr->shape();
+    // We also need to cast the const away from _image.
+    const IPosition mainShape = _image->shape();
     uInt nrtiles = (1 + (mainShape(fAxis)-1) / tileShape(fAxis)) *
             (1 + (mainShape(sAxis)-1) / tileShape(sAxis));
     ImageInterface<Float>* mainImagePtr =
-            const_cast<ImageInterface<Float>*>(itsInImagePtr.get());
+            const_cast<ImageInterface<Float>*>(_image.get());
     mainImagePtr->setCacheSizeInTiles (nrtiles);
     String posString;
     Bool ok = false;
     IPosition shp;
     for (it.reset(); !it.atEnd(); it++) {
         // Find rotation measure for this line
-        ok = findRotationMeasure (rm, rmErr, pa0, pa0Err, rChiSq, nTurns,
+        ok = _findRotationMeasure (rm, rmErr, pa0, pa0Err, rChiSq, nTurns,
                 sortidx, wsqsort, it.vectorCursor(),
                 it.getMask(false),
                 paerr.getSlice(it.position(),it.cursorShape()),
@@ -926,7 +896,7 @@ IPosition ImagePolarimetry::rotationMeasureShape(CoordinateSystem& cSys, Int& fA
 // Find frequency axis
 
    Int spectralCoord;
-   findFrequencyAxis (spectralCoord, fAxis, cSys0, spectralAxis);
+   _findFrequencyAxis(spectralCoord, fAxis, cSys0, spectralAxis);
 
 // Find Stokes axis (we know it has one)
 
@@ -973,7 +943,7 @@ IPosition ImagePolarimetry::positionAngleShape(CoordinateSystem& cSys,
 // Find frequency axis
 
    Int spectralCoord = -1;
-   findFrequencyAxis (spectralCoord, fAxis, cSys0, spectralAxis);
+   _findFrequencyAxis (spectralCoord, fAxis, cSys0, spectralAxis);
 
 // Find Stokes axis (we know it has one)
 
@@ -981,11 +951,7 @@ IPosition ImagePolarimetry::positionAngleShape(CoordinateSystem& cSys,
    Int stokesCoord = cSys0.findCoordinate(Coordinate::STOKES, afterCoord);
    Vector<Int> pixelAxes = cSys0.pixelAxes(stokesCoord);
    sAxis = pixelAxes(0);
-
-// Fiddle StokesCoordinate
-
-   fiddleStokesCoordinate(cSys0, Stokes::Pangle);
-
+   _fiddleStokesCoordinate(cSys0, Stokes::Pangle);
 // Create output coordinate system
 
    CoordinateSystem tmp;
@@ -1021,58 +987,58 @@ IPosition ImagePolarimetry::positionAngleShape(CoordinateSystem& cSys,
 
 ImageExpr<Float> ImagePolarimetry::stokesI() const
 {
-   return makeStokesExpr(itsStokesPtr[ImagePolarimetry::I], Stokes::I, String("StokesI"));
+   return _makeStokesExpr(_stokes[ImagePolarimetry::I], Stokes::I, String("StokesI"));
 }
 
 Float ImagePolarimetry::sigmaStokesI(Float clip) 
 {
-   return ImagePolarimetry::sigma(ImagePolarimetry::I, clip);
+   return _sigma(ImagePolarimetry::I, clip);
 }
 
 ImageExpr<Float> ImagePolarimetry::stokesQ() const
 {
-   return makeStokesExpr(itsStokesPtr[ImagePolarimetry::Q], Stokes::Q, String("StokesQ"));
+   return _makeStokesExpr(_stokes[ImagePolarimetry::Q], Stokes::Q, String("StokesQ"));
 }
 
 Float ImagePolarimetry::sigmaStokesQ(Float clip) 
 {
-   return ImagePolarimetry::sigma(ImagePolarimetry::Q, clip);
+   return _sigma(ImagePolarimetry::Q, clip);
 }
 
 ImageExpr<Float> ImagePolarimetry::stokesU() const
 {
-   return makeStokesExpr(itsStokesPtr[ImagePolarimetry::U], Stokes::U, String("StokesU"));
+   return _makeStokesExpr(_stokes[ImagePolarimetry::U], Stokes::U, String("StokesU"));
 }
 
 Float ImagePolarimetry::sigmaStokesU(Float clip) 
 {
-   return ImagePolarimetry::sigma(ImagePolarimetry::U, clip);
+   return _sigma(ImagePolarimetry::U, clip);
 }
 
 ImageExpr<Float> ImagePolarimetry::stokesV() const
 {
-   return makeStokesExpr(itsStokesPtr[ImagePolarimetry::V], Stokes::V, String("StokesV"));
+   return _makeStokesExpr(_stokes[ImagePolarimetry::V], Stokes::V, String("StokesV"));
 }
 
 Float ImagePolarimetry::sigmaStokesV(Float clip) 
 {
-   return ImagePolarimetry::sigma(ImagePolarimetry::V, clip);
+   return _sigma(ImagePolarimetry::V, clip);
 }
 
 ImageExpr<Float> ImagePolarimetry::stokes(ImagePolarimetry::StokesTypes stokes) const
 {
-   Stokes::StokesTypes type = stokesType(stokes);
-   return makeStokesExpr(itsStokesPtr[stokes], type, stokesName(stokes));
+   Stokes::StokesTypes type = _stokesType(stokes);
+   return _makeStokesExpr(_stokes[stokes], type, _stokesName(stokes));
 }
 
 Float ImagePolarimetry::sigmaStokes(ImagePolarimetry::StokesTypes stokes, Float clip)
 {
-   return ImagePolarimetry::sigma(stokes, clip);
+   return _sigma(stokes, clip);
 }
 
 void ImagePolarimetry::summary(LogIO& os) const
 {
-   ImageSummary<Float> s(*itsInImagePtr);
+   ImageSummary<Float> s(*_image);
    s.list(os);
 }
 
@@ -1083,24 +1049,20 @@ ImageExpr<Float> ImagePolarimetry::totPolInt(Bool debias, Float clip, Float sigm
    _setDoLinDoCirc(doLin, doCirc);
 // Make node.  
 
-   LatticeExprNode node = makePolIntNode(os, debias, clip, sigma, doLin, doCirc);
+   LatticeExprNode node = _makePolIntNode(os, debias, clip, sigma, doLin, doCirc);
 
 // Make expression
 
    LatticeExpr<Float> le(node);
    ImageExpr<Float> ie(le, String("totalPolarizedIntensity"));
-   ie.setUnits(itsInImagePtr->units());     // Dodgy. The beam is now rectified
-   StokesTypes stokes = itsStokesPtr[Q] != 0
+   ie.setUnits(_image->units());     // Dodgy. The beam is now rectified
+   StokesTypes stokes = _stokes[Q] != 0
 		   ? Q
-		   : itsStokesPtr[U] != 0
+		   : _stokes[U] != 0
 		     ? U
 		     : V;
    _setInfo(ie, stokes);
-
-// Fiddle Stokes coordinate in ImageExpr
-
-   fiddleStokesCoordinate(ie, Stokes::Ptotal);
-//
+   _fiddleStokesCoordinate(ie, Stokes::Ptotal);
    return ie;
 }
 
@@ -1130,14 +1092,14 @@ IPosition ImagePolarimetry::singleStokesShape(CoordinateSystem& cSys, Stokes::St
 // We know the image has a Stokes coordinate or it
 // would have failed at construction
 
-   CoordinateSystem cSys0 = itsInImagePtr->coordinates();
-   fiddleStokesCoordinate(cSys0, type);   
+   CoordinateSystem cSys0 = _image->coordinates();
+   _fiddleStokesCoordinate(cSys0, type);
    cSys = cSys0;
 //
    Int afterCoord = -1;
    Int iStokes = cSys0.findCoordinate(Coordinate::STOKES, afterCoord);
    Vector<Int> pixelAxes = cSys0.pixelAxes(iStokes);
-   IPosition shape = itsInImagePtr->shape();
+   IPosition shape = _image->shape();
    shape(pixelAxes(0)) = 1;
 //
    return shape;
@@ -1189,26 +1151,26 @@ ImageExpr<Float> ImagePolarimetry::sigmaDepolarizationRatio (const ImageInterfac
 // Private functions
 
 
-void ImagePolarimetry::cleanup()
+void ImagePolarimetry::_cleanup()
 {
-   itsInImagePtr.reset();
+   _image.reset();
 //
    for (uInt i=0; i<4; i++) {
-      delete itsStokesPtr[i];
-      itsStokesPtr[i] = 0;
+      delete _stokes[i];
+      _stokes[i] = 0;
 //
-      delete itsStokesStatsPtr[i];
-      itsStokesStatsPtr[i] = 0;
+      delete _stokesStats[i];
+      _stokesStats[i] = 0;
    }
 //
-   if (itsFitterPtr!= 0) {
-     delete itsFitterPtr;
-     itsFitterPtr = 0;
+   if (_fitter!= 0) {
+     delete _fitter;
+     _fitter = 0;
    }
 }
 
 
-void ImagePolarimetry::copyDataAndMask(ImageInterface<Float>& out, 
+void ImagePolarimetry::_copyDataAndMask(ImageInterface<Float>& out,
                                        ImageInterface<Float>& in) const
 //
 // Copy the data and mask from input to output. If the input is 
@@ -1245,10 +1207,10 @@ void ImagePolarimetry::copyDataAndMask(ImageInterface<Float>& out,
 }
 
 
-void ImagePolarimetry::findFrequencyAxis (Int& spectralCoord, Int& fAxis, 
+void ImagePolarimetry::_findFrequencyAxis (Int& spectralCoord, Int& fAxis,
                                           const CoordinateSystem& cSys, Int spectralAxis) const
 {
-   LogIO os(LogOrigin("ImagePolarimetry", "findFrequencyAxis(...)", WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    spectralCoord = -1;
    fAxis = -1;
    if (spectralAxis >=0) {
@@ -1270,7 +1232,7 @@ void ImagePolarimetry::findFrequencyAxis (Int& spectralCoord, Int& fAxis,
          os << "Illegal spectral axis " << spectralAxis+1 << " given" << LogIO::EXCEPTION;
       }
    } else {   
-      spectralCoord = findSpectralCoordinate(cSys, os, false);
+      spectralCoord = _findSpectralCoordinate(cSys, os, false);
       if (spectralCoord < 0) {
          for (uInt i=0; i<cSys.nCoordinates(); i++) {
             if (cSys.type(i)==Coordinate::TABULAR ||
@@ -1295,17 +1257,17 @@ void ImagePolarimetry::findFrequencyAxis (Int& spectralCoord, Int& fAxis,
 }
 
 
-void ImagePolarimetry::findStokes()
+void ImagePolarimetry::_findStokes()
 {
-   LogIO os(LogOrigin("ImagePolarimetry", "findStokes(...)", WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
 
 // Do we have any Stokes ?
 
-   const CoordinateSystem& cSys = itsInImagePtr->coordinates();
+   const CoordinateSystem& cSys = _image->coordinates();
    Int afterCoord = -1;
    Int iStokes = cSys.findCoordinate(Coordinate::STOKES, afterCoord);
    if (iStokes<0) {
-      cleanup();
+      _cleanup();
       os << "There is no Stokes Coordinate in this image" << LogIO::EXCEPTION;
    }
    if (afterCoord>0) {
@@ -1320,47 +1282,47 @@ void ImagePolarimetry::findStokes()
 // Make the regions
 
    const StokesCoordinate& stokes = cSys.stokesCoordinate(iStokes);
-   const uInt ndim = itsInImagePtr->ndim();
-   IPosition shape = itsInImagePtr->shape();
+   const uInt ndim = _image->ndim();
+   IPosition shape = _image->shape();
    IPosition blc(ndim,0);
    IPosition trc(shape-1);
 //
    Int pix;
    if (stokes.toPixel(pix, Stokes::I)) {
-      itsStokesPtr[ImagePolarimetry::I] = makeSubImage(blc, trc, pixelAxes(0), pix);
+      _stokes[ImagePolarimetry::I] = _makeSubImage(blc, trc, pixelAxes(0), pix);
    }
    if (stokes.toPixel(pix, Stokes::Q)) {
-      itsStokesPtr[ImagePolarimetry::Q] = makeSubImage(blc, trc, pixelAxes(0), pix);
+      _stokes[ImagePolarimetry::Q] = _makeSubImage(blc, trc, pixelAxes(0), pix);
    }
    if (stokes.toPixel(pix, Stokes::U)) {
-      itsStokesPtr[ImagePolarimetry::U] = makeSubImage(blc, trc, pixelAxes(0), pix);
+      _stokes[ImagePolarimetry::U] = _makeSubImage(blc, trc, pixelAxes(0), pix);
    }
    if (stokes.toPixel(pix, Stokes::V)) { 
-      itsStokesPtr[ImagePolarimetry::V] = makeSubImage(blc, trc, pixelAxes(0), pix);
+      _stokes[ImagePolarimetry::V] = _makeSubImage(blc, trc, pixelAxes(0), pix);
    }
 //
-   if ( (itsStokesPtr[ImagePolarimetry::Q]!=0 && itsStokesPtr[ImagePolarimetry::U]==0) ||
-        (itsStokesPtr[ImagePolarimetry::Q]==0 && itsStokesPtr[ImagePolarimetry::U]!=0)) {
-      cleanup();
+   if ( (_stokes[ImagePolarimetry::Q]!=0 && _stokes[ImagePolarimetry::U]==0) ||
+        (_stokes[ImagePolarimetry::Q]==0 && _stokes[ImagePolarimetry::U]!=0)) {
+      _cleanup();
       os << "This Stokes coordinate has only one of Q and U. This is not useful" << LogIO::EXCEPTION;
    }
-   if (itsStokesPtr[ImagePolarimetry::Q]==0 && 
-       itsStokesPtr[ImagePolarimetry::U]==0 && 
-       itsStokesPtr[ImagePolarimetry::V]==0) {
-      cleanup();
+   if (_stokes[ImagePolarimetry::Q]==0 &&
+       _stokes[ImagePolarimetry::U]==0 &&
+       _stokes[ImagePolarimetry::V]==0) {
+      _cleanup();
       os << "This image has no Stokes Q, U, or V.  This is not useful" << LogIO::EXCEPTION;
    }
 }
 
 
-void ImagePolarimetry::fiddleStokesCoordinate(ImageInterface<Float>& im, Stokes::StokesTypes type) const
+void ImagePolarimetry::_fiddleStokesCoordinate(ImageInterface<Float>& im, Stokes::StokesTypes type) const
 {
    CoordinateSystem cSys = im.coordinates();
-   fiddleStokesCoordinate(cSys, type);
+   _fiddleStokesCoordinate(cSys, type);
    im.setCoordinateInfo(cSys);
 }
 
-void ImagePolarimetry::fiddleStokesCoordinate(CoordinateSystem& cSys, Stokes::StokesTypes type) const
+void ImagePolarimetry::_fiddleStokesCoordinate(CoordinateSystem& cSys, Stokes::StokesTypes type) const
 {   
    Int afterCoord = -1;
    Int iStokes = cSys.findCoordinate(Coordinate::STOKES, afterCoord);
@@ -1371,7 +1333,7 @@ void ImagePolarimetry::fiddleStokesCoordinate(CoordinateSystem& cSys, Stokes::St
    cSys.replaceCoordinate(stokes, iStokes);   
 }
 
-void ImagePolarimetry::fiddleStokesCoordinate(ImageInterface<Complex>& ie, Stokes::StokesTypes type) const
+void ImagePolarimetry::_fiddleStokesCoordinate(ImageInterface<Complex>& ie, Stokes::StokesTypes type) const
 {   
    CoordinateSystem cSys = ie.coordinates();
 //
@@ -1385,10 +1347,10 @@ void ImagePolarimetry::fiddleStokesCoordinate(ImageInterface<Complex>& ie, Stoke
    ie.setCoordinateInfo(cSys);
 }
 
-void ImagePolarimetry::fiddleTimeCoordinate(ImageInterface<Complex>& ie, const Quantum<Double>& f, 
+void ImagePolarimetry::_fiddleTimeCoordinate(ImageInterface<Complex>& ie, const Quantum<Double>& f,
                                             Int coord) const
 {   
-   LogIO os(LogOrigin("ImagePolarimetry", "fiddleTimeCoordinate(...)", WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
 //
    CoordinateSystem cSys = ie.coordinates();
    Coordinate* pC = cSys.coordinate(coord).clone();
@@ -1423,7 +1385,7 @@ void ImagePolarimetry::fiddleTimeCoordinate(ImageInterface<Complex>& ie, const Q
 }
 
 
-Quantum<Double> ImagePolarimetry::findCentralFrequency(const Coordinate& coord, Int shape) const
+Quantum<Double> ImagePolarimetry::_findCentralFrequency(const Coordinate& coord, Int shape) const
 {
    AlwaysAssert(coord.nPixelAxes()==1,AipsError);
 //
@@ -1431,7 +1393,7 @@ Quantum<Double> ImagePolarimetry::findCentralFrequency(const Coordinate& coord, 
    Vector<Double> world;
    pixel(0) = Double(shape - 1) / 2.0;
    if (!coord.toWorld(world, pixel)) {
-      LogIO os(LogOrigin("ImagePolarimetry", "findCentralFrequency(...)", WHERE));
+      LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
       os << "Failed to convert pixel to world for SpectralCoordinate because " 
          << coord.errorMessage() << LogIO::EXCEPTION;
   }
@@ -1440,7 +1402,7 @@ Quantum<Double> ImagePolarimetry::findCentralFrequency(const Coordinate& coord, 
 }
 
 
-Int ImagePolarimetry::findSpectralCoordinate(const CoordinateSystem& cSys, LogIO& os,
+Int ImagePolarimetry::_findSpectralCoordinate(const CoordinateSystem& cSys, LogIO& os,
                                              Bool fail) const
 {
    Int afterCoord = -1;
@@ -1455,7 +1417,7 @@ Int ImagePolarimetry::findSpectralCoordinate(const CoordinateSystem& cSys, LogIO
    return coord;
 }
 
-Bool ImagePolarimetry::findRotationMeasure (Float& rmFitted, Float& rmErrFitted,
+Bool ImagePolarimetry::_findRotationMeasure (Float& rmFitted, Float& rmErrFitted,
                                             Float& pa0Fitted, Float& pa0ErrFitted, 
                                             Float& rChiSqFitted, Float& nTurns,
                                             const Vector<uInt>& sortidx,
@@ -1512,10 +1474,10 @@ Bool ImagePolarimetry::findRotationMeasure (Float& rmFitted, Float& rmErrFitted,
 
    Bool ok = false;
    if (n==2) {
-      ok = rmSupplementaryFit(nTurns, rmFitted, rmErrFitted, pa0Fitted, pa0ErrFitted, 
+      ok = _rmSupplementaryFit(nTurns, rmFitted, rmErrFitted, pa0Fitted, pa0ErrFitted,
                               rChiSqFitted, wsq, pa, paerr);
    } else {
-      ok = rmPrimaryFit(nTurns, rmFitted, rmErrFitted, pa0Fitted, pa0ErrFitted, 
+      ok = _rmPrimaryFit(nTurns, rmFitted, rmErrFitted, pa0Fitted, pa0ErrFitted,
                         rChiSqFitted, wsq, pa, paerr, rmMax, /*plotter,*/ posString);
    }
 
@@ -1534,21 +1496,21 @@ Bool ImagePolarimetry::findRotationMeasure (Float& rmFitted, Float& rmErrFitted,
    return ok;
 }
 
-void ImagePolarimetry::hasQU () const
+void ImagePolarimetry::_hasQU () const
 {
-   Bool has = itsStokesPtr[ImagePolarimetry::Q]!=0 && 
-              itsStokesPtr[ImagePolarimetry::U]!=0;
+   Bool has = _stokes[ImagePolarimetry::Q]!=0 &&
+              _stokes[ImagePolarimetry::U]!=0;
    if (!has) {
-      LogIO os(LogOrigin("ImagePolarimetry", "hasQU(...)", WHERE));
+      LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
       os << "This image does not have Stokes Q and U which are required for this function" << LogIO::EXCEPTION;
    }
 }
 
 
-ImageExpr<Float> ImagePolarimetry::makeStokesExpr(ImageInterface<Float>* imPtr,
+ImageExpr<Float> ImagePolarimetry::_makeStokesExpr(ImageInterface<Float>* imPtr,
                                                  Stokes::StokesTypes type, const String& name) const
 {
-   LogIO os(LogOrigin("ImagePolarimetry", "makeStokesExpr(...)", WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    if (imPtr==0) {
       os << "This image does not have Stokes " << Stokes::name(type) << LogIO::EXCEPTION;
    }
@@ -1561,15 +1523,15 @@ ImageExpr<Float> ImagePolarimetry::makeStokesExpr(ImageInterface<Float>* imPtr,
 
    LatticeExpr<Float> le(node);
    ImageExpr<Float> ie(le, name);
-   ie.setUnits(itsInImagePtr->units());
-   fiddleStokesCoordinate(ie, type);
-//
+   ie.setUnits(_image->units());
+   _fiddleStokesCoordinate(ie, type);
+
    return ie;
 }
 
 
 
-ImageInterface<Float>* ImagePolarimetry::makeSubImage (IPosition& blc, 
+ImageInterface<Float>* ImagePolarimetry::_makeSubImage (IPosition& blc,
                                                        IPosition& trc, 
                                                        Int axis, Int pix) const
 {
@@ -1577,11 +1539,11 @@ ImageInterface<Float>* ImagePolarimetry::makeSubImage (IPosition& blc,
     trc(axis) = pix;
     LCSlicer slicer(blc, trc, RegionType::Abs);
     ImageRegion region(slicer);
-    return new SubImage<Float>(*itsInImagePtr, region);
+    return new SubImage<Float>(*_image, region);
 }
 
 
-LatticeExprNode ImagePolarimetry::makePolIntNode(LogIO& os, Bool debias, Float clip, Float sigma,
+LatticeExprNode ImagePolarimetry::_makePolIntNode(LogIO& os, Bool debias, Float clip, Float sigma,
                                                  Bool doLin, Bool doCirc) 
 { 
    LatticeExprNode linNode, circNode, node;
@@ -1595,8 +1557,8 @@ LatticeExprNode ImagePolarimetry::makePolIntNode(LogIO& os, Bool debias, Float c
             sigma2 = ImagePolarimetry::sigma(clip);
          }
       }
-      linNode = LatticeExprNode(pow(*itsStokesPtr[ImagePolarimetry::U],2) + 
-                                pow(*itsStokesPtr[ImagePolarimetry::Q],2));
+      linNode = LatticeExprNode(pow(*_stokes[ImagePolarimetry::U],2) +
+                                pow(*_stokes[ImagePolarimetry::Q],2));
    }
 //
    if (doCirc) {
@@ -1607,7 +1569,7 @@ LatticeExprNode ImagePolarimetry::makePolIntNode(LogIO& os, Bool debias, Float c
             sigma2 = ImagePolarimetry::sigma(clip);
          }
       }
-      circNode = LatticeExprNode(pow(*itsStokesPtr[ImagePolarimetry::V],2));
+      circNode = LatticeExprNode(pow(*_stokes[ImagePolarimetry::V],2));
    }
 //
    Float sigmasq = sigma2 * sigma2;
@@ -1638,7 +1600,7 @@ LatticeExprNode ImagePolarimetry::makePolIntNode(LogIO& os, Bool debias, Float c
 }
 
 
-Bool ImagePolarimetry::rmPrimaryFit(Float& nTurns, Float& rmFitted, Float& rmErrFitted,
+Bool ImagePolarimetry::_rmPrimaryFit(Float& nTurns, Float& rmFitted, Float& rmErrFitted,
                                     Float& pa0Fitted, Float& pa0ErrFitted, 
                                     Float& rChiSqFitted, const Vector<Float>& wsq, 
                                     const Vector<Float>& pa, const Vector<Float>& paerr, 
@@ -1703,7 +1665,7 @@ Bool ImagePolarimetry::rmPrimaryFit(Float& nTurns, Float& rmFitted, Float& rmErr
 
 // Do least squares fit
 
-     if (!rmLsqFit (pars, wsq, fitpa, paerr)) return false;
+     if (!_rmLsqFit (pars, wsq, fitpa, paerr)) return false;
 
 //
      if (pars(4) < chiSq) {
@@ -1768,7 +1730,7 @@ Bool ImagePolarimetry::rmPrimaryFit(Float& nTurns, Float& rmFitted, Float& rmErr
 
 
 
-Bool ImagePolarimetry::rmSupplementaryFit(Float& nTurns, Float& rmFitted, Float& rmErrFitted,
+Bool ImagePolarimetry::_rmSupplementaryFit(Float& nTurns, Float& rmFitted, Float& rmErrFitted,
                                           Float& pa0Fitted, Float& pa0ErrFitted, 
                                           Float& rChiSqFitted,  const Vector<Float>& wsq, 
                                           const Vector<Float>& pa, const Vector<Float>& paerr)
@@ -1786,7 +1748,7 @@ Bool ImagePolarimetry::rmSupplementaryFit(Float& nTurns, Float& rmFitted, Float&
 
 // Do least squares fit
 
-     if (!rmLsqFit (pars, wsq, fitpa, paerr)) return false;
+     if (! _rmLsqFit (pars, wsq, fitpa, paerr)) return false;
 
 // Save solution  with lowest absolute RM
 
@@ -1810,7 +1772,7 @@ Bool ImagePolarimetry::rmSupplementaryFit(Float& nTurns, Float& rmFitted, Float&
 
 
 
-Bool ImagePolarimetry::rmLsqFit (Vector<Float>& pars, const Vector<Float>& wsq, 
+Bool ImagePolarimetry::_rmLsqFit (Vector<Float>& pars, const Vector<Float>& wsq,
                                  const Vector<Float> pa, const Vector<Float>& paerr) const
 {
 
@@ -1818,24 +1780,24 @@ Bool ImagePolarimetry::rmLsqFit (Vector<Float>& pars, const Vector<Float>& wsq,
 
    static Vector<Float> solution;
    try {
-     solution = itsFitterPtr->fit(wsq, pa, paerr);
+     solution = _fitter->fit(wsq, pa, paerr);
    } catch (AipsError x) {
      return false;
    } 
 //
-   const Vector<Double>& cv = itsFitterPtr->compuCovariance().diagonal();
+   const Vector<Double>& cv = _fitter->compuCovariance().diagonal();
    pars.resize(5);
    pars(0) = solution(1);
    pars(1) = sqrt(cv(1));
    pars(2) = solution(0);
    pars(3) = sqrt(cv(0));
-   pars(4) = itsFitterPtr->chiSquare();
+   pars(4) = _fitter->chiSquare();
 // 
    return true;
 }
 
 
-String ImagePolarimetry::stokesName (ImagePolarimetry::StokesTypes index) const
+String ImagePolarimetry::_stokesName (ImagePolarimetry::StokesTypes index) const
 {
    if (index==ImagePolarimetry::I) {
       return String("I");
@@ -1851,7 +1813,7 @@ String ImagePolarimetry::stokesName (ImagePolarimetry::StokesTypes index) const
 }
 
 
-Stokes::StokesTypes ImagePolarimetry::stokesType (ImagePolarimetry::StokesTypes index) const
+Stokes::StokesTypes ImagePolarimetry::_stokesType (ImagePolarimetry::StokesTypes index) const
 {
    if (index==ImagePolarimetry::I) {
       return Stokes::I;
@@ -1867,42 +1829,42 @@ Stokes::StokesTypes ImagePolarimetry::stokesType (ImagePolarimetry::StokesTypes 
 }
 
 
-Float ImagePolarimetry::sigma (ImagePolarimetry::StokesTypes index, Float clip)
+Float ImagePolarimetry::_sigma(ImagePolarimetry::StokesTypes index, Float clip)
 {
    Float clip2 = abs(clip);
    if (clip2==0.0) clip2 = 10.0;
 //
-   if (clip2 != itsOldClip && itsStokesStatsPtr[index]!=0) {
-      delete itsStokesStatsPtr[index];
-      itsStokesStatsPtr[index] = 0;
+   if (clip2 != _oldClip && _stokesStats[index]!=0) {
+      delete _stokesStats[index];
+      _stokesStats[index] = 0;
    }
-   if (itsStokesStatsPtr[index]==0) {
+   if (_stokesStats[index]==0) {
 
 // Find sigma for all points inside +/- clip-sigma of the mean
 // More joys of LEL
 
-      const ImageInterface<Float>* p = itsStokesPtr[index];
+      const ImageInterface<Float>* p = _stokes[index];
       LatticeExprNode n1 (*p);
       LatticeExprNode n2 (n1[abs(n1-mean(n1)) < clip2*stddev(n1)]);
       LatticeExpr<Float> le(n2);
 //
-      itsStokesStatsPtr[index] = new LatticeStatistics<Float>(le, false, false);
+      _stokesStats[index] = new LatticeStatistics<Float>(le, false, false);
    }
 //
    Array<Float> sigmaA;
-   itsStokesStatsPtr[index]->getConvertedStatistic(sigmaA, LatticeStatsBase::SIGMA);
+   _stokesStats[index]->getConvertedStatistic(sigmaA, LatticeStatsBase::SIGMA);
    if (sigmaA.nelements()==0) {
       LogIO os(LogOrigin("ImagePolarimetry", "sigma(...)", WHERE));
       os << "No good points in clipped determination of the noise " 
-         << "for the Stokes " << stokesName(index) << " image" << LogIO::EXCEPTION;
+         << "for the Stokes " << _stokesName(index) << " image" << LogIO::EXCEPTION;
    }
 //
-   itsOldClip = clip2;
+   _oldClip = clip2;
    return sigmaA(IPosition(1,0));
 }
 
 
-void ImagePolarimetry::subtractProfileMean (ImageInterface<Float>& im, uInt axis) const
+void ImagePolarimetry::_subtractProfileMean (ImageInterface<Float>& im, uInt axis) const
 {
    const IPosition tileShape = im.niceCursorShape();
    TiledLineStepper ts(im.shape(), tileShape, axis);
@@ -1929,7 +1891,7 @@ void ImagePolarimetry::subtractProfileMean (ImageInterface<Float>& im, uInt axis
 }
 
 
-Bool ImagePolarimetry::dealWithMask (Lattice<Bool>*& pMask, ImageInterface<Float>*& pIm, 
+Bool ImagePolarimetry::_dealWithMask (Lattice<Bool>*& pMask, ImageInterface<Float>*& pIm,
                                      LogIO& os, const String& type) const
 {
    Bool isMasked = false;
@@ -1956,10 +1918,10 @@ Bool ImagePolarimetry::dealWithMask (Lattice<Bool>*& pMask, ImageInterface<Float
 
 void ImagePolarimetry::_createBeamsEqMat() {
 	_beamsEqMat.assign(Matrix<Bool>(4, 4, false));
-	Bool hasMultiBeams = itsInImagePtr->imageInfo().hasMultipleBeams();
+	Bool hasMultiBeams = _image->imageInfo().hasMultipleBeams();
 	for (uInt i=0; i<4; i++) {
 		for (uInt j=i; j<4; j++) {
-			if (itsStokesPtr[i] == 0 || itsStokesPtr[j] == 0) {
+			if (_stokes[i] == 0 || _stokes[j] == 0) {
 				_beamsEqMat(i, j) = false;
 			}
 			else if (i == j) {
@@ -1967,8 +1929,8 @@ void ImagePolarimetry::_createBeamsEqMat() {
 			}
 			else if (hasMultiBeams) {
 				_beamsEqMat(i, j) = (
-					itsStokesPtr[i]->imageInfo().getBeamSet()
-					== itsStokesPtr[j]->imageInfo().getBeamSet()
+					_stokes[i]->imageInfo().getBeamSet()
+					== _stokes[j]->imageInfo().getBeamSet()
 				);
 			}
 			else {
@@ -2009,10 +1971,10 @@ Bool ImagePolarimetry::_checkBeams(
 	}
 	if (
 		requireChannelEquality
-		&& itsStokesPtr[stokes[0]]->coordinates().hasSpectralAxis()
-		&& itsStokesPtr[stokes[0]]->imageInfo().hasMultipleBeams()
+		&& _stokes[stokes[0]]->coordinates().hasSpectralAxis()
+		&& _stokes[stokes[0]]->imageInfo().hasMultipleBeams()
 	) {
-		const Array<GaussianBeam>& beamSet = itsStokesPtr[stokes[0]]->imageInfo().getBeamSet().getBeams();
+		const Array<GaussianBeam>& beamSet = _stokes[stokes[0]]->imageInfo().getBeamSet().getBeams();
 		Array<GaussianBeam>::const_iterator start = beamSet.begin();
 		start++;
 		for (
