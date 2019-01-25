@@ -301,15 +301,15 @@ public:
   // These are antenna-based
   inline casacore::Double getAntenna(casacore::Int chnk,casacore::Int irel) { return *(antenna_[chnk]->data()+irel); };
   inline casacore::Double getAz(casacore::Int chnk,casacore::Int irel)      { return *(az_[chnk]->data()+irel); };
-  casacore::Double getEl(casacore::Int chnk,casacore::Int irel) {
-	throw AipsError("PlotMS internal error. PlotMsCacheBase::getEl() was called");
-	return chnk + irel; /* return *(el_[chnk]->data()+irel); */
-  };
+  inline casacore::Double getEl(casacore::Int chnk,casacore::Int irel)             { return *(el_[chnk]->data()+irel); };
   casacore::Double getRa(casacore::Int chnk,casacore::Int irel) {
 	  throw AipsError("PlotMS internal error. PlotMsCacheBase::getRa() was called");
 	  return chnk + irel; /* return *(ra_[chnk]->data()+irel); */
   };
-  inline casacore::Double getDec(casacore::Int chnk,casacore::Int irel)     { return *(dec_[chnk]->data()+irel); };
+  inline casacore::Double getDec(casacore::Int chnk,casacore::Int irel) {
+		throw AipsError("PlotMS internal error. PlotMsCacheBase::getDec() was called");
+	  return chnk + irel; /*(dec_[chnk]->data()+irel); */
+  };
   inline casacore::Double getParAng(casacore::Int chnk,casacore::Int irel)  { return *(parang_[chnk]->data()+irel); };
 
   // These support generic non-complex calibration
