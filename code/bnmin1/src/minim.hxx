@@ -113,7 +113,7 @@ namespace Minim {
   {
 
   private:
-    unsigned iter;
+    //unsigned iter;
     Minimisable &m;
     std::vector< double >   res;
   protected:

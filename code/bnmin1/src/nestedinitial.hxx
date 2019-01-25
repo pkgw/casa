@@ -19,7 +19,7 @@
 
 namespace Minim {
 
-  class MCPoint;
+  struct MCPoint;
   class NestedS;
 
   /** Base class for strategies for picking the inital point for the
