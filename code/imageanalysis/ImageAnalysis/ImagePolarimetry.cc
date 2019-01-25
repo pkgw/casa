@@ -389,57 +389,49 @@ void ImagePolarimetry::fourierRotationMeasure(
     _setInfo(cpol, Q);
 }
 
-Float ImagePolarimetry::sigmaLinPolInt(Float clip, Float sigma) 
-//
-// sigma_P = sigma_QU
-//
-{
-   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   if (_stokes[ImagePolarimetry::Q]==0 && _stokes[ImagePolarimetry::U]==0) {
-      os << "This image does not have Stokes Q and U so cannot provide linear polarization" << LogIO::EXCEPTION;
-   }
-   _checkQUBeams(false);
-// Get value
-
-   Float sigma2 = 0.0;
-   if (sigma > 0) {
-      sigma2 = sigma;
-   } else {
-	   os << LogIO::NORMAL << "Determined noise from Q&U images to be ";
-	   Float sq = _sigma(ImagePolarimetry::Q, clip);
-	   Float su = _sigma(ImagePolarimetry::U, clip);
-	   sigma2 = (sq+su)/2.0;
-   }
-   return sigma2;
+Float ImagePolarimetry::sigmaLinPolInt(Float clip, Float sigma) {
+    // sigma_P = sigma_QU
+    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
+    ThrowIf(
+        ! _stokes[ImagePolarimetry::Q] && ! _stokes[ImagePolarimetry::U],
+       "This image does not have Stokes Q and U so cannot "
+        "provide linear polarization"
+    );
+    _checkQUBeams(false);
+    Float sigma2 = 0.0;
+    if (sigma > 0) {
+        sigma2 = sigma;
+    }
+    else {
+        os << LogIO::NORMAL << "Determined noise from Q&U images to be ";
+        auto sq = _sigma(ImagePolarimetry::Q, clip);
+        auto su = _sigma(ImagePolarimetry::U, clip);
+        sigma2 = (sq+su)/2.0;
+    }
+    return sigma2;
 }
 
-ImageExpr<Float> ImagePolarimetry::linPolPosAng(Bool radians) const
-{
-   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   if (_stokes[ImagePolarimetry::Q]==0 && _stokes[ImagePolarimetry::U]==0) {
-      os << "This image does not have Stokes Q and U so cannot provide linear polarization" << LogIO::EXCEPTION;
-   }
-   _checkQUBeams(false);
-
-// Make expression. LEL function "pa" returns degrees
-
-   Float fac = 1.0;
-   if (radians) fac = C::pi / 180.0;
-   LatticeExprNode node(fac*pa(*_stokes[ImagePolarimetry::U],
-                               *_stokes[ImagePolarimetry::Q]));
-   LatticeExpr<Float> le(node);
-   ImageExpr<Float> ie(le, String("LinearlyPolarizedPositionAngle"));
-//
-   if (radians) {
-      ie.setUnits(Unit("rad"));
-   } else {
-      ie.setUnits(Unit("deg"));
-   }
-   ImageInfo ii = _image->imageInfo();
-   ii.removeRestoringBeam();
-   ie.setImageInfo(ii);
-   _fiddleStokesCoordinate(ie, Stokes::Pangle);
-   return ie;
+ImageExpr<Float> ImagePolarimetry::linPolPosAng(Bool radians) const {
+    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
+    ThrowIf(
+        ! _stokes[ImagePolarimetry::Q] && ! _stokes[ImagePolarimetry::U],
+        "This image does not have Stokes Q and U so cannot "
+        "provide linear polarization"
+    );
+    _checkQUBeams(false);
+    // Make expression. LEL function "pa" returns degrees
+    Float fac = radians ? C::pi / 180.0 : 1.0;
+    LatticeExprNode node(
+        fac*pa(*_stokes[ImagePolarimetry::U], *_stokes[ImagePolarimetry::Q])
+    );
+    LatticeExpr<Float> le(node);
+    ImageExpr<Float> ie(le, String("LinearlyPolarizedPositionAngle"));
+    ie.setUnits(Unit(radians ? "rad" : "deg"));
+    auto ii = _image->imageInfo();
+    ii.removeRestoringBeam();
+    ie.setImageInfo(ii);
+    _fiddleStokesCoordinate(ie, Stokes::Pangle);
+    return ie;
 }
 
 ImageExpr<Float> ImagePolarimetry::sigmaLinPolPosAng(Bool radians, Float clip, Float sigma) 
