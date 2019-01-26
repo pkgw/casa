@@ -31,6 +31,10 @@
 #include <casa/aips.h>
 #include <casa/Exceptions/Error.h>
 #include <casa/BasicSL.h>
+#include <casacore/ms/MeasurementSets/MSAntennaColumns.h>
+#include <casacore/ms/MeasurementSets/MSSpWindowColumns.h>
+#include <casacore/ms/MeasurementSets/MSDataDescColumns.h>
+#include <casacore/ms/MeasurementSets/MSPolColumns.h>
 #include <msvis/MSVis/VisBufferComponents2.h>
 #include <msvis/MSVis/ViImplementation2.h>
 #include <msvis/MSVis/ViiLayerFactory.h>
@@ -362,6 +366,61 @@ public:
   virtual void writeSigma (const casacore::Matrix<casacore::Float> &) { SSVi2NotPossible() };
   virtual void writeModel(const casacore::RecordInterface&,casacore::Bool,casacore::Bool) { SSVi2NotPossible() };
 
+  //**********************************************************************
+  // Methods to access the subtables.
+  //**********************************************************************
+
+  // Access to antenna subtable
+  const casacore::ROMSAntennaColumns& antennaSubtablecols() const override;
+
+  // Access to dataDescription subtable
+  const casacore::ROMSDataDescColumns& dataDescriptionSubtablecols() const override;
+
+  // Access to feed subtable
+  const casacore::ROMSFeedColumns& feedSubtablecols() const override;
+
+  // Access to field subtable
+  const casacore::ROMSFieldColumns& fieldSubtablecols() const override;
+
+  // Access to flagCmd subtable
+  const casacore::ROMSFlagCmdColumns& flagCmdSubtablecols() const override;
+
+  // Access to history subtable
+  const casacore::ROMSHistoryColumns& historySubtablecols() const override;
+
+  // Access to observation subtable
+  const casacore::ROMSObservationColumns& observationSubtablecols() const override;
+
+  // Access to pointing subtable
+  const casacore::ROMSPointingColumns& pointingSubtablecols() const override;
+
+  // Access to polarization subtable
+  const casacore::ROMSPolarizationColumns& polarizationSubtablecols() const override;
+
+  // Access to processor subtable
+  const casacore::ROMSProcessorColumns& processorSubtablecols() const override;
+
+  // Access to spectralWindow subtable
+  const casacore::ROMSSpWindowColumns& spectralWindowSubtablecols() const override;
+
+  // Access to state subtable
+  const casacore::ROMSStateColumns& stateSubtablecols() const override;
+
+  // Access to doppler subtable
+  const casacore::ROMSDopplerColumns& dopplerSubtablecols() const override;
+
+  // Access to freqOffset subtable
+  const casacore::ROMSFreqOffsetColumns& freqOffsetSubtablecols() const override;
+
+  // Access to source subtable
+  const casacore::ROMSSourceColumns& sourceSubtablecols() const override;
+
+  // Access to sysCal subtable
+  const casacore::ROMSSysCalColumns& sysCalSubtablecols() const override;
+
+  // Access to weather subtable
+  const casacore::ROMSWeatherColumns& weatherSubtablecols() const override;
+
 private:
 
   // Make default ctor invisible
@@ -375,6 +434,9 @@ private:
 
   // Corrupt by (ad hoc) parang factors
   void corruptByParang(casacore::Cube<casacore::Complex>& vis) const;
+
+  // Generate the antenna, spw and DD subtables
+  void generateSubtables();
 
   // casacore::Input parameters
   const SimpleSimVi2Parameters pars_;
@@ -412,6 +474,16 @@ private:
 
   // The associated VB
   std::unique_ptr<VisBuffer2> vb_;
+
+  // Subtables
+  casacore::MSAntenna antennaSubTable_p;
+  std::unique_ptr<casacore::MSAntennaColumns> antennaSubTablecols_p;
+  casacore::MSSpectralWindow spwSubTable_p;
+  std::unique_ptr<casacore::MSSpWindowColumns> spwSubTablecols_p;
+  casacore::MSDataDescription ddSubTable_p;
+  std::unique_ptr<casacore::MSDataDescColumns> ddSubTablecols_p;
+  casacore::MSPolarization polSubTable_p;
+  std::unique_ptr<casacore::MSPolarizationColumns> polSubTablecols_p;
 
   // Trivial (for now) MDirection, so phaseCenter() has something to return
   casacore::MDirection phaseCenter_;

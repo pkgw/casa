@@ -37,7 +37,7 @@ public:
 protected:
 
 	// Compute flags for a given (time,freq) map
-	bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, FlagMapper &flags,casacore::Int antenna1,casacore::Int antenna2,vector<casacore::uInt> &rows);
+	bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, FlagMapper &flags,casacore::Int antenna1,casacore::Int antenna2,std::vector<casacore::uInt> &rows);
 
 
 	// Parse configuration parameters

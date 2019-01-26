@@ -24,8 +24,8 @@
  * File Long.cpp
  */
 
-#include <LongWrapper.h>
-#include <NumberFormatException.h>
+#include <alma/ASDM/LongWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <sstream>
 

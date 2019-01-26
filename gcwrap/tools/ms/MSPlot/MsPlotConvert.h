@@ -370,11 +370,11 @@ class MSPlotConvertElevation : public TPConvertBase
    // casacore::Conversion along the Xaxis
    casacore::Double Xconvert( casacore::Double x, casacore::Int row, casacore::Int tblNum )
         {
-       //cout << "NUM PLOTTED: " << numPlotted << endl;
-       //cout << "mod value is: " << numPlotted % CASA_MPC_DBG_FREQ << endl;
+       //std::cout << "NUM PLOTTED: " << numPlotted << std::endl;
+       //std::cout << "mod value is: " << numPlotted % CASA_MPC_DBG_FREQ << std::endl;
             casacore::String fnname = "Xconvert";
        if ( numPlotted % CASA_MPC_DBG_FREQ == 0 ) {
-       //cout << "SENDING LOG MESSAGE" << endl;
+       //std::cout << "SENDING LOG MESSAGE" << std::endl;
       log->FnEnter(fnname + "(x, row, tblNum)", clname );
       log->out(casacore::String("Value: ") + casacore::String::toString(x)
                       + " Row= " + casacore::String::toString(row)
@@ -410,11 +410,11 @@ class MSPlotConvertElevation : public TPConvertBase
    // casacore::Conversion along the Yaxis
    casacore::Double Yconvert( casacore::Double y, casacore::Int row, casacore::Int tblNum )
         {
-       //cout << "NUM PLOTTED: " << numPlotted << endl;
-       //cout << "mod value is: " << numPlotted % CASA_MPC_DBG_FREQ << endl;
+       //std::cout << "NUM PLOTTED: " << numPlotted << std::endl;
+       //std::cout << "mod value is: " << numPlotted % CASA_MPC_DBG_FREQ << std::endl;
             casacore::String fnname = "Yconvert";
        if ( numPlotted % CASA_MPC_DBG_FREQ == 0 ) {
-      //cout << "SENDING LOG MESSAGE" << endl;
+      //std::cout << "SENDING LOG MESSAGE" << std::endl;
       log->FnEnter(fnname, clname);
       log->out(casacore::String("Value: ") + casacore::String::toString(y)
                       + " Row= " + casacore::String::toString(row)
@@ -1069,15 +1069,15 @@ class MSPlotConvertArrayPositions : public TPConvertBase
        casacore::Double obsCosLatitude    = cos( obsLatitude );
        casacore::Double obsSinLatitude    = sin( obsLatitude );
 
-       //       cout << endl << "observatory: " << observatory << endl << 
-       //	 "lonlat = " << obsLongitude*180/3.1415 << " , " << obsLatitude*180/3.1415 << endl;
-       //       cout << "obsXYZ = " << obsXYZ << endl;
+       //       std::cout << std::endl << "observatory: " << observatory << std::endl << 
+       //	 "lonlat = " << obsLongitude*180/3.1415 << " , " << obsLatitude*180/3.1415 << std::endl;
+       //       std::cout << "obsXYZ = " << obsXYZ << std::endl;
        
        // Now do the conversion.
        for( casacore::uInt i=0; i < numAnts; i++ )
        {
 	 //	 if (i<3)
-	 //	   cout << i << ": " << antPositions[i] << " from " <<  (casacore::MPosition::Types)antPositions[i].type() << " to " << observatory.type() << ": ";
+	 //	   std::cout << i << ": " << antPositions[i] << " from " <<  (casacore::MPosition::Types)antPositions[i].type() << " to " << observatory.type() << ": ";
 
       if ( antPositions[i].type() != observatory.type() )
           antPositions[i] = casacore::MPosition::Convert( antPositions[i],
@@ -1090,7 +1090,7 @@ class MSPlotConvertArrayPositions : public TPConvertBase
       yTrans[i] = antXYZ[1] - obsXYZ[1];
       zTrans[i] = antXYZ[2] - obsXYZ[2];
       
-      //      if (i<3) cout << "Trans = " << xTrans[i] << "," << yTrans[i] << "," << zTrans[i] << endl;
+      //      if (i<3) std::cout << "Trans = " << xTrans[i] << "," << yTrans[i] << "," << zTrans[i] << std::endl;
 
       // Now rotate and store the new position information
       itsXValues[i] = ( -obsSinLongitude * xTrans[i] )
@@ -1176,14 +1176,14 @@ class MSPlotConvertChanToFreq : public TPConvertBase
    };
 
    void showConverter() {
-       cout << "itsSpwIds=" << itsSpwIds << endl;
-       cout << "itsAveragingOn=" << itsAveragingOn << endl;
+       std::cout << "itsSpwIds=" << itsSpwIds << std::endl;
+       std::cout << "itsAveragingOn=" << itsAveragingOn << std::endl;
        for (casacore::uInt i = 0; i < itsStartChans.nelements(); i++) {
-          cout << "itsStartChans=" << itsStartChans(i) << endl;
-          cout << "itsEndChans=" << itsEndChans(i) << endl;
-          cout << "itsStepChans=" << itsStepChans(i) << endl;
+          std::cout << "itsStartChans=" << itsStartChans(i) << std::endl;
+          std::cout << "itsEndChans=" << itsEndChans(i) << std::endl;
+          std::cout << "itsStepChans=" << itsStepChans(i) << std::endl;
        }
-       cout << "convertOnX=" << convertOnX;
+       std::cout << "convertOnX=" << convertOnX;
    }
    
    // Destructor
@@ -1358,7 +1358,7 @@ class MSPlotConvertChanToFreq : public TPConvertBase
        for ( casacore::uInt i=0; i < itsEndChans[spwId].nelements(); i++ )
        {
       if ( numPlotted % CASA_MPC_DBG_FREQ == 0 ) { 
-         ostringstream os;
+          std::ostringstream os;
          os  << "Checking " << i << " set of channel info: "
          << itsStartChans[spwId][i]
          << "~" << itsEndChans[spwId][i]
@@ -1730,7 +1730,7 @@ class MSPlotConvertAveChanToFreq : public TPConvertBase
       itsMS = inMS;
       itsChanFreq = chanFreq;
 
-      //cout << "itsChanFreq=" << itsChanFreq << endl;
+      //std::cout << "itsChanFreq=" << itsChanFreq << std::endl;
       convertOnX = onXAxis;
    };
 
@@ -1757,8 +1757,8 @@ class MSPlotConvertAveChanToFreq : public TPConvertBase
           return x;
       } 
       else {
-         casacore::Int chn = max(0, casacore::Int(x)); 
-         chn = min(chn, casacore::Int(itsChanFreq.nrow() - 1));
+         casacore::Int chn = std::max(0, casacore::Int(x)); 
+         chn = std::min(chn, casacore::Int(itsChanFreq.nrow() - 1));
          return itsChanFreq(chn, 1);
       }
    };
@@ -1781,8 +1781,8 @@ class MSPlotConvertAveChanToFreq : public TPConvertBase
          return y;
       } 
       else {
-         casacore::Int chn = max(0, casacore::Int(y)); 
-         chn = min(chn, casacore::Int(itsChanFreq.nrow() - 1));
+         casacore::Int chn = std::max(0, casacore::Int(y)); 
+         chn = std::min(chn, casacore::Int(itsChanFreq.nrow() - 1));
          return itsChanFreq(chn, 1);
       }
    };
@@ -1821,14 +1821,14 @@ class MSPlotConvertAveChanToChan : public TPConvertBase
       itsMS = inMS;
 
       casacore::Int nChan = chanFreq.nrow();
-      //cout << "chanFreq=" << chanFreq << endl;
-      //cout << "nChan=" << nChan << endl;
+      //std::cout << "chanFreq=" << chanFreq << std::endl;
+      //std::cout << "nChan=" << nChan << std::endl;
       itsChanMap.resize(nChan);
-      //cout << "itsChanMap.shape()[0]=" << itsChanMap.shape()[0] << endl;
+      //std::cout << "itsChanMap.shape()[0]=" << itsChanMap.shape()[0] << std::endl;
       for (casacore::Int k = 0; k < nChan; k++) {
          itsChanMap(k) = (chanFreq(k, 1) + chanFreq(k, 2) - 1) / 2;
       }
-      //cout << "itsChanMap=" << itsChanMap << endl;
+      //std::cout << "itsChanMap=" << itsChanMap << std::endl;
 
       convertOnX = onXAxis;
    };
@@ -1856,9 +1856,9 @@ class MSPlotConvertAveChanToChan : public TPConvertBase
           return x;
       } 
       else {
-         casacore::Int chn = max(0, casacore::Int(x)); 
-         chn = min(chn, casacore::Int(itsChanMap.shape()[0] - 1));
-         cout << " " << itsChanMap(chn);
+         casacore::Int chn = std::max(0, casacore::Int(x)); 
+         chn = std::min(chn, casacore::Int(itsChanMap.shape()[0] - 1));
+         std::cout << " " << itsChanMap(chn);
          return itsChanMap(chn);
       }
    };
@@ -1881,8 +1881,8 @@ class MSPlotConvertAveChanToChan : public TPConvertBase
          return y;
       } 
       else {
-         casacore::Int chn = max(0, casacore::Int(y)); 
-         chn = min(chn, casacore::Int(itsChanMap.shape()[0] - 1));
+         casacore::Int chn = std::max(0, casacore::Int(y)); 
+         chn = std::min(chn, casacore::Int(itsChanMap.shape()[0] - 1));
          return itsChanMap(chn);
       }
    };

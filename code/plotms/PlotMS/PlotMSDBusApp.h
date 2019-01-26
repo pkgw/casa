@@ -289,7 +289,7 @@ private:
     
     // Set PlotMSSinglePlot parameters that haven't yet been transfered to the
     // current PlotMS.
-    vector<PlotMSPlotParameters> itsPlotParams_;
+    std::vector<PlotMSPlotParameters> itsPlotParams_;
     
     // Flag for whether to call update() during show() or not.  This will be
     // true if the user updates something while the GUI is hidden.

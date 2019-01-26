@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalBandpassRow.h>
-#include <CalBandpassTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalBandpassRow.h>
+#include <alma/ASDM/CalBandpassTable.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalDataTable;
 using asdm::CalDataRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalBandpassRow::~CalBandpassRow() {
@@ -1186,7 +1183,9 @@ namespace asdm {
 		
 			
 		rms .clear();
-		vector<float> v_aux_rms;
+        
+        vector<float> v_aux_rms;
+        
 		for (unsigned int i = 0; i < x.rms.length(); ++i) {
 			v_aux_rms.clear();
 			for (unsigned int j = 0; j < x.rms[0].length(); ++j) {
@@ -2571,7 +2570,9 @@ void CalBandpassRow::rmsFromBin(EndianIStream& eis) {
 		
 		unsigned int rmsDim1 = eis.readInt();
 		unsigned int rmsDim2 = eis.readInt();
+        
 		vector <float> rmsAux1;
+        
 		for (unsigned int i = 0; i < rmsDim1; i++) {
 			rmsAux1.clear();
 			for (unsigned int j = 0; j < rmsDim2 ; j++)			
@@ -2757,7 +2758,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an BasebandName 
 	void CalBandpassRow::basebandNameFromText(const string & s) {
 		 
-		basebandName = ASDMValuesParser::parse<BasebandName>(s);
+          
+		basebandName = ASDMValuesParser::parse<BasebandNameMod::BasebandName>(s);
+          
 		
 	}
 	
@@ -2765,7 +2768,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an NetSideband 
 	void CalBandpassRow::sidebandFromText(const string & s) {
 		 
-		sideband = ASDMValuesParser::parse<NetSideband>(s);
+          
+		sideband = ASDMValuesParser::parse<NetSidebandMod::NetSideband>(s);
+          
 		
 	}
 	
@@ -2773,7 +2778,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an AtmPhaseCorrection 
 	void CalBandpassRow::atmPhaseCorrectionFromText(const string & s) {
 		 
-		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrection>(s);
+          
+		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrectionMod::AtmPhaseCorrection>(s);
+          
 		
 	}
 	
@@ -2781,7 +2788,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an CalCurveType 
 	void CalBandpassRow::typeCurveFromText(const string & s) {
 		 
-		typeCurve = ASDMValuesParser::parse<CalCurveType>(s);
+          
+		typeCurve = ASDMValuesParser::parse<CalCurveTypeMod::CalCurveType>(s);
+          
 		
 	}
 	
@@ -2789,7 +2798,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalBandpassRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -2797,7 +2808,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalBandpassRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2805,7 +2818,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalBandpassRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2813,7 +2828,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalBandpassRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2821,7 +2838,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalBandpassRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2829,7 +2848,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalBandpassRow::numAntennaFromText(const string & s) {
 		 
+          
 		numAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2837,7 +2858,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalBandpassRow::numPolyFromText(const string & s) {
 		 
+          
 		numPoly = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2845,7 +2868,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalBandpassRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2853,7 +2878,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalBandpassRow::antennaNamesFromText(const string & s) {
 		 
+          
 		antennaNames = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -2861,7 +2888,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalBandpassRow::refAntennaNameFromText(const string & s) {
 		 
+          
 		refAntennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2869,7 +2898,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalBandpassRow::freqLimitsFromText(const string & s) {
 		 
+          
 		freqLimits = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -2877,7 +2908,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalBandpassRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -2885,7 +2918,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalBandpassRow::curveFromText(const string & s) {
 		 
+          
 		curve = ASDMValuesParser::parse3D<float>(s);
+          
 		
 	}
 	
@@ -2893,7 +2928,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalBandpassRow::reducedChiSquaredFromText(const string & s) {
 		 
+          
 		reducedChiSquared = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -2903,7 +2940,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	void CalBandpassRow::numBaselineFromText(const string & s) {
 		numBaselineExists = true;
 		 
+          
 		numBaseline = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2912,7 +2951,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	void CalBandpassRow::numFreqFromText(const string & s) {
 		numFreqExists = true;
 		 
+          
 		numFreq = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2921,7 +2962,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	void CalBandpassRow::rmsFromText(const string & s) {
 		rmsExists = true;
 		 
+          
 		rms = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2930,7 +2973,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	void CalBandpassRow::frequencyRangeFromText(const string & s) {
 		frequencyRangeExists = true;
 		 
+          
 		frequencyRange = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -2939,7 +2984,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	void CalBandpassRow::numSpectralWindowFromText(const string & s) {
 		numSpectralWindowExists = true;
 		 
+          
 		numSpectralWindow = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2948,7 +2995,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	void CalBandpassRow::chanFreqStartFromText(const string & s) {
 		chanFreqStartExists = true;
 		 
+          
 		chanFreqStart = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -2957,7 +3006,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	void CalBandpassRow::chanFreqStepFromText(const string & s) {
 		chanFreqStepExists = true;
 		 
+          
 		chanFreqStep = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -2966,7 +3017,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	void CalBandpassRow::numSpectralWindowChanFromText(const string & s) {
 		numSpectralWindowChanExists = true;
 		 
+          
 		numSpectralWindowChan = ASDMValuesParser::parse1D<int>(s);
+          
 		
 	}
 	
@@ -2975,7 +3028,9 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	void CalBandpassRow::spectrumFromText(const string & s) {
 		spectrumExists = true;
 		 
+          
 		spectrum = ASDMValuesParser::parse3D<float>(s);
+          
 		
 	}
 	
@@ -3337,21 +3392,21 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaNames.
- 	 * @return antennaNames as vector<string >
+ 	 * @return antennaNames as std::vector<std::string >
  	 */
- 	vector<string > CalBandpassRow::getAntennaNames() const {
+ 	std::vector<std::string > CalBandpassRow::getAntennaNames() const {
 	
   		return antennaNames;
  	}
 
  	/**
- 	 * Set antennaNames with the specified vector<string >.
- 	 * @param antennaNames The vector<string > value to which antennaNames is to be set.
+ 	 * Set antennaNames with the specified std::vector<std::string >.
+ 	 * @param antennaNames The std::vector<std::string > value to which antennaNames is to be set.
  	 
  	
  		
  	 */
- 	void CalBandpassRow::setAntennaNames (vector<string > antennaNames)  {
+ 	void CalBandpassRow::setAntennaNames (std::vector<std::string > antennaNames)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3369,21 +3424,21 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get refAntennaName.
- 	 * @return refAntennaName as string
+ 	 * @return refAntennaName as std::string
  	 */
- 	string CalBandpassRow::getRefAntennaName() const {
+ 	std::string CalBandpassRow::getRefAntennaName() const {
 	
   		return refAntennaName;
  	}
 
  	/**
- 	 * Set refAntennaName with the specified string.
- 	 * @param refAntennaName The string value to which refAntennaName is to be set.
+ 	 * Set refAntennaName with the specified std::string.
+ 	 * @param refAntennaName The std::string value to which refAntennaName is to be set.
  	 
  	
  		
  	 */
- 	void CalBandpassRow::setRefAntennaName (string refAntennaName)  {
+ 	void CalBandpassRow::setRefAntennaName (std::string refAntennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3401,21 +3456,21 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get freqLimits.
- 	 * @return freqLimits as vector<Frequency >
+ 	 * @return freqLimits as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalBandpassRow::getFreqLimits() const {
+ 	std::vector<Frequency > CalBandpassRow::getFreqLimits() const {
 	
   		return freqLimits;
  	}
 
  	/**
- 	 * Set freqLimits with the specified vector<Frequency >.
- 	 * @param freqLimits The vector<Frequency > value to which freqLimits is to be set.
+ 	 * Set freqLimits with the specified std::vector<Frequency >.
+ 	 * @param freqLimits The std::vector<Frequency > value to which freqLimits is to be set.
  	 
  	
  		
  	 */
- 	void CalBandpassRow::setFreqLimits (vector<Frequency > freqLimits)  {
+ 	void CalBandpassRow::setFreqLimits (std::vector<Frequency > freqLimits)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3433,21 +3488,21 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > CalBandpassRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > CalBandpassRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void CalBandpassRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void CalBandpassRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3465,21 +3520,21 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get curve.
- 	 * @return curve as vector<vector<vector<float > > >
+ 	 * @return curve as std::vector<std::vector<std::vector<float > > >
  	 */
- 	vector<vector<vector<float > > > CalBandpassRow::getCurve() const {
+ 	std::vector<std::vector<std::vector<float > > > CalBandpassRow::getCurve() const {
 	
   		return curve;
  	}
 
  	/**
- 	 * Set curve with the specified vector<vector<vector<float > > >.
- 	 * @param curve The vector<vector<vector<float > > > value to which curve is to be set.
+ 	 * Set curve with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param curve The std::vector<std::vector<std::vector<float > > > value to which curve is to be set.
  	 
  	
  		
  	 */
- 	void CalBandpassRow::setCurve (vector<vector<vector<float > > > curve)  {
+ 	void CalBandpassRow::setCurve (std::vector<std::vector<std::vector<float > > > curve)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3497,21 +3552,21 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get reducedChiSquared.
- 	 * @return reducedChiSquared as vector<double >
+ 	 * @return reducedChiSquared as std::vector<double >
  	 */
- 	vector<double > CalBandpassRow::getReducedChiSquared() const {
+ 	std::vector<double > CalBandpassRow::getReducedChiSquared() const {
 	
   		return reducedChiSquared;
  	}
 
  	/**
- 	 * Set reducedChiSquared with the specified vector<double >.
- 	 * @param reducedChiSquared The vector<double > value to which reducedChiSquared is to be set.
+ 	 * Set reducedChiSquared with the specified std::vector<double >.
+ 	 * @param reducedChiSquared The std::vector<double > value to which reducedChiSquared is to be set.
  	 
  	
  		
  	 */
- 	void CalBandpassRow::setReducedChiSquared (vector<double > reducedChiSquared)  {
+ 	void CalBandpassRow::setReducedChiSquared (std::vector<double > reducedChiSquared)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3631,10 +3686,10 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get rms, which is optional.
- 	 * @return rms as vector<vector<float > >
+ 	 * @return rms as std::vector<std::vector<float > >
  	 * @throw IllegalAccessException If rms does not exist.
  	 */
- 	vector<vector<float > > CalBandpassRow::getRms() const  {
+ 	std::vector<std::vector<float > > CalBandpassRow::getRms() const  {
 		if (!rmsExists) {
 			throw IllegalAccessException("rms", "CalBandpass");
 		}
@@ -3643,12 +3698,12 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set rms with the specified vector<vector<float > >.
- 	 * @param rms The vector<vector<float > > value to which rms is to be set.
+ 	 * Set rms with the specified std::vector<std::vector<float > >.
+ 	 * @param rms The std::vector<std::vector<float > > value to which rms is to be set.
  	 
  	
  	 */
- 	void CalBandpassRow::setRms (vector<vector<float > > rms) {
+ 	void CalBandpassRow::setRms (std::vector<std::vector<float > > rms) {
 	
  		this->rms = rms;
 	
@@ -3678,10 +3733,10 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRange, which is optional.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 * @throw IllegalAccessException If frequencyRange does not exist.
  	 */
- 	vector<Frequency > CalBandpassRow::getFrequencyRange() const  {
+ 	std::vector<Frequency > CalBandpassRow::getFrequencyRange() const  {
 		if (!frequencyRangeExists) {
 			throw IllegalAccessException("frequencyRange", "CalBandpass");
 		}
@@ -3690,12 +3745,12 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  	
  	 */
- 	void CalBandpassRow::setFrequencyRange (vector<Frequency > frequencyRange) {
+ 	void CalBandpassRow::setFrequencyRange (std::vector<Frequency > frequencyRange) {
 	
  		this->frequencyRange = frequencyRange;
 	
@@ -3772,10 +3827,10 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get chanFreqStart, which is optional.
- 	 * @return chanFreqStart as vector<Frequency >
+ 	 * @return chanFreqStart as std::vector<Frequency >
  	 * @throw IllegalAccessException If chanFreqStart does not exist.
  	 */
- 	vector<Frequency > CalBandpassRow::getChanFreqStart() const  {
+ 	std::vector<Frequency > CalBandpassRow::getChanFreqStart() const  {
 		if (!chanFreqStartExists) {
 			throw IllegalAccessException("chanFreqStart", "CalBandpass");
 		}
@@ -3784,12 +3839,12 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set chanFreqStart with the specified vector<Frequency >.
- 	 * @param chanFreqStart The vector<Frequency > value to which chanFreqStart is to be set.
+ 	 * Set chanFreqStart with the specified std::vector<Frequency >.
+ 	 * @param chanFreqStart The std::vector<Frequency > value to which chanFreqStart is to be set.
  	 
  	
  	 */
- 	void CalBandpassRow::setChanFreqStart (vector<Frequency > chanFreqStart) {
+ 	void CalBandpassRow::setChanFreqStart (std::vector<Frequency > chanFreqStart) {
 	
  		this->chanFreqStart = chanFreqStart;
 	
@@ -3819,10 +3874,10 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get chanFreqStep, which is optional.
- 	 * @return chanFreqStep as vector<Frequency >
+ 	 * @return chanFreqStep as std::vector<Frequency >
  	 * @throw IllegalAccessException If chanFreqStep does not exist.
  	 */
- 	vector<Frequency > CalBandpassRow::getChanFreqStep() const  {
+ 	std::vector<Frequency > CalBandpassRow::getChanFreqStep() const  {
 		if (!chanFreqStepExists) {
 			throw IllegalAccessException("chanFreqStep", "CalBandpass");
 		}
@@ -3831,12 +3886,12 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set chanFreqStep with the specified vector<Frequency >.
- 	 * @param chanFreqStep The vector<Frequency > value to which chanFreqStep is to be set.
+ 	 * Set chanFreqStep with the specified std::vector<Frequency >.
+ 	 * @param chanFreqStep The std::vector<Frequency > value to which chanFreqStep is to be set.
  	 
  	
  	 */
- 	void CalBandpassRow::setChanFreqStep (vector<Frequency > chanFreqStep) {
+ 	void CalBandpassRow::setChanFreqStep (std::vector<Frequency > chanFreqStep) {
 	
  		this->chanFreqStep = chanFreqStep;
 	
@@ -3866,10 +3921,10 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get numSpectralWindowChan, which is optional.
- 	 * @return numSpectralWindowChan as vector<int >
+ 	 * @return numSpectralWindowChan as std::vector<int >
  	 * @throw IllegalAccessException If numSpectralWindowChan does not exist.
  	 */
- 	vector<int > CalBandpassRow::getNumSpectralWindowChan() const  {
+ 	std::vector<int > CalBandpassRow::getNumSpectralWindowChan() const  {
 		if (!numSpectralWindowChanExists) {
 			throw IllegalAccessException("numSpectralWindowChan", "CalBandpass");
 		}
@@ -3878,12 +3933,12 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set numSpectralWindowChan with the specified vector<int >.
- 	 * @param numSpectralWindowChan The vector<int > value to which numSpectralWindowChan is to be set.
+ 	 * Set numSpectralWindowChan with the specified std::vector<int >.
+ 	 * @param numSpectralWindowChan The std::vector<int > value to which numSpectralWindowChan is to be set.
  	 
  	
  	 */
- 	void CalBandpassRow::setNumSpectralWindowChan (vector<int > numSpectralWindowChan) {
+ 	void CalBandpassRow::setNumSpectralWindowChan (std::vector<int > numSpectralWindowChan) {
 	
  		this->numSpectralWindowChan = numSpectralWindowChan;
 	
@@ -3913,10 +3968,10 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get spectrum, which is optional.
- 	 * @return spectrum as vector<vector<vector<float > > >
+ 	 * @return spectrum as std::vector<std::vector<std::vector<float > > >
  	 * @throw IllegalAccessException If spectrum does not exist.
  	 */
- 	vector<vector<vector<float > > > CalBandpassRow::getSpectrum() const  {
+ 	std::vector<std::vector<std::vector<float > > > CalBandpassRow::getSpectrum() const  {
 		if (!spectrumExists) {
 			throw IllegalAccessException("spectrum", "CalBandpass");
 		}
@@ -3925,12 +3980,12 @@ void CalBandpassRow::spectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set spectrum with the specified vector<vector<vector<float > > >.
- 	 * @param spectrum The vector<vector<vector<float > > > value to which spectrum is to be set.
+ 	 * Set spectrum with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param spectrum The std::vector<std::vector<std::vector<float > > > value to which spectrum is to be set.
  	 
  	
  	 */
- 	void CalBandpassRow::setSpectrum (vector<vector<vector<float > > > spectrum) {
+ 	void CalBandpassRow::setSpectrum (std::vector<std::vector<std::vector<float > > > spectrum) {
 	
  		this->spectrum = spectrum;
 	
@@ -4591,7 +4646,7 @@ receiverBand = CReceiverBand::from_int(0);
 	}
 
 	
-	bool CalBandpassRow::compareNoAutoInc(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<Frequency > freqLimits, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared) {
+	bool CalBandpassRow::compareNoAutoInc(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<Frequency > freqLimits, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared) {
 		bool result;
 		result = true;
 		
@@ -4726,7 +4781,7 @@ receiverBand = CReceiverBand::from_int(0);
 	
 	
 	
-	bool CalBandpassRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<Frequency > freqLimits, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared) {
+	bool CalBandpassRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<Frequency > freqLimits, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared) {
 		bool result;
 		result = true;
 		

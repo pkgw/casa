@@ -1,10 +1,10 @@
-#include "SchedulerMode.h"
+#include <alma/Enumtcl/SchedulerMode.h>
 
-string enum_map_traits<SchedulerModeMod::SchedulerMode,void>::typeName_="SchedulerMode";
-string enum_map_traits<SchedulerModeMod::SchedulerMode,void>::enumerationDesc_="";
-string enum_map_traits<SchedulerModeMod::SchedulerMode,void>::order_="";
-string enum_map_traits<SchedulerModeMod::SchedulerMode,void>::xsdBaseType_="void";
-map<SchedulerModeMod::SchedulerMode,EnumPar<void> > enum_map_traits<SchedulerModeMod::SchedulerMode,void>::m_;
+std::string enum_map_traits<SchedulerModeMod::SchedulerMode,void>::typeName_="SchedulerMode";
+std::string enum_map_traits<SchedulerModeMod::SchedulerMode,void>::enumerationDesc_="";
+std::string enum_map_traits<SchedulerModeMod::SchedulerMode,void>::order_="";
+std::string enum_map_traits<SchedulerModeMod::SchedulerMode,void>::xsdBaseType_="void";
+std::map<SchedulerModeMod::SchedulerMode,EnumPar<void> > enum_map_traits<SchedulerModeMod::SchedulerMode,void>::m_;
 bool   enum_map_traits<SchedulerModeMod::SchedulerMode,void>::init_=init();
 
 

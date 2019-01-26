@@ -41,6 +41,8 @@
 #include <synthesis/TransformMachines/SynthesisError.h>
 #include <synthesis/TransformMachines/BeamCalc.h>
 #include <casa/OS/Timer.h>
+#include <casa/System/AppState.h>
+#include <casa/OS/Directory.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -162,12 +164,35 @@ namespace casa{
       }
 
       if(useInternal){
-	const char *sep=" ";
-	char *aipsPath = strtok(getenv("CASAPATH"),sep);
-	if (aipsPath == NULL)
-	  throw(SynthesisError("CASAPATH not found."));
-	String fullFileName(aipsPath);
-	
+
+        Bool found = False;
+        String fullFileName;
+        const std::list<std::string> &data_path = AppStateSource::fetch( ).dataPath( );
+        
+        // The data path search need to be rewritten to adopt the recommanded setting via python
+        // file for CASA6. 
+        // For now, only the first path that actually exist will be set to the data path (TT 2018.12.10)
+        if (data_path.size() > 0 ) {
+          for ( std::list<std::string>::const_iterator it=data_path.begin(); ! found && it != data_path.end(); ++it ) {
+            Path lpath = Path(*it);
+            String slpath = lpath.absoluteName();
+            Directory ddir(slpath);
+            if  (ddir.exists()) {
+              found = True;
+              fullFileName=slpath;
+              break;
+            }
+          }
+        } 
+        else if(!found) {
+          const char *sep=" ";
+          char *aipsPath = strtok(getenv("CASAPATH"),sep);
+          if (aipsPath == NULL)
+            throw(SynthesisError("CASAPATH not found."));
+          fullFileName=aipsPath;
+          fullFileName+="/data";
+        }
+
 	if(obsName_p=="VLA" && antType_p=="STANDARD"){
 	  os <<  LogIO::NORMAL << "Will use default geometries for VLA STANDARD." << LogIO::POST;
 	  BeamCalc_NumBandCodes_p = VLABeamCalc_NumBandCodes;
@@ -179,7 +204,8 @@ namespace casa{
 	    bandMinFreq_p[i] = VLABandMinFreqDefaults[i]; 
 	    bandMaxFreq_p[i] = VLABandMaxFreqDefaults[i]; 
 	  }
-	  antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  //antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  antRespPath_p = fullFileName + "/nrao/VLA";
 	}
 	else if(obsName_p=="EVLA" && antType_p=="STANDARD"){
 	  os <<  LogIO::NORMAL << "Will use default geometries for EVLA STANDARD." << LogIO::POST;
@@ -192,7 +218,8 @@ namespace casa{
 	    bandMinFreq_p[i] = EVLABandMinFreqDefaults[i]; 
 	    bandMaxFreq_p[i] = EVLABandMaxFreqDefaults[i]; 
 	  }
-	  antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  //antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  antRespPath_p = fullFileName + "/nrao/VLA";
 	}
 	else if(obsName_p=="ALMA" && (antType_p=="DA" || antType_p=="DV" || antType_p=="PM")){
 	  os <<  LogIO::NORMAL << "Will use default geometries for ALMA DA, DV, and PM." << LogIO::POST;
@@ -208,7 +235,8 @@ namespace casa{
 	    bandMinFreq_p[i] = ALMABandMinFreqDefaults[i]; 
 	    bandMaxFreq_p[i] = ALMABandMaxFreqDefaults[i]; 
 	  }
-	  antRespPath_p = fullFileName + "/data/alma/responses";
+	  //antRespPath_p = fullFileName + "/data/alma/responses";
+	  antRespPath_p = fullFileName + "/alma/responses";
 	}
 	else{
 	  String mesg="We don't have any antenna ray tracing parameters available for observatory "

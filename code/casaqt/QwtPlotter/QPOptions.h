@@ -598,7 +598,7 @@ public:
     // <group>
     static QwtLinearColorMap* standardSpectrogramMap();    
     static QwtLinearColorMap* standardRasterMap();   
-    static QwtLinearColorMap* rasterMap(const vector<double>& values);
+    static QwtLinearColorMap* rasterMap(const std::vector<double>& values);
     // </group>
 };
 

@@ -33,7 +33,7 @@
  * File CInvalidatingCondition.cpp
  */
 #include <sstream>
-#include <CInvalidatingCondition.h>
+#include <alma/Enumerations/CInvalidatingCondition.h>
 #include <string>
 using namespace std;
 

@@ -125,7 +125,7 @@ public:
 	// between a non-reference Gaussian parameter and the corresponding reference
 	// Gaussian parameter.
 	GaussianMultipletSpectralElement(
-		const vector<GaussianSpectralElement>& estimates,
+		const std::vector<GaussianSpectralElement>& estimates,
 		const casacore::Matrix<casacore::Double>& fixedRelationships
 	);
 
@@ -148,7 +148,7 @@ public:
 	) const;
 
 	// get the gaussians
-	const vector<GaussianSpectralElement>& getGaussians() const;
+	const std::vector<GaussianSpectralElement>& getGaussians() const;
 
 	// get the constraints matrix
 	const casacore::Matrix<casacore::Double>& getConstraints() const;
@@ -171,7 +171,7 @@ public:
 	casacore::Bool toRecord(casacore::RecordInterface& out) const;
 
 private:
-	vector<GaussianSpectralElement> _gaussians;
+    std::vector<GaussianSpectralElement> _gaussians;
 	casacore::Matrix<casacore::Double> _constraints;
 	casacore::Matrix<casacore::uInt> _paramIndices;
 };
