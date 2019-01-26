@@ -2870,6 +2870,15 @@ Array<Double> SIImageStore::calcRobustRMS(Array<Double>& mdns, const Float pbmas
     os << "[" << itsImageName << "] Total Model Flux : " << getModelFlux() << LogIO::POST; 
 
     
+    Record*  regionPtr=0;
+    String LELmask("");
+    Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+    Array<Double> maxs, mins;
+    thestats.get(RecordFieldId("max"), maxs);
+    thestats.get(RecordFieldId("min"), mins);
+    os << LogIO::DEBUG1 << "Max : " << maxs << LogIO::POST;
+    os << LogIO::DEBUG1 << "Min : " << mins << LogIO::POST;
+    
   }
 
   // Calculate the total model flux

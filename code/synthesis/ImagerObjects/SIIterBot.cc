@@ -189,7 +189,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                    }
 		else if ( itsIterDone >= itsNiter || 
 		     itsPeakResidual <= itsThreshold ||
-                     abs(itsPeakResidual - itsThreshold)/itsThreshold < tol ||   
+                     itsPeakResidual <= itsNsigmaThreshold ||
+	             abs(itsPeakResidual - itsThreshold)/itsThreshold < tol ||   
 		     itsStopFlag )
 		  {
 		    //		    os << "Reached global stopping criteria : ";
