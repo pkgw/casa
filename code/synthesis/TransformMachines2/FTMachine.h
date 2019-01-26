@@ -373,7 +373,8 @@ public:
   //Using double in the units and epoch-frame of the ms(s) ..caller is responsible for conversion
   void setPhaseCenterTime(const casacore::Double time){phaseCenterTime_p=time;};
   casacore::Double getPhaseCenterTime(){return phaseCenterTime_p;};
-
+  casacore::Vector<casacore::Int> channelMap(const vi::VisBuffer2& vb);
+  casacore::Matrix<casacore::Double> getSumWeights(){return  sumWeight;};
 protected:
 
   friend class VisModelData;

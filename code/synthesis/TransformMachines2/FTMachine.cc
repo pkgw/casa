@@ -1727,6 +1727,10 @@ using namespace casa::vi;
     }
   */
 
+  Vector<Int> FTMachine::channelMap(const vi::VisBuffer2& vb){
+    matchChannel(vb);
+    return chanMap;
+  }
   Bool FTMachine::matchChannel(const vi::VisBuffer2& vb){
 
     //Int spw=vb.spectralWindows()[0];

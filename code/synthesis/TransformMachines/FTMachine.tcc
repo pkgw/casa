@@ -131,4 +131,6 @@
       ptr=tmpDouble.getStorage(del);
     }  
     thegrid=casacore::Array<T>(shp, (T*)(ptr));
+    griddedData.resize();
+    griddedData2.resize();
   };
