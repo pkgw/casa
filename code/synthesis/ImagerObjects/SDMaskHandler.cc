@@ -2270,6 +2270,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       robuststats.get(RecordFieldId("robustrms"),resRmss); // already converted from MAD to rms  
       os<<LogIO::DEBUG1<<" robustrms from MAD (mads*1.4826)= "<<resRmss<<LogIO::POST;
     }
+    os<<LogIO::DEBUG1<<"get mdns"<<LogIO::POST;
     robuststats.get(RecordFieldId("median"), mdns);
     
     // only useful if single threshold value are used for all spectral planes... 
@@ -2280,9 +2281,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //resPeak = maxmaxval;
     // use MAD and convert to rms 
     //resRms = maxmadval * 1.4826; 
-    resRmss = mads * 1.4826;
     //os<<LogIO::NORMAL<<" rms from MAD (mads*1.4826)= "<<resRmss<<LogIO::POST;
-    os<<LogIO::DEBUG1<<" rms from MAD (mads*1.4826)= "<<resRmss<<LogIO::POST;
+    //os<<LogIO::DEBUG1<<" rms from MAD (mads*1.4826)= "<<resRmss<<LogIO::POST;
 
     //check for pbmask
     IPosition imshp=res.shape();
