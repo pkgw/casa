@@ -1173,258 +1173,203 @@ void ImagePolarimetry::_fiddleStokesCoordinate(
     ie.setCoordinateInfo(cSys);
 }
 
-void ImagePolarimetry::_fiddleTimeCoordinate(ImageInterface<Complex>& ie, const Quantum<Double>& f,
-                                            Int coord) const
-{   
-   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-//
-   CoordinateSystem cSys = ie.coordinates();
-   Coordinate* pC = cSys.coordinate(coord).clone();
-   AlwaysAssert(pC->nPixelAxes()==1,AipsError);
-   AlwaysAssert(pC->type()==Coordinate::LINEAR,AipsError);
-//
-   Vector<String> axisUnits = pC->worldAxisUnits();
-   axisUnits = String("s");
-   if (!pC->setWorldAxisUnits(axisUnits)) {
-      os << "Failed to set TimeCoordinate units to seconds because " << pC->errorMessage() << LogIO::EXCEPTION;
-   }
-
-// Find factor to convert from time (s) to rad/m/m
-
-   Vector<Double> inc = pC->increment();
-   Double ff = f.getValue(Unit("Hz"));
-   Double lambda = QC::c( ).getValue(Unit("m/s")) / ff;
-   Double fac = -C::pi * ff / 2.0 / lambda / lambda;
-   inc *= fac;
-//
-   Vector<String> axisNames(1);
-   axisNames = String("RotationMeasure");
-   axisUnits = String("rad/m/m");
-   Vector<Double> refVal(1,0.0);
-//
-   LinearCoordinate lC(axisNames, axisUnits, refVal, inc, 
-                       pC->linearTransform().copy(), pC->referencePixel().copy());
-//
-   cSys.replaceCoordinate(lC, coord);   
-   ie.setCoordinateInfo(cSys);
-   delete pC;
+void ImagePolarimetry::_fiddleTimeCoordinate(
+    ImageInterface<Complex>& ie, const Quantum<Double>& f, Int coord
+) const {
+    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
+    CoordinateSystem cSys = ie.coordinates();
+    auto_ptr<Coordinate> pC(cSys.coordinate(coord).clone());
+    AlwaysAssert(pC->nPixelAxes()==1,AipsError);
+    AlwaysAssert(pC->type()==Coordinate::LINEAR,AipsError);
+    auto axisUnits = pC->worldAxisUnits();
+    axisUnits = String("s");
+    ThrowIf(
+        ! pC->setWorldAxisUnits(axisUnits),
+        "Failed to set TimeCoordinate units to seconds because "
+        + pC->errorMessage()
+    );
+    // Find factor to convert from time (s) to rad/m/m
+    auto inc = pC->increment();
+    const auto ff = f.getValue(Unit("Hz"));
+    const auto lambda = QC::c( ).getValue(Unit("m/s")) / ff;
+    const auto fac = -C::pi * ff / 2.0 / lambda / lambda;
+    inc *= fac;
+    Vector<String> axisNames(1);
+    axisNames = String("RotationMeasure");
+    axisUnits = String("rad/m/m");
+    Vector<Double> refVal(1,0.0);
+    LinearCoordinate lC(
+        axisNames, axisUnits, refVal, inc,
+        pC->linearTransform().copy(), pC->referencePixel().copy()
+    );
+    cSys.replaceCoordinate(lC, coord);
+    ie.setCoordinateInfo(cSys);
 }
 
-
-Quantum<Double> ImagePolarimetry::_findCentralFrequency(const Coordinate& coord, Int shape) const
-{
-   AlwaysAssert(coord.nPixelAxes()==1,AipsError);
-//
-   Vector<Double> pixel(1);
-   Vector<Double> world;
-   pixel(0) = Double(shape - 1) / 2.0;
-   if (!coord.toWorld(world, pixel)) {
-      LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-      os << "Failed to convert pixel to world for SpectralCoordinate because " 
-         << coord.errorMessage() << LogIO::EXCEPTION;
-  }
-  Vector<String> units = coord.worldAxisUnits();
-  return Quantum<Double>(world(0), units(0));
+Quantum<Double> ImagePolarimetry::_findCentralFrequency(
+    const Coordinate& coord, Int shape
+) const {
+    AlwaysAssert(coord.nPixelAxes()==1,AipsError);
+    Vector<Double> pixel(1);
+    Vector<Double> world;
+    pixel(0) = Double(shape - 1) / 2.0;
+    ThrowIf(
+        ! coord.toWorld(world, pixel),
+        "Failed to convert pixel to world for SpectralCoordinate because "
+        + coord.errorMessage()
+    );
+    const auto units = coord.worldAxisUnits();
+    return Quantum<Double>(world(0), units(0));
 }
 
-
-Int ImagePolarimetry::_findSpectralCoordinate(const CoordinateSystem& cSys, LogIO& os,
-                                             Bool fail) const
-{
-   Int afterCoord = -1;
-   Int coord = cSys.findCoordinate(Coordinate::SPECTRAL, afterCoord);
-   if (coord<0) {
-      if (fail) os << "No spectral coordinate in this image" << LogIO::EXCEPTION;
-   }
-   if (afterCoord>0) {
-      os << LogIO::WARN << "This image has more than one spectral coordinate; only first used"
-         << LogIO::POST;
-   }
-   return coord;
+Int ImagePolarimetry::_findSpectralCoordinate(
+    const CoordinateSystem& cSys, LogIO& os, Bool fail
+) const {
+    Int afterCoord = -1;
+    Int coord = cSys.findCoordinate(Coordinate::SPECTRAL, afterCoord);
+    ThrowIf(coord < 0 && fail, "No spectral coordinate in this image");
+    if (afterCoord>0) {
+        os << LogIO::WARN << "This image has more than one spectral "
+            << "coordinate; only first used" << LogIO::POST;
+    }
+    return coord;
 }
 
-Bool ImagePolarimetry::_findRotationMeasure (Float& rmFitted, Float& rmErrFitted,
-                                            Float& pa0Fitted, Float& pa0ErrFitted, 
-                                            Float& rChiSqFitted, Float& nTurns,
-                                            const Vector<uInt>& sortidx,
-                                            const Vector<Float>& wsq2, const Vector<Float>& pa2, 
-                                            const Array<Bool>& paMask2, 
-                                            const Array<Float>& paerr2, 
-                                            Float rmFg, Float rmMax, Float maxPaErr,
-                                            const String& posString)
-//
-// wsq is lambda squared in m**2 in increasing wavelength order
-// pa is position angle in radians
-// paerr is pa error in radians
-// maxPaErr is maximum tolerated error in position angle
-// rmfg is a user specified foreground RM rad/m/m
-// rmmax is a user specified maximum RM
-//
-{ 
-   static Vector<Float> paerr;
-   static Vector<Float> pa;
-   static Vector<Float> wsq;
-
-// Abandon if less than 2 points
-
-   uInt n = sortidx.nelements();
-   rmFitted = rmErrFitted = pa0Fitted = pa0ErrFitted = rChiSqFitted = 0.0;
-   if (n<2) return false;
-
-// Sort into decreasing frequency order and correct for foreground rotation
-// Remember wsq already sorted.  Discard points that are too noisy or masked
-
-   const Vector<Float>& paerr1(paerr2.nonDegenerate(0));
-   const Vector<Bool>& paMask1(paMask2.nonDegenerate(0));
-   paerr.resize(n);
-   pa.resize(n);
-   wsq.resize(n);
-//
-   uInt j = 0;
-   for (uInt i=0; i<n; i++) {
-      if (abs(paerr1(sortidx(i)))<maxPaErr && paMask1(sortidx(i))) {
-         pa(j) = pa2(sortidx(i)) - rmFg*wsq2(i);
-         paerr(j) = paerr1(sortidx(i));
-         wsq(j) = wsq2(i);
-         j++;
-      }
-   }
-   n = j;
-   if (n<=1) return false;
-//
-   pa.resize(n,true);
-   paerr.resize(n,true);
-   wsq.resize(n, true);
-
-// Treat supplementary and primary points separately
-
-   Bool ok = false;
-   if (n==2) {
-      ok = _rmSupplementaryFit(nTurns, rmFitted, rmErrFitted, pa0Fitted, pa0ErrFitted,
-                              rChiSqFitted, wsq, pa, paerr);
-   } else {
-      ok = _rmPrimaryFit(nTurns, rmFitted, rmErrFitted, pa0Fitted, pa0ErrFitted,
-                        rChiSqFitted, wsq, pa, paerr, rmMax, /*plotter,*/ posString);
-   }
-
-// Put position angle into the range 0->pi
-
-   static MVAngle tmpMVA1;
-   if (ok) {
-      MVAngle tmpMVA0(pa0Fitted);
-      tmpMVA1 = tmpMVA0.binorm(0.0);
-      pa0Fitted = tmpMVA1.radian();
-
-// Add foreground back on
-
-      rmFitted += rmFg;
-   }
-   return ok;
+Bool ImagePolarimetry::_findRotationMeasure(
+    Float& rmFitted, Float& rmErrFitted, Float& pa0Fitted, Float& pa0ErrFitted,
+    Float& rChiSqFitted, Float& nTurns, const Vector<uInt>& sortidx,
+    const Vector<Float>& wsq2, const Vector<Float>& pa2,
+    const Array<Bool>& paMask2, const Array<Float>& paerr2, Float rmFg,
+    Float rmMax, Float maxPaErr, const String& posString
+) {
+    // wsq is lambda squared in m**2 in increasing wavelength order
+    // pa is position angle in radians
+    // paerr is pa error in radians
+    // maxPaErr is maximum tolerated error in position angle
+    // rmfg is a user specified foreground RM rad/m/m
+    // rmmax is a user specified maximum RM
+    static Vector<Float> paerr;
+    static Vector<Float> pa;
+    static Vector<Float> wsq;
+    // Abandon if less than 2 points
+    uInt n = sortidx.size();
+    if (n<2) {
+        return false;
+    }
+    rmFitted = rmErrFitted = pa0Fitted = pa0ErrFitted = rChiSqFitted = 0.0;
+    // Sort into decreasing frequency order and correct for foreground rotation
+    // Remember wsq already sorted.  Discard points that are too noisy or masked
+    const Vector<Float>& paerr1(paerr2.nonDegenerate(0));
+    const Vector<Bool>& paMask1(paMask2.nonDegenerate(0));
+    paerr.resize(n);
+    pa.resize(n);
+    wsq.resize(n);
+    uInt j = 0;
+    for (uInt i=0; i<n; ++i) {
+        if (abs(paerr1(sortidx(i))) < maxPaErr && paMask1(sortidx(i))) {
+            pa(j) = pa2(sortidx(i)) - rmFg*wsq2(i);
+            paerr(j) = paerr1(sortidx(i));
+            wsq(j) = wsq2(i);
+            ++j;
+        }
+    }
+    n = j;
+    if (n<=1) {
+        return false;
+    }
+    pa.resize(n, true);
+    paerr.resize(n, true);
+    wsq.resize(n, true);
+    // Treat supplementary and primary points separately
+    Bool ok = n == 2
+        ? _rmSupplementaryFit(
+            nTurns, rmFitted, rmErrFitted, pa0Fitted, pa0ErrFitted,
+            rChiSqFitted, wsq, pa, paerr
+        )
+        : _rmPrimaryFit(
+            nTurns, rmFitted, rmErrFitted, pa0Fitted, pa0ErrFitted,
+            rChiSqFitted, wsq, pa, paerr, rmMax, /*plotter,*/ posString
+        );
+    // Put position angle into the range 0->pi
+    static MVAngle tmpMVA1;
+    if (ok) {
+        MVAngle tmpMVA0(pa0Fitted);
+        tmpMVA1 = tmpMVA0.binorm(0.0);
+        pa0Fitted = tmpMVA1.radian();
+        // Add foreground back on
+        rmFitted += rmFg;
+    }
+    return ok;
 }
 
-void ImagePolarimetry::_hasQU () const
-{
-   Bool has = _stokes[ImagePolarimetry::Q]!=0 &&
-              _stokes[ImagePolarimetry::U]!=0;
-   if (!has) {
-      LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-      os << "This image does not have Stokes Q and U which are required for this function" << LogIO::EXCEPTION;
-   }
+void ImagePolarimetry::_hasQU () const {
+   ThrowIf(
+       ! (_stokes[Q] && _stokes[U]),
+       "This image does not have Stokes Q and U which are "
+       "required for this function"
+   );
 }
 
-
-ImageExpr<Float> ImagePolarimetry::_makeStokesExpr(ImageInterface<Float>* imPtr,
-                                                 Stokes::StokesTypes type, const String& name) const
-{
-   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   if (imPtr==0) {
-      os << "This image does not have Stokes " << Stokes::name(type) << LogIO::EXCEPTION;
-   }
-
-// Make node.  
-
-   LatticeExprNode node(*imPtr);
-
-// Make expression
-
-   LatticeExpr<Float> le(node);
-   ImageExpr<Float> ie(le, name);
-   ie.setUnits(_image->units());
-   _fiddleStokesCoordinate(ie, type);
-
-   return ie;
+ImageExpr<Float> ImagePolarimetry::_makeStokesExpr(
+    ImageInterface<Float>* imPtr, Stokes::StokesTypes type, const String& name
+) const {
+    ThrowIf(! imPtr, "This image does not have Stokes " + Stokes::name(type));
+    LatticeExprNode node(*imPtr);
+    LatticeExpr<Float> le(node);
+    ImageExpr<Float> ie(le, name);
+    ie.setUnits(_image->units());
+    _fiddleStokesCoordinate(ie, type);
+    return ie;
 }
 
-
-
-ImageInterface<Float>* ImagePolarimetry::_makeSubImage (IPosition& blc,
-                                                       IPosition& trc, 
-                                                       Int axis, Int pix) const
-{
-    blc(axis) = pix;
-    trc(axis) = pix;
+ImageInterface<Float>* ImagePolarimetry::_makeSubImage(
+    IPosition& blc, IPosition& trc, Int axis, Int pix
+) const {
+    blc[axis] = pix;
+    trc[axis] = pix;
     LCSlicer slicer(blc, trc, RegionType::Abs);
     ImageRegion region(slicer);
     return new SubImage<Float>(*_image, region);
 }
 
-
-LatticeExprNode ImagePolarimetry::_makePolIntNode(LogIO& os, Bool debias, Float clip, Float sigma,
-                                                 Bool doLin, Bool doCirc) 
-{ 
-   LatticeExprNode linNode, circNode, node;
-//
-   Float sigma2 = 0.0;
-   if (doLin) {
-      if (debias) {
-         if (sigma > 0.0) {
-            sigma2 = sigma;
-         } else {
-            sigma2 = ImagePolarimetry::sigma(clip);
-         }
-      }
-      linNode = LatticeExprNode(pow(*_stokes[ImagePolarimetry::U],2) +
-                                pow(*_stokes[ImagePolarimetry::Q],2));
-   }
-//
-   if (doCirc) {
-      if (debias) {
-         if (sigma > 0.0) {
-            sigma2 = sigma;
-         } else {
-            sigma2 = ImagePolarimetry::sigma(clip);
-         }
-      }
-      circNode = LatticeExprNode(pow(*_stokes[ImagePolarimetry::V],2));
-   }
-//
-   Float sigmasq = sigma2 * sigma2;
-   if (doLin && doCirc) {
-      if (debias) {
-         node = linNode + circNode - LatticeExprNode(sigmasq);
-         os << LogIO::NORMAL << "Debiasing with sigma = " << sqrt(sigmasq) << LogIO::POST;
-      } else {
-         node = linNode + circNode;         
-      }
-   } else if (doLin) {
-      if (debias) {
-         node = linNode - LatticeExprNode(sigmasq);
-         os << LogIO::NORMAL << "Debiasing with sigma  = " << sqrt(sigmasq) << LogIO::POST;
-      } else {
-         node = linNode;
-      }
-   } else if (doCirc) {  
-      if (debias) {
-         node = circNode - LatticeExprNode(sigmasq);
-         os << LogIO::NORMAL << "Debiasing with sigma = " << sqrt(sigmasq) << LogIO::POST;
-      } else {
-         node = circNode;
-      }
-   }
-//
-   return LatticeExprNode(sqrt(node));
+LatticeExprNode ImagePolarimetry::_makePolIntNode(
+    LogIO& os, Bool debias, Float clip, Float sigma, Bool doLin, Bool doCirc
+) {
+    LatticeExprNode linNode, circNode, node;
+    Float sigma2 = debias ? (sigma > 0.0 ? sigma : this->sigma(clip)) : 0.0;
+    if (doLin) {
+        linNode = LatticeExprNode(pow(*_stokes[U], 2) + pow(*_stokes[Q], 2));
+    }
+    if (doCirc) {
+        circNode = LatticeExprNode(pow(*_stokes[V], 2));
+    }
+    Float sigmasq = sigma2 * sigma2;
+    if (doLin && doCirc) {
+        node = linNode + circNode;
+        if (debias) {
+            node = node - LatticeExprNode(sigmasq);
+            os << LogIO::NORMAL << "Debiasing with sigma = " << sqrt(sigmasq)
+                << LogIO::POST;
+        }
+    }
+    else if (doLin) {
+        node = linNode;
+        if (debias) {
+            node = node - LatticeExprNode(sigmasq);
+            os << LogIO::NORMAL << "Debiasing with sigma  = " << sqrt(sigmasq)
+                << LogIO::POST;
+        }
+    }
+    else if (doCirc) {
+        node = circNode;
+        if (debias) {
+            node = node - LatticeExprNode(sigmasq);
+            os << LogIO::NORMAL << "Debiasing with sigma = " << sqrt(sigmasq)
+                << LogIO::POST;
+        }
+    }
+    return LatticeExprNode(sqrt(node));
 }
-
 
 Bool ImagePolarimetry::_rmPrimaryFit(Float& nTurns, Float& rmFitted, Float& rmErrFitted,
                                     Float& pa0Fitted, Float& pa0ErrFitted, 
