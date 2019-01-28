@@ -29,9 +29,9 @@
 
 #include <synthesis/TransformMachines2/PhaseGrad.h>
 #include <synthesis/TransformMachines/SynthesisMath.h>
-// #include <casa/Logging/LogIO.h>
-// #include <casa/Logging/LogSink.h>
-// #include <casa/Logging/LogOrigin.h>
+#include <casa/Logging/LogIO.h>
+#include <casa/Logging/LogSink.h>
+#include <casa/Logging/LogOrigin.h>
 
 using namespace casacore;
 namespace casa{
@@ -71,23 +71,18 @@ namespace casa{
       //
       // Re-find the max. CF size if the CFB changed.
       //
-      if (&*cfb != cachedCFBPtr_p)
+      CFBuffer *thisCFB = cfb.get();
+      if (thisCFB != cachedCFBPtr_p)
 	{
 	  maxCFShape_p[0] = maxCFShape_p[1] = cfb->getMaxCFSize();
 	  // {
-	  //   LogIO log_l(LogOrigin("PhaseGrad","computeFieldPointingGrad"));
-	  //   int vbSpw = vb.spectralWindows()(0);
-	  //   int vbFieldID = vb.fieldId()(0);
-
-	  //   log_l << "CFB changed: "<< &(*cfb) << " " << cachedCFBPtr_p << " " << vbSpw << " " << vbFieldID << " " << maxCFShape_p << endl;
+	  //   // LogIO log_l(LogOrigin("PhaseGrad","computeFieldPointingGrad"));
+	  //   cerr << "CFB changed: "<< thisCFB << " " << cachedCFBPtr_p << " " << vb.spectralWindows()(0) << " " << vb.fieldId()(0) << " " << maxCFShape_p << endl;
 	  // }
-	  cachedCFBPtr_p = &*cfb;
+	  cachedCFBPtr_p = thisCFB;
 	}
-      // int vbSpw = vb.spectralWindows()(0);
-      // int vbFieldID = -1;//((const Int)((vbs.vb_p)->fieldId()(0)));
-      
       //
-      // If the pointing changed or the max. CF size changed, recompute the phase gradient.
+      // If the pointing or the max. CF size changed, recompute the phase gradient.
       //
       if (
 	  ((fabs(pointingOffset[0]-cached_FieldOffset_p[0])) > 1e-6) ||
@@ -96,18 +91,10 @@ namespace casa{
 	  (field_phaseGrad_p.shape()[1] < maxCFShape_p[1])
 	  )
 	{
-	  // LogIO log_l(LogOrigin("AWVisResampler","computeFieldPointingGrad"));
-	  // log_l << "Computing phase gradiant for pointing offset " 
-	  //       << pointingOffset << cfShape << " " << field_phaseGrad_p.shape() 
-	  //       << "(SPW: " << spwID << " Field: " << fieldId << ")"
-	  //       << LogIO::DEBUGGING
-	  //       << LogIO::POST;
 	  int nx=maxCFShape_p(0), ny=maxCFShape_p(1);
 	  double grad;
 	  Complex phx,phy;
 	  Vector<int> convOrigin = maxCFShape_p/2;
-	  
-	  //cerr << nx << " " << ny << " " << convOrigin[0] << endl;
 	  
 	  field_phaseGrad_p.resize(nx,ny);
 	  cached_FieldOffset_p[0] = pointingOffset[0];
