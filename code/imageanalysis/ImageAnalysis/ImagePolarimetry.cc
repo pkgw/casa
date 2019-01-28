@@ -1559,37 +1559,38 @@ void ImagePolarimetry::_subtractProfileMean(
     }
 }
 
-Bool ImagePolarimetry::_dealWithMask (Lattice<Bool>*& pMask, ImageInterface<Float>*& pIm,
-                                     LogIO& os, const String& type) const
-{
-   Bool isMasked = false;
-   if (!pIm->isMasked()) {
-      if (pIm->canDefineRegion()) {
-         pIm->makeMask("mask0", true, true, true, true);
-         isMasked = true;
-      } else {
-         os << LogIO::WARN << "Could not create a mask for the output " << type << " image" << LogIO::POST;
-      }
-   } else {
-      isMasked = true;
-   }
-//
-   if (isMasked) {
-      pMask = &(pIm->pixelMask());
-      if (!pMask->isWritable()) {
-         isMasked = false;
-         os << LogIO::WARN << "The output " << type << " image has a mask but it's not writable" << LogIO::POST;
-      }
-   }
-   return isMasked;
+Bool ImagePolarimetry::_dealWithMask(
+    Lattice<Bool>*& pMask, ImageInterface<Float>*& pIm, LogIO& os,
+    const String& type
+) const {
+    auto isMasked = pIm->isMasked();
+    if (! isMasked) {
+        if (pIm->canDefineRegion()) {
+            pIm->makeMask("mask0", true, true, true, true);
+            isMasked = true;
+        }
+        else {
+            os << LogIO::WARN << "Could not create a mask for the output "
+                << type << " image" << LogIO::POST;
+        }
+    }
+    if (isMasked) {
+        pMask = &(pIm->pixelMask());
+        if (! pMask->isWritable()) {
+            isMasked = false;
+            os << LogIO::WARN << "The output " << type
+                << " image has a mask but it's not writable" << LogIO::POST;
+        }
+    }
+    return isMasked;
 }
 
 void ImagePolarimetry::_createBeamsEqMat() {
 	_beamsEqMat.assign(Matrix<Bool>(4, 4, false));
 	Bool hasMultiBeams = _image->imageInfo().hasMultipleBeams();
-	for (uInt i=0; i<4; i++) {
-		for (uInt j=i; j<4; j++) {
-			if (_stokes[i] == 0 || _stokes[j] == 0) {
+	for (uInt i=0; i<4; ++i) {
+		for (uInt j=i; j<4; ++j) {
+			if (! (_stokes[i] &&  _stokes[j])) {
 				_beamsEqMat(i, j) = false;
 			}
 			else if (i == j) {
@@ -1611,29 +1612,25 @@ void ImagePolarimetry::_createBeamsEqMat() {
 }
 
 Bool ImagePolarimetry::_checkBeams(
-		const Vector<StokesTypes>& stokes, const Bool requireChannelEquality,
-		const Bool throws
+    const Vector<StokesTypes>& stokes, Bool requireChannelEquality, Bool throws
 ) const {
 	for (
-		Vector<StokesTypes>::const_iterator iter = stokes.begin();
-		iter != stokes.end(); iter++
+		auto iter = stokes.cbegin(); iter != stokes.cend(); ++iter
 	) {
 		for (
-			Vector<StokesTypes>::const_iterator jiter=iter;
-			jiter!=stokes.end(); jiter++
+			auto jiter=iter; jiter!=stokes.cend(); ++jiter
 		) {
 			if (iter == jiter) {
 				continue;
 			}
 			if (! _beamsEqMat(*iter, *jiter)) {
-				if (throws) {
-					throw AipsError(
-							"Input image has multiple beams and the corresponding beams for the stokes planes necessary for this computation are not equal."
-					);
-				}
-				else {
-					return false;
-				}
+				ThrowIf(
+				    throws,
+				    "Input image has multiple beams and the corresponding "
+				    "beams for the stokes planes necessary for this "
+				    "computation are not equal."
+				);
+				return False;
 			}
 		}
 	}
@@ -1642,22 +1639,19 @@ Bool ImagePolarimetry::_checkBeams(
 		&& _stokes[stokes[0]]->coordinates().hasSpectralAxis()
 		&& _stokes[stokes[0]]->imageInfo().hasMultipleBeams()
 	) {
-		const Array<GaussianBeam>& beamSet = _stokes[stokes[0]]->imageInfo().getBeamSet().getBeams();
-		Array<GaussianBeam>::const_iterator start = beamSet.begin();
-		start++;
-		for (
-			Array<GaussianBeam>::const_iterator iter=start;
-			iter!=beamSet.end(); iter++
-		) {
+		const auto& beamSet
+		    = _stokes[stokes[0]]->imageInfo().getBeamSet().getBeams();
+		auto start = beamSet.cbegin();
+		++start;
+		for (auto iter=start; iter!=beamSet.cend(); ++iter) {
 			if (*iter != *(beamSet.begin())) {
-				if (throws) {
-					throw AipsError(
-						"At least one beam in this image is not equal to all the others along its spectral axis so this computation cannot be performed"
-					);
-				}
-				else {
-					return false;
-				}
+				ThrowIf(
+				    throws,
+					"At least one beam in this image is not equal to all the "
+				    "others along its spectral axis so this computation cannot "
+				    "be performed"
+				);
+				return False;
 			}
 		}
 	}
