@@ -41,23 +41,19 @@
 
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -89,20 +85,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -196,7 +196,7 @@ class SysCalRow;
 	
  * <TR>
  * <TD> tcalSpectrum</TD> 
- * <TD> vector<vector<Temperature > > </TD>
+ * <TD> std::vector<std::vector<Temperature > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the calibration temperatures (one value per receptor per channel). </TD>
  * </TR>
@@ -210,7 +210,7 @@ class SysCalRow;
 	
  * <TR>
  * <TD> trxSpectrum</TD> 
- * <TD> vector<vector<Temperature > > </TD>
+ * <TD> std::vector<std::vector<Temperature > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the receiver temperatures (one value per receptor per channel). </TD>
  * </TR>
@@ -224,7 +224,7 @@ class SysCalRow;
 	
  * <TR>
  * <TD> tskySpectrum</TD> 
- * <TD> vector<vector<Temperature > > </TD>
+ * <TD> std::vector<std::vector<Temperature > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the sky temperatures (one value per receptor per channel). </TD>
  * </TR>
@@ -238,7 +238,7 @@ class SysCalRow;
 	
  * <TR>
  * <TD> tsysSpectrum</TD> 
- * <TD> vector<vector<Temperature > > </TD>
+ * <TD> std::vector<std::vector<Temperature > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the system temperatures (one value per receptor per channel). </TD>
  * </TR>
@@ -252,7 +252,7 @@ class SysCalRow;
 	
  * <TR>
  * <TD> tantSpectrum</TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the Tant spectrum (one value per receptor per channel). </TD>
  * </TR>
@@ -266,7 +266,7 @@ class SysCalRow;
 	
  * <TR>
  * <TD> tantTsysSpectrum</TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the Tant/Tsys spectrum(one value per receptor per channel) . </TD>
  * </TR>
@@ -280,7 +280,7 @@ class SysCalRow;
 	
  * <TR>
  * <TD> phaseDiffSpectrum</TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the phase difference spectrum (one value per receptor per channel). </TD>
  * </TR>

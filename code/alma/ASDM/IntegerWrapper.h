@@ -25,11 +25,9 @@
  */
 # ifndef Integer_CLASS
 # define Integer_CLASS
-#include <NumberFormatException.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <string>
-
-using std::string;
 
 namespace asdm {
 
@@ -45,14 +43,14 @@ public:
 	 * @return an int.
 	 * @throws NumberFormatException.
 	 */
-	static int parseInt(const string &s) throw (NumberFormatException);
+	static int parseInt(const std::string &s) throw (NumberFormatException);
 
 	/**
 	 * Encode an integer value into its string representation.
 	 * @param i the integer value to be encoded.
 	 * @return the string representing the integer value passed as parameter.
 	 */
-	static string toString(int i);
+	static std::string toString(int i);
 
      /**
 	 * The minimum value for an integer.

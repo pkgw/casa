@@ -426,6 +426,256 @@ class fluxscale3_test(unittest.TestCase):
 
         self.assertTrue(diff_fluxd<tol)
 
+class fluxscale_fit_test(unittest.TestCase):
+
+    def setUp(self):
+        # Input names
+        # shorten CasaGuide data set (TW Hya)
+        prefix = 'twhya.short'
+        self.prefix = prefix
+        self.msfile = prefix + '.ms'
+#        if testmms:
+#            self.msfile = prefix + '.mms'
+
+        self.gtable = prefix + '.fittest.gcal'
+        self.reffile = prefix + '.fittest.ref.fcal'
+
+        fpath = os.path.join(datapath,self.msfile)
+        if os.path.lexists(fpath):
+            shutil.copytree(fpath, self.msfile, symlinks=True)
+            fpath = os.path.join(datapath,self.gtable)
+            shutil.copytree(fpath, self.gtable, symlinks=True)
+            fpath = os.path.join(datapath,self.reffile)
+            shutil.copytree(fpath, self.reffile, symlinks=True)
+        else:
+            self.fail('Data does not exist -> '+fpath)
+
+        default('fluxscale')
+
+    def tearDown(self):
+        shutil.rmtree(self.msfile, ignore_errors=True)
+        os.system('rm -rf twhya*.gcal')
+        os.system('rm -rf twhya*.fcal')
+
+    def test_spectralfit1(self):
+        '''Fluxscale spectral fit test1'''
+        # Input
+        gtable = self.gtable
+
+        # Output
+        outtable = self.prefix + '.fittest.fcal'
+
+        # torelance for value test
+        tol = 1.e-5
+
+        thisdict = fluxscale(vis=self.msfile, caltable=gtable, fluxtable=outtable, reference='1',
+                             refspwmap=[0,1,3,3], listfile='twhya.fittest1.out.txt')
+
+        self.assertTrue(os.path.exists(outtable))
+
+        # File to compare with
+        reference = self.reffile
+
+        # Compare the calibration table with a reference
+        #self.assertTrue(th.compTables(outtable, reference, ['WEIGHT']))
+
+        # compare some determined values returned in the dict (tested on RHEL6)
+        refdict={'0': {'0': {'fluxd': np.array([ 10.40151801,   0.        ,   0.        ,   0.        ]),
+                             'fluxdErr': np.array([ 0.01823489,  0.        ,  0.        ,  0.        ]),
+                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
+                       '1': {'fluxd': np.array([ 10.49918965,   0.        ,   0.        ,   0.        ]),
+                             'fluxdErr': np.array([ 0.02617547,  0.        ,  0.        ,  0.        ]),
+                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
+                       '2': {'fluxd': np.array([ 10.40252265,   0.        ,   0.        ,   0.        ]),
+                             'fluxdErr': np.array([ 0.04820387,  0.        ,  0.        ,  0.        ]),
+                             'numSol': np.array([ 14.,   0.,   0.,   0.])},
+                       '3': {'fluxd': np.array([ 10.06407263,   0.        ,   0.        ,   0.        ]),
+                             'fluxdErr': np.array([ 0.02031524,  0.        ,  0.        ,  0.        ]),
+                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
+                 'covarMat': np.array([[  1.32836567e-06,  -2.99318676e-05],
+                                   [ -2.99318676e-05,   2.06267774e-02]]),
+                 'fieldName': '3c279',
+                 'fitFluxd': 10.284275366907444,
+                 'fitFluxdErr': 0.049681178272988555,
+                 'fitRefFreq': 350998123030.1949,
+                 'spidx': np.array([ 1.0121737 ,  0.86003842,  0.        ]),
+                 'spidxerr': np.array([ 0.00209799,  0.26143238,  0.        ])},
+                 '3': {'0': {'fluxd': np.array([ 1.02073715,  0.        ,  0.        ,  0.        ]),
+                             'fluxdErr': np.array([ 0.01662615,  0.        ,  0.        ,  0.        ]),
+                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
+                       '1': {'fluxd': np.array([ 0.82954399,  0.        ,  0.        ,  0.        ]),
+                             'fluxdErr': np.array([ 0.01892758,  0.        ,  0.        ,  0.        ]),
+                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
+                       '2': {'fluxd': np.array([ 1.00187618,  0.        ,  0.        ,  0.        ]),
+                             'fluxdErr': np.array([ 0.02459043,  0.        ,  0.        ,  0.        ]),
+                             'numSol': np.array([ 14.,   0.,   0.,   0.])},
+                       '3': {'fluxd': np.array([ 1.30754902,  0.        ,  0.        ,  0.        ]),
+                             'fluxdErr': np.array([ 0.01957324,  0.        ,  0.        ,  0.        ]),
+                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
+               'covarMat': np.array([[  8.53253971e-05,   9.38851637e-04],
+                                 [  9.38851637e-04,   1.31604054e+00]]),
+               'fieldName': 'J1147-382=QSO',
+               'fitFluxd': 1.0679456164935712,
+               'fitFluxdErr': 0.07095309114437398,
+               'fitRefFreq': 350998123030.1949,
+               'spidx': np.array([ 0.02854914, -7.30077968,  0.        ]),
+               'spidxerr': np.array([ 0.02885403,  3.58345512,  0.        ])},
+               '4': {'0': {'fluxd': np.array([ 0.95582976,  0.        ,  0.        ,  0.        ]),
+                           'fluxdErr': np.array([ 0.00889469,  0.        ,  0.        ,  0.        ]),
+                           'numSol': np.array([ 16.,   0.,   0.,   0.])},
+                     '1': {'fluxd': np.array([ 0.74538553,  0.        ,  0.        ,  0.        ]),
+                           'fluxdErr': np.array([ 0.01522706,  0.        ,  0.        ,  0.        ]),
+                           'numSol': np.array([ 16.,   0.,   0.,   0.])},
+                     '2': {'fluxd': np.array([ 0.96176398,  0.        ,  0.        ,  0.        ]),
+                           'fluxdErr': np.array([ 0.01663815,  0.        ,  0.        ,  0.        ]),
+                           'numSol': np.array([ 14.,   0.,   0.,   0.])},
+                     '3': {'fluxd': np.array([ 1.23699681,  0.        ,  0.        ,  0.        ]),
+                           'fluxdErr': np.array([ 0.01410021,  0.        ,  0.        ,  0.        ]),
+                           'numSol': np.array([ 16.,   0.,   0.,   0.])},
+                  'covarMat': np.array([[  4.01358110e-05,  -2.64936568e-04],
+                                     [ -2.64936568e-04,   6.57883034e-01]]),
+                  'fieldName': 'J1037-295=QSO',
+                  'fitFluxd': 1.0177140843936607,
+                  'fitFluxdErr': 0.06550518651825477,
+                  'fitRefFreq': 350998123030.1949,
+                  'spidx': np.array([ 0.00762578, -6.81332936,  0.        ]),
+                  'spidxerr': np.array([ 0.02795337,  3.57884208,  0.        ])},
+                  'freq': np.array([  3.56732311e+11,   3.57968689e+11,   3.45799939e+11, 3.43721561e+11]),
+                  'spwID': np.array([0, 1, 2, 3], dtype=np.int32),
+                  'spwName': np.array(['', '', '', ''], 
+                 dtype='|S1')}
+
+
+        diff_fluxd=abs(refdict['0']['0']['fluxd'][0]-thisdict['0']['0']['fluxd'][0])/refdict['0']['0']['fluxd'][0]
+        self.assertTrue(diff_fluxd<tol)
+       
+        diff_covar=abs(refdict['3']['covarMat'][0][0]-thisdict['3']['covarMat'][0][0])/refdict['3']['covarMat'][0][0]
+        self.assertTrue(diff_covar<tol)
+
+
+    def test_spectralfit2(self):
+        '''Fluxscale spectral fit test2: fit order higher than 2 (fitorder=3) '''
+        # Input
+        gtable = self.gtable
+
+        # Output
+        outtable = self.prefix + '.fittest.fcal'
+
+        # torelance for value test
+        tol = 1.e-5
+        # fit results (spidx)
+        tolspidx=1.e-4
+
+        thisdict = fluxscale(vis=self.msfile, caltable=gtable, fluxtable=outtable, reference='1',
+                             refspwmap=[0,1,3,3], fitorder=3, listfile='twhya.fittest2.out.txt')
+
+        #print ("thisdict=",thisdict)
+        self.assertTrue(os.path.exists(outtable))
+
+        refdict={'0': {'0': {'fluxd': np.array([ 10.40151801,   0.        ,   0.        ,   0.        ]),
+                             'fluxdErr': np.array([ 0.01823489,  0.        ,  0.        ,  0.        ]),
+                             'numSol': np.array([ 16.,   0.,   0.,   0.])},
+                       '1': {'fluxd': np.array([ 10.49918965,   0.        ,   0.        ,   0.        ]),
+                            'fluxdErr': np.array([ 0.02617547,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  '2': {'fluxd': np.array([ 10.40252265,   0.        ,   0.        ,   0.        ]),
+   'fluxdErr': np.array([ 0.04820387,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 14.,   0.,   0.,   0.])},
+  '3': {'fluxd': np.array([ 10.06407263,   0.        ,   0.        ,   0.        ]),
+   'fluxdErr': np.array([ 0.02031524,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  'covarMat': np.array([[  3.78403026e-05,  -1.61652643e-03,  -5.35626987e-01,
+            1.37319915e+01],
+         [ -1.61652643e-03,   7.76311181e-01,   1.10257926e+01,
+           -1.06099110e+04],
+         [ -5.35626987e-01,   1.10257926e+01,   8.07609530e+03,
+           -2.28413163e+04],
+         [  1.37319915e+01,  -1.06099110e+04,  -2.28413163e+04,
+            1.51164651e+08]]),
+  'fieldName': '3c279',
+  'fitFluxd': 10.480827241419448,
+  'fitFluxdErr': 1.6017459072681995e-06,
+  'fitRefFreq': 350998123030.1949,
+  'spidx': np.array([  1.02039556e+00,  -1.30819796e+00,  -8.83118624e+01,
+           2.94974267e+04]),
+  'spidxerr': np.array([  6.63716129e-08,   9.50655121e-06,   9.69629431e-04,
+           1.32657007e-01])},
+ '3': {'0': {'fluxd': np.array([ 1.02073715,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01662615,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  '1': {'fluxd': np.array([ 0.82954399,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01892758,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  '2': {'fluxd': np.array([ 1.00187618,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.02459043,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 14.,   0.,   0.,   0.])},
+  '3': {'fluxd': np.array([ 1.30754902,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01957324,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  'covarMat': np.array([[  1.89036508e-03,   5.96328648e-02,  -2.93771953e+01,
+           -1.28368993e+03],
+         [  5.96328648e-02,   3.68718044e+01,  -1.43211511e+03,
+           -5.39984551e+05],
+         [ -2.93771953e+01,  -1.43211511e+03,   4.84875038e+05,
+            2.79535145e+07],
+         [ -1.28368993e+03,  -5.39984551e+05,   2.79535145e+07,
+            8.29083220e+09]]),
+  'fieldName': 'J1147-382=QSO',
+  'fitFluxd': 1.092071851590615,
+  'fitFluxdErr': 0.0,
+  'fitRefFreq': 350998123030.1949,
+  'spidx': np.array([  3.82512132e-02,   1.86050319e+01,  -5.20580484e+02,
+          -3.85837665e+05]),
+  'spidxerr': np.array([ 0.,  0.,  0.,  0.])},
+ '4': {'0': {'fluxd': np.array([ 0.95582976,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.00889469,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  '1': {'fluxd': np.array([ 0.74538553,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01522706,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  '2': {'fluxd': np.array([ 0.96176398,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01663815,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 14.,   0.,   0.,   0.])},
+  '3': {'fluxd': np.array([ 1.23699681,  0.        ,  0.        ,  0.        ]),
+   'fluxdErr': np.array([ 0.01410021,  0.        ,  0.        ,  0.        ]),
+   'numSol': np.array([ 16.,   0.,   0.,   0.])},
+  'covarMat': np.array([[  1.00988335e-03,   3.44485351e-02,  -1.67699397e+01,
+           -8.28243223e+02],
+         [  3.44485351e-02,   1.86351306e+01,  -9.12971574e+02,
+           -2.89193895e+05],
+         [ -1.67699397e+01,  -9.12971574e+02,   2.95846078e+05,
+            1.91722178e+07],
+         [ -8.28243223e+02,  -2.89193895e+05,   1.91722178e+07,
+            4.73281247e+09]]),
+  'fieldName': 'J1037-295=QSO',
+  'fitFluxd': 1.0893682650886731,
+  'fitFluxdErr': 3.291749183819577e-08,
+  'fitRefFreq': 350998123030.1949,
+  'spidx': np.array([  3.71747195e-02,   1.94740543e+01,  -9.82380570e+02,
+          -4.16536298e+05]),
+  'spidxerr': np.array([  1.31230967e-08,   1.78265353e-06,   2.24612350e-04,
+           2.84092894e-02])},
+ 'freq': np.array([  3.56732311e+11,   3.57968689e+11,   3.45799939e+11,
+          3.43721561e+11]),
+ 'spwID': np.array([0, 1, 2, 3], dtype=np.int32),
+ 'spwName': np.array(['', '', '', ''], 
+       dtype='|S1')}
+
+
+
+        # File to compare with (this should be the same as test1)
+        reference = self.reffile
+
+        diff_fluxd=abs(refdict['0']['0']['fluxd'][0]-thisdict['0']['0']['fluxd'][0])/refdict['0']['0']['fluxd'][0]
+        self.assertTrue(diff_fluxd<tol)
+       
+        diff_spidx0=abs(refdict['4']['spidx'][0]-thisdict['4']['spidx'][0])/refdict['4']['spidx'][0]
+        print ("diff for a_0 for field 4: diff_spidx0=",diff_spidx0)
+        self.assertTrue(diff_spidx0<tolspidx)
+        diff_spidx3=abs(refdict['4']['spidx'][3]-thisdict['4']['spidx'][3])/refdict['4']['spidx'][3]
+        self.assertTrue(diff_spidx3<tolspidx)
+        print ("diff for a_3 for field 4: diff_spidx3=",diff_spidx3)
+
 def suite():
-    return [fluxscale1_test, fluxscale2_test, fluxscale3_test]
+    return [fluxscale1_test, fluxscale2_test, fluxscale3_test, fluxscale_fit_test]
 

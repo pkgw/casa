@@ -128,43 +128,69 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         copyMask(*(imstore->mask()), tempMaskImage);
         for (uInt imsk = 0; imsk < maskStrings.nelements(); imsk++) {
           maskString = maskStrings[imsk];
+          Bool isCasaImage(false);
           if (maskString!="") {
-            if ( Table::isReadable(maskString) ) {
+            if (!(Table::isReadable(maskString))) {
+              try {
+                if (ImageOpener::imageType(maskString)==ImageOpener::IMAGECONCAT) isCasaImage=true;
+                os <<"IT'S A CONCATImage"<<LogIO::POST;
+              } 
+              catch (...) {
+                os <<"cannot find imageType... "<<LogIO::POST;
+              }
+            }
+            else {
               Table imtab = Table(maskString, Table::Old);
               Vector<String> colnames = imtab.tableDesc().columnNames();
-              if ( colnames[0]=="map" ) {
+              if ( colnames[0]=="map" ) isCasaImage=true;
+            }  
+            if (isCasaImage) {
+                os<<"isCasaImage=true"<<LogIO::POST;
+            //if ( Table::isReadable(maskString) ) {
+            //  Table imtab = Table(maskString, Table::Old);
+            //  Vector<String> colnames = imtab.tableDesc().columnNames();
+            //  if ( colnames[0]=="map" ) {
                 // looks like a CASA image ... probably should check coord exists in the keyword also...
                 //          cout << "copy this input mask...."<<endl;
                 // Include checks if the degenerate axes exit or removed.
                 // expandMask will add a degenerate axis to match the output
-                PagedImage<Float> inmask(maskString);
-                IPosition inShape = inmask.shape();
+                //PagedImage<Float> inmask(maskString); 
+		std::shared_ptr<ImageInterface<Float> > inmaskptr;
+                LatticeBase* latt =ImageOpener::openImage(maskString);
+                inmaskptr.reset(dynamic_cast<ImageInterface<Float>* >(latt));
+                //IPosition inShape = inmask.shape();
+                IPosition inShape = inmaskptr->shape();
                 IPosition outShape = imstore->mask()->shape();
-                Int specAxis = CoordinateUtil::findSpectralAxis(inmask.coordinates());
+                //Int specAxis = CoordinateUtil::findSpectralAxis(inmask.coordinates());
+                Int specAxis = CoordinateUtil::findSpectralAxis(inmaskptr->coordinates());
                 Int inNchan = (specAxis==-1? 1: inShape(specAxis) );
                 Int outSpecAxis = CoordinateUtil::findSpectralAxis(imstore->mask()->coordinates());
                 Vector <Stokes::StokesTypes> inWhichPols, outWhichPols;
-                Int stokesAxis = CoordinateUtil::findStokesAxis(inWhichPols, inmask.coordinates());
+                //Int stokesAxis = CoordinateUtil::findStokesAxis(inWhichPols, inmask.coordinates());
+                Int stokesAxis = CoordinateUtil::findStokesAxis(inWhichPols, inmaskptr->coordinates());
                 Int inNstokes = (stokesAxis==-1? 1: inShape(stokesAxis) );
                 Int outStokesAxis = CoordinateUtil::findStokesAxis(outWhichPols, imstore->mask()->coordinates());
                 //if (inShape(specAxis) == 1 && outShape(outSpecAxis)>1) {
                 if (inNchan == 1 && outShape(outSpecAxis)>1) {
                   os << "Extending mask image: " << maskString << LogIO::POST;
-                  expandMask(inmask, tempMaskImage);
+                  //expandMask(inmask, tempMaskImage);
+                  expandMask(*inmaskptr, tempMaskImage);
                 }
                 //else if(inShape(stokesAxis) == 1 && outShape(outStokesAxis) > 1 ) {
                 else if(inNstokes == 1 && outShape(outStokesAxis) > 1 ) {
                   os << "Extending mask image along Stokes axis: " << maskString << LogIO::POST;
-                  expandMask(inmask, tempMaskImage);
+                  //expandMask(inmask, tempMaskImage);
+                  expandMask(*inmaskptr, tempMaskImage);
                 }
                 else {
                   os << "Copying mask image: " << maskString << LogIO::POST;
-                  copyMask(inmask, tempMaskImage);
-               }
-              }// end of ''map''
-              else {
-                throw(AipsError(maskString+" does not appear to be valid image mask"));
-              }
+                  //copyMask(inmask, tempMaskImage);
+                  copyMask(*inmaskptr, tempMaskImage);
+                }
+              //}// end of ''map''
+              //else {
+              //  throw(AipsError(maskString+" does not appear to be valid image mask"));
+              //}
             }// end of readable table
             else {
               //
@@ -560,9 +586,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //outImageMask.copyData( withmask );
       outImageMask.copyData( (LatticeExpr<Float>)((*retim) * iif(retimmask,1.0,0.0))  );
       //LatticeUtilities::copyDataAndMask(os, outImageMask, *retim );
+    //} catch (AipsError &x) {
+//	throw(AipsError("Image regrid error : "+ x.getMesg()));
+ //     }
     } catch (AipsError &x) {
-	throw(AipsError("Image regrid error : "+ x.getMesg()));
-      }
+        os<<LogIO::WARN <<x.getMesg()<<LogIO::POST;
+        os<<LogIO::WARN <<" Cannot regrid the input mask to output mask, it will be empty."<<LogIO::POST;
+        outImageMask.set(0);
+    } 
 
     // no longer needed (output file in regrid is now set to "" so no need of this clean-up)
     //try
@@ -2315,17 +2346,30 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //}
       
       // include location (=median)  for both fastnoise=true and false
-      sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
-      noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
-      lowNoiseThreshold = (Float)mdns(chindx) + lowNoiseThresholdFactor * (Float)resRmss(chindx); 
-      negativeThreshold = (Float)mdns(chindx) + negativeThresholdFactor * (Float)resRmss(chindx);
-
+      Double absmax = max(abs(maxs(chindx)), abs(mins(chindx)));
+      //sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      //sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)absmax; 
+      //noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
+      //lowNoiseThreshold = (Float)mdns(chindx) + lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+      //negativeThreshold = (Float)mdns(chindx) + negativeThresholdFactor * (Float)resRmss(chindx);
+      // start with no offset 
+      sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)absmax; 
+      noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
+      lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+      negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
+      negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold) + (Float)mdns(chindx);
+      // add the offset
+      sidelobeThreshold += (Float)mdns(chindx); 
+      noiseThreshold += (Float)mdns(chindx);
+      lowNoiseThreshold += (Float)mdns(chindx); 
+      negativeThreshold += (Float)mdns(chindx);
       maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
       lowMaskThreshold(ich) = max(sidelobeThreshold, lowNoiseThreshold);
+      //negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold);
       ThresholdType(ich) = (maskThreshold(ich) == sidelobeThreshold? "sidelobe": "noise");
-      negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold); 
+
       os << LogIO::DEBUG1 <<" sidelobeTreshold="<<sidelobeThreshold<<" noiseThreshold="<<noiseThreshold<<" lowNoiseThreshold="<<lowNoiseThreshold<<LogIO::POST;
-      os << LogIO::DEBUG1 <<" negativeThreshold="<<negativeThreshold<<LogIO::POST;
+      os << LogIO::DEBUG1 <<" negativeThreshold(abs)="<<negativeThreshold<<", all thresholds include  location ="<<(Float)mdns(chindx)<<LogIO::POST;
       os << LogIO::DEBUG1 <<" Using "<<ThresholdType(ich)<<" threshold for chan "<<String::toString(ich)<<" threshold="<<maskThreshold(ich)<<LogIO::POST;
     }
 

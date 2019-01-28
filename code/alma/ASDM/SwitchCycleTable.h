@@ -41,31 +41,27 @@
 
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -76,25 +72,29 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
+
+	
+
+	
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -143,28 +143,28 @@ class SwitchCycleRow;
 	
  * <TR>
  * <TD> weightArray </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numStep </TD> 
  * <TD> &nbsp;the weights (one value per step). </TD>
  * </TR>
 	
  * <TR>
  * <TD> dirOffsetArray </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numStep, 2 </TD> 
  * <TD> &nbsp;the pointing direction offsets (one pair per step). </TD>
  * </TR>
 	
  * <TR>
  * <TD> freqOffsetArray </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numStep </TD> 
  * <TD> &nbsp;the frequencies offsets (one value per step). </TD>
  * </TR>
 	
  * <TR>
  * <TD> stepDurationArray </TD> 
- * <TD> vector<Interval > </TD>
+ * <TD> std::vector<Interval > </TD>
  * <TD>  numStep </TD> 
  * <TD> &nbsp;the duration of the steps (one value per steps). </TD>
  * </TR>
@@ -334,7 +334,7 @@ public:
  	 * @param stepDurationArray
 	
      */
-	SwitchCycleRow *newRow(int numStep, vector<float > weightArray, vector<vector<Angle > > dirOffsetArray, vector<Frequency > freqOffsetArray, vector<Interval > stepDurationArray);
+	SwitchCycleRow *newRow(int numStep, std::vector<float > weightArray, std::vector<std::vector<Angle > > dirOffsetArray, std::vector<Frequency > freqOffsetArray, std::vector<Interval > stepDurationArray);
 	
 
 
@@ -427,7 +427,7 @@ public:
  	 * @param stepDurationArray
  	 		 
  	 */
-	SwitchCycleRow* lookup(int numStep, vector<float > weightArray, vector<vector<Angle > > dirOffsetArray, vector<Frequency > freqOffsetArray, vector<Interval > stepDurationArray); 
+	SwitchCycleRow* lookup(int numStep, std::vector<float > weightArray, std::vector<std::vector<Angle > > dirOffsetArray, std::vector<Frequency > freqOffsetArray, std::vector<Interval > stepDurationArray); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

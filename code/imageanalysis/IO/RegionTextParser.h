@@ -78,7 +78,7 @@ public:
         std::shared_ptr<std::pair<casacore::MFrequency, casacore::MFrequency> > freqRange;
         casacore::Vector<casacore::Stokes::StokesTypes> stokes;
         AnnotationBase::RGB color;
-        vector<casacore::Int> intVec;
+        std::vector<casacore::Int> intVec;
     };
 
     using ParamSet = std::map<AnnotationBase::Keyword, ParamValue>;
@@ -116,7 +116,7 @@ public:
 
     casacore::Int getFileVersion() const;
 
-    vector<AsciiAnnotationFileLine> getLines() const;
+    std::vector<AsciiAnnotationFileLine> getLines() const;
 
     // get the parameter set from a line of <src>text</src>. <src>preamble</src> is prepended to exception messages.
     static ParamSet getParamSet(
@@ -138,7 +138,7 @@ private:
     casacore::CoordinateSystem _csys;
     std::unique_ptr<casacore::LogIO> _log;
     ParamSet _currentGlobals;
-    vector<AsciiAnnotationFileLine> _lines;
+    std::vector<AsciiAnnotationFileLine> _lines;
     casacore::Vector<AnnotationBase::Keyword> _globalKeysToApply;
     casacore::Int _fileVersion;
     casacore::IPosition _imShape;
@@ -160,7 +160,7 @@ private:
 
     AnnotationBase::Type _getAnnotationType(
         casacore::Vector<casacore::Quantity>& qDirs,
-        vector<casacore::Quantity>& qunatities,
+        std::vector<casacore::Quantity>& qunatities,
         casacore::String& textString,
         casacore::String& consumeMe, const casacore::String& preamble
     ) const;
@@ -175,7 +175,7 @@ private:
         //const casacore::Vector<casacore::MDirection> dirs,
         const casacore::Vector<casacore::Quantity>& qDirs,
         const std::pair<casacore::Quantity, casacore::Quantity>& qFreqs,
-        const vector<casacore::Quantity>& quantities,
+        const std::vector<casacore::Quantity>& quantities,
         const casacore::String& textString,
         const ParamSet& currentParamSet,
         const casacore::Bool annOnly, const casacore::Bool isDifference,

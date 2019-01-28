@@ -48,15 +48,15 @@
 
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -67,29 +67,29 @@
 	
 
 	
-#include "CAntennaMake.h"
+#include <alma/Enumerations/CAntennaMake.h>
 	
 
 	
-#include "CAntennaType.h"
-	
-
-	
-
+#include <alma/Enumerations/CAntennaType.h>
 	
 
 	
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Antenna.h
     \brief Generated from model's revision "-1", branch ""
@@ -109,7 +109,7 @@ class StationRow;
 
 class AntennaRow;
 typedef void (AntennaRow::*AntennaAttributeFromBin) (EndianIStream& eis);
-typedef void (AntennaRow::*AntennaAttributeFromText) (const string& s);
+typedef void (AntennaRow::*AntennaAttributeFromText) (const std::string& s);
 
 /**
  * The AntennaRow class is a row of a AntennaTable.
@@ -170,21 +170,21 @@ public:
 	
  	/**
  	 * Get name.
- 	 * @return name as string
+ 	 * @return name as std::string
  	 */
- 	string getName() const;
+ 	std::string getName() const;
 	
  
  	
  	
  	/**
- 	 * Set name with the specified string.
- 	 * @param name The string value to which name is to be set.
+ 	 * Set name with the specified std::string.
+ 	 * @param name The std::string value to which name is to be set.
  	 
  		
  			
  	 */
- 	void setName (string name);
+ 	void setName (std::string name);
   		
 	
 	
@@ -290,21 +290,21 @@ public:
 	
  	/**
  	 * Get position.
- 	 * @return position as vector<Length >
+ 	 * @return position as std::vector<Length >
  	 */
- 	vector<Length > getPosition() const;
+ 	std::vector<Length > getPosition() const;
 	
  
  	
  	
  	/**
- 	 * Set position with the specified vector<Length >.
- 	 * @param position The vector<Length > value to which position is to be set.
+ 	 * Set position with the specified std::vector<Length >.
+ 	 * @param position The std::vector<Length > value to which position is to be set.
  	 
  		
  			
  	 */
- 	void setPosition (vector<Length > position);
+ 	void setPosition (std::vector<Length > position);
   		
 	
 	
@@ -320,21 +320,21 @@ public:
 	
  	/**
  	 * Get offset.
- 	 * @return offset as vector<Length >
+ 	 * @return offset as std::vector<Length >
  	 */
- 	vector<Length > getOffset() const;
+ 	std::vector<Length > getOffset() const;
 	
  
  	
  	
  	/**
- 	 * Set offset with the specified vector<Length >.
- 	 * @param offset The vector<Length > value to which offset is to be set.
+ 	 * Set offset with the specified std::vector<Length >.
+ 	 * @param offset The std::vector<Length > value to which offset is to be set.
  	 
  		
  			
  	 */
- 	void setOffset (vector<Length > offset);
+ 	void setOffset (std::vector<Length > offset);
   		
 	
 	
@@ -520,7 +520,7 @@ public:
 	 * @param stationId
 	    
 	 */ 
-	bool compareNoAutoInc(string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, vector<Length > position, vector<Length > offset, ArrayTime time, Tag stationId);
+	bool compareNoAutoInc(std::string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, std::vector<Length > position, std::vector<Length > offset, ArrayTime time, Tag stationId);
 	
 	
 
@@ -546,7 +546,7 @@ public:
 	 * @param stationId
 	    
 	 */ 
-	bool compareRequiredValue(string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, vector<Length > position, vector<Length > offset, ArrayTime time, Tag stationId); 
+	bool compareRequiredValue(std::string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, std::vector<Length > position, std::vector<Length > offset, ArrayTime time, Tag stationId); 
 		 
 	
 	/**
@@ -711,7 +711,7 @@ private:
 	
 	
 
-	string name;
+	std::string name;
 
 	
 	
@@ -755,7 +755,7 @@ private:
 	
 	
 
-	vector<Length > position;
+	std::vector<Length > position;
 
 	
 	
@@ -766,7 +766,7 @@ private:
 	
 	
 
-	vector<Length > offset;
+	std::vector<Length > offset;
 
 	
 	
@@ -851,35 +851,35 @@ void assocAntennaIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, AntennaAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void nameFromText (const string & s);
+void nameFromText (const std::string & s);
 	
 	
-void antennaMakeFromText (const string & s);
+void antennaMakeFromText (const std::string & s);
 	
 	
-void antennaTypeFromText (const string & s);
+void antennaTypeFromText (const std::string & s);
 	
 	
-void dishDiameterFromText (const string & s);
+void dishDiameterFromText (const std::string & s);
 	
 	
-void positionFromText (const string & s);
+void positionFromText (const std::string & s);
 	
 	
-void offsetFromText (const string & s);
+void offsetFromText (const std::string & s);
 	
 	
-void timeFromText (const string & s);
+void timeFromText (const std::string & s);
 	
 	
-void stationIdFromText (const string & s);
+void stationIdFromText (const std::string & s);
 	
 
 	
-void assocAntennaIdFromText (const string & s);
+void assocAntennaIdFromText (const std::string & s);
 	
 	
 	

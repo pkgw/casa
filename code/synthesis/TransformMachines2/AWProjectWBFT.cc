@@ -54,10 +54,38 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
   namespace refim{
+    //==================================================================================================
+    // Various template instantiations
+    //
+    template
+    void AWProjectWBFT::ftWeightImage(Lattice<casacore::Complex>& wtImage, 
+				      const Matrix<Float>& sumWt,
+				      const Bool& doFFTNorm);
+    template
+    void AWProjectWBFT::makeSensitivityImage(Lattice<casacore::Complex>& wtImage,
+					     ImageInterface<Float>& sensitivityImage,
+					     const Matrix<Float>& sumWt,
+					     const Bool& doFFTNorm);
+    template
+    void AWProjectWBFT::ftWeightImage(Lattice<casacore::DComplex>& wtImage, 
+				      const Matrix<Float>& sumWt,
+				      const Bool& doFFTNorm);
+    template
+    void AWProjectWBFT::makeSensitivityImage(Lattice<casacore::DComplex>& wtImage,
+					     ImageInterface<Float>& sensitivityImage,
+					     const Matrix<Float>& sumWt,
+					     const Bool& doFFTNorm);
+    template 
+    void AWProjectWBFT::resampleCFToGrid(Array<casacore::Complex>& gwts, 
+					 VBStore& vbs, const VisBuffer2& vb);
+    template 
+    void AWProjectWBFT::resampleCFToGrid(Array<casacore::DComplex>& gwts, 
+					 VBStore& vbs, const VisBuffer2& vb);
+    //==================================================================================================
+
   //
   //---------------------------------------------------------------
   //
-
   AWProjectWBFT::AWProjectWBFT(Int nWPlanes, Long icachesize, 
 			       CountedPtr<CFCache>& cfcache,
 			       CountedPtr<ConvolutionFunction>& cf,
@@ -289,7 +317,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     if (oneTimeMessage_p == false)
       {
-	LogIO log_l(LogOrigin("AWProjectWBFT2", "makeSensitivityImage[R&D]"));
+	LogIO log_l(LogOrigin("AWProjectWBFT2", "makeSensitivityImage(Complex)[R&D]"));
+	log_l << "Setting up for weights accumulation ";
+	if (sensitivityPatternQualifierStr_p != "") log_l << "for term " << sensitivityPatternQualifier_p << " ";
+	log_l << "during gridding to compute sensitivity pattern." 
+	      << endl
+	      << "Consequently, the first gridding cycle will be slower than the subsequent ones." 
+	      << LogIO::WARN;
+	oneTimeMessage_p=true;
+      }
+  }
+  void AWProjectWBFT::makeSensitivityImage(const VisBuffer2&,
+					   const ImageInterface<DComplex>& /*imageTemplate*/,
+					   ImageInterface<Float>& /*sensitivityImage*/)
+  {
+    if (oneTimeMessage_p == false)
+      {
+	LogIO log_l(LogOrigin("AWProjectWBFT2", "makeSensitivityImage(DComplex)[R&D]"));
 	log_l << "Setting up for weights accumulation ";
 	if (sensitivityPatternQualifierStr_p != "") log_l << "for term " << sensitivityPatternQualifier_p << " ";
 	log_l << "during gridding to compute sensitivity pattern." 
@@ -302,7 +346,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //
   //---------------------------------------------------------------
   // 
-  void AWProjectWBFT::ftWeightImage(Lattice<Complex>& wtImage, 
+    template <class T>
+  void AWProjectWBFT::ftWeightImage(Lattice<T>& wtImage, 
 				    const Matrix<Float>& sumWt,
 				    const Bool& doFFTNorm)
   {
@@ -313,7 +358,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Bool doSumWtNorm=true;
     if (sumWt.shape().nelements()==0) doSumWtNorm=false;
-    doSumWtNorm = doSumWtNorm; // Dummy statement to get rid of compiler warnings
     if ((sumWt.shape().nelements() < 2) || 
 	(sumWt.shape()(0) != wtImage.shape()(2)) || 
 	(sumWt.shape()(1) != wtImage.shape()(3)))
@@ -332,16 +376,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //   storeArrayAsImage(name,griddedWeights.coordinates(),wtImage.get());
     // }
     LatticeFFT::cfft2d(wtImage,false);
-    // {
-    //   String name("ftwtimg.im");
-    //   storeArrayAsImage(name,griddedWeights.coordinates(),wtImage.get());
-    // }
     wtImageFTDone_p=true;
 
     Int sizeX=wtImage.shape()(0), sizeY=wtImage.shape()(1);
 
-    Array<Complex> wtBuf; wtImage.get(wtBuf,false);
-    ArrayLattice<Complex> wtLat(wtBuf,true);
+    Array<T> wtBuf; wtImage.get(wtBuf,false);
+    ArrayLattice<T> wtLat(wtBuf,true);
     //
     // Copy one 2D plane at a time, normalizing by the sum of weights
     // and possibly 2D FFT.
@@ -352,7 +392,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     IPosition cursorShape(4, sizeX, sizeY, 1, 1);
 
     LatticeStepper wtImStepper(wtImage.shape(), cursorShape, axisPath);
-    LatticeIterator<Complex> wtImIter(wtImage, wtImStepper);
+    LatticeIterator<T> wtImIter(wtImage, wtImStepper);
     //
     // Iterate over channel and polarization axis
     //
@@ -367,20 +407,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
 
     // USEFUL DEBUG MESSAGE
-    //cerr << "SumCFWt: " << getSumOfCFWeights() << " " << max(wtBuf) << " " << sensitivityPatternQualifier_p << endl;
+    //    log_l << "SumCFWt: " << getSumOfCFWeights() << " " << max(wtBuf) << " " << sensitivityPatternQualifier_p <<LogIO::WARN << LogIO::POST;
     for(wtImIter.reset(); !wtImIter.atEnd(); wtImIter++)
       {
-	Int pol_l=wtImIter.position()(2), chan_l=wtImIter.position()(3);
-	Double sumwt_l=1.0;;
-	// Lets write some mildly obfuscated code ~[8-)
-	//if ((sensitivityPatternQualifier_p == -1) && (doSumWtNorm))
-	//  sumwt_l = ((sumwt_l = getSumOfCFWeights()(pol_l,chan_l))==0)?1.0:sumwt_l;
-
-	sumwt_l = getSumOfCFWeights()(pol_l,chan_l);
+	// Int pol_l=wtImIter.position()(2), chan_l=wtImIter.position()(3);
+	// Double sumwt_l=1.0;;
+	// sumwt_l = getSumOfCFWeights()(pol_l,chan_l);
 
 	wtImIter.rwCursor() = (wtImIter.rwCursor()
 			       *Float(sizeX)*Float(sizeY)
-			       /sumwt_l
+			       //			       /sumwt_l
 			       );
 
 	////////////////////	wtImIter.rwCursor() = sqrt( fabs(wtImIter.rwCursor()) );
@@ -390,6 +426,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	//	weightRatio_p = maxval * Float(sizeX)*Float(sizeY) / sumwt_l;
       }
 
+    // {
+    //   String name("ftwtimg.im");
+    //   ArrayLattice<Complex> tt(wtImage.shape());
+    //   Array<Complex> ttbuf;
+    //   Array<T> wtBUF;
+    //   wtImage.get(wtBUF,false);
+    //   tt.get(ttbuf,false);
+    //   for (int i=0;i<wtImage.shape()(0);i++)
+    // 	for (int j=0;j<wtImage.shape()(1);j++)
+    // 	  for (int k=0;k<wtImage.shape()(2);k++)
+    // 	    for (int l=0;l<wtImage.shape()(3);l++)
+    // 	      ttbuf(IPosition(4,i,j,k,l)) = wtBUF(IPosition(4,i,j,k,l));
+    //   storeArrayAsImage(name,griddedWeights_D.coordinates(),ttbuf);
+    // }
   }
   //
   //---------------------------------------------------------------
@@ -406,8 +456,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     ftWeightImage(wtImage, sumWt, doFFTNorm);
 
-    sensitivitySqImage.resize(griddedWeights.shape()); 
-    sensitivitySqImage.setCoordinateInfo(griddedWeights.coordinates());
+    if (useDoubleGrid_p)
+      {
+	sensitivitySqImage.resize(griddedWeights_D.shape()); 
+	sensitivitySqImage.setCoordinateInfo(griddedWeights_D.coordinates());
+      }
+    else
+      {
+	sensitivitySqImage.resize(griddedWeights.shape()); 
+	sensitivitySqImage.setCoordinateInfo(griddedWeights.coordinates());
+      }
 
     Int sizeX=wtImage.shape()(0), sizeY=wtImage.shape()(1);
     Array<Complex> senSqBuf; sensitivitySqImage.get(senSqBuf,false); 
@@ -458,7 +516,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //
   //---------------------------------------------------------------
   // 
-  void AWProjectWBFT::makeSensitivityImage(Lattice<Complex>& wtImage,
+    template <class T>
+  void AWProjectWBFT::makeSensitivityImage(Lattice<T>& wtImage,
 					   ImageInterface<Float>& sensitivityImage,
 					   const Matrix<Float>& sumWt,
 					   const Bool& doFFTNorm)
@@ -490,15 +549,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // 	storeArrayAsImage(name,griddedWeights.coordinates(),wtImage.get());
     //   }
 
-    sensitivityImage.resize(griddedWeights.shape()); 
-    sensitivityImage.setCoordinateInfo(griddedWeights.coordinates());
+    if (useDoubleGrid_p)
+      {
+	sensitivityImage.resize(griddedWeights_D.shape()); 
+	sensitivityImage.setCoordinateInfo(griddedWeights_D.coordinates());
+      }
+    else
+      {
+	sensitivityImage.resize(griddedWeights.shape()); 
+	sensitivityImage.setCoordinateInfo(griddedWeights.coordinates());
+      }
 
     Int sizeX=wtImage.shape()(0), sizeY=wtImage.shape()(1);
     Array<Float> senBuf; sensitivityImage.get(senBuf,false); 
     ArrayLattice<Float> senLat(senBuf, true);
 
-    Array<Complex> wtBuf; wtImage.get(wtBuf,false);
-    ArrayLattice<Complex> wtLat(wtBuf,true);
+    Array<T> wtBuf; wtImage.get(wtBuf,false);
+    ArrayLattice<T> wtLat(wtBuf,true);
     //
     // Set up Lattice iteratos on wtImage and sensitivityImage
     //
@@ -522,27 +589,34 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    StokesImageUtil::To(sensitivityImage, griddedWeights);
 
     //
-    // Copy the real part of the average of all planes of the wtImage to
-    // all the planes of the sensitivity image (senImage).
+    // Copy the real part of the average of all planes of the wtImage
+    // to all the planes of the sensitivity image (senImage).  Also
+    // convert from DComplex to Complex on-the-fly.
     //
     LatticeStepper wtImStepper(wtImage.shape(), cursorShape, axisPath);
-    LatticeIterator<Complex> wtImIter(wtImage, wtImStepper);
+    LatticeIterator<T> wtImIter(wtImage, wtImStepper);
 
-    //    Matrix<Complex> tmp(senImIter.rwMatrixCursor().shape());
     Matrix<Complex> tmp(senImIter.rwMatrixCursor().shape());
     tmp = 1.0;
-    Int n=0;
-    for(wtImIter.reset(); !wtImIter.atEnd(); wtImIter++)
+    for(wtImIter.reset(), senImIter.reset(); !wtImIter.atEnd(); wtImIter++, senImIter++)
       {
-	//	tmp += real(wtImIter.rwMatrixCursor().nonDegenerate());
-	tmp = (wtImIter.rwMatrixCursor().nonDegenerate());
-	n++;
+	Matrix<T> tmp_ref;tmp_ref.reference(wtImIter.rwMatrixCursor().nonDegenerate());
+	for (int i=0;i<tmp.shape()(0);i++)
+	  for (int j=0;j<tmp.shape()(1);j++)
+	    tmp(i,j)=tmp_ref(i,j); // Use automatic type conversion (DComplex->Complex)
+	senImIter.rwMatrixCursor() = real(tmp);
       }
-    //    tmp = tmp/n;
-    //UUU// tmp = fabs(tmp);  // fabs(Array<Complex>&) returns a complex array
-    //    tmp = (sqrt(fabs(tmp)));  // fabs(Array<Complex>&) returns a complex array
-    for(senImIter.reset(); !senImIter.atEnd(); senImIter++)
-      senImIter.rwMatrixCursor() = real(tmp);
+    
+    // {
+    //   String name("ftwtimg.im");
+    //   storeArrayAsImage(name,griddedWeights_D.coordinates(),sensitivityImage.get());
+    // }
+
+    // for(senImIter.reset(); !senImIter.atEnd(); senImIter++)
+    //   {
+    // 	cerr << "Sen: " << senImIter.position() << endl;
+    // 	senImIter.rwMatrixCursor() = real(tmp);
+    //   }
 
     if (tt_pp == "")
       cfCache_p->flush(sensitivityImage,sensitivityPatternQualifierStr_p);
@@ -592,7 +666,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //   wtImageFTDone_p = avgPBReady_p=false;
     // }
     // // REMOVE THIS CODE
-    makeSensitivityImage(griddedWeights, *avgPB_p, weights, true);
+    if (useDoubleGrid_p)
+      makeSensitivityImage(griddedWeights_D, *avgPB_p, weights, true);
+    else
+      makeSensitivityImage(griddedWeights, *avgPB_p, weights, true);
 
     //        if (avgPBSq_p.null()) avgPBSq_p = new TempImage<Complex>();
     //    makeSensitivitySqImage(griddedWeights, *avgPBSq_p, weights, true);
@@ -611,6 +688,261 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	
     return *image;
   }
+  //
+  //---------------------------------------------------------------
+  //
+  // Initialize the FFT to the Sky. Here we have to setup and
+  // initialize the grid.
+  //
+  void AWProjectWBFT::initializeToSky(ImageInterface<Complex>& iimage,
+				   Matrix<Float>& weight,
+				   const VisBuffer2& vb)
+  {
+    LogIO log_l(LogOrigin("AWProjectWBFT2","initializeToSky[R&D]"));
+    AWProjectFT::initializeToSky(iimage,weight,vb);
+    // The following code is same as that in the parent class call above. 
+//     image=&iimage;
+    
+//     init();
+//     initMaps(vb);
+//     nx    = image->shape()(0);
+//     ny    = image->shape()(1);
+//     npol  = image->shape()(2);
+//     nchan = image->shape()(3);
+
+//     isTiled = false;
+
+//     sumWeight=0.0;
+//     weight.resize(sumWeight.shape());
+//     weight=0.0;
+
+//     if(isTiled) 
+//       {
+// 	imageCache->flush();
+// 	image->set(Complex(0.0));
+// 	//lattice=image;
+// 	lattice=CountedPtr<Lattice<Complex> > (image, false);
+//       }
+//     else 
+//       {
+// 	IPosition gridShape(4, nx, ny, npol, nchan);
+// 	griddedData.resize(gridShape);
+// 	griddedData=Complex(0.0);
+// //	if(arrayLattice) delete arrayLattice; arrayLattice=0;
+// 	arrayLattice = new ArrayLattice<Complex>(griddedData);
+// 	lattice=arrayLattice;
+// 	visResampler_p->initializeToSky(griddedData, sumWeight);
+//       }
+
+    //AlwaysAssert(lattice, AipsError);
+    if (resetPBs_p)
+      {
+	if (useDoubleGrid_p)
+	  {
+	    griddedWeights_D.resize(iimage.shape()); 
+	    griddedWeights_D.setCoordinateInfo(iimage.coordinates());
+	    griddedWeights_D.set(0.0);
+	    pbPeaks.resize(griddedWeights_D.shape()(2));
+	    pbPeaks.set(0.0);
+	  }
+	else
+	  {
+	    griddedWeights.resize(iimage.shape()); 
+	    griddedWeights.setCoordinateInfo(iimage.coordinates());
+	    griddedWeights.set(0.0);
+	    pbPeaks.resize(griddedWeights.shape()(2));
+	    pbPeaks.set(0.0);
+	  }
+
+	resetPBs_p=false;
+      }
+    avgPBReady_p = (cfCache_p->loadAvgPB(avgPB_p,sensitivityPatternQualifierStr_p) != CFDefs::NOTCACHED);
+    //    avgPBReady_p = cfCache_p->avgPBReady(sensitivityPatternQualifierStr_p);
+    // Need to grid the weighted Convolution Functions to make the sensitivity pattern.
+    if (!avgPBReady_p)
+      {
+	// Make a copy of the re-sampler and set it up.
+	if (visResamplerWt_p.null()) visResamplerWt_p = visResampler_p->clone();
+	visResamplerWt_p = visResampler_p;
+	visResamplerWt_p->setMaps(chanMap, polMap);
+	if (useDoubleGrid_p)
+	  {
+	    Array<DComplex> gwts; Bool removeDegenerateAxis=false;
+	    griddedWeights_D.get(gwts, removeDegenerateAxis);
+	    visResamplerWt_p->initializeToSky(gwts, sumCFWeight); //A NoOp right now.
+	  }
+	else
+	  {
+	    Array<Complex> gwts; Bool removeDegenerateAxis=false;
+	    griddedWeights.get(gwts, removeDegenerateAxis);
+	    visResamplerWt_p->initializeToSky(gwts, sumCFWeight); //A NoOp right now.
+	  }
+      }
+  }
+  //
+  //---------------------------------------------------------------
+  //
+  void AWProjectWBFT::finalizeToSky()
+  {
+    LogIO log_l(LogOrigin("AWProjectWBFT2", "finalizeToSky[R&D]"));
+    AWProjectFT::finalizeToSky();
+    // The following commented code is the same as in the parent class
+    // call above.
+
+    // if(isTiled) 
+    //   {
+    // 	AlwaysAssert(image, AipsError);
+    // 	AlwaysAssert(imageCache, AipsError);
+    // 	imageCache->flush();
+    // 	ostringstream o;
+    // 	imageCache->showCacheStatistics(o);
+    // 	log_l << o.str() << LogIO::POST;
+    //   }
+    
+    // if(pointingToImage) delete pointingToImage; pointingToImage=0;
+    
+    // paChangeDetector.reset();
+    // cfCache_p->flush();
+    // visResampler_p->finalizeToSky(griddedData, sumWeight);
+
+    if (!avgPBReady_p) 
+      {
+	if (useDoubleGrid_p)
+	  {
+	    Array<DComplex> gwts; Bool removeDegenerateAxis=false;
+	    griddedWeights_D.get(gwts, removeDegenerateAxis);
+	    visResamplerWt_p->finalizeToSky(gwts, sumCFWeight);
+	    visResamplerWt_p->releaseBuffers();
+	    //	    griddedWeights_D.resize(IPosition(1,0));
+	  }
+	else
+	  {
+	    Array<Complex> gwts; Bool removeDegenerateAxis=false;
+	    griddedWeights.get(gwts, removeDegenerateAxis);
+	    visResamplerWt_p->finalizeToSky(gwts, sumCFWeight);
+	    visResamplerWt_p->releaseBuffers();
+	    //	    griddedWeights.resize(IPosition(1,0));
+	  }
+      }
+    /*
+    cerr << "Gridding run time = " 
+    	 << " " << visResampler_p->runTimeG_p 
+    	 << " " << visResampler_p->runTimeG1_p 
+    	 << " " << visResampler_p->runTimeG2_p 
+    	 << " " << visResampler_p->runTimeG3_p 
+    	 << " " << visResampler_p->runTimeG4_p 
+    	 << " " << visResampler_p->runTimeG5_p 
+    	 << " " << visResampler_p->runTimeG6_p 
+    	 << " " << visResampler_p->runTimeG7_p 
+	 << " C " << runTime1_p 
+    	 << endl;
+    */
+    visResampler_p->runTimeG_p=visResampler_p->runTimeG1_p=visResampler_p->runTimeG2_p=visResampler_p->runTimeG3_p=visResampler_p->runTimeG4_p=visResampler_p->runTimeG5_p=visResampler_p->runTimeG6_p=visResampler_p->runTimeG7_p=0.0;
+    runTime1_p=0;
+  }
+  //
+  //---------------------------------------------------------------
+  //
+    template <class T>
+  void AWProjectWBFT::resampleCFToGrid(Array<T>& gwts, 
+				       VBStore& vbs, const VisBuffer2& vb)
+  {
+    //
+    // Grid the weighted convolution function as well
+    //
+    //LogIO log_l(LogOrigin("AWProjectFT2", "resampleCFToGrid[R&D]"));
+    //
+    // Now rotate and put the rotated convolution weight function
+    // in rotatedCFWts_l object.
+    //
+    
+    //	makeWBCFWt(*cfwts2_p, imRefFreq_p);
+    
+    //timer_p.mark();
+    visResamplerWt_p->copy(*visResampler_p);
+    
+    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
+    //cerr << "AWPWB: " << pointingOffset << endl;
+    visResamplerWt_p->makeVBRow2CFMap(*cfwts2_p,*convFuncCtor_p, vb,
+				      paChangeDetector.getParAngleTolerance(),
+				      chanMap,polMap,pointingOffset);
+    VBRow2CFBMapType& theMap=visResamplerWt_p->getVBRow2CFBMap();
+    convFuncCtor_p->prepareConvFunction(vb,theMap);
+    //runTime1_p += timer_p.real();
+    //
+    // Set the uvw array to zero-sized array and dopsf=true.
+    // uvw.nelements()==0 is a hint to the re-sampler to put the
+    // gridded weights at the origin of the uv-grid. dopsf=true so
+    // that CF*Wts are accumulated (as against CF*Wts*Vis).
+    //
+    // Receive the sum-of-weights in a dummy array.
+    Matrix<Double> uvwOrigin;
+    vbs.uvw_p.reference(uvwOrigin); 
+    Bool dopsf_l=true;
+    vbs.accumCFs_p=((vbs.uvw_p.nelements() == 0) && dopsf_l);
+    
+    // Array<Complex> gwts; Bool removeDegenerateAxis=false;
+    // wtsGrid.get(gwts, removeDegenerateAxis);
+    Int nDataChan = vbs.flagCube_p.shape()[1];
+    
+    vbs.startChan_p = 0; vbs.endChan_p = nDataChan;
+    visResamplerWt_p->DataToGrid(gwts, vbs, sumCFWeight, dopsf_l); 
+  }
+  //
+  //---------------------------------------------------------------
+  //
+  void AWProjectWBFT::resampleDataToGrid(Array<Complex>& griddedData_l,
+					 VBStore& vbs, const VisBuffer2& vb, 
+					 Bool& dopsf) 
+  {
+    AWProjectFT::resampleDataToGrid(griddedData_l,vbs,vb,dopsf);
+    if (!avgPBReady_p)
+      {
+	//
+	// Get a reference to the pixels of griddedWeights (a
+	// TempImage!)
+	//
+	Array<Complex> gwts; Bool removeDegenerateAxis=false;
+	griddedWeights.get(gwts, removeDegenerateAxis);
+	resampleCFToGrid(gwts, vbs, vb);
+      }
+  };
+  //
+  //---------------------------------------------------------------
+  //
+  void AWProjectWBFT::resampleDataToGrid(Array<DComplex>& griddedData_l,
+					 VBStore& vbs, const VisBuffer2& vb, 
+					 Bool& dopsf) 
+  {
+    AWProjectFT::resampleDataToGrid(griddedData_l,vbs,vb,dopsf);
+    if (!avgPBReady_p)
+      {
+	//
+	// Get a reference to the pixels of griddedWeights (a
+	// TempImage!)
+	//
+	Array<DComplex> gwts; Bool removeDegenerateAxis=false;
+	griddedWeights_D.get(gwts, removeDegenerateAxis);
+	resampleCFToGrid(gwts, vbs, vb);
+      }
+  };
+  //  void AWProjectWBFT::resampleGridToData(VBStore& vbs, const VisBuffer2& vb) {};
+  
+  void AWProjectWBFT::setCFCache(CountedPtr<CFCache>& cfc, const Bool resetCFC) 
+  {
+    if (resetCFC) cfCache_p = cfc;
+    if (!cfCache_p.null())
+      {
+	cfs2_p = CountedPtr<CFStore2>(&cfCache_p->memCache2_p[0],false);//new CFStore2;
+	cfwts2_p =  CountedPtr<CFStore2>(&cfCache_p->memCacheWt2_p[0],false);//new CFStore2;
+	
+	// cfCache_p->summarize(cfCache_p->memCache2_p,String("New CFC"));
+	// cfCache_p->summarize(cfCache_p->memCacheWt2_p,String(""));
+	avgPBReady_p=false;
+      }
+  }
+
+} //# NAMESPACE CASA - END
 
 
 // #define NEED_UNDERSCORES
@@ -1275,227 +1607,5 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // 	//   griddedWeights.put(gwts);
 //       }
 //   }
-  //
-  //---------------------------------------------------------------
-  //
-  // Initialize the FFT to the Sky. Here we have to setup and
-  // initialize the grid.
-  //
-  void AWProjectWBFT::initializeToSky(ImageInterface<Complex>& iimage,
-				   Matrix<Float>& weight,
-				   const VisBuffer2& vb)
-  {
-    LogIO log_l(LogOrigin("AWProjectWBFT2","initializeToSky[R&D]"));
-    AWProjectFT::initializeToSky(iimage,weight,vb);
-    // The following code is same as that in the parent class call above. 
-//     image=&iimage;
-    
-//     init();
-//     initMaps(vb);
-//     nx    = image->shape()(0);
-//     ny    = image->shape()(1);
-//     npol  = image->shape()(2);
-//     nchan = image->shape()(3);
 
-//     isTiled = false;
-
-//     sumWeight=0.0;
-//     weight.resize(sumWeight.shape());
-//     weight=0.0;
-
-//     if(isTiled) 
-//       {
-// 	imageCache->flush();
-// 	image->set(Complex(0.0));
-// 	//lattice=image;
-// 	lattice=CountedPtr<Lattice<Complex> > (image, false);
-//       }
-//     else 
-//       {
-// 	IPosition gridShape(4, nx, ny, npol, nchan);
-// 	griddedData.resize(gridShape);
-// 	griddedData=Complex(0.0);
-// //	if(arrayLattice) delete arrayLattice; arrayLattice=0;
-// 	arrayLattice = new ArrayLattice<Complex>(griddedData);
-// 	lattice=arrayLattice;
-// 	visResampler_p->initializeToSky(griddedData, sumWeight);
-//       }
-
-    //AlwaysAssert(lattice, AipsError);
-    if (resetPBs_p)
-      {
-	griddedWeights.resize(iimage.shape()); 
-	griddedWeights.setCoordinateInfo(iimage.coordinates());
-	griddedWeights.set(0.0);
-	pbPeaks.resize(griddedWeights.shape()(2));
-	pbPeaks.set(0.0);
-
-	resetPBs_p=false;
-      }
-    avgPBReady_p = (cfCache_p->loadAvgPB(avgPB_p,sensitivityPatternQualifierStr_p) != CFDefs::NOTCACHED);
-    //    avgPBReady_p = cfCache_p->avgPBReady(sensitivityPatternQualifierStr_p);
-    // Need to grid the weighted Convolution Functions to make the sensitivity pattern.
-    if (!avgPBReady_p)
-      {
-	// Make a copy of the re-sampler and set it up.
-	if (visResamplerWt_p.null()) visResamplerWt_p = visResampler_p->clone();
-	visResamplerWt_p = visResampler_p;
-	visResamplerWt_p->setMaps(chanMap, polMap);
-	Array<Complex> gwts; Bool removeDegenerateAxis=false;
-	griddedWeights.get(gwts, removeDegenerateAxis);
-	//	cerr << "initializeToSky for gwts" << endl;
-	visResamplerWt_p->initializeToSky(gwts, sumCFWeight);
-      }
-  }
-  //
-  //---------------------------------------------------------------
-  //
-  void AWProjectWBFT::finalizeToSky()
-  {
-    LogIO log_l(LogOrigin("AWProjectWBFT2", "finalizeToSky[R&D]"));
-    AWProjectFT::finalizeToSky();
-    // The following commented code is the same as in the parent class
-    // call above.
-
-    // if(isTiled) 
-    //   {
-    // 	AlwaysAssert(image, AipsError);
-    // 	AlwaysAssert(imageCache, AipsError);
-    // 	imageCache->flush();
-    // 	ostringstream o;
-    // 	imageCache->showCacheStatistics(o);
-    // 	log_l << o.str() << LogIO::POST;
-    //   }
-    
-    // if(pointingToImage) delete pointingToImage; pointingToImage=0;
-    
-    // paChangeDetector.reset();
-    // cfCache_p->flush();
-    // visResampler_p->finalizeToSky(griddedData, sumWeight);
-
-    if (!avgPBReady_p) 
-      {
-	Array<Complex> gwts; Bool removeDegenerateAxis=false;
-	griddedWeights.get(gwts, removeDegenerateAxis);
-	visResamplerWt_p->finalizeToSky(gwts, sumCFWeight);
-	visResamplerWt_p->releaseBuffers();
-      }
-    /*
-    cerr << "Gridding run time = " 
-    	 << " " << visResampler_p->runTimeG_p 
-    	 << " " << visResampler_p->runTimeG1_p 
-    	 << " " << visResampler_p->runTimeG2_p 
-    	 << " " << visResampler_p->runTimeG3_p 
-    	 << " " << visResampler_p->runTimeG4_p 
-    	 << " " << visResampler_p->runTimeG5_p 
-    	 << " " << visResampler_p->runTimeG6_p 
-    	 << " " << visResampler_p->runTimeG7_p 
-	 << " C " << runTime1_p 
-    	 << endl;
-    */
-    visResampler_p->runTimeG_p=visResampler_p->runTimeG1_p=visResampler_p->runTimeG2_p=visResampler_p->runTimeG3_p=visResampler_p->runTimeG4_p=visResampler_p->runTimeG5_p=visResampler_p->runTimeG6_p=visResampler_p->runTimeG7_p=0.0;
-    runTime1_p=0;
-  }
-  //
-  //---------------------------------------------------------------
-  //
-  void AWProjectWBFT::resampleCFToGrid(Array<Complex>& gwts, 
-				       VBStore& vbs, const VisBuffer2& vb)
-  {
-    //
-    // Grid the weighted convolution function as well
-    //
-    LogIO log_l(LogOrigin("AWProjectFT2", "resampleCFToGrid[R&D]"));
-    //
-    // Now rotate and put the rotated convolution weight function
-    // in rotatedCFWts_l object.
-    //
-    
-    //	makeWBCFWt(*cfwts2_p, imRefFreq_p);
-    
-    timer_p.mark();
-    visResamplerWt_p->copy(*visResampler_p);
-    
-    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
-    //cerr << "AWPWB: " << pointingOffset << endl;
-    visResamplerWt_p->makeVBRow2CFMap(*cfwts2_p,*convFuncCtor_p, vb,
-				      paChangeDetector.getParAngleTolerance(),
-				      chanMap,polMap,pointingOffset);
-    VBRow2CFBMapType& theMap=visResamplerWt_p->getVBRow2CFBMap();
-    convFuncCtor_p->prepareConvFunction(vb,theMap);
-    runTime1_p += timer_p.real();
-    //
-    // Set the uvw array to zero-sized array and dopsf=true.
-    // uvw.nelements()==0 is a hint to the re-sampler to put the
-    // gridded weights at the origin of the uv-grid. dopsf=true so
-    // that CF*Wts are accumulated (as against CF*Wts*Vis).
-    //
-    // Receive the sum-of-weights in a dummy array.
-    Matrix<Double> uvwOrigin;
-    vbs.uvw_p.reference(uvwOrigin); 
-    Bool dopsf_l=true;
-    vbs.accumCFs_p=((vbs.uvw_p.nelements() == 0) && dopsf_l);
-    
-    // Array<Complex> gwts; Bool removeDegenerateAxis=false;
-    // wtsGrid.get(gwts, removeDegenerateAxis);
-    Int nDataChan = vbs.flagCube_p.shape()[1];
-    
-    vbs.startChan_p = 0; vbs.endChan_p = nDataChan;
-    visResamplerWt_p->DataToGrid(gwts, vbs, sumCFWeight, dopsf_l); 
-  }
-  //
-  //---------------------------------------------------------------
-  //
-  void AWProjectWBFT::resampleDataToGrid(Array<Complex>& griddedData_l,
-					 VBStore& vbs, const VisBuffer2& vb, 
-					 Bool& dopsf) 
-  {
-    AWProjectFT::resampleDataToGrid(griddedData_l,vbs,vb,dopsf);
-    if (!avgPBReady_p)
-      {
-	//
-	// Get a reference to the pixels of griddedWeights (a
-	// TempImage!)
-	//
-	Array<Complex> gwts; Bool removeDegenerateAxis=false;
-	griddedWeights.get(gwts, removeDegenerateAxis);
-	resampleCFToGrid(gwts, vbs, vb);
-      }
-  };
-  //
-  //---------------------------------------------------------------
-  //
-  void AWProjectWBFT::resampleDataToGrid(Array<DComplex>& griddedData_l,
-					 VBStore& vbs, const VisBuffer2& vb, 
-					 Bool& dopsf) 
-  {
-    AWProjectFT::resampleDataToGrid(griddedData_l,vbs,vb,dopsf);
-    if (!avgPBReady_p)
-      {
-	//
-	// Get a reference to the pixels of griddedWeights (a
-	// TempImage!)
-	//
-	Array<Complex> gwts; Bool removeDegenerateAxis=false;
-	griddedWeights.get(gwts, removeDegenerateAxis);
-	resampleCFToGrid(gwts, vbs, vb);
-      }
-  };
-  //  void AWProjectWBFT::resampleGridToData(VBStore& vbs, const VisBuffer2& vb) {};
-  
-  void AWProjectWBFT::setCFCache(CountedPtr<CFCache>& cfc, const Bool resetCFC) 
-  {
-    if (resetCFC) cfCache_p = cfc;
-    if (!cfCache_p.null())
-      {
-	cfs2_p = CountedPtr<CFStore2>(&cfCache_p->memCache2_p[0],false);//new CFStore2;
-	cfwts2_p =  CountedPtr<CFStore2>(&cfCache_p->memCacheWt2_p[0],false);//new CFStore2;
-	
-	// cfCache_p->summarize(cfCache_p->memCache2_p,String("New CFC"));
-	// cfCache_p->summarize(cfCache_p->memCacheWt2_p,String(""));
-	avgPBReady_p=false;
-      }
-  }
-
-} //# NAMESPACE CASA - END
 };

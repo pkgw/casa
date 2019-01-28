@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalPhaseRow.h>
-#include <CalPhaseTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalPhaseRow.h>
+#include <alma/ASDM/CalPhaseTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalPhaseRow::~CalPhaseRow() {
@@ -1059,7 +1056,9 @@ namespace asdm {
 		
 			
 		ampli .clear();
-		vector<float> v_aux_ampli;
+        
+        vector<float> v_aux_ampli;
+        
 		for (unsigned int i = 0; i < x.ampli.length(); ++i) {
 			v_aux_ampli.clear();
 			for (unsigned int j = 0; j < x.ampli[0].length(); ++j) {
@@ -1079,7 +1078,9 @@ namespace asdm {
 		
 			
 		antennaNames .clear();
-		vector<string> v_aux_antennaNames;
+        
+        vector<string> v_aux_antennaNames;
+        
 		for (unsigned int i = 0; i < x.antennaNames.length(); ++i) {
 			v_aux_antennaNames.clear();
 			for (unsigned int j = 0; j < x.antennaNames[0].length(); ++j) {
@@ -1114,7 +1115,9 @@ namespace asdm {
 		
 			
 		decorrelationFactor .clear();
-		vector<float> v_aux_decorrelationFactor;
+        
+        vector<float> v_aux_decorrelationFactor;
+        
 		for (unsigned int i = 0; i < x.decorrelationFactor.length(); ++i) {
 			v_aux_decorrelationFactor.clear();
 			for (unsigned int j = 0; j < x.decorrelationFactor[0].length(); ++j) {
@@ -1174,7 +1177,9 @@ namespace asdm {
 		
 			
 		phase .clear();
-		vector<float> v_aux_phase;
+        
+        vector<float> v_aux_phase;
+        
 		for (unsigned int i = 0; i < x.phase.length(); ++i) {
 			v_aux_phase.clear();
 			for (unsigned int j = 0; j < x.phase[0].length(); ++j) {
@@ -1209,7 +1214,9 @@ namespace asdm {
 		
 			
 		phaseRMS .clear();
-		vector<float> v_aux_phaseRMS;
+        
+        vector<float> v_aux_phaseRMS;
+        
 		for (unsigned int i = 0; i < x.phaseRMS.length(); ++i) {
 			v_aux_phaseRMS.clear();
 			for (unsigned int j = 0; j < x.phaseRMS[0].length(); ++j) {
@@ -1229,7 +1236,9 @@ namespace asdm {
 		
 			
 		statPhaseRMS .clear();
-		vector<float> v_aux_statPhaseRMS;
+        
+        vector<float> v_aux_statPhaseRMS;
+        
 		for (unsigned int i = 0; i < x.statPhaseRMS.length(); ++i) {
 			v_aux_statPhaseRMS.clear();
 			for (unsigned int j = 0; j < x.statPhaseRMS[0].length(); ++j) {
@@ -1322,7 +1331,9 @@ namespace asdm {
 		
 			
 		phaseAnt .clear();
-		vector<float> v_aux_phaseAnt;
+        
+        vector<float> v_aux_phaseAnt;
+        
 		for (unsigned int i = 0; i < x.phaseAnt.length(); ++i) {
 			v_aux_phaseAnt.clear();
 			for (unsigned int j = 0; j < x.phaseAnt[0].length(); ++j) {
@@ -1347,7 +1358,9 @@ namespace asdm {
 		
 			
 		phaseAntRMS .clear();
-		vector<float> v_aux_phaseAntRMS;
+        
+        vector<float> v_aux_phaseAntRMS;
+        
 		for (unsigned int i = 0; i < x.phaseAntRMS.length(); ++i) {
 			v_aux_phaseAntRMS.clear();
 			for (unsigned int j = 0; j < x.phaseAntRMS[0].length(); ++j) {
@@ -2387,7 +2400,9 @@ void CalPhaseRow::ampliFromBin(EndianIStream& eis) {
 		
 		unsigned int ampliDim1 = eis.readInt();
 		unsigned int ampliDim2 = eis.readInt();
+        
 		vector <float> ampliAux1;
+        
 		for (unsigned int i = 0; i < ampliDim1; i++) {
 			ampliAux1.clear();
 			for (unsigned int j = 0; j < ampliDim2 ; j++)			
@@ -2414,7 +2429,9 @@ void CalPhaseRow::antennaNamesFromBin(EndianIStream& eis) {
 		
 		unsigned int antennaNamesDim1 = eis.readInt();
 		unsigned int antennaNamesDim2 = eis.readInt();
+        
 		vector <string> antennaNamesAux1;
+        
 		for (unsigned int i = 0; i < antennaNamesDim1; i++) {
 			antennaNamesAux1.clear();
 			for (unsigned int j = 0; j < antennaNamesDim2 ; j++)			
@@ -2455,7 +2472,9 @@ void CalPhaseRow::decorrelationFactorFromBin(EndianIStream& eis) {
 		
 		unsigned int decorrelationFactorDim1 = eis.readInt();
 		unsigned int decorrelationFactorDim2 = eis.readInt();
+        
 		vector <float> decorrelationFactorAux1;
+        
 		for (unsigned int i = 0; i < decorrelationFactorDim1; i++) {
 			decorrelationFactorAux1.clear();
 			for (unsigned int j = 0; j < decorrelationFactorDim2 ; j++)			
@@ -2520,7 +2539,9 @@ void CalPhaseRow::phaseFromBin(EndianIStream& eis) {
 		
 		unsigned int phaseDim1 = eis.readInt();
 		unsigned int phaseDim2 = eis.readInt();
+        
 		vector <float> phaseAux1;
+        
 		for (unsigned int i = 0; i < phaseDim1; i++) {
 			phaseAux1.clear();
 			for (unsigned int j = 0; j < phaseDim2 ; j++)			
@@ -2567,7 +2588,9 @@ void CalPhaseRow::phaseRMSFromBin(EndianIStream& eis) {
 		
 		unsigned int phaseRMSDim1 = eis.readInt();
 		unsigned int phaseRMSDim2 = eis.readInt();
+        
 		vector <float> phaseRMSAux1;
+        
 		for (unsigned int i = 0; i < phaseRMSDim1; i++) {
 			phaseRMSAux1.clear();
 			for (unsigned int j = 0; j < phaseRMSDim2 ; j++)			
@@ -2594,7 +2617,9 @@ void CalPhaseRow::statPhaseRMSFromBin(EndianIStream& eis) {
 		
 		unsigned int statPhaseRMSDim1 = eis.readInt();
 		unsigned int statPhaseRMSDim2 = eis.readInt();
+        
 		vector <float> statPhaseRMSAux1;
+        
 		for (unsigned int i = 0; i < statPhaseRMSDim1; i++) {
 			statPhaseRMSAux1.clear();
 			for (unsigned int j = 0; j < statPhaseRMSDim2 ; j++)			
@@ -2709,7 +2734,9 @@ void CalPhaseRow::phaseAntFromBin(EndianIStream& eis) {
 		
 		unsigned int phaseAntDim1 = eis.readInt();
 		unsigned int phaseAntDim2 = eis.readInt();
+        
 		vector <float> phaseAntAux1;
+        
 		for (unsigned int i = 0; i < phaseAntDim1; i++) {
 			phaseAntAux1.clear();
 			for (unsigned int j = 0; j < phaseAntDim2 ; j++)			
@@ -2741,7 +2768,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 		
 		unsigned int phaseAntRMSDim1 = eis.readInt();
 		unsigned int phaseAntRMSDim2 = eis.readInt();
+        
 		vector <float> phaseAntRMSAux1;
+        
 		for (unsigned int i = 0; i < phaseAntRMSDim1; i++) {
 			phaseAntRMSAux1.clear();
 			for (unsigned int j = 0; j < phaseAntRMSDim2 ; j++)			
@@ -2790,7 +2819,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an BasebandName 
 	void CalPhaseRow::basebandNameFromText(const string & s) {
 		 
-		basebandName = ASDMValuesParser::parse<BasebandName>(s);
+          
+		basebandName = ASDMValuesParser::parse<BasebandNameMod::BasebandName>(s);
+          
 		
 	}
 	
@@ -2798,7 +2829,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalPhaseRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -2806,7 +2839,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an AtmPhaseCorrection 
 	void CalPhaseRow::atmPhaseCorrectionFromText(const string & s) {
 		 
-		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrection>(s);
+          
+		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrectionMod::AtmPhaseCorrection>(s);
+          
 		
 	}
 	
@@ -2814,7 +2849,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalPhaseRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2822,7 +2859,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalPhaseRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2830,7 +2869,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalPhaseRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2838,7 +2879,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalPhaseRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2846,7 +2889,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalPhaseRow::numBaselineFromText(const string & s) {
 		 
+          
 		numBaseline = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2854,7 +2899,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalPhaseRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2862,7 +2909,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalPhaseRow::ampliFromText(const string & s) {
 		 
+          
 		ampli = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2870,7 +2919,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalPhaseRow::antennaNamesFromText(const string & s) {
 		 
+          
 		antennaNames = ASDMValuesParser::parse2D<string>(s);
+          
 		
 	}
 	
@@ -2878,7 +2929,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalPhaseRow::baselineLengthsFromText(const string & s) {
 		 
+          
 		baselineLengths = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -2886,7 +2939,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalPhaseRow::decorrelationFactorFromText(const string & s) {
 		 
+          
 		decorrelationFactor = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2894,7 +2949,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalPhaseRow::directionFromText(const string & s) {
 		 
+          
 		direction = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -2902,7 +2959,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalPhaseRow::frequencyRangeFromText(const string & s) {
 		 
+          
 		frequencyRange = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -2910,7 +2969,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Interval 
 	void CalPhaseRow::integrationTimeFromText(const string & s) {
 		 
+          
 		integrationTime = ASDMValuesParser::parse<Interval>(s);
+          
 		
 	}
 	
@@ -2918,7 +2979,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalPhaseRow::phaseFromText(const string & s) {
 		 
+          
 		phase = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2926,7 +2989,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalPhaseRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -2934,7 +2999,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalPhaseRow::phaseRMSFromText(const string & s) {
 		 
+          
 		phaseRMS = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2942,7 +3009,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalPhaseRow::statPhaseRMSFromText(const string & s) {
 		 
+          
 		statPhaseRMS = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2952,7 +3021,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	void CalPhaseRow::correctionValidityFromText(const string & s) {
 		correctionValidityExists = true;
 		 
+          
 		correctionValidity = ASDMValuesParser::parse1D<bool>(s);
+          
 		
 	}
 	
@@ -2961,7 +3032,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	void CalPhaseRow::numAntennaFromText(const string & s) {
 		numAntennaExists = true;
 		 
+          
 		numAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2970,7 +3043,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	void CalPhaseRow::singleAntennaNameFromText(const string & s) {
 		singleAntennaNameExists = true;
 		 
+          
 		singleAntennaName = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -2979,7 +3054,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	void CalPhaseRow::refAntennaNameFromText(const string & s) {
 		refAntennaNameExists = true;
 		 
+          
 		refAntennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2988,7 +3065,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	void CalPhaseRow::phaseAntFromText(const string & s) {
 		phaseAntExists = true;
 		 
+          
 		phaseAnt = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2997,7 +3076,9 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	void CalPhaseRow::phaseAntRMSFromText(const string & s) {
 		phaseAntRMSExists = true;
 		 
+          
 		phaseAntRMS = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -3255,21 +3336,21 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get ampli.
- 	 * @return ampli as vector<vector<float > >
+ 	 * @return ampli as std::vector<std::vector<float > >
  	 */
- 	vector<vector<float > > CalPhaseRow::getAmpli() const {
+ 	std::vector<std::vector<float > > CalPhaseRow::getAmpli() const {
 	
   		return ampli;
  	}
 
  	/**
- 	 * Set ampli with the specified vector<vector<float > >.
- 	 * @param ampli The vector<vector<float > > value to which ampli is to be set.
+ 	 * Set ampli with the specified std::vector<std::vector<float > >.
+ 	 * @param ampli The std::vector<std::vector<float > > value to which ampli is to be set.
  	 
  	
  		
  	 */
- 	void CalPhaseRow::setAmpli (vector<vector<float > > ampli)  {
+ 	void CalPhaseRow::setAmpli (std::vector<std::vector<float > > ampli)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3287,21 +3368,21 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaNames.
- 	 * @return antennaNames as vector<vector<string > >
+ 	 * @return antennaNames as std::vector<std::vector<std::string > >
  	 */
- 	vector<vector<string > > CalPhaseRow::getAntennaNames() const {
+ 	std::vector<std::vector<std::string > > CalPhaseRow::getAntennaNames() const {
 	
   		return antennaNames;
  	}
 
  	/**
- 	 * Set antennaNames with the specified vector<vector<string > >.
- 	 * @param antennaNames The vector<vector<string > > value to which antennaNames is to be set.
+ 	 * Set antennaNames with the specified std::vector<std::vector<std::string > >.
+ 	 * @param antennaNames The std::vector<std::vector<std::string > > value to which antennaNames is to be set.
  	 
  	
  		
  	 */
- 	void CalPhaseRow::setAntennaNames (vector<vector<string > > antennaNames)  {
+ 	void CalPhaseRow::setAntennaNames (std::vector<std::vector<std::string > > antennaNames)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3319,21 +3400,21 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get baselineLengths.
- 	 * @return baselineLengths as vector<Length >
+ 	 * @return baselineLengths as std::vector<Length >
  	 */
- 	vector<Length > CalPhaseRow::getBaselineLengths() const {
+ 	std::vector<Length > CalPhaseRow::getBaselineLengths() const {
 	
   		return baselineLengths;
  	}
 
  	/**
- 	 * Set baselineLengths with the specified vector<Length >.
- 	 * @param baselineLengths The vector<Length > value to which baselineLengths is to be set.
+ 	 * Set baselineLengths with the specified std::vector<Length >.
+ 	 * @param baselineLengths The std::vector<Length > value to which baselineLengths is to be set.
  	 
  	
  		
  	 */
- 	void CalPhaseRow::setBaselineLengths (vector<Length > baselineLengths)  {
+ 	void CalPhaseRow::setBaselineLengths (std::vector<Length > baselineLengths)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3351,21 +3432,21 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get decorrelationFactor.
- 	 * @return decorrelationFactor as vector<vector<float > >
+ 	 * @return decorrelationFactor as std::vector<std::vector<float > >
  	 */
- 	vector<vector<float > > CalPhaseRow::getDecorrelationFactor() const {
+ 	std::vector<std::vector<float > > CalPhaseRow::getDecorrelationFactor() const {
 	
   		return decorrelationFactor;
  	}
 
  	/**
- 	 * Set decorrelationFactor with the specified vector<vector<float > >.
- 	 * @param decorrelationFactor The vector<vector<float > > value to which decorrelationFactor is to be set.
+ 	 * Set decorrelationFactor with the specified std::vector<std::vector<float > >.
+ 	 * @param decorrelationFactor The std::vector<std::vector<float > > value to which decorrelationFactor is to be set.
  	 
  	
  		
  	 */
- 	void CalPhaseRow::setDecorrelationFactor (vector<vector<float > > decorrelationFactor)  {
+ 	void CalPhaseRow::setDecorrelationFactor (std::vector<std::vector<float > > decorrelationFactor)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3383,21 +3464,21 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get direction.
- 	 * @return direction as vector<Angle >
+ 	 * @return direction as std::vector<Angle >
  	 */
- 	vector<Angle > CalPhaseRow::getDirection() const {
+ 	std::vector<Angle > CalPhaseRow::getDirection() const {
 	
   		return direction;
  	}
 
  	/**
- 	 * Set direction with the specified vector<Angle >.
- 	 * @param direction The vector<Angle > value to which direction is to be set.
+ 	 * Set direction with the specified std::vector<Angle >.
+ 	 * @param direction The std::vector<Angle > value to which direction is to be set.
  	 
  	
  		
  	 */
- 	void CalPhaseRow::setDirection (vector<Angle > direction)  {
+ 	void CalPhaseRow::setDirection (std::vector<Angle > direction)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3415,21 +3496,21 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalPhaseRow::getFrequencyRange() const {
+ 	std::vector<Frequency > CalPhaseRow::getFrequencyRange() const {
 	
   		return frequencyRange;
  	}
 
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  	
  		
  	 */
- 	void CalPhaseRow::setFrequencyRange (vector<Frequency > frequencyRange)  {
+ 	void CalPhaseRow::setFrequencyRange (std::vector<Frequency > frequencyRange)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3479,21 +3560,21 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phase.
- 	 * @return phase as vector<vector<float > >
+ 	 * @return phase as std::vector<std::vector<float > >
  	 */
- 	vector<vector<float > > CalPhaseRow::getPhase() const {
+ 	std::vector<std::vector<float > > CalPhaseRow::getPhase() const {
 	
   		return phase;
  	}
 
  	/**
- 	 * Set phase with the specified vector<vector<float > >.
- 	 * @param phase The vector<vector<float > > value to which phase is to be set.
+ 	 * Set phase with the specified std::vector<std::vector<float > >.
+ 	 * @param phase The std::vector<std::vector<float > > value to which phase is to be set.
  	 
  	
  		
  	 */
- 	void CalPhaseRow::setPhase (vector<vector<float > > phase)  {
+ 	void CalPhaseRow::setPhase (std::vector<std::vector<float > > phase)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3511,21 +3592,21 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > CalPhaseRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > CalPhaseRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void CalPhaseRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void CalPhaseRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3543,21 +3624,21 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseRMS.
- 	 * @return phaseRMS as vector<vector<float > >
+ 	 * @return phaseRMS as std::vector<std::vector<float > >
  	 */
- 	vector<vector<float > > CalPhaseRow::getPhaseRMS() const {
+ 	std::vector<std::vector<float > > CalPhaseRow::getPhaseRMS() const {
 	
   		return phaseRMS;
  	}
 
  	/**
- 	 * Set phaseRMS with the specified vector<vector<float > >.
- 	 * @param phaseRMS The vector<vector<float > > value to which phaseRMS is to be set.
+ 	 * Set phaseRMS with the specified std::vector<std::vector<float > >.
+ 	 * @param phaseRMS The std::vector<std::vector<float > > value to which phaseRMS is to be set.
  	 
  	
  		
  	 */
- 	void CalPhaseRow::setPhaseRMS (vector<vector<float > > phaseRMS)  {
+ 	void CalPhaseRow::setPhaseRMS (std::vector<std::vector<float > > phaseRMS)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3575,21 +3656,21 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get statPhaseRMS.
- 	 * @return statPhaseRMS as vector<vector<float > >
+ 	 * @return statPhaseRMS as std::vector<std::vector<float > >
  	 */
- 	vector<vector<float > > CalPhaseRow::getStatPhaseRMS() const {
+ 	std::vector<std::vector<float > > CalPhaseRow::getStatPhaseRMS() const {
 	
   		return statPhaseRMS;
  	}
 
  	/**
- 	 * Set statPhaseRMS with the specified vector<vector<float > >.
- 	 * @param statPhaseRMS The vector<vector<float > > value to which statPhaseRMS is to be set.
+ 	 * Set statPhaseRMS with the specified std::vector<std::vector<float > >.
+ 	 * @param statPhaseRMS The std::vector<std::vector<float > > value to which statPhaseRMS is to be set.
  	 
  	
  		
  	 */
- 	void CalPhaseRow::setStatPhaseRMS (vector<vector<float > > statPhaseRMS)  {
+ 	void CalPhaseRow::setStatPhaseRMS (std::vector<std::vector<float > > statPhaseRMS)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3615,10 +3696,10 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get correctionValidity, which is optional.
- 	 * @return correctionValidity as vector<bool >
+ 	 * @return correctionValidity as std::vector<bool >
  	 * @throw IllegalAccessException If correctionValidity does not exist.
  	 */
- 	vector<bool > CalPhaseRow::getCorrectionValidity() const  {
+ 	std::vector<bool > CalPhaseRow::getCorrectionValidity() const  {
 		if (!correctionValidityExists) {
 			throw IllegalAccessException("correctionValidity", "CalPhase");
 		}
@@ -3627,12 +3708,12 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set correctionValidity with the specified vector<bool >.
- 	 * @param correctionValidity The vector<bool > value to which correctionValidity is to be set.
+ 	 * Set correctionValidity with the specified std::vector<bool >.
+ 	 * @param correctionValidity The std::vector<bool > value to which correctionValidity is to be set.
  	 
  	
  	 */
- 	void CalPhaseRow::setCorrectionValidity (vector<bool > correctionValidity) {
+ 	void CalPhaseRow::setCorrectionValidity (std::vector<bool > correctionValidity) {
 	
  		this->correctionValidity = correctionValidity;
 	
@@ -3709,10 +3790,10 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get singleAntennaName, which is optional.
- 	 * @return singleAntennaName as vector<string >
+ 	 * @return singleAntennaName as std::vector<std::string >
  	 * @throw IllegalAccessException If singleAntennaName does not exist.
  	 */
- 	vector<string > CalPhaseRow::getSingleAntennaName() const  {
+ 	std::vector<std::string > CalPhaseRow::getSingleAntennaName() const  {
 		if (!singleAntennaNameExists) {
 			throw IllegalAccessException("singleAntennaName", "CalPhase");
 		}
@@ -3721,12 +3802,12 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set singleAntennaName with the specified vector<string >.
- 	 * @param singleAntennaName The vector<string > value to which singleAntennaName is to be set.
+ 	 * Set singleAntennaName with the specified std::vector<std::string >.
+ 	 * @param singleAntennaName The std::vector<std::string > value to which singleAntennaName is to be set.
  	 
  	
  	 */
- 	void CalPhaseRow::setSingleAntennaName (vector<string > singleAntennaName) {
+ 	void CalPhaseRow::setSingleAntennaName (std::vector<std::string > singleAntennaName) {
 	
  		this->singleAntennaName = singleAntennaName;
 	
@@ -3756,10 +3837,10 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get refAntennaName, which is optional.
- 	 * @return refAntennaName as string
+ 	 * @return refAntennaName as std::string
  	 * @throw IllegalAccessException If refAntennaName does not exist.
  	 */
- 	string CalPhaseRow::getRefAntennaName() const  {
+ 	std::string CalPhaseRow::getRefAntennaName() const  {
 		if (!refAntennaNameExists) {
 			throw IllegalAccessException("refAntennaName", "CalPhase");
 		}
@@ -3768,12 +3849,12 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set refAntennaName with the specified string.
- 	 * @param refAntennaName The string value to which refAntennaName is to be set.
+ 	 * Set refAntennaName with the specified std::string.
+ 	 * @param refAntennaName The std::string value to which refAntennaName is to be set.
  	 
  	
  	 */
- 	void CalPhaseRow::setRefAntennaName (string refAntennaName) {
+ 	void CalPhaseRow::setRefAntennaName (std::string refAntennaName) {
 	
  		this->refAntennaName = refAntennaName;
 	
@@ -3803,10 +3884,10 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseAnt, which is optional.
- 	 * @return phaseAnt as vector<vector<float > >
+ 	 * @return phaseAnt as std::vector<std::vector<float > >
  	 * @throw IllegalAccessException If phaseAnt does not exist.
  	 */
- 	vector<vector<float > > CalPhaseRow::getPhaseAnt() const  {
+ 	std::vector<std::vector<float > > CalPhaseRow::getPhaseAnt() const  {
 		if (!phaseAntExists) {
 			throw IllegalAccessException("phaseAnt", "CalPhase");
 		}
@@ -3815,12 +3896,12 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set phaseAnt with the specified vector<vector<float > >.
- 	 * @param phaseAnt The vector<vector<float > > value to which phaseAnt is to be set.
+ 	 * Set phaseAnt with the specified std::vector<std::vector<float > >.
+ 	 * @param phaseAnt The std::vector<std::vector<float > > value to which phaseAnt is to be set.
  	 
  	
  	 */
- 	void CalPhaseRow::setPhaseAnt (vector<vector<float > > phaseAnt) {
+ 	void CalPhaseRow::setPhaseAnt (std::vector<std::vector<float > > phaseAnt) {
 	
  		this->phaseAnt = phaseAnt;
 	
@@ -3850,10 +3931,10 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseAntRMS, which is optional.
- 	 * @return phaseAntRMS as vector<vector<float > >
+ 	 * @return phaseAntRMS as std::vector<std::vector<float > >
  	 * @throw IllegalAccessException If phaseAntRMS does not exist.
  	 */
- 	vector<vector<float > > CalPhaseRow::getPhaseAntRMS() const  {
+ 	std::vector<std::vector<float > > CalPhaseRow::getPhaseAntRMS() const  {
 		if (!phaseAntRMSExists) {
 			throw IllegalAccessException("phaseAntRMS", "CalPhase");
 		}
@@ -3862,12 +3943,12 @@ void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set phaseAntRMS with the specified vector<vector<float > >.
- 	 * @param phaseAntRMS The vector<vector<float > > value to which phaseAntRMS is to be set.
+ 	 * Set phaseAntRMS with the specified std::vector<std::vector<float > >.
+ 	 * @param phaseAntRMS The std::vector<std::vector<float > > value to which phaseAntRMS is to be set.
  	 
  	
  	 */
- 	void CalPhaseRow::setPhaseAntRMS (vector<vector<float > > phaseAntRMS) {
+ 	void CalPhaseRow::setPhaseAntRMS (std::vector<std::vector<float > > phaseAntRMS) {
 	
  		this->phaseAntRMS = phaseAntRMS;
 	
@@ -4481,7 +4562,7 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 	}
 
 	
-	bool CalPhaseRow::compareNoAutoInc(BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, vector<vector<float > > ampli, vector<vector<string > > antennaNames, vector<Length > baselineLengths, vector<vector<float > > decorrelationFactor, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<vector<float > > phase, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > phaseRMS, vector<vector<float > > statPhaseRMS) {
+	bool CalPhaseRow::compareNoAutoInc(BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, std::vector<std::vector<float > > ampli, std::vector<std::vector<std::string > > antennaNames, std::vector<Length > baselineLengths, std::vector<std::vector<float > > decorrelationFactor, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<std::vector<float > > phase, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > phaseRMS, std::vector<std::vector<float > > statPhaseRMS) {
 		bool result;
 		result = true;
 		
@@ -4630,7 +4711,7 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 	
 	
 	
-	bool CalPhaseRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, vector<vector<float > > ampli, vector<vector<string > > antennaNames, vector<Length > baselineLengths, vector<vector<float > > decorrelationFactor, vector<Angle > direction, vector<Frequency > frequencyRange, Interval integrationTime, vector<vector<float > > phase, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > phaseRMS, vector<vector<float > > statPhaseRMS) {
+	bool CalPhaseRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numBaseline, int numReceptor, std::vector<std::vector<float > > ampli, std::vector<std::vector<std::string > > antennaNames, std::vector<Length > baselineLengths, std::vector<std::vector<float > > decorrelationFactor, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<std::vector<float > > phase, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > phaseRMS, std::vector<std::vector<float > > statPhaseRMS) {
 		bool result;
 		result = true;
 		

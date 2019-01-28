@@ -44,8 +44,7 @@
 
 using namespace std;
 
-#define CheckImplementationPointerR() Assert (impl_p != NULL);
-#define CheckImplementationPointerW() Assert (impl_p != NULL);
+#define CheckImplementationPointer() Assert (impl_p != NULL);
 
 using namespace casacore;
 namespace casa {
@@ -129,9 +128,12 @@ VisibilityIterator2::VisibilityIterator2 (const Vector<ViiLayerFactory*> & facto
 : impl_p (0)
 {
 
-  Int nfactory=factories.nelements();
+    Int nfactory=factories.nelements();
+    
+    if(factories(nfactory-1) == nullptr)
+        throw(AipsError("ViiLayerFactory in factories is null"));
 
-  ViImplementation2 * newImpl = factories(nfactory-1)->createViImpl2(factories(Slice(0,nfactory-1,1)));
+    ViImplementation2 * newImpl = factories(nfactory-1)->createViImpl2(factories(Slice(0,nfactory-1,1)));
 
     impl_p = newImpl;
 }
@@ -174,7 +176,7 @@ VisibilityIterator2::ViiType() const
 void
 VisibilityIterator2::next()
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     impl_p->next ();
 }
 
@@ -182,14 +184,14 @@ VisibilityIterator2::next()
 const MeasurementSet&
 VisibilityIterator2::ms () const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     return impl_p->ms ();
 }
 
 Bool
 VisibilityIterator2::existsColumn (VisBufferComponent2 id) const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
 
     return impl_p->existsColumn (id);
 }
@@ -197,7 +199,7 @@ VisibilityIterator2::existsColumn (VisBufferComponent2 id) const
 Bool
 VisibilityIterator2::weightSpectrumExists () const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     return impl_p->weightSpectrumExists();
 }
 
@@ -223,14 +225,14 @@ VisibilityIterator2::setReportingFrameOfReference (Int frame)
 Subchunk
 VisibilityIterator2::getSubchunkId () const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     return impl_p->getSubchunkId ();
 }
 
 VisBuffer2 *
 VisibilityIterator2::getVisBuffer ()
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     return impl_p->getVisBuffer(this);
 }
 
@@ -260,14 +262,14 @@ VisibilityIterator2::isAsynchronousIoEnabled()
 Bool
 VisibilityIterator2::more () const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     return impl_p->more ();
 }
 
 Bool
 VisibilityIterator2::moreChunks () const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     return impl_p->moreChunks ();
 }
 
@@ -275,7 +277,7 @@ VisibilityIterator2::moreChunks () const
 void
 VisibilityIterator2::nextChunk ()
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     impl_p->nextChunk ();
 }
 
@@ -292,63 +294,63 @@ String VisibilityIterator2::keyChange() const
 Int
 VisibilityIterator2::nDataDescriptionIds () const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     return impl_p->nDataDescriptionIds ();
 }
 //
 Int
 VisibilityIterator2::nPolarizationIds () const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     return impl_p->nPolarizationIds ();
 }
 //
 Int
 VisibilityIterator2::nSpectralWindows () const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     return impl_p->nSpectralWindows ();
 }
 
 void
 VisibilityIterator2::origin ()
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     impl_p->origin ();
 }
 
 void
 VisibilityIterator2::originChunks ()
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     originChunks (false);
 }
 
 void
 VisibilityIterator2::originChunks (Bool forceRewind)
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     impl_p->originChunks (forceRewind);
 }
 
 void
 VisibilityIterator2::setRowBlocking (Int nRows) // for use by Async I/O *ONLY
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     impl_p->setRowBlocking (nRows);
 }
 
 void
 VisibilityIterator2::slurp () const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     impl_p->slurp ();
 }
 
 Int
 VisibilityIterator2::nRowsInChunk () const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     return impl_p->nRowsInChunk ();
 }
 
@@ -367,7 +369,7 @@ VisibilityIterator2::setFrequencySelection (const FrequencySelections & selectio
              String::format ("Frequency selection size, %d, does not VisibilityIterator # of MSs, %d.",
                      impl_p->getNMs (), selections.size()));
 
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     impl_p->setFrequencySelections (selections);
 }
 
@@ -376,49 +378,49 @@ VisibilityIterator2::setFrequencySelection (const FrequencySelections & selectio
 const vi::SubtableColumns &
 VisibilityIterator2::subtableColumns () const
 {
-    CheckImplementationPointerR ();
+    CheckImplementationPointer ();
     return impl_p->subtableColumns ();
 }
 
 void
 VisibilityIterator2::useImagingWeight (const VisImagingWeight & viw)
 {
-    CheckImplementationPointerW ();
+    CheckImplementationPointer ();
     impl_p->useImagingWeight(viw);
 }
 
 void
 VisibilityIterator2::writeFlag (const Cube<Bool>& flag)
 {
-    CheckImplementationPointerW ();
+    CheckImplementationPointer ();
     impl_p->writeFlag (flag);
 }
 
 void
 VisibilityIterator2::writeFlagRow (const Vector<Bool>& rowflags)
 {
-    CheckImplementationPointerW ();
+    CheckImplementationPointer ();
     impl_p->writeFlagRow (rowflags);
 }
 
 void
 VisibilityIterator2::writeWeightSpectrum (const Cube<Float>& wtsp)
 {
-    CheckImplementationPointerW ();
+    CheckImplementationPointer ();
     impl_p->writeWeightSpectrum (wtsp);
 }
 
 void
 VisibilityIterator2::writeVisModel (const Cube<Complex>& modelCube)
 {
-    CheckImplementationPointerW ();
+    CheckImplementationPointer ();
     impl_p->writeVisModel (modelCube);
 }
 
 void
 VisibilityIterator2::writeVisCorrected (const Cube<Complex>& CorrectedCube)
 {
-    CheckImplementationPointerW ();
+    CheckImplementationPointer ();
     impl_p->writeVisCorrected (CorrectedCube);
 }
 
@@ -427,14 +429,14 @@ VisibilityIterator2::writeModel(const RecordInterface& record,
                                 bool isComponentList,
                                 bool addToExistingModel)
 {
-    CheckImplementationPointerW ();
+    CheckImplementationPointer ();
     impl_p->writeModel (record, isComponentList, addToExistingModel);
 }
 
 void
 VisibilityIterator2::writeVisObserved (const Cube<Complex>& ObservedCube)
 {
-    CheckImplementationPointerW ();
+    CheckImplementationPointer ();
     impl_p->writeVisObserved (ObservedCube);
 }
 
@@ -442,14 +444,14 @@ VisibilityIterator2::writeVisObserved (const Cube<Complex>& ObservedCube)
 void
 VisibilityIterator2::initWeightSpectrum (const Cube<Float>& wtsp)
 {
-    CheckImplementationPointerW ();
+    CheckImplementationPointer ();
     impl_p->initWeightSpectrum (wtsp);
 }
 
 void
 VisibilityIterator2::setWeightScaling (CountedPtr<WeightScaling> weightScaling)
 {
-  CheckImplementationPointerW ();
+  CheckImplementationPointer ();
 
   impl_p->setWeightScaling (weightScaling);
 }
@@ -457,9 +459,128 @@ VisibilityIterator2::setWeightScaling (CountedPtr<WeightScaling> weightScaling)
 Bool
 VisibilityIterator2::hasWeightScaling () const
 {
-  CheckImplementationPointerW ();
+  CheckImplementationPointer ();
 
   return impl_p->hasWeightScaling ();
+}
+
+const casacore::ROMSAntennaColumns& VisibilityIterator2::antennaSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->antennaSubtablecols ();
+}
+
+const casacore::ROMSDataDescColumns& VisibilityIterator2::dataDescriptionSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->dataDescriptionSubtablecols ();
+}
+
+const casacore::ROMSFeedColumns& VisibilityIterator2::feedSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->feedSubtablecols ();
+}
+
+const casacore::ROMSFieldColumns& VisibilityIterator2::fieldSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->fieldSubtablecols ();
+}
+
+const casacore::ROMSFlagCmdColumns& VisibilityIterator2::flagCmdSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->flagCmdSubtablecols ();
+}
+
+const casacore::ROMSHistoryColumns& VisibilityIterator2::historySubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->historySubtablecols ();
+}
+
+const casacore::ROMSObservationColumns& VisibilityIterator2::observationSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->observationSubtablecols ();
+}
+
+const casacore::ROMSPointingColumns& VisibilityIterator2::pointingSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->pointingSubtablecols ();
+}
+
+const casacore::ROMSPolarizationColumns& VisibilityIterator2::polarizationSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->polarizationSubtablecols ();
+}
+
+const casacore::ROMSProcessorColumns& VisibilityIterator2::processorSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->processorSubtablecols ();
+}
+
+const casacore::ROMSSpWindowColumns& VisibilityIterator2::spectralWindowSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->spectralWindowSubtablecols ();
+}
+
+const casacore::ROMSStateColumns& VisibilityIterator2::stateSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->stateSubtablecols ();
+}
+
+const casacore::ROMSDopplerColumns& VisibilityIterator2::dopplerSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->dopplerSubtablecols ();
+}
+
+const casacore::ROMSFreqOffsetColumns& VisibilityIterator2::freqOffsetSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->freqOffsetSubtablecols ();
+}
+
+const casacore::ROMSSourceColumns& VisibilityIterator2::sourceSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->sourceSubtablecols ();
+}
+
+const casacore::ROMSSysCalColumns& VisibilityIterator2::sysCalSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->sysCalSubtablecols ();
+}
+
+const casacore::ROMSWeatherColumns& VisibilityIterator2::weatherSubtablecols() const
+{
+  CheckImplementationPointer ();
+
+  return impl_p->weatherSubtablecols ();
 }
 
 SubtableColumns::SubtableColumns (CountedPtr <MSIter> msIter)

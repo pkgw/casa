@@ -38,55 +38,28 @@
 #include <vector>
 #include <set>
 
-using std::string;
-using std::vector;
-using std::set;
+#include <alma/ASDM/Angle.h>
+#include <alma/ASDM/AngularRate.h>
+#include <alma/ASDM/ArrayTime.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
+#include <alma/ASDM/ComplexWrapper.h>
+#include <alma/ASDM/Entity.h>
+#include <alma/ASDM/EntityId.h>
+#include <alma/ASDM/EntityRef.h>
+#include <alma/ASDM/Flux.h>
+#include <alma/ASDM/Frequency.h>
+#include <alma/ASDM/Humidity.h>
+#include <alma/ASDM/Interval.h>
+#include <alma/ASDM/Length.h>
+#include <alma/ASDM/Pressure.h>
+#include <alma/ASDM/Speed.h>
+#include <alma/ASDM/Tag.h>
+#include <alma/ASDM/Temperature.h>
 
-#include <Angle.h>
-#include <AngularRate.h>
-#include <ArrayTime.h>
-#include <ArrayTimeInterval.h>
-#include <ComplexWrapper.h>
-#include <Entity.h>
-#include <EntityId.h>
-#include <EntityRef.h>
-#include <Flux.h>
-#include <Frequency.h>
-#include <Humidity.h>
-#include <Interval.h>
-#include <Length.h>
-#include <Pressure.h>
-#include <Speed.h>
-#include <Tag.h>
-#include <Temperature.h>
- 
-#include <StringTokenizer.h>
-#include <OutOfBoundsException.h>
-#include <LongWrapper.h>
-#include <ConversionException.h>
-
-using namespace std;
-using asdm::Angle;
-using asdm::AngularRate;
-using asdm::ArrayTime;
-using asdm::Complex;
-using asdm::Entity;
-using asdm::EntityId;
-using asdm::EntityRef;
-using asdm::Flux;
-using asdm::Frequency;
-using asdm::Humidity;
-using asdm::Interval;
-using asdm::Length;
-using asdm::Pressure;
-using asdm::Speed;
-using asdm::Tag;
-using asdm::Temperature;
-
-using asdm::StringTokenizer;
-using asdm::OutOfBoundsException;
-using asdm::Long;
-using asdm::ConversionException;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/OutOfBoundsException.h>
+#include <alma/ASDM/LongWrapper.h>
+#include <alma/ASDM/ConversionException.h>
 
 namespace asdm {
 /**
@@ -96,12 +69,12 @@ class Parser {
 
 public:
 
-	Parser(const string &s);
+	Parser(const std::string &s);
 
 	/**
 	 * Is s in the string being parsed?
 	 */
-	bool isStr(const string &) const;
+	bool isStr(const std::string &) const;
 
 	/**
 	 * Get the portion of the string bounded by s1 and s2, inclusive.
@@ -109,7 +82,7 @@ public:
 	 * @param s2
 	 * @return
 	 */
-	string getElement(const string &s1, const string &s2);
+	std::string getElement(const std::string &s1, const std::string &s2);
 
 	/**
 	 * Get the portion of the string bounded by s1 and s2, exclusive.
@@ -117,20 +90,20 @@ public:
 	 * @param s2
 	 * @return
 	 */
-	string getElementContent(const string &s1, const string &s2);
+	std::string getElementContent(const std::string &s1, const std::string &s2);
 
-	string getField(const string &field);
+	std::string getField(const std::string &field);
 
-	static string getField(const string &xml, const string &field);
+	static std::string getField(const std::string &xml, const std::string &field);
 
 	// The follwing is a special case.
-	static string getString(const string &name, const string &tableName, const string &xmlDoc) ;
+	static std::string getString(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	//  throw (ConversionException);
-	static vector<string> get1DString(const string &name, const string &tableName, const string &xmlDoc) ;
+	static std::vector<std::string> get1DString(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	//	throw (ConversionException);
-	static vector <vector<string> > get2DString(const string &name, const string &tableName, const string &xmlDoc) ;
+	static std::vector<std::vector<std::string> > get2DString(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	//	throw (ConversionException);
-	static vector <vector <vector<string> > > get3DString(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::string> > > get3DString(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	//	throw (ConversionException);
 
 	// Generated methods for conversion to and from XML
@@ -141,42 +114,42 @@ public:
 	
 	// Field type: int
 
-	static void toXML(int data, const string &name, string &buf);
+	static void toXML(int data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<int> data, const string &name, string &buf);
+	static void toXML(std::vector<int> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<int> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<int> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<int> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<int> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<int> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<int> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
-	static void toXML(set < int > data, const string &name, string &buf);
+	static void toXML(std::set< int > data, const std::string &name, std::string &buf);
 	
 
 		
 	
 	
 	
-	static set< int >  getIntSet(const string &name, const string &tableName, const string &xmlDoc);
+	static std::set< int >  getIntSet(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	
 
 			
-	static int getInteger(const string &name, const string &tableName, const string &xmlDoc) ;
+	static int getInteger(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<int> get1DInteger(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<int> get1DInteger(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<int> > get2DInteger(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<int> > get2DInteger(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<int> > > get3DInteger(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<int> > > get3DInteger(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<int> > > >get4DInteger(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<int> > > >get4DInteger(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -184,15 +157,15 @@ public:
 
 	// Field type: short
 
-	static void toXML(short data, const string &name, string &buf);
+	static void toXML(short data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<short> data, const string &name, string &buf);
+	static void toXML(std::vector<short> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<short> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<short> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<short> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<short> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<short> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<short> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -203,19 +176,19 @@ public:
 	
 
 			
-	static short getShort(const string &name, const string &tableName, const string &xmlDoc) ;
+	static short getShort(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<short> get1DShort(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<short> get1DShort(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<short> > get2DShort(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<short> > get2DShort(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<short> > > get3DShort(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<short> > > get3DShort(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<short> > > >get4DShort(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<short> > > >get4DShort(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -223,15 +196,15 @@ public:
 
 	// Field type: int64_t
 
-	static void toXML(int64_t data, const string &name, string &buf);
+	static void toXML(int64_t data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<int64_t> data, const string &name, string &buf);
+	static void toXML(std::vector<int64_t> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<int64_t> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<int64_t> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<int64_t> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<int64_t> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<int64_t> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<int64_t> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -242,19 +215,19 @@ public:
 	
 
 			
-	static int64_t getLong(const string &name, const string &tableName, const string &xmlDoc) ;
+	static int64_t getLong(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<int64_t> get1DLong(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<int64_t> get1DLong(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<int64_t> > get2DLong(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<int64_t> > get2DLong(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<int64_t> > > get3DLong(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<int64_t> > > get3DLong(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<int64_t> > > >get4DLong(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<int64_t> > > >get4DLong(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -262,15 +235,15 @@ public:
 
 	// Field type: char
 
-	static void toXML(char data, const string &name, string &buf);
+	static void toXML(char data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<char> data, const string &name, string &buf);
+	static void toXML(std::vector<char> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<char> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<char> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<char> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<char> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<char> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<char> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -281,19 +254,19 @@ public:
 	
 
 			
-	static char getByte(const string &name, const string &tableName, const string &xmlDoc) ;
+	static char getByte(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<char> get1DByte(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<char> get1DByte(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<char> > get2DByte(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<char> > get2DByte(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<char> > > get3DByte(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<char> > > get3DByte(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<char> > > >get4DByte(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<char> > > >get4DByte(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -301,15 +274,15 @@ public:
 
 	// Field type: float
 
-	static void toXML(float data, const string &name, string &buf);
+	static void toXML(float data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<float> data, const string &name, string &buf);
+	static void toXML(std::vector<float> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<float> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<float> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<float> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<float> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<float> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<float> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -320,19 +293,19 @@ public:
 	
 
 			
-	static float getFloat(const string &name, const string &tableName, const string &xmlDoc) ;
+	static float getFloat(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<float> get1DFloat(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<float> get1DFloat(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<float> > get2DFloat(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<float> > get2DFloat(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<float> > > get3DFloat(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<float> > > get3DFloat(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<float> > > >get4DFloat(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<float> > > >get4DFloat(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -340,15 +313,15 @@ public:
 
 	// Field type: double
 
-	static void toXML(double data, const string &name, string &buf);
+	static void toXML(double data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<double> data, const string &name, string &buf);
+	static void toXML(std::vector<double> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<double> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<double> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<double> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<double> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<double> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<double> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -359,19 +332,19 @@ public:
 	
 
 			
-	static double getDouble(const string &name, const string &tableName, const string &xmlDoc) ;
+	static double getDouble(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<double> get1DDouble(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<double> get1DDouble(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<double> > get2DDouble(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<double> > get2DDouble(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<double> > > get3DDouble(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<double> > > get3DDouble(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<double> > > >get4DDouble(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<double> > > >get4DDouble(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -379,15 +352,15 @@ public:
 
 	// Field type: unsigned char
 
-	static void toXML(unsigned char data, const string &name, string &buf);
+	static void toXML(unsigned char data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<unsigned char> data, const string &name, string &buf);
+	static void toXML(std::vector<unsigned char> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<unsigned char> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<unsigned char> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<unsigned char> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<unsigned char> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<unsigned char> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<unsigned char> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -398,19 +371,19 @@ public:
 	
 
 			
-	static unsigned char getCharacter(const string &name, const string &tableName, const string &xmlDoc) ;
+	static unsigned char getCharacter(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<unsigned char> get1DCharacter(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<unsigned char> get1DCharacter(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<unsigned char> > get2DCharacter(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<unsigned char> > get2DCharacter(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<unsigned char> > > get3DCharacter(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<unsigned char> > > get3DCharacter(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<unsigned char> > > >get4DCharacter(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<unsigned char> > > >get4DCharacter(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -418,15 +391,15 @@ public:
 
 	// Field type: bool
 
-	static void toXML(bool data, const string &name, string &buf);
+	static void toXML(bool data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<bool> data, const string &name, string &buf);
+	static void toXML(std::vector<bool> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<bool> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<bool> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<bool> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<bool> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<bool> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<bool> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -437,35 +410,35 @@ public:
 	
 
 			
-	static bool getBoolean(const string &name, const string &tableName, const string &xmlDoc) ;
+	static bool getBoolean(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<bool> get1DBoolean(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<bool> get1DBoolean(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<bool> > get2DBoolean(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<bool> > get2DBoolean(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<bool> > > get3DBoolean(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<bool> > > get3DBoolean(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<bool> > > >get4DBoolean(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<bool> > > >get4DBoolean(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
 
 
-	// Field type: string
+	// Field type: std::string
 
-	static void toXML(string data, const string &name, string &buf);
+	static void toXML(std::string data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<string> data, const string &name, string &buf);
+	static void toXML(std::vector<std::string> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<string> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::string> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<string> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::string> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<string> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<std::string> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -475,15 +448,15 @@ public:
 
 	// Field type: Angle
 
-	static void toXML(Angle data, const string &name, string &buf);
+	static void toXML(Angle data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Angle> data, const string &name, string &buf);
+	static void toXML(std::vector<Angle> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Angle> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Angle> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Angle> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Angle> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Angle> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Angle> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -494,19 +467,19 @@ public:
 	
 
 			
-	static Angle getAngle(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Angle getAngle(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Angle> get1DAngle(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Angle> get1DAngle(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Angle> > get2DAngle(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Angle> > get2DAngle(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Angle> > > get3DAngle(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Angle> > > get3DAngle(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Angle> > > >get4DAngle(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Angle> > > >get4DAngle(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -514,15 +487,15 @@ public:
 
 	// Field type: AngularRate
 
-	static void toXML(AngularRate data, const string &name, string &buf);
+	static void toXML(AngularRate data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<AngularRate> data, const string &name, string &buf);
+	static void toXML(std::vector<AngularRate> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<AngularRate> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<AngularRate> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<AngularRate> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<AngularRate> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<AngularRate> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<AngularRate> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -533,19 +506,19 @@ public:
 	
 
 			
-	static AngularRate getAngularRate(const string &name, const string &tableName, const string &xmlDoc) ;
+	static AngularRate getAngularRate(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<AngularRate> get1DAngularRate(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<AngularRate> get1DAngularRate(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<AngularRate> > get2DAngularRate(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<AngularRate> > get2DAngularRate(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<AngularRate> > > get3DAngularRate(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<AngularRate> > > get3DAngularRate(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<AngularRate> > > >get4DAngularRate(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<AngularRate> > > >get4DAngularRate(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -553,15 +526,15 @@ public:
 
 	// Field type: ArrayTime
 
-	static void toXML(ArrayTime data, const string &name, string &buf);
+	static void toXML(ArrayTime data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<ArrayTime> data, const string &name, string &buf);
+	static void toXML(std::vector<ArrayTime> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<ArrayTime> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<ArrayTime> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<ArrayTime> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<ArrayTime> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<ArrayTime> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<ArrayTime> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -572,19 +545,19 @@ public:
 	
 
 			
-	static ArrayTime getArrayTime(const string &name, const string &tableName, const string &xmlDoc) ;
+	static ArrayTime getArrayTime(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<ArrayTime> get1DArrayTime(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<ArrayTime> get1DArrayTime(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<ArrayTime> > get2DArrayTime(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<ArrayTime> > get2DArrayTime(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<ArrayTime> > > get3DArrayTime(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<ArrayTime> > > get3DArrayTime(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<ArrayTime> > > >get4DArrayTime(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<ArrayTime> > > >get4DArrayTime(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -592,15 +565,15 @@ public:
 
 	// Field type: ArrayTimeInterval
 
-	static void toXML(ArrayTimeInterval data, const string &name, string &buf);
+	static void toXML(ArrayTimeInterval data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<ArrayTimeInterval> data, const string &name, string &buf);
+	static void toXML(std::vector<ArrayTimeInterval> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<ArrayTimeInterval> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<ArrayTimeInterval> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<ArrayTimeInterval> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<ArrayTimeInterval> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<ArrayTimeInterval> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<ArrayTimeInterval> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -611,19 +584,19 @@ public:
 	
 
 			
-	static ArrayTimeInterval getArrayTimeInterval(const string &name, const string &tableName, const string &xmlDoc) ;
+	static ArrayTimeInterval getArrayTimeInterval(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<ArrayTimeInterval> get1DArrayTimeInterval(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<ArrayTimeInterval> get1DArrayTimeInterval(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<ArrayTimeInterval> > get2DArrayTimeInterval(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<ArrayTimeInterval> > get2DArrayTimeInterval(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<ArrayTimeInterval> > > get3DArrayTimeInterval(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<ArrayTimeInterval> > > get3DArrayTimeInterval(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<ArrayTimeInterval> > > >get4DArrayTimeInterval(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<ArrayTimeInterval> > > >get4DArrayTimeInterval(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -631,15 +604,15 @@ public:
 
 	// Field type: Complex
 
-	static void toXML(Complex data, const string &name, string &buf);
+	static void toXML(Complex data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Complex> data, const string &name, string &buf);
+	static void toXML(std::vector<Complex> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Complex> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Complex> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Complex> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Complex> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Complex> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Complex> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -650,19 +623,19 @@ public:
 	
 
 			
-	static Complex getComplex(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Complex getComplex(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Complex> get1DComplex(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Complex> get1DComplex(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Complex> > get2DComplex(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Complex> > get2DComplex(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Complex> > > get3DComplex(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Complex> > > get3DComplex(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Complex> > > >get4DComplex(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Complex> > > >get4DComplex(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -670,15 +643,15 @@ public:
 
 	// Field type: Entity
 
-	static void toXML(Entity data, const string &name, string &buf);
+	static void toXML(Entity data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Entity> data, const string &name, string &buf);
+	static void toXML(std::vector<Entity> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Entity> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Entity> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Entity> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Entity> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Entity> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Entity> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -689,19 +662,19 @@ public:
 	
 
 			
-	static Entity getEntity(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Entity getEntity(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Entity> get1DEntity(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Entity> get1DEntity(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Entity> > get2DEntity(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Entity> > get2DEntity(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Entity> > > get3DEntity(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Entity> > > get3DEntity(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Entity> > > >get4DEntity(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Entity> > > >get4DEntity(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -709,15 +682,15 @@ public:
 
 	// Field type: EntityId
 
-	static void toXML(EntityId data, const string &name, string &buf);
+	static void toXML(EntityId data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<EntityId> data, const string &name, string &buf);
+	static void toXML(std::vector<EntityId> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<EntityId> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<EntityId> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<EntityId> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<EntityId> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<EntityId> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<EntityId> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -728,19 +701,19 @@ public:
 	
 
 			
-	static EntityId getEntityId(const string &name, const string &tableName, const string &xmlDoc) ;
+	static EntityId getEntityId(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<EntityId> get1DEntityId(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<EntityId> get1DEntityId(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<EntityId> > get2DEntityId(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<EntityId> > get2DEntityId(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<EntityId> > > get3DEntityId(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<EntityId> > > get3DEntityId(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<EntityId> > > >get4DEntityId(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<EntityId> > > >get4DEntityId(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -748,15 +721,15 @@ public:
 
 	// Field type: EntityRef
 
-	static void toXML(EntityRef data, const string &name, string &buf);
+	static void toXML(EntityRef data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<EntityRef> data, const string &name, string &buf);
+	static void toXML(std::vector<EntityRef> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<EntityRef> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<EntityRef> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<EntityRef> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<EntityRef> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<EntityRef> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<EntityRef> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -767,19 +740,19 @@ public:
 	
 
 			
-	static EntityRef getEntityRef(const string &name, const string &tableName, const string &xmlDoc) ;
+	static EntityRef getEntityRef(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<EntityRef> get1DEntityRef(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<EntityRef> get1DEntityRef(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<EntityRef> > get2DEntityRef(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<EntityRef> > get2DEntityRef(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<EntityRef> > > get3DEntityRef(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<EntityRef> > > get3DEntityRef(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<EntityRef> > > >get4DEntityRef(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<EntityRef> > > >get4DEntityRef(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -787,15 +760,15 @@ public:
 
 	// Field type: Flux
 
-	static void toXML(Flux data, const string &name, string &buf);
+	static void toXML(Flux data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Flux> data, const string &name, string &buf);
+	static void toXML(std::vector<Flux> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Flux> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Flux> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Flux> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Flux> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Flux> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Flux> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -806,19 +779,19 @@ public:
 	
 
 			
-	static Flux getFlux(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Flux getFlux(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Flux> get1DFlux(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Flux> get1DFlux(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Flux> > get2DFlux(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Flux> > get2DFlux(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Flux> > > get3DFlux(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Flux> > > get3DFlux(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Flux> > > >get4DFlux(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Flux> > > >get4DFlux(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -826,15 +799,15 @@ public:
 
 	// Field type: Frequency
 
-	static void toXML(Frequency data, const string &name, string &buf);
+	static void toXML(Frequency data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Frequency> data, const string &name, string &buf);
+	static void toXML(std::vector<Frequency> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Frequency> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Frequency> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Frequency> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Frequency> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Frequency> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Frequency> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -845,19 +818,19 @@ public:
 	
 
 			
-	static Frequency getFrequency(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Frequency getFrequency(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Frequency> get1DFrequency(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Frequency> get1DFrequency(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Frequency> > get2DFrequency(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Frequency> > get2DFrequency(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Frequency> > > get3DFrequency(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Frequency> > > get3DFrequency(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Frequency> > > >get4DFrequency(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Frequency> > > >get4DFrequency(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -865,15 +838,15 @@ public:
 
 	// Field type: Humidity
 
-	static void toXML(Humidity data, const string &name, string &buf);
+	static void toXML(Humidity data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Humidity> data, const string &name, string &buf);
+	static void toXML(std::vector<Humidity> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Humidity> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Humidity> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Humidity> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Humidity> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Humidity> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Humidity> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -884,19 +857,19 @@ public:
 	
 
 			
-	static Humidity getHumidity(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Humidity getHumidity(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Humidity> get1DHumidity(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Humidity> get1DHumidity(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Humidity> > get2DHumidity(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Humidity> > get2DHumidity(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Humidity> > > get3DHumidity(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Humidity> > > get3DHumidity(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Humidity> > > >get4DHumidity(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Humidity> > > >get4DHumidity(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -904,15 +877,15 @@ public:
 
 	// Field type: Interval
 
-	static void toXML(Interval data, const string &name, string &buf);
+	static void toXML(Interval data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Interval> data, const string &name, string &buf);
+	static void toXML(std::vector<Interval> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Interval> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Interval> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Interval> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Interval> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Interval> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Interval> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -923,19 +896,19 @@ public:
 	
 
 			
-	static Interval getInterval(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Interval getInterval(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Interval> get1DInterval(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Interval> get1DInterval(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Interval> > get2DInterval(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Interval> > get2DInterval(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Interval> > > get3DInterval(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Interval> > > get3DInterval(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Interval> > > >get4DInterval(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Interval> > > >get4DInterval(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -943,15 +916,15 @@ public:
 
 	// Field type: Length
 
-	static void toXML(Length data, const string &name, string &buf);
+	static void toXML(Length data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Length> data, const string &name, string &buf);
+	static void toXML(std::vector<Length> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Length> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Length> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Length> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Length> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Length> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Length> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -962,19 +935,19 @@ public:
 	
 
 			
-	static Length getLength(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Length getLength(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Length> get1DLength(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Length> get1DLength(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Length> > get2DLength(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Length> > get2DLength(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Length> > > get3DLength(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Length> > > get3DLength(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Length> > > >get4DLength(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Length> > > >get4DLength(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -982,15 +955,15 @@ public:
 
 	// Field type: Pressure
 
-	static void toXML(Pressure data, const string &name, string &buf);
+	static void toXML(Pressure data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Pressure> data, const string &name, string &buf);
+	static void toXML(std::vector<Pressure> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Pressure> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Pressure> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Pressure> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Pressure> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Pressure> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Pressure> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -1001,19 +974,19 @@ public:
 	
 
 			
-	static Pressure getPressure(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Pressure getPressure(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Pressure> get1DPressure(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Pressure> get1DPressure(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Pressure> > get2DPressure(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Pressure> > get2DPressure(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Pressure> > > get3DPressure(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Pressure> > > get3DPressure(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Pressure> > > >get4DPressure(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Pressure> > > >get4DPressure(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -1021,15 +994,15 @@ public:
 
 	// Field type: Speed
 
-	static void toXML(Speed data, const string &name, string &buf);
+	static void toXML(Speed data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Speed> data, const string &name, string &buf);
+	static void toXML(std::vector<Speed> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Speed> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Speed> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Speed> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Speed> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Speed> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Speed> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -1040,19 +1013,19 @@ public:
 	
 
 			
-	static Speed getSpeed(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Speed getSpeed(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Speed> get1DSpeed(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Speed> get1DSpeed(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Speed> > get2DSpeed(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Speed> > get2DSpeed(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Speed> > > get3DSpeed(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Speed> > > get3DSpeed(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Speed> > > >get4DSpeed(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Speed> > > >get4DSpeed(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -1060,42 +1033,42 @@ public:
 
 	// Field type: Tag
 
-	static void toXML(Tag data, const string &name, string &buf);
+	static void toXML(Tag data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Tag> data, const string &name, string &buf);
+	static void toXML(std::vector<Tag> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Tag> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Tag> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Tag> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Tag> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Tag> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Tag> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
-	static void toXML(set < Tag > data, const string &name, string &buf);
+	static void toXML(std::set< Tag > data, const std::string &name, std::string &buf);
 	
 
 		
 	
 	
 	
-	static set< Tag >  getTagSet(const string &name, const string &tableName, const string &xmlDoc);
+	static std::set< Tag >  getTagSet(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	
 
 			
-	static Tag getTag(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Tag getTag(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Tag> get1DTag(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Tag> get1DTag(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Tag> > get2DTag(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Tag> > get2DTag(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Tag> > > get3DTag(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Tag> > > get3DTag(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Tag> > > >get4DTag(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Tag> > > >get4DTag(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -1103,15 +1076,15 @@ public:
 
 	// Field type: Temperature
 
-	static void toXML(Temperature data, const string &name, string &buf);
+	static void toXML(Temperature data, const std::string &name, std::string &buf);
 
-	static void toXML(vector<Temperature> data, const string &name, string &buf);
+	static void toXML(std::vector<Temperature> data, const std::string &name, std::string &buf);
 
-	static void toXML(vector< vector<Temperature> > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<Temperature> > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector< vector< vector<Temperature> > > data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<Temperature> > > data, const std::string &name, std::string &buf);
 	
-	static void toXML(vector<vector< vector< vector<Temperature> > > >data, const string &name, string &buf);
+	static void toXML(std::vector<std::vector<std::vector<std::vector<Temperature> > > >data, const std::string &name, std::string &buf);
 	
 	
 	
@@ -1122,19 +1095,19 @@ public:
 	
 
 			
-	static Temperature getTemperature(const string &name, const string &tableName, const string &xmlDoc) ;
+	static Temperature getTemperature(const std::string &name, const std::string &tableName, const std::string &xmlDoc) ;
 	// throw (ConversionException);
 
-	static vector<Temperature> get1DTemperature(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<Temperature> get1DTemperature(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);
 		
-	static vector< vector<Temperature> > get2DTemperature(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<Temperature> > get2DTemperature(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector< vector< vector<Temperature> > > get3DTemperature(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<Temperature> > > get3DTemperature(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 	
-	static vector<vector< vector< vector<Temperature> > > >get4DTemperature(const string &name, const string &tableName, const string &xmlDoc);
+	static std::vector<std::vector<std::vector<std::vector<Temperature> > > >get4DTemperature(const std::string &name, const std::string &tableName, const std::string &xmlDoc);
 	// throw (ConversionException);	
 
 		
@@ -1150,193 +1123,193 @@ public:
 	
 	
 	
-	static void toXMLBase64(vector<int> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<int> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<int> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<int> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<int> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<int> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<int> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<int> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<int>& get1DIntegerFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<int>& attribute);
+	static std::vector<int>& get1DIntegerFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<int>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<int> >& get2DIntegerFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<int> >& attribute);
+	static std::vector<std::vector<int> >& get2DIntegerFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<int> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<int> > >& get3DIntegerFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<int> > >& attribute);
+	static std::vector<std::vector<std::vector<int> > >& get3DIntegerFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<int> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<int> > > >& get4DIntegerFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<int> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<int> > > >& get4DIntegerFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<int> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<short> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<short> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<short> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<short> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<short> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<short> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<short> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<short> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<short>& get1DShortFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<short>& attribute);
+	static std::vector<short>& get1DShortFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<short>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<short> >& get2DShortFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<short> >& attribute);
+	static std::vector<std::vector<short> >& get2DShortFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<short> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<short> > >& get3DShortFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<short> > >& attribute);
+	static std::vector<std::vector<std::vector<short> > >& get3DShortFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<short> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<short> > > >& get4DShortFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<short> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<short> > > >& get4DShortFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<short> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<int64_t> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<int64_t> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<int64_t> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<int64_t> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<int64_t> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<int64_t> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<int64_t> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<int64_t> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<int64_t>& get1DLongFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<int64_t>& attribute);
+	static std::vector<int64_t>& get1DLongFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<int64_t>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<int64_t> >& get2DLongFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<int64_t> >& attribute);
+	static std::vector<std::vector<int64_t> >& get2DLongFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<int64_t> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<int64_t> > >& get3DLongFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<int64_t> > >& attribute);
+	static std::vector<std::vector<std::vector<int64_t> > >& get3DLongFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<int64_t> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<int64_t> > > >& get4DLongFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<int64_t> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<int64_t> > > >& get4DLongFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<int64_t> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<char> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<char> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<char> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<char> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<char> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<char> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<char> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<char> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<char>& get1DByteFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<char>& attribute);
+	static std::vector<char>& get1DByteFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<char>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<char> >& get2DByteFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<char> >& attribute);
+	static std::vector<std::vector<char> >& get2DByteFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<char> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<char> > >& get3DByteFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<char> > >& attribute);
+	static std::vector<std::vector<std::vector<char> > >& get3DByteFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<char> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<char> > > >& get4DByteFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<char> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<char> > > >& get4DByteFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<char> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<float> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<float> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<float> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<float> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<float> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<float> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<float> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<float> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<float>& get1DFloatFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<float>& attribute);
+	static std::vector<float>& get1DFloatFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<float>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<float> >& get2DFloatFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<float> >& attribute);
+	static std::vector<std::vector<float> >& get2DFloatFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<float> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<float> > >& get3DFloatFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<float> > >& attribute);
+	static std::vector<std::vector<std::vector<float> > >& get3DFloatFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<float> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<float> > > >& get4DFloatFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<float> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<float> > > >& get4DFloatFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<float> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<double> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<double> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<double> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<double> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<double> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<double> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<double> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<double> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<double>& get1DDoubleFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<double>& attribute);
+	static std::vector<double>& get1DDoubleFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<double>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<double> >& get2DDoubleFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<double> >& attribute);
+	static std::vector<std::vector<double> >& get2DDoubleFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<double> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<double> > >& get3DDoubleFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<double> > >& attribute);
+	static std::vector<std::vector<std::vector<double> > >& get3DDoubleFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<double> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<double> > > >& get4DDoubleFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<double> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<double> > > >& get4DDoubleFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<double> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<unsigned char> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<unsigned char> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<unsigned char> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<unsigned char> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<unsigned char> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<unsigned char> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<unsigned char> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<unsigned char> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<unsigned char>& get1DCharacterFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<unsigned char>& attribute);
+	static std::vector<unsigned char>& get1DCharacterFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<unsigned char>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<unsigned char> >& get2DCharacterFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<unsigned char> >& attribute);
+	static std::vector<std::vector<unsigned char> >& get2DCharacterFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<unsigned char> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<unsigned char> > >& get3DCharacterFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<unsigned char> > >& attribute);
+	static std::vector<std::vector<std::vector<unsigned char> > >& get3DCharacterFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<unsigned char> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<unsigned char> > > >& get4DCharacterFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<unsigned char> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<unsigned char> > > >& get4DCharacterFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<unsigned char> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<bool> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<bool> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<bool> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<bool> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<bool> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<bool> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<bool> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<bool> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<bool>& get1DBooleanFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<bool>& attribute);
+	static std::vector<bool>& get1DBooleanFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<bool>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<bool> >& get2DBooleanFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<bool> >& attribute);
+	static std::vector<std::vector<bool> >& get2DBooleanFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<bool> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<bool> > >& get3DBooleanFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<bool> > >& attribute);
+	static std::vector<std::vector<std::vector<bool> > >& get3DBooleanFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<bool> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<bool> > > >& get4DBooleanFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<bool> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<bool> > > >& get4DBooleanFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<bool> > > >& attribute);
 	// throw (ConversionException);
 	
 
@@ -1345,73 +1318,73 @@ public:
 
 	
 	
-	static void toXMLBase64(vector<Angle> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<Angle> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<Angle> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<Angle> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<Angle> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<Angle> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<Angle> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<Angle> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<Angle>& get1DAngleFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<Angle>& attribute);
+	static std::vector<Angle>& get1DAngleFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<Angle>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<Angle> >& get2DAngleFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<Angle> >& attribute);
+	static std::vector<std::vector<Angle> >& get2DAngleFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<Angle> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<Angle> > >& get3DAngleFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<Angle> > >& attribute);
+	static std::vector<std::vector<std::vector<Angle> > >& get3DAngleFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<Angle> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<Angle> > > >& get4DAngleFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<Angle> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<Angle> > > >& get4DAngleFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<Angle> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<AngularRate> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<AngularRate> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<AngularRate> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<AngularRate> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<AngularRate> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<AngularRate> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<AngularRate> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<AngularRate> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<AngularRate>& get1DAngularRateFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<AngularRate>& attribute);
+	static std::vector<AngularRate>& get1DAngularRateFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<AngularRate>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<AngularRate> >& get2DAngularRateFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<AngularRate> >& attribute);
+	static std::vector<std::vector<AngularRate> >& get2DAngularRateFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<AngularRate> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<AngularRate> > >& get3DAngularRateFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<AngularRate> > >& attribute);
+	static std::vector<std::vector<std::vector<AngularRate> > >& get3DAngularRateFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<AngularRate> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<AngularRate> > > >& get4DAngularRateFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<AngularRate> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<AngularRate> > > >& get4DAngularRateFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<AngularRate> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<ArrayTime> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<ArrayTime> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<ArrayTime> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<ArrayTime> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<ArrayTime> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<ArrayTime> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<ArrayTime> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<ArrayTime> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<ArrayTime>& get1DArrayTimeFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<ArrayTime>& attribute);
+	static std::vector<ArrayTime>& get1DArrayTimeFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<ArrayTime>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<ArrayTime> >& get2DArrayTimeFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<ArrayTime> >& attribute);
+	static std::vector<std::vector<ArrayTime> >& get2DArrayTimeFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<ArrayTime> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<ArrayTime> > >& get3DArrayTimeFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<ArrayTime> > >& attribute);
+	static std::vector<std::vector<std::vector<ArrayTime> > >& get3DArrayTimeFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<ArrayTime> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<ArrayTime> > > >& get4DArrayTimeFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<ArrayTime> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<ArrayTime> > > >& get4DArrayTimeFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<ArrayTime> > > >& attribute);
 	// throw (ConversionException);
 	
 
@@ -1432,169 +1405,169 @@ public:
 
 	
 	
-	static void toXMLBase64(vector<Flux> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<Flux> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<Flux> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<Flux> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<Flux> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<Flux> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<Flux> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<Flux> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<Flux>& get1DFluxFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<Flux>& attribute);
+	static std::vector<Flux>& get1DFluxFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<Flux>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<Flux> >& get2DFluxFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<Flux> >& attribute);
+	static std::vector<std::vector<Flux> >& get2DFluxFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<Flux> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<Flux> > >& get3DFluxFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<Flux> > >& attribute);
+	static std::vector<std::vector<std::vector<Flux> > >& get3DFluxFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<Flux> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<Flux> > > >& get4DFluxFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<Flux> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<Flux> > > >& get4DFluxFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<Flux> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<Frequency> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<Frequency> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<Frequency> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<Frequency> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<Frequency> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<Frequency> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<Frequency> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<Frequency> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<Frequency>& get1DFrequencyFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<Frequency>& attribute);
+	static std::vector<Frequency>& get1DFrequencyFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<Frequency>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<Frequency> >& get2DFrequencyFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<Frequency> >& attribute);
+	static std::vector<std::vector<Frequency> >& get2DFrequencyFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<Frequency> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<Frequency> > >& get3DFrequencyFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<Frequency> > >& attribute);
+	static std::vector<std::vector<std::vector<Frequency> > >& get3DFrequencyFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<Frequency> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<Frequency> > > >& get4DFrequencyFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<Frequency> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<Frequency> > > >& get4DFrequencyFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<Frequency> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<Humidity> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<Humidity> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<Humidity> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<Humidity> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<Humidity> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<Humidity> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<Humidity> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<Humidity> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<Humidity>& get1DHumidityFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<Humidity>& attribute);
+	static std::vector<Humidity>& get1DHumidityFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<Humidity>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<Humidity> >& get2DHumidityFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<Humidity> >& attribute);
+	static std::vector<std::vector<Humidity> >& get2DHumidityFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<Humidity> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<Humidity> > >& get3DHumidityFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<Humidity> > >& attribute);
+	static std::vector<std::vector<std::vector<Humidity> > >& get3DHumidityFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<Humidity> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<Humidity> > > >& get4DHumidityFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<Humidity> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<Humidity> > > >& get4DHumidityFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<Humidity> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<Interval> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<Interval> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<Interval> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<Interval> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<Interval> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<Interval> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<Interval> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<Interval> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<Interval>& get1DIntervalFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<Interval>& attribute);
+	static std::vector<Interval>& get1DIntervalFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<Interval>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<Interval> >& get2DIntervalFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<Interval> >& attribute);
+	static std::vector<std::vector<Interval> >& get2DIntervalFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<Interval> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<Interval> > >& get3DIntervalFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<Interval> > >& attribute);
+	static std::vector<std::vector<std::vector<Interval> > >& get3DIntervalFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<Interval> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<Interval> > > >& get4DIntervalFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<Interval> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<Interval> > > >& get4DIntervalFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<Interval> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<Length> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<Length> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<Length> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<Length> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<Length> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<Length> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<Length> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<Length> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<Length>& get1DLengthFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<Length>& attribute);
+	static std::vector<Length>& get1DLengthFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<Length>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<Length> >& get2DLengthFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<Length> >& attribute);
+	static std::vector<std::vector<Length> >& get2DLengthFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<Length> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<Length> > >& get3DLengthFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<Length> > >& attribute);
+	static std::vector<std::vector<std::vector<Length> > >& get3DLengthFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<Length> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<Length> > > >& get4DLengthFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<Length> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<Length> > > >& get4DLengthFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<Length> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<Pressure> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<Pressure> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<Pressure> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<Pressure> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<Pressure> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<Pressure> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<Pressure> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<Pressure> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<Pressure>& get1DPressureFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<Pressure>& attribute);
+	static std::vector<Pressure>& get1DPressureFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<Pressure>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<Pressure> >& get2DPressureFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<Pressure> >& attribute);
+	static std::vector<std::vector<Pressure> >& get2DPressureFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<Pressure> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<Pressure> > >& get3DPressureFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<Pressure> > >& attribute);
+	static std::vector<std::vector<std::vector<Pressure> > >& get3DPressureFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<Pressure> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<Pressure> > > >& get4DPressureFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<Pressure> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<Pressure> > > >& get4DPressureFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<Pressure> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 	
-	static void toXMLBase64(vector<Speed> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<Speed> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<Speed> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<Speed> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<Speed> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<Speed> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<Speed> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<Speed> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<Speed>& get1DSpeedFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<Speed>& attribute);
+	static std::vector<Speed>& get1DSpeedFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<Speed>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<Speed> >& get2DSpeedFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<Speed> >& attribute);
+	static std::vector<std::vector<Speed> >& get2DSpeedFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<Speed> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<Speed> > >& get3DSpeedFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<Speed> > >& attribute);
+	static std::vector<std::vector<std::vector<Speed> > >& get3DSpeedFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<Speed> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<Speed> > > >& get4DSpeedFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<Speed> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<Speed> > > >& get4DSpeedFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<Speed> > > >& attribute);
 	// throw (ConversionException);
 	
 
@@ -1603,51 +1576,51 @@ public:
 
 	
 	
-	static void toXMLBase64(vector<Temperature> data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector<Temperature> > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector<Temperature> > > data, const string &name, string &buf);
-	static void toXMLBase64(vector< vector< vector< vector<Temperature> > > >data, const string &name, string &buf);
+	static void toXMLBase64(std::vector<Temperature> data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<Temperature> > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<Temperature> > > data, const std::string &name, std::string &buf);
+	static void toXMLBase64(std::vector<std::vector<std::vector<std::vector<Temperature> > > >data, const std::string &name, std::string &buf);
 	
     
-	static vector<Temperature>& get1DTemperatureFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector<Temperature>& attribute);
+	static std::vector<Temperature>& get1DTemperatureFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<Temperature>& attribute);
 	// throw (ConversionException);
 	
 	 
-	static vector <vector<Temperature> >& get2DTemperatureFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector<Temperature> >& attribute);
+	static std::vector<std::vector<Temperature> >& get2DTemperatureFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<Temperature> >& attribute);
 	// throw (ConversionException);
 	
  	
-	static vector <vector <vector<Temperature> > >& get3DTemperatureFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector<Temperature> > >& attribute);
+	static std::vector<std::vector<std::vector<Temperature> > >& get3DTemperatureFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<Temperature> > >& attribute);
 	// throw (ConversionException);
 	
 	
-	static vector <vector <vector <vector<Temperature> > > >& get4DTemperatureFromBase64(const string &name, const string &tableName, const string &xmlDoc, vector <vector <vector <vector<Temperature> > > >& attribute);
+	static std::vector<std::vector<std::vector<std::vector<Temperature> > > >& get4DTemperatureFromBase64(const std::string &name, const std::string &tableName, const std::string &xmlDoc, std::vector<std::vector<std::vector<std::vector<Temperature> > > >& attribute);
 	// throw (ConversionException);
 	
 
 	
 private:
-	string str;		// The string being parsed.
-	string::size_type pos;		// The current position in the string.
-	string::size_type beg;		// The beginning and end of a fragement
-	string::size_type end;		//    in the string.
+	std::string str;		// The string being parsed.
+	std::string::size_type pos;		// The current position in the string.
+	std::string::size_type beg;		// The beginning and end of a fragement
+	std::string::size_type end;		//    in the string.
 	
 public:
-	static string substring(const string &s, int a, int b);
-	static string trim(const string &s);
+	static std::string substring(const std::string &s, int a, int b);
+	static std::string trim(const std::string &s);
 
 	// encode special characters for use in XML
-	static string encode(const string &s);
+	static std::string encode(const std::string &s);
 	// decode special characters used in XML
-	static string decode(const string &s, const string &tableName);
+	static std::string decode(const std::string &s, const std::string &tableName);
 
 }; // End class Parser
 
-inline Parser::Parser(const string &s) : str(s), pos(0), beg(0), end(0) {
+inline Parser::Parser(const std::string &s) : str(s), pos(0), beg(0), end(0) {
 }
 
-inline bool Parser::isStr(const string &s) const {
-	return str.find(s,pos) == string::npos ? false : true;
+inline bool Parser::isStr(const std::string &s) const {
+	return str.find(s,pos) == std::string::npos ? false : true;
 }
 
 } // End namespace asdm

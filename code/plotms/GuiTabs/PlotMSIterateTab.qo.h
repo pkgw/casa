@@ -132,7 +132,7 @@ public:
 	QVariant data(const QModelIndex &index, int role) const;
 	// Resize interface
     void prepareToAppend(Item item);
-    vector<Item>& itemsToRemove() { return itemsToRemove_ ; }
+    std::vector<Item>& itemsToRemove() { return itemsToRemove_ ; }
     bool insertRows(int row, int count, const QModelIndex & parent = QModelIndex());
     bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex());
 
@@ -140,8 +140,8 @@ public:
     // bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
 private:
 	PageHeaderItems &items_;
-	vector<Item> newItem_;
-	vector<Item> itemsToRemove_;
+	std::vector<Item> newItem_;
+	std::vector<Item> itemsToRemove_;
 };
 
 

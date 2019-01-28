@@ -30,18 +30,18 @@
  *
  * File CalPointingModelTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <CalPointingModelTable.h>
-#include <CalPointingModelRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalPointingModelTable.h>
+#include <alma/ASDM/CalPointingModelRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::CalPointingModelTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -308,7 +308,7 @@ namespace asdm {
  	 * @param reducedChiSquared 
 	
      */
-	CalPointingModelRow* CalPointingModelTable::newRow(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, vector<string > coeffName, vector<float > coeffVal, vector<float > coeffError, vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared){
+	CalPointingModelRow* CalPointingModelTable::newRow(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, std::vector<std::string > coeffName, std::vector<float > coeffVal, std::vector<float > coeffError, std::vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared){
 		CalPointingModelRow *row = new CalPointingModelRow(*this);
 			
 		row->setAntennaName(antennaName);
@@ -485,7 +485,7 @@ CalPointingModelRow* CalPointingModelTable::newRow(CalPointingModelRow* row) {
  ** no row exists for that key.
  **
  */
- 	CalPointingModelRow* CalPointingModelTable::getRowByKey(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId)  {
+ 	CalPointingModelRow* CalPointingModelTable::getRowByKey(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId)  {
  	checkPresenceInMemory();
 	CalPointingModelRow* aRow = 0;
 	for (unsigned int i = 0; i < privateRows.size(); i++) {
@@ -557,7 +557,7 @@ CalPointingModelRow* CalPointingModelTable::newRow(CalPointingModelRow* row) {
  * @param reducedChiSquared.
  	 		 
  */
-CalPointingModelRow* CalPointingModelTable::lookup(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, vector<string > coeffName, vector<float > coeffVal, vector<float > coeffError, vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared) {
+CalPointingModelRow* CalPointingModelTable::lookup(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, std::vector<std::string > coeffName, std::vector<float > coeffVal, std::vector<float > coeffError, std::vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared) {
 		CalPointingModelRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -618,7 +618,7 @@ CalPointingModelRow* CalPointingModelTable::lookup(string antennaName, ReceiverB
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<CalPointingModelTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clpntm=\"http://Alma/XASDM/CalPointingModelTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalPointingModelTable http://almaobservatory.org/XML/XASDM/3/CalPointingModelTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<CalPointingModelTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clpntm=\"http://Alma/XASDM/CalPointingModelTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalPointingModelTable http://almaobservatory.org/XML/XASDM/4/CalPointingModelTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -748,7 +748,7 @@ CalPointingModelRow* CalPointingModelTable::lookup(string antennaName, ReceiverB
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<CalPointingModelTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clpntm=\"http://Alma/XASDM/CalPointingModelTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalPointingModelTable http://almaobservatory.org/XML/XASDM/3/CalPointingModelTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<CalPointingModelTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clpntm=\"http://Alma/XASDM/CalPointingModelTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalPointingModelTable http://almaobservatory.org/XML/XASDM/4/CalPointingModelTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='CalPointingModelTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";

@@ -93,10 +93,10 @@ private:
     PlotMSPages* itsParent_;
 
     // Canvases grid.
-    vector<vector<PlotCanvasPtr > > itsCanvases_;
+    std::vector<std::vector<PlotCanvasPtr > > itsCanvases_;
     
     // Owner grid.
-    vector<vector<QList<PlotMSPlot*> > > itsCanvasOwners_;
+    std::vector<std::vector<QList<PlotMSPlot*> > > itsCanvasOwners_;
     
     
     // Constructor.

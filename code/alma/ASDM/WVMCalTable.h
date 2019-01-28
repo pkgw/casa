@@ -41,19 +41,19 @@
 
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -62,11 +62,7 @@
 	
 
 	
-#include "CWVRMethod.h"
-	
-
-	
-
+#include <alma/Enumerations/CWVRMethod.h>
 	
 
 	
@@ -77,20 +73,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -157,7 +157,7 @@ class WVMCalRow;
 	
  * <TR>
  * <TD> polyFreqLimits </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the range of frequencies in which the computation is performed. </TD>
  * </TR>
@@ -185,21 +185,21 @@ class WVMCalRow;
 	
  * <TR>
  * <TD> pathCoeff </TD> 
- * <TD> vector<vector<vector<float > > > </TD>
+ * <TD> std::vector<std::vector<std::vector<float > > > </TD>
  * <TD>  numInputAntenna, numChan, numPoly </TD> 
  * <TD> &nbsp;the pathlengths coefficients (one value per antenna per chan per coefficient). </TD>
  * </TR>
 	
  * <TR>
  * <TD> refTemp </TD> 
- * <TD> vector<vector<Temperature > > </TD>
+ * <TD> std::vector<std::vector<Temperature > > </TD>
  * <TD>  numInputAntenna, numChan </TD> 
  * <TD> &nbsp;the reference temperatures (one value par antenna per channel). </TD>
  * </TR>
 	
  * <TR>
  * <TD> inputAntennaId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numInputAntenna </TD> 
  * <TD> &nbsp;Refers to row(s) in the Antenna table describing the antenna(s) used for the calculations. It is a 1D array expected to have numInputAntenna elements. </TD>
  * </TR>
@@ -364,7 +364,7 @@ public:
  	 * @param inputAntennaId
 	
      */
-	WVMCalRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<vector<Temperature > > refTemp, vector<Tag>  inputAntennaId);
+	WVMCalRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId);
 	
 
 
@@ -493,7 +493,7 @@ public:
  	 * @param inputAntennaId
  	 		 
  	 */
-	WVMCalRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<vector<Temperature > > refTemp, vector<Tag>  inputAntennaId); 
+	WVMCalRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

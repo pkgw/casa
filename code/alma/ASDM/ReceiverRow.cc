@@ -32,17 +32,14 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <ReceiverRow.h>
-#include <ReceiverTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/ReceiverRow.h>
+#include <alma/ASDM/ReceiverTable.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 	
 
 using asdm::ASDM;
@@ -53,14 +50,14 @@ using asdm::SpectralWindowTable;
 using asdm::SpectralWindowRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	ReceiverRow::~ReceiverRow() {
@@ -908,7 +905,9 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ReceiverRow::receiverIdFromText(const string & s) {
 		 
+          
 		receiverId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -916,7 +915,9 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ReceiverRow::spectralWindowIdFromText(const string & s) {
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -924,7 +925,9 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void ReceiverRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -932,7 +935,9 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void ReceiverRow::nameFromText(const string & s) {
 		 
+          
 		name = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -940,7 +945,9 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ReceiverRow::numLOFromText(const string & s) {
 		 
+          
 		numLO = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -948,7 +955,9 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void ReceiverRow::frequencyBandFromText(const string & s) {
 		 
-		frequencyBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		frequencyBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -956,7 +965,9 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void ReceiverRow::freqLOFromText(const string & s) {
 		 
+          
 		freqLO = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -964,7 +975,9 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverSideband 
 	void ReceiverRow::receiverSidebandFromText(const string & s) {
 		 
-		receiverSideband = ASDMValuesParser::parse<ReceiverSideband>(s);
+          
+		receiverSideband = ASDMValuesParser::parse<ReceiverSidebandMod::ReceiverSideband>(s);
+          
 		
 	}
 	
@@ -972,7 +985,9 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	// Convert a string into an NetSideband 
 	void ReceiverRow::sidebandLOFromText(const string & s) {
 		 
-		sidebandLO = ASDMValuesParser::parse1D<NetSideband>(s);
+          
+		sidebandLO = ASDMValuesParser::parse1D<NetSidebandMod::NetSideband>(s);
+          
 		
 	}
 	
@@ -1067,21 +1082,21 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get name.
- 	 * @return name as string
+ 	 * @return name as std::string
  	 */
- 	string ReceiverRow::getName() const {
+ 	std::string ReceiverRow::getName() const {
 	
   		return name;
  	}
 
  	/**
- 	 * Set name with the specified string.
- 	 * @param name The string value to which name is to be set.
+ 	 * Set name with the specified std::string.
+ 	 * @param name The std::string value to which name is to be set.
  	 
  	
  		
  	 */
- 	void ReceiverRow::setName (string name)  {
+ 	void ReceiverRow::setName (std::string name)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1163,21 +1178,21 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get freqLO.
- 	 * @return freqLO as vector<Frequency >
+ 	 * @return freqLO as std::vector<Frequency >
  	 */
- 	vector<Frequency > ReceiverRow::getFreqLO() const {
+ 	std::vector<Frequency > ReceiverRow::getFreqLO() const {
 	
   		return freqLO;
  	}
 
  	/**
- 	 * Set freqLO with the specified vector<Frequency >.
- 	 * @param freqLO The vector<Frequency > value to which freqLO is to be set.
+ 	 * Set freqLO with the specified std::vector<Frequency >.
+ 	 * @param freqLO The std::vector<Frequency > value to which freqLO is to be set.
  	 
  	
  		
  	 */
- 	void ReceiverRow::setFreqLO (vector<Frequency > freqLO)  {
+ 	void ReceiverRow::setFreqLO (std::vector<Frequency > freqLO)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1227,21 +1242,21 @@ void ReceiverRow::sidebandLOFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sidebandLO.
- 	 * @return sidebandLO as vector<NetSidebandMod::NetSideband >
+ 	 * @return sidebandLO as std::vector<NetSidebandMod::NetSideband >
  	 */
- 	vector<NetSidebandMod::NetSideband > ReceiverRow::getSidebandLO() const {
+ 	std::vector<NetSidebandMod::NetSideband > ReceiverRow::getSidebandLO() const {
 	
   		return sidebandLO;
  	}
 
  	/**
- 	 * Set sidebandLO with the specified vector<NetSidebandMod::NetSideband >.
- 	 * @param sidebandLO The vector<NetSidebandMod::NetSideband > value to which sidebandLO is to be set.
+ 	 * Set sidebandLO with the specified std::vector<NetSidebandMod::NetSideband >.
+ 	 * @param sidebandLO The std::vector<NetSidebandMod::NetSideband > value to which sidebandLO is to be set.
  	 
  	
  		
  	 */
- 	void ReceiverRow::setSidebandLO (vector<NetSidebandMod::NetSideband > sidebandLO)  {
+ 	void ReceiverRow::setSidebandLO (std::vector<NetSidebandMod::NetSideband > sidebandLO)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1503,7 +1518,7 @@ receiverSideband = CReceiverSideband::from_int(0);
 	}
 
 	
-	bool ReceiverRow::compareNoAutoInc(Tag spectralWindowId, ArrayTimeInterval timeInterval, string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, vector<NetSidebandMod::NetSideband > sidebandLO) {
+	bool ReceiverRow::compareNoAutoInc(Tag spectralWindowId, ArrayTimeInterval timeInterval, std::string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, std::vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, std::vector<NetSidebandMod::NetSideband > sidebandLO) {
 		bool result;
 		result = true;
 		
@@ -1568,7 +1583,7 @@ receiverSideband = CReceiverSideband::from_int(0);
 	
 	
 	
-	bool ReceiverRow::compareRequiredValue(string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, vector<NetSidebandMod::NetSideband > sidebandLO) {
+	bool ReceiverRow::compareRequiredValue(std::string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, std::vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, std::vector<NetSidebandMod::NetSideband > sidebandLO) {
 		bool result;
 		result = true;
 		

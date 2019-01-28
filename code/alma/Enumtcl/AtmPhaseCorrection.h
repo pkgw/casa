@@ -14,15 +14,13 @@
 
 #if     !defined(_ATMPHASECORRECTION_H)
 
-#include <CAtmPhaseCorrection.h>
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 #define _ATMPHASECORRECTION_H
 #endif 
 
 #if     !defined(_ATMPHASECORRECTION_HH)
 
-#include "Enum.hpp"
-
-using namespace AtmPhaseCorrectionMod;
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<AtmPhaseCorrectionMod::AtmPhaseCorrection> : public enum_set_traiter<AtmPhaseCorrectionMod::AtmPhaseCorrection,2,AtmPhaseCorrectionMod::AP_CORRECTED> {};
@@ -31,19 +29,19 @@ template<>
 class enum_map_traits<AtmPhaseCorrectionMod::AtmPhaseCorrection,void> : public enum_map_traiter<AtmPhaseCorrectionMod::AtmPhaseCorrection,void> {
 public:
   static bool   init_;
-  static string typeName_;
-  static string enumerationDesc_;
-  static string order_;
-  static string xsdBaseType_;
+  static std::string typeName_;
+  static std::string enumerationDesc_;
+  static std::string order_;
+  static std::string xsdBaseType_;
   static bool   init(){
     EnumPar<void> ep;
-    m_.insert(pair<AtmPhaseCorrectionMod::AtmPhaseCorrection,EnumPar<void> >
+    m_.insert(std::pair<AtmPhaseCorrectionMod::AtmPhaseCorrection,EnumPar<void> >
      (AtmPhaseCorrectionMod::AP_UNCORRECTED,ep((int)AtmPhaseCorrectionMod::AP_UNCORRECTED,"AP_UNCORRECTED","un-documented")));
-    m_.insert(pair<AtmPhaseCorrectionMod::AtmPhaseCorrection,EnumPar<void> >
+    m_.insert(std::pair<AtmPhaseCorrectionMod::AtmPhaseCorrection,EnumPar<void> >
      (AtmPhaseCorrectionMod::AP_CORRECTED,ep((int)AtmPhaseCorrectionMod::AP_CORRECTED,"AP_CORRECTED","un-documented")));
     return true;
   }
-  static map<AtmPhaseCorrectionMod::AtmPhaseCorrection,EnumPar<void> > m_;
+  static std::map<AtmPhaseCorrectionMod::AtmPhaseCorrection,EnumPar<void> > m_;
 };
 #define _ATMPHASECORRECTION_HH
 #endif

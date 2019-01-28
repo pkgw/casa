@@ -41,23 +41,19 @@
 
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -72,7 +68,11 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
+
+	
+
+	
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
@@ -81,18 +81,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -134,7 +134,7 @@ class FieldRow;
 	
  * <TR>
  * <TD> fieldName </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the field. </TD>
  * </TR>
@@ -148,21 +148,21 @@ class FieldRow;
 	
  * <TR>
  * <TD> delayDir </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numPoly, 2 </TD> 
  * <TD> &nbsp;the delay tracking direction. </TD>
  * </TR>
 	
  * <TR>
  * <TD> phaseDir </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numPoly, 2 </TD> 
  * <TD> &nbsp;the phase tracking direction. </TD>
  * </TR>
 	
  * <TR>
  * <TD> referenceDir </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numPoly, 2 </TD> 
  * <TD> &nbsp;the reference direction. </TD>
  * </TR>
@@ -180,7 +180,7 @@ class FieldRow;
 	
  * <TR>
  * <TD> code</TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; describes the function of the field. </TD>
  * </TR>
@@ -201,7 +201,7 @@ class FieldRow;
 	
  * <TR>
  * <TD> assocNature</TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the nature of the association with the row refered to by fieldId. </TD>
  * </TR>
@@ -374,7 +374,7 @@ public:
  	 * @param referenceDir
 	
      */
-	FieldRow *newRow(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir);
+	FieldRow *newRow(std::string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir);
 	
 
 
@@ -467,7 +467,7 @@ public:
  	 * @param referenceDir
  	 		 
  	 */
-	FieldRow* lookup(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir); 
+	FieldRow* lookup(std::string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

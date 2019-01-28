@@ -41,31 +41,27 @@
 
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <EntityRef.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 	
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -74,15 +70,15 @@
 	
 
 	
-#include "CReceiverBand.h"
-	
-
-	
-#include "CSBType.h"
-	
 
 	
 
+	
+#include <alma/Enumerations/CReceiverBand.h>
+	
+
+	
+#include <alma/Enumerations/CSBType.h>
 	
 
 	
@@ -100,25 +96,29 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
+
+	
+
+	
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -216,7 +216,7 @@ class SBSummaryRow;
 	
  * <TR>
  * <TD> observingMode </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numObservingMode </TD> 
  * <TD> &nbsp;the observing modes. </TD>
  * </TR>
@@ -237,7 +237,7 @@ class SBSummaryRow;
 	
  * <TR>
  * <TD> scienceGoal </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numScienceGoal </TD> 
  * <TD> &nbsp;the scientific goals. </TD>
  * </TR>
@@ -251,7 +251,7 @@ class SBSummaryRow;
 	
  * <TR>
  * <TD> weatherConstraint </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numWeatherConstraint </TD> 
  * <TD> &nbsp;the weather constraints. </TD>
  * </TR>
@@ -262,7 +262,7 @@ class SBSummaryRow;
 	
  * <TR>
  * <TD> centerDirection</TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the representative target direction. </TD>
  * </TR>
@@ -446,7 +446,7 @@ public:
  	 * @param weatherConstraint
 	
      */
-	SBSummaryRow *newRow(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint);
+	SBSummaryRow *newRow(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<std::string > observingMode, int numberRepeats, int numScienceGoal, std::vector<std::string > scienceGoal, int numWeatherConstraint, std::vector<std::string > weatherConstraint);
 	
 
 
@@ -557,7 +557,7 @@ public:
  	 * @param weatherConstraint
  	 		 
  	 */
-	SBSummaryRow* lookup(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint); 
+	SBSummaryRow* lookup(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<std::string > observingMode, int numberRepeats, int numScienceGoal, std::vector<std::string > scienceGoal, int numWeatherConstraint, std::vector<std::string > weatherConstraint); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

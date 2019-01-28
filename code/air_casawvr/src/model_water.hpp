@@ -123,7 +123,7 @@ namespace LibAIR2 {
     /** Compute the derivative of sky temperatures wvr the continuum
 	opacity term
      */
-    void dTdTau (std::vector<double> &res) const
+    void dTdTau (std::vector<double> &) const
     {
       throw std::runtime_error("This function requires specific impelmentation classes");
     }    

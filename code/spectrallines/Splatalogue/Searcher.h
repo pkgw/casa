@@ -47,15 +47,15 @@ public:
 	virtual void stopSearch() = 0;
 
 	//Search Parameters
-	virtual void setChemicalNames( const vector<string>& chemNames ) = 0;
-	virtual void setSpeciesNames( const vector<string>& speciesNames ) = 0;
+	virtual void setChemicalNames( const std::vector<string>& chemNames ) = 0;
+	virtual void setSpeciesNames( const std::vector<string>& speciesNames ) = 0;
 	virtual void setFrequencyRange( double minValue, double maxValue ) = 0;
 	virtual void setIntensityRange( double minValue, double maxValue ) = 0;
 	virtual void setSmu2Range( double minValue, double maxValue ) = 0;
 	virtual void setLogaRange( double minValue, double maxValue ) = 0;
 	virtual void setElRange( double minValue, double maxValue ) = 0;
 	virtual void setEuRange( double minValue, double maxValue ) = 0;
-	virtual void setQNS( const vector<string>& qns ) = 0;
+	virtual void setQNS( const std::vector<string>& qns ) = 0;
 
 
 	//Filters
@@ -72,7 +72,7 @@ public:
 	virtual void setSearchResultLimit( int limit ) = 0;
 
 	//Doing the search
-	virtual vector<SplatResult> doSearch(string& errorMsg, int offset ) = 0;
+	virtual std::vector<SplatResult> doSearch(string& errorMsg, int offset ) = 0;
 	virtual long doSearchCount( string& errorMsg ) = 0;
 
 	//Information about the database

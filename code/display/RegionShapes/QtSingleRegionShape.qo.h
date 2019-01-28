@@ -134,7 +134,7 @@ namespace casa {
 	public:
 		// Constructor.
 		QtRSOption(RegionShape::OptionType type, const casacore::String& name,
-		           const RSOption& value, const vector<casacore::String>& choices);
+		           const RSOption& value, const std::vector<casacore::String>& choices);
 
 		// Destructor.
 		~QtRSOption();
@@ -152,9 +152,9 @@ namespace casa {
 		QComboBox* m_choice;
 		QDoubleSpinBox* m_double;
 		QCheckBox* m_bool;
-		vector<QLineEdit*> m_stringArray;
-		vector<QComboBox*> m_choiceArray;
-		vector<casacore::String> m_choices;
+		std::vector<QLineEdit*> m_stringArray;
+		std::vector<QComboBox*> m_choiceArray;
+		std::vector<casacore::String> m_choices;
 		QToolButton* m_lessButton, *m_moreButton;
 		// </group>
 
@@ -189,8 +189,8 @@ namespace casa {
 		// </group>
 
 		// Returns available systems for the system chooser.
-		static vector<casacore::String> systems() {
-			static vector<casacore::String> v(6);
+		static std::vector<casacore::String> systems() {
+			static std::vector<casacore::String> v(6);
 			v[0] = casacore::MDirection::showType(casacore::MDirection::B1950);
 			v[1] = casacore::MDirection::showType(casacore::MDirection::J2000);
 			v[2] = casacore::MDirection::showType(casacore::MDirection::GALACTIC);
@@ -201,7 +201,7 @@ namespace casa {
 		}
 
 		static QComboBox* systemsChooser() {
-			vector<casacore::String> v = systems();
+			std::vector<casacore::String> v = systems();
 			QComboBox* b = new QComboBox();
 			for(unsigned int i = 0; i < v.size(); i++) b->addItem(v[i].c_str());
 			return b;
@@ -263,10 +263,10 @@ namespace casa {
 		QtRegionShapeManager* m_manager;
 
 		// casacore::Coordinate editing fields.
-		vector<QLineEdit*> m_coordEdits;
+		std::vector<QLineEdit*> m_coordEdits;
 
 		// Coord types.
-		vector<RegionShape::CoordinateParameterType> m_coordTypes;
+		std::vector<RegionShape::CoordinateParameterType> m_coordTypes;
 
 		// Last chosen system, position unit, and size unit.
 		casacore::String m_lastSystem, m_lastPosUnit, m_lastSizeUnit;
@@ -281,10 +281,10 @@ namespace casa {
 		QtColorWidget* m_labelColor;
 
 		// Option widgets.
-		vector<QtRSOption*> m_optWidgets;
+		std::vector<QtRSOption*> m_optWidgets;
 
 		// Option types.
-		vector<RegionShape::OptionType> m_optTypes;
+		std::vector<RegionShape::OptionType> m_optTypes;
 
 
 		// Initial GUI setup, depending on creation/edit mode.
@@ -302,14 +302,14 @@ namespace casa {
 
 		// Displays the given coordinates with the proper unit.  Assumes that the
 		// world system matches the GUI and the unit matches RegionShape::UNIT.
-		void displayCoordinates(const vector<double>& coords);
+		void displayCoordinates(const std::vector<double>& coords);
 
 
 		// Private Static Methods //
 
 		// Returns available units for the position unit chooser.
-		static vector<casacore::String> positionUnits() {
-			static vector<casacore::String> v(5);
+		static std::vector<casacore::String> positionUnits() {
+			static std::vector<casacore::String> v(5);
 			v[0] = RSValue::DEG;
 			v[1] = RSValue::RAD;
 			v[2] = SEXAGESIMAL;
@@ -319,8 +319,8 @@ namespace casa {
 		}
 
 		// Returns available units for the size unit chooser.
-		static vector<casacore::String> sizeUnits() {
-			static vector<casacore::String> v(4);
+		static std::vector<casacore::String> sizeUnits() {
+			static std::vector<casacore::String> v(4);
 			v[0] = RSValue::DEG;
 			v[1] = RSValue::RAD;
 			v[2] = RSValue::ARCSEC;

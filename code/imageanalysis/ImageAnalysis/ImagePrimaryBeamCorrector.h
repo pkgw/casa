@@ -111,7 +111,7 @@ public:
 
 protected:
 
-	vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const;
+	std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const;
 
 	CasacRegionManager::StokesControl _getStokesControl() const;
 

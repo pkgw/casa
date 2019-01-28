@@ -60,12 +60,12 @@ public:
 	void setKernels(const std::vector<casacore::String>& kernels) { _kernels = kernels; }
 
 	// set smoothing kernel widths
-	void setKernelWidths(const vector<casacore::Quantity>& kernelWidths) {
+	void setKernelWidths(const std::vector<casacore::Quantity>& kernelWidths) {
 	    _kernelWidths = kernelWidths;
 	}
 
 	// set moment methods
-	void setMethods(const vector<casacore::String>& methods) { _methods = methods; }
+	void setMethods(const std::vector<casacore::String>& methods) { _methods = methods; }
 
 	// set moments to compute
 	void setMoments(const casacore::Vector<casacore::Int>& moments);
