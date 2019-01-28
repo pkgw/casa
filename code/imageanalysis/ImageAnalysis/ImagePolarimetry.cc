@@ -1371,135 +1371,63 @@ LatticeExprNode ImagePolarimetry::_makePolIntNode(
     return LatticeExprNode(sqrt(node));
 }
 
-Bool ImagePolarimetry::_rmPrimaryFit(Float& nTurns, Float& rmFitted, Float& rmErrFitted,
-                                    Float& pa0Fitted, Float& pa0ErrFitted, 
-                                    Float& rChiSqFitted, const Vector<Float>& wsq, 
-                                    const Vector<Float>& pa, const Vector<Float>& paerr, 
-                                    Float rmMax, const String& /*posString*/)
-{
-   static Vector<Float> plotPA;
-   static Vector<Float> plotPAErr;
-   static Vector<Float> plotPAErrY1;
-   static Vector<Float> plotPAErrY2;
-   static Vector<Float> plotPAFit;
-
-// Assign position angle to longest wavelength consistent with
-// RM < RMMax
-
-   const uInt n = wsq.nelements();
-   Double dwsq = wsq(n-1) - wsq(0);
-//
-   Float ppa = abs(rmMax)*dwsq + pa(0);
-   Float diff = ppa - pa(n-1);
-   Float t = 0.5;
-   if (diff < 0) t = -0.5;
-   Int maxnpi = Int(diff/C::pi + t);
-//
-   ppa = -abs(rmMax)*dwsq + pa(0);
-   diff = ppa - pa(n-1);
-   t = 0.5;
-   if (diff < 0) t = -0.5;
-   Int minnpi = Int(diff/C::pi + t);
-// cout << "primary:: minnpi, maxnpi=" << minnpi << ", " << maxnpi << endl;
-
-// Resize plotting vectors
-/*
-   if (plotter.isAttached()) {
-      plotPA.resize(n);
-      plotPAErr.resize(n);
-      plotPAErrY1.resize(n);
-      plotPAErrY2.resize(n);
-      plotPAFit.resize(n);
-   }
-*/
-// Loop over range of n*pi ambiguity
-
-   Vector<Float> fitpa(n);
-   Vector<Float> pars;
-   Float chiSq = 1e30;
-   for (Int h=minnpi; h<=maxnpi; h++) {
-     fitpa(n-1) = pa(n-1) + C::pi*h;
-     Float rm0 = (fitpa(n-1) - pa(0))/ dwsq;
-
-// Assign position angles to remaining wavelengths
-
-     for (uInt k=1; k<n-1; k++) {
-       ppa = pa(0) + rm0*(wsq(k)-wsq(0));
-       diff = ppa - pa(k);
-//
-       t = 0.5;
-       if (diff < 0) t = -0.5;
-       Int npi = Int(diff/C::pi + t);
-       fitpa(k) = pa(k) + npi*C::pi;
-     }
-     fitpa(0) = pa(0);
-
-// Do least squares fit
-
-     if (!_rmLsqFit (pars, wsq, fitpa, paerr)) return false;
-
-//
-     if (pars(4) < chiSq) {
-        chiSq = pars(4);
-//
-        nTurns = h;                   // Number of turns
-        rmFitted = pars(0);           // Fitted RM
-        rmErrFitted = pars(1);        // Error in RM
-        pa0Fitted = pars(2);          // Fitted intrinsic angle
-        pa0ErrFitted = pars(3);       // Error in angle
-        rChiSqFitted = pars(4);       // Recued chi squared
-        if (n > 2) rChiSqFitted /= Float(n - 2);
-//
-        /*
-        if (plotter.isAttached()) {
-           plotPA = fitpa;
-           plotPAErr = paerr;
-//
-           for (uInt k=0; k<n; k++) {
-              plotPAFit(k) = pars(2) + pars(0)*wsq(k);
-           }
+Bool ImagePolarimetry::_rmPrimaryFit(
+    Float& nTurns, Float& rmFitted, Float& rmErrFitted, Float& pa0Fitted,
+    Float& pa0ErrFitted, Float& rChiSqFitted, const Vector<Float>& wsq,
+    const Vector<Float>& pa, const Vector<Float>& paerr, Float rmMax,
+    const String&
+) {
+    static Vector<Float> plotPA;
+    static Vector<Float> plotPAErr;
+    static Vector<Float> plotPAErrY1;
+    static Vector<Float> plotPAErrY2;
+    static Vector<Float> plotPAFit;
+    // Assign position angle to longest wavelength consistent with RM < RMMax
+    const uInt n = wsq.size();
+    Double dwsq = wsq(n-1) - wsq(0);
+    Float ppa = abs(rmMax)*dwsq + pa(0);
+    Float diff = ppa - pa(n-1);
+    Float t = diff >= 0 ? 0.5 : -0.5;
+    Int maxnpi = Int(diff/C::pi + t);
+    ppa = -abs(rmMax)*dwsq + pa(0);
+    diff = ppa - pa(n-1);
+    t = diff >= 0 ? 0.5 : -0.5;
+    Int minnpi = Int(diff/C::pi + t);
+    // Loop over range of n*pi ambiguity
+    Vector<Float> fitpa(n);
+    Vector<Float> pars;
+    Float chiSq = 1e30;
+    for (Int h=minnpi; h<=maxnpi; ++h) {
+        fitpa[n-1] = pa[n-1] + C::pi*h;
+        Float rm0 = (fitpa(n-1) - pa(0))/dwsq;
+        // Assign position angles to remaining wavelengths
+        for (uInt k=1; k<n-1; ++k) {
+            ppa = pa[0] + rm0*(wsq[k]-wsq[0]);
+            diff = ppa - pa[k];
+            t = diff >= 0 ? 0.5 : -0.5;
+            Int npi = Int(diff/C::pi + t);
+            fitpa[k] = pa[k] + npi*C::pi;
         }
-        */
-     }
-   }
-
-// Make plot
-/*
-   if (plotter.isAttached()) {
-     plotPA *= Float(180.0) / Float(C::pi);
-     plotPAErr *= Float(180.0) / Float(C::pi);
-     plotPAFit *= Float(180.0) / Float(C::pi);
-     plotPAErrY1 = plotPA - plotPAErr;
-     plotPAErrY2 = plotPA + plotPAErr;
-//
-     Float yMinVal, yMaxVal;
-     minMax(yMinVal, yMaxVal, plotPA);
-     Float dy = 0.05 * (yMaxVal - yMinVal);
-//
-     ostringstream oss;
-     oss << "  nT = " << nTurns << ", ChiSq = " << rChiSqFitted;
-//
-     plotter.page();
-     Float dx = 0.05 * (wsq(n-1) - wsq(0));
-     plotter.vstd();
-     plotter.swin(wsq(0)-dx, wsq(n-1)+dx, yMinVal-dy, yMaxVal+dy);
-     plotter.box("BCNST", 0.0, 0, "BCNST", 0.0, 0);
-//
-     plotter.lab("\\gl\\u2\\d (m\\u2\\d)", 
-                 "Position Angle (degrees)", 
-                 String("Pos=") + posString + String(oss));
-//     
-     plotter.pt(wsq, plotPA, 17);
-     plotter.erry (wsq, plotPAErrY1, plotPAErrY2, 1.0);
-     plotter.line(wsq, plotPAFit);
-
-   }
-   */
-//
-   return true;
+        fitpa[0] = pa[0];
+        // Do least squares fit
+        if (!_rmLsqFit (pars, wsq, fitpa, paerr)) {
+            return false;
+        }
+        if (pars(4) < chiSq) {
+            chiSq = pars(4);
+            nTurns = h;                   // Number of turns
+            rmFitted = pars(0);           // Fitted RM
+            rmErrFitted = pars(1);        // Error in RM
+            pa0Fitted = pars(2);          // Fitted intrinsic angle
+            pa0ErrFitted = pars(3);       // Error in angle
+            rChiSqFitted = pars(4);       // Recued chi squared
+            if (n > 2) {
+                rChiSqFitted /= Float(n - 2);
+            }
+        }
+    }
+    return true;
 }
-
-
 
 Bool ImagePolarimetry::_rmSupplementaryFit(Float& nTurns, Float& rmFitted, Float& rmErrFitted,
                                           Float& pa0Fitted, Float& pa0ErrFitted, 
