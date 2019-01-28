@@ -157,6 +157,30 @@ void PlotCanvas::clearSelectedRects(){
 	}
 }
 
+void PlotCanvas::clearMark() {
+  if (!m_standardTools.null()) {
+    m_standardTools->clearMark();
+  }
+}
+
+bool PlotCanvas::isMarkedForFlag() {
+  return (!m_standardTools.null()) ? m_standardTools->isMarkedForFlag() : false;
+}
+
+bool PlotCanvas::isMarkedForUnflag() {
+  return (!m_standardTools.null()) ? m_standardTools->isMarkedForUnflag() : false;
+}
+
+bool PlotCanvas::isBackgroundColorChanged() {
+  return (!m_standardTools.null()) ? m_standardTools->isBackgroundColorChanged() : false;
+}
+
+void PlotCanvas::setAllFlagged() {
+  if (!m_standardTools.null()) {
+    m_standardTools->setAllFlagged();
+  }
+}
+
 bool PlotCanvas::hasThreadedDrawing() const {
     PlotFactory* f = implementationFactory();
     bool ret = f != NULL && f->canvasHasThreadedDrawing();
@@ -184,6 +208,10 @@ void PlotCanvas::setTitleFont(const PlotFontPtr font) {
     if(!font.null()) setTitleFont(*font); 
 }
 
+
+PlotAreaFillPtr PlotCanvas::defaultBackground() const {
+  return PlotAreaFillPtr(nullptr);
+}
 
 void PlotCanvas::setBackground(const PlotAreaFillPtr areaFill)   {
     if(!areaFill.null()) setBackground(*areaFill); 

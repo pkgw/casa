@@ -23,26 +23,50 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
-#ifndef ACTIONSELECT_H_
-#define ACTIONSELECT_H_
+#include "FlagActionUtil.h"
+#include <plotms/PlotMS/PlotMS.h>
+#include <plotms/Plots/PlotMSPlot.h>
+#include <plotms/Plots/PlotMSPlotParameterGroups.h>
+#include <plotms/Client/Client.h>
 
-#include <plotms/Actions/PlotMSAction.h>
-#include <plotms/Actions/FlagActionUtil.h>
-
+using namespace casacore;
 namespace casa {
 
-class ActionSelect  : public PlotMSAction, public FlagActionUtil {
-public:
-	ActionSelect( Client* client );
+FlagActionUtil::FlagActionUtil()
+  : flaggedPlots(){
+}
 
+FlagActionUtil::~FlagActionUtil() {
+}
 
-	virtual ~ActionSelect();
-protected:
-	virtual bool doActionSpecific(PlotMSApp* plotms);
-	virtual PlotLogMessage* doFlagOperation( PlotMSPlot* plot,
-			int canvasIndex, std::vector<PlotRegion>& regions, bool showUnflagged, bool showFlagged ) = 0;
-	virtual string getOperationLabel() const = 0;
-};
+void FlagActionUtil::addRedrawPlot( PlotMSPlot* plot ){
+	flaggedPlots.push_back( plot );
+}
+
+void FlagActionUtil::redrawPlots(Client *client, PlotMSPlot* plot, vector<PlotCanvasPtr>& visibleCanv  ){
+	// For a flag/unflag, need to tell the plots to redraw themselves,
+	// and clear selected regions.
+	bool hold = client->allDrawingHeld();
+	if(!hold) client->holdDrawing();
+
+	for(unsigned int i = 0; i < flaggedPlots.size(); i++) {
+		flaggedPlots[i]->plotDataChanged();
+
+		vector<PlotCanvasPtr> canv = plot->canvases();
+		for(unsigned int j = 0; j < canv.size(); j++) {
+			// Only apply to visible canvases.
+			bool visible = false;
+			for(unsigned int k = 0;
+					!visible && k < visibleCanv.size(); k++)
+				if(canv[j] == visibleCanv[k]) visible = true;
+			if(!visible) continue;
+
+			canv[j]->clearSelectedRects();
+		}
+	}
+
+	if(!hold) client->releaseDrawing();
+	flaggedPlots.clear();
+}
 
 } /* namespace casa */
-#endif /* ACTIONSELECT_H_ */

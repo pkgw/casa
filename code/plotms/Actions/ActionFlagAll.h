@@ -23,26 +23,23 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
-#ifndef ACTIONSELECT_H_
-#define ACTIONSELECT_H_
+#ifndef ACTIONFLAGALL_H_
+#define ACTIONFLAGALL_H_
 
-#include <plotms/Actions/PlotMSAction.h>
+#include <plotms/Actions/ActionTool.h>
 #include <plotms/Actions/FlagActionUtil.h>
 
 namespace casa {
 
-class ActionSelect  : public PlotMSAction, public FlagActionUtil {
+class ActionFlagAll  : public ActionTool, public FlagActionUtil {
 public:
-	ActionSelect( Client* client );
+	ActionFlagAll( Client* client );
 
-
-	virtual ~ActionSelect();
+	virtual ~ActionFlagAll();
 protected:
-	virtual bool doActionSpecific(PlotMSApp* plotms);
-	virtual PlotLogMessage* doFlagOperation( PlotMSPlot* plot,
-			int canvasIndex, std::vector<PlotRegion>& regions, bool showUnflagged, bool showFlagged ) = 0;
-	virtual string getOperationLabel() const = 0;
+  virtual bool doTool(PlotMSApp* plotms);
+	virtual ToolCode getToolCode() const;
 };
 
 } /* namespace casa */
-#endif /* ACTIONSELECT_H_ */
+#endif /* ACTIONFLAGALL_H_ */
