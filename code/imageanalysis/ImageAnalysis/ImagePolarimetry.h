@@ -386,6 +386,8 @@ public:
     // </group>
 
 private:
+    static const map<StokesTypes, casacore::String> polMap;
+
     SPCIIF _image = nullptr;
     // const casacore::ImageInterface<casacore::Float>* _image;
     casacore::LinearFitSVD<casacore::Float>* _fitter = nullptr;
