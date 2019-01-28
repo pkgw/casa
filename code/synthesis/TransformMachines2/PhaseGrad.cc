@@ -29,9 +29,9 @@
 
 #include <synthesis/TransformMachines2/PhaseGrad.h>
 #include <synthesis/TransformMachines/SynthesisMath.h>
-// #include <casa/Logging/LogIO.h>
-// #include <casa/Logging/LogSink.h>
-// #include <casa/Logging/LogOrigin.h>
+#include <casa/Logging/LogIO.h>
+#include <casa/Logging/LogSink.h>
+#include <casa/Logging/LogOrigin.h>
 
 using namespace casacore;
 namespace casa{
@@ -55,34 +55,51 @@ namespace casa{
   //
   //----------------------------------------------------------------------
   //
-  void PhaseGrad::ComputeFieldPointingGrad(const Vector<double>& pointingOffset,
-					   const Vector<int>&cfShape,
-					   const Vector<int>& convOrigin,
-					   const double& /*cfRefFreq*/,
-					   const double& /*imRefFreq*/,
-					   const int& spwID, const int& fieldId)
+  // bool PhaseGrad::ComputeFieldPointingGrad(const Vector<double>& pointingOffset,
+  // 					   const CountedPtr<CFBuffer>& cfb,
+  // 					   const Vector<int>&cfShape,
+  // 					   const Vector<int>& convOrigin,
+  // 					   const double& /*cfRefFreq*/,
+  // 					   const double& /*imRefFreq*/,
+  // 					   const int& spwID, const int& fieldId)
+  bool PhaseGrad::ComputeFieldPointingGrad(const Vector<double>& pointingOffset,
+					   const CountedPtr<CFBuffer>& cfb,
+					   const VisBuffer2&  //vb
+					   )
+
     {
+      //
+      // Re-find the max. CF size if the CFB changed.
+      //
+      CFBuffer *thisCFB = cfb.get();
+      if (thisCFB != cachedCFBPtr_p)
+	{
+	  maxCFShape_p[0] = maxCFShape_p[1] = cfb->getMaxCFSize();
+	  // {
+	  //   // LogIO log_l(LogOrigin("PhaseGrad","computeFieldPointingGrad"));
+	  //   cerr << "CFB changed: "<< thisCFB << " " << cachedCFBPtr_p << " " << vb.spectralWindows()(0) << " " << vb.fieldId()(0) << " " << maxCFShape_p << endl;
+	  // }
+	  cachedCFBPtr_p = thisCFB;
+	}
+      //
+      // If the pointing or the max. CF size changed, recompute the phase gradient.
+      //
       if (
 	  ((fabs(pointingOffset[0]-cached_FieldOffset_p[0])) > 1e-6) ||
 	  ((fabs(pointingOffset[0]-cached_FieldOffset_p[0])) > 1e-6) ||
-	  (field_phaseGrad_p.shape()[0] < cfShape[0])              ||
-	  (field_phaseGrad_p.shape()[1] < cfShape[1])
+	  (field_phaseGrad_p.shape()[0] < maxCFShape_p[0])           ||
+	  (field_phaseGrad_p.shape()[1] < maxCFShape_p[1])
 	  )
 	{
-	  // LogIO log_l(LogOrigin("AWVisResampler","cachePhaseGrad[R&D]"));
-	  // log_l << "Computing phase gradiant for pointing offset " 
-	  //       << pointingOffset << cfShape << " " << field_phaseGrad_p.shape() 
-	  //       << "(SPW: " << spwID << " Field: " << fieldId << ")"
-	  //       << LogIO::DEBUGGING
-	  //       << LogIO::POST;
-	  int nx=cfShape(0), ny=cfShape(1);
+	  int nx=maxCFShape_p(0), ny=maxCFShape_p(1);
 	  double grad;
 	  Complex phx,phy;
-
+	  Vector<int> convOrigin = maxCFShape_p/2;
+	  
 	  field_phaseGrad_p.resize(nx,ny);
 	  cached_FieldOffset_p[0] = pointingOffset[0];
 	  cached_FieldOffset_p[1] = pointingOffset[1];
-	
+	  
 	  for(int ix=0;ix<nx;ix++)
 	    {
 	      grad = (ix-convOrigin[0])*pointingOffset[0];
@@ -98,6 +115,8 @@ namespace casa{
 		  field_phaseGrad_p(ix,iy)=phx*phy;
 		}
 	    }
+	  return true; // New phase gradient was computed
 	}
+      return false;
     }
 }

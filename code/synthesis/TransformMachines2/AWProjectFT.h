@@ -62,6 +62,7 @@
 #include <synthesis/TransformMachines2/AWConvFunc.h>
 #include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines2/ATerm.h>
+#include <synthesis/TransformMachines2/PhaseGrad.h>
 
 #include <casa/OS/Timer.h>
 
@@ -558,6 +559,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Double runTime1_p;
 
     PolOuterProduct::MuellerType muellerType_p;
+    PhaseGrad phaseGrad_p;
 
     casacore::Int previousSPWID_p;
 

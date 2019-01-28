@@ -54,7 +54,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       runTimeG_p(0.0), runTimeDG_p(0.0),runTimeG1_p(0.0), runTimeG2_p(0.0), runTimeG3_p(0.0), runTimeG4_p(0.0), runTimeG5_p(0.0), runTimeG6_p(0.0), runTimeG7_p(0.0),
       timer_p(),
       uvwScale_p(), offset_p(), chanMap_p(), polMap_p(), spwChanFreq_p(), spwChanConjFreq_p (), convFuncStore_p(), inc_p(),
-      cfMap_p(), conjCFMap_p(), paTolerance_p(360.0)
+      cfMap_p(), conjCFMap_p(), paTolerance_p(360.0), cached_phaseGrad_p()
 
     {};
     // VisibilityResamplerBase(const CFStore& cfs): 
@@ -145,6 +145,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				const casacore::Vector<casacore::Int>& dataPol2ImPolMap,
 				const casacore::Vector<casacore::Double>& pointingOffset);
 
+    void setFieldPhaseGrad(const casacore::Matrix<casacore::Complex>& phaseGrad) {cached_phaseGrad_p.reference(phaseGrad);};
     casacore::Double runTimeG_p, runTimeDG_p, runTimeG1_p, runTimeG2_p, runTimeG3_p, runTimeG4_p, runTimeG5_p, runTimeG6_p, runTimeG7_p;
     casacore::Timer timer_p;
     //
@@ -165,6 +166,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 //    VBRow2CFMapType vbRow2CFMap_p;
     VBRow2CFBMapType vbRow2CFBMap_p;
     double paTolerance_p;
+    casacore::Matrix<casacore::Complex> cached_phaseGrad_p;
 
     void sgrid(casacore::Int& ndim, 
 	       casacore::Double* __restrict__  pos, 
