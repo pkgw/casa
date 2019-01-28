@@ -1063,55 +1063,57 @@ void ImagePolarimetry::_cleanup() {
     _fitter = nullptr;
 }
 
-void ImagePolarimetry::_findFrequencyAxis (Int& spectralCoord, Int& fAxis,
-                                          const CoordinateSystem& cSys, Int spectralAxis) const
-{
-   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   spectralCoord = -1;
-   fAxis = -1;
-   if (spectralAxis >=0) {
-      if (spectralAxis < Int(cSys.nPixelAxes())) { 
-         fAxis = spectralAxis;
-         Int axisInCoordinate;
-         cSys.findPixelAxis(spectralCoord, axisInCoordinate, fAxis);
-
-// Check coordinate type is one of expected types
-
-         Bool ok = cSys.type(spectralCoord)==Coordinate::TABULAR ||
-                   cSys.type(spectralCoord)==Coordinate::LINEAR ||  
-                   cSys.type(spectralCoord)==Coordinate::SPECTRAL;
-         if (!ok) {
-            os << "The specified axis of type " << cSys.showType(spectralCoord) 
-               << " cannot be a frequency axis" << LogIO::EXCEPTION;
-         }
-      } else {
-         os << "Illegal spectral axis " << spectralAxis+1 << " given" << LogIO::EXCEPTION;
-      }
-   } else {   
-      spectralCoord = _findSpectralCoordinate(cSys, os, false);
-      if (spectralCoord < 0) {
-         for (uInt i=0; i<cSys.nCoordinates(); i++) {
-            if (cSys.type(i)==Coordinate::TABULAR ||
-                cSys.type(i)==Coordinate::LINEAR) {
-               Vector<String> axisNames = cSys.coordinate(i).worldAxisNames();
-               String tmp = axisNames(0);
-               tmp.upcase();
-               if (tmp.contains(String("FREQ"))) {
-                  spectralCoord = i;
-                  break;
-               }
+void ImagePolarimetry::_findFrequencyAxis(
+    Int& spectralCoord, Int& fAxis, const CoordinateSystem& cSys,
+    Int spectralAxis
+) const {
+    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
+    spectralCoord = -1;
+    fAxis = -1;
+    if (spectralAxis >= 0) {
+        ThrowIf(
+            spectralAxis >= Int(cSys.nPixelAxes()),
+            "Illegal spectral axis " + String::toString(spectralAxis) +" given"
+        );
+        fAxis = spectralAxis;
+        Int axisInCoordinate;
+        cSys.findPixelAxis(spectralCoord, axisInCoordinate, fAxis);
+        // Check coordinate type is one of expected types
+        ThrowIf(
+            ! (
+                cSys.type(spectralCoord)==Coordinate::TABULAR
+                || cSys.type(spectralCoord)==Coordinate::LINEAR
+                || cSys.type(spectralCoord)==Coordinate::SPECTRAL
+            ),
+            "The specified axis of type " + cSys.showType(spectralCoord)
+            + " cannot be a frequency axis"
+        );
+    }
+    else {
+        spectralCoord = _findSpectralCoordinate(cSys, os, false);
+        if (spectralCoord < 0) {
+            for (uInt i=0; i<cSys.nCoordinates(); ++i) {
+                if (
+                    cSys.type(i)==Coordinate::TABULAR
+                    || cSys.type(i)==Coordinate::LINEAR
+                ) {
+                    const auto axisNames = cSys.coordinate(i).worldAxisNames();
+                    String tmp = axisNames[0];
+                    tmp.upcase();
+                    if (tmp.contains(String("FREQ"))) {
+                        spectralCoord = i;
+                        break;
+                    }
+                }
             }
-         }
-      }
-      if (spectralCoord < 0) {
-         os << "Cannot find SpectralCoordinate in this image" << LogIO::EXCEPTION;
-      } else {
-         Vector<Int> pixelAxes = cSys.pixelAxes(spectralCoord);
-         fAxis = pixelAxes(0);
-      }
-   }
+        }
+        ThrowIf(
+            spectralCoord < 0,
+            "Cannot find SpectralCoordinate in this image"
+        );
+        fAxis = cSys.pixelAxes(spectralCoord)[0];
+    }
 }
-
 
 void ImagePolarimetry::_findStokes()
 {
