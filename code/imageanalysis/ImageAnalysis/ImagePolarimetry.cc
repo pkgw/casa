@@ -844,52 +844,35 @@ void ImagePolarimetry::rotationMeasure(
     mainImagePtr->clearCache();
 }
 
-IPosition ImagePolarimetry::rotationMeasureShape(CoordinateSystem& cSys, Int& fAxis, 
-                                                 Int& sAxis, LogIO&, Int spectralAxis) const
-{
-
-// Construction image CS
-
-   CoordinateSystem cSys0 = coordinates();
-
-// Find frequency axis
-
-   Int spectralCoord;
-   _findFrequencyAxis(spectralCoord, fAxis, cSys0, spectralAxis);
-
-// Find Stokes axis (we know it has one)
-
-   Int afterCoord = -1;
-   Int stokesCoord = cSys0.findCoordinate(Coordinate::STOKES, afterCoord);
-   Vector<Int> pixelAxes = cSys0.pixelAxes(stokesCoord);
-   sAxis = pixelAxes(0);
-
-// What shape should the image be ?  Frequency and stokes axes should be gone.
-
-   IPosition shape0 = ImagePolarimetry::shape();
-   IPosition shape(shape0.nelements()-2);
-//
-   Int j = 0;
-   for (Int i=0; i<Int(shape0.nelements()); i++) {
-      if (i!=fAxis && i!=sAxis) {
-        shape(j) = shape0(i);
-        j++;
-      }
-   }
-
-// Create output coordinate system
-
-   CoordinateSystem tmp;
-   cSys = tmp;
-   for (Int i=0;i<Int(cSys0.nCoordinates()); i++) {
-      if (i!=spectralCoord && i!=stokesCoord) {
-         cSys.addCoordinate(cSys0.coordinate(i));
-      }
-   }
-//
-   return shape;
+IPosition ImagePolarimetry::rotationMeasureShape(
+    CoordinateSystem& cSys, Int& fAxis, Int& sAxis, LogIO&, Int spectralAxis
+) const {
+    const auto cSys0 = coordinates();
+    Int spectralCoord;
+    _findFrequencyAxis(spectralCoord, fAxis, cSys0, spectralAxis);
+    Int afterCoord = -1;
+    auto stokesCoord = cSys0.findCoordinate(Coordinate::STOKES, afterCoord);
+    auto pixelAxes = cSys0.pixelAxes(stokesCoord);
+    sAxis = pixelAxes(0);
+    // What shape should the image be ?  Frequency and stokes axes should be gone.
+    const auto shape0 = shape();
+    IPosition shape(shape0.size()-2);
+    Int j = 0;
+    for (Int i=0; i<Int(shape0.size()); ++i) {
+        if (i != fAxis && i != sAxis) {
+            shape[j] = shape0[i];
+            ++j;
+        }
+    }
+    CoordinateSystem tmp;
+    cSys = tmp;
+    for (Int i=0; i<Int(cSys0.nCoordinates()); ++i) {
+        if (i != spectralCoord && i != stokesCoord) {
+            cSys.addCoordinate(cSys0.coordinate(i));
+        }
+    }
+    return shape;
 }
-
 
 IPosition ImagePolarimetry::positionAngleShape(CoordinateSystem& cSys, 
                                                Int& fAxis, Int& sAxis, LogIO&, Int spectralAxis) const
