@@ -912,105 +912,82 @@ IPosition ImagePolarimetry::positionAngleShape(
     return shape;
 }
 
-ImageExpr<Float> ImagePolarimetry::stokesI() const
-{
-   return _makeStokesExpr(_stokes[ImagePolarimetry::I], Stokes::I, String("StokesI"));
+ImageExpr<Float> ImagePolarimetry::stokesI() const {
+   return _makeStokesExpr(
+       _stokes[ImagePolarimetry::I], Stokes::I, "StokesI"
+   );
 }
 
-Float ImagePolarimetry::sigmaStokesI(Float clip) 
-{
+Float ImagePolarimetry::sigmaStokesI(Float clip) {
    return _sigma(ImagePolarimetry::I, clip);
 }
 
-ImageExpr<Float> ImagePolarimetry::stokesQ() const
-{
-   return _makeStokesExpr(_stokes[ImagePolarimetry::Q], Stokes::Q, String("StokesQ"));
+ImageExpr<Float> ImagePolarimetry::stokesQ() const {
+   return _makeStokesExpr(_stokes[ImagePolarimetry::Q], Stokes::Q, "StokesQ");
 }
 
-Float ImagePolarimetry::sigmaStokesQ(Float clip) 
-{
+Float ImagePolarimetry::sigmaStokesQ(Float clip) {
    return _sigma(ImagePolarimetry::Q, clip);
 }
 
-ImageExpr<Float> ImagePolarimetry::stokesU() const
-{
-   return _makeStokesExpr(_stokes[ImagePolarimetry::U], Stokes::U, String("StokesU"));
+ImageExpr<Float> ImagePolarimetry::stokesU() const {
+   return _makeStokesExpr(_stokes[ImagePolarimetry::U], Stokes::U, "StokesU");
 }
 
-Float ImagePolarimetry::sigmaStokesU(Float clip) 
-{
+Float ImagePolarimetry::sigmaStokesU(Float clip) {
    return _sigma(ImagePolarimetry::U, clip);
 }
 
-ImageExpr<Float> ImagePolarimetry::stokesV() const
-{
-   return _makeStokesExpr(_stokes[ImagePolarimetry::V], Stokes::V, String("StokesV"));
+ImageExpr<Float> ImagePolarimetry::stokesV() const {
+   return _makeStokesExpr(_stokes[ImagePolarimetry::V], Stokes::V, "StokesV");
 }
 
-Float ImagePolarimetry::sigmaStokesV(Float clip) 
-{
+Float ImagePolarimetry::sigmaStokesV(Float clip) {
    return _sigma(ImagePolarimetry::V, clip);
 }
 
-ImageExpr<Float> ImagePolarimetry::stokes(ImagePolarimetry::StokesTypes stokes) const
-{
-   Stokes::StokesTypes type = _stokesType(stokes);
+ImageExpr<Float> ImagePolarimetry::stokes(
+    ImagePolarimetry::StokesTypes stokes
+) const {
+   const auto type = _stokesType(stokes);
    return _makeStokesExpr(_stokes[stokes], type, _stokesName(stokes));
 }
 
-Float ImagePolarimetry::sigmaStokes(ImagePolarimetry::StokesTypes stokes, Float clip)
-{
+Float ImagePolarimetry::sigmaStokes(
+    ImagePolarimetry::StokesTypes stokes, Float clip
+) {
    return _sigma(stokes, clip);
 }
 
-void ImagePolarimetry::summary(LogIO& os) const
-{
+void ImagePolarimetry::summary(LogIO& os) const {
    ImageSummary<Float> s(*_image);
    s.list(os);
 }
 
-ImageExpr<Float> ImagePolarimetry::totPolInt(Bool debias, Float clip, Float sigma) 
-{
-   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   Bool doLin, doCirc;
-   _setDoLinDoCirc(doLin, doCirc);
-// Make node.  
-
-   LatticeExprNode node = _makePolIntNode(os, debias, clip, sigma, doLin, doCirc);
-
-// Make expression
-
-   LatticeExpr<Float> le(node);
-   ImageExpr<Float> ie(le, String("totalPolarizedIntensity"));
-   ie.setUnits(_image->units());     // Dodgy. The beam is now rectified
-   StokesTypes stokes = _stokes[Q] != 0
-		   ? Q
-		   : _stokes[U] != 0
-		     ? U
-		     : V;
-   _setInfo(ie, stokes);
-   _fiddleStokesCoordinate(ie, Stokes::Ptotal);
-   return ie;
+ImageExpr<Float> ImagePolarimetry::totPolInt(
+    Bool debias, Float clip, Float sigma
+) {
+    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
+    Bool doLin, doCirc;
+    _setDoLinDoCirc(doLin, doCirc);
+    auto node = _makePolIntNode(os, debias, clip, sigma, doLin, doCirc);
+    LatticeExpr<Float> le(node);
+    ImageExpr<Float> ie(le, String("totalPolarizedIntensity"));
+    // Dodgy. The beam is now rectified
+    ie.setUnits(_image->units());
+    StokesTypes stokes = _stokes[Q] ? Q : _stokes[U] ? U : V;
+    _setInfo(ie, stokes);
+    _fiddleStokesCoordinate(ie, Stokes::Ptotal);
+    return ie;
 }
 
-Float ImagePolarimetry::sigmaTotPolInt(Float clip, Float sigma) 
-//
-// sigma_P = sigma_QUV
-//
-{
-   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-   Bool doLin, doCirc;
-   _setDoLinDoCirc(doLin, doCirc);
-
-// Make expression 
-
-   Float sigma2 = 0.0;
-   if (sigma > 0) {
-      sigma2 = sigma;
-   } else {
-      sigma2 = ImagePolarimetry::sigma(clip);
-   }
-   return sigma2;
+Float ImagePolarimetry::sigmaTotPolInt(Float clip, Float sigma) {
+    // sigma_P = sigma_QUV
+    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
+    Bool doLin, doCirc;
+    _setDoLinDoCirc(doLin, doCirc);
+    Float sigma2 = sigma > 0 ? sigma : this->sigma(clip);
+    return sigma2;
 }
 
 
