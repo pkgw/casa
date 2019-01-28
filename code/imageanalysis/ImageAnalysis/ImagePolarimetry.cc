@@ -29,45 +29,46 @@
 
 #include <imageanalysis/ImageAnalysis/ImagePolarimetry.h>
 
-#include <casa/Arrays/Array.h>
-#include <casa/Arrays/ArrayMath.h>
-#include <casa/Arrays/Vector.h>
-#include <casa/Arrays/Matrix.h>
-#include <casa/Arrays/MaskedArray.h>
-#include <casa/Arrays/MaskArrMath.h>
-#include <coordinates/Coordinates/CoordinateSystem.h>
-#include <coordinates/Coordinates/StokesCoordinate.h>
-#include <coordinates/Coordinates/LinearCoordinate.h>
-#include <casa/Exceptions/Error.h>
-#include <scimath/Functionals/Polynomial.h>
-#include <images/Images/ImageInterface.h>
-#include <images/Images/SubImage.h>
-#include <images/Images/ImageExpr.h>
+#include <casacore/casa/Arrays/Array.h>
+#include <casacore/casa/Arrays/ArrayMath.h>
+#include <casacore/casa/Arrays/Vector.h>
+#include <casacore/casa/Arrays/Matrix.h>
+#include <casacore/casa/Arrays/MaskedArray.h>
+#include <casacore/casa/Arrays/MaskArrMath.h>
+#include <casacore/coordinates/Coordinates/CoordinateSystem.h>
+#include <casacore/coordinates/Coordinates/StokesCoordinate.h>
+#include <casacore/coordinates/Coordinates/LinearCoordinate.h>
+#include <casacore/casa/Exceptions/Error.h>
+#include <casacore/scimath/Functionals/Polynomial.h>
+#include <casacore/images/Images/ImageInterface.h>
+#include <casacore/images/Images/SubImage.h>
+#include <casacore/images/Images/ImageExpr.h>
 #include <imageanalysis/ImageAnalysis/ImageFFT.h>
-#include <images/Regions/ImageRegion.h>
-#include <images/Images/ImageSummary.h>
-#include <images/Images/TempImage.h>
-#include <lattices/Lattices/Lattice.h>
-#include <lattices/LRegions/LCSlicer.h>
-#include <lattices/LEL/LatticeExprNode.h>
-#include <lattices/LEL/LatticeExpr.h>
-#include <lattices/Lattices/TiledLineStepper.h>
-#include <lattices/Lattices/LatticeStepper.h>
-#include <lattices/Lattices/LatticeIterator.h>
-#include <lattices/Lattices/MaskedLatticeIterator.h>
-#include <lattices/LatticeMath/LatticeStatistics.h>
-#include <lattices/LRegions/LCPagedMask.h>
-#include <casa/Logging/LogIO.h>
-#include <casa/Logging/LogOrigin.h>
-#include <casa/BasicMath/Math.h>
-#include <casa/BasicSL/Constants.h>
-#include <scimath/Mathematics/NumericTraits.h>
-#include <casa/System/ProgressMeter.h>
-#include <casa/Quanta/QC.h>
-#include <casa/Quanta/MVAngle.h>
-#include <casa/Utilities/GenSort.h>
-#include <casa/Utilities/Assert.h>
-#include <casa/BasicSL/String.h>
+#include <casacore/images/Regions/ImageRegion.h>
+#include <casacore/images/Images/ImageSummary.h>
+#include <casacore/images/Images/TempImage.h>
+#include <casacore/lattices/Lattices/Lattice.h>
+#include <casacore/lattices/LRegions/LCSlicer.h>
+#include <casacore/lattices/LEL/LatticeExprNode.h>
+#include <casacore/lattices/LEL/LatticeExpr.h>
+#include <casacore/lattices/Lattices/TiledLineStepper.h>
+#include <casacore/lattices/Lattices/LatticeStepper.h>
+#include <casacore/lattices/Lattices/LatticeIterator.h>
+#include <casacore/lattices/Lattices/LatticeUtilities.h>
+#include <casacore/lattices/Lattices/MaskedLatticeIterator.h>
+#include <casacore/lattices/LatticeMath/LatticeStatistics.h>
+#include <casacore/lattices/LRegions/LCPagedMask.h>
+#include <casacore/casa/Logging/LogIO.h>
+#include <casacore/casa/Logging/LogOrigin.h>
+#include <casacore/casa/BasicMath/Math.h>
+#include <casacore/casa/BasicSL/Constants.h>
+#include <casacore/scimath/Mathematics/NumericTraits.h>
+#include <casacore/casa/System/ProgressMeter.h>
+#include <casacore/casa/Quanta/QC.h>
+#include <casacore/casa/Quanta/MVAngle.h>
+#include <casacore/casa/Utilities/GenSort.h>
+#include <casacore/casa/Utilities/Assert.h>
+#include <casacore/casa/BasicSL/String.h>
 
 #include <casa/sstream.h>
 
@@ -345,7 +346,9 @@ void ImagePolarimetry::fourierRotationMeasure(
        if (_stokes[ImagePolarimetry::Q]->isMasked()) {
            tQ.makeMask(String("mask0"), true, true, false, false);
        }
-       _copyDataAndMask (tQ, *_stokes[ImagePolarimetry::Q]);
+       LatticeUtilities::copyDataAndMask(
+           os, tQ, *_stokes[ImagePolarimetry::Q], false
+       );
        _subtractProfileMean (tQ, fAxis);
        TempImage<Float> tU(
            _stokes[ImagePolarimetry::U]->shape(),
@@ -354,12 +357,15 @@ void ImagePolarimetry::fourierRotationMeasure(
        if (_stokes[ImagePolarimetry::U]->isMasked()) {
            tU.makeMask(String("mask0"), true, true, false, false);
        }
-       _copyDataAndMask (tU, *_stokes[ImagePolarimetry::U]);
+       LatticeUtilities::copyDataAndMask(
+           os, tU, *_stokes[ImagePolarimetry::U], false
+       );
        _subtractProfileMean (tU, fAxis);
        // The TempImages will be cloned be LatticeExprNode so it's ok
        // that they go out of scope
        node = LatticeExprNode(formComplex(tQ, tU));
-    } else {
+    }
+    else {
         node = LatticeExprNode(
             formComplex(
                 *_stokes[ImagePolarimetry::Q], *_stokes[ImagePolarimetry::U]
@@ -991,125 +997,71 @@ Float ImagePolarimetry::sigmaTotPolInt(Float clip, Float sigma) {
 }
 
 
-IPosition ImagePolarimetry::singleStokesShape(CoordinateSystem& cSys, Stokes::StokesTypes type) const
-{
-// We know the image has a Stokes coordinate or it
-// would have failed at construction
-
-   CoordinateSystem cSys0 = _image->coordinates();
-   _fiddleStokesCoordinate(cSys0, type);
-   cSys = cSys0;
-//
-   Int afterCoord = -1;
-   Int iStokes = cSys0.findCoordinate(Coordinate::STOKES, afterCoord);
-   Vector<Int> pixelAxes = cSys0.pixelAxes(iStokes);
-   IPosition shape = _image->shape();
-   shape(pixelAxes(0)) = 1;
-//
-   return shape;
+IPosition ImagePolarimetry::singleStokesShape(
+    CoordinateSystem& cSys, Stokes::StokesTypes type
+) const {
+    // We know the image has a Stokes coordinate or it
+    // would have failed at construction
+    auto cSys0 = _image->coordinates();
+    _fiddleStokesCoordinate(cSys0, type);
+    cSys = cSys0;
+    Int afterCoord = -1;
+    const auto iStokes = cSys0.findCoordinate(Coordinate::STOKES, afterCoord);
+    const auto pixelAxes = cSys0.pixelAxes(iStokes);
+    auto shape = _image->shape();
+    shape[pixelAxes[0]] = 1;
+    return shape;
 }
 
-
-ImageExpr<Float> ImagePolarimetry::depolarizationRatio (const ImageInterface<Float>& im1, 
-                                                        const ImageInterface<Float>& im2,
-                                                        Bool debias, Float clip, Float sigma)
-{
-   ImagePolarimetry p1 = ImagePolarimetry(im1);
-   ImagePolarimetry p2 = ImagePolarimetry(im2);
-//
-   ImageExpr<Float> m1(p1.fracLinPol(debias, clip, sigma));
-   ImageExpr<Float> m2(p2.fracLinPol(debias, clip, sigma));
-   LatticeExprNode n1(m1/m2);
-   LatticeExpr<Float> le(n1);
-   ImageExpr<Float> depol(le, String("DepolarizationRatio"));
-   return depol;
+ImageExpr<Float> ImagePolarimetry::depolarizationRatio(
+    const ImageInterface<Float>& im1, const ImageInterface<Float>& im2,
+    Bool debias, Float clip, Float sigma
+) {
+    ImagePolarimetry p1(im1);
+    ImagePolarimetry p2(im2);
+    ImageExpr<Float> m1(p1.fracLinPol(debias, clip, sigma));
+    ImageExpr<Float> m2(p2.fracLinPol(debias, clip, sigma));
+    LatticeExprNode n1(m1/m2);
+    LatticeExpr<Float> le(n1);
+    ImageExpr<Float> depol(le, "DepolarizationRatio");
+    return depol;
 }
 
-ImageExpr<Float> ImagePolarimetry::sigmaDepolarizationRatio (const ImageInterface<Float>& im1, 
-                                                             const ImageInterface<Float>& im2,
-                                                             Bool debias, Float clip, Float sigma)
- {
-
-   Vector<StokesTypes> types(3);
-   types[0] = I; types[1] = Q; types[2] = U;
-   _checkBeams(im1, im2, types);
-   ImagePolarimetry p1 = ImagePolarimetry(im1);
-   ImagePolarimetry p2 = ImagePolarimetry(im2);
-   ImageExpr<Float> m1 = p1.fracLinPol(debias, clip, sigma);
-   ImageExpr<Float> sm1 = p1.sigmaFracLinPol (clip, sigma);
-
-   ImageExpr<Float> m2 = p2.fracLinPol(debias, clip, sigma);
-   ImageExpr<Float> sm2 = p2.sigmaFracLinPol (clip, sigma);
-
-   LatticeExprNode n0(m1/m2);
-   LatticeExprNode n1(sm1*sm1/m1/m1);   
-   LatticeExprNode n2(sm2*sm2/m2/m2);
-   LatticeExprNode n3(n0 * sqrt(n1+n2));
-   LatticeExpr<Float> le(n3);
-   ImageExpr<Float> sigmaDepol(le, String("DepolarizationRatioError"));
-   return sigmaDepol;
+ImageExpr<Float> ImagePolarimetry::sigmaDepolarizationRatio(
+    const ImageInterface<Float>& im1, const ImageInterface<Float>& im2,
+    Bool debias, Float clip, Float sigma
+) {
+    Vector<StokesTypes> types(3);
+    types[0] = I;
+    types[1] = Q;
+    types[2] = U;
+    _checkBeams(im1, im2, types);
+    ImagePolarimetry p1(im1);
+    ImagePolarimetry p2(im2);
+    ImageExpr<Float> m1 = p1.fracLinPol(debias, clip, sigma);
+    ImageExpr<Float> sm1 = p1.sigmaFracLinPol(clip, sigma);
+    ImageExpr<Float> m2 = p2.fracLinPol(debias, clip, sigma);
+    ImageExpr<Float> sm2 = p2.sigmaFracLinPol(clip, sigma);
+    LatticeExprNode n0(m1/m2);
+    LatticeExprNode n1(sm1*sm1/m1/m1);
+    LatticeExprNode n2(sm2*sm2/m2/m2);
+    LatticeExprNode n3(n0 * sqrt(n1+n2));
+    LatticeExpr<Float> le(n3);
+    ImageExpr<Float> sigmaDepol(le, "DepolarizationRatioError");
+     return sigmaDepol;
 }
 
-
-
-// Private functions
-
-
-void ImagePolarimetry::_cleanup()
-{
-   _image.reset();
-//
-   for (uInt i=0; i<4; i++) {
-      delete _stokes[i];
-      _stokes[i] = 0;
-//
-      delete _stokesStats[i];
-      _stokesStats[i] = 0;
-   }
-//
-   if (_fitter!= 0) {
-     delete _fitter;
-     _fitter = 0;
-   }
+void ImagePolarimetry::_cleanup() {
+    _image.reset();
+    for (uInt i=0; i<4; ++i) {
+        delete _stokes[i];
+        _stokes[i] = nullptr;
+        delete _stokesStats[i];
+        _stokesStats[i] = nullptr;
+    }
+    delete _fitter;
+    _fitter = nullptr;
 }
-
-
-void ImagePolarimetry::_copyDataAndMask(ImageInterface<Float>& out,
-                                       ImageInterface<Float>& in) const
-//
-// Copy the data and mask from input to output. If the input is 
-// masked, the output must already be masked and ready
-//
-{
-// Do we need to stuff about with masks ?
-   
-   Bool doMask = in.isMasked() && out.hasPixelMask();
-   Lattice<Bool>* pMaskOut = 0;
-   if (doMask) {
-      pMaskOut = &out.pixelMask();
-      if (!pMaskOut->isWritable()) {
-         doMask = false;
-      }
-   }
-
-// Use the same stepper for input and output.
-   
-   IPosition cursorShape = out.niceCursorShape();
-   LatticeStepper stepper (out.shape(), cursorShape, LatticeStepper::RESIZE);
-   
-// Create an iterator for the output to setup the cache.
-// It is not used, because using putSlice directly is faster and as easy.
-
-   LatticeIterator<Float> dummyIter(out);
-   RO_MaskedLatticeIterator<Float> iter(in, stepper);
-   for (iter.reset(); !iter.atEnd(); iter++) {
-      out.putSlice (iter.cursor(), iter.position());
-      if (doMask) {
-         pMaskOut->putSlice(iter.getMask(false), iter.position());
-      }
-   }
-}
-
 
 void ImagePolarimetry::_findFrequencyAxis (Int& spectralCoord, Int& fAxis,
                                           const CoordinateSystem& cSys, Int spectralAxis) const
