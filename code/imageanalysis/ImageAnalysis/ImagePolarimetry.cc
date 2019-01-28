@@ -1147,37 +1147,30 @@ void ImagePolarimetry::_findStokes() {
     }
 }
 
-
-void ImagePolarimetry::_fiddleStokesCoordinate(ImageInterface<Float>& im, Stokes::StokesTypes type) const
-{
-   CoordinateSystem cSys = im.coordinates();
-   _fiddleStokesCoordinate(cSys, type);
-   im.setCoordinateInfo(cSys);
+void ImagePolarimetry::_fiddleStokesCoordinate(
+    ImageInterface<Float>& im, Stokes::StokesTypes type
+) const {
+    CoordinateSystem cSys = im.coordinates();
+    _fiddleStokesCoordinate(cSys, type);
+    im.setCoordinateInfo(cSys);
 }
 
-void ImagePolarimetry::_fiddleStokesCoordinate(CoordinateSystem& cSys, Stokes::StokesTypes type) const
-{   
-   Int afterCoord = -1;
-   Int iStokes = cSys.findCoordinate(Coordinate::STOKES, afterCoord);
-//
-   Vector<Int> which(1);
-   which(0) = Int(type);
-   StokesCoordinate stokes(which);
-   cSys.replaceCoordinate(stokes, iStokes);   
+void ImagePolarimetry::_fiddleStokesCoordinate(
+    CoordinateSystem& cSys, Stokes::StokesTypes type
+) const {
+    Int afterCoord = -1;
+    Int iStokes = cSys.findCoordinate(Coordinate::STOKES, afterCoord);
+    const Vector<Int> which(1, Int(type));
+    StokesCoordinate stokes(which);
+    cSys.replaceCoordinate(stokes, iStokes);
 }
 
-void ImagePolarimetry::_fiddleStokesCoordinate(ImageInterface<Complex>& ie, Stokes::StokesTypes type) const
-{   
-   CoordinateSystem cSys = ie.coordinates();
-//
-   Int afterCoord = -1;
-   Int iStokes = cSys.findCoordinate(Coordinate::STOKES, afterCoord);
-//
-   Vector<Int> which(1);
-   which(0) = Int(type);
-   StokesCoordinate stokes(which);
-   cSys.replaceCoordinate(stokes, iStokes);   
-   ie.setCoordinateInfo(cSys);
+void ImagePolarimetry::_fiddleStokesCoordinate(
+    ImageInterface<Complex>& ie, Stokes::StokesTypes type
+) const {
+    CoordinateSystem cSys = ie.coordinates();
+    _fiddleStokesCoordinate(cSys, type);
+    ie.setCoordinateInfo(cSys);
 }
 
 void ImagePolarimetry::_fiddleTimeCoordinate(ImageInterface<Complex>& ie, const Quantum<Double>& f,
