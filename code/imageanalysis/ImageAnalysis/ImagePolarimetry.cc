@@ -1506,67 +1506,58 @@ Stokes::StokesTypes ImagePolarimetry::_stokesType (ImagePolarimetry::StokesTypes
 }
 
 
-Float ImagePolarimetry::_sigma(ImagePolarimetry::StokesTypes index, Float clip)
-{
-   Float clip2 = abs(clip);
-   if (clip2==0.0) clip2 = 10.0;
-//
-   if (clip2 != _oldClip && _stokesStats[index]!=0) {
-      delete _stokesStats[index];
-      _stokesStats[index] = 0;
-   }
-   if (_stokesStats[index]==0) {
-
-// Find sigma for all points inside +/- clip-sigma of the mean
-// More joys of LEL
-
-      const ImageInterface<Float>* p = _stokes[index];
-      LatticeExprNode n1 (*p);
-      LatticeExprNode n2 (n1[abs(n1-mean(n1)) < clip2*stddev(n1)]);
-      LatticeExpr<Float> le(n2);
-//
-      _stokesStats[index] = new LatticeStatistics<Float>(le, false, false);
-   }
-//
-   Array<Float> sigmaA;
-   _stokesStats[index]->getConvertedStatistic(sigmaA, LatticeStatsBase::SIGMA);
-   if (sigmaA.nelements()==0) {
-      LogIO os(LogOrigin("ImagePolarimetry", "sigma(...)", WHERE));
-      os << "No good points in clipped determination of the noise " 
-         << "for the Stokes " << _stokesName(index) << " image" << LogIO::EXCEPTION;
-   }
-//
-   _oldClip = clip2;
-   return sigmaA(IPosition(1,0));
+Float ImagePolarimetry::_sigma(
+    ImagePolarimetry::StokesTypes index, Float clip
+) {
+    Float clip2 = clip == 0 ? 10.0 : abs(clip);
+    if (clip2 != _oldClip && _stokesStats[index]) {
+        delete _stokesStats[index];
+        _stokesStats[index] = 0;
+    }
+    if (! _stokesStats[index]) {
+        // Find sigma for all points inside +/- clip-sigma of the mean
+        // More joys of LEL
+        const ImageInterface<Float>* p = _stokes[index];
+        LatticeExprNode n1 (*p);
+        LatticeExprNode n2 (n1[abs(n1-mean(n1)) < clip2*stddev(n1)]);
+        LatticeExpr<Float> le(n2);
+        _stokesStats[index] = new LatticeStatistics<Float>(le, false, false);
+    }
+    Array<Float> sigmaA;
+    _stokesStats[index]->getConvertedStatistic(sigmaA, LatticeStatsBase::SIGMA);
+    ThrowIf(
+        sigmaA.empty(),
+        "No good points in clipped determination of the noise for the Stokes "
+        + _stokesName(index) + " image"
+    );
+    _oldClip = clip2;
+    return sigmaA(IPosition(1,0));
 }
 
-
-void ImagePolarimetry::_subtractProfileMean (ImageInterface<Float>& im, uInt axis) const
-{
-   const IPosition tileShape = im.niceCursorShape();
-   TiledLineStepper ts(im.shape(), tileShape, axis);
-   LatticeIterator<Float> it(im, ts);
-//
-   Float dMean;
-   if (im.isMasked()) {
-      const Lattice<Bool>& mask = im.pixelMask();
-      for (it.reset(); !it.atEnd(); it++) {
-         const Array<Float>& p = it.cursor();
-         const Array<Bool>& m = mask.getSlice(it.position(), it.cursorShape());
-         const MaskedArray<Float> ma(p, m, true);
-         dMean = mean(ma);
-//
-         it.rwVectorCursor() -= dMean;
-      }
-
-   } else {
-      for (it.reset(); !it.atEnd(); it++) {
-         dMean = mean(it.vectorCursor());
-         it.rwVectorCursor() -= dMean;
-      }
-   }
+void ImagePolarimetry::_subtractProfileMean(
+    ImageInterface<Float>& im, uInt axis
+) const {
+    const IPosition tileShape = im.niceCursorShape();
+    TiledLineStepper ts(im.shape(), tileShape, axis);
+    LatticeIterator<Float> it(im, ts);
+    Float dMean;
+    if (im.isMasked()) {
+        const Lattice<Bool>& mask = im.pixelMask();
+        for (it.reset(); !it.atEnd(); it++) {
+            const auto& p = it.cursor();
+            const auto& m = mask.getSlice(it.position(), it.cursorShape());
+            const MaskedArray<Float> ma(p, m, true);
+            dMean = mean(ma);
+            it.rwVectorCursor() -= dMean;
+        }
+    }
+    else {
+        for (it.reset(); !it.atEnd(); it++) {
+            dMean = mean(it.vectorCursor());
+            it.rwVectorCursor() -= dMean;
+        }
+    }
 }
-
 
 Bool ImagePolarimetry::_dealWithMask (Lattice<Bool>*& pMask, ImageInterface<Float>*& pIm,
                                      LogIO& os, const String& type) const
