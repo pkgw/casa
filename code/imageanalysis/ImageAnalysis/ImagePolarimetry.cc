@@ -874,58 +874,43 @@ IPosition ImagePolarimetry::rotationMeasureShape(
     return shape;
 }
 
-IPosition ImagePolarimetry::positionAngleShape(CoordinateSystem& cSys, 
-                                               Int& fAxis, Int& sAxis, LogIO&, Int spectralAxis) const
-{
-
-// Construction image CS
-
-   CoordinateSystem cSys0 = coordinates();
-
-// Find frequency axis
-
-   Int spectralCoord = -1;
-   _findFrequencyAxis (spectralCoord, fAxis, cSys0, spectralAxis);
-
-// Find Stokes axis (we know it has one)
-
-   Int afterCoord = -1;
-   Int stokesCoord = cSys0.findCoordinate(Coordinate::STOKES, afterCoord);
-   Vector<Int> pixelAxes = cSys0.pixelAxes(stokesCoord);
-   sAxis = pixelAxes(0);
-   _fiddleStokesCoordinate(cSys0, Stokes::Pangle);
-// Create output coordinate system
-
-   CoordinateSystem tmp;
-   cSys = tmp;
-   for (Int i=0;i<Int(cSys0.nCoordinates()); i++) {
-      if (i!=spectralCoord) {
-         cSys.addCoordinate(cSys0.coordinate(i));
-      }
-   }
-
-// What shape should the image be ?  Frequency axis should be gone.
-// and Stokes length 1
-
-   IPosition shape0 = ImagePolarimetry::shape();
-   IPosition shape(shape0.nelements()-1);
-//
-   Int j = 0;
-   for (Int i=0; i<Int(shape0.nelements()); i++) {
-      if (i==sAxis) {
-         shape(j) = 1;
-         j++;
-      } else {         
-        if (i!=fAxis) {
-           shape(j) = shape0(i);
-           j++;
+IPosition ImagePolarimetry::positionAngleShape(
+    CoordinateSystem& cSys,  Int& fAxis, Int& sAxis, LogIO&, Int spectralAxis
+) const {
+    CoordinateSystem cSys0 = coordinates();
+    Int spectralCoord = -1;
+    _findFrequencyAxis (spectralCoord, fAxis, cSys0, spectralAxis);
+    Int afterCoord = -1;
+    Int stokesCoord = cSys0.findCoordinate(Coordinate::STOKES, afterCoord);
+    Vector<Int> pixelAxes = cSys0.pixelAxes(stokesCoord);
+    sAxis = pixelAxes(0);
+    _fiddleStokesCoordinate(cSys0, Stokes::Pangle);
+    CoordinateSystem tmp;
+    cSys = tmp;
+    for (Int i=0; i<Int(cSys0.nCoordinates()); ++i) {
+       if (i != spectralCoord) {
+           cSys.addCoordinate(cSys0.coordinate(i));
+       }
+    }
+    // What shape should the image be ?  Frequency axis should be gone.
+    // and Stokes length 1
+    const auto shape0 = ImagePolarimetry::shape();
+    IPosition shape(shape0.size()-1);
+    Int j = 0;
+    for (Int i=0; i<Int(shape0.size()); ++i) {
+        if (i == sAxis) {
+            shape[j] = 1;
+            ++j;
         }
-      }
-   }
-//
-   return shape;
+        else {
+            if (i != fAxis) {
+                shape[j] = shape0[i];
+                ++j;
+            }
+        }
+    }
+    return shape;
 }
-
 
 ImageExpr<Float> ImagePolarimetry::stokesI() const
 {
