@@ -1115,61 +1115,36 @@ void ImagePolarimetry::_findFrequencyAxis(
     }
 }
 
-void ImagePolarimetry::_findStokes()
-{
-   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
-
-// Do we have any Stokes ?
-
-   const CoordinateSystem& cSys = _image->coordinates();
-   Int afterCoord = -1;
-   Int iStokes = cSys.findCoordinate(Coordinate::STOKES, afterCoord);
-   if (iStokes<0) {
-      _cleanup();
-      os << "There is no Stokes Coordinate in this image" << LogIO::EXCEPTION;
-   }
-   if (afterCoord>0) {
-      os << LogIO::WARN 
-         << "There is more than one Stokes coordinate in this image. Only first considered" << LogIO::POST;
-   }
-
-// Find the pixel axis of the image which is Stokes
-
-   Vector<Int> pixelAxes = cSys.pixelAxes(iStokes);
-
-// Make the regions
-
-   const StokesCoordinate& stokes = cSys.stokesCoordinate(iStokes);
-   const uInt ndim = _image->ndim();
-   IPosition shape = _image->shape();
-   IPosition blc(ndim,0);
-   IPosition trc(shape-1);
-//
-   Int pix;
-   if (stokes.toPixel(pix, Stokes::I)) {
-      _stokes[ImagePolarimetry::I] = _makeSubImage(blc, trc, pixelAxes(0), pix);
-   }
-   if (stokes.toPixel(pix, Stokes::Q)) {
-      _stokes[ImagePolarimetry::Q] = _makeSubImage(blc, trc, pixelAxes(0), pix);
-   }
-   if (stokes.toPixel(pix, Stokes::U)) {
-      _stokes[ImagePolarimetry::U] = _makeSubImage(blc, trc, pixelAxes(0), pix);
-   }
-   if (stokes.toPixel(pix, Stokes::V)) { 
-      _stokes[ImagePolarimetry::V] = _makeSubImage(blc, trc, pixelAxes(0), pix);
-   }
-//
-   if ( (_stokes[ImagePolarimetry::Q]!=0 && _stokes[ImagePolarimetry::U]==0) ||
-        (_stokes[ImagePolarimetry::Q]==0 && _stokes[ImagePolarimetry::U]!=0)) {
-      _cleanup();
-      os << "This Stokes coordinate has only one of Q and U. This is not useful" << LogIO::EXCEPTION;
-   }
-   if (_stokes[ImagePolarimetry::Q]==0 &&
-       _stokes[ImagePolarimetry::U]==0 &&
-       _stokes[ImagePolarimetry::V]==0) {
-      _cleanup();
-      os << "This image has no Stokes Q, U, or V.  This is not useful" << LogIO::EXCEPTION;
-   }
+void ImagePolarimetry::_findStokes() {
+    LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
+    const CoordinateSystem& cSys = _image->coordinates();
+    Int polAxisNum = cSys.polarizationAxisNumber();
+    ThrowIf(
+        polAxisNum < 0, "There is no Stokes Coordinate in this image"
+    );
+    const uInt ndim = _image->ndim();
+    auto shape = _image->shape();
+    IPosition blc(ndim,0);
+    auto trc = shape - 1;
+    const static std::map<String, StokesTypes> mymap = {
+        {"I", I}, {"Q", Q}, {"U", U}, {"V", V}
+    };
+    for (const auto& kv : mymap) {
+        const auto pix = cSys.stokesPixelNumber(kv.first);
+        if (pix >= 0) {
+            _stokes[kv.second] = _makeSubImage(blc, trc, polAxisNum, pix);
+        }
+    }
+    if((_stokes[Q] && ! _stokes[U]) || (! _stokes[Q] && _stokes[U])) {
+        _cleanup();
+        ThrowCc(
+            "This Stokes coordinate has only one of Q and U. This is not useful"
+        );
+    }
+    if (! (_stokes[Q] || _stokes[U] || _stokes[V])) {
+       _cleanup();
+       ThrowCc("This image has no Stokes Q, U, nor V.  This is not useful");
+    }
 }
 
 
