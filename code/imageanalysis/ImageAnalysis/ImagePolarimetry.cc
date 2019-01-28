@@ -1413,14 +1413,14 @@ Bool ImagePolarimetry::_rmPrimaryFit(
         if (!_rmLsqFit (pars, wsq, fitpa, paerr)) {
             return false;
         }
-        if (pars(4) < chiSq) {
-            chiSq = pars(4);
+        if (pars[4] < chiSq) {
+            chiSq = pars[4];
             nTurns = h;                   // Number of turns
-            rmFitted = pars(0);           // Fitted RM
-            rmErrFitted = pars(1);        // Error in RM
-            pa0Fitted = pars(2);          // Fitted intrinsic angle
-            pa0ErrFitted = pars(3);       // Error in angle
-            rChiSqFitted = pars(4);       // Recued chi squared
+            rmFitted = pars[0];           // Fitted RM
+            rmErrFitted = pars[1];        // Error in RM
+            pa0Fitted = pars[2];          // Fitted intrinsic angle
+            pa0ErrFitted = pars[3];       // Error in angle
+            rChiSqFitted = pars[4];       // Recued chi squared
             if (n > 2) {
                 rChiSqFitted /= Float(n - 2);
             }
@@ -1429,47 +1429,38 @@ Bool ImagePolarimetry::_rmPrimaryFit(
     return true;
 }
 
-Bool ImagePolarimetry::_rmSupplementaryFit(Float& nTurns, Float& rmFitted, Float& rmErrFitted,
-                                          Float& pa0Fitted, Float& pa0ErrFitted, 
-                                          Float& rChiSqFitted,  const Vector<Float>& wsq, 
-                                          const Vector<Float>& pa, const Vector<Float>& paerr)
-{
-
-// For supplementary points find lowest residual RM
-
-   const uInt n = wsq.nelements();
-//
-   Float absRM = 1e30;
-   Vector<Float> fitpa(pa.copy());
-   Vector<Float> pars;
-   for (Int i=-2; i<3; i++) {
-     fitpa(n-1) = pa(n-1) + C::pi*i;
-
-// Do least squares fit
-
-     if (! _rmLsqFit (pars, wsq, fitpa, paerr)) return false;
-
-// Save solution  with lowest absolute RM
-
-     if (abs(pars(0)) < absRM) {
-        absRM = abs(pars(0));
-//
-        nTurns = i;                        // nTurns
-        rmFitted = pars(0);                // Fitted RM
-        rmErrFitted = pars(1);             // Error in RM
-        pa0Fitted = pars(2);               // Fitted intrinsic angle
-        pa0ErrFitted = pars(3);            // Error in angle
-        rChiSqFitted = pars(4);            // Reduced chi squared
-        if (n > 2) rChiSqFitted /= Float(n - 2);
-     }
-
-   }
-//
-  return true;
+Bool ImagePolarimetry::_rmSupplementaryFit(
+    Float& nTurns, Float& rmFitted, Float& rmErrFitted, Float& pa0Fitted,
+    Float& pa0ErrFitted, Float& rChiSqFitted,  const Vector<Float>& wsq,
+    const Vector<Float>& pa, const Vector<Float>& paerr
+) {
+    // For supplementary points find lowest residual RM
+    const uInt n = wsq.size();
+    Float absRM = 1e30;
+    Vector<Float> fitpa(pa.copy());
+    Vector<Float> pars;
+    for (Int i=-2; i<3; ++i) {
+        fitpa[n-1] = pa[n-1] + C::pi*i;
+        // Do least squares fit
+        if (! _rmLsqFit (pars, wsq, fitpa, paerr)) {
+            return false;
+        }
+        // Save solution  with lowest absolute RM
+        if (abs(pars[0]) < absRM) {
+            absRM = abs(pars[0]);
+            nTurns = i;                        // nTurns
+            rmFitted = pars(0);                // Fitted RM
+            rmErrFitted = pars[1];             // Error in RM
+            pa0Fitted = pars[2];               // Fitted intrinsic angle
+            pa0ErrFitted = pars[3];            // Error in angle
+            rChiSqFitted = pars[4];            // Reduced chi squared
+            if (n > 2) {
+                rChiSqFitted /= Float(n - 2);
+            }
+        }
+    }
+    return true;
 }
-
-
-
 
 Bool ImagePolarimetry::_rmLsqFit (Vector<Float>& pars, const Vector<Float>& wsq,
                                  const Vector<Float> pa, const Vector<Float>& paerr) const
