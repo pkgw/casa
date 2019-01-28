@@ -404,12 +404,6 @@ private:
    // Delete all private pointers
    void _cleanup();
 
-   // Copy data and mask
-   void _copyDataAndMask(
-       casacore::ImageInterface<casacore::Float>& out,
-       casacore::ImageInterface<casacore::Float>& in
-   ) const;
-
    // For traiditional RM approach, give output a mask if possible
    casacore::Bool _dealWithMask(
        casacore::Lattice<casacore::Bool>*& pMask,
