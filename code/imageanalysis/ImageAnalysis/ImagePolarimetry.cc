@@ -75,6 +75,10 @@
 using namespace casacore;
 namespace casa {
 
+const std::map<ImagePolarimetry::StokesTypes, String> ImagePolarimetry::polMap = {
+    {I, "I"}, {Q, "Q"}, {U, "U"}, {V, "V"}
+};
+
 ImagePolarimetry::ImagePolarimetry (const ImageInterface<Float>& image)
 : _image(image.cloneII())
 {
@@ -89,7 +93,6 @@ ImagePolarimetry::ImagePolarimetry (const ImageInterface<Float>& image)
 ImagePolarimetry::ImagePolarimetry(const ImagePolarimetry &other) {
    operator=(other);
 }
-
 
 ImagePolarimetry &ImagePolarimetry::operator=(const ImagePolarimetry &other) {
    if (this != &other) {
@@ -1126,13 +1129,10 @@ void ImagePolarimetry::_findStokes() {
     auto shape = _image->shape();
     IPosition blc(ndim,0);
     auto trc = shape - 1;
-    const static std::map<String, StokesTypes> mymap = {
-        {"I", I}, {"Q", Q}, {"U", U}, {"V", V}
-    };
-    for (const auto& kv : mymap) {
-        const auto pix = cSys.stokesPixelNumber(kv.first);
+    for (const auto& kv : polMap) {
+        const auto pix = cSys.stokesPixelNumber(kv.second);
         if (pix >= 0) {
-            _stokes[kv.second] = _makeSubImage(blc, trc, polAxisNum, pix);
+            _stokes[kv.first] = _makeSubImage(blc, trc, polAxisNum, pix);
         }
     }
     if((_stokes[Q] && ! _stokes[U]) || (! _stokes[Q] && _stokes[U])) {
@@ -1462,46 +1462,33 @@ Bool ImagePolarimetry::_rmSupplementaryFit(
     return true;
 }
 
-Bool ImagePolarimetry::_rmLsqFit (Vector<Float>& pars, const Vector<Float>& wsq,
-                                 const Vector<Float> pa, const Vector<Float>& paerr) const
-{
-
-// Perform fit on unmasked data
-
-   static Vector<Float> solution;
-   try {
-     solution = _fitter->fit(wsq, pa, paerr);
-   } catch (AipsError x) {
-     return false;
-   } 
-//
-   const Vector<Double>& cv = _fitter->compuCovariance().diagonal();
-   pars.resize(5);
-   pars(0) = solution(1);
-   pars(1) = sqrt(cv(1));
-   pars(2) = solution(0);
-   pars(3) = sqrt(cv(0));
-   pars(4) = _fitter->chiSquare();
-// 
-   return true;
+Bool ImagePolarimetry::_rmLsqFit(
+    Vector<Float>& pars, const Vector<Float>& wsq, const Vector<Float> pa,
+    const Vector<Float>& paerr
+) const {
+    // Perform fit on unmasked data
+    static Vector<Float> solution;
+    try {
+        solution = _fitter->fit(wsq, pa, paerr);
+    } catch (AipsError x) {
+        return false;
+    }
+    const Vector<Double>& cv = _fitter->compuCovariance().diagonal();
+    pars.resize(5);
+    pars[0] = solution[1];
+    pars[1] = sqrt(cv[1]);
+    pars[2] = solution[0];
+    pars[3] = sqrt(cv[0]);
+    pars[4] = _fitter->chiSquare();
+    return true;
 }
 
-
-String ImagePolarimetry::_stokesName (ImagePolarimetry::StokesTypes index) const
-{
-   if (index==ImagePolarimetry::I) {
-      return String("I");
-   } else if (index==ImagePolarimetry::Q) {
-      return String("Q");
-   } else if (index==ImagePolarimetry::U) {
-      return String("U");
-   } else if (index==ImagePolarimetry::V) {
-      return String("V");
-   } else {
-      return String("??");  
-   }
+String ImagePolarimetry::_stokesName(
+    ImagePolarimetry::StokesTypes index
+) const {
+    const auto iter = polMap.find(index);
+    return (iter == polMap.end()) ? "??" : iter->second;
 }
-
 
 Stokes::StokesTypes ImagePolarimetry::_stokesType (ImagePolarimetry::StokesTypes index) const
 {
