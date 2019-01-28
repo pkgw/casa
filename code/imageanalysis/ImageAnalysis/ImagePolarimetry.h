@@ -549,37 +549,33 @@ private:
    void _createBeamsEqMat();
 
    casacore::Bool _checkBeams(
-		   const casacore::Vector<StokesTypes>& stokes,
-		   const casacore::Bool requireChannelEquality,
-		   const casacore::Bool throws=true
+       const std::vector<StokesTypes>& stokes,
+       casacore::Bool requireChannelEquality, casacore::Bool throws=true
    ) const;
 
    casacore::Bool _checkIQUBeams(
-		   const casacore::Bool requireChannelEquality,
-		   const casacore::Bool throws=true
-   ) const;
+       casacore::Bool requireChannelEquality, casacore::Bool throws=true
+   ) const ;
 
    casacore::Bool _checkIVBeams(
-		   const casacore::Bool requireChannelEquality,
-		   const casacore::Bool throws=true
+       casacore::Bool requireChannelEquality, casacore::Bool throws=true
    ) const;
 
    casacore::Bool _checkQUBeams(
-		   const casacore::Bool requireChannelEquality,
-		   const casacore::Bool throws=true
+       casacore::Bool requireChannelEquality, casacore::Bool throws=true
    ) const;
 
    static void _checkBeams(
-		   const ImagePolarimetry& im1, const ImagePolarimetry& im2,
-		   const casacore::Vector<StokesTypes>& stokes
+       const ImagePolarimetry& im1, const ImagePolarimetry& im2,
+       const casacore::Vector<StokesTypes>& stokes
    );
 
    void _setInfo(
-       casacore::ImageInterface<casacore::Complex>& im, const StokesTypes stokes
+       casacore::ImageInterface<casacore::Complex>& im, StokesTypes stokes
    ) const;
 
    void _setInfo(
-       casacore::ImageInterface<casacore::Float>& im, const StokesTypes stokes
+       casacore::ImageInterface<casacore::Float>& im, StokesTypes stokes
    ) const;
 
    void _setDoLinDoCirc(casacore::Bool& doLin, casacore::Bool& doCirc) const;

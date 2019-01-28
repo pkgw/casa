@@ -147,7 +147,7 @@ ImageExpr<Complex> ImagePolarimetry::complexLinearPolarization() {
 }
 
 void ImagePolarimetry::_setInfo(
-    ImageInterface<Complex>& im, const StokesTypes stokes
+    ImageInterface<Complex>& im, StokesTypes stokes
 ) const {
     auto info = _image->imageInfo();
 	if (info.hasMultipleBeams()) {
@@ -157,7 +157,7 @@ void ImagePolarimetry::_setInfo(
 }
 
 void ImagePolarimetry::_setInfo(
-    ImageInterface<Float>& im, const StokesTypes stokes
+    ImageInterface<Float>& im, StokesTypes stokes
 ) const {
     auto info = _image->imageInfo();
 	if (info.hasMultipleBeams()) {
@@ -1612,7 +1612,7 @@ void ImagePolarimetry::_createBeamsEqMat() {
 }
 
 Bool ImagePolarimetry::_checkBeams(
-    const Vector<StokesTypes>& stokes, Bool requireChannelEquality, Bool throws
+    const vector<StokesTypes>& stokes, Bool requireChannelEquality, Bool throws
 ) const {
 	for (
 		auto iter = stokes.cbegin(); iter != stokes.cend(); ++iter
@@ -1659,29 +1659,23 @@ Bool ImagePolarimetry::_checkBeams(
 }
 
 Bool ImagePolarimetry::_checkIQUBeams(
-		const Bool requireChannelEquality,
-		const Bool throws
+    Bool requireChannelEquality, Bool throws
 ) const {
-	Vector<StokesTypes> types(3);
-	types[0] = I; types[1] = Q; types[2] = U;
+	static const vector<StokesTypes> types = {I, Q, U};
 	return _checkBeams(types, requireChannelEquality, throws);
 }
 
 Bool ImagePolarimetry::_checkIVBeams(
-		const Bool requireChannelEquality,
-		const Bool throws
+    Bool requireChannelEquality, Bool throws
 ) const {
-	Vector<StokesTypes> types(2);
-	types[0] = I; types[1] = V;
+	static const vector<StokesTypes> types = {I, V};
 	return _checkBeams(types, requireChannelEquality, throws);
 }
 
 Bool ImagePolarimetry::_checkQUBeams(
-		const Bool requireChannelEquality,
-		const Bool throws
+    Bool requireChannelEquality, Bool throws
 ) const {
-	Vector<StokesTypes> types(2);
-	types[0] = Q; types[1] = U;
+	static const vector<StokesTypes> types = {Q, U};
 	return _checkBeams(types, requireChannelEquality, throws);
 }
 
@@ -1689,20 +1683,14 @@ void ImagePolarimetry::_checkBeams(
 	const ImagePolarimetry& im1, const ImagePolarimetry& im2,
 	const Vector<ImagePolarimetry::StokesTypes>& stokes
 ) {
-	for (
-			Vector<ImagePolarimetry::StokesTypes>::const_iterator iter=stokes.begin();
-			iter!=stokes.end(); iter++
-	) {
-		if (
+	for (auto iter=stokes.cbegin(); iter!=stokes.cend(); iter++) {
+		ThrowIf(
 			im1.stokes(*iter).imageInfo().getBeamSet()
-			!= im2.stokes(*iter).imageInfo().getBeamSet()
-		) {
-			throw AipsError(
-					"Beams or beamsets are not equal between the two images, caonnot perform calculation"
-			);
-		}
+			!= im2.stokes(*iter).imageInfo().getBeamSet(),
+			"Beams or beamsets are not equal between the two images, caonnot "
+			"perform calculation"
+		);
 	}
 }
 
-} //# NAMESPACE CASA - END
-
+}
