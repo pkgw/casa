@@ -55,6 +55,7 @@
 
 #include <synthesis/TransformMachines2/ATerm.h>
 #include <synthesis/TransformMachines2/NoOpATerm.h>
+#include <synthesis/TransformMachines2/PhaseGrad.h>
 #include <synthesis/TransformMachines2/AWConvFunc.h>
 #include <synthesis/TransformMachines2/EVLAAperture.h>
 #include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
@@ -171,14 +172,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       gridder(0), isTiled(false), arrayLattice( ), lattice( ), 
       maxAbsData(0.0), centerLoc(IPosition(4,0)), offsetLoc(IPosition(4,0)),
       pointingToImage(0), usezero_p(false),
-      // convFunc_p(), convWeights_p(),
       epJ_p(),
       doPBCorrection(true), conjBeams_p(true),/*cfCache_p(cfcache),*/ paChangeDetector(),
       rotateOTFPAIncr_p(0.1),
       Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false), paNdxProcessed_p(),
       visResampler_p(), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
-      rotatedConvFunc_p(),//cfs2_p(), cfwts2_p(), 
-    runTime1_p(0.0), previousSPWID_p(-1), self_p()
+    rotatedConvFunc_p(),
+    runTime1_p(0.0),phaseGrad_p(), previousSPWID_p(-1), self_p()
   {
     //    convSize=0;
     tangentSpecified_p=false;
@@ -2477,17 +2477,36 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				      chanMap,polMap,pointingOffset);
 
       }
-    //    VBRow2CFMapType theMap(visResampler_p->getVBRow2CFMap());
+
     VBRow2CFBMapType& theMap=visResampler_p->getVBRow2CFBMap();
+    // 
+    // Trigger the computation of phase gradiant corresponding to the
+    // field offset (from the VB) w.r.t. the image phase center.
+    //
+    {
+      // Vector<int> maxCFShape(2), convOrigin(2);
+      // maxCFShape[0] = maxCFShape[1] = theMap[0]->getMaxCFSize();
+      // cerr << maxCFShape << endl;
+      // double dummyCFFreq, dummyIMFreq;
+      // int vbSpw = vb.spectralWindows()(0);
+      // int vbFieldID = -1;//((const Int)((vbs.vb_p)->fieldId()(0)));
+
+      // convOrigin = maxCFShape/2;
+      // if (phaseGrad_p.ComputeFieldPointingGrad(pointingOffset,
+      // 					       maxCFShape,
+      // 					       convOrigin,
+      // 					       dummyCFFreq,
+      // 					       dummyIMFreq,
+      // 					       vbSpw, vbFieldID))
+      
+      if (phaseGrad_p.ComputeFieldPointingGrad(pointingOffset,theMap[0],vb))
+	visResampler_p->setFieldPhaseGrad(phaseGrad_p.getFieldPointingGrad());
+    }
     //
     // For AzElApertures, this rotates the CFs.
     //
     convFuncCtor_p->prepareConvFunction(vb,theMap);
     
-    
-    //    CFBStruct cfbst_pub;
-    //UUU    theMap[0]->getAsStruct(cfbst_pub);
-    //UUU    vbs.cfBSt_p=cfbst_pub;
     vbs.accumCFs_p=((vbs.uvw_p.nelements() == 0) && dopsf);
     
     
@@ -2513,7 +2532,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //runTime1_p += timer_p.real();
     visResampler_p->initializeDataBuffers(vbs);
-    //    visResampler_p->setConvFunc(cfs_p);
   }
 
   //
