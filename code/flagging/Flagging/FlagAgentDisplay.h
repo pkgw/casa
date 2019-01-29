@@ -108,7 +108,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Bool dataDisplay_p, reportDisplay_p; // show per chunk plots and/or end-of-casacore::MS plots
     casacore::String reportFormat_p;
     casacore::Bool stopAndExit_p;
-    casacore::Bool reportReturn_p;
+    // casacore::Bool reportReturn_p;
     casacore::Bool showBandpass_p;
 
     casacore::Vector<dbus::variant> panels_p, report_panels_p;
