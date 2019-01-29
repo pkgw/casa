@@ -496,6 +496,19 @@
              "comment":""
         },
         {
+             "testNumber":"3455",
+             "testName":"Rerefant",
+             "testScript":"test_rerefant",
+             "testType":"functionalTest",
+             "testLevel":"critical",
+             "Maintainer":"Mark Kettenis",
+             "MaintainerEmail":"kettenis@jive.eu",
+             "priority":"3",
+             "tag":"calibration",
+             "suppressEmail": false,
+             "comment":""
+        },
+        {
              "testNumber":"3805",
              "testName":"AgentFlagger",
              "testScript":"test_agentflagger",
@@ -2851,7 +2864,7 @@
         },
         {
              "testNumber":"9005",
-             "testName":"CASAGUIDE VLA Correcting Bandpass",
+             "testName":"CASAGUIDE VLA Topical Correcting Bandpass",
              "testScript":"test_VLA_CorrectingBandpass",
              "testType":"casaguide",
              "testLevel":"accepted",
@@ -2864,7 +2877,7 @@
         },
         {
              "testNumber":"9010",
-             "testName":"CASAGUIDE VLA Flagging",
+             "testName":"CASAGUIDE VLA Topical Flagging",
              "testScript":"test_VLA_Flagging",
              "testType":"casaguide",
              "testLevel":"accepted",
@@ -2877,8 +2890,47 @@
         },
         {
              "testNumber":"9015",
-             "testName":"CASAGUIDE VLA Imaging",
+             "testName":"CASAGUIDE VLA Topical Imaging",
              "testScript":"test_VLA_Imaging",
+             "testType":"casaguide",
+             "testLevel":"accepted",
+             "Maintainer":"Akeem Wells",
+             "MaintainerEmail":"awells@nrao.edu",
+             "priority":"4",
+             "tag":"casaguide",
+             "suppressEmail": false,
+             "comment":""
+        },
+        {
+             "testNumber":"9105",
+             "testName":"CASAGUIDE VLA 3C391",
+             "testScript":"test_VLA_3C391",
+             "testType":"casaguide",
+             "testLevel":"accepted",
+             "Maintainer":"Akeem Wells",
+             "MaintainerEmail":"awells@nrao.edu",
+             "priority":"4",
+             "tag":"casaguide",
+             "suppressEmail": false,
+             "comment":""
+        },
+        {
+             "testNumber":"9110",
+             "testName":"CASAGUIDE VLA IRC10216",
+             "testScript":"test_VLA_IRC10216",
+             "testType":"casaguide",
+             "testLevel":"accepted",
+             "Maintainer":"Akeem Wells",
+             "MaintainerEmail":"awells@nrao.edu",
+             "priority":"4",
+             "tag":"casaguide",
+             "suppressEmail": false,
+             "comment":""
+        },
+        {
+             "testNumber":"9115",
+             "testName":"CASAGUIDE VLA MG0414",
+             "testScript":"test_VLA_MG0414",
              "testType":"casaguide",
              "testLevel":"accepted",
              "Maintainer":"Akeem Wells",

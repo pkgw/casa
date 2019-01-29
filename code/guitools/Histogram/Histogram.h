@@ -68,8 +68,8 @@ public:
 	void defineStepVertical( int index, QVector<double>& xVals, QVector<double>& yVals,
 			bool useLogY ) const;
 	std::pair<float,float> getMinMaxBinCount() const;
-	vector<float> getXValues() const;
-	vector<float> getYValues() const;
+    std::vector<float> getXValues() const;
+    std::vector<float> getYValues() const;
 	std::pair<float,float> getDataRange() const;
 	void toAscii( QTextStream& out ) const;
 	virtual ~Histogram();
@@ -91,8 +91,8 @@ private:
 	Histogram operator=( const Histogram& other );
 	ImageHistograms<casacore::Float>* filterByChannels( const std::shared_ptr<const casacore::ImageInterface<casacore::Float> >  image );
 	HeightSource* heightSource;
-	vector<casacore::Float> xValues;
-	vector<casacore::Float> yValues;
+    std::vector<casacore::Float> xValues;
+    std::vector<casacore::Float> yValues;
 	ImageHistograms<casacore::Float>* histogramMaker;
 	casacore::ImageRegion* region;
 

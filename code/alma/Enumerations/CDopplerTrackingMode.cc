@@ -33,7 +33,7 @@
  * File CDopplerTrackingMode.cpp
  */
 #include <sstream>
-#include <CDopplerTrackingMode.h>
+#include <alma/Enumerations/CDopplerTrackingMode.h>
 #include <string>
 using namespace std;
 

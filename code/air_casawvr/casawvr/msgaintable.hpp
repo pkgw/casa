@@ -27,7 +27,7 @@ namespace LibAIR2 {
 
   // Forward declarations
   class ArrayGains;
-  class MSSpec;
+  struct MSSpec;
 
   /** \brief Write out gains calculated from WVRs to a table
       

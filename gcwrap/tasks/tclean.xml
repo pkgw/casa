@@ -34,6 +34,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                         vis=['ngc5921a.ms','ngc5921b.ms']; multiple MSes
 </description>
       <any type="variant" limittypes="string stringArray"/>
+      <type mustexist="true">path</type><type mustexist="true">pathVec</type>
       <value type="string"></value>
     </param>
 
@@ -307,6 +308,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <any type="variant" limittypes="int string"/>
       <value type="string"></value>
     </param>
+
 
     <param type="string" name="stokes" > <!-- subparam="true"> -->
      <shortdescription>Stokes Planes to make</shortdescription>
@@ -829,6 +831,19 @@ HPX HEALPix grid.  -->
       <value type="int">1</value>
     </param>
 
+<param type="any" name="psfphasecenter"  subparam="true"> 
+     <shortdescription>Phase center of the image</shortdescription>
+<description>For mosaic use psf centered of this optional direction
+               example: psfphasecenter=6
+                        psfphasecenter='J2000 19h30m00 -40d00m00'
+                        psfphasecenter='J2000 292.5deg  -40.0deg'
+                        psfphasecenter='J2000 5.105rad  -0.698rad'
+                        psfphasecenter='ICRS 13:05:27.2780 -049.28.04.458' 
+</description>
+      <any type="variant" limittypes="int string"/>
+      <value type="string"></value>
+    </param>
+
     <param type="int" name="chanchunks" subparam="true">
      <shortdescription>Number of channel chunks</shortdescription>
 <description>Number of channel chunks to grid separately
@@ -940,7 +955,32 @@ HPX HEALPix grid.  -->
 
     <param type="bool" name="psterm" subparam="true">
            <shortdescription>Use prolate spheroidal during gridding</shortdescription>
-<description>Use prolate spheroidal during gridding</description>
+	   <description>Include the Prolate Spheroidal (PS) funtion as the anti-aliasing 
+                        operator in the gridding convolution functions used for gridding.
+
+                        Setting this parameter to true is necessary when aterm is set to 
+                        false.  It can be set to false when aterm is set to true, though 
+                        with this setting effects of aliasing may be there in the image, 
+                        particularly near the edges.
+
+                        When set to true, the .pb images will contain the fourier transform
+                        of the of the PS funtion. The table below enumarates the functional
+                        effects of the psterm, aterm and wprojplanes settings. PB referes to 
+                        the Primary Beam and FT() refers to the Fourier transform operation.
+
+                        Operation       aterm   psterm  wprojplanes  Contents of the .pb image
+                        ----------------------------------------------------------------------
+                        AW-Projection    True    True      >1                FT(PS) x PB
+                                                 False                       PB
+
+                        A-Projection     True    True       1                FT(PS) x PB
+                                                 False                       PB
+
+                        W-Projection     False   True      >1                FT(PS)
+
+                        Standard         False   True       1                FT(PS)
+
+</description>
 	    <value type="bool">False</value>
     </param>
 
@@ -953,39 +993,46 @@ HPX HEALPix grid.  -->
 	    <value type="bool">True</value>
     </param>
 
-    <param type="bool" name="conjbeams" subparam="true">
+    <param type="bool" name="conjbeams" subparam="false">
            <shortdescription>Use conjugate frequency for wideband A-terms</shortdescription>
 <description>Use conjugate frequency for wideband A-terms
 
-                       While gridding data from one frequency channel, choose a
-                       convolution function from a 'conjugate' frequency such that
-                       the resulting baseline primary beam is approximately constant
-                       across frequency. For a system in which the primary beam scales
-                       with frequency, this step will eliminate instrumental spectral
-                       structure from the measured data and leave only the sky spectrum
-                       for the minor cycle to model and reconstruct [Bhatnagar et.al,2013].
+                       While gridding data from one frequency channel, choose a convolution 
+                       function from a 'conjugate' frequency such that the resulting baseline 
+                       primary beam is approximately constant across frequency. For a system in 
+                       which the primary beam scales with frequency, this step will eliminate 
+                       instrumental spectral structure from the measured data and leave only the 
+                       sky spectrum for the minor cycle to model and reconstruct [Bhatnagar et al., ApJ, 2013].
 
-                       As a rough guideline for when this is relevant, a source at the half
-                       power point of the PB at the center frequency will see an artificial
-                       spectral index of -1.4 due to the frequency dependence of the PB
-                       [Sault and Wieringa, 1994].  If left uncorrected during gridding, this
-                       spectral structure must be modeled in the minor cycle (using the
-                       mtmfs algorithm) to avoid dynamic range limits (of a few hundred
-                       for a 2:1 bandwidth).
+                       As a rough guideline for when this is relevant, a source at the half power 
+                       point of the PB at the center frequency will see an artificial spectral 
+                       index of -1.4 due to the frequency dependence of the PB [Sault and Wieringa, 1994].  
+                       If left uncorrected during gridding, this spectral structure must be modeled 
+                       in the minor cycle (using the mtmfs algorithm) to avoid dynamic range limits 
+                       (of a few hundred for a 2:1 bandwidth).
 
 </description>
 	    <value type="bool">True</value>
     </param>
 
     <param type="string" name="cfcache" subparam="true">
-           <shortdescription>>Convolution function cache directory name</shortdescription>
+           <shortdescription>Convolution function cache directory name</shortdescription>
 <description>Convolution function cache directory name
 
                        Name of a directory in which to store gridding convolution functions.
                        This cache is filled at the beginning of an imaging run. This step can be time
                        consuming but the cache can be reused across multiple imaging runs that
-                       use the same image parameters (cell size, field-of-view, spectral data
-                       selections, etc).
+                       use the same image parameters (cell size, image size , spectral data
+                       selections, wprojplanes, wbawp, psterm, aterm).  The effect of the wbawp, 
+                       psterm and aterm settings is frozen-in in the cfcache. Using an existing cfcache
+                       made with a different setting of these parameters will not reflect the current
+                       settings.
+
+                       In a parallel execution, the construction of the cfcache is also parallelized 
+                       and the time to compute scales close to linearly with the number of compute 
+                       cores used.   With the re-computation of Convolution Functions (CF) due to PA 
+                       rotation turned-off (the computepastep parameter), the total number of in the
+                       cfcache can be computed as [No. of wprojplanes x No. of selected spectral windows x 4]
 
                        By default, cfcache = imagename + '.cf'
 
@@ -994,25 +1041,31 @@ HPX HEALPix grid.  -->
     </param>
 
     <param type="double" name="computepastep" subparam="true">
-     <shortdescription>At what parallactic angle interval to recompute AIFs (deg)</shortdescription>
-<description>At what parallactic angle interval to recompute aperture
-                       illumination functions (deg)
+     <shortdescription>Parallactic angle interval after the AIFs are recomputed (deg)</shortdescription>
+<description>Parallactic angle interval after the AIFs are recomputed (deg)
 
                        This parameter controls the accuracy of the aperture illumination function
                        used with AProjection for alt-az mount dishes where the AIF rotates on the
-                       sky as the synthesis image is built up.
+                       sky as the synthesis image is built up.  Once the PA in the data changes by  
+                       the given interval, AIFs are re-computed at the new PA.
+
+                       A value of 360.0 deg (the default) implies no re-computation due to PA rotation.
+                       AIFs are computed for the PA value of the first valid data received and used for 
+                       all of the data.
 
 </description>
       <value type="double">360.0</value>
     </param>
 
     <param type="double" name="rotatepastep" subparam="true">
-     <shortdescription>At what parallactic angle interval to rotate nearest AIF (deg) </shortdescription>
-<description>At what parallactic angle interval to rotate nearest
-                       aperture illumination function (deg)
+     <shortdescription>Parallactic angle interval after which the nearest AIF is rotated (deg) </shortdescription>
+<description>Parallactic angle interval after which the nearest AIF is rotated (deg) 
 
                        Instead of recomputing the AIF for every timestep's parallactic angle,
-                       the nearest existing AIF is picked and rotated in steps of this amount.
+                       the nearest existing AIF is used and rotated
+		       after the PA changed by rotatepastep value.
+
+                       A value of 360.0 deg (the default) disables rotation of the AIF.
 
                        For example, computepastep=360.0 and rotatepastep=5.0 will compute
                        the AIFs at only the starting parallactic angle and all other timesteps will
@@ -1023,7 +1076,7 @@ HPX HEALPix grid.  -->
     </param>
 
     <param type="double" name="pblimit" subparam="true">
-     <shortdescription>>PB gain level at which to cut off normalizations </shortdescription>
+     <shortdescription>PB gain level at which to cut off normalizations </shortdescription>
 <description>PB gain level at which to cut off normalizations
 
                        Divisions by .pb during normalizations have a cut off at a .pb gain
@@ -1683,6 +1736,8 @@ HPX HEALPix grid.  -->
                        the N-sigma threshold and cyclethreshold, is used to trigger a major cycle
                        (see also the descreption under 'threshold').
                        Set nsigma=0.0 to preserve the previous tclean behavior without this feature.
+                       The top level parameter, fastnoise is relevant for the rms noise calculation which is used 
+                       to determine the threshold. 
 
 </description>
       <value type="double">0.0</value>
@@ -1844,6 +1899,7 @@ HPX HEALPix grid.  -->
                        auto-multithresh : auto-masking by multiple thresholds for deconvolution
                           subparameters : sidelobethreshold, noisethreshold, lownoisethreshold, negativethrehsold,  smoothfactor,
                                           minbeamfrac, cutthreshold, pbmask, growiterations, dogrowprune, minpercentchange, verbose
+                          Additional top level parameter relevant to auto-multithresh: fastnoise
 
                           if pbmask is >0.0, the region outside the specified pb gain level is excluded from
                           image statistics in determination of the threshold.
@@ -2023,25 +2079,25 @@ HPX HEALPix grid.  -->
 </description>
     </param>
     <param type="double" name="noisethreshold" subparam="true">
-    <shortdescription>noisethreshold * rms in residual image</shortdescription>
+    <shortdescription>noisethreshold * rms in residual image + location(median) </shortdescription>
            <value type="double">5.0</value>
-<description>Sub-parameter for "auto-multithresh":  mask threshold based on the noise level: noisethreshold * rms
+<description>Sub-parameter for "auto-multithresh":  mask threshold based on the noise level: noisethreshold * rms + location (=median)
 
               The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="lownoisethreshold" subparam="true">
-    <shortdescription>lownoisethreshold * rms in residual image</shortdescription>
+    <shortdescription>lownoisethreshold * rms in residual image + location(median) </shortdescription>
            <value type="double">1.5</value>
-<description>Sub-parameter for "auto-multithresh":  mask threshold to grow previously masked regions via binary dilation:   lownoisethreshold * rms in residual image
+<description>Sub-parameter for "auto-multithresh":  mask threshold to grow previously masked regions via binary dilation:   lownoisethreshold * rms in residual image + location (=median)
 
               The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
     </param>
     <param type="double" name="negativethreshold" subparam="true">
-           <shortdescription>negativethreshold * rms in residual image</shortdescription>
+           <shortdescription>negativethreshold * rms in residual image + location(median) </shortdescription>
            <value type="double">0.0</value>
-<description>Sub-parameter for "auto-multithresh": mask threshold  for negative features: -1.0* negativethreshold * rms
+<description>Sub-parameter for "auto-multithresh": mask threshold  for negative features: -1.0* negativethreshold * rms + location(=median)
 
               The rms is calculated from MAD with rms = 1.4826*MAD.
 </description>
@@ -2105,6 +2161,26 @@ HPX HEALPix grid.  -->
                         N_neg_pix: number of pixels for negative mask regions
 
                         Note that for a large cube, extra logging may slow down the process.
+</description>
+    </param>
+    <param type="bool" name="fastnoise">
+           <shortdescription>True: use the faster (old) noise calculation. False: use the new improved noise calculations</shortdescription>
+           <value type="bool">True</value>
+<description> Only relevant when automask (user='multi-autothresh') and/or n-sigma stopping threshold (nsigma>0.0) are/is used. If it is set to True,  a simpler but faster noise calucation is used. 
+                        In this case, the threshold values are determined based on classic statistics (using all
+                        unmasked pixels for the calculations).
+                          
+                        If it is set to False,  the new noise calculation
+                        method is used based on pre-existing mask.   
+ 
+                        Case 1: no exiting mask
+                        Calculate image statistics using Chauvenet algorithm 
+                        
+                        Case 2: there is an existing mask
+                        Calculate image statistics by classical method on the region
+                        outside the mask and inside the primary beam mask.
+
+                        In all cases above RMS noise is calculated from MAD. 
 </description>
     </param>
 <!--============================================== -->
@@ -2490,7 +2566,8 @@ HPX HEALPix grid.  -->
 	 <default param="usepointing"><value>False</value></default>
 	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>True</value></default>
+	 <default param="conjbeams"><value>False</value></default>
+	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="mosaicft">
 	 <default param="normtype"><value>"flatnoise"</value></default>
@@ -2498,7 +2575,8 @@ HPX HEALPix grid.  -->
 	 <default param="usepointing"><value>False</value></default>
 	 <default param="mosweight"><value>True</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>True</value></default>
+	 <default param="conjbeams"><value>False</value></default>
+	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="ftmosaic">
 	 <default param="normtype"><value>"flatnoise"</value></default>
@@ -2522,9 +2600,9 @@ HPX HEALPix grid.  -->
 	 <default param="computepastep"><value>360.0</value></default>
 	 <default param="rotatepastep"><value>360.0</value></default>
 	 <default param="wbawp"><value>False</value></default>
-	 <default param="conjbeams"><value>False</value></default>
 <!--	 <default param="vptable"><value>""</value></default> -->
 	 <default param="pblimit"><value>0.2</value></default>
+	 <default param="conjbeams"><value>False</value></default>
        </equals>
        <equals type="string" value="awprojectft">
 	 <default param="wprojplanes"><value>1</value></default>
@@ -2535,9 +2613,9 @@ HPX HEALPix grid.  -->
 	 <default param="computepastep"><value>360.0</value></default>
 	 <default param="rotatepastep"><value>360.0</value></default>
 	 <default param="wbawp"><value>False</value></default>
-	 <default param="conjbeams"><value>False</value></default>
 <!--	 <default param="vptable"><value>""</value></default> -->
 	 <default param="pblimit"><value>0.2</value></default>
+	 <default param="conjbeams"><value>False</value></default>
        </equals>
      </when>
 
@@ -2661,7 +2739,11 @@ HPX HEALPix grid.  -->
          <default param="dogrowprune"><value type="bool">True</value></default>
          <default param="minpercentchange"><value>-1.0</value></default>
          <default param="verbose"><value type="bool">False</value></default>
+         <!--<default param="fastnoise"><value type="bool">False</value></default>-->
        </equals>
+       <!--<noteqauls type="string" value="auto-multithresh">
+          <default param="fastnoise"><value type="bool">True</value></default>
+       </noteqauls>-->
    </when>
 
 <!--

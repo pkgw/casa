@@ -22,7 +22,10 @@
 
 #include <flagging/Flagging/FlagAgentBase.h>
 
-// Needed for the factory method (create)
+#include <stdcasa/StdCasa/CasacSupport.h>
+#include <ms/MSSel/MSSelectionTools.h>
+
+// Headers of every concrete agent, needed for the factory method (create)
 #include <flagging/Flagging/FlagAgentTimeFreqCrop.h>
 #include <flagging/Flagging/FlagAgentClipping.h>
 #include <flagging/Flagging/FlagAgentSummary.h>
@@ -821,6 +824,8 @@ FlagAgentBase::setDataSelection(Record config)
 		{
 			*logger_p << LogIO::DEBUG1 << " no correlation selection" << LogIO::POST;
 		}
+
+
 		// Only process the polarization selection as in-row selection if there is no complex operator
 		else if ((polarizationSelection_p.find("REAL") == string::npos) and
 				(polarizationSelection_p.find("IMAG") == string::npos) and
@@ -1783,7 +1788,7 @@ FlagAgentBase::indigen(vector<uInt> &index, uInt size)
 bool
 FlagAgentBase::isZero(Float number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1811,7 +1816,7 @@ FlagAgentBase::isZero(Float number)
 bool
 FlagAgentBase::isZero(Double number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1839,7 +1844,7 @@ FlagAgentBase::isZero(Double number)
 bool
 FlagAgentBase::isNaN(Float number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1863,7 +1868,7 @@ FlagAgentBase::isNaN(Float number)
 bool
 FlagAgentBase::isNaN(Double number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1887,7 +1892,7 @@ FlagAgentBase::isNaN(Double number)
 bool
 FlagAgentBase::isNaNOrZero(Float number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1918,7 +1923,7 @@ FlagAgentBase::isNaNOrZero(Float number)
 bool
 FlagAgentBase::isNaNOrZero(Double number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:

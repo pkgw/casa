@@ -47,6 +47,8 @@ set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
 
 add_definitions ("-DUseCasacoreNamespace")
 add_definitions ("-DWITHOUT_BOOST")
+add_definitions(-DUSE_THREADS)                 # new casacore requirement:
+                                               # https://github.com/casacore/casacore/commit/2184df898452e1de695a04eb2e785419f707434c
 
 execute_process( COMMAND svn info
                    RESULT_VARIABLE SVNINFOSTATUS
@@ -1394,7 +1396,6 @@ install( FILES
          install/casa2tsum3.xsl
          install/casa2latex.xsl
          install/casa2pycli.xsl
-         install/casa2pypg.xsl
          install/casa2tlatex.xsl
          install/casa2tsum.xsl
          install/casatlist.xsl

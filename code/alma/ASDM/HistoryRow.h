@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -76,12 +76,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file History.h
     \brief Generated from model's revision "-1", branch ""
@@ -98,7 +98,7 @@ class ExecBlockRow;
 
 class HistoryRow;
 typedef void (HistoryRow::*HistoryAttributeFromBin) (EndianIStream& eis);
-typedef void (HistoryRow::*HistoryAttributeFromText) (const string& s);
+typedef void (HistoryRow::*HistoryAttributeFromText) (const std::string& s);
 
 /**
  * The HistoryRow class is a row of a HistoryTable.
@@ -171,21 +171,21 @@ public:
 	
  	/**
  	 * Get message.
- 	 * @return message as string
+ 	 * @return message as std::string
  	 */
- 	string getMessage() const;
+ 	std::string getMessage() const;
 	
  
  	
  	
  	/**
- 	 * Set message with the specified string.
- 	 * @param message The string value to which message is to be set.
+ 	 * Set message with the specified std::string.
+ 	 * @param message The std::string value to which message is to be set.
  	 
  		
  			
  	 */
- 	void setMessage (string message);
+ 	void setMessage (std::string message);
   		
 	
 	
@@ -201,21 +201,21 @@ public:
 	
  	/**
  	 * Get priority.
- 	 * @return priority as string
+ 	 * @return priority as std::string
  	 */
- 	string getPriority() const;
+ 	std::string getPriority() const;
 	
  
  	
  	
  	/**
- 	 * Set priority with the specified string.
- 	 * @param priority The string value to which priority is to be set.
+ 	 * Set priority with the specified std::string.
+ 	 * @param priority The std::string value to which priority is to be set.
  	 
  		
  			
  	 */
- 	void setPriority (string priority);
+ 	void setPriority (std::string priority);
   		
 	
 	
@@ -231,21 +231,21 @@ public:
 	
  	/**
  	 * Get origin.
- 	 * @return origin as string
+ 	 * @return origin as std::string
  	 */
- 	string getOrigin() const;
+ 	std::string getOrigin() const;
 	
  
  	
  	
  	/**
- 	 * Set origin with the specified string.
- 	 * @param origin The string value to which origin is to be set.
+ 	 * Set origin with the specified std::string.
+ 	 * @param origin The std::string value to which origin is to be set.
  	 
  		
  			
  	 */
- 	void setOrigin (string origin);
+ 	void setOrigin (std::string origin);
   		
 	
 	
@@ -261,21 +261,21 @@ public:
 	
  	/**
  	 * Get objectId.
- 	 * @return objectId as string
+ 	 * @return objectId as std::string
  	 */
- 	string getObjectId() const;
+ 	std::string getObjectId() const;
 	
  
  	
  	
  	/**
- 	 * Set objectId with the specified string.
- 	 * @param objectId The string value to which objectId is to be set.
+ 	 * Set objectId with the specified std::string.
+ 	 * @param objectId The std::string value to which objectId is to be set.
  	 
  		
  			
  	 */
- 	void setObjectId (string objectId);
+ 	void setObjectId (std::string objectId);
   		
 	
 	
@@ -291,21 +291,21 @@ public:
 	
  	/**
  	 * Get application.
- 	 * @return application as string
+ 	 * @return application as std::string
  	 */
- 	string getApplication() const;
+ 	std::string getApplication() const;
 	
  
  	
  	
  	/**
- 	 * Set application with the specified string.
- 	 * @param application The string value to which application is to be set.
+ 	 * Set application with the specified std::string.
+ 	 * @param application The std::string value to which application is to be set.
  	 
  		
  			
  	 */
- 	void setApplication (string application);
+ 	void setApplication (std::string application);
   		
 	
 	
@@ -321,21 +321,21 @@ public:
 	
  	/**
  	 * Get cliCommand.
- 	 * @return cliCommand as string
+ 	 * @return cliCommand as std::string
  	 */
- 	string getCliCommand() const;
+ 	std::string getCliCommand() const;
 	
  
  	
  	
  	/**
- 	 * Set cliCommand with the specified string.
- 	 * @param cliCommand The string value to which cliCommand is to be set.
+ 	 * Set cliCommand with the specified std::string.
+ 	 * @param cliCommand The std::string value to which cliCommand is to be set.
  	 
  		
  			
  	 */
- 	void setCliCommand (string cliCommand);
+ 	void setCliCommand (std::string cliCommand);
   		
 	
 	
@@ -351,21 +351,21 @@ public:
 	
  	/**
  	 * Get appParms.
- 	 * @return appParms as string
+ 	 * @return appParms as std::string
  	 */
- 	string getAppParms() const;
+ 	std::string getAppParms() const;
 	
  
  	
  	
  	/**
- 	 * Set appParms with the specified string.
- 	 * @param appParms The string value to which appParms is to be set.
+ 	 * Set appParms with the specified std::string.
+ 	 * @param appParms The std::string value to which appParms is to be set.
  	 
  		
  			
  	 */
- 	void setAppParms (string appParms);
+ 	void setAppParms (std::string appParms);
   		
 	
 	
@@ -453,7 +453,7 @@ public:
 	 * @param appParms
 	    
 	 */ 
-	bool compareNoAutoInc(Tag execBlockId, ArrayTime time, string message, string priority, string origin, string objectId, string application, string cliCommand, string appParms);
+	bool compareNoAutoInc(Tag execBlockId, ArrayTime time, std::string message, std::string priority, std::string origin, std::string objectId, std::string application, std::string cliCommand, std::string appParms);
 	
 	
 
@@ -477,7 +477,7 @@ public:
 	 * @param appParms
 	    
 	 */ 
-	bool compareRequiredValue(string message, string priority, string origin, string objectId, string application, string cliCommand, string appParms); 
+	bool compareRequiredValue(std::string message, std::string priority, std::string origin, std::string objectId, std::string application, std::string cliCommand, std::string appParms); 
 		 
 	
 	/**
@@ -629,7 +629,7 @@ private:
 	
 	
 
-	string message;
+	std::string message;
 
 	
 	
@@ -640,7 +640,7 @@ private:
 	
 	
 
-	string priority;
+	std::string priority;
 
 	
 	
@@ -651,7 +651,7 @@ private:
 	
 	
 
-	string origin;
+	std::string origin;
 
 	
 	
@@ -662,7 +662,7 @@ private:
 	
 	
 
-	string objectId;
+	std::string objectId;
 
 	
 	
@@ -673,7 +673,7 @@ private:
 	
 	
 
-	string application;
+	std::string application;
 
 	
 	
@@ -684,7 +684,7 @@ private:
 	
 	
 
-	string cliCommand;
+	std::string cliCommand;
 
 	
 	
@@ -695,7 +695,7 @@ private:
 	
 	
 
-	string appParms;
+	std::string appParms;
 
 	
 	
@@ -751,31 +751,31 @@ void appParmsFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, HistoryAttributeFromText> fromTextMethods;
 	
-void execBlockIdFromText (const string & s);
+void execBlockIdFromText (const std::string & s);
 	
 	
-void timeFromText (const string & s);
+void timeFromText (const std::string & s);
 	
 	
-void messageFromText (const string & s);
+void messageFromText (const std::string & s);
 	
 	
-void priorityFromText (const string & s);
+void priorityFromText (const std::string & s);
 	
 	
-void originFromText (const string & s);
+void originFromText (const std::string & s);
 	
 	
-void objectIdFromText (const string & s);
+void objectIdFromText (const std::string & s);
 	
 	
-void applicationFromText (const string & s);
+void applicationFromText (const std::string & s);
 	
 	
-void cliCommandFromText (const string & s);
+void cliCommandFromText (const std::string & s);
 	
 	
-void appParmsFromText (const string & s);
+void appParmsFromText (const std::string & s);
 	
 
 		

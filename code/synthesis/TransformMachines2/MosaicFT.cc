@@ -289,6 +289,12 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
       convSampling=10;
     AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
   }
+  if((pbConvFunc_p->getVBUtil()).null()){
+    if(vbutil_p.null()){
+	vbutil_p=new VisBufferUtil(vb);
+    }
+    pbConvFunc_p->setVBUtil(vbutil_p);
+  }
   pbConvFunc_p->findConvFunction(iimage, vb, convSampling, interpVisFreq_p, convFunc, weightConvFunc_p, convSizePlanes_p, convSupportPlanes_p,
 				 convPolMap_p, convChanMap_p, convRowMap_p, (useConjConvFunc_p && !toVis_p), MVDirection(-(movingDirShift_p.getAngle())), fixMovingSource_p);
 
@@ -1067,7 +1073,6 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   Int doWeightGridding=1;
   if(doneWeightImage_p)
     doWeightGridding=-1;
-  doWeightGridding = doWeightGridding;//Dummy statement to supress silly complier warnings
   Bool del;
   //    IPosition s(flags.shape());
   const IPosition& fs=flags.shape();
@@ -1930,7 +1935,7 @@ Bool MosaicFT::fromRecord(String& error,
   pointingToImage=0;
   doneWeightImage_p=false;
   convWeightImage_p=nullptr;
-  machineName_p="MosaicFT";
+  
   if(!FTMachine::fromRecord(error, inRec))
     return false;
   sj_p=0;
@@ -1945,6 +1950,7 @@ Bool MosaicFT::fromRecord(String& error,
       sj_p=new VPSkyJones(tel,pbtype); 
   }
 
+  inRec.get("name", machineName_p);
   inRec.get("uvscale", uvScale);
   inRec.get("uvoffset", uvOffset);
   cachesize=inRec.asInt64("cachesize");

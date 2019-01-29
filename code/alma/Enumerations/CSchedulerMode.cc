@@ -33,7 +33,7 @@
  * File CSchedulerMode.cpp
  */
 #include <sstream>
-#include <CSchedulerMode.h>
+#include <alma/Enumerations/CSchedulerMode.h>
 #include <string>
 using namespace std;
 

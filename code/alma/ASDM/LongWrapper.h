@@ -25,12 +25,10 @@
  */
 # ifndef Long_CLASS
 # define Long_CLASS
-#include <NumberFormatException.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <stdint.h>
 #include <string>
-
-using std::string;
 
 namespace asdm {
 /**
@@ -46,14 +44,14 @@ public:
 	 * @return a int64_t.
 	 * @throws NumberFormatException.
 	 */
-	static int64_t parseLong(const string &s) throw (NumberFormatException);
+	static int64_t parseLong(const std::string &s) throw (NumberFormatException);
 
 	/**
 	 * Encode a int64_t value into its string representation.
 	 * @param l the int64_t value to be encoded.
 	 * @return the string representing the int64_t value passed as parameter.
 	 */
-	static string toString(int64_t l);
+	static std::string toString(int64_t l);
 
 
      /**

@@ -41,19 +41,15 @@
 
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -75,20 +71,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -139,7 +139,7 @@ class EphemerisRow;
 	
  * <TR>
  * <TD> observerLocation </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;a triple of double precision values defining the observer location. This triple contains in that order the longitude, the latitude and the altitude of the observer :
 <ul>
@@ -166,7 +166,7 @@ A triple with all its elements equal to 0.0 will mean that a geocentric coordina
 	
  * <TR>
  * <TD> dir </TD> 
- * <TD> vector<vector<double > > </TD>
+ * <TD> std::vector<std::vector<double > > </TD>
  * <TD>  numPolyDir, 2 </TD> 
  * <TD> &nbsp;the ephemeris direction expressed in radian. The nominal entry in the phaseDir, delayDir, or ReferenceDir in the Field table serves as additional offset to the direction described by "dir". The actual direction is obtained by composition, e.g. actual phase direction = [phasDir value from Field table] + [dir].
 
@@ -189,7 +189,7 @@ where
 	
  * <TR>
  * <TD> distance </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numPolyDist </TD> 
  * <TD> &nbsp;the coefficiens of the polynomial used to calculate the distance, expressed in meter,  to the object from the position of the antenna along the given direction. This distance is the result of the sum :
 
@@ -210,7 +210,7 @@ where
 	
  * <TR>
  * <TD> origin </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the origin of the ephemeris information. </TD>
  * </TR>
@@ -228,7 +228,7 @@ where
 	
  * <TR>
  * <TD> radVel</TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numPolyRadVel  </TD>
  * <TD>&nbsp;  the coefficients of a polynomial expressing a radial velocity as a function of the time expressed in m/s. The time origin used to tabulate the polynomial is stored in timeOrigin.   </TD>
  * </TR>
@@ -390,7 +390,7 @@ public:
  	 * @param origin
 	
      */
-	EphemerisRow *newRow(ArrayTimeInterval timeInterval, int ephemerisId, vector<double > observerLocation, double equinoxEquator, int numPolyDir, vector<vector<double > > dir, int numPolyDist, vector<double > distance, ArrayTime timeOrigin, string origin);
+	EphemerisRow *newRow(ArrayTimeInterval timeInterval, int ephemerisId, std::vector<double > observerLocation, double equinoxEquator, int numPolyDir, std::vector<std::vector<double > > dir, int numPolyDist, std::vector<double > distance, ArrayTime timeOrigin, std::string origin);
 	
 
 
@@ -515,7 +515,7 @@ public:
  	 * @param origin
  	 		 
  	 */
-	EphemerisRow* lookup(ArrayTimeInterval timeInterval, int ephemerisId, vector<double > observerLocation, double equinoxEquator, int numPolyDir, vector<vector<double > > dir, int numPolyDist, vector<double > distance, ArrayTime timeOrigin, string origin); 
+	EphemerisRow* lookup(ArrayTimeInterval timeInterval, int ephemerisId, std::vector<double > observerLocation, double equinoxEquator, int numPolyDir, std::vector<std::vector<double > > dir, int numPolyDist, std::vector<double > distance, ArrayTime timeOrigin, std::string origin); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

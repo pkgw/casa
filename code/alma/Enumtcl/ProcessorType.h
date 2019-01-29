@@ -14,15 +14,13 @@
 
 #if     !defined(_PROCESSORTYPE_H)
 
-#include <CProcessorType.h>
+#include <alma/Enumerations/CProcessorType.h>
 #define _PROCESSORTYPE_H
 #endif 
 
 #if     !defined(_PROCESSORTYPE_HH)
 
-#include "Enum.hpp"
-
-using namespace ProcessorTypeMod;
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<ProcessorTypeMod::ProcessorType> : public enum_set_traiter<ProcessorTypeMod::ProcessorType,3,ProcessorTypeMod::SPECTROMETER> {};
@@ -31,21 +29,21 @@ template<>
 class enum_map_traits<ProcessorTypeMod::ProcessorType,void> : public enum_map_traiter<ProcessorTypeMod::ProcessorType,void> {
 public:
   static bool   init_;
-  static string typeName_;
-  static string enumerationDesc_;
-  static string order_;
-  static string xsdBaseType_;
+  static std::string typeName_;
+  static std::string enumerationDesc_;
+  static std::string order_;
+  static std::string xsdBaseType_;
   static bool   init(){
     EnumPar<void> ep;
-    m_.insert(pair<ProcessorTypeMod::ProcessorType,EnumPar<void> >
+    m_.insert(std::pair<ProcessorTypeMod::ProcessorType,EnumPar<void> >
      (ProcessorTypeMod::CORRELATOR,ep((int)ProcessorTypeMod::CORRELATOR,"CORRELATOR","un-documented")));
-    m_.insert(pair<ProcessorTypeMod::ProcessorType,EnumPar<void> >
+    m_.insert(std::pair<ProcessorTypeMod::ProcessorType,EnumPar<void> >
      (ProcessorTypeMod::RADIOMETER,ep((int)ProcessorTypeMod::RADIOMETER,"RADIOMETER","un-documented")));
-    m_.insert(pair<ProcessorTypeMod::ProcessorType,EnumPar<void> >
+    m_.insert(std::pair<ProcessorTypeMod::ProcessorType,EnumPar<void> >
      (ProcessorTypeMod::SPECTROMETER,ep((int)ProcessorTypeMod::SPECTROMETER,"SPECTROMETER","un-documented")));
     return true;
   }
-  static map<ProcessorTypeMod::ProcessorType,EnumPar<void> > m_;
+  static std::map<ProcessorTypeMod::ProcessorType,EnumPar<void> > m_;
 };
 #define _PROCESSORTYPE_HH
 #endif

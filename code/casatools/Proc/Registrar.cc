@@ -108,9 +108,10 @@ namespace casatools {   /** namespace for CASAtools classes within "CASA code" *
 
 
 
-    Registrar::Registrar( ) : grpc_state(0) {
+    Registrar::Registrar( ) {
         srand(time(0));
 #ifdef USE_GRPC
+        grpc_state = 0;
         grpcState *state = new grpcState;
         state->reg.reset(new grpcRegistrar(this));
         ServerBuilder builder;

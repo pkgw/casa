@@ -134,7 +134,7 @@ struct channelContribution;
 
 // casacore::Map definition
 typedef map<casacore::MS::PredefinedColumns,casacore::MS::PredefinedColumns> dataColMap;
-typedef map< pair< pair<casacore::uInt,casacore::uInt> , casacore::uInt >,vector<casacore::uInt> > baselineMap;
+typedef map< pair< pair<casacore::uInt,casacore::uInt> , casacore::uInt >,std::vector<casacore::uInt> > baselineMap;
 typedef map<casacore::uInt,map<casacore::uInt, casacore::uInt > > inputSpwChanMap;
 typedef map<casacore::uInt,vector < channelContribution > >  inputOutputChanFactorMap;
 typedef map<casacore::uInt,pair < spwInfo, spwInfo > > inputOutputSpwMap;
@@ -1324,7 +1324,7 @@ protected:
 	map<casacore::uInt,casacore::uInt> inputOutputDDIndexMap_p;
 	map<casacore::uInt,casacore::uInt> inputOutputAntennaIndexMap_p;
 	map<casacore::uInt,casacore::uInt> outputInputSPWIndexMap_p;
-	map<casacore::Int,vector<casacore::Int> > inputOutputChanIndexMap_p;
+	map<casacore::Int,std::vector<casacore::Int> > inputOutputChanIndexMap_p;
 
 	// Frequency transformation parameters
   casacore::uInt nspws_p = 1;
@@ -1409,7 +1409,7 @@ protected:
 	casacore::MeasurementSet *outputMs_p;
 	casacore::ROMSColumns *selectedInputMsCols_p;
 	casacore::MSColumns *outputMsCols_p;
-	casacore::MSFieldColumns *inputMSFieldCols_p;
+	std::shared_ptr<casacore::MSFieldColumns> inputMSFieldCols_p;
 
 	// VI/VB related members
 	casacore::Block<casacore::Int> sortColumns_p;
@@ -1431,7 +1431,7 @@ protected:
 	casacore::uInt tailOfChansforLastSpw_p;
 	casacore::uInt interpolationMethod_p;
 	baselineMap baselineMap_p;
-	vector<casacore::uInt> rowIndex_p;
+	std::vector<casacore::uInt> rowIndex_p;
 	inputSpwChanMap spwChannelMap_p;
 	inputOutputSpwMap inputOutputSpwMap_p;
 	inputOutputChanFactorMap inputOutputChanFactorMap_p;

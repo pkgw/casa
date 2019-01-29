@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -57,7 +57,7 @@
 	
 
 	
-#include "CCalibrationDevice.h"
+#include <alma/Enumerations/CCalibrationDevice.h>
 	
 
 	
@@ -70,12 +70,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file State.h
     \brief Generated from model's revision "-1", branch ""
@@ -89,7 +89,7 @@ namespace asdm {
 
 class StateRow;
 typedef void (StateRow::*StateAttributeFromBin) (EndianIStream& eis);
-typedef void (StateRow::*StateAttributeFromText) (const string& s);
+typedef void (StateRow::*StateAttributeFromText) (const std::string& s);
 
 /**
  * The StateRow class is a row of a StateTable.
@@ -586,23 +586,23 @@ void weightFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, StateAttributeFromText> fromTextMethods;
 	
-void stateIdFromText (const string & s);
+void stateIdFromText (const std::string & s);
 	
 	
-void calDeviceNameFromText (const string & s);
+void calDeviceNameFromText (const std::string & s);
 	
 	
-void sigFromText (const string & s);
+void sigFromText (const std::string & s);
 	
 	
-void refFromText (const string & s);
+void refFromText (const std::string & s);
 	
 	
-void onSkyFromText (const string & s);
+void onSkyFromText (const std::string & s);
 	
 
 	
-void weightFromText (const string & s);
+void weightFromText (const std::string & s);
 	
 	
 	

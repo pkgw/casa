@@ -48,19 +48,19 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -109,7 +109,7 @@
 	
 
 	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -126,12 +126,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file DelayModel.h
     \brief Generated from model's revision "-1", branch ""
@@ -154,7 +154,7 @@ class FieldRow;
 
 class DelayModelRow;
 typedef void (DelayModelRow::*DelayModelAttributeFromBin) (EndianIStream& eis);
-typedef void (DelayModelRow::*DelayModelAttributeFromText) (const string& s);
+typedef void (DelayModelRow::*DelayModelAttributeFromText) (const std::string& s);
 
 /**
  * The DelayModelRow class is a row of a DelayModelTable.
@@ -257,21 +257,21 @@ public:
 	
  	/**
  	 * Get phaseDelay.
- 	 * @return phaseDelay as vector<double >
+ 	 * @return phaseDelay as std::vector<double >
  	 */
- 	vector<double > getPhaseDelay() const;
+ 	std::vector<double > getPhaseDelay() const;
 	
  
  	
  	
  	/**
- 	 * Set phaseDelay with the specified vector<double >.
- 	 * @param phaseDelay The vector<double > value to which phaseDelay is to be set.
+ 	 * Set phaseDelay with the specified std::vector<double >.
+ 	 * @param phaseDelay The std::vector<double > value to which phaseDelay is to be set.
  	 
  		
  			
  	 */
- 	void setPhaseDelay (vector<double > phaseDelay);
+ 	void setPhaseDelay (std::vector<double > phaseDelay);
   		
 	
 	
@@ -287,21 +287,21 @@ public:
 	
  	/**
  	 * Get phaseDelayRate.
- 	 * @return phaseDelayRate as vector<double >
+ 	 * @return phaseDelayRate as std::vector<double >
  	 */
- 	vector<double > getPhaseDelayRate() const;
+ 	std::vector<double > getPhaseDelayRate() const;
 	
  
  	
  	
  	/**
- 	 * Set phaseDelayRate with the specified vector<double >.
- 	 * @param phaseDelayRate The vector<double > value to which phaseDelayRate is to be set.
+ 	 * Set phaseDelayRate with the specified std::vector<double >.
+ 	 * @param phaseDelayRate The std::vector<double > value to which phaseDelayRate is to be set.
  	 
  		
  			
  	 */
- 	void setPhaseDelayRate (vector<double > phaseDelayRate);
+ 	void setPhaseDelayRate (std::vector<double > phaseDelayRate);
   		
 	
 	
@@ -317,21 +317,21 @@ public:
 	
  	/**
  	 * Get groupDelay.
- 	 * @return groupDelay as vector<double >
+ 	 * @return groupDelay as std::vector<double >
  	 */
- 	vector<double > getGroupDelay() const;
+ 	std::vector<double > getGroupDelay() const;
 	
  
  	
  	
  	/**
- 	 * Set groupDelay with the specified vector<double >.
- 	 * @param groupDelay The vector<double > value to which groupDelay is to be set.
+ 	 * Set groupDelay with the specified std::vector<double >.
+ 	 * @param groupDelay The std::vector<double > value to which groupDelay is to be set.
  	 
  		
  			
  	 */
- 	void setGroupDelay (vector<double > groupDelay);
+ 	void setGroupDelay (std::vector<double > groupDelay);
   		
 	
 	
@@ -347,21 +347,21 @@ public:
 	
  	/**
  	 * Get groupDelayRate.
- 	 * @return groupDelayRate as vector<double >
+ 	 * @return groupDelayRate as std::vector<double >
  	 */
- 	vector<double > getGroupDelayRate() const;
+ 	std::vector<double > getGroupDelayRate() const;
 	
  
  	
  	
  	/**
- 	 * Set groupDelayRate with the specified vector<double >.
- 	 * @param groupDelayRate The vector<double > value to which groupDelayRate is to be set.
+ 	 * Set groupDelayRate with the specified std::vector<double >.
+ 	 * @param groupDelayRate The std::vector<double > value to which groupDelayRate is to be set.
  	 
  		
  			
  	 */
- 	void setGroupDelayRate (vector<double > groupDelayRate);
+ 	void setGroupDelayRate (std::vector<double > groupDelayRate);
   		
 	
 	
@@ -629,21 +629,21 @@ public:
 	
  	/**
  	 * Get LOOffset, which is optional.
- 	 * @return LOOffset as vector<Frequency >
+ 	 * @return LOOffset as std::vector<Frequency >
  	 * @throws IllegalAccessException If LOOffset does not exist.
  	 */
- 	vector<Frequency > getLOOffset() const;
+ 	std::vector<Frequency > getLOOffset() const;
 	
  
  	
  	
  	/**
- 	 * Set LOOffset with the specified vector<Frequency >.
- 	 * @param LOOffset The vector<Frequency > value to which LOOffset is to be set.
+ 	 * Set LOOffset with the specified std::vector<Frequency >.
+ 	 * @param LOOffset The std::vector<Frequency > value to which LOOffset is to be set.
  	 
  		
  	 */
- 	void setLOOffset (vector<Frequency > LOOffset);
+ 	void setLOOffset (std::vector<Frequency > LOOffset);
 		
 	
 	
@@ -670,21 +670,21 @@ public:
 	
  	/**
  	 * Get LOOffsetRate, which is optional.
- 	 * @return LOOffsetRate as vector<Frequency >
+ 	 * @return LOOffsetRate as std::vector<Frequency >
  	 * @throws IllegalAccessException If LOOffsetRate does not exist.
  	 */
- 	vector<Frequency > getLOOffsetRate() const;
+ 	std::vector<Frequency > getLOOffsetRate() const;
 	
  
  	
  	
  	/**
- 	 * Set LOOffsetRate with the specified vector<Frequency >.
- 	 * @param LOOffsetRate The vector<Frequency > value to which LOOffsetRate is to be set.
+ 	 * Set LOOffsetRate with the specified std::vector<Frequency >.
+ 	 * @param LOOffsetRate The std::vector<Frequency > value to which LOOffsetRate is to be set.
  	 
  		
  	 */
- 	void setLOOffsetRate (vector<Frequency > LOOffsetRate);
+ 	void setLOOffsetRate (std::vector<Frequency > LOOffsetRate);
 		
 	
 	
@@ -998,21 +998,21 @@ public:
 	
  	/**
  	 * Get polarizationType, which is optional.
- 	 * @return polarizationType as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationType as std::vector<PolarizationTypeMod::PolarizationType >
  	 * @throws IllegalAccessException If polarizationType does not exist.
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
 	
  
  	
  	
  	/**
- 	 * Set polarizationType with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationType The vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
+ 	 * Set polarizationType with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationType The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
  	 
  		
  	 */
- 	void setPolarizationType (vector<PolarizationTypeMod::PolarizationType > polarizationType);
+ 	void setPolarizationType (std::vector<PolarizationTypeMod::PolarizationType > polarizationType);
 		
 	
 	
@@ -1039,21 +1039,21 @@ public:
 	
  	/**
  	 * Get electronicDelay, which is optional.
- 	 * @return electronicDelay as vector<double >
+ 	 * @return electronicDelay as std::vector<double >
  	 * @throws IllegalAccessException If electronicDelay does not exist.
  	 */
- 	vector<double > getElectronicDelay() const;
+ 	std::vector<double > getElectronicDelay() const;
 	
  
  	
  	
  	/**
- 	 * Set electronicDelay with the specified vector<double >.
- 	 * @param electronicDelay The vector<double > value to which electronicDelay is to be set.
+ 	 * Set electronicDelay with the specified std::vector<double >.
+ 	 * @param electronicDelay The std::vector<double > value to which electronicDelay is to be set.
  	 
  		
  	 */
- 	void setElectronicDelay (vector<double > electronicDelay);
+ 	void setElectronicDelay (std::vector<double > electronicDelay);
 		
 	
 	
@@ -1080,21 +1080,21 @@ public:
 	
  	/**
  	 * Get electronicDelayRate, which is optional.
- 	 * @return electronicDelayRate as vector<double >
+ 	 * @return electronicDelayRate as std::vector<double >
  	 * @throws IllegalAccessException If electronicDelayRate does not exist.
  	 */
- 	vector<double > getElectronicDelayRate() const;
+ 	std::vector<double > getElectronicDelayRate() const;
 	
  
  	
  	
  	/**
- 	 * Set electronicDelayRate with the specified vector<double >.
- 	 * @param electronicDelayRate The vector<double > value to which electronicDelayRate is to be set.
+ 	 * Set electronicDelayRate with the specified std::vector<double >.
+ 	 * @param electronicDelayRate The std::vector<double > value to which electronicDelayRate is to be set.
  	 
  		
  	 */
- 	void setElectronicDelayRate (vector<double > electronicDelayRate);
+ 	void setElectronicDelayRate (std::vector<double > electronicDelayRate);
 		
 	
 	
@@ -1121,21 +1121,21 @@ public:
 	
  	/**
  	 * Get receiverDelay, which is optional.
- 	 * @return receiverDelay as vector<double >
+ 	 * @return receiverDelay as std::vector<double >
  	 * @throws IllegalAccessException If receiverDelay does not exist.
  	 */
- 	vector<double > getReceiverDelay() const;
+ 	std::vector<double > getReceiverDelay() const;
 	
  
  	
  	
  	/**
- 	 * Set receiverDelay with the specified vector<double >.
- 	 * @param receiverDelay The vector<double > value to which receiverDelay is to be set.
+ 	 * Set receiverDelay with the specified std::vector<double >.
+ 	 * @param receiverDelay The std::vector<double > value to which receiverDelay is to be set.
  	 
  		
  	 */
- 	void setReceiverDelay (vector<double > receiverDelay);
+ 	void setReceiverDelay (std::vector<double > receiverDelay);
 		
 	
 	
@@ -1162,21 +1162,21 @@ public:
 	
  	/**
  	 * Get IFDelay, which is optional.
- 	 * @return IFDelay as vector<double >
+ 	 * @return IFDelay as std::vector<double >
  	 * @throws IllegalAccessException If IFDelay does not exist.
  	 */
- 	vector<double > getIFDelay() const;
+ 	std::vector<double > getIFDelay() const;
 	
  
  	
  	
  	/**
- 	 * Set IFDelay with the specified vector<double >.
- 	 * @param IFDelay The vector<double > value to which IFDelay is to be set.
+ 	 * Set IFDelay with the specified std::vector<double >.
+ 	 * @param IFDelay The std::vector<double > value to which IFDelay is to be set.
  	 
  		
  	 */
- 	void setIFDelay (vector<double > IFDelay);
+ 	void setIFDelay (std::vector<double > IFDelay);
 		
 	
 	
@@ -1203,21 +1203,21 @@ public:
 	
  	/**
  	 * Get LODelay, which is optional.
- 	 * @return LODelay as vector<double >
+ 	 * @return LODelay as std::vector<double >
  	 * @throws IllegalAccessException If LODelay does not exist.
  	 */
- 	vector<double > getLODelay() const;
+ 	std::vector<double > getLODelay() const;
 	
  
  	
  	
  	/**
- 	 * Set LODelay with the specified vector<double >.
- 	 * @param LODelay The vector<double > value to which LODelay is to be set.
+ 	 * Set LODelay with the specified std::vector<double >.
+ 	 * @param LODelay The std::vector<double > value to which LODelay is to be set.
  	 
  		
  	 */
- 	void setLODelay (vector<double > LODelay);
+ 	void setLODelay (std::vector<double > LODelay);
 		
 	
 	
@@ -1443,7 +1443,7 @@ public:
 	 * @param fieldId
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, vector<double > phaseDelay, vector<double > phaseDelayRate, vector<double > groupDelay, vector<double > groupDelayRate, Tag fieldId);
+	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, std::vector<double > phaseDelay, std::vector<double > phaseDelayRate, std::vector<double > groupDelay, std::vector<double > groupDelayRate, Tag fieldId);
 	
 	
 
@@ -1465,7 +1465,7 @@ public:
 	 * @param fieldId
 	    
 	 */ 
-	bool compareRequiredValue(int numPoly, vector<double > phaseDelay, vector<double > phaseDelayRate, vector<double > groupDelay, vector<double > groupDelayRate, Tag fieldId); 
+	bool compareRequiredValue(int numPoly, std::vector<double > phaseDelay, std::vector<double > phaseDelayRate, std::vector<double > groupDelay, std::vector<double > groupDelayRate, Tag fieldId); 
 		 
 	
 	/**
@@ -1650,7 +1650,7 @@ private:
 	
 	
 
-	vector<double > phaseDelay;
+	std::vector<double > phaseDelay;
 
 	
 	
@@ -1661,7 +1661,7 @@ private:
 	
 	
 
-	vector<double > phaseDelayRate;
+	std::vector<double > phaseDelayRate;
 
 	
 	
@@ -1672,7 +1672,7 @@ private:
 	
 	
 
-	vector<double > groupDelay;
+	std::vector<double > groupDelay;
 
 	
 	
@@ -1683,7 +1683,7 @@ private:
 	
 	
 
-	vector<double > groupDelayRate;
+	std::vector<double > groupDelayRate;
 
 	
 	
@@ -1774,7 +1774,7 @@ private:
 	bool LOOffsetExists;
 	
 
-	vector<Frequency > LOOffset;
+	std::vector<Frequency > LOOffset;
 
 	
 	
@@ -1787,7 +1787,7 @@ private:
 	bool LOOffsetRateExists;
 	
 
-	vector<Frequency > LOOffsetRate;
+	std::vector<Frequency > LOOffsetRate;
 
 	
 	
@@ -1891,7 +1891,7 @@ private:
 	bool polarizationTypeExists;
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationType;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationType;
 
 	
 	
@@ -1904,7 +1904,7 @@ private:
 	bool electronicDelayExists;
 	
 
-	vector<double > electronicDelay;
+	std::vector<double > electronicDelay;
 
 	
 	
@@ -1917,7 +1917,7 @@ private:
 	bool electronicDelayRateExists;
 	
 
-	vector<double > electronicDelayRate;
+	std::vector<double > electronicDelayRate;
 
 	
 	
@@ -1930,7 +1930,7 @@ private:
 	bool receiverDelayExists;
 	
 
-	vector<double > receiverDelay;
+	std::vector<double > receiverDelay;
 
 	
 	
@@ -1943,7 +1943,7 @@ private:
 	bool IFDelayExists;
 	
 
-	vector<double > IFDelay;
+	std::vector<double > IFDelay;
 
 	
 	
@@ -1956,7 +1956,7 @@ private:
 	bool LODelayExists;
 	
 
-	vector<double > LODelay;
+	std::vector<double > LODelay;
 
 	
 	
@@ -2083,98 +2083,98 @@ void crossPolarizationDelayFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, DelayModelAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void numPolyFromText (const string & s);
+void numPolyFromText (const std::string & s);
 	
 	
-void phaseDelayFromText (const string & s);
+void phaseDelayFromText (const std::string & s);
 	
 	
-void phaseDelayRateFromText (const string & s);
+void phaseDelayRateFromText (const std::string & s);
 	
 	
-void groupDelayFromText (const string & s);
+void groupDelayFromText (const std::string & s);
 	
 	
-void groupDelayRateFromText (const string & s);
+void groupDelayRateFromText (const std::string & s);
 	
 	
-void fieldIdFromText (const string & s);
+void fieldIdFromText (const std::string & s);
 	
 
 	
-void timeOriginFromText (const string & s);
+void timeOriginFromText (const std::string & s);
 	
 	
-void atmosphericGroupDelayFromText (const string & s);
+void atmosphericGroupDelayFromText (const std::string & s);
 	
 	
-void atmosphericGroupDelayRateFromText (const string & s);
+void atmosphericGroupDelayRateFromText (const std::string & s);
 	
 	
-void geometricDelayFromText (const string & s);
+void geometricDelayFromText (const std::string & s);
 	
 	
-void geometricDelayRateFromText (const string & s);
+void geometricDelayRateFromText (const std::string & s);
 	
 	
-void numLOFromText (const string & s);
+void numLOFromText (const std::string & s);
 	
 	
-void LOOffsetFromText (const string & s);
+void LOOffsetFromText (const std::string & s);
 	
 	
-void LOOffsetRateFromText (const string & s);
+void LOOffsetRateFromText (const std::string & s);
 	
 	
-void dispersiveDelayFromText (const string & s);
+void dispersiveDelayFromText (const std::string & s);
 	
 	
-void dispersiveDelayRateFromText (const string & s);
+void dispersiveDelayRateFromText (const std::string & s);
 	
 	
-void atmosphericDryDelayFromText (const string & s);
+void atmosphericDryDelayFromText (const std::string & s);
 	
 	
-void atmosphericWetDelayFromText (const string & s);
+void atmosphericWetDelayFromText (const std::string & s);
 	
 	
-void padDelayFromText (const string & s);
+void padDelayFromText (const std::string & s);
 	
 	
-void antennaDelayFromText (const string & s);
+void antennaDelayFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void polarizationTypeFromText (const string & s);
+void polarizationTypeFromText (const std::string & s);
 	
 	
-void electronicDelayFromText (const string & s);
+void electronicDelayFromText (const std::string & s);
 	
 	
-void electronicDelayRateFromText (const string & s);
+void electronicDelayRateFromText (const std::string & s);
 	
 	
-void receiverDelayFromText (const string & s);
+void receiverDelayFromText (const std::string & s);
 	
 	
-void IFDelayFromText (const string & s);
+void IFDelayFromText (const std::string & s);
 	
 	
-void LODelayFromText (const string & s);
+void LODelayFromText (const std::string & s);
 	
 	
-void crossPolarizationDelayFromText (const string & s);
+void crossPolarizationDelayFromText (const std::string & s);
 	
 	
 	

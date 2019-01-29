@@ -33,7 +33,7 @@
  * File CFieldCode.cpp
  */
 #include <sstream>
-#include <CFieldCode.h>
+#include <alma/Enumerations/CFieldCode.h>
 #include <string>
 using namespace std;
 

@@ -20,8 +20,8 @@ foreach $file ( @files ) {
             $newref =~ s/$estring/$lstring/g;
             print "Old ref: $oldref\n";
             print "New ref: $newref\n";
-            system( "install_name_tool -change $oldref $newref $file " ) == 0 
-                or die "install_name_tool failed to update rpath. Fix your configuration or disable Breakpad build";
+            system( "/usr/bin/install_name_tool -change $oldref $newref $file " ) == 0 
+                or die "/usr/bin/install_name_tool failed to update rpath. Fix your configuration or disable Breakpad build";
           }
           elsif ($reference =~ m|\@executable_path/../Resources|) {
             print "Changing \@executable_path to \@loader_path for $file\n";
@@ -32,7 +32,7 @@ foreach $file ( @files ) {
             $newref =~ s/$estring/$lstring/g;
             print "Old ref: $oldref\n";
             print "New ref: $newref\n";
-            system( "install_name_tool -change $oldref $newref $file " ) == 0
+            system( "/usr/bin/install_name_tool -change $oldref $newref $file " ) == 0
                 or die "install_name_tool failed to update rpath. Fix your configuration or disable Breakpad build";
           }
         }
@@ -56,7 +56,7 @@ foreach $file ( @files ) {
             print "Old ref: $oldref\n";
             print "New ref: $newref\n";
             print "File: $file\n";
-            `install_name_tool -id $newref $file `;
+            `/usr/bin/install_name_tool -id $newref $file `;
           }
         }
     }

@@ -23,7 +23,9 @@
  *
  * File NoSuchRow.cpp
  */
-#include "NoSuchRow.h"
+#include <alma/ASDM/NoSuchRow.h>
+
+using std::string;
 
 namespace asdm {
   const string NoSuchRow::ITSNAME = "No such row exception: ";

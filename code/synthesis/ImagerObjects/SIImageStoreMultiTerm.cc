@@ -221,6 +221,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	itsNFacets = imptr->shape()[0];
 	itsFacetId = 0;
 	itsUseWeight = getUseWeightImage( *imptr );
+	/////redo this here as psf may have different coordinates
+	itsCoordSys = imptr->coordinates();
+	itsMiscInfo=imptr->miscInfo();
 	if( itsUseWeight && ! doesImageExist(itsImageName+String(".weight.tt0")) )
 	  {
 	    throw(AipsError("Internal error : MultiTerm Sumwt has a useweightimage=true but the weight image does not exist."));
@@ -730,7 +733,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     for(uInt tix=0;tix<2*itsNTerms-1;tix++)
       {
 	if( resetpsf ) psf(tix)->set(0.0);
-	if( resetweight && itsWeights[tix] ) weight(tix)->set(0.0);
 
 	if( tix < itsNTerms ) {
 	  if( resetresidual ) {
@@ -738,6 +740,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    residual(tix)->set(0.0);
 	  } 
 	}
+	if( resetweight && itsWeights[tix] ) weight(tix)->set(0.0);
+	if( resetweight ) sumwt(tix)->set(0.0);
       }//nterms
   }
   
@@ -763,7 +767,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	    LatticeExpr<Float> adderSumWt( *(sumwt(tix)) + *(imagestoadd->sumwt(tix)) ); 
 	    sumwt(tix)->copyData(adderSumWt);
-
+	    setUseWeightImage( *sumwt(tix),  getUseWeightImage(*(imagestoadd->sumwt(tix)) ) );
 	  }
 
 	if(tix < itsNTerms && addresidual)
@@ -1260,6 +1264,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIImageStoreMultiTerm::printImageStats()
   {
     LogIO os( LogOrigin("SIImageStoreMultiTerm","printImageStats",WHERE) );
+    // FIXME minresmask needs to be initialized here, or else compiler complains
     Float minresmask, maxresmask, minres, maxres;
     //    findMinMax( residual()->get(), mask()->get(), minres, maxres, minresmask, maxresmask );
 

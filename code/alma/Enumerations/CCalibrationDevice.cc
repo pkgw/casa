@@ -33,7 +33,7 @@
  * File CCalibrationDevice.cpp
  */
 #include <sstream>
-#include <CCalibrationDevice.h>
+#include <alma/Enumerations/CCalibrationDevice.h>
 #include <string>
 using namespace std;
 

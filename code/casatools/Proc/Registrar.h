@@ -33,7 +33,7 @@ namespace casatools {   /** namespace for CASAtools classes within "CASA code" *
 
     class ServiceId {
       public:
-        ServiceId( std::string id_p, std::string type_p, std::string uri_p, unsigned int priority_p=0 ) : id_(id_p), type_(type_p), uri_(uri_p), priority_(0) { }
+        ServiceId( std::string id_p, std::string type_p, std::string uri_p, unsigned int priority_p=0 ) : id_(id_p), type_(type_p), uri_(uri_p), priority_(priority_p) { }
         ServiceId( const ServiceId &other ) : id_(other.id_), type_(other.type_), uri_(other.uri_), priority_(other.priority_) { }
         ~ServiceId( ) { }
 
@@ -94,7 +94,9 @@ namespace casatools {   /** namespace for CASAtools classes within "CASA code" *
         std::list<ServiceId> service_list;
         std::mutex uri_mutex;
         std::string uri_;
+#ifdef USE_GRPC
         void *grpc_state;
+#endif
     };
 
 }

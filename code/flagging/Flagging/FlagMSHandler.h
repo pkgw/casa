@@ -24,9 +24,13 @@
 #define FlagMSHandler_H_
 
 #include <flagging/Flagging/FlagDataHandler.h>
-#include <msvis/MSVis/ViFrequencySelection.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+namespace vi {
+  class FrequencySelectionUsingChannels;
+  class VisIterImpl2LayerFactory;
+}
 
 // Flag casacore::Data Handler class definition
 class FlagMSHandler: public FlagDataHandler
@@ -78,6 +82,9 @@ public:
 	// Get the casacore::MS PROCESSOR sub-table
 	bool processorTable();
 
+	// Check if SOURCE_MODEL column exists (Virtual MODEL column)
+	bool checkIfSourceModelColumnExists();
+
 	// Get a casacore::Float visCube and return a casacore::Complex one
 	casacore::Cube<casacore::Complex>& weightVisCube();
 
@@ -93,7 +100,7 @@ private:
 
 	// Apply channel selection for asyn or normal iterator
 	// NOTE: We always have to do this, even if there is no SPW:channel selection
-	void applyChannelSelection(vi::VisibilityIterator2 *visIter);
+	void applyChannelSelection(vi::VisIterImpl2LayerFactory *viFactory);
 
 
 	// Measurement set section

@@ -95,8 +95,8 @@ class RFError {
 
 		// Returns all known SupportedTypes.
 		// <group>
-		static vector<SupportedType> supportedTypes();
-		static vector<casacore::String> supportedTypesStrings();
+		static std::vector<SupportedType> supportedTypes();
+		static std::vector<casacore::String> supportedTypesStrings();
 		// </group>
 
 		// Returns an appropriate child RegionFileReader class for the given
@@ -152,10 +152,10 @@ class RFError {
 		// reported, false otherwise.  If false is returned, the details can be
 		// found using lastError().  Any valid RegionShapes that were read from the
 		// file are placed in the given vector (which is cleared first).
-		virtual bool read(vector<RegionShape*>& readShapes) = 0;
+		virtual bool read(std::vector<RegionShape*>& readShapes) = 0;
 
 		// Calls setFile() then read().
-		virtual bool readFile(const casacore::String& file, vector<RegionShape*>& shapes) {
+		virtual bool readFile(const casacore::String& file, std::vector<RegionShape*>& shapes) {
 			setFile(file);
 			return read(shapes);
 		}
@@ -184,11 +184,11 @@ class RFError {
 		// Write the given regions to the filename set with setFile and returns
 		// true if no errors were reported, false otherwise.  If false is returned,
 		// the details can be found using lastError().
-		virtual bool write(const vector<RegionShape*>& shapes) const = 0;
+		virtual bool write(const std::vector<RegionShape*>& shapes) const = 0;
 
 		// Calls setFile then write.
 		virtual bool writeFile(const casacore::String& filename,
-		                       const vector<RegionShape*>& shapes) {
+		                       const std::vector<RegionShape*>& shapes) {
 			setFile(filename);
 			return write(shapes);
 		}

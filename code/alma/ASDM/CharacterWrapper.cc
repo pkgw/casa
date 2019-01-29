@@ -24,8 +24,8 @@
  * File Character.cpp
  */
 
-#include <CharacterWrapper.h>
-#include <NumberFormatException.h>
+#include <alma/ASDM/CharacterWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <sstream>
 

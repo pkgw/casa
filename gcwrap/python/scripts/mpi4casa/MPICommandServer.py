@@ -4,14 +4,19 @@ import time # To handle sleep times
 import traceback # To pretty-print tracebacks
 import subprocess # To deploy virtual frame buffer
     
+# Import CASA environment: Service thread stack ends at the level where it is launched,
+# so we need to import the CASA tasks and various functions and  definitions here.
+
 # Import casalog and casa dictionary
+# confusingly, much of taskinit is actually about initing the casa tools
 from taskinit import *
 
-# Import CASA environment: Service thread stack ends at the level where it is launched, 
-# so we need to re-define the global CASA task and macro definitions at this level.
-from task_wrappers import *
-from task_macros import *
-from taskinit import casalog
+# Import all tasks from the auto-generated tasks.py
+from tasks import *
+
+# stuff needed in the task code generated from the casa2pycli xslt template
+from init_tasks import update_params, saveinputs
+
 
 # Import MPIEnvironment static class
 from MPIEnvironment import MPIEnvironment

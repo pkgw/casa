@@ -1,9 +1,16 @@
-#include "SDMDataObjectStreamReader.h"
+#include <alma/ASDMBinaries/SDMDataObjectStreamReader.h>
 
 #ifdef WITHOUT_BOOST
 #include <regex>
-#include "Misc.h"
+#include <alma/ASDM/Misc.h>
 #endif
+
+using namespace CorrelationModeMod;
+using namespace CorrelatorTypeMod;
+using namespace PrimitiveDataTypeMod;
+using namespace ProcessorTypeMod;
+
+using namespace std;
 
 namespace asdmbinaries {
 

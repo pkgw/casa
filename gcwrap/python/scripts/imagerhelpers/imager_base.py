@@ -386,6 +386,18 @@ class PySynthesisImager:
         self.SItool.makesdpsf()
 
 #############################################
+    def makeImage(self, imagetype='observed', image='', compleximage='', imagefieldid=0):
+        """
+        This should replace makeSDImage, makeSDPSF  and makePSF 
+        etc in the long run
+        But for now you can do the following images i.e string recognized by type
+        "observed", "model", "corrected", "psf", "residual", "singledish-observed", 
+        "singledish", "coverage", "holography", "holography-observed"
+        For holography the FTmachine should be SDGrid and the baselines
+        selected should be those that are pointed up with the antenna which is rastering.
+        """
+        self.SItool.makeimage(imagetype, image, compleximage, imagefieldid)
+#############################################
 
 ## Overloaded for parallel runs
     def setWeighting(self):
@@ -433,6 +445,7 @@ class PySynthesisImager:
         for immod in range(0,self.NF):  
             if self.stopMinor[str(immod)]<3 :
 
+                # temporarily disable the check (=> always save the intermediate images
                 if os.environ.has_key('SAVE_ALL_RESIMS') and os.environ['SAVE_ALL_RESIMS']=="true":
                     resname = self.allimpars[str(immod)]['imagename']+'.residual'
                     tempresname = self.allimpars[str(immod)]['imagename']+'.inputres'+str(self.ncycle)
@@ -556,7 +569,18 @@ class PySynthesisImager:
             pl.ion()
 
         return summ;
+    #############################################
 
+    def unlockimages( self, imageid=0 ):
+        """
+        Will try to unlock images attached for the image or outlier field id 
+        in this instance
+        """
+        retval=False;
+        if(len(self.PStools)> imageid):
+            retval=self.SItool.unlockimages(imageid)
+            retval=retval and self.PStools[imageid].unlockimages()
+        return retval
 #######################################################
 #######################################################
 

@@ -50,9 +50,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   RFAFlagExaminer::RFAFlagExaminer ( RFChunkStats &ch,const casacore::RecordInterface &parm ) : 
     RFASelector(ch, parm)//,RFDataMapper(parm.asArrayString(RF_EXPR),parm.asString(RF_COLUMN))
   {
-    if(dbg3)  cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << endl;
+    if(dbg3)  std::cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << std::endl;
     //desc_str = casacore::String("flagexaminer");
-    if(dbg3) cout<<"FlagExaminer constructor "<<endl;
+    if(dbg3) std::cout<<"FlagExaminer constructor "<<std::endl;
 
     totalflags    = accumTotalFlags    = 0;
     totalcount    = accumTotalCount    = 0;
@@ -93,7 +93,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           {
             sel_corr(i) = casacore::Stokes::type( scorr(i)) ;
             if( sel_corr(i) == casacore::Stokes::Undefined) 
-              os<<"Illegal correlation "<<scorr(i)<<endl<<casacore::LogIO::EXCEPTION;
+              os<<"Illegal correlation "<<scorr(i)<<std::endl<<casacore::LogIO::EXCEPTION;
             addString(ss,scorr(i),",");
           }
         addString(desc_str,casacore::String(RF_CORR)+"="+ss);
@@ -103,7 +103,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
  
   RFAFlagExaminer::~RFAFlagExaminer()
   {
-    if(dbg3)  cout << "FlagExaminer destructor " << endl;    
+    if(dbg3)  std::cout << "FlagExaminer destructor " << std::endl;    
   }
 
   casacore::Bool RFAFlagExaminer::newChunk(casacore::Int &maxmem)
@@ -111,10 +111,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       /* For efficiency reasons, use arrays to collect 
          histogram data for in-row selections
       */
-      accumflags_channel = vector<casacore::uInt64>(chunk.num(CHAN), 0);
-      accumtotal_channel = vector<casacore::uInt64>(chunk.num(CHAN), 0);
-      accumflags_correlation = vector<casacore::uInt64>(chunk.num(CORR), 0);
-      accumtotal_correlation = vector<casacore::uInt64>(chunk.num(CORR), 0);
+      accumflags_channel = std::vector<casacore::uInt64>(chunk.num(CHAN), 0);
+      accumtotal_channel = std::vector<casacore::uInt64>(chunk.num(CHAN), 0);
+      accumflags_correlation = std::vector<casacore::uInt64>(chunk.num(CORR), 0);
+      accumtotal_correlation = std::vector<casacore::uInt64>(chunk.num(CORR), 0);
           
       return RFASelector::newChunk(maxmem);
     }
@@ -122,7 +122,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
   void RFAFlagExaminer::initialize()
   {
-    if(dbg3)  cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << endl;
+    if(dbg3)  std::cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << std::endl;
 
     totalflags    = 0;
     totalcount    = 0;
@@ -140,7 +140,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   // Is not called if this is the only agent
   void RFAFlagExaminer::finalize()
   {
-    //cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << endl;
+    //cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << std::endl;
 
     return;
   }
@@ -150,13 +150,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   // -----------------------------------------------------------------------
   void RFAFlagExaminer::processRow(casacore::uInt, casacore::uInt)
   {
-      // called often... if(dbg3)  cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << endl;      
+      // called often... if(dbg3)  std::cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << std::endl;      
       return;
   }
   
   void RFAFlagExaminer::startFlag (bool verbose)
   {
-    if(dbg3)  cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << endl;
+    if(dbg3)  std::cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << std::endl;
 
     totalflags    = 0;
     totalcount    = 0;
@@ -178,7 +178,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
   void RFAFlagExaminer::initializeIter (casacore::uInt) 
   {
-      if(dbg3)  cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << endl;
+      if(dbg3)  std::cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << std::endl;
 
       for(unsigned ii=0;
 	  ii<chunk.visBuf().flagRow().nelements();
@@ -201,7 +201,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   // Is not called if this is the only agent
   void RFAFlagExaminer::finalizeIter (casacore::uInt) 
   {
-    //cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << endl;
+    //cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << std::endl;
 
     outTotalRowCount += chunk.visBuf().flagRow().nelements();
 
@@ -232,7 +232,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   // it: time index
   void RFAFlagExaminer::iterFlag(casacore::uInt it)
   {
-    if(dbg3)  cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << endl;
+    if(dbg3)  std::cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << std::endl;
 
     // Set the flags and count them up.
     RFASelector::iterFlag(it);
@@ -292,7 +292,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// Operate on the chosen row.
 		// Collect counts.
 		
-		//cout << "selected row for " << ifrs(i) << "," << it << endl;
+		//cout << "selected row for " << ifrs(i) << "," << it << std::endl;
 		
                 if(chunk.nfIfrTime(ifrs(i),it) == chunk.num(CORR)*chunk.num(CHAN))
                     totalrowflags++;
@@ -335,7 +335,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
                 /* histogram spw */
                 {
-                  stringstream spw_string;
+                    std::stringstream spw_string;
                   spw_string << spw;
                   accumflags["spw"][spw_string.str()] += f;
                   accumtotal["spw"][spw_string.str()] += c;
@@ -343,28 +343,28 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
                 /* histogram fieldID */
                 {
-                  stringstream fieldID_string;
+                    std::stringstream fieldID_string;
                   fieldID_string << field;
                   accumflags["field"][fieldID_string.str()] += f;
                   accumtotal["field"][fieldID_string.str()] += c;
                 }
                 /* histogram scan */
                 {
-                  stringstream scan_string;
+                    std::stringstream scan_string;
                   scan_string << scan(i);
                   accumflags["scan"][scan_string.str()] += f;
                   accumtotal["scan"][scan_string.str()] += c;
                 }
                 /* histogram observation */
                 {
-                  stringstream observation_string;
+                    std::stringstream observation_string;
                   observation_string << observation(i);
                   accumflags["observation"][observation_string.str()] += f;
                   accumtotal["observation"][observation_string.str()] += c;
                 }
                 /* histogram array */
                 {
-                  stringstream array_string;
+                    std::stringstream array_string;
                   array_string << array;
                   accumflags["array"][array_string.str()] += f;
                   accumtotal["array"][array_string.str()] += c;
@@ -416,7 +416,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
         for (unsigned ich = 0; ich < chunk.num(CHAN); ich++) {
             if (accumtotal_channel[ich] > 0) {
-                stringstream ss;
+                std::stringstream ss;
                 ss << chunk.visIter().spectralWindow() << ":" << ich;
                 accumflags["channel"][ss.str()] = accumflags_channel[ich];
                 accumtotal["channel"][ss.str()] = accumtotal_channel[ich];
@@ -425,7 +425,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
         for (unsigned icorr = 0; icorr < chunk.num(CORR); icorr++) {
             if (accumtotal_correlation[icorr] > 0) {
-                stringstream ss;
+                std::stringstream ss;
                 ss << chunk.visIter().spectralWindow() << ":" << icorr;
                 accumflags["correlation"][ss.str()] = accumflags_correlation[icorr];
                 accumtotal["correlation"][ss.str()] = accumtotal_correlation[icorr];
@@ -436,7 +436,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void RFAFlagExaminer::endFlag ()
   {
-    if(dbg3)  cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << endl;
+    if(dbg3)  std::cout << __FILE__ << ":" << __func__ << "():" << __LINE__ << std::endl;
         
     char s[1024];
     sprintf(s,"Chunk %d (field %s, fieldID %d, spw %d)",
@@ -499,14 +499,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       r.define("total"  , (casacore::Double) accumTotalCount);
 
 
-      for (map<string, map<string, casacore::uInt64> >::iterator j = accumtotal.begin();
+      for (std::map<string, std::map<string, casacore::uInt64> >::iterator j = accumtotal.begin();
            j != accumtotal.end();
            j++) {
         /* Note here: loop over the keys of accumtotal, not accumflags,
            because accumflags may not have all channel keys */
         
           casacore::Record prop;
-          for (map<string, casacore::uInt64>::const_iterator i = j->second.begin();
+          for (std::map<string, casacore::uInt64>::const_iterator i = j->second.begin();
                i != j->second.end();
                i++) {
             

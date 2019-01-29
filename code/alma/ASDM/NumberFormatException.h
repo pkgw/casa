@@ -27,10 +27,9 @@
 #ifndef NumberFormatException_CLASS
 #define NumberFormatException_CLASS
 
-#include <InvalidArgumentException.h>
+#include <alma/ASDM/InvalidArgumentException.h>
 
 #include <string>
-using std::string;
 
 namespace asdm {
 
@@ -49,7 +48,7 @@ namespace asdm {
     /**
      * A CTOR with a message.
      */
-    NumberFormatException(const string &s);
+    NumberFormatException(const std::string &s);
 
     /**
      * the DTOR

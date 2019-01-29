@@ -68,7 +68,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		      CountedPtr<FTMachine>& ftm, 
 		      CountedPtr<FTMachine>& iftm) : useViVb2_p(false)
   {
-    LogIO os( LogOrigin("SIMapper","Construct a mapper",WHERE) );
+    //    LogIO os( LogOrigin("SIMapper","Construct a mapper",WHERE) );
     ft_p=ftm;
     ift_p=iftm;
     ft2_p=NULL;
@@ -80,7 +80,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		      CountedPtr<refim::FTMachine>& ftm, 
 		      CountedPtr<refim::FTMachine>& iftm) : useViVb2_p(true)
   {
-    LogIO os( LogOrigin("SIMapper","Construct a mapper",WHERE) );
+    //LogIO os( LogOrigin("SIMapper","Construct a mapper",WHERE) );
     ft2_p=ftm;
     ift2_p=iftm;
     cft_p=NULL;
@@ -123,7 +123,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIMapper::initializeGrid(vi::VisBuffer2& vb, Bool dopsf, Bool /*firstaccess*/)
   {
     
-    LogIO os( LogOrigin("SIMapper","initializeGrid",WHERE) );
+    //LogIO os( LogOrigin("SIMapper","initializeGrid",WHERE) );
     if(!useViVb2_p)
       throw(AipsError("Programmer Error: using vi2 mode with vi1 constructor"));
        //Componentlist FTM has nothing to do
@@ -142,7 +142,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIMapper::initializeGrid(VisBuffer& vb, Bool dopsf, Bool /*firstaccess*/)
      {
 
-       LogIO os( LogOrigin("SIMapper","initializeGrid",WHERE) );
+       //LogIO os( LogOrigin("SIMapper","initializeGrid",WHERE) );
        if(useViVb2_p)
 	 throw(AipsError("Programmer Error: using vi1 mode with vi2 constructor"));
        //Componentlist FTM has nothing to do
@@ -161,7 +161,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIMapper::grid(vi::VisBuffer2& vb, Bool dopsf, refim::FTMachine::Type col,
 		      const Int whichFTM)
    {
-     LogIO os( LogOrigin("SIMapper","grid",WHERE) );
+     //LogIO os( LogOrigin("SIMapper","grid",WHERE) );
      if(!useViVb2_p)
        throw(AipsError("Programmer Error: using vi2 mode with vi1 constructor"));
      //Componentlist FTM has no gridding to do
@@ -178,7 +178,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIMapper::grid(VisBuffer& vb, Bool dopsf, FTMachine::Type col,
 		      const Int whichFTM)
    {
-     LogIO os( LogOrigin("SIMapper","grid",WHERE) );
+     //LogIO os( LogOrigin("SIMapper","grid",WHERE) );
       if(useViVb2_p)
 	 throw(AipsError("Programmer Error: using vi1 mode with vi2 constructor"));
      //Componentlist FTM has no gridding to do
@@ -193,7 +193,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SIMapper::finalizeGrid(vi::VisBuffer2& vb, Bool dopsf)
     {
-      LogIO os( LogOrigin("SIMapper","finalizeGrid",WHERE) );
+      //LogIO os( LogOrigin("SIMapper","finalizeGrid",WHERE) );
       if(!useViVb2_p)
 	 throw(AipsError("Programmer Error: using vi2 mode with vi1 constructor"));
       if(ift2_p.null())
@@ -205,7 +205,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //////////////OLD VI/VB version
   void SIMapper::finalizeGrid(VisBuffer& vb, Bool dopsf)
     {
-      LogIO os( LogOrigin("SIMapper","finalizeGrid",WHERE) );
+      //LogIO os( LogOrigin("SIMapper","finalizeGrid",WHERE) );
        if(useViVb2_p)
 	 throw(AipsError("Programmer Error: using vi1 mode with vi2 constructor"));
       if(ift_p.null())
@@ -217,7 +217,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SIMapper::initializeDegrid(vi::VisBuffer2& vb, const Int /*row*/)
   {
-    LogIO os( LogOrigin("SIMapper", "initializeDegrid",WHERE) );
+    //LogIO os( LogOrigin("SIMapper", "initializeDegrid",WHERE) );
      if(!useViVb2_p)
        throw(AipsError("Programmer Error: using vi2 mode with vii constructor"));
     if(ft2_p.null() && cft2_p.null())
@@ -229,7 +229,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //////////////////OLD vi/vb version
   void SIMapper::initializeDegrid(VisBuffer& vb, const Int /*row*/)
   {
-    LogIO os( LogOrigin("SIMapper", "initializeDegrid",WHERE) );
+    //LogIO os( LogOrigin("SIMapper", "initializeDegrid",WHERE) );
      if(useViVb2_p)
        throw(AipsError("Programmer Error: using vi1 mode with vi2 constructor"));
     if(ft_p.null() && cft_p.null())
@@ -241,8 +241,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SIMapper::degrid(vi::VisBuffer2& vb)
     {
-      LogIO os( LogOrigin("SIMapper","degrid",WHERE) );
-     if(!useViVb2_p)
+      //LogIO os( LogOrigin("SIMapper","degrid",WHERE) );
+      if(!useViVb2_p)
        throw(AipsError("Programmer Error: using vi2 mode with vi1 constructor"));
 
     
@@ -295,7 +295,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SIMapper::degrid(VisBuffer& vb)
     {
-      LogIO os( LogOrigin("SIMapper","degrid",WHERE) );
+      //LogIO os( LogOrigin("SIMapper","degrid",WHERE) );
     
      if(useViVb2_p)
        throw(AipsError("Programmer Error: using vi1 mode with vi2 constructor"));
@@ -318,7 +318,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SIMapper::finalizeDegrid()
   {
-    LogIO os( LogOrigin("SIMapper","finalizeDegrid",WHERE) );
+    //LogIO os( LogOrigin("SIMapper","finalizeDegrid",WHERE) );
     if(!useViVb2_p)
       ft_p->finalizeToVis();
     else
@@ -328,7 +328,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   Bool SIMapper::getFTMRecord(Record& rec, const String diskimage)
   {
-    LogIO os( LogOrigin("SIMapper","getFTMRecord",WHERE) );
+    //LogIO os( LogOrigin("SIMapper","getFTMRecord",WHERE) );
     if(ft_p.null() && !useViVb2_p)
     	return false;
      if(ft2_p.null() && useViVb2_p)

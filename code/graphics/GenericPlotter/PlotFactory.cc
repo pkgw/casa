@@ -223,7 +223,7 @@ PlotStandardMouseToolGroupPtr   PlotFactory::standardMouseTools(
     sel->setRectLine(line("black", PlotLine::SOLID, 1.0));
     sel->setRectFill(areaFill("black", PlotAreaFill::MESH3));
     return PlotStandardMouseToolGroupPtr(new PlotStandardMouseToolGroup(
-            sel, zoomTool(), panTool(), trackerTool(), activeTool),
+            sel, zoomTool(), panTool(), flagAllTool(), trackerTool(), activeTool),
             smartDelete);
 }
 
@@ -244,6 +244,7 @@ PlotStandardMouseToolGroupPtr   PlotFactory::standardMouseTools(
     sel->setRectFill(areaFill("black", PlotAreaFill::MESH3));
     return PlotStandardMouseToolGroupPtr(new PlotStandardMouseToolGroup(
             sel, zoomTool(xAxis, yAxis, sys), panTool(xAxis, yAxis, sys),
+            flagAllTool(xAxis, yAxis, sys),
             trackerTool(xAxis, yAxis, sys), activeTool), smartDelete);
 }
 
@@ -255,6 +256,9 @@ PlotZoomToolPtr PlotFactory::zoomTool(bool smartDelete) const {
 
 PlotPanToolPtr PlotFactory::panTool(bool smartDelete) const {
     return PlotPanToolPtr(new PlotPanTool(), smartDelete); }
+
+PlotFlagAllToolPtr PlotFactory::flagAllTool(bool smartDelete) const {
+    return PlotFlagAllToolPtr(new PlotFlagAllTool(), smartDelete); }
 
 PlotTrackerToolPtr PlotFactory::trackerTool(bool smartDelete) const {
     return PlotTrackerToolPtr(new PlotTrackerTool(), smartDelete); }
@@ -276,6 +280,12 @@ PlotPanToolPtr PlotFactory::panTool(PlotAxis xAxis, PlotAxis yAxis,
     
     (void)smartDelete;
     return PlotPanToolPtr(new PlotPanTool(xAxis, yAxis, system), false); }
+
+PlotFlagAllToolPtr PlotFactory::flagAllTool(PlotAxis xAxis, PlotAxis yAxis,
+        PlotCoordinate::System system, bool smartDelete) const {
+    return PlotFlagAllToolPtr(new PlotFlagAllTool(xAxis, yAxis, system),
+        smartDelete);
+}
 
 PlotTrackerToolPtr PlotFactory::trackerTool(PlotAxis xAxis, PlotAxis yAxis,
         PlotCoordinate::System system, bool smartDelete) const {

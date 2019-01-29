@@ -67,7 +67,7 @@
                 </param>
 
                 <param type="any" name="scan" subparam="true">
-                  <description>Scan number range (for usescaratch=T)</description>
+                  <description>Scan number range </description>
                   <any type="variant" limittypes="string stringArray"/>
                   <value type="string"></value>
                 </param>
@@ -248,7 +248,7 @@
                   </equals>
                   <equals type="string" value="Butler-JPL-Horizons 2010"/>
                   <equals type="string" value="manual">
-                      <default param="fluxdensity"><value type="vector">
+                      <default param="fluxdensity"><value type="intArray">
                            <value>1</value><value>0</value><value>0</value><value>0</value>
                            </value></default>
                       <default param="spix"><value type="doubleArray"></value></default>
@@ -495,7 +495,7 @@
             * New asteroid models for Ceres, Pallas, and Vesta were put into CASA 4.7.               * 
             * A model is also available for Lutetia but we do not advise using this source for ALMA  *
             * absolute flux calibration. These new models are used (automatically chosen)            * 
-            * for data taken after 2015 January 1 0h UT. The models are time variable and based on   *
+            * for data taken after 2014 January 1 0h UT. The models are time variable and based on   *
             * thermophysical modeling by Th. Mueller (private communication).                        *
             * These are tabulated for 30, 80, 115, 150, 200, 230, 260, 300, 330, 360, 425, 650,      *
             * 800, 950, and 1000 GHz; cubic frequency interpolation is employed to derive the flux   *
@@ -513,7 +513,7 @@
                is included, but contains no rings or synchrotron. 
             * Titan: model for 53.3-1024.1GHz, include many spectral lines
 
-            **  not recommended when the old model is used (i.e. for the data prior to 2015.01.01) 
+            **  not recommended when the old model is used (i.e. for the data prior to 2014.01.01) 
                 (The temperature is not yet adjusted for
                 varying distance from the Sun.  The model data can be scaled
                 after running setjy, but it is an involved process.)

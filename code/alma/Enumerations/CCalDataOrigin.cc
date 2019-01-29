@@ -33,7 +33,7 @@
  * File CCalDataOrigin.cpp
  */
 #include <sstream>
-#include <CCalDataOrigin.h>
+#include <alma/Enumerations/CCalDataOrigin.h>
 #include <string>
 using namespace std;
 

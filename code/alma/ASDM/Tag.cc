@@ -24,15 +24,12 @@
  * File Tag.cpp
  */
 
-#include <Tag.h>
-#include <OutOfBoundsException.h>
-#include <InvalidArgumentException.h>
+#include <alma/ASDM/Tag.h>
+#include <alma/ASDM/OutOfBoundsException.h>
+#include <alma/ASDM/InvalidArgumentException.h>
 #ifndef WITHOUT_BOOST
 #include <boost/algorithm/string/trim.hpp>
 #endif
-
-using asdm::OutOfBoundsException;
-using asdm::InvalidArgumentException;
 
 using namespace std;
 
@@ -96,7 +93,7 @@ namespace asdm {
   }
 
 #ifndef WITHOUT_ACS
-  Tag::Tag(IDLTag &x) {
+  Tag::Tag(asdmIDLTypes::IDLTag &x) {
     try {
       *this = Tag::parseTag(string(x.type_value));
     }
@@ -105,8 +102,8 @@ namespace asdm {
     }
   }
 
-  IDLTag Tag::toIDLTag() const {
-    IDLTag x;
+  asdmIDLTypes::IDLTag Tag::toIDLTag() const {
+    asdmIDLTypes::IDLTag x;
     x.value = CORBA::string_dup(tag.c_str());
     x.type_value = CORBA::string_dup(toString().c_str());
     return x;

@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -52,13 +52,13 @@
 	
 
 	
-#include "CBasebandName.h"
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
 
 	
-#include "CAccumMode.h"
+#include <alma/Enumerations/CAccumMode.h>
 	
 
 	
@@ -66,31 +66,31 @@
 	
 
 	
-#include "CAxisName.h"
+#include <alma/Enumerations/CAxisName.h>
 	
 
 	
-#include "CFilterMode.h"
+#include <alma/Enumerations/CFilterMode.h>
 	
 
 	
-#include "CCorrelatorName.h"
+#include <alma/Enumerations/CCorrelatorName.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -139,14 +139,14 @@ class CorrelatorModeRow;
 	
  * <TR>
  * <TD> basebandNames </TD> 
- * <TD> vector<BasebandNameMod::BasebandName > </TD>
+ * <TD> std::vector<BasebandNameMod::BasebandName > </TD>
  * <TD>  numBaseband </TD> 
  * <TD> &nbsp;identifies the basebands (one value per basebands). </TD>
  * </TR>
 	
  * <TR>
  * <TD> basebandConfig </TD> 
- * <TD> vector<int > </TD>
+ * <TD> std::vector<int > </TD>
  * <TD>  numBaseband </TD> 
  * <TD> &nbsp;encodes the basebands configurations (one value per baseband). </TD>
  * </TR>
@@ -174,14 +174,14 @@ class CorrelatorModeRow;
 	
  * <TR>
  * <TD> axesOrderArray </TD> 
- * <TD> vector<AxisNameMod::AxisName > </TD>
+ * <TD> std::vector<AxisNameMod::AxisName > </TD>
  * <TD>  numAxes </TD> 
  * <TD> &nbsp;the order of axes in the binary data blocks. </TD>
  * </TR>
 	
  * <TR>
  * <TD> filterMode </TD> 
- * <TD> vector<FilterModeMod::FilterMode > </TD>
+ * <TD> std::vector<FilterModeMod::FilterMode > </TD>
  * <TD>  numBaseband </TD> 
  * <TD> &nbsp;identifies the filters modes (one value per baseband). </TD>
  * </TR>
@@ -349,7 +349,7 @@ public:
  	 * @param correlatorName
 	
      */
-	CorrelatorModeRow *newRow(int numBaseband, vector<BasebandNameMod::BasebandName > basebandNames, vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, vector<AxisNameMod::AxisName > axesOrderArray, vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName);
+	CorrelatorModeRow *newRow(int numBaseband, std::vector<BasebandNameMod::BasebandName > basebandNames, std::vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, std::vector<AxisNameMod::AxisName > axesOrderArray, std::vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName);
 	
 
 
@@ -450,7 +450,7 @@ public:
  	 * @param correlatorName
  	 		 
  	 */
-	CorrelatorModeRow* lookup(int numBaseband, vector<BasebandNameMod::BasebandName > basebandNames, vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, vector<AxisNameMod::AxisName > axesOrderArray, vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName); 
+	CorrelatorModeRow* lookup(int numBaseband, std::vector<BasebandNameMod::BasebandName > basebandNames, std::vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, std::vector<AxisNameMod::AxisName > axesOrderArray, std::vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

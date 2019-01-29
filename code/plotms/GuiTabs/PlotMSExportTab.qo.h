@@ -56,7 +56,7 @@ public:
     PlotMSExportParam getExportParams() const;
 
     // Retrieve selected casacore::MS names to use in export filename
-    inline void setMSNames(vector<casacore::String> msNames) { MSNames_ = msNames; }
+    inline void setMSNames(std::vector<casacore::String> msNames) { MSNames_ = msNames; }
 
 private slots:
 	void closeDialog();
@@ -74,7 +74,7 @@ private:
     Ui::ExportTab ui;
 
     // Selected casacore::MS names
-    vector<casacore::String> MSNames_;
+    std::vector<casacore::String> MSNames_;
 };
 
 }
