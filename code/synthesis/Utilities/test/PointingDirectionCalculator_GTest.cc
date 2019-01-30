@@ -261,6 +261,12 @@ public:
     {
         return CasaMasterPath;
     }
+     
+    //+
+    // MS for Test
+    //-
+    void CopyDefaultMStoWork();
+    void DeleteWorkingMS();
 
 private:
     
@@ -303,7 +309,7 @@ private:
 //   Test cases/items.
 //***************************************************************************
 
-void CopyDefaultMStoWork()
+void RunEnv::CopyDefaultMStoWork()
 {
     //  Environment //
 
@@ -343,7 +349,7 @@ void CopyDefaultMStoWork()
 //  whenever One Test Fixture ends. 
 //-
 
-void DeleteWorkingMS()
+void RunEnv::DeleteWorkingMS()
 {
     String dst         = DefaultLocalMsName;
 
@@ -896,8 +902,7 @@ public:
       // Constructor //
       PointingTableAccess(String const &MsName, bool WriteAccess =false ) 
       {
-          printf("MS File [%s] \n", MsName.c_str());
- 
+//          printf("MS File [%s] \n", MsName.c_str());
           auto option = casacore::Table::TableOption::Old;
           if(WriteAccess) option = casacore::Table::TableOption::Update;
  
@@ -908,7 +913,11 @@ public:
           prepareColumns();
 
       }
-      void close() 
+      // Destructor //
+      ~PointingTableAccess() { }
+
+      // Flush and close //
+      void flush() 
       {
           ms.flush();
           ms.resync();
@@ -950,6 +959,36 @@ public:
               hPointing.addColumn(RevColumnDesc3); 
               printf("Column[%s]was created.\n",colname3.c_str());
           }
+
+           pointingPointingOffset = columnPointing ->pointingOffset();
+           pointingSourceOffset   = columnPointing ->sourceOffset();
+           pointingEncoder        = columnPointing ->encoder();
+
+          flush();
+      }
+      void fillNewColumns()
+      {
+          //+
+          // Fill empty data
+          //-
+             IPosition Ipo = pointingDirection.shape(0);        
+             /* dummy data */ 
+             Array<Double> init_data1( Ipo, -0.1);
+             Array<Double> init_data2( Ipo, -0.2);
+             Array<Double> init_data3( Ipo, -0.3);
+             for (uInt row=0; row<nrow; row++)
+             {
+                 // set Shape of New added Colum //
+                 pointingPointingOffset. setShape(row, Ipo);
+                 pointingSourceOffset.   setShape(row, Ipo);
+                 pointingEncoder.        setShape(row, Ipo);
+ 
+                 // put initial data to Column //
+                 pointingPointingOffset. put( row, init_data1 );
+                 pointingSourceOffset.   put( row, init_data2 );
+                 pointingEncoder.        put( row, init_data3 );
+              }
+
       }
 
       // Column check //
@@ -960,7 +999,11 @@ public:
           if (true == (ms.pointing().tableDesc().isColumn(columnNameUpcase))) return true;
           else return false;
       } 
-      /// Read (get) /// 
+
+      //+
+      // Read (get) method  
+      //-
+
       /* Vector */ 
         Array<Double> getDirection     (uInt row) { return pointingDirection      .get(row); }
         Array<Double> getTarget        (uInt row) { return pointingTarget         .get(row); }
@@ -992,7 +1035,8 @@ private:
            hPointing = ms.pointing();
            nrow   = hPointing.nrow();
 
-           columnPointing = new casacore::ROMSPointingColumns( hPointing );
+           unique_ptr<casacore::ROMSPointingColumns>  colPt( new casacore::ROMSPointingColumns(hPointing) );
+           columnPointing = std::move(colPt);
       }
 
       // Column Handle 
@@ -1018,7 +1062,7 @@ private:
     casacore::MSPointing         hPointing;
     casacore::uInt               nrow;
 
-    casacore::ROMSPointingColumns  *columnPointing;
+    std::unique_ptr<casacore::ROMSPointingColumns>   columnPointing;
 
     ROScalarColumn<Int>    pointingAntennaId      ;
     ROScalarColumn<Double> pointingTime           ;
@@ -1066,8 +1110,7 @@ public:
       // Constructor //
       AntennaTableAccess(String const &MsName, bool WriteAccess =false )
       {
-          printf("MS File [%s] \n", MsName.c_str());
-
+//          printf("MS File [%s] \n", MsName.c_str());
           auto option = casacore::Table::TableOption::Old;
           if(WriteAccess) option = casacore::Table::TableOption::Update;
 
@@ -1078,7 +1121,11 @@ public:
           init();
           prepareColumns();
       }
-      void close() 
+
+      // Destructor //
+      ~AntennaTableAccess() { }
+
+      void flush() 
       {
           ms.flush();
           ms.resync();
@@ -1133,8 +1180,11 @@ private:
      {
          hAntenna = ms.antenna();
          nrow     = hAntenna.nrow();
+
+         unique_ptr<casacore::MSAntennaColumns>  colAnt( new MSAntennaColumns( hAntenna ) );
+         columnAntenna = std::move(colAnt);
  
-         columnAntenna = new casacore::MSAntennaColumns( hAntenna );
+   //      columnAntenna = new casacore::MSAntennaColumns( hAntenna );
      }
  
      void prepareColumns()
@@ -1149,16 +1199,13 @@ private:
  
          ipoPosition = antennaPosition.shape(0);
          ipoOffset   = antennaOffset.shape(0);
-
-         printf( "shape of Position [%zu] \n",ipoPosition[0]);
-         printf( "shape of Offset   [%zu] \n",ipoOffset[0]);
      }
 
      casacore::MeasurementSet     ms;
      casacore::MSAntenna          hAntenna;
      casacore::uInt               nrow;
 
-     casacore::MSAntennaColumns   *columnAntenna;
+     unique_ptr<casacore::MSAntennaColumns>  columnAntenna;
 
      ROScalarColumn<String>  antennaName          ;
      ROScalarColumn<String>  antennaStation       ;
@@ -1178,7 +1225,7 @@ private:
 //  - Modifying test-MS
 //  - Addinng artificial(pseudo) data onto MS
 //*******************************************************
-
+class PointingTableAccess;
 class MsEdit 
 {
 public:
@@ -1187,25 +1234,28 @@ public:
 
 //rsv//    CurveFunction          cvfunc(0);
 
-    MsEdit()        { };
+    MsEdit() {    }   // Current 
 
+    MsEdit(const String &ms, bool mode=false )
+    {     
+        // CAS-8418
+        unique_ptr<PointingTableAccess>  ptTemp( new PointingTableAccess(ms,mode));
+        unique_ptr<AntennaTableAccess>   anTemp( new AntennaTableAccess(ms,mode));
+        ptTblAcc_ = std::move(ptTemp);
+        anTblAcc_ = std::move(anTemp);
 
-    // Add or Remove Row  (Antenna) //
+    }
+
+    // Add Row //
 
         uInt appendRowOnAntennaTable(uInt n);
-        void removeRowFromAntennaTablew(uInt NRow );
-
-    // Add Row for Interpolation TEST //
-
-        uInt appendRowOnPointingTable(uInt AddCount );
-        uInt appendRowOnMainTable(uInt AddCount );
+        uInt appendRowOnPointingTable(uInt n);
+        uInt appendRowOnMainTable(uInt n);
     
     // Write Data on Antenna Table // 
-     
+    //            on Pointing Table //
+
         void writeDataToAntennaTable( uInt Row =0 );
-
-    // Write new Columns and init data // 
-
         void writeDataToPointingTable(String MsName =DefaultLocalMsName );
 
     // Write (generated) Test Data on Pointing Table //
@@ -1233,6 +1283,15 @@ public:
         ANTENNADataBuff  AntennaData;   // for Read 
         ANTENNADataBuff  AntennaData1;  // for Write
 
+private:
+
+   //+
+   // CAS-8418 (Under construction) 
+   //  these object will provide various service , same as the current ones 
+   //-
+    std::unique_ptr<casa::PointingTableAccess>     ptTblAcc_;
+    std::unique_ptr<casa::AntennaTableAccess>      anTblAcc_;
+
 };
 
 
@@ -1241,43 +1300,16 @@ public:
 //  returns latest nrow.
 //-
 
-uInt  MsEdit::appendRowOnAntennaTable(uInt n)
+uInt  MsEdit::appendRowOnAntennaTable(uInt addCnt)
 {
-    // Measurement Set (use default name) //
+    // CAS-8418 new code //
 
-        MeasurementSet ms0( MsName.c_str(), casacore::Table::TableOption:: Update );
+    AntennaTableAccess ata(MsName,true);
+    ata.appendRow(addCnt);
+    ata.flush();
+    uInt nrow = ata.getNrow();
 
-    // Table handle //
-
-        MSAntenna   hAntennaTable = ms0.antenna();
-
-    // Add Row //
-
-        hAntennaTable.addRow(n);
-        uInt nrow = hAntennaTable.nrow();
-
-        return nrow;
-}
-
-
-//+
-// Remove specified row from Antanna Table
-//-
-
-void MsEdit::removeRowFromAntennaTablew(uInt nrow )
-{
-    // Measurment Set (use default name ) 
-
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-
-    // Table handle //
-
-        MSAntenna   hAntennaTable  = ms0.antenna();
-
-    // Remove Row //
-      
-         hAntennaTable.removeRow( nrow );
-
+    return nrow;
 }
 
 //+
@@ -1378,23 +1410,15 @@ void MsEdit::writeDataToAntennaTable( uInt Row )
 
 uInt  MsEdit::appendRowOnPointingTable(uInt AddCount )
 {
-    // Measurement Set (use default name) //
+    // CAS-8418 new code //
 
-        MeasurementSet ms0( MsName.c_str(), casacore::Table::TableOption:: Update );
-        MSPointing  hPointingTable = ms0.pointing();
+    PointingTableAccess pta(MsName,true);
+    pta.appendRow(AddCount);
+    pta.flush();
 
-    // Add Row //
-        printf( "MsEdit:Attempt to append [%d] new rows on Pointing Table. \n",AddCount );
-         
-        hPointingTable.addRow(AddCount);
-        
-        uInt nrow = ms0.nrow();
-        printf( "MsEdit:   New nrow count is %d \n", nrow ); 
-
-       ms0.flush();
-       ms0.resync();
-
-       return nrow;
+    uInt nrow = pta.getNrow();
+   
+    return nrow;
 }
 
 //+
@@ -1494,114 +1518,16 @@ void MsEdit::writeDataToPointingTable(String MsName )
 
 void MsEdit::duplicateNewColumnsFromDirection()
 {
-    // Open MS by Update mode //
-
         String MsName = DefaultLocalMsName;
         Description( "MsEdit:Cpoied from Direction and Adding 3 Columns on Pointing Table ", MsName.c_str() );
 
-        String name =  MsName;
-        MeasurementSet ms0( name.c_str(),casacore::Table::TableOption:: Update );
+    // CAS-8418 new code //
 
-    // Tables Name //
+        PointingTableAccess ata1(MsName,true);
+         ata1.duplicateColumns();
 
-        String PointingTableName = ms0.pointingTableName();
-        printf("MsEdit:Pointing Table name is [%s] \n",PointingTableName.c_str());
-
-    // Prepeare Handle //
-
-        MSPointing  hPointingTable = ms0.pointing();
-
-    // Prepare Column //
-
-        // create the Smart Ponter in use. //
-
-        std::unique_ptr<casacore::MSPointingColumns> 
-                columnPointing( new casacore::MSPointingColumns( hPointingTable ));
-
-    // each Column.. used in setDirectionColumn() //
-
-       ArrayColumn< Double > colDirection       =  columnPointing->direction ();
-       ArrayColumn< Double > colTarget          =  columnPointing->target ();
-       ArrayColumn< Double > colPointingOffset  =  columnPointing->pointingOffset ();
-       ArrayColumn< Double > colSourceOffset    =  columnPointing->sourceOffset ();
-       ArrayColumn< Double > colEncoder         =  columnPointing->encoder ();
-
-    //+
-    // Attempt to create new Column.
-    //-
-
-      // Table Desc linked from MS //
-
-        TableDesc  tblDsc = hPointingTable.tableDesc();
-
-      //+
-      // Show current Columns. 
-      //-
-
-        Description("=== Current Columns ======","");
-
-        Vector<String> col_name = tblDsc.columnNames();
-        
-        for (uInt i=0 ; i<col_name.size() ; i++)
-        {
-                printf( "%s \n", col_name[i].c_str() );
-        }
-
-      // Copy Column Descriptor //
-
-        ColumnDesc  OrgColumnDesc = tblDsc.columnDesc ( "DIRECTION" ) ;    
-
-        ColumnDesc  RevColumnDesc1 = ColumnDesc(OrgColumnDesc);
-        ColumnDesc  RevColumnDesc2 = ColumnDesc(OrgColumnDesc);
-        ColumnDesc  RevColumnDesc3 = ColumnDesc(OrgColumnDesc);
-
-      // Coumns Name def //
-    
-        String colname1 = "POINTING_OFFSET";
-        String colname2 = "SOURCE_OFFSET";
-        String colname3 = "ENCODER";
-
-        RevColumnDesc1.setName( colname1 );
-        RevColumnDesc2.setName( colname2 );
-        RevColumnDesc3.setName( colname3 );
-
-        Description( "Adding 3 Columns on Pointing Table ", MsName.c_str() );
-
-        if( ! tblDsc.isColumn( colname1 ) )
-        {
-            printf(" Intended Table Not exist, Attempt to add Column.\n" );
-      
-            // Add Revied Column to TABLE //
-
-            hPointingTable.addColumn(RevColumnDesc1);
-            hPointingTable.addColumn(RevColumnDesc2);
-            hPointingTable.addColumn(RevColumnDesc3); 
-        }
-#if 0
-      // Remove Colume (by Name )
-
-          hPointingTable.removeColumn(colname1);
-          hPointingTable.removeColumn(colname2);
-          hPointingTable.removeColumn(colname3);
-#endif 
-  
-     // Flush ..//
-
-         ms0.flush(); 
- 
-     //+
-     //  Option:: Access data (shown by Array) 
-     //   - If need to inspect , write a code here.
-     //-
-
-#if 0  
-         Array<Double> dir  = colDirection .get(0);
-         Array<Double> tar  = colTarget    .get(0);
-         Array<Double> ptOff  = colPointingOffset .get(0);
-         Array<Double> scOff  = colSourceOffset    .get(0);
-         Array<Double> enc    = colEncoder        .get(0);
-#endif 
-      printf(" Intended Change completed.\n" );
+        PointingTableAccess ata2(MsName,true);
+         ata2.fillNewColumns() ; 
 
 }
 
@@ -2073,6 +1999,12 @@ public:
         uInt const InterpolationDivCount = 10;
 protected:
 
+        //+
+        // NEW: CAS-8418 related
+        //
+        
+           /* reserved */
+
         // MeasurementSet Editting
      
             casa::MsEdit  msedit;
@@ -2107,7 +2039,8 @@ protected:
             //  generate test dta
             //-
             
-            CopyDefaultMStoWork();
+            env.CopyDefaultMStoWork();
+
             addColumnsOnPointing();
             addColumnDataOnPointing();   // FILL DATA
 
@@ -2119,7 +2052,7 @@ protected:
 
             // Delete Working MS 
 
-            DeleteWorkingMS();
+            env.DeleteWorkingMS();
         }
 
 };
@@ -2133,11 +2066,14 @@ void TestDirection::addColumnsOnPointing()
     msedit.duplicateNewColumnsFromDirection();
 }
 
+
 void TestDirection::addColumnDataOnPointing()
 {
+#if 0
     msedit.writeDataToPointingTable( DefaultLocalMsName );
+#endif 
 }
-
+ 
 /*---------------------------------------
   setDirectionColumn
   - check thr accsessor 
@@ -2996,7 +2932,7 @@ TEST_F(TestDirection, InterpolationFull )
               msedit.appendRowOnMainTable     (msedit.evgen. getAddInerpolationTestMainTableRow() );
 
               addColumnDataOnPointing();   // FILL DATA 
-
+ 
            //
            // Execute Main-Body , get error info //
            //
@@ -4181,13 +4117,13 @@ protected:
         virtual void SetUp()
         {
             BaseClass::SetUp();
-            CopyDefaultMStoWork();
+            env.CopyDefaultMStoWork();
         }
 
         virtual void TearDown()
        {
             BaseClass::TearDown();
-            DeleteWorkingMS();
+            env.DeleteWorkingMS();
        }
       
         // Test Fixture Sub //
@@ -4205,26 +4141,57 @@ TEST_F(MyDebug, Debug1 )
       const String MsName1 = "listobs/uid___X02_X3d737_X1_01_small.ms";
       const String MsName2 = "sdimaging/sdimaging.ms";
 
-    String name = env.getCasaMasterPath() + MsName1;
+    for (uInt m=0; m<TestMSList.size();m++ ) { 
+        if(TestMSList[m].ExThrow == true ) continue ; // Ignore un-available ones. //
 
-    PointingTableAccess   pta1(name);
+        String name = env.getCasaMasterPath() + TestMSList[m].name;
 
-    printf("check Column[Direction]      =%d \n", pta1.checkColumn("Direction"));
-    printf("check Column[Target]         =%d \n", pta1.checkColumn("TarGet"));
-    printf("check Column[PointingOffset] =%d \n", pta1.checkColumn("Pointing_Offset"));
-    printf("check Column[SourceOffset]   =%d \n", pta1.checkColumn("Source_Offset"));
-    printf("check Column[Encoder]        =%d \n", pta1.checkColumn("ENcoder"));
+        PointingTableAccess   pta1(name);
+        printf("====== %s ======= \n",TestMSList[m].name.c_str() );
 
-    name = env.getCasaMasterPath() + MsName2;
-    
-    PointingTableAccess   pta2(name);
-    
-    printf("check Column[Direction]      =%d \n", pta2.checkColumn("Direction"));
-    printf("check Column[Target]         =%d \n", pta2.checkColumn("TarGet"));
-    printf("check Column[PointingOffset] =%d \n", pta2.checkColumn("Pointing_Offset"));
-    printf("check Column[SourceOffset]   =%d \n", pta2.checkColumn("Source_Offset"));
-    printf("check Column[Encoder]        =%d \n", pta2.checkColumn("ENcoder"));
+        printf("check Column[Direction]      =%d \n", pta1.checkColumn("Direction"));
+        printf("check Column[Target]         =%d \n", pta1.checkColumn("TarGet"));
+        printf("check Column[PointingOffset] =%d \n", pta1.checkColumn("Pointing_Offset"));
+        printf("check Column[SourceOffset]   =%d \n", pta1.checkColumn("Source_Offset"));
+        printf("check Column[Encoder]        =%d \n", pta1.checkColumn("ENcoder"));
 
+    }
+}
+
+// Construcor and Column check//
+void debug1_sub(const String& name )
+{
+    PointingTableAccess   poAcc(name);
+    AntennaTableAccess    atAcc(name);
+}
+// Object alloc/free Test , 1000 times. // 
+TEST_F(MyDebug, Debug1_mem1 )
+{
+    const String MsName = "./sdimaging-t.ms";
+    String name = /* env.getCasaMasterPath()+ */  MsName;
+
+    for (uInt m=0; m<1000;m++ ) {
+
+        debug1_sub(name);
+    }
+}
+
+// Construcor and Column check//
+void debug2_sub(MeasurementSet &ms )
+{
+     PointingDirectionCalculator calc(ms);
+}
+// Object alloc/free Test , 1000 times. // 
+TEST_F(MyDebug, Debug1_mem2 )
+{
+    const String MsName = "./sdimaging-t.ms";
+    String name = /* env.getCasaMasterPath()+ */  MsName;
+
+    MeasurementSet ms0(name);
+    for (uInt m=0; m<100;m++ ) {
+
+        debug2_sub(ms0);
+    }
 }
 
 // Copied MS for modify access //
@@ -4252,29 +4219,36 @@ TEST_F(MyDebug, Debug3_Row )
     const String MsName = "./sdimaging-t.ms";
     PointingTableAccess   pta(MsName,true);
 
-    printf( "nrow = %u\n", pta.getNrow() );
-    printf( "Adding 3 row \n" );
+    printf( "1) nrow = %u\n", pta.getNrow() );
+    printf( "2) Adding 3 row \n" );
 
     pta.appendRow(3);
 
-    printf( "nrow = %u\n", pta.getNrow() );
+    printf( "3) nrow = %u\n", pta.getNrow() );
 
-    printf( "Removing 3 rows \n" );
+    printf( "4) Removing 3 rows \n" );
     
     pta.removeRow(3843);
     pta.removeRow(3843);
     pta.removeRow(3843);
    
-    printf( "nrow = %u\n", pta.getNrow() );
+    printf( "5) nrow = %u\n", pta.getNrow() );
 
 }
 
 TEST_F(MyDebug, Debug4_AddColumn)
 {
     const String MsName = "./sdimaging-t.ms";
-    PointingTableAccess   pta(MsName,true);
+    PointingTableAccess   pta2(MsName,true);
 
-    pta.duplicateColumns();
+    pta2.duplicateColumns();
+
+    printf("check Column[Direction]      =%d \n", pta2.checkColumn("Direction"));
+    printf("check Column[Target]         =%d \n", pta2.checkColumn("TarGet"));
+    printf("check Column[PointingOffset] =%d \n", pta2.checkColumn("Pointing_Offset"));
+    printf("check Column[SourceOffset]   =%d \n", pta2.checkColumn("Source_Offset"));
+    printf("check Column[Encoder]        =%d \n", pta2.checkColumn("ENcoder"));
+    printf("check Column[HOGEHOGE]       =%d \n", pta2.checkColumn("HogeHOGE"));
 
 }
 
@@ -4325,9 +4299,10 @@ TEST_F(MyDebug, Debug10_Row )
 TEST_F(MyDebug, Debug11_Dump )
 {
     const String MsName = "./sdimaging-t.ms";
-    AntennaTableAccess   ata(MsName,true);
 
+    AntennaTableAccess   ata(MsName,true);
     uint nrow = ata.getNrow();
+
     for (uInt row=0; row<nrow; row++)
     {
         ANTENNADataBuff data = ata.getRowData(row);
@@ -4354,17 +4329,17 @@ TEST_F(MyDebug, Debug11_Dump )
     write_data.name = "DA01";
     write_data.position.resize(3);
     write_data.offset.resize(3);
-    write_data.position[0] = 1.0;
-    write_data.position[1] = 1.1;
-    write_data.position[2] = 1.2;
+    write_data.position[0] = 11.0;
+    write_data.position[1] = 11.1;
+    write_data.position[2] = 11.2;
 
       ata.putRowData(1, write_data);
 
     write_data.name = "DA02";
 
-    write_data.position[0] = 2.0;
-    write_data.position[1] = 2.1;
-    write_data.position[2] = 2.2;
+    write_data.position[0] = 222.0;
+    write_data.position[1] = 222.1;
+    write_data.position[2] = 222.2;
 
       ata.putRowData(2, write_data);
 
@@ -4386,6 +4361,38 @@ TEST_F(MyDebug, Debug11_Dump )
 
 }
 
+//+
+// Antenna List. 
+//-
+TEST_F(MyDebug, Debug12_Dump )
+{
+    const String MsName = "./sdimaging-t.ms";
+
+    std::vector<String>   MsList = {
+      "sdimaging/Uranus1.cal.Ant0.spw34.ms",
+      "sdimaging/Uranus2.cal.Ant0.spw34.ms"   };
+
+    for (uInt m=0; m<MsList.size(); m++)
+    {
+        String name = env.getCasaMasterPath() + MsList[m];
+        AntennaTableAccess   ata(name);
+        uint nrow = ata.getNrow();
+
+        printf("Listing File[%s] \n", name.c_str());
+        for (uInt row=0; row<nrow; row++)
+        {
+            ANTENNADataBuff data = ata.getRowData(row);
+            String  name             = data.name;
+            String station           = data.station;
+            Vector<Double>  position = data.position;
+            Vector<Double>  offset   = data.offset;
+
+            printf( " - AntID=%u, Name=[%s], Pos=(%f,%f,%f)  \n",
+                     row, name.c_str(), position[0],position[1],position[2]  );
+        }
+    }
+
+}
 
 }  // END namespace
 
