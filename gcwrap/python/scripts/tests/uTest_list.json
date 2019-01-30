@@ -496,6 +496,19 @@
              "comment":""
         },
         {
+             "testNumber":"3455",
+             "testName":"Rerefant",
+             "testScript":"test_rerefant",
+             "testType":"functionalTest",
+             "testLevel":"critical",
+             "Maintainer":"Mark Kettenis",
+             "MaintainerEmail":"kettenis@jive.eu",
+             "priority":"3",
+             "tag":"calibration",
+             "suppressEmail": false,
+             "comment":""
+        },
+        {
              "testNumber":"3805",
              "testName":"AgentFlagger",
              "testScript":"test_agentflagger",

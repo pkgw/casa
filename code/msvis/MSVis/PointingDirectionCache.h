@@ -208,7 +208,6 @@ private:
     mutable pd_cache::AntennaLevelCache antennaLevelCache_p;
     mutable std::vector<double> antennaEarliestTime_p;
     mutable int lastRowRead_p;
-    mutable int nAdded_p;
     mutable int nFallbacks_p;
     mutable int nHits_p;
     mutable bool pointingEofReached_p;

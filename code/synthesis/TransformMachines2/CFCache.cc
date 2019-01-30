@@ -158,9 +158,9 @@ namespace casa{
 	      memStore[0].getParams(pa, ant1, ant2, iPA, iBL);
 	      log_l << pa.getValue("deg") << " ";
 	    }
-	log_l << LogIO::POST;
+	log_l << LogIO::NORMAL1;
       }
-    log_l << message << LogIO::POST;
+    log_l << message << LogIO::NORMAL1;
     for(Int iBL=0; iBL<cfsShp(1); iBL++)
       for(Int iPA=0; iPA<cfsShp(0); iPA++)
 	{
@@ -176,7 +176,7 @@ namespace casa{
 		    if (!cc.storage_p.null())
 		      log_l << cfb(inu, iw, ipol).xSupport_p << " ";
 		  }
-		log_l << LogIO::POST;
+		log_l << LogIO::NORMAL1;
 	      }
 	    }
 	}
@@ -259,8 +259,11 @@ namespace casa{
 	memUnit="KB";
       }
 
-    summarize(memCache2_p,   "CFS",   True);
-    summarize(memCacheWt2_p, "WTCFS", False);
+    if (verbose > 0)
+      {
+	summarize(memCache2_p,   "CFS",   True);
+	summarize(memCacheWt2_p, "WTCFS", False);
+      }
 
     if (memUsed0+memUsed1 > 0)
       log_l << "Total CF Cache memory footprint: " << (memUsed0+memUsed1) << " (" << memUsed0 << "," << memUsed1 << ") " << memUnit << LogIO::POST;
@@ -436,12 +439,12 @@ namespace casa{
 		    if (loadPixBuf_p)
 		      {
 			Array<Complex> &cfBuf=(*(cfb->getCFCellPtr(fVal, wVal,mVal)->storage_p));
-		    //
-		    // Fill the cfBuf with the pixel array from the
-		    // disk file.  Add it, along with the extracted CF
-		    // parameters to the CFBuffer.
-		    //
-		    cfBuf.assign(pixBuf);
+			//
+			// Fill the cfBuf with the pixel array from the
+			// disk file.  Add it, along with the extracted CF
+			// parameters to the CFBuffer.
+			//
+			cfBuf.assign(pixBuf);
 		      }
 
 		    //cfb->addCF(&cfBuf,coordSys,fsampling,xSupport,ySupport,fVal,wVal,mVal);

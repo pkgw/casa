@@ -27,6 +27,7 @@
 #include <plotms/PlotMS/PlotMS.h>
 #include <plotms/Plots/PlotMSPlot.h>
 #include <plotms/Client/Client.h>
+#include <plotms/Actions/FlagActionUtil.h>
 using namespace casacore;
 namespace casa {
 
@@ -41,11 +42,9 @@ string ActionSelectFlag::getOperationLabel() const {
 
 PlotLogMessage* ActionSelectFlag::doFlagOperation( PlotMSPlot* plot,
 		int canvasIndex, vector<PlotRegion>& regions,
-		bool /*showUnflagged*/, bool /*showFlagged*/){
+		bool showUnflagged, bool showFlagged){
 	// Get flagging parameters.
-	PlotMSFlagging flagging = client->getFlagging();
-	PlotLogMessage* m = plot->flagRange(canvasIndex,
-			flagging, Vector<PlotRegion>(regions), true);
+    auto m = FlagActionUtil::flagRange(client, plot, canvasIndex, regions, showUnflagged, showFlagged);
 	return m;
 
 }

@@ -53,17 +53,17 @@ using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 WFCleanImageSkyModel::WFCleanImageSkyModel():
-  MFCleanImageSkyModel(),  nfacets_p(1), facets_p(1),
-  largeMem_p(false) {
+  MFCleanImageSkyModel(),  nfacets_p(1), facets_p(1) /*,
+  largeMem_p(false)*/ {
 
   imageImage_p=0;
   residualImage_p=0;
   maskImage_p=0;
 };
 
-WFCleanImageSkyModel::WFCleanImageSkyModel(const Int facets, Bool largeMemory):
-  MFCleanImageSkyModel(), nfacets_p(facets*facets),  facets_p(facets),
-  largeMem_p(largeMemory) 
+WFCleanImageSkyModel::WFCleanImageSkyModel(const Int facets, Bool ):
+  MFCleanImageSkyModel(), nfacets_p(facets*facets),  facets_p(facets) /*,
+  largeMem_p(largeMemory) */
 {
   imageImage_p=0;
   residualImage_p=0;

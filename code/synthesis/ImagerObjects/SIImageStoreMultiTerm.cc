@@ -733,7 +733,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     for(uInt tix=0;tix<2*itsNTerms-1;tix++)
       {
 	if( resetpsf ) psf(tix)->set(0.0);
-	if( resetweight && itsWeights[tix] ) weight(tix)->set(0.0);
 
 	if( tix < itsNTerms ) {
 	  if( resetresidual ) {
@@ -1265,6 +1264,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIImageStoreMultiTerm::printImageStats()
   {
     LogIO os( LogOrigin("SIImageStoreMultiTerm","printImageStats",WHERE) );
+    // FIXME minresmask needs to be initialized here, or else compiler complains
     Float minresmask, maxresmask, minres, maxres;
     //    findMinMax( residual()->get(), mask()->get(), minres, maxres, minresmask, maxresmask );
 

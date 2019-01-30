@@ -184,7 +184,9 @@ class VisIterImpl2LayerFactory : public ViiLayerFactory {
   VisIterImpl2LayerFactory(casacore::MeasurementSet* ms,
                            const IteratingParameters& pars,
                            bool writable,
-			   bool useMSIter2=false);
+			                     bool useMSIter2=false);
+  
+  void setFrequencySelections(std::shared_ptr<FrequencySelections> selections);
 
   virtual ~VisIterImpl2LayerFactory () {}
 
@@ -208,6 +210,8 @@ class VisIterImpl2LayerFactory : public ViiLayerFactory {
   // Control use of ~experimental MSIter2, which has smarter time iteration
   bool useMSIter2_;
   
+  //Frequency selections to be applied to the generated visibility iterator 
+  std::shared_ptr<FrequencySelections> frequencySelections_p;
 };
 
 

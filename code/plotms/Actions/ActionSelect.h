@@ -27,10 +27,11 @@
 #define ACTIONSELECT_H_
 
 #include <plotms/Actions/PlotMSAction.h>
+#include <plotms/Actions/FlagActionUtil.h>
 
 namespace casa {
 
-class ActionSelect  : public PlotMSAction {
+class ActionSelect  : public PlotMSAction, public FlagActionUtil {
 public:
 	ActionSelect( Client* client );
 
@@ -41,11 +42,6 @@ protected:
 	virtual PlotLogMessage* doFlagOperation( PlotMSPlot* plot,
 			int canvasIndex, std::vector<PlotRegion>& regions, bool showUnflagged, bool showFlagged ) = 0;
 	virtual string getOperationLabel() const = 0;
-	virtual void redrawPlots(PlotMSPlot* plot, std::vector<PlotCanvasPtr>& visibleCanv  );
-	virtual void addRedrawPlot( PlotMSPlot* plot );
-private:
-	// Keep list of plots that have to be redrawn.
-    std::vector<PlotMSPlot*> flaggedPlots;
 };
 
 } /* namespace casa */

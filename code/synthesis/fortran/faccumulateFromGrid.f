@@ -37,17 +37,14 @@
       data iloc/1,1,1,1/, iCFPos/1,1,1,1/
       l_igrdpos(3) = igrdpos(3)+1
       l_igrdpos(4) = igrdpos(4)+1
-c      norm=0.0
       l_phaseGradOriginX=phNX/2 + 1
       l_phaseGradOriginY=phNY/2 + 1
 
       do iy=-scaledSupport(2),scaledSupport(2) 
-c         iloc(2)=nint(scaledSampling(2)*iy+off(2))
          iloc(2)=nint(scaledSampling(2)*iy+off(2)-1)
          iCFPos(2)=iloc(2)+convOrigin(2)+1
          l_igrdpos(2) = loc(2)+iy+1
          do ix=-scaledSupport(1),scaledSupport(1)
-c            iloc(1)=nint(scaledSampling(1)*ix+off(1))
             iloc(1)=nint(scaledSampling(1)*ix+off(1)-1)
             iCFPos(1) = iloc(1) + convOrigin(1) + 1
             l_igrdpos(1) = loc(1) + ix + 1
@@ -72,36 +69,12 @@ C
      $              iloc(2) + l_phaseGradOriginY))
             endif
 
-c$$$            tt = phaseGrad(iloc(1) + l_phaseGradOriginX, 
-c$$$     $              iloc(2) + l_phaseGradOriginY)
-c$$$            if (scaledSupport(1) .eq. 5) then
-
-c$$$            if ((iCFPos(1) .gt. cfNX) .or. (iCFPos(2) .gt. cfNY) .or.
-c$$$     $           (l_igrdpos(1) .gt. imNX) .or. (l_igrdpos(2) .gt. imNY)
-c$$$     $           .or. (l_igrdpos(3) .gt. imNP) 
-c$$$     $           .or. (l_igrdpos(4) .gt. imNC)) then
-c$$$               write(*,*) "DG: ",
-c$$$c     $           tt,
-c$$$     $              iCFPos(1), iCFPos(2), l_igrdpos(1), l_igrdpos(2),
-c$$$     $              l_igrdpos(3),l_igrdpos(4), scaledSampling(1),
-c$$$     $              scaledSupport(1)
-c$$$            endif
-
             nvalue = nvalue + wt * grid(l_igrdpos(1), l_igrdpos(2), 
      $           l_igrdpos(3), l_igrdpos(4))
 
-c$$$            write (*,*) (nvalue), 
-c$$$     $           (wt),
-c$$$     $           (grid(l_igrdpos(1), l_igrdpos(2), 
-c$$$     $           l_igrdpos(3), l_igrdpos(4))),
-c$$$     $           abs(wt * grid(l_igrdpos(1), l_igrdpos(2), 
-c$$$     $           l_igrdpos(3), l_igrdpos(4))),
-c$$$     $           phaseGrad(iloc(1) + l_phaseGradOriginX, 
-c$$$     $           iloc(2) + l_phaseGradOriginY),ix,iy,norm
          enddo
       enddo
-c      nvalue = nvalue *conjg(phasor)/norm
+c     nvalue = nvalue *conjg(phasor)/norm
 c     Normalization by norm is done in the Mueller loop in AWVR.
       nvalue = nvalue *conjg(phasor)
-c$$$      stop
       end

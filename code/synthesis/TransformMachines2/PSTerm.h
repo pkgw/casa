@@ -29,6 +29,7 @@
 #ifndef SYNTHESIS_TRANSFORM2_PSTERM_H
 #define SYNTHESIS_TRANSFORM2_PSTERM_H
 
+#include <synthesis/TransformMachines2/Utils.h>
 
 #include <casa/Arrays/Vector.h>
 #include <msvis/MSVis/VisBuffer2.h>
@@ -69,6 +70,10 @@ namespace casa{
 	      const casacore::Vector<casacore::Double>& uvScale,
 	      const casacore::Vector<casacore::Double>& uvOffset,
 	      const casacore::Double& psScale);
+    void reinit(const casacore::IPosition shape, 
+		const casacore::Vector<casacore::Double>& uvScale,
+		const casacore::Vector<casacore::Double>& uvOffset,
+		const casacore::Double& psScale);
     casacore::Matrix<casacore::Complex>& operator=(casacore::Matrix<casacore::Complex>&);
     casacore::Matrix<casacore::Complex>& operator*=(casacore::Matrix<casacore::Complex>&);
 
@@ -133,6 +138,9 @@ namespace casa{
     casacore::Vector<casacore::Double>  support_p;
     casacore::Vector<casacore::Int> sampling_p;
     casacore::Double psScale_p;
+    casacore::IPosition shape_p;
+    casacore::Vector<casacore::Double> uvScale_p;
+    casacore::Vector<casacore::Double> uvOffset_p;
   };
   };
 };

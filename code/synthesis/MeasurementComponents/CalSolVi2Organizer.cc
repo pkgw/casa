@@ -113,7 +113,8 @@ int CalSolVi2Organizer::countSolutions(casacore::Vector<int>& nChunkPerSolve) {
 void CalSolVi2Organizer::addDiskIO(MeasurementSet* ms,Float interval,
 				   Bool combobs,Bool combscan,
 				   Bool combfld,Bool combspw,
-				   Bool useMSIter2) 
+				   Bool useMSIter2,
+                                   std::shared_ptr<FrequencySelections> freqSel) 
 {
 
   //  Must be first specified layer
@@ -124,7 +125,12 @@ void CalSolVi2Organizer::addDiskIO(MeasurementSet* ms,Float interval,
   deriveVI2Sort(sc,combobs,combscan,combfld,combspw);
   IteratingParameters iterpar(interval,SortColumns(sc));
 
-  data_=new VisIterImpl2LayerFactory(ms,iterpar,True,useMSIter2);
+  auto diskLayerFactory=new VisIterImpl2LayerFactory(ms,iterpar,True,useMSIter2);
+
+  if(freqSel)
+    diskLayerFactory->setFrequencySelections(freqSel);
+
+  data_ = diskLayerFactory;
 
   factories_.resize(1);
   factories_[0]=data_;
