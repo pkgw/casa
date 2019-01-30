@@ -56,7 +56,7 @@
 #include <ms/MeasurementSets/MSDopplerUtil.h>
 #include <tables/Tables/Table.h>
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
-#include <synthesis/TransformMachines/Utils.h>
+#include <synthesis/TransformMachines2/Utils.h>
 
 #include <mstransform/MSTransform/MSTransformRegridder.h>
 #include <msvis/MSVis/MSUtil.h>

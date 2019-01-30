@@ -33,7 +33,8 @@ using namespace casacore;
 namespace casa {
 
 ActionSelect::ActionSelect( Client* client )
-:PlotMSAction( client ){
+:PlotMSAction( client ),
+ FlagActionUtil(){
 }
 
 bool ActionSelect::doActionSpecific(PlotMSApp* plotms){
@@ -137,39 +138,9 @@ bool ActionSelect::doActionSpecific(PlotMSApp* plotms){
 
 		}
 
-		redrawPlots( plot, visibleCanv);
+		redrawPlots(client, plot, visibleCanv);
 	}
 	return true;
-}
-
-void ActionSelect::addRedrawPlot( PlotMSPlot* plot ){
-	flaggedPlots.push_back( plot );
-}
-
-void ActionSelect::redrawPlots(PlotMSPlot* plot, vector<PlotCanvasPtr>& visibleCanv  ){
-	// For a flag/unflag, need to tell the plots to redraw themselves,
-	// and clear selected regions.
-	bool hold = client->allDrawingHeld();
-	if(!hold) client->holdDrawing();
-
-	for(unsigned int i = 0; i < flaggedPlots.size(); i++) {
-		flaggedPlots[i]->plotDataChanged();
-
-		vector<PlotCanvasPtr> canv = plot->canvases();
-		for(unsigned int j = 0; j < canv.size(); j++) {
-			// Only apply to visible canvases.
-			bool visible = false;
-			for(unsigned int k = 0;
-					!visible && k < visibleCanv.size(); k++)
-				if(canv[j] == visibleCanv[k]) visible = true;
-			if(!visible) continue;
-
-			canv[j]->clearSelectedRects();
-		}
-	}
-
-	if(!hold) client->releaseDrawing();
-	flaggedPlots.clear();
 }
 
 ActionSelect::~ActionSelect() {
