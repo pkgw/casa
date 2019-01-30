@@ -437,6 +437,19 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 					throw(AipsError(PMS::axis(axes[j]) + " axis is not valid for selected averaging."));
 			}
 		}
+		if ( averaging_.anyAveraging() ) {
+			auto loadAntDir = std::find_if(axes.begin(),axes.end(),PMS::axisIsRaDec) != axes.end();
+			if ( loadAntDir ) {
+				String warnMessage("Averaging not supported for axes: ");
+				warnMessage += PMS::axis(PMS::RA) + " and " + PMS::axis(PMS::DEC);
+				logWarn("load", warnMessage);
+				logWarn("load", "Ignoring any averaging");
+				averaging_ = PlotMSAveraging();
+				if ( thread != NULL ){
+					thread->setError( "Averaging was ignored" );
+				}
+			}
+		}
 
 		// Check ephemeris validity
 		bool ephemerisX = isEphemerisAxis( currentX_[i]);
