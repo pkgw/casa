@@ -67,7 +67,7 @@ using namespace casa::vi;
   vi::VisBuffer2 *vb=vi.getVisBuffer();
   vi.originChunks();
   vi.origin();
-  String key=String::toString(vb->msId())+"_"+String::toString(vb->fieldId());
+  String key=String::toString(vb->msId())+"_"+String::toString(vb->fieldId()(0));
   multiFieldMap_p[key]=0;
   initializeFTMachine(0, templateimage);
   Matrix<Float> dummy;
@@ -80,17 +80,18 @@ using namespace casa::vi;
   cs.setWorldAxisUnits(units);
   Vector<Double> incr=cs.increment();
   uscale_p=(nx_p*incr[0]);
-  vscale_p=(ny_p*incr[0]);
+  vscale_p=(ny_p*incr[1]);
   uorigin_p=nx_p/2;
   vorigin_p=ny_p/2;
   ImageInterface<Complex>& newTemplate=const_cast<ImageInterface<Complex>& >(templateimage);
+  cerr << "shape " << templateimage.shape() << endl;
   ft_p[0]->initializeToSky(newTemplate, dummy, *vb);
   Vector<Double> convFunc(2+superUniformBox, 1.0);
   ft_p[0]->modifyConvFunc(convFunc, superUniformBox, 1);
   for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
     for (vi.origin(); vi.more(); vi.next()) {
       Int index=0;
-      key=String::toString(vb->msId())+"_"+String::toString(vb->fieldId());
+      key=String::toString(vb->msId())+"_"+String::toString(vb->fieldId()(0));
       
       if(multiFieldMap_p.count(key)==0){
 	if(multiField){
@@ -107,6 +108,7 @@ using namespace casa::vi;
       else{
 	index=multiFieldMap_p[key];
       }
+      //cerr << "key " << key << " index " << index << endl;
       ft_p[index]->put(*vb, -1, true, FTMachine::PSF);
     }
   }
@@ -164,7 +166,7 @@ using namespace casa::vi;
 }
 
   void BriggsCubeWeightor::weightUniform(Matrix<Float>& imweight, const vi::VisBuffer2& vb){
-    String key=String::toString(vb.msId())+"_"+String::toString(vb.fieldId());
+    String key=String::toString(vb.msId())+"_"+String::toString(vb.fieldId()(0));
     Int index=multiFieldMap_p[key];
     Vector<Int> chanMap=ft_p[0]->channelMap(vb);
     ///No matching channels
@@ -190,11 +192,22 @@ using namespace casa::vi;
 	  if ((!flag(chn,row)) && (chanMap(chn) >-1)) {
 	    pos(3)=chanMap(chn);
 	    Float f=vb.getFrequency(0,chn)/C::c;
-	    u=uvw(0, row)*f;
-	    v=uvw(1, row)*f;
-	    Int ucell=Int(uscale_p*u+uorigin_p);
-	    Int vcell=Int(vscale_p*v+vorigin_p);
-	    pos(0)=ucell; pos(1)=ucell;
+	    u=-uvw(0, row)*f;
+	    v=-uvw(1, row)*f;
+	    Int ucell=Int(std::round(uscale_p*u+uorigin_p));
+	    Int vcell=Int(std::round(vscale_p*v+vorigin_p));
+	    pos(0)=ucell; pos(1)=vcell;
+	    ////TESTOO
+	    //if(row==0){
+	     
+	    //  ofstream myfile;
+	    //  myfile.open ("briggsLoc.txt", ios::out | ios::app | ios::ate );
+	    //  myfile << vb.rowIds()(0) << " uv " << uvw.column(0) << " loc " << pos[0] << ", " << pos[1] << "\n"<< endl;
+	    //  myfile.close();
+  
+
+	    //}
+	    //////
 	    imweight(chn,row)=weight(chn%nChanWt,row);
 	    Float gwt=grids_p[index]->getAt(pos);
 	    if((ucell>0)&&(ucell<nx_p)&&(vcell>0)&&(vcell<ny_p) &&gwt>0.0) {
@@ -217,7 +230,7 @@ using namespace casa::vi;
 
 void BriggsCubeWeightor::initializeFTMachine(const uInt index, const ImageInterface<Complex>& templateimage, const Int uvbox){
   Int nchan=templateimage.shape()(3);
-  if(ft_p.nelements() < index){
+  if(ft_p.nelements() <= index){
     ft_p.resize(index+1);
     grids_p.resize(index+1);
     f2_p.resize(index+1);
@@ -225,7 +238,7 @@ void BriggsCubeWeightor::initializeFTMachine(const uInt index, const ImageInterf
     f2_p[index]=Vector<Float>(nchan, 0.0);
     d2_p[index]=Vector<Float>(nchan, 0.0);
   }
-  ft_p[index]=new GridFT(Long(1000000), Int(200), "BOX",1.0, true, false);
+  ft_p[index]=new refim::GridFT(Long(1000000), Int(200), "BOX",1.0, true, false);
   //remember to make the stokes I
   grids_p[index]=new TempImage<Float>(templateimage.shape(), templateimage.coordinates(), 0.0);
   

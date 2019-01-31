@@ -69,7 +69,7 @@
       }
       tmpFloat.set(0.0);
       shp=tmpFloat.shape();
-      cerr << std::setprecision(12) << sum(griddedData) << endl;
+      cerr << "getgrid "  << sum(griddedData) << endl;
       casacore::IPosition in(4, 0, 0, 0, 0);
       casacore::IPosition out(4, 0,0,0,0);
       for (casacore::Int cc=0; cc< shp[3]; ++cc){
@@ -81,15 +81,16 @@
 	  for (casacore::Int yy=0; yy< shp[1]/2; ++yy){
 	    in[1]=yy+shp[1]/2;
 	    out[1]=-yy+shp[1]/2;
-	    for(casacore::Int xx=-shp[0]/2; xx< shp[0]/2; ++xx){
+	    for(casacore::Int xx=-shp[0]/2+1; xx< shp[0]/2; ++xx){
 	      in[0]=xx+shp[0]/2;
 	      out[0]=-xx+shp[0]/2;
-	      tmpFloat(in)+=real(griddedData(out));
-	      tmpFloat(out)+=real(griddedData(in)); 
+	      tmpFloat(in)+=real(griddedData(out))+real(griddedData(in));
+	      tmpFloat(out)+=tmpFloat(in); 
 	    }
 	  }
 	}
       }
+      cerr << "tmpFloat " << sum(tmpFloat) << endl;
       ptr=tmpFloat.getStorage(del);
     }
     else if(((whatType(&thegrid)==casacore::TpArrayDouble))){
@@ -119,11 +120,13 @@
 	  for (casacore::Int yy=0; yy< shp[1]/2; ++yy){
 	    in[1]=yy+shp[1]/2;
 	    out[1]=-yy+shp[1]/2;
-	    for(casacore::Int xx=-shp[0]/2; xx< shp[0]/2; ++xx){
+	    for(casacore::Int xx=-shp[0]/2+1; xx< shp[0]/2; ++xx){
 	      in[0]=xx+shp[0]/2;
 	      out[0]=-xx+shp[0]/2;
-	      tmpDouble(in)+=real(griddedData2(out));
-	      tmpDouble(out)+=real(griddedData2(in)); 
+//	      tmpDouble(in)+=real(griddedData2(out));
+//	      tmpDouble(out)+=real(griddedData2(in));
+	      tmpDouble(in)+=real(griddedData2(out))+real(griddedData2(in));
+	      tmpDouble(out)+=tmpDouble(in);
 	    }
 	  }
 	}

@@ -57,7 +57,7 @@ class BriggsCubeWeightor{
     void cube2Matrix(const casacore::Cube<casacore::Bool>& fcube, casacore::Matrix<casacore::Bool>& fMat);
     casacore::Block<casacore::CountedPtr<casacore::ImageInterface<casacore::Float> > > grids_p;
     
-    casacore::Block<casacore::CountedPtr<GridFT> >  ft_p;
+    casacore::Block<casacore::CountedPtr<refim::GridFT> >  ft_p;
     std::map<casacore::String, casacore::Int> multiFieldMap_p;
     casacore::Block<casacore::Vector<casacore::Float> > f2_p, d2_p;
     casacore::Float uscale_p, vscale_p;
