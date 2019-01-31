@@ -693,6 +693,70 @@ class TestHelpers():
 
           return imlist
 
+     def mergeParaCubeResults(self, 
+                          ret=None,  
+                          parlist=[]
+                          #peakres=None, # a float
+                          #modflux=None, # a float
+                          #iterdone=None, # an int
+                          #nmajordone=None, # an int
+                          #imexist=None,  # list of image names
+                          #imexistnot=None, # list of image names
+                          #imval=None,  # list of tuples of (imagename,val,pos)
+                          #imvalexact=None, # list of tuples of (imagename,val,pos)
+                          #immask=None,  #list of tuples to check mask value
+                          #tabcache=True,
+                          #stopcode=None,
+                          #reffreq=None # list of tuples of (imagename, reffreq)
+                          ):
+         if ret!=None and type(ret)==dict:
+             if ret.keys()[0].count('node'):
+                 mergedret={}
+                 nodenames = ret.keys()
+                 print "ret NOW=",ret
+                 # must be parallel cube results
+                 if parlist.count('iterdone'):
+                     retIterdone = 0
+                     for inode in nodenames:
+                         print "ret[",inode,"]=",ret[inode]
+                         print "inode.strip = ", int(inode.strip('node'))
+                         retIterdone+=ret[inode][int(inode.strip('node'))]['iterdone']
+                     mergedret['iterdone']=retIterdone
+                 if parlist.count('nmajordone'):
+                     retNmajordone = 0
+                     for inode in nodenames:
+                         retNmajordone = max(ret[inode][int(inode.strip('node'))]['nmajordone'],retNmajordone) 
+                     mergedret['nmajordone']=retNmajordone
+                 if parlist.count('peakres'):
+                     #retPeakres = 0
+                     #for inode in nodenames:
+                         #tempreslist = ret[inode][int(inode.strip('node'))]['summaryminor'][1,:]
+                         #if len(tempreslist)>0: 
+                         #    tempresval = tempreslist[len(tempreslist)-1]
+                         #else: 
+                         #    tempresval=0.0
+                         #retPeakres = max(tempresval,retPeakres) 
+                     mergedret['summaryminor']=ret['node1'][1]['summaryminor']
+                 if parlist.count('modflux'):
+                     #retModflux = 0
+                     #for inode in nodenames:
+                     #    tempmodlist = ret[inode][int(inode.strip('node'))]['summaryminor'][2,:]
+                     #    print "tempmodlist for ",inode,"=",tempmodlist
+                     #    if len(tempmodlist)>0:
+                     #         tempmodval=tempmodlist[len(tempmodlist)-1]
+                     #    else:
+                     #         tempmodval=0.0
+                     #    retModflux += tempmodval
+                     #mergedret['modflux']=retModflux
+                    if not mergedret.has_key('summaryminor'):
+                        mergedret['summryminor']=et['node1'][1]['summaryminor']
+                 if parlist.count('stopcode'):
+                     mergedret['stopcode']=ret['node1'][1]['stopcode']
+             else:
+                 mergedret=ret 
+
+         return mergedret
+
 ##############################################
 
 

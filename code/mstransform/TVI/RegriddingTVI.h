@@ -167,6 +167,28 @@ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
+// RegriddingTVILayerFactory class  (for _recursive_ layering)
+//////////////////////////////////////////////////////////////////////////
+
+class RegriddingTVILayerFactory : public ViiLayerFactory
+{
+
+public:
+
+  RegriddingTVILayerFactory(casacore::Record &configuration);
+
+  virtual ~RegriddingTVILayerFactory() {};
+
+protected:
+
+
+  virtual ViImplementation2 * createInstance(ViImplementation2* vii0) const;
+
+  const casacore::Record configuration_p;
+
+};
+
+//////////////////////////////////////////////////////////////////////////
 // RegriddingTransformEngine class
 //////////////////////////////////////////////////////////////////////////
 

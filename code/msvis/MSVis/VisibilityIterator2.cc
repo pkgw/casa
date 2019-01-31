@@ -128,9 +128,12 @@ VisibilityIterator2::VisibilityIterator2 (const Vector<ViiLayerFactory*> & facto
 : impl_p (0)
 {
 
-  Int nfactory=factories.nelements();
+    Int nfactory=factories.nelements();
+    
+    if(factories(nfactory-1) == nullptr)
+        throw(AipsError("ViiLayerFactory in factories is null"));
 
-  ViImplementation2 * newImpl = factories(nfactory-1)->createViImpl2(factories(Slice(0,nfactory-1,1)));
+    ViImplementation2 * newImpl = factories(nfactory-1)->createViImpl2(factories(Slice(0,nfactory-1,1)));
 
     impl_p = newImpl;
 }

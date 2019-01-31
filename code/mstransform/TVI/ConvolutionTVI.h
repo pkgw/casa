@@ -41,7 +41,7 @@ class ConvolutionTVI : public FreqAxisTVI
 public:
 
 	ConvolutionTVI(	ViImplementation2 * inputVii,
-					const casacore::Record &configuration);
+					const casacore::Record &configuration = casacore::Record());
 
     void flag(casacore::Cube<casacore::Bool>& flagCube) const;
     void floatData (casacore::Cube<casacore::Float> & vis) const;

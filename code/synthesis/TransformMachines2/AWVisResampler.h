@@ -166,7 +166,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  casacore::Int* igrdpos);
 
   template <class T>
-  void accumulateFromGrid(T& nvalue, const T* __restrict__& grid, 
+  void accumulateFromGrid(T& nvalue, casacore::Complex& norm, const T* __restrict__& grid, 
 			  casacore::Vector<casacore::Int>& iGrdPos,
 			  casacore::Complex* __restrict__& convFuncV, 
 			  casacore::Double& wVal, casacore::Vector<casacore::Int>& scaledSupport, 
@@ -261,6 +261,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     void addTo4DArray(T *__restrict__& store,
     		      const casacore::Int *__restrict__& iPos, const casacore::Vector<casacore::Int>& inc, 
 		      casacore::Complex& nvalue, casacore::Complex& wt) __restrict__
+    {
+      // T *tmp=store+(iPos[0] + iPos[1]*inc[1] + iPos[2]*inc[2] +iPos[3]*inc[3]);
+      // *tmp += nvalue*wt;
+      store[iPos[0] + iPos[1]*inc[1] + iPos[2]*inc[2] +iPos[3]*inc[3]] += (nvalue*wt);
+    }
+
+    template <class T>
+    void addTo4DArray_ptr(T *__restrict__& store,
+			  const casacore::Int *__restrict__& iPos,
+			  const casacore::Int *__restrict__& inc, 
+			  casacore::Complex& nvalue, casacore::Complex& wt) __restrict__
     {
       // T *tmp=store+(iPos[0] + iPos[1]*inc[1] + iPos[2]*inc[2] +iPos[3]*inc[3]);
       // *tmp += nvalue*wt;

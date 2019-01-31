@@ -733,7 +733,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     for(uInt tix=0;tix<2*itsNTerms-1;tix++)
       {
 	if( resetpsf ) psf(tix)->set(0.0);
-	if( resetweight && itsWeights[tix] ) weight(tix)->set(0.0);
 
 	if( tix < itsNTerms ) {
 	  if( resetresidual ) {

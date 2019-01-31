@@ -1561,21 +1561,21 @@ public:
 	
  	/**
  	 * Get parallax, which is optional.
- 	 * @return parallax as std::vector<std::vector<Angle > >
+ 	 * @return parallax as std::vector<Angle >
  	 * @throws IllegalAccessException If parallax does not exist.
  	 */
- 	std::vector<std::vector<Angle > > getParallax() const;
+ 	std::vector<Angle > getParallax() const;
 	
  
  	
  	
  	/**
- 	 * Set parallax with the specified std::vector<std::vector<Angle > >.
- 	 * @param parallax The std::vector<std::vector<Angle > > value to which parallax is to be set.
+ 	 * Set parallax with the specified std::vector<Angle >.
+ 	 * @param parallax The std::vector<Angle > value to which parallax is to be set.
  	 
  		
  	 */
- 	void setParallax (std::vector<std::vector<Angle > > parallax);
+ 	void setParallax (std::vector<Angle > parallax);
 		
 	
 	
@@ -2292,7 +2292,7 @@ private:
 	bool parallaxExists;
 	
 
-	std::vector<std::vector<Angle > > parallax;
+	std::vector<Angle > parallax;
 
 	
 	
