@@ -42,6 +42,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value/>
             <example>"1"</example>
         </param>
+        <param type="string" name="scan" subparam="true">
+            <description>Select data by scan numbers.</description>
+            <value/>
+            <example>"5"</example>
+        </param>
         <param type="string" name="combine">
             <description>Ignore changes in these columns (scan, field, and/or state) when aggregating samples to compute weights. The value "corr" is also supported to aggregate samples across correlations.</description>
             <value/>
@@ -137,6 +142,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                     <default param="observation"><value>""</value></default>
                     <default param="intent"><value>""</value></default>
                     <default param="array"><value>""</value></default>
+                    <default param="scan"><value>""</value></default>
                 </equals>
             </when>
             <when param="statalg">

@@ -34,18 +34,9 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-FreqAxisTVI::FreqAxisTVI(	ViImplementation2 * inputVii,
-							const Record &configuration):
+FreqAxisTVI::FreqAxisTVI(	ViImplementation2 * inputVii) :
 							TransformingVi2 (inputVii)
 {
-	// Parse and check configuration parameters
-	// Note: if a constructor finishes by throwing an exception, the memory
-	// associated with the object itself is cleaned up — there is no memory leak.
-	if (not parseConfiguration(configuration))
-	{
-		throw AipsError("Error parsing FreqAxisTVI configuration");
-	}
-
 	initialize();
 
 	// Initialize attached VisBuffer
@@ -71,31 +62,6 @@ FreqAxisTVI::~FreqAxisTVI()
 	return;
 }
 
-// -----------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------
-Bool FreqAxisTVI::parseConfiguration(const Record &configuration)
-{
-	int exists = -1;
-	Bool ret = true;
-
-	// Parse spw selection (optional)
-	exists = -1;
-	exists = configuration.fieldNumber ("spw");
-	if (exists >= 0)
-	{
-		configuration.get (exists, spwSelection_p);
-		logger_p << LogIO::DEBUG1 << LogOrigin("FreqAxisTVI", __FUNCTION__)
-				<< "spw selection is " << spwSelection_p
-				<< LogIO::POST;
-	}
-	else
-	{
-		spwSelection_p = "*";
-	}
-
-	return ret;
-}
 
 // -----------------------------------------------------------------------
 //
@@ -106,48 +72,18 @@ void FreqAxisTVI::initialize()
     if (inputVii_p == nullptr)
         return;
 
-    if (inputVii_p->msName()=="<noms>")
-        // Handle "no-MS" case  (SimpleSimVi2 as base layer)
-        formSelectedChanMap();
-    else {
-
-        // Get list of selected SPWs and channels
-        MSSelection mssel;
-        mssel.setSpwExpr(spwSelection_p);
-        Matrix<Int> spwchan = mssel.getChanList(&(inputVii_p->ms()));
-        logger_p << LogIO::DEBUG1 << LogOrigin("FreqAxisTVI", __FUNCTION__)
-			        << "Selected SPW:Channels are " << spwchan << LogIO::POST;
-
-        // Convert list of selected SPWs/Channels into a map
-        spwInpChanIdxMap_p.clear();
-        uInt nSelections = spwchan.shape()[0];
-        Int spw,channelStart,channelStop,channelStep;
-        for(uInt selection_i=0;selection_i<nSelections;selection_i++)
-        {
-            spw = spwchan(selection_i,0);
-            channelStart = spwchan(selection_i,1);
-            channelStop = spwchan(selection_i,2);
-            channelStep = spwchan(selection_i,3);
-
-            if (spwInpChanIdxMap_p.find(spw) == spwInpChanIdxMap_p.end())
-            {
-                spwInpChanIdxMap_p[spw].clear(); // Accessing the vector creates it
-            }
-
-            for (Int inpChan=channelStart;inpChan<=channelStop;inpChan += channelStep)
-            {
-                spwInpChanIdxMap_p[spw].push_back(inpChan);
-            }
-        }
-    }
-
+    //Create a map with the input SPWs and their channels.
+    //Note that this access directly the information provided by the previous
+    //layer and it is no longer based on the original MS selection, which
+    //for this particular layer might not make any sense (see CAS-9679).
+    formChanMap();
     return;
 }
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void FreqAxisTVI::formSelectedChanMap()
+void FreqAxisTVI::formChanMap()
 {
 	// This triggers realization of the channel selection
 	inputVii_p->originChunks();

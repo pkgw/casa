@@ -35,6 +35,7 @@
   Float  *samplingPtr;
   Double *offPtr;
   Bool dummy;
+  Double sinDPA=0.0, cosDPA=1.0;
 
   gridPtr       = grid.getStorage(dummy);
   phaseGradPtr  = cached_phaseGrad_p.getStorage(dummy);

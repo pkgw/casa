@@ -1447,8 +1447,8 @@ AgentFlagger::parseTfcropParameters(String field, String spw, String array, Stri
 //
 // ---------------------------------------------------------------------
 bool
-AgentFlagger::parseAntIntParameters(String field, String spw, String array, 
-				    String feed, String scan, String antenna,
+AgentFlagger::parseAntIntParameters(String field, String spw, String /* array */, 
+				    String /* feed */, String scan, String antenna,
 				    String uvrange, String timerange, 
 				    String correlation, String intent,
 				    String observation, String antint_ref_antenna,
