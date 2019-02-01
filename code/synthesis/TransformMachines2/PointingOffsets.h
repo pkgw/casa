@@ -52,31 +52,27 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual casacore::Vector<casacore::Double> findMosaicPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
 									const vi::VisBuffer2& vb);
 
-    virtual casacore::Vector<casacore::Double> findAntennaPointingOffset(const vi::VisBuffer2& vb);
+    virtual casacore::Vector<casacore::Double> findAntennaPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+									 const vi::VisBuffer2& vb);
 
-    void toPix(const vi::VisBuffer2& vb);
-    void storeImageParams(const casacore::ImageInterface<casacore::Complex>& iimage,
-			  const vi::VisBuffer2& vb);
+    casacore::Vector<double> gradPerPixel(const casacore::Vector<double>& p);
+    casacore::Vector<casacore::Double>& toPix(const vi::VisBuffer2& vb, 
+					      const casacore::MDirection& dir1, const casacore::MDirection& dir2);
+    void storeImageParams(const casacore::ImageInterface<casacore::Complex>& iimage, const vi::VisBuffer2& vb);
   private:
 
-    casacore::Vector<casacore::Double> thePix_p, pixFieldGrad_p;
+    casacore::Vector<double> thePix_p, pixFieldGrad_p;
     casacore::DirectionCoordinate imageDC_p;
     casacore::ObsInfo imageObsInfo_p;
-    casacore::Int nx_p; 
-    casacore::Int ny_p;
-    casacore::Int nchan_p;
-    casacore::Int npol_p;
-    casacore::Int convOversampling_p;
+    int nx_p, ny_p, nchan_p, npol_p, convOversampling_p, directionIndex_p;
     casacore::CoordinateSystem csys_p;
     casacore::DirectionCoordinate dc_p;
     casacore::MDirection::Convert pointToPix_p;
     casacore::MeasFrame pointFrame_p;
     casacore::MEpoch::Types timeMType_p;
     casacore::Unit timeUnit_p;
-    casacore::Int directionIndex_p;
     casacore::MDirection direction1_p;
     casacore::MDirection direction2_p;
-
     casacore::CountedPtr<SolvableVisJones> epJ_p;
 
   };

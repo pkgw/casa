@@ -75,6 +75,7 @@ namespace casa{
 						       const VisBuffer2& vb)
   {
     return po_p->findMosaicPointingOffset(image,vb);
+    //return po_p->findAntennaPointingOffset(image,vb);
   }
   //
   //----------------------------------------------------------------------

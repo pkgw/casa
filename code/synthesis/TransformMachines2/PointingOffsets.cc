@@ -55,62 +55,86 @@ namespace casa{
   //
   //----------------------------------------------------------------------
   //
-  casacore::Vector<casacore::Double> PointingOffsets::findMosaicPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-									       const VisBuffer2& vb)
+  casacore::Vector<double> PointingOffsets::findMosaicPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+								     const VisBuffer2& vb)
   {
     storeImageParams(image,vb);
     //where in the image in pixels is this pointing
     pixFieldGrad_p.resize(2);
-    toPix(vb);
-    pixFieldGrad_p=thePix_p;
 
-    MDirection fieldDir=direction1_p;
-    //shift from center
-    pixFieldGrad_p(0) = pixFieldGrad_p(0) - Double(nx_p / 2);
-    pixFieldGrad_p(1) = pixFieldGrad_p(1) - Double(ny_p / 2);
+    thePix_p = toPix(vb, vb.direction1()(0), vb.direction2()(0));
 
-    //Int convSampling=getOversampling(*psTerm_p,*wTerm_p,*aTerm_p);
+    pixFieldGrad_p = gradPerPixel(thePix_p);
+    // //    MDirection fieldDir=direction1_p;
+    // //shift from center
+    // pixFieldGrad_p(0) = pixFieldGrad_p(0) - double(nx_p / 2);
+    // pixFieldGrad_p(1) = pixFieldGrad_p(1) - double(ny_p / 2);
 
-    //phase gradient per pixel to apply
-    pixFieldGrad_p(0) = -pixFieldGrad_p(0)*2.0*C::pi/Double(nx_p)/Double(convOversampling_p);
-    pixFieldGrad_p(1) = -pixFieldGrad_p(1)*2.0*C::pi/Double(ny_p)/Double(convOversampling_p);
+    // //Int convSampling=getOversampling(*psTerm_p,*wTerm_p,*aTerm_p);
+
+    // //phase gradient per pixel to apply
+    // pixFieldGrad_p(0) = -pixFieldGrad_p(0)*2.0*C::pi/double(nx_p)/double(convOversampling_p);
+    // pixFieldGrad_p(1) = -pixFieldGrad_p(1)*2.0*C::pi/double(ny_p)/double(convOversampling_p);
 
     return pixFieldGrad_p;
   };
   //
   //----------------------------------------------------------------------
   //
-  casacore::Vector<casacore::Double> PointingOffsets::findAntennaPointingOffset(const vi::VisBuffer2& vb)
+  casacore::Vector<double> PointingOffsets::findAntennaPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+								      const vi::VisBuffer2& vb)
   {
-    casacore::Vector<casacore::Double> antOffsets;
+    casacore::Vector<double> antOffsets;
+    storeImageParams(image,vb);
+    VisBufferUtil vbUtils;
+    MDirection antDir =vbUtils.getPointingDir(vb, 0, 0); 
+    thePix_p = toPix(vb, antDir, antDir);
+    antOffsets = gradPerPixel(thePix_p);
 
-    // if (epJ_p.isNull())
-      {
-	cerr << "#######: Using POINTING subtable to get antenna pointing offsets" << endl;
+    // // if (epJ_p.isNull())
+    //   {
+    // 	cerr << "#######: Using POINTING subtable to get antenna pointing offsets" << endl;
     
-	VisBufferUtil vbUtils;
+    // 	VisBufferUtil vbUtils;
 
-	int vbrow=0;
-	int nant = vb.subtableColumns().antenna().nrow();
-	antOffsets.resize(nant);
-	for (int antid=0;antid<nant; antid++)
-	  {
-	    MVDirection antdir=vbUtils.getPointingDir(vb, antid, vbrow).getValue();
-	    MVDirection vbdir=vb.direction1()(0).getValue();
-	    antOffsets[antid]=antdir.separation(vbdir);
-	  }
-     }
+    // 	int vbrow=0;
+    // 	int nant = vb.subtableColumns().antenna().nrow();
+    // 	antOffsets.resize(nant);
+    // 	for (int antid=0;antid<nant; antid++)
+    // 	  {
+    // 	    MVDirection antdir=vbUtils.getPointingDir(vb, antid, vbrow).getValue();
+    // 	    MVDirection vbdir=vb.direction1()(0).getValue();
+    // 	    antOffsets[antid]=antdir.separation(vbdir);
+    // 	  }
+    //  }
       
       return antOffsets;
   }
   //
   //----------------------------------------------------------------------
   //
-  void PointingOffsets::toPix(const VisBuffer2& vb) 
+  Vector<double> PointingOffsets::gradPerPixel(const Vector<double>& p)
+  {
+    Vector<double> gPP(2);
+    gPP(0) = p(0) - double(nx_p/2);
+    gPP(1) = p(1) - double(ny_p/2);
+
+    gPP(0) = -gPP(0)*2.0*C::pi/double(nx_p)/double(convOversampling_p);
+    gPP(1) = -gPP(1)*2.0*C::pi/double(ny_p)/double(convOversampling_p);
+
+    return gPP;
+  }
+  //
+  //----------------------------------------------------------------------
+  //
+  Vector<double>& PointingOffsets::toPix(const VisBuffer2& vb, 
+					 const MDirection& dir1, 
+					 const MDirection& dir2) 
   {
     thePix_p.resize(2);
 
-    if(dc_p.directionType() !=  MDirection::castType(vb.direction1()(0).getRef().getType())){
+    //    if(dc_p.directionType() !=  MDirection::castType(vb.direction1()(0).getRef().getType())){
+    if(dc_p.directionType() !=  MDirection::castType(dir1.getRef().getType())){
       //pointToPix_p.setModel(theDir);
       
       MEpoch timenow(Quantity(vb.time()(0), timeUnit_p), timeMType_p);
@@ -122,16 +146,19 @@ namespace casa{
       //////////////////////////
       //pointToPix holds pointFrame_p by reference...
       //thus good to go for conversion
-      direction1_p=pointToPix_p(vb.direction1()(0));
-      direction2_p=pointToPix_p(vb.direction2()(0));
+      direction1_p=pointToPix_p(dir1);
+      direction2_p=pointToPix_p(dir2);
       dc_p.toPixel(thePix_p, direction1_p);
 
     }
     else{
-      direction1_p=vb.direction1()(0);
-      direction2_p=vb.direction2()(0);
-      dc_p.toPixel(thePix_p, vb.direction1()(0));
+      direction1_p=dir1;
+      direction2_p=dir2;
+      dc_p.toPixel(thePix_p, dir1);
     }
+    // Return the internal variable, just to make code more readable
+    // at the place of the call.
+    return thePix_p;
   };
 
   //
@@ -144,7 +171,7 @@ namespace casa{
     if((iimage.shape().product() != nx_p*ny_p*nchan_p*npol_p) || nchan_p < 1)
       {
 	csys_p=iimage.coordinates();
-	Int coordIndex=csys_p.findCoordinate(Coordinate::DIRECTION);
+	int coordIndex=csys_p.findCoordinate(Coordinate::DIRECTION);
 	AlwaysAssert(coordIndex>=0, AipsError);
 	directionIndex_p=coordIndex;
 	dc_p=csys_p.directionCoordinate(directionIndex_p);
@@ -161,7 +188,7 @@ namespace casa{
 	    !MeasTable::Observatory(pos,tel)) 
 	  {
 	    // unknown observatory, use first antenna
-	    Int ant1 = vb.antenna1()(0);
+	    int ant1 = vb.antenna1()(0);
 	    pos=vb.subtableColumns().antenna().positionMeas()(ant1);
 	  }
 	//cout << "TELESCOPE " << tel << endl;
@@ -178,7 +205,7 @@ namespace casa{
 	nx_p=iimage.shape()(coordIndex);
 	ny_p=iimage.shape()(coordIndex+1);
 	coordIndex=csys_p.findCoordinate(Coordinate::SPECTRAL);
-	Int pixAxis=csys_p.pixelAxes(coordIndex)[0];
+	int pixAxis=csys_p.pixelAxes(coordIndex)[0];
 	nchan_p=iimage.shape()(pixAxis);
 	coordIndex=csys_p.findCoordinate(Coordinate::STOKES);
 	pixAxis=csys_p.pixelAxes(coordIndex)[0];
