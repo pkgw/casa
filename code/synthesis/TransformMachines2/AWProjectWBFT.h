@@ -100,6 +100,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual void makeSensitivityImage(const VisBuffer2& vb, 
 				      const casacore::ImageInterface<casacore::Complex>& imageTemplate,
 				      casacore::ImageInterface<casacore::Float>& sensitivityImage);
+    virtual void makeSensitivityImage(const VisBuffer2& vb, 
+				      const casacore::ImageInterface<casacore::DComplex>& imageTemplate,
+				      casacore::ImageInterface<casacore::Float>& sensitivityImage);
     //
     // In AWProjectWBFT and its derivatives, sensitivity image is
     // computed by accumulating weight functions (images) during the
@@ -110,11 +113,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // accumulated weight images.  doFFTNorm when true, the FFT
     // normalization (by pixel volume) is also done.
     //
-    virtual void makeSensitivityImage(casacore::Lattice<casacore::Complex>& wtImage,
+    template <class T>
+    void makeSensitivityImage(casacore::Lattice<T>& wtImage,
 				      casacore::ImageInterface<casacore::Float>& sensitivityImage,
 				      const casacore::Matrix<casacore::Float>& sumWt=casacore::Matrix<casacore::Float>(),
 				      const casacore::Bool& doFFTNorm=true);
-    virtual void makeSensitivitySqImage(casacore::Lattice<casacore::Complex>& wtImage,
+    void makeSensitivitySqImage(casacore::Lattice<casacore::Complex>& wtImage,
 					casacore::ImageInterface<casacore::Complex>& sensitivitySqImage,
 					const casacore::Matrix<casacore::Float>& sumWt=casacore::Matrix<casacore::Float>(),
 					const casacore::Bool& doFFTNorm=true);
@@ -168,16 +172,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual void setCFCache(casacore::CountedPtr<CFCache>& cfc, const casacore::Bool resetCFC=true);
 
   protected:
-    virtual void ftWeightImage(casacore::Lattice<casacore::Complex>& wtImage, 
-			       const casacore::Matrix<casacore::Float>& sumWt,
-			       const casacore::Bool& doFFTNorm);
+    template <class T>
+    void ftWeightImage(casacore::Lattice<T>& wtImage, 
+		       const casacore::Matrix<casacore::Float>& sumWt,
+		       const casacore::Bool& doFFTNorm);
 
     virtual void resampleDataToGrid(casacore::Array<casacore::Complex>& griddedData,VBStore& vbs, 
 				    const VisBuffer2& vb, casacore::Bool& dopsf);
     virtual void resampleDataToGrid(casacore::Array<casacore::DComplex>& griddedData,VBStore& vbs, 
 				    const VisBuffer2& vb, casacore::Bool& dopsf);
     //    virtual void resampleGridToData(VBStore& vbs, const VisBuffer2& vb);
-    void resampleCFToGrid(casacore::Array<casacore::Complex>& wtsGrid, 
+    template <class T>
+    void resampleCFToGrid(casacore::Array<T>& wtsGrid, 
 			  VBStore& vbs, const VisBuffer2& vb);
 
     casacore::Bool avgPBReady_p,resetPBs_p, wtImageFTDone_p;
@@ -185,9 +191,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   private:
     casacore::String tt_pp;
     casacore::Vector<casacore::Int> fieldIds_p;
-    casacore::TempImage<casacore::Complex> griddedWeights, griddedConjWeights;
+    casacore::TempImage<casacore::Complex> griddedWeights;
+    casacore::TempImage<casacore::DComplex> griddedWeights_D;
     CFStore rotatedCFWts_p;
-    casacore::Float pbNorm;
     casacore::CountedPtr<VisibilityResamplerBase> visResamplerWt_p;
     // //
     // // These ugly methods (ugly due to their flirtation with FORTRAN) should go!

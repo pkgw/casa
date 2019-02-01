@@ -48,7 +48,10 @@ if CASA6:
     calTab = casatools.ctsys.resolve('caltables/anpos.manual.cal')
     imfile = casatools.ctsys.resolve('image/ngc5921.clean.image')
 else:
-    datapath = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/'
+    if os.path.exists(os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req'):
+        datapath = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/'
+    else:
+        datapath = os.environ.get('CASAPATH').split()[0] + '/casa-data-req/'
     mesSet = datapath + 'visibilities/vla/ngc7538_ut.ms'
     calTab = datapath + 'caltables/anpos.manual.cal/'
     imfile = datapath + 'image/ngc5921.clean.image/'

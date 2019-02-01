@@ -26,7 +26,7 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-ReadMSAlgorithm::ReadMSAlgorithm() : msid(0), myName("Test Parallel Read")
+ReadMSAlgorithm::ReadMSAlgorithm() : /*msid(0),*/ myName("Test Parallel Read")
 {
   
 };
