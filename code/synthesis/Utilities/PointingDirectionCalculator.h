@@ -262,7 +262,17 @@ public:
 
     void setSplineInterpolation(bool mode) {fgSplineInterpolation = mode;};
 
+#if 0
     std::unique_ptr<casa::SplineInterpolation>    &getSplineObj() { return spline; }
+
+// Under Construction: choose one and assign spline //
+
+    void selectDirectionForSpline()       { /* spline = splineDir;*/  }
+    void selectTargetForSpline()          { /* spline = splineTar;*/  }
+    void selectPointingOffsetForSpline()  { /* spline = splinePof;*/  }
+    void selectSourceOffsetSpline()       { /* spline = splineSof;*/  }
+    void selectEncoderForSpline()         { /* spline = splineEnc;*/  }
+#endif 
 
 private:
 
@@ -325,11 +335,28 @@ private:
         casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Org::Lenear only 
         casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New::Spline only
 
-     // Spline object and flag
+     // Spline object and flag (for each Direction Column)
       
         bool fgSplineInterpolation = true;       // Use Spline if TRUE
-        std::unique_ptr<casa::SplineInterpolation>     spline;  // empty pointer: need to initialize
+        std::unique_ptr<casa::SplineInterpolation>     spline_; // Active Object 
 
+        std::unique_ptr<casa::SplineInterpolation>     splineDir;   // for DIRECTION
+        std::unique_ptr<casa::SplineInterpolation>     splineTar;   // for TARGET
+        std::unique_ptr<casa::SplineInterpolation>     splinePof;   // for POINTING_OFFSET
+        std::unique_ptr<casa::SplineInterpolation>     splineSof;   // for SOURCE_OFFSET
+        std::unique_ptr<casa::SplineInterpolation>     splineEnc;   // for ENCODER 
+
+    // Spline Object handle
+
+        std::unique_ptr<casa::SplineInterpolation>    &getSplineObj() { return spline_; }
+
+    // Select a Dirction-Column for Spline (Under Construction)  //
+
+    void selectDirectionForSpline()       { /* spline = splineDir;*/  }
+    void selectTargetForSpline()          { /* spline = splineTar;*/  }
+    void selectPointingOffsetForSpline()  { /* spline = splinePof;*/  }
+    void selectSourceOffsetSpline()       { /* spline = splineSof;*/  }
+    void selectEncoderForSpline()         { /* spline = splineEnc;*/  }
 };
 
 //+
@@ -361,6 +388,7 @@ private:
 };
 
 //+
+// CAS-8418
 // Spline Interpolation Class
 //-
 
@@ -373,7 +401,7 @@ public:
 
        ~SplineInterpolation() { };
 
-        // Caluclation Available 
+        // Caluclation Available or not. 
 
         bool   isCalculateAvailable() { return coeffActive; }
 
@@ -390,7 +418,8 @@ private:
 
          void init( casacore::MeasurementSet const &ms, ACCESSOR const my_accessor);
 
-        // Coefficiat Table 
+        // Coefficiat Table (returned from SDPosInterpolator) //
+
         bool     coeffActive = false;   // True when Coeff is ready to be used.   
         casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > coeff_;
 
@@ -399,6 +428,7 @@ private:
 };
 
 //+
+// CAS-8418
 // Antenna Boundary Class
 //-
 class AntennaBoundary {
@@ -406,7 +436,8 @@ public:
          AntennaBoundary(casacore::MeasurementSet const &ms) ;
         ~AntennaBoundary() { };
 
-        casacore::uInt  getAntennaBoundary( casacore::uInt n ){return antennaBoundary_[n];}
+        std::pair<casacore::uInt, casacore::uInt>  getAntennaBoundary( casacore::uInt n );
+    
         casacore::uInt  getNumAntennaBoundary( ){return numAntennaBoundary_;}
 
         casacore::MSPointing  getPointingHandle() { return hPointing_; };

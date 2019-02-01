@@ -145,6 +145,16 @@ inline void skipMovingSourceCorrection(
 
 using namespace casacore;
 namespace casa {
+
+// CAS-8418 (Column checck in Pointing Table)//
+bool checkColumn(MeasurementSet const &ms,String const &columnName )
+{
+    String columnNameUpcase = columnName;
+    columnNameUpcase.upcase();
+    if (true == (ms.pointing().tableDesc().isColumn(columnNameUpcase))) return true;
+    else return false;
+}
+
 PointingDirectionCalculator::PointingDirectionCalculator(
         MeasurementSet const &ms) :
         originalMS_(new MeasurementSet(ms)), selectedMS_(), pointingTable_(), pointingColumns_(), timeColumn_(), intervalColumn_(), antennaColumn_(), directionColumnName_(), accessor_(
@@ -170,12 +180,48 @@ PointingDirectionCalculator::PointingDirectionCalculator(
 //   if coeff table is inactive, disable spline mode.
 //-
 
-    // Create Spline Object and Inspect //    
-    unique_ptr<SplineInterpolation>  spTemp( new SplineInterpolation(ms,accessor_));
-    spline = std::move(spTemp);
-    if( spline->isCalculateAvailable() == false) fgSplineInterpolation = false;
+    // Create Spline Object for All Direction-Columns //   
 
-//--------from here , original code -----
+    if(checkColumn(ms, "DIRECTION"       )) {
+        printf("Spline Obj:: attempt to construct by DIRECTION.\n");
+        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,directionAccessor));
+        splineDir = std::move(spTemp);
+    }
+
+// following initialization is sort of heavy.  
+//    choose what is needed. 
+#if 0
+    if(checkColumn(ms, "TARGET"          )) {
+        printf("Spline Obj:: attempt to construct by TARGET.\n");
+        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,targetAccessor));
+        splineTar = std::move(spTemp);
+    }
+
+    if(checkColumn(ms, "POINTING_OFFSET" )) {
+        printf("Spline Obj:: attempt to construct by POINTING_OFFSET.\n");
+        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,pointingOffsetAccessor));
+        splinePof = std::move(spTemp);
+    }
+
+    if(checkColumn(ms, "SOURCE_OFFSET"   )) {
+        printf("Spline Obj:: attempt to construct by SOURCE_OFFSET.\n");
+        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,sourceOffsetAccessor));
+        splineSof = std::move(spTemp);
+    }
+
+    if(checkColumn(ms, "ENCODER"         )) {
+        printf("Spline Obj:: attempt to construct by ENCODER.\n");
+        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,encoderAccessor));
+        splineEnc = std::move(spTemp);
+    }
+#endif 
+    // select Direction columns for spline //
+    spline_ = std::move(splineDir);
+
+    // Insufficient Data //
+    if( spline_ ->isCalculateAvailable() == false) fgSplineInterpolation = false;
+
+//-------- original code from here. -----
     init();
 
     // set default output direction reference frame
@@ -184,6 +230,7 @@ PointingDirectionCalculator::PointingDirectionCalculator(
     // set default direction column name
     setDirectionColumn("DIRECTION");
 }
+
 
 PointingDirectionCalculator::~PointingDirectionCalculator()
 {
@@ -305,6 +352,8 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 
     directionColumnName_ = columnNameUpcase;
 
+#if 1   // Existing code //
+
     if (directionColumnName_ == "DIRECTION") {
         accessor_ = directionAccessor;
     } else if (directionColumnName_ == "TARGET") {
@@ -321,10 +370,37 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
         throw AipsError(ss.str());
     }
 
-    // CAS-8418 (Reserved) chenge accessor in interpolation) //
-#if 0
-    getSplineObj() ->setDefaultAccessor( accessor_ );
+
+#else   // To be revised (under construction) //
+
+    if (directionColumnName_ == "DIRECTION") {
+        accessor_ = directionAccessor;
+        getSplineObj() ->setDefaultAccessor( accessor_ );
+        selectDirectionForSpline();
+    } else if (directionColumnName_ == "TARGET") {
+        accessor_ = targetAccessor;
+        getSplineObj() ->setDefaultAccessor( accessor_ );
+        selectTargetForSpline();
+    } else if (directionColumnName_ == "POINTING_OFFSET") {
+        accessor_ = pointingOffsetAccessor;
+        getSplineObj() ->setDefaultAccessor( accessor_ );
+        selectPointingOffsetForSpline();
+    } else if (directionColumnName_ == "SOURCE_OFFSET") {
+        accessor_ = sourceOffsetAccessor;
+        getSplineObj() ->setDefaultAccessor( accessor_ );
+        selectSourceOffsetSpline();
+    } else if (directionColumnName_ == "ENCODER") {
+        accessor_ = encoderAccessor;
+        getSplineObj() ->setDefaultAccessor( accessor_ );
+        selectEncoderForSpline();  
+    } else {
+        stringstream ss;
+        ss << "Column \"" << columnNameUpcase << "\" is not supported.";
+        throw AipsError(ss.str());
+    }
+
 #endif 
+// ---org code ---
     configureMovingSourceCorrection();
 }
 
@@ -388,285 +464,6 @@ void PointingDirectionCalculator::unsetMovingSource() {
 }
 
 
-//+
-//  CAS-8418
-//  AntennaBoundary sub class
-//-
-
-void AntennaBoundary::show()
-{
-    printf( "new Antenna Boundary Info, numAntennaBoundary_  = %u \n", numAntennaBoundary_  );
-    for (uInt b=0; b< antennaBoundary_.size(); b++)
-    {
-            printf( "new Created antennaBoundary_[%d] = %d \n", b, antennaBoundary_[b] );
-    }
-}
-
-AntennaBoundary::AntennaBoundary(MeasurementSet const &ms) 
-{
-        // Antenna Boundary List
-       
-        antennaBoundary_.resize(ms.antenna().nrow() + 1);
-        antennaBoundary_ = -1;
-
-        Int count = 0;
-        antennaBoundary_[count] = 0;
-        ++count;
-
-        // Pointing Table Handle and the Columns Handle//
-        //   with sorting by AntennaID and Time 
-
-        MSPointing hPointing_org  = ms.pointing();
-
-        Block<String> sortColumns(2);
-        sortColumns[0]="ANTENNA_ID";
-        sortColumns[1]="TIME";
-
-        // Pointing Table (handle)
-        MSPointing hPointingTmp(hPointing_org.sort(sortColumns));
-        hPointing_ = hPointingTmp;
-
-        // Column Handle (sorted) 
-
-        std::unique_ptr<casacore::ROMSPointingColumns>
-                columnPointing( new casacore::ROMSPointingColumns( hPointing_ ));
-
-        // Antenna List 
-
-        ROScalarColumn<casacore::Int>  antennaColumn = columnPointing->antennaId();
-        Vector<Int> antennaList =  antennaColumn.getColumn();
-
-        uInt nrow = antennaList.nelements();
-        Int lastAnt = antennaList[0];
-
-        for (uInt i = 0; i < nrow; ++i) 
-        {    
-            if (antennaList[i] > lastAnt) 
-            {    
-                antennaBoundary_[count] = i; 
-                count++;
-                lastAnt = antennaList[i];
-            }    
-            else if (antennaList[i] < lastAnt )
-            {    
-                printf( "xx FAITAL ERROR : Bad Sort in MS. xxxxxx \n" );
-                throw; // ABORT and Ignore //
-            }    
-        }    
-
-        antennaBoundary_[count] = nrow;
-        ++count;
-        numAntennaBoundary_ = count;
-
-       if (true) show();  // DEBUG //
-}
-
-//+
-// SplineInterpolation methods.
-//-
-SplineInterpolation::SplineInterpolation(MeasurementSet const &ms, ACCESSOR accessor ) 
-{
-    init(ms, accessor);
-
-    setDefaultAccessor(accessor);
-}
-SplineInterpolation::SplineInterpolation(MeasurementSet const &ms) // NOT TESTED //
-{
-    init(ms, getDefaultAccessor() );
-}
-
-void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_accessor)
-{
-    // Antenna Bounday //
-
-        AntennaBoundary  antb(ms);
-        uInt numAnt = antb.getNumAntennaBoundary() -1;
-
-    // prepere MS handle from selectedMS_
-        MSPointing hPoint = antb.getPointingHandle();
-        std::unique_ptr<casacore::ROMSPointingColumns>
-                columnPointing( new casacore::ROMSPointingColumns( hPoint ));
-
-    // Prepare Time and direction//
-
-      Vector<Vector<Double> >          tmp_time;
-      Vector<Vector<Vector<Double> > > tmp_dir;
-
-    // Resize (top level) //
-    
-      tmp_time.        resize(numAnt);
-      tmp_dir.         resize(numAnt);
-
-    // Column handle (only time,direction are needed, others are reserved) //
-    
-      ROScalarColumn<Double> pointingTime           = columnPointing ->time();
-      ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
-      ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-      ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
-
-    for(uInt ant=0; ant <numAnt; ant++)
-    {
-
-        uInt startPos = antb.getAntennaBoundary(ant);
-        uInt endPos   = antb.getAntennaBoundary(ant+1);
-        int size = endPos - startPos;
-
-        // define size of each antenna  
-          tmp_dir [ant]. resize(size);
-          tmp_time[ant]. resize(size);
-
-        // for each row // 
-        for (uInt row = startPos; row < endPos; row++) 
-        {
-            uInt index = row - startPos;
-
-            // resizei (for Dir) //
-            tmp_dir[ant][index].resize(2);
-
-            Double        time    = pointingTime.get(index);
-            MDirection     dir    = my_accessor(*columnPointing, index);
-            Vector<Double> dirVal = dir.getAngle("rad").getValue();
-
-            // set on Vector //
-            tmp_time[ant][index] = time;
-            tmp_dir [ant][index] = dirVal;
-
-            if(false)
-            {
-                printf("new SDP arg index=%d ant=%d, time=%f, dir=[%f,%f]\n", 
-                       index, ant, time, dirVal[0],dirVal[1]);
-            }
-        }
-    }
-
-
-    //+
-    // Minimum Condition Inspection
-    // (N >=4) 
-    //-
-
-    for(uInt ant=0; ant <numAnt; ant++)
-    {
-        uInt st =tmp_time[ant].size();
-        uInt s1 =tmp_dir [ant].size();
-        if ((st < 4)||(s1 < 4))
-        {
-           printf( "XXXXX INSUFFICIENT NUMBER OF POINTING DATA (%u,%u) XXXXX\n",st, s1);
-     
-           coeffActive = false;
-           return;
-        }
-    }
- 
-    //+
-    // SDPosInterpolator Objct 
-    //   - calulate Coefficient Table - 
-    //-
-
-      SDPosInterpolator  sdp (tmp_time, tmp_dir);
-   
-    // Obtain Coeff (copy object) //
-
-      coeff_ = sdp.getSplineCoeff();
-
-    // Table Active ..
-      coeffActive = true;
-
-    // Programmers inspection 
-      if(false) dumpCsvCoeff();
-
-}
-
-void SplineInterpolation::dumpCsvCoeff()
-{
-    FILE* fp = fopen( "coeff.csv","w" );
-
-    for(uInt ant=0; ant < coeff_.size(); ant++ )
-    {
-        uInt size2 = coeff_[ant].size();
-        printf( "AntID=%u, size=%u \n",ant, size2);
-        for(uInt i=0; i< size2; i++)
-        {
-            Double x_c0 = coeff_[ant][i][0][0];
-            Double x_c1 = coeff_[ant][i][0][1];
-            Double x_c2 = coeff_[ant][i][0][2];
-            Double x_c3 = coeff_[ant][i][0][3];
-
-            Double y_c0 = coeff_[ant][i][1][0];
-            Double y_c1 = coeff_[ant][i][1][1];
-            Double y_c2 = coeff_[ant][i][1][2];
-            Double y_c3 = coeff_[ant][i][1][3];
-
-            fprintf(fp,"Spline::COEFF[%d],%4d,", ant, i );
-            fprintf(fp, "X, %-12.5e, %-12.5e, %-12.5e, %-12.5e,|,",
-                    x_c0, x_c1, x_c2, x_c3 );
-                
-            fprintf(fp, "Y, %-12.5e, %-12.5e, %-12.5e, %-12.5e \n",
-                    y_c0, y_c1, y_c2, y_c3 );
-        }
-    }
-    fclose(fp);
-
-}
-
-//+
-// Interpolation Calculation
-//-
-casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
-                                                                  Double dt,
-                                                                  uInt antID )
-{
-    // Error check //
-
-    uInt arraySize = coeff_[antID].size();
-    if(  index >= arraySize)
-    {
-        printf("Bugcheck.Requested Index too large.\n");
-        throw;   
-    }
-   
-    // Coefficient //
-
-    Double a0 = coeff_[antID][index][0][0];
-    Double a1 = coeff_[antID][index][0][1];
-    Double a2 = coeff_[antID][index][0][2];
-    Double a3 = coeff_[antID][index][0][3];
-
-    Double b0 = coeff_[antID][index][1][0];
-    Double b1 = coeff_[antID][index][1][1];
-    Double b2 = coeff_[antID][index][1][2];
-    Double b3 = coeff_[antID][index][1][3];
-
-//+
-// Spline Calc
-//-
-    double Xs =  (((0* dt + a3)*dt + a2)*dt + a1)*dt + a0;
-    double Ys =  (((0* dt + b3)*dt + b2)*dt + b1)*dt + b0;
-
-// Test . inttentionally ignore high order ,Linear equivalent. //
-
-    if(false)
-    {
-        Xs = a1 * dt + a0;
-        Ys = b1 * dt + b0;
-
-        if(false)
-        {
-            Xs = a2* (dt*dt) + a1 * dt + a0;
-            Ys = b2* (dt*dt) + b1 * dt + b0;
-        }
-    }
-
-// Return //
-
-    Vector<Double> outval(2); 
-    // Spline interpolated//
-      outval[0] = Xs;
-      outval[1] = Ys;
-
-    return outval;
-
-}
 
 Matrix<Double> PointingDirectionCalculator::getDirection() {
     assert(!selectedMS_.null());
@@ -855,13 +652,9 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionOrg(uInt irow) {
     return outVal;
 }
 
-//+
-// (2) Revised (spline/linear) 
-//     * No more exist *
-//-
 
 //-------------------------------
-// (3) New Edition (Spline ONLY)
+// (2) New Edition (Spline ONLY)
 // ------------------------------
 Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
     debuglog << "doGetDirection(" << irow << ")" << debugpost;
@@ -945,7 +738,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
         else { printf( "BUGCHECK\n");  throw; } 
 
         //+
-        // Re-route if needed.
+        // Force to Linear,  if needed.
         //  In any case when Spline is incapable of.
         //-
         Vector<Double> interpolated(2);
@@ -1136,4 +929,301 @@ void PointingDirectionCalculator::resetTime(Double const timestamp) {
     }
 }
 
+//***************************************************
+//  Antenna Boundary (for Pointing Table ) methods
+//  CAS-8418
+//***************************************************
+
+// Constructor //
+AntennaBoundary::AntennaBoundary(MeasurementSet const &ms) 
+{
+        // Antenna Boundary body //
+        antennaBoundary_.resize(ms.antenna().nrow() + 1);
+        antennaBoundary_ = -1;
+
+        Int count = 0;
+        antennaBoundary_[count] = 0;
+        ++count;
+
+        // Pointing Table Handle and the Columns Handle//
+        //   with sorting by AntennaID and Time 
+
+        MSPointing hPointing_org  = ms.pointing();
+
+        Block<String> sortColumns(2);
+        sortColumns[0]="ANTENNA_ID";
+        sortColumns[1]="TIME";
+
+        // Pointing Table (handle)
+        MSPointing hPointingTmp(hPointing_org.sort(sortColumns));
+        hPointing_ = hPointingTmp;
+
+        // Column Handle (sorted) 
+
+        std::unique_ptr<casacore::ROMSPointingColumns>
+                columnPointing( new casacore::ROMSPointingColumns( hPointing_ ));
+
+        // Antenna List 
+
+        ROScalarColumn<casacore::Int>  antennaColumn = columnPointing->antennaId();
+        Vector<Int> antennaList =  antennaColumn.getColumn();
+
+        uInt nrow = antennaList.nelements();
+        Int lastAnt = antennaList[0];
+
+        for (uInt i = 0; i < nrow; ++i) 
+        {    
+            if (antennaList[i] > lastAnt) 
+            {    
+                antennaBoundary_[count] = i; 
+                count++;
+                lastAnt = antennaList[i];
+            }    
+            else if (antennaList[i] < lastAnt )
+            {    
+                printf( "xx FAITAL ERROR : Bad Sort in MS. xxxxxx \n" );
+                throw; // ABORT and Ignore //
+            }    
+        }    
+
+        antennaBoundary_[count] = nrow;
+        ++count;
+        numAntennaBoundary_ = count;
+#if 1
+       if(false) show();  // DEBUG //
+#endif 
+
+}
+// AntenaBoundary(start, end) //
+std::pair<casacore::uInt, casacore::uInt> AntennaBoundary::getAntennaBoundary( casacore::uInt n )
+{
+    std::pair<casacore::uInt, casacore::uInt> pos(antennaBoundary_[n],antennaBoundary_[n+1]);
+    return pos;
+}
+
+// progmmer's debug //
+void AntennaBoundary::show() 
+{
+    printf( "new Antenna Boundary Info, numAntennaBoundary_  = %u \n", numAntennaBoundary_  );
+    for (uInt b=0; b< antennaBoundary_.size(); b++)
+    {
+            printf( "new Created antennaBoundary_[%d] = %d \n", b, antennaBoundary_[b] );
+    }
+}
+
+//**********************************************
+// SplineInterpolation methods.
+//**********************************************
+
+// constructor (for each accessor) //
+SplineInterpolation::SplineInterpolation(MeasurementSet const &ms, ACCESSOR accessor ) 
+{
+    init(ms, accessor);
+
+    setDefaultAccessor(accessor);
+}
+SplineInterpolation::SplineInterpolation(MeasurementSet const &ms) // NOT TESTED //
+{
+    init(ms, getDefaultAccessor() );
+}
+
+void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_accessor)
+{
+    // Antenna Bounday //
+
+        AntennaBoundary  antb(ms);
+        uInt numAnt = antb.getNumAntennaBoundary() -1;
+
+    // prepere MS handle from selectedMS_
+        MSPointing hPoint = antb.getPointingHandle();
+        std::unique_ptr<casacore::ROMSPointingColumns>
+                columnPointing( new casacore::ROMSPointingColumns( hPoint ));
+
+    // Prepare Time and direction//
+
+      Vector<Vector<Double> >          tmp_time;
+      Vector<Vector<Vector<Double> > > tmp_dir;
+
+    // Resize (top level) //
+    
+      tmp_time.        resize(numAnt);
+      tmp_dir.         resize(numAnt);
+
+    // Column handle (only time,direction are needed, others are reserved) //
+    
+      ROScalarColumn<Double> pointingTime           = columnPointing ->time();
+      ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
+
+    // Following columns are accessed by 'accessor_'   //
+   
+      ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
+      ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();    
+      ROArrayColumn<Double>  pointingPointingOffset = columnPointing ->pointingOffset();
+      ROArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
+      ROArrayColumn<Double>  pointingencoder        = columnPointing ->encoder();
+ 
+    for(uInt ant=0; ant <numAnt; ant++)
+    {
+       // Antenna Bounday Pos(start,end) //
+        std::pair<uInt,uInt> pos = antb.getAntennaBoundary(ant);
+        uInt startPos = pos.first;
+        uInt endPos   = pos.second;
+        int size = endPos - startPos;
+
+        // define size of each antenna  
+          tmp_dir [ant]. resize(size);
+          tmp_time[ant]. resize(size);
+
+        // for each row // 
+        for (uInt row = startPos; row < endPos; row++) 
+        {
+            uInt index = row - startPos;
+
+            // resizei (for Dir) //
+            tmp_dir[ant][index].resize(2);
+
+            Double        time    = pointingTime.get(index);
+            MDirection     dir    = my_accessor(*columnPointing, index);
+            Vector<Double> dirVal = dir.getAngle("rad").getValue();
+
+            // set on Vector //
+            tmp_time[ant][index] = time;
+            tmp_dir [ant][index] = dirVal;
+#if 1 // DBG //
+            if(false)
+            {
+                printf("new SDP arg index=%d ant=%d, time=%f, dir=[%f,%f]\n", 
+                       index, ant, time, dirVal[0],dirVal[1]);
+            }
+#endif 
+        }
+    }
+
+    //+
+    // Minimum Condition Inspection
+    // (N >=4) 
+    //-
+
+    for(uInt ant=0; ant <numAnt; ant++)
+    {
+        uInt st =tmp_time[ant].size();
+        uInt s1 =tmp_dir [ant].size();
+        if ((st < 4)||(s1 < 4))
+        {
+          //  Exception handling is to be here...//
+          //  printf( "XXXXX INSUFFICIENT NUMBER OF POINTING DATA (%u,%u) XXXXX\n",st, s1);
+           coeffActive = false; // in-usable ..
+           return;
+        }
+    }
+ 
+    //+
+    // SDPosInterpolator Objct 
+    //   - calulate Coefficient Table - 
+    //-
+
+      SDPosInterpolator  sdp (tmp_time, tmp_dir);
+   
+    // Obtain Coeff (copy object) //
+
+      coeff_ = sdp.getSplineCoeff();
+
+    // Table Active ..
+      coeffActive = true;
+
+    // Programmers inspection 
+      if(false) dumpCsvCoeff();
+
+}
+
+void SplineInterpolation::dumpCsvCoeff()
+{
+    FILE* fp = fopen( "coeff.csv","w" );
+
+    for(uInt ant=0; ant < coeff_.size(); ant++ )
+    {
+        uInt size2 = coeff_[ant].size();
+        printf( "AntID=%u, size=%u \n",ant, size2);
+        for(uInt i=0; i< size2; i++)
+        {
+            Double x_c0 = coeff_[ant][i][0][0];
+            Double x_c1 = coeff_[ant][i][0][1];
+            Double x_c2 = coeff_[ant][i][0][2];
+            Double x_c3 = coeff_[ant][i][0][3];
+
+            Double y_c0 = coeff_[ant][i][1][0];
+            Double y_c1 = coeff_[ant][i][1][1];
+            Double y_c2 = coeff_[ant][i][1][2];
+            Double y_c3 = coeff_[ant][i][1][3];
+
+            fprintf(fp,"Spline::COEFF[%d],%4d,", ant, i );
+            fprintf(fp, "X, %-12.5e, %-12.5e, %-12.5e, %-12.5e,|,",
+                    x_c0, x_c1, x_c2, x_c3 );
+                
+            fprintf(fp, "Y, %-12.5e, %-12.5e, %-12.5e, %-12.5e \n",
+                    y_c0, y_c1, y_c2, y_c3 );
+        }
+    }
+    fclose(fp);
+
+}
+
+//+
+// Interpolation Calculation
+//-
+casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
+                                                                  Double dt,
+                                                                  uInt antID )
+{
+    // Error check //
+
+    uInt arraySize = coeff_[antID].size();
+    if(  index >= arraySize)
+    {
+        // Exception handling is to be here... //
+        printf("Bugcheck.Requested Index too large.\n");
+        throw;   
+    }
+   
+    // Coefficient //
+
+    Double a0 = coeff_[antID][index][0][0];
+    Double a1 = coeff_[antID][index][0][1];
+    Double a2 = coeff_[antID][index][0][2];
+    Double a3 = coeff_[antID][index][0][3];
+
+    Double b0 = coeff_[antID][index][1][0];
+    Double b1 = coeff_[antID][index][1][1];
+    Double b2 = coeff_[antID][index][1][2];
+    Double b3 = coeff_[antID][index][1][3];
+
+//+
+// Spline Calc
+//-
+    double Xs =  (((0* dt + a3)*dt + a2)*dt + a1)*dt + a0;
+    double Ys =  (((0* dt + b3)*dt + b2)*dt + b1)*dt + b0;
+
+#if 0
+// Test . inttentionally ignore high order ,Linear equivalent. //
+    if(false)
+    {
+        Xs = a1 * dt + a0;
+        Ys = b1 * dt + b0;
+        if(false){
+            Xs = a2* (dt*dt) + a1 * dt + a0;
+            Ys = b2* (dt*dt) + b1 * dt + b0;
+        }
+    }
+#endif 
+
+// Return //
+
+    Vector<Double> outval(2); 
+    // Spline interpolated//
+      outval[0] = Xs;
+      outval[1] = Ys;
+
+    return outval;
+
+}
 }  //# NAMESPACE CASA - END

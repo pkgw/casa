@@ -88,60 +88,53 @@ namespace casa {
 //  - Some MSs are not compatible with the required, which may cause Exception.
 //  - Expected Exception are describged in the definition
 //******************************************************************************
- 
-// MS name and expected Exception //
 
-typedef struct _MSDef
-{
-    bool   ExThrow;  // True = cause Exeption
-    String name;     // MS name, with relative path from CASAPATH
-} MSDef;
-
-#if 0
-// Antenna Data (for Wtiting individual record) 
-
-typedef  struct AntTblBuf_ {
-
-    String name;
-    String station;
-    String type;
-    String mount;
-
-    Vector<Double> position;
-    Vector<Double> offset;
-
-    Double  dish_diameter;
-    Int     orbit_id;
-    Double  mean_orbit[6];
-
-} ANTENNADataBuff ;
-#endif 
-//+
-//  Frame definitioan for  setFrame()
-//   - Strings and a bool var. wheather it is available in casacore.
-//   - Some of them causes Exeption Message from inside.
-//-
-typedef struct _FrameName {
-    bool   available;
-    String name;
-} FrameTypeList;
 
 //+
-// MeasurementSet Name List
+// MeasurementSet NameList class
 //-
-std::vector<MSDef> TestMSList 
-{
-    // Exeption(bool)  , Filename //
+
+class MSNameList {
+
+public:
+    typedef struct _MSDef
+    {
+        bool   ExThrow;  // True = cause Exeption
+        String name;     // MS name, with relative path from CASAPATH
+    } MSDef;
+
+    // Get File Name by Number //
+    const String  getName(uInt No ) {
+        const String msg = "Internal Bugcheck:";
+        if( !(TestMSList.size() >  No) ) throw AipsError(msg.c_str());
+        return TestMSList[No].name;
+    }
+
+    // True is this access makes Exception 
+    bool isExceptionActivated(uInt No) { 
+        const String msg = "Internal Bugcheck:";
+        if( !(TestMSList.size() >  No) ) throw AipsError(msg.c_str());
+        return TestMSList[No].ExThrow;
+   }
+
+    uInt count() { return TestMSList.size();  }
+
+private:
+
+    std::vector<MSDef> TestMSList 
+    {
+        // Exeption(bool)  , Filename //
  
         {true, "./sdimaging-t.ms"   		},
         {false, "sdimaging/sdimaging.ms"        },
         {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
 
-    // Following 2 MS are affected assert(), cannot run on UT
-    // Release EXE must throws Excepton. 
-    //      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
-    //      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
-
+        // Following 2 MS are affected assert(), cannot run on UT
+        // Release EXE must throws Excepton. 
+#if 0
+        {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
+        {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
+#endif 
         {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms"   },
         {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms"   },
         {false, "sdimaging/azelpointing.ms"      	},
@@ -161,36 +154,10 @@ std::vector<MSDef> TestMSList
         {true,  "sdimaging/hogehoge.ms"                 },
         {true,  "sdimaging/hogehoge.ms"                 },  // Extra Hoge for self-degbug .
  
-    // Any additional definition can be written here as you want. // 
+        // Any additional definition can be written here as you want. // 
+    };
 
 };
-
-// Default MS name .. //
-static const String DefaultLocalMsName = "./sdimaging-t.ms";
-
-// Get File Name by Number //
-const String  getMsNameFromList(uInt No )
-{
-    const String msg = "Internal Bugcheck:";
-    if( !(TestMSList.size() >  No) ) throw AipsError(msg.c_str());
-
-    return TestMSList[No].name;
-}
-
-// Get Exception information //
-bool  getMSThrowFromList(uInt  No )
-{
-    const String msg = "Internal Bugcheck:";
-    if( !(TestMSList.size() >  No) ) throw AipsError(msg.c_str());
-    
-    return TestMSList[No].ExThrow;
-}
-
-// Get Count of MS List //
-size_t getMSCountFromList()
-{
-    return TestMSList.size();
-}
 
 
 //+
@@ -199,33 +166,6 @@ size_t getMSCountFromList()
 
 bool use_spline = false;
 
-//******************************************************
-//  Log Title Output Functions for readable text 
-//  of this UT.
-//******************************************************
-
-void TestDescription( const String &Title )
-{
-    printf( "///////////////////////////////////////////////////////////////////////////// \n");
-    printf( " %s  \n",Title.c_str() );
-    printf( "///////////////////////////////////////////////////////////////////////////// \n");
-}
-
-void FunctionalDescription(const String &Title, const String &Param)
-{
-    printf("=============================================\n");
-    printf("# %s \n",Title.c_str());
-    printf("# [%s] \n",Param.c_str());
-    printf("=============================================\n");
-}
-
-void Description(const String &Title, const String &Param)
-{
-    printf("+-----------------------------\n");
-    printf("| %s \n",Title.c_str());
-    printf("| [%s] \n",Param.c_str());
-    printf("+-----------------------------\n");
-}
 
 //****************************************
 // Execution / Running Enviromnent
@@ -262,11 +202,6 @@ public:
         return CasaMasterPath;
     }
      
-    //+
-    // MS for Test
-    //-
-    void CopyDefaultMStoWork();
-    void DeleteWorkingMS();
 
 private:
     
@@ -298,8 +233,88 @@ private:
     String CasaPath;            // translated from CASAPATH 
     String CasaMasterPath;
     String UnitTestTMasterFileName;
+
 };
 
+
+
+
+//************************************** 
+// Base TestClass
+//**************************************
+
+class BaseClass : public ::testing::Test
+{
+
+public:
+
+     RunEnv       env;
+
+     //+
+     // MS for Test
+     //-
+     void CopyDefaultMStoWork();
+     void DeleteWorkingMS();
+
+     //+
+     // Console Message of test progress
+     //-
+
+     void TestDescription( const String &Title );
+     void FunctionalDescription(const String &Title, const String &Param);
+     void Description(const String &Title, const String &Param);
+
+    uInt    ExpectedNrow = 0;   // C++11 feature //
+
+    BaseClass()  { }
+
+    ~BaseClass() { }
+
+    void SetUp() { }
+    void TearDown() { }
+
+
+private:
+
+     // Test MS copy and delete flag //
+     bool copyOperation    = true;
+     bool deleteOperation  = false;
+ 
+};
+
+//*
+// Global Constant
+//*
+const String  DefaultLocalMsName = "./sdimaging-t.ms";
+
+
+//******************************************************
+//  Log Title Output Functions for readable text 
+//  of this UT.
+//******************************************************
+
+void BaseClass::TestDescription( const String &Title )
+{
+    printf( "///////////////////////////////////////////////////////////////////////////// \n");
+    printf( " %s  \n",Title.c_str() );
+    printf( "///////////////////////////////////////////////////////////////////////////// \n");
+}
+
+void BaseClass::FunctionalDescription(const String &Title, const String &Param)
+{
+    printf("=============================================\n");
+    printf("# %s \n",Title.c_str());
+    printf("# [%s] \n",Param.c_str());
+    printf("=============================================\n");
+}
+
+void BaseClass::Description(const String &Title, const String &Param)
+{
+    printf("+-----------------------------\n");
+    printf("| %s \n",Title.c_str());
+    printf("| [%s] \n",Param.c_str());
+    printf("+-----------------------------\n");
+}
 
 //**************************************************************************
 //  Copying template MS from Master Repository.
@@ -308,8 +323,7 @@ private:
 //   After copying, Modifying fuction for MS is executed depending on
 //   Test cases/items.
 //***************************************************************************
-
-void RunEnv::CopyDefaultMStoWork()
+void BaseClass::CopyDefaultMStoWork()
 {
     //  Environment //
 
@@ -336,7 +350,7 @@ void RunEnv::CopyDefaultMStoWork()
     //   WARNING; Destination directory must be full described.
     //-
 
-        if(true)
+        if(copyOperation)
         {
             dir_ctrl.copy( targetPath,
                            True,    // Overwrite 
@@ -349,7 +363,7 @@ void RunEnv::CopyDefaultMStoWork()
 //  whenever One Test Fixture ends. 
 //-
 
-void RunEnv::DeleteWorkingMS()
+void BaseClass::DeleteWorkingMS()
 {
     String dst         = DefaultLocalMsName;
 
@@ -361,11 +375,12 @@ void RunEnv::DeleteWorkingMS()
     // Delete File (Recursively done) 
     // NOTE: for debug use, please change true-> falase )
 
-    if (true)
+    if (deleteOperation)
     {
          dir_ctrl. removeRecursive(false /*keepDir=False */ );
     }
 }
+
 
 //********************************************************
 //  INTERPOLATION  Generation 
@@ -375,7 +390,7 @@ void RunEnv::DeleteWorkingMS()
 //********************************************************
 
 class CurveFunction;
-class EvaluateInterporation   
+class EvaluateInterporation /* : public BaseClass */ 
 {
 public:
 
@@ -569,7 +584,7 @@ void EvaluateInterporation::init()
 
 void EvaluateInterporation::Initialize(Double p_interval, Double m_interval )
 {
-        Description("EveInterp::initialize()::Setting Up INTERVALs ","" );
+        printf("EveInterp::initialize()::Setting Up INTERVALs " );
 
         pointingIntervalSec         =  p_interval;
         mainIntervalSec             =  m_interval;
@@ -929,7 +944,7 @@ public:
 
       // Duplicate Column //
       void duplicateColumns()
-      {
+      { 
           TableDesc  tblDsc = hPointing.tableDesc();
 
           ColumnDesc  OrgColumnDesc = tblDsc.columnDesc ( "DIRECTION" ) ;    
@@ -967,7 +982,7 @@ public:
           flush();
       }
       void fillNewColumns()
-      {
+      {   printf ("Filling Data on New columns.(nrow=%d) \n",nrow);
           //+
           // Fill empty data
           //-
@@ -1226,15 +1241,15 @@ private:
 //  - Addinng artificial(pseudo) data onto MS
 //*******************************************************
 class PointingTableAccess;
-class MsEdit 
+class MsEdit         
 {
 public:
-
+ 
     EvaluateInterporation  evgen;
 
 //rsv//    CurveFunction          cvfunc(0);
 
-    MsEdit() {    }   // Current 
+    MsEdit() {     }   // Current 
 
     MsEdit(const String &ms, bool mode=false )
     {     
@@ -1435,7 +1450,7 @@ void MsEdit::writeDataToPointingTable(String MsName )
 
         String PointingTableName = ms0.pointingTableName();
 
-        Description("MsEdit:Adding Data on new columns in POINTING table. ",PointingTableName.c_str());
+        printf("MsEdit:Adding Data on new columns in POINTING table[%s]. \n",PointingTableName.c_str());
 
     // Prepeare Handle //
 
@@ -1479,7 +1494,7 @@ void MsEdit::writeDataToPointingTable(String MsName )
         Ipo  = pointingDirection.shape(0);
         printf(" - Shape of Direction.[%ld, %ld] \n", Ipo[0], Ipo[1] );
 
-        Description( "attempting to add Data on Pointing Table.", "Nrow="+std::to_string(nrow_p)  );
+        printf( "attempting to add Data on Pointing Table. Nrow=%d \n", nrow_p  );
 
         // prepare initial value //
 
@@ -1519,7 +1534,7 @@ void MsEdit::writeDataToPointingTable(String MsName )
 void MsEdit::duplicateNewColumnsFromDirection()
 {
         String MsName = DefaultLocalMsName;
-        Description( "MsEdit:Cpoied from Direction and Adding 3 Columns on Pointing Table ", MsName.c_str() );
+        printf( "MsEdit:Cpoied from Direction and Adding 3 Columns on Pointing Table[%s]\n", MsName.c_str() );
 
     // CAS-8418 new code //
 
@@ -1527,7 +1542,7 @@ void MsEdit::duplicateNewColumnsFromDirection()
          ata1.duplicateColumns();
 
         PointingTableAccess ata2(MsName,true);
-         ata2.fillNewColumns() ; 
+         ata2.fillNewColumns();
 
 }
 
@@ -1541,8 +1556,7 @@ void MsEdit::duplicateNewColumnsFromDirection()
 
 void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName)
 {
-    Description( "MsEdit:Writing Test Data on Direcotion Column in Pointing Table", 
-                  MsName.c_str()  );
+    printf( "MsEdit:Writing Test Data on Direcotion Column in Pointing Table [%s]\n",MsName.c_str()  );
 
     // Open MS by Update mode //
 
@@ -1584,8 +1598,12 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
     // Listing Columns(Direction related) on Pointing 
     //-
 
-        ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
+        ROArrayColumn<Double>  pointingDirection              = columnPointing ->direction();
+        ROArrayColumn<Double>  pointingTarget                 = columnPointing ->target();
+
+        ROArrayColumn<Double>  pointingPointingOffset         = columnPointing ->pointingOffset();
+        ROArrayColumn<Double>  pointingSourceOffset           = columnPointing ->sourceOffset();
+        ROArrayColumn<Double>  pointingEncoder                = columnPointing ->encoder();
 
         IPosition Ipo = pointingDirection.shape(0);
         printf(" - Shape of pointingDirection.[%ld, %ld] \n", Ipo[0], Ipo[1] );
@@ -1596,12 +1614,8 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
     //  (NOTE) In particular case , LoopCnt requires ONE more.
     //          In ordinary case +1 causes Exceeding row count.
     //-
-
-#if 0
-        uInt LoopCnt = nrow_p;
-#else
         uInt LoopCnt = evgen.getAvailablePointingTestingRow();
-#endif 
+
         if(evgen.checkExtendAvailable() )
         { 
             printf( "- Extend access to Pointing table = Available.\n" );
@@ -1620,23 +1634,35 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
                 //  Set AZEL on this Colun 
                 //-
  
- 
-                // DIRECTION  //
-
+                //+
+                // DIRECTION  
+                //   CAS-8418::   1-Feb-2019
+                //   updated to make indivisual value on Direction Columns
+                //-
                     Double delta = (Double)row + dt ;    // delta must be [0,1]
 
-                    Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
+                    Array<Double> direction1(Ipo, 0.0);   // IP shape and initial val // 
+                    Array<Double> direction2(Ipo, 0.0);   // IP shape and initial val // 
+                    Array<Double> direction3(Ipo, 0.0);   // IP shape and initial val // 
+                    Array<Double> direction4(Ipo, 0.0);   // IP shape and initial val // 
+                    Array<Double> direction5(Ipo, 0.0);   // IP shape and initial val // 
+
                     Vector<Double>  psd_data  
                         = evgen.pseudoDirInfoPointing(delta); // generated pseudo data. (Pointing) //
 
-                    direction[0][0] = psd_data[0];
-                    direction[0][1] = psd_data[1];
+                           
+                    direction1[0][0] = psd_data[0];
+                    direction1[0][1] = psd_data[1];
 
                 // write access //
                 // (CAS-8418: Multiple Antenna supported) use rowA instead of row//
 
-                    pointingDirection.   put(rowA, direction );
-                    pointingTarget.      put(rowA, direction );
+                    pointingDirection.           put(rowA, direction1 );
+                    pointingTarget.              put(rowA, direction1 );
+
+                    pointingPointingOffset.      put(rowA, direction1 );
+                    pointingSourceOffset.        put(rowA, direction1 );
+                    pointingEncoder.             put(rowA, direction1 );
 
                //+ 
                // New Time   (intentionally activates interporation)
@@ -1701,8 +1727,8 @@ uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 
 void  MsEdit::writeInterpolationTestDataOnMainTable(Double delta_shift, String MsName)
 {
-    Description( "MsEdit:INTERPOLATION::writeInterpolationTestDataOnMainTable ,1) Writing Time in MAIN Table", 
-                  MsName.c_str()  );
+    printf( "MsEdit:INTERPOLATION::writeInterpolationTestDataOnMainTable ,1) Writing Time in MAIN Table [%s]\n",
+             MsName.c_str()  );
     printf( "ddddddddddddddddddddddddddddddddddddd\n");
     printf( "   delta_shift =, %f \n", delta_shift );
     printf( "ddddddddddddddddddddddddddddddddddddd\n");
@@ -1748,11 +1774,6 @@ void  MsEdit::writeInterpolationTestDataOnMainTable(Double delta_shift, String M
                    Vector<Double>  psd_data 
                        = evgen.pseudoDirInfoMain( (Double)row); // generated pseudo data. (Main table) //
 
-                // Time Info. (current) ** NOT USED ** //
-#if 0   
-                    Double curTime      = mainTime.     get(row);
-                    Double curInterval  = mainInterval. get(row);
-#endif 
                 // Time Set  //
                     Double interval = psd_data[3];
                     Double time     = psd_data[2];
@@ -1777,35 +1798,13 @@ void  MsEdit::writeInterpolationTestDataOnMainTable(Double delta_shift, String M
         
         ms0.flush();
 
-        Description( "MsEdit:INTERPOLATION::writeInterpolationTestDataOnMainTable ,2) Writing END",
-                      MsName.c_str());
 }
 
-// 
-// Base TestClass
-//-
 
-class BaseClass : public ::testing::Test
-{
 
-public:
 
-     RunEnv       env;
 
-protected:
 
-    uInt    ExpectedNrow = 0;   // C++11 feature //
-
-    BaseClass()  { }
-
-    ~BaseClass() { }
-
-    virtual void SetUp() { }
-    virtual void TearDown() { }
-
-private:
- 
-};
 
 //+
 // PointingDirectionCalculator Class 
@@ -1832,16 +1831,14 @@ protected:
         }
 
         // Test Fixture Sub //
-        void test_constructor(uInt num );
+        void test_constructor(String const name );
 };
 
 /*---------------------------------------
   attempt to open vaious Measurement Set
  ----------------------------------------*/
-void TestMeasurementSet::test_constructor(uInt num )
+void TestMeasurementSet::test_constructor(String const name)
 {
-
-    String name = env.getCasaMasterPath()+getMsNameFromList( num );
     Description("Testing Construcror." , name );
 
     // CONSTRUCTOR  //
@@ -1868,22 +1865,22 @@ void TestMeasurementSet::test_constructor(uInt num )
 
 TEST_F(TestMeasurementSet, variousConstructor )
 {
-    TestDescription( "CALC Constructor by various MS" );
+    // MS name database //
+    MSNameList  MsList;
+    TestDescription( "CALC Constructor by various MS " );
 
-    size_t max_count = getMSCountFromList();
-    printf("- %zu MeasruementSet for this test are ready.\n" , max_count); 
-
-    for(uInt k=0; k< max_count ; k++)
+    for(uInt n=0; n< MsList.count(); n++)
     {
-       FunctionalDescription( "CALC Constructor by various MS",getMsNameFromList(k).c_str()  );
- 
-        if (getMSThrowFromList(k))
+        FunctionalDescription( "CALC Constructor by various MS", 
+                               std::to_string(n)+". " + MsList.getName(n).c_str()  );
+        String name = env.getCasaMasterPath()+ MsList.getName(n);
+        if ( MsList.isExceptionActivated(n))
         {
-          EXPECT_ANY_THROW( test_constructor( k ) );
+            EXPECT_ANY_THROW( test_constructor(name) );
         }
         else
         {
-          EXPECT_NO_THROW( test_constructor( k ) );
+          EXPECT_NO_THROW( test_constructor(name) );
         }
     }
 }
@@ -2039,7 +2036,7 @@ protected:
             //  generate test dta
             //-
             
-            env.CopyDefaultMStoWork();
+            CopyDefaultMStoWork();
 
             addColumnsOnPointing();
             addColumnDataOnPointing();   // FILL DATA
@@ -2052,7 +2049,7 @@ protected:
 
             // Delete Working MS 
 
-            env.DeleteWorkingMS();
+             DeleteWorkingMS();
         }
 
 };
@@ -3942,6 +3939,10 @@ class TestSetFrame : public BaseClass
 {
 
 public:
+typedef struct _FrameName {
+    bool   available;
+    String name;
+} FrameTypeList;
 
 protected:
 
@@ -4117,13 +4118,13 @@ protected:
         virtual void SetUp()
         {
             BaseClass::SetUp();
-            env.CopyDefaultMStoWork();
+            CopyDefaultMStoWork();
         }
 
         virtual void TearDown()
        {
             BaseClass::TearDown();
-            env.DeleteWorkingMS();
+            DeleteWorkingMS();
        }
       
         // Test Fixture Sub //
@@ -4135,19 +4136,18 @@ protected:
 //-
 
 // Construcor and Column check//
-TEST_F(MyDebug, Debug1 )
+TEST_F(MyDebug, Debug1_Col )
 {
 
-      const String MsName1 = "listobs/uid___X02_X3d737_X1_01_small.ms";
-      const String MsName2 = "sdimaging/sdimaging.ms";
+    MSNameList   ms;
 
-    for (uInt m=0; m<TestMSList.size();m++ ) { 
-        if(TestMSList[m].ExThrow == true ) continue ; // Ignore un-available ones. //
+    for (uInt m=0; m< ms.count(); m++ ) { 
+        if(ms.isExceptionActivated(m) == true ) continue ; // Ignore un-available ones. //
 
-        String name = env.getCasaMasterPath() + TestMSList[m].name;
+        String name = env.getCasaMasterPath() + ms.getName(m);
 
         PointingTableAccess   pta1(name);
-        printf("====== %s ======= \n",TestMSList[m].name.c_str() );
+        printf("======%d  %s ======= \n", m, ms.getName(m).c_str() );
 
         printf("check Column[Direction]      =%d \n", pta1.checkColumn("Direction"));
         printf("check Column[Target]         =%d \n", pta1.checkColumn("TarGet"));
@@ -4156,6 +4156,7 @@ TEST_F(MyDebug, Debug1 )
         printf("check Column[Encoder]        =%d \n", pta1.checkColumn("ENcoder"));
 
     }
+
 }
 
 // Construcor and Column check//
@@ -4207,8 +4208,14 @@ TEST_F(MyDebug, Debug2_checkColumn )
     printf("check Column[PointingOffset] =%d \n", pta2.checkColumn("Pointing_Offset"));
     printf("check Column[SourceOffset]   =%d \n", pta2.checkColumn("Source_Offset"));
     printf("check Column[Encoder]        =%d \n", pta2.checkColumn("ENcoder"));
-    printf("check Column[HOGEHOGE]       =%d \n", pta2.checkColumn("HogeHOGE"));
 
+    pta2.duplicateColumns();
+
+    printf("check Column[Direction]      =%d \n", pta2.checkColumn("Direction"));
+    printf("check Column[Target]         =%d \n", pta2.checkColumn("TarGet"));
+    printf("check Column[PointingOffset] =%d \n", pta2.checkColumn("Pointing_Offset"));
+    printf("check Column[SourceOffset]   =%d \n", pta2.checkColumn("Source_Offset"));
+    printf("check Column[Encoder]        =%d \n", pta2.checkColumn("ENcoder"));
 
 // Row operation //
 }
