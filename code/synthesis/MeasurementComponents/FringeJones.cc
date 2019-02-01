@@ -2065,8 +2065,8 @@ void FringeJones::setSolve(const Record& solve) {
 
     // Call parent to do conventional things
     GJones::setSolve(solve);
-    // refant isn't properly set until selfSolveOne.
-    // This is correct!
+    // refant isn't properly set until selfSolveOne.  We set it to a
+    // known value here so that it can be checked in debugging code.
     refant() = -1;
     if (prtlev() > 2) {
         cout << "Before GJones::setSolve" << endl
