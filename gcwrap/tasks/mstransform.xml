@@ -905,8 +905,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         maxuvwdistance -- Provide a maximum separation of start-to-end baselines 
                           that can be included in an average. (int)
             default: 0.0 (given in meters)
-            
-            
+
 --- On-the-fly calibration parameters ---            
     docallib -- Enable on-the-fly (OTF) calibration as in task applycal
         default: False

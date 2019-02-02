@@ -54,7 +54,7 @@
 #include <synthesis/ImagerObjects/SIImageStore.h>
 #include <synthesis/ImagerObjects/SDMaskHandler.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
-#include <synthesis/TransformMachines/Utils.h>
+#include <synthesis/TransformMachines2/Utils.h>
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
 #include <images/Images/ImageRegrid.h>
 #include <imageanalysis/ImageAnalysis/ImageStatsCalculator.h>

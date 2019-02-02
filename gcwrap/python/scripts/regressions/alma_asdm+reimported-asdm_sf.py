@@ -157,7 +157,7 @@ def verify_asdm(asdmname, withPointing):
         raise Exception
 
 
-def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=True):
+def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=True, select_real_spws=''):
     # Reduction of NGC3256 Band 6
     # M. Zwaan, May 2010
     # D. Petry, May 2010
@@ -267,12 +267,22 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
         
     # For GSPLINE solutions, have to do it for different spws separately
     
+    # There is a bug in VI/VB2 if phantom SPWs are present (for instance WVR)
+    # The bug CAS-11734 is triggered by FreqAxisTVI class, which gets called
+    # by gaincal. Once that bug is fixed there is no need to do this split
+    # anymore.
+    vissel = msn
+    if select_real_spws!='' :
+        os.system('rm -rf '+bname+'_spwsel.ms')
+        split(vis=msn, outputvis=bname+'_spwsel.ms', spw='0;1;2;3;4', datacolumn='DATA')
+        vissel = bname+'_spwsel.ms' 
+
     # print ">> Find G solutions"
     # for i in range(2):
     #     print ">> SPW: ",i
     #     os.system('rm -rf '+caltablename+'_spw'+str(i)+'.G')
     #     gaincal(
-    #         vis=msn,
+    #         vis=vissel,
     #         caltable=caltablename+"_spw"+str(i)+".G",
     #         field=calfield,
     #         spw=avspw[i],
@@ -292,7 +302,7 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
         if(cu.compare_version('>=',[3,4,0])):
             wvrspw = i
         gaincal(
-            vis=msn,
+            vis=vissel,
             caltable=caltablename+"_spw"+str(i)+".G_WVR",
             field=calfield,
             spw=avspw[i],
@@ -755,7 +765,7 @@ part3 = True
 try:
     ref_rms = [0.0019042, 0.0008856]
     ref_peak = [0.999954, 1.0001681]
-    rval = analyseASDM(myasdm_dataset2_name, mywvr_correction_file, ref_rms, ref_peak)
+    rval = analyseASDM(myasdm_dataset2_name, mywvr_correction_file, ref_rms, ref_peak, select_real_spws='0;1;2;3;4')
 except:
     print myname, ': *** Unexpected error analysing ASDM, regression failed ***'   
     part3 = False
@@ -859,3 +869,4 @@ if(not (part1 and part2 and part3 and part4)):
     raise
 else:
     print "Regression passed."
+ 

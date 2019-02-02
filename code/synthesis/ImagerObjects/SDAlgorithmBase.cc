@@ -140,15 +140,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
             //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
+            os<<"robustrms nelements="<<robustrms.nelements()<<LogIO::POST;
             Float nsigmathresh; 
-            if ( robustrms.nelements() == 0 ) {
-              // no statistics returned, perhaps the channel is flagged...
+            if (robustrms.nelements()==0) {
               nsigmathresh = 0.0; 
-            }
-            else {
+            } else{
               nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
             }
- 
+              
             Float thresholdtouse;
             if (nsigma>0.0) {
               // returns as an Array but itsImages is already single plane so 
