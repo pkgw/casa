@@ -193,7 +193,7 @@ repackageAipsError (AipsError & error, const String & message, const String & fi
 }
 
 long
-round (Double d)
+utilj_round (Double d)
 {
     Double sign = (d < 0) ? -1.0 : 1.0;
 
