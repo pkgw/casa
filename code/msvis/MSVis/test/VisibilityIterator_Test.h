@@ -9,13 +9,9 @@
 #include <tables/Tables/ArrayColumn.h>
 #include <tables/Tables/ScalarColumn.h>
 #include <tuple>
-#include <gtest/gtest.h>
 
 #include <map>
 #include <set>
-#include <list>
-#include <memory>
-#include <stdlib.h>
 
 namespace casacore{
 
@@ -40,20 +36,13 @@ namespace test {
 
 class MsFactory;
 
-class TestWidget : public ::testing::Test {
+class TestWidget {
 
 public:
 
-    TestWidget (const casacore::String & name)
-    : name_p (name)
-    {
-        strcpy (tmpdir, "/tmp/testXXXXXX");
-	    mkdtemp(tmpdir);
-    }
+    TestWidget (const casacore::String & name) : name_p (name) {}
 
-    virtual ~TestWidget () {
-	    system((std::string("rm -rf ") + tmpdir).c_str());
-    }
+    virtual ~TestWidget () {}
 
     virtual casacore::String name () const = 0;
 
@@ -74,11 +63,6 @@ public:
     { return false;}
     virtual void startOfData (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/) {}
     virtual bool usesMultipleMss () const { return false;}
-    virtual void sweepMs ();
-
-protected:
-
-	char tmpdir[16];
 
 private:
 
@@ -90,6 +74,8 @@ class BasicChannelSelection : public TestWidget {
 public:
 
     BasicChannelSelection ();
+    ~BasicChannelSelection ();
+
 
     virtual std::tuple <casacore::MeasurementSet *, casacore::Int, casacore::Bool> createMs ();
     virtual casacore::String name () const { return "BasicChannelSelection";}
@@ -127,7 +113,7 @@ private:
 
     casacore::Vector< casacore::Vector <casacore::Slice> > correlationSlices_p;
     casacore::Int factor_p;
-	std::unique_ptr<MsFactory> msf_p;
+    MsFactory * msf_p;
     const casacore::Int nAntennas_p;
     const casacore::Int nFlagCategories_p;
     casacore::Int nRowsToProcess_p;
@@ -169,19 +155,6 @@ public:
     casacore::Bool noMoreData (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/, int nRowsProcessed);
 };
 
-class FrequencyRefinedChannelSelection : public BasicChannelSelection {
-
-public:
-
-    FrequencyRefinedChannelSelection () {}
-
-    virtual casacore::String name () const { return "FrequencyRefinedChannelSelection";}
-    virtual void startOfData (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/);
-    virtual void nextSubchunk (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/);
-    casacore::Bool noMoreData (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/, int nRowsProcessed);
-};
-
-
 class Weighting : public TestWidget {
 
 public:
@@ -195,26 +168,8 @@ public:
 
 private:
 
-    std::unique_ptr<MsFactory> msf_p;
+    MsFactory * msf_p;
     casacore::Int nRowsToProcess_p;
-};
-
-class SubtablePropagation : public TestWidget {
-
-public:
-
-    SubtablePropagation (): TestWidget ("SubtablePropagation") {}
-
-    virtual std::tuple <casacore::MeasurementSet *, casacore::Int, casacore::Bool> createMs ();
-
-    virtual casacore::String name () const { return "SubtablePropagation";}
-
-    void checkSubtables();
-private:
-
-    std::unique_ptr<MsFactory> msf_p;
-    unsigned int nAntennas_p;
-    std::list<std::tuple<std::string, int, double, double, std::string>> spwDef_p;
 };
 
 class BasicMutation : public BasicChannelSelection

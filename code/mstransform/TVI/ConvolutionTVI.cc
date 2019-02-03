@@ -95,7 +95,7 @@ void ConvolutionTVI::initialize()
 	for(iter=spwInpChanIdxMap_p.begin();iter!=spwInpChanIdxMap_p.end();iter++)
 	{
 		spw = iter->first;
-		spwOutChanIdxMap_p[spw] = spwInpChanIdxMap_p[spw];
+		spwOutChanNumMap_p[spw] = spwInpChanIdxMap_p[spw].size();
 
 		spw_idx++;
 	}

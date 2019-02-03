@@ -70,10 +70,6 @@ public:
 
     void addExtraAvgTVI(bool use);
 
-    void setChanBinFirstTVI(int chanBinFirst);
-
-    void setChanBinSecondTVI(std::vector<int>& chanBinSecond);
-
 protected:
 
     bool useMSSelection_p;
@@ -81,16 +77,6 @@ protected:
     bool addPassThroughTVI_p;
 
     bool addExtraAvgTVI_p;
-
-    std::vector<int> nChannelsOrig_p;
-
-    std::vector<double> initFreqOrig_p;
-
-    std::vector<double> deltaFreqOrig_p;
-
-    int chanBinFirst_p;
-
-    std::vector<int> chanBinSecond_p;
 };
 
 #endif /* ChannelAverageTVITest_H_ */

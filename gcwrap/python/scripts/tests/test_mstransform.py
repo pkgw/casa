@@ -11,7 +11,7 @@ from tasks import mstransform, cvel, cvel2, listpartition, listobs, setjy, flagd
 from taskinit import mstool, tbtool, msmdtool, aftool
 from __main__ import default
 import testhelper as th
-
+from sdutil import tbmanager, toolmanager, table_selector
 
 # Define the root for the data files
 datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/mstransform/"

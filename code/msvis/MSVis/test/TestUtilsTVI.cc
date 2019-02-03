@@ -184,10 +184,8 @@ void MsFactoryTVITester::TearDown()
     msf_p.reset();
     ms_p.reset();
     vi_p.reset();
-    //This will recursively remove everything in the temporary directory
-    //unless environment var CASA_TEST_KEEP_TEMP_DIR exists (with any value)
-    if(getenv("CASA_TEST_KEEP_TEMP_DIR") == NULL)
-        nftw(tmpdir_p, removeFile, 64, FTW_DEPTH | FTW_PHYS);
+    //This will recursively remove everything in the directory
+    nftw(tmpdir_p, removeFile, 64, FTW_DEPTH | FTW_PHYS);
 }
 
 MsFactoryTVITester::~MsFactoryTVITester()
