@@ -72,7 +72,7 @@ public:
     }
 
     //summary("XJonesTest");
-    //cout << "x = " << phase(x)*180/C::pi << endl;
+    //cerr << "x = " << phase(x)*180/C::pi << endl;
   }
 
 
@@ -131,15 +131,15 @@ TEST_F(XJonesTest, XfJonesTest) {
       Xapp.correct2(*vb2,false,false,false);  // (trial?,doWtSp?,dosync?)
 
       /*
-      cout << "vCC=" << Vector<Complex>(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0))) << endl;
-      cout << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+      cerr << "vCC=" << Vector<Complex>(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+      cerr << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
       */
 
       Papp.setMeta(obsid,scan,timestamp,
 		   ispw,freqs,
 		   fldid);
       Papp.corrupt2(*vb2);
-      //cout << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+      //cerr << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
 
       // Add hoc divideCorrByModel (normally done by VisEquation)
       // NB: formally, should also do weights, but doesn't matter here (point source)
@@ -149,15 +149,15 @@ TEST_F(XJonesTest, XfJonesTest) {
       vCM.set(Complex(1.0));
 
       /*
-      cout << "vCC=" << Vector<Complex>(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0))) 
+      cerr << "vCC=" << Vector<Complex>(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0))) 
 	   << Vector<Float>(phase(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0)))*180.0f/C::pi)
 	   << endl;
-      cout << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+      cerr << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
       */
 
       sdbs.add(*vb2);
 
-      //cout  << endl << endl;
+      //cerr  << endl << endl;
     }
   }
 
@@ -175,8 +175,8 @@ TEST_F(XJonesTest, XfJonesTest) {
   
   Cube<Float> soldiff=amplitude(Xsol.solveAllCPar()-x);
   
-  //cout << "Xsol.solveCPar() = " << phase(Xsol.solveAllCPar())*180/C::pi << endl;
-  //cout << "Diff = " << soldiff  << endl;
+  //cerr << "Xsol.solveCPar() = " << phase(Xsol.solveAllCPar())*180/C::pi << endl;
+  //cerr << "Diff = " << soldiff  << endl;
   
   ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-7)); 
 
@@ -202,7 +202,7 @@ public:
     }
 
     //summary("GlinXphJonesTest");
-    //cout << "x = " << phase(x)*180/C::pi << endl;
+    //cerr << "x = " << phase(x)*180/C::pi << endl;
   }
 
 
@@ -261,12 +261,12 @@ TEST_F(GlinXphJonesTest, GlinXphfJonesTest){
       Xapp.correct2(*vb2,false,false,false);  // (trial?,doWtSp?,dosync?)
 
 
-      //cout << "vCC=" << Vector<Complex>(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0))) << endl;
-      //cout << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+      //cerr << "vCC=" << Vector<Complex>(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+      //cerr << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
 
 
       sdbs.add(*vb2);
-      //cout << "sdb.feedPa() = " << sdbs(sdbs.nSDB()-1).feedPa() << endl;
+      //cerr << "sdb.feedPa() = " << sdbs(sdbs.nSDB()-1).feedPa() << endl;
     }
   }
 
@@ -282,15 +282,15 @@ TEST_F(GlinXphJonesTest, GlinXphfJonesTest){
   // Call the specialized solver
   XYsol.selfSolveOne(sdbs);
 
-  //cout << "srcPolPar() = " << real(XYsol.srcPolPar()) << endl;
+  //cerr << "srcPolPar() = " << real(XYsol.srcPolPar()) << endl;
   ASSERT_NEAR(0.04,real(XYsol.srcPolPar()(0)),1e-3);
   ASSERT_NEAR(0.03,real(XYsol.srcPolPar()(1)),1e-3);
   
   Cube<Complex> soln(XYsol.solveAllCPar()(Slice(0),Slice(),Slice()));
-  //cout << "soln = " << phase(soln.xyPlane(0))*180/C::pi << endl;
+  //cerr << "soln = " << phase(soln.xyPlane(0))*180/C::pi << endl;
 
   Cube<Float> soldiff=amplitude(soln-x);
-  //cout << "Diff = " << soldiff  << endl;
+  //cerr << "Diff = " << soldiff  << endl;
   
   ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-7)); 
 
@@ -299,13 +299,13 @@ TEST_F(GlinXphJonesTest, GlinXphfJonesTest){
 
 
 
-class XparangJonesLINTest : public VisCalTestBase {
+class XfparangJonesLINTest : public VisCalTestBase {
 
 public:
 
   Cube<Complex> x;
 
-  XparangJonesLINTest() :
+  XfparangJonesLINTest() :
     VisCalTestBase(1,10,1,4,4,64,1,true,"lin"),
     //VisCalTestBase(1,3,1,4,4,64,1,true,"lin"),
     x(1,nChan,nAnt,Complex(0.0))
@@ -316,15 +316,15 @@ public:
       x(Slice(),Slice(ich,1,1),Slice())=Complex(cos(a),sin(a));
     }
 
-    //summary("XparangJonesLINTest");
-    //    cout << "x = " << phase(x)*180/C::pi << endl;
+    //summary("XfparangJonesLINTest");
+    //cerr << "x = " << phase(x)*180/C::pi << endl;
   }
 
 
 };
 
 
-TEST_F(XparangJonesLINTest, XfparangJonesTest){
+TEST_F(XfparangJonesLINTest, XfparangJonesTest){
 
   // Apply-able parang
   PJones Papp(msmc);
@@ -345,7 +345,7 @@ TEST_F(XparangJonesLINTest, XfparangJonesTest){
 
   XfparangJones XYsol(msmc);
   Record solvePar;
-  solvePar.define("table",String("test.Xfparang"));
+  solvePar.define("table",String("XfparangJonesLINTest.Xf"));
   solvePar.define("solint",String("inf"));
   solvePar.define("combine",String(""));
   Vector<Int> refant(1,0); solvePar.define("refant",refant);
@@ -382,13 +382,20 @@ TEST_F(XparangJonesLINTest, XfparangJonesTest){
       Papp.corrupt2(*vb2);
 
 
-      //cout << "time=" << timestamp-86400.0*floor(timestamp/86400.0) << endl;
-      //cout << "vCC=" << Vector<Complex>(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0))) << endl;
-      //cout << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+      //cerr << "time=" << timestamp-86400.0*floor(timestamp/86400.0) << endl;
+      //cerr << "vCC=" << Vector<Complex>(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+      //cerr << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
 
+
+      if (scan==2) {
+	Cube<Bool> fC(vb2->flagCube());
+	Cube<Complex> vCC(vb2->visCubeCorrected());
+	fC(1,3,2)=true;
+	vCC(1,3,2)=Complex(50,1);
+      }
 
       sdbs.add(*vb2);
-      //cout << "sdb.feedPa() = " << sdbs(sdbs.nSDB()-1).feedPa() << endl;
+      //cerr << "sdb.feedPa() = " << sdbs(sdbs.nSDB()-1).feedPa() << endl;
     }
   }
 
@@ -411,18 +418,18 @@ TEST_F(XparangJonesLINTest, XfparangJonesTest){
   // Call the specialized solver
   XYsol.selfSolveOne(sdbs);
 
-  //cout << "srcPolPar() = " << real(XYsol.srcPolPar()) << endl;
+  cerr << "srcPolPar() = " << real(XYsol.srcPolPar()) << endl;
   ASSERT_NEAR(0.04,real(XYsol.srcPolPar()(0)),1e-3);
   ASSERT_NEAR(0.03,real(XYsol.srcPolPar()(1)),1e-3);
   
   Cube<Complex> soln(XYsol.solveAllCPar()(Slice(0),Slice(),Slice()));
-  //cout << "soln = " << phase(soln.xyPlane(0))*180/C::pi << endl;
-  //cout << "x = " << phase(x)*180/C::pi << endl;
+  //cerr << "soln = " << phase(soln.xyPlane(0))*180/C::pi << endl;
+  //cerr << "x = " << phase(x)*180/C::pi << endl;
 
   Cube<Float> soldiff=amplitude(soln-x);
-  //cout << "Diff = " << soldiff  << endl;
+  cerr << "maxDiff = " << max(soldiff)  << endl;
   
-  ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-7)); 
+  ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-6)); 
 
   XYsol.keepNCT();
   XYsol.storeNCT();
@@ -431,15 +438,14 @@ TEST_F(XparangJonesLINTest, XfparangJonesTest){
 
 
 
-class XparangJonesCIRCTest : public VisCalTestBase {
+class XfparangJonesCIRCTest : public VisCalTestBase {
 
 public:
 
   Cube<Complex> x;
 
-  XparangJonesCIRCTest() :
+  XfparangJonesCIRCTest() :
     VisCalTestBase(1,10,1,4,4,64,1,true,"circ"),
-    //VisCalTestBase(1,3,1,4,4,64,1,true,"lin"),
     x(1,nChan,nAnt,Complex(0.0))
   {
     for (Int ich=0;ich<nChan;++ich) {
@@ -448,15 +454,15 @@ public:
       x(Slice(),Slice(ich,1,1),Slice())=Complex(cos(a),sin(a));
     }
 
-    //summary("XparangJonesCIRCTest");
-    //    cout << "x = " << phase(x)*180/C::pi << endl;
+    //summary("XfparangJonesCIRCTest");
+    //cerr << "x = " << phase(x)*180/C::pi << endl;
   }
 
 
 };
 
 
-TEST_F(XparangJonesCIRCTest, XfparangJonesTest){
+TEST_F(XfparangJonesCIRCTest, XfparangJonesTest){
 
   // Apply-able parang
   PJones Papp(msmc);
@@ -477,7 +483,7 @@ TEST_F(XparangJonesCIRCTest, XfparangJonesTest){
 
   XfparangJones XYsol(msmc);
   Record solvePar;
-  solvePar.define("table",String("test.Xfparang"));
+  solvePar.define("table",String("XfparangJonesCIRCTest.Xf"));
   solvePar.define("solint",String("inf"));
   solvePar.define("combine",String(""));
   Vector<Int> refant(1,0); solvePar.define("refant",refant);
@@ -498,14 +504,27 @@ TEST_F(XparangJonesCIRCTest, XfparangJonesTest){
 
       vb2->resetWeightsUsingSigma();
 
-      Cube<Complex> vC(vb2->visCube());
+      Cube<Complex> vC(vb2->visCube()), vCM(vb2->visCubeModel());
       vb2->setVisCubeCorrected(vC);
       vb2->setFlagCube(vb2->flagCube());
+
+
+      Cube<Complex> vCC(vb2->visCubeCorrected());
+      Cube<Complex> vC1(vCC(Slice(1),Slice(),Slice()));
+      vC1+=Complex(0.1,0.2);
+      Cube<Complex> vC2(vCC(Slice(2),Slice(),Slice()));
+      vC2+=Complex(0.1,-0.2);
+
+
 
       Xapp.setMeta(obsid,scan,timestamp,
 		   ispw,freqs,
 		   fldid);
       Xapp.correct2(*vb2,false,false,false);  // (trial?,doWtSp?,dosync?)
+
+
+      //cerr << "Forcing Q=1, U=0!!!!!!!!!!!!!" << endl;
+      //vCM(Slice(1,2,1),Slice(),Slice()).set(Complex(1.0));
 
 
       Papp.setMeta(obsid,scan,timestamp,
@@ -514,13 +533,25 @@ TEST_F(XparangJonesCIRCTest, XfparangJonesTest){
       Papp.corrupt2(*vb2);
 
 
-      //cout << "time=" << timestamp-86400.0*floor(timestamp/86400.0) << endl;
-      //cout << "vCC=" << Vector<Complex>(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0))) << endl;
-      //cout << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+      if (scan==2) {
+	Cube<Bool> fC(vb2->flagCube());
+	fC(1,3,2)=true;
+	//fC(2,3,2)=true;
+	vCC(1,3,2)=Complex(500,1);
+      }
+
+
+      //      cerr << "C="<< vCC(Slice(),Slice(0),Slice(0)).nonDegenerate() << " M=" << vCM(Slice(),Slice(0),Slice(0)).nonDegenerate() << endl;
+
+
+
+      //cerr << "time=" << timestamp-86400.0*floor(timestamp/86400.0) << endl;
+      //cerr << "vCC=" << Vector<Complex>(vb2->visCubeCorrected()(Slice(),Slice(nChan/2),Slice(0))) << endl;
+      //cerr << "vCM=" << Vector<Complex>(vb2->visCubeModel()(Slice(),Slice(nChan/2),Slice(0))) << endl;
 
 
       sdbs.add(*vb2);
-      //cout << "sdb.feedPa() = " << sdbs(sdbs.nSDB()-1).feedPa() << endl;
+      //cerr << "sdb.feedPa() = " << sdbs(sdbs.nSDB()-1).feedPa() << endl;
     }
   }
 
@@ -543,20 +574,20 @@ TEST_F(XparangJonesCIRCTest, XfparangJonesTest){
   // Call the specialized solver
   XYsol.selfSolveOne(sdbs);
 
-  cout << "srcPolPar() = " << real(XYsol.srcPolPar()) << endl;
-  //ASSERT_NEAR(0.04,real(XYsol.srcPolPar()(0)),1e-3);
-  //ASSERT_NEAR(0.03,real(XYsol.srcPolPar()(1)),1e-3);
+  cerr << "srcPolPar() = " << real(XYsol.srcPolPar()) << endl;
+  ASSERT_NEAR(0.05,real(XYsol.srcPolPar()(0)),1e-5);
+  ASSERT_NEAR(0.00,real(XYsol.srcPolPar()(1)),1e-5);
   
   Cube<Complex> soln(XYsol.solveAllCPar()(Slice(0),Slice(),Slice()));
-  //cout << "soln = " << phase(soln.xyPlane(0))*180/C::pi << endl;
-  //cout << "x = " << phase(x)*180/C::pi << endl;
+  //cerr << "soln = " << phase(soln.xyPlane(0))*180/C::pi << endl;
+  //cerr << "x = " << phase(x)*180/C::pi << endl;
 
   Cube<Float> soldiff=amplitude(soln-x);
-  //cout << "Diff = " << soldiff  << endl;
+  cerr << "maxDiff = " << max(soldiff)  << endl;
   
-  //ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-7)); 
+  ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-6)); 
 
-  //XYsol.keepNCT();
-  //XYsol.storeNCT();
+  XYsol.keepNCT();
+  XYsol.storeNCT();
 
 }

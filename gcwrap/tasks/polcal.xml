@@ -127,6 +127,8 @@ calibrations can be applied on the fly.
                         <value>Dflls</value>
 			<value>X</value>
 			<value>Xf</value>
+			<value>Xparang+QU</value>
+			<value>Xfparang+QU</value>
 			<value>Xj</value>
 		</allowed>
 	</param>

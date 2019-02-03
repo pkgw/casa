@@ -111,6 +111,7 @@ public:
 
   // VB2-like data access methods (mostly const)
   casacore::Int nRows() const { return vb_->nRows(); };
+  casacore::Int nAntennas() const { return nAnt_; };  // stored on ctor
   const casacore::Vector<int>& observationId() const { return vb_->observationId(); };
   const casacore::Vector<casacore::Int>& arrayId() const { return vb_->arrayId(); };
   const casacore::Vector<casacore::Int>& antenna1() const { return vb_->antenna1(); };
@@ -122,7 +123,7 @@ public:
   const casacore::Vector<casacore::Double>& timeCentroid() const { return vb_->timeCentroid(); };
   const casacore::Vector<casacore::Int>& fieldId() const { return vb_->fieldId(); };
   casacore::Int nChannels() const { return vb_->nChannels(); };
-  const casacore::Vector<casacore::Double>& freqs() const { return freqs_; };
+  const casacore::Vector<casacore::Double>& freqs() const { return freqs_; };  // stored on ctor
   casacore::Int nCorrelations() const { return vb_->nCorrelations(); };
   const casacore::Cube<casacore::Complex>& visCubeModel() const { return vb_->visCubeModel(); };
   const casacore::Cube<casacore::Complex>& visCubeCorrected() const { return vb_->visCubeCorrected(); };
@@ -180,6 +181,9 @@ private:
   // The underlying VisBuffer2
   vi::VisBuffer2* vb_;
 
+  // The number of antennas 
+  casacore::Int nAnt_;
+
   // The frequencies
   //  Currently, assumed uniform over rows
   casacore::Vector<double> freqs_;
@@ -211,6 +215,8 @@ private:
   casacore::Cube<casacore::Complex> residuals_p;
   casacore::Cube<casacore::Bool> residFlagCube_p;
   casacore::Array<casacore::Complex> diffResiduals_p;
+
+
 };
 
 
@@ -244,10 +250,13 @@ public:
   // Return pol basis
   casacore::String polBasis() const;
 
+  // How many antennas 
+  //   Currently, this insists on uniformity over all SDBs
+  int nAntennas() const;
+
   // How man correlations
   //   Currently, this insists on uniformity over all SDBs
   int nCorrelations() const;
-
 
   // How many data chans?
   //   Currently, this insists on uniformity over all SDBs
@@ -275,6 +284,11 @@ public:
 
   // Print out data, weights, flags for debugging purposes
   void reportData();
+  
+  // Extend baseline-dependent flags to all SDBs in the list
+  //  This uniformizes the baseline-dependent flags
+  //  NB: Cross-hands only, for now!
+  void extendBaselineFlags();
 
 private:
 

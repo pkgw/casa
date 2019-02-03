@@ -500,6 +500,14 @@ SolvableVisCal* createSolvableVisCal(const String& type, const MSMetaInfoForCal&
 	   uptype=="XYF+QU")
     return new GlinXphfJones(msmc);
 
+  else if (uptype=="XPARANG" || uptype=="XPARANG JONES" ||
+	   uptype=="XPARANG+QU")
+    return new XparangJones(msmc);
+
+  else if (uptype=="XFPARANG" || uptype=="XFPARANG JONES" ||
+	   uptype=="XFPARANG+QU")
+    return new XfparangJones(msmc);
+
   else if (uptype=="KMBD" || uptype=="KMBD JONES")
     return new KMBDJones(msmc);
 

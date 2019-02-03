@@ -1429,6 +1429,15 @@ void XparangJones::solveOne(SDBList& sdbs) {
   // Number of datapoints in fit is the number of SDBs
   Int nSDB=sdbs.nSDB();
 
+
+  // This uniformizes the baseline-dep flags over all times (sdbs)
+  //  (~ensures minimally undistorted solution below, which uses average over baseline)
+  sdbs.extendBaselineFlags();
+
+  if (sdbs.polBasis()==String("LIN")) {
+
+  logSink() << "Solving for Cross-hand Phase and calibrator linear polarization in the LINEAR basis" << LogIO::POST;
+
   Matrix<Double> x(nSDB,nChan,0.0),y(nSDB,nChan,0.0),wt(nSDB,nChan,0.0),sig(nSDB,nChan,0.0);
   Matrix<Bool> mask(nSDB,nChan,false);
 
@@ -1436,11 +1445,6 @@ void XparangJones::solveOne(SDBList& sdbs) {
   Complex v(0.0);
   Float wt0(0.0);
   
-  cout << "polBasis=" << sdbs.polBasis() << endl;
-
-
-  if (sdbs.polBasis()==String("LIN")) {
-
   for (Int isdb=0;isdb<nSDB;++isdb) {
     SolveDataBuffer& sdb(sdbs(isdb));
 
@@ -1490,7 +1494,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
   for (Int ich=0;ich<nChan;++ich) {
 
     if (sum(wt.column(ich))>0.0) {
-      report=true;
+      //      report=true;
       LinearFit<Double> phfitter;
       Polynomial<AutoDiff<Double> > line(1);
       phfitter.setFunction(line);
@@ -1518,15 +1522,15 @@ void XparangJones::solveOne(SDBList& sdbs) {
 
       // Watch for and remove ambiguity changes which can
       //  occur near Xph~= +/-90 deg (the atan above can jump)
-      //  (NB: this does _not_ resolve the amb; it merely makes
-      //   it consistent within the spw)
+      //  (NB: this does _not_ resolve the absolute amb; it merely makes
+      //   it consistent within the spw over channels)
       if (ich>0) {
 	// If Xph changes by more than pi/2, probably a ambig jump...
 	Float dang=abs(arg(Cph(ich)/Cph(ich-1)));
 	if (dang > (C::pi/2.)) {
 	  Cph(ich)*=-1.0;   // fix this one
 	  currAmb*=-1.0;    // reverse currAmb, so curr amb is carried forward
-	  cout << "  Found XY phase ambiguity jump at chan=" << ich << " in spw=" << currSpw() << endl;
+	  //cout << "  Found XY phase ambiguity jump at chan=" << ich << " in spw=" << currSpw() << endl;
 	}
       }
 
@@ -1542,12 +1546,14 @@ void XparangJones::solveOne(SDBList& sdbs) {
       solveCPar()(Slice(0,1,1),Slice(ich,1,1),Slice())=Complex(1.0);
       solveParOK()(Slice(),Slice(ich,1,1),Slice())=false;
     }
-  }
+  } // ichan 
 
   // Calculate correlation with model data (real part only!), insist it is positive
   {
 
 
+    logSink() << "Attempting 180 deg ambiguity resolution by comparison with specified linear polarization model." << LogIO::POST;
+      
     Vector<Double> wtf(nSDB,0.0); //,sigf(nSDB,0.0),xf(nSDB,0.0),yf(nSDB,0.0);
     //Vector<Bool> maskf(nSDB,false);
     Float wt0;
@@ -1561,8 +1567,6 @@ void XparangJones::solveOne(SDBList& sdbs) {
       for (Int irow=0;irow<sdb.nRows();++irow) {
 	if (!sdb.flagRow()(irow) &&
 	    sdb.antenna1()(irow)!=sdb.antenna2()(irow)) {
-	  
-	  Float fpa(sdb.feedPa()(0));  // assumes same for all antennas!
 	  
 	  for (Int ich=0;ich<nChan;++ich) {
 	    
@@ -1590,10 +1594,10 @@ void XparangJones::solveOne(SDBList& sdbs) {
     }
 
 
-    cout << "Cp,Cn = " << Cp << " " << Cn << endl;
+    //cout << "Cp,Cn = " << Cp << " " << Cn << endl;
 
     if ( Cn > Cp ) {
-      cout << "180 deg ambiguity found and corrected!" << endl;
+      logSink() << "180 deg ambiguity detected and corrected!" << LogIO::POST;
       Complex swap(-1.0,0.0);
       Cph*=swap;
       
@@ -1605,12 +1609,13 @@ void XparangJones::solveOne(SDBList& sdbs) {
 
   }
 
+
   if (ntrue(solveParOK())>0) {
     Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*180.0/C::pi;
 
     logSink() << "Fld = " << msmc().fieldName(currField())
 	      << ", Spw = " << thisSpw
-	      << " (ich=" << nChan/2 << "/" << nChan << "): " << endl
+	      << " (ich=" << nChan/2 << "/" << nChan << "): " //<< endl
 	      << " Cross-hand phase = " << arg(Cph[nChan/2])*180.0/C::pi << " deg."
 	      << " (Mean = " << ang << ")"
 	      << LogIO::POST;
@@ -1625,7 +1630,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
   if (report)
     cout << endl 
 	 << "Spw = " << thisSpw
-	 << " (ich=" << nChan/2 << "/" << nChan << "): " << endl
+	 << " (ich=" << nChan/2 << "/" << nChan << "): " // << endl
 	 << " X-Y phase = " << arg(Cph[nChan/2])*180.0/C::pi << " deg." << endl;
       
 
@@ -1698,30 +1703,203 @@ void XparangJones::solveOne(SDBList& sdbs) {
     QU_(0,thisSpw) = soln(0);
     QU_(1,thisSpw) = soln(1);
 
-    cout << " Fractional Poln: "
-	 << "Q = " << QU_(0,thisSpw) << ", "
-	 << "U = " << QU_(1,thisSpw) << "; "
-	 << "P = " << sqrt(soln(0)*soln(0)+soln(1)*soln(1)) << ", "
-	 << "X = " << atan2(soln(1),soln(0))*90.0/C::pi << "deg."
-	 << endl;
-    cout << " Net (over baselines) instrumental polarization: " 
-	 << soln(2) << endl;
+    Float &Q(QU_(0,thisSpw)), &U(QU_(1,thisSpw));
 
-  }	
+
+    logSink() << " Fractional Poln: "
+	      << "Q = " << Q << ", "
+	      << "U = " << U << "; "
+	      << "P = " << sqrt(Q*Q+U*U) << ", "
+	      << "X = " << atan2(U,Q)*90.0/C::pi << "deg."
+	      << LogIO::POST;
+    logSink() << " Net (over baselines) instrumental polarization (real part): " 
+	      << soln(2) << LogIO::POST;
+
+  } // poln solve scope	
 
   }
   else if (sdbs.polBasis()==String("CIRC")) {
 
-    cout << "CIRCULAR BASIS!!!" << endl;
+  logSink() << "Solving for Cross-hand Phase and calibrator linear polarization in the CIRCULAR basis" << LogIO::POST;
 
+  Matrix<Complex> V(nSDB,nChan,0.0),M(nSDB,nChan,0.0);
+  Matrix<Float> Wt(nSDB,nChan,0.0); // ,sig(nSDB,nChan,0.0);
+  Matrix<Bool> mask(nSDB,nChan,false);
 
+  mask.set(false);
+  Complex v(0.0),m(0.0);
+  Float wt0(0.0);
+  
+  for (Int isdb=0;isdb<nSDB;++isdb) {
+    SolveDataBuffer& sdb(sdbs(isdb));
+
+    for (Int irow=0;irow<sdb.nRows();++irow) {
+      if (!sdb.flagRow()(irow) &&
+	  sdb.antenna1()(irow)!=sdb.antenna2()(irow)) {
+	
+	for (Int ich=0;ich<nChan;++ich) {
+	  if (!sdb.flagCube()(1,ich,irow)) {
+	    wt0=sdb.weightSpectrum()(1,ich,irow);
+	    v=sdb.visCubeCorrected()(1,ich,irow);
+	    m=sdb.visCubeModel()(1,ich,irow);
+	    V(isdb,ich)+=Complex(wt0*v);
+	    M(isdb,ich)+=Complex(wt0*m);
+	    Wt(isdb,ich)+=wt0;
+	  }
+	  if (!sdb.flagCube()(2,ich,irow)) {
+	    wt0=sdb.weightSpectrum()(2,ich,irow);
+	    v=conj(sdb.visCubeCorrected()(2,ich,irow));
+	    m=conj(sdb.visCubeModel()(2,ich,irow));
+	    V(isdb,ich)+=Complex(wt0*v);
+	    M(isdb,ich)+=Complex(wt0*m);
+	    Wt(isdb,ich)+=wt0;
+	  }
+	}
+      }
+    }
   }
+
+  // Normalize data by accumulated weights
+  for (Int isdb=0;isdb<nSDB;++isdb) {
+    for (Int ich=0;ich<nChan;++ich) {
+      if (Wt(isdb,ich)>0.0) {
+	V(isdb,ich)/=Wt(isdb,ich);
+	M(isdb,ich)/=Wt(isdb,ich);
+	mask(isdb,ich)=true;
+      }
+    }
+  }
+
+  // Now solve for cross-hand phase in each channel
+  Vector<Complex> Cph(nChan);
+  Cph.set(Complex(1.0,0.0));
+  for (Int ich=0;ich<nChan;++ich) {
+
+    if (sum(Wt.column(ich))>0.0) {
+
+      LSQFit fit(2,LSQComplex());
+      Vector<Complex> ce(2);
+      ce(0)=Complex(1.0);
+      
+      for (int isdb=0;isdb<nSDB;++isdb) {
+	ce(1)=M(isdb,ich);
+	fit.makeNorm(ce.data(),Wt(isdb,ich),V(isdb,ich),LSQFit::COMPLEX);
+      }
+
+      uInt rank;
+      Bool ok = fit.invert(rank);
+      DComplex sol[2];
+      if (ok)
+	fit.solve(sol);
+      else
+	throw(AipsError("Source polarization solution is singular; try solving for D-terms only."));
+
+      //cout << "ich=" << ich << "  sol = " << sol[0] << "," << sol[1] << "   P=" << abs(sol[1]) << "   X=" << arg(sol[1])*180/C::pi << endl;
+
+      Cph[ich]=sol[1]/abs(sol[1]);   // phase-only as complex number
+
+      // Set all antennas with this X-Y phase (as a complex number)
+      solveCPar()(Slice(0,1,1),Slice(ich,1,1),Slice())=Cph(ich);
+      solveParOK()(Slice(),Slice(ich,1,1),Slice())=true;
+    }
+    else {
+      // In sufficient data, phase=0.0, flagged
+      solveCPar()(Slice(0,1,1),Slice(ich,1,1),Slice())=Complex(1.0);
+      solveParOK()(Slice(),Slice(ich,1,1),Slice())=false;
+    }
+  }  // ICH
+
+  if (ntrue(solveParOK())>0) {
+    Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*180.0/C::pi;
+
+    logSink() << "Fld = " << msmc().fieldName(currField())
+	      << ", Spw = " << thisSpw
+	      << " (ich=" << nChan/2 << "/" << nChan << "): "  // << endl
+	      << " Cross-hand phase = " << arg(Cph[nChan/2])*180.0/C::pi << " deg."
+	      << " (Mean = " << ang << ")"
+	      << LogIO::POST;
+  }
+  else
+    logSink() << "Fld = " << msmc().fieldName(currField())
+	      << ", Spw = " << thisSpw
+	      << " (ich=" << nChan/2 << "/" << nChan << "): " << endl
+	      << " Cross-hand phase was not determined (insufficient data)."
+	      << LogIO::POST;
+
+  if (false)
+    cout << endl 
+	 << "Spw = " << thisSpw
+	 << " (ich=" << nChan/2 << "/" << nChan << "): " // << endl
+	 << " X-Y phase = " << arg(Cph[nChan/2])*180.0/C::pi << " deg." << endl;
+      
+
+
+  // Now solve for QU (chan-aved)
+  {
+    LSQFit fit(2,LSQComplex());
+    Vector<Complex> ce(2);
+    ce(0)=Complex(1.0);
+      
+    Vector<Complex> V2(nSDB,Complex(0.0)), M2(nSDB,Complex(0.0));
+    Vector<Float> Wt2(nSDB,0.0f);
+    for (int isdb=0;isdb<nSDB;++isdb) {
+      // Accumulate along channel axis
+      for (Int ich=0;ich<nChan;++ich) {
+	if (Wt(isdb,ich)>0.0f) {
+	  V2[isdb]+=(Wt(isdb,ich)*V(isdb,ich)/Cph[ich]);   // include cross-hand phase correction
+	  M2[isdb]+=(Wt(isdb,ich)*M(isdb,ich)/abs(M(isdb,ich)));   // Divide by user-supplied |P|
+	  Wt2[isdb]+=Wt(isdb,ich);
+	}
+      }
+      // finalize averages
+      if (Wt2[isdb]>0.0) {
+	V2[isdb]/=Wt2[isdb];
+	M2[isdb]/=Wt2[isdb];
+      }
+      
+      ce(1)=M2(isdb);
+      fit.makeNorm(ce.data(),Wt2(isdb),V2(isdb),LSQFit::COMPLEX);
+
+    }
+
+    uInt rank;
+    Bool ok = fit.invert(rank);
+    DComplex sol[2];
+    if (ok)
+      fit.solve(sol);
+    else
+      throw(AipsError("Source polarization solution is singular; try solving for D-terms only."));
+
+    //cout << "sol = " << sol[0] << "," << sol[1] << "   P=" << abs(sol[1]) << "   X=" << arg(sol[1])*90.0/C::pi << endl;
+
+
+    srcPolPar().resize(2);
+    srcPolPar()(0)=real(sol[1]);
+    srcPolPar()(1)=imag(sol[1]);
+        
+    QU_(0,thisSpw) = real(sol[1]);
+    QU_(1,thisSpw) = imag(sol[1]);
+
+    Float &Q(QU_(0,thisSpw)), &U(QU_(1,thisSpw));
+
+    logSink() << " Fractional Poln: "
+	      << "Q = " << Q << ", "
+	      << "U = " << U << "; "
+	      << "P = " << sqrt(Q*Q+U*U) << ", "
+	      << "X = " << atan2(U,Q)*90.0/C::pi << "deg."
+	      << LogIO::POST;
+    logSink() << " Net (over baselines) instrumental polarization: " 
+	      << abs(sol[0]) << LogIO::POST;
+
+
+  } // Circ QU solve
+
+  } // basis clauses
   else {
 
     throw(AipsError("Cannot solve for cross-hand phase, don't know basis"));
   }
 
-  cout << "End" << endl;
 
 }
 
