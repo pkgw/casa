@@ -2074,10 +2074,6 @@ void FringeJones::setSolve(const Record& solve) {
              << "FringeJones::refant() = "<< refant() <<endl
              << "FringeJones::refantlist() = "<< refantlist() <<endl;
     }
-
-    // if (!ct_)
-    //    throw(AipsError("No calibration table specified"));
-    // cerr << "setSolve here, ct_: "<< ct_ << endl;
     if (solve.isDefined("zerorates")) {
         zeroRates() = solve.asBool("zerorates");
     }
