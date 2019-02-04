@@ -3643,9 +3643,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {
         LatticeExpr<Float> themask;
         if (combinemask && imstore->hasMask()) { 
+          os<<"MAKE combined PB mask"<<LogIO::POST;
 	  themask = LatticeExpr<Float> ( iif( (*(imstore->pb())) > pblimit, *(imstore->mask()), 0.0 ) );
         }
         else {
+          os<<"MAKE PB mask"<<LogIO::POST;
 	  themask = LatticeExpr<Float> ( iif( (*(imstore->pb())) > pblimit , 1.0, 0.0 ) );
         }
 	imstore->mask()->copyData( themask );
