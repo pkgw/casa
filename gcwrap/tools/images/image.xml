@@ -9975,8 +9975,8 @@ lags don't have a lot of contributing values of course.
 <example> 
  
 """
-ia.maketestimage()
-ia.twopointcorrelation()
+ia.maketestimage("test.image")
+ia.twopointcorrelation("2pt.image")
 ia.done()
 """
  
