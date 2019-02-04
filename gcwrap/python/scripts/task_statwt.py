@@ -5,8 +5,8 @@ import flaghelper
 def statwt(
     vis, selectdata, field, spw, intent, array, observation, scan,
     combine, timebin, slidetimebin, chanbin, minsamp, statalg,
-    fence, center, lside, zscore, maxiter, fitspw, wtrange,
-    flagbackup, preview, datacolumn
+    fence, center, lside, zscore, maxiter, fitspw, excludechans,
+    wtrange, flagbackup, preview, datacolumn
 ):
     casalog.origin('statwt')
     if not selectdata:
@@ -56,7 +56,7 @@ def statwt(
             slidetimebin=slidetimebin, chanbin=chanbin,
             minsamp=minsamp, statalg=statalg, fence=fence,
             center=center, lside=lside, zscore=zscore,
-            maxiter=maxiter, fitspw=fitspw,
+            maxiter=maxiter, fitspw=fitspw, excludechans=excludechans,
             wtrange=wtrange, preview=preview, datacolumn=datacolumn
         )
         
